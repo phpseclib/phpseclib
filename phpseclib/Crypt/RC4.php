@@ -55,7 +55,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RC4.php,v 1.1 2007-07-02 04:19:47 terrafrost Exp $
+ * @version    $Id: RC4.php,v 1.2 2007-07-23 05:21:39 terrafrost Exp $
  * @link       http://pear.php.net/package/Crypt_RC4
  */
 
@@ -140,6 +140,15 @@ class Crypt_RC4 {
     var $decryptIndex = 0;
 
     /**
+     * MCrypt parameters
+     *
+     * @see Crypt_RC4::setMCrypt()
+     * @var Array
+     * @access private
+     */
+    var $mcrypt = array('', '');
+
+    /**
      * The Encryption Algorithm
      *
      * Only used if CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT.  Only possible values are MCRYPT_RC4 or MCRYPT_ARCFOUR.
@@ -168,19 +177,21 @@ class Crypt_RC4 {
                     // but since that can be changed after the object has been created, there doesn't seem to be
                     // a lot of point...
                     define('CRYPT_RC4_MODE', CRYPT_RC4_MODE_MCRYPT);
-                    switch (true) {
-                        case defined('MCRYPT_ARCFOUR'):
-                            $this->mode = MCRYPT_ARCFOUR;
-                            break;
-                        case defined('MCRYPT_RC4');
-                            $this->mode = MCRYPT_RC4;
-                    }
-                    $this->encryptStream = @mcrypt_module_open($this->mode, '', MCRYPT_MODE_STREAM, '');
-                    $this->decryptStream = @mcrypt_module_open($this->mode, '', MCRYPT_MODE_STREAM, '');
                     break;
                 default:
                     define('CRYPT_RC4_MODE', CRYPT_RC4_MODE_INTERNAL);
             }
+        }
+
+        switch ( CRYPT_RC4_MODE ) {
+            case CRYPT_RC4_MODE_MCRYPT:
+                switch (true) {
+                    case defined('MCRYPT_ARCFOUR'):
+                        $this->mode = MCRYPT_ARCFOUR;
+                        break;
+                    case defined('MCRYPT_RC4');
+                        $this->mode = MCRYPT_RC4;
+                }
         }
     }
 
@@ -188,18 +199,7 @@ class Crypt_RC4 {
      * Sets the key.
      *
      * Keys can be between 1 and 256 bytes long.  If they are longer then 256 bytes, the first 256 bytes will
-     * be used.  If no key is explicitly set, it'll be assumed to be a single null byte.  Some protocols, such
-     * as WEP, prepend an "initialization vector" to the key, effectively creating a new key [1].  If you need
-     * to use an initialization vector in this manner, feel free to preend it to the key, yourself, before
-     * calling this function.
-     *
-     * [1] WEP's initialization vectors (IV's) are used in a somewhat insecure way.  Since, in that protocol,
-     * the IV's are relatively easy to predict, an attack described by
-     * {@link http://www.drizzle.com/~aboba/IEEE/rc4_ksaproc.pdf Scott Fluhrer, Itsik Mantin, and Adi Shamir}
-     * can be used to quickly guess at the rest of the key.  The following links elaborate:
-     *
-     * {@link http://www.rsa.com/rsalabs/node.asp?id=2009 http://www.rsa.com/rsalabs/node.asp?id=2009}
-     * {@link http://en.wikipedia.org/wiki/Related_key_attack http://en.wikipedia.org/wiki/Related_key_attack}
+     * be used.  If no key is explicitly set, it'll be assumed to be a single null byte.
      *
      * @access public
      * @param String $key
@@ -230,6 +230,29 @@ class Crypt_RC4 {
     }
 
     /**
+     * Dummy function.
+     *
+     * Some protocols, such as WEP, prepend an "initialization vector" to the key, effectively creating a new key [1].
+     * If you need to use an initialization vector in this manner, feel free to prepend it to the key, yourself, before
+     * calling setKey().
+     *
+     * [1] WEP's initialization vectors (IV's) are used in a somewhat insecure way.  Since, in that protocol,
+     * the IV's are relatively easy to predict, an attack described by
+     * {@link http://www.drizzle.com/~aboba/IEEE/rc4_ksaproc.pdf Scott Fluhrer, Itsik Mantin, and Adi Shamir}
+     * can be used to quickly guess at the rest of the key.  The following links elaborate:
+     *
+     * {@link http://www.rsa.com/rsalabs/node.asp?id=2009 http://www.rsa.com/rsalabs/node.asp?id=2009}
+     * {@link http://en.wikipedia.org/wiki/Related_key_attack http://en.wikipedia.org/wiki/Related_key_attack}
+     *
+     * @param String $iv
+     * @see Crypt_RC4::setKey()
+     * @access public
+     */
+    function setIV($iv)
+    {
+    }
+
+    /**
      * Sets MCrypt parameters. (optional)
      *
      * If MCrypt is being used, empty strings will be used, unless otherwise specified.
@@ -241,8 +264,10 @@ class Crypt_RC4 {
      */
     function setMCrypt($algorithm_directory, $mode_directory)
     {
-        $this->encryptStream = @mcrypt_module_open($this->mode, $algorithm_directory, MCRYPT_MODE_STREAM, $mode_directory);
-        $this->decryptStream = @mcrypt_module_open($this->mode, $algorithm_directory, MCRYPT_MODE_STREAM, $mode_directory);
+        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
+            $this->mcrypt = array($algorithm_directory, $mode_directory);
+            $this->_closeMCrypt();
+        }
     }
 
     /**
@@ -280,6 +305,23 @@ class Crypt_RC4 {
      * @param Integer $mode
      */
     function _crypt($text, $mode) {
+        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
+            $keyStream = $mode == CRYPT_RC4_ENCRYPT ? 'encryptStream' : 'decryptStream';
+
+            if ($this->$keyStream === false) {echo "crypt-toe'ing $keyStream";
+                $this->$keyStream = mcrypt_module_open($this->mode, $this->mcrypt[0], MCRYPT_MODE_STREAM, $this->mcrypt[1]);
+                mcrypt_generic_init($this->$keyStream, $this->key, '');
+            } else if (!$this->continuousBuffer) {
+                mcrypt_generic_init($this->$keyStream, $this->key, '');
+            }
+            $newText = mcrypt_generic($this->$keyStream, $text);
+            if (!$this->continuousBuffer) {
+                mcrypt_generic_deinit($this->$keyStream);
+            }
+
+            return $newText;
+        }
+
         switch ($mode) {
             case CRYPT_RC4_ENCRYPT:
                 $keyStream = $this->encryptStream;
@@ -288,18 +330,6 @@ class Crypt_RC4 {
             case CRYPT_RC4_DECRYPT:
                 $keyStream = $this->decryptStream;
                 list($i, $j) = $this->decryptIndex;
-        }
-
-        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
-            if (!$this->continuousBuffer) {
-                mcrypt_generic_init($keyStream, $this->key, '');
-            }
-            $newText = mcrypt_generic($keyStream, $text);
-            if (!$this->continuousBuffer) {
-                mcrypt_generic_deinit($keyStream);
-            }
-
-            return $newText;
         }
 
         $newText = '';
@@ -367,14 +397,6 @@ class Crypt_RC4 {
      */
     function enableContinuousBuffer()
     {
-        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
-            $this->encryptStream = mcrypt_module_open($this->mode, $this->mcrypt[0], MCRYPT_MODE_STREAM, $this->mcrypt[1]);
-            $this->decryptStream = mcrypt_module_open($this->mode, $this->mcrypt[0], MCRYPT_MODE_STREAM, $this->mcrypt[1]);
-
-            mcrypt_generic_init($this->encryptStream, $this->key, '');
-            mcrypt_generic_init($this->decryptStream, $this->key, '');
-        }
-
         $this->continuousBuffer = true;
     }
 
@@ -397,6 +419,29 @@ class Crypt_RC4 {
     }
 
     /**
+     * Dummy function.
+     *
+     * Since RC4 is a stream cipher and not a block cipher, no padding is necessary.  The only reason this function is
+     * included is so that you can switch between a block cipher and a stream cipher transparently.
+     *
+     * @see Crypt_RC4::disablePadding()
+     * @access public
+     */
+    function enablePadding()
+    {
+    }
+
+    /**
+     * Dummy function.
+     *
+     * @see Crypt_RC4::enablePadding()
+     * @access public
+     */
+    function disablePadding()
+    {
+    }
+
+    /**
      * Class destructor.
      *
      * Will be called, automatically, if you're using PHP5.  If you're using PHP4, call it yourself.  Only really
@@ -404,18 +449,38 @@ class Crypt_RC4 {
      *
      * @access public
      */
-    function __destruct() {
-        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT && isset($this->encryptStream) ) {
+    function __destruct()
+    {
+        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
+            $this->_closeMCrypt();
+        }
+    }
+
+    /**
+     * Properly close the MCrypt objects.
+     *
+     * @access prviate
+     */
+    function _closeMCrypt()
+    {
+        if ( $this->encryptStream !== false ) {
             if ( $this->continuousBuffer ) {
                 mcrypt_generic_deinit($this->encryptStream);
-                mcrypt_generic_deinit($this->decryptStream);
             }
 
             mcrypt_module_close($this->encryptStream);
+
+            $this->encryptStream = false;
+        }
+
+        if ( $this->decryptStream !== false ) {
+            if ( $this->continuousBuffer ) {
+                mcrypt_generic_deinit($this->decryptStream);
+            }
+
             mcrypt_module_close($this->decryptStream);
 
-            unset($this->encryptStream);
-            unset($this->decryptStream);
+            $this->decryptStream = false;
         }
     }
 }

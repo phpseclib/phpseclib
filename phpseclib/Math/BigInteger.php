@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.1 2007-07-02 04:19:47 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.2 2007-07-23 05:21:39 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -1076,7 +1076,7 @@ class Math_BigInteger {
                 return false;
             }
 
-            return $temp->modPow($e,$n);
+            return $temp->modPow($e, $n);
         }
 
         switch ( MATH_BIGINTEGER_MODE ) {
@@ -1158,9 +1158,6 @@ class Math_BigInteger {
      * however, this function performs a modular reduction after every multiplication and squaring operation.
      * As such, this function has the same preconditions that the reductions being used do.
      *
-     * The window size is calculated in the same fashion that the window size in BigInteger.java's oddModPow
-     * function is.
-     *
      * @param Math_BigInteger $e
      * @param Math_BigInteger $n
      * @param Integer $mode
@@ -1169,7 +1166,8 @@ class Math_BigInteger {
      */
     function _slidingWindow($e, $n, $mode)
     {
-        static $window_ranges = array(7, 25, 81, 241, 673, 1793);
+        static $window_ranges = array(7, 25, 81, 241, 673, 1793); // from BigInteger.java's oddModPow function
+        //static $window_ranges = array(0, 7, 36, 140, 450, 1303, 3529); // from MPM 7.3.1
 
         $e_length = count($e->value) - 1;
         $e_bits = decbin($e->value[$e_length]);
@@ -1227,13 +1225,13 @@ class Math_BigInteger {
         $result = $result->$undo($n);
 
         for ($i = 0; $i < $e_length; ) {
-            if ( !$e_bits{$i} ) {
+            if ( !$e_bits[$i] ) {
                 $result = $result->_square();
                 $result = $result->$reduce($n);
                 $i++;
             } else {
                 for ($j = $window_size - 1; $j >= 0; $j--) {
-                    if ( $e_bits{$i + $j} ) {
+                    if ( $e_bits[$i + $j] ) {
                         break;
                     }
                 }
@@ -2091,8 +2089,8 @@ class Math_BigInteger {
 
         $carry = 0;
         for ($i = strlen($x) - 1; $i >= 0; $i--) {
-            $temp = ord($x{$i}) << $shift | $carry;
-            $x{$i} = chr($temp);
+            $temp = ord($x[$i]) << $shift | $carry;
+            $x[$i] = chr($temp);
             $carry = $temp >> 8;
         }
         $carry = ($carry != 0) ? chr($carry) : '';
@@ -2127,11 +2125,11 @@ class Math_BigInteger {
         }
 
         $carry = 0;
-        $carry_shift = 8-$shift;
+        $carry_shift = 8 - $shift;
         for ($i = 0; $i < strlen($x); $i++) {
-            $temp = (ord($x{$i}) >> $shift) | $carry;
-            $carry = (ord($x{$i}) << $carry_shift) & 0xFF;
-            $x{$i} = chr($temp);
+            $temp = (ord($x[$i]) >> $shift) | $carry;
+            $carry = (ord($x[$i]) << $carry_shift) & 0xFF;
+            $x[$i] = chr($temp);
         }
         $x = ltrim($x, chr(0));
 

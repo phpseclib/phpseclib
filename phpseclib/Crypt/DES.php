@@ -53,7 +53,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: DES.php,v 1.1 2007-07-02 04:19:47 terrafrost Exp $
+ * @version    $Id: DES.php,v 1.2 2007-07-23 05:21:39 terrafrost Exp $
  * @link       http://pear.php.net/package/Crypt_DES
  */
 
@@ -264,7 +264,7 @@ class Crypt_DES {
      */
     function setIV($iv)
     {
-        $this->iv = str_pad(substr($iv, 0, 8), 8, chr(0));;
+        $this->encryptIV = $this->decryptIV = $this->iv = str_pad(substr($iv, 0, 8), 8, chr(0));;
     }
 
     /**
@@ -521,7 +521,7 @@ class Crypt_DES {
             return $text;
         }
 
-        $length = ord($text{strlen($text) - 1});
+        $length = ord($text[strlen($text) - 1]);
         return substr($text, 0, -$length);
     }
 

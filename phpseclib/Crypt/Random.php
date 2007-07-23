@@ -35,7 +35,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Random.php,v 1.1 2007-07-02 04:19:47 terrafrost Exp $
+ * @version    $Id: Random.php,v 1.2 2007-07-23 05:21:39 terrafrost Exp $
  * @link       http://pear.php.net/package/Crypt_Random
  */
 
