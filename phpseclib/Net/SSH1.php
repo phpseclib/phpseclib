@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.1 2007-07-02 04:19:47 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.2 2007-07-25 02:33:43 terrafrost Exp $
  * @link       http://pear.php.net/package/Net_SSH1
  */
 
@@ -513,7 +513,9 @@ class Net_SSH1 {
                 $this->crypto->setKey(substr($session_key, 0,  8));
                 break;
             case NET_SSH1_CIPHER_3DES:
-                $this->crypto = new Crypt_TripleDES(CRYPT_DES_MODE_SSH);
+                $this->crypto = new Crypt_TripleDES(CRYPT_DES_MODE_3CBC);
+                $this->crypto->disablePadding();
+                $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0, 24));
                 break;
             //case NET_SSH1_CIPHER_RC4:
