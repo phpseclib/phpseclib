@@ -47,8 +47,8 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: TripleDES.php,v 1.2 2007-07-23 05:21:39 terrafrost Exp $
- * @link       http://pear.php.net/package/Crypt_TripleDES
+ * @version    $Id: TripleDES.php,v 1.3 2007-07-25 21:56:14 terrafrost Exp $
+ * @link       http://phpseclib.sourceforge.net
  */
 
 /**
