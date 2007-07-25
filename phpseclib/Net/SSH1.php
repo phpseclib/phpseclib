@@ -38,7 +38,7 @@
  *        exit('Login Failed');
  *    }
  *
- *    echo $ssh->writeReadQuit('ls -la');
+ *    echo $ssh->exec('ls -la');
  * ?>
  * </code>
  *
@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.2 2007-07-25 02:33:43 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.3 2007-07-25 21:49:33 terrafrost Exp $
  * @link       http://pear.php.net/package/Net_SSH1
  */
 
@@ -606,7 +606,7 @@ class Net_SSH1 {
      * @return mixed
      * @access public
      */
-    function writeReadQuit($cmd)
+    function exec($cmd)
     {
         if (!($this->bitmap & NET_SSH1_MASK_LOGIN)) {
             user_error('Operation disallowed prior to login()', E_USER_NOTICE);
