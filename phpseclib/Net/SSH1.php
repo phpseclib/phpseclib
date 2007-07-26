@@ -43,7 +43,7 @@
  * </code>
  *
  * More information on the SSHv1 specification can be found by reading 
- * {@link http://web.archive.org/web/20010417045724/http://www.tigerlair.com/ssh/faq/ssh1-draft.txt ssh1-draft.txt}.
+ * {@link http://www.snailbook.com/docs/protocol-1.5.txt protocol-1.5.txt}.
  *
  * LICENSE: This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.4 2007-07-25 21:55:48 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.5 2007-07-26 14:53:45 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -613,7 +613,7 @@ class Net_SSH1 {
             return false;
         }
 
-        // connect using the sample parameters in ssh1-draft.txt.
+        // connect using the sample parameters in protocol-1.5.txt.
         // according to wikipedia.org's entry on text terminals, "the fundamental type of application running on a text
         // terminal is a command line interpreter or shell".  thus, opening a terminal session to run the shell.
         $data = pack('CNa*N4C', NET_SSH1_CMSG_REQUEST_PTY, strlen('vt100'), 'vt100', 24, 80, 0, 0, NET_SSH1_TTY_OP_END);
@@ -783,7 +783,7 @@ class Net_SSH1 {
     /**
      * Gets Binary Packets
      *
-     * See 'The Binary Packet Protocol' of ssh1-draft.txt for more info.
+     * See 'The Binary Packet Protocol' of protocol-1.5.txt for more info.
      *
      * Also, this function could be improved upon by adding detection for the following exploit:
      * http://www.securiteam.com/securitynews/5LP042K3FY.html
@@ -995,7 +995,7 @@ class Net_SSH1 {
      */
     function _rsa_crypt($m, $key)
     {
-        // To quote from ssh1-draft.txt:
+        // To quote from protocol-1.5.txt:
         // The most significant byte (which is only partial as the value must be
         // less than the public modulus, which is never a power of two) is zero.
         //

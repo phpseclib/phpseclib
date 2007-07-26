@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.2 2007-07-25 21:49:33 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.3 2007-07-26 14:53:45 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1243,8 +1243,7 @@ class Net_SSH2 {
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
      * @see Net_SSH2::_send_binary_packet()
-     * @param optional Integer $message
-     * @return Array
+     * @return String
      * @access private
      */
     function _get_binary_packet()
@@ -1282,6 +1281,20 @@ class Net_SSH2 {
 
         $seq++;
 
+        return $this->_filter($payload);
+    }
+
+    /**
+     * Filter Binary Packets
+     *
+     * Because some binary packets need to be ignored...
+     *
+     * @see Net_SSH2::_get_binary_packet()
+     * @return String
+     * @access private
+     */
+    function _filter($payload)
+    {
         switch (ord($payload[0])) {
             case NET_SSH2_MSG_DISCONNECT:
                 $this->_string_shift($payload, 5);
