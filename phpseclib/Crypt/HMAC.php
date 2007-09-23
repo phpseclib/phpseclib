@@ -28,7 +28,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: HMAC.php,v 1.2 2007-07-25 21:56:14 terrafrost Exp $
+ * @version    $Id: HMAC.php,v 1.3 2007-09-23 04:41:39 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -118,6 +118,15 @@ class Crypt_HMAC {
     var $ipad;
 
     /**
+     * Final HMAC Length
+     *
+     * @see Crypt_HMAC::hmac()
+     * @var String
+     * @access private
+     */
+    var $length = 0;
+
+    /**
      * Default Constructor.
      *
      * @return Crypt_HMAC
@@ -162,13 +171,21 @@ class Crypt_HMAC {
      */
     function setHash($hash)
     {
+        switch ($hash) {
+            case 'md5-96':
+            case 'sha1-96':
+                $this->length = 12;
+        }
+
         switch (CRYPT_HMAC_MODE) {
             case CRYPT_HMAC_MODE_MHASH:
                 switch ($hash) {
                     case 'md5':
+                    case 'md5-96':
                         $this->hash = MHASH_MD5;
                         break;
                     case 'sha1':
+                    case 'sha1-96':
                     default:
                         $this->hash = MHASH_SHA1;
                 }
@@ -176,21 +193,26 @@ class Crypt_HMAC {
             case CRYPT_HMAC_MODE_HASH:
                 switch ($hash) {
                     case 'md5':
-                    case 'sha1':
-                        $this->hash = $hash;
+                    case 'md5-96':
+                        $this->hash = 'md5';
                         return;
+                    case 'sha1':
+                    case 'sha1-96':
                     default:
                         $this->hash = 'sha1';
                 }
+                return;
         }
 
         switch ($hash) {
             case 'md5':
+            case 'md5-96':
                  $this->b = 64;
                  $this->l = 16;
                  $this->hash = 'md5';
                  break;
             case 'sha1':
+            case 'sha1-96':
             default:
                  $this->b = 64;
                  $this->l = 20;
@@ -211,22 +233,24 @@ class Crypt_HMAC {
     {
         switch (CRYPT_HMAC_MODE) {
             case CRYPT_HMAC_MODE_MHASH:
-                return mhash($this->hash, $text, $this->key);
+                $hmac = mhash($this->hash, $text, $this->key);
+                break;
             case CRYPT_HMAC_MODE_HASH:
-                return hash_hmac($this->hash, $text, $this->key, true);
+                $hmac = hash_hmac($this->hash, $text, $this->key, true);
+                break;
+            case CRYPT_HMAC_MODE_INTERNAL:
+                $hash = $this->hash;
+
+                $key = strlen($this->key) > $this->b ? $this->hash($this->key) : $this->key;
+                $key = str_pad($key, $this->b, chr(0)); // step 1
+                $temp = $this->ipad ^ $key;             // step 2
+                $temp.= $text;                          // step 3
+                $temp = pack('H*', $hash($temp));       // step 4
+                $hmac = $this->opad ^ $key;             // step 5
+                $hmac.= $temp;                          // step 6
+                $hmac = pack('H*', $hash($hmac));       // step 7
         }
 
-        $hash = $this->hash;
-
-        $key = strlen($this->key) > $this->b ? $this->hash($this->key) : $this->key;
-        $key = str_pad($key, $this->b, chr(0)); // step 1
-        $temp = $this->ipad ^ $key;             // step 2
-        $temp.= $text;                          // step 3
-        $temp = pack('H*', $hash($temp));       // step 4
-        $hmac = $this->opad ^ $key;             // step 5
-        $hmac.= $temp;                          // step 6
-        $hmac = pack('H*', $hash($hmac));       // step 7
-
-        return $hmac;
+        return $this->length ? substr($hmac, 0, $this->length) : $hmac;
     }
 }
