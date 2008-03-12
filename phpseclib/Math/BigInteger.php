@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.2 2007-07-23 05:21:39 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.3 2008-03-12 22:03:08 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -1414,7 +1414,7 @@ class Math_BigInteger {
      *
      * As for why we do all the bitmasking...  strange things can happen when converting from flots to ints. For
      * instance, on some computers, var_dump((int) -4294967297) yields int(-1) and on others, it yields 
-     * int(-2147483648).  To avoid problems stemming from this, we use bitmasks to guarntee that ints aren't
+     * int(-2147483648).  To avoid problems stemming from this, we use bitmasks to guarantee that ints aren't
      * auto-converted to floats.  The outermost bitmask is present because without it, there's no guarantee that
      * the "residue" returned would be the so-called "common residue".  We use fmod, in the last step, because the
      * maximum possible $x is 26 bits and the maximum $result is 16 bits.  Thus, we have to be able to handle up to
@@ -1736,11 +1736,11 @@ class Math_BigInteger {
                 return new Math_BigInteger($this->toBytes() | $x->toBytes(), 256);
         }
 
-        $result = new Math_BigInteger();
+	$result = $this->_copy();
 
         $x_length = count($x->value);
         for ($i = 0; $i < $x_length; $i++) {
-            $result->value[] = $this->value[$i] | $x->value[$i];
+            $result->value[$i] = $this->value[$i] | $x->value[$i];
         }
 
         return $result->_normalize();
@@ -1766,11 +1766,11 @@ class Math_BigInteger {
                 return new Math_BigInteger($this->toBytes() ^ $x->toBytes(), 256);
         }
 
-        $result = new Math_BigInteger();
+	$result = $this->_copy();
 
         $x_length = count($x->value);
         for ($i = 0; $i < $x_length; $i++) {
-            $result->value[] = $this->value[$i] ^ $x->value[$i];
+            $result->value[$i] = $this->value[$i] ^ $x->value[$i];
         }
 
         return $result->_normalize();
