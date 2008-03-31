@@ -53,7 +53,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: DES.php,v 1.3 2007-07-25 21:56:14 terrafrost Exp $
+ * @version    $Id: DES.php,v 1.4 2008-03-31 00:49:09 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -780,13 +780,6 @@ class Crypt_DES {
             $key[1] <<= $shifts[$i];
             $temp = ($key[1] & 0xF0000000) >> 28;
             $key[1] = ($key[1] | $temp) & 0x0FFFFFFF;
-
-            $temp = array(0, 0);
-            for ($j = 0; $j < 48; $j++) {
-                $bitmasked = $key[floor($ki[$j] / 28)] & (1 << ($ki[$j] % 28));
-                $shift = 5 - ($j % 6);
-                $temp[floor($j / 6)] |= ($bitmasked != 0) << $shift;
-            }
 
             $temp = array(
                 (($key[1] & 0x00004000) >>  9) | (($key[1] & 0x00000800) >>  7) |
