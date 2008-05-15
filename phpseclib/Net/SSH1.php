@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.7 2008-05-15 17:40:03 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.8 2008-05-15 17:46:51 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -787,12 +787,9 @@ class Net_SSH1 {
     }
 
     /**
-     * Gets Binary Packets
+     * Disconnect
      *
-     * See '6. Binary Packet Protocol' of rfc4253 for more info.
-     *
-     * @see Net_SSH2::_send_binary_packet()
-     * @return String
+     * @param String $msg
      * @access private
      */
     function _disconnect($msg = 'Client Quit')
