@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.6 2008-05-15 16:33:08 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.7 2008-05-15 17:40:03 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -764,16 +764,40 @@ class Net_SSH1 {
     }
 
     /**
-     * Disconnects.
+     * Disconnect
      *
-     * Will be called, automatically, if you're using PHP5.  If you're using PHP4, call it yourself.
+     * @access public
+     */
+    function disconnect()
+    {
+        $this->_disconnect();
+    }
+
+    /**
+     * Destructor.
+     *
+     * Will be called, automatically, if you're supporting just PHP5.  If you're supporting PHP4, you'll need to call
+     * disconnect().
      *
      * @access public
      */
     function __destruct()
     {
+        $this->_disconnect();
+    }
+
+    /**
+     * Gets Binary Packets
+     *
+     * See '6. Binary Packet Protocol' of rfc4253 for more info.
+     *
+     * @see Net_SSH2::_send_binary_packet()
+     * @return String
+     * @access private
+     */
+    function _disconnect($msg = 'Client Quit')
+    {
         if ($this->bitmap) {
-            $msg = 'Client Quit';
             $data = pack('CNa*', NET_SSH1_MSG_DISCONNECT, strlen($msg), $msg);
             $this->_send_binary_packet($data);
             fclose($this->fsock);

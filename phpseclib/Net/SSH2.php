@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.4 2008-05-15 16:33:08 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.5 2008-05-15 17:40:03 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1238,17 +1238,26 @@ class Net_SSH2 {
     }
 
     /**
+     * Disconnect
+     *
+     * @access public
+     */
+    function disconnect()
+    {
+        $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+    }
+
+    /**
      * Destructor.
      *
-     * Will be called, automatically, if you're using PHP5.  If you're using PHP4, you'll need to call it yourself.
+     * Will be called, automatically, if you're supporting just PHP5.  If you're supporting PHP4, you'll need to call
+     * disconnect().
      *
      * @access public
      */
     function __destruct()
     {
-        if ($this->bitmap) {
-            $this->_disconnect('Client Quit');
-        }
+        $this->disconnect();
     }
 
     /**
@@ -1398,7 +1407,7 @@ class Net_SSH2 {
     function _send_binary_packet($data)
     {
         if (feof($this->fsock)) {
-            user_error('Connection closed prematurely', E_USERe_NOTICE);
+            user_error('Connection closed prematurely', E_USER_NOTICE);
             return false;
         }
 
@@ -1440,11 +1449,13 @@ class Net_SSH2 {
      */
     function _disconnect($reason)
     {
-        $data = pack('CNNa*Na*', NET_SSH2_MSG_DISCONNECT, $reason, 0, '', 0, '');
-        $this->_send_binary_packet($data);
-        $this->bitmask = 0;
-        fclose($this->fsock);
-        return false;
+        if ($this->bitmap) {
+            $data = pack('CNNa*Na*', NET_SSH2_MSG_DISCONNECT, $reason, 0, '', 0, '');
+            $this->_send_binary_packet($data);
+            $this->bitmask = 0;
+            fclose($this->fsock);
+            return false;
+        }
     }
 
     /**
