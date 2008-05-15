@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.3 2007-07-26 14:53:45 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.4 2008-05-15 16:33:08 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -389,13 +389,13 @@ class Net_SSH2 {
      *
      * @param String $host
      * @param optional Integer $port
-     * @param optional Integer $cipher
+     * @param optional Integer $timeout
      * @return Net_SSH2
      * @access public
      */
-    function Net_SSH2($host, $port = 22)
+    function Net_SSH2($host, $port = 22, $timeout = 10)
     {
-        $this->fsock = fsockopen($host, $port, $errno, $errstr, 10);
+        $this->fsock = fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"), E_USER_NOTICE);
             return;
@@ -472,10 +472,10 @@ class Net_SSH2 {
         );
 
         static $mac_algorithms = array(
-            'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
             'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
-            'hmac-md5',     // OPTIONAL        HMAC-MD5 (digest length = key length = 16)
+            'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
             'hmac-md5-96',  // OPTIONAL        first 96 bits of HMAC-MD5 (digest length = 12, key length = 16)
+            'hmac-md5',     // OPTIONAL        HMAC-MD5 (digest length = key length = 16)
             'none'          // OPTIONAL        no MAC; NOT RECOMMENDED
         );
 
@@ -1238,6 +1238,20 @@ class Net_SSH2 {
     }
 
     /**
+     * Destructor.
+     *
+     * Will be called, automatically, if you're using PHP5.  If you're using PHP4, you'll need to call it yourself.
+     *
+     * @access public
+     */
+    function __destruct()
+    {
+        if ($this->bitmap) {
+            $this->_disconnect('Client Quit');
+        }
+    }
+
+    /**
      * Gets Binary Packets
      *
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
@@ -1429,6 +1443,7 @@ class Net_SSH2 {
         $data = pack('CNNa*Na*', NET_SSH2_MSG_DISCONNECT, $reason, 0, '', 0, '');
         $this->_send_binary_packet($data);
         $this->bitmask = 0;
+        fclose($this->fsock);
         return false;
     }
 

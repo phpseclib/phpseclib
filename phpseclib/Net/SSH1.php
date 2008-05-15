@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.5 2007-07-26 14:53:45 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.6 2008-05-15 16:33:08 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -384,13 +384,14 @@ class Net_SSH1 {
      *
      * @param String $host
      * @param optional Integer $port
+     * @param optional Integer $timeout
      * @param optional Integer $cipher
      * @return Net_SSH1
      * @access public
      */
-    function Net_SSH1($host, $port = 22, $cipher = NET_SSH1_CIPHER_3DES)
+    function Net_SSH1($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
     {
-        $this->fsock = fsockopen($host, $port, $errno, $errstr, 10);
+        $this->fsock = fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"), E_USER_NOTICE);
             return;
