@@ -35,7 +35,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Random.php,v 1.3 2007-07-25 21:56:14 terrafrost Exp $
+ * @version    $Id: Random.php,v 1.4 2008-05-21 05:15:32 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -56,7 +56,8 @@ function crypt_random($min = 0, $max = 0x7FFFFFFF, $randomness_path = '/dev/uran
         $seeded = true;
         if (file_exists($randomness_path)) {
             $fp = fopen($randomness_path, 'r');
-            mt_srand(pack('N', fread($fp, 4)));
+            $temp = unpack('Nint', fread($fp, 4));
+            mt_srand($temp['int']);
             fclose($fp);
         } else {
             list($sec, $usec) = explode(' ', microtime());
