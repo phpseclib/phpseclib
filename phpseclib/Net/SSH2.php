@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.5 2008-05-15 17:40:03 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.6 2008-05-21 04:28:09 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -385,7 +385,7 @@ class Net_SSH2 {
     /**
      * Default Constructor.
      *
-     * Connects to an SSHv1 server
+     * Connects to an SSHv2 server
      *
      * @param String $host
      * @param optional Integer $port
