@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.8 2008-05-15 17:46:51 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.9 2008-05-25 07:28:57 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -873,7 +873,7 @@ class Net_SSH1 {
             $padding.= chr(crypt_random(0, 255));
         }
 
-	$data = $padding . $data;
+        $data = $padding . $data;
         $data.= pack('N', $this->_crc($data));
 
         if ($this->crypto !== false) {

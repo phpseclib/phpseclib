@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.6 2008-05-21 04:28:09 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.7 2008-05-25 07:28:57 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -432,7 +432,7 @@ class Net_SSH2 {
             return;
         }
 
-	if (ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
+        if (ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
             user_error('Expected SSH_MSG_KEXINIT', E_USER_NOTICE);
             return false;
         }
@@ -690,7 +690,7 @@ class Net_SSH2 {
 
         list(, $type) = unpack('C', $this->_string_shift($response, 1));
 
-	if ($type != NET_SSH2_MSG_KEXDH_REPLY) {
+        if ($type != NET_SSH2_MSG_KEXDH_REPLY) {
             user_error('Expected SSH_MSG_KEXDH_REPLY', E_USER_NOTICE);
             return false;
         }
@@ -793,7 +793,7 @@ class Net_SSH2 {
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
                 }
 
-		break;
+                break;
             case 'ssh-rsa':
                 $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
                 $e = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
@@ -847,7 +847,7 @@ class Net_SSH2 {
 
         list(, $type) = unpack('C', $this->_string_shift($response, 1));
 
-	if ($type != NET_SSH2_MSG_NEWKEYS) {
+        if ($type != NET_SSH2_MSG_NEWKEYS) {
             user_error('Expected SSH_MSG_NEWKEYS', E_USER_NOTICE);
             return false;
         }
@@ -1031,7 +1031,7 @@ class Net_SSH2 {
 
         list(, $type) = unpack('C', $this->_string_shift($response, 1));
 
-	if ($type != NET_SSH2_MSG_SERVICE_ACCEPT) {
+        if ($type != NET_SSH2_MSG_SERVICE_ACCEPT) {
             user_error('Expected SSH_MSG_SERVICE_ACCEPT', E_USER_NOTICE);
             return false;
         }

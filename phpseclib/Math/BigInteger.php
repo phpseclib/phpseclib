@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.3 2008-03-12 22:03:08 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.4 2008-05-25 07:28:57 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -1477,7 +1477,7 @@ class Math_BigInteger {
 
                 // if $x is less than 0, the first character of $x is a '-', so we'll remove it.  we can do this because
                 // $x mod $n == $x mod -$n.
-		$n = (bccomp($n->value, '0') < 0) ? substr($n->value, 1) : $n->value;
+                $n = (bccomp($n->value, '0') < 0) ? substr($n->value, 1) : $n->value;
 
                 if (bccomp($this->value,'0') < 0) {
                     $negated_this = new Math_BigInteger();
@@ -1736,7 +1736,7 @@ class Math_BigInteger {
                 return new Math_BigInteger($this->toBytes() | $x->toBytes(), 256);
         }
 
-	$result = $this->_copy();
+        $result = $this->_copy();
 
         $x_length = count($x->value);
         for ($i = 0; $i < $x_length; $i++) {
@@ -1766,7 +1766,7 @@ class Math_BigInteger {
                 return new Math_BigInteger($this->toBytes() ^ $x->toBytes(), 256);
         }
 
-	$result = $this->_copy();
+        $result = $this->_copy();
 
         $x_length = count($x->value);
         for ($i = 0; $i < $x_length; $i++) {
@@ -1916,7 +1916,7 @@ class Math_BigInteger {
      */
     function random($min = false, $max = false, $generator = 'mt_rand')
     {
-	if ($min === false) {
+        if ($min === false) {
             $min = new Math_BigInteger(0);
         }
 
