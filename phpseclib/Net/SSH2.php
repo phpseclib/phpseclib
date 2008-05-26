@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.7 2008-05-25 07:28:57 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.8 2008-05-26 19:42:01 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -73,62 +73,6 @@ require_once('Crypt/TripleDES.php');
 require_once('Crypt/RC4.php');
 
 /**#@+
- * Message Numbers
- *
- * @access private
- */
-define('NET_SSH2_MSG_DISCONNECT',                 1);
-define('NET_SSH2_MSG_IGNORE',                     2);
-define('NET_SSH2_MSG_UNIMPLEMENTED',              3);
-define('NET_SSH2_MSG_DEBUG',                      4);
-define('NET_SSH2_MSG_SERVICE_REQUEST',            5);
-define('NET_SSH2_MSG_SERVICE_ACCEPT',             6);
-define('NET_SSH2_MSG_KEXINIT',                   20);
-define('NET_SSH2_MSG_NEWKEYS',                   21);
-define('NET_SSH2_MSG_KEXDH_INIT',                30);
-define('NET_SSH2_MSG_KEXDH_REPLY',               31);
-define('NET_SSH2_MSG_USERAUTH_REQUEST',          50);
-define('NET_SSH2_MSG_USERAUTH_FAILURE',          51);
-define('NET_SSH2_MSG_USERAUTH_SUCCESS',          52);
-define('NET_SSH2_MSG_USERAUTH_BANNER',           53);
-define('NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ', 60);
-
-define('NET_SSH2_MSG_GLOBAL_REQUEST',            80);
-define('NET_SSH2_MSG_REQUEST_SUCCESS',           81);
-define('NET_SSH2_MSG_REQUEST_FAILURE',           82);
-define('NET_SSH2_MSG_CHANNEL_OPEN',              90);
-define('NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION', 91);
-define('NET_SSH2_MSG_CHANNEL_OPEN_FAILURE',      92);
-define('NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST',     93);
-define('NET_SSH2_MSG_CHANNEL_DATA',              94);
-define('NET_SSH2_MSG_CHANNEL_EXTENDED_DATA',     95);
-define('NET_SSH2_MSG_CHANNEL_EOF',               96);
-define('NET_SSH2_MSG_CHANNEL_CLOSE',             97);
-define('NET_SSH2_MSG_CHANNEL_REQUEST',           98);
-define('NET_SSH2_MSG_CHANNEL_SUCCESS',           99);
-define('NET_SSH2_MSG_CHANNEL_FAILURE',          100);
-/**#@-*/
-
-/**#@+
- * Disconnection Message 'reason codes' defined in RFC4253
- *
- * @access private
- */
-define('NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED',     3);
-define('NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE', 9);
-define('NET_SSH2_DISCONNECT_BY_APPLICATION',         11);
-define('NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER', 13);
-/**#@-*/
-
-/**#@+
- * SSH_MSG_CHANNEL_OPEN_FAILURE 'reason codes', defined in RFC4254
- *
- * @access private
- */
-define('NET_SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED', 1);
-/**#@-*/
-
-/**#@+
  * Execution Bitmap Masks
  *
  * @see Net_SSH2::bitmap
@@ -136,24 +80,6 @@ define('NET_SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED', 1);
  */
 define('NET_SSH2_MASK_CONSTRUCTOR', 0x00000001);
 define('NET_SSH2_MASK_LOGIN',       0x00000002);
-/**#@-*/
-
-/**#@+
- * Terminal Modes
- *
- * @link http://tools.ietf.org/html/rfc4254#section-8
- * @access private
- */
-define('NET_SSH2_TTY_OP_END',  0);
-/**#@-*/
-
-/**#@+
- * SSH_MSG_CHANNEL_EXTENDED_DATA's data_type_codes
- *
- * @link http://tools.ietf.org/html/rfc4254#section-5.2
- * @access private
- */
-define('NET_SSH2_EXTENDED_DATA_STDERR', 1);
 /**#@-*/
 
 /**
@@ -383,6 +309,75 @@ class Net_SSH2 {
     var $session_id = false;
 
     /**
+     * Message Numbers
+     *
+     * @see Net_SSH2::Net_SSH2()
+     * @var Array
+     * @access private
+     */
+    var $message_numbers = array();
+
+    /**
+     * Disconnection Message 'reason codes' defined in RFC4253
+     *
+     * @see Net_SSH2::Net_SSH2()
+     * @var Array
+     * @access private
+     */
+    var $disconnect_reasons = array();
+
+    /**
+     * SSH_MSG_CHANNEL_OPEN_FAILURE 'reason codes', defined in RFC4254
+     *
+     * @see Net_SSH2::Net_SSH2()
+     * @var Array
+     * @access private
+     */
+    var $channel_open_failure_reasons = array();
+
+    /**
+     * Terminal Modes
+     *
+     * @link http://tools.ietf.org/html/rfc4254#section-8
+     * @see Net_SSH2::Net_SSH2()
+     * @var Array
+     * @access private
+     */
+    var $terminal_modes = array();
+
+    /**
+     * SSH_MSG_CHANNEL_EXTENDED_DATA's data_type_codes
+     *
+     * @link http://tools.ietf.org/html/rfc4254#section-5.2
+     * @see Net_SSH2::Net_SSH2()
+     * @var Array
+     * @access private
+     */
+    var $channel_extended_data_type_codes = array();
+
+    /**
+     * Send Sequence Number
+     *
+     * See 'Section 6.4.  Data Integrity' of rfc4253 for more info.
+     *
+     * @see Net_SSH2::_send_binary_packet()
+     * @var Integer
+     * @access private
+     */
+    var $send_seq_no = 0;
+
+    /**
+     * Get Sequence Number
+     *
+     * See 'Section 6.4.  Data Integrity' of rfc4253 for more info.
+     *
+     * @see Net_SSH2::_get_binary_packet()
+     * @var Integer
+     * @access private
+     */
+    var $get_seq_no = 0;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -395,6 +390,73 @@ class Net_SSH2 {
      */
     function Net_SSH2($host, $port = 22, $timeout = 10)
     {
+        $this->message_numbers = array(
+            1 => 'NET_SSH2_MSG_DISCONNECT',
+            2 => 'NET_SSH2_MSG_IGNORE',
+            3 => 'NET_SSH2_MSG_UNIMPLEMENTED',
+            4 => 'NET_SSH2_MSG_DEBUG',
+            5 => 'NET_SSH2_MSG_SERVICE_REQUEST',
+            6 => 'NET_SSH2_MSG_SERVICE_ACCEPT',
+            20 => 'NET_SSH2_MSG_KEXINIT',
+            21 => 'NET_SSH2_MSG_NEWKEYS',
+            30 => 'NET_SSH2_MSG_KEXDH_INIT',
+            31 => 'NET_SSH2_MSG_KEXDH_REPLY',
+            50 => 'NET_SSH2_MSG_USERAUTH_REQUEST',
+            51 => 'NET_SSH2_MSG_USERAUTH_FAILURE',
+            52 => 'NET_SSH2_MSG_USERAUTH_SUCCESS',
+            53 => 'NET_SSH2_MSG_USERAUTH_BANNER',
+            60 => 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ',
+
+            80 => 'NET_SSH2_MSG_GLOBAL_REQUEST',
+            81 => 'NET_SSH2_MSG_REQUEST_SUCCESS',
+            82 => 'NET_SSH2_MSG_REQUEST_FAILURE',
+            90 => 'NET_SSH2_MSG_CHANNEL_OPEN',
+            91 => 'NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION',
+            92 => 'NET_SSH2_MSG_CHANNEL_OPEN_FAILURE',
+            93 => 'NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST',
+            94 => 'NET_SSH2_MSG_CHANNEL_DATA',
+            95 => 'NET_SSH2_MSG_CHANNEL_EXTENDED_DATA',
+            96 => 'NET_SSH2_MSG_CHANNEL_EOF',
+            97 => 'NET_SSH2_MSG_CHANNEL_CLOSE',
+            98 => 'NET_SSH2_MSG_CHANNEL_REQUEST',
+            99 => 'NET_SSH2_MSG_CHANNEL_SUCCESS',
+            100 => 'NET_SSH2_MSG_CHANNEL_FAILURE'
+        );
+        $this->disconnect_reasons = array(
+            1 => 'NET_SSH2_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT',
+            2 => 'NET_SSH2_DISCONNECT_PROTOCOL_ERROR',
+            3 => 'NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED',
+            4 => 'NET_SSH2_DISCONNECT_RESERVED',
+            5 => 'NET_SSH2_DISCONNECT_MAC_ERROR',
+            6 => 'NET_SSH2_DISCONNECT_COMPRESSION_ERROR',
+            7 => 'NET_SSH2_DISCONNECT_SERVICE_NOT_AVAILABLE',
+            8 => 'NET_SSH2_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED',
+            9 => 'NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE',
+            10 => 'NET_SSH2_DISCONNECT_CONNECTION_LOST',
+            11 => 'NET_SSH2_DISCONNECT_BY_APPLICATION',
+            12 => 'NET_SSH2_DISCONNECT_TOO_MANY_CONNECTIONS',
+            13 => 'NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER',
+            14 => 'NET_SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE',
+            15 => 'NET_SSH2_DISCONNECT_ILLEGAL_USER_NAME'
+        );
+        $this->channel_open_failure_reasons = array(
+            1 => 'NET_SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED'
+        );
+        $this->terminal_modes = array(
+            0 => 'NET_SSH2_TTY_OP_END'
+        );
+        $this->channel_extended_data_type_codes = array(
+            1 => 'NET_SSH2_EXTENDED_DATA_STDERR'
+        );
+
+        $this->_define_array(
+            $this->message_numbers,
+            $this->disconnect_reasons,
+            $this->channel_open_failure_reasons,
+            $this->terminal_modes,
+            $this->channel_extended_data_type_codes
+        );
+
         $this->fsock = fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"), E_USER_NOTICE);
@@ -872,7 +934,6 @@ class Net_SSH2 {
                 //$this->encrypt = new Crypt_Null();
         }
 
-
         switch ($decrypt) {
             case '3des-cbc':
                 $this->decrypt = new Crypt_TripleDES();
@@ -999,6 +1060,7 @@ class Net_SSH2 {
             $key.= pack('H*', $hash($keyBytes . $source . $key));
         }
         $this->hmac_check->setKey(substr($key, 0, $checkKeyLength));
+
     }
 
     /**
@@ -1037,7 +1099,6 @@ class Net_SSH2 {
         }
 
         // publickey authentatication is required, per the SSH-2 specs, however, we don't support it.
-
         $utf8_password = utf8_encode($password);
         $packet = pack('CNa*Na*Na*CNa*',
             NET_SSH2_MSG_USERAUTH_REQUEST, strlen($username), $username, strlen('ssh-connection'), 'ssh-connection',
@@ -1170,7 +1231,6 @@ class Net_SSH2 {
         }
 
         $output = '';
-        $exit = false;
 
         while (true) {
             $response = $this->_get_binary_packet();
@@ -1209,7 +1269,7 @@ class Net_SSH2 {
                             list(, $length) = unpack('N', $this->_string_shift($response, 4));
                             $this->debug_info.= "\r\n" . $this->_string_shift($response, $length);
                         case 'exit-status':
-                            //$exit = true;
+                            //break 2;
                             break;
                         default:
                             $this->bitmap = 0;
@@ -1219,18 +1279,13 @@ class Net_SSH2 {
                     break;
                 case NET_SSH2_MSG_CHANNEL_CLOSE:
                     $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $server_channel));
-                    $exit = true;
-                    break;
+                    break 2;
                 case NET_SSH2_MSG_CHANNEL_EOF:
                     break;
                 default:
                     $this->bitmap = 0;
                     user_error('Error reading channel data', E_USER_NOTICE);
                     return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
-            }
-
-            if ($exit) {
-                break;
             }
         }
 
@@ -1276,8 +1331,6 @@ class Net_SSH2 {
             return false;
         }
 
-        static $seq = 0;
-
         $raw = fread($this->fsock, $this->block_size);
 
         if ($this->decrypt !== false) {
@@ -1296,13 +1349,13 @@ class Net_SSH2 {
 
         if ($this->hmac_check !== false) {
             $hmac = fread($this->fsock, $this->hmac_size);
-            if ($hmac != $this->hmac_check->hmac(pack('NNCa*', $seq, $packet_length, $padding_length, $payload . $padding))) {
+            if ($hmac != $this->hmac_check->hmac(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding))) {
                 user_error('Invalid HMAC', E_USER_NOTICE);
                 return false;
             }
         }
 
-        $seq++;
+        $this->get_seq_no++;
 
         return $this->_filter($payload);
     }
@@ -1320,9 +1373,9 @@ class Net_SSH2 {
     {
         switch (ord($payload[0])) {
             case NET_SSH2_MSG_DISCONNECT:
-                $this->_string_shift($payload, 5);
-                list(, $length) = unpack('N', $this->_string_shift($payload, 4));
-                $this->debug_info.= "\r\n\r\nSSH_MSG_DISCONNECT:\r\n" . utf8_decode($this->_string_shift($payload, $length));
+                $this->_string_shift($payload, 1);
+                list(, $reason_code, $length) = unpack('N2', $this->_string_shift($payload, 8));
+                $this->debug_info.= "\r\n\r\nSSH_MSG_DISCONNECT:\r\n" . $this->disconnect_reasons[$reason_code] . "\r\n" . utf8_decode($this->_string_shift($payload, $temp['length']));
                 $this->bitmask = 0;
                 return false;
             case NET_SSH2_MSG_IGNORE:
@@ -1401,7 +1454,7 @@ class Net_SSH2 {
      *
      * @param String $data
      * @see Net_SSH2::_get_binary_packet()
-     * @return A rray
+     * @return Boolean
      * @access private
      */
     function _send_binary_packet($data)
@@ -1410,8 +1463,6 @@ class Net_SSH2 {
             user_error('Connection closed prematurely', E_USER_NOTICE);
             return false;
         }
-
-        static $seq = 0;
 
         // 4, for the packet length + 1, for the padding length + 4, for the minimal padding amount
         $packet_length = strlen($data) + 9;
@@ -1428,8 +1479,8 @@ class Net_SSH2 {
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself
         $packet = pack('NCa*', $packet_length - 4, $padding_length, $data . $padding);
 
-        $hmac = $this->hmac_create !== false ? $this->hmac_create->hmac(pack('Na*', $seq, $packet)) : '';
-        $seq++;
+        $hmac = $this->hmac_create !== false ? $this->hmac_create->hmac(pack('Na*', $this->send_seq_no, $packet)) : '';
+        $this->send_seq_no++;
 
         if ($this->encrypt !== false) {
             $packet = $this->encrypt->encrypt($packet);
@@ -1452,7 +1503,7 @@ class Net_SSH2 {
         if ($this->bitmap) {
             $data = pack('CNNa*Na*', NET_SSH2_MSG_DISCONNECT, $reason, 0, '', 0, '');
             $this->_send_binary_packet($data);
-            $this->bitmask = 0;
+            $this->bitmap = 0;
             fclose($this->fsock);
             return false;
         }
@@ -1473,6 +1524,30 @@ class Net_SSH2 {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
         return $substr;
+    }
+
+    /**
+     * Define Array
+     *
+     * Takes any number of arrays whose indices are integers and whose values are strings and defines a bunch of
+     * named constants from it, using the value as the name of the constant and the index as the value of the constant.
+     * If any of the constants that would be defined already exists, none of the constants will be defined.
+     *
+     * @param Array $array
+     * @access private
+     */
+    function _define_array()
+    {
+        $args = func_get_args();
+        foreach ($args as $arg) {
+            foreach ($arg as $key=>$value) {
+                if (!defined($value)) {
+                    define($value, $key);
+                } else {
+                    break 2;
+                }
+            }
+        }
     }
 
     /**
