@@ -47,7 +47,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: TripleDES.php,v 1.3 2007-07-25 21:56:14 terrafrost Exp $
+ * @version    $Id: TripleDES.php,v 1.4 2008-08-04 17:59:12 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -552,13 +552,20 @@ class Crypt_TripleDES {
      * Pads a string using the RSA PKCS padding standards so that its length is a multiple of the blocksize (8).
      * 8 - (strlen($text) & 7) bytes are added, each of which is equal to chr(8 - (strlen($text) & 7)
      *
+     * If padding is disabled and $text is not a multiple of the blocksize, the string will be padded regardless
+     * and padding will, hence forth, be enabled.
+     *
      * @see Crypt_TripleDES::_unpad()
      * @access private
      */
     function _pad($text)
     {
         if (!$this->padding) {
-            return $text;
+            if (strlen($text) & 7 == 0) {
+                return $text;
+            } else {
+                $this->padding = true;
+            }
         }
 
         $length = 8 - (strlen($text) & 7);
