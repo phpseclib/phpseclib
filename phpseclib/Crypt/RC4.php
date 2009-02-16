@@ -55,7 +55,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RC4.php,v 1.3 2007-07-25 21:56:14 terrafrost Exp $
+ * @version    $Id: RC4.php,v 1.4 2009-02-16 22:22:13 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -259,10 +259,10 @@ class Crypt_RC4 {
      *
      * @link http://php.net/function.mcrypt-module-open#function.mcrypt-module-open
      * @access public
-     * @param Integer $algorithm_directory
-     * @param Integer $mode_directory
+     * @param optional Integer $algorithm_directory
+     * @param optional Integer $mode_directory
      */
-    function setMCrypt($algorithm_directory, $mode_directory)
+    function setMCrypt($algorithm_directory = '', $mode_directory = '')
     {
         if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
             $this->mcrypt = array($algorithm_directory, $mode_directory);

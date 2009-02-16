@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.8 2008-05-26 19:42:01 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.9 2009-02-16 22:22:13 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -58,19 +58,24 @@ require_once('Math/BigInteger.php');
 require_once('Crypt/Random.php');
 
 /**
- * Include Crypt_HMAC.php
+ * Include Crypt_Hash
  */
-require_once('Crypt/HMAC.php');
+require_once('Crypt/Hash.php');
 
 /**
- * Include Crypt_TripleDES.php
+ * Include Crypt_TripleDES
  */
 require_once('Crypt/TripleDES.php');
 
 /**
- * Include Crypt_RC4.php
+ * Include Crypt_RC4
  */
 require_once('Crypt/RC4.php');
+
+/**
+ * Include Crypt_AES
+ */
+require_once('Crypt/AES.php');
 
 /**#@+
  * Execution Bitmap Masks
@@ -227,13 +232,31 @@ class Net_SSH2 {
     var $languages_client_to_server;
 
     /**
-     * Block Size
+     * Block Size for Server to Client Encryption
      *
+     * "Note that the length of the concatenation of 'packet_length',
+     *  'padding_length', 'payload', and 'random padding' MUST be a multiple
+     *  of the cipher block size or 8, whichever is larger.  This constraint
+     *  MUST be enforced, even when using stream ciphers."
+     *
+     *  -- http://tools.ietf.org/html/rfc4253#section-6
+     *
+     * @see Net_SSH2::Net_SSH2()
      * @see Net_SSH2::_send_binary_packet()
      * @var Integer
      * @access private
      */
-    var $block_size = 8;
+    var $encrypt_block_size = 8;
+
+    /**
+     * Block Size for Client to Server Encryption
+     *
+     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::_get_binary_packet()
+     * @var Integer
+     * @access private
+     */
+    var $decrypt_block_size = 8;
 
     /**
      * Server to Client Encryption Object
@@ -525,11 +548,11 @@ class Net_SSH2 {
         );
 
         static $encryption_algorithms = array(
-            '3des-cbc',   // REQUIRED          three-key 3DES in CBC mode
             'aes256-cbc', // OPTIONAL          AES in CBC mode, with a 256-bit key
             'aes192-cbc', // OPTIONAL          AES with a 192-bit key
             'aes128-cbc', // RECOMMENDED       AES with a 128-bit key
             'arcfour',    // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
+            '3des-cbc',   // REQUIRED          three-key 3DES in CBC mode
             'none'        // OPTIONAL          no encryption; NOT RECOMMENDED
         );
 
@@ -628,9 +651,7 @@ class Net_SSH2 {
         $decrypt = $encryption_algorithms[$i];
         switch ($decrypt) {
             case '3des-cbc':
-                // uses the default block size
                 $decryptKeyLength = 24; // eg. 192 / 8
-                $decryptIVLength = 8;   // eg. 64 / 8
                 break;
             case 'aes256-cbc':
                 $decryptKeyLength = 32; // eg. 256 / 8
@@ -643,7 +664,6 @@ class Net_SSH2 {
                 break;
             case 'arcfour':
                 $decryptKeyLength = 16; // eg. 128 / 8
-                $decryptIVLength = 0;
                 break;
             case 'none';
                 $decryptKeyLength = 0;
@@ -659,7 +679,6 @@ class Net_SSH2 {
         switch ($encrypt) {
             case '3des-cbc':
                 $encryptKeyLength = 24;
-                $encryptIVLength = 8;
                 break;
             case 'aes256-cbc':
                 $encryptKeyLength = 32;
@@ -672,7 +691,6 @@ class Net_SSH2 {
                 break;
             case 'arcfour':
                 $encryptKeyLength = 16;
-                $encryptIVLength = 0;
                 break;
             case 'none';
                 $encryptKeyLength = 0;
@@ -917,15 +935,19 @@ class Net_SSH2 {
         switch ($encrypt) {
             case '3des-cbc':
                 $this->encrypt = new Crypt_TripleDES();
+                // $this->encrypt_block_size = 64 / 8 == the default
                 break;
             case 'aes256-cbc':
-                //$this->encrypt = new Crypt_AES();
+                $this->encrypt = new Crypt_AES();
+                $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'aes192-cbc':
-                //$this->encrypt = new Crypt_AES();
+                $this->encrypt = new Crypt_AES();
+                $this->encrypt_block_size = 16;
                 break;
             case 'aes128-cbc':
-                //$this->encrypt = new Crypt_AES();
+                $this->encrypt = new Crypt_AES();
+                $this->encrypt_block_size = 16;
                 break;
             case 'arcfour':
                 $this->encrypt = new Crypt_RC4();
@@ -939,13 +961,16 @@ class Net_SSH2 {
                 $this->decrypt = new Crypt_TripleDES();
                 break;
             case 'aes256-cbc':
-                //$this->decrypt = new Crypt_AES();
+                $this->decrypt = new Crypt_AES();
+                $this->decrypt_block_size = 16;
                 break;
             case 'aes192-cbc':
-                //$this->decrypt = new Crypt_AES();
+                $this->decrypt = new Crypt_AES();
+                $this->decrypt_block_size = 16;
                 break;
             case 'aes128-cbc':
-                //$this->decrypt = new Crypt_AES();
+                $this->decrypt = new Crypt_AES();
+                $this->decrypt_block_size = 16;
                 break;
             case 'arcfour':
                 $this->decrypt = new Crypt_RC4();
@@ -966,26 +991,22 @@ class Net_SSH2 {
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
-        $this->hmac_create = new Crypt_HMAC();
+        $createKeyLength = 0; // ie. $mac_algorithms[$i] == 'none'
         switch ($mac_algorithms[$i]) {
-            case 'none':
-                $this->hmac_create->setHash('none');
-                $createKeyLength = 0;
-                break;
             case 'hmac-sha1':
-                $this->hmac_create->setHash('sha1');
+                $this->hmac_create = new Crypt_Hash('sha1');
                 $createKeyLength = 20;
                 break;
             case 'hmac-sha1-96':
-                $this->hmac_create->setHash('sha1-96');
+                $this->hmac_create = new Crypt_Hash('sha1-96');
                 $createKeyLength = 20;
                 break;
             case 'hmac-md5':
-                $this->hmac_create->setHash('md5');
+                $this->hmac_create = new Crypt_Hash('md5');
                 $createKeyLength = 16;
                 break;
             case 'hmac-md5-96':
-                $this->hmac_create->setHash('md5-96');
+                $this->hmac_create = new Crypt_Hash('md5-96');
                 $createKeyLength = 16;
         }
 
@@ -995,30 +1016,26 @@ class Net_SSH2 {
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
-        $this->hmac_check = new Crypt_HMAC();
+        $checkKeyLength = 0;
+        $this->hmac_size = 0;
         switch ($mac_algorithms[$i]) {
-            case 'none':
-                $this->hmac_check->setHash('none');
-                $checkKeyLength = 0;
-                $this->hmac_size = 0;
-                break;
             case 'hmac-sha1':
-                $this->hmac_check->setHash('sha1');
+                $this->hmac_check = new Crypt_Hash('sha1');
                 $checkKeyLength = 20;
                 $this->hmac_size = 20;
                 break;
             case 'hmac-sha1-96':
-                $this->hmac_check->setHash('sha1-96');
+                $this->hmac_check = new Crypt_Hash('sha1-96');
                 $checkKeyLength = 20;
                 $this->hmac_size = 12;
                 break;
             case 'hmac-md5':
-                $this->hmac_check->setHash('md5');
+                $this->hmac_check = new Crypt_Hash('md5');
                 $checkKeyLength = 16;
                 $this->hmac_size = 16;
                 break;
             case 'hmac-md5-96':
-                $this->hmac_check->setHash('md5-96');
+                $this->hmac_check = new Crypt_Hash('md5-96');
                 $checkKeyLength = 16;
                 $this->hmac_size = 12;
         }
@@ -1026,16 +1043,16 @@ class Net_SSH2 {
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
 
         $iv = pack('H*', $hash($keyBytes . $source . 'A' . $this->session_id));
-        while ($encryptIVLength > strlen($iv)) {
+        while ($this->encrypt_block_size > strlen($iv)) {
             $iv.= pack('H*', $hash($keyBytes . $source . $iv));
         }
-        $this->encrypt->setIV(substr($iv, 0, $encryptIVLength));
+        $this->encrypt->setIV(substr($iv, 0, $this->encrypt_block_size));
 
         $iv = pack('H*', $hash($keyBytes . $source . 'B' . $this->session_id));
-        while ($decryptIVLength > strlen($iv)) {
+        while ($this->decrypt_block_size > strlen($iv)) {
             $iv.= pack('H*', $hash($keyBytes . $source . $iv));
         }
-        $this->decrypt->setIV(substr($iv, 0, $decryptIVLength));
+        $this->decrypt->setIV(substr($iv, 0, $this->decrypt_block_size));
 
         $key = pack('H*', $hash($keyBytes . $source . 'C' . $this->session_id));
         while ($encryptKeyLength > strlen($key)) {
@@ -1331,7 +1348,7 @@ class Net_SSH2 {
             return false;
         }
 
-        $raw = fread($this->fsock, $this->block_size);
+        $raw = fread($this->fsock, $this->decrypt_block_size);
 
         if ($this->decrypt !== false) {
             $raw = $this->decrypt->decrypt($raw);
@@ -1341,8 +1358,11 @@ class Net_SSH2 {
         $packet_length = $temp['packet_length'];
         $padding_length = $temp['padding_length'];
 
-        $temp = fread($this->fsock, $packet_length + 4 - $this->block_size);
-        $raw.= $this->decrypt !== false ? $this->decrypt->decrypt($temp) : $temp;
+        $remaining_length = $packet_length + 4 - $this->decrypt_block_size;
+        if ($remaining_length > 0) {
+            $temp = fread($this->fsock, $remaining_length);
+            $raw.= $this->decrypt !== false ? $this->decrypt->decrypt($temp) : $temp;
+        }
 
         $payload = $this->_string_shift($raw, $packet_length - $padding_length - 1);
         $padding = $this->_string_shift($raw, $padding_length); // should leave $raw empty
@@ -1464,10 +1484,10 @@ class Net_SSH2 {
             return false;
         }
 
-        // 4, for the packet length + 1, for the padding length + 4, for the minimal padding amount
+        // 4 (packet length) + 1 (padding length) + 4 (minimal padding amount) == 9
         $packet_length = strlen($data) + 9;
-        // round up to the nearest $this->block_size
-        $packet_length+= (($this->block_size - 1) * $packet_length) % $this->block_size;
+        // round up to the nearest $this->encrypt_block_size
+        $packet_length+= (($this->encrypt_block_size - 1) * $packet_length) % $this->encrypt_block_size;
         // subtracting strlen($data) is obvious - subtracting 5 is necessary because of packet_length and padding_length
         $padding_length = $packet_length - strlen($data) - 5;
 

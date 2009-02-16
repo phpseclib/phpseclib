@@ -2,7 +2,7 @@
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
- * Pure-PHP implementations of DES.
+ * Pure-PHP implementation of DES.
  *
  * Uses mcrypt, if available, and an internal implementation, otherwise.
  *
@@ -53,7 +53,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: DES.php,v 1.5 2008-08-04 17:59:12 terrafrost Exp $
+ * @version    $Id: DES.php,v 1.6 2009-02-16 22:22:13 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -154,7 +154,7 @@ class Crypt_DES {
      * The Initialization Vector
      *
      * @see Crypt_DES::setIV()
-     * @var Integer
+     * @var String
      * @access private
      */
     var $iv = "\0\0\0\0\0\0\0\0";
@@ -163,7 +163,7 @@ class Crypt_DES {
      * A "sliding" Initialization Vector
      *
      * @see Crypt_DES::enableContinuousBuffer()
-     * @var Integer
+     * @var String
      * @access private
      */
     var $encryptIV = "\0\0\0\0\0\0\0\0";
@@ -172,7 +172,7 @@ class Crypt_DES {
      * A "sliding" Initialization Vector
      *
      * @see Crypt_DES::enableContinuousBuffer()
-     * @var Integer
+     * @var String
      * @access private
      */
     var $decryptIV = "\0\0\0\0\0\0\0\0";
@@ -215,7 +215,8 @@ class Crypt_DES {
             case CRYPT_DES_MODE_MCRYPT:
                 switch ($mode) {
                     case CRYPT_DES_MODE_ECB:
-                        $this->mode = MCRYPT_MODE_ECB;    break;
+                        $this->mode = MCRYPT_MODE_ECB;
+                        break;
                     case CRYPT_DES_MODE_CBC:
                     default:
                         $this->mode = MCRYPT_MODE_CBC;
@@ -274,10 +275,10 @@ class Crypt_DES {
      *
      * @link http://php.net/function.mcrypt-module-open#function.mcrypt-module-open
      * @access public
-     * @param Integer $algorithm_directory
-     * @param Integer $mode_directory
+     * @param optional Integer $algorithm_directory
+     * @param optional Integer $mode_directory
      */
-    function setMCrypt($algorithm_directory, $mode_directory)
+    function setMCrypt($algorithm_directory = '', $mode_directory = '')
     {
         $this->mcrypt = array($algorithm_directory, $mode_directory);
     }
@@ -504,20 +505,25 @@ class Crypt_DES {
      */
     function _pad($text)
     {
+        $length = strlen($text);
+
         if (!$this->padding) {
-            if (strlen($text) & 7 == 0) {
+            if ($length & 7 == 0) {
                 return $text;
             } else {
+                user_error("The plaintext's length ($length) is not a multiple of the block size (8)", E_USER_NOTICE);
                 $this->padding = true;
             }
         }
 
-        $length = 8 - (strlen($text) & 7);
-        return str_pad($text, strlen($text) + $length, chr($length));
+        $pad = 8 - ($length & 7);
+        return str_pad($text, $length + $pad, chr($pad));
     }
 
     /**
      * Unpads a string
+     *
+     * If padding is enabled and the reported padding length exceeds the block size, padding will be, hence forth, disabled.
      *
      * @see Crypt_DES::_pad()
      * @access private
@@ -529,6 +535,13 @@ class Crypt_DES {
         }
 
         $length = ord($text[strlen($text) - 1]);
+
+        if ($length > 8) {
+            user_error("The number of bytes reported as being padded ($length) exceeds the block size (8)", E_USER_NOTICE);
+            $this->padding = false;
+            return $text;
+        }
+
         return substr($text, 0, -$length);
     }
 
@@ -836,4 +849,3 @@ class Crypt_DES {
 
 // vim: ts=4:sw=4:et:
 // vim6: fdl=1:
-?>

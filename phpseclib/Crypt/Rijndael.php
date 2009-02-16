@@ -4,8 +4,7 @@
 /**
  * Pure-PHP implementation of Rijndael.
  *
- * Does not use mcrypt, even when available, since mcrypt doesn't implement Rijndael - it implements a subset of Rijndael 
- * known as AES.
+ * Does not use mcrypt, even when available, for reasons that are explained below.
  *
  * PHP versions 4 and 5
  *
@@ -15,8 +14,8 @@
  * 136-bits it'll be null-padded to 160-bits and 160 bits will be the key length until 
  * {@link Crypt_Rijndael::setKey() setKey()} is called, again, at which point, it'll be recalculated.
  *
- * Not all Rijndael implementations may support 160-bits or 224-bits as the block length / key length.  AES, itself, only
- * supports block lengths of 128 and key lengths of 128, 192, and 256.
+ * Not all Rijndael implementations may support 160-bits or 224-bits as the block length / key length.  mcrypt, for example,
+ * does not.  AES, itself, only supports block lengths of 128 and key lengths of 128, 192, and 256.
  * {@link http://csrc.nist.gov/archive/aes/rijndael/Rijndael-ammended.pdf#page=10 Rijndael-ammended.pdf#page=10} defines the
  * algorithm for block lengths of 192 and 256 but not for block lengths / key lengths of 160 and 224.  Indeed, 160 and 224
  * are first defined as valid key / block lengths in 
@@ -65,7 +64,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Rijndael.php,v 1.1 2009-02-01 15:37:25 terrafrost Exp $
+ * @version    $Id: Rijndael.php,v 1.2 2009-02-16 22:22:13 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -86,6 +85,20 @@ define('CRYPT_RIJNDAEL_MODE_ECB', 1);
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
  */
 define('CRYPT_RIJNDAEL_MODE_CBC', 2);
+/**#@-*/
+
+/**#@+
+ * @access private
+ * @see Crypt_AES::Crypt_AES()
+ */
+/**
+ * Toggles the internal implementation
+ */
+define('CRYPT_RIJNDAEL_MODE_INTERNAL', 1);
+/**
+ * Toggles the mcrypt implementation
+ */
+define('CRYPT_RIJNDAEL_MODE_MCRYPT', 2);
 /**#@-*/
 
 /**
@@ -338,6 +351,11 @@ class Crypt_Rijndael {
     /**
      * Default Constructor.
      *
+     * Determines whether or not the mcrypt extension should be used.  $mode should only, at present, be
+     * CRYPT_RIJNDAEL_MODE_ECB or CRYPT_RIJNDAEL_MODE_CBC.  If not explictly set, CRYPT_RIJNDAEL_MODE_CBC will be used.
+     *
+     * @param optional Integer $mode
+     * @return Crypt_Rijndael
      * @access public
      */
     function Crypt_Rijndael($mode = CRYPT_MODE_RIJNDAEL_CBC) {
@@ -464,7 +482,7 @@ class Crypt_Rijndael {
      */
     function setIV($iv)
     {
-        $this->encryptIV = $this->decryptIV = $this->iv = str_pad(substr($iv, 0, 8), 8, chr(0));;
+        $this->encryptIV = $this->decryptIV = $this->iv = str_pad(substr($iv, 0, $this->block_size), $this->block_size, chr(0));;
     }
 
     /**
@@ -1013,6 +1031,7 @@ class Crypt_Rijndael {
         }
 
         $pad = $this->block_size - ($length % $this->block_size);
+
         return str_pad($text, $length + $pad, chr($pad));
     }
 

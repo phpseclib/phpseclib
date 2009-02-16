@@ -47,7 +47,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: TripleDES.php,v 1.4 2008-08-04 17:59:12 terrafrost Exp $
+ * @version    $Id: TripleDES.php,v 1.5 2009-02-16 22:22:13 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -119,7 +119,7 @@ class Crypt_TripleDES {
      * The Initialization Vector
      *
      * @see Crypt_TripleDES::setIV()
-     * @var Integer
+     * @var String
      * @access private
      */
     var $iv = "\0\0\0\0\0\0\0\0";
@@ -128,7 +128,7 @@ class Crypt_TripleDES {
      * A "sliding" Initialization Vector
      *
      * @see Crypt_TripleDES::enableContinuousBuffer()
-     * @var Integer
+     * @var String
      * @access private
      */
     var $encryptIV = "\0\0\0\0\0\0\0\0";
@@ -137,7 +137,7 @@ class Crypt_TripleDES {
      * A "sliding" Initialization Vector
      *
      * @see Crypt_TripleDES::enableContinuousBuffer()
-     * @var Integer
+     * @var String
      * @access private
      */
     var $decryptIV = "\0\0\0\0\0\0\0\0";
@@ -292,10 +292,10 @@ class Crypt_TripleDES {
      *
      * @link http://php.net/function.mcrypt-module-open#function.mcrypt-module-open
      * @access public
-     * @param Integer $algorithm_directory
-     * @param Integer $mode_directory
+     * @param optional Integer $algorithm_directory
+     * @param optional Integer $mode_directory
      */
-    function setMCrypt($algorithm_directory, $mode_directory)
+    function setMCrypt($algorithm_directory = '', $mode_directory = '')
     {
         $this->mcrypt = array($algorithm_directory, $mode_directory);
         if ( $this->mode == CRYPT_DES_MODE_3CBC ) {
@@ -560,20 +560,25 @@ class Crypt_TripleDES {
      */
     function _pad($text)
     {
+        $length = strlen($text);
+
         if (!$this->padding) {
-            if (strlen($text) & 7 == 0) {
+            if ($length & 7 == 0) {
                 return $text;
             } else {
+                user_error("The plaintext's length ($length) is not a multiple of the block size (8)", E_USER_NOTICE);
                 $this->padding = true;
             }
         }
 
-        $length = 8 - (strlen($text) & 7);
-        return str_pad($text, strlen($text) + $length, chr($length));
+        $pad = 8 - ($length & 7);
+        return str_pad($text, $length + $pad, chr($pad));
     }
 
     /**
      * Unpads a string
+     *
+     * If padding is enabled and the reported padding length exceeds the block size, padding will be, hence forth, disabled.
      *
      * @see Crypt_TripleDES::_pad()
      * @access private
@@ -585,10 +590,16 @@ class Crypt_TripleDES {
         }
 
         $length = ord($text[strlen($text) - 1]);
+
+        if ($length > 8) {
+            user_error("The number of bytes reported as being padded ($length) exceeds the block size (8)", E_USER_NOTICE);
+            $this->padding = false;
+            return $text;
+        }
+
         return substr($text, 0, -$length);
     }
 }
 
 // vim: ts=4:sw=4:et:
 // vim6: fdl=1:
-?>
