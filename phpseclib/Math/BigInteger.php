@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.4 2008-05-25 07:28:57 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.5 2009-02-16 23:11:01 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -521,6 +521,20 @@ class Math_BigInteger {
         }
 
         return $result;
+    }
+
+    /**
+     *  __toString() magic method
+     *
+     * Will be called, automatically, if you're supporting just PHP5.  If you're supporting PHP4, you'll need to call
+     * toString().
+     *
+     * @access public
+     * @internal Implemented per a suggestion by Techie-Michael - thanks!
+     */
+    function __toString()
+    {
+        return $this->toString();
     }
 
     /**
@@ -1412,7 +1426,7 @@ class Math_BigInteger {
      *
      * {@link http://groups.google.com/group/sci.crypt/msg/7a137205c1be7d85}
      *
-     * As for why we do all the bitmasking...  strange things can happen when converting from flots to ints. For
+     * As for why we do all the bitmasking...  strange things can happen when converting from floats to ints. For
      * instance, on some computers, var_dump((int) -4294967297) yields int(-1) and on others, it yields 
      * int(-2147483648).  To avoid problems stemming from this, we use bitmasks to guarantee that ints aren't
      * auto-converted to floats.  The outermost bitmask is present because without it, there's no guarantee that
