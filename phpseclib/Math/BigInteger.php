@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.5 2009-02-16 23:11:01 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.6 2009-02-26 17:25:03 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -1952,6 +1952,7 @@ class Math_BigInteger {
         $max = $max->subtract($min);
         $max = ltrim($max->toBytes(), chr(0));
         $size = strlen($max) - 1;
+        $random = '';
 
         $bytes = $size & 3;
         for ($i = 0; $i < $bytes; $i++) {

@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.9 2009-02-16 22:22:13 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.10 2009-02-26 17:25:03 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1369,7 +1369,7 @@ class Net_SSH2 {
 
         if ($this->hmac_check !== false) {
             $hmac = fread($this->fsock, $this->hmac_size);
-            if ($hmac != $this->hmac_check->hmac(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding))) {
+            if ($hmac != $this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding))) {
                 user_error('Invalid HMAC', E_USER_NOTICE);
                 return false;
             }
@@ -1499,7 +1499,7 @@ class Net_SSH2 {
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself
         $packet = pack('NCa*', $packet_length - 4, $padding_length, $data . $padding);
 
-        $hmac = $this->hmac_create !== false ? $this->hmac_create->hmac(pack('Na*', $this->send_seq_no, $packet)) : '';
+        $hmac = $this->hmac_create !== false ? $this->hmac_create->hash(pack('Na*', $this->send_seq_no, $packet)) : '';
         $this->send_seq_no++;
 
         if ($this->encrypt !== false) {

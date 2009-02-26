@@ -56,7 +56,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: AES.php,v 1.1 2009-02-16 23:11:01 terrafrost Exp $
+ * @version    $Id: AES.php,v 1.2 2009-02-26 17:25:00 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -126,7 +126,7 @@ class Crypt_AES extends Crypt_Rijndael {
      * @return Crypt_AES
      * @access public
      */
-    function Crypt_AES($mode = CRYPT_MODE_AES_CBC)
+    function Crypt_AES($mode = CRYPT_AES_MODE_CBC)
     {
         if ( !defined('CRYPT_AES_MODE') ) {
             switch (true) {
