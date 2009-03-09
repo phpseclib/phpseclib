@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.9 2008-05-25 07:28:57 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.10 2009-03-09 22:00:17 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -737,8 +737,7 @@ class Net_SSH1 {
      * there's not going to be much recourse.
      *
      * @see Net_SSH1::interactiveRead()
-     * @param String $cmd
-     * @return Boolean
+     * @return String
      * @access public
      */
     function interactiveRead()
