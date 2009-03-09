@@ -53,7 +53,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: DES.php,v 1.6 2009-02-16 22:22:13 terrafrost Exp $
+ * @version    $Id: DES.php,v 1.7 2009-03-09 05:13:24 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -508,7 +508,7 @@ class Crypt_DES {
         $length = strlen($text);
 
         if (!$this->padding) {
-            if ($length & 7 == 0) {
+            if (($length & 7) == 0) {
                 return $text;
             } else {
                 user_error("The plaintext's length ($length) is not a multiple of the block size (8)", E_USER_NOTICE);
