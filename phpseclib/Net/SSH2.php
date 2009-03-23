@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.10 2009-02-26 17:25:03 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.11 2009-03-23 22:44:51 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1286,12 +1286,11 @@ class Net_SSH2 {
                             list(, $length) = unpack('N', $this->_string_shift($response, 4));
                             $this->debug_info.= "\r\n" . $this->_string_shift($response, $length);
                         case 'exit-status':
+                        default:
+                            // "Some systems may not implement signals, in which case they SHOULD ignore this message."
+                            //  -- http://tools.ietf.org/html/rfc4254#section-6.9
                             //break 2;
                             break;
-                        default:
-                            $this->bitmap = 0;
-                            user_error("Bad string value in SSH_MSG_CHANNEL_REQUEST", E_USER_NOTICE);
-                            return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
                     }
                     break;
                 case NET_SSH2_MSG_CHANNEL_CLOSE:
