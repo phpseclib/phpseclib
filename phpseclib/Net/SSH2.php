@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.11 2009-03-23 22:44:51 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.12 2009-03-25 22:29:42 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -85,6 +85,20 @@ require_once('Crypt/AES.php');
  */
 define('NET_SSH2_MASK_CONSTRUCTOR', 0x00000001);
 define('NET_SSH2_MASK_LOGIN',       0x00000002);
+/**#@-*/
+
+/**#@+
+ * @access public
+ * @see Net_SSH2::getLog()
+ */
+/**
+ * Returns the message numbers
+ */
+define('NET_SSH2_LOG_SIMPLE',  1);
+/**
+ * Returns the message content
+ */
+define('NET_SSH2_LOG_COMPLEX', 2);
 /**#@-*/
 
 /**
@@ -399,6 +413,24 @@ class Net_SSH2 {
      * @access private
      */
     var $get_seq_no = 0;
+
+    /**
+     * Message Number Log
+     *
+     * @see Net_SSH2::getLog()
+     * @var Array
+     * @access private
+     */
+    var $message_number_log = array();
+
+    /**
+     * Message Log
+     *
+     * @see Net_SSH2::getLog()
+     * @var Array
+     * @access private
+     */
+    var $message_log = array();
 
     /**
      * Default Constructor.
@@ -1376,6 +1408,11 @@ class Net_SSH2 {
 
         $this->get_seq_no++;
 
+        if (defined('NET_SSH2_LOGGING')) {
+            $this->message_number_log[] = '<- ' . $this->message_numbers[ord($payload[0])];
+            $this->message_log[] = $padding;
+        }
+
         return $this->_filter($payload);
     }
 
@@ -1483,6 +1520,11 @@ class Net_SSH2 {
             return false;
         }
 
+        if (defined('NET_SSH2_LOGGING')) {
+            $this->message_number_log[] = '-> ' . $this->message_numbers[ord($data[0])];
+            $this->message_log[] = $data;
+        }
+
         // 4 (packet length) + 1 (padding length) + 4 (minimal padding amount) == 9
         $packet_length = strlen($data) + 9;
         // round up to the nearest $this->encrypt_block_size
@@ -1570,12 +1612,56 @@ class Net_SSH2 {
     }
 
     /**
+     * Returns a log of the packets that have been sent and received.
+     *
+     * $type can be either NET_SSH2_LOG_SIMPLE or NET_SSH2_LOG_COMPLEX.  NET_SSH2_LOG_COMPLEX
+     * will contain your severs password, so don't distribute log files produced with it unless
+     * you've redacted the password.
+     *
+     * @param Integer $type
+     * @access public
+     * @return String or Array
+     */
+    function getLog($type = NET_SSH2_LOG_SIMPLE)
+    {
+        if ($type != NET_SSH2_LOG_COMPLEX) {
+            return $this->message_number_log;
+        }
+
+        $boundary = ':';
+        $long_width = 65;
+        $short_width = 15;
+
+        $output = '';
+        for ($i = 0; $i < count($this->message_log); $i++) {
+            $output.= $this->message_number_log[$i] . "\r\n";
+            do {
+                $fragment = $this->_string_shift($this->message_log[$i], $short_width);
+                $hex = substr(
+                           preg_replace(
+                               '#(.)#es',
+                               '"' . $boundary . '" . str_pad(dechex(ord(substr("\\1", -1))), 2, "0", STR_PAD_LEFT)',
+                               $fragment),
+                           strlen($boundary)
+                       );
+                // replace non ASCII printable characters with dots
+                // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
+                $raw = preg_replace('#[^\x20-\x7E]#', '.', $fragment);
+                $output.= str_pad($hex, $long_width - $short_width, ' ') . $raw . "\r\n";
+            } while (!empty($this->message_log[$i]));
+            $output.= "\r\n";
+        }
+
+        return $output;
+    }
+
+    /**
      * Returns Debug Information
      *
      * If any debug information is sent by the server, this function can be used to access it.
      *
-     * @return String;
-     * @access private
+     * @return String
+     * @access public
      */
     function getDebugInfo()
     {
