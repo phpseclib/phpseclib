@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.6 2009-02-26 17:25:03 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.7 2009-04-18 14:57:54 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -151,7 +151,7 @@ define('MATH_BIGINTEGER_MODE_GMP', 3);
 /**#@-*/
 
 /**
- * Pure-PHP arbitrary precission integer arithmetic library. Supports base-2, base-10, base-16, and base-256
+ * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
  * numbers.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
