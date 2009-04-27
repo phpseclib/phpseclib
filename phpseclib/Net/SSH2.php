@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.12 2009-03-25 22:29:42 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.13 2009-04-27 20:13:29 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1410,7 +1410,7 @@ class Net_SSH2 {
 
         if (defined('NET_SSH2_LOGGING')) {
             $this->message_number_log[] = '<- ' . $this->message_numbers[ord($payload[0])];
-            $this->message_log[] = $padding;
+            $this->message_log[] = $payload;
         }
 
         return $this->_filter($payload);
