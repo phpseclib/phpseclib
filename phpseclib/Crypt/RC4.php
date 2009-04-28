@@ -55,7 +55,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RC4.php,v 1.4 2009-02-16 22:22:13 terrafrost Exp $
+ * @version    $Id: RC4.php,v 1.5 2009-04-28 02:56:34 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -308,7 +308,7 @@ class Crypt_RC4 {
         if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
             $keyStream = $mode == CRYPT_RC4_ENCRYPT ? 'encryptStream' : 'decryptStream';
 
-            if ($this->$keyStream === false) {echo "crypt-toe'ing $keyStream";
+            if ($this->$keyStream === false) {
                 $this->$keyStream = mcrypt_module_open($this->mode, $this->mcrypt[0], MCRYPT_MODE_STREAM, $this->mcrypt[1]);
                 mcrypt_generic_init($this->$keyStream, $this->key, '');
             } else if (!$this->continuousBuffer) {
