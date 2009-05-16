@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.7 2009-04-18 14:57:54 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.8 2009-05-16 17:09:37 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -705,7 +705,7 @@ class Math_BigInteger {
         $x = array_pad($this->value, $size, 0);
         $y = array_pad($y->value, $size, 0);
 
-        for ($i = 0; $i < $size - 1;$i+=2) {
+        for ($i = 0; $i < $size - 1; $i+=2) {
             $sum = $x[$i + 1] * 0x4000000 + $x[$i] - $y[$i + 1] * 0x4000000 - $y[$i] + $carry;
             $carry = $sum < 0 ? -1 : 0; // eg. floor($sum / 2**52); only possible values (in any base) are 0 and 1
             $sum = $carry ? $sum + 4503599627370496 : $sum;
