@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.14 2009-05-16 17:09:37 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.15 2009-05-23 14:42:17 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1177,6 +1177,15 @@ class Net_SSH2 {
             return false;
         }
 
+        // remove the username and password from the last logged packet
+        if (defined('NET_SSH2_LOGGING')) {
+            $packet = pack('CNa*Na*Na*CNa*',
+                NET_SSH2_MSG_USERAUTH_REQUEST, strlen('username'), 'username', strlen('ssh-connection'), 'ssh-connection',
+                strlen('password'), 'password', 0, strlen('password'), 'password'
+            );
+            $this->message_log[count($this->message_log) - 1] = $packet;
+        }
+
         $response = $this->_get_binary_packet();
         if ($response === false) {
             user_error('Connection closed by server', E_USER_NOTICE);
@@ -1301,63 +1310,17 @@ class Net_SSH2 {
         }
 
         $output = '';
-
         while (true) {
-            $response = $this->_get_binary_packet();
-            if ($response === false) {
-                user_error('Connection closed by server', E_USER_NOTICE);
-                return false;
-            }
-
-            list(, $type) = unpack('C', $this->_string_shift($response, 1));
-
-            switch ($type) {
-                case NET_SSH2_MSG_CHANNEL_DATA:
-                    $this->_string_shift($response, 4); // skip over server channel
-                    list(, $length) = unpack('N', $this->_string_shift($response, 4));
-                    $output.= $this->_string_shift($response, $length);
-                    break;
-                case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
-                    $this->_string_shift($response, 4); // skip over server channel
-                    list(, $data_type_code, $length) = unpack('N2', $this->_string_shift($response, 8));
-                    $data = $this->_string_shift($response, $length);
-                    switch ($data_type_code) {
-                        case NET_SSH2_EXTENDED_DATA_STDERR:
-                            $this->debug_info.= "\r\n\r\nSSH_MSG_CHANNEL_EXTENDED_DATA (SSH_EXTENDED_DATA_STDERR):\r\n" . $data;
-                    }
-                    break;
-                case NET_SSH2_MSG_CHANNEL_REQUEST:
-                    $this->_string_shift($response, 4); // skip over server channel
-                    list(, $length) = unpack('N', $this->_string_shift($response, 4));
-                    $value = $this->_string_shift($response, $length);
-                    switch ($value) {
-                        case 'exit-signal':
-                            $this->_string_shift($response, 1);
-                            list(, $length) = unpack('N', $this->_string_shift($response, 4));
-                            $this->debug_info.= "\r\n\r\nSSH_MSG_CHANNEL_REQUEST (exit-signal):\r\nSIG" . $this->_string_shift($response, $length);
-                            $this->_string_shift($response, 1);
-                            list(, $length) = unpack('N', $this->_string_shift($response, 4));
-                            $this->debug_info.= "\r\n" . $this->_string_shift($response, $length);
-                        case 'exit-status':
-                        default:
-                            // "Some systems may not implement signals, in which case they SHOULD ignore this message."
-                            //  -- http://tools.ietf.org/html/rfc4254#section-6.9
-                            //break 2;
-                            break;
-                    }
-                    break;
-                case NET_SSH2_MSG_CHANNEL_CLOSE:
-                    $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $server_channel));
-                    break 2;
-                case NET_SSH2_MSG_CHANNEL_EOF:
-                    break;
+            $temp = $this->_get_channel_packet();
+            switch (true) {
+                case $temp === true:
+                    return $output;
+                case $temp === false:
+                    return false;
                 default:
-                    user_error('Error reading channel data', E_USER_NOTICE);
-                    return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+                    $output.= $temp;
             }
         }
-
-        return $output;
     }
 
     /**
@@ -1532,6 +1495,71 @@ class Net_SSH2 {
     }
 
     /**
+     * Gets channel data
+     *
+     * Returns the data as a string if it's available and false if not.
+     *
+     * @return Mixed
+     * @access private
+     */
+    function _get_channel_packet()
+    {
+        while (true) {
+            $response = $this->_get_binary_packet();
+            if ($response === false) {
+                user_error('Connection closed by server', E_USER_NOTICE);
+                return false;
+            }
+
+            list(, $type) = unpack('C', $this->_string_shift($response, 1));
+
+            switch ($type) {
+                case NET_SSH2_MSG_CHANNEL_DATA:
+                    $this->_string_shift($response, 4); // skip over server channel
+                    list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                    return $this->_string_shift($response, $length);
+                case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
+                    $this->_string_shift($response, 4); // skip over server channel
+                    list(, $data_type_code, $length) = unpack('N2', $this->_string_shift($response, 8));
+                    $data = $this->_string_shift($response, $length);
+                    switch ($data_type_code) {
+                        case NET_SSH2_EXTENDED_DATA_STDERR:
+                            $this->debug_info.= "\r\n\r\nSSH_MSG_CHANNEL_EXTENDED_DATA (SSH_EXTENDED_DATA_STDERR):\r\n" . $data;
+                    }
+                    break;
+                case NET_SSH2_MSG_CHANNEL_REQUEST:
+                    $this->_string_shift($response, 4); // skip over server channel
+                    list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                    $value = $this->_string_shift($response, $length);
+                    switch ($value) {
+                        case 'exit-signal':
+                            $this->_string_shift($response, 1);
+                            list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                            $this->debug_info.= "\r\n\r\nSSH_MSG_CHANNEL_REQUEST (exit-signal):\r\nSIG" . $this->_string_shift($response, $length);
+                            $this->_string_shift($response, 1);
+                            list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                            $this->debug_info.= "\r\n" . $this->_string_shift($response, $length);
+                        case 'exit-status':
+                        default:
+                            // "Some systems may not implement signals, in which case they SHOULD ignore this message."
+                            //  -- http://tools.ietf.org/html/rfc4254#section-6.9
+                            //break 2;
+                            break;
+                    }
+                    break;
+                case NET_SSH2_MSG_CHANNEL_CLOSE:
+                    $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $server_channel));
+                    return true;
+                case NET_SSH2_MSG_CHANNEL_EOF:
+                    break;
+                default:
+                    user_error('Error reading channel data', E_USER_NOTICE);
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+            }
+        }
+    }
+
+    /**
      * Sends Binary Packets
      *
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
@@ -1648,23 +1676,19 @@ class Net_SSH2 {
     /**
      * Returns a log of the packets that have been sent and received.
      *
-     * $type can be either NET_SSH2_LOG_SIMPLE or NET_SSH2_LOG_COMPLEX.  NET_SSH2_LOG_COMPLEX
-     * will contain your severs password, so don't distribute log files produced with it unless
-     * you've redacted the password.  Enable by defining NET_SSH2_LOGGING.
+     * $type can be either NET_SSH2_LOG_SIMPLE or NET_SSH2_LOG_COMPLEX.  Enable by defining NET_SSH2_LOGGING.
      *
      * @param Integer $type
      * @access public
      * @return String or Array
      */
-    function getLog($type = NET_SSH2_LOG_SIMPLE)
+    function getLog($type = NET_SSH2_LOG_COMPLEX)
     {
-        if ($type != NET_SSH2_LOG_COMPLEX) {
+        if ($type == NET_SSH2_LOG_SIMPLE) {
             return $this->message_number_log;
         }
 
-        $boundary = ':';
-        $long_width = 65;
-        $short_width = 15;
+        static $boundary = ':', $long_width = 65, $short_width = 15;
 
         $output = '';
         for ($i = 0; $i < count($this->message_log); $i++) {
