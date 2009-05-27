@@ -56,7 +56,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: AES.php,v 1.2 2009-02-26 17:25:00 terrafrost Exp $
+ * @version    $Id: AES.php,v 1.3 2009-05-27 16:15:23 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -67,8 +67,8 @@ require_once 'Rijndael.php';
 
 /**#@+
  * @access public
- * @see Crypt_Rijndael::encrypt()
- * @see Crypt_Rijndael::decrypt()
+ * @see Crypt_AES::encrypt()
+ * @see Crypt_AES::decrypt()
  */
 /**
  * Encrypt / decrypt using the Electronic Code Book mode.
@@ -203,7 +203,7 @@ class Crypt_AES extends Crypt_Rijndael {
     {
         if ( CRYPT_AES_MODE == CRYPT_AES_MODE_MCRYPT ) {
             $this->_mcryptSetup();
-            $this->_pad($plaintext);
+            $plaintext = $this->_pad($plaintext);
 
             $td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, $this->mcrypt[0], $this->mode, $this->mcrypt[1]);
             mcrypt_generic_init($td, $this->key, $this->encryptIV);

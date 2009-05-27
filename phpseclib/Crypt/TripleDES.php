@@ -47,7 +47,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: TripleDES.php,v 1.6 2009-03-09 05:13:24 terrafrost Exp $
+ * @version    $Id: TripleDES.php,v 1.7 2009-05-27 16:15:23 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -313,9 +313,7 @@ class Crypt_TripleDES {
      */
     function encrypt($plaintext)
     {
-        if ($this->padding) {
-            $plaintext = $this->_pad($plaintext);
-        }
+        $plaintext = $this->_pad($plaintext);
 
         // if the key is smaller then 8, do what we'd normally do
         if ($this->mode == CRYPT_DES_MODE_3CBC && strlen($this->key) > 8) {

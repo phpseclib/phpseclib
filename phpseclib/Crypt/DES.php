@@ -53,7 +53,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: DES.php,v 1.7 2009-03-09 05:13:24 terrafrost Exp $
+ * @version    $Id: DES.php,v 1.8 2009-05-27 16:15:23 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -121,7 +121,7 @@ class Crypt_DES {
      * @var Array
      * @access private
      */
-    var $keys = false;
+    var $keys = "\0\0\0\0\0\0\0\0";
 
     /**
      * The Encryption Mode
@@ -302,7 +302,7 @@ class Crypt_DES {
      */
     function encrypt($plaintext)
     {
-        $this->_pad($plaintext);
+        $plaintext = $this->_pad($plaintext);
 
         if ( CRYPT_DES_MODE == CRYPT_DES_MODE_MCRYPT ) {
             $td = mcrypt_module_open(MCRYPT_DES, $this->mcrypt[0], $this->mode, $this->mcrypt[1]);
@@ -320,7 +320,7 @@ class Crypt_DES {
             return $ciphertext;
         }
 
-        if ($this->keys === false) {
+        if (!is_array($this->keys)) {
             $this->keys = $this->_prepareKey("\0\0\0\0\0\0\0\0");
         }
 
@@ -378,7 +378,7 @@ class Crypt_DES {
             return $this->_unpad($plaintext);
         }
 
-        if ($this->keys === false) {
+        if (!is_array($this->keys)) {
             $this->keys = $this->_prepareKey("\0\0\0\0\0\0\0\0");
         }
 

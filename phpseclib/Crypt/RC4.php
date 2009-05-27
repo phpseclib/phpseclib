@@ -55,7 +55,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RC4.php,v 1.5 2009-04-28 02:56:34 terrafrost Exp $
+ * @version    $Id: RC4.php,v 1.6 2009-05-27 16:15:23 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -208,7 +208,7 @@ class Crypt_RC4 {
     {
         $this->key = $key;
 
-        if (CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT) {
+        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
             return;
         }
 
@@ -277,7 +277,8 @@ class Crypt_RC4 {
      * @access public
      * @param String $plaintext
      */
-    function encrypt($plaintext) {
+    function encrypt($plaintext)
+    {
         return $this->_crypt($plaintext, CRYPT_RC4_ENCRYPT);
     }
 
@@ -291,7 +292,8 @@ class Crypt_RC4 {
      * @access public
      * @param String $ciphertext
      */
-    function decrypt($ciphertext) {
+    function decrypt($ciphertext)
+    {
         return $this->_crypt($ciphertext, CRYPT_RC4_DECRYPT);
     }
 
@@ -304,7 +306,8 @@ class Crypt_RC4 {
      * @param String $text
      * @param Integer $mode
      */
-    function _crypt($text, $mode) {
+    function _crypt($text, $mode)
+    {
         if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
             $keyStream = $mode == CRYPT_RC4_ENCRYPT ? 'encryptStream' : 'decryptStream';
 
@@ -330,6 +333,10 @@ class Crypt_RC4 {
             case CRYPT_RC4_DECRYPT:
                 $keyStream = $this->decryptStream;
                 list($i, $j) = $this->decryptIndex;
+        }
+
+        if ($keyStream === false) {
+            $this->setKey($this->key);
         }
 
         $newText = '';

@@ -64,7 +64,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Rijndael.php,v 1.2 2009-02-16 22:22:13 terrafrost Exp $
+ * @version    $Id: Rijndael.php,v 1.3 2009-05-27 16:15:23 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -89,7 +89,7 @@ define('CRYPT_RIJNDAEL_MODE_CBC', 2);
 
 /**#@+
  * @access private
- * @see Crypt_AES::Crypt_AES()
+ * @see Crypt_Rijndael::Crypt_Rijndael()
  */
 /**
  * Toggles the internal implementation
@@ -158,7 +158,7 @@ class Crypt_Rijndael {
     /**
      * Continuous Buffer status
      *
-     * @see Crypt_DES::enableContinuousBuffer()
+     * @see Crypt_Rijndael::enableContinuousBuffer()
      * @var Boolean
      * @access private
      */
@@ -167,7 +167,7 @@ class Crypt_Rijndael {
     /**
      * Padding status
      *
-     * @see Crypt_DES::enablePadding()
+     * @see Crypt_Rijndael::enablePadding()
      * @var Boolean
      * @access private
      */
@@ -358,7 +358,8 @@ class Crypt_Rijndael {
      * @return Crypt_Rijndael
      * @access public
      */
-    function Crypt_Rijndael($mode = CRYPT_MODE_RIJNDAEL_CBC) {
+    function Crypt_Rijndael($mode = CRYPT_MODE_RIJNDAEL_CBC)
+    {
         switch ($mode) {
             case CRYPT_RIJNDAEL_MODE_ECB:
             case CRYPT_RIJNDAEL_MODE_CBC:

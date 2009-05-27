@@ -46,7 +46,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Hash.php,v 1.2 2009-02-26 17:25:00 terrafrost Exp $
+ * @version    $Id: Hash.php,v 1.3 2009-05-27 16:15:23 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -189,7 +189,7 @@ class Crypt_Hash {
                 $this->l = 20;
         }
 
-        switch (CRYPT_HASH_MODE) {
+        switch ( CRYPT_HASH_MODE ) {
             case CRYPT_HASH_MODE_MHASH:
                 switch ($hash) {
                     case 'md5':
@@ -242,7 +242,7 @@ class Crypt_Hash {
     function hash($text)
     {
         if (!empty($this->key)) {
-            switch (CRYPT_HASH_MODE) {
+            switch ( CRYPT_HASH_MODE ) {
                 case CRYPT_HASH_MODE_MHASH:
                     $output = mhash($this->hash, $text, $this->key);
                     break;
@@ -266,7 +266,7 @@ class Crypt_Hash {
                     $output = pack('H*', $hash($output));     // step 7
             }
         } else {
-            switch (CRYPT_HASH_MODE) {
+            switch ( CRYPT_HASH_MODE ) {
                 case CRYPT_HASH_MODE_MHASH:
                     $output = mhash($this->hash, $text);
                     break;

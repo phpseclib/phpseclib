@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.8 2009-05-16 17:09:37 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.9 2009-05-27 16:15:23 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -358,9 +358,9 @@ class Math_BigInteger {
 
                 $str = '0x';
                 while (strlen($x)) {
-                   $part = substr($x, 0, 4);
-                   $str.= dechex(bindec($part));
-                   $x = substr($x, 4);
+                    $part = substr($x, 0, 4);
+                    $str.= dechex(bindec($part));
+                    $x = substr($x, 4);
                 }
 
                 if ($this->is_negative) {
@@ -791,7 +791,6 @@ class Math_BigInteger {
         }
 
         $product->value[$k] = $carry;
-
 
         // the above for loop is what the previous comment was talking about.  the
         // following for loop is the "one with nested for loops"
@@ -1864,7 +1863,6 @@ class Math_BigInteger {
 
                 break;
             case MATH_BIGINTEGER_MODE_BCMATH:
-
                 $temp->value = bcdiv($this->value, bcpow('2', $shift));
 
                 break;
@@ -2181,7 +2179,3 @@ class Math_BigInteger {
         return $temp['int'];
     }
 }
-
-// vim: ts=4:sw=4:et:
-// vim6: fdl=1:
-?>
