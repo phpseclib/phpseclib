@@ -55,7 +55,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RC4.php,v 1.6 2009-05-27 16:15:23 terrafrost Exp $
+ * @version    $Id: RC4.php,v 1.7 2009-05-27 21:36:53 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -220,9 +220,9 @@ class Crypt_RC4 {
         $j = 0;
         for ($i = 0; $i < 256; $i++) {
             $j = ($j + $keyStream[$i] + ord($key[$i % $keyLength])) & 255;
-            $keyStream[$i] ^= $keyStream[$j];
-            $keyStream[$j] ^= $keyStream[$i];
-            $keyStream[$i] ^= $keyStream[$j];
+            $temp = $keyStream[$i];
+            $keyStream[$i] = $keyStream[$j];
+            $keyStream[$j] = $temp;
         }
 
         $this->encryptIndex = $this->decryptIndex = array(0, 0);
@@ -325,6 +325,10 @@ class Crypt_RC4 {
             return $newText;
         }
 
+        if ($this->encryptStream === false) {
+            $this->setKey($this->key);
+        }
+
         switch ($mode) {
             case CRYPT_RC4_ENCRYPT:
                 $keyStream = $this->encryptStream;
@@ -335,17 +339,13 @@ class Crypt_RC4 {
                 list($i, $j) = $this->decryptIndex;
         }
 
-        if ($keyStream === false) {
-            $this->setKey($this->key);
-        }
-
         $newText = '';
         for ($k = 0; $k < strlen($text); $k++) {
             $i = ($i + 1) & 255;
             $j = ($j + $keyStream[$i]) & 255;
-            $keyStream[$i] ^= $keyStream[$j];
-            $keyStream[$j] ^= $keyStream[$i];
-            $keyStream[$i] ^= $keyStream[$j];
+            $temp = $keyStream[$i];
+            $keyStream[$i] = $keyStream[$j];
+            $keyStream[$j] = $temp;
             $temp = $keyStream[($keyStream[$i] + $keyStream[$j]) & 255];
             $newText.= chr(ord($text[$k]) ^ $temp);
         }
