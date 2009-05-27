@@ -64,7 +64,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Rijndael.php,v 1.3 2009-05-27 16:15:23 terrafrost Exp $
+ * @version    $Id: Rijndael.php,v 1.4 2009-05-27 16:25:35 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -126,7 +126,7 @@ class Crypt_Rijndael {
      * @var String
      * @access private
      */
-    var $key = '';
+    var $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
     /**
      * The Initialization Vector
