@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.16 2009-05-30 15:41:39 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.17 2009-05-30 16:40:31 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -551,7 +551,7 @@ class Net_SSH2 {
 
         if (ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
             user_error('Expected SSH_MSG_KEXINIT', E_USER_NOTICE);
-            return false;
+            return;
         }
 
         if (!$this->_key_exchange($response)) {
@@ -1127,6 +1127,8 @@ class Net_SSH2 {
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
         $this->compress = $compression_algorithms[$i] == 'zlib';
+
+        return true;
     }
 
     /**
