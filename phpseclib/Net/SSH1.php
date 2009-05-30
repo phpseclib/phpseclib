@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.10 2009-03-09 22:00:17 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.11 2009-05-30 15:46:32 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -284,10 +284,10 @@ class Net_SSH1 {
      * The bits that are set reprsent functions that have been called already.  This is used to determine
      * if a requisite function has been successfully executed.  If not, an error should be thrown.
      *
-     * @var Boolean
+     * @var Integer
      * @access private
      */
-    var $bitmap = true;
+    var $bitmap = 0;
 
     /**
      * The Server Key Public Exponent
@@ -391,7 +391,7 @@ class Net_SSH1 {
      */
     function Net_SSH1($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
     {
-        $this->fsock = fsockopen($host, $port, $errno, $errstr, $timeout);
+        $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"), E_USER_NOTICE);
             return;

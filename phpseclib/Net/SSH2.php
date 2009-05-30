@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.15 2009-05-23 14:42:17 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.16 2009-05-30 15:41:39 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -132,10 +132,10 @@ class Net_SSH2 {
      * The bits that are set reprsent functions that have been called already.  This is used to determine
      * if a requisite function has been successfully executed.  If not, an error should be thrown.
      *
-     * @var Boolean
+     * @var Integer
      * @access private
      */
-    var $bitmap = true;
+    var $bitmap = 0;
 
     /**
      * Debug Info
@@ -512,7 +512,7 @@ class Net_SSH2 {
             $this->channel_extended_data_type_codes
         );
 
-        $this->fsock = fsockopen($host, $port, $errno, $errstr, $timeout);
+        $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"), E_USER_NOTICE);
             return;
