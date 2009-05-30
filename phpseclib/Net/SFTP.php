@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.2 2009-05-30 16:45:23 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.3 2009-05-30 16:48:42 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -693,7 +693,7 @@ class Net_SFTP extends Net_SSH2 {
 
         // SFTPv4+ has an additional byte field - type - that would need to be sent, as well. setting it to
         // SSH_FILEXFER_TYPE_UNKNOWN might work. if not, we'd have to do an SSH_FXP_STAT before doing an SSH_FXP_SETSTAT.
-        $attr = pack('N2', NET_SFTP_ATTR_PERMISSIONS, $mode & 0x7777);
+        $attr = pack('N2', NET_SFTP_ATTR_PERMISSIONS, $mode & 07777);
         if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, pack('Na*a*', strlen($filename), $filename, $attr))) {
             return false;
         }
