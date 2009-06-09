@@ -2,7 +2,7 @@
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
- * Pure-PHP implementations of SSHv2.
+ * Pure-PHP implementation of SSHv2.
  *
  * PHP versions 4 and 5
  *
@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.17 2009-05-30 16:40:31 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.18 2009-06-09 04:00:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -931,9 +931,7 @@ class Net_SSH2 {
                 $s = $s->modPow($e, $n);
                 $s = $s->toBytes();
 
-                $h = chr(0x00) . chr(0x30) . chr(0x21) . chr(0x30) . chr(0x09) . chr(0x06) . chr(0x05) . chr(0x2B) .
-                     chr(0x0E) . chr(0x03) . chr(0x02) . chr(0x1A) . chr(0x05) . chr(0x00) . chr(0x04) . chr(0x14) .
-                     pack('H*', sha1($source));
+                $h = pack('N4H*', 0x00302130, 0x0906052B, 0x0E03021A, 0x05000414, sha1($source));
                 $h = chr(0x01) . str_repeat(chr(0xFF), $nLength - 3 - strlen($h)) . $h;
 
                 if ($s != $h) {

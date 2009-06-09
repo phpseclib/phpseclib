@@ -2,7 +2,7 @@
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
- * Pure-PHP implementations of SFTP.
+ * Pure-PHP implementation of SFTP.
  *
  * PHP versions 4 and 5
  *
@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.3 2009-05-30 16:48:42 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.4 2009-06-09 04:00:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -875,67 +875,43 @@ class Net_SFTP extends Net_SSH2 {
             }
             $sent = 0;
             $size = filesize($data);
-            while ($sent < $size) {
-                /*
-                 "The 'maximum packet size' specifies the maximum size of an individual data packet that can be sent to the
-                  sender.  For example, one might want to use smaller packets for interactive connections to get better
-                  interactive response on slow links."
-
-                 -- http://tools.ietf.org/html/rfc4254#section-5.1
-
-                 per that, we're going to assume that the 'maximum packet size' field of the SSH_MSG_CHANNEL_OPEN message 
-                 does not apply to the client.  the client is the one who sends the SSH_MSG_CHANNEL_OPEN message, anyway,
-                 so it's not as if the above could be referring to the server.
-
-                 the reason that's mentioned is because sending $this->packet_size as the payload will result in a packet
-                 that's larger than $this->packet_size, but that's not a problem, as per the above.
-                */
-                if ($initialize) {
-                    $temp = fread($fp, $this->packet_size);
-                    $sent+= strlen($temp);
-                    $packet = pack('NCN2a*N3a*',
-                        $size + strlen($handle) + 21, NET_SFTP_WRITE, $this->request_id, strlen($handle), $handle, 0, 0, $size, $temp
-                    );
-                    $initialize = false;
-                    if (defined('NET_SFTP_LOGGING')) {
-                        $log_index = count($this->packet_type_log);
-                        $this->packet_type_log[] = '<- ' . $this->packet_types[$packet_type];
-                        $this->packet_log[] = $packet;
-                    }
-                } else {
-                    $packet = fread($fp, $this->packet_size);
-                    $sent+= strlen($packet);
-                    if (defined('NET_SFTP_LOGGING')) {
-                        $this->packet_log[$log_index].= $packet;
-                    }
-                }
-                if (!$this->_send_channel_packet($packet)) {
-                    fclose($fp);
-                    return false;
-                }
-            }
-            fclose($fp);
         } else {
-            while (strlen($data)) {
-                if ($initialize) {
-                    $packet = pack('NCN2a*N3a*',
-                        strlen($data) + strlen($handle) + 21, NET_SFTP_WRITE, $this->request_id, strlen($handle), $handle, 0, 0, strlen($data),
-                        $this->_string_shift($data, $this->packet_size)
-                    );
-                    $initialize = false;
-                } else {
-                    $packet = $this->_string_shift($data, $this->packet_size);
-                }
-                if (!$this->_send_channel_packet($packet)) {
-                    return false;
-                }
+            $sent = 0;
+            $size = strlen($data);
+        }
+
+        while ($sent < $size) {
+            /*
+             "The 'maximum packet size' specifies the maximum size of an individual data packet that can be sent to the
+              sender.  For example, one might want to use smaller packets for interactive connections to get better
+              interactive response on slow links."
+
+             -- http://tools.ietf.org/html/rfc4254#section-5.1
+
+             per that, we're going to assume that the 'maximum packet size' field of the SSH_MSG_CHANNEL_OPEN message 
+             does not apply to the client.  the client is the one who sends the SSH_MSG_CHANNEL_OPEN message, anyway,
+             so it's not as if the above could be referring to the server.
+
+             the reason that's mentioned is because sending $this->packet_size as the payload will result in a packet
+             that's larger than $this->packet_size, but that's not a problem, as per the above.
+            */
+            $temp = $mode == NET_SFTP_LOCAL_FILE ? fread($fp, $this->packet_size) : $this->_string_shift($data, $this->packet_size);
+            $packet = pack('Na*N3a*', strlen($handle), $handle, 0, $sent, strlen($temp), $temp);
+            if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
+                fclose($fp);
+                return false;
+            }
+            $sent+= strlen($temp);
+
+            $this->_get_sftp_packet();
+            if ($this->packet_type != NET_SFTP_STATUS) {
+                user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
+                return false;
             }
         }
 
-        $this->_get_sftp_packet();
-        if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-            return false;
+        if ($mode == NET_SFTP_LOCAL_FILE) {
+            fclose($fp);
         }
 
         if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
@@ -1213,25 +1189,6 @@ class Net_SFTP extends Net_SSH2 {
             $this->packet_log[] = $data;
         }
 
-        return $this->_send_channel_packet($data);
-    }
-
-    /**
-     * Sends Channel Packets
-     *
-     * If this function were in Net_SSH2, there'd have to be an additional server channel parameter since the Net_SSH2 object
-     * doesn't currently have one.  Plus, it wouldn't actually make a lot of sense for Net_SSH2 even to have one - if it did
-     * and if Net_SSH2::exec() used it then Net_SFTP::exec() would also use it (through inheritance) and you'd have the
-     * single server channel being overwritten and...  all in all, I think this is easier.
-     *
-     * @param Integer $type
-     * @param String $data
-     * @see Net_SFTP::_send_sftp_packet()
-     * @return Boolean
-     * @access private
-     */
-    function _send_channel_packet($data)
-    {
         return $this->_send_binary_packet(pack('CN2a*', NET_SSH2_MSG_CHANNEL_DATA, $this->server_channel, strlen($data), $data));
     }
 

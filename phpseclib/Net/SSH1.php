@@ -2,7 +2,7 @@
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
- * Pure-PHP implementations of SSHv1.
+ * Pure-PHP implementation of SSHv1.
  *
  * PHP versions 4 and 5
  *
@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.11 2009-05-30 15:46:32 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.12 2009-06-09 04:00:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 

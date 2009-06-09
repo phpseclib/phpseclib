@@ -2,7 +2,7 @@
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
- * Pure-PHP implementations of Triple DES.
+ * Pure-PHP implementation of Triple DES.
  *
  * Uses mcrypt, if available, and an internal implementation, otherwise.  Operates in the EDE3 mode (encrypt-decrypt-encrypt).
  *
@@ -47,7 +47,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: TripleDES.php,v 1.7 2009-05-27 16:15:23 terrafrost Exp $
+ * @version    $Id: TripleDES.php,v 1.8 2009-06-09 04:00:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
