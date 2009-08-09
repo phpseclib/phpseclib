@@ -64,7 +64,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Rijndael.php,v 1.4 2009-05-27 16:25:35 terrafrost Exp $
+ * @version    $Id: Rijndael.php,v 1.5 2009-08-09 03:53:28 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -358,7 +358,7 @@ class Crypt_Rijndael {
      * @return Crypt_Rijndael
      * @access public
      */
-    function Crypt_Rijndael($mode = CRYPT_MODE_RIJNDAEL_CBC)
+    function Crypt_Rijndael($mode = CRYPT_RIJNDAEL_MODE_CBC)
     {
         switch ($mode) {
             case CRYPT_RIJNDAEL_MODE_ECB:

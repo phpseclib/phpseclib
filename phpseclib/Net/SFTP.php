@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.4 2009-06-09 04:00:38 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.5 2009-08-09 03:53:28 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1247,7 +1247,7 @@ class Net_SFTP extends Net_SSH2 {
     /**
      * Returns a log of the packets that have been sent and received.
      *
-     * $type can be either NET_SFTP_LOG_SIMPLE or NET_SFTP_LOG_COMPLEX.  Enable by defining NET_SSH2_LOGGING.
+     * $type can be either NET_SFTP_LOG_SIMPLE or NET_SFTP_LOG_COMPLEX.  Enable by defining NET_SFTP_LOGGING.
      *
      * @param Integer $type
      * @access public
