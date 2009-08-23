@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.5 2009-08-09 03:53:28 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.6 2009-08-23 03:40:50 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -144,15 +144,6 @@ class Net_SFTP extends Net_SSH2 {
      * @access private
      */
     var $client_channel = 1;
-
-    /**
-     * The Server Channel
-     *
-     * @var Integer
-     * @see Net_SFTP::_initChannel()
-     * @access private
-     */
-    var $server_channel = -1;
 
     /**
      * The Request ID
@@ -334,7 +325,8 @@ class Net_SFTP extends Net_SSH2 {
         switch ($type) {
             case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
                 $this->_string_shift($response, 4);
-                list(, $this->server_channel) = unpack('N', $this->_string_shift($response, 4));
+                list(, $server_channel) = unpack('N', $this->_string_shift($response, 4));
+                $this->server_channels[$this->client_channel] = $server_channel;
                 break;
             case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
                 user_error('Unable to open channel', E_USER_NOTICE);
@@ -342,7 +334,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         $packet = pack('CNNa*CNa*',
-            NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channel, strlen('subsystem'), 'subsystem', 1, strlen('sftp'), 'sftp');
+            NET_SSH2_MSG_CHANNEL_REQUEST, $server_channel, strlen('subsystem'), 'subsystem', 1, strlen('sftp'), 'sftp');
         if (!$this->_send_binary_packet($packet)) {
             return false;
         }
@@ -1189,7 +1181,7 @@ class Net_SFTP extends Net_SSH2 {
             $this->packet_log[] = $data;
         }
 
-        return $this->_send_binary_packet(pack('CN2a*', NET_SSH2_MSG_CHANNEL_DATA, $this->server_channel, strlen($data), $data));
+        return $this->_send_binary_packet(pack('CN2a*', NET_SSH2_MSG_CHANNEL_DATA, $this->server_channels[$this->client_channel], strlen($data), $data));
     }
 
     /**

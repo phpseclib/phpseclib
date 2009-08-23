@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.18 2009-06-09 04:00:38 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.19 2009-08-23 03:40:50 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -413,6 +413,18 @@ class Net_SSH2 {
      * @access private
      */
     var $get_seq_no = 0;
+
+    /**
+     * Server Channels
+     *
+     * Maps client channels to server channels
+     *
+     * @see Net_SSH2::_get_channel_packet()
+     * @see Net_SSH2::exec()
+     * @var Array
+     * @access private
+     */
+    var $server_channels = array();
 
     /**
      * Message Number Log
@@ -1224,6 +1236,14 @@ class Net_SSH2 {
             return false;
         }
 
+        // RFC4254 refers not to client and server channels but rather to sender and recipient channels.  we don't refer
+        // to them in that way because RFC4254 toggles the meaning. the client sends a SSH_MSG_CHANNEL_OPEN message with
+        // a sender channel and the server sends a SSH_MSG_CHANNEL_OPEN_CONFIRMATION in response, with a sender and a
+        // recepient channel.  at first glance, you might conclude that SSH_MSG_CHANNEL_OPEN_CONFIRMATION's sender channel
+        // would be the same thing as SSH_MSG_CHANNEL_OPEN's sender channel, but it's not, per this snipet:
+        //     The 'recipient channel' is the channel number given in the original
+        //     open request, and 'sender channel' is the channel number allocated by
+        //     the other side.
         $client_channel = 0; // PuTTy uses 0x100
         // RFC4254 defines the window size as "bytes the other party can send before it must wait for the window to be 
         // adjusted".  0x7FFFFFFF is, at 4GB, the max size.  technically, it should probably be decremented, but, honestly,
@@ -1254,6 +1274,7 @@ class Net_SSH2 {
             case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
                 $this->_string_shift($response, 4);
                 list(, $server_channel) = unpack('N', $this->_string_shift($response, 4));
+                $this->server_channels[$client_channel] = $server_channel;
                 break;
             case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
                 user_error('Unable to open channel', E_USER_NOTICE);
@@ -1424,7 +1445,7 @@ class Net_SSH2 {
             case NET_SSH2_MSG_DISCONNECT:
                 $this->_string_shift($payload, 1);
                 list(, $reason_code, $length) = unpack('N2', $this->_string_shift($payload, 8));
-                $this->debug_info.= "\r\n\r\nSSH_MSG_DISCONNECT:\r\n" . $this->disconnect_reasons[$reason_code] . "\r\n" . utf8_decode($this->_string_shift($payload, $temp['length']));
+                $this->debug_info.= "\r\n\r\nSSH_MSG_DISCONNECT:\r\n" . $this->disconnect_reasons[$reason_code] . "\r\n" . utf8_decode($this->_string_shift($payload, $length));
                 $this->bitmask = 0;
                 return false;
             case NET_SSH2_MSG_IGNORE:
@@ -1475,10 +1496,11 @@ class Net_SSH2 {
                     list(, $length) = unpack('N', $payload);
                     $this->debug_info.= "\r\n\r\nSSH_MSG_CHANNEL_OPEN:\r\n" . utf8_decode($this->_string_shift($payload, $length));
 
-                    list(, $recipient_channel) = unpack('N', $this->_string_shift($payload, 4));
+                    $this->_string_shift($payload, 4); // skip over client channel
+                    list(, $server_channel) = unpack('N', $this->_string_shift($payload, 4));
 
                     $packet = pack('CN3a*Na*',
-                        NET_SSH2_MSG_REQUEST_FAILURE, $recipient_channel, NET_SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED, 0, '', 0, '');
+                        NET_SSH2_MSG_REQUEST_FAILURE, $server_channel, NET_SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED, 0, '', 0, '');
 
                     if (!$this->_send_binary_packet($packet)) {
                         return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
@@ -1515,11 +1537,11 @@ class Net_SSH2 {
 
             switch ($type) {
                 case NET_SSH2_MSG_CHANNEL_DATA:
-                    $this->_string_shift($response, 4); // skip over server channel
+                    $this->_string_shift($response, 4); // skip over client channel
                     list(, $length) = unpack('N', $this->_string_shift($response, 4));
                     return $this->_string_shift($response, $length);
                 case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
-                    $this->_string_shift($response, 4); // skip over server channel
+                    $this->_string_shift($response, 4); // skip over client channel
                     list(, $data_type_code, $length) = unpack('N2', $this->_string_shift($response, 8));
                     $data = $this->_string_shift($response, $length);
                     switch ($data_type_code) {
@@ -1528,7 +1550,7 @@ class Net_SSH2 {
                     }
                     break;
                 case NET_SSH2_MSG_CHANNEL_REQUEST:
-                    $this->_string_shift($response, 4); // skip over server channel
+                    $this->_string_shift($response, 4); // skip over client channel
                     list(, $length) = unpack('N', $this->_string_shift($response, 4));
                     $value = $this->_string_shift($response, $length);
                     switch ($value) {
@@ -1548,7 +1570,8 @@ class Net_SSH2 {
                     }
                     break;
                 case NET_SSH2_MSG_CHANNEL_CLOSE:
-                    $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $server_channel));
+                    list(, $client_channel) = unpack('N', $this->_string_shift($response, 4));
+                    $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$client_channel]));
                     return true;
                 case NET_SSH2_MSG_CHANNEL_EOF:
                     break;
