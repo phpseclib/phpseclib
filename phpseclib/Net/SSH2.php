@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.19 2009-08-23 03:40:50 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.20 2009-08-29 19:23:25 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1212,7 +1212,7 @@ class Net_SSH2 {
                 $this->debug_info.= "\r\n\r\nSSH_MSG_USERAUTH_PASSWD_CHANGEREQ:\r\n" . utf8_decode($this->_string_shift($response, $length));
                 return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_FAILURE:
-                list(, $length) = unpack('Nlength', $this->_string_shift($response, 4));
+                list(, $length) = unpack('N', $this->_string_shift($response, 4));
                 $this->debug_info.= "\r\n\r\nSSH_MSG_USERAUTH_FAILURE:\r\n" . $this->_string_shift($response, $length);
                 return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
@@ -1383,7 +1383,9 @@ class Net_SSH2 {
             return false;
         }
 
+        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $raw = fread($this->fsock, $this->decrypt_block_size);
+        $stop = strtok(microtime(), ' ') + strtok('');
 
         if ($this->decrypt !== false) {
             $raw = $this->decrypt->decrypt($raw);
@@ -1423,7 +1425,8 @@ class Net_SSH2 {
         $this->get_seq_no++;
 
         if (defined('NET_SSH2_LOGGING')) {
-            $this->message_number_log[] = '<- ' . $this->message_numbers[ord($payload[0])];
+            $this->message_number_log[] = '-> ' . $this->message_numbers[ord($payload[0])] .
+                                          ' (' . round($stop - $start, 4) . 's)';
             $this->message_log[] = $payload;
         }
 
@@ -1599,11 +1602,6 @@ class Net_SSH2 {
             return false;
         }
 
-        if (defined('NET_SSH2_LOGGING')) {
-            $this->message_number_log[] = '-> ' . $this->message_numbers[ord($data[0])];
-            $this->message_log[] = $data;
-        }
-
         //if ($this->compress) {
         //    // the -4 removes the checksum:
         //    // http://php.net/function.gzcompress#57710
@@ -1634,7 +1632,17 @@ class Net_SSH2 {
 
         $packet.= $hmac;
 
-        return strlen($packet) == fputs($this->fsock, $packet);
+        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+        $result = strlen($packet) == fputs($this->fsock, $packet);
+        $stop = strtok(microtime(), ' ') + strtok('');
+
+        if (defined('NET_SSH2_LOGGING')) {
+            $this->message_number_log[] = '-> ' . $this->message_numbers[ord($data[0])] .
+                                          ' (' . round($stop - $start, 4) . 's)';
+            $this->message_log[] = $data;
+        }
+
+        return $result;
     }
 
     /**

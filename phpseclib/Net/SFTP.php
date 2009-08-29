@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.6 2009-08-23 03:40:50 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.7 2009-08-29 19:23:25 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1176,12 +1176,17 @@ class Net_SFTP extends Net_SSH2 {
             pack('NCNa*', strlen($data) + 5, $type, $this->request_id, $data) :
             pack('NCa*',  strlen($data) + 1, $type, $data);
 
+        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+        $result = $this->_send_binary_packet(pack('CN2a*', NET_SSH2_MSG_CHANNEL_DATA, $this->server_channels[$this->client_channel], strlen($data), $data));
+        $stop = strtok(microtime(), ' ') + strtok('');
+
         if (defined('NET_SFTP_LOGGING')) {
-            $this->packet_type_log[] = '-> ' . $this->packet_types[$type];
+            $this->packet_type_log[] = '-> ' . $this->packet_types[$type] . 
+                                       ' (' . round($stop - $start, 4) . 's)';
             $this->packet_log[] = $data;
         }
 
-        return $this->_send_binary_packet(pack('CN2a*', NET_SSH2_MSG_CHANNEL_DATA, $this->server_channels[$this->client_channel], strlen($data), $data));
+        return $result;
     }
 
     /**
@@ -1195,6 +1200,8 @@ class Net_SFTP extends Net_SSH2 {
      */
     function _get_sftp_packet()
     {
+        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+
         $packet = $this->_get_channel_packet();
         if (is_bool($packet)) {
             $this->packet_type = false;
@@ -1228,8 +1235,11 @@ class Net_SFTP extends Net_SSH2 {
             $length-= strlen($temp);
         }
 
+        $stop = strtok(microtime(), ' ') + strtok('');
+
         if (defined('NET_SFTP_LOGGING')) {
-            $this->packet_type_log[] = '<- ' . $this->packet_types[$this->packet_type];
+            $this->packet_type_log[] = '<- ' . $this->packet_types[$this->packet_type] . 
+                                       ' (' . round($stop - $start, 4) . 's)';
             $this->packet_log[] = $packet;
         }
 
