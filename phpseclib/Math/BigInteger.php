@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.9 2009-05-27 16:15:23 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.10 2009-08-30 15:10:05 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -1244,7 +1244,7 @@ class Math_BigInteger {
                 $i++;
             } else {
                 for ($j = $window_size - 1; $j >= 0; $j--) {
-                    if ( $e_bits[$i + $j] ) {
+                    if ( !empty($e_bits[$i + $j]) ) {
                         break;
                     }
                 }
