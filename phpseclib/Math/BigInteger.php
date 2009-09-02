@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.10 2009-08-30 15:10:05 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.11 2009-09-02 19:20:48 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -510,6 +510,7 @@ class Math_BigInteger {
 
         $divisor = new Math_BigInteger();
         $divisor->value = array(10000000); // eg. 10**7
+        $result = '';
         while (count($temp->value)) {
             list($temp, $mod) = $temp->divide($divisor);
             $result = str_pad($this->_bytes2int($mod->toBytes()), 7, '0', STR_PAD_LEFT) . $result;
@@ -828,12 +829,10 @@ class Math_BigInteger {
             return new Math_BigInteger();
         }
 
-        $max_index = count($this->value) - 1;
-
         $square = new Math_BigInteger();
-        $square->value = $this->_array_repeat(0, 2 * $max_index);
+        $square->value = $this->_array_repeat(0, 2 * count($this->value));
 
-        for ($i = 0; $i <= $max_index; $i++) {
+        for ($i = 0, $max_index = count($this->value) - 1; $i <= $max_index; $i++) {
             $temp = $square->value[2 * $i] + $this->value[$i] * $this->value[$i];
             $carry = floor($temp / 0x4000000);
             $square->value[2 * $i] = $temp - 0x4000000 * $carry;
