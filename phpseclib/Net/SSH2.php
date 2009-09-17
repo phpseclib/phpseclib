@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.20 2009-08-29 19:23:25 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.21 2009-09-17 03:19:20 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -425,6 +425,18 @@ class Net_SSH2 {
      * @access private
      */
     var $server_channels = array();
+
+    /**
+     * Packet Size
+     *
+     * Maximum packet size
+     *
+     * @see Net_SSH2::_send_channel_packet()
+     * @see Net_SSH2::exec()
+     * @var Integer
+     * @access private
+     */
+    var $packet_size_client_to_server = 0;
 
     /**
      * Message Number Log
@@ -1245,14 +1257,13 @@ class Net_SSH2 {
         //     open request, and 'sender channel' is the channel number allocated by
         //     the other side.
         $client_channel = 0; // PuTTy uses 0x100
-        // RFC4254 defines the window size as "bytes the other party can send before it must wait for the window to be 
-        // adjusted".  0x7FFFFFFF is, at 4GB, the max size.  technically, it should probably be decremented, but, honestly,
-        // if you're transfering more than 4GB, you probably shouldn't be using phpseclib, anyway.
+        // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
+        // be adjusted".  0x7FFFFFFF is, at 4GB, the max size.  technically, it should probably be decremented, but, 
+        // honestly, if you're transfering more than 4GB, you probably shouldn't be using phpseclib, anyway.
         // see http://tools.ietf.org/html/rfc4254#section-5.2 for more info
         $window_size = 0x7FFFFFFF;
         // 0x8000 is the maximum max packet size, per http://tools.ietf.org/html/rfc4253#section-6.1, although since PuTTy
-        // uses 0x4000, that's what will be used here, as well.  0x7FFFFFFF could be used, as well (i've not encountered
-        // any problems, using it, myself), but that's not what the specs say, so whatever.
+        // uses 0x4000, that's what will be used here, as well.
         $packet_size = 0x4000;
 
         $packet = pack('CNa*N3',
@@ -1272,9 +1283,11 @@ class Net_SSH2 {
 
         switch ($type) {
             case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
-                $this->_string_shift($response, 4);
+                $this->_string_shift($response, 4); // skip over client channel
                 list(, $server_channel) = unpack('N', $this->_string_shift($response, 4));
                 $this->server_channels[$client_channel] = $server_channel;
+                $this->_string_shift($response, 4); // skip over (server) window size
+                list(, $this->packet_size_client_to_server) = unpack('N', $this->_string_shift($response, 4));
                 break;
             case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
                 user_error('Unable to open channel', E_USER_NOTICE);
@@ -1307,6 +1320,9 @@ class Net_SSH2 {
                 return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
         }
 
+        // although, in theory, the size of SSH_MSG_CHANNEL_REQUEST could exceed the maximum packet size established by
+        // SSH_MSG_CHANNEL_OPEN_CONFIRMATION, RFC4254#section-5.1 states that the "maximum packet size" refers to the 
+        // "maximum size of an individual data packet". ie. SSH_MSG_CHANNEL_DATA.  RFC4254#section-5.2 corroborates.
         $packet = pack('CNNa*CNa*',
             NET_SSH2_MSG_CHANNEL_REQUEST, $server_channel, strlen('exec'), 'exec', 1, strlen($command), $command);
         if (!$this->_send_binary_packet($packet)) {
@@ -1425,7 +1441,7 @@ class Net_SSH2 {
         $this->get_seq_no++;
 
         if (defined('NET_SSH2_LOGGING')) {
-            $this->message_number_log[] = '-> ' . $this->message_numbers[ord($payload[0])] .
+            $this->message_number_log[] = '<- ' . $this->message_numbers[ord($payload[0])] .
                                           ' (' . round($stop - $start, 4) . 's)';
             $this->message_log[] = $payload;
         }
@@ -1643,6 +1659,35 @@ class Net_SSH2 {
         }
 
         return $result;
+    }
+
+    /**
+     * Sends channel data
+     *
+     * Spans multiple SSH_MSG_CHANNEL_DATAs if appropriate
+     *
+     * @return Boolean
+     * @access private
+     */
+    function _send_channel_packet($data)
+    {
+        while (strlen($data) > $this->packet_size_client_to_server) {
+            $packet = pack('CN2a*',
+                NET_SSH2_MSG_CHANNEL_DATA,
+                $this->server_channels[$this->client_channel],
+                $this->packet_size_client_to_server,
+                $this->_string_shift($data, $this->packet_size_client_to_server)
+            );
+            
+            if (!$this->_send_binary_packet($packet)) {
+                return false;
+            }
+        }
+        return $this->_send_binary_packet(pack('CN2a*',
+            NET_SSH2_MSG_CHANNEL_DATA,
+            $this->server_channels[$this->client_channel],
+            strlen($data),
+            $data));
     }
 
     /**

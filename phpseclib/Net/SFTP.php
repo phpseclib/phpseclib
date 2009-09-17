@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.7 2009-08-29 19:23:25 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.8 2009-09-17 03:19:20 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -124,17 +124,6 @@ class Net_SFTP extends Net_SSH2 {
     var $window_size = 0x7FFFFFFF;
 
     /**
-     * The Packet Size
-     *
-     * Maximum max packet size
-     *
-     * @var Integer
-     * @see Net_SSH2::exec()
-     * @access private
-     */
-    var $packet_size = 0x4000;
-
-    /**
      * The Client Channel
      *
      * Net_SSH2::exec() uses 0
@@ -144,6 +133,17 @@ class Net_SFTP extends Net_SSH2 {
      * @access private
      */
     var $client_channel = 1;
+
+    /**
+     * Packet Size
+     *
+     * Maximum packet size
+     *
+     * @see Net_SSH2::exec()
+     * @var Integer
+     * @access private
+     */
+    var $packet_size_server_to_client = 0x4000;
 
     /**
      * The Request ID
@@ -164,10 +164,19 @@ class Net_SFTP extends Net_SSH2 {
      * concurrent actions, so it's somewhat academic, here.
      *
      * @var Integer
-     * @see Net_SFTP::_send_sftp_packet()
+     * @see Net_SFTP::_get_sftp_packet()
      * @access private
      */
     var $packet_type = -1;
+
+    /**
+     * Packet Buffer
+     *
+     * @var String
+     * @see Net_SFTP::_get_sftp_packet()
+     * @access private
+     */
+    var $packet_buffer = '';
 
     /**
      * Extensions supported by the server
@@ -308,7 +317,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         $packet = pack('CNa*N3',
-            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', $this->client_channel, $this->window_size, $this->packet_size);
+            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', $this->client_channel, $this->window_size, $this->packet_size_server_to_client);
 
         if (!$this->_send_binary_packet($packet)) {
             return false;
@@ -324,9 +333,11 @@ class Net_SFTP extends Net_SSH2 {
 
         switch ($type) {
             case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
-                $this->_string_shift($response, 4);
+                $this->_string_shift($response, 4); // skip over client channel
                 list(, $server_channel) = unpack('N', $this->_string_shift($response, 4));
-                $this->server_channels[$this->client_channel] = $server_channel;
+                $this->server_channels[$client_channel] = $server_channel;
+                $this->_string_shift($response, 4); // skip over (server) window size
+                list(, $this->packet_size_client_to_server) = unpack('N', $this->_string_shift($response, 4));
                 break;
             case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
                 user_error('Unable to open channel', E_USER_NOTICE);
@@ -872,22 +883,10 @@ class Net_SFTP extends Net_SSH2 {
             $size = strlen($data);
         }
 
+        $i = 0;
+        $sftp_packet_size = 34000; // PuTTY uses 4096
         while ($sent < $size) {
-            /*
-             "The 'maximum packet size' specifies the maximum size of an individual data packet that can be sent to the
-              sender.  For example, one might want to use smaller packets for interactive connections to get better
-              interactive response on slow links."
-
-             -- http://tools.ietf.org/html/rfc4254#section-5.1
-
-             per that, we're going to assume that the 'maximum packet size' field of the SSH_MSG_CHANNEL_OPEN message 
-             does not apply to the client.  the client is the one who sends the SSH_MSG_CHANNEL_OPEN message, anyway,
-             so it's not as if the above could be referring to the server.
-
-             the reason that's mentioned is because sending $this->packet_size as the payload will result in a packet
-             that's larger than $this->packet_size, but that's not a problem, as per the above.
-            */
-            $temp = $mode == NET_SFTP_LOCAL_FILE ? fread($fp, $this->packet_size) : $this->_string_shift($data, $this->packet_size);
+            $temp = $mode == NET_SFTP_LOCAL_FILE ? fread($fp, $sftp_packet_size) : $this->_string_shift($data, $sftp_packet_size);
             $packet = pack('Na*N3a*', strlen($handle), $handle, 0, $sent, strlen($temp), $temp);
             if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
                 fclose($fp);
@@ -895,6 +894,10 @@ class Net_SFTP extends Net_SSH2 {
             }
             $sent+= strlen($temp);
 
+            $i++;
+        }
+
+        while ($i-- > 0){
             $this->_get_sftp_packet();
             if ($this->packet_type != NET_SFTP_STATUS) {
                 user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
@@ -986,9 +989,10 @@ class Net_SFTP extends Net_SSH2 {
             $content = '';
         }
 
+define('DEBUG2', true);
         $read = 0;
         while ($read < $attrs['size']) {
-            $packet = pack('Na*N3', strlen($handle), $handle, 0, $read, 100000); // 100000 is completely arbitrarily chosen
+            $packet = pack('Na*N3', strlen($handle), $handle, 0, $read, 1 << 20); //100000); // 100000 is completely arbitrarily chosen
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
                 return false;
             }
@@ -1014,6 +1018,9 @@ class Net_SFTP extends Net_SSH2 {
                     return false;
             }
         }
+echo "decrypted: " . $this->decrypt->total2 . "\r\n";
+echo "encrypted: " . $this->encrypt->total2 . "\r\n";
+echo "...: " . $this->encrypt->tests . "\r\n";
 
         if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
             return false;
@@ -1172,12 +1179,12 @@ class Net_SFTP extends Net_SSH2 {
      */
     function _send_sftp_packet($type, $data)
     {
-        $data = $this->request_id !== false ?
+        $packet = $this->request_id !== false ?
             pack('NCNa*', strlen($data) + 5, $type, $this->request_id, $data) :
             pack('NCa*',  strlen($data) + 1, $type, $data);
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
-        $result = $this->_send_binary_packet(pack('CN2a*', NET_SSH2_MSG_CHANNEL_DATA, $this->server_channels[$this->client_channel], strlen($data), $data));
+        $result = $this->_send_channel_packet($packet);
         $stop = strtok(microtime(), ' ') + strtok('');
 
         if (defined('NET_SFTP_LOGGING')) {
@@ -1194,6 +1201,10 @@ class Net_SFTP extends Net_SSH2 {
      *
      * See '6. General Packet Format' of draft-ietf-secsh-filexfer-13 for more info.
      *
+     * Incidentally, the number of SSH_MSG_CHANNEL_DATA messages has no bearing on the number of SFTP packets present.
+     * There can be one SSH_MSG_CHANNEL_DATA messages containing two SFTP packets or there can be two SSH_MSG_CHANNEL_DATA
+     * messages containing one SFTP packet.
+     *
      * @see Net_SFTP::_send_sftp_packet()
      * @return String
      * @access private
@@ -1202,40 +1213,35 @@ class Net_SFTP extends Net_SSH2 {
     {
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
 
-        $packet = $this->_get_channel_packet();
-        if (is_bool($packet)) {
-            $this->packet_type = false;
-            return false;
-        }
-        /*
-         normally, strlen($packet) == $length, however, for really large packets, strlen($packet) < $length. what this means,
-         when it happens, is that the string is being spanned out across multiple SSH_MSG_CHANNEL_DATA messages and we'll
-         need to read them multiple times until we reach $length bytes.
-
-         presumably, strlen($packet) > $length would never happen unless you were trying to employ steganography or
-         something
-        */
-        list(, $length) = unpack('N', $this->_string_shift($packet, 4));
-        $this->packet_type = ord($this->_string_shift($packet));
-        if ($this->request_id !== false) {
-            $this->_string_shift($packet, 4); // remove the request id
-            $length-= 5; // account for the request id and the packet type
-        } else {
-            $length-= 1; // account for the packet type
-        }
-        $packet = substr($packet, 0, $length); // just in case strlen($packet) > $length
-        $length-= strlen($packet);
-        while ($length > 0) {
+        // SFTP packet length
+        while (strlen($this->packet_buffer) < 4) {
             $temp = $this->_get_channel_packet();
             if (is_bool($temp)) {
                 $this->packet_type = false;
+                $this->packet_buffer = '';
                 return false;
             }
-            $packet.= $temp;
-            $length-= strlen($temp);
+            $this->packet_buffer.= $temp;
+        }
+        list(, $length) = unpack('N', $this->_string_shift($this->packet_buffer, 4));
+        $tempLength = $length;
+        $tempLength-= strlen($this->packet_buffer);
+
+        // SFTP packet type and data payload
+        while ($tempLength > 0) {
+            $temp = $this->_get_channel_packet();
+            if (is_bool($temp)) {
+                $this->packet_type = false;
+                $this->packet_buffer = '';
+                return false;
+            }
+            $this->packet_buffer.= $temp;
+            $tempLength-= strlen($temp);
         }
 
         $stop = strtok(microtime(), ' ') + strtok('');
+
+        $this->packet_type = ord($this->_string_shift($this->packet_buffer));
 
         if (defined('NET_SFTP_LOGGING')) {
             $this->packet_type_log[] = '<- ' . $this->packet_types[$this->packet_type] . 
@@ -1243,7 +1249,14 @@ class Net_SFTP extends Net_SSH2 {
             $this->packet_log[] = $packet;
         }
 
-        return $packet;
+        if ($this->request_id !== false) {
+            $this->_string_shift($this->packet_buffer, 4); // remove the request id
+            $length-= 5; // account for the request id and the packet type
+        } else {
+            $length-= 1; // account for the packet type
+        }
+
+        return $this->_string_shift($this->packet_buffer, $length);
     }
 
     /**
