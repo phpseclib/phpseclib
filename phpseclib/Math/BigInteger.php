@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.11 2009-09-02 19:20:48 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.12 2009-10-02 21:34:13 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -149,6 +149,13 @@ define('MATH_BIGINTEGER_MODE_BCMATH', 2);
  */
 define('MATH_BIGINTEGER_MODE_GMP', 3);
 /**#@-*/
+
+/**
+ * The largest digit that may be used in addition / subtraction
+ *
+ * @access private
+ */
+define('MATH_BIGINTEGER_MAX_DIGIT52', pow(2, 52));
 
 /**
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
@@ -607,8 +614,8 @@ class Math_BigInteger {
 
         for ($i = 0; $i < $size - 1; $i+=2) {
             $sum = $x[$i + 1] * 0x4000000 + $x[$i] + $y[$i + 1] * 0x4000000 + $y[$i] + $carry;
-            $carry = $sum >= 4503599627370496; // eg. floor($sum / 2**52); only possible values (in any base) are 0 and 1
-            $sum = $carry ? $sum - 4503599627370496 : $sum;
+            $carry = $sum >= MATH_BIGINTEGER_MAX_DIGIT52; // eg. floor($sum / 2**52); only possible values (in any base) are 0 and 1
+            $sum = $carry ? $sum - MATH_BIGINTEGER_MAX_DIGIT52 : $sum;
 
             $temp = floor($sum / 0x4000000);
 
@@ -709,7 +716,7 @@ class Math_BigInteger {
         for ($i = 0; $i < $size - 1; $i+=2) {
             $sum = $x[$i + 1] * 0x4000000 + $x[$i] - $y[$i + 1] * 0x4000000 - $y[$i] + $carry;
             $carry = $sum < 0 ? -1 : 0; // eg. floor($sum / 2**52); only possible values (in any base) are 0 and 1
-            $sum = $carry ? $sum + 4503599627370496 : $sum;
+            $sum = $carry ? $sum + MATH_BIGINTEGER_MAX_DIGIT52 : $sum;
 
             $temp = floor($sum / 0x4000000);
 
