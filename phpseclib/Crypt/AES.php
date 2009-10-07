@@ -56,7 +56,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: AES.php,v 1.3 2009-05-27 16:15:23 terrafrost Exp $
+ * @version    $Id: AES.php,v 1.4 2009-10-07 20:53:19 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -351,7 +351,6 @@ class Crypt_AES extends Crypt_Rijndael {
                 $this->t0[$state[2] & 0xFF000000] ^ $this->t1[$state[3] & 0x00FF0000] ^ $this->t2[$state[0] & 0x0000FF00] ^ $this->t3[$state[1] & 0x000000FF] ^ $this->w[$round][2],
                 $this->t0[$state[3] & 0xFF000000] ^ $this->t1[$state[0] & 0x00FF0000] ^ $this->t2[$state[1] & 0x0000FF00] ^ $this->t3[$state[2] & 0x000000FF] ^ $this->w[$round][3]
             );
-
         }
 
         // subWord

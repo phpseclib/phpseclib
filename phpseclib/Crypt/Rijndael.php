@@ -64,7 +64,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Rijndael.php,v 1.5 2009-08-09 03:53:28 terrafrost Exp $
+ * @version    $Id: Rijndael.php,v 1.6 2009-10-07 20:53:19 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -242,7 +242,7 @@ class Crypt_Rijndael {
      * @see setKeyLength()
      * @var Integer
      * @access private
-     * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4.  Exists in conjunction with $key_size
+     * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $key_size
      *    because the encryption / decryption / key schedule creation requires this number and not $key_size.  We could 
      *    derive this from $key_size or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
      *    of that, we'll just precompute it once.
