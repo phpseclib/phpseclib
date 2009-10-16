@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.8 2009-09-17 03:19:20 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.9 2009-10-16 03:37:24 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -122,17 +122,6 @@ class Net_SFTP extends Net_SSH2 {
      * @access private
      */
     var $window_size = 0x7FFFFFFF;
-
-    /**
-     * The Client Channel
-     *
-     * Net_SSH2::exec() uses 0
-     *
-     * @var Integer
-     * @see Net_SSH2::exec()
-     * @access private
-     */
-    var $client_channel = 1;
 
     /**
      * Packet Size
@@ -335,7 +324,7 @@ class Net_SFTP extends Net_SSH2 {
             case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
                 $this->_string_shift($response, 4); // skip over client channel
                 list(, $server_channel) = unpack('N', $this->_string_shift($response, 4));
-                $this->server_channels[$client_channel] = $server_channel;
+                $this->server_channels[$this->client_channel] = $server_channel;
                 $this->_string_shift($response, 4); // skip over (server) window size
                 list(, $this->packet_size_client_to_server) = unpack('N', $this->_string_shift($response, 4));
                 break;

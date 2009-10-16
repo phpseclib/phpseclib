@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.22 2009-09-18 20:14:16 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.23 2009-10-16 03:37:24 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -413,6 +413,19 @@ class Net_SSH2 {
      * @access private
      */
     var $get_seq_no = 0;
+
+    /**
+     * The Client Channel
+     *
+     * Net_SSH2::exec() uses 0, although since Net_SSH2::exec() doesn't send NET_SSH2_CHANNEL_DATA packets,
+     * Net_SSH2::_send_channel_packet() isn't actually called by any function in Net/SSH2.php.  Classes that
+     * extend Net_SSH2, however, might call that function, hence it's existence.
+     *
+     * @var Integer
+     * @see Net_SSH2::_send_channel_packet
+     * @access private
+     */
+    var $client_channel = 1;
 
     /**
      * Server Channels
