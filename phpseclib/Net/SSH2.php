@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.23 2009-10-16 03:37:24 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.24 2009-10-17 03:49:16 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -570,6 +570,14 @@ class Net_SSH2 {
             }
             $temp.= fgets($this->fsock, 255);
         }
+
+        if (defined('NET_SSH2_LOGGING')) {
+            $this->message_number_log[] = '<-';
+            $this->message_log[] = $temp;
+            $this->message_number_log[] = '->';
+            $this->message_log[] = $this->identifier . "\r\n";
+        }
+
         $this->server_identifier = trim($temp);
         $this->debug_info = utf8_decode($this->debug_info);
 
