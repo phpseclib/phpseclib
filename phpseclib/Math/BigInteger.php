@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.12 2009-10-02 21:34:13 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.13 2009-10-28 16:16:00 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -624,7 +624,7 @@ class Math_BigInteger {
         }
 
         if ($carry) {
-            $result->value[] = $carry;
+            $result->value[] = (int) $carry;
         }
 
         $result->is_negative = $this->is_negative;
