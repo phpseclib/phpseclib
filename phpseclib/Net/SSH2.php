@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.24 2009-10-17 03:49:16 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.25 2009-11-03 22:03:43 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -823,7 +823,8 @@ class Net_SSH2 {
 
         $g = new Math_BigInteger(2);
         $x = new Math_BigInteger();
-        $x = $x->random(new Math_BigInteger(1), $q, 'crypt_random');
+        $x->setRandomGenerator('crypt_random');
+        $x = $x->random(new Math_BigInteger(1), $q);
         $e = $g->modPow($x, $p);
 
         $eBytes = $e->toBytes(true);
@@ -940,7 +941,7 @@ class Net_SSH2 {
                 list(, $v) = $v->divide($p);
                 list(, $v) = $v->divide($q);
 
-                if ($v->compare($r) != 0) {
+                if (!$v->equals($r)) {
                     user_error('Invalid signature', E_USER_NOTICE);
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
                 }

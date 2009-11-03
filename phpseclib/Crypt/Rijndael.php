@@ -64,7 +64,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Rijndael.php,v 1.6 2009-10-07 20:53:19 terrafrost Exp $
+ * @version    $Id: Rijndael.php,v 1.7 2009-11-03 22:03:43 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -458,7 +458,7 @@ class Crypt_Rijndael {
      *
      * Keys can be of any length.  Rijndael, itself, requires the use of a key that's between 128-bits and 256-bits long and
      * whose length is a multiple of 32.  If the key is less than 256-bits and the key length isn't set, we round the length
-     * up to the closest valid key length, padding $key with null bytes.  If the key is more tan 256-bits, we trim the
+     * up to the closest valid key length, padding $key with null bytes.  If the key is more than 256-bits, we trim the
      * excess bits.
      *
      * If the key is not explicitly set, it'll be assumed to be all null bytes.
