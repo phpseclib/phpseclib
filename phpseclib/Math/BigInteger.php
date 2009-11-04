@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.14 2009-11-03 22:00:10 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.15 2009-11-04 17:23:58 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -900,7 +900,6 @@ class Math_BigInteger {
      * Performs long multiplication up to $stop digits
      *
      * If you're going to be doing array_slice($product->value, 0, $stop), some cycles can be saved.
-     * $stop, incidentally, should be min($stop, count($this->value)).
      *
      * @see _barrett()
      * @param Math_BigInteger $x
@@ -916,7 +915,7 @@ class Math_BigInteger {
             return new Math_BigInteger();
         }
 
-        if ( $this_length > $x_length ) {
+        if ( $this_length < $x_length ) {
             return $x->_multiplyLower($this, $stop);
         }
 
@@ -931,10 +930,14 @@ class Math_BigInteger {
 
         $carry = 0;
 
-        for ($j = 0; $j <= $stop; $j++) { // ie. $i = 0, $k = $i
+        for ($j = 0; $j < $this_length; $j++) { // ie. $i = 0, $k = $i
             $temp = $this->value[$j] * $x->value[0] + $carry; // $product->value[$k] == 0
             $carry = floor($temp / 0x4000000);
             $product->value[$j] = $temp - 0x4000000 * $carry;
+        }
+
+        if ($j < $stop) {
+            $product->value[$j] = $carry;
         }
 
         // the above for loop is what the previous comment was talking about.  the
@@ -943,10 +946,14 @@ class Math_BigInteger {
         for ($i = 1; $i < $x_length; $i++) {
             $carry = 0;
 
-            for ($j = 0, $k = $i; $k < $stop; $j++, $k++) {
+            for ($j = 0, $k = $i; $j < $this_length && $k < $stop; $j++, $k++) {
                 $temp = $product->value[$k] + $this->value[$j] * $x->value[$i] + $carry;
                 $carry = floor($temp / 0x4000000);
                 $product->value[$k] = $temp - 0x4000000 * $carry;
+            }
+
+            if ($k < $stop) {
+                $product->value[$k] = $carry;
             }
         }
 
@@ -973,7 +980,7 @@ class Math_BigInteger {
             return new Math_BigInteger();
         }
 
-        if ( $this_length > $x_length ) {
+        if ( $this_length < $x_length ) {
             return $x->_multiply($this);
         }
 
@@ -1075,7 +1082,7 @@ class Math_BigInteger {
             $cutoff = 2 * MATH_BIGINTEGER_KARATSUBA_CUTOFF;
         }
 
-        return $this->length < $cutoff ? $this->_baseSquare() : $this->_karatsubaSquare();
+        return count($this->value) < $cutoff ? $this->_baseSquare() : $this->_karatsubaSquare();
     }
 
     /**
@@ -1154,7 +1161,7 @@ class Math_BigInteger {
         $z1->value = array_merge(array_fill(0,     $m, 0), $z1->value);
 
         $xx = $z2->add($z1);
-        $xx = $xy->add($z0);
+        $xx = $xx->add($z0);
 
         return $xx;
     }
