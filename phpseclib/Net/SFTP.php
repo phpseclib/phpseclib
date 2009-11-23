@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.9 2009-10-16 03:37:24 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.10 2009-11-23 19:06:07 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -318,15 +318,16 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        list(, $type) = unpack('C', $this->_string_shift($response, 1));
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         switch ($type) {
             case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
                 $this->_string_shift($response, 4); // skip over client channel
-                list(, $server_channel) = unpack('N', $this->_string_shift($response, 4));
+                extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
                 $this->server_channels[$this->client_channel] = $server_channel;
                 $this->_string_shift($response, 4); // skip over (server) window size
-                list(, $this->packet_size_client_to_server) = unpack('N', $this->_string_shift($response, 4));
+                extract(unpack('Npacket_size_client_to_server', $this->_string_shift($response, 4)));
+                $this->packet_size_client_to_server = $packet_size_client_to_server;
                 break;
             case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
                 user_error('Unable to open channel', E_USER_NOTICE);
@@ -345,7 +346,7 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        list(, $type) = unpack('C', $this->_string_shift($response, 1));
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         switch ($type) {
             case NET_SSH2_MSG_CHANNEL_SUCCESS:
@@ -366,11 +367,12 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        list(, $this->version) = unpack('N', $this->_string_shift($response, 4));
+        extract(unpack('Nversion', $this->_string_shift($response, 4)));
+        $this->version = $version;
         while (!empty($response)) {
-            list(, $length) = unpack('N', $this->_string_shift($response, 4));
+            extract(unpack('Nlength', $this->_string_shift($response, 4)));
             $key = $this->_string_shift($response, $length);
-            list(, $length) = unpack('N', $this->_string_shift($response, 4));
+            extract(unpack('Nlength', $this->_string_shift($response, 4)));
             $value = $this->_string_shift($response, $length);
             $this->extensions[$key] = $value;
         }
@@ -502,13 +504,13 @@ class Net_SFTP extends Net_SSH2 {
                 // should work on all SFTP versions since the only part of the SSH_FXP_NAME packet the following looks
                 // at is the first part and that part is defined the same in SFTP versions 3 through 6.
                 $this->_string_shift($response, 4); // skip over the count - it should be 1, anyway
-                list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $realpath = $this->_string_shift($response, $length);
                 break;
             case NET_SFTP_STATUS:
                 // skip over the status code - hopefully the error message will give us all the info we need, anyway
                 $this->_string_shift($response, 4);
-                list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->debug_info.= "\r\n\r\nSSH_FXP_STATUS:\r\n" . $this->_string_shift($response, $length);
                 return false;
             default:
@@ -622,11 +624,11 @@ class Net_SFTP extends Net_SSH2 {
             $response = $this->_get_sftp_packet();
             switch ($this->packet_type) {
                 case NET_SFTP_NAME:
-                    list(, $count) = unpack('N', $this->_string_shift($response, 4));
+                    extract(unpack('Ncount', $this->_string_shift($response, 4)));
                     for ($i = 0; $i < $count; $i++) {
-                        list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                        extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $contents[] = $this->_string_shift($response, $length);
-                        list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                        extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $this->_string_shift($response, $length); // we don't care about the longname
                         $this->_parseAttributes($response); // we also don't care about the attributes
                         // SFTPv6 has an optional boolean end-of-list field, but we'll ignore that, since the
@@ -634,9 +636,9 @@ class Net_SFTP extends Net_SSH2 {
                     }
                     break;
                 case NET_SFTP_STATUS:
-                    list(, $status) = unpack('N', $this->_string_shift($response, 4));
+                    extract(unpack('Nstatus', $this->_string_shift($response, 4)));
                     if ($status != NET_SFTP_STATUS_EOF) {
-                        list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                        extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $this->debug_info.= "\r\n\r\nSSH_FXP_STATUS:\r\n" . $this->_string_shift($response, $length);
                         return false;
                     }
@@ -754,9 +756,9 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        list(, $status) = unpack('N', $this->_string_shift($response, 4));
+        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
         if ($status != NET_SFTP_STATUS_OK) {
-            list(, $length) = unpack('N', $this->_string_shift($response, 4));
+            extract(unpack('Nlength', $this->_string_shift($response, 4)));
             $this->debug_info.= "\r\n\r\nSSH_FXP_STATUS:\r\n" . $this->_string_shift($response, $length);
             return false;
         }
@@ -792,7 +794,7 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        list(, $status) = unpack('N', $this->_string_shift($response, 4));
+        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
         if ($status != NET_SFTP_STATUS_OK) {
             // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED?
             return false;
@@ -845,7 +847,7 @@ class Net_SFTP extends Net_SSH2 {
                 break;
             case NET_SFTP_STATUS:
                 $this->_string_shift($response, 4);
-                list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->debug_info.= "\r\n\r\nSSH_FXP_STATUS:\r\n" . $this->_string_shift($response, $length);
                 return false;
             default:
@@ -978,10 +980,9 @@ class Net_SFTP extends Net_SSH2 {
             $content = '';
         }
 
-define('DEBUG2', true);
         $read = 0;
         while ($read < $attrs['size']) {
-            $packet = pack('Na*N3', strlen($handle), $handle, 0, $read, 1 << 20); //100000); // 100000 is completely arbitrarily chosen
+            $packet = pack('Na*N3', strlen($handle), $handle, 0, $read, 1 << 20);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
                 return false;
             }
@@ -999,7 +1000,7 @@ define('DEBUG2', true);
                     break;
                 case NET_SFTP_STATUS:
                     $this->_string_shift($response, 4);
-                    list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                    extract(unpack('Nlength', $this->_string_shift($response, 4)));
                     $this->debug_info.= "\r\n\r\nSSH_FXP_STATUS:\r\n" . $this->_string_shift($response, $length);
                     return false;
                 default:
@@ -1007,9 +1008,6 @@ define('DEBUG2', true);
                     return false;
             }
         }
-echo "decrypted: " . $this->decrypt->total2 . "\r\n";
-echo "encrypted: " . $this->encrypt->total2 . "\r\n";
-echo "...: " . $this->encrypt->tests . "\r\n";
 
         if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
             return false;
@@ -1058,7 +1056,7 @@ echo "...: " . $this->encrypt->tests . "\r\n";
             return false;
         }
 
-        list(, $status) = unpack('N', $this->_string_shift($response, 4));
+        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
         return $status == NET_SFTP_STATUS_OK;
@@ -1096,7 +1094,7 @@ echo "...: " . $this->encrypt->tests . "\r\n";
             return false;
         }
 
-        list(, $status) = unpack('N', $this->_string_shift($response, 4));
+        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
         return $status == NET_SFTP_STATUS_OK;
@@ -1114,7 +1112,7 @@ echo "...: " . $this->encrypt->tests . "\r\n";
     function _parseAttributes(&$response)
     {
         $attr = array();
-        list(, $flags) = unpack('N', $this->_string_shift($response, 4));
+        extract(unpack('Nflags', $this->_string_shift($response, 4)));
         // SFTPv4+ have a type field (a byte) that follows the above flag field
         foreach ($this->attributes as $key => $value) {
             switch ($flags & $key) {
@@ -1124,29 +1122,28 @@ echo "...: " . $this->encrypt->tests . "\r\n";
                     // of course, you shouldn't be using Net_SFTP to transfer files that are in excess of 4GB
                     // (0xFFFFFFFF bytes), anyway.  as such, we'll just represent all file sizes that are bigger than
                     // 4GB as being 4GB.
-                    list(, $upper) = unpack('N', $this->_string_shift($response, 4));
-                    list(, $attr['size']) = unpack('N', $this->_string_shift($response, 4));
+                    extract(unpack('Nupper/Nsize', $this->_string_shift($response, 8)));
                     if ($upper) {
                         $attr['size'] = 0xFFFFFFFF;
+                    } else {
+                        $attr['size'] = $size;
                     }
                     break;
                 case NET_SFTP_ATTR_UIDGID: // 0x00000002 (SFTPv3 only)
-                    list(, $attr['uid']) = unpack('N', $this->_string_shift($response, 4));
-                    list(, $attr['gid']) = unpack('N', $this->_string_shift($response, 4));
+                    $attr+= unpack('Nuid/Ngid', $this->_string_shift($response, 8));
                     break;
                 case NET_SFTP_ATTR_PERMISSIONS: // 0x00000004
-                    list(, $attr['permissions']) = unpack('N', $this->_string_shift($response, 4));
+                    $attr+= unpack('Npermissions', $this->_string_shift($response, 4));
                     break;
                 case NET_SFTP_ATTR_ACCESSTIME: // 0x00000008
-                    list(, $attr['atime']) = unpack('N', $this->_string_shift($response, 4));
-                    list(, $attr['mtime']) = unpack('N', $this->_string_shift($response, 4));
+                    $attr+= unpack('Natime/Nmtime', $this->_string_shift($response, 8));
                     break;
                 case NET_SFTP_ATTR_EXTENDED: // 0x80000000
-                    list(, $count) = unpack('N', $this->_string_shift($response, 4));
+                    extract(unpack('Ncount', $this->_string_shift($response, 4)));
                     for ($i = 0; $i < $count; $i++) {
-                        list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                        extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $key = $this->_string_shift($response, $length);
-                        list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                        extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $attr[$key] = $this->_string_shift($response, $length);                        
                     }
             }
@@ -1212,7 +1209,7 @@ echo "...: " . $this->encrypt->tests . "\r\n";
             }
             $this->packet_buffer.= $temp;
         }
-        list(, $length) = unpack('N', $this->_string_shift($this->packet_buffer, 4));
+        extract(unpack('Nlength', $this->_string_shift($this->packet_buffer, 4)));
         $tempLength = $length;
         $tempLength-= strlen($this->packet_buffer);
 

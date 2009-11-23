@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.12 2009-06-09 04:00:38 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.13 2009-11-23 19:06:07 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -440,7 +440,7 @@ class Net_SSH1 {
         $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4);
 
         // get a list of the supported ciphers
-        list(, $supported_ciphers_mask) = unpack('N', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4));
+        extract(unpack('Nsupported_ciphers_mask', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4)));
         foreach ($this->supported_ciphers as $mask=>$name) {
             if (($supported_ciphers_mask & (1 << $mask)) == 0) {
                 unset($this->supported_ciphers[$mask]);
@@ -448,7 +448,7 @@ class Net_SSH1 {
         }
 
         // get a list of the supported authentications
-        list(, $supported_authentications_mask) = unpack('N', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4));
+        extract(unpack('Nsupported_authentications_mask', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4)));
         foreach ($this->supported_authentications as $mask=>$name) {
             if (($supported_authentications_mask & (1 << $mask)) == 0) {
                 unset($this->supported_authentications[$mask]);

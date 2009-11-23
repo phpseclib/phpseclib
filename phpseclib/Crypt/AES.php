@@ -56,7 +56,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: AES.php,v 1.4 2009-10-07 20:53:19 terrafrost Exp $
+ * @version    $Id: AES.php,v 1.5 2009-11-23 19:06:06 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -330,15 +330,14 @@ class Crypt_AES extends Crypt_Rijndael {
      */
     function _encryptBlock($in)
     {
-        // unpack starts it's indices at 1 - not 0.
-        $state = unpack('N*', $in);
+        $state = unpack('N*word', $in);
 
         // addRoundKey and reindex $state
         $state = array(
-            $state[1] ^ $this->w[0][0],
-            $state[2] ^ $this->w[0][1],
-            $state[3] ^ $this->w[0][2],
-            $state[4] ^ $this->w[0][3]
+            $state['word1'] ^ $this->w[0][0],
+            $state['word2'] ^ $this->w[0][1],
+            $state['word3'] ^ $this->w[0][2],
+            $state['word4'] ^ $this->w[0][3]
         );
 
         // shiftRows + subWord + mixColumns + addRoundKey
@@ -351,6 +350,7 @@ class Crypt_AES extends Crypt_Rijndael {
                 $this->t0[$state[2] & 0xFF000000] ^ $this->t1[$state[3] & 0x00FF0000] ^ $this->t2[$state[0] & 0x0000FF00] ^ $this->t3[$state[1] & 0x000000FF] ^ $this->w[$round][2],
                 $this->t0[$state[3] & 0xFF000000] ^ $this->t1[$state[0] & 0x00FF0000] ^ $this->t2[$state[1] & 0x0000FF00] ^ $this->t3[$state[2] & 0x000000FF] ^ $this->w[$round][3]
             );
+
         }
 
         // subWord
@@ -384,16 +384,16 @@ class Crypt_AES extends Crypt_Rijndael {
      */
     function _decryptBlock($in)
     {
-        // unpack starts it's indices at 1 - not 0.
-        $state = unpack('N*', $in);
+        $state = unpack('N*word', $in);
 
         // addRoundKey and reindex $state
         $state = array(
-            $state[1] ^ $this->dw[$this->Nr][0],
-            $state[2] ^ $this->dw[$this->Nr][1],
-            $state[3] ^ $this->dw[$this->Nr][2],
-            $state[4] ^ $this->dw[$this->Nr][3]
+            $state['word1'] ^ $this->dw[$this->Nr][0],
+            $state['word2'] ^ $this->dw[$this->Nr][1],
+            $state['word3'] ^ $this->dw[$this->Nr][2],
+            $state['word4'] ^ $this->dw[$this->Nr][3]
         );
+
 
         // invShiftRows + invSubBytes + invMixColumns + addRoundKey
         for ($round = $this->Nr - 1; $round > 0; $round--) {

@@ -64,7 +64,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Rijndael.php,v 1.7 2009-11-03 22:03:43 terrafrost Exp $
+ * @version    $Id: Rijndael.php,v 1.8 2009-11-23 19:06:07 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -626,14 +626,13 @@ class Crypt_Rijndael {
      */
     function _encryptBlock($in)
     {
-        // unpack starts it's indices at 1 - not 0.
-        $state = unpack('N*', $in);
+        $state = array();
+        $words = unpack('N*word', $in);
 
-        // addRoundKey and reindex $state
-        for ($i = 0; $i < $this->Nb; $i++) {
-            $state[$i] = $state[$i + 1] ^ $this->w[0][$i];
+        // addRoundKey
+        foreach ($words as $word) {
+            $state[] = $word ^ $this->w[0][count($state)];
         }
-        unset($state[$i]);
 
         // fips-197.pdf#page=19, "Figure 5. Pseudo Code for the Cipher", states that this loop has four components - 
         // subBytes, shiftRows, mixColumns, and addRoundKey. fips-197.pdf#page=30, "Implementation Suggestions Regarding 
@@ -704,14 +703,13 @@ class Crypt_Rijndael {
      */
     function _decryptBlock($in)
     {
-        // unpack starts it's indices at 1 - not 0.
-        $state = unpack('N*', $in);
+        $state = array();
+        $words = unpack('N*word', $in);
 
-        // addRoundKey and reindex $state
-        for ($i = 0; $i < $this->Nb; $i++) {
-            $state[$i] = $state[$i + 1] ^ $this->dw[$this->Nr][$i];
+        // addRoundKey
+        foreach ($words as $word) {
+            $state[] = $word ^ $this->dw[0][count($state)];
         }
-        unset($state[$i]);
 
         $temp = array();
         for ($round = $this->Nr - 1; $round > 0; $round--) {
@@ -824,13 +822,10 @@ class Crypt_Rijndael {
 
         $key = $this->key;
 
-        $w = array();
-        for ($i = 0; $i < $this->Nk; $i++) {
-            list(, $w[$i]) = unpack('N', $this->_string_shift($key, 4));
-        }
+        $w = array_values(unpack('N*words', $key));
 
         $length = $this->Nb * ($this->Nr + 1);
-        for (; $i < $length; $i++) {
+        for ($i = $this->Nk; $i < $length; $i++) {
             $temp = $w[$i - 1];
             if ($i % $this->Nk == 0) {
                 // according to <http://php.net/language.types.integer>, "the size of an integer is platform-dependent".
@@ -1039,7 +1034,7 @@ class Crypt_Rijndael {
     /**
      * Unpads a string.
      *
-     * If padding is enabled and the reported padding length exceeds the block size, padding will be, hence forth, disabled.
+     * If padding is enabled and the reported padding length is invalid, padding will be, hence forth, disabled.
      *
      * @see Crypt_Rijndael::_pad()
      * @access private
@@ -1052,8 +1047,8 @@ class Crypt_Rijndael {
 
         $length = ord($text[strlen($text) - 1]);
 
-        if ($length > $this->block_size) {
-            user_error("The number of bytes reported as being padded ($length) exceeds the block size ({$this->block_size})", E_USER_NOTICE);
+        if (!$length || $length > $this->block_size) {
+            user_error("The number of bytes reported as being padded ($length) is invalid (block size = {$this->block_size})", E_USER_NOTICE);
             $this->padding = false;
             return $text;
         }

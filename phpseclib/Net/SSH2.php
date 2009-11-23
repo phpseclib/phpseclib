@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.25 2009-11-03 22:03:43 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.26 2009-11-23 19:06:07 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -625,10 +625,12 @@ class Net_SSH2 {
         );
 
         static $encryption_algorithms = array(
-            'arcfour',    // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
             'aes128-cbc', // RECOMMENDED       AES with a 128-bit key
             'aes192-cbc', // OPTIONAL          AES with a 192-bit key
             'aes256-cbc', // OPTIONAL          AES in CBC mode, with a 256-bit key
+
+            'arcfour',    // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
+
             '3des-cbc',   // REQUIRED          three-key 3DES in CBC mode
             'none'        // OPTIONAL          no encryption; NOT RECOMMENDED
         );
@@ -665,7 +667,7 @@ class Net_SSH2 {
 
         $response = $kexinit_payload_server;
         $this->_string_shift($response, 1); // skip past the message number (it should be SSH_MSG_KEXINIT)
-        list(, $server_cookie) = unpack('a16', $this->_string_shift($response, 16));
+        extract(unpack('a16server_cookie', $this->_string_shift($response, 16)));
 
         $temp = unpack('Nlength', $this->_string_shift($response, 4));
         $this->kex_algorithms = explode(',', $this->_string_shift($response, $temp['length']));
@@ -697,7 +699,7 @@ class Net_SSH2 {
         $temp = unpack('Nlength', $this->_string_shift($response, 4));
         $this->languages_server_to_client = explode(',', $this->_string_shift($response, $temp['length']));
 
-        list(, $first_kex_packet_follows) = unpack('C', $this->_string_shift($response, 1));
+        extract(unpack('Cfirst_kex_packet_follows', $this->_string_shift($response, 1)));
         $first_kex_packet_follows = $first_kex_packet_follows != 0;
 
         // the sending of SSH2_MSG_KEXINIT could go in one of two places.  this is the second place.
@@ -840,8 +842,7 @@ class Net_SSH2 {
             user_error('Connection closed by server', E_USER_NOTICE);
             return false;
         }
-
-        list(, $type) = unpack('C', $this->_string_shift($response, 1));
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         if ($type != NET_SSH2_MSG_KEXDH_REPLY) {
             user_error('Expected SSH_MSG_KEXDH_REPLY', E_USER_NOTICE);
@@ -996,7 +997,7 @@ class Net_SSH2 {
             return false;
         }
 
-        list(, $type) = unpack('C', $this->_string_shift($response, 1));
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         if ($type != NET_SSH2_MSG_NEWKEYS) {
             user_error('Expected SSH_MSG_NEWKEYS', E_USER_NOTICE);
@@ -1200,7 +1201,7 @@ class Net_SSH2 {
             return false;
         }
 
-        list(, $type) = unpack('C', $this->_string_shift($response, 1));
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         if ($type != NET_SSH2_MSG_SERVICE_ACCEPT) {
             user_error('Expected SSH_MSG_SERVICE_ACCEPT', E_USER_NOTICE);
@@ -1233,15 +1234,15 @@ class Net_SSH2 {
             return false;
         }
 
-        list(, $type) = unpack('C', $this->_string_shift($response, 1));
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
-                list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->debug_info.= "\r\n\r\nSSH_MSG_USERAUTH_PASSWD_CHANGEREQ:\r\n" . utf8_decode($this->_string_shift($response, $length));
                 return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_FAILURE:
-                list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->debug_info.= "\r\n\r\nSSH_MSG_USERAUTH_FAILURE:\r\n" . $this->_string_shift($response, $length);
                 return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
@@ -1296,15 +1297,16 @@ class Net_SSH2 {
             return false;
         }
 
-        list(, $type) = unpack('C', $this->_string_shift($response, 1));
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         switch ($type) {
             case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
                 $this->_string_shift($response, 4); // skip over client channel
-                list(, $server_channel) = unpack('N', $this->_string_shift($response, 4));
+                extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
                 $this->server_channels[$client_channel] = $server_channel;
                 $this->_string_shift($response, 4); // skip over (server) window size
-                list(, $this->packet_size_client_to_server) = unpack('N', $this->_string_shift($response, 4));
+                $temp = unpack('Npacket_size_client_to_server', $this->_string_shift($response, 4));
+                $this->packet_size_client_to_server = $temp['packet_size_client_to_server'];
                 break;
             case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
                 user_error('Unable to open channel', E_USER_NOTICE);
@@ -1326,7 +1328,7 @@ class Net_SSH2 {
             return false;
         }
 
-        list(, $type) = unpack('C', $this->_string_shift($response, 1));
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         switch ($type) {
             case NET_SSH2_MSG_CHANNEL_SUCCESS:
@@ -1352,7 +1354,7 @@ class Net_SSH2 {
             return false;
         }
 
-        list(, $type) = unpack('C', $this->_string_shift($response, 1));
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         switch ($type) {
             case NET_SSH2_MSG_CHANNEL_SUCCESS:
@@ -1424,9 +1426,7 @@ class Net_SSH2 {
             $raw = $this->decrypt->decrypt($raw);
         }
 
-        $temp = unpack('Npacket_length/Cpadding_length', $this->_string_shift($raw, 5));
-        $packet_length = $temp['packet_length'];
-        $padding_length = $temp['padding_length'];
+        extract(unpack('Npacket_length/Cpadding_length', $this->_string_shift($raw, 5)));
 
         $remaining_length = $packet_length + 4 - $this->decrypt_block_size;
         $buffer = '';
@@ -1480,7 +1480,7 @@ class Net_SSH2 {
         switch (ord($payload[0])) {
             case NET_SSH2_MSG_DISCONNECT:
                 $this->_string_shift($payload, 1);
-                list(, $reason_code, $length) = unpack('N2', $this->_string_shift($payload, 8));
+                extract(unpack('Nreason_code/Nlength', $this->_string_shift($payload, 8)));
                 $this->debug_info.= "\r\n\r\nSSH_MSG_DISCONNECT:\r\n" . $this->disconnect_reasons[$reason_code] . "\r\n" . utf8_decode($this->_string_shift($payload, $length));
                 $this->bitmask = 0;
                 return false;
@@ -1489,7 +1489,7 @@ class Net_SSH2 {
                 break;
             case NET_SSH2_MSG_DEBUG:
                 $this->_string_shift($payload, 2);
-                list(, $length) = unpack('N', $payload);
+                extract(unpack('Nlength', $this->_string_shift($payload, 4)));
                 $this->debug_info.= "\r\n\r\nSSH_MSG_DEBUG:\r\n" . utf8_decode($this->_string_shift($payload, $length));
                 $payload = $this->_get_binary_packet();
                 break;
@@ -1508,7 +1508,7 @@ class Net_SSH2 {
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
         if (($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR) && !($this->bitmap & NET_SSH2_MASK_LOGIN) && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             $this->_string_shift($payload, 1);
-            list(, $length) = unpack('N', $payload);
+            extract(unpack('Nlength', $this->_string_shift($payload, 4)));
             $this->debug_info.= "\r\n\r\nSSH_MSG_USERAUTH_BANNER:\r\n" . utf8_decode($this->_string_shift($payload, $length));
             $payload = $this->_get_binary_packet();
         }
@@ -1518,7 +1518,7 @@ class Net_SSH2 {
             switch (ord($payload[0])) {
                 case NET_SSH2_MSG_GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
                     $this->_string_shift($payload, 1);
-                    list(, $length) = unpack('N', $payload);
+                    extract(unpack('Nlength', $this->_string_shift($payload)));
                     $this->debug_info.= "\r\n\r\nSSH_MSG_GLOBAL_REQUEST:\r\n" . utf8_decode($this->_string_shift($payload, $length));
 
                     if (!$this->_send_binary_packet(pack('C', NET_SSH2_MSG_REQUEST_FAILURE))) {
@@ -1529,11 +1529,11 @@ class Net_SSH2 {
                     break;
                 case NET_SSH2_MSG_CHANNEL_OPEN: // see http://tools.ietf.org/html/rfc4254#section-5.1
                     $this->_string_shift($payload, 1);
-                    list(, $length) = unpack('N', $payload);
+                    extract(unpack('N', $this->_string_shift($payload, 4)));
                     $this->debug_info.= "\r\n\r\nSSH_MSG_CHANNEL_OPEN:\r\n" . utf8_decode($this->_string_shift($payload, $length));
 
                     $this->_string_shift($payload, 4); // skip over client channel
-                    list(, $server_channel) = unpack('N', $this->_string_shift($payload, 4));
+                    extract(unpack('Nserver_channel', $this->_string_shift($payload, 4)));
 
                     $packet = pack('CN3a*Na*',
                         NET_SSH2_MSG_REQUEST_FAILURE, $server_channel, NET_SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED, 0, '', 0, '');
@@ -1569,16 +1569,16 @@ class Net_SSH2 {
                 return false;
             }
 
-            list(, $type) = unpack('C', $this->_string_shift($response, 1));
+            extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
             switch ($type) {
                 case NET_SSH2_MSG_CHANNEL_DATA:
                     $this->_string_shift($response, 4); // skip over client channel
-                    list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                    extract(unpack('Nlength', $this->_string_shift($response, 4)));
                     return $this->_string_shift($response, $length);
                 case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
                     $this->_string_shift($response, 4); // skip over client channel
-                    list(, $data_type_code, $length) = unpack('N2', $this->_string_shift($response, 8));
+                    extract(unpack('Ndata_type_code/Nlength', $this->_string_shift($response, 8)));
                     $data = $this->_string_shift($response, $length);
                     switch ($data_type_code) {
                         case NET_SSH2_EXTENDED_DATA_STDERR:
@@ -1587,15 +1587,15 @@ class Net_SSH2 {
                     break;
                 case NET_SSH2_MSG_CHANNEL_REQUEST:
                     $this->_string_shift($response, 4); // skip over client channel
-                    list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                    extract(unpack('Nlength', $this->_string_shift($response, 4)));
                     $value = $this->_string_shift($response, $length);
                     switch ($value) {
                         case 'exit-signal':
                             $this->_string_shift($response, 1);
-                            list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                            extract(unpack('Nlength', $this->_string_shift($response, 4)));
                             $this->debug_info.= "\r\n\r\nSSH_MSG_CHANNEL_REQUEST (exit-signal):\r\nSIG" . $this->_string_shift($response, $length);
                             $this->_string_shift($response, 1);
-                            list(, $length) = unpack('N', $this->_string_shift($response, 4));
+                            extract(unpack('Nlength', $this->_string_shift($response, 4)));
                             $this->debug_info.= "\r\n" . $this->_string_shift($response, $length);
                         case 'exit-status':
                         default:
@@ -1606,7 +1606,7 @@ class Net_SSH2 {
                     }
                     break;
                 case NET_SSH2_MSG_CHANNEL_CLOSE:
-                    list(, $client_channel) = unpack('N', $this->_string_shift($response, 4));
+                    extract(unpack('Nclient_channel', $this->_string_shift($response, 4)));
                     $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$client_channel]));
                     return true;
                 case NET_SSH2_MSG_CHANNEL_EOF:
