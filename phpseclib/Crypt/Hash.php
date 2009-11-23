@@ -49,7 +49,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Hash.php,v 1.4 2009-11-23 19:06:07 terrafrost Exp $
+ * @version    $Id: Hash.php,v 1.5 2009-11-23 22:03:08 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -431,7 +431,7 @@ class Crypt_Hash {
         }
 
         // Step 5. Output
-        return bin2hex(substr($x, 0, 16));
+        return substr($x, 0, 16);
     }
 
     /**
