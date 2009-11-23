@@ -49,7 +49,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Hash.php,v 1.5 2009-11-23 22:03:08 terrafrost Exp $
+ * @version    $Id: Hash.php,v 1.6 2009-11-23 23:37:07 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -253,6 +253,7 @@ class Crypt_Hash {
             case 'md2':
                  $this->b = 16;
                  $this->hash = array($this, '_md2');
+                 break;
             case 'md5':
             case 'md5-96':
                  $this->b = 64;
