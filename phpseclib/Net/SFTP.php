@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.10 2009-11-23 19:06:07 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.11 2009-11-25 20:05:41 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -281,7 +281,8 @@ class Net_SFTP extends Net_SSH2 {
         $this->open_flags = array(
             0x00000001 => 'NET_SFTP_OPEN_READ',
             0x00000002 => 'NET_SFTP_OPEN_WRITE',
-            0x00000008 => 'NET_SFTP_OPEN_CREATE'
+            0x00000008 => 'NET_SFTP_OPEN_CREATE',
+            0x00000010 => 'NET_SFTP_OPEN_TRUNCATE'
         );
         $this->_define_array(
             $this->packet_types,
@@ -835,7 +836,7 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        $packet = pack('Na*N2', strlen($remote_file), $remote_file, NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE, 0);
+        $packet = pack('Na*N2', strlen($remote_file), $remote_file, NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE | NET_SFTP_OPEN_TRUNCATE, 0);
         if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
             return false;
         }
