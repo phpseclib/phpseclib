@@ -41,7 +41,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.26 2009-11-23 19:06:07 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.27 2009-11-26 06:41:34 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -667,7 +667,7 @@ class Net_SSH2 {
 
         $response = $kexinit_payload_server;
         $this->_string_shift($response, 1); // skip past the message number (it should be SSH_MSG_KEXINIT)
-        extract(unpack('a16server_cookie', $this->_string_shift($response, 16)));
+        $server_cookie = $this->_string_shift($response, 16);
 
         $temp = unpack('Nlength', $this->_string_shift($response, 4));
         $this->kex_algorithms = explode(',', $this->_string_shift($response, $temp['length']));
