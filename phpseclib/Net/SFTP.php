@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.11 2009-11-25 20:05:41 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.12 2009-11-26 20:12:17 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -751,7 +751,7 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        $this->_get_sftp_packet();
+        $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
             user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
             return false;
