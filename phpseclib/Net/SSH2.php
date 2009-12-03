@@ -6,7 +6,7 @@
  *
  * PHP versions 4 and 5
  *
- * Here's are some examples of how to use this library:
+ * Here are some examples of how to use this library:
  * <code>
  * <?php
  *    include('Net/SSH2.php');
@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.28 2009-12-03 08:18:53 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.29 2009-12-03 19:04:10 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
