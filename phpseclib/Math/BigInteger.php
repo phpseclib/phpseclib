@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.16 2009-11-23 19:06:07 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.17 2009-12-03 08:18:53 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -291,7 +291,7 @@ class Math_BigInteger {
 
                         break;
                     // converts a base-2**8 (big endian / msb) number to base-2**26 (little endian / lsb)
-                    case MATH_BIGINTEGER_MODE_INTERNAL:
+                    default:
                         while (strlen($x)) {
                             $this->value[] = $this->_bytes2int($this->_base256_rshift($x, 26));
                         }
@@ -332,7 +332,7 @@ class Math_BigInteger {
                         $this->value = $this->is_negative ? '-' . $temp->value : $temp->value;
                         $this->is_negative = false;
                         break;
-                    case MATH_BIGINTEGER_MODE_INTERNAL:
+                    default:
                         $x = ( strlen($x) & 1 ) ? '0' . $x : $x;
                         $temp = new Math_BigInteger(pack('H*', $x), 256);
                         $this->value = $temp->value;
@@ -356,7 +356,7 @@ class Math_BigInteger {
                         // results then doing it on '-1' does (modInverse does $x[0])
                         $this->value = (string) $x;
                         break;
-                    case MATH_BIGINTEGER_MODE_INTERNAL:
+                    default:
                         $temp = new Math_BigInteger();
 
                         // array(10000000) is 10**7 in base-2**26.  10**7 is the closest to 2**26 we can get without passing it.
@@ -1054,7 +1054,6 @@ class Math_BigInteger {
 
         // the above for loop is what the previous comment was talking about.  the
         // following for loop is the "one with nested for loops"
-
         for ($i = 1; $i < $x_length; $i++) {
             $carry = 0;
 
@@ -1272,6 +1271,12 @@ class Math_BigInteger {
                 return array($this->_normalize($quotient), $this->_normalize($remainder));
         }
 
+        if (count($y->value) == 1) {
+            $temp = $this->_divide_digit($y->value[0]);
+            $temp[0]->is_negative = $this->is_negative != $y->is_negative;
+            return array($this->_normalize($temp[0]), $this->_normalize($temp[1]));
+        }
+
         static $zero;
         if (!isset($zero)) {
             $zero = new Math_BigInteger();
@@ -1397,6 +1402,32 @@ class Math_BigInteger {
         }
 
         return array($this->_normalize($quotient), $this->_normalize($x));
+    }
+
+    /**
+     * Divides a BigInteger by a regular integer
+     *
+     * abc / x = a00 / x + b0 / x + c / x
+     *
+     * @param Math_BigInteger $divisor
+     * @return Array
+     * @access public
+     */
+    function _divide_digit($divisor)
+    {
+        $carry = 0;
+        $result = new Math_BigInteger();
+
+        for ($i = count($this->value) - 1; $i >= 0; $i--) {
+            $temp = 0x4000000 * $carry + $this->value[$i];
+            $result->value[$i] = floor($temp / $divisor);
+            $carry = fmod($temp, $divisor);
+        }
+
+        $remainder = new Math_BigInteger();
+        $remainder->value = array($carry);
+
+        return array($result, $remainder);
     }
 
     /**
@@ -1790,7 +1821,7 @@ class Math_BigInteger {
             $result = $result->subtract($n);
         }
 
-        return $result->_normalize();
+        return $result;
     }
 
     /**
@@ -1810,7 +1841,7 @@ class Math_BigInteger {
         $temp->value = array_merge($this->_array_repeat(0, $k), $this->value);
 
         list(, $temp) = $temp->divide($n);
-        return $temp->_normalize();
+        return $temp;
     }
 
     /**
@@ -2538,14 +2569,15 @@ class Math_BigInteger {
         $size = strlen($max) - 1;
         $random = '';
 
-        $bytes = $size & 3;
+        $bytes = $size & 1;
         for ($i = 0; $i < $bytes; $i++) {
             $random.= chr($generator(0, 255));
         }
 
-        $blocks = $size >> 2;
+        $blocks = $size >> 1;
         for ($i = 0; $i < $blocks; $i++) {
-            $random.= pack('N', $generator(-2147483648, 0x7FFFFFFF));
+            // mt_rand(-2147483648, 0x7FFFFFFF) always produces -2147483648 on some systems
+            $random.= pack('n', $generator(0, 0xFFFF));
         }
 
         $temp = new Math_BigInteger($random, 256);
@@ -2600,6 +2632,7 @@ class Math_BigInteger {
             }
 
             $x = $this->random($min, $max);
+
             $x->value = gmp_nextprime($x->value);
 
             if ($x->compare($max) <= 0) {
@@ -2628,7 +2661,6 @@ class Math_BigInteger {
             }
 
             $x = $this->random($min, $max);
-
             if ($x->equals($two)) {
                 return $x;
             }
@@ -2643,19 +2675,19 @@ class Math_BigInteger {
                         $x = $x->add($one);
                     }
                     break;
-                case MATH_BIGINTEGER_MODE_INTERNAL:
+                default:
                     $x->value[0] |= 1;
             }
 
             // if we've seen this number twice before, assume there are no prime numbers within the given range
-            if (in_array($x, $repeat1)) {
-                if (in_array($x, $repeat2)) {
+            if (in_array($x->value, $repeat1)) {
+                if (in_array($x->value, $repeat2)) {
                     return false;
                 } else {
-                    $repeat2[] = $x;
+                    $repeat2[] = $x->value;
                 }
             } else {
-                $repeat1[] = $x;
+                $repeat1[] = $x->value;
             }
         } while (!$x->isPrime());
 
@@ -2709,7 +2741,7 @@ class Math_BigInteger {
                     return false;
                 }
                 break;
-            case MATH_BIGINTEGER_MODE_INTERNAL:
+            default:
                 if ($this->value == array(2)) {
                     return true;
                 }
@@ -2843,7 +2875,7 @@ class Math_BigInteger {
     function _rshift($shift)
     {
         if ($shift == 0) {
-            $this->_normalize();
+            return;
         }
 
         $num_digits = floor($shift / 26);

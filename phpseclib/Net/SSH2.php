@@ -6,13 +6,32 @@
  *
  * PHP versions 4 and 5
  *
- * Here's a short example of how to use this library:
+ * Here's are some examples of how to use this library:
  * <code>
  * <?php
  *    include('Net/SSH2.php');
  *
  *    $ssh = new Net_SSH2('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
+ *        exit('Login Failed');
+ *    }
+ *
+ *    echo $ssh->exec('pwd');
+ *    echo $ssh->exec('ls -la');
+ * ?>
+ * </code>
+ *
+ * <code>
+ * <?php
+ *    include('Crypt/RSA.php');
+ *    include('Net/SSH2.php');
+ *
+ *    $key = new Crypt_RSA();
+ *    //$key->setPassword('whatever');
+ *    $key->loadKey(file_get_contents('privatekey'));
+ *
+ *    $ssh = new Net_SSH2('www.domain.tld');
+ *    if (!$ssh->login('username', $key)) {
  *        exit('Login Failed');
  *    }
  *
@@ -41,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.27 2009-11-26 06:41:34 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.28 2009-12-03 08:18:53 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -497,7 +516,6 @@ class Net_SSH2 {
             51 => 'NET_SSH2_MSG_USERAUTH_FAILURE',
             52 => 'NET_SSH2_MSG_USERAUTH_SUCCESS',
             53 => 'NET_SSH2_MSG_USERAUTH_BANNER',
-            60 => 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ',
 
             80 => 'NET_SSH2_MSG_GLOBAL_REQUEST',
             81 => 'NET_SSH2_MSG_REQUEST_SUCCESS',
@@ -546,7 +564,9 @@ class Net_SSH2 {
             $this->disconnect_reasons,
             $this->channel_open_failure_reasons,
             $this->terminal_modes,
-            $this->channel_extended_data_type_codes
+            $this->channel_extended_data_type_codes,
+            array(60 => 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ'),
+            array(60 => 'NET_SSH2_MSG_USERAUTH_PK_OK')
         );
 
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
@@ -625,12 +645,10 @@ class Net_SSH2 {
         );
 
         static $encryption_algorithms = array(
+            'arcfour',    // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
             'aes128-cbc', // RECOMMENDED       AES with a 128-bit key
             'aes192-cbc', // OPTIONAL          AES with a 192-bit key
             'aes256-cbc', // OPTIONAL          AES in CBC mode, with a 256-bit key
-
-            'arcfour',    // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
-
             '3des-cbc',   // REQUIRED          three-key 3DES in CBC mode
             'none'        // OPTIONAL          no encryption; NOT RECOMMENDED
         );
@@ -956,6 +974,23 @@ class Net_SSH2 {
                 $n = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
                 $nLength = $temp['length'];
 
+                /*
+                $temp = unpack('Nlength', $this->_string_shift($signature, 4));
+                $signature = $this->_string_shift($signature, $temp['length']);
+
+                if (!class_exists('Crypt_RSA')) {
+                    require_once('Crypt/RSA.php');
+                }
+
+                $rsa = new Crypt_RSA();
+                $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+                $rsa->loadKey(array('e' => $e, 'n' => $n), CRYPT_RSA_PUBLIC_FORMAT_RAW);
+                if (!$rsa->verify($source, $signature)) {
+                    user_error('Bad server signature', E_USER_NOTICE);
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
+                }
+                */
+
                 $temp = unpack('Nlength', $this->_string_shift($signature, 4));
                 $s = new Math_BigInteger($this->_string_shift($signature, $temp['length']), 256);
 
@@ -1179,7 +1214,7 @@ class Net_SSH2 {
      * @return Boolean
      * @access public
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
-                 by sending dummy SSH_MSG_IGNORE messages.
+     *           by sending dummy SSH_MSG_IGNORE messages.
      */
     function login($username, $password = '')
     {
@@ -1208,7 +1243,11 @@ class Net_SSH2 {
             return false;
         }
 
-        // publickey authentication is required, per the SSH-2 specs, however, we don't support it.
+        // although PHP5's get_class() preserves the case, PHP4's does not
+        if (strtolower(get_class($password)) == 'crypt_rsa')  {
+            return $this->_privatekey_login($username, $password);
+        }
+
         $utf8_password = utf8_encode($password);
         $packet = pack('CNa*Na*Na*CNa*',
             NET_SSH2_MSG_USERAUTH_REQUEST, strlen($username), $username, strlen('ssh-connection'), 'ssh-connection',
@@ -1238,13 +1277,100 @@ class Net_SSH2 {
 
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
+                if (defined('NET_SSH2_LOGGING')) {
+                    $this->message_number_log[count($this->message_number_log) - 1] = 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ';
+                }
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->debug_info.= "\r\n\r\nSSH_MSG_USERAUTH_PASSWD_CHANGEREQ:\r\n" . utf8_decode($this->_string_shift($response, $length));
                 return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_FAILURE:
+                // either the login is bad or the server employees multi-factor authentication
+                return false;
+            case NET_SSH2_MSG_USERAUTH_SUCCESS:
+                $this->bitmap |= NET_SSH2_MASK_LOGIN;
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Login with an RSA private key
+     *
+     * @param String $username
+     * @param Crypt_RSA $password
+     * @return Boolean
+     * @access private
+     * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
+     *           by sending dummy SSH_MSG_IGNORE messages.
+     */
+    function _privatekey_login($username, $privatekey)
+    {
+        // see http://tools.ietf.org/html/rfc4253#page-15
+        $publickey = $privatekey->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_RAW);
+        $publickey = array(
+            'e' => $publickey['e']->toBytes(true),
+            'n' => $publickey['n']->toBytes(true)
+        );
+        $publickey = pack('Na*Na*Na*',
+            strlen('ssh-rsa'), 'ssh-rsa', strlen($publickey['e']), $publickey['e'], strlen($publickey['n']), $publickey['n']
+        );
+
+        $part1 = pack('CNa*Na*Na*',
+            NET_SSH2_MSG_USERAUTH_REQUEST, strlen($username), $username, strlen('ssh-connection'), 'ssh-connection',
+            strlen('publickey'), 'publickey'
+        );
+        $part2 = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($publickey), $publickey);
+
+        $packet = $part1 . chr(0) . $part2;
+
+        if (!$this->_send_binary_packet($packet)) {
+            return false;
+        }
+
+        $response = $this->_get_binary_packet();
+        if ($response === false) {
+            user_error('Connection closed by server', E_USER_NOTICE);
+            return false;
+        }
+
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
+
+        switch ($type) {
+            case NET_SSH2_MSG_USERAUTH_FAILURE:
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->debug_info.= "\r\n\r\nSSH_MSG_USERAUTH_FAILURE:\r\n" . $this->_string_shift($response, $length);
                 return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
+            case NET_SSH2_MSG_USERAUTH_PK_OK:
+                // we'll just take it on faith that the public key blob and the public key algorithm name are as
+                // they should be
+                if (defined('NET_SSH2_LOGGING')) {
+                    $this->message_number_log[count($this->message_number_log) - 1] = 'NET_SSH2_MSG_USERAUTH_PK_OK';
+                }
+        }
+
+        $packet = $part1 . chr(1) . $part2;
+        $privatekey->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+        $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet));
+        $signature = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($signature), $signature);
+        $packet.= pack('Na*', strlen($signature), $signature);
+
+        if (!$this->_send_binary_packet($packet)) {
+            return false;
+        }
+
+        $response = $this->_get_binary_packet();
+        if ($response === false) {
+            user_error('Connection closed by server', E_USER_NOTICE);
+            return false;
+        }
+
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
+
+        switch ($type) {
+            case NET_SSH2_MSG_USERAUTH_FAILURE:
+                // either the login is bad or the server employees multi-factor authentication
+                return false;
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 $this->bitmap |= NET_SSH2_MASK_LOGIN;
                 return true;
@@ -1458,7 +1584,8 @@ class Net_SSH2 {
         $this->get_seq_no++;
 
         if (defined('NET_SSH2_LOGGING')) {
-            $this->message_number_log[] = '<- ' . $this->message_numbers[ord($payload[0])] .
+            $temp = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN';
+            $this->message_number_log[] = '<- ' . $temp .
                                           ' (' . round($stop - $start, 4) . 's)';
             $this->message_log[] = $payload;
         }
@@ -1670,7 +1797,8 @@ class Net_SSH2 {
         $stop = strtok(microtime(), ' ') + strtok('');
 
         if (defined('NET_SSH2_LOGGING')) {
-            $this->message_number_log[] = '-> ' . $this->message_numbers[ord($data[0])] .
+            $temp = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN';
+            $this->message_number_log[] = '-> ' . $temp .
                                           ' (' . round($stop - $start, 4) . 's)';
             $this->message_log[] = $data;
         }
