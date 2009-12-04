@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.17 2009-12-03 08:18:53 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.18 2009-12-04 19:12:18 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -565,7 +565,7 @@ class Math_BigInteger {
         for ($i = 0; $i < strlen($hex); $i+=8) {
             $bits.= str_pad(decbin(hexdec(substr($hex, $i, 8))), 32, '0', STR_PAD_LEFT);
         }
-        return $this->precision > 0 ? $bits : ltrim($bits, '0');
+        return $this->precision > 0 ? substr($bits, -$this->precision) : ltrim($bits, '0');
     }
 
     /**
