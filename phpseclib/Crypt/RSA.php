@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.1 2009-12-03 08:18:53 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.2 2009-12-04 20:50:21 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -909,7 +909,7 @@ class Crypt_RSA {
         if (!$this->modulus->equals($components['modulus'])) {
             return false;
         }
-        $this->publicKey = $components['publicExponent'];
+        $this->publicExponent = $components['publicExponent'];
     }
 
     /**
