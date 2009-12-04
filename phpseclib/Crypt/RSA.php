@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.2 2009-12-04 20:50:21 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.3 2009-12-04 21:05:32 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1046,7 +1046,7 @@ class Crypt_RSA {
      * Determines which hashing function should be used
      *
      * Used with signature production / verification and (if the encryption mode is CRYPT_RSA_ENCRYPTION_OAEP) encryption and
-     * decryption.  If $hash isn't supposed by Crypt_Hash, sha1 is used.
+     * decryption.  If $hash isn't supported, sha1 is used.
      *
      * @access public
      * @param String $hash
