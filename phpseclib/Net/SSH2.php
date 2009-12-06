@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.29 2009-12-03 19:04:10 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.30 2009-12-06 07:26:52 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1308,6 +1308,10 @@ class Net_SSH2 {
     {
         // see http://tools.ietf.org/html/rfc4253#page-15
         $publickey = $privatekey->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_RAW);
+        if ($publickey === false) {
+            return false;
+        }
+
         $publickey = array(
             'e' => $publickey['e']->toBytes(true),
             'n' => $publickey['n']->toBytes(true)

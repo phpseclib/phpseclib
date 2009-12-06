@@ -64,7 +64,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Rijndael.php,v 1.8 2009-11-23 19:06:07 terrafrost Exp $
+ * @version    $Id: Rijndael.php,v 1.9 2009-12-06 07:26:52 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1034,7 +1034,8 @@ class Crypt_Rijndael {
     /**
      * Unpads a string.
      *
-     * If padding is enabled and the reported padding length is invalid, padding will be, hence forth, disabled.
+     * If padding is enabled and the reported padding length is invalid the encryption key will be assumed to be wrong
+     * and false will be returned.
      *
      * @see Crypt_Rijndael::_pad()
      * @access private
@@ -1048,9 +1049,7 @@ class Crypt_Rijndael {
         $length = ord($text[strlen($text) - 1]);
 
         if (!$length || $length > $this->block_size) {
-            user_error("The number of bytes reported as being padded ($length) is invalid (block size = {$this->block_size})", E_USER_NOTICE);
-            $this->padding = false;
-            return $text;
+            return false;
         }
 
         return substr($text, 0, -$length);

@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.3 2009-12-04 21:05:32 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.4 2009-12-06 07:26:52 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -762,9 +762,10 @@ class Crypt_RSA {
                     $key = $des->decrypt($ciphertext);
                 } else {
                     $key = base64_decode(preg_replace('#-.+-|[\r\n]#', '', $key));
-                    if ($key === false) {
-                        return false;
-                    }
+                }
+
+                if ($key === false) {
+                    return false;
                 }
 
                 $private = false;
@@ -852,6 +853,10 @@ class Crypt_RSA {
     function loadKey($key, $type = CRYPT_RSA_PRIVATE_FORMAT_PKCS1)
     {
         $components = $this->_parseKey($key, $type);
+        if ($components === false) {
+            return false;
+        }
+
         $this->modulus = $components['modulus'];
         $this->k = strlen($this->modulus->toBytes());
         $this->exponent = isset($components['privateExponent']) ? $components['privateExponent'] : $components['publicExponent'];
@@ -906,7 +911,7 @@ class Crypt_RSA {
     function setPublicKey($key, $type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
     {
         $components = $this->_parseKey($key, $type);
-        if (!$this->modulus->equals($components['modulus'])) {
+        if (empty($this->modulus) || !$this->modulus->equals($components['modulus'])) {
             return false;
         }
         $this->publicExponent = $components['publicExponent'];
@@ -926,6 +931,10 @@ class Crypt_RSA {
      */
     function getPublicKey($type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
     {
+        if (empty($this->modulus) || empty($this->publicExponent)) {
+            return false;
+        }
+
         $oldFormat = $this->publicKeyFormat;
         $this->publicKeyFormat = $type;
         $temp = $this->_convertPublicKey($this->modulus, $this->publicExponent);
@@ -1834,7 +1843,12 @@ class Crypt_RSA {
     {
         switch ($this->encryptionMode) {
             case CRYPT_RSA_ENCRYPTION_PKCS1:
-                $plaintext = str_split($plaintext, $this->k - 11);
+                $length = $this->k - 11;
+                if ($length <= 0) {
+                    return false;
+                }
+
+                $plaintext = str_split($plaintext, $length);
                 $ciphertext = '';
                 foreach ($plaintext as $m) {
                     $ciphertext.= $this->_rsaes_pkcs1_v1_5_encrypt($m);
@@ -1842,7 +1856,12 @@ class Crypt_RSA {
                 return $ciphertext;
             //case CRYPT_RSA_ENCRYPTION_OAEP:
             default:
-                $plaintext = str_split($plaintext, $this->k - 2 * $this->hLen - 2);
+                $length = $this->k - 2 * $this->hLen - 2;
+                if ($length <= 0) {
+                    return false;
+                }
+
+                $plaintext = str_split($plaintext, $length);
                 $ciphertext = '';
                 foreach ($plaintext as $m) {
                     $ciphertext.= $this->_rsaes_oaep_encrypt($m);
@@ -1861,31 +1880,31 @@ class Crypt_RSA {
      */
     function decrypt($ciphertext)
     {
+        if ($this->k <= 0) {
+            return false;
+        }
+
+        $ciphertext = str_split($ciphertext, $this->k);
+        $plaintext = '';
+
         switch ($this->encryptionMode) {
             case CRYPT_RSA_ENCRYPTION_PKCS1:
-                $ciphertext = str_split($ciphertext, $this->k);
-                $plaintext = '';
-                foreach ($ciphertext as $c) {
-                    $temp = $this->_rsaes_pkcs1_v1_5_decrypt($c);
-                    if ($temp === false) {
-                        return false;
-                    }
-                    $plaintext.= $temp;
-                }
-                return $plaintext;
+                $decrypt = '_rsaes_pkcs1_v1_5_decrypt';
+                break;
             //case CRYPT_RSA_ENCRYPTION_OAEP:
             default:
-                $ciphertext = str_split($ciphertext, $this->k);
-                $plaintext = '';
-                foreach ($ciphertext as $c) {
-                    $temp = $this->_rsaes_oaep_decrypt($c);
-                    if ($temp === false) {
-                        return false;
-                    }
-                    $plaintext.= $temp;
-                }
-                return $plaintext;
+                $decrypt = '_rsaes_oaep_decrypt';
         }
+
+        foreach ($ciphertext as $c) {
+            $temp = $this->$decrypt($c);
+            if ($temp === false) {
+                return false;
+            }
+            $plaintext.= $temp;
+        }
+
+        return $plaintext;
     }
 
     /**
@@ -1898,6 +1917,10 @@ class Crypt_RSA {
      */
     function sign($message)
     {
+        if (empty($this->modulus) || empty($this->exponent)) {
+            return false;
+        }
+
         switch ($this->signatureMode) {
             case CRYPT_RSA_SIGNATURE_PKCS1:
                 return $this->_rsassa_pkcs1_v1_5_sign($message);
@@ -1918,6 +1941,10 @@ class Crypt_RSA {
      */
     function verify($message, $signature)
     {
+        if (empty($this->modulus) || empty($this->exponent)) {
+            return false;
+        }
+
         switch ($this->signatureMode) {
             case CRYPT_RSA_SIGNATURE_PKCS1:
                 return $this->_rsassa_pkcs1_v1_5_verify($message, $signature);
