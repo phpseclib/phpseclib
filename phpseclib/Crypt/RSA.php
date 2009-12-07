@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.4 2009-12-06 07:26:52 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.5 2009-12-07 23:22:05 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -846,6 +846,8 @@ class Crypt_RSA {
     /**
      * Loads a public or private key
      *
+     * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
+     *
      * @access public
      * @param String $key
      * @param Integer $type optional
@@ -871,6 +873,8 @@ class Crypt_RSA {
             $this->coefficients = array();
             $this->publicExponent = false;
         }
+
+        return true;
     }
 
     /**
