@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.5 2009-12-07 23:22:05 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.6 2009-12-08 14:18:59 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -331,6 +331,14 @@ class Crypt_RSA {
      * @access private
      */
     var $mgfHash;
+
+    /**
+     * Length of MGF hash function output
+     *
+     * @var Integer
+     * @access private
+     */
+    var $mgfHLen;
 
     /**
      * Encryption mode
@@ -1075,14 +1083,13 @@ class Crypt_RSA {
             case 'sha384':
             case 'sha512':
                 $this->hash = new Crypt_Hash($hash);
-                $this->hLen = $this->hash->getLength();
                 $this->hashName = $hash;
                 break;
             default:
                 $this->hash = new Crypt_Hash('sha1');
-                $this->hLen = $this->hash->getLength();
                 $this->hashName = 'sha1';
         }
+        $this->hLen = $this->hash->getLength();
     }
 
     /**
@@ -1109,6 +1116,7 @@ class Crypt_RSA {
             default:
                 $this->mgfHash = new Crypt_Hash('sha1');
         }
+        $this->mgfHLen = $this->mgfHash->getLength();
     }
 
     /**
@@ -1302,7 +1310,7 @@ class Crypt_RSA {
     /**
      * MGF1
      *
-     * See {@link http://tools.ietf.org/html/rfc3447#section-B.2.1 RFC3447#section-B.2.1}.
+     * See {@link http://tools.ietf.org/html/rfc3447#appendix-B.2.1 RFC3447#appendix-B.2.1}.
      *
      * @access private
      * @param String $mgfSeed
@@ -1314,7 +1322,7 @@ class Crypt_RSA {
         // if $maskLen would yield strings larger than 4GB, PKCS#1 suggests a "Mask too long" error be output.
 
         $t = '';
-        $count = ceil($maskLen / $this->hLen);
+        $count = ceil($maskLen / $this->mgfHLen);
         for ($i = 0; $i < $count; $i++) {
             $c = pack('N', $i);
             $t.= $this->mgfHash->hash($mgfSeed . $c);
