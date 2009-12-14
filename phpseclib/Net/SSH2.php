@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.31 2009-12-14 18:14:54 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.32 2009-12-14 18:17:36 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -516,15 +516,6 @@ class Net_SSH2 {
      * @access private
      */
     var $message_log = array();
-
-    /**
-     * Timeout Value
-     *
-     * @see Net_SSH2::interactiveRead()
-     * @var Integer
-     * @access private
-     */
-    var $timeout = 400000; // ie. 0.1 seconds
 
     /**
      * Default Constructor.
