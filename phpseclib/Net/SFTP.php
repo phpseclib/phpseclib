@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.12 2009-11-26 20:12:17 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.13 2009-12-14 18:14:54 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -70,6 +70,17 @@ define('NET_SFTP_LOG_SIMPLE',  NET_SSH2_LOG_SIMPLE);
  */
 define('NET_SFTP_LOG_COMPLEX', NET_SSH2_LOG_COMPLEX);
 /**#@-*/
+
+/**
+ * SFTP channel constant
+ *
+ * Net_SSH2::exec() uses 0 and Net_SSH2::interactiveRead() / Net_SSH2::interactiveWrite() use 1.
+ *
+ * @see Net_SSH2::_send_channel_packet()
+ * @see Net_SSH2::_get_channel_packet()
+ * @access private
+ */
+define('NET_SFTP_CHANNEL', 2);
 
 /**#@+
  * @access public
@@ -307,32 +318,17 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         $packet = pack('CNa*N3',
-            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', $this->client_channel, $this->window_size, $this->packet_size_server_to_client);
+            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SFTP_CHANNEL, $this->window_size, $this->packet_size_server_to_client);
 
         if (!$this->_send_binary_packet($packet)) {
             return false;
         }
 
-        $response = $this->_get_binary_packet();
+        $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_OPEN;
+
+        $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
         if ($response === false) {
-            user_error('Connection closed by server', E_USER_NOTICE);
             return false;
-        }
-
-        extract(unpack('Ctype', $this->_string_shift($response, 1)));
-
-        switch ($type) {
-            case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
-                $this->_string_shift($response, 4); // skip over client channel
-                extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
-                $this->server_channels[$this->client_channel] = $server_channel;
-                $this->_string_shift($response, 4); // skip over (server) window size
-                extract(unpack('Npacket_size_client_to_server', $this->_string_shift($response, 4)));
-                $this->packet_size_client_to_server = $packet_size_client_to_server;
-                break;
-            case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
-                user_error('Unable to open channel', E_USER_NOTICE);
-                return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
         }
 
         $packet = pack('CNNa*CNa*',
@@ -341,22 +337,14 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        $response = $this->_get_binary_packet();
+        $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
+
+        $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
         if ($response === false) {
-            user_error('Connection closed by server', E_USER_NOTICE);
             return false;
         }
 
-        extract(unpack('Ctype', $this->_string_shift($response, 1)));
-
-        switch ($type) {
-            case NET_SSH2_MSG_CHANNEL_SUCCESS:
-                break;
-            case NET_SSH2_MSG_CHANNEL_FAILURE:
-            default:
-                user_error('Unable to initiate SFTP channel', E_USER_NOTICE);
-                return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
-        }
+        $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_DATA;
 
         if (!$this->_send_sftp_packet(NET_SFTP_INIT, "\0\0\0\3")) {
             return false;
@@ -1160,7 +1148,7 @@ class Net_SFTP extends Net_SSH2 {
      * @param Integer $type
      * @param String $data
      * @see Net_SFTP::_get_sftp_packet()
-     * @see Net_SFTP::_send_channel_packet()
+     * @see Net_SSH2::_send_channel_packet()
      * @return Boolean
      * @access private
      */
@@ -1171,7 +1159,7 @@ class Net_SFTP extends Net_SSH2 {
             pack('NCa*',  strlen($data) + 1, $type, $data);
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
-        $result = $this->_send_channel_packet($packet);
+        $result = $this->_send_channel_packet(NET_SFTP_CHANNEL, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
 
         if (defined('NET_SFTP_LOGGING')) {
@@ -1202,7 +1190,7 @@ class Net_SFTP extends Net_SSH2 {
 
         // SFTP packet length
         while (strlen($this->packet_buffer) < 4) {
-            $temp = $this->_get_channel_packet();
+            $temp = $this->_get_channel_packet(NET_SFTP_CHANNEL);
             if (is_bool($temp)) {
                 $this->packet_type = false;
                 $this->packet_buffer = '';
@@ -1216,7 +1204,7 @@ class Net_SFTP extends Net_SSH2 {
 
         // SFTP packet type and data payload
         while ($tempLength > 0) {
-            $temp = $this->_get_channel_packet();
+            $temp = $this->_get_channel_packet(NET_SFTP_CHANNEL);
             if (is_bool($temp)) {
                 $this->packet_type = false;
                 $this->packet_buffer = '';

@@ -69,7 +69,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.18 2009-12-04 19:12:18 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.19 2009-12-14 18:14:54 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -2776,11 +2776,15 @@ class Math_BigInteger {
             $two = new Math_BigInteger(2);
         }
 
+        if ($this->equals($one)) {
+            return false;
+        }
+
         // see HAC 4.4.1 "Random search for probable primes"
         for ($i = 0; $i < count($primes); $i++) {
             list(, $r) = $this->divide($primes[$i]);
             if ($r->equals($zero)) {
-                return false;
+                return $this->equals($primes[$i]);
             }
         }
 
@@ -2792,6 +2796,7 @@ class Math_BigInteger {
         // ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
         if ( MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_BCMATH ) {
             $s = 0;
+            // if $n was 1, $r would be 0 and this would be an infinite loop, hence our $this->equals($one) check earlier
             while ($r->value[strlen($r->value) - 1] % 2 == 0) {
                 $r->value = bcdiv($r->value, 2);
                 $s++;

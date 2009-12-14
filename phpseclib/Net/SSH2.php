@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.30 2009-12-06 07:26:52 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.31 2009-12-14 18:14:54 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -104,6 +104,25 @@ require_once('Crypt/AES.php');
  */
 define('NET_SSH2_MASK_CONSTRUCTOR', 0x00000001);
 define('NET_SSH2_MASK_LOGIN',       0x00000002);
+/**#@-*/
+
+/**#@+
+ * Channel constants
+ *
+ * RFC4254 refers not to client and server channels but rather to sender and recipient channels.  we don't refer
+ * to them in that way because RFC4254 toggles the meaning. the client sends a SSH_MSG_CHANNEL_OPEN message with
+ * a sender channel and the server sends a SSH_MSG_CHANNEL_OPEN_CONFIRMATION in response, with a sender and a
+ * recepient channel.  at first glance, you might conclude that SSH_MSG_CHANNEL_OPEN_CONFIRMATION's sender channel
+ * would be the same thing as SSH_MSG_CHANNEL_OPEN's sender channel, but it's not, per this snipet:
+ *     The 'recipient channel' is the channel number given in the original
+ *     open request, and 'sender channel' is the channel number allocated by
+ *     the other side.
+ *
+ * @see Net_SSH2::_send_channel_packet()
+ * @see Net_SSH2::_get_channel_packet()
+ * @access private
+ */
+define('NET_SSH2_CHANNEL_EXEC', 0); // PuTTy uses 0x100
 /**#@-*/
 
 /**#@+
@@ -434,19 +453,6 @@ class Net_SSH2 {
     var $get_seq_no = 0;
 
     /**
-     * The Client Channel
-     *
-     * Net_SSH2::exec() uses 0, although since Net_SSH2::exec() doesn't send NET_SSH2_CHANNEL_DATA packets,
-     * Net_SSH2::_send_channel_packet() isn't actually called by any function in Net/SSH2.php.  Classes that
-     * extend Net_SSH2, however, might call that function, hence it's existence.
-     *
-     * @var Integer
-     * @see Net_SSH2::_send_channel_packet
-     * @access private
-     */
-    var $client_channel = 1;
-
-    /**
      * Server Channels
      *
      * Maps client channels to server channels
@@ -459,16 +465,39 @@ class Net_SSH2 {
     var $server_channels = array();
 
     /**
-     * Packet Size
+     * Channel Buffers
      *
-     * Maximum packet size
+     * If a client requests a packet from one channel but receives two packets from another those packets should
+     * be placed in a buffer
      *
-     * @see Net_SSH2::_send_channel_packet()
+     * @see Net_SSH2::_get_channel_packet()
      * @see Net_SSH2::exec()
-     * @var Integer
+     * @var Array
      * @access private
      */
-    var $packet_size_client_to_server = 0;
+    var $channel_buffers = array();
+
+    /**
+     * Channel Status
+     *
+     * Contains the type of the last sent message
+     *
+     * @see Net_SSH2::_get_channel_packet()
+     * @var Array
+     * @access private
+     */
+    var $channel_status = array();
+
+    /**
+     * Packet Size
+     *
+     * Maximum packet size indexed by channel
+     *
+     * @see Net_SSH2::_send_channel_packet()
+     * @var Array
+     * @access private
+     */
+    var $packet_size_client_to_server = array();
 
     /**
      * Message Number Log
@@ -487,6 +516,15 @@ class Net_SSH2 {
      * @access private
      */
     var $message_log = array();
+
+    /**
+     * Timeout Value
+     *
+     * @see Net_SSH2::interactiveRead()
+     * @var Integer
+     * @access private
+     */
+    var $timeout = 400000; // ie. 0.1 seconds
 
     /**
      * Default Constructor.
@@ -1396,15 +1434,6 @@ class Net_SSH2 {
             return false;
         }
 
-        // RFC4254 refers not to client and server channels but rather to sender and recipient channels.  we don't refer
-        // to them in that way because RFC4254 toggles the meaning. the client sends a SSH_MSG_CHANNEL_OPEN message with
-        // a sender channel and the server sends a SSH_MSG_CHANNEL_OPEN_CONFIRMATION in response, with a sender and a
-        // recepient channel.  at first glance, you might conclude that SSH_MSG_CHANNEL_OPEN_CONFIRMATION's sender channel
-        // would be the same thing as SSH_MSG_CHANNEL_OPEN's sender channel, but it's not, per this snipet:
-        //     The 'recipient channel' is the channel number given in the original
-        //     open request, and 'sender channel' is the channel number allocated by
-        //     the other side.
-        $client_channel = 0; // PuTTy uses 0x100
         // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
         // be adjusted".  0x7FFFFFFF is, at 4GB, the max size.  technically, it should probably be decremented, but, 
         // honestly, if you're transfering more than 4GB, you probably shouldn't be using phpseclib, anyway.
@@ -1415,89 +1444,42 @@ class Net_SSH2 {
         $packet_size = 0x4000;
 
         $packet = pack('CNa*N3',
-            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', $client_channel, $window_size, $packet_size);
+            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SSH2_CHANNEL_EXEC, $window_size, $packet_size);
 
         if (!$this->_send_binary_packet($packet)) {
             return false;
         }
 
-        $response = $this->_get_binary_packet();
+        $this->channel_status[NET_SSH2_CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_OPEN;
+
+        $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_EXEC);
         if ($response === false) {
-            user_error('Connection closed by server', E_USER_NOTICE);
             return false;
         }
 
-        extract(unpack('Ctype', $this->_string_shift($response, 1)));
-
-        switch ($type) {
-            case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
-                $this->_string_shift($response, 4); // skip over client channel
-                extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
-                $this->server_channels[$client_channel] = $server_channel;
-                $this->_string_shift($response, 4); // skip over (server) window size
-                $temp = unpack('Npacket_size_client_to_server', $this->_string_shift($response, 4));
-                $this->packet_size_client_to_server = $temp['packet_size_client_to_server'];
-                break;
-            case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
-                user_error('Unable to open channel', E_USER_NOTICE);
-                return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
-        }
-
-        $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
-        $packet = pack('CNNa*CNa*N5a*',
-            NET_SSH2_MSG_CHANNEL_REQUEST, $server_channel, strlen('pty-req'), 'pty-req', 1, strlen('vt100'), 'vt100',
-            80, 24, 0, 0, strlen($terminal_modes), $terminal_modes);
-
-        if (!$this->_send_binary_packet($packet)) {
-            return false;
-        }
-
-        $response = $this->_get_binary_packet();
-        if ($response === false) {
-            user_error('Connection closed by server', E_USER_NOTICE);
-            return false;
-        }
-
-        extract(unpack('Ctype', $this->_string_shift($response, 1)));
-
-        switch ($type) {
-            case NET_SSH2_MSG_CHANNEL_SUCCESS:
-                break;
-            case NET_SSH2_MSG_CHANNEL_FAILURE:
-            default:
-                user_error('Unable to request pseudo-terminal', E_USER_NOTICE);
-                return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
-        }
+        // sending a pty-req SSH_MSG_CHANNEL_REQUEST message is unnecessary and, in fact, slows things down
 
         // although, in theory, the size of SSH_MSG_CHANNEL_REQUEST could exceed the maximum packet size established by
         // SSH_MSG_CHANNEL_OPEN_CONFIRMATION, RFC4254#section-5.1 states that the "maximum packet size" refers to the 
         // "maximum size of an individual data packet". ie. SSH_MSG_CHANNEL_DATA.  RFC4254#section-5.2 corroborates.
         $packet = pack('CNNa*CNa*',
-            NET_SSH2_MSG_CHANNEL_REQUEST, $server_channel, strlen('exec'), 'exec', 1, strlen($command), $command);
+            NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SSH2_CHANNEL_EXEC], strlen('exec'), 'exec', 1, strlen($command), $command);
         if (!$this->_send_binary_packet($packet)) {
             return false;
         }
 
-        $response = $this->_get_binary_packet();
+        $this->channel_status[NET_SSH2_CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_REQUEST;
+
+        $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_EXEC);
         if ($response === false) {
-            user_error('Connection closed by server', E_USER_NOTICE);
             return false;
         }
 
-        extract(unpack('Ctype', $this->_string_shift($response, 1)));
-
-        switch ($type) {
-            case NET_SSH2_MSG_CHANNEL_SUCCESS:
-                break;
-            case NET_SSH2_MSG_CHANNEL_FAILURE:
-            default:
-                user_error('Unable to start execution of command', E_USER_NOTICE);
-                return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
-        }
+        $this->channel_status[NET_SSH2_CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_DATA;
 
         $output = '';
         while (true) {
-            $temp = $this->_get_channel_packet();
+            $temp = $this->_get_channel_packet(NET_SSH2_CHANNEL_EXEC);
             switch (true) {
                 case $temp === true:
                     return $output;
@@ -1688,11 +1670,16 @@ class Net_SSH2 {
      *
      * Returns the data as a string if it's available and false if not.
      *
+     * @param $client_channel
      * @return Mixed
      * @access private
      */
-    function _get_channel_packet()
+    function _get_channel_packet($client_channel)
     {
+        if (!empty($this->channel_buffers[$client_channel])) {
+            return array_shift($this->channel_buffers[$client_channel]);
+        }
+
         while (true) {
             $response = $this->_get_binary_packet();
             if ($response === false) {
@@ -1700,15 +1687,59 @@ class Net_SSH2 {
                 return false;
             }
 
-            extract(unpack('Ctype', $this->_string_shift($response, 1)));
+            extract(unpack('Ctype/Nchannel', $this->_string_shift($response, 5)));
+
+            switch ($this->channel_status[$channel]) {
+                case NET_SSH2_MSG_CHANNEL_OPEN:
+                    switch ($type) {
+                        case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
+                            extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
+                            $this->server_channels[$client_channel] = $server_channel;
+                            $this->_string_shift($response, 4); // skip over (server) window size
+                            $temp = unpack('Npacket_size_client_to_server', $this->_string_shift($response, 4));
+                            $this->packet_size_client_to_server[$client_channel] = $temp['packet_size_client_to_server'];
+                            return true;
+                        //case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
+                        default:
+                            user_error('Unable to open channel', E_USER_NOTICE);
+                            return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+                    }
+                    break;
+                case NET_SSH2_MSG_CHANNEL_REQUEST:
+                    switch ($type) {
+                        case NET_SSH2_MSG_CHANNEL_SUCCESS:
+                            return true;
+                        //case NET_SSH2_MSG_CHANNEL_FAILURE:
+                        default:
+                            user_error('Unable to request pseudo-terminal', E_USER_NOTICE);
+                            return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+                    }
+
+            }
 
             switch ($type) {
                 case NET_SSH2_MSG_CHANNEL_DATA:
-                    $this->_string_shift($response, 4); // skip over client channel
+                    if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
+                        // SCP requires null packets, such as this, be sent.  further, in the case of the ssh.com SSH server
+                        // this actually seems to make things twice as fast.  more to the point, the message right after 
+                        // SSH_MSG_CHANNEL_DATA (usually SSH_MSG_IGNORE) won't block for as long as it would have otherwise.
+                        // in OpenSSH it slows things down but only by a couple thousandths of a second.
+                        $this->_send_channel_packet($client_channel, chr(0));
+                    }
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                    return $this->_string_shift($response, $length);
+                    $data = $this->_string_shift($response, $length);
+                    if ($client_channel == $channel) {
+                        return $data;
+                    }
+                    if (!isset($this->channel_buffers[$client_channel])) {
+                        $this->channel_buffers[$client_channel] = array();
+                    }
+                    $this->channel_buffers[$client_channel][] = $data;
+                    break;
                 case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
-                    $this->_string_shift($response, 4); // skip over client channel
+                    if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
+                        $this->_send_channel_packet($client_channel, chr(0));
+                    }
                     extract(unpack('Ndata_type_code/Nlength', $this->_string_shift($response, 8)));
                     $data = $this->_string_shift($response, $length);
                     switch ($data_type_code) {
@@ -1717,7 +1748,6 @@ class Net_SSH2 {
                     }
                     break;
                 case NET_SSH2_MSG_CHANNEL_REQUEST:
-                    $this->_string_shift($response, 4); // skip over client channel
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
                     $value = $this->_string_shift($response, $length);
                     switch ($value) {
@@ -1728,17 +1758,15 @@ class Net_SSH2 {
                             $this->_string_shift($response, 1);
                             extract(unpack('Nlength', $this->_string_shift($response, 4)));
                             $this->debug_info.= "\r\n" . $this->_string_shift($response, $length);
-                        case 'exit-status':
+                        //case 'exit-status':
                         default:
                             // "Some systems may not implement signals, in which case they SHOULD ignore this message."
                             //  -- http://tools.ietf.org/html/rfc4254#section-6.9
-                            //break 2;
                             break;
                     }
                     break;
                 case NET_SSH2_MSG_CHANNEL_CLOSE:
-                    extract(unpack('Nclient_channel', $this->_string_shift($response, 4)));
-                    $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$client_channel]));
+                    $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
                     return true;
                 case NET_SSH2_MSG_CHANNEL_EOF:
                     break;
@@ -1815,17 +1843,19 @@ class Net_SSH2 {
      *
      * Spans multiple SSH_MSG_CHANNEL_DATAs if appropriate
      *
+     * @param Integer $client_channel
+     * @param String $data
      * @return Boolean
      * @access private
      */
-    function _send_channel_packet($data)
+    function _send_channel_packet($client_channel, $data)
     {
-        while (strlen($data) > $this->packet_size_client_to_server) {
+        while (strlen($data) > $this->packet_size_client_to_server[$client_channel]) {
             $packet = pack('CN2a*',
                 NET_SSH2_MSG_CHANNEL_DATA,
-                $this->server_channels[$this->client_channel],
-                $this->packet_size_client_to_server,
-                $this->_string_shift($data, $this->packet_size_client_to_server)
+                $this->server_channels[$client_channel],
+                $this->packet_size_client_to_server[$client_channel],
+                $this->_string_shift($data, $this->packet_size_client_to_server[$client_channel])
             );
             
             if (!$this->_send_binary_packet($packet)) {
@@ -1834,7 +1864,7 @@ class Net_SSH2 {
         }
         return $this->_send_binary_packet(pack('CN2a*',
             NET_SSH2_MSG_CHANNEL_DATA,
-            $this->server_channels[$this->client_channel],
+            $this->server_channels[$client_channel],
             strlen($data),
             $data));
     }
