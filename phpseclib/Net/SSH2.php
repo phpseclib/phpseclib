@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.32 2009-12-14 18:17:36 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.33 2009-12-31 06:11:07 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -990,7 +990,7 @@ class Net_SSH2 {
                 list(, $v) = $v->divide($q);
 
                 if (!$v->equals($r)) {
-                    user_error('Invalid signature', E_USER_NOTICE);
+                    user_error('Bad server signature', E_USER_NOTICE);
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
                 }
 

@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.6 2009-12-08 14:18:59 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.7 2009-12-31 06:11:06 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -966,7 +966,7 @@ class Crypt_RSA {
         $bytes = $bits >> 3;
         $min = str_repeat(chr(0), $bytes);
         $max = str_repeat(chr(0xFF), $bytes);
-        $msb = $num_bits & 7;
+        $msb = $bits & 7;
         if ($msb) {
             $min = chr(1 << ($msb - 1)) . $min;
             $max = chr((1 << $msb) - 1) . $max;

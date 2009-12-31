@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.13 2009-12-14 18:14:54 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.14 2009-12-31 06:11:07 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -332,7 +332,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         $packet = pack('CNNa*CNa*',
-            NET_SSH2_MSG_CHANNEL_REQUEST, $server_channel, strlen('subsystem'), 'subsystem', 1, strlen('sftp'), 'sftp');
+            NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SFTP_CHANNEL], strlen('subsystem'), 'subsystem', 1, strlen('sftp'), 'sftp');
         if (!$this->_send_binary_packet($packet)) {
             return false;
         }
