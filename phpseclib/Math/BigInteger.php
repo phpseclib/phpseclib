@@ -72,7 +72,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.22 2010-01-04 07:59:01 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.23 2010-01-05 18:38:02 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -1756,11 +1756,6 @@ class Math_BigInteger {
         $m_value = $m->value;
         $m_length = count($m_value);
 
-        if ($m_length & 1) {
-            $m_value[] = 0;
-            $m_length++;
-        }
-
         // if ($this->compare($m->_square()) >= 0) {
         if (count($this->value) > 2 * $m_length) {
             list(, $temp) = $this->divide($m);
@@ -1806,6 +1801,10 @@ class Math_BigInteger {
         $lsd->_trim();
         $n = $lsd->add($msd->multiply($m1));             // m.length + (m.length >> 1) + 1
 
+        if ($m_length & 1) {
+            return $n->_regularBarrett($m);
+        }
+
         // (m.length + (m.length >> 1) + 1) - (m.length - 1) == (m.length >> 1) + 2
         $temp_value = array_slice($n->value, $m_length - 1);
         // if even: ((m.length >> 1) + 2) + (m.length >> 1) == m.length + 2
@@ -1821,7 +1820,7 @@ class Math_BigInteger {
 
         // at this point, if m had an odd number of digits, we'd be subtracting a 2 * m.length - (m.length >> 1) digit
         // number from a m.length + (m.length >> 1) + 1 digit number.  ie. there'd be an extra digit and the while loop
-        // following this comment would loop a lot (hence our conditionally adding a 0 as the most significant digit).
+        // following this comment would loop a lot (hence our calling _regularBarrett() in that situation).
 
         $result = $n->subtract($temp);
 
@@ -1870,18 +1869,23 @@ class Math_BigInteger {
             $temp_value = &$temp->value;
             $temp_value = $this->_array_repeat(0, 2 * $n_length);
             $temp_value[] = 1;
-            list($cache[MATH_BIGINTEGER_DATA][], ) = $temp->divide($n);
+            list($cache[MATH_BIGINTEGER_DATA][], ) = $temp->divide($n); // m.length
         }
 
-        $this_value = $this->value;
+        $this_value = $this->value; // 2 * m.length
 
+        // 2 * m.length - (m.length - 1) = m.length + 1
         $temp->value = array_slice($this_value, $n_length - 1);
+        // (m.length + 1) + m.length = 2 * m.length + 1
         $temp = $temp->multiply($cache[MATH_BIGINTEGER_DATA][$key]);
         $temp_value = &$temp->value;
+        // (2 * m.length + 1) - (m.length - 1) = m.length + 2
         $temp_value = array_slice($temp_value, $n_length + 1);
 
         $result = new Math_BigInteger();
+        // m.length + 1
         $result->value = array_slice($this_value, 0, $n_length + 1);
+        // m.length + 1
         $temp = $temp->_multiplyLower($n, $n_length + 1);
         // $temp->value == array_slice($temp->multiply($n)->value, 0, $n_length + 1)
 
@@ -1896,7 +1900,10 @@ class Math_BigInteger {
             $result = $result->add($corrector);
         }
 
+        // at this point, we're subtracting a number with m.length + 1 digits from another number with m.length + 1 digits
+
         $result = $result->subtract($temp);
+
         while ($result->compare($n) > 0) {
             $result = $result->subtract($n);
         }
