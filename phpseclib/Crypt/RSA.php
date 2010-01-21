@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.7 2009-12-31 06:11:06 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.8 2010-01-21 00:52:10 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -417,7 +417,7 @@ class Crypt_RSA {
      * @param optional Integer $timeout
      * @param optional Math_BigInteger $p
      */
-    function createKey($bits = 1024, $timeout = false, $primes = array())
+    function createKey($bits = 1024, $timeout = false, $partial = array())
     {
         if ( CRYPT_RSA_MODE == CRYPT_RSA_MODE_OPENSSL ) {
             $rsa = openssl_pkey_new(array('private_key_bits' => $bits));
@@ -468,15 +468,19 @@ class Crypt_RSA {
         $finalMax = $max;
         extract($this->_generateMinMax($temp));
 
-        $exponents = $coefficients = array();
         $generator = new Math_BigInteger();
         $generator->setRandomGenerator('crypt_random');
 
         $n = $this->one->copy();
-        $lcm = array(
-            'top' => $this->one->copy(),
-            'bottom' => false
-        );
+        if (!empty($partial)) {
+            extract(unserialize($partial));
+        } else {
+            $exponents = $coefficients = $primes = array();
+            $lcm = array(
+                'top' => $this->one->copy(),
+                'bottom' => false
+            );
+        }
 
         $start = time();
         $i0 = count($primes) + 1;
@@ -487,11 +491,16 @@ class Crypt_RSA {
                     $timeout-= time() - $start;
                     $start = time();
                     if ($timeout <= 0) {
-                        return array(
+                        return serialize(array(
                             'privatekey' => '',
                             'publickey'  => '',
-                            'partialkey' => $primes
-                        );
+                            'partialkey' => array(
+                                'primes' => $primes,
+                                'coefficients' => $coefficients,
+                                'lcm' => $lcm,
+                                'exponents' => $exponents
+                            )
+                        ));
                     }
                 }
                 if ($i == $num_primes) {
@@ -508,7 +517,12 @@ class Crypt_RSA {
                     return array(
                         'privatekey' => '',
                         'publickey'  => '',
-                        'partialkey' => array_slice($primes, 0, $i - 1)
+                        'partialkey' => empty($primes) ? '' : serialize(array(
+                            'primes' => array_slice($primes, 0, $i - 1),
+                            'coefficients' => $coefficients,
+                            'lcm' => $lcm,
+                            'exponents' => $exponents
+                        ))
                     );
                 }
 
@@ -571,7 +585,6 @@ class Crypt_RSA {
     function _convertPrivateKey($n, $e, $d, $primes, $exponents, $coefficients)
     {
         $num_primes = count($primes);
-
         $raw = array(
             'version' => $num_primes == 2 ? chr(0) : chr(1), // two-prime vs. multi
             'modulus' => $n->toBytes(true),
