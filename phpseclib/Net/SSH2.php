@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.33 2009-12-31 06:11:07 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.34 2010-01-21 07:33:05 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1273,7 +1273,7 @@ class Net_SSH2 {
         }
 
         // although PHP5's get_class() preserves the case, PHP4's does not
-        if (strtolower(get_class($password)) == 'crypt_rsa')  {
+        if (is_object($password) && strtolower(get_class($password)) == 'crypt_rsa')  {
             return $this->_privatekey_login($username, $password);
         }
 

@@ -1,4 +1,5 @@
 <?php
+echo "ZZZ\r\n";
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
@@ -67,7 +68,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.24 2010-01-21 00:52:11 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.25 2010-01-21 07:33:04 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -836,9 +837,10 @@ class Math_BigInteger {
                     MATH_BIGINTEGER_SIGN => false
                 );
             }
-            $temp = $this->_subtract($x_value, $x_negative, $y_value, $y_negative);
-            $temp[MATH_BIGINTEGER_SIGN] = $this->_compare($x_value, $x_negative, $y_value, $y_negative) > 0 ?
-                                          !$y_negative : $y_negative;
+
+            $temp = $this->_subtract($x_value, false, $y_value, false);
+            $temp[MATH_BIGINTEGER_SIGN] = $this->_compare($x_value, false, $y_value, false) > 0 ?
+                                          $x_negative : $y_negative;
 
             return $temp;
         }
@@ -966,7 +968,7 @@ class Math_BigInteger {
             return $temp;
         }
 
-        $diff = $this->_compare($x_value, $x_negative, $y_value, $x_negative);
+        $diff = $this->_compare($x_value, $x_negative, $y_value, $y_negative);
 
         if ( !$diff ) {
             return array(
@@ -981,9 +983,7 @@ class Math_BigInteger {
             $x_value = $y_value;
             $y_value = $temp;
 
-            $temp = $x_negative;
-            $x_negative = $y_negative;
-            $y_negative = $temp;
+            $x_negative = !$x_negative;
 
             $x_size = count($x_value);
             $y_size = count($y_value);
