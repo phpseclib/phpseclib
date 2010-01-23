@@ -1,5 +1,4 @@
 <?php
-echo "ZZZ\r\n";
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
@@ -68,7 +67,7 @@ echo "ZZZ\r\n";
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.25 2010-01-21 07:33:04 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.26 2010-01-23 17:36:49 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 

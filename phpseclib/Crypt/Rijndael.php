@@ -64,7 +64,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Rijndael.php,v 1.10 2010-01-04 07:59:01 terrafrost Exp $
+ * @version    $Id: Rijndael.php,v 1.11 2010-01-23 17:36:49 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1080,7 +1080,6 @@ class Crypt_Rijndael {
         $length = ord($text[strlen($text) - 1]);
 
         if (!$length || $length > $this->block_size) {
-echo "RETURNING FALSE ($length)\r\n";
             return false;
         }
 
