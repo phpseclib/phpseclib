@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.8 2010-01-21 00:52:10 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.9 2010-01-25 07:42:45 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -401,6 +401,7 @@ class Crypt_RSA {
         $this->hLen = $this->hash->getLength();
         $this->hashName = 'sha1';
         $this->mgfHash = new Crypt_Hash('sha1');
+        $this->mgfHLen = $this->mgfHash->getLength();
     }
 
     /**
