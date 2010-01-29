@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.9 2010-01-25 07:42:45 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.10 2010-01-29 06:21:16 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1010,7 +1010,6 @@ class Crypt_RSA {
         if ( $length & 0x80 ) { // definite length, long form
             $length&= 0x7F;
             $temp = $this->_string_shift($string, $length);
-            $start+= $length;
             list(, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
         }
         return $length;
