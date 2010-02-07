@@ -67,7 +67,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.27 2010-01-26 23:57:27 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.28 2010-02-07 01:54:51 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -317,8 +317,8 @@ class Math_BigInteger {
                         $x = str_pad($x, $len, chr(0), STR_PAD_LEFT);
 
                         for ($i = 0; $i < $len; $i+= 4) {
-                            $this->value = bcmul($this->value, '4294967296'); // 4294967296 == 2**32
-                            $this->value = bcadd($this->value, 0x1000000 * ord($x[$i]) + ((ord($x[$i + 1]) << 16) | (ord($x[$i + 2]) << 8) | ord($x[$i + 3])));
+                            $this->value = bcmul($this->value, '4294967296', 0); // 4294967296 == 2**32
+                            $this->value = bcadd($this->value, 0x1000000 * ord($x[$i]) + ((ord($x[$i + 1]) << 16) | (ord($x[$i + 2]) << 8) | ord($x[$i + 3])), 0);
                         }
 
                         if ($this->is_negative) {
@@ -515,10 +515,10 @@ class Math_BigInteger {
                     $current = substr($current, 1);
                 }
 
-                while (bccomp($current, '0') > 0) {
+                while (bccomp($current, '0', 0) > 0) {
                     $temp = bcmod($current, 0x1000000);
                     $value = chr($temp >> 16) . chr($temp >> 8) . chr($temp) . $value;
-                    $current = bcdiv($current, 0x1000000);
+                    $current = bcdiv($current, 0x1000000, 0);
                 }
 
                 return $this->precision > 0 ?
@@ -787,7 +787,7 @@ class Math_BigInteger {
                 return $this->_normalize($temp);
             case MATH_BIGINTEGER_MODE_BCMATH:
                 $temp = new Math_BigInteger();
-                $temp->value = bcadd($this->value, $y->value);
+                $temp->value = bcadd($this->value, $y->value, 0);
 
                 return $this->_normalize($temp);
         }
@@ -918,7 +918,7 @@ class Math_BigInteger {
                 return $this->_normalize($temp);
             case MATH_BIGINTEGER_MODE_BCMATH:
                 $temp = new Math_BigInteger();
-                $temp->value = bcsub($this->value, $y->value);
+                $temp->value = bcsub($this->value, $y->value, 0);
 
                 return $this->_normalize($temp);
         }
@@ -1053,7 +1053,7 @@ class Math_BigInteger {
                 return $this->_normalize($temp);
             case MATH_BIGINTEGER_MODE_BCMATH:
                 $temp = new Math_BigInteger();
-                $temp->value = bcmul($this->value, $x->value);
+                $temp->value = bcmul($this->value, $x->value, 0);
 
                 return $this->_normalize($temp);
         }
@@ -1348,11 +1348,11 @@ class Math_BigInteger {
                 $quotient = new Math_BigInteger();
                 $remainder = new Math_BigInteger();
 
-                $quotient->value = bcdiv($this->value, $y->value);
+                $quotient->value = bcdiv($this->value, $y->value, 0);
                 $remainder->value = bcmod($this->value, $y->value);
 
                 if ($remainder->value[0] == '-') {
-                    $remainder->value = bcadd($remainder->value, $y->value[0] == '-' ? substr($y->value, 1) : $y->value);
+                    $remainder->value = bcadd($remainder->value, $y->value[0] == '-' ? substr($y->value, 1) : $y->value, 0);
                 }
 
                 return array($this->_normalize($quotient), $this->_normalize($remainder));
@@ -1591,7 +1591,7 @@ class Math_BigInteger {
                 return $this->_normalize($temp);
             case MATH_BIGINTEGER_MODE_BCMATH:
                 $temp = new Math_BigInteger();
-                $temp->value = bcpowmod($this->value, $e->value, $n->value);
+                $temp->value = bcpowmod($this->value, $e->value, $n->value, 0);
 
                 return $this->_normalize($temp);
         }
@@ -2396,20 +2396,20 @@ class Math_BigInteger {
                 $c = '0';
                 $d = '1';
 
-                while (bccomp($v, '0') != 0) {
-                    $q = bcdiv($u, $v);
+                while (bccomp($v, '0', 0) != 0) {
+                    $q = bcdiv($u, $v, 0);
 
                     $temp = $u;
                     $u = $v;
-                    $v = bcsub($temp, bcmul($v, $q));
+                    $v = bcsub($temp, bcmul($v, $q, 0), 0);
 
                     $temp = $a;
                     $a = $c;
-                    $c = bcsub($temp, bcmul($a, $q));
+                    $c = bcsub($temp, bcmul($a, $q, 0), 0);
 
                     $temp = $b;
                     $b = $d;
-                    $d = bcsub($temp, bcmul($b, $q));
+                    $d = bcsub($temp, bcmul($b, $q, 0), 0);
                 }
 
                 return array(
@@ -2524,7 +2524,7 @@ class Math_BigInteger {
                 $temp->value = gmp_abs($this->value);
                 break;
             case MATH_BIGINTEGER_MODE_BCMATH:
-                $temp->value = (bccomp($this->value, '0') < 0) ? substr($this->value, 1) : $this->value;
+                $temp->value = (bccomp($this->value, '0', 0) < 0) ? substr($this->value, 1) : $this->value;
                 break;
             default:
                 $temp->value = $this->value;
@@ -2557,7 +2557,7 @@ class Math_BigInteger {
             case MATH_BIGINTEGER_MODE_GMP:
                 return gmp_cmp($this->value, $y->value);
             case MATH_BIGINTEGER_MODE_BCMATH:
-                return bccomp($this->value, $y->value);
+                return bccomp($this->value, $y->value, 0);
         }
 
         return $this->_compare($this->value, $this->is_negative, $y->value, $y->is_negative);
@@ -2634,7 +2634,7 @@ class Math_BigInteger {
         if ( MATH_BIGINTEGER_MODE != MATH_BIGINTEGER_MODE_BCMATH ) {
             $this->bitmask = new Math_BigInteger(chr((1 << ($bits & 0x7)) - 1) . str_repeat(chr(0xFF), $bits >> 3), 256);
         } else {
-            $this->bitmask = new Math_BigInteger(bcpow('2', $bits));
+            $this->bitmask = new Math_BigInteger(bcpow('2', $bits, 0));
         }
 
         $temp = $this->_normalize($this);
@@ -2824,7 +2824,7 @@ class Math_BigInteger {
 
                 break;
             case MATH_BIGINTEGER_MODE_BCMATH:
-                $temp->value = bcdiv($this->value, bcpow('2', $shift));
+                $temp->value = bcdiv($this->value, bcpow('2', $shift, 0), 0);
 
                 break;
             default: // could just replace _lshift with this, but then all _lshift() calls would need to be rewritten
@@ -2862,7 +2862,7 @@ class Math_BigInteger {
 
                 break;
             case MATH_BIGINTEGER_MODE_BCMATH:
-                $temp->value = bcmul($this->value, bcpow('2', $shift));
+                $temp->value = bcmul($this->value, bcpow('2', $shift, 0), 0);
 
                 break;
             default: // could just replace _rshift with this, but then all _lshift() calls would need to be rewritten
@@ -3229,7 +3229,7 @@ class Math_BigInteger {
             $s = 0;
             // if $n was 1, $r would be 0 and this would be an infinite loop, hence our $this->equals($one) check earlier
             while ($r->value[strlen($r->value) - 1] % 2 == 0) {
-                $r->value = bcdiv($r->value, 2);
+                $r->value = bcdiv($r->value, 2, 0);
                 ++$s;
             }
         } else {
