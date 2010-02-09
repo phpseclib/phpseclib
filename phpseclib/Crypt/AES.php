@@ -56,7 +56,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: AES.php,v 1.6 2010-01-04 07:59:01 terrafrost Exp $
+ * @version    $Id: AES.php,v 1.7 2010-02-09 06:10:25 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -70,6 +70,14 @@ require_once 'Rijndael.php';
  * @see Crypt_AES::encrypt()
  * @see Crypt_AES::decrypt()
  */
+/**
+ * Encrypt / decrypt using the Counter mode.
+ *
+ * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
+ *
+ * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
+ */
+define('CRYPT_AES_MODE_CTR', -1);
 /**
  * Encrypt / decrypt using the Electronic Code Book mode.
  *
@@ -108,13 +116,28 @@ define('CRYPT_AES_MODE_MCRYPT', 2);
  */
 class Crypt_AES extends Crypt_Rijndael {
     /**
-     * MCrypt parameters
+     * mcrypt resource for encryption
      *
-     * @see Crypt_AES::setMCrypt()
-     * @var Array
+     * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
+     * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
+     *
+     * @see Crypt_AES::encrypt()
+     * @var String
      * @access private
      */
-    var $mcrypt = array('', '');
+    var $enmcrypt;
+
+    /**
+     * mcrypt resource for decryption
+     *
+     * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
+     * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
+     *
+     * @see Crypt_AES::decrypt()
+     * @var String
+     * @access private
+     */
+    var $demcrypt;
 
     /**
      * Default Constructor.
@@ -147,6 +170,13 @@ class Crypt_AES extends Crypt_Rijndael {
                     case CRYPT_AES_MODE_ECB:
                         $this->mode = MCRYPT_MODE_ECB;
                         break;
+                    case CRYPT_AES_MODE_CTR:
+                        // ctr doesn't have a constant associated with it even though it appears to be fairly widely
+                        // supported.  in lieu of knowing just how widely supported it is, i've, for now, opted not to
+                        // include a compatibility layer.  the layer has been implemented but, for now, is commented out.
+                        $this->mode = 'ctr';
+                        //$this->mode = in_array('ctr', mcrypt_list_modes()) ? 'ctr' : CRYPT_AES_MODE_CTR;
+                        break;
                     case CRYPT_AES_MODE_CBC:
                     default:
                         $this->mode = MCRYPT_MODE_CBC;
@@ -157,6 +187,9 @@ class Crypt_AES extends Crypt_Rijndael {
                 switch ($mode) {
                     case CRYPT_AES_MODE_ECB:
                         $this->mode = CRYPT_RIJNDAEL_MODE_ECB;
+                        break;
+                    case CRYPT_AES_MODE_CTR:
+                        $this->mode = CRYPT_RIJNDAEL_MODE_CTR;
                         break;
                     case CRYPT_AES_MODE_CBC:
                     default:
@@ -203,18 +236,26 @@ class Crypt_AES extends Crypt_Rijndael {
     {
         if ( CRYPT_AES_MODE == CRYPT_AES_MODE_MCRYPT ) {
             $this->_mcryptSetup();
-            $plaintext = $this->_pad($plaintext);
+            /*
+            if ($this->mode == CRYPT_AES_MODE_CTR) {
+                $iv = $this->encryptIV;
+                $xor = mcrypt_generic($this->enmcrypt, $this->_generate_xor(strlen($plaintext), $iv));
+                $ciphertext = $plaintext ^ $xor;
+                if ($this->continuousBuffer) {
+                    $this->encryptIV = $iv;
+                }
+                return $ciphertext;
+            }
+            */
 
-            $td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, $this->mcrypt[0], $this->mode, $this->mcrypt[1]);
-            mcrypt_generic_init($td, $this->key, $this->encryptIV);
+            if ($this->mode != 'ctr') {
+                $plaintext = $this->_pad($plaintext);
+            }
 
-            $ciphertext = mcrypt_generic($td, $plaintext);
+            $ciphertext = mcrypt_generic($this->enmcrypt, $plaintext);
 
-            mcrypt_generic_deinit($td);
-            mcrypt_module_close($td);
-
-            if ($this->continuousBuffer) {
-                $this->encryptIV = substr($ciphertext, -16);
+            if (!$this->continuousBuffer) {
+                mcrypt_generic_init($this->enmcrypt, $this->key, $this->iv);
             }
 
             return $ciphertext;
@@ -234,44 +275,36 @@ class Crypt_AES extends Crypt_Rijndael {
      */
     function decrypt($ciphertext)
     {
-        // we pad with chr(0) since that's what mcrypt_generic does.  to quote from http://php.net/function.mcrypt-generic :
-        // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
-        $ciphertext = str_pad($ciphertext, (strlen($ciphertext) + 15) & 0xFFFFFFF0, chr(0));
-
         if ( CRYPT_AES_MODE == CRYPT_AES_MODE_MCRYPT ) {
             $this->_mcryptSetup();
+            /*
+            if ($this->mode == CRYPT_AES_MODE_CTR) {
+                $iv = $this->decryptIV;
+                $xor = mcrypt_generic($this->enmcrypt, $this->_generate_xor(strlen($ciphertext), $iv));
+                $plaintext = $ciphertext ^ $xor;
+                if ($this->continuousBuffer) {
+                    $this->decryptIV = $iv;
+                }
+                return $plaintext;
+            }
+            */
 
-            $td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, $this->mcrypt[0], $this->mode, $this->mcrypt[1]);
-            mcrypt_generic_init($td, $this->key, $this->decryptIV);
-
-            $plaintext = mdecrypt_generic($td, $ciphertext);
-
-            mcrypt_generic_deinit($td);
-            mcrypt_module_close($td);
-
-            if ($this->continuousBuffer) {
-                $this->decryptIV = substr($ciphertext, -16);
+            if ($this->mode != 'ctr') {
+                // we pad with chr(0) since that's what mcrypt_generic does.  to quote from http://php.net/function.mcrypt-generic :
+                // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
+                $ciphertext = str_pad($ciphertext, (strlen($ciphertext) + 15) & 0xFFFFFFF0, chr(0));
             }
 
-            return $this->_unpad($plaintext);
+            $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
+
+            if (!$this->continuousBuffer) {
+                mcrypt_generic_init($this->demcrypt, $this->key, $this->iv);
+            }
+
+            return $this->mode != 'ctr' ? $this->_unpad($plaintext) : $plaintext;
         }
 
         return parent::decrypt($ciphertext);
-    }
-
-    /**
-     * Sets MCrypt parameters. (optional)
-     *
-     * If MCrypt is being used, empty strings will be used, unless otherwise specified.
-     *
-     * @link http://php.net/function.mcrypt-module-open#function.mcrypt-module-open
-     * @access public
-     * @param optional Integer $algorithm_directory
-     * @param optional Integer $mode_directory
-     */
-    function setMCrypt($algorithm_directory = '', $mode_directory = '')
-    {
-        $this->mcrypt = array($algorithm_directory, $mode_directory);
     }
 
     /**
@@ -314,6 +347,17 @@ class Crypt_AES extends Crypt_Rijndael {
 
         $this->key = substr($this->key, 0, $this->key_size);
         $this->encryptIV = $this->decryptIV = $this->iv = str_pad(substr($this->iv, 0, 16), 16, chr(0));
+
+        if (!isset($this->enmcrypt)) {
+            $mode = $this->mode;
+            //$mode = $this->mode == CRYPT_AES_MODE_CTR ? MCRYPT_MODE_ECB : $this->mode;
+
+            $this->demcrypt = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', $mode, '');
+            $this->enmcrypt = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', $mode, '');
+        } // else should mcrypt_generic_deinit be called?
+
+        mcrypt_generic_init($this->demcrypt, $this->key, $this->iv);
+        mcrypt_generic_init($this->enmcrypt, $this->key, $this->iv);
 
         $this->changed = false;
     }

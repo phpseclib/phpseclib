@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.34 2010-01-21 07:33:05 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.35 2010-02-09 06:10:26 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -674,10 +674,22 @@ class Net_SSH2 {
         );
 
         static $encryption_algorithms = array(
-            'arcfour',    // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
             'aes128-cbc', // RECOMMENDED       AES with a 128-bit key
             'aes192-cbc', // OPTIONAL          AES with a 192-bit key
             'aes256-cbc', // OPTIONAL          AES in CBC mode, with a 256-bit key
+
+            // from <http://tools.ietf.org/html/rfc4344#section-4>:
+            'aes128-ctr', // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
+            'aes192-ctr', // RECOMMENDED       AES with 192-bit key
+            'aes256-ctr', // RECOMMENDED       AES with 256-bit key
+            '3des-ctr',   // RECOMMENDED       Three-key 3DES in SDCTR mode
+
+            // from <http://tools.ietf.org/html/rfc4345#section-4>:
+            // (commented out since i don't know of any ssh servers that support them and thus am unable to test them)
+            //'arcfour128',
+            //'arcfour256',
+
+            'arcfour',    // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
             '3des-cbc',   // REQUIRED          three-key 3DES in CBC mode
             'none'        // OPTIONAL          no encryption; NOT RECOMMENDED
         );
@@ -777,19 +789,27 @@ class Net_SSH2 {
         $decrypt = $encryption_algorithms[$i];
         switch ($decrypt) {
             case '3des-cbc':
+            case '3des-ctr':
                 $decryptKeyLength = 24; // eg. 192 / 8
                 break;
             case 'aes256-cbc':
+            case 'aes256-ctr':
                 $decryptKeyLength = 32; // eg. 256 / 8
                 break;
             case 'aes192-cbc':
+            case 'aes192-ctr':
                 $decryptKeyLength = 24; // eg. 192 / 8
                 break;
             case 'aes128-cbc':
+            case 'aes128-ctr':
                 $decryptKeyLength = 16; // eg. 128 / 8
                 break;
             case 'arcfour':
+            case 'arcfour128':
                 $decryptKeyLength = 16; // eg. 128 / 8
+                break;
+            case 'arcfour256':
+                $decryptKeyLength = 32; // eg. 128 / 8
                 break;
             case 'none';
                 $decryptKeyLength = 0;
@@ -804,19 +824,27 @@ class Net_SSH2 {
         $encrypt = $encryption_algorithms[$i];
         switch ($encrypt) {
             case '3des-cbc':
+            case '3des-ctr':
                 $encryptKeyLength = 24;
                 break;
             case 'aes256-cbc':
+            case 'aes256-ctr':
                 $encryptKeyLength = 32;
                 break;
             case 'aes192-cbc':
+            case 'aes192-ctr':
                 $encryptKeyLength = 24;
                 break;
             case 'aes128-cbc':
+            case 'aes128-ctr':
                 $encryptKeyLength = 16;
                 break;
             case 'arcfour':
+            case 'arcfour128':
                 $encryptKeyLength = 16;
+                break;
+            case 'arcfour256':
+                $encryptKeyLength = 32;
                 break;
             case 'none';
                 $encryptKeyLength = 0;
@@ -1073,19 +1101,25 @@ class Net_SSH2 {
                 $this->encrypt = new Crypt_TripleDES();
                 // $this->encrypt_block_size = 64 / 8 == the default
                 break;
+            case '3des-ctr':
+                $this->encrypt = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
+                // $this->encrypt_block_size = 64 / 8 == the default
+                break;
             case 'aes256-cbc':
+            case 'aes192-cbc':
+            case 'aes128-cbc':
                 $this->encrypt = new Crypt_AES();
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
-            case 'aes192-cbc':
-                $this->encrypt = new Crypt_AES();
-                $this->encrypt_block_size = 16;
-                break;
-            case 'aes128-cbc':
-                $this->encrypt = new Crypt_AES();
-                $this->encrypt_block_size = 16;
+            case 'aes256-ctr':
+            case 'aes192-ctr':
+            case 'aes128-ctr':
+                $this->encrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'arcfour':
+            case 'arcfour128':
+            case 'arcfour256':
                 $this->encrypt = new Crypt_RC4();
                 break;
             case 'none';
@@ -1096,19 +1130,24 @@ class Net_SSH2 {
             case '3des-cbc':
                 $this->decrypt = new Crypt_TripleDES();
                 break;
+            case '3des-ctr':
+                $this->decrypt = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
+                break;
             case 'aes256-cbc':
-                $this->decrypt = new Crypt_AES();
-                $this->decrypt_block_size = 16;
-                break;
             case 'aes192-cbc':
-                $this->decrypt = new Crypt_AES();
-                $this->decrypt_block_size = 16;
-                break;
             case 'aes128-cbc':
                 $this->decrypt = new Crypt_AES();
                 $this->decrypt_block_size = 16;
                 break;
+            case 'aes256-ctr':
+            case 'aes192-ctr':
+            case 'aes128-ctr':
+                $this->decrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                $this->decrypt_block_size = 16;
+                break;
             case 'arcfour':
+            case 'arcfour128':
+            case 'arcfour256':
                 $this->decrypt = new Crypt_RC4();
                 break;
             case 'none';
@@ -1149,6 +1188,20 @@ class Net_SSH2 {
                 $key.= pack('H*', $hash($keyBytes . $source . $key));
             }
             $this->decrypt->setKey(substr($key, 0, $decryptKeyLength));
+        }
+
+        /* The "arcfour128" algorithm is the RC4 cipher, as described in
+           [SCHNEIER], using a 128-bit key.  The first 1536 bytes of keystream
+           generated by the cipher MUST be discarded, and the first byte of the
+           first encrypted packet MUST be encrypted using the 1537th byte of
+           keystream.
+
+           -- http://tools.ietf.org/html/rfc4345#section-4 */
+        if ($encrypt == 'arcfour128' || $encrypt == 'arcfour256') {
+            $this->encrypt->encrypt(str_repeat("\0", 1536));
+        }
+        if ($decrypt == 'arcfour128' || $decrypt == 'arcfour256') {
+            $this->decrypt->decrypt(str_repeat("\0", 1536));
         }
 
         for ($i = 0; $i < count($mac_algorithms) && !in_array($mac_algorithms[$i], $this->mac_algorithms_client_to_server); $i++);

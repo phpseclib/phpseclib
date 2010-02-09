@@ -53,7 +53,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: DES.php,v 1.11 2010-01-04 07:59:01 terrafrost Exp $
+ * @version    $Id: DES.php,v 1.12 2010-02-09 06:10:26 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -77,6 +77,14 @@ define('CRYPT_DES_DECRYPT', 1);
  * @see Crypt_DES::encrypt()
  * @see Crypt_DES::decrypt()
  */
+/**
+ * Encrypt / decrypt using the Counter mode.
+ *
+ * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
+ *
+ * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
+ */
+define('CRYPT_DES_MODE_CTR', -1);
 /**
  * Encrypt / decrypt using the Electronic Code Book mode.
  *
@@ -178,13 +186,38 @@ class Crypt_DES {
     var $decryptIV = "\0\0\0\0\0\0\0\0";
 
     /**
-     * MCrypt parameters
+     * mcrypt resource for encryption
      *
-     * @see Crypt_DES::setMCrypt()
-     * @var Array
+     * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
+     * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
+     *
+     * @see Crypt_AES::encrypt()
+     * @var String
      * @access private
      */
-    var $mcrypt = array('', '');
+    var $enmcrypt;
+
+    /**
+     * mcrypt resource for decryption
+     *
+     * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
+     * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
+     *
+     * @see Crypt_AES::decrypt()
+     * @var String
+     * @access private
+     */
+    var $demcrypt;
+
+    /**
+     * Does the (en|de)mcrypt resource need to be (re)initialized?
+     *
+     * @see setKey()
+     * @see setIV()
+     * @var Boolean
+     * @access private
+     */
+    var $changed = true;
 
     /**
      * Default Constructor.
@@ -217,6 +250,10 @@ class Crypt_DES {
                     case CRYPT_DES_MODE_ECB:
                         $this->mode = MCRYPT_MODE_ECB;
                         break;
+                    case CRYPT_DES_MODE_CTR:
+                        $this->mode = 'ctr';
+                        //$this->mode = in_array('ctr', mcrypt_list_modes()) ? 'ctr' : CRYPT_DES_MODE_CTR;
+                        break;
                     case CRYPT_DES_MODE_CBC:
                     default:
                         $this->mode = MCRYPT_MODE_CBC;
@@ -226,6 +263,7 @@ class Crypt_DES {
             default:
                 switch ($mode) {
                     case CRYPT_DES_MODE_ECB:
+                    case CRYPT_DES_MODE_CTR:
                     case CRYPT_DES_MODE_CBC:
                         $this->mode = $mode;
                         break;
@@ -252,6 +290,7 @@ class Crypt_DES {
     function setKey($key)
     {
         $this->keys = ( CRYPT_DES_MODE == CRYPT_DES_MODE_MCRYPT ) ? substr($key, 0, 8) : $this->_prepareKey($key);
+        $this->changed = true;
     }
 
     /**
@@ -265,22 +304,46 @@ class Crypt_DES {
      */
     function setIV($iv)
     {
-        $this->encryptIV = $this->decryptIV = $this->iv = str_pad(substr($iv, 0, 8), 8, chr(0));;
+        $this->encryptIV = $this->decryptIV = $this->iv = str_pad(substr($iv, 0, 8), 8, chr(0));
+        $this->changed = true;
     }
 
     /**
-     * Sets MCrypt parameters. (optional)
+     * Generate CTR XOR encryption key
      *
-     * If MCrypt is being used, empty strings will be used, unless otherwise specified.
+     * Encrypt the output of this and XOR it against the ciphertext / plaintext to get the
+     * plaintext / ciphertext in CTR mode.
      *
-     * @link http://php.net/function.mcrypt-module-open#function.mcrypt-module-open
+     * @see Crypt_DES::decrypt()
+     * @see Crypt_DES::encrypt()
      * @access public
-     * @param optional Integer $algorithm_directory
-     * @param optional Integer $mode_directory
+     * @param Integer $length
+     * @param String $iv
      */
-    function setMCrypt($algorithm_directory = '', $mode_directory = '')
+    function _generate_xor($length, &$iv)
     {
-        $this->mcrypt = array($algorithm_directory, $mode_directory);
+        $xor = '';
+        $num_blocks = ($length + 7) >> 3;
+        for ($i = 0; $i < $num_blocks; $i++) {
+            $xor.= $iv;
+            for ($j = 4; $j <= 8; $j+=4) {
+                $temp = substr($iv, -$j, 4);
+                switch ($temp) {
+                    case "\xFF\xFF\xFF\xFF":
+                        $iv = substr_replace($iv, "\x00\x00\x00\x00", -$j, 4);
+                        break;
+                    case "\x7F\xFF\xFF\xFF":
+                        $iv = substr_replace($iv, "\x80\x00\x00\x00", -$j, 4);
+                        break 2;
+                    default:
+                        extract(unpack('Ncount', $temp));
+                        $iv = substr_replace($iv, pack('N', $count + 1), -$j, 4);
+                        break 2;
+                }
+            }
+        }
+
+        return $xor;
     }
 
     /**
@@ -302,19 +365,23 @@ class Crypt_DES {
      */
     function encrypt($plaintext)
     {
-        $plaintext = $this->_pad($plaintext);
+        if ($this->mode != CRYPT_DES_MODE_CTR && $this->mode != 'ctr') {
+            $plaintext = $this->_pad($plaintext);
+        }
 
         if ( CRYPT_DES_MODE == CRYPT_DES_MODE_MCRYPT ) {
-            $td = mcrypt_module_open(MCRYPT_DES, $this->mcrypt[0], $this->mode, $this->mcrypt[1]);
-            mcrypt_generic_init($td, $this->keys, $this->encryptIV);
+            if ($this->changed) {
+                if (!isset($this->enmcrypt)) {
+                    $this->enmcrypt = mcrypt_module_open(MCRYPT_DES, '', $this->mode, '');
+                }
+                mcrypt_generic_init($this->enmcrypt, $this->keys, $this->encryptIV);
+                $this->changed = false;
+            }
 
-            $ciphertext = mcrypt_generic($td, $plaintext);
+            $ciphertext = mcrypt_generic($this->enmcrypt, $plaintext);
 
-            mcrypt_generic_deinit($td);
-            mcrypt_module_close($td);
-
-            if ($this->continuousBuffer) {
-                $this->encryptIV = substr($ciphertext, -8);
+            if (!$this->continuousBuffer) {
+                mcrypt_generic_init($this->enmcrypt, $this->keys, $this->encryptIV);
             }
 
             return $ciphertext;
@@ -342,6 +409,17 @@ class Crypt_DES {
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                 }
+                break;
+            case CRYPT_DES_MODE_CTR:
+                $xor = $this->encryptIV;
+                for ($i = 0; $i < strlen($plaintext); $i+=8) {
+                    $block = substr($plaintext, $i, 8);
+                    $key = $this->_processBlock($this->_generate_xor(8, $xor), CRYPT_DES_ENCRYPT);
+                    $ciphertext.= $block ^ $key;
+                }
+                if ($this->continuousBuffer) {
+                    $this->encryptIV = $xor;
+                }
         }
 
         return $ciphertext;
@@ -358,24 +436,28 @@ class Crypt_DES {
      */
     function decrypt($ciphertext)
     {
-        // we pad with chr(0) since that's what mcrypt_generic does.  to quote from http://php.net/function.mcrypt-generic :
-        // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
-        $ciphertext = str_pad($ciphertext, (strlen($ciphertext) + 7) & 0xFFFFFFF8, chr(0));
+        if ($this->mode != CRYPT_DES_MODE_CTR && $this->mode != 'ctr') {
+            // we pad with chr(0) since that's what mcrypt_generic does.  to quote from http://php.net/function.mcrypt-generic :
+            // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
+            $ciphertext = str_pad($ciphertext, (strlen($ciphertext) + 7) & 0xFFFFFFF8, chr(0));
+        }
 
         if ( CRYPT_DES_MODE == CRYPT_DES_MODE_MCRYPT ) {
-            $td = mcrypt_module_open(MCRYPT_DES, $this->mcrypt[0], $this->mode, $this->mcrypt[1]);
-            mcrypt_generic_init($td, $this->keys, $this->decryptIV);
-
-            $plaintext = mdecrypt_generic($td, $ciphertext);
-
-            mcrypt_generic_deinit($td);
-            mcrypt_module_close($td);
-
-            if ($this->continuousBuffer) {
-                $this->decryptIV = substr($ciphertext, -8);
+            if ($this->changed) {
+                if (!isset($this->demcrypt)) {
+                    $this->demcrypt = mcrypt_module_open(MCRYPT_DES, '', $this->mode, '');
+                }
+                mcrypt_generic_init($this->demcrypt, $this->keys, $this->decryptIV);
+                $this->changed = false;
             }
 
-            return $this->_unpad($plaintext);
+            $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
+
+            if (!$this->continuousBuffer) {
+                mcrypt_generic_init($this->demcrypt, $this->keys, $this->decryptIV);
+            }
+
+            return $this->mode != 'ctr' ? $this->_unpad($plaintext) : $plaintext;
         }
 
         if (!is_array($this->keys)) {
@@ -399,9 +481,20 @@ class Crypt_DES {
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                 }
+                break;
+            case CRYPT_DES_MODE_CTR:
+                $xor = $this->decryptIV;
+                for ($i = 0; $i < strlen($ciphertext); $i+=8) {
+                    $block = substr($ciphertext, $i, 8);
+                    $key = $this->_processBlock($this->_generate_xor(8, $xor), CRYPT_DES_ENCRYPT);
+                    $plaintext.= $block ^ $key;
+                }
+                if ($this->continuousBuffer) {
+                    $this->decryptIV = $xor;
+                }
         }
 
-        return $this->_unpad($plaintext);
+        return $this->mode != CRYPT_DES_MODE_CTR ? $this->_unpad($plaintext) : $plaintext;
     }
 
     /**

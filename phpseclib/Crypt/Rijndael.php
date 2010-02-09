@@ -64,7 +64,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Rijndael.php,v 1.11 2010-01-23 17:36:49 terrafrost Exp $
+ * @version    $Id: Rijndael.php,v 1.12 2010-02-09 06:10:26 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -73,6 +73,14 @@
  * @see Crypt_Rijndael::encrypt()
  * @see Crypt_Rijndael::decrypt()
  */
+/**
+ * Encrypt / decrypt using the Counter mode.
+ *
+ * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
+ *
+ * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
+ */
+define('CRYPT_RIJNDAEL_MODE_CTR', -1);
 /**
  * Encrypt / decrypt using the Electronic Code Book mode.
  *
@@ -363,6 +371,7 @@ class Crypt_Rijndael {
         switch ($mode) {
             case CRYPT_RIJNDAEL_MODE_ECB:
             case CRYPT_RIJNDAEL_MODE_CBC:
+            case CRYPT_RIJNDAEL_MODE_CTR:
                 $this->mode = $mode;
                 break;
             default:
@@ -543,6 +552,45 @@ class Crypt_Rijndael {
     }
 
     /**
+     * Generate CTR XOR encryption key
+     *
+     * Encrypt the output of this and XOR it against the ciphertext / plaintext to get the
+     * plaintext / ciphertext in CTR mode.
+     *
+     * @see Crypt_Rijndael::decrypt()
+     * @see Crypt_Rijndael::encrypt()
+     * @access public
+     * @param Integer $length
+     * @param String $iv
+     */
+    function _generate_xor($length, &$iv)
+    {
+        $xor = '';
+        $block_size = $this->block_size;
+        $num_blocks = floor(($length + ($block_size - 1)) / $block_size);
+        for ($i = 0; $i < $num_blocks; $i++) {
+            $xor.= $iv;
+            for ($j = 4; $j <= $block_size; $j+=4) {
+                $temp = substr($iv, -$j, 4);
+                switch ($temp) {
+                    case "\xFF\xFF\xFF\xFF":
+                        $iv = substr_replace($iv, "\x00\x00\x00\x00", -$j, 4);
+                        break;
+                    case "\x7F\xFF\xFF\xFF":
+                        $iv = substr_replace($iv, "\x80\x00\x00\x00", -$j, 4);
+                        break 2;
+                    default:
+                        extract(unpack('Ncount', $temp));
+                        $iv = substr_replace($iv, pack('N', $count + 1), -$j, 4);
+                        break 2;
+                }
+            }
+        }
+
+        return $xor;
+    }
+
+    /**
      * Encrypts a message.
      *
      * $plaintext will be padded with additional bytes such that it's length is a multiple of the block size.  Other Rjindael
@@ -563,22 +611,36 @@ class Crypt_Rijndael {
     function encrypt($plaintext)
     {
         $this->_setup();
-        $plaintext = $this->_pad($plaintext);
+        if ($this->mode != CRYPT_RIJNDAEL_MODE_CTR) {
+            $plaintext = $this->_pad($plaintext);
+        }
 
+        $block_size = $this->block_size;
         $ciphertext = '';
         switch ($this->mode) {
             case CRYPT_RIJNDAEL_MODE_ECB:
-                for ($i = 0; $i < strlen($plaintext); $i+=$this->block_size) {
-                    $ciphertext.= $this->_encryptBlock(substr($plaintext, $i, $this->block_size));
+                for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
+                    $ciphertext.= $this->_encryptBlock(substr($plaintext, $i, $block_size));
                 }
                 break;
             case CRYPT_RIJNDAEL_MODE_CBC:
                 $xor = $this->encryptIV;
-                for ($i = 0; $i < strlen($plaintext); $i+=$this->block_size) {
-                    $block = substr($plaintext, $i, $this->block_size);
+                for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
+                    $block = substr($plaintext, $i, $block_size);
                     $block = $this->_encryptBlock($block ^ $xor);
                     $xor = $block;
                     $ciphertext.= $block;
+                }
+                if ($this->continuousBuffer) {
+                    $this->encryptIV = $xor;
+                }
+                break;
+            case CRYPT_RIJNDAEL_MODE_CTR:
+                $xor = $this->encryptIV;
+                for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
+                    $block = substr($plaintext, $i, $block_size);
+                    $key = $this->_encryptBlock($this->_generate_xor($block_size, $xor));
+                    $ciphertext.= $block ^ $key;
                 }
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
@@ -601,30 +663,45 @@ class Crypt_Rijndael {
     function decrypt($ciphertext)
     {
         $this->_setup();
-        // we pad with chr(0) since that's what mcrypt_generic does.  to quote from http://php.net/function.mcrypt-generic :
-        // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
-        $ciphertext = str_pad($ciphertext, (strlen($ciphertext) + $this->block_size - 1) % $this->block_size, chr(0));
 
+        if ($this->mode != CRYPT_RIJNDAEL_MODE_CTR) {
+            // we pad with chr(0) since that's what mcrypt_generic does.  to quote from http://php.net/function.mcrypt-generic :
+            // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
+            $ciphertext = str_pad($ciphertext, (strlen($ciphertext) + $this->block_size - 1) % $this->block_size, chr(0));
+        }
+
+        $block_size = $this->block_size;
         $plaintext = '';
         switch ($this->mode) {
             case CRYPT_RIJNDAEL_MODE_ECB:
-                for ($i = 0; $i < strlen($ciphertext); $i+=$this->block_size) {
-                    $plaintext.= $this->_decryptBlock(substr($ciphertext, $i, $this->block_size));
+                for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
+                    $plaintext.= $this->_decryptBlock(substr($ciphertext, $i, $block_size));
                 }
                 break;
             case CRYPT_RIJNDAEL_MODE_CBC:
                 $xor = $this->decryptIV;
-                for ($i = 0; $i < strlen($ciphertext); $i+=$this->block_size) {
-                    $block = substr($ciphertext, $i, $this->block_size);
+                for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
+                    $block = substr($ciphertext, $i, $block_size);
                     $plaintext.= $this->_decryptBlock($block) ^ $xor;
                     $xor = $block;
                 }
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                 }
+                break;
+            case CRYPT_RIJNDAEL_MODE_CTR:
+                $xor = $this->decryptIV;
+                for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
+                    $block = substr($ciphertext, $i, $block_size);
+                    $key = $this->_encryptBlock($this->_generate_xor($block_size, $xor));
+                    $plaintext.= $block ^ $key;
+                }
+                if ($this->continuousBuffer) {
+                    $this->decryptIV = $xor;
+                }
         }
 
-        return $this->_unpad($plaintext);
+        return $this->mode != CRYPT_RIJNDAEL_MODE_CTR ? $this->_unpad($plaintext) : $plaintext;
     }
 
     /**
