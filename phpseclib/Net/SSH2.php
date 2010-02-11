@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.35 2010-02-09 06:10:26 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.36 2010-02-11 07:02:51 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -154,7 +154,7 @@ class Net_SSH2 {
      * @var String
      * @access private
      */
-    var $identifier = 'SSH-2.0-phpseclib_0.1';
+    var $identifier = 'SSH-2.0-phpseclib_0.2';
 
     /**
      * The Socket Object
@@ -518,6 +518,29 @@ class Net_SSH2 {
     var $message_log = array();
 
     /**
+     * The Window Size
+     *
+     * Bytes the other party can send before it must wait for the window to be adjusted (0x7FFFFFFF = 4GB)
+     *
+     * @var Integer
+     * @see Net_SSH2::_send_channel_packet()
+     * @see Net_SSH2::exec()
+     * @access private
+     */
+    var $window_size = 0x7FFFFFFF;
+
+    /**
+     * Window size
+     *
+     * Window size indexed by channel
+     *
+     * @see Net_SSH2::_send_channel_packet()
+     * @var Array
+     * @access private
+     */
+    var $window_size_client_to_server = array();
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -618,6 +641,20 @@ class Net_SSH2 {
                 $temp = '';
             }
             $temp.= fgets($this->fsock, 255);
+        }
+
+        $ext = array();
+        if (extension_loaded('mcrypt')) {
+            $ext[] = 'mcrypt';
+        }
+        if (extension_loaded('gmp')) {
+            $ext[] = 'gmp';
+        } else if (extension_loaded('bcmath')) {
+            $ext[] = 'bcmath';
+        }
+
+        if (!empty($ext)) {
+            $this->identifier.= ' (' . implode(', ', $ext) . ')';
         }
 
         if (defined('NET_SSH2_LOGGING')) {
@@ -943,16 +980,16 @@ class Net_SSH2 {
         $key = $f->modPow($x, $p);
         $keyBytes = $key->toBytes(true);
 
-        $source = pack('Na*Na*Na*Na*Na*Na*Na*Na*',
-            strlen($this->identifier), $this->identifier, strlen($this->server_identifier), $this->server_identifier,
-            strlen($kexinit_payload_client), $kexinit_payload_client, strlen($kexinit_payload_server),
-            $kexinit_payload_server, strlen($this->server_public_host_key), $this->server_public_host_key, strlen($eBytes),
-            $eBytes, strlen($fBytes), $fBytes, strlen($keyBytes), $keyBytes
-        );
-
-        $source = pack('H*', $hash($source));
-
         if ($this->session_id === false) {
+            $source = pack('Na*Na*Na*Na*Na*Na*Na*Na*',
+                strlen($this->identifier), $this->identifier, strlen($this->server_identifier), $this->server_identifier,
+                strlen($kexinit_payload_client), $kexinit_payload_client, strlen($kexinit_payload_server),
+                $kexinit_payload_server, strlen($this->server_public_host_key), $this->server_public_host_key, strlen($eBytes),
+                $eBytes, strlen($fBytes), $fBytes, strlen($keyBytes), $keyBytes
+            );
+
+            $source = pack('H*', $hash($source));
+
             $this->session_id = $source;
         }
 
@@ -1004,7 +1041,7 @@ class Net_SSH2 {
 
                 $w = $s->modInverse($q);
 
-                $u1 = $w->multiply(new Math_BigInteger(sha1($source), 16));
+                $u1 = $w->multiply(new Math_BigInteger(sha1($this->session_id), 16));
                 list(, $u1) = $u1->divide($q);
 
                 $u2 = $w->multiply($r);
@@ -1042,7 +1079,7 @@ class Net_SSH2 {
                 $rsa = new Crypt_RSA();
                 $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
                 $rsa->loadKey(array('e' => $e, 'n' => $n), CRYPT_RSA_PUBLIC_FORMAT_RAW);
-                if (!$rsa->verify($source, $signature)) {
+                if (!$rsa->verify($this->session_id, $signature)) {
                     user_error('Bad server signature', E_USER_NOTICE);
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
                 }
@@ -1065,7 +1102,7 @@ class Net_SSH2 {
                 $s = $s->modPow($e, $n);
                 $s = $s->toBytes();
 
-                $h = pack('N4H*', 0x00302130, 0x0906052B, 0x0E03021A, 0x05000414, sha1($source));
+                $h = pack('N4H*', 0x00302130, 0x0906052B, 0x0E03021A, 0x05000414, sha1($this->session_id));
                 $h = chr(0x01) . str_repeat(chr(0xFF), $nLength - 3 - strlen($h)) . $h;
 
                 if ($s != $h) {
@@ -1160,15 +1197,15 @@ class Net_SSH2 {
             $this->encrypt->enableContinuousBuffer();
             $this->encrypt->disablePadding();
 
-            $iv = pack('H*', $hash($keyBytes . $source . 'A' . $this->session_id));
+            $iv = pack('H*', $hash($keyBytes . $this->session_id . 'A' . $this->session_id));
             while ($this->encrypt_block_size > strlen($iv)) {
-                $iv.= pack('H*', $hash($keyBytes . $source . $iv));
+                $iv.= pack('H*', $hash($keyBytes . $this->session_id . $iv));
             }
             $this->encrypt->setIV(substr($iv, 0, $this->encrypt_block_size));
 
-            $key = pack('H*', $hash($keyBytes . $source . 'C' . $this->session_id));
+            $key = pack('H*', $hash($keyBytes . $this->session_id . 'C' . $this->session_id));
             while ($encryptKeyLength > strlen($key)) {
-                $key.= pack('H*', $hash($keyBytes . $source . $key));
+                $key.= pack('H*', $hash($keyBytes . $this->session_id . $key));
             }
             $this->encrypt->setKey(substr($key, 0, $encryptKeyLength));
         }
@@ -1177,15 +1214,15 @@ class Net_SSH2 {
             $this->decrypt->enableContinuousBuffer();
             $this->decrypt->disablePadding();
 
-            $iv = pack('H*', $hash($keyBytes . $source . 'B' . $this->session_id));
+            $iv = pack('H*', $hash($keyBytes . $this->session_id . 'B' . $this->session_id));
             while ($this->decrypt_block_size > strlen($iv)) {
-                $iv.= pack('H*', $hash($keyBytes . $source . $iv));
+                $iv.= pack('H*', $hash($keyBytes . $this->session_id . $iv));
             }
             $this->decrypt->setIV(substr($iv, 0, $this->decrypt_block_size));
 
-            $key = pack('H*', $hash($keyBytes . $source . 'D' . $this->session_id));
+            $key = pack('H*', $hash($keyBytes . $this->session_id . 'D' . $this->session_id));
             while ($decryptKeyLength > strlen($key)) {
-                $key.= pack('H*', $hash($keyBytes . $source . $key));
+                $key.= pack('H*', $hash($keyBytes . $this->session_id . $key));
             }
             $this->decrypt->setKey(substr($key, 0, $decryptKeyLength));
         }
@@ -1259,15 +1296,15 @@ class Net_SSH2 {
                 $this->hmac_size = 12;
         }
 
-        $key = pack('H*', $hash($keyBytes . $source . 'E' . $this->session_id));
+        $key = pack('H*', $hash($keyBytes . $this->session_id . 'E' . $this->session_id));
         while ($createKeyLength > strlen($key)) {
-            $key.= pack('H*', $hash($keyBytes . $source . $key));
+            $key.= pack('H*', $hash($keyBytes . $this->session_id . $key));
         }
         $this->hmac_create->setKey(substr($key, 0, $createKeyLength));
 
-        $key = pack('H*', $hash($keyBytes . $source . 'F' . $this->session_id));
+        $key = pack('H*', $hash($keyBytes . $this->session_id . 'F' . $this->session_id));
         while ($checkKeyLength > strlen($key)) {
-            $key.= pack('H*', $hash($keyBytes . $source . $key));
+            $key.= pack('H*', $hash($keyBytes . $this->session_id . $key));
         }
         $this->hmac_check->setKey(substr($key, 0, $checkKeyLength));
 
@@ -1895,17 +1932,38 @@ class Net_SSH2 {
     function _send_channel_packet($client_channel, $data)
     {
         while (strlen($data) > $this->packet_size_client_to_server[$client_channel]) {
+            // resize the window, if appropriate
+            $this->window_size_client_to_server[$client_channel]-= $this->packet_size_client_to_server[$client_channel];
+            if ($this->window_size_client_to_server[$client_channel] < 0) {
+                $packet = pack('CNN', NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST, $this->server_channels[$client_channel], $this->window_size);
+                if (!$this->_send_binary_packet($packet)) {
+                    return false;
+                }
+                $this->window_size_client_to_server[$client_channel]+= $this->window_size;
+            }
+
             $packet = pack('CN2a*',
                 NET_SSH2_MSG_CHANNEL_DATA,
                 $this->server_channels[$client_channel],
                 $this->packet_size_client_to_server[$client_channel],
                 $this->_string_shift($data, $this->packet_size_client_to_server[$client_channel])
             );
-            
+
             if (!$this->_send_binary_packet($packet)) {
                 return false;
             }
         }
+
+        // resize the window, if appropriate
+        $this->window_size_client_to_server[$client_channel]-= strlen($data);
+        if ($this->window_size_client_to_server[$client_channel] < 0) {
+            $packet = pack('CNN', NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST, $this->server_channels[$client_channel], $this->window_size);
+            if (!$this->_send_binary_packet($packet)) {
+                return false;
+            }
+            $this->window_size_client_to_server[$client_channel]+= $this->window_size;
+        }
+
         return $this->_send_binary_packet(pack('CN2a*',
             NET_SSH2_MSG_CHANNEL_DATA,
             $this->server_channels[$client_channel],
