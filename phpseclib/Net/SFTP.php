@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.14 2009-12-31 06:11:07 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.15 2010-02-11 16:17:40 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -122,28 +122,6 @@ class Net_SFTP extends Net_SSH2 {
      * @access private
      */
     var $status_codes = array();
-
-    /**
-     * The Window Size
-     *
-     * Bytes the other party can send before it must wait for the window to be adjusted (0x7FFFFFFF = 4GB)
-     *
-     * @var Integer
-     * @see Net_SSH2::exec()
-     * @access private
-     */
-    var $window_size = 0x7FFFFFFF;
-
-    /**
-     * Packet Size
-     *
-     * Maximum packet size
-     *
-     * @see Net_SSH2::exec()
-     * @var Integer
-     * @access private
-     */
-    var $packet_size_server_to_client = 0x4000;
 
     /**
      * The Request ID
@@ -317,8 +295,10 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
+        $this->window_size_client_to_server[NET_SFTP_CHANNEL] = $this->window_size;
+
         $packet = pack('CNa*N3',
-            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SFTP_CHANNEL, $this->window_size, $this->packet_size_server_to_client);
+            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SFTP_CHANNEL, $this->window_size, 0x4000);
 
         if (!$this->_send_binary_packet($packet)) {
             return false;
