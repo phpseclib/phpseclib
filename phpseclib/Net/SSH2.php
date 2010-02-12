@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.36 2010-02-11 07:02:51 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.37 2010-02-12 23:02:13 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -176,13 +176,14 @@ class Net_SSH2 {
     var $bitmap = 0;
 
     /**
-     * Debug Info
+     * Error information
      *
-     * @see Net_SSH2::getDebugInfo()
+     * @see Net_SSH2::getErrors()
+     * @see Net_SSH2::getLastError()
      * @var String
      * @access private
      */
-    var $debug_info = '';
+    var $errors = array();
 
     /**
      * Server Identifier
@@ -637,7 +638,7 @@ class Net_SSH2 {
         $temp = '';
         while (!feof($this->fsock) && !preg_match('#^SSH-(\d\.\d+)#', $temp, $matches)) {
             if (substr($temp, -2) == "\r\n") {
-                $this->debug_info.= $temp;
+                $this->errors[] = $temp;
                 $temp = '';
             }
             $temp.= fgets($this->fsock, 255);
@@ -665,7 +666,7 @@ class Net_SSH2 {
         }
 
         $this->server_identifier = trim($temp);
-        $this->debug_info = utf8_decode($this->debug_info);
+        $this->errors[] = utf8_decode($this->debug_info);
 
         if ($matches[1] != '1.99' && $matches[1] != '2.0') {
             user_error("Cannot connect to SSH $matches[1] servers", E_USER_NOTICE);
@@ -1400,7 +1401,7 @@ class Net_SSH2 {
                     $this->message_number_log[count($this->message_number_log) - 1] = 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ';
                 }
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                $this->debug_info.= "\r\n\r\nSSH_MSG_USERAUTH_PASSWD_CHANGEREQ:\r\n" . utf8_decode($this->_string_shift($response, $length));
+                $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . utf8_decode($this->_string_shift($response, $length));
                 return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 // either the login is bad or the server employees multi-factor authentication
@@ -1462,7 +1463,7 @@ class Net_SSH2 {
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                $this->debug_info.= "\r\n\r\nSSH_MSG_USERAUTH_FAILURE:\r\n" . $this->_string_shift($response, $length);
+                $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . $this->_string_shift($response, $length);
                 return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
@@ -1675,7 +1676,7 @@ class Net_SSH2 {
             case NET_SSH2_MSG_DISCONNECT:
                 $this->_string_shift($payload, 1);
                 extract(unpack('Nreason_code/Nlength', $this->_string_shift($payload, 8)));
-                $this->debug_info.= "\r\n\r\nSSH_MSG_DISCONNECT:\r\n" . $this->disconnect_reasons[$reason_code] . "\r\n" . utf8_decode($this->_string_shift($payload, $length));
+                $this->errors[] = 'SSH_MSG_DISCONNECT: ' . $this->disconnect_reasons[$reason_code] . "\r\n" . utf8_decode($this->_string_shift($payload, $length));
                 $this->bitmask = 0;
                 return false;
             case NET_SSH2_MSG_IGNORE:
@@ -1684,7 +1685,7 @@ class Net_SSH2 {
             case NET_SSH2_MSG_DEBUG:
                 $this->_string_shift($payload, 2);
                 extract(unpack('Nlength', $this->_string_shift($payload, 4)));
-                $this->debug_info.= "\r\n\r\nSSH_MSG_DEBUG:\r\n" . utf8_decode($this->_string_shift($payload, $length));
+                $this->errors[] = 'SSH_MSG_DEBUG: ' . utf8_decode($this->_string_shift($payload, $length));
                 $payload = $this->_get_binary_packet();
                 break;
             case NET_SSH2_MSG_UNIMPLEMENTED:
@@ -1703,7 +1704,7 @@ class Net_SSH2 {
         if (($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR) && !($this->bitmap & NET_SSH2_MASK_LOGIN) && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             $this->_string_shift($payload, 1);
             extract(unpack('Nlength', $this->_string_shift($payload, 4)));
-            $this->debug_info.= "\r\n\r\nSSH_MSG_USERAUTH_BANNER:\r\n" . utf8_decode($this->_string_shift($payload, $length));
+            $this->errors[] = 'SSH_MSG_USERAUTH_BANNER: ' . utf8_decode($this->_string_shift($payload, $length));
             $payload = $this->_get_binary_packet();
         }
 
@@ -1713,7 +1714,7 @@ class Net_SSH2 {
                 case NET_SSH2_MSG_GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
                     $this->_string_shift($payload, 1);
                     extract(unpack('Nlength', $this->_string_shift($payload)));
-                    $this->debug_info.= "\r\n\r\nSSH_MSG_GLOBAL_REQUEST:\r\n" . utf8_decode($this->_string_shift($payload, $length));
+                    $this->errors[] = 'SSH_MSG_GLOBAL_REQUEST: ' . utf8_decode($this->_string_shift($payload, $length));
 
                     if (!$this->_send_binary_packet(pack('C', NET_SSH2_MSG_REQUEST_FAILURE))) {
                         return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
@@ -1724,7 +1725,7 @@ class Net_SSH2 {
                 case NET_SSH2_MSG_CHANNEL_OPEN: // see http://tools.ietf.org/html/rfc4254#section-5.1
                     $this->_string_shift($payload, 1);
                     extract(unpack('N', $this->_string_shift($payload, 4)));
-                    $this->debug_info.= "\r\n\r\nSSH_MSG_CHANNEL_OPEN:\r\n" . utf8_decode($this->_string_shift($payload, $length));
+                    $this->errors[] = 'SSH_MSG_CHANNEL_OPEN: ' . utf8_decode($this->_string_shift($payload, $length));
 
                     $this->_string_shift($payload, 4); // skip over client channel
                     extract(unpack('Nserver_channel', $this->_string_shift($payload, 4)));
@@ -1825,7 +1826,7 @@ class Net_SSH2 {
                     $data = $this->_string_shift($response, $length);
                     switch ($data_type_code) {
                         case NET_SSH2_EXTENDED_DATA_STDERR:
-                            $this->debug_info.= "\r\n\r\nSSH_MSG_CHANNEL_EXTENDED_DATA (SSH_EXTENDED_DATA_STDERR):\r\n" . $data;
+                            $this->errors[] = 'SSH_MSG_CHANNEL_EXTENDED_DATA (SSH_EXTENDED_DATA_STDERR): ' . $data;
                     }
                     break;
                 case NET_SSH2_MSG_CHANNEL_REQUEST:
@@ -1835,10 +1836,12 @@ class Net_SSH2 {
                         case 'exit-signal':
                             $this->_string_shift($response, 1);
                             extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                            $this->debug_info.= "\r\n\r\nSSH_MSG_CHANNEL_REQUEST (exit-signal):\r\nSIG" . $this->_string_shift($response, $length);
+                            $this->errors[] = 'SSH_MSG_CHANNEL_REQUEST (exit-signal): ' . $this->_string_shift($response, $length);
                             $this->_string_shift($response, 1);
                             extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                            $this->debug_info.= "\r\n" . $this->_string_shift($response, $length);
+                            if ($length) {
+                                $this->errors[count($this->errors)].= "\r\n" . $this->_string_shift($response, $length);
+                            }
                         //case 'exit-status':
                         default:
                             // "Some systems may not implement signals, in which case they SHOULD ignore this message."
@@ -2072,16 +2075,25 @@ class Net_SSH2 {
     }
 
     /**
-     * Returns Debug Information
-     *
-     * If any debug information is sent by the server, this function can be used to access it.
+     * Returns all errors
      *
      * @return String
      * @access public
      */
-    function getDebugInfo()
+    function getErrors()
     {
-        return $this->debug_info;
+        return $this->errors;
+    }
+
+    /**
+     * Returns the last error
+     *
+     * @return String
+     * @access public
+     */
+    function getLastError()
+    {
+        return $this->errors[count($this->errors) - 1];
     }
 
     /**
