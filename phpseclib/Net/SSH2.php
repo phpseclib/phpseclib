@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.37 2010-02-12 23:02:13 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.38 2010-02-15 22:24:08 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1822,12 +1822,16 @@ class Net_SSH2 {
                     if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
                         $this->_send_channel_packet($client_channel, chr(0));
                     }
+                    // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR
                     extract(unpack('Ndata_type_code/Nlength', $this->_string_shift($response, 8)));
                     $data = $this->_string_shift($response, $length);
-                    switch ($data_type_code) {
-                        case NET_SSH2_EXTENDED_DATA_STDERR:
-                            $this->errors[] = 'SSH_MSG_CHANNEL_EXTENDED_DATA (SSH_EXTENDED_DATA_STDERR): ' . $data;
+                    if ($client_channel == $channel) {
+                        return $data;
                     }
+                    if (!isset($this->channel_buffers[$client_channel])) {
+                        $this->channel_buffers[$client_channel] = array();
+                    }
+                    $this->channel_buffers[$client_channel][] = $data;
                     break;
                 case NET_SSH2_MSG_CHANNEL_REQUEST:
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
