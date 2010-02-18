@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.16 2010-02-12 23:02:13 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.17 2010-02-18 16:56:07 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -874,7 +874,7 @@ class Net_SFTP extends Net_SSH2 {
                 user_error("$data is not a valid file", E_USER_NOTICE);
                 return false;
             }
-            $fp = fopen($data, 'r');
+            $fp = fopen($data, 'rb');
             if (!$fp) {
                 return false;
             }
@@ -885,8 +885,8 @@ class Net_SFTP extends Net_SSH2 {
             $size = strlen($data);
         }
 
-        $i = 0;
         $sftp_packet_size = 34000; // PuTTY uses 4096
+        $i = 0;
         while ($sent < $size) {
             $temp = $mode == NET_SFTP_LOCAL_FILE ? fread($fp, $sftp_packet_size) : $this->_string_shift($data, $sftp_packet_size);
             $packet = pack('Na*N3a*', strlen($handle), $handle, 0, $sent, strlen($temp), $temp);
@@ -897,21 +897,17 @@ class Net_SFTP extends Net_SSH2 {
             $sent+= strlen($temp);
 
             $i++;
-        }
 
-        while ($i--) {
-            $response = $this->_get_sftp_packet();
-            if ($this->packet_type != NET_SFTP_STATUS) {
-                user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-                return false;
-            }
-
-            extract(unpack('Nstatus', $this->_string_shift($response, 4)));
-            if ($status != NET_SFTP_STATUS_OK) {
-                extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                $this->sftp_errors[] = $this->status_codes[$status] . ': ' . $this->_string_shift($response, $length);
+            if ($i == 50) {
+                if (!$this->_read_put_responses($i)) {
+                    $i = 0;
+                    break;
+                }
+                $i = 0;
             }
         }
+
+        $this->_read_put_responses($i);
 
         if ($mode == NET_SFTP_LOCAL_FILE) {
             fclose($fp);
@@ -935,6 +931,36 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         return true;
+    }
+
+    /**
+     * Reads multiple successive SSH_FXP_WRITE responses
+     *
+     * Sending an SSH_FXP_WRITE packet and immediately reading its response isn't as efficient as blindly sending out $i
+     * SSH_FXP_WRITEs, in succession, and then reading $i responses.
+     *
+     * @param Integer $i
+     * @return Boolean
+     * @access private
+     */
+    function _read_put_responses($i)
+    {
+        while ($i--) {
+            $response = $this->_get_sftp_packet();
+            if ($this->packet_type != NET_SFTP_STATUS) {
+                user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
+                return false;
+            }
+
+            extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+            if ($status != NET_SFTP_STATUS_OK) {
+                extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                $this->sftp_errors[] = $this->status_codes[$status] . ': ' . $this->_string_shift($response, $length);
+                break;
+            }
+        }
+
+        return $i < 0;
     }
 
     /**
@@ -999,7 +1025,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         if ($local_file !== false) {
-            $fp = fopen($local_file, 'w');
+            $fp = fopen($local_file, 'wb');
             if (!$fp) {
                 return false;
             }
