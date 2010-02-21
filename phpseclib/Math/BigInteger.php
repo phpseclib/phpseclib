@@ -67,7 +67,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.28 2010-02-07 01:54:51 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.29 2010-02-21 07:45:31 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -516,9 +516,9 @@ class Math_BigInteger {
                 }
 
                 while (bccomp($current, '0', 0) > 0) {
-                    $temp = bcmod($current, 0x1000000);
+                    $temp = bcmod($current, '16777216');
                     $value = chr($temp >> 16) . chr($temp >> 8) . chr($temp) . $value;
-                    $current = bcdiv($current, 0x1000000, 0);
+                    $current = bcdiv($current, '16777216', 0);
                 }
 
                 return $this->precision > 0 ?
@@ -1369,7 +1369,7 @@ class Math_BigInteger {
         }
 
         static $zero;
-        if (!isset($zero)) {
+        if ( !isset($zero) ) {
             $zero = new Math_BigInteger();
         }
 
@@ -2571,6 +2571,7 @@ class Math_BigInteger {
      * @param Array $y_value
      * @param Boolean $y_negative
      * @return Integer
+     * @see compare()
      * @access private
      */
     function _compare($x_value, $x_negative, $y_value, $y_negative)
@@ -2614,7 +2615,7 @@ class Math_BigInteger {
             case MATH_BIGINTEGER_MODE_GMP:
                 return gmp_cmp($this->value, $x->value) == 0;
             default:
-                return $this->value == $x->value && $this->is_negative == $x->is_negative;
+                return $this->value === $x->value && $this->is_negative == $x->is_negative;
         }
     }
 
@@ -2816,7 +2817,7 @@ class Math_BigInteger {
             case MATH_BIGINTEGER_MODE_GMP:
                 static $two;
 
-                if (empty($two)) {
+                if (!isset($two)) {
                     $two = gmp_init('2');
                 }
 
@@ -2854,7 +2855,7 @@ class Math_BigInteger {
             case MATH_BIGINTEGER_MODE_GMP:
                 static $two;
 
-                if (empty($two)) {
+                if (!isset($two)) {
                     $two = gmp_init('2');
                 }
 
@@ -3025,6 +3026,17 @@ class Math_BigInteger {
      */
     function randomPrime($min = false, $max = false, $timeout = false)
     {
+        $compare = $max->compare($min);
+
+        if (!$compare) {
+            return $min;
+        } else if ($compare < 0) {
+            // if $min is bigger then $max, swap $min and $max
+            $temp = $max;
+            $max = $min;
+            $min = $temp;
+        }
+
         // gmp_nextprime() requires PHP 5 >= 5.2.0 per <http://php.net/gmp-nextprime>.
         if ( MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP && function_exists('gmp_nextprime') ) {
             // we don't rely on Math_BigInteger::random()'s min / max when gmp_nextprime() is being used since this function
@@ -3036,17 +3048,6 @@ class Math_BigInteger {
 
             if ($max === false) {
                 $max = new Math_BigInteger(0x7FFFFFFF);
-            }
-
-            $compare = $max->compare($min);
-
-            if (!$compare) {
-                return $min;
-            } else if ($compare < 0) {
-                // if $min is bigger then $max, swap $min and $max
-                $temp = $max;
-                $max = $min;
-                $min = $temp;
             }
 
             $x = $this->random($min, $max);
@@ -3066,50 +3067,78 @@ class Math_BigInteger {
             return false;
         }
 
-        $repeat1 = $repeat2 = array();
-
-        $one = new Math_BigInteger(1);
-        $two = new Math_BigInteger(2);
+        static $one, $two;
+        if (!isset($one)) {
+            $one = new Math_BigInteger(1);
+            $two = new Math_BigInteger(2);
+        }
 
         $start = time();
 
-        do {
+        $x = $this->random($min, $max);
+        if ($x->equals($two)) {
+            return $x;
+        }
+
+        $x->_make_odd();
+        if ($x->compare($max) > 0) {
+            // if $x > $max then $max is even and if $min == $max then no prime number exists between the specified range
+            if ($min->equals($max)) {
+                return false;
+            }
+            $x = $min->copy();
+            $x->_make_odd();
+        }
+
+        $initial_x = $x->copy();
+
+        while (true) {
             if ($timeout !== false && time() - $start > $timeout) {
                 return false;
             }
 
-            $x = $this->random($min, $max);
-            if ($x->equals($two)) {
+            if ($x->isPrime()) {
                 return $x;
             }
 
-            // make the number odd
-            switch ( MATH_BIGINTEGER_MODE ) {
-                case MATH_BIGINTEGER_MODE_GMP:
-                    gmp_setbit($x->value, 0);
-                    break;
-                case MATH_BIGINTEGER_MODE_BCMATH:
-                    if ($x->value[strlen($x->value) - 1] % 2 == 0) {
-                        $x = $x->add($one);
-                    }
-                    break;
-                default:
-                    $x->value[0] |= 1;
-            }
+            $x = $x->add($two);
 
-            // if we've seen this number twice before, assume there are no prime numbers within the given range
-            if (in_array($x->value, $repeat1)) {
-                if (in_array($x->value, $repeat2)) {
-                    return false;
-                } else {
-                    $repeat2[] = $x->value;
+            if ($x->compare($max) > 0) {
+                $x = $min->copy();
+                if ($x->equals($two)) {
+                    return $x;
                 }
-            } else {
-                $repeat1[] = $x->value;
+                $x->_make_odd();
             }
-        } while (!$x->isPrime());
 
-        return $x;
+            if ($x->equals($initial_x)) {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Make the current number odd
+     *
+     * If the current number is odd it'll be unchanged.  If it's even, one will be added to it.
+     *
+     * @see randomPrime()
+     * @access private
+     */
+    function _make_odd()
+    {
+        switch ( MATH_BIGINTEGER_MODE ) {
+            case MATH_BIGINTEGER_MODE_GMP:
+                gmp_setbit($this->value, 0);
+                break;
+            case MATH_BIGINTEGER_MODE_BCMATH:
+                if ($this->value[strlen($this->value) - 1] % 2 == 0) {
+                    $this->value = bcadd($this->value, '1');
+                }
+                break;
+            default:
+                $this->value[0] |= 1;
+        }
     }
 
     /**
@@ -3152,7 +3181,7 @@ class Math_BigInteger {
             case MATH_BIGINTEGER_MODE_GMP:
                 return gmp_prob_prime($this->value, $t) != 0;
             case MATH_BIGINTEGER_MODE_BCMATH:
-                if ($this->value == '2') {
+                if ($this->value === '2') {
                     return true;
                 }
                 if ($this->value[strlen($this->value) - 1] % 2 == 0) {
@@ -3229,7 +3258,7 @@ class Math_BigInteger {
             $s = 0;
             // if $n was 1, $r would be 0 and this would be an infinite loop, hence our $this->equals($one) check earlier
             while ($r->value[strlen($r->value) - 1] % 2 == 0) {
-                $r->value = bcdiv($r->value, 2, 0);
+                $r->value = bcdiv($r->value, '2', 0);
                 ++$s;
             }
         } else {
