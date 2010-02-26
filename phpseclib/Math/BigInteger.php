@@ -67,7 +67,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.29 2010-02-21 07:45:31 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.30 2010-02-26 03:40:26 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -860,7 +860,7 @@ class Math_BigInteger {
             $carry = $sum >= MATH_BIGINTEGER_MAX_DIGIT52; // eg. floor($sum / 2**52); only possible values (in any base) are 0 and 1
             $sum = $carry ? $sum - MATH_BIGINTEGER_MAX_DIGIT52 : $sum;
 
-            $temp = floor($sum / 0x4000000);
+            $temp = (int) ($sum / 0x4000000);
 
             $value[$i] = $sum - 0x4000000 * $temp; // eg. a faster alternative to fmod($sum, 0x4000000)
             $value[$j] = $temp;
@@ -996,7 +996,7 @@ class Math_BigInteger {
             $carry = $sum < 0; // eg. floor($sum / 2**52); only possible values (in any base) are 0 and 1
             $sum = $carry ? $sum + MATH_BIGINTEGER_MAX_DIGIT52 : $sum;
 
-            $temp = floor($sum / 0x4000000);
+            $temp = (int) ($sum / 0x4000000);
 
             $x_value[$i] = $sum - 0x4000000 * $temp;
             $x_value[$j] = $temp;
@@ -1144,7 +1144,7 @@ class Math_BigInteger {
 
         for ($j = 0; $j < $x_length; ++$j) { // ie. $i = 0
             $temp = $x_value[$j] * $y_value[0] + $carry; // $product_value[$k] == 0
-            $carry = floor($temp / 0x4000000);
+            $carry = (int) ($temp / 0x4000000);
             $product_value[$j] = $temp - 0x4000000 * $carry;
         }
 
@@ -1157,7 +1157,7 @@ class Math_BigInteger {
 
             for ($j = 0, $k = $i; $j < $x_length; ++$j, ++$k) {
                 $temp = $product_value[$k] + $x_value[$j] * $y_value[$i] + $carry;
-                $carry = floor($temp / 0x4000000);
+                $carry = (int) ($temp / 0x4000000);
                 $product_value[$k] = $temp - 0x4000000 * $carry;
             }
 
@@ -1245,13 +1245,13 @@ class Math_BigInteger {
             $i2 = $i << 1;
 
             $temp = $square_value[$i2] + $value[$i] * $value[$i];
-            $carry = floor($temp / 0x4000000);
+            $carry = (int) ($temp / 0x4000000);
             $square_value[$i2] = $temp - 0x4000000 * $carry;
 
             // note how we start from $i+1 instead of 0 as we do in multiplication.
             for ($j = $i + 1, $k = $i2 + 1; $j <= $max_index; ++$j, ++$k) {
                 $temp = $square_value[$k] + 2 * $value[$j] * $value[$i] + $carry;
-                $carry = floor($temp / 0x4000000);
+                $carry = (int) ($temp / 0x4000000);
                 $square_value[$k] = $temp - 0x4000000 * $carry;
             }
 
@@ -1449,7 +1449,7 @@ class Math_BigInteger {
             if ($x_window[0] == $y_window[0]) {
                 $quotient_value[$q_index] = 0x3FFFFFF;
             } else {
-                $quotient_value[$q_index] = floor(
+                $quotient_value[$q_index] = (int) (
                     ($x_window[0] * 0x4000000 + $x_window[1])
                     /
                     $y_window[0]
@@ -1519,7 +1519,7 @@ class Math_BigInteger {
 
         for ($i = count($dividend) - 1; $i >= 0; --$i) {
             $temp = 0x4000000 * $carry + $dividend[$i];
-            $result[$i] = floor($temp / $divisor);
+            $result[$i] = (int) ($temp / $divisor);
             $carry = $temp - $divisor * $result[$i];
         }
 
@@ -2089,7 +2089,7 @@ class Math_BigInteger {
 
         for ($j = 0; $j < $x_length; ++$j) { // ie. $i = 0, $k = $i
             $temp = $x_value[$j] * $y_value[0] + $carry; // $product_value[$k] == 0
-            $carry = floor($temp / 0x4000000);
+            $carry = (int) ($temp / 0x4000000);
             $product_value[$j] = $temp - 0x4000000 * $carry;
         }
 
@@ -2105,7 +2105,7 @@ class Math_BigInteger {
 
             for ($j = 0, $k = $i; $j < $x_length && $k < $stop; ++$j, ++$k) {
                 $temp = $product_value[$k] + $x_value[$j] * $y_value[$i] + $carry;
-                $carry = floor($temp / 0x4000000);
+                $carry = (int) ($temp / 0x4000000);
                 $product_value[$k] = $temp - 0x4000000 * $carry;
             }
 
@@ -2154,7 +2154,7 @@ class Math_BigInteger {
 
         for ($i = 0; $i < $k; ++$i) {
             $temp = $result[MATH_BIGINTEGER_VALUE][$i] * $cache[MATH_BIGINTEGER_DATA][$key];
-            $temp = $temp - 0x4000000 * floor($temp / 0x4000000);
+            $temp = $temp - 0x4000000 * ((int) ($temp / 0x4000000));
             $temp = $this->_regularMultiply(array($temp), $n);
             $temp = array_merge($this->_array_repeat(0, $i), $temp);
             $result = $this->_add($result[MATH_BIGINTEGER_VALUE], false, $temp, false);
@@ -2206,9 +2206,9 @@ class Math_BigInteger {
         $a = array(MATH_BIGINTEGER_VALUE => $this->_array_repeat(0, $n + 1));
         for ($i = 0; $i < $n; ++$i) {
             $temp = $a[MATH_BIGINTEGER_VALUE][0] + $x[$i] * $y[0];
-            $temp = $temp - 0x4000000 * floor($temp / 0x4000000);
+            $temp = $temp - 0x4000000 * ((int) ($temp / 0x4000000));
             $temp = $temp * $cache[MATH_BIGINTEGER_DATA][$key];
-            $temp = $temp - 0x4000000 * floor($temp / 0x4000000);
+            $temp = $temp - 0x4000000 * ((int) ($temp / 0x4000000));
             $temp = $this->_add($this->_regularMultiply(array($x[$i]), $y), false, $this->_regularMultiply(array($temp), $m), false);
             $a = $this->_add($a[MATH_BIGINTEGER_VALUE], false, $temp[MATH_BIGINTEGER_VALUE], false);
             $a[MATH_BIGINTEGER_VALUE] = array_slice($a[MATH_BIGINTEGER_VALUE], 1);
@@ -3307,7 +3307,7 @@ class Math_BigInteger {
             return;
         }
 
-        $num_digits = floor($shift / 26);
+        $num_digits = (int) ($shift / 26);
         $shift %= 26;
         $shift = 1 << $shift;
 
@@ -3315,7 +3315,7 @@ class Math_BigInteger {
 
         for ($i = 0; $i < count($this->value); ++$i) {
             $temp = $this->value[$i] * $shift + $carry;
-            $carry = floor($temp / 0x4000000);
+            $carry = (int) ($temp / 0x4000000);
             $this->value[$i] = $temp - $carry * 0x4000000;
         }
 
@@ -3342,7 +3342,7 @@ class Math_BigInteger {
             return;
         }
 
-        $num_digits = floor($shift / 26);
+        $num_digits = (int) ($shift / 26);
         $shift %= 26;
         $carry_shift = 26 - $shift;
         $carry_mask = (1 << $shift) - 1;

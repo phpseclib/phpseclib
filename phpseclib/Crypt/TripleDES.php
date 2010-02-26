@@ -47,7 +47,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: TripleDES.php,v 1.12 2010-02-09 06:10:26 terrafrost Exp $
+ * @version    $Id: TripleDES.php,v 1.13 2010-02-26 03:40:25 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -284,7 +284,7 @@ class Crypt_TripleDES {
             $key = str_pad($key, 24, chr(0));
             // if $key is between 64 and 128-bits, use the first 64-bits as the last, per this:
             // http://php.net/function.mcrypt-encrypt#47973
-            $key = $length <= 16 ? substr_replace($key, substr($key, 0, 8), 16) : substr($key, 0, 24);
+            //$key = $length <= 16 ? substr_replace($key, substr($key, 0, 8), 16) : substr($key, 0, 24);
         }
         $this->key = $key;
         switch (true) {
@@ -386,7 +386,7 @@ class Crypt_TripleDES {
             $ciphertext = mcrypt_generic($this->enmcrypt, $plaintext);
 
             if (!$this->continuousBuffer) {
-                mcrypt_generic_init($this->enmcrypt, $this->keys, $this->encryptIV);
+                mcrypt_generic_init($this->enmcrypt, $this->key, $this->encryptIV);
             }
 
             return $ciphertext;
@@ -477,7 +477,7 @@ class Crypt_TripleDES {
             $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
 
             if (!$this->continuousBuffer) {
-                mcrypt_generic_init($this->demcrypt, $this->keys, $this->decryptIV);
+                mcrypt_generic_init($this->demcrypt, $this->key, $this->decryptIV);
             }
 
             return $this->mode != 'ctr' ? $this->_unpad($plaintext) : $plaintext;
