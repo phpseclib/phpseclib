@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.38 2010-02-15 22:24:08 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.39 2010-02-27 23:34:46 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -636,9 +636,10 @@ class Net_SSH2 {
            in ISO-10646 UTF-8 [RFC3629] (language is not specified).  Clients
            MUST be able to process such lines." */
         $temp = '';
+        $extra = '';
         while (!feof($this->fsock) && !preg_match('#^SSH-(\d\.\d+)#', $temp, $matches)) {
             if (substr($temp, -2) == "\r\n") {
-                $this->errors[] = $temp;
+                $extra.= $temp;
                 $temp = '';
             }
             $temp.= fgets($this->fsock, 255);
@@ -666,7 +667,9 @@ class Net_SSH2 {
         }
 
         $this->server_identifier = trim($temp);
-        $this->errors[] = utf8_decode($this->debug_info);
+        if (!empty($extra)) {
+            $this->errors[] = utf8_decode($extra);
+        }
 
         if ($matches[1] != '1.99' && $matches[1] != '2.0') {
             user_error("Cannot connect to SSH $matches[1] servers", E_USER_NOTICE);
@@ -1520,13 +1523,13 @@ class Net_SSH2 {
         // be adjusted".  0x7FFFFFFF is, at 4GB, the max size.  technically, it should probably be decremented, but, 
         // honestly, if you're transfering more than 4GB, you probably shouldn't be using phpseclib, anyway.
         // see http://tools.ietf.org/html/rfc4254#section-5.2 for more info
-        $window_size = 0x7FFFFFFF;
+        $this->window_size_client_to_server[NET_SSH2_CHANNEL_EXEC] = 0x7FFFFFFF;
         // 0x8000 is the maximum max packet size, per http://tools.ietf.org/html/rfc4253#section-6.1, although since PuTTy
         // uses 0x4000, that's what will be used here, as well.
         $packet_size = 0x4000;
 
         $packet = pack('CNa*N3',
-            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SSH2_CHANNEL_EXEC, $window_size, $packet_size);
+            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SSH2_CHANNEL_EXEC, $this->window_size_client_to_server[NET_SSH2_CHANNEL_EXEC], $packet_size);
 
         if (!$this->_send_binary_packet($packet)) {
             return false;
