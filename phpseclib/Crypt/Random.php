@@ -35,7 +35,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Random.php,v 1.5 2010-02-19 22:39:44 terrafrost Exp $
+ * @version    $Id: Random.php,v 1.6 2010-02-28 05:28:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -56,6 +56,10 @@
  */
 function crypt_random($min = 0, $max = 0x7FFFFFFF)
 {
+    if ($min == $max) {
+        return $min;
+    }
+
     // see http://en.wikipedia.org/wiki//dev/random
     if (file_exists('/dev/urandom')) {
         $fp = fopen('/dev/urandom', 'rb');
@@ -89,47 +93,30 @@ function crypt_random($min = 0, $max = 0x7FFFFFFF)
     // in the browser and reloading the page.
 
     if (!isset($crypto)) {
+        $key = $iv = '';
+        for ($i = 0; $i < 8; $i++) {
+            $key.= pack('n', mt_rand(0, 0xFFFF));
+            $iv .= pack('n', mt_rand(0, 0xFFFF));
+        }
         switch (true) {
             case class_exists('Crypt_AES'):
-                $key = $iv = '';
-                for ($i = 0; $i < 8; $i++) {
-                    $key.= pack('n', mt_rand(0, 0xFFFF));
-                    $iv .= pack('n', mt_rand(0, 0xFFFF));
-                }
                 $crypto = new Crypt_AES(CRYPT_AES_MODE_CTR);
-                $crypto->setKey($key);
-                $crypto->setIV($iv);
                 break;
             case class_exists('Crypt_TripleDES'):
+                $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
+                break;
             case class_exists('Crypt_DES'):
-                $key = $iv = '';
-                for ($i = 0; $i < 4; $i++) {
-                    $key.= pack('n', mt_rand(0, 0xFFFF));
-                    $iv .= pack('n', mt_rand(0, 0xFFFF));
-                }
-                if (class_exists('Crypt_TripleDES')) {
-                    for ($i = 0; $i < 4; $i++) {
-                        $key.= pack('n', mt_rand(0, 0xFFFF));
-                    }
-                    $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
-                } else {
-                    $crypto = new Crypt_DES(CRYPT_DES_MODE_CTR);
-                }
-                $crypto->setKey($key);
-                $crypto->setIV($iv);
+                $crypto = new Crypt_DES(CRYPT_DES_MODE_CTR);
                 break;
             case class_exists('Crypt_RC4'):
-                $key = '';
-                for ($i = 0; $i < 8; $i++) {
-                    $key.= pack('n', mt_rand(0, 0xFFFF));
-                }
                 $crypto = new Crypt_RC4();
-                $crypto->setKey($key);
                 break;
             default:
                 extract(unpack('Nrandom', pack('H*', sha1(mt_rand(0, 0x7FFFFFFF)))));
                 return abs($random) % ($max - $min) + $min;
         }
+        $crypto->setKey($key);
+        $crypto->setIV($iv);
     }
 
     extract(unpack('Nrandom', $crypto->encrypt("\0\0\0\0")));

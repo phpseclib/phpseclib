@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.11 2010-02-26 03:40:25 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.12 2010-02-28 05:28:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -877,8 +877,9 @@ class Crypt_RSA {
                 $this->_string_shift($key);
                 $length = $this->_decodeLength($key);
                 $components['coefficients'] = array(2 => new Math_BigInteger($this->_string_shift($key, $length), -256));
+
                 if (!empty($key)) {
-                    if (ord($this->_string_shift($key)) != CRYPT_RSA_ASN1_INTEGER) {
+                    if (ord($this->_string_shift($key)) != CRYPT_RSA_ASN1_SEQUENCE) {
                         return false;
                     }
                     $this->_decodeLength($key);
@@ -1286,29 +1287,84 @@ class Crypt_RSA {
         }
 
         $num_primes = count($this->primes);
-        $m_i = array(
-            1 => $x->modPow($this->exponents[1], $this->primes[1]),
-            2 => $x->modPow($this->exponents[2], $this->primes[2])
-        );
-        $h = $m_i[1]->subtract($m_i[2]);
-        $h = $h->multiply($this->coefficients[2]);
-        list(, $h) = $h->divide($this->primes[1]);
-        $m = $m_i[2]->add($h->multiply($this->primes[2]));
 
-        $r = $this->primes[1];
-        for ($i = 3; $i <= $num_primes; $i++) {
-            $m_i = $x->modPow($this->exponents[$i], $this->primes[$i]);
+        if (defined('CRYPT_RSA_DISABLE_BLINDING')) {
+            $m_i = array(
+                1 => $x->modPow($this->exponents[1], $this->primes[1]),
+                2 => $x->modPow($this->exponents[2], $this->primes[2])
+            );
+            $h = $m_i[1]->subtract($m_i[2]);
+            $h = $h->multiply($this->coefficients[2]);
+            list(, $h) = $h->divide($this->primes[1]);
+            $m = $m_i[2]->add($h->multiply($this->primes[2]));
 
-            $r = $r->multiply($this->primes[$i - 1]);
+            $r = $this->primes[1];
+            for ($i = 3; $i <= $num_primes; $i++) {
+                $m_i = $x->modPow($this->exponents[$i], $this->primes[$i]);
 
-            $h = $m_i->subtract($m);
-            $h = $h->multiply($this->coefficients[$i]);
-            list(, $h) = $h->divide($this->primes[$i]);
+                $r = $r->multiply($this->primes[$i - 1]);
 
-            $m = $m->add($r->multiply($h));
+                $h = $m_i->subtract($m);
+                $h = $h->multiply($this->coefficients[$i]);
+                list(, $h) = $h->divide($this->primes[$i]);
+
+                $m = $m->add($r->multiply($h));
+            }
+        } else {
+            $m_i = array(
+                1 => $this->_blind($x, 1),
+                2 => $this->_blind($x, 2)
+            );
+            $h = $m_i[1]->subtract($m_i[2]);
+            $h = $h->multiply($this->coefficients[2]);
+            list(, $h) = $h->divide($this->primes[1]);
+            $m = $m_i[2]->add($h->multiply($this->primes[2]));
+
+            $r = $this->primes[1];
+            for ($i = 3; $i <= $num_primes; $i++) {
+                $m_i = $this->_blind($x, $i);
+
+                $r = $r->multiply($this->primes[$i - 1]);
+
+                $h = $m_i->subtract($m);
+                $h = $h->multiply($this->coefficients[$i]);
+                list(, $h) = $h->divide($this->primes[$i]);
+
+                $m = $m->add($r->multiply($h));
+            }
         }
 
         return $m;
+    }
+
+    /**
+     * Performs RSA Blinding
+     *
+     * Protects against timing attacks by employing RSA Blinding.
+     * Returns $x->modPow($this->exponents[$i], $this->primes[$i])
+     *
+     * @access private
+     * @param Math_BigInteger $x
+     * @param Integer $i
+     * @return Math_BigInteger
+     */
+    function _blind($x, $i)
+    {
+        static $one;
+        if (!isset($one)) {
+            $one = new Math_BigInteger(1);
+        }
+
+        $r = $one->random($one, $this->primes[$i]->subtract($one));
+        $x = $x->multiply($r->modPow($this->publicExponent, $this->primes[$i]));
+
+        $x = $x->modPow($this->exponents[$i], $this->primes[$i]);
+
+        $r = $r->modInverse($this->primes[$i]);
+        $x = $x->multiply($r);
+        list(, $x) = $x->divide($this->primes[$i]);
+
+        return $x;
     }
 
     /**
@@ -1886,7 +1942,7 @@ class Crypt_RSA {
 
         // Compare
 
-        return $em == $em2;
+        return $em === $em2;
     }
 
     /**
