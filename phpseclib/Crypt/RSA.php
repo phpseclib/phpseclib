@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.12 2010-02-28 05:28:38 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.13 2010-02-28 06:57:00 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1353,6 +1353,7 @@ class Crypt_RSA {
         static $one;
         if (!isset($one)) {
             $one = new Math_BigInteger(1);
+            $one->setRandomGenerator('crypt_random');
         }
 
         $r = $one->random($one, $this->primes[$i]->subtract($one));
