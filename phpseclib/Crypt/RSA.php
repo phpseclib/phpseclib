@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.13 2010-02-28 06:57:00 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.14 2010-03-01 17:28:19 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -504,6 +504,7 @@ class Crypt_RSA {
                         ));
                     }
                 }
+
                 if ($i == $num_primes) {
                     list($min, $temp) = $absoluteMin->divide($n);
                     if (!$temp->equals($this->zero)) {
@@ -1311,9 +1312,21 @@ class Crypt_RSA {
                 $m = $m->add($r->multiply($h));
             }
         } else {
+            $smallest = $this->primes[1];
+            for ($i = 2; $i <= $num_primes; $i++) {
+                if ($smallest->compare($this->primes[$i]) > 0) {
+                    $smallest = $this->primes[$i];
+                }
+            }
+
+            $one = new Math_BigInteger(1);
+            $one->setRandomGenerator('crypt_random');
+
+            $r = $one->random($one, $smallest->subtract($one));
+
             $m_i = array(
-                1 => $this->_blind($x, 1),
-                2 => $this->_blind($x, 2)
+                1 => $this->_blind($x, $r, 1),
+                2 => $this->_blind($x, $r, 2)
             );
             $h = $m_i[1]->subtract($m_i[2]);
             $h = $h->multiply($this->coefficients[2]);
@@ -1322,7 +1335,7 @@ class Crypt_RSA {
 
             $r = $this->primes[1];
             for ($i = 3; $i <= $num_primes; $i++) {
-                $m_i = $this->_blind($x, $i);
+                $m_i = $this->_blind($x, $r, $i);
 
                 $r = $r->multiply($this->primes[$i - 1]);
 
@@ -1345,18 +1358,12 @@ class Crypt_RSA {
      *
      * @access private
      * @param Math_BigInteger $x
+     * @param Math_BigInteger $r
      * @param Integer $i
      * @return Math_BigInteger
      */
-    function _blind($x, $i)
+    function _blind($x, $r, $i)
     {
-        static $one;
-        if (!isset($one)) {
-            $one = new Math_BigInteger(1);
-            $one->setRandomGenerator('crypt_random');
-        }
-
-        $r = $one->random($one, $this->primes[$i]->subtract($one));
         $x = $x->multiply($r->modPow($this->publicExponent, $this->primes[$i]));
 
         $x = $x->modPow($this->exponents[$i], $this->primes[$i]);
