@@ -67,7 +67,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.31 2010-03-01 17:28:19 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.32 2010-03-22 22:01:37 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -294,7 +294,7 @@ class Math_BigInteger {
                 $this->value = array();
         }
 
-        if ($x === 0) {
+        if (empty($x)) {
             return;
         }
 

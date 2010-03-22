@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.39 2010-02-27 23:34:46 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.40 2010-03-22 22:01:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1542,7 +1542,11 @@ class Net_SSH2 {
             return false;
         }
 
-        // sending a pty-req SSH_MSG_CHANNEL_REQUEST message is unnecessary and, in fact, slows things down
+        // sending a pty-req SSH_MSG_CHANNEL_REQUEST message is unnecessary and, in fact, in most cases, slows things
+        // down.  the one place where it might be desirable is if you're doing something like Net_SSH2::exec('ping localhost &').
+        // with a pty-req SSH_MSG_cHANNEL_REQUEST, exec() will return immediately and the ping process will then
+        // then immediately terminate.  without such a request exec() will loop indefinitely.  the ping process won't end but
+        // neither will your script.
 
         // although, in theory, the size of SSH_MSG_CHANNEL_REQUEST could exceed the maximum packet size established by
         // SSH_MSG_CHANNEL_OPEN_CONFIRMATION, RFC4254#section-5.1 states that the "maximum packet size" refers to the 

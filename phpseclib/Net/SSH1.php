@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.14 2009-12-03 08:18:53 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.15 2010-03-22 22:01:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -595,7 +595,7 @@ class Net_SSH1 {
      * shell with the -s option, as discussed in the following links:
      *
      * {@link http://www.faqs.org/docs/bashman/bashref_65.html http://www.faqs.org/docs/bashman/bashref_65.html}
-     * {@link http://www.faqs.org/docs/bashman/bashref_62.html http://www.faqs.org/docs/bashman/bashref_65.html}
+     * {@link http://www.faqs.org/docs/bashman/bashref_62.html http://www.faqs.org/docs/bashman/bashref_62.html}
      *
      * To execute further commands, a new Net_SSH1 object will need to be created.
      *
