@@ -67,7 +67,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: BigInteger.php,v 1.32 2010-03-22 22:01:37 terrafrost Exp $
+ * @version    $Id: BigInteger.php,v 1.33 2010-03-22 22:32:03 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -718,7 +718,7 @@ class Math_BigInteger {
      *
      * Will be called, automatically, when serialize() is called on a Math_BigInteger object.
      *
-     * @see __wakeup
+     * @see __wakeup()
      * @access public
      */
     function __sleep()
@@ -740,7 +740,7 @@ class Math_BigInteger {
      *
      * Will be called, automatically, when unserialize() is called on a Math_BigInteger object.
      *
-     * @see __sleep
+     * @see __sleep()
      * @access public
      */
     function __wakeup()
