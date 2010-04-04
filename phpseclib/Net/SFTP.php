@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.17 2010-02-18 16:56:07 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.18 2010-04-04 00:20:03 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -279,7 +279,7 @@ class Net_SFTP extends Net_SSH2 {
             0x00000002 => 'NET_SFTP_ATTR_UIDGID', // defined in SFTPv3, removed in SFTPv4+
             0x00000004 => 'NET_SFTP_ATTR_PERMISSIONS',
             0x00000008 => 'NET_SFTP_ATTR_ACCESSTIME',
-            0x80000000 => 'NET_SFTP_ATTR_EXTENDED'
+                    -1 => 'NET_SFTP_ATTR_EXTENDED' // unpack('N', "\xFF\xFF\xFF\xFF") == array(1 => int(-1))
         );
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.3
         // the flag definitions change somewhat in SFTPv5+.  if SFTPv5+ support is added to this library, maybe name
@@ -667,6 +667,47 @@ class Net_SFTP extends Net_SSH2 {
     }
 
     /**
+     * Returns the file size, in bytes, or false, on failure
+     *
+     * Files larger than 4GB will show up as being exactly 4GB.
+     *
+     * @param optional String $dir
+     * @return Mixed
+     * @access public
+     */
+    function size($filename)
+    {
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+            return false;
+        }
+
+        $filename = $this->_realpath($filename);
+        if ($filename === false) {
+            return false;
+        }
+
+        // SFTPv4+ adds an additional 32-bit integer field - flags - to the following:
+        $packet = pack('Na*', strlen($filename), $filename);
+        if (!$this->_send_sftp_packet(NET_SFTP_STAT, $packet)) {
+            return false;
+        }
+
+        $response = $this->_get_sftp_packet();
+        switch ($this->packet_type) {
+            case NET_SFTP_ATTRS:
+                $attrs = $this->_parseAttributes($response);
+                return $attrs['size'];
+            case NET_SFTP_STATUS:
+                extract(unpack('Nstatus/Nlength', $this->_string_shift($response, 8)));
+                $this->sftp_errors[] = $this->status_codes[$status] . ': ' . $this->_string_shift($response, $length);
+                return false;
+        }
+
+        user_error('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS', E_USER_NOTICE);
+        return false;
+    }
+
+    /**
      * Set permissions on a file.
      *
      * Returns the new file permissions on success or FALSE on error.
@@ -715,7 +756,7 @@ class Net_SFTP extends Net_SSH2 {
 
         // rather than return what the permissions *should* be, we'll return what they actually are.  this will also
         // tell us if the file actually exists.
-        // incidentally ,SFTPv4+ adds an additional 32-bit integer field - flags - to the following:
+        // incidentally, SFTPv4+ adds an additional 32-bit integer field - flags - to the following:
         $packet = pack('Na*', strlen($filename), $filename);
         if (!$this->_send_sftp_packet(NET_SFTP_STAT, $packet)) {
             return false;
@@ -884,6 +925,8 @@ class Net_SFTP extends Net_SSH2 {
             $sent = 0;
             $size = strlen($data);
         }
+
+        $size = $size < 0 ? ($size & 0x7FFFFFFF) + 0x80000000 : $size;
 
         $sftp_packet_size = 34000; // PuTTY uses 4096
         $i = 0;
@@ -1187,7 +1230,7 @@ class Net_SFTP extends Net_SSH2 {
             switch ($flags & $key) {
                 case NET_SFTP_ATTR_SIZE: // 0x00000001
                     // size is represented by a 64-bit integer, so we perhaps ought to be doing the following:
-                    //$attr['size'] = new Math_BigInteger($this->_string_shift($response, 8), 256);
+                    // $attr['size'] = new Math_BigInteger($this->_string_shift($response, 8), 256);
                     // of course, you shouldn't be using Net_SFTP to transfer files that are in excess of 4GB
                     // (0xFFFFFFFF bytes), anyway.  as such, we'll just represent all file sizes that are bigger than
                     // 4GB as being 4GB.
@@ -1195,7 +1238,7 @@ class Net_SFTP extends Net_SSH2 {
                     if ($upper) {
                         $attr['size'] = 0xFFFFFFFF;
                     } else {
-                        $attr['size'] = $size;
+                        $attr['size'] = $size < 0 ? ($size & 0x7FFFFFFF) + 0x80000000 : $size;
                     }
                     break;
                 case NET_SFTP_ATTR_UIDGID: // 0x00000002 (SFTPv3 only)

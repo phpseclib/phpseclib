@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.40 2010-03-22 22:01:38 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.41 2010-04-04 00:20:03 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -715,6 +715,12 @@ class Net_SSH2 {
         );
 
         static $encryption_algorithms = array(
+            // from <http://tools.ietf.org/html/rfc4345#section-4>:
+            'arcfour256',
+            'arcfour128',
+
+            'arcfour',    // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
+
             'aes128-cbc', // RECOMMENDED       AES with a 128-bit key
             'aes192-cbc', // OPTIONAL          AES with a 192-bit key
             'aes256-cbc', // OPTIONAL          AES in CBC mode, with a 256-bit key
@@ -725,12 +731,6 @@ class Net_SSH2 {
             'aes256-ctr', // RECOMMENDED       AES with 256-bit key
             '3des-ctr',   // RECOMMENDED       Three-key 3DES in SDCTR mode
 
-            // from <http://tools.ietf.org/html/rfc4345#section-4>:
-            // (commented out since i don't know of any ssh servers that support them and thus am unable to test them)
-            //'arcfour128',
-            //'arcfour256',
-
-            'arcfour',    // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
             '3des-cbc',   // REQUIRED          three-key 3DES in CBC mode
             'none'        // OPTIONAL          no encryption; NOT RECOMMENDED
         );
