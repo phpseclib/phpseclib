@@ -35,7 +35,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Random.php,v 1.6 2010-02-28 05:28:38 terrafrost Exp $
+ * @version    $Id: Random.php,v 1.7 2010-04-07 03:50:54 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -62,9 +62,11 @@ function crypt_random($min = 0, $max = 0x7FFFFFFF)
 
     // see http://en.wikipedia.org/wiki//dev/random
     if (file_exists('/dev/urandom')) {
-        $fp = fopen('/dev/urandom', 'rb');
+        static $fp;
+        if (!$fp) {
+            $fp = fopen('/dev/urandom', 'rb');
+        }
         extract(unpack('Nrandom', fread($fp, 4)));
-        fclose($fp);
 
         // say $min = 0 and $max = 3.  if we didn't do abs() then we could have stuff like this:
         // -4 % 3 + 0 = -1, even though -1 < $min

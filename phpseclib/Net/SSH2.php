@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.41 2010-04-04 00:20:03 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.42 2010-04-07 03:50:54 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -661,9 +661,12 @@ class Net_SSH2 {
 
         if (defined('NET_SSH2_LOGGING')) {
             $this->message_number_log[] = '<-';
-            $this->message_log[] = $temp;
             $this->message_number_log[] = '->';
-            $this->message_log[] = $this->identifier . "\r\n";
+
+            if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
+                $this->message_log[] = $temp;
+                $this->message_log[] = $this->identifier . "\r\n";
+            }
         }
 
         $this->server_identifier = trim($temp);
@@ -1382,7 +1385,7 @@ class Net_SSH2 {
         }
 
         // remove the username and password from the last logged packet
-        if (defined('NET_SSH2_LOGGING')) {
+        if (defined('NET_SSH2_LOGGING') && NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
             $packet = pack('CNa*Na*Na*CNa*',
                 NET_SSH2_MSG_USERAUTH_REQUEST, strlen('username'), 'username', strlen('ssh-connection'), 'ssh-connection',
                 strlen('password'), 'password', 0, strlen('password'), 'password'
@@ -1662,7 +1665,9 @@ class Net_SSH2 {
             $temp = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN';
             $this->message_number_log[] = '<- ' . $temp .
                                           ' (' . round($stop - $start, 4) . 's)';
-            $this->message_log[] = $payload;
+            if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
+                $this->message_log[] = $payload;
+            }
         }
 
         return $this->_filter($payload);
@@ -1927,7 +1932,9 @@ class Net_SSH2 {
             $temp = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN';
             $this->message_number_log[] = '-> ' . $temp .
                                           ' (' . round($stop - $start, 4) . 's)';
-            $this->message_log[] = $data;
+            if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
+                $this->message_log[] = $data;
+            }
         }
 
         return $result;
@@ -2047,24 +2054,45 @@ class Net_SSH2 {
     /**
      * Returns a log of the packets that have been sent and received.
      *
-     * $type can be either NET_SSH2_LOG_SIMPLE or NET_SSH2_LOG_COMPLEX.  Enable by defining NET_SSH2_LOGGING.
+     * Returns a string if NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX, an array if NET_SSH2_LOGGING == NET_SSH2_LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
      *
-     * @param Integer $type
      * @access public
      * @return String or Array
      */
-    function getLog($type = NET_SSH2_LOG_COMPLEX)
+    function getLog()
     {
-        if ($type == NET_SSH2_LOG_SIMPLE) {
-            return $this->message_number_log;
+        if (!defined('NET_SSH2_LOGGING')) {
+            return false;
         }
 
+        switch (NET_SSH2_LOGGING) {
+            case NET_SSH2_LOG_SIMPLE:
+                return $this->message_number_log;
+                break;
+            case NET_SSH2_LOG_COMPLEX:
+                return $this->_format_log($this->message_log, $this->message_number_log);
+                break;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Formats a log for printing
+     *
+     * @param Array $message_log
+     * @param Array $message_number_log
+     * @access private
+     * @return String
+     */
+    function _format_log($message_log, $message_number_log)
+    {
         static $boundary = ':', $long_width = 65, $short_width = 15;
 
         $output = '';
-        for ($i = 0; $i < count($this->message_log); $i++) {
-            $output.= $this->message_number_log[$i] . "\r\n";
-            $current_log = $this->message_log[$i];
+        for ($i = 0; $i < count($message_log); $i++) {
+            $output.= $message_number_log[$i] . "\r\n";
+            $current_log = $message_log[$i];
             do {
                 $fragment = $this->_string_shift($current_log, $short_width);
                 $hex = substr(

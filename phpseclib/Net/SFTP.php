@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.18 2010-04-04 00:20:03 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.19 2010-04-07 03:50:54 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1288,7 +1288,9 @@ class Net_SFTP extends Net_SSH2 {
         if (defined('NET_SFTP_LOGGING')) {
             $this->packet_type_log[] = '-> ' . $this->packet_types[$type] . 
                                        ' (' . round($stop - $start, 4) . 's)';
-            $this->packet_log[] = $data;
+            if (NET_SFTP_LOGGING == NET_SFTP_LOG_COMPLEX) {
+                $this->packet_log[] = $data;
+            }
         }
 
         return $result;
@@ -1353,7 +1355,9 @@ class Net_SFTP extends Net_SSH2 {
         if (defined('NET_SFTP_LOGGING')) {
             $this->packet_type_log[] = '<- ' . $this->packet_types[$this->packet_type] . 
                                        ' (' . round($stop - $start, 4) . 's)';
-            $this->packet_log[] = $packet;
+            if (NET_SFTP_LOGGING == NET_SFTP_LOG_COMPLEX) {
+                $this->packet_log[] = $packet;
+            }
         }
 
         return $packet;
@@ -1362,26 +1366,25 @@ class Net_SFTP extends Net_SSH2 {
     /**
      * Returns a log of the packets that have been sent and received.
      *
-     * $type can be either NET_SFTP_LOG_SIMPLE or NET_SFTP_LOG_COMPLEX.  Enable by defining NET_SFTP_LOGGING.
+     * Returns a string if NET_SFTP_LOGGING == NET_SFTP_LOG_COMPLEX, an array if NET_SFTP_LOGGING == NET_SFTP_LOG_SIMPLE and false if !defined('NET_SFTP_LOGGING')
      *
-     * @param Integer $type
      * @access public
      * @return String or Array
      */
-    function getSFTPLog($type = NET_SFTP_LOG_COMPLEX)
+    function getSFTPLog()
     {
-        $message_number_log = $this->message_number_log;
-        $message_log = $this->message_log;
+        if (!defined('NET_SFTP_LOGGING')) {
+            return false;
+        }
 
-        $this->message_number_log = $this->packet_type_log;
-        $this->message_log = $this->packet_log;
-
-        $return = $this->getLog($type);
-
-        $this->message_number_log = $message_number_log;
-        $this->message_log = $message_log;
-
-        return $return;
+        switch (NET_SFTP_LOGGING) {
+            case NET_SFTP_LOG_COMPLEX:
+                return $this->_format_log($this->packet_log, $this->packet_type_log);
+                break;
+            //case NET_SFTP_LOG_SIMPLE:
+            default:
+                return $this->packet_type_log;
+        }
     }
 
     /**
