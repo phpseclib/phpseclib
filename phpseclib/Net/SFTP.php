@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.19 2010-04-07 03:50:54 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.20 2010-04-08 14:41:07 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -575,6 +575,23 @@ class Net_SFTP extends Net_SSH2 {
      */
     function nlist($dir = '.')
     {
+        return $this->_list($dir, false);
+    }
+
+    /**
+     * Returns a list of files in the given directory
+     *
+     * @param optional String $dir
+     * @return Mixed
+     * @access public
+     */
+    function rawlist($dir = '.')
+    {
+        return $this->_list($dir, true);
+    }
+
+    function _list($dir, $raw = true)
+    {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
         }
@@ -622,10 +639,15 @@ class Net_SFTP extends Net_SSH2 {
                     extract(unpack('Ncount', $this->_string_shift($response, 4)));
                     for ($i = 0; $i < $count; $i++) {
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                        $contents[] = $this->_string_shift($response, $length);
+                        $shortname = $this->_string_shift($response, $length);
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                        $this->_string_shift($response, $length); // we don't care about the longname
-                        $this->_parseAttributes($response); // we also don't care about the attributes
+                        $this->_string_shift($response, $length); // SFTPv4+ drop this field - the "longname" field
+                        $attributes = $this->_parseAttributes($response); // we also don't care about the attributes
+                        if ($raw) {
+                            $contents[] = $shortname;
+                        } else {
+                            $contents[$shortname] = $attributes;
+                        }
                         // SFTPv6 has an optional boolean end-of-list field, but we'll ignore that, since the
                         // final SSH_FXP_STATUS packet should tell us that, already.
                     }
