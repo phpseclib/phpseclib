@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.20 2010-04-08 14:41:07 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.21 2010-04-09 02:31:34 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -643,7 +643,7 @@ class Net_SFTP extends Net_SSH2 {
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $this->_string_shift($response, $length); // SFTPv4+ drop this field - the "longname" field
                         $attributes = $this->_parseAttributes($response); // we also don't care about the attributes
-                        if ($raw) {
+                        if (!$raw) {
                             $contents[] = $shortname;
                         } else {
                             $contents[$shortname] = $attributes;
