@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.14 2010-03-01 17:28:19 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.15 2010-04-10 15:57:02 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1634,6 +1634,17 @@ class Crypt_RSA {
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.2.2 RFC3447#section-7.2.2}.
      *
+     * For compatability purposes, this function departs slightly from the description given in RFC3447.
+     * The reason being that RFC2313#section-8.1 (PKCS#1 v1.5) states that ciphertext's encrypted by the
+     * private key should have the second byte set to either 0 or 1 and that ciphertext's encrypted by the
+     * public key should have the second byte set to 2.  In RFC3447 (PKCS#1 v2.1), the second byte is supposed
+     * to be 2 regardless of which key is used.  for compatability purposes, we'll just check to make sure the
+     * second byte is 2 or less.  If it is, we'll accept the decrypted string as valid.
+     *
+     * As a consequence of this, a private key encrypted ciphertext produced with Crypt_RSA may not decrypt
+     * with a strictly PKCS#1 v1.5 compliant RSA implementation.  Public key encrypted ciphertext's should but
+     * not private key encrypted ciphertext's.
+     *
      * @access private
      * @param String $c
      * @return String
@@ -1659,7 +1670,7 @@ class Crypt_RSA {
 
         // EME-PKCS1-v1_5 decoding
 
-        if (ord($em[0]) != 0 || ord($em[1]) != 2) {
+        if (ord($em[0]) != 0 || ord($em[1]) > 2) {
             user_error('Decryption error', E_USER_NOTICE);
             return false;
         }
