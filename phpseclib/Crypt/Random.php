@@ -35,7 +35,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Random.php,v 1.7 2010-04-07 03:50:54 terrafrost Exp $
+ * @version    $Id: Random.php,v 1.8 2010-04-13 12:41:14 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -61,7 +61,9 @@ function crypt_random($min = 0, $max = 0x7FFFFFFF)
     }
 
     // see http://en.wikipedia.org/wiki//dev/random
-    if (file_exists('/dev/urandom')) {
+    // if open_basedir is enabled file_exists() will ouput an "open_basedir restriction in effect" warning,
+    // so we suppress it.
+    if (@file_exists('/dev/urandom')) {
         static $fp;
         if (!$fp) {
             $fp = fopen('/dev/urandom', 'rb');
