@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.42 2010-04-07 03:50:54 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.43 2010-04-22 16:06:43 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -542,6 +542,28 @@ class Net_SSH2 {
     var $window_size_client_to_server = array();
 
     /**
+     * Server signature
+     *
+     * Verified against $this->session_id
+     *
+     * @see Net_SSH2::getServerPublicHostKey()
+     * @var String
+     * @access private
+     */
+    var $signature = '';
+
+    /**
+     * Server signature format
+     *
+     * ssh-rsa or ssh-dss.
+     *
+     * @see Net_SSH2::getServerPublicHostKey()
+     * @var String
+     * @access private
+     */
+    var $signature_format = '';
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -979,10 +1001,10 @@ class Net_SSH2 {
         $f = new Math_BigInteger($fBytes, -256);
 
         $temp = unpack('Nlength', $this->_string_shift($response, 4));
-        $signature = $this->_string_shift($response, $temp['length']);
+        $this->signature = $this->_string_shift($response, $temp['length']);
 
-        $temp = unpack('Nlength', $this->_string_shift($signature, 4));
-        $signature_format = $this->_string_shift($signature, $temp['length']);
+        $temp = unpack('Nlength', $this->_string_shift($this->signature, 4));
+        $this->signature_format = $this->_string_shift($this->signature, $temp['length']);
 
         $key = $f->modPow($x, $p);
         $keyBytes = $key->toBytes(true);
@@ -1000,122 +1022,15 @@ class Net_SSH2 {
             $this->session_id = $source;
         }
 
-        // if you the server's assymetric key matches the one you have on file, then you should be able to decrypt the
-        // "signature" and get something that should equal the "exchange hash", as defined in the SSH-2 specs.
-        // here, we just check to see if the "signature" is good.  you can verify whether or not the assymetric key is good,
-        // later, with the getServerHostKeyAlgorithm() function
         for ($i = 0; $i < count($server_host_key_algorithms) && !in_array($server_host_key_algorithms[$i], $this->server_host_key_algorithms); $i++);
         if ($i == count($server_host_key_algorithms)) {
             user_error('No compatible server host key algorithms found', E_USER_NOTICE);
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
-        if ($public_key_format != $server_host_key_algorithms[$i] || $signature_format != $server_host_key_algorithms[$i]) {
+        if ($public_key_format != $server_host_key_algorithms[$i] || $this->signature_format != $server_host_key_algorithms[$i]) {
             user_error('Sever Host Key Algorithm Mismatch', E_USER_NOTICE);
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-        }
-
-        switch ($server_host_key_algorithms[$i]) {
-            case 'ssh-dss':
-                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
-                $p = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
-
-                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
-                $q = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
-
-                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
-                $g = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
-
-                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
-                $y = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
-
-                /* The value for 'dss_signature_blob' is encoded as a string containing
-                   r, followed by s (which are 160-bit integers, without lengths or
-                   padding, unsigned, and in network byte order). */
-                $temp = unpack('Nlength', $this->_string_shift($signature, 4));
-                if ($temp['length'] != 40) {
-                    user_error('Invalid signature', E_USER_NOTICE);
-                    return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-                }
-
-                $r = new Math_BigInteger($this->_string_shift($signature, 20), 256);
-                $s = new Math_BigInteger($this->_string_shift($signature, 20), 256);
-
-                if ($r->compare($q) >= 0 || $s->compare($q) >= 0) {
-                    user_error('Invalid signature', E_USER_NOTICE);
-                    return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-                }
-
-                $w = $s->modInverse($q);
-
-                $u1 = $w->multiply(new Math_BigInteger(sha1($this->session_id), 16));
-                list(, $u1) = $u1->divide($q);
-
-                $u2 = $w->multiply($r);
-                list(, $u2) = $u2->divide($q);
-
-                $g = $g->modPow($u1, $p);
-                $y = $y->modPow($u2, $p);
-
-                $v = $g->multiply($y);
-                list(, $v) = $v->divide($p);
-                list(, $v) = $v->divide($q);
-
-                if (!$v->equals($r)) {
-                    user_error('Bad server signature', E_USER_NOTICE);
-                    return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                }
-
-                break;
-            case 'ssh-rsa':
-                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
-                $e = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
-
-                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
-                $n = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
-                $nLength = $temp['length'];
-
-                /*
-                $temp = unpack('Nlength', $this->_string_shift($signature, 4));
-                $signature = $this->_string_shift($signature, $temp['length']);
-
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
-
-                $rsa = new Crypt_RSA();
-                $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
-                $rsa->loadKey(array('e' => $e, 'n' => $n), CRYPT_RSA_PUBLIC_FORMAT_RAW);
-                if (!$rsa->verify($this->session_id, $signature)) {
-                    user_error('Bad server signature', E_USER_NOTICE);
-                    return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                }
-                */
-
-                $temp = unpack('Nlength', $this->_string_shift($signature, 4));
-                $s = new Math_BigInteger($this->_string_shift($signature, $temp['length']), 256);
-
-                // validate an RSA signature per "8.2 RSASSA-PKCS1-v1_5", "5.2.2 RSAVP1", and "9.1 EMSA-PSS" in the
-                // following URL:
-                // ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-1/pkcs-1v2-1.pdf
-
-                // also, see SSHRSA.c (rsa2_verifysig) in PuTTy's source.
-
-                if ($s->compare(new Math_BigInteger()) < 0 || $s->compare($n->subtract(new Math_BigInteger(1))) > 0) {
-                    user_error('Invalid signature', E_USER_NOTICE);
-                    return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-                }
-
-                $s = $s->modPow($e, $n);
-                $s = $s->toBytes();
-
-                $h = pack('N4H*', 0x00302130, 0x0906052B, 0x0E03021A, 0x05000414, sha1($this->session_id));
-                $h = chr(0x01) . str_repeat(chr(0xFF), $nLength - 3 - strlen($h)) . $h;
-
-                if ($s != $h) {
-                    user_error('Bad server signature', E_USER_NOTICE);
-                    return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                }
         }
 
         $packet = pack('C',
@@ -2260,13 +2175,122 @@ class Net_SSH2 {
      * Returns the server public host key.
      *
      * Caching this the first time you connect to a server and checking the result on subsequent connections
-     * is recommended.
+     * is recommended.  Returns false if the server signature is not signed correctly with the public host key.
      *
-     * @return Array
+     * @return Mixed
      * @access public
      */
     function getServerPublicHostKey()
     {
+        $signature = $this->signature;
+        $server_public_host_key = $this->server_public_host_key;
+
+        extract(unpack('Nlength', $this->_string_shift($server_public_host_key, 4)));
+        $this->_string_shift($server_public_host_key, $length);
+
+        switch ($this->signature_format) {
+            case 'ssh-dss':
+                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
+                $p = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
+
+                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
+                $q = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
+
+                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
+                $g = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
+
+                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
+                $y = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
+
+                /* The value for 'dss_signature_blob' is encoded as a string containing
+                   r, followed by s (which are 160-bit integers, without lengths or
+                   padding, unsigned, and in network byte order). */
+                $temp = unpack('Nlength', $this->_string_shift($signature, 4));
+                if ($temp['length'] != 40) {
+                    user_error('Invalid signature', E_USER_NOTICE);
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                }
+
+                $r = new Math_BigInteger($this->_string_shift($signature, 20), 256);
+                $s = new Math_BigInteger($this->_string_shift($signature, 20), 256);
+
+                if ($r->compare($q) >= 0 || $s->compare($q) >= 0) {
+                    user_error('Invalid signature', E_USER_NOTICE);
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                }
+
+                $w = $s->modInverse($q);
+
+                $u1 = $w->multiply(new Math_BigInteger(sha1($this->session_id), 16));
+                list(, $u1) = $u1->divide($q);
+
+                $u2 = $w->multiply($r);
+                list(, $u2) = $u2->divide($q);
+
+                $g = $g->modPow($u1, $p);
+                $y = $y->modPow($u2, $p);
+
+                $v = $g->multiply($y);
+                list(, $v) = $v->divide($p);
+                list(, $v) = $v->divide($q);
+
+                if (!$v->equals($r)) {
+                    user_error('Bad server signature', E_USER_NOTICE);
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
+                }
+
+                break;
+            case 'ssh-rsa':
+                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
+                $e = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
+
+                $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
+                $n = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
+                $nLength = $temp['length'];
+
+                /*
+                $temp = unpack('Nlength', $this->_string_shift($signature, 4));
+                $signature = $this->_string_shift($signature, $temp['length']);
+
+                if (!class_exists('Crypt_RSA')) {
+                    require_once('Crypt/RSA.php');
+                }
+
+                $rsa = new Crypt_RSA();
+                $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+                $rsa->loadKey(array('e' => $e, 'n' => $n), CRYPT_RSA_PUBLIC_FORMAT_RAW);
+                if (!$rsa->verify($this->session_id, $signature)) {
+                    user_error('Bad server signature', E_USER_NOTICE);
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
+                }
+                */
+
+                $temp = unpack('Nlength', $this->_string_shift($signature, 4));
+                $s = new Math_BigInteger($this->_string_shift($signature, $temp['length']), 256);
+
+                // validate an RSA signature per "8.2 RSASSA-PKCS1-v1_5", "5.2.2 RSAVP1", and "9.1 EMSA-PSS" in the
+                // following URL:
+                // ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-1/pkcs-1v2-1.pdf
+
+                // also, see SSHRSA.c (rsa2_verifysig) in PuTTy's source.
+
+                if ($s->compare(new Math_BigInteger()) < 0 || $s->compare($n->subtract(new Math_BigInteger(1))) > 0) {
+                    user_error('Invalid signature', E_USER_NOTICE);
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                }
+
+                $s = $s->modPow($e, $n);
+                $s = $s->toBytes();
+
+                $h = pack('N4H*', 0x00302130, 0x0906052B, 0x0E03021A, 0x05000414, sha1($this->session_id));
+                $h = chr(0x01) . str_repeat(chr(0xFF), $nLength - 3 - strlen($h)) . $h;
+
+                if ($s != $h) {
+                    user_error('Bad server signature', E_USER_NOTICE);
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
+                }
+        }
+
         return $this->server_public_host_key;
     }
 }
