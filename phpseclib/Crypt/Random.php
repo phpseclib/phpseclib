@@ -35,7 +35,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Random.php,v 1.8 2010-04-13 12:41:14 terrafrost Exp $
+ * @version    $Id: Random.php,v 1.9 2010-04-24 06:40:48 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -121,6 +121,7 @@ function crypt_random($min = 0, $max = 0x7FFFFFFF)
         }
         $crypto->setKey($key);
         $crypto->setIV($iv);
+        $crypto->enableContinuousBuffer();
     }
 
     extract(unpack('Nrandom', $crypto->encrypt("\0\0\0\0")));

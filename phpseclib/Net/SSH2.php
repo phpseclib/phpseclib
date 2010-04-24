@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.43 2010-04-22 16:06:43 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.44 2010-04-24 06:40:49 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1581,7 +1581,7 @@ class Net_SSH2 {
             $this->message_number_log[] = '<- ' . $temp .
                                           ' (' . round($stop - $start, 4) . 's)';
             if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
-                $this->message_log[] = $payload;
+                $this->message_log[] = substr($payload, 1);
             }
         }
 
@@ -1848,7 +1848,7 @@ class Net_SSH2 {
             $this->message_number_log[] = '-> ' . $temp .
                                           ' (' . round($stop - $start, 4) . 's)';
             if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
-                $this->message_log[] = $data;
+                $this->message_log[] = substr($data, 1);
             }
         }
 
@@ -2002,13 +2002,17 @@ class Net_SSH2 {
      */
     function _format_log($message_log, $message_number_log)
     {
-        static $boundary = ':', $long_width = 65, $short_width = 15;
+        static $boundary = ':', $long_width = 65, $short_width = 16;
 
         $output = '';
         for ($i = 0; $i < count($message_log); $i++) {
             $output.= $message_number_log[$i] . "\r\n";
             $current_log = $message_log[$i];
+            $j = 0;
             do {
+                if (!empty($current_log)) {
+                    $output.= str_pad(dechex($j), 7, '0', STR_PAD_LEFT) . '0  ';
+                }
                 $fragment = $this->_string_shift($current_log, $short_width);
                 $hex = substr(
                            preg_replace(
@@ -2021,6 +2025,7 @@ class Net_SSH2 {
                 // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
                 $raw = preg_replace('#[^\x20-\x7E]#', '.', $fragment);
                 $output.= str_pad($hex, $long_width - $short_width, ' ') . $raw . "\r\n";
+                $j++;
             } while (!empty($current_log));
             $output.= "\r\n";
         }
