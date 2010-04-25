@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.44 2010-04-24 06:40:49 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.45 2010-04-25 14:19:43 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -2023,7 +2023,8 @@ class Net_SSH2 {
                        );
                 // replace non ASCII printable characters with dots
                 // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
-                $raw = preg_replace('#[^\x20-\x7E]#', '.', $fragment);
+                // also replace < with a . since < messes up the output on web browsers
+                $raw = preg_replace('#[^\x20-\x7E]|<#', '.', $fragment);
                 $output.= str_pad($hex, $long_width - $short_width, ' ') . $raw . "\r\n";
                 $j++;
             } while (!empty($current_log));
