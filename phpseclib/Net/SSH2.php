@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.45 2010-04-25 14:19:43 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.46 2010-04-27 21:29:36 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -691,7 +691,7 @@ class Net_SSH2 {
             }
         }
 
-        $this->server_identifier = trim($temp);
+        $this->server_identifier = trim($temp, "\r\n");
         if (!empty($extra)) {
             $this->errors[] = utf8_decode($extra);
         }
