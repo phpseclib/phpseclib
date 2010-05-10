@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.46 2010-04-27 21:29:36 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.47 2010-05-10 16:16:35 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -665,6 +665,11 @@ class Net_SSH2 {
                 $temp = '';
             }
             $temp.= fgets($this->fsock, 255);
+        }
+
+        if (feof($this->fsock)) {
+            user_error('Connection closed by server', E_USER_NOTICE);
+            return false;
         }
 
         $ext = array();
