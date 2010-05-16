@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.47 2010-05-10 16:16:35 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.48 2010-05-16 16:10:50 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1467,7 +1467,7 @@ class Net_SSH2 {
 
         // sending a pty-req SSH_MSG_CHANNEL_REQUEST message is unnecessary and, in fact, in most cases, slows things
         // down.  the one place where it might be desirable is if you're doing something like Net_SSH2::exec('ping localhost &').
-        // with a pty-req SSH_MSG_cHANNEL_REQUEST, exec() will return immediately and the ping process will then
+        // with a pty-req SSH_MSG_CHANNEL_REQUEST, exec() will return immediately and the ping process will then
         // then immediately terminate.  without such a request exec() will loop indefinitely.  the ping process won't end but
         // neither will your script.
 
