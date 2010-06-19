@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.15 2010-04-10 15:57:02 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.16 2010-06-19 12:01:21 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1002,10 +1002,14 @@ class Crypt_RSA {
     function setPublicKey($key, $type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
     {
         $components = $this->_parseKey($key, $type);
-        if (empty($this->modulus) || !$this->modulus->equals($components['modulus'])) {
+        if ($components === false) {
             return false;
         }
+
+        $this->modulus = $components['modulus'];
         $this->publicExponent = $components['publicExponent'];
+
+        return true;
     }
 
     /**
