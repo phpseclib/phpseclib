@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.21 2010-04-09 02:31:34 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.22 2010-06-29 01:33:39 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -579,7 +579,7 @@ class Net_SFTP extends Net_SSH2 {
     }
 
     /**
-     * Returns a list of files in the given directory
+     * Returns a detailed list of files in the given directory
      *
      * @param optional String $dir
      * @return Mixed
@@ -590,6 +590,13 @@ class Net_SFTP extends Net_SSH2 {
         return $this->_list($dir, true);
     }
 
+    /**
+     * Reads a list, be it detailed or not, of files in the given directory
+     *
+     * @param optional String $dir
+     * @return Mixed
+     * @access private
+     */
     function _list($dir, $raw = true)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
