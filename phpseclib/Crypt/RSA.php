@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.16 2010-06-19 12:01:21 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.17 2010-07-11 02:33:13 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1002,11 +1002,12 @@ class Crypt_RSA {
     function setPublicKey($key, $type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
     {
         $components = $this->_parseKey($key, $type);
-        if ($components === false) {
+
+        if (empty($this->modulus) || !$this->modulus->equals($components['modulus'])) {
+            user_error('Trying to load a public key?  Use loadKey() instead.  It\'s called loadKey() and not loadPrivateKey() for a reason.', E_USER_NOTICE);
             return false;
         }
 
-        $this->modulus = $components['modulus'];
         $this->publicExponent = $components['publicExponent'];
 
         return true;
