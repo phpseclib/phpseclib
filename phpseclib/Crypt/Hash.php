@@ -49,7 +49,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Hash.php,v 1.6 2009-11-23 23:37:07 terrafrost Exp $
+ * @version    $Id: Hash.php,v 1.7 2010-08-08 21:29:39 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -204,7 +204,8 @@ class Crypt_Hash {
 
         switch ($hash) {
             case 'md2':
-                $mode = CRYPT_HASH_MODE_INTERNAL;
+                $mode = CRYPT_HASH_MODE == CRYPT_HASH_MODE_HASH && in_array('md2', hash_algos()) ?
+                    CRYPT_HASH_MODE_HASH : CRYPT_HASH_MODE_INTERNAL;
                 break;
             case 'sha384':
             case 'sha512':
@@ -236,6 +237,7 @@ class Crypt_Hash {
                     case 'md5-96':
                         $this->hash = 'md5';
                         return;
+                    case 'md2':
                     case 'sha256':
                     case 'sha384':
                     case 'sha512':
@@ -303,7 +305,7 @@ class Crypt_Hash {
                         resultant L byte string as the actual key to HMAC."
 
                         -- http://tools.ietf.org/html/rfc2104#section-2 */
-                    $key = strlen($this->key) > $this->b ? call_user_func($this->$hash, $this->key) : $this->key;
+                    $key = strlen($this->key) > $this->b ? call_user_func($this->hash, $this->key) : $this->key;
 
                     $key    = str_pad($key, $this->b, chr(0));      // step 1
                     $temp   = $this->ipad ^ $key;                   // step 2
@@ -332,7 +334,7 @@ class Crypt_Hash {
     /**
      * Returns the hash length (in bytes)
      *
-     * @access private
+     * @access public
      * @return Integer
      */
     function getLength()
@@ -404,7 +406,10 @@ class Crypt_Hash {
         $l = chr(0);
         for ($i = 0; $i < $length; $i+= 16) {
             for ($j = 0; $j < 16; $j++) {
-                $c[$j] = chr($s[ord($m[$i + $j] ^ $l)]);
+                // RFC1319 states that C[j] should be set to S[c xor L]
+                //$c[$j] = chr($s[ord($m[$i + $j] ^ $l)]);
+                // most implementations, however, set C[j] to S[c xor L] xor C[j]
+                $c[$j] = chr($s[ord($m[$i + $j] ^ $l)] ^ ord($c[$j]));
                 $l = $c[$j];
             }
         }
