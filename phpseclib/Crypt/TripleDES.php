@@ -47,14 +47,14 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: TripleDES.php,v 1.13 2010-02-26 03:40:25 terrafrost Exp $
+ * @version    $Id: TripleDES.php,v 1.14 2010-08-08 05:06:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
 /**
  * Include Crypt_DES
  */
-require_once 'DES.php';
+require_once('DES.php');
 
 /**
  * Encrypt / decrypt using inner chaining

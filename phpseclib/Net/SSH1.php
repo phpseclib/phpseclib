@@ -65,7 +65,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.15 2010-03-22 22:01:38 terrafrost Exp $
+ * @version    $Id: SSH1.php,v 1.16 2010-08-08 05:06:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -100,28 +100,6 @@ require_once('Crypt/RC4.php');
  * Include Crypt_Random
  */
 require_once('Crypt/Random.php');
-
-/**#@+
- * Protocol Flags
- *
- * @access private
- */
-define('NET_SSH1_MSG_DISCONNECT',          1);
-define('NET_SSH1_SMSG_PUBLIC_KEY',         2);
-define('NET_SSH1_CMSG_SESSION_KEY',        3);
-define('NET_SSH1_CMSG_USER',               4);
-define('NET_SSH1_CMSG_AUTH_PASSWORD',      9);
-define('NET_SSH1_CMSG_REQUEST_PTY',       10);
-define('NET_SSH1_CMSG_EXEC_SHELL',        12);
-define('NET_SSH1_CMSG_EXEC_CMD',          13);
-define('NET_SSH1_SMSG_SUCCESS',           14);
-define('NET_SSH1_SMSG_FAILURE',           15);
-define('NET_SSH1_CMSG_STDIN_DATA',        16);
-define('NET_SSH1_SMSG_STDOUT_DATA',       17);
-define('NET_SSH1_SMSG_STDERR_DATA',       18);
-define('NET_SSH1_SMSG_EXITSTATUS',        20);
-define('NET_SSH1_CMSG_EXIT_CONFIRMATION', 33);
-/**#@-*/
 
 /**#@+
  * Encryption Methods
@@ -245,6 +223,20 @@ define('NET_SSH1_MASK_LOGIN',       0x00000002);
 define('NET_SSH1_MASK_SHELL',       0x00000004);
 /**#@-*/
 
+/**#@+
+ * @access public
+ * @see Net_SSH1::getLog()
+ */
+/**
+ * Returns the message numbers
+ */
+define('NET_SSH1_LOG_SIMPLE',  1);
+/**
+ * Returns the message content
+ */
+define('NET_SSH1_LOG_COMPLEX', 2);
+/**#@-*/
+
 /**
  * Pure-PHP implementation of SSHv1.
  *
@@ -281,7 +273,7 @@ class Net_SSH1 {
     /**
      * Execution Bitmap
      *
-     * The bits that are set reprsent functions that have been called already.  This is used to determine
+     * The bits that are set represent functions that have been called already.  This is used to determine
      * if a requisite function has been successfully executed.  If not, an error should be thrown.
      *
      * @var Integer
@@ -378,6 +370,33 @@ class Net_SSH1 {
     var $server_identification = '';
 
     /**
+     * Protocol Flags
+     *
+     * @see Net_SSH1::Net_SSH1()
+     * @var Array
+     * @access private
+     */
+    var $protocol_flags = array();
+
+    /**
+     * Protocol Flag Log
+     *
+     * @see Net_SSH1::getLog()
+     * @var Array
+     * @access private
+     */
+    var $protocol_flag_log = array();
+
+    /**
+     * Message Log
+     *
+     * @see Net_SSH1::getLog()
+     * @var Array
+     * @access private
+     */
+    var $message_log = array();
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv1 server
@@ -391,6 +410,26 @@ class Net_SSH1 {
      */
     function Net_SSH1($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
     {
+        $this->protocol_flags = array(
+            1  => 'NET_SSH1_MSG_DISCONNECT',
+            2  => 'NET_SSH1_SMSG_PUBLIC_KEY',
+            3  => 'NET_SSH1_CMSG_SESSION_KEY',
+            4  => 'NET_SSH1_CMSG_USER',
+            9  => 'NET_SSH1_CMSG_AUTH_PASSWORD',
+            10 => 'NET_SSH1_CMSG_REQUEST_PTY',
+            12 => 'NET_SSH1_CMSG_EXEC_SHELL',
+            13 => 'NET_SSH1_CMSG_EXEC_CMD',
+            14 => 'NET_SSH1_SMSG_SUCCESS',
+            15 => 'NET_SSH1_SMSG_FAILURE',
+            16 => 'NET_SSH1_CMSG_STDIN_DATA',
+            17 => 'NET_SSH1_SMSG_STDOUT_DATA',
+            18 => 'NET_SSH1_SMSG_STDERR_DATA',
+            20 => 'NET_SSH1_SMSG_EXITSTATUS',
+            33 => 'NET_SSH1_CMSG_EXIT_CONFIRMATION'
+        );
+
+        $this->_define_array($this->protocol_flags);
+
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"), E_USER_NOTICE);
@@ -398,6 +437,17 @@ class Net_SSH1 {
         }
 
         $this->server_identification = $init_line = fgets($this->fsock, 255);
+
+        if (defined('NET_SSH1_LOGGING')) {
+            $this->protocol_flags_log[] = '<-';
+            $this->protocol_flags_log[] = '->';
+
+            if (NET_SSH1_LOGGING == NET_SSH1_LOG_COMPLEX) {
+                $this->message_log[] = $this->server_identification;
+                $this->message_log[] = $this->identifier . "\r\n";
+            }
+        }
+
         if (!preg_match('#SSH-([0-9\.]+)-(.+)#', $init_line, $parts)) {
             user_error('Can only connect to SSH servers', E_USER_NOTICE);
             return;
@@ -825,7 +875,9 @@ class Net_SSH1 {
         $padding_length = 8 - ($temp['length'] & 7);
         $length = $temp['length'] + $padding_length;
 
+        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $raw = fread($this->fsock, $length);
+        $stop = strtok(microtime(), ' ') + strtok('');
 
         if ($this->crypto !== false) {
             $raw = $this->crypto->decrypt($raw);
@@ -842,8 +894,19 @@ class Net_SSH1 {
         //    return false;
         //}
 
+        $type = ord($type);
+
+        if (defined('NET_SSH1_LOGGING')) {
+            $temp = isset($this->protocol_flags[$type]) ? $this->protocol_flags[$type] : 'UNKNOWN';
+            $this->protocol_flags_log[] = '<- ' . $temp .
+                                          ' (' . round($stop - $start, 4) . 's)';
+            if (NET_SSH1_LOGGING == NET_SSH1_LOG_COMPLEX) {
+                $this->message_log[] = $data;
+            }
+        }
+
         return array(
-            NET_SSH1_RESPONSE_TYPE => ord($type),
+            NET_SSH1_RESPONSE_TYPE => $type,
             NET_SSH1_RESPONSE_DATA => $data
         );
     }
@@ -881,7 +944,20 @@ class Net_SSH1 {
 
         $packet = pack('Na*', $length, $data);
 
-        return strlen($packet) == fputs($this->fsock, $packet);
+        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+        $result = strlen($packet) == fputs($this->fsock, $packet);
+        $stop = strtok(microtime(), ' ') + strtok('');
+
+        if (defined('NET_SSH1_LOGGING')) {
+            $temp = isset($this->protocol_flags[ord($data[0])]) ? $this->protocol_flags[ord($data[0])] : 'UNKNOWN';
+            $this->protocol_flags_log[] = '-> ' . $temp .
+                                          ' (' . round($stop - $start, 4) . 's)';
+            if (NET_SSH1_LOGGING == NET_SSH1_LOG_COMPLEX) {
+                $this->message_log[] = substr($data, 1);
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -1052,6 +1128,98 @@ class Net_SSH1 {
         $m = $m->modPow($key[0], $key[1]);
 
         return $m->toBytes();
+    }
+
+    /**
+     * Define Array
+     *
+     * Takes any number of arrays whose indices are integers and whose values are strings and defines a bunch of
+     * named constants from it, using the value as the name of the constant and the index as the value of the constant.
+     * If any of the constants that would be defined already exists, none of the constants will be defined.
+     *
+     * @param Array $array
+     * @access private
+     */
+    function _define_array()
+    {
+        $args = func_get_args();
+        foreach ($args as $arg) {
+            foreach ($arg as $key=>$value) {
+                if (!defined($value)) {
+                    define($value, $key);
+                } else {
+                    break 2;
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns a log of the packets that have been sent and received.
+     *
+     * Returns a string if NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX, an array if NET_SSH2_LOGGING == NET_SSH2_LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
+     *
+     * @access public
+     * @return String or Array
+     */
+    function getLog()
+    {
+        if (!defined('NET_SSH1_LOGGING')) {
+            return false;
+        }
+
+        switch (NET_SSH1_LOGGING) {
+            case NET_SSH1_LOG_SIMPLE:
+                return $this->message_number_log;
+                break;
+            case NET_SSH1_LOG_COMPLEX:
+                return $this->_format_log($this->message_log, $this->protocol_flags_log);
+                break;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Formats a log for printing
+     *
+     * @param Array $message_log
+     * @param Array $message_number_log
+     * @access private
+     * @return String
+     */
+    function _format_log($message_log, $message_number_log)
+    {
+        static $boundary = ':', $long_width = 65, $short_width = 16;
+
+        $output = '';
+        for ($i = 0; $i < count($message_log); $i++) {
+            $output.= $message_number_log[$i] . "\r\n";
+            $current_log = $message_log[$i];
+            $j = 0;
+            do {
+                if (!empty($current_log)) {
+                    $output.= str_pad(dechex($j), 7, '0', STR_PAD_LEFT) . '0  ';
+                }
+                $fragment = $this->_string_shift($current_log, $short_width);
+                $hex = substr(
+                           preg_replace(
+                               '#(.)#es',
+                               '"' . $boundary . '" . str_pad(dechex(ord(substr("\\1", -1))), 2, "0", STR_PAD_LEFT)',
+                               $fragment),
+                           strlen($boundary)
+                       );
+                // replace non ASCII printable characters with dots
+                // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
+                // also replace < with a . since < messes up the output on web browsers
+                $raw = preg_replace('#[^\x20-\x7E]|<#', '.', $fragment);
+                $output.= str_pad($hex, $long_width - $short_width, ' ') . $raw . "\r\n";
+                $j++;
+            } while (!empty($current_log));
+            $output.= "\r\n";
+        }
+
+        return $output;
     }
 
     /**

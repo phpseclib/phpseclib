@@ -53,7 +53,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: DES.php,v 1.12 2010-02-09 06:10:26 terrafrost Exp $
+ * @version    $Id: DES.php,v 1.13 2010-08-08 05:06:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -210,14 +210,24 @@ class Crypt_DES {
     var $demcrypt;
 
     /**
-     * Does the (en|de)mcrypt resource need to be (re)initialized?
+     * Does the enmcrypt resource need to be (re)initialized?
      *
      * @see setKey()
      * @see setIV()
      * @var Boolean
      * @access private
      */
-    var $changed = true;
+    var $enchanged = true;
+
+    /**
+     * Does the demcrypt resource need to be (re)initialized?
+     *
+     * @see setKey()
+     * @see setIV()
+     * @var Boolean
+     * @access private
+     */
+    var $dechanged = true;
 
     /**
      * Default Constructor.
@@ -370,12 +380,12 @@ class Crypt_DES {
         }
 
         if ( CRYPT_DES_MODE == CRYPT_DES_MODE_MCRYPT ) {
-            if ($this->changed) {
+            if ($this->enchanged) {
                 if (!isset($this->enmcrypt)) {
                     $this->enmcrypt = mcrypt_module_open(MCRYPT_DES, '', $this->mode, '');
                 }
                 mcrypt_generic_init($this->enmcrypt, $this->keys, $this->encryptIV);
-                $this->changed = false;
+                $this->enchanged = false;
             }
 
             $ciphertext = mcrypt_generic($this->enmcrypt, $plaintext);
@@ -443,12 +453,12 @@ class Crypt_DES {
         }
 
         if ( CRYPT_DES_MODE == CRYPT_DES_MODE_MCRYPT ) {
-            if ($this->changed) {
+            if ($this->dechanged) {
                 if (!isset($this->demcrypt)) {
                     $this->demcrypt = mcrypt_module_open(MCRYPT_DES, '', $this->mode, '');
                 }
                 mcrypt_generic_init($this->demcrypt, $this->keys, $this->decryptIV);
-                $this->changed = false;
+                $this->dechanged = false;
             }
 
             $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
