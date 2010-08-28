@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.48 2010-05-16 16:10:50 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.49 2010-08-28 17:26:22 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -641,7 +641,9 @@ class Net_SSH2 {
             $this->terminal_modes,
             $this->channel_extended_data_type_codes,
             array(60 => 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ'),
-            array(60 => 'NET_SSH2_MSG_USERAUTH_PK_OK')
+            array(60 => 'NET_SSH2_MSG_USERAUTH_PK_OK'),
+            array(60 => 'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
+                  61 => 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE')
         );
 
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
@@ -1255,6 +1257,8 @@ class Net_SSH2 {
     /**
      * Login
      *
+     * The $password parameter can be a plaintext password or a Crypt_RSA object.
+     *
      * @param String $username
      * @param optional String $password
      * @return Boolean
@@ -1330,11 +1334,115 @@ class Net_SSH2 {
                 $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . utf8_decode($this->_string_shift($response, $length));
                 return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_FAILURE:
-                // either the login is bad or the server employees multi-factor authentication
-                return false;
+                // can we use keyboard-interactive authentication?  if not then either the login is bad or the server employees
+                // multi-factor authentication
+                extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                $auth_methods = explode(',', $this->_string_shift($response, $length));
+                return in_array('keyboard-interactive', $auth_methods) ? $this->_keyboard_interactive_login($username, $password) : false;
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 $this->bitmap |= NET_SSH2_MASK_LOGIN;
                 return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Login via keyboard-interactive authentication
+     *
+     * See {@link http://tools.ietf.org/html/rfc4256 RFC4256} for details.  This is not a full-featured keyboard-interactive authenticator.
+     *
+     * @param String $username
+     * @param String $password
+     * @return Boolean
+     * @access private
+     */
+    function _keyboard_interactive_login($username, $password)
+    {
+        $packet = pack('CNa*Na*Na*Na*Na*', 
+            NET_SSH2_MSG_USERAUTH_REQUEST, strlen($username), $username, strlen('ssh-connection'), 'ssh-connection',
+            strlen('keyboard-interactive'), 'keyboard-interactive', 0, '', 0, ''
+        );
+
+        if (!$this->_send_binary_packet($packet)) {
+            return false;
+        }
+
+        return $this->_keyboard_interactive_process($password);
+    }
+
+    /**
+     * Handle the keyboard-interactive requests / responses.
+     *
+     * @param String $responses...
+     * @return Boolean
+     * @access private
+     */
+    function _keyboard_interactive_process()
+    {
+        $responses = func_get_args();
+
+        $response = $this->_get_binary_packet();
+        if ($response === false) {
+            user_error('Connection closed by server', E_USER_NOTICE);
+            return false;
+        }
+
+        extract(unpack('Ctype', $this->_string_shift($response, 1)));
+
+        switch ($type) {
+            case NET_SSH2_MSG_USERAUTH_INFO_REQUEST:
+                // see http://tools.ietf.org/html/rfc4256#section-3.2
+                if (defined('NET_SSH2_LOGGING')) {
+                    $this->message_number_log[count($this->message_number_log) - 1] = 'NET_SSH2_MSG_USERAUTH_INFO_REQUEST';
+                }
+
+                extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                $this->_string_shift($response, $length); // name; may be empty
+                extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                $this->_string_shift($response, $length); // instruction; may be empty
+                extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                $this->_string_shift($response, $length); // language tag; may be empty
+                extract(unpack('Nnum_prompts', $this->_string_shift($response, 4)));
+                /*
+                for ($i = 0; $i < $num_prompts; $i++) {
+                    extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                    // prompt - ie. "Password: "; must not be empty
+                    $this->_string_shift($response, $length); // prompt; must not be empty
+                    $echo = $this->_string_shift($response) != chr(0);
+                }
+                */
+
+                /*
+                   After obtaining the requested information from the user, the client
+                   MUST respond with an SSH_MSG_USERAUTH_INFO_RESPONSE message.
+                */
+                // see http://tools.ietf.org/html/rfc4256#section-3.4
+                $packet = pack('CN', NET_SSH2_MSG_USERAUTH_INFO_RESPONSE, count($responses));
+                for ($i = 0; $i < count($responses); $i++) {
+                    $packet.= pack('Na*', strlen($responses[$i]), $responses[$i]);
+                }
+
+                if (!$this->_send_binary_packet($packet)) {
+                    return false;
+                }
+
+                if (defined('NET_SSH2_LOGGING')) {
+                    $this->message_number_log[count($this->message_number_log) - 1] = 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE';
+                }
+
+                /*
+                   After receiving the response, the server MUST send either an
+                   SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, or another
+                   SSH_MSG_USERAUTH_INFO_REQUEST message.
+                */
+                // maybe phpseclib should force close the connection after x request / responses?  unless something like that is done
+                // there could be an infinite loop of request / responses.
+                return $this->_keyboard_interactive_process();
+            case NET_SSH2_MSG_USERAUTH_SUCCESS:
+                return true;
+            case NET_SSH2_MSG_USERAUTH_FAILURE:
+                return false;
         }
 
         return false;

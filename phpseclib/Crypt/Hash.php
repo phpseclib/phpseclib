@@ -49,7 +49,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Hash.php,v 1.7 2010-08-08 21:29:39 terrafrost Exp $
+ * @version    $Id: Hash.php,v 1.8 2010-08-28 17:26:22 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -406,9 +406,9 @@ class Crypt_Hash {
         $l = chr(0);
         for ($i = 0; $i < $length; $i+= 16) {
             for ($j = 0; $j < 16; $j++) {
-                // RFC1319 states that C[j] should be set to S[c xor L]
+                // RFC1319 incorrectly states that C[j] should be set to S[c xor L]
                 //$c[$j] = chr($s[ord($m[$i + $j] ^ $l)]);
-                // most implementations, however, set C[j] to S[c xor L] xor C[j]
+                // per <http://www.rfc-editor.org/errata_search.php?rfc=1319>, however, C[j] should be set to S[c xor L] xor C[j]
                 $c[$j] = chr($s[ord($m[$i + $j] ^ $l)] ^ ord($c[$j]));
                 $l = $c[$j];
             }
