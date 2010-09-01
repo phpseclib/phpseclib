@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.22 2010-06-29 01:33:39 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.23 2010-09-01 03:36:09 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -210,7 +210,7 @@ class Net_SFTP extends Net_SSH2 {
      * @var String
      * @access private
      */
-    var $errors = array();
+    var $sftp_errors = array();
 
     /**
      * Default Constructor.
@@ -1435,7 +1435,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function getLastSFTPError()
     {
-        return $this->sftp_errors[count($this->sftp_errors) - 1];
+        return count($this->sftp_errors) ? $this->sftp_errors[count($this->sftp_errors) - 1] : '';
     }
 
     /**
