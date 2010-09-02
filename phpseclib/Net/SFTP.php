@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.23 2010-09-01 03:36:09 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.24 2010-09-02 00:49:26 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -236,7 +236,6 @@ class Net_SFTP extends Net_SSH2 {
             4  => 'NET_SFTP_CLOSE',
             5  => 'NET_SFTP_READ',
             6  => 'NET_SFTP_WRITE',
-            8  => 'NET_SFTP_FSTAT',
             9  => 'NET_SFTP_SETSTAT',
             11 => 'NET_SFTP_OPENDIR',
             12 => 'NET_SFTP_READDIR',
@@ -700,7 +699,7 @@ class Net_SFTP extends Net_SSH2 {
      *
      * Files larger than 4GB will show up as being exactly 4GB.
      *
-     * @param optional String $dir
+     * @param String $filename
      * @return Mixed
      * @access public
      */
@@ -715,6 +714,20 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
+        return $this->_size($filename);
+    }
+
+    /**
+     * Returns the file size, in bytes, or false, on failure
+     *
+     * Determines the size without calling Net_SFTP::_realpath()
+     *
+     * @param String $filename
+     * @return Mixed
+     * @access private
+     */
+    function _size($filename)
+    {
         // SFTPv4+ adds an additional 32-bit integer field - flags - to the following:
         $packet = pack('Na*', strlen($filename), $filename);
         if (!$this->_send_sftp_packet(NET_SFTP_STAT, $packet)) {
@@ -1058,6 +1071,11 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
+        $size = $this->_size($remote_file);
+        if ($size === false) {
+            return false;
+        }
+
         $packet = pack('Na*N2', strlen($remote_file), $remote_file, NET_SFTP_OPEN_READ, 0);
         if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
             return false;
@@ -1077,25 +1095,6 @@ class Net_SFTP extends Net_SSH2 {
                 return false;
         }
 
-        $packet = pack('Na*', strlen($handle), $handle);
-        if (!$this->_send_sftp_packet(NET_SFTP_FSTAT, $packet)) {
-            return false;
-        }
-
-        $response = $this->_get_sftp_packet();
-        switch ($this->packet_type) {
-            case NET_SFTP_ATTRS:
-                $attrs = $this->_parseAttributes($response);
-                break;
-            case NET_SFTP_STATUS:
-                extract(unpack('Nstatus/Nlength', $this->_string_shift($response, 8)));
-                $this->sftp_errors[] = $this->status_codes[$status] . ': ' . $this->_string_shift($response, $length);
-                return false;
-            default:
-                user_error('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS', E_USER_NOTICE);
-                return false;
-        }
-
         if ($local_file !== false) {
             $fp = fopen($local_file, 'wb');
             if (!$fp) {
@@ -1106,7 +1105,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         $read = 0;
-        while ($read < $attrs['size']) {
+        while ($read < $size) {
             $packet = pack('Na*N3', strlen($handle), $handle, 0, $read, 1 << 20);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
                 return false;
