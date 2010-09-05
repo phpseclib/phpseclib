@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.17 2010-07-11 02:33:13 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.18 2010-09-05 03:04:29 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -770,7 +770,7 @@ class Crypt_RSA {
                    * OpenSSL is the de facto standard.  It's utilized by OpenSSH and other projects */
                 if (preg_match('#DEK-Info: (.+),(.+)#', $key, $matches)) {
                     $iv = pack('H*', trim($matches[2]));
-                    $symkey = pack('H*', md5($this->password . $iv)); // symkey is short for symmetric key
+                    $symkey = pack('H*', md5($this->password . substr($iv, 0, 8))); // symkey is short for symmetric key
                     $symkey.= substr(pack('H*', md5($symkey . $this->password . $iv)), 0, 8);
                     $ciphertext = preg_replace('#.+(\r|\n|\r\n)\1|[\r\n]|-.+-#s', '', $key);
                     $ciphertext = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $ciphertext) ? base64_decode($ciphertext) : false;
@@ -778,6 +778,12 @@ class Crypt_RSA {
                         $ciphertext = $key;
                     }
                     switch ($matches[1]) {
+                        case 'AES-128-CBC':
+                            if (!class_exists('Crypt_AES')) {
+                                require_once('Crypt/AES.php');
+                            }
+                            $symkey = substr($symkey, 0, 16);
+                            break;
                         case 'DES-EDE3-CBC':
                             if (!class_exists('Crypt_TripleDES')) {
                                 require_once('Crypt/TripleDES.php');
