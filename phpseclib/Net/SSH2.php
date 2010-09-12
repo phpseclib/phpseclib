@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.50 2010-08-29 03:27:02 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.51 2010-09-12 21:58:54 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -564,23 +564,6 @@ class Net_SSH2 {
     var $signature_format = '';
 
     /**
-     * Key size fix
-     *
-     * Portable OpenSSH 4.4 and earlier use faulty key sizes for aes256-ctr, aes192-ctr and arcfour256.
-     * These algorithms could be removed from $encryption_algorithms in Net_SSH2::_key_exchange() but we'll
-     * adjust the key sizes instead to confirm that the version detection technique we're using is correct.
-     * If it isn't correct than we'll get decryption / encryption errors.  We wouldn't get any errors, in
-     * contrast, if the algorithms were simply removed, and would never know if the version detection
-     * technique we were using was correct.
-     *
-     * @link http://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/ssh2-aesctr-openssh
-     * @see Net_SSH2::Net_SSH2()
-     * @var Boolean
-     * @access private
-     */
-    var $adjust_key_fix = false;
-
-    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -724,8 +707,6 @@ class Net_SSH2 {
             user_error("Cannot connect to SSH $matches[1] servers", E_USER_NOTICE);
             return;
         }
-
-        $this->adjust_key_fix = preg_match('#SSH-' . $matches[1] . '\-OpenSSH_([\d\.]+)#', $this->server_identifier, $matches) && $matches[1] < 4.6;
 
         fputs($this->fsock, $this->identifier . "\r\n");
 
@@ -885,16 +866,12 @@ class Net_SSH2 {
                 $decryptKeyLength = 24; // eg. 192 / 8
                 break;
             case 'aes256-cbc':
+            case 'aes256-ctr':
                 $decryptKeyLength = 32; // eg. 256 / 8
                 break;
-            case 'aes256-ctr':
-                $decryptKeyLength = !$this->adjust_key_fix ? 32 : 16;
-                break;
             case 'aes192-cbc':
-                $decryptKeyLength = 24;
-                break;
             case 'aes192-ctr':
-                $decryptKeyLength = !$this->adjust_key_fix ? 24 : 16;
+                $decryptKeyLength = 24; // eg. 192 / 8
                 break;
             case 'aes128-cbc':
             case 'aes128-ctr':
@@ -902,10 +879,10 @@ class Net_SSH2 {
                 break;
             case 'arcfour':
             case 'arcfour128':
-                $decryptKeyLength = 16;
+                $decryptKeyLength = 16; // eg. 128 / 8
                 break;
             case 'arcfour256':
-                $decryptKeyLength = !$this->adjust_key_fix ? 32 : 16;
+                $decryptKeyLength = 32; // eg. 128 / 8
                 break;
             case 'none';
                 $decryptKeyLength = 0;
@@ -924,16 +901,12 @@ class Net_SSH2 {
                 $encryptKeyLength = 24;
                 break;
             case 'aes256-cbc':
+            case 'aes256-ctr':
                 $encryptKeyLength = 32;
                 break;
-            case 'aes256-ctr':
-                $encryptKeyLength = !$this->adjust_key_fix ? 32 : 16;
-                break;
             case 'aes192-cbc':
-                $encryptKeyLength = 24;
-                break;
             case 'aes192-ctr':
-                $encryptKeyLength = !$this->adjust_key_fix ? 24 : 16;
+                $encryptKeyLength = 24;
                 break;
             case 'aes128-cbc':
             case 'aes128-ctr':
@@ -944,7 +917,7 @@ class Net_SSH2 {
                 $encryptKeyLength = 16;
                 break;
             case 'arcfour256':
-                $encryptKeyLength = !$this->adjust_key_fix ? 32 : 16;
+                $encryptKeyLength = 32;
                 break;
             case 'none';
                 $encryptKeyLength = 0;

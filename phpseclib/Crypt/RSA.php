@@ -62,7 +62,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.18 2010-09-05 03:04:29 terrafrost Exp $
+ * @version    $Id: RSA.php,v 1.19 2010-09-12 21:58:54 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -784,6 +784,13 @@ class Crypt_RSA {
                             }
                             $symkey = substr($symkey, 0, 16);
                             break;
+                        // CFB mode needs to work as a stream cipher for this to work
+                        //case 'DES-EDE3-CFB':
+                        //    if (!class_exists('Crypt_TripleDES')) {
+                        //        require_once('Crypt/TripleDES.php');
+                        //    }
+                        //    $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CFB);
+                        //    break;
                         case 'DES-EDE3-CBC':
                             if (!class_exists('Crypt_TripleDES')) {
                                 require_once('Crypt/TripleDES.php');

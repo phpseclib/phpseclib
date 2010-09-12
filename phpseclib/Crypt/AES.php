@@ -56,7 +56,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: AES.php,v 1.7 2010-02-09 06:10:25 terrafrost Exp $
+ * @version    $Id: AES.php,v 1.8 2010-09-12 21:58:54 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -90,6 +90,18 @@ define('CRYPT_AES_MODE_ECB', 1);
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
  */
 define('CRYPT_AES_MODE_CBC', 2);
+/**
+ * Encrypt / decrypt using the Cipher Feedback mode.
+ *
+ * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
+ */
+define('CRYPT_AES_MODE_CFB', 3);
+/**
+ * Encrypt / decrypt using the Cipher Feedback mode.
+ *
+ * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
+ */
+define('CRYPT_AES_MODE_OFB', 4);
 /**#@-*/
 
 /**#@+
@@ -168,6 +180,7 @@ class Crypt_AES extends Crypt_Rijndael {
             case CRYPT_AES_MODE_MCRYPT:
                 switch ($mode) {
                     case CRYPT_AES_MODE_ECB:
+                        $this->paddable = true;
                         $this->mode = MCRYPT_MODE_ECB;
                         break;
                     case CRYPT_AES_MODE_CTR:
@@ -177,8 +190,16 @@ class Crypt_AES extends Crypt_Rijndael {
                         $this->mode = 'ctr';
                         //$this->mode = in_array('ctr', mcrypt_list_modes()) ? 'ctr' : CRYPT_AES_MODE_CTR;
                         break;
+                    case CRYPT_AES_MODE_CFB:
+                        $this->paddable = true;
+                        $this->mode = 'ncfb';
+                        break;
+                    case CRYPT_AES_MODE_OFB:
+                        $this->mode = MCRYPT_MODE_NOFB;
+                        break;
                     case CRYPT_AES_MODE_CBC:
                     default:
+                        $this->paddable = true;
                         $this->mode = MCRYPT_MODE_CBC;
                 }
 
@@ -186,13 +207,22 @@ class Crypt_AES extends Crypt_Rijndael {
             default:
                 switch ($mode) {
                     case CRYPT_AES_MODE_ECB:
+                        $this->paddable = true;
                         $this->mode = CRYPT_RIJNDAEL_MODE_ECB;
                         break;
                     case CRYPT_AES_MODE_CTR:
                         $this->mode = CRYPT_RIJNDAEL_MODE_CTR;
                         break;
+                    case CRYPT_AES_MODE_CFB:
+                        $this->paddable = true;
+                        $this->mode = CRYPT_RIJNDAEL_MODE_CFB;
+                        break;
+                    case CRYPT_AES_MODE_OFB:
+                        $this->mode = CRYPT_RIJNDAEL_MODE_OFB;
+                        break;
                     case CRYPT_AES_MODE_CBC:
                     default:
+                        $this->paddable = true;
                         $this->mode = CRYPT_RIJNDAEL_MODE_CBC;
                 }
         }
@@ -248,7 +278,7 @@ class Crypt_AES extends Crypt_Rijndael {
             }
             */
 
-            if ($this->mode != 'ctr') {
+            if ($this->paddable) {
                 $plaintext = $this->_pad($plaintext);
             }
 
@@ -289,7 +319,7 @@ class Crypt_AES extends Crypt_Rijndael {
             }
             */
 
-            if ($this->mode != 'ctr') {
+            if ($this->paddable) {
                 // we pad with chr(0) since that's what mcrypt_generic does.  to quote from http://php.net/function.mcrypt-generic :
                 // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
                 $ciphertext = str_pad($ciphertext, (strlen($ciphertext) + 15) & 0xFFFFFFF0, chr(0));
@@ -301,7 +331,7 @@ class Crypt_AES extends Crypt_Rijndael {
                 mcrypt_generic_init($this->demcrypt, $this->key, $this->iv);
             }
 
-            return $this->mode != 'ctr' ? $this->_unpad($plaintext) : $plaintext;
+            return $this->paddable ? $this->_unpad($plaintext) : $plaintext;
         }
 
         return parent::decrypt($ciphertext);
