@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.51 2010-09-12 21:58:54 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.52 2010-09-12 22:12:45 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1338,7 +1338,14 @@ class Net_SSH2 {
                 // multi-factor authentication
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $auth_methods = explode(',', $this->_string_shift($response, $length));
-                return in_array('keyboard-interactive', $auth_methods) ? $this->_keyboard_interactive_login($username, $password) : false;
+                if (in_array('keyboard-interactive', $auth_methods)) {
+                    if ($this->_keyboard_interactive_login($username, $password)) {
+                        $this->bitmap |= NET_SSH2_MASK_LOGIN;
+                        return true;
+                    }
+                    return false;
+                }
+                return false;
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 $this->bitmap |= NET_SSH2_MASK_LOGIN;
                 return true;
