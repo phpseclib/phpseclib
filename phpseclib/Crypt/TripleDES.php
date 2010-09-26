@@ -47,7 +47,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: TripleDES.php,v 1.16 2010-09-26 03:10:20 terrafrost Exp $
+ * @version    $Id: TripleDES.php,v 1.17 2010-09-26 05:24:52 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -220,6 +220,16 @@ class Crypt_TripleDES {
      * @access private
      */
     var $debuffer = '';
+
+    /**
+     * mcrypt resource for CFB mode
+     *
+     * @see Crypt_TripleDES::encrypt()
+     * @see Crypt_TripleDES::decrypt()
+     * @var String
+     * @access private
+     */
+    var $ecb;
 
     /**
      * Default Constructor.
@@ -439,11 +449,9 @@ class Crypt_TripleDES {
             if ($this->mode != 'ncfb') {
                 $ciphertext = mcrypt_generic($this->enmcrypt, $plaintext);
             } else {
-                static $ecb;
-
                 if ($this->enchanged) {
-                    $ecb = mcrypt_module_open(MCRYPT_3DES, '', MCRYPT_MODE_ECB, '');
-                    mcrypt_generic_init($ecb, $this->key, "\0\0\0\0\0\0\0\0");
+                    $this->ecb = mcrypt_module_open(MCRYPT_3DES, '', MCRYPT_MODE_ECB, '');
+                    mcrypt_generic_init($this->ecb, $this->key, "\0\0\0\0\0\0\0\0");
                     $this->enchanged = false;
                 }
 
@@ -467,7 +475,7 @@ class Crypt_TripleDES {
                     if (strlen($ciphertext)) {
                         $this->encryptIV = substr($ciphertext, -8);
                     }
-                    $this->encryptIV = mcrypt_generic($ecb, $this->encryptIV);
+                    $this->encryptIV = mcrypt_generic($this->ecb, $this->encryptIV);
                     $this->enbuffer = substr($plaintext, $last_pos) ^ $this->encryptIV;
                     $ciphertext.= $this->enbuffer;
                 }
@@ -649,11 +657,9 @@ class Crypt_TripleDES {
             if ($this->mode != 'ncfb') {
                 $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
             } else {
-                static $ecb;
-
                 if ($this->dechanged) {
-                    $ecb = mcrypt_module_open(MCRYPT_3DES, '', MCRYPT_MODE_ECB, '');
-                    mcrypt_generic_init($ecb, $this->key, "\0\0\0\0\0\0\0\0");
+                    $this->ecb = mcrypt_module_open(MCRYPT_3DES, '', MCRYPT_MODE_ECB, '');
+                    mcrypt_generic_init($this->ecb, $this->key, "\0\0\0\0\0\0\0\0");
                     $this->dechanged = false;
                 }
 
@@ -678,7 +684,7 @@ class Crypt_TripleDES {
                     if (strlen($plaintext)) {
                         $this->decryptIV = substr($ciphertext, $last_pos - 8, 8);
                     }
-                    $this->decryptIV = mcrypt_generic($ecb, $this->decryptIV);
+                    $this->decryptIV = mcrypt_generic($this->ecb, $this->decryptIV);
                     $this->debuffer = substr($ciphertext, $last_pos);
                     $plaintext.= $this->debuffer ^ $this->decryptIV;
                 }

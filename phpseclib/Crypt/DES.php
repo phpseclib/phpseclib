@@ -53,7 +53,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: DES.php,v 1.15 2010-09-26 03:10:20 terrafrost Exp $
+ * @version    $Id: DES.php,v 1.16 2010-09-26 05:24:52 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -269,6 +269,16 @@ class Crypt_DES {
     var $debuffer = '';
 
     /**
+     * mcrypt resource for CFB mode
+     *
+     * @see Crypt_DES::encrypt()
+     * @see Crypt_DES::decrypt()
+     * @var String
+     * @access private
+     */
+    var $ecb;
+
+    /**
      * Default Constructor.
      *
      * Determines whether or not the mcrypt extension should be used.  $mode should only, at present, be
@@ -446,11 +456,9 @@ class Crypt_DES {
             if ($this->mode != 'ncfb') {
                 $ciphertext = mcrypt_generic($this->enmcrypt, $plaintext);
             } else {
-                static $ecb;
-
                 if ($this->enchanged) {
-                    $ecb = mcrypt_module_open(MCRYPT_DES, '', MCRYPT_MODE_ECB, '');
-                    mcrypt_generic_init($ecb, $this->keys, "\0\0\0\0\0\0\0\0");
+                    $this->ecb = mcrypt_module_open(MCRYPT_DES, '', MCRYPT_MODE_ECB, '');
+                    mcrypt_generic_init($this->ecb, $this->keys, "\0\0\0\0\0\0\0\0");
                     $this->enchanged = false;
                 }
 
@@ -474,7 +482,7 @@ class Crypt_DES {
                     if (strlen($ciphertext)) {
                         $this->encryptIV = substr($ciphertext, -8);
                     }
-                    $this->encryptIV = mcrypt_generic($ecb, $this->encryptIV);
+                    $this->encryptIV = mcrypt_generic($this->ecb, $this->encryptIV);
                     $this->enbuffer = substr($plaintext, $last_pos) ^ $this->encryptIV;
                     $ciphertext.= $this->enbuffer;
                 }
@@ -623,11 +631,9 @@ class Crypt_DES {
             if ($this->mode != 'ncfb') {
                 $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
             } else {
-                static $ecb;
-
                 if ($this->dechanged) {
-                    $ecb = mcrypt_module_open(MCRYPT_DES, '', MCRYPT_MODE_ECB, '');
-                    mcrypt_generic_init($ecb, $this->keys, "\0\0\0\0\0\0\0\0");
+                    $this->ecb = mcrypt_module_open(MCRYPT_DES, '', MCRYPT_MODE_ECB, '');
+                    mcrypt_generic_init($this->ecb, $this->keys, "\0\0\0\0\0\0\0\0");
                     $this->dechanged = false;
                 }
 
@@ -652,7 +658,7 @@ class Crypt_DES {
                     if (strlen($plaintext)) {
                         $this->decryptIV = substr($ciphertext, $last_pos - 8, 8);
                     }
-                    $this->decryptIV = mcrypt_generic($ecb, $this->decryptIV);
+                    $this->decryptIV = mcrypt_generic($this->ecb, $this->decryptIV);
                     $this->debuffer = substr($ciphertext, $last_pos);
                     $plaintext.= $this->debuffer ^ $this->decryptIV;
                 }
