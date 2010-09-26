@@ -64,7 +64,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: Rijndael.php,v 1.14 2010-09-26 03:10:20 terrafrost Exp $
+ * @version    $Id: Rijndael.php,v 1.15 2010-09-26 05:02:10 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -684,7 +684,7 @@ class Crypt_Rijndael {
                 break;
             case CRYPT_RIJNDAEL_MODE_CTR:
                 $xor = $this->encryptIV;
-                if (strlen($buffer)) {
+                if (!empty($buffer)) {
                     for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                         $block = substr($plaintext, $i, $block_size);
                         $buffer.= $this->_encryptBlock($this->_generate_xor($block_size, $xor));
