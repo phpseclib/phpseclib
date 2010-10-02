@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SFTP.php,v 1.24 2010-09-02 00:49:26 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.25 2010-10-02 22:23:25 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -970,7 +970,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $size = $size < 0 ? ($size & 0x7FFFFFFF) + 0x80000000 : $size;
 
-        $sftp_packet_size = 34000; // PuTTY uses 4096
+        $sftp_packet_size = 4096; // PuTTY uses 4096
         $i = 0;
         while ($sent < $size) {
             $temp = $mode == NET_SFTP_LOCAL_FILE ? fread($fp, $sftp_packet_size) : $this->_string_shift($data, $sftp_packet_size);
