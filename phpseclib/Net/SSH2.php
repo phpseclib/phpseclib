@@ -60,7 +60,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH2.php,v 1.52 2010-09-12 22:12:45 terrafrost Exp $
+ * @version    $Id: SSH2.php,v 1.53 2010-10-24 01:24:30 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -383,6 +383,17 @@ class Net_SSH2 {
      * @access private
      */
     var $session_id = false;
+
+    /**
+     * Exchange hash
+     *
+     * The current exchange hash
+     *
+     * @see Net_SSH2::_key_exchange()
+     * @var String
+     * @access private
+     */
+    var $exchange_hash = false;
 
     /**
      * Message Numbers
@@ -1016,17 +1027,17 @@ class Net_SSH2 {
         $key = $f->modPow($x, $p);
         $keyBytes = $key->toBytes(true);
 
+        $this->exchange_hash = pack('Na*Na*Na*Na*Na*Na*Na*Na*',
+            strlen($this->identifier), $this->identifier, strlen($this->server_identifier), $this->server_identifier,
+            strlen($kexinit_payload_client), $kexinit_payload_client, strlen($kexinit_payload_server),
+            $kexinit_payload_server, strlen($this->server_public_host_key), $this->server_public_host_key, strlen($eBytes),
+            $eBytes, strlen($fBytes), $fBytes, strlen($keyBytes), $keyBytes
+        );
+
+        $this->exchange_hash = pack('H*', $hash($this->exchange_hash));
+
         if ($this->session_id === false) {
-            $source = pack('Na*Na*Na*Na*Na*Na*Na*Na*',
-                strlen($this->identifier), $this->identifier, strlen($this->server_identifier), $this->server_identifier,
-                strlen($kexinit_payload_client), $kexinit_payload_client, strlen($kexinit_payload_server),
-                $kexinit_payload_server, strlen($this->server_public_host_key), $this->server_public_host_key, strlen($eBytes),
-                $eBytes, strlen($fBytes), $fBytes, strlen($keyBytes), $keyBytes
-            );
-
-            $source = pack('H*', $hash($source));
-
-            $this->session_id = $source;
+            $this->session_id = $this->exchange_hash;
         }
 
         for ($i = 0; $i < count($server_host_key_algorithms) && !in_array($server_host_key_algorithms[$i], $this->server_host_key_algorithms); $i++);
@@ -1126,15 +1137,15 @@ class Net_SSH2 {
             $this->encrypt->enableContinuousBuffer();
             $this->encrypt->disablePadding();
 
-            $iv = pack('H*', $hash($keyBytes . $this->session_id . 'A' . $this->session_id));
+            $iv = pack('H*', $hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id));
             while ($this->encrypt_block_size > strlen($iv)) {
-                $iv.= pack('H*', $hash($keyBytes . $this->session_id . $iv));
+                $iv.= pack('H*', $hash($keyBytes . $this->exchange_hash . $iv));
             }
             $this->encrypt->setIV(substr($iv, 0, $this->encrypt_block_size));
 
-            $key = pack('H*', $hash($keyBytes . $this->session_id . 'C' . $this->session_id));
+            $key = pack('H*', $hash($keyBytes . $this->exchange_hash . 'C' . $this->session_id));
             while ($encryptKeyLength > strlen($key)) {
-                $key.= pack('H*', $hash($keyBytes . $this->session_id . $key));
+                $key.= pack('H*', $hash($keyBytes . $this->exchange_hash . $key));
             }
             $this->encrypt->setKey(substr($key, 0, $encryptKeyLength));
         }
@@ -1143,15 +1154,15 @@ class Net_SSH2 {
             $this->decrypt->enableContinuousBuffer();
             $this->decrypt->disablePadding();
 
-            $iv = pack('H*', $hash($keyBytes . $this->session_id . 'B' . $this->session_id));
+            $iv = pack('H*', $hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id));
             while ($this->decrypt_block_size > strlen($iv)) {
-                $iv.= pack('H*', $hash($keyBytes . $this->session_id . $iv));
+                $iv.= pack('H*', $hash($keyBytes . $this->exchange_hash . $iv));
             }
             $this->decrypt->setIV(substr($iv, 0, $this->decrypt_block_size));
 
-            $key = pack('H*', $hash($keyBytes . $this->session_id . 'D' . $this->session_id));
+            $key = pack('H*', $hash($keyBytes . $this->exchange_hash . 'D' . $this->session_id));
             while ($decryptKeyLength > strlen($key)) {
-                $key.= pack('H*', $hash($keyBytes . $this->session_id . $key));
+                $key.= pack('H*', $hash($keyBytes . $this->exchange_hash . $key));
             }
             $this->decrypt->setKey(substr($key, 0, $decryptKeyLength));
         }
@@ -1225,15 +1236,15 @@ class Net_SSH2 {
                 $this->hmac_size = 12;
         }
 
-        $key = pack('H*', $hash($keyBytes . $this->session_id . 'E' . $this->session_id));
+        $key = pack('H*', $hash($keyBytes . $this->exchange_hash . 'E' . $this->session_id));
         while ($createKeyLength > strlen($key)) {
-            $key.= pack('H*', $hash($keyBytes . $this->session_id . $key));
+            $key.= pack('H*', $hash($keyBytes . $this->exchange_hash . $key));
         }
         $this->hmac_create->setKey(substr($key, 0, $createKeyLength));
 
-        $key = pack('H*', $hash($keyBytes . $this->session_id . 'F' . $this->session_id));
+        $key = pack('H*', $hash($keyBytes . $this->exchange_hash . 'F' . $this->session_id));
         while ($checkKeyLength > strlen($key)) {
-            $key.= pack('H*', $hash($keyBytes . $this->session_id . $key));
+            $key.= pack('H*', $hash($keyBytes . $this->exchange_hash . $key));
         }
         $this->hmac_check->setKey(substr($key, 0, $checkKeyLength));
 
@@ -2349,7 +2360,7 @@ class Net_SSH2 {
 
                 $w = $s->modInverse($q);
 
-                $u1 = $w->multiply(new Math_BigInteger(sha1($this->session_id), 16));
+                $u1 = $w->multiply(new Math_BigInteger(sha1($this->exchange_hash), 16));
                 list(, $u1) = $u1->divide($q);
 
                 $u2 = $w->multiply($r);
@@ -2387,7 +2398,7 @@ class Net_SSH2 {
                 $rsa = new Crypt_RSA();
                 $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
                 $rsa->loadKey(array('e' => $e, 'n' => $n), CRYPT_RSA_PUBLIC_FORMAT_RAW);
-                if (!$rsa->verify($this->session_id, $signature)) {
+                if (!$rsa->verify($this->exchange_hash, $signature)) {
                     user_error('Bad server signature', E_USER_NOTICE);
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
                 }
@@ -2410,7 +2421,7 @@ class Net_SSH2 {
                 $s = $s->modPow($e, $n);
                 $s = $s->toBytes();
 
-                $h = pack('N4H*', 0x00302130, 0x0906052B, 0x0E03021A, 0x05000414, sha1($this->session_id));
+                $h = pack('N4H*', 0x00302130, 0x0906052B, 0x0E03021A, 0x05000414, sha1($this->exchange_hash));
                 $h = chr(0x01) . str_repeat(chr(0xFF), $nLength - 3 - strlen($h)) . $h;
 
                 if ($s != $h) {
