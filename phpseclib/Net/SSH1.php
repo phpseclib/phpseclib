@@ -64,8 +64,8 @@
  * @package    Net_SSH1
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
- * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: SSH1.php,v 1.16 2010-08-08 05:06:38 terrafrost Exp $
+ * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @version    $Id: SSH1.php,v 1.15 2010/03/22 22:01:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 

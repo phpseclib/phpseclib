@@ -55,8 +55,8 @@
  * @package    Crypt_AES
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
- * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: AES.php,v 1.10 2010-09-26 05:24:52 terrafrost Exp $
+ * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @version    $Id: AES.php,v 1.7 2010/02/09 06:10:25 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 

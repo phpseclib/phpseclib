@@ -52,8 +52,8 @@
  * @package    Crypt_DES
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
- * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: DES.php,v 1.16 2010-09-26 05:24:52 terrafrost Exp $
+ * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @version    $Id: DES.php,v 1.12 2010/02/09 06:10:26 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 

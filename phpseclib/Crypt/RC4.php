@@ -54,8 +54,8 @@
  * @package    Crypt_RC4
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
- * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RC4.php,v 1.9 2010-10-24 01:24:30 terrafrost Exp $
+ * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @version    $Id: RC4.php,v 1.8 2009/06/09 04:00:38 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -209,7 +209,6 @@ class Crypt_RC4 {
         $this->key = $key;
 
         if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
-            $this->encryptStream = $this->decryptStream = false;
             return;
         }
 

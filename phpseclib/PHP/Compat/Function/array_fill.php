@@ -1,5 +1,5 @@
 <?php
-// $Id: array_fill.php,v 1.1 2007-07-02 04:19:55 terrafrost Exp $
+// $Id: array_fill.php,v 1.1 2007/07/02 04:19:55 terrafrost Exp $
 
 
 /**
@@ -7,7 +7,7 @@
  *
  * @category    PHP
  * @package     PHP_Compat
- * @license     LGPL - http://www.gnu.org/licenses/lgpl.html
+ * @license     http://www.opensource.org/licenses/mit-license.html  MIT License
  * @copyright   2004-2007 Aidan Lister <aidan@php.net>, Arpad Ray <arpad@php.net>
  * @link        http://php.net/function.array_fill
  * @author      Jim Wigginton <terrafrost@php.net>

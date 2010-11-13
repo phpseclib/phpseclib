@@ -61,8 +61,8 @@
  * @package    Crypt_RSA
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
- * @license    http://www.gnu.org/licenses/lgpl.txt
- * @version    $Id: RSA.php,v 1.20 2010-09-26 03:10:20 terrafrost Exp $
+ * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @version    $Id: RSA.php,v 1.19 2010/09/12 21:58:54 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -1381,9 +1381,11 @@ class Crypt_RSA {
      */
     function _blind($x, $r, $i)
     {
+echo "blinding\r\n";
         $x = $x->multiply($r->modPow($this->publicExponent, $this->primes[$i]));
-
+echo "calling modpow\r\n";
         $x = $x->modPow($this->exponents[$i], $this->primes[$i]);
+echo "modpow called\r\n";
 
         $r = $r->modInverse($this->primes[$i]);
         $x = $x->multiply($r);
@@ -1679,6 +1681,7 @@ class Crypt_RSA {
 
         $c = $this->_os2ip($c);
         $m = $this->_rsadp($c);
+echo urlencode($m->toBytes()) . "\r\n";
         if ($m === false) {
             user_error('Decryption error', E_USER_NOTICE);
             return false;
@@ -2025,6 +2028,7 @@ class Crypt_RSA {
             case CRYPT_RSA_ENCRYPTION_PKCS1:
                 $length = $this->k - 11;
                 if ($length <= 0) {
+echo 'returning false';
                     return false;
                 }
 

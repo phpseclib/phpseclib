@@ -47,7 +47,7 @@
  * @package    Net_SFTP
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
- * @license    http://www.gnu.org/licenses/lgpl.txt
+ * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  * @version    $Id: SFTP.php,v 1.25 2010/10/02 22:23:25 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
