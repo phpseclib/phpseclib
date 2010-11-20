@@ -671,8 +671,6 @@ class Crypt_Rijndael {
                 }
                 break;
             case CRYPT_RIJNDAEL_MODE_CBC:
-echo "USING CBC\r\n";
-echo "mode = {$this->mode}\r\n";exit;
                 $xor = $this->encryptIV;
                 for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                     $block = substr($plaintext, $i, $block_size);
