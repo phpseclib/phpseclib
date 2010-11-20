@@ -48,7 +48,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    $Id: SFTP.php,v 1.25 2010/10/02 22:23:25 terrafrost Exp $
+ * @version    $Id: SFTP.php,v 1.21 2010/04/09 02:31:34 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -236,6 +236,7 @@ class Net_SFTP extends Net_SSH2 {
             4  => 'NET_SFTP_CLOSE',
             5  => 'NET_SFTP_READ',
             6  => 'NET_SFTP_WRITE',
+            7  => 'NET_SFTP_LSTAT',
             9  => 'NET_SFTP_SETSTAT',
             11 => 'NET_SFTP_OPENDIR',
             12 => 'NET_SFTP_READDIR',
@@ -718,6 +719,85 @@ class Net_SFTP extends Net_SSH2 {
     }
 
     /**
+     * Returns general information about a file.
+     *
+     * Returns an array on success and false otherwise.
+     *
+     * @param String $filename
+     * @return Mixed
+     * @access public
+     */
+    function stat($filename)
+    {
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+            return false;
+        }
+
+        $filename = $this->_realpath($filename);
+        if ($filename === false) {
+            return false;
+        }
+
+        return $this->_stat($filename, NET_SFTP_STAT);
+    }
+
+    /**
+     * Returns general information about a file or symbolic link.
+     *
+     * Returns an array on success and false otherwise.
+     *
+     * @param String $filename
+     * @return Mixed
+     * @access public
+     */
+    function lstat($filename)
+    {
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+            return false;
+        }
+
+        $filename = $this->_realpath($filename);
+        if ($filename === false) {
+            return false;
+        }
+
+        return $this->_stat($filename, NET_SFTP_LSTAT);
+    }
+
+    /**
+     * Returns general information about a file or symbolic link
+     *
+     * Determines information without calling Net_SFTP::_realpath().
+     * The second parameter can be either NET_SFTP_STAT or NET_SFTP_LSTAT.
+     *
+     * @param String $filename
+     * @param Integer 4type
+     * @return Mixed
+     * @access private
+     */
+    function _stat($filename, $type)
+    {
+        // SFTPv4+ adds an additional 32-bit integer field - flags - to the following:
+        $packet = pack('Na*', strlen($filename), $filename);
+        if (!$this->_send_sftp_packet($type, $packet)) {
+            return false;
+        }
+
+        $response = $this->_get_sftp_packet();
+        switch ($this->packet_type) {
+            case NET_SFTP_ATTRS:
+                return $this->_parseAttributes($response);
+            case NET_SFTP_STATUS:
+                extract(unpack('Nstatus/Nlength', $this->_string_shift($response, 8)));
+                $this->sftp_errors[] = $this->status_codes[$status] . ': ' . $this->_string_shift($response, $length);
+                return false;
+        }
+
+        user_error('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS', E_USER_NOTICE);
+        return false;
+    }
+
+    /**
      * Returns the file size, in bytes, or false, on failure
      *
      * Determines the size without calling Net_SFTP::_realpath()
@@ -728,25 +808,8 @@ class Net_SFTP extends Net_SSH2 {
      */
     function _size($filename)
     {
-        // SFTPv4+ adds an additional 32-bit integer field - flags - to the following:
-        $packet = pack('Na*', strlen($filename), $filename);
-        if (!$this->_send_sftp_packet(NET_SFTP_STAT, $packet)) {
-            return false;
-        }
-
-        $response = $this->_get_sftp_packet();
-        switch ($this->packet_type) {
-            case NET_SFTP_ATTRS:
-                $attrs = $this->_parseAttributes($response);
-                return $attrs['size'];
-            case NET_SFTP_STATUS:
-                extract(unpack('Nstatus/Nlength', $this->_string_shift($response, 8)));
-                $this->sftp_errors[] = $this->status_codes[$status] . ': ' . $this->_string_shift($response, $length);
-                return false;
-        }
-
-        user_error('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS', E_USER_NOTICE);
-        return false;
+        $result = $this->_stat($filename, NET_SFTP_LSTAT);
+        return $result === false ? false : $result['size'];
     }
 
     /**
