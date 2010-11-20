@@ -1381,11 +1381,8 @@ class Crypt_RSA {
      */
     function _blind($x, $r, $i)
     {
-echo "blinding\r\n";
         $x = $x->multiply($r->modPow($this->publicExponent, $this->primes[$i]));
-echo "calling modpow\r\n";
         $x = $x->modPow($this->exponents[$i], $this->primes[$i]);
-echo "modpow called\r\n";
 
         $r = $r->modInverse($this->primes[$i]);
         $x = $x->multiply($r);
@@ -1681,7 +1678,7 @@ echo "modpow called\r\n";
 
         $c = $this->_os2ip($c);
         $m = $this->_rsadp($c);
-echo urlencode($m->toBytes()) . "\r\n";
+
         if ($m === false) {
             user_error('Decryption error', E_USER_NOTICE);
             return false;
@@ -2028,7 +2025,6 @@ echo urlencode($m->toBytes()) . "\r\n";
             case CRYPT_RSA_ENCRYPTION_PKCS1:
                 $length = $this->k - 11;
                 if ($length <= 0) {
-echo 'returning false';
                     return false;
                 }
 
