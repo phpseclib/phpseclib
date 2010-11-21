@@ -48,7 +48,6 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    $Id: SFTP.php,v 1.21 2010/04/09 02:31:34 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
@@ -771,7 +770,7 @@ class Net_SFTP extends Net_SSH2 {
      * The second parameter can be either NET_SFTP_STAT or NET_SFTP_LSTAT.
      *
      * @param String $filename
-     * @param Integer 4type
+     * @param Integer $type
      * @return Mixed
      * @access private
      */
