@@ -1560,11 +1560,15 @@ class Net_SSH2 {
     /**
      * Execute Command
      *
+     * If $block is set to false then Net_SSH2::_get_channel_packet(NET_SSH2_CHANNEL_EXEC) will need to be called manually.
+     * In all likelihood, this is not a feature you want to be taking advantage of.
+     *
      * @param String $command
+     * @param optional Boolean $block
      * @return String
      * @access public
      */
-    function exec($command)
+    function exec($command, $block = true)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1616,6 +1620,10 @@ class Net_SSH2 {
         }
 
         $this->channel_status[NET_SSH2_CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_DATA;
+
+        if (!$block) {
+            return true;
+        }
 
         $output = '';
         while (true) {
