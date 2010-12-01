@@ -532,7 +532,7 @@ class Crypt_Rijndael {
      */
     function setKey($key)
     {
-        $this->key = $key;
+        $this->key = str_pad(substr($key, 0, $this->key_size), $this->key_size, chr(0));
         $this->changed = true;
     }
 

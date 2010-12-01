@@ -362,7 +362,7 @@ class Crypt_DES {
      */
     function setKey($key)
     {
-        $this->keys = ( CRYPT_DES_MODE == CRYPT_DES_MODE_MCRYPT ) ? substr($key, 0, 8) : $this->_prepareKey($key);
+        $this->keys = ( CRYPT_DES_MODE == CRYPT_DES_MODE_MCRYPT ) ? str_pad(substr($key, 0, 8), 8, chr(0)) : $this->_prepareKey($key);
         $this->changed = true;
     }
 
