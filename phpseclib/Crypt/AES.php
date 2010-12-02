@@ -457,7 +457,7 @@ class Crypt_AES extends Crypt_Rijndael {
                 $this->key_size = 32;
         }
 
-        $this->key = substr($this->key, 0, $this->key_size);
+        $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, chr(0));
         $this->encryptIV = $this->decryptIV = $this->iv = str_pad(substr($this->iv, 0, 16), 16, chr(0));
 
         if (!isset($this->enmcrypt)) {
