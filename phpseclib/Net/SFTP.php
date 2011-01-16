@@ -289,11 +289,20 @@ class Net_SFTP extends Net_SSH2 {
             0x00000008 => 'NET_SFTP_OPEN_CREATE',
             0x00000010 => 'NET_SFTP_OPEN_TRUNCATE'
         );
+        // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-5.2
+        // see Net_SFTP::_parseLongname() for an explanation
+        $this->file_types = array(
+            1 => 'NET_SFTP_TYPE_REGULAR',
+            2 => 'NET_SFTP_TYPE_DIRECTORY',
+            3 => 'NET_SFTP_TYPE_SYMLINK',
+            4 => 'NET_SFTP_TYPE_SPECIAL'
+        );
         $this->_define_array(
             $this->packet_types,
             $this->status_codes,
             $this->attributes,
-            $this->open_flags
+            $this->open_flags,
+            $this->file_types
         );
     }
 
@@ -491,6 +500,11 @@ class Net_SFTP extends Net_SSH2 {
                 $this->_string_shift($response, 4); // skip over the count - it should be 1, anyway
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $realpath = $this->_string_shift($response, $length);
+                // the following is SFTPv3 only code.  see Net_SFTP::_parseLongname() for more information.
+                // per the above comment, this is a shot in the dark that, on most servers, won't help us in determining
+                // the file type for Net_SFTP::stat() and Net_SFTP::lstat() but it's worth a shot.
+                //extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                //$this->fileType = $this->_parseLongname($this->_string_shift($response, $length));
                 break;
             case NET_SFTP_STATUS:
                 extract(unpack('Nstatus/Nlength', $this->_string_shift($response, 8)));
@@ -647,12 +661,16 @@ class Net_SFTP extends Net_SSH2 {
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $shortname = $this->_string_shift($response, $length);
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                        $this->_string_shift($response, $length); // SFTPv4+ drop this field - the "longname" field
+                        $longname = $this->_string_shift($response, $length);
                         $attributes = $this->_parseAttributes($response); // we also don't care about the attributes
                         if (!$raw) {
                             $contents[] = $shortname;
                         } else {
                             $contents[$shortname] = $attributes;
+                            $fileType = $this->_parseLongname($longname);
+                            if ($fileType) {
+                                $contents[$shortname]['type'] = $fileType;
+                            }
                         }
                         // SFTPv6 has an optional boolean end-of-list field, but we'll ignore that, since the
                         // final SSH_FXP_STATUS packet should tell us that, already.
@@ -785,7 +803,11 @@ class Net_SFTP extends Net_SSH2 {
         $response = $this->_get_sftp_packet();
         switch ($this->packet_type) {
             case NET_SFTP_ATTRS:
-                return $this->_parseAttributes($response);
+                $attributes = $this->_parseAttributes($response);
+                if ($this->fileType) {
+                    $attributes['type'] = $this->fileType;
+                }
+                return $attributes;
             case NET_SFTP_STATUS:
                 extract(unpack('Nstatus/Nlength', $this->_string_shift($response, 8)));
                 $this->sftp_errors[] = $this->status_codes[$status] . ': ' . $this->_string_shift($response, $length);
@@ -1351,6 +1373,40 @@ class Net_SFTP extends Net_SSH2 {
             }
         }
         return $attr;
+    }
+
+    /**
+     * Parse Longname
+     *
+     * SFTPv3 doesn't provide any easy way of identifying a file type.  You could try to open
+     * a file as a directory and see if an error is returned or you could try to parse the
+     * SFTPv3-specific longname field of the SSH_FXP_NAME packet.  That's what this function does.
+     * The result is returned using the
+     * {@link http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-5.2 SFTPv4 type constants}.
+     *
+     * If the longname is in an unrecognized format bool(false) is returned.
+     *
+     * @param String $longname
+     * @return Mixed
+     * @access private
+     */
+    function _parseLongname($longname)
+    {
+        // http://en.wikipedia.org/wiki/Unix_file_types
+        if (preg_match('#^[^/]([r-][w-][x-]){3}#', $longname)) {
+            switch ($longname[0]) {
+                case '-':
+                    return NET_SFTP_TYPE_REGULAR;
+                case 'd':
+                    return NET_SFTP_TYPE_DIRECTORY;
+                case 'l':
+                    return NET_SFTP_TYPE_SYMLINK;
+                default:
+                    return NET_SFTP_TYPE_SPECIAL;
+            }
+        }
+
+        return false;
     }
 
     /**
