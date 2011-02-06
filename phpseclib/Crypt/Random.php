@@ -61,13 +61,13 @@ function crypt_random($min = 0, $max = 0x7FFFFFFF)
     }
 
     // see http://en.wikipedia.org/wiki//dev/random
-    // if open_basedir is enabled file_exists() will ouput an "open_basedir restriction in effect" warning,
-    // so we suppress it.
-    if (@file_exists('/dev/urandom')) {
-        static $fp;
-        if (!$fp) {
-            $fp = fopen('/dev/urandom', 'rb');
-        }
+    static $urandom = true;
+    if ($urandom === true) {
+        // Warning's will be output unles the error suppression operator is used.  Errors such as
+        // "open_basedir restriction in effect", "Permission denied", "No such file or directory", etc.
+        $urandom = @fopen('/dev/urandom', 'rb');
+    }
+    if (!is_bool($urandom)) {
         extract(unpack('Nrandom', fread($fp, 4)));
 
         // say $min = 0 and $max = 3.  if we didn't do abs() then we could have stuff like this:
