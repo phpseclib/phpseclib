@@ -516,15 +516,22 @@ class Crypt_RSA {
                 }
 
                 if ($primes[$i] === false) { // if we've reached the timeout
-                    return array(
-                        'privatekey' => '',
-                        'publickey'  => '',
-                        'partialkey' => count($primes) == 1 ? '' : serialize(array(
-                            'primes' => array_slice($primes, 0, $i - 1),
+                    if (count($primes) > 1) {
+                        $partialkey = '';
+                    } else {
+                        array_pop($primes);
+                        $partialkey = serialize(array(
+                            'primes' => $primes,
                             'coefficients' => $coefficients,
                             'lcm' => $lcm,
                             'exponents' => $exponents
-                        ))
+                        ));
+                    }
+
+                    return array(
+                        'privatekey' => '',
+                        'publickey'  => '',
+                        'partialkey' => $partialkey
                     );
                 }
 
