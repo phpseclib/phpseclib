@@ -492,16 +492,16 @@ class Crypt_RSA {
                     $timeout-= time() - $start;
                     $start = time();
                     if ($timeout <= 0) {
-                        return serialize(array(
+                        return array(
                             'privatekey' => '',
                             'publickey'  => '',
-                            'partialkey' => array(
+                            'partialkey' => serialize(array(
                                 'primes' => $primes,
                                 'coefficients' => $coefficients,
                                 'lcm' => $lcm,
                                 'exponents' => $exponents
-                            )
-                        ));
+                            ))
+                        );
                     }
                 }
 
@@ -519,7 +519,7 @@ class Crypt_RSA {
                     return array(
                         'privatekey' => '',
                         'publickey'  => '',
-                        'partialkey' => empty($primes) ? '' : serialize(array(
+                        'partialkey' => count($primes) == 1 ? '' : serialize(array(
                             'primes' => array_slice($primes, 0, $i - 1),
                             'coefficients' => $coefficients,
                             'lcm' => $lcm,
