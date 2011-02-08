@@ -68,7 +68,7 @@ function crypt_random($min = 0, $max = 0x7FFFFFFF)
         $urandom = @fopen('/dev/urandom', 'rb');
     }
     if (!is_bool($urandom)) {
-        extract(unpack('Nrandom', fread($fp, 4)));
+        extract(unpack('Nrandom', fread($urandom, 4)));
 
         // say $min = 0 and $max = 3.  if we didn't do abs() then we could have stuff like this:
         // -4 % 3 + 0 = -1, even though -1 < $min
