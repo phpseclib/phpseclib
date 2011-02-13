@@ -1305,7 +1305,7 @@ class Net_SSH2 {
         }
 
         // although PHP5's get_class() preserves the case, PHP4's does not
-        if (is_object($password) && strtolower(get_class($password)) == 'crypt_rsa')  {
+        if (is_object($password) && strtolower(get_class($password)) == 'crypt_rsa') {
             return $this->_privatekey_login($username, $password);
         }
 
@@ -1869,6 +1869,7 @@ class Net_SSH2 {
 
             switch ($type) {
                 case NET_SSH2_MSG_CHANNEL_DATA:
+                    /*
                     if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
                         // SCP requires null packets, such as this, be sent.  further, in the case of the ssh.com SSH server
                         // this actually seems to make things twice as fast.  more to the point, the message right after 
@@ -1876,6 +1877,7 @@ class Net_SSH2 {
                         // in OpenSSH it slows things down but only by a couple thousandths of a second.
                         $this->_send_channel_packet($client_channel, chr(0));
                     }
+                    */
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
                     $data = $this->_string_shift($response, $length);
                     if ($client_channel == $channel) {
@@ -1887,9 +1889,11 @@ class Net_SSH2 {
                     $this->channel_buffers[$client_channel][] = $data;
                     break;
                 case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
+                    /*
                     if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
                         $this->_send_channel_packet($client_channel, chr(0));
                     }
+                    */
                     // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR
                     extract(unpack('Ndata_type_code/Nlength', $this->_string_shift($response, 8)));
                     $data = $this->_string_shift($response, $length);
@@ -2046,6 +2050,31 @@ class Net_SSH2 {
             $this->server_channels[$client_channel],
             strlen($data),
             $data));
+    }
+
+    /**
+     * Closes and flushes a channel
+     *
+     * Net_SSH2 doesn't properly close most channels.  For exec() channels are normally closed by the server
+     * and for SFTP channels are presumably closed when the client disconnects.  This functions is intended
+     * for SCP more than anything.
+     *
+     * @param Integer $client_channel
+     * @return Boolean
+     * @access private
+     */
+    function _close_channel($client_channel)
+    {
+        // see http://tools.ietf.org/html/rfc4254#section-5.3
+
+        $packet = pack('CN',
+            NET_SSH2_MSG_CHANNEL_EOF,
+            $this->server_channels[$client_channel]);
+        if (!$this->_send_binary_packet($packet)) {
+            return false;
+        }
+
+        while ($this->_get_channel_packet($client_channel) !== true);
     }
 
     /**

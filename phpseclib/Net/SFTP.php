@@ -1041,7 +1041,7 @@ class Net_SFTP extends Net_SSH2 {
                 user_error("$data is not a valid file", E_USER_NOTICE);
                 return false;
             }
-            $fp = fopen($data, 'rb');
+            $fp = @fopen($data, 'rb');
             if (!$fp) {
                 return false;
             }
