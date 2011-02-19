@@ -278,7 +278,11 @@ class Net_SFTP extends Net_SSH2 {
             0x00000002 => 'NET_SFTP_ATTR_UIDGID', // defined in SFTPv3, removed in SFTPv4+
             0x00000004 => 'NET_SFTP_ATTR_PERMISSIONS',
             0x00000008 => 'NET_SFTP_ATTR_ACCESSTIME',
-                    -1 => 'NET_SFTP_ATTR_EXTENDED' // unpack('N', "\xFF\xFF\xFF\xFF") == array(1 => int(-1))
+            // 0x80000000 will yield a floating point on 32-bit systems and converting floating points to integers
+            // yields inconsistent behavior depending on how php is compiled.  so we left shift -1 (which, in 
+            // two's compliment, consists of all 1 bits) by 31.  on 64-bit systems this'll yield 0xFFFFFFFF80000000.
+            // that's not a problem, however, and 'anded' and a 32-bit number, as all the leading 1 bits are ignored.
+              -1 << 31 => 'NET_SFTP_ATTR_EXTENDED'
         );
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.3
         // the flag definitions change somewhat in SFTPv5+.  if SFTPv5+ support is added to this library, maybe name
@@ -998,7 +1002,7 @@ class Net_SFTP extends Net_SSH2 {
      *
      * @param String $remote_file
      * @param String $data
-     * @param optional Integer $flags
+     * @param optional Integer $mode
      * @return Boolean
      * @access public
      * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - Net_SFTP::setMode().
