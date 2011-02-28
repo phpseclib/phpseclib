@@ -16,15 +16,7 @@
  *        exit('Login Failed');
  *    }
  *
- *    while (true) {
- *        echo $ssh->interactiveRead();
- *
- *        $read = array(STDIN);
- *        $write = $except = NULL;
- *        if (stream_select($read, $write, $except, 0)) {
- *            $ssh->interactiveWrite(fread(STDIN, 1));
- *        }
- *    }
+ *    echo $ssh->exec('ls -la');
  * ?>
  * </code>
  *
@@ -38,7 +30,9 @@
  *        exit('Login Failed');
  *    }
  *
- *    echo $ssh->exec('ls -la');
+ *    echo $ssh->read('%');
+ *    $ssh->write("ls -la\r\n");
+ *    echo $ssh->read('%');
  * ?>
  * </code>
  *
@@ -237,6 +231,20 @@ define('NET_SSH1_LOG_SIMPLE',  1);
 define('NET_SSH1_LOG_COMPLEX', 2);
 /**#@-*/
 
+/**#@+
+ * @access public
+ * @see Net_SSH1::read()
+ */
+/**
+ * Returns when a string matching $expect exactly is found
+ */
+define('NET_SSH1_READ_SIMPLE',  1);
+/**
+ * Returns when a string matching the regular expression $expect is found
+ */
+define('NET_SSH1_READ_REGEX', 2);
+/**#@-*/
+
 /**
  * Pure-PHP implementation of SSHv1.
  *
@@ -395,6 +403,15 @@ class Net_SSH1 {
      * @access private
      */
     var $message_log = array();
+
+    /**
+     * Interactive Buffer
+     *
+     * @see Net_SSH1::read()
+     * @var Array
+     * @access private
+     */
+    var $interactive_buffer = '';
 
     /**
      * Default Constructor.
@@ -657,7 +674,7 @@ class Net_SSH1 {
      * @return mixed
      * @access public
      */
-    function exec($cmd)
+    function exec($cmd, $block = true)
     {
         if (!($this->bitmap & NET_SSH1_MASK_LOGIN)) {
             user_error('Operation disallowed prior to login()', E_USER_NOTICE);
@@ -686,6 +703,10 @@ class Net_SSH1 {
         if (!$this->_send_binary_packet($data)) {
             user_error('Error sending SSH_CMSG_EXEC_CMD', E_USER_NOTICE);
             return false;
+        }
+
+        if (!$block) {
+            return true;
         }
 
         $output = '';
@@ -750,6 +771,59 @@ class Net_SSH1 {
     /**
      * Inputs a command into an interactive shell.
      *
+     * @see Net_SSH1::interactiveWrite()
+     * @param String $cmd
+     * @return Boolean
+     * @access public
+     */
+    function write($cmd)
+    {
+        return $this->interactiveWrite($cmd);
+    }
+
+    /**
+     * Returns the output of an interactive shell when there's a match for $expect
+     *
+     * $expect can take the form of a string literal or, if $mode == NET_SSH1_READ_REGEX,
+     * a regular expression.
+     *
+     * @see Net_SSH1::write()
+     * @param String $expect
+     * @param Integer $mode
+     * @return Boolean
+     * @access public
+     */
+    function read($expect, $mode = NET_SSH1_READ_SIMPLE)
+    {
+        if (!($this->bitmap & NET_SSH1_MASK_LOGIN)) {
+            user_error('Operation disallowed prior to login()', E_USER_NOTICE);
+            return false;
+        }
+
+        if (!($this->bitmap & NET_SSH1_MASK_SHELL) && !$this->_initShell()) {
+            user_error('Unable to initiate an interactive shell session', E_USER_NOTICE);
+            return false;
+        }
+
+        while (true) {
+            if ($mode != NET_SSH1_READ_REGEX) {
+                $pos = strpos($this->interactiveBuffer, $expect);
+            } else {
+                $pos = preg_match($expect, $this->interactiveBuffer, $matches) ?
+                       strpos($this->interactiveBuffer, $matches[0]) :
+                       false;
+            }
+            if ($pos !== false) {
+                return $this->_string_shift($this->interactiveBuffer, $pos + 1);
+            }
+            $response = $this->_get_binary_packet();
+            $this->interactiveBuffer.= substr($response[NET_SSH1_RESPONSE_DATA], 4);
+        }
+    }
+
+    /**
+     * Inputs a command into an interactive shell.
+     *
      * @see Net_SSH1::interactiveRead()
      * @param String $cmd
      * @return Boolean
@@ -778,7 +852,7 @@ class Net_SSH1 {
     }
 
     /**
-     * Reads the output of an interactive shell.
+     * Returns the output of an interactive shell when no more output is available.
      *
      * Requires PHP 4.3.0 or later due to the use of the stream_select() function.  If you see stuff like
      * "[00m", you're seeing ANSI escape codes.  According to

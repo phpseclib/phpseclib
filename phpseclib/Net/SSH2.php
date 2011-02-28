@@ -35,8 +35,9 @@
  *        exit('Login Failed');
  *    }
  *
- *    echo $ssh->exec('pwd');
- *    echo $ssh->exec('ls -la');
+ *    echo $ssh->read('%');
+ *    $ssh->write("ls -la\r\n");
+ *    echo $ssh->read('%');
  * ?>
  * </code>
  *
@@ -104,6 +105,7 @@ require_once('Crypt/AES.php');
  */
 define('NET_SSH2_MASK_CONSTRUCTOR', 0x00000001);
 define('NET_SSH2_MASK_LOGIN',       0x00000002);
+define('NET_SSH2_MASK_SHELL',       0x00000004);
 /**#@-*/
 
 /**#@+
@@ -123,6 +125,7 @@ define('NET_SSH2_MASK_LOGIN',       0x00000002);
  * @access private
  */
 define('NET_SSH2_CHANNEL_EXEC', 0); // PuTTy uses 0x100
+define('NET_SSH2_CHANNEL_SHELL',1);
 /**#@-*/
 
 /**#@+
@@ -137,6 +140,20 @@ define('NET_SSH2_LOG_SIMPLE',  1);
  * Returns the message content
  */
 define('NET_SSH2_LOG_COMPLEX', 2);
+/**#@-*/
+
+/**#@+
+ * @access public
+ * @see Net_SSH2::read()
+ */
+/**
+ * Returns when a string matching $expect exactly is found
+ */
+define('NET_SSH2_READ_SIMPLE',  1);
+/**
+ * Returns when a string matching the regular expression $expect is found
+ */
+define('NET_SSH2_READ_REGEX', 2);
 /**#@-*/
 
 /**
@@ -573,6 +590,15 @@ class Net_SSH2 {
      * @access private
      */
     var $signature_format = '';
+
+    /**
+     * Interactive Buffer
+     *
+     * @see Net_SSH2::read()
+     * @var Array
+     * @access private
+     */
+    var $interactive_buffer = '';
 
     /**
      * Default Constructor.
@@ -1412,7 +1438,11 @@ class Net_SSH2 {
             case NET_SSH2_MSG_USERAUTH_INFO_REQUEST:
                 // see http://tools.ietf.org/html/rfc4256#section-3.2
                 if (defined('NET_SSH2_LOGGING')) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = 'NET_SSH2_MSG_USERAUTH_INFO_REQUEST';
+                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
+                        'UNKNOWN',
+                        'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
+                        $this->message_number_log[count($this->message_number_log) - 1]
+                    );
                 }
 
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
@@ -1447,7 +1477,11 @@ class Net_SSH2 {
                 }
 
                 if (defined('NET_SSH2_LOGGING')) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE';
+                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
+                        'UNKNOWN',
+                        'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE',
+                        $this->message_number_log[count($this->message_number_log) - 1]
+                    );
                     $this->message_log[count($this->message_log) - 1] = $logged;
                 }
 
@@ -1637,6 +1671,144 @@ class Net_SSH2 {
                     $output.= $temp;
             }
         }
+    }
+
+    /**
+     * Creates an interactive shell
+     *
+     * @see Net_SSH2::read()
+     * @see Net_SSH2::write()
+     * @return Boolean
+     * @access private
+     */
+    function _initShell()
+    {
+        $this->window_size_client_to_server[NET_SSH2_CHANNEL_SHELL] = 0x7FFFFFFF;
+        $packet_size = 0x4000;
+
+        $packet = pack('CNa*N3',
+            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SSH2_CHANNEL_SHELL, $this->window_size_client_to_server[NET_SSH2_CHANNEL_SHELL], $packet_size);
+
+        if (!$this->_send_binary_packet($packet)) {
+            return false;
+        }
+
+        $this->channel_status[NET_SSH2_CHANNEL_SHELL] = NET_SSH2_MSG_CHANNEL_OPEN;
+
+        $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_SHELL);
+        if ($response === false) {
+            return false;
+        }
+
+        $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
+        $packet = pack('CNNa*CNa*N5a*',
+            NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SSH2_CHANNEL_SHELL], strlen('pty-req'), 'pty-req', 1, strlen('vt100'), 'vt100',
+            80, 24, 0, 0, strlen($terminal_modes), $terminal_modes);
+
+        if (!$this->_send_binary_packet($packet)) {
+            return false;
+        }
+
+
+        $response = $this->_get_binary_packet();
+        if ($response === false) {
+            user_error('Connection closed by server', E_USER_NOTICE);
+            return false;
+        }
+
+        list(, $type) = unpack('C', $this->_string_shift($response, 1));
+
+        switch ($type) {
+            case NET_SSH2_MSG_CHANNEL_SUCCESS:
+                break;
+            case NET_SSH2_MSG_CHANNEL_FAILURE:
+            default:
+                user_error('Unable to request pseudo-terminal', E_USER_NOTICE);
+                return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+        }
+
+        $packet = pack('CNNa*C',
+            NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SSH2_CHANNEL_SHELL], strlen('shell'), 'shell', 1);
+        if (!$this->_send_binary_packet($packet)) {
+            return false;
+        }
+
+        $this->channel_status[NET_SSH2_CHANNEL_SHELL] = NET_SSH2_MSG_CHANNEL_REQUEST;
+
+        $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_SHELL);
+        if ($response === false) {
+            return false;
+        }
+
+        $this->channel_status[NET_SSH2_CHANNEL_SHELL] = NET_SSH2_MSG_CHANNEL_DATA;
+
+        $this->bitmap |= NET_SSH2_MASK_SHELL;
+
+        return true;
+    }
+
+    /**
+     * Returns the output of an interactive shell
+     *
+     * Returns when there's a match for $expect, which can take the form of a string literal or,
+     * if $mode == NET_SSH2_READ_REGEX, a regular expression.
+     *
+     * @see Net_SSH2::read()
+     * @param String $expect
+     * @param Integer $mode
+     * @return String
+     * @access public
+     */
+    function read($expect, $mode = NET_SSH2_READ_SIMPLE)
+    {
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+            user_error('Operation disallowed prior to login()', E_USER_NOTICE);
+            return false;
+        }
+
+        if (!($this->bitmap & NET_SSH2_MASK_SHELL) && !$this->_initShell()) {
+            user_error('Unable to initiate an interactive shell session', E_USER_NOTICE);
+            return false;
+        }
+
+        while (true) {
+            if ($mode != NET_SSH2_READ_REGEX) {
+                $pos = strpos($this->interactiveBuffer, $expect);
+            } else {
+                $pos = preg_match($expect, $this->interactiveBuffer, $matches) ?
+                       strpos($this->interactiveBuffer, $matches[0]) :
+                       false;
+            }
+            if ($pos !== false) {
+                return $this->_string_shift($this->interactiveBuffer, $pos + 1);
+            }
+            $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_SHELL);
+
+            $this->interactiveBuffer.= $response;
+        }
+    }
+
+    /**
+     * Inputs a command into an interactive shell.
+     *
+     * @see Net_SSH1::interactiveWrite()
+     * @param String $cmd
+     * @return Boolean
+     * @access public
+     */
+    function write($cmd)
+    {
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+            user_error('Operation disallowed prior to login()', E_USER_NOTICE);
+            return false;
+        }
+
+        if (!($this->bitmap & NET_SSH2_MASK_SHELL) && !$this->_initShell()) {
+            user_error('Unable to initiate an interactive shell session', E_USER_NOTICE);
+            return false;
+        }
+
+        return $this->_send_channel_packet(NET_SSH2_CHANNEL_SHELL, $cmd);
     }
 
     /**

@@ -73,7 +73,7 @@ define('NET_SFTP_LOG_COMPLEX', NET_SSH2_LOG_COMPLEX);
 /**
  * SFTP channel constant
  *
- * Net_SSH2::exec() uses 0 and Net_SSH2::interactiveRead() / Net_SSH2::interactiveWrite() use 1.
+ * Net_SSH2::exec() uses 0 and Net_SSH2::read() / Net_SSH2::write() use 1.
  *
  * @see Net_SSH2::_send_channel_packet()
  * @see Net_SSH2::_get_channel_packet()
