@@ -1776,8 +1776,8 @@ class Crypt_RSA {
             return false;
         }
 
-        $maskedDB = substr($em, 0, $em - $this->hLen - 1);
-        $h = substr($em, $em - $this->hLen - 1, $this->hLen);
+        $maskedDB = substr($em, 0, -$this->hLen - 1);
+        $h = substr($em, -$this->hLen - 1, $this->hLen);
         $temp = chr(0xFF << ($emBits & 7));
         if ((~$maskedDB[0] & $temp) != $temp) {
             return false;
