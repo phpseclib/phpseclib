@@ -1535,7 +1535,6 @@ class Net_SSH2 {
         $part2 = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($publickey), $publickey);
 
         $packet = $part1 . chr(0) . $part2;
-
         if (!$this->_send_binary_packet($packet)) {
             return false;
         }
@@ -1890,7 +1889,7 @@ class Net_SSH2 {
         $this->get_seq_no++;
 
         if (defined('NET_SSH2_LOGGING')) {
-            $temp = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN';
+            $temp = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
             $this->message_number_log[] = '<- ' . $temp .
                                           ' (' . round($stop - $start, 4) . 's)';
             if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
@@ -2161,7 +2160,7 @@ class Net_SSH2 {
         $stop = strtok(microtime(), ' ') + strtok('');
 
         if (defined('NET_SSH2_LOGGING')) {
-            $temp = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN';
+            $temp = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
             $this->message_number_log[] = '-> ' . $temp .
                                           ' (' . round($stop - $start, 4) . 's)';
             if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
