@@ -42,20 +42,23 @@
  * ?>
  * </code>
  *
- * LICENSE: This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA  02111-1307  USA
+ * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  *
  * @category   Crypt
  * @package    Crypt_RSA
@@ -170,6 +173,14 @@ define('CRYPT_RSA_MODE_OPENSSL', 2);
  * Used by OpenSSH
  */
 define('CRYPT_RSA_PRIVATE_FORMAT_PKCS1', 0);
+/**
+ * PuTTY formatted private key
+ */
+define('CRYPT_RSA_PRIVATE_FORMAT_PUTTY', 1);
+/**
+ * XML formatted private key
+ */
+define('CRYPT_RSA_PRIVATE_FORMAT_XML', 2);
 /**#@-*/
 
 /**#@+
@@ -190,17 +201,21 @@ define('CRYPT_RSA_PRIVATE_FORMAT_PKCS1', 0);
  *
  * 1, n, modulo, modulus
  */
-define('CRYPT_RSA_PUBLIC_FORMAT_RAW', 1);
+define('CRYPT_RSA_PUBLIC_FORMAT_RAW', 3);
 /**
  * PKCS#1 formatted public key
  */
-define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 2);
+define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 4);
+/**
+ * XML formatted public key
+ */
+define('CRYPT_RSA_PUBLIC_FORMAT_XML', 5);
 /**
  * OpenSSH formatted public key
  *
  * Place in $HOME/.ssh/authorized_keys
  */
-define('CRYPT_RSA_PUBLIC_FORMAT_OPENSSH', 3);
+define('CRYPT_RSA_PUBLIC_FORMAT_OPENSSH', 6);
 /**#@-*/
 
 /**
@@ -371,6 +386,30 @@ class Crypt_RSA {
      * @access private
      */
     var $password = '';
+
+    /**
+     * Components
+     *
+     * For use with parsing XML formatted keys.  PHP's XML Parser functions use utilized - instead of PHP's DOM functions -
+     * because PHP's XML Parser functions work on PHP4 whereas PHP's DOM functions - although surperior - don't.
+     *
+     * @see Crypt_RSA::_start_element_handler()
+     * @var Array
+     * @access private
+     */
+    var $components = array();
+
+    /**
+     * Current String
+     *
+     * For use with parsing XML formatted keys.
+     *
+     * @see Crypt_RSA::_character_handler()
+     * @see Crypt_RSA::_stop_element_handler()
+     * @var Mixed
+     * @access private
+     */
+    var $current;
 
     /**
      * The constructor
@@ -790,6 +829,7 @@ class Crypt_RSA {
                                 require_once('Crypt/AES.php');
                             }
                             $symkey = substr($symkey, 0, 16);
+                            $crypto = new Crypt_AES();
                             break;
                         case 'DES-EDE3-CFB':
                             if (!class_exists('Crypt_TripleDES')) {
@@ -946,7 +986,162 @@ class Crypt_RSA {
                         'publicExponent' => $publicExponent
                     );
                 }
+            // http://www.w3.org/TR/xmldsig-core/#sec-RSAKeyValue
+            // http://en.wikipedia.org/wiki/XML_Signature
+            case CRYPT_RSA_PRIVATE_FORMAT_XML:
+            case CRYPT_RSA_PUBLIC_FORMAT_XML:
+                $this->components = array();
+
+                $xml = xml_parser_create('UTF-8');
+                xml_set_object($xml, $this);
+                xml_set_element_handler($xml, '_start_element_handler', '_stop_element_handler');
+                xml_set_character_data_handler($xml, '_data_handler');
+                if (!xml_parse($xml, $key)) {
+                    return false;
+                }
+
+                return $this->components;
+            // from PuTTY's SSHPUBK.C
+            case CRYPT_RSA_PRIVATE_FORMAT_PUTTY:
+                $components = array();
+                $key = preg_split('#\r\n|\r|\n#', $key);
+                $type = trim(preg_replace('#PuTTY-User-Key-File-2: (.+)#', '$1', $key[0]));
+                if ($type != 'ssh-rsa') {
+                    return false;
+                }
+                $encryption = trim(preg_replace('#Encryption: (.+)#', '$1', $key[1]));
+
+                $publicLength = trim(preg_replace('#Public-Lines: (\d+)#', '$1', $key[3]));
+                $public = base64_decode(implode('', array_map('trim', array_slice($key, 4, $publicLength))));
+                $public = substr($public, 11);
+                extract(unpack('Nlength', $this->_string_shift($public, 4)));
+                $components['publicExponent'] = new Math_BigInteger($this->_string_shift($public, $length), -256);
+                extract(unpack('Nlength', $this->_string_shift($public, 4)));
+                $components['modulus'] = new Math_BigInteger($this->_string_shift($public, $length), -256);
+
+                $privateLength = trim(preg_replace('#Private-Lines: (\d+)#', '$1', $key[$publicLength + 4]));
+                $private = base64_decode(implode('', array_map('trim', array_slice($key, $publicLength + 5, $privateLength))));
+
+                switch ($encryption) {
+                    case 'aes256-cbc':
+                        if (!class_exists('Crypt_AES')) {
+                            require_once('Crypt/AES.php');
+                        }
+                        $symkey = '';
+                        $sequence = 0;
+                        while (strlen($symkey) < 32) {
+                            $temp = pack('Na*', $sequence++, $this->password);
+                            $symkey.= pack('H*', sha1($temp));
+                        }
+                        $symkey = substr($symkey, 0, 32);
+                        $crypto = new Crypt_AES();
+                }
+
+                if ($encryption != 'none') {
+                    $crypto->setKey($symkey);
+                    $crypto->disablePadding();
+                    $private = $crypto->decrypt($private);
+                    if ($private === false) {
+                        return false;
+                    }
+                }
+
+                extract(unpack('Nlength', $this->_string_shift($private, 4)));
+                $components['privateExponent'] = new Math_BigInteger($this->_string_shift($private, $length), -256);
+                extract(unpack('Nlength', $this->_string_shift($private, 4)));
+                $components['primes'] = array(1 => new Math_BigInteger($this->_string_shift($private, $length), -256));
+                extract(unpack('Nlength', $this->_string_shift($private, 4)));
+                $components['primes'][] = new Math_BigInteger($this->_string_shift($private, $length), -256);
+
+                $temp = $components['primes'][1]->subtract($this->one);
+                $components['exponents'] = array(1 => $components['publicExponent']->modInverse($temp));
+                $temp = $components['primes'][2]->subtract($this->one);
+                $components['exponents'][] = $components['publicExponent']->modInverse($temp);
+
+                extract(unpack('Nlength', $this->_string_shift($private, 4)));
+                $components['coefficients'] = array(2 => new Math_BigInteger($this->_string_shift($private, $length), -256));
+
+                return $components;
         }
+    }
+
+    /**
+     * Start Element Handler
+     *
+     * Called by xml_set_element_handler()
+     *
+     * @access private
+     * @param Resource $parser
+     * @param String $name
+     * @param Array $attribs
+     */
+    function _start_element_handler($parser, $name, $attribs)
+    {
+        //$name = strtoupper($name);
+        switch ($name) {
+            case 'MODULUS':
+                $this->current = &$this->components['modulus'];
+                break;
+            case 'EXPONENT':
+                $this->current = &$this->components['publicExponent'];
+                break;
+            case 'P':
+                $this->current = &$this->components['primes'][1];
+                break;
+            case 'Q':
+                $this->current = &$this->components['primes'][2];
+                break;
+            case 'DP':
+                $this->current = &$this->components['exponents'][1];
+                break;
+            case 'DQ':
+                $this->current = &$this->components['exponents'][2];
+                break;
+            case 'INVERSEQ':
+                $this->current = &$this->components['coefficients'][2];
+                break;
+            case 'D':
+                $this->current = &$this->components['privateExponent'];
+                break;
+            default:
+                unset($this->current);
+        }
+        $this->current = '';
+    }
+
+    /**
+     * Stop Element Handler
+     *
+     * Called by xml_set_element_handler()
+     *
+     * @access private
+     * @param Resource $parser
+     * @param String $name
+     */
+    function _stop_element_handler($parser, $name)
+    {
+        //$name = strtoupper($name);
+        if ($name == 'RSAKEYVALUE') {
+            return;
+        }
+        $this->current = new Math_BigInteger(base64_decode($this->current), 256);
+    }
+
+    /**
+     * Data Handler
+     *
+     * Called by xml_set_character_data_handler()
+     *
+     * @access private
+     * @param Resource $parser
+     * @param String $data
+     */
+    function _data_handler($parser, $data)
+    {
+        if (!isset($this->current) || is_object($this->current)) {
+            return;
+        }
+        $this->current.= trim($data);
     }
 
     /**
@@ -958,9 +1153,27 @@ class Crypt_RSA {
      * @param String $key
      * @param Integer $type optional
      */
-    function loadKey($key, $type = CRYPT_RSA_PRIVATE_FORMAT_PKCS1)
+    function loadKey($key, $type = false)
     {
-        $components = $this->_parseKey($key, $type);
+        if ($type === false) {
+            $types = array(
+                CRYPT_RSA_PUBLIC_FORMAT_RAW,
+                CRYPT_RSA_PRIVATE_FORMAT_PKCS1,
+                CRYPT_RSA_PRIVATE_FORMAT_XML,
+                CRYPT_RSA_PRIVATE_FORMAT_PUTTY,
+                CRYPT_RSA_PUBLIC_FORMAT_OPENSSH
+            );
+            foreach ($types as $type) {
+                $components = $this->_parseKey($key, $type);
+                if ($components !== false) {
+                    break;
+                }
+            }
+            
+        } else {
+            $components = $this->_parseKey($key, $type);
+        }
+
         if ($components === false) {
             return false;
         }

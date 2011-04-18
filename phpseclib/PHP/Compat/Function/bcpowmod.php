@@ -64,4 +64,3 @@ if (!function_exists('bcpowmod')) {
         return php_compat_bcpowmod($x, $y, $modulus, $scale);
     }
 }
-?>
