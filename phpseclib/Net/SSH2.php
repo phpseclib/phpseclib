@@ -1778,15 +1778,13 @@ class Net_SSH2 {
         }
 
         while (true) {
-            if ($mode != NET_SSH2_READ_REGEX) {
-                $pos = strpos($this->interactiveBuffer, $expect);
-            } else {
-                $pos = preg_match($expect, $this->interactiveBuffer, $matches) ?
-                       strpos($this->interactiveBuffer, $matches[0]) :
-                       false;
+            if ($mode == NET_SSH2_READ_REGEX) {
+                preg_match($expect, $this->interactiveBuffer, $matches);
+                $expect = $matches[0];
             }
+            $pos = strpos($this->interactiveBuffer, $expect);
             if ($pos !== false) {
-                return $this->_string_shift($this->interactiveBuffer, $pos + 1);
+                return $this->_string_shift($this->interactiveBuffer, $pos + strlen($expect));
             }
             $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_SHELL);
 
