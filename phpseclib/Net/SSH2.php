@@ -1858,6 +1858,10 @@ class Net_SSH2 {
         $raw = fread($this->fsock, $this->decrypt_block_size);
         $stop = strtok(microtime(), ' ') + strtok('');
 
+        if (empty($raw)) {
+            return '';
+        }
+
         if ($this->decrypt !== false) {
             $raw = $this->decrypt->decrypt($raw);
         }
@@ -2011,6 +2015,10 @@ class Net_SSH2 {
             if ($response === false) {
                 user_error('Connection closed by server', E_USER_NOTICE);
                 return false;
+            }
+
+            if (empty($response)) {
+                return '';
             }
 
             extract(unpack('Ctype/Nchannel', $this->_string_shift($response, 5)));
