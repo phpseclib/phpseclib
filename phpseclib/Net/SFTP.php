@@ -215,6 +215,15 @@ class Net_SFTP extends Net_SSH2 {
     var $sftp_errors = array();
 
     /**
+     * File Type
+     *
+     * @see Net_SFTP::_parseLongname()
+     * @var Integer
+     * @access private
+     */
+    var $fileType = 0;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SFTP server
@@ -510,8 +519,8 @@ class Net_SFTP extends Net_SSH2 {
                 // the following is SFTPv3 only code.  see Net_SFTP::_parseLongname() for more information.
                 // per the above comment, this is a shot in the dark that, on most servers, won't help us in determining
                 // the file type for Net_SFTP::stat() and Net_SFTP::lstat() but it's worth a shot.
-                //extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                //$this->fileType = $this->_parseLongname($this->_string_shift($response, $length));
+                extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                $this->fileType = $this->_parseLongname($this->_string_shift($response, $length));
                 break;
             case NET_SFTP_STATUS:
                 extract(unpack('Nstatus/Nlength', $this->_string_shift($response, 8)));
@@ -1232,6 +1241,9 @@ class Net_SFTP extends Net_SSH2 {
             user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
             return false;
         }
+
+        extract(unpack('Nstatus/Nlength', $this->_string_shift($response, 8)));
+        $this->sftp_errors[] = $this->status_codes[$status] . ': ' . $this->_string_shift($response, $length);
 
         // check the status from the NET_SFTP_STATUS case in the above switch after the file has been closed
         if ($status != NET_SFTP_STATUS_OK) {
