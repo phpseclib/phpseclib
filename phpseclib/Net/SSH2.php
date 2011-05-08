@@ -601,7 +601,7 @@ class Net_SSH2 {
      * @var Array
      * @access private
      */
-    var $interactive_buffer = '';
+    var $interactiveBuffer = '';
 
     /**
      * Default Constructor.
@@ -1777,14 +1777,15 @@ class Net_SSH2 {
             return false;
         }
 
+        $match = $expect;
         while (true) {
             if ($mode == NET_SSH2_READ_REGEX) {
                 preg_match($expect, $this->interactiveBuffer, $matches);
-                $expect = $matches[0];
+                $match = $matches[0];
             }
-            $pos = strpos($this->interactiveBuffer, $expect);
+            $pos = strpos($this->interactiveBuffer, $match);
             if ($pos !== false) {
-                return $this->_string_shift($this->interactiveBuffer, $pos + strlen($expect));
+                return $this->_string_shift($this->interactiveBuffer, $pos + strlen($match));
             }
             $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_SHELL);
 
