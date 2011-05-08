@@ -35,9 +35,9 @@
  *        exit('Login Failed');
  *    }
  *
- *    echo $ssh->read('%');
- *    $ssh->write("ls -la\r\n");
- *    echo $ssh->read('%');
+ *    echo $ssh->read('username@username:~$');
+ *    $ssh->write("ls -la\n");
+ *    echo $ssh->read('username@username:~$');
  * ?>
  * </code>
  *
@@ -2005,7 +2005,7 @@ class Net_SSH2 {
      * @return Mixed
      * @access private
      */
-    function _get_channel_packet($client_channel)
+    function _get_channel_packet($client_channel, $skip_extended = false)
     {
         if (!empty($this->channel_buffers[$client_channel])) {
             return array_shift($this->channel_buffers[$client_channel]);
@@ -2074,6 +2074,9 @@ class Net_SSH2 {
                     $this->channel_buffers[$client_channel][] = $data;
                     break;
                 case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
+                    if ($skip_extended) {
+                        break;
+                    }
                     /*
                     if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
                         $this->_send_channel_packet($client_channel, chr(0));

@@ -30,9 +30,9 @@
  *        exit('Login Failed');
  *    }
  *
- *    echo $ssh->read('%');
- *    $ssh->write("ls -la\r\n");
- *    echo $ssh->read('%');
+ *    echo $ssh->read('username@username:~$');
+ *    $ssh->write("ls -la\n");
+ *    echo $ssh->read('username@username:~$');
  * ?>
  * </code>
  *
@@ -444,6 +444,7 @@ class Net_SSH1 {
             16 => 'NET_SSH1_CMSG_STDIN_DATA',
             17 => 'NET_SSH1_SMSG_STDOUT_DATA',
             18 => 'NET_SSH1_SMSG_STDERR_DATA',
+            19 => 'NET_SSH1_CMSG_EOF',
             20 => 'NET_SSH1_SMSG_EXITSTATUS',
             33 => 'NET_SSH1_CMSG_EXIT_CONFIRMATION'
         );
@@ -644,6 +645,12 @@ class Net_SSH1 {
             return false;
         }
 
+        // remove the username and password from the last logged packet
+        if (defined('NET_SSH1_LOGGING') && NET_SSH1_LOGGING == NET_SSH1_LOG_COMPLEX) {
+            $data = pack('CNa*', NET_SSH1_CMSG_AUTH_PASSWORD, strlen('password'), 'password');
+            $this->message_log[count($this->message_log) - 1] = $data; // zzzzz
+        }
+
         $response = $this->_get_binary_packet();
 
         if ($response[NET_SSH1_RESPONSE_TYPE] == NET_SSH1_SMSG_SUCCESS) {
@@ -681,23 +688,6 @@ class Net_SSH1 {
     {
         if (!($this->bitmap & NET_SSH1_MASK_LOGIN)) {
             user_error('Operation disallowed prior to login()', E_USER_NOTICE);
-            return false;
-        }
-
-        // connect using the sample parameters in protocol-1.5.txt.
-        // according to wikipedia.org's entry on text terminals, "the fundamental type of application running on a text
-        // terminal is a command line interpreter or shell".  thus, opening a terminal session to run the shell.
-        $data = pack('CNa*N4C', NET_SSH1_CMSG_REQUEST_PTY, strlen('vt100'), 'vt100', 24, 80, 0, 0, NET_SSH1_TTY_OP_END);
-
-        if (!$this->_send_binary_packet($data)) {
-            user_error('Error sending SSH_CMSG_REQUEST_PTY', E_USER_NOTICE);
-            return false;
-        }
-
-        $response = $this->_get_binary_packet();
-
-        if ($response[NET_SSH1_RESPONSE_TYPE] != NET_SSH1_SMSG_SUCCESS) {
-            user_error('Expected SSH_SMSG_SUCCESS', E_USER_NOTICE);
             return false;
         }
 
@@ -743,6 +733,9 @@ class Net_SSH1 {
      */
     function _initShell()
     {
+        // connect using the sample parameters in protocol-1.5.txt.
+        // according to wikipedia.org's entry on text terminals, "the fundamental type of application running on a text
+        // terminal is a command line interpreter or shell".  thus, opening a terminal session to run the shell.
         $data = pack('CNa*N4C', NET_SSH1_CMSG_REQUEST_PTY, strlen('vt100'), 'vt100', 24, 80, 0, 0, NET_SSH1_TTY_OP_END);
 
         if (!$this->_send_binary_packet($data)) {
@@ -808,16 +801,15 @@ class Net_SSH1 {
             return false;
         }
 
+        $match = $expect;
         while (true) {
-            if ($mode != NET_SSH1_READ_REGEX) {
-                $pos = strpos($this->interactiveBuffer, $expect);
-            } else {
-                $pos = preg_match($expect, $this->interactiveBuffer, $matches) ?
-                       strpos($this->interactiveBuffer, $matches[0]) :
-                       false;
+            if ($mode == NET_SSH1_READ_REGEX) {
+                preg_match($expect, $this->interactiveBuffer, $matches);
+                $match = $matches[0];
             }
+            $pos = strpos($this->interactiveBuffer, $match);
             if ($pos !== false) {
-                return $this->_string_shift($this->interactiveBuffer, $pos + 1);
+                return $this->_string_shift($this->interactiveBuffer, $pos + strlen($match));
             }
             $response = $this->_get_binary_packet();
             $this->interactiveBuffer.= substr($response[NET_SSH1_RESPONSE_DATA], 4);
@@ -921,7 +913,18 @@ class Net_SSH1 {
     function _disconnect($msg = 'Client Quit')
     {
         if ($this->bitmap) {
-            $data = pack('CNa*', NET_SSH1_MSG_DISCONNECT, strlen($msg), $msg);
+            $data = pack('C', NET_SSH1_CMSG_EOF);
+            $this->_send_binary_packet($data);
+
+            $response = $this->_get_binary_packet();
+            switch ($response[NET_SSH1_RESPONSE_TYPE]) {
+                case NET_SSH1_SMSG_EXITSTATUS:
+                    $data = pack('C', NET_SSH1_CMSG_EXIT_CONFIRMATION);
+                    break;
+                default:
+                    $data = pack('CNa*', NET_SSH1_MSG_DISCONNECT, strlen($msg), $msg);
+            }
+
             $this->_send_binary_packet($data);
             fclose($this->fsock);
             $this->bitmap = 0;
@@ -1004,6 +1007,15 @@ class Net_SSH1 {
             return false;
         }
 
+        if (defined('NET_SSH1_LOGGING')) {
+            $temp = isset($this->protocol_flags[ord($data[0])]) ? $this->protocol_flags[ord($data[0])] : 'UNKNOWN';
+            $this->protocol_flags_log[] = '-> ' . $temp .
+                                          ' (' . round($stop - $start, 4) . 's)';
+            if (NET_SSH1_LOGGING == NET_SSH1_LOG_COMPLEX) {
+                $this->message_log[] = substr($data, 1);
+            }
+        }
+
         $length = strlen($data) + 4;
 
         $padding_length = 8 - ($length & 7);
@@ -1024,15 +1036,6 @@ class Net_SSH1 {
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $result = strlen($packet) == fputs($this->fsock, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
-
-        if (defined('NET_SSH1_LOGGING')) {
-            $temp = isset($this->protocol_flags[ord($data[0])]) ? $this->protocol_flags[ord($data[0])] : 'UNKNOWN';
-            $this->protocol_flags_log[] = '-> ' . $temp .
-                                          ' (' . round($stop - $start, 4) . 's)';
-            if (NET_SSH1_LOGGING == NET_SSH1_LOG_COMPLEX) {
-                $this->message_log[] = substr($data, 1);
-            }
-        }
 
         return $result;
     }
