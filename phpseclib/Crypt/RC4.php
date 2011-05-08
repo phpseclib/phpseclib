@@ -163,6 +163,15 @@ class Crypt_RC4 {
     var $mode;
 
     /**
+     * Continuous Buffer status
+     *
+     * @see Crypt_RC4::enableContinuousBuffer()
+     * @var Boolean
+     * @access private
+     */
+    var $continuousBuffer = false;
+
+    /**
      * Default Constructor.
      *
      * Determines whether or not the mcrypt extension should be used.
