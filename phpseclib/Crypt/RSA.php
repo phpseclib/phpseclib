@@ -141,6 +141,10 @@ define('CRYPT_RSA_SIGNATURE_PKCS1', 2);
  */
 define('CRYPT_RSA_ASN1_INTEGER',   2);
 /**
+ * ASN1 Bit String
+ */
+define('CRYPT_RSA_ASN1_BITSTRING', 3); 
+/**
  * ASN1 Sequence (with the constucted bit set)
  */
 define('CRYPT_RSA_ASN1_SEQUENCE', 48);
@@ -874,6 +878,20 @@ class Crypt_RSA {
                 }
 
                 $tag = ord($this->_string_shift($key));
+                /* intended for keys for which OpenSSL's asn1parse returns the following:
+
+                    0:d=0  hl=4 l= 631 cons: SEQUENCE
+                    4:d=1  hl=2 l=   1 prim:  INTEGER           :00
+                    7:d=1  hl=2 l=  13 cons:  SEQUENCE
+                    9:d=2  hl=2 l=   9 prim:   OBJECT            :rsaEncryption
+                   20:d=2  hl=2 l=   0 prim:   NULL
+                   22:d=1  hl=4 l= 609 prim:  OCTET STRING */
+
+                if ($tag == CRYPT_RSA_ASN1_INTEGER && substr($key, 0, 3) == "\x01\x00\x30") {
+                    $this->_string_shift($key, 3);
+                    $tag = CRYPT_RSA_ASN1_SEQUENCE;
+                }
+
                 if ($tag == CRYPT_RSA_ASN1_SEQUENCE) {
                     /* intended for keys for which OpenSSL's asn1parse returns the following:
 
@@ -883,12 +901,14 @@ class Crypt_RSA {
                        17:d=2  hl=2 l=   0 prim:   NULL
                        19:d=1  hl=4 l= 271 prim:  BIT STRING */
                     $this->_string_shift($key, $this->_decodeLength($key));
-                    $this->_string_shift($key); // skip over the BIT STRING tag
-                    $this->_decodeLength($key); // skip over the BIT STRING length
+                    $tag = ord($this->_string_shift($key)); // skip over the BIT STRING / OCTET STRING tag
+                    $this->_decodeLength($key); // skip over the BIT STRING / OCTET STRING length
                     // "The initial octet shall encode, as an unsigned binary integer wtih bit 1 as the least significant bit, the number of
-                    //  unused bits in teh final subsequent octet. The number shall be in the range zero to seven."
+                    //  unused bits in the final subsequent octet. The number shall be in the range zero to seven."
                     //  -- http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf (section 8.6.2.2)
-                    $this->_string_shift($key);
+                    if ($tag == CRYPT_RSA_ASN1_BITSTRING) {
+                        $this->_string_shift($key);
+                    }
                     if (ord($this->_string_shift($key)) != CRYPT_RSA_ASN1_SEQUENCE) {
                         return false;
                     }
