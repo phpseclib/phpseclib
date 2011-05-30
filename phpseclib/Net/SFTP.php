@@ -1250,13 +1250,6 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
-        if ($status != NET_SFTP_STATUS_OK) {
-            extract(unpack('Nlength', $this->_string_shift($response, 4)));
-            $this->sftp_errors[] = $this->status_codes[$status] . ': ' . $this->_string_shift($response, $length);
-            return false;
-        }
-
         if (isset($content)) {
             return $content;
         }
