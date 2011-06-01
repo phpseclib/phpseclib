@@ -771,7 +771,7 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        return $this->_stat($filename, NET_SFTP_STAT);
+        return $this->_identify_type($filename, NET_SFTP_STAT, NET_SFTP_LSTAT);
     }
 
     /**
@@ -794,7 +794,7 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        return $this->_stat($filename, NET_SFTP_LSTAT);
+        return $this->_identify_type($filename, NET_SFTP_LSTAT, NET_SFTP_STAT);
     }
 
     /**
@@ -832,6 +832,33 @@ class Net_SFTP extends Net_SSH2 {
 
         user_error('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS', E_USER_NOTICE);
         return false;
+    }
+
+    /**
+     * Attempt to identify the file type
+     *
+     * @param String $path
+     * @param Array $stat
+     * @param Array $lstat
+     * @return Integer
+     * @access private
+     */
+    function _identify_type($path, $stat1, $stat2)
+    {
+        $stat1 = $this->_stat($path, $stat1);
+        $stat2 = $this->_stat($path, $stat2);
+
+        if ($stat1 != $stat2) {
+            return array_merge($stat1, array('type' => NET_SFTP_TYPE_SYMLINK));
+        }
+
+        $pwd = $this->pwd;
+        $stat1['type'] = $this->chdir($path) ?
+            NET_SFTP_TYPE_DIRECTORY :
+            NET_SFTP_TYPE_REGULAR;
+        $this->pwd = $pwd;
+
+        return $stat1;
     }
 
     /**
