@@ -771,7 +771,15 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        return $this->_identify_type($filename, NET_SFTP_STAT, NET_SFTP_LSTAT);
+        $stat = $this->_stat($filename, NET_SFTP_STAT);
+
+        $pwd = $this->pwd;
+        $stat['type'] = $this->chdir($filename) ?
+            NET_SFTP_TYPE_DIRECTORY :
+            NET_SFTP_TYPE_REGULAR;
+        $this->pwd = $pwd;
+
+        return $stat;
     }
 
     /**
@@ -794,7 +802,20 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        return $this->_identify_type($filename, NET_SFTP_LSTAT, NET_SFTP_STAT);
+        $lstat = $this->_stat($filename, NET_SFTP_LSTAT);
+        $stat = $this->_stat($filename, NET_SFTP_STAT);
+
+        if ($lstat != $stat) {
+            return array_merge($lstat, array('type' => NET_SFTP_TYPE_SYMLINK));
+        }
+
+        $pwd = $this->pwd;
+        $lstat['type'] = $this->chdir($filename) ?
+            NET_SFTP_TYPE_DIRECTORY :
+            NET_SFTP_TYPE_REGULAR;
+        $this->pwd = $pwd;
+
+        return $lstat;
     }
 
     /**
