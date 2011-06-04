@@ -157,6 +157,10 @@ define('NET_SSH2_READ_SIMPLE',  1);
  * Returns when a string matching the regular expression $expect is found
  */
 define('NET_SSH2_READ_REGEX', 2);
+/**
+ * Make sure that the log never gets larger than this
+ */
+define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
 /**#@-*/
 
 /**
@@ -602,6 +606,18 @@ class Net_SSH2 {
      * @access private
      */
     var $interactiveBuffer = '';
+
+    /**
+     * Current log size
+     *
+     * Should never exceed NET_SSH2_LOG_MAX_SIZE
+     *
+     * @see Net_SSH2::_send_binary_packet()
+     * @see Net_SSH2::_get_binary_packet()
+     * @var Integer
+     * @access private
+     */
+    var $log_size;
 
     /**
      * Default Constructor.
@@ -1902,7 +1918,7 @@ class Net_SSH2 {
             $this->message_number_log[] = '<- ' . $temp .
                                           ' (' . round($stop - $start, 4) . 's)';
             if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
-                $this->message_log[] = substr($payload, 1);
+                $this->_append_log($payload);
             }
         }
 
@@ -2180,11 +2196,30 @@ class Net_SSH2 {
             $this->message_number_log[] = '-> ' . $temp .
                                           ' (' . round($stop - $start, 4) . 's)';
             if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
-                $this->message_log[] = substr($data, 1);
+                $this->_append_log($data);
             }
         }
 
         return $result;
+    }
+
+    /**
+     * Logs data packets
+     *
+     * Makes sure that only the last 1MB worth of packets will be logged
+     *
+     * @param String $data
+     * @access private
+     */
+    function _append_log($data)
+    {
+        $this->_string_shift($data);
+        $this->log_size+= strlen($data);
+        $this->message_log[] = $data;
+        while ($this->log_size > NET_SSH2_LOG_MAX_SIZE) {
+            $this->log_size-= strlen(array_shift($this->message_log));
+            array_shift($this->message_number_log);
+        }
     }
 
     /**
