@@ -808,7 +808,7 @@ class Crypt_Rijndael {
                 break;
             case CRYPT_RIJNDAEL_MODE_CTR:
                 $xor = $this->decryptIV;
-                if (strlen($buffer)) {
+                if (!empty($buffer)) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
                         $block = substr($ciphertext, $i, $block_size);
                         $buffer.= $this->_encryptBlock($this->_generate_xor($block_size, $xor));
