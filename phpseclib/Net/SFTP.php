@@ -483,6 +483,8 @@ class Net_SFTP extends Net_SSH2 {
                 $dir = dirname($dir);
             }
 
+            $dir = rtrim($dir, '/');
+
             if ($dir == '.' || $dir == $this->pwd) {
                 return $this->pwd . $file;
             }
@@ -632,7 +634,7 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        $dir = $this->_realpath($dir);
+        $dir = $this->_realpath($dir . '/');
         if ($dir === false) {
             return false;
         }
