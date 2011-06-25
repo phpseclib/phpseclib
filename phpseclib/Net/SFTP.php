@@ -478,12 +478,12 @@ class Net_SFTP extends Net_SSH2 {
             // if the SFTP server returned the canonicalized path even for non-existant files this wouldn't be necessary
             // on OpenSSH it isn't necessary but on other SFTP servers it is.  that and since the specs say nothing on
             // the subject, we'll go ahead and work around it with the following.
-            if ($dir[strlen($dir) - 1] != '/') {
+            if (empty($dir) || $dir[strlen($dir) - 1] != '/') {
                 $file = basename($dir);
                 $dir = dirname($dir);
             }
 
-            $dir = rtrim($dir, '/');
+            $dir = $dir[0] == '/' ? '/' . rtrim(substr($dir, 1), '/') : rtrim($dir, '/');
 
             if ($dir == '.' || $dir == $this->pwd) {
                 return $this->pwd . $file;
