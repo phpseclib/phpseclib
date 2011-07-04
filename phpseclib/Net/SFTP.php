@@ -95,7 +95,12 @@ define('NET_SFTP_LOCAL_FILE', 1);
 /**
  * Reads data from a string.
  */
+// this value isn't really used anymore but i'm keeping it reserved for historical reasons
 define('NET_SFTP_STRING',  2);
+/**
+ * Resumes an upload
+ */
+define('NET_SFTP_RESUME',  4);
 /**#@-*/
 
 /**
@@ -302,6 +307,7 @@ class Net_SFTP extends Net_SSH2 {
         $this->open_flags = array(
             0x00000001 => 'NET_SFTP_OPEN_READ',
             0x00000002 => 'NET_SFTP_OPEN_WRITE',
+            0x00000004 => 'NET_SFTP_OPEN_APPEND',
             0x00000008 => 'NET_SFTP_OPEN_CREATE',
             0x00000010 => 'NET_SFTP_OPEN_TRUNCATE'
         );
@@ -1080,7 +1086,20 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        $packet = pack('Na*N2', strlen($remote_file), $remote_file, NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE | NET_SFTP_OPEN_TRUNCATE, 0);
+        $flags = NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE;
+        // according to the SFTP specs, NET_SFTP_OPEN_APPEND should "force all writes to append data at the end of the file."
+        // in practice, it doesn't seem to do that.
+        //$flags|= ($mode & NET_SFTP_APPEND) ? NET_SFTP_OPEN_APPEND : NET_SFTP_OPEN_TRUNCATE;
+
+        // if NET_SFTP_OPEN_APPEND worked as it should the following (up until the -----------) wouldn't be necessary
+        $offset = 0;
+        if ($mode & NET_SFTP_APPEND) {
+            $size = $this->_size($remote_file);
+            $offset = $size !== false ? $size : false;
+        }
+        // --------------
+
+        $packet = pack('Na*N2', strlen($remote_file), $remote_file, $flags, 0);
         if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
             return false;
         }
@@ -1102,7 +1121,7 @@ class Net_SFTP extends Net_SSH2 {
         $initialize = true;
 
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
-        if ($mode == NET_SFTP_LOCAL_FILE) {
+        if ($mode & NET_SFTP_LOCAL_FILE) {
             if (!is_file($data)) {
                 user_error("$data is not a valid file", E_USER_NOTICE);
                 return false;
@@ -1111,20 +1130,19 @@ class Net_SFTP extends Net_SSH2 {
             if (!$fp) {
                 return false;
             }
-            $sent = 0;
             $size = filesize($data);
         } else {
-            $sent = 0;
             $size = strlen($data);
         }
 
+        $sent = 0;
         $size = $size < 0 ? ($size & 0x7FFFFFFF) + 0x80000000 : $size;
 
         $sftp_packet_size = 4096; // PuTTY uses 4096
         $i = 0;
         while ($sent < $size) {
-            $temp = $mode == NET_SFTP_LOCAL_FILE ? fread($fp, $sftp_packet_size) : $this->_string_shift($data, $sftp_packet_size);
-            $packet = pack('Na*N3a*', strlen($handle), $handle, 0, $sent, strlen($temp), $temp);
+            $temp = $mode & NET_SFTP_LOCAL_FILE ? fread($fp, $sftp_packet_size) : $this->_string_shift($data, $sftp_packet_size);
+            $packet = pack('Na*N3a*', strlen($handle), $handle, 0, $offset + $sent, strlen($temp), $temp);
             if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
                 fclose($fp);
                 return false;
@@ -1144,7 +1162,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $this->_read_put_responses($i);
 
-        if ($mode == NET_SFTP_LOCAL_FILE) {
+        if ($mode & NET_SFTP_LOCAL_FILE) {
             fclose($fp);
         }
 
