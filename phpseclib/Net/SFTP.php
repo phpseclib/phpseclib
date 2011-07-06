@@ -1480,7 +1480,8 @@ class Net_SFTP extends Net_SSH2 {
     function _parseLongname($longname)
     {
         // http://en.wikipedia.org/wiki/Unix_file_types
-        if (preg_match('#^[^/]([r-][w-][x-]){3}#', $longname)) {
+        // http://en.wikipedia.org/wiki/Filesystem_permissions#Notation_of_traditional_Unix_permissions
+        if (preg_match('#^[^/]([r-][w-][xstST-]){3}#', $longname)) {
             switch ($longname[0]) {
                 case '-':
                     return NET_SFTP_TYPE_REGULAR;
