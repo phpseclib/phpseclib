@@ -1009,12 +1009,12 @@ class Crypt_RSA {
                         return false;
                     }
                     extract(unpack('Nlength', $this->_string_shift($key, 4)));
-                    return array(
+                    return strlen($key) ? false : array(
                         'modulus' => new Math_BigInteger($this->_string_shift($key, $length), -256),
                         'publicExponent' => $modulus
                     );
                 } else {
-                    return array(
+                    return strlen($key) ? false : array(
                         'modulus' => $modulus,
                         'publicExponent' => $publicExponent
                     );
@@ -1033,7 +1033,7 @@ class Crypt_RSA {
                     return false;
                 }
 
-                return $this->components;
+                return isset($this->components['modulus']) && isset($this->components['publicExponent']) ? $this->components : false;
             // from PuTTY's SSHPUBK.C
             case CRYPT_RSA_PRIVATE_FORMAT_PUTTY:
                 $components = array();
