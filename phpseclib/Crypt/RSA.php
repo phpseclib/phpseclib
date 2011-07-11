@@ -768,6 +768,10 @@ class Crypt_RSA {
      */
     function _parseKey($key, $type)
     {
+        if ($type != CRYPT_RSA_PUBLIC_FORMAT_RAW && !is_string($key)) {
+            return false;
+        }
+
         switch ($type) {
             case CRYPT_RSA_PUBLIC_FORMAT_RAW:
                 if (!is_array($key)) {
@@ -800,7 +804,7 @@ class Crypt_RSA {
                     case isset($key[1]):
                         $components['modulus'] = $key[1]->copy();
                 }
-                return $components;
+                return isset($components['modulus']) && isset($components['publicExponent']) ? $components : false;
             case CRYPT_RSA_PRIVATE_FORMAT_PKCS1:
             case CRYPT_RSA_PUBLIC_FORMAT_PKCS1:
                 /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is
@@ -989,12 +993,21 @@ class Crypt_RSA {
 
                 $cleanup = substr($key, 0, 11) == "\0\0\0\7ssh-rsa";
 
+                if (strlen($key) <= 4) {
+                    return false;
+                }
                 extract(unpack('Nlength', $this->_string_shift($key, 4)));
                 $publicExponent = new Math_BigInteger($this->_string_shift($key, $length), -256);
+                if (strlen($key) <= 4) {
+                    return false;
+                }
                 extract(unpack('Nlength', $this->_string_shift($key, 4)));
                 $modulus = new Math_BigInteger($this->_string_shift($key, $length), -256);
 
                 if ($cleanup && strlen($key)) {
+                    if (strlen($key) <= 4) {
+                        return false;
+                    }
                     extract(unpack('Nlength', $this->_string_shift($key, 4)));
                     return array(
                         'modulus' => new Math_BigInteger($this->_string_shift($key, $length), -256),
