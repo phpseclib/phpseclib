@@ -71,6 +71,10 @@ define('NET_SFTP_LOG_SIMPLE',  NET_SSH2_LOG_SIMPLE);
  * Returns the message content
  */
 define('NET_SFTP_LOG_COMPLEX', NET_SSH2_LOG_COMPLEX);
+/**
+ * Outputs the message content in real-time.
+ */
+define('NET_SFTP_LOG_REALTIME', 3);
 /**#@-*/
 
 /**
@@ -1520,10 +1524,17 @@ class Net_SFTP extends Net_SSH2 {
         $stop = strtok(microtime(), ' ') + strtok('');
 
         if (defined('NET_SFTP_LOGGING')) {
-            $this->packet_type_log[] = '-> ' . $this->packet_types[$type] . 
-                                       ' (' . round($stop - $start, 4) . 's)';
-            if (NET_SFTP_LOGGING == NET_SFTP_LOG_COMPLEX) {
-                $this->packet_log[] = $data;
+            $packet_type = '-> ' . $this->packet_types[$type] . 
+                           ' (' . round($stop - $start, 4) . 's)';
+            if (NET_SFTP_LOGGING == NET_SFTP_LOG_REALTIME) {
+                echo $this->_format_log(array($data), array($packet_type));
+                flush();
+                ob_flush();
+            } else {
+                $this->packet_type_log[] = $packet_type;
+                if (NET_SFTP_LOGGING == NET_SFTP_LOG_COMPLEX) {
+                    $this->packet_log[] = $data;
+                }
             }
         }
 
@@ -1587,10 +1598,17 @@ class Net_SFTP extends Net_SSH2 {
         $packet = $this->_string_shift($this->packet_buffer, $length);
 
         if (defined('NET_SFTP_LOGGING')) {
-            $this->packet_type_log[] = '<- ' . $this->packet_types[$this->packet_type] . 
-                                       ' (' . round($stop - $start, 4) . 's)';
-            if (NET_SFTP_LOGGING == NET_SFTP_LOG_COMPLEX) {
-                $this->packet_log[] = $packet;
+            $packet_type = '<- ' . $this->packet_types[$this->packet_type] . 
+                           ' (' . round($stop - $start, 4) . 's)';
+            if (NET_SFTP_LOGGING == NET_SFTP_LOG_REALTIME) {
+                echo $this->_format_log(array($packet), array($packet_type));
+                flush();
+                ob_flush();
+            } else {
+                $this->packet_type_log[] = $packet_type;
+                if (NET_SFTP_LOGGING == NET_SFTP_LOG_COMPLEX) {
+                    $this->packet_log[] = $data;
+                }
             }
         }
 
