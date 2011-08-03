@@ -1018,7 +1018,7 @@ class Net_SFTP extends Net_SSH2 {
      * @return Mixed
      * @access public
      */
-    function chmod($mode, $filename)
+    function chmod($mode, $filename, $recursive = false)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1027,6 +1027,13 @@ class Net_SFTP extends Net_SSH2 {
         $filename = $this->_realpath($filename);
         if ($filename === false) {
             return false;
+        }
+
+        if ($recursive) {
+            $i = 0;
+            $result = $this->_chmod_recursive($mode, $filename, $i);
+            $this->_read_put_responses($i);
+            return $result;
         }
 
         // SFTPv4+ has an additional byte field - type - that would need to be sent, as well. setting it to
@@ -1050,7 +1057,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
-        if ($status != NET_SFTP_STATUS_EOF) {
+        if ($status != NET_SFTP_STATUS_OK) {
             extract(unpack('Nlength', $this->_string_shift($response, 4)));
             $this->sftp_errors[] = $this->status_codes[$status] . ': ' . $this->_string_shift($response, $length);
         }
@@ -1076,6 +1083,78 @@ class Net_SFTP extends Net_SSH2 {
 
         user_error('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS', E_USER_NOTICE);
         return false;
+    }
+
+    /**
+     * Recursively chmods directories on the SFTP server
+     *
+     * Minimizes directory lookups and SSH_FXP_STATUS requests for speed.
+     *
+     * @param Integer $mode
+     * @param String $filename
+     * @return Boolean
+     * @access private
+     */
+    function _chmod_recursive($mode, $path, &$i)
+    {
+        if (!$this->_read_put_responses($i)) {
+            return false;
+        }
+        $i = 0;
+        $entries = $this->_list($path, true, false);
+
+        if ($entries === false) {
+            return $this->chmod($mode, $path);
+        }
+
+        // presumably $entries will never be empty because it'll always have . and ..
+
+        foreach ($entries as $filename=>$props) {
+            if ($filename == '.' || $filename == '..') {
+                continue;
+            }
+
+            if (!isset($props['type'])) {
+                return false;
+            }
+
+            $temp = $path . '/' . $filename;
+            if ($props['type'] == NET_SFTP_TYPE_DIRECTORY) {
+                if (!$this->_chmod_recursive($mode, $temp, $i)) {
+                    return false;
+                }
+            } else {
+                $attr = pack('N2', NET_SFTP_ATTR_PERMISSIONS, $mode & 07777);
+                if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, pack('Na*a*', strlen($temp), $temp, $attr))) {
+                    return false;
+                }
+
+                $i++;
+
+                if ($i >= 50) {
+                    if (!$this->_read_put_responses($i)) {
+                        return false;
+                    }
+                    $i = 0;
+                }
+            }
+        }
+
+        $attr = pack('N2', NET_SFTP_ATTR_PERMISSIONS, $mode & 07777);
+        if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, pack('Na*a*', strlen($path), $path, $attr))) {
+            return false;
+        }
+
+        $i++;
+
+        if ($i >= 50) {
+            if (!$this->_read_put_responses($i)) {
+                return false;
+            }
+            $i = 0;
+        }
+
+        return true;
     }
 
     /**
@@ -1489,7 +1568,7 @@ class Net_SFTP extends Net_SSH2 {
      *
      * @param String $path
      * @param Integer $i
-     * @return Array
+     * @return Boolean
      * @access private
      */
     function _delete_recursive($path, &$i)
