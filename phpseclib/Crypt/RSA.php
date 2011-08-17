@@ -1080,10 +1080,19 @@ class Crypt_RSA {
                 }
 
                 extract(unpack('Nlength', $this->_string_shift($private, 4)));
+                if (strlen($private) < $length) {
+                    return false;
+                }
                 $components['privateExponent'] = new Math_BigInteger($this->_string_shift($private, $length), -256);
                 extract(unpack('Nlength', $this->_string_shift($private, 4)));
+                if (strlen($private) < $length) {
+                    return false;
+                }
                 $components['primes'] = array(1 => new Math_BigInteger($this->_string_shift($private, $length), -256));
                 extract(unpack('Nlength', $this->_string_shift($private, 4)));
+                if (strlen($private) < $length) {
+                    return false;
+                }
                 $components['primes'][] = new Math_BigInteger($this->_string_shift($private, $length), -256);
 
                 $temp = $components['primes'][1]->subtract($this->one);
@@ -1092,6 +1101,9 @@ class Crypt_RSA {
                 $components['exponents'][] = $components['publicExponent']->modInverse($temp);
 
                 extract(unpack('Nlength', $this->_string_shift($private, 4)));
+                if (strlen($private) < $length) {
+                    return false;
+                }
                 $components['coefficients'] = array(2 => new Math_BigInteger($this->_string_shift($private, $length), -256));
 
                 return $components;
