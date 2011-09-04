@@ -525,11 +525,11 @@ class Crypt_DES {
                 break;
             case CRYPT_DES_MODE_CTR:
                 $xor = $this->encryptIV;
-                if (strlen($buffer)) {
+                if (strlen($buffer['encrypted'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=8) {
                         $block = substr($plaintext, $i, 8);
-                        $buffer.= $this->_processBlock($this->_generate_xor(8, $xor), CRYPT_DES_ENCRYPT);
-                        $key = $this->_string_shift($buffer, 8);
+                        $buffer['encrypted'].= $this->_processBlock($this->_generate_xor(8, $xor), CRYPT_DES_ENCRYPT);
+                        $key = $this->_string_shift($buffer['encrypted'], 8);
                         $ciphertext.= $block ^ $key;
                     }
                 } else {
@@ -542,7 +542,7 @@ class Crypt_DES {
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                     if ($start = strlen($plaintext) & 7) {
-                        $buffer = substr($key, $start) . $buffer;
+                        $buffer['encrypted'] = substr($key, $start) . $buffer['encrypted'];
                     }
                 }
                 break;
@@ -702,11 +702,11 @@ class Crypt_DES {
                 break;
             case CRYPT_DES_MODE_CTR:
                 $xor = $this->decryptIV;
-                if (strlen($buffer)) {
+                if (strlen($buffer['ciphertext'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=8) {
                         $block = substr($ciphertext, $i, 8);
-                        $buffer.= $this->_processBlock($this->_generate_xor(8, $xor), CRYPT_DES_ENCRYPT);
-                        $key = $this->_string_shift($buffer, 8);
+                        $buffer['ciphertext'].= $this->_processBlock($this->_generate_xor(8, $xor), CRYPT_DES_ENCRYPT);
+                        $key = $this->_string_shift($buffer['ciphertext'], 8);
                         $plaintext.= $block ^ $key;
                     }
                 } else {
@@ -719,7 +719,7 @@ class Crypt_DES {
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                     if ($start = strlen($ciphertext) % 8) {
-                        $buffer = substr($key, $start) . $buffer;
+                        $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                     }
                 }
                 break;

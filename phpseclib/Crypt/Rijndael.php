@@ -687,11 +687,11 @@ class Crypt_Rijndael {
                 break;
             case CRYPT_RIJNDAEL_MODE_CTR:
                 $xor = $this->encryptIV;
-                if (!empty($buffer)) {
+                if (!empty($buffer['encrypted'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                         $block = substr($plaintext, $i, $block_size);
-                        $buffer.= $this->_encryptBlock($this->_generate_xor($block_size, $xor));
-                        $key = $this->_string_shift($buffer, $block_size);
+                        $buffer['encrypted'].= $this->_encryptBlock($this->_generate_xor($block_size, $xor));
+                        $key = $this->_string_shift($buffer['encrypted'], $block_size);
                         $ciphertext.= $block ^ $key;
                     }
                 } else {
@@ -704,7 +704,7 @@ class Crypt_Rijndael {
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                     if ($start = strlen($plaintext) % $block_size) {
-                        $buffer = substr($key, $start) . $buffer;
+                        $buffer['encrypted'] = substr($key, $start) . $buffer['encrypted'];
                     }
                 }
                 break;
@@ -808,11 +808,11 @@ class Crypt_Rijndael {
                 break;
             case CRYPT_RIJNDAEL_MODE_CTR:
                 $xor = $this->decryptIV;
-                if (!empty($buffer)) {
+                if (!empty($buffer['ciphertext'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
                         $block = substr($ciphertext, $i, $block_size);
-                        $buffer.= $this->_encryptBlock($this->_generate_xor($block_size, $xor));
-                        $key = $this->_string_shift($buffer, $block_size);
+                        $buffer['ciphertext'].= $this->_encryptBlock($this->_generate_xor($block_size, $xor));
+                        $key = $this->_string_shift($buffer['ciphertext'], $block_size);
                         $plaintext.= $block ^ $key;
                     }
                 } else {
@@ -825,7 +825,7 @@ class Crypt_Rijndael {
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                     if ($start = strlen($ciphertext) % $block_size) {
-                        $buffer = substr($key, $start) . $buffer;
+                        $buffer['ciphertext'] = substr($key, $start) . $buffer['encrypted'];
                     }
                 }
                 break;
