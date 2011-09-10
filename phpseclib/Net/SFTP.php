@@ -1275,11 +1275,11 @@ class Net_SFTP extends Net_SSH2 {
         $flags = NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE;
         // according to the SFTP specs, NET_SFTP_OPEN_APPEND should "force all writes to append data at the end of the file."
         // in practice, it doesn't seem to do that.
-        //$flags|= ($mode & NET_SFTP_APPEND) ? NET_SFTP_OPEN_APPEND : NET_SFTP_OPEN_TRUNCATE;
+        //$flags|= ($mode & NET_SFTP_RESUME) ? NET_SFTP_OPEN_APPEND : NET_SFTP_OPEN_TRUNCATE;
 
         // if NET_SFTP_OPEN_APPEND worked as it should the following (up until the -----------) wouldn't be necessary
         $offset = 0;
-        if ($mode & NET_SFTP_APPEND) {
+        if ($mode & NET_SFTP_RESUME) {
             $size = $this->_size($remote_file);
             $offset = $size !== false ? $size : 0;
         } else {
