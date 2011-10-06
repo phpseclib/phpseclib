@@ -1881,6 +1881,10 @@ class Net_SSH2 {
         if ($this->decrypt !== false) {
             $raw = $this->decrypt->decrypt($raw);
         }
+        if ($raw === false) {
+            user_error('Unable to decrypt content', E_USER_NOTICE);
+            return false;
+        }
 
         extract(unpack('Npacket_length/Cpadding_length', $this->_string_shift($raw, 5)));
 
