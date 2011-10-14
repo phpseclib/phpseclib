@@ -1464,6 +1464,9 @@ class Net_SFTP extends Net_SSH2 {
         while ($read < $size) {
             $packet = pack('Na*N3', strlen($handle), $handle, 0, $read, 1 << 20);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
+                if ($local_file !== false) {
+                    fclose($fp);
+                }
                 return false;
             }
 
@@ -1484,8 +1487,15 @@ class Net_SFTP extends Net_SSH2 {
                     break 2;
                 default:
                     user_error('Expected SSH_FXP_DATA or SSH_FXP_STATUS', E_USER_NOTICE);
+                    if ($local_file !== false) {
+                        fclose($fp);
+                    }
                     return false;
             }
+        }
+
+        if ($local_file !== false) {
+            fclose($fp);
         }
 
         if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
