@@ -437,6 +437,10 @@ class Crypt_RSA {
             }
         }
 
+        if (!defined('CRYPT_RSA_COMMENT')) {
+            define('CRYPT_RSA_COMMENT', 'phpseclib-generated-key');
+        }
+
         $this->zero = new Math_BigInteger();
         $this->one = new Math_BigInteger(1);
 
@@ -486,9 +490,6 @@ class Crypt_RSA {
             if (!defined('CRYPT_RSA_EXPONENT')) {
                 // http://en.wikipedia.org/wiki/65537_%28number%29
                 define('CRYPT_RSA_EXPONENT', '65537');
-            }
-            if (!defined('CRYPT_RSA_COMMENT')) {
-                define('CRYPT_RSA_COMMENT', 'phpseclib-generated-key');
             }
             // per <http://cseweb.ucsd.edu/~hovav/dist/survey.pdf#page=5>, this number ought not result in primes smaller
             // than 256 bits.
@@ -652,6 +653,78 @@ class Crypt_RSA {
         // if the format in question does not support multi-prime rsa and multi-prime rsa was used,
         // call _convertPublicKey() instead.
         switch ($this->privateKeyFormat) {
+            case CRYPT_RSA_PRIVATE_FORMAT_XML:
+                if ($num_primes != 2) {
+                    return false;
+                }
+                return "<RSAKeyValue>\r\n" .
+                       '  <Modulus>' . base64_encode($raw['modulus']) . "</Modulus>\r\n" .
+                       '  <Exponent>' . base64_encode($raw['publicExponent']) . "</Exponent>\r\n" .
+                       '  <P>' . base64_encode($raw['prime1']) . "</P>\r\n" .
+                       '  <Q>' . base64_encode($raw['prime2']) . "</Q>\r\n" .
+                       '  <DP>' . base64_encode($raw['exponent1']) . "</DP>\r\n" .
+                       '  <DQ>' . base64_encode($raw['exponent2']) . "</DQ>\r\n" .
+                       '  <InverseQ>' . base64_encode($raw['coefficient']) . "</InverseQ>\r\n" .
+                       '  <D>' . base64_encode($raw['privateExponent']) . "</D>\r\n" .
+                       '</RSAKeyValue>';
+                break;
+            case CRYPT_RSA_PRIVATE_FORMAT_PUTTY:
+                if ($num_primes != 2) {
+                    return false;
+                }
+                $key = "PuTTY-User-Key-File-2: ssh-rsa\r\nEncryption: ";
+                $encryption = (!empty($this->password)) ? 'aes256-cbc' : 'none';
+                $key.= $encryption;
+                $key.= "\r\nComment: " . CRYPT_RSA_COMMENT . "\r\n";
+                $public = pack('Na*Na*Na*',
+                    strlen('ssh-rsa'), 'ssh-rsa', strlen($raw['publicExponent']), $raw['publicExponent'], strlen($raw['modulus']), $raw['modulus']
+                );
+                $source = pack('Na*Na*Na*Na*',
+                              strlen('ssh-rsa'), 'ssh-rsa', strlen($encryption), $encryption,
+                              strlen(CRYPT_RSA_COMMENT), CRYPT_RSA_COMMENT, strlen($public), $public
+                );
+                $public = base64_encode($public);
+                $key.= "Public-Lines: " . ((strlen($public) + 32) >> 6) . "\r\n";
+                $key.= chunk_split($public, 64);
+                $private = pack('Na*Na*Na*Na*',
+                    strlen($raw['privateExponent']), $raw['privateExponent'], strlen($raw['prime1']), $raw['prime1'],
+                    strlen($raw['prime2']), $raw['prime2'], strlen($raw['coefficient']), $raw['coefficient']
+                );
+                if (empty($this->password)) {
+                    $source.= pack('Na*', strlen($private), $private);
+                    $hashkey = 'putty-private-key-file-mac-key';
+                } else {
+                    $private.= $this->_random(16 - (strlen($private) & 15));
+                    $source.= pack('Na*', strlen($private), $private);
+                    if (!class_exists('Crypt_AES')) {
+                        require_once('Crypt/AES.php');
+                    }
+                    $sequence = 0;
+                    $symkey = '';
+                    while (strlen($symkey) < 32) {
+                        $temp = pack('Na*', $sequence++, $this->password);
+                        $symkey.= pack('H*', sha1($temp));
+                    }
+                    $symkey = substr($symkey, 0, 32);
+                    $crypto = new Crypt_AES();
+
+                    $crypto->setKey($symkey);
+                    $crypto->disablePadding();
+                    $private = $crypto->encrypt($private);
+                    $hashkey = 'putty-private-key-file-mac-key' . $this->password;
+                }
+
+                $private = base64_encode($private);
+                $key.= 'Private-Lines: ' . ((strlen($private) + 32) >> 6) . "\r\n";
+                $key.= chunk_split($private, 64);
+                if (!class_exists('Crypt_Hash')) {
+                    require_once('Crypt/Hash.php');
+                }
+                $hash = new Crypt_Hash('sha1');
+                $hash->setKey(pack('H*', sha1($hashkey)));
+                $key.= 'Private-MAC: ' . bin2hex($hash->hash($source)) . "\r\n";
+
+                return $key;
             default: // eg. CRYPT_RSA_PRIVATE_FORMAT_PKCS1
                 $components = array();
                 foreach ($raw as $name => $value) {
@@ -723,6 +796,12 @@ class Crypt_RSA {
         switch ($this->publicKeyFormat) {
             case CRYPT_RSA_PUBLIC_FORMAT_RAW:
                 return array('e' => $e->copy(), 'n' => $n->copy());
+            case CRYPT_RSA_PUBLIC_FORMAT_XML:
+                return "<RSAKeyValue>\r\n" .
+                       '  <Modulus>' . base64_encode($raw['modulus']) . "</Modulus>\r\n" .
+                       '  <Exponent>' . base64_encode($raw['publicExponent']) . "</Exponent>\r\n" .
+                       '</RSAKeyValue>';
+                break;
             case CRYPT_RSA_PUBLIC_FORMAT_OPENSSH:
                 // from <http://tools.ietf.org/html/rfc4253#page-15>:
                 // string    "ssh-rsa"
@@ -1316,6 +1395,29 @@ class Crypt_RSA {
     }
 
     /**
+     * Returns the private key
+     *
+     * The private key is only returned if the currently loaded key contains the constituent prime numbers.
+     *
+     * @see getPublicKey()
+     * @access public
+     * @param String $key
+     * @param Integer $type optional
+     */
+    function getPrivateKey($type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
+    {
+        if (empty($this->primes)) {
+            return false;
+        }
+
+        $oldFormat = $this->privateKeyFormat;
+        $this->privateKeyFormat = $type;
+        $temp = $this->_convertPrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients);
+        $this->privateKeyFormat = $oldFormat;
+        return $temp;
+    }
+
+    /**
      * Generates the smallest and largest numbers requiring $bits bits
      *
      * @access private
@@ -1506,16 +1608,8 @@ class Crypt_RSA {
     function _random($bytes, $nonzero = false)
     {
         $temp = '';
-        if ($nonzero) {
-            for ($i = 0; $i < $bytes; $i++) {
-                $temp.= chr(crypt_random(1, 255));
-            }
-        } else {
-            $ints = ($bytes + 1) >> 2;
-            for ($i = 0; $i < $ints; $i++) {
-                $temp.= pack('N', crypt_random());
-            }
-            $temp = substr($temp, 0, $bytes);
+        for ($i = 0; $i < $bytes; $i++) {
+            $temp.= chr(crypt_random($nonzero, 255));
         }
         return $temp;
     }
