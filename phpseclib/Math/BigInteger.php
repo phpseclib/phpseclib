@@ -2328,13 +2328,13 @@ class Math_BigInteger {
             $one = new Math_BigInteger(1);
         }
 
-        // $x mod $n == $x mod -$n.
+        // $x mod -$n == $x mod $n.
         $n = $n->abs();
 
         if ($this->compare($zero) < 0) {
             $temp = $this->abs();
             $temp = $temp->modInverse($n);
-            return $negated === false ? false : $this->_normalize($n->subtract($temp));
+            return $this->_normalize($n->subtract($temp));
         }
 
         extract($this->extendedGCD($n));
