@@ -242,6 +242,65 @@ class Crypt_RC4 {
     }
 
     /**
+     * Sets the password.
+     *
+     * Depending on what $method is set to, setPassword()'s (optional) parameters are as follows:
+     *     {@link http://en.wikipedia.org/wiki/PBKDF2 pbkdf2}:
+     *         $hash, $salt, $method, $dkLen
+     *
+     * @param String $password
+     * @param optional String $method
+     * @access public
+     */
+    function setPassword($password, $method = 'pbkdf2')
+    {
+        $key = '';
+
+        switch ($method) {
+            default: // 'pbkdf2'
+                list(, , $hash, $salt, $count) = func_get_args();
+                if (!isset($hash)) {
+                    $hash = 'sha1';
+                }
+                // WPA and WPA use the SSID as the salt
+                if (!isset($salt)) {
+                    $salt = 'phpseclib';
+                }
+                // RFC2898#section-4.2 uses 1,000 iterations by default
+                // WPA and WPA2 use 4,096.
+                if (!isset($count)) {
+                    $count = 1000;
+                }
+                if (!isset($count)) {
+                    $count = 1000;
+                }
+                if (!isset($dkLen)) {
+                    $count = 1000;
+                }
+
+                if (!class_exists('Crypt_Hash')) {
+                    require_once('Crypt/Hash.php');
+                }
+
+                $i = 1;
+                while (strlen($key) < $dkLen) {
+                    //$dk.= $this->_pbkdf($password, $salt, $count, $i++);
+                    $hmac = new Crypt_Hash();
+                    $hmac->setHash($hash);
+                    $hmac->setKey($password);
+                    $f = $u = $hmac->hash($salt . pack('N', $i++));
+                    for ($j = 2; $j <= $count; $j++) {
+                        $u = $hmac->hash($u);
+                        $f^= $u;
+                    }
+                    $key.= $f;
+                }
+        }
+
+        $this->setKey(substr($key, 0, $dkLen));
+    }
+
+    /**
      * Dummy function.
      *
      * Some protocols, such as WEP, prepend an "initialization vector" to the key, effectively creating a new key [1].
