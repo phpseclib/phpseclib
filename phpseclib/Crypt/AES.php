@@ -258,6 +258,24 @@ class Crypt_AES extends Crypt_Rijndael {
         return;
     }
 
+
+    /**
+     * Sets the initialization vector. (optional)
+     *
+     * SetIV is not required when CRYPT_RIJNDAEL_MODE_ECB is being used.  If not explictly set, it'll be assumed
+     * to be all zero's.
+     *
+     * @access public
+     * @param String $iv
+     */
+    function setIV($iv)
+    {
+        parent::setIV($iv);
+        if ( CRYPT_AES_MODE == CRYPT_AES_MODE_MCRYPT ) {
+            $this->changed = true;
+        }
+    }
+
     /**
      * Encrypts a message.
      *
