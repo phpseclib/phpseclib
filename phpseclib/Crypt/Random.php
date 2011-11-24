@@ -66,7 +66,7 @@ function crypt_random($min = 0, $max = 0x7FFFFFFF)
     if (function_exists('openssl_random_pseudo_bytes')) {
         // openssl_random_pseudo_bytes() is slow on windows per the following:
         // http://stackoverflow.com/questions/1940168/openssl-random-pseudo-bytes-is-slow-php
-        if ((PHP_OS & "\xDF\xDF\xDF") != 'WIN') { // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
+        if ((PHP_OS & "\xDF\xDF\xDF") !== 'WIN') { // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
             extract(unpack('Nrandom', openssl_random_pseudo_bytes(4)));
 
             return abs($random) % ($max - $min) + $min; 
