@@ -628,7 +628,7 @@ class Crypt_Rijndael {
                 }
         }
 
-        $this->setKey($key);
+        $this->setKey(substr($key, 0, $this->key_size));
     }
 
     /**
