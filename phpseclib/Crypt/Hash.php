@@ -183,6 +183,7 @@ class Crypt_Hash {
      */
     function setHash($hash)
     {
+        $hash = strtolower($hash);
         switch ($hash) {
             case 'md5-96':
             case 'sha1-96':
