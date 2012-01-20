@@ -1005,7 +1005,10 @@ class Net_SFTP extends Net_SSH2 {
     function _size($filename)
     {
         $result = $this->_stat($filename, NET_SFTP_LSTAT);
-        return $result === false ? false : $result['size'];
+        if ($result === false) {
+            return false;
+        }
+        return isset($result['size']) ? $result['size'] : -1;
     }
 
     /**
@@ -1532,7 +1535,7 @@ class Net_SFTP extends Net_SSH2 {
      * @return Boolean
      * @access public
      */
-    function delete($path, $recursive = false)
+    function delete($path, $recursive = true)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1872,7 +1875,7 @@ class Net_SFTP extends Net_SSH2 {
             } else {
                 $this->packet_type_log[] = $packet_type;
                 if (NET_SFTP_LOGGING == NET_SFTP_LOG_COMPLEX) {
-                    $this->packet_log[] = $data;
+                    $this->packet_log[] = $packet;
                 }
             }
         }
