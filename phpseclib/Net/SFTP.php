@@ -1523,7 +1523,6 @@ class Net_SFTP extends Net_SSH2 {
             return $content;
         }
 
-        fclose($fp);
         return true;
     }
 
