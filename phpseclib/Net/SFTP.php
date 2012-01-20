@@ -1430,11 +1430,6 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        $size = $this->_size($remote_file);
-        if ($size === false) {
-            return false;
-        }
-
         $packet = pack('Na*N2', strlen($remote_file), $remote_file, NET_SFTP_OPEN_READ, 0);
         if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
             return false;
@@ -1464,7 +1459,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         $read = 0;
-        while ($read < $size) {
+        while (true) {
             $packet = pack('Na*N3', strlen($handle), $handle, 0, $read, 1 << 20);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
                 if ($local_file !== false) {
