@@ -1638,8 +1638,7 @@ class Net_SSH2 {
      */
     function setTimeout($timeout)
     {
-        $this->timeout = $timeout;
-        $this->curTimeout = $timeout;
+        $this->timeout = $this->curTimeout = $timeout;
     }
 
     /**
