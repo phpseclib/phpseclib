@@ -620,6 +620,22 @@ class Net_SSH2 {
     var $log_size;
 
     /**
+     * Timeout
+     *
+     * @see Net_SSH2::setTimeout()
+     * @access private
+     */
+    var $timeout;
+
+    /**
+     * Current Timeout
+     *
+     * @see Net_SSH2::_get_channel_packet()
+     * @access private
+     */
+    var $curTimeout;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -1613,6 +1629,20 @@ class Net_SSH2 {
     }
 
     /**
+     * Set Timeout
+     *
+     * $ssh->exec('ping 127.0.0.1'); on a Linux host will never return and will run indefinitely.  setTimeout() makes it so it'll timeout.
+     * Setting $timeout to false or 0 will mean there is no timeout.
+     *
+     * @param Mixed $timeout
+     */
+    function setTimeout($timeout)
+    {
+        $this->timeout = $timeout;
+        $this->curTimeout = $timeout;
+    }
+
+    /**
      * Execute Command
      *
      * If $block is set to false then Net_SSH2::_get_channel_packet(NET_SSH2_CHANNEL_EXEC) will need to be called manually.
@@ -1625,6 +1655,8 @@ class Net_SSH2 {
      */
     function exec($command, $block = true)
     {
+        $this->curTimeout = $this->timeout;
+
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
         }
@@ -1730,7 +1762,6 @@ class Net_SSH2 {
             return false;
         }
 
-
         $response = $this->_get_binary_packet();
         if ($response === false) {
             user_error('Connection closed by server', E_USER_NOTICE);
@@ -1782,6 +1813,8 @@ class Net_SSH2 {
      */
     function read($expect, $mode = NET_SSH2_READ_SIMPLE)
     {
+        $this->curTimeout = $this->timeout;
+
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             user_error('Operation disallowed prior to login()', E_USER_NOTICE);
             return false;
@@ -1803,6 +1836,9 @@ class Net_SSH2 {
                 return $this->_string_shift($this->interactiveBuffer, $pos + strlen($match));
             }
             $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_SHELL);
+            if (is_bool($response)) {
+                return $response ? $this->_string_shift($this->interactiveBuffer, strlen($this->interactiveBuffer)) : false;
+            }
 
             $this->interactiveBuffer.= $response;
         }
@@ -2031,6 +2067,25 @@ class Net_SSH2 {
         }
 
         while (true) {
+            if ($this->curTimeout) {
+                $read = array($this->fsock);
+                $write = $except = NULL;
+
+                stream_set_blocking($this->fsock, false);
+
+                $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+                // on windows this returns a "Warning: Invalid CRT parameters detected" error
+                if (!@stream_select($read, $write, $except, $this->curTimeout)) {
+                    stream_set_blocking($this->fsock, true);
+                    $this->_close_channel($client_channel);
+                    return true;
+                }
+                $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+                $this->curTimeout-= $elapsed;
+
+                stream_set_blocking($this->fsock, true);
+            }
+
             $response = $this->_get_binary_packet();
             if ($response === false) {
                 user_error('Connection closed by server', E_USER_NOTICE);
@@ -2048,11 +2103,11 @@ class Net_SSH2 {
                     switch ($type) {
                         case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
                             extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
-                            $this->server_channels[$client_channel] = $server_channel;
+                            $this->server_channels[$channel] = $server_channel;
                             $this->_string_shift($response, 4); // skip over (server) window size
                             $temp = unpack('Npacket_size_client_to_server', $this->_string_shift($response, 4));
-                            $this->packet_size_client_to_server[$client_channel] = $temp['packet_size_client_to_server'];
-                            return true;
+                            $this->packet_size_client_to_server[$channel] = $temp['packet_size_client_to_server'];
+                            return $client_channel == $channel ? true : $this->_get_channel_packet($client_channel, $skip_extended);
                         //case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
                         default:
                             user_error('Unable to open channel', E_USER_NOTICE);
@@ -2068,6 +2123,9 @@ class Net_SSH2 {
                             user_error('Unable to request pseudo-terminal', E_USER_NOTICE);
                             return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
                     }
+                case NET_SSH2_MSG_CHANNEL_CLOSE:
+                    $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
+                    return $type != NET_SSH2_MSG_CHANNEL_CLOSE;
 
             }
 
@@ -2300,7 +2358,15 @@ class Net_SSH2 {
             return false;
         }
 
-        while ($this->_get_channel_packet($client_channel) !== true);
+        $this->channel_status[$client_channel] = NET_SSH2_MSG_CHANNEL_CLOSE;
+
+        $this->curTimeout = 0;
+
+        while (!is_bool($this->_get_channel_packet($client_channel)));
+
+        if ($this->bitmap & NET_SSH2_MASK_SHELL) {
+            $this->bitmap&= ~NET_SSH2_MASK_SHELL;
+        }
     }
 
     /**

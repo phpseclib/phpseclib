@@ -1818,6 +1818,8 @@ class Net_SFTP extends Net_SSH2 {
      */
     function _get_sftp_packet()
     {
+        $this->curTimeout = false;
+
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
 
         // SFTP packet length
