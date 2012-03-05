@@ -2123,9 +2123,7 @@ class Net_SSH2 {
                             return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
                     }
                 case NET_SSH2_MSG_CHANNEL_CLOSE:
-                    $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
-                    return $type != NET_SSH2_MSG_CHANNEL_CLOSE;
-
+                    return $type == NET_SSH2_MSG_CHANNEL_CLOSE ? true : $this->_get_channel_packet($client_channel, $skip_extended);
             }
 
             switch ($type) {
@@ -2350,12 +2348,9 @@ class Net_SSH2 {
     {
         // see http://tools.ietf.org/html/rfc4254#section-5.3
 
-        $packet = pack('CN',
-            NET_SSH2_MSG_CHANNEL_EOF,
-            $this->server_channels[$client_channel]);
-        if (!$this->_send_binary_packet($packet)) {
-            return false;
-        }
+        $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$channel]));
+
+        $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
 
         $this->channel_status[$client_channel] = NET_SSH2_MSG_CHANNEL_CLOSE;
 
