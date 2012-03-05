@@ -1810,7 +1810,7 @@ class Net_SSH2 {
      * @return String
      * @access public
      */
-    function read($expect, $mode = NET_SSH2_READ_SIMPLE)
+    function read($expect = '', $mode = NET_SSH2_READ_SIMPLE)
     {
         $this->curTimeout = $this->timeout;
 
@@ -1830,7 +1830,7 @@ class Net_SSH2 {
                 preg_match($expect, $this->interactiveBuffer, $matches);
                 $match = $matches[0];
             }
-            $pos = strpos($this->interactiveBuffer, $match);
+            $pos = !empty($match) ? strpos($this->interactiveBuffer, $match) : false;
             if ($pos !== false) {
                 return $this->_string_shift($this->interactiveBuffer, $pos + strlen($match));
             }
