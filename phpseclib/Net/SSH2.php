@@ -2180,7 +2180,11 @@ class Net_SSH2 {
                             if ($length) {
                                 $this->errors[count($this->errors)].= "\r\n" . $this->_string_shift($response, $length);
                             }
-                        //case 'exit-status':
+                        case 'exit-status':
+                            // "The channel needs to be closed with SSH_MSG_CHANNEL_CLOSE after this message."
+                            // -- http://tools.ietf.org/html/rfc4254#section-6.10
+                            $this->_close_channel($client_channel);
+                            return true;
                         default:
                             // "Some systems may not implement signals, in which case they SHOULD ignore this message."
                             //  -- http://tools.ietf.org/html/rfc4254#section-6.9
