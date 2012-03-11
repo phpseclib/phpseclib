@@ -1355,9 +1355,25 @@ class Crypt_RSA {
      * @param Integer $type optional
      * @return Boolean
      */
-    function setPublicKey($key, $type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
+    function setPublicKey($key, $type = false)
     {
-        $components = $this->_parseKey($key, $type);
+        if ($type === false) {
+            $types = array(
+                CRYPT_RSA_PUBLIC_FORMAT_RAW,
+                CRYPT_RSA_PUBLIC_FORMAT_PKCS1,
+                CRYPT_RSA_PUBLIC_FORMAT_XML,
+                CRYPT_RSA_PUBLIC_FORMAT_OPENSSH
+            );
+            foreach ($types as $type) {
+                $components = $this->_parseKey($key, $type);
+                if ($components !== false) {
+                    break;
+                }
+            }
+            
+        } else {
+            $components = $this->_parseKey($key, $type);
+        }
 
         if (empty($this->modulus) || !$this->modulus->equals($components['modulus'])) {
             user_error('Trying to load a public key?  Use loadKey() instead.  It\'s called loadKey() and not loadPrivateKey() for a reason.', E_USER_NOTICE);
