@@ -738,6 +738,49 @@ class File_X509 {
             )
         );
 
+        $BaseDistance = array('type' => FILE_ASN1_TYPE_INTEGER);
+
+        $GeneralSubtree = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'base'    => $GeneralName,
+                'minimum' => array(
+                                 'constant' => 0,
+                                 'optional' => true,
+                                 'implicit' => true,
+                                 'default' => new Math_BigInteger(0)
+                             ) + $BaseDistance,
+                'maximum' => array(
+                                 'constant' => 1,
+                                 'optional' => true,
+                                 'implicit' => true,
+                             ) + $BaseDistance
+            )
+        );
+
+        $GeneralSubtrees = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'min'      => 1,
+            'max'      => -1,
+            'children' => $GeneralSubtree
+        );
+
+        $this->NameConstraints = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'permittedSubtrees' => array(
+                                           'constant' => 0,
+                                           'optional' => true,
+                                           'implicit' => true
+                                       ) + $GeneralSubtrees,
+                'excludedSubtrees'  => array(
+                                           'constant' => 1,
+                                           'optional' => true,
+                                           'implicit' => true
+                                       ) + $GeneralSubtrees
+            )
+        );
+
         // mapping is from <http://www.mozilla.org/projects/security/pki/nss/tech-notes/tn3.html>
         $this->netscape_cert_type = array(
             'type'    => FILE_ASN1_TYPE_BIT_STRING,
@@ -1033,6 +1076,8 @@ class File_X509 {
                 return $this->IssuerAltName;
             case 'id-ce-policyMappings':
                 return $this->PolicyMappings;
+            case 'id-ce-nameConstraints':
+                return $this->NameConstraints;
 
             case 'netscape-cert-type':
                 return $this->netscape_cert_type;
