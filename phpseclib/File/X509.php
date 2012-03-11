@@ -74,6 +74,12 @@ class File_X509 {
     var $CertificatePolicies;
     var $AuthorityInfoAccessSyntax;
     var $SubjectAltName;
+    var $PrivateKeyUsagePeriod;
+    var $IssuerAltName;
+    var $PolicyMappings;
+    var $NameConstraints;
+    var $netscape_cert_type;
+    var $netscape_comment;
     /**#@-*/
 
     /**
@@ -84,6 +90,22 @@ class File_X509 {
      * @link http://en.wikipedia.org/wiki/Object_identifier
      */
     var $oids;
+
+    /**
+     * The certificate authorities
+     *
+     * @var Array
+     * @access private
+     */
+    var $CAs;
+
+    /**
+     * The currently loaded certificate
+     *
+     * @var Array
+     * @access private
+     */
+    var $certificate;
 
     /**
      * Default Constructor.
@@ -987,6 +1009,19 @@ class File_X509 {
             }
         }
 
+        switch ($x509['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
+            case 'rsaEncryption':
+                $x509['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'] =
+                    "-----BEGIN PUBLIC KEY-----\r\n" .
+                    // subjectPublicKey is stored as a bit string in X.509 certs.  the first byte of a bit string represents how many bits
+                    // in the last byte should be ignored.  the following only supports non-zero stuff but as none of the X.509 certs Firefox
+                    // uses as a cert authority actually use a non-zero bit I think it's safe to assume that none do.
+                    chunk_split(base64_encode(substr(base64_decode($x509['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']), 1))) .
+                    '-----END PUBLIC KEY-----';
+        }
+
+        $this->currentCert = $x509;
+
         return $x509;
     }
 
@@ -998,6 +1033,12 @@ class File_X509 {
      */
     function saveX509($cert)
     {
+        switch ($cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
+            case 'rsaEncryption':
+                $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'] = 
+                    base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
+        }
+
         $asn1 = new File_ASN1();
 
         $asn1->loadOIDs($this->oids);
