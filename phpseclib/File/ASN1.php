@@ -72,8 +72,8 @@ define('FILE_ASN1_TYPE_NULL',             5);
 define('FILE_ASN1_TYPE_OBJECT_IDENTIFIER',6);
 //define('FILE_ASN1_TYPE_OBJECT_DESCRIPTOR',7);
 //define('FILE_ASN1_TYPE_INSTANCE_OF',      8); // EXTERNAL
-//define('FILE_ASN1_TYPE_REAL',             9);
-//define('FILE_ASN1_TYPE_ENUMERATED',      10);
+define('FILE_ASN1_TYPE_REAL',             9);
+define('FILE_ASN1_TYPE_ENUMERATED',      10);
 //define('FILE_ASN1_TYPE_EMBEDDED',        11);
 define('FILE_ASN1_TYPE_UTF8_STRING',     12);
 //define('FILE_ASN1_TYPE_RELATIVE_OID',    13);
@@ -96,9 +96,9 @@ define('FILE_ASN1_TYPE_GENERALIZED_TIME',24);
 define('FILE_ASN1_TYPE_GRAPHIC_STRING',  25);
 define('FILE_ASN1_TYPE_VISIBLE_STRING',  26); // ISO646String
 define('FILE_ASN1_TYPE_GENERAL_STRING',  27);
-//define('FILE_ASN1_TYPE_UNIVERSAL_STRING',28);
+define('FILE_ASN1_TYPE_UNIVERSAL_STRING',28);
 //define('FILE_ASN1_TYPE_CHARACTER_STRING',29);
-//define('FILE_ASN1_TYPE_BMP_STRING',      30);
+define('FILE_ASN1_TYPE_BMP_STRING',      30);
 /**#@-*/
 
 /**#@+
@@ -473,14 +473,22 @@ class File_ASN1 {
                         if (isset($constant) && isset($temp['constant'])) {
                             if (($constant == $temp['constant']) && ($childClass == $tempClass)) {
                                 $map[$key] = $this->asn1map($temp, $child);
-                                $temp = $decoded['content'][++$i];
+                                $i++;
+                                if (count($decoded['content']) == $i) {
+                                    break;
+                                }
+                                $temp = $decoded['content'][$i];
                             }
                         } elseif (!isset($child['constant'])) {
                             // we could do this, as well:
                             // $buffer = $this->asn1map($temp, $child); if (isset($buffer)) { $map[$key] = $buffer; }
                             if ($child['type'] == $temp['type']) {
                                 $map[$key] = $this->asn1map($temp, $child);
-                                $temp = $decoded['content'][++$i];
+                                $i++;
+                                if (count($decoded['content']) == $i) {
+                                    break;
+                                }
+                                $temp = $decoded['content'][$i];
                             }
                         }
 
@@ -489,7 +497,11 @@ class File_ASN1 {
                         }
                     } else {
                         $map[$key] = $this->asn1map($temp, $child);
-                        $temp = $decoded['content'][++$i];
+                        $i++;
+                        if (count($decoded['content']) == $i) {
+                            break;
+                        }
+                        $temp = $decoded['content'][$i];
                     }
                 }
 
