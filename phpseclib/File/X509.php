@@ -11,6 +11,12 @@
  * The extensions are from {@link http://tools.ietf.org/html/rfc5280 RFC5280} and 
  * {@link http://web.archive.org/web/19961027104704/http://www3.netscape.com/eng/security/cert-exts.html Netscape Certificate Extensions}.
  *
+ * Note that loading an X.509 certificate and resaving it may invalidate the signature.  The reason being that the signature is based on a
+ * portion of the certificate that contains optional parameters with default values.  ie. if the parameter isn't there the default value is
+ * used.  Problem is, if the parameter is there and it just so happens to have the default value there are two ways that that parameter can
+ * be encoded.  It can be encoded explicitly or left out all together.  This would effect the signature value and thus may invalidate the
+ * the certificate all together unless the certificate is re-signed.
+ *
  * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -42,6 +48,24 @@
  * Include File_ASN1
  */
 include('File/ASN1.php');
+
+/**#@+
+ * @access public
+ * @see File_X509::validate()
+ */
+/**
+ * The current date does not fall between the certificate's notBefore and notAfter dates
+ */
+define('FILE_X509_VALIDATE_EXPIRATION',  0);
+/**
+ * The certificate has not been signed by a recognized certificate authority
+ */
+define('FILE_X509_VALIDATE_SIGNATURE_BY_CA', 1);
+/**
+ * The certificate's signature could not be verified on account of it's using an unsupported algorithm
+ */
+define('FILE_X509_VALIDATE_UNSUPPORTED_ALGORITHM', 2);
+/**#@-*/
 
 /**
  * Pure-PHP X.509 Parser
@@ -78,6 +102,10 @@ class File_X509 {
     var $IssuerAltName;
     var $PolicyMappings;
     var $NameConstraints;
+
+    var $CPSuri;
+    var $UserNotice;
+
     var $netscape_cert_type;
     var $netscape_comment;
     /**#@-*/
@@ -105,7 +133,7 @@ class File_X509 {
      * @var Array
      * @access private
      */
-    var $certificate;
+    var $currentCert;
 
     /**
      * Default Constructor.
@@ -466,7 +494,7 @@ class File_X509 {
                 'network-address'            => array(
                                                  'constant' => 0,
                                                  'optional' => true,
-                                                 'implicit' => trues
+                                                 'implicit' => true
                                                ) + $NetworkAddress,
                 'terminal-identifier'        => array(
                                                  'constant' => 1,
@@ -691,7 +719,7 @@ class File_X509 {
                 'policyIdentifier' => $CertPolicyId,
                 'policyQualifiers' => array(
                                           'type'     => FILE_ASN1_TYPE_SEQUENCE,
-                                          'min'      => 1,
+                                          'min'      => 0,
                                           'max'      => -1,
                                           'children' => $PolicyQualifierInfo
                                       )
@@ -800,6 +828,45 @@ class File_X509 {
                                            'optional' => true,
                                            'implicit' => true
                                        ) + $GeneralSubtrees
+            )
+        );
+
+        $this->CPSuri = array('type' => FILE_ASN1_TYPE_IA5_STRING);
+
+        $DisplayText = array(
+            'type'     => FILE_ASN1_TYPE_CHOICE,
+            'children' => array(
+                'ia5String'     => array('type' => FILE_ASN1_TYPE_IA5_STRING),
+                'visibleString' => array('type' => FILE_ASN1_TYPE_VISIBLE_STRING),
+                'bmpString'     => array('type' => FILE_ASN1_TYPE_BMP_STRING),
+                'utf8String'    => array('type' => FILE_ASN1_TYPE_UTF8_STRING)
+            )
+        );
+
+        $NoticeReference = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'organization'  => $DisplayText,
+                'noticeNumbers' => array(
+                                       'type'     => FILE_ASN1_TYPE_SEQUENCE,
+                                       'min'      => 1,
+                                       'max'      => 200,
+                                       'children' => array('type' => FILE_ASN1_TYPE_INTEGER)
+                                   )
+            )
+        );
+
+        $this->UserNotice = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'noticeRef' => array(
+                                           'optional' => true,
+                                           'implicit' => true
+                                       ) + $NoticeReference,
+                'explicitText'  => array(
+                                           'optional' => true,
+                                           'implicit' => true
+                                       ) + $DisplayText
             )
         );
 
@@ -978,6 +1045,7 @@ class File_X509 {
      *
      * @param String $cert
      * @access public
+     * @return Array
      */
     function loadX509($cert)
     {
@@ -993,19 +1061,54 @@ class File_X509 {
         $cert = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]#', '', $cert);
         $cert = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $cert) ? base64_decode($cert) : false;
 
+        if ($cert === false) {
+            $this->currentCert = false;
+            return false;
+        }
+
         $asn1->loadOIDs($this->oids);
         $decoded = $asn1->decodeBER($cert);
         $x509 = $asn1->asn1map($decoded[0], $this->Certificate);
+        if (!isset($x509) || $x509 === false) {
+            $this->currentCert = false;
+            return false;
+        }
 
-        for ($i = 0; $i < count($x509['tbsCertificate']['extensions']); $i++) {
-            $id = $x509['tbsCertificate']['extensions'][$i]['extnId'];
-            $value = base64_decode($x509['tbsCertificate']['extensions'][$i]['extnValue']);
-            $decoded = $asn1->decodeBER($value);
-            /* [extnValue] contains the DER encoding of an ASN.1 value
-               corresponding to the extension type identified by extnID */
-            $map = $this->_getMapping($id);
-            if ($map !== false) {
-                $x509['tbsCertificate']['extensions'][$i]['extnValue'] = $asn1->asn1map($decoded[0], $map);
+        $this->signatureSubject = substr($cert, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
+
+        if (isset($x509['tbsCertificate']['extensions'])) {
+            for ($i = 0; $i < count($x509['tbsCertificate']['extensions']); $i++) {
+                $id = $x509['tbsCertificate']['extensions'][$i]['extnId'];
+                $value = &$x509['tbsCertificate']['extensions'][$i]['extnValue'];
+                $value = base64_decode($value);
+                $decoded = $asn1->decodeBER($value);
+                /* [extnValue] contains the DER encoding of an ASN.1 value
+                   corresponding to the extension type identified by extnID */
+                $map = $this->_getMapping($id);
+                if (!is_bool($map)) {
+                    $mapped = $asn1->asn1map($decoded[0], $map);
+                    $value = $mapped === false ? $decoded[0] : $mapped;
+
+                    if ($id == 'id-ce-certificatePolicies') {
+                        for ($j = 0; $j < count($value); $j++) {
+                            if (!isset($value[$j]['policyQualifiers'])) {
+                                continue;
+                            }
+                            for ($k = 0; $k < count($value[$j]['policyQualifiers']); $k++) {
+                                $subid = $value[$j]['policyQualifiers'][$k]['policyQualifierId'];
+                                $map = $this->_getMapping($subid);
+                                $subvalue = &$value[$j]['policyQualifiers'][$k]['qualifier'];
+                                if ($map !== false) {
+                                    $decoded = $asn1->decodeBER($subvalue);
+                                    $mapped = $asn1->asn1map($decoded[0], $map);
+                                    $subvalue = $mapped === false ? $decoded[0] : $mapped;
+                                }
+                            }
+                        }
+                    }
+                } elseif ($map) {
+                    $value = base64_encode($value);
+                }
             }
         }
 
@@ -1030,6 +1133,7 @@ class File_X509 {
      *
      * @param optional Array $cert
      * @access public
+     * @return String
      */
     function saveX509($cert)
     {
@@ -1062,20 +1166,50 @@ class File_X509 {
 
         $asn1->loadFilters($filters);
 
-        $size = count($cert['tbsCertificate']['extensions']);
-        for ($i = 0; $i < $size; $i++) {
-            $id = $cert['tbsCertificate']['extensions'][$i]['extnId'];
-            $value = $cert['tbsCertificate']['extensions'][$i]['extnValue'];
-            /* [extnValue] contains the DER encoding of an ASN.1 value
-               corresponding to the extension type identified by extnID */
-            $map = $this->_getMapping($id);
-            if (is_bool($map)) {
-                if (!$map) {
-                    user_error($id . ' is not a currently supported extension', E_USER_NOTICE);
+        if (isset($cert['tbsCertificate']['extensions'])) {
+            $size = count($cert['tbsCertificate']['extensions']);
+            for ($i = 0; $i < $size; $i++) {
+                $id = $cert['tbsCertificate']['extensions'][$i]['extnId'];
+                $value = &$cert['tbsCertificate']['extensions'][$i]['extnValue'];
+
+                switch ($id) {
+                    case 'id-ce-certificatePolicies':
+                        for ($j = 0; $j < count($value); $j++) {
+                            if (!isset($value[$j]['policyQualifiers'])) {
+                                continue;
+                            }
+                            for ($k = 0; $k < count($value[$j]['policyQualifiers']); $k++) {
+                                $subid = $value[$j]['policyQualifiers'][$k]['policyQualifierId'];
+                                $map = $this->_getMapping($subid);
+                                $subvalue = &$value[$j]['policyQualifiers'][$k]['qualifier'];
+                                if ($map !== false) {
+                                    // by default File_ASN1 will try to render qualifier as a FILE_ASN1_TYPE_IA5_STRING since it's
+                                    // actual type is FILE_ASN1_TYPE_ANY
+                                    $subvalue = new File_ASN1_Element($asn1->encodeDER($subvalue, $map));
+                                }
+                            }
+                        }
+                        break;
+                    case 'id-ce-authorityKeyIdentifier': // use 00 as the serial number instead of an empty string
+                        if (isset($value['authorityCertSerialNumber'])) {
+                            if ($value['authorityCertSerialNumber']->toBytes() == '') {
+                                $temp = chr((FILE_ASN1_CLASS_CONTEXT_SPECIFIC << 6) | 2) . "\1\0";
+                                $value['authorityCertSerialNumber'] = new File_ASN1_Element($temp);
+                            }
+                        }
                 }
-                unset($cert['tbsCertificate']['extensions'][$i]);
-            } else {
-                $cert['tbsCertificate']['extensions'][$i]['extnValue'] = base64_encode($asn1->encodeDER($value, $map));
+
+                /* [extnValue] contains the DER encoding of an ASN.1 value
+                   corresponding to the extension type identified by extnID */
+                $map = $this->_getMapping($id);
+                if (is_bool($map)) {
+                    if (!$map) {
+                        user_error($id . ' is not a currently supported extension', E_USER_NOTICE);
+                        unset($cert['tbsCertificate']['extensions'][$i]);
+                    }
+                } else {
+                    $value = base64_encode($asn1->encodeDER($value, $map));
+                }
             }
         }
 
@@ -1089,6 +1223,7 @@ class File_X509 {
      *
      * @param String $extnId
      * @access private
+     * @return Mixed
      */
     function _getMapping($extnId)
     {
@@ -1125,6 +1260,13 @@ class File_X509 {
             case 'netscape-comment':
                 return $this->netscape_comment;
 
+            // since id-qt-cps isn't a constructed type it will have already been decoded as a string by the time it gets
+            // back around to asn1map() and we don't want it decoded again.
+            //case 'id-qt-cps':
+            //    return $this->CPSuri;
+            case 'id-qt-unotice':
+                return $this->UserNotice;
+
             // the following OIDs are unsupported but we don't want them to give notices when calling saveX509().
             case 'id-pe-logotype': // http://www.ietf.org/rfc/rfc3709.txt
             case 'entrustVersInfo':
@@ -1138,5 +1280,112 @@ class File_X509 {
         }
 
         return false;
+    }
+
+    /**
+     * Load an X.509 certificate as a certificate authority
+     *
+     * @param String $cert
+     * @access public
+     */
+    function loadCA($cert)
+    {
+        $this->CAs[] = $this->loadX509($cert);
+        unset($this->currentCert);
+        unset($this->signatureSubject);
+    }
+
+    /**
+     * Validate an X.509 certificate
+     *
+     * Returns either an array containing non-fatal error codes or, if $criteria is passed as a parameter,
+     * a boolean true / false.  If there are fatal errors (such as the signature not matching) a false is
+     * returned.
+     *
+     * @param optional Array $criteria
+     * @access public
+     * @return Mixed
+     */
+    function validate($criteria = false)
+    {
+        if (!is_array($this->currentCert)) {
+            return false;
+        }
+
+        $problems = array();
+
+        // self-signed cert
+        if ($this->currentCert['tbsCertificate']['issuer'] === $this->currentCert['tbsCertificate']['subject']) {
+            $signingCert = $this->currentCert; // working cert
+        }
+
+        if (!empty($this->CAs)) {
+            for ($i = 0; $i < count($this->CAs); $i++) {
+                // even if the cert is a self-signed one we still want to see if it's a CA;
+                // if not, we'll conditionally return an error
+                $ca = $this->CAs[$i];
+                if ($this->currentCert['tbsCertificate']['issuer'] === $ca['tbsCertificate']['subject']) {
+                    $signingCert = $ca; // working cert
+                    break;
+                }
+            }
+            if (count($this->CAs) == $i) {
+                $problems[] = FILE_X509_VALIDATE_SIGNATURE_BY_CA;
+            }
+        } else {
+            $problems[] = FILE_X509_VALIDATE_SIGNATURE_BY_CA;
+        }
+
+        switch (true) {
+            case time() < @strtotime($this->currentCert['tbsCertificate']['notBefore']):
+            case time() > @strtotime($this->currentCert['tbsCertificate']['notAfter']):
+                $problems[] = FILE_X509_VALIDATE_EXPIRATION;
+        }
+
+        switch ($signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
+            case 'rsaEncryption':
+                if (!class_exists('Crypt_RSA')) {
+                    require_once('Crypt/RSA.php');
+                }
+                $rsa = new Crypt_RSA();
+                $rsa->loadKey($signingCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']);
+
+                $algo = $this->currentCert['signatureAlgorithm']['algorithm'];
+
+                switch ($algo) {
+                    case 'md2WithRSAEncryption':
+                    case 'md5WithRSAEncryption':
+                    case 'sha1WithRSAEncryption':
+                    case 'sha224WithRSAEncryption':
+                    case 'sha256WithRSAEncryption':
+                    case 'sha384WithRSAEncryption':
+                    case 'sha512WithRSAEncryption':
+                        $rsa->setHash(preg_replace('#WithRSAEncryption$#', '', $algo));
+                        $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+
+                        if (!@$rsa->verify($this->signatureSubject, substr(base64_decode($this->currentCert['signature']), 1))) {
+                            return false;
+                        }
+                        break;
+                    default:
+                        $problems[] = FILE_X509_VALIDATE_UNSUPPORTED_ALGORITHM;
+                }
+                break;
+            default:
+                $problems[] = FILE_X509_VALIDATE_UNSUPPORTED_ALGORITHM;
+        }
+
+        return is_array($criteria) ? count(array_intersect($criteria, $problems)) == 0 : $problems;
+    }
+
+    /**
+     * Validate an X.509 certificate against a URL
+     *
+     * @param String $url
+     * @access public
+     * @return Boolean
+     */
+    function validateURL($url)
+    {
     }
 }
