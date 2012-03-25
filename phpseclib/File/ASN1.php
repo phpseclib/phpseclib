@@ -408,6 +408,8 @@ class File_ASN1 {
                 case FILE_ASN1_TYPE_GENERAL_STRING:
                     // All registered C and G sets, space and delete
                 case FILE_ASN1_TYPE_UTF8_STRING:
+                    // ????
+                case FILE_ASN1_TYPE_BMP_STRING:
                     $current['content'] = $content;
                     break;
                 case FILE_ASN1_TYPE_UTC_TIME:
@@ -733,6 +735,7 @@ class File_ASN1 {
                 // ignore the min and max
                 if (isset($mapping['min']) && isset($mapping['max'])) {
                     $child = $mapping['children'];
+
                     foreach ($source as $content) {
                         $temp = $this->_encode_der($content, $child);
                         if ($temp === false) {

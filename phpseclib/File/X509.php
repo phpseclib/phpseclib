@@ -721,6 +721,7 @@ class File_X509 {
                                           'type'     => FILE_ASN1_TYPE_SEQUENCE,
                                           'min'      => 0,
                                           'max'      => -1,
+                                          'optional' => true,
                                           'children' => $PolicyQualifierInfo
                                       )
             )
@@ -1155,13 +1156,15 @@ class File_X509 {
         $filters['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = 
         $filters['signatureAlgorithm']['parameters'] = 
         $filters['authorityCertIssuer']['directoryName']['rdnSequence']['value'] = 
-        $filters['policyQualifiers']['qualifier'] = 
+        //$filters['policyQualifiers']['qualifier'] = 
         $filters['distributionPoint']['fullName']['directoryName']['rdnSequence']['value'] = 
         $filters['directoryName']['rdnSequence']['value'] = 
+            array('type' => FILE_ASN1_TYPE_UTF8_STRING);
         /* in the case of policyQualifiers/qualifier, the type has to be FILE_ASN1_TYPE_IA5_STRING.
            FILE_ASN1_TYPE_PRINTABLE_STRING will cause OpenSSL's X.509 parser to spit out random
            characters.
          */
+        $filters['policyQualifiers']['qualifier'] = 
             array('type' => FILE_ASN1_TYPE_IA5_STRING);
 
         $asn1->loadFilters($filters);
@@ -1208,7 +1211,8 @@ class File_X509 {
                         unset($cert['tbsCertificate']['extensions'][$i]);
                     }
                 } else {
-                    $value = base64_encode($asn1->encodeDER($value, $map));
+                    $temp = $asn1->encodeDER($value, $map);
+                    $value = base64_encode($temp);
                 }
             }
         }
