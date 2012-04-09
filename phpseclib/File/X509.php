@@ -49,23 +49,13 @@
  */
 include('File/ASN1.php');
 
-/**#@+
+/**
+ * Flag to only accept signatures signed by certificate authorities
+ *
  * @access public
- * @see File_X509::validate()
- */
-/**
- * The current date does not fall between the certificate's notBefore and notAfter dates
- */
-define('FILE_X509_VALIDATE_EXPIRATION',  0);
-/**
- * The certificate has not been signed by a recognized certificate authority
+ * @see File_X509::validateSignature()
  */
 define('FILE_X509_VALIDATE_SIGNATURE_BY_CA', 1);
-/**
- * The certificate's signature could not be verified on account of it's using an unsupported algorithm
- */
-define('FILE_X509_VALIDATE_UNSUPPORTED_ALGORITHM', 2);
-/**#@-*/
 
 /**
  * Pure-PHP X.509 Parser
@@ -109,6 +99,30 @@ class File_X509 {
     var $netscape_cert_type;
     var $netscape_comment;
     /**#@-*/
+
+    /**
+     * ASN.1 syntax for Certificate Signing Requests (RFC2986)
+     *
+     * @var Array
+     * @access private
+     */
+    var $CertificationRequest;
+
+    /**
+     * Distinguished Name
+     *
+     * @var Array
+     * @access private
+     */
+    var $dn = array('rdnSequence' => array());
+
+    /**
+     * Public or private key
+     *
+     * @var String
+     * @access private
+     */
+    var $key;
 
     /**
      * Object identifiers for X.509 certificates
@@ -888,6 +902,56 @@ class File_X509 {
 
         $this->netscape_comment = array('type' => FILE_ASN1_TYPE_IA5_STRING);
 
+        // attribute is used in RFC2986 but we're using the RFC5280 definition
+
+        $Attribute = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'type' => $AttributeType,
+                'value'=> array(
+                              'type'     => FILE_ASN1_TYPE_SET,
+                              'min'      => 1,
+                              'max'      => -1,
+                              'children' => $AttributeValue
+                          )
+            )
+        );
+
+        // adapted from <http://tools.ietf.org/html/rfc2986>
+
+        $Attributes = array(
+            'type'     => FILE_ASN1_TYPE_SET,
+            'min'      => 1,
+            'max'      => -1,
+            'children' => $Attribute
+        );
+
+        $CertificationRequestInfo = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'version'       => array(
+                                       'type' => FILE_ASN1_TYPE_INTEGER,
+                                       'mapping' => array('v1')
+                                   ),
+                'subject'       => $Name,
+                'subjectPKInfo' => $SubjectPublicKeyInfo,
+                'attributes'    => array(
+                                       'constant' => 0,
+                                       'optional' => true,
+                                       'implicit' => true
+                                   ) + $Attributes,
+            )
+        );
+
+        $this->CertificationRequest = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'certificationRequestInfo' => $CertificationRequestInfo,
+                'signatureAlgorithm'       => $AlgorithmIdentifier,
+                'signature'                => array('type' => FILE_ASN1_TYPE_BIT_STRING)
+            )
+        );
+
         // OIDs from RFC5280 and those RFCs mentioned in RFC5280#section-4.1.1.2
         $this->oids = array(
             '1.3.6.1.5.5.7' => 'id-pkix',
@@ -927,7 +991,7 @@ class File_X509 {
             '2.5.29.16' => 'id-ce-privateKeyUsagePeriod',
             '2.5.29.32' => 'id-ce-certificatePolicies',
             '2.5.29.32.0' => 'anyPolicy',
-            // PolicyQualifierId ::= OBJECT IDENTIFIER ( id-qt-cps | id-qt-unotice )
+
             '2.5.29.33' => 'id-ce-policyMappings',
             '2.5.29.17' => 'id-ce-subjectAltName',
             '2.5.29.18' => 'id-ce-issuerAltName',
@@ -1035,9 +1099,13 @@ class File_X509 {
             '2.16.840.1.113730.1' => 'netscape-cert-extension',
             '2.16.840.1.113730.1.1' => 'netscape-cert-type',
             '2.16.840.1.113730.1.13' => 'netscape-comment',
-            // the following are not supported by phpseclib
+            // the following are X.509 extensions not supported by phpseclib
             '1.3.6.1.5.5.7.1.12' => 'id-pe-logotype',
-            '1.2.840.113533.7.65.0' => 'entrustVersInfo'
+            '1.2.840.113533.7.65.0' => 'entrustVersInfo',
+            // for Certificate Signing Requests
+            // see http://tools.ietf.org/html/rfc2985
+            '1.2.840.113549.1.9.2' => 'unstructuredName', // PKCS #9 unstructured name
+            '1.2.840.113549.1.9.7' => 'challengePassword' // Challenge password for certificate revocations
         );
     }
 
@@ -1113,16 +1181,8 @@ class File_X509 {
             }
         }
 
-        switch ($x509['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
-            case 'rsaEncryption':
-                $x509['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'] =
-                    "-----BEGIN PUBLIC KEY-----\r\n" .
-                    // subjectPublicKey is stored as a bit string in X.509 certs.  the first byte of a bit string represents how many bits
-                    // in the last byte should be ignored.  the following only supports non-zero stuff but as none of the X.509 certs Firefox
-                    // uses as a cert authority actually use a non-zero bit I think it's safe to assume that none do.
-                    chunk_split(base64_encode(substr(base64_decode($x509['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']), 1))) .
-                    '-----END PUBLIC KEY-----';
-        }
+        $key = &$x509['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'];
+        $key = $this->_reformatKey($x509['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'], $key);
 
         $this->currentCert = $x509;
 
@@ -1300,89 +1360,6 @@ class File_X509 {
     }
 
     /**
-     * Validate an X.509 certificate
-     *
-     * Returns either an array containing non-fatal error codes or, if $criteria is passed as a parameter,
-     * a boolean true / false.  If there are fatal errors (such as the signature not matching) a false is
-     * returned.
-     *
-     * @param optional Array $criteria
-     * @access public
-     * @return Mixed
-     */
-    function validate($criteria = false)
-    {
-        if (!is_array($this->currentCert)) {
-            return false;
-        }
-
-        $problems = array();
-
-        // self-signed cert
-        if ($this->currentCert['tbsCertificate']['issuer'] === $this->currentCert['tbsCertificate']['subject']) {
-            $signingCert = $this->currentCert; // working cert
-        }
-
-        if (!empty($this->CAs)) {
-            for ($i = 0; $i < count($this->CAs); $i++) {
-                // even if the cert is a self-signed one we still want to see if it's a CA;
-                // if not, we'll conditionally return an error
-                $ca = $this->CAs[$i];
-                if ($this->currentCert['tbsCertificate']['issuer'] === $ca['tbsCertificate']['subject']) {
-                    $signingCert = $ca; // working cert
-                    break;
-                }
-            }
-            if (count($this->CAs) == $i) {
-                $problems[] = FILE_X509_VALIDATE_SIGNATURE_BY_CA;
-            }
-        } else {
-            $problems[] = FILE_X509_VALIDATE_SIGNATURE_BY_CA;
-        }
-
-        switch (true) {
-            case time() < @strtotime($this->currentCert['tbsCertificate']['notBefore']):
-            case time() > @strtotime($this->currentCert['tbsCertificate']['notAfter']):
-                $problems[] = FILE_X509_VALIDATE_EXPIRATION;
-        }
-
-        switch ($signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
-            case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
-                $rsa = new Crypt_RSA();
-                $rsa->loadKey($signingCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']);
-
-                $algo = $this->currentCert['signatureAlgorithm']['algorithm'];
-
-                switch ($algo) {
-                    case 'md2WithRSAEncryption':
-                    case 'md5WithRSAEncryption':
-                    case 'sha1WithRSAEncryption':
-                    case 'sha224WithRSAEncryption':
-                    case 'sha256WithRSAEncryption':
-                    case 'sha384WithRSAEncryption':
-                    case 'sha512WithRSAEncryption':
-                        $rsa->setHash(preg_replace('#WithRSAEncryption$#', '', $algo));
-                        $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
-
-                        if (!@$rsa->verify($this->signatureSubject, substr(base64_decode($this->currentCert['signature']), 1))) {
-                            return false;
-                        }
-                        break;
-                    default:
-                        $problems[] = FILE_X509_VALIDATE_UNSUPPORTED_ALGORITHM;
-                }
-                break;
-            default:
-                $problems[] = FILE_X509_VALIDATE_UNSUPPORTED_ALGORITHM;
-        }
-
-        return is_array($criteria) ? count(array_intersect($criteria, $problems)) == 0 : $problems;
-    }
-
-    /**
      * Validate an X.509 certificate against a URL
      *
      * @param String $url
@@ -1391,5 +1368,331 @@ class File_X509 {
      */
     function validateURL($url)
     {
+    }
+
+    /**
+     * Validate a date
+     *
+     * If $date isn't defined it is assumed to be the current date.
+     *
+     * @param Integer $date optional
+     * @access public
+     */
+    function validateDate($date = NULL)
+    {
+        if (!is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
+            return false;
+        }
+
+        if (!isset($date)) {
+            $date = time();
+        }
+
+        switch (true) {
+            case time() < @strtotime($this->currentCert['tbsCertificate']['notBefore']):
+            case time() > @strtotime($this->currentCert['tbsCertificate']['notAfter']):
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate a signature
+     *
+     * Works on both X.509 certs and CSR's.
+     * Returns true if the signature is verified, false if it is not correct or -1 on error
+     *
+     * @param Integer $options optional
+     * @access public
+     * @return Mixed
+     */
+    function validateSignature($options = 0)
+    {
+        if (!is_array($this->currentCert)) {
+            return false;
+        }
+
+        switch (true) {
+            case isset($this->currentCert['tbsCertificate']):
+                // self-signed cert
+                if ($this->currentCert['tbsCertificate']['issuer'] === $this->currentCert['tbsCertificate']['subject']) {
+                    $signingCert = $this->currentCert; // working cert
+                }
+
+                if (!empty($this->CAs)) {
+                    for ($i = 0; $i < count($this->CAs); $i++) {
+                        // even if the cert is a self-signed one we still want to see if it's a CA;
+                        // if not, we'll conditionally return an error
+                        $ca = $this->CAs[$i];
+                        if ($this->currentCert['tbsCertificate']['issuer'] === $ca['tbsCertificate']['subject']) {
+                            $signingCert = $ca; // working cert
+                            break;
+                        }
+                    }
+                    if (count($this->CAs) == $i && ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA)) {
+                        return false;
+                    }
+                } elseif ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA) {
+                    return false;
+                }
+
+                return $this->_validateSignature(
+                    $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
+                    $signingCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'],
+                    $this->currentCert['signatureAlgorithm']['algorithm'],
+                    substr(base64_decode($this->currentCert['signature']), 1),
+                    $this->signatureSubject
+                );
+            case isset($this->currentCert['certificationRequestInfo']):
+                return $this->_validateSignature(
+                    $this->currentCert['certificationRequestInfo']['subjectPKInfo']['algorithm']['algorithm'],
+                    $this->currentCert['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'],
+                    $this->currentCert['signatureAlgorithm']['algorithm'],
+                    substr(base64_decode($this->currentCert['signature']), 1),
+                    $this->signatureSubject
+                );
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Validates a signature
+     *
+     * Returns true if the signature is verified, false if it is not correct or -1 on error
+     *
+     * @param String $publicKeyAlgorithm
+     * @param String $publicKey
+     * @param String $signatureAlgorithm
+     * @param String $signature
+     * @param String $signatureSubject
+     * @access private
+     * @return Mixed
+     */
+    function _validateSignature($publicKeyAlgorithm, $publicKey, $signatureAlgorithm, $signature, $signatureSubject)
+    {
+        switch ($publicKeyAlgorithm) {
+            case 'rsaEncryption':
+                if (!class_exists('Crypt_RSA')) {
+                    require_once('Crypt/RSA.php');
+                }
+                $rsa = new Crypt_RSA();
+                $rsa->loadKey($publicKey);
+
+                switch ($signatureAlgorithm) {
+                    case 'md2WithRSAEncryption':
+                    case 'md5WithRSAEncryption':
+                    case 'sha1WithRSAEncryption':
+                    case 'sha224WithRSAEncryption':
+                    case 'sha256WithRSAEncryption':
+                    case 'sha384WithRSAEncryption':
+                    case 'sha512WithRSAEncryption':
+                        $rsa->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
+                        $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+
+                        if (!@$rsa->verify($signatureSubject, $signature)) {
+                            return false;
+                        }
+                        break;
+                    default:
+                        return -1;
+                }
+                break;
+            default:
+                return -1;
+        }
+
+        return true;
+    }
+
+    /**
+     * Reformat public keys
+     *
+     * Reformats a public key to a format supported by phpseclib (if applicable)
+     *
+     * @param String $algorithm
+     * @param String $key
+     * @access private
+     * @return String
+     */
+    function _reformatKey($algorithm, $key)
+    {
+        switch ($algorithm) {
+            case 'rsaEncryption':
+                return
+                    "-----BEGIN PUBLIC KEY-----\r\n" .
+                    // subjectPublicKey is stored as a bit string in X.509 certs.  the first byte of a bit string represents how many bits
+                    // in the last byte should be ignored.  the following only supports non-zero stuff but as none of the X.509 certs Firefox
+                    // uses as a cert authority actually use a non-zero bit I think it's safe to assume that none do.
+                    chunk_split(base64_encode(substr(base64_decode($key), 1))) .
+                    '-----END PUBLIC KEY-----';
+            default:
+                return $key;
+        }
+    }
+
+    /**
+     * Set a Distinguished Name property
+     *
+     * @param String $propName
+     * @param String $propValue
+     * @access public
+     * @return Boolean
+     */
+    function setDNProp($propName, $propValue)
+    {
+
+        switch (strtolower($propName)) {
+            case 'id-at-countryname':
+            case 'countryname':
+            case 'c':
+                $type = 'id-at-countryName';
+                break;
+            case 'id-at-organizationname':
+            case 'organizationname':
+            case 'o':
+                $type = 'id-at-organizationname';
+                break;
+            case 'id-at-dnqualifier':
+            case 'dnqualifier':
+            case 'ou':
+                $type = 'id-at-dnQualifier';
+                break;
+            case 'id-at-commonname':
+            case 'commonname':
+            case 'cn':
+                $type = 'id-at-commonName';
+                break;
+            case 'id-at-stateorprovinceName':
+            case 'stateorprovincename':
+            case 'state':
+            case 'province':
+            case 'provincename':
+            case 'st':
+                $type = 'id-at-stateOrProvinceName';
+                break;
+            case 'id-at-localityname':
+            case 'localityname':
+            case 'l':
+                $type = 'id-at-localityName';
+                break;
+            case 'id-emailaddress':
+            case 'emailaddress':
+                $type = 'id-at-emailAddress';
+                break;
+            case 'id-at-serialnumber':
+            case 'serialnumber':
+                $type = 'id-at-serialNumber';
+                break;
+            default:
+                return false;
+        }
+
+        $this->dn['rdnSequence'][] = array(
+            array(
+                'type' => $type,
+                'value'=> $propValue
+            )
+        );
+
+        return true;
+    }
+
+    /**
+     * Set a Distinguished Name
+     *
+     * @param Mixed $dn
+     * @access public
+     * @return Boolean
+     */
+    function setDN($dn)
+    {
+        // handles stuff generated by openssl_x509_parse()
+        if (is_array($dn)) {
+            foreach ($dn as $type => $value) {
+                if (!$this->setDNProp($type, $value)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // handles everything else
+        $results = preg_split('#((?:^|, )(?:C=|O=|OU=|CN=))#', $dn, -1, PREG_SPLIT_DELIM_CAPTURE);
+        for ($i = 1; $i < count($results); $i+=2) {
+            $type = trim($results[$i], ', =');
+            $value = $results[$i + 1];
+            if (!$this->setDNProp($type, $value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Set public or private key
+     *
+     * Keys need to be Crypt_RSA objects
+     *
+     * @param Object $key
+     * @access public
+     * @return Boolean
+     */
+    function setKey($key)
+    {
+        $this->key = $key;
+    }
+
+    /**
+     * Load a Certificate Signing Request
+     *
+     * @param String $csr
+     * @access public
+     * @return Mixed
+     */
+    function loadCSR($csr)
+    {
+        // see http://tools.ietf.org/html/rfc2986
+
+        $asn1 = new File_ASN1();
+
+        $csr = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]#', '', $csr);
+        $orig = $csr = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $csr) ? base64_decode($csr) : false;
+
+        if ($csr === false) {
+            return false;
+        }
+
+        $asn1->loadOIDs($this->oids);
+        $decoded = $asn1->decodeBER($csr);
+        $csr = $asn1->asn1map($decoded[0], $this->CertificationRequest);
+        if (!isset($csr) || $csr === false) {
+            return false;
+        }
+
+        $this->dn = $csr['certificationRequestInfo']['subject'];
+
+        $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
+
+        $algorithm = &$csr['certificationRequestInfo']['subjectPKInfo']['algorithm']['algorithm'];
+        $key = &$csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'];
+        $key = $this->_reformatKey($algorithm, $key);
+
+        switch ($algorithm) {
+            case 'rsaEncryption':
+                if (!class_exists('Crypt_RSA')) {
+                    require_once('Crypt/RSA.php');
+                }
+                $this->key = new Crypt_RSA();
+                $this->key->loadKey($key);
+            default:
+                $this->key = NULL;
+        }
+
+        $this->currentCert = $csr;
+
+        return $csr;
     }
 }
