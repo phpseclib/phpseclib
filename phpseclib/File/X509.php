@@ -193,6 +193,17 @@ class File_X509 {
     var $serialNumber;
 
     /**
+     * Key Identifier
+     *
+     * See {@link http://tools.ietf.org/html/rfc5280#section-4.2.1.1 RFC5280#section-4.2.1.1} and
+     * {@link http://tools.ietf.org/html/rfc5280#section-4.2.1.2 RFC5280#section-4.2.1.2}.
+     *
+     * @var String
+     * @access private
+     */
+    var $keyIdentifier;
+
+    /**
      * Default Constructor.
      *
      * @return File_X509
@@ -1474,7 +1485,13 @@ class File_X509 {
             case isset($this->currentCert['tbsCertificate']):
                 // self-signed cert
                 if ($this->currentCert['tbsCertificate']['issuer'] === $this->currentCert['tbsCertificate']['subject']) {
-                    $signingCert = $this->currentCert; // working cert
+                    $authorityKey = $this->getExtension('id-ce-authorityKeyIdentifier');
+                    $subjectKeyID = $this->getExtension('id-ce-subjectKeyIdentifier');
+                    switch (true) {
+                        case !is_array($authorityKey):
+                        case is_array($authorityKey) && isset($authorityKey['keyIdentifier']) && $authorityKey['keyIdentifier'] === $subjectKeyID:
+                            $signingCert = $this->currentCert; // working cert
+                    }
                 }
 
                 if (!empty($this->CAs)) {
@@ -1483,8 +1500,14 @@ class File_X509 {
                         // if not, we'll conditionally return an error
                         $ca = $this->CAs[$i];
                         if ($this->currentCert['tbsCertificate']['issuer'] === $ca['tbsCertificate']['subject']) {
-                            $signingCert = $ca; // working cert
-                            break;
+                            $authorityKey = $this->getExtension('id-ce-authorityKeyIdentifier');
+                            $subjectKeyID = $this->getExtension('id-ce-subjectKeyIdentifier', $ca);
+                            switch (true) {
+                                case !is_array($authorityKey):
+                                case is_array($authorityKey) && isset($authorityKey['keyIdentifier']) && $authorityKey['keyIdentifier'] === $subjectKeyID:
+                                    $signingCert = $ca; // working cert
+                                    break 2;
+                            }
                         }
                     }
                     if (count($this->CAs) == $i && ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA)) {
@@ -1708,14 +1731,18 @@ class File_X509 {
      * @access public
      * @return Boolean
      */
-    function getDN($string = false)
+    function getDN($string = false, $dn = NULL)
     {
+        if (!isset($dn)) {
+            $dn = $this->currentCert['tbsCertificate']['subject'];
+        }
+
         if (!$string) {
-            return $this->currentCert['tbsCertificate']['subject'];
+            return $dn;
         }
 
         $start = true;
-        foreach ($this->currentCert['tbsCertificate']['subject']['rdnSequence'] as $field) {
+        foreach ($dn['rdnSequence'] as $field) {
             $type = $field[0]['type'];
             $value = $field[0]['value'];
 
@@ -1879,11 +1906,10 @@ class File_X509 {
                 $this->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'] = $this->endDate;
                 unset($this->currentCert['tbsCertificate']['validity']['notAfter']['generalTime']);
             }
-            if (!empty($this->dn)) {
-                $this->currentCert['tbsCertificate']['subject'] = $this->dn;
+            if (!empty($subject->dn)) {
+                $this->currentCert['tbsCertificate']['subject'] = $subject->dn;
             }
             $this->removeExtension('id-ce-authorityKeyIdentifier');
-            
         } else {
             $startDate = empty($this->startDate) ? $this->startDate : @date('M j H:i:s Y T');
             $endDate = empty($this->endDate) ? $this->endDate : @date('M j H:i:s Y T', strtotime('+1 year'));
@@ -1893,12 +1919,12 @@ class File_X509 {
 	        'tbsCertificate' =>
                     array(
                         'version' => 'v3',
-                        'serialNumber' => $this->serialNumber, // $this->setserialNumber()
+                        'serialNumber' => $serialNumber, // $this->setserialNumber()
                         'signature' => $signatureAlgorithm,
                         'issuer' => false, // this is going to be overwritten later
                         'validity' => array(
-                            'notBefore' => array('utcTime' => $this->startDate), // $this->setStartDate()
-                            'notAfter' => array('utcTime' => $this->endDate)   // $this->setEndDate()
+                            'notBefore' => array('utcTime' => $startDate), // $this->setStartDate()
+                            'notAfter' => array('utcTime' => $endDate)   // $this->setEndDate()
                         ),
                         'subject' => $subject->dn,
                         'subjectPublicKeyInfo' => $subject->publicKey->getPublicKey()
@@ -1910,6 +1936,36 @@ class File_X509 {
 
         $this->currentCert['tbsCertificate']['issuer'] = $issuer->dn;
 
+        if (isset($issuer->keyIdentifier)) {
+            $extensions = &$this->currentCert['tbsCertificate']['extensions'];
+            $extensions[] = array(
+                'extnId'   => 'id-ce-authorityKeyIdentifier',
+                'critical' => false,
+                'extnValue'=> array(
+                    //'authorityCertIssuer' => array(
+                    //    array(
+                    //        'directoryName' => $issuer->dn
+                    //    )
+                    //),
+                    'keyIdentifier' => $issuer->keyIdentifier
+                )
+            );
+            //if (isset($issuer->serialNumber)) {
+            //    $extensions[count($extensions) - 1]['authorityCertSerialNumber'] = $issuer->serialNumber;
+            //}
+            unset($extensions);
+        }
+
+        if (isset($subject->keyIdentifier)) {
+            $this->removeExtension('id-ce-subjectKeyIdentifier');
+            $this->currentCert['tbsCertificate']['extensions'][] = array(
+                'extnId'   => 'id-ce-subjectKeyIdentifier',
+                'critical' => false,
+                'extnValue'=> $subject->keyIdentifier
+            );
+        }
+
+        // resync $this->signatureSubject
         $this->loadX509($this->saveX509($this->currentCert));
 
         $result = $this->_sign($issuer->privateKey, $signatureAlgorithm);
@@ -1995,8 +2051,10 @@ class File_X509 {
      */
     function removeExtension($id)
     {
-        if (!is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
-            return false;
+        switch (true) {
+            case !is_array($this->currentCert):
+            case !isset($this->currentCert['tbsCertificate']['extensions']):
+                return false;
         }
 
         $result = false;
@@ -2022,13 +2080,19 @@ class File_X509 {
      * @access public
      * @return Mixed
      */
-    function getExtension($id)
+    function getExtension($id, $cert = NULL)
     {
-        if (!is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
-            return false;
+        if (!isset($cert)) {
+            $cert = $this->currentCert;
         }
 
-        foreach ($this->currentCert['tbsCertificate']['extensions'] as $key => $value) {
+        switch (true) {
+            case !is_array($cert):
+            case !isset($cert['tbsCertificate']['extensions']):
+                return false;
+        }
+
+        foreach ($cert['tbsCertificate']['extensions'] as $key => $value) {
             if ($value['extnId'] == $id) {
                 return $value['extnValue'];
             }
@@ -2043,17 +2107,40 @@ class File_X509 {
      * @access public
      * @return Array
      */
-    function getExtensions()
+    function getExtensions($cert = NULL)
     {
-        if (!is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
-            return false;
+        if (!isset($cert)) {
+            $cert = $this->currentCert;
+        }
+
+        switch (true) {
+            case !is_array($cert):
+            case !isset($cert['tbsCertificate']['extensions']):
+                return array();
         }
 
         $extensions = array();
-        foreach ($this->currentCert['tbsCertificate']['extensions'] as $extension) {
+        foreach ($cert['tbsCertificate']['extensions'] as $extension) {
             $extensions[] = $extension['extnId'];
         }
 
         return $extensions;
+    }
+
+    /**
+     * Sets the authority key identifier
+     *
+     * This is used by the id-ce-authorityKeyIdentifier and the id-ce-subjectKeyIdentifier extensions.
+     * 
+     * @param String $value
+     * @access public
+     */
+    function setKeyIdentifier($value)
+    {
+        if (empty($value)) {
+            unset($this->keyIdentifier);
+        } else {
+            $this->keyIdentifier = base64_encode($value);
+        }
     }
 }
