@@ -114,7 +114,7 @@ class File_X509 {
      * @var Array
      * @access private
      */
-    var $dn = array('rdnSequence' => array());
+    var $dn;
 
     /**
      * Public key
@@ -1481,6 +1481,10 @@ class File_X509 {
             return false;
         }
 
+        /* TODO:
+           "emailAddress attribute values are not case-sensitive (e.g., "subscriber@example.com" is the same as "SUBSCRIBER@EXAMPLE.COM")."
+            -- http://tools.ietf.org/html/rfc5280#section-4.1.2.6 */
+
         switch (true) {
             case isset($this->currentCert['tbsCertificate']):
                 // self-signed cert
@@ -1622,6 +1626,9 @@ class File_X509 {
      */
     function setDNProp($propName, $propValue)
     {
+        if (empty($this->dn)) {
+            $this->dn = array('rdnSequence' => array());
+        }
 
         switch (strtolower($propName)) {
             case 'id-at-countryname':
@@ -1889,14 +1896,18 @@ class File_X509 {
      */
     function sign($issuer, $subject, $signatureAlgorithm = 'sha1WithRSAEncryption')
     {
-        if (!is_object($issuer->privateKey) || !is_array($issuer->dn)) {
+        if (!is_object($issuer->privateKey) || empty($issuer->dn)) {
+            return false;
+        }
+
+        if (isset($subject->publicKey) && !($subjectPublicKey = $subject->_formatSubjectPublicKey())) {
             return false;
         }
 
         $currentCert = $this->currentCert;
         $signatureSubject = $this->signatureSubject;
 
-        if (is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
+        if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
             $this->currentCert = $subject->currentCert;
             if (!empty($this->startDate)) {
                 $this->currentCert['tbsCertificate']['validity']['notBefore']['utcTime'] = $this->startDate;
@@ -1906,11 +1917,21 @@ class File_X509 {
                 $this->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'] = $this->endDate;
                 unset($this->currentCert['tbsCertificate']['validity']['notAfter']['generalTime']);
             }
+            if (!empty($this->serialNumber)) {
+                $this->currentCert['tbsCertificate']['serialNumber'] = $this->serialNumber;
+            }
             if (!empty($subject->dn)) {
                 $this->currentCert['tbsCertificate']['subject'] = $subject->dn;
             }
+            if (!empty($subject->publicKey)) {
+                $this->currentCert['tbsCertificate']['subjectPublicKeyInfo'] = $subjectPublicKey;
+            }
             $this->removeExtension('id-ce-authorityKeyIdentifier');
         } else {
+            if (!isset($subject->publicKey)) {
+                return false;
+            }
+
             $startDate = empty($this->startDate) ? $this->startDate : @date('M j H:i:s Y T');
             $endDate = empty($this->endDate) ? $this->endDate : @date('M j H:i:s Y T', strtotime('+1 year'));
             $serialNumber = empty($this->serialNumber) ? $this->serialNumber : "\0";
@@ -1927,7 +1948,7 @@ class File_X509 {
                             'notAfter' => array('utcTime' => $endDate)   // $this->setEndDate()
                         ),
                         'subject' => $subject->dn,
-                        'subjectPublicKeyInfo' => $subject->publicKey->getPublicKey()
+                        'subjectPublicKeyInfo' => $subjectPublicKey
                     ),
                  'signatureAlgorithm' => $signatureAlgorithm,
                  'signature'          => false // this is going to be overwritten later
@@ -2039,7 +2060,7 @@ class File_X509 {
      */
     function setSerialNumber($serial)
     {
-        $this->serialNumber = $serial;
+        $this->serialNumber = new Math_BigInteger($serial, -256);
     }
 
     /**
@@ -2141,6 +2162,29 @@ class File_X509 {
             unset($this->keyIdentifier);
         } else {
             $this->keyIdentifier = base64_encode($value);
+        }
+    }
+
+    /**
+     * Format a public key as appropriate
+     * 
+     * @access public
+     * @return Array
+     */
+    function _formatSubjectPublicKey()
+    {
+        if (!isset($this->publicKey) || !is_object($this->publicKey)) {
+            return false;
+        }
+
+        switch (strtolower(get_class($this->publicKey))) {
+            case 'crypt_rsa':
+                return array(
+                    'algorithm' => array('algorithm' => 'rsaEncryption'),
+                    'subjectPublicKey' => $this->publicKey->getPublicKey()
+                );
+            default:
+                return false;
         }
     }
 }
