@@ -1351,12 +1351,17 @@ class Crypt_RSA {
      *
      * @see getPublicKey()
      * @access public
-     * @param String $key
+     * @param String $key optional
      * @param Integer $type optional
      * @return Boolean
      */
-    function setPublicKey($key, $type = false)
+    function setPublicKey($key = false, $type = false)
     {
+        if ($key === false && !empty($this->modulus)) {
+            $this->publicExponent = $this->exponent;
+            return true;
+        }
+
         if ($type === false) {
             $types = array(
                 CRYPT_RSA_PUBLIC_FORMAT_RAW,
@@ -1370,14 +1375,18 @@ class Crypt_RSA {
                     break;
                 }
             }
-            
         } else {
             $components = $this->_parseKey($key, $type);
         }
 
-        if (empty($this->modulus) || !$this->modulus->equals($components['modulus'])) {
-            user_error('Trying to load a public key?  Use loadKey() instead.  It\'s called loadKey() and not loadPrivateKey() for a reason.', E_USER_NOTICE);
+        if ($components === false) {
             return false;
+        }
+
+        if (empty($this->modulus) || !$this->modulus->equals($components['modulus'])) {
+            $this->modulus = $components['modulus'];
+            $this->exponent = $this->publicExponent = $components['publicExponent'];
+            return true;
         }
 
         $this->publicExponent = $components['publicExponent'];
