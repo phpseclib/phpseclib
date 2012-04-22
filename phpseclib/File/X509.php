@@ -1029,17 +1029,17 @@ class File_X509 {
             '2.5.4.7' => 'id-at-localityName',
             '2.5.4.8' => 'id-at-stateOrProvinceName',
             '2.5.4.10' => 'id-at-organizationName',
-            '2.5.4.11' => 'id-at-dnQualifier',
+            '2.5.4.11' => 'id-at-organizationalUnitName',
             '2.5.4.12' => 'id-at-title',
             '2.5.4.46' => 'id-at-dnQualifier',
             '2.5.4.6' => 'id-at-countryName',
             '2.5.4.5' => 'id-at-serialNumber',
             '2.5.4.65' => 'id-at-pseudonym',
+            '2.5.4.17' => 'id-at-postalCode',
+            '2.5.4.9' => 'id-at-streetAddress',
             '0.9.2342.19200300.100.1.25' => 'id-domainComponent',
             '1.2.840.113549.1.9' => 'pkcs-9',
             '1.2.840.113549.1.9.1' => 'id-emailAddress',
-            '2.5.4.17' => 'id-at-postalCode',
-            '2.5.4.9' => 'id-at-streetAddress',
             '2.5.29' => 'id-ce',
             '2.5.29.35' => 'id-ce-authorityKeyIdentifier',
             '2.5.29.14' => 'id-ce-subjectKeyIdentifier',
@@ -1249,6 +1249,7 @@ class File_X509 {
         $key = $this->_reformatKey($x509['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'], $key);
 
         $this->currentCert = $x509;
+        $this->dn = $x509['tbsCertificate']['subject'];
 
         return $x509;
     }
@@ -1419,16 +1420,44 @@ class File_X509 {
      *
      * @param String $cert
      * @access public
+     * @return Boolean
      */
     function loadCA($cert)
     {
-        $this->CAs[] = $this->loadX509($cert);
+        /* From RFC5280 "PKIX Certificate and CRL Profile":
+
+           If the keyUsage extension is present, then the subject public key
+           MUST NOT be used to verify signatures on certificates or CRLs unless
+           the corresponding keyCertSign or cRLSign bit is set. */
+        $cert = $this->loadX509($cert);
+        if (!$cert) {
+            return false;
+        }
+
+        $keyUsage = $x509->getExtension('id-ce-keyUsage');
+        if ($keyUsage && !in_array('keyCertSign', $keyUsage)) {
+            return false;
+        }
+
+        $this->CAs[] = $cert;
         unset($this->currentCert);
         unset($this->signatureSubject);
+
+        return true;
     }
 
     /**
      * Validate an X.509 certificate against a URL
+     *
+     * From RFC2818 "HTTP over TLS":
+     *
+     * Matching is performed using the matching rules specified by
+     * [RFC2459].  If more than one identity of a given type is present in
+     * the certificate (e.g., more than one dNSName name, a match in any one
+     * of the set is considered acceptable.) Names may contain the wildcard
+     * character * which is considered to match any single domain name
+     * component or component fragment. E.g., *.a.com matches foo.a.com but
+     * not bar.foo.a.com. f*.com matches foo.com but not bar.com.
      *
      * @param String $url
      * @access public
@@ -1436,6 +1465,51 @@ class File_X509 {
      */
     function validateURL($url)
     {
+        if (!is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
+            return false;
+        }
+
+        $components = parse_url($url);
+        if (!isset($components['host'])) {
+            return false;
+        }
+
+        if ($names = $this->getExtension('id-ce-subjectAltName')) {
+            foreach ($names as $key => $value) {
+                $value = str_replace(array('.', '*'), array('\.', '[^.]*'), $value);
+                switch ($key) {
+                    case 'dNSName':
+                        /* From RFC2818 "HTTP over TLS":
+
+                           If a subjectAltName extension of type dNSName is present, that MUST
+                           be used as the identity. Otherwise, the (most specific) Common Name
+                           field in the Subject field of the certificate MUST be used. Although
+                           the use of the Common Name is existing practice, it is deprecated and
+                           Certification Authorities are encouraged to use the dNSName instead. */
+                        if (preg_match('#^' . $value . '$#', $components['host'])) {
+                            return true;
+                        }
+                        break;
+                    case 'iPAddress':
+                        /* From RFC2818 "HTTP over TLS":
+
+                           In some cases, the URI is specified as an IP address rather than a
+                           hostname. In this case, the iPAddress subjectAltName must be present
+                           in the certificate and must exactly match the IP in the URI. */
+                        if (preg_match('#(?:\d{1-3}\.){4}#', $components['host'] . '.') && preg_match('#^' . $value . '$#', $components['host'])) {
+                            return true;
+                        }
+                }
+            }
+            return false;
+        }
+
+        if ($value = $this->getDNProp('id-at-commonName')) {
+            $value = str_replace(array('.', '*'), array('\.', '[^.]*'), $value[0]);
+            return preg_match('#^' . $value . '$#', $components['host']);
+        }
+
+        return false;
     }
 
     /**
@@ -1680,6 +1754,33 @@ class File_X509 {
             case 'streetaddress':
                 $type = 'id-at-streetAddress';
                 break;
+            case 'id-at-name':
+            case 'name':
+                $type = 'id-at-name';
+            case 'id-at-givenname':
+            case 'givenname':
+                $type = 'id-at-givenName';
+                break;
+            case 'id-at-surname':
+            case 'surname':
+                $type = 'id-at-surname';
+                break;
+            case 'id-at-initials':
+            case 'initials':
+                $type = 'id-at-initials';
+                break;
+            case 'id-at-generationqualifier':
+            case 'generationqualifier':
+                $type = 'id-at-generationQualifier';
+                break;
+            case 'id-at-organizationalunitname':
+            case 'organizationalunitname':
+                $type = 'id-at-organizationalUnitName';
+                break;
+            case 'id-at-pseudonym':
+            case 'pseudonym':
+                $type = 'id-at-pseudonym';
+                break;
             default:
                 return false;
         }
@@ -1692,6 +1793,53 @@ class File_X509 {
         );
 
         return true;
+    }
+
+    /**
+     * Remove Distinguished Name properties
+     *
+     * @param String $propName
+     * @access public
+     */
+    function removeDNProp($propName)
+    {
+        if (empty($this->dn)) {
+            return;
+        }
+
+        $dn = &$this->dn['rdnSequence'];
+        $size = count($dn);
+        for ($i = 0; $i < $size; $i++) {
+            if ($dn[$i][0]['type'] == $propName) {
+                unset($dn[$i]);
+            }
+        }
+
+        $dn = array_values($dn);
+    }
+
+    /**
+     * Get Distinguished Name properties
+     *
+     * @param String $propName
+     * @return Mixed
+     * @access public
+     */
+    function getDNProp($propName)
+    {
+        if (empty($this->dn)) {
+            return false;
+        }
+
+        $dn = $this->dn['rdnSequence'];
+        $result = array();
+        for ($i = 0; $i < $size; $i++) {
+            if ($dn[$i][0]['type'] == $propName) {
+                $result[] = $propName;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -1741,7 +1889,7 @@ class File_X509 {
     function getDN($string = false, $dn = NULL)
     {
         if (!isset($dn)) {
-            $dn = $this->currentCert['tbsCertificate']['subject'];
+            $dn = $this->dn;
         }
 
         if (!$string) {
@@ -1809,7 +1957,6 @@ class File_X509 {
      *
      * @param Object $key
      * @access public
-     * @return Boolean
      */
     function setPrivateKey($key)
     {
@@ -1817,17 +1964,14 @@ class File_X509 {
     }
 
     /**
-     * Get the public key
+     * Gets the public key
      *
-     * Keys need to be Crypt_RSA objects
-     *
-     * @param Object $key
      * @access public
-     * @return Boolean
+     * @return Object
      */
-    function getPublicKey($key)
+    function getPublicKey()
     {
-        $this->publicKey = $key;
+        //return 
     }
 
     /**
@@ -1908,6 +2052,9 @@ class File_X509 {
         $signatureSubject = $this->signatureSubject;
 
         if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
+            $this->currentCert['tbsCertificate']['signature']['algorithm'] =
+            $this->currentCert['signatureAlgorithm']['algorithm'] =
+                $signatureAlgorithm;
             $this->currentCert = $subject->currentCert;
             if (!empty($this->startDate)) {
                 $this->currentCert['tbsCertificate']['validity']['notBefore']['utcTime'] = $this->startDate;
@@ -1927,21 +2074,24 @@ class File_X509 {
                 $this->currentCert['tbsCertificate']['subjectPublicKeyInfo'] = $subjectPublicKey;
             }
             $this->removeExtension('id-ce-authorityKeyIdentifier');
+            if (isset($subject->domains)) {
+                $this->removeExtension('id-ce-subjectAltName');
+            }
         } else {
             if (!isset($subject->publicKey)) {
                 return false;
             }
 
-            $startDate = empty($this->startDate) ? $this->startDate : @date('M j H:i:s Y T');
-            $endDate = empty($this->endDate) ? $this->endDate : @date('M j H:i:s Y T', strtotime('+1 year'));
-            $serialNumber = empty($this->serialNumber) ? $this->serialNumber : "\0";
+            $startDate = !empty($this->startDate) ? $this->startDate : @date('M j H:i:s Y T');
+            $endDate = !empty($this->endDate) ? $this->endDate : @date('M j H:i:s Y T', strtotime('+1 year'));
+            $serialNumber = !empty($this->serialNumber) ? $this->serialNumber : new Math_BigInteger();
 
             $this->currentCert = array(
 	        'tbsCertificate' =>
                     array(
                         'version' => 'v3',
                         'serialNumber' => $serialNumber, // $this->setserialNumber()
-                        'signature' => $signatureAlgorithm,
+                        'signature' => array('algorithm' => $signatureAlgorithm),
                         'issuer' => false, // this is going to be overwritten later
                         'validity' => array(
                             'notBefore' => array('utcTime' => $startDate), // $this->setStartDate()
@@ -1950,7 +2100,7 @@ class File_X509 {
                         'subject' => $subject->dn,
                         'subjectPublicKeyInfo' => $subjectPublicKey
                     ),
-                 'signatureAlgorithm' => $signatureAlgorithm,
+                 'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
                  'signature'          => false // this is going to be overwritten later
             );
         }
@@ -1984,6 +2134,18 @@ class File_X509 {
                 'critical' => false,
                 'extnValue'=> $subject->keyIdentifier
             );
+        }
+
+        if (isset($subject->domains) && count($subject->domains) > 1) {
+            $this->currentCert['tbsCertificate']['extensions'][] = array(
+	        'extnId' => 'id-ce-subjectAltName',
+	        'critical' => false,
+	        'extnValue' => array()
+            );
+            $last = count($this->currentCert['tbsCertificate']['extensions']) - 1;
+            foreach ($subject->domains as $domain) {
+                $this->currentCert['tbsCertificate']['extensions'][$last]['extnValue'][] = array('dNSName' => $domain);
+            }
         }
 
         // resync $this->signatureSubject
@@ -2022,7 +2184,6 @@ class File_X509 {
                         $key->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
 
                         $this->currentCert['signature'] = base64_encode("\0" . $key->sign($this->signatureSubject));
-
                         return $this->currentCert;
                 }
             default:
@@ -2152,7 +2313,7 @@ class File_X509 {
      * Sets the authority key identifier
      *
      * This is used by the id-ce-authorityKeyIdentifier and the id-ce-subjectKeyIdentifier extensions.
-     * 
+     *
      * @param String $value
      * @access public
      */
@@ -2167,8 +2328,8 @@ class File_X509 {
 
     /**
      * Format a public key as appropriate
-     * 
-     * @access public
+     *
+     * @access private
      * @return Array
      */
     function _formatSubjectPublicKey()
@@ -2186,5 +2347,18 @@ class File_X509 {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Set the domain name's which the cert is to be valid for
+     *
+     * @access public
+     * @return Array
+     */
+    function setDomain()
+    {
+        $this->domains = func_get_args();
+        $this->removeDNProp('id-at-commonName');
+        $this->setDNProp('id-at-commonName', $this->domains[0]);
     }
 }
