@@ -204,6 +204,14 @@ class File_X509 {
     var $keyIdentifier;
 
     /**
+     * CA Flag
+     *
+     * @var Boolean
+     * @access private
+     */
+    var $caFlag = false;
+
+    /**
      * Default Constructor.
      *
      * @return File_X509
@@ -1037,6 +1045,7 @@ class File_X509 {
             '2.5.4.65' => 'id-at-pseudonym',
             '2.5.4.17' => 'id-at-postalCode',
             '2.5.4.9' => 'id-at-streetAddress',
+
             '0.9.2342.19200300.100.1.25' => 'id-domainComponent',
             '1.2.840.113549.1.9' => 'pkcs-9',
             '1.2.840.113549.1.9.1' => 'id-emailAddress',
@@ -1424,20 +1433,34 @@ class File_X509 {
      */
     function loadCA($cert)
     {
-        /* From RFC5280 "PKIX Certificate and CRL Profile":
-
-           If the keyUsage extension is present, then the subject public key
-           MUST NOT be used to verify signatures on certificates or CRLs unless
-           the corresponding keyCertSign or cRLSign bit is set. */
         $cert = $this->loadX509($cert);
         if (!$cert) {
             return false;
         }
 
-        $keyUsage = $x509->getExtension('id-ce-keyUsage');
-        if ($keyUsage && !in_array('keyCertSign', $keyUsage)) {
-            return false;
-        }
+        /* From RFC5280 "PKIX Certificate and CRL Profile":
+
+           If the keyUsage extension is present, then the subject public key
+           MUST NOT be used to verify signatures on certificates or CRLs unless
+           the corresponding keyCertSign or cRLSign bit is set. */
+        //$keyUsage = $this->getExtension('id-ce-keyUsage');
+        //if ($keyUsage && !in_array('keyCertSign', $keyUsage)) {
+        //    return false;
+        //}
+
+        /* From RFC5280 "PKIX Certificate and CRL Profile":
+
+           The cA boolean indicates whether the certified public key may be used
+           to verify certificate signatures.  If the cA boolean is not asserted,
+           then the keyCertSign bit in the key usage extension MUST NOT be
+           asserted.  If the basic constraints extension is not present in a
+           version 3 certificate, or the extension is present but the cA boolean
+           is not asserted, then the certified public key MUST NOT be used to
+           verify certificate signatures. */
+        //$basicConstraints = $this->getExtension('id-ce-basicConstraints');
+        //if (!$basicConstraints || !$basicConstraints['cA']) {
+        //    return false;
+        //}
 
         $this->CAs[] = $cert;
         unset($this->currentCert);
@@ -1557,7 +1580,9 @@ class File_X509 {
 
         /* TODO:
            "emailAddress attribute values are not case-sensitive (e.g., "subscriber@example.com" is the same as "SUBSCRIBER@EXAMPLE.COM")."
-            -- http://tools.ietf.org/html/rfc5280#section-4.1.2.6 */
+            -- http://tools.ietf.org/html/rfc5280#section-4.1.2.6
+
+           implement pathLenConstraint in the id-ce-basicConstraints extension */
 
         switch (true) {
             case isset($this->currentCert['tbsCertificate']):
@@ -2148,6 +2173,32 @@ class File_X509 {
             }
         }
 
+        if ($this->caFlag) {
+            $keyUsage = $this->getExtension('id-ce-keyUsage');
+            if (!$keyUsage) {
+                $keyUsage = array();
+            }
+            $this->removeExtension('id-ce-keyUsage');
+
+            $this->currentCert['tbsCertificate']['extensions'][] = array(
+	        'extnId' => 'id-ce-keyUsage',
+	        'critical' => false,
+	        'extnValue' => array_values(array_unique(array_merge($keyUsage, array('cRLSign', 'keyCertSign'))))
+            );
+
+            $basicConstraints = $this->getExtension('id-ce-basicConstraints');
+            if (!$basicConstraints) {
+                $basicConstraints = array();
+            }
+            $this->removeExtension('id-ce-basicConstraints');
+
+            $this->currentCert['tbsCertificate']['extensions'][] = array(
+	        'extnId' => 'id-ce-basicConstraints',
+	        'critical' => true,
+	        'extnValue' => array_unique(array_merge(array('cA' => true), $basicConstraints))
+            );
+        }
+
         // resync $this->signatureSubject
         $this->loadX509($this->saveX509($this->currentCert));
 
@@ -2222,6 +2273,16 @@ class File_X509 {
     function setSerialNumber($serial)
     {
         $this->serialNumber = new Math_BigInteger($serial, -256);
+    }
+
+    /**
+     * Turns the certificate into a certificate authority
+     *
+     * @access public
+     */
+    function makeCA()
+    {
+        $this->caFlag = true;
     }
 
     /**
