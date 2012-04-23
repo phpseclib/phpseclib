@@ -1962,6 +1962,22 @@ class File_X509 {
     }
 
     /**
+     * Get the Distinguished Name for a certificates issuer
+     *
+     * @param Boolean $string optional
+     * @access public
+     * @return Boolean
+     */
+    function getIssuerDN($string = false)
+    {
+        if (!isset($this->currentCert) || !is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
+            return false;
+        }
+
+        return $this->getDN($string, $this->currentCert['tbsCertificate']['issuer']);
+    }
+
+    /**
      * Set public key
      *
      * Key needs to be a Crypt_RSA object
@@ -1991,12 +2007,33 @@ class File_X509 {
     /**
      * Gets the public key
      *
+     * Returns a Crypt_RSA object or a false.
+     *
      * @access public
-     * @return Object
+     * @return Mixed
      */
     function getPublicKey()
     {
-        //return 
+        if (!isset($this->currentCert) || !is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
+            return false;
+        }
+
+        $key = $this->currentCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'];
+
+        switch ($this->currentCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
+            case 'rsaEncryption':
+                if (!class_exists('Crypt_RSA')) {
+                    require_once('Crypt/RSA.php');
+                }
+                $publicKey = new Crypt_RSA();
+                $publicKey->loadKey($key);
+                $publicKey->setPublicKey();
+                break;
+            default:
+                return false;
+        }
+
+        return $publicKey;
     }
 
     /**
@@ -2041,6 +2078,8 @@ class File_X509 {
                 }
                 $this->publicKey = new Crypt_RSA();
                 $this->publicKey->loadKey($key);
+                $this->publicKey->setPublicKey();
+                break;
             default:
                 $this->publicKey = NULL;
         }
@@ -2082,12 +2121,12 @@ class File_X509 {
                 $signatureAlgorithm;
             $this->currentCert = $subject->currentCert;
             if (!empty($this->startDate)) {
-                $this->currentCert['tbsCertificate']['validity']['notBefore']['utcTime'] = $this->startDate;
-                unset($this->currentCert['tbsCertificate']['validity']['notBefore']['generalTime']);
+                $this->currentCert['tbsCertificate']['validity']['notBefore']['generalTime'] = $this->startDate;
+                unset($this->currentCert['tbsCertificate']['validity']['notBefore']['utcTime']);
             }
             if (!empty($this->endDate)) {
-                $this->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'] = $this->endDate;
-                unset($this->currentCert['tbsCertificate']['validity']['notAfter']['generalTime']);
+                $this->currentCert['tbsCertificate']['validity']['notAfter']['generalTime'] = $this->endDate;
+                unset($this->currentCert['tbsCertificate']['validity']['notAfter']['utcTime']);
             }
             if (!empty($this->serialNumber)) {
                 $this->currentCert['tbsCertificate']['serialNumber'] = $this->serialNumber;
@@ -2119,8 +2158,8 @@ class File_X509 {
                         'signature' => array('algorithm' => $signatureAlgorithm),
                         'issuer' => false, // this is going to be overwritten later
                         'validity' => array(
-                            'notBefore' => array('utcTime' => $startDate), // $this->setStartDate()
-                            'notAfter' => array('utcTime' => $endDate)   // $this->setEndDate()
+                            'notBefore' => array('generalTime' => $startDate), // $this->setStartDate()
+                            'notAfter' => array('generalTime' => $endDate)   // $this->setEndDate()
                         ),
                         'subject' => $subject->dn,
                         'subjectPublicKeyInfo' => $subjectPublicKey
@@ -2200,9 +2239,12 @@ class File_X509 {
         }
 
         // resync $this->signatureSubject
+        // save $tbsCertificate in case there are any File_ASN1_Element objects in it
+        $tbsCertificate = $this->currentCert['tbsCertificate'];
         $this->loadX509($this->saveX509($this->currentCert));
 
         $result = $this->_sign($issuer->privateKey, $signatureAlgorithm);
+        $result['tbsCertificate'] = $tbsCertificate;
 
         $this->currentCert = $currentCert;
         $this->signatureSubject = $signatureSubject;
@@ -2261,7 +2303,21 @@ class File_X509 {
      */
     function setEndDate($date)
     {
-        $this->endDate = @date('M j H:i:s Y T', @strtotime($date));
+        /*
+          To indicate that a certificate has no well-defined expiration date,
+          the notAfter SHOULD be assigned the GeneralizedTime value of
+          99991231235959Z.
+
+          -- http://tools.ietf.org/html/rfc5280#section-4.1.2.5
+        */
+        if (strtolower($date) == 'lifetime') {
+            $temp = '99991231235959Z';
+            $asn1 = new File_ASN1();
+            $temp = chr(FILE_ASN1_TYPE_GENERALIZED_TIME) . $asn1->_encodeLength(strlen($temp)) . $temp;
+            $this->endDate = new File_ASN1_Element($temp);
+        } else {
+            $this->endDate = @date('M j H:i:s Y T', @strtotime($date));
+        }
     }
 
     /**
