@@ -1900,7 +1900,7 @@ class Net_SSH2 {
      */
     function _get_binary_packet()
     {
-        if (feof($this->fsock)) {
+        if (!is_resource($this->fsock) || feof($this->fsock)) {
             user_error('Connection closed prematurely', E_USER_NOTICE);
             return false;
         }
@@ -2215,7 +2215,7 @@ class Net_SSH2 {
      */
     function _send_binary_packet($data)
     {
-        if (feof($this->fsock)) {
+        if (!is_resource($this->fsock) || feof($this->fsock)) {
             user_error('Connection closed prematurely', E_USER_NOTICE);
             return false;
         }
