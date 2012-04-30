@@ -143,6 +143,10 @@ define('NET_SSH2_LOG_SIMPLE',  1);
  * Returns the message content
  */
 define('NET_SSH2_LOG_COMPLEX', 2);
+/**
+ * Outputs the content real-time
+ */
+define('NET_SSH2_LOG_REALTIME', 3);
 /**#@-*/
 
 /**#@+
@@ -634,6 +638,30 @@ class Net_SSH2 {
      * @access private
      */
     var $curTimeout;
+
+    /**
+     * Real-time log file pointer
+     *
+     * @see Net_SSH2::_append_log()
+     * @access private
+     */
+    var $realtime_log_file;
+
+    /**
+     * Real-time log file size
+     *
+     * @see Net_SSH2::_append_log()
+     * @access private
+     */
+    var $realtime_log_size;
+
+    /**
+     * Real-time log file wrap boolean
+     *
+     * @see Net_SSH2::_append_log()
+     * @access private
+     */
+    var $realtime_log_wrap;
 
     /**
      * Default Constructor.
@@ -1874,6 +1902,9 @@ class Net_SSH2 {
     function disconnect()
     {
         $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+        if (isset($this->realtime_log_file) && is_resource($this->realtime_log_file)) {
+            fclose($this->realtime_log_file);
+        }
     }
 
     /**
@@ -1953,12 +1984,10 @@ class Net_SSH2 {
         $this->get_seq_no++;
 
         if (defined('NET_SSH2_LOGGING')) {
-            $temp = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
-            $this->message_number_log[] = '<- ' . $temp .
-                                          ' (' . round($stop - $start, 4) . 's)';
-            if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
-                $this->_append_log($payload);
-            }
+            $message_number = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
+            $message_number = '<- ' . $message_number .
+                              ' (' . round($stop - $start, 4) . 's)';
+            $this->_append_log($message_number, $payload);
         }
 
         return $this->_filter($payload);
@@ -2255,12 +2284,10 @@ class Net_SSH2 {
         $stop = strtok(microtime(), ' ') + strtok('');
 
         if (defined('NET_SSH2_LOGGING')) {
-            $temp = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
-            $this->message_number_log[] = '-> ' . $temp .
-                                          ' (' . round($stop - $start, 4) . 's)';
-            if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
-                $this->_append_log($data);
-            }
+            $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
+            $message_number = '-> ' . $message_number .
+                              ' (' . round($stop - $start, 4) . 's)';
+            $this->_append_log($message_number, $data);
         }
 
         return $result;
@@ -2274,15 +2301,60 @@ class Net_SSH2 {
      * @param String $data
      * @access private
      */
-    function _append_log($data)
+    function _append_log($message_number, $message)
     {
-        $this->_string_shift($data);
-        $this->log_size+= strlen($data);
-        $this->message_log[] = $data;
-        while ($this->log_size > NET_SSH2_LOG_MAX_SIZE) {
-            $this->log_size-= strlen(array_shift($this->message_log));
-            array_shift($this->message_number_log);
-        }
+            switch (NET_SSH2_LOGGING) {
+                // useful for benchmarks
+                case NET_SSH2_LOG_SIMPLE:
+                    $this->message_number_log[] = $message_number;
+                    break;
+                // the most useful log for SSH2
+                case NET_SSH2_LOG_COMPLEX:
+                    $this->message_number_log[] = $message_number;
+                    $this->_string_shift($message);
+                    $this->log_size+= strlen($message);
+                    $this->message_log[] = $message;
+                    while ($this->log_size > NET_SSH2_LOG_MAX_SIZE) {
+                        $this->log_size-= strlen(array_shift($this->message_log));
+                        array_shift($this->message_number_log);
+                    }
+                    break;
+                // dump the output out realtime; packets may be interspersed with non packets,
+                // passwords won't be filtered out and select other packets may not be correctly
+                // identified
+                case NET_SSH2_LOG_REALTIME:
+                    echo "<pre>\r\n" . $this->_format_log(array($message), array($message_number)) . "\r\n</pre>\r\n";
+                    flush();
+                    ob_flush();
+                    break;
+                // basically the same thing as NET_SSH2_LOG_REALTIME with the caveat that NET_SSH2_LOG_REALTIME_FILE
+                // needs to be defined and that the resultant log file will be capped out at NET_SSH2_LOG_MAX_SIZE. 
+                // the earliest part of the log file is denoted by the first <<< START >>> and is not going to necessarily
+                // at the beginning of the file
+                case NET_SSH2_LOG_REALTIME_FILE:
+                    if (!isset($this->realtime_log_file)) {
+                        // PHP doesn't seem to like using constants in fopen()
+                        $filename = NET_SSH2_LOG_REALTIME_FILE;
+                        $fp = fopen($filename, 'w');
+                        $this->realtime_log_file = $fp;
+                    }
+                    if (!is_resource($this->realtime_log_file)) {
+                        break;
+                    }
+                    $entry = $this->_format_log(array($message), array($message_number));
+                    if ($this->realtime_log_wrap) {
+                        $temp = "<<< START >>>\r\n";
+                        $entry.= $temp;
+                        fseek($this->realtime_log_file, ftell($this->realtime_log_file) - strlen($temp));
+                    }
+                    $this->realtime_log_size+= strlen($entry);
+                    if ($this->realtime_log_size > NET_SSH2_LOG_MAX_SIZE) {
+                        fseek($this->realtime_log_file, 0);
+                        $this->realtime_log_size = strlen($entry);
+                        $this->realtime_log_wrap = true;
+                    }
+                    fputs($this->realtime_log_file, $entry);
+            }
     }
 
     /**
