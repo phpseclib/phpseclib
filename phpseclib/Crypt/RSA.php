@@ -1776,6 +1776,34 @@ class Crypt_RSA {
     }
 
     /**
+     * Performs blinded RSA equality testing
+     *
+     * Protects against a particular type of timing attack described.
+     *
+     * See {@link http://codahale.com/a-lesson-in-timing-attacks/ A Lesson In Timing Attacks (or, Don’t use MessageDigest.isEquals)}
+     *
+     * Thanks for the heads up singpolyma!
+     *
+     * @access private
+     * @param String $x
+     * @param String $y
+     * @return Boolean
+     */
+    function _equals($x, $y)
+    {
+        if (count($x) != count($y)) {
+            return false;
+        }
+
+        $result = 0;
+        for ($i = 0; $i < strlen($x); $i++) {
+            $result |= $x[$i] ^ $y[$i];
+        }
+
+        return $result == 0;
+    }
+
+    /**
      * RSAEP
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.1.1 RFC3447#section-5.1.1}.
@@ -2169,7 +2197,7 @@ class Crypt_RSA {
         $salt = substr($db, $temp + 1); // should be $sLen long
         $m2 = "\0\0\0\0\0\0\0\0" . $mHash . $salt;
         $h2 = $this->hash->hash($m2);
-        return $h == $h2;
+        return $this->_equals($h, $h2);
     }
 
     /**
@@ -2362,7 +2390,7 @@ class Crypt_RSA {
 
         // Compare
 
-        return $em === $em2;
+        return $this->_equals($em, $em2);
     }
 
     /**

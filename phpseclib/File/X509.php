@@ -1167,6 +1167,7 @@ class File_X509 {
             // the following are X.509 extensions not supported by phpseclib
             '1.3.6.1.5.5.7.1.12' => 'id-pe-logotype',
             '1.2.840.113533.7.65.0' => 'entrustVersInfo',
+            '2.16.840.1.113733.1.6.9' => 'verisignPrivate',
             // for Certificate Signing Requests
             // see http://tools.ietf.org/html/rfc2985
             '1.2.840.113549.1.9.2' => 'unstructuredName', // PKCS #9 unstructured name
@@ -1566,7 +1567,11 @@ class File_X509 {
      * Validate a signature
      *
      * Works on both X.509 certs and CSR's.
-     * Returns true if the signature is verified, false if it is not correct or -1 on error
+     * Returns 1 if the signature is verified, 0 if it is not correct or -1 on error
+     *
+     * To know if a signature is valid one should do validateSignature() === 1
+     *
+     * The behavior of this function is inspired by {@link http://php.net/openssl-verify openssl_verify}.
      *
      * @param Integer $options optional
      * @access public
@@ -1575,7 +1580,7 @@ class File_X509 {
     function validateSignature($options = 0)
     {
         if (!is_array($this->currentCert) || !isset($this->signatureSubject)) {
-            return false;
+            return 0;
         }
 
         /* TODO:
@@ -1614,12 +1619,11 @@ class File_X509 {
                         }
                     }
                     if (count($this->CAs) == $i && ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA)) {
-                        return false;
+                        return 0;
                     }
-                } elseif ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA) {
-                    return false;
+                } elseif (!isset($signingCert) || ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA)) {
+                    return 0;
                 }
-
                 return $this->_validateSignature(
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'],
@@ -1636,14 +1640,14 @@ class File_X509 {
                     $this->signatureSubject
                 );
             default:
-                return false;
+                return 0;
         }
     }
 
     /**
      * Validates a signature
      *
-     * Returns true if the signature is verified, false if it is not correct or -1 on error
+     * Returns 1 if the signature is verified, 0 if it is not correct or -1 on error
      *
      * @param String $publicKeyAlgorithm
      * @param String $publicKey
@@ -1651,7 +1655,7 @@ class File_X509 {
      * @param String $signature
      * @param String $signatureSubject
      * @access private
-     * @return Mixed
+     * @return Integer
      */
     function _validateSignature($publicKeyAlgorithm, $publicKey, $signatureAlgorithm, $signature, $signatureSubject)
     {
@@ -1675,7 +1679,7 @@ class File_X509 {
                         $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
 
                         if (!@$rsa->verify($signatureSubject, $signature)) {
-                            return false;
+                            return 0;
                         }
                         break;
                     default:
@@ -1686,7 +1690,7 @@ class File_X509 {
                 return -1;
         }
 
-        return true;
+        return 1;
     }
 
     /**
@@ -1892,7 +1896,7 @@ class File_X509 {
         }
 
         // handles everything else
-        $results = preg_split('#((?:^|, |/)(?:C=|O=|OU=|CN=|L=|ST=|postalCode=|streetAddress=|emailAddress=|serialNumber=))#', $dn, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $results = preg_split('#((?:^|, |/)(?:C=|O=|OU=|CN=|L=|ST=|postalCode=|streetAddress=|emailAddress=|serialNumber=|organizationalUnitName=))#', $dn, -1, PREG_SPLIT_DELIM_CAPTURE);
         for ($i = 1; $i < count($results); $i+=2) {
             $type = trim($results[$i], ', =/');
             $value = $results[$i + 1];
