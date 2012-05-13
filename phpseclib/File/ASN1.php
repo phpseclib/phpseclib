@@ -438,14 +438,15 @@ class File_ASN1 {
      */
     function asn1map($decoded, $mapping, $idx = NULL)
     {
+        if (isset($mapping['explicit'])) {
+            $decoded = $decoded['content'][0];
+        }
+
         switch (true) {
             case $mapping['type'] == FILE_ASN1_TYPE_CHOICE:
                 foreach ($mapping['children'] as $key => $option) {
                     switch (true) {
                         case isset($option['constant']) && $option['constant'] == $decoded['constant']:
-                            // $decoded['content'] is only an array if the type is constructed
-                            $value = is_array($decoded['content']) ? $this->asn1map($decoded['content'][0], $option) : $this->asn1map($decoded, $option);
-                            break;
                         case !isset($option['constant']) && $option['type'] == $decoded['type']:
                             $value = $this->asn1map($decoded, $option);
                     }
@@ -461,10 +462,6 @@ class File_ASN1 {
                 break;
             default:
                 return NULL;
-        }
-
-        if (isset($mapping['explicit'])) {
-            $decoded = $decoded['content'][0];
         }
 
         if (isset($mapping['implicit'])) {
@@ -1131,4 +1128,3 @@ class File_ASN1 {
         return $substr;
     }
 }
-

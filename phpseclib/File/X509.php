@@ -660,7 +660,7 @@ class File_X509 {
                 'directoryName'             => array(
                                                  'constant' => 4,
                                                  'optional' => true,
-                                                 'implicit' => true
+                                                 'explicit' => true
                                                ) + $Name,
                 'ediPartyName'              => array(
                                                  'constant' => 5,
@@ -734,7 +734,7 @@ class File_X509 {
                 'distributionPoint' => array(
                                                  'constant' => 0,
                                                  'optional' => true,
-                                                 'implicit' => true
+                                                 'explicit' => true
                                        ) + $DistributionPointName,
                 'reasons'           => array(
                                                  'constant' => 1,
