@@ -1351,7 +1351,9 @@ class Net_SFTP extends Net_SSH2 {
             }
         }
 
-        $this->_read_put_responses($i);
+        if (!$this->_read_put_responses($i)) {
+            return false;
+        }
 
         if ($mode & NET_SFTP_LOCAL_FILE) {
             fclose($fp);
