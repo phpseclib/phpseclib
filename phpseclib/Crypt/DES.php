@@ -295,10 +295,7 @@ class Crypt_DES {
     {
         if ( !defined('CRYPT_DES_MODE') ) {
             switch (true) {
-                case extension_loaded('mcrypt'):
-                    // i'd check to see if des was supported, by doing in_array('des', mcrypt_list_algorithms('')),
-                    // but since that can be changed after the object has been created, there doesn't seem to be
-                    // a lot of point...
+                case extension_loaded('mcrypt') && in_array('des', mcrypt_list_algorithms()):
                     define('CRYPT_DES_MODE', CRYPT_DES_MODE_MCRYPT);
                     break;
                 default:

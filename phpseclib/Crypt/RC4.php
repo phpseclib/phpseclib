@@ -143,15 +143,6 @@ class Crypt_RC4 {
     var $decryptIndex = 0;
 
     /**
-     * MCrypt parameters
-     *
-     * @see Crypt_RC4::setMCrypt()
-     * @var Array
-     * @access private
-     */
-    var $mcrypt = array('', '');
-
-    /**
      * The Encryption Algorithm
      *
      * Only used if CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT.  Only possible values are MCRYPT_RC4 or MCRYPT_ARCFOUR.
@@ -184,10 +175,7 @@ class Crypt_RC4 {
     {
         if ( !defined('CRYPT_RC4_MODE') ) {
             switch (true) {
-                case extension_loaded('mcrypt') && (defined('MCRYPT_ARCFOUR') || defined('MCRYPT_RC4')):
-                    // i'd check to see if rc4 was supported, by doing in_array('arcfour', mcrypt_list_algorithms('')),
-                    // but since that can be changed after the object has been created, there doesn't seem to be
-                    // a lot of point...
+                case extension_loaded('mcrypt') && (defined('MCRYPT_ARCFOUR') || defined('MCRYPT_RC4')) && in_array('arcfour', mcrypt_list_algorithms()):
                     define('CRYPT_RC4_MODE', CRYPT_RC4_MODE_MCRYPT);
                     break;
                 default:
@@ -321,24 +309,6 @@ class Crypt_RC4 {
      */
     function setIV($iv)
     {
-    }
-
-    /**
-     * Sets MCrypt parameters. (optional)
-     *
-     * If MCrypt is being used, empty strings will be used, unless otherwise specified.
-     *
-     * @link http://php.net/function.mcrypt-module-open#function.mcrypt-module-open
-     * @access public
-     * @param optional Integer $algorithm_directory
-     * @param optional Integer $mode_directory
-     */
-    function setMCrypt($algorithm_directory = '', $mode_directory = '')
-    {
-        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
-            $this->mcrypt = array($algorithm_directory, $mode_directory);
-            $this->_closeMCrypt();
-        }
     }
 
     /**

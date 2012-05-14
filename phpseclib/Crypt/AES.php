@@ -178,10 +178,7 @@ class Crypt_AES extends Crypt_Rijndael {
     {
         if ( !defined('CRYPT_AES_MODE') ) {
             switch (true) {
-                case extension_loaded('mcrypt'):
-                    // i'd check to see if aes was supported, by doing in_array('des', mcrypt_list_algorithms('')),
-                    // but since that can be changed after the object has been created, there doesn't seem to be
-                    // a lot of point...
+                case extension_loaded('mcrypt') && in_array('rijndael-128', mcrypt_list_algorithms()):
                     define('CRYPT_AES_MODE', CRYPT_AES_MODE_MCRYPT);
                     break;
                 default:
