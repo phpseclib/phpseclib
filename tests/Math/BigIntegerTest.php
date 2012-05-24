@@ -5,7 +5,7 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class BigIntegerTest extends PHPUnit_Framework_TestCase
+class Math_BigIntegerTest extends PHPUnit_Framework_TestCase
 {
 	public function getInstance($x = 0, $base = 10)
 	{
