@@ -11,3 +11,12 @@ set_include_path(implode(PATH_SEPARATOR, array(
 	dirname(__FILE__) . '/../phpseclib/',
 	get_include_path(),
 )));
+
+function phpseclib_autoload($class)
+{
+	$file = str_replace('_', '/', $class) . '.php';
+
+	require $file;
+}
+
+spl_autoload_register('phpseclib_autoload');
