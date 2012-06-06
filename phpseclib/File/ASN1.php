@@ -44,7 +44,7 @@
 /**
  * Include Math_BigInteger
  */
-include('Math/BigInteger.php');
+require_once('Math/BigInteger.php');
 
 /**#@+
  * Tag Classes

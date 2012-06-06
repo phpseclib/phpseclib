@@ -47,7 +47,7 @@
 /**
  * Include File_ASN1
  */
-include('File/ASN1.php');
+require_once('File/ASN1.php');
 
 /**
  * Flag to only accept signatures signed by certificate authorities
