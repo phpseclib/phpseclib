@@ -1791,7 +1791,7 @@ class Crypt_RSA {
      */
     function _equals($x, $y)
     {
-        if (count($x) != count($y)) {
+        if (strlen($x) != strlen($y)) {
             return false;
         }
 
