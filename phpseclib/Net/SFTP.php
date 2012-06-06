@@ -835,11 +835,12 @@ class Net_SFTP extends Net_SSH2 {
         foreach ($dirs as $dir) {
             if ($dir == end($dirs)) {
                 unset($temp[$dir]);
-                break;
+                return true;
             }
-            if (isset($new[$key])) {
-                $temp = &$temp[$dir];
+            if (!isset($temp[$dir])) {
+                return false;
             }
+            $temp = &$temp[$dir];
         }
     }
 
@@ -1623,6 +1624,7 @@ class Net_SFTP extends Net_SSH2 {
         if (!$this->_send_sftp_packet(NET_SFTP_RMDIR, pack('Na*', strlen($path), $path))) {
             return false;
         }
+        $this->_remove_dir($path);
 
         $i++;
 
