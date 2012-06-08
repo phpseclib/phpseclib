@@ -1,0 +1,30 @@
+{
+    "name": "phpseclib/phpseclib",
+    "type": "library",
+    "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP etc.",
+    "keywords": [
+        "security",
+        "crypto",
+        "cryptography",
+        "encryption",
+        "signature",
+        "signing",
+        "rsa",
+        "aes",
+        "ssh",
+        "sftp",
+        "BigInteger"
+    ],
+    "homepage": "http://phpseclib.sourceforge.net",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jim Wigginton",
+            "email": "terrafrost@php.net",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=4.3.3"
+    },
+}
