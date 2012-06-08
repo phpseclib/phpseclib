@@ -31,5 +31,8 @@
         "ext-mcrypt": "*",
         "ext-gmp": "*"
     },
-    "include-path": ["phpseclib/"]
+    "include-path": ["phpseclib/"],
+    "autoload": {
+        "psr-0": { "": "phpseclib/" }
+    }
 }
