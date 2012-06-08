@@ -71,7 +71,9 @@
  *
  * Used to do RSA encryption.
  */
-require_once('Math/BigInteger.php');
+if (!class_exists('Math_BigInteger')) {
+    require_once('Math/BigInteger.php');
+}
 
 /**
  * Include Crypt_Null
@@ -81,22 +83,30 @@ require_once('Math/BigInteger.php');
 /**
  * Include Crypt_DES
  */
-require_once('Crypt/DES.php');
+if (!class_exists('Crypt_DES')) {
+    require_once('Crypt/DES.php');
+}
 
 /**
  * Include Crypt_TripleDES
  */
-require_once('Crypt/TripleDES.php');
+if (!class_exists('Crypt_TripleDES')) {
+    require_once('Crypt/TripleDES.php');
+}
 
 /**
  * Include Crypt_RC4
  */
-require_once('Crypt/RC4.php');
+if (!class_exists('Crypt_RC4')) {
+    require_once('Crypt/RC4.php');
+}
 
 /**
  * Include Crypt_Random
  */
-require_once('Crypt/Random.php');
+if (!class_exists('Crypt_Random')) {
+    require_once('Crypt/Random.php');
+}
 
 /**#@+
  * Encryption Methods

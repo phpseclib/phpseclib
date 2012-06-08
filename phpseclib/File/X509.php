@@ -47,7 +47,9 @@
 /**
  * Include File_ASN1
  */
-require_once('File/ASN1.php');
+if (!class_exists('File_ASN1')) {
+    require_once('File/ASN1.php');
+}
 
 /**
  * Flag to only accept signatures signed by certificate authorities

@@ -73,32 +73,43 @@
  *
  * Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
  */
-require_once('Math/BigInteger.php');
+if (!class_exists('Math_BigInteger')) {
+    require_once('Math/BigInteger.php');
+}
 
 /**
  * Include Crypt_Random
  */
-require_once('Crypt/Random.php');
+if (!class_exists('Crypt_Random')) {
+    require_once('Crypt/Random.php');
+}
 
 /**
  * Include Crypt_Hash
  */
-require_once('Crypt/Hash.php');
+if (!class_exists('Crypt_Hash')) {
+    require_once('Crypt/Hash.php');
+}
 
 /**
  * Include Crypt_TripleDES
  */
-require_once('Crypt/TripleDES.php');
+if (!class_exists('Crypt_TripleDES')) {
+    require_once('Crypt/TripleDES.php');
+}
 
 /**
  * Include Crypt_RC4
  */
+if (!class_exists('Crypt_RC4')) {
 require_once('Crypt/RC4.php');
 
 /**
  * Include Crypt_AES
  */
-require_once('Crypt/AES.php');
+if (!class_exists('Crypt_AES')) {
+    require_once('Crypt/AES.php');
+}
 
 /**#@+
  * Execution Bitmap Masks
