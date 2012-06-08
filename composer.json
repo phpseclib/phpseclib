@@ -1,0 +1,38 @@
+{
+    "name": "phpseclib/phpseclib",
+    "type": "library",
+    "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP etc.",
+    "keywords": [
+        "security",
+        "crypto",
+        "cryptography",
+        "encryption",
+        "signature",
+        "signing",
+        "RSA",
+        "AES",
+        "SSH",
+        "SFTP",
+        "BigInteger"
+    ],
+    "homepage": "http://phpseclib.sourceforge.net",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jim Wigginton",
+            "email": "terrafrost@php.net",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=4.3.3"
+    },
+    "suggest": {
+        "ext-mcrypt": "Install the Mcrypt extension in order to speed up a wide variety of cryptographic operations.",
+        "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations."
+    },
+    "include-path": ["phpseclib/"],
+    "autoload": {
+        "psr-0": { "": "phpseclib/" }
+    }
+}
