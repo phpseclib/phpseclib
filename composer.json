@@ -30,5 +30,6 @@
     "suggest": {
         "ext-mcrypt": "*",
         "ext-gmp": "*"
-    }
+    },
+    "include-path": ["phpseclib/"]
 }
