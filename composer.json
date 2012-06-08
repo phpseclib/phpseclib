@@ -1,0 +1,26 @@
+{
+    "name": "phpseclib/phpseclib",
+    "description": "PHP Secure Communications Library",
+    "type": "library",
+    "homepage": "http://phpseclib.sourceforge.net",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "terrafrost",
+            "homepage": "http://frostjedi.com"
+        }
+    ],
+    "support": {
+        "forum": "http://www.frostjedi.com/phpbb/viewforum.php?f=46",
+        "issues": "https://github.com/phpseclib/phpseclib/issues",
+        "source": "https://github.com/phpseclib/phpseclib"
+    },
+    "autoload": {
+        "psr-0": {
+            "Crypt": "phpseclib/",
+            "File": "phpseclib/",
+            "Math": "phpseclib/",
+            "Net": "phpseclib/"
+        }
+    }
+}
