@@ -6,14 +6,22 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "terrafrost",
-            "homepage": "http://frostjedi.com"
+            "name": "Jim Wigginton",
+            "email": "terrafrost@php.net",
+            "role": "Developer"
         }
     ],
     "support": {
         "forum": "http://www.frostjedi.com/phpbb/viewforum.php?f=46",
         "issues": "https://github.com/phpseclib/phpseclib/issues",
         "source": "https://github.com/phpseclib/phpseclib"
+    },
+    "require": {
+        "php": ">=4.3.3"
+    },
+    "suggest": {
+        "ext-mcrypt": "Install the Mcrypt extension in order to speed up a wide variety of cryptographic operations.",
+        "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations."
     },
     "autoload": {
         "psr-0": {
