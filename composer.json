@@ -27,4 +27,8 @@
     "require": {
         "php": ">=4.3.3"
     },
+    "suggest": {
+        "ext-mcrypt": "*",
+        "ext-gmp": "*"
+    }
 }
