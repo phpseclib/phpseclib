@@ -102,7 +102,8 @@ if (!class_exists('Crypt_TripleDES')) {
  * Include Crypt_RC4
  */
 if (!class_exists('Crypt_RC4')) {
-require_once('Crypt/RC4.php');
+    require_once('Crypt/RC4.php');
+}
 
 /**
  * Include Crypt_AES
