@@ -57,7 +57,9 @@
 /**
  * Include Net_SSH2
  */
-require_once('Net/SSH2.php');
+if (!class_exists('Net_SSH2')) {
+    require_once('Net/SSH2.php');
+}
 
 /**#@+
  * @access public

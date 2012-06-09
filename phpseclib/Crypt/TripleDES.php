@@ -57,7 +57,9 @@
 /**
  * Include Crypt_DES
  */
-require_once('DES.php');
+if (!class_exists('Crypt_DES')) {
+    require_once('DES.php');
+}
 
 /**
  * Encrypt / decrypt using inner chaining

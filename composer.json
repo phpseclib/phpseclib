@@ -1,0 +1,29 @@
+{
+    "name": "phpseclib/phpseclib",
+    "description": "PHP Secure Communications Library",
+    "type": "library",
+    "homepage": "http://phpseclib.sourceforge.net",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jim Wigginton",
+            "email": "terrafrost@php.net",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=4.3.3"
+    },
+    "suggest": {
+        "ext-mcrypt": "Install the Mcrypt extension in order to speed up a wide variety of cryptographic operations.",
+        "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations."
+    },
+    "autoload": {
+        "psr-0": {
+            "Crypt": "phpseclib/",
+            "File": "phpseclib/",
+            "Math": "phpseclib/",
+            "Net": "phpseclib/"
+        }
+    }
+}
