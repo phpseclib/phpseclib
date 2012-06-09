@@ -11,11 +11,6 @@
             "role": "Developer"
         }
     ],
-    "support": {
-        "forum": "http://www.frostjedi.com/phpbb/viewforum.php?f=46",
-        "issues": "https://github.com/phpseclib/phpseclib/issues",
-        "source": "https://github.com/phpseclib/phpseclib"
-    },
     "require": {
         "php": ">=4.3.3"
     },
