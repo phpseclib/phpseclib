@@ -1415,4 +1415,3 @@ class Net_SSH1 {
         return rtrim($this->server_identification);
     }
 }
-?>
