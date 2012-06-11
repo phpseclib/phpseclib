@@ -2224,8 +2224,10 @@ class Net_SSH2 {
                         case 'exit-status':
                             // "The channel needs to be closed with SSH_MSG_CHANNEL_CLOSE after this message."
                             // -- http://tools.ietf.org/html/rfc4254#section-6.10
-                            $this->_close_channel($client_channel);
-                            return true;
+                            $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$client_channel]));
+                            $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
+
+                            $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_EOF;
                         default:
                             // "Some systems may not implement signals, in which case they SHOULD ignore this message."
                             //  -- http://tools.ietf.org/html/rfc4254#section-6.9
@@ -2233,7 +2235,16 @@ class Net_SSH2 {
                     }
                     break;
                 case NET_SSH2_MSG_CHANNEL_CLOSE:
-                    $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
+                    $this->curTimeout = 0;
+
+                    if ($this->bitmap & NET_SSH2_MASK_SHELL) {
+                        $this->bitmap&= ~NET_SSH2_MASK_SHELL;
+                    }
+                    if ($this->channel_status[$channel] != NET_SSH2_MSG_CHANNEL_EOF) {
+                        $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
+                    }
+
+                    $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_CLOSE;
                     return true;
                 case NET_SSH2_MSG_CHANNEL_EOF:
                     break;
