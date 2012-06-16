@@ -371,7 +371,7 @@ class Crypt_DES {
      *
      * Depending on what $method is set to, setPassword()'s (optional) parameters are as follows:
      *     {@link http://en.wikipedia.org/wiki/PBKDF2 pbkdf2}:
-     *         $hash, $salt, $method
+     *         $hash, $salt, $count
      *
      * @param String $password
      * @param optional String $method
@@ -389,7 +389,7 @@ class Crypt_DES {
                 }
                 // WPA and WPA use the SSID as the salt
                 if (!isset($salt)) {
-                    $salt = 'phpseclib';
+                    $salt = 'phpseclib/salt';
                 }
                 // RFC2898#section-4.2 uses 1,000 iterations by default
                 // WPA and WPA2 use 4,096.

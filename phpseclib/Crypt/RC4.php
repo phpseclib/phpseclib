@@ -234,7 +234,7 @@ class Crypt_RC4 {
      *
      * Depending on what $method is set to, setPassword()'s (optional) parameters are as follows:
      *     {@link http://en.wikipedia.org/wiki/PBKDF2 pbkdf2}:
-     *         $hash, $salt, $method, $dkLen
+     *         $hash, $salt, $count, $dkLen
      *
      * @param String $password
      * @param optional String $method
@@ -252,18 +252,15 @@ class Crypt_RC4 {
                 }
                 // WPA and WPA use the SSID as the salt
                 if (!isset($salt)) {
-                    $salt = 'phpseclib';
+                    $salt = 'phpseclib/salt';
                 }
                 // RFC2898#section-4.2 uses 1,000 iterations by default
                 // WPA and WPA2 use 4,096.
                 if (!isset($count)) {
                     $count = 1000;
                 }
-                if (!isset($count)) {
-                    $count = 1000;
-                }
                 if (!isset($dkLen)) {
-                    $count = 1000;
+                    $dkLen = 128;
                 }
 
                 if (!class_exists('Crypt_Hash')) {
