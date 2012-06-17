@@ -140,4 +140,3 @@ function crypt_random($min = 0, $max = 0x7FFFFFFF)
     extract(unpack('Nrandom', $crypto->encrypt("\0\0\0\0")));
     return abs($random) % ($max - $min) + $min;
 }
-?>
