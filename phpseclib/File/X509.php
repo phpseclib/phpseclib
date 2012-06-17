@@ -48,7 +48,7 @@
  * Include File_ASN1
  */
 if (!class_exists('File_ASN1')) {
-    require_once('File/ASN1.php');
+    require_once(dirname( __FILE__ )'/ASN1.php');
 }
 
 /**
@@ -1664,7 +1664,7 @@ class File_X509 {
         switch ($publicKeyAlgorithm) {
             case 'rsaEncryption':
                 if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
+                    require_once(dirname( __FILE__ )'/../Crypt/RSA.php');
                 }
                 $rsa = new Crypt_RSA();
                 $rsa->loadKey($publicKey);
@@ -2029,7 +2029,7 @@ class File_X509 {
         switch ($this->currentCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
             case 'rsaEncryption':
                 if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
+                    require_once(dirname( __FILE__ )'/../Crypt/RSA.php');
                 }
                 $publicKey = new Crypt_RSA();
                 $publicKey->loadKey($key);
@@ -2080,7 +2080,7 @@ class File_X509 {
         switch ($algorithm) {
             case 'rsaEncryption':
                 if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
+                    require_once(dirname( __FILE__ )'/../Crypt/RSA.php');
                 }
                 $this->publicKey = new Crypt_RSA();
                 $this->publicKey->loadKey($key);

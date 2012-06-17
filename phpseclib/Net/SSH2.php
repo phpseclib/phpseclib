@@ -74,42 +74,42 @@
  * Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
  */
 if (!class_exists('Math_BigInteger')) {
-    require_once('Math/BigInteger.php');
+    require_once(dirname( __FILE__ )'/../Math/BigInteger.php');
 }
 
 /**
  * Include Crypt_Random
  */
 if (!class_exists('Crypt_Random')) {
-    require_once('Crypt/Random.php');
+    require_once(dirname( __FILE__ )'/../Crypt/Random.php');
 }
 
 /**
  * Include Crypt_Hash
  */
 if (!class_exists('Crypt_Hash')) {
-    require_once('Crypt/Hash.php');
+    require_once(dirname( __FILE__ )'/../Crypt/Hash.php');
 }
 
 /**
  * Include Crypt_TripleDES
  */
 if (!class_exists('Crypt_TripleDES')) {
-    require_once('Crypt/TripleDES.php');
+    require_once(dirname( __FILE__ )'/../Crypt/TripleDES.php');
 }
 
 /**
  * Include Crypt_RC4
  */
 if (!class_exists('Crypt_RC4')) {
-    require_once('Crypt/RC4.php');
+    require_once(dirname( __FILE__ )'/../Crypt/RC4.php');
 }
 
 /**
  * Include Crypt_AES
  */
 if (!class_exists('Crypt_AES')) {
-    require_once('Crypt/AES.php');
+    require_once(dirname( __FILE__ )'/../Crypt/AES.php');
 }
 
 /**#@+
@@ -2814,7 +2814,7 @@ class Net_SSH2 {
                 $signature = $this->_string_shift($signature, $temp['length']);
 
                 if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
+                    require_once(dirname( __FILE__ )'/../Crypt/RSA.php');
                 }
 
                 $rsa = new Crypt_RSA();
