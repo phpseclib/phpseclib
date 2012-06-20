@@ -72,17 +72,23 @@
 /**
  * Include Math_BigInteger
  */
-require_once('Math/BigInteger.php');
+if (!class_exists('Math_BigInteger')) {
+    require_once('Math/BigInteger.php');
+}
 
 /**
  * Include Crypt_Random
  */
-require_once('Crypt/Random.php');
+if (!function_exists('crypt_random')) {
+    require_once('Crypt/Random.php');
+}
 
 /**
  * Include Crypt_Hash
  */
-require_once('Crypt/Hash.php');
+if (!class_exists('Crypt_Hash')) {
+    require_once('Crypt/Hash.php');
+}
 
 /**#@+
  * @access public

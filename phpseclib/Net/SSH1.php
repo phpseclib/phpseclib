@@ -104,7 +104,7 @@ if (!class_exists('Crypt_RC4')) {
 /**
  * Include Crypt_Random
  */
-if (!class_exists('Crypt_Random')) {
+if (!function_exists('crypt_random')) {
     require_once('Crypt/Random.php');
 }
 
