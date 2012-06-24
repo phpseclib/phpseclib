@@ -79,7 +79,9 @@ if (!class_exists('Math_BigInteger')) {
 /**
  * Include Crypt_Random
  */
-if (!function_exists('crypt_random')) {
+// the class_exists() will only be called if the crypt_random function hasn't been defined and
+// will trigger a call to __autoload() if you're wanting to auto-load classes
+if (!function_exists('crypt_random') && !class_exists('Crypt_Random')) {
     require_once('Crypt/Random.php');
 }
 
