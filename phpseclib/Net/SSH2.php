@@ -760,11 +760,31 @@ class Net_SSH2 {
                   61 => 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE')
         );
 
+        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"), E_USER_NOTICE);
             return;
         }
+        $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+
+        if ($timeout - $elapsed <= 0) {
+            user_error(rtrim("Cannot connect to $host. Timeout error"), E_USER_NOTICE);
+            return;
+        }
+
+        $read = array($this->fsock);
+        $write = $except = NULL;
+
+        stream_set_blocking($this->fsock, false);
+
+        // on windows this returns a "Warning: Invalid CRT parameters detected" error
+        if (!@stream_select($read, $write, $except, $timeout - $elapsed)) {
+            user_error(rtrim("Cannot connect to $host. Banner timeout"), E_USER_NOTICE);
+            return;
+        }
+
+        stream_set_blocking($this->fsock, true);
 
         /* According to the SSH2 specs,
 
