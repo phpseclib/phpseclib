@@ -106,7 +106,9 @@ if (!class_exists('Crypt_RC4')) {
  */
 // the class_exists() will only be called if the crypt_random function hasn't been defined and
 // will trigger a call to __autoload() if you're wanting to auto-load classes
-if (!function_exists('crypt_random') && !class_exists('Crypt_Random')) {
+// call function_exists() a second time to stop the require_once from being called outside
+// of the auto loader
+if (!function_exists('crypt_random') && !class_exists('Crypt_Random') && !function_exists('crypt_random')) {
     require_once('Crypt/Random.php');
 }
 
