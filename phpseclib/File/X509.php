@@ -1269,7 +1269,7 @@ class File_X509 {
     /**
      * Save X.509 certificate
      *
-     * @param optional Array $cert
+     * @param Array $cert
      * @access public
      * @return String
      */
@@ -2059,6 +2059,7 @@ class File_X509 {
         $orig = $csr = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $csr) ? base64_decode($csr) : false;
 
         if ($csr === false) {
+            $this->currentCert = false;
             return false;
         }
 
@@ -2066,6 +2067,7 @@ class File_X509 {
         $decoded = $asn1->decodeBER($csr);
         $csr = $asn1->asn1map($decoded[0], $this->CertificationRequest);
         if (!isset($csr) || $csr === false) {
+            $this->currentCert = false;
             return false;
         }
 
@@ -2096,14 +2098,48 @@ class File_X509 {
     }
 
     /**
+     * Save CSR request
+     *
+     * @param Array $csr
+     * @access public
+     * @return String
+     */
+    function saveCSR($csr)
+    {
+        if (!is_array($csr) || !isset($csr['certificationRequestInfo'])) {
+            return false;
+        }
+
+        switch ($csr['certificationRequestInfo']['subjectPKInfo']['algorithm']['algorithm']) {
+            case 'rsaEncryption':
+                $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'] = 
+                    base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])));
+        }
+
+        $asn1 = new File_ASN1();
+
+        $asn1->loadOIDs($this->oids);
+
+        $filters = array();
+        $filters['certificationRequestInfo']['subject']['rdnSequence']['value'] = 
+            array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+
+        $asn1->loadFilters($filters);
+
+        $csr = $asn1->encodeDER($csr, $this->CertificationRequest);
+
+        return "-----BEGIN CERTIFICATE REQUEST-----\r\n" . chunk_split(base64_encode($csr)) . '-----END CERTIFICATE REQUEST-----';
+    }
+
+    /**
      * Sign an X.509 certificate
      *
      * $issuer's private key needs to be loaded.
      * $subject can be either an existing X.509 cert (if you want to resign it),
      * a CSR or something with the DN and public key explicitly set.
      *
-     * @param Crypt_X509 $issuer
-     * @param Crypt_X509 $subject
+     * @param File_X509 $issuer
+     * @param File_X509 $subject
      * @param String $signatureAlgorithm optional
      * @access public
      * @return Mixed
@@ -2122,10 +2158,10 @@ class File_X509 {
         $signatureSubject = $this->signatureSubject;
 
         if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
+            $this->currentCert = $subject->currentCert;
             $this->currentCert['tbsCertificate']['signature']['algorithm'] =
             $this->currentCert['signatureAlgorithm']['algorithm'] =
                 $signatureAlgorithm;
-            $this->currentCert = $subject->currentCert;
             if (!empty($this->startDate)) {
                 $this->currentCert['tbsCertificate']['validity']['notBefore']['generalTime'] = $this->startDate;
                 unset($this->currentCert['tbsCertificate']['validity']['notBefore']['utcTime']);
@@ -2259,10 +2295,69 @@ class File_X509 {
     }
 
     /**
+     * Sign a CSR
+     *
+     * @access public
+     * @return Mixed
+     */
+    function signCSR($signatureAlgorithm = 'sha1WithRSAEncryption')
+    {
+        if (!is_object($this->privateKey) || empty($this->dn)) {
+            return false;
+        }
+
+        $origPublicKey = $this->publicKey;
+        $class = get_class($this->privateKey);
+        $this->publicKey = new $class();
+        $this->publicKey->loadKey($this->privateKey->getPublicKey());
+        $this->publicKey->setPublicKey();
+        if (!($publicKey = $this->_formatSubjectPublicKey())) {
+            return false;
+        }
+        $this->publicKey = $origPublicKey;
+
+        $currentCert = $this->currentCert;
+        $signatureSubject = $this->signatureSubject;
+
+        if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['certificationRequestInfo'])) {
+            $this->currentCert['signatureAlgorithm']['algorithm'] =
+                $signatureAlgorithm;
+            if (!empty($this->dn)) {
+                $this->currentCert['certificationRequestInfo']['subject'] = $this->dn;
+            }
+            $this->currentCert['certificationRequestInfo']['subjectPKInfo'] = $publicKey;
+        } else {
+            $this->currentCert = array(
+	        'certificationRequestInfo' =>
+                    array(
+                        'version' => 'v1',
+                        'subject' => $this->dn,
+                        'subjectPKInfo' => $publicKey
+                    ),
+                 'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                 'signature'          => false // this is going to be overwritten later
+            );
+        }
+
+        // resync $this->signatureSubject
+        // save $certificationRequestInfo in case there are any File_ASN1_Element objects in it
+        $certificationRequestInfo = $this->currentCert['certificationRequestInfo'];
+        $this->loadCSR($this->saveCSR($this->currentCert));
+
+        $result = $this->_sign($this->privateKey, $signatureAlgorithm);
+        $result['certificationRequestInfo'] = $certificationRequestInfo;
+
+        $this->currentCert = $currentCert;
+        $this->signatureSubject = $signatureSubject;
+
+        return $result;
+    }
+
+    /**
      * X.509 certificate signing helper function.
      *
      * @param Object $key
-     * @param Crypt_X509 $subject
+     * @param File_X509 $subject
      * @param String $signatureAlgorithm
      * @access public
      * @return Mixed
