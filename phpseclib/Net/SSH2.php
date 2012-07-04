@@ -198,7 +198,7 @@ class Net_SSH2 {
      * @var String
      * @access private
      */
-    var $identifier = 'SSH-2.0-phpseclib_0.2';
+    var $identifier = 'SSH-2.0-phpseclib_0.3';
 
     /**
      * The Socket Object
@@ -670,6 +670,14 @@ class Net_SSH2 {
      * @access private
      */
     var $realtime_log_size;
+
+    /**
+     * Has the signature been validated?
+     *
+     * @see Net_SSH2::getServerPublicHostKey()
+     * @access private
+     */
+    var $signature_validated = false;
 
     /**
      * Real-time log file wrap boolean
@@ -2773,6 +2781,14 @@ class Net_SSH2 {
         extract(unpack('Nlength', $this->_string_shift($server_public_host_key, 4)));
         $this->_string_shift($server_public_host_key, $length);
 
+        if ($this->signature_validated) {
+            return $this->bitmap ?
+                $this->signature_format . ' ' . base64_encode($this->server_public_host_key) :
+                false;
+        }
+
+        $this->signature_validated = true;
+
         switch ($this->signature_format) {
             case 'ssh-dss':
                 $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
@@ -2874,8 +2890,12 @@ class Net_SSH2 {
                     user_error('Bad server signature', E_USER_NOTICE);
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
                 }
+                break;
+            default:
+                user_error('Unsupported signature format', E_USER_NOTICE);
+                return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
         }
 
-        return $this->server_public_host_key;
+        return $this->signature_format . ' ' . base64_encode($this->server_public_host_key);
     }
 }

@@ -1110,8 +1110,9 @@ class Crypt_RSA {
                         return false;
                     }
                     extract(unpack('Nlength', $this->_string_shift($key, 4)));
+                    $realModulus = new Math_BigInteger($this->_string_shift($key, $length), -256);
                     return strlen($key) ? false : array(
-                        'modulus' => new Math_BigInteger($this->_string_shift($key, $length), -256),
+                        'modulus' => $realModulus,
                         'publicExponent' => $modulus
                     );
                 } else {
