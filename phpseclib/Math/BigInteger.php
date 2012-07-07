@@ -70,7 +70,7 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    $Id: BigInteger.php,v 1.33 2010/03/22 22:32:03 terrafrost Exp $
+ * @version    $Id: BigInteger.php 326530 2012-07-07 22:05:25Z terrafrost $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 
@@ -297,7 +297,9 @@ class Math_BigInteger {
                 $this->value = array();
         }
 
-        if (empty($x)) {
+        // '0' counts as empty() but when the base is 256 '0' is equal to ord('0') or 48
+        // '0' is the only  value like this per http://php.net/empty
+        if (empty($x) && (abs($base) != 256 || $x !== '0')) {
             return;
         }
 
