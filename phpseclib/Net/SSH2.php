@@ -688,6 +688,14 @@ class Net_SSH2 {
     var $realtime_log_wrap;
 
     /**
+     * Flag to suppress stderr from output
+     *
+     * @see Net_SSH2::enableQuiteMode()
+     * @access private
+     */
+    var $quiet_mode = false;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -2124,6 +2132,30 @@ class Net_SSH2 {
     }
 
     /**
+     * Enable Quiet Mode
+     *
+     * Suppress stderr from output
+     *
+     * @access public
+     */
+    function enableQuietMode()
+    {
+        $this->quiet_mode = true;
+    }
+
+    /**
+     * Disable Quiet Mode
+     *
+     * Show stderr in output
+     *
+     * @access public
+     */
+    function disableQuietMode()
+    {
+        $this->quiet_mode = false;
+    }
+
+    /**
      * Gets channel data
      *
      * Returns the data as a string if it's available and false if not.
@@ -2221,7 +2253,7 @@ class Net_SSH2 {
                     $this->channel_buffers[$client_channel][] = $data;
                     break;
                 case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
-                    if ($skip_extended) {
+                    if ($skip_extended || $this->quiet_mode) {
                         break;
                     }
                     /*
