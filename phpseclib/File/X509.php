@@ -1722,6 +1722,81 @@ class File_X509 {
     }
 
     /**
+     * "Normalizes" a Distinguished Name property
+     *
+     * @param String $propName
+     * @access private
+     * @return Mixed
+     */
+    function _translateDNProp($propName)
+    {
+        switch (strtolower($propName)) {
+            case 'id-at-countryname':
+            case 'countryname':
+            case 'c':
+                return 'id-at-countryName';
+            case 'id-at-organizationname':
+            case 'organizationname':
+            case 'o':
+                return 'id-at-organizationName';
+            case 'id-at-dnqualifier':
+            case 'dnqualifier':
+            case 'ou':
+                return 'id-at-dnQualifier';
+            case 'id-at-commonname':
+            case 'commonname':
+            case 'cn':
+                return 'id-at-commonName';
+            case 'id-at-stateorprovinceName':
+            case 'stateorprovincename':
+            case 'state':
+            case 'province':
+            case 'provincename':
+            case 'st':
+                return 'id-at-stateOrProvinceName';
+            case 'id-at-localityname':
+            case 'localityname':
+            case 'l':
+                return 'id-at-localityName';
+            case 'id-emailaddress':
+            case 'emailaddress':
+                return 'id-at-emailAddress';
+            case 'id-at-serialnumber':
+            case 'serialnumber':
+                return 'id-at-serialNumber';
+            case 'id-at-postalcode':
+            case 'postalcode':
+                return 'id-at-postalCode';
+            case 'id-at-streetaddress':
+            case 'streetaddress':
+                return 'id-at-streetAddress';
+            case 'id-at-name':
+            case 'name':
+                return 'id-at-name';
+            case 'id-at-givenname':
+            case 'givenname':
+                return 'id-at-givenName';
+            case 'id-at-surname':
+            case 'surname':
+                return 'id-at-surname';
+            case 'id-at-initials':
+            case 'initials':
+                return 'id-at-initials';
+            case 'id-at-generationqualifier':
+            case 'generationqualifier':
+                return 'id-at-generationQualifier';
+            case 'id-at-organizationalunitname':
+            case 'organizationalunitname':
+                return 'id-at-organizationalUnitName';
+            case 'id-at-pseudonym':
+            case 'pseudonym':
+                return 'id-at-pseudonym';
+            default:
+                return false;
+        }
+    }
+
+    /**
      * Set a Distinguished Name property
      *
      * @param String $propName
@@ -1735,85 +1810,8 @@ class File_X509 {
             $this->dn = array('rdnSequence' => array());
         }
 
-        switch (strtolower($propName)) {
-            case 'id-at-countryname':
-            case 'countryname':
-            case 'c':
-                $type = 'id-at-countryName';
-                break;
-            case 'id-at-organizationname':
-            case 'organizationname':
-            case 'o':
-                $type = 'id-at-organizationName';
-                break;
-            case 'id-at-dnqualifier':
-            case 'dnqualifier':
-            case 'ou':
-                $type = 'id-at-dnQualifier';
-                break;
-            case 'id-at-commonname':
-            case 'commonname':
-            case 'cn':
-                $type = 'id-at-commonName';
-                break;
-            case 'id-at-stateorprovinceName':
-            case 'stateorprovincename':
-            case 'state':
-            case 'province':
-            case 'provincename':
-            case 'st':
-                $type = 'id-at-stateOrProvinceName';
-                break;
-            case 'id-at-localityname':
-            case 'localityname':
-            case 'l':
-                $type = 'id-at-localityName';
-                break;
-            case 'id-emailaddress':
-            case 'emailaddress':
-                $type = 'id-at-emailAddress';
-                break;
-            case 'id-at-serialnumber':
-            case 'serialnumber':
-                $type = 'id-at-serialNumber';
-                break;
-            case 'id-at-postalcode':
-            case 'postalcode':
-                $type = 'id-at-postalCode';
-                break;
-            case 'id-at-streetaddress':
-            case 'streetaddress':
-                $type = 'id-at-streetAddress';
-                break;
-            case 'id-at-name':
-            case 'name':
-                $type = 'id-at-name';
-            case 'id-at-givenname':
-            case 'givenname':
-                $type = 'id-at-givenName';
-                break;
-            case 'id-at-surname':
-            case 'surname':
-                $type = 'id-at-surname';
-                break;
-            case 'id-at-initials':
-            case 'initials':
-                $type = 'id-at-initials';
-                break;
-            case 'id-at-generationqualifier':
-            case 'generationqualifier':
-                $type = 'id-at-generationQualifier';
-                break;
-            case 'id-at-organizationalunitname':
-            case 'organizationalunitname':
-                $type = 'id-at-organizationalUnitName';
-                break;
-            case 'id-at-pseudonym':
-            case 'pseudonym':
-                $type = 'id-at-pseudonym';
-                break;
-            default:
-                return false;
+        if (($propName = $this->_translateDNProp($propName)) === false) {
+            return false;
         }
 
         $this->dn['rdnSequence'][] = array(
@@ -1838,6 +1836,10 @@ class File_X509 {
             return;
         }
 
+        if (($propName = $this->_translateDNProp($propName)) === false) {
+            return;
+        }
+
         $dn = &$this->dn['rdnSequence'];
         $size = count($dn);
         for ($i = 0; $i < $size; $i++) {
@@ -1856,17 +1858,25 @@ class File_X509 {
      * @return Mixed
      * @access public
      */
-    function getDNProp($propName)
+    function getDNProp($propName, $dn = NULL)
     {
-        if (empty($this->dn)) {
+        if (!isset($dn)) {
+            $dn = $this->dn;
+        }
+
+        if (empty($dn)) {
             return false;
         }
 
-        $dn = $this->dn['rdnSequence'];
+        if (($propName = $this->_translateDNProp($propName)) === false) {
+            return false;
+        }
+
+        $dn = $dn['rdnSequence'];
         $result = array();
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 0; $i < count($dn); $i++) {
             if ($dn[$i][0]['type'] == $propName) {
-                $result[] = $propName;
+                $result[] = $dn[$i][0]['value'];
             }
         }
 
@@ -1972,7 +1982,7 @@ class File_X509 {
      *
      * @param Boolean $string optional
      * @access public
-     * @return Boolean
+     * @return Mixed
      */
     function getIssuerDN($string = false)
     {
@@ -1981,6 +1991,22 @@ class File_X509 {
         }
 
         return $this->getDN($string, $this->currentCert['tbsCertificate']['issuer']);
+    }
+
+    /**
+     * Get an individual Distinguished Name property for a certificates issuer
+     *
+     * @param String $propName
+     * @access public
+     * @return Mixed
+     */
+    function getIssuerDNProp($propName)
+    {
+        if (!isset($this->currentCert) || !is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
+            return false;
+        }
+
+        return $this->getDNProp($propName, $this->currentCert['tbsCertificate']['issuer']);
     }
 
     /**
