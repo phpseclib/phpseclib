@@ -1466,6 +1466,21 @@ class Crypt_RSA {
     }
 
     /**
+     *  __toString() magic method
+     *
+     * @access public
+     */
+    function __toString()
+    {
+        $key = $this->getPrivateKey($this->privateKeyFormat);
+        if ($key !== false) {
+            return $key;
+        }
+        $key = $this->getPublicKey($this->publicKeyFormat);
+        return $key !== false ? $key : '';
+    }
+
+    /**
      * Generates the smallest and largest numbers requiring $bits bits
      *
      * @access private
