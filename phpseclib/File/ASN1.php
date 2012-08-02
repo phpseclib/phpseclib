@@ -44,7 +44,9 @@
 /**
  * Include Math_BigInteger
  */
-require_once('Math/BigInteger.php');
+if (!class_exists('Math_BigInteger')) {
+    require_once('Math/BigInteger.php');
+}
 
 /**#@+
  * Tag Classes
