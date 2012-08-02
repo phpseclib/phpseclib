@@ -1994,6 +1994,18 @@ class File_X509 {
     }
 
     /**
+     * Alias of getDN()
+     *
+     * @param Boolean $string optional
+     * @access public
+     * @return Mixed
+     */
+    function getSubjectDN($string = false)
+    {
+        return $this->getDN($string);
+    }
+
+    /**
      * Get an individual Distinguished Name property for a certificates issuer
      *
      * @param String $propName
@@ -2007,6 +2019,18 @@ class File_X509 {
         }
 
         return $this->getDNProp($propName, $this->currentCert['tbsCertificate']['issuer']);
+    }
+
+    /**
+     * Alias of getDNProp()
+     *
+     * @param String $propName
+     * @access public
+     * @return Mixed
+     */
+    function getSubjectDNProp($propName)
+    {
+        return $this->getDNProp($propName);
     }
 
     /**
