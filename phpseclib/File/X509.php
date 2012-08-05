@@ -1556,9 +1556,19 @@ class File_X509 {
             $date = time();
         }
 
+        $notBefore = $this->currentCert['tbsCertificate']['validity']['notBefore']['generalTime'];
+        if (!isset($notBefore)) {
+            $notBefore = $this->currentCert['tbsCertificate']['validity']['notBefore']['utcTime'];
+        }
+
+        $notAfter = $this->currentCert['tbsCertificate']['validity']['notAfter']['generalTime'];
+        if (!isset($notAfter)) {
+            $notAfter = $this->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'];
+        }
+
         switch (true) {
-            case time() < @strtotime($this->currentCert['tbsCertificate']['validity']['notBefore']):
-            case time() > @strtotime($this->currentCert['tbsCertificate']['validity']['notAfter']):
+            case $date < @strtotime($notBefore):
+            case $date > @strtotime($notAfter):
                 return false;
         }
 
