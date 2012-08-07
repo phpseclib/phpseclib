@@ -1826,7 +1826,7 @@ class File_X509 {
 
         $this->dn['rdnSequence'][] = array(
             array(
-                'type' => $type,
+                'type' => $propName,
                 'value'=> $propValue
             )
         );
