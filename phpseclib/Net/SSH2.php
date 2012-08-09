@@ -44,9 +44,11 @@
  * <code>
  * <?php
  *    include('Net/SSH2.php');
+ *    include('Net/SSH2/Agent.php');
  *
+ *    $agent = new Net_SSH2_Agent();
  *    $ssh = new Net_SSH2('localhost');
- *    if (!$ssh->loginAgent('username')) {
+ *    if (!$ssh->loginAgent('username', $agent)) {
  *      exit('Login Failed');
  *    }
  *
@@ -127,13 +129,6 @@ if (!class_exists('Crypt_RC4')) {
  */
 if (!class_exists('Crypt_AES')) {
     require_once('Crypt/AES.php');
-}
-
-/**
- * Include Net_SSH2_Agent
- */
-if (!class_exists('Net_SSH2_Agent')) {
-    require_once('Net/SSH2/Agent.php');
 }
 
 /**#@+
@@ -1438,7 +1433,7 @@ class Net_SSH2 {
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.
      */
-    function login($username, $password = '')
+    function login($username, $password = '', $agent = null)
     {
         if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
             return false;
@@ -1467,7 +1462,7 @@ class Net_SSH2 {
 
         // although PHP5's get_class() preserves the case, PHP4's does not
         if (is_object($password) && strtolower(get_class($password)) == 'crypt_rsa') {
-            return $this->_privatekey_login($username, $password);
+            return $this->_privatekey_login($username, $password, $agent);
         }
 
         $packet = pack('CNa*Na*Na*CNa*',
@@ -1646,7 +1641,7 @@ class Net_SSH2 {
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.
      */
-    function _privatekey_login($username, $privatekey, $sign_by_agent = false)
+    function _privatekey_login($username, $privatekey, $agent = null)
     {
         // see http://tools.ietf.org/html/rfc4253#page-15
         $publickey = $privatekey->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_RAW);
@@ -1701,12 +1696,11 @@ class Net_SSH2 {
         $packet = $part1 . chr(1) . $part2;
         $data = pack('Na*a*', strlen($this->session_id), $this->session_id, $packet);
 
-        if ($sign_by_agent) {
-          if (($signature = $this->agent->sign($publickey, $data)) === false) {
+        if (is_object($agent) && strtolower(get_class($agent)) == 'net_ssh2_agent') {
+          if (($signature = $agent->sign($publickey, $data)) === false) {
 
             return false;
           }
-
         } else {
           $signature = $this->_sign($privatekey, $data);
         }
@@ -2977,60 +2971,20 @@ class Net_SSH2 {
      * @access public
      */
 
-    function loginAgent($username)
+    function loginAgent($username, $agent)
     {
-      $this->agent = new Net_SSH2_Agent($this);
-      $this->agent->connect();
-      $this->agent->requestIdentities();
+      $agent->connect();
+      $agent->requestIdentities();
 
-      foreach ($this->agent->getKeys() as $key) {
+      foreach ($agent->getKeys() as $key) {
 
-        $k = new Crypt_RSA();
-        if (!$k->setPublicKey($key['key']))
-        {
-          user_error("Invalid key or key not supported.", E_USER_NOTICE);
-          continue;
-        }
-
-        if (!$this->_service_request_userauth()) {
-          return false;
-        }
-
-        $ret = $this->_privatekey_login($username, $k, true);
+        $ret = $this->login($username, $key, $agent);
 
         if ($ret) {
           return $ret;
         }
       }
-    }
 
-    function _service_request_userauth()
-    {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            return false;
-        }
-
-        $packet = pack('CNa*',
-            NET_SSH2_MSG_SERVICE_REQUEST, strlen('ssh-userauth'), 'ssh-userauth'
-        );
-
-        if (!$this->_send_binary_packet($packet)) {
-            return false;
-        }
-
-        $response = $this->_get_binary_packet();
-        if ($response === false) {
-            user_error('Connection closed by server', E_USER_NOTICE);
-            return false;
-        }
-
-        extract(unpack('Ctype', $this->_string_shift($response, 1)));
-
-        if ($type != NET_SSH2_MSG_SERVICE_ACCEPT) {
-            user_error('Expected SSH_MSG_SERVICE_ACCEPT', E_USER_NOTICE);
-            return false;
-        }
-
-        return true;
+      return false;
     }
 }

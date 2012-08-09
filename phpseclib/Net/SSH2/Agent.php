@@ -50,13 +50,13 @@ class Net_SSH2_Agent
     var $keys = array();
     var $ssh;
 
-    function Net_SSH2_Agent($ssh)
-    {
-      $this->ssh = $ssh;
-    }
-
     function connect()
     {
+      if (!is_null($this->socket) && $this->socket_can_write($this->socket)) {
+
+          return $this->socket;
+      }
+
       $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
       $address = null;
 
@@ -102,12 +102,24 @@ class Net_SSH2_Agent
         $keysCount = $this->binaryToLong($buffer);
         $buffer = substr($buffer, 4);
 
+        $this->keys = array();
         for ($i = 0; $i < $keysCount; ++$i) {
             $blob = $this->readPacketFromBuffer($buffer);
-            $this->keys[] = array(
-                                  'blob' => $blob,
-                                  'comment' => $this->readPacketFromBuffer($buffer),
-                                  'key' => 'ssh-rsa '.base64_encode($blob));
+            $comment = $this->readPacketFromBuffer($buffer);
+
+            /** @todo Check crypt method */
+            $k = new Crypt_RSA();
+            if (!$k->setPublicKey('ssh-rsa '.base64_encode($blob)))
+            {
+                user_error("Invalid key or key not supported: ".$comment, E_USER_NOTICE);
+                continue;
+            }
+
+            $this->keys[] = $k;
+//            $this->keys[] = array(
+//                                  'blob' => $blob,
+//                                  'comment' => $this->readPacketFromBuffer($buffer),
+//                                  'key' => 'ssh-rsa '.base64_encode($blob));
         }
     }
 
