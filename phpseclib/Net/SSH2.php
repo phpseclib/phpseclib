@@ -130,10 +130,10 @@ if (!class_exists('Crypt_AES')) {
 }
 
 /**
- * Include SshAgent
+ * Include Net_SSH2_Agent
  */
-if (!class_exists('SshAgent')) {
-    require_once('Net/SshAgent.php');
+if (!class_exists('Net_SSH2_Agent')) {
+    require_once('Net/SSH2/Agent.php');
 }
 
 /**#@+
@@ -1702,7 +1702,11 @@ class Net_SSH2 {
         $data = pack('Na*a*', strlen($this->session_id), $this->session_id, $packet);
 
         if ($sign_by_agent) {
-          $signature = $this->agent->sign($publickey, $data);
+          if (($signature = $this->agent->sign($publickey, $data)) === false) {
+
+            return false;
+          }
+
         } else {
           $signature = $this->_sign($privatekey, $data);
         }
@@ -2969,16 +2973,13 @@ class Net_SSH2 {
      * Try to login with all the key added to ssh-agent
      *
      * @param String $username
-     * @param optional String $password
      * @return Boolean
      * @access public
-     * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
-     *           by sending dummy SSH_MSG_IGNORE messages.
      */
 
     function loginAgent($username)
     {
-      $this->agent = new SshAgent($this);
+      $this->agent = new Net_SSH2_Agent($this);
       $this->agent->connect();
       $this->agent->requestIdentities();
 
