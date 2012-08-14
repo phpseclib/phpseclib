@@ -211,7 +211,7 @@ class Net_SSH2 {
     /**
      * Execution Bitmap
      *
-     * The bits that are set reprsent functions that have been called already.  This is used to determine
+     * The bits that are set represent functions that have been called already.  This is used to determine
      * if a requisite function has been successfully executed.  If not, an error should be thrown.
      *
      * @var Integer
@@ -690,7 +690,7 @@ class Net_SSH2 {
     /**
      * Flag to suppress stderr from output
      *
-     * @see Net_SSH2::enableQuiteMode()
+     * @see Net_SSH2::enableQuietMode()
      * @access private
      */
     var $quiet_mode = false;
@@ -1698,7 +1698,7 @@ class Net_SSH2 {
 
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
-                // either the login is bad or the server employees multi-factor authentication
+                // either the login is bad or the server employs multi-factor authentication
                 return false;
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 $this->bitmap |= NET_SSH2_MASK_LOGIN;
