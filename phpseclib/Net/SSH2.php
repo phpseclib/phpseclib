@@ -1567,9 +1567,11 @@ class Net_SSH2 {
             if ($this->_privatekey_login($username, $key, NET_SSH2_PRIVKEY_MODE_AGENT)) {
                 return true;
             }
-      }
+        }
 
-      return false;
+        $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
+
+        return false;
     }
 
     /**
@@ -1732,7 +1734,7 @@ class Net_SSH2 {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . $this->_string_shift($response, $length);
-                return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
+                return $mode == NET_SSH2_PRIVKEY_MODE_AGENT ? false : $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
