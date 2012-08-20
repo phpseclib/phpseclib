@@ -115,8 +115,10 @@ class Net_SSH2_Agent
     function requestIdentities()
     {
         if (!$this->sendRequest(NET_SSH2_AGENTC_REQUEST_IDENTITIES)) {
-            echo 'Unable to request identities '.
-                    socket_strerror(socket_last_error());
+            user_error(
+                'Unable to request identities '.socket_strerror(socket_last_error()),
+                E_USER_NOTICE
+            );
 
             return false;
         }
