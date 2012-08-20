@@ -48,7 +48,7 @@
  *
  *    $agent = new Net_SSH2_Agent();
  *    $ssh = new Net_SSH2('localhost');
- *    if (!$ssh->loginAgent('username', $agent)) {
+ *    if (!$ssh->login('username', $agent)) {
  *      exit('Login Failed');
  *    }
  *
@@ -196,6 +196,20 @@ define('NET_SSH2_READ_REGEX', 2);
  * Make sure that the log never gets larger than this
  */
 define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
+/**#@-*/
+
+/**#@+
+ * @access private
+ * @see Net_SSH2::_privatekey_login()
+ */
+/**
+ * Used when a Crypt_RSA object is passed as the second parameter of login()
+ */
+define('NET_SSH2_PRIVKEY_MODE_RSA', 0);
+/**
+ * Used when a Net_SSH2_Agent object is passed as the second parameter of login()
+ */
+define('NET_SSH2_PRIVKEY_MODE_AGENT', 1);
 /**#@-*/
 
 /**
@@ -709,6 +723,14 @@ class Net_SSH2 {
      * @access private
      */
     var $quiet_mode = false;
+
+    /**
+     * SSH Agent object
+     *
+     * @see Net_SSH2::_ssh_agent_login()
+     * @access private
+     */
+    var $agent;
 
     /**
      * Default Constructor.
@@ -1433,7 +1455,7 @@ class Net_SSH2 {
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.
      */
-    function login($username, $password = '', $agent = null)
+    function login($username, $password = '')
     {
         if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
             return false;
@@ -1461,8 +1483,13 @@ class Net_SSH2 {
         }
 
         // although PHP5's get_class() preserves the case, PHP4's does not
-        if (is_object($password) && strtolower(get_class($password)) == 'crypt_rsa') {
-            return $this->_privatekey_login($username, $password, $agent);
+        if (is_object($password)) {
+            switch(strtolower(get_class($password))) {
+                case 'crypt_rsa':
+                    return $this->_privatekey_login($username, $password);
+                case 'net_ssh2_agent':
+                    return $this->_ssh_agent_login($username, $password);
+            }
         }
 
         $packet = pack('CNa*Na*Na*CNa*',
@@ -1518,6 +1545,31 @@ class Net_SSH2 {
         }
 
         return false;
+    }
+
+    /**
+     * Login with ssh-agent
+     *
+     * Try to login with all the key added to ssh-agent
+     *
+     * @param String $username
+     * @return Boolean
+     * @access public
+     */
+    function _ssh_agent_login($username, $agent)
+    {
+        $this->agent = $agent;
+
+        $this->agent->connect();
+        $this->agent->requestIdentities();
+
+        foreach ($agent->getKeys() as $key) {
+            if ($this->_privatekey_login($username, $key, NET_SSH2_PRIVKEY_MODE_AGENT)) {
+                return true;
+            }
+      }
+
+      return false;
     }
 
     /**
@@ -1641,7 +1693,7 @@ class Net_SSH2 {
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.
      */
-    function _privatekey_login($username, $privatekey, $agent = null)
+    function _privatekey_login($username, $privatekey, $mode = NET_SSH2_PRIVKEY_MODE_RSA)
     {
         // see http://tools.ietf.org/html/rfc4253#page-15
         $publickey = $privatekey->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_RAW);
@@ -1696,13 +1748,15 @@ class Net_SSH2 {
         $packet = $part1 . chr(1) . $part2;
         $data = pack('Na*a*', strlen($this->session_id), $this->session_id, $packet);
 
-        if (is_object($agent) && strtolower(get_class($agent)) == 'net_ssh2_agent') {
-          if (($signature = $agent->sign($publickey, $data)) === false) {
-
-            return false;
-          }
-        } else {
-          $signature = $this->_sign($privatekey, $data);
+        switch ($mode) {
+            case NET_SSH2_PRIVKEY_MODE_AGENT:
+                $signature = $this->agent->sign($publickey, $data);
+                break;
+            //case NET_SSH2_PRIVKEY_MODE_RSA:
+            default:
+                $privatekey->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+                $signature = $privatekey->sign($data);
+                $signature = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($signature), $signature);
         }
 
         $packet.= pack('Na*', strlen($signature), $signature);
@@ -1729,13 +1783,6 @@ class Net_SSH2 {
         }
 
         return false;
-    }
-
-    function _sign($privatekey, $data) {
-        $privatekey->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
-        $signature = $privatekey->sign($data);
-
-        return pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($signature), $signature);
     }
 
     /**
@@ -2959,32 +3006,5 @@ class Net_SSH2 {
         }
 
         return $this->signature_format . ' ' . base64_encode($this->server_public_host_key);
-    }
-
-    /**
-     * Login with ssh-agent
-     *
-     * Try to login with all the key added to ssh-agent
-     *
-     * @param String $username
-     * @return Boolean
-     * @access public
-     */
-
-    function loginAgent($username, $agent)
-    {
-      $agent->connect();
-      $agent->requestIdentities();
-
-      foreach ($agent->getKeys() as $key) {
-
-        $ret = $this->login($username, $key, $agent);
-
-        if ($ret) {
-          return $ret;
-        }
-      }
-
-      return false;
     }
 }
