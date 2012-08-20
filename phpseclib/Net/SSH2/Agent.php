@@ -1,10 +1,10 @@
 <?php
-/*
+/**
  * Pure-PHP implementation of SSH-Agent.
  *
  * PHP versions 4 and 5
- * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -21,33 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @category   Net
- * @package    Net_SSH2
- * @author     Manuel 'Kea' Baldassarri <k3a@k3a.it>
- * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    $Id: SSH2_Agent.php,v 1.0 2012-08-09 09:46:00 kea Exp $
- * @link       http://phpseclib.sourceforge.net
+ * @category Net
+ * @package  Net_SSH2
+ * @author   Manuel 'Kea' Baldassarri <k3a@k3a.it>
+ * @license  http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link     http://phpseclib.sourceforge.net
  */
 
 define('NET_SSH2_AGENTC_REQUEST_IDENTITIES', 11);
 define('NET_SSH2_AGENT_IDENTITIES_ANSWER', 12);
-define('NET_SSH2_AGENTC_SIGN_REQUEST',13);
-define('NET_SSH2_AGENT_SIGN_RESPONSE',14);
+define('NET_SSH2_AGENTC_SIGN_REQUEST', 13);
+define('NET_SSH2_AGENT_SIGN_RESPONSE', 14);
 
-define('NET_SSH2_AGENTC_LOCK',22); // SSH_AGENTC_LOCK
-define('NET_SSH2_AGENTC_UNLOCK',23); // SSH_AGENTC_UNLOCK
+define('NET_SSH2_AGENTC_LOCK', 22); // SSH_AGENTC_LOCK
+define('NET_SSH2_AGENTC_UNLOCK', 23); // SSH_AGENTC_UNLOCK
 
-define('NET_SSH2_AGENTC_REQUEST_RSA_IDENTITIES', 1); // SSH_AGENTC_REQUEST_RSA_IDENTITIES
-define('NET_SSH2_AGENT_RSA_IDENTITIES_ANSWER', 2); // SSH_AGENT_RSA_IDENTITIES_ANSWER
-define('NET_SSH2_AGENT_FAILURE', 5); // SSH_AGENT_FAILURE
+// SSH_AGENTC_REQUEST_RSA_IDENTITIES
+define('NET_SSH2_AGENTC_REQUEST_RSA_IDENTITIES', 1);
+
+ // SSH_AGENT_RSA_IDENTITIES_ANSWER
+define('NET_SSH2_AGENT_RSA_IDENTITIES_ANSWER', 2);
+ // SSH_AGENT_FAILURE
+define('NET_SSH2_AGENT_FAILURE', 5);
 
 /**
  * Pure-PHP implementation of SSH-Agent.
  *
- * @author  Manuel 'Kea' Baldassarri <k3a@k3a.it>
- * @version 0.1.0
- * @access  public
- * @package Net_SSH2
+ * @category Net
+ * @package  Net_SSH2
+ * @author   Manuel 'Kea' Baldassarri <k3a@k3a.it>
+ * @access   public
  */
 class Net_SSH2_Agent
 {
@@ -74,31 +77,34 @@ class Net_SSH2_Agent
      */
     function connect()
     {
-      if (!is_null($this->socket) && $this->socket_can_write($this->socket)) {
+        if (!is_null($this->socket) && $this->socketCanWrite($this->socket)) {
 
-          return $this->socket;
-      }
+            return $this->socket;
+        }
 
-      $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
-      $address = null;
+        $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
+        $address = null;
 
-      if (isset($_SERVER['SSH_AUTH_SOCK'])) {
-          $address = $_SERVER['SSH_AUTH_SOCK'];
-      } elseif (isset($_ENV['SSH_AUTH_SOCK'])) {
-          $address = $_ENV['SSH_AUTH_SOCK'];
-      } else {
-          user_error('SSH_AUTH_SOCK not found.', E_USER_NOTICE);
+        if (isset($_SERVER['SSH_AUTH_SOCK'])) {
+            $address = $_SERVER['SSH_AUTH_SOCK'];
+        } elseif (isset($_ENV['SSH_AUTH_SOCK'])) {
+            $address = $_ENV['SSH_AUTH_SOCK'];
+        } else {
+            user_error('SSH_AUTH_SOCK not found.', E_USER_NOTICE);
 
-          return false;
-      }
+            return false;
+        }
 
-      if (is_null($address) || !socket_connect($socket, $address)) {
-          user_error('Unable to connect '.socket_strerror(socket_last_error()), E_USER_NOTICE);
+        if (is_null($address) || !socket_connect($socket, $address)) {
+            user_error(
+                'Unable to connect '.socket_strerror(socket_last_error()),
+                E_USER_NOTICE
+            );
 
-          return false;
-      }
+            return false;
+        }
 
-      return $this->socket = $socket;
+        return $this->socket = $socket;
     }
 
     /**
@@ -109,7 +115,8 @@ class Net_SSH2_Agent
     function requestIdentities()
     {
         if (!$this->sendRequest(NET_SSH2_AGENTC_REQUEST_IDENTITIES)) {
-            echo 'Unable to request identities '.socket_strerror(socket_last_error());
+            echo 'Unable to request identities '.
+                    socket_strerror(socket_last_error());
 
             return false;
         }
@@ -120,7 +127,9 @@ class Net_SSH2_Agent
         if ($type == NET_SSH2_AGENT_FAILURE) {
 
             return false;
-        } elseif ($type != NET_SSH2_AGENT_RSA_IDENTITIES_ANSWER && $type != NET_SSH2_AGENT_IDENTITIES_ANSWER) {
+        } elseif (
+            $type != NET_SSH2_AGENT_RSA_IDENTITIES_ANSWER &&
+            $type != NET_SSH2_AGENT_IDENTITIES_ANSWER) {
             // throw new \Exception("Unknown response from agent: $type");
             return false;
         }
@@ -136,26 +145,32 @@ class Net_SSH2_Agent
 
             /** @todo Check crypt method */
             $k = new Crypt_RSA();
-            if (!$k->setPublicKey('ssh-rsa '.base64_encode($blob)))
-            {
-                user_error("Invalid key or key not supported: ".$comment, E_USER_NOTICE);
+            if (!$k->setPublicKey('ssh-rsa '.base64_encode($blob))) {
+                user_error(
+                    "Invalid key or key not supported: ".
+                    $comment,
+                    E_USER_NOTICE
+                );
+
                 continue;
             }
 
             $this->keys[] = $k;
-//            $this->keys[] = array(
-//                                  'blob' => $blob,
-//                                  'comment' => $this->readPacketFromBuffer($buffer),
-//                                  'key' => 'ssh-rsa '.base64_encode($blob));
+            // The complete structure should be
+            // $this->keys[] = array(
+            //     'blob' => $blob,
+            //     'comment' => $comment,
+            //     'key' => $k);
         }
 
         return true;
     }
 
     /**
-     * Converts long from binary rappresentation
+     * Converts long from binary rapresentation
      *
-     * @param string $binary
+     * @param string $binary long binary rapresentation
+     *
      * @return integer
      */
     static function binaryToLong($binary)
@@ -167,8 +182,9 @@ class Net_SSH2_Agent
     /**
      * Sends request of type $type and optionally $data to ssh-agent
      *
-     * @param char $type
-     * @param string $data
+     * @param char   $type the type of request
+     * @param string $data data to be sent
+     *
      * @return integer bytes written
      */
     function sendRequest($type, $data = '')
@@ -205,7 +221,8 @@ class Net_SSH2_Agent
     /**
      * Unpacks and removes a response from a string
      *
-     * @param string $buffer
+     * @param string &$buffer the source to unpack
+     *
      * @return string
      */
     function readPacketFromBuffer(&$buffer)
@@ -231,10 +248,11 @@ class Net_SSH2_Agent
     /**
      * Test if the $socket is writable
      *
-     * @param resource $socket
+     * @param resource $socket the resource to be checked
+     *
      * @return boolean TRUE on success, FALSE otherwise.
      */
-    function socket_can_write($socket)
+    function socketCanWrite($socket)
     {
         $write = array($socket);
         $n = null;
@@ -246,22 +264,25 @@ class Net_SSH2_Agent
     /**
      * Sign $data with $pubkeydata via ssh-agent
      *
-     * @param string $pubkeydata
-     * @param string $data
+     * @param string $pubkeydata key used to sign
+     * @param string $data       data to be signed
+     *
      * @return boolean TRUE on success, FALSE otherwise.
      */
     function sign($pubkeydata, $data)
     {
         /* Create a request to sign the data */
-        $s = pack('CNa*Na*N',
-                NET_SSH2_AGENTC_SIGN_REQUEST,
-                strlen($pubkeydata),
-                $pubkeydata,
-                strlen($data),
-                $data,
-                0);
+        $s = pack(
+            'CNa*Na*N',
+            NET_SSH2_AGENTC_SIGN_REQUEST,
+            strlen($pubkeydata),
+            $pubkeydata,
+            strlen($data),
+            $data,
+            0
+        );
 
-        if (!$this->socket_can_write($this->socket)) {
+        if (!$this->socketCanWrite($this->socket)) {
             // throw new Exception("Agent not connected");
             return false;
         }
@@ -269,7 +290,8 @@ class Net_SSH2_Agent
         $rc = socket_write($this->socket, pack("Na*", strlen($s), $s));
 
         if ($rc === false) {
-            // throw new Exception('Unable to write to the socket: '.socket_strerror(socket_last_error()));
+            // throw new Exception('Unable to write to the socket: '.
+            // socket_strerror(socket_last_error()));
             return false;
         }
 
