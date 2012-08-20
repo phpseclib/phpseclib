@@ -42,14 +42,36 @@ define('NET_SSH2_AGENT_RSA_IDENTITIES_ANSWER', 2); // SSH_AGENT_RSA_IDENTITIES_A
 define('NET_SSH2_AGENT_FAILURE', 5); // SSH_AGENT_FAILURE
 
 /**
+ * Pure-PHP implementation of SSH-Agent.
  *
+ * @author  Manuel 'Kea' Baldassarri <k3a@k3a.it>
+ * @version 0.1.0
+ * @access  public
+ * @package Net_SSH2
  */
 class Net_SSH2_Agent
 {
+    /**
+     * The socket connetion to ssh-agent
+     *
+     * @access private
+     * @var resource
+     */
     var $socket = null;
-    var $keys = array();
-    var $ssh;
 
+    /**
+     * List of identities retrieved from ssh-agent
+     *
+     * @access private
+     * @var Array
+     */
+    var $keys = array();
+
+    /**
+     * Connects to the ssh-agent socket
+     *
+     * @return resource returns a socket resource on success, or FALSE on error.
+     */
     function connect()
     {
       if (!is_null($this->socket) && $this->socket_can_write($this->socket)) {
@@ -61,30 +83,35 @@ class Net_SSH2_Agent
       $address = null;
 
       if (isset($_SERVER['SSH_AUTH_SOCK'])) {
-        $address = $_SERVER['SSH_AUTH_SOCK'];
+          $address = $_SERVER['SSH_AUTH_SOCK'];
       } elseif (isset($_ENV['SSH_AUTH_SOCK'])) {
-        $address = $_ENV['SSH_AUTH_SOCK'];
+          $address = $_ENV['SSH_AUTH_SOCK'];
       } else {
-        user_error('SSH_AUTH_SOCK not found.', E_USER_NOTICE);
+          user_error('SSH_AUTH_SOCK not found.', E_USER_NOTICE);
 
-        return false;
+          return false;
       }
 
       if (is_null($address) || !socket_connect($socket, $address)) {
-        user_error('Unable to connect '.socket_strerror(socket_last_error()), E_USER_NOTICE);
+          user_error('Unable to connect '.socket_strerror(socket_last_error()), E_USER_NOTICE);
 
-        return false;
+          return false;
       }
 
       return $this->socket = $socket;
     }
 
+    /**
+     * Retrieves all the identities added to ssh-agent
+     *
+     * @return boolean TRUE on success or FALSE on errors.
+     */
     function requestIdentities()
     {
         if (!$this->sendRequest(NET_SSH2_AGENTC_REQUEST_IDENTITIES)) {
-          echo 'Unable to request identities '.socket_strerror(socket_last_error());
+            echo 'Unable to request identities '.socket_strerror(socket_last_error());
 
-          return false;
+            return false;
         }
 
         $bufferLenght = $this->readLength();
@@ -121,14 +148,29 @@ class Net_SSH2_Agent
 //                                  'comment' => $this->readPacketFromBuffer($buffer),
 //                                  'key' => 'ssh-rsa '.base64_encode($blob));
         }
+
+        return true;
     }
 
+    /**
+     * Converts long from binary rappresentation
+     *
+     * @param string $binary
+     * @return integer
+     */
     static function binaryToLong($binary)
     {
 
         return current(unpack('Nlong', $binary));
     }
 
+    /**
+     * Sends request of type $type and optionally $data to ssh-agent
+     *
+     * @param char $type
+     * @param string $data
+     * @return integer bytes written
+     */
     function sendRequest($type, $data = '')
     {
         $len = strlen($data) + 1;
@@ -137,6 +179,11 @@ class Net_SSH2_Agent
         return socket_write($this->socket, $buffer);
     }
 
+    /**
+     * Reads a long integer from the current connection
+     *
+     * @return integer bytes read
+     */
     function readLength()
     {
         $len = socket_read($this->socket, 4);
@@ -144,12 +191,23 @@ class Net_SSH2_Agent
         return $this->binaryToLong($len);
     }
 
+    /**
+     * Reads the type of the response from the current connection
+     *
+     * @return integer
+     */
     function readType()
     {
 
         return ord(socket_read($this->socket, 1));
     }
 
+    /**
+     * Unpacks and removes a response from a string
+     *
+     * @param string $buffer
+     * @return string
+     */
     function readPacketFromBuffer(&$buffer)
     {
         $len = $this->binaryToLong($buffer);
@@ -159,12 +217,23 @@ class Net_SSH2_Agent
         return $packet;
     }
 
+    /**
+     * Gets keys
+     *
+     * @return array the identities
+     */
     function getKeys()
     {
 
         return $this->keys;
     }
 
+    /**
+     * Test if the $socket is writable
+     *
+     * @param resource $socket
+     * @return boolean TRUE on success, FALSE otherwise.
+     */
     function socket_can_write($socket)
     {
         $write = array($socket);
@@ -174,6 +243,13 @@ class Net_SSH2_Agent
         return (isset($write[0]) && $write[0] === $socket);
     }
 
+    /**
+     * Sign $data with $pubkeydata via ssh-agent
+     *
+     * @param string $pubkeydata
+     * @param string $data
+     * @return boolean TRUE on success, FALSE otherwise.
+     */
     function sign($pubkeydata, $data)
     {
         /* Create a request to sign the data */
