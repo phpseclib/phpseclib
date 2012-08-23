@@ -399,7 +399,7 @@ class Crypt_RSA {
      * @var String
      * @access private
      */
-    var $password = '';
+    var $password = false;
 
     /**
      * Components
@@ -695,7 +695,7 @@ class Crypt_RSA {
                     return false;
                 }
                 $key = "PuTTY-User-Key-File-2: ssh-rsa\r\nEncryption: ";
-                $encryption = (!empty($this->password)) ? 'aes256-cbc' : 'none';
+                $encryption = (!empty($this->password) || is_string($this->password)) ? 'aes256-cbc' : 'none';
                 $key.= $encryption;
                 $key.= "\r\nComment: " . CRYPT_RSA_COMMENT . "\r\n";
                 $public = pack('Na*Na*Na*',
@@ -712,7 +712,7 @@ class Crypt_RSA {
                     strlen($raw['privateExponent']), $raw['privateExponent'], strlen($raw['prime1']), $raw['prime1'],
                     strlen($raw['prime2']), $raw['prime2'], strlen($raw['coefficient']), $raw['coefficient']
                 );
-                if (empty($this->password)) {
+                if (empty($this->password) && !is_string($this->password)) {
                     $source.= pack('Na*', strlen($private), $private);
                     $hashkey = 'putty-private-key-file-mac-key';
                 } else {
@@ -775,7 +775,7 @@ class Crypt_RSA {
 
                 $RSAPrivateKey = pack('Ca*a*', CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
 
-                if (!empty($this->password)) {
+                if (!empty($this->password) || is_string($this->password)) {
                     $iv = $this->_random(8);
                     $symkey = pack('H*', md5($this->password . $iv)); // symkey is short for symmetric key
                     $symkey.= substr(pack('H*', md5($symkey . $this->password . $iv)), 0, 8);
@@ -1347,14 +1347,14 @@ class Crypt_RSA {
      * Sets the password
      *
      * Private keys can be encrypted with a password.  To unset the password, pass in the empty string or false.
-     * Or rather, pass in $password such that empty($password) is true.
+     * Or rather, pass in $password such that empty($password) && !is_string($password) is true.
      *
      * @see createKey()
      * @see loadKey()
      * @access public
      * @param String $password
      */
-    function setPassword($password)
+    function setPassword($password = false)
     {
         $this->password = $password;
     }

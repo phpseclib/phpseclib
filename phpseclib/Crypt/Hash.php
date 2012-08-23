@@ -117,7 +117,7 @@ class Crypt_Hash {
      * @var String
      * @access private
      */
-    var $key = '';
+    var $key = false;
 
     /**
      * Outer XOR (Internal HMAC)
@@ -170,7 +170,7 @@ class Crypt_Hash {
      * @access public
      * @param String $key
      */
-    function setKey($key)
+    function setKey($key = false)
     {
         $this->key = $key;
     }
@@ -296,7 +296,7 @@ class Crypt_Hash {
     {
         $mode = is_array($this->hash) ? CRYPT_HASH_MODE_INTERNAL : CRYPT_HASH_MODE;
 
-        if (!empty($this->key)) {
+        if (!empty($this->key) || is_string($this->key)) {
             switch ( $mode ) {
                 case CRYPT_HASH_MODE_MHASH:
                     $output = mhash($this->hash, $text, $this->key);
