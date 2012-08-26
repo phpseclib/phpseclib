@@ -849,8 +849,16 @@ class Crypt_RSA {
                     $components['modulus'], $components['publicExponent']
                 );
 
+                $rsaOID = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
+                $RSAPublicKey = chr(0) . $RSAPublicKey;
+                $RSAPublicKey = chr(3) . $this->_encodeLength(strlen($RSAPublicKey)) . $RSAPublicKey;
+
+                $encapsulated = pack('Ca*a*',
+                    CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($rsaOID . $RSAPublicKey)), $rsaOID . $RSAPublicKey
+                );
+
                 $RSAPublicKey = "-----BEGIN PUBLIC KEY-----\r\n" .
-                                 chunk_split(base64_encode($RSAPublicKey)) .
+                                 chunk_split(base64_encode($encapsulated)) .
                                  '-----END PUBLIC KEY-----';
 
                 return $RSAPublicKey;
@@ -1466,6 +1474,30 @@ class Crypt_RSA {
     }
 
     /**
+     * Returns a minimalistic private key
+     *
+     * Returns the private key without the prime number constituants.  Structurally identical to a public key that
+     * hasn't been set as the public key
+     *
+     * @see getPrivateKey()
+     * @access private
+     * @param String $key
+     * @param Integer $type optional
+     */
+    function _getPrivatePublicKey($mode = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
+    {
+        if (empty($this->modulus) || empty($this->exponent)) {
+            return false;
+        }
+
+        $oldFormat = $this->publicKeyFormat;
+        $this->publicKeyFormat = $mode;
+        $temp = $this->_convertPublicKey($this->modulus, $this->exponent);
+        $this->publicKeyFormat = $oldFormat;
+        return $temp;
+    }
+
+    /**
      *  __toString() magic method
      *
      * @access public
@@ -1476,7 +1508,7 @@ class Crypt_RSA {
         if ($key !== false) {
             return $key;
         }
-        $key = $this->getPublicKey($this->publicKeyFormat);
+        $key = $this->_getPrivatePublicKey($this->publicKeyFormat);
         return $key !== false ? $key : '';
     }
 
@@ -2104,7 +2136,7 @@ class Crypt_RSA {
      * The reason being that RFC2313#section-8.1 (PKCS#1 v1.5) states that ciphertext's encrypted by the
      * private key should have the second byte set to either 0 or 1 and that ciphertext's encrypted by the
      * public key should have the second byte set to 2.  In RFC3447 (PKCS#1 v2.1), the second byte is supposed
-     * to be 2 regardless of which key is used.  for compatability purposes, we'll just check to make sure the
+     * to be 2 regardless of which key is used.  For compatability purposes, we'll just check to make sure the
      * second byte is 2 or less.  If it is, we'll accept the decrypted string as valid.
      *
      * As a consequence of this, a private key encrypted ciphertext produced with Crypt_RSA may not decrypt
