@@ -282,7 +282,7 @@ class Math_BigInteger {
             }
         }
 
-        if (function_exists('openssl_public_encrypt') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE')) {
+        if (function_exists('openssl_public_encrypt') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
             define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
         }
 
