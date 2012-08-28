@@ -163,6 +163,10 @@ define('NET_SSH2_LOG_COMPLEX', 2);
  * Outputs the content real-time
  */
 define('NET_SSH2_LOG_REALTIME', 3);
+/**
+ * Dumps the content real-time to a file
+ */
+define('NET_SSH2_LOG_REALTIME_FILE', 4);
 /**#@-*/
 
 /**#@+
