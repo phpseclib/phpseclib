@@ -801,7 +801,7 @@ class Net_SSH2 {
         stream_set_blocking($this->fsock, false);
 
         // on windows this returns a "Warning: Invalid CRT parameters detected" error
-        if (!@stream_select($read, $write, $except, $timeout - $elapsed)) {
+        if (!@stream_select($read, $write, $except, $timeout - $elapsed) && !count($read)) {
             user_error(rtrim("Cannot connect to $host. Banner timeout"), E_USER_NOTICE);
             return;
         }
@@ -2183,7 +2183,7 @@ class Net_SSH2 {
 
                 $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
                 // on windows this returns a "Warning: Invalid CRT parameters detected" error
-                if (!@stream_select($read, $write, $except, $this->curTimeout)) {
+                if (!@stream_select($read, $write, $except, $this->curTimeout) && !count($read)) {
                     stream_set_blocking($this->fsock, true);
                     $this->_close_channel($client_channel);
                     return true;
