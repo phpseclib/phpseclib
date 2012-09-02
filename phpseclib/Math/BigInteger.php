@@ -605,11 +605,11 @@ class Math_BigInteger {
     {
         $hex = $this->toHex($twos_compliment);
         $bits = '';
-        for ($i = 0, $end = strlen($hex) & 0xFFFFFFF8; $i < $end; $i+=8) {
-            $bits.= str_pad(decbin(hexdec(substr($hex, $i, 8))), 32, '0', STR_PAD_LEFT);
+        for ($i = strlen($hex) - 8, $start = strlen($hex) & 7; $i >= $start; $i-=8) {
+            $bits = str_pad(decbin(hexdec(substr($hex, $i, 8))), 32, '0', STR_PAD_LEFT) . $bits;
         }
-        if ($end != strlen($hex)) { // hexdec('') == 0
-            $bits.= str_pad(decbin(hexdec(substr($hex, $end))), strlen($hex) & 7, '0', STR_PAD_LEFT);
+        if ($start) { // hexdec('') == 0
+            $bits = str_pad(decbin(hexdec(substr($hex, 0, $start))), 8, '0', STR_PAD_LEFT) . $bits;
         }
         return $this->precision > 0 ? substr($bits, -$this->precision) : ltrim($bits, '0');
     }
