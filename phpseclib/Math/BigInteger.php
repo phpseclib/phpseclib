@@ -611,7 +611,13 @@ class Math_BigInteger {
         if ($start) { // hexdec('') == 0
             $bits = str_pad(decbin(hexdec(substr($hex, 0, $start))), 8, '0', STR_PAD_LEFT) . $bits;
         }
-        return $this->precision > 0 ? substr($bits, -$this->precision) : ltrim($bits, '0');
+        $result = $this->precision > 0 ? substr($bits, -$this->precision) : ltrim($bits, '0');
+
+        if ($twos_compliment && $this->compare(new Math_BigInteger()) > 0 && $this->precision <= 0) {
+            return '0' . $result;
+        }
+
+        return $result;
     }
 
     /**
