@@ -801,6 +801,7 @@ class Net_SSH2 {
         stream_set_blocking($this->fsock, false);
 
         // on windows this returns a "Warning: Invalid CRT parameters detected" error
+        // the !count() is done as a workaround for <https://bugs.php.net/42682>
         if (!@stream_select($read, $write, $except, $timeout - $elapsed) && !count($read)) {
             user_error(rtrim("Cannot connect to $host. Banner timeout"), E_USER_NOTICE);
             return;

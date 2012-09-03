@@ -217,9 +217,9 @@ define('CRYPT_RSA_PRIVATE_FORMAT_XML', 2);
  */
 define('CRYPT_RSA_PUBLIC_FORMAT_RAW', 3);
 /**
- * PKCS#1 formatted public key
+ * PKCS#1 formatted public key (raw)
  *
- * Used by X.509 certificates
+ * Used by File/X509.php
  */
 define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1_RAW', 4);
 /**
