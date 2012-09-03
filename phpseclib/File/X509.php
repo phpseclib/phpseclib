@@ -1279,10 +1279,12 @@ class File_X509 {
             return false;
         }
 
-        switch ($cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
-            case 'rsaEncryption':
-                $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'] = 
-                    base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
+        if (is_array($cert['tbsCertificate']['subjectPublicKeyInfo'])) {
+            switch ($cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
+                case 'rsaEncryption':
+                    $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'] = 
+                        base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
+            }
         }
 
         $asn1 = new File_ASN1();
@@ -2614,9 +2616,12 @@ class File_X509 {
 
         switch (strtolower(get_class($this->publicKey))) {
             case 'crypt_rsa':
+                // the following two return statements do the same thing. i dunno.. i just prefer the later for some reason.
+                // the former is a good example of how to do fuzzing on the public key
+                //return new File_ASN1_Element(base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey())));
                 return array(
                     'algorithm' => array('algorithm' => 'rsaEncryption'),
-                    'subjectPublicKey' => $this->publicKey->getPublicKey()
+                    'subjectPublicKey' => $this->publicKey->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_PKCS1_RAW)
                 );
             default:
                 return false;
