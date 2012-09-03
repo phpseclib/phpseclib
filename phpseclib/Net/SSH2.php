@@ -790,7 +790,9 @@ class Net_SSH2 {
         }
         $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
 
-        if ($timeout - $elapsed <= 0) {
+        $timeout-= $elapsed;
+
+        if ($timeout <= 0) {
             user_error(rtrim("Cannot connect to $host. Timeout error"), E_USER_NOTICE);
             return;
         }
@@ -800,9 +802,12 @@ class Net_SSH2 {
 
         stream_set_blocking($this->fsock, false);
 
+        $sec = floor($timeout);
+        $usec = 1000000 * ($timeout - $sec);
+
         // on windows this returns a "Warning: Invalid CRT parameters detected" error
         // the !count() is done as a workaround for <https://bugs.php.net/42682>
-        if (!@stream_select($read, $write, $except, $timeout - $elapsed) && !count($read)) {
+        if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
             user_error(rtrim("Cannot connect to $host. Banner timeout"), E_USER_NOTICE);
             return;
         }
@@ -2183,8 +2188,10 @@ class Net_SSH2 {
                 stream_set_blocking($this->fsock, false);
 
                 $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+                $sec = floor($this->curTimeout);
+                $usec = 1000000 * ($this->curTimeout - $sec);
                 // on windows this returns a "Warning: Invalid CRT parameters detected" error
-                if (!@stream_select($read, $write, $except, $this->curTimeout) && !count($read)) {
+                if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
                     stream_set_blocking($this->fsock, true);
                     $this->_close_channel($client_channel);
                     return true;
