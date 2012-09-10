@@ -800,8 +800,6 @@ class Net_SSH2 {
         $read = array($this->fsock);
         $write = $except = NULL;
 
-        stream_set_blocking($this->fsock, false);
-
         $sec = floor($timeout);
         $usec = 1000000 * ($timeout - $sec);
 
@@ -811,8 +809,6 @@ class Net_SSH2 {
             user_error(rtrim("Cannot connect to $host. Banner timeout"), E_USER_NOTICE);
             return;
         }
-
-        stream_set_blocking($this->fsock, true);
 
         /* According to the SSH2 specs,
 
@@ -2185,21 +2181,16 @@ class Net_SSH2 {
                 $read = array($this->fsock);
                 $write = $except = NULL;
 
-                stream_set_blocking($this->fsock, false);
-
                 $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
                 $sec = floor($this->curTimeout);
                 $usec = 1000000 * ($this->curTimeout - $sec);
                 // on windows this returns a "Warning: Invalid CRT parameters detected" error
                 if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
-                    stream_set_blocking($this->fsock, true);
                     $this->_close_channel($client_channel);
                     return true;
                 }
                 $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
                 $this->curTimeout-= $elapsed;
-
-                stream_set_blocking($this->fsock, true);
             }
 
             $response = $this->_get_binary_packet();
