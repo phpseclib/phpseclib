@@ -886,6 +886,9 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         $stat = $this->_stat($filename, NET_SFTP_STAT);
+        if ($stat === false) {
+            return false;
+        }
 
         $pwd = $this->pwd;
         $stat['type'] = $this->chdir($filename) ?
@@ -918,6 +921,9 @@ class Net_SFTP extends Net_SSH2 {
 
         $lstat = $this->_stat($filename, NET_SFTP_LSTAT);
         $stat = $this->_stat($filename, NET_SFTP_STAT);
+        if ($stat === false) {
+            return false;
+        }
 
         if ($lstat != $stat) {
             return array_merge($lstat, array('type' => NET_SFTP_TYPE_SYMLINK));
