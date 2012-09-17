@@ -938,6 +938,15 @@ class Net_SSH2 {
             //'zlib' // OPTIONAL        ZLIB (LZ77) compression
         );
 
+        // some SSH servers have buggy implementations of some of the above algorithms
+        switch ($this->server_identifier) {
+            case 'SSH-2.0-SSHD':
+                $mac_algorithms = array_values(array_diff(
+                    $mac_algorithms,
+                    array('hmac-sha1-96', 'hmac-md5-96')
+                ));
+        }
+
         static $str_kex_algorithms, $str_server_host_key_algorithms,
                $encryption_algorithms_server_to_client, $mac_algorithms_server_to_client, $compression_algorithms_server_to_client,
                $encryption_algorithms_client_to_server, $mac_algorithms_client_to_server, $compression_algorithms_client_to_server;
