@@ -1203,7 +1203,7 @@ class File_X509 {
             subject=/O=organization/OU=org unit/CN=common name
             issuer=/O=organization/CN=common name
         */
-        $cert = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]#', '', $cert);
+        $cert = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $cert);
         $cert = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $cert) ? base64_decode($cert) : false;
 
         if ($cert === false) {
@@ -2113,7 +2113,7 @@ class File_X509 {
 
         $asn1 = new File_ASN1();
 
-        $csr = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]#', '', $csr);
+        $csr = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $csr);
         $orig = $csr = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $csr) ? base64_decode($csr) : false;
 
         if ($csr === false) {
