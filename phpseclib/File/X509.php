@@ -1770,7 +1770,7 @@ class File_X509 {
                 return 'id-at-localityName';
             case 'id-emailaddress':
             case 'emailaddress':
-                return 'id-at-emailAddress';
+                return 'id-emailAddress';
             case 'id-at-serialnumber':
             case 'serialnumber':
                 return 'id-at-serialNumber';
