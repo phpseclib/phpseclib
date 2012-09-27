@@ -1814,7 +1814,7 @@ class File_X509 {
                 return 'id-at-role';
             case 'id-at-uniqueidentifier':
             case 'uniqueidentifier':
-            case 'x509uniqueidentifier':
+            case 'x500uniqueidentifier':
                 return 'id-at-uniqueIdentifier';
             default:
                 return false;
@@ -1933,7 +1933,7 @@ class File_X509 {
         }
 
         // handles everything else
-        $results = preg_split('#((?:^|, |/)(?:C=|O=|OU=|CN=|L=|ST=|postalCode=|streetAddress=|emailAddress=|serialNumber=|organizationalUnitName=))#', $dn, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $results = preg_split('#((?:^|, |/)(?:C=|O=|OU=|CN=|L=|ST=|SN=|postalCode=|streetAddress=|emailAddress=|serialNumber=|organizationalUnitName=|title=|description=|role=|x500UniqueIdentifier=))#', $dn, -1, PREG_SPLIT_DELIM_CAPTURE);
         for ($i = 1; $i < count($results); $i+=2) {
             $type = trim($results[$i], ', =/');
             $value = $results[$i + 1];
@@ -1986,6 +1986,13 @@ class File_X509 {
                     break;
                 case 'id-at-localityName':
                     $desc = 'L=';
+                    break;
+                case 'id-at-surname':
+                    $desc = 'SN=';
+                    break;
+                case 'id-at-uniqueIdentifier':
+                    $delim = '/';
+                    $desc = 'x500UniqueIdentifier=';
                     break;
                 default:
                     $delim = '/';
