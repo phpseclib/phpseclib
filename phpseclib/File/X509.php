@@ -1041,12 +1041,15 @@ class File_X509 {
             '2.5.4.10' => 'id-at-organizationName',
             '2.5.4.11' => 'id-at-organizationalUnitName',
             '2.5.4.12' => 'id-at-title',
+            '2.5.4.13' => 'id-at-description',
             '2.5.4.46' => 'id-at-dnQualifier',
             '2.5.4.6' => 'id-at-countryName',
             '2.5.4.5' => 'id-at-serialNumber',
             '2.5.4.65' => 'id-at-pseudonym',
             '2.5.4.17' => 'id-at-postalCode',
             '2.5.4.9' => 'id-at-streetAddress',
+            '2.5.4.45' => 'id-at-uniqueIdentifier',
+            '2.5.4.72' => 'id-at-role',
 
             '0.9.2342.19200300.100.1.25' => 'id-domainComponent',
             '1.2.840.113549.1.9' => 'pkcs-9',
@@ -1749,7 +1752,6 @@ class File_X509 {
                 return 'id-at-organizationName';
             case 'id-at-dnqualifier':
             case 'dnqualifier':
-            case 'ou':
                 return 'id-at-dnQualifier';
             case 'id-at-commonname':
             case 'commonname':
@@ -1786,6 +1788,7 @@ class File_X509 {
                 return 'id-at-givenName';
             case 'id-at-surname':
             case 'surname':
+            case 'sn':
                 return 'id-at-surname';
             case 'id-at-initials':
             case 'initials':
@@ -1795,10 +1798,24 @@ class File_X509 {
                 return 'id-at-generationQualifier';
             case 'id-at-organizationalunitname':
             case 'organizationalunitname':
+            case 'ou':
                 return 'id-at-organizationalUnitName';
             case 'id-at-pseudonym':
             case 'pseudonym':
                 return 'id-at-pseudonym';
+            case 'id-at-title':
+            case 'title':
+                return 'id-at-title';
+            case 'id-at-description':
+            case 'description':
+                return 'id-at-description';
+            case 'id-at-role':
+            case 'role':
+                return 'id-at-role';
+            case 'id-at-uniqueidentifier':
+            case 'uniqueidentifier':
+            case 'x509uniqueidentifier':
+                return 'id-at-uniqueIdentifier';
             default:
                 return false;
         }
@@ -1961,7 +1978,7 @@ class File_X509 {
                 case 'id-at-organizationName':
                     $desc = 'O=';
                     break;
-                case 'id-at-dnQualifier':
+                case 'id-at-organizationalUnitName':
                     $desc = 'OU=';
                     break;
                 case 'id-at-commonName':
