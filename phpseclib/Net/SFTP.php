@@ -356,7 +356,7 @@ class Net_SFTP extends Net_SSH2 {
      * @return Boolean
      * @access public
      */
-    function login($username, $password = '', $desiredVersion = 3)
+    function login($username, $password = '')
     {
         if (!parent::login($username, $password)) {
             return false;
@@ -457,7 +457,7 @@ class Net_SFTP extends Net_SSH2 {
          in draft-ietf-secsh-filexfer-13 would be quite impossible.  As such, what Net_SFTP would do is close the
          channel and reopen it with a new and updated SSH_FXP_INIT packet.
         */
-        if ($this->version != $desiredVersion) {
+        if ($this->version != 3 && $this->version != 2) {
             return false;
         }
 
