@@ -1825,7 +1825,7 @@ class File_X509 {
      * Set a Distinguished Name property
      *
      * @param String $propName
-     * @param String $propValue
+     * @param Mixed $propValue
      * @access public
      * @return Boolean
      */
@@ -1839,12 +1839,13 @@ class File_X509 {
             return false;
         }
 
-        $this->dn['rdnSequence'][] = array(
-            array(
-                'type' => $propName,
-                'value'=> $propValue
-            )
-        );
+        foreach ((array) $propValue as $v)
+            $this->dn['rdnSequence'][] = array(
+                array(
+                    'type' => $propName,
+                    'value'=> $v
+                )
+            );
 
         return true;
     }
@@ -1912,14 +1913,18 @@ class File_X509 {
      * Set a Distinguished Name
      *
      * @param Mixed $dn
+     * @param Boolean $merge optional
      * @access public
      * @return Boolean
      */
-    function setDN($dn)
+    function setDN($dn, $merge = false)
     {
+        if (!$merge)
+            $this->dn = NULL;
+
         if (is_array($dn)) {
             if (isset($dn['rdnSequence'])) {
-                $this->dn = $dn;
+                $this->dn = $dn;                        // No merge here.
                 return true;
             }
 
