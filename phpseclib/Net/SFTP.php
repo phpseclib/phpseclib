@@ -393,11 +393,6 @@ class Net_SFTP extends Net_SSH2 {
 
         $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_DATA;
 
-        if ($desiredVersion > 3) {
-            user_error("Net_SFTP supports only sftp versions 2 & 3", E_USER_NOTICE);
-            return false;
-        }
-
         if (!$this->_send_sftp_packet(NET_SFTP_INIT, "\0\0\0\3")) {
             return false;
         }
