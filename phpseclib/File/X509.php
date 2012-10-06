@@ -1919,8 +1919,9 @@ class File_X509 {
      */
     function setDN($dn, $merge = false)
     {
-        if (!$merge)
+        if (!$merge) {
             $this->dn = NULL;
+        }
 
         if (is_array($dn)) {
             if (isset($dn['rdnSequence'])) {
