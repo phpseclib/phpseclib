@@ -34,10 +34,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -238,7 +238,7 @@ class Net_SFTP extends Net_SSH2 {
      * Directory Cache
      *
      * Rather than always having to open a directory and close it immediately there after to see if a file is a directory or
-     * rather than always 
+     * rather than always
      *
      * @see Net_SFTP::_save_dir()
      * @see Net_SFTP::_remove_dir()
@@ -316,7 +316,7 @@ class Net_SFTP extends Net_SSH2 {
             0x00000004 => 'NET_SFTP_ATTR_PERMISSIONS',
             0x00000008 => 'NET_SFTP_ATTR_ACCESSTIME',
             // 0x80000000 will yield a floating point on 32-bit systems and converting floating points to integers
-            // yields inconsistent behavior depending on how php is compiled.  so we left shift -1 (which, in 
+            // yields inconsistent behavior depending on how php is compiled.  so we left shift -1 (which, in
             // two's compliment, consists of all 1 bits) by 31.  on 64-bit systems this'll yield 0xFFFFFFFF80000000.
             // that's not a problem, however, and 'anded' and a 32-bit number, as all the leading 1 bits are ignored.
               -1 << 31 => 'NET_SFTP_ATTR_EXTENDED'
@@ -452,7 +452,7 @@ class Net_SFTP extends Net_SSH2 {
          in draft-ietf-secsh-filexfer-13 would be quite impossible.  As such, what Net_SFTP would do is close the
          channel and reopen it with a new and updated SSH_FXP_INIT packet.
         */
-        if ($this->version != 3) {
+        if ($this->version != 3 && $this->version != 2) {
             return false;
         }
 
@@ -1056,7 +1056,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         /*
-         "Because some systems must use separate system calls to set various attributes, it is possible that a failure 
+         "Because some systems must use separate system calls to set various attributes, it is possible that a failure
           response will be returned, but yet some of the attributes may be have been successfully modified.  If possible,
           servers SHOULD avoid this situation; however, clients MUST be aware that this is possible."
 
@@ -1187,7 +1187,7 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        // by not providing any permissions, hopefully the server will use the logged in users umask - their 
+        // by not providing any permissions, hopefully the server will use the logged in users umask - their
         // default permissions.
         if (!$this->_send_sftp_packet(NET_SFTP_MKDIR, pack('Na*N', strlen($dir), $dir, 0))) {
             return false;
@@ -1259,7 +1259,7 @@ class Net_SFTP extends Net_SSH2 {
      * So, for example, if you set $data to 'filename.ext' and then do Net_SFTP::get(), you will get a file, twelve bytes
      * long, containing 'filename.ext' as its contents.
      *
-     * Setting $mode to NET_SFTP_LOCAL_FILE will change the above behavior.  With NET_SFTP_LOCAL_FILE, $remote_file will 
+     * Setting $mode to NET_SFTP_LOCAL_FILE will change the above behavior.  With NET_SFTP_LOCAL_FILE, $remote_file will
      * contain as many bytes as filename.ext does on your local filesystem.  If your filename.ext is 1MB then that is how
      * large $remote_file will be, as well.
      *
@@ -1733,7 +1733,7 @@ class Net_SFTP extends Net_SSH2 {
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $key = $this->_string_shift($response, $length);
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                        $attr[$key] = $this->_string_shift($response, $length);                        
+                        $attr[$key] = $this->_string_shift($response, $length);
                     }
             }
         }
@@ -1798,7 +1798,7 @@ class Net_SFTP extends Net_SSH2 {
         $stop = strtok(microtime(), ' ') + strtok('');
 
         if (defined('NET_SFTP_LOGGING')) {
-            $packet_type = '-> ' . $this->packet_types[$type] . 
+            $packet_type = '-> ' . $this->packet_types[$type] .
                            ' (' . round($stop - $start, 4) . 's)';
             if (NET_SFTP_LOGGING == NET_SFTP_LOG_REALTIME) {
                 echo "<pre>\r\n" . $this->_format_log(array($data), array($packet_type)) . "\r\n</pre>\r\n";
@@ -1874,7 +1874,7 @@ class Net_SFTP extends Net_SSH2 {
         $packet = $this->_string_shift($this->packet_buffer, $length);
 
         if (defined('NET_SFTP_LOGGING')) {
-            $packet_type = '<- ' . $this->packet_types[$this->packet_type] . 
+            $packet_type = '<- ' . $this->packet_types[$this->packet_type] .
                            ' (' . round($stop - $start, 4) . 's)';
             if (NET_SFTP_LOGGING == NET_SFTP_LOG_REALTIME) {
                 echo "<pre>\r\n" . $this->_format_log(array($packet), array($packet_type)) . "\r\n</pre>\r\n";
