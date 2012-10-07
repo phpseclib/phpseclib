@@ -1925,7 +1925,7 @@ class File_X509 {
 
         if (is_array($dn)) {
             if (isset($dn['rdnSequence'])) {
-                $this->dn = $dn;                        // No merge here.
+                $this->dn = $dn; // No merge here.
                 return true;
             }
 
