@@ -1229,6 +1229,19 @@ class Crypt_RSA {
     }
 
     /**
+     * Returns the key size
+     *
+     * More specifically, this returns the size of the modulo in bits.
+     *
+     * @access public
+     * @return Integer
+     */
+    function getSize()
+    {
+        return !isset($this->modulus) ? 0 : strlen($this->modulus->toBits());
+    }
+
+    /**
      * Start Element Handler
      *
      * Called by xml_set_element_handler()
