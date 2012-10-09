@@ -6,7 +6,7 @@
  *
  * PHP versions 4 and 5
  *
- * Currently only supports SFTPv3, which, according to wikipedia.org, "is the most widely used version,
+ * Currently only supports SFTPv2 and v3, which, according to wikipedia.org, "is the most widely used version,
  * implemented by the popular OpenSSH SFTP server".  If you want SFTPv4/5/6 support, provide me with access
  * to an SFTPv4/5/6 server.
  *
@@ -790,7 +790,7 @@ class Net_SFTP extends Net_SSH2 {
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
         if ($status != NET_SFTP_STATUS_OK) {
-            $this->_logError($response, true);
+            $this->_logError($response, false);
             return false;
         }
 
@@ -1086,7 +1086,7 @@ class Net_SFTP extends Net_SSH2 {
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
         if ($status != NET_SFTP_STATUS_OK) {
-            $this->_logError($response);
+            $this->_logError($response, false);
         }
 
         // rather than return what the permissions *should* be, we'll return what they actually are.  this will also
@@ -1571,7 +1571,7 @@ class Net_SFTP extends Net_SSH2 {
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
         if ($status != NET_SFTP_STATUS_OK) {
-            $this->_logError($response);
+            $this->_logError($response, false);
             if (!$recursive) {
                 return false;
             }
