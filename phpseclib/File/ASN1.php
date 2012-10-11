@@ -309,10 +309,9 @@ class File_ASN1 {
                     $current['content'] = (bool) ord($content[0]);
                     break;
                 case FILE_ASN1_TYPE_INTEGER:
+                case FILE_ASN1_TYPE_ENUMERATED:
                     $current['content'] = new Math_BigInteger($content, -256);
                     break;
-                case FILE_ASN1_TYPE_ENUMERATED: // not currently supported
-                    return false;
                 case FILE_ASN1_TYPE_REAL: // not currently supported
                     return false;
                 case FILE_ASN1_TYPE_BIT_STRING:
@@ -673,6 +672,7 @@ class File_ASN1 {
             case FILE_ASN1_TYPE_BMP_STRING:
                 return $decoded['content'];
             case FILE_ASN1_TYPE_INTEGER:
+            case FILE_ASN1_TYPE_ENUMERATED:
                 $temp = $decoded['content'];
                 if (isset($mapping['implicit'])) {
                     $temp = new Math_BigInteger($decoded['content'], -256);
@@ -875,6 +875,7 @@ class File_ASN1 {
 
                 return $temp;
             case FILE_ASN1_TYPE_INTEGER:
+            case FILE_ASN1_TYPE_ENUMERATED:
                 if (!isset($mapping['mapping'])) {
                     $value = $source->toBytes(true);
                 } else {
