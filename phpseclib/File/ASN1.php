@@ -432,12 +432,12 @@ class File_ASN1 {
      *
      * Provides an ASN.1 semantic mapping ($mapping) from a parsed BER-encoding to a human readable format.
      *
-     * @param String $encoded
-     * @param Integer $start
+     * @param Array $decoded
+     * @param Array $mapping
      * @return Array
      * @access public
      */
-    function asn1map($decoded, $mapping, $idx = NULL)
+    function asn1map($decoded, $mapping)
     {
         if (isset($mapping['explicit'])) {
             $decoded = $decoded['content'][0];
@@ -506,13 +506,18 @@ class File_ASN1 {
                         continue;
                     }
 
+                    $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
+                    $constant = NULL;
                     if (isset($temp['constant'])) {
                         $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                        $childClass = isset($child['class']) ? $child['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                        $constant = isset($temp['class']) ? $child['cast'] : $child['constant'];
-                    } else {
-                        $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
-                        $constant = NULL;
+                    }
+                    if (isset($child['class'])) {
+                        $childClass = $child['class'];
+                        $constant = $child['cast'];
+                    }
+                    elseif (isset($child['constant'])) {
+                        $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                        $constant = $child['constant'];
                     }
 
                     if (isset($child['optional'])) {
@@ -590,14 +595,20 @@ class File_ASN1 {
                             continue;
                         }
 
+                        $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
+                        $constant = NULL;
                         if (isset($temp['constant'])) {
                             $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                            $childClass = isset($child['class']) ? $child['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                            $constant = isset($temp['class']) ? $child['cast'] : $child['constant'];
-                        } else {
-                            $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
-                            $constant = NULL;
                         }
+                        if (isset($child['class'])) {
+                            $childClass = $child['class'];
+                            $constant = $child['cast'];
+                        }
+                        elseif (isset($child['constant'])) {
+                            $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                            $constant = $child['constant'];
+                        }
+
                         if (isset($constant) && isset($temp['constant'])) {
                             if (($constant == $temp['constant']) && ($childClass == $tempClass)) {
                                 $map[$key] = $this->asn1map($temp['content'], $child);
