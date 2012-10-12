@@ -1216,7 +1216,10 @@ class File_X509 {
 
         $asn1->loadOIDs($this->oids);
         $decoded = $asn1->decodeBER($cert);
-        $x509 = $asn1->asn1map($decoded[0], $this->Certificate);
+
+        if (!empty($decoded)) {
+            $x509 = $asn1->asn1map($decoded[0], $this->Certificate);
+        }
         if (!isset($x509) || $x509 === false) {
             $this->currentCert = false;
             return false;
@@ -2153,6 +2156,12 @@ class File_X509 {
 
         $asn1->loadOIDs($this->oids);
         $decoded = $asn1->decodeBER($csr);
+
+        if (empty($decoded)) {
+            $this->currentCert = false;
+            return false;
+        }
+
         $csr = $asn1->asn1map($decoded[0], $this->CertificationRequest);
         if (!isset($csr) || $csr === false) {
             $this->currentCert = false;
@@ -2242,8 +2251,8 @@ class File_X509 {
             return false;
         }
 
-        $currentCert = $this->currentCert;
-        $signatureSubject = $this->signatureSubject;
+        $currentCert = isset($this->currentCert) ? $this->currentCert : NULL;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: NULL;
 
         if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
             $this->currentCert = $subject->currentCert;
@@ -2404,8 +2413,8 @@ class File_X509 {
         }
         $this->publicKey = $origPublicKey;
 
-        $currentCert = $this->currentCert;
-        $signatureSubject = $this->signatureSubject;
+        $currentCert = isset($this->currentCert) ? $this->currentCert : NULL;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: NULL;
 
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['certificationRequestInfo'])) {
             $this->currentCert['signatureAlgorithm']['algorithm'] =
