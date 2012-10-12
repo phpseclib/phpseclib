@@ -668,6 +668,8 @@ class File_ASN1 {
                 }
             case FILE_ASN1_TYPE_OCTET_STRING:
                 return base64_encode($decoded['content']);
+            case FILE_ASN1_TYPE_NULL:
+                return '';
             case FILE_ASN1_TYPE_BOOLEAN:
                 return $decoded['content'];
             case FILE_ASN1_TYPE_NUMERIC_STRING:
