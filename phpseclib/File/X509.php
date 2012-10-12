@@ -1593,7 +1593,7 @@ class File_X509 {
             case '2.23.42.7.0': // id-set-hashedRootKey
                 return true;
 
-			// CRL extensions.
+            // CRL extensions.
             case 'id-ce-cRLNumber':
                 return $this->CRLNumber;
             case 'id-ce-deltaCRLIndicator':
@@ -1851,7 +1851,7 @@ class File_X509 {
                 }
                 if (!isset($signingCert)) {
                     return 0;
-				}
+                }
                 return $this->_validateSignature(
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'],
@@ -2473,8 +2473,8 @@ class File_X509 {
         if (is_array($rclist)) {
             foreach ($rclist as $i => $extension) {
                 $this->_mapInExtensions($rclist, "$i/crlEntryExtensions", $asn1);
-			}
-		}
+            }
+        }
 
         $this->keyIdentifier = NULL;
         $this->currentCert = $crl;
@@ -2508,12 +2508,12 @@ class File_X509 {
         if (empty($crl['tbsCertList']['signature']['parameters'])) {
             $filters['tbsCertList']['signature']['parameters'] = 
                 array('type' => FILE_ASN1_TYPE_NULL);
-		}
+        }
 
         if (empty($crl['signatureAlgorithm']['parameters'])) {
             $filters['signatureAlgorithm']['parameters'] = 
                 array('type' => FILE_ASN1_TYPE_NULL);
-		}
+        }
 
         $asn1->loadFilters($filters);
 
@@ -2522,8 +2522,8 @@ class File_X509 {
         if (is_array($rclist)) {
             foreach ($rclist as $i => $extension) {
                 $this->_mapOutExtensions($rclist, "$i/crlEntryExtensions", $asn1);
-			}
-		}
+            }
+        }
 
         $crl = $asn1->encodeDER($crl, $this->CertificateList);
 
@@ -2594,7 +2594,7 @@ class File_X509 {
             $serialNumber = !empty($this->serialNumber) ? $this->serialNumber : new Math_BigInteger();
 
             $this->currentCert = array(
-	        'tbsCertificate' =>
+                'tbsCertificate' =>
                     array(
                         'version' => 'v3',
                         'serialNumber' => $serialNumber, // $this->setserialNumber()
@@ -2607,8 +2607,8 @@ class File_X509 {
                         'subject' => $subject->dn,
                         'subjectPublicKeyInfo' => $subjectPublicKey
                     ),
-                 'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
-                 'signature'          => false // this is going to be overwritten later
+                'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                'signature'          => false // this is going to be overwritten later
             );
         }
 
@@ -2648,7 +2648,7 @@ class File_X509 {
             }
 
             $this->setExtension('id-ce-keyUsage',
-	            array_values(array_unique(array_merge($keyUsage, array('cRLSign', 'keyCertSign'))))
+                array_values(array_unique(array_merge($keyUsage, array('cRLSign', 'keyCertSign'))))
             );
 
             $basicConstraints = $this->getExtension('id-ce-basicConstraints');
@@ -2657,7 +2657,7 @@ class File_X509 {
             }
 
             $this->setExtension('id-ce-basicConstraints',
-	            array_unique(array_merge(array('cA' => true), $basicConstraints)), true);
+                array_unique(array_merge(array('cA' => true), $basicConstraints)), true);
         }
 
         // resync $this->signatureSubject
@@ -2708,14 +2708,14 @@ class File_X509 {
             $this->currentCert['certificationRequestInfo']['subjectPKInfo'] = $publicKey;
         } else {
             $this->currentCert = array(
-	        'certificationRequestInfo' =>
+                'certificationRequestInfo' =>
                     array(
                         'version' => 'v1',
                         'subject' => $this->dn,
                         'subjectPKInfo' => $publicKey
                     ),
-                 'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
-                 'signature'          => false // this is going to be overwritten later
+                'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                'signature'          => false // this is going to be overwritten later
             );
         }
 
@@ -2760,15 +2760,15 @@ class File_X509 {
             $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
         } else {
             $this->currentCert = array(
-	        'tbsCertList' =>
+                'tbsCertList' =>
                     array(
                         'version' => 'v2',
                         'signature' => array('algorithm' => $signatureAlgorithm),
                         'issuer' => false, // this is going to be overwritten later
                         'thisUpdate' => array('generalTime' => $thisUpdate) // $this->setStartDate()
                     ),
-                 'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
-                 'signature'          => false // this is going to be overwritten later
+                'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                'signature'          => false // this is going to be overwritten later
             );
         }
 
@@ -2785,7 +2785,7 @@ class File_X509 {
 
         if (!empty($this->serialNumber)) {
             $crlNumber = $this->serialNumber;
-		}
+        }
         else {
             $crlNumber = $this->getCRLExtension('id-ce-cRLNumber');
             $crlNumber = $crlNumber !== false ? $crlNumber->add(new Math_BigInteger(1)) : NULL;
@@ -2799,25 +2799,25 @@ class File_X509 {
         if (!$version) {
             if (!empty($tbsCertList['crlExtensions'])) {
                 $version = 1; // v2.
-			}
+            }
             elseif (!empty($tbsCertList['revokedCertificates'])) {
                 foreach ($tbsCertList['revokedCertificates'] as $cert) {
                     if (!empty($cert['crlEntryExtensions'])) {
                         $version = 1; // v2.
-					}
-				}
-			}
+                    }
+                }
+            }
 
             if ($version) {
                 $tbsCertList['version'] = $version;
-			}
+            }
         }
 
         // Store additional extensions.
         if (!empty($tbsCertList['version'])) { // At least v2.
             if (!empty($crlNumber)) {
                 $this->setCRLExtension('id-ce-cRLNumber', $crlNumber);
-			}
+            }
 
             if (isset($issuer->keyIdentifier)) {
                 $this->setCRLExtension('id-ce-authorityKeyIdentifier', array(
@@ -2840,12 +2840,12 @@ class File_X509 {
 
             if ($issuerAltName !== false) {
                 $this->setCRLExtension('id-ce-issuerAltName', $issuerAltName);
-			}
+            }
         }
 
         if (empty($tbsCertList['revokedCertificates'])) {
             unset($tbsCertList['revokedCertificates']);
-		}
+        }
 
         unset($tbsCertList);
 
@@ -2968,17 +2968,17 @@ class File_X509 {
 
         if (!is_array($root)) {
             return $false;
-		}
+        }
 
         foreach (explode('/', $path) as $i) {
             if (!is_array($root)) {
                 return $false;
-			}
+            }
 
             if (!isset($root[$i])) {
                 if (!$create) {
                     return $false;
-				}
+                }
 
                 $root[$i] = array();
             }
@@ -3002,8 +3002,8 @@ class File_X509 {
         $extensions = &$this->_subArray($this->currentCert, $path);
 
         if (!is_array($extensions)) {
-                return false;
-		}
+            return false;
+        }
 
         $result = false;
         foreach ($extensions as $key => $value) {
@@ -3050,8 +3050,8 @@ class File_X509 {
         $extensions = $this->_subArray($cert, $path);
 
         if (!is_array($extensions)) {
-                return false;
-		}
+            return false;
+        }
 
         foreach ($extensions as $key => $value) {
             if ($value['extnId'] == $id) {
@@ -3095,10 +3095,10 @@ class File_X509 {
         $extensions = array();
 
         if (is_array($exts)) {
-	        foreach ($exts as $extension) {
-	            $extensions[] = $extension['extnId'];
-	        }
-		}
+            foreach ($exts as $extension) {
+                $extensions[] = $extension['extnId'];
+            }
+        }
 
         return $extensions;
     }
@@ -3131,8 +3131,8 @@ class File_X509 {
         $extensions = &$this->_subArray($this->currentCert, $path, true);
 
         if (!is_array($extensions)) {
-                return false;
-		}
+            return false;
+        }
 
         $newext = array('extnId'  => $id, 'critical' => $critical, 'extnValue' => $value);
 
@@ -3140,7 +3140,7 @@ class File_X509 {
             if ($value['extnId'] == $id) {
                 if (!$replace) {
                     return false;
-				}
+                }
 
                 $extensions[$key] = $newext;
                 return true;
@@ -3239,12 +3239,12 @@ class File_X509 {
         foreach ($rclist as $i => $rc) {
             if (!($serial->compare($rc['userCertificate']))) {
                 return $i;
-			}
-		}
+            }
+        }
 
         if (!$create) {
             return false;
-		}
+        }
 
         $i = count($rclist);
         $rclist[] = array('userCertificate' => $serial,
@@ -3295,7 +3295,7 @@ class File_X509 {
                 $rclist = array_values($rclist);
                 return true;
             }
-		}
+        }
 
         return false;
     }
@@ -3313,7 +3313,7 @@ class File_X509 {
             if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
                 return $rclist[$i];
             }
-		}
+        }
 
         return false;
     }
@@ -3333,7 +3333,7 @@ class File_X509 {
 
         if (!isset($crl['tbsCertList'])) {
             return false;
-		}
+        }
 
         $result = array();
 
@@ -3360,7 +3360,7 @@ class File_X509 {
             if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
                 return $this->removeExtension($id, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
             }
-		}
+        }
 
         return false;
     }
@@ -3380,13 +3380,13 @@ class File_X509 {
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
-		}
+        }
 
         if (is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
             if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
                 return $this->getExtension($id, $crl,  "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
             }
-		}
+        }
 
         return false;
     }
@@ -3403,13 +3403,13 @@ class File_X509 {
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
-		}
+        }
 
         if (is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
             if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
                 return $this->getExtensions($crl, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
             }
-		}
+        }
 
         return false;
     }

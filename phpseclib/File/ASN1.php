@@ -728,10 +728,10 @@ class File_ASN1 {
             return $source->element;
         }
 
-		// do not encode optional fields with value set to default
+        // do not encode optional fields with value set to default
         if (!empty($mapping['optional']) && isset($mapping['default']) && $source === $mapping['default']) {
             return '';
-		}
+        }
 
         if (isset($idx)) {
             $this->location[] = $idx;
