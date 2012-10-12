@@ -531,14 +531,9 @@ class File_ASN1 {
                                 $temp = $decoded['content'][$i];
                             }
                         } elseif (!isset($child['constant'])) {
-                            if ($child['type'] == FILE_ASN1_TYPE_CHOICE) {
-                                $map[$key] = $this->asn1map($temp, $child);
-                                $i++;
-                                continue;
-                            }
                             // we could do this, as well:
                             // $buffer = $this->asn1map($temp, $child); if (isset($buffer)) { $map[$key] = $buffer; }
-                            if ($child['type'] == $temp['type']) {
+                            if ($child['type'] == $temp['type'] || $child['type'] == FILE_ASN1_TYPE_ANY) {
                                 $map[$key] = $this->asn1map($temp, $child);
                                 $i++;
                                 if (count($decoded['content']) == $i) {
