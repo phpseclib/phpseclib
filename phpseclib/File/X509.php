@@ -1227,41 +1227,7 @@ class File_X509 {
 
         $this->signatureSubject = substr($cert, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
-        if (isset($x509['tbsCertificate']['extensions'])) {
-            for ($i = 0; $i < count($x509['tbsCertificate']['extensions']); $i++) {
-                $id = $x509['tbsCertificate']['extensions'][$i]['extnId'];
-                $value = &$x509['tbsCertificate']['extensions'][$i]['extnValue'];
-                $value = base64_decode($value);
-                $decoded = $asn1->decodeBER($value);
-                /* [extnValue] contains the DER encoding of an ASN.1 value
-                   corresponding to the extension type identified by extnID */
-                $map = $this->_getMapping($id);
-                if (!is_bool($map)) {
-                    $mapped = $asn1->asn1map($decoded[0], $map);
-                    $value = $mapped === false ? $decoded[0] : $mapped;
-
-                    if ($id == 'id-ce-certificatePolicies') {
-                        for ($j = 0; $j < count($value); $j++) {
-                            if (!isset($value[$j]['policyQualifiers'])) {
-                                continue;
-                            }
-                            for ($k = 0; $k < count($value[$j]['policyQualifiers']); $k++) {
-                                $subid = $value[$j]['policyQualifiers'][$k]['policyQualifierId'];
-                                $map = $this->_getMapping($subid);
-                                $subvalue = &$value[$j]['policyQualifiers'][$k]['qualifier'];
-                                if ($map !== false) {
-                                    $decoded = $asn1->decodeBER($subvalue);
-                                    $mapped = $asn1->asn1map($decoded[0], $map);
-                                    $subvalue = $mapped === false ? $decoded[0] : $mapped;
-                                }
-                            }
-                        }
-                    }
-                } elseif ($map) {
-                    $value = base64_encode($value);
-                }
-            }
-        }
+        $this->_mapInExtensions($x509, 'tbsCertificate/extensions', $asn1);
 
         $key = &$x509['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'];
         $key = $this->_reformatKey($x509['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'], $key);
@@ -1321,11 +1287,81 @@ class File_X509 {
 
         $asn1->loadFilters($filters);
 
-        if (isset($cert['tbsCertificate']['extensions'])) {
-            $size = count($cert['tbsCertificate']['extensions']);
+        $this->_mapOutExtensions($cert, 'tbsCertificate/extensions', $asn1);
+
+        $cert = $asn1->encodeDER($cert, $this->Certificate);
+
+        return "-----BEGIN CERTIFICATE-----\r\n" . chunk_split(base64_encode($cert)) . '-----END CERTIFICATE-----';
+    }
+
+    /**
+     * Map extension values from octet string to extension-specific internal
+     *   format.
+     *
+     * @param Array ref $root
+     * @param String $path
+     * @param Object $asn1
+     * @access private
+     */
+    function _mapInExtensions(&$root, $path, $asn1)
+    {
+        $extensions = &$this->_subArray($root, $path);
+
+        if (is_array($extensions)) {
+            for ($i = 0; $i < count($extensions); $i++) {
+                $id = $extensions[$i]['extnId'];
+                $value = &$extensions[$i]['extnValue'];
+                $value = base64_decode($value);
+                $decoded = $asn1->decodeBER($value);
+                /* [extnValue] contains the DER encoding of an ASN.1 value
+                   corresponding to the extension type identified by extnID */
+                $map = $this->_getMapping($id);
+                if (!is_bool($map)) {
+                    $mapped = $asn1->asn1map($decoded[0], $map);
+                    $value = $mapped === false ? $decoded[0] : $mapped;
+
+                    if ($id == 'id-ce-certificatePolicies') {
+                        for ($j = 0; $j < count($value); $j++) {
+                            if (!isset($value[$j]['policyQualifiers'])) {
+                                continue;
+                            }
+                            for ($k = 0; $k < count($value[$j]['policyQualifiers']); $k++) {
+                                $subid = $value[$j]['policyQualifiers'][$k]['policyQualifierId'];
+                                $map = $this->_getMapping($subid);
+                                $subvalue = &$value[$j]['policyQualifiers'][$k]['qualifier'];
+                                if ($map !== false) {
+                                    $decoded = $asn1->decodeBER($subvalue);
+                                    $mapped = $asn1->asn1map($decoded[0], $map);
+                                    $subvalue = $mapped === false ? $decoded[0] : $mapped;
+                                }
+                            }
+                        }
+                    }
+                } elseif ($map) {
+                    $value = base64_encode($value);
+                }
+            }
+        }
+    }
+
+    /**
+     * Map extension values from extension-specific internal format to
+     *   octet string.
+     *
+     * @param Array ref $root
+     * @param String $path
+     * @param Object $asn1
+     * @access private
+     */
+    function _mapOutExtensions(&$root, $path, $asn1)
+    {
+        $extensions = &$this->_subArray($root, $path);
+
+        if (is_array($extensions)) {
+            $size = count($extensions);
             for ($i = 0; $i < $size; $i++) {
-                $id = $cert['tbsCertificate']['extensions'][$i]['extnId'];
-                $value = &$cert['tbsCertificate']['extensions'][$i]['extnValue'];
+                $id = $extensions[$i]['extnId'];
+                $value = &$extensions[$i]['extnValue'];
 
                 switch ($id) {
                     case 'id-ce-certificatePolicies':
@@ -1360,7 +1396,7 @@ class File_X509 {
                 if (is_bool($map)) {
                     if (!$map) {
                         user_error($id . ' is not a currently supported extension', E_USER_NOTICE);
-                        unset($cert['tbsCertificate']['extensions'][$i]);
+                        unset($extensions[$i]);
                     }
                 } else {
                     $temp = $asn1->encodeDER($value, $map);
@@ -1368,10 +1404,6 @@ class File_X509 {
                 }
             }
         }
-
-        $cert = $asn1->encodeDER($cert, $this->Certificate);
-
-        return "-----BEGIN CERTIFICATE-----\r\n" . chunk_split(base64_encode($cert)) . '-----END CERTIFICATE-----';
     }
 
     /**
@@ -2544,22 +2576,58 @@ class File_X509 {
     }
 
     /**
+     * Get a reference to a subarray
+     *
+     * @param array $root
+     * @param String $path  absolute path with / as component separator
+     * @param Boolean $create optional
+     * @access private
+     * @return array item ref or false
+     */
+    function &_subArray(&$root, $path, $create = false)
+    {
+        $false = false;
+
+        if (!is_array($root)) {
+            return $false;
+		}
+
+        foreach (explode('/', $path) as $i) {
+            if (!is_array($root)) {
+                return $false;
+			}
+
+            if (!isset($root[$i])) {
+                if (!$create) {
+                    return $false;
+				}
+
+                $root[$i] = array();
+            }
+
+            $root = &$root[$i];
+        }
+
+        return $root;
+    }
+
+    /**
      * Remove an Extension
      *
      * @param String $id
+     * @param String $path optional
      * @access public
      * @return Boolean
      */
-    function removeExtension($id)
+    function removeExtension($id, $path = 'tbsCertificate/extensions')
     {
-        switch (true) {
-            case !is_array($this->currentCert):
-            case !isset($this->currentCert['tbsCertificate']['extensions']):
+        $extensions = &$this->_subArray($this->currentCert, $path);
+
+        if (!is_array($extensions)) {
                 return false;
-        }
+		}
 
         $result = false;
-        $extensions = &$this->currentCert['tbsCertificate']['extensions'];
         foreach ($extensions as $key => $value) {
             if ($value['extnId'] == $id) {
                 unset($extensions[$key]);
@@ -2578,22 +2646,24 @@ class File_X509 {
      * Returns the extension if it exists and false if not
      *
      * @param String $id
+     * @param Array $cert optional
+     * @param String $path optional
      * @access public
      * @return Mixed
      */
-    function getExtension($id, $cert = NULL)
+    function getExtension($id, $cert = NULL, $path = 'tbsCertificate/extensions')
     {
         if (!isset($cert)) {
             $cert = $this->currentCert;
         }
 
-        switch (true) {
-            case !is_array($cert):
-            case !isset($cert['tbsCertificate']['extensions']):
-                return false;
-        }
+        $extensions = $this->_subArray($cert, $path);
 
-        foreach ($cert['tbsCertificate']['extensions'] as $key => $value) {
+        if (!is_array($extensions)) {
+                return false;
+		}
+
+        foreach ($extensions as $key => $value) {
             if ($value['extnId'] == $id) {
                 return $value['extnValue'];
             }
@@ -2605,25 +2675,25 @@ class File_X509 {
     /**
      * Returns a list of all extensions in use
      *
+     * @param array $cert optional
+     * @param String $path optional
      * @access public
      * @return Array
      */
-    function getExtensions($cert = NULL)
+    function getExtensions($cert = NULL, $path = 'tbsCertificate/extensions')
     {
         if (!isset($cert)) {
             $cert = $this->currentCert;
         }
 
-        switch (true) {
-            case !is_array($cert):
-            case !isset($cert['tbsCertificate']['extensions']):
-                return array();
-        }
-
+        $exts = $this->_subArray($cert, $path);
         $extensions = array();
-        foreach ($cert['tbsCertificate']['extensions'] as $extension) {
-            $extensions[] = $extension['extnId'];
-        }
+
+        if (is_array($exts)) {
+	        foreach ($exts as $extension) {
+	            $extensions[] = $extension['extnId'];
+	        }
+		}
 
         return $extensions;
     }
