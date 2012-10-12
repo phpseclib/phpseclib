@@ -2935,11 +2935,12 @@ class File_X509 {
      * Set Serial Number
      *
      * @param String $serial
+     * @param $base optional
      * @access public
      */
-    function setSerialNumber($serial)
+    function setSerialNumber($serial, $base = -256)
     {
-        $this->serialNumber = new Math_BigInteger($serial, -256);
+        $this->serialNumber = new Math_BigInteger($serial, $base);
     }
 
     /**
