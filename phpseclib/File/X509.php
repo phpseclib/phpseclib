@@ -1269,6 +1269,9 @@ class File_X509 {
         $this->currentCert = $x509;
         $this->dn = $x509['tbsCertificate']['subject'];
 
+        $keyIdentifier = $this->getExtension('id-ce-subjectKeyIdentifier');
+        $this->keyIdentifier = is_string($keyIdentifier) ? $keyIdentifier : NULL;
+
         return $x509;
     }
 
@@ -2189,6 +2192,7 @@ class File_X509 {
                 $this->publicKey = NULL;
         }
 
+        $this->keyIdentifier = NULL;
         $this->currentCert = $csr;
 
         return $csr;
