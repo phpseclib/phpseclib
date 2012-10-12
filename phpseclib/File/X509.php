@@ -2347,11 +2347,7 @@ class File_X509 {
         $this->currentCert['tbsCertificate']['issuer'] = $issuer->dn;
 
         if (isset($issuer->keyIdentifier)) {
-            $extensions = &$this->currentCert['tbsCertificate']['extensions'];
-            $extensions[] = array(
-                'extnId'   => 'id-ce-authorityKeyIdentifier',
-                'critical' => false,
-                'extnValue'=> array(
+            $this->setExtension('id-ce-authorityKeyIdentifier', array(
                     //'authorityCertIssuer' => array(
                     //    array(
                     //        'directoryName' => $issuer->dn
@@ -2360,31 +2356,21 @@ class File_X509 {
                     'keyIdentifier' => $issuer->keyIdentifier
                 )
             );
+            //$extensions = &$this->currentCert['tbsCertificate']['extensions'];
             //if (isset($issuer->serialNumber)) {
             //    $extensions[count($extensions) - 1]['authorityCertSerialNumber'] = $issuer->serialNumber;
             //}
-            unset($extensions);
+            //unset($extensions);
         }
 
         if (isset($subject->keyIdentifier)) {
-            $this->removeExtension('id-ce-subjectKeyIdentifier');
-            $this->currentCert['tbsCertificate']['extensions'][] = array(
-                'extnId'   => 'id-ce-subjectKeyIdentifier',
-                'critical' => false,
-                'extnValue'=> $subject->keyIdentifier
-            );
+            $this->setExtension('id-ce-subjectKeyIdentifier', $subject->keyIdentifier);
         }
 
         if (isset($subject->domains) && count($subject->domains) > 1) {
-            $this->currentCert['tbsCertificate']['extensions'][] = array(
-	        'extnId' => 'id-ce-subjectAltName',
-	        'critical' => false,
-	        'extnValue' => array()
-            );
-            $last = count($this->currentCert['tbsCertificate']['extensions']) - 1;
-            foreach ($subject->domains as $domain) {
-                $this->currentCert['tbsCertificate']['extensions'][$last]['extnValue'][] = array('dNSName' => $domain);
-            }
+            $this->setExtension('id-ce-subjectAltName',
+                array_map(create_function('$domain',
+                    'return array("dNSName" => $domain);'), $subject->domains));
         }
 
         if ($this->caFlag) {
@@ -2392,25 +2378,18 @@ class File_X509 {
             if (!$keyUsage) {
                 $keyUsage = array();
             }
-            $this->removeExtension('id-ce-keyUsage');
 
-            $this->currentCert['tbsCertificate']['extensions'][] = array(
-	        'extnId' => 'id-ce-keyUsage',
-	        'critical' => false,
-	        'extnValue' => array_values(array_unique(array_merge($keyUsage, array('cRLSign', 'keyCertSign'))))
+            $this->setExtension('id-ce-keyUsage',
+	            array_values(array_unique(array_merge($keyUsage, array('cRLSign', 'keyCertSign'))))
             );
 
             $basicConstraints = $this->getExtension('id-ce-basicConstraints');
             if (!$basicConstraints) {
                 $basicConstraints = array();
             }
-            $this->removeExtension('id-ce-basicConstraints');
 
-            $this->currentCert['tbsCertificate']['extensions'][] = array(
-	        'extnId' => 'id-ce-basicConstraints',
-	        'critical' => true,
-	        'extnValue' => array_unique(array_merge(array('cA' => true), $basicConstraints))
-            );
+            $this->setExtension('id-ce-basicConstraints',
+	            array_unique(array_merge(array('cA' => true), $basicConstraints)), true);
         }
 
         // resync $this->signatureSubject
@@ -2696,6 +2675,42 @@ class File_X509 {
 		}
 
         return $extensions;
+    }
+
+    /**
+     * Set an Extension
+     *
+     * @param String $id
+     * @param Mixed $value
+     * @param Boolean $critical optional
+     * @param Boolean $replace optional
+     * @param String $path optional
+     * @access public
+     * @return Boolean
+     */
+    function setExtension($id, $value, $critical = false, $replace = true, $path = 'tbsCertificate/extensions')
+    {
+        $extensions = &$this->_subArray($this->currentCert, $path, true);
+
+        if (!is_array($extensions)) {
+                return false;
+		}
+
+        $newext = array('extnId'  => $id, 'critical' => $critical, 'extnValue' => $value);
+
+        foreach ($extensions as $key => $value) {
+            if ($value['extnId'] == $id) {
+                if (!$replace) {
+                    return false;
+				}
+
+                $extensions[$key] = $newext;
+                return true;
+            }
+        }
+
+        $extensions[] = $newext;
+        return true;
     }
 
     /**
