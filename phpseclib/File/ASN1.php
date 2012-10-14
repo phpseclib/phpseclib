@@ -309,10 +309,9 @@ class File_ASN1 {
                     $current['content'] = (bool) ord($content[0]);
                     break;
                 case FILE_ASN1_TYPE_INTEGER:
+                case FILE_ASN1_TYPE_ENUMERATED:
                     $current['content'] = new Math_BigInteger($content, -256);
                     break;
-                case FILE_ASN1_TYPE_ENUMERATED: // not currently supported
-                    return false;
                 case FILE_ASN1_TYPE_REAL: // not currently supported
                     return false;
                 case FILE_ASN1_TYPE_BIT_STRING:
@@ -433,12 +432,12 @@ class File_ASN1 {
      *
      * Provides an ASN.1 semantic mapping ($mapping) from a parsed BER-encoding to a human readable format.
      *
-     * @param String $encoded
-     * @param Integer $start
+     * @param Array $decoded
+     * @param Array $mapping
      * @return Array
      * @access public
      */
-    function asn1map($decoded, $mapping, $idx = NULL)
+    function asn1map($decoded, $mapping)
     {
         if (isset($mapping['explicit'])) {
             $decoded = $decoded['content'][0];
@@ -507,13 +506,18 @@ class File_ASN1 {
                         continue;
                     }
 
+                    $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
+                    $constant = NULL;
                     if (isset($temp['constant'])) {
                         $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                        $childClass = isset($child['class']) ? $child['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                        $constant = isset($temp['class']) ? $child['cast'] : $child['constant'];
-                    } else {
-                        $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
-                        $constant = NULL;
+                    }
+                    if (isset($child['class'])) {
+                        $childClass = $child['class'];
+                        $constant = $child['cast'];
+                    }
+                    elseif (isset($child['constant'])) {
+                        $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                        $constant = $child['constant'];
                     }
 
                     if (isset($child['optional'])) {
@@ -527,14 +531,9 @@ class File_ASN1 {
                                 $temp = $decoded['content'][$i];
                             }
                         } elseif (!isset($child['constant'])) {
-                            if ($child['type'] == FILE_ASN1_TYPE_CHOICE) {
-                                $map[$key] = $this->asn1map($temp, $child);
-                                $i++;
-                                continue;
-                            }
                             // we could do this, as well:
                             // $buffer = $this->asn1map($temp, $child); if (isset($buffer)) { $map[$key] = $buffer; }
-                            if ($child['type'] == $temp['type']) {
+                            if ($child['type'] == $temp['type'] || $child['type'] == FILE_ASN1_TYPE_ANY) {
                                 $map[$key] = $this->asn1map($temp, $child);
                                 $i++;
                                 if (count($decoded['content']) == $i) {
@@ -591,14 +590,20 @@ class File_ASN1 {
                             continue;
                         }
 
+                        $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
+                        $constant = NULL;
                         if (isset($temp['constant'])) {
                             $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                            $childClass = isset($child['class']) ? $child['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                            $constant = isset($temp['class']) ? $child['cast'] : $child['constant'];
-                        } else {
-                            $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
-                            $constant = NULL;
                         }
+                        if (isset($child['class'])) {
+                            $childClass = $child['class'];
+                            $constant = $child['cast'];
+                        }
+                        elseif (isset($child['constant'])) {
+                            $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                            $constant = $child['constant'];
+                        }
+
                         if (isset($constant) && isset($temp['constant'])) {
                             if (($constant == $temp['constant']) && ($childClass == $tempClass)) {
                                 $map[$key] = $this->asn1map($temp['content'], $child);
@@ -658,6 +663,8 @@ class File_ASN1 {
                 }
             case FILE_ASN1_TYPE_OCTET_STRING:
                 return base64_encode($decoded['content']);
+            case FILE_ASN1_TYPE_NULL:
+                return '';
             case FILE_ASN1_TYPE_BOOLEAN:
                 return $decoded['content'];
             case FILE_ASN1_TYPE_NUMERIC_STRING:
@@ -673,6 +680,7 @@ class File_ASN1 {
             case FILE_ASN1_TYPE_BMP_STRING:
                 return $decoded['content'];
             case FILE_ASN1_TYPE_INTEGER:
+            case FILE_ASN1_TYPE_ENUMERATED:
                 $temp = $decoded['content'];
                 if (isset($mapping['implicit'])) {
                     $temp = new Math_BigInteger($decoded['content'], -256);
@@ -718,6 +726,11 @@ class File_ASN1 {
     {
         if (is_object($source) && strtolower(get_class($source)) == 'file_asn1_element') {
             return $source->element;
+        }
+
+        // do not encode optional fields with value set to default
+        if (!empty($mapping['optional']) && isset($mapping['default']) && $source === $mapping['default']) {
+            return '';
         }
 
         if (isset($idx)) {
@@ -875,6 +888,7 @@ class File_ASN1 {
 
                 return $temp;
             case FILE_ASN1_TYPE_INTEGER:
+            case FILE_ASN1_TYPE_ENUMERATED:
                 if (!isset($mapping['mapping'])) {
                     $value = $source->toBytes(true);
                 } else {

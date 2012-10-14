@@ -100,6 +100,12 @@ class File_X509 {
 
     var $netscape_cert_type;
     var $netscape_comment;
+
+    var $CRLNumber;
+    var $CRLReason;
+    var $IssuingDistributionPoint;
+    var $InvalidityDate;
+    var $CertificateIssuer;
     /**#@-*/
 
     /**
@@ -109,6 +115,14 @@ class File_X509 {
      * @access private
      */
     var $CertificationRequest;
+
+    /**
+     * ASN.1 syntax for Certificate Revocation Lists (RFC5280)
+     *
+     * @var Array
+     * @access private
+     */
+    var $CertificateList;
 
     /**
      * Distinguished Name
@@ -1016,6 +1030,119 @@ class File_X509 {
             )
         );
 
+        $RevokedCertificate = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                              'userCertificate'    => $CertificateSerialNumber,
+                              'revocationDate'     => $Time,
+                              'crlEntryExtensions' => array(
+                                                          'optional' => true
+                                                      ) + $Extensions
+                          )
+        );
+
+        $TBSCertList = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'version'             => array(
+                                             'optional' => true,
+                                             'default'  => 'v1'
+                                         ) + $Version,
+                'signature'           => $AlgorithmIdentifier,
+                'issuer'              => $Name,
+                'thisUpdate'          => $Time,
+                'nextUpdate'          => array(
+                                             'optional' => true
+                                         ) + $Time,
+                'revokedCertificates' => array(
+                                             'type'     => FILE_ASN1_TYPE_SEQUENCE,
+                                             'optional' => true,
+                                             'min'      => 0,
+                                             'max'      => -1,
+                                             'children' => $RevokedCertificate
+                                         ),
+                'crlExtensions'       => array(
+                                             'constant' => 0,
+                                             'optional' => true,
+                                             'explicit' => true
+                                         ) + $Extensions
+            )
+        );
+
+        $this->CertificateList = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'tbsCertList'        => $TBSCertList,
+                'signatureAlgorithm' => $AlgorithmIdentifier,
+                'signature'          => array('type' => FILE_ASN1_TYPE_BIT_STRING)
+            )
+        );
+
+        $this->CRLNumber = array('type' => FILE_ASN1_TYPE_INTEGER);
+
+        $this->CRLReason = array('type' => FILE_ASN1_TYPE_ENUMERATED,
+           'mapping' => array(
+                            'unspecified',
+                            'keyCompromise',
+                            'cACompromise',
+                            'affiliationChanged',
+                            'superseded',
+                            'cessationOfOperation',
+                            'certificateHold',
+                            // Value 7 is not used.
+                            8 => 'removeFromCRL',
+                            'privilegeWithdrawn',
+                            'aACompromise'
+            )
+        );
+
+        $this->IssuingDistributionPoint = array('type' => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'distributionPoint'          => array(
+                                                    'constant' => 0,
+                                                    'optional' => true,
+                                                    'explicit' => true
+                                                ) + $DistributionPointName,
+                'onlyContainsUserCerts'      => array(
+                                                    'type'     => FILE_ASN1_TYPE_BOOLEAN,
+                                                    'constant' => 1,
+                                                    'optional' => true,
+                                                    'default'  => false,
+                                                    'implicit' => true
+                                                ),
+                'onlyContainsCACerts'        => array(
+                                                    'type'     => FILE_ASN1_TYPE_BOOLEAN,
+                                                    'constant' => 2,
+                                                    'optional' => true,
+                                                    'default'  => false,
+                                                    'implicit' => true
+                                                ),
+                'onlySomeReasons'           => array(
+                                                    'constant' => 3,
+                                                    'optional' => true,
+                                                    'implicit' => true
+                                                ) + $ReasonFlags,
+                'indirectCRL'               => array(
+                                                    'type'     => FILE_ASN1_TYPE_BOOLEAN,
+                                                    'constant' => 4,
+                                                    'optional' => true,
+                                                    'default'  => false,
+                                                    'implicit' => true
+                                                ),
+                'onlyContainsAttributeCerts' => array(
+                                                    'type'     => FILE_ASN1_TYPE_BOOLEAN,
+                                                    'constant' => 5,
+                                                    'optional' => true,
+                                                    'default'  => false,
+                                                    'implicit' => true
+                                                )
+                          )
+        );
+
+        $this->InvalidityDate = array('type' => FILE_ASN1_TYPE_GENERALIZED_TIME);
+
+        $this->CertificateIssuer = $GeneralNames;
+
         // OIDs from RFC5280 and those RFCs mentioned in RFC5280#section-4.1.1.2
         $this->oids = array(
             '1.3.6.1.5.5.7' => 'id-pkix',
@@ -1216,7 +1343,10 @@ class File_X509 {
 
         $asn1->loadOIDs($this->oids);
         $decoded = $asn1->decodeBER($cert);
-        $x509 = $asn1->asn1map($decoded[0], $this->Certificate);
+
+        if (!empty($decoded)) {
+            $x509 = $asn1->asn1map($decoded[0], $this->Certificate);
+        }
         if (!isset($x509) || $x509 === false) {
             $this->currentCert = false;
             return false;
@@ -1224,47 +1354,16 @@ class File_X509 {
 
         $this->signatureSubject = substr($cert, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
-        if (isset($x509['tbsCertificate']['extensions'])) {
-            for ($i = 0; $i < count($x509['tbsCertificate']['extensions']); $i++) {
-                $id = $x509['tbsCertificate']['extensions'][$i]['extnId'];
-                $value = &$x509['tbsCertificate']['extensions'][$i]['extnValue'];
-                $value = base64_decode($value);
-                $decoded = $asn1->decodeBER($value);
-                /* [extnValue] contains the DER encoding of an ASN.1 value
-                   corresponding to the extension type identified by extnID */
-                $map = $this->_getMapping($id);
-                if (!is_bool($map)) {
-                    $mapped = $asn1->asn1map($decoded[0], $map);
-                    $value = $mapped === false ? $decoded[0] : $mapped;
-
-                    if ($id == 'id-ce-certificatePolicies') {
-                        for ($j = 0; $j < count($value); $j++) {
-                            if (!isset($value[$j]['policyQualifiers'])) {
-                                continue;
-                            }
-                            for ($k = 0; $k < count($value[$j]['policyQualifiers']); $k++) {
-                                $subid = $value[$j]['policyQualifiers'][$k]['policyQualifierId'];
-                                $map = $this->_getMapping($subid);
-                                $subvalue = &$value[$j]['policyQualifiers'][$k]['qualifier'];
-                                if ($map !== false) {
-                                    $decoded = $asn1->decodeBER($subvalue);
-                                    $mapped = $asn1->asn1map($decoded[0], $map);
-                                    $subvalue = $mapped === false ? $decoded[0] : $mapped;
-                                }
-                            }
-                        }
-                    }
-                } elseif ($map) {
-                    $value = base64_encode($value);
-                }
-            }
-        }
+        $this->_mapInExtensions($x509, 'tbsCertificate/extensions', $asn1);
 
         $key = &$x509['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'];
         $key = $this->_reformatKey($x509['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'], $key);
 
         $this->currentCert = $x509;
         $this->dn = $x509['tbsCertificate']['subject'];
+
+        $keyIdentifier = $this->getExtension('id-ce-subjectKeyIdentifier');
+        $this->keyIdentifier = is_string($keyIdentifier) ? $keyIdentifier : NULL;
 
         return $x509;
     }
@@ -1315,11 +1414,81 @@ class File_X509 {
 
         $asn1->loadFilters($filters);
 
-        if (isset($cert['tbsCertificate']['extensions'])) {
-            $size = count($cert['tbsCertificate']['extensions']);
+        $this->_mapOutExtensions($cert, 'tbsCertificate/extensions', $asn1);
+
+        $cert = $asn1->encodeDER($cert, $this->Certificate);
+
+        return "-----BEGIN CERTIFICATE-----\r\n" . chunk_split(base64_encode($cert)) . '-----END CERTIFICATE-----';
+    }
+
+    /**
+     * Map extension values from octet string to extension-specific internal
+     *   format.
+     *
+     * @param Array ref $root
+     * @param String $path
+     * @param Object $asn1
+     * @access private
+     */
+    function _mapInExtensions(&$root, $path, $asn1)
+    {
+        $extensions = &$this->_subArray($root, $path);
+
+        if (is_array($extensions)) {
+            for ($i = 0; $i < count($extensions); $i++) {
+                $id = $extensions[$i]['extnId'];
+                $value = &$extensions[$i]['extnValue'];
+                $value = base64_decode($value);
+                $decoded = $asn1->decodeBER($value);
+                /* [extnValue] contains the DER encoding of an ASN.1 value
+                   corresponding to the extension type identified by extnID */
+                $map = $this->_getMapping($id);
+                if (!is_bool($map)) {
+                    $mapped = $asn1->asn1map($decoded[0], $map);
+                    $value = $mapped === false ? $decoded[0] : $mapped;
+
+                    if ($id == 'id-ce-certificatePolicies') {
+                        for ($j = 0; $j < count($value); $j++) {
+                            if (!isset($value[$j]['policyQualifiers'])) {
+                                continue;
+                            }
+                            for ($k = 0; $k < count($value[$j]['policyQualifiers']); $k++) {
+                                $subid = $value[$j]['policyQualifiers'][$k]['policyQualifierId'];
+                                $map = $this->_getMapping($subid);
+                                $subvalue = &$value[$j]['policyQualifiers'][$k]['qualifier'];
+                                if ($map !== false) {
+                                    $decoded = $asn1->decodeBER($subvalue);
+                                    $mapped = $asn1->asn1map($decoded[0], $map);
+                                    $subvalue = $mapped === false ? $decoded[0] : $mapped;
+                                }
+                            }
+                        }
+                    }
+                } elseif ($map) {
+                    $value = base64_encode($value);
+                }
+            }
+        }
+    }
+
+    /**
+     * Map extension values from extension-specific internal format to
+     *   octet string.
+     *
+     * @param Array ref $root
+     * @param String $path
+     * @param Object $asn1
+     * @access private
+     */
+    function _mapOutExtensions(&$root, $path, $asn1)
+    {
+        $extensions = &$this->_subArray($root, $path);
+
+        if (is_array($extensions)) {
+            $size = count($extensions);
             for ($i = 0; $i < $size; $i++) {
-                $id = $cert['tbsCertificate']['extensions'][$i]['extnId'];
-                $value = &$cert['tbsCertificate']['extensions'][$i]['extnValue'];
+                $id = $extensions[$i]['extnId'];
+                $value = &$extensions[$i]['extnValue'];
 
                 switch ($id) {
                     case 'id-ce-certificatePolicies':
@@ -1354,7 +1523,7 @@ class File_X509 {
                 if (is_bool($map)) {
                     if (!$map) {
                         user_error($id . ' is not a currently supported extension', E_USER_NOTICE);
-                        unset($cert['tbsCertificate']['extensions'][$i]);
+                        unset($extensions[$i]);
                     }
                 } else {
                     $temp = $asn1->encodeDER($value, $map);
@@ -1362,10 +1531,6 @@ class File_X509 {
                 }
             }
         }
-
-        $cert = $asn1->encodeDER($cert, $this->Certificate);
-
-        return "-----BEGIN CERTIFICATE-----\r\n" . chunk_split(base64_encode($cert)) . '-----END CERTIFICATE-----';
     }
 
     /**
@@ -1427,6 +1592,22 @@ class File_X509 {
             // http://www.maithean.com/docs/set_bk3.pdf
             case '2.23.42.7.0': // id-set-hashedRootKey
                 return true;
+
+            // CRL extensions.
+            case 'id-ce-cRLNumber':
+                return $this->CRLNumber;
+            case 'id-ce-deltaCRLIndicator':
+                return $this->CRLNumber;
+            case 'id-ce-issuingDistributionPoint':
+                return $this->IssuingDistributionPoint;
+            case 'id-ce-freshestCRL':
+                return $this->CRLDistributionPoints;
+            case 'id-ce-cRLReasons':
+                return $this->CRLReason;
+            case 'id-ce-invalidityDate':
+                return $this->InvalidityDate;
+            case 'id-ce-certificateIssuer':
+                return $this->CertificateIssuer;
         }
 
         return false;
@@ -1579,7 +1760,7 @@ class File_X509 {
     /**
      * Validate a signature
      *
-     * Works on both X.509 certs and CSR's.
+     * Works on X.509 certs, CSR's and CRL's.
      * Returns 1 if the signature is verified, 0 if it is not correct or -1 on error
      *
      * To know if a signature is valid one should do validateSignature() === 1
@@ -1648,6 +1829,32 @@ class File_X509 {
                 return $this->_validateSignature(
                     $this->currentCert['certificationRequestInfo']['subjectPKInfo']['algorithm']['algorithm'],
                     $this->currentCert['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'],
+                    $this->currentCert['signatureAlgorithm']['algorithm'],
+                    substr(base64_decode($this->currentCert['signature']), 1),
+                    $this->signatureSubject
+                );
+            case isset($this->currentCert['tbsCertList']):
+                if (!empty($this->CAs)) {
+                    for ($i = 0; $i < count($this->CAs); $i++) {
+                        $ca = $this->CAs[$i];
+                        if ($this->currentCert['tbsCertList']['issuer'] === $ca['tbsCertificate']['subject']) {
+                            $authorityKey = $this->getCRLExtension('id-ce-authorityKeyIdentifier');
+                            $subjectKeyID = $this->getExtension('id-ce-subjectKeyIdentifier', $ca);
+                            switch (true) {
+                                case !is_array($authorityKey):
+                                case is_array($authorityKey) && isset($authorityKey['keyIdentifier']) && $authorityKey['keyIdentifier'] === $subjectKeyID:
+                                    $signingCert = $ca; // working cert
+                                    break 2;
+                            }
+                        }
+                    }
+                }
+                if (!isset($signingCert)) {
+                    return 0;
+                }
+                return $this->_validateSignature(
+                    $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
+                    $signingCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'],
                     $this->currentCert['signatureAlgorithm']['algorithm'],
                     substr(base64_decode($this->currentCert['signature']), 1),
                     $this->signatureSubject
@@ -2153,6 +2360,12 @@ class File_X509 {
 
         $asn1->loadOIDs($this->oids);
         $decoded = $asn1->decodeBER($csr);
+
+        if (empty($decoded)) {
+            $this->currentCert = false;
+            return false;
+        }
+
         $csr = $asn1->asn1map($decoded[0], $this->CertificationRequest);
         if (!isset($csr) || $csr === false) {
             $this->currentCert = false;
@@ -2180,6 +2393,7 @@ class File_X509 {
                 $this->publicKey = NULL;
         }
 
+        $this->keyIdentifier = NULL;
         $this->currentCert = $csr;
 
         return $csr;
@@ -2220,6 +2434,103 @@ class File_X509 {
     }
 
     /**
+     * Load a Certificate Revocation List
+     *
+     * @param String $crl
+     * @access public
+     * @return Mixed
+     */
+    function loadCRL($crl)
+    {
+        $asn1 = new File_ASN1();
+
+        $crl = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]#', '', $crl);
+        $orig = $crl = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $crl) ? base64_decode($crl) : false;
+
+        if ($crl === false) {
+            $this->currentCert = false;
+            return false;
+        }
+
+        $asn1->loadOIDs($this->oids);
+        $decoded = $asn1->decodeBER($crl);
+
+        if (empty($decoded)) {
+            $this->currentCert = false;
+            return false;
+        }
+
+        $crl = $asn1->asn1map($decoded[0], $this->CertificateList);
+        if (!isset($crl) || $crl === false) {
+            $this->currentCert = false;
+            return false;
+        }
+
+        $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
+
+        $this->_mapInExtensions($crl, 'tbsCertList/crlExtensions', $asn1);
+        $rclist = &$this->_subArray($crl,'tbsCertList/revokedCertificates');
+        if (is_array($rclist)) {
+            foreach ($rclist as $i => $extension) {
+                $this->_mapInExtensions($rclist, "$i/crlEntryExtensions", $asn1);
+            }
+        }
+
+        $this->keyIdentifier = NULL;
+        $this->currentCert = $crl;
+
+        return $crl;
+    }
+
+    /**
+     * Save Certificate Revocation List.
+     *
+     * @param Array $crl
+     * @access public
+     * @return String
+     */
+    function saveCRL($crl)
+    {
+        if (!is_array($crl) || !isset($crl['tbsCertList'])) {
+            return false;
+        }
+
+        $asn1 = new File_ASN1();
+
+        $asn1->loadOIDs($this->oids);
+
+        $filters = array();
+        $filters['tbsCertList']['issuer']['rdnSequence']['value'] = 
+        $filters['tbsCertList']['signature']['parameters'] = 
+        $filters['signatureAlgorithm']['parameters'] = 
+            array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+
+        if (empty($crl['tbsCertList']['signature']['parameters'])) {
+            $filters['tbsCertList']['signature']['parameters'] = 
+                array('type' => FILE_ASN1_TYPE_NULL);
+        }
+
+        if (empty($crl['signatureAlgorithm']['parameters'])) {
+            $filters['signatureAlgorithm']['parameters'] = 
+                array('type' => FILE_ASN1_TYPE_NULL);
+        }
+
+        $asn1->loadFilters($filters);
+
+        $this->_mapOutExtensions($crl, 'tbsCertList/crlExtensions', $asn1);
+        $rclist = &$this->_subArray($crl,'tbsCertList/revokedCertificates');
+        if (is_array($rclist)) {
+            foreach ($rclist as $i => $extension) {
+                $this->_mapOutExtensions($rclist, "$i/crlEntryExtensions", $asn1);
+            }
+        }
+
+        $crl = $asn1->encodeDER($crl, $this->CertificateList);
+
+        return "-----BEGIN X509 CRL-----\r\n" . chunk_split(base64_encode($crl)) . '-----END X509 CRL-----';
+    }
+
+    /**
      * Sign an X.509 certificate
      *
      * $issuer's private key needs to be loaded.
@@ -2242,8 +2553,8 @@ class File_X509 {
             return false;
         }
 
-        $currentCert = $this->currentCert;
-        $signatureSubject = $this->signatureSubject;
+        $currentCert = isset($this->currentCert) ? $this->currentCert : NULL;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: NULL;
 
         if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
             $this->currentCert = $subject->currentCert;
@@ -2271,6 +2582,8 @@ class File_X509 {
             if (isset($subject->domains)) {
                 $this->removeExtension('id-ce-subjectAltName');
             }
+        } else if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertList'])) {
+            return false;
         } else {
             if (!isset($subject->publicKey)) {
                 return false;
@@ -2281,7 +2594,7 @@ class File_X509 {
             $serialNumber = !empty($this->serialNumber) ? $this->serialNumber : new Math_BigInteger();
 
             $this->currentCert = array(
-	        'tbsCertificate' =>
+                'tbsCertificate' =>
                     array(
                         'version' => 'v3',
                         'serialNumber' => $serialNumber, // $this->setserialNumber()
@@ -2294,19 +2607,15 @@ class File_X509 {
                         'subject' => $subject->dn,
                         'subjectPublicKeyInfo' => $subjectPublicKey
                     ),
-                 'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
-                 'signature'          => false // this is going to be overwritten later
+                'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                'signature'          => false // this is going to be overwritten later
             );
         }
 
         $this->currentCert['tbsCertificate']['issuer'] = $issuer->dn;
 
         if (isset($issuer->keyIdentifier)) {
-            $extensions = &$this->currentCert['tbsCertificate']['extensions'];
-            $extensions[] = array(
-                'extnId'   => 'id-ce-authorityKeyIdentifier',
-                'critical' => false,
-                'extnValue'=> array(
+            $this->setExtension('id-ce-authorityKeyIdentifier', array(
                     //'authorityCertIssuer' => array(
                     //    array(
                     //        'directoryName' => $issuer->dn
@@ -2315,31 +2624,21 @@ class File_X509 {
                     'keyIdentifier' => $issuer->keyIdentifier
                 )
             );
+            //$extensions = &$this->currentCert['tbsCertificate']['extensions'];
             //if (isset($issuer->serialNumber)) {
             //    $extensions[count($extensions) - 1]['authorityCertSerialNumber'] = $issuer->serialNumber;
             //}
-            unset($extensions);
+            //unset($extensions);
         }
 
         if (isset($subject->keyIdentifier)) {
-            $this->removeExtension('id-ce-subjectKeyIdentifier');
-            $this->currentCert['tbsCertificate']['extensions'][] = array(
-                'extnId'   => 'id-ce-subjectKeyIdentifier',
-                'critical' => false,
-                'extnValue'=> $subject->keyIdentifier
-            );
+            $this->setExtension('id-ce-subjectKeyIdentifier', $subject->keyIdentifier);
         }
 
         if (isset($subject->domains) && count($subject->domains) > 1) {
-            $this->currentCert['tbsCertificate']['extensions'][] = array(
-	        'extnId' => 'id-ce-subjectAltName',
-	        'critical' => false,
-	        'extnValue' => array()
-            );
-            $last = count($this->currentCert['tbsCertificate']['extensions']) - 1;
-            foreach ($subject->domains as $domain) {
-                $this->currentCert['tbsCertificate']['extensions'][$last]['extnValue'][] = array('dNSName' => $domain);
-            }
+            $this->setExtension('id-ce-subjectAltName',
+                array_map(create_function('$domain',
+                    'return array("dNSName" => $domain);'), $subject->domains));
         }
 
         if ($this->caFlag) {
@@ -2347,25 +2646,18 @@ class File_X509 {
             if (!$keyUsage) {
                 $keyUsage = array();
             }
-            $this->removeExtension('id-ce-keyUsage');
 
-            $this->currentCert['tbsCertificate']['extensions'][] = array(
-	        'extnId' => 'id-ce-keyUsage',
-	        'critical' => false,
-	        'extnValue' => array_values(array_unique(array_merge($keyUsage, array('cRLSign', 'keyCertSign'))))
+            $this->setExtension('id-ce-keyUsage',
+                array_values(array_unique(array_merge($keyUsage, array('cRLSign', 'keyCertSign'))))
             );
 
             $basicConstraints = $this->getExtension('id-ce-basicConstraints');
             if (!$basicConstraints) {
                 $basicConstraints = array();
             }
-            $this->removeExtension('id-ce-basicConstraints');
 
-            $this->currentCert['tbsCertificate']['extensions'][] = array(
-	        'extnId' => 'id-ce-basicConstraints',
-	        'critical' => true,
-	        'extnValue' => array_unique(array_merge(array('cA' => true), $basicConstraints))
-            );
+            $this->setExtension('id-ce-basicConstraints',
+                array_unique(array_merge(array('cA' => true), $basicConstraints)), true);
         }
 
         // resync $this->signatureSubject
@@ -2404,8 +2696,8 @@ class File_X509 {
         }
         $this->publicKey = $origPublicKey;
 
-        $currentCert = $this->currentCert;
-        $signatureSubject = $this->signatureSubject;
+        $currentCert = isset($this->currentCert) ? $this->currentCert : NULL;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: NULL;
 
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['certificationRequestInfo'])) {
             $this->currentCert['signatureAlgorithm']['algorithm'] =
@@ -2416,14 +2708,14 @@ class File_X509 {
             $this->currentCert['certificationRequestInfo']['subjectPKInfo'] = $publicKey;
         } else {
             $this->currentCert = array(
-	        'certificationRequestInfo' =>
+                'certificationRequestInfo' =>
                     array(
                         'version' => 'v1',
                         'subject' => $this->dn,
                         'subjectPKInfo' => $publicKey
                     ),
-                 'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
-                 'signature'          => false // this is going to be overwritten later
+                'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                'signature'          => false // this is going to be overwritten later
             );
         }
 
@@ -2434,6 +2726,136 @@ class File_X509 {
 
         $result = $this->_sign($this->privateKey, $signatureAlgorithm);
         $result['certificationRequestInfo'] = $certificationRequestInfo;
+
+        $this->currentCert = $currentCert;
+        $this->signatureSubject = $signatureSubject;
+
+        return $result;
+    }
+
+    /**
+     * Sign a CRL
+     *
+     * $issuer's private key needs to be loaded.
+     *
+     * @param File_X509 $issuer
+     * @param File_X509 $crl
+     * @param String $signatureAlgorithm optional
+     * @access public
+     * @return Mixed
+     */
+    function signCRL($issuer, $crl, $signatureAlgorithm = 'sha1WithRSAEncryption')
+    {
+        if (!is_object($issuer->privateKey) || empty($issuer->dn)) {
+            return false;
+        }
+
+        $currentCert = isset($this->currentCert) ? $this->currentCert : NULL;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : NULL;
+        $thisUpdate = !empty($this->startDate) ? $this->startDate : @date('M j H:i:s Y T');
+
+        if (isset($crl->currentCert) && is_array($crl->currentCert) && isset($crl->currentCert['tbsCertList'])) {
+            $this->currentCert = $crl->currentCert;
+            $this->currentCert['tbsCertList']['signature']['algorithm'] = $signatureAlgorithm;
+            $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
+        } else {
+            $this->currentCert = array(
+                'tbsCertList' =>
+                    array(
+                        'version' => 'v2',
+                        'signature' => array('algorithm' => $signatureAlgorithm),
+                        'issuer' => false, // this is going to be overwritten later
+                        'thisUpdate' => array('generalTime' => $thisUpdate) // $this->setStartDate()
+                    ),
+                'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                'signature'          => false // this is going to be overwritten later
+            );
+        }
+
+        $tbsCertList = &$this->currentCert['tbsCertList'];
+        $tbsCertList['issuer'] = $issuer->dn;
+        $tbsCertList['thisUpdate'] = array('generalTime' => $thisUpdate);
+
+        if (!empty($this->endDate)) {
+            $tbsCertList['nextUpdate'] = array('generalTime' => $this->endDate); // $this->setEndDate()
+        }
+        else {
+            unset($tbsCertList['nextUpdate']);
+        }
+
+        if (!empty($this->serialNumber)) {
+            $crlNumber = $this->serialNumber;
+        }
+        else {
+            $crlNumber = $this->getCRLExtension('id-ce-cRLNumber');
+            $crlNumber = $crlNumber !== false ? $crlNumber->add(new Math_BigInteger(1)) : NULL;
+            }
+
+        $this->removeCRLExtension('id-ce-authorityKeyIdentifier');
+        $this->removeCRLExtension('id-ce-issuerAltName');
+
+        // Be sure version >= v2 if some extension found.
+        $version = isset($tbsCertList['version']) ? $tbsCertList['version'] : 0;
+        if (!$version) {
+            if (!empty($tbsCertList['crlExtensions'])) {
+                $version = 1; // v2.
+            }
+            elseif (!empty($tbsCertList['revokedCertificates'])) {
+                foreach ($tbsCertList['revokedCertificates'] as $cert) {
+                    if (!empty($cert['crlEntryExtensions'])) {
+                        $version = 1; // v2.
+                    }
+                }
+            }
+
+            if ($version) {
+                $tbsCertList['version'] = $version;
+            }
+        }
+
+        // Store additional extensions.
+        if (!empty($tbsCertList['version'])) { // At least v2.
+            if (!empty($crlNumber)) {
+                $this->setCRLExtension('id-ce-cRLNumber', $crlNumber);
+            }
+
+            if (isset($issuer->keyIdentifier)) {
+                $this->setCRLExtension('id-ce-authorityKeyIdentifier', array(
+                        //'authorityCertIssuer' => array(
+                        //    array(
+                        //        'directoryName' => $issuer->dn
+                        //    )
+                        //),
+                        'keyIdentifier' => $issuer->keyIdentifier
+                    )
+                );
+                //$extensions = &$tbsCertList['crlExtensions'];
+                //if (isset($issuer->serialNumber)) {
+                //    $extensions[count($extensions) - 1]['authorityCertSerialNumber'] = $issuer->serialNumber;
+                //}
+                //unset($extensions);
+            }
+
+            $issuerAltName = $this->getExtension('id-ce-subjectAltName', $issuer->currentCert);
+
+            if ($issuerAltName !== false) {
+                $this->setCRLExtension('id-ce-issuerAltName', $issuerAltName);
+            }
+        }
+
+        if (empty($tbsCertList['revokedCertificates'])) {
+            unset($tbsCertList['revokedCertificates']);
+        }
+
+        unset($tbsCertList);
+
+        // resync $this->signatureSubject
+        // save $tbsCertList in case there are any File_ASN1_Element objects in it
+        $tbsCertList = $this->currentCert['tbsCertList'];
+        $this->loadCRL($this->saveCRL($this->currentCert));
+
+        $result = $this->_sign($issuer->privateKey, $signatureAlgorithm);
+        $result['tbsCertList'] = $tbsCertList;
 
         $this->currentCert = $currentCert;
         $this->signatureSubject = $signatureSubject;
@@ -2513,11 +2935,12 @@ class File_X509 {
      * Set Serial Number
      *
      * @param String $serial
+     * @param $base optional
      * @access public
      */
-    function setSerialNumber($serial)
+    function setSerialNumber($serial, $base = -256)
     {
-        $this->serialNumber = new Math_BigInteger($serial, -256);
+        $this->serialNumber = new Math_BigInteger($serial, $base);
     }
 
     /**
@@ -2531,22 +2954,58 @@ class File_X509 {
     }
 
     /**
+     * Get a reference to a subarray
+     *
+     * @param array $root
+     * @param String $path  absolute path with / as component separator
+     * @param Boolean $create optional
+     * @access private
+     * @return array item ref or false
+     */
+    function &_subArray(&$root, $path, $create = false)
+    {
+        $false = false;
+
+        if (!is_array($root)) {
+            return $false;
+        }
+
+        foreach (explode('/', $path) as $i) {
+            if (!is_array($root)) {
+                return $false;
+            }
+
+            if (!isset($root[$i])) {
+                if (!$create) {
+                    return $false;
+                }
+
+                $root[$i] = array();
+            }
+
+            $root = &$root[$i];
+        }
+
+        return $root;
+    }
+
+    /**
      * Remove an Extension
      *
      * @param String $id
+     * @param String $path optional
      * @access public
      * @return Boolean
      */
-    function removeExtension($id)
+    function removeExtension($id, $path = 'tbsCertificate/extensions')
     {
-        switch (true) {
-            case !is_array($this->currentCert):
-            case !isset($this->currentCert['tbsCertificate']['extensions']):
-                return false;
+        $extensions = &$this->_subArray($this->currentCert, $path);
+
+        if (!is_array($extensions)) {
+            return false;
         }
 
         $result = false;
-        $extensions = &$this->currentCert['tbsCertificate']['extensions'];
         foreach ($extensions as $key => $value) {
             if ($value['extnId'] == $id) {
                 unset($extensions[$key]);
@@ -2560,27 +3019,41 @@ class File_X509 {
     }
 
     /**
+     * Remove a CRL Extension
+     *
+     * @param String $id
+     * @access public
+     * @return Boolean
+     */
+    function removeCRLExtension($id)
+    {
+        return $this->removeExtension($id, 'tbsCertList/crlExtensions');
+    }
+
+    /**
      * Get an Extension
      *
      * Returns the extension if it exists and false if not
      *
      * @param String $id
+     * @param Array $cert optional
+     * @param String $path optional
      * @access public
      * @return Mixed
      */
-    function getExtension($id, $cert = NULL)
+    function getExtension($id, $cert = NULL, $path = 'tbsCertificate/extensions')
     {
         if (!isset($cert)) {
             $cert = $this->currentCert;
         }
 
-        switch (true) {
-            case !is_array($cert):
-            case !isset($cert['tbsCertificate']['extensions']):
-                return false;
+        $extensions = $this->_subArray($cert, $path);
+
+        if (!is_array($extensions)) {
+            return false;
         }
 
-        foreach ($cert['tbsCertificate']['extensions'] as $key => $value) {
+        foreach ($extensions as $key => $value) {
             if ($value['extnId'] == $id) {
                 return $value['extnValue'];
             }
@@ -2590,29 +3063,107 @@ class File_X509 {
     }
 
     /**
+     * Get a CRL Extension
+     *
+     * Returns the extension if it exists and false if not
+     *
+     * @param String $id
+     * @param Array $crl optional
+     * @access public
+     * @return Mixed
+     */
+    function getCRLExtension($id, $crl = NULL)
+    {
+        return $this->getExtension($id, $crl, 'tbsCertList/crlExtensions');
+    }
+
+    /**
      * Returns a list of all extensions in use
      *
+     * @param array $cert optional
+     * @param String $path optional
      * @access public
      * @return Array
      */
-    function getExtensions($cert = NULL)
+    function getExtensions($cert = NULL, $path = 'tbsCertificate/extensions')
     {
         if (!isset($cert)) {
             $cert = $this->currentCert;
         }
 
-        switch (true) {
-            case !is_array($cert):
-            case !isset($cert['tbsCertificate']['extensions']):
-                return array();
-        }
-
+        $exts = $this->_subArray($cert, $path);
         $extensions = array();
-        foreach ($cert['tbsCertificate']['extensions'] as $extension) {
-            $extensions[] = $extension['extnId'];
+
+        if (is_array($exts)) {
+            foreach ($exts as $extension) {
+                $extensions[] = $extension['extnId'];
+            }
         }
 
         return $extensions;
+    }
+
+    /**
+     * Returns a list of all CRL extensions in use
+     *
+     * @param array $crl optional
+     * @access public
+     * @return Array
+     */
+    function getCRLExtensions($crl = NULL)
+    {
+        return $this->getExtensions($crl, 'tbsCertList/crlExtensions');
+    }
+
+    /**
+     * Set an Extension
+     *
+     * @param String $id
+     * @param Mixed $value
+     * @param Boolean $critical optional
+     * @param Boolean $replace optional
+     * @param String $path optional
+     * @access public
+     * @return Boolean
+     */
+    function setExtension($id, $value, $critical = false, $replace = true, $path = 'tbsCertificate/extensions')
+    {
+        $extensions = &$this->_subArray($this->currentCert, $path, true);
+
+        if (!is_array($extensions)) {
+            return false;
+        }
+
+        $newext = array('extnId'  => $id, 'critical' => $critical, 'extnValue' => $value);
+
+        foreach ($extensions as $key => $value) {
+            if ($value['extnId'] == $id) {
+                if (!$replace) {
+                    return false;
+                }
+
+                $extensions[$key] = $newext;
+                return true;
+            }
+        }
+
+        $extensions[] = $newext;
+        return true;
+    }
+
+    /**
+     * Set a CRL Extension
+     *
+     * @param String $id
+     * @param Mixed $value
+     * @param Boolean $critical optional
+     * @param Boolean $replace optional
+     * @access public
+     * @return Boolean
+     */
+    function setCRLExtension($id, $value, $critical = false, $replace = true)
+    {
+        return $this->setExtension($id, $value, $critical, $replace, 'tbsCertList/crlExtensions');
     }
 
     /**
@@ -2669,5 +3220,221 @@ class File_X509 {
         $this->domains = func_get_args();
         $this->removeDNProp('id-at-commonName');
         $this->setDNProp('id-at-commonName', $this->domains[0]);
+    }
+
+    /**
+     * Get the index of a revoked certificate.
+     *
+     * @param array $rclist
+     * @param String $serial
+     * @param Boolean $create optional
+     * @access private
+     * @return Integer or false
+     */
+
+    function _revokedCertificate(&$rclist, $serial, $create = false)
+    {
+        $serial = new Math_BigInteger($serial);
+
+        foreach ($rclist as $i => $rc) {
+            if (!($serial->compare($rc['userCertificate']))) {
+                return $i;
+            }
+        }
+
+        if (!$create) {
+            return false;
+        }
+
+        $i = count($rclist);
+        $rclist[] = array('userCertificate' => $serial,
+                          'revocationDate'  => array('generalTime' => @date('M j H:i:s Y T')));
+        return $i;
+    }
+
+    /**
+     * Revoke a certificate.
+     *
+     * @param String $serial
+     * @param String $date optional
+     * @access public
+     * @return Boolean
+     */
+    function revoke($serial, $date = NULL)
+    {
+        if (isset($this->currentCert['tbsCertList'])) {
+            if (is_array($rclist = &$this->_subArray($this->currentCert, 'tbsCertList/revokedCertificates', true))) {
+                if ($this->_revokedCertificate($rclist, $serial) === false) { // If not yet revoked
+                    if (($i = $this->_revokedCertificate($rclist, $serial, true)) !== false) {
+
+                        if (!empty($date)) {
+                            $rclist[$i]['revocationDate'] = array('generalTime' => $date);
+                        }
+
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Unrevoke a certificate.
+     *
+     * @param String $serial
+     * @access public
+     * @return Boolean
+     */
+    function unrevoke($serial)
+    {
+        if (is_array($rclist = &$this->_subArray($this->currentCert, 'tbsCertList/revokedCertificates'))) {
+            if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
+                unset($rclist[$i]);
+                $rclist = array_values($rclist);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get a revoked certificate.
+     *
+     * @param String $serial
+     * @access public
+     * @return Mixed
+     */
+    function getRevoked($serial)
+    {
+        if (is_array($rclist = $this->_subArray($this->currentCert, 'tbsCertList/revokedCertificates'))) {
+            if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
+                return $rclist[$i];
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * List revoked certificates
+     *
+     * @param array $crl optional
+     * @access public
+     * @return array
+     */
+    function listRevoked($crl = NULL)
+    {
+        if (!isset($crl)) {
+            $crl = $this->currentCert;
+        }
+
+        if (!isset($crl['tbsCertList'])) {
+            return false;
+        }
+
+        $result = array();
+
+        if (!is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
+            foreach ($rclist as $rc) {
+                $result[] = $rc['userCertificate']->toString();
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Remove a Revoked Certificate Extension
+     *
+     * @param String $serial
+     * @param String $id
+     * @access public
+     * @return Boolean
+     */
+    function removeRevokedCertificateExtension($serial, $id)
+    {
+        if (is_array($rclist = &$this->_subArray($this->currentCert, 'tbsCertList/revokedCertificates'))) {
+            if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
+                return $this->removeExtension($id, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get a Revoked Certificate Extension
+     *
+     * Returns the extension if it exists and false if not
+     *
+     * @param String $serial
+     * @param String $id
+     * @param Array $crl optional
+     * @access public
+     * @return Mixed
+     */
+    function getRevokedCertificateExtension($serial, $id, $crl = NULL)
+    {
+        if (!isset($crl)) {
+            $crl = $this->currentCert;
+        }
+
+        if (is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
+            if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
+                return $this->getExtension($id, $crl,  "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns a list of all extensions in use for a given revoked certificate
+     *
+     * @param String $serial
+     * @param array $crl optional
+     * @access public
+     * @return Array
+     */
+    function getRevokedCertificateExtensions($serial, $crl = NULL)
+    {
+        if (!isset($crl)) {
+            $crl = $this->currentCert;
+        }
+
+        if (is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
+            if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
+                return $this->getExtensions($crl, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Set a Revoked Certificate Extension
+     *
+     * @param String $serial
+     * @param String $id
+     * @param Mixed $value
+     * @param Boolean $critical optional
+     * @param Boolean $replace optional
+     * @access public
+     * @return Boolean
+     */
+    function setRevokedCertificateExtension($serial, $id, $value, $critical = false, $replace = true)
+    {
+        if (isset($this->currentCert['tbsCertList'])) {
+            if (is_array($rclist = &$this->_subArray($this->currentCert, 'tbsCertList/revokedCertificates', true))) {
+                if (($i = $this->_revokedCertificate($rclist, $serial, true)) !== false) {
+                    return $this->setExtension($id, $value, $critical, $replace, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
+                }
+            }
+        }
+
+        return false;
     }
 }
