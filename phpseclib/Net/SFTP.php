@@ -592,7 +592,11 @@ class Net_SFTP extends Net_SSH2 {
 
         // if $this->pwd isn't set than the only thing $realpath could be is for '.', which is pretty much guaranteed to
         // be a bonafide directory
-        return $realpath . '/' . $file;
+        if (!empty($file)) {
+            $realpath.= '/' . $file;
+        }
+
+        return $realpath;
     }
 
     /**
@@ -1136,7 +1140,11 @@ class Net_SFTP extends Net_SSH2 {
             return $this->chmod($mode, $path);
         }
 
-        // presumably $entries will never be empty because it'll always have . and ..
+        // normally $entries would have at least . and .. but it might not if the directories
+        // permissions didn't allow reading
+        if (empty($entries)) {
+            return false;
+        }
 
         foreach ($entries as $filename=>$props) {
             if ($filename == '.' || $filename == '..') {
@@ -1605,7 +1613,11 @@ class Net_SFTP extends Net_SSH2 {
         $i = 0;
         $entries = $this->_list($path, true, false);
 
-        // presumably $entries will never be empty because it'll always have . and ..
+        // normally $entries would have at least . and .. but it might not if the directories
+        // permissions didn't allow reading
+        if (empty($entries)) {
+            return false;
+        }
 
         foreach ($entries as $filename=>$props) {
             if ($filename == '.' || $filename == '..') {
