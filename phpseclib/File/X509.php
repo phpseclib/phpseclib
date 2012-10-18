@@ -217,7 +217,7 @@ class File_X509 {
      * @var String
      * @access private
      */
-    var $keyIdentifier;
+    var $currentKeyIdentifier;
 
     /**
      * CA Flag
@@ -1362,8 +1362,8 @@ class File_X509 {
         $this->currentCert = $x509;
         $this->dn = $x509['tbsCertificate']['subject'];
 
-        $keyIdentifier = $this->getExtension('id-ce-subjectKeyIdentifier');
-        $this->keyIdentifier = is_string($keyIdentifier) ? $keyIdentifier : NULL;
+        $currentKeyIdentifier = $this->getExtension('id-ce-subjectKeyIdentifier');
+        $this->currentKeyIdentifier = is_string($currentKeyIdentifier) ? $currentKeyIdentifier : NULL;
 
         return $x509;
     }
@@ -2393,7 +2393,7 @@ class File_X509 {
                 $this->publicKey = NULL;
         }
 
-        $this->keyIdentifier = NULL;
+        $this->currentKeyIdentifier = NULL;
         $this->currentCert = $csr;
 
         return $csr;
@@ -2476,7 +2476,7 @@ class File_X509 {
             }
         }
 
-        $this->keyIdentifier = NULL;
+        $this->currentKeyIdentifier = NULL;
         $this->currentCert = $crl;
 
         return $crl;
@@ -2614,14 +2614,14 @@ class File_X509 {
 
         $this->currentCert['tbsCertificate']['issuer'] = $issuer->dn;
 
-        if (isset($issuer->keyIdentifier)) {
+        if (isset($issuer->currentKeyIdentifier)) {
             $this->setExtension('id-ce-authorityKeyIdentifier', array(
                     //'authorityCertIssuer' => array(
                     //    array(
                     //        'directoryName' => $issuer->dn
                     //    )
                     //),
-                    'keyIdentifier' => $issuer->keyIdentifier
+                    'keyIdentifier' => $issuer->currentKeyIdentifier
                 )
             );
             //$extensions = &$this->currentCert['tbsCertificate']['extensions'];
@@ -2631,8 +2631,8 @@ class File_X509 {
             //unset($extensions);
         }
 
-        if (isset($subject->keyIdentifier)) {
-            $this->setExtension('id-ce-subjectKeyIdentifier', $subject->keyIdentifier);
+        if (isset($subject->currentKeyIdentifier)) {
+            $this->setExtension('id-ce-subjectKeyIdentifier', $subject->currentKeyIdentifier);
         }
 
         if (isset($subject->domains) && count($subject->domains) > 1) {
@@ -2819,14 +2819,14 @@ class File_X509 {
                 $this->setCRLExtension('id-ce-cRLNumber', $crlNumber);
             }
 
-            if (isset($issuer->keyIdentifier)) {
+            if (isset($issuer->currentKeyIdentifier)) {
                 $this->setCRLExtension('id-ce-authorityKeyIdentifier', array(
                         //'authorityCertIssuer' => array(
                         //    array(
                         //        'directoryName' => $issuer->dn
                         //    )
                         //),
-                        'keyIdentifier' => $issuer->keyIdentifier
+                        'keyIdentifier' => $issuer->currentKeyIdentifier
                     )
                 );
                 //$extensions = &$tbsCertList['crlExtensions'];
@@ -3177,9 +3177,9 @@ class File_X509 {
     function setKeyIdentifier($value)
     {
         if (empty($value)) {
-            unset($this->keyIdentifier);
+            unset($this->currentKeyIdentifier);
         } else {
-            $this->keyIdentifier = base64_encode($value);
+            $this->currentKeyIdentifier = base64_encode($value);
         }
     }
 
