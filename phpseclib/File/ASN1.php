@@ -728,8 +728,8 @@ class File_ASN1 {
             return $source->element;
         }
 
-        // do not encode optional fields with value set to default
-        if (!empty($mapping['optional']) && isset($mapping['default']) && $source === $mapping['default']) {
+        // do not encode (implicitly optional) fields with value set to default
+        if (isset($mapping['default']) && $source === $mapping['default']) {
             return '';
         }
 
@@ -740,6 +740,7 @@ class File_ASN1 {
         $tag = $mapping['type'];
 
         switch ($tag) {
+            case FILE_ASN1_TYPE_SET:    // Children order is not important, thus process in sequence.
             case FILE_ASN1_TYPE_SEQUENCE:
                 $tag|= 0x20; // set the constructed bit
                 $value = '';
@@ -766,13 +767,19 @@ class File_ASN1 {
                         continue;
                     }
 
+                    $temp = $this->_encode_der($source[$key], $child, $key);
+                    if ($temp === false) {
+                        return false;
+                    }
+
+                    // An empty child encoding means it has been optimized out.
+                    // Else we should have at least one tag byte.
+                    if ($temp === '') {
+                        continue;
+                    }
+
                     // if isset($child['constant']) is true then isset($child['optional']) should be true as well
                     if (isset($child['constant'])) {
-                        $temp = $this->_encode_der($source[$key], $child, $key);
-                        if ($temp === false) {
-                            return false;
-                        }
-
                         /*
                            From X.680-0207.pdf#page=58 (30.6):
 
@@ -789,63 +796,8 @@ class File_ASN1 {
                             $subtag = chr((FILE_ASN1_CLASS_CONTEXT_SPECIFIC << 6) | (ord($temp[0]) & 0x20) | $child['constant']);
                             $temp = $subtag . substr($temp, 1);
                         }
-                    } else {
-                        $temp = $this->_encode_der($source[$key], $child, $key);
-                        if ($temp === false) {
-                            return false;
-                        }
                     }
                     $value.= $temp;
-                }
-                break;
-            // the main diff between sets and sequences is the encapsulation of the foreach in another for loop
-            case FILE_ASN1_TYPE_SET:
-                $tag|= 0x20;
-                $value = '';
-
-                // ignore the min and max
-                if (isset($mapping['min']) && isset($mapping['max'])) {
-                    $child = $mapping['children'];
-                    foreach ($source as $content) {
-                        $temp = $this->_encode_der($content, $child);
-                        if ($temp === false) {
-                            return false;
-                        }
-                        $value.= $temp;
-                    }
-                    break;
-                }
-
-                for ($i = 0; $i < count($source[$key]); $i++) {
-                    foreach ($mapping['children'] as $key => $child) {
-                        if (!isset($source[$key])) {
-                            if (!isset($child['optional'])) {
-                                return false;
-                            }
-                            continue;
-                        }
-
-                        // if isset($child['constant']) is true then isset($child['optional']) should be true as well
-                        if (isset($child['constant'])) {
-                            $temp = $this->_encode_der($source[$key][$i], $child, $key);
-                            if ($temp === false) {
-                                return false;
-                            }
-                            if (isset($child['explicit']) || $child['type'] == FILE_ASN1_TYPE_CHOICE) {
-                                $subtag = chr((FILE_ASN1_CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | $child['constant']);
-                                $temp = $subtag . $this->_encodeLength(strlen($temp)) . $temp;
-                            } else {
-                                $subtag = chr((FILE_ASN1_CLASS_CONTEXT_SPECIFIC << 6) | (ord($temp[0]) & 0x20) | $child['constant']);
-                                $temp = $subtag . substr($temp, 1);
-                            }
-                        } else {
-                            $temp = $this->_encode_der($source[$key][$i], $child, $key);
-                            if ($temp === false) {
-                                return false;
-                            }
-                        }
-                        $value.= $temp;
-                    }
                 }
                 break;
             case FILE_ASN1_TYPE_CHOICE:
@@ -857,23 +809,26 @@ class File_ASN1 {
                     }
 
                     $temp = $this->_encode_der($source[$key], $child, $key);
+                    if ($temp === false) {
+                        return false;
+                    }
+
+                    // An empty child encoding means it has been optimized out.
+                    // Else we should have at least one tag byte.
+                    if ($temp === '') {
+                        continue;
+                    }
+
                     $tag = ord($temp[0]);
 
                     // if isset($child['constant']) is true then isset($child['optional']) should be true as well
                     if (isset($child['constant'])) {
-                        if ($temp === false) {
-                            return false;
-                        }
                         if (isset($child['explicit']) || $child['type'] == FILE_ASN1_TYPE_CHOICE) {
                             $subtag = chr((FILE_ASN1_CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | $child['constant']);
                             $temp = $subtag . $this->_encodeLength(strlen($temp)) . $temp;
                         } else {
                             $subtag = chr((FILE_ASN1_CLASS_CONTEXT_SPECIFIC << 6) | (ord($temp[0]) & 0x20) | $child['constant']);
                             $temp = $subtag . substr($temp, 1);
-                        }
-                    } else {
-                        if ($temp === false) {
-                            return false;
                         }
                     }
                 }
@@ -882,7 +837,7 @@ class File_ASN1 {
                     array_pop($this->location);
                 }
 
-                if (isset($mapping['cast'])) {
+                if ($temp && isset($mapping['cast'])) {
                     $temp[0] = chr(($mapping['class'] << 6) | ($tag & 0x20) | $mapping['cast']);
                 }
 
