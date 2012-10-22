@@ -2315,6 +2315,10 @@ class File_X509 {
      */
     function getPublicKey()
     {
+        if (isset($this->publicKey)) {
+            return $this->publicKey;
+        }
+
         if (!isset($this->currentCert) || !is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
             return false;
         }
