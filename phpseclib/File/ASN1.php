@@ -196,6 +196,41 @@ class File_ASN1 {
     var $filters;
 
     /**
+     * Type mapping table for the ANY type.
+     *
+     * Structured or unknown types are mapped to a FILE_ASN1_Element.
+     * Unambiguous types get the direct mapping (int/real/bool).
+     * Others are mapped as a choice, with an extra indexing level.
+     *
+     * @var Array
+     * @access private
+     */
+    var $ANYmap = array(
+        FILE_ASN1_TYPE_BOOLEAN              => true,
+        FILE_ASN1_TYPE_INTEGER              => true,
+        FILE_ASN1_TYPE_BIT_STRING           => 'bitString',
+        FILE_ASN1_TYPE_OCTET_STRING         => 'octetString',
+        FILE_ASN1_TYPE_NULL                 => 'null',
+        FILE_ASN1_TYPE_OBJECT_IDENTIFIER    => 'objectIdentifier',
+        FILE_ASN1_TYPE_REAL                 => true,
+        FILE_ASN1_TYPE_ENUMERATED           => 'enumerated',
+        FILE_ASN1_TYPE_UTF8_STRING          => 'utf8String',
+        FILE_ASN1_TYPE_NUMERIC_STRING       => 'numericString',
+        FILE_ASN1_TYPE_PRINTABLE_STRING     => 'printableString',
+        FILE_ASN1_TYPE_TELETEX_STRING       => 'teletexString',
+        FILE_ASN1_TYPE_VIDEOTEX_STRING      => 'videotexString',
+        FILE_ASN1_TYPE_IA5_STRING           => 'ia5String',
+        FILE_ASN1_TYPE_UTC_TIME             => 'utcTime',
+        FILE_ASN1_TYPE_GENERALIZED_TIME     => 'generalTime',
+        FILE_ASN1_TYPE_GRAPHIC_STRING       => 'graphicString',
+        FILE_ASN1_TYPE_VISIBLE_STRING       => 'visibleString',
+        FILE_ASN1_TYPE_GENERAL_STRING       => 'generalString',
+        FILE_ASN1_TYPE_UNIVERSAL_STRING     => 'universalString',
+        //FILE_ASN1_TYPE_CHARACTER_STRING     => 'characterString',
+        FILE_ASN1_TYPE_BMP_STRING           => 'bmpString'
+    );
+
+    /**
      * Parse BER-encoding
      *
      * Serves a similar purpose to openssl's asn1parse
@@ -444,6 +479,16 @@ class File_ASN1 {
         }
 
         switch (true) {
+            case $mapping['type'] == FILE_ASN1_TYPE_ANY:
+                $intype = $decoded['type'];
+                if (isset($decoded['constant']) || !isset($this->ANYmap[$intype]) || ($this->encoded[$decoded['start']] & 0x20)) {
+                    return new File_ASN1_Element(substr($this->encoded, $decoded['start'], $decoded['length']));
+                }
+                $inmap = $this->ANYmap[$intype];
+                if (is_string($inmap)) {
+                    return array($inmap => $this->asn1map($decoded, array('type' => $intype) + $mapping));
+                }
+                break;
             case $mapping['type'] == FILE_ASN1_TYPE_CHOICE:
                 foreach ($mapping['children'] as $key => $option) {
                     switch (true) {
@@ -459,7 +504,6 @@ class File_ASN1 {
             case isset($mapping['implicit']):
             case isset($mapping['explicit']):
             case $decoded['type'] == $mapping['type']:
-            case $mapping['type'] == FILE_ASN1_TYPE_ANY:
                 break;
             default:
                 return NULL;
@@ -467,14 +511,6 @@ class File_ASN1 {
 
         if (isset($mapping['implicit'])) {
             $decoded['type'] = $mapping['type'];
-        }
-
-        if ($mapping['type'] == FILE_ASN1_TYPE_ANY) {
-            if ($decoded['type'] == FILE_ASN1_TYPE_SEQUENCE || $decoded['type'] == FILE_ASN1_TYPE_SET) {
-                // return $this->encode_der($decoded['content']);
-                //return serialize($decoded['content']);
-                return substr($this->encoded, $decoded['start'], $decoded['length']);
-            }
         }
 
         switch ($decoded['type']) {
@@ -920,14 +956,31 @@ class File_ASN1 {
                 }
                 break;
             case FILE_ASN1_TYPE_ANY:
-                if (!isset($source)) {
-                    if (isset($idx)) {
-                        array_pop($this->location);
-                    }
-                    return $this->_encode_der(NULL, array('type' => FILE_ASN1_TYPE_NULL));
+                $loc = $this->location;
+                if (isset($idx)) {
+                    array_pop($this->location);
                 }
+
+                switch (true) {
+                    case !isset($source):
+                        return $this->_encode_der(NULL, array('type' => FILE_ASN1_TYPE_NULL) + $mapping);
+                    case is_int($source):
+                    case is_object($source) && strtolower(get_class($source)) == 'math_biginteger':
+                        return $this->_encode_der($source, array('type' => FILE_ASN1_TYPE_INTEGER) + $mapping);
+                    case is_float($source):
+                        return $this->_encode_der($source, array('type' => FILE_ASN1_TYPE_REAL) + $mapping);
+                    case is_bool($source):
+                        return $this->_encode_der($source, array('type' => FILE_ASN1_TYPE_BOOLEAN) + $mapping);
+                    case is_array($source) && count($source) == 1:
+                        $typename = implode('', array_keys($source));
+                        $outtype = array_search($typename, $this->ANYmap, true);
+                        if ($outtype !== false) {
+                            return $this->_encode_der($source[$typename], array('type' => $outtype) + $mapping);
+                        }
+                    }
+
                 $filters = $this->filters;
-                foreach ($this->location as $part) {
+                foreach ($loc as $part) {
                     if (!isset($filters[$part])) {
                         $filters = false;
                         break;
@@ -935,13 +988,10 @@ class File_ASN1 {
                     $filters = $filters[$part];
                 }
                 if ($filters === false) {
-                    user_error('No filters defined for ' . implode('/', $this->location), E_USER_NOTICE);
+                    user_error('No filters defined for ' . implode('/', $loc), E_USER_NOTICE);
                     return false;
                 }
-                if (isset($idx)) {
-                    array_pop($this->location);
-                }
-                return $this->_encode_der($source, $filters);
+                return $this->_encode_der($source, $filters + $mapping);
             case FILE_ASN1_TYPE_NULL:
                 $value = '';
                 break;
@@ -953,6 +1003,9 @@ class File_ASN1 {
             case FILE_ASN1_TYPE_BMP_STRING:
             case FILE_ASN1_TYPE_IA5_STRING:
             case FILE_ASN1_TYPE_VISIBLE_STRING:
+            case FILE_ASN1_TYPE_VIDEOTEX_STRING:
+            case FILE_ASN1_TYPE_GRAPHIC_STRING:
+            case FILE_ASN1_TYPE_GENERAL_STRING:
                 $value = $source;
                 break;
             case FILE_ASN1_TYPE_BOOLEAN:
