@@ -100,6 +100,7 @@ class File_X509 {
 
     var $netscape_cert_type;
     var $netscape_comment;
+    var $netscape_ca_policy_url;
 
     var $CRLNumber;
     var $CRLReason;
@@ -979,6 +980,7 @@ class File_X509 {
         );
 
         $this->netscape_comment = array('type' => FILE_ASN1_TYPE_IA5_STRING);
+        $this->netscape_ca_policy_url = array('type' => FILE_ASN1_TYPE_IA5_STRING);
 
         // attribute is used in RFC2986 but we're using the RFC5280 definition
 
@@ -1296,6 +1298,7 @@ class File_X509 {
             '2.16.840.1.113730.1' => 'netscape-cert-extension',
             '2.16.840.1.113730.1.1' => 'netscape-cert-type',
             '2.16.840.1.113730.1.13' => 'netscape-comment',
+            '2.16.840.1.113730.1.8' => 'netscape-ca-policy-url',
             // the following are X.509 extensions not supported by phpseclib
             '1.3.6.1.5.5.7.1.12' => 'id-pe-logotype',
             '1.2.840.113533.7.65.0' => 'entrustVersInfo',
@@ -1574,6 +1577,8 @@ class File_X509 {
                 return $this->netscape_cert_type;
             case 'netscape-comment':
                 return $this->netscape_comment;
+            case 'netscape-ca-policy-url':
+                return $this->netscape_ca_policy_url;
 
             // since id-qt-cps isn't a constructed type it will have already been decoded as a string by the time it gets
             // back around to asn1map() and we don't want it decoded again.
@@ -2189,6 +2194,7 @@ class File_X509 {
         }
 
         $start = true;
+        $output = '';
         foreach ($dn['rdnSequence'] as $field) {
             $prop = $field[0]['type'];
             $value = $field[0]['value'];
