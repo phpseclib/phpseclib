@@ -260,6 +260,10 @@ class File_ASN1 {
     {
         $decoded = array();
 
+        if (is_object($encoded) && strtolower(get_class($encoded)) == 'file_asn1_element') {
+            $encoded = $encoded->element;
+        }
+
         if ($start == 0) {
             $this->encoded = $encoded;
         }
