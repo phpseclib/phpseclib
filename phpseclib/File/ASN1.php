@@ -241,6 +241,11 @@ class File_ASN1 {
      */
     function decodeBER($encoded)
     {
+        if (is_object($encoded) && strtolower(get_class($encoded)) == 'file_asn1_element') {
+            $encoded = $encoded->element;
+        }
+
+        $this->encoded = $encoded;
         return $this->_decode_ber($encoded);
     }
 
@@ -259,14 +264,6 @@ class File_ASN1 {
     function _decode_ber(&$encoded, $start = 0)
     {
         $decoded = array();
-
-        if (is_object($encoded) && strtolower(get_class($encoded)) == 'file_asn1_element') {
-            $encoded = $encoded->element;
-        }
-
-        if ($start == 0) {
-            $this->encoded = $encoded;
-        }
 
         while ( strlen($encoded) ) {
             $current = array('start' => $start);
