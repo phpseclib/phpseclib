@@ -44,9 +44,9 @@
  * <code>
  * <?php
  *    include('Net/SSH2.php');
- *    include('Net/File/Agent.php');
+ *    include('File/Agent.php');
  *
- *    $agent = new Net_File_Agent();
+ *    $agent = new File_Agent();
  *    $ssh = new Net_SSH2('localhost');
  *    if (!$ssh->login('username', $agent)) {
  *      exit('Login Failed');

@@ -28,31 +28,31 @@
  * @link     http://phpseclib.sourceforge.net
  */
 
-define('NET_FILE_AGENTC_REQUEST_IDENTITIES', 11);
-define('NET_FILE_AGENT_IDENTITIES_ANSWER', 12);
-define('NET_FILE_AGENTC_SIGN_REQUEST', 13);
-define('NET_FILE_AGENT_SIGN_RESPONSE', 14);
+define('FILE_AGENTC_REQUEST_IDENTITIES', 11);
+define('FILE_AGENT_IDENTITIES_ANSWER', 12);
+define('FILE_AGENTC_SIGN_REQUEST', 13);
+define('FILE_AGENT_SIGN_RESPONSE', 14);
 
-define('NET_FILE_AGENTC_LOCK', 22); // SSH_AGENTC_LOCK
-define('NET_FILE_AGENTC_UNLOCK', 23); // SSH_AGENTC_UNLOCK
+define('FILE_AGENTC_LOCK', 22); // SSH_AGENTC_LOCK
+define('FILE_AGENTC_UNLOCK', 23); // SSH_AGENTC_UNLOCK
 
 // SSH_AGENTC_REQUEST_RSA_IDENTITIES
-define('NET_FILE_AGENTC_REQUEST_RSA_IDENTITIES', 1);
+define('FILE_AGENTC_REQUEST_RSA_IDENTITIES', 1);
 
  // SSH_AGENT_RSA_IDENTITIES_ANSWER
-define('NET_FILE_AGENT_RSA_IDENTITIES_ANSWER', 2);
+define('FILE_AGENT_RSA_IDENTITIES_ANSWER', 2);
  // SSH_AGENT_FAILURE
-define('NET_FILE_AGENT_FAILURE', 5);
+define('FILE_AGENT_FAILURE', 5);
 
 /**
  * Pure-PHP implementation of SSH-Agent.
  *
- * @category Net
- * @package  Net_File
+ * @category File
+ * @package  File_Agent
  * @author   Manuel 'Kea' Baldassarri <k3a@k3a.it>
  * @access   public
  */
-class Net_File_Agent
+class File_Agent
 {
     /**
      * The socket connetion to ssh-agent
@@ -114,7 +114,7 @@ class Net_File_Agent
      */
     function requestIdentities()
     {
-        if (!$this->sendRequest(NET_FILE_AGENTC_REQUEST_IDENTITIES)) {
+        if (!$this->sendRequest(FILE_AGENTC_REQUEST_IDENTITIES)) {
             user_error(
                 'Unable to request identities '.socket_strerror(socket_last_error()),
                 E_USER_NOTICE
@@ -126,12 +126,12 @@ class Net_File_Agent
         $bufferLenght = $this->readLength();
         $type = $this->readType();
 
-        if ($type == NET_FILE_AGENT_FAILURE) {
+        if ($type == FILE_AGENT_FAILURE) {
 
             return false;
         } elseif (
-            $type != NET_FILE_AGENT_RSA_IDENTITIES_ANSWER &&
-            $type != NET_FILE_AGENT_IDENTITIES_ANSWER) {
+            $type != FILE_AGENT_RSA_IDENTITIES_ANSWER &&
+            $type != FILE_AGENT_IDENTITIES_ANSWER) {
             // throw new \Exception("Unknown response from agent: $type");
             return false;
         }
@@ -276,7 +276,7 @@ class Net_File_Agent
         /* Create a request to sign the data */
         $s = pack(
             'CNa*Na*N',
-            NET_FILE_AGENTC_SIGN_REQUEST,
+            FILE_AGENTC_SIGN_REQUEST,
             strlen($pubkeydata),
             $pubkeydata,
             strlen($data),
@@ -306,7 +306,7 @@ class Net_File_Agent
 
         $type = $this->readType();
 
-        if ($type != NET_FILE_AGENT_SIGN_RESPONSE) {
+        if ($type != FILE_AGENT_SIGN_RESPONSE) {
             // throw new Exception("Error protocol");
             return false;
         }
