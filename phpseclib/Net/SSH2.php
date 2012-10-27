@@ -178,6 +178,10 @@ define('NET_SSH2_LOG_COMPLEX', 2);
  * Outputs the content real-time
  */
 define('NET_SSH2_LOG_REALTIME', 3);
+/**
+ * Dumps the content real-time to a file
+ */
+define('NET_SSH2_LOG_REALTIME_FILE', 4);
 /**#@-*/
 
 /**#@+
@@ -240,7 +244,7 @@ class Net_SSH2 {
     /**
      * Execution Bitmap
      *
-     * The bits that are set reprsent functions that have been called already.  This is used to determine
+     * The bits that are set represent functions that have been called already.  This is used to determine
      * if a requisite function has been successfully executed.  If not, an error should be thrown.
      *
      * @var Integer
@@ -719,7 +723,7 @@ class Net_SSH2 {
     /**
      * Flag to suppress stderr from output
      *
-     * @see Net_SSH2::enableQuiteMode()
+     * @see Net_SSH2::enableQuietMode()
      * @access private
      */
     var $quiet_mode = false;
@@ -823,7 +827,9 @@ class Net_SSH2 {
         }
         $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
 
-        if ($timeout - $elapsed <= 0) {
+        $timeout-= $elapsed;
+
+        if ($timeout <= 0) {
             user_error(rtrim("Cannot connect to $host. Timeout error"), E_USER_NOTICE);
             return;
         }
@@ -831,15 +837,15 @@ class Net_SSH2 {
         $read = array($this->fsock);
         $write = $except = NULL;
 
-        stream_set_blocking($this->fsock, false);
+        $sec = floor($timeout);
+        $usec = 1000000 * ($timeout - $sec);
 
         // on windows this returns a "Warning: Invalid CRT parameters detected" error
-        if (!@stream_select($read, $write, $except, $timeout - $elapsed)) {
+        // the !count() is done as a workaround for <https://bugs.php.net/42682>
+        if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
             user_error(rtrim("Cannot connect to $host. Banner timeout"), E_USER_NOTICE);
             return;
         }
-
-        stream_set_blocking($this->fsock, true);
 
         /* According to the SSH2 specs,
 
@@ -882,7 +888,7 @@ class Net_SSH2 {
             $this->message_number_log[] = '->';
 
             if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
-                $this->message_log[] = $temp;
+                $this->message_log[] = $extra . $temp;
                 $this->message_log[] = $this->identifier . "\r\n";
             }
         }
@@ -968,6 +974,15 @@ class Net_SSH2 {
             'none'   // REQUIRED        no compression
             //'zlib' // OPTIONAL        ZLIB (LZ77) compression
         );
+
+        // some SSH servers have buggy implementations of some of the above algorithms
+        switch ($this->server_identifier) {
+            case 'SSH-2.0-SSHD':
+                $mac_algorithms = array_values(array_diff(
+                    $mac_algorithms,
+                    array('hmac-sha1-96', 'hmac-md5-96')
+                ));
+        }
 
         static $str_kex_algorithms, $str_server_host_key_algorithms,
                $encryption_algorithms_server_to_client, $mac_algorithms_server_to_client, $compression_algorithms_server_to_client,
@@ -1777,7 +1792,7 @@ class Net_SSH2 {
 
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
-                // either the login is bad or the server employees multi-factor authentication
+                // either the login is bad or the server employs multi-factor authentication
                 return false;
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 $this->bitmap |= NET_SSH2_MASK_LOGIN;
@@ -2254,19 +2269,16 @@ class Net_SSH2 {
                 $read = array($this->fsock);
                 $write = $except = NULL;
 
-                stream_set_blocking($this->fsock, false);
-
                 $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+                $sec = floor($this->curTimeout);
+                $usec = 1000000 * ($this->curTimeout - $sec);
                 // on windows this returns a "Warning: Invalid CRT parameters detected" error
-                if (!@stream_select($read, $write, $except, $this->curTimeout)) {
-                    stream_set_blocking($this->fsock, true);
+                if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
                     $this->_close_channel($client_channel);
                     return true;
                 }
                 $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
                 $this->curTimeout-= $elapsed;
-
-                stream_set_blocking($this->fsock, true);
             }
 
             $response = $this->_get_binary_packet();
