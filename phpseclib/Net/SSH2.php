@@ -211,7 +211,7 @@ define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
  */
 define('NET_SSH2_PRIVKEY_MODE_RSA', 0);
 /**
- * Used when a Net_SSH2_Agent object is passed as the second parameter of login()
+ * Used when a File_Agent object is passed as the second parameter of login()
  */
 define('NET_SSH2_PRIVKEY_MODE_AGENT', 1);
 /**#@-*/
@@ -1502,7 +1502,7 @@ class Net_SSH2 {
             switch(strtolower(get_class($password))) {
                 case 'crypt_rsa':
                     return $this->_privatekey_login($username, $password);
-                case 'net_ssh2_agent':
+                case 'file_agent':
                     return $this->_ssh_agent_login($username, $password);
             }
         }
