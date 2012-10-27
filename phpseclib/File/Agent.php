@@ -22,37 +22,37 @@
  * THE SOFTWARE.
  *
  * @category Net
- * @package  Net_SSH2
+ * @package  Net_File
  * @author   Manuel 'Kea' Baldassarri <k3a@k3a.it>
  * @license  http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link     http://phpseclib.sourceforge.net
  */
 
-define('NET_SSH2_AGENTC_REQUEST_IDENTITIES', 11);
-define('NET_SSH2_AGENT_IDENTITIES_ANSWER', 12);
-define('NET_SSH2_AGENTC_SIGN_REQUEST', 13);
-define('NET_SSH2_AGENT_SIGN_RESPONSE', 14);
+define('NET_FILE_AGENTC_REQUEST_IDENTITIES', 11);
+define('NET_FILE_AGENT_IDENTITIES_ANSWER', 12);
+define('NET_FILE_AGENTC_SIGN_REQUEST', 13);
+define('NET_FILE_AGENT_SIGN_RESPONSE', 14);
 
-define('NET_SSH2_AGENTC_LOCK', 22); // SSH_AGENTC_LOCK
-define('NET_SSH2_AGENTC_UNLOCK', 23); // SSH_AGENTC_UNLOCK
+define('NET_FILE_AGENTC_LOCK', 22); // SSH_AGENTC_LOCK
+define('NET_FILE_AGENTC_UNLOCK', 23); // SSH_AGENTC_UNLOCK
 
 // SSH_AGENTC_REQUEST_RSA_IDENTITIES
-define('NET_SSH2_AGENTC_REQUEST_RSA_IDENTITIES', 1);
+define('NET_FILE_AGENTC_REQUEST_RSA_IDENTITIES', 1);
 
  // SSH_AGENT_RSA_IDENTITIES_ANSWER
-define('NET_SSH2_AGENT_RSA_IDENTITIES_ANSWER', 2);
+define('NET_FILE_AGENT_RSA_IDENTITIES_ANSWER', 2);
  // SSH_AGENT_FAILURE
-define('NET_SSH2_AGENT_FAILURE', 5);
+define('NET_FILE_AGENT_FAILURE', 5);
 
 /**
  * Pure-PHP implementation of SSH-Agent.
  *
  * @category Net
- * @package  Net_SSH2
+ * @package  Net_File
  * @author   Manuel 'Kea' Baldassarri <k3a@k3a.it>
  * @access   public
  */
-class Net_SSH2_Agent
+class Net_File_Agent
 {
     /**
      * The socket connetion to ssh-agent
@@ -114,7 +114,7 @@ class Net_SSH2_Agent
      */
     function requestIdentities()
     {
-        if (!$this->sendRequest(NET_SSH2_AGENTC_REQUEST_IDENTITIES)) {
+        if (!$this->sendRequest(NET_FILE_AGENTC_REQUEST_IDENTITIES)) {
             user_error(
                 'Unable to request identities '.socket_strerror(socket_last_error()),
                 E_USER_NOTICE
@@ -126,12 +126,12 @@ class Net_SSH2_Agent
         $bufferLenght = $this->readLength();
         $type = $this->readType();
 
-        if ($type == NET_SSH2_AGENT_FAILURE) {
+        if ($type == NET_FILE_AGENT_FAILURE) {
 
             return false;
         } elseif (
-            $type != NET_SSH2_AGENT_RSA_IDENTITIES_ANSWER &&
-            $type != NET_SSH2_AGENT_IDENTITIES_ANSWER) {
+            $type != NET_FILE_AGENT_RSA_IDENTITIES_ANSWER &&
+            $type != NET_FILE_AGENT_IDENTITIES_ANSWER) {
             // throw new \Exception("Unknown response from agent: $type");
             return false;
         }
@@ -276,7 +276,7 @@ class Net_SSH2_Agent
         /* Create a request to sign the data */
         $s = pack(
             'CNa*Na*N',
-            NET_SSH2_AGENTC_SIGN_REQUEST,
+            NET_FILE_AGENTC_SIGN_REQUEST,
             strlen($pubkeydata),
             $pubkeydata,
             strlen($data),
@@ -306,7 +306,7 @@ class Net_SSH2_Agent
 
         $type = $this->readType();
 
-        if ($type != NET_SSH2_AGENT_SIGN_RESPONSE) {
+        if ($type != NET_FILE_AGENT_SIGN_RESPONSE) {
             // throw new Exception("Error protocol");
             return false;
         }
