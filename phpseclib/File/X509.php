@@ -2343,13 +2343,21 @@ class File_X509 {
             return $this->publicKey;
         }
 
-        if (!isset($this->currentCert) || !is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
+        if (isset($this->currentCert) && is_array($this->currentCert)) {
+            foreach (array('tbsCertificate/subjectPublicKeyInfo', 'certificationRequestInfo/subjectPKInfo') as $path) {
+                $keyinfo = $this->_subArray($this->currentCert, $path);
+                if (!empty($keyinfo)) {
+                    break;
+                }
+            }
+        }
+        if (empty($keyinfo)) {
             return false;
         }
 
-        $key = $this->currentCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'];
+        $key = $keyinfo['subjectPublicKey'];
 
-        switch ($this->currentCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
+        switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
                 if (!class_exists('Crypt_RSA')) {
                     require_once('Crypt/RSA.php');
@@ -2686,6 +2694,10 @@ class File_X509 {
 
             $this->setExtension('id-ce-basicConstraints',
                 array_unique(array_merge(array('cA' => true), $basicConstraints)), true);
+
+            if (!isset($subject->currentKeyIdentifier)) {
+                $this->setExtension('id-ce-subjectKeyIdentifier', base64_encode($this->computeKeyIdentifier($this->currentCert)), false, false);
+            }
         }
 
         // resync $this->signatureSubject
@@ -3195,7 +3207,7 @@ class File_X509 {
     }
 
     /**
-     * Sets the authority key identifier
+     * Sets the subject key identifier
      *
      * This is used by the id-ce-authorityKeyIdentifier and the id-ce-subjectKeyIdentifier extensions.
      *
@@ -3209,6 +3221,83 @@ class File_X509 {
         } else {
             $this->currentKeyIdentifier = base64_encode($value);
         }
+    }
+
+    /**
+     * Compute a public key identifier.
+     *
+     *  Although key identifiers may be set to any unique value, this function
+     * computes key identifiers from public key according to the two
+     * recommended methods (4.2.1.2 RFC 3280).
+     *  Highly polymorphic: try to accept all possible forms of key:
+     * - Key object
+     * - File_X509 object with public or private key defined
+     * - Certificate or CSR array
+     * - File_ASN1_Element object
+     * - PEM or DER string
+     *
+     * @param Mixed $key optional
+     * @param Integer $method optional
+     * @access public
+     * @return String binary key identifier
+     */
+    function computeKeyIdentifier($key = NULL, $method = 1)
+    {
+        if (is_null($key)) {
+            $key = $this;
+        }
+
+        switch (true) {
+            case is_string($key):
+                break;
+            case is_array($key) && isset($key['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']):
+                return $this->computeKeyIdentifier($key['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'], $method);
+            case is_array($key) && isset($key['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']):
+                return $this->computeKeyIdentifier($key['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'], $method);
+            case !is_object($key):
+                return false;
+            case strtolower(get_class($key)) == 'file_asn1_element':
+                $asn1 = new File_ASN1();
+                $decoded = $asn1->decodeBER($cert);
+                if (empty($decoded)) {
+                    return false;
+                }
+                $key = $asn1->asn1map($decoded[0], array('type' => FILE_ASN1_TYPE_BIT_STRING));
+                break;
+            case strtolower(get_class($key)) == 'file_x509':
+                if (isset($key->publicKey)) {
+                    return $this->computeKeyIdentifier($key->publicKey, $method);
+                }
+                if (isset($key->privateKey)) {
+                    return $this->computeKeyIdentifier($key->privateKey, $method);
+                }
+                if (isset($key->currentCert['tbsCertificate']) || isset($key->currentCert['certificationRequestInfo'])) {
+                    return $this->computeKeyIdentifier($key->currentCert, $method);
+                }
+                return false;
+            default: // Should be a key object (i.e.: Crypt_RSA).
+                $key = $key->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_PKCS1_RAW);
+                break;
+        }
+
+        // If in PEM format, convert to binary.
+        if (preg_match('#^-----BEGIN #', $key)) {
+            $key = base64_decode(preg_replace('#-.+-|[\r\n]#', '', $key));
+        }
+
+        // Now we have the key string: compute its sha-1 sum.
+        if (!class_exists('Crypt_Hash')) {
+            require_once('Crypt/Hash.php');
+        }
+        $hash = new Crypt_Hash('sha1');
+        $hash = $hash->hash($key);
+
+        if ($method == 2) {
+            $hash = substr($hash, -8);
+            $hash[0] = chr((ord($hash[0]) & 0x0F) | 0x40);
+        }
+
+    return $hash;
     }
 
     /**
