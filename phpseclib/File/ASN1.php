@@ -203,7 +203,7 @@ class File_ASN1 {
      * Others are mapped as a choice, with an extra indexing level.
      *
      * @var Array
-     * @access private
+     * @access public
      */
     var $ANYmap = array(
         FILE_ASN1_TYPE_BOOLEAN              => true,
@@ -228,6 +228,25 @@ class File_ASN1 {
         FILE_ASN1_TYPE_UNIVERSAL_STRING     => 'universalString',
         //FILE_ASN1_TYPE_CHARACTER_STRING     => 'characterString',
         FILE_ASN1_TYPE_BMP_STRING           => 'bmpString'
+    );
+
+    /**
+     * String type to character size mapping table.
+     *
+     * Non-convertable types are absent from this table.
+     * size == 0 indicates variable length encoding.
+     *
+     * @var Array
+     * @access public
+     */
+    var $stringTypeSize = array(
+        FILE_ASN1_TYPE_UTF8_STRING      => 0,
+        FILE_ASN1_TYPE_BMP_STRING       => 2,
+        FILE_ASN1_TYPE_UNIVERSAL_STRING => 4,
+        FILE_ASN1_TYPE_PRINTABLE_STRING => 1,
+        FILE_ASN1_TYPE_TELETEX_STRING   => 1,
+        FILE_ASN1_TYPE_IA5_STRING       => 1,
+        FILE_ASN1_TYPE_VISIBLE_STRING   => 1,
     );
 
     /**
@@ -1151,5 +1170,105 @@ class File_ASN1 {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
         return $substr;
+    }
+
+    /**
+     * String type conversion
+     *
+     * This is a lazy conversion, dealing only with character size.
+     * No real conversion table is used.
+     *
+     * @param String $in
+     * @param optional Integer $from
+     * @param optional Integer $to
+     * @return String
+     * @access public
+     */
+
+    function convert($in, $from = FILE_ASN1_TYPE_UTF8_STRING, $to = FILE_ASN1_TYPE_UTF8_STRING)
+    {
+        if (!isset($this->stringTypeSize[$from]) || !isset($this->stringTypeSize[$to])) {
+            return false;
+        }
+        $insize = $this->stringTypeSize[$from];
+        $outsize = $this->stringTypeSize[$to];
+        $inlength = strlen($in);
+        $out = '';
+
+        for ($i = 0; $i < $inlength;) {
+            if ($inlength - $i < $insize) {
+                return false;
+            }
+
+            // Get an input character as a 32-bit value.
+            $c = ord($in[$i++]);
+            switch (true) {
+                case $insize == 4:
+                    $c = ($c << 8) | ord($in[$i++]);
+                    $c = ($c << 8) | ord($in[$i++]);
+                case $insize == 2:
+                    $c = ($c << 8) | ord($in[$i++]);
+                case $insize == 1:
+                    break;
+                case ($c & 0x80) == 0x00:
+                    break;
+                case ($c & 0x40) == 0x00:
+                    return false;
+                default:
+                    $bit = 6;
+                    do {
+                        if ($bit > 25 || $i >= $inlength || (ord($in[$i]) & 0xC0) != 0x80) {
+                            return false;
+                        }
+                        $c = ($c << 6) | (ord($in[$i++]) & 0x3F);
+                        $bit += 5;
+                        $mask = 1 << $bit;
+                    } while ($c & $bit);
+                    $c &= $mask - 1;
+                    break;
+            }
+
+            // Convert and append the character to output string.
+            $v = '';
+            switch (true) {
+                case $outsize == 4:
+                    $v .= chr($c & 0xFF);
+                    $c >>= 8;
+                    $v .= chr($c & 0xFF);
+                    $c >>= 8;
+                case $outsize == 2:
+                    $v .= chr($c & 0xFF);
+                    $c >>= 8;
+                case $outsize == 1:
+                    $v .= chr($c & 0xFF);
+                    $c >>= 8;
+                    if ($c) {
+                        return false;
+                    }
+                    break;
+                case ($c & 0x80000000) != 0:
+                    return false;
+                case $c >= 0x04000000:
+                    $v .= chr(0x80 | ($c & 0x3F));
+                    $c = ($c >> 6) | 0x04000000;
+                case $c >= 0x00200000:
+                    $v .= chr(0x80 | ($c & 0x3F));
+                    $c = ($c >> 6) | 0x00200000;
+                case $c >= 0x00010000:
+                    $v .= chr(0x80 | ($c & 0x3F));
+                    $c = ($c >> 6) | 0x00010000;
+                case $c >= 0x00000800:
+                    $v .= chr(0x80 | ($c & 0x3F));
+                    $c = ($c >> 6) | 0x00000800;
+                case $c >= 0x00000080:
+                    $v .= chr(0x80 | ($c & 0x3F));
+                    $c = ($c >> 6) | 0x000000C0;
+                default:
+                    $v .= chr($c);
+                    break;
+            }
+            $out .= strrev($v);
+        }
+        return $out;
     }
 }

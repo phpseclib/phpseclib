@@ -60,6 +60,16 @@ if (!class_exists('File_ASN1')) {
 define('FILE_X509_VALIDATE_SIGNATURE_BY_CA', 1);
 
 /**
+ * Name format tokens for the getDN() method.
+ */
+define('FILE_X509_DN_ARRAY', 0); // Internal array representation.
+define('FILE_X509_DN_STRING', 1); // String.
+define('FILE_X509_DN_ASN1', 2); // ASN.1 element.
+define('FILE_X509_DN_OPENSSL', 3); // OpenSSL compatible array.
+define('FILE_X509_DN_CANON', 4); // Canonical ASN.1 element.
+define('FILE_X509_DN_HASH', 5); // Name hash for file indexing.
+
+/**
  * Pure-PHP X.509 Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -102,6 +112,7 @@ class File_X509 {
     var $netscape_comment;
     var $netscape_ca_policy_url;
 
+    var $Name;
     var $CRLNumber;
     var $CRLReason;
     var $IssuingDistributionPoint;
@@ -287,7 +298,7 @@ class File_X509 {
             'children' => $RelativeDistinguishedName
         );
 
-        $Name = array(
+        $this->Name = array(
             'type'     => FILE_ASN1_TYPE_CHOICE,
             'children' => array(
                 'rdnSequence' => $RDNSequence
@@ -383,9 +394,9 @@ class File_X509 {
                                          ) + $Version,
                 'serialNumber'         => $CertificateSerialNumber,
                 'signature'            => $AlgorithmIdentifier,
-                'issuer'               => $Name,
+                'issuer'               => $this->Name,
                 'validity'             => $Validity,
-                'subject'              => $Name,
+                'subject'              => $this->Name,
                 'subjectPublicKeyInfo' => $SubjectPublicKeyInfo,
                 // implicit means that the T in the TLV structure is to be rewritten, regardless of the type
                 'issuerUniqueID'       => array(
@@ -678,7 +689,7 @@ class File_X509 {
                                                  'constant' => 4,
                                                  'optional' => true,
                                                  'explicit' => true
-                                               ) + $Name,
+                                               ) + $this->Name,
                 'ediPartyName'              => array(
                                                  'constant' => 5,
                                                  'optional' => true,
@@ -1013,7 +1024,7 @@ class File_X509 {
                                        'type' => FILE_ASN1_TYPE_INTEGER,
                                        'mapping' => array('v1')
                                    ),
-                'subject'       => $Name,
+                'subject'       => $this->Name,
                 'subjectPKInfo' => $SubjectPublicKeyInfo,
                 'attributes'    => array(
                                        'constant' => 0,
@@ -1051,7 +1062,7 @@ class File_X509 {
                                              'default'  => 'v1'
                                          ) + $Version,
                 'signature'           => $AlgorithmIdentifier,
-                'issuer'              => $Name,
+                'issuer'              => $this->Name,
                 'thisUpdate'          => $Time,
                 'nextUpdate'          => array(
                                              'optional' => true
@@ -2119,11 +2130,24 @@ class File_X509 {
 
         $dn = $dn['rdnSequence'];
         $result = array();
+        $asn1 = new File_ASN1();
         for ($i = 0; $i < count($dn); $i++) {
             if ($dn[$i][0]['type'] == $propName) {
                 $v = $dn[$i][0]['value'];
-                if (!$withType && is_array($v) && count($v) == 1) {
-                    $v = array_pop($v);
+                if (!$withType && is_array($v)) {
+                    foreach ($v as $type => $s) {
+                        $type = array_search($type, $asn1->ANYmap, true);
+                        if ($type !== false && isset($asn1->stringTypeSize[$type])) {
+                            $s = $asn1->convert($s, $type);
+                            if ($s !== false) {
+                                $v = $s;
+                                break;
+                            }
+                        }
+                    }
+                    if (is_array($v)) {
+                        $v = array_pop($v); // Always strip data type.
+                    }
                 }
                 $result[] = $v;
             }
@@ -2163,7 +2187,7 @@ class File_X509 {
         }
 
         // handles everything else
-        $results = preg_split('#((?:^|, |/)(?:C=|O=|OU=|CN=|L=|ST=|SN=|postalCode=|streetAddress=|emailAddress=|serialNumber=|organizationalUnitName=|title=|description=|role=|x500UniqueIdentifier=))#', $dn, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $results = preg_split('#((?:^|, *|/)(?:C=|O=|OU=|CN=|L=|ST=|SN=|postalCode=|streetAddress=|emailAddress=|serialNumber=|organizationalUnitName=|title=|description=|role=|x500UniqueIdentifier=))#', $dn, -1, PREG_SPLIT_DELIM_CAPTURE);
         for ($i = 1; $i < count($results); $i+=2) {
             $prop = trim($results[$i], ', =/');
             $value = $results[$i + 1];
@@ -2178,23 +2202,88 @@ class File_X509 {
     /**
      * Get the Distinguished Name for a certificates subject
      *
-     * @param Boolean $string optional
+     * @param Mixed $format optional
      * @param Array $dn optional
      * @access public
      * @return Boolean
      */
-    function getDN($string = false, $dn = NULL)
+    function getDN($format = FILE_X509_DN_ARRAY, $dn = NULL)
     {
         if (!isset($dn)) {
             $dn = $this->dn;
         }
 
-        if (!$string) {
-            return $dn;
+        switch ((int) $format) {
+            case FILE_X509_DN_ARRAY:
+                return $dn;
+            case FILE_X509_DN_ASN1:
+                $asn1 = new File_ASN1();
+                $asn1->loadOIDs($this->oids);
+                $filters = array();
+                $filters['rdnSequence']['value'] = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+                $asn1->loadFilters($filters);
+                return $asn1->encodeDER($dn, $this->Name);
+            case FILE_X509_DN_OPENSSL:
+                $dn = $this->getDN(FILE_X509_DN_STRING, $dn);
+                if ($dn === false) {
+                    return false;
+                }
+                $attrs = preg_split('#((?:^|, *|/)[a-z][a-z0-9]*=)#i', $dn, -1, PREG_SPLIT_DELIM_CAPTURE);
+                $dn = array();
+                for ($i = 1; $i < count($attrs); $i += 2) {
+                    $prop = trim($attrs[$i], ', =/');
+                    $value = $attrs[$i + 1];
+                    if (!isset($dn[$prop])) {
+                        $dn[$prop] = $value;
+                    } else {
+                        $dn[$prop] = array_merge((array) $dn[$prop], array($value));
+                    }
+                }
+                return $dn;
+            case FILE_X509_DN_CANON:
+                //  No SEQUENCE around RDNs and all string values normalized as
+                // trimmed lowercase UTF-8 with all spacing  as one blank.
+                $asn1 = new File_ASN1();
+                $asn1->loadOIDs($this->oids);
+                $filters = array();
+                $filters['value'] = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+                $asn1->loadFilters($filters);
+                $RelDN = $this->Name['children']['rdnSequence']['children'];
+                $result = '';
+                foreach ($dn['rdnSequence'] as $rdn) {
+                    foreach ($rdn as &$attr) {
+                        if (is_array($attr['value'])) {
+                            foreach ($attr['value'] as $type => $v) {
+                                $type = array_search($type, $asn1->ANYmap, true);
+                                if ($type !== false && isset($asn1->stringTypeSize[$type])) {
+                                    $v = $asn1->convert($v, $type);
+                                    if ($v !== false) {
+                                        $v = preg_replace('/\s+/', ' ', $v);
+                                        $attr['value'] = strtolower(trim($v));
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $result .= $asn1->encodeDER($rdn, $RelDN);
+                }
+                return $result;
+            case FILE_X509_DN_HASH:
+                $dn = $this->getDN(FILE_X509_DN_CANON, $dn);
+                if (!class_exists('Crypt_Hash')) {
+                    require_once('Crypt/Hash.php');
+                }
+                $hash = new Crypt_Hash('sha1');
+                $hash = $hash->hash($dn);
+                extract(unpack('Vhash', $hash));
+                return strtolower(bin2hex(pack('N', $hash)));
         }
 
+        // Defaut is to return a string.
         $start = true;
         $output = '';
+        $asn1 = new File_ASN1();
         foreach ($dn['rdnSequence'] as $field) {
             $prop = $field[0]['type'];
             $value = $field[0]['value'];
@@ -2234,8 +2323,20 @@ class File_X509 {
             if (!$start) {
                 $output.= $delim;
             }
-            if (is_array($value) && count($value) == 1) {
-                $value = array_pop($value); // Always strip data type.
+            if (is_array($value)) {
+                foreach ($value as $type => $v) {
+                    $type = array_search($type, $asn1->ANYmap, true);
+                    if ($type !== false && isset($asn1->stringTypeSize[$type])) {
+                        $v = $asn1->convert($v, $type);
+                        if ($v !== false) {
+                            $value = $v;
+                            break;
+                        }
+                    }
+                }
+                if (is_array($value)) {
+                    $value = array_pop($value); // Always strip data type.
+                }
             }
             $output.= $desc . $value;
             $start = false;
@@ -2245,35 +2346,52 @@ class File_X509 {
     }
 
     /**
-     * Get the Distinguished Name for a certificates issuer
+     * Get the Distinguished Name for a certificate/crl issuer
      *
-     * @param Boolean $string optional
+     * @param Integer $format optional
      * @access public
      * @return Mixed
      */
-    function getIssuerDN($string = false)
+    function getIssuerDN($format = FILE_X509_DN_ARRAY)
     {
-        if (!isset($this->currentCert) || !is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
-            return false;
+        switch (true) {
+            case !isset($this->currentCert) || !is_array($this->currentCert):
+                break;
+            case isset($this->currentCert['tbsCertificate']):
+                return $this->getDN($format, $this->currentCert['tbsCertificate']['issuer']);
+            case isset($this->currentCert['tbsCertList']):
+                return $this->getDN($format, $this->currentCert['tbsCertList']['issuer']);
         }
 
-        return $this->getDN($string, $this->currentCert['tbsCertificate']['issuer']);
+    return false;
     }
 
     /**
+     * Get the Distinguished Name for a certificate/csr subject
      * Alias of getDN()
      *
-     * @param Boolean $string optional
+     * @param Integer $format optional
      * @access public
      * @return Mixed
      */
-    function getSubjectDN($string = false)
+    function getSubjectDN($format = FILE_X509_DN_ARRAY)
     {
-        return $this->getDN($string);
+        switch (true) {
+            case !empty($this->dn):
+                return $this->getDN($format);
+            case !isset($this->currentCert) || !is_array($this->currentCert):
+                break;
+            case isset($this->currentCert['tbsCertificate']):
+                return $this->getDN($format, $this->currentCert['tbsCertificate']['subject']);
+            case isset($this->currentCert['certificationRequestInfo']):
+                return $this->getDN($format, $this->currentCert['certificationRequestInfo']['subject']);
+        }
+
+    return false;
     }
 
     /**
-     * Get an individual Distinguished Name property for a certificates issuer
+     * Get an individual Distinguished Name property for a certificate/crl issuer
      *
      * @param String $propName
      * @param Boolean $withType optional
@@ -2282,15 +2400,20 @@ class File_X509 {
      */
     function getIssuerDNProp($propName, $withType = false)
     {
-        if (!isset($this->currentCert) || !is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
-            return false;
+        switch (true) {
+            case !isset($this->currentCert) || !is_array($this->currentCert):
+                break;
+            case isset($this->currentCert['tbsCertificate']):
+                return $this->getDNProp($propname, $this->currentCert['tbsCertificate']['issuer'], $withType);
+            case isset($this->currentCert['tbsCertList']):
+                return $this->getDNProp($propname, $this->currentCert['tbsCertList']['issuer'], $withType);
         }
 
-        return $this->getDNProp($propName, $this->currentCert['tbsCertificate']['issuer'], $withType);
+    return false;
     }
 
     /**
-     * Alias of getDNProp()
+     * Get an individual Distinguished Name property for a certificate/csr subject
      *
      * @param String $propName
      * @param Boolean $withType optional
@@ -2299,7 +2422,18 @@ class File_X509 {
      */
     function getSubjectDNProp($propName, $withType = false)
     {
-        return $this->getDNProp($propName, NULL, $withType);
+        switch (true) {
+            case !empty($this->dn):
+                return $this->getDNProp($propName, NULL, $withType);
+            case !isset($this->currentCert) || !is_array($this->currentCert):
+                break;
+            case isset($this->currentCert['tbsCertificate']):
+                return $this->getDNProp($propName, $this->currentCert['tbsCertificate']['subject'], $withType);
+            case isset($this->currentCert['certificationRequestInfo']):
+                return $this->getDNProp($propname, $this->currentCert['certificationRequestInfo']['subject'], $withType);
+        }
+
+    return false;
     }
 
     /**
