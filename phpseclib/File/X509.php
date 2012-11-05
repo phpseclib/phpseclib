@@ -64,9 +64,9 @@ define('FILE_X509_VALIDATE_SIGNATURE_BY_CA', 1);
  */
 define('FILE_X509_DN_ARRAY', 0); // Internal array representation.
 define('FILE_X509_DN_STRING', 1); // String.
-define('FILE_X509_DN_ASN1', 2); // ASN.1 element.
+define('FILE_X509_DN_ASN1', 2); // ASN.1 Name string.
 define('FILE_X509_DN_OPENSSL', 3); // OpenSSL compatible array.
-define('FILE_X509_DN_CANON', 4); // Canonical ASN.1 element.
+define('FILE_X509_DN_CANON', 4); // Canonical ASN.1 RDNs string.
 define('FILE_X509_DN_HASH', 5); // Name hash for file indexing.
 
 /**
@@ -113,6 +113,7 @@ class File_X509 {
     var $netscape_ca_policy_url;
 
     var $Name;
+    var $RelativeDistinguishedName;
     var $CRLNumber;
     var $CRLReason;
     var $IssuingDistributionPoint;
@@ -282,7 +283,7 @@ class File_X509 {
 
         - https://www.opends.org/wiki/page/DefinitionRelativeDistinguishedName
         */
-        $RelativeDistinguishedName = array(
+        $this->RelativeDistinguishedName = array(
             'type'     => FILE_ASN1_TYPE_SET,
             'min'      => 1,
             'max'      => -1,
@@ -295,7 +296,7 @@ class File_X509 {
             // RDNSequence does not define a min or a max, which means it doesn't have one
             'min'      => 0,
             'max'      => -1,
-            'children' => $RelativeDistinguishedName
+            'children' => $this->RelativeDistinguishedName
         );
 
         $this->Name = array(
@@ -752,7 +753,7 @@ class File_X509 {
                                                  'constant' => 1,
                                                  'optional' => true,
                                                  'implicit' => true
-                                       ) + $RelativeDistinguishedName
+                                       ) + $this->RelativeDistinguishedName
             )
         );
 
@@ -2248,7 +2249,6 @@ class File_X509 {
                 $filters = array();
                 $filters['value'] = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
                 $asn1->loadFilters($filters);
-                $RelDN = $this->Name['children']['rdnSequence']['children'];
                 $result = '';
                 foreach ($dn['rdnSequence'] as $rdn) {
                     foreach ($rdn as &$attr) {
@@ -2266,7 +2266,7 @@ class File_X509 {
                             }
                         }
                     }
-                    $result .= $asn1->encodeDER($rdn, $RelDN);
+                    $result .= $asn1->encodeDER($rdn, $this->RelativeDistinguishedName);
                 }
                 return $result;
             case FILE_X509_DN_HASH:
