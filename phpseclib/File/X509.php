@@ -91,6 +91,10 @@ class File_X509 {
      *
      * @access private
      */
+    var $DirectoryString;
+    var $PKCS9String;
+    var $AttributeValue;
+    var $Extensions;
     var $KeyUsage;
     var $ExtKeyUsageSyntax;
     var $BasicConstraints;
@@ -251,7 +255,7 @@ class File_X509 {
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1
 
-        $DirectoryString = array(
+        $this->DirectoryString = array(
             'type'     => FILE_ASN1_TYPE_CHOICE,
             'children' => array(
                 'teletexString'   => array('type' => FILE_ASN1_TYPE_TELETEX_STRING),
@@ -262,7 +266,15 @@ class File_X509 {
             )
         );
 
-        $AttributeValue = array('type' => FILE_ASN1_TYPE_ANY);
+        $this->PKCS9String = array(
+            'type'     => FILE_ASN1_TYPE_CHOICE,
+            'children' => array(
+                'ia5String'       => array('type' => FILE_ASN1_TYPE_IA5_STRING),
+                'directoryString' => $this->DirectoryString
+            )
+        );
+
+        $this->AttributeValue = array('type' => FILE_ASN1_TYPE_ANY);
 
         $AttributeType = array('type' => FILE_ASN1_TYPE_OBJECT_IDENTIFIER);
 
@@ -270,7 +282,7 @@ class File_X509 {
             'type'     => FILE_ASN1_TYPE_SEQUENCE,
             'children' => array(
                 'type' => $AttributeType,
-                'value'=> $AttributeValue
+                'value'=> $this->AttributeValue
             )
         );
 
@@ -336,7 +348,7 @@ class File_X509 {
             )
         );
 
-        $Extensions = array(
+        $this->Extensions = array(
             'type'     => FILE_ASN1_TYPE_SEQUENCE,
             'min'      => 1,
             // technically, it's MAX, but we'll assume anything < 0 is MAX
@@ -414,7 +426,7 @@ class File_X509 {
                                                'constant' => 3,
                                                'optional' => true,
                                                'explicit' => true
-                                           ) + $Extensions
+                                           ) + $this->Extensions
             )
         );
 
@@ -648,14 +660,14 @@ class File_X509 {
                                     'constant' => 0,
                                     'optional' => true,
                                     'implicit' => true
-                                ) + $DirectoryString,
+                                ) + $this->DirectoryString,
                  // partyName is technically required but File_ASN1 doesn't currently support non-optional constants and
                  // setting it to optional gets the job done in any event.
                  'partyName'    => array(
                                     'constant' => 1,
                                     'optional' => true,
                                     'implicit' => true
-                                ) + $DirectoryString
+                                ) + $this->DirectoryString
             )
         );
 
@@ -1002,7 +1014,7 @@ class File_X509 {
                               'type'     => FILE_ASN1_TYPE_SET,
                               'min'      => 1,
                               'max'      => -1,
-                              'children' => $AttributeValue
+                              'children' => $this->AttributeValue
                           )
             )
         );
@@ -1049,7 +1061,7 @@ class File_X509 {
                               'revocationDate'     => $Time,
                               'crlEntryExtensions' => array(
                                                           'optional' => true
-                                                      ) + $Extensions
+                                                      ) + $this->Extensions
                           )
         );
 
@@ -1077,7 +1089,7 @@ class File_X509 {
                                              'constant' => 0,
                                              'optional' => true,
                                              'explicit' => true
-                                         ) + $Extensions
+                                         ) + $this->Extensions
             )
         );
 
@@ -1192,7 +1204,7 @@ class File_X509 {
 
             '0.9.2342.19200300.100.1.25' => 'id-domainComponent',
             '1.2.840.113549.1.9' => 'pkcs-9',
-            '1.2.840.113549.1.9.1' => 'id-emailAddress',
+            '1.2.840.113549.1.9.1' => 'pkcs-9-at-emailAddress',
             '2.5.29' => 'id-ce',
             '2.5.29.35' => 'id-ce-authorityKeyIdentifier',
             '2.5.29.14' => 'id-ce-subjectKeyIdentifier',
@@ -1315,8 +1327,9 @@ class File_X509 {
             '2.16.840.1.113733.1.6.9' => 'verisignPrivate',
             // for Certificate Signing Requests
             // see http://tools.ietf.org/html/rfc2985
-            '1.2.840.113549.1.9.2' => 'unstructuredName', // PKCS #9 unstructured name
-            '1.2.840.113549.1.9.7' => 'challengePassword' // Challenge password for certificate revocations
+            '1.2.840.113549.1.9.2' => 'pkcs-9-at-unstructuredName', // PKCS #9 unstructured name
+            '1.2.840.113549.1.9.7' => 'pkcs-9-at-challengePassword', // Challenge password for certificate revocations
+            '1.2.840.113549.1.9.14' => 'pkcs-9-at-extensionRequest' // Certificate extension request
         );
     }
 
@@ -1547,6 +1560,91 @@ class File_X509 {
     }
 
     /**
+     * Map attribute values from ANY type to attribute-specific internal
+     *   format.
+     *
+     * @param Array ref $root
+     * @param String $path
+     * @param Object $asn1
+     * @access private
+     */
+    function _mapInAttributes(&$root, $path, $asn1)
+    {
+        $attributes = &$this->_subArray($root, $path);
+
+        if (is_array($attributes)) {
+            for ($i = 0; $i < count($attributes); $i++) {
+                $id = $attributes[$i]['type'];
+                /* $value contains the DER encoding of an ASN.1 value
+                   corresponding to the attribute type identified by type */
+                $map = $this->_getMapping($id);
+                if (is_array($attributes[$i]['value'])) {
+                    $values = &$attributes[$i]['value'];
+                    for ($j = 0; $j < count($values); $j++) {
+                        $value = $asn1->encodeDER($values[$j], $this->AttributeValue);
+                        $decoded = $asn1->decodeBER($value);
+                        if (!is_bool($map)) {
+                            $mapped = $asn1->asn1map($decoded[0], $map);
+                            if ($mapped !== false) {
+                                $values[$j] = $mapped;
+                            }
+                            if ($id == 'pkcs-9-at-extensionRequest') {
+                                $this->_mapInExtensions($values, $j, $asn1);
+                            }
+                        } elseif ($map) {
+                            $values[$j] = base64_encode($value);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Map attribute values from attribute-specific internal format to
+     *   ANY type.
+     *
+     * @param Array ref $root
+     * @param String $path
+     * @param Object $asn1
+     * @access private
+     */
+    function _mapOutAttributes(&$root, $path, $asn1)
+    {
+        $attributes = &$this->_subArray($root, $path);
+
+        if (is_array($attributes)) {
+            $size = count($attributes);
+            for ($i = 0; $i < $size; $i++) {
+                /* [value] contains the DER encoding of an ASN.1 value
+                   corresponding to the attribute type identified by type */
+                $id = $attributes[$i]['type'];
+                $map = $this->_getMapping($id);
+                if ($map === false) {
+                    user_error($id . ' is not a currently supported attribute', E_USER_NOTICE);
+                    unset($attributes[$i]);
+                }
+                elseif (is_array($attributes[$i]['value'])) {
+                    $values = &$attributes[$i]['value'];
+                    for ($j = 0; $j < count($values); $j++) {
+                        switch ($id) {
+                            case 'pkcs-9-at-extensionRequest':
+                                $this->_mapOutExtensions($values, $j, $asn1);
+                                break;
+                        }
+
+                        if (!is_bool($map)) {
+                            $temp = $asn1->encodeDER($values[$j], $map);
+                            $decoded = $asn1->decodeBER($temp);
+                            $values[$j] = $asn1->asn1map($decoded[0], $this->AttributeValue);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Associate an extension ID to an extension mapping
      *
      * @param String $extnId
@@ -1607,6 +1705,14 @@ class File_X509 {
             // http://www.maithean.com/docs/set_bk3.pdf
             case '2.23.42.7.0': // id-set-hashedRootKey
                 return true;
+
+            // CSR attributes
+            case 'pkcs-9-at-unstructuredName':
+                return $this->PKCS9String;
+            case 'pkcs-9-at-challengePassword':
+                return $this->DirectoryString;
+            case 'pkcs-9-at-extensionRequest':
+                return $this->Extensions;
 
             // CRL extensions.
             case 'id-ce-cRLNumber':
@@ -1992,7 +2098,7 @@ class File_X509 {
                 return 'id-at-localityName';
             case 'id-emailaddress':
             case 'emailaddress':
-                return 'id-emailAddress';
+                return 'pkcs-9-at-emailAddress';
             case 'id-at-serialnumber':
             case 'serialnumber':
                 return 'id-at-serialNumber';
@@ -2541,6 +2647,7 @@ class File_X509 {
         }
 
         $this->dn = $csr['certificationRequestInfo']['subject'];
+        $this->_mapInAttributes($csr, 'certificationRequestInfo/attributes', $asn1);
 
         $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
@@ -2596,6 +2703,7 @@ class File_X509 {
 
         $asn1->loadFilters($filters);
 
+        $this->_mapOutAttributes($csr, 'certificationRequestInfo/attributes', $asn1);
         $csr = $asn1->encodeDER($csr, $this->CertificationRequest);
 
         return "-----BEGIN CERTIFICATE REQUEST-----\r\n" . chunk_split(base64_encode($csr)) . '-----END CERTIFICATE REQUEST-----';
@@ -2778,6 +2886,13 @@ class File_X509 {
                 'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
                 'signature'          => false // this is going to be overwritten later
             );
+
+            // Copy extensions from CSR.
+            $csrexts = $subject->getAttribute('pkcs-9-at-extensionRequest');
+
+            if (!empty($csrexts)) {
+                $this->CurrentCert['tbsCertificate']['extensions'] = $csrexts[0];
+            }
         }
 
         $this->currentCert['tbsCertificate']['issuer'] = $issuer->dn;
@@ -3186,6 +3301,24 @@ class File_X509 {
             case isset($root['tbsCertList']):
                 $path = 'tbsCertList/crlExtensions';
                 break;
+            case isset($root['certificationRequestInfo']):
+                $pth = 'certificationRequestInfo/attributes';
+                $attributes = &$this->_subArray($root, $pth, $create);
+
+                if (is_array($attributes)) {
+                    foreach ($attributes as $key => $value) {
+                        if ($value['type'] == 'pkcs-9-at-extensionRequest') {
+                            $path = "$pth/$key/value/0";
+                            break 2;
+                        }
+                    }
+                    if ($create) {
+                        $key = count($attributes);
+                        $attributes[] = array('type' => 'pkcs-9-at-extensionRequest', 'value' => array());
+                        $path = "$pth/$key/value/0";
+                    }
+                }
+                break;
         }
 
         $extensions = &$this->_subArray($root, $path, $create);
@@ -3313,7 +3446,7 @@ class File_X509 {
     }
 
     /**
-     * Remove a certificate or CRL Extension
+     * Remove a certificate, CSR or CRL Extension
      *
      * @param String $id
      * @access public
@@ -3325,7 +3458,7 @@ class File_X509 {
     }
 
     /**
-     * Get a certificate or CRL Extension
+     * Get a certificate, CSR or CRL Extension
      *
      * Returns the extension if it exists and false if not
      *
@@ -3340,7 +3473,7 @@ class File_X509 {
     }
 
     /**
-     * Returns a list of all extensions in use in certificate or CRL
+     * Returns a list of all extensions in use in certificate, CSR or CRL
      *
      * @param array $cert optional
      * @access public
@@ -3352,7 +3485,7 @@ class File_X509 {
     }
 
     /**
-     * Set a certificate or CRL Extension
+     * Set a certificate, CSR or CRL Extension
      *
      * @param String $id
      * @param Mixed $value
@@ -3364,6 +3497,123 @@ class File_X509 {
     function setExtension($id, $value, $critical = false, $replace = true)
     {
         return $this->_setExtension($id, $value, $critical, $replace);
+    }
+
+    /**
+     * Remove a CSR attribute.
+     *
+     * @param String $id
+     * @access public
+     * @return Boolean
+     */
+    function removeAttribute($id)
+    {
+        $attributes = &$this->_subArray($this->currentCert, 'certificationRequestInfo/attributes');
+
+        if (!is_array($attributes)) {
+            return false;
+        }
+
+        $result = false;
+        foreach ($attributes as $key => $value) {
+            if ($value['type'] == $id) {
+                unset($attributes[$key]);
+                $result = true;
+            }
+        }
+
+        $attributes = array_values($attributes);
+        return $result;
+    }
+
+    /**
+     * Get a CRL attribute
+     *
+     * Returns the attribute if it exists and false if not
+     *
+     * @param String $id
+     * @param Array $csr optional
+     * @access public
+     * @return Mixed
+     */
+    function getAttribute($id, $csr = NULL)
+    {
+        if (empty($csr)) {
+            $csr = $this->currentCert;
+        }
+
+        $attributes = $this->_subArray($csr, 'certificationRequestInfo/attributes');
+
+        if (!is_array($attributes)) {
+            return false;
+        }
+
+        foreach ($attributes as $key => $value) {
+            if ($value['type'] == $id) {
+                return $value['value'];
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns a list of all CSR attributes in use
+     *
+     * @param array $csr optional
+     * @access public
+     * @return Array
+     */
+    function getAttributes($csr = NULL)
+    {
+        if (empty($csr)) {
+            $csr = $this->currentCert;
+        }
+
+        $attributes = $this->_subArray($csr, 'certificationRequestInfo/attributes');
+        $attrs = array();
+
+        if (is_array($attributes)) {
+            foreach ($attributes as $attribute) {
+                $attrs[] = $attribute['type'];
+            }
+        }
+
+        return $attrs;
+    }
+
+    /**
+     * Set a CSR attribute
+     *
+     * @param String $id
+     * @param Mixed $value
+     * @param Boolean $replace optional
+     * @access public
+     * @return Boolean
+     */
+    function setAttribute($id, $value, $replace = true)
+    {
+        $attributes = &$this->_subArray($this->currentCert, 'certificationRequestInfo/attributes', true);
+
+        if (!is_array($attributes)) {
+            return false;
+        }
+
+        $newattr = array('type'  => $id, 'value' => $value);
+
+        foreach ($attributes as $key => $value) {
+            if ($value['type'] == $id) {
+                if (!$replace) {
+                    return false;
+                }
+
+                $attributes[$key] = $newattr;
+                return true;
+            }
+        }
+
+        $attributes[] = $newattr;
+        return true;
     }
 
     /**
