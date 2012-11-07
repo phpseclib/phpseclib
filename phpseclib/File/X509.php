@@ -251,16 +251,14 @@ class File_X509 {
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1
 
-        $temp = array('min' => 1, 'max' => -1);
-
         $DirectoryString = array(
             'type'     => FILE_ASN1_TYPE_CHOICE,
             'children' => array(
-                'teletexString'   => $temp + array('type' => FILE_ASN1_TYPE_TELETEX_STRING),
-                'printableString' => $temp + array('type' => FILE_ASN1_TYPE_PRINTABLE_STRING),
-                'universalString' => $temp + array('type' => FILE_ASN1_TYPE_UNIVERSAL_STRING),
-                'utf8String'      => $temp + array('type' => FILE_ASN1_TYPE_UTF8_STRING),
-                'bmpString'       => $temp + array('type' => FILE_ASN1_TYPE_BMP_STRING)
+                'teletexString'   => array('type' => FILE_ASN1_TYPE_TELETEX_STRING),
+                'printableString' => array('type' => FILE_ASN1_TYPE_PRINTABLE_STRING),
+                'universalString' => array('type' => FILE_ASN1_TYPE_UNIVERSAL_STRING),
+                'utf8String'      => array('type' => FILE_ASN1_TYPE_UTF8_STRING),
+                'bmpString'       => array('type' => FILE_ASN1_TYPE_BMP_STRING)
             )
         );
 
