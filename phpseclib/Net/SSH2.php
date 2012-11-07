@@ -41,6 +41,21 @@
  * ?>
  * </code>
  *
+ * <code>
+ * <?php
+ *    include('Net/SSH2.php');
+ *    include('Net/File/Agent.php');
+ *
+ *    $agent = new Net_File_Agent();
+ *    $ssh = new Net_SSH2('localhost');
+ *    if (!$ssh->login('username', $agent)) {
+ *      exit('Login Failed');
+ *    }
+ *
+ *    echo $ssh->exec('pwd');
+ * ?>
+ * </code>
+ *
  * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -185,6 +200,20 @@ define('NET_SSH2_READ_REGEX', 2);
  * Make sure that the log never gets larger than this
  */
 define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
+/**#@-*/
+
+/**#@+
+ * @access private
+ * @see Net_SSH2::_privatekey_login()
+ */
+/**
+ * Used when a Crypt_RSA object is passed as the second parameter of login()
+ */
+define('NET_SSH2_PRIVKEY_MODE_RSA', 0);
+/**
+ * Used when a Net_SSH2_Agent object is passed as the second parameter of login()
+ */
+define('NET_SSH2_PRIVKEY_MODE_AGENT', 1);
 /**#@-*/
 
 /**
@@ -698,6 +727,14 @@ class Net_SSH2 {
      * @access private
      */
     var $quiet_mode = false;
+
+    /**
+     * SSH Agent object
+     *
+     * @see Net_SSH2::_ssh_agent_login()
+     * @access private
+     */
+    var $agent;
 
     /**
      * Default Constructor.
@@ -1461,8 +1498,13 @@ class Net_SSH2 {
         }
 
         // although PHP5's get_class() preserves the case, PHP4's does not
-        if (is_object($password) && strtolower(get_class($password)) == 'crypt_rsa') {
-            return $this->_privatekey_login($username, $password);
+        if (is_object($password)) {
+            switch(strtolower(get_class($password))) {
+                case 'crypt_rsa':
+                    return $this->_privatekey_login($username, $password);
+                case 'file_agent':
+                    return $this->_ssh_agent_login($username, $password);
+            }
         }
 
         $packet = pack('CNa*Na*Na*CNa*',
@@ -1516,6 +1558,33 @@ class Net_SSH2 {
                 $this->bitmap |= NET_SSH2_MASK_LOGIN;
                 return true;
         }
+
+        return false;
+    }
+
+    /**
+     * Login with ssh-agent
+     *
+     * Try to login with all the key added to ssh-agent
+     *
+     * @param String $username
+     * @return Boolean
+     * @access public
+     */
+    function _ssh_agent_login($username, $agent)
+    {
+        $this->agent = $agent;
+
+        $this->agent->connect();
+        $this->agent->requestIdentities();
+
+        foreach ($agent->getKeys() as $key) {
+            if ($this->_privatekey_login($username, $key, NET_SSH2_PRIVKEY_MODE_AGENT)) {
+                return true;
+            }
+        }
+
+        $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
 
         return false;
     }
@@ -1641,7 +1710,7 @@ class Net_SSH2 {
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.
      */
-    function _privatekey_login($username, $privatekey)
+    function _privatekey_login($username, $privatekey, $mode = NET_SSH2_PRIVKEY_MODE_RSA)
     {
         // see http://tools.ietf.org/html/rfc4253#page-15
         $publickey = $privatekey->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_RAW);
@@ -1680,7 +1749,7 @@ class Net_SSH2 {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . $this->_string_shift($response, $length);
-                return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
+                return $mode == NET_SSH2_PRIVKEY_MODE_AGENT ? false : $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
@@ -1694,9 +1763,19 @@ class Net_SSH2 {
         }
 
         $packet = $part1 . chr(1) . $part2;
-        $privatekey->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
-        $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet));
-        $signature = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($signature), $signature);
+        $data = pack('Na*a*', strlen($this->session_id), $this->session_id, $packet);
+
+        switch ($mode) {
+            case NET_SSH2_PRIVKEY_MODE_AGENT:
+                $signature = $this->agent->sign($publickey, $data);
+                break;
+            //case NET_SSH2_PRIVKEY_MODE_RSA:
+            default:
+                $privatekey->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+                $signature = $privatekey->sign($data);
+                $signature = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($signature), $signature);
+        }
+
         $packet.= pack('Na*', strlen($signature), $signature);
 
         if (!$this->_send_binary_packet($packet)) {
