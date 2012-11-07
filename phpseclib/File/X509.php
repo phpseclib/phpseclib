@@ -3491,7 +3491,7 @@ class File_X509 {
      * @param Mixed $value
      * @param Boolean $critical optional
      * @param Boolean $replace optional
-     * @access private
+     * @access public
      * @return Boolean
      */
     function setExtension($id, $value, $critical = false, $replace = true)
