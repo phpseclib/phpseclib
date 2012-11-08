@@ -504,12 +504,10 @@ class Net_SFTP extends Net_SSH2 {
      * Canonicalize the Server-Side Path Name
      *
      * SFTP doesn't provide a mechanism by which the current working directory can be changed, so we'll emulate it.  Returns
-     * the absolute (canonicalized) path.  If $mode is set to NET_SFTP_CONFIRM_DIR (as opposed to NET_SFTP_CONFIRM_NONE,
-     * which is what it is set to by default), false is returned if $dir is not a valid directory.
+     * the absolute (canonicalized) path.
      *
      * @see Net_SFTP::chdir()
      * @param String $dir
-     * @param optional Integer $mode
      * @return Mixed
      * @access private
      */
@@ -544,7 +542,11 @@ class Net_SFTP extends Net_SSH2 {
             $dir = $dir[0] == '/' ? '/' . rtrim(substr($dir, 1), '/') : rtrim($dir, '/');
 
             if ($dir == '.' || $dir == $this->pwd) {
-                return $this->pwd . $file;
+                $temp = $this->pwd;
+                if (!empty($file)) {
+                    $temp.= '/' . $file;
+                }
+                return $temp;
             }
 
             if ($dir[0] != '/') {
@@ -1207,11 +1209,40 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        $dir = $this->_realpath(rtrim($dir, '/'));
-        if ($dir === false) {
-            return false;
+        if ($dir[0] != '/') {
+            $dir = $this->_realpath(rtrim($dir, '/'));
+            if ($dir === false) {
+                return false;
+            }
+            if (!$this->_mkdir_helper($dir)) {
+                return false;
+            }
+        } else {
+            $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $dir));
+            $temp = '';
+            foreach ($dirs as $dir) {
+                $temp.= '/' . $dir;
+                $result = $this->_mkdir_helper($temp);
+            }
+            if (!$result) {
+                return false;
+            }
         }
 
+        $this->_save_dir($dir);
+
+        return true;
+    }
+
+    /**
+     * Helper function for directory creation
+     *
+     * @param String $dir
+     * @return Boolean
+     * @access private
+     */
+    function _mkdir_helper($dir)
+    {
         // by not providing any permissions, hopefully the server will use the logged in users umask - their 
         // default permissions.
         if (!$this->_send_sftp_packet(NET_SFTP_MKDIR, pack('Na*N', strlen($dir), $dir, 0))) {
@@ -1229,8 +1260,6 @@ class Net_SFTP extends Net_SSH2 {
             $this->_logError($response, $status);
             return false;
         }
-
-        $this->_save_dir($dir);
 
         return true;
     }
