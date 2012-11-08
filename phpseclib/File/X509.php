@@ -2805,8 +2805,7 @@ class File_X509 {
 
         if (isset($subject->domains) && count($subject->domains) > 1) {
             $this->setExtension('id-ce-subjectAltName',
-                array_map(create_function('$domain',
-                    'return array("dNSName" => $domain);'), $subject->domains));
+                array_map(array('File_X509', '_dnsName'), $subject->domains));
         }
 
         if ($this->caFlag) {
@@ -3497,6 +3496,18 @@ class File_X509 {
         $this->domains = func_get_args();
         $this->removeDNProp('id-at-commonName');
         $this->setDNProp('id-at-commonName', $this->domains[0]);
+    }
+
+    /**
+     * Helper function to build domain array
+     *
+     * @access private
+     * @param String $domain
+     * @return Array
+     */
+    function _dnsName($domain)
+    {
+        return array('dNSName' => $domain);
     }
 
     /**
