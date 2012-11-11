@@ -851,7 +851,7 @@ class Net_SSH2 {
             $this->message_number_log[] = '->';
 
             if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
-                $this->message_log[] = $temp;
+                $this->message_log[] = $extra . $temp;
                 $this->message_log[] = $this->identifier . "\r\n";
             }
         }
