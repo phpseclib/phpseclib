@@ -59,15 +59,35 @@ if (!class_exists('File_ASN1')) {
  */
 define('FILE_X509_VALIDATE_SIGNATURE_BY_CA', 1);
 
+/**#@+
+ * @access public
+ * @see File_X509::getDN()
+ */
 /**
- * Name format tokens for the getDN() method.
+ * Return internal array representation
  */
 define('FILE_X509_DN_ARRAY', 0); // Internal array representation.
-define('FILE_X509_DN_STRING', 1); // String.
-define('FILE_X509_DN_ASN1', 2); // ASN.1 Name string.
-define('FILE_X509_DN_OPENSSL', 3); // OpenSSL compatible array.
-define('FILE_X509_DN_CANON', 4); // Canonical ASN.1 RDNs string.
-define('FILE_X509_DN_HASH', 5); // Name hash for file indexing.
+/**
+ * Return string
+ */
+define('FILE_X509_DN_STRING', 1)
+/**
+ * Return ASN.1 name string
+ */
+define('FILE_X509_DN_ASN1', 2);
+/**
+ * Return OpenSSL compatible array
+ */
+define('FILE_X509_DN_OPENSSL', 3);
+/**
+ * Return canonical ASN.1 RDNs string
+ */
+define('FILE_X509_DN_CANON', 4);
+/**
+ * Return name ash for file indexing
+ */
+define('FILE_X509_DN_HASH', 5);
+/**#@-*/
 
 /**
  * Pure-PHP X.509 Parser
@@ -1346,8 +1366,11 @@ class File_X509 {
             subject=/O=organization/OU=org unit/CN=common name
             issuer=/O=organization/CN=common name
         */
-        $cert = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $cert);
-        $cert = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $cert) ? base64_decode($cert) : false;
+        $temp = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $cert);
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        if ($temp != false) {
+            $cert = $temp;
+        }
 
         if ($cert === false) {
             $this->currentCert = false;
@@ -2361,7 +2384,7 @@ class File_X509 {
                 return $this->getDN($format, $this->currentCert['tbsCertList']['issuer']);
         }
 
-    return false;
+        return false;
     }
 
     /**
@@ -2385,7 +2408,7 @@ class File_X509 {
                 return $this->getDN($format, $this->currentCert['certificationRequestInfo']['subject']);
         }
 
-    return false;
+        return false;
     }
 
     /**
@@ -2407,7 +2430,7 @@ class File_X509 {
                 return $this->getDNProp($propname, $this->currentCert['tbsCertList']['issuer'], $withType);
         }
 
-    return false;
+        return false;
     }
 
     /**
@@ -2431,7 +2454,7 @@ class File_X509 {
                 return $this->getDNProp($propname, $this->currentCert['certificationRequestInfo']['subject'], $withType);
         }
 
-    return false;
+        return false;
     }
 
     /**
@@ -2518,8 +2541,11 @@ class File_X509 {
 
         $asn1 = new File_ASN1();
 
-        $csr = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $csr);
-        $orig = $csr = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $csr) ? base64_decode($csr) : false;
+        $temp = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $csr);
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        if ($temp != false) {
+            $orig = $csr = $temp;
+        }
 
         if ($csr === false) {
             $this->currentCert = false;
@@ -2612,8 +2638,11 @@ class File_X509 {
     {
         $asn1 = new File_ASN1();
 
-        $crl = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]#', '', $crl);
-        $orig = $crl = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $crl) ? base64_decode($crl) : false;
+        $temp = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $csr);
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        if ($temp != false) {
+            $orig = $crl = $temp;
+        }
 
         if ($crl === false) {
             $this->currentCert = false;
@@ -2635,6 +2664,8 @@ class File_X509 {
         }
 
         $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
+
+        $this->dn = $crl['tbsCertList']['issuer'];
 
         $this->_mapInExtensions($crl, 'tbsCertList/crlExtensions', $asn1);
         $rclist = &$this->_subArray($crl,'tbsCertList/revokedCertificates');
