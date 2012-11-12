@@ -70,7 +70,7 @@ define('FILE_X509_DN_ARRAY', 0); // Internal array representation.
 /**
  * Return string
  */
-define('FILE_X509_DN_STRING', 1)
+define('FILE_X509_DN_STRING', 1);
 /**
  * Return ASN.1 name string
  */
