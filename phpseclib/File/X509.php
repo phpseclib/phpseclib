@@ -2544,8 +2544,9 @@ class File_X509 {
         $temp = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $csr);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
         if ($temp != false) {
-            $orig = $csr = $temp;
+            $csr = $temp;
         }
+        $orig = $csr;
 
         if ($csr === false) {
             $this->currentCert = false;
@@ -2641,8 +2642,9 @@ class File_X509 {
         $temp = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $csr);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
         if ($temp != false) {
-            $orig = $crl = $temp;
+            $crl = $temp;
         }
+        $orig = $crl;
 
         if ($crl === false) {
             $this->currentCert = false;
