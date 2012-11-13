@@ -1660,8 +1660,16 @@ class File_X509 {
      */
     function loadCA($cert)
     {
+        $olddn = $this->dn;
+        $oldcert = $this->currentCert;
+        $oldsigsubj = $this->signatureSubject;
+
         $cert = $this->loadX509($cert);
         if (!$cert) {
+            $this->dn = $olddn;
+            $this->currentCert = $oldcert;
+            $this->signatureSubject = $oldsigsubj;
+
             return false;
         }
 
@@ -1690,8 +1698,10 @@ class File_X509 {
         //}
 
         $this->CAs[] = $cert;
-        unset($this->currentCert);
-        unset($this->signatureSubject);
+
+        $this->dn = $olddn;
+        $this->currentCert = $oldcert;
+        $this->signatureSubject = $oldsigsubj;
 
         return true;
     }
