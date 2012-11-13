@@ -2232,7 +2232,7 @@ class File_X509 {
     function getDN($format = FILE_X509_DN_ARRAY, $dn = NULL)
     {
         if (!isset($dn)) {
-            $dn = $this->dn;
+            $dn = isset($this->currentCert['tbsCertList']) ? this->currentCert['tbsCertList']['issuer'] : $this->dn;
         }
 
         switch ((int) $format) {
@@ -2666,8 +2666,6 @@ class File_X509 {
         }
 
         $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
-
-        $this->dn = $crl['tbsCertList']['issuer'];
 
         $this->_mapInExtensions($crl, 'tbsCertList/crlExtensions', $asn1);
         $rclist = &$this->_subArray($crl,'tbsCertList/revokedCertificates');
@@ -3658,7 +3656,7 @@ class File_X509 {
 
         $result = array();
 
-        if (!is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
+        if (is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
             foreach ($rclist as $rc) {
                 $result[] = $rc['userCertificate']->toString();
             }
