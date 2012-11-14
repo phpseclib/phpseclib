@@ -70,6 +70,14 @@ define('FILE_X509_DN_CANON', 4); // Canonical ASN.1 RDNs string.
 define('FILE_X509_DN_HASH', 5); // Name hash for file indexing.
 
 /**
+ * Attribute value disposition.
+ * If disposition is >= 0, this is the index of the target value.
+ */
+define('FILE_X509_ATTR_ALL', -1); // All attribute values (array).
+define('FILE_X509_ATTR_APPEND', -2); // Add a value.
+define('FILE_X509_ATTR_REPLACE', -3); // Clear first, then add a value.
+
+/**
  * Pure-PHP X.509 Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -2888,10 +2896,10 @@ class File_X509 {
             );
 
             // Copy extensions from CSR.
-            $csrexts = $subject->getAttribute('pkcs-9-at-extensionRequest');
+            $csrexts = $subject->getAttribute('pkcs-9-at-extensionRequest', 0);
 
             if (!empty($csrexts)) {
-                $this->CurrentCert['tbsCertificate']['extensions'] = $csrexts[0];
+                $this->currentCert['tbsCertificate']['extensions'] = $csrexts;
             }
         }
 
@@ -3502,10 +3510,11 @@ class File_X509 {
      * Remove a CSR attribute.
      *
      * @param String $id
+     * @param Integer $disposition optional
      * @access public
      * @return Boolean
      */
-    function removeAttribute($id)
+    function removeAttribute($id, $disposition = FILE_X509_ATTR_ALL)
     {
         $attributes = &$this->_subArray($this->currentCert, 'certificationRequestInfo/attributes');
 
@@ -3514,10 +3523,31 @@ class File_X509 {
         }
 
         $result = false;
-        foreach ($attributes as $key => $value) {
-            if ($value['type'] == $id) {
-                unset($attributes[$key]);
-                $result = true;
+        foreach ($attributes as $key => $attribute) {
+            if ($attribute['type'] == $id) {
+                $n = count($attribute['value']);
+                switch (true) {
+                    case $disposition == FILE_X509_ATTR_APPEND:
+                    case $disposition == FILE_X509_ATTR_REPLACE:
+                        return false;
+                    case $disposition >= $n;
+                    case $disposition >= $n;
+                        $disposition -= $n;
+                        break;
+                    case $disposition == FILE_X509_ATTR_ALL:
+                    case $n == 1:
+                        unset($attributes[$key]);
+                        $result = true;
+                        break;
+                    default:
+                        unset($attributes[$key]['value'][$disposition]);
+                        $attributes[$key]['value'] = array_values($attributes[$key]['value']);
+                        $result = true;
+                        break;
+                }
+                if ($result && $disposition != FILE_X509_ATTR_ALL) {
+                    break;
+                }
             }
         }
 
@@ -3526,16 +3556,17 @@ class File_X509 {
     }
 
     /**
-     * Get a CRL attribute
+     * Get a CSR attribute
      *
      * Returns the attribute if it exists and false if not
      *
      * @param String $id
+     * @param Integer $disposition optional
      * @param Array $csr optional
      * @access public
      * @return Mixed
      */
-    function getAttribute($id, $csr = NULL)
+    function getAttribute($id, $disposition = FILE_X509_ATTR_ALL, $csr = NULL)
     {
         if (empty($csr)) {
             $csr = $this->currentCert;
@@ -3547,9 +3578,21 @@ class File_X509 {
             return false;
         }
 
-        foreach ($attributes as $key => $value) {
-            if ($value['type'] == $id) {
-                return $value['value'];
+        foreach ($attributes as $key => $attribute) {
+            if ($attribute['type'] == $id) {
+                $n = count($attribute['value']);
+                switch (true) {
+                    case $disposition == FILE_X509_ATTR_APPEND:
+                    case $disposition == FILE_X509_ATTR_REPLACE:
+                        return false;
+                    case $disposition == FILE_X509_ATTR_ALL:
+                        return $attribute['value'];
+                    case $disposition >= $n:
+                        $disposition -= $n;
+                        break;
+                    default:
+                        return $attribute['value'][$disposition];
+                }
             }
         }
 
@@ -3586,11 +3629,11 @@ class File_X509 {
      *
      * @param String $id
      * @param Mixed $value
-     * @param Boolean $replace optional
+     * @param Boolean $disposition optional
      * @access public
      * @return Boolean
      */
-    function setAttribute($id, $value, $replace = true)
+    function setAttribute($id, $value, $disposition = FILE_X509_ATTR_ALL)
     {
         $attributes = &$this->_subArray($this->currentCert, 'certificationRequestInfo/attributes', true);
 
@@ -3598,20 +3641,42 @@ class File_X509 {
             return false;
         }
 
-        $newattr = array('type'  => $id, 'value' => $value);
+        switch ($disposition) {
+            case FILE_X509_ATTR_REPLACE:
+                $disposition = FILE_X509_ATTR_APPEND;
+            case FILE_X509_ATTR_ALL:
+                $this->removeAttribute($id);
+                break;
+        }
 
-        foreach ($attributes as $key => $value) {
-            if ($value['type'] == $id) {
-                if (!$replace) {
-                    return false;
+        foreach ($attributes as $key => $attribute) {
+            if ($attribute['type'] == $id) {
+                $n = count($attribute['value']);
+                switch (true) {
+                    case $disposition == FILE_X509_ATTR_APPEND:
+                        $last = $key;
+                        break;
+                    case $disposition >= $n;
+                        $disposition -= $n;
+                        break;
+                    default:
+                        $attributes[$key]['value'][$disposition] = $value;
+                        return true;
                 }
-
-                $attributes[$key] = $newattr;
-                return true;
             }
         }
 
-        $attributes[] = $newattr;
+        switch (true) {
+            case $disposition >= 0:
+                return false;
+            case isset($last):
+                $attributes[$last]['value'][] = $value;
+                break;
+            default:
+                $attributes[] = array('type' => $id, 'value' => $disposition == FILE_X509_ATTR_ALL ? $value: array($value));
+                break;
+        }
+
         return true;
     }
 
