@@ -1229,8 +1229,6 @@ class Net_SFTP extends Net_SSH2 {
             }
         }
 
-        $this->_save_dir($dir);
-
         return true;
     }
 
@@ -1260,6 +1258,8 @@ class Net_SFTP extends Net_SSH2 {
             $this->_logError($response, $status);
             return false;
         }
+
+        $this->_save_dir($dir);
 
         return true;
     }
