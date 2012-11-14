@@ -428,7 +428,7 @@ class Net_SSH1 {
      * @var Array
      * @access private
      */
-    var $interactive_buffer = '';
+    var $interactiveBuffer = '';
 
     /**
      * Default Constructor.
