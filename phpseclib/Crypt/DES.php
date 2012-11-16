@@ -723,7 +723,7 @@ class Crypt_DES {
                 mcrypt_generic_init($this->demcrypt, $this->keys, $this->decryptIV);
             }
 
-            return $this->mode != 'ctr' ? $this->_unpad($plaintext) : $plaintext;
+            return $this->paddable ? $this->_unpad($plaintext) : $plaintext;
         }
 
         if (!is_array($this->keys)) {
