@@ -3426,10 +3426,10 @@ class File_X509 {
     /**
      * Compute a public key identifier.
      *
-     *  Although key identifiers may be set to any unique value, this function
+     * Although key identifiers may be set to any unique value, this function
      * computes key identifiers from public key according to the two
      * recommended methods (4.2.1.2 RFC 3280).
-     *  Highly polymorphic: try to accept all possible forms of key:
+     * Highly polymorphic: try to accept all possible forms of key:
      * - Key object
      * - File_X509 object with public or private key defined
      * - Certificate or CSR array
@@ -3497,7 +3497,7 @@ class File_X509 {
             $hash[0] = chr((ord($hash[0]) & 0x0F) | 0x40);
         }
 
-    return $hash;
+        return $hash;
     }
 
     /**
@@ -3560,7 +3560,6 @@ class File_X509 {
      * @access private
      * @return Integer or false
      */
-
     function _revokedCertificate(&$rclist, $serial, $create = false)
     {
         $serial = new Math_BigInteger($serial);
