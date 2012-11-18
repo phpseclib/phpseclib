@@ -1184,7 +1184,6 @@ class File_ASN1 {
      * @return String
      * @access public
      */
-
     function convert($in, $from = FILE_ASN1_TYPE_UTF8_STRING, $to = FILE_ASN1_TYPE_UTF8_STRING)
     {
         if (!isset($this->stringTypeSize[$from]) || !isset($this->stringTypeSize[$to])) {
