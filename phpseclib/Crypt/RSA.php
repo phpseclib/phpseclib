@@ -1148,7 +1148,8 @@ class Crypt_RSA {
                 xml_set_object($xml, $this);
                 xml_set_element_handler($xml, '_start_element_handler', '_stop_element_handler');
                 xml_set_character_data_handler($xml, '_data_handler');
-                if (!xml_parse($xml, $key)) {
+                // add <xml></xml> to account for "dangling" tags like <BitStrength>...</BitStrength> that are sometimes added
+                if (!xml_parse($xml, '<xml>' . $key . '</xml>')) {
                     return false;
                 }
 
@@ -2481,7 +2482,6 @@ class Crypt_RSA {
         }
 
         // Compare
-
         return $this->_equals($em, $em2);
     }
 
@@ -2569,6 +2569,8 @@ class Crypt_RSA {
         }
 
         $ciphertext = str_split($ciphertext, $this->k);
+        $ciphertext[count($ciphertext) - 1] = str_pad($ciphertext[count($ciphertext) - 1], $this->k, chr(0), STR_PAD_LEFT);
+
         $plaintext = '';
 
         switch ($this->encryptionMode) {
