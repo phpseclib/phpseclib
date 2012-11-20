@@ -1809,9 +1809,7 @@ class File_X509 {
      * Validate a signature
      *
      * Works on X.509 certs, CSR's and CRL's.
-     * Returns 1 if the signature is verified, 0 if it is not correct or -1 on error
-     *
-     * To know if a signature is valid one should do validateSignature() === 1
+     * Returns true if the signature is verified, false if it is not correct or NULL on error
      *
      * The behavior of this function is inspired by {@link http://php.net/openssl-verify openssl_verify}.
      *
@@ -1861,10 +1859,10 @@ class File_X509 {
                         }
                     }
                     if (count($this->CAs) == $i && ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA)) {
-                        return 0;
+                        return false;
                     }
                 } elseif (!isset($signingCert) || ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA)) {
-                    return 0;
+                    return false;
                 }
                 return $this->_validateSignature(
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
@@ -1898,7 +1896,7 @@ class File_X509 {
                     }
                 }
                 if (!isset($signingCert)) {
-                    return 0;
+                    return false;
                 }
                 return $this->_validateSignature(
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
@@ -1908,14 +1906,14 @@ class File_X509 {
                     $this->signatureSubject
                 );
             default:
-                return 0;
+                return false;
         }
     }
 
     /**
      * Validates a signature
      *
-     * Returns 1 if the signature is verified, 0 if it is not correct or -1 on error
+     * Returns true if the signature is verified, false if it is not correct or NULL on error
      *
      * @param String $publicKeyAlgorithm
      * @param String $publicKey
@@ -1947,18 +1945,18 @@ class File_X509 {
                         $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
 
                         if (!@$rsa->verify($signatureSubject, $signature)) {
-                            return 0;
+                            return false;
                         }
                         break;
                     default:
-                        return -1;
+                        return NULL;
                 }
                 break;
             default:
-                return -1;
+                return NULL;
         }
 
-        return 1;
+        return true;
     }
 
     /**
