@@ -700,6 +700,13 @@ class Net_SSH2 {
     var $quiet_mode = false;
 
     /**
+     * Time of first network activity
+     *
+     * @access private
+     */
+    var $last_packet;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -712,6 +719,7 @@ class Net_SSH2 {
      */
     function Net_SSH2($host, $port = 22, $timeout = 10)
     {
+        $this->last_packet = strtok(microtime(), ' ') + strtok(''); // == microtime(true) in PHP5
         $this->message_numbers = array(
             1 => 'NET_SSH2_MSG_DISCONNECT',
             2 => 'NET_SSH2_MSG_IGNORE',
@@ -2052,10 +2060,12 @@ class Net_SSH2 {
         $this->get_seq_no++;
 
         if (defined('NET_SSH2_LOGGING')) {
+            $current = strtok(microtime(), ' ') + strtok('');
             $message_number = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
             $message_number = '<- ' . $message_number .
-                              ' (' . round($stop - $start, 4) . 's)';
+                              ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
             $this->_append_log($message_number, $payload);
+            $this->last_packet = $current;
         }
 
         return $this->_filter($payload);
@@ -2385,10 +2395,12 @@ class Net_SSH2 {
         $stop = strtok(microtime(), ' ') + strtok('');
 
         if (defined('NET_SSH2_LOGGING')) {
+            $current = strtok(microtime(), ' ') + strtok('');
             $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
             $message_number = '-> ' . $message_number .
-                              ' (' . round($stop - $start, 4) . 's)';
+                              ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
             $this->_append_log($message_number, $data);
+            $this->last_packet = $current;
         }
 
         return $result;
@@ -2425,8 +2437,8 @@ class Net_SSH2 {
                 // identified
                 case NET_SSH2_LOG_REALTIME:
                     echo "<pre>\r\n" . $this->_format_log(array($message), array($message_number)) . "\r\n</pre>\r\n";
-                    flush();
-                    ob_flush();
+                    @flush();
+                    @ob_flush();
                     break;
                 // basically the same thing as NET_SSH2_LOG_REALTIME with the caveat that NET_SSH2_LOG_REALTIME_FILE
                 // needs to be defined and that the resultant log file will be capped out at NET_SSH2_LOG_MAX_SIZE. 
