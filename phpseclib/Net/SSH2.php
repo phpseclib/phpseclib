@@ -2000,6 +2000,7 @@ class Net_SSH2 {
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             user_error('Connection closed prematurely', E_USER_NOTICE);
+            $this->bitmask = 0;
             return false;
         }
 
@@ -2345,6 +2346,7 @@ class Net_SSH2 {
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             user_error('Connection closed prematurely', E_USER_NOTICE);
+            $this->bitmask = 0;
             return false;
         }
 
