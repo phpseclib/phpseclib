@@ -1354,7 +1354,7 @@ class File_X509 {
         if (is_array($cert) && isset($cert['tbsCertificate'])) {
             $this->currentCert = $cert;
             unset($this->signatureSubject);
-            return false;
+            return $cert;
         }
 
         $asn1 = new File_ASN1();
@@ -2545,6 +2545,12 @@ class File_X509 {
      */
     function loadCSR($csr)
     {
+        if (is_array($csr) && isset($csr['certificationRequestInfo'])) {
+            $this->currentCert = $csr;
+            unset($this->signatureSubject);
+            return $csr;
+        }
+
         // see http://tools.ietf.org/html/rfc2986
 
         $asn1 = new File_ASN1();
@@ -2645,9 +2651,15 @@ class File_X509 {
      */
     function loadCRL($crl)
     {
+        if (is_array($crl) && isset($crl['tbsCertList'])) {
+            $this->currentCert = $crl;
+            unset($this->signatureSubject);
+            return $crl;
+        }
+
         $asn1 = new File_ASN1();
 
-        $temp = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $csr);
+        $temp = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $crl);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
         if ($temp != false) {
             $crl = $temp;
@@ -2988,8 +3000,7 @@ class File_X509 {
 
         if (!empty($this->endDate)) {
             $tbsCertList['nextUpdate'] = array('generalTime' => $this->endDate); // $this->setEndDate()
-        }
-        else {
+        } else {
             unset($tbsCertList['nextUpdate']);
         }
 
@@ -2999,7 +3010,7 @@ class File_X509 {
         else {
             $crlNumber = $this->getExtension('id-ce-cRLNumber');
             $crlNumber = $crlNumber !== false ? $crlNumber->add(new Math_BigInteger(1)) : NULL;
-            }
+        }
 
         $this->removeExtension('id-ce-authorityKeyIdentifier');
         $this->removeExtension('id-ce-issuerAltName');
