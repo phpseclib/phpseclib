@@ -1352,8 +1352,19 @@ class File_X509 {
     function loadX509($cert)
     {
         if (is_array($cert) && isset($cert['tbsCertificate'])) {
+            unset($this->currentCert);
+            unset($this->currentKeyIdentifier);
+            $this->dn = $cert['tbsCertificate']['subject'];
+            if (!isset($this->dn)) {
+                return false;
+            }
             $this->currentCert = $cert;
+
+            $currentKeyIdentifier = $this->getExtension('id-ce-subjectKeyIdentifier');
+            $this->currentKeyIdentifier = is_string($currentKeyIdentifier) ? $currentKeyIdentifier : NULL;
+
             unset($this->signatureSubject);
+
             return $cert;
         }
 
@@ -1663,12 +1674,14 @@ class File_X509 {
         $olddn = $this->dn;
         $oldcert = $this->currentCert;
         $oldsigsubj = $this->signatureSubject;
+        $oldkeyid = $this->currentKeyIdentifier;
 
         $cert = $this->loadX509($cert);
         if (!$cert) {
             $this->dn = $olddn;
             $this->currentCert = $oldcert;
             $this->signatureSubject = $oldsigsubj;
+            $this->currentKeyIdentifier = $oldkeyid;
 
             return false;
         }
@@ -2466,6 +2479,51 @@ class File_X509 {
     }
 
     /**
+     * Get the certificate chain for the current cert
+     *
+     * @access public
+     * @return Mixed
+     */
+    function getChain()
+    {
+        $chain = array($this->currentCert);
+
+        if (!is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
+            return false;
+        }
+        if (empty($this->CAs)) {
+            return $chain;
+        }
+        while (true) {
+            $currentCert = $chain[count($chain) - 1];
+            for ($i = 0; $i < count($this->CAs); $i++) {
+                $ca = $this->CAs[$i];
+                if ($currentCert['tbsCertificate']['issuer'] === $ca['tbsCertificate']['subject']) {
+                    $authorityKey = $this->getExtension('id-ce-authorityKeyIdentifier', $currentCert);
+                    $subjectKeyID = $this->getExtension('id-ce-subjectKeyIdentifier', $ca);
+                    switch (true) {
+                        case !is_array($authorityKey):
+                        case is_array($authorityKey) && isset($authorityKey['keyIdentifier']) && $authorityKey['keyIdentifier'] === $subjectKeyID:
+                            if ($currentCert === $ca) {
+                                break 3;
+                            }
+                            $chain[] = $ca;
+                            break 2;
+                    }
+                }
+            }
+            if ($i == count($this->CAs)) {
+                break;
+            }
+        }
+        foreach ($chain as $key=>$value) {
+            $chain[$key] = new File_X509();
+            $chain[$key]->loadX509($value);
+        }
+        return $chain;
+    }
+
+    /**
      * Set public key
      *
      * Key needs to be a Crypt_RSA object
@@ -2546,6 +2604,13 @@ class File_X509 {
     function loadCSR($csr)
     {
         if (is_array($csr) && isset($csr['certificationRequestInfo'])) {
+            unset($this->currentCert);
+            unset($this->currentKeyIdentifier);
+            $this->dn = $csr['certificationRequestInfo']['subject'];
+            if (!isset($this->dn)) {
+                return false;
+            }
+
             $this->currentCert = $csr;
             unset($this->signatureSubject);
             return $csr;
