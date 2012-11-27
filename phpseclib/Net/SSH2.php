@@ -1474,7 +1474,7 @@ class Net_SSH2 {
         }
 
         if (!isset($password)) {
-            $packet = pack('CNa*Na*Na*CNa*',
+            $packet = pack('CNa*Na*Na*',
                 NET_SSH2_MSG_USERAUTH_REQUEST, strlen($username), $username, strlen('ssh-connection'), 'ssh-connection',
                 strlen('none'), 'none'
             );
