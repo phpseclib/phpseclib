@@ -1441,7 +1441,7 @@ class Net_SSH2 {
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.
      */
-    function login($username, $password = '')
+    function login($username, $password = null)
     {
         if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
             return false;
@@ -1471,6 +1471,34 @@ class Net_SSH2 {
         // although PHP5's get_class() preserves the case, PHP4's does not
         if (is_object($password) && strtolower(get_class($password)) == 'crypt_rsa') {
             return $this->_privatekey_login($username, $password);
+        }
+
+        if (!isset($password)) {
+            $packet = pack('CNa*Na*Na*',
+                NET_SSH2_MSG_USERAUTH_REQUEST, strlen($username), $username, strlen('ssh-connection'), 'ssh-connection',
+                strlen('none'), 'none'
+            );
+
+            if (!$this->_send_binary_packet($packet)) {
+                return false;
+            }
+
+            $response = $this->_get_binary_packet();
+            if ($response === false) {
+                user_error('Connection closed by server', E_USER_NOTICE);
+                return false;
+            }
+
+            extract(unpack('Ctype', $this->_string_shift($response, 1)));
+
+            switch ($type) {
+                case NET_SSH2_MSG_USERAUTH_SUCCESS:
+                    $this->bitmap |= NET_SSH2_MASK_LOGIN;
+                    return true;
+                //case NET_SSH2_MSG_USERAUTH_FAILURE:
+                default:
+                    return false;
+            }
         }
 
         $packet = pack('CNa*Na*Na*CNa*',
@@ -1931,7 +1959,7 @@ class Net_SSH2 {
         while (true) {
             if ($mode == NET_SSH2_READ_REGEX) {
                 preg_match($expect, $this->interactiveBuffer, $matches);
-                $match = $matches[0];
+                $match = isset($matches[0]) ? $matches[0] : array();
             }
             $pos = !empty($match) ? strpos($this->interactiveBuffer, $match) : false;
             if ($pos !== false) {
