@@ -84,7 +84,7 @@ define('FILE_X509_DN_OPENSSL', 3);
  */
 define('FILE_X509_DN_CANON', 4);
 /**
- * Return name ash for file indexing
+ * Return name hash for file indexing
  */
 define('FILE_X509_DN_HASH', 5);
 /**#@-*/
