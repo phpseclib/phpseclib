@@ -1285,7 +1285,7 @@ class File_ASN1 {
             $class = defined('PHPSECLIB_EXCEPTION_CLASS') && class_exists(PHPSECLIB_EXCEPTION_CLASS) ? PHPSECLIB_EXCEPTION_CLASS : 'Exception';
             throw(new $class($err_msg));
         } else {
-            $this->_handle_error($err_msg);
+            user_error($err_msg);
         }
     }
 }
