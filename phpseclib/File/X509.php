@@ -1569,7 +1569,7 @@ class File_X509 {
                 $map = $this->_getMapping($id);
                 if (is_bool($map)) {
                     if (!$map) {
-                        user_error($id . ' is not a currently supported extension', E_USER_NOTICE);
+                        $this->_handle_error($id . ' is not a currently supported extension');
                         unset($extensions[$i]);
                     }
                 } else {
@@ -3838,5 +3838,23 @@ class File_X509 {
         }
 
         return false;
+    }
+
+    /**
+     * Error Handler
+     *
+     * Throws exceptions if PHPSECLIB_USE_EXCEPTIONS is defined.
+     * Unless PHPSECLIB_EXCEPTION_CLASS is set it'll throw generic Exceptions.
+     *
+     * @param String $string
+     * @access private
+     */
+    function _handle_error($err_msg) {
+        if (defined('PHPSECLIB_USE_EXCEPTIONS') && version_compare(PHP_VERSION, '5.1.0', '>=')) {
+            $class = defined('PHPSECLIB_EXCEPTION_CLASS') && class_exists(PHPSECLIB_EXCEPTION_CLASS) ? PHPSECLIB_EXCEPTION_CLASS : 'Exception';
+            throw(new $class($err_msg));
+        } else {
+            $this->_handle_error($err_msg);
+        }
     }
 }

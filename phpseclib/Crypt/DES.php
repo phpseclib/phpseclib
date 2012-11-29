@@ -937,7 +937,7 @@ class Crypt_DES {
             if (($length & 7) == 0) {
                 return $text;
             } else {
-                user_error("The plaintext's length ($length) is not a multiple of the block size (8)", E_USER_NOTICE);
+                $this->_handle_error("The plaintext's length ($length) is not a multiple of the block size (8)");
                 $this->padding = true;
             }
         }
@@ -1288,6 +1288,24 @@ class Crypt_DES {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
         return $substr;
+    }
+
+    /**
+     * Error Handler
+     *
+     * Throws exceptions if PHPSECLIB_USE_EXCEPTIONS is defined.
+     * Unless PHPSECLIB_EXCEPTION_CLASS is set it'll throw generic Exceptions.
+     *
+     * @param String $string
+     * @access private
+     */
+    function _handle_error($err_msg) {
+        if (defined('PHPSECLIB_USE_EXCEPTIONS') && version_compare(PHP_VERSION, '5.1.0', '>=')) {
+            $class = defined('PHPSECLIB_EXCEPTION_CLASS') && class_exists(PHPSECLIB_EXCEPTION_CLASS) ? PHPSECLIB_EXCEPTION_CLASS : 'Exception';
+            throw(new $class($err_msg));
+        } else {
+            user_error($err_msg);
+        }
     }
 }
 

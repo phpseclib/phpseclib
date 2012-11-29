@@ -409,7 +409,7 @@ class File_ANSI {
                                                 case 47: $back = 'white'; break;
 
                                                 default:
-                                                    user_error('Unsupported attribute: ' . $mod);
+                                                    $this->_handle_error('Unsupported attribute: ' . $mod);
                                                     $this->ansi = '';
                                                     break 2;
                                             }
@@ -536,5 +536,23 @@ class File_ANSI {
         $scrollback.= $this->_getScreen();
 
         return '<pre style="color: white; background: black" width="' . ($this->max_x + 1) . '">' . $scrollback . '</pre>';
+    }
+
+    /**
+     * Error Handler
+     *
+     * Throws exceptions if PHPSECLIB_USE_EXCEPTIONS is defined.
+     * Unless PHPSECLIB_EXCEPTION_CLASS is set it'll throw generic Exceptions.
+     *
+     * @param String $string
+     * @access private
+     */
+    function _handle_error($err_msg) {
+        if (defined('PHPSECLIB_USE_EXCEPTIONS') && version_compare(PHP_VERSION, '5.1.0', '>=')) {
+            $class = defined('PHPSECLIB_EXCEPTION_CLASS') && class_exists(PHPSECLIB_EXCEPTION_CLASS) ? PHPSECLIB_EXCEPTION_CLASS : 'Exception';
+            throw(new $class($err_msg));
+        } else {
+            $this->_handle_error($err_msg);
+        }
     }
 }

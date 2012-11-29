@@ -582,7 +582,7 @@ class Crypt_Rijndael {
      *
      * Depending on what $method is set to, setPassword()'s (optional) parameters are as follows:
      *     {@link http://en.wikipedia.org/wiki/PBKDF2 pbkdf2}:
-     *         $hash, $salt, $count
+     *         $hash, $salt, $method
      *     Set $dkLen by calling setKeyLength()
      *
      * @param String $password
@@ -601,7 +601,7 @@ class Crypt_Rijndael {
                 }
                 // WPA and WPA use the SSID as the salt
                 if (!isset($salt)) {
-                    $salt = 'phpseclib/salt';
+                    $salt = 'phpseclib';
                 }
                 // RFC2898#section-4.2 uses 1,000 iterations by default
                 // WPA and WPA2 use 4,096.
@@ -1365,7 +1365,7 @@ class Crypt_Rijndael {
             if ($length % $this->block_size == 0) {
                 return $text;
             } else {
-                user_error("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size})", E_USER_NOTICE);
+                $this->_handle_error("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size})");
                 $this->padding = true;
             }
         }
@@ -1471,6 +1471,24 @@ class Crypt_Rijndael {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
         return $substr;
+    }
+
+    /**
+     * Error Handler
+     *
+     * Throws exceptions if PHPSECLIB_USE_EXCEPTIONS is defined.
+     * Unless PHPSECLIB_EXCEPTION_CLASS is set it'll throw generic Exceptions.
+     *
+     * @param String $string
+     * @access private
+     */
+    function _handle_error($err_msg) {
+        if (defined('PHPSECLIB_USE_EXCEPTIONS') && version_compare(PHP_VERSION, '5.1.0', '>=')) {
+            $class = defined('PHPSECLIB_EXCEPTION_CLASS') && class_exists(PHPSECLIB_EXCEPTION_CLASS) ? PHPSECLIB_EXCEPTION_CLASS : 'Exception';
+            throw(new $class($err_msg));
+        } else {
+            user_error($err_msg);
+        }
     }
 }
 
