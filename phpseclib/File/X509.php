@@ -66,7 +66,7 @@ define('FILE_X509_VALIDATE_SIGNATURE_BY_CA', 1);
 /**
  * Return internal array representation
  */
-define('FILE_X509_DN_ARRAY', 0); // Internal array representation.
+define('FILE_X509_DN_ARRAY', 0);
 /**
  * Return string
  */
@@ -89,11 +89,35 @@ define('FILE_X509_DN_CANON', 4);
 define('FILE_X509_DN_HASH', 5);
 /**#@-*/
 
+/**#@+
+ * @access public
+ * @see File_X509::saveX509()
+ * @see File_X509::saveCSR()
+ * @see File_X509::saveCRL()
+ */
+/**
+ * Save as PEM
+ *
+ * ie. a base64-encoded PEM with a header and a footer
+ */
+define('FILE_X509_FORMAT_PEM', 0);
+/**
+ * Save as DER
+ */
+define('FILE_X509_FORMAT_DER', 1);
+/**
+ * Save as a SPKAC
+ *
+ * Only works on CSRs. Not currently supported.
+ */
+define('FILE_X509_FORMAT_SPKAC', 2);
+/**#@-*/
+
 /**
  * Pure-PHP X.509 Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.3.0
+ * @version 0.3.1
  * @access  public
  * @package File_X509
  */
@@ -1419,21 +1443,27 @@ class File_X509 {
      * Save X.509 certificate
      *
      * @param Array $cert
+     * @param Integer $format optional
      * @access public
      * @return String
      */
-    function saveX509($cert)
+    function saveX509($cert, $format = FILE_X509_FORMAT_PEM)
     {
         if (!is_array($cert) || !isset($cert['tbsCertificate'])) {
             return false;
         }
 
-        if (is_array($cert['tbsCertificate']['subjectPublicKeyInfo'])) {
-            switch ($cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
-                case 'rsaEncryption':
-                    $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'] = 
-                        base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
-            }
+        switch (true) {
+            // "case !$a: case !$b: break; default: whatever();" is the same thing as "if ($a && $b) whatever()"
+            case !($algorithm = $this->_subArray($cert, 'tbsCertificate/subjectPublicKeyInfo/algorithm/algorithm')):
+            case is_object($cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']):
+                break;
+            default:
+                switch ($algorithm) {
+                    case 'rsaEncryption':
+                        $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'] = 
+                            base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
+                }
         }
 
         $asn1 = new File_ASN1();
@@ -1465,7 +1495,13 @@ class File_X509 {
 
         $cert = $asn1->encodeDER($cert, $this->Certificate);
 
-        return "-----BEGIN CERTIFICATE-----\r\n" . chunk_split(base64_encode($cert)) . '-----END CERTIFICATE-----';
+        switch ($format) {
+            case FILE_X509_FORMAT_DER:
+                return $cert;
+            // case FILE_X509_FORMAT_PEM:
+            default:
+                return "-----BEGIN CERTIFICATE-----\r\n" . chunk_split(base64_encode($cert)) . '-----END CERTIFICATE-----';
+        }
     }
 
     /**
@@ -2677,19 +2713,26 @@ class File_X509 {
      * Save CSR request
      *
      * @param Array $csr
+     * @param Integer $format optional
      * @access public
      * @return String
      */
-    function saveCSR($csr)
+    function saveCSR($csr, $format = FILE_X509_FORMAT_PEM)
     {
         if (!is_array($csr) || !isset($csr['certificationRequestInfo'])) {
             return false;
         }
 
-        switch ($csr['certificationRequestInfo']['subjectPKInfo']['algorithm']['algorithm']) {
-            case 'rsaEncryption':
-                $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'] = 
-                    base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])));
+        switch (true) {
+            case !($algorithm = $this->_subArray($csr, 'certificationRequestInfo/subjectPKInfo/algorithm/algorithm')):
+            case is_object($csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']);
+                break;
+            default:
+                switch ($algorithm) {
+                    case 'rsaEncryption':
+                        $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'] = 
+                            base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])));
+                }
         }
 
         $asn1 = new File_ASN1();
@@ -2704,7 +2747,13 @@ class File_X509 {
 
         $csr = $asn1->encodeDER($csr, $this->CertificationRequest);
 
-        return "-----BEGIN CERTIFICATE REQUEST-----\r\n" . chunk_split(base64_encode($csr)) . '-----END CERTIFICATE REQUEST-----';
+        switch ($format) {
+            case FILE_X509_FORMAT_DER:
+                return $csr;
+            // case FILE_X509_FORMAT_PEM:
+            default:
+                return "-----BEGIN CERTIFICATE REQUEST-----\r\n" . chunk_split(base64_encode($csr)) . '-----END CERTIFICATE REQUEST-----';
+        }
     }
 
     /**
@@ -2770,10 +2819,11 @@ class File_X509 {
      * Save Certificate Revocation List.
      *
      * @param Array $crl
+     * @param Integer $format optional
      * @access public
      * @return String
      */
-    function saveCRL($crl)
+    function saveCRL($crl, $format = FILE_X509_FORMAT_PEM)
     {
         if (!is_array($crl) || !isset($crl['tbsCertList'])) {
             return false;
@@ -2811,7 +2861,13 @@ class File_X509 {
 
         $crl = $asn1->encodeDER($crl, $this->CertificateList);
 
-        return "-----BEGIN X509 CRL-----\r\n" . chunk_split(base64_encode($crl)) . '-----END X509 CRL-----';
+        switch ($format) {
+            case FILE_X509_FORMAT_DER:
+                return $crl;
+            // case FILE_X509_FORMAT_PEM:
+            default:
+                return "-----BEGIN X509 CRL-----\r\n" . chunk_split(base64_encode($crl)) . '-----END X509 CRL-----';
+        }
     }
 
     /**
