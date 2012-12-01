@@ -1625,6 +1625,10 @@ class File_X509 {
      */
     function _getMapping($extnId)
     {
+        if (!is_string($extnId)) { // eg. if it's a File_ASN1_Element object
+            return true;
+        }
+
         switch ($extnId) {
             case 'id-ce-keyUsage':
                 return $this->KeyUsage;
