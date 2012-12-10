@@ -3710,8 +3710,7 @@ class File_X509 {
                     case $disposition == FILE_X509_ATTR_APPEND:
                     case $disposition == FILE_X509_ATTR_REPLACE:
                         return false;
-                    case $disposition >= $n;
-                    case $disposition >= $n;
+                    case $disposition >= $n:
                         $disposition -= $n;
                         break;
                     case $disposition == FILE_X509_ATTR_ALL:
