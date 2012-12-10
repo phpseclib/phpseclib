@@ -265,6 +265,7 @@ class Crypt_TripleDES {
                 new Crypt_DES(CRYPT_DES_MODE_CBC),
                 new Crypt_DES(CRYPT_DES_MODE_CBC)
             );
+            $this->paddable = true;
 
             // we're going to be doing the padding, ourselves, so disable it in the Crypt_DES objects
             $this->des[0]->disablePadding();
