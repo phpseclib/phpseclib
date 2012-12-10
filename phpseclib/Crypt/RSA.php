@@ -176,6 +176,12 @@ define('CRYPT_RSA_MODE_INTERNAL', 1);
 define('CRYPT_RSA_MODE_OPENSSL', 2);
 /**#@-*/
 
+/**
+ * Default openSSL configuration file.
+ */
+define('CRYPT_RSA_OPENSSL_CONFIG', dirname(__FILE__) . '/../openssl.cnf');
+
+
 /**#@+
  * @access public
  * @see Crypt_RSA::createKey()
@@ -434,6 +440,16 @@ class Crypt_RSA {
     var $current;
 
     /**
+     * OpenSSL configuration file name.
+     *
+     * Set to NULL to use system configuration file.
+     * @see Crypt_RSA::createKey()
+     * @var Mixed
+     * @Access public
+     */
+    var $configFile;
+
+    /**
      * The constructor
      *
      * If you want to make use of the openssl extension, you'll need to set the mode manually, yourself.  The reason
@@ -445,6 +461,8 @@ class Crypt_RSA {
      */
     function Crypt_RSA()
     {
+        $this->configFile = CRYPT_RSA_OPENSSL_CONFIG;
+
         if ( !defined('CRYPT_RSA_MODE') ) {
             switch (true) {
                 case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>='):
@@ -501,12 +519,12 @@ class Crypt_RSA {
 
         // OpenSSL uses 65537 as the exponent and requires RSA keys be 384 bits minimum
         if ( CRYPT_RSA_MODE == CRYPT_RSA_MODE_OPENSSL && $bits >= 384 && CRYPT_RSA_EXPONENT == 65537) {
-            $rsa = openssl_pkey_new(array(
-                'private_key_bits' => $bits,
-                'config' => dirname(__FILE__) . '/../openssl.cnf'
-            ));
-
-            openssl_pkey_export($rsa, $privatekey, NULL, array('config' => dirname(__FILE__) . '/../openssl.cnf'));
+            $config = array();
+            if (isset($this->configFile)) {
+                $config['config'] = $this->configFile;
+            }
+            $rsa = openssl_pkey_new(array('private_key_bits' => $bits) + $config);
+            openssl_pkey_export($rsa, $privatekey, NULL, $config);
             $publickey = openssl_pkey_get_details($rsa);
             $publickey = $publickey['key'];
 

@@ -131,6 +131,7 @@ class File_X509 {
     var $IssuingDistributionPoint;
     var $InvalidityDate;
     var $CertificateIssuer;
+    var $HoldInstructionCode;
     /**#@-*/
 
     /**
@@ -1175,6 +1176,8 @@ class File_X509 {
 
         $this->CertificateIssuer = $GeneralNames;
 
+        $this->HoldInstructionCode = array('type' => FILE_ASN1_TYPE_OBJECT_IDENTIFIER);
+
         // OIDs from RFC5280 and those RFCs mentioned in RFC5280#section-4.1.1.2
         $this->oids = array(
             '1.3.6.1.5.5.7' => 'id-pkix',
@@ -1247,10 +1250,10 @@ class File_X509 {
             '2.5.29.21' => 'id-ce-cRLReasons',
             '2.5.29.29' => 'id-ce-certificateIssuer',
             '2.5.29.23' => 'id-ce-holdInstructionCode',
-            '2.2.840.10040.2' => 'holdInstruction',
-            '2.2.840.10040.2.1' => 'id-holdinstruction-none',
-            '2.2.840.10040.2.2' => 'id-holdinstruction-callissuer',
-            '2.2.840.10040.2.3' => 'id-holdinstruction-reject',
+            '1.2.840.10040.2' => 'holdInstruction',
+            '1.2.840.10040.2.1' => 'id-holdinstruction-none',
+            '1.2.840.10040.2.2' => 'id-holdinstruction-callissuer',
+            '1.2.840.10040.2.3' => 'id-holdinstruction-reject',
             '2.5.29.24' => 'id-ce-invalidityDate',
 
             '1.2.840.113549.2.2' => 'md2',
@@ -1737,6 +1740,8 @@ class File_X509 {
                 return $this->InvalidityDate;
             case 'id-ce-certificateIssuer':
                 return $this->CertificateIssuer;
+            case 'id-ce-holdInstructionCode':
+                return $this->HoldInstructionCode;
         }
 
         return false;
