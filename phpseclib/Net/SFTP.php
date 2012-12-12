@@ -698,7 +698,12 @@ class Net_SFTP extends Net_SSH2 {
     /**
      * Reads a list, be it detailed or not, of files in the given directory
      *
-     * @param optional String $dir
+     * $realpath exists because, in the case of the recursive deletes and recursive chmod's $realpath has already
+     * been calculated.
+     *
+     * @param String $dir
+     * @param optional Boolean $raw
+     * @param optional Boolean $realpath
      * @return Mixed
      * @access private
      */
@@ -1479,7 +1484,7 @@ class Net_SFTP extends Net_SSH2 {
      * @return Mixed
      * @access public
      */
-    function get($remote_file, $local_file = false)
+    function get($remote_file, $local_file = false, $offset = 0, $length = -1)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1517,9 +1522,10 @@ class Net_SFTP extends Net_SSH2 {
             $content = '';
         }
 
-        $read = 0;
+        $size = (1 << 20) < $length || $length < 0 ? 1 << 20 : $length;
+        $start = $offset;
         while (true) {
-            $packet = pack('Na*N3', strlen($handle), $handle, 0, $read, 1 << 20);
+            $packet = pack('Na*N3', strlen($handle), $handle, 0, $offset, $size);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
                 if ($local_file !== false) {
                     fclose($fp);
@@ -1531,7 +1537,7 @@ class Net_SFTP extends Net_SSH2 {
             switch ($this->packet_type) {
                 case NET_SFTP_DATA:
                     $temp = substr($response, 4);
-                    $read+= strlen($temp);
+                    $offset+= strlen($temp);
                     if ($local_file === false) {
                         $content.= $temp;
                     } else {
@@ -1547,6 +1553,11 @@ class Net_SFTP extends Net_SSH2 {
                         fclose($fp);
                     }
                     return false;
+            }
+
+            if ($length > 0 && $length <= $offset - $size) {
+                $content = substr($content, 0, $length);
+                break;
             }
         }
 
@@ -1781,7 +1792,7 @@ class Net_SFTP extends Net_SSH2 {
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $key = $this->_string_shift($response, $length);
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                        $attr[$key] = $this->_string_shift($response, $length);                        
+                        $attr[$key] = $this->_string_shift($response, $length);
                     }
             }
         }
