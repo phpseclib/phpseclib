@@ -1601,7 +1601,7 @@ class Math_BigInteger {
             return $this->_normalize($temp->modPow($e, $n));
         }
 
-        if (MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP) {
+        if ( MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP ) {
             $temp = new Math_BigInteger();
             $temp->value = gmp_powm($this->value, $e->value, $n->value);
 
@@ -1648,13 +1648,7 @@ class Math_BigInteger {
             }
         }
 
-        switch ( MATH_BIGINTEGER_MODE ) {
-            case MATH_BIGINTEGER_MODE_GMP:
-                $temp = new Math_BigInteger();
-                $temp->value = gmp_powm($this->value, $e->value, $n->value);
-
-                return $this->_normalize($temp);
-            case MATH_BIGINTEGER_MODE_BCMATH:
+        if ( MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_BCMATH ) {
                 $temp = new Math_BigInteger();
                 $temp->value = bcpowmod($this->value, $e->value, $n->value, 0);
 
