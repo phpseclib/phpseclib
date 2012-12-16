@@ -104,11 +104,11 @@ if (!class_exists('Crypt_RC4')) {
 /**
  * Include Crypt_Random
  */
-// the class_exists() will only be called if the crypt_random function hasn't been defined and
+// the class_exists() will only be called if the crypt_random_string function hasn't been defined and
 // will trigger a call to __autoload() if you're wanting to auto-load classes
 // call function_exists() a second time to stop the require_once from being called outside
 // of the auto loader
-if (!function_exists('crypt_random') && !class_exists('Crypt_Random') && !function_exists('crypt_random')) {
+if (!function_exists('crypt_random_string') && !class_exists('Crypt_Random') && !function_exists('crypt_random_string')) {
     require_once('Crypt/Random.php');
 }
 
@@ -542,10 +542,7 @@ class Net_SSH1 {
 
         $session_id = pack('H*', md5($host_key_public_modulus->toBytes() . $server_key_public_modulus->toBytes() . $anti_spoofing_cookie));
 
-        $session_key = '';
-        for ($i = 0; $i < 32; $i++) {
-            $session_key.= chr(crypt_random(0, 255));
-        }
+        $session_key = crypt_random_string(32);
         $double_encrypted_session_key = $session_key ^ str_pad($session_id, 32, chr(0));
 
         if ($server_key_public_modulus->compare($host_key_public_modulus) < 0) {
@@ -1032,11 +1029,7 @@ class Net_SSH1 {
 
         $length = strlen($data) + 4;
 
-        $padding_length = 8 - ($length & 7);
-        $padding = '';
-        for ($i = 0; $i < $padding_length; $i++) {
-            $padding.= chr(crypt_random(0, 255));
-        }
+        $padding = crypt_random_string(8 - ($length & 7));
 
         $data = $padding . $data;
         $data.= pack('N', $this->_crc($data));
@@ -1213,8 +1206,11 @@ class Net_SSH1 {
         $temp = chr(0) . chr(2);
         $modulus = $key[1]->toBytes();
         $length = strlen($modulus) - strlen($m) - 3;
-        for ($i = 0; $i < $length; $i++) {
-            $temp.= chr(crypt_random(1, 255));
+        $temp = '';
+        while (strlen($temp) != $length) {
+            $block = crypt_random_string($length - strlen($temp));
+            $block = str_replace("\x00", '', $block);
+            $temp.= $block;
         }
         $temp.= chr(0) . $m;
 

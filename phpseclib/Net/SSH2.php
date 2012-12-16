@@ -80,11 +80,11 @@ if (!class_exists('Math_BigInteger')) {
 /**
  * Include Crypt_Random
  */
-// the class_exists() will only be called if the crypt_random function hasn't been defined and
+// the class_exists() will only be called if the crypt_random_string function hasn't been defined and
 // will trigger a call to __autoload() if you're wanting to auto-load classes
 // call function_exists() a second time to stop the require_once from being called outside
 // of the auto loader
-if (!function_exists('crypt_random') && !class_exists('Crypt_Random') && !function_exists('crypt_random')) {
+if (!function_exists('crypt_random_string') && !class_exists('Crypt_Random') && !function_exists('crypt_random_string')) {
     require_once('Crypt/Random.php');
 }
 
@@ -967,10 +967,7 @@ class Net_SSH2 {
             $compression_algorithms_server_to_client = $compression_algorithms_client_to_server = implode(',', $compression_algorithms);
         }
 
-        $client_cookie = '';
-        for ($i = 0; $i < 16; $i++) {
-            $client_cookie.= chr(crypt_random(0, 255));
-        }
+        $client_cookie = crypt_random_string(16);
 
         $response = $kexinit_payload_server;
         $this->_string_shift($response, 1); // skip past the message number (it should be SSH_MSG_KEXINIT)
@@ -1148,7 +1145,6 @@ class Net_SSH2 {
 
         $g = new Math_BigInteger(2);
         $x = new Math_BigInteger();
-        $x->setRandomGenerator('crypt_random');
         $x = $x->random(new Math_BigInteger(1), $q);
         $e = $g->modPow($x, $p);
 
@@ -2400,11 +2396,7 @@ class Net_SSH2 {
         $packet_length+= (($this->encrypt_block_size - 1) * $packet_length) % $this->encrypt_block_size;
         // subtracting strlen($data) is obvious - subtracting 5 is necessary because of packet_length and padding_length
         $padding_length = $packet_length - strlen($data) - 5;
-
-        $padding = '';
-        for ($i = 0; $i < $padding_length; $i++) {
-            $padding.= chr(crypt_random(0, 255));
-        }
+        $padding = crypt_random_string($padding_length);
 
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself
         $packet = pack('NCa*', $packet_length - 4, $padding_length, $data . $padding);

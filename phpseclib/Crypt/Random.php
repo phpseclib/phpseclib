@@ -11,7 +11,7 @@
  * <?php
  *    include('Crypt/Random.php');
  *
- *    echo crypt_random();
+ *    echo bin2hex(crypt_random_string(8));
  * ?>
  * </code>
  *
@@ -43,78 +43,129 @@
  */
 
 /**
- * Generate a random value.
+ * Generate a random string.
  *
- * On 32-bit machines, the largest distance that can exist between $min and $max is 2**31.
- * If $min and $max are farther apart than that then the last ($max - range) numbers.
+ * Although microoptimizations are generally discouraged as they impair readability this function is ripe with
+ * microoptimizations because this function has the potential of being called a huge number of times.
+ * eg. for RSA key generation.
  *
- * Depending on how this is being used, it may be worth while to write a replacement.  For example,
- * a PHP-based web app that stores its data in an SQL database can collect more entropy than this function
- * can.
- *
- * @param optional Integer $min
- * @param optional Integer $max
- * @return Integer
+ * @param Integer $length
+ * @return String
  * @access public
  */
-function crypt_random($min = 0, $max = 0x7FFFFFFF)
-{
-    if ($min == $max) {
-        return $min;
-    }
-
-    if (function_exists('openssl_random_pseudo_bytes')) {
-        // openssl_random_pseudo_bytes() is slow on windows per the following:
-        // http://stackoverflow.com/questions/1940168/openssl-random-pseudo-bytes-is-slow-php
-        if ((PHP_OS & "\xDF\xDF\xDF") !== 'WIN') { // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
-            extract(unpack('Nrandom', openssl_random_pseudo_bytes(4)));
-
-            return abs($random) % ($max - $min) + $min; 
+function crypt_random_string($length) {
+    // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
+    if ((PHP_OS & "\xDF\xDF\xDF") === 'WIN') {
+        // method 1. prior to PHP 5.3 this would call rand() on windows hence the function_exists('class_alias') call.
+        // ie. class_alias is a function that was introduced in PHP 5.3
+        if (function_exists('mcrypt_create_iv') && function_exists('class_alias')) {
+            return mcrypt_create_iv($length);
+        }
+        // method 2. openssl_random_pseudo_bytes was introduced in PHP 5.3.0 but prior to PHP 5.3.4 there was,
+        // to quote <http://php.net/ChangeLog-5.php#5.3.4>, "possible blocking behavior". as of 5.3.4
+        // openssl_random_pseudo_bytes and mcrypt_create_iv do the exact same thing on Windows. ie. they both
+        // call php_win32_get_random_bytes():
+        //
+        // https://github.com/php/php-src/blob/7014a0eb6d1611151a286c0ff4f2238f92c120d6/ext/openssl/openssl.c#L5008
+        // https://github.com/php/php-src/blob/7014a0eb6d1611151a286c0ff4f2238f92c120d6/ext/mcrypt/mcrypt.c#L1392
+        //
+        // php_win32_get_random_bytes() is defined thusly:
+        //
+        // https://github.com/php/php-src/blob/7014a0eb6d1611151a286c0ff4f2238f92c120d6/win32/winutil.c#L80
+        //
+        // we're calling it, all the same, in the off chance that the mcrypt extension is not available
+        if (function_exists('openssl_random_pseudo_bytes') && version_compare(PHP_VERSION, '5.3.4', '>=')) {
+            return openssl_random_pseudo_bytes($length);
+        }
+    } else {
+        // method 1. the fastest
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            return openssl_random_pseudo_bytes($length);
+        }
+        // method 2
+        static $fp = true;
+        if ($fp === true) {
+            // warning's will be output unles the error suppression operator is used. errors such as
+            // "open_basedir restriction in effect", "Permission denied", "No such file or directory", etc.
+            $fp = @fopen('/dev/urandom', 'rb');
+        }
+        if ($fp !== true && $fp !== false) { // surprisingly faster than !is_bool() or is_resource()
+            return fread($urandom, $length);
+        }
+        // method 3. pretty much does the same thing as method 2 per the following url:
+        // https://github.com/php/php-src/blob/7014a0eb6d1611151a286c0ff4f2238f92c120d6/ext/mcrypt/mcrypt.c#L1391
+        // surprisingly slower than method 2. maybe that's because mcrypt_create_iv does a bunch of error checking that we're
+        // not doing. regardless, this'll only be called if this PHP script couldn't open /dev/urandom due to open_basedir
+        // restrictions or some such
+        if (function_exists('mcrypt_create_iv')) {
+            return mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
         }
     }
+    // at this point we have no choice but to use a pure-PHP CSPRNG
 
-    // see http://en.wikipedia.org/wiki//dev/random
-    static $urandom = true;
-    if ($urandom === true) {
-        // Warning's will be output unles the error suppression operator is used.  Errors such as
-        // "open_basedir restriction in effect", "Permission denied", "No such file or directory", etc.
-        $urandom = @fopen('/dev/urandom', 'rb');
-    }
-    if (!is_bool($urandom)) {
-        extract(unpack('Nrandom', fread($urandom, 4)));
-
-        // say $min = 0 and $max = 3.  if we didn't do abs() then we could have stuff like this:
-        // -4 % 3 + 0 = -1, even though -1 < $min
-        return abs($random) % ($max - $min) + $min;
-    }
-
-    /* Prior to PHP 4.2.0, mt_srand() had to be called before mt_rand() could be called.
-       Prior to PHP 5.2.6, mt_rand()'s automatic seeding was subpar, as elaborated here:
-
-       http://www.suspekt.org/2008/08/17/mt_srand-and-not-so-random-numbers/
-
-       The seeding routine is pretty much ripped from PHP's own internal GENERATE_SEED() macro:
-
-       http://svn.php.net/viewvc/php/php-src/tags/php_5_3_2/ext/standard/php_rand.h?view=markup */
-    if (version_compare(PHP_VERSION, '5.2.5', '<=')) { 
-        static $seeded;
-        if (!isset($seeded)) {
-            $seeded = true;
-            mt_srand(fmod(time() * getmypid(), 0x7FFFFFFF) ^ fmod(1000000 * lcg_value(), 0x7FFFFFFF));
+    // cascade entropy across multiple PHP instances by fixing the session and collecting all
+    // environmental variables, including the previous session data and the current session
+    // data
+    static $crypto = false, $v;
+    if ($crypto === false) {
+        // save old session data
+        $old_session_id = session_id();
+        $old_use_cookies = ini_get('session.use_cookies');
+        $old_session_cache_limiter = session_cache_limiter();
+        if (isset($_SESSION)) {
+            $_OLD_SESSION = $_SESSION;
         }
-    }
-
-    static $crypto;
-
-    // The CSPRNG's Yarrow and Fortuna periodically reseed.  This function can be reseeded by hitting F5
-    // in the browser and reloading the page.
-
-    if (!isset($crypto)) {
-        $key = $iv = '';
-        for ($i = 0; $i < 8; $i++) {
-            $key.= pack('n', mt_rand(0, 0xFFFF));
-            $iv .= pack('n', mt_rand(0, 0xFFFF));
+        if ($old_session_id != '') {
+            session_write_close();
         }
+
+        session_id(1);
+        ini_set('session.use_cookies', 0);
+        session_cache_limiter('');
+        session_start();
+
+        $v = $seed = $_SESSION['seed'] = pack('H*', sha1(
+            serialize($_SERVER) .
+            serialize($_POST) .
+            serialize($_GET) .
+            serialize($_COOKIE) .
+            serialize($_GLOBAL) .
+            serialize($_SESSION) .
+            serialize($_OLD_SESSION)
+        ));
+        if (!isset($_SESSION['count'])) {
+            $_SESSION['count'] = 0;
+        }
+        $_SESSION['count']++;
+
+        session_write_close();
+
+        // restore old session data
+        if ($old_session_id != '') {
+            session_id($old_session_id);
+            session_start();
+            ini_set('session.use_cookies', $old_use_cookies);
+            session_cache_limiter($old_session_cache_limiter);
+        } else {
+           if (isset($_OLD_SESSION)) {
+               $_SESSION = $_OLD_SESSION;
+               unset($_OLD_SESSION);
+            } else {
+                unset($_SESSION);
+            }
+        }
+
+        // in SSH2 a shared secret and an exchange hash are generated through the key exchange process.
+        // the IV client to server is the hash of that "nonce" with the letter A and for the encryption key it's the letter C.
+        // if the hash doesn't produce enough a key or an IV that's long enough concat successive hashes of the
+        // original hash and the current hash. we'll be emulating that. for more info see the following URL:
+        //
+        // http://tools.ietf.org/html/rfc4253#section-7.2
+        //
+        // see the is_string($crypto) part for an example of how to expand the keys
+        $key = pack('H*', sha1($seed . 'A'));
+        $iv = pack('H*', sha1($seed . 'C'));
+
         switch (true) {
             case class_exists('Crypt_AES'):
                 $crypto = new Crypt_AES(CRYPT_AES_MODE_CTR);
@@ -129,14 +180,47 @@ function crypt_random($min = 0, $max = 0x7FFFFFFF)
                 $crypto = new Crypt_RC4();
                 break;
             default:
-                extract(unpack('Nrandom', pack('H*', sha1(mt_rand(0, 0x7FFFFFFF)))));
-                return abs($random) % ($max - $min) + $min;
+                $crypto = $seed;
+                return crypt_random_string($length);
         }
+
         $crypto->setKey($key);
         $crypto->setIV($iv);
         $crypto->enableContinuousBuffer();
     }
 
-    extract(unpack('Nrandom', $crypto->encrypt("\0\0\0\0")));
-    return abs($random) % ($max - $min) + $min;
+    if (is_string($crypto)) {
+        // the following is based off of ANSI X9.31:
+        //
+        // http://csrc.nist.gov/groups/STM/cavp/documents/rng/931rngext.pdf
+        //
+        // OpenSSL uses that same standard for it's random numbers:
+        //
+        // http://www.opensource.apple.com/source/OpenSSL/OpenSSL-38/openssl/fips-1.0/rand/fips_rand.c
+        // (do a search for "ANS X9.31 A.2.4")
+        //
+        // ANSI X9.31 recommends ciphers be used and phpseclib does use them if they're available (see
+        // later on in the code) but if they're not we'll use sha1
+        $result = '';
+        while (strlen($result) < $length) { // each loop adds 20 bytes
+            // microtime() isn't packed as "densely" as it could be but then neither is that the idea.
+            // the idea is simply to ensure that each "block" has a unique element to it.
+            $i = pack('H*', sha1(microtime()));
+            $r = pack('H*', sha1($i ^ $v));
+            $v = pack('H*', sha1($r ^ $i));
+            $result.= $r;
+        }
+        return substr($result, 0, $length);
+    }
+
+    //return $crypto->encrypt(str_repeat("\0", $length));
+
+    $result = '';
+    while (strlen($result) < $length) {
+        $i = $crypto->encrypt(microtime());
+        $r = $crypto->encrypt($i ^ $v);
+        $v = $crypto->encrypt($r ^ $i);
+        $result.= $r;
+    }
+    return substr($result, 0, $length);
 }

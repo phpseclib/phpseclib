@@ -2995,20 +2995,13 @@ class Math_BigInteger {
     /**
      * Set random number generator function
      *
-     * $generator should be the name of a random generating function whose first parameter is the minimum
-     * value and whose second parameter is the maximum value.  If this function needs to be seeded, it should
-     * be seeded prior to calling Math_BigInteger::random() or Math_BigInteger::randomPrime()
+     * This function is deprecated.
      *
-     * If the random generating function is not explicitly set, it'll be assumed to be mt_rand().
-     *
-     * @see random()
-     * @see randomPrime()
-     * @param optional String $generator
+     * @param String $generator
      * @access public
      */
     function setRandomGenerator($generator)
     {
-        $this->generator = $generator;
     }
 
     /**
@@ -3045,27 +3038,43 @@ class Math_BigInteger {
         $max = $max->subtract($min);
         $max = ltrim($max->toBytes(), chr(0));
         $size = strlen($max) - 1;
-        $random = '';
 
-        $bytes = $size & 1;
-        for ($i = 0; $i < $bytes; ++$i) {
-            $random.= chr($generator(0, 255));
-        }
-
-        $blocks = $size >> 1;
-        for ($i = 0; $i < $blocks; ++$i) {
-            // mt_rand(-2147483648, 0x7FFFFFFF) always produces -2147483648 on some systems
-            $random.= pack('n', $generator(0, 0xFFFF));
-        }
-
-        $temp = new Math_BigInteger($random, 256);
-        if ($temp->compare(new Math_BigInteger(substr($max, 1), 256)) > 0) {
-            $random = chr($generator(0, ord($max[0]) - 1)) . $random;
+        $crypt_random = function_exists('crypt_random_string') || (!class_exists('Crypt_Random') && function_exists('crypt_random_string'));
+        if ($crypt_random) {
+            $random = crypt_random_string($size);
         } else {
-            $random = chr($generator(0, ord($max[0])    )) . $random;
+            $random = '';
+
+            if ($size & 1) {
+                $random.= chr(mt_rand(0, 255));
+            }
+
+            $blocks = $size >> 1;
+            for ($i = 0; $i < $blocks; ++$i) {
+                // mt_rand(-2147483648, 0x7FFFFFFF) always produces -2147483648 on some systems
+                $random.= pack('n', mt_rand(0, 0xFFFF));
+            }
         }
 
-        $random = new Math_BigInteger($random, 256);
+        $fragment = new Math_BigInteger($random, 256);
+        $leading = $fragment->compare(new Math_BigInteger(substr($max, 1), 256)) > 0 ?
+            ord($max[0]) - 1 : ord($max[0]);
+
+        if (!$crypt_random) {
+            $msb = chr(mt_rand(0, $leading));
+        } else {
+            $cutoff = floor(0xFF / $leading) * $leading;
+            while (true) {
+                $msb = ord(crypt_random_string(1));
+                if ($msb <= $cutoff) {
+                    $msb%= $leading;
+                    break;
+                }
+            }
+            $msb = chr($msb);
+        }
+
+        $random = new Math_BigInteger($msb . $random, 256);
 
         return $this->_normalize($random->add($min));
     }
