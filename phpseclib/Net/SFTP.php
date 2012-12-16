@@ -1556,7 +1556,11 @@ class Net_SFTP extends Net_SSH2 {
             }
 
             if ($length > 0 && $length <= $offset - $size) {
-                $content = substr($content, 0, $length);
+                if ($local_file === false) {
+                    $content = substr($content, 0, $length);
+                } else {
+                    ftruncate($fp, $length);
+                }
                 break;
             }
         }
