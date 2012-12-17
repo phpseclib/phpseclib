@@ -105,7 +105,19 @@ function crypt_random_string($length) {
 
     // cascade entropy across multiple PHP instances by fixing the session and collecting all
     // environmental variables, including the previous session data and the current session
-    // data
+    // data.
+    //
+    // mt_rand seeds itself by looking at the PID and the time, both of which are (relatively)
+    // easy to guess at. linux uses mouse clicks, keyboard timings, etc, as entropy sources, but
+    // PHP isn't low level to be able to use those as sources and on a web server there's not likely
+    // going to be a ton of keyboard or mouse action. web servers do have one thing that we can use
+    // however. a ton of people visiting the website. obviously you don't want to base your seeding
+    // soley on parameters a potential attacker sends but (1) not everything in $_SERVER is controlled
+    // by the user and (2) this isn't just looking at the data sent by the current user - it's based
+    // on the data sent by all users. one user requests the page and a hash of their info is saved.
+    // another user visits the page and the serialization of their data is utilized along with the
+    // server envirnment stuff and a hash of the previous http request data (which itself utilizes
+    // a hash of the session data before that).
     static $crypto = false, $v;
     if ($crypto === false) {
         // save old session data
@@ -166,6 +178,9 @@ function crypt_random_string($length) {
         $key = pack('H*', sha1($seed . 'A'));
         $iv = pack('H*', sha1($seed . 'C'));
 
+        // ciphers are used as per the nist.gov link below. also, see this link:
+        //
+        // http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Designs_based_on_cryptographic_primitives
         switch (true) {
             case class_exists('Crypt_AES'):
                 $crypto = new Crypt_AES(CRYPT_AES_MODE_CTR);
