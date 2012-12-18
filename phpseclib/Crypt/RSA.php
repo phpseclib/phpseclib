@@ -813,11 +813,11 @@ class Crypt_RSA {
                                      "Proc-Type: 4,ENCRYPTED\r\n" .
                                      "DEK-Info: DES-EDE3-CBC,$iv\r\n" .
                                      "\r\n" .
-                                     chunk_split(base64_encode($des->encrypt($RSAPrivateKey))) .
+                                     chunk_split(base64_encode($des->encrypt($RSAPrivateKey)), 64) .
                                      '-----END RSA PRIVATE KEY-----';
                 } else {
                     $RSAPrivateKey = "-----BEGIN RSA PRIVATE KEY-----\r\n" .
-                                     chunk_split(base64_encode($RSAPrivateKey)) .
+                                     chunk_split(base64_encode($RSAPrivateKey), 64) .
                                      '-----END RSA PRIVATE KEY-----';
                 }
 
@@ -884,7 +884,7 @@ class Crypt_RSA {
                 }
 
                 $RSAPublicKey = "-----BEGIN PUBLIC KEY-----\r\n" .
-                                 chunk_split(base64_encode($RSAPublicKey)) .
+                                 chunk_split(base64_encode($RSAPublicKey), 64) .
                                  '-----END PUBLIC KEY-----';
 
                 return $RSAPublicKey;

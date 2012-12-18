@@ -1524,7 +1524,7 @@ class File_X509 {
                 return $cert;
             // case FILE_X509_FORMAT_PEM:
             default:
-                return "-----BEGIN CERTIFICATE-----\r\n" . chunk_split(base64_encode($cert)) . '-----END CERTIFICATE-----';
+                return "-----BEGIN CERTIFICATE-----\r\n" . chunk_split(base64_encode($cert), 64) . '-----END CERTIFICATE-----';
         }
     }
 
@@ -2150,7 +2150,7 @@ class File_X509 {
                     // subjectPublicKey is stored as a bit string in X.509 certs.  the first byte of a bit string represents how many bits
                     // in the last byte should be ignored.  the following only supports non-zero stuff but as none of the X.509 certs Firefox
                     // uses as a cert authority actually use a non-zero bit I think it's safe to assume that none do.
-                    chunk_split(base64_encode(substr(base64_decode($key), 1))) .
+                    chunk_split(base64_encode(substr(base64_decode($key), 1)), 64) .
                     '-----END PUBLIC KEY-----';
             default:
                 return $key;
@@ -2877,7 +2877,7 @@ class File_X509 {
                 return $csr;
             // case FILE_X509_FORMAT_PEM:
             default:
-                return "-----BEGIN CERTIFICATE REQUEST-----\r\n" . chunk_split(base64_encode($csr)) . '-----END CERTIFICATE REQUEST-----';
+                return "-----BEGIN CERTIFICATE REQUEST-----\r\n" . chunk_split(base64_encode($csr), 64) . '-----END CERTIFICATE REQUEST-----';
         }
     }
 
@@ -2991,7 +2991,7 @@ class File_X509 {
                 return $crl;
             // case FILE_X509_FORMAT_PEM:
             default:
-                return "-----BEGIN X509 CRL-----\r\n" . chunk_split(base64_encode($crl)) . '-----END X509 CRL-----';
+                return "-----BEGIN X509 CRL-----\r\n" . chunk_split(base64_encode($crl), 64) . '-----END X509 CRL-----';
         }
     }
 
