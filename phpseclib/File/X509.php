@@ -176,6 +176,7 @@ class File_X509 {
     var $InvalidityDate;
     var $CertificateIssuer;
     var $HoldInstructionCode;
+    var $SignedPublicKeyAndChallenge;
     /**#@-*/
 
     /**
@@ -1222,6 +1223,23 @@ class File_X509 {
 
         $this->HoldInstructionCode = array('type' => FILE_ASN1_TYPE_OBJECT_IDENTIFIER);
 
+        $PublicKeyAndChallenge = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'spki'      => $SubjectPublicKeyInfo,
+                'challenge' => array('type' => FILE_ASN1_TYPE_IA5_STRING)
+            )
+        );
+
+        $this->SignedPublicKeyAndChallenge = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => array(
+                'publicKeyAndChallenge' => $PublicKeyAndChallenge,
+                'signatureAlgorithm'    => $AlgorithmIdentifier,
+                'signature'             => array('type' => FILE_ASN1_TYPE_BIT_STRING)
+            )
+        );
+
         // OIDs from RFC5280 and those RFCs mentioned in RFC5280#section-4.1.1.2
         $this->oids = array(
             '1.3.6.1.5.5.7' => 'id-pkix',
@@ -2051,6 +2069,14 @@ class File_X509 {
                     substr(base64_decode($this->currentCert['signature']), 1),
                     $this->signatureSubject
                 );
+            case isset($this->currentCert['publicKeyAndChallenge']):
+                return $this->_validateSignature(
+                    $this->currentCert['publicKeyAndChallenge']['spki']['algorithm']['algorithm'],
+                    $this->currentCert['publicKeyAndChallenge']['spki']['subjectPublicKey'],
+                    $this->currentCert['signatureAlgorithm']['algorithm'],
+                    substr(base64_decode($this->currentCert['signature']), 1),
+                    $this->signatureSubject
+                );
             case isset($this->currentCert['tbsCertList']):
                 if (!empty($this->CAs)) {
                     for ($i = 0; $i < count($this->CAs); $i++) {
@@ -2115,7 +2141,6 @@ class File_X509 {
                     case 'sha512WithRSAEncryption':
                         $rsa->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
                         $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
-
                         if (!@$rsa->verify($signatureSubject, $signature)) {
                             return false;
                         }
@@ -2765,13 +2790,13 @@ class File_X509 {
         if (is_array($csr) && isset($csr['certificationRequestInfo'])) {
             unset($this->currentCert);
             unset($this->currentKeyIdentifier);
+            unset($this->signatureSubject);
             $this->dn = $csr['certificationRequestInfo']['subject'];
             if (!isset($this->dn)) {
                 return false;
             }
 
             $this->currentCert = $csr;
-            unset($this->signatureSubject);
             return $csr;
         }
 
@@ -2879,6 +2904,83 @@ class File_X509 {
             default:
                 return "-----BEGIN CERTIFICATE REQUEST-----\r\n" . chunk_split(base64_encode($csr), 64) . '-----END CERTIFICATE REQUEST-----';
         }
+    }
+
+    /**
+     * Load a SPKAC CSR
+     *
+     * SPKAC's are produced by the HTML5 keygen element:
+     *
+     * https://developer.mozilla.org/en-US/docs/HTML/Element/keygen
+     *
+     * @param String $csr
+     * @access public
+     * @return Mixed
+     */
+    function loadSPKAC($csr)
+    {
+        if (is_array($csr) && isset($csr['publicKeyAndChallenge'])) {
+            unset($this->currentCert);
+            unset($this->currentKeyIdentifier);
+            unset($this->signatureSubject);
+            $this->currentCert = $csr;
+            return $csr;
+        }
+
+        // see http://www.w3.org/html/wg/drafts/html/master/forms.html#signedpublickeyandchallenge
+
+        $asn1 = new File_ASN1();
+
+        $temp = preg_replace('#(?:^[^=]+=)|[\r\n\\\]#', '', $csr);
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        if ($temp != false) {
+            $csr = $temp;
+        }
+        $orig = $csr;
+
+        if ($csr === false) {
+            $this->currentCert = false;
+            return false;
+        }
+
+        $asn1->loadOIDs($this->oids);
+        $decoded = $asn1->decodeBER($csr);
+
+        if (empty($decoded)) {
+            $this->currentCert = false;
+            return false;
+        }
+
+        $csr = $asn1->asn1map($decoded[0], $this->SignedPublicKeyAndChallenge);
+
+        if (!isset($csr) || $csr === false) {
+            $this->currentCert = false;
+            return false;
+        }
+
+        $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
+
+        $algorithm = &$csr['publicKeyAndChallenge']['spki']['algorithm']['algorithm'];
+        $key = &$csr['publicKeyAndChallenge']['spki']['subjectPublicKey'];
+        $key = $this->_reformatKey($algorithm, $key);
+
+        switch ($algorithm) {
+            case 'rsaEncryption':
+                if (!class_exists('Crypt_RSA')) {
+                    require_once('Crypt/RSA.php');
+                }
+                $this->publicKey = new Crypt_RSA();
+                $this->publicKey->loadKey($key);
+                $this->publicKey->setPublicKey();
+                break;
+            default:
+                $this->publicKey = NULL;
+        }
+
+        $this->currentKeyIdentifier = NULL;
+        $this->currentCert = $csr;
+
+        return $csr;
     }
 
     /**
