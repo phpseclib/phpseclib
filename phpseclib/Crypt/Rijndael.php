@@ -763,7 +763,7 @@ class Crypt_Rijndael {
                 }
                 break;
             case CRYPT_RIJNDAEL_MODE_CFB:
-                if (!empty($buffer['xor'])) {
+                if (strlen($buffer['xor'])) {
                     $ciphertext = $plaintext ^ $buffer['xor'];
                     $iv = $buffer['encrypted'] . $ciphertext;
                     $start = strlen($ciphertext);
