@@ -774,7 +774,7 @@ class Crypt_DES {
                 }
                 break;
             case CRYPT_DES_MODE_CFB:
-                if (!empty($buffer['ciphertext'])) {
+                if (strlen($buffer['ciphertext'])) {
                     $plaintext = $ciphertext ^ substr($this->decryptIV, strlen($buffer['ciphertext']));
                     $buffer['ciphertext'].= substr($ciphertext, 0, strlen($plaintext));
                     if (strlen($buffer['ciphertext']) == 8) {
