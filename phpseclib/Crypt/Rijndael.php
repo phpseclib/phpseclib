@@ -879,7 +879,7 @@ class Crypt_Rijndael {
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                     if ($start = strlen($ciphertext) % $block_size) {
-                        $buffer['ciphertext'] = substr($key, $start) . $buffer['encrypted'];
+                        $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                     }
                 }
                 break;
