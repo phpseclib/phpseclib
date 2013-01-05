@@ -777,12 +777,14 @@ class Crypt_DES {
                 if (strlen($buffer['ciphertext'])) {
                     $plaintext = $ciphertext ^ substr($this->decryptIV, strlen($buffer['ciphertext']));
                     $buffer['ciphertext'].= substr($ciphertext, 0, strlen($plaintext));
-                    if (strlen($buffer['ciphertext']) == 8) {
+                    if (strlen($buffer['ciphertext']) != 8) {
+                        $block = $this->decryptIV;
+                    } else {
+                        $block = $buffer['ciphertext'];
                         $xor = $this->_processBlock($buffer['ciphertext'], CRYPT_DES_ENCRYPT);
                         $buffer['ciphertext'] = '';
                     }
                     $start = strlen($plaintext);
-                    $block = $this->decryptIV;
                 } else {
                     $plaintext = '';
                     $xor = $this->_processBlock($this->decryptIV, CRYPT_DES_ENCRYPT);

@@ -825,14 +825,16 @@ class Crypt_TripleDES {
                 if (strlen($buffer['ciphertext'])) {
                     $plaintext = $ciphertext ^ substr($this->decryptIV, strlen($buffer['ciphertext']));
                     $buffer['ciphertext'].= substr($ciphertext, 0, strlen($plaintext));
-                    if (strlen($buffer['ciphertext']) == 8) {
+                    if (strlen($buffer['ciphertext']) != 8) {
+                        $block = $this->decryptIV;
+                    } else {
+                        $block = $buffer['ciphertext'];
                         $xor = $des[0]->_processBlock($buffer['ciphertext'], CRYPT_DES_ENCRYPT);
                         $xor = $des[1]->_processBlock($xor, CRYPT_DES_DECRYPT);
                         $xor = $des[2]->_processBlock($xor, CRYPT_DES_ENCRYPT);
                         $buffer['ciphertext'] = '';
                     }
                     $start = strlen($plaintext);
-                    $block = $this->decryptIV;
                 } else {
                     $plaintext = '';
                     $xor = $des[0]->_processBlock($this->decryptIV, CRYPT_DES_ENCRYPT);

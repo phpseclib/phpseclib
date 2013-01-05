@@ -887,12 +887,14 @@ class Crypt_Rijndael {
                 if (strlen($buffer['ciphertext'])) {
                     $plaintext = $ciphertext ^ substr($this->decryptIV, strlen($buffer['ciphertext']));
                     $buffer['ciphertext'].= substr($ciphertext, 0, strlen($plaintext));
-                    if (strlen($buffer['ciphertext']) == $block_size) {
+                    if (strlen($buffer['ciphertext']) != $block_size) {
+                        $block = $this->decryptIV;
+                    } else {
+                        $block = $buffer['ciphertext'];
                         $xor = $this->_encryptBlock($buffer['ciphertext']);
                         $buffer['ciphertext'] = '';
                     }
                     $start = strlen($plaintext);
-                    $block = $this->decryptIV;
                 } else {
                     $plaintext = '';
                     $xor = $this->_encryptBlock($this->decryptIV);
