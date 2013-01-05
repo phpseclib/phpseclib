@@ -6,4 +6,4 @@ php:
   - 5.4
 
 script:
-  - phpunit
+  - phpunit --verbose
