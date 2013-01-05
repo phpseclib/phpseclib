@@ -387,7 +387,7 @@ class Crypt_Rijndael {
      * @var String
      * @access private
      */
-    var $enbuffer = array('encrypted' => '', 'xor' => '');
+    var $enbuffer = array('encrypted' => '', 'xor' => '', 'pos' => 0);
 
     /**
      * Decryption buffer for CTR, OFB and CFB modes
@@ -396,7 +396,7 @@ class Crypt_Rijndael {
      * @var String
      * @access private
      */
-    var $debuffer = array('ciphertext' => '');
+    var $debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0);
 
     /**
      * Default Constructor.
@@ -763,42 +763,46 @@ class Crypt_Rijndael {
                 }
                 break;
             case CRYPT_RIJNDAEL_MODE_CFB:
-                if (strlen($buffer['xor'])) {
-                    $ciphertext = $plaintext ^ $buffer['xor'];
-                    $iv = $buffer['encrypted'] . $ciphertext;
-                    $start = strlen($ciphertext);
-                    $buffer['encrypted'].= $ciphertext;
-                    $buffer['xor'] = substr($buffer['xor'], strlen($ciphertext));
-                } else {
-                    $ciphertext = '';
-                    $iv = $this->encryptIV;
-                    $start = 0;
-                }
+                $iv     =   $this->encryptIV;
+                $pos    =	$this->continuousBuffer === true ? $buffer['pos'] : 0;
+                $len	=	strlen($plaintext);
 
-                for ($i = $start; $i < strlen($plaintext); $i+=$block_size) {
-                    $block = substr($plaintext, $i, $block_size);
-                    $xor = $this->_encryptBlock($iv);
-                    $iv = $block ^ $xor;
-                    if ($continuousBuffer && strlen($iv) != $block_size) {
-                        $buffer = array(
-                            'encrypted' => $iv,
-                            'xor' => substr($xor, strlen($iv))
-                        );
+                for ($i=0; $pos && $len; --$len, ++$i)
+                    {
+                        $iv[$pos]   =   $iv[$pos] ^ $plaintext[$i];
+                        $ciphertext .= 	$iv[$pos];
+                        $pos 		=	($pos+1) % $block_size;
                     }
-                    $ciphertext.= $iv;
-                }
+                for (; $len >= $block_size; $len-=$block_size, $i+=$block_size) 
+                    {
+                        $iv         =   $this->_encryptBlock($iv) ^ substr($plaintext, $i, $block_size);
+                        $ciphertext .=  $iv;
+                    }
+                if ($len) 
+                    {
+                        $iv = $this->_encryptBlock($iv);
+                        while ($len--) 
+                            {
+                                $iv[$pos] = $iv[$pos] ^ $plaintext[$i];
+                                $ciphertext .= $iv[$pos];
 
-                if ($this->continuousBuffer) {
-                    $this->encryptIV = $iv;
-                }
+                                ++$i;
+                                ++$pos;
+                            }
+                    }
+                if($this->continuousBuffer)
+                    {
+                        $this->encryptIV = $iv;
+                        $buffer['pos']   = $pos;
+                    }
                 break;
             case CRYPT_RIJNDAEL_MODE_OFB:
                 $xor = $this->encryptIV;
-                if (strlen($buffer)) {
+                if (strlen($buffer['xor'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                         $xor = $this->_encryptBlock($xor);
-                        $buffer.= $xor;
-                        $key = $this->_string_shift($buffer, $block_size);
+                        $buffer['xor'].= $xor;
+                        $key = $this->_string_shift($buffer['xor'], $block_size);
                         $ciphertext.= substr($plaintext, $i, $block_size) ^ $key;
                     }
                 } else {
@@ -811,7 +815,7 @@ class Crypt_Rijndael {
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                     if ($start = strlen($plaintext) % $block_size) {
-                         $buffer = substr($key, $start) . $buffer;
+                         $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
         }
@@ -884,42 +888,51 @@ class Crypt_Rijndael {
                 }
                 break;
             case CRYPT_RIJNDAEL_MODE_CFB:
-                if (strlen($buffer['ciphertext'])) {
-                    $plaintext = $ciphertext ^ substr($this->decryptIV, strlen($buffer['ciphertext']));
-                    $buffer['ciphertext'].= substr($ciphertext, 0, strlen($plaintext));
-                    if (strlen($buffer['ciphertext']) == $block_size) {
-                        $xor = $this->_encryptBlock($buffer['ciphertext']);
-                        $buffer['ciphertext'] = '';
-                    }
-                    $start = strlen($plaintext);
-                    $block = $this->decryptIV;
-                } else {
-                    $plaintext = '';
-                    $xor = $this->_encryptBlock($this->decryptIV);
-                    $start = 0;
-                }
+                $iv     =   $this->decryptIV;
+                $pos	=	$this->continuousBuffer === true ? $buffer['pos'] : 0;
+                $len	=	strlen($ciphertext);
 
-                for ($i = $start; $i < strlen($ciphertext); $i+=$block_size) {
-                    $block = substr($ciphertext, $i, $block_size);
-                    $plaintext.= $block ^ $xor;
-                    if ($continuousBuffer && strlen($block) != $block_size) {
-                        $buffer['ciphertext'].= $block;
-                        $block = $xor;
-                    } else if (strlen($block) == $block_size) {
-                        $xor = $this->_encryptBlock($block);
+				// cfb routines inspired by: http://cvs.openssl.org/fileview?f=openssl/crypto/modes/cfb128.c&v=1.3.2.2.2.1
+                for ($i=0; $pos && $len; --$len, ++$i)
+                    {
+                        $plaintext	.= 	$iv[$pos] ^ $ciphertext[$i]; 
+                        $iv[$pos]	=	$ciphertext[$i];
+                        $pos 		=	($pos+1) % $block_size;
                     }
-                }
-                if ($this->continuousBuffer) {
-                    $this->decryptIV = $block;
-                }
+
+                for (; $len >= $block_size; $len-=$block_size, $i+=$block_size) 
+                    {
+                        $iv			=	$this->_encryptBlock($iv);
+                        $cb         =   substr($ciphertext, $i, $block_size);
+                        $plaintext	.=	$iv ^ $cb;
+                        $iv			=	$cb;
+                    }
+
+                if ($len) 
+                    {
+                        $iv = $this->_encryptBlock($iv);
+                        while ($len--) 
+                            {
+                                $plaintext	.=	$iv[$pos] ^ $ciphertext[$i];
+                                $iv[$pos]	=	$ciphertext[$i];
+
+                                ++$i;
+                                ++$pos;
+                            }
+                    }
+                if ($this->continuousBuffer)
+                    {
+                        $this->decryptIV = $iv;
+                        $buffer['pos']   = $pos;
+                    }
                 break;
             case CRYPT_RIJNDAEL_MODE_OFB:
                 $xor = $this->decryptIV;
-                if (strlen($buffer)) {
+                if (strlen($buffer['xor'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
                         $xor = $this->_encryptBlock($xor);
-                        $buffer.= $xor;
-                        $key = $this->_string_shift($buffer, $block_size);
+                        $buffer['xor'].= $xor;
+                        $key = $this->_string_shift($buffer['xor'], $block_size);
                         $plaintext.= substr($ciphertext, $i, $block_size) ^ $key;
                     }
                 } else {
@@ -932,7 +945,7 @@ class Crypt_Rijndael {
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                     if ($start = strlen($ciphertext) % $block_size) {
-                         $buffer = substr($key, $start) . $buffer;
+                         $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
         }
@@ -1454,6 +1467,8 @@ class Crypt_Rijndael {
         $this->continuousBuffer = false;
         $this->encryptIV = $this->iv;
         $this->decryptIV = $this->iv;
+        $this->enbuffer = array('encrypted' => '', 'xor' => '', 'pos' => 0);
+        $this->debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0);
     }
 
     /**
