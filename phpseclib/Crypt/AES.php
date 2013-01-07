@@ -311,7 +311,7 @@ class Crypt_AES extends Crypt_Rijndael {
             // re: http://phpseclib.sourceforge.net/cfb-demo.phps
             // using mcrypt's default handing of CFB the above would output two different things.  using phpseclib's
             // rewritten CFB implementation the above outputs the same thing twice.
-            if ($this->mode == 'ncfb') {
+            if ($this->mode == 'ncfb' && $this->continuousBuffer) {
                 if ($changed) {
                     $this->ecb = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_ECB, '');
                     mcrypt_generic_init($this->ecb, $this->key, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
@@ -386,7 +386,7 @@ class Crypt_AES extends Crypt_Rijndael {
                 return $plaintext;
             }
             */
-            if ($this->mode == 'ncfb') {
+            if ($this->mode == 'ncfb' && $this->continuousBuffer) {
                 if ($changed) {
                     $this->ecb = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_ECB, '');
                     mcrypt_generic_init($this->ecb, $this->key, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
