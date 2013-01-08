@@ -1018,19 +1018,11 @@ class Net_SSH1 {
             return false;
         }
 
-        if (defined('NET_SSH1_LOGGING')) {
-            $temp = isset($this->protocol_flags[ord($data[0])]) ? $this->protocol_flags[ord($data[0])] : 'UNKNOWN';
-            $this->protocol_flags_log[] = '-> ' . $temp .
-                                          ' (' . round($stop - $start, 4) . 's)';
-            if (NET_SSH1_LOGGING == NET_SSH1_LOG_COMPLEX) {
-                $this->message_log[] = substr($data, 1);
-            }
-        }
-
         $length = strlen($data) + 4;
 
         $padding = crypt_random_string(8 - ($length & 7));
 
+        $orig = $data;
         $data = $padding . $data;
         $data.= pack('N', $this->_crc($data));
 
@@ -1043,6 +1035,15 @@ class Net_SSH1 {
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $result = strlen($packet) == fputs($this->fsock, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
+        
+        if (defined('NET_SSH1_LOGGING')) {
+            $temp = isset($this->protocol_flags[ord($orig[0])]) ? $this->protocol_flags[ord($orig[0])] : 'UNKNOWN';
+            $this->protocol_flags_log[] = '-> ' . $temp .
+                                          ' (' . round($stop - $start, 4) . 's)';
+            if (NET_SSH1_LOGGING == NET_SSH1_LOG_COMPLEX) {
+                $this->message_log[] = substr($orig, 1);
+            }
+        }
 
         return $result;
     }
