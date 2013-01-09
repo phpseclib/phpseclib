@@ -214,8 +214,6 @@ class Crypt_AES extends Crypt_Rijndael {
                         $this->mode = MCRYPT_MODE_CBC;
                 }
 
-                $this->debuffer = $this->enbuffer = '';
-
                 break;
             default:
                 switch ($mode) {
@@ -317,12 +315,14 @@ class Crypt_AES extends Crypt_Rijndael {
                     mcrypt_generic_init($this->ecb, $this->key, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
                 }
 
-                if (strlen($this->enbuffer)) {
-                    $ciphertext = $plaintext ^ substr($this->encryptIV, strlen($this->enbuffer));
-                    $this->enbuffer.= $ciphertext;
-                    if (strlen($this->enbuffer) == 16) {
-                        $this->encryptIV = $this->enbuffer;
-                        $this->enbuffer = '';
+                $buffer = &$this->enbuffer['encrypted'];
+
+                if (strlen($buffer)) {
+                    $ciphertext = $plaintext ^ substr($this->encryptIV, strlen($buffer));
+                    $buffer.= $ciphertext;
+                    if (strlen($buffer) == 16) {
+                        $this->encryptIV = $buffer;
+                        $buffer = '';
                         mcrypt_generic_init($this->enmcrypt, $this->key, $this->encryptIV);
                     }
                     $plaintext = substr($plaintext, strlen($ciphertext));
@@ -331,15 +331,15 @@ class Crypt_AES extends Crypt_Rijndael {
                 }
 
                 $last_pos = strlen($plaintext) & 0xFFFFFFF0;
-                $ciphertext.= $last_pos ? mcrypt_generic($this->enmcrypt, substr($plaintext, 0, $last_pos)) : '';
+                if ($last_pos) {
+                    $ciphertext.= mcrypt_generic($this->enmcrypt, substr($plaintext, 0, $last_pos));
+                    $this->encryptIV = substr($ciphertext, -16);
+                }
 
                 if (strlen($plaintext) & 0xF) {
-                    if (strlen($ciphertext)) {
-                        $this->encryptIV = substr($ciphertext, -16);
-                    }
                     $this->encryptIV = mcrypt_generic($this->ecb, $this->encryptIV);
-                    $this->enbuffer = substr($plaintext, $last_pos) ^ $this->encryptIV;
-                    $ciphertext.= $this->enbuffer;
+                    $buffer = substr($plaintext, $last_pos) ^ $this->encryptIV;
+                    $ciphertext.= $buffer;
                 }
 
                 return $ciphertext;
@@ -392,13 +392,15 @@ class Crypt_AES extends Crypt_Rijndael {
                     mcrypt_generic_init($this->ecb, $this->key, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
                 }
 
-                if (strlen($this->debuffer)) {
-                    $plaintext = $ciphertext ^ substr($this->decryptIV, strlen($this->debuffer));
+                $buffer = &$this->debuffer['ciphertext'];
 
-                    $this->debuffer.= substr($ciphertext, 0, strlen($plaintext));
-                    if (strlen($this->debuffer) == 16) {
-                        $this->decryptIV = $this->debuffer;
-                        $this->debuffer = '';
+                if (strlen($buffer)) {
+                    $plaintext = $ciphertext ^ substr($this->decryptIV, strlen($buffer));
+
+                    $buffer.= substr($ciphertext, 0, strlen($plaintext));
+                    if (strlen($buffer) == 16) {
+                        $this->decryptIV = $buffer;
+                        $buffer = '';
                         mcrypt_generic_init($this->demcrypt, $this->key, $this->decryptIV);
                     }
                     $ciphertext = substr($ciphertext, strlen($plaintext));
@@ -407,15 +409,15 @@ class Crypt_AES extends Crypt_Rijndael {
                 }
 
                 $last_pos = strlen($ciphertext) & 0xFFFFFFF0;
-                $plaintext.= $last_pos ? mdecrypt_generic($this->demcrypt, substr($ciphertext, 0, $last_pos)) : '';
+                if ($last_pos) {
+                    $plaintext = mdecrypt_generic($this->demcrypt, substr($ciphertext, 0, $last_pos));
+                    $this->decryptIV = substr($ciphertext, $last_pos - 16, 16);
+                    $this->decryptIV = mcrypt_generic($this->ecb, $this->decryptIV);
+                }
 
                 if (strlen($ciphertext) & 0xF) {
-                    if (strlen($plaintext)) {
-                        $this->decryptIV = substr($ciphertext, $last_pos - 16, 16);
-                    }
-                    $this->decryptIV = mcrypt_generic($this->ecb, $this->decryptIV);
-                    $this->debuffer = substr($ciphertext, $last_pos);
-                    $plaintext.= $this->debuffer ^ $this->decryptIV;
+                    $buffer = substr($ciphertext, $last_pos);
+                    $plaintext.= $buffer ^ $this->decryptIV;
                 }
 
                 return $plaintext;
@@ -526,7 +528,7 @@ class Crypt_AES extends Crypt_Rijndael {
         // shiftRows + subWord + mixColumns + addRoundKey
         // we could loop unroll this and use if statements to do more rounds as necessary, but, in my tests, that yields
         // only a marginal improvement.  since that also, imho, hinders the readability of the code, i've opted not to do it.
-        for ($round = 1; $round < $this->Nr; $round++) {
+        for ($round = 1; $round < $Nr; $round++) {
             $state = array(
                 $t0[$state[0] & 0xFF000000] ^ $t1[$state[1] & 0x00FF0000] ^ $t2[$state[2] & 0x0000FF00] ^ $t3[$state[3] & 0x000000FF] ^ $w[$round][0],
                 $t0[$state[1] & 0xFF000000] ^ $t1[$state[2] & 0x00FF0000] ^ $t2[$state[3] & 0x0000FF00] ^ $t3[$state[0] & 0x000000FF] ^ $w[$round][1],
@@ -586,7 +588,7 @@ class Crypt_AES extends Crypt_Rijndael {
 
 
         // invShiftRows + invSubBytes + invMixColumns + addRoundKey
-        for ($round = $this->Nr - 1; $round > 0; $round--) {
+        for ($round = $Nr - 1; $round > 0; $round--) {
             $state = array(
                 $dt0[$state[0] & 0xFF000000] ^ $dt1[$state[3] & 0x00FF0000] ^ $dt2[$state[2] & 0x0000FF00] ^ $dt3[$state[1] & 0x000000FF] ^ $dw[$round][0],
                 $dt0[$state[1] & 0xFF000000] ^ $dt1[$state[0] & 0x00FF0000] ^ $dt2[$state[3] & 0x0000FF00] ^ $dt3[$state[2] & 0x000000FF] ^ $dw[$round][1],
@@ -604,6 +606,24 @@ class Crypt_AES extends Crypt_Rijndael {
         );
 
         return pack('N*', $state[0], $state[1], $state[2], $state[3]);
+    }
+
+    /**
+     * Treat consecutive packets as if they are a discontinuous buffer.
+     *
+     * The default behavior.
+     *
+     * @see Crypt_Rijndael::enableContinuousBuffer()
+     * @access public
+     */
+    function disableContinuousBuffer()
+    {
+        parent::disableContinuousBuffer();
+
+        if (CRYPT_AES_MODE == CRYPT_AES_MODE_MCRYPT) {
+            mcrypt_generic_init($this->enmcrypt, $this->key, $this->iv);
+            mcrypt_generic_init($this->demcrypt, $this->key, $this->iv);
+        }
     }
 }
 
