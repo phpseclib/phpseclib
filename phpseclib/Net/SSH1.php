@@ -1452,7 +1452,6 @@ class Net_SSH1 {
      */
     function _append_log($protocol_flags, $message)
     {
-echo "WTF\r\n";
             switch (NET_SSH1_LOGGING) {
                 // useful for benchmarks
                 case NET_SSH1_LOG_SIMPLE:
