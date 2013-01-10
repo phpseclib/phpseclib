@@ -1068,7 +1068,7 @@ class Net_SSH1 {
             $temp = isset($this->protocol_flags[ord($orig[0])]) ? $this->protocol_flags[ord($orig[0])] : 'UNKNOWN';
             $temp = '-> ' . $temp .
                     ' (' . round($stop - $start, 4) . 's)';
-            $this->_append_log($temp, $data);
+            $this->_append_log($temp, $orig);
         }
 
         return $result;
