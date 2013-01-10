@@ -846,7 +846,7 @@ class Net_SSH1 {
         while (true) {
             if ($mode == NET_SSH1_READ_REGEX) {
                 preg_match($expect, $this->interactiveBuffer, $matches);
-                $match = $matches[0];
+                $match = isset($matches[0]) ? $matches[0] : array();
             }
             $pos = strpos($this->interactiveBuffer, $match);
             if ($pos !== false) {
