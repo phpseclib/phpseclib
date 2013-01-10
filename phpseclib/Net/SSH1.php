@@ -1230,16 +1230,15 @@ class Net_SSH1 {
         // Presumably the part of PKCS#1 they're refering to is "Section 7.2.1 Encryption Operation",
         // under "7.2 RSAES-PKCS1-v1.5" and "7 Encryption schemes" of the following URL:
         // ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-1/pkcs-1v2-1.pdf
-        $temp = chr(0) . chr(2);
         $modulus = $key[1]->toBytes();
         $length = strlen($modulus) - strlen($m) - 3;
-        $temp = '';
-        while (strlen($temp) != $length) {
-            $block = crypt_random_string($length - strlen($temp));
+        $random = '';
+        while (strlen($random) != $length) {
+            $block = crypt_random_string($length - strlen($random));
             $block = str_replace("\x00", '', $block);
-            $temp.= $block;
+            $random.= $block;
         }
-        $temp.= chr(0) . $m;
+        $temp = chr(0) . chr(2) . $random . chr(0) . $m;
 
         $m = new Math_BigInteger($temp, 256);
         $m = $m->modPow($key[0], $key[1]);
