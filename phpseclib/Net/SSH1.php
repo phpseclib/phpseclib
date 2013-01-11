@@ -1040,7 +1040,8 @@ class Net_SSH1 {
      * @return Boolean
      * @access private
      */
-    function _send_binary_packet($data) {
+    function _send_binary_packet($data)
+    {
         if (feof($this->fsock)) {
             //user_error('connection closed prematurely');
             return false;
