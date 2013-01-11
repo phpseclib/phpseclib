@@ -412,10 +412,10 @@ class Crypt_AES extends Crypt_Rijndael {
                 if ($last_pos) {
                     $plaintext = mdecrypt_generic($this->demcrypt, substr($ciphertext, 0, $last_pos));
                     $this->decryptIV = substr($ciphertext, $last_pos - 16, 16);
-                    $this->decryptIV = mcrypt_generic($this->ecb, $this->decryptIV);
                 }
 
                 if (strlen($ciphertext) & 0xF) {
+                    $this->decryptIV = mcrypt_generic($this->ecb, $this->decryptIV);
                     $buffer = substr($ciphertext, $last_pos);
                     $plaintext.= $buffer ^ $this->decryptIV;
                 }
