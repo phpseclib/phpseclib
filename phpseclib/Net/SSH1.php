@@ -888,7 +888,7 @@ class Net_SSH1 {
                 preg_match($expect, $this->interactiveBuffer, $matches);
                 $match = isset($matches[0]) ? $matches[0] : array();
             }
-            $pos = !empty($match) ? strpos($this->interactiveBuffer, $match) : false;
+            $pos = strlen($match) ? strpos($this->interactiveBuffer, $match) : false;
             if ($pos !== false) {
                 return $this->_string_shift($this->interactiveBuffer, $pos + strlen($match));
             }
@@ -1000,7 +1000,7 @@ class Net_SSH1 {
         if ($this->bitmap) {
             $data = pack('C', NET_SSH1_CMSG_EOF);
             $this->_send_binary_packet($data);
-
+            /*
             $response = $this->_get_binary_packet();
             if ($response === true) {
                 $response = array(NET_SSH1_RESPONSE_TYPE => -1);
@@ -1012,6 +1012,8 @@ class Net_SSH1 {
                 default:
                     $data = pack('CNa*', NET_SSH1_MSG_DISCONNECT, strlen($msg), $msg);
             }
+            */
+            $data = pack('CNa*', NET_SSH1_MSG_DISCONNECT, strlen($msg), $msg);
 
             $this->_send_binary_packet($data);
             fclose($this->fsock);
@@ -1060,10 +1062,14 @@ class Net_SSH1 {
         $padding_length = 8 - ($temp['length'] & 7);
         $length = $temp['length'] + $padding_length;
 
-        $raw = fread($this->fsock, $length);
+        while ($length > 0) {
+            $temp = fread($this->fsock, $length);
+            $raw.= $temp;
+            $length-= strlen($temp);
+        }
         $stop = strtok(microtime(), ' ') + strtok('');
 
-        if ($this->crypto !== false) {
+        if (strlen($raw) && $this->crypto !== false) {
             $raw = $this->crypto->decrypt($raw);
         }
 
@@ -1378,7 +1384,7 @@ class Net_SSH1 {
             $current_log = $message_log[$i];
             $j = 0;
             do {
-                if (!empty($current_log)) {
+                if (strlen($current_log)) {
                     $output.= str_pad(dechex($j), 7, '0', STR_PAD_LEFT) . '0  ';
                 }
                 $fragment = $this->_string_shift($current_log, $short_width);
@@ -1395,7 +1401,7 @@ class Net_SSH1 {
                 $raw = preg_replace('#[^\x20-\x7E]|<#', '.', $fragment);
                 $output.= str_pad($hex, $long_width - $short_width, ' ') . $raw . "\r\n";
                 $j++;
-            } while (!empty($current_log));
+            } while (strlen($current_log));
             $output.= "\r\n";
         }
 
