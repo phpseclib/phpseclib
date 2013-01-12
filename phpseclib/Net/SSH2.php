@@ -863,7 +863,7 @@ class Net_SSH2 {
         }
 
         $this->server_identifier = trim($temp, "\r\n");
-        if (!empty($extra)) {
+        if (strlen($extra)) {
             $this->errors[] = utf8_decode($extra);
         }
 
@@ -1955,7 +1955,7 @@ class Net_SSH2 {
                 preg_match($expect, $this->interactiveBuffer, $matches);
                 $match = isset($matches[0]) ? $matches[0] : array();
             }
-            $pos = !empty($match) ? strpos($this->interactiveBuffer, $match) : false;
+            $pos = strlen($match) ? strpos($this->interactiveBuffer, $match) : false;
             if ($pos !== false) {
                 return $this->_string_shift($this->interactiveBuffer, $pos + strlen($match));
             }
@@ -2037,7 +2037,7 @@ class Net_SSH2 {
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $raw = fread($this->fsock, $this->decrypt_block_size);
 
-        if (empty($raw)) {
+        if (!strlen($raw)) {
             return '';
         }
 
@@ -2059,9 +2059,8 @@ class Net_SSH2 {
             $remaining_length-= strlen($temp);
         }
         $stop = strtok(microtime(), ' ') + strtok('');
-        if (!empty($buffer)) {
+        if (strlen($buffer)) {
             $raw.= $this->decrypt !== false ? $this->decrypt->decrypt($buffer) : $buffer;
-            $buffer = $temp = '';
         }
 
         $payload = $this->_string_shift($raw, $packet_length - $padding_length - 1);
@@ -2214,7 +2213,7 @@ class Net_SSH2 {
      */
     function _get_channel_packet($client_channel, $skip_extended = false)
     {
-        if (!empty($this->channel_buffers[$client_channel])) {
+        if (strlen($this->channel_buffers[$client_channel])) {
             return array_shift($this->channel_buffers[$client_channel]);
         }
 
@@ -2241,7 +2240,7 @@ class Net_SSH2 {
                 return false;
             }
 
-            if (empty($response)) {
+            if (!strlen($response)) {
                 return '';
             }
 
@@ -2673,7 +2672,7 @@ class Net_SSH2 {
             $current_log = $message_log[$i];
             $j = 0;
             do {
-                if (!empty($current_log)) {
+                if (strlen($current_log)) {
                     $output.= str_pad(dechex($j), 7, '0', STR_PAD_LEFT) . '0  ';
                 }
                 $fragment = $this->_string_shift($current_log, $short_width);
@@ -2690,7 +2689,7 @@ class Net_SSH2 {
                 $raw = preg_replace('#[^\x20-\x7E]|<#', '.', $fragment);
                 $output.= str_pad($hex, $long_width - $short_width, ' ') . $raw . "\r\n";
                 $j++;
-            } while (!empty($current_log));
+            } while (strlen($current_log));
             $output.= "\r\n";
         }
 
