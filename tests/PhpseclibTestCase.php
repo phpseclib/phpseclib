@@ -7,5 +7,31 @@
 
 abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
 {
+	/**
+	* @param string $constant
+	* @param mixed $expected
+	*
+	* @return null
+	*/
+	static protected function ensureModeConstant($constant, $expected)
+	{
+		if (defined($constant))
+		{
+			$value = constant($constant);
 
+			if ($value !== $expected)
+			{
+				self::markTestSkipped(sprintf(
+					"Skipping test because mode constant %s is %s instead of %s",
+					$constant,
+					$value,
+					$expected
+				));
+			}
+		}
+		else
+		{
+			define($constant, $expected);
+		}
+	}
 }
