@@ -795,7 +795,7 @@ class Crypt_Rijndael {
                     $iv = $this->_encryptBlock($iv);
                     //$block = substr($iv, $pos, $len) ^ substr($plaintext, $i, $len);
                     $block = substr($iv, $pos) ^ substr($plaintext, $i);
-                    $iv = substr_replace($iv, $block, $pos, $len);
+                    $iv = substr_replace($iv, $block, 0, $len);
                     $ciphertext.= $block;
                     $pos+= $len;
                 }
@@ -927,7 +927,7 @@ class Crypt_Rijndael {
                 if ($len) {
                     $iv = $this->_encryptBlock($iv);
                     $plaintext.= substr($iv, $pos) ^ substr($ciphertext, $i);
-                    $iv = substr_replace($iv, substr($ciphertext, $i, $len), $pos, $len);
+                    $iv = substr_replace($iv, substr($ciphertext, $i, $len), 0, $len);
                     $pos+= $len;
                 }
                 if ($this->continuousBuffer) {
