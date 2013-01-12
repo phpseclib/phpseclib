@@ -466,6 +466,22 @@ class Net_SSH1 {
     var $interactiveBuffer = '';
 
     /**
+     * Timeout
+     *
+     * @see Net_SSH1::setTimeout()
+     * @access private
+     */
+    var $timeout;
+
+    /**
+     * Current Timeout
+     *
+     * @see Net_SSH2::_get_channel_packet()
+     * @access private
+     */
+    var $curTimeout;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv1 server
@@ -671,6 +687,9 @@ class Net_SSH1 {
 
         $response = $this->_get_binary_packet();
 
+        if ($response === true) {
+            return false;
+        }
         if ($response[NET_SSH1_RESPONSE_TYPE] == NET_SSH1_SMSG_SUCCESS) {
             $this->bitmap |= NET_SSH1_MASK_LOGIN;
             return true;
@@ -694,6 +713,9 @@ class Net_SSH1 {
 
         $response = $this->_get_binary_packet();
 
+        if ($response === true) {
+            return false;
+        }
         if ($response[NET_SSH1_RESPONSE_TYPE] == NET_SSH1_SMSG_SUCCESS) {
             $this->bitmap |= NET_SSH1_MASK_LOGIN;
             return true;
@@ -703,6 +725,19 @@ class Net_SSH1 {
             user_error('Expected SSH_SMSG_SUCCESS or SSH_SMSG_FAILURE');
             return false;
         }
+    }
+
+    /**
+     * Set Timeout
+     *
+     * $ssh->exec('ping 127.0.0.1'); on a Linux host will never return and will run indefinitely.  setTimeout() makes it so it'll timeout.
+     * Setting $timeout to false or 0 will mean there is no timeout.
+     *
+     * @param Mixed $timeout
+     */
+    function setTimeout($timeout)
+    {
+        $this->timeout = $this->curTimeout = $timeout;
     }
 
     /**
@@ -746,10 +781,12 @@ class Net_SSH1 {
         $output = '';
         $response = $this->_get_binary_packet();
 
-        do {
-            $output.= substr($response[NET_SSH1_RESPONSE_DATA], 4);
-            $response = $this->_get_binary_packet();
-        } while ($response[NET_SSH1_RESPONSE_TYPE] != NET_SSH1_SMSG_EXITSTATUS);
+        if ($response !== false) {
+            do {
+                $output.= substr($response[NET_SSH1_RESPONSE_DATA], 4);
+                $response = $this->_get_binary_packet();
+            } while (is_array($response) && $response[NET_SSH1_RESPONSE_TYPE] != NET_SSH1_SMSG_EXITSTATUS);
+        }
 
         $data = pack('C', NET_SSH1_CMSG_EXIT_CONFIRMATION);
 
@@ -786,6 +823,9 @@ class Net_SSH1 {
 
         $response = $this->_get_binary_packet();
 
+        if ($response === true) {
+            return false;
+        }
         if ($response[NET_SSH1_RESPONSE_TYPE] != NET_SSH1_SMSG_SUCCESS) {
             user_error('Expected SSH_SMSG_SUCCESS');
             return false;
@@ -848,11 +888,15 @@ class Net_SSH1 {
                 preg_match($expect, $this->interactiveBuffer, $matches);
                 $match = isset($matches[0]) ? $matches[0] : array();
             }
-            $pos = strpos($this->interactiveBuffer, $match);
+            $pos = !empty($match) ? strpos($this->interactiveBuffer, $match) : false;
             if ($pos !== false) {
                 return $this->_string_shift($this->interactiveBuffer, $pos + strlen($match));
             }
             $response = $this->_get_binary_packet();
+
+            if ($response === true) {
+                return $this->_string_shift($this->interactiveBuffer, strlen($this->interactiveBuffer));
+            }
             $this->interactiveBuffer.= substr($response[NET_SSH1_RESPONSE_DATA], 4);
         }
     }
@@ -958,6 +1002,9 @@ class Net_SSH1 {
             $this->_send_binary_packet($data);
 
             $response = $this->_get_binary_packet();
+            if ($response === true) {
+                $response = array(NET_SSH1_RESPONSE_TYPE => -1);
+            }
             switch ($response[NET_SSH1_RESPONSE_TYPE]) {
                 case NET_SSH1_SMSG_EXITSTATUS:
                     $data = pack('C', NET_SSH1_CMSG_EXIT_CONFIRMATION);
@@ -991,12 +1038,28 @@ class Net_SSH1 {
             return false;
         }
 
+        if ($this->curTimeout) {
+            $read = array($this->fsock);
+            $write = $except = NULL;
+
+            $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+            $sec = floor($this->curTimeout);
+            $usec = 1000000 * ($this->curTimeout - $sec);
+            // on windows this returns a "Warning: Invalid CRT parameters detected" error
+            if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
+                //$this->_disconnect('Timeout');
+                return true;
+            }
+            $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+            $this->curTimeout-= $elapsed;
+        }
+
+        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $temp = unpack('Nlength', fread($this->fsock, 4));
 
         $padding_length = 8 - ($temp['length'] & 7);
         $length = $temp['length'] + $padding_length;
 
-        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $raw = fread($this->fsock, $length);
         $stop = strtok(microtime(), ' ') + strtok('');
 
