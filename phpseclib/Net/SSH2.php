@@ -2036,7 +2036,6 @@ class Net_SSH2 {
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $raw = fread($this->fsock, $this->decrypt_block_size);
-        $stop = strtok(microtime(), ' ') + strtok('');
 
         if (empty($raw)) {
             return '';
@@ -2059,6 +2058,7 @@ class Net_SSH2 {
             $buffer.= $temp;
             $remaining_length-= strlen($temp);
         }
+        $stop = strtok(microtime(), ' ') + strtok('');
         if (!empty($buffer)) {
             $raw.= $this->decrypt !== false ? $this->decrypt->decrypt($buffer) : $buffer;
             $buffer = $temp = '';
