@@ -48,4 +48,27 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
 			define($constant, $expected);
 		}
 	}
+
+	/**
+	* @param string $filename
+	*
+	* @return null
+	*/
+	static protected function reRequireFile($filename)
+	{
+		if (function_exists('runkit_import'))
+		{
+			$result = runkit_import(
+				$filename,
+				RUNKIT_IMPORT_FUNCTIONS |
+				RUNKIT_IMPORT_CLASS_METHODS |
+				RUNKIT_IMPORT_OVERRIDE
+			);
+
+			if (!$result)
+			{
+				self::markTestSkipped("Failed to reimport file $filename");
+			}
+		}
+	}
 }

@@ -9,7 +9,8 @@ class Math_BigInteger_InternalTest extends Math_BigInteger_TestCase
 {
 	static public function setUpBeforeClass()
 	{
-		self::ensureModeConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
 		parent::setUpBeforeClass();
+
+		self::ensureModeConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
 	}
 }

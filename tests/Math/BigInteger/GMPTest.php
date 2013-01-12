@@ -14,7 +14,8 @@ class Math_BigInteger_GMPTest extends Math_BigInteger_TestCase
 			self::markTestSkipped('GNU Multiple Precision (GMP) extension is not available.');
 		}
 
-		self::ensureModeConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
 		parent::setUpBeforeClass();
+
+		self::ensureModeConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
 	}
 }
