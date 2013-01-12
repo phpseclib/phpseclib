@@ -21,12 +21,26 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
 
 			if ($value !== $expected)
 			{
-				self::markTestSkipped(sprintf(
-					"Skipping test because mode constant %s is %s instead of %s",
-					$constant,
-					$value,
-					$expected
-				));
+				if (function_exists('runkit_constant_redefine'))
+				{
+					if (!runkit_constant_redefine($constant, $expected))
+					{
+						self::markTestSkipped(sprintf(
+							"Failed to redefine mode constant %s to %s",
+							$constant,
+							$expected
+						));
+					}
+				}
+				else
+				{
+					self::markTestSkipped(sprintf(
+						"Skipping test because mode constant %s is %s instead of %s",
+						$constant,
+						$value,
+						$expected
+					));
+				}
 			}
 		}
 		else
