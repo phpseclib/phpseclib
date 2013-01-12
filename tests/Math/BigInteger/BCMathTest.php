@@ -9,6 +9,11 @@ class Math_BigInteger_BCMathTest extends Math_BigInteger_TestCase
 {
 	static public function setUpBeforeClass()
 	{
+		if (!extension_loaded('bcmath'))
+		{
+			self::markTestSkipped('BCMath extension is not available.');
+		}
+
 		self::ensureModeConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_BCMATH);
 		parent::setUpBeforeClass();
 	}
