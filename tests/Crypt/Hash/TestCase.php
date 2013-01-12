@@ -5,7 +5,7 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-abstract class Crypt_Hash_TestCase extends PHPUnit_Framework_TestCase
+abstract class Crypt_Hash_TestCase extends PhpseclibTestCase
 {
 	static public function setUpBeforeClass()
 	{
