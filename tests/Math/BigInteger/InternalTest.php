@@ -11,6 +11,6 @@ class Math_BigInteger_InternalTest extends Math_BigInteger_TestCase
 	{
 		parent::setUpBeforeClass();
 
-		self::ensureModeConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
+		self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
 	}
 }
