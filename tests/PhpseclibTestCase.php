@@ -13,7 +13,7 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
 	*
 	* @return null
 	*/
-	static protected function ensureModeConstant($constant, $expected)
+	static protected function ensureConstant($constant, $expected)
 	{
 		if (defined($constant))
 		{
@@ -26,7 +26,7 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
 					if (!runkit_constant_redefine($constant, $expected))
 					{
 						self::markTestSkipped(sprintf(
-							"Failed to redefine mode constant %s to %s",
+							"Failed to redefine constant %s to %s",
 							$constant,
 							$expected
 						));
@@ -35,7 +35,7 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
 				else
 				{
 					self::markTestSkipped(sprintf(
-						"Skipping test because mode constant %s is %s instead of %s",
+						"Skipping test because constant %s is %s instead of %s",
 						$constant,
 						$value,
 						$expected
