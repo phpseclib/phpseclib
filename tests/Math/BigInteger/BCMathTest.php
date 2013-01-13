@@ -16,6 +16,6 @@ class Math_BigInteger_BCMathTest extends Math_BigInteger_TestCase
 
 		parent::setUpBeforeClass();
 
-		self::ensureModeConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_BCMATH);
+		self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_BCMATH);
 	}
 }
