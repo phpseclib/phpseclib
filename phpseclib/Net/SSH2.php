@@ -2213,7 +2213,7 @@ class Net_SSH2 {
      */
     function _get_channel_packet($client_channel, $skip_extended = false)
     {
-        if (strlen($this->channel_buffers[$client_channel])) {
+        if (!empty($this->channel_buffers[$client_channel])) {
             return array_shift($this->channel_buffers[$client_channel]);
         }
 
