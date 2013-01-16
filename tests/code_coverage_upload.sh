@@ -23,7 +23,7 @@ fi
 # Workaround for rsync not creating target directories with depth > 1
 mv "$LDIRNAME" "x$LDIRNAME"
 mkdir -p "$RDIRNAME/$TRAVIS_BUILD_NUMBER"
-mv "x$LDIRNAME" "$RDIRNAME/$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER/"
+mv "x$LDIRNAME" "$RDIRNAME/$TRAVIS_BUILD_NUMBER/PHP-$TRAVIS_PHP_VERSION/"
 
 # Stop complaints about world-readable key file.
 chmod 600 "$ID_RSA"
