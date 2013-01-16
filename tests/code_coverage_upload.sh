@@ -25,11 +25,14 @@ mv "$LDIRNAME" "x$LDIRNAME"
 mkdir -p "$RDIRNAME/$TRAVIS_BUILD_NUMBER"
 mv "x$LDIRNAME" "$RDIRNAME/$TRAVIS_BUILD_NUMBER/PHP-$TRAVIS_PHP_VERSION/"
 
+# Update latest symlink
+ln -s "$TRAVIS_BUILD_NUMBER" "$RDIRNAME/latest"
+
 # Stop complaints about world-readable key file.
 chmod 600 "$ID_RSA"
 
 export RSYNC_RSH="ssh -4 -i $ID_RSA -o ConnectTimeout=5"
-RSYNC_OPT="--recursive --times --progress"
+RSYNC_OPT="--recursive --times --links --progress"
 
 expect << EOF
 	spawn rsync $RSYNC_OPT "$RDIRNAME/" "$USERNAME@$HOSTNAME:$RDIRNAME/"
