@@ -15,6 +15,7 @@ LDIRNAME='code_coverage'
 RDIRNAME='code_coverage'
 ID_RSA='tests/code_coverage_id_rsa'
 
+# Install expect if necessary
 if ! which expect > /dev/null
 then
 	sudo apt-get update -qq
