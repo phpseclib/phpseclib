@@ -10,6 +10,7 @@
 
 USERNAME='phpseclib'
 HOSTNAME='phpseclib.bantux.org'
+HOSTRSAF='09:40:96:14:6a:cd:67:46:17:e5:b4:39:24:24:6e:9d'
 LDIRNAME='code_coverage'
 RDIRNAME='code_coverage'
 ID_RSA='tests/code_coverage_id_rsa'
@@ -37,7 +38,7 @@ RSYNC_OPT="--recursive --times --links --progress"
 expect << EOF
 	spawn rsync $RSYNC_OPT "$RDIRNAME/" "$USERNAME@$HOSTNAME:$RDIRNAME/"
 
-	expect "RSA key fingerprint is 09:40:96:14:6a:cd:67:46:17:e5:b4:39:24:24:6e:9d."
+	expect "RSA key fingerprint is $HOSTRSAF."
 	send "yes\n"
 
 	expect "Enter passphrase for key '$ID_RSA':"
