@@ -710,6 +710,14 @@ class Net_SSH2 {
     var $last_packet;
 
     /**
+     * Exit status returned from ssh if any
+     *
+     * @var Integer
+     * @access private
+     */
+    var $exit_status;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -2330,6 +2338,8 @@ class Net_SSH2 {
                                 $this->errors[count($this->errors)].= "\r\n" . $this->_string_shift($response, $length);
                             }
                         case 'exit-status':
+                            extract(unpack('Cfalse/Nexit_status', $this->_string_shift($response, 5)));
+                            $this->exit_status = $exit_status;
                             // "The channel needs to be closed with SSH_MSG_CHANNEL_CLOSE after this message."
                             // -- http://tools.ietf.org/html/rfc4254#section-6.10
                             $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$client_channel]));
@@ -2972,5 +2982,19 @@ class Net_SSH2 {
         }
 
         return $this->signature_format . ' ' . base64_encode($this->server_public_host_key);
+    }
+
+    /**
+     * Returns the exit status of an SSH command or false.
+     *
+     * @return Integer or false
+     * @access public
+     */
+    function getExitStatus()
+    {
+        if (is_null($this->exit_status)) {
+            return false;
+        }
+        return $this->exit_status;
     }
 }
