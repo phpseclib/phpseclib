@@ -18,7 +18,7 @@ before_script:
   - echo "extension=runkit.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
 
 script:
-  - phpunit --verbose --coverage-html code_coverage/
+  - phpunit --verbose --coverage-text --coverage-html code_coverage/
 
 after_success:
   - sh -c "if $TRAVIS_SECURE_ENV_VARS; then tests/code_coverage_upload.sh; fi"
