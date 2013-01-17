@@ -1771,13 +1771,16 @@ class Net_SSH2 {
      *
      * If $block is set to false then Net_SSH2::_get_channel_packet(NET_SSH2_CHANNEL_EXEC) will need to be called manually.
      * In all likelihood, this is not a feature you want to be taking advantage of.
+     * If $request_pty is set to true then exec() will request a Psuedo Terminal. This is best used with $block set to false 
+     * so you can respond to any interactive prompts.
      *
      * @param String $command
      * @param optional Boolean $block
+     * @param optional Boolean $request_pty
      * @return String
      * @access public
      */
-    function exec($command, $block = true)
+    function exec($command, $block = true, $request_pty = false)
     {
         $this->curTimeout = $this->timeout;
 
@@ -1806,6 +1809,34 @@ class Net_SSH2 {
         $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_EXEC);
         if ($response === false) {
             return false;
+        }
+
+        //send request-pty
+        if ($request_pty === true) {
+            $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
+            $packet = pack('CNNa*CNa*N5a*',
+                NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SSH2_CHANNEL_EXEC], strlen('pty-req'), 'pty-req', 1, strlen('vt100'), 'vt100',
+                80, 24, 0, 0, strlen($terminal_modes), $terminal_modes);
+
+            if (!$this->_send_binary_packet($packet)) {
+                return false;
+            }
+            $response = $this->_get_binary_packet();
+            if ($response === false) {
+                user_error('Connection closed by server');
+                return false;
+            }
+
+            list(, $type) = unpack('C', $this->_string_shift($response, 1));
+
+            switch ($type) {
+                case NET_SSH2_MSG_CHANNEL_SUCCESS:
+                    break;
+                case NET_SSH2_MSG_CHANNEL_FAILURE:
+                default:
+                    user_error('Unable to request pseudo-terminal');
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+            }
         }
 
         // sending a pty-req SSH_MSG_CHANNEL_REQUEST message is unnecessary and, in fact, in most cases, slows things
