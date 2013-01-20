@@ -415,14 +415,9 @@ class Crypt_AES extends Crypt_Rijndael {
                     $this->debuffer['demcrypt_init'] = true;
                 }
                 if ($len >= 16) {
-                    if ($this->debuffer['demcrypt_init'] === true) {
-                        mcrypt_generic_init($this->demcrypt, $this->key, $iv);
-                        $this->debuffer['demcrypt_init'] = false;
-                    }
                     $cb = substr($ciphertext, $i, $len - $len % 16);
-                    $plaintext.= mdecrypt_generic($this->demcrypt, $cb);
+                    $plaintext.= mcrypt_generic($this->ecb, $iv . $cb) ^ $cb;
                     $iv = substr($cb, -16);
-                    $i = strlen($plaintext);
                     $len%= 16;
                 }
                 if ($len) {

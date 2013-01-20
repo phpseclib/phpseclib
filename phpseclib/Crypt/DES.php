@@ -391,7 +391,7 @@ class Crypt_DES {
                 if (!isset($hash)) {
                     $hash = 'sha1';
                 }
-                // WPA and WPA use the SSID as the salt
+                // WPA and WPA2 use the SSID as the salt
                 if (!isset($salt)) {
                     $salt = 'phpseclib/salt';
                 }
@@ -448,29 +448,24 @@ class Crypt_DES {
      * @see Crypt_DES::decrypt()
      * @see Crypt_DES::encrypt()
      * @access public
-     * @param Integer $length
      * @param String $iv
      */
-    function _generate_xor($length, &$iv)
+    function _generate_xor(&$iv)
     {
-        $xor = '';
-        $num_blocks = ($length + 7) >> 3;
-        for ($i = 0; $i < $num_blocks; $i++) {
-            $xor.= $iv;
-            for ($j = 4; $j <= 8; $j+=4) {
-                $temp = substr($iv, -$j, 4);
-                switch ($temp) {
-                    case "\xFF\xFF\xFF\xFF":
-                        $iv = substr_replace($iv, "\x00\x00\x00\x00", -$j, 4);
-                        break;
-                    case "\x7F\xFF\xFF\xFF":
-                        $iv = substr_replace($iv, "\x80\x00\x00\x00", -$j, 4);
-                        break 2;
-                    default:
-                        extract(unpack('Ncount', $temp));
-                        $iv = substr_replace($iv, pack('N', $count + 1), -$j, 4);
-                        break 2;
-                }
+        $xor = $iv;
+        for ($j = 4; $j <= 8; $j+=4) {
+            $temp = substr($iv, -$j, 4);
+            switch ($temp) {
+                case "\xFF\xFF\xFF\xFF":
+                    $iv = substr_replace($iv, "\x00\x00\x00\x00", -$j, 4);
+                    break;
+                case "\x7F\xFF\xFF\xFF":
+                    $iv = substr_replace($iv, "\x80\x00\x00\x00", -$j, 4);
+                    break 2;
+                default:
+                    extract(unpack('Ncount', $temp));
+                    $iv = substr_replace($iv, pack('N', $count + 1), -$j, 4);
+                    break 2;
             }
         }
 
@@ -599,14 +594,14 @@ class Crypt_DES {
                 if (strlen($buffer['encrypted'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=8) {
                         $block = substr($plaintext, $i, 8);
-                        $buffer['encrypted'].= $this->_processBlock($this->_generate_xor(8, $xor), CRYPT_DES_ENCRYPT);
+                        $buffer['encrypted'].= $this->_processBlock($this->_generate_xor($xor), CRYPT_DES_ENCRYPT);
                         $key = $this->_string_shift($buffer['encrypted'], 8);
                         $ciphertext.= $block ^ $key;
                     }
                 } else {
                     for ($i = 0; $i < strlen($plaintext); $i+=8) {
                         $block = substr($plaintext, $i, 8);
-                        $key = $this->_processBlock($this->_generate_xor(8, $xor), CRYPT_DES_ENCRYPT);
+                        $key = $this->_processBlock($this->_generate_xor($xor), CRYPT_DES_ENCRYPT);
                         $ciphertext.= $block ^ $key;
                     }
                 }
@@ -734,26 +729,10 @@ class Crypt_DES {
                     $this->debuffer['demcrypt_init'] = true;
                 }
                 if ($len >= 8) {
-                    if ($this->debuffer['demcrypt_init'] === false || $len > 600) {
-                        if ($this->debuffer['demcrypt_init'] === true) {
-                            mcrypt_generic_init($this->demcrypt, $this->keys, $iv);
-                            $this->debuffer['demcrypt_init'] = false;
-                        }
-                        $cb = substr($ciphertext, $i, $len - $len % 8);
-                        $plaintext.= mdecrypt_generic($this->demcrypt, $cb);
-                        $iv = substr($cb, -8);
-                        $i = strlen($plaintext);
-                        $len%= 8;
-                    } else {
-                        while ($len >= 8) {
-                            $iv = mcrypt_generic($this->ecb,$iv);
-                            $cb = substr($ciphertext, $i, 8);
-                            $plaintext.= $iv ^ $cb;
-                            $iv = $cb;
-                            $len-= 8;
-                            $i+= 8;
-                        }
-                    }
+                    $cb = substr($ciphertext, $i, $len - $len % 8);
+                    $plaintext.= mcrypt_generic($this->ecb, $iv . $cb) ^ $cb;
+                    $iv = substr($cb, -8);
+                    $len%= 8;
                 }
                 if ($len) {
                     $iv = mcrypt_generic($this->ecb, $iv);
@@ -800,14 +779,14 @@ class Crypt_DES {
                 if (strlen($buffer['ciphertext'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=8) {
                         $block = substr($ciphertext, $i, 8);
-                        $buffer['ciphertext'].= $this->_processBlock($this->_generate_xor(8, $xor), CRYPT_DES_ENCRYPT);
+                        $buffer['ciphertext'].= $this->_processBlock($this->_generate_xor($xor), CRYPT_DES_ENCRYPT);
                         $key = $this->_string_shift($buffer['ciphertext'], 8);
                         $plaintext.= $block ^ $key;
                     }
                 } else {
                     for ($i = 0; $i < strlen($ciphertext); $i+=8) {
                         $block = substr($ciphertext, $i, 8);
-                        $key = $this->_processBlock($this->_generate_xor(8, $xor), CRYPT_DES_ENCRYPT);
+                        $key = $this->_processBlock($this->_generate_xor($xor), CRYPT_DES_ENCRYPT);
                         $plaintext.= $block ^ $key;
                     }
                 }

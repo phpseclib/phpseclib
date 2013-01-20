@@ -250,7 +250,7 @@ class Crypt_RC4 {
                 if (!isset($hash)) {
                     $hash = 'sha1';
                 }
-                // WPA and WPA use the SSID as the salt
+                // WPA and WPA2 use the SSID as the salt
                 if (!isset($salt)) {
                     $salt = 'phpseclib/salt';
                 }

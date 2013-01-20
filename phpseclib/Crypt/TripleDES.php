@@ -387,7 +387,7 @@ class Crypt_TripleDES {
                 if (!isset($hash)) {
                     $hash = 'sha1';
                 }
-                // WPA and WPA use the SSID as the salt
+                // WPA and WPA2 use the SSID as the salt
                 if (!isset($salt)) {
                     $salt = 'phpseclib';
                 }
@@ -745,35 +745,12 @@ class Crypt_TripleDES {
                     }
                     $plaintext = substr($iv, $orig_pos) ^ $ciphertext;
                     $iv = substr_replace($iv, substr($ciphertext, 0, $i), $orig_pos, $i);
-                    // $this->debuffer['demcrypt_init'] = true;
                 }
                 if ($len >= 8) {
-                    // In decrypt() possible. Will work with better performance as the commented code below 
                     $cb = substr($ciphertext, $i, $len - $len % 8);
-    		        $plaintext.= mcrypt_generic($this->ecb, $iv.$cb) ^ $cb;
+                    $plaintext.= mcrypt_generic($this->ecb, $iv . $cb) ^ $cb;
                     $iv = substr($cb, -8);
                     $len%= 8;
-                    /* 
-                    if ($this->debuffer['demcrypt_init'] === false || $len > 950) {
-                        if ($this->debuffer['demcrypt_init'] === true) {
-                            mcrypt_generic_init($this->demcrypt, $this->key, $iv);
-                            $this->debuffer['demcrypt_init'] = false;
-                        }
-                        $cb = substr($ciphertext, $i, $len - $len % 8);
-                        $plaintext.= mdecrypt_generic($this->demcrypt, $cb);
-                        $iv = substr($cb, -8);
-                        $len%= 8;
-                    } else {
-                        while ($len >= 8) {
-                            $iv = mcrypt_generic($this->ecb,$iv);
-                            $cb = substr($ciphertext, $i, 8);
-                            $plaintext.= $iv ^ $cb;
-                            $iv = $cb;
-                            $i+= 8;
-                            $len-= 8;
-                        }
-                    }
-                    */
                 }
                 if ($len) {
                     $iv = mcrypt_generic($this->ecb, $iv);
