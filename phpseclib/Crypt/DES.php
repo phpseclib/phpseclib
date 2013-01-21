@@ -536,7 +536,6 @@ class Crypt_DES {
                         }
                         $ciphertext.= mcrypt_generic($this->enmcrypt, substr($plaintext, $i, $len - $len % 8));
                         $iv = substr($ciphertext, -8);
-                        $i = strlen($ciphertext);
                         $len%= 8;
                     } else {
                         while ($len >= 8) {
@@ -549,7 +548,7 @@ class Crypt_DES {
                 } 
                 if ($len) {
                     $iv = mcrypt_generic($this->ecb, $iv);
-                    $block = $iv ^ substr($plaintext, $i);
+                    $block = $iv ^ substr($plaintext, -$len);
                     $iv = substr_replace($iv, $block, 0, $len);
                     $ciphertext.= $block;
                     $pos = $len;
@@ -726,7 +725,6 @@ class Crypt_DES {
                     }
                     $plaintext = substr($iv, $orig_pos) ^ $ciphertext;
                     $iv = substr_replace($iv, substr($ciphertext, 0, $i), $orig_pos, $i);
-                    $this->debuffer['demcrypt_init'] = true;
                 }
                 if ($len >= 8) {
                     $cb = substr($ciphertext, $i, $len - $len % 8);
@@ -736,8 +734,8 @@ class Crypt_DES {
                 }
                 if ($len) {
                     $iv = mcrypt_generic($this->ecb, $iv);
-                    $plaintext.= $iv ^ substr($ciphertext, $i);
-                    $iv = substr_replace($iv, substr($ciphertext, $i, $len), 0, $len);
+                    $plaintext.= $iv ^ substr($ciphertext, -$len);
+                    $iv = substr_replace($iv, substr($ciphertext, -$len), 0, $len);
                     $pos = $len;
                 }
                 return $plaintext;
@@ -833,7 +831,7 @@ class Crypt_DES {
                 if ($len) {
                     $iv = $this->_processBlock($iv, CRYPT_DES_ENCRYPT);
                     $plaintext.= $iv ^ substr($ciphertext, $i);
-                    $iv = substr_replace($iv, substr($ciphertext, $i, $len), 0, $len);
+                    $iv = substr_replace($iv, substr($ciphertext, $i), 0, $len);
                     $pos = $len;
                 }
                 return $plaintext;
