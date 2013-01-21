@@ -337,12 +337,11 @@ class Crypt_AES extends Crypt_Rijndael {
                     }
                     $ciphertext.= mcrypt_generic($this->enmcrypt, substr($plaintext, $i, $len - $len % 16));
                     $iv = substr($ciphertext, -16);
-                    $i = strlen($ciphertext);
                     $len%= 16;
                 }
                 if ($len) {
                     $iv = mcrypt_generic($this->ecb, $iv);
-                    $block = substr($iv, $pos) ^ substr($plaintext, $i);
+                    $block = $iv ^ substr($plaintext, -$len);
                     $iv = substr_replace($iv, $block, 0, $len);
                     $ciphertext.= $block;
                     $pos = $len;
@@ -412,7 +411,6 @@ class Crypt_AES extends Crypt_Rijndael {
                     // ie. $i = min($max, $len), $len-= $i, $pos+= $i, $pos%= $blocksize
                     $plaintext = substr($iv, $orig_pos) ^ $ciphertext;
                     $iv = substr_replace($iv, substr($ciphertext, 0, $i), $orig_pos, $i);
-                    $this->debuffer['demcrypt_init'] = true;
                 }
                 if ($len >= 16) {
                     $cb = substr($ciphertext, $i, $len - $len % 16);
@@ -422,8 +420,8 @@ class Crypt_AES extends Crypt_Rijndael {
                 }
                 if ($len) {
                     $iv = mcrypt_generic($this->ecb, $iv);
-                    $plaintext.= substr($iv, $pos) ^ substr($ciphertext, $i);
-                    $iv = substr_replace($iv, substr($ciphertext, $i, $len), 0, $len);
+                    $plaintext.= $iv ^ substr($ciphertext, -$len);
+                    $iv = substr_replace($iv, substr($ciphertext, -$len), 0, $len);
                     $pos = $len;
                 }
 
