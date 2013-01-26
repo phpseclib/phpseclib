@@ -522,7 +522,7 @@ class Crypt_AES extends Crypt_Rijndael {
      */
     function _encryptBlock($in)
     {
-        $state = unpack('N*word', $in);
+        $state = unpack('N*', $in);
 
         $Nr = $this->Nr;
         $w = $this->w;
@@ -531,44 +531,35 @@ class Crypt_AES extends Crypt_Rijndael {
         $t2 = $this->t2;
         $t3 = $this->t3;
 
-        // addRoundKey and reindex $state
-        $state = array(
-            $state['word1'] ^ $w[0][0],
-            $state['word2'] ^ $w[0][1],
-            $state['word3'] ^ $w[0][2],
-            $state['word4'] ^ $w[0][3]
-        );
+        // addRoundKey
+        $State0 = $state[1] ^ $w[0][0];
+        $State1 = $state[2] ^ $w[0][1];
+        $State2 = $state[3] ^ $w[0][2];
+        $State3 = $state[4] ^ $w[0][3];
 
         // shiftRows + subWord + mixColumns + addRoundKey
         // we could loop unroll this and use if statements to do more rounds as necessary, but, in my tests, that yields
         // only a marginal improvement.  since that also, imho, hinders the readability of the code, i've opted not to do it.
-        for ($round = 1; $round < $Nr; $round++) {
-            $state = array(
-                $t0[$state[0] & 0xFF000000] ^ $t1[$state[1] & 0x00FF0000] ^ $t2[$state[2] & 0x0000FF00] ^ $t3[$state[3] & 0x000000FF] ^ $w[$round][0],
-                $t0[$state[1] & 0xFF000000] ^ $t1[$state[2] & 0x00FF0000] ^ $t2[$state[3] & 0x0000FF00] ^ $t3[$state[0] & 0x000000FF] ^ $w[$round][1],
-                $t0[$state[2] & 0xFF000000] ^ $t1[$state[3] & 0x00FF0000] ^ $t2[$state[0] & 0x0000FF00] ^ $t3[$state[1] & 0x000000FF] ^ $w[$round][2],
-                $t0[$state[3] & 0xFF000000] ^ $t1[$state[0] & 0x00FF0000] ^ $t2[$state[1] & 0x0000FF00] ^ $t3[$state[2] & 0x000000FF] ^ $w[$round][3]
-            );
-
+        for ($round = 1; $round < $Nr; ++$round, $State0 = $state0, $State1 = $state1, $State2 = $state2, $State3 = $state3) {
+            $state0 = $t0[$State0 >> 24 & 0x000000FF] ^ $t1[$State1 >> 16 & 0x000000FF] ^ $t2[$State2 >> 8 & 0x000000FF] ^ $t3[$State3 & 0x000000FF] ^ $w[$round][0];
+            $state1 = $t0[$State1 >> 24 & 0x000000FF] ^ $t1[$State2 >> 16 & 0x000000FF] ^ $t2[$State3 >> 8 & 0x000000FF] ^ $t3[$State0 & 0x000000FF] ^ $w[$round][1];
+            $state2 = $t0[$State2 >> 24 & 0x000000FF] ^ $t1[$State3 >> 16 & 0x000000FF] ^ $t2[$State0 >> 8 & 0x000000FF] ^ $t3[$State1 & 0x000000FF] ^ $w[$round][2];
+            $state3 = $t0[$State3 >> 24 & 0x000000FF] ^ $t1[$State0 >> 16 & 0x000000FF] ^ $t2[$State1 >> 8 & 0x000000FF] ^ $t3[$State2 & 0x000000FF] ^ $w[$round][3];
         }
 
         // subWord
-        $state = array(
-            $this->_subWord($state[0]),
-            $this->_subWord($state[1]),
-            $this->_subWord($state[2]),
-            $this->_subWord($state[3])
-        );
+        $state0 = $this->_subWord($state0);
+        $state1 = $this->_subWord($state1);
+        $state2 = $this->_subWord($state2);
+        $state3 = $this->_subWord($state3);
 
         // shiftRows + addRoundKey
-        $state = array(
-            ($state[0] & 0xFF000000) ^ ($state[1] & 0x00FF0000) ^ ($state[2] & 0x0000FF00) ^ ($state[3] & 0x000000FF) ^ $this->w[$this->Nr][0],
-            ($state[1] & 0xFF000000) ^ ($state[2] & 0x00FF0000) ^ ($state[3] & 0x0000FF00) ^ ($state[0] & 0x000000FF) ^ $this->w[$this->Nr][1],
-            ($state[2] & 0xFF000000) ^ ($state[3] & 0x00FF0000) ^ ($state[0] & 0x0000FF00) ^ ($state[1] & 0x000000FF) ^ $this->w[$this->Nr][2],
-            ($state[3] & 0xFF000000) ^ ($state[0] & 0x00FF0000) ^ ($state[1] & 0x0000FF00) ^ ($state[2] & 0x000000FF) ^ $this->w[$this->Nr][3]
+        return pack('N*',
+            ($state0 & 0xFF000000) ^ ($state1 & 0x00FF0000) ^ ($state2 & 0x0000FF00) ^ ($state3 & 0x000000FF) ^ $w[$Nr][0],
+            ($state1 & 0xFF000000) ^ ($state2 & 0x00FF0000) ^ ($state3 & 0x0000FF00) ^ ($state0 & 0x000000FF) ^ $w[$Nr][1],
+            ($state2 & 0xFF000000) ^ ($state3 & 0x00FF0000) ^ ($state0 & 0x0000FF00) ^ ($state1 & 0x000000FF) ^ $w[$Nr][2],
+            ($state3 & 0xFF000000) ^ ($state0 & 0x00FF0000) ^ ($state1 & 0x0000FF00) ^ ($state2 & 0x000000FF) ^ $w[$Nr][3]
         );
-
-        return pack('N*', $state[0], $state[1], $state[2], $state[3]);
     }
 
     /**
@@ -583,7 +574,7 @@ class Crypt_AES extends Crypt_Rijndael {
      */
     function _decryptBlock($in)
     {
-        $state = unpack('N*word', $in);
+        $state = unpack('N*', $in);
 
         $Nr = $this->Nr;
         $dw = $this->dw;
@@ -592,34 +583,27 @@ class Crypt_AES extends Crypt_Rijndael {
         $dt2 = $this->dt2;
         $dt3 = $this->dt3;
 
-        // addRoundKey and reindex $state
-        $state = array(
-            $state['word1'] ^ $dw[$this->Nr][0],
-            $state['word2'] ^ $dw[$this->Nr][1],
-            $state['word3'] ^ $dw[$this->Nr][2],
-            $state['word4'] ^ $dw[$this->Nr][3]
-        );
-
+        // addRoundKey
+        $State0 = $state[1] ^ $dw[$Nr][0];
+        $State1 = $state[2] ^ $dw[$Nr][1];
+        $State2 = $state[3] ^ $dw[$Nr][2];
+        $State3 = $state[4] ^ $dw[$Nr][3];
 
         // invShiftRows + invSubBytes + invMixColumns + addRoundKey
-        for ($round = $Nr - 1; $round > 0; $round--) {
-            $state = array(
-                $dt0[$state[0] & 0xFF000000] ^ $dt1[$state[3] & 0x00FF0000] ^ $dt2[$state[2] & 0x0000FF00] ^ $dt3[$state[1] & 0x000000FF] ^ $dw[$round][0],
-                $dt0[$state[1] & 0xFF000000] ^ $dt1[$state[0] & 0x00FF0000] ^ $dt2[$state[3] & 0x0000FF00] ^ $dt3[$state[2] & 0x000000FF] ^ $dw[$round][1],
-                $dt0[$state[2] & 0xFF000000] ^ $dt1[$state[1] & 0x00FF0000] ^ $dt2[$state[0] & 0x0000FF00] ^ $dt3[$state[3] & 0x000000FF] ^ $dw[$round][2],
-                $dt0[$state[3] & 0xFF000000] ^ $dt1[$state[2] & 0x00FF0000] ^ $dt2[$state[1] & 0x0000FF00] ^ $dt3[$state[0] & 0x000000FF] ^ $dw[$round][3]
-            );
+        for ($round = $Nr - 1; $round > 0; --$round, $State0 = $state0, $State1 = $state1, $State2 = $state2, $State3 = $state3) {
+            $state0 = $dt0[$State0 >> 24 & 0x000000FF] ^ $dt1[$State3 >> 16 & 0x000000FF] ^ $dt2[$State2 >> 8 & 0x000000FF] ^ $dt3[$State1 & 0x000000FF] ^ $dw[$round][0];
+            $state1 = $dt0[$State1 >> 24 & 0x000000FF] ^ $dt1[$State0 >> 16 & 0x000000FF] ^ $dt2[$State3 >> 8 & 0x000000FF] ^ $dt3[$State2 & 0x000000FF] ^ $dw[$round][1];
+            $state2 = $dt0[$State2 >> 24 & 0x000000FF] ^ $dt1[$State1 >> 16 & 0x000000FF] ^ $dt2[$State0 >> 8 & 0x000000FF] ^ $dt3[$State3 & 0x000000FF] ^ $dw[$round][2];
+            $state3 = $dt0[$State3 >> 24 & 0x000000FF] ^ $dt1[$State2 >> 16 & 0x000000FF] ^ $dt2[$State1 >> 8 & 0x000000FF] ^ $dt3[$State0 & 0x000000FF] ^ $dw[$round][3];
         }
 
         // invShiftRows + invSubWord + addRoundKey
-        $state = array(
-            $this->_invSubWord(($state[0] & 0xFF000000) ^ ($state[3] & 0x00FF0000) ^ ($state[2] & 0x0000FF00) ^ ($state[1] & 0x000000FF)) ^ $dw[0][0],
-            $this->_invSubWord(($state[1] & 0xFF000000) ^ ($state[0] & 0x00FF0000) ^ ($state[3] & 0x0000FF00) ^ ($state[2] & 0x000000FF)) ^ $dw[0][1],
-            $this->_invSubWord(($state[2] & 0xFF000000) ^ ($state[1] & 0x00FF0000) ^ ($state[0] & 0x0000FF00) ^ ($state[3] & 0x000000FF)) ^ $dw[0][2],
-            $this->_invSubWord(($state[3] & 0xFF000000) ^ ($state[2] & 0x00FF0000) ^ ($state[1] & 0x0000FF00) ^ ($state[0] & 0x000000FF)) ^ $dw[0][3]
+        return pack('N*',
+            $this->_invSubWord(($state0 & 0xFF000000) ^ ($state3 & 0x00FF0000) ^ ($state2 & 0x0000FF00) ^ ($state1 & 0x000000FF)) ^ $dw[0][0],
+            $this->_invSubWord(($state1 & 0xFF000000) ^ ($state0 & 0x00FF0000) ^ ($state3 & 0x0000FF00) ^ ($state2 & 0x000000FF)) ^ $dw[0][1],
+            $this->_invSubWord(($state2 & 0xFF000000) ^ ($state1 & 0x00FF0000) ^ ($state0 & 0x0000FF00) ^ ($state3 & 0x000000FF)) ^ $dw[0][2],
+            $this->_invSubWord(($state3 & 0xFF000000) ^ ($state2 & 0x00FF0000) ^ ($state1 & 0x0000FF00) ^ ($state0 & 0x000000FF)) ^ $dw[0][3]
         );
-
-        return pack('N*', $state[0], $state[1], $state[2], $state[3]);
     }
 
     /**
