@@ -2060,6 +2060,15 @@ class Net_SSH2 {
         extract(unpack('Npacket_length/Cpadding_length', $this->_string_shift($raw, 5)));
 
         $remaining_length = $packet_length + 4 - $this->decrypt_block_size;
+
+        // quoting <http://tools.ietf.org/html/rfc4253#section-6.1>,
+        // "implementations SHOULD check that the packet length is reasonable"
+        // PuTTY uses 0x9000 as the actual max packet size and so to shall we
+        if ($remaining_length < -$this->decrypt_block_size || $remaining_length > 0x9000 || $remaining_length % $this->decrypt_block_size != 0) {
+            user_error('Invalid size');
+            return false;
+        }
+
         $buffer = '';
         while ($remaining_length > 0) {
             $temp = fread($this->fsock, $remaining_length);
