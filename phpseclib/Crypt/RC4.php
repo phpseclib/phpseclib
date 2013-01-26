@@ -212,6 +212,8 @@ class Crypt_RC4 {
         $this->key = $key;
 
         if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
+            mcrypt_generic_init($this->encryptStream, $this->key, '');
+            mcrypt_generic_init($this->decryptStream, $this->key, '');
             return;
         }
 
@@ -352,10 +354,10 @@ class Crypt_RC4 {
         if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
             $keyStream = $mode == CRYPT_RC4_ENCRYPT ? 'encryptStream' : 'decryptStream';
 
-            if ($this->continuousBuffer) {
-                return mcrypt_generic($this->$keyStream, $text);
+            if (!$this->continuousBuffer) {
+                mcrypt_generic_init($this->$keyStream, $this->key, '');
             }
-            mcrypt_generic_init($this->$keyStream, $this->key, '');
+
             return mcrypt_generic($this->$keyStream, $text);
         }
 
