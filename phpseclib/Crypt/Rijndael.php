@@ -510,13 +510,13 @@ class Crypt_Rijndael {
         );
 
         for ($i = 0; $i < 256; $i++) {
-            $t2[$i <<  8] = (($t3[$i] <<  8) & 0xFFFFFF00) | (($t3[$i] >> 24) & 0x000000FF);
-            $t1[$i << 16] = (($t3[$i] << 16) & 0xFFFF0000) | (($t3[$i] >> 16) & 0x0000FFFF);
-            $t0[$i << 24] = (($t3[$i] << 24) & 0xFF000000) | (($t3[$i] >>  8) & 0x00FFFFFF);
+            $t2[] = (($t3[$i] <<  8) & 0xFFFFFF00) | (($t3[$i] >> 24) & 0x000000FF);
+            $t1[] = (($t3[$i] << 16) & 0xFFFF0000) | (($t3[$i] >> 16) & 0x0000FFFF);
+            $t0[] = (($t3[$i] << 24) & 0xFF000000) | (($t3[$i] >>  8) & 0x00FFFFFF);
 
-            $dt2[$i <<  8] = (($this->dt3[$i] <<  8) & 0xFFFFFF00) | (($dt3[$i] >> 24) & 0x000000FF);
-            $dt1[$i << 16] = (($this->dt3[$i] << 16) & 0xFFFF0000) | (($dt3[$i] >> 16) & 0x0000FFFF);
-            $dt0[$i << 24] = (($this->dt3[$i] << 24) & 0xFF000000) | (($dt3[$i] >>  8) & 0x00FFFFFF);
+            $dt2[] = (($dt3[$i] <<  8) & 0xFFFFFF00) | (($dt3[$i] >> 24) & 0x000000FF);
+            $dt1[] = (($dt3[$i] << 16) & 0xFFFF0000) | (($dt3[$i] >> 16) & 0x0000FFFF);
+            $dt0[] = (($dt3[$i] << 24) & 0xFF000000) | (($dt3[$i] >>  8) & 0x00FFFFFF);
         }
     }
 
@@ -719,7 +719,6 @@ class Crypt_Rijndael {
 
         $block_size = $this->block_size;
         $buffer = &$this->enbuffer;
-        $continuousBuffer = $this->continuousBuffer;
         $ciphertext = '';
         switch ($this->mode) {
             case CRYPT_RIJNDAEL_MODE_ECB:
@@ -853,7 +852,6 @@ class Crypt_Rijndael {
 
         $block_size = $this->block_size;
         $buffer = &$this->debuffer;
-        $continuousBuffer = $this->continuousBuffer;
         $plaintext = '';
         switch ($this->mode) {
             case CRYPT_RIJNDAEL_MODE_ECB:
@@ -985,9 +983,9 @@ class Crypt_Rijndael {
         $c = $this->c;
 
         // addRoundKey
-        $i = 0;
+        $i = -1;
         foreach ($words as $word) {
-            $state[] = $word ^ $w[0][$i++];
+            $state[] = $word ^ $w[0][++$i];
         }
 
         // fips-197.pdf#page=19, "Figure 5. Pseudo Code for the Cipher", states that this loop has four components - 
@@ -999,31 +997,28 @@ class Crypt_Rijndael {
 
         // [1] http://fp.gladman.plus.com/cryptography_technology/rijndael/aes.spec.v316.pdf
         $temp = array();
-        for ($round = 1; $round < $Nr; $round++) {
+        for ($round = 1; $round < $Nr; ++$round) {
             $i = 0; // $c[0] == 0
             $j = $c[1];
             $k = $c[2];
             $l = $c[3];
 
-            while ($i < $this->Nb) {
-                $temp[$i] = $t0[$state[$i] & 0xFF000000] ^ 
-                            $t1[$state[$j] & 0x00FF0000] ^ 
-                            $t2[$state[$k] & 0x0000FF00] ^ 
-                            $t3[$state[$l] & 0x000000FF] ^ 
+            while ($i < $Nb) {
+                $temp[$i] = $t0[$state[$i] >> 24 & 0x000000FF] ^ 
+                            $t1[$state[$j] >> 16 & 0x000000FF] ^ 
+                            $t2[$state[$k] >>  8 & 0x000000FF] ^ 
+                            $t3[$state[$l]       & 0x000000FF] ^ 
                             $w[$round][$i];
-                $i++;
+                ++$i;
                 $j = ($j + 1) % $Nb;
                 $k = ($k + 1) % $Nb;
                 $l = ($l + 1) % $Nb;
             }
-
-            for ($i = 0; $i < $Nb; $i++) {
-                $state[$i] = $temp[$i];
-            }
+            $state = $temp;
         }
 
         // subWord
-        for ($i = 0; $i < $Nb; $i++) {
+        for ($i = 0; $i < $Nb; ++$i) {
             $state[$i] = $this->_subWord($state[$i]);
         }
 
@@ -1032,22 +1027,38 @@ class Crypt_Rijndael {
         $j = $c[1];
         $k = $c[2];
         $l = $c[3];
-        while ($i < $this->Nb) {
+        while ($i < $Nb) {
             $temp[$i] = ($state[$i] & 0xFF000000) ^ 
                         ($state[$j] & 0x00FF0000) ^ 
                         ($state[$k] & 0x0000FF00) ^ 
                         ($state[$l] & 0x000000FF) ^
                          $w[$Nr][$i];
-            $i++;
+            ++$i;
             $j = ($j + 1) % $Nb;
             $k = ($k + 1) % $Nb;
             $l = ($l + 1) % $Nb;
         }
+
+        // 100% ugly switch/case code... but ~5% faster (meaning: ~half second faster de/encrypting 1MB text, tested with php5.4.9 on linux/32bit with an AMD Athlon II P360 CPU) then the commented smart code below. Don't know it's worth or not
+        switch ($Nb) {
+            case 8:
+                return pack('N*', $temp[0], $temp[1], $temp[2], $temp[3], $temp[4], $temp[5], $temp[6], $temp[7]);
+            case 7:
+                return pack('N*', $temp[0], $temp[1], $temp[2], $temp[3], $temp[4], $temp[5], $temp[6]);
+            case 6:
+                return pack('N*', $temp[0], $temp[1], $temp[2], $temp[3], $temp[4], $temp[5]);
+            case 5:
+                return pack('N*', $temp[0], $temp[1], $temp[2], $temp[3], $temp[4]);
+            default:
+                return pack('N*', $temp[0], $temp[1], $temp[2], $temp[3]);
+        }
+        /*
         $state = $temp;
 
         array_unshift($state, 'N*');
 
         return call_user_func_array('pack', $state);
+        */
     }
 
     /**
@@ -1062,7 +1073,6 @@ class Crypt_Rijndael {
         $state = array();
         $words = unpack('N*word', $in);
 
-        $num_states = count($state);
         $dw = $this->dw;
         $dt0 = $this->dt0;
         $dt1 = $this->dt1;
@@ -1073,33 +1083,30 @@ class Crypt_Rijndael {
         $c = $this->c;
 
         // addRoundKey
-        $i = 0;
+        $i = -1;
         foreach ($words as $word) {
-            $state[] = $word ^ $dw[$Nr][$i++];
+            $state[] = $word ^ $dw[$Nr][++$i];
         }
 
         $temp = array();
-        for ($round = $Nr - 1; $round > 0; $round--) {
+        for ($round = $Nr - 1; $round > 0; --$round) {
             $i = 0; // $c[0] == 0
             $j = $Nb - $c[1];
             $k = $Nb - $c[2];
             $l = $Nb - $c[3];
 
             while ($i < $Nb) {
-                $temp[$i] = $dt0[$state[$i] & 0xFF000000] ^ 
-                            $dt1[$state[$j] & 0x00FF0000] ^ 
-                            $dt2[$state[$k] & 0x0000FF00] ^ 
-                            $dt3[$state[$l] & 0x000000FF] ^ 
+                $temp[$i] = $dt0[$state[$i] >> 24 & 0x000000FF] ^ 
+                            $dt1[$state[$j] >> 16 & 0x000000FF] ^ 
+                            $dt2[$state[$k] >>  8 & 0x000000FF] ^ 
+                            $dt3[$state[$l]       & 0x000000FF] ^ 
                             $dw[$round][$i];
-                $i++;
+                ++$i;
                 $j = ($j + 1) % $Nb;
                 $k = ($k + 1) % $Nb;
                 $l = ($l + 1) % $Nb;
             }
-
-            for ($i = 0; $i < $Nb; $i++) {
-                $state[$i] = $temp[$i];
-            }
+            $state = $temp;
         }
 
         // invShiftRows + invSubWord + addRoundKey
@@ -1114,17 +1121,31 @@ class Crypt_Rijndael {
                                            ($state[$j] & 0x00FF0000) | 
                                            ($state[$k] & 0x0000FF00) | 
                                            ($state[$l] & 0x000000FF));
-            $i++;
+            ++$i;
             $j = ($j + 1) % $Nb;
             $k = ($k + 1) % $Nb;
             $l = ($l + 1) % $Nb;
         }
 
+        switch ($Nb) {
+            case 8:
+                return pack('N*', $temp[0], $temp[1], $temp[2], $temp[3], $temp[4], $temp[5], $temp[6], $temp[7]);
+            case 7:
+                return pack('N*', $temp[0], $temp[1], $temp[2], $temp[3], $temp[4], $temp[5], $temp[6]);
+            case 6:
+                return pack('N*', $temp[0], $temp[1], $temp[2], $temp[3], $temp[4], $temp[5]);
+            case 5:
+                return pack('N*', $temp[0], $temp[1], $temp[2], $temp[3], $temp[4]);
+            default:
+                return pack('N*', $temp[0], $temp[1], $temp[2], $temp[3]);
+        }
+        /*
         $state = $temp;
 
         array_unshift($state, 'N*');
 
         return call_user_func_array('pack', $state);
+        */
     }
 
     /**
@@ -1224,10 +1245,10 @@ class Crypt_Rijndael {
                     $j = 0;
                     while ($j < $this->Nb) {
                         $dw = $this->_subWord($this->w[$row][$j]);
-                        $temp[$j] = $this->dt0[$dw & 0xFF000000] ^ 
-                                    $this->dt1[$dw & 0x00FF0000] ^ 
-                                    $this->dt2[$dw & 0x0000FF00] ^ 
-                                    $this->dt3[$dw & 0x000000FF];
+                        $temp[$j] = $this->dt0[$dw >> 24 & 0x000000FF] ^ 
+                                    $this->dt1[$dw >> 16 & 0x000000FF] ^ 
+                                    $this->dt2[$dw >>  8 & 0x000000FF] ^ 
+                                    $this->dt3[$dw       & 0x000000FF];
                         $j++;
                     }
                     $this->dw[$row] = $temp;
@@ -1278,17 +1299,18 @@ class Crypt_Rijndael {
             $sbox3 = array();
 
             for ($i = 0; $i < 256; $i++) {
-                $sbox1[$i <<  8] = $sbox0[$i] <<  8;
-                $sbox2[$i << 16] = $sbox0[$i] << 16;
-                $sbox3[$i << 24] = $sbox0[$i] << 24;
+                $sbox1[] = $sbox0[$i] <<  8;
+                $sbox2[] = $sbox0[$i] << 16;
+                $sbox3[] = $sbox0[$i] << 24;
             }
         }
 
-        return $sbox0[$word & 0x000000FF] | 
-               $sbox1[$word & 0x0000FF00] | 
-               $sbox2[$word & 0x00FF0000] | 
-               $sbox3[$word & 0xFF000000];
+        return $sbox0[$word       & 0x000000FF] |
+               $sbox1[$word >>  8 & 0x000000FF] |
+               $sbox2[$word >> 16 & 0x000000FF] |
+               $sbox3[$word >> 24 & 0x000000FF];
     }
+    
 
     /**
      * Performs inverse S-Box substitutions
@@ -1324,16 +1346,16 @@ class Crypt_Rijndael {
             $sbox3 = array();
 
             for ($i = 0; $i < 256; $i++) {
-                $sbox1[$i <<  8] = $sbox0[$i] <<  8;
-                $sbox2[$i << 16] = $sbox0[$i] << 16;
-                $sbox3[$i << 24] = $sbox0[$i] << 24;
+                $sbox1[] = $sbox0[$i] <<  8;
+                $sbox2[] = $sbox0[$i] << 16;
+                $sbox3[] = $sbox0[$i] << 24;
             }
         }
 
-        return $sbox0[$word & 0x000000FF] | 
-               $sbox1[$word & 0x0000FF00] | 
-               $sbox2[$word & 0x00FF0000] | 
-               $sbox3[$word & 0xFF000000];
+        return $sbox0[$word       & 0x000000FF] |
+               $sbox1[$word >>  8 & 0x000000FF] |
+               $sbox2[$word >> 16 & 0x000000FF] |
+               $sbox3[$word >> 24 & 0x000000FF];
     }
 
     /**
