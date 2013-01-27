@@ -1004,10 +1004,10 @@ class Crypt_Rijndael {
             $l = $c[3];
 
             while ($i < $Nb) {
-                $temp[$i] = $t0[$state[$i] >> 24 & 0x000000FF] ^ 
-                            $t1[$state[$j] >> 16 & 0x000000FF] ^ 
-                            $t2[$state[$k] >>  8 & 0x000000FF] ^ 
-                            $t3[$state[$l]       & 0x000000FF] ^ 
+                $temp[$i] = $t0[$state[$i] >> 24 & 0x000000FF] ^
+                            $t1[$state[$j] >> 16 & 0x000000FF] ^
+                            $t2[$state[$k] >>  8 & 0x000000FF] ^
+                            $t3[$state[$l]       & 0x000000FF] ^
                             $w[$round][$i];
                 ++$i;
                 $j = ($j + 1) % $Nb;
@@ -1028,9 +1028,9 @@ class Crypt_Rijndael {
         $k = $c[2];
         $l = $c[3];
         while ($i < $Nb) {
-            $temp[$i] = ($state[$i] & 0xFF000000) ^ 
-                        ($state[$j] & 0x00FF0000) ^ 
-                        ($state[$k] & 0x0000FF00) ^ 
+            $temp[$i] = ($state[$i] & 0xFF000000) ^
+                        ($state[$j] & 0x00FF0000) ^
+                        ($state[$k] & 0x0000FF00) ^
                         ($state[$l] & 0x000000FF) ^
                          $w[$Nr][$i];
             ++$i;
@@ -1096,10 +1096,10 @@ class Crypt_Rijndael {
             $l = $Nb - $c[3];
 
             while ($i < $Nb) {
-                $temp[$i] = $dt0[$state[$i] >> 24 & 0x000000FF] ^ 
-                            $dt1[$state[$j] >> 16 & 0x000000FF] ^ 
-                            $dt2[$state[$k] >>  8 & 0x000000FF] ^ 
-                            $dt3[$state[$l]       & 0x000000FF] ^ 
+                $temp[$i] = $dt0[$state[$i] >> 24 & 0x000000FF] ^
+                            $dt1[$state[$j] >> 16 & 0x000000FF] ^
+                            $dt2[$state[$k] >>  8 & 0x000000FF] ^
+                            $dt3[$state[$l]       & 0x000000FF] ^
                             $dw[$round][$i];
                 ++$i;
                 $j = ($j + 1) % $Nb;
