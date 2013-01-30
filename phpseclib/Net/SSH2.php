@@ -901,22 +901,6 @@ class Net_SSH2 {
     }
 
     /**
-     * PHP5-only Default Constructor.
-     *
-     * Intended mainly to simplify namespacing for those who might wish to do it.
-     *
-     * @param String $host
-     * @param optional Integer $port
-     * @param optional Integer $timeout
-     * @return Net_SSH2
-     * @access public
-     */
-    function __construct($host, $port = 22, $timeout = 10)
-    {
-        $this->Net_SSH2($host, $port, $timeout);
-    }
-
-    /**
      * Key Exchange
      *
      * @param String $kexinit_payload_server

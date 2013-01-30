@@ -163,20 +163,6 @@ class Crypt_Hash {
     }
 
     /**
-     * PHP5-only Default Constructor.
-     *
-     * Intended mainly to simplify namespacing for those who might wish to do it.
-     *
-     * @param optional String $hash
-     * @return Crypt_Hash
-     * @access public
-     */
-    function __construct($hash = 'sha1')
-    {
-        $this->Crypt_Hash($hash);
-    }
-
-    /**
      * Sets the key for HMACs
      *
      * Keys can be of any length.

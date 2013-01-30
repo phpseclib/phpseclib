@@ -521,20 +521,6 @@ class Crypt_Rijndael {
     }
 
     /**
-     * PHP5-only Default Constructor.
-     *
-     * Intended mainly to simplify namespacing for those who might wish to do it.
-     *
-     * @param optional Integer $mode
-     * @return Crypt_Rijndael
-     * @access public
-     */
-    function __construct($mode = CRYPT_RIJNDAEL_MODE_CBC)
-    {
-        $this->Crypt_Rijndael($mode);
-    }
-
-    /**
      * Sets the key.
      *
      * Keys can be of any length.  Rijndael, itself, requires the use of a key that's between 128-bits and 256-bits long and

@@ -243,20 +243,6 @@ class Crypt_AES extends Crypt_Rijndael {
     }
 
     /**
-     * PHP5-only Default Constructor.
-     *
-     * Intended mainly to simplify namespacing for those who might wish to do it.
-     *
-     * @param optional Integer $mode
-     * @return Crypt_AES
-     * @access public
-     */
-    function __construct($mode = CRYPT_AES_MODE_CBC)
-    {
-        $this->Crypt_AES($mode);
-    }
-
-    /**
      * Dummy function
      *
      * Since Crypt_AES extends Crypt_Rijndael, this function is, technically, available, but it doesn't do anything.
@@ -268,6 +254,7 @@ class Crypt_AES extends Crypt_Rijndael {
     {
         return;
     }
+
 
     /**
      * Sets the initialization vector. (optional)

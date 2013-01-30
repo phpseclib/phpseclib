@@ -332,20 +332,6 @@ class Crypt_TripleDES {
     }
 
     /**
-     * PHP5-only Default Constructor.
-     *
-     * Intended mainly to simplify namespacing for those who might wish to do it.
-     *
-     * @param optional Integer $mode
-     * @return Crypt_TripleDES
-     * @access public
-     */
-    function __construct($mode = CRYPT_DES_MODE_CBC)
-    {
-        $this->Crypt_TripleDES($mode);
-    }
-
-    /**
      * Sets the key.
      *
      * Keys can be of any length.  Triple DES, itself, can use 128-bit (eg. strlen($key) == 16) or

@@ -220,19 +220,6 @@ class File_ANSI {
     }
 
     /**
-     * PHP5-only Default Constructor.
-     *
-     * Intended mainly to simplify namespacing for those who might wish to do it.
-     *
-     * @return Crypt_ANSI
-     * @access public
-     */
-    function __construct()
-    {
-        $this->Crypt_ANSI();
-    }
-
-    /**
      * Set terminal width and height
      *
      * Resets the screen as well

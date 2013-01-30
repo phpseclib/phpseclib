@@ -167,6 +167,7 @@ class Crypt_RC4 {
      *
      * Determines whether or not the mcrypt extension should be used.
      *
+     * @param optional Integer $mode
      * @return Crypt_RC4
      * @access public
      */
@@ -195,19 +196,6 @@ class Crypt_RC4 {
                 $this->decryptStream = mcrypt_module_open($this->mode, '', MCRYPT_MODE_STREAM, '');
 
         }
-    }
-
-    /**
-     * PHP5-only Default Constructor.
-     *
-     * Intended mainly to simplify namespacing for those who might wish to do it.
-     *
-     * @return Crypt_RC4
-     * @access public
-     */
-    function __construct()
-    {
-        $this->Crypt_RC4();
     }
 
     /**

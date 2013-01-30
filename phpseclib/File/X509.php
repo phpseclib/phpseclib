@@ -1407,19 +1407,6 @@ class File_X509 {
     }
 
     /**
-     * PHP5-only Default Constructor.
-     *
-     * Intended mainly to simplify namespacing for those who might wish to do it.
-     *
-     * @return File_X509
-     * @access public
-     */
-    function __construct()
-    {
-        $this->File_X509();
-    }
-
-    /**
      * Load X.509 certificate
      *
      * Returns an associative array describing the X.509 cert or a false if the cert failed to load
