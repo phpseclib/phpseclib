@@ -350,6 +350,20 @@ class Crypt_DES {
     }
 
     /**
+     * PHP5-only Default Constructor.
+     *
+     * Intended mainly to simplify namespacing for those who might wish to do it.
+     *
+     * @param optional Integer $mode
+     * @return Crypt_DES
+     * @access public
+     */
+    function __construct($mode = CRYPT_DES_MODE_CBC)
+    {
+        $this->Crypt_DES($mode);
+    }
+
+    /**
      * Sets the key.
      *
      * Keys can be of any length.  DES, itself, uses 64-bit keys (eg. strlen($key) == 8), however, we

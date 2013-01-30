@@ -665,6 +665,23 @@ class Net_SSH1 {
     }
 
     /**
+     * PHP5-only Default Constructor.
+     *
+     * Intended mainly to simplify namespacing for those who might wish to do it.
+     *
+     * @param String $host
+     * @param optional Integer $port
+     * @param optional Integer $timeout
+     * @param optional Integer $cipher
+     * @return Net_SSH1
+     * @access public
+     */
+    function __construct($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
+    {
+        $this->__construct($host, $port, $timeout, $cipher);
+    }
+
+    /**
      * Login
      *
      * @param String $username

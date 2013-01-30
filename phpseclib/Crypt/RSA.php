@@ -488,6 +488,19 @@ class Crypt_RSA {
     }
 
     /**
+     * PHP5-only Default Constructor.
+     *
+     * Intended mainly to simplify namespacing for those who might wish to do it.
+     *
+     * @return Crypt_RSA
+     * @access public
+     */
+    function __construct()
+    {
+        $this->Crypt_RSA();
+    }
+
+    /**
      * Create public / private key pair
      *
      * Returns an array with the following three elements:

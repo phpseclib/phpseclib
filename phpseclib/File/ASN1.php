@@ -144,6 +144,20 @@ class File_ASN1_Element {
     {
         $this->element = $encoded;
     }
+
+    /**
+     * PHP5-only Default Constructor.
+     *
+     * Intended mainly to simplify namespacing for those who might wish to do it.
+     *
+     * @param String $encoded
+     * @return File_ASN1_Element
+     * @access public
+     */
+    function __construct($encoded)
+    {
+        $this->File_ASN1_Element($encoded);
+    }
 }
 
 /**

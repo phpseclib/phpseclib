@@ -456,6 +456,21 @@ class Math_BigInteger {
     }
 
     /**
+     * PHP5-only Default Constructor.
+     *
+     * Intended mainly to simplify namespacing for those who might wish to do it.
+     *
+     * @param optional $x base-10 number or base-$base number if $base set.
+     * @param optional integer $base
+     * @return Math_BigInteger
+     * @access public
+     */
+    function __construct($x = 0, $base = 10)
+    {
+        $this->Math_BigInteger($x, $base);
+    }
+
+    /**
      * Converts a BigInteger to a byte string (eg. base-256).
      *
      * Negative numbers are saved as positive numbers, unless $twos_compliment is set to true, at which point, they're
