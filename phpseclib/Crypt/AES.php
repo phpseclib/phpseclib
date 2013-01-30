@@ -255,7 +255,6 @@ class Crypt_AES extends Crypt_Rijndael {
         return;
     }
 
-
     /**
      * Sets the initialization vector. (optional)
      *

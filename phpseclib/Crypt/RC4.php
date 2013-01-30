@@ -167,7 +167,6 @@ class Crypt_RC4 {
      *
      * Determines whether or not the mcrypt extension should be used.
      *
-     * @param optional Integer $mode
      * @return Crypt_RC4
      * @access public
      */
