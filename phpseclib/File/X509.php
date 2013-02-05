@@ -3156,8 +3156,8 @@ class File_X509 {
                 return false;
             }
 
-            $startDate = !empty($this->startDate) ? $this->startDate : @date('M j H:i:s Y T');
-            $endDate = !empty($this->endDate) ? $this->endDate : @date('M j H:i:s Y T', strtotime('+1 year'));
+            $startDate = !empty($this->startDate) ? $this->startDate : @date('D, d M y H:i:s O');
+            $endDate = !empty($this->endDate) ? $this->endDate : @date('D, d M y H:i:s O', strtotime('+1 year'));
             $serialNumber = !empty($this->serialNumber) ? $this->serialNumber : new Math_BigInteger();
 
             $this->currentCert = array(
@@ -3329,7 +3329,7 @@ class File_X509 {
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : NULL;
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : NULL;
-        $thisUpdate = !empty($this->startDate) ? $this->startDate : @date('M j H:i:s Y T');
+        $thisUpdate = !empty($this->startDate) ? $this->startDate : @date('D, d M y H:i:s O');
 
         if (isset($crl->currentCert) && is_array($crl->currentCert) && isset($crl->currentCert['tbsCertList'])) {
             $this->currentCert = $crl->currentCert;
@@ -3479,7 +3479,7 @@ class File_X509 {
      */
     function setStartDate($date)
     {
-        $this->startDate = @date('M j H:i:s Y T', @strtotime($date));
+        $this->startDate = @date('D, d M y H:i:s O', @strtotime($date));
     }
 
     /**
@@ -3503,7 +3503,7 @@ class File_X509 {
             $temp = chr(FILE_ASN1_TYPE_GENERALIZED_TIME) . $asn1->_encodeLength(strlen($temp)) . $temp;
             $this->endDate = new File_ASN1_Element($temp);
         } else {
-            $this->endDate = @date('M j H:i:s Y T', @strtotime($date));
+            $this->endDate = @date('D, d M y H:i:s O', @strtotime($date));
         }
     }
 
@@ -4131,7 +4131,7 @@ class File_X509 {
 
         $i = count($rclist);
         $rclist[] = array('userCertificate' => $serial,
-                          'revocationDate'  => array('generalTime' => @date('M j H:i:s Y T')));
+                          'revocationDate'  => array('generalTime' => @date('D, d M y H:i:s O')));
         return $i;
     }
 
