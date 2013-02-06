@@ -868,7 +868,8 @@ class Crypt_AES extends Crypt_Rijndael {
                 $s0 = $dt0[($e0 >> 24) & 0xff] ^ $dt1[($e3 >> 16) & 0xff] ^ $dt2[($e2 >> 8) & 0xff] ^ $dt3[$e1 & 0xff] ^ $dw[52];
                 $s1 = $dt0[($e1 >> 24) & 0xff] ^ $dt1[($e0 >> 16) & 0xff] ^ $dt2[($e3 >> 8) & 0xff] ^ $dt3[$e2 & 0xff] ^ $dw[53];
                 $s2 = $dt0[($e2 >> 24) & 0xff] ^ $dt1[($e1 >> 16) & 0xff] ^ $dt2[($e0 >> 8) & 0xff] ^ $dt3[$e3 & 0xff] ^ $dw[54];
-                 $e3= $dt0[($e3 >> 24) & 0xff] ^ $dt1[($e2 >> 16) & 0xff] ^ $dt2[($e1 >> 8) & 0xff] ^ $dt3[$e0 & 0xff] ^ $dw[55];
+                $e3 = $dt0[($e3 >> 24) & 0xff] ^ $dt1[($e2 >> 16) & 0xff] ^ $dt2[($e1 >> 8) & 0xff] ^ $dt3[$e0 & 0xff] ^ $dw[55];
+                // Note: Here we skip $s3 but using $e3
 
                 $e0 = $s0;
                 $e1 = $s1;
@@ -880,7 +881,8 @@ class Crypt_AES extends Crypt_Rijndael {
                 $s0 = $dt0[($e0 >> 24) & 0xff] ^ $dt1[($e3 >> 16) & 0xff] ^ $dt2[($e2 >> 8) & 0xff] ^ $dt3[$e1 & 0xff] ^ $dw[44];
                 $s1 = $dt0[($e1 >> 24) & 0xff] ^ $dt1[($e0 >> 16) & 0xff] ^ $dt2[($e3 >> 8) & 0xff] ^ $dt3[$e2 & 0xff] ^ $dw[45];
                 $s2 = $dt0[($e2 >> 24) & 0xff] ^ $dt1[($e1 >> 16) & 0xff] ^ $dt2[($e0 >> 8) & 0xff] ^ $dt3[$e3 & 0xff] ^ $dw[46];
-                 $e3= $dt0[($e3 >> 24) & 0xff] ^ $dt1[($e2 >> 16) & 0xff] ^ $dt2[($e1 >> 8) & 0xff] ^ $dt3[$e0 & 0xff] ^ $dw[47];
+                $e3 = $dt0[($e3 >> 24) & 0xff] ^ $dt1[($e2 >> 16) & 0xff] ^ $dt2[($e1 >> 8) & 0xff] ^ $dt3[$e0 & 0xff] ^ $dw[47];
+                // Note: Here we skip $s3 but using $e3
 
                 $e0 = $s0;
                 $e1 = $s1;
