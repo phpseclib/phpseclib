@@ -1323,14 +1323,19 @@ class Net_SFTP extends Net_SSH2 {
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
      * care of that, yourself.
      *
+     * As for $start... if it's negative (which it is by default) a new file will be created or an existing
+     * file truncated depending on $mode | NET_SFTP_RESUME. If it's zero or positive it'll be updated at that
+     * spot.
+     *
      * @param String $remote_file
      * @param String $data
      * @param optional Integer $mode
+     * @param optional Integer $start
      * @return Boolean
      * @access public
      * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - Net_SFTP::setMode().
      */
-    function put($remote_file, $data, $mode = NET_SFTP_STRING)
+    function put($remote_file, $data, $mode = NET_SFTP_STRING, $start = -1)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1348,9 +1353,13 @@ class Net_SFTP extends Net_SSH2 {
 
         // if NET_SFTP_OPEN_APPEND worked as it should the following (up until the -----------) wouldn't be necessary
         $offset = 0;
-        if ($mode & NET_SFTP_RESUME) {
-            $size = $this->_size($remote_file);
-            $offset = $size !== false ? $size : 0;
+        if (($mode & NET_SFTP_RESUME) || $start >= 0) {
+            if ($start >= 0) {
+                $offset = $start;
+            } else {
+                $size = $this->_size($remote_file);
+                $offset = $size !== false ? $size : 0;
+            }
         } else {
             $flags|= NET_SFTP_OPEN_TRUNCATE;
         }
@@ -1477,10 +1486,14 @@ class Net_SFTP extends Net_SSH2 {
      *
      * Returns a string containing the contents of $remote_file if $local_file is left undefined or a boolean false if
      * the operation was unsuccessful.  If $local_file is defined, returns true or false depending on the success of the
-     * operation
+     * operation.
+     *
+     * $offset and $length can be used to download files in chunks.
      *
      * @param String $remote_file
      * @param optional String $local_file
+     * @param optional Integer $offset
+     * @param optional Integer $length
      * @return Mixed
      * @access public
      */
