@@ -329,7 +329,8 @@ class Net_SFTP extends Net_SSH2 {
             0x00000002 => 'NET_SFTP_OPEN_WRITE',
             0x00000004 => 'NET_SFTP_OPEN_APPEND',
             0x00000008 => 'NET_SFTP_OPEN_CREATE',
-            0x00000010 => 'NET_SFTP_OPEN_TRUNCATE'
+            0x00000010 => 'NET_SFTP_OPEN_TRUNCATE',
+            0x00000020 => 'NET_SFTP_OPEN_EXCL'
         );
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-5.2
         // see Net_SFTP::_parseLongname() for an explanation
@@ -1051,12 +1052,99 @@ class Net_SFTP extends Net_SSH2 {
     }
 
     /**
+     * Sets access and modification time of file.
+     *
+     * If the file does not exist, it will be created.
+     *
+     * @param String $filename
+     * @param optional Integer $time
+     * @param optional Integer $atime
+     * @return Boolean
+     * @access public
+     */
+    function touch($filename, $time = NULL, $atime = NULL)
+    {
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+            return false;
+        }
+
+        $filename = $this->_realpath($filename);
+        if ($filename === false) {
+            return false;
+        }
+
+        if (!isset($time)) {
+            $time = time();
+        }
+        if (!isset($atime)) {
+            $atime = $time;
+        }
+
+        $flags = NET_SFTP_OPEN_CREATE | NET_SFTP_OPEN_EXCL;
+        $attr = pack('N3', NET_SFTP_ATTR_ACCESSTIME, $time, $atime);
+        $packet = pack('Na*N2', strlen($filename), $filename, $flags, $attr);
+        if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
+            return false;
+        }
+
+        $response = $this->_get_sftp_packet();
+        switch ($this->packet_type) {
+            case NET_SFTP_HANDLE:
+                $handle = substr($response, 4);
+
+                if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
+                    return false;
+                }
+
+                $response = $this->_get_sftp_packet();
+                if ($this->packet_type != NET_SFTP_STATUS) {
+                    user_error('Expected SSH_FXP_STATUS');
+                    return false;
+                }
+
+                extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+                if ($status != NET_SFTP_STATUS_OK) {
+                    $this->_logError($response, $status);
+                    return false;
+                }
+
+                return true;
+            case NET_SFTP_STATUS:
+                $this->_logError($response);
+                break;
+            default:
+                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
+                return false;
+        }
+
+        $attr = pack('N3', NET_SFTP_ATTR_ACCESSTIME, $time, $atime);
+        if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, pack('Na*a*', strlen($filename), $filename, $attr))) {
+            return false;
+        }
+
+        $response = $this->_get_sftp_packet();
+        if ($this->packet_type != NET_SFTP_STATUS) {
+            user_error('Expected SSH_FXP_STATUS');
+            return false;
+        }
+
+        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+        if ($status != NET_SFTP_STATUS_OK) {
+            $this->_logError($response, $status);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Set permissions on a file.
      *
      * Returns the new file permissions on success or FALSE on error.
      *
      * @param Integer $mode
      * @param String $filename
+     * @param optional Boolean $recursive
      * @return Mixed
      * @access public
      */
@@ -1064,6 +1152,12 @@ class Net_SFTP extends Net_SSH2 {
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
+        }
+
+        if (is_string($mode) && is_int($filename)) {
+            $temp = $mode;
+            $mode = $filename;
+            $filename = $temp;
         }
 
         $filename = $this->_realpath($filename);
