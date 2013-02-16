@@ -718,6 +718,21 @@ class Net_SSH2 {
     var $exit_status;
 
     /**
+     * Flag to request a PTY when using exec()
+     *
+     * @see Net_SSH2::enablePTY()
+     * @access private
+     */
+    var $request_pty = false;
+
+    /**
+     * Flag set while exec() is running when using enablePTY()
+     *
+     * @access private
+     */
+    var $in_request_pty_exec = false;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -1816,6 +1831,34 @@ class Net_SSH2 {
             return false;
         }
 
+        if ($this->request_pty === true) {
+            $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
+            $packet = pack('CNNa*CNa*N5a*',
+                NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SSH2_CHANNEL_EXEC], strlen('pty-req'), 'pty-req', 1, strlen('vt100'), 'vt100',
+                80, 24, 0, 0, strlen($terminal_modes), $terminal_modes);
+
+            if (!$this->_send_binary_packet($packet)) {
+                return false;
+            }
+            $response = $this->_get_binary_packet();
+            if ($response === false) {
+                user_error('Connection closed by server');
+                return false;
+            }
+
+            list(, $type) = unpack('C', $this->_string_shift($response, 1));
+
+            switch ($type) {
+                case NET_SSH2_MSG_CHANNEL_SUCCESS:
+                    break;
+                case NET_SSH2_MSG_CHANNEL_FAILURE:
+                default:
+                    user_error('Unable to request pseudo-terminal');
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+            }
+            $this->in_request_pty_exec = true;
+        }
+
         // sending a pty-req SSH_MSG_CHANNEL_REQUEST message is unnecessary and, in fact, in most cases, slows things
         // down.  the one place where it might be desirable is if you're doing something like Net_SSH2::exec('ping localhost &').
         // with a pty-req SSH_MSG_CHANNEL_REQUEST, exec() will return immediately and the ping process will then
@@ -1840,7 +1883,7 @@ class Net_SSH2 {
 
         $this->channel_status[NET_SSH2_CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_DATA;
 
-        if (!$block) {
+        if (!$block || $this->in_request_pty_exec) {
             return true;
         }
 
@@ -1868,6 +1911,10 @@ class Net_SSH2 {
      */
     function _initShell()
     {
+        if ($this->in_request_pty_exec === true) {
+            return true;
+        }
+
         $this->window_size_client_to_server[NET_SSH2_CHANNEL_SHELL] = 0x7FFFFFFF;
         $packet_size = 0x4000;
 
@@ -1957,6 +2004,8 @@ class Net_SSH2 {
             return false;
         }
 
+        $channel = $this->in_request_pty_exec ? NET_SSH2_CHANNEL_EXEC : NET_SSH2_CHANNEL_SHELL;
+
         $match = $expect;
         while (true) {
             if ($mode == NET_SSH2_READ_REGEX) {
@@ -1967,8 +2016,9 @@ class Net_SSH2 {
             if ($pos !== false) {
                 return $this->_string_shift($this->interactiveBuffer, $pos + strlen($match));
             }
-            $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_SHELL);
+            $response = $this->_get_channel_packet($channel);
             if (is_bool($response)) {
+                $this->in_request_pty_exec = false;
                 return $response ? $this->_string_shift($this->interactiveBuffer, strlen($this->interactiveBuffer)) : false;
             }
 
@@ -1996,7 +2046,8 @@ class Net_SSH2 {
             return false;
         }
 
-        return $this->_send_channel_packet(NET_SSH2_CHANNEL_SHELL, $cmd);
+        $channel = $this->in_request_pty_exec ? NET_SSH2_CHANNEL_EXEC : NET_SSH2_CHANNEL_SHELL;
+        return $this->_send_channel_packet($channel, $cmd);
     }
 
     /**
@@ -2217,6 +2268,26 @@ class Net_SSH2 {
     function disableQuietMode()
     {
         $this->quiet_mode = false;
+    }
+
+    /**
+     * Enable request-pty when using exec()
+     *
+     * @access public
+     */
+    function enablePTY()
+    {
+        $this->request_pty = true;
+    }
+
+    /**
+     * Disable request-pty when using exec()
+     *
+     * @access public
+     */
+    function disablePTY()
+    {
+        $this->request_pty = false;
     }
 
     /**
