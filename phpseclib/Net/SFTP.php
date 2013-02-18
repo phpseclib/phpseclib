@@ -1138,9 +1138,48 @@ class Net_SFTP extends Net_SSH2 {
     }
 
     /**
+     * Changes file or directory owner
+     *
+     * Returns TRUE on success or FALSE on error.
+     *
+     * @param String $filename
+     * @param Integer $uid
+     * @param optional Boolean $recursive
+     * @return Boolean
+     * @access public
+     */
+    function chown($filename, $uid, $recursive = false)
+    {
+        // quoting from <http://www.kernel.org/doc/man-pages/online/pages/man2/chown.2.html>,
+        // "if the owner or group is specified as -1, then that ID is not changed"
+        $attr = pack('N3', NET_SFTP_ATTR_UIDGID, $uid, -1);
+
+        return $this->_setstat($filename, $attr, $recursive);
+    }
+
+    /**
+     * Changes file or directory group
+     *
+     * Returns TRUE on success or FALSE on error.
+     *
+     * @param String $filename
+     * @param Integer $gid
+     * @param optional Boolean $recursive
+     * @return Boolean
+     * @access public
+     */
+    function chgrp($filename, $gid, $recursive = false)
+    {
+        $attr = pack('N3', NET_SFTP_ATTR_UIDGID, -1, $gid);
+
+        return $this->_setstat($filename, $attr, $recursive);
+    }
+
+    /**
      * Set permissions on a file.
      *
      * Returns the new file permissions on success or FALSE on error.
+     * If $recursive is true than this just returns TRUE or FALSE.
      *
      * @param Integer $mode
      * @param String $filename
@@ -1150,51 +1189,18 @@ class Net_SFTP extends Net_SSH2 {
      */
     function chmod($mode, $filename, $recursive = false)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
-            return false;
-        }
-
         if (is_string($mode) && is_int($filename)) {
             $temp = $mode;
             $mode = $filename;
             $filename = $temp;
         }
 
-        $filename = $this->_realpath($filename);
-        if ($filename === false) {
-            return false;
-        }
-
-        if ($recursive) {
-            $i = 0;
-            $result = $this->_chmod_recursive($mode, $filename, $i);
-            $this->_read_put_responses($i);
-            return $result;
-        }
-
-        // SFTPv4+ has an additional byte field - type - that would need to be sent, as well. setting it to
-        // SSH_FILEXFER_TYPE_UNKNOWN might work. if not, we'd have to do an SSH_FXP_STAT before doing an SSH_FXP_SETSTAT.
         $attr = pack('N2', NET_SFTP_ATTR_PERMISSIONS, $mode & 07777);
-        if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, pack('Na*a*', strlen($filename), $filename, $attr))) {
+        if (!$this->_setstat($filename, $attr, $recursive)) {
             return false;
         }
-
-        /*
-         "Because some systems must use separate system calls to set various attributes, it is possible that a failure 
-          response will be returned, but yet some of the attributes may be have been successfully modified.  If possible,
-          servers SHOULD avoid this situation; however, clients MUST be aware that this is possible."
-
-          -- http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.6
-        */
-        $response = $this->_get_sftp_packet();
-        if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
-        }
-
-        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
-        if ($status != NET_SFTP_STATUS_OK) {
-            $this->_logError($response, $status);
+        if ($recursive) {
+            return true;
         }
 
         // rather than return what the permissions *should* be, we'll return what they actually are.  this will also
@@ -1220,16 +1226,72 @@ class Net_SFTP extends Net_SSH2 {
     }
 
     /**
-     * Recursively chmods directories on the SFTP server
+     * Sets information about a file
      *
-     * Minimizes directory lookups and SSH_FXP_STATUS requests for speed.
-     *
-     * @param Integer $mode
      * @param String $filename
+     * @param String $attr
+     * @param Boolean $recursive
      * @return Boolean
      * @access private
      */
-    function _chmod_recursive($mode, $path, &$i)
+    function _setstat($filename, $attr, $recursive)
+    {
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+            return false;
+        }
+
+        $filename = $this->_realpath($filename);
+        if ($filename === false) {
+            return false;
+        }
+
+        if ($recursive) {
+            $i = 0;
+            $result = $this->_setstat_recursive($filename, $attr, $i);
+            $this->_read_put_responses($i);
+            return $result;
+        }
+
+        // SFTPv4+ has an additional byte field - type - that would need to be sent, as well. setting it to
+        // SSH_FILEXFER_TYPE_UNKNOWN might work. if not, we'd have to do an SSH_FXP_STAT before doing an SSH_FXP_SETSTAT.
+        if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, pack('Na*a*', strlen($filename), $filename, $attr))) {
+            return false;
+        }
+
+        /*
+         "Because some systems must use separate system calls to set various attributes, it is possible that a failure 
+          response will be returned, but yet some of the attributes may be have been successfully modified.  If possible,
+          servers SHOULD avoid this situation; however, clients MUST be aware that this is possible."
+
+          -- http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.6
+        */
+        $response = $this->_get_sftp_packet();
+        if ($this->packet_type != NET_SFTP_STATUS) {
+            user_error('Expected SSH_FXP_STATUS');
+            return false;
+        }
+
+        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+        if ($status != NET_SFTP_STATUS_OK) {
+            $this->_logError($response, $status);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Recursively sets information on directories on the SFTP server
+     *
+     * Minimizes directory lookups and SSH_FXP_STATUS requests for speed.
+     *
+     * @param String $path
+     * @param String $attr
+     * @param Integer $i
+     * @return Boolean
+     * @access private
+     */
+    function _setstat_recursive($path, $attr, &$i)
     {
         if (!$this->_read_put_responses($i)) {
             return false;
@@ -1238,7 +1300,7 @@ class Net_SFTP extends Net_SSH2 {
         $entries = $this->_list($path, true, false);
 
         if ($entries === false) {
-            return $this->chmod($mode, $path);
+            return $this->_setstat($path, $attr, false);
         }
 
         // normally $entries would have at least . and .. but it might not if the directories
@@ -1258,11 +1320,10 @@ class Net_SFTP extends Net_SSH2 {
 
             $temp = $path . '/' . $filename;
             if ($props['type'] == NET_SFTP_TYPE_DIRECTORY) {
-                if (!$this->_chmod_recursive($mode, $temp, $i)) {
+                if (!$this->_setstat_recursive($temp, $attr, $i)) {
                     return false;
                 }
             } else {
-                $attr = pack('N2', NET_SFTP_ATTR_PERMISSIONS, $mode & 07777);
                 if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, pack('Na*a*', strlen($temp), $temp, $attr))) {
                     return false;
                 }
@@ -1278,7 +1339,6 @@ class Net_SFTP extends Net_SSH2 {
             }
         }
 
-        $attr = pack('N2', NET_SFTP_ATTR_PERMISSIONS, $mode & 07777);
         if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, pack('Na*a*', strlen($path), $path, $attr))) {
             return false;
         }
