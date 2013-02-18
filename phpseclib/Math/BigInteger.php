@@ -2759,7 +2759,7 @@ class Math_BigInteger {
         $result->value = array_slice($result->value, 0, $length);
 
         for ($i = 0; $i < $length; ++$i) {
-            $result->value[$i] = $result->value[$i] & $x->value[$i];
+            $result->value[$i]&= $x->value[$i];
         }
 
         return $this->_normalize($result);
@@ -2795,11 +2795,11 @@ class Math_BigInteger {
 
         $length = max(count($this->value), count($x->value));
         $result = $this->copy();
-        $result->value = array_pad($result->value, 0, $length);
-        $x->value = array_pad($x->value, 0, $length);
+        $result->value = array_pad($result->value, $length, 0);
+        $x->value = array_pad($x->value, $length, 0);
 
         for ($i = 0; $i < $length; ++$i) {
-            $result->value[$i] = $this->value[$i] | $x->value[$i];
+            $result->value[$i]|= $x->value[$i];
         }
 
         return $this->_normalize($result);
@@ -2835,11 +2835,11 @@ class Math_BigInteger {
 
         $length = max(count($this->value), count($x->value));
         $result = $this->copy();
-        $result->value = array_pad($result->value, 0, $length);
-        $x->value = array_pad($x->value, 0, $length);
+        $result->value = array_pad($result->value, $length, 0);
+        $x->value = array_pad($x->value, $length, 0);
 
         for ($i = 0; $i < $length; ++$i) {
-            $result->value[$i] = $this->value[$i] ^ $x->value[$i];
+            $result->value[$i]^= $x->value[$i];
         }
 
         return $this->_normalize($result);
