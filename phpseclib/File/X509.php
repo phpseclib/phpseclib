@@ -2630,9 +2630,9 @@ class File_X509 {
             case !isset($this->currentCert) || !is_array($this->currentCert):
                 break;
             case isset($this->currentCert['tbsCertificate']):
-                return $this->getDNProp($propname, $this->currentCert['tbsCertificate']['issuer'], $withType);
+                return $this->getDNProp($propName, $this->currentCert['tbsCertificate']['issuer'], $withType);
             case isset($this->currentCert['tbsCertList']):
-                return $this->getDNProp($propname, $this->currentCert['tbsCertList']['issuer'], $withType);
+                return $this->getDNProp($propName, $this->currentCert['tbsCertList']['issuer'], $withType);
         }
 
         return false;
@@ -2656,7 +2656,7 @@ class File_X509 {
             case isset($this->currentCert['tbsCertificate']):
                 return $this->getDNProp($propName, $this->currentCert['tbsCertificate']['subject'], $withType);
             case isset($this->currentCert['certificationRequestInfo']):
-                return $this->getDNProp($propname, $this->currentCert['certificationRequestInfo']['subject'], $withType);
+                return $this->getDNProp($propName, $this->currentCert['certificationRequestInfo']['subject'], $withType);
         }
 
         return false;
@@ -4011,15 +4011,15 @@ class File_X509 {
                 return $this->computeKeyIdentifier($key['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'], $method);
             case !is_object($key):
                 return false;
-            case strtolower(get_class($key)) == 'file_asn1_element':
+            case strtolower(get_class($key)) === 'file_asn1_element':
                 $asn1 = new File_ASN1();
-                $decoded = $asn1->decodeBER($cert);
+                $decoded = $asn1->decodeBER($cert); //TODO:undefined variable $cert
                 if (empty($decoded)) {
                     return false;
                 }
                 $key = $asn1->asn1map($decoded[0], array('type' => FILE_ASN1_TYPE_BIT_STRING));
                 break;
-            case strtolower(get_class($key)) == 'file_x509':
+            case strtolower(get_class($key)) === 'file_x509':
                 if (isset($key->publicKey)) {
                     return $this->computeKeyIdentifier($key->publicKey, $method);
                 }

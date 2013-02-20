@@ -143,7 +143,7 @@ function crypt_random_string($length) {
             serialize($_POST) .
             serialize($_GET) .
             serialize($_COOKIE) .
-            serialize($_GLOBAL) .
+            serialize($GLOBALS) .
             serialize($_SESSION) .
             serialize($_OLD_SESSION)
         ));
