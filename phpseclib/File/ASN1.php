@@ -260,7 +260,7 @@ class File_ASN1 {
      */
     function decodeBER($encoded)
     {
-        if (is_object($encoded) && strtolower(get_class($encoded)) === 'file_asn1_element') {
+        if (is_object($encoded) && strtolower(get_class($encoded)) == 'file_asn1_element') {
             $encoded = $encoded->element;
         }
 

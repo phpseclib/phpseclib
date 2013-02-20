@@ -4011,7 +4011,7 @@ class File_X509 {
                 return $this->computeKeyIdentifier($key['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'], $method);
             case !is_object($key):
                 return false;
-            case strtolower(get_class($key)) === 'file_asn1_element':
+            case strtolower(get_class($key)) == 'file_asn1_element':
                 $asn1 = new File_ASN1();
                 $decoded = $asn1->decodeBER($cert); //TODO:undefined variable $cert
                 if (empty($decoded)) {
@@ -4019,7 +4019,7 @@ class File_X509 {
                 }
                 $key = $asn1->asn1map($decoded[0], array('type' => FILE_ASN1_TYPE_BIT_STRING));
                 break;
-            case strtolower(get_class($key)) === 'file_x509':
+            case strtolower(get_class($key)) == 'file_x509':
                 if (isset($key->publicKey)) {
                     return $this->computeKeyIdentifier($key->publicKey, $method);
                 }
