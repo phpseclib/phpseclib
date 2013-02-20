@@ -935,7 +935,7 @@ class Net_SSH1 {
      * Returns the output of an interactive shell when no more output is available.
      *
      * Requires PHP 4.3.0 or later due to the use of the stream_select() function.  If you see stuff like
-     * "[00m", you're seeing ANSI escape codes.  According to
+     * "^[[00m", you're seeing ANSI escape codes.  According to
      * {@link http://support.microsoft.com/kb/101875 How to Enable ANSI.SYS in a Command Window}, "Windows NT
      * does not support ANSI escape sequences in Win32 Console applications", so if you're a Windows user,
      * there's not going to be much recourse.
