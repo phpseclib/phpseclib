@@ -306,7 +306,6 @@ class Math_BigInteger {
                     // we do pow(2, 52) instead of using 4503599627370496 directly because some
                     // PHP installations will truncate 4503599627370496.
                     define('MATH_BIGINTEGER_MAX_DIGIT2', pow(2, 52));
-
             }
         }
 
