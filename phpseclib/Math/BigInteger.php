@@ -2112,7 +2112,7 @@ class Math_BigInteger {
         if ($this->_compare($result, false, $temp[MATH_BIGINTEGER_VALUE], $temp[MATH_BIGINTEGER_SIGN]) < 0) {
             $corrector_value = $this->_array_repeat(0, $n_length + 1);
             $corrector_value[] = 1;
-            $result = $this->_add($result, false, $corrector, false);
+            $result = $this->_add($result, false, $corrector_value, false);
             $result = $result[MATH_BIGINTEGER_VALUE];
         }
 
@@ -2425,12 +2425,12 @@ class Math_BigInteger {
     }
 
     /**
-     * Calculates the greatest common divisor and Bézout's identity.
+     * Calculates the greatest common divisor and BÃ©zout's identity.
      *
-     * Say you have 693 and 609.  The GCD is 21.  Bézout's identity states that there exist integers x and y such that
+     * Say you have 693 and 609.  The GCD is 21.  BÃ©zout's identity states that there exist integers x and y such that
      * 693*x + 609*y == 21.  In point of fact, there are actually an infinite number of x and y combinations and which
      * combination is returned is dependant upon which mode is in use.  See
-     * {@link http://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity Bézout's identity - Wikipedia} for more information.
+     * {@link http://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity BÃ©zout's identity - Wikipedia} for more information.
      *
      * Here's an example:
      * <code>
