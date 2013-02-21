@@ -4012,12 +4012,29 @@ class File_X509 {
             case !is_object($key):
                 return false;
             case strtolower(get_class($key)) == 'file_asn1_element':
+                // Assume the element is a bitstring-packed key.
                 $asn1 = new File_ASN1();
-                $decoded = $asn1->decodeBER($cert); //TODO:undefined variable $cert
+                $decoded = $asn1->decodeBER($key->element);
                 if (empty($decoded)) {
                     return false;
                 }
-                $key = $asn1->asn1map($decoded[0], array('type' => FILE_ASN1_TYPE_BIT_STRING));
+                $raw = $asn1->asn1map($decoded[0], array('type' => FILE_ASN1_TYPE_BIT_STRING));
+                if (empty($raw)) {
+                    return false;
+                }
+                $raw = base64_decode($raw);
+                // If the key is private, compute identifier from its corresponding public key.
+                if (!class_exists('Crypt_RSA')) {
+                    require_once('Crypt/RSA.php');
+                }
+                $key = new Crypt_RSA();
+                if (!$key->loadKey($raw)) {
+                    return false;   // Not an unencrypted RSA key.
+                }
+                if ($key->getPrivateKey() !== false) {  // If private.
+                    return $this->computeKeyIdentifier($key, $method);
+                }
+                $key = $raw;    // Is a public key.
                 break;
             case strtolower(get_class($key)) == 'file_x509':
                 if (isset($key->publicKey)) {
