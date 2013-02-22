@@ -433,7 +433,7 @@ class File_ANSI {
                                 }
                                 break;
                             default:
-                                echo "{$this->ansi} unsupported\r\n";
+                                user_error("{$this->ansi} unsupported\r\n");
                         }
                 }
                 $this->ansi = '';
