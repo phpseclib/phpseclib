@@ -1575,7 +1575,6 @@ class Crypt_Rijndael {
      */
     function inline_crypt_setup()
     {
-        $ST = microtime_float();
         // Note: inline_crypt_setup() will be called only if $this->changed === true
         // So here we are'nt under the same heavy timing-stress as we are in _de/encryptBlock() or de/encrypt().
         // However...the here generated function- $code, stored as php callback in $this->inline_crypt, must work as fast as even possible.
