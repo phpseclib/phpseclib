@@ -2077,6 +2077,16 @@ class Net_SSH2 {
     }
 
     /**
+     * Is the connection still active?
+     *
+     * @access public
+     */
+    function isConnected()
+    {
+        return $this->bitmap & NET_SSH2_MASK_LOGIN;
+    }
+
+    /**
      * Gets Binary Packets
      *
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
