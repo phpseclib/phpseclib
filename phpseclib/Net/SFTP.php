@@ -461,7 +461,7 @@ class Net_SFTP extends Net_SSH2 {
                 return false;
         }
 
-        $this->pwd = $this->_realpath('.', false);
+        $this->pwd = $this->_realpath('.');
 
         $this->_save_dir($this->pwd);
 
@@ -508,98 +508,57 @@ class Net_SFTP extends Net_SSH2 {
      * the absolute (canonicalized) path.
      *
      * @see Net_SFTP::chdir()
-     * @param String $dir
+     * @param String $path
      * @return Mixed
      * @access private
      */
-    function _realpath($dir, $check_dir = true)
+    function _realpath($path)
     {
-        if ($check_dir && $this->_is_dir($dir)) {
-            return true;
-        }
-
-        /*
-        "This protocol represents file names as strings.  File names are
-         assumed to use the slash ('/') character as a directory separator.
-
-         File names starting with a slash are "absolute", and are relative to
-         the root of the file system.  Names starting with any other character
-         are relative to the user's default directory (home directory).  Note
-         that identifying the user is assumed to take place outside of this
-         protocol."
-
-         -- http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-6
-        */
-        $file = '';
-        if ($this->pwd !== false) {
-            // if the SFTP server returned the canonicalized path even for non-existant files this wouldn't be necessary
-            // on OpenSSH it isn't necessary but on other SFTP servers it is.  that and since the specs say nothing on
-            // the subject, we'll go ahead and work around it with the following.
-            if (empty($dir) || $dir[strlen($dir) - 1] != '/') {
-                $file = basename($dir);
-                $dir = dirname($dir);
-            }
-
-            $dir = $dir[0] == '/' ? '/' . rtrim(substr($dir, 1), '/') : rtrim($dir, '/');
-
-            if ($dir == '.' || $dir == $this->pwd) {
-                $temp = $this->pwd;
-                if (!empty($file)) {
-                    $temp.= '/' . $file;
-                }
-                return $temp;
-            }
-
-            if ($dir[0] != '/') {
-                $dir = $this->pwd . '/' . $dir;
-            }
-            // on the surface it seems like maybe resolving a path beginning with / is unnecessary, but such paths
-            // can contain .'s and ..'s just like any other.  we could parse those out as appropriate or we can let
-            // the server do it.  we'll do the latter.
-        }
-
-        /*
-         that SSH_FXP_REALPATH returns SSH_FXP_NAME does not necessarily mean that anything actually exists at the
-         specified path.  generally speaking, no attributes are returned with this particular SSH_FXP_NAME packet
-         regardless of whether or not a file actually exists.  and in SFTPv3, the longname field and the filename
-         field match for this particular SSH_FXP_NAME packet.  for other SSH_FXP_NAME packets, this will likely
-         not be the case, but for this one, it is.
-        */
-        // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.9
-        if (!$this->_send_sftp_packet(NET_SFTP_REALPATH, pack('Na*', strlen($dir), $dir))) {
-            return false;
-        }
-
-        $response = $this->_get_sftp_packet();
-        switch ($this->packet_type) {
-            case NET_SFTP_NAME:
-                // although SSH_FXP_NAME is implemented differently in SFTPv3 than it is in SFTPv4+, the following
-                // should work on all SFTP versions since the only part of the SSH_FXP_NAME packet the following looks
-                // at is the first part and that part is defined the same in SFTP versions 3 through 6.
-                $this->_string_shift($response, 4); // skip over the count - it should be 1, anyway
-                extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                $realpath = $this->_string_shift($response, $length);
-                // the following is SFTPv3 only code.  see Net_SFTP::_parseLongname() for more information.
-                // per the above comment, this is a shot in the dark that, on most servers, won't help us in determining
-                // the file type for Net_SFTP::stat() and Net_SFTP::lstat() but it's worth a shot.
-                extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                $this->fileType = $this->_parseLongname($this->_string_shift($response, $length));
-                break;
-            case NET_SFTP_STATUS:
-                $this->_logError($response);
+        if ($this->pwd === false) {
+            // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.9
+            if (!$this->_send_sftp_packet(NET_SFTP_REALPATH, pack('Na*', strlen($path), $path))) {
                 return false;
-            default:
-                user_error('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
-                return false;
+            }
+
+            $response = $this->_get_sftp_packet();
+            switch ($this->packet_type) {
+                case NET_SFTP_NAME:
+                    // although SSH_FXP_NAME is implemented differently in SFTPv3 than it is in SFTPv4+, the following
+                    // should work on all SFTP versions since the only part of the SSH_FXP_NAME packet the following looks
+                    // at is the first part and that part is defined the same in SFTP versions 3 through 6.
+                    $this->_string_shift($response, 4); // skip over the count - it should be 1, anyway
+                    extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                    return $this->_string_shift($response, $length);
+                case NET_SFTP_STATUS:
+                    $this->_logError($response);
+                    return false;
+                default:
+                    user_error('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
+                    return false;
+            }
         }
 
-        // if $this->pwd isn't set than the only thing $realpath could be is for '.', which is pretty much guaranteed to
-        // be a bonafide directory
-        if (!empty($file)) {
-            $realpath.= '/' . $file;
+        if ($path[0] != '/') {
+            $path = $this->pwd . '/' . $path;
         }
 
-        return $realpath;
+        $path = explode('/', $path);
+        $new = array();
+        foreach ($path as $dir) {
+            if (!strlen($dir)) {
+                continue;
+            }
+            switch ($dir) {
+                case '..':
+                    array_pop($new);
+                case '.':
+                    break;
+                default:
+                    $new[] = $dir;
+            }
+        }
+
+        return '/' . implode('/', $new);
     }
 
     /**
@@ -619,14 +578,9 @@ class Net_SFTP extends Net_SSH2 {
             $dir.= '/';
         }
 
+        $dir = $this->_realpath($dir);
+
         // confirm that $dir is, in fact, a valid directory
-        if ($this->_is_dir($dir)) {
-            $this->pwd = $dir;
-            return true;
-        }
-
-        $dir = $this->_realpath($dir, false);
-
         if ($this->_is_dir($dir)) {
             $this->pwd = $dir;
             return true;
@@ -762,15 +716,18 @@ class Net_SFTP extends Net_SSH2 {
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $longname = $this->_string_shift($response, $length);
                         $attributes = $this->_parseAttributes($response); // we also don't care about the attributes
+                        $fileType = $this->_parseLongname($longname);
                         if (!$raw) {
                             $contents[] = $shortname;
                         } else {
                             $contents[$shortname] = $attributes;
-                            $fileType = $this->_parseLongname($longname);
-                            if ($fileType) {
-                                if ($fileType == NET_SFTP_TYPE_DIRECTORY && ($shortname != '.' && $shortname != '..')) {
-                                    $this->_save_dir($dir . '/' . $shortname);
-                                }
+                        }
+
+                        if ($fileType) {
+                            if ($fileType == NET_SFTP_TYPE_DIRECTORY && ($shortname != '.' && $shortname != '..')) {
+                                $this->_save_dir($dir . '/' . $shortname);
+                            }
+                            if ($raw) {
                                 $contents[$shortname]['type'] = $fileType;
                             }
                         }
@@ -881,6 +838,9 @@ class Net_SFTP extends Net_SSH2 {
     /**
      * Checks cache for directory
      *
+     * Mainly used by chdir, which is, in turn, also used for determining whether or not an individual
+     * file is a directory or not by stat() and lstat()
+     *
      * @param String $dir
      * @access private
      */
@@ -895,6 +855,7 @@ class Net_SFTP extends Net_SSH2 {
             }
             $temp = &$temp[$dir];
         }
+        return true;
     }
 
     /**
@@ -1362,33 +1323,30 @@ class Net_SFTP extends Net_SSH2 {
      * @return Boolean
      * @access public
      */
-    function mkdir($dir)
+    function mkdir($dir, $mode = -1, $recursive = false)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
         }
 
-        if ($dir[0] != '/') {
-            $dir = $this->_realpath(rtrim($dir, '/'));
-            if ($dir === false) {
-                return false;
+        $dir = $this->_realpath($dir);
+        $attr = $mode == -1 ? chr(0) : pack('N2', NET_SFTP_ATTR_PERMISSIONS, $mode & 07777);
+
+        if ($recursive) {
+            $dirs = explode('/', preg_replace('#/(?=/)|/$#', '', $dir));
+            if (empty($dirs[0])) {
+                array_shift($dirs);
+                $dirs[0] = '/' . $dirs[0];
             }
-            if (!$this->_mkdir_helper($dir)) {
-                return false;
+            for ($i = 0; $i < count($dirs); $i++) {
+                $temp = array_slice($dirs, 0, $i + 1);
+                $temp = implode('/', $temp);
+                $result = $this->_mkdir_helper($temp, $attr);
             }
-        } else {
-            $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $dir));
-            $temp = '';
-            foreach ($dirs as $dir) {
-                $temp.= '/' . $dir;
-                $result = $this->_mkdir_helper($temp);
-            }
-            if (!$result) {
-                return false;
-            }
+            return $result;
         }
 
-        return true;
+        return $this->_mkdir_helper($dir, $attr);
     }
 
     /**
@@ -1398,11 +1356,11 @@ class Net_SFTP extends Net_SSH2 {
      * @return Boolean
      * @access private
      */
-    function _mkdir_helper($dir)
+    function _mkdir_helper($dir, $attr)
     {
         // by not providing any permissions, hopefully the server will use the logged in users umask - their 
         // default permissions.
-        if (!$this->_send_sftp_packet(NET_SFTP_MKDIR, pack('Na*N', strlen($dir), $dir, 0))) {
+        if (!$this->_send_sftp_packet(NET_SFTP_MKDIR, pack('Na*a*', strlen($dir), $dir, $attr))) {
             return false;
         }
 
