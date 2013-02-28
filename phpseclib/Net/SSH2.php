@@ -1797,10 +1797,11 @@ class Net_SSH2 {
      *
      * @param String $command
      * @param optional Boolean $block
+     * @param optional Boolean $split_extended
      * @return String
      * @access public
      */
-    function exec($command, $block = true)
+    function exec($command, $block = true, $split_extended = false)
     {
         $this->curTimeout = $this->timeout;
 
@@ -1887,16 +1888,33 @@ class Net_SSH2 {
             return true;
         }
 
-        $output = '';
+        if ($split_extended == true) {
+            $output = array('stdout' => '', 'stderr' => '');
+        } else {
+            $output = '';
+        }
         while (true) {
-            $temp = $this->_get_channel_packet(NET_SSH2_CHANNEL_EXEC);
+            if ($split_extended == true) {
+                $temp = $this->_get_channel_packet(NET_SSH2_CHANNEL_EXEC, false, true);
+            } else {
+                $temp = $this->_get_channel_packet(NET_SSH2_CHANNEL_EXEC);
+            }
             switch (true) {
                 case $temp === true:
                     return $output;
                 case $temp === false:
                     return false;
                 default:
-                    $output.= $temp;
+                    if ($split_extended == true) {
+                        if(array_key_exists('stdout', $temp)){
+                            $output['stdout'] .= $temp['stdout'];
+                        }
+                        if(array_key_exists('stderr', $temp)){
+                            $output['stderr'] .= $temp['stderr'];
+                        }
+                    } else{
+                        $output.= $temp;
+                    }
             }
         }
     }
@@ -2306,10 +2324,12 @@ class Net_SSH2 {
      * Returns the data as a string if it's available and false if not.
      *
      * @param $client_channel
+     * @param Optional Boolean $skip_extended
+     * @param Optional Boolean $split_extended
      * @return Mixed
      * @access private
      */
-    function _get_channel_packet($client_channel, $skip_extended = false)
+    function _get_channel_packet($client_channel, $skip_extended = false, $split_extended = false)
     {
         if (!empty($this->channel_buffers[$client_channel])) {
             return array_shift($this->channel_buffers[$client_channel]);
@@ -2387,7 +2407,11 @@ class Net_SSH2 {
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
                     $data = $this->_string_shift($response, $length);
                     if ($client_channel == $channel) {
-                        return $data;
+                        if ($split_extended == true) {
+                            return array('stdout'=>$data);
+                        } else {
+                            return $data;
+                        }
                     }
                     if (!isset($this->channel_buffers[$client_channel])) {
                         $this->channel_buffers[$client_channel] = array();
@@ -2407,7 +2431,11 @@ class Net_SSH2 {
                     extract(unpack('Ndata_type_code/Nlength', $this->_string_shift($response, 8)));
                     $data = $this->_string_shift($response, $length);
                     if ($client_channel == $channel) {
-                        return $data;
+                        if ($split_extended == true) {
+                            return array('stderr'=>$data);
+                        } else {
+                            return $data;
+                        }
                     }
                     if (!isset($this->channel_buffers[$client_channel])) {
                         $this->channel_buffers[$client_channel] = array();
