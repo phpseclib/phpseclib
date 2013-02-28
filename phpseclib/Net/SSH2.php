@@ -1888,13 +1888,13 @@ class Net_SSH2 {
             return true;
         }
 
-        if($split_extended === true){
+        if ($split_extended == true) {
             $output = array('stdout' => '', 'stderr' => '');
         } else {
             $output = '';
         }
         while (true) {
-            if($split_extended === true){
+            if ($split_extended == true) {
                 $temp = $this->_get_channel_packet(NET_SSH2_CHANNEL_EXEC, false, true);
             } else {
                 $temp = $this->_get_channel_packet(NET_SSH2_CHANNEL_EXEC);
@@ -1905,7 +1905,7 @@ class Net_SSH2 {
                 case $temp === false:
                     return false;
                 default:
-                    if($split_extended === true){
+                    if ($split_extended == true) {
                         if(array_key_exists('stdout', $temp)){
                             $output['stdout'] .= $temp['stdout'];
                         }
@@ -2407,7 +2407,7 @@ class Net_SSH2 {
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
                     $data = $this->_string_shift($response, $length);
                     if ($client_channel == $channel) {
-                        if($split_extended === true){
+                        if ($split_extended == true) {
                             return array('stdout'=>$data);
                         } else {
                             return $data;
@@ -2431,7 +2431,7 @@ class Net_SSH2 {
                     extract(unpack('Ndata_type_code/Nlength', $this->_string_shift($response, 8)));
                     $data = $this->_string_shift($response, $length);
                     if ($client_channel == $channel) {
-                        if($split_extended === true){
+                        if ($split_extended == true) {
                             return array('stderr'=>$data);
                         } else {
                             return $data;
