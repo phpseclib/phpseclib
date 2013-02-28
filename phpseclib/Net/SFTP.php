@@ -1681,12 +1681,15 @@ class Net_SFTP extends Net_SSH2 {
             }
 
             if ($length > 0 && $length <= $offset - $size) {
-                if ($local_file === false) {
-                    $content = substr($content, 0, $length);
-                } else {
-                    ftruncate($fp, $length);
-                }
                 break;
+            }
+        }
+
+        if ($length > 0 && $length <= strlen($content)) {
+            if ($local_file === false) {
+                $content = substr($content, 0, $length);
+            } else {
+                ftruncate($fp, $length);
             }
         }
 
