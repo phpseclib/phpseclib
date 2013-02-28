@@ -960,13 +960,19 @@ class Crypt_RSA {
                 if (preg_match('#DEK-Info: (.+),(.+)#', $key, $matches)) {
                     $iv = pack('H*', trim($matches[2]));
                     $symkey = pack('H*', md5($this->password . substr($iv, 0, 8))); // symkey is short for symmetric key
-                    $symkey.= substr(pack('H*', md5($symkey . $this->password . $iv)), 0, 8);
+                    $symkey.= pack('H*', md5($symkey . $this->password . substr($iv, 0, 8)));
                     $ciphertext = preg_replace('#.+(\r|\n|\r\n)\1|[\r\n]|-.+-| #s', '', $key);
                     $ciphertext = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $ciphertext) ? base64_decode($ciphertext) : false;
                     if ($ciphertext === false) {
                         $ciphertext = $key;
                     }
                     switch ($matches[1]) {
+                        case 'AES-256-CBC':
+                            if (!class_exists('Crypt_AES')) {
+                                require_once('Crypt/AES.php');
+                            }
+                            $crypto = new Crypt_AES();
+                            break;
                         case 'AES-128-CBC':
                             if (!class_exists('Crypt_AES')) {
                                 require_once('Crypt/AES.php');
@@ -984,6 +990,7 @@ class Crypt_RSA {
                             if (!class_exists('Crypt_TripleDES')) {
                                 require_once('Crypt/TripleDES.php');
                             }
+                            $symkey = substr($symkey, 0, 24);
                             $crypto = new Crypt_TripleDES();
                             break;
                         case 'DES-CBC':
