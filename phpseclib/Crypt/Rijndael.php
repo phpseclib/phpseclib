@@ -900,8 +900,10 @@ class Crypt_Rijndael {
                 $xor = $this->encryptIV;
                 if (strlen($buffer['xor'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
-                        $xor = $this->_encryptBlock($xor);
-                        $buffer['xor'].= $xor;
+                        if (strlen($block) > strlen($buffer['xor'])) {
+                            $xor = $this->_encryptBlock($xor);
+                            $buffer['xor'].= $xor;
+                        }
                         $key = $this->_string_shift($buffer['xor'], $block_size);
                         $ciphertext.= substr($plaintext, $i, $block_size) ^ $key;
                     }
@@ -1038,8 +1040,10 @@ class Crypt_Rijndael {
                 $xor = $this->decryptIV;
                 if (strlen($buffer['xor'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
-                        $xor = $this->_encryptBlock($xor);
-                        $buffer['xor'].= $xor;
+                        if (strlen($block) > strlen($buffer['xor'])) {
+                            $xor = $this->_encryptBlock($xor);
+                            $buffer['xor'].= $xor;
+                        }
                         $key = $this->_string_shift($buffer['xor'], $block_size);
                         $plaintext.= substr($ciphertext, $i, $block_size) ^ $key;
                     }
@@ -1139,7 +1143,7 @@ class Crypt_Rijndael {
             $l = ($l + 1) % $Nb;
         }
 
-        // 100% ugly switch/case code... but ~5% faster (meaning: ~half second faster de/encrypting 1MB text, tested with php5.4.9 on linux/32bit with an AMD Athlon II P360 CPU) then the commented smart code below. Don't know it's worth or not
+        // 100% ugly switch/case code... but ~5% faster ("smart code" below commented out)
         switch ($Nb) {
             case 8:
                 return pack('N*', $temp[0], $temp[1], $temp[2], $temp[3], $temp[4], $temp[5], $temp[6], $temp[7]);
@@ -1969,10 +1973,12 @@ class Crypt_Rijndael {
 
                         if (strlen($buffer["xor"])) {
                             for ($i = 0; $i < $plaintext_len; $i+= '.$block_size.') {
-                                $in = $xor;
-                                '.$_encryptBlock.'
-                                $xor = $in;
-                                $buffer["xor"].= $xor;
+                                if (strlen($block) > strlen($buffer["xor"])) {
+                                    $in = $xor;
+                                    '.$_encryptBlock.'
+                                    $xor = $in;
+                                    $buffer["xor"].= $xor;
+                                }
                                 $key = $self->_string_shift($buffer["xor"], '.$block_size.');
                                 $ciphertext.= substr($text, $i, '.$block_size.') ^ $key;
                             }
@@ -2002,10 +2008,12 @@ class Crypt_Rijndael {
 
                         if (strlen($buffer["xor"])) {
                             for ($i = 0; $i < $ciphertext_len; $i+= '.$block_size.') {
-                                $in = $xor;
-                                '.$_encryptBlock.'
-                                $xor = $in;
-                                $buffer["xor"].= $xor;
+                                if (strlen($block) > strlen($buffer["xor"])) {
+                                    $in = $xor;
+                                    '.$_encryptBlock.'
+                                    $xor = $in;
+                                    $buffer["xor"].= $xor;
+                                }
                                 $key = $self->_string_shift($buffer["xor"], '.$block_size.');
                                 $plaintext.= substr($text, $i, '.$block_size.') ^ $key;
                             }

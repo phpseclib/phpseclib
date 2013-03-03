@@ -669,10 +669,12 @@ class Crypt_TripleDES {
                 $xor = $this->encryptIV;
                 if (strlen($buffer['xor'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=8) {
-                        $xor = $des[0]->_processBlock($xor, CRYPT_DES_ENCRYPT);
-                        $xor = $des[1]->_processBlock($xor, CRYPT_DES_DECRYPT);
-                        $xor = $des[2]->_processBlock($xor, CRYPT_DES_ENCRYPT);
-                        $buffer['xor'].= $xor;
+                        if (strlen($block) > strlen($buffer['xor'])) {
+                            $xor = $des[0]->_processBlock($xor, CRYPT_DES_ENCRYPT);
+                            $xor = $des[1]->_processBlock($xor, CRYPT_DES_DECRYPT);
+                            $xor = $des[2]->_processBlock($xor, CRYPT_DES_ENCRYPT);
+                            $buffer['xor'].= $xor;
+                        }
                         $key = $this->_string_shift($buffer['xor'], 8);
                         $ciphertext.= substr($plaintext, $i, 8) ^ $key;
                     }
@@ -880,10 +882,12 @@ class Crypt_TripleDES {
                 $xor = $this->decryptIV;
                 if (strlen($buffer['xor'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=8) {
-                        $xor = $des[0]->_processBlock($xor, CRYPT_DES_ENCRYPT);
-                        $xor = $des[1]->_processBlock($xor, CRYPT_DES_DECRYPT);
-                        $xor = $des[2]->_processBlock($xor, CRYPT_DES_ENCRYPT);
-                        $buffer['xor'].= $xor;
+                        if (strlen($block) > strlen($buffer['xor'])) {
+                            $xor = $des[0]->_processBlock($xor, CRYPT_DES_ENCRYPT);
+                            $xor = $des[1]->_processBlock($xor, CRYPT_DES_DECRYPT);
+                            $xor = $des[2]->_processBlock($xor, CRYPT_DES_ENCRYPT);
+                            $buffer['xor'].= $xor;
+                        }
                         $key = $this->_string_shift($buffer['xor'], 8);
                         $plaintext.= substr($ciphertext, $i, 8) ^ $key;
                     }
