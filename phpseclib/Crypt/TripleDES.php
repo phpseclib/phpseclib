@@ -605,11 +605,13 @@ class Crypt_TripleDES {
                 if (strlen($buffer['encrypted'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=8) {
                         $block = substr($plaintext, $i, 8);
-                        $key = $this->_generate_xor($xor);
-                        $key = $des[0]->_processBlock($key, CRYPT_DES_ENCRYPT);
-                        $key = $des[1]->_processBlock($key, CRYPT_DES_DECRYPT);
-                        $key = $des[2]->_processBlock($key, CRYPT_DES_ENCRYPT);
-                        $buffer['encrypted'].= $key;
+                        if (strlen($block) > strlen($buffer['encrypted'])) {
+                            $key = $this->_generate_xor($xor);
+                            $key = $des[0]->_processBlock($key, CRYPT_DES_ENCRYPT);
+                            $key = $des[1]->_processBlock($key, CRYPT_DES_DECRYPT);
+                            $key = $des[2]->_processBlock($key, CRYPT_DES_ENCRYPT);
+                            $buffer['encrypted'].= $key;
+                        }
                         $key = $this->_string_shift($buffer['encrypted'], 8);
                         $ciphertext.= $block ^ $key;
                     }
@@ -809,11 +811,13 @@ class Crypt_TripleDES {
                 if (strlen($buffer['ciphertext'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=8) {
                         $block = substr($ciphertext, $i, 8);
-                        $key = $this->_generate_xor($xor);
-                        $key = $des[0]->_processBlock($key, CRYPT_DES_ENCRYPT);
-                        $key = $des[1]->_processBlock($key, CRYPT_DES_DECRYPT);
-                        $key = $des[2]->_processBlock($key, CRYPT_DES_ENCRYPT);
-                        $buffer['ciphertext'].= $key;
+                        if (strlen($block) > strlen($buffer['ciphertext'])) {
+                            $key = $this->_generate_xor($xor);
+                            $key = $des[0]->_processBlock($key, CRYPT_DES_ENCRYPT);
+                            $key = $des[1]->_processBlock($key, CRYPT_DES_DECRYPT);
+                            $key = $des[2]->_processBlock($key, CRYPT_DES_ENCRYPT);
+                            $buffer['ciphertext'].= $key;
+                        }
                         $key = $this->_string_shift($buffer['ciphertext'], 8);
                         $plaintext.= $block ^ $key;
                     }

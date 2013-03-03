@@ -834,7 +834,9 @@ class Crypt_Rijndael {
                 if (strlen($buffer['encrypted'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                         $block = substr($plaintext, $i, $block_size);
-                        $buffer['encrypted'].= $this->_encryptBlock($this->_generate_xor($block_size, $xor));
+                        if (strlen($block) > strlen($buffer['encrypted'])) {
+                            $buffer['encrypted'].= $this->_encryptBlock($this->_generate_xor($block_size, $xor));
+                        }
                         $key = $this->_string_shift($buffer['encrypted'], $block_size);
                         $ciphertext.= $block ^ $key;
                     }
@@ -971,7 +973,9 @@ class Crypt_Rijndael {
                 if (strlen($buffer['ciphertext'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
                         $block = substr($ciphertext, $i, $block_size);
-                        $buffer['ciphertext'].= $this->_encryptBlock($this->_generate_xor($block_size, $xor));
+                        if (strlen($block) > strlen($buffer['ciphertext'])) {
+                            $buffer['ciphertext'].= $this->_encryptBlock($this->_generate_xor($block_size, $xor));
+                        }
                         $key = $this->_string_shift($buffer['ciphertext'], $block_size);
                         $plaintext.= $block ^ $key;
                     }
@@ -1794,9 +1798,11 @@ class Crypt_Rijndael {
                         if (strlen($buffer["encrypted"])) {
                             for ($i = 0; $i < $plaintext_len; $i+= '.$block_size.') {
                                 $block = substr($text, $i, '.$block_size.');
-                                $in = $self->_generate_xor('.$block_size.', $xor);
-                                '.$_encryptBlock.'
-                                $buffer["encrypted"].= $in;
+                                if (strlen($block) > strlen($buffer["encrypted"])) {
+                                    $in = $self->_generate_xor('.$block_size.', $xor);
+                                    '.$_encryptBlock.'
+                                    $buffer["encrypted"].= $in;
+                                }
                                 $key = $self->_string_shift($buffer["encrypted"], '.$block_size.');
                                 $ciphertext.= $block ^ $key;
                             }
@@ -1828,9 +1834,11 @@ class Crypt_Rijndael {
                         if (strlen($buffer["ciphertext"])) {
                             for ($i = 0; $i < $ciphertext_len; $i+= '.$block_size.') {
                                 $block = substr($text, $i, '.$block_size.');
-                                $in = $self->_generate_xor('.$block_size.', $xor);
-                                '.$_encryptBlock.'
-                                $buffer["ciphertext"].= $in;
+                                if (strlen($block) > strlen($buffer["ciphertext"])) {
+                                    $in = $self->_generate_xor('.$block_size.', $xor);
+                                    '.$_encryptBlock.'
+                                    $buffer["ciphertext"].= $in;
+                                }
                                 $key = $self->_string_shift($buffer["ciphertext"], '.$block_size.');
                                 $plaintext.= $block ^ $key;
                             }
