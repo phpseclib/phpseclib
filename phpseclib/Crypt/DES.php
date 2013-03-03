@@ -593,7 +593,9 @@ class Crypt_DES {
                 if (strlen($buffer['encrypted'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=8) {
                         $block = substr($plaintext, $i, 8);
-                        $buffer['encrypted'].= $this->_processBlock($this->_generate_xor($xor), CRYPT_DES_ENCRYPT);
+                        if (strlen($block) > strlen($buffer['encrypted'])) {
+                            $buffer['encrypted'].= $this->_processBlock($this->_generate_xor($xor), CRYPT_DES_ENCRYPT);
+                        }
                         $key = $this->_string_shift($buffer['encrypted'], 8);
                         $ciphertext.= $block ^ $key;
                     }
@@ -777,7 +779,9 @@ class Crypt_DES {
                 if (strlen($buffer['ciphertext'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=8) {
                         $block = substr($ciphertext, $i, 8);
-                        $buffer['ciphertext'].= $this->_processBlock($this->_generate_xor($xor), CRYPT_DES_ENCRYPT);
+                        if (strlen($block) > strlen($buffer['ciphertext'])) {
+                            $buffer['ciphertext'].= $this->_processBlock($this->_generate_xor($xor), CRYPT_DES_ENCRYPT);
+                        }
                         $key = $this->_string_shift($buffer['ciphertext'], 8);
                         $plaintext.= $block ^ $key;
                     }
