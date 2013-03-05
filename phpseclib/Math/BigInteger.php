@@ -425,7 +425,7 @@ class Math_BigInteger {
                     case MATH_BIGINTEGER_MODE_BCMATH:
                         // explicitly casting $x to a string is necessary, here, since doing $x[0] on -1 yields different
                         // results then doing it on '-1' does (modInverse does $x[0])
-                        $this->value = (string) $x;
+                        $this->value = $x === '-' ? '0' : (string) $x;
                         break;
                     default:
                         $temp = new Math_BigInteger();
