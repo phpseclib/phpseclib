@@ -669,6 +669,7 @@ class Crypt_TripleDES {
                 $xor = $this->encryptIV;
                 if (strlen($buffer['xor'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=8) {
+                        $block = substr($plaintext, $i, 8);
                         if (strlen($block) > strlen($buffer['xor'])) {
                             $xor = $des[0]->_processBlock($xor, CRYPT_DES_ENCRYPT);
                             $xor = $des[1]->_processBlock($xor, CRYPT_DES_DECRYPT);
@@ -676,7 +677,7 @@ class Crypt_TripleDES {
                             $buffer['xor'].= $xor;
                         }
                         $key = $this->_string_shift($buffer['xor'], 8);
-                        $ciphertext.= substr($plaintext, $i, 8) ^ $key;
+                        $ciphertext.= $block ^ $key;
                     }
                 } else {
                     for ($i = 0; $i < strlen($plaintext); $i+=8) {
@@ -882,6 +883,7 @@ class Crypt_TripleDES {
                 $xor = $this->decryptIV;
                 if (strlen($buffer['xor'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=8) {
+                        $block = substr($ciphertext, $i, 8);
                         if (strlen($block) > strlen($buffer['xor'])) {
                             $xor = $des[0]->_processBlock($xor, CRYPT_DES_ENCRYPT);
                             $xor = $des[1]->_processBlock($xor, CRYPT_DES_DECRYPT);
@@ -889,7 +891,7 @@ class Crypt_TripleDES {
                             $buffer['xor'].= $xor;
                         }
                         $key = $this->_string_shift($buffer['xor'], 8);
-                        $plaintext.= substr($ciphertext, $i, 8) ^ $key;
+                        $plaintext.= $block ^ $key;
                     }
                 } else {
                     for ($i = 0; $i < strlen($ciphertext); $i+=8) {

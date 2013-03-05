@@ -900,12 +900,13 @@ class Crypt_Rijndael {
                 $xor = $this->encryptIV;
                 if (strlen($buffer['xor'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
+                        $block = substr($plaintext, $i, $block_size);
                         if (strlen($block) > strlen($buffer['xor'])) {
                             $xor = $this->_encryptBlock($xor);
                             $buffer['xor'].= $xor;
                         }
                         $key = $this->_string_shift($buffer['xor'], $block_size);
-                        $ciphertext.= substr($plaintext, $i, $block_size) ^ $key;
+                        $ciphertext.= $block ^ $key;
                     }
                 } else {
                     for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
@@ -1040,12 +1041,13 @@ class Crypt_Rijndael {
                 $xor = $this->decryptIV;
                 if (strlen($buffer['xor'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
+                        $block = substr($ciphertext, $i, $block_size);
                         if (strlen($block) > strlen($buffer['xor'])) {
                             $xor = $this->_encryptBlock($xor);
                             $buffer['xor'].= $xor;
                         }
                         $key = $this->_string_shift($buffer['xor'], $block_size);
-                        $plaintext.= substr($ciphertext, $i, $block_size) ^ $key;
+                        $plaintext.= $block ^ $key;
                     }
                 } else {
                     for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
@@ -1973,6 +1975,7 @@ class Crypt_Rijndael {
 
                         if (strlen($buffer["xor"])) {
                             for ($i = 0; $i < $plaintext_len; $i+= '.$block_size.') {
+                                $block = substr($text, $i, '.$block_size.');
                                 if (strlen($block) > strlen($buffer["xor"])) {
                                     $in = $xor;
                                     '.$_encryptBlock.'
@@ -1980,7 +1983,7 @@ class Crypt_Rijndael {
                                     $buffer["xor"].= $xor;
                                 }
                                 $key = $self->_string_shift($buffer["xor"], '.$block_size.');
-                                $ciphertext.= substr($text, $i, '.$block_size.') ^ $key;
+                                $ciphertext.=  $block ^ $key;
                             }
                         } else {
                             for ($i = 0; $i < $plaintext_len; $i+= '.$block_size.') {
@@ -2008,6 +2011,7 @@ class Crypt_Rijndael {
 
                         if (strlen($buffer["xor"])) {
                             for ($i = 0; $i < $ciphertext_len; $i+= '.$block_size.') {
+                                $block = substr($text, $i, '.$block_size.');
                                 if (strlen($block) > strlen($buffer["xor"])) {
                                     $in = $xor;
                                     '.$_encryptBlock.'
@@ -2015,7 +2019,7 @@ class Crypt_Rijndael {
                                     $buffer["xor"].= $xor;
                                 }
                                 $key = $self->_string_shift($buffer["xor"], '.$block_size.');
-                                $plaintext.= substr($text, $i, '.$block_size.') ^ $key;
+                                $plaintext.= $block ^ $key;
                             }
                         } else {
                             for ($i = 0; $i < $ciphertext_len; $i+= '.$block_size.') {
