@@ -846,7 +846,7 @@ class Crypt_DES {
                 $xor = $this->decryptIV;
                 if (strlen($buffer['xor'])) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=8) {
-                        $block = substr($plaintext, $i, 8);
+                        $block = substr($ciphertext, $i, 8);
                         if (strlen($block) > strlen($buffer['xor'])) {
                             $xor = $this->_processBlock($xor, CRYPT_DES_ENCRYPT);
                             $buffer['xor'].= $xor;
