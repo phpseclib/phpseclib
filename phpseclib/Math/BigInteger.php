@@ -413,7 +413,10 @@ class Math_BigInteger {
                 break;
             case  10:
             case -10:
-                $x = preg_replace('#^(-?[0-9]*).*#', '$1', $x);
+                // (?<!^)(?:-).*: find any -'s that aren't at the beginning and then any characters that follow that
+                // (?<=^|-)0*: find any 0's that are preceeded by the start of the string or by a - (ie. octals)
+                // [^-0-9].*: find any non-numeric characters and then any characters that follow that
+                $x = preg_replace('#(?<!^)(?:-).*|(?<=^|-)0*|[^-0-9].*#', '', $x);
 
                 switch ( MATH_BIGINTEGER_MODE ) {
                     case MATH_BIGINTEGER_MODE_GMP:
@@ -422,7 +425,7 @@ class Math_BigInteger {
                     case MATH_BIGINTEGER_MODE_BCMATH:
                         // explicitly casting $x to a string is necessary, here, since doing $x[0] on -1 yields different
                         // results then doing it on '-1' does (modInverse does $x[0])
-                        $this->value = (string) $x;
+                        $this->value = $x === '-' ? '0' : (string) $x;
                         break;
                     default:
                         $temp = new Math_BigInteger();

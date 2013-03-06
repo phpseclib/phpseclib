@@ -1983,7 +1983,7 @@ class Crypt_Rijndael {
                                     $buffer["xor"].= $xor;
                                 }
                                 $key = $self->_string_shift($buffer["xor"], '.$block_size.');
-                                $ciphertext.=  $block ^ $key;
+                                $ciphertext.= $block ^ $key;
                             }
                         } else {
                             for ($i = 0; $i < $plaintext_len; $i+= '.$block_size.') {
