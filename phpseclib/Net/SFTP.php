@@ -985,7 +985,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function _size($filename)
     {
-        $result = $this->_stat($filename, NET_SFTP_LSTAT);
+        $result = $this->_stat($filename, NET_SFTP_STAT);
         if ($result === false) {
             return false;
         }
