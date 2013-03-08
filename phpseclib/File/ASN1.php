@@ -45,7 +45,7 @@
  * Include Math_BigInteger
  */
 if (!class_exists('Math_BigInteger')) {
-    require_once('Math/BigInteger.php');
+    require_once(dirname(dirname(__FILE__)).'/Math/BigInteger.php');
 }
 
 /**#@+

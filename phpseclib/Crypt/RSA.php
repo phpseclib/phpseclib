@@ -73,7 +73,7 @@
  * Include Math_BigInteger
  */
 if (!class_exists('Math_BigInteger')) {
-    require_once('Math/BigInteger.php');
+    require_once(dirname(dirname(__FILE__)).'/Math/BigInteger.php');
 }
 
 /**
@@ -84,14 +84,14 @@ if (!class_exists('Math_BigInteger')) {
 // call function_exists() a second time to stop the require_once from being called outside
 // of the auto loader
 if (!function_exists('crypt_random_string') && !class_exists('Crypt_Random') && !function_exists('crypt_random_string')) {
-    require_once('Crypt/Random.php');
+    require_once(dirname(__FILE__).'/Random.php');
 }
 
 /**
  * Include Crypt_Hash
  */
 if (!class_exists('Crypt_Hash')) {
-    require_once('Crypt/Hash.php');
+    require_once(dirname(__FILE__).'/Hash.php');
 }
 
 /**#@+

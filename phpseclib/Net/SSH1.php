@@ -72,7 +72,7 @@
  * Used to do RSA encryption.
  */
 if (!class_exists('Math_BigInteger')) {
-    require_once('Math/BigInteger.php');
+    require_once(dirname(dirname(__FILE__)).'/Math/BigInteger.php');
 }
 
 /**
@@ -84,21 +84,21 @@ if (!class_exists('Math_BigInteger')) {
  * Include Crypt_DES
  */
 if (!class_exists('Crypt_DES')) {
-    require_once('Crypt/DES.php');
+    require_once(dirname(dirname(__FILE__)).'/Crypt/DES.php');
 }
 
 /**
  * Include Crypt_TripleDES
  */
 if (!class_exists('Crypt_TripleDES')) {
-    require_once('Crypt/TripleDES.php');
+    require_once(dirname(dirname(__FILE__)).'/Crypt/TripleDES.php');
 }
 
 /**
  * Include Crypt_RC4
  */
 if (!class_exists('Crypt_RC4')) {
-    require_once('Crypt/RC4.php');
+    require_once(dirname(dirname(__FILE__)).'/Crypt/RC4.php');
 }
 
 /**
@@ -109,7 +109,7 @@ if (!class_exists('Crypt_RC4')) {
 // call function_exists() a second time to stop the require_once from being called outside
 // of the auto loader
 if (!function_exists('crypt_random_string') && !class_exists('Crypt_Random') && !function_exists('crypt_random_string')) {
-    require_once('Crypt/Random.php');
+    require_once(dirname(dirname(__FILE__)).'/Crypt/Random.php');
 }
 
 /**#@+
