@@ -1891,6 +1891,9 @@ class Net_SFTP extends Net_SSH2 {
                     break;
                 case NET_SFTP_ATTR_PERMISSIONS: // 0x00000004
                     $attr+= unpack('Npermissions', $this->_string_shift($response, 4));
+                    // mode == permissions; permissions was the original array key and is retained for bc purposes.
+                    // mode was added because that's the more industry standard terminology
+                    $attr+= array('mode' => $attr['permissions']);
                     $fileType = $this->_parseMode($attr['permissions']);
                     if ($filetype !== false) {
                         $attr+= array('type' => $fileType);
