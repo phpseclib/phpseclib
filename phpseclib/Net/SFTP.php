@@ -1895,7 +1895,7 @@ class Net_SFTP extends Net_SSH2 {
                     // mode was added because that's the more industry standard terminology
                     $attr+= array('mode' => $attr['permissions']);
                     $fileType = $this->_parseMode($attr['permissions']);
-                    if ($filetype !== false) {
+                    if ($fileType !== false) {
                         $attr+= array('type' => $fileType);
                     }
                     break;
