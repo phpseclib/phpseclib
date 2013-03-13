@@ -53,7 +53,8 @@
  * @return String
  * @access public
  */
-function crypt_random_string($length) {
+function crypt_random_string($length)
+{
     // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
     if ((PHP_OS & "\xDF\xDF\xDF") === 'WIN') {
         // method 1. prior to PHP 5.3 this would call rand() on windows hence the function_exists('class_alias') call.
