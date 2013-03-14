@@ -138,6 +138,7 @@ class Net_SFTP_Stream {
     function _parse_path($path)
     {
         extract(parse_url($path));
+
         if (!isset($host)) {
             return false;
         }
@@ -175,14 +176,16 @@ class Net_SFTP_Stream {
                 return false;
             }
 
-            if (isset($this->instances[$host][$port][$user][$pass])) {
-                $this->sftp = $this->instances[$host][$port][$user][$pass];
+            // casting $pass to a string is necessary in the event that it's a Crypt_RSA object
+            if (isset(self::$instances[$host][$port][$user][(string) $pass])) {
+                $this->sftp = self::$instances[$host][$port][$user][(string) $pass];
+            } else {
+                $this->sftp = new Net_SFTP($host, isset($port) ? $port : 22);
+                if (!$this->sftp->login($user, $pass)) {
+                    return false;
+                }
+                self::$instances[$host][$port][$user][(string) $pass] = $this->sftp;
             }
-            $this->sftp = new Net_SFTP($host, isset($port) ? $port : 22);
-            if (!$this->sftp->login($user, $pass)) {
-                return false;
-            }
-            $this->instances[$host][$port][$user][$pass] = $this->sftp;
         }
 
         return $path;
