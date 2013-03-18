@@ -1557,14 +1557,13 @@ class Net_SFTP extends Net_SSH2 {
         if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
             return false;
         }
-		
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
             user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
             return false;
         }
-	
+
         $this->_logError($response);
 
         // check the status from the NET_SFTP_STATUS case in the above switch after the file has been closed
