@@ -465,7 +465,7 @@ class Crypt_RSA {
 
         if ( !defined('CRYPT_RSA_MODE') ) {
             switch (true) {
-                case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>='):
+                case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>=') && file_exists($this->configFile):
                     define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_OPENSSL);
                     break;
                 default:
