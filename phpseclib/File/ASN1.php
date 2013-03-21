@@ -304,12 +304,12 @@ class File_ASN1 {
                 } while ( $loop );
             }
 
-            // Length, as discussed in paragraph 8.1.3 of X.690-0207.pdf#page=13
+            // Length, as discussed in § 8.1.3 of X.690-0207.pdf#page=13
             $length = ord($this->_string_shift($encoded));
             $start++;
             if ( $length == 0x80 ) { // indefinite length
                 // "[A sender shall] use the indefinite form (see 8.1.3.6) if the encoding is constructed and is not all 
-                //  immediately available." -- paragraph 8.1.3.2.c
+                //  immediately available." -- § 8.1.3.2.c
                 //if ( !$constructed ) {
                 //    return false;
                 //}
@@ -323,7 +323,7 @@ class File_ASN1 {
                 extract(unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4)));
             }
 
-            // End-of-content, see paragraphs 8.1.1.3, 8.1.3.2, 8.1.3.6, 8.1.5, and (for an example) 8.6.4.2
+            // End-of-content, see §§ 8.1.1.3, 8.1.3.2, 8.1.3.6, 8.1.5, and (for an example) 8.6.4.2
             if (!$type && !$length) {
                 return $decoded;
             }
@@ -357,7 +357,7 @@ class File_ASN1 {
             // decode UNIVERSAL tags
             switch ($tag) {
                 case FILE_ASN1_TYPE_BOOLEAN:
-                    // "The contents octets shall consist of a single octet." -- paragraph 8.2.1
+                    // "The contents octets shall consist of a single octet." -- § 8.2.1
                     //if (strlen($content) != 1) {
                     //    return false;
                     //}
@@ -410,7 +410,7 @@ class File_ASN1 {
                     }
                     break;
                 case FILE_ASN1_TYPE_NULL:
-                    // "The contents octets shall not contain any octets." -- paragraph 8.8.2
+                    // "The contents octets shall not contain any octets." -- § 8.8.2
                     //if (strlen($content)) {
                     //    return false;
                     //}
@@ -441,7 +441,7 @@ class File_ASN1 {
                 /* Each character string type shall be encoded as if it had been declared:
                    [UNIVERSAL x] IMPLICIT OCTET STRING
 
-                     -- X.690-0207.pdf#page=23 (paragraph 8.21.3)
+                     -- X.690-0207.pdf#page=23 (§ 8.21.3)
 
                    Per that, we're not going to do any validation.  If there are any illegal characters in the string, 
                    we don't really care */
@@ -515,12 +515,6 @@ class File_ASN1 {
                         case isset($option['constant']) && $option['constant'] == $decoded['constant']:
                         case !isset($option['constant']) && $option['type'] == $decoded['type']:
                             $value = $this->asn1map($decoded, $option);
-                            break;
-                        case !isset($option['constant']) && $option['type'] == FILE_ASN1_TYPE_CHOICE:
-                            $v = $this->asn1map($decoded, $option);
-                            if (isset($v)) {
-                                $value = $v;
-                            }
                     }
                     if (isset($value)) {
                         return array($key => $value);
@@ -543,72 +537,92 @@ class File_ASN1 {
             case FILE_ASN1_TYPE_SEQUENCE:
                 $map = array();
 
+                if (empty($decoded['content'])) {
+                    return $map;
+                }
+
                 // ignore the min and max
                 if (isset($mapping['min']) && isset($mapping['max'])) {
                     $child = $mapping['children'];
                     foreach ($decoded['content'] as $content) {
-                        if (($map[] = $this->asn1map($content, $child)) === NULL) {
-                            return NULL;
-                        }
+                        $map[] = $this->asn1map($content, $child);
                     }
-
                     return $map;
                 }
 
-                $n = count($decoded['content']);
-                $i = 0;
-
+                $temp = $decoded['content'][$i = 0];
                 foreach ($mapping['children'] as $key => $child) {
-                    $maymatch = $i < $n; // Match only existing input.
-                    if ($maymatch) {
+                    if (!isset($child['optional']) && $child['type'] == FILE_ASN1_TYPE_CHOICE) {
+                        $map[$key] = $this->asn1map($temp, $child);
+                        $i++;
+                        if (count($decoded['content']) == $i) {
+                            break;
+                        }
                         $temp = $decoded['content'][$i];
+                        continue;
+                    }
 
-                        if ($child['type'] != FILE_ASN1_TYPE_CHOICE) {
-                            // Get the mapping and input class & constant.
-                            $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
-                            $constant = NULL;
-                            if (isset($temp['constant'])) {
-                                $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                            }
-                            if (isset($child['class'])) {
-                                $childClass = $child['class'];
-                                $constant = $child['cast'];
-                            }
-                            elseif (isset($child['constant'])) {
-                                $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                                $constant = $child['constant'];
-                            }
+                    $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
+                    $constant = NULL;
+                    if (isset($temp['constant'])) {
+                        $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                    }
+                    if (isset($child['class'])) {
+                        $childClass = $child['class'];
+                        $constant = $child['cast'];
+                    }
+                    elseif (isset($child['constant'])) {
+                        $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                        $constant = $child['constant'];
+                    }
 
-                            if (isset($constant) && isset($temp['constant'])) {
-                                // Can only match if constants and class match.
-                                $maymatch = $constant == $temp['constant'] && $childClass == $tempClass;
-                            } else {
-                                // Can only match if no constant expected and type matches or is generic.
-                                $maymatch = !isset($child['constant']) && array_search($child['type'], array($temp['type'], FILE_ASN1_TYPE_ANY, FILE_ASN1_TYPE_CHOICE)) !== false;
+                    if (isset($child['optional'])) {
+                        if (isset($constant) && isset($temp['constant'])) {
+                            if (($constant == $temp['constant']) && ($childClass == $tempClass)) {
+                                $map[$key] = $this->asn1map($temp, $child);
+                                $i++;
+                                if (count($decoded['content']) == $i) {
+                                    break;
+                                }
+                                $temp = $decoded['content'][$i];
+                            }
+                        } elseif (!isset($child['constant'])) {
+                            // we could do this, as well:
+                            // $buffer = $this->asn1map($temp, $child); if (isset($buffer)) { $map[$key] = $buffer; }
+                            if ($child['type'] == $temp['type'] || $child['type'] == FILE_ASN1_TYPE_ANY) {
+                                $map[$key] = $this->asn1map($temp, $child);
+                                $i++;
+                                if (count($decoded['content']) == $i) {
+                                    break;
+                                }
+                                $temp = $decoded['content'][$i];
+                            } elseif ($child['type'] == FILE_ASN1_TYPE_CHOICE) {
+                                $candidate = $this->asn1map($temp, $child);
+                                if (!empty($candidate)) {
+                                    $map[$key] = $candidate;
+                                    $i++;
+                                    if (count($decoded['content']) == $i) {
+                                        break;
+                                    }
+                                    $temp = $decoded['content'][$i];
+                                }
                             }
                         }
-                    }
 
-                    if ($maymatch) {
-                        // Attempt submapping.
-                        $candidate = $this->asn1map($temp, $child);
-                        $maymatch = $candidate !== NULL;
-                    }
-
-                    if ($maymatch) {
-                        // Got the match: use it.
-                        $map[$key] = $candidate;
+                        if (!isset($map[$key]) && isset($child['default'])) {
+                            $map[$key] = $child['default'];
+                        }
+                    } else {
+                        $map[$key] = $this->asn1map($temp, $child);
                         $i++;
-                    } elseif (isset($child['default'])) {
-                        $map[$key] = $child['default']; // Use default.
-                    } elseif (!isset($child['optional'])) {
-                        return NULL; // Syntax error.
+                        if (count($decoded['content']) == $i) {
+                            break;
+                        }
+                        $temp = $decoded['content'][$i];
                     }
                 }
 
-                // Fail mapping if all input items have not been consumed.
-                return $i < $n? NULL: $map;
-
+                return $map;
             // the main diff between sets and sequences is the encapsulation of the foreach in another for loop
             case FILE_ASN1_TYPE_SET:
                 $map = array();
@@ -617,70 +631,52 @@ class File_ASN1 {
                 if (isset($mapping['min']) && isset($mapping['max'])) {
                     $child = $mapping['children'];
                     foreach ($decoded['content'] as $content) {
-                        if (($map[] = $this->asn1map($content, $child)) === NULL) {
-                            return NULL;
-                        }
+                        $map[] = $this->asn1map($content, $child);
                     }
 
                     return $map;
                 }
 
                 for ($i = 0; $i < count($decoded['content']); $i++) {
-                    $temp = $decoded['content'][$i];
-                    $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
-                    if (isset($temp['constant'])) {
-                        $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                    }
-
                     foreach ($mapping['children'] as $key => $child) {
-                        if (isset($map[$key])) {
+                        $temp = $decoded['content'][$i];
+
+                        if (!isset($child['optional']) && $child['type'] == FILE_ASN1_TYPE_CHOICE) {
+                            $map[$key] = $this->asn1map($temp, $child);
                             continue;
                         }
-                        $maymatch = true;
-                        if ($child['type'] != FILE_ASN1_TYPE_CHOICE) {
-                            $childClass = FILE_ASN1_CLASS_UNIVERSAL;
-                            $constant = NULL;
-                            if (isset($child['class'])) {
-                                $childClass = $child['class'];
-                                $constant = $child['cast'];
-                            }
-                            elseif (isset($child['constant'])) {
-                                $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
-                                $constant = $child['constant'];
-                            }
 
-                            if (isset($constant) && isset($temp['constant'])) {
-                                // Can only match if constants and class match.
-                                $maymatch = $constant == $temp['constant'] && $childClass == $tempClass;
-                            } else {
-                                // Can only match if no constant expected and type matches or is generic.
-                                $maymatch = !isset($child['constant']) && array_search($child['type'], array($temp['type'], FILE_ASN1_TYPE_ANY, FILE_ASN1_TYPE_CHOICE)) !== false;
-                            }
+                        $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
+                        $constant = NULL;
+                        if (isset($temp['constant'])) {
+                            $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                        }
+                        if (isset($child['class'])) {
+                            $childClass = $child['class'];
+                            $constant = $child['cast'];
+                        }
+                        elseif (isset($child['constant'])) {
+                            $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                            $constant = $child['constant'];
                         }
 
-                        if ($maymatch) {
-                            // Attempt submapping.
-                            $candidate = $this->asn1map($temp, $child);
-                            $maymatch = $candidate !== NULL;
+                        if (isset($constant) && isset($temp['constant'])) {
+                            if (($constant == $temp['constant']) && ($childClass == $tempClass)) {
+                                $map[$key] = $this->asn1map($temp['content'], $child);
+                            }
+                        } elseif (!isset($child['constant'])) {
+                            // we could do this, as well:
+                            // $buffer = $this->asn1map($temp['content'], $child); if (isset($buffer)) { $map[$key] = $buffer; }
+                            if ($child['type'] == $temp['type']) {
+                                $map[$key] = $this->asn1map($temp, $child);
+                            }
                         }
-
-                        if (!$maymatch) {
-                            break;
-                        }
-
-                        // Got the match: use it.
-                        $map[$key] = $candidate;
-                        break;
                     }
                 }
 
                 foreach ($mapping['children'] as $key => $child) {
-                    if (!isset($map[$key])) {
-                        if (isset($child['default'])) {
-                            $map[$key] = $child['default'];
-                        } elseif (!isset($child['optional'])) {
-                            return NULL;
-                        }
+                    if (!isset($map[$key]) && isset($child['default'])) {
+                        $map[$key] = $child['default'];
                     }
                 }
                 return $map;
@@ -959,7 +955,7 @@ class File_ASN1 {
             case FILE_ASN1_TYPE_OBJECT_IDENTIFIER:
                 $oid = preg_match('#(?:\d+\.)+#', $source) ? $source : array_search($source, $this->oids);
                 if ($oid === false) {
-                    user_error('Invalid OID');
+                    user_error('Invalid OID', E_USER_NOTICE);
                     return false;
                 }
                 $value = '';
@@ -1012,7 +1008,7 @@ class File_ASN1 {
                     $filters = $filters[$part];
                 }
                 if ($filters === false) {
-                    user_error('No filters defined for ' . implode('/', $loc));
+                    user_error('No filters defined for ' . implode('/', $loc), E_USER_NOTICE);
                     return false;
                 }
                 return $this->_encode_der($source, $filters + $mapping);
@@ -1036,7 +1032,7 @@ class File_ASN1 {
                 $value = $source ? "\xFF" : "\x00";
                 break;
             default:
-                user_error('Mapping provides no type definition for ' . implode('/', $this->location));
+                user_error('Mapping provides no type definition for ' . implode('/', $this->location), E_USER_NOTICE);
                 return false;
         }
 
@@ -1055,7 +1051,7 @@ class File_ASN1 {
      * DER-encode the length
      *
      * DER supports lengths up to (2**8)**127, however, we'll only support lengths up to (2**8)**4.  See
-     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
+     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 § 8.1.3} for more information.
      *
      * @access private
      * @param Integer $length

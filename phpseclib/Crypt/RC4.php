@@ -167,6 +167,7 @@ class Crypt_RC4 {
      *
      * Determines whether or not the mcrypt extension should be used.
      *
+     * @param optional Integer $mode
      * @return Crypt_RC4
      * @access public
      */
@@ -191,9 +192,6 @@ class Crypt_RC4 {
                     case defined('MCRYPT_RC4');
                         $this->mode = MCRYPT_RC4;
                 }
-                $this->encryptStream = mcrypt_module_open($this->mode, '', MCRYPT_MODE_STREAM, '');
-                $this->decryptStream = mcrypt_module_open($this->mode, '', MCRYPT_MODE_STREAM, '');
-
         }
     }
 
@@ -211,8 +209,6 @@ class Crypt_RC4 {
         $this->key = $key;
 
         if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
-            mcrypt_generic_init($this->encryptStream, $this->key, '');
-            mcrypt_generic_init($this->decryptStream, $this->key, '');
             return;
         }
 
@@ -254,7 +250,7 @@ class Crypt_RC4 {
                 if (!isset($hash)) {
                     $hash = 'sha1';
                 }
-                // WPA and WPA2 use the SSID as the salt
+                // WPA and WPA use the SSID as the salt
                 if (!isset($salt)) {
                     $salt = 'phpseclib/salt';
                 }
@@ -353,11 +349,18 @@ class Crypt_RC4 {
         if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
             $keyStream = $mode == CRYPT_RC4_ENCRYPT ? 'encryptStream' : 'decryptStream';
 
-            if (!$this->continuousBuffer) {
+            if ($this->$keyStream === false) {
+                $this->$keyStream = mcrypt_module_open($this->mode, '', MCRYPT_MODE_STREAM, '');
+                mcrypt_generic_init($this->$keyStream, $this->key, '');
+            } else if (!$this->continuousBuffer) {
                 mcrypt_generic_init($this->$keyStream, $this->key, '');
             }
+            $newText = mcrypt_generic($this->$keyStream, $text);
+            if (!$this->continuousBuffer) {
+                mcrypt_generic_deinit($this->$keyStream);
+            }
 
-            return mcrypt_generic($this->$keyStream, $text);
+            return $newText;
         }
 
         if ($this->encryptStream === false) {
@@ -439,11 +442,6 @@ class Crypt_RC4 {
      */
     function enableContinuousBuffer()
     {
-        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
-            mcrypt_generic_init($this->encryptStream, $this->key, '');
-            mcrypt_generic_init($this->decryptStream, $this->key, '');
-        }
-
         $this->continuousBuffer = true;
     }
 
@@ -459,7 +457,7 @@ class Crypt_RC4 {
     {
         if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_INTERNAL ) {
             $this->encryptIndex = $this->decryptIndex = array(0, 0);
-            $this->encryptStream = $this->decryptStream = false;
+            $this->setKey($this->key);
         }
 
         $this->continuousBuffer = false;
@@ -510,10 +508,24 @@ class Crypt_RC4 {
      */
     function _closeMCrypt()
     {
-        mcrypt_module_close($this->encryptStream);
-        mcrypt_module_close($this->decryptStream);
+        if ( $this->encryptStream !== false ) {
+            if ( $this->continuousBuffer ) {
+                mcrypt_generic_deinit($this->encryptStream);
+            }
+
+            mcrypt_module_close($this->encryptStream);
+
+            $this->encryptStream = false;
+        }
+
+        if ( $this->decryptStream !== false ) {
+            if ( $this->continuousBuffer ) {
+                mcrypt_generic_deinit($this->decryptStream);
+            }
+
+            mcrypt_module_close($this->decryptStream);
+
+            $this->decryptStream = false;
+        }
     }
 }
-
-// vim: ts=4:sw=4:et:
-// vim6: fdl=1:
