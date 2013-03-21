@@ -84,14 +84,14 @@ if (!class_exists('Math_BigInteger')) {
 // call function_exists() a second time to stop the require_once from being called outside
 // of the auto loader
 if (!function_exists('crypt_random') && !class_exists('Crypt_Random') && !function_exists('crypt_random')) {
-    require_once(dirname(__FILE__) .'/../Crypt/Random.php');
+    require_once('Crypt/Random.php');
 }
 
 /**
  * Include Crypt_Hash
  */
 if (!class_exists('Crypt_Hash')) {
-    require_once(dirname(__FILE__) .'/../Crypt/Hash.php');
+    require_once('Crypt/Hash.php');
 }
 
 /**#@+
@@ -503,10 +503,10 @@ class Crypt_RSA {
         if ( CRYPT_RSA_MODE == CRYPT_RSA_MODE_OPENSSL && $bits >= 384 && CRYPT_RSA_EXPONENT == 65537) {
             $rsa = openssl_pkey_new(array(
                 'private_key_bits' => $bits,
-                'config' => dirname(__FILE__) . '/../openssl.cnf'
+                'config' => dirname(__FILE__) . '/openssl.cnf'
             ));
 
-            openssl_pkey_export($rsa, $privatekey, NULL, array('config' => dirname(__FILE__) . '/../openssl.cnf'));
+            openssl_pkey_export($rsa, $privatekey, NULL, array('config' => dirname(__FILE__) . '/openssl.cnf'));
             $publickey = openssl_pkey_get_details($rsa);
             $publickey = $publickey['key'];
 
