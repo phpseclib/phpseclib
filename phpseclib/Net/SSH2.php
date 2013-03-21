@@ -733,6 +733,12 @@ class Net_SSH2 {
     var $in_request_pty_exec = false;
 
     /**
+     * Contents of stdError
+     * @access private
+     */
+    var $stdErrorLog;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -1790,6 +1796,13 @@ class Net_SSH2 {
     }
 
     /**
+     * Get the output from stdError
+     */
+    function getStdError(){
+        return $this->stdErrorLog;
+    }
+
+    /**
      * Execute Command
      *
      * If $block is set to false then Net_SSH2::_get_channel_packet(NET_SSH2_CHANNEL_EXEC) will need to be called manually.
@@ -1803,6 +1816,7 @@ class Net_SSH2 {
     function exec($command, $block = true)
     {
         $this->curTimeout = $this->timeout;
+        $this->stdErrorLog = '';
 
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -2395,9 +2409,6 @@ class Net_SSH2 {
                     $this->channel_buffers[$client_channel][] = $data;
                     break;
                 case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
-                    if ($skip_extended || $this->quiet_mode) {
-                        break;
-                    }
                     /*
                     if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
                         $this->_send_channel_packet($client_channel, chr(0));
@@ -2406,6 +2417,10 @@ class Net_SSH2 {
                     // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR
                     extract(unpack('Ndata_type_code/Nlength', $this->_string_shift($response, 8)));
                     $data = $this->_string_shift($response, $length);
+                    $this->stdErrorLog .= $data;
+                    if ($skip_extended || $this->quiet_mode) {
+                        break;
+                    }
                     if ($client_channel == $channel) {
                         return $data;
                     }
