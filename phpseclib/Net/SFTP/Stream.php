@@ -256,7 +256,7 @@ class Net_SFTP_Stream {
         //}
 
         $result = $this->sftp->get($this->path, false, $this->pos, $count);
-        if ($result === false) {
+        if (empty($result)) {
             $this->eof = true;
             return false;
         }
