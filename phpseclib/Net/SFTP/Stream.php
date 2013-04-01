@@ -37,8 +37,8 @@
 /**
  * Include Net_SSH2
  */
-if (!class_exists('Net_SSH2')) {
-    require_once('../Net/SSH2.php');
+if (!class_exists('Net_SFTP')) {
+    require_once('Net/SFTP.php');
 }
 
 /**
