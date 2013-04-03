@@ -1648,6 +1648,7 @@ class Net_SFTP extends Net_SSH2 {
                     }
                     break;
                 case NET_SFTP_STATUS:
+                    // could, in theory, return false if !strlen($content) but we'll hold off for the time being
                     $this->_logError($response);
                     break 2;
                 default:
@@ -1691,6 +1692,7 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
+        // if $content isn't set that means a file was written to
         if (isset($content)) {
             return $content;
         }
