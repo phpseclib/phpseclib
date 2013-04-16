@@ -83,7 +83,7 @@ if (!class_exists('Math_BigInteger')) {
 // will trigger a call to __autoload() if you're wanting to auto-load classes
 // call function_exists() a second time to stop the require_once from being called outside
 // of the auto loader
-if (!function_exists('crypt_random_string') && !class_exists('Crypt_Random') && !function_exists('crypt_random_string')) {
+if (!function_exists('crypt_random_string')) {
     require_once('Crypt/Random.php');
 }
 
