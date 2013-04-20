@@ -119,8 +119,9 @@ if (!class_exists('Crypt_AES')) {
  * @access private
  */
 define('NET_SSH2_MASK_CONSTRUCTOR', 0x00000001);
-define('NET_SSH2_MASK_LOGIN',       0x00000002);
-define('NET_SSH2_MASK_SHELL',       0x00000004);
+define('NET_SSH2_MASK_LOGIN_REQ',   0x00000002);
+define('NET_SSH2_MASK_LOGIN',       0x00000004);
+define('NET_SSH2_MASK_SHELL',       0x00000008);
 /**#@-*/
 
 /**#@+
@@ -730,9 +731,18 @@ class Net_SSH2 {
 
     /**
      * Contents of stdError
+     *
      * @access private
      */
     var $stdErrorLog;
+
+    /**
+     * The Last Interactive Response
+     *
+     * @see Net_SSH2::_keyboard_interactive_process()
+     * @access private
+     */
+    var $last_interactive_response = '';
 
     /**
      * Default Constructor.
@@ -1466,25 +1476,32 @@ class Net_SSH2 {
             return false;
         }
 
-        $packet = pack('CNa*',
-            NET_SSH2_MSG_SERVICE_REQUEST, strlen('ssh-userauth'), 'ssh-userauth'
-        );
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN_REQ)) {
+            $packet = pack('CNa*',
+                NET_SSH2_MSG_SERVICE_REQUEST, strlen('ssh-userauth'), 'ssh-userauth'
+            );
 
-        if (!$this->_send_binary_packet($packet)) {
-            return false;
+            if (!$this->_send_binary_packet($packet)) {
+                return false;
+            }
+
+            $response = $this->_get_binary_packet();
+            if ($response === false) {
+                user_error('Connection closed by server');
+                return false;
+            }
+
+            extract(unpack('Ctype', $this->_string_shift($response, 1)));
+
+            if ($type != NET_SSH2_MSG_SERVICE_ACCEPT) {
+                user_error('Expected SSH_MSG_SERVICE_ACCEPT');
+                return false;
+            }
+            $this->bitmap |= NET_SSH2_MASK_LOGIN_REQ;
         }
 
-        $response = $this->_get_binary_packet();
-        if ($response === false) {
-            user_error('Connection closed by server');
-            return false;
-        }
-
-        extract(unpack('Ctype', $this->_string_shift($response, 1)));
-
-        if ($type != NET_SSH2_MSG_SERVICE_ACCEPT) {
-            user_error('Expected SSH_MSG_SERVICE_ACCEPT');
-            return false;
+        if (strlen($this->last_interactive_response)) {
+            return !is_string($password) ? false : $this->_keyboard_interactive_process($password);
         }
 
         // although PHP5's get_class() preserves the case, PHP4's does not
@@ -1559,7 +1576,10 @@ class Net_SSH2 {
                 // multi-factor authentication
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $auth_methods = explode(',', $this->_string_shift($response, $length));
-                if (in_array('keyboard-interactive', $auth_methods)) {
+                extract(unpack('Cpartial_success', $this->_string_shift($response, 1)));
+                $partial_success = $partial_success != 0;
+
+                if (!$partial_success && in_array('keyboard-interactive', $auth_methods)) {
                     if ($this->_keyboard_interactive_login($username, $password)) {
                         $this->bitmap |= NET_SSH2_MASK_LOGIN;
                         return true;
@@ -1610,25 +1630,20 @@ class Net_SSH2 {
     {
         $responses = func_get_args();
 
-        $response = $this->_get_binary_packet();
-        if ($response === false) {
-            user_error('Connection closed by server');
-            return false;
+        if (strlen($this->last_interactive_response)) {
+            $response = $this->last_interactive_response;
+        } else {
+            $orig = $response = $this->_get_binary_packet();
+            if ($response === false) {
+                user_error('Connection closed by server');
+                return false;
+            }
         }
 
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_INFO_REQUEST:
-                // see http://tools.ietf.org/html/rfc4256#section-3.2
-                if (defined('NET_SSH2_LOGGING')) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
-                        'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
-                        $this->message_number_log[count($this->message_number_log) - 1]
-                    );
-                }
-
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->_string_shift($response, $length); // name; may be empty
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
@@ -1644,6 +1659,23 @@ class Net_SSH2 {
                     $echo = $this->_string_shift($response) != chr(0);
                 }
                 */
+
+                // see http://tools.ietf.org/html/rfc4256#section-3.2
+                if (strlen($this->last_interactive_response)) {
+                    $this->last_interactive_response = '';
+                } else {
+                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
+                        'UNKNOWN',
+                        'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
+                        $this->message_number_log[count($this->message_number_log) - 1]
+                    );
+                }
+
+                if (!count($responses) && $num_prompts) {
+                    $this->last_interactive_response = $orig;
+                    $this->bitmap |= NET_SSH_MASK_LOGIN_INTERACTIVE;
+                    return false;
+                }
 
                 /*
                    After obtaining the requested information from the user, the client
@@ -1735,7 +1767,7 @@ class Net_SSH2 {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . $this->_string_shift($response, $length);
-                return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
+                return false;
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
