@@ -1461,16 +1461,40 @@ class Net_SSH2 {
     /**
      * Login
      *
-     * The $password parameter can be a plaintext password or a Crypt_RSA object.
+     * The $password parameter can be a plaintext password, a Crypt_RSA object or an array
+     *
+     * @param String $username
+     * @param Mixed $password
+     * @param Mixed $...
+     * @return Boolean
+     * @see _login_helper
+     * @access public
+     */
+    function login($username)
+    {
+        $args = array_slice(func_get_args(), 1);
+        if (empty($args)) {
+            return $this->_login_helper($username);
+        }
+        foreach ($args as $arg) {
+            if ($this->_login_helper($username, $arg)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Login Helper
      *
      * @param String $username
      * @param optional String $password
      * @return Boolean
-     * @access public
+     * @access private
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.
      */
-    function login($username, $password = null)
+    function _login_helper($username, $password = null)
     {
         if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
             return false;
