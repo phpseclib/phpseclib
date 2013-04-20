@@ -745,6 +745,14 @@ class Net_SSH2 {
     var $last_interactive_response = '';
 
     /**
+     * Keyboard Interactive Request / Responses
+     *
+     * @see Net_SSH2::_keyboard_interactive_process()
+     * @access private
+     */
+    var $keyboard_requests_responses = array();
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -1476,6 +1484,7 @@ class Net_SSH2 {
         if (empty($args)) {
             return $this->_login_helper($username);
         }
+
         foreach ($args as $arg) {
             if ($this->_login_helper($username, $arg)) {
                 return true;
@@ -1525,12 +1534,20 @@ class Net_SSH2 {
         }
 
         if (strlen($this->last_interactive_response)) {
-            return !is_string($password) ? false : $this->_keyboard_interactive_process($password);
+            return !is_string($password) && !is_array($password) ? false : $this->_keyboard_interactive_process($password);
         }
 
         // although PHP5's get_class() preserves the case, PHP4's does not
         if (is_object($password) && strtolower(get_class($password)) == 'crypt_rsa') {
             return $this->_privatekey_login($username, $password);
+        }
+
+        if (is_array($password)) {
+            if ($this->_keyboard_interactive_login($username, $password)) {
+                $this->bitmap |= NET_SSH2_MASK_LOGIN;
+                return true;
+            }
+            return false;
         }
 
         if (!isset($password)) {
@@ -1675,14 +1692,31 @@ class Net_SSH2 {
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->_string_shift($response, $length); // language tag; may be empty
                 extract(unpack('Nnum_prompts', $this->_string_shift($response, 4)));
-                /*
-                for ($i = 0; $i < $num_prompts; $i++) {
-                    extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                    // prompt - ie. "Password: "; must not be empty
-                    $this->_string_shift($response, $length);
-                    $echo = $this->_string_shift($response) != chr(0);
+
+                for ($i = 0; $i < count($responses); $i++) {
+                    if (is_array($responses[$i])) {
+                        foreach ($responses[$i] as $key => $value) {
+                            $this->keyboard_requests_responses[$key] = $value;
+                        }
+                        unset($responses[$i]);
+                    }
                 }
-                */
+                $responses = array_values($responses);
+
+                if (isset($this->keyboard_requests_responses)) {
+                    for ($i = 0; $i < $num_prompts; $i++) {
+                        extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                        // prompt - ie. "Password: "; must not be empty
+                        $prompt = $this->_string_shift($response, $length);
+                        //$echo = $this->_string_shift($response) != chr(0);
+                        foreach ($this->keyboard_requests_responses as $key => $value) {
+                            if (substr($prompt, 0, strlen($key)) == $key) {
+                                $responses[] = $value;
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 // see http://tools.ietf.org/html/rfc4256#section-3.2
                 if (strlen($this->last_interactive_response)) {
