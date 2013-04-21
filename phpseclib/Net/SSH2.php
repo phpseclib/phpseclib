@@ -2417,6 +2417,11 @@ class Net_SSH2 {
 
         while (true) {
             if ($this->curTimeout) {
+                if ($this->curTimeout < 0) {
+                    $this->_close_channel($client_channel);
+                    return true;
+                }
+
                 $read = array($this->fsock);
                 $write = $except = NULL;
 
