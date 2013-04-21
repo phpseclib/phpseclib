@@ -168,7 +168,7 @@ class Crypt_Hash {
      * Keys can be of any length.
      *
      * @access public
-     * @param String $key
+     * @param optional String $key
      */
     function setKey($key = false)
     {
@@ -350,7 +350,7 @@ class Crypt_Hash {
      * Wrapper for MD5
      *
      * @access private
-     * @param String $text
+     * @param String $m
      */
     function _md5($m)
     {
@@ -361,7 +361,7 @@ class Crypt_Hash {
      * Wrapper for SHA1
      *
      * @access private
-     * @param String $text
+     * @param String $m
      */
     function _sha1($m)
     {
@@ -374,7 +374,7 @@ class Crypt_Hash {
      * See {@link http://tools.ietf.org/html/rfc1319 RFC1319}.
      *
      * @access private
-     * @param String $text
+     * @param String $m
      */
     function _md2($m)
     {
@@ -450,7 +450,7 @@ class Crypt_Hash {
      * See {@link http://en.wikipedia.org/wiki/SHA_hash_functions#SHA-256_.28a_SHA-2_variant.29_pseudocode SHA-256 (a SHA-2 variant) pseudocode - Wikipedia}.
      *
      * @access private
-     * @param String $text
+     * @param String $m
      */
     function _sha256($m)
     {
@@ -555,7 +555,7 @@ class Crypt_Hash {
      * Pure-PHP implementation of SHA384 and SHA512
      *
      * @access private
-     * @param String $text
+     * @param String $m
      */
     function _sha512($m)
     {
@@ -784,9 +784,8 @@ class Crypt_Hash {
      * _sha256() adds multiple unsigned 32-bit integers.  Since PHP doesn't support unsigned integers and since the
      * possibility of overflow exists, care has to be taken.  Math_BigInteger() could be used but this should be faster.
      *
-     * @param String $string
-     * @param optional Integer $index
-     * @return String
+     * @param Integer $...
+     * @return Integer
      * @see _sha256()
      * @access private
      */
