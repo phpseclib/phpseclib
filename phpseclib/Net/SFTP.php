@@ -297,7 +297,30 @@ class Net_SFTP extends Net_SSH2 {
             5 => 'NET_SFTP_STATUS_BAD_MESSAGE',
             6 => 'NET_SFTP_STATUS_NO_CONNECTION',
             7 => 'NET_SFTP_STATUS_CONNECTION_LOST',
-            8 => 'NET_SFTP_STATUS_OP_UNSUPPORTED'
+            8 => 'NET_SFTP_STATUS_OP_UNSUPPORTED',
+            9 => 'NET_SFTP_STATUS_INVALID_HANDLE',
+            10 => 'NET_SFTP_STATUS_NO_SUCH_PATH',
+            11 => 'NET_SFTP_STATUS_FILE_ALREADY_EXISTS',
+            12 => 'NET_SFTP_STATUS_WRITE_PROTECT',
+            13 => 'NET_SFTP_STATUS_NO_MEDIA',
+            14 => 'NET_SFTP_STATUS_NO_SPACE_ON_FILESYSTEM',
+            15 => 'NET_SFTP_STATUS_QUOTA_EXCEEDED',
+            16 => 'NET_SFTP_STATUS_UNKNOWN_PRINCIPAL',
+            17 => 'NET_SFTP_STATUS_LOCK_CONFLICT',
+            18 => 'NET_SFTP_STATUS_DIR_NOT_EMPTY',
+            19 => 'NET_SFTP_STATUS_NOT_A_DIRECTORY',
+            20 => 'NET_SFTP_STATUS_INVALID_FILENAME',
+            21 => 'NET_SFTP_STATUS_LINK_LOOP',
+            22 => 'NET_SFTP_STATUS_CANNOT_DELETE',
+            23 => 'NET_SFTP_STATUS_INVALID_PARAMETER',
+            24 => 'NET_SFTP_STATUS_FILE_IS_A_DIRECTORY',
+            25 => 'NET_SFTP_STATUS_BYTE_RANGE_LOCK_CONFLICT',
+            26 => 'NET_SFTP_STATUS_BYTE_RANGE_LOCK_REFUSED',
+            27 => 'NET_SFTP_STATUS_DELETE_PENDING',
+            28 => 'NET_SFTP_STATUS_FILE_CORRUPT',
+            29 => 'NET_SFTP_STATUS_OWNER_INVALID',
+            30 => 'NET_SFTP_STATUS_GROUP_INVALID',
+            31 => 'NET_SFTP_STATUS_NO_MATCHING_BYTE_RANGE_LOCK'
         );
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-7.1
         // the order, in this case, matters quite a lot - see Net_SFTP::_parseAttributes() to understand why
