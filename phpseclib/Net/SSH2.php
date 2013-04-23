@@ -1722,11 +1722,13 @@ class Net_SSH2 {
                 if (strlen($this->last_interactive_response)) {
                     $this->last_interactive_response = '';
                 } else {
-                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
-                        'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
-                        $this->message_number_log[count($this->message_number_log) - 1]
-                    );
+                    if (count($this->message_number_log)) {
+                        $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
+                            'UNKNOWN',
+                            'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
+                            $this->message_number_log[count($this->message_number_log) - 1]
+                        );
+                    }
                 }
 
                 if (!count($responses) && $num_prompts) {
