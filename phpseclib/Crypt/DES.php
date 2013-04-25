@@ -282,6 +282,18 @@ class Crypt_DES {
     var $ecb;
 
     /**
+     * Shuffle table.
+     * For each byte value index, the entry holds an 8-byte string
+     * with each byte containing all bits in the same state as the
+     * corresponding bit in the index value.
+     * @see Crypt_DES::_processBlock()
+     * @see Crypt_DES::_prepareKey()
+     * @var Array
+     * @access private
+     */
+    var $shuffle;
+
+    /**
      * Default Constructor.
      *
      * Determines whether or not the mcrypt extension should be used.  $mode should only, at present, be
@@ -293,6 +305,143 @@ class Crypt_DES {
      */
     function Crypt_DES($mode = CRYPT_DES_MODE_CBC)
     {
+
+        /**
+         * Shuffle table.
+         * For each byte value index, the entry holds an 8-byte string
+         * with each byte containing all bits in the same state as the
+         * corresponding bit in the index value.
+         */
+        static $shuffle = array(
+            "\x00\x00\x00\x00\x00\x00\x00\x00", "\x00\x00\x00\x00\x00\x00\x00\xFF",
+            "\x00\x00\x00\x00\x00\x00\xFF\x00", "\x00\x00\x00\x00\x00\x00\xFF\xFF",
+            "\x00\x00\x00\x00\x00\xFF\x00\x00", "\x00\x00\x00\x00\x00\xFF\x00\xFF",
+            "\x00\x00\x00\x00\x00\xFF\xFF\x00", "\x00\x00\x00\x00\x00\xFF\xFF\xFF",
+            "\x00\x00\x00\x00\xFF\x00\x00\x00", "\x00\x00\x00\x00\xFF\x00\x00\xFF",
+            "\x00\x00\x00\x00\xFF\x00\xFF\x00", "\x00\x00\x00\x00\xFF\x00\xFF\xFF",
+            "\x00\x00\x00\x00\xFF\xFF\x00\x00", "\x00\x00\x00\x00\xFF\xFF\x00\xFF",
+            "\x00\x00\x00\x00\xFF\xFF\xFF\x00", "\x00\x00\x00\x00\xFF\xFF\xFF\xFF",
+            "\x00\x00\x00\xFF\x00\x00\x00\x00", "\x00\x00\x00\xFF\x00\x00\x00\xFF",
+            "\x00\x00\x00\xFF\x00\x00\xFF\x00", "\x00\x00\x00\xFF\x00\x00\xFF\xFF",
+            "\x00\x00\x00\xFF\x00\xFF\x00\x00", "\x00\x00\x00\xFF\x00\xFF\x00\xFF",
+            "\x00\x00\x00\xFF\x00\xFF\xFF\x00", "\x00\x00\x00\xFF\x00\xFF\xFF\xFF",
+            "\x00\x00\x00\xFF\xFF\x00\x00\x00", "\x00\x00\x00\xFF\xFF\x00\x00\xFF",
+            "\x00\x00\x00\xFF\xFF\x00\xFF\x00", "\x00\x00\x00\xFF\xFF\x00\xFF\xFF",
+            "\x00\x00\x00\xFF\xFF\xFF\x00\x00", "\x00\x00\x00\xFF\xFF\xFF\x00\xFF",
+            "\x00\x00\x00\xFF\xFF\xFF\xFF\x00", "\x00\x00\x00\xFF\xFF\xFF\xFF\xFF",
+            "\x00\x00\xFF\x00\x00\x00\x00\x00", "\x00\x00\xFF\x00\x00\x00\x00\xFF",
+            "\x00\x00\xFF\x00\x00\x00\xFF\x00", "\x00\x00\xFF\x00\x00\x00\xFF\xFF",
+            "\x00\x00\xFF\x00\x00\xFF\x00\x00", "\x00\x00\xFF\x00\x00\xFF\x00\xFF",
+            "\x00\x00\xFF\x00\x00\xFF\xFF\x00", "\x00\x00\xFF\x00\x00\xFF\xFF\xFF",
+            "\x00\x00\xFF\x00\xFF\x00\x00\x00", "\x00\x00\xFF\x00\xFF\x00\x00\xFF",
+            "\x00\x00\xFF\x00\xFF\x00\xFF\x00", "\x00\x00\xFF\x00\xFF\x00\xFF\xFF",
+            "\x00\x00\xFF\x00\xFF\xFF\x00\x00", "\x00\x00\xFF\x00\xFF\xFF\x00\xFF",
+            "\x00\x00\xFF\x00\xFF\xFF\xFF\x00", "\x00\x00\xFF\x00\xFF\xFF\xFF\xFF",
+            "\x00\x00\xFF\xFF\x00\x00\x00\x00", "\x00\x00\xFF\xFF\x00\x00\x00\xFF",
+            "\x00\x00\xFF\xFF\x00\x00\xFF\x00", "\x00\x00\xFF\xFF\x00\x00\xFF\xFF",
+            "\x00\x00\xFF\xFF\x00\xFF\x00\x00", "\x00\x00\xFF\xFF\x00\xFF\x00\xFF",
+            "\x00\x00\xFF\xFF\x00\xFF\xFF\x00", "\x00\x00\xFF\xFF\x00\xFF\xFF\xFF",
+            "\x00\x00\xFF\xFF\xFF\x00\x00\x00", "\x00\x00\xFF\xFF\xFF\x00\x00\xFF",
+            "\x00\x00\xFF\xFF\xFF\x00\xFF\x00", "\x00\x00\xFF\xFF\xFF\x00\xFF\xFF",
+            "\x00\x00\xFF\xFF\xFF\xFF\x00\x00", "\x00\x00\xFF\xFF\xFF\xFF\x00\xFF",
+            "\x00\x00\xFF\xFF\xFF\xFF\xFF\x00", "\x00\x00\xFF\xFF\xFF\xFF\xFF\xFF",
+            "\x00\xFF\x00\x00\x00\x00\x00\x00", "\x00\xFF\x00\x00\x00\x00\x00\xFF",
+            "\x00\xFF\x00\x00\x00\x00\xFF\x00", "\x00\xFF\x00\x00\x00\x00\xFF\xFF",
+            "\x00\xFF\x00\x00\x00\xFF\x00\x00", "\x00\xFF\x00\x00\x00\xFF\x00\xFF",
+            "\x00\xFF\x00\x00\x00\xFF\xFF\x00", "\x00\xFF\x00\x00\x00\xFF\xFF\xFF",
+            "\x00\xFF\x00\x00\xFF\x00\x00\x00", "\x00\xFF\x00\x00\xFF\x00\x00\xFF",
+            "\x00\xFF\x00\x00\xFF\x00\xFF\x00", "\x00\xFF\x00\x00\xFF\x00\xFF\xFF",
+            "\x00\xFF\x00\x00\xFF\xFF\x00\x00", "\x00\xFF\x00\x00\xFF\xFF\x00\xFF",
+            "\x00\xFF\x00\x00\xFF\xFF\xFF\x00", "\x00\xFF\x00\x00\xFF\xFF\xFF\xFF",
+            "\x00\xFF\x00\xFF\x00\x00\x00\x00", "\x00\xFF\x00\xFF\x00\x00\x00\xFF",
+            "\x00\xFF\x00\xFF\x00\x00\xFF\x00", "\x00\xFF\x00\xFF\x00\x00\xFF\xFF",
+            "\x00\xFF\x00\xFF\x00\xFF\x00\x00", "\x00\xFF\x00\xFF\x00\xFF\x00\xFF",
+            "\x00\xFF\x00\xFF\x00\xFF\xFF\x00", "\x00\xFF\x00\xFF\x00\xFF\xFF\xFF",
+            "\x00\xFF\x00\xFF\xFF\x00\x00\x00", "\x00\xFF\x00\xFF\xFF\x00\x00\xFF",
+            "\x00\xFF\x00\xFF\xFF\x00\xFF\x00", "\x00\xFF\x00\xFF\xFF\x00\xFF\xFF",
+            "\x00\xFF\x00\xFF\xFF\xFF\x00\x00", "\x00\xFF\x00\xFF\xFF\xFF\x00\xFF",
+            "\x00\xFF\x00\xFF\xFF\xFF\xFF\x00", "\x00\xFF\x00\xFF\xFF\xFF\xFF\xFF",
+            "\x00\xFF\xFF\x00\x00\x00\x00\x00", "\x00\xFF\xFF\x00\x00\x00\x00\xFF",
+            "\x00\xFF\xFF\x00\x00\x00\xFF\x00", "\x00\xFF\xFF\x00\x00\x00\xFF\xFF",
+            "\x00\xFF\xFF\x00\x00\xFF\x00\x00", "\x00\xFF\xFF\x00\x00\xFF\x00\xFF",
+            "\x00\xFF\xFF\x00\x00\xFF\xFF\x00", "\x00\xFF\xFF\x00\x00\xFF\xFF\xFF",
+            "\x00\xFF\xFF\x00\xFF\x00\x00\x00", "\x00\xFF\xFF\x00\xFF\x00\x00\xFF",
+            "\x00\xFF\xFF\x00\xFF\x00\xFF\x00", "\x00\xFF\xFF\x00\xFF\x00\xFF\xFF",
+            "\x00\xFF\xFF\x00\xFF\xFF\x00\x00", "\x00\xFF\xFF\x00\xFF\xFF\x00\xFF",
+            "\x00\xFF\xFF\x00\xFF\xFF\xFF\x00", "\x00\xFF\xFF\x00\xFF\xFF\xFF\xFF",
+            "\x00\xFF\xFF\xFF\x00\x00\x00\x00", "\x00\xFF\xFF\xFF\x00\x00\x00\xFF",
+            "\x00\xFF\xFF\xFF\x00\x00\xFF\x00", "\x00\xFF\xFF\xFF\x00\x00\xFF\xFF",
+            "\x00\xFF\xFF\xFF\x00\xFF\x00\x00", "\x00\xFF\xFF\xFF\x00\xFF\x00\xFF",
+            "\x00\xFF\xFF\xFF\x00\xFF\xFF\x00", "\x00\xFF\xFF\xFF\x00\xFF\xFF\xFF",
+            "\x00\xFF\xFF\xFF\xFF\x00\x00\x00", "\x00\xFF\xFF\xFF\xFF\x00\x00\xFF",
+            "\x00\xFF\xFF\xFF\xFF\x00\xFF\x00", "\x00\xFF\xFF\xFF\xFF\x00\xFF\xFF",
+            "\x00\xFF\xFF\xFF\xFF\xFF\x00\x00", "\x00\xFF\xFF\xFF\xFF\xFF\x00\xFF",
+            "\x00\xFF\xFF\xFF\xFF\xFF\xFF\x00", "\x00\xFF\xFF\xFF\xFF\xFF\xFF\xFF",
+            "\xFF\x00\x00\x00\x00\x00\x00\x00", "\xFF\x00\x00\x00\x00\x00\x00\xFF",
+            "\xFF\x00\x00\x00\x00\x00\xFF\x00", "\xFF\x00\x00\x00\x00\x00\xFF\xFF",
+            "\xFF\x00\x00\x00\x00\xFF\x00\x00", "\xFF\x00\x00\x00\x00\xFF\x00\xFF",
+            "\xFF\x00\x00\x00\x00\xFF\xFF\x00", "\xFF\x00\x00\x00\x00\xFF\xFF\xFF",
+            "\xFF\x00\x00\x00\xFF\x00\x00\x00", "\xFF\x00\x00\x00\xFF\x00\x00\xFF",
+            "\xFF\x00\x00\x00\xFF\x00\xFF\x00", "\xFF\x00\x00\x00\xFF\x00\xFF\xFF",
+            "\xFF\x00\x00\x00\xFF\xFF\x00\x00", "\xFF\x00\x00\x00\xFF\xFF\x00\xFF",
+            "\xFF\x00\x00\x00\xFF\xFF\xFF\x00", "\xFF\x00\x00\x00\xFF\xFF\xFF\xFF",
+            "\xFF\x00\x00\xFF\x00\x00\x00\x00", "\xFF\x00\x00\xFF\x00\x00\x00\xFF",
+            "\xFF\x00\x00\xFF\x00\x00\xFF\x00", "\xFF\x00\x00\xFF\x00\x00\xFF\xFF",
+            "\xFF\x00\x00\xFF\x00\xFF\x00\x00", "\xFF\x00\x00\xFF\x00\xFF\x00\xFF",
+            "\xFF\x00\x00\xFF\x00\xFF\xFF\x00", "\xFF\x00\x00\xFF\x00\xFF\xFF\xFF",
+            "\xFF\x00\x00\xFF\xFF\x00\x00\x00", "\xFF\x00\x00\xFF\xFF\x00\x00\xFF",
+            "\xFF\x00\x00\xFF\xFF\x00\xFF\x00", "\xFF\x00\x00\xFF\xFF\x00\xFF\xFF",
+            "\xFF\x00\x00\xFF\xFF\xFF\x00\x00", "\xFF\x00\x00\xFF\xFF\xFF\x00\xFF",
+            "\xFF\x00\x00\xFF\xFF\xFF\xFF\x00", "\xFF\x00\x00\xFF\xFF\xFF\xFF\xFF",
+            "\xFF\x00\xFF\x00\x00\x00\x00\x00", "\xFF\x00\xFF\x00\x00\x00\x00\xFF",
+            "\xFF\x00\xFF\x00\x00\x00\xFF\x00", "\xFF\x00\xFF\x00\x00\x00\xFF\xFF",
+            "\xFF\x00\xFF\x00\x00\xFF\x00\x00", "\xFF\x00\xFF\x00\x00\xFF\x00\xFF",
+            "\xFF\x00\xFF\x00\x00\xFF\xFF\x00", "\xFF\x00\xFF\x00\x00\xFF\xFF\xFF",
+            "\xFF\x00\xFF\x00\xFF\x00\x00\x00", "\xFF\x00\xFF\x00\xFF\x00\x00\xFF",
+            "\xFF\x00\xFF\x00\xFF\x00\xFF\x00", "\xFF\x00\xFF\x00\xFF\x00\xFF\xFF",
+            "\xFF\x00\xFF\x00\xFF\xFF\x00\x00", "\xFF\x00\xFF\x00\xFF\xFF\x00\xFF",
+            "\xFF\x00\xFF\x00\xFF\xFF\xFF\x00", "\xFF\x00\xFF\x00\xFF\xFF\xFF\xFF",
+            "\xFF\x00\xFF\xFF\x00\x00\x00\x00", "\xFF\x00\xFF\xFF\x00\x00\x00\xFF",
+            "\xFF\x00\xFF\xFF\x00\x00\xFF\x00", "\xFF\x00\xFF\xFF\x00\x00\xFF\xFF",
+            "\xFF\x00\xFF\xFF\x00\xFF\x00\x00", "\xFF\x00\xFF\xFF\x00\xFF\x00\xFF",
+            "\xFF\x00\xFF\xFF\x00\xFF\xFF\x00", "\xFF\x00\xFF\xFF\x00\xFF\xFF\xFF",
+            "\xFF\x00\xFF\xFF\xFF\x00\x00\x00", "\xFF\x00\xFF\xFF\xFF\x00\x00\xFF",
+            "\xFF\x00\xFF\xFF\xFF\x00\xFF\x00", "\xFF\x00\xFF\xFF\xFF\x00\xFF\xFF",
+            "\xFF\x00\xFF\xFF\xFF\xFF\x00\x00", "\xFF\x00\xFF\xFF\xFF\xFF\x00\xFF",
+            "\xFF\x00\xFF\xFF\xFF\xFF\xFF\x00", "\xFF\x00\xFF\xFF\xFF\xFF\xFF\xFF",
+            "\xFF\xFF\x00\x00\x00\x00\x00\x00", "\xFF\xFF\x00\x00\x00\x00\x00\xFF",
+            "\xFF\xFF\x00\x00\x00\x00\xFF\x00", "\xFF\xFF\x00\x00\x00\x00\xFF\xFF",
+            "\xFF\xFF\x00\x00\x00\xFF\x00\x00", "\xFF\xFF\x00\x00\x00\xFF\x00\xFF",
+            "\xFF\xFF\x00\x00\x00\xFF\xFF\x00", "\xFF\xFF\x00\x00\x00\xFF\xFF\xFF",
+            "\xFF\xFF\x00\x00\xFF\x00\x00\x00", "\xFF\xFF\x00\x00\xFF\x00\x00\xFF",
+            "\xFF\xFF\x00\x00\xFF\x00\xFF\x00", "\xFF\xFF\x00\x00\xFF\x00\xFF\xFF",
+            "\xFF\xFF\x00\x00\xFF\xFF\x00\x00", "\xFF\xFF\x00\x00\xFF\xFF\x00\xFF",
+            "\xFF\xFF\x00\x00\xFF\xFF\xFF\x00", "\xFF\xFF\x00\x00\xFF\xFF\xFF\xFF",
+            "\xFF\xFF\x00\xFF\x00\x00\x00\x00", "\xFF\xFF\x00\xFF\x00\x00\x00\xFF",
+            "\xFF\xFF\x00\xFF\x00\x00\xFF\x00", "\xFF\xFF\x00\xFF\x00\x00\xFF\xFF",
+            "\xFF\xFF\x00\xFF\x00\xFF\x00\x00", "\xFF\xFF\x00\xFF\x00\xFF\x00\xFF",
+            "\xFF\xFF\x00\xFF\x00\xFF\xFF\x00", "\xFF\xFF\x00\xFF\x00\xFF\xFF\xFF",
+            "\xFF\xFF\x00\xFF\xFF\x00\x00\x00", "\xFF\xFF\x00\xFF\xFF\x00\x00\xFF",
+            "\xFF\xFF\x00\xFF\xFF\x00\xFF\x00", "\xFF\xFF\x00\xFF\xFF\x00\xFF\xFF",
+            "\xFF\xFF\x00\xFF\xFF\xFF\x00\x00", "\xFF\xFF\x00\xFF\xFF\xFF\x00\xFF",
+            "\xFF\xFF\x00\xFF\xFF\xFF\xFF\x00", "\xFF\xFF\x00\xFF\xFF\xFF\xFF\xFF",
+            "\xFF\xFF\xFF\x00\x00\x00\x00\x00", "\xFF\xFF\xFF\x00\x00\x00\x00\xFF",
+            "\xFF\xFF\xFF\x00\x00\x00\xFF\x00", "\xFF\xFF\xFF\x00\x00\x00\xFF\xFF",
+            "\xFF\xFF\xFF\x00\x00\xFF\x00\x00", "\xFF\xFF\xFF\x00\x00\xFF\x00\xFF",
+            "\xFF\xFF\xFF\x00\x00\xFF\xFF\x00", "\xFF\xFF\xFF\x00\x00\xFF\xFF\xFF",
+            "\xFF\xFF\xFF\x00\xFF\x00\x00\x00", "\xFF\xFF\xFF\x00\xFF\x00\x00\xFF",
+            "\xFF\xFF\xFF\x00\xFF\x00\xFF\x00", "\xFF\xFF\xFF\x00\xFF\x00\xFF\xFF",
+            "\xFF\xFF\xFF\x00\xFF\xFF\x00\x00", "\xFF\xFF\xFF\x00\xFF\xFF\x00\xFF",
+            "\xFF\xFF\xFF\x00\xFF\xFF\xFF\x00", "\xFF\xFF\xFF\x00\xFF\xFF\xFF\xFF",
+            "\xFF\xFF\xFF\xFF\x00\x00\x00\x00", "\xFF\xFF\xFF\xFF\x00\x00\x00\xFF",
+            "\xFF\xFF\xFF\xFF\x00\x00\xFF\x00", "\xFF\xFF\xFF\xFF\x00\x00\xFF\xFF",
+            "\xFF\xFF\xFF\xFF\x00\xFF\x00\x00", "\xFF\xFF\xFF\xFF\x00\xFF\x00\xFF",
+            "\xFF\xFF\xFF\xFF\x00\xFF\xFF\x00", "\xFF\xFF\xFF\xFF\x00\xFF\xFF\xFF",
+            "\xFF\xFF\xFF\xFF\xFF\x00\x00\x00", "\xFF\xFF\xFF\xFF\xFF\x00\x00\xFF",
+            "\xFF\xFF\xFF\xFF\xFF\x00\xFF\x00", "\xFF\xFF\xFF\xFF\xFF\x00\xFF\xFF",
+            "\xFF\xFF\xFF\xFF\xFF\xFF\x00\x00", "\xFF\xFF\xFF\xFF\xFF\xFF\x00\xFF",
+            "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x00", "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"
+        );
         if ( !defined('CRYPT_DES_MODE') ) {
             switch (true) {
                 case extension_loaded('mcrypt') && in_array('des', mcrypt_list_algorithms()):
@@ -331,6 +480,7 @@ class Crypt_DES {
 
                 break;
             default:
+                $this->shuffle = $shuffle;
                 switch ($mode) {
                     case CRYPT_DES_MODE_ECB:
                     case CRYPT_DES_MODE_CBC:
@@ -1033,187 +1183,275 @@ class Crypt_DES {
      */
     function _processBlock($block, $mode)
     {
-        // s-boxes.  in the official DES docs, they're described as being matrices that
-        // one accesses by using the first and last bits to determine the row and the
-        // middle four bits to determine the column.  in this implementation, they've
-        // been converted to vectors
-        static $sbox = array(
-            array(
-                14,  0,  4, 15, 13,  7,  1,  4,  2, 14, 15,  2, 11, 13,  8,  1,
-                 3, 10 ,10,  6,  6, 12, 12, 11,  5,  9,  9,  5,  0,  3,  7,  8,
-                 4, 15,  1, 12, 14,  8,  8,  2, 13,  4,  6,  9,  2,  1, 11,  7,
-                15,  5, 12, 11,  9,  3,  7, 14,  3, 10, 10,  0,  5,  6,  0, 13
-            ),
-            array(
-                15,  3,  1, 13,  8,  4, 14,  7,  6, 15, 11,  2,  3,  8,  4, 14,
-                 9, 12,  7,  0,  2,  1, 13, 10, 12,  6,  0,  9,  5, 11, 10,  5,
-                 0, 13, 14,  8,  7, 10, 11,  1, 10,  3,  4, 15, 13,  4,  1,  2,
-                 5, 11,  8,  6, 12,  7,  6, 12,  9,  0,  3,  5,  2, 14, 15,  9
-            ),
-            array(
-                10, 13,  0,  7,  9,  0, 14,  9,  6,  3,  3,  4, 15,  6,  5, 10,
-                 1,  2, 13,  8, 12,  5,  7, 14, 11, 12,  4, 11,  2, 15,  8,  1,
-                13,  1,  6, 10,  4, 13,  9,  0,  8,  6, 15,  9,  3,  8,  0,  7,
-                11,  4,  1, 15,  2, 14, 12,  3,  5, 11, 10,  5, 14,  2,  7, 12
-            ),
-            array(
-                 7, 13, 13,  8, 14, 11,  3,  5,  0,  6,  6, 15,  9,  0, 10,  3,
-                 1,  4,  2,  7,  8,  2,  5, 12, 11,  1, 12, 10,  4, 14, 15,  9,
-                10,  3,  6, 15,  9,  0,  0,  6, 12, 10, 11,  1,  7, 13, 13,  8,
-                15,  9,  1,  4,  3,  5, 14, 11,  5, 12,  2,  7,  8,  2,  4, 14
-            ),
-            array(
-                 2, 14, 12, 11,  4,  2,  1, 12,  7,  4, 10,  7, 11, 13,  6,  1,
-                 8,  5,  5,  0,  3, 15, 15, 10, 13,  3,  0,  9, 14,  8,  9,  6,
-                 4, 11,  2,  8,  1, 12, 11,  7, 10,  1, 13, 14,  7,  2,  8, 13,
-                15,  6,  9, 15, 12,  0,  5,  9,  6, 10,  3,  4,  0,  5, 14,  3
-            ),
-            array(
-                12, 10,  1, 15, 10,  4, 15,  2,  9,  7,  2, 12,  6,  9,  8,  5,
-                 0,  6, 13,  1,  3, 13,  4, 14, 14,  0,  7, 11,  5,  3, 11,  8,
-                 9,  4, 14,  3, 15,  2,  5, 12,  2,  9,  8,  5, 12, 15,  3, 10,
-                 7, 11,  0, 14,  4,  1, 10,  7,  1,  6, 13,  0, 11,  8,  6, 13
-            ),
-            array(
-                 4, 13, 11,  0,  2, 11, 14,  7, 15,  4,  0,  9,  8,  1, 13, 10,
-                 3, 14, 12,  3,  9,  5,  7, 12,  5,  2, 10, 15,  6,  8,  1,  6,
-                 1,  6,  4, 11, 11, 13, 13,  8, 12,  1,  3,  4,  7, 10, 14,  7,
-                10,  9, 15,  5,  6,  0,  8, 15,  0, 14,  5,  2,  9,  3,  2, 12
-            ),
-            array(
-                13,  1,  2, 15,  8, 13,  4,  8,  6, 10, 15,  3, 11,  7,  1,  4,
-                10, 12,  9,  5,  3,  6, 14, 11,  5,  0,  0, 14, 12,  9,  7,  2,
-                 7,  2, 11,  1,  4, 14,  1,  7,  9,  4, 12, 10, 14,  8,  2, 13,
-                 0, 15,  6, 12, 10,  9, 13,  0, 15,  3,  3,  5,  5,  6,  8, 11
-            )
+        // IP mapping helper table.
+        // Indexing this table with each source byte performs the initial bit
+        // permutation.
+        static $ipmap = array(
+            0x00, 0x10, 0x01, 0x11, 0x20, 0x30, 0x21, 0x31,
+            0x02, 0x12, 0x03, 0x13, 0x22, 0x32, 0x23, 0x33,
+            0x40, 0x50, 0x41, 0x51, 0x60, 0x70, 0x61, 0x71,
+            0x42, 0x52, 0x43, 0x53, 0x62, 0x72, 0x63, 0x73,
+            0x04, 0x14, 0x05, 0x15, 0x24, 0x34, 0x25, 0x35,
+            0x06, 0x16, 0x07, 0x17, 0x26, 0x36, 0x27, 0x37,
+            0x44, 0x54, 0x45, 0x55, 0x64, 0x74, 0x65, 0x75,
+            0x46, 0x56, 0x47, 0x57, 0x66, 0x76, 0x67, 0x77,
+            0x80, 0x90, 0x81, 0x91, 0xA0, 0xB0, 0xA1, 0xB1,
+            0x82, 0x92, 0x83, 0x93, 0xA2, 0xB2, 0xA3, 0xB3,
+            0xC0, 0xD0, 0xC1, 0xD1, 0xE0, 0xF0, 0xE1, 0xF1,
+            0xC2, 0xD2, 0xC3, 0xD3, 0xE2, 0xF2, 0xE3, 0xF3,
+            0x84, 0x94, 0x85, 0x95, 0xA4, 0xB4, 0xA5, 0xB5,
+            0x86, 0x96, 0x87, 0x97, 0xA6, 0xB6, 0xA7, 0xB7,
+            0xC4, 0xD4, 0xC5, 0xD5, 0xE4, 0xF4, 0xE5, 0xF5,
+            0xC6, 0xD6, 0xC7, 0xD7, 0xE6, 0xF6, 0xE7, 0xF7,
+            0x08, 0x18, 0x09, 0x19, 0x28, 0x38, 0x29, 0x39,
+            0x0A, 0x1A, 0x0B, 0x1B, 0x2A, 0x3A, 0x2B, 0x3B,
+            0x48, 0x58, 0x49, 0x59, 0x68, 0x78, 0x69, 0x79,
+            0x4A, 0x5A, 0x4B, 0x5B, 0x6A, 0x7A, 0x6B, 0x7B,
+            0x0C, 0x1C, 0x0D, 0x1D, 0x2C, 0x3C, 0x2D, 0x3D,
+            0x0E, 0x1E, 0x0F, 0x1F, 0x2E, 0x3E, 0x2F, 0x3F,
+            0x4C, 0x5C, 0x4D, 0x5D, 0x6C, 0x7C, 0x6D, 0x7D,
+            0x4E, 0x5E, 0x4F, 0x5F, 0x6E, 0x7E, 0x6F, 0x7F,
+            0x88, 0x98, 0x89, 0x99, 0xA8, 0xB8, 0xA9, 0xB9,
+            0x8A, 0x9A, 0x8B, 0x9B, 0xAA, 0xBA, 0xAB, 0xBB,
+            0xC8, 0xD8, 0xC9, 0xD9, 0xE8, 0xF8, 0xE9, 0xF9,
+            0xCA, 0xDA, 0xCB, 0xDB, 0xEA, 0xFA, 0xEB, 0xFB,
+            0x8C, 0x9C, 0x8D, 0x9D, 0xAC, 0xBC, 0xAD, 0xBD,
+            0x8E, 0x9E, 0x8F, 0x9F, 0xAE, 0xBE, 0xAF, 0xBF,
+            0xCC, 0xDC, 0xCD, 0xDD, 0xEC, 0xFC, 0xED, 0xFD,
+            0xCE, 0xDE, 0xCF, 0xDF, 0xEE, 0xFE, 0xEF, 0xFF
         );
 
-        $keys = $this->keys;
-
-        $temp = unpack('Na/Nb', $block);
-        $block = array($temp['a'], $temp['b']);
-
-        // because php does arithmetic right shifts, if the most significant bits are set, right
-        // shifting those into the correct position will add 1's - not 0's.  this will intefere
-        // with the | operation unless a second & is done.  so we isolate these bits and left shift
-        // them into place.  we then & each block with 0x7FFFFFFF to prevennt 1's from being added
-        // for any other shifts.
-        $msb = array(
-            ($block[0] >> 31) & 1,
-            ($block[1] >> 31) & 1
-        );
-        $block[0] &= 0x7FFFFFFF;
-        $block[1] &= 0x7FFFFFFF;
-
-        // we isolate the appropriate bit in the appropriate integer and shift as appropriate.  in
-        // some cases, there are going to be multiple bits in the same integer that need to be shifted
-        // in the same way.  we combine those into one shift operation.
-        $block = array(
-            (($block[1] & 0x00000040) << 25) | (($block[1] & 0x00004000) << 16) |
-            (($block[1] & 0x00400001) <<  7) | (($block[1] & 0x40000100) >>  2) |
-            (($block[0] & 0x00000040) << 21) | (($block[0] & 0x00004000) << 12) |
-            (($block[0] & 0x00400001) <<  3) | (($block[0] & 0x40000100) >>  6) |
-            (($block[1] & 0x00000010) << 19) | (($block[1] & 0x00001000) << 10) |
-            (($block[1] & 0x00100000) <<  1) | (($block[1] & 0x10000000) >>  8) |
-            (($block[0] & 0x00000010) << 15) | (($block[0] & 0x00001000) <<  6) |
-            (($block[0] & 0x00100000) >>  3) | (($block[0] & 0x10000000) >> 12) |
-            (($block[1] & 0x00000004) << 13) | (($block[1] & 0x00000400) <<  4) |
-            (($block[1] & 0x00040000) >>  5) | (($block[1] & 0x04000000) >> 14) |
-            (($block[0] & 0x00000004) <<  9) | ( $block[0] & 0x00000400       ) |
-            (($block[0] & 0x00040000) >>  9) | (($block[0] & 0x04000000) >> 18) |
-            (($block[1] & 0x00010000) >> 11) | (($block[1] & 0x01000000) >> 20) |
-            (($block[0] & 0x00010000) >> 15) | (($block[0] & 0x01000000) >> 24)
-        ,
-            (($block[1] & 0x00000080) << 24) | (($block[1] & 0x00008000) << 15) |
-            (($block[1] & 0x00800002) <<  6) | (($block[0] & 0x00000080) << 20) |
-            (($block[0] & 0x00008000) << 11) | (($block[0] & 0x00800002) <<  2) |
-            (($block[1] & 0x00000020) << 18) | (($block[1] & 0x00002000) <<  9) |
-            ( $block[1] & 0x00200000       ) | (($block[1] & 0x20000000) >>  9) |
-            (($block[0] & 0x00000020) << 14) | (($block[0] & 0x00002000) <<  5) |
-            (($block[0] & 0x00200000) >>  4) | (($block[0] & 0x20000000) >> 13) |
-            (($block[1] & 0x00000008) << 12) | (($block[1] & 0x00000800) <<  3) |
-            (($block[1] & 0x00080000) >>  6) | (($block[1] & 0x08000000) >> 15) |
-            (($block[0] & 0x00000008) <<  8) | (($block[0] & 0x00000800) >>  1) |
-            (($block[0] & 0x00080000) >> 10) | (($block[0] & 0x08000000) >> 19) |
-            (($block[1] & 0x00000200) >>  3) | (($block[0] & 0x00000200) >>  7) |
-            (($block[1] & 0x00020000) >> 12) | (($block[1] & 0x02000000) >> 21) |
-            (($block[0] & 0x00020000) >> 16) | (($block[0] & 0x02000000) >> 25) |
-            ($msb[1] << 28) | ($msb[0] << 24)
+        // Inverse IP mapping helper table.
+        // Indexing this table with a byte value reverses the bit order.
+        static $invipmap = array(
+            0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0,
+            0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0,
+            0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8,
+            0x18, 0x98, 0x58, 0xD8, 0x38, 0xB8, 0x78, 0xF8,
+            0x04, 0x84, 0x44, 0xC4, 0x24, 0xA4, 0x64, 0xE4,
+            0x14, 0x94, 0x54, 0xD4, 0x34, 0xB4, 0x74, 0xF4,
+            0x0C, 0x8C, 0x4C, 0xCC, 0x2C, 0xAC, 0x6C, 0xEC,
+            0x1C, 0x9C, 0x5C, 0xDC, 0x3C, 0xBC, 0x7C, 0xFC,
+            0x02, 0x82, 0x42, 0xC2, 0x22, 0xA2, 0x62, 0xE2,
+            0x12, 0x92, 0x52, 0xD2, 0x32, 0xB2, 0x72, 0xF2,
+            0x0A, 0x8A, 0x4A, 0xCA, 0x2A, 0xAA, 0x6A, 0xEA,
+            0x1A, 0x9A, 0x5A, 0xDA, 0x3A, 0xBA, 0x7A, 0xFA,
+            0x06, 0x86, 0x46, 0xC6, 0x26, 0xA6, 0x66, 0xE6,
+            0x16, 0x96, 0x56, 0xD6, 0x36, 0xB6, 0x76, 0xF6,
+            0x0E, 0x8E, 0x4E, 0xCE, 0x2E, 0xAE, 0x6E, 0xEE,
+            0x1E, 0x9E, 0x5E, 0xDE, 0x3E, 0xBE, 0x7E, 0xFE,
+            0x01, 0x81, 0x41, 0xC1, 0x21, 0xA1, 0x61, 0xE1,
+            0x11, 0x91, 0x51, 0xD1, 0x31, 0xB1, 0x71, 0xF1,
+            0x09, 0x89, 0x49, 0xC9, 0x29, 0xA9, 0x69, 0xE9,
+            0x19, 0x99, 0x59, 0xD9, 0x39, 0xB9, 0x79, 0xF9,
+            0x05, 0x85, 0x45, 0xC5, 0x25, 0xA5, 0x65, 0xE5,
+            0x15, 0x95, 0x55, 0xD5, 0x35, 0xB5, 0x75, 0xF5,
+            0x0D, 0x8D, 0x4D, 0xCD, 0x2D, 0xAD, 0x6D, 0xED,
+            0x1D, 0x9D, 0x5D, 0xDD, 0x3D, 0xBD, 0x7D, 0xFD,
+            0x03, 0x83, 0x43, 0xC3, 0x23, 0xA3, 0x63, 0xE3,
+            0x13, 0x93, 0x53, 0xD3, 0x33, 0xB3, 0x73, 0xF3,
+            0x0B, 0x8B, 0x4B, 0xCB, 0x2B, 0xAB, 0x6B, 0xEB,
+            0x1B, 0x9B, 0x5B, 0xDB, 0x3B, 0xBB, 0x7B, 0xFB,
+            0x07, 0x87, 0x47, 0xC7, 0x27, 0xA7, 0x67, 0xE7,
+            0x17, 0x97, 0x57, 0xD7, 0x37, 0xB7, 0x77, 0xF7,
+            0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF,
+            0x1F, 0x9F, 0x5F, 0xDF, 0x3F, 0xBF, 0x7F, 0xFF
         );
 
+        // Pre-permuted S-boxes.
+        // Each box has been vectorized, then each value pre-permuted using the
+        // P table: concatenation can then be replaced by exclusive ORs.
+        static $sbox1 = array(
+            0x00808200, 0x00000000, 0x00008000, 0x00808202,
+            0x00808002, 0x00008202, 0x00000002, 0x00008000,
+            0x00000200, 0x00808200, 0x00808202, 0x00000200,
+            0x00800202, 0x00808002, 0x00800000, 0x00000002,
+            0x00000202, 0x00800200, 0x00800200, 0x00008200,
+            0x00008200, 0x00808000, 0x00808000, 0x00800202,
+            0x00008002, 0x00800002, 0x00800002, 0x00008002,
+            0x00000000, 0x00000202, 0x00008202, 0x00800000,
+            0x00008000, 0x00808202, 0x00000002, 0x00808000,
+            0x00808200, 0x00800000, 0x00800000, 0x00000200,
+            0x00808002, 0x00008000, 0x00008200, 0x00800002,
+            0x00000200, 0x00000002, 0x00800202, 0x00008202,
+            0x00808202, 0x00008002, 0x00808000, 0x00800202,
+            0x00800002, 0x00000202, 0x00008202, 0x00808200,
+            0x00000202, 0x00800200, 0x00800200, 0x00000000,
+            0x00008002, 0x00008200, 0x00000000, 0x00808002
+        );
+        static $sbox2 = array(
+            0x40084010, 0x40004000, 0x00004000, 0x00084010,
+            0x00080000, 0x00000010, 0x40080010, 0x40004010,
+            0x40000010, 0x40084010, 0x40084000, 0x40000000,
+            0x40004000, 0x00080000, 0x00000010, 0x40080010,
+            0x00084000, 0x00080010, 0x40004010, 0x00000000,
+            0x40000000, 0x00004000, 0x00084010, 0x40080000,
+            0x00080010, 0x40000010, 0x00000000, 0x00084000,
+            0x00004010, 0x40084000, 0x40080000, 0x00004010,
+            0x00000000, 0x00084010, 0x40080010, 0x00080000,
+            0x40004010, 0x40080000, 0x40084000, 0x00004000,
+            0x40080000, 0x40004000, 0x00000010, 0x40084010,
+            0x00084010, 0x00000010, 0x00004000, 0x40000000,
+            0x00004010, 0x40084000, 0x00080000, 0x40000010,
+            0x00080010, 0x40004010, 0x40000010, 0x00080010,
+            0x00084000, 0x00000000, 0x40004000, 0x00004010,
+            0x40000000, 0x40080010, 0x40084010, 0x00084000
+        );
+        static $sbox3 = array(
+            0x00000104, 0x04010100, 0x00000000, 0x04010004,
+            0x04000100, 0x00000000, 0x00010104, 0x04000100,
+            0x00010004, 0x04000004, 0x04000004, 0x00010000,
+            0x04010104, 0x00010004, 0x04010000, 0x00000104,
+            0x04000000, 0x00000004, 0x04010100, 0x00000100,
+            0x00010100, 0x04010000, 0x04010004, 0x00010104,
+            0x04000104, 0x00010100, 0x00010000, 0x04000104,
+            0x00000004, 0x04010104, 0x00000100, 0x04000000,
+            0x04010100, 0x04000000, 0x00010004, 0x00000104,
+            0x00010000, 0x04010100, 0x04000100, 0x00000000,
+            0x00000100, 0x00010004, 0x04010104, 0x04000100,
+            0x04000004, 0x00000100, 0x00000000, 0x04010004,
+            0x04000104, 0x00010000, 0x04000000, 0x04010104,
+            0x00000004, 0x00010104, 0x00010100, 0x04000004,
+            0x04010000, 0x04000104, 0x00000104, 0x04010000,
+            0x00010104, 0x00000004, 0x04010004, 0x00010100
+        );
+        static $sbox4 = array(
+            0x80401000, 0x80001040, 0x80001040, 0x00000040,
+            0x00401040, 0x80400040, 0x80400000, 0x80001000,
+            0x00000000, 0x00401000, 0x00401000, 0x80401040,
+            0x80000040, 0x00000000, 0x00400040, 0x80400000,
+            0x80000000, 0x00001000, 0x00400000, 0x80401000,
+            0x00000040, 0x00400000, 0x80001000, 0x00001040,
+            0x80400040, 0x80000000, 0x00001040, 0x00400040,
+            0x00001000, 0x00401040, 0x80401040, 0x80000040,
+            0x00400040, 0x80400000, 0x00401000, 0x80401040,
+            0x80000040, 0x00000000, 0x00000000, 0x00401000,
+            0x00001040, 0x00400040, 0x80400040, 0x80000000,
+            0x80401000, 0x80001040, 0x80001040, 0x00000040,
+            0x80401040, 0x80000040, 0x80000000, 0x00001000,
+            0x80400000, 0x80001000, 0x00401040, 0x80400040,
+            0x80001000, 0x00001040, 0x00400000, 0x80401000,
+            0x00000040, 0x00400000, 0x00001000, 0x00401040
+        );
+        static $sbox5 = array(
+            0x00000080, 0x01040080, 0x01040000, 0x21000080,
+            0x00040000, 0x00000080, 0x20000000, 0x01040000,
+            0x20040080, 0x00040000, 0x01000080, 0x20040080,
+            0x21000080, 0x21040000, 0x00040080, 0x20000000,
+            0x01000000, 0x20040000, 0x20040000, 0x00000000,
+            0x20000080, 0x21040080, 0x21040080, 0x01000080,
+            0x21040000, 0x20000080, 0x00000000, 0x21000000,
+            0x01040080, 0x01000000, 0x21000000, 0x00040080,
+            0x00040000, 0x21000080, 0x00000080, 0x01000000,
+            0x20000000, 0x01040000, 0x21000080, 0x20040080,
+            0x01000080, 0x20000000, 0x21040000, 0x01040080,
+            0x20040080, 0x00000080, 0x01000000, 0x21040000,
+            0x21040080, 0x00040080, 0x21000000, 0x21040080,
+            0x01040000, 0x00000000, 0x20040000, 0x21000000,
+            0x00040080, 0x01000080, 0x20000080, 0x00040000,
+            0x00000000, 0x20040000, 0x01040080, 0x20000080
+        );
+        static $sbox6 = array(
+            0x10000008, 0x10200000, 0x00002000, 0x10202008,
+            0x10200000, 0x00000008, 0x10202008, 0x00200000,
+            0x10002000, 0x00202008, 0x00200000, 0x10000008,
+            0x00200008, 0x10002000, 0x10000000, 0x00002008,
+            0x00000000, 0x00200008, 0x10002008, 0x00002000,
+            0x00202000, 0x10002008, 0x00000008, 0x10200008,
+            0x10200008, 0x00000000, 0x00202008, 0x10202000,
+            0x00002008, 0x00202000, 0x10202000, 0x10000000,
+            0x10002000, 0x00000008, 0x10200008, 0x00202000,
+            0x10202008, 0x00200000, 0x00002008, 0x10000008,
+            0x00200000, 0x10002000, 0x10000000, 0x00002008,
+            0x10000008, 0x10202008, 0x00202000, 0x10200000,
+            0x00202008, 0x10202000, 0x00000000, 0x10200008,
+            0x00000008, 0x00002000, 0x10200000, 0x00202008,
+            0x00002000, 0x00200008, 0x10002008, 0x00000000,
+            0x10202000, 0x10000000, 0x00200008, 0x10002008
+        );
+        static $sbox7 = array(
+            0x00100000, 0x02100001, 0x02000401, 0x00000000,
+            0x00000400, 0x02000401, 0x00100401, 0x02100400,
+            0x02100401, 0x00100000, 0x00000000, 0x02000001,
+            0x00000001, 0x02000000, 0x02100001, 0x00000401,
+            0x02000400, 0x00100401, 0x00100001, 0x02000400,
+            0x02000001, 0x02100000, 0x02100400, 0x00100001,
+            0x02100000, 0x00000400, 0x00000401, 0x02100401,
+            0x00100400, 0x00000001, 0x02000000, 0x00100400,
+            0x02000000, 0x00100400, 0x00100000, 0x02000401,
+            0x02000401, 0x02100001, 0x02100001, 0x00000001,
+            0x00100001, 0x02000000, 0x02000400, 0x00100000,
+            0x02100400, 0x00000401, 0x00100401, 0x02100400,
+            0x00000401, 0x02000001, 0x02100401, 0x02100000,
+            0x00100400, 0x00000000, 0x00000001, 0x02100401,
+            0x00000000, 0x00100401, 0x02100000, 0x00000400,
+            0x02000001, 0x02000400, 0x00000400, 0x00100001
+        );
+        static $sbox8 = array(
+            0x08000820, 0x00000800, 0x00020000, 0x08020820,
+            0x08000000, 0x08000820, 0x00000020, 0x08000000,
+            0x00020020, 0x08020000, 0x08020820, 0x00020800,
+            0x08020800, 0x00020820, 0x00000800, 0x00000020,
+            0x08020000, 0x08000020, 0x08000800, 0x00000820,
+            0x00020800, 0x00020020, 0x08020020, 0x08020800,
+            0x00000820, 0x00000000, 0x00000000, 0x08020020,
+            0x08000020, 0x08000800, 0x00020820, 0x00020000,
+            0x00020820, 0x00020000, 0x08020800, 0x00000800,
+            0x00000020, 0x08020020, 0x00000800, 0x00020820,
+            0x08000800, 0x00000020, 0x08000020, 0x08020000,
+            0x08020020, 0x08000000, 0x00020000, 0x08000820,
+            0x00000000, 0x08020820, 0x00020020, 0x08000020,
+            0x08020000, 0x08000800, 0x08000820, 0x00000000,
+            0x08020820, 0x00020800, 0x00020800, 0x00000820,
+            0x00000820, 0x00020020, 0x08000000, 0x08020800
+        );
+
+        $keys = $this->keys[$mode];
+
+        // Do the initial IP permutation.
+        $t = unpack('Nl/Nr', $block);
+        list($l, $r) = array($t['l'], $t['r']);
+        $block = ($this->shuffle[$ipmap[$r & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
+                 ($this->shuffle[$ipmap[($r >> 8) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
+                 ($this->shuffle[$ipmap[($r >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
+                 ($this->shuffle[$ipmap[($r >> 24) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
+                 ($this->shuffle[$ipmap[$l & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
+                 ($this->shuffle[$ipmap[($l >> 8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
+                 ($this->shuffle[$ipmap[($l >> 16) & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
+                 ($this->shuffle[$ipmap[($l >> 24) & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x01");
+
+        // Extract L0 and R0.
+        $t = unpack('Nl/Nr', $block);
+        list($l, $r) = array($t['l'], $t['r']);
+
+        // Perform the 16 steps.
         for ($i = 0; $i < 16; $i++) {
             // start of "the Feistel (F) function" - see the following URL:
             // http://en.wikipedia.org/wiki/Image:Data_Encryption_Standard_InfoBox_Diagram.png
-            $temp = (($sbox[0][((($block[1] >> 27) & 0x1F) | (($block[1] & 1) << 5)) ^ $keys[$mode][$i][0]]) << 28)
-                  | (($sbox[1][(($block[1] & 0x1F800000) >> 23) ^ $keys[$mode][$i][1]]) << 24)
-                  | (($sbox[2][(($block[1] & 0x01F80000) >> 19) ^ $keys[$mode][$i][2]]) << 20)
-                  | (($sbox[3][(($block[1] & 0x001F8000) >> 15) ^ $keys[$mode][$i][3]]) << 16)
-                  | (($sbox[4][(($block[1] & 0x0001F800) >> 11) ^ $keys[$mode][$i][4]]) << 12)
-                  | (($sbox[5][(($block[1] & 0x00001F80) >>  7) ^ $keys[$mode][$i][5]]) <<  8)
-                  | (($sbox[6][(($block[1] & 0x000001F8) >>  3) ^ $keys[$mode][$i][6]]) <<  4)
-                  | ( $sbox[7][((($block[1] & 0x1F) << 1) | (($block[1] >> 31) & 1)) ^ $keys[$mode][$i][7]]);
+            // Merge key schedule.
+            $b1 = (($r >> 3) & 0x1FFFFFFF) ^ ($r << 29) ^ $keys[$i][0];
+            $b2 = (($r >> 31) & 0x00000001) ^ ($r << 1) ^ $keys[$i][1];
 
-            $msb = ($temp >> 31) & 1;
-            $temp &= 0x7FFFFFFF;
-            $newBlock = (($temp & 0x00010000) << 15) | (($temp & 0x02020120) <<  5)
-                      | (($temp & 0x00001800) << 17) | (($temp & 0x01000000) >> 10)
-                      | (($temp & 0x00000008) << 24) | (($temp & 0x00100000) <<  6)
-                      | (($temp & 0x00000010) << 21) | (($temp & 0x00008000) <<  9)
-                      | (($temp & 0x00000200) << 12) | (($temp & 0x10000000) >> 27)
-                      | (($temp & 0x00000040) << 14) | (($temp & 0x08000000) >>  8)
-                      | (($temp & 0x00004000) <<  4) | (($temp & 0x00000002) << 16)
-                      | (($temp & 0x00442000) >>  6) | (($temp & 0x40800000) >> 15)
-                      | (($temp & 0x00000001) << 11) | (($temp & 0x20000000) >> 20)
-                      | (($temp & 0x00080000) >> 13) | (($temp & 0x00000004) <<  3)
-                      | (($temp & 0x04000000) >> 22) | (($temp & 0x00000480) >>  7)
-                      | (($temp & 0x00200000) >> 19) | ($msb << 23);
-            // end of "the Feistel (F) function" - $newBlock is F's output
+            // S-box indexing.
+            $t = $sbox1[($b1 >> 24) & 0x3F] ^ $sbox2[($b2 >> 24) & 0x3F] ^
+                 $sbox3[($b1 >> 16) & 0x3F] ^ $sbox4[($b2 >> 16) & 0x3F] ^
+                 $sbox5[($b1 >> 8) & 0x3F] ^ $sbox6[($b2 >> 8) & 0x3F] ^
+                 $sbox7[$b1 & 0x3F] ^ $sbox8[$b2 & 0x3F] ^ $l;
+            // end of "the Feistel (F) function"
 
-            $temp = $block[1];
-            $block[1] = $block[0] ^ $newBlock;
-            $block[0] = $temp;
+            $l = $r;
+            $r = $t;
         }
 
-        $msb = array(
-            ($block[0] >> 31) & 1,
-            ($block[1] >> 31) & 1
-        );
-        $block[0] &= 0x7FFFFFFF;
-        $block[1] &= 0x7FFFFFFF;
-
-        $block = array(
-            (($block[0] & 0x01000004) <<  7) | (($block[1] & 0x01000004) <<  6) |
-            (($block[0] & 0x00010000) << 13) | (($block[1] & 0x00010000) << 12) |
-            (($block[0] & 0x00000100) << 19) | (($block[1] & 0x00000100) << 18) |
-            (($block[0] & 0x00000001) << 25) | (($block[1] & 0x00000001) << 24) |
-            (($block[0] & 0x02000008) >>  2) | (($block[1] & 0x02000008) >>  3) |
-            (($block[0] & 0x00020000) <<  4) | (($block[1] & 0x00020000) <<  3) |
-            (($block[0] & 0x00000200) << 10) | (($block[1] & 0x00000200) <<  9) |
-            (($block[0] & 0x00000002) << 16) | (($block[1] & 0x00000002) << 15) |
-            (($block[0] & 0x04000000) >> 11) | (($block[1] & 0x04000000) >> 12) |
-            (($block[0] & 0x00040000) >>  5) | (($block[1] & 0x00040000) >>  6) |
-            (($block[0] & 0x00000400) <<  1) | ( $block[1] & 0x00000400       ) |
-            (($block[0] & 0x08000000) >> 20) | (($block[1] & 0x08000000) >> 21) |
-            (($block[0] & 0x00080000) >> 14) | (($block[1] & 0x00080000) >> 15) |
-            (($block[0] & 0x00000800) >>  8) | (($block[1] & 0x00000800) >>  9)
-        ,
-            (($block[0] & 0x10000040) <<  3) | (($block[1] & 0x10000040) <<  2) |
-            (($block[0] & 0x00100000) <<  9) | (($block[1] & 0x00100000) <<  8) |
-            (($block[0] & 0x00001000) << 15) | (($block[1] & 0x00001000) << 14) |
-            (($block[0] & 0x00000010) << 21) | (($block[1] & 0x00000010) << 20) |
-            (($block[0] & 0x20000080) >>  6) | (($block[1] & 0x20000080) >>  7) |
-            ( $block[0] & 0x00200000       ) | (($block[1] & 0x00200000) >>  1) |
-            (($block[0] & 0x00002000) <<  6) | (($block[1] & 0x00002000) <<  5) |
-            (($block[0] & 0x00000020) << 12) | (($block[1] & 0x00000020) << 11) |
-            (($block[0] & 0x40000000) >> 15) | (($block[1] & 0x40000000) >> 16) |
-            (($block[0] & 0x00400000) >>  9) | (($block[1] & 0x00400000) >> 10) |
-            (($block[0] & 0x00004000) >>  3) | (($block[1] & 0x00004000) >>  4) |
-            (($block[0] & 0x00800000) >> 18) | (($block[1] & 0x00800000) >> 19) |
-            (($block[0] & 0x00008000) >> 12) | (($block[1] & 0x00008000) >> 13) |
-            ($msb[0] <<  7) | ($msb[1] <<  6)
-        );
-
-        return pack('NN', $block[0], $block[1]);
+        // Perform the inverse IP permutation.
+        return ($this->shuffle[$invipmap[($l >> 24) & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
+               ($this->shuffle[$invipmap[($r >> 24) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
+               ($this->shuffle[$invipmap[($l >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
+               ($this->shuffle[$invipmap[($r >> 16) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
+               ($this->shuffle[$invipmap[($l >> 8) & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
+               ($this->shuffle[$invipmap[($r >> 8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
+               ($this->shuffle[$invipmap[$l & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
+               ($this->shuffle[$invipmap[$r & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x01");
     }
 
     /**
@@ -1229,97 +1467,495 @@ class Crypt_DES {
             1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1
         );
 
+        static $pc1map = array(
+            0x00, 0x00, 0x08, 0x08, 0x04, 0x04, 0x0C, 0x0C,
+            0x02, 0x02, 0x0A, 0x0A, 0x06, 0x06, 0x0E, 0x0E,
+            0x10, 0x10, 0x18, 0x18, 0x14, 0x14, 0x1C, 0x1C,
+            0x12, 0x12, 0x1A, 0x1A, 0x16, 0x16, 0x1E, 0x1E,
+            0x20, 0x20, 0x28, 0x28, 0x24, 0x24, 0x2C, 0x2C,
+            0x22, 0x22, 0x2A, 0x2A, 0x26, 0x26, 0x2E, 0x2E,
+            0x30, 0x30, 0x38, 0x38, 0x34, 0x34, 0x3C, 0x3C,
+            0x32, 0x32, 0x3A, 0x3A, 0x36, 0x36, 0x3E, 0x3E,
+            0x40, 0x40, 0x48, 0x48, 0x44, 0x44, 0x4C, 0x4C,
+            0x42, 0x42, 0x4A, 0x4A, 0x46, 0x46, 0x4E, 0x4E,
+            0x50, 0x50, 0x58, 0x58, 0x54, 0x54, 0x5C, 0x5C,
+            0x52, 0x52, 0x5A, 0x5A, 0x56, 0x56, 0x5E, 0x5E,
+            0x60, 0x60, 0x68, 0x68, 0x64, 0x64, 0x6C, 0x6C,
+            0x62, 0x62, 0x6A, 0x6A, 0x66, 0x66, 0x6E, 0x6E,
+            0x70, 0x70, 0x78, 0x78, 0x74, 0x74, 0x7C, 0x7C,
+            0x72, 0x72, 0x7A, 0x7A, 0x76, 0x76, 0x7E, 0x7E,
+            0x80, 0x80, 0x88, 0x88, 0x84, 0x84, 0x8C, 0x8C,
+            0x82, 0x82, 0x8A, 0x8A, 0x86, 0x86, 0x8E, 0x8E,
+            0x90, 0x90, 0x98, 0x98, 0x94, 0x94, 0x9C, 0x9C,
+            0x92, 0x92, 0x9A, 0x9A, 0x96, 0x96, 0x9E, 0x9E,
+            0xA0, 0xA0, 0xA8, 0xA8, 0xA4, 0xA4, 0xAC, 0xAC,
+            0xA2, 0xA2, 0xAA, 0xAA, 0xA6, 0xA6, 0xAE, 0xAE,
+            0xB0, 0xB0, 0xB8, 0xB8, 0xB4, 0xB4, 0xBC, 0xBC,
+            0xB2, 0xB2, 0xBA, 0xBA, 0xB6, 0xB6, 0xBE, 0xBE,
+            0xC0, 0xC0, 0xC8, 0xC8, 0xC4, 0xC4, 0xCC, 0xCC,
+            0xC2, 0xC2, 0xCA, 0xCA, 0xC6, 0xC6, 0xCE, 0xCE,
+            0xD0, 0xD0, 0xD8, 0xD8, 0xD4, 0xD4, 0xDC, 0xDC,
+            0xD2, 0xD2, 0xDA, 0xDA, 0xD6, 0xD6, 0xDE, 0xDE,
+            0xE0, 0xE0, 0xE8, 0xE8, 0xE4, 0xE4, 0xEC, 0xEC,
+            0xE2, 0xE2, 0xEA, 0xEA, 0xE6, 0xE6, 0xEE, 0xEE,
+            0xF0, 0xF0, 0xF8, 0xF8, 0xF4, 0xF4, 0xFC, 0xFC,
+            0xF2, 0xF2, 0xFA, 0xFA, 0xF6, 0xF6, 0xFE, 0xFE
+        );
+
+        // Mapping tables for the PC-2 transformation.
+        static $pc2mapc1 = array(
+            0x00000000, 0x00000400, 0x00200000, 0x00200400,
+            0x00000001, 0x00000401, 0x00200001, 0x00200401,
+            0x02000000, 0x02000400, 0x02200000, 0x02200400,
+            0x02000001, 0x02000401, 0x02200001, 0x02200401
+        );
+        static $pc2mapc2 = array(
+            0x00000000, 0x00000800, 0x08000000, 0x08000800,
+            0x00010000, 0x00010800, 0x08010000, 0x08010800,
+            0x00000000, 0x00000800, 0x08000000, 0x08000800,
+            0x00010000, 0x00010800, 0x08010000, 0x08010800,
+            0x00000100, 0x00000900, 0x08000100, 0x08000900,
+            0x00010100, 0x00010900, 0x08010100, 0x08010900,
+            0x00000100, 0x00000900, 0x08000100, 0x08000900,
+            0x00010100, 0x00010900, 0x08010100, 0x08010900,
+            0x00000010, 0x00000810, 0x08000010, 0x08000810,
+            0x00010010, 0x00010810, 0x08010010, 0x08010810,
+            0x00000010, 0x00000810, 0x08000010, 0x08000810,
+            0x00010010, 0x00010810, 0x08010010, 0x08010810,
+            0x00000110, 0x00000910, 0x08000110, 0x08000910,
+            0x00010110, 0x00010910, 0x08010110, 0x08010910,
+            0x00000110, 0x00000910, 0x08000110, 0x08000910,
+            0x00010110, 0x00010910, 0x08010110, 0x08010910,
+            0x00040000, 0x00040800, 0x08040000, 0x08040800,
+            0x00050000, 0x00050800, 0x08050000, 0x08050800,
+            0x00040000, 0x00040800, 0x08040000, 0x08040800,
+            0x00050000, 0x00050800, 0x08050000, 0x08050800,
+            0x00040100, 0x00040900, 0x08040100, 0x08040900,
+            0x00050100, 0x00050900, 0x08050100, 0x08050900,
+            0x00040100, 0x00040900, 0x08040100, 0x08040900,
+            0x00050100, 0x00050900, 0x08050100, 0x08050900,
+            0x00040010, 0x00040810, 0x08040010, 0x08040810,
+            0x00050010, 0x00050810, 0x08050010, 0x08050810,
+            0x00040010, 0x00040810, 0x08040010, 0x08040810,
+            0x00050010, 0x00050810, 0x08050010, 0x08050810,
+            0x00040110, 0x00040910, 0x08040110, 0x08040910,
+            0x00050110, 0x00050910, 0x08050110, 0x08050910,
+            0x00040110, 0x00040910, 0x08040110, 0x08040910,
+            0x00050110, 0x00050910, 0x08050110, 0x08050910,
+            0x01000000, 0x01000800, 0x09000000, 0x09000800,
+            0x01010000, 0x01010800, 0x09010000, 0x09010800,
+            0x01000000, 0x01000800, 0x09000000, 0x09000800,
+            0x01010000, 0x01010800, 0x09010000, 0x09010800,
+            0x01000100, 0x01000900, 0x09000100, 0x09000900,
+            0x01010100, 0x01010900, 0x09010100, 0x09010900,
+            0x01000100, 0x01000900, 0x09000100, 0x09000900,
+            0x01010100, 0x01010900, 0x09010100, 0x09010900,
+            0x01000010, 0x01000810, 0x09000010, 0x09000810,
+            0x01010010, 0x01010810, 0x09010010, 0x09010810,
+            0x01000010, 0x01000810, 0x09000010, 0x09000810,
+            0x01010010, 0x01010810, 0x09010010, 0x09010810,
+            0x01000110, 0x01000910, 0x09000110, 0x09000910,
+            0x01010110, 0x01010910, 0x09010110, 0x09010910,
+            0x01000110, 0x01000910, 0x09000110, 0x09000910,
+            0x01010110, 0x01010910, 0x09010110, 0x09010910,
+            0x01040000, 0x01040800, 0x09040000, 0x09040800,
+            0x01050000, 0x01050800, 0x09050000, 0x09050800,
+            0x01040000, 0x01040800, 0x09040000, 0x09040800,
+            0x01050000, 0x01050800, 0x09050000, 0x09050800,
+            0x01040100, 0x01040900, 0x09040100, 0x09040900,
+            0x01050100, 0x01050900, 0x09050100, 0x09050900,
+            0x01040100, 0x01040900, 0x09040100, 0x09040900,
+            0x01050100, 0x01050900, 0x09050100, 0x09050900,
+            0x01040010, 0x01040810, 0x09040010, 0x09040810,
+            0x01050010, 0x01050810, 0x09050010, 0x09050810,
+            0x01040010, 0x01040810, 0x09040010, 0x09040810,
+            0x01050010, 0x01050810, 0x09050010, 0x09050810,
+            0x01040110, 0x01040910, 0x09040110, 0x09040910,
+            0x01050110, 0x01050910, 0x09050110, 0x09050910,
+            0x01040110, 0x01040910, 0x09040110, 0x09040910,
+            0x01050110, 0x01050910, 0x09050110, 0x09050910
+        );
+        static $pc2mapc3 = array(
+            0x00000000, 0x00000004, 0x00001000, 0x00001004,
+            0x00000000, 0x00000004, 0x00001000, 0x00001004,
+            0x10000000, 0x10000004, 0x10001000, 0x10001004,
+            0x10000000, 0x10000004, 0x10001000, 0x10001004,
+            0x00000020, 0x00000024, 0x00001020, 0x00001024,
+            0x00000020, 0x00000024, 0x00001020, 0x00001024,
+            0x10000020, 0x10000024, 0x10001020, 0x10001024,
+            0x10000020, 0x10000024, 0x10001020, 0x10001024,
+            0x00080000, 0x00080004, 0x00081000, 0x00081004,
+            0x00080000, 0x00080004, 0x00081000, 0x00081004,
+            0x10080000, 0x10080004, 0x10081000, 0x10081004,
+            0x10080000, 0x10080004, 0x10081000, 0x10081004,
+            0x00080020, 0x00080024, 0x00081020, 0x00081024,
+            0x00080020, 0x00080024, 0x00081020, 0x00081024,
+            0x10080020, 0x10080024, 0x10081020, 0x10081024,
+            0x10080020, 0x10080024, 0x10081020, 0x10081024,
+            0x20000000, 0x20000004, 0x20001000, 0x20001004,
+            0x20000000, 0x20000004, 0x20001000, 0x20001004,
+            0x30000000, 0x30000004, 0x30001000, 0x30001004,
+            0x30000000, 0x30000004, 0x30001000, 0x30001004,
+            0x20000020, 0x20000024, 0x20001020, 0x20001024,
+            0x20000020, 0x20000024, 0x20001020, 0x20001024,
+            0x30000020, 0x30000024, 0x30001020, 0x30001024,
+            0x30000020, 0x30000024, 0x30001020, 0x30001024,
+            0x20080000, 0x20080004, 0x20081000, 0x20081004,
+            0x20080000, 0x20080004, 0x20081000, 0x20081004,
+            0x30080000, 0x30080004, 0x30081000, 0x30081004,
+            0x30080000, 0x30080004, 0x30081000, 0x30081004,
+            0x20080020, 0x20080024, 0x20081020, 0x20081024,
+            0x20080020, 0x20080024, 0x20081020, 0x20081024,
+            0x30080020, 0x30080024, 0x30081020, 0x30081024,
+            0x30080020, 0x30080024, 0x30081020, 0x30081024,
+            0x00000002, 0x00000006, 0x00001002, 0x00001006,
+            0x00000002, 0x00000006, 0x00001002, 0x00001006,
+            0x10000002, 0x10000006, 0x10001002, 0x10001006,
+            0x10000002, 0x10000006, 0x10001002, 0x10001006,
+            0x00000022, 0x00000026, 0x00001022, 0x00001026,
+            0x00000022, 0x00000026, 0x00001022, 0x00001026,
+            0x10000022, 0x10000026, 0x10001022, 0x10001026,
+            0x10000022, 0x10000026, 0x10001022, 0x10001026,
+            0x00080002, 0x00080006, 0x00081002, 0x00081006,
+            0x00080002, 0x00080006, 0x00081002, 0x00081006,
+            0x10080002, 0x10080006, 0x10081002, 0x10081006,
+            0x10080002, 0x10080006, 0x10081002, 0x10081006,
+            0x00080022, 0x00080026, 0x00081022, 0x00081026,
+            0x00080022, 0x00080026, 0x00081022, 0x00081026,
+            0x10080022, 0x10080026, 0x10081022, 0x10081026,
+            0x10080022, 0x10080026, 0x10081022, 0x10081026,
+            0x20000002, 0x20000006, 0x20001002, 0x20001006,
+            0x20000002, 0x20000006, 0x20001002, 0x20001006,
+            0x30000002, 0x30000006, 0x30001002, 0x30001006,
+            0x30000002, 0x30000006, 0x30001002, 0x30001006,
+            0x20000022, 0x20000026, 0x20001022, 0x20001026,
+            0x20000022, 0x20000026, 0x20001022, 0x20001026,
+            0x30000022, 0x30000026, 0x30001022, 0x30001026,
+            0x30000022, 0x30000026, 0x30001022, 0x30001026,
+            0x20080002, 0x20080006, 0x20081002, 0x20081006,
+            0x20080002, 0x20080006, 0x20081002, 0x20081006,
+            0x30080002, 0x30080006, 0x30081002, 0x30081006,
+            0x30080002, 0x30080006, 0x30081002, 0x30081006,
+            0x20080022, 0x20080026, 0x20081022, 0x20081026,
+            0x20080022, 0x20080026, 0x20081022, 0x20081026,
+            0x30080022, 0x30080026, 0x30081022, 0x30081026,
+            0x30080022, 0x30080026, 0x30081022, 0x30081026
+        );
+        static $pc2mapc4 = array(
+            0x00000000, 0x00100000, 0x00000008, 0x00100008,
+            0x00000200, 0x00100200, 0x00000208, 0x00100208,
+            0x00000000, 0x00100000, 0x00000008, 0x00100008,
+            0x00000200, 0x00100200, 0x00000208, 0x00100208,
+            0x04000000, 0x04100000, 0x04000008, 0x04100008,
+            0x04000200, 0x04100200, 0x04000208, 0x04100208,
+            0x04000000, 0x04100000, 0x04000008, 0x04100008,
+            0x04000200, 0x04100200, 0x04000208, 0x04100208,
+            0x00002000, 0x00102000, 0x00002008, 0x00102008,
+            0x00002200, 0x00102200, 0x00002208, 0x00102208,
+            0x00002000, 0x00102000, 0x00002008, 0x00102008,
+            0x00002200, 0x00102200, 0x00002208, 0x00102208,
+            0x04002000, 0x04102000, 0x04002008, 0x04102008,
+            0x04002200, 0x04102200, 0x04002208, 0x04102208,
+            0x04002000, 0x04102000, 0x04002008, 0x04102008,
+            0x04002200, 0x04102200, 0x04002208, 0x04102208,
+            0x00000000, 0x00100000, 0x00000008, 0x00100008,
+            0x00000200, 0x00100200, 0x00000208, 0x00100208,
+            0x00000000, 0x00100000, 0x00000008, 0x00100008,
+            0x00000200, 0x00100200, 0x00000208, 0x00100208,
+            0x04000000, 0x04100000, 0x04000008, 0x04100008,
+            0x04000200, 0x04100200, 0x04000208, 0x04100208,
+            0x04000000, 0x04100000, 0x04000008, 0x04100008,
+            0x04000200, 0x04100200, 0x04000208, 0x04100208,
+            0x00002000, 0x00102000, 0x00002008, 0x00102008,
+            0x00002200, 0x00102200, 0x00002208, 0x00102208,
+            0x00002000, 0x00102000, 0x00002008, 0x00102008,
+            0x00002200, 0x00102200, 0x00002208, 0x00102208,
+            0x04002000, 0x04102000, 0x04002008, 0x04102008,
+            0x04002200, 0x04102200, 0x04002208, 0x04102208,
+            0x04002000, 0x04102000, 0x04002008, 0x04102008,
+            0x04002200, 0x04102200, 0x04002208, 0x04102208,
+            0x00020000, 0x00120000, 0x00020008, 0x00120008,
+            0x00020200, 0x00120200, 0x00020208, 0x00120208,
+            0x00020000, 0x00120000, 0x00020008, 0x00120008,
+            0x00020200, 0x00120200, 0x00020208, 0x00120208,
+            0x04020000, 0x04120000, 0x04020008, 0x04120008,
+            0x04020200, 0x04120200, 0x04020208, 0x04120208,
+            0x04020000, 0x04120000, 0x04020008, 0x04120008,
+            0x04020200, 0x04120200, 0x04020208, 0x04120208,
+            0x00022000, 0x00122000, 0x00022008, 0x00122008,
+            0x00022200, 0x00122200, 0x00022208, 0x00122208,
+            0x00022000, 0x00122000, 0x00022008, 0x00122008,
+            0x00022200, 0x00122200, 0x00022208, 0x00122208,
+            0x04022000, 0x04122000, 0x04022008, 0x04122008,
+            0x04022200, 0x04122200, 0x04022208, 0x04122208,
+            0x04022000, 0x04122000, 0x04022008, 0x04122008,
+            0x04022200, 0x04122200, 0x04022208, 0x04122208,
+            0x00020000, 0x00120000, 0x00020008, 0x00120008,
+            0x00020200, 0x00120200, 0x00020208, 0x00120208,
+            0x00020000, 0x00120000, 0x00020008, 0x00120008,
+            0x00020200, 0x00120200, 0x00020208, 0x00120208,
+            0x04020000, 0x04120000, 0x04020008, 0x04120008,
+            0x04020200, 0x04120200, 0x04020208, 0x04120208,
+            0x04020000, 0x04120000, 0x04020008, 0x04120008,
+            0x04020200, 0x04120200, 0x04020208, 0x04120208,
+            0x00022000, 0x00122000, 0x00022008, 0x00122008,
+            0x00022200, 0x00122200, 0x00022208, 0x00122208,
+            0x00022000, 0x00122000, 0x00022008, 0x00122008,
+            0x00022200, 0x00122200, 0x00022208, 0x00122208,
+            0x04022000, 0x04122000, 0x04022008, 0x04122008,
+            0x04022200, 0x04122200, 0x04022208, 0x04122208,
+            0x04022000, 0x04122000, 0x04022008, 0x04122008,
+            0x04022200, 0x04122200, 0x04022208, 0x04122208
+        );
+        static $pc2mapd1 = array(
+            0x00000000, 0x00000001, 0x08000000, 0x08000001,
+            0x00200000, 0x00200001, 0x08200000, 0x08200001,
+            0x00000002, 0x00000003, 0x08000002, 0x08000003,
+            0x00200002, 0x00200003, 0x08200002, 0x08200003
+        );
+        static $pc2mapd2 = array(
+            0x00000000, 0x00100000, 0x00000800, 0x00100800,
+            0x00000000, 0x00100000, 0x00000800, 0x00100800,
+            0x04000000, 0x04100000, 0x04000800, 0x04100800,
+            0x04000000, 0x04100000, 0x04000800, 0x04100800,
+            0x00000004, 0x00100004, 0x00000804, 0x00100804,
+            0x00000004, 0x00100004, 0x00000804, 0x00100804,
+            0x04000004, 0x04100004, 0x04000804, 0x04100804,
+            0x04000004, 0x04100004, 0x04000804, 0x04100804,
+            0x00000000, 0x00100000, 0x00000800, 0x00100800,
+            0x00000000, 0x00100000, 0x00000800, 0x00100800,
+            0x04000000, 0x04100000, 0x04000800, 0x04100800,
+            0x04000000, 0x04100000, 0x04000800, 0x04100800,
+            0x00000004, 0x00100004, 0x00000804, 0x00100804,
+            0x00000004, 0x00100004, 0x00000804, 0x00100804,
+            0x04000004, 0x04100004, 0x04000804, 0x04100804,
+            0x04000004, 0x04100004, 0x04000804, 0x04100804,
+            0x00000200, 0x00100200, 0x00000A00, 0x00100A00,
+            0x00000200, 0x00100200, 0x00000A00, 0x00100A00,
+            0x04000200, 0x04100200, 0x04000A00, 0x04100A00,
+            0x04000200, 0x04100200, 0x04000A00, 0x04100A00,
+            0x00000204, 0x00100204, 0x00000A04, 0x00100A04,
+            0x00000204, 0x00100204, 0x00000A04, 0x00100A04,
+            0x04000204, 0x04100204, 0x04000A04, 0x04100A04,
+            0x04000204, 0x04100204, 0x04000A04, 0x04100A04,
+            0x00000200, 0x00100200, 0x00000A00, 0x00100A00,
+            0x00000200, 0x00100200, 0x00000A00, 0x00100A00,
+            0x04000200, 0x04100200, 0x04000A00, 0x04100A00,
+            0x04000200, 0x04100200, 0x04000A00, 0x04100A00,
+            0x00000204, 0x00100204, 0x00000A04, 0x00100A04,
+            0x00000204, 0x00100204, 0x00000A04, 0x00100A04,
+            0x04000204, 0x04100204, 0x04000A04, 0x04100A04,
+            0x04000204, 0x04100204, 0x04000A04, 0x04100A04,
+            0x00020000, 0x00120000, 0x00020800, 0x00120800,
+            0x00020000, 0x00120000, 0x00020800, 0x00120800,
+            0x04020000, 0x04120000, 0x04020800, 0x04120800,
+            0x04020000, 0x04120000, 0x04020800, 0x04120800,
+            0x00020004, 0x00120004, 0x00020804, 0x00120804,
+            0x00020004, 0x00120004, 0x00020804, 0x00120804,
+            0x04020004, 0x04120004, 0x04020804, 0x04120804,
+            0x04020004, 0x04120004, 0x04020804, 0x04120804,
+            0x00020000, 0x00120000, 0x00020800, 0x00120800,
+            0x00020000, 0x00120000, 0x00020800, 0x00120800,
+            0x04020000, 0x04120000, 0x04020800, 0x04120800,
+            0x04020000, 0x04120000, 0x04020800, 0x04120800,
+            0x00020004, 0x00120004, 0x00020804, 0x00120804,
+            0x00020004, 0x00120004, 0x00020804, 0x00120804,
+            0x04020004, 0x04120004, 0x04020804, 0x04120804,
+            0x04020004, 0x04120004, 0x04020804, 0x04120804,
+            0x00020200, 0x00120200, 0x00020A00, 0x00120A00,
+            0x00020200, 0x00120200, 0x00020A00, 0x00120A00,
+            0x04020200, 0x04120200, 0x04020A00, 0x04120A00,
+            0x04020200, 0x04120200, 0x04020A00, 0x04120A00,
+            0x00020204, 0x00120204, 0x00020A04, 0x00120A04,
+            0x00020204, 0x00120204, 0x00020A04, 0x00120A04,
+            0x04020204, 0x04120204, 0x04020A04, 0x04120A04,
+            0x04020204, 0x04120204, 0x04020A04, 0x04120A04,
+            0x00020200, 0x00120200, 0x00020A00, 0x00120A00,
+            0x00020200, 0x00120200, 0x00020A00, 0x00120A00,
+            0x04020200, 0x04120200, 0x04020A00, 0x04120A00,
+            0x04020200, 0x04120200, 0x04020A00, 0x04120A00,
+            0x00020204, 0x00120204, 0x00020A04, 0x00120A04,
+            0x00020204, 0x00120204, 0x00020A04, 0x00120A04,
+            0x04020204, 0x04120204, 0x04020A04, 0x04120A04,
+            0x04020204, 0x04120204, 0x04020A04, 0x04120A04
+        );
+        static $pc2mapd3 = array(
+            0x00000000, 0x00010000, 0x02000000, 0x02010000,
+            0x00000020, 0x00010020, 0x02000020, 0x02010020,
+            0x00040000, 0x00050000, 0x02040000, 0x02050000,
+            0x00040020, 0x00050020, 0x02040020, 0x02050020,
+            0x00002000, 0x00012000, 0x02002000, 0x02012000,
+            0x00002020, 0x00012020, 0x02002020, 0x02012020,
+            0x00042000, 0x00052000, 0x02042000, 0x02052000,
+            0x00042020, 0x00052020, 0x02042020, 0x02052020,
+            0x00000000, 0x00010000, 0x02000000, 0x02010000,
+            0x00000020, 0x00010020, 0x02000020, 0x02010020,
+            0x00040000, 0x00050000, 0x02040000, 0x02050000,
+            0x00040020, 0x00050020, 0x02040020, 0x02050020,
+            0x00002000, 0x00012000, 0x02002000, 0x02012000,
+            0x00002020, 0x00012020, 0x02002020, 0x02012020,
+            0x00042000, 0x00052000, 0x02042000, 0x02052000,
+            0x00042020, 0x00052020, 0x02042020, 0x02052020,
+            0x00000010, 0x00010010, 0x02000010, 0x02010010,
+            0x00000030, 0x00010030, 0x02000030, 0x02010030,
+            0x00040010, 0x00050010, 0x02040010, 0x02050010,
+            0x00040030, 0x00050030, 0x02040030, 0x02050030,
+            0x00002010, 0x00012010, 0x02002010, 0x02012010,
+            0x00002030, 0x00012030, 0x02002030, 0x02012030,
+            0x00042010, 0x00052010, 0x02042010, 0x02052010,
+            0x00042030, 0x00052030, 0x02042030, 0x02052030,
+            0x00000010, 0x00010010, 0x02000010, 0x02010010,
+            0x00000030, 0x00010030, 0x02000030, 0x02010030,
+            0x00040010, 0x00050010, 0x02040010, 0x02050010,
+            0x00040030, 0x00050030, 0x02040030, 0x02050030,
+            0x00002010, 0x00012010, 0x02002010, 0x02012010,
+            0x00002030, 0x00012030, 0x02002030, 0x02012030,
+            0x00042010, 0x00052010, 0x02042010, 0x02052010,
+            0x00042030, 0x00052030, 0x02042030, 0x02052030,
+            0x20000000, 0x20010000, 0x22000000, 0x22010000,
+            0x20000020, 0x20010020, 0x22000020, 0x22010020,
+            0x20040000, 0x20050000, 0x22040000, 0x22050000,
+            0x20040020, 0x20050020, 0x22040020, 0x22050020,
+            0x20002000, 0x20012000, 0x22002000, 0x22012000,
+            0x20002020, 0x20012020, 0x22002020, 0x22012020,
+            0x20042000, 0x20052000, 0x22042000, 0x22052000,
+            0x20042020, 0x20052020, 0x22042020, 0x22052020,
+            0x20000000, 0x20010000, 0x22000000, 0x22010000,
+            0x20000020, 0x20010020, 0x22000020, 0x22010020,
+            0x20040000, 0x20050000, 0x22040000, 0x22050000,
+            0x20040020, 0x20050020, 0x22040020, 0x22050020,
+            0x20002000, 0x20012000, 0x22002000, 0x22012000,
+            0x20002020, 0x20012020, 0x22002020, 0x22012020,
+            0x20042000, 0x20052000, 0x22042000, 0x22052000,
+            0x20042020, 0x20052020, 0x22042020, 0x22052020,
+            0x20000010, 0x20010010, 0x22000010, 0x22010010,
+            0x20000030, 0x20010030, 0x22000030, 0x22010030,
+            0x20040010, 0x20050010, 0x22040010, 0x22050010,
+            0x20040030, 0x20050030, 0x22040030, 0x22050030,
+            0x20002010, 0x20012010, 0x22002010, 0x22012010,
+            0x20002030, 0x20012030, 0x22002030, 0x22012030,
+            0x20042010, 0x20052010, 0x22042010, 0x22052010,
+            0x20042030, 0x20052030, 0x22042030, 0x22052030,
+            0x20000010, 0x20010010, 0x22000010, 0x22010010,
+            0x20000030, 0x20010030, 0x22000030, 0x22010030,
+            0x20040010, 0x20050010, 0x22040010, 0x22050010,
+            0x20040030, 0x20050030, 0x22040030, 0x22050030,
+            0x20002010, 0x20012010, 0x22002010, 0x22012010,
+            0x20002030, 0x20012030, 0x22002030, 0x22012030,
+            0x20042010, 0x20052010, 0x22042010, 0x22052010,
+            0x20042030, 0x20052030, 0x22042030, 0x22052030
+        );
+        static $pc2mapd4 = array(
+            0x00000000, 0x00000400, 0x01000000, 0x01000400,
+            0x00000000, 0x00000400, 0x01000000, 0x01000400,
+            0x00000100, 0x00000500, 0x01000100, 0x01000500,
+            0x00000100, 0x00000500, 0x01000100, 0x01000500,
+            0x10000000, 0x10000400, 0x11000000, 0x11000400,
+            0x10000000, 0x10000400, 0x11000000, 0x11000400,
+            0x10000100, 0x10000500, 0x11000100, 0x11000500,
+            0x10000100, 0x10000500, 0x11000100, 0x11000500,
+            0x00080000, 0x00080400, 0x01080000, 0x01080400,
+            0x00080000, 0x00080400, 0x01080000, 0x01080400,
+            0x00080100, 0x00080500, 0x01080100, 0x01080500,
+            0x00080100, 0x00080500, 0x01080100, 0x01080500,
+            0x10080000, 0x10080400, 0x11080000, 0x11080400,
+            0x10080000, 0x10080400, 0x11080000, 0x11080400,
+            0x10080100, 0x10080500, 0x11080100, 0x11080500,
+            0x10080100, 0x10080500, 0x11080100, 0x11080500,
+            0x00000008, 0x00000408, 0x01000008, 0x01000408,
+            0x00000008, 0x00000408, 0x01000008, 0x01000408,
+            0x00000108, 0x00000508, 0x01000108, 0x01000508,
+            0x00000108, 0x00000508, 0x01000108, 0x01000508,
+            0x10000008, 0x10000408, 0x11000008, 0x11000408,
+            0x10000008, 0x10000408, 0x11000008, 0x11000408,
+            0x10000108, 0x10000508, 0x11000108, 0x11000508,
+            0x10000108, 0x10000508, 0x11000108, 0x11000508,
+            0x00080008, 0x00080408, 0x01080008, 0x01080408,
+            0x00080008, 0x00080408, 0x01080008, 0x01080408,
+            0x00080108, 0x00080508, 0x01080108, 0x01080508,
+            0x00080108, 0x00080508, 0x01080108, 0x01080508,
+            0x10080008, 0x10080408, 0x11080008, 0x11080408,
+            0x10080008, 0x10080408, 0x11080008, 0x11080408,
+            0x10080108, 0x10080508, 0x11080108, 0x11080508,
+            0x10080108, 0x10080508, 0x11080108, 0x11080508,
+            0x00001000, 0x00001400, 0x01001000, 0x01001400,
+            0x00001000, 0x00001400, 0x01001000, 0x01001400,
+            0x00001100, 0x00001500, 0x01001100, 0x01001500,
+            0x00001100, 0x00001500, 0x01001100, 0x01001500,
+            0x10001000, 0x10001400, 0x11001000, 0x11001400,
+            0x10001000, 0x10001400, 0x11001000, 0x11001400,
+            0x10001100, 0x10001500, 0x11001100, 0x11001500,
+            0x10001100, 0x10001500, 0x11001100, 0x11001500,
+            0x00081000, 0x00081400, 0x01081000, 0x01081400,
+            0x00081000, 0x00081400, 0x01081000, 0x01081400,
+            0x00081100, 0x00081500, 0x01081100, 0x01081500,
+            0x00081100, 0x00081500, 0x01081100, 0x01081500,
+            0x10081000, 0x10081400, 0x11081000, 0x11081400,
+            0x10081000, 0x10081400, 0x11081000, 0x11081400,
+            0x10081100, 0x10081500, 0x11081100, 0x11081500,
+            0x10081100, 0x10081500, 0x11081100, 0x11081500,
+            0x00001008, 0x00001408, 0x01001008, 0x01001408,
+            0x00001008, 0x00001408, 0x01001008, 0x01001408,
+            0x00001108, 0x00001508, 0x01001108, 0x01001508,
+            0x00001108, 0x00001508, 0x01001108, 0x01001508,
+            0x10001008, 0x10001408, 0x11001008, 0x11001408,
+            0x10001008, 0x10001408, 0x11001008, 0x11001408,
+            0x10001108, 0x10001508, 0x11001108, 0x11001508,
+            0x10001108, 0x10001508, 0x11001108, 0x11001508,
+            0x00081008, 0x00081408, 0x01081008, 0x01081408,
+            0x00081008, 0x00081408, 0x01081008, 0x01081408,
+            0x00081108, 0x00081508, 0x01081108, 0x01081508,
+            0x00081108, 0x00081508, 0x01081108, 0x01081508,
+            0x10081008, 0x10081408, 0x11081008, 0x11081408,
+            0x10081008, 0x10081408, 0x11081008, 0x11081408,
+            0x10081108, 0x10081508, 0x11081108, 0x11081508,
+            0x10081108, 0x10081508, 0x11081108, 0x11081508
+        );
+
         // pad the key and remove extra characters as appropriate.
         $key = str_pad(substr($key, 0, 8), 8, chr(0));
 
-        $temp = unpack('Na/Nb', $key);
-        $key = array($temp['a'], $temp['b']);
-        $msb = array(
-            ($key[0] >> 31) & 1,
-            ($key[1] >> 31) & 1
-        );
-        $key[0] &= 0x7FFFFFFF;
-        $key[1] &= 0x7FFFFFFF;
-
-        $key = array(
-            (($key[1] & 0x00000002) << 26) | (($key[1] & 0x00000204) << 17) |
-            (($key[1] & 0x00020408) <<  8) | (($key[1] & 0x02040800) >>  1) |
-            (($key[0] & 0x00000002) << 22) | (($key[0] & 0x00000204) << 13) |
-            (($key[0] & 0x00020408) <<  4) | (($key[0] & 0x02040800) >>  5) |
-            (($key[1] & 0x04080000) >> 10) | (($key[0] & 0x04080000) >> 14) |
-            (($key[1] & 0x08000000) >> 19) | (($key[0] & 0x08000000) >> 23) |
-            (($key[0] & 0x00000010) >>  1) | (($key[0] & 0x00001000) >> 10) |
-            (($key[0] & 0x00100000) >> 19) | (($key[0] & 0x10000000) >> 28)
-        ,
-            (($key[1] & 0x00000080) << 20) | (($key[1] & 0x00008000) << 11) |
-            (($key[1] & 0x00800000) <<  2) | (($key[0] & 0x00000080) << 16) |
-            (($key[0] & 0x00008000) <<  7) | (($key[0] & 0x00800000) >>  2) |
-            (($key[1] & 0x00000040) << 13) | (($key[1] & 0x00004000) <<  4) |
-            (($key[1] & 0x00400000) >>  5) | (($key[1] & 0x40000000) >> 14) |
-            (($key[0] & 0x00000040) <<  9) | ( $key[0] & 0x00004000       ) |
-            (($key[0] & 0x00400000) >>  9) | (($key[0] & 0x40000000) >> 18) |
-            (($key[1] & 0x00000020) <<  6) | (($key[1] & 0x00002000) >>  3) |
-            (($key[1] & 0x00200000) >> 12) | (($key[1] & 0x20000000) >> 21) |
-            (($key[0] & 0x00000020) <<  2) | (($key[0] & 0x00002000) >>  7) |
-            (($key[0] & 0x00200000) >> 16) | (($key[0] & 0x20000000) >> 25) |
-            (($key[1] & 0x00000010) >>  1) | (($key[1] & 0x00001000) >> 10) |
-            (($key[1] & 0x00100000) >> 19) | (($key[1] & 0x10000000) >> 28) |
-            ($msb[1] << 24) | ($msb[0] << 20)
-        ); 
+        // Perform the PC/1 transformation and compute C and D.
+        $t = unpack('Nl/Nr', $key);
+        list($l, $r) = array($t['l'], $t['r']);
+        $key = ($this->shuffle[$pc1map[$r & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x00") |
+               ($this->shuffle[$pc1map[($r >> 8) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x00") |
+               ($this->shuffle[$pc1map[($r >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x00") |
+               ($this->shuffle[$pc1map[($r >> 24) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x00") |
+               ($this->shuffle[$pc1map[$l & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x00") |
+               ($this->shuffle[$pc1map[($l >> 8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x00") |
+               ($this->shuffle[$pc1map[($l >> 16) & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x00") |
+               ($this->shuffle[$pc1map[($l >> 24) & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x00");
+        $key = unpack('Nc/Nd', $key);
+        $c = ($key['c'] >> 4) & 0x0FFFFFFF;
+        $d = (($key['d'] >> 4) & 0x0FFFFFF0) | ($key['c'] & 0x0F);
 
         $keys = array();
         for ($i = 0; $i < 16; $i++) {
-            $key[0] <<= $shifts[$i];
-            $temp = ($key[0] & 0xF0000000) >> 28;
-            $key[0] = ($key[0] | $temp) & 0x0FFFFFFF;
+            $c <<= $shifts[$i];
+            $c = ($c | ($c >> 28)) & 0x0FFFFFFF;
+            $d <<= $shifts[$i];
+            $d = ($d | ($d >> 28)) & 0x0FFFFFFF;
 
-            $key[1] <<= $shifts[$i];
-            $temp = ($key[1] & 0xF0000000) >> 28;
-            $key[1] = ($key[1] | $temp) & 0x0FFFFFFF;
+            // Perform the PC-2 transformation.
+            $cp = $pc2mapc1[$c >> 24] | $pc2mapc2[($c >> 16) & 0xFF] |
+                  $pc2mapc3[($c >> 8) & 0xFF] | $pc2mapc4[$c & 0xFF];
+            $dp = $pc2mapd1[$d >> 24] | $pc2mapd2[($d >> 16) & 0xFF] |
+                  $pc2mapd3[($d >> 8) & 0xFF] | $pc2mapd4[$d & 0xFF];
 
-            $temp = array(
-                (($key[1] & 0x00004000) >>  9) | (($key[1] & 0x00000800) >>  7) |
-                (($key[1] & 0x00020000) >> 14) | (($key[1] & 0x00000010) >>  2) |
-                (($key[1] & 0x08000000) >> 26) | (($key[1] & 0x00800000) >> 23)
-            ,
-                (($key[1] & 0x02400000) >> 20) | (($key[1] & 0x00000001) <<  4) |
-                (($key[1] & 0x00002000) >> 10) | (($key[1] & 0x00040000) >> 18) |
-                (($key[1] & 0x00000080) >>  6)
-            ,
-                ( $key[1] & 0x00000020       ) | (($key[1] & 0x00000200) >>  5) |
-                (($key[1] & 0x00010000) >> 13) | (($key[1] & 0x01000000) >> 22) |
-                (($key[1] & 0x00000004) >>  1) | (($key[1] & 0x00100000) >> 20)
-            ,
-                (($key[1] & 0x00001000) >>  7) | (($key[1] & 0x00200000) >> 17) |
-                (($key[1] & 0x00000002) <<  2) | (($key[1] & 0x00000100) >>  6) |
-                (($key[1] & 0x00008000) >> 14) | (($key[1] & 0x04000000) >> 26)
-            ,
-                (($key[0] & 0x00008000) >> 10) | ( $key[0] & 0x00000010       ) |
-                (($key[0] & 0x02000000) >> 22) | (($key[0] & 0x00080000) >> 17) |
-                (($key[0] & 0x00000200) >>  8) | (($key[0] & 0x00000002) >>  1)
-            ,
-                (($key[0] & 0x04000000) >> 21) | (($key[0] & 0x00010000) >> 12) |
-                (($key[0] & 0x00000020) >>  2) | (($key[0] & 0x00000800) >>  9) |
-                (($key[0] & 0x00800000) >> 22) | (($key[0] & 0x00000100) >>  8)
-            ,
-                (($key[0] & 0x00001000) >>  7) | (($key[0] & 0x00000088) >>  3) |
-                (($key[0] & 0x00020000) >> 14) | (($key[0] & 0x00000001) <<  2) |
-                (($key[0] & 0x00400000) >> 21)
-            ,
-                (($key[0] & 0x00000400) >>  5) | (($key[0] & 0x00004000) >> 10) |
-                (($key[0] & 0x00000040) >>  3) | (($key[0] & 0x00100000) >> 18) |
-                (($key[0] & 0x08000000) >> 26) | (($key[0] & 0x01000000) >> 24)
+            // Reorder: odd bytes/even bytes. Push the result in key schedule.
+            $keys[] = array(
+                ($cp & 0xFF000000) | (($cp << 8) & 0x00FF0000) |
+                (($dp >> 16) & 0x0000FF00) | (($dp >> 8) & 0x000000FF),
+                (($cp << 8) & 0xFF000000) | (($cp << 16) & 0x00FF0000) |
+                (($dp >> 8) & 0x0000FF00) | ($dp & 0x000000FF)
             );
-
-            $keys[] = $temp;
         }
 
-        $temp = array(
-            CRYPT_DES_ENCRYPT => $keys,
-            CRYPT_DES_DECRYPT => array_reverse($keys)
+        return array(
+                CRYPT_DES_ENCRYPT => $keys,
+                CRYPT_DES_DECRYPT => array_reverse($keys)
         );
-
-        return $temp;
     }
 
     /**

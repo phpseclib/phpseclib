@@ -80,11 +80,7 @@ if (!class_exists('Math_BigInteger')) {
 /**
  * Include Crypt_Random
  */
-// the class_exists() will only be called if the crypt_random_string function hasn't been defined and
-// will trigger a call to __autoload() if you're wanting to auto-load classes
-// call function_exists() a second time to stop the require_once from being called outside
-// of the auto loader
-if (!function_exists('crypt_random_string') && !class_exists('Crypt_Random') && !function_exists('crypt_random_string')) {
+if (!function_exists('crypt_random_string')) {
     require_once('Crypt/Random.php');
 }
 
@@ -123,8 +119,9 @@ if (!class_exists('Crypt_AES')) {
  * @access private
  */
 define('NET_SSH2_MASK_CONSTRUCTOR', 0x00000001);
-define('NET_SSH2_MASK_LOGIN',       0x00000002);
-define('NET_SSH2_MASK_SHELL',       0x00000004);
+define('NET_SSH2_MASK_LOGIN_REQ',   0x00000002);
+define('NET_SSH2_MASK_LOGIN',       0x00000004);
+define('NET_SSH2_MASK_SHELL',       0x00000008);
 /**#@-*/
 
 /**#@+
@@ -731,6 +728,29 @@ class Net_SSH2 {
      * @access private
      */
     var $in_request_pty_exec = false;
+
+    /**
+     * Contents of stdError
+     *
+     * @access private
+     */
+    var $stdErrorLog;
+
+    /**
+     * The Last Interactive Response
+     *
+     * @see Net_SSH2::_keyboard_interactive_process()
+     * @access private
+     */
+    var $last_interactive_response = '';
+
+    /**
+     * Keyboard Interactive Request / Responses
+     *
+     * @see Net_SSH2::_keyboard_interactive_process()
+     * @access private
+     */
+    var $keyboard_requests_responses = array();
 
     /**
      * Default Constructor.
@@ -1449,45 +1469,85 @@ class Net_SSH2 {
     /**
      * Login
      *
-     * The $password parameter can be a plaintext password or a Crypt_RSA object.
+     * The $password parameter can be a plaintext password, a Crypt_RSA object or an array
+     *
+     * @param String $username
+     * @param Mixed $password
+     * @param Mixed $...
+     * @return Boolean
+     * @see _login_helper
+     * @access public
+     */
+    function login($username)
+    {
+        $args = array_slice(func_get_args(), 1);
+        if (empty($args)) {
+            return $this->_login_helper($username);
+        }
+
+        foreach ($args as $arg) {
+            if ($this->_login_helper($username, $arg)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Login Helper
      *
      * @param String $username
      * @param optional String $password
      * @return Boolean
-     * @access public
+     * @access private
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.
      */
-    function login($username, $password = null)
+    function _login_helper($username, $password = null)
     {
         if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
             return false;
         }
 
-        $packet = pack('CNa*',
-            NET_SSH2_MSG_SERVICE_REQUEST, strlen('ssh-userauth'), 'ssh-userauth'
-        );
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN_REQ)) {
+            $packet = pack('CNa*',
+                NET_SSH2_MSG_SERVICE_REQUEST, strlen('ssh-userauth'), 'ssh-userauth'
+            );
 
-        if (!$this->_send_binary_packet($packet)) {
-            return false;
+            if (!$this->_send_binary_packet($packet)) {
+                return false;
+            }
+
+            $response = $this->_get_binary_packet();
+            if ($response === false) {
+                user_error('Connection closed by server');
+                return false;
+            }
+
+            extract(unpack('Ctype', $this->_string_shift($response, 1)));
+
+            if ($type != NET_SSH2_MSG_SERVICE_ACCEPT) {
+                user_error('Expected SSH_MSG_SERVICE_ACCEPT');
+                return false;
+            }
+            $this->bitmap |= NET_SSH2_MASK_LOGIN_REQ;
         }
 
-        $response = $this->_get_binary_packet();
-        if ($response === false) {
-            user_error('Connection closed by server');
-            return false;
-        }
-
-        extract(unpack('Ctype', $this->_string_shift($response, 1)));
-
-        if ($type != NET_SSH2_MSG_SERVICE_ACCEPT) {
-            user_error('Expected SSH_MSG_SERVICE_ACCEPT');
-            return false;
+        if (strlen($this->last_interactive_response)) {
+            return !is_string($password) && !is_array($password) ? false : $this->_keyboard_interactive_process($password);
         }
 
         // although PHP5's get_class() preserves the case, PHP4's does not
         if (is_object($password) && strtolower(get_class($password)) == 'crypt_rsa') {
             return $this->_privatekey_login($username, $password);
+        }
+
+        if (is_array($password)) {
+            if ($this->_keyboard_interactive_login($username, $password)) {
+                $this->bitmap |= NET_SSH2_MASK_LOGIN;
+                return true;
+            }
+            return false;
         }
 
         if (!isset($password)) {
@@ -1557,7 +1617,10 @@ class Net_SSH2 {
                 // multi-factor authentication
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $auth_methods = explode(',', $this->_string_shift($response, $length));
-                if (in_array('keyboard-interactive', $auth_methods)) {
+                extract(unpack('Cpartial_success', $this->_string_shift($response, 1)));
+                $partial_success = $partial_success != 0;
+
+                if (!$partial_success && in_array('keyboard-interactive', $auth_methods)) {
                     if ($this->_keyboard_interactive_login($username, $password)) {
                         $this->bitmap |= NET_SSH2_MASK_LOGIN;
                         return true;
@@ -1608,25 +1671,20 @@ class Net_SSH2 {
     {
         $responses = func_get_args();
 
-        $response = $this->_get_binary_packet();
-        if ($response === false) {
-            user_error('Connection closed by server');
-            return false;
+        if (strlen($this->last_interactive_response)) {
+            $response = $this->last_interactive_response;
+        } else {
+            $orig = $response = $this->_get_binary_packet();
+            if ($response === false) {
+                user_error('Connection closed by server');
+                return false;
+            }
         }
 
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_INFO_REQUEST:
-                // see http://tools.ietf.org/html/rfc4256#section-3.2
-                if (defined('NET_SSH2_LOGGING')) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
-                        'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
-                        $this->message_number_log[count($this->message_number_log) - 1]
-                    );
-                }
-
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->_string_shift($response, $length); // name; may be empty
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
@@ -1634,14 +1692,48 @@ class Net_SSH2 {
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->_string_shift($response, $length); // language tag; may be empty
                 extract(unpack('Nnum_prompts', $this->_string_shift($response, 4)));
-                /*
-                for ($i = 0; $i < $num_prompts; $i++) {
-                    extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                    // prompt - ie. "Password: "; must not be empty
-                    $this->_string_shift($response, $length);
-                    $echo = $this->_string_shift($response) != chr(0);
+
+                for ($i = 0; $i < count($responses); $i++) {
+                    if (is_array($responses[$i])) {
+                        foreach ($responses[$i] as $key => $value) {
+                            $this->keyboard_requests_responses[$key] = $value;
+                        }
+                        unset($responses[$i]);
+                    }
                 }
-                */
+                $responses = array_values($responses);
+
+                if (isset($this->keyboard_requests_responses)) {
+                    for ($i = 0; $i < $num_prompts; $i++) {
+                        extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                        // prompt - ie. "Password: "; must not be empty
+                        $prompt = $this->_string_shift($response, $length);
+                        //$echo = $this->_string_shift($response) != chr(0);
+                        foreach ($this->keyboard_requests_responses as $key => $value) {
+                            if (substr($prompt, 0, strlen($key)) == $key) {
+                                $responses[] = $value;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // see http://tools.ietf.org/html/rfc4256#section-3.2
+                if (strlen($this->last_interactive_response)) {
+                    $this->last_interactive_response = '';
+                } else if (defined('NET_SSH2_LOGGING')) {
+                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
+                        'UNKNOWN',
+                        'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
+                        $this->message_number_log[count($this->message_number_log) - 1]
+                    );
+                }
+
+                if (!count($responses) && $num_prompts) {
+                    $this->last_interactive_response = $orig;
+                    $this->bitmap |= NET_SSH_MASK_LOGIN_INTERACTIVE;
+                    return false;
+                }
 
                 /*
                    After obtaining the requested information from the user, the client
@@ -1733,7 +1825,7 @@ class Net_SSH2 {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . $this->_string_shift($response, $length);
-                return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
+                return false;
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
@@ -1790,6 +1882,13 @@ class Net_SSH2 {
     }
 
     /**
+     * Get the output from stdError
+     */
+    function getStdError(){
+        return $this->stdErrorLog;
+    }
+
+    /**
      * Execute Command
      *
      * If $block is set to false then Net_SSH2::_get_channel_packet(NET_SSH2_CHANNEL_EXEC) will need to be called manually.
@@ -1803,6 +1902,7 @@ class Net_SSH2 {
     function exec($command, $block = true)
     {
         $this->curTimeout = $this->timeout;
+        $this->stdErrorLog = '';
 
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -2317,6 +2417,11 @@ class Net_SSH2 {
 
         while (true) {
             if ($this->curTimeout) {
+                if ($this->curTimeout < 0) {
+                    $this->_close_channel($client_channel);
+                    return true;
+                }
+
                 $read = array($this->fsock);
                 $write = $except = NULL;
 
@@ -2395,9 +2500,6 @@ class Net_SSH2 {
                     $this->channel_buffers[$client_channel][] = $data;
                     break;
                 case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
-                    if ($skip_extended || $this->quiet_mode) {
-                        break;
-                    }
                     /*
                     if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
                         $this->_send_channel_packet($client_channel, chr(0));
@@ -2406,6 +2508,10 @@ class Net_SSH2 {
                     // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR
                     extract(unpack('Ndata_type_code/Nlength', $this->_string_shift($response, 8)));
                     $data = $this->_string_shift($response, $length);
+                    $this->stdErrorLog .= $data;
+                    if ($skip_extended || $this->quiet_mode) {
+                        break;
+                    }
                     if ($client_channel == $channel) {
                         return $data;
                     }

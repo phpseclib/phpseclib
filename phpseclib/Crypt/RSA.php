@@ -83,7 +83,7 @@ if (!class_exists('Math_BigInteger')) {
 // will trigger a call to __autoload() if you're wanting to auto-load classes
 // call function_exists() a second time to stop the require_once from being called outside
 // of the auto loader
-if (!function_exists('crypt_random_string') && !class_exists('Crypt_Random') && !function_exists('crypt_random_string')) {
+if (!function_exists('crypt_random_string')) {
     require_once('Crypt/Random.php');
 }
 
@@ -465,7 +465,7 @@ class Crypt_RSA {
 
         if ( !defined('CRYPT_RSA_MODE') ) {
             switch (true) {
-                case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>='):
+                case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>=') && file_exists($this->configFile):
                     define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_OPENSSL);
                     break;
                 default:
@@ -2142,6 +2142,7 @@ class Crypt_RSA {
         }
 
         // EME-PKCS1-v1_5 encoding
+
         $psLen = $this->k - $mLen - 3;
         $ps = '';
         while (strlen($ps) != $psLen) {
@@ -2149,7 +2150,14 @@ class Crypt_RSA {
             $temp = str_replace("\x00", '', $temp);
             $ps.= $temp;
         }
-        $em = chr(0) . chr(2) . $ps . chr(0) . $m;
+        $type = 2;
+        // see the comments of _rsaes_pkcs1_v1_5_decrypt() to understand why this is being done
+        if (defined('CRYPT_RSA_PKCS15_COMPAT') && (!isset($this->publicExponent) || $this->exponent !== $this->publicExponent)) {
+            $type = 1;
+            // "The padding string PS shall consist of k-3-||D|| octets. ... for block type 01, they shall have value FF"
+            $ps = str_repeat("\xFF", $psLen);
+        }
+        $em = chr(0) . chr($type) . $ps . chr(0) . $m;
 
         // RSA encryption
         $m = $this->_os2ip($em);

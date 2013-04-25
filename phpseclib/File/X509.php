@@ -1436,18 +1436,7 @@ class File_X509 {
 
         $asn1 = new File_ASN1();
 
-        /*
-            X.509 certs are assumed to be base64 encoded but sometimes they'll have additional things in them above and beyond the ceritificate. ie.
-            some may have the following preceeding the -----BEGIN CERTIFICATE----- line:
-
-            subject=/O=organization/OU=org unit/CN=common name
-            issuer=/O=organization/CN=common name
-        */
-        $temp = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $cert);
-        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
-        if ($temp != false) {
-            $cert = $temp;
-        }
+        $cert = $this->_extractBER($cert);
 
         if ($cert === false) {
             $this->currentCert = false;
@@ -2804,11 +2793,7 @@ class File_X509 {
 
         $asn1 = new File_ASN1();
 
-        $temp = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $csr);
-        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
-        if ($temp != false) {
-            $csr = $temp;
-        }
+        $csr = $this->_extractBER($csr);
         $orig = $csr;
 
         if ($csr === false) {
@@ -3000,11 +2985,7 @@ class File_X509 {
 
         $asn1 = new File_ASN1();
 
-        $temp = preg_replace('#^(?:[^-].+[\r\n]+)+|-.+-|[\r\n]| #', '', $crl);
-        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
-        if ($temp != false) {
-            $crl = $temp;
-        }
+        $crl = $this->_extractBER($crl);
         $orig = $crl;
 
         if ($crl === false) {
@@ -4336,5 +4317,32 @@ class File_X509 {
         }
 
         return false;
+    }
+
+    /**
+     * Extract raw BER from Base64 encoding
+     *
+     * @access private
+     * @param String $str
+     * @return String
+     */
+    function _extractBER($str)
+    {
+        /*
+            X.509 certs are assumed to be base64 encoded but sometimes they'll have additional things in them above and beyond the ceritificate. ie.
+            some may have the following preceeding the -----BEGIN CERTIFICATE----- line:
+
+            Bag Attributes
+                localKeyID: 01 00 00 00
+            subject=/O=organization/OU=org unit/CN=common name
+            issuer=/O=organization/CN=common name
+        */
+        $temp = preg_replace('#.*?^-+[^-]+-+#ms', '', $str, 1);
+        // remove the -----BEGIN CERTIFICATE----- and -----END CERTIFICATE----- stuff
+        $temp = preg_replace('#-+[^-]+-+#', '', $temp);
+        // remove new lines
+        $temp = str_replace(array("\r", "\n", ' '), '', $temp);
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        return $temp != false ? $temp : $str;
     }
 }

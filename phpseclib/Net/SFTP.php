@@ -297,7 +297,30 @@ class Net_SFTP extends Net_SSH2 {
             5 => 'NET_SFTP_STATUS_BAD_MESSAGE',
             6 => 'NET_SFTP_STATUS_NO_CONNECTION',
             7 => 'NET_SFTP_STATUS_CONNECTION_LOST',
-            8 => 'NET_SFTP_STATUS_OP_UNSUPPORTED'
+            8 => 'NET_SFTP_STATUS_OP_UNSUPPORTED',
+            9 => 'NET_SFTP_STATUS_INVALID_HANDLE',
+            10 => 'NET_SFTP_STATUS_NO_SUCH_PATH',
+            11 => 'NET_SFTP_STATUS_FILE_ALREADY_EXISTS',
+            12 => 'NET_SFTP_STATUS_WRITE_PROTECT',
+            13 => 'NET_SFTP_STATUS_NO_MEDIA',
+            14 => 'NET_SFTP_STATUS_NO_SPACE_ON_FILESYSTEM',
+            15 => 'NET_SFTP_STATUS_QUOTA_EXCEEDED',
+            16 => 'NET_SFTP_STATUS_UNKNOWN_PRINCIPAL',
+            17 => 'NET_SFTP_STATUS_LOCK_CONFLICT',
+            18 => 'NET_SFTP_STATUS_DIR_NOT_EMPTY',
+            19 => 'NET_SFTP_STATUS_NOT_A_DIRECTORY',
+            20 => 'NET_SFTP_STATUS_INVALID_FILENAME',
+            21 => 'NET_SFTP_STATUS_LINK_LOOP',
+            22 => 'NET_SFTP_STATUS_CANNOT_DELETE',
+            23 => 'NET_SFTP_STATUS_INVALID_PARAMETER',
+            24 => 'NET_SFTP_STATUS_FILE_IS_A_DIRECTORY',
+            25 => 'NET_SFTP_STATUS_BYTE_RANGE_LOCK_CONFLICT',
+            26 => 'NET_SFTP_STATUS_BYTE_RANGE_LOCK_REFUSED',
+            27 => 'NET_SFTP_STATUS_DELETE_PENDING',
+            28 => 'NET_SFTP_STATUS_FILE_CORRUPT',
+            29 => 'NET_SFTP_STATUS_OWNER_INVALID',
+            30 => 'NET_SFTP_STATUS_GROUP_INVALID',
+            31 => 'NET_SFTP_STATUS_NO_MATCHING_BYTE_RANGE_LOCK'
         );
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-7.1
         // the order, in this case, matters quite a lot - see Net_SFTP::_parseAttributes() to understand why
@@ -985,7 +1008,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function _size($filename)
     {
-        $result = $this->_stat($filename, NET_SFTP_LSTAT);
+        $result = $this->_stat($filename, NET_SFTP_STAT);
         if ($result === false) {
             return false;
         }
@@ -1648,6 +1671,7 @@ class Net_SFTP extends Net_SSH2 {
                     }
                     break;
                 case NET_SFTP_STATUS:
+                    // could, in theory, return false if !strlen($content) but we'll hold off for the time being
                     $this->_logError($response);
                     break 2;
                 default:
@@ -1691,6 +1715,7 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
+        // if $content isn't set that means a file was written to
         if (isset($content)) {
             return $content;
         }
@@ -1891,8 +1916,11 @@ class Net_SFTP extends Net_SSH2 {
                     break;
                 case NET_SFTP_ATTR_PERMISSIONS: // 0x00000004
                     $attr+= unpack('Npermissions', $this->_string_shift($response, 4));
+                    // mode == permissions; permissions was the original array key and is retained for bc purposes.
+                    // mode was added because that's the more industry standard terminology
+                    $attr+= array('mode' => $attr['permissions']);
                     $fileType = $this->_parseMode($attr['permissions']);
-                    if ($filetype !== false) {
+                    if ($fileType !== false) {
                         $attr+= array('type' => $fileType);
                     }
                     break;

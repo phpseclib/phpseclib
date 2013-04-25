@@ -319,8 +319,12 @@ class File_ASN1 {
                 // support it up to four.
                 $length&= 0x7F;
                 $temp = $this->_string_shift($encoded, $length);
+                // tags of indefinte length don't really have a header length; this length includes the tag
+                $current+= array('headerlength' => $length + 2);
                 $start+= $length;
                 extract(unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4)));
+            } else {
+                $current+= array('headerlength' => 2);
             }
 
             // End-of-content, see paragraphs 8.1.1.3, 8.1.3.2, 8.1.3.6, 8.1.5, and (for an example) 8.6.4.2
@@ -349,6 +353,7 @@ class File_ASN1 {
                         'content'  => $constructed ? $this->_decode_ber($content, $start) : $content,
                         'length'   => $length + $start - $current['start']
                     ) + $current;
+                    $start+= $length;
                     continue 2;
             }
 
@@ -913,6 +918,9 @@ class File_ASN1 {
                     }
                     $value = new Math_BigInteger($value);
                     $value = $value->toBytes(true);
+                    if (!strlen($value)) {
+                        $value = chr(0);
+                    }
                 }
                 break;
             case FILE_ASN1_TYPE_UTC_TIME:
