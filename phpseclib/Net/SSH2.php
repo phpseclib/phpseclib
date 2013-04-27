@@ -1875,6 +1875,7 @@ class Net_SSH2 {
      * Setting $timeout to false or 0 will mean there is no timeout.
      *
      * @param Mixed $timeout
+     * @access public
      */
     function setTimeout($timeout)
     {
@@ -1883,8 +1884,11 @@ class Net_SSH2 {
 
     /**
      * Get the output from stdError
+     * 
+     * @access  public
      */
-    function getStdError(){
+    function getStdError()
+    {
         return $this->stdErrorLog;
     }
 
