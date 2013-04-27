@@ -14,14 +14,13 @@
  *    include('Net/SCP.php');
  *    include('Net/SSH2.php');
  *
- *    $ssh = new Net_SSH2('127.0.0.1', 4022);
- *    if (!$ssh->login('ubuntu', 'ubuntu')) {
+ *    $ssh = new Net_SSH2('www.domain.tld');
+ *    if (!$ssh->login('username', 'password')) {
  *        exit('bad login');
  *    }
 
  *    $scp = new Net_SCP($ssh);
  *    $scp->put('abcd', str_repeat('x', 1024*1024));
- *    $scp->put('xxxx', 'zzzz');
  * ?>
  * </code>
  *
