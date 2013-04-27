@@ -1885,7 +1885,7 @@ class Net_SSH2 {
     /**
      * Get the output from stdError
      * 
-     * @access  public
+     * @access public
      */
     function getStdError()
     {
