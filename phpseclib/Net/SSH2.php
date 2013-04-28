@@ -753,6 +753,18 @@ class Net_SSH2 {
     var $keyboard_requests_responses = array();
 
     /**
+     * Banner Message
+     *
+     * Quoting from the RFC, "in some jurisdictions, sending a warning message before
+     * authentication may be relevant for getting legal protection."
+     *
+     * @see Net_SSH2::_filter()
+     * @see Net_SSH2::getBannerMessage()
+     * @access private
+     */
+    var $banner_message = '';
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -2317,7 +2329,7 @@ class Net_SSH2 {
         if (($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR) && !($this->bitmap & NET_SSH2_MASK_LOGIN) && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             $this->_string_shift($payload, 1);
             extract(unpack('Nlength', $this->_string_shift($payload, 4)));
-            $this->errors[] = 'SSH_MSG_USERAUTH_BANNER: ' . utf8_decode($this->_string_shift($payload, $length));
+            $this->banner_message = utf8_decode($this->_string_shift($payload, $length));
             $payload = $this->_get_binary_packet();
         }
 
@@ -3047,6 +3059,20 @@ class Net_SSH2 {
     function getLanguagesClient2Server()
     {
         return $this->languages_client_to_server;
+    }
+
+    /**
+     * Returns the banner message.
+     *
+     * Quoting from the RFC, "in some jurisdictions, sending a warning message before
+     * authentication may be relevant for getting legal protection."
+     *
+     * @return String
+     * @access public
+     */
+    function getBannerMessage()
+    {
+        return $this->banner_message;
     }
 
     /**
