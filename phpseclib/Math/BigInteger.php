@@ -2137,6 +2137,7 @@ class Math_BigInteger {
      * @param Boolean $x_negative
      * @param Array $y_value
      * @param Boolean $y_negative
+     * @param Integer $stop
      * @return Array
      * @access private
      */
@@ -2629,8 +2630,8 @@ class Math_BigInteger {
      *
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
-     * @param Math_BigInteger $x
-     * @return Integer < 0 if $this is less than $x; > 0 if $this is greater than $x, and 0 if they are equal.
+     * @param Math_BigInteger $y
+     * @return Integer < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
      * @see equals()
      * @internal Could return $this->subtract($x), but that's not as fast as what we do do.
@@ -2709,7 +2710,7 @@ class Math_BigInteger {
      * Some bitwise operations give different results depending on the precision being used.  Examples include left
      * shift, not, and rotates.
      *
-     * @param Math_BigInteger $x
+     * @param Integer $bits
      * @access public
      * @return Math_BigInteger
      */
@@ -3510,6 +3511,7 @@ class Math_BigInteger {
      *
      * Removes leading zeros
      *
+     * @param Array $value
      * @return Math_BigInteger
      * @access private
      */
