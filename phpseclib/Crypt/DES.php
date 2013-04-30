@@ -2508,7 +2508,6 @@ class Crypt_DES {
                     break;
             }
             $lambda_functions[$code_hash] = create_function('$action, &$self, $text', 'if ($action == "encrypt") { '.$encrypt.' } else { '.$decrypt.' }');
-            #echo $encrypt;
         }
         $this->inline_crypt = $lambda_functions[$code_hash];
     }
