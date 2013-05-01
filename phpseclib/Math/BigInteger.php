@@ -236,20 +236,20 @@ class Math_BigInteger {
     var $hex;
 
     /**
-     * Converts base-2, base-10, base-16, and binary strings (eg. base-256) to BigIntegers.
+     * Converts base-2, base-10, base-16, and binary strings (base-256) to BigIntegers.
      *
      * If the second parameter - $base - is negative, then it will be assumed that the number's are encoded using
      * two's compliment.  The sole exception to this is -10, which is treated the same as 10 is.
      *
      * Here's an example:
      * <code>
-     * <?php
+     * &lt;?php
      *    include('Math/BigInteger.php');
      *
      *    $a = new Math_BigInteger('0x32', 16); // 50 in base-16
      *
      *    echo $a->toString(); // outputs 50
-     * ?>
+     * ?&gt;
      * </code>
      *
      * @param optional $x base-10 number or base-$base number if $base set.
