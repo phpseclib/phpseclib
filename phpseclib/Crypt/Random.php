@@ -62,7 +62,6 @@ define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
  */
 function crypt_random_string($length)
 {
-    // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
     if (CRYPT_RANDOM_IS_WINDOWS) {
         // method 1. prior to PHP 5.3 this would call rand() on windows hence the function_exists('class_alias') call.
         // ie. class_alias is a function that was introduced in PHP 5.3
