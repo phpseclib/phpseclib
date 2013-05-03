@@ -47,5 +47,10 @@
         "files": [
             "phpseclib/Crypt/Random.php"
         ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.3-dev"
+        }
     }
 }
