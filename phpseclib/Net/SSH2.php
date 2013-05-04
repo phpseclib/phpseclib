@@ -973,7 +973,6 @@ class Net_SSH2 {
         );
 
         static $encryption_algorithms = array(
-/*
             // from <http://tools.ietf.org/html/rfc4345#section-4>:
             'arcfour256',
             'arcfour128',
@@ -992,7 +991,6 @@ class Net_SSH2 {
             'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
             'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
             'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
-*/
 
             'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
             'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
@@ -1149,25 +1147,25 @@ class Net_SSH2 {
         switch ($encrypt) {
             case '3des-cbc':
             case '3des-ctr':
-            case 'twofish-cbc':
-            case 'twofish256-cbc':
-            case 'twofish256-ctr':
                 $encryptKeyLength = 24;
                 break;
             case 'aes256-cbc':
             case 'aes256-ctr':
-            case 'twofish192-cbc':
-            case 'twofish192-ctr':
+            case 'twofish-cbc':
+            case 'twofish256-cbc':
+            case 'twofish256-ctr':
                 $encryptKeyLength = 32;
                 break;
             case 'aes192-cbc':
             case 'aes192-ctr':
-            case 'twofish128-cbc':
-            case 'twofish128-ctr':
+            case 'twofish192-cbc':
+            case 'twofish192-ctr':
                 $encryptKeyLength = 24;
                 break;
             case 'aes128-cbc':
             case 'aes128-ctr':
+            case 'twofish128-cbc':
+            case 'twofish128-ctr':
                 $encryptKeyLength = 16;
                 break;
             case 'arcfour':
@@ -1293,7 +1291,7 @@ class Net_SSH2 {
         }
 
         if ($public_key_format != $server_host_key_algorithms[$i] || $this->signature_format != $server_host_key_algorithms[$i]) {
-            user_error('Sever Host Key Algorithm Mismatch');
+            user_error('Server Host Key Algorithm Mismatch');
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
@@ -1345,7 +1343,7 @@ class Net_SSH2 {
             case 'twofish256-cbc':
             case 'twofish-cbc':
                 $this->encrypt = new Crypt_Twofish();
-                $this->decrypt_block_size = 16;
+                $this->encrypt_block_size = 16;
                 break;
             case 'twofish128-ctr':
             case 'twofish192-ctr':
