@@ -1349,7 +1349,7 @@ class Net_SSH2 {
             case 'twofish192-ctr':
             case 'twofish256-ctr':
                 $this->encrypt = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
-                $this->decrypt_block_size = 16;
+                $this->encrypt_block_size = 16;
                 break;
             case 'arcfour':
             case 'arcfour128':
