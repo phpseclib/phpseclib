@@ -450,6 +450,14 @@ class Crypt_RSA {
     var $configFile;
 
     /**
+     * Public key comment field.
+     *
+     * @var String
+     * @access private
+     */
+    var $comment = 'phpseclib-generated-key';
+
+    /**
      * The constructor
      *
      * If you want to make use of the openssl extension, you'll need to set the mode manually, yourself.  The reason
@@ -471,10 +479,6 @@ class Crypt_RSA {
                 default:
                     define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
             }
-        }
-
-        if (!defined('CRYPT_RSA_COMMENT')) {
-            define('CRYPT_RSA_COMMENT', 'phpseclib-generated-key');
         }
 
         $this->zero = new Math_BigInteger();
@@ -720,13 +724,13 @@ class Crypt_RSA {
                 $key = "PuTTY-User-Key-File-2: ssh-rsa\r\nEncryption: ";
                 $encryption = (!empty($this->password) || is_string($this->password)) ? 'aes256-cbc' : 'none';
                 $key.= $encryption;
-                $key.= "\r\nComment: " . CRYPT_RSA_COMMENT . "\r\n";
+                $key.= "\r\nComment: " . $this->comment . "\r\n";
                 $public = pack('Na*Na*Na*',
                     strlen('ssh-rsa'), 'ssh-rsa', strlen($raw['publicExponent']), $raw['publicExponent'], strlen($raw['modulus']), $raw['modulus']
                 );
                 $source = pack('Na*Na*Na*Na*',
                               strlen('ssh-rsa'), 'ssh-rsa', strlen($encryption), $encryption,
-                              strlen(CRYPT_RSA_COMMENT), CRYPT_RSA_COMMENT, strlen($public), $public
+                              strlen($this->comment), $this->comment, strlen($public), $public
                 );
                 $public = base64_encode($public);
                 $key.= "Public-Lines: " . ((strlen($public) + 32) >> 6) . "\r\n";
@@ -853,7 +857,7 @@ class Crypt_RSA {
                 // mpint     e
                 // mpint     n
                 $RSAPublicKey = pack('Na*Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($publicExponent), $publicExponent, strlen($modulus), $modulus);
-                $RSAPublicKey = 'ssh-rsa ' . base64_encode($RSAPublicKey) . ' ' . CRYPT_RSA_COMMENT;
+                $RSAPublicKey = 'ssh-rsa ' . base64_encode($RSAPublicKey) . ' ' . $this->comment;
 
                 return $RSAPublicKey;
             default: // eg. CRYPT_RSA_PUBLIC_FORMAT_PKCS1_RAW or CRYPT_RSA_PUBLIC_FORMAT_PKCS1
@@ -1128,10 +1132,14 @@ class Crypt_RSA {
 
                 return $components;
             case CRYPT_RSA_PUBLIC_FORMAT_OPENSSH:
-                $key = base64_decode(preg_replace('#^ssh-rsa | .+$#', '', $key));
+                $parts = explode(' ', $key, 3);
+
+                $key = isset($parts[1]) ? base64_decode($parts[1]) : false;
                 if ($key === false) {
                     return false;
                 }
+
+                $comment = isset($parts[2]) ? $parts[2] : false;
 
                 $cleanup = substr($key, 0, 11) == "\0\0\0\7ssh-rsa";
 
@@ -1154,12 +1162,14 @@ class Crypt_RSA {
                     $realModulus = new Math_BigInteger($this->_string_shift($key, $length), -256);
                     return strlen($key) ? false : array(
                         'modulus' => $realModulus,
-                        'publicExponent' => $modulus
+                        'publicExponent' => $modulus,
+                        'comment' => $comment
                     );
                 } else {
                     return strlen($key) ? false : array(
                         'modulus' => $modulus,
-                        'publicExponent' => $publicExponent
+                        'publicExponent' => $publicExponent,
+                        'comment' => $comment
                     );
                 }
             // http://www.w3.org/TR/xmldsig-core/#sec-RSAKeyValue
@@ -1187,6 +1197,7 @@ class Crypt_RSA {
                     return false;
                 }
                 $encryption = trim(preg_replace('#Encryption: (.+)#', '$1', $key[1]));
+                $comment = trim(preg_replace('#Comment: (.+)#', '$1', $key[2]));
 
                 $publicLength = trim(preg_replace('#Public-Lines: (\d+)#', '$1', $key[3]));
                 $public = base64_decode(implode('', array_map('trim', array_slice($key, 4, $publicLength))));
@@ -1380,6 +1391,9 @@ class Crypt_RSA {
             return false;
         }
 
+        if (isset($components['comment']) && $components['comment'] !== false) {
+            $this->comment = $components['comment'];
+        }
         $this->modulus = $components['modulus'];
         $this->k = strlen($this->modulus->toBytes());
         $this->exponent = isset($components['privateExponent']) ? $components['privateExponent'] : $components['publicExponent'];
@@ -2528,6 +2542,28 @@ class Crypt_RSA {
     function setSignatureMode($mode)
     {
         $this->signatureMode = $mode;
+    }
+
+    /**
+     * Set public key comment.
+     *
+     * @access public
+     * @param String $comment
+     */
+    function setComment($comment)
+    {
+        $this->comment = $comment;
+    }
+
+    /**
+     * Get public key comment.
+     *
+     * @access public
+     * @return String
+     */
+    function getComment()
+    {
+        return $this->comment;
     }
 
     /**
