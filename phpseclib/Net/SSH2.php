@@ -112,6 +112,13 @@ if (!class_exists('Crypt_AES')) {
     require_once('Crypt/AES.php');
 }
 
+/**
+ * Include Crypt_Twofish
+ */
+if (!class_exists('Crypt_Twofish')) {
+    require_once('Crypt/Twofish.php');
+}
+
 /**#@+
  * Execution Bitmap Masks
  *
@@ -753,6 +760,18 @@ class Net_SSH2 {
     var $keyboard_requests_responses = array();
 
     /**
+     * Banner Message
+     *
+     * Quoting from the RFC, "in some jurisdictions, sending a warning message before
+     * authentication may be relevant for getting legal protection."
+     *
+     * @see Net_SSH2::_filter()
+     * @see Net_SSH2::getBannerMessage()
+     * @access private
+     */
+    var $banner_message = '';
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -958,20 +977,30 @@ class Net_SSH2 {
             'arcfour256',
             'arcfour128',
 
-            'arcfour',    // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
+            'arcfour',        // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
 
-            'aes128-cbc', // RECOMMENDED       AES with a 128-bit key
-            'aes192-cbc', // OPTIONAL          AES with a 192-bit key
-            'aes256-cbc', // OPTIONAL          AES in CBC mode, with a 256-bit key
+            // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
+            'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
+            'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
+            'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
 
-            // from <http://tools.ietf.org/html/rfc4344#section-4>:
-            'aes128-ctr', // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
-            'aes192-ctr', // RECOMMENDED       AES with 192-bit key
-            'aes256-ctr', // RECOMMENDED       AES with 256-bit key
-            '3des-ctr',   // RECOMMENDED       Three-key 3DES in SDCTR mode
+            'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
+            'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
+            'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
 
-            '3des-cbc',   // REQUIRED          three-key 3DES in CBC mode
-            'none'        // OPTIONAL          no encryption; NOT RECOMMENDED
+            'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
+            'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
+            'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
+
+            'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
+            'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
+            'twofish256-cbc',
+            'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
+                              //                   (this is being retained for historical reasons)
+            '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
+
+            '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
+            'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
         );
 
         static $mac_algorithms = array(
@@ -1080,14 +1109,21 @@ class Net_SSH2 {
                 break;
             case 'aes256-cbc':
             case 'aes256-ctr':
+            case 'twofish-cbc':
+            case 'twofish256-cbc':
+            case 'twofish256-ctr':
                 $decryptKeyLength = 32; // eg. 256 / 8
                 break;
             case 'aes192-cbc':
             case 'aes192-ctr':
+            case 'twofish192-cbc':
+            case 'twofish192-ctr':
                 $decryptKeyLength = 24; // eg. 192 / 8
                 break;
             case 'aes128-cbc':
             case 'aes128-ctr':
+            case 'twofish128-cbc':
+            case 'twofish128-ctr':
                 $decryptKeyLength = 16; // eg. 128 / 8
                 break;
             case 'arcfour':
@@ -1115,14 +1151,21 @@ class Net_SSH2 {
                 break;
             case 'aes256-cbc':
             case 'aes256-ctr':
+            case 'twofish-cbc':
+            case 'twofish256-cbc':
+            case 'twofish256-ctr':
                 $encryptKeyLength = 32;
                 break;
             case 'aes192-cbc':
             case 'aes192-ctr':
+            case 'twofish192-cbc':
+            case 'twofish192-ctr':
                 $encryptKeyLength = 24;
                 break;
             case 'aes128-cbc':
             case 'aes128-ctr':
+            case 'twofish128-cbc':
+            case 'twofish128-ctr':
                 $encryptKeyLength = 16;
                 break;
             case 'arcfour':
@@ -1248,7 +1291,7 @@ class Net_SSH2 {
         }
 
         if ($public_key_format != $server_host_key_algorithms[$i] || $this->signature_format != $server_host_key_algorithms[$i]) {
-            user_error('Sever Host Key Algorithm Mismatch');
+            user_error('Server Host Key Algorithm Mismatch');
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
@@ -1295,6 +1338,19 @@ class Net_SSH2 {
                 $this->encrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
+            case 'twofish128-cbc':
+            case 'twofish192-cbc':
+            case 'twofish256-cbc':
+            case 'twofish-cbc':
+                $this->encrypt = new Crypt_Twofish();
+                $this->encrypt_block_size = 16;
+                break;
+            case 'twofish128-ctr':
+            case 'twofish192-ctr':
+            case 'twofish256-ctr':
+                $this->encrypt = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
+                $this->encrypt_block_size = 16;
+                break;
             case 'arcfour':
             case 'arcfour128':
             case 'arcfour256':
@@ -1321,6 +1377,19 @@ class Net_SSH2 {
             case 'aes192-ctr':
             case 'aes128-ctr':
                 $this->decrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                $this->decrypt_block_size = 16;
+                break;
+            case 'twofish128-cbc':
+            case 'twofish192-cbc':
+            case 'twofish256-cbc':
+            case 'twofish-cbc':
+                $this->decrypt = new Crypt_Twofish();
+                $this->decrypt_block_size = 16;
+                break;
+            case 'twofish128-ctr':
+            case 'twofish192-ctr':
+            case 'twofish256-ctr':
+                $this->decrypt = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
                 $this->decrypt_block_size = 16;
                 break;
             case 'arcfour':
@@ -1875,6 +1944,7 @@ class Net_SSH2 {
      * Setting $timeout to false or 0 will mean there is no timeout.
      *
      * @param Mixed $timeout
+     * @access public
      */
     function setTimeout($timeout)
     {
@@ -1883,8 +1953,11 @@ class Net_SSH2 {
 
     /**
      * Get the output from stdError
+     * 
+     * @access public
      */
-    function getStdError(){
+    function getStdError()
+    {
         return $this->stdErrorLog;
     }
 
@@ -2313,7 +2386,7 @@ class Net_SSH2 {
         if (($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR) && !($this->bitmap & NET_SSH2_MASK_LOGIN) && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             $this->_string_shift($payload, 1);
             extract(unpack('Nlength', $this->_string_shift($payload, 4)));
-            $this->errors[] = 'SSH_MSG_USERAUTH_BANNER: ' . utf8_decode($this->_string_shift($payload, $length));
+            $this->banner_message = utf8_decode($this->_string_shift($payload, $length));
             $payload = $this->_get_binary_packet();
         }
 
@@ -3043,6 +3116,20 @@ class Net_SSH2 {
     function getLanguagesClient2Server()
     {
         return $this->languages_client_to_server;
+    }
+
+    /**
+     * Returns the banner message.
+     *
+     * Quoting from the RFC, "in some jurisdictions, sending a warning message before
+     * authentication may be relevant for getting legal protection."
+     *
+     * @return String
+     * @access public
+     */
+    function getBannerMessage()
+    {
+        return $this->banner_message;
     }
 
     /**

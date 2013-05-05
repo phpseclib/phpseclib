@@ -1331,7 +1331,9 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         $dir = $this->_realpath($dir);
-        $attr = $mode == -1 ? chr(0) : pack('N2', NET_SFTP_ATTR_PERMISSIONS, $mode & 07777);
+        // by not providing any permissions, hopefully the server will use the logged in users umask - their 
+        // default permissions.
+        $attr = $mode == -1 ? "\0\0\0\0" : pack('N2', NET_SFTP_ATTR_PERMISSIONS, $mode & 07777);
 
         if ($recursive) {
             $dirs = explode('/', preg_replace('#/(?=/)|/$#', '', $dir));
@@ -1359,8 +1361,6 @@ class Net_SFTP extends Net_SSH2 {
      */
     function _mkdir_helper($dir, $attr)
     {
-        // by not providing any permissions, hopefully the server will use the logged in users umask - their 
-        // default permissions.
         if (!$this->_send_sftp_packet(NET_SFTP_MKDIR, pack('Na*a*', strlen($dir), $dir, $attr))) {
             return false;
         }
