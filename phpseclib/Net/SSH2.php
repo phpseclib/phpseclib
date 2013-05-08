@@ -1355,7 +1355,7 @@ class Net_SSH2 {
                 break;
             case 'blowfish-cbc':
                 $this->encrypt = new Crypt_Blowfish();
-                $this->encrypt_block_size = 16;
+                $this->encrypt_block_size = 8;
                 break;
             case 'blowfish-ctr':
                 $this->encrypt = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
@@ -1408,7 +1408,7 @@ class Net_SSH2 {
                 break;
             case 'blowfish-ctr':
                 $this->decrypt = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
-                $this->decrypt_block_size = 16;
+                $this->decrypt_block_size = 8;
                 break;
             case 'twofish128-cbc':
             case 'twofish192-cbc':
