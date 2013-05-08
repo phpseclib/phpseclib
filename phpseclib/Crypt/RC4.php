@@ -14,7 +14,7 @@
  *  - {@link http://en.wikipedia.org/wiki/RC4 - Wikipedia: RC4}
  *
  * RC4 is also known as ARCFOUR or ARC4.  The reason is elaborated upon at Wikipedia.  This class is named RC4 and not
- * ARCFOUR or ARC4 because RC4 is how it is refered to in the SSH1 specification.
+ * ARCFOUR or ARC4 because RC4 is how it is referred to in the SSH1 specification.
  *
  * Here's a short example of how to use this library:
  * <code>
