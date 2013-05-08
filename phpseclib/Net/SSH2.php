@@ -2084,11 +2084,6 @@ class Net_SSH2 {
         if ($response === false) {
             return false;
         }
-        
-        if (ord($response[0]) != NET_SSH2_MSG_CHANNEL_SUCCESS) {
-            user_error('exec call refused');
-            return;
-        }
 
         $this->channel_status[NET_SSH2_CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_DATA;
 
