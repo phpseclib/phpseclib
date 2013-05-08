@@ -201,7 +201,7 @@ class Net_SCP {
                 return false;
             }
             $size = filesize($data);
-            for ($i = 0; $i < $length; $i++) {
+            for ($i = 0; $i < $size; $i += $this->packet_size) {
                 $this->_send(fgets($fp, $this->packet_size));
             }
             fclose($fp);	
