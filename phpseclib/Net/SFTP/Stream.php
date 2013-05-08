@@ -262,7 +262,7 @@ class Net_SFTP_Stream {
             }
         }
 
-        $this->pos = $this->mode[0] != 'a' ? 0 : $size;
+        $this->pos = $this->mode[0] != 'a' ? 0 : $this->size;
 
         return true;
     }
@@ -297,7 +297,7 @@ class Net_SFTP_Stream {
                 return 0;
             }
             // seems that PHP calls stream_read in 8k chunks
-            call_user_func($this->notification, STREAM_NOTIFY_PROGRESS, STREAM_NOTIFY_SEVERITY_INFO, '', 0, strlen($result), $size);
+            call_user_func($this->notification, STREAM_NOTIFY_PROGRESS, STREAM_NOTIFY_SEVERITY_INFO, '', 0, strlen($result), $this->size);
         }
 
         if (empty($result)) { // ie. false or empty string
