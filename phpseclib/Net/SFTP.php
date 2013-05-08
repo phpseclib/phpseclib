@@ -1649,7 +1649,6 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         $size = (1 << 20) < $length || $length < 0 ? 1 << 20 : $length;
-        $start = $offset;
         while (true) {
             $packet = pack('Na*N3', strlen($handle), $handle, 0, $offset, $size);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
