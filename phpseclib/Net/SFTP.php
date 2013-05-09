@@ -1905,7 +1905,7 @@ class Net_SFTP extends Net_SSH2 {
                     // (0xFFFFFFFF bytes), anyway.  as such, we'll just represent all file sizes that are bigger than
                     // 4GB as being 4GB.
                     extract(unpack('Nupper/Nsize', $this->_string_shift($response, 8)));
-                    $attr['size'] = $upper ? 0x100000000 * $upper;
+                    $attr['size'] = $upper ? 0x100000000 * $upper : 0;
                     $attr['size']+= $size < 0 ? ($size & 0x7FFFFFFF) + 0x80000000 : $size;
                     break;
                 case NET_SFTP_ATTR_UIDGID: // 0x00000002 (SFTPv3 only)
