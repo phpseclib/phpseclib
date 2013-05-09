@@ -1059,7 +1059,7 @@ class Net_SFTP extends Net_SSH2 {
             $atime = $time;
         }
 
-        $flags = NET_SFTP_OPEN_CREATE | NET_SFTP_OPEN_EXCL;
+        $flags = NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE | NET_SFTP_OPEN_EXCL;
         $attr = pack('N3', NET_SFTP_ATTR_ACCESSTIME, $time, $atime);
         $packet = pack('Na*Na*', strlen($filename), $filename, $flags, $attr);
         if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
