@@ -591,7 +591,7 @@ class Net_SSH2 {
     /**
      * The Window Size
      *
-     * Bytes the other party can send before it must wait for the window to be adjusted (0x7FFFFFFF = 4GB)
+     * Bytes the other party can send before it must wait for the window to be adjusted (0x7FFFFFFF = 2GB)
      *
      * @var Integer
      * @see Net_SSH2::_send_channel_packet()
@@ -2013,8 +2013,8 @@ class Net_SSH2 {
         }
 
         // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
-        // be adjusted".  0x7FFFFFFF is, at 4GB, the max size.  technically, it should probably be decremented, but, 
-        // honestly, if you're transfering more than 4GB, you probably shouldn't be using phpseclib, anyway.
+        // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but, 
+        // honestly, if you're transfering more than 2GB, you probably shouldn't be using phpseclib, anyway.
         // see http://tools.ietf.org/html/rfc4254#section-5.2 for more info
         $this->window_size_client_to_server[NET_SSH2_CHANNEL_EXEC] = 0x7FFFFFFF;
         // 0x8000 is the maximum max packet size, per http://tools.ietf.org/html/rfc4253#section-6.1, although since PuTTy
