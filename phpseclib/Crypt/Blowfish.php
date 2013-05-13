@@ -17,13 +17,13 @@
  * <?php
  *    include('Crypt/Blowfish.php');
  *
- *    $Blowfish = new Crypt_Blowfish();
+ *    $blowfish = new Crypt_Blowfish();
  *
- *    $Blowfish->setKey('12345678901234567890123456789012');
+ *    $blowfish->setKey('12345678901234567890123456789012');
  *
  *    $plaintext = str_repeat('a', 1024);
  *
- *    echo $Blowfish->decrypt($Blowfish->encrypt($plaintext));
+ *    echo $blowfish->decrypt($blowfish->encrypt($plaintext));
  * ?>
  * </code>
  *
@@ -271,13 +271,13 @@ class Crypt_Blowfish {
     var $inline_crypt;
 
     /**
-      * The fixed subkeys boxes ($sbox0 - $sbox3) with 256 entries each
-      *
-      * S-Box 1
-      *
-      * @access private
-      * @var    array
-      */
+     * The fixed subkeys boxes ($sbox0 - $sbox3) with 256 entries each
+     *
+     * S-Box 1
+     *
+     * @access private
+     * @var    array
+     */
     var $sbox0 = array (
         0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7, 0xb8e1afed, 0x6a267e96, 0xba7c9045, 0xf12c7f99,
         0x24a19947, 0xb3916cf7, 0x0801f2e2, 0x858efc16, 0x636920d8, 0x71574e69, 0xa458fea3, 0xf4933d7e,
@@ -314,11 +314,11 @@ class Crypt_Blowfish {
     );
 
     /**
-      * S-Box 1
-      *
-      * @access private
-      * @var    array
-      */
+     * S-Box 1
+     *
+     * @access private
+     * @var    array
+     */
     var $sbox1 = array(
         0x4b7a70e9, 0xb5b32944, 0xdb75092e, 0xc4192623, 0xad6ea6b0, 0x49a7df7d, 0x9cee60b8, 0x8fedb266,
         0xecaa8c71, 0x699a17ff, 0x5664526c, 0xc2b19ee1, 0x193602a5, 0x75094c29, 0xa0591340, 0xe4183a3e,
@@ -355,11 +355,11 @@ class Crypt_Blowfish {
     );
 
     /**
-      * S-Box 2
-      *
-      * @access private
-      * @var    array
-      */
+     * S-Box 2
+     *
+     * @access private
+     * @var    array
+     */
     var $sbox2 = array(
         0xe93d5a68, 0x948140f7, 0xf64c261c, 0x94692934, 0x411520f7, 0x7602d4f7, 0xbcf46b2e, 0xd4a20068,
         0xd4082471, 0x3320f46a, 0x43b7d4b7, 0x500061af, 0x1e39f62e, 0x97244546, 0x14214f74, 0xbf8b8840,
@@ -396,11 +396,11 @@ class Crypt_Blowfish {
     );
 
     /**
-      * S-Box 3
-      *
-      * @access private
-      * @var    array
-      */
+     * S-Box 3
+     *
+     * @access private
+     * @var    array
+     */
     var $sbox3 = array(
         0x3a39ce37, 0xd3faf5cf, 0xabc27737, 0x5ac52d1b, 0x5cb0679e, 0x4fa33742, 0xd3822740, 0x99bc9bbe,
         0xd5118e9d, 0xbf0f7315, 0xd62d1c7e, 0xc700c47b, 0xb78c1b6b, 0x21a19045, 0xb26eb1be, 0x6a366eb4,
@@ -436,22 +436,26 @@ class Crypt_Blowfish {
         0x90d4f869, 0xa65cdea0, 0x3f09252d, 0xc208e69f, 0xb74e6132, 0xce77e25b, 0x578fdfe3, 0x3ac372e6
     );
 
-    /** P-Array consists of 18 32-bit subkeys
-      *
-      * @var array $parray
-      * @access private
-      */
+    /**
+     * P-Array consists of 18 32-bit subkeys
+     *
+     * @var array $parray
+     * @access private
+     */
     var $parray = array(
         0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822, 0x299f31d0,
         0x082efa98, 0xec4e6c89, 0x452821e6, 0x38d01377, 0xbe5466cf, 0x34e90c6c,
         0xc0ac29b7, 0xc97c50dd, 0x3f84d5b5, 0xb5470917, 0x9216d5d9, 0x8979fb1b
     );
 
-    /** The BCTX-working Array, holds the expanded key [p] and the key-depended s-boxes [sb]
-      *
-      * @var array $bctx
-      * @access private
-      */
+    /**
+     * The BCTX-working Array
+     *
+     * Holds the expanded key [p] and the key-depended s-boxes [sb]
+     *
+     * @var array $bctx
+     * @access private
+     */
     var $bctx = array();
 
     /**
@@ -598,13 +602,14 @@ class Crypt_Blowfish {
         }
     }
 
-    /** This functions encrypt the block.
-      *
-      * @access private
-      * @param  int $Xl left  uInt32 part of the block
-      * @param  int $Xr right uInt32 part of the block
-      * @return void
-      */
+    /**
+     * Encrypt the block.
+     *
+     * @access private
+     * @param  int $Xl left  uInt32 part of the block
+     * @param  int $Xr right uInt32 part of the block
+     * @return void
+     */
     function _encryptBlock(&$Xl, &$Xr)
     {
         $p = $this->bctx['p'];

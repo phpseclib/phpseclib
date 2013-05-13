@@ -222,7 +222,7 @@ class Math_BigInteger {
     var $bitmask = false;
 
     /**
-     * Mode independant value used for serialization.
+     * Mode independent value used for serialization.
      *
      * If the bcmath or gmp extensions are installed $this->value will be a non-serializable resource, hence the need for 
      * a variable that'll be serializable regardless of whether or not extensions are being used.  Unlike $this->value,
@@ -414,7 +414,7 @@ class Math_BigInteger {
             case  10:
             case -10:
                 // (?<!^)(?:-).*: find any -'s that aren't at the beginning and then any characters that follow that
-                // (?<=^|-)0*: find any 0's that are preceeded by the start of the string or by a - (ie. octals)
+                // (?<=^|-)0*: find any 0's that are preceded by the start of the string or by a - (ie. octals)
                 // [^-0-9].*: find any non-numeric characters and then any characters that follow that
                 $x = preg_replace('#(?<!^)(?:-).*|(?<=^|-)0*|[^-0-9].*#', '', $x);
 

@@ -1059,9 +1059,9 @@ class Net_SFTP extends Net_SSH2 {
             $atime = $time;
         }
 
-        $flags = NET_SFTP_OPEN_CREATE | NET_SFTP_OPEN_EXCL;
+        $flags = NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE | NET_SFTP_OPEN_EXCL;
         $attr = pack('N3', NET_SFTP_ATTR_ACCESSTIME, $time, $atime);
-        $packet = pack('Na*N2', strlen($filename), $filename, $flags, $attr);
+        $packet = pack('Na*Na*', strlen($filename), $filename, $flags, $attr);
         if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
             return false;
         }
@@ -1649,7 +1649,6 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         $size = (1 << 20) < $length || $length < 0 ? 1 << 20 : $length;
-        $start = $offset;
         while (true) {
             $packet = pack('Na*N3', strlen($handle), $handle, 0, $offset, $size);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {

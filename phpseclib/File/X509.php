@@ -4330,7 +4330,7 @@ class File_X509 {
     {
         /*
             X.509 certs are assumed to be base64 encoded but sometimes they'll have additional things in them above and beyond the ceritificate. ie.
-            some may have the following preceeding the -----BEGIN CERTIFICATE----- line:
+            some may have the following preceding the -----BEGIN CERTIFICATE----- line:
 
             Bag Attributes
                 localKeyID: 01 00 00 00

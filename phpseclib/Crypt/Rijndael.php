@@ -642,7 +642,7 @@ class Crypt_Rijndael {
      * Sets the key length
      *
      * Valid key lengths are 128, 160, 192, 224, and 256.  If the length is less than 128, it will be rounded up to
-     * 128.  If the length is greater then 128 and invalid, it will be rounded down to the closest valid amount.
+     * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
      *
      * @access public
      * @param Integer $length
@@ -720,7 +720,7 @@ class Crypt_Rijndael {
      * Sets the block length
      *
      * Valid block lengths are 128, 160, 192, 224, and 256.  If the length is less than 128, it will be rounded up to
-     * 128.  If the length is greater then 128 and invalid, it will be rounded down to the closest valid amount.
+     * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
      *
      * @access public
      * @param Integer $length

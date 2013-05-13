@@ -119,6 +119,13 @@ if (!class_exists('Crypt_Twofish')) {
     require_once('Crypt/Twofish.php');
 }
 
+/**
+ * Include Crypt_Blowfish
+ */
+if (!class_exists('Crypt_Blowfish')) {
+    require_once('Crypt/Blowfish.php');
+}
+
 /**#@+
  * Execution Bitmap Masks
  *
@@ -584,7 +591,7 @@ class Net_SSH2 {
     /**
      * The Window Size
      *
-     * Bytes the other party can send before it must wait for the window to be adjusted (0x7FFFFFFF = 4GB)
+     * Bytes the other party can send before it must wait for the window to be adjusted (0x7FFFFFFF = 2GB)
      *
      * @var Integer
      * @see Net_SSH2::_send_channel_packet()
@@ -984,6 +991,8 @@ class Net_SSH2 {
             'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
             'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
 
+            'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
+
             'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
             'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
             'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
@@ -991,6 +1000,8 @@ class Net_SSH2 {
             'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
             'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
             'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
+
+            'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
 
             'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
             'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
@@ -1124,6 +1135,8 @@ class Net_SSH2 {
             case 'aes128-ctr':
             case 'twofish128-cbc':
             case 'twofish128-ctr':
+            case 'blowfish-cbc':
+            case 'blowfish-ctr':
                 $decryptKeyLength = 16; // eg. 128 / 8
                 break;
             case 'arcfour':
@@ -1166,6 +1179,8 @@ class Net_SSH2 {
             case 'aes128-ctr':
             case 'twofish128-cbc':
             case 'twofish128-ctr':
+            case 'blowfish-cbc':
+            case 'blowfish-ctr':
                 $encryptKeyLength = 16;
                 break;
             case 'arcfour':
@@ -1338,6 +1353,14 @@ class Net_SSH2 {
                 $this->encrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
+            case 'blowfish-cbc':
+                $this->encrypt = new Crypt_Blowfish();
+                $this->encrypt_block_size = 8;
+                break;
+            case 'blowfish-ctr':
+                $this->encrypt = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
+                $this->encrypt_block_size = 8;
+                break;
             case 'twofish128-cbc':
             case 'twofish192-cbc':
             case 'twofish256-cbc':
@@ -1378,6 +1401,14 @@ class Net_SSH2 {
             case 'aes128-ctr':
                 $this->decrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
                 $this->decrypt_block_size = 16;
+                break;
+            case 'blowfish-cbc':
+                $this->decrypt = new Crypt_Blowfish();
+                $this->decrypt_block_size = 8;
+                break;
+            case 'blowfish-ctr':
+                $this->decrypt = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
+                $this->decrypt_block_size = 8;
                 break;
             case 'twofish128-cbc':
             case 'twofish192-cbc':
@@ -1982,8 +2013,8 @@ class Net_SSH2 {
         }
 
         // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
-        // be adjusted".  0x7FFFFFFF is, at 4GB, the max size.  technically, it should probably be decremented, but, 
-        // honestly, if you're transfering more than 4GB, you probably shouldn't be using phpseclib, anyway.
+        // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but, 
+        // honestly, if you're transfering more than 2GB, you probably shouldn't be using phpseclib, anyway.
         // see http://tools.ietf.org/html/rfc4254#section-5.2 for more info
         $this->window_size_client_to_server[NET_SSH2_CHANNEL_EXEC] = 0x7FFFFFFF;
         // 0x8000 is the maximum max packet size, per http://tools.ietf.org/html/rfc4253#section-6.1, although since PuTTy
@@ -2743,7 +2774,7 @@ class Net_SSH2 {
                 case NET_SSH2_LOG_REALTIME_FILE:
                     if (!isset($this->realtime_log_file)) {
                         // PHP doesn't seem to like using constants in fopen()
-                        $filename = NET_SSH2_LOG_REALTIME_FILE;
+                        $filename = NET_SSH2_LOG_REALTIME_FILENAME;
                         $fp = fopen($filename, 'w');
                         $this->realtime_log_file = $fp;
                     }
