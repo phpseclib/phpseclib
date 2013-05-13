@@ -58,7 +58,7 @@
  * Include Net_SSH2
  */
 if (!class_exists('Net_SSH2')) {
-    require_once('Net/SSH2.php');
+    require_once('SSH2.php');
 }
 
 /**#@+
