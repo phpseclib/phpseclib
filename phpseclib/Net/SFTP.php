@@ -384,7 +384,7 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
-        $this->window_size_client_to_server[NET_SFTP_CHANNEL] = $this->window_size;
+        $this->window_size_server_to_client[NET_SFTP_CHANNEL] = $this->window_size;
 
         $packet = pack('CNa*N3',
             NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SFTP_CHANNEL, $this->window_size, 0x4000);

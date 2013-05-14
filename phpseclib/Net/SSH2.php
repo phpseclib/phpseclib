@@ -609,7 +609,7 @@ class Net_SSH2 {
      * @var Array
      * @access private
      */
-    var $window_size_client_to_server = array();
+    var $window_size_server_to_client = array();
 
     /**
      * Server signature
@@ -2016,13 +2016,13 @@ class Net_SSH2 {
         // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but, 
         // honestly, if you're transfering more than 2GB, you probably shouldn't be using phpseclib, anyway.
         // see http://tools.ietf.org/html/rfc4254#section-5.2 for more info
-        $this->window_size_client_to_server[NET_SSH2_CHANNEL_EXEC] = 0x7FFFFFFF;
+        $this->window_size_server_to_client[NET_SSH2_CHANNEL_EXEC] = 0x7FFFFFFF;
         // 0x8000 is the maximum max packet size, per http://tools.ietf.org/html/rfc4253#section-6.1, although since PuTTy
         // uses 0x4000, that's what will be used here, as well.
         $packet_size = 0x4000;
 
         $packet = pack('CNa*N3',
-            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SSH2_CHANNEL_EXEC, $this->window_size_client_to_server[NET_SSH2_CHANNEL_EXEC], $packet_size);
+            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SSH2_CHANNEL_EXEC, $this->window_size_server_to_client[NET_SSH2_CHANNEL_EXEC], $packet_size);
 
         if (!$this->_send_binary_packet($packet)) {
             return false;
@@ -2119,11 +2119,11 @@ class Net_SSH2 {
             return true;
         }
 
-        $this->window_size_client_to_server[NET_SSH2_CHANNEL_SHELL] = 0x7FFFFFFF;
+        $this->window_size_server_to_client[NET_SSH2_CHANNEL_SHELL] = 0x7FFFFFFF;
         $packet_size = 0x4000;
 
         $packet = pack('CNa*N3',
-            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SSH2_CHANNEL_SHELL, $this->window_size_client_to_server[NET_SSH2_CHANNEL_SHELL], $packet_size);
+            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SSH2_CHANNEL_SHELL, $this->window_size_server_to_client[NET_SSH2_CHANNEL_SHELL], $packet_size);
 
         if (!$this->_send_binary_packet($packet)) {
             return false;
@@ -2546,9 +2546,18 @@ class Net_SSH2 {
                 user_error('Connection closed by server');
                 return false;
             }
-
             if (!strlen($response)) {
                 return '';
+            }
+
+            // resize the window, if appropriate
+            $this->window_size_server_to_client[$client_channel]-= strlen($response);
+            if ($this->window_size_server_to_client[$client_channel] < 0) {
+                $packet = pack('CNN', NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST, $this->server_channels[$client_channel], $this->window_size);
+                if (!$this->_send_binary_packet($packet)) {
+                    return false;
+                }
+                $this->window_size_server_to_client[$client_channel]+= $this->window_size;
             }
 
             extract(unpack('Ctype/Nchannel', $this->_string_shift($response, 5)));
@@ -2810,16 +2819,6 @@ class Net_SSH2 {
     function _send_channel_packet($client_channel, $data)
     {
         while (strlen($data) > $this->packet_size_client_to_server[$client_channel]) {
-            // resize the window, if appropriate
-            $this->window_size_client_to_server[$client_channel]-= $this->packet_size_client_to_server[$client_channel];
-            if ($this->window_size_client_to_server[$client_channel] < 0) {
-                $packet = pack('CNN', NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST, $this->server_channels[$client_channel], $this->window_size);
-                if (!$this->_send_binary_packet($packet)) {
-                    return false;
-                }
-                $this->window_size_client_to_server[$client_channel]+= $this->window_size;
-            }
-
             $packet = pack('CN2a*',
                 NET_SSH2_MSG_CHANNEL_DATA,
                 $this->server_channels[$client_channel],
@@ -2830,16 +2829,6 @@ class Net_SSH2 {
             if (!$this->_send_binary_packet($packet)) {
                 return false;
             }
-        }
-
-        // resize the window, if appropriate
-        $this->window_size_client_to_server[$client_channel]-= strlen($data);
-        if ($this->window_size_client_to_server[$client_channel] < 0) {
-            $packet = pack('CNN', NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST, $this->server_channels[$client_channel], $this->window_size);
-            if (!$this->_send_binary_packet($packet)) {
-                return false;
-            }
-            $this->window_size_client_to_server[$client_channel]+= $this->window_size;
         }
 
         return $this->_send_binary_packet(pack('CN2a*',
