@@ -378,9 +378,10 @@ class Net_SFTP extends Net_SSH2 {
      * @return Boolean
      * @access public
      */
-    function login($username, $password = '')
+    function login($username)
     {
-        if (!parent::login($username, $password)) {
+        $args = func_get_args();
+        if (!call_user_func_array(array('Net_SSH2', 'login'), $args)) {
             return false;
         }
 
