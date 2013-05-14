@@ -2592,9 +2592,10 @@ class Net_SSH2 {
                     switch ($type) {
                         case NET_SSH2_MSG_CHANNEL_SUCCESS:
                             return true;
-                        //case NET_SSH2_MSG_CHANNEL_FAILURE:
+                        case NET_SSH2_MSG_CHANNEL_FAILURE:
+                            return false;
                         default:
-                            user_error('Unable to request pseudo-terminal');
+                            user_error('Unable to request fulfill channel request');
                             return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
                     }
                 case NET_SSH2_MSG_CHANNEL_CLOSE:
