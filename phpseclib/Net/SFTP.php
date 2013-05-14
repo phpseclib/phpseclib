@@ -410,7 +410,24 @@ class Net_SFTP extends Net_SSH2 {
 
         $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
         if ($response === false) {
-            return false;
+            // from PuTTY's psftp.exe
+            $command = "test -x /usr/lib/sftp-server && exec /usr/lib/sftp-server\n" .
+                       "test -x /usr/local/lib/sftp-server && exec /usr/local/lib/sftp-server\n" .
+                       "exec sftp-server";
+            // we don't do $this->exec($command, false) because exec() operates on a different channel and plus the SSH_MSG_CHANNEL_OPEN that exec() does
+            // is redundant
+            $packet = pack('CNNa*CNa*',
+                NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SFTP_CHANNEL], strlen('exec'), 'exec', 1, strlen($command), $command);
+            if (!$this->_send_binary_packet($packet)) {
+                return false;
+            }
+
+            $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
+
+            $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+            if ($response === false) {
+                return false;
+            }
         }
 
         $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_DATA;
