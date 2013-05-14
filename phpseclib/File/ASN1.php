@@ -242,16 +242,21 @@ class File_ASN1 {
         FILE_ASN1_TYPE_VISIBLE_STRING   => 1,
     );
 
+    /**
+     * Default Constructor.
+     *
+     * @access public
+     */
     function File_ASN1()
-        {
-            static $static_init = null;
-            if (!$static_init) {
-                $static_init = true;
-                if (!class_exists('Math_BigInteger')) {
-                    require_once('Math/BigInteger.php');
-                }
+    {
+        static $static_init = null;
+        if (!$static_init) {
+            $static_init = true;
+            if (!class_exists('Math_BigInteger')) {
+                require_once('Math/BigInteger.php');
             }
         }
+    }
 
     /**
      * Parse BER-encoding
