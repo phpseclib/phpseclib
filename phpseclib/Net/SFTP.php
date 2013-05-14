@@ -58,7 +58,7 @@
  * Include Net_SSH2
  */
 if (!class_exists('Net_SSH2')) {
-    require_once('Net/SSH2.php');
+    require_once('SSH2.php');
 }
 
 /**#@+
@@ -1687,7 +1687,7 @@ class Net_SFTP extends Net_SSH2 {
             }
         }
 
-        if ($length > 0 && $length <= strlen($content)) {
+        if ($length > 0 && $length <= $offset - $size) {
             if ($local_file === false) {
                 $content = substr($content, 0, $length);
             } else {

@@ -48,7 +48,7 @@
  * Include File_ASN1
  */
 if (!class_exists('File_ASN1')) {
-    require_once('File/ASN1.php');
+    require_once('ASN1.php');
 }
 
 /**

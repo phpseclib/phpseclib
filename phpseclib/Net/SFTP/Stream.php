@@ -35,13 +35,6 @@
  */
 
 /**
- * Include Net_SSH2
- */
-if (!class_exists('Net_SFTP')) {
-    require_once('Net/SFTP.php');
-}
-
-/**
  * SFTP Stream Wrapper
  *
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -133,6 +126,18 @@ class Net_SFTP_Stream {
      * @access public
      */
     var $notification;
+
+    /**
+     * The Constructor
+     *
+     * @access public
+     */
+    function Net_SFTP_Stream()
+    {
+        if (!class_exists('Net_SFTP')) {
+            require_once('Net/SFTP.php');
+        }
+    }
 
     /**
      * Path Parser
@@ -756,4 +761,6 @@ class Net_SFTP_Stream {
     }
 }
 
-stream_wrapper_register('sftp', 'Net_SFTP_Stream');
+if (function_exists('stream_wrapper_register')) {
+    stream_wrapper_register('sftp', 'Net_SFTP_Stream');
+}

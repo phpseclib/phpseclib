@@ -41,13 +41,6 @@
  * @link       http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Math_BigInteger
- */
-if (!class_exists('Math_BigInteger')) {
-    require_once('Math/BigInteger.php');
-}
-
 /**#@+
  * Tag Classes
  *
@@ -248,6 +241,22 @@ class File_ASN1 {
         FILE_ASN1_TYPE_IA5_STRING       => 1,
         FILE_ASN1_TYPE_VISIBLE_STRING   => 1,
     );
+
+    /**
+     * Default Constructor.
+     *
+     * @access public
+     */
+    function File_ASN1()
+    {
+        static $static_init = null;
+        if (!$static_init) {
+            $static_init = true;
+            if (!class_exists('Math_BigInteger')) {
+                require_once('Math/BigInteger.php');
+            }
+        }
+    }
 
     /**
      * Parse BER-encoding
