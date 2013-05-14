@@ -319,7 +319,7 @@ class File_ASN1 {
                 // support it up to four.
                 $length&= 0x7F;
                 $temp = $this->_string_shift($encoded, $length);
-                // tags of indefinte length don't really have a header length; this length includes the tag
+                // tags of indefinite length don't really have a header length; this length includes the tag
                 $current+= array('headerlength' => $length + 2);
                 $start+= $length;
                 extract(unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4)));
