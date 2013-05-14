@@ -2595,7 +2595,7 @@ class Net_SSH2 {
                         case NET_SSH2_MSG_CHANNEL_FAILURE:
                             return false;
                         default:
-                            user_error('Unable to request fulfill channel request');
+                            user_error('Unable to fulfill channel request');
                             return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
                     }
                 case NET_SSH2_MSG_CHANNEL_CLOSE:
