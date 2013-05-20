@@ -41,13 +41,6 @@
  * @link       http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Math_BigInteger
- */
-if (!class_exists('Math_BigInteger')) {
-    require_once('Math/BigInteger.php');
-}
-
 /**#@+
  * Tag Classes
  *
@@ -250,6 +243,22 @@ class File_ASN1 {
     );
 
     /**
+     * Default Constructor.
+     *
+     * @access public
+     */
+    function File_ASN1()
+    {
+        static $static_init = null;
+        if (!$static_init) {
+            $static_init = true;
+            if (!class_exists('Math_BigInteger')) {
+                require_once('Math/BigInteger.php');
+            }
+        }
+    }
+
+    /**
      * Parse BER-encoding
      *
      * Serves a similar purpose to openssl's asn1parse
@@ -319,7 +328,7 @@ class File_ASN1 {
                 // support it up to four.
                 $length&= 0x7F;
                 $temp = $this->_string_shift($encoded, $length);
-                // tags of indefinte length don't really have a header length; this length includes the tag
+                // tags of indefinite length don't really have a header length; this length includes the tag
                 $current+= array('headerlength' => $length + 2);
                 $start+= $length;
                 extract(unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4)));

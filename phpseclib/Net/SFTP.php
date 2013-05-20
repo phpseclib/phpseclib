@@ -58,7 +58,7 @@
  * Include Net_SSH2
  */
 if (!class_exists('Net_SSH2')) {
-    require_once('Net/SSH2.php');
+    require_once('SSH2.php');
 }
 
 /**#@+
@@ -378,13 +378,14 @@ class Net_SFTP extends Net_SSH2 {
      * @return Boolean
      * @access public
      */
-    function login($username, $password = '')
+    function login($username)
     {
-        if (!parent::login($username, $password)) {
+        $args = func_get_args();
+        if (!call_user_func_array(array('Net_SSH2', 'login'), $args)) {
             return false;
         }
 
-        $this->window_size_client_to_server[NET_SFTP_CHANNEL] = $this->window_size;
+        $this->window_size_server_to_client[NET_SFTP_CHANNEL] = $this->window_size;
 
         $packet = pack('CNa*N3',
             NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SFTP_CHANNEL, $this->window_size, 0x4000);
@@ -410,7 +411,24 @@ class Net_SFTP extends Net_SSH2 {
 
         $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
         if ($response === false) {
-            return false;
+            // from PuTTY's psftp.exe
+            $command = "test -x /usr/lib/sftp-server && exec /usr/lib/sftp-server\n" .
+                       "test -x /usr/local/lib/sftp-server && exec /usr/local/lib/sftp-server\n" .
+                       "exec sftp-server";
+            // we don't do $this->exec($command, false) because exec() operates on a different channel and plus the SSH_MSG_CHANNEL_OPEN that exec() does
+            // is redundant
+            $packet = pack('CNNa*CNa*',
+                NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SFTP_CHANNEL], strlen('exec'), 'exec', 1, strlen($command), $command);
+            if (!$this->_send_binary_packet($packet)) {
+                return false;
+            }
+
+            $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
+
+            $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+            if ($response === false) {
+                return false;
+            }
         }
 
         $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_DATA;
@@ -1025,7 +1043,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function truncate($filename, $new_size)
     {
-        $attr = pack('N3', NET_SFTP_ATTR_SIZE, 0, $new_size);
+        $attr = pack('N3', NET_SFTP_ATTR_SIZE, $new_size / 0x100000000, $new_size);
 
         return $this->_setstat($filename, $attr, false);
     }
@@ -1520,7 +1538,8 @@ class Net_SFTP extends Net_SSH2 {
         $i = 0;
         while ($sent < $size) {
             $temp = $mode & NET_SFTP_LOCAL_FILE ? fread($fp, $sftp_packet_size) : $this->_string_shift($data, $sftp_packet_size);
-            $packet = pack('Na*N3a*', strlen($handle), $handle, 0, $offset + $sent, strlen($temp), $temp);
+            $subtemp = $offset + $sent;
+            $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 0x100000000, $subtemp, strlen($temp), $temp);
             if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
                 fclose($fp);
                 return false;
@@ -1650,7 +1669,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $size = (1 << 20) < $length || $length < 0 ? 1 << 20 : $length;
         while (true) {
-            $packet = pack('Na*N3', strlen($handle), $handle, 0, $offset, $size);
+            $packet = pack('Na*N3', strlen($handle), $handle, $offset / 0x100000000, $offset, $size);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
                 if ($local_file !== false) {
                     fclose($fp);
@@ -1686,7 +1705,7 @@ class Net_SFTP extends Net_SSH2 {
             }
         }
 
-        if ($length > 0 && $length <= strlen($content)) {
+        if ($length > 0 && $length <= $offset - $size) {
             if ($local_file === false) {
                 $content = substr($content, 0, $length);
             } else {
@@ -1904,11 +1923,8 @@ class Net_SFTP extends Net_SSH2 {
                     // (0xFFFFFFFF bytes), anyway.  as such, we'll just represent all file sizes that are bigger than
                     // 4GB as being 4GB.
                     extract(unpack('Nupper/Nsize', $this->_string_shift($response, 8)));
-                    if ($upper) {
-                        $attr['size'] = 0xFFFFFFFF;
-                    } else {
-                        $attr['size'] = $size < 0 ? ($size & 0x7FFFFFFF) + 0x80000000 : $size;
-                    }
+                    $attr['size'] = $upper ? 0x100000000 * $upper : 0;
+                    $attr['size']+= $size < 0 ? ($size & 0x7FFFFFFF) + 0x80000000 : $size;
                     break;
                 case NET_SFTP_ATTR_UIDGID: // 0x00000002 (SFTPv3 only)
                     $attr+= unpack('Nuid/Ngid', $this->_string_shift($response, 8));

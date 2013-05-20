@@ -793,7 +793,7 @@ class Crypt_Twofish {
                     $hmac = new Crypt_Hash();
                     $hmac->setHash($hash);
                     $hmac->setKey($password);
-                    $f = $u = $hmac->hash($salt . pack('N', ++$i));
+                    $f = $u = $hmac->hash($salt . pack('N', $i++));
                     for ($j = 2; $j <= $count; ++$j) {
                         $u = $hmac->hash($u);
                         $f^= $u;
