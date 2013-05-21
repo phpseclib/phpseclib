@@ -2125,62 +2125,69 @@ class Crypt_DES {
             ';
 
             $_cryptBlock = '$in = unpack("N*", $in);'."\n";
+            // Do the initial IP permutation.
+            $_cryptBlock .= '
+                $l  = $in[1];
+                $r  = $in[2];
+                $in = unpack("N*",
+                    ($shuffle[$ipmap[ $r        & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
+                    ($shuffle[$ipmap[($r >>  8) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
+                    ($shuffle[$ipmap[($r >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
+                    ($shuffle[$ipmap[($r >> 24) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
+                    ($shuffle[$ipmap[ $l        & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
+                    ($shuffle[$ipmap[($l >>  8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
+                    ($shuffle[$ipmap[($l >> 16) & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
+                    ($shuffle[$ipmap[($l >> 24) & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x01")
+                );
+
+                '.'' /* Extract L0 and R0 */ .'
+                $l = $in[1];
+                $r = $in[2];
+            ';
+
+            $l = 'l';
+            $r = 'r';
             for ($des_round = 0; $des_round < $des_rounds; ++$des_round) {
-                // Do the initial IP permutation.
-                $_cryptBlock .= '
-                    $l  = $in[1];
-                    $r  = $in[2];
-                    $in = unpack("N*",
-                        ($shuffle[$ipmap[ $r        & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
-                        ($shuffle[$ipmap[($r >>  8) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
-                        ($shuffle[$ipmap[($r >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
-                        ($shuffle[$ipmap[($r >> 24) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
-                        ($shuffle[$ipmap[ $l        & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
-                        ($shuffle[$ipmap[($l >>  8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
-                        ($shuffle[$ipmap[($l >> 16) & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
-                        ($shuffle[$ipmap[($l >> 24) & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x01")
-                    );
-
-                    '.'' /* Extract L0 and R0 */ .'
-                    $l = $in[1];
-                    $r = $in[2];
-                ';
-
                 // Perform the 16 steps.
                 // start of "the Feistel (F) function" - see the following URL:
                 // http://en.wikipedia.org/wiki/Image:Data_Encryption_Standard_InfoBox_Diagram.png
                 // Merge key schedule.
                 for ($i = 0; $i < 8; ++$i) {
                     $_cryptBlock .= '
-                        $b1 = (($r >>  3) & 0x1FFFFFFF)  ^ ($r << 29) ^ $k_'.(++$ki).';
-                        $b2 = (($r >> 31) & 0x00000001)  ^ ($r <<  1) ^ $k_'.(++$ki).';
-                        $l  = $sbox1[($b1 >> 24) & 0x3F] ^ $sbox2[($b2 >> 24) & 0x3F] ^
+                        $b1 = (($' . $r . ' >>  3) & 0x1FFFFFFF)  ^ ($' . $r . ' << 29) ^ $k_'.(++$ki).';
+                        $b2 = (($' . $r . ' >> 31) & 0x00000001)  ^ ($' . $r . ' <<  1) ^ $k_'.(++$ki).';
+                        $' . $l . '  = $sbox1[($b1 >> 24) & 0x3F] ^ $sbox2[($b2 >> 24) & 0x3F] ^
                               $sbox3[($b1 >> 16) & 0x3F] ^ $sbox4[($b2 >> 16) & 0x3F] ^
                               $sbox5[($b1 >>  8) & 0x3F] ^ $sbox6[($b2 >>  8) & 0x3F] ^
-                              $sbox7[ $b1        & 0x3F] ^ $sbox8[ $b2        & 0x3F] ^ $l;
+                              $sbox7[ $b1        & 0x3F] ^ $sbox8[ $b2        & 0x3F] ^ $' . $l . ';
 
-                        $b1 = (($l >>  3) & 0x1FFFFFFF)  ^ ($l << 29) ^ $k_'.(++$ki).';
-                        $b2 = (($l >> 31) & 0x00000001)  ^ ($l <<  1) ^ $k_'.(++$ki).';
-                        $r  = $sbox1[($b1 >> 24) & 0x3F] ^ $sbox2[($b2 >> 24) & 0x3F] ^
+                        $b1 = (($' . $l . ' >>  3) & 0x1FFFFFFF)  ^ ($' . $l . ' << 29) ^ $k_'.(++$ki).';
+                        $b2 = (($' . $l . ' >> 31) & 0x00000001)  ^ ($' . $l . ' <<  1) ^ $k_'.(++$ki).';
+                        $' . $r . '  = $sbox1[($b1 >> 24) & 0x3F] ^ $sbox2[($b2 >> 24) & 0x3F] ^
                               $sbox3[($b1 >> 16) & 0x3F] ^ $sbox4[($b2 >> 16) & 0x3F] ^
                               $sbox5[($b1 >>  8) & 0x3F] ^ $sbox6[($b2 >>  8) & 0x3F] ^
-                              $sbox7[ $b1        & 0x3F] ^ $sbox8[ $b2        & 0x3F] ^ $r;
+                              $sbox7[ $b1        & 0x3F] ^ $sbox8[ $b2        & 0x3F] ^ $' . $r . ';
                     ';
                 }
 
-                // Perform the inverse IP permutation.
-                $_cryptBlock .= '$in = ' . ($des_round == $des_rounds-1 ? '(' : 'unpack("N*",') . '
-                        ($shuffle[$invipmap[($l >> 24) & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
-                        ($shuffle[$invipmap[($r >> 24) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
-                        ($shuffle[$invipmap[($l >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
-                        ($shuffle[$invipmap[($r >> 16) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
-                        ($shuffle[$invipmap[($l >>  8) & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
-                        ($shuffle[$invipmap[($r >>  8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
-                        ($shuffle[$invipmap[ $l        & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
-                        ($shuffle[$invipmap[ $r        & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x01")
-                    );
-                ';
+                // Last step should not permute L & R.
+                $t = $l;
+                $l = $r;
+                $r = $t;
             }
+
+            // Perform the inverse IP permutation.
+            $_cryptBlock .= '$in = (
+                    ($shuffle[$invipmap[($' . $r . ' >> 24) & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
+                    ($shuffle[$invipmap[($' . $l . ' >> 24) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
+                    ($shuffle[$invipmap[($' . $r . ' >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
+                    ($shuffle[$invipmap[($' . $l . ' >> 16) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
+                    ($shuffle[$invipmap[($' . $r . ' >>  8) & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
+                    ($shuffle[$invipmap[($' . $l . ' >>  8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
+                    ($shuffle[$invipmap[ $' . $r . '        & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
+                    ($shuffle[$invipmap[ $' . $l . '        & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x01")
+                );
+            ';
 
             // Generating mode of operation code:
             switch ($mode) {
