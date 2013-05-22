@@ -804,10 +804,8 @@ class Crypt_Twofish extends Crypt_Base {
                     break;
                 default:
                     $K   = array();
-                    $Kin = '';
                     for ($i = 0; $i < 40; ++$i) {
                         $K[] = '$K_' . $i;
-                        $Kin.= '$K_' . $i . ' = $self->K[' . $i . '];' . "\n";
                     }
 
                     $init_crypt = '
@@ -815,7 +813,7 @@ class Crypt_Twofish extends Crypt_Base {
                         $S1 = $self->S1;
                         $S2 = $self->S2;
                         $S3 = $self->S3;
-                        ' . $Kin . '
+                        list(' . implode(',', $K) . ') = $self->K;
                     ';
             }
 

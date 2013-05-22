@@ -587,17 +587,13 @@ class Crypt_Blowfish extends Crypt_Base {
                     break;
                 default:
                     $p   = array();
-                    $pin = '';
                     for ($i = 0; $i < 18; ++$i) {
                         $p[] = '$p_' . $i;
-                        $pin.= '$p_' . $i . ' = $self->bctx["p"][' . $i . '];' . "\n";
                     }
                     $init_crypt = '
-                        $sb_0 = $self->bctx["sb"][0];
-                        $sb_1 = $self->bctx["sb"][1];
-                        $sb_2 = $self->bctx["sb"][2];
-                        $sb_3 = $self->bctx["sb"][3];
-                        ' . $pin . '
+                        list($sb_0, $sb_1, $sb_2, $sb_3) = $self->bctx["sb"];
+                        list(' . implode(',', $p) . ') = $self->bctx["p"];
+                        
                     ';
             }
 

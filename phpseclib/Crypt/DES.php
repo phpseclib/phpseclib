@@ -759,37 +759,43 @@ class Crypt_DES extends Crypt_Base {
      */
     function _processBlock($block, $mode)
     {
-        $shuffle  = $this->shuffle;
-        $invipmap = $this->invipmap;
-        $ipmap = $this->ipmap;
-        $sbox1 = $this->sbox1;
-        $sbox2 = $this->sbox2;
-        $sbox3 = $this->sbox3;
-        $sbox4 = $this->sbox4;
-        $sbox5 = $this->sbox5;
-        $sbox6 = $this->sbox6;
-        $sbox7 = $this->sbox7;
-        $sbox8 = $this->sbox8;
+        static $sbox1, $sbox2, $sbox3, $sbox4, $sbox5, $sbox6, $sbox7, $sbox8, $shuffleip, $shuffleinvip;
+        if (!$sbox1) {
+            $sbox1 = array_map("intval", $this->sbox1);
+            $sbox2 = array_map("intval", $this->sbox2);
+            $sbox3 = array_map("intval", $this->sbox3);
+            $sbox4 = array_map("intval", $this->sbox4);
+            $sbox5 = array_map("intval", $this->sbox5);
+            $sbox6 = array_map("intval", $this->sbox6);
+            $sbox7 = array_map("intval", $this->sbox7);
+            $sbox8 = array_map("intval", $this->sbox8);
+            /* Merge $shuffle with $[inv]ipmap */ 
+            for ($i = 0; $i < 256; ++$i) {
+                $shuffleip[]    =  $this->shuffle[$this->ipmap[$i]];
+                $shuffleinvip[] =  $this->shuffle[$this->invipmap[$i]];
+            }
+        }
+
         $keys  = $this->keys[$mode];
+        $ki    = -1;
 
-        $ki = -1;
+        // Do the initial IP permutation.
+        $t = unpack('Nl/Nr', $block);
+        list($l, $r) = array($t['l'], $t['r']);
+        $block = ($shuffleip[ $r        & 0xFF] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
+                 ($shuffleip[($r >>  8) & 0xFF] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
+                 ($shuffleip[($r >> 16) & 0xFF] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
+                 ($shuffleip[($r >> 24) & 0xFF] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
+                 ($shuffleip[ $l        & 0xFF] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
+                 ($shuffleip[($l >>  8) & 0xFF] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
+                 ($shuffleip[($l >> 16) & 0xFF] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
+                 ($shuffleip[($l >> 24) & 0xFF] & "\x01\x01\x01\x01\x01\x01\x01\x01");
+
+        // Extract L0 and R0.
+        $t = unpack('Nl/Nr', $block);
+        list($l, $r) = array($t['l'], $t['r']);
+
         for ($des_round = 0; $des_round < $this->des_rounds; ++$des_round) {
-            // Do the initial IP permutation.
-            $t = unpack('Nl/Nr', $block);
-            list($l, $r) = array($t['l'], $t['r']);
-            $block = ($shuffle[$ipmap[ $r        & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
-                     ($shuffle[$ipmap[($r >>  8) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
-                     ($shuffle[$ipmap[($r >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
-                     ($shuffle[$ipmap[($r >> 24) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
-                     ($shuffle[$ipmap[ $l        & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
-                     ($shuffle[$ipmap[($l >>  8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
-                     ($shuffle[$ipmap[($l >> 16) & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
-                     ($shuffle[$ipmap[($l >> 24) & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x01");
-
-            // Extract L0 and R0.
-            $t = unpack('Nl/Nr', $block);
-            list($l, $r) = array($t['l'], $t['r']);
-
             // Perform the 16 steps.
             for ($i = 0; $i < 16; $i++) {
                 // start of "the Feistel (F) function" - see the following URL:
@@ -809,17 +815,21 @@ class Crypt_DES extends Crypt_Base {
                 $r = $t;
             }
 
-            // Perform the inverse IP permutation.
-            $block = ($shuffle[$invipmap[($l >> 24) & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
-                     ($shuffle[$invipmap[($r >> 24) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
-                     ($shuffle[$invipmap[($l >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
-                     ($shuffle[$invipmap[($r >> 16) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
-                     ($shuffle[$invipmap[($l >>  8) & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
-                     ($shuffle[$invipmap[($r >>  8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
-                     ($shuffle[$invipmap[ $l        & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
-                     ($shuffle[$invipmap[ $r        & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x01");
+            // Last step should not permute L & R.
+            $t = $l;
+            $l = $r;
+            $r = $t;
         }
-        return $block;
+
+        // Perform the inverse IP permutation.
+        return ($shuffleinvip[($r >> 24) & 0xFF] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
+               ($shuffleinvip[($l >> 24) & 0xFF] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
+               ($shuffleinvip[($r >> 16) & 0xFF] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
+               ($shuffleinvip[($l >> 16) & 0xFF] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
+               ($shuffleinvip[($r >>  8) & 0xFF] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
+               ($shuffleinvip[($l >>  8) & 0xFF] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
+               ($shuffleinvip[ $r        & 0xFF] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
+               ($shuffleinvip[ $l        & 0xFF] & "\x01\x01\x01\x01\x01\x01\x01\x01");
     }
 
     /**
@@ -1364,37 +1374,56 @@ class Crypt_DES extends Crypt_Base {
     function inline_crypt_setup()
     {
         $lambda_functions =& Crypt_DES::get_lambda_functions();
+
+        // Engine configuration for:
+        // -  DES ($des_rounds == 1) or
+        // - 3DES ($des_rounds == 3)
         $des_rounds = $this->des_rounds;
 
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one
         $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
+        // Generation of a uniqe hash for our generated code
         switch (true) {
             case $gen_hi_opt_code:
+                // For hi-optimized code, we create for each combination of 
+                // $mode, $des_rounds and $this->key its own encrypt/decrypt function.
                 $code_hash = md5(str_pad("Crypt_DES, $des_rounds, {$this->mode}, ", 32, "\0") . $this->key);
                 break;
             default:
+                // After max 10 hi-optimized functions, we create generic 
+                // (still very fast.. but not ultra) functions for each $mode/$des_rounds
+                // Currently 2 * 5 generic functions will be then max. possible. 
                 $code_hash = "Crypt_DES, $des_rounds, {$this->mode}";
         }
 
+        // Is there a re-usable $lambda_functions in there? If not, we have to create it.
         if (!isset($lambda_functions[$code_hash])) {
-            $init_crypt = '
-                $shuffle  = $self->shuffle;
-                $invipmap = $self->invipmap;
-                $ipmap = $self->ipmap;
-                $sbox1 = $self->sbox1;
-                $sbox2 = $self->sbox2;
-                $sbox3 = $self->sbox3;
-                $sbox4 = $self->sbox4;
-                $sbox5 = $self->sbox5;
-                $sbox6 = $self->sbox6;
-                $sbox7 = $self->sbox7;
-                $sbox8 = $self->sbox8;
+            // Init code for both, encrypt and decrypt.
+            $init_crypt = 'static $sbox1, $sbox2, $sbox3, $sbox4, $sbox5, $sbox6, $sbox7, $sbox8, $shuffleip, $shuffleinvip;
+                if (!$sbox1) {
+                    $sbox1 = array_map("intval", $self->sbox1);
+                    $sbox2 = array_map("intval", $self->sbox2);
+                    $sbox3 = array_map("intval", $self->sbox3);
+                    $sbox4 = array_map("intval", $self->sbox4);
+                    $sbox5 = array_map("intval", $self->sbox5);
+                    $sbox6 = array_map("intval", $self->sbox6);
+                    $sbox7 = array_map("intval", $self->sbox7);
+                    $sbox8 = array_map("intval", $self->sbox8);'
+                    /* Merge $shuffle with $[inv]ipmap */ . '
+                    for ($i = 0; $i < 256; ++$i) {
+                        $shuffleip[]    =  $self->shuffle[$self->ipmap[$i]];
+                        $shuffleinvip[] =  $self->shuffle[$self->invipmap[$i]];
+                    }
+                }
             ';
 
             switch (true) {
                 case $gen_hi_opt_code:
+                    // In Hi-optimized code mode, we use our [3]DES key schedule as hardcoded integers.
+                    // No futher initialisation of the $keys schedule is necessary. 
+                    // That is the extra performance boost.
                     $k = array(
                         CRYPT_DES_ENCRYPT => $this->keys[CRYPT_DES_ENCRYPT],
                         CRYPT_DES_DECRYPT => $this->keys[CRYPT_DES_DECRYPT]
@@ -1403,6 +1432,8 @@ class Crypt_DES extends Crypt_Base {
                     $init_decrypt = '';
                     break;
                 default:
+                    // In generic optimized code mode, we have to use, as the best compromise [currently],
+                    // our key schedule as $ke/$kd arrays. (with hardcoded indexes...)
                     $k = array(
                         CRYPT_DES_ENCRYPT => array(),
                         CRYPT_DES_DECRYPT => array()
@@ -1416,69 +1447,71 @@ class Crypt_DES extends Crypt_Base {
                     break;
             }
 
+            // Creating code for en- and decryption.
             $crypt_block = array();
             foreach (array(CRYPT_DES_ENCRYPT, CRYPT_DES_DECRYPT) as $c) {
 
-                $crypt_block[$c] = '$in = unpack("N*", $in);'."\n";
+                /* Do the initial IP permutation. */
+                $crypt_block[$c] = '
+                    $in = unpack("N*", $in);
+                    $l  = $in[1];
+                    $r  = $in[2];
+                    $in = unpack("N*",
+                        ($shuffleip[ $r        & 0xFF] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
+                        ($shuffleip[($r >>  8) & 0xFF] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
+                        ($shuffleip[($r >> 16) & 0xFF] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
+                        ($shuffleip[($r >> 24) & 0xFF] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
+                        ($shuffleip[ $l        & 0xFF] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
+                        ($shuffleip[($l >>  8) & 0xFF] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
+                        ($shuffleip[($l >> 16) & 0xFF] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
+                        ($shuffleip[($l >> 24) & 0xFF] & "\x01\x01\x01\x01\x01\x01\x01\x01")
+                    );
+                    ' . /* Extract L0 and R0 */ '
+                    $l = $in[1];
+                    $r = $in[2];
+                ';
+                
+                $l = '$l';
+                $r = '$r';
 
+                // Perform DES or 3DES.
                 for ($ki = -1, $des_round = 0; $des_round < $des_rounds; ++$des_round) {
-                    // Do the initial IP permutation.
-                    $crypt_block[$c].= '
-                        $l  = $in[1];
-                        $r  = $in[2];
-                        $in = unpack("N*",
-                            ($shuffle[$ipmap[ $r        & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
-                            ($shuffle[$ipmap[($r >>  8) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
-                            ($shuffle[$ipmap[($r >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
-                            ($shuffle[$ipmap[($r >> 24) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
-                            ($shuffle[$ipmap[ $l        & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
-                            ($shuffle[$ipmap[($l >>  8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
-                            ($shuffle[$ipmap[($l >> 16) & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
-                            ($shuffle[$ipmap[($l >> 24) & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x01")
-                        );
-
-                        '.'' /* Extract L0 and R0 */ .'
-                        $l = $in[1];
-                        $r = $in[2];
-                    ';
-
                     // Perform the 16 steps.
-                    // start of "the Feistel (F) function" - see the following URL:
-                    // http://en.wikipedia.org/wiki/Image:Data_Encryption_Standard_InfoBox_Diagram.png
-                    // Merge key schedule.
-                    for ($i = 0; $i < 8; ++$i) {
-                        $crypt_block[$c].= '
-                            $b1 = (($r >>  3) & 0x1FFFFFFF)  ^ ($r << 29) ^ ' .$k[$c][++$ki] . ';
-                            $b2 = (($r >> 31) & 0x00000001)  ^ ($r <<  1) ^ ' .$k[$c][++$ki] . ';
-                            $l  = $sbox1[($b1 >> 24) & 0x3F] ^ $sbox2[($b2 >> 24) & 0x3F] ^
-                                  $sbox3[($b1 >> 16) & 0x3F] ^ $sbox4[($b2 >> 16) & 0x3F] ^
-                                  $sbox5[($b1 >>  8) & 0x3F] ^ $sbox6[($b2 >>  8) & 0x3F] ^
-                                  $sbox7[ $b1        & 0x3F] ^ $sbox8[ $b2        & 0x3F] ^ $l;
-
-                            $b1 = (($l >>  3) & 0x1FFFFFFF)  ^ ($l << 29) ^ ' .$k[$c][++$ki] . ';
-                            $b2 = (($l >> 31) & 0x00000001)  ^ ($l <<  1) ^ ' .$k[$c][++$ki] . ';
-                            $r  = $sbox1[($b1 >> 24) & 0x3F] ^ $sbox2[($b2 >> 24) & 0x3F] ^
-                                  $sbox3[($b1 >> 16) & 0x3F] ^ $sbox4[($b2 >> 16) & 0x3F] ^
-                                  $sbox5[($b1 >>  8) & 0x3F] ^ $sbox6[($b2 >>  8) & 0x3F] ^
-                                  $sbox7[ $b1        & 0x3F] ^ $sbox8[ $b2        & 0x3F] ^ $r;
+                    for ($i = 0; $i < 16; ++$i) {
+                        // start of "the Feistel (F) function" - see the following URL:
+                        // http://en.wikipedia.org/wiki/Image:Data_Encryption_Standard_InfoBox_Diagram.png
+                        // Merge key schedule.
+                        $crypt_block[$c].= ' 
+                            $b1 = ((' . $r . ' >>  3) & 0x1FFFFFFF)  ^ (' . $r . ' << 29) ^ ' . $k[$c][++$ki] . ';
+                            $b2 = ((' . $r . ' >> 31) & 0x00000001)  ^ (' . $r . ' <<  1) ^ ' . $k[$c][++$ki] . ';' .
+                            /* S-box indexing. */ 
+                            $l . ' = $sbox1[($b1 >> 24) & 0x3F] ^ $sbox2[($b2 >> 24) & 0x3F] ^
+                                     $sbox3[($b1 >> 16) & 0x3F] ^ $sbox4[($b2 >> 16) & 0x3F] ^
+                                     $sbox5[($b1 >>  8) & 0x3F] ^ $sbox6[($b2 >>  8) & 0x3F] ^
+                                     $sbox7[ $b1        & 0x3F] ^ $sbox8[ $b2        & 0x3F] ^ ' . $l . ';
                         ';
-                    }
+                        // end of "the Feistel (F) function"
 
-                    // Perform the inverse IP permutation.
-                    $crypt_block[$c].= '$in = ' . ($des_round == $des_rounds - 1 ? '(' : 'unpack("N*",') . '
-                            ($shuffle[$invipmap[($l >> 24) & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
-                            ($shuffle[$invipmap[($r >> 24) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
-                            ($shuffle[$invipmap[($l >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
-                            ($shuffle[$invipmap[($r >> 16) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
-                            ($shuffle[$invipmap[($l >>  8) & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
-                            ($shuffle[$invipmap[($r >>  8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
-                            ($shuffle[$invipmap[ $l        & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
-                            ($shuffle[$invipmap[ $r        & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x01")
-                        );
-                    ';
+                        // swap L & R
+                        list($l, $r) = array($r, $l);
+                    }
+                    list($l, $r) = array($r, $l);
                 }
+
+                // Perform the inverse IP permutation.
+                $crypt_block[$c].= '$in =
+                    ($shuffleinvip[($l >> 24) & 0xFF] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
+                    ($shuffleinvip[($r >> 24) & 0xFF] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
+                    ($shuffleinvip[($l >> 16) & 0xFF] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
+                    ($shuffleinvip[($r >> 16) & 0xFF] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
+                    ($shuffleinvip[($l >>  8) & 0xFF] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
+                    ($shuffleinvip[($r >>  8) & 0xFF] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
+                    ($shuffleinvip[ $l        & 0xFF] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
+                    ($shuffleinvip[ $r        & 0xFF] & "\x01\x01\x01\x01\x01\x01\x01\x01");
+                ';
             }
 
+            // Creates the inline-crypt function
             $lambda_functions[$code_hash] = $this->createInlineCryptFunction(
                 array(
                    'init_crypt'    => $init_crypt,
@@ -1489,6 +1522,8 @@ class Crypt_DES extends Crypt_Base {
                 )
             );
         }
+
+        // Set the inline-crypt function as callback in: $this->inline_crypt
         $this->inline_crypt = $lambda_functions[$code_hash];
     }
 }
