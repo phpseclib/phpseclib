@@ -552,12 +552,12 @@ class Crypt_Blowfish extends Crypt_Base {
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Crypt_Base::inline_crypt_setup()
+     * @see Crypt_Base::_inlineCryptSetup()
      * @access private
      */
-    function inline_crypt_setup()
+    function _inlineCryptSetup()
     {
-        $lambda_functions =& Crypt_Blowfish::get_lambda_functions();
+        $lambda_functions =& Crypt_Blowfish::_getLambdaFunctions();
 
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one.
@@ -655,7 +655,7 @@ class Crypt_Blowfish extends Crypt_Base {
                 );
             ';
 
-            $lambda_functions[$code_hash] = $this->createInlineCryptFunction(
+            $lambda_functions[$code_hash] = $this->_createInlineCryptFunction(
                 array(
                    'init_crypt'    => $init_crypt,
                    'init_encrypt'  => '',

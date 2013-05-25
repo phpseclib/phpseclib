@@ -210,6 +210,26 @@ class Crypt_TripleDES extends Crypt_DES {
     }
 
     /**
+     * Sets the initialization vector. (optional)
+     *
+     * SetIV is not required when CRYPT_DES_MODE_ECB is being used.  If not explictly set, it'll be assumed
+     * to be all zero's.
+     *
+     * @see Crypt_Base::setIV()
+     * @access public
+     * @param String $iv
+     */
+    function setIV($iv)
+    {
+        parent::setIV($iv);
+        if ($this->mode_3cbc) {
+            $this->des[0]->setIV($iv);
+            $this->des[1]->setIV($iv);
+            $this->des[2]->setIV($iv);
+        }
+    }
+
+    /**
      * Sets the key.
      *
      * Keys can be of any length.  Triple DES, itself, can use 128-bit (eg. strlen($key) == 16) or
@@ -245,61 +265,6 @@ class Crypt_TripleDES extends Crypt_DES {
             $this->des[0]->setKey(substr($key,  0, 8));
             $this->des[1]->setKey(substr($key,  8, 8));
             $this->des[2]->setKey(substr($key, 16, 8));
-        }
-    }
-
-    /**
-     * Creates the key schedule
-     *
-     * @see Crypt_DES::_setupKey()
-     * @see Crypt_Base::_setupKey()
-     * @access private
-     */
-    function _setupKey()
-    {
-        switch (true) {
-            // if $key <= 64bits we configure our internal pure-php cipher engine
-            // to act as regular [1]DES, not as 3DES. mcrypt.so::tripledes does the same.
-            case strlen($this->key) <= 8:
-                $this->des_rounds = 1;
-                break;
-
-            // otherwise, if $key > 64bits, we configure our engine to work as 3DES.
-            default:
-                $this->des_rounds = 3;
-
-                // (only) if 3CBC is used we have, of course, to setup the $des[0-2] keys also separately.
-                if ($this->mode_3cbc) {
-                    $this->des[0]->_setupKey();
-                    $this->des[1]->_setupKey();
-                    $this->des[2]->_setupKey();
-
-                    // because $des[0-2] will, now, do all the work we can return here
-                    // not need unnecessary stress parent::_setupKey() with our, now unused, $key.
-                    return;
-                }
-        }
-        // setup our key
-        parent::_setupKey();
-    }
-
-    /**
-     * Sets the initialization vector. (optional)
-     *
-     * SetIV is not required when CRYPT_DES_MODE_ECB is being used.  If not explictly set, it'll be assumed
-     * to be all zero's.
-     *
-     * @see Crypt_Base::setIV()
-     * @access public
-     * @param String $iv
-     */
-    function setIV($iv)
-    {
-        parent::setIV($iv);
-        if ($this->mode_3cbc) {
-            $this->des[0]->setIV($iv);
-            $this->des[1]->setIV($iv);
-            $this->des[2]->setIV($iv);
         }
     }
 
@@ -410,6 +375,41 @@ class Crypt_TripleDES extends Crypt_DES {
             $this->des[1]->disableContinuousBuffer();
             $this->des[2]->disableContinuousBuffer();
         }
+    }
+
+    /**
+     * Creates the key schedule
+     *
+     * @see Crypt_DES::_setupKey()
+     * @see Crypt_Base::_setupKey()
+     * @access private
+     */
+    function _setupKey()
+    {
+        switch (true) {
+            // if $key <= 64bits we configure our internal pure-php cipher engine
+            // to act as regular [1]DES, not as 3DES. mcrypt.so::tripledes does the same.
+            case strlen($this->key) <= 8:
+                $this->des_rounds = 1;
+                break;
+
+            // otherwise, if $key > 64bits, we configure our engine to work as 3DES.
+            default:
+                $this->des_rounds = 3;
+
+                // (only) if 3CBC is used we have, of course, to setup the $des[0-2] keys also separately.
+                if ($this->mode_3cbc) {
+                    $this->des[0]->_setupKey();
+                    $this->des[1]->_setupKey();
+                    $this->des[2]->_setupKey();
+
+                    // because $des[0-2] will, now, do all the work we can return here
+                    // not need unnecessary stress parent::_setupKey() with our, now unused, $key.
+                    return;
+                }
+        }
+        // setup our key
+        parent::_setupKey();
     }
 }
 

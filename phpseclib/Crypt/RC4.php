@@ -185,51 +185,6 @@ class Crypt_RC4 extends Crypt_Base {
     }
 
     /**
-     * Sets the key.
-     *
-     * Keys can be between 1 and 256 bytes long.  If they are longer then 256 bytes, the first 256 bytes will
-     * be used.  If no key is explicitly set, it'll be assumed to be a single null byte.
-     *
-     * @access public
-     * @see Crypt_Base::setKey()
-     * @param String $key
-     */
-    function setKey($key)
-    {
-        parent::setKey(substr($key, 0, 256));
-    }
-
-    /**
-     * Setup the key (expansion)
-     *
-     * @see Crypt_Base::_setupKey()
-     * @access private
-     */
-    function _setupKey()
-    {
-        $key = $this->key;
-        $keyLength = strlen($key);
-        $keyStream = array();
-        for ($i = 0; $i < 256; $i++) {
-            $keyStream[$i] = $i;
-        }
-        $j = 0;
-        for ($i = 0; $i < 256; $i++) {
-            $j = ($j + $keyStream[$i] + ord($key[$i % $keyLength])) & 255;
-            $temp = $keyStream[$i];
-            $keyStream[$i] = $keyStream[$j];
-            $keyStream[$j] = $temp;
-        }
-
-        $this->stream = array();
-        $this->stream[CRYPT_RC4_DECRYPT] = $this->stream[CRYPT_RC4_ENCRYPT] = array(
-            0, // index $i
-            0, // index $j
-            $keyStream
-        );
-    }
-
-    /**
      * Dummy function.
      *
      * Some protocols, such as WEP, prepend an "initialization vector" to the key, effectively creating a new key [1].
@@ -250,6 +205,21 @@ class Crypt_RC4 extends Crypt_Base {
      */
     function setIV($iv)
     {
+    }
+
+    /**
+     * Sets the key.
+     *
+     * Keys can be between 1 and 256 bytes long.  If they are longer then 256 bytes, the first 256 bytes will
+     * be used.  If no key is explicitly set, it'll be assumed to be a single null byte.
+     *
+     * @access public
+     * @see Crypt_Base::setKey()
+     * @param String $key
+     */
+    function setKey($key)
+    {
+        parent::setKey(substr($key, 0, 256));
     }
 
     /**
@@ -287,6 +257,37 @@ class Crypt_RC4 extends Crypt_Base {
             return parent::decrypt($ciphertext);
         }
         return $this->_crypt($ciphertext, CRYPT_RC4_DECRYPT);
+    }
+
+
+    /**
+     * Setup the key (expansion)
+     *
+     * @see Crypt_Base::_setupKey()
+     * @access private
+     */
+    function _setupKey()
+    {
+        $key = $this->key;
+        $keyLength = strlen($key);
+        $keyStream = array();
+        for ($i = 0; $i < 256; $i++) {
+            $keyStream[$i] = $i;
+        }
+        $j = 0;
+        for ($i = 0; $i < 256; $i++) {
+            $j = ($j + $keyStream[$i] + ord($key[$i % $keyLength])) & 255;
+            $temp = $keyStream[$i];
+            $keyStream[$i] = $keyStream[$j];
+            $keyStream[$j] = $temp;
+        }
+
+        $this->stream = array();
+        $this->stream[CRYPT_RC4_DECRYPT] = $this->stream[CRYPT_RC4_ENCRYPT] = array(
+            0, // index $i
+            0, // index $j
+            $keyStream
+        );
     }
 
     /**

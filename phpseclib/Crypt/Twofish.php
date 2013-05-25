@@ -531,8 +531,8 @@ class Crypt_Twofish extends Crypt_Base {
 
         switch (strlen($this->key)) {
             case 16:
-                list ($s7, $s6, $s5, $s4) = $this->mds_rem($le_longs[1], $le_longs[2]);
-                list ($s3, $s2, $s1, $s0) = $this->mds_rem($le_longs[3], $le_longs[4]);
+                list ($s7, $s6, $s5, $s4) = $this->_mdsrem($le_longs[1], $le_longs[2]);
+                list ($s3, $s2, $s1, $s0) = $this->_mdsrem($le_longs[3], $le_longs[4]);
                 for ($i = 0, $j = 1; $i < 40; $i+= 2,$j+= 2) {
                     $A = $m0[$q0[$q0[$i] ^ $key[ 9]] ^ $key[1]] ^
                          $m1[$q0[$q1[$i] ^ $key[10]] ^ $key[2]] ^
@@ -554,9 +554,9 @@ class Crypt_Twofish extends Crypt_Base {
                 }
                 break;
             case 24:
-                list ($sb, $sa, $s9, $s8) = $this->mds_rem($le_longs[1], $le_longs[2]);
-                list ($s7, $s6, $s5, $s4) = $this->mds_rem($le_longs[3], $le_longs[4]);
-                list ($s3, $s2, $s1, $s0) = $this->mds_rem($le_longs[5], $le_longs[6]);
+                list ($sb, $sa, $s9, $s8) = $this->_mdsrem($le_longs[1], $le_longs[2]);
+                list ($s7, $s6, $s5, $s4) = $this->_mdsrem($le_longs[3], $le_longs[4]);
+                list ($s3, $s2, $s1, $s0) = $this->_mdsrem($le_longs[5], $le_longs[6]);
                 for ($i = 0, $j = 1; $i < 40; $i+= 2, $j+= 2) {
                     $A = $m0[$q0[$q0[$q1[$i] ^ $key[17]] ^ $key[ 9]] ^ $key[1]] ^
                          $m1[$q0[$q1[$q1[$i] ^ $key[18]] ^ $key[10]] ^ $key[2]] ^
@@ -578,10 +578,10 @@ class Crypt_Twofish extends Crypt_Base {
                 }
                 break;
             default: // 32
-                list ($sf, $se, $sd, $sc) = $this->mds_rem($le_longs[1], $le_longs[2]);
-                list ($sb, $sa, $s9, $s8) = $this->mds_rem($le_longs[3], $le_longs[4]);
-                list ($s7, $s6, $s5, $s4) = $this->mds_rem($le_longs[5], $le_longs[6]);
-                list ($s3, $s2, $s1, $s0) = $this->mds_rem($le_longs[7], $le_longs[8]);
+                list ($sf, $se, $sd, $sc) = $this->_mdsrem($le_longs[1], $le_longs[2]);
+                list ($sb, $sa, $s9, $s8) = $this->_mdsrem($le_longs[3], $le_longs[4]);
+                list ($s7, $s6, $s5, $s4) = $this->_mdsrem($le_longs[5], $le_longs[6]);
+                list ($s3, $s2, $s1, $s0) = $this->_mdsrem($le_longs[7], $le_longs[8]);
                 for ($i = 0, $j = 1; $i < 40; $i+= 2, $j+= 2) {
                     $A = $m0[$q0[$q0[$q1[$q1[$i] ^ $key[25]] ^ $key[17]] ^ $key[ 9]] ^ $key[1]] ^
                          $m1[$q0[$q1[$q1[$q0[$i] ^ $key[26]] ^ $key[18]] ^ $key[10]] ^ $key[2]] ^
@@ -611,14 +611,14 @@ class Crypt_Twofish extends Crypt_Base {
     }
 
     /**
-     * mds_rem function using by the twofish cipher algorithm
+     * _mdsrem function using by the twofish cipher algorithm
      *
      * @access private
      * @param String $A
      * @param String $B
      * @return Array
      */
-    function mds_rem($A, $B)
+    function _mdsrem($A, $B)
     {
         // No gain by unrolling this loop.
         for ($i = 0; $i < 8; ++$i) {
@@ -767,12 +767,12 @@ class Crypt_Twofish extends Crypt_Base {
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Crypt_Base::inline_crypt_setup()
+     * @see Crypt_Base::_inlineCryptSetup()
      * @access private
      */
-    function inline_crypt_setup()
+    function _inlineCryptSetup()
     {
-        $lambda_functions =& Crypt_Twofish::get_lambda_functions();
+        $lambda_functions =& Crypt_Twofish::_getLambdaFunctions();
 
         // Max. 10 Ultra-Hi-optimized inline-crypt functions. After that, we'll (still) create very fast code, but not the ultimate fast one.
         $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
@@ -901,7 +901,7 @@ class Crypt_Twofish extends Crypt_Base {
                                  '.$K[3].' ^ $R1);
             ';
 
-            $lambda_functions[$code_hash] = $this->createInlineCryptFunction(
+            $lambda_functions[$code_hash] = $this->_createInlineCryptFunction(
                 array(
                    'init_crypt'    => $init_crypt,
                    'init_encrypt'  => '',

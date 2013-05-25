@@ -1368,12 +1368,12 @@ class Crypt_DES extends Crypt_Base {
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Crypt_Base::inline_crypt_setup()
+     * @see Crypt_Base::_inlineCryptSetup()
      * @access private
      */
-    function inline_crypt_setup()
+    function _inlineCryptSetup()
     {
-        $lambda_functions =& Crypt_DES::get_lambda_functions();
+        $lambda_functions =& Crypt_DES::_getLambdaFunctions();
 
         // Engine configuration for:
         // -  DES ($des_rounds == 1) or
@@ -1512,7 +1512,7 @@ class Crypt_DES extends Crypt_Base {
             }
 
             // Creates the inline-crypt function
-            $lambda_functions[$code_hash] = $this->createInlineCryptFunction(
+            $lambda_functions[$code_hash] = $this->_createInlineCryptFunction(
                 array(
                    'init_crypt'    => $init_crypt,
                    'init_encrypt'  => $init_encrypt,

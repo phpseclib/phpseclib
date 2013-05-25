@@ -1077,6 +1077,7 @@ class Crypt_Rijndael extends Crypt_Base {
      * Performs S-Box substitutions
      *
      * @access private
+     * @param Integer $word
      */
     function _subWord($word)
     {
@@ -1091,16 +1092,16 @@ class Crypt_Rijndael extends Crypt_Base {
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Crypt_Base::inline_crypt_setup()
+     * @see Crypt_Base::_inlineCryptSetup()
      * @access private
      */
-    function inline_crypt_setup()
+    function _inlineCryptSetup()
     {
-        // Note: inline_crypt_setup() will be called only if $this->changed === true
+        // Note: _inlineCryptSetup() will be called only if $this->changed === true
         // So here we are'nt under the same heavy timing-stress as we are in _de/encryptBlock() or de/encrypt().
         // However...the here generated function- $code, stored as php callback in $this->inline_crypt, must work as fast as even possible.
 
-        $lambda_functions =& Crypt_Rijndael::get_lambda_functions();
+        $lambda_functions =& Crypt_Rijndael::_getLambdaFunctions();
 
         // The first 10 generated $lambda_functions will use the key-words hardcoded for better performance.
         // For memory reason we limit those ultra-optimized functions.
@@ -1242,7 +1243,7 @@ class Crypt_Rijndael extends Crypt_Base {
             }
             $decrypt_block .= ');';
 
-            $lambda_functions[$code_hash] = $this->createInlineCryptFunction(
+            $lambda_functions[$code_hash] = $this->_createInlineCryptFunction(
                 array(
                    'init_crypt'    => '',
                    'init_encrypt'  => $init_encrypt,
