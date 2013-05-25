@@ -666,10 +666,15 @@ class Crypt_Rijndael extends Crypt_Base {
      * Determines whether or not the mcrypt extension should be used.
      *
      * $mode could be:
+     *
      * - CRYPT_RIJNDAEL_MODE_ECB
+     *
      * - CRYPT_RIJNDAEL_MODE_CBC
+     *
      * - CRYPT_RIJNDAEL_MODE_CTR
+     *
      * - CRYPT_RIJNDAEL_MODE_CFB
+     *
      * - CRYPT_RIJNDAEL_MODE_OFB
      *
      * If not explictly set, CRYPT_RIJNDAEL_MODE_CBC will be used.

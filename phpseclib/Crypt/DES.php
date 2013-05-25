@@ -669,10 +669,15 @@ class Crypt_DES extends Crypt_Base {
      * Determines whether or not the mcrypt extension should be used.
      *
      * $mode could be:
+     *
      * - CRYPT_DES_MODE_ECB
+     *
      * - CRYPT_DES_MODE_CBC
+     *
      * - CRYPT_DES_MODE_CTR
+     *
      * - CRYPT_DES_MODE_CFB
+     *
      * - CRYPT_DES_MODE_OFB
      *
      * If not explictly set, CRYPT_DES_MODE_CBC will be used.
@@ -769,7 +774,7 @@ class Crypt_DES extends Crypt_Base {
             $sbox6 = array_map("intval", $this->sbox6);
             $sbox7 = array_map("intval", $this->sbox7);
             $sbox8 = array_map("intval", $this->sbox8);
-            /* Merge $shuffle with $[inv]ipmap */ 
+            /* Merge $shuffle with $[inv]ipmap */
             for ($i = 0; $i < 256; ++$i) {
                 $shuffleip[]    =  $this->shuffle[$this->ipmap[$i]];
                 $shuffleinvip[] =  $this->shuffle[$this->invipmap[$i]];
@@ -1387,14 +1392,14 @@ class Crypt_DES extends Crypt_Base {
         // Generation of a uniqe hash for our generated code
         switch (true) {
             case $gen_hi_opt_code:
-                // For hi-optimized code, we create for each combination of 
+                // For hi-optimized code, we create for each combination of
                 // $mode, $des_rounds and $this->key its own encrypt/decrypt function.
                 $code_hash = md5(str_pad("Crypt_DES, $des_rounds, {$this->mode}, ", 32, "\0") . $this->key);
                 break;
             default:
-                // After max 10 hi-optimized functions, we create generic 
+                // After max 10 hi-optimized functions, we create generic
                 // (still very fast.. but not ultra) functions for each $mode/$des_rounds
-                // Currently 2 * 5 generic functions will be then max. possible. 
+                // Currently 2 * 5 generic functions will be then max. possible.
                 $code_hash = "Crypt_DES, $des_rounds, {$this->mode}";
         }
 
@@ -1422,7 +1427,7 @@ class Crypt_DES extends Crypt_Base {
             switch (true) {
                 case $gen_hi_opt_code:
                     // In Hi-optimized code mode, we use our [3]DES key schedule as hardcoded integers.
-                    // No futher initialisation of the $keys schedule is necessary. 
+                    // No futher initialisation of the $keys schedule is necessary.
                     // That is the extra performance boost.
                     $k = array(
                         CRYPT_DES_ENCRYPT => $this->keys[CRYPT_DES_ENCRYPT],
@@ -1470,7 +1475,7 @@ class Crypt_DES extends Crypt_Base {
                     $l = $in[1];
                     $r = $in[2];
                 ';
-                
+
                 $l = '$l';
                 $r = '$r';
 
@@ -1481,10 +1486,10 @@ class Crypt_DES extends Crypt_Base {
                         // start of "the Feistel (F) function" - see the following URL:
                         // http://en.wikipedia.org/wiki/Image:Data_Encryption_Standard_InfoBox_Diagram.png
                         // Merge key schedule.
-                        $crypt_block[$c].= ' 
+                        $crypt_block[$c].= '
                             $b1 = ((' . $r . ' >>  3) & 0x1FFFFFFF)  ^ (' . $r . ' << 29) ^ ' . $k[$c][++$ki] . ';
                             $b2 = ((' . $r . ' >> 31) & 0x00000001)  ^ (' . $r . ' <<  1) ^ ' . $k[$c][++$ki] . ';' .
-                            /* S-box indexing. */ 
+                            /* S-box indexing. */
                             $l . ' = $sbox1[($b1 >> 24) & 0x3F] ^ $sbox2[($b2 >> 24) & 0x3F] ^
                                      $sbox3[($b1 >> 16) & 0x3F] ^ $sbox4[($b2 >> 16) & 0x3F] ^
                                      $sbox5[($b1 >>  8) & 0x3F] ^ $sbox6[($b2 >>  8) & 0x3F] ^

@@ -81,7 +81,7 @@ define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_TerraDES
+ * @package Crypt_TripleDES
  */
 class Crypt_TripleDES extends Crypt_DES {
     /**
@@ -168,11 +168,17 @@ class Crypt_TripleDES extends Crypt_DES {
      * Determines whether or not the mcrypt extension should be used.
      *
      * $mode could be:
+     *
      * - CRYPT_DES_MODE_ECB
+     *
      * - CRYPT_DES_MODE_CBC
+     *
      * - CRYPT_DES_MODE_CTR
+     *
      * - CRYPT_DES_MODE_CFB
+     *
      * - CRYPT_DES_MODE_OFB
+     *
      * - CRYPT_DES_MODE_3CBC
      *
      * If not explictly set, CRYPT_DES_MODE_CBC will be used.

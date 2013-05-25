@@ -407,11 +407,17 @@ class Crypt_Base {
      * Determines whether or not the mcrypt extension should be used.
      *
      * $mode could be:
+     *
      * - CRYPT_MODE_ECB
+     *
      * - CRYPT_MODE_CBC
+     *
      * - CRYPT_MODE_CTR
+     *
      * - CRYPT_MODE_CFB
+     *
      * - CRYPT_MODE_OFB
+     *
      * (or the alias constants of the choosen cipher, for example for AES: CRYPT_AES_MODE_ECB or CRYPT_AES_MODE_CBC ...)
      *
      * If not explictly set, CRYPT_MODE_CBC will be used.
@@ -608,7 +614,7 @@ class Crypt_Base {
                 $this->enchanged = false;
             }
 
-            // re: http://phpseclib.sourceforge.net/cfb-demo.phps
+            // re: {@link http://phpseclib.sourceforge.net/cfb-demo.phps}
             // using mcrypt's default handing of CFB the above would output two different things.  using phpseclib's
             // rewritten CFB implementation the above outputs the same thing twice.
             if ($this->mode == CRYPT_MODE_CFB && $this->continuousBuffer) {
@@ -737,7 +743,7 @@ class Crypt_Base {
                 break;
             case CRYPT_MODE_CFB:
                 // cfb loosely routines inspired by openssl's:
-                // http://cvs.openssl.org/fileview?f=openssl/crypto/modes/cfb128.c&v=1.3.2.2.2.1
+                // {@link http://cvs.openssl.org/fileview?f=openssl/crypto/modes/cfb128.c&v=1.3.2.2.2.1}
                 if ($this->continuousBuffer) {
                     $iv = &$this->encryptIV;
                     $pos = &$buffer['pos'];
@@ -876,7 +882,7 @@ class Crypt_Base {
             }
 
             if ($this->paddable) {
-                // we pad with chr(0) since that's what mcrypt_generic does.  to quote from http://php.net/function.mcrypt-generic :
+                // we pad with chr(0) since that's what mcrypt_generic does.  to quote from {@link http://www.php.net/function.mcrypt-generic}:
                 // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
                 $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($block_size - strlen($ciphertext) % $block_size) % $block_size, chr(0));
             }
@@ -1193,10 +1199,15 @@ class Crypt_Base {
      *
      * _mcryptSetup() will be called each time if $changed === true
      * typically this happens when using one or more of following public methods:
+     *
      * - setKey()
+     *
      * - setIV()
+     *
      * - disableContinuousBuffer()
+     *
      * - First run of encrypt() / decrypt()
+     *
      *
      * Note: Could, but not must, extend by the child Crypt_* class
      *

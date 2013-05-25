@@ -375,10 +375,15 @@ class Crypt_Blowfish extends Crypt_Base {
      * Determines whether or not the mcrypt extension should be used.
      *
      * $mode could be:
+     *
      * - CRYPT_BLOWFISH_MODE_ECB
+     *
      * - CRYPT_BLOWFISH_MODE_CBC
+     *
      * - CRYPT_BLOWFISH_MODE_CTR
+     *
      * - CRYPT_BLOWFISH_MODE_CFB
+     *
      * - CRYPT_BLOWFISH_MODE_OFB
      *
      * If not explictly set, CRYPT_BLOWFISH_MODE_CBC will be used.
@@ -593,7 +598,7 @@ class Crypt_Blowfish extends Crypt_Base {
                     $init_crypt = '
                         list($sb_0, $sb_1, $sb_2, $sb_3) = $self->bctx["sb"];
                         list(' . implode(',', $p) . ') = $self->bctx["p"];
-                        
+
                     ';
             }
 

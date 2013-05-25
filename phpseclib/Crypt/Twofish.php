@@ -454,10 +454,15 @@ class Crypt_Twofish extends Crypt_Base {
      * Determines whether or not the mcrypt extension should be used.
      *
      * $mode could be:
+     *
      * - CRYPT_TWOFISH_MODE_ECB
+     *
      * - CRYPT_TWOFISH_MODE_CBC
+     *
      * - CRYPT_TWOFISH_MODE_CTR
+     *
      * - CRYPT_TWOFISH_MODE_CFB
+     *
      * - CRYPT_TWOFISH_MODE_OFB
      *
      * If not explictly set, CRYPT_TWOFISH_MODE_CBC will be used.

@@ -156,10 +156,15 @@ class Crypt_AES extends Crypt_Rijndael {
      * Determines whether or not the mcrypt extension should be used.
      *
      * $mode could be:
+     *
      * - CRYPT_AES_MODE_ECB
+     *
      * - CRYPT_AES_MODE_CBC
+     *
      * - CRYPT_AES_MODE_CTR
+     *
      * - CRYPT_AES_MODE_CFB
+     *
      * - CRYPT_AES_MODE_OFB
      *
      * If not explictly set, CRYPT_AES_MODE_CBC will be used.
