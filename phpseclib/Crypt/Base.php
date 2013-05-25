@@ -243,7 +243,7 @@ class Crypt_Base {
      * @link http://phpseclib.sourceforge.net/cfb-demo.phps
      * @see Crypt_Base::encrypt()
      * @see Crypt_Base::decrypt()
-     * @see Crypt_Base::_mcryptSetup()
+     * @see Crypt_Base::_setupMcrypt()
      * @var Resource
      * @access private
      */
@@ -328,7 +328,7 @@ class Crypt_Base {
      *
      * @link http://www.php.net/mcrypt_module_open
      * @link http://www.php.net/mcrypt_list_algorithms
-     * @see Crypt_Base::_mcryptSetup()
+     * @see Crypt_Base::_setupMcrypt()
      * @var String
      * @access private
      */
@@ -383,7 +383,7 @@ class Crypt_Base {
      *
      * @see Crypt_Base::encrypt()
      * @see Crypt_Base::decrypt()
-     * @see Crypt_Base::_inlineCryptSetup()
+     * @see Crypt_Base::_setupInlineCrypt()
      * @see Crypt_Base::$use_inline_crypt
      * @var Callback
      * @access private
@@ -606,7 +606,7 @@ class Crypt_Base {
     {
         if ($this->engine == CRYPT_MODE_MCRYPT) {
             if ($this->changed) {
-                $this->_mcryptSetup();
+                $this->_setupMcrypt();
                 $this->changed = false;
             }
             if ($this->enchanged) {
@@ -835,7 +835,7 @@ class Crypt_Base {
         if ($this->engine == CRYPT_MODE_MCRYPT) {
             $block_size = $this->block_size;
             if ($this->changed) {
-                $this->_mcryptSetup();
+                $this->_setupMcrypt();
                 $this->changed = false;
             }
             if ($this->dechanged) {
@@ -1187,7 +1187,7 @@ class Crypt_Base {
         $this->_setupKey();
 
         if ($this->use_inline_crypt) {
-            $this->_inlineCryptSetup();
+            $this->_setupInlineCrypt();
         }
     }
 
@@ -1197,7 +1197,7 @@ class Crypt_Base {
      * (re)init, if necessary, the (ext)mcrypt resources and flush all $buffers
      * Used (only) if $engine = CRYPT_MODE_MCRYPT
      *
-     * _mcryptSetup() will be called each time if $changed === true
+     * _setupMcrypt() will be called each time if $changed === true
      * typically this happens when using one or more of following public methods:
      *
      * - setKey()
@@ -1216,7 +1216,7 @@ class Crypt_Base {
      * @see disableContinuousBuffer()
      * @access private
      */
-    function _mcryptSetup()
+    function _setupMcrypt()
     {
         $this->_clearBuffers();
         $this->enchanged = $this->dechanged = true;
@@ -1402,7 +1402,7 @@ class Crypt_Base {
      *
      * Internally for phpseclib developers:
      *
-     *     _inlineCryptSetup() would be called only if:
+     *     _setupInlineCrypt() would be called only if:
      *
      *     - $engine == CRYPT_MODE_INTERNAL and
      *     
@@ -1411,21 +1411,21 @@ class Crypt_Base {
      *     - each time on _setup(), after(!) _setupKey()
      *
      *     
-     *     This ensures that _inlineCryptSetup() has allways a
+     *     This ensures that _setupInlineCrypt() has allways a
      *     full ready2go initializated internal cipher $engine state
      *     where, for example, the keys allready expanded,
      *     keys/block_size calculated and such.
      *
-     *     It is, each time if called, the responsibility of _inlineCryptSetup():
+     *     It is, each time if called, the responsibility of _setupInlineCrypt():
      *     
      *     - to set $this->inline_crypt to a valid and fully working callback function
      *       as a (faster) replacement for encrypt() / decrypt()
      *
      *     - NOT to create unlimited callback functions (for memory reasons!)
-     *       no matter how often _inlineCryptSetup() would be called. At some
+     *       no matter how often _setupInlineCrypt() would be called. At some
      *       point of amount they must be generic re-useable.
      *
-     *     - the code of _inlineCryptSetup() it self,
+     *     - the code of _setupInlineCrypt() it self,
      *       and the generated callback code,
      *       must be, in following order:
      *       - 100% safe
@@ -1434,11 +1434,11 @@ class Crypt_Base {
      *         compatibility (down to php4) or fallback is provided
      *       - readable/maintainable/understandable/commented and... not-cryptic-styled-code :-)
      *       - >= 10% faster than encrypt()/decrypt() [which is, by the way,
-     *         the reason for the existence of _inlineCryptSetup() :-)]
+     *         the reason for the existence of _setupInlineCrypt() :-)]
      *       - memory-nice
      *       - short (as good as possible)
      *
-     * Note: _inlineCryptSetup() is using _createInlineCryptFunction() to create the full callback function code.
+     * Note: _setupInlineCrypt() is using _createInlineCryptFunction() to create the full callback function code.
      *
      * Note: In case of using inline crypting, it must extend by the child Crypt_* class
      *
@@ -1448,9 +1448,9 @@ class Crypt_Base {
      * @see Crypt_Base::decrypt()
      * @access private
      */
-    function _inlineCryptSetup()
+    function _setupInlineCrypt()
     {
-        // If a Crypt_* class providing inline crypting it must extend _inlineCryptSetup()
+        // If a Crypt_* class providing inline crypting it must extend _setupInlineCrypt()
 
         // If, for any reason, an extending Crypt_Base() Crypt_* class
         // not using inline crypting then it must be ensured that: $this->use_inline_crypt = false
@@ -1468,7 +1468,7 @@ class Crypt_Base {
      *
      *    _createInlineCryptFunction():
      *
-     *    - merge the $cipher_code [setup'ed by _inlineCryptSetup()]
+     *    - merge the $cipher_code [setup'ed by _setupInlineCrypt()]
      *      with the current [$this->]mode of operation code
      *
      *    - create the $inline function, which called by encrypt() / decrypt()
@@ -1547,7 +1547,7 @@ class Crypt_Base {
      *    +----------------------------------------------------------------------------------------------+
      *    </code>
      *
-     *    See also the Crypt_*::_inlineCryptSetup()'s for
+     *    See also the Crypt_*::_setupInlineCrypt()'s for
      *    productive inline $cipher_code's how they works.
      *
      *    Structure of:
@@ -1561,7 +1561,7 @@ class Crypt_Base {
      *    );
      *    </code>
      *
-     * @see Crypt_Base::_inlineCryptSetup()
+     * @see Crypt_Base::_setupInlineCrypt()
      * @see Crypt_Base::encrypt()
      * @see Crypt_Base::decrypt()
      * @param Array $cipher_code
@@ -1923,7 +1923,7 @@ class Crypt_Base {
      * Holds the lambda_functions table (classwide)
      *
      * Each name of the lambda function, created from
-     * _inlineCryptSetup() && _createInlineCryptFunction()
+     * _setupInlineCrypt() && _createInlineCryptFunction()
      * is stored, classwide (!), here for reusing.
      *
      * The string-based index of $function is a classwide

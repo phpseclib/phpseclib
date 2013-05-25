@@ -772,10 +772,10 @@ class Crypt_Twofish extends Crypt_Base {
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Crypt_Base::_inlineCryptSetup()
+     * @see Crypt_Base::_setupInlineCrypt()
      * @access private
      */
-    function _inlineCryptSetup()
+    function _setupInlineCrypt()
     {
         $lambda_functions =& Crypt_Twofish::_getLambdaFunctions();
 

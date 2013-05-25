@@ -198,10 +198,10 @@ class Crypt_AES extends Crypt_Rijndael {
      *
      * Validates all the variables.
      *
-     * @see Crypt_Base::_mcryptSetup()
+     * @see Crypt_Base::_setupMcrypt()
      * @access private
      */
-    function _mcryptSetup()
+    function _setupMcrypt()
     {
         if (!$this->explicit_key_length) {
             // this just copied from Crypt_Rijndael::_setup()
@@ -231,7 +231,7 @@ class Crypt_AES extends Crypt_Rijndael {
         $this->password_key_size = $this->key_size;
         $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, chr(0));
 
-        parent::_mcryptSetup();
+        parent::_setupMcrypt();
     }
 }
 
