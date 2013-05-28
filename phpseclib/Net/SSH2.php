@@ -2013,7 +2013,7 @@ class Net_SSH2 {
      * @return String
      * @access public
      */
-    function exec($command, $block = true)
+    function exec($command, $callback = NULL)
     {
         $this->curTimeout = $this->timeout;
         $this->stdErrorLog = '';
@@ -2097,7 +2097,7 @@ class Net_SSH2 {
 
         $this->channel_status[NET_SSH2_CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_DATA;
 
-        if (!$block || $this->in_request_pty_exec) {
+        if ($callback === false || $this->in_request_pty_exec) {
             return true;
         }
 
@@ -2106,11 +2106,15 @@ class Net_SSH2 {
             $temp = $this->_get_channel_packet(NET_SSH2_CHANNEL_EXEC);
             switch (true) {
                 case $temp === true:
-                    return $output;
+                    return is_callable($callback) ? true : $output;
                 case $temp === false:
                     return false;
                 default:
-                    $output.= $temp;
+                    if (is_callable($callback)) {
+                        $callback($temp);
+                    } else {
+                        $output.= $temp;
+                    }
             }
         }
     }
