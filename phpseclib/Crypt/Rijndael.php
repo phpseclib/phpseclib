@@ -218,7 +218,7 @@ class Crypt_Rijndael extends Crypt_Base {
      * @see setKeyLength()
      * @var Integer
      * @access private
-     * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $key_size
+     * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
      *    because the encryption / decryption / key schedule creation requires this number and not $key_size.  We could
      *    derive this from $key_size or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
      *    of that, we'll just precompute it once.
@@ -704,10 +704,6 @@ class Crypt_Rijndael extends Crypt_Base {
      */
     function setKey($key)
     {
-        if (strlen($key) > 32) {
-            $key = substr($key, 0, 32);
-        }
-
         parent::setKey($key);
     }
 
@@ -722,14 +718,22 @@ class Crypt_Rijndael extends Crypt_Base {
      */
     function setKeyLength($length)
     {
-        $length >>= 5;
-        if ($length > 8) {
-            $length = 8;
-        } else if ($length < 4) {
-            $length = 4;
+        switch (true) {
+            case $length == 160:
+                $this->key_size = 20;
+                break;
+            case $length == 224:
+                $this->key_size = 28;
+                break;
+            case $length <= 128:
+                $this->key_size = 16;
+                break;
+            case $length <= 192:
+                $this->key_size = 24;
+                break;
+            default:
+                $this->key_size = 32;
         }
-        $this->Nk = $length;
-        $this->key_size = $this->password_key_size = $length << 2;
 
         $this->explicit_key_length = true;
         $this->changed = true;
@@ -970,26 +974,27 @@ class Crypt_Rijndael extends Crypt_Base {
         );
 
         if (!$this->explicit_key_length) {
-            // we do >> 2, here, and not >> 5, as we do above, since strlen($this->key) tells us the number of bytes - not bits
-            $length = strlen($this->key) >> 2;
-            if ($length > 8) {
-                $length = 8;
-            } else if ($length < 4) {
-                $length = 4;
+            $length = strlen($this->key);
+            switch (true) {
+                case $length <= 16:
+                    $this->key_size = 16;
+                    break;
+                case $length <= 24:
+                    $this->key_size = 24;
+                    break;
+                default:
+                    $this->key_size = 32;
             }
-            $this->Nk = $length;
-            $this->key_size = $this->password_key_size = $length << 2;
         }
-
-        $key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, chr(0));
+        $key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, "\0");
 
         if (isset($this->kl['key']) && $key === $this->kl['key'] && $this->key_size === $this->kl['key_size'] && $this->block_size === $this->kl['block_size']) {
             // already expanded
             return;
         }
-        $this->kl = array('key' => $key, 'block_size' => $this->block_size, 'key_size' => $this->key_size);
+        $this->kl = array('key' => $key, 'key_size' => $this->key_size, 'block_size' => $this->block_size);
 
-
+        $this->Nk = $this->key_size >> 2;
         // see Rijndael-ammended.pdf#page=44
         $this->Nr = max($this->Nk, $this->Nb) + 6;
 

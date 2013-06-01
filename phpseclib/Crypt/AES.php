@@ -194,6 +194,39 @@ class Crypt_AES extends Crypt_Rijndael {
     }
 
     /**
+     * Sets the key length
+     *
+     * Valid key lengths are 128, 160, 192, 224, and 256.  If the length is less than 128, it will be rounded up to
+     * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
+     *
+     * Note: phpseclib extends AES for using 160- and 224-bit keys but they are officially not defined in AES 
+     *       and the most (if not all) implementations of AES are not able using 160/224-bit keys but round/pad 
+     *       them up to 192/256 bits as, for example, mcrypt will do.
+     *
+     *       That said, if you want be compatible with other AES implementations, 
+     *       you should not setKeyLength(160) or setKeyLength(224).
+     *
+     *       Additional: In case of 160- and 224-bit keys, phpseclib will/can, for that reason, not use
+     *                   the mcrypt php extention, even if available. This results then in slower encryption.
+     *
+     * @access public
+     * @param Integer $length
+     */
+    function setKeyLength($length)
+    {
+        parent::setKeyLength($length);
+
+        switch ($this->key_size) {
+            case 20: // 160-bits
+            case 28: // 224-bits
+                $this->engine = CRYPT_AES_MODE_INTERNAL; // because mcrypt is not able to use (real) 160/224-bit keys 
+                break;                                   // we force using our internal AES engine instead of mcrypt.
+            default:
+                $this->engine = CRYPT_AES_MODE;
+        }
+    }
+
+    /**
      * Setup the CRYPT_MODE_MCRYPT $engine
      *
      * Validates all the variables.
@@ -204,33 +237,20 @@ class Crypt_AES extends Crypt_Rijndael {
     function _setupMcrypt()
     {
         if (!$this->explicit_key_length) {
-            // this just copied from Crypt_Rijndael::_setup()
-            $length = strlen($this->key) >> 2;
-            if ($length > 8) {
-                $length = 8;
-            } else if ($length < 4) {
-                $length = 4;
+            $length = strlen($this->key);
+            switch (true) {
+                case $length <= 16:
+                    $this->key_size = 16;
+                    break;
+                case $length <= 24:
+                    $this->key_size = 24;
+                    break;
+                default:
+                    $this->key_size = 32;
             }
-            $this->Nk = $length;
-            $this->key_size = $length << 2;
         }
 
-        switch ($this->Nk) {
-            case 4: // 128
-                $this->key_size = 16;
-                break;
-            case 5: // 160
-            case 6: // 192
-                $this->key_size = 24;
-                break;
-            case 7: // 224
-            case 8: // 256
-                $this->key_size = 32;
-        }
-
-        $this->password_key_size = $this->key_size;
-        $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, chr(0));
-
+        $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, "\0");
         parent::_setupMcrypt();
     }
 }
