@@ -35,7 +35,7 @@
  * @copyright  MMXII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  * @version    $Id$
- * @link       htp://phpseclib.sourceforge.net
+ * @link       http://phpseclib.sourceforge.net
  */
 
 /**
