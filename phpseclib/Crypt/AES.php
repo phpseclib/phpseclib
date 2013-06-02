@@ -4,13 +4,13 @@
 /**
  * Pure-PHP implementation of AES.
  *
- * Uses mcrypt, if available, and an internal implementation, otherwise.
+ * Uses mcrypt, if available/possible, and an internal implementation, otherwise.
  *
  * PHP versions 4 and 5
  *
  * If {@link Crypt_AES::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
  * {@link Crypt_AES::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's 136-bits
- * it'll be null-padded to 160-bits and 160 bits will be the key length until {@link Crypt_Rijndael::setKey() setKey()}
+ * it'll be null-padded to 192-bits and 192 bits will be the key length until {@link Crypt_AES::setKey() setKey()}
  * is called, again, at which point, it'll be recalculated.
  *
  * Since Crypt_AES extends Crypt_Rijndael, some functions are available to be called that, in the context of AES, don't
@@ -142,15 +142,6 @@ class Crypt_AES extends Crypt_Rijndael {
     var $const_namespace = 'AES';
 
     /**
-     * The mcrypt specific name of the cipher
-     *
-     * @see Crypt_Base::cipher_name_mcrypt
-     * @var String
-     * @access private
-     */
-    var $cipher_name_mcrypt = 'rijndael-128';
-
-    /**
      * Default Constructor.
      *
      * Determines whether or not the mcrypt extension should be used.
@@ -191,67 +182,6 @@ class Crypt_AES extends Crypt_Rijndael {
     function setBlockLength($length)
     {
         return;
-    }
-
-    /**
-     * Sets the key length
-     *
-     * Valid key lengths are 128, 160, 192, 224, and 256.  If the length is less than 128, it will be rounded up to
-     * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
-     *
-     * Note: phpseclib extends AES for using 160- and 224-bit keys but they are officially not defined in AES 
-     *       and the most (if not all) implementations of AES are not able using 160/224-bit keys but round/pad 
-     *       them up to 192/256 bits as, for example, mcrypt will do.
-     *
-     *       That said, if you want be compatible with other AES implementations, 
-     *       you should not setKeyLength(160) or setKeyLength(224).
-     *
-     *       Additional: In case of 160- and 224-bit keys, phpseclib will/can, for that reason, not use
-     *                   the mcrypt php extention, even if available. This results then in slower encryption.
-     *
-     * @access public
-     * @param Integer $length
-     */
-    function setKeyLength($length)
-    {
-        parent::setKeyLength($length);
-
-        switch ($this->key_size) {
-            case 20: // 160-bits
-            case 28: // 224-bits
-                $this->engine = CRYPT_AES_MODE_INTERNAL; // because mcrypt is not able to use (real) 160/224-bit keys 
-                break;                                   // we force using our internal AES engine instead of mcrypt.
-            default:
-                $this->engine = CRYPT_AES_MODE;
-        }
-    }
-
-    /**
-     * Setup the CRYPT_MODE_MCRYPT $engine
-     *
-     * Validates all the variables.
-     *
-     * @see Crypt_Base::_setupMcrypt()
-     * @access private
-     */
-    function _setupMcrypt()
-    {
-        if (!$this->explicit_key_length) {
-            $length = strlen($this->key);
-            switch (true) {
-                case $length <= 16:
-                    $this->key_size = 16;
-                    break;
-                case $length <= 24:
-                    $this->key_size = 24;
-                    break;
-                default:
-                    $this->key_size = 32;
-            }
-        }
-
-        $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, "\0");
-        parent::_setupMcrypt();
     }
 }
 

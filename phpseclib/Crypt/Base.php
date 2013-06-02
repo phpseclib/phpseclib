@@ -73,7 +73,7 @@ define('CRYPT_MODE_CFB', 3);
 define('CRYPT_MODE_OFB', 4);
 /**
  * Encrypt / decrypt using streaming mode.
- * 
+ *
  */
 define('CRYPT_MODE_STREAM', 5);
 /**#@-*/
@@ -493,9 +493,6 @@ class Crypt_Base {
         if ($this->mode == CRYPT_MODE_ECB) {
             return;
         }
-        if ($this->iv === $iv) {
-            return;
-        }
 
         $this->iv = $iv;
         $this->changed = true;
@@ -518,10 +515,6 @@ class Crypt_Base {
      */
     function setKey($key)
     {
-        if ($this->key === $key) {
-            return;
-        }
-
         $this->key = $key;
         $this->changed = true;
     }
@@ -533,8 +526,11 @@ class Crypt_Base {
      *     {@link http://en.wikipedia.org/wiki/PBKDF2 pbkdf2}:
      *         $hash, $salt, $count, $dkLen
      *
+     *         Where $hash (default = sha1) currently supports the following hashes: see: Crypt/Hash.php
+     *
      * Note: Could, but not must, extend by the child Crypt_* class
      *
+     * @see Crypt/Hash.php
      * @param String $password
      * @param optional String $method
      * @access public
@@ -560,25 +556,34 @@ class Crypt_Base {
                 // Keylength
                 $dkLen = isset($func_args[5]) ? $func_args[5] : $this->password_key_size;
 
-                if (!class_exists('Crypt_Hash')) {
-                    require_once('Crypt/Hash.php');
-                }
-
-                $i = 1;
-                while (strlen($key) < $dkLen) {
-                    $hmac = new Crypt_Hash();
-                    $hmac->setHash($hash);
-                    $hmac->setKey($password);
-                    $f = $u = $hmac->hash($salt . pack('N', $i++));
-                    for ($j = 2; $j <= $count; ++$j) {
-                        $u = $hmac->hash($u);
-                        $f^= $u;
-                    }
-                    $key.= $f;
+                // Determining if php[>=5.5.0]'s hash_pbkdf2() function avail- and useable
+                switch (true) {
+                    case !function_exists('hash_pbkdf2'):
+                    case !function_exists('hash_algos'):
+                    case !in_array($hash, hash_algos()):
+                        if (!class_exists('Crypt_Hash')) {
+                            require_once('Crypt/Hash.php');
+                        }
+                        $i = 1;
+                        while (strlen($key) < $dkLen) {
+                            $hmac = new Crypt_Hash();
+                            $hmac->setHash($hash);
+                            $hmac->setKey($password);
+                            $f = $u = $hmac->hash($salt . pack('N', $i++));
+                            for ($j = 2; $j <= $count; ++$j) {
+                                $u = $hmac->hash($u);
+                                $f^= $u;
+                            }
+                            $key.= $f;
+                        }
+                        $key = substr($key, 0, $dkLen);
+                        break;
+                    default:
+                        $key = hash_pbkdf2($hash, $password, $salt, $count, $dkLen, true);
                 }
         }
 
-        $this->setKey(substr($key, 0, $dkLen));
+        $this->setKey($key);
     }
 
     /**
@@ -1415,19 +1420,19 @@ class Crypt_Base {
      *     _setupInlineCrypt() would be called only if:
      *
      *     - $engine == CRYPT_MODE_INTERNAL and
-     *     
+     *
      *     - $use_inline_crypt === true
-     *     
+     *
      *     - each time on _setup(), after(!) _setupKey()
      *
-     *     
+     *
      *     This ensures that _setupInlineCrypt() has allways a
      *     full ready2go initializated internal cipher $engine state
      *     where, for example, the keys allready expanded,
      *     keys/block_size calculated and such.
      *
      *     It is, each time if called, the responsibility of _setupInlineCrypt():
-     *     
+     *
      *     - to set $this->inline_crypt to a valid and fully working callback function
      *       as a (faster) replacement for encrypt() / decrypt()
      *
@@ -1948,29 +1953,6 @@ class Crypt_Base {
     {
         static $functions = array();
         return $functions;
-    }
-
-    /**
-     * Class destructor.
-     *
-     * Will be called, automatically, if you're using PHP5.  If you're using PHP4, call it yourself.  Only really
-     * needs to be called if mcrypt is being used.
-     *
-     * @access public
-     */
-    function __destruct()
-    {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
-            if (is_resource($this->enmcrypt)) {
-                mcrypt_module_close($this->enmcrypt);
-            }
-            if (is_resource($this->demcrypt)) {
-                mcrypt_module_close($this->demcrypt);
-            }
-            if (is_resource($this->ecb)) {
-                mcrypt_module_close($this->ecb);
-            }
-        }
     }
 }
 

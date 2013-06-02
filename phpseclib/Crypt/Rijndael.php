@@ -4,14 +4,14 @@
 /**
  * Pure-PHP implementation of Rijndael.
  *
- * Does not use mcrypt, even when available, for reasons that are explained below.
+ * Uses mcrypt, if available/possible, and an internal implementation, otherwise.
  *
  * PHP versions 4 and 5
  *
  * If {@link Crypt_Rijndael::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
  * {@link Crypt_Rijndael::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
  * {@link Crypt_Rijndael::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
- * 136-bits it'll be null-padded to 160-bits and 160 bits will be the key length until
+ * 136-bits it'll be null-padded to 192-bits and 192 bits will be the key length until
  * {@link Crypt_Rijndael::setKey() setKey()} is called, again, at which point, it'll be recalculated.
  *
  * Not all Rijndael implementations may support 160-bits or 224-bits as the block length / key length.  mcrypt, for example,
@@ -21,6 +21,7 @@
  * are first defined as valid key / block lengths in
  * {@link http://csrc.nist.gov/archive/aes/rijndael/Rijndael-ammended.pdf#page=44 Rijndael-ammended.pdf#page=44}:
  * Extensions: Other block and Cipher Key lengths.
+ * Note: Use of 160/224-bit Keys must be explicitly set by setKeyLength(160) respectively setKeyLength(224).
  *
  * {@internal The variable names are the same as those in
  * {@link http://www.csrc.nist.gov/publications/fips/fips197/fips-197.pdf#page=10 fips-197.pdf#page=10}.}}
@@ -162,6 +163,22 @@ class Crypt_Rijndael extends Crypt_Base {
     var $const_namespace = 'RIJNDAEL';
 
     /**
+     * The mcrypt specific name of the cipher
+     *
+     * Mcrypt is useable for 128/192/256-bit $block_size/$key_size. For 160/224 not.
+     * Crypt_Rijndael determines automatically whether mcrypt is useable
+     * or not for the current $block_size/$key_size.
+     * In case of, $cipher_name_mcrypt will be set dynamicaly at run time accordingly.
+     *
+     * @see Crypt_Base::cipher_name_mcrypt
+     * @see Crypt_Base::engine
+     * @see _setupEngine()
+     * @var String
+     * @access private
+     */
+    var $cipher_name_mcrypt = 'rijndael-128';
+
+    /**
      * The default salt used by setPassword()
      *
      * @see Crypt_Base::password_default_salt
@@ -251,6 +268,14 @@ class Crypt_Rijndael extends Crypt_Base {
      * @access private
      */
     var $c;
+
+    /**
+     * Holds the last used key- and block_size information
+     *
+     * @var Array
+     * @access private
+     */
+    var $kl;
 
     /**
      * Precomputed mixColumns table
@@ -653,14 +678,6 @@ class Crypt_Rijndael extends Crypt_Base {
     );
 
     /**
-     * Holds the last used key- and blocksize information
-     *
-     * @var Array
-     * @access private
-     */
-    var $kl;
-
-    /**
      * Default Constructor.
      *
      * Determines whether or not the mcrypt extension should be used.
@@ -698,13 +715,31 @@ class Crypt_Rijndael extends Crypt_Base {
      *
      * If the key is not explicitly set, it'll be assumed to be all null bytes.
      *
+     * Note: 160/224-bit keys must explicitly set by setKeyLength(), otherwise they will be round/pad up to 192/256 bits.
+     *
      * @see Crypt_Base:setKey()
+     * @see setKeyLength()
      * @access public
      * @param String $key
      */
     function setKey($key)
     {
         parent::setKey($key);
+
+        if (!$this->explicit_key_length) {
+            $length = strlen($key);
+            switch (true) {
+                case $length <= 16:
+                    $this->key_size = 16;
+                    break;
+                case $length <= 24:
+                    $this->key_size = 24;
+                    break;
+                default:
+                    $this->key_size = 32;
+            }
+            $this->_setupEngine();
+        }
     }
 
     /**
@@ -712,6 +747,17 @@ class Crypt_Rijndael extends Crypt_Base {
      *
      * Valid key lengths are 128, 160, 192, 224, and 256.  If the length is less than 128, it will be rounded up to
      * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
+     *
+     * Note: phpseclib extends Rijndael (and AES) for using 160- and 224-bit keys but they are officially not defined
+     *       and the most (if not all) implementations are not able using 160/224-bit keys but round/pad them up to
+     *       192/256 bits as, for example, mcrypt will do.
+     *
+     *       That said, if you want be compatible with other Rijndael and AES implementations,
+     *       you should not setKeyLength(160) or setKeyLength(224).
+     *
+     * Additional: In case of 160- and 224-bit keys, phpseclib will/can, for that reason, not use
+     *             the mcrypt php extention, even if available.
+     *             This results then in slower encryption.
      *
      * @access public
      * @param Integer $length
@@ -737,6 +783,7 @@ class Crypt_Rijndael extends Crypt_Base {
 
         $this->explicit_key_length = true;
         $this->changed = true;
+        $this->_setupEngine();
     }
 
     /**
@@ -759,6 +806,76 @@ class Crypt_Rijndael extends Crypt_Base {
         $this->Nb = $length;
         $this->block_size = $length << 2;
         $this->changed = true;
+        $this->_setupEngine();
+    }
+
+    /**
+     * Setup the fastest possible $engine
+     *
+     * Determines if the mcrypt (MODE_MCRYPT) $engine available
+     * and usable for the current $block_size and $key_size.
+     *
+     * If not, the slower MODE_INTERNAL $engine will be set.
+     *
+     * @see setKey()
+     * @see setKeyLength()
+     * @see setBlockLength()
+     * @access private
+     */
+    function _setupEngine()
+    {
+        if (constant('CRYPT_' . $this->const_namespace . '_MODE') == CRYPT_MODE_INTERNAL) {
+            // No mcrypt support at all for rijndael
+            return;
+        }
+
+        // The required mcrypt module name for the current $block_size of rijndael
+        $cipher_name_mcrypt = 'rijndael-' . ($this->block_size << 3);
+
+        // Determining the availibility/usability of $cipher_name_mcrypt
+        switch (true) {
+            case $this->key_size % 8: // mcrypt is not usable for 160/224-bit keys, only for 128/192/256-bit keys
+            case !in_array($cipher_name_mcrypt, mcrypt_list_algorithms()): // $cipher_name_mcrypt is not available for the current $block_size
+                $engine = CRYPT_MODE_INTERNAL;
+                break;
+            default:
+                $engine = CRYPT_MODE_MCRYPT;
+        }
+
+        if ($this->engine == $engine && $this->cipher_name_mcrypt == $cipher_name_mcrypt) {
+            // allready set, so we not unnecessary close $this->enmcrypt/demcrypt/ecb
+            return;
+        }
+
+        // Set the $engine
+        $this->engine = $engine;
+        $this->cipher_name_mcrypt = $cipher_name_mcrypt;
+
+        if ($this->enmcrypt) {
+            // Closing the current mcrypt resource(s). _mcryptSetup() will, if needed,
+            // (re)open them with the module named in $this->cipher_name_mcrypt
+            mcrypt_module_close($this->enmcrypt);
+            mcrypt_module_close($this->demcrypt);
+            $this->enmcrypt = null;
+            $this->demcrypt = null;
+
+            if ($this->ecb) {
+                mcrypt_module_close($this->ecb);
+                $this->ecb = null;
+            }
+        }
+    }
+
+    /**
+     * Setup the CRYPT_MODE_MCRYPT $engine
+     *
+     * @see Crypt_Base::_setupMcrypt()
+     * @access private
+     */
+    function _setupMcrypt()
+    {
+        $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, "\0");
+        parent::_setupMcrypt();
     }
 
     /**
@@ -973,26 +1090,13 @@ class Crypt_Rijndael extends Crypt_Base {
             0x7D000000, 0xFA000000, 0xEF000000, 0xC5000000, 0x91000000
         );
 
-        if (!$this->explicit_key_length) {
-            $length = strlen($this->key);
-            switch (true) {
-                case $length <= 16:
-                    $this->key_size = 16;
-                    break;
-                case $length <= 24:
-                    $this->key_size = 24;
-                    break;
-                default:
-                    $this->key_size = 32;
-            }
-        }
-        $key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, "\0");
+        $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, "\0");
 
-        if (isset($this->kl['key']) && $key === $this->kl['key'] && $this->key_size === $this->kl['key_size'] && $this->block_size === $this->kl['block_size']) {
+        if (isset($this->kl['key']) && $this->key === $this->kl['key'] && $this->key_size === $this->kl['key_size'] && $this->block_size === $this->kl['block_size']) {
             // already expanded
             return;
         }
-        $this->kl = array('key' => $key, 'key_size' => $this->key_size, 'block_size' => $this->block_size);
+        $this->kl = array('key' => $this->key, 'key_size' => $this->key_size, 'block_size' => $this->block_size);
 
         $this->Nk = $this->key_size >> 2;
         // see Rijndael-ammended.pdf#page=44
@@ -1015,7 +1119,7 @@ class Crypt_Rijndael extends Crypt_Base {
                 $this->c = array(0, 1, 3, 4);
         }
 
-        $w = array_values(unpack('N*words', $key));
+        $w = array_values(unpack('N*words', $this->key));
 
         $length = $this->Nb * ($this->Nr + 1);
         for ($i = $this->Nk; $i < $length; $i++) {
