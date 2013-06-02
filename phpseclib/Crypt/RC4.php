@@ -486,32 +486,6 @@ class Crypt_RC4 {
     function disablePadding()
     {
     }
-
-    /**
-     * Class destructor.
-     *
-     * Will be called, automatically, if you're using PHP5.  If you're using PHP4, call it yourself.  Only really
-     * needs to be called if mcrypt is being used.
-     *
-     * @access public
-     */
-    function __destruct()
-    {
-        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
-            $this->_closeMCrypt();
-        }
-    }
-
-    /**
-     * Properly close the MCrypt objects.
-     *
-     * @access prviate
-     */
-    function _closeMCrypt()
-    {
-        mcrypt_module_close($this->encryptStream);
-        mcrypt_module_close($this->decryptStream);
-    }
 }
 
 // vim: ts=4:sw=4:et:
