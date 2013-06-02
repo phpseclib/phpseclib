@@ -1167,7 +1167,7 @@ class Net_SSH2 {
                                   '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' . 
                                   '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' . 
                                   'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF');
-                $keyLength = $keyLength < 160 ? $keyLength : 160;
+                $keyLength = $keyLength < 20 ? $keyLength : 20;
                 $hash = 'sha1';
                 break;
             // see http://tools.ietf.org/html/rfc3526#section-3
@@ -1180,7 +1180,7 @@ class Net_SSH2 {
                                   '9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' . 
                                   'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF695581718' . 
                                   '3995497CEA956AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF');
-                $keyLength = $keyLength < 160 ? $keyLength : 160;
+                $keyLength = $keyLength < 20 ? $keyLength : 20;
                 $hash = 'sha1';
         }
 
