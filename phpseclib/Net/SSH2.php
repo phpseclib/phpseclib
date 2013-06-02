@@ -1195,7 +1195,7 @@ class Net_SSH2 {
 
            -- http://tools.ietf.org/html/rfc4419#section-6.2 */
         $q = new Math_BigInteger(1);
-        $q = $q->bitwise_leftShift(2 * $keyLength);
+        $q = $q->bitwise_leftShift(16 * $keyLength); // 2 * 8 * $keyLength
         $q = $q->subtract(new Math_BigInteger(1));
 
         $g = new Math_BigInteger(2);
