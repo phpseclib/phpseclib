@@ -67,7 +67,6 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    $Id: Rijndael.php,v 1.12 2010/02/09 06:10:26 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 

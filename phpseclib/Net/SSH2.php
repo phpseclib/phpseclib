@@ -64,7 +64,6 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    $Id: SSH2.php,v 1.53 2010-10-24 01:24:30 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
