@@ -70,7 +70,6 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVI Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    $Id: BigInteger.php,v 1.33 2010/03/22 22:32:03 terrafrost Exp $
  * @link       http://pear.php.net/package/Math_BigInteger
  */
 

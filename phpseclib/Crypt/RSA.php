@@ -65,7 +65,6 @@
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    $Id: RSA.php,v 1.19 2010/09/12 21:58:54 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
 
