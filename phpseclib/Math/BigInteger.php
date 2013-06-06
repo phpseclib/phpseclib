@@ -2711,7 +2711,6 @@ class Math_BigInteger {
      *
      * @param Integer $bits
      * @access public
-     * @return Math_BigInteger
      */
     function setPrecision($bits)
     {
