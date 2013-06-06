@@ -1197,8 +1197,7 @@ class Net_SSH2 {
         $max = $one->bitwise_leftShift(16 * $keyLength)->subtract($one); // 2 * 8 * $keyLength
 
         $g = new Math_BigInteger(2);
-        $x = new Math_BigInteger();
-        $x = $x->random($one, $max);
+        $x = $one->random($one, $max);
         $e = $g->modPow($x, $p);
 
         $eBytes = $e->toBytes(true);
