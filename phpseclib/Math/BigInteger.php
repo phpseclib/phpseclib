@@ -3057,8 +3057,6 @@ class Math_BigInteger {
             $min = $temp;
         }
 
-        $generator = $this->generator;
-
         $max = $max->subtract($min);
         $max = ltrim($max->toBytes(), chr(0));
         $size = strlen($max) - 1;
