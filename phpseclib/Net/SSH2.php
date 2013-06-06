@@ -1180,11 +1180,11 @@ class Net_SSH2 {
                 break;
         }
 
-        $kexHash = new Crypt_Hash('sha1');
-        $keyLength = min($keyLength, $kexHash->getLength());
-
+        // For both diffie-hellman-group1-sha1 and diffie-hellman-group14-sha1
+        // the generator field element is 2 (decimal) and the hash function is sha1.
         $g = new Math_BigInteger(2);
         $prime = new Math_BigInteger($prime, 16);
+        $kexHash = new Crypt_Hash('sha1');
         //$q = $p->bitwise_rightShift(1);
 
         /* To increase the speed of the key exchange, both client and server may
@@ -1195,6 +1195,7 @@ class Net_SSH2 {
 
            -- http://tools.ietf.org/html/rfc4419#section-6.2 */
         $one = new Math_BigInteger(1);
+        $keyLength = min($keyLength, $kexHash->getLength());
         $max = $one->bitwise_leftShift(16 * $keyLength)->subtract($one); // 2 * 8 * $keyLength
 
         $x = $one->random($one, $max);
