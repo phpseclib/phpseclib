@@ -1166,8 +1166,6 @@ class Net_SSH2 {
                                   '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' . 
                                   '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' . 
                                   'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF');
-                $keyLength = $keyLength < 20 ? $keyLength : 20;
-                $hash = 'sha1';
                 break;
             // see http://tools.ietf.org/html/rfc3526#section-3
             case 'diffie-hellman-group14-sha1':
@@ -1179,9 +1177,11 @@ class Net_SSH2 {
                                   '9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' . 
                                   'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF695581718' . 
                                   '3995497CEA956AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF');
-                $keyLength = $keyLength < 20 ? $keyLength : 20;
-                $hash = 'sha1';
+                break;
         }
+
+        $kexHash = new Crypt_Hash('sha1');
+        $keyLength = min($keyLength, $kexHash->getLength());
 
         $p = new Math_BigInteger($p, 256);
         //$q = $p->bitwise_rightShift(1);
@@ -1248,7 +1248,7 @@ class Net_SSH2 {
             $eBytes, strlen($fBytes), $fBytes, strlen($keyBytes), $keyBytes
         );
 
-        $this->exchange_hash = pack('H*', $hash($this->exchange_hash));
+        $this->exchange_hash = $kexHash->hash($this->exchange_hash);
 
         if ($this->session_id === false) {
             $this->session_id = $this->exchange_hash;
@@ -1447,15 +1447,15 @@ class Net_SSH2 {
             $this->encrypt->enableContinuousBuffer();
             $this->encrypt->disablePadding();
 
-            $iv = pack('H*', $hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id));
+            $iv = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
             while ($this->encrypt_block_size > strlen($iv)) {
-                $iv.= pack('H*', $hash($keyBytes . $this->exchange_hash . $iv));
+                $iv.= $kexHash->hash($keyBytes . $this->exchange_hash . $iv);
             }
             $this->encrypt->setIV(substr($iv, 0, $this->encrypt_block_size));
 
-            $key = pack('H*', $hash($keyBytes . $this->exchange_hash . 'C' . $this->session_id));
+            $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'C' . $this->session_id);
             while ($encryptKeyLength > strlen($key)) {
-                $key.= pack('H*', $hash($keyBytes . $this->exchange_hash . $key));
+                $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
             }
             $this->encrypt->setKey(substr($key, 0, $encryptKeyLength));
         }
@@ -1464,15 +1464,15 @@ class Net_SSH2 {
             $this->decrypt->enableContinuousBuffer();
             $this->decrypt->disablePadding();
 
-            $iv = pack('H*', $hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id));
+            $iv = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
             while ($this->decrypt_block_size > strlen($iv)) {
-                $iv.= pack('H*', $hash($keyBytes . $this->exchange_hash . $iv));
+                $iv.= $kexHash->hash($keyBytes . $this->exchange_hash . $iv);
             }
             $this->decrypt->setIV(substr($iv, 0, $this->decrypt_block_size));
 
-            $key = pack('H*', $hash($keyBytes . $this->exchange_hash . 'D' . $this->session_id));
+            $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'D' . $this->session_id);
             while ($decryptKeyLength > strlen($key)) {
-                $key.= pack('H*', $hash($keyBytes . $this->exchange_hash . $key));
+                $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
             }
             $this->decrypt->setKey(substr($key, 0, $decryptKeyLength));
         }
@@ -1546,15 +1546,15 @@ class Net_SSH2 {
                 $this->hmac_size = 12;
         }
 
-        $key = pack('H*', $hash($keyBytes . $this->exchange_hash . 'E' . $this->session_id));
+        $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'E' . $this->session_id);
         while ($createKeyLength > strlen($key)) {
-            $key.= pack('H*', $hash($keyBytes . $this->exchange_hash . $key));
+            $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
         }
         $this->hmac_create->setKey(substr($key, 0, $createKeyLength));
 
-        $key = pack('H*', $hash($keyBytes . $this->exchange_hash . 'F' . $this->session_id));
+        $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'F' . $this->session_id);
         while ($checkKeyLength > strlen($key)) {
-            $key.= pack('H*', $hash($keyBytes . $this->exchange_hash . $key));
+            $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
         }
         $this->hmac_check->setKey(substr($key, 0, $checkKeyLength));
 
