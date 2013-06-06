@@ -1194,12 +1194,11 @@ class Net_SSH2 {
 
            -- http://tools.ietf.org/html/rfc4419#section-6.2 */
         $one = new Math_BigInteger(1);
-        $q = $one->bitwise_leftShift(16 * $keyLength); // 2 * 8 * $keyLength
-        $q = $q->subtract($one);
+        $max = $one->bitwise_leftShift(16 * $keyLength)->subtract($one); // 2 * 8 * $keyLength
 
         $g = new Math_BigInteger(2);
         $x = new Math_BigInteger();
-        $x = $x->random($one, $q);
+        $x = $x->random($one, $max);
         $e = $g->modPow($x, $p);
 
         $eBytes = $e->toBytes(true);
