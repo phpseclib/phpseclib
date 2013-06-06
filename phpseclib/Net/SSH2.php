@@ -1162,14 +1162,14 @@ class Net_SSH2 {
             // see http://tools.ietf.org/html/rfc2409#section-6.2 and 
             // http://tools.ietf.org/html/rfc2412, appendex E
             case 'diffie-hellman-group1-sha1':
-                $p = pack('H256', 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' . 
+                $prime = pack('H256', 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' . 
                                   '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' . 
                                   '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' . 
                                   'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF');
                 break;
             // see http://tools.ietf.org/html/rfc3526#section-3
             case 'diffie-hellman-group14-sha1':
-                $p = pack('H512', 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' . 
+                $prime = pack('H512', 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' . 
                                   '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' . 
                                   '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' . 
                                   'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF05' . 
@@ -1183,7 +1183,7 @@ class Net_SSH2 {
         $kexHash = new Crypt_Hash('sha1');
         $keyLength = min($keyLength, $kexHash->getLength());
 
-        $p = new Math_BigInteger($p, 256);
+        $prime = new Math_BigInteger($prime, 256);
         //$q = $p->bitwise_rightShift(1);
 
         /* To increase the speed of the key exchange, both client and server may
@@ -1198,7 +1198,7 @@ class Net_SSH2 {
 
         $g = new Math_BigInteger(2);
         $x = $one->random($one, $max);
-        $e = $g->modPow($x, $p);
+        $e = $g->modPow($x, $prime);
 
         $eBytes = $e->toBytes(true);
         $data = pack('CNa*', NET_SSH2_MSG_KEXDH_INIT, strlen($eBytes), $eBytes);
@@ -1236,7 +1236,7 @@ class Net_SSH2 {
         $temp = unpack('Nlength', $this->_string_shift($this->signature, 4));
         $this->signature_format = $this->_string_shift($this->signature, $temp['length']);
 
-        $key = $f->modPow($x, $p);
+        $key = $f->modPow($x, $prime);
         $keyBytes = $key->toBytes(true);
 
         $this->exchange_hash = pack('Na*Na*Na*Na*Na*Na*Na*Na*',
