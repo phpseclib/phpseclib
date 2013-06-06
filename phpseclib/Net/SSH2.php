@@ -1183,6 +1183,7 @@ class Net_SSH2 {
         $kexHash = new Crypt_Hash('sha1');
         $keyLength = min($keyLength, $kexHash->getLength());
 
+        $g = new Math_BigInteger(2);
         $prime = new Math_BigInteger($prime, 16);
         //$q = $p->bitwise_rightShift(1);
 
@@ -1196,7 +1197,6 @@ class Net_SSH2 {
         $one = new Math_BigInteger(1);
         $max = $one->bitwise_leftShift(16 * $keyLength)->subtract($one); // 2 * 8 * $keyLength
 
-        $g = new Math_BigInteger(2);
         $x = $one->random($one, $max);
         $e = $g->modPow($x, $prime);
 
