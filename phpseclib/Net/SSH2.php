@@ -720,6 +720,14 @@ class Net_SSH2 {
     var $banner_message = '';
 
     /**
+     * Did read() timeout or return normally?
+     *
+     * @see Net_SSH2::isTimeout
+     * @access private
+     */
+    var $is_timeout = false;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -2015,6 +2023,7 @@ class Net_SSH2 {
     function exec($command, $callback = NULL)
     {
         $this->curTimeout = $this->timeout;
+        $this->is_timeout = false;
         $this->stdErrorLog = '';
 
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
@@ -2210,6 +2219,7 @@ class Net_SSH2 {
     function read($expect = '', $mode = NET_SSH2_READ_SIMPLE)
     {
         $this->curTimeout = $this->timeout;
+        $this->is_timeout = false;
 
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             user_error('Operation disallowed prior to login()');
@@ -2265,6 +2275,31 @@ class Net_SSH2 {
 
         $channel = $this->in_request_pty_exec ? NET_SSH2_CHANNEL_EXEC : NET_SSH2_CHANNEL_SHELL;
         return $this->_send_channel_packet($channel, $cmd);
+    }
+
+    /**
+     * Closes a channel
+     *
+     * If read() timed out you might want to just close the channel and have it auto-restart on the next read() call
+     *
+     * @access public
+     */
+    function reset()
+    {
+        $channel = $this->in_request_pty_exec ? NET_SSH2_CHANNEL_EXEC : NET_SSH2_CHANNEL_SHELL;
+        $this->_close_channel($channel);
+    }
+
+    /**
+     * Is timeout?
+     *
+     * Did exec() or read() return because they timed out or because they encountered the end?
+     *
+     * @access public
+     */
+    function isTimeout()
+    {
+        return $this->is_timeout;
     }
 
     /**
@@ -2535,7 +2570,7 @@ class Net_SSH2 {
         while (true) {
             if ($this->curTimeout) {
                 if ($this->curTimeout < 0) {
-                    $this->_close_channel($client_channel);
+                    $this->is_timeout = true;
                     return true;
                 }
 
@@ -2547,7 +2582,7 @@ class Net_SSH2 {
                 $usec = 1000000 * ($this->curTimeout - $sec);
                 // on windows this returns a "Warning: Invalid CRT parameters detected" error
                 if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
-                    $this->_close_channel($client_channel);
+                    $this->is_timeout = true;
                     return true;
                 }
                 $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
