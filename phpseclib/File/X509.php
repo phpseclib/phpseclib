@@ -53,8 +53,9 @@ if (!class_exists('File_ASN1')) {
 /**
  * Flag to only accept signatures signed by certificate authorities
  *
+ * Not really used anymore but retained all the same to suppress E_NOTICEs from old installs
+ *
  * @access public
- * @see File_X509::validateSignature()
  */
 define('FILE_X509_VALIDATE_SIGNATURE_BY_CA', 1);
 
@@ -1989,13 +1990,16 @@ class File_X509 {
      * Works on X.509 certs, CSR's and CRL's.
      * Returns true if the signature is verified, false if it is not correct or NULL on error
      *
+     * By default returns false for self-signed certs. Call validateSignature(false) to make this support
+     * self-signed.
+     *
      * The behavior of this function is inspired by {@link http://php.net/openssl-verify openssl_verify}.
      *
-     * @param Integer $options optional
+     * @param Boolean $caonly optional
      * @access public
      * @return Mixed
      */
-    function validateSignature($options = 0)
+    function validateSignature($caonly = true)
     {
         if (!is_array($this->currentCert) || !isset($this->signatureSubject)) {
             return 0;
@@ -2036,10 +2040,10 @@ class File_X509 {
                             }
                         }
                     }
-                    if (count($this->CAs) == $i && ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA)) {
+                    if (count($this->CAs) == $i && $caonly) {
                         return false;
                     }
-                } elseif (!isset($signingCert) || ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA)) {
+                } elseif (!isset($signingCert) || $caonly) {
                     return false;
                 }
                 return $this->_validateSignature(
