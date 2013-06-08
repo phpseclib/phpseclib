@@ -3116,45 +3116,23 @@ class Math_BigInteger {
      */
     function randomPrime($min = false, $max = false, $timeout = false)
     {
+        if ($min === false) {
+            $min = new Math_BigInteger(0);
+        }
+
+        if ($max === false) {
+            $max = new Math_BigInteger(0x7FFFFFFF);
+        }
+
         $compare = $max->compare($min);
 
         if (!$compare) {
-            return $min;
+            return $min->isPrime() ? $min : false;
         } else if ($compare < 0) {
             // if $min is bigger then $max, swap $min and $max
             $temp = $max;
             $max = $min;
             $min = $temp;
-        }
-
-        // gmp_nextprime() requires PHP 5 >= 5.2.0 per <http://php.net/gmp-nextprime>.
-        if ( MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP && function_exists('gmp_nextprime') ) {
-            // we don't rely on Math_BigInteger::random()'s min / max when gmp_nextprime() is being used since this function
-            // does its own checks on $max / $min when gmp_nextprime() is used.  When gmp_nextprime() is not used, however,
-            // the same $max / $min checks are not performed.
-            if ($min === false) {
-                $min = new Math_BigInteger(0);
-            }
-
-            if ($max === false) {
-                $max = new Math_BigInteger(0x7FFFFFFF);
-            }
-
-            $x = $this->random($min, $max);
-
-            $x->value = gmp_nextprime($x->value);
-
-            if ($x->compare($max) <= 0) {
-                return $x;
-            }
-
-            $x->value = gmp_nextprime($min->value);
-
-            if ($x->compare($max) <= 0) {
-                return $x;
-            }
-
-            return false;
         }
 
         static $one, $two;
@@ -3166,6 +3144,22 @@ class Math_BigInteger {
         $start = time();
 
         $x = $this->random($min, $max);
+
+        // gmp_nextprime() requires PHP 5 >= 5.2.0 per <http://php.net/gmp-nextprime>.
+        if ( MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP && function_exists('gmp_nextprime') ) {
+            $p->value = gmp_nextprime($x->value);
+
+            if ($p->compare($max) <= 0) {
+                return $p;
+            }
+
+            if (!$min->equals($x)) {
+                $x = $x->subtract($one);
+            }
+
+            return $x->randomPrime($min, $x);
+        }
+
         if ($x->equals($two)) {
             return $x;
         }
