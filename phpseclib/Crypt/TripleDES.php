@@ -57,7 +57,7 @@
  * Include Crypt_DES
  */
 if (!class_exists('Crypt_DES')) {
-    require_once('DES.php');
+    require_once(dirname(__FILE__) . '/DES.php');
 }
 
 /**
@@ -162,7 +162,7 @@ class Crypt_TripleDES extends Crypt_DES {
                     new Crypt_DES(CRYPT_DES_MODE_ECB),
                     new Crypt_DES(CRYPT_DES_MODE_ECB)
                 );
- 
+
                 // we're going to be doing the padding, ourselves, so disable it in the Crypt_DES objects
                 $this->des[0]->disablePadding();
                 $this->des[1]->disablePadding();
@@ -273,7 +273,7 @@ class Crypt_TripleDES extends Crypt_DES {
                 }
 
                 if (!class_exists('Crypt_Hash')) {
-                    require_once('Crypt/Hash.php');
+                    require_once(dirname(__FILE__) . '/../Crypt/Hash.php');
                 }
 
                 $i = 1;

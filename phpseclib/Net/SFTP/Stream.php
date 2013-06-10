@@ -135,7 +135,7 @@ class Net_SFTP_Stream {
     function Net_SFTP_Stream()
     {
         if (!class_exists('Net_SFTP')) {
-            require_once('Net/SFTP.php');
+            require_once(dirname(__FILE__) . '/../SFTP.php');
         }
     }
 
