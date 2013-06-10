@@ -153,7 +153,7 @@ class Net_SFTP_Stream {
      */
     function _parse_path($path)
     {
-        extract(parse_url($path));
+        extract(parse_url($path) + array('port' => 22));
 
         if (!isset($host)) {
             return false;
