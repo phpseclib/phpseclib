@@ -201,7 +201,7 @@ class Net_SFTP_Stream {
             if (isset(self::$instances[$host][$port][$user][(string) $pass])) {
                 $this->sftp = self::$instances[$host][$port][$user][(string) $pass];
             } else {
-                $this->sftp = new Net_SFTP($host, isset($port) ? $port : 22);
+                $this->sftp = new Net_SFTP($host, $port);
                 if (isset($this->notification) && is_callable($this->notification)) {
                     /* if !is_callable($this->notification) we could do this:
 
