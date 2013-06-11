@@ -649,19 +649,7 @@ class Net_SFTP extends Net_SSH2 {
                 return false;
         }
 
-        if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
-            return false;
-        }
-
-        $response = $this->_get_sftp_packet();
-        if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
-        }
-
-        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
-        if ($status != NET_SFTP_STATUS_OK) {
-            $this->_logError($response, $status);
+        if (!$this->_close_handle($handle)) {
             return false;
         }
 
@@ -793,21 +781,7 @@ class Net_SFTP extends Net_SSH2 {
             }
         }
 
-        if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
-            return false;
-        }
-
-        // "The client MUST release all resources associated with the handle regardless of the status."
-        //  -- http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.1.3
-        $response = $this->_get_sftp_packet();
-        if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
-        }
-
-        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
-        if ($status != NET_SFTP_STATUS_OK) {
-            $this->_logError($response, $status);
+        if (!$this->_close_handle($handle)) {
             return false;
         }
 
@@ -1087,25 +1061,7 @@ class Net_SFTP extends Net_SSH2 {
         $response = $this->_get_sftp_packet();
         switch ($this->packet_type) {
             case NET_SFTP_HANDLE:
-                $handle = substr($response, 4);
-
-                if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
-                    return false;
-                }
-
-                $response = $this->_get_sftp_packet();
-                if ($this->packet_type != NET_SFTP_STATUS) {
-                    user_error('Expected SSH_FXP_STATUS');
-                    return false;
-                }
-
-                extract(unpack('Nstatus', $this->_string_shift($response, 4)));
-                if ($status != NET_SFTP_STATUS_OK) {
-                    $this->_logError($response, $status);
-                    return false;
-                }
-
-                return true;
+                return $this->_close_handle(substr($response, 4));
             case NET_SFTP_STATUS:
                 $this->_logError($response);
                 break;
@@ -1454,19 +1410,33 @@ class Net_SFTP extends Net_SSH2 {
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
      * care of that, yourself.
      *
-     * As for $start... if it's negative (which it is by default) a new file will be created or an existing
-     * file truncated depending on $mode | NET_SFTP_RESUME. If it's zero or positive it'll be updated at that
-     * spot.
+     * $mode can take an additional two parameters - NET_SFTP_RESUME and NET_SFTP_RESUME_START. These are bitwise AND'd with
+     * $mode. So if you want to resume upload of a 300mb file on the local file system you'd set $mode to the following:
+     *
+     * NET_SFTP_LOCAL_FILE | NET_SFTP_RESUME
+     *
+     * If you wanted to simply append the full contents of a local file to the full contents of a remote file you'd replace
+     * NET_SFTP_RESUME with NET_SFTP_RESUME start.
+     *
+     * If $mode & (NET_SFTP_RESUME | NET_SFTP_RESUME_START) then NET_SFTP_RESUME_START will be assumed.
+     *
+     * $start and $local_start give you more fine grained control over this process and take precident over NET_SFTP_RESUME*
+     * when they're non-negative. ie. $start could let you write at the end of a file (like NET_SFTP_RESUME) or in the middle
+     * of one. $local_start could let you start your reading from the end of a file (like NET_SFTP_RESUME_START) or in the
+     * middle of one.
+     *
+     * Setting $local_start to > 0 or $mode | NET_SFTP_RESUME_START doesn't do anything unless $mode | NET_SFTP_LOCAL_FILE.
      *
      * @param String $remote_file
      * @param String $data
      * @param optional Integer $mode
      * @param optional Integer $start
+     * @param optional Integer $local_start
      * @return Boolean
      * @access public
      * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - Net_SFTP::setMode().
      */
-    function put($remote_file, $data, $mode = NET_SFTP_STRING, $start = -1)
+    function put($remote_file, $data, $mode = NET_SFTP_STRING, $start = -1, $local_start = -1)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1482,19 +1452,16 @@ class Net_SFTP extends Net_SSH2 {
         // in practice, it doesn't seem to do that.
         //$flags|= ($mode & NET_SFTP_RESUME) ? NET_SFTP_OPEN_APPEND : NET_SFTP_OPEN_TRUNCATE;
 
-        // if NET_SFTP_OPEN_APPEND worked as it should the following (up until the -----------) wouldn't be necessary
-        $offset = 0;
-        if (($mode & NET_SFTP_RESUME) || $start >= 0) {
-            if ($start >= 0) {
-                $offset = $start;
-            } else {
-                $size = $this->_size($remote_file);
-                $offset = $size !== false ? $size : 0;
-            }
+        if ($start >= 0) {
+            $offset = $start;
+        } elseif ($mode & NET_SFTP_RESUME) {
+            // if NET_SFTP_OPEN_APPEND worked as it should _size() wouldn't need to be called
+            $size = $this->_size($remote_file);
+            $offset = $size !== false ? $size : 0;
         } else {
+            $offset = 0;
             $flags|= NET_SFTP_OPEN_TRUNCATE;
         }
-        // --------------
 
         $packet = pack('Na*N2', strlen($remote_file), $remote_file, $flags, 0);
         if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
@@ -1527,6 +1494,14 @@ class Net_SFTP extends Net_SSH2 {
                 return false;
             }
             $size = filesize($data);
+
+            if ($local_start >= 0) {
+                fseek($fp, $local_start);
+            } elseif ($mode & NET_SFTP_RESUME_START) {
+                // do nothing
+            } else {
+                fseek($fp, $offset);
+            }
         } else {
             $size = strlen($data);
         }
@@ -1558,6 +1533,10 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         if (!$this->_read_put_responses($i)) {
+            if ($mode & NET_SFTP_LOCAL_FILE) {
+                fclose($fp);
+            }
+            $this->_close_handle($handle);
             return false;
         }
 
@@ -1565,23 +1544,7 @@ class Net_SFTP extends Net_SSH2 {
             fclose($fp);
         }
 
-        if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
-            return false;
-        }
-
-        $response = $this->_get_sftp_packet();
-        if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
-        }
-
-        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
-        if ($status != NET_SFTP_STATUS_OK) {
-            $this->_logError($response, $status);
-            return false;
-        }
-
-        return true;
+        return $this->_close_handle($handle);
     }
 
     /**
@@ -1611,6 +1574,36 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         return $i < 0;
+    }
+
+    /**
+     * Close handle
+     *
+     * @param String $handle
+     * @return Boolean
+     * @access private
+     */
+    function _close_handle($handle)
+    {
+        if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
+            return false;
+        }
+
+        // "The client MUST release all resources associated with the handle regardless of the status."
+        //  -- http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.1.3
+        $response = $this->_get_sftp_packet();
+        if ($this->packet_type != NET_SFTP_STATUS) {
+            user_error('Expected SSH_FXP_STATUS');
+            return false;
+        }
+
+        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+        if ($status != NET_SFTP_STATUS_OK) {
+            $this->_logError($response, $status);
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -1717,28 +1710,7 @@ class Net_SFTP extends Net_SSH2 {
             fclose($fp);
         }
 
-        if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
-            return false;
-        }
-
-        $response = $this->_get_sftp_packet();
-        if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
-        }
-
-        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
-        if ($status != NET_SFTP_STATUS_OK) {
-            $this->_logError($response, $status);
-            return false;
-        }
-
-        // if $content isn't set that means a file was written to
-        if (isset($content)) {
-            return $content;
-        }
-
-        return true;
+        return $this->_close_handle($handle);
     }
 
     /**
