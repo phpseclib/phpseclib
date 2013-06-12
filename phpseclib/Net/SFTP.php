@@ -97,16 +97,20 @@ define('NET_SFTP_CHANNEL', 2);
 /**
  * Reads data from a local file.
  */
-define('NET_SFTP_LOCAL_FILE', 1);
+define('NET_SFTP_LOCAL_FILE',    1);
 /**
  * Reads data from a string.
  */
 // this value isn't really used anymore but i'm keeping it reserved for historical reasons
-define('NET_SFTP_STRING',  2);
+define('NET_SFTP_STRING',        2);
 /**
  * Resumes an upload
  */
-define('NET_SFTP_RESUME',  4);
+define('NET_SFTP_RESUME',        4);
+/**
+ * Append a local file to an already existing remote file
+ */
+define('NET_SFTP_RESUME_START',  8);
 /**#@-*/
 
 /**
