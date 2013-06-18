@@ -3147,6 +3147,7 @@ class Math_BigInteger {
 
         // gmp_nextprime() requires PHP 5 >= 5.2.0 per <http://php.net/gmp-nextprime>.
         if ( MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP && function_exists('gmp_nextprime') ) {
+            $p = new Math_BigInteger();
             $p->value = gmp_nextprime($x->value);
 
             if ($p->compare($max) <= 0) {
