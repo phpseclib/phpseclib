@@ -1311,9 +1311,6 @@ class Crypt_RSA {
                 break;
             case 'D':
                 $this->current = &$this->components['privateExponent'];
-                break;
-            default:
-                unset($this->current);
         }
         $this->current = '';
     }
@@ -1334,6 +1331,7 @@ class Crypt_RSA {
             return;
         }
         $this->current = new Math_BigInteger(base64_decode($this->current), 256);
+        unset($this->current);
     }
 
     /**
