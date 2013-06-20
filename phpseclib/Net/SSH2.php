@@ -954,8 +954,6 @@ class Net_SSH2 {
             'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
             'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
 
-            'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
-
             'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
             'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
             'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
@@ -964,13 +962,16 @@ class Net_SSH2 {
             'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
             'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
 
-            'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
-
             'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
             'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
             'twofish256-cbc',
             'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
                               //                   (this is being retained for historical reasons)
+
+            'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
+
+            'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
+
             '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
 
             '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
