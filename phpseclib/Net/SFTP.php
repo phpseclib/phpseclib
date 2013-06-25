@@ -1714,7 +1714,12 @@ class Net_SFTP extends Net_SSH2 {
             fclose($fp);
         }
 
-        return $this->_close_handle($handle);
+        if (!$this->_close_handle($handle)) {
+            return false;
+        }
+
+        // if $content isn't set that means a file was written to
+        return isset($content) ? $content : true;
     }
 
     /**
