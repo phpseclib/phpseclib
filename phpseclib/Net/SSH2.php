@@ -980,25 +980,31 @@ class Net_SSH2 {
                 'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
             );
 
-            if (!file_exists('Crypt/AES.php')) {
+            if (!$this->_is_includable('Crypt/RC4.php')) {
+                $encryption_algorithms = array_diff(
+                    $encryption_algorithms,
+                    array('arcfour256', 'arcfour128', 'arcfour')
+                );
+            }
+            if (!$this->_is_includable('Crypt/AES.php')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('aes128-ctr', 'aes192-ctr', 'aes256-ctr', 'aes128-cbc', 'aes192-cbc', 'aes256-cbc')
                 );
             }
-            if (!file_exists('Crypt/Twofish.php')) {
+            if (!$this->_is_includable('Crypt/Twofish.php')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('twofish128-ctr', 'twofish192-ctr', 'twofish256-ctr', 'twofish128-cbc', 'twofish192-cbc', 'twofish256-cbc', 'twofish-cbc')
                 );
             }
-            if (!file_exists('Crypt/Blowfish.php')) {
+            if (!$this->_is_includable('Crypt/Blowfish.php')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('blowfish-ctr', 'blowfish-cbc')
                 );
             }
-            if (!file_exists('Crypt/TripleDES.php')) {
+            if (!$this->_is_includable('Crypt/TripleDES.php')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('3des-ctr', '3des-cbc')
@@ -3386,5 +3392,25 @@ class Net_SSH2 {
             return false;
         }
         return $this->exit_status;
+    }
+
+    /**
+     * Is a path includable?
+     *
+     * @return Boolean
+     * @access private
+     */
+    function _is_includable($suffix)
+    {
+        foreach (explode(PATH_SEPARATOR, get_include_path()) as $prefix) {
+            $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
+            $file = $prefix . $ds . $suffix;
+
+            if (file_exists($file)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
