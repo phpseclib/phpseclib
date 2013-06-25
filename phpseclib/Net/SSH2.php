@@ -986,7 +986,7 @@ class Net_SSH2 {
                     array('arcfour256', 'arcfour128', 'arcfour')
                 );
             }
-            if (!$this->_is_includable('Crypt/AES.php')) {
+            if (!$this->_is_includable('Crypt/Rijndael.php')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('aes128-ctr', 'aes192-ctr', 'aes256-ctr', 'aes128-cbc', 'aes192-cbc', 'aes256-cbc')
@@ -1348,19 +1348,19 @@ class Net_SSH2 {
             case 'aes256-cbc':
             case 'aes192-cbc':
             case 'aes128-cbc':
-                if (!class_exists('Crypt_AES')) {
-                    require_once('Crypt/AES.php');
+                if (!class_exists('Crypt_Rijndael')) {
+                    require_once('Crypt/Rijndael.php');
                 }
-                $this->encrypt = new Crypt_AES();
+                $this->encrypt = new Crypt_Rijndael();
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
-                if (!class_exists('Crypt_AES')) {
-                    require_once('Crypt/AES.php');
+                if (!class_exists('Crypt_Rijndael')) {
+                    require_once('Crypt/Rijndael.php');
                 }
-                $this->encrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                $this->encrypt = new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'blowfish-cbc':
@@ -1424,19 +1424,19 @@ class Net_SSH2 {
             case 'aes256-cbc':
             case 'aes192-cbc':
             case 'aes128-cbc':
-                if (!class_exists('Crypt_AES')) {
-                    require_once('Crypt/AES.php');
+                if (!class_exists('Crypt_Rijndael')) {
+                    require_once('Crypt/Rijndael.php');
                 }
-                $this->decrypt = new Crypt_AES();
+                $this->decrypt = new Crypt_Rijndael();
                 $this->decrypt_block_size = 16;
                 break;
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
-                if (!class_exists('Crypt_AES')) {
-                    require_once('Crypt/AES.php');
+                if (!class_exists('Crypt_Rijndael')) {
+                    require_once('Crypt/Rijndael.php');
                 }
-                $this->decrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                $this->decrypt = new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
                 $this->decrypt_block_size = 16;
                 break;
             case 'blowfish-cbc':
