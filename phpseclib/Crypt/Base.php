@@ -1168,7 +1168,6 @@ class Crypt_Base {
     function _encryptBlock($in)
     {
         user_error((version_compare(PHP_VERSION, '5.0.0', '>=')  ? __METHOD__ : __FUNCTION__)  . '() must extend by class ' . get_class($this), E_USER_ERROR);
-        die(1);
     }
 
     /**
@@ -1183,7 +1182,6 @@ class Crypt_Base {
     function _decryptBlock($in)
     {
         user_error((version_compare(PHP_VERSION, '5.0.0', '>=')  ? __METHOD__ : __FUNCTION__)  . '() must extend by class ' . get_class($this), E_USER_ERROR);
-        die(1);
     }
 
     /**
@@ -1199,7 +1197,6 @@ class Crypt_Base {
     function _setupKey()
     {
         user_error((version_compare(PHP_VERSION, '5.0.0', '>=')  ? __METHOD__ : __FUNCTION__)  . '() must extend by class ' . get_class($this), E_USER_ERROR);
-        die(1);
     }
 
     /**
