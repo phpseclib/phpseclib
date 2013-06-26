@@ -1478,7 +1478,7 @@ class Crypt_Base {
      *
      * Note: - _setupInlineCrypt() is using _createInlineCryptFunction() to create the full callback function code.
      *       - In case of using inline crypting, _setupInlineCrypt() must extend by the child Crypt_* class.
-     *       - The following variable names are reversed:
+     *       - The following variable names are reserved:
      *         - $_*  (all variable names prefixed with an underscore)
      *         - $self (object reference to it self. Do not use $this, but $self instead)
      *         - $in (the content of $in has to en/decrypt by the generated code)
