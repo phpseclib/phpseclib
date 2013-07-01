@@ -926,9 +926,9 @@ class File_ASN1 {
                     }
                     $value = new Math_BigInteger($value);
                     $value = $value->toBytes(true);
-                    if (!strlen($value)) {
-                        $value = chr(0);
-                    }
+                }
+                if (!strlen($value)) {
+                    $value = chr(0);
                 }
                 break;
             case FILE_ASN1_TYPE_UTC_TIME:
