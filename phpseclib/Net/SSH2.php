@@ -542,7 +542,7 @@ class Net_SSH2 {
     var $window_size = 0x7FFFFFFF;
 
     /**
-     * Window size
+     * Window size, server to client
      *
      * Window size indexed by channel
      *
@@ -551,6 +551,17 @@ class Net_SSH2 {
      * @access private
      */
     var $window_size_server_to_client = array();
+
+    /**
+     * Window size, client to server
+     *
+     * Window size indexed by channel
+     *
+     * @see Net_SSH2::_get_channel_packet()
+     * @var Array
+     * @access private
+     */
+    var $window_size_client_to_server = array();
 
     /**
      * Server signature
@@ -2536,6 +2547,11 @@ class Net_SSH2 {
                     $payload = $this->_get_binary_packet();
                     break;
                 case NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST:
+                    $this->_string_shift($payload, 1);
+                    extract(unpack('Nchannel', $this->_string_shift($payload, 4)));
+                    extract(unpack('Nwindow_size', $this->_string_shift($payload, 4)));
+                    $this->window_size_client_to_server[$channel] = $window_size;
+
                     $payload = $this->_get_binary_packet();
             }
         }
@@ -2651,7 +2667,8 @@ class Net_SSH2 {
                         case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
                             extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
                             $this->server_channels[$channel] = $server_channel;
-                            $this->_string_shift($response, 4); // skip over (server) window size
+                            extract(unpack('Nwindow_size', $this->_string_shift($response, 4)));
+                            $this->window_size_client_to_server[$channel] = $window_size;
                             $temp = unpack('Npacket_size_client_to_server', $this->_string_shift($response, 4));
                             $this->packet_size_client_to_server[$channel] = $temp['packet_size_client_to_server'];
                             return $client_channel == $channel ? true : $this->_get_channel_packet($client_channel, $skip_extended);
@@ -2923,6 +2940,8 @@ class Net_SSH2 {
                 return false;
             }
         }
+
+        $this->window_size_client_to_server[$client_channel]-= strlen($data);
 
         return $this->_send_binary_packet(pack('CN2a*',
             NET_SSH2_MSG_CHANNEL_DATA,
