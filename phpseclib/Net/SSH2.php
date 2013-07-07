@@ -2928,12 +2928,16 @@ class Net_SSH2 {
      */
     function _send_channel_packet($client_channel, $data)
     {
-        while (strlen($data) > $this->packet_size_client_to_server[$client_channel]) {
+        $max_size = min(
+            $this->packet_size_client_to_server[$client_channel],
+            $this->window_size_client_to_server[$client_channel]
+        );
+        while (strlen($data) > $max_size) {
             $packet = pack('CN2a*',
                 NET_SSH2_MSG_CHANNEL_DATA,
                 $this->server_channels[$client_channel],
-                $this->packet_size_client_to_server[$client_channel],
-                $this->_string_shift($data, $this->packet_size_client_to_server[$client_channel])
+                $max_size,
+                $this->_string_shift($data, $max_size)
             );
 
             if (!$this->_send_binary_packet($packet)) {
