@@ -73,10 +73,11 @@
  * @see Net_SSH2::bitmap
  * @access private
  */
-define('NET_SSH2_MASK_CONSTRUCTOR', 0x00000001);
-define('NET_SSH2_MASK_LOGIN_REQ',   0x00000002);
-define('NET_SSH2_MASK_LOGIN',       0x00000004);
-define('NET_SSH2_MASK_SHELL',       0x00000008);
+define('NET_SSH2_MASK_CONSTRUCTOR',   0x00000001);
+define('NET_SSH2_MASK_LOGIN_REQ',     0x00000002);
+define('NET_SSH2_MASK_LOGIN',         0x00000004);
+define('NET_SSH2_MASK_SHELL',         0x00000008);
+define('NET_SSH2_MASK_WINDOW_ADJUST', 0X00000010);
 /**#@-*/
 
 /**#@+
@@ -2552,7 +2553,8 @@ class Net_SSH2 {
                     extract(unpack('Nwindow_size', $this->_string_shift($payload, 4)));
                     $this->window_size_client_to_server[$channel] = $window_size;
 
-                    $payload = $this->_get_binary_packet();
+                    $payload = ($this->bitmap & NET_SSH2_MASK_WINDOW_ADJUST) ? true : $this->_get_binary_packet();
+
             }
         }
 
@@ -2645,21 +2647,24 @@ class Net_SSH2 {
                 user_error('Connection closed by server');
                 return false;
             }
+            if ($client_channel == -1 && $response === true) {
+                return true;
+            }
             if (!strlen($response)) {
                 return '';
             }
 
+            extract(unpack('Ctype/Nchannel', $this->_string_shift($response, 5)));
+
             // resize the window, if appropriate
-            $this->window_size_server_to_client[$client_channel]-= strlen($response);
-            if ($this->window_size_server_to_client[$client_channel] < 0) {
-                $packet = pack('CNN', NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST, $this->server_channels[$client_channel], $this->window_size);
+            $this->window_size_server_to_client[$channel]-= strlen($response);
+            if ($this->window_size_server_to_client[$channel] < 0) {
+                $packet = pack('CNN', NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST, $this->server_channels[$channel], $this->window_size);
                 if (!$this->_send_binary_packet($packet)) {
                     return false;
                 }
-                $this->window_size_server_to_client[$client_channel]+= $this->window_size;
+                $this->window_size_server_to_client[$channel]+= $this->window_size;
             }
-
-            extract(unpack('Ctype/Nchannel', $this->_string_shift($response, 5)));
 
             switch ($this->channel_status[$channel]) {
                 case NET_SSH2_MSG_CHANNEL_OPEN:
@@ -2692,15 +2697,17 @@ class Net_SSH2 {
                     return $type == NET_SSH2_MSG_CHANNEL_CLOSE ? true : $this->_get_channel_packet($client_channel, $skip_extended);
             }
 
+            // ie. $this->channel_status[$channel] == NET_SSH2_MSG_CHANNEL_DATA
+
             switch ($type) {
                 case NET_SSH2_MSG_CHANNEL_DATA:
                     /*
-                    if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
+                    if ($channel == NET_SSH2_CHANNEL_EXEC) {
                         // SCP requires null packets, such as this, be sent.  further, in the case of the ssh.com SSH server
                         // this actually seems to make things twice as fast.  more to the point, the message right after 
                         // SSH_MSG_CHANNEL_DATA (usually SSH_MSG_IGNORE) won't block for as long as it would have otherwise.
                         // in OpenSSH it slows things down but only by a couple thousandths of a second.
-                        $this->_send_channel_packet($client_channel, chr(0));
+                        $this->_send_channel_packet($channel, chr(0));
                     }
                     */
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
@@ -2708,10 +2715,10 @@ class Net_SSH2 {
                     if ($client_channel == $channel) {
                         return $data;
                     }
-                    if (!isset($this->channel_buffers[$client_channel])) {
-                        $this->channel_buffers[$client_channel] = array();
+                    if (!isset($this->channel_buffers[$channel])) {
+                        $this->channel_buffers[$channel] = array();
                     }
-                    $this->channel_buffers[$client_channel][] = $data;
+                    $this->channel_buffers[$channel][] = $data;
                     break;
                 case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
                     /*
@@ -2729,10 +2736,10 @@ class Net_SSH2 {
                     if ($client_channel == $channel) {
                         return $data;
                     }
-                    if (!isset($this->channel_buffers[$client_channel])) {
-                        $this->channel_buffers[$client_channel] = array();
+                    if (!isset($this->channel_buffers[$channel])) {
+                        $this->channel_buffers[$channel] = array();
                     }
-                    $this->channel_buffers[$client_channel][] = $data;
+                    $this->channel_buffers[$channel][] = $data;
                     break;
                 case NET_SSH2_MSG_CHANNEL_REQUEST:
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
@@ -2940,9 +2947,28 @@ class Net_SSH2 {
                 $this->_string_shift($data, $max_size)
             );
 
+            $this->window_size_client_to_server[$client_channel]-= $max_size;
+
             if (!$this->_send_binary_packet($packet)) {
                 return false;
             }
+
+            if ($max_size == $this->window_size_client_to_server[$client_channel]) {
+                $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
+                // using an invalid channel will let the buffers be built up for the valid channels
+                $this->_get_channel_packet(-1);
+                $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
+                $max_size = min(
+                    $this->packet_size_client_to_server[$client_channel],
+                    $this->window_size_client_to_server[$client_channel]
+                );
+            }
+        }
+
+        if (strlen($data) >= $this->window_size_client_to_server[$client_channel]) {
+            $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
+            $this->_get_channel_packet(-1);
+            $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
         }
 
         $this->window_size_client_to_server[$client_channel]-= strlen($data);

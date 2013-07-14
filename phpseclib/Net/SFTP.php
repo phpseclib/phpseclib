@@ -1514,6 +1514,8 @@ class Net_SFTP extends Net_SSH2 {
         $size = $size < 0 ? ($size & 0x7FFFFFFF) + 0x80000000 : $size;
 
         $sftp_packet_size = 4096; // PuTTY uses 4096
+        // make the SFTP packet be exactly 4096 bytes by including the bytes in the NET_SFTP_WRITE packets "header"
+        $sftp_packet_size-= strlen($handle) + 25;
         $i = 0;
         while ($sent < $size) {
             $temp = $mode & NET_SFTP_LOCAL_FILE ? fread($fp, $sftp_packet_size) : $this->_string_shift($data, $sftp_packet_size);
