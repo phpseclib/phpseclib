@@ -1518,7 +1518,7 @@ class Net_SFTP extends Net_SSH2 {
         $sftp_packet_size-= strlen($handle) + 25;
         $i = 0;
         while ($sent < $size) {
-            $temp = $mode & NET_SFTP_LOCAL_FILE ? fread($fp, $sftp_packet_size) : $this->_string_shift($data, $sftp_packet_size);
+            $temp = $mode & NET_SFTP_LOCAL_FILE ? fread($fp, $sftp_packet_size) : substr($data, $sent, $sftp_packet_size);
             $subtemp = $offset + $sent;
             $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 0x100000000, $subtemp, strlen($temp), $temp);
             if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
