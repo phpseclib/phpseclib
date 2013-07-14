@@ -2199,7 +2199,7 @@ class File_X509 {
             case 'commonname':
             case 'cn':
                 return 'id-at-commonName';
-            case 'id-at-stateorprovinceName':
+            case 'id-at-stateorprovincename':
             case 'stateorprovincename':
             case 'state':
             case 'province':
