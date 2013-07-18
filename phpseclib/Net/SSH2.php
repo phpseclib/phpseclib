@@ -2554,7 +2554,6 @@ class Net_SSH2 {
                     $this->window_size_client_to_server[$channel] = $window_size;
 
                     $payload = ($this->bitmap & NET_SSH2_MASK_WINDOW_ADJUST) ? true : $this->_get_binary_packet();
-
             }
         }
 
@@ -2656,8 +2655,9 @@ class Net_SSH2 {
 
             extract(unpack('Ctype/Nchannel', $this->_string_shift($response, 5)));
 
+            $this->window_size_server_to_client[$channel]-= strlen($response) + 4;
+
             // resize the window, if appropriate
-            $this->window_size_server_to_client[$channel]-= strlen($response);
             if ($this->window_size_server_to_client[$channel] < 0) {
                 $packet = pack('CNN', NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST, $this->server_channels[$channel], $this->window_size);
                 if (!$this->_send_binary_packet($packet)) {
@@ -2935,6 +2935,9 @@ class Net_SSH2 {
      */
     function _send_channel_packet($client_channel, $data)
     {
+        // The maximum amount of data allowed is determined by the maximum
+        // packet size for the channel, and the current window size, whichever
+        // is smaller.
         $max_size = min(
             $this->packet_size_client_to_server[$client_channel],
             $this->window_size_client_to_server[$client_channel]
@@ -2947,7 +2950,7 @@ class Net_SSH2 {
                 $this->_string_shift($data, $max_size)
             );
 
-            $this->window_size_client_to_server[$client_channel]-= $max_size;
+            $this->window_size_client_to_server[$client_channel]-= $max_size + 4;
 
             if (!$this->_send_binary_packet($packet)) {
                 return false;
@@ -2971,7 +2974,7 @@ class Net_SSH2 {
             $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
         }
 
-        $this->window_size_client_to_server[$client_channel]-= strlen($data);
+        $this->window_size_client_to_server[$client_channel]-= strlen($data) + 4;
 
         return $this->_send_binary_packet(pack('CN2a*',
             NET_SSH2_MSG_CHANNEL_DATA,
