@@ -173,7 +173,6 @@ define('CRYPT_RSA_MODE_OPENSSL', 2);
  */
 define('CRYPT_RSA_OPENSSL_CONFIG', dirname(__FILE__) . '/../openssl.cnf');
 
-
 /**#@+
  * @access public
  * @see Crypt_RSA::createKey()
