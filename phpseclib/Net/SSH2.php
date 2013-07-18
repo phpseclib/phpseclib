@@ -2935,9 +2935,11 @@ class Net_SSH2 {
      */
     function _send_channel_packet($client_channel, $data)
     {
-        // The maximum amount of data allowed is determined by the maximum
-        // packet size for the channel, and the current window size, whichever
-        // is smaller.
+        /* The maximum amount of data allowed is determined by the maximum
+           packet size for the channel, and the current window size, whichever
+           is smaller.
+
+           -- http://tools.ietf.org/html/rfc4254#section-5.2 */
         $max_size = min(
             $this->packet_size_client_to_server[$client_channel],
             $this->window_size_client_to_server[$client_channel]
