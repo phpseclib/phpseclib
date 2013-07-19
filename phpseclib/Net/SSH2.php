@@ -2877,7 +2877,6 @@ class Net_SSH2 {
                 // the most useful log for SSH2
                 case NET_SSH2_LOG_COMPLEX:
                     $this->message_number_log[] = $message_number;
-                    $this->_string_shift($message);
                     $this->log_size+= strlen($message);
                     $this->message_log[] = $message;
                     while ($this->log_size > NET_SSH2_LOG_MAX_SIZE) {
