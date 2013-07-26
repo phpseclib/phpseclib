@@ -2905,51 +2905,51 @@ class File_X509 {
      * @access public
      * @return Mixed
      */
-    function loadSPKAC($csr)
+    function loadSPKAC($spkac)
     {
-        if (is_array($csr) && isset($csr['publicKeyAndChallenge'])) {
+        if (is_array($spkac) && isset($spkac['publicKeyAndChallenge'])) {
             unset($this->currentCert);
             unset($this->currentKeyIdentifier);
             unset($this->signatureSubject);
-            $this->currentCert = $csr;
-            return $csr;
+            $this->currentCert = $spkac;
+            return $spkac;
         }
 
         // see http://www.w3.org/html/wg/drafts/html/master/forms.html#signedpublickeyandchallenge
 
         $asn1 = new File_ASN1();
 
-        $temp = preg_replace('#(?:^[^=]+=)|[\r\n\\\]#', '', $csr);
+        $temp = preg_replace('#(?:^[^=]+=)|[\r\n\\\]#', '', $spkac);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
         if ($temp != false) {
-            $csr = $temp;
+            $spkac = $temp;
         }
-        $orig = $csr;
+        $orig = $spkac;
 
-        if ($csr === false) {
+        if ($spkac === false) {
             $this->currentCert = false;
             return false;
         }
 
         $asn1->loadOIDs($this->oids);
-        $decoded = $asn1->decodeBER($csr);
+        $decoded = $asn1->decodeBER($spkac);
 
         if (empty($decoded)) {
             $this->currentCert = false;
             return false;
         }
 
-        $csr = $asn1->asn1map($decoded[0], $this->SignedPublicKeyAndChallenge);
+        $spkac = $asn1->asn1map($decoded[0], $this->SignedPublicKeyAndChallenge);
 
-        if (!isset($csr) || $csr === false) {
+        if (!isset($spkac) || $spkac === false) {
             $this->currentCert = false;
             return false;
         }
 
         $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
-        $algorithm = &$csr['publicKeyAndChallenge']['spki']['algorithm']['algorithm'];
-        $key = &$csr['publicKeyAndChallenge']['spki']['subjectPublicKey'];
+        $algorithm = &$spkac['publicKeyAndChallenge']['spki']['algorithm']['algorithm'];
+        $key = &$spkac['publicKeyAndChallenge']['spki']['subjectPublicKey'];
         $key = $this->_reformatKey($algorithm, $key);
 
         switch ($algorithm) {
@@ -2966,9 +2966,9 @@ class File_X509 {
         }
 
         $this->currentKeyIdentifier = NULL;
-        $this->currentCert = $csr;
+        $this->currentCert = $spkac;
 
-        return $csr;
+        return $spkac;
     }
 
     /**
