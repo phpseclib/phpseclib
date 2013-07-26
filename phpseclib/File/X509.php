@@ -2002,7 +2002,7 @@ class File_X509 {
     function validateSignature($caonly = true)
     {
         if (!is_array($this->currentCert) || !isset($this->signatureSubject)) {
-            return 0;
+            return NULL;
         }
 
         /* TODO:
