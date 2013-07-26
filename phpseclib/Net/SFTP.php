@@ -244,6 +244,16 @@ class Net_SFTP extends Net_SSH2 {
     var $dirs = array();
 
     /**
+     * Max SFTP Packet Size
+     *
+     * @see Net_SFTP::Net_SFTP()
+     * @see Net_SFTP::get()
+     * @var Array
+     * @access private
+     */
+    var $max_sftp_packet = 1 << 20;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SFTP server
@@ -257,6 +267,13 @@ class Net_SFTP extends Net_SSH2 {
     function Net_SFTP($host, $port = 22, $timeout = 10)
     {
         parent::Net_SSH2($host, $port, $timeout);
+
+        switch ($this->server_identifier) {
+            case 'SSH-2.0-ROSSSH':
+                // PuTTY uses this as the size
+                $this->max_sftp_packet = 1 << 15;
+        }
+
         $this->packet_types = array(
             1  => 'NET_SFTP_INIT',
             2  => 'NET_SFTP_VERSION',
@@ -1666,7 +1683,7 @@ class Net_SFTP extends Net_SSH2 {
             $content = '';
         }
 
-        $size = (1 << 20) < $length || $length < 0 ? 1 << 20 : $length;
+        $size = $this->max_sftp_packet < $length || $length < 0 ? $this->max_sftp_packet : $length;
         while (true) {
             $packet = pack('Na*N3', strlen($handle), $handle, $offset / 0x100000000, $offset, $size);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
