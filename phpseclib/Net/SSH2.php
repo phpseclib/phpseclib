@@ -2869,6 +2869,11 @@ class Net_SSH2 {
      */
     function _append_log($message_number, $message)
     {
+            // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
+            if (strlen($message_number) > 2) {
+                $this->_string_shift($message);
+            }
+
             switch (NET_SSH2_LOGGING) {
                 // useful for benchmarks
                 case NET_SSH2_LOG_SIMPLE:
@@ -2888,7 +2893,15 @@ class Net_SSH2 {
                 // passwords won't be filtered out and select other packets may not be correctly
                 // identified
                 case NET_SSH2_LOG_REALTIME:
-                    echo "<pre>\r\n" . $this->_format_log(array($message), array($message_number)) . "\r\n</pre>\r\n";
+                    switch (PHP_SAPI) {
+                        case 'cli':
+                            $start = $stop = "\r\n";
+                            break;
+                        default:
+                            $start = '<pre>';
+                            $stop = '</pre>';
+                    }
+                    echo $start . $this->_format_log(array($message), array($message_number)) . $stop;
                     @flush();
                     @ob_flush();
                     break;
