@@ -306,6 +306,10 @@ class File_X509 {
      */
     function File_X509()
     {
+        if (!class_exists('Math_BigInteger')) {
+            require_once('Math/BigInteger.php');
+        }
+
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1
 
