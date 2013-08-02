@@ -4041,9 +4041,7 @@ class File_X509 {
         }
 
         // If in PEM format, convert to binary.
-        if (preg_match('#^-----BEGIN #', $key)) {
-            $key = base64_decode(preg_replace('#-.+-|[\r\n]#', '', $key));
-        }
+        $key = $this->_extractBER($key);
 
         // Now we have the key string: compute its sha-1 sum.
         if (!class_exists('Crypt_Hash')) {
