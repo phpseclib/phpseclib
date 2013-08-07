@@ -272,7 +272,7 @@ class Net_SFTP extends Net_SSH2 {
             case 'SSH-2.0-ROSSSH':
                 // PuTTY uses this as the size
                 $this->max_sftp_packet = 1 << 15;
-            break;
+                break;
             default:
                 $this->max_sftp_packet = 1 << 20;
         }
