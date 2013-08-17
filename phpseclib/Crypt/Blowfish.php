@@ -10,7 +10,7 @@
  *
  * Useful resources are as follows:
  *
- *  - {@link http://en.wikipedia.org/wiki/Blowfish Wikipedia description of Blowfish}
+ *  - {@link http://en.wikipedia.org/wiki/Blowfish_(cipher) Wikipedia description of Blowfish}
  *
  * Here's a short example of how to use this library:
  * <code>
@@ -55,6 +55,15 @@
  * @link       http://phpseclib.sourceforge.net
  */
 
+/**
+ * Include Crypt_Base
+ *
+ * Base cipher class
+ */
+if (!class_exists('Crypt_Base')) {
+    require_once('Base.php');
+}
+
 /**#@+
  * @access public
  * @see Crypt_Blowfish::encrypt()
@@ -67,31 +76,31 @@
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
  */
-define('CRYPT_BLOWFISH_MODE_CTR', -1);
+define('CRYPT_BLOWFISH_MODE_CTR', CRYPT_MODE_CTR);
 /**
  * Encrypt / decrypt using the Electronic Code Book mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
  */
-define('CRYPT_BLOWFISH_MODE_ECB', 1);
+define('CRYPT_BLOWFISH_MODE_ECB', CRYPT_MODE_ECB);
 /**
  * Encrypt / decrypt using the Code Book Chaining mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
  */
-define('CRYPT_BLOWFISH_MODE_CBC', 2);
+define('CRYPT_BLOWFISH_MODE_CBC', CRYPT_MODE_CBC);
 /**
  * Encrypt / decrypt using the Cipher Feedback mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
  */
-define('CRYPT_BLOWFISH_MODE_CFB', 3);
+define('CRYPT_BLOWFISH_MODE_CFB', CRYPT_MODE_CFB);
 /**
  * Encrypt / decrypt using the Cipher Feedback mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
  */
-define('CRYPT_BLOWFISH_MODE_OFB', 4);
+define('CRYPT_BLOWFISH_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
 /**#@+
@@ -101,11 +110,11 @@ define('CRYPT_BLOWFISH_MODE_OFB', 4);
 /**
  * Toggles the internal implementation
  */
-define('CRYPT_BLOWFISH_MODE_INTERNAL', 1);
+define('CRYPT_BLOWFISH_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
 /**
  * Toggles the mcrypt implementation
  */
-define('CRYPT_BLOWFISH_MODE_MCRYPT', 2);
+define('CRYPT_BLOWFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
 /**#@-*/
 
 /**
@@ -117,158 +126,52 @@ define('CRYPT_BLOWFISH_MODE_MCRYPT', 2);
  * @access  public
  * @package Crypt_Blowfish
  */
-class Crypt_Blowfish {
+class Crypt_Blowfish extends Crypt_Base {
     /**
-     * The Key as String
+     * Block Length of the cipher
      *
-     * @see Crypt_Blowfish::setKey()
-     * @var Array
-     * @access private
-     */
-    var $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-
-    /**
-     * The Encryption Mode
-     *
-     * @see Crypt_Blowfish::Crypt_Blowfish()
+     * @see Crypt_Base::block_size
      * @var Integer
      * @access private
      */
-    var $mode;
+    var $block_size = 8;
 
     /**
-     * Continuous Buffer status
+     * The default password key_size used by setPassword()
      *
-     * @see Crypt_Blowfish::enableContinuousBuffer()
-     * @var Boolean
+     * @see Crypt_Base::password_key_size
+     * @see Crypt_Base::setPassword()
+     * @var Integer
      * @access private
      */
-    var $continuousBuffer = false;
+    var $password_key_size = 56;
 
     /**
-     * Padding status
+     * The namespace used by the cipher for its constants.
      *
-     * @see Crypt_Blowfish::enablePadding()
-     * @var Boolean
-     * @access private
-     */
-    var $padding = true;
-
-    /**
-     * The Initialization Vector
-     *
-     * @see Crypt_Blowfish::setIV()
+     * @see Crypt_Base::const_namespace
      * @var String
      * @access private
      */
-    var $iv = "\0\0\0\0\0\0\0\0";
+    var $const_namespace = 'BLOWFISH';
 
     /**
-     * A "sliding" Initialization Vector
+     * The mcrypt specific name of the cipher
      *
-     * @see Crypt_Blowfish::enableContinuousBuffer()
+     * @see Crypt_Base::cipher_name_mcrypt
      * @var String
      * @access private
      */
-    var $encryptIV = "\0\0\0\0\0\0\0\0";
+    var $cipher_name_mcrypt = 'blowfish';
 
     /**
-     * A "sliding" Initialization Vector
+     * Optimizing value while CFB-encrypting
      *
-     * @see Crypt_Blowfish::enableContinuousBuffer()
-     * @var String
+     * @see Crypt_Base::cfb_init_len
+     * @var Integer
      * @access private
      */
-    var $decryptIV = "\0\0\0\0\0\0\0\0";
-
-    /**
-     * mcrypt resource for encryption
-     *
-     * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
-     * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
-     *
-     * @see Crypt_Blowfish::encrypt()
-     * @var String
-     * @access private
-     */
-    var $enmcrypt;
-
-    /**
-     * mcrypt resource for decryption
-     *
-     * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
-     * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
-     *
-     * @see Crypt_Blowfish::decrypt()
-     * @var String
-     * @access private
-     */
-    var $demcrypt;
-
-    /**
-     * Does the enmcrypt resource need to be (re)initialized?
-     *
-     * @see Crypt_Blowfish::setKey()
-     * @see Crypt_Blowfish::setIV()
-     * @var Boolean
-     * @access private
-     */
-    var $enchanged = true;
-
-    /**
-     * Does the demcrypt resource need to be (re)initialized?
-     *
-     * @see Crypt_Blowfish::setKey()
-     * @see Crypt_Blowfish::setIV()
-     * @var Boolean
-     * @access private
-     */
-    var $dechanged = true;
-
-    /**
-     * Is the mode one that is paddable?
-     *
-     * @see Crypt_Blowfish::Crypt_Blowfish()
-     * @var Boolean
-     * @access private
-     */
-    var $paddable = false;
-
-    /**
-     * Encryption buffer for CTR, OFB and CFB modes
-     *
-     * @see Crypt_Blowfish::encrypt()
-     * @var Array
-     * @access private
-     */
-    var $enbuffer = array('encrypted' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true);
-
-    /**
-     * Decryption buffer for CTR, OFB and CFB modes
-     *
-     * @see Crypt_Blowfish::decrypt()
-     * @var Array
-     * @access private
-     */
-    var $debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0, 'demcrypt_init' => true);
-
-    /**
-     * mcrypt resource for CFB mode
-     *
-     * @see Crypt_Blowfish::encrypt()
-     * @see Crypt_Blowfish::decrypt()
-     * @var String
-     * @access private
-     */
-    var $ecb;
-
-    /**
-     * Performance-optimized callback function for en/decrypt()
-     *
-     * @var Callback
-     * @access private
-     */
-    var $inline_crypt;
+    var $cfb_init_len = 500;
 
     /**
      * The fixed subkeys boxes ($sbox0 - $sbox3) with 256 entries each
@@ -456,73 +359,42 @@ class Crypt_Blowfish {
      * @var array $bctx
      * @access private
      */
-    var $bctx = array();
+    var $bctx;
+
+    /**
+     * Holds the last used key
+     *
+     * @var Array
+     * @access private
+     */
+    var $kl;
 
     /**
      * Default Constructor.
      *
      * Determines whether or not the mcrypt extension should be used.
+     *
+     * $mode could be:
+     *
+     * - CRYPT_BLOWFISH_MODE_ECB
+     *
+     * - CRYPT_BLOWFISH_MODE_CBC
+     *
+     * - CRYPT_BLOWFISH_MODE_CTR
+     *
+     * - CRYPT_BLOWFISH_MODE_CFB
+     *
+     * - CRYPT_BLOWFISH_MODE_OFB
+     *
      * If not explictly set, CRYPT_BLOWFISH_MODE_CBC will be used.
      *
+     * @see Crypt_Base::Crypt_Base()
      * @param optional Integer $mode
      * @access public
      */
     function Crypt_Blowfish($mode = CRYPT_BLOWFISH_MODE_CBC)
     {
-        if ( !defined('CRYPT_BLOWFISH_MODE') ) {
-            switch (true) {
-                case extension_loaded('mcrypt') && in_array('blowfish', mcrypt_list_algorithms()):
-                    define('CRYPT_BLOWFISH_MODE', CRYPT_BLOWFISH_MODE_MCRYPT);
-                    break;
-                default:
-                    define('CRYPT_BLOWFISH_MODE', CRYPT_BLOWFISH_MODE_INTERNAL);
-            }
-        }
-
-        switch ( CRYPT_BLOWFISH_MODE ) {
-            case CRYPT_BLOWFISH_MODE_MCRYPT:
-                switch ($mode) {
-                    case CRYPT_BLOWFISH_MODE_ECB:
-                        $this->paddable = true;
-                        $this->mode = MCRYPT_MODE_ECB;
-                        break;
-                    case CRYPT_BLOWFISH_MODE_CTR:
-                        $this->mode = 'ctr';
-                        break;
-                    case CRYPT_BLOWFISH_MODE_CFB:
-                        $this->mode = 'ncfb';
-                        $this->ecb = mcrypt_module_open(MCRYPT_BLOWFISH, '', MCRYPT_MODE_ECB, '');
-                        break;
-                    case CRYPT_BLOWFISH_MODE_OFB:
-                        $this->mode = MCRYPT_MODE_NOFB;
-                        break;
-                    case CRYPT_BLOWFISH_MODE_CBC:
-                    default:
-                        $this->paddable = true;
-                        $this->mode = MCRYPT_MODE_CBC;
-                }
-                $this->enmcrypt = mcrypt_module_open(MCRYPT_BLOWFISH, '', $this->mode, '');
-                $this->demcrypt = mcrypt_module_open(MCRYPT_BLOWFISH, '', $this->mode, '');
-
-                break;
-            default:
-                switch ($mode) {
-                    case CRYPT_BLOWFISH_MODE_ECB:
-                    case CRYPT_BLOWFISH_MODE_CBC:
-                        $this->paddable = true;
-                        $this->mode = $mode;
-                        break;
-                    case CRYPT_BLOWFISH_MODE_CTR:
-                    case CRYPT_BLOWFISH_MODE_CFB:
-                    case CRYPT_BLOWFISH_MODE_OFB:
-                        $this->mode = $mode;
-                        break;
-                    default:
-                        $this->paddable = true;
-                        $this->mode = CRYPT_BLOWFISH_MODE_CBC;
-                }
-                $this->inline_crypt_setup();
-        }
+        parent::Crypt_Base($mode);
     }
 
     /**
@@ -537,6 +409,7 @@ class Crypt_Blowfish {
      * If the key is not explicitly set, or empty, it'll be assumed a 128 bits key to be all null bytes.
      *
      * @access public
+     * @see Crypt_Base::setKey()
      * @param String $key
      */
     function setKey($key)
@@ -550,14 +423,22 @@ class Crypt_Blowfish {
             $key = substr($key, 0, 56);
         }
 
-        $this->key = $key;
+        parent::setKey($key);
+    }
 
-        $this->enchanged = true;
-        $this->dechanged = true;
-
-        if (CRYPT_BLOWFISH_MODE == CRYPT_BLOWFISH_MODE_MCRYPT) {
+    /**
+     * Setup the key (expansion)
+     *
+     * @see Crypt_Base::_setupKey()
+     * @access private
+     */
+    function _setupKey()
+    {
+        if (isset($this->kl['key']) && $this->key === $this->kl['key']) {
+            // already expanded
             return;
         }
+        $this->kl = array('key' => $this->key);
 
         /* key-expanding p[] and S-Box building sb[] */
         $this->bctx = array(
@@ -571,7 +452,7 @@ class Crypt_Blowfish {
         );
 
         // unpack binary string in unsigned chars
-        $key  = array_values(unpack('C*', $key));
+        $key  = array_values(unpack('C*', $this->key));
         $keyl = count($key);
         for ($j = 0, $i = 0; $i < 18; ++$i) {
             // xor P1 with the first 32-bits of the key, xor P2 with the second 32-bits ...
@@ -586,530 +467,185 @@ class Crypt_Blowfish {
 
         // encrypt the zero-string, replace P1 and P2 with the encrypted data,
         // encrypt P3 and P4 with the new P1 and P2, do it with all P-array and subkeys
-        $datal = 0;
-        $datar = 0;
+        $data = "\0\0\0\0\0\0\0\0";
         for ($i = 0; $i < 18; $i += 2) {
-            $this->_encryptBlock($datal, $datar);
-            $this->bctx['p'][$i    ] = $datal;
-            $this->bctx['p'][$i + 1] = $datar;
+            list($l, $r) = array_values(unpack('N*', $data = $this->_encryptBlock($data)));
+            $this->bctx['p'][$i    ] = $l;
+            $this->bctx['p'][$i + 1] = $r;
         }
         for ($i = 0; $i < 4; ++$i) {
             for ($j = 0; $j < 256; $j += 2) {
-                $this->_encryptBlock($datal, $datar);
-                $this->bctx['sb'][$i][$j    ] = $datal;
-                $this->bctx['sb'][$i][$j + 1] = $datar;
+                list($l, $r) = array_values(unpack('N*', $data = $this->_encryptBlock($data)));
+                $this->bctx['sb'][$i][$j    ] = $l;
+                $this->bctx['sb'][$i][$j + 1] = $r;
             }
         }
     }
 
     /**
-     * Encrypt the block.
+     * Encrypts a block
      *
      * @access private
-     * @param  int $Xl left  uInt32 part of the block
-     * @param  int $Xr right uInt32 part of the block
-     * @return void
+     * @param String $in
+     * @return String
      */
-    function _encryptBlock(&$Xl, &$Xr)
+    function _encryptBlock($in)
     {
-        $p = $this->bctx['p'];
-        $sb_0 = $this->bctx['sb'][0];
-        $sb_1 = $this->bctx['sb'][1];
-        $sb_2 = $this->bctx['sb'][2];
-        $sb_3 = $this->bctx['sb'][3];
-        $l = $Xl;
-        $r = $Xr;
+        $p = $this->bctx["p"];
+        // extract($this->bctx["sb"], EXTR_PREFIX_ALL, "sb"); // slower
+        $sb_0 = $this->bctx["sb"][0];
+        $sb_1 = $this->bctx["sb"][1];
+        $sb_2 = $this->bctx["sb"][2];
+        $sb_3 = $this->bctx["sb"][3];
 
-        $i = -1;
-        while ($i < 15) {
-            $l^= $p[++$i];
+        $in = unpack("N*", $in);
+        $l = $in[1];
+        $r = $in[2];
+
+        for ($i = 0; $i < 16; $i+= 2) {
+                $l^= $p[$i];
+                $r^= ($sb_0[$l >> 24 & 0xff]  +
+                      $sb_1[$l >> 16 & 0xff]  ^
+                      $sb_2[$l >>  8 & 0xff]) +
+                      $sb_3[$l       & 0xff];
+
+                $r^= $p[$i + 1];
+                $l^= ($sb_0[$r >> 24 & 0xff]  +
+                      $sb_1[$r >> 16 & 0xff]  ^
+                      $sb_2[$r >>  8 & 0xff]) +
+                      $sb_3[$r       & 0xff];
+        }
+        return pack("N*", $r ^ $p[17], $l ^ $p[16]);
+    }
+
+    /**
+     * Decrypts a block
+     *
+     * @access private
+     * @param String $in
+     * @return String
+     */
+    function _decryptBlock($in)
+    {
+        $p = $this->bctx["p"];
+        $sb_0 = $this->bctx["sb"][0];
+        $sb_1 = $this->bctx["sb"][1];
+        $sb_2 = $this->bctx["sb"][2];
+        $sb_3 = $this->bctx["sb"][3];
+
+        $in = unpack("N*", $in);
+        $l = $in[1];
+        $r = $in[2];
+
+        for ($i = 17; $i > 2; $i-= 2) {
+            $l^= $p[$i];
             $r^= ($sb_0[$l >> 24 & 0xff]  +
                   $sb_1[$l >> 16 & 0xff]  ^
                   $sb_2[$l >>  8 & 0xff]) +
                   $sb_3[$l       & 0xff];
 
-            $r^= $p[++$i];
+            $r^= $p[$i - 1];
             $l^= ($sb_0[$r >> 24 & 0xff]  +
                   $sb_1[$r >> 16 & 0xff]  ^
                   $sb_2[$r >>  8 & 0xff]) +
                   $sb_3[$r       & 0xff];
-
-        }
-        $Xr = $l ^ $p[16];
-        $Xl = $r ^ $p[17];
-    }
-
-    /**
-     * Sets the password.
-     *
-     * Depending on what $method is set to, setPassword()'s (optional) parameters are as follows:
-     *     {@link http://en.wikipedia.org/wiki/PBKDF2 pbkdf2}:
-     *         $hash, $salt, $count
-     *
-     * @param String $password
-     * @param optional String $method
-     * @access public
-     */
-    function setPassword($password, $method = 'pbkdf2')
-    {
-        $key = '';
-
-        switch ($method) {
-            default: // 'pbkdf2'
-                list(, , $hash, $salt, $count) = func_get_args();
-                if (!isset($hash)) {
-                    $hash = 'sha1';
-                }
-                // WPA and WPA2 use the SSID as the salt
-                if (!isset($salt)) {
-                    $salt = 'phpseclib/salt';
-                }
-                // RFC2898#section-4.2 uses 1,000 iterations by default
-                // WPA and WPA2 use 4,096.
-                if (!isset($count)) {
-                    $count = 1000;
-                }
-
-                if (!class_exists('Crypt_Hash')) {
-                    require_once('Crypt/Hash.php');
-                }
-
-                $i = 1;
-                while (strlen($key) < 56) {
-                    //$dk.= $this->_pbkdf($password, $salt, $count, $i++);
-                    $hmac = new Crypt_Hash();
-                    $hmac->setHash($hash);
-                    $hmac->setKey($password);
-                    $f = $u = $hmac->hash($salt . pack('N', $i++));
-                    for ($j = 2; $j <= $count; $j++) {
-                        $u = $hmac->hash($u);
-                        $f^= $u;
-                    }
-                    $key.= $f;
-                }
         }
 
-        $this->setKey($key);
+        return pack("N*", $r ^ $p[0], $l ^ $p[1]);
     }
 
     /**
-     * Sets the initialization vector. (optional)
+     * Setup the performance-optimized function for de/encrypt()
      *
-     * SetIV is not required when CRYPT_BLOWFISH_MODE_ECB is being used.  If not explictly set, it'll be assumed
-     * to be all null bytes.
-     *
-     * @access public
-     * @param String $iv
-     */
-    function setIV($iv)
-    {
-        $this->encryptIV = $this->decryptIV = $this->iv = str_pad(substr($iv, 0, 8), 8, chr(0));
-        $this->enchanged = true;
-        $this->dechanged = true;
-    }
-
-    /**
-     * Encrypts a message.
-     *
-     * $plaintext will be padded with up to 8 additional bytes.  Other Blowfish implementations may or may not pad in the
-     * same manner.  Other common approaches to padding and the reasons why it's necessary are discussed in the following
-     * URL:
-     *
-     * {@link http://www.di-mgt.com.au/cryptopad.html http://www.di-mgt.com.au/cryptopad.html}
-     *
-     * An alternative to padding is to, separately, send the length of the file.  This is what SSH, in fact, does.
-     * strlen($plaintext) will still need to be a multiple of 8, however, arbitrary values can be added to make it that
-     * length.
-     *
-     * @see Crypt_Blowfish::decrypt()
-     * @access public
-     * @param String $plaintext
-     */
-    function encrypt($plaintext)
-    {
-        if ( CRYPT_BLOWFISH_MODE == CRYPT_BLOWFISH_MODE_MCRYPT ) {
-            if ($this->paddable) {
-                $plaintext = $this->_pad($plaintext);
-            }
-
-            if ($this->enchanged) {
-                mcrypt_generic_init($this->enmcrypt, $this->key, $this->encryptIV);
-                if ($this->mode == 'ncfb') {
-                    mcrypt_generic_init($this->ecb, $this->key, "\0\0\0\0\0\0\0\0");
-                }
-                $this->enchanged = false;
-            }
-
-            if ($this->mode != 'ncfb' || !$this->continuousBuffer) {
-                $ciphertext = mcrypt_generic($this->enmcrypt, $plaintext);
-            } else {
-                $iv = &$this->encryptIV;
-                $pos = &$this->enbuffer['pos'];
-                $len = strlen($plaintext);
-                $ciphertext = '';
-                $i = 0;
-                if ($pos) {
-                    $orig_pos = $pos;
-                    $max = 8 - $pos;
-                    if ($len >= $max) {
-                        $i = $max;
-                        $len-= $max;
-                        $pos = 0;
-                    } else {
-                        $i = $len;
-                        $pos+= $len;
-                        $len = 0;
-                    }
-                    $ciphertext = substr($iv, $orig_pos) ^ $plaintext;
-                    $iv = substr_replace($iv, $ciphertext, $orig_pos, $i);
-                    $this->enbuffer['enmcrypt_init'] = true;
-                }
-                if ($len >= 8) {
-                    if ($this->enbuffer['enmcrypt_init'] === false || $len > 600) {
-                        if ($this->enbuffer['enmcrypt_init'] === true) {
-                            mcrypt_generic_init($this->enmcrypt, $this->key, $iv);
-                            $this->enbuffer['enmcrypt_init'] = false;
-                        }
-                        $ciphertext.= mcrypt_generic($this->enmcrypt, substr($plaintext, $i, $len - $len % 8));
-                        $iv = substr($ciphertext, -8);
-                        $len%= 8;
-                    } else {
-                        while ($len >= 8) {
-                            $iv = mcrypt_generic($this->ecb, $iv) ^ substr($plaintext, $i, 8);
-                            $ciphertext.= $iv;
-                            $len-= 8;
-                            $i+= 8;
-                        }
-                    }
-                }
-                if ($len) {
-                    $iv = mcrypt_generic($this->ecb, $iv);
-                    $block = $iv ^ substr($plaintext, -$len);
-                    $iv = substr_replace($iv, $block, 0, $len);
-                    $ciphertext.= $block;
-                    $pos = $len;
-                }
-                return $ciphertext;
-            }
-
-            if (!$this->continuousBuffer) {
-                mcrypt_generic_init($this->enmcrypt, $this->key, $this->encryptIV);
-            }
-
-            return $ciphertext;
-        }
-
-        if (empty($this->bctx)) {
-            $this->setKey($this->key);
-        }
-
-        $inline = $this->inline_crypt;
-        return $inline('encrypt', $this, $plaintext);
-    }
-
-    /**
-     * Decrypts a message.
-     *
-     * If strlen($ciphertext) is not a multiple of 8, null bytes will be added to the end of the string until it is.
-     *
-     * @see Crypt_Blowfish::encrypt()
-     * @access public
-     * @param String $ciphertext
-     */
-    function decrypt($ciphertext)
-    {
-        if ( CRYPT_BLOWFISH_MODE == CRYPT_BLOWFISH_MODE_MCRYPT ) {
-            if ($this->paddable) {
-                // we pad with chr(0) since that's what mcrypt_generic does.  to quote from http://php.net/function.mcrypt-generic :
-                // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
-                $ciphertext = str_pad($ciphertext, strlen($ciphertext) + (8 - strlen($ciphertext) % 8) % 8, chr(0));
-            }
-
-            if ($this->dechanged) {
-                mcrypt_generic_init($this->demcrypt, $this->key, $this->decryptIV);
-                if ($this->mode == 'ncfb') {
-                    mcrypt_generic_init($this->ecb, $this->key, "\0\0\0\0\0\0\0\0");
-                }
-                $this->dechanged = false;
-            }
-
-            if ($this->mode != 'ncfb' || !$this->continuousBuffer) {
-                $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
-            } else {
-                $iv = &$this->decryptIV;
-                $pos = &$this->debuffer['pos'];
-                $len = strlen($ciphertext);
-                $plaintext = '';
-                $i = 0;
-                if ($pos) {
-                    $orig_pos = $pos;
-                    $max = 8 - $pos;
-                    if ($len >= $max) {
-                        $i = $max;
-                        $len-= $max;
-                        $pos = 0;
-                    } else {
-                        $i = $len;
-                        $pos+= $len;
-                        $len = 0;
-                    }
-                    $plaintext = substr($iv, $orig_pos) ^ $ciphertext;
-                    $iv = substr_replace($iv, substr($ciphertext, 0, $i), $orig_pos, $i);
-                }
-                if ($len >= 8) {
-                    $cb = substr($ciphertext, $i, $len - $len % 8);
-                    $plaintext.= mcrypt_generic($this->ecb, $iv . $cb) ^ $cb;
-                    $iv = substr($cb, -8);
-                    $len%= 8;
-                }
-                if ($len) {
-                    $iv = mcrypt_generic($this->ecb, $iv);
-                    $plaintext.= $iv ^ substr($ciphertext, -$len);
-                    $iv = substr_replace($iv, substr($ciphertext, -$len), 0, $len);
-                    $pos = $len;
-                }
-                return $plaintext;
-            }
-
-            if (!$this->continuousBuffer) {
-                mcrypt_generic_init($this->demcrypt, $this->key, $this->decryptIV);
-            }
-
-            return $this->paddable ? $this->_unpad($plaintext) : $plaintext;
-        }
-
-        if (empty($this->bctx)) {
-            $this->setKey($this->key);
-        }
-
-        $inline = $this->inline_crypt;
-        return $inline('decrypt', $this, $ciphertext);
-    }
-
-    /**
-     * Treat consecutive "packets" as if they are a continuous buffer.
-     *
-     * @see Crypt_Blowfish::disableContinuousBuffer()
-     * @access public
-     */
-    function enableContinuousBuffer()
-    {
-        $this->continuousBuffer = true;
-    }
-
-    /**
-     * Treat consecutive packets as if they are a discontinuous buffer.
-     *
-     * The default behavior.
-     *
-     * @see Crypt_Blowfish::enableContinuousBuffer()
-     * @access public
-     */
-    function disableContinuousBuffer()
-    {
-        $this->continuousBuffer = false;
-        $this->encryptIV = $this->iv;
-        $this->decryptIV = $this->iv;
-        $this->enbuffer = array('encrypted' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true);
-        $this->debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0, 'demcrypt_init' => true);
-
-        if (CRYPT_BLOWFISH_MODE == CRYPT_BLOWFISH_MODE_MCRYPT) {
-            mcrypt_generic_init($this->enmcrypt, $this->key, $this->iv);
-            mcrypt_generic_init($this->demcrypt, $this->key, $this->iv);
-        }
-    }
-
-    /**
-     * Pad "packets".
-     *
-     * Blowfish works by encrypting 8 bytes at a time.  If you ever need to encrypt or decrypt something that's not
-     * a multiple of 8, it becomes necessary to pad the input so that it's length is a multiple of eight.
-     *
-     * Padding is enabled by default.  Sometimes, however, it is undesirable to pad strings.  Such is the case in SSH1,
-     * where "packets" are padded with random bytes before being encrypted.  Unpad these packets and you risk stripping
-     * away characters that shouldn't be stripped away. (SSH knows how many bytes are added because the length is
-     * transmitted separately)
-     *
-     * @see Crypt_Blowfish::disablePadding()
-     * @access public
-     */
-    function enablePadding()
-    {
-        $this->padding = true;
-    }
-
-    /**
-     * Do not pad packets.
-     *
-     * @see Crypt_Blowfish::enablePadding()
-     * @access public
-     */
-    function disablePadding()
-    {
-        $this->padding = false;
-    }
-
-    /**
-     * Pads a string
-     *
-     * Pads a string using the RSA PKCS padding standards so that its length is a multiple of the blocksize (8).
-     *
-     * If padding is disabled and $text is not a multiple of the blocksize, the string will be padded regardless
-     * and padding will, hence forth, be enabled.
-     *
-     * @see Crypt_Blowfish::_unpad()
+     * @see Crypt_Base::_setupInlineCrypt()
      * @access private
      */
-    function _pad($text)
+    function _setupInlineCrypt()
     {
-        $length = strlen($text);
+        $lambda_functions =& Crypt_Blowfish::_getLambdaFunctions();
 
-        if (!$this->padding) {
-            if ($length % 8 == 0) {
-                return $text;
-            } else {
-                user_error("The plaintext's length ($length) is not a multiple of the block size (8)");
-                $this->padding = true;
-            }
+        // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
+        // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one.
+        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10);
+
+        switch (true) {
+            case $gen_hi_opt_code:
+                $code_hash = md5(str_pad("Crypt_Blowfish, {$this->mode}, ", 32, "\0") . $this->key);
+                break;
+            default:
+                $code_hash = "Crypt_Blowfish, {$this->mode}";
         }
-
-        $pad = 8 - ($length % 8);
-
-        return str_pad($text, $length + $pad, chr($pad));
-    }
-
-    /**
-     * Unpads a string
-     *
-     * If padding is enabled and the reported padding length is invalid the encryption key will be assumed to be wrong
-     * and false will be returned.
-     *
-     * @see Crypt_Blowfish::_pad()
-     * @access private
-     */
-    function _unpad($text)
-    {
-        if (!$this->padding) {
-            return $text;
-        }
-
-        $length = ord($text[strlen($text) - 1]);
-
-        if (!$length || $length > 8) {
-            return false;
-        }
-
-        return substr($text, 0, -$length);
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param String $string
-     * @return String
-     * @access private
-     */
-    function _string_shift(&$string)
-    {
-        $substr = substr($string, 0, 8);
-        $string = substr($string, 8);
-        return $substr;
-    }
-
-    /**
-     * Generate CTR XOR encryption key
-     *
-     * Encrypt the output of this and XOR it against the ciphertext / plaintext to get the
-     * plaintext / ciphertext in CTR mode.
-     *
-     * @see Crypt_Blowfish::decrypt()
-     * @see Crypt_Blowfish::encrypt()
-     * @access public
-     * @param String $iv
-     */
-    function _generate_xor(&$iv)
-    {
-        $xor = $iv;
-        for ($j = 4; $j <= 8; $j+=4) {
-            $temp = substr($iv, -$j, 4);
-            switch ($temp) {
-                case "\xFF\xFF\xFF\xFF":
-                    $iv = substr_replace($iv, "\x00\x00\x00\x00", -$j, 4);
-                    break;
-                case "\x7F\xFF\xFF\xFF":
-                    $iv = substr_replace($iv, "\x80\x00\x00\x00", -$j, 4);
-                    break 2;
-                default:
-                    extract(unpack('Ncount', $temp));
-                    $iv = substr_replace($iv, pack('N', $count + 1), -$j, 4);
-                    break 2;
-            }
-        }
-
-        return $xor;
-    }
-
-    /**
-     * Creates performance-optimized function for de/encrypt(), storing it in $this->inline_crypt
-     *
-     * @access private
-     */
-    function inline_crypt_setup()
-    {/*{{{*/
-        $lambda_functions =& Crypt_Blowfish::get_lambda_functions();
-        $block_size = 8;
-        $mode = $this->mode;
-        $code_hash = "$mode";
 
         if (!isset($lambda_functions[$code_hash])) {
-            $init_cryptBlock = '
-                extract($self->bctx["p"],  EXTR_PREFIX_ALL, "p");
-                extract($self->bctx["sb"], EXTR_PREFIX_ALL, "sb");
-            ';
+            switch (true) {
+                case $gen_hi_opt_code:
+                    $p = $this->bctx['p'];
+                    $init_crypt = '
+                        static $sb_0, $sb_1, $sb_2, $sb_3;
+                        if (!$sb_0) {
+                            $sb_0 = $self->bctx["sb"][0];
+                            $sb_1 = $self->bctx["sb"][1];
+                            $sb_2 = $self->bctx["sb"][2];
+                            $sb_3 = $self->bctx["sb"][3];
+                        }
+                    ';
+                    break;
+                default:
+                    $p   = array();
+                    for ($i = 0; $i < 18; ++$i) {
+                        $p[] = '$p_' . $i;
+                    }
+                    $init_crypt = '
+                        list($sb_0, $sb_1, $sb_2, $sb_3) = $self->bctx["sb"];
+                        list(' . implode(',', $p) . ') = $self->bctx["p"];
+
+                    ';
+            }
 
             // Generating encrypt code:
-            $_encryptBlock = '
+            $encrypt_block = '
                 $in = unpack("N*", $in);
                 $l = $in[1];
                 $r = $in[2];
             ';
             for ($i = 0; $i < 16; $i+= 2) {
-                $_encryptBlock.= '
-                    $l^= $p_'.($i).';
+                $encrypt_block.= '
+                    $l^= ' . $p[$i] . ';
                     $r^= ($sb_0[$l >> 24 & 0xff]  +
                           $sb_1[$l >> 16 & 0xff]  ^
                           $sb_2[$l >>  8 & 0xff]) +
                           $sb_3[$l       & 0xff];
 
-                    $r^= $p_'.($i + 1).';
+                    $r^= ' . $p[$i + 1] . ';
                     $l^= ($sb_0[$r >> 24 & 0xff]  +
                           $sb_1[$r >> 16 & 0xff]  ^
                           $sb_2[$r >>  8 & 0xff]) +
                           $sb_3[$r       & 0xff];
                 ';
             }
-            $_encryptBlock.= '
-                $in = pack("N*", $r ^ $p_17, $l ^ $p_16);
+            $encrypt_block.= '
+                $in = pack("N*",
+                    $r ^ ' . $p[17] . ',
+                    $l ^ ' . $p[16] . '
+                );
             ';
 
             // Generating decrypt code:
-            $_decryptBlock = '
+            $decrypt_block = '
                 $in = unpack("N*", $in);
                 $l = $in[1];
                 $r = $in[2];
             ';
 
             for ($i = 17; $i > 2; $i-= 2) {
-                $_decryptBlock.= '
-                    $l^= $p_'.($i).';
+                $decrypt_block.= '
+                    $l^= ' . $p[$i] . ';
                     $r^= ($sb_0[$l >> 24 & 0xff]  +
                           $sb_1[$l >> 16 & 0xff]  ^
                           $sb_2[$l >>  8 & 0xff]) +
                           $sb_3[$l       & 0xff];
 
-                    $r^= $p_'.($i - 1).';
+                    $r^= ' . $p[$i - 1] . ';
                     $l^= ($sb_0[$r >> 24 & 0xff]  +
                           $sb_1[$r >> 16 & 0xff]  ^
                           $sb_2[$r >>  8 & 0xff]) +
@@ -1117,350 +653,24 @@ class Crypt_Blowfish {
                 ';
             }
 
-            $_decryptBlock.= '
-                $in = pack("N*", $r ^ $p_0, $l ^ $p_1);
+            $decrypt_block.= '
+                $in = pack("N*",
+                    $r ^ ' . $p[0] . ',
+                    $l ^ ' . $p[1] . '
+                );
             ';
 
-            // Generating mode of operation code:
-            switch ($mode) {
-                case CRYPT_BLOWFISH_MODE_ECB:
-                    $encrypt = '
-                        $ciphertext = "";
-                        $text = $self->_pad($text);
-                        $plaintext_len = strlen($text);
-
-                        for ($i = 0; $i < $plaintext_len; $i+= '.$block_size.') {
-                            $in = substr($text, $i, '.$block_size.');
-                            '.$_encryptBlock.'
-                            $ciphertext.= $in;
-                        }
-                        return $ciphertext;
-                        ';
-
-                    $decrypt = '
-                        $plaintext = "";
-                        $text = str_pad($text, strlen($text) + ('.$block_size.' - strlen($text) % '.$block_size.') % '.$block_size.', chr(0));
-                        $ciphertext_len = strlen($text);
-
-                        for ($i = 0; $i < $ciphertext_len; $i+= '.$block_size.') {
-                            $in = substr($text, $i, '.$block_size.');
-                            '.$_decryptBlock.'
-                            $plaintext.= $in;
-                        }
-
-                        return $self->_unpad($plaintext);
-                        ';
-                    break;
-                case CRYPT_BLOWFISH_MODE_CBC:
-                    $encrypt = '
-                        $ciphertext = "";
-                        $text = $self->_pad($text);
-                        $plaintext_len = strlen($text);
-
-                        $in = $self->encryptIV;
-
-                        for ($i = 0; $i < $plaintext_len; $i+= '.$block_size.') {
-                            $in = substr($text, $i, '.$block_size.') ^ $in;
-                            '.$_encryptBlock.'
-                            $ciphertext.= $in;
-                        }
-
-                        if ($self->continuousBuffer) {
-                            $self->encryptIV = $in;
-                        }
-
-                        return $ciphertext;
-                        ';
-
-                    $decrypt = '
-                        $plaintext = "";
-                        $text = str_pad($text, strlen($text) + ('.$block_size.' - strlen($text) % '.$block_size.') % '.$block_size.', chr(0));
-                        $ciphertext_len = strlen($text);
-
-                        $iv = $self->decryptIV;
-
-                        for ($i = 0; $i < $ciphertext_len; $i+= '.$block_size.') {
-                            $in = $block = substr($text, $i, '.$block_size.');
-                            '.$_decryptBlock.'
-                            $plaintext.= $in ^ $iv;
-                            $iv = $block;
-                        }
-
-                        if ($self->continuousBuffer) {
-                            $self->decryptIV = $iv;
-                        }
-
-                        return $self->_unpad($plaintext);
-                        ';
-                    break;
-                case CRYPT_BLOWFISH_MODE_CTR:
-                    $encrypt = '
-                        $ciphertext = "";
-                        $plaintext_len = strlen($text);
-                        $xor = $self->encryptIV;
-                        $buffer = &$self->enbuffer;
-
-                        if (strlen($buffer["encrypted"])) {
-                            for ($i = 0; $i < $plaintext_len; $i+= '.$block_size.') {
-                                $block = substr($text, $i, '.$block_size.');
-                                if (strlen($block) > strlen($buffer["encrypted"])) {
-                                    $in = $self->_generate_xor($xor);
-                                    '.$_encryptBlock.'
-                                    $buffer["encrypted"].= $in;
-                                }
-                                $key = $self->_string_shift($buffer["encrypted"]);
-                                $ciphertext.= $block ^ $key;
-                            }
-                        } else {
-                            for ($i = 0; $i < $plaintext_len; $i+= '.$block_size.') {
-                                $block = substr($text, $i, '.$block_size.');
-                                $in = $self->_generate_xor($xor);
-                                '.$_encryptBlock.'
-                                $key = $in;
-                                $ciphertext.= $block ^ $key;
-                            }
-                        }
-                        if ($self->continuousBuffer) {
-                            $self->encryptIV = $xor;
-                            if ($start = $plaintext_len % '.$block_size.') {
-                                $buffer["encrypted"] = substr($key, $start) . $buffer["encrypted"];
-                            }
-                        }
-
-                        return $ciphertext;
-                    ';
-
-                    $decrypt = '
-                        $plaintext = "";
-                        $ciphertext_len = strlen($text);
-                        $xor = $self->decryptIV;
-                        $buffer = &$self->debuffer;
-
-                        if (strlen($buffer["ciphertext"])) {
-                            for ($i = 0; $i < $ciphertext_len; $i+= '.$block_size.') {
-                                $block = substr($text, $i, '.$block_size.');
-                                if (strlen($block) > strlen($buffer["ciphertext"])) {
-                                    $in = $self->_generate_xor($xor);
-                                    '.$_encryptBlock.'
-                                    $buffer["ciphertext"].= $in;
-                                }
-                                $key = $self->_string_shift($buffer["ciphertext"]);
-                                $plaintext.= $block ^ $key;
-                            }
-                        } else {
-                            for ($i = 0; $i < $ciphertext_len; $i+= '.$block_size.') {
-                                $block = substr($text, $i, '.$block_size.');
-                                $in = $self->_generate_xor($xor);
-                                '.$_encryptBlock.'
-                                $key = $in;
-                                $plaintext.= $block ^ $key;
-                            }
-                        }
-                        if ($self->continuousBuffer) {
-                            $self->decryptIV = $xor;
-                            if ($start = $ciphertext_len % '.$block_size.') {
-                                $buffer["ciphertext"] = substr($key, $start) . $buffer["ciphertext"];
-                            }
-                        }
-                        return $plaintext;
-                        ';
-                    break;
-                case CRYPT_BLOWFISH_MODE_CFB:
-                    $encrypt = '
-                        $ciphertext = "";
-                        $buffer = &$self->enbuffer;
-
-                        if ($self->continuousBuffer) {
-                            $iv = &$self->encryptIV;
-                            $pos = &$buffer["pos"];
-                        } else {
-                            $iv = $self->encryptIV;
-                            $pos = 0;
-                        }
-                        $len = strlen($text);
-                        $i = 0;
-                        if ($pos) {
-                            $orig_pos = $pos;
-                            $max = '.$block_size.' - $pos;
-                            if ($len >= $max) {
-                                $i = $max;
-                                $len-= $max;
-                                $pos = 0;
-                            } else {
-                                $i = $len;
-                                $pos+= $len;
-                                $len = 0;
-                            }
-                            $ciphertext = substr($iv, $orig_pos) ^ $text;
-                            $iv = substr_replace($iv, $ciphertext, $orig_pos, $i);
-                        }
-                        while ($len >= '.$block_size.') {
-                            $in = $iv;
-                            '.$_encryptBlock.';
-                            $iv = $in ^ substr($text, $i, '.$block_size.');
-                            $ciphertext.= $iv;
-                            $len-= '.$block_size.';
-                            $i+= '.$block_size.';
-                        }
-                        if ($len) {
-                            $in = $iv;
-                            '.$_encryptBlock.'
-                            $iv = $in;
-                            $block = $iv ^ substr($text, $i);
-                            $iv = substr_replace($iv, $block, 0, $len);
-                            $ciphertext.= $block;
-                            $pos = $len;
-                        }
-                        return $ciphertext;
-                    ';
-
-                    $decrypt = '
-                        $plaintext = "";
-                        $buffer = &$self->debuffer;
-
-                        if ($self->continuousBuffer) {
-                            $iv = &$self->decryptIV;
-                            $pos = &$buffer["pos"];
-                        } else {
-                            $iv = $self->decryptIV;
-                            $pos = 0;
-                        }
-                        $len = strlen($text);
-                        $i = 0;
-                        if ($pos) {
-                            $orig_pos = $pos;
-                            $max = '.$block_size.' - $pos;
-                            if ($len >= $max) {
-                                $i = $max;
-                                $len-= $max;
-                                $pos = 0;
-                            } else {
-                                $i = $len;
-                                $pos+= $len;
-                                $len = 0;
-                            }
-                            $plaintext = substr($iv, $orig_pos) ^ $text;
-                            $iv = substr_replace($iv, substr($text, 0, $i), $orig_pos, $i);
-                        }
-                        while ($len >= '.$block_size.') {
-                            $in = $iv;
-                            '.$_encryptBlock.'
-                            $iv = $in;
-                            $cb = substr($text, $i, '.$block_size.');
-                            $plaintext.= $iv ^ $cb;
-                            $iv = $cb;
-                            $len-= '.$block_size.';
-                            $i+= '.$block_size.';
-                        }
-                        if ($len) {
-                            $in = $iv;
-                            '.$_encryptBlock.'
-                            $iv = $in;
-                            $plaintext.= $iv ^ substr($text, $i);
-                            $iv = substr_replace($iv, substr($text, $i), 0, $len);
-                            $pos = $len;
-                        }
-
-                        return $plaintext;
-                        ';
-                    break;
-                case CRYPT_BLOWFISH_MODE_OFB:
-                    $encrypt = '
-                        $ciphertext = "";
-                        $plaintext_len = strlen($text);
-                        $xor = $self->encryptIV;
-                        $buffer = &$self->enbuffer;
-
-                        if (strlen($buffer["xor"])) {
-                            for ($i = 0; $i < $plaintext_len; $i+= '.$block_size.') {
-                                $block = substr($text, $i, '.$block_size.');
-                                if (strlen($block) > strlen($buffer["xor"])) {
-                                    $in = $xor;
-                                    '.$_encryptBlock.'
-                                    $xor = $in;
-                                    $buffer["xor"].= $xor;
-                                }
-                                $key = $self->_string_shift($buffer["xor"]);
-                                $ciphertext.= $block ^ $key;
-                            }
-                        } else {
-                            for ($i = 0; $i < $plaintext_len; $i+= '.$block_size.') {
-                                $in = $xor;
-                                '.$_encryptBlock.'
-                                $xor = $in;
-                                $ciphertext.= substr($text, $i, '.$block_size.') ^ $xor;
-                            }
-                            $key = $xor;
-                        }
-                        if ($self->continuousBuffer) {
-                            $self->encryptIV = $xor;
-                            if ($start = $plaintext_len % '.$block_size.') {
-                                 $buffer["xor"] = substr($key, $start) . $buffer["xor"];
-                            }
-                        }
-                        return $ciphertext;
-                        ';
-
-                    $decrypt = '
-                        $plaintext = "";
-                        $ciphertext_len = strlen($text);
-                        $xor = $self->decryptIV;
-                        $buffer = &$self->debuffer;
-
-                        if (strlen($buffer["xor"])) {
-                            for ($i = 0; $i < $ciphertext_len; $i+= '.$block_size.') {
-                                $block = substr($text, $i, '.$block_size.');
-                                if (strlen($block) > strlen($buffer["xor"])) {
-                                    $in = $xor;
-                                    '.$_encryptBlock.'
-                                    $xor = $in;
-                                    $buffer["xor"].= $xor;
-                                }
-                                $key = $self->_string_shift($buffer["xor"]);
-                                $plaintext.= $block ^ $key;
-                            }
-                        } else {
-                            for ($i = 0; $i < $ciphertext_len; $i+= '.$block_size.') {
-                                $in = $xor;
-                                '.$_encryptBlock.'
-                                $xor = $in;
-                                $plaintext.= substr($text, $i, '.$block_size.') ^ $xor;
-                            }
-                            $key = $xor;
-                        }
-                        if ($self->continuousBuffer) {
-                            $self->decryptIV = $xor;
-                            if ($start = $ciphertext_len % '.$block_size.') {
-                                 $buffer["xor"] = substr($key, $start) . $buffer["xor"];
-                            }
-                        }
-                        return $plaintext;
-                        ';
-                    break;
-            }
-            $fnc_head = '$action, &$self, $text';
-            $fnc_body = $init_cryptBlock . 'if ($action == "encrypt") { ' . $encrypt . ' } else { ' . $decrypt . ' }';
-
-            if (function_exists('create_function') && is_callable('create_function')) {
-                $lambda_functions[$code_hash] = create_function($fnc_head, $fnc_body);
-            } else {
-                eval('function ' . ($lambda_functions[$code_hash] = 'f' . md5(microtime())) . '(' . $fnc_head . ') { ' . $fnc_body . ' }');
-            }
+            $lambda_functions[$code_hash] = $this->_createInlineCryptFunction(
+                array(
+                   'init_crypt'    => $init_crypt,
+                   'init_encrypt'  => '',
+                   'init_decrypt'  => '',
+                   'encrypt_block' => $encrypt_block,
+                   'decrypt_block' => $decrypt_block
+                )
+            );
         }
         $this->inline_crypt = $lambda_functions[$code_hash];
-    }/*}}}*/
-
-    /**
-     * Holds the lambda_functions table (classwide)
-     *
-     * @see inline_crypt_setup()
-     * @return Array
-     * @access private
-     */
-    function &get_lambda_functions()
-    {
-        static $functions = array();
-        return $functions;
     }
 }
 

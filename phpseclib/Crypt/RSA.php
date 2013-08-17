@@ -173,7 +173,6 @@ define('CRYPT_RSA_MODE_OPENSSL', 2);
  */
 define('CRYPT_RSA_OPENSSL_CONFIG', dirname(__FILE__) . '/../openssl.cnf');
 
-
 /**#@+
  * @access public
  * @see Crypt_RSA::createKey()
@@ -642,12 +641,12 @@ class Crypt_RSA {
                 $exponents[$i] = $e->modInverse($temp);
             }
 
-            list($lcm) = $lcm['top']->divide($lcm['bottom']);
-            $gcd = $lcm->gcd($e);
+            list($temp) = $lcm['top']->divide($lcm['bottom']);
+            $gcd = $temp->gcd($e);
             $i0 = 1;
         } while (!$gcd->equals($this->one));
 
-        $d = $e->modInverse($lcm);
+        $d = $e->modInverse($temp);
 
         $coefficients[2] = $primes[2]->modInverse($primes[1]);
 
@@ -1311,9 +1310,6 @@ class Crypt_RSA {
                 break;
             case 'D':
                 $this->current = &$this->components['privateExponent'];
-                break;
-            default:
-                unset($this->current);
         }
         $this->current = '';
     }
@@ -1334,6 +1330,7 @@ class Crypt_RSA {
             return;
         }
         $this->current = new Math_BigInteger(base64_decode($this->current), 256);
+        unset($this->current);
     }
 
     /**

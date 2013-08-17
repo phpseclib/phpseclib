@@ -73,10 +73,11 @@
  * @see Net_SSH2::bitmap
  * @access private
  */
-define('NET_SSH2_MASK_CONSTRUCTOR', 0x00000001);
-define('NET_SSH2_MASK_LOGIN_REQ',   0x00000002);
-define('NET_SSH2_MASK_LOGIN',       0x00000004);
-define('NET_SSH2_MASK_SHELL',       0x00000008);
+define('NET_SSH2_MASK_CONSTRUCTOR',   0x00000001);
+define('NET_SSH2_MASK_LOGIN_REQ',     0x00000002);
+define('NET_SSH2_MASK_LOGIN',         0x00000004);
+define('NET_SSH2_MASK_SHELL',         0x00000008);
+define('NET_SSH2_MASK_WINDOW_ADJUST', 0X00000010);
 /**#@-*/
 
 /**#@+
@@ -542,7 +543,7 @@ class Net_SSH2 {
     var $window_size = 0x7FFFFFFF;
 
     /**
-     * Window size
+     * Window size, server to client
      *
      * Window size indexed by channel
      *
@@ -551,6 +552,17 @@ class Net_SSH2 {
      * @access private
      */
     var $window_size_server_to_client = array();
+
+    /**
+     * Window size, client to server
+     *
+     * Window size indexed by channel
+     *
+     * @see Net_SSH2::_get_channel_packet()
+     * @var Array
+     * @access private
+     */
+    var $window_size_client_to_server = array();
 
     /**
      * Server signature
@@ -949,40 +961,76 @@ class Net_SSH2 {
             'ssh-dss'  // REQUIRED     sign   Raw DSS Key
         );
 
-        static $encryption_algorithms = array(
-            // from <http://tools.ietf.org/html/rfc4345#section-4>:
-            'arcfour256',
-            'arcfour128',
+        static $encryption_algorithms = false;
+        if ($encryption_algorithms === false) {
+            $encryption_algorithms = array(
+                // from <http://tools.ietf.org/html/rfc4345#section-4>:
+                'arcfour256',
+                'arcfour128',
 
-            'arcfour',        // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
+                'arcfour',        // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
 
-            // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
-            'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
-            'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
-            'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
+                // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
+                'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
+                'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
+                'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
 
-            'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
+                'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
+                'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
+                'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
 
-            'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
-            'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
-            'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
+                'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
+                'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
+                'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
 
-            'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
-            'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
-            'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
+                'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
+                'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
+                'twofish256-cbc',
+                'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
+                                  //                   (this is being retained for historical reasons)
 
-            'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
+                'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
 
-            'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
-            'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
-            'twofish256-cbc',
-            'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
-                              //                   (this is being retained for historical reasons)
-            '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
+                'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
 
-            '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
-            'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
-        );
+                '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
+
+                '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
+                'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
+            );
+
+            if (!$this->_is_includable('Crypt/RC4.php')) {
+                $encryption_algorithms = array_diff(
+                    $encryption_algorithms,
+                    array('arcfour256', 'arcfour128', 'arcfour')
+                );
+            }
+            if (!$this->_is_includable('Crypt/Rijndael.php')) {
+                $encryption_algorithms = array_diff(
+                    $encryption_algorithms,
+                    array('aes128-ctr', 'aes192-ctr', 'aes256-ctr', 'aes128-cbc', 'aes192-cbc', 'aes256-cbc')
+                );
+            }
+            if (!$this->_is_includable('Crypt/Twofish.php')) {
+                $encryption_algorithms = array_diff(
+                    $encryption_algorithms,
+                    array('twofish128-ctr', 'twofish192-ctr', 'twofish256-ctr', 'twofish128-cbc', 'twofish192-cbc', 'twofish256-cbc', 'twofish-cbc')
+                );
+            }
+            if (!$this->_is_includable('Crypt/Blowfish.php')) {
+                $encryption_algorithms = array_diff(
+                    $encryption_algorithms,
+                    array('blowfish-ctr', 'blowfish-cbc')
+                );
+            }
+            if (!$this->_is_includable('Crypt/TripleDES.php')) {
+                $encryption_algorithms = array_diff(
+                    $encryption_algorithms,
+                    array('3des-ctr', '3des-cbc')
+                );
+            }
+            $encryption_algorithms = array_values($encryption_algorithms);
+        }
 
         static $mac_algorithms = array(
             'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
@@ -1361,19 +1409,19 @@ class Net_SSH2 {
             case 'aes256-cbc':
             case 'aes192-cbc':
             case 'aes128-cbc':
-                if (!class_exists('Crypt_AES')) {
-                    require_once('Crypt/AES.php');
+                if (!class_exists('Crypt_Rijndael')) {
+                    require_once('Crypt/Rijndael.php');
                 }
-                $this->encrypt = new Crypt_AES();
+                $this->encrypt = new Crypt_Rijndael();
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
-                if (!class_exists('Crypt_AES')) {
-                    require_once('Crypt/AES.php');
+                if (!class_exists('Crypt_Rijndael')) {
+                    require_once('Crypt/Rijndael.php');
                 }
-                $this->encrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                $this->encrypt = new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'blowfish-cbc':
@@ -1437,19 +1485,19 @@ class Net_SSH2 {
             case 'aes256-cbc':
             case 'aes192-cbc':
             case 'aes128-cbc':
-                if (!class_exists('Crypt_AES')) {
-                    require_once('Crypt/AES.php');
+                if (!class_exists('Crypt_Rijndael')) {
+                    require_once('Crypt/Rijndael.php');
                 }
-                $this->decrypt = new Crypt_AES();
+                $this->decrypt = new Crypt_Rijndael();
                 $this->decrypt_block_size = 16;
                 break;
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
-                if (!class_exists('Crypt_AES')) {
-                    require_once('Crypt/AES.php');
+                if (!class_exists('Crypt_Rijndael')) {
+                    require_once('Crypt/Rijndael.php');
                 }
-                $this->decrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                $this->decrypt = new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
                 $this->decrypt_block_size = 16;
                 break;
             case 'blowfish-cbc':
@@ -2533,7 +2581,7 @@ class Net_SSH2 {
                     break;
                 case NET_SSH2_MSG_CHANNEL_OPEN: // see http://tools.ietf.org/html/rfc4254#section-5.1
                     $this->_string_shift($payload, 1);
-                    extract(unpack('N', $this->_string_shift($payload, 4)));
+                    extract(unpack('Nlength', $this->_string_shift($payload, 4)));
                     $this->errors[] = 'SSH_MSG_CHANNEL_OPEN: ' . utf8_decode($this->_string_shift($payload, $length));
 
                     $this->_string_shift($payload, 4); // skip over client channel
@@ -2549,7 +2597,12 @@ class Net_SSH2 {
                     $payload = $this->_get_binary_packet();
                     break;
                 case NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST:
-                    $payload = $this->_get_binary_packet();
+                    $this->_string_shift($payload, 1);
+                    extract(unpack('Nchannel', $this->_string_shift($payload, 4)));
+                    extract(unpack('Nwindow_size', $this->_string_shift($payload, 4)));
+                    $this->window_size_client_to_server[$channel] = $window_size;
+
+                    $payload = ($this->bitmap & NET_SSH2_MASK_WINDOW_ADJUST) ? true : $this->_get_binary_packet();
             }
         }
 
@@ -2642,21 +2695,25 @@ class Net_SSH2 {
                 user_error('Connection closed by server');
                 return false;
             }
+            if ($client_channel == -1 && $response === true) {
+                return true;
+            }
             if (!strlen($response)) {
                 return '';
             }
 
+            extract(unpack('Ctype/Nchannel', $this->_string_shift($response, 5)));
+
+            $this->window_size_server_to_client[$channel]-= strlen($response) + 4;
+
             // resize the window, if appropriate
-            $this->window_size_server_to_client[$client_channel]-= strlen($response);
-            if ($this->window_size_server_to_client[$client_channel] < 0) {
-                $packet = pack('CNN', NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST, $this->server_channels[$client_channel], $this->window_size);
+            if ($this->window_size_server_to_client[$channel] < 0) {
+                $packet = pack('CNN', NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST, $this->server_channels[$channel], $this->window_size);
                 if (!$this->_send_binary_packet($packet)) {
                     return false;
                 }
-                $this->window_size_server_to_client[$client_channel]+= $this->window_size;
+                $this->window_size_server_to_client[$channel]+= $this->window_size;
             }
-
-            extract(unpack('Ctype/Nchannel', $this->_string_shift($response, 5)));
 
             switch ($this->channel_status[$channel]) {
                 case NET_SSH2_MSG_CHANNEL_OPEN:
@@ -2664,7 +2721,8 @@ class Net_SSH2 {
                         case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
                             extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
                             $this->server_channels[$channel] = $server_channel;
-                            $this->_string_shift($response, 4); // skip over (server) window size
+                            extract(unpack('Nwindow_size', $this->_string_shift($response, 4)));
+                            $this->window_size_client_to_server[$channel] = $window_size;
                             $temp = unpack('Npacket_size_client_to_server', $this->_string_shift($response, 4));
                             $this->packet_size_client_to_server[$channel] = $temp['packet_size_client_to_server'];
                             return $client_channel == $channel ? true : $this->_get_channel_packet($client_channel, $skip_extended);
@@ -2688,15 +2746,17 @@ class Net_SSH2 {
                     return $type == NET_SSH2_MSG_CHANNEL_CLOSE ? true : $this->_get_channel_packet($client_channel, $skip_extended);
             }
 
+            // ie. $this->channel_status[$channel] == NET_SSH2_MSG_CHANNEL_DATA
+
             switch ($type) {
                 case NET_SSH2_MSG_CHANNEL_DATA:
                     /*
-                    if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
+                    if ($channel == NET_SSH2_CHANNEL_EXEC) {
                         // SCP requires null packets, such as this, be sent.  further, in the case of the ssh.com SSH server
                         // this actually seems to make things twice as fast.  more to the point, the message right after 
                         // SSH_MSG_CHANNEL_DATA (usually SSH_MSG_IGNORE) won't block for as long as it would have otherwise.
                         // in OpenSSH it slows things down but only by a couple thousandths of a second.
-                        $this->_send_channel_packet($client_channel, chr(0));
+                        $this->_send_channel_packet($channel, chr(0));
                     }
                     */
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
@@ -2704,10 +2764,10 @@ class Net_SSH2 {
                     if ($client_channel == $channel) {
                         return $data;
                     }
-                    if (!isset($this->channel_buffers[$client_channel])) {
-                        $this->channel_buffers[$client_channel] = array();
+                    if (!isset($this->channel_buffers[$channel])) {
+                        $this->channel_buffers[$channel] = array();
                     }
-                    $this->channel_buffers[$client_channel][] = $data;
+                    $this->channel_buffers[$channel][] = $data;
                     break;
                 case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
                     /*
@@ -2725,10 +2785,10 @@ class Net_SSH2 {
                     if ($client_channel == $channel) {
                         return $data;
                     }
-                    if (!isset($this->channel_buffers[$client_channel])) {
-                        $this->channel_buffers[$client_channel] = array();
+                    if (!isset($this->channel_buffers[$channel])) {
+                        $this->channel_buffers[$channel] = array();
                     }
-                    $this->channel_buffers[$client_channel][] = $data;
+                    $this->channel_buffers[$channel][] = $data;
                     break;
                 case NET_SSH2_MSG_CHANNEL_REQUEST:
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
@@ -2743,6 +2803,13 @@ class Net_SSH2 {
                             if ($length) {
                                 $this->errors[count($this->errors)].= "\r\n" . $this->_string_shift($response, $length);
                             }
+
+                            $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$client_channel]));
+                            $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
+
+                            $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_EOF;
+
+                            break;
                         case 'exit-status':
                             extract(unpack('Cfalse/Nexit_status', $this->_string_shift($response, 5)));
                             $this->exit_status = $exit_status;
@@ -2752,6 +2819,8 @@ class Net_SSH2 {
                             $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
 
                             $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_EOF;
+
+                            break;
                         default:
                             // "Some systems may not implement signals, in which case they SHOULD ignore this message."
                             //  -- http://tools.ietf.org/html/rfc4254#section-6.9
@@ -2849,6 +2918,11 @@ class Net_SSH2 {
      */
     function _append_log($message_number, $message)
     {
+            // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
+            if (strlen($message_number) > 2) {
+                $this->_string_shift($message);
+            }
+
             switch (NET_SSH2_LOGGING) {
                 // useful for benchmarks
                 case NET_SSH2_LOG_SIMPLE:
@@ -2857,7 +2931,6 @@ class Net_SSH2 {
                 // the most useful log for SSH2
                 case NET_SSH2_LOG_COMPLEX:
                     $this->message_number_log[] = $message_number;
-                    $this->_string_shift($message);
                     $this->log_size+= strlen($message);
                     $this->message_log[] = $message;
                     while ($this->log_size > NET_SSH2_LOG_MAX_SIZE) {
@@ -2869,7 +2942,15 @@ class Net_SSH2 {
                 // passwords won't be filtered out and select other packets may not be correctly
                 // identified
                 case NET_SSH2_LOG_REALTIME:
-                    echo "<pre>\r\n" . $this->_format_log(array($message), array($message_number)) . "\r\n</pre>\r\n";
+                    switch (PHP_SAPI) {
+                        case 'cli':
+                            $start = $stop = "\r\n";
+                            break;
+                        default:
+                            $start = '<pre>';
+                            $stop = '</pre>';
+                    }
+                    echo $start . $this->_format_log(array($message), array($message_number)) . $stop;
                     @flush();
                     @ob_flush();
                     break;
@@ -2915,18 +2996,48 @@ class Net_SSH2 {
      */
     function _send_channel_packet($client_channel, $data)
     {
-        while (strlen($data) > $this->packet_size_client_to_server[$client_channel]) {
+        /* The maximum amount of data allowed is determined by the maximum
+           packet size for the channel, and the current window size, whichever
+           is smaller.
+
+           -- http://tools.ietf.org/html/rfc4254#section-5.2 */
+        $max_size = min(
+            $this->packet_size_client_to_server[$client_channel],
+            $this->window_size_client_to_server[$client_channel]
+        ) - 4;
+        while (strlen($data) > $max_size) {
             $packet = pack('CN2a*',
                 NET_SSH2_MSG_CHANNEL_DATA,
                 $this->server_channels[$client_channel],
-                $this->packet_size_client_to_server[$client_channel],
-                $this->_string_shift($data, $this->packet_size_client_to_server[$client_channel])
+                $max_size,
+                $this->_string_shift($data, $max_size)
             );
+
+            $this->window_size_client_to_server[$client_channel]-= $max_size + 4;
 
             if (!$this->_send_binary_packet($packet)) {
                 return false;
             }
+
+            if ($max_size == $this->window_size_client_to_server[$client_channel] - 4) {
+                $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
+                // using an invalid channel will let the buffers be built up for the valid channels
+                $this->_get_channel_packet(-1);
+                $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
+                $max_size = min(
+                    $this->packet_size_client_to_server[$client_channel],
+                    $this->window_size_client_to_server[$client_channel]
+                ) - 4;
+            }
         }
+
+        if (strlen($data) >= $this->window_size_client_to_server[$client_channel] - 4) {
+            $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
+            $this->_get_channel_packet(-1);
+            $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
+        }
+
+        $this->window_size_client_to_server[$client_channel]-= strlen($data) + 4;
 
         return $this->_send_binary_packet(pack('CN2a*',
             NET_SSH2_MSG_CHANNEL_DATA,
@@ -3396,5 +3507,25 @@ class Net_SSH2 {
             return false;
         }
         return $this->exit_status;
+    }
+
+    /**
+     * Is a path includable?
+     *
+     * @return Boolean
+     * @access private
+     */
+    function _is_includable($suffix)
+    {
+        foreach (explode(PATH_SEPARATOR, get_include_path()) as $prefix) {
+            $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
+            $file = $prefix . $ds . $suffix;
+
+            if (file_exists($file)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

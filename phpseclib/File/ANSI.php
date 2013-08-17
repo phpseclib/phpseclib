@@ -351,7 +351,7 @@ class File_ANSI {
                                             $this->attrs[$this->y][$this->x] = '';
 
                                             if ($this->bold) $this->attrs[$this->y][$this->x].= '</b>';
-                                            if ($this->underline) $this->attrs[$this->y][$this->x].= '</underline>';
+                                            if ($this->underline) $this->attrs[$this->y][$this->x].= '</u>';
                                             if ($this->blink) $this->attrs[$this->y][$this->x].= '</blink>';
                                             if ($this->color) $this->attrs[$this->y][$this->x].= '</span>';
 

@@ -53,8 +53,9 @@ if (!class_exists('File_ASN1')) {
 /**
  * Flag to only accept signatures signed by certificate authorities
  *
+ * Not really used anymore but retained all the same to suppress E_NOTICEs from old installs
+ *
  * @access public
- * @see File_X509::validateSignature()
  */
 define('FILE_X509_VALIDATE_SIGNATURE_BY_CA', 1);
 
@@ -305,6 +306,10 @@ class File_X509 {
      */
     function File_X509()
     {
+        if (!class_exists('Math_BigInteger')) {
+            require_once('Math/BigInteger.php');
+        }
+
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1
 
@@ -1989,16 +1994,19 @@ class File_X509 {
      * Works on X.509 certs, CSR's and CRL's.
      * Returns true if the signature is verified, false if it is not correct or NULL on error
      *
+     * By default returns false for self-signed certs. Call validateSignature(false) to make this support
+     * self-signed.
+     *
      * The behavior of this function is inspired by {@link http://php.net/openssl-verify openssl_verify}.
      *
-     * @param Integer $options optional
+     * @param Boolean $caonly optional
      * @access public
      * @return Mixed
      */
-    function validateSignature($options = 0)
+    function validateSignature($caonly = true)
     {
         if (!is_array($this->currentCert) || !isset($this->signatureSubject)) {
-            return 0;
+            return NULL;
         }
 
         /* TODO:
@@ -2036,10 +2044,10 @@ class File_X509 {
                             }
                         }
                     }
-                    if (count($this->CAs) == $i && ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA)) {
+                    if (count($this->CAs) == $i && $caonly) {
                         return false;
                     }
-                } elseif (!isset($signingCert) || ($options & FILE_X509_VALIDATE_SIGNATURE_BY_CA)) {
+                } elseif (!isset($signingCert) || $caonly) {
                     return false;
                 }
                 return $this->_validateSignature(
@@ -2195,7 +2203,7 @@ class File_X509 {
             case 'commonname':
             case 'cn':
                 return 'id-at-commonName';
-            case 'id-at-stateorprovinceName':
+            case 'id-at-stateorprovincename':
             case 'stateorprovincename':
             case 'state':
             case 'province':
@@ -2901,51 +2909,51 @@ class File_X509 {
      * @access public
      * @return Mixed
      */
-    function loadSPKAC($csr)
+    function loadSPKAC($spkac)
     {
-        if (is_array($csr) && isset($csr['publicKeyAndChallenge'])) {
+        if (is_array($spkac) && isset($spkac['publicKeyAndChallenge'])) {
             unset($this->currentCert);
             unset($this->currentKeyIdentifier);
             unset($this->signatureSubject);
-            $this->currentCert = $csr;
-            return $csr;
+            $this->currentCert = $spkac;
+            return $spkac;
         }
 
         // see http://www.w3.org/html/wg/drafts/html/master/forms.html#signedpublickeyandchallenge
 
         $asn1 = new File_ASN1();
 
-        $temp = preg_replace('#(?:^[^=]+=)|[\r\n\\\]#', '', $csr);
+        $temp = preg_replace('#(?:^[^=]+=)|[\r\n\\\]#', '', $spkac);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
         if ($temp != false) {
-            $csr = $temp;
+            $spkac = $temp;
         }
-        $orig = $csr;
+        $orig = $spkac;
 
-        if ($csr === false) {
+        if ($spkac === false) {
             $this->currentCert = false;
             return false;
         }
 
         $asn1->loadOIDs($this->oids);
-        $decoded = $asn1->decodeBER($csr);
+        $decoded = $asn1->decodeBER($spkac);
 
         if (empty($decoded)) {
             $this->currentCert = false;
             return false;
         }
 
-        $csr = $asn1->asn1map($decoded[0], $this->SignedPublicKeyAndChallenge);
+        $spkac = $asn1->asn1map($decoded[0], $this->SignedPublicKeyAndChallenge);
 
-        if (!isset($csr) || $csr === false) {
+        if (!isset($spkac) || $spkac === false) {
             $this->currentCert = false;
             return false;
         }
 
         $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
-        $algorithm = &$csr['publicKeyAndChallenge']['spki']['algorithm']['algorithm'];
-        $key = &$csr['publicKeyAndChallenge']['spki']['subjectPublicKey'];
+        $algorithm = &$spkac['publicKeyAndChallenge']['spki']['algorithm']['algorithm'];
+        $key = &$spkac['publicKeyAndChallenge']['spki']['subjectPublicKey'];
         $key = $this->_reformatKey($algorithm, $key);
 
         switch ($algorithm) {
@@ -2962,9 +2970,9 @@ class File_X509 {
         }
 
         $this->currentKeyIdentifier = NULL;
-        $this->currentCert = $csr;
+        $this->currentCert = $spkac;
 
-        return $csr;
+        return $spkac;
     }
 
     /**
@@ -4033,9 +4041,7 @@ class File_X509 {
         }
 
         // If in PEM format, convert to binary.
-        if (preg_match('#^-----BEGIN #', $key)) {
-            $key = base64_decode(preg_replace('#-.+-|[\r\n]#', '', $key));
-        }
+        $key = $this->_extractBER($key);
 
         // Now we have the key string: compute its sha-1 sum.
         if (!class_exists('Crypt_Hash')) {

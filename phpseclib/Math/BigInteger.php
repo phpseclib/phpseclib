@@ -3029,6 +3029,37 @@ class Math_BigInteger {
     }
 
     /**
+     * Generates a random BigInteger
+     *
+     * Byte length is equal to $length. Uses crypt_random if it's loaded and mt_rand if it's not.
+     *
+     * @param Integer $length
+     * @return Math_BigInteger
+     * @access private
+     */
+    function _random_number_helper($size)
+    {
+        $crypt_random = function_exists('crypt_random_string') || (!class_exists('Crypt_Random') && function_exists('crypt_random_string'));
+        if ($crypt_random) {
+            $random = crypt_random_string($size);
+        } else {
+            $random = '';
+
+            if ($size & 1) {
+                $random.= chr(mt_rand(0, 255));
+            }
+
+            $blocks = $size >> 1;
+            for ($i = 0; $i < $blocks; ++$i) {
+                // mt_rand(-2147483648, 0x7FFFFFFF) always produces -2147483648 on some systems
+                $random.= pack('n', mt_rand(0, 0xFFFF));
+            }
+        }
+
+        return new Math_BigInteger($random, 256);
+    }
+
+    /**
      * Generate a random number
      *
      * @param optional Integer $min
@@ -3057,46 +3088,45 @@ class Math_BigInteger {
             $min = $temp;
         }
 
-        $max = $max->subtract($min);
-        $max = ltrim($max->toBytes(), chr(0));
-        $size = strlen($max) - 1;
-
-        $crypt_random = function_exists('crypt_random_string') || (!class_exists('Crypt_Random') && function_exists('crypt_random_string'));
-        if ($crypt_random) {
-            $random = crypt_random_string($size);
-        } else {
-            $random = '';
-
-            if ($size & 1) {
-                $random.= chr(mt_rand(0, 255));
-            }
-
-            $blocks = $size >> 1;
-            for ($i = 0; $i < $blocks; ++$i) {
-                // mt_rand(-2147483648, 0x7FFFFFFF) always produces -2147483648 on some systems
-                $random.= pack('n', mt_rand(0, 0xFFFF));
-            }
+        static $one;
+        if (!isset($one)) {
+            $one = new Math_BigInteger(1);
         }
 
-        $fragment = new Math_BigInteger($random, 256);
-        $leading = $fragment->compare(new Math_BigInteger(substr($max, 1), 256)) > 0 ?
-            ord($max[0]) - 1 : ord($max[0]);
+        $max = $max->subtract($min->subtract($one));
+        $size = strlen(ltrim($max->toBytes(), chr(0)));
 
-        if (!$crypt_random) {
-            $msb = chr(mt_rand(0, $leading));
-        } else {
-            $cutoff = floor(0xFF / $leading) * $leading;
-            while (true) {
-                $msb = ord(crypt_random_string(1));
-                if ($msb <= $cutoff) {
-                    $msb%= $leading;
-                    break;
-                }
-            }
-            $msb = chr($msb);
+        /*
+            doing $random % $max doesn't work because some numbers will be more likely to occur than others.
+            eg. if $max is 140 and $random's max is 255 then that'd mean both $random = 5 and $random = 145
+            would produce 5 whereas the only value of random that could produce 139 would be 139. ie.
+            not all numbers would be equally likely. some would be more likely than others.
+
+            creating a whole new random number until you find one that is within the range doesn't work
+            because, for sufficiently small ranges, the likelihood that you'd get a number within that range
+            would be pretty small. eg. with $random's max being 255 and if your $max being 1 the probability
+            would be pretty high that $random would be greater than $max.
+
+            phpseclib works around this using the technique described here:
+
+            http://crypto.stackexchange.com/questions/5708/creating-a-small-number-from-a-cryptographically-secure-random-string
+        */
+        $random_max = new Math_BigInteger(chr(1) . str_repeat("\0", $size), 256);
+        $random = $this->_random_number_helper($size);
+
+        list($max_multiple) = $random_max->divide($max);
+        $max_multiple = $max_multiple->multiply($max);
+
+        while ($random->compare($max_multiple) >= 0) {
+            $random = $random->subtract($max_multiple);
+            $random_max = $random_max->subtract($max_multiple);
+            $random = $random->bitwise_leftShift(8);
+            $random = $random->add($this->_random_number_helper(1));
+            $random_max = $random_max->bitwise_leftShift(8);
+            list($max_multiple) = $random_max->divide($max);
+            $max_multiple = $max_multiple->multiply($max);
         }
-
-        $random = new Math_BigInteger($msb . $random, 256);
+        list(, $random) = $random->divide($max);
 
         return $this->_normalize($random->add($min));
     }
@@ -3116,45 +3146,23 @@ class Math_BigInteger {
      */
     function randomPrime($min = false, $max = false, $timeout = false)
     {
+        if ($min === false) {
+            $min = new Math_BigInteger(0);
+        }
+
+        if ($max === false) {
+            $max = new Math_BigInteger(0x7FFFFFFF);
+        }
+
         $compare = $max->compare($min);
 
         if (!$compare) {
-            return $min;
+            return $min->isPrime() ? $min : false;
         } else if ($compare < 0) {
             // if $min is bigger then $max, swap $min and $max
             $temp = $max;
             $max = $min;
             $min = $temp;
-        }
-
-        // gmp_nextprime() requires PHP 5 >= 5.2.0 per <http://php.net/gmp-nextprime>.
-        if ( MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP && function_exists('gmp_nextprime') ) {
-            // we don't rely on Math_BigInteger::random()'s min / max when gmp_nextprime() is being used since this function
-            // does its own checks on $max / $min when gmp_nextprime() is used.  When gmp_nextprime() is not used, however,
-            // the same $max / $min checks are not performed.
-            if ($min === false) {
-                $min = new Math_BigInteger(0);
-            }
-
-            if ($max === false) {
-                $max = new Math_BigInteger(0x7FFFFFFF);
-            }
-
-            $x = $this->random($min, $max);
-
-            $x->value = gmp_nextprime($x->value);
-
-            if ($x->compare($max) <= 0) {
-                return $x;
-            }
-
-            $x->value = gmp_nextprime($min->value);
-
-            if ($x->compare($max) <= 0) {
-                return $x;
-            }
-
-            return false;
         }
 
         static $one, $two;
@@ -3166,6 +3174,23 @@ class Math_BigInteger {
         $start = time();
 
         $x = $this->random($min, $max);
+
+        // gmp_nextprime() requires PHP 5 >= 5.2.0 per <http://php.net/gmp-nextprime>.
+        if ( MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP && function_exists('gmp_nextprime') ) {
+            $p = new Math_BigInteger();
+            $p->value = gmp_nextprime($x->value);
+
+            if ($p->compare($max) <= 0) {
+                return $p;
+            }
+
+            if (!$min->equals($x)) {
+                $x = $x->subtract($one);
+            }
+
+            return $x->randomPrime($min, $x);
+        }
+
         if ($x->equals($two)) {
             return $x;
         }
