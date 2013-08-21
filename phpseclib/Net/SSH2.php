@@ -2224,8 +2224,9 @@ class Net_SSH2 {
 
         switch ($type) {
             case NET_SSH2_MSG_CHANNEL_SUCCESS:
-                break;
+            // if a pty can't be opened maybe commands can still be executed
             case NET_SSH2_MSG_CHANNEL_FAILURE:
+                break;
             default:
                 user_error('Unable to request pseudo-terminal');
                 return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
