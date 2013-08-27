@@ -3138,7 +3138,7 @@ class Net_SSH2 {
                 $hex = substr(
                            preg_replace(
                                '#(.)#es',
-                               '"' . $boundary . '" . str_pad(dechex(ord(substr("\\1", -1))), 2, "0", STR_PAD_LEFT)',
+                               '"' . $boundary . '"' . str_pad(dechex(ord(substr("\\1", -1))), 2, "0", STR_PAD_LEFT),
                                $fragment),
                            strlen($boundary)
                        );
