@@ -159,9 +159,11 @@ class Net_SFTP_Stream {
             return false;
         }
 
-        $context = stream_context_get_params($this->context);
-        if (isset($context['notification'])) {
-            $this->notification = $context['notification'];
+        if (isset($this->context)) {
+            $context = stream_context_get_params($this->context);
+            if (isset($context['notification'])) {
+                $this->notification = $context['notification'];
+            }
         }
 
         if ($host[0] == '$') {
@@ -172,7 +174,9 @@ class Net_SFTP_Stream {
             }
             $this->sftp = $$host;
         } else {
-            $context = stream_context_get_options($this->context);
+            if (isset($this->contenxt)) {
+                $context = stream_context_get_options($this->context);
+            }
             if (isset($context['sftp']['session'])) {
                 $sftp = $context['sftp']['session'];
             }
