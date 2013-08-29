@@ -1440,7 +1440,7 @@ class Net_SFTP extends Net_SSH2 {
      * NET_SFTP_LOCAL_FILE | NET_SFTP_RESUME
      *
      * If you wanted to simply append the full contents of a local file to the full contents of a remote file you'd replace
-     * NET_SFTP_RESUME with NET_SFTP_RESUME start.
+     * NET_SFTP_RESUME with NET_SFTP_RESUME_START.
      *
      * If $mode & (NET_SFTP_RESUME | NET_SFTP_RESUME_START) then NET_SFTP_RESUME_START will be assumed.
      *
