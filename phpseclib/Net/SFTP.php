@@ -1444,7 +1444,7 @@ class Net_SFTP extends Net_SSH2 {
      *
      * If $mode & (NET_SFTP_RESUME | NET_SFTP_RESUME_START) then NET_SFTP_RESUME_START will be assumed.
      *
-     * $start and $local_start give you more fine grained control over this process and take precident over NET_SFTP_RESUME*
+     * $start and $local_start give you more fine grained control over this process and take precident over NET_SFTP_RESUME
      * when they're non-negative. ie. $start could let you write at the end of a file (like NET_SFTP_RESUME) or in the middle
      * of one. $local_start could let you start your reading from the end of a file (like NET_SFTP_RESUME_START) or in the
      * middle of one.
