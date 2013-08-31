@@ -3339,6 +3339,8 @@ class Net_SSH2 {
 
         switch ($this->signature_format) {
             case 'ssh-dss':
+                $zero = new Math_BigInteger();
+
                 $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
                 $p = new Math_BigInteger($this->_string_shift($server_public_host_key, $temp['length']), -256);
 
@@ -3363,9 +3365,13 @@ class Net_SSH2 {
                 $r = new Math_BigInteger($this->_string_shift($signature, 20), 256);
                 $s = new Math_BigInteger($this->_string_shift($signature, 20), 256);
 
-                if ($r->compare($q) >= 0 || $s->compare($q) >= 0) {
-                    user_error('Invalid signature');
-                    return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                switch (true) {
+                    case $r->equals($zero):
+                    case $r->compare($q) >= 0:
+                    case $s->equals($zero):
+                    case $s->compare($q) >= 0:
+                        user_error('Invalid signature');
+                        return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
                 }
 
                 $w = $s->modInverse($q);
