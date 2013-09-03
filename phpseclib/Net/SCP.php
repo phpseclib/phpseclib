@@ -151,7 +151,7 @@ class Net_SCP {
      * So, for example, if you set $data to 'filename.ext' and then do Net_SCP::get(), you will get a file, twelve bytes
      * long, containing 'filename.ext' as its contents.
      *
-     * Setting $mode to NET_SFTP_LOCAL_FILE will change the above behavior.  With NET_SFTP_LOCAL_FILE, $remote_file will 
+     * Setting $mode to NET_SCP_LOCAL_FILE will change the above behavior.  With NET_SCP_LOCAL_FILE, $remote_file will 
      * contain as many bytes as filename.ext does on your local filesystem.  If your filename.ext is 1MB then that is how
      * large $remote_file will be, as well.
      *
@@ -182,7 +182,24 @@ class Net_SCP {
         }
 
         $remote_file = basename($remote_file);
-        $this->_send('C0644 ' . strlen($data) . ' ' . $remote_file . "\n");
+
+        if ($mode == NET_SCP_STRING) {
+            $size = strlen($data);
+        } else {
+            if (!is_file($data)) {
+                user_error("$data is not a valid file", E_USER_NOTICE);
+                return false;
+            }
+
+            $fp = @fopen($data, 'rb');
+            if (!$fp) {
+                fclose($fp);
+                return false;
+            }
+            $size = filesize($data);
+        }
+
+        $this->_send('C0644 ' . $size . ' ' . $remote_file . "\n");
 
         $temp = $this->_receive();
         if ($temp !== chr(0)) {
@@ -192,15 +209,6 @@ class Net_SCP {
         if ($mode == NET_SCP_STRING) {
             $this->_send($data);
         } else {
-            if (!is_file($data)) {
-                user_error("$data is not a valid file", E_USER_NOTICE);
-                return false;
-            }
-            $fp = @fopen($data, 'rb');
-            if (!$fp) {
-                return false;
-            }
-            $size = filesize($data);
             for ($i = 0; $i < $size; $i += $this->packet_size) {
                 $this->_send(fgets($fp, $this->packet_size));
             }
