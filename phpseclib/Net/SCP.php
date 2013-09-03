@@ -207,6 +207,8 @@ class Net_SCP {
             fclose($fp);	
         }
         $this->_close();
+
+        return true;
     }
 
     /**
