@@ -206,15 +206,17 @@ class Net_SCP {
             return false;
         }
 
-        if ($mode == NET_SCP_STRING) {
-            $this->_send($data);
-        } else {
-            for ($i = 0; $i < $size; $i += $this->packet_size) {
-                $this->_send(fgets($fp, $this->packet_size));
-            }
-            fclose($fp);	
+        $sent = 0;
+        while ($sent < $size) {
+            $temp = $mode & NET_SCP_STRING ? substr($data, $sent, $this->packet_size) : fread($fp, $this->packet_size);
+            $this->_send($temp);
+            $sent+= strlen($temp);
         }
         $this->_close();
+
+        if ($mode != NET_SCP_STRING) {
+            fclose($fp);
+        }
 
         return true;
     }
