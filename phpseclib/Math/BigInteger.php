@@ -272,7 +272,30 @@ class Math_BigInteger {
         }
 
         if (function_exists('openssl_public_encrypt') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
-            define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
+            // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
+            ob_start();
+            phpinfo();
+            $content = ob_get_contents();
+            ob_end_clean();
+
+            preg_match_all('#OpenSSL (Header|Library) Version(.*)#im', $content, $matches);
+
+            $versions = array();
+            if (!empty($matches[1])) {
+                for ($i = 0; $i < count($matches[1]); $i++) {
+                    $versions[$matches[1][$i]] = trim(str_replace('=>', '', strip_tags($matches[2][$i])));
+                }
+            }
+
+            switch (true) {
+                case !isset($versions['Header']):
+                case !isset($versions['Library']):
+                case $versions['Header'] != $versions['Library']:
+                    define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
+                    break;
+                default:
+                    define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
+            }
         }
 
         if (!defined('PHP_INT_SIZE')) {
@@ -438,7 +461,6 @@ class Math_BigInteger {
                         }
 
                         $x = str_pad($x, strlen($x) + ((MATH_BIGINTEGER_MAX10_LEN - 1) * strlen($x)) % MATH_BIGINTEGER_MAX10_LEN, 0, STR_PAD_LEFT);
-
                         while (strlen($x)) {
                             $temp = $temp->multiply($multiplier);
                             $temp = $temp->add(new Math_BigInteger($this->_int2bytes(substr($x, 0, MATH_BIGINTEGER_MAX10_LEN)), 256));

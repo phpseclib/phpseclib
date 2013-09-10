@@ -469,7 +469,31 @@ class Crypt_RSA {
         if ( !defined('CRYPT_RSA_MODE') ) {
             switch (true) {
                 case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>=') && file_exists($this->configFile):
-                    define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_OPENSSL);
+                    // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
+                    ob_start();
+                    phpinfo();
+                    $content = ob_get_contents();
+                    ob_end_clean();
+
+                    preg_match_all('#OpenSSL (Header|Library) Version(.*)#im', $content, $matches);
+
+                    $versions = array();
+                    if (!empty($matches[1])) {
+                       for ($i = 0; $i < count($matches[1]); $i++) {
+                          $versions[$matches[1][$i]] = trim(str_replace('=>', '', strip_tags($matches[2][$i])));
+                       }
+                    }
+
+                    switch (true) {
+                        case !isset($versions['Header']):
+                        case !isset($versions['Library']):
+                        case $versions['Header'] != $versions['Library']:
+                            define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
+                            define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
+                            break;
+                        default:
+                            define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_OPENSSL);
+                    }
                     break;
                 default:
                     define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
