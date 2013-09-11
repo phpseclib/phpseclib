@@ -467,7 +467,14 @@ class Crypt_RSA {
         $this->configFile = CRYPT_RSA_OPENSSL_CONFIG;
 
         if ( !defined('CRYPT_RSA_MODE') ) {
-            switch (true) {
+            // Math/BigInteger's openssl requirements are a little less stringent than Crypt/RSA's. in particular,
+            // Math/BigInteger doesn't require an openssl.cfg file whereas Crypt/RSA does. so if Math/BigInteger
+            // can't use OpenSSL it can be pretty trivially assumed, then, that Crypt/RSA can't either.
+            if ( defined('MATH_BIGINTEGER_OPENSSL_DISABLE') ) {
+                define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
+            }
+
+            switch ( !defined('CRYPT_RSA_MODE') ) { // ie. only run this if the above didn't set CRYPT_RSA_MODE already
                 case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>=') && file_exists($this->configFile):
                     // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
                     ob_start();
