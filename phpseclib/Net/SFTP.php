@@ -392,6 +392,10 @@ class Net_SFTP extends Net_SSH2 {
             $this->open_flags,
             $this->file_types
         );
+
+        if (!defined('NET_SFTP_QUEUE_SIZE')) {
+            define('NET_SFTP_QUEUE_SIZE', 50);
+        }
     }
 
     /**
@@ -1290,7 +1294,7 @@ class Net_SFTP extends Net_SSH2 {
 
                 $i++;
 
-                if ($i >= 50) {
+                if ($i >= NET_SFTP_QUEUE_SIZE) {
                     if (!$this->_read_put_responses($i)) {
                         return false;
                     }
@@ -1305,7 +1309,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $i++;
 
-        if ($i >= 50) {
+        if ($i >= NET_SFTP_QUEUE_SIZE) {
             if (!$this->_read_put_responses($i)) {
                 return false;
             }
@@ -1549,7 +1553,7 @@ class Net_SFTP extends Net_SSH2 {
 
             $i++;
 
-            if ($i == 50) {
+            if ($i == NET_SFTP_QUEUE_SIZE) {
                 if (!$this->_read_put_responses($i)) {
                     $i = 0;
                     break;
@@ -1835,7 +1839,7 @@ class Net_SFTP extends Net_SSH2 {
 
                 $i++;
 
-                if ($i >= 50) {
+                if ($i >= NET_SFTP_QUEUE_SIZE) {
                     if (!$this->_read_put_responses($i)) {
                         return false;
                     }
@@ -1851,7 +1855,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $i++;
 
-        if ($i >= 50) {
+        if ($i >= NET_SFTP_QUEUE_SIZE) {
             if (!$this->_read_put_responses($i)) {
                 return false;
             }
