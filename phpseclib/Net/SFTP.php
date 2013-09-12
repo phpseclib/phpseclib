@@ -268,14 +268,7 @@ class Net_SFTP extends Net_SSH2 {
     {
         parent::Net_SSH2($host, $port, $timeout);
 
-        switch ($this->server_identifier) {
-            case 'SSH-2.0-ROSSSH':
-                // PuTTY uses this as the size
-                $this->max_sftp_packet = 1 << 15;
-                break;
-            default:
-                $this->max_sftp_packet = 1 << 20;
-        }
+        $this->max_sftp_packet = 1 << 15;
 
         $this->packet_types = array(
             1  => 'NET_SFTP_INIT',
