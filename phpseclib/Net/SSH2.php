@@ -2552,7 +2552,7 @@ class Net_SSH2 {
                     $this->_string_shift($payload, 1);
                     extract(unpack('Nchannel', $this->_string_shift($payload, 4)));
                     extract(unpack('Nwindow_size', $this->_string_shift($payload, 4)));
-                    $this->window_size_client_to_server[$channel] = $window_size;
+                    $this->window_size_client_to_server[$channel]+= $window_size;
 
                     $payload = ($this->bitmap & NET_SSH2_MASK_WINDOW_ADJUST) ? true : $this->_get_binary_packet();
             }
@@ -2958,6 +2958,17 @@ class Net_SSH2 {
             $this->window_size_client_to_server[$client_channel]
         ) - 4;
         while (strlen($data) > $max_size) {
+            if (!$this->window_size_client_to_server[$client_channel]) {
+                $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
+                // using an invalid channel will let the buffers be built up for the valid channels
+                $output = $this->_get_channel_packet(-1);
+                $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
+                $max_size = min(
+                    $this->packet_size_client_to_server[$client_channel],
+                    $this->window_size_client_to_server[$client_channel]
+                ) - 4;
+            }
+
             $packet = pack('CN2a*',
                 NET_SSH2_MSG_CHANNEL_DATA,
                 $this->server_channels[$client_channel],
@@ -2969,17 +2980,6 @@ class Net_SSH2 {
 
             if (!$this->_send_binary_packet($packet)) {
                 return false;
-            }
-
-            if ($max_size == $this->window_size_client_to_server[$client_channel] - 4) {
-                $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
-                // using an invalid channel will let the buffers be built up for the valid channels
-                $this->_get_channel_packet(-1);
-                $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
-                $max_size = min(
-                    $this->packet_size_client_to_server[$client_channel],
-                    $this->window_size_client_to_server[$client_channel]
-                ) - 4;
             }
         }
 
