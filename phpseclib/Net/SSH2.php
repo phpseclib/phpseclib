@@ -1747,17 +1747,18 @@ class Net_SSH2 {
             strlen('password'), 'password', 0, strlen($password), $password
         );
 
-        if (!$this->_send_binary_packet($packet)) {
-            return false;
-        }
-
-        // remove the username and password from the last logged packet
-        if (defined('NET_SSH2_LOGGING') && NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
-            $packet = pack('CNa*Na*Na*CNa*',
+        // remove the username and password from the logged packet
+        if (!defined('NET_SSH2_LOGGING')) {
+            $logged = NULL;
+        } else {
+            $logged = pack('CNa*Na*Na*CNa*',
                 NET_SSH2_MSG_USERAUTH_REQUEST, strlen('username'), 'username', strlen('ssh-connection'), 'ssh-connection',
                 strlen('password'), 'password', 0, strlen('password'), 'password'
             );
-            $this->message_log[count($this->message_log) - 1] = $packet;
+        }
+
+        if (!$this->_send_binary_packet($packet, $logged)) {
+            return false;
         }
 
         $response = $this->_get_binary_packet();
@@ -1910,17 +1911,16 @@ class Net_SSH2 {
                     $logged.= pack('Na*', strlen('dummy-answer'), 'dummy-answer');
                 }
 
-                if (!$this->_send_binary_packet($packet)) {
+                if (!$this->_send_binary_packet($packet, $logged)) {
                     return false;
                 }
 
-                if (defined('NET_SSH2_LOGGING')) {
+                if (defined('NET_SSH2_LOGGING') && NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
                         'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE',
                         $this->message_number_log[count($this->message_number_log) - 1]
                     );
-                    $this->message_log[count($this->message_log) - 1] = $logged;
                 }
 
                 /*
@@ -1993,7 +1993,7 @@ class Net_SSH2 {
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
-                if (defined('NET_SSH2_LOGGING')) {
+                if (defined('NET_SSH2_LOGGING') && NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
                         'NET_SSH2_MSG_USERAUTH_PK_OK',
@@ -2806,11 +2806,12 @@ class Net_SSH2 {
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
      * @param String $data
+     * @param optional String $logged
      * @see Net_SSH2::_get_binary_packet()
      * @return Boolean
      * @access private
      */
-    function _send_binary_packet($data)
+    function _send_binary_packet($data, $logged = NULL)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             user_error('Connection closed prematurely');
@@ -2853,7 +2854,7 @@ class Net_SSH2 {
             $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
             $message_number = '-> ' . $message_number .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
-            $this->_append_log($message_number, $data);
+            $this->_append_log($message_number, isset($logged) ? $logged : $data);
             $this->last_packet = $current;
         }
 
