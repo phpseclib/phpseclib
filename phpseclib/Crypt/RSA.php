@@ -502,7 +502,7 @@ class Crypt_RSA {
                             define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_OPENSSL);
                     }
                     break;
-                default:
+                case true:
                     define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
             }
         }
