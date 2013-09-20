@@ -491,15 +491,16 @@ class Crypt_RSA {
                        }
                     }
 
+                    // it doesn't appear that OpenSSL versions were reported upon until PHP 5.3+
                     switch (true) {
                         case !isset($versions['Header']):
                         case !isset($versions['Library']):
-                        case $versions['Header'] != $versions['Library']:
-                            define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
-                            define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
+                        case $versions['Header'] == $versions['Library']:
+                            define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_OPENSSL);
                             break;
                         default:
-                            define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_OPENSSL);
+                            define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
+                            define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
                     }
                     break;
                 case true:

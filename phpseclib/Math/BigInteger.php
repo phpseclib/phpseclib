@@ -287,14 +287,15 @@ class Math_BigInteger {
                 }
             }
 
+            // it doesn't appear that OpenSSL versions were reported upon until PHP 5.3+
             switch (true) {
                 case !isset($versions['Header']):
                 case !isset($versions['Library']):
-                case $versions['Header'] != $versions['Library']:
-                    define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
+                case $versions['Header'] == $versions['Library']:
+                    define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
                     break;
                 default:
-                    define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
+                    define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
             }
         }
 
