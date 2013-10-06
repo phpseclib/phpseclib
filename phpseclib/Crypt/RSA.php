@@ -1475,7 +1475,7 @@ class Crypt_RSA {
     function setPublicKey($key = false, $type = false)
     {
         // if a public key has already been loaded return false
-        if (isset($this->publicExponent)) {
+        if (!empty($this->publicExponent)) {
             return false;
         }
 
