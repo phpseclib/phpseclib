@@ -2714,6 +2714,7 @@ class File_X509 {
      */
     function setPublicKey($key)
     {
+        $key->setPublicKey();
         $this->publicKey = $key;
     }
 
