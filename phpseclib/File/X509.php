@@ -3228,9 +3228,10 @@ class File_X509 {
             $this->setExtension('id-ce-subjectKeyIdentifier', $subject->currentKeyIdentifier);
         }
 
+        $altName = array();
+
         if (isset($subject->domains) && count($subject->domains) > 1) {
-            $this->setExtension('id-ce-subjectAltName',
-                array_map(array('File_X509', '_dnsName'), $subject->domains));
+            $altName = array_map(array('File_X509', '_dnsName'), $subject->domains);
         }
 
         if (isset($subject->ipAddresses) && count($subject->ipAddresses)) {
@@ -3244,8 +3245,12 @@ class File_X509 {
                 }
             }
             if (count($ipAddresses)) {
-                $this->setExtension('id-ce-subjectAltName', $ipAddresses);
+                $altName = array_merge($altName, $ipAddresses);
             }
+        }
+
+        if (!empty($altName)) {
+            $this->setExtension('id-ce-subjectAltName', $altName);
         }
 
         if ($this->caFlag) {
