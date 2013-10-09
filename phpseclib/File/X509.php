@@ -1562,7 +1562,7 @@ class File_X509 {
                    corresponding to the extension type identified by extnID */
                 $map = $this->_getMapping($id);
                 if (!is_bool($map)) {
-                    $mapped = $asn1->asn1map($decoded[0], $map);
+                    $mapped = $asn1->asn1map($decoded[0], $map, array('iPAddress' => array($this, '_decodeIP')));
                     $value = $mapped === false ? $decoded[0] : $mapped;
 
                     if ($id == 'id-ce-certificatePolicies') {
@@ -1644,7 +1644,7 @@ class File_X509 {
                         unset($extensions[$i]);
                     }
                 } else {
-                    $temp = $asn1->encodeDER($value, $map);
+                    $temp = $asn1->encodeDER($value, $map, array('iPAddress' => array($this, '_encodeIP')));
                     $value = base64_encode($temp);
                 }
             }
@@ -2176,6 +2176,36 @@ class File_X509 {
             default:
                 return $key;
         }
+    }
+
+    /**
+     * Decodes an IP address
+     *
+     * Takes in a base64 encoded "blob" and returns a human readable IP address
+     *
+     * @param String $ip
+     * @access private
+     * @return String
+     */
+    function _decodeIP($ip)
+    {
+        $ip = base64_decode($ip);
+        list(, $ip) = unpack('N', $ip);
+        return long2ip($ip);
+    }
+
+    /**
+     * Encodes an IP address
+     *
+     * Takes a human readable IP address into a base64-encoded "blob"
+     *
+     * @param String $ip
+     * @access private
+     * @return String
+     */
+    function _encodeIP($ip)
+    {
+        return base64_encode(pack('N', ip2long($ip)));
     }
 
     /**
@@ -3203,6 +3233,21 @@ class File_X509 {
                 array_map(array('File_X509', '_dnsName'), $subject->domains));
         }
 
+        if (isset($subject->ipAddresses) && count($subject->ipAddresses)) {
+            // should an IP address appear as the CN if no domain name is specified? idk
+            //$ips = count($subject->domains) ? $subject->ipAddresses : array_slice($subject->ipAddresses, 1);
+            $ipAddresses = array();
+            foreach ($subject->ipAddresses as $ipAddress) {
+                $encoded = $subject->_ipAddress($ipAddress);
+                if ($encoded !== false) {
+                    $ipAddresses[] = $encoded;
+                }
+            }
+            if (count($ipAddresses)) {
+                $this->setExtension('id-ce-subjectAltName', $ipAddresses);
+            }
+        }
+
         if ($this->caFlag) {
             $keyUsage = $this->getExtension('id-ce-keyUsage');
             if (!$keyUsage) {
@@ -4099,6 +4144,23 @@ class File_X509 {
     }
 
     /**
+     * Set the IP Addresses's which the cert is to be valid for
+     *
+     * @access public
+     * @param String $ipAddress optional
+     */
+    function setIPAddress()
+    {
+        $this->ipAddresses = func_get_args();
+        /*
+        if (!isset($this->domains)) {
+            $this->removeDNProp('id-at-commonName');
+            $this->setDNProp('id-at-commonName', $this->ipAddresses[0]);
+        }
+        */
+    }
+
+    /**
      * Helper function to build domain array
      *
      * @access private
@@ -4108,6 +4170,20 @@ class File_X509 {
     function _dnsName($domain)
     {
         return array('dNSName' => $domain);
+    }
+
+    /**
+     * Helper function to build IP Address array
+     *
+     * (IPv6 is not currently supported)
+     *
+     * @access private
+     * @param String $address
+     * @return Array
+     */
+    function _iPAddress($address)
+    {
+        return array('iPAddress' => $address);
     }
 
     /**
