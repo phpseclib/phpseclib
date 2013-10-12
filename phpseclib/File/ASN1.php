@@ -540,7 +540,7 @@ class File_ASN1 {
                     }
                     if (isset($value)) {
                         if (isset($special[$key])) {
-                            $value = $special[$key]($value);
+                            $value = call_user_func($special[$key], $value);
                         }
                         return array($key => $value);
                     }
@@ -617,7 +617,7 @@ class File_ASN1 {
                     if ($maymatch) {
                         // Got the match: use it.
                         if (isset($special[$key])) {
-                            $candidate = $special[$key]($candidate);
+                            $candidate = call_user_func($special[$key], $candidate);
                         }
                         $map[$key] = $candidate;
                         $i++;
@@ -692,7 +692,7 @@ class File_ASN1 {
 
                         // Got the match: use it.
                         if (isset($special[$key])) {
-                            $candidate = $special[$key]($candidate);
+                            $candidate = call_user_func($special[$key], $candidate);
                         }
                         $map[$key] = $candidate;
                         break;
@@ -832,7 +832,7 @@ class File_ASN1 {
 
         if (isset($idx)) {
             if (isset($special[$idx])) {
-                $source = $special[$idx]($source);
+                $source = call_user_func($special[$idx], $source);
             }
             $this->location[] = $idx;
         }
