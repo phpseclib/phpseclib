@@ -1393,6 +1393,53 @@ class Crypt_RSA {
      */
     function loadKey($key, $type = false)
     {
+        if (is_object($key) && strtolower(get_class($key)) == 'crypt_rsa') {
+            $this->privateKeyFormat = $key->privateKeyFormat;
+            $this->publicKeyFormat = $key->publicKeyFormat;
+            $this->k = $key->k;
+            $this->hLen = $key->hLen;
+            $this->sLen = $key->sLen;
+            $this->mgfHLen = $key->mgfHLen;
+            $this->encryptionMode = $key->encryptionMode;
+            $this->signatureMode = $key->signatureMode;
+            $this->password = $key->password;
+            $this->configFile = $key->configFile;
+            $this->comment = $key->comment;
+
+            if (is_object($key->hash)) {
+                $this->hash = new Crypt_Hash($key->hash->getHash());
+            }
+            if (is_object($key->mgfHash)) {
+                $this->mgfHash = new Crypt_Hash($key->mgfHash->getHash());
+            }
+
+            if (is_object($key->modulus)) {
+                $this->modulus = $key->modulus->copy();
+            }
+            if (is_object($key->exponent)) {
+                $this->exponent = $key->exponent->copy();
+            }
+            if (is_object($key->publicExponent)) {
+                $this->publicExponent = $key->publicExponent->copy();
+            }
+
+            $this->primes = array();
+            $this->exponents = array();
+            $this->coefficients = array();
+
+            foreach ($this->primes as $prime) {
+                $this->primes[] = $prime->copy();
+            }
+            foreach ($this->exponents as $exponent) {
+                $this->exponents[] = $exponent->copy();
+            }
+            foreach ($this->coefficients as $coefficient) {
+                $this->coefficients[] = $coefficient->copy();
+            }
+
+            return true;
+        }
+
         if ($type === false) {
             $types = array(
                 CRYPT_RSA_PUBLIC_FORMAT_RAW,
@@ -1601,6 +1648,18 @@ class Crypt_RSA {
         }
         $key = $this->_getPrivatePublicKey($this->publicKeyFormat);
         return $key !== false ? $key : '';
+    }
+
+    /**
+     *  __clone() magic method
+     *
+     * @access public
+     */
+    function __clone()
+    {
+        $key = new Crypt_RSA();
+        $key->loadKey($this);
+        return $key;
     }
 
     /**

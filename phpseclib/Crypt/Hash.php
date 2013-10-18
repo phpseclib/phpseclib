@@ -83,6 +83,15 @@ define('CRYPT_HASH_MODE_HASH',     3);
  */
 class Crypt_Hash {
     /**
+     * Hash Parameter
+     *
+     * @see Crypt_Hash::setHash()
+     * @var Integer
+     * @access private
+     */
+    var $hashParam;
+
+    /**
      * Byte-length of compression blocks / key (Internal HMAC)
      *
      * @see Crypt_Hash::setAlgorithm()
@@ -175,6 +184,19 @@ class Crypt_Hash {
     }
 
     /**
+     * Gets the hash function.
+     *
+     * As set by the constructor or by the setHash() method.
+     *
+     * @access public
+     * @return String
+     */
+    function getHash()
+    {
+        return $this->hashParam;
+    }
+
+    /**
      * Sets the hash function.
      *
      * @access public
@@ -182,7 +204,7 @@ class Crypt_Hash {
      */
     function setHash($hash)
     {
-        $hash = strtolower($hash);
+        $this->hashParam = $hash = strtolower($hash);
         switch ($hash) {
             case 'md5-96':
             case 'sha1-96':
