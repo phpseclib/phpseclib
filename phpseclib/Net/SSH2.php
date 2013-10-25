@@ -96,8 +96,9 @@ define('NET_SSH2_MASK_WINDOW_ADJUST', 0X00000010);
  * @see Net_SSH2::_get_channel_packet()
  * @access private
  */
-define('NET_SSH2_CHANNEL_EXEC', 0); // PuTTy uses 0x100
-define('NET_SSH2_CHANNEL_SHELL',1);
+define('NET_SSH2_CHANNEL_EXEC',      0); // PuTTy uses 0x100
+define('NET_SSH2_CHANNEL_SHELL',     1);
+define('NET_SSH2_CHANNEL_SUBSYSTEM', 2);
 /**#@-*/
 
 /**#@+
@@ -695,6 +696,13 @@ class Net_SSH2 {
      * @access private
      */
     var $in_request_pty_exec = false;
+
+    /**
+     * Flag set after startSubsystem() is called
+     *
+     * @access private
+     */
+    var $in_subsystem;
 
     /**
      * Contents of stdError
@@ -2253,12 +2261,32 @@ class Net_SSH2 {
     }
 
     /**
+     * Return the channel to be used with read() / write()
+     *
+     * @see Net_SSH2::read()
+     * @see Net_SSH2::write()
+     * @return Integer
+     * @access public
+     */
+    function _get_interactive_channel()
+    {
+        switch (true) {
+            case $this->in_subsystem:
+                return NET_SSH2_CHANNEL_SUBSYSTEM;
+            case $this->in_request_pty_exec:
+                return NET_SSH2_CHANNEL_EXEC;
+            default:
+                return NET_SSH2_CHANNEL_SHELL;
+        }
+    }
+
+    /**
      * Returns the output of an interactive shell
      *
      * Returns when there's a match for $expect, which can take the form of a string literal or,
      * if $mode == NET_SSH2_READ_REGEX, a regular expression.
      *
-     * @see Net_SSH2::read()
+     * @see Net_SSH2::write()
      * @param String $expect
      * @param Integer $mode
      * @return String
@@ -2279,7 +2307,7 @@ class Net_SSH2 {
             return false;
         }
 
-        $channel = $this->in_request_pty_exec ? NET_SSH2_CHANNEL_EXEC : NET_SSH2_CHANNEL_SHELL;
+        $channel = $this->_get_interactive_channel();
 
         $match = $expect;
         while (true) {
@@ -2304,7 +2332,7 @@ class Net_SSH2 {
     /**
      * Inputs a command into an interactive shell.
      *
-     * @see Net_SSH1::interactiveWrite()
+     * @see Net_SSH2::read()
      * @param String $cmd
      * @return Boolean
      * @access public
@@ -2322,7 +2350,75 @@ class Net_SSH2 {
         }
 
         $channel = $this->in_request_pty_exec ? NET_SSH2_CHANNEL_EXEC : NET_SSH2_CHANNEL_SHELL;
-        return $this->_send_channel_packet($channel, $cmd);
+        return $this->_send_channel_packet($this->_get_interactive_channel(), $cmd);
+    }
+
+    /**
+     * Start a subsystem.
+     *
+     * Right now only one subsystem at a time is supported. To support multiple subsystem's stopSubsystem() could accept
+     * a string that contained the name of the subsystem, but at that point, only one subsystem of each type could be opened.
+     * To support multiple subsystem's of the same name maybe it'd be best if startSubsystem() generated a new channel id and
+     * returns that and then that that was passed into stopSubsystem() but that'll be saved for a future date and implemented
+     * if there's sufficient demand for such a feature.
+     *
+     * @see Net_SSH2::stopSubsystem()
+     * @param String $subsystem
+     * @return Boolean
+     * @access public
+     */
+    function startSubsystem($subsystem)
+    {
+        $this->window_size_server_to_client[NET_SSH2_CHANNEL_SUBSYSTEM] = $this->window_size;
+
+        $packet = pack('CNa*N3',
+            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SSH2_CHANNEL_SUBSYSTEM, $this->window_size, 0x4000);
+
+        if (!$this->_send_binary_packet($packet)) {
+            return false;
+        }
+
+        $this->channel_status[NET_SSH2_CHANNEL_SUBSYSTEM] = NET_SSH2_MSG_CHANNEL_OPEN;
+
+        $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_SUBSYSTEM);
+        if ($response === false) {
+            return false;
+        }
+
+        $packet = pack('CNNa*CNa*',
+            NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SSH2_CHANNEL_SUBSYSTEM], strlen('subsystem'), 'subsystem', 1, strlen($subsystem), $subsystem);
+        if (!$this->_send_binary_packet($packet)) {
+            return false;
+        }
+
+        $this->channel_status[NET_SSH2_CHANNEL_SUBSYSTEM] = NET_SSH2_MSG_CHANNEL_REQUEST;
+
+        $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_SUBSYSTEM);
+
+        if ($response === false) {
+           return false;
+        }
+
+        $this->channel_status[NET_SSH2_CHANNEL_SUBSYSTEM] = NET_SSH2_MSG_CHANNEL_DATA;
+
+        $this->bitmap |= NET_SSH2_MASK_SHELL;
+        $this->in_subsystem = true;
+
+        return true;
+    }
+
+    /**
+     * Stops a subsystem.
+     *
+     * @see Net_SSH2::startSubsystem()
+     * @return Boolean
+     * @access public
+     */
+    function stopSubsystem()
+    {
+        $this->in_subsystem = false;
+        $this->_close_channel(NET_SSH2_CHANNEL_SUBSYSTEM);
+        return true;
     }
 
     /**

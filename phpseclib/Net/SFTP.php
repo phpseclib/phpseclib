@@ -88,7 +88,7 @@ define('NET_SFTP_LOG_REALTIME', 3);
  * @see Net_SSH2::_get_channel_packet()
  * @access private
  */
-define('NET_SFTP_CHANNEL', 2);
+define('NET_SFTP_CHANNEL', 0x100);
 
 /**#@+
  * @access public
