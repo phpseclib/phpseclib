@@ -161,10 +161,11 @@ class Net_SCP {
      * @param String $remote_file
      * @param String $data
      * @param optional Integer $mode
+     * @param optional Callable $callback
      * @return Boolean
      * @access public
      */
-    function put($remote_file, $data, $mode = NET_SCP_STRING)
+    function put($remote_file, $data, $mode = NET_SCP_STRING, $callback = null)
     {
         if (!isset($this->ssh)) {
             return false;
@@ -213,6 +214,10 @@ class Net_SCP {
             $temp = $mode & NET_SCP_STRING ? substr($data, $sent, $this->packet_size) : fread($fp, $this->packet_size);
             $this->_send($temp);
             $sent+= strlen($temp);
+
+            if (is_callable($callback)) {
+                $callback($sent);
+            }
         }
         $this->_close();
 
