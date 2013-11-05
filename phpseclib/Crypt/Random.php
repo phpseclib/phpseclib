@@ -46,7 +46,7 @@
  *
  * @access private
  */
-if (defined('CRYPT_RANDOM_IS_WINDOWS') === false) {
+if (!defined('CRYPT_RANDOM_IS_WINDOWS')) {
     define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
 }
 
