@@ -23,7 +23,7 @@ namespace PhpSecLib\Crypt;
  * <?php
  *    include('Crypt/RC4.php');
  *
- *    $rc4 = new Crypt_RC4();
+ *    $rc4 = new RC4();
  *
  *    $rc4->setKey('abcdefgh');
  *
@@ -56,7 +56,7 @@ namespace PhpSecLib\Crypt;
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_RC4
+ * @package    RC4
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -91,9 +91,9 @@ define('CRYPT_RC4_DECRYPT', 1);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_RC4
+ * @package RC4
  */
-class Crypt_RC4 extends Base {
+class RC4 extends Base {
     /**
      * Block Length of the cipher
      *
@@ -168,7 +168,7 @@ class Crypt_RC4 extends Base {
      * Determines whether or not the mcrypt extension should be used.
      *
      * @see Crypt_Base::Crypt_Base()
-     * @return Crypt_RC4
+     * @return RC4
      * @access public
      */
     function Crypt_RC4()

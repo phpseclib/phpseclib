@@ -203,8 +203,8 @@ function crypt_random_string($length)
             case class_exists('DES'):
                 $crypto = new DES(CRYPT_DES_MODE_CTR);
                 break;
-            case class_exists('Crypt_RC4'):
-                $crypto = new Crypt_RC4();
+            case class_exists('RC4'):
+                $crypto = new RC4();
                 break;
             default:
                 $crypto = $seed;
