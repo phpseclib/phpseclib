@@ -197,7 +197,7 @@ define('CRYPT_RSA_PRIVATE_FORMAT_XML', 2);
 /**
  * Raw public key
  *
- * An array containing two Math_BigInteger objects.
+ * An array containing two BigInteger objects.
  *
  * The exponent can be indexed with any of the following:
  *

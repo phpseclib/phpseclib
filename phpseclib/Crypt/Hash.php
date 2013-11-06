@@ -801,7 +801,7 @@ class Hash {
      * Add
      *
      * _sha256() adds multiple unsigned 32-bit integers.  Since PHP doesn't support unsigned integers and since the
-     * possibility of overflow exists, care has to be taken.  Math_BigInteger() could be used but this should be faster.
+     * possibility of overflow exists, care has to be taken.  BigInteger() could be used but this should be faster.
      *
      * @param Integer $...
      * @return Integer
