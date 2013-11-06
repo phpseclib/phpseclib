@@ -1,6 +1,8 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
+namespace PhpSecLib\File;
+
 /**
  * Pure-PHP ASN.1 Parser
  *
