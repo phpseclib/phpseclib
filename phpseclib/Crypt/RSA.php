@@ -770,7 +770,7 @@ class Crypt_RSA {
                         $symkey.= pack('H*', sha1($temp));
                     }
                     $symkey = substr($symkey, 0, 32);
-                    $crypto = new Crypt_AES();
+                    $crypto = new AES();
 
                     $crypto->setKey($symkey);
                     $crypto->disablePadding();
@@ -981,11 +981,11 @@ class Crypt_RSA {
                     }
                     switch ($matches[1]) {
                         case 'AES-256-CBC':
-                            $crypto = new Crypt_AES();
+                            $crypto = new AES();
                             break;
                         case 'AES-128-CBC':
                             $symkey = substr($symkey, 0, 16);
-                            $crypto = new Crypt_AES();
+                            $crypto = new AES();
                             break;
                         case 'DES-EDE3-CFB':
                             $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CFB);
@@ -1213,7 +1213,7 @@ class Crypt_RSA {
                             $symkey.= pack('H*', sha1($temp));
                         }
                         $symkey = substr($symkey, 0, 32);
-                        $crypto = new Crypt_AES();
+                        $crypto = new AES();
                 }
 
                 if ($encryption != 'none') {

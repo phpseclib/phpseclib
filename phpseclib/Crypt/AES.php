@@ -10,13 +10,13 @@ namespace PhpSecLib\Crypt;
  *
  * PHP versions 4 and 5
  *
- * If {@link Crypt_AES::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
- * {@link Crypt_AES::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's 136-bits
- * it'll be null-padded to 192-bits and 192 bits will be the key length until {@link Crypt_AES::setKey() setKey()}
+ * If {@link AES::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
+ * {@link AES::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's 136-bits
+ * it'll be null-padded to 192-bits and 192 bits will be the key length until {@link AES::setKey() setKey()}
  * is called, again, at which point, it'll be recalculated.
  *
- * Since Crypt_AES extends Crypt_Rijndael, some functions are available to be called that, in the context of AES, don't
- * make a whole lot of sense.  {@link Crypt_AES::setBlockLength() setBlockLength()}, for instance.  Calling that function,
+ * Since AES extends Crypt_Rijndael, some functions are available to be called that, in the context of AES, don't
+ * make a whole lot of sense.  {@link AES::setBlockLength() setBlockLength()}, for instance.  Calling that function,
  * however possible, won't do anything (AES has a fixed block length whereas Rijndael has a variable one).
  *
  * Here's a short example of how to use this library:
@@ -24,7 +24,7 @@ namespace PhpSecLib\Crypt;
  * <?php
  *    include('Crypt/AES.php');
  *
- *    $aes = new Crypt_AES();
+ *    $aes = new AES();
  *
  *    $aes->setKey('abcdefghijklmnop');
  *
@@ -57,7 +57,7 @@ namespace PhpSecLib\Crypt;
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_AES
+ * @package    AES
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -123,9 +123,9 @@ define('CRYPT_AES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_AES
+ * @package AES
  */
-class Crypt_AES extends Crypt_Rijndael {
+class AES extends Crypt_Rijndael {
     /**
      * The namespace used by the cipher for its constants.
      *
@@ -167,7 +167,7 @@ class Crypt_AES extends Crypt_Rijndael {
     /**
      * Dummy function
      *
-     * Since Crypt_AES extends Crypt_Rijndael, this function is, technically, available, but it doesn't do anything.
+     * Since AES extends Crypt_Rijndael, this function is, technically, available, but it doesn't do anything.
      *
      * @see Crypt_Rijndael::setBlockLength()
      * @access public

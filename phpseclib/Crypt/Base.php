@@ -388,8 +388,8 @@ class Crypt_Base {
      * for each cipher.
      *
      * Example:
-     * $aes = new Crypt_AES(CRYPT_AES_MODE_CFB); // $aes will operate in cfb mode
-     * $aes = new Crypt_AES(CRYPT_MODE_CFB);     // identical
+     * $aes = new AES(CRYPT_AES_MODE_CFB); // $aes will operate in cfb mode
+     * $aes = new AES(CRYPT_MODE_CFB);     // identical
      *
      * @see Crypt_Base::Crypt_Base()
      * @var String
