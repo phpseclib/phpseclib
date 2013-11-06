@@ -19,7 +19,7 @@ namespace PhpSecLib\Crypt;
  * <?php
  *    include('Crypt/Blowfish.php');
  *
- *    $blowfish = new Crypt_Blowfish();
+ *    $blowfish = new Blowfish();
  *
  *    $blowfish->setKey('12345678901234567890123456789012');
  *
@@ -48,7 +48,7 @@ namespace PhpSecLib\Crypt;
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_Blowfish
+ * @package    Blowfish
  * @author     Jim Wigginton <terrafrost@php.net>
  * @author     Hans-Juergen Petrich <petrich@tronic-media.com>
  * @copyright  MMVII Jim Wigginton
@@ -117,9 +117,9 @@ define('CRYPT_BLOWFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  * @version 1.0
  * @access  public
- * @package Crypt_Blowfish
+ * @package Blowfish
  */
-class Crypt_Blowfish extends Base {
+class Blowfish extends Base {
     /**
      * Block Length of the cipher
      *
@@ -555,7 +555,7 @@ class Crypt_Blowfish extends Base {
      */
     function _setupInlineCrypt()
     {
-        $lambda_functions =& Crypt_Blowfish::_getLambdaFunctions();
+        $lambda_functions =& Blowfish::_getLambdaFunctions();
 
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one.
@@ -563,10 +563,10 @@ class Crypt_Blowfish extends Base {
 
         switch (true) {
             case $gen_hi_opt_code:
-                $code_hash = md5(str_pad("Crypt_Blowfish, {$this->mode}, ", 32, "\0") . $this->key);
+                $code_hash = md5(str_pad("Blowfish, {$this->mode}, ", 32, "\0") . $this->key);
                 break;
             default:
-                $code_hash = "Crypt_Blowfish, {$this->mode}";
+                $code_hash = "Blowfish, {$this->mode}";
         }
 
         if (!isset($lambda_functions[$code_hash])) {
