@@ -10,7 +10,7 @@ namespace PhpSecLib\Crypt;
  *
  * md2, md5, md5-96, sha1, sha1-96, sha256, sha384, and sha512
  *
- * If {@link Crypt_Hash::setKey() setKey()} is called, {@link Crypt_Hash::hash() hash()} will return the HMAC as opposed to
+ * If {@link Hash::setKey() setKey()} is called, {@link Hash::hash() hash()} will return the HMAC as opposed to
  * the hash.  If no valid algorithm is provided, sha1 will be used.
  *
  * PHP versions 4 and 5
@@ -23,7 +23,7 @@ namespace PhpSecLib\Crypt;
  * <?php
  *    include('Crypt/Hash.php');
  *
- *    $hash = new Crypt_Hash('sha1');
+ *    $hash = new Hash('sha1');
  *
  *    $hash->setKey('abcdefg');
  *
@@ -50,7 +50,7 @@ namespace PhpSecLib\Crypt;
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_Hash
+ * @package    Hash
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -81,9 +81,9 @@ define('CRYPT_HASH_MODE_HASH',     3);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_Hash
+ * @package Hash
  */
-class Crypt_Hash {
+class Hash {
     /**
      * Hash Parameter
      *
@@ -151,7 +151,7 @@ class Crypt_Hash {
      * Default Constructor.
      *
      * @param optional String $hash
-     * @return Crypt_Hash
+     * @return Hash
      * @access public
      */
     function Crypt_Hash($hash = 'sha1')
@@ -743,7 +743,7 @@ class Crypt_Hash {
         }
 
         // Produce the final hash value (big-endian)
-        // (Crypt_Hash::hash() trims the output for hashes but not for HMACs.  as such, we trim the output here)
+        // (Hash::hash() trims the output for hashes but not for HMACs.  as such, we trim the output here)
         $temp = $hash[0]->toBytes() . $hash[1]->toBytes() . $hash[2]->toBytes() . $hash[3]->toBytes() .
                 $hash[4]->toBytes() . $hash[5]->toBytes();
         if ($this->l != 48) {
