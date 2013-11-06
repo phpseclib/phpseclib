@@ -10,11 +10,11 @@ namespace PhpSecLib\Crypt;
  *
  * PHP versions 4 and 5
  *
- * If {@link Crypt_Rijndael::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
- * {@link Crypt_Rijndael::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
- * {@link Crypt_Rijndael::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
+ * If {@link Rijndael::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
+ * {@link Rijndael::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
+ * {@link Rijndael::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
  * 136-bits it'll be null-padded to 192-bits and 192 bits will be the key length until
- * {@link Crypt_Rijndael::setKey() setKey()} is called, again, at which point, it'll be recalculated.
+ * {@link Rijndael::setKey() setKey()} is called, again, at which point, it'll be recalculated.
  *
  * Not all Rijndael implementations may support 160-bits or 224-bits as the block length / key length.  mcrypt, for example,
  * does not.  AES, itself, only supports block lengths of 128 and key lengths of 128, 192, and 256.
@@ -33,7 +33,7 @@ namespace PhpSecLib\Crypt;
  * <?php
  *    include('Crypt/Rijndael.php');
  *
- *    $rijndael = new Crypt_Rijndael();
+ *    $rijndael = new Rijndael();
  *
  *    $rijndael->setKey('abcdefghijklmnop');
  *
@@ -66,7 +66,7 @@ namespace PhpSecLib\Crypt;
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_Rijndael
+ * @package    Rijndael
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVIII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -132,9 +132,9 @@ define('CRYPT_RIJNDAEL_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_Rijndael
+ * @package Rijndael
  */
-class Crypt_Rijndael extends Base {
+class Rijndael extends Base {
     /**
      * The default password key_size used by setPassword()
      *
@@ -158,7 +158,7 @@ class Crypt_Rijndael extends Base {
      * The mcrypt specific name of the cipher
      *
      * Mcrypt is useable for 128/192/256-bit $block_size/$key_size. For 160/224 not.
-     * Crypt_Rijndael determines automatically whether mcrypt is useable
+     * Rijndael determines automatically whether mcrypt is useable
      * or not for the current $block_size/$key_size.
      * In case of, $cipher_name_mcrypt will be set dynamicaly at run time accordingly.
      *
@@ -1207,7 +1207,7 @@ class Crypt_Rijndael extends Base {
         // So here we are'nt under the same heavy timing-stress as we are in _de/encryptBlock() or de/encrypt().
         // However...the here generated function- $code, stored as php callback in $this->inline_crypt, must work as fast as even possible.
 
-        $lambda_functions =& Crypt_Rijndael::_getLambdaFunctions();
+        $lambda_functions =& Rijndael::_getLambdaFunctions();
 
         // The first 10 generated $lambda_functions will use the key-words hardcoded for better performance.
         // For memory reason we limit those ultra-optimized functions.
@@ -1226,7 +1226,7 @@ class Crypt_Rijndael extends Base {
             $init_decrypt = '$dw = $self->dw;';
         }
 
-        $code_hash = md5(str_pad("Crypt_Rijndael, {$this->mode}, {$this->block_size}, ", 32, "\0") . implode(',', $w));
+        $code_hash = md5(str_pad("Rijndael, {$this->mode}, {$this->block_size}, ", 32, "\0") . implode(',', $w));
 
         if (!isset($lambda_functions[$code_hash])) {
             $Nr = $this->Nr;

@@ -15,7 +15,7 @@ namespace PhpSecLib\Crypt;
  * it'll be null-padded to 192-bits and 192 bits will be the key length until {@link AES::setKey() setKey()}
  * is called, again, at which point, it'll be recalculated.
  *
- * Since AES extends Crypt_Rijndael, some functions are available to be called that, in the context of AES, don't
+ * Since AES extends Rijndael, some functions are available to be called that, in the context of AES, don't
  * make a whole lot of sense.  {@link AES::setBlockLength() setBlockLength()}, for instance.  Calling that function,
  * however possible, won't do anything (AES has a fixed block length whereas Rijndael has a variable one).
  *
@@ -125,7 +125,7 @@ define('CRYPT_AES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @access  public
  * @package AES
  */
-class AES extends Crypt_Rijndael {
+class AES extends Rijndael {
     /**
      * The namespace used by the cipher for its constants.
      *
@@ -167,7 +167,7 @@ class AES extends Crypt_Rijndael {
     /**
      * Dummy function
      *
-     * Since AES extends Crypt_Rijndael, this function is, technically, available, but it doesn't do anything.
+     * Since AES extends Rijndael, this function is, technically, available, but it doesn't do anything.
      *
      * @see Crypt_Rijndael::setBlockLength()
      * @access public
