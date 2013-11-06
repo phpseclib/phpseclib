@@ -16,7 +16,7 @@ namespace PhpSecLib\Net;
  *    include('Net/SCP.php');
  *    include('Net/SSH2.php');
  *
- *    $ssh = new Net_SSH2('www.domain.tld');
+ *    $ssh = new SSH2('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
  *        exit('bad login');
  *    }

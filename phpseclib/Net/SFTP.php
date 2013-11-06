@@ -77,7 +77,7 @@ define('NET_SFTP_LOG_REALTIME', 3);
 /**
  * SFTP channel constant
  *
- * Net_SSH2::exec() uses 0 and Net_SSH2::read() / Net_SSH2::write() use 1.
+ * SSH2::exec() uses 0 and SSH2::read() / SSH2::write() use 1.
  *
  * @see Net_SSH2::_send_channel_packet()
  * @see Net_SSH2::_get_channel_packet()
@@ -116,7 +116,7 @@ define('NET_SFTP_RESUME_START',  8);
  * @access  public
  * @package SFTP
  */
-class SFTP extends Net_SSH2 {
+class SFTP extends SSH2 {
     /**
      * Packet Types
      *
@@ -397,7 +397,7 @@ class SFTP extends Net_SSH2 {
     function login($username)
     {
         $args = func_get_args();
-        if (!call_user_func_array(array('Net_SSH2', 'login'), $args)) {
+        if (!call_user_func_array(array('SSH2', 'login'), $args)) {
             return false;
         }
 

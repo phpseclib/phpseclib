@@ -13,7 +13,7 @@ namespace PhpSecLib\Net;
  * <?php
  *    include('Net/SSH2.php');
  *
- *    $ssh = new Net_SSH2('www.domain.tld');
+ *    $ssh = new SSH2('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
  *        exit('Login Failed');
  *    }
@@ -32,7 +32,7 @@ namespace PhpSecLib\Net;
  *    //$key->setPassword('whatever');
  *    $key->loadKey(file_get_contents('privatekey'));
  *
- *    $ssh = new Net_SSH2('www.domain.tld');
+ *    $ssh = new SSH2('www.domain.tld');
  *    if (!$ssh->login('username', $key)) {
  *        exit('Login Failed');
  *    }
@@ -62,7 +62,7 @@ namespace PhpSecLib\Net;
  * THE SOFTWARE.
  *
  * @category   Net
- * @package    Net_SSH2
+ * @package    SSH2
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -149,9 +149,9 @@ define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Net_SSH2
+ * @package SSH2
  */
-class Net_SSH2 {
+class SSH2 {
     /**
      * The SSH identifier
      *
@@ -757,7 +757,7 @@ class Net_SSH2 {
      * @param String $host
      * @param optional Integer $port
      * @param optional Integer $timeout
-     * @return Net_SSH2
+     * @return SSH2
      * @access public
      */
     function Net_SSH2($host, $port = 22, $timeout = 10)
@@ -2005,7 +2005,7 @@ class Net_SSH2 {
     /**
      * Execute Command
      *
-     * If $block is set to false then Net_SSH2::_get_channel_packet(NET_SSH2_CHANNEL_EXEC) will need to be called manually.
+     * If $block is set to false then SSH2::_get_channel_packet(NET_SSH2_CHANNEL_EXEC) will need to be called manually.
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
      * @param String $command
@@ -2075,7 +2075,7 @@ class Net_SSH2 {
         }
 
         // sending a pty-req SSH_MSG_CHANNEL_REQUEST message is unnecessary and, in fact, in most cases, slows things
-        // down.  the one place where it might be desirable is if you're doing something like Net_SSH2::exec('ping localhost &').
+        // down.  the one place where it might be desirable is if you're doing something like SSH2::exec('ping localhost &').
         // with a pty-req SSH_MSG_CHANNEL_REQUEST, exec() will return immediately and the ping process will then
         // then immediately terminate.  without such a request exec() will loop indefinitely.  the ping process won't end but
         // neither will your script.
@@ -3036,7 +3036,7 @@ class Net_SSH2 {
     /**
      * Closes and flushes a channel
      *
-     * Net_SSH2 doesn't properly close most channels.  For exec() channels are normally closed by the server
+     * SSH2 doesn't properly close most channels.  For exec() channels are normally closed by the server
      * and for SFTP channels are presumably closed when the client disconnects.  This functions is intended
      * for SCP more than anything.
      *
