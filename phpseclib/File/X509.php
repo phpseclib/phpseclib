@@ -46,13 +46,6 @@ namespace PhpSecLib\File;
  */
 
 /**
- * Include File_ASN1
- */
-if (!class_exists('File_ASN1')) {
-    require_once('ASN1.php');
-}
-
-/**
  * Flag to only accept signatures signed by certificate authorities
  *
  * Not really used anymore but retained all the same to suppress E_NOTICEs from old installs
@@ -308,10 +301,6 @@ class File_X509 {
      */
     function File_X509()
     {
-        if (!class_exists('Math_BigInteger')) {
-            require_once('Math/BigInteger.php');
-        }
-
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1
 
@@ -2123,9 +2112,6 @@ class File_X509 {
     {
         switch ($publicKeyAlgorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $rsa = new Crypt_RSA();
                 $rsa->loadKey($publicKey);
 
@@ -2525,9 +2511,6 @@ class File_X509 {
                 return $result;
             case FILE_X509_DN_HASH:
                 $dn = $this->getDN(FILE_X509_DN_CANON, $dn);
-                if (!class_exists('Crypt_Hash')) {
-                    require_once('Crypt/Hash.php');
-                }
                 $hash = new Crypt_Hash('sha1');
                 $hash = $hash->hash($dn);
                 extract(unpack('Vhash', $hash));
@@ -2793,9 +2776,6 @@ class File_X509 {
 
         switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $publicKey = new Crypt_RSA();
                 $publicKey->loadKey($key);
                 $publicKey->setPublicKey();
@@ -2866,9 +2846,6 @@ class File_X509 {
 
         switch ($algorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $this->publicKey = new Crypt_RSA();
                 $this->publicKey->loadKey($key);
                 $this->publicKey->setPublicKey();
@@ -2991,9 +2968,6 @@ class File_X509 {
 
         switch ($algorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $this->publicKey = new Crypt_RSA();
                 $this->publicKey->loadKey($key);
                 $this->publicKey->setPublicKey();
@@ -4065,9 +4039,6 @@ class File_X509 {
                 }
                 $raw = base64_decode($raw);
                 // If the key is private, compute identifier from its corresponding public key.
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $key = new Crypt_RSA();
                 if (!$key->loadKey($raw)) {
                     return false;   // Not an unencrypted RSA key.
@@ -4097,9 +4068,6 @@ class File_X509 {
         $key = $this->_extractBER($key);
 
         // Now we have the key string: compute its sha-1 sum.
-        if (!class_exists('Crypt_Hash')) {
-            require_once('Crypt/Hash.php');
-        }
         $hash = new Crypt_Hash('sha1');
         $hash = $hash->hash($key);
 
