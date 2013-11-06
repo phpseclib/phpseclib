@@ -13,7 +13,7 @@ namespace PhpSecLib\Net;
  * <?php
  *    include('Net/SSH1.php');
  *
- *    $ssh = new Net_SSH1('www.domain.tld');
+ *    $ssh = new SSH1('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
  *        exit('Login Failed');
  *    }
@@ -27,7 +27,7 @@ namespace PhpSecLib\Net;
  * <?php
  *    include('Net/SSH1.php');
  *
- *    $ssh = new Net_SSH1('www.domain.tld');
+ *    $ssh = new SSH1('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
  *        exit('Login Failed');
  *    }
@@ -60,7 +60,7 @@ namespace PhpSecLib\Net;
  * THE SOFTWARE.
  *
  * @category   Net
- * @package    Net_SSH1
+ * @package    SSH1
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -231,9 +231,9 @@ define('NET_SSH1_READ_REGEX', 2);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Net_SSH1
+ * @package SSH1
  */
-class Net_SSH1 {
+class SSH1 {
     /**
      * The SSH identifier
      *
@@ -445,7 +445,7 @@ class Net_SSH1 {
      * @param optional Integer $port
      * @param optional Integer $timeout
      * @param optional Integer $cipher
-     * @return Net_SSH1
+     * @return SSH1
      * @access public
      */
     function Net_SSH1($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
@@ -714,7 +714,7 @@ class Net_SSH1 {
      * {@link http://www.faqs.org/docs/bashman/bashref_65.html http://www.faqs.org/docs/bashman/bashref_65.html}
      * {@link http://www.faqs.org/docs/bashman/bashref_62.html http://www.faqs.org/docs/bashman/bashref_62.html}
      *
-     * To execute further commands, a new Net_SSH1 object will need to be created.
+     * To execute further commands, a new SSH1 object will need to be created.
      *
      * Returns false on failure and the output, otherwise.
      *
@@ -759,7 +759,7 @@ class Net_SSH1 {
 
         fclose($this->fsock);
 
-        // reset the execution bitmap - a new Net_SSH1 object needs to be created.
+        // reset the execution bitmap - a new SSH1 object needs to be created.
         $this->bitmap = 0;
 
         return $output;
