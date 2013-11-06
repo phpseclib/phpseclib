@@ -29,7 +29,7 @@ namespace PhpSecLib\Net\SFTP;
  * THE SOFTWARE.
  *
  * @category   Net
- * @package    Net_SFTP_Stream
+ * @package    Stream
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMXIII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -42,9 +42,9 @@ namespace PhpSecLib\Net\SFTP;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.2
  * @access  public
- * @package Net_SFTP_Stream
+ * @package Stream
  */
-class Net_SFTP_Stream {
+class Stream {
     /**
      * SFTP instances
      *
@@ -659,7 +659,7 @@ class Net_SFTP_Stream {
     /**
      * Retrieve information about a file
      *
-     * Ignores the STREAM_URL_STAT_QUIET flag because the entirety of Net_SFTP_Stream is quiet by default
+     * Ignores the STREAM_URL_STAT_QUIET flag because the entirety of Stream is quiet by default
      * might be worthwhile to reconstruct bits 12-16 (ie. the file type) if mode doesn't have them but we'll
      * cross that bridge when and if it's reached
      *
@@ -765,5 +765,5 @@ class Net_SFTP_Stream {
 }
 
 if (function_exists('stream_wrapper_register')) {
-    stream_wrapper_register('sftp', 'Net_SFTP_Stream');
+    stream_wrapper_register('sftp', 'Stream');
 }
