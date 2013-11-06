@@ -1191,7 +1191,7 @@ class ASN1 {
     /**
      * Load filters
      *
-     * See File_X509, etc, for an example.
+     * See X509, etc, for an example.
      *
      * @access public
      * @param Array $filters

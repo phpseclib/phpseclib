@@ -38,7 +38,7 @@ namespace PhpSecLib\File;
  * THE SOFTWARE.
  *
  * @category   File
- * @package    File_X509
+ * @package    X509
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMXII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -122,9 +122,9 @@ define('FILE_X509_ATTR_REPLACE', -3); // Clear first, then add a value.
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.1
  * @access  public
- * @package File_X509
+ * @package X509
  */
-class File_X509 {
+class X509 {
     /**
      * ASN.1 syntax for X.509 certificates
      *
@@ -242,7 +242,7 @@ class File_X509 {
     /**
      * The signature subject
      *
-     * There's no guarantee File_X509 is going to reencode an X.509 cert in the same way it was originally
+     * There's no guarantee X509 is going to reencode an X.509 cert in the same way it was originally
      * encoded so we take save the portion of the original cert that the signature would have made for. 
      *
      * @var String
@@ -296,7 +296,7 @@ class File_X509 {
     /**
      * Default Constructor.
      *
-     * @return File_X509
+     * @return X509
      * @access public
      */
     function File_X509()
@@ -2712,7 +2712,7 @@ class File_X509 {
             }
         }
         foreach ($chain as $key=>$value) {
-            $chain[$key] = new File_X509();
+            $chain[$key] = new X509();
             $chain[$key]->loadX509($value);
         }
         return $chain;
@@ -3099,8 +3099,8 @@ class File_X509 {
      * $subject can be either an existing X.509 cert (if you want to resign it),
      * a CSR or something with the DN and public key explicitly set.
      *
-     * @param File_X509 $issuer
-     * @param File_X509 $subject
+     * @param X509 $issuer
+     * @param X509 $subject
      * @param String $signatureAlgorithm optional
      * @access public
      * @return Mixed
@@ -3207,7 +3207,7 @@ class File_X509 {
         $altName = array();
 
         if (isset($subject->domains) && count($subject->domains) > 1) {
-            $altName = array_map(array('File_X509', '_dnsName'), $subject->domains);
+            $altName = array_map(array('X509', '_dnsName'), $subject->domains);
         }
 
         if (isset($subject->ipAddresses) && count($subject->ipAddresses)) {
@@ -3330,8 +3330,8 @@ class File_X509 {
      *
      * $issuer's private key needs to be loaded.
      *
-     * @param File_X509 $issuer
-     * @param File_X509 $crl
+     * @param X509 $issuer
+     * @param X509 $crl
      * @param String $signatureAlgorithm optional
      * @access public
      * @return Mixed
@@ -3458,7 +3458,7 @@ class File_X509 {
      * X.509 certificate signing helper function.
      *
      * @param Object $key
-     * @param File_X509 $subject
+     * @param X509 $subject
      * @param String $signatureAlgorithm
      * @access public
      * @return Mixed
@@ -4001,7 +4001,7 @@ class File_X509 {
      * recommended methods (4.2.1.2 RFC 3280).
      * Highly polymorphic: try to accept all possible forms of key:
      * - Key object
-     * - File_X509 object with public or private key defined
+     * - X509 object with public or private key defined
      * - Certificate or CSR array
      * - File_ASN1_Element object
      * - PEM or DER string
