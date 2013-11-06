@@ -15,7 +15,7 @@ namespace PhpSecLib\Crypt;
  * <?php
  *    include('Crypt/TripleDES.php');
  *
- *    $des = new Crypt_TripleDES();
+ *    $des = new TripleDES();
  *
  *    $des->setKey('abcdefghijklmnopqrstuvwx');
  *
@@ -48,7 +48,7 @@ namespace PhpSecLib\Crypt;
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_TripleDES
+ * @package    TripleDES
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -75,9 +75,9 @@ define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_TripleDES
+ * @package TripleDES
  */
-class Crypt_TripleDES extends DES {
+class TripleDES extends DES {
     /**
      * The default password key_size used by setPassword()
      *

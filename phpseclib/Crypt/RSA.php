@@ -818,7 +818,7 @@ class RSA {
                     $iv = crypt_random_string(8);
                     $symkey = pack('H*', md5($this->password . $iv)); // symkey is short for symmetric key
                     $symkey.= substr(pack('H*', md5($symkey . $this->password . $iv)), 0, 8);
-                    $des = new Crypt_TripleDES();
+                    $des = new TripleDES();
                     $des->setKey($symkey);
                     $des->setIV($iv);
                     $iv = strtoupper(bin2hex($iv));
@@ -988,11 +988,11 @@ class RSA {
                             $crypto = new AES();
                             break;
                         case 'DES-EDE3-CFB':
-                            $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CFB);
+                            $crypto = new TripleDES(CRYPT_DES_MODE_CFB);
                             break;
                         case 'DES-EDE3-CBC':
                             $symkey = substr($symkey, 0, 24);
-                            $crypto = new Crypt_TripleDES();
+                            $crypto = new TripleDES();
                             break;
                         case 'DES-CBC':
                             $crypto = new DES();

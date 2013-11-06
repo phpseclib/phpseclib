@@ -197,8 +197,8 @@ function crypt_random_string($length)
             case class_exists('AES'):
                 $crypto = new AES(CRYPT_AES_MODE_CTR);
                 break;
-            case class_exists('Crypt_TripleDES'):
-                $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
+            case class_exists('TripleDES'):
+                $crypto = new TripleDES(CRYPT_DES_MODE_CTR);
                 break;
             case class_exists('DES'):
                 $crypto = new DES(CRYPT_DES_MODE_CTR);
