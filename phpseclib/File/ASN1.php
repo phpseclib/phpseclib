@@ -12,7 +12,7 @@ namespace PhpSecLib\File;
  * utilized scheme is DER or the "Distinguished Encoding Rules".  PEM's are base64 encoded
  * DER blobs.
  *
- * File_ASN1 decodes and encodes DER formatted messages and places them in a semantic context.
+ * ASN1 decodes and encodes DER formatted messages and places them in a semantic context.
  *
  * Uses the 1988 ASN.1 syntax.
  *
@@ -35,7 +35,7 @@ namespace PhpSecLib\File;
  * THE SOFTWARE.
  *
  * @category   File
- * @package    File_ASN1
+ * @package    ASN1
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMXII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -111,12 +111,12 @@ define('FILE_ASN1_TYPE_ANY',             -2);
 /**
  * ASN.1 Element
  *
- * Bypass normal encoding rules in File_ASN1::encodeDER()
+ * Bypass normal encoding rules in ASN1::encodeDER()
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.0
  * @access  public
- * @package File_ASN1
+ * @package ASN1
  */
 class File_ASN1_Element {
     /**
@@ -146,9 +146,9 @@ class File_ASN1_Element {
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.0
  * @access  public
- * @package File_ASN1
+ * @package ASN1
  */
-class File_ASN1 {
+class ASN1 {
     /**
      * ASN.1 object identifier
      *
