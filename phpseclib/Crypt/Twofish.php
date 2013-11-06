@@ -19,7 +19,7 @@ namespace PhpSecLib\Crypt;
  * <?php
  *    include('Crypt/Twofish.php');
  *
- *    $twofish = new Crypt_Twofish();
+ *    $twofish = new Twofish();
  *
  *    $twofish->setKey('12345678901234567890123456789012');
  *
@@ -48,7 +48,7 @@ namespace PhpSecLib\Crypt;
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_Twofish
+ * @package    Twofish
  * @author     Jim Wigginton <terrafrost@php.net>
  * @author     Hans-Juergen Petrich <petrich@tronic-media.com>
  * @copyright  MMVII Jim Wigginton
@@ -117,9 +117,9 @@ define('CRYPT_TWOFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  * @version 1.0
  * @access  public
- * @package Crypt_Twofish
+ * @package Twofish
  */
-class Crypt_Twofish extends Base {
+class Twofish extends Base {
     /**
      * The namespace used by the cipher for its constants.
      *
@@ -770,17 +770,17 @@ class Crypt_Twofish extends Base {
      */
     function _setupInlineCrypt()
     {
-        $lambda_functions =& Crypt_Twofish::_getLambdaFunctions();
+        $lambda_functions =& Twofish::_getLambdaFunctions();
 
         // Max. 10 Ultra-Hi-optimized inline-crypt functions. After that, we'll (still) create very fast code, but not the ultimate fast one.
         $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
         switch (true) {
             case $gen_hi_opt_code:
-                $code_hash = md5(str_pad("Crypt_Twofish, {$this->mode}, ", 32, "\0") . $this->key);
+                $code_hash = md5(str_pad("Twofish, {$this->mode}, ", 32, "\0") . $this->key);
                 break;
             default:
-                $code_hash = "Crypt_Twofish, {$this->mode}";
+                $code_hash = "Twofish, {$this->mode}";
         }
 
         if (!isset($lambda_functions[$code_hash])) {
