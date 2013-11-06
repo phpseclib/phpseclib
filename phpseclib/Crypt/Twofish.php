@@ -119,7 +119,7 @@ define('CRYPT_TWOFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @access  public
  * @package Crypt_Twofish
  */
-class Crypt_Twofish extends Crypt_Base {
+class Crypt_Twofish extends Base {
     /**
      * The namespace used by the cipher for its constants.
      *

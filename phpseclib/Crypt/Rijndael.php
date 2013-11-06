@@ -134,7 +134,7 @@ define('CRYPT_RIJNDAEL_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @access  public
  * @package Crypt_Rijndael
  */
-class Crypt_Rijndael extends Crypt_Base {
+class Crypt_Rijndael extends Base {
     /**
      * The default password key_size used by setPassword()
      *
