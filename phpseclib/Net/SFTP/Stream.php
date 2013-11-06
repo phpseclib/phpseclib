@@ -168,7 +168,7 @@ class Stream {
         if ($host[0] == '$') {
             $host = substr($host, 1);
             global $$host;
-            if (!is_object($$host) || get_class($$host) != 'Net_SFTP') {
+            if (!is_object($$host) || get_class($$host) != 'SFTP') {
                 return false;
             }
             $this->sftp = $$host;
@@ -182,7 +182,7 @@ class Stream {
             if (isset($context['sftp']['sftp'])) {
                 $sftp = $context['sftp']['sftp'];
             }
-            if (isset($sftp) && is_object($sftp) && get_class($sftp) == 'Net_SFTP') {
+            if (isset($sftp) && is_object($sftp) && get_class($sftp) == 'SFTP') {
                 $this->sftp = $sftp;
                 return $path;
             }
@@ -471,7 +471,7 @@ class Stream {
      * Renames a file or directory
      *
      * Attempts to rename oldname to newname, moving it between directories if necessary.
-     * If newname exists, it will be overwritten.  This is a departure from what Net_SFTP
+     * If newname exists, it will be overwritten.  This is a departure from what SFTP
      * does.
      *
      * @param String $path_from
@@ -614,7 +614,7 @@ class Stream {
     /**
      * Flushes the output
      *
-     * See <http://php.net/fflush>. Always returns true because Net_SFTP doesn't cache stuff before writing
+     * See <http://php.net/fflush>. Always returns true because SFTP doesn't cache stuff before writing
      *
      * @return Boolean
      * @access public
@@ -706,7 +706,7 @@ class Stream {
      * Change stream options
      *
      * STREAM_OPTION_WRITE_BUFFER isn't supported for the same reason stream_flush isn't.
-     * The other two aren't supported because of limitations in Net_SFTP.
+     * The other two aren't supported because of limitations in SFTP.
      *
      * @param Integer $option
      * @param Integer $arg1
