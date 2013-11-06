@@ -13,7 +13,7 @@ namespace PhpSecLib\Crypt;
  * <?php
  *    include('Crypt/RSA.php');
  *
- *    $rsa = new Crypt_RSA();
+ *    $rsa = new RSA();
  *    extract($rsa->createKey());
  *
  *    $plaintext = 'terrafrost';
@@ -31,7 +31,7 @@ namespace PhpSecLib\Crypt;
  * <?php
  *    include('Crypt/RSA.php');
  *
- *    $rsa = new Crypt_RSA();
+ *    $rsa = new RSA();
  *    extract($rsa->createKey());
  *
  *    $plaintext = 'terrafrost';
@@ -63,7 +63,7 @@ namespace PhpSecLib\Crypt;
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_RSA
+ * @package    RSA
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -238,9 +238,9 @@ define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 7);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_RSA
+ * @package RSA
  */
-class Crypt_RSA {
+class RSA {
     /**
      * Precomputed Zero
      *
@@ -447,10 +447,10 @@ class Crypt_RSA {
      * The constructor
      *
      * If you want to make use of the openssl extension, you'll need to set the mode manually, yourself.  The reason
-     * Crypt_RSA doesn't do it is because OpenSSL doesn't fail gracefully.  openssl_pkey_new(), in particular, requires
+     * RSA doesn't do it is because OpenSSL doesn't fail gracefully.  openssl_pkey_new(), in particular, requires
      * openssl.cnf be present somewhere and, unfortunately, the only real way to find out is too late.
      *
-     * @return Crypt_RSA
+     * @return RSA
      * @access public
      */
     function Crypt_RSA()
@@ -516,7 +516,7 @@ class Crypt_RSA {
      *  - 'privatekey': The private key.
      *  - 'publickey':  The public key.
      *  - 'partialkey': A partially computed key (if the execution time exceeded $timeout).
-     *                  Will need to be passed back to Crypt_RSA::createKey() as the third parameter for further processing.
+     *                  Will need to be passed back to RSA::createKey() as the third parameter for further processing.
      *
      * @access public
      * @param optional Integer $bits
@@ -1619,7 +1619,7 @@ class Crypt_RSA {
      */
     function __clone()
     {
-        $key = new Crypt_RSA();
+        $key = new RSA();
         $key->loadKey($this);
         return $key;
     }
@@ -2246,7 +2246,7 @@ class Crypt_RSA {
      * to be 2 regardless of which key is used.  For compatability purposes, we'll just check to make sure the
      * second byte is 2 or less.  If it is, we'll accept the decrypted string as valid.
      *
-     * As a consequence of this, a private key encrypted ciphertext produced with Crypt_RSA may not decrypt
+     * As a consequence of this, a private key encrypted ciphertext produced with RSA may not decrypt
      * with a strictly PKCS#1 v1.5 compliant RSA implementation.  Public key encrypted ciphertext's should but
      * not private key encrypted ciphertext's.
      *

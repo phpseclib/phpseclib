@@ -28,7 +28,7 @@ namespace PhpSecLib\Net;
  *    include('Crypt/RSA.php');
  *    include('Net/SSH2.php');
  *
- *    $key = new Crypt_RSA();
+ *    $key = new RSA();
  *    //$key->setPassword('whatever');
  *    $key->loadKey(file_get_contents('privatekey'));
  *
@@ -1579,7 +1579,7 @@ class Net_SSH2 {
     /**
      * Login
      *
-     * The $password parameter can be a plaintext password, a Crypt_RSA object or an array
+     * The $password parameter can be a plaintext password, a RSA object or an array
      *
      * @param String $username
      * @param Mixed $password
@@ -3442,7 +3442,7 @@ class Net_SSH2 {
                 $temp = unpack('Nlength', $this->_string_shift($signature, 4));
                 $signature = $this->_string_shift($signature, $temp['length']);
 
-                $rsa = new Crypt_RSA();
+                $rsa = new RSA();
                 $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
                 $rsa->loadKey(array('e' => $e, 'n' => $n), CRYPT_RSA_PUBLIC_FORMAT_RAW);
                 if (!$rsa->verify($this->exchange_hash, $signature)) {

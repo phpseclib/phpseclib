@@ -192,7 +192,7 @@ class Net_SFTP_Stream {
             if (isset($context['sftp']['password'])) {
                 $pass = $context['sftp']['password'];
             }
-            if (isset($context['sftp']['privkey']) && is_object($context['sftp']['privkey']) && get_Class($context['sftp']['privkey']) == 'Crypt_RSA') {
+            if (isset($context['sftp']['privkey']) && is_object($context['sftp']['privkey']) && get_Class($context['sftp']['privkey']) == 'RSA') {
                 $pass = $context['sftp']['privkey'];
             }
 
@@ -200,7 +200,7 @@ class Net_SFTP_Stream {
                 return false;
             }
 
-            // casting $pass to a string is necessary in the event that it's a Crypt_RSA object
+            // casting $pass to a string is necessary in the event that it's a RSA object
             if (isset(self::$instances[$host][$port][$user][(string) $pass])) {
                 $this->sftp = self::$instances[$host][$port][$user][(string) $pass];
             } else {

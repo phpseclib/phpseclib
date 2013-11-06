@@ -2721,7 +2721,7 @@ class File_X509 {
     /**
      * Set public key
      *
-     * Key needs to be a Crypt_RSA object
+     * Key needs to be a RSA object
      *
      * @param Object $key
      * @access public
@@ -2736,7 +2736,7 @@ class File_X509 {
     /**
      * Set private key
      *
-     * Key needs to be a Crypt_RSA object
+     * Key needs to be a RSA object
      *
      * @param Object $key
      * @access public
@@ -2749,7 +2749,7 @@ class File_X509 {
     /**
      * Gets the public key
      *
-     * Returns a Crypt_RSA object or a false.
+     * Returns a RSA object or a false.
      *
      * @access public
      * @return Mixed
@@ -4059,7 +4059,7 @@ class File_X509 {
                     return $this->computeKeyIdentifier($key->currentCert, $method);
                 }
                 return false;
-            default: // Should be a key object (i.e.: Crypt_RSA).
+            default: // Should be a key object (i.e.: RSA).
                 $key = $key->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_PKCS1_RAW);
                 break;
         }
