@@ -995,7 +995,7 @@ class Crypt_RSA {
                             $crypto = new Crypt_TripleDES();
                             break;
                         case 'DES-CBC':
-                            $crypto = new Crypt_DES();
+                            $crypto = new DES();
                             break;
                         default:
                             return false;

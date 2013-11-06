@@ -21,7 +21,7 @@ namespace PhpSecLib\Crypt;
  * <?php
  *    include('Crypt/DES.php');
  *
- *    $des = new Crypt_DES();
+ *    $des = new DES();
  *
  *    $des->setKey('abcdefgh');
  *
@@ -54,7 +54,7 @@ namespace PhpSecLib\Crypt;
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_DES
+ * @package    DES
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -135,9 +135,9 @@ define('CRYPT_DES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_DES
+ * @package DES
  */
-class Crypt_DES extends Base {
+class DES extends Base {
     /**
      * Block Length of the cipher
      *
@@ -1370,7 +1370,7 @@ class Crypt_DES extends Base {
      */
     function _setupInlineCrypt()
     {
-        $lambda_functions =& Crypt_DES::_getLambdaFunctions();
+        $lambda_functions =& DES::_getLambdaFunctions();
 
         // Engine configuration for:
         // -  DES ($des_rounds == 1) or
@@ -1386,13 +1386,13 @@ class Crypt_DES extends Base {
             case $gen_hi_opt_code:
                 // For hi-optimized code, we create for each combination of
                 // $mode, $des_rounds and $this->key its own encrypt/decrypt function.
-                $code_hash = md5(str_pad("Crypt_DES, $des_rounds, {$this->mode}, ", 32, "\0") . $this->key);
+                $code_hash = md5(str_pad("DES, $des_rounds, {$this->mode}, ", 32, "\0") . $this->key);
                 break;
             default:
                 // After max 10 hi-optimized functions, we create generic
                 // (still very fast.. but not ultra) functions for each $mode/$des_rounds
                 // Currently 2 * 5 generic functions will be then max. possible.
-                $code_hash = "Crypt_DES, $des_rounds, {$this->mode}";
+                $code_hash = "DES, $des_rounds, {$this->mode}";
         }
 
         // Is there a re-usable $lambda_functions in there? If not, we have to create it.
