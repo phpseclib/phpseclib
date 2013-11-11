@@ -760,7 +760,7 @@ class Crypt_RSA {
                               strlen($this->comment), $this->comment, strlen($public), $public
                 );
                 $public = base64_encode($public);
-                $key.= "Public-Lines: " . ((strlen($public) + 32) >> 6) . "\r\n";
+                $key.= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";
                 $key.= chunk_split($public, 64);
                 $private = pack('Na*Na*Na*Na*',
                     strlen($raw['privateExponent']), $raw['privateExponent'], strlen($raw['prime1']), $raw['prime1'],
@@ -791,7 +791,7 @@ class Crypt_RSA {
                 }
 
                 $private = base64_encode($private);
-                $key.= 'Private-Lines: ' . ((strlen($private) + 32) >> 6) . "\r\n";
+                $key.= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
                 $key.= chunk_split($private, 64);
                 if (!class_exists('Crypt_Hash')) {
                     require_once('Crypt/Hash.php');
