@@ -1,6 +1,8 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
+namespace PhpSecLib\Crypt;
+
 /**
  * Base Class for all Crypt_* cipher classes
  *
@@ -9,7 +11,7 @@
  * Internally for phpseclib developers:
  *  If you plan to add a new cipher class, please note following rules:
  *
- *  - The new Crypt_* cipher class should extend Crypt_Base
+ *  - The new Crypt_* cipher class should extend Base
  *
  *  - Following methods are then required to be overridden/overloaded:
  *
@@ -21,7 +23,7 @@
  *
  *  - All other methods are optional to be overridden/overloaded
  *
- *  - Look at the source code of the current ciphers how they extend Crypt_Base
+ *  - Look at the source code of the current ciphers how they extend Base
  *    and take one of them as a start up for the new cipher class.
  *
  *  - Please read all the other comments/notes/hints here also for each class var/method
@@ -45,7 +47,7 @@
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_Base
+ * @package    Base
  * @author     Jim Wigginton <terrafrost@php.net>
  * @author     Hans-Juergen Petrich <petrich@tronic-media.com>
  * @copyright  MMVII Jim Wigginton
@@ -119,9 +121,9 @@ define('CRYPT_MODE_MCRYPT', 2);
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  * @version 1.0.0
  * @access  public
- * @package Crypt_Base
+ * @package Base
  */
-class Crypt_Base {
+class Base {
     /**
      * The Encryption Mode
      *
@@ -386,8 +388,8 @@ class Crypt_Base {
      * for each cipher.
      *
      * Example:
-     * $aes = new Crypt_AES(CRYPT_AES_MODE_CFB); // $aes will operate in cfb mode
-     * $aes = new Crypt_AES(CRYPT_MODE_CFB);     // identical
+     * $aes = new AES(CRYPT_AES_MODE_CFB); // $aes will operate in cfb mode
+     * $aes = new AES(CRYPT_MODE_CFB);     // identical
      *
      * @see Crypt_Base::Crypt_Base()
      * @var String
@@ -581,12 +583,9 @@ class Crypt_Base {
                     case !function_exists('hash_pbkdf2'):
                     case !function_exists('hash_algos'):
                     case !in_array($hash, hash_algos()):
-                        if (!class_exists('Crypt_Hash')) {
-                            require_once('Crypt/Hash.php');
-                        }
                         $i = 1;
                         while (strlen($key) < $dkLen) {
-                            $hmac = new Crypt_Hash();
+                            $hmac = new Hash();
                             $hmac->setHash($hash);
                             $hmac->setKey($password);
                             $f = $u = $hmac->hash($salt . pack('N', $i++));
@@ -1492,7 +1491,7 @@ class Crypt_Base {
     {
         // If a Crypt_* class providing inline crypting it must extend _setupInlineCrypt()
 
-        // If, for any reason, an extending Crypt_Base() Crypt_* class
+        // If, for any reason, an extending Base() Crypt_* class
         // not using inline crypting then it must be ensured that: $this->use_inline_crypt = false
         // ie in the class var declaration of $use_inline_crypt in general for the Crypt_* class,
         // in the constructor at object instance-time

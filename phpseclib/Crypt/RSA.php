@@ -1,6 +1,8 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
+namespace PhpSecLib\Crypt;
+
 /**
  * Pure-PHP PKCS#1 (v2.1) compliant implementation of RSA.
  *
@@ -11,7 +13,7 @@
  * <?php
  *    include('Crypt/RSA.php');
  *
- *    $rsa = new Crypt_RSA();
+ *    $rsa = new RSA();
  *    extract($rsa->createKey());
  *
  *    $plaintext = 'terrafrost';
@@ -29,7 +31,7 @@
  * <?php
  *    include('Crypt/RSA.php');
  *
- *    $rsa = new Crypt_RSA();
+ *    $rsa = new RSA();
  *    extract($rsa->createKey());
  *
  *    $plaintext = 'terrafrost';
@@ -61,7 +63,7 @@
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_RSA
+ * @package    RSA
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMIX Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -77,13 +79,6 @@
 // of the auto loader
 if (!function_exists('crypt_random_string')) {
     require_once('Random.php');
-}
-
-/**
- * Include Crypt_Hash
- */
-if (!class_exists('Crypt_Hash')) {
-    require_once('Hash.php');
 }
 
 /**#@+
@@ -202,7 +197,7 @@ define('CRYPT_RSA_PRIVATE_FORMAT_XML', 2);
 /**
  * Raw public key
  *
- * An array containing two Math_BigInteger objects.
+ * An array containing two BigInteger objects.
  *
  * The exponent can be indexed with any of the following:
  *
@@ -243,9 +238,9 @@ define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 7);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_RSA
+ * @package RSA
  */
-class Crypt_RSA {
+class RSA {
     /**
      * Precomputed Zero
      *
@@ -337,7 +332,7 @@ class Crypt_RSA {
     /**
      * Hash function
      *
-     * @var Crypt_Hash
+     * @var Hash
      * @access private
      */
     var $hash;
@@ -361,7 +356,7 @@ class Crypt_RSA {
     /**
      * Hash function for the Mask Generation Function
      *
-     * @var Crypt_Hash
+     * @var Hash
      * @access private
      */
     var $mgfHash;
@@ -452,18 +447,14 @@ class Crypt_RSA {
      * The constructor
      *
      * If you want to make use of the openssl extension, you'll need to set the mode manually, yourself.  The reason
-     * Crypt_RSA doesn't do it is because OpenSSL doesn't fail gracefully.  openssl_pkey_new(), in particular, requires
+     * RSA doesn't do it is because OpenSSL doesn't fail gracefully.  openssl_pkey_new(), in particular, requires
      * openssl.cnf be present somewhere and, unfortunately, the only real way to find out is too late.
      *
-     * @return Crypt_RSA
+     * @return RSA
      * @access public
      */
     function Crypt_RSA()
     {
-        if (!class_exists('Math_BigInteger')) {
-            require_once('Math/BigInteger.php');
-        }
-
         $this->configFile = CRYPT_RSA_OPENSSL_CONFIG;
 
         if ( !defined('CRYPT_RSA_MODE') ) {
@@ -511,10 +502,10 @@ class Crypt_RSA {
         $this->zero = new Math_BigInteger();
         $this->one = new Math_BigInteger(1);
 
-        $this->hash = new Crypt_Hash('sha1');
+        $this->hash = new Hash('sha1');
         $this->hLen = $this->hash->getLength();
         $this->hashName = 'sha1';
-        $this->mgfHash = new Crypt_Hash('sha1');
+        $this->mgfHash = new Hash('sha1');
         $this->mgfHLen = $this->mgfHash->getLength();
     }
 
@@ -525,7 +516,7 @@ class Crypt_RSA {
      *  - 'privatekey': The private key.
      *  - 'publickey':  The public key.
      *  - 'partialkey': A partially computed key (if the execution time exceeded $timeout).
-     *                  Will need to be passed back to Crypt_RSA::createKey() as the third parameter for further processing.
+     *                  Will need to be passed back to RSA::createKey() as the third parameter for further processing.
      *
      * @access public
      * @param optional Integer $bits
@@ -772,9 +763,6 @@ class Crypt_RSA {
                 } else {
                     $private.= crypt_random_string(16 - (strlen($private) & 15));
                     $source.= pack('Na*', strlen($private), $private);
-                    if (!class_exists('Crypt_AES')) {
-                        require_once('Crypt/AES.php');
-                    }
                     $sequence = 0;
                     $symkey = '';
                     while (strlen($symkey) < 32) {
@@ -782,7 +770,7 @@ class Crypt_RSA {
                         $symkey.= pack('H*', sha1($temp));
                     }
                     $symkey = substr($symkey, 0, 32);
-                    $crypto = new Crypt_AES();
+                    $crypto = new AES();
 
                     $crypto->setKey($symkey);
                     $crypto->disablePadding();
@@ -793,10 +781,7 @@ class Crypt_RSA {
                 $private = base64_encode($private);
                 $key.= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
                 $key.= chunk_split($private, 64);
-                if (!class_exists('Crypt_Hash')) {
-                    require_once('Crypt/Hash.php');
-                }
-                $hash = new Crypt_Hash('sha1');
+                $hash = new Hash('sha1');
                 $hash->setKey(pack('H*', sha1($hashkey)));
                 $key.= 'Private-MAC: ' . bin2hex($hash->hash($source)) . "\r\n";
 
@@ -833,10 +818,7 @@ class Crypt_RSA {
                     $iv = crypt_random_string(8);
                     $symkey = pack('H*', md5($this->password . $iv)); // symkey is short for symmetric key
                     $symkey.= substr(pack('H*', md5($symkey . $this->password . $iv)), 0, 8);
-                    if (!class_exists('Crypt_TripleDES')) {
-                        require_once('Crypt/TripleDES.php');
-                    }
-                    $des = new Crypt_TripleDES();
+                    $des = new TripleDES();
                     $des->setKey($symkey);
                     $des->setIV($iv);
                     $iv = strtoupper(bin2hex($iv));
@@ -999,36 +981,21 @@ class Crypt_RSA {
                     }
                     switch ($matches[1]) {
                         case 'AES-256-CBC':
-                            if (!class_exists('Crypt_AES')) {
-                                require_once('Crypt/AES.php');
-                            }
-                            $crypto = new Crypt_AES();
+                            $crypto = new AES();
                             break;
                         case 'AES-128-CBC':
-                            if (!class_exists('Crypt_AES')) {
-                                require_once('Crypt/AES.php');
-                            }
                             $symkey = substr($symkey, 0, 16);
-                            $crypto = new Crypt_AES();
+                            $crypto = new AES();
                             break;
                         case 'DES-EDE3-CFB':
-                            if (!class_exists('Crypt_TripleDES')) {
-                                require_once('Crypt/TripleDES.php');
-                            }
-                            $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CFB);
+                            $crypto = new TripleDES(CRYPT_DES_MODE_CFB);
                             break;
                         case 'DES-EDE3-CBC':
-                            if (!class_exists('Crypt_TripleDES')) {
-                                require_once('Crypt/TripleDES.php');
-                            }
                             $symkey = substr($symkey, 0, 24);
-                            $crypto = new Crypt_TripleDES();
+                            $crypto = new TripleDES();
                             break;
                         case 'DES-CBC':
-                            if (!class_exists('Crypt_DES')) {
-                                require_once('Crypt/DES.php');
-                            }
-                            $crypto = new Crypt_DES();
+                            $crypto = new DES();
                             break;
                         default:
                             return false;
@@ -1239,9 +1206,6 @@ class Crypt_RSA {
 
                 switch ($encryption) {
                     case 'aes256-cbc':
-                        if (!class_exists('Crypt_AES')) {
-                            require_once('Crypt/AES.php');
-                        }
                         $symkey = '';
                         $sequence = 0;
                         while (strlen($symkey) < 32) {
@@ -1249,7 +1213,7 @@ class Crypt_RSA {
                             $symkey.= pack('H*', sha1($temp));
                         }
                         $symkey = substr($symkey, 0, 32);
-                        $crypto = new Crypt_AES();
+                        $crypto = new AES();
                 }
 
                 if ($encryption != 'none') {
@@ -1405,10 +1369,10 @@ class Crypt_RSA {
             $this->comment = $key->comment;
 
             if (is_object($key->hash)) {
-                $this->hash = new Crypt_Hash($key->hash->getHash());
+                $this->hash = new Hash($key->hash->getHash());
             }
             if (is_object($key->mgfHash)) {
-                $this->mgfHash = new Crypt_Hash($key->mgfHash->getHash());
+                $this->mgfHash = new Hash($key->mgfHash->getHash());
             }
 
             if (is_object($key->modulus)) {
@@ -1655,7 +1619,7 @@ class Crypt_RSA {
      */
     function __clone()
     {
-        $key = new Crypt_RSA();
+        $key = new RSA();
         $key->loadKey($this);
         return $key;
     }
@@ -1779,7 +1743,7 @@ class Crypt_RSA {
      */
     function setHash($hash)
     {
-        // Crypt_Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
+        // Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
         switch ($hash) {
             case 'md2':
             case 'md5':
@@ -1787,11 +1751,11 @@ class Crypt_RSA {
             case 'sha256':
             case 'sha384':
             case 'sha512':
-                $this->hash = new Crypt_Hash($hash);
+                $this->hash = new Hash($hash);
                 $this->hashName = $hash;
                 break;
             default:
-                $this->hash = new Crypt_Hash('sha1');
+                $this->hash = new Hash('sha1');
                 $this->hashName = 'sha1';
         }
         $this->hLen = $this->hash->getLength();
@@ -1808,7 +1772,7 @@ class Crypt_RSA {
      */
     function setMGFHash($hash)
     {
-        // Crypt_Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
+        // Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
         switch ($hash) {
             case 'md2':
             case 'md5':
@@ -1816,10 +1780,10 @@ class Crypt_RSA {
             case 'sha256':
             case 'sha384':
             case 'sha512':
-                $this->mgfHash = new Crypt_Hash($hash);
+                $this->mgfHash = new Hash($hash);
                 break;
             default:
-                $this->mgfHash = new Crypt_Hash('sha1');
+                $this->mgfHash = new Hash('sha1');
         }
         $this->mgfHLen = $this->mgfHash->getLength();
     }
@@ -2282,7 +2246,7 @@ class Crypt_RSA {
      * to be 2 regardless of which key is used.  For compatability purposes, we'll just check to make sure the
      * second byte is 2 or less.  If it is, we'll accept the decrypted string as valid.
      *
-     * As a consequence of this, a private key encrypted ciphertext produced with Crypt_RSA may not decrypt
+     * As a consequence of this, a private key encrypted ciphertext produced with RSA may not decrypt
      * with a strictly PKCS#1 v1.5 compliant RSA implementation.  Public key encrypted ciphertext's should but
      * not private key encrypted ciphertext's.
      *

@@ -1,15 +1,17 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
+namespace PhpSecLib\File;
+
 /**
  * Pure-PHP ANSI Decoder
  *
  * PHP versions 4 and 5
  *
- * If you call read() in Net_SSH2 you may get {@link http://en.wikipedia.org/wiki/ANSI_escape_code ANSI escape codes} back.
+ * If you call read() in SSH2 you may get {@link http://en.wikipedia.org/wiki/ANSI_escape_code ANSI escape codes} back.
  * They'd look like chr(0x1B) . '[00m' or whatever (0x1B = ESC).  They tell a
  * {@link http://en.wikipedia.org/wiki/Terminal_emulator terminal emulator} how to format the characters, what
- * color to display them in, etc. File_ANSI is a {@link http://en.wikipedia.org/wiki/VT100 VT100} terminal emulator.
+ * color to display them in, etc. ANSI is a {@link http://en.wikipedia.org/wiki/VT100 VT100} terminal emulator.
  *
  * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +32,7 @@
  * THE SOFTWARE.
  *
  * @category   File
- * @package    File_ANSI
+ * @package    ANSI
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMXII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -43,9 +45,9 @@
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.0
  * @access  public
- * @package File_ANSI
+ * @package ANSI
  */
-class File_ANSI {
+class ANSI {
     /**
      * Max Width
      *
@@ -209,7 +211,7 @@ class File_ANSI {
     /**
      * Default Constructor.
      *
-     * @return File_ANSI
+     * @return ANSI
      * @access public
      */
     function File_ANSI()

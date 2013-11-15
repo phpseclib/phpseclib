@@ -1,6 +1,8 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
+namespace PhpSecLib\Crypt;
+
 /**
  * Random Number Generator
  *
@@ -190,17 +192,17 @@ function crypt_random_string($length)
         //
         // http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Designs_based_on_cryptographic_primitives
         switch (true) {
-            case class_exists('Crypt_AES'):
-                $crypto = new Crypt_AES(CRYPT_AES_MODE_CTR);
+            case class_exists('AES'):
+                $crypto = new AES(CRYPT_AES_MODE_CTR);
                 break;
-            case class_exists('Crypt_TripleDES'):
-                $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
+            case class_exists('TripleDES'):
+                $crypto = new TripleDES(CRYPT_DES_MODE_CTR);
                 break;
-            case class_exists('Crypt_DES'):
-                $crypto = new Crypt_DES(CRYPT_DES_MODE_CTR);
+            case class_exists('DES'):
+                $crypto = new DES(CRYPT_DES_MODE_CTR);
                 break;
-            case class_exists('Crypt_RC4'):
-                $crypto = new Crypt_RC4();
+            case class_exists('RC4'):
+                $crypto = new RC4();
                 break;
             default:
                 $crypto = $seed;

@@ -1,6 +1,8 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
+namespace PhpSecLib\File;
+
 /**
  * Pure-PHP X.509 Parser
  *
@@ -36,19 +38,12 @@
  * THE SOFTWARE.
  *
  * @category   File
- * @package    File_X509
+ * @package    X509
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMXII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link       http://phpseclib.sourceforge.net
  */
-
-/**
- * Include File_ASN1
- */
-if (!class_exists('File_ASN1')) {
-    require_once('ASN1.php');
-}
 
 /**
  * Flag to only accept signatures signed by certificate authorities
@@ -127,9 +122,9 @@ define('FILE_X509_ATTR_REPLACE', -3); // Clear first, then add a value.
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.1
  * @access  public
- * @package File_X509
+ * @package X509
  */
-class File_X509 {
+class X509 {
     /**
      * ASN.1 syntax for X.509 certificates
      *
@@ -247,7 +242,7 @@ class File_X509 {
     /**
      * The signature subject
      *
-     * There's no guarantee File_X509 is going to reencode an X.509 cert in the same way it was originally
+     * There's no guarantee X509 is going to reencode an X.509 cert in the same way it was originally
      * encoded so we take save the portion of the original cert that the signature would have made for. 
      *
      * @var String
@@ -301,15 +296,11 @@ class File_X509 {
     /**
      * Default Constructor.
      *
-     * @return File_X509
+     * @return X509
      * @access public
      */
     function File_X509()
     {
-        if (!class_exists('Math_BigInteger')) {
-            require_once('Math/BigInteger.php');
-        }
-
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1
 
@@ -719,7 +710,7 @@ class File_X509 {
                                     'optional' => true,
                                     'implicit' => true
                                 ) + $this->DirectoryString,
-                 // partyName is technically required but File_ASN1 doesn't currently support non-optional constants and
+                 // partyName is technically required but ASN1 doesn't currently support non-optional constants and
                  // setting it to optional gets the job done in any event.
                  'partyName'    => array(
                                     'constant' => 1,
@@ -1438,7 +1429,7 @@ class File_X509 {
             return $cert;
         }
 
-        $asn1 = new File_ASN1();
+        $asn1 = new ASN1();
 
         $cert = $this->_extractBER($cert);
 
@@ -1501,7 +1492,7 @@ class File_X509 {
                 }
         }
 
-        $asn1 = new File_ASN1();
+        $asn1 = new ASN1();
 
         $asn1->loadOIDs($this->oids);
 
@@ -1619,7 +1610,7 @@ class File_X509 {
                                 $map = $this->_getMapping($subid);
                                 $subvalue = &$value[$j]['policyQualifiers'][$k]['qualifier'];
                                 if ($map !== false) {
-                                    // by default File_ASN1 will try to render qualifier as a FILE_ASN1_TYPE_IA5_STRING since it's
+                                    // by default ASN1 will try to render qualifier as a FILE_ASN1_TYPE_IA5_STRING since it's
                                     // actual type is FILE_ASN1_TYPE_ANY
                                     $subvalue = new File_ASN1_Element($asn1->encodeDER($subvalue, $map));
                                 }
@@ -2121,9 +2112,6 @@ class File_X509 {
     {
         switch ($publicKeyAlgorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $rsa = new Crypt_RSA();
                 $rsa->loadKey($publicKey);
 
@@ -2383,7 +2371,7 @@ class File_X509 {
 
         $dn = $dn['rdnSequence'];
         $result = array();
-        $asn1 = new File_ASN1();
+        $asn1 = new ASN1();
         for ($i = 0; $i < count($dn); $i++) {
             if ($dn[$i][0]['type'] == $propName) {
                 $v = $dn[$i][0]['value'];
@@ -2470,7 +2458,7 @@ class File_X509 {
             case FILE_X509_DN_ARRAY:
                 return $dn;
             case FILE_X509_DN_ASN1:
-                $asn1 = new File_ASN1();
+                $asn1 = new ASN1();
                 $asn1->loadOIDs($this->oids);
                 $filters = array();
                 $filters['rdnSequence']['value'] = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
@@ -2496,7 +2484,7 @@ class File_X509 {
             case FILE_X509_DN_CANON:
                 //  No SEQUENCE around RDNs and all string values normalized as
                 // trimmed lowercase UTF-8 with all spacing  as one blank.
-                $asn1 = new File_ASN1();
+                $asn1 = new ASN1();
                 $asn1->loadOIDs($this->oids);
                 $filters = array();
                 $filters['value'] = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
@@ -2523,9 +2511,6 @@ class File_X509 {
                 return $result;
             case FILE_X509_DN_HASH:
                 $dn = $this->getDN(FILE_X509_DN_CANON, $dn);
-                if (!class_exists('Crypt_Hash')) {
-                    require_once('Crypt/Hash.php');
-                }
                 $hash = new Crypt_Hash('sha1');
                 $hash = $hash->hash($dn);
                 extract(unpack('Vhash', $hash));
@@ -2535,7 +2520,7 @@ class File_X509 {
         // Defaut is to return a string.
         $start = true;
         $output = '';
-        $asn1 = new File_ASN1();
+        $asn1 = new ASN1();
         foreach ($dn['rdnSequence'] as $field) {
             $prop = $field[0]['type'];
             $value = $field[0]['value'];
@@ -2727,7 +2712,7 @@ class File_X509 {
             }
         }
         foreach ($chain as $key=>$value) {
-            $chain[$key] = new File_X509();
+            $chain[$key] = new X509();
             $chain[$key]->loadX509($value);
         }
         return $chain;
@@ -2736,7 +2721,7 @@ class File_X509 {
     /**
      * Set public key
      *
-     * Key needs to be a Crypt_RSA object
+     * Key needs to be a RSA object
      *
      * @param Object $key
      * @access public
@@ -2751,7 +2736,7 @@ class File_X509 {
     /**
      * Set private key
      *
-     * Key needs to be a Crypt_RSA object
+     * Key needs to be a RSA object
      *
      * @param Object $key
      * @access public
@@ -2764,7 +2749,7 @@ class File_X509 {
     /**
      * Gets the public key
      *
-     * Returns a Crypt_RSA object or a false.
+     * Returns a RSA object or a false.
      *
      * @access public
      * @return Mixed
@@ -2791,9 +2776,6 @@ class File_X509 {
 
         switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $publicKey = new Crypt_RSA();
                 $publicKey->loadKey($key);
                 $publicKey->setPublicKey();
@@ -2829,7 +2811,7 @@ class File_X509 {
 
         // see http://tools.ietf.org/html/rfc2986
 
-        $asn1 = new File_ASN1();
+        $asn1 = new ASN1();
 
         $csr = $this->_extractBER($csr);
         $orig = $csr;
@@ -2864,9 +2846,6 @@ class File_X509 {
 
         switch ($algorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $this->publicKey = new Crypt_RSA();
                 $this->publicKey->loadKey($key);
                 $this->publicKey->setPublicKey();
@@ -2907,7 +2886,7 @@ class File_X509 {
                 }
         }
 
-        $asn1 = new File_ASN1();
+        $asn1 = new ASN1();
 
         $asn1->loadOIDs($this->oids);
 
@@ -2952,7 +2931,7 @@ class File_X509 {
 
         // see http://www.w3.org/html/wg/drafts/html/master/forms.html#signedpublickeyandchallenge
 
-        $asn1 = new File_ASN1();
+        $asn1 = new ASN1();
 
         $temp = preg_replace('#(?:^[^=]+=)|[\r\n\\\]#', '', $spkac);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
@@ -2989,9 +2968,6 @@ class File_X509 {
 
         switch ($algorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $this->publicKey = new Crypt_RSA();
                 $this->publicKey->loadKey($key);
                 $this->publicKey->setPublicKey();
@@ -3021,7 +2997,7 @@ class File_X509 {
             return $crl;
         }
 
-        $asn1 = new File_ASN1();
+        $asn1 = new ASN1();
 
         $crl = $this->_extractBER($crl);
         $orig = $crl;
@@ -3075,7 +3051,7 @@ class File_X509 {
             return false;
         }
 
-        $asn1 = new File_ASN1();
+        $asn1 = new ASN1();
 
         $asn1->loadOIDs($this->oids);
 
@@ -3123,8 +3099,8 @@ class File_X509 {
      * $subject can be either an existing X.509 cert (if you want to resign it),
      * a CSR or something with the DN and public key explicitly set.
      *
-     * @param File_X509 $issuer
-     * @param File_X509 $subject
+     * @param X509 $issuer
+     * @param X509 $subject
      * @param String $signatureAlgorithm optional
      * @access public
      * @return Mixed
@@ -3231,7 +3207,7 @@ class File_X509 {
         $altName = array();
 
         if (isset($subject->domains) && count($subject->domains) > 1) {
-            $altName = array_map(array('File_X509', '_dnsName'), $subject->domains);
+            $altName = array_map(array('X509', '_dnsName'), $subject->domains);
         }
 
         if (isset($subject->ipAddresses) && count($subject->ipAddresses)) {
@@ -3354,8 +3330,8 @@ class File_X509 {
      *
      * $issuer's private key needs to be loaded.
      *
-     * @param File_X509 $issuer
-     * @param File_X509 $crl
+     * @param X509 $issuer
+     * @param X509 $crl
      * @param String $signatureAlgorithm optional
      * @access public
      * @return Mixed
@@ -3482,7 +3458,7 @@ class File_X509 {
      * X.509 certificate signing helper function.
      *
      * @param Object $key
-     * @param File_X509 $subject
+     * @param X509 $subject
      * @param String $signatureAlgorithm
      * @access public
      * @return Mixed
@@ -3538,7 +3514,7 @@ class File_X509 {
         */
         if (strtolower($date) == 'lifetime') {
             $temp = '99991231235959Z';
-            $asn1 = new File_ASN1();
+            $asn1 = new ASN1();
             $temp = chr(FILE_ASN1_TYPE_GENERALIZED_TIME) . $asn1->_encodeLength(strlen($temp)) . $temp;
             $this->endDate = new File_ASN1_Element($temp);
         } else {
@@ -4025,7 +4001,7 @@ class File_X509 {
      * recommended methods (4.2.1.2 RFC 3280).
      * Highly polymorphic: try to accept all possible forms of key:
      * - Key object
-     * - File_X509 object with public or private key defined
+     * - X509 object with public or private key defined
      * - Certificate or CSR array
      * - File_ASN1_Element object
      * - PEM or DER string
@@ -4052,7 +4028,7 @@ class File_X509 {
                 return false;
             case strtolower(get_class($key)) == 'file_asn1_element':
                 // Assume the element is a bitstring-packed key.
-                $asn1 = new File_ASN1();
+                $asn1 = new ASN1();
                 $decoded = $asn1->decodeBER($key->element);
                 if (empty($decoded)) {
                     return false;
@@ -4063,9 +4039,6 @@ class File_X509 {
                 }
                 $raw = base64_decode($raw);
                 // If the key is private, compute identifier from its corresponding public key.
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $key = new Crypt_RSA();
                 if (!$key->loadKey($raw)) {
                     return false;   // Not an unencrypted RSA key.
@@ -4086,7 +4059,7 @@ class File_X509 {
                     return $this->computeKeyIdentifier($key->currentCert, $method);
                 }
                 return false;
-            default: // Should be a key object (i.e.: Crypt_RSA).
+            default: // Should be a key object (i.e.: RSA).
                 $key = $key->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_PKCS1_RAW);
                 break;
         }
@@ -4095,9 +4068,6 @@ class File_X509 {
         $key = $this->_extractBER($key);
 
         // Now we have the key string: compute its sha-1 sum.
-        if (!class_exists('Crypt_Hash')) {
-            require_once('Crypt/Hash.php');
-        }
         $hash = new Crypt_Hash('sha1');
         $hash = $hash->hash($key);
 

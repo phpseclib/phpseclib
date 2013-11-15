@@ -1,6 +1,8 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
+namespace PhpSecLib\Net;
+
 /**
  * Pure-PHP implementation of SCP.
  *
@@ -14,12 +16,12 @@
  *    include('Net/SCP.php');
  *    include('Net/SSH2.php');
  *
- *    $ssh = new Net_SSH2('www.domain.tld');
+ *    $ssh = new SSH2('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
  *        exit('bad login');
  *    }
 
- *    $scp = new Net_SCP($ssh);
+ *    $scp = new SCP($ssh);
  *    $scp->put('abcd', str_repeat('x', 1024*1024));
  * ?>
  * </code>
@@ -43,7 +45,7 @@
  * THE SOFTWARE.
  *
  * @category   Net
- * @package    Net_SCP
+ * @package    SCP
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMX Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -85,9 +87,9 @@ define('NET_SCP_SSH2',  2);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Net_SCP
+ * @package SCP
  */
-class Net_SCP {
+class SCP {
     /**
      * SSH Object
      *
@@ -120,7 +122,7 @@ class Net_SCP {
      * @param String $host
      * @param optional Integer $port
      * @param optional Integer $timeout
-     * @return Net_SCP
+     * @return SCP
      * @access public
      */
     function Net_SCP($ssh)
@@ -147,8 +149,8 @@ class Net_SCP {
     /**
      * Uploads a file to the SCP server.
      *
-     * By default, Net_SCP::put() does not read from the local filesystem.  $data is dumped directly into $remote_file.
-     * So, for example, if you set $data to 'filename.ext' and then do Net_SCP::get(), you will get a file, twelve bytes
+     * By default, SCP::put() does not read from the local filesystem.  $data is dumped directly into $remote_file.
+     * So, for example, if you set $data to 'filename.ext' and then do SCP::get(), you will get a file, twelve bytes
      * long, containing 'filename.ext' as its contents.
      *
      * Setting $mode to NET_SCP_LOCAL_FILE will change the above behavior.  With NET_SCP_LOCAL_FILE, $remote_file will 
