@@ -121,6 +121,10 @@ define('NET_SSH2_LOG_REALTIME', 3);
  * Dumps the content real-time to a file
  */
 define('NET_SSH2_LOG_REALTIME_FILE', 4);
+/**
+ * Relative path to realtime log file
+ */ 
+define('NET_SSH2_LOG_REALTIME_FILENAME', 'log.realtime')
 /**#@-*/
 
 /**#@+
