@@ -2495,7 +2495,7 @@ class Net_SSH2 {
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             user_error('Connection closed prematurely');
-            $this->bitmask = 0;
+            $this->bitmap = 0;
             return false;
         }
 
@@ -2582,7 +2582,7 @@ class Net_SSH2 {
                 $this->_string_shift($payload, 1);
                 extract(unpack('Nreason_code/Nlength', $this->_string_shift($payload, 8)));
                 $this->errors[] = 'SSH_MSG_DISCONNECT: ' . $this->disconnect_reasons[$reason_code] . "\r\n" . utf8_decode($this->_string_shift($payload, $length));
-                $this->bitmask = 0;
+                $this->bitmap = 0;
                 return false;
             case NET_SSH2_MSG_IGNORE:
                 $payload = $this->_get_binary_packet();
@@ -2598,7 +2598,7 @@ class Net_SSH2 {
             case NET_SSH2_MSG_KEXINIT:
                 if ($this->session_id !== false) {
                     if (!$this->_key_exchange($payload)) {
-                        $this->bitmask = 0;
+                        $this->bitmap = 0;
                         return false;
                     }
                     $payload = $this->_get_binary_packet();
@@ -2911,7 +2911,7 @@ class Net_SSH2 {
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             user_error('Connection closed prematurely');
-            $this->bitmask = 0;
+            $this->bitmap = 0;
             return false;
         }
 
