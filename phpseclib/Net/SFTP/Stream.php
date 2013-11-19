@@ -174,7 +174,7 @@ class Net_SFTP_Stream {
             }
             $this->sftp = $$host;
         } else {
-            if (isset($this->contenxt)) {
+            if (isset($this->context)) {
                 $context = stream_context_get_options($this->context);
             }
             if (isset($context['sftp']['session'])) {
