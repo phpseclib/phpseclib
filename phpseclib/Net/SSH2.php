@@ -2349,7 +2349,6 @@ class Net_SSH2 {
             return false;
         }
 
-        $channel = $this->in_request_pty_exec ? NET_SSH2_CHANNEL_EXEC : NET_SSH2_CHANNEL_SHELL;
         return $this->_send_channel_packet($this->_get_interactive_channel(), $cmd);
     }
 
@@ -2430,8 +2429,7 @@ class Net_SSH2 {
      */
     function reset()
     {
-        $channel = $this->in_request_pty_exec ? NET_SSH2_CHANNEL_EXEC : NET_SSH2_CHANNEL_SHELL;
-        $this->_close_channel($channel);
+        $this->_close_channel($this->_get_interactive_channel());
     }
 
     /**
