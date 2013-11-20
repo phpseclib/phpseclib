@@ -134,6 +134,10 @@ class Net_SFTP_Stream {
      */
     function Net_SFTP_Stream()
     {
+        if (defined('NET_SFTP_STREAM_LOGGING')) {
+            echo "__construct()\r\n";
+        }
+
         if (!class_exists('Net_SFTP')) {
             require_once('Net/SFTP.php');
         }
