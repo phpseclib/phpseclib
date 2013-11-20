@@ -325,6 +325,3 @@ class RC4 extends Base {
         return $text;
     }
 }
-
-// vim: ts=4:sw=4:et:
-// vim6: fdl=1:

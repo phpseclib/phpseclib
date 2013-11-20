@@ -912,6 +912,3 @@ class Twofish extends Base {
         $this->inline_crypt = $lambda_functions[$code_hash];
     }
 }
-
-// vim: ts=4:sw=4:et:
-// vim6: fdl=1:

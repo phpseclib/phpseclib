@@ -178,6 +178,3 @@ class AES extends Rijndael {
         return;
     }
 }
-
-// vim: ts=4:sw=4:et:
-// vim6: fdl=1:
