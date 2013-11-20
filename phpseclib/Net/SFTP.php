@@ -1506,8 +1506,6 @@ class Net_SFTP extends Net_SSH2 {
                 return false;
         }
 
-        $initialize = true;
-
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
         if ($mode & NET_SFTP_LOCAL_FILE) {
             if (!is_file($data)) {
