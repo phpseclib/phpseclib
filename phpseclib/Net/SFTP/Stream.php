@@ -256,6 +256,7 @@ class Net_SFTP_Stream {
 
         $this->size = $this->sftp->size($path);
         $this->mode = preg_replace('#[bt]$#', '', $mode);
+        $this->eof = false;
 
         if ($this->size === false) {
             if ($this->mode[0] == 'r') {
