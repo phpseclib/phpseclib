@@ -1,6 +1,8 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
+namespace PhpSecLib\Crypt;
+
 /**
  * Pure-PHP implementation of Triple DES.
  *
@@ -13,7 +15,7 @@
  * <?php
  *    include('Crypt/TripleDES.php');
  *
- *    $des = new Crypt_TripleDES();
+ *    $des = new TripleDES();
  *
  *    $des->setKey('abcdefghijklmnopqrstuvwx');
  *
@@ -46,19 +48,12 @@
  * THE SOFTWARE.
  *
  * @category   Crypt
- * @package    Crypt_TripleDES
+ * @package    TripleDES
  * @author     Jim Wigginton <terrafrost@php.net>
  * @copyright  MMVII Jim Wigginton
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link       http://phpseclib.sourceforge.net
  */
-
-/**
- * Include Crypt_DES
- */
-if (!class_exists('Crypt_DES')) {
-    require_once('DES.php');
-}
 
 /**
  * Encrypt / decrypt using inner chaining
@@ -80,9 +75,9 @@ define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_TripleDES
+ * @package TripleDES
  */
-class Crypt_TripleDES extends Crypt_DES {
+class TripleDES extends DES {
     /**
      * The default password key_size used by setPassword()
      *
@@ -152,7 +147,7 @@ class Crypt_TripleDES extends Crypt_DES {
     var $mode_3cbc;
 
     /**
-     * The Crypt_DES objects
+     * The DES objects
      *
      * Used only if $mode_3cbc === true
      *
@@ -198,12 +193,12 @@ class Crypt_TripleDES extends Crypt_DES {
 
                 // This three $des'es will do the 3CBC work (if $key > 64bits)
                 $this->des = array(
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
+                    new DES(CRYPT_DES_MODE_CBC),
+                    new DES(CRYPT_DES_MODE_CBC),
+                    new DES(CRYPT_DES_MODE_CBC),
                 );
 
-                // we're going to be doing the padding, ourselves, so disable it in the Crypt_DES objects
+                // we're going to be doing the padding, ourselves, so disable it in the DES objects
                 $this->des[0]->disablePadding();
                 $this->des[1]->disablePadding();
                 $this->des[2]->disablePadding();
@@ -344,7 +339,7 @@ class Crypt_TripleDES extends Crypt_DES {
      * outputs.  The reason is due to the fact that the initialization vector's change after every encryption /
      * decryption round when the continuous buffer is enabled.  When it's disabled, they remain constant.
      *
-     * Put another way, when the continuous buffer is enabled, the state of the Crypt_DES() object changes after each
+     * Put another way, when the continuous buffer is enabled, the state of the DES() object changes after each
      * encryption / decryption round, whereas otherwise, it'd remain constant.  For this reason, it's recommended that
      * continuous buffers not be used.  They do offer better security and are, in fact, sometimes required (SSH uses them),
      * however, they are also less intuitive and more likely to cause you problems.
