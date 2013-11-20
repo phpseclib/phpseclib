@@ -1,5 +1,5 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+
 
 namespace PhpSecLib\Crypt;
 
@@ -1983,6 +1983,3 @@ class Base {
         return $functions;
     }
 }
-
-// vim: ts=4:sw=4:et:
-// vim6: fdl=1:

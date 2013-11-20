@@ -1,5 +1,5 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+
 
 namespace PhpSecLib\Crypt;
 
@@ -412,6 +412,3 @@ class TripleDES extends DES {
         parent::_setupKey();
     }
 }
-
-// vim: ts=4:sw=4:et:
-// vim6: fdl=1:
