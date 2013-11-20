@@ -635,12 +635,11 @@ class Net_SFTP extends Net_SSH2 {
             return false;
         }
 
+        // assume current dir if $dir is empty
         if ($dir === '') {
             $dir = './';
-        }
-
-        // Suffix a slash if needed
-        if ($dir[strlen($dir) - 1] != '/') {
+        // suffix a slash if needed
+        } elseif ($dir[strlen($dir) - 1] != '/') {
             $dir.= '/';
         }
 
