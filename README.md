@@ -17,6 +17,6 @@ PEAR Channel: [phpseclib.sourceforge.net](http://phpseclib.sourceforge.net/pear.
 
 # Contribute
 Just fork it and create a new pull request.
-You can check your code style with Php_CodeSniffer by running `vendor/bin/phpcs -s --extensions=php --standard=tests/code_sniffer_ruleset.xml phpseclib/`
+We follow the [PEAR Coding Standard](http://pear.php.net/manual/en/standards.php).
 
 Also check in at #phpseclib-dev on irc.freenode.net
