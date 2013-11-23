@@ -3057,7 +3057,7 @@ class Math_BigInteger {
      *
      * Byte length is equal to $length. Uses crypt_random if it's loaded and mt_rand if it's not.
      *
-     * @param $size integer
+     * @param integer $size
      * @return Math_BigInteger
      * @access private
      */
