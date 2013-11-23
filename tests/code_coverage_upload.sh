@@ -24,8 +24,9 @@ fi
 
 # Workaround for rsync not creating target directories with depth > 1
 mv "$LDIRNAME" "x$LDIRNAME"
-mkdir -p "$RDIRNAME/$TRAVIS_BRANCH/$TRAVIS_BUILD_NUMBER"
-mv "x$LDIRNAME" "$RDIRNAME/$TRAVIS_BRANCH/$TRAVIS_BUILD_NUMBER/PHP-$TRAVIS_PHP_VERSION/"
+RROOT="$RDIRNAME/$TRAVIS_BRANCH/$TRAVIS_BUILD_NUMBER"
+mkdir -p "$RROOT"
+mv "x$LDIRNAME" "$RROOT/PHP-$TRAVIS_PHP_VERSION/"
 
 # Update latest symlink
 ln -s "$TRAVIS_BUILD_NUMBER" "$RDIRNAME/$TRAVIS_BRANCH/latest"
