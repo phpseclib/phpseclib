@@ -929,7 +929,7 @@ class Crypt_RSA {
      * @see _convertPublicKey()
      * @see _convertPrivateKey()
      * @param String $key
-     * @param Integer $type
+     * @param integer $type
      * @return Array
      */
     function _parseKey($key, $type)
@@ -1387,7 +1387,7 @@ class Crypt_RSA {
      *
      * @access public
      * @param String $key
-     * @param Integer $type optional
+     * @param integer $type optional
      */
     function loadKey($key, $type = false)
     {
@@ -1514,7 +1514,7 @@ class Crypt_RSA {
      * @see getPublicKey()
      * @access public
      * @param String $key optional
-     * @param Integer $type optional
+     * @param integer $type optional
      * @return Boolean
      */
     function setPublicKey($key = false, $type = false)
@@ -1571,7 +1571,7 @@ class Crypt_RSA {
      * @see getPublicKey()
      * @access public
      * @param String $key
-     * @param Integer $type optional
+     * @param integer $type optional
      */
     function getPublicKey($type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
     {
@@ -1594,7 +1594,7 @@ class Crypt_RSA {
      * @see getPublicKey()
      * @access public
      * @param String $key
-     * @param Integer $type optional
+     * @param integer $type optional
      */
     function getPrivateKey($type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
     {
@@ -1618,7 +1618,7 @@ class Crypt_RSA {
      * @see getPrivateKey()
      * @access private
      * @param String $key
-     * @param Integer $type optional
+     * @param integer $type optional
      */
     function _getPrivatePublicKey($mode = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
     {
@@ -1664,7 +1664,7 @@ class Crypt_RSA {
      * Generates the smallest and largest numbers requiring $bits bits
      *
      * @access private
-     * @param Integer $bits
+     * @param integer $bits
      * @return Array
      */
     function _generateMinMax($bits)
@@ -1714,7 +1714,7 @@ class Crypt_RSA {
      * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
      *
      * @access private
-     * @param Integer $length
+     * @param integer $length
      * @return String
      */
     function _encodeLength($length)
@@ -1749,7 +1749,7 @@ class Crypt_RSA {
      *
      * @see createKey()
      * @access public
-     * @param Integer $format
+     * @param integer $format
      */
     function setPrivateKeyFormat($format)
     {
@@ -1761,7 +1761,7 @@ class Crypt_RSA {
      *
      * @see createKey()
      * @access public
-     * @param Integer $format
+     * @param integer $format
      */
     function setPublicKeyFormat($format)
     {
@@ -1833,7 +1833,7 @@ class Crypt_RSA {
      *    of the hash function Hash) and 0.
      *
      * @access public
-     * @param Integer $format
+     * @param integer $format
      */
     function setSaltLength($sLen)
     {
@@ -1847,7 +1847,7 @@ class Crypt_RSA {
      *
      * @access private
      * @param Math_BigInteger $x
-     * @param Integer $xLen
+     * @param integer $xLen
      * @return String
      */
     function _i2osp($x, $xLen)
@@ -1960,7 +1960,7 @@ class Crypt_RSA {
      * @access private
      * @param Math_BigInteger $x
      * @param Math_BigInteger $r
-     * @param Integer $i
+     * @param integer $i
      * @return Math_BigInteger
      */
     function _blind($x, $r, $i)
@@ -2082,7 +2082,7 @@ class Crypt_RSA {
      *
      * @access private
      * @param String $mgfSeed
-     * @param Integer $mgfLen
+     * @param integer $mgfLen
      * @return String
      */
     function _mgf1($mgfSeed, $maskLen)
@@ -2337,7 +2337,7 @@ class Crypt_RSA {
      *
      * @access private
      * @param String $m
-     * @param Integer $emBits
+     * @param integer $emBits
      */
     function _emsa_pss_encode($m, $emBits)
     {
@@ -2374,7 +2374,7 @@ class Crypt_RSA {
      * @access private
      * @param String $m
      * @param String $em
-     * @param Integer $emBits
+     * @param integer $emBits
      * @return String
      */
     function _emsa_pss_verify($m, $em, $emBits)
@@ -2486,7 +2486,7 @@ class Crypt_RSA {
      *
      * @access private
      * @param String $m
-     * @param Integer $emLen
+     * @param integer $emLen
      * @return String
      */
     function _emsa_pkcs1_v1_5_encode($m, $emLen)
@@ -2611,7 +2611,7 @@ class Crypt_RSA {
      * Valid values include CRYPT_RSA_ENCRYPTION_OAEP and CRYPT_RSA_ENCRYPTION_PKCS1.
      *
      * @access public
-     * @param Integer $mode
+     * @param integer $mode
      */
     function setEncryptionMode($mode)
     {
@@ -2624,7 +2624,7 @@ class Crypt_RSA {
      * Valid values include CRYPT_RSA_SIGNATURE_PSS and CRYPT_RSA_SIGNATURE_PKCS1
      *
      * @access public
-     * @param Integer $mode
+     * @param integer $mode
      */
     function setSignatureMode($mode)
     {

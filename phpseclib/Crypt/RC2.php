@@ -353,7 +353,7 @@ class Crypt_RC2 extends Crypt_Base {
      *  Crypt_RC2::setKey() call.
      *
      * @access public
-     * @param Integer $length in bits
+     * @param integer $length in bits
      */
     function setKeyLength($length)
     {
@@ -376,7 +376,7 @@ class Crypt_RC2 extends Crypt_Base {
      * @see Crypt_Base::setKey()
      * @access public
      * @param String $key
-     * @param Integer $t1 optional          Effective key length in bits.
+     * @param integer $t1 optional          Effective key length in bits.
      */
     function setKey($key, $t1 = 0)
     {

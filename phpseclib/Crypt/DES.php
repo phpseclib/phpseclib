@@ -758,7 +758,7 @@ class Crypt_DES extends Crypt_Base {
      * @see Crypt_DES::_decryptBlock()
      * @access private
      * @param String $block
-     * @param Integer $mode
+     * @param integer $mode
      * @return String
      */
     function _processBlock($block, $mode)

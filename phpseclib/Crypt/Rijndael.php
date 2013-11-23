@@ -759,7 +759,7 @@ class Crypt_Rijndael extends Crypt_Base {
      *             This results then in slower encryption.
      *
      * @access public
-     * @param Integer $length
+     * @param integer $length
      */
     function setKeyLength($length)
     {
@@ -792,7 +792,7 @@ class Crypt_Rijndael extends Crypt_Base {
      * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
      *
      * @access public
-     * @param Integer $length
+     * @param integer $length
      */
     function setBlockLength($length)
     {
@@ -1190,7 +1190,7 @@ class Crypt_Rijndael extends Crypt_Base {
      * Performs S-Box substitutions
      *
      * @access private
-     * @param Integer $word
+     * @param integer $word
      */
     function _subWord($word)
     {

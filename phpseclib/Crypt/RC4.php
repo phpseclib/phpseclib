@@ -296,7 +296,7 @@ class Crypt_RC4 extends Crypt_Base {
      * @see Crypt_RC4::decrypt()
      * @access private
      * @param String $text
-     * @param Integer $mode
+     * @param integer $mode
      * @return String $text
      */
     function _crypt($text, $mode)

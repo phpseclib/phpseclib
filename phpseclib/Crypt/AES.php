@@ -176,7 +176,7 @@ class Crypt_AES extends Crypt_Rijndael {
      *
      * @see Crypt_Rijndael::setBlockLength()
      * @access public
-     * @param Integer $length
+     * @param integer $length
      */
     function setBlockLength($length)
     {

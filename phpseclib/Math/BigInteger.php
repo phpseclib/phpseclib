@@ -1789,7 +1789,7 @@ class Math_BigInteger {
      *
      * @param Math_BigInteger $e
      * @param Math_BigInteger $n
-     * @param Integer $mode
+     * @param integer $mode
      * @return Math_BigInteger
      * @access private
      */
@@ -1865,7 +1865,7 @@ class Math_BigInteger {
      * @access private
      * @param Array $x
      * @param Array $n
-     * @param Integer $mode
+     * @param integer $mode
      * @return Array
      */
     function _reduce($x, $n, $mode)
@@ -1902,7 +1902,7 @@ class Math_BigInteger {
      * @access private
      * @param Array $x
      * @param Array $n
-     * @param Integer $mode
+     * @param integer $mode
      * @return Array
      */
     function _prepareReduce($x, $n, $mode)
@@ -1921,7 +1921,7 @@ class Math_BigInteger {
      * @param Array $x
      * @param Array $y
      * @param Array $n
-     * @param Integer $mode
+     * @param integer $mode
      * @return Array
      */
     function _multiplyReduce($x, $y, $n, $mode)
@@ -1940,7 +1940,7 @@ class Math_BigInteger {
      * @access private
      * @param Array $x
      * @param Array $n
-     * @param Integer $mode
+     * @param integer $mode
      * @return Array
      */
     function _squareReduce($x, $n, $mode)
@@ -2160,7 +2160,7 @@ class Math_BigInteger {
      * @param Boolean $x_negative
      * @param Array $y_value
      * @param Boolean $y_negative
-     * @param Integer $stop
+     * @param integer $stop
      * @return Array
      * @access private
      */
@@ -2733,7 +2733,7 @@ class Math_BigInteger {
      * Some bitwise operations give different results depending on the precision being used.  Examples include left
      * shift, not, and rotates.
      *
-     * @param Integer $bits
+     * @param integer $bits
      * @access public
      */
     function setPrecision($bits)
@@ -2911,7 +2911,7 @@ class Math_BigInteger {
      *
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @return Math_BigInteger
      * @access public
      * @internal The only version that yields any speed increases is the internal version.
@@ -2949,7 +2949,7 @@ class Math_BigInteger {
      *
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @return Math_BigInteger
      * @access public
      * @internal The only version that yields any speed increases is the internal version.
@@ -2987,7 +2987,7 @@ class Math_BigInteger {
      *
      * Instead of the top x bits being dropped they're appended to the shifted bit string.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @return Math_BigInteger
      * @access public
      */
@@ -3031,7 +3031,7 @@ class Math_BigInteger {
      *
      * Instead of the bottom x bits being dropped they're prepended to the shifted bit string.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @return Math_BigInteger
      * @access public
      */
@@ -3437,7 +3437,7 @@ class Math_BigInteger {
      *
      * Shifts BigInteger's by $shift bits.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @access private
      */
     function _lshift($shift)
@@ -3472,7 +3472,7 @@ class Math_BigInteger {
      *
      * Shifts BigInteger's by $shift bits.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @access private
      */
     function _rshift($shift)
@@ -3661,7 +3661,7 @@ class Math_BigInteger {
     /**
      * Converts 32-bit integers to bytes.
      *
-     * @param Integer $x
+     * @param integer $x
      * @return String
      * @access private
      */
@@ -3690,7 +3690,7 @@ class Math_BigInteger {
      *
      * @see modPow()
      * @access private
-     * @param Integer $length
+     * @param integer $length
      * @return String
      */
     function _encodeASN1Length($length)
