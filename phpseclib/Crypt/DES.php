@@ -1,5 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
  * Pure-PHP implementation of DES.
@@ -1532,5 +1531,3 @@ class Crypt_DES extends Crypt_Base {
     }
 }
 
-// vim: ts=4:sw=4:et:
-// vim6: fdl=1:
