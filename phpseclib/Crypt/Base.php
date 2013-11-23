@@ -1,5 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
  * Base Class for all Crypt_* cipher classes
@@ -1985,5 +1984,3 @@ class Crypt_Base {
     }
 }
 
-// vim: ts=4:sw=4:et:
-// vim6: fdl=1:
