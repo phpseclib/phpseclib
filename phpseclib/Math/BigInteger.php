@@ -251,8 +251,9 @@ class Math_BigInteger {
      * ?&gt;
      * </code>
      *
-     * @param optional $x base-10 number or base-$base number if $base set.
-     * @param optional integer $base
+     * @param  $x     integer base-10 number or base-$base number if $base set.
+     * @param  $base  integer
+     *
      * @return Math_BigInteger
      * @access public
      */
@@ -1277,7 +1278,7 @@ class Math_BigInteger {
     /**
      * Performs squaring
      *
-     * @param Array $x
+     * @param Array|bool $x
      * @return Array
      * @access private
      */
@@ -3056,7 +3057,7 @@ class Math_BigInteger {
      *
      * Byte length is equal to $length. Uses crypt_random if it's loaded and mt_rand if it's not.
      *
-     * @param Integer $length
+     * @param $size integer
      * @return Math_BigInteger
      * @access private
      */
@@ -3085,8 +3086,8 @@ class Math_BigInteger {
     /**
      * Generate a random number
      *
-     * @param optional Integer $min
-     * @param optional Integer $max
+     * @param bool|integer $min
+     * @param bool|integer $max
      * @return Math_BigInteger
      * @access public
      */
@@ -3160,9 +3161,9 @@ class Math_BigInteger {
      * If there's not a prime within the given range, false will be returned.  If more than $timeout seconds have elapsed,
      * give up and return false.
      *
-     * @param optional Integer $min
-     * @param optional Integer $max
-     * @param optional Integer $timeout
+     * @param bool|integer $min
+     * @param bool|integer $max
+     * @param bool|integer $timeout
      * @return Math_BigInteger
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
@@ -3286,11 +3287,11 @@ class Math_BigInteger {
      * $t parameter is distributability.  Math_BigInteger::randomPrime() can be distributed accross multiple pageloads
      * on a website instead of just one.
      *
-     * @param optional Integer $t
+     * @param bool|integer $t
      * @return Boolean
      * @access public
      * @internal Uses the
-     *     {@link http://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test Miller-Rabin primality test}.  See 
+     *     {@link http://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test Miller-Rabin primality test}.  See
      *     {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=8 HAC 4.24}.
      */
     function isPrime($t = false)
