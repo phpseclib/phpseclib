@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<ruleset name="phpseclib Standard">
+
+ <description>phpseclib coding standard</description>
+
+ <!-- "for (; bar; )" should be "while (bar)" instead -->
+ <rule ref="Generic.CodeAnalysis.ForLoopShouldBeWhileLoop" />
+
+ <!-- A method MUST not only call its parent -->
+ <rule ref="Generic.CodeAnalysis.UselessOverridingMethod" />
+
+ <!-- All code files MUST use only UTF-8 without BOM. -->
+ <rule ref="Generic.Files.ByteOrderMark" />
+
+ <!-- All code files MUST use the Unix LF (linefeed) line ending. -->
+ <rule ref="Generic.Files.LineEndings" />
+
+ <!-- Class constants MUST be declared in all upper case with underscore separators. -->
+ <rule ref="Generic.NamingConventions.UpperCaseConstantName" />
+
+ <!-- Only <?php, no short tags. -->
+ <rule ref="Generic.PHP.DisallowShortOpenTag.EchoFound" />
+
+ <!-- PHP keywords MUST be in lower case. -->
+ <rule ref="Generic.PHP.LowerCaseKeyword" />
+
+ <!-- Spaces MUST be used for indentation -->
+ <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
+
+ <!-- Method arguments with default values MUST go at the end of the argument list. -->
+ <rule ref="PEAR.Functions.ValidDefaultValue" />
+
+ <!-- In the argument list, there MUST NOT be a space before each comma,
+      and there MUST be one space after each comma. -->
+ <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing">
+  <properties>
+   <property name="equalsSpacing" value="1"/>
+  </properties>
+ </rule>
+ <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingAfterHint" />
+
+ <!-- The ?> closing tag MUST be omitted from files containing only PHP. -->
+ <rule ref="Zend.Files.ClosingTag" />
+
+</ruleset>
