@@ -48,4 +48,3 @@ publish
 # local files
 vendor
 composer.phar
-composer.lock
