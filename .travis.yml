@@ -15,8 +15,10 @@ env:
 before_script:
   - git clone git://github.com/zenovich/runkit.git && cd runkit && phpize && ./configure && make && make install && cd ..
   - echo "extension=runkit.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
+  - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then composer install --dev --no-interaction; fi"
 
 script:
+  - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then vendor/bin/phpcs -s --extensions=php --standard=tests/code_sniffer_ruleset.xml phpseclib/; fi"
   - phpunit --verbose --coverage-text --coverage-html code_coverage/
 
 after_success:
