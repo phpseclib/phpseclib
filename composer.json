@@ -11,6 +11,8 @@
         "signing",
         "rsa",
         "aes",
+        "blowfish",
+        "twofish",
         "ssh",
         "sftp",
         "x509",
