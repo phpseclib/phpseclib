@@ -27,6 +27,21 @@
         {
             "name": "Jim Wigginton",
             "email": "terrafrost@php.net",
+            "role": "Lead Developer"
+        },
+        {
+            "name": "Patrick Monnerat",
+            "email": "pm@datasphere.ch",
+            "role": "Developer"
+        },
+        {
+            "name": "Andreas Fischer",
+            "email": "bantu@phpbb.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Hans-Jürgen Petrich",
+            "email": "petrich@tronic-media.com",
             "role": "Developer"
         }
     ],
