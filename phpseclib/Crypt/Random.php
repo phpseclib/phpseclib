@@ -95,6 +95,7 @@ function crypt_random_string($length)
             $fp = @fopen('/dev/urandom', 'rb');
         }
         if ($fp !== true && $fp !== false) { // surprisingly faster than !is_bool() or is_resource()
+
             return fread($fp, $length);
         }
         // method 3. pretty much does the same thing as method 2 per the following url:
@@ -203,6 +204,7 @@ function crypt_random_string($length)
                 break;
             default:
                 $crypto = $seed;
+
                 return crypt_random_string($length);
         }
 
@@ -232,6 +234,7 @@ function crypt_random_string($length)
             $v = pack('H*', sha1($r ^ $i));
             $result.= $r;
         }
+
         return substr($result, 0, $length);
     }
 
@@ -244,5 +247,6 @@ function crypt_random_string($length)
         $v = $crypto->encrypt($r ^ $i);
         $result.= $r;
     }
+
     return substr($result, 0, $length);
 }

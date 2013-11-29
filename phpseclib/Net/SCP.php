@@ -29,10 +29,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -86,14 +86,15 @@ define('NET_SCP_SSH2',  2);
  * @access  public
  * @package Net_SCP
  */
-class Net_SCP {
+class Net_SCP
+{
     /**
      * SSH Object
      *
      * @var Object
      * @access private
      */
-    var $ssh;
+    public $ssh;
 
     /**
      * Packet Size
@@ -101,7 +102,7 @@ class Net_SCP {
      * @var Integer
      * @access private
      */
-    var $packet_size;
+    public $packet_size;
 
     /**
      * Mode
@@ -109,20 +110,20 @@ class Net_SCP {
      * @var Integer
      * @access private
      */
-    var $mode;
+    public $mode;
 
     /**
      * Default Constructor.
      *
      * Connects to an SSH server
      *
-     * @param String $host
-     * @param optional Integer $port
-     * @param optional Integer $timeout
+     * @param  String           $host
+     * @param  optional Integer $port
+     * @param  optional Integer $timeout
      * @return Net_SCP
      * @access public
      */
-    function Net_SCP($ssh)
+    public function Net_SCP($ssh)
     {
         if (!is_object($ssh)) {
             return;
@@ -150,27 +151,28 @@ class Net_SCP {
      * So, for example, if you set $data to 'filename.ext' and then do Net_SCP::get(), you will get a file, twelve bytes
      * long, containing 'filename.ext' as its contents.
      *
-     * Setting $mode to NET_SCP_LOCAL_FILE will change the above behavior.  With NET_SCP_LOCAL_FILE, $remote_file will 
+     * Setting $mode to NET_SCP_LOCAL_FILE will change the above behavior.  With NET_SCP_LOCAL_FILE, $remote_file will
      * contain as many bytes as filename.ext does on your local filesystem.  If your filename.ext is 1MB then that is how
      * large $remote_file will be, as well.
      *
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
      * care of that, yourself.
      *
-     * @param String $remote_file
-     * @param String $data
-     * @param optional Integer $mode
-     * @param optional Callable $callback
+     * @param  String            $remote_file
+     * @param  String            $data
+     * @param  optional Integer  $mode
+     * @param  optional Callable $callback
      * @return Boolean
      * @access public
      */
-    function put($remote_file, $data, $mode = NET_SCP_STRING, $callback = null)
+    public function put($remote_file, $data, $mode = NET_SCP_STRING, $callback = null)
     {
         if (!isset($this->ssh)) {
             return false;
         }
 
         if (!$this->ssh->exec('scp -t ' . $remote_file, false)) { // -t = to
+
             return false;
         }
 
@@ -190,12 +192,14 @@ class Net_SCP {
         } else {
             if (!is_file($data)) {
                 user_error("$data is not a valid file", E_USER_NOTICE);
+
                 return false;
             }
 
             $fp = @fopen($data, 'rb');
             if (!$fp) {
                 fclose($fp);
+
                 return false;
             }
             $size = filesize($data);
@@ -234,18 +238,19 @@ class Net_SCP {
      * the operation was unsuccessful.  If $local_file is defined, returns true or false depending on the success of the
      * operation
      *
-     * @param String $remote_file
-     * @param optional String $local_file
+     * @param  String          $remote_file
+     * @param  optional String $local_file
      * @return Mixed
      * @access public
      */
-    function get($remote_file, $local_file = false)
+    public function get($remote_file, $local_file = false)
     {
         if (!isset($this->ssh)) {
             return false;
         }
 
         if (!$this->ssh->exec('scp -f ' . $remote_file, false)) { // -f = from
+
             return false;
         }
 
@@ -283,6 +288,7 @@ class Net_SCP {
 
         if ($local_file !== false) {
             fclose($fp);
+
             return true;
         }
 
@@ -295,7 +301,7 @@ class Net_SCP {
      * @param String $data
      * @access private
      */
-    function _send($data)
+    public function _send($data)
     {
         switch ($this->mode) {
             case NET_SCP_SSH2:
@@ -313,7 +319,7 @@ class Net_SCP {
      * @return String
      * @access private
      */
-    function _receive()
+    public function _receive()
     {
         switch ($this->mode) {
             case NET_SCP_SSH2:
@@ -327,6 +333,7 @@ class Net_SCP {
                     switch ($response[NET_SSH1_RESPONSE_TYPE]) {
                         case NET_SSH1_SMSG_STDOUT_DATA:
                             extract(unpack('Nlength', $response[NET_SSH1_RESPONSE_DATA]));
+
                             return $this->ssh->_string_shift($response[NET_SSH1_RESPONSE_DATA], $length);
                         case NET_SSH1_SMSG_STDERR_DATA:
                             break;
@@ -334,9 +341,11 @@ class Net_SCP {
                             $this->ssh->_send_binary_packet(chr(NET_SSH1_CMSG_EXIT_CONFIRMATION));
                             fclose($this->ssh->fsock);
                             $this->ssh->bitmap = 0;
+
                             return false;
                         default:
                             user_error('Unknown packet received', E_USER_NOTICE);
+
                             return false;
                     }
                 }
@@ -348,7 +357,7 @@ class Net_SCP {
      *
      * @access private
      */
-    function _close()
+    public function _close()
     {
         switch ($this->mode) {
             case NET_SCP_SSH2:
