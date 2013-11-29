@@ -7,15 +7,14 @@
 
 class Math_BigInteger_BCMathTest extends Math_BigInteger_TestCase
 {
-	static public function setUpBeforeClass()
-	{
-		if (!extension_loaded('bcmath'))
-		{
-			self::markTestSkipped('BCMath extension is not available.');
-		}
+    public static function setUpBeforeClass()
+    {
+        if (!extension_loaded('bcmath')) {
+            self::markTestSkipped('BCMath extension is not available.');
+        }
 
-		parent::setUpBeforeClass();
+        parent::setUpBeforeClass();
 
-		self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_BCMATH);
-	}
+        self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_BCMATH);
+    }
 }

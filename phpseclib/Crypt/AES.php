@@ -65,7 +65,7 @@
  * Include Crypt_Rijndael
  */
 if (!class_exists('Crypt_Rijndael')) {
-    require_once('Rijndael.php');
+    require_once 'Rijndael.php';
 }
 
 /**#@+
@@ -129,7 +129,8 @@ define('CRYPT_AES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @access  public
  * @package Crypt_AES
  */
-class Crypt_AES extends Crypt_Rijndael {
+class Crypt_AES extends Crypt_Rijndael
+{
     /**
      * The namespace used by the cipher for its constants.
      *
@@ -137,7 +138,7 @@ class Crypt_AES extends Crypt_Rijndael {
      * @var String
      * @access private
      */
-    var $const_namespace = 'AES';
+    public $const_namespace = 'AES';
 
     /**
      * Default Constructor.
@@ -163,7 +164,7 @@ class Crypt_AES extends Crypt_Rijndael {
      * @param optional Integer $mode
      * @access public
      */
-    function Crypt_AES($mode = CRYPT_AES_MODE_CBC)
+    public function Crypt_AES($mode = CRYPT_AES_MODE_CBC)
     {
         parent::Crypt_Rijndael($mode);
     }
@@ -177,9 +178,8 @@ class Crypt_AES extends Crypt_Rijndael {
      * @access public
      * @param Integer $length
      */
-    function setBlockLength($length)
+    public function setBlockLength($length)
     {
         return;
     }
 }
-

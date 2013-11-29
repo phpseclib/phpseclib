@@ -7,15 +7,14 @@
 
 class Math_BigInteger_GMPTest extends Math_BigInteger_TestCase
 {
-	static public function setUpBeforeClass()
-	{
-		if (!extension_loaded('gmp'))
-		{
-			self::markTestSkipped('GNU Multiple Precision (GMP) extension is not available.');
-		}
+    public static function setUpBeforeClass()
+    {
+        if (!extension_loaded('gmp')) {
+            self::markTestSkipped('GNU Multiple Precision (GMP) extension is not available.');
+        }
 
-		parent::setUpBeforeClass();
+        parent::setUpBeforeClass();
 
-		self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
-	}
+        self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
+    }
 }
