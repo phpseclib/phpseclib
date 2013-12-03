@@ -3299,6 +3299,7 @@ class Math_BigInteger
 
         if (!$t) {
             // see HAC 4.49 "Note (controlling the error probability)"
+            // @codingStandardsIgnoreStart
                  if ($length >= 163) { $t =  2; } // floor(1300 / 8)
             else if ($length >= 106) { $t =  3; } // floor( 850 / 8)
             else if ($length >= 81 ) { $t =  4; } // floor( 650 / 8)
@@ -3311,6 +3312,7 @@ class Math_BigInteger
             else if ($length >= 25 ) { $t = 15; } // floor( 200 / 8)
             else if ($length >= 18 ) { $t = 18; } // floor( 150 / 8)
             else                     { $t = 27; }
+            // @codingStandardsIgnoreEnd
         }
 
         // ie. gmp_testbit($this, 0)

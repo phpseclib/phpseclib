@@ -593,8 +593,7 @@ class File_ASN1
                             if (isset($child['class'])) {
                                 $childClass = $child['class'];
                                 $constant = $child['cast'];
-                            }
-                            elseif (isset($child['constant'])) {
+                            } elseif (isset($child['constant'])) {
                                 $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
                                 $constant = $child['constant'];
                             }
@@ -666,8 +665,7 @@ class File_ASN1
                             if (isset($child['class'])) {
                                 $childClass = $child['class'];
                                 $constant = $child['cast'];
-                            }
-                            elseif (isset($child['constant'])) {
+                            } elseif (isset($child['constant'])) {
                                 $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
                                 $constant = $child['constant'];
                             }
