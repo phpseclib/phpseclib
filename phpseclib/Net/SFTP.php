@@ -1057,7 +1057,7 @@ class Net_SFTP extends Net_SSH2 {
      * @return Boolean
      * @access public
      */
-    function touch($filename, $time = NULL, $atime = NULL)
+    function touch($filename, $time = null, $atime = null)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1100,7 +1100,7 @@ class Net_SFTP extends Net_SSH2 {
     /**
      * Changes file or directory owner
      *
-     * Returns TRUE on success or FALSE on error.
+     * Returns true on success or false on error.
      *
      * @param String $filename
      * @param Integer $uid
@@ -1120,7 +1120,7 @@ class Net_SFTP extends Net_SSH2 {
     /**
      * Changes file or directory group
      *
-     * Returns TRUE on success or FALSE on error.
+     * Returns true on success or false on error.
      *
      * @param String $filename
      * @param Integer $gid
@@ -1138,8 +1138,8 @@ class Net_SFTP extends Net_SSH2 {
     /**
      * Set permissions on a file.
      *
-     * Returns the new file permissions on success or FALSE on error.
-     * If $recursive is true than this just returns TRUE or FALSE.
+     * Returns the new file permissions on success or false on error.
+     * If $recursive is true than this just returns true or false.
      *
      * @param Integer $mode
      * @param String $filename

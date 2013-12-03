@@ -1016,7 +1016,7 @@ class Net_SSH1 {
 
         if ($this->curTimeout) {
             $read = array($this->fsock);
-            $write = $except = NULL;
+            $write = $except = null;
 
             $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
             $sec = floor($this->curTimeout);
