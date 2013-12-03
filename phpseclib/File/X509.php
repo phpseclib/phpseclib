@@ -3048,7 +3048,7 @@ class File_X509
         $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
         $this->_mapInExtensions($crl, 'tbsCertList/crlExtensions', $asn1);
-        $rclist = &$this->_subArray($crl,'tbsCertList/revokedCertificates');
+        $rclist = &$this->_subArray($crl, 'tbsCertList/revokedCertificates');
         if (is_array($rclist)) {
             foreach ($rclist as $i => $extension) {
                 $this->_mapInExtensions($rclist, "$i/crlEntryExtensions", $asn1);
@@ -3098,7 +3098,7 @@ class File_X509
         $asn1->loadFilters($filters);
 
         $this->_mapOutExtensions($crl, 'tbsCertList/crlExtensions', $asn1);
-        $rclist = &$this->_subArray($crl,'tbsCertList/revokedCertificates');
+        $rclist = &$this->_subArray($crl, 'tbsCertList/revokedCertificates');
         if (is_array($rclist)) {
             foreach ($rclist as $i => $extension) {
                 $this->_mapOutExtensions($rclist, "$i/crlEntryExtensions", $asn1);
