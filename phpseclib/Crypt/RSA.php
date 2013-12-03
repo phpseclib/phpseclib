@@ -432,7 +432,7 @@ class Crypt_RSA {
     /**
      * OpenSSL configuration file name.
      *
-     * Set to NULL to use system configuration file.
+     * Set to null to use system configuration file.
      * @see Crypt_RSA::createKey()
      * @var Mixed
      * @Access public
@@ -554,7 +554,7 @@ class Crypt_RSA {
                 $config['config'] = $this->configFile;
             }
             $rsa = openssl_pkey_new(array('private_key_bits' => $bits) + $config);
-            openssl_pkey_export($rsa, $privatekey, NULL, $config);
+            openssl_pkey_export($rsa, $privatekey, null, $config);
             $publickey = openssl_pkey_get_details($rsa);
             $publickey = $publickey['key'];
 

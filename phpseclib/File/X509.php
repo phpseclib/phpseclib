@@ -1430,7 +1430,7 @@ class File_X509 {
             $this->currentCert = $cert;
 
             $currentKeyIdentifier = $this->getExtension('id-ce-subjectKeyIdentifier');
-            $this->currentKeyIdentifier = is_string($currentKeyIdentifier) ? $currentKeyIdentifier : NULL;
+            $this->currentKeyIdentifier = is_string($currentKeyIdentifier) ? $currentKeyIdentifier : null;
 
             unset($this->signatureSubject);
 
@@ -1468,7 +1468,7 @@ class File_X509 {
         $this->dn = $x509['tbsCertificate']['subject'];
 
         $currentKeyIdentifier = $this->getExtension('id-ce-subjectKeyIdentifier');
-        $this->currentKeyIdentifier = is_string($currentKeyIdentifier) ? $currentKeyIdentifier : NULL;
+        $this->currentKeyIdentifier = is_string($currentKeyIdentifier) ? $currentKeyIdentifier : null;
 
         return $x509;
     }
@@ -1962,7 +1962,7 @@ class File_X509 {
      * @param Integer $date optional
      * @access public
      */
-    function validateDate($date = NULL)
+    function validateDate($date = null)
     {
         if (!is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
             return false;
@@ -1991,7 +1991,7 @@ class File_X509 {
      * Validate a signature
      *
      * Works on X.509 certs, CSR's and CRL's.
-     * Returns true if the signature is verified, false if it is not correct or NULL on error
+     * Returns true if the signature is verified, false if it is not correct or null on error
      *
      * By default returns false for self-signed certs. Call validateSignature(false) to make this support
      * self-signed.
@@ -2005,7 +2005,7 @@ class File_X509 {
     function validateSignature($caonly = true)
     {
         if (!is_array($this->currentCert) || !isset($this->signatureSubject)) {
-            return NULL;
+            return null;
         }
 
         /* TODO:
@@ -2106,7 +2106,7 @@ class File_X509 {
     /**
      * Validates a signature
      *
-     * Returns true if the signature is verified, false if it is not correct or NULL on error
+     * Returns true if the signature is verified, false if it is not correct or null on error
      *
      * @param String $publicKeyAlgorithm
      * @param String $publicKey
@@ -2141,11 +2141,11 @@ class File_X509 {
                         }
                         break;
                     default:
-                        return NULL;
+                        return null;
                 }
                 break;
             default:
-                return NULL;
+                return null;
         }
 
         return true;
@@ -2366,7 +2366,7 @@ class File_X509 {
      * @return Mixed
      * @access public
      */
-    function getDNProp($propName, $dn = NULL, $withType = false)
+    function getDNProp($propName, $dn = null, $withType = false)
     {
         if (!isset($dn)) {
             $dn = $this->dn;
@@ -2420,7 +2420,7 @@ class File_X509 {
     function setDN($dn, $merge = false, $type = 'utf8String')
     {
         if (!$merge) {
-            $this->dn = NULL;
+            $this->dn = null;
         }
 
         if (is_array($dn)) {
@@ -2459,7 +2459,7 @@ class File_X509 {
      * @access public
      * @return Boolean
      */
-    function getDN($format = FILE_X509_DN_ARRAY, $dn = NULL)
+    function getDN($format = FILE_X509_DN_ARRAY, $dn = null)
     {
         if (!isset($dn)) {
             $dn = isset($this->currentCert['tbsCertList']) ? $this->currentCert['tbsCertList']['issuer'] : $this->dn;
@@ -2675,7 +2675,7 @@ class File_X509 {
     {
         switch (true) {
             case !empty($this->dn):
-                return $this->getDNProp($propName, NULL, $withType);
+                return $this->getDNProp($propName, null, $withType);
             case !isset($this->currentCert) || !is_array($this->currentCert):
                 break;
             case isset($this->currentCert['tbsCertificate']):
@@ -2871,10 +2871,10 @@ class File_X509 {
                 $this->publicKey->setPublicKey();
                 break;
             default:
-                $this->publicKey = NULL;
+                $this->publicKey = null;
         }
 
-        $this->currentKeyIdentifier = NULL;
+        $this->currentKeyIdentifier = null;
         $this->currentCert = $csr;
 
         return $csr;
@@ -2996,10 +2996,10 @@ class File_X509 {
                 $this->publicKey->setPublicKey();
                 break;
             default:
-                $this->publicKey = NULL;
+                $this->publicKey = null;
         }
 
-        $this->currentKeyIdentifier = NULL;
+        $this->currentKeyIdentifier = null;
         $this->currentCert = $spkac;
 
         return $spkac;
@@ -3054,7 +3054,7 @@ class File_X509 {
             }
         }
 
-        $this->currentKeyIdentifier = NULL;
+        $this->currentKeyIdentifier = null;
         $this->currentCert = $crl;
 
         return $crl;
@@ -3138,8 +3138,8 @@ class File_X509 {
             return false;
         }
 
-        $currentCert = isset($this->currentCert) ? $this->currentCert : NULL;
-        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: NULL;
+        $currentCert = isset($this->currentCert) ? $this->currentCert : null;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: null;
 
         if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
             $this->currentCert = $subject->currentCert;
@@ -3311,8 +3311,8 @@ class File_X509 {
         }
         $this->publicKey = $origPublicKey;
 
-        $currentCert = isset($this->currentCert) ? $this->currentCert : NULL;
-        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: NULL;
+        $currentCert = isset($this->currentCert) ? $this->currentCert : null;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: null;
 
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['certificationRequestInfo'])) {
             $this->currentCert['signatureAlgorithm']['algorithm'] =
@@ -3365,8 +3365,8 @@ class File_X509 {
             return false;
         }
 
-        $currentCert = isset($this->currentCert) ? $this->currentCert : NULL;
-        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : NULL;
+        $currentCert = isset($this->currentCert) ? $this->currentCert : null;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
         $thisUpdate = !empty($this->startDate) ? $this->startDate : @date('D, d M y H:i:s O');
 
         if (isset($crl->currentCert) && is_array($crl->currentCert) && isset($crl->currentCert['tbsCertList'])) {
@@ -3402,7 +3402,7 @@ class File_X509 {
         }
         else {
             $crlNumber = $this->getExtension('id-ce-cRLNumber');
-            $crlNumber = $crlNumber !== false ? $crlNumber->add(new Math_BigInteger(1)) : NULL;
+            $crlNumber = $crlNumber !== false ? $crlNumber->add(new Math_BigInteger(1)) : null;
         }
 
         $this->removeExtension('id-ce-authorityKeyIdentifier');
@@ -3612,7 +3612,7 @@ class File_X509 {
      * @access private
      * @return array ref or false
      */
-    function &_extensions(&$root, $path = NULL, $create = false)
+    function &_extensions(&$root, $path = null, $create = false)
     {
         if (!isset($root)) {
             $root = $this->currentCert;
@@ -3666,7 +3666,7 @@ class File_X509 {
      * @access private
      * @return Boolean
      */
-    function _removeExtension($id, $path = NULL)
+    function _removeExtension($id, $path = null)
     {
         $extensions = &$this->_extensions($this->currentCert, $path);
 
@@ -3697,7 +3697,7 @@ class File_X509 {
      * @access private
      * @return Mixed
      */
-    function _getExtension($id, $cert = NULL, $path = NULL)
+    function _getExtension($id, $cert = null, $path = null)
     {
         $extensions = $this->_extensions($cert, $path);
 
@@ -3722,7 +3722,7 @@ class File_X509 {
      * @access private
      * @return Array
      */
-    function _getExtensions($cert = NULL, $path = NULL)
+    function _getExtensions($cert = null, $path = null)
     {
         $exts = $this->_extensions($cert, $path);
         $extensions = array();
@@ -3747,7 +3747,7 @@ class File_X509 {
      * @access private
      * @return Boolean
      */
-    function _setExtension($id, $value, $critical = false, $replace = true, $path = NULL)
+    function _setExtension($id, $value, $critical = false, $replace = true, $path = null)
     {
         $extensions = &$this->_extensions($this->currentCert, $path, true);
 
@@ -3794,7 +3794,7 @@ class File_X509 {
      * @access public
      * @return Mixed
      */
-    function getExtension($id, $cert = NULL)
+    function getExtension($id, $cert = null)
     {
         return $this->_getExtension($id, $cert);
     }
@@ -3806,7 +3806,7 @@ class File_X509 {
      * @access public
      * @return Array
      */
-    function getExtensions($cert = NULL)
+    function getExtensions($cert = null)
     {
         return $this->_getExtensions($cert);
     }
@@ -3885,7 +3885,7 @@ class File_X509 {
      * @access public
      * @return Mixed
      */
-    function getAttribute($id, $disposition = FILE_X509_ATTR_ALL, $csr = NULL)
+    function getAttribute($id, $disposition = FILE_X509_ATTR_ALL, $csr = null)
     {
         if (empty($csr)) {
             $csr = $this->currentCert;
@@ -3925,7 +3925,7 @@ class File_X509 {
      * @access public
      * @return Array
      */
-    function getAttributes($csr = NULL)
+    function getAttributes($csr = null)
     {
         if (empty($csr)) {
             $csr = $this->currentCert;
@@ -4034,7 +4034,7 @@ class File_X509 {
      * @access public
      * @return String binary key identifier
      */
-    function computeKeyIdentifier($key = NULL, $method = 1)
+    function computeKeyIdentifier($key = null, $method = 1)
     {
         if (is_null($key)) {
             $key = $this;
@@ -4227,7 +4227,7 @@ class File_X509 {
      * @access public
      * @return Boolean
      */
-    function revoke($serial, $date = NULL)
+    function revoke($serial, $date = null)
     {
         if (isset($this->currentCert['tbsCertList'])) {
             if (is_array($rclist = &$this->_subArray($this->currentCert, 'tbsCertList/revokedCertificates', true))) {
@@ -4292,7 +4292,7 @@ class File_X509 {
      * @access public
      * @return array
      */
-    function listRevoked($crl = NULL)
+    function listRevoked($crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
@@ -4343,7 +4343,7 @@ class File_X509 {
      * @access public
      * @return Mixed
      */
-    function getRevokedCertificateExtension($serial, $id, $crl = NULL)
+    function getRevokedCertificateExtension($serial, $id, $crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
@@ -4366,7 +4366,7 @@ class File_X509 {
      * @access public
      * @return Array
      */
-    function getRevokedCertificateExtensions($serial, $crl = NULL)
+    function getRevokedCertificateExtensions($serial, $crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
