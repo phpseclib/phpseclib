@@ -148,7 +148,8 @@ define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
  * @access  public
  * @package Net_SSH2
  */
-class Net_SSH2 {
+class Net_SSH2
+{
     /**
      * The SSH identifier
      *

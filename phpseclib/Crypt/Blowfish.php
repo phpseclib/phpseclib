@@ -125,7 +125,8 @@ define('CRYPT_BLOWFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @access  public
  * @package Crypt_Blowfish
  */
-class Crypt_Blowfish extends Crypt_Base {
+class Crypt_Blowfish extends Crypt_Base
+{
     /**
      * Block Length of the cipher
      *

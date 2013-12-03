@@ -80,7 +80,8 @@ define('CRYPT_HASH_MODE_HASH',     3);
  * @access  public
  * @package Crypt_Hash
  */
-class Crypt_Hash {
+class Crypt_Hash
+{
     /**
      * Hash Parameter
      *
