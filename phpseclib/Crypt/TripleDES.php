@@ -81,7 +81,8 @@ define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
  * @access  public
  * @package Crypt_TripleDES
  */
-class Crypt_TripleDES extends Crypt_DES {
+class Crypt_TripleDES extends Crypt_DES
+{
     /**
      * The default password key_size used by setPassword()
      *

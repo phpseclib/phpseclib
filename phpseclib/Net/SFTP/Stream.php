@@ -41,7 +41,8 @@
  * @access  public
  * @package Net_SFTP_Stream
  */
-class Net_SFTP_Stream {
+class Net_SFTP_Stream
+{
     /**
      * SFTP instances
      *
