@@ -44,7 +44,8 @@
  * @access  public
  * @package File_ANSI
  */
-class File_ANSI {
+class File_ANSI
+{
     /**
      * Max Width
      *

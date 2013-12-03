@@ -129,7 +129,8 @@ define('CRYPT_AES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @access  public
  * @package Crypt_AES
  */
-class Crypt_AES extends Crypt_Rijndael {
+class Crypt_AES extends Crypt_Rijndael
+{
     /**
      * The namespace used by the cipher for its constants.
      *

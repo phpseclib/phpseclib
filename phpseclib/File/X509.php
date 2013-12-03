@@ -128,7 +128,8 @@ define('FILE_X509_ATTR_REPLACE', -3); // Clear first, then add a value.
  * @access  public
  * @package File_X509
  */
-class File_X509 {
+class File_X509
+{
     /**
      * ASN.1 syntax for X.509 certificates
      *

@@ -244,7 +244,8 @@ define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 7);
  * @access  public
  * @package Crypt_RSA
  */
-class Crypt_RSA {
+class Crypt_RSA
+{
     /**
      * Precomputed Zero
      *

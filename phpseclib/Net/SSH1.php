@@ -230,7 +230,8 @@ define('NET_SSH1_READ_REGEX', 2);
  * @access  public
  * @package Net_SSH1
  */
-class Net_SSH1 {
+class Net_SSH1
+{
     /**
      * The SSH identifier
      *
