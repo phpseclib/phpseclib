@@ -57,21 +57,21 @@ define('FILE_ASN1_CLASS_PRIVATE',          3);
  * @access private
  * @link http://www.obj-sys.com/asn1tutorial/node124.html
  */
-define('FILE_ASN1_TYPE_BOOLEAN',          1);
-define('FILE_ASN1_TYPE_INTEGER',          2);
-define('FILE_ASN1_TYPE_BIT_STRING',       3);
-define('FILE_ASN1_TYPE_OCTET_STRING',     4);
-define('FILE_ASN1_TYPE_NULL',             5);
-define('FILE_ASN1_TYPE_OBJECT_IDENTIFIER',6);
-//define('FILE_ASN1_TYPE_OBJECT_DESCRIPTOR',7);
-//define('FILE_ASN1_TYPE_INSTANCE_OF',      8); // EXTERNAL
-define('FILE_ASN1_TYPE_REAL',             9);
-define('FILE_ASN1_TYPE_ENUMERATED',      10);
-//define('FILE_ASN1_TYPE_EMBEDDED',        11);
-define('FILE_ASN1_TYPE_UTF8_STRING',     12);
-//define('FILE_ASN1_TYPE_RELATIVE_OID',    13);
-define('FILE_ASN1_TYPE_SEQUENCE',        16); // SEQUENCE OF
-define('FILE_ASN1_TYPE_SET',             17); // SET OF
+define('FILE_ASN1_TYPE_BOOLEAN',           1);
+define('FILE_ASN1_TYPE_INTEGER',           2);
+define('FILE_ASN1_TYPE_BIT_STRING',        3);
+define('FILE_ASN1_TYPE_OCTET_STRING',      4);
+define('FILE_ASN1_TYPE_NULL',              5);
+define('FILE_ASN1_TYPE_OBJECT_IDENTIFIER', 6);
+//define('FILE_ASN1_TYPE_OBJECT_DESCRIPTOR', 7);
+//define('FILE_ASN1_TYPE_INSTANCE_OF',       8); // EXTERNAL
+define('FILE_ASN1_TYPE_REAL',              9);
+define('FILE_ASN1_TYPE_ENUMERATED',       10);
+//define('FILE_ASN1_TYPE_EMBEDDED',         11);
+define('FILE_ASN1_TYPE_UTF8_STRING',      12);
+//define('FILE_ASN1_TYPE_RELATIVE_OID',     13);
+define('FILE_ASN1_TYPE_SEQUENCE',         16); // SEQUENCE OF
+define('FILE_ASN1_TYPE_SET',              17); // SET OF
 /**#@-*/
 /**#@+
  * More Tag Classes
@@ -79,19 +79,19 @@ define('FILE_ASN1_TYPE_SET',             17); // SET OF
  * @access private
  * @link http://www.obj-sys.com/asn1tutorial/node10.html
  */
-define('FILE_ASN1_TYPE_NUMERIC_STRING',  18);
-define('FILE_ASN1_TYPE_PRINTABLE_STRING',19);
-define('FILE_ASN1_TYPE_TELETEX_STRING',  20); // T61String
-define('FILE_ASN1_TYPE_VIDEOTEX_STRING', 21);
-define('FILE_ASN1_TYPE_IA5_STRING',      22);
-define('FILE_ASN1_TYPE_UTC_TIME',        23);
-define('FILE_ASN1_TYPE_GENERALIZED_TIME',24);
-define('FILE_ASN1_TYPE_GRAPHIC_STRING',  25);
-define('FILE_ASN1_TYPE_VISIBLE_STRING',  26); // ISO646String
-define('FILE_ASN1_TYPE_GENERAL_STRING',  27);
-define('FILE_ASN1_TYPE_UNIVERSAL_STRING',28);
-//define('FILE_ASN1_TYPE_CHARACTER_STRING',29);
-define('FILE_ASN1_TYPE_BMP_STRING',      30);
+define('FILE_ASN1_TYPE_NUMERIC_STRING',   18);
+define('FILE_ASN1_TYPE_PRINTABLE_STRING', 19);
+define('FILE_ASN1_TYPE_TELETEX_STRING',   20); // T61String
+define('FILE_ASN1_TYPE_VIDEOTEX_STRING',  21);
+define('FILE_ASN1_TYPE_IA5_STRING',       22);
+define('FILE_ASN1_TYPE_UTC_TIME',         23);
+define('FILE_ASN1_TYPE_GENERALIZED_TIME', 24);
+define('FILE_ASN1_TYPE_GRAPHIC_STRING',   25);
+define('FILE_ASN1_TYPE_VISIBLE_STRING',   26); // ISO646String
+define('FILE_ASN1_TYPE_GENERAL_STRING',   27);
+define('FILE_ASN1_TYPE_UNIVERSAL_STRING', 28);
+//define('FILE_ASN1_TYPE_CHARACTER_STRING', 29);
+define('FILE_ASN1_TYPE_BMP_STRING',       30);
 /**#@-*/
 
 /**#@+
