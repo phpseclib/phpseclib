@@ -1715,8 +1715,7 @@ class File_X509
                 if ($map === false) {
                     user_error($id . ' is not a currently supported attribute', E_USER_NOTICE);
                     unset($attributes[$i]);
-                }
-                elseif (is_array($attributes[$i]['value'])) {
+                } elseif (is_array($attributes[$i]['value'])) {
                     $values = &$attributes[$i]['value'];
                     for ($j = 0; $j < count($values); $j++) {
                         switch ($id) {
@@ -3400,8 +3399,7 @@ class File_X509
 
         if (!empty($this->serialNumber)) {
             $crlNumber = $this->serialNumber;
-        }
-        else {
+        } else {
             $crlNumber = $this->getExtension('id-ce-cRLNumber');
             $crlNumber = $crlNumber !== false ? $crlNumber->add(new Math_BigInteger(1)) : null;
         }
@@ -3414,8 +3412,7 @@ class File_X509
         if (!$version) {
             if (!empty($tbsCertList['crlExtensions'])) {
                 $version = 1; // v2.
-            }
-            elseif (!empty($tbsCertList['revokedCertificates'])) {
+            } elseif (!empty($tbsCertList['revokedCertificates'])) {
                 foreach ($tbsCertList['revokedCertificates'] as $cert) {
                     if (!empty($cert['crlEntryExtensions'])) {
                         $version = 1; // v2.

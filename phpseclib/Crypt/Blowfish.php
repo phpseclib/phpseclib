@@ -418,8 +418,7 @@ class Crypt_Blowfish extends Crypt_Base
 
         if (!$keylength) {
             $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-        }
-        elseif ($keylength > 56) {
+        } elseif ($keylength > 56) {
             $key = substr($key, 0, 56);
         }
 
