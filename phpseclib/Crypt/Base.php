@@ -120,7 +120,8 @@ define('CRYPT_MODE_MCRYPT', 2);
  * @access  public
  * @package Crypt_Base
  */
-class Crypt_Base {
+class Crypt_Base
+{
     /**
      * The Encryption Mode
      *

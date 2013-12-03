@@ -99,7 +99,8 @@ define('CRYPT_RC4_DECRYPT', 1);
  * @access  public
  * @package Crypt_RC4
  */
-class Crypt_RC4 extends Crypt_Base {
+class Crypt_RC4 extends Crypt_Base
+{
     /**
      * Block Length of the cipher
      *

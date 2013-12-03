@@ -86,7 +86,8 @@ define('NET_SCP_SSH2',  2);
  * @access  public
  * @package Net_SCP
  */
-class Net_SCP {
+class Net_SCP
+{
     /**
      * SSH Object
      *

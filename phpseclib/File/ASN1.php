@@ -115,7 +115,8 @@ define('FILE_ASN1_TYPE_ANY',             -2);
  * @access  public
  * @package File_ASN1
  */
-class File_ASN1_Element {
+class File_ASN1_Element
+{
     /**
      * Raw element value
      *
@@ -145,7 +146,8 @@ class File_ASN1_Element {
  * @access  public
  * @package File_ASN1
  */
-class File_ASN1 {
+class File_ASN1
+{
     /**
      * ASN.1 object identifier
      *

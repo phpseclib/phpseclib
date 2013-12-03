@@ -120,7 +120,8 @@ define('CRYPT_RC2_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @access  public
  * @package Crypt_RC2
  */
-class Crypt_RC2 extends Crypt_Base {
+class Crypt_RC2 extends Crypt_Base
+{
     /**
      * Block Length of the cipher
      *

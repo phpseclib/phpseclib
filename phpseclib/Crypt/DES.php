@@ -143,7 +143,8 @@ define('CRYPT_DES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @access  public
  * @package Crypt_DES
  */
-class Crypt_DES extends Crypt_Base {
+class Crypt_DES extends Crypt_Base
+{
     /**
      * Block Length of the cipher
      *
