@@ -860,7 +860,7 @@ class Net_SSH2 {
         }
 
         $read = array($this->fsock);
-        $write = $except = NULL;
+        $write = $except = null;
 
         $sec = floor($timeout);
         $usec = 1000000 * ($timeout - $sec);
@@ -1756,7 +1756,7 @@ class Net_SSH2 {
 
         // remove the username and password from the logged packet
         if (!defined('NET_SSH2_LOGGING')) {
-            $logged = NULL;
+            $logged = null;
         } else {
             $logged = pack('CNa*Na*Na*CNa*',
                 NET_SSH2_MSG_USERAUTH_REQUEST, strlen('username'), 'username', strlen('ssh-connection'), 'ssh-connection',
@@ -2074,7 +2074,7 @@ class Net_SSH2 {
      * @return String
      * @access public
      */
-    function exec($command, $callback = NULL)
+    function exec($command, $callback = null)
     {
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;
@@ -2721,7 +2721,7 @@ class Net_SSH2 {
                 }
 
                 $read = array($this->fsock);
-                $write = $except = NULL;
+                $write = $except = null;
 
                 $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
                 $sec = floor($this->curTimeout);
@@ -2904,7 +2904,7 @@ class Net_SSH2 {
      * @return Boolean
      * @access private
      */
-    function _send_binary_packet($data, $logged = NULL)
+    function _send_binary_packet($data, $logged = null)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             user_error('Connection closed prematurely');
