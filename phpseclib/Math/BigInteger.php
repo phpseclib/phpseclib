@@ -178,7 +178,8 @@ define('MATH_BIGINTEGER_KARATSUBA_CUTOFF', 25);
  * @access  public
  * @package Math_BigInteger
  */
-class Math_BigInteger {
+class Math_BigInteger
+{
     /**
      * Holds the BigInteger's value.
      *

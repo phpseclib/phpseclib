@@ -13,7 +13,6 @@
  <rule ref="Generic.Functions.FunctionCallArgumentSpacing.NoSpaceAfterComma"><severity>0</severity></rule>
  <rule ref="PEAR.NamingConventions.ValidFunctionName.FunctionNoCapital"><severity>0</severity></rule>
  <rule ref="PEAR.NamingConventions.ValidFunctionName.NotCamelCaps"><severity>0</severity></rule>
- <rule ref="PEAR.Classes.ClassDeclaration.OpenBraceNewLine"><severity>0</severity></rule>
  <rule ref="PEAR.Commenting.ClassComment.InvalidVersion"><severity>0</severity></rule>
  <rule ref="PEAR.Commenting.ClassComment.MissingTag"><severity>0</severity></rule>
  <rule ref="PEAR.Commenting.ClassComment.WrongTagOrder"><severity>0</severity></rule>
