@@ -139,7 +139,7 @@ class Net_SFTP_Stream
         }
 
         if (!class_exists('Net_SFTP')) {
-            require_once 'Net/SFTP.php';
+            include_once 'Net/SFTP.php';
         }
     }
 
