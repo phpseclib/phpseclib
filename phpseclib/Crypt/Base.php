@@ -582,7 +582,7 @@ class Crypt_Base
                     case !function_exists('hash_algos'):
                     case !in_array($hash, hash_algos()):
                         if (!class_exists('Crypt_Hash')) {
-                            require_once 'Crypt/Hash.php';
+                            include_once 'Crypt/Hash.php';
                         }
                         $i = 1;
                         while (strlen($key) < $dkLen) {

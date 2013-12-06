@@ -66,7 +66,7 @@
  * Base cipher class
  */
 if (!class_exists('Crypt_Base')) {
-    require_once 'Base.php';
+    include_once 'Base.php';
 }
 
 /**#@+
