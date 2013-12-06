@@ -56,7 +56,7 @@
  * Include Crypt_DES
  */
 if (!class_exists('Crypt_DES')) {
-    require_once 'DES.php';
+    include_once 'DES.php';
 }
 
 /**
