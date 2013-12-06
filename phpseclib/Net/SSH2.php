@@ -763,15 +763,15 @@ class Net_SSH2
         // Include Math_BigInteger
         // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
         if (!class_exists('Math_BigInteger')) {
-            require_once 'Math/BigInteger.php';
+            include_once 'Math/BigInteger.php';
         }
 
         if (!function_exists('crypt_random_string')) {
-            require_once 'Crypt/Random.php';
+            include_once 'Crypt/Random.php';
         }
 
         if (!class_exists('Crypt_Hash')) {
-            require_once 'Crypt/Hash.php';
+            include_once 'Crypt/Hash.php';
         }
 
         $this->last_packet = strtok(microtime(), ' ') + strtok(''); // == microtime(true) in PHP5
@@ -1353,14 +1353,14 @@ class Net_SSH2
         switch ($encrypt) {
             case '3des-cbc':
                 if (!class_exists('Crypt_TripleDES')) {
-                    require_once 'Crypt/TripleDES.php';
+                    include_once 'Crypt/TripleDES.php';
                 }
                 $this->encrypt = new Crypt_TripleDES();
                 // $this->encrypt_block_size = 64 / 8 == the default
                 break;
             case '3des-ctr':
                 if (!class_exists('Crypt_TripleDES')) {
-                    require_once 'Crypt/TripleDES.php';
+                    include_once 'Crypt/TripleDES.php';
                 }
                 $this->encrypt = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
                 // $this->encrypt_block_size = 64 / 8 == the default
@@ -1369,7 +1369,7 @@ class Net_SSH2
             case 'aes192-cbc':
             case 'aes128-cbc':
                 if (!class_exists('Crypt_Rijndael')) {
-                    require_once 'Crypt/Rijndael.php';
+                    include_once 'Crypt/Rijndael.php';
                 }
                 $this->encrypt = new Crypt_Rijndael();
                 $this->encrypt_block_size = 16; // eg. 128 / 8
@@ -1378,21 +1378,21 @@ class Net_SSH2
             case 'aes192-ctr':
             case 'aes128-ctr':
                 if (!class_exists('Crypt_Rijndael')) {
-                    require_once 'Crypt/Rijndael.php';
+                    include_once 'Crypt/Rijndael.php';
                 }
                 $this->encrypt = new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'blowfish-cbc':
                 if (!class_exists('Crypt_Blowfish')) {
-                    require_once 'Crypt/Blowfish.php';
+                    include_once 'Crypt/Blowfish.php';
                 }
                 $this->encrypt = new Crypt_Blowfish();
                 $this->encrypt_block_size = 8;
                 break;
             case 'blowfish-ctr':
                 if (!class_exists('Crypt_Blowfish')) {
-                    require_once 'Crypt/Blowfish.php';
+                    include_once 'Crypt/Blowfish.php';
                 }
                 $this->encrypt = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
                 $this->encrypt_block_size = 8;
@@ -1402,7 +1402,7 @@ class Net_SSH2
             case 'twofish256-cbc':
             case 'twofish-cbc':
                 if (!class_exists('Crypt_Twofish')) {
-                    require_once 'Crypt/Twofish.php';
+                    include_once 'Crypt/Twofish.php';
                 }
                 $this->encrypt = new Crypt_Twofish();
                 $this->encrypt_block_size = 16;
@@ -1411,7 +1411,7 @@ class Net_SSH2
             case 'twofish192-ctr':
             case 'twofish256-ctr':
                 if (!class_exists('Crypt_Twofish')) {
-                    require_once 'Crypt/Twofish.php';
+                    include_once 'Crypt/Twofish.php';
                 }
                 $this->encrypt = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
                 $this->encrypt_block_size = 16;
@@ -1420,7 +1420,7 @@ class Net_SSH2
             case 'arcfour128':
             case 'arcfour256':
                 if (!class_exists('Crypt_RC4')) {
-                    require_once 'Crypt/RC4.php';
+                    include_once 'Crypt/RC4.php';
                 }
                 $this->encrypt = new Crypt_RC4();
                 break;
@@ -1431,13 +1431,13 @@ class Net_SSH2
         switch ($decrypt) {
             case '3des-cbc':
                 if (!class_exists('Crypt_TripleDES')) {
-                    require_once 'Crypt/TripleDES.php';
+                    include_once 'Crypt/TripleDES.php';
                 }
                 $this->decrypt = new Crypt_TripleDES();
                 break;
             case '3des-ctr':
                 if (!class_exists('Crypt_TripleDES')) {
-                    require_once 'Crypt/TripleDES.php';
+                    include_once 'Crypt/TripleDES.php';
                 }
                 $this->decrypt = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
                 break;
@@ -1445,7 +1445,7 @@ class Net_SSH2
             case 'aes192-cbc':
             case 'aes128-cbc':
                 if (!class_exists('Crypt_Rijndael')) {
-                    require_once 'Crypt/Rijndael.php';
+                    include_once 'Crypt/Rijndael.php';
                 }
                 $this->decrypt = new Crypt_Rijndael();
                 $this->decrypt_block_size = 16;
@@ -1454,21 +1454,21 @@ class Net_SSH2
             case 'aes192-ctr':
             case 'aes128-ctr':
                 if (!class_exists('Crypt_Rijndael')) {
-                    require_once 'Crypt/Rijndael.php';
+                    include_once 'Crypt/Rijndael.php';
                 }
                 $this->decrypt = new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
                 $this->decrypt_block_size = 16;
                 break;
             case 'blowfish-cbc':
                 if (!class_exists('Crypt_Blowfish')) {
-                    require_once 'Crypt/Blowfish.php';
+                    include_once 'Crypt/Blowfish.php';
                 }
                 $this->decrypt = new Crypt_Blowfish();
                 $this->decrypt_block_size = 8;
                 break;
             case 'blowfish-ctr':
                 if (!class_exists('Crypt_Blowfish')) {
-                    require_once 'Crypt/Blowfish.php';
+                    include_once 'Crypt/Blowfish.php';
                 }
                 $this->decrypt = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
                 $this->decrypt_block_size = 8;
@@ -1478,7 +1478,7 @@ class Net_SSH2
             case 'twofish256-cbc':
             case 'twofish-cbc':
                 if (!class_exists('Crypt_Twofish')) {
-                    require_once 'Crypt/Twofish.php';
+                    include_once 'Crypt/Twofish.php';
                 }
                 $this->decrypt = new Crypt_Twofish();
                 $this->decrypt_block_size = 16;
@@ -1487,7 +1487,7 @@ class Net_SSH2
             case 'twofish192-ctr':
             case 'twofish256-ctr':
                 if (!class_exists('Crypt_Twofish')) {
-                    require_once 'Crypt/Twofish.php';
+                    include_once 'Crypt/Twofish.php';
                 }
                 $this->decrypt = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
                 $this->decrypt_block_size = 16;
@@ -1496,7 +1496,7 @@ class Net_SSH2
             case 'arcfour128':
             case 'arcfour256':
                 if (!class_exists('Crypt_RC4')) {
-                    require_once 'Crypt/RC4.php';
+                    include_once 'Crypt/RC4.php';
                 }
                 $this->decrypt = new Crypt_RC4();
                 break;
@@ -3503,7 +3503,7 @@ class Net_SSH2
                 $signature = $this->_string_shift($signature, $temp['length']);
 
                 if (!class_exists('Crypt_RSA')) {
-                    require_once 'Crypt/RSA.php';
+                    include_once 'Crypt/RSA.php';
                 }
 
                 $rsa = new Crypt_RSA();
