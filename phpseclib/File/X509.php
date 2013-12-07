@@ -1496,33 +1496,33 @@ class File_X509
             default:
                 switch ($algorithm) {
                     case 'rsaEncryption':
-                        $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'] = 
-                            base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
+                        $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']
+                            = base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
                 }
         }
 
         $asn1 = new File_ASN1();
-
         $asn1->loadOIDs($this->oids);
 
         $filters = array();
-        $filters['tbsCertificate']['signature']['parameters'] = 
-        $filters['tbsCertificate']['signature']['issuer']['rdnSequence']['value'] = 
-        $filters['tbsCertificate']['issuer']['rdnSequence']['value'] = 
-        $filters['tbsCertificate']['subject']['rdnSequence']['value'] = 
-        $filters['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = 
-        $filters['signatureAlgorithm']['parameters'] = 
-        $filters['authorityCertIssuer']['directoryName']['rdnSequence']['value'] = 
-        //$filters['policyQualifiers']['qualifier'] = 
-        $filters['distributionPoint']['fullName']['directoryName']['rdnSequence']['value'] = 
-        $filters['directoryName']['rdnSequence']['value'] = 
-            array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+        $type_utf8_string = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+        $filters['tbsCertificate']['signature']['parameters'] = $type_utf8_string;
+        $filters['tbsCertificate']['signature']['issuer']['rdnSequence']['value'] = $type_utf8_string;
+        $filters['tbsCertificate']['issuer']['rdnSequence']['value'] = $type_utf8_string;
+        $filters['tbsCertificate']['subject']['rdnSequence']['value'] = $type_utf8_string;
+        $filters['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = $type_utf8_string;
+        $filters['signatureAlgorithm']['parameters'] = $type_utf8_string;
+        $filters['authorityCertIssuer']['directoryName']['rdnSequence']['value'] = $type_utf8_string;
+        //$filters['policyQualifiers']['qualifier'] = $type_utf8_string;
+        $filters['distributionPoint']['fullName']['directoryName']['rdnSequence']['value'] = $type_utf8_string;
+        $filters['directoryName']['rdnSequence']['value'] = $type_utf8_string;
+
         /* in the case of policyQualifiers/qualifier, the type has to be FILE_ASN1_TYPE_IA5_STRING.
            FILE_ASN1_TYPE_PRINTABLE_STRING will cause OpenSSL's X.509 parser to spit out random
            characters.
          */
-        $filters['policyQualifiers']['qualifier'] = 
-            array('type' => FILE_ASN1_TYPE_IA5_STRING);
+        $filters['policyQualifiers']['qualifier']
+            = array('type' => FILE_ASN1_TYPE_IA5_STRING);
 
         $asn1->loadFilters($filters);
 
@@ -2901,8 +2901,8 @@ class File_X509
             default:
                 switch ($algorithm) {
                     case 'rsaEncryption':
-                        $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'] = 
-                            base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])));
+                        $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']
+                            = base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])));
                 }
         }
 
@@ -2911,8 +2911,8 @@ class File_X509
         $asn1->loadOIDs($this->oids);
 
         $filters = array();
-        $filters['certificationRequestInfo']['subject']['rdnSequence']['value'] = 
-            array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+        $filters['certificationRequestInfo']['subject']['rdnSequence']['value']
+            = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
 
         $asn1->loadFilters($filters);
 
@@ -3079,19 +3079,21 @@ class File_X509
         $asn1->loadOIDs($this->oids);
 
         $filters = array();
-        $filters['tbsCertList']['issuer']['rdnSequence']['value'] = 
-        $filters['tbsCertList']['signature']['parameters'] = 
-        $filters['signatureAlgorithm']['parameters'] = 
-            array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+        $filters['tbsCertList']['issuer']['rdnSequence']['value']
+            = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+        $filters['tbsCertList']['signature']['parameters']
+            = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+        $filters['signatureAlgorithm']['parameters']
+            = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
 
         if (empty($crl['tbsCertList']['signature']['parameters'])) {
-            $filters['tbsCertList']['signature']['parameters'] = 
-                array('type' => FILE_ASN1_TYPE_NULL);
+            $filters['tbsCertList']['signature']['parameters']
+                = array('type' => FILE_ASN1_TYPE_NULL);
         }
 
         if (empty($crl['signatureAlgorithm']['parameters'])) {
-            $filters['signatureAlgorithm']['parameters'] = 
-                array('type' => FILE_ASN1_TYPE_NULL);
+            $filters['signatureAlgorithm']['parameters']
+                = array('type' => FILE_ASN1_TYPE_NULL);
         }
 
         $asn1->loadFilters($filters);
@@ -3143,9 +3145,9 @@ class File_X509
 
         if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
             $this->currentCert = $subject->currentCert;
-            $this->currentCert['tbsCertificate']['signature']['algorithm'] =
-            $this->currentCert['signatureAlgorithm']['algorithm'] =
-                $signatureAlgorithm;
+            $this->currentCert['tbsCertificate']['signature']['algorithm'] = $signatureAlgorithm;
+            $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
+
             if (!empty($this->startDate)) {
                 $this->currentCert['tbsCertificate']['validity']['notBefore']['generalTime'] = $this->startDate;
                 unset($this->currentCert['tbsCertificate']['validity']['notBefore']['utcTime']);
@@ -3315,8 +3317,7 @@ class File_X509
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: null;
 
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['certificationRequestInfo'])) {
-            $this->currentCert['signatureAlgorithm']['algorithm'] =
-                $signatureAlgorithm;
+            $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
             if (!empty($this->dn)) {
                 $this->currentCert['certificationRequestInfo']['subject'] = $this->dn;
             }
