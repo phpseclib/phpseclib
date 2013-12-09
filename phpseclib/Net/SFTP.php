@@ -989,7 +989,7 @@ class Net_SFTP extends Net_SSH2
      * The second parameter can be either NET_SFTP_STAT or NET_SFTP_LSTAT.
      *
      * @param String $filename
-     * @param Integer $type
+     * @param integer $type
      * @return Mixed
      * @access private
      */
@@ -1036,7 +1036,7 @@ class Net_SFTP extends Net_SSH2
      * Truncates a file to a given length
      *
      * @param String $filename
-     * @param Integer $new_size
+     * @param integer $new_size
      * @return Boolean
      * @access public
      */
@@ -1104,7 +1104,7 @@ class Net_SFTP extends Net_SSH2
      * Returns true on success or false on error.
      *
      * @param String $filename
-     * @param Integer $uid
+     * @param integer $uid
      * @param optional Boolean $recursive
      * @return Boolean
      * @access public
@@ -1124,7 +1124,7 @@ class Net_SFTP extends Net_SSH2
      * Returns true on success or false on error.
      *
      * @param String $filename
-     * @param Integer $gid
+     * @param integer $gid
      * @param optional Boolean $recursive
      * @return Boolean
      * @access public
@@ -1142,7 +1142,7 @@ class Net_SFTP extends Net_SSH2
      * Returns the new file permissions on success or false on error.
      * If $recursive is true than this just returns true or false.
      *
-     * @param Integer $mode
+     * @param integer $mode
      * @param String $filename
      * @param optional Boolean $recursive
      * @return Mixed
@@ -1248,7 +1248,7 @@ class Net_SFTP extends Net_SSH2
      *
      * @param String $path
      * @param String $attr
-     * @param Integer $i
+     * @param integer $i
      * @return Boolean
      * @access private
      */
@@ -1578,7 +1578,7 @@ class Net_SFTP extends Net_SSH2
      * Sending an SSH_FXP_WRITE packet and immediately reading its response isn't as efficient as blindly sending out $i
      * SSH_FXP_WRITEs, in succession, and then reading $i responses.
      *
-     * @param Integer $i
+     * @param integer $i
      * @return Boolean
      * @access private
      */
@@ -1795,7 +1795,7 @@ class Net_SFTP extends Net_SSH2
      * Minimizes directory lookups and SSH_FXP_STATUS requests for speed.
      *
      * @param String $path
-     * @param Integer $i
+     * @param integer $i
      * @return Boolean
      * @access private
      */
@@ -1962,7 +1962,7 @@ class Net_SFTP extends Net_SSH2
      *
      * Quoting the SFTP RFC, "Implementations MUST NOT send bits that are not defined" but they seem to anyway
      *
-     * @param Integer $mode
+     * @param integer $mode
      * @return Integer
      * @access private
      */
@@ -2038,7 +2038,7 @@ class Net_SFTP extends Net_SSH2
      *
      * See '6. General Packet Format' of draft-ietf-secsh-filexfer-13 for more info.
      *
-     * @param Integer $type
+     * @param integer $type
      * @param String $data
      * @see Net_SFTP::_get_sftp_packet()
      * @see Net_SSH2::_send_channel_packet()
@@ -2213,7 +2213,7 @@ class Net_SFTP extends Net_SSH2
     /**
      * Disconnect
      *
-     * @param Integer $reason
+     * @param integer $reason
      * @return Boolean
      * @access private
      */

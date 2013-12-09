@@ -759,8 +759,8 @@ class Crypt_Hash
      * Right Rotate
      *
      * @access private
-     * @param Integer $int
-     * @param Integer $amt
+     * @param integer $int
+     * @param integer $amt
      * @see _sha256()
      * @return Integer
      */
@@ -775,8 +775,8 @@ class Crypt_Hash
      * Right Shift
      *
      * @access private
-     * @param Integer $int
-     * @param Integer $amt
+     * @param integer $int
+     * @param integer $amt
      * @see _sha256()
      * @return Integer
      */
@@ -790,7 +790,7 @@ class Crypt_Hash
      * Not
      *
      * @access private
-     * @param Integer $int
+     * @param integer $int
      * @see _sha256()
      * @return Integer
      */
@@ -805,7 +805,7 @@ class Crypt_Hash
      * _sha256() adds multiple unsigned 32-bit integers.  Since PHP doesn't support unsigned integers and since the
      * possibility of overflow exists, care has to be taken.  Math_BigInteger() could be used but this should be faster.
      *
-     * @param Integer $...
+     * @param integer $...
      * @return Integer
      * @see _sha256()
      * @access private

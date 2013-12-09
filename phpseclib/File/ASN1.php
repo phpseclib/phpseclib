@@ -285,7 +285,7 @@ class File_ASN1
      * FILE_ASN1_TYPE_OCTET_STRING. In those cases, the indefinite length is used.
      *
      * @param String $encoded
-     * @param Integer $start
+     * @param integer $start
      * @return Array
      * @access private
      */
@@ -789,7 +789,7 @@ class File_ASN1
      *
      * @param String $source
      * @param String $mapping
-     * @param Integer $idx
+     * @param integer $idx
      * @return String
      * @access public
      */
@@ -804,7 +804,7 @@ class File_ASN1
      *
      * @param String $source
      * @param Array $mapping
-     * @param Integer $idx
+     * @param integer $idx
      * @param Array $special
      * @return String
      * @access private
@@ -814,7 +814,7 @@ class File_ASN1
      *
      * @param String $source
      * @param String $mapping
-     * @param Integer $idx
+     * @param integer $idx
      * @return String
      * @access private
      */
@@ -1100,7 +1100,7 @@ class File_ASN1
      * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
      *
      * @access private
-     * @param Integer $length
+     * @param integer $length
      * @return String
      */
     function _encodeLength($length)
@@ -1120,7 +1120,7 @@ class File_ASN1
      *
      * @access private
      * @param String $content
-     * @param Integer $tag
+     * @param integer $tag
      * @return String
      */
     function _decodeTime($content, $tag)

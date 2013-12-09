@@ -841,7 +841,7 @@ class Net_SSH1
      *
      * @see Net_SSH1::write()
      * @param String $expect
-     * @param Integer $mode
+     * @param integer $mode
      * @return Boolean
      * @access public
      */

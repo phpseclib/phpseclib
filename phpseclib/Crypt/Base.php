@@ -1398,7 +1398,7 @@ class Crypt_Base
      * @see Crypt_Base::decrypt()
      * @see Crypt_Base::encrypt()
      * @param String $iv
-     * @param Integer $length
+     * @param integer $length
      * @access private
      * @return String $xor
      */

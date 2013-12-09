@@ -1478,7 +1478,7 @@ class File_X509
      * Save X.509 certificate
      *
      * @param Array $cert
-     * @param Integer $format optional
+     * @param integer $format optional
      * @access public
      * @return String
      */
@@ -1959,7 +1959,7 @@ class File_X509
      *
      * If $date isn't defined it is assumed to be the current date.
      *
-     * @param Integer $date optional
+     * @param integer $date optional
      * @access public
      */
     function validateDate($date = null)
@@ -2599,7 +2599,7 @@ class File_X509
     /**
      * Get the Distinguished Name for a certificate/crl issuer
      *
-     * @param Integer $format optional
+     * @param integer $format optional
      * @access public
      * @return Mixed
      */
@@ -2621,7 +2621,7 @@ class File_X509
      * Get the Distinguished Name for a certificate/csr subject
      * Alias of getDN()
      *
-     * @param Integer $format optional
+     * @param integer $format optional
      * @access public
      * @return Mixed
      */
@@ -2884,7 +2884,7 @@ class File_X509
      * Save CSR request
      *
      * @param Array $csr
-     * @param Integer $format optional
+     * @param integer $format optional
      * @access public
      * @return String
      */
@@ -3064,7 +3064,7 @@ class File_X509
      * Save Certificate Revocation List.
      *
      * @param Array $crl
-     * @param Integer $format optional
+     * @param integer $format optional
      * @access public
      * @return String
      */
@@ -3828,7 +3828,7 @@ class File_X509
      * Remove a CSR attribute.
      *
      * @param String $id
-     * @param Integer $disposition optional
+     * @param integer $disposition optional
      * @access public
      * @return Boolean
      */
@@ -3878,7 +3878,7 @@ class File_X509
      * Returns the attribute if it exists and false if not
      *
      * @param String $id
-     * @param Integer $disposition optional
+     * @param integer $disposition optional
      * @param Array $csr optional
      * @access public
      * @return Mixed
@@ -4028,7 +4028,7 @@ class File_X509
      * - PEM or DER string
      *
      * @param Mixed $key optional
-     * @param Integer $method optional
+     * @param integer $method optional
      * @access public
      * @return String binary key identifier
      */

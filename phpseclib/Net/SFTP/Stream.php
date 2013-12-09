@@ -244,7 +244,7 @@ class Net_SFTP_Stream
      *
      * @param String $path
      * @param String $mode
-     * @param Integer $options
+     * @param integer $options
      * @param String $opened_path
      * @return Boolean
      * @access public
@@ -284,7 +284,7 @@ class Net_SFTP_Stream
     /**
      * Read from stream
      *
-     * @param Integer $count
+     * @param integer $count
      * @return Mixed
      * @access public
      */
@@ -390,8 +390,8 @@ class Net_SFTP_Stream
     /**
      * Seeks to specific location in a stream
      *
-     * @param Integer $offset
-     * @param Integer $whence
+     * @param integer $offset
+     * @param integer $whence
      * @return Boolean
      * @access public
      */
@@ -419,7 +419,7 @@ class Net_SFTP_Stream
      * Change stream options
      *
      * @param String $path
-     * @param Integer $option
+     * @param integer $option
      * @param Mixed $var
      * @return Boolean
      * @access public
@@ -452,7 +452,7 @@ class Net_SFTP_Stream
     /**
      * Retrieve the underlaying resource
      *
-     * @param Integer $cast_as
+     * @param integer $cast_as
      * @return Resource
      * @access public
      */
@@ -464,7 +464,7 @@ class Net_SFTP_Stream
     /**
      * Advisory file locking
      *
-     * @param Integer $operation
+     * @param integer $operation
      * @return Boolean
      * @access public
      */
@@ -520,7 +520,7 @@ class Net_SFTP_Stream
      * removed in 5.4 I'm just going to ignore it 
      *
      * @param String $path
-     * @param Integer $options
+     * @param integer $options
      * @return Boolean
      * @access public
      */
@@ -578,8 +578,8 @@ class Net_SFTP_Stream
      * Only valid $options is STREAM_MKDIR_RECURSIVE
      *
      * @param String $path
-     * @param Integer $mode
-     * @param Integer $options
+     * @param integer $mode
+     * @param integer $options
      * @return Boolean
      * @access public
      */
@@ -602,8 +602,8 @@ class Net_SFTP_Stream
      * $options. What does 8 correspond to?
      *
      * @param String $path
-     * @param Integer $mode
-     * @param Integer $options
+     * @param integer $mode
+     * @param integer $options
      * @return Boolean
      * @access public
      */
@@ -670,7 +670,7 @@ class Net_SFTP_Stream
      * cross that bridge when and if it's reached
      *
      * @param String $path
-     * @param Integer $flags
+     * @param integer $flags
      * @return Mixed
      * @access public
      */
@@ -692,7 +692,7 @@ class Net_SFTP_Stream
     /**
      * Truncate stream
      *
-     * @param Integer $new_size
+     * @param integer $new_size
      * @return Boolean
      * @access public
      */
@@ -714,9 +714,9 @@ class Net_SFTP_Stream
      * STREAM_OPTION_WRITE_BUFFER isn't supported for the same reason stream_flush isn't.
      * The other two aren't supported because of limitations in Net_SFTP.
      *
-     * @param Integer $option
-     * @param Integer $arg1
-     * @param Integer $arg2
+     * @param integer $option
+     * @param integer $arg1
+     * @param integer $arg2
      * @return Boolean
      * @access public
      */

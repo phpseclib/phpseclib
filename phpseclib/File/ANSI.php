@@ -223,8 +223,8 @@ class File_ANSI
      *
      * Resets the screen as well
      *
-     * @param Integer $x
-     * @param Integer $y
+     * @param integer $x
+     * @param integer $y
      * @access public
      */
     function setDimensions($x, $y)
@@ -250,8 +250,8 @@ class File_ANSI
     /**
      * Set the number of lines that should be logged past the terminal height
      *
-     * @param Integer $x
-     * @param Integer $y
+     * @param integer $x
+     * @param integer $y
      * @access public
      */
     function setHistory($history)

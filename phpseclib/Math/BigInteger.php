@@ -251,8 +251,9 @@ class Math_BigInteger
      * ?&gt;
      * </code>
      *
-     * @param optional $x base-10 number or base-$base number if $base set.
-     * @param optional integer $base
+     * @param  $x     integer base-10 number or base-$base number if $base set.
+     * @param  $base  integer
+     *
      * @return Math_BigInteger
      * @access public
      */
@@ -1277,7 +1278,7 @@ class Math_BigInteger
     /**
      * Performs squaring
      *
-     * @param Array $x
+     * @param Array|bool $x
      * @return Array
      * @access private
      */
@@ -1788,7 +1789,7 @@ class Math_BigInteger
      *
      * @param Math_BigInteger $e
      * @param Math_BigInteger $n
-     * @param Integer $mode
+     * @param integer $mode
      * @return Math_BigInteger
      * @access private
      */
@@ -1864,7 +1865,7 @@ class Math_BigInteger
      * @access private
      * @param Array $x
      * @param Array $n
-     * @param Integer $mode
+     * @param integer $mode
      * @return Array
      */
     function _reduce($x, $n, $mode)
@@ -1901,7 +1902,7 @@ class Math_BigInteger
      * @access private
      * @param Array $x
      * @param Array $n
-     * @param Integer $mode
+     * @param integer $mode
      * @return Array
      */
     function _prepareReduce($x, $n, $mode)
@@ -1920,7 +1921,7 @@ class Math_BigInteger
      * @param Array $x
      * @param Array $y
      * @param Array $n
-     * @param Integer $mode
+     * @param integer $mode
      * @return Array
      */
     function _multiplyReduce($x, $y, $n, $mode)
@@ -1939,7 +1940,7 @@ class Math_BigInteger
      * @access private
      * @param Array $x
      * @param Array $n
-     * @param Integer $mode
+     * @param integer $mode
      * @return Array
      */
     function _squareReduce($x, $n, $mode)
@@ -2159,7 +2160,7 @@ class Math_BigInteger
      * @param Boolean $x_negative
      * @param Array $y_value
      * @param Boolean $y_negative
-     * @param Integer $stop
+     * @param integer $stop
      * @return Array
      * @access private
      */
@@ -2732,7 +2733,7 @@ class Math_BigInteger
      * Some bitwise operations give different results depending on the precision being used.  Examples include left
      * shift, not, and rotates.
      *
-     * @param Integer $bits
+     * @param integer $bits
      * @access public
      */
     function setPrecision($bits)
@@ -2910,7 +2911,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @return Math_BigInteger
      * @access public
      * @internal The only version that yields any speed increases is the internal version.
@@ -2948,7 +2949,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @return Math_BigInteger
      * @access public
      * @internal The only version that yields any speed increases is the internal version.
@@ -2986,7 +2987,7 @@ class Math_BigInteger
      *
      * Instead of the top x bits being dropped they're appended to the shifted bit string.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @return Math_BigInteger
      * @access public
      */
@@ -3030,7 +3031,7 @@ class Math_BigInteger
      *
      * Instead of the bottom x bits being dropped they're prepended to the shifted bit string.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @return Math_BigInteger
      * @access public
      */
@@ -3056,7 +3057,7 @@ class Math_BigInteger
      *
      * Byte length is equal to $length. Uses crypt_random if it's loaded and mt_rand if it's not.
      *
-     * @param Integer $length
+     * @param integer $size
      * @return Math_BigInteger
      * @access private
      */
@@ -3085,8 +3086,8 @@ class Math_BigInteger
     /**
      * Generate a random number
      *
-     * @param optional Integer $min
-     * @param optional Integer $max
+     * @param bool|integer $min
+     * @param bool|integer $max
      * @return Math_BigInteger
      * @access public
      */
@@ -3160,9 +3161,9 @@ class Math_BigInteger
      * If there's not a prime within the given range, false will be returned.  If more than $timeout seconds have elapsed,
      * give up and return false.
      *
-     * @param optional Integer $min
-     * @param optional Integer $max
-     * @param optional Integer $timeout
+     * @param bool|integer $min
+     * @param bool|integer $max
+     * @param bool|integer $timeout
      * @return Math_BigInteger
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
@@ -3286,11 +3287,11 @@ class Math_BigInteger
      * $t parameter is distributability.  Math_BigInteger::randomPrime() can be distributed accross multiple pageloads
      * on a website instead of just one.
      *
-     * @param optional Integer $t
+     * @param bool|integer $t
      * @return Boolean
      * @access public
      * @internal Uses the
-     *     {@link http://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test Miller-Rabin primality test}.  See 
+     *     {@link http://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test Miller-Rabin primality test}.  See
      *     {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=8 HAC 4.24}.
      */
     function isPrime($t = false)
@@ -3438,7 +3439,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @access private
      */
     function _lshift($shift)
@@ -3473,7 +3474,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits.
      *
-     * @param Integer $shift
+     * @param integer $shift
      * @access private
      */
     function _rshift($shift)
@@ -3662,7 +3663,7 @@ class Math_BigInteger
     /**
      * Converts 32-bit integers to bytes.
      *
-     * @param Integer $x
+     * @param integer $x
      * @return String
      * @access private
      */
@@ -3691,7 +3692,7 @@ class Math_BigInteger
      *
      * @see modPow()
      * @access private
-     * @param Integer $length
+     * @param integer $length
      * @return String
      */
     function _encodeASN1Length($length)

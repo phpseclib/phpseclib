@@ -2288,7 +2288,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::write()
      * @param String $expect
-     * @param Integer $mode
+     * @param integer $mode
      * @return String
      * @access public
      */
@@ -3036,7 +3036,7 @@ class Net_SSH2
      *
      * Spans multiple SSH_MSG_CHANNEL_DATAs if appropriate
      *
-     * @param Integer $client_channel
+     * @param integer $client_channel
      * @param String $data
      * @return Boolean
      * @access private
@@ -3100,7 +3100,7 @@ class Net_SSH2
      * and for SFTP channels are presumably closed when the client disconnects.  This functions is intended
      * for SCP more than anything.
      *
-     * @param Integer $client_channel
+     * @param integer $client_channel
      * @return Boolean
      * @access private
      */
@@ -3126,7 +3126,7 @@ class Net_SSH2
     /**
      * Disconnect
      *
-     * @param Integer $reason
+     * @param integer $reason
      * @return Boolean
      * @access private
      */

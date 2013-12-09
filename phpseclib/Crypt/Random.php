@@ -54,7 +54,7 @@ define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
  * microoptimizations because this function has the potential of being called a huge number of times.
  * eg. for RSA key generation.
  *
- * @param Integer $length
+ * @param integer $length
  * @return String
  * @access public
  */
