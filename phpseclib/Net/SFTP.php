@@ -115,10 +115,10 @@ define('NET_SFTP_RESUME_START',  8);
 /**
  * Pure-PHP implementations of SFTP.
  *
+ * @package Net_SFTP
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Net_SFTP
  */
 class Net_SFTP extends Net_SSH2
 {

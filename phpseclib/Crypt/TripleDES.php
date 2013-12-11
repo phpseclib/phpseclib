@@ -76,10 +76,10 @@ define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
 /**
  * Pure-PHP implementation of Triple DES.
  *
+ * @package Crypt_TripleDES
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_TripleDES
  */
 class Crypt_TripleDES extends Crypt_DES
 {

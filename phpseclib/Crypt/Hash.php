@@ -75,10 +75,10 @@ define('CRYPT_HASH_MODE_HASH',     3);
 /**
  * Pure-PHP implementations of keyed-hash message authentication codes (HMACs) and various cryptographic hashing functions.
  *
+ * @package Crypt_Hash
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_Hash
  */
 class Crypt_Hash
 {

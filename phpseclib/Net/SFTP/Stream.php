@@ -36,10 +36,10 @@
 /**
  * SFTP Stream Wrapper
  *
+ * @package Net_SFTP_Stream
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.2
  * @access  public
- * @package Net_SFTP_Stream
  */
 class Net_SFTP_Stream
 {
