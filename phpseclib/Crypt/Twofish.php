@@ -119,11 +119,11 @@ define('CRYPT_TWOFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
 /**
  * Pure-PHP implementation of Twofish.
  *
+ * @package Crypt_Twofish
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  * @version 1.0
  * @access  public
- * @package Crypt_Twofish
  */
 class Crypt_Twofish extends Crypt_Base
 {
