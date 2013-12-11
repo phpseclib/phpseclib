@@ -124,10 +124,10 @@ define('CRYPT_AES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
 /**
  * Pure-PHP implementation of AES.
  *
+ * @package Crypt_AES
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_AES
  */
 class Crypt_AES extends Crypt_Rijndael
 {

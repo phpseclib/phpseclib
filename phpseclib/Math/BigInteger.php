@@ -173,10 +173,10 @@ define('MATH_BIGINTEGER_KARATSUBA_CUTOFF', 25);
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
  * numbers.
  *
+ * @package Math_BigInteger
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 1.0.0RC4
  * @access  public
- * @package Math_BigInteger
  */
 class Math_BigInteger
 {

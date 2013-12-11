@@ -119,11 +119,11 @@ define('CRYPT_BLOWFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
 /**
  * Pure-PHP implementation of Blowfish.
  *
+ * @package Crypt_Blowfish
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  * @version 1.0
  * @access  public
- * @package Crypt_Blowfish
  */
 class Crypt_Blowfish extends Crypt_Base
 {
