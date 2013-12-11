@@ -114,11 +114,11 @@ define('CRYPT_MODE_MCRYPT', 2);
 /**
  * Base Class for all Crypt_* cipher classes
  *
+ * @package Crypt_Base
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  * @version 1.0.0
  * @access  public
- * @package Crypt_Base
  */
 class Crypt_Base
 {

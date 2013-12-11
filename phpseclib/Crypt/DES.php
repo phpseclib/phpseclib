@@ -138,10 +138,10 @@ define('CRYPT_DES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
 /**
  * Pure-PHP implementation of DES.
  *
+ * @package Crypt_DES
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_DES
  */
 class Crypt_DES extends Crypt_Base
 {

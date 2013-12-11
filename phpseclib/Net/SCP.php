@@ -81,10 +81,10 @@ define('NET_SCP_SSH2',  2);
 /**
  * Pure-PHP implementations of SCP.
  *
+ * @package Net_SCP
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Net_SCP
  */
 class Net_SCP
 {
