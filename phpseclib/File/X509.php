@@ -123,10 +123,10 @@ define('FILE_X509_ATTR_REPLACE', -3); // Clear first, then add a value.
 /**
  * Pure-PHP X.509 Parser
  *
+ * @package File_X509
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.1
  * @access  public
- * @package File_X509
  */
 class File_X509
 {

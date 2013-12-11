@@ -110,10 +110,10 @@ define('FILE_ASN1_TYPE_ANY',             -2);
  *
  * Bypass normal encoding rules in File_ASN1::encodeDER()
  *
+ * @package File_ASN1
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.0
  * @access  public
- * @package File_ASN1
  */
 class File_ASN1_Element
 {
@@ -141,10 +141,10 @@ class File_ASN1_Element
 /**
  * Pure-PHP ASN.1 Parser
  *
+ * @package File_ASN1
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.0
  * @access  public
- * @package File_ASN1
  */
 class File_ASN1
 {

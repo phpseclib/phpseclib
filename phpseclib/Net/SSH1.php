@@ -225,10 +225,10 @@ define('NET_SSH1_READ_REGEX', 2);
 /**
  * Pure-PHP implementation of SSHv1.
  *
+ * @package Net_SSH1
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Net_SSH1
  */
 class Net_SSH1
 {

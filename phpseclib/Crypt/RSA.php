@@ -239,10 +239,10 @@ define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 7);
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
  *
+ * @package Crypt_RSA
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_RSA
  */
 class Crypt_RSA
 {

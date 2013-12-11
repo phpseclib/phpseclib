@@ -94,10 +94,10 @@ define('CRYPT_RC4_DECRYPT', 1);
 /**
  * Pure-PHP implementation of RC4.
  *
+ * @package Crypt_RC4
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_RC4
  */
 class Crypt_RC4 extends Crypt_Base
 {
