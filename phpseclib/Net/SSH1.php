@@ -1364,9 +1364,11 @@ class Net_SSH1
                 }
                 $fragment = $this->_string_shift($current_log, $short_width);
                 $hex = substr(
-                           preg_replace(
-                               '#(.)#es',
-                               '"' . $boundary . '" . str_pad(dechex(ord(substr("\\1", -1))), 2, "0", STR_PAD_LEFT)',
+                           preg_replace_callback(
+                               '#(.)#s',
+                               function ($matches) use ($boundary) {
+                                   return $boundary . str_pad(dechex(ord(substr($matches[1], -1))), 2, '0', STR_PAD_LEFT);
+                               },
                                $fragment),
                            strlen($boundary)
                        );
