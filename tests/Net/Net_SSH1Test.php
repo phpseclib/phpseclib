@@ -1,23 +1,29 @@
 <?php
+
 /**
  * @author     Marc Scholten <marc@pedigital.de>
  * @copyright  MMXIII Marc Scholten
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
-
-class Net_SSH1Test extends PHPUnit_Framework_TestCase
+class Net_SSH1Test extends PhpseclibTestCase
 {
-    public function formatLogDataProvider() {
+    public function formatLogDataProvider()
+    {
         return array(
-            array(array('hello world'), array('<--'),
+            array(
+                array('hello world'),
+                array('<--'),
                 "<--\r\n00000000  68:65:6c:6c:6f:20:77:6f:72:6c:64                 hello world\r\n\r\n"
             ),
-            array(array('hello', 'world'), array('<--', '<--'),
+            array(
+                array('hello', 'world'),
+                array('<--', '<--'),
                 "<--\r\n00000000  68:65:6c:6c:6f                                   hello\r\n\r\n" .
                 "<--\r\n00000000  77:6f:72:6c:64                                   world\r\n\r\n"
             ),
         );
     }
+
     /**
      * @dataProvider formatLogDataProvider
      */
