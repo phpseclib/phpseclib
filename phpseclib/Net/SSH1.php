@@ -1351,7 +1351,8 @@ class Net_SSH1
      */
     function _format_log($message_log, $message_number_log)
     {
-        static $boundary = ':', $long_width = 65, $short_width = 16;
+        $long_width = 65;
+        $short_width = 16;
 
         $output = '';
         for ($i = 0; $i < count($message_log); $i++) {
@@ -1364,14 +1365,9 @@ class Net_SSH1
                 }
                 $fragment = $this->_string_shift($current_log, $short_width);
                 $hex = substr(
-                           preg_replace_callback(
-                               '#(.)#s',
-                               function($matches) use ($boundary) {
-                                   return $boundary . str_pad(dechex(ord(substr($matches[1], -1))), 2, '0', STR_PAD_LEFT);
-                               },
-                               $fragment),
-                           strlen($boundary)
-                       );
+                    preg_replace_callback('#(.)#s', array(&$this, '_format_log_helper'), $fragment),
+                    strlen(':')
+                );
                 // replace non ASCII printable characters with dots
                 // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
                 // also replace < with a . since < messes up the output on web browsers
@@ -1383,6 +1379,16 @@ class Net_SSH1
         }
 
         return $output;
+    }
+
+    /**
+     * Helper for preg_replace_callback in _format_log
+     *
+     * @param Array $matches
+     */
+    function _format_log_helper($matches)
+    {
+        return ':' . str_pad(dechex(ord(substr($matches[1], -1))), 2, '0', STR_PAD_LEFT);
     }
 
     /**
