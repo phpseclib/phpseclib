@@ -3103,22 +3103,29 @@ class Net_SSH2 {
      * for SCP more than anything.
      *
      * @param Integer $client_channel
+     * @param Boolean $want_reply
      * @return Boolean
      * @access private
      */
-    function _close_channel($client_channel)
+    function _close_channel($client_channel, $want_reply = false)
     {
         // see http://tools.ietf.org/html/rfc4254#section-5.3
 
         $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$client_channel]));
 
-        $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$client_channel]));
+        if (!$want_reply) {
+            $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$client_channel]));
+        }
 
         $this->channel_status[$client_channel] = NET_SSH2_MSG_CHANNEL_CLOSE;
 
         $this->curTimeout = 0;
 
         while (!is_bool($this->_get_channel_packet($client_channel)));
+
+        if ($want_reply) {
+            $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$client_channel]));
+        }
 
         if ($this->bitmap & NET_SSH2_MASK_SHELL) {
             $this->bitmap&= ~NET_SSH2_MASK_SHELL;
