@@ -353,7 +353,7 @@ class Net_SCP {
     {
         switch ($this->mode) {
             case NET_SCP_SSH2:
-                $this->ssh->_close_channel(NET_SSH2_CHANNEL_EXEC);
+                $this->ssh->_close_channel(NET_SSH2_CHANNEL_EXEC, true);
                 break;
             case NET_SCP_SSH1:
                 $this->ssh->disconnect();
