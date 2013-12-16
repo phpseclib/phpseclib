@@ -156,7 +156,7 @@ class Net_SSH2
      * @var String
      * @access private
      */
-    var $identifier = 'SSH-2.0-phpseclib_0.3';
+    var $identifier;
 
     /**
      * The Socket Object
@@ -919,19 +919,7 @@ class Net_SSH2
             return false;
         }
 
-        $ext = array();
-        if (extension_loaded('mcrypt')) {
-            $ext[] = 'mcrypt';
-        }
-        if (extension_loaded('gmp')) {
-            $ext[] = 'gmp';
-        } else if (extension_loaded('bcmath')) {
-            $ext[] = 'bcmath';
-        }
-
-        if (!empty($ext)) {
-            $this->identifier.= ' (' . implode(', ', $ext) . ')';
-        }
+        $this->identifiert = $this->_generate_identifier();
 
         if (defined('NET_SSH2_LOGGING')) {
             $this->_append_log('<-', $extra . $temp);
@@ -967,6 +955,38 @@ class Net_SSH2
 
         $this->bitmap = NET_SSH2_MASK_CONSTRUCTOR;
     }
+
+    /**
+     * Generates the SSH identifier
+     * You should overwrite this method in your own class if you want to use an other identifier
+     *
+     * @access protected
+     * @return String
+     */
+    function _generate_identifier()
+    {
+        $identifier = 'SSH-2.0-phpseclib_0.3';
+
+        $ext = array();
+        if (extension_loaded('mcrypt')) {
+            $ext[] = 'mcrypt';
+        }
+
+        if (extension_loaded('gmp')) {
+            $ext[] = 'gmp';
+        } else {
+            if (extension_loaded('bcmath')) {
+                $ext[] = 'bcmath';
+            }
+        }
+
+        if (!empty($ext)) {
+            $identifier .= ' (' . implode(', ', $ext) . ')';
+        }
+
+        return $identifier;
+    }
+
 
     /**
      * Key Exchange

@@ -7,6 +7,17 @@
 
 class Net_SSH2Test extends PhpseclibTestCase
 {
+    /**
+     * @return Net_SSH2
+     */
+    private function createSSHMock()
+    {
+        return $this->getMockBuilder('Net_SSH2')
+            ->disableOriginalConstructor()
+            ->setMethods(['__destruct'])
+            ->getMock();
+    }
+    
     public function formatLogDataProvider()
     {
         return array(
@@ -29,13 +40,35 @@ class Net_SSH2Test extends PhpseclibTestCase
      */
     public function testFormatLog(array $message_log, array $message_number_log, $expected)
     {
-        $ssh = $this->getMockBuilder('Net_SSH2')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__destruct'))
-            ->getMock();
+        $ssh = $this->createSSHMock();
 
         $result = $ssh->_format_log($message_log, $message_number_log);
-
         $this->assertEquals($expected, $result);
     }
+    
+    public function testGenerateIdentifierWithMcryptGmpAndBmath()
+    {
+        if(!extension_loaded('mcrypt') || !extension_loaded('gmp') || !extension_loaded('bcmath')) {
+            $this->markTestSkipped('mcrypt, gmp and bcmath are required for this test');
+        }
+
+        $ssh = $this->createSSHMock();
+        $identifier = $ssh->_generate_identifier();
+
+        $this->assertEquals('SSH-2.0-phpseclib_0.3 (mcrypt, gmp, bcmath)', $identifier);
+    }
+
+    public function testGenerateIdentifierWithMcryptAndBmath()
+    {
+        if(!extension_loaded('mcrypt') || !extension_loaded('bcmath')) {
+            $this->markTestSkipped('mcrypt and bcmath are required for this test');
+        }
+
+        $ssh = $this->createSSHMock();
+        $identifier = $ssh->_generate_identifier();
+
+        $this->assertEquals('SSH-2.0-phpseclib_0.3 (mcrypt, bcmath)', $identifier);
+    }
+
+
 }
