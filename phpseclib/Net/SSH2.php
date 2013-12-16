@@ -919,7 +919,7 @@ class Net_SSH2
             return false;
         }
 
-        $this->identifiert = $this->_generate_identifier();
+        $this->identifier = $this->_generate_identifier();
 
         if (defined('NET_SSH2_LOGGING')) {
             $this->_append_log('<-', $extra . $temp);
