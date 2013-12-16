@@ -748,6 +748,30 @@ class Net_SSH2
     var $is_timeout = false;
 
     /**
+     * Log Boundary
+     *
+     * @see Net_SSH2::_format_log
+     * @access private
+     */
+    var $log_boundary = ':';
+
+    /**
+     * Log Long Width
+     *
+     * @see Net_SSH2::_format_log
+     * @access private
+     */
+    var $log_long_width = 65;
+
+    /**
+     * Log Short Width
+     *
+     * @see Net_SSH2::_format_log
+     * @access private
+     */
+    var $log_short_width = 16;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -3225,8 +3249,6 @@ class Net_SSH2
      */
     function _format_log($message_log, $message_number_log)
     {
-        static $boundary = ':', $long_width = 65, $short_width = 16;
-
         $output = '';
         for ($i = 0; $i < count($message_log); $i++) {
             $output.= $message_number_log[$i] . "\r\n";
@@ -3236,25 +3258,33 @@ class Net_SSH2
                 if (strlen($current_log)) {
                     $output.= str_pad(dechex($j), 7, '0', STR_PAD_LEFT) . '0  ';
                 }
-                $fragment = $this->_string_shift($current_log, $short_width);
-                $hex = substr(
-                           preg_replace(
-                               '#(.)#es',
-                               '"' . $boundary . '" . str_pad(dechex(ord(substr("\\1", -1))), 2, "0", STR_PAD_LEFT)',
-                               $fragment),
-                           strlen($boundary)
-                       );
+                $fragment = $this->_string_shift($current_log, $this->log_short_width);
+                $hex = substr(preg_replace_callback('#.#s', array($this, '_format_log_helper'), $fragment), strlen($this->log_boundary));
                 // replace non ASCII printable characters with dots
                 // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
                 // also replace < with a . since < messes up the output on web browsers
                 $raw = preg_replace('#[^\x20-\x7E]|<#', '.', $fragment);
-                $output.= str_pad($hex, $long_width - $short_width, ' ') . $raw . "\r\n";
+                $output.= str_pad($hex, $this->log_long_width - $this->log_short_width, ' ') . $raw . "\r\n";
                 $j++;
             } while (strlen($current_log));
             $output.= "\r\n";
         }
 
         return $output;
+    }
+
+    /**
+     * Helper function for _format_log
+     *
+     * For use with preg_replace_callback()
+     *
+     * @param Array $matches
+     * @access private
+     * @return String
+     */
+    function _format_log_helper($matches)
+    {
+        return $this->log_boundary . str_pad(dechex(ord($matches[0])), 2, '0', STR_PAD_LEFT);
     }
 
     /**
