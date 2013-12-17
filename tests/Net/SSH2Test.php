@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author     Marc Scholten <marc@pedigital.de>
  * @copyright  MMXIII Marc Scholten
@@ -14,7 +15,7 @@ class Net_SSH2Test extends PhpseclibTestCase
     {
         return $this->getMockBuilder('Net_SSH2')
             ->disableOriginalConstructor()
-            ->setMethods(['__destruct'])
+            ->setMethods(array('__destruct'))
             ->getMock();
     }
     
@@ -48,27 +49,36 @@ class Net_SSH2Test extends PhpseclibTestCase
     
     public function testGenerateIdentifierWithMcryptGmpAndBmath()
     {
-        if(!extension_loaded('mcrypt') || !extension_loaded('gmp') || !extension_loaded('bcmath')) {
-            $this->markTestSkipped('mcrypt, gmp and bcmath are required for this test');
-        }
-
-        $ssh = $this->createSSHMock();
-        $identifier = $ssh->_generate_identifier();
-
-        $this->assertEquals('SSH-2.0-phpseclib_0.3 (mcrypt, gmp, bcmath)', $identifier);
+        return array(
+            array('SSH-2.0-phpseclib_0.3', array()),
+            array('SSH-2.0-phpseclib_0.3 (gmp)', array('gmp')),
+            array('SSH-2.0-phpseclib_0.3 (bcmath)', array('bcmath')),
+            array('SSH-2.0-phpseclib_0.3 (mcrypt)', array('mcrypt')),
+            array('SSH-2.0-phpseclib_0.3 (mcrypt, gmp)', array('mcrypt', 'gmp')),
+            array('SSH-2.0-phpseclib_0.3 (mcrypt, bcmath)', array('mcrypt', 'bcmath')),
+        );
     }
 
-    public function testGenerateIdentifierWithMcryptAndBmath()
+    /**
+     * @dataProvider generateIdentifierProvider
+     */
+    public function testGenerateIdentifier($expected, array $requiredExtensions)
     {
-        if(!extension_loaded('mcrypt') || !extension_loaded('bcmath')) {
-            $this->markTestSkipped('mcrypt and bcmath are required for this test');
+        $notAllowed = array('gmp', 'bcmath', 'mcrypt', 'gmp');
+        foreach($notAllowed as $nowAllowedExtension) {
+            if(in_array($nowAllowedExtension, $requiredExtensions)) {
+                continue;
+            }
+
+            if(extension_loaded($nowAllowedExtension)) {
+                $this->markTestSkipped('Extension ' . $nowAllowedExtension . ' is not allowed for this data-set');
+            }
         }
 
         $ssh = $this->createSSHMock();
         $identifier = $ssh->_generate_identifier();
 
-        $this->assertEquals('SSH-2.0-phpseclib_0.3 (mcrypt, bcmath)', $identifier);
+        $this->assertEquals($expected, $identifier);
     }
-
 
 }
