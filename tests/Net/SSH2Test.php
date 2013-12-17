@@ -29,9 +29,9 @@ class Net_SSH2Test extends PhpseclibTestCase
      */
     public function testFormatLog(array $message_log, array $message_number_log, $expected)
     {
-        $ssh = $this->getMockBuilder('Net_SSH1')
+        $ssh = $this->getMockBuilder('Net_SSH2')
             ->disableOriginalConstructor()
-            ->setMethods(null)
+            ->setMethods(array('__destruct'))
             ->getMock();
 
         $result = $ssh->_format_log($message_log, $message_number_log);
