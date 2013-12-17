@@ -985,7 +985,6 @@ class Net_SSH2
         return $identifier;
     }
 
-
     /**
      * Key Exchange
      *
