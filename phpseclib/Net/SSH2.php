@@ -974,10 +974,8 @@ class Net_SSH2
 
         if (extension_loaded('gmp')) {
             $ext[] = 'gmp';
-        } else {
-            if (extension_loaded('bcmath')) {
-                $ext[] = 'bcmath';
-            }
+        } elseif (extension_loaded('bcmath')) {
+            $ext[] = 'bcmath';
         }
 
         if (!empty($ext)) {
