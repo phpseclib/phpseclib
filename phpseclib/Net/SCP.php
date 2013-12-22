@@ -181,7 +181,7 @@ class Net_SCP
         }
 
         if ($this->mode == NET_SCP_SSH2) {
-            $this->packet_size = $this->ssh->packet_size_client_to_server[NET_SSH2_CHANNEL_EXEC];
+            $this->packet_size = $this->ssh->packet_size_client_to_server[NET_SSH2_CHANNEL_EXEC] - 4;
         }
 
         $remote_file = basename($remote_file);
@@ -353,7 +353,7 @@ class Net_SCP
     {
         switch ($this->mode) {
             case NET_SCP_SSH2:
-                $this->ssh->_close_channel(NET_SSH2_CHANNEL_EXEC);
+                $this->ssh->_close_channel(NET_SSH2_CHANNEL_EXEC, true);
                 break;
             case NET_SCP_SSH1:
                 $this->ssh->disconnect();
