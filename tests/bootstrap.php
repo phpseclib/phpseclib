@@ -5,6 +5,8 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+date_default_timezone_set('UTC');
+
 // Set up include path accordingly. This is especially required because some
 // class files of phpseclib require() other dependencies.
 set_include_path(implode(PATH_SEPARATOR, array(

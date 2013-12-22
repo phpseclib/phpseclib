@@ -1,5 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
  * Pure-PHP implementation of SCP.
@@ -42,12 +41,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @category   Net
- * @package    Net_SCP
- * @author     Jim Wigginton <terrafrost@php.net>
- * @copyright  MMX Jim Wigginton
- * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link       http://phpseclib.sourceforge.net
+ * @category  Net
+ * @package   Net_SCP
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright MMX Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      http://phpseclib.sourceforge.net
  */
 
 /**#@+
@@ -82,12 +81,13 @@ define('NET_SCP_SSH2',  2);
 /**
  * Pure-PHP implementations of SCP.
  *
+ * @package Net_SCP
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Net_SCP
  */
-class Net_SCP {
+class Net_SCP
+{
     /**
      * SSH Object
      *

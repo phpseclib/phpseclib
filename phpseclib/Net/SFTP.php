@@ -1,5 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
  * Pure-PHP implementation of SFTP.
@@ -46,19 +45,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @category   Net
- * @package    Net_SFTP
- * @author     Jim Wigginton <terrafrost@php.net>
- * @copyright  MMIX Jim Wigginton
- * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link       http://phpseclib.sourceforge.net
+ * @category  Net
+ * @package   Net_SFTP
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright MMIX Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      http://phpseclib.sourceforge.net
  */
 
 /**
  * Include Net_SSH2
  */
 if (!class_exists('Net_SSH2')) {
-    require_once('SSH2.php');
+    include_once 'SSH2.php';
 }
 
 /**#@+
@@ -116,12 +115,13 @@ define('NET_SFTP_RESUME_START',  8);
 /**
  * Pure-PHP implementations of SFTP.
  *
+ * @package Net_SFTP
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Net_SFTP
  */
-class Net_SFTP extends Net_SSH2 {
+class Net_SFTP extends Net_SSH2
+{
     /**
      * Packet Types
      *
@@ -1058,7 +1058,7 @@ class Net_SFTP extends Net_SSH2 {
      * @return Boolean
      * @access public
      */
-    function touch($filename, $time = NULL, $atime = NULL)
+    function touch($filename, $time = null, $atime = null)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1101,7 +1101,7 @@ class Net_SFTP extends Net_SSH2 {
     /**
      * Changes file or directory owner
      *
-     * Returns TRUE on success or FALSE on error.
+     * Returns true on success or false on error.
      *
      * @param String $filename
      * @param Integer $uid
@@ -1121,7 +1121,7 @@ class Net_SFTP extends Net_SSH2 {
     /**
      * Changes file or directory group
      *
-     * Returns TRUE on success or FALSE on error.
+     * Returns true on success or false on error.
      *
      * @param String $filename
      * @param Integer $gid
@@ -1139,8 +1139,8 @@ class Net_SFTP extends Net_SSH2 {
     /**
      * Set permissions on a file.
      *
-     * Returns the new file permissions on success or FALSE on error.
-     * If $recursive is true than this just returns TRUE or FALSE.
+     * Returns the new file permissions on success or false on error.
+     * If $recursive is true than this just returns true or false.
      *
      * @param Integer $mode
      * @param String $filename
@@ -1505,8 +1505,6 @@ class Net_SFTP extends Net_SSH2 {
                 user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
                 return false;
         }
-
-        $initialize = true;
 
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
         if ($mode & NET_SFTP_LOCAL_FILE) {
