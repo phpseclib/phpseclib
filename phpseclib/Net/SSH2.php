@@ -1,5 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -59,12 +58,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @category   Net
- * @package    Net_SSH2
- * @author     Jim Wigginton <terrafrost@php.net>
- * @copyright  MMVII Jim Wigginton
- * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link       http://phpseclib.sourceforge.net
+ * @category  Net
+ * @package   Net_SSH2
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright MMVII Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      http://phpseclib.sourceforge.net
  */
 
 /**#@+
@@ -144,12 +143,13 @@ define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
 /**
  * Pure-PHP implementation of SSHv2.
  *
+ * @package Net_SSH2
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Net_SSH2
  */
-class Net_SSH2 {
+class Net_SSH2
+{
     /**
      * The SSH identifier
      *
@@ -748,6 +748,30 @@ class Net_SSH2 {
     var $is_timeout = false;
 
     /**
+     * Log Boundary
+     *
+     * @see Net_SSH2::_format_log
+     * @access private
+     */
+    var $log_boundary = ':';
+
+    /**
+     * Log Long Width
+     *
+     * @see Net_SSH2::_format_log
+     * @access private
+     */
+    var $log_long_width = 65;
+
+    /**
+     * Log Short Width
+     *
+     * @see Net_SSH2::_format_log
+     * @access private
+     */
+    var $log_short_width = 16;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -763,18 +787,18 @@ class Net_SSH2 {
         // Include Math_BigInteger
         // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
         if (!class_exists('Math_BigInteger')) {
-            require_once('Math/BigInteger.php');
+            include_once 'Math/BigInteger.php';
         }
 
         if (!function_exists('crypt_random_string')) {
-            require_once('Crypt/Random.php');
+            include_once 'Crypt/Random.php';
         }
 
         if (!class_exists('Crypt_Hash')) {
-            require_once('Crypt/Hash.php');
+            include_once 'Crypt/Hash.php';
         }
 
-        $this->last_packet = strtok(microtime(), ' ') + strtok(''); // == microtime(true) in PHP5
+        $this->last_packet = microtime(true);
         $this->message_numbers = array(
             1 => 'NET_SSH2_MSG_DISCONNECT',
             2 => 'NET_SSH2_MSG_IGNORE',
@@ -845,13 +869,13 @@ class Net_SSH2 {
                   61 => 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE')
         );
 
-        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+        $start = microtime(true);
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
             return;
         }
-        $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+        $elapsed = microtime(true) - $start;
 
         $timeout-= $elapsed;
 
@@ -861,7 +885,7 @@ class Net_SSH2 {
         }
 
         $read = array($this->fsock);
-        $write = $except = NULL;
+        $write = $except = null;
 
         $sec = floor($timeout);
         $usec = 1000000 * ($timeout - $sec);
@@ -1353,14 +1377,14 @@ class Net_SSH2 {
         switch ($encrypt) {
             case '3des-cbc':
                 if (!class_exists('Crypt_TripleDES')) {
-                    require_once('Crypt/TripleDES.php');
+                    include_once 'Crypt/TripleDES.php';
                 }
                 $this->encrypt = new Crypt_TripleDES();
                 // $this->encrypt_block_size = 64 / 8 == the default
                 break;
             case '3des-ctr':
                 if (!class_exists('Crypt_TripleDES')) {
-                    require_once('Crypt/TripleDES.php');
+                    include_once 'Crypt/TripleDES.php';
                 }
                 $this->encrypt = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
                 // $this->encrypt_block_size = 64 / 8 == the default
@@ -1369,7 +1393,7 @@ class Net_SSH2 {
             case 'aes192-cbc':
             case 'aes128-cbc':
                 if (!class_exists('Crypt_Rijndael')) {
-                    require_once('Crypt/Rijndael.php');
+                    include_once 'Crypt/Rijndael.php';
                 }
                 $this->encrypt = new Crypt_Rijndael();
                 $this->encrypt_block_size = 16; // eg. 128 / 8
@@ -1378,21 +1402,21 @@ class Net_SSH2 {
             case 'aes192-ctr':
             case 'aes128-ctr':
                 if (!class_exists('Crypt_Rijndael')) {
-                    require_once('Crypt/Rijndael.php');
+                    include_once 'Crypt/Rijndael.php';
                 }
                 $this->encrypt = new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'blowfish-cbc':
                 if (!class_exists('Crypt_Blowfish')) {
-                    require_once('Crypt/Blowfish.php');
+                    include_once 'Crypt/Blowfish.php';
                 }
                 $this->encrypt = new Crypt_Blowfish();
                 $this->encrypt_block_size = 8;
                 break;
             case 'blowfish-ctr':
                 if (!class_exists('Crypt_Blowfish')) {
-                    require_once('Crypt/Blowfish.php');
+                    include_once 'Crypt/Blowfish.php';
                 }
                 $this->encrypt = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
                 $this->encrypt_block_size = 8;
@@ -1402,7 +1426,7 @@ class Net_SSH2 {
             case 'twofish256-cbc':
             case 'twofish-cbc':
                 if (!class_exists('Crypt_Twofish')) {
-                    require_once('Crypt/Twofish.php');
+                    include_once 'Crypt/Twofish.php';
                 }
                 $this->encrypt = new Crypt_Twofish();
                 $this->encrypt_block_size = 16;
@@ -1411,7 +1435,7 @@ class Net_SSH2 {
             case 'twofish192-ctr':
             case 'twofish256-ctr':
                 if (!class_exists('Crypt_Twofish')) {
-                    require_once('Crypt/Twofish.php');
+                    include_once 'Crypt/Twofish.php';
                 }
                 $this->encrypt = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
                 $this->encrypt_block_size = 16;
@@ -1420,7 +1444,7 @@ class Net_SSH2 {
             case 'arcfour128':
             case 'arcfour256':
                 if (!class_exists('Crypt_RC4')) {
-                    require_once('Crypt/RC4.php');
+                    include_once 'Crypt/RC4.php';
                 }
                 $this->encrypt = new Crypt_RC4();
                 break;
@@ -1431,13 +1455,13 @@ class Net_SSH2 {
         switch ($decrypt) {
             case '3des-cbc':
                 if (!class_exists('Crypt_TripleDES')) {
-                    require_once('Crypt/TripleDES.php');
+                    include_once 'Crypt/TripleDES.php';
                 }
                 $this->decrypt = new Crypt_TripleDES();
                 break;
             case '3des-ctr':
                 if (!class_exists('Crypt_TripleDES')) {
-                    require_once('Crypt/TripleDES.php');
+                    include_once 'Crypt/TripleDES.php';
                 }
                 $this->decrypt = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
                 break;
@@ -1445,7 +1469,7 @@ class Net_SSH2 {
             case 'aes192-cbc':
             case 'aes128-cbc':
                 if (!class_exists('Crypt_Rijndael')) {
-                    require_once('Crypt/Rijndael.php');
+                    include_once 'Crypt/Rijndael.php';
                 }
                 $this->decrypt = new Crypt_Rijndael();
                 $this->decrypt_block_size = 16;
@@ -1454,21 +1478,21 @@ class Net_SSH2 {
             case 'aes192-ctr':
             case 'aes128-ctr':
                 if (!class_exists('Crypt_Rijndael')) {
-                    require_once('Crypt/Rijndael.php');
+                    include_once 'Crypt/Rijndael.php';
                 }
                 $this->decrypt = new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
                 $this->decrypt_block_size = 16;
                 break;
             case 'blowfish-cbc':
                 if (!class_exists('Crypt_Blowfish')) {
-                    require_once('Crypt/Blowfish.php');
+                    include_once 'Crypt/Blowfish.php';
                 }
                 $this->decrypt = new Crypt_Blowfish();
                 $this->decrypt_block_size = 8;
                 break;
             case 'blowfish-ctr':
                 if (!class_exists('Crypt_Blowfish')) {
-                    require_once('Crypt/Blowfish.php');
+                    include_once 'Crypt/Blowfish.php';
                 }
                 $this->decrypt = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
                 $this->decrypt_block_size = 8;
@@ -1478,7 +1502,7 @@ class Net_SSH2 {
             case 'twofish256-cbc':
             case 'twofish-cbc':
                 if (!class_exists('Crypt_Twofish')) {
-                    require_once('Crypt/Twofish.php');
+                    include_once 'Crypt/Twofish.php';
                 }
                 $this->decrypt = new Crypt_Twofish();
                 $this->decrypt_block_size = 16;
@@ -1487,7 +1511,7 @@ class Net_SSH2 {
             case 'twofish192-ctr':
             case 'twofish256-ctr':
                 if (!class_exists('Crypt_Twofish')) {
-                    require_once('Crypt/Twofish.php');
+                    include_once 'Crypt/Twofish.php';
                 }
                 $this->decrypt = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
                 $this->decrypt_block_size = 16;
@@ -1496,7 +1520,7 @@ class Net_SSH2 {
             case 'arcfour128':
             case 'arcfour256':
                 if (!class_exists('Crypt_RC4')) {
-                    require_once('Crypt/RC4.php');
+                    include_once 'Crypt/RC4.php';
                 }
                 $this->decrypt = new Crypt_RC4();
                 break;
@@ -1757,7 +1781,7 @@ class Net_SSH2 {
 
         // remove the username and password from the logged packet
         if (!defined('NET_SSH2_LOGGING')) {
-            $logged = NULL;
+            $logged = null;
         } else {
             $logged = pack('CNa*Na*Na*CNa*',
                 NET_SSH2_MSG_USERAUTH_REQUEST, strlen('username'), 'username', strlen('ssh-connection'), 'ssh-connection',
@@ -2075,7 +2099,7 @@ class Net_SSH2 {
      * @return String
      * @access public
      */
-    function exec($command, $callback = NULL)
+    function exec($command, $callback = null)
     {
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;
@@ -2349,7 +2373,6 @@ class Net_SSH2 {
             return false;
         }
 
-        $channel = $this->in_request_pty_exec ? NET_SSH2_CHANNEL_EXEC : NET_SSH2_CHANNEL_SHELL;
         return $this->_send_channel_packet($this->_get_interactive_channel(), $cmd);
     }
 
@@ -2430,8 +2453,7 @@ class Net_SSH2 {
      */
     function reset()
     {
-        $channel = $this->in_request_pty_exec ? NET_SSH2_CHANNEL_EXEC : NET_SSH2_CHANNEL_SHELL;
-        $this->_close_channel($channel);
+        $this->_close_channel($this->_get_interactive_channel());
     }
 
     /**
@@ -2499,7 +2521,7 @@ class Net_SSH2 {
             return false;
         }
 
-        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+        $start = microtime(true);
         $raw = fread($this->fsock, $this->decrypt_block_size);
 
         if (!strlen($raw)) {
@@ -2532,7 +2554,7 @@ class Net_SSH2 {
             $buffer.= $temp;
             $remaining_length-= strlen($temp);
         }
-        $stop = strtok(microtime(), ' ') + strtok('');
+        $stop = microtime(true);
         if (strlen($buffer)) {
             $raw.= $this->decrypt !== false ? $this->decrypt->decrypt($buffer) : $buffer;
         }
@@ -2555,7 +2577,7 @@ class Net_SSH2 {
         $this->get_seq_no++;
 
         if (defined('NET_SSH2_LOGGING')) {
-            $current = strtok(microtime(), ' ') + strtok('');
+            $current = microtime(true);
             $message_number = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
             $message_number = '<- ' . $message_number .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
@@ -2724,9 +2746,9 @@ class Net_SSH2 {
                 }
 
                 $read = array($this->fsock);
-                $write = $except = NULL;
+                $write = $except = null;
 
-                $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+                $start = microtime(true);
                 $sec = floor($this->curTimeout);
                 $usec = 1000000 * ($this->curTimeout - $sec);
                 // on windows this returns a "Warning: Invalid CRT parameters detected" error
@@ -2734,7 +2756,7 @@ class Net_SSH2 {
                     $this->is_timeout = true;
                     return true;
                 }
-                $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+                $elapsed = microtime(true) - $start;
                 $this->curTimeout-= $elapsed;
             }
 
@@ -2907,7 +2929,7 @@ class Net_SSH2 {
      * @return Boolean
      * @access private
      */
-    function _send_binary_packet($data, $logged = NULL)
+    function _send_binary_packet($data, $logged = null)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             user_error('Connection closed prematurely');
@@ -2941,12 +2963,12 @@ class Net_SSH2 {
 
         $packet.= $hmac;
 
-        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+        $start = microtime(true);
         $result = strlen($packet) == fputs($this->fsock, $packet);
-        $stop = strtok(microtime(), ' ') + strtok('');
+        $stop = microtime(true);
 
         if (defined('NET_SSH2_LOGGING')) {
-            $current = strtok(microtime(), ' ') + strtok('');
+            $current = microtime(true);
             $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
             $message_number = '-> ' . $message_number .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
@@ -3227,8 +3249,6 @@ class Net_SSH2 {
      */
     function _format_log($message_log, $message_number_log)
     {
-        static $boundary = ':', $long_width = 65, $short_width = 16;
-
         $output = '';
         for ($i = 0; $i < count($message_log); $i++) {
             $output.= $message_number_log[$i] . "\r\n";
@@ -3238,25 +3258,33 @@ class Net_SSH2 {
                 if (strlen($current_log)) {
                     $output.= str_pad(dechex($j), 7, '0', STR_PAD_LEFT) . '0  ';
                 }
-                $fragment = $this->_string_shift($current_log, $short_width);
-                $hex = substr(
-                           preg_replace(
-                               '#(.)#es',
-                               '"' . $boundary . '" . str_pad(dechex(ord(substr("\\1", -1))), 2, "0", STR_PAD_LEFT)',
-                               $fragment),
-                           strlen($boundary)
-                       );
+                $fragment = $this->_string_shift($current_log, $this->log_short_width);
+                $hex = substr(preg_replace_callback('#.#s', array($this, '_format_log_helper'), $fragment), strlen($this->log_boundary));
                 // replace non ASCII printable characters with dots
                 // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
                 // also replace < with a . since < messes up the output on web browsers
                 $raw = preg_replace('#[^\x20-\x7E]|<#', '.', $fragment);
-                $output.= str_pad($hex, $long_width - $short_width, ' ') . $raw . "\r\n";
+                $output.= str_pad($hex, $this->log_long_width - $this->log_short_width, ' ') . $raw . "\r\n";
                 $j++;
             } while (strlen($current_log));
             $output.= "\r\n";
         }
 
         return $output;
+    }
+
+    /**
+     * Helper function for _format_log
+     *
+     * For use with preg_replace_callback()
+     *
+     * @param Array $matches
+     * @access private
+     * @return String
+     */
+    function _format_log_helper($matches)
+    {
+        return $this->log_boundary . str_pad(dechex(ord($matches[0])), 2, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -3512,7 +3540,7 @@ class Net_SSH2 {
                 $signature = $this->_string_shift($signature, $temp['length']);
 
                 if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
+                    include_once 'Crypt/RSA.php';
                 }
 
                 $rsa = new Crypt_RSA();

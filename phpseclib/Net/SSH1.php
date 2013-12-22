@@ -1,5 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
  * Pure-PHP implementation of SSHv1.
@@ -57,12 +56,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @category   Net
- * @package    Net_SSH1
- * @author     Jim Wigginton <terrafrost@php.net>
- * @copyright  MMVII Jim Wigginton
- * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link       http://phpseclib.sourceforge.net
+ * @category  Net
+ * @package   Net_SSH1
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright MMVII Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      http://phpseclib.sourceforge.net
  */
 
 /**#@+
@@ -226,12 +225,13 @@ define('NET_SSH1_READ_REGEX', 2);
 /**
  * Pure-PHP implementation of SSHv1.
  *
+ * @package Net_SSH1
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Net_SSH1
  */
-class Net_SSH1 {
+class Net_SSH1
+{
     /**
      * The SSH identifier
      *
@@ -449,16 +449,16 @@ class Net_SSH1 {
     function Net_SSH1($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
     {
         if (!class_exists('Math_BigInteger')) {
-            require_once('Math/BigInteger.php');
+            include_once 'Math/BigInteger.php';
         }
 
         // Include Crypt_Random
         // the class_exists() will only be called if the crypt_random_string function hasn't been defined and
         // will trigger a call to __autoload() if you're wanting to auto-load classes
-        // call function_exists() a second time to stop the require_once from being called outside
+        // call function_exists() a second time to stop the include_once from being called outside
         // of the auto loader
         if (!function_exists('crypt_random_string') && !class_exists('Crypt_Random') && !function_exists('crypt_random_string')) {
-            require_once('Crypt/Random.php');
+            include_once 'Crypt/Random.php';
         }
 
         $this->protocol_flags = array(
@@ -603,7 +603,7 @@ class Net_SSH1 {
             //    break;
             case NET_SSH1_CIPHER_DES:
                 if (!class_exists('Crypt_DES')) {
-                    require_once('Crypt/DES.php');
+                    include_once 'Crypt/DES.php';
                 }
                 $this->crypto = new Crypt_DES();
                 $this->crypto->disablePadding();
@@ -612,7 +612,7 @@ class Net_SSH1 {
                 break;
             case NET_SSH1_CIPHER_3DES:
                 if (!class_exists('Crypt_TripleDES')) {
-                    require_once('Crypt/TripleDES.php');
+                    include_once 'Crypt/TripleDES.php';
                 }
                 $this->crypto = new Crypt_TripleDES(CRYPT_DES_MODE_3CBC);
                 $this->crypto->disablePadding();
@@ -621,7 +621,7 @@ class Net_SSH1 {
                 break;
             //case NET_SSH1_CIPHER_RC4:
             //    if (!class_exists('Crypt_RC4')) {
-            //        require_once('Crypt/RC4.php');
+            //        include_once('Crypt/RC4.php');
             //    }
             //    $this->crypto = new Crypt_RC4();
             //    $this->crypto->enableContinuousBuffer();
@@ -1017,7 +1017,7 @@ class Net_SSH1 {
 
         if ($this->curTimeout) {
             $read = array($this->fsock);
-            $write = $except = NULL;
+            $write = $except = null;
 
             $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
             $sec = floor($this->curTimeout);
@@ -1253,7 +1253,7 @@ class Net_SSH1 {
     {
         /*
         if (!class_exists('Crypt_RSA')) {
-            require_once('Crypt/RSA.php');
+            include_once 'Crypt/RSA.php';
         }
 
         $rsa = new Crypt_RSA();

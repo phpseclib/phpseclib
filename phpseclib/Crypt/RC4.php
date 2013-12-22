@@ -1,5 +1,4 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
  * Pure-PHP implementation of RC4.
@@ -53,12 +52,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @category   Crypt
- * @package    Crypt_RC4
- * @author     Jim Wigginton <terrafrost@php.net>
- * @copyright  MMVII Jim Wigginton
- * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link       http://phpseclib.sourceforge.net
+ * @category  Crypt
+ * @package   Crypt_RC4
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright MMVII Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      http://phpseclib.sourceforge.net
  */
 
 /**
@@ -67,7 +66,7 @@
  * Base cipher class
  */
 if (!class_exists('Crypt_Base')) {
-    require_once('Base.php');
+    include_once 'Base.php';
 }
 
 /**#@+
@@ -95,12 +94,13 @@ define('CRYPT_RC4_DECRYPT', 1);
 /**
  * Pure-PHP implementation of RC4.
  *
+ * @package Crypt_RC4
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
- * @package Crypt_RC4
  */
-class Crypt_RC4 extends Crypt_Base {
+class Crypt_RC4 extends Crypt_Base
+{
     /**
      * Block Length of the cipher
      *
@@ -333,5 +333,3 @@ class Crypt_RC4 extends Crypt_Base {
     }
 }
 
-// vim: ts=4:sw=4:et:
-// vim6: fdl=1:
