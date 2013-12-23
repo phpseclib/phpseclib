@@ -68,7 +68,8 @@
 
 namespace PhpSecLib\Net;
 
-use PhpSecLib\Math\BigInteger;
+use PhpSecLib\Crypt\Random,
+	PhpSecLib\Math\BigInteger;
 
 /**#@+
  * Execution Bitmap Masks

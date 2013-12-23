@@ -73,7 +73,9 @@
  */
 
 namespace PhpSecLib\Math;
- 
+
+use PhpSecLib\Crypt\Random;
+
 /**#@+
  * Reduction constants
  *

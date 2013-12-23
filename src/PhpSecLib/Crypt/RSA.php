@@ -69,7 +69,8 @@
 
 namespace PhpSecLib\Crypt;
 
-use PhpSecLib\Math\BigInteger;
+use PhpSecLib\Crypt\Random,
+	PhpSecLib\Math\BigInteger;
 
 /**
  * Use {@link http://en.wikipedia.org/wiki/Optimal_Asymmetric_Encryption_Padding Optimal Asymmetric Encryption Padding}
