@@ -53,59 +53,6 @@
 
 namespace PhpSecLib\Crypt;
 
-/**#@+
- * @access public
- * @see Crypt\RC2::encrypt()
- * @see Crypt\RC2::decrypt()
- */
-/**
- * Encrypt / decrypt using the Counter mode.
- *
- * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
- */
-define('CRYPT_RC2_MODE_CTR', CRYPT_MODE_CTR);
-/**
- * Encrypt / decrypt using the Electronic Code Book mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
- */
-define('CRYPT_RC2_MODE_ECB', CRYPT_MODE_ECB);
-/**
- * Encrypt / decrypt using the Code Book Chaining mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
- */
-define('CRYPT_RC2_MODE_CBC', CRYPT_MODE_CBC);
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
- */
-define('CRYPT_RC2_MODE_CFB', CRYPT_MODE_CFB);
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
- */
-define('CRYPT_RC2_MODE_OFB', CRYPT_MODE_OFB);
-/**#@-*/
-
-/**#@+
- * @access private
- * @see Crypt\RC2::Crypt\RC2()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_RC2_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RC2_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of RC2.
  *
@@ -122,7 +69,7 @@ class RC2 extends Base
      * @var Integer
      * @access private
      */
-    private $block_size = 8;
+    protected $block_size = 8;
 
     /**
      * The Key
@@ -132,7 +79,7 @@ class RC2 extends Base
      * @var String
      * @access private
      */
-    private $key = "\0";
+    protected $key = "\0";
 
     /**
      * The default password key_size used by setPassword()
@@ -142,7 +89,7 @@ class RC2 extends Base
      * @var Integer
      * @access private
      */
-    private $password_key_size = 16; // = 128 bits
+    protected $password_key_size = 16; // = 128 bits
 
     /**
      * The namespace used by the cipher for its constants.
@@ -151,7 +98,7 @@ class RC2 extends Base
      * @var String
      * @access private
      */
-    private $const_namespace = 'RC2';
+    protected $const_namespace = 'RC2';
 
     /**
      * The mcrypt specific name of the cipher
@@ -160,7 +107,7 @@ class RC2 extends Base
      * @var String
      * @access private
      */
-    private $cipher_name_mcrypt = 'rc2';
+    protected $cipher_name_mcrypt = 'rc2';
 
     /**
      * Optimizing value while CFB-encrypting
@@ -169,7 +116,7 @@ class RC2 extends Base
      * @var Integer
      * @access private
      */
-    private $cfb_init_len = 500;
+    protected $cfb_init_len = 500;
 
 	/**
      * The key length in bits.
@@ -181,7 +128,7 @@ class RC2 extends Base
      * @internal Should be in range [1..1024].
      * @internal Changing this value after setting the key has no effect.
      */
-    private $default_key_length = 1024;
+    protected $default_key_length = 1024;
 
     /**
      * The Key Schedule
@@ -190,7 +137,7 @@ class RC2 extends Base
      * @var Array
      * @access private
      */
-    private $keys;
+    protected $keys;
 
     /**
      * Key expansion randomization table.
@@ -200,7 +147,7 @@ class RC2 extends Base
      * @var Array
      * @access private
      */
-    private $pitable = array(
+    protected $pitable = array(
         0xD9, 0x78, 0xF9, 0xC4, 0x19, 0xDD, 0xB5, 0xED,
         0x28, 0xE9, 0xFD, 0x79, 0x4A, 0xA0, 0xD8, 0x9D,
         0xC6, 0x7E, 0x37, 0x83, 0x2B, 0x76, 0x53, 0x8E,
@@ -274,7 +221,7 @@ class RC2 extends Base
      * @var Array
      * @access private
      */
-    private $invpitable = array(
+    protected $invpitable = array(
         0xD1, 0xDA, 0xB9, 0x6F, 0x9C, 0xC8, 0x78, 0x66,
         0x80, 0x2C, 0xF8, 0x37, 0xEA, 0xE0, 0x62, 0xA4,
         0xCB, 0x71, 0x50, 0x27, 0x4B, 0x95, 0xD9, 0x20,
@@ -419,7 +366,7 @@ class RC2 extends Base
      * @param String $in
      * @return String
      */
-    private function _encryptBlock($in)
+    protected function _encryptBlock($in)
     {
         list($r0, $r1, $r2, $r3) = array_values(unpack('v*', $in));
         $keys = $this->keys;
@@ -464,7 +411,7 @@ class RC2 extends Base
      * @param String $in
      * @return String
      */
-    private function _decryptBlock($in)
+    protected function _decryptBlock($in)
     {
         list($r0, $r1, $r2, $r3) = array_values(unpack('v*', $in));
         $keys = $this->keys;
@@ -506,7 +453,7 @@ class RC2 extends Base
      * @see Crypt\Base::_setupKey()
      * @access private
      */
-    private function _setupKey()
+    protected function _setupKey()
     {
         // Key has already been expanded in Crypt\RC2::setKey():
         // Only the first value must be altered.
@@ -523,7 +470,7 @@ class RC2 extends Base
      * @see Crypt\Base::_setupInlineCrypt()
      * @access private
      */
-    private function _setupInlineCrypt()
+    protected function _setupInlineCrypt()
     {
         $lambda_functions = &RC2::_getLambdaFunctions();
 

@@ -59,20 +59,6 @@ namespace PhpSecLib\Crypt;
 use PhpSecLib\Math\BigInteger;
 
 /**
- * Toggles the internal implementation
- */
-define('CRYPT_HASH_MODE_INTERNAL', 1);
-/**
- * Toggles the mhash() implementation, which has been deprecated on PHP 5.3.0+.
- */
-define('CRYPT_HASH_MODE_MHASH',    2);
-/**
- * Toggles the hash() implementation, which works on PHP 5.1.2+.
- */
-define('CRYPT_HASH_MODE_HASH',     3);
-/**#@-*/
-
-/**
  * Pure-PHP implementations of keyed-hash message authentication codes (HMACs) and various cryptographic hashing functions.
  *
  * @package Crypt\Hash
@@ -89,7 +75,7 @@ class Hash
      * @var Integer
      * @access private
      */
-    private $hashParam;
+    protected $hashParam;
 
     /**
      * Byte-length of compression blocks / key (Internal HMAC)
@@ -98,7 +84,7 @@ class Hash
      * @var Integer
      * @access private
      */
-    private $b;
+    protected $b;
 
     /**
      * Byte-length of hash output (Internal HMAC)
@@ -107,7 +93,7 @@ class Hash
      * @var Integer
      * @access private
      */
-    private $l = false;
+    protected $l = false;
 
     /**
      * Hash Algorithm
@@ -116,7 +102,7 @@ class Hash
      * @var String
      * @access private
      */
-    private $hash;
+    protected $hash;
 
     /**
      * Key
@@ -125,7 +111,7 @@ class Hash
      * @var String
      * @access private
      */
-    private $key = false;
+    protected $key = false;
 
     /**
      * Outer XOR (Internal HMAC)
@@ -134,7 +120,7 @@ class Hash
      * @var String
      * @access private
      */
-    private $opad;
+    protected $opad;
 
     /**
      * Inner XOR (Internal HMAC)
@@ -143,7 +129,7 @@ class Hash
      * @var String
      * @access private
      */
-    private $ipad;
+    protected $ipad;
 
     /**
      * Default Constructor.
@@ -373,7 +359,7 @@ class Hash
      * @access private
      * @param String $m
      */
-    private function _md5($m)
+    protected function _md5($m)
     {
         return pack('H*', md5($m));
     }
@@ -384,7 +370,7 @@ class Hash
      * @access private
      * @param String $m
      */
-    private function _sha1($m)
+    protected function _sha1($m)
     {
         return pack('H*', sha1($m));
     }
@@ -397,7 +383,7 @@ class Hash
      * @access private
      * @param String $m
      */
-    private function _md2($m)
+    protected function _md2($m)
     {
         static $s = array(
              41,  46,  67, 201, 162, 216, 124,   1,  61,  54,  84, 161, 236, 240, 6,
@@ -473,7 +459,7 @@ class Hash
      * @access private
      * @param String $m
      */
-    private function _sha256($m)
+    protected function _sha256($m)
     {
         if (extension_loaded('suhosin')) {
             return pack('H*', sha256($m));
@@ -578,7 +564,7 @@ class Hash
      * @access private
      * @param String $m
      */
-    private function _sha512($m)
+    protected function _sha512($m)
     {
         static $init384, $init512, $k;
 
@@ -760,7 +746,7 @@ class Hash
      * @see _sha256()
      * @return Integer
      */
-    private function _rightRotate($int, $amt)
+    protected function _rightRotate($int, $amt)
     {
         $invamt = 32 - $amt;
         $mask = (1 << $invamt) - 1;
@@ -776,7 +762,7 @@ class Hash
      * @see _sha256()
      * @return Integer
      */
-    private function _rightShift($int, $amt)
+    protected function _rightShift($int, $amt)
     {
         $mask = (1 << (32 - $amt)) - 1;
         return ($int >> $amt) & $mask;
@@ -790,7 +776,7 @@ class Hash
      * @see _sha256()
      * @return Integer
      */
-    private function _not($int)
+    protected function _not($int)
     {
         return ~$int & 0xFFFFFFFF;
     }
@@ -806,7 +792,7 @@ class Hash
      * @see _sha256()
      * @access private
      */
-    private function _add()
+    protected function _add()
     {
         static $mod;
         if (!isset($mod)) {
@@ -832,7 +818,7 @@ class Hash
      * @return String
      * @access private
      */
-    private function _string_shift(&$string, $index = 1)
+    protected function _string_shift(&$string, $index = 1)
     {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);

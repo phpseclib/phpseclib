@@ -53,20 +53,6 @@
  */
 
 namespace PhpSecLib\Crypt;
- 
-/**
- * Encrypt / decrypt using inner chaining
- *
- * Inner chaining is used by SSH-1 and is generally considered to be less secure then outer chaining (CRYPT_DES_MODE_CBC3).
- */
-define('CRYPT_DES_MODE_3CBC', -2);
-
-/**
- * Encrypt / decrypt using outer chaining
- *
- * Outer chaining is used by SSH-2 and when the mode is set to CRYPT_DES_MODE_CBC.
- */
-define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
 
 /**
  * Pure-PHP implementation of Triple DES.
@@ -87,7 +73,7 @@ class TripleDES extends DES
      * @var Integer
      * @access private
      */
-    private $password_key_size = 24;
+    protected $password_key_size = 24;
 
     /**
      * The default salt used by setPassword()
@@ -97,7 +83,7 @@ class TripleDES extends DES
      * @var String
      * @access private
      */
-    private $password_default_salt = 'phpseclib';
+    protected $password_default_salt = 'phpseclib';
 
     /**
      * The namespace used by the cipher for its constants.
@@ -107,7 +93,7 @@ class TripleDES extends DES
      * @var String
      * @access private
      */
-    private $const_namespace = 'DES';
+    protected $const_namespace = 'DES';
 
     /**
      * The mcrypt specific name of the cipher
@@ -117,7 +103,7 @@ class TripleDES extends DES
      * @var String
      * @access private
      */
-    private $cipher_name_mcrypt = 'tripledes';
+    protected $cipher_name_mcrypt = 'tripledes';
 
     /**
      * Optimizing value while CFB-encrypting
@@ -126,7 +112,7 @@ class TripleDES extends DES
      * @var Integer
      * @access private
      */
-    private $cfb_init_len = 750;
+    protected $cfb_init_len = 750;
 
     /**
      * max possible size of $key
@@ -136,7 +122,7 @@ class TripleDES extends DES
      * @var String
      * @access private
      */
-    private $key_size_max = 24;
+    protected $key_size_max = 24;
 
     /**
      * Internal flag whether using CRYPT_DES_MODE_3CBC or not
@@ -144,7 +130,7 @@ class TripleDES extends DES
      * @var Boolean
      * @access private
      */
-    private $mode_3cbc;
+    protected $mode_3cbc;
 
     /**
      * The Crypt\DES objects
@@ -154,7 +140,7 @@ class TripleDES extends DES
      * @var Array
      * @access private
      */
-    private $des;
+    protected $des;
 
     /**
      * Default Constructor.
@@ -384,7 +370,7 @@ class TripleDES extends DES
      * @see Crypt\Base::_setupKey()
      * @access private
      */
-    private function _setupKey()
+    protected function _setupKey()
     {
         switch (true) {
             // if $key <= 64bits we configure our internal pure-php cipher engine

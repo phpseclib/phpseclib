@@ -63,24 +63,6 @@
 namespace PhpSecLib\Crypt;
 
 /**
- * Toggles the internal implementation
- */
-define('CRYPT_RC4_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RC4_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
-/**#@+
- * @access private
- * @see Crypt\RC4::_crypt()
- */
-define('CRYPT_RC4_ENCRYPT', 0);
-define('CRYPT_RC4_DECRYPT', 1);
-/**#@-*/
-
-/**
  * Pure-PHP implementation of RC4.
  *
  * @package Crypt\RC4
@@ -100,7 +82,7 @@ class RC4 extends Base
      * @var Integer 
      * @access private
      */
-    private $block_size = 0;
+    protected $block_size = 0;
 
     /**
      * The default password key_size used by setPassword()
@@ -110,7 +92,7 @@ class RC4 extends Base
      * @var Integer
      * @access private
      */
-    private $password_key_size = 128; // = 1024 bits
+    protected $password_key_size = 128; // = 1024 bits
 
     /**
      * The namespace used by the cipher for its constants.
@@ -119,7 +101,7 @@ class RC4 extends Base
      * @var String
      * @access private
      */
-    private $const_namespace = 'RC4';
+    protected $const_namespace = 'RC4';
 
 
     /**
@@ -129,7 +111,7 @@ class RC4 extends Base
      * @var String
      * @access private
      */
-    private $cipher_name_mcrypt = 'arcfour';
+    protected $cipher_name_mcrypt = 'arcfour';
 
     /**
      * Holds whether performance-optimized $inline_crypt() can/should be used.
@@ -138,7 +120,7 @@ class RC4 extends Base
      * @var mixed
      * @access private
      */
-    private $use_inline_crypt = false; // currently not available
+    protected $use_inline_crypt = false; // currently not available
 
     /**
      * The Key
@@ -147,7 +129,7 @@ class RC4 extends Base
      * @var String
      * @access private
      */
-    private $key = "\0";
+    protected $key = "\0";
 
     /**
      * The Key Stream for decryption and encryption
@@ -156,7 +138,7 @@ class RC4 extends Base
      * @var Array
      * @access private
      */
-    private $stream;
+    protected $stream;
 
     /**
      * Default Constructor.
@@ -254,7 +236,7 @@ class RC4 extends Base
      * @see Crypt\Base::_setupKey()
      * @access private
      */
-    private function _setupKey()
+    protected function _setupKey()
     {
         $key = $this->key;
         $keyLength = strlen($key);
@@ -288,7 +270,7 @@ class RC4 extends Base
      * @param Integer $mode
      * @return String $text
      */
-    private function _crypt($text, $mode)
+    protected function _crypt($text, $mode)
     {
         if ($this->changed) {
             $this->_setup();

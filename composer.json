@@ -58,6 +58,9 @@
     "autoload": {
         "psr-0": {
             "PhpSecLib\\": "src/"
+        },
+        "files": {
+        	"src/PhpSecLib/Constants.php"
         }
     },
     "extra": {

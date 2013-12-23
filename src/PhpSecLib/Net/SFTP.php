@@ -54,53 +54,6 @@
  */
 
 namespace PhpSecLib\Net;
- 
-/**
- * Returns the message numbers
- */
-define('NET_SFTP_LOG_SIMPLE',  NET_SSH2_LOG_SIMPLE);
-
-/**
- * Returns the message content
- */
-define('NET_SFTP_LOG_COMPLEX', NET_SSH2_LOG_COMPLEX);
-
-/**
- * Outputs the message content in real-time.
- */
-define('NET_SFTP_LOG_REALTIME', 3);
-
-/**
- * SFTP channel constant
- *
- * Net\SSH2::exec() uses 0 and Net\SSH2::read() / Net\SSH2::write() use 1.
- *
- * @see Net\SSH2::_send_channel_packet()
- * @see Net\SSH2::_get_channel_packet()
- * @access private
- */
-define('NET_SFTP_CHANNEL', 0x100);
-
-/**
- * Reads data from a local file.
- */
-define('NET_SFTP_LOCAL_FILE',    1);
-
-/**
- * Reads data from a string.
- */
-// this value isn't really used anymore but i'm keeping it reserved for historical reasons
-define('NET_SFTP_STRING',        2);
-
-/**
- * Resumes an upload
- */
-define('NET_SFTP_RESUME',        4);
-
-/**
- * Append a local file to an already existing remote file
- */
-define('NET_SFTP_RESUME_START',  8);
 
 /**
  * Pure-PHP implementations of SFTP.

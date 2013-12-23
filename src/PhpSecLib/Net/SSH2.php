@@ -68,82 +68,14 @@
 
 namespace PhpSecLib\Net;
 
-use PhpSecLib\Crypt\Random,
+use PhpSecLib\Crypt\Blowfish,
+	PhpSecLib\Crypt\Hash,
+	PhpSecLib\Crypt\Random,
+	PhpSecLib\Crypt\RC4,
+	PhpSecLib\Crypt\Rijndael,
+	PhpSecLib\Crypt\TripleDES,
+	PhpSecLib\Crypt\TwoFish,
 	PhpSecLib\Math\BigInteger;
-
-/**#@+
- * Execution Bitmap Masks
- *
- * @see Net\SSH2::bitmap
- * @access private
- */
-define('NET_SSH2_MASK_CONSTRUCTOR',   0x00000001);
-define('NET_SSH2_MASK_LOGIN_REQ',     0x00000002);
-define('NET_SSH2_MASK_LOGIN',         0x00000004);
-define('NET_SSH2_MASK_SHELL',         0x00000008);
-define('NET_SSH2_MASK_WINDOW_ADJUST', 0X00000010);
-/**#@-*/
-
-/**#@+
- * Channel constants
- *
- * RFC4254 refers not to client and server channels but rather to sender and recipient channels.  we don't refer
- * to them in that way because RFC4254 toggles the meaning. the client sends a SSH_MSG_CHANNEL_OPEN message with
- * a sender channel and the server sends a SSH_MSG_CHANNEL_OPEN_CONFIRMATION in response, with a sender and a
- * recepient channel.  at first glance, you might conclude that SSH_MSG_CHANNEL_OPEN_CONFIRMATION's sender channel
- * would be the same thing as SSH_MSG_CHANNEL_OPEN's sender channel, but it's not, per this snipet:
- *     The 'recipient channel' is the channel number given in the original
- *     open request, and 'sender channel' is the channel number allocated by
- *     the other side.
- *
- * @see Net\SSH2::_send_channel_packet()
- * @see Net\SSH2::_get_channel_packet()
- * @access private
- */
-define('NET_SSH2_CHANNEL_EXEC',      0); // PuTTy uses 0x100
-define('NET_SSH2_CHANNEL_SHELL',     1);
-define('NET_SSH2_CHANNEL_SUBSYSTEM', 2);
-/**#@-*/
-
-/**#@+
- * @access public
- * @see Net\SSH2::getLog()
- */
-/**
- * Returns the message numbers
- */
-define('NET_SSH2_LOG_SIMPLE',  1);
-/**
- * Returns the message content
- */
-define('NET_SSH2_LOG_COMPLEX', 2);
-/**
- * Outputs the content real-time
- */
-define('NET_SSH2_LOG_REALTIME', 3);
-/**
- * Dumps the content real-time to a file
- */
-define('NET_SSH2_LOG_REALTIME_FILE', 4);
-/**#@-*/
-
-/**#@+
- * @access public
- * @see Net\SSH2::read()
- */
-/**
- * Returns when a string matching $expect exactly is found
- */
-define('NET_SSH2_READ_SIMPLE',  1);
-/**
- * Returns when a string matching the regular expression $expect is found
- */
-define('NET_SSH2_READ_REGEX', 2);
-/**
- * Make sure that the log never gets larger than this
- */
-define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
-/**#@-*/
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -1015,7 +947,7 @@ class SSH2
                 'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
             );
 
-            if (!$this->_is_includable('Crypt/RC4.php')) {
+            /*if (!$this->_is_includable('Crypt/RC4.php')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('arcfour256', 'arcfour128', 'arcfour')
@@ -1045,7 +977,7 @@ class SSH2
                     array('3des-ctr', '3des-cbc')
                 );
             }
-            $encryption_algorithms = array_values($encryption_algorithms);
+            $encryption_algorithms = array_values($encryption_algorithms);*/
         }
 
         static $mac_algorithms = array(
@@ -1136,7 +1068,7 @@ class SSH2
             return false;
         }
         // here ends the second place.
-
+		
         // we need to decide upon the symmetric encryption algorithms before we do the diffie-hellman key exchange
         for ($i = 0; $i < count($encryption_algorithms) && !in_array($encryption_algorithms[$i], $this->encryption_algorithms_server_to_client); $i++);
         if ($i == count($encryption_algorithms)) {

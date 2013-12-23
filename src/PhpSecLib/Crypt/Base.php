@@ -54,64 +54,6 @@
  */
 
 namespace PhpSecLib\Crypt;
- 
-/**#@+
- * @access public
- * @see Crypt\Base::encrypt()
- * @see Crypt\Base::decrypt()
- */
-/**
- * Encrypt / decrypt using the Counter mode.
- *
- * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
- */
-define('CRYPT_MODE_CTR', -1);
-/**
- * Encrypt / decrypt using the Electronic Code Book mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
- */
-define('CRYPT_MODE_ECB', 1);
-/**
- * Encrypt / decrypt using the Code Book Chaining mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
- */
-define('CRYPT_MODE_CBC', 2);
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
- */
-define('CRYPT_MODE_CFB', 3);
-/**
- * Encrypt / decrypt using the Output Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
- */
-define('CRYPT_MODE_OFB', 4);
-/**
- * Encrypt / decrypt using streaming mode.
- *
- */
-define('CRYPT_MODE_STREAM', 5);
-/**#@-*/
-
-/**#@+
- * @access private
- * @see Crypt\Base::Crypt\Base()
- */
-/**
- * Base value for the internal implementation $engine switch
- */
-define('CRYPT_MODE_INTERNAL', 1);
-/**
- * Base value for the mcrypt implementation $engine switch
- */
-define('CRYPT_MODE_MCRYPT', 2);
-/**#@-*/
 
 /**
  * Base Class for all Crypt\* cipher classes
@@ -131,7 +73,7 @@ class Base
      * @var Integer
      * @access private
      */
-    private $mode;
+    protected $mode;
 
     /**
      * The Block Length of the block cipher
@@ -139,7 +81,7 @@ class Base
      * @var Integer
      * @access private
      */
-    private $block_size = 16;
+    protected $block_size = 16;
 
     /**
      * The Key
@@ -148,7 +90,7 @@ class Base
      * @var String
      * @access private
      */
-    private $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+    protected $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
     /**
      * The Initialization Vector
@@ -157,7 +99,7 @@ class Base
      * @var String
      * @access private
      */
-    private $iv;
+    protected $iv;
 
     /**
      * A "sliding" Initialization Vector
@@ -167,7 +109,7 @@ class Base
      * @var String
      * @access private
      */
-    private $encryptIV;
+    protected $encryptIV;
 
     /**
      * A "sliding" Initialization Vector
@@ -177,7 +119,7 @@ class Base
      * @var String
      * @access private
      */
-    private $decryptIV;
+    protected $decryptIV;
 
     /**
      * Continuous Buffer status
@@ -186,7 +128,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    private $continuousBuffer = false;
+    protected $continuousBuffer = false;
 
     /**
      * Encryption buffer for CTR, OFB and CFB modes
@@ -196,7 +138,7 @@ class Base
      * @var Array
      * @access private
      */
-    private $enbuffer;
+    protected $enbuffer;
 
     /**
      * Decryption buffer for CTR, OFB and CFB modes
@@ -206,7 +148,7 @@ class Base
      * @var Array
      * @access private
      */
-    private $debuffer;
+    protected $debuffer;
 
     /**
      * mcrypt resource for encryption
@@ -218,7 +160,7 @@ class Base
      * @var Resource
      * @access private
      */
-    private $enmcrypt;
+    protected $enmcrypt;
 
     /**
      * mcrypt resource for decryption
@@ -230,7 +172,7 @@ class Base
      * @var Resource
      * @access private
      */
-    private $demcrypt;
+    protected $demcrypt;
 
     /**
      * Does the enmcrypt resource need to be (re)initialized?
@@ -240,7 +182,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    private $enchanged = true;
+    protected $enchanged = true;
 
     /**
      * Does the demcrypt resource need to be (re)initialized?
@@ -250,7 +192,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    private $dechanged = true;
+    protected $dechanged = true;
 
     /**
      * mcrypt resource for CFB mode
@@ -269,7 +211,7 @@ class Base
      * @var Resource
      * @access private
      */
-    private $ecb;
+    protected $ecb;
 
     /**
      * Optimizing value while CFB-encrypting
@@ -291,7 +233,7 @@ class Base
      * @var Integer
      * @access private
      */
-    private $cfb_init_len = 600;
+    protected $cfb_init_len = 600;
 
     /**
      * Does internal cipher state need to be (re)initialized?
@@ -302,7 +244,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    private $changed = true;
+    protected $changed = true;
 
     /**
      * Padding status
@@ -311,7 +253,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    private $padding = true;
+    protected $padding = true;
 
     /**
      * Is the mode one that is paddable?
@@ -320,7 +262,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    private $paddable = false;
+    protected $paddable = false;
 
     /**
      * Holds which crypt engine internaly should be use,
@@ -341,7 +283,7 @@ class Base
      * @var Integer
      * @access private
      */
-    private $engine;
+    protected $engine;
 
     /**
      * The mcrypt specific name of the cipher
@@ -354,7 +296,7 @@ class Base
      * @var String
      * @access private
      */
-    private $cipher_name_mcrypt;
+    protected $cipher_name_mcrypt;
 
     /**
      * The default password key_size used by setPassword()
@@ -363,7 +305,7 @@ class Base
      * @var Integer
      * @access private
      */
-    private $password_key_size = 32;
+    protected $password_key_size = 32;
 
     /**
      * The default salt used by setPassword()
@@ -372,7 +314,7 @@ class Base
      * @var String
      * @access private
      */
-    private $password_default_salt = 'phpseclib/salt';
+    protected $password_default_salt = 'phpseclib/salt';
 
     /**
      * The namespace used by the cipher for its constants.
@@ -395,7 +337,7 @@ class Base
      * @var String
      * @access private
      */
-    private $const_namespace;
+    protected $const_namespace;
 
     /**
      * The name of the performance-optimized callback function
@@ -410,7 +352,7 @@ class Base
      * @var Callback
      * @access private
      */
-    private $inline_crypt;
+    protected $inline_crypt;
 
     /**
      * Holds whether performance-optimized $inline_crypt() can/should be used.
@@ -421,7 +363,7 @@ class Base
      * @var mixed
      * @access private
      */
-    private $use_inline_crypt;
+    protected $use_inline_crypt;
 
     /**
      * Default Constructor.
@@ -1164,7 +1106,7 @@ class Base
      * @param String $in
      * @return String
      */
-    private function _encryptBlock($in)
+    protected function _encryptBlock($in)
     {
         user_error((version_compare(PHP_VERSION, '5.0.0', '>=')  ? __METHOD__ : __FUNCTION__)  . '() must extend by class ' . get_class($this), E_USER_ERROR);
     }
@@ -1178,7 +1120,7 @@ class Base
      * @param String $in
      * @return String
      */
-    private function _decryptBlock($in)
+    protected function _decryptBlock($in)
     {
         user_error((version_compare(PHP_VERSION, '5.0.0', '>=')  ? __METHOD__ : __FUNCTION__)  . '() must extend by class ' . get_class($this), E_USER_ERROR);
     }
@@ -1193,7 +1135,7 @@ class Base
      * @see Crypt\Base::_setup()
      * @access private
      */
-    private function _setupKey()
+    protected function _setupKey()
     {
         user_error((version_compare(PHP_VERSION, '5.0.0', '>=')  ? __METHOD__ : __FUNCTION__)  . '() must extend by class ' . get_class($this), E_USER_ERROR);
     }
@@ -1224,7 +1166,7 @@ class Base
      * @see disableContinuousBuffer()
      * @access private
      */
-    private function _setup()
+    protected function _setup()
     {
         $this->_clearBuffers();
         $this->_setupKey();
@@ -1259,7 +1201,7 @@ class Base
      * @see disableContinuousBuffer()
      * @access private
      */
-    private function _setupMcrypt()
+    protected function _setupMcrypt()
     {
         $this->_clearBuffers();
         $this->enchanged = $this->dechanged = true;
@@ -1306,7 +1248,7 @@ class Base
      * @access private
      * @return String
      */
-    private function _pad($text)
+    protected function _pad($text)
     {
         $length = strlen($text);
 
@@ -1335,7 +1277,7 @@ class Base
      * @access private
      * @return String
      */
-    private function _unpad($text)
+    protected function _unpad($text)
     {
         if (!$this->padding) {
             return $text;
@@ -1381,7 +1323,7 @@ class Base
      * @access private
      * @return String
      */
-    private function _stringShift(&$string, $index = 1)
+    protected function _stringShift(&$string, $index = 1)
     {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
@@ -1401,7 +1343,7 @@ class Base
      * @access private
      * @return String $xor
      */
-    private function _generateXor(&$iv, $length)
+    protected function _generateXor(&$iv, $length)
     {
         $xor = '';
         $block_size = $this->block_size;
@@ -1487,7 +1429,7 @@ class Base
      * @see Crypt\Base::decrypt()
      * @access private
      */
-    private function _setupInlineCrypt()
+    protected function _setupInlineCrypt()
     {
         // If a Crypt\* class providing inline crypting it must extend _setupInlineCrypt()
 
@@ -1611,7 +1553,7 @@ class Base
      * @access private
      * @return String (the name of the created callback function)
      */
-    private function _createInlineCryptFunction($cipher_code)
+    protected function _createInlineCryptFunction($cipher_code)
     {
         $block_size = $this->block_size;
 
@@ -1977,7 +1919,7 @@ class Base
      * @access private
      * @return &Array
      */
-    private function &_getLambdaFunctions()
+    protected function &_getLambdaFunctions()
     {
         static $functions = array();
         return $functions;

@@ -57,53 +57,6 @@
 namespace PhpSecLib\Crypt;
 
 /**
- * Encrypt / decrypt using the Counter mode.
- *
- * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
- */
-define('CRYPT_TWOFISH_MODE_CTR', CRYPT_MODE_CTR);
-
-/**
- * Encrypt / decrypt using the Electronic Code Book mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
- */
-define('CRYPT_TWOFISH_MODE_ECB', CRYPT_MODE_ECB);
-
-/**
- * Encrypt / decrypt using the Code Book Chaining mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
- */
-define('CRYPT_TWOFISH_MODE_CBC', CRYPT_MODE_CBC);
-
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
- */
-define('CRYPT_TWOFISH_MODE_CFB', CRYPT_MODE_CFB);
-
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
- */
-define('CRYPT_TWOFISH_MODE_OFB', CRYPT_MODE_OFB);
-
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_TWOFISH_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_TWOFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-
-/**
  * Pure-PHP implementation of Twofish.
  *
  * @package Crypt\Twofish
@@ -121,7 +74,7 @@ class Twofish extends Base
      * @var String
      * @access private
      */
-    private $const_namespace = 'TWOFISH';
+    protected $const_namespace = 'TWOFISH';
 
     /**
      * The mcrypt specific name of the cipher
@@ -130,7 +83,7 @@ class Twofish extends Base
      * @var String
      * @access private
      */
-    private $cipher_name_mcrypt = 'twofish';
+    protected $cipher_name_mcrypt = 'twofish';
 
     /**
      * Optimizing value while CFB-encrypting
@@ -139,7 +92,7 @@ class Twofish extends Base
      * @var Integer
      * @access private
      */
-    private $cfb_init_len = 800;
+    protected $cfb_init_len = 800;
 
     /**
      * Q-Table
@@ -147,7 +100,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $q0 = array (
+    protected $q0 = array (
         0xA9, 0x67, 0xB3, 0xE8, 0x04, 0xFD, 0xA3, 0x76,
         0x9A, 0x92, 0x80, 0x78, 0xE4, 0xDD, 0xD1, 0x38,
         0x0D, 0xC6, 0x35, 0x98, 0x18, 0xF7, 0xEC, 0x6C,
@@ -188,7 +141,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $q1 = array (
+    protected $q1 = array (
         0x75, 0xF3, 0xC6, 0xF4, 0xDB, 0x7B, 0xFB, 0xC8,
         0x4A, 0xD3, 0xE6, 0x6B, 0x45, 0x7D, 0xE8, 0x4B,
         0xD6, 0x32, 0xD8, 0xFD, 0x37, 0x71, 0xF1, 0xE1,
@@ -229,7 +182,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $m0 = array (
+    protected $m0 = array (
         0xBCBC3275, 0xECEC21F3, 0x202043C6, 0xB3B3C9F4, 0xDADA03DB, 0x02028B7B, 0xE2E22BFB, 0x9E9EFAC8,
         0xC9C9EC4A, 0xD4D409D3, 0x18186BE6, 0x1E1E9F6B, 0x98980E45, 0xB2B2387D, 0xA6A6D2E8, 0x2626B74B,
         0x3C3C57D6, 0x93938A32, 0x8282EED8, 0x525298FD, 0x7B7BD437, 0xBBBB3771, 0x5B5B97F1, 0x474783E1,
@@ -270,7 +223,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $m1 = array (
+    protected $m1 = array (
         0xA9D93939, 0x67901717, 0xB3719C9C, 0xE8D2A6A6, 0x04050707, 0xFD985252, 0xA3658080, 0x76DFE4E4,
         0x9A084545, 0x92024B4B, 0x80A0E0E0, 0x78665A5A, 0xE4DDAFAF, 0xDDB06A6A, 0xD1BF6363, 0x38362A2A,
         0x0D54E6E6, 0xC6432020, 0x3562CCCC, 0x98BEF2F2, 0x181E1212, 0xF724EBEB, 0xECD7A1A1, 0x6C774141,
@@ -311,7 +264,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $m2 = array (
+    protected $m2 = array (
         0xBC75BC32, 0xECF3EC21, 0x20C62043, 0xB3F4B3C9, 0xDADBDA03, 0x027B028B, 0xE2FBE22B, 0x9EC89EFA,
         0xC94AC9EC, 0xD4D3D409, 0x18E6186B, 0x1E6B1E9F, 0x9845980E, 0xB27DB238, 0xA6E8A6D2, 0x264B26B7,
         0x3CD63C57, 0x9332938A, 0x82D882EE, 0x52FD5298, 0x7B377BD4, 0xBB71BB37, 0x5BF15B97, 0x47E14783,
@@ -352,7 +305,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $m3 = array (
+    protected $m3 = array (
         0xD939A9D9, 0x90176790, 0x719CB371, 0xD2A6E8D2, 0x05070405, 0x9852FD98, 0x6580A365, 0xDFE476DF,
         0x08459A08, 0x024B9202, 0xA0E080A0, 0x665A7866, 0xDDAFE4DD, 0xB06ADDB0, 0xBF63D1BF, 0x362A3836,
         0x54E60D54, 0x4320C643, 0x62CC3562, 0xBEF298BE, 0x1E12181E, 0x24EBF724, 0xD7A1ECD7, 0x77416C77,
@@ -393,7 +346,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $K = array();
+    protected $K = array();
 
     /**
      * The Key depended S-Table 0
@@ -401,7 +354,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $S0 = array();
+    protected $S0 = array();
 
     /**
      * The Key depended S-Table 1
@@ -409,7 +362,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $S1 = array();
+    protected $S1 = array();
 
     /**
      * The Key depended S-Table 2
@@ -417,7 +370,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $S2 = array();
+    protected $S2 = array();
 
     /**
      * The Key depended S-Table 3
@@ -425,7 +378,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $S3 = array();
+    protected $S3 = array();
 
     /**
      * Holds the last used key
@@ -433,7 +386,7 @@ class Twofish extends Base
      * @var Array
      * @access private
      */
-    private $kl;
+    protected $kl;
 
     /**
      * Default Constructor.
@@ -501,7 +454,7 @@ class Twofish extends Base
      * @see Crypt\Base::_setupKey()
      * @access private
      */
-    private function _setupKey()
+    protected function _setupKey()
     {
         if (isset($this->kl['key']) && $this->key === $this->kl['key']) {
             // already expanded
@@ -610,7 +563,7 @@ class Twofish extends Base
      * @param String $B
      * @return Array
      */
-    private function _mdsrem($A, $B)
+    protected function _mdsrem($A, $B)
     {
         // No gain by unrolling this loop.
         for ($i = 0; $i < 8; ++$i) {
@@ -655,7 +608,7 @@ class Twofish extends Base
      * @param String $in
      * @return String
      */
-    private function _encryptBlock($in)
+    protected function _encryptBlock($in)
     {
         $S0 = $this->S0;
         $S1 = $this->S1;
@@ -709,7 +662,7 @@ class Twofish extends Base
      * @param String $in
      * @return String
      */
-    private function _decryptBlock($in)
+    protected function _decryptBlock($in)
     {
         $S0 = $this->S0;
         $S1 = $this->S1;
@@ -762,7 +715,7 @@ class Twofish extends Base
      * @see Crypt\Base::_setupInlineCrypt()
      * @access private
      */
-    private function _setupInlineCrypt()
+    protected function _setupInlineCrypt()
     {
         $lambda_functions =& Twofish::_getLambdaFunctions();
 
