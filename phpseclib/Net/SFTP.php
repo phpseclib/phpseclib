@@ -16,7 +16,7 @@
  * <?php
  *    include('Net/SFTP.php');
  *
- *    $sftp = new Net_SFTP('www.domain.tld');
+ *    $sftp = new Net\SFTP('www.domain.tld');
  *    if (!$sftp->login('username', 'password')) {
  *        exit('Login Failed');
  *    }
@@ -46,99 +46,89 @@
  * THE SOFTWARE.
  *
  * @category  Net
- * @package   Net_SFTP
+ * @package   Net\SFTP
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMIX Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Net_SSH2
- */
-if (!class_exists('Net_SSH2')) {
-    include_once 'SSH2.php';
-}
-
-/**#@+
- * @access public
- * @see Net_SFTP::getLog()
- */
+namespace PhpSecLib\Net;
+ 
 /**
  * Returns the message numbers
  */
 define('NET_SFTP_LOG_SIMPLE',  NET_SSH2_LOG_SIMPLE);
+
 /**
  * Returns the message content
  */
 define('NET_SFTP_LOG_COMPLEX', NET_SSH2_LOG_COMPLEX);
+
 /**
  * Outputs the message content in real-time.
  */
 define('NET_SFTP_LOG_REALTIME', 3);
-/**#@-*/
 
 /**
  * SFTP channel constant
  *
- * Net_SSH2::exec() uses 0 and Net_SSH2::read() / Net_SSH2::write() use 1.
+ * Net\SSH2::exec() uses 0 and Net\SSH2::read() / Net\SSH2::write() use 1.
  *
- * @see Net_SSH2::_send_channel_packet()
- * @see Net_SSH2::_get_channel_packet()
+ * @see Net\SSH2::_send_channel_packet()
+ * @see Net\SSH2::_get_channel_packet()
  * @access private
  */
 define('NET_SFTP_CHANNEL', 0x100);
 
-/**#@+
- * @access public
- * @see Net_SFTP::put()
- */
 /**
  * Reads data from a local file.
  */
 define('NET_SFTP_LOCAL_FILE',    1);
+
 /**
  * Reads data from a string.
  */
 // this value isn't really used anymore but i'm keeping it reserved for historical reasons
 define('NET_SFTP_STRING',        2);
+
 /**
  * Resumes an upload
  */
 define('NET_SFTP_RESUME',        4);
+
 /**
  * Append a local file to an already existing remote file
  */
 define('NET_SFTP_RESUME_START',  8);
-/**#@-*/
 
 /**
  * Pure-PHP implementations of SFTP.
  *
- * @package Net_SFTP
+ * @package Net\SFTP
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
  */
-class Net_SFTP extends Net_SSH2
+class SFTP extends PhpSecLib\Net\SSH2
 {
     /**
      * Packet Types
      *
-     * @see Net_SFTP::Net_SFTP()
+     * @see Net\SFTP::Net\SFTP()
      * @var Array
      * @access private
      */
-    var $packet_types = array();
+    private $packet_types = array();
 
     /**
      * Status Codes
      *
-     * @see Net_SFTP::Net_SFTP()
+     * @see Net\SFTP::Net\SFTP()
      * @var Array
      * @access private
      */
-    var $status_codes = array();
+    private $status_codes = array();
 
     /**
      * The Request ID
@@ -147,10 +137,10 @@ class Net_SFTP extends Net_SSH2
      * concurrent actions, so it's somewhat academic, here.
      *
      * @var Integer
-     * @see Net_SFTP::_send_sftp_packet()
+     * @see Net\SFTP::_send_sftp_packet()
      * @access private
      */
-    var $request_id = false;
+    private $request_id = false;
 
     /**
      * The Packet Type
@@ -159,75 +149,75 @@ class Net_SFTP extends Net_SSH2
      * concurrent actions, so it's somewhat academic, here.
      *
      * @var Integer
-     * @see Net_SFTP::_get_sftp_packet()
+     * @see Net\SFTP::_get_sftp_packet()
      * @access private
      */
-    var $packet_type = -1;
+    private $packet_type = -1;
 
     /**
      * Packet Buffer
      *
      * @var String
-     * @see Net_SFTP::_get_sftp_packet()
+     * @see Net\SFTP::_get_sftp_packet()
      * @access private
      */
-    var $packet_buffer = '';
+    private $packet_buffer = '';
 
     /**
      * Extensions supported by the server
      *
      * @var Array
-     * @see Net_SFTP::_initChannel()
+     * @see Net\SFTP::_initChannel()
      * @access private
      */
-    var $extensions = array();
+    private $extensions = array();
 
     /**
      * Server SFTP version
      *
      * @var Integer
-     * @see Net_SFTP::_initChannel()
+     * @see Net\SFTP::_initChannel()
      * @access private
      */
-    var $version;
+    private $version;
 
     /**
      * Current working directory
      *
      * @var String
-     * @see Net_SFTP::_realpath()
-     * @see Net_SFTP::chdir()
+     * @see Net\SFTP::_realpath()
+     * @see Net\SFTP::chdir()
      * @access private
      */
-    var $pwd = false;
+    private $pwd = false;
 
     /**
      * Packet Type Log
      *
-     * @see Net_SFTP::getLog()
+     * @see Net\SFTP::getLog()
      * @var Array
      * @access private
      */
-    var $packet_type_log = array();
+    private $packet_type_log = array();
 
     /**
      * Packet Log
      *
-     * @see Net_SFTP::getLog()
+     * @see Net\SFTP::getLog()
      * @var Array
      * @access private
      */
-    var $packet_log = array();
+    private $packet_log = array();
 
     /**
      * Error information
      *
-     * @see Net_SFTP::getSFTPErrors()
-     * @see Net_SFTP::getLastSFTPError()
+     * @see Net\SFTP::getSFTPErrors()
+     * @see Net\SFTP::getLastSFTPError()
      * @var String
      * @access private
      */
-    var $sftp_errors = array();
+    private $sftp_errors = array();
 
     /**
      * Directory Cache
@@ -235,23 +225,23 @@ class Net_SFTP extends Net_SSH2
      * Rather than always having to open a directory and close it immediately there after to see if a file is a directory or
      * rather than always 
      *
-     * @see Net_SFTP::_save_dir()
-     * @see Net_SFTP::_remove_dir()
-     * @see Net_SFTP::_is_dir()
+     * @see Net\SFTP::_save_dir()
+     * @see Net\SFTP::_remove_dir()
+     * @see Net\SFTP::_is_dir()
      * @var Array
      * @access private
      */
-    var $dirs = array();
+    private $dirs = array();
 
     /**
      * Max SFTP Packet Size
      *
-     * @see Net_SFTP::Net_SFTP()
-     * @see Net_SFTP::get()
+     * @see Net\SFTP::Net\SFTP()
+     * @see Net\SFTP::get()
      * @var Array
      * @access private
      */
-    var $max_sftp_packet;
+    private $max_sftp_packet;
 
     /**
      * Default Constructor.
@@ -261,12 +251,12 @@ class Net_SFTP extends Net_SSH2
      * @param String $host
      * @param optional Integer $port
      * @param optional Integer $timeout
-     * @return Net_SFTP
+     * @return Net\SFTP
      * @access public
      */
-    function Net_SFTP($host, $port = 22, $timeout = 10)
+    public function __construct($host, $port = 22, $timeout = 10)
     {
-        parent::Net_SSH2($host, $port, $timeout);
+        parent::__construct($host, $port, $timeout);
 
         $this->max_sftp_packet = 1 << 15;
 
@@ -340,7 +330,7 @@ class Net_SFTP extends Net_SSH2
             31 => 'NET_SFTP_STATUS_NO_MATCHING_BYTE_RANGE_LOCK'
         );
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-7.1
-        // the order, in this case, matters quite a lot - see Net_SFTP::_parseAttributes() to understand why
+        // the order, in this case, matters quite a lot - see Net\SFTP::_parseAttributes() to understand why
         $this->attributes = array(
             0x00000001 => 'NET_SFTP_ATTR_SIZE',
             0x00000002 => 'NET_SFTP_ATTR_UIDGID', // defined in SFTPv3, removed in SFTPv4+
@@ -364,7 +354,7 @@ class Net_SFTP extends Net_SSH2
             0x00000020 => 'NET_SFTP_OPEN_EXCL'
         );
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-5.2
-        // see Net_SFTP::_parseLongname() for an explanation
+        // see Net\SFTP::_parseLongname() for an explanation
         $this->file_types = array(
             1 => 'NET_SFTP_TYPE_REGULAR',
             2 => 'NET_SFTP_TYPE_DIRECTORY',
@@ -399,10 +389,10 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access public
      */
-    function login($username)
+    public function login($username)
     {
         $args = func_get_args();
-        if (!call_user_func_array(array('Net_SSH2', 'login'), $args)) {
+        if (!call_user_func_array(array('SSH2', 'login'), $args)) {
             return false;
         }
 
@@ -510,7 +500,7 @@ class Net_SFTP extends Net_SSH2
          So what do you do if you have a client whose initial SSH_FXP_INIT packet says it implements v3 and
          a server whose initial SSH_FXP_VERSION reply says it implements v4 and only v4?  If it only implements
          v4, the "versions" extension is likely not going to have been sent so version re-negotiation as discussed
-         in draft-ietf-secsh-filexfer-13 would be quite impossible.  As such, what Net_SFTP would do is close the
+         in draft-ietf-secsh-filexfer-13 would be quite impossible.  As such, what Net\SFTP would do is close the
          channel and reopen it with a new and updated SSH_FXP_INIT packet.
         */
         switch ($this->version) {
@@ -534,7 +524,7 @@ class Net_SFTP extends Net_SSH2
      * @return Mixed
      * @access public
      */
-    function pwd()
+    public function pwd()
     {
         return $this->pwd;
     }
@@ -546,7 +536,7 @@ class Net_SFTP extends Net_SSH2
      * @param optional Integer $status
      * @access public
      */
-    function _logError($response, $status = -1)
+    public function _logError($response, $status = -1)
     {
         if ($status == -1) {
             extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -568,12 +558,12 @@ class Net_SFTP extends Net_SSH2
      * SFTP doesn't provide a mechanism by which the current working directory can be changed, so we'll emulate it.  Returns
      * the absolute (canonicalized) path.
      *
-     * @see Net_SFTP::chdir()
+     * @see Net\SFTP::chdir()
      * @param String $path
      * @return Mixed
      * @access private
      */
-    function _realpath($path)
+    private function _realpath($path)
     {
         if ($this->pwd === false) {
             // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.9
@@ -629,7 +619,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access public
      */
-    function chdir($dir)
+    public function chdir($dir)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -660,7 +650,7 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
-        // see Net_SFTP::nlist() for a more thorough explanation of the following
+        // see Net\SFTP::nlist() for a more thorough explanation of the following
         $response = $this->_get_sftp_packet();
         switch ($this->packet_type) {
             case NET_SFTP_HANDLE:
@@ -691,7 +681,7 @@ class Net_SFTP extends Net_SSH2
      * @return Mixed
      * @access public
      */
-    function nlist($dir = '.')
+    public function nlist($dir = '.')
     {
         return $this->_list($dir, false);
     }
@@ -703,7 +693,7 @@ class Net_SFTP extends Net_SSH2
      * @return Mixed
      * @access public
      */
-    function rawlist($dir = '.')
+    public function rawlist($dir = '.')
     {
         return $this->_list($dir, true);
     }
@@ -720,7 +710,7 @@ class Net_SFTP extends Net_SSH2
      * @return Mixed
      * @access private
      */
-    function _list($dir, $raw = true, $realpath = true)
+    private function _list($dir, $raw = true, $realpath = true)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -822,7 +812,7 @@ class Net_SFTP extends Net_SSH2
      * @return Mixed
      * @access public
      */
-    function size($filename)
+    public function size($filename)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -842,7 +832,7 @@ class Net_SFTP extends Net_SSH2
      * @param String $dir
      * @access private
      */
-    function _save_dir($dir)
+    private function _save_dir($dir)
     {
         // preg_replace('#^/|/(?=/)|/$#', '', $dir) == str_replace('//', '/', trim($dir, '/'))
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $dir));
@@ -862,7 +852,7 @@ class Net_SFTP extends Net_SSH2
      * @param String $dir
      * @access private
      */
-    function _remove_dir($dir)
+    private function _remove_dir($dir)
     {
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $dir));
 
@@ -888,7 +878,7 @@ class Net_SFTP extends Net_SSH2
      * @param String $dir
      * @access private
      */
-    function _is_dir($dir)
+    private function _is_dir($dir)
     {
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $dir));
 
@@ -911,7 +901,7 @@ class Net_SFTP extends Net_SSH2
      * @return Mixed
      * @access public
      */
-    function stat($filename)
+    public function stat($filename)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -948,7 +938,7 @@ class Net_SFTP extends Net_SSH2
      * @return Mixed
      * @access public
      */
-    function lstat($filename)
+    public function lstat($filename)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -985,7 +975,7 @@ class Net_SFTP extends Net_SSH2
     /**
      * Returns general information about a file or symbolic link
      *
-     * Determines information without calling Net_SFTP::_realpath().
+     * Determines information without calling Net\SFTP::_realpath().
      * The second parameter can be either NET_SFTP_STAT or NET_SFTP_LSTAT.
      *
      * @param String $filename
@@ -993,7 +983,7 @@ class Net_SFTP extends Net_SSH2
      * @return Mixed
      * @access private
      */
-    function _stat($filename, $type)
+    private function _stat($filename, $type)
     {
         // SFTPv4+ adds an additional 32-bit integer field - flags - to the following:
         $packet = pack('Na*', strlen($filename), $filename);
@@ -1017,13 +1007,13 @@ class Net_SFTP extends Net_SSH2
     /**
      * Returns the file size, in bytes, or false, on failure
      *
-     * Determines the size without calling Net_SFTP::_realpath()
+     * Determines the size without calling Net\SFTP::_realpath()
      *
      * @param String $filename
      * @return Mixed
      * @access private
      */
-    function _size($filename)
+    private function _size($filename)
     {
         $result = $this->_stat($filename, NET_SFTP_STAT);
         if ($result === false) {
@@ -1040,7 +1030,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access public
      */
-    function truncate($filename, $new_size)
+    public function truncate($filename, $new_size)
     {
         $attr = pack('N3', NET_SFTP_ATTR_SIZE, $new_size / 0x100000000, $new_size);
 
@@ -1058,7 +1048,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access public
      */
-    function touch($filename, $time = null, $atime = null)
+    public function touch($filename, $time = null, $atime = null)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1195,7 +1185,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access private
      */
-    function _setstat($filename, $attr, $recursive)
+    private function _setstat($filename, $attr, $recursive)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1252,7 +1242,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access private
      */
-    function _setstat_recursive($path, $attr, &$i)
+    private function _setstat_recursive($path, $attr, &$i)
     {
         if (!$this->_read_put_responses($i)) {
             return false;
@@ -1323,7 +1313,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access public
      */
-    function mkdir($dir, $mode = -1, $recursive = false)
+    public function mkdir($dir, $mode = -1, $recursive = false)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1358,7 +1348,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access private
      */
-    function _mkdir_helper($dir, $attr)
+    private function _mkdir_helper($dir, $attr)
     {
         if (!$this->_send_sftp_packet(NET_SFTP_MKDIR, pack('Na*a*', strlen($dir), $dir, $attr))) {
             return false;
@@ -1388,7 +1378,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access public
      */
-    function rmdir($dir)
+    public function rmdir($dir)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1424,8 +1414,8 @@ class Net_SFTP extends Net_SSH2
     /**
      * Uploads a file to the SFTP server.
      *
-     * By default, Net_SFTP::put() does not read from the local filesystem.  $data is dumped directly into $remote_file.
-     * So, for example, if you set $data to 'filename.ext' and then do Net_SFTP::get(), you will get a file, twelve bytes
+     * By default, Net\SFTP::put() does not read from the local filesystem.  $data is dumped directly into $remote_file.
+     * So, for example, if you set $data to 'filename.ext' and then do Net\SFTP::get(), you will get a file, twelve bytes
      * long, containing 'filename.ext' as its contents.
      *
      * Setting $mode to NET_SFTP_LOCAL_FILE will change the above behavior.  With NET_SFTP_LOCAL_FILE, $remote_file will 
@@ -1459,9 +1449,9 @@ class Net_SFTP extends Net_SSH2
      * @param optional Integer $local_start
      * @return Boolean
      * @access public
-     * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - Net_SFTP::setMode().
+     * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - Net\SFTP::setMode().
      */
-    function put($remote_file, $data, $mode = NET_SFTP_STRING, $start = -1, $local_start = -1)
+    public function put($remote_file, $data, $mode = NET_SFTP_STRING, $start = -1, $local_start = -1)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1582,7 +1572,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access private
      */
-    function _read_put_responses($i)
+    private function _read_put_responses($i)
     {
         while ($i--) {
             $response = $this->_get_sftp_packet();
@@ -1608,7 +1598,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access private
      */
-    function _close_handle($handle)
+    private function _close_handle($handle)
     {
         if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
             return false;
@@ -1647,7 +1637,7 @@ class Net_SFTP extends Net_SSH2
      * @return Mixed
      * @access public
      */
-    function get($remote_file, $local_file = false, $offset = 0, $length = -1)
+    public function get($remote_file, $local_file = false, $offset = 0, $length = -1)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1751,7 +1741,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access public
      */
-    function delete($path, $recursive = true)
+    public function delete($path, $recursive = true)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1799,7 +1789,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access private
      */
-    function _delete_recursive($path, &$i)
+    private function _delete_recursive($path, &$i)
     {
         if (!$this->_read_put_responses($i)) {
             return false;
@@ -1868,7 +1858,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access public
      */
-    function rename($oldname, $newname)
+    public function rename($oldname, $newname)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1911,7 +1901,7 @@ class Net_SFTP extends Net_SSH2
      * @return Array
      * @access private
      */
-    function _parseAttributes(&$response)
+    private function _parseAttributes(&$response)
     {
         $attr = array();
         extract(unpack('Nflags', $this->_string_shift($response, 4)));
@@ -1920,8 +1910,8 @@ class Net_SFTP extends Net_SSH2
             switch ($flags & $key) {
                 case NET_SFTP_ATTR_SIZE: // 0x00000001
                     // size is represented by a 64-bit integer, so we perhaps ought to be doing the following:
-                    // $attr['size'] = new Math_BigInteger($this->_string_shift($response, 8), 256);
-                    // of course, you shouldn't be using Net_SFTP to transfer files that are in excess of 4GB
+                    // $attr['size'] = new Math\BigInteger($this->_string_shift($response, 8), 256);
+                    // of course, you shouldn't be using Net\SFTP to transfer files that are in excess of 4GB
                     // (0xFFFFFFFF bytes), anyway.  as such, we'll just represent all file sizes that are bigger than
                     // 4GB as being 4GB.
                     extract(unpack('Nupper/Nsize', $this->_string_shift($response, 8)));
@@ -1966,7 +1956,7 @@ class Net_SFTP extends Net_SSH2
      * @return Integer
      * @access private
      */
-    function _parseMode($mode)
+    private function _parseMode($mode)
     {
         // values come from http://lxr.free-electrons.com/source/include/uapi/linux/stat.h#L12
         // see, also, http://linux.die.net/man/2/stat
@@ -2013,7 +2003,7 @@ class Net_SFTP extends Net_SSH2
      * @return Mixed
      * @access private
      */
-    function _parseLongname($longname)
+    private function _parseLongname($longname)
     {
         // http://en.wikipedia.org/wiki/Unix_file_types
         // http://en.wikipedia.org/wiki/Filesystem_permissions#Notation_of_traditional_Unix_permissions
@@ -2040,12 +2030,12 @@ class Net_SFTP extends Net_SSH2
      *
      * @param Integer $type
      * @param String $data
-     * @see Net_SFTP::_get_sftp_packet()
-     * @see Net_SSH2::_send_channel_packet()
+     * @see Net\SFTP::_get_sftp_packet()
+     * @see Net\SSH2::_send_channel_packet()
      * @return Boolean
      * @access private
      */
-    function _send_sftp_packet($type, $data)
+    private function _send_sftp_packet($type, $data)
     {
         $packet = $this->request_id !== false ?
             pack('NCNa*', strlen($data) + 5, $type, $this->request_id, $data) :
@@ -2082,11 +2072,11 @@ class Net_SFTP extends Net_SSH2
      * There can be one SSH_MSG_CHANNEL_DATA messages containing two SFTP packets or there can be two SSH_MSG_CHANNEL_DATA
      * messages containing one SFTP packet.
      *
-     * @see Net_SFTP::_send_sftp_packet()
+     * @see Net\SFTP::_send_sftp_packet()
      * @return String
      * @access private
      */
-    function _get_sftp_packet()
+    private function _get_sftp_packet()
     {
         $this->curTimeout = false;
 
@@ -2157,7 +2147,7 @@ class Net_SFTP extends Net_SSH2
      * @access public
      * @return String or Array
      */
-    function getSFTPLog()
+    public function getSFTPLog()
     {
         if (!defined('NET_SFTP_LOGGING')) {
             return false;
@@ -2179,7 +2169,7 @@ class Net_SFTP extends Net_SSH2
      * @return String
      * @access public
      */
-    function getSFTPErrors()
+    public function getSFTPErrors()
     {
         return $this->sftp_errors;
     }
@@ -2190,7 +2180,7 @@ class Net_SFTP extends Net_SSH2
      * @return String
      * @access public
      */
-    function getLastSFTPError()
+    public function getLastSFTPError()
     {
         return count($this->sftp_errors) ? $this->sftp_errors[count($this->sftp_errors) - 1] : '';
     }
@@ -2201,7 +2191,7 @@ class Net_SFTP extends Net_SSH2
      * @return Array
      * @access public
      */
-    function getSupportedVersions()
+    public function getSupportedVersions()
     {
         $temp = array('version' => $this->version);
         if (isset($this->extensions['versions'])) {
@@ -2217,7 +2207,7 @@ class Net_SFTP extends Net_SSH2
      * @return Boolean
      * @access private
      */
-    function _disconnect($reason)
+    private function _disconnect($reason)
     {
         $this->pwd = false;
         parent::_disconnect($reason);

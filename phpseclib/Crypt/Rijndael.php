@@ -7,11 +7,11 @@
  *
  * PHP versions 4 and 5
  *
- * If {@link Crypt_Rijndael::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
- * {@link Crypt_Rijndael::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
- * {@link Crypt_Rijndael::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
+ * If {@link Crypt\Rijndael::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
+ * {@link Crypt\Rijndael::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
+ * {@link Crypt\Rijndael::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
  * 136-bits it'll be null-padded to 192-bits and 192 bits will be the key length until
- * {@link Crypt_Rijndael::setKey() setKey()} is called, again, at which point, it'll be recalculated.
+ * {@link Crypt\Rijndael::setKey() setKey()} is called, again, at which point, it'll be recalculated.
  *
  * Not all Rijndael implementations may support 160-bits or 224-bits as the block length / key length.  mcrypt, for example,
  * does not.  AES, itself, only supports block lengths of 128 and key lengths of 128, 192, and 256.
@@ -30,7 +30,7 @@
  * <?php
  *    include('Crypt/Rijndael.php');
  *
- *    $rijndael = new Crypt_Rijndael();
+ *    $rijndael = new Crypt\Rijndael();
  *
  *    $rijndael->setKey('abcdefghijklmnop');
  *
@@ -63,27 +63,15 @@
  * THE SOFTWARE.
  *
  * @category  Crypt
- * @package   Crypt_Rijndael
+ * @package   Crypt\Rijndael
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMVIII Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Crypt_Base
- *
- * Base cipher class
- */
-if (!class_exists('Crypt_Base')) {
-    include_once 'Base.php';
-}
+namespace PhpSecLib\Crypt;
 
-/**#@+
- * @access public
- * @see Crypt_Rijndael::encrypt()
- * @see Crypt_Rijndael::decrypt()
- */
 /**
  * Encrypt / decrypt using the Counter mode.
  *
@@ -92,100 +80,99 @@ if (!class_exists('Crypt_Base')) {
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
  */
 define('CRYPT_RIJNDAEL_MODE_CTR', CRYPT_MODE_CTR);
+
 /**
  * Encrypt / decrypt using the Electronic Code Book mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
  */
 define('CRYPT_RIJNDAEL_MODE_ECB', CRYPT_MODE_ECB);
+
 /**
  * Encrypt / decrypt using the Code Book Chaining mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
  */
 define('CRYPT_RIJNDAEL_MODE_CBC', CRYPT_MODE_CBC);
+
 /**
  * Encrypt / decrypt using the Cipher Feedback mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
  */
 define('CRYPT_RIJNDAEL_MODE_CFB', CRYPT_MODE_CFB);
+
 /**
  * Encrypt / decrypt using the Cipher Feedback mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
  */
 define('CRYPT_RIJNDAEL_MODE_OFB', CRYPT_MODE_OFB);
-/**#@-*/
 
-/**#@+
- * @access private
- * @see Crypt_Rijndael::Crypt_Rijndael()
- */
 /**
  * Toggles the internal implementation
  */
 define('CRYPT_RIJNDAEL_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
+
 /**
  * Toggles the mcrypt implementation
  */
 define('CRYPT_RIJNDAEL_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
 
 /**
  * Pure-PHP implementation of Rijndael.
  *
- * @package Crypt_Rijndael
+ * @package Crypt\Rijndael
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
  */
-class Crypt_Rijndael extends Crypt_Base
+class Rijndael extends Base
 {
     /**
      * The default password key_size used by setPassword()
      *
-     * @see Crypt_Base::password_key_size
-     * @see Crypt_Base::setPassword()
+     * @see Crypt\Base::password_key_size
+     * @see Crypt\Base::setPassword()
      * @var Integer
      * @access private
      */
-    var $password_key_size = 16;
+    private $password_key_size = 16;
 
     /**
      * The namespace used by the cipher for its constants.
      *
-     * @see Crypt_Base::const_namespace
+     * @see Crypt\Base::const_namespace
      * @var String
      * @access private
      */
-    var $const_namespace = 'RIJNDAEL';
+    private $const_namespace = 'RIJNDAEL';
 
     /**
      * The mcrypt specific name of the cipher
      *
      * Mcrypt is useable for 128/192/256-bit $block_size/$key_size. For 160/224 not.
-     * Crypt_Rijndael determines automatically whether mcrypt is useable
+     * Crypt\Rijndael determines automatically whether mcrypt is useable
      * or not for the current $block_size/$key_size.
      * In case of, $cipher_name_mcrypt will be set dynamicaly at run time accordingly.
      *
-     * @see Crypt_Base::cipher_name_mcrypt
-     * @see Crypt_Base::engine
+     * @see Crypt\Base::cipher_name_mcrypt
+     * @see Crypt\Base::engine
      * @see _setupEngine()
      * @var String
      * @access private
      */
-    var $cipher_name_mcrypt = 'rijndael-128';
+    private $cipher_name_mcrypt = 'rijndael-128';
 
     /**
      * The default salt used by setPassword()
      *
-     * @see Crypt_Base::password_default_salt
-     * @see Crypt_Base::setPassword()
+     * @see Crypt\Base::password_default_salt
+     * @see Crypt\Base::setPassword()
      * @var String
      * @access private
      */
-    var $password_default_salt = 'phpseclib';
+    private $password_default_salt = 'phpseclib';
 
     /**
      * Has the key length explicitly been set or should it be derived from the key, itself?
@@ -194,7 +181,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @var Boolean
      * @access private
      */
-    var $explicit_key_length = false;
+    private $explicit_key_length = false;
 
     /**
      * The Key Schedule
@@ -203,7 +190,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @var Array
      * @access private
      */
-    var $w;
+    private $w;
 
     /**
      * The Inverse Key Schedule
@@ -212,7 +199,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @var Array
      * @access private
      */
-    var $dw;
+    private $dw;
 
     /**
      * The Block Length divided by 32
@@ -226,7 +213,7 @@ class Crypt_Rijndael extends Crypt_Base
      *    of that, we'll just precompute it once.
      *
      */
-    var $Nb = 4;
+    private $Nb = 4;
 
     /**
      * The Key Length
@@ -239,7 +226,7 @@ class Crypt_Rijndael extends Crypt_Base
      *    derive this from $key_size or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
      *    of that, we'll just precompute it once.
      */
-    var $key_size = 16;
+    private $key_size = 16;
 
     /**
      * The Key Length divided by 32
@@ -249,7 +236,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4
      */
-    var $Nk = 4;
+    private $Nk = 4;
 
     /**
      * The Number of Rounds
@@ -258,7 +245,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @access private
      * @internal The max value is 14, the min value is 10.
      */
-    var $Nr;
+    private $Nr;
 
     /**
      * Shift offsets
@@ -266,7 +253,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @var Array
      * @access private
      */
-    var $c;
+    private $c;
 
     /**
      * Holds the last used key- and block_size information
@@ -274,7 +261,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @var Array
      * @access private
      */
-    var $kl;
+    private $kl;
 
     /**
      * Precomputed mixColumns table
@@ -283,12 +270,12 @@ class Crypt_Rijndael extends Crypt_Base
      * precomputed tables can be used in the mixColumns phase.  in that example, they're assigned t0...t3, so
      * those are the names we'll use.
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see Crypt\Rijndael:_encryptBlock()
+     * @see Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
-    var $t0 = array(
+    private $t0 = array(
         0xC66363A5, 0xF87C7C84, 0xEE777799, 0xF67B7B8D, 0xFFF2F20D, 0xD66B6BBD, 0xDE6F6FB1, 0x91C5C554,
         0x60303050, 0x02010103, 0xCE6767A9, 0x562B2B7D, 0xE7FEFE19, 0xB5D7D762, 0x4DABABE6, 0xEC76769A,
         0x8FCACA45, 0x1F82829D, 0x89C9C940, 0xFA7D7D87, 0xEFFAFA15, 0xB25959EB, 0x8E4747C9, 0xFBF0F00B,
@@ -326,12 +313,12 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed mixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see Crypt\Rijndael:_encryptBlock()
+     * @see Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
-    var $t1 = array(
+    private $t1 = array(
         0xA5C66363, 0x84F87C7C, 0x99EE7777, 0x8DF67B7B, 0x0DFFF2F2, 0xBDD66B6B, 0xB1DE6F6F, 0x5491C5C5,
         0x50603030, 0x03020101, 0xA9CE6767, 0x7D562B2B, 0x19E7FEFE, 0x62B5D7D7, 0xE64DABAB, 0x9AEC7676,
         0x458FCACA, 0x9D1F8282, 0x4089C9C9, 0x87FA7D7D, 0x15EFFAFA, 0xEBB25959, 0xC98E4747, 0x0BFBF0F0,
@@ -369,12 +356,12 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed mixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see Crypt\Rijndael:_encryptBlock()
+     * @see Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
-    var $t2 = array(
+    private $t2 = array(
         0x63A5C663, 0x7C84F87C, 0x7799EE77, 0x7B8DF67B, 0xF20DFFF2, 0x6BBDD66B, 0x6FB1DE6F, 0xC55491C5,
         0x30506030, 0x01030201, 0x67A9CE67, 0x2B7D562B, 0xFE19E7FE, 0xD762B5D7, 0xABE64DAB, 0x769AEC76,
         0xCA458FCA, 0x829D1F82, 0xC94089C9, 0x7D87FA7D, 0xFA15EFFA, 0x59EBB259, 0x47C98E47, 0xF00BFBF0,
@@ -412,12 +399,12 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed mixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see Crypt\Rijndael:_encryptBlock()
+     * @see Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
-    var $t3 = array(
+    private $t3 = array(
         0x6363A5C6, 0x7C7C84F8, 0x777799EE, 0x7B7B8DF6, 0xF2F20DFF, 0x6B6BBDD6, 0x6F6FB1DE, 0xC5C55491,
         0x30305060, 0x01010302, 0x6767A9CE, 0x2B2B7D56, 0xFEFE19E7, 0xD7D762B5, 0xABABE64D, 0x76769AEC,
         0xCACA458F, 0x82829D1F, 0xC9C94089, 0x7D7D87FA, 0xFAFA15EF, 0x5959EBB2, 0x4747C98E, 0xF0F00BFB,
@@ -455,12 +442,12 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed invMixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see Crypt\Rijndael:_encryptBlock()
+     * @see Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
-    var $dt0 = array(
+    private $dt0 = array(
         0x51F4A750, 0x7E416553, 0x1A17A4C3, 0x3A275E96, 0x3BAB6BCB, 0x1F9D45F1, 0xACFA58AB, 0x4BE30393,
         0x2030FA55, 0xAD766DF6, 0x88CC7691, 0xF5024C25, 0x4FE5D7FC, 0xC52ACBD7, 0x26354480, 0xB562A38F,
         0xDEB15A49, 0x25BA1B67, 0x45EA0E98, 0x5DFEC0E1, 0xC32F7502, 0x814CF012, 0x8D4697A3, 0x6BD3F9C6,
@@ -498,12 +485,12 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed invMixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see Crypt\Rijndael:_encryptBlock()
+     * @see Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
-    var $dt1 = array(
+    private $dt1 = array(
         0x5051F4A7, 0x537E4165, 0xC31A17A4, 0x963A275E, 0xCB3BAB6B, 0xF11F9D45, 0xABACFA58, 0x934BE303,
         0x552030FA, 0xF6AD766D, 0x9188CC76, 0x25F5024C, 0xFC4FE5D7, 0xD7C52ACB, 0x80263544, 0x8FB562A3,
         0x49DEB15A, 0x6725BA1B, 0x9845EA0E, 0xE15DFEC0, 0x02C32F75, 0x12814CF0, 0xA38D4697, 0xC66BD3F9,
@@ -541,12 +528,12 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed invMixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see Crypt\Rijndael:_encryptBlock()
+     * @see Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
-    var $dt2 = array(
+    private $dt2 = array(
         0xA75051F4, 0x65537E41, 0xA4C31A17, 0x5E963A27, 0x6BCB3BAB, 0x45F11F9D, 0x58ABACFA, 0x03934BE3,
         0xFA552030, 0x6DF6AD76, 0x769188CC, 0x4C25F502, 0xD7FC4FE5, 0xCBD7C52A, 0x44802635, 0xA38FB562,
         0x5A49DEB1, 0x1B6725BA, 0x0E9845EA, 0xC0E15DFE, 0x7502C32F, 0xF012814C, 0x97A38D46, 0xF9C66BD3,
@@ -584,12 +571,12 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed invMixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see Crypt\Rijndael:_encryptBlock()
+     * @see Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
-    var $dt3 = array(
+    private $dt3 = array(
         0xF4A75051, 0x4165537E, 0x17A4C31A, 0x275E963A, 0xAB6BCB3B, 0x9D45F11F, 0xFA58ABAC, 0xE303934B,
         0x30FA5520, 0x766DF6AD, 0xCC769188, 0x024C25F5, 0xE5D7FC4F, 0x2ACBD7C5, 0x35448026, 0x62A38FB5,
         0xB15A49DE, 0xBA1B6725, 0xEA0E9845, 0xFEC0E15D, 0x2F7502C3, 0x4CF01281, 0x4697A38D, 0xD3F9C66B,
@@ -627,11 +614,11 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The SubByte S-Box
      *
-     * @see Crypt_Rijndael::_encryptBlock()
+     * @see Crypt\Rijndael::_encryptBlock()
      * @var Array
      * @access private
      */
-    var $sbox = array(
+    private $sbox = array(
         0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
         0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
         0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15,
@@ -653,11 +640,11 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The inverse SubByte S-Box
      *
-     * @see Crypt_Rijndael::_decryptBlock()
+     * @see Crypt\Rijndael::_decryptBlock()
      * @var Array
      * @access private
      */
-    var $isbox = array(
+    private $isbox = array(
         0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB,
         0x7C, 0xE3, 0x39, 0x82, 0x9B, 0x2F, 0xFF, 0x87, 0x34, 0x8E, 0x43, 0x44, 0xC4, 0xDE, 0xE9, 0xCB,
         0x54, 0x7B, 0x94, 0x32, 0xA6, 0xC2, 0x23, 0x3D, 0xEE, 0x4C, 0x95, 0x0B, 0x42, 0xFA, 0xC3, 0x4E,
@@ -695,13 +682,13 @@ class Crypt_Rijndael extends Crypt_Base
      *
      * If not explictly set, CRYPT_RIJNDAEL_MODE_CBC will be used.
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt\Base::__construct()
      * @param optional Integer $mode
      * @access public
      */
-    function Crypt_Rijndael($mode = CRYPT_RIJNDAEL_MODE_CBC)
+    public function __construct($mode = CRYPT_RIJNDAEL_MODE_CBC)
     {
-        parent::Crypt_Base($mode);
+        parent::__construct($mode);
     }
 
     /**
@@ -716,12 +703,12 @@ class Crypt_Rijndael extends Crypt_Base
      *
      * Note: 160/224-bit keys must explicitly set by setKeyLength(), otherwise they will be round/pad up to 192/256 bits.
      *
-     * @see Crypt_Base:setKey()
+     * @see Crypt\Base:setKey()
      * @see setKeyLength()
      * @access public
      * @param String $key
      */
-    function setKey($key)
+    public function setKey($key)
     {
         parent::setKey($key);
 
@@ -761,7 +748,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @access public
      * @param Integer $length
      */
-    function setKeyLength($length)
+    public function setKeyLength($length)
     {
         switch (true) {
             case $length == 160:
@@ -794,7 +781,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @access public
      * @param Integer $length
      */
-    function setBlockLength($length)
+    public function setBlockLength($length)
     {
         $length >>= 5;
         if ($length > 8) {
@@ -821,7 +808,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @see setBlockLength()
      * @access private
      */
-    function _setupEngine()
+    private function _setupEngine()
     {
         if (constant('CRYPT_' . $this->const_namespace . '_MODE') == CRYPT_MODE_INTERNAL) {
             // No mcrypt support at all for rijndael
@@ -868,10 +855,10 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Setup the CRYPT_MODE_MCRYPT $engine
      *
-     * @see Crypt_Base::_setupMcrypt()
+     * @see Crypt\Base::_setupMcrypt()
      * @access private
      */
-    function _setupMcrypt()
+    private function _setupMcrypt()
     {
         $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, "\0");
         parent::_setupMcrypt();
@@ -884,7 +871,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @param String $in
      * @return String
      */
-    function _encryptBlock($in)
+    private function _encryptBlock($in)
     {
         static $t0, $t1, $t2, $t3, $sbox;
         if (!$t0) {
@@ -986,7 +973,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @param String $in
      * @return String
      */
-    function _decryptBlock($in)
+    private function _decryptBlock($in)
     {
         static $dt0, $dt1, $dt2, $dt3, $isbox;
         if (!$dt0) {
@@ -1073,10 +1060,10 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Setup the key (expansion)
      *
-     * @see Crypt_Base::_setupKey()
+     * @see Crypt\Base::_setupKey()
      * @access private
      */
-    function _setupKey()
+    private function _setupKey()
     {
         // Each number in $rcon is equal to the previous number multiplied by two in Rijndael's finite field.
         // See http://en.wikipedia.org/wiki/Finite_field_arithmetic#Multiplicative_inverse
@@ -1192,7 +1179,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @access private
      * @param Integer $word
      */
-    function _subWord($word)
+    private function _subWord($word)
     {
         $sbox = $this->sbox;
 
@@ -1205,16 +1192,16 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Crypt_Base::_setupInlineCrypt()
+     * @see Crypt\Base::_setupInlineCrypt()
      * @access private
      */
-    function _setupInlineCrypt()
+    private function _setupInlineCrypt()
     {
         // Note: _setupInlineCrypt() will be called only if $this->changed === true
         // So here we are'nt under the same heavy timing-stress as we are in _de/encryptBlock() or de/encrypt().
         // However...the here generated function- $code, stored as php callback in $this->inline_crypt, must work as fast as even possible.
 
-        $lambda_functions =& Crypt_Rijndael::_getLambdaFunctions();
+        $lambda_functions =& Rijndael::_getLambdaFunctions();
 
         // The first 10 generated $lambda_functions will use the key-words hardcoded for better performance.
         // For memory reason we limit those ultra-optimized functions.
@@ -1233,7 +1220,7 @@ class Crypt_Rijndael extends Crypt_Base
             $init_decrypt = '$dw = $self->dw;';
         }
 
-        $code_hash = md5(str_pad("Crypt_Rijndael, {$this->mode}, {$this->block_size}, ", 32, "\0") . implode(',', $w));
+        $code_hash = md5(str_pad("Rijndael, {$this->mode}, {$this->block_size}, ", 32, "\0") . implode(',', $w));
 
         if (!isset($lambda_functions[$code_hash])) {
             $Nr = $this->Nr;

@@ -5,10 +5,10 @@
  *
  * PHP versions 4 and 5
  *
- * If you call read() in Net_SSH2 you may get {@link http://en.wikipedia.org/wiki/ANSI_escape_code ANSI escape codes} back.
+ * If you call read() in Net\SSH2 you may get {@link http://en.wikipedia.org/wiki/ANSI_escape_code ANSI escape codes} back.
  * They'd look like chr(0x1B) . '[00m' or whatever (0x1B = ESC).  They tell a
  * {@link http://en.wikipedia.org/wiki/Terminal_emulator terminal emulator} how to format the characters, what
- * color to display them in, etc. File_ANSI is a {@link http://en.wikipedia.org/wiki/VT100 VT100} terminal emulator.
+ * color to display them in, etc. File\ANSI is a {@link http://en.wikipedia.org/wiki/VT100 VT100} terminal emulator.
  *
  * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,22 +29,24 @@
  * THE SOFTWARE.
  *
  * @category  File
- * @package   File_ANSI
+ * @package   File\ANSI
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMXII Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
+namespace PhpSecLib\File;
+ 
 /**
  * Pure-PHP ANSI Decoder
  *
- * @package File_ANSI
+ * @package File\ANSI
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.0
  * @access  public
  */
-class File_ANSI
+class ANSI
 {
     /**
      * Max Width
@@ -52,7 +54,7 @@ class File_ANSI
      * @var Integer
      * @access private
      */
-    var $max_x;
+    private $max_x;
 
     /**
      * Max Height
@@ -60,7 +62,7 @@ class File_ANSI
      * @var Integer
      * @access private
      */
-    var $max_y;
+    private $max_y;
 
     /**
      * Max History
@@ -68,7 +70,7 @@ class File_ANSI
      * @var Integer
      * @access private
      */
-    var $max_history;
+    private $max_history;
 
     /**
      * History
@@ -76,7 +78,7 @@ class File_ANSI
      * @var Array
      * @access private
      */
-    var $history;
+    private $history;
 
     /**
      * History Attributes
@@ -84,7 +86,7 @@ class File_ANSI
      * @var Array
      * @access private
      */
-    var $history_attrs;
+    private $history_attrs;
 
     /**
      * Current Column
@@ -92,7 +94,7 @@ class File_ANSI
      * @var Integer
      * @access private
      */
-    var $x;
+    private $x;
 
     /**
      * Current Row
@@ -100,7 +102,7 @@ class File_ANSI
      * @var Integer
      * @access private
      */
-    var $y;
+    private $y;
 
     /**
      * Old Column
@@ -108,7 +110,7 @@ class File_ANSI
      * @var Integer
      * @access private
      */
-    var $old_x;
+    private $old_x;
 
     /**
      * Old Row
@@ -116,7 +118,7 @@ class File_ANSI
      * @var Integer
      * @access private
      */
-    var $old_y;
+    private $old_y;
 
     /**
      * An empty attribute row
@@ -124,7 +126,7 @@ class File_ANSI
      * @var Array
      * @access private
      */
-    var $attr_row;
+    private $attr_row;
 
     /**
      * The current screen text
@@ -132,7 +134,7 @@ class File_ANSI
      * @var Array
      * @access private
      */
-    var $screen;
+    private $screen;
 
     /**
      * The current screen attributes
@@ -140,7 +142,7 @@ class File_ANSI
      * @var Array
      * @access private
      */
-    var $attrs;
+    private $attrs;
 
     /**
      * The current foreground color
@@ -148,7 +150,7 @@ class File_ANSI
      * @var String
      * @access private
      */
-    var $foreground;
+    private $foreground;
 
     /**
      * The current background color
@@ -156,7 +158,7 @@ class File_ANSI
      * @var String
      * @access private
      */
-    var $background;
+    private $background;
 
     /**
      * Bold flag
@@ -164,7 +166,7 @@ class File_ANSI
      * @var Boolean
      * @access private
      */
-    var $bold;
+    private $bold;
 
     /**
      * Underline flag
@@ -172,7 +174,7 @@ class File_ANSI
      * @var Boolean
      * @access private
      */
-    var $underline;
+    private $underline;
 
     /**
      * Blink flag
@@ -180,7 +182,7 @@ class File_ANSI
      * @var Boolean
      * @access private
      */
-    var $blink;
+    private $blink;
 
     /**
      * Reverse flag
@@ -188,7 +190,7 @@ class File_ANSI
      * @var Boolean
      * @access private
      */
-    var $reverse;
+    private $reverse;
 
     /**
      * Color flag
@@ -196,7 +198,7 @@ class File_ANSI
      * @var Boolean
      * @access private
      */
-    var $color;
+    private $color;
 
     /**
      * Current ANSI code
@@ -204,15 +206,15 @@ class File_ANSI
      * @var String
      * @access private
      */
-    var $ansi;
+    private $ansi;
 
     /**
      * Default Constructor.
      *
-     * @return File_ANSI
+     * @return File\ANSI
      * @access public
      */
-    function File_ANSI()
+    public function __construct()
     {
         $this->setHistory(200);
         $this->setDimensions(80, 24);
@@ -227,7 +229,7 @@ class File_ANSI
      * @param Integer $y
      * @access public
      */
-    function setDimensions($x, $y)
+    public function setDimensions($x, $y)
     {
         $this->max_x = $x - 1;
         $this->max_y = $y - 1;
@@ -254,7 +256,7 @@ class File_ANSI
      * @param Integer $y
      * @access public
      */
-    function setHistory($history)
+    public function setHistory($history)
     {
         $this->max_history = $history;
     }
@@ -265,7 +267,7 @@ class File_ANSI
      * @param String $source
      * @access public
      */
-    function loadString($source)
+    public function loadString($source)
     {
         $this->setDimensions($this->max_x + 1, $this->max_y + 1);
         $this->appendString($source);
@@ -277,7 +279,7 @@ class File_ANSI
      * @param String $source
      * @access public
      */
-    function appendString($source)
+    public function appendString($source)
     {
         for ($i = 0; $i < strlen($source); $i++) {
             if (strlen($this->ansi)) {
@@ -476,7 +478,7 @@ class File_ANSI
      *
      * @access private
      */
-    function _newLine()
+    private function _newLine()
     {
         //if ($this->y < $this->max_y) {
         //    $this->y++;
@@ -505,7 +507,7 @@ class File_ANSI
      * @access private
      * @return String
      */
-    function _getScreen()
+    private function _getScreen()
     {
         $output = '';
         for ($i = 0; $i <= $this->max_y; $i++) {
@@ -528,7 +530,7 @@ class File_ANSI
      * @access public
      * @return String
      */
-    function getScreen()
+    public function getScreen()
     {
         return '<pre style="color: white; background: black" width="' . ($this->max_x + 1) . '">' . $this->_getScreen() . '</pre>';
     }
@@ -539,7 +541,7 @@ class File_ANSI
      * @access public
      * @return String
      */
-    function getHistory()
+    public function getHistory()
     {
         $scrollback = '';
         for ($i = 0; $i < count($this->history); $i++) {

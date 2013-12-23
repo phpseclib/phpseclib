@@ -25,7 +25,7 @@ abstract class Crypt_Hash_TestCase extends PhpseclibTestCase
 		}
 	}
 
-	protected function assertHashesTo(Crypt_Hash $hash, $message, $expected)
+	protected function assertHashesTo(Hash $hash, $message, $expected)
 	{
 		$this->assertEquals(
 			strtolower($expected),
@@ -34,7 +34,7 @@ abstract class Crypt_Hash_TestCase extends PhpseclibTestCase
 		);
 	}
 
-	protected function assertHMACsTo(Crypt_Hash $hash, $key, $message, $expected)
+	protected function assertHMACsTo(Hash $hash, $key, $message, $expected)
 	{
 		$hash->setKey($key);
 

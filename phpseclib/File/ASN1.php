@@ -9,7 +9,7 @@
  * utilized scheme is DER or the "Distinguished Encoding Rules".  PEM's are base64 encoded
  * DER blobs.
  *
- * File_ASN1 decodes and encodes DER formatted messages and places them in a semantic context.
+ * File\ASN1 decodes and encodes DER formatted messages and places them in a semantic context.
  *
  * Uses the 1988 ASN.1 syntax.
  *
@@ -32,12 +32,17 @@
  * THE SOFTWARE.
  *
  * @category  File
- * @package   File_ASN1
+ * @package   File\ASN1
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMXII Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
+
+namespace PhpSecLib\File;
+
+use PhpSecLib\File\ASN1\Element,
+	PhpSecLib\Math\BigInteger;
 
 /**#@+
  * Tag Classes
@@ -106,47 +111,14 @@ define('FILE_ASN1_TYPE_ANY',             -2);
 /**#@-*/
 
 /**
- * ASN.1 Element
- *
- * Bypass normal encoding rules in File_ASN1::encodeDER()
- *
- * @package File_ASN1
- * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.3.0
- * @access  public
- */
-class File_ASN1_Element
-{
-    /**
-     * Raw element value
-     *
-     * @var String
-     * @access private
-     */
-    var $element;
-
-    /**
-     * Constructor
-     *
-     * @param String $encoded
-     * @return File_ASN1_Element
-     * @access public
-     */
-    function File_ASN1_Element($encoded)
-    {
-        $this->element = $encoded;
-    }
-}
-
-/**
  * Pure-PHP ASN.1 Parser
  *
- * @package File_ASN1
+ * @package File\ASN1
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.0
  * @access  public
  */
-class File_ASN1
+class ASN1
 {
     /**
      * ASN.1 object identifier
@@ -155,7 +127,7 @@ class File_ASN1
      * @access private
      * @link http://en.wikipedia.org/wiki/Object_identifier
      */
-    var $oids = array();
+    private $oids = array();
 
     /**
      * Default date format
@@ -164,18 +136,18 @@ class File_ASN1
      * @access private
      * @link http://php.net/class.datetime
      */
-    var $format = 'D, d M y H:i:s O';
+    private $format = 'D, d M y H:i:s O';
 
     /**
      * Default date format
      *
      * @var Array
      * @access private
-     * @see File_ASN1::setTimeFormat()
-     * @see File_ASN1::asn1map()
+     * @see File\ASN1::setTimeFormat()
+     * @see File\ASN1::asn1map()
      * @link http://php.net/class.datetime
      */
-    var $encoded;
+    private $encoded;
 
     /**
      * Filters
@@ -184,9 +156,9 @@ class File_ASN1
      *
      * @var Array
      * @access private
-     * @see File_ASN1::_encode_der()
+     * @see File\ASN1::_encode_der()
      */
-    var $filters;
+    private $filters;
 
     /**
      * Type mapping table for the ANY type.
@@ -198,7 +170,7 @@ class File_ASN1
      * @var Array
      * @access public
      */
-    var $ANYmap = array(
+    public $ANYmap = array(
         FILE_ASN1_TYPE_BOOLEAN              => true,
         FILE_ASN1_TYPE_INTEGER              => true,
         FILE_ASN1_TYPE_BIT_STRING           => 'bitString',
@@ -232,7 +204,7 @@ class File_ASN1
      * @var Array
      * @access public
      */
-    var $stringTypeSize = array(
+    public $stringTypeSize = array(
         FILE_ASN1_TYPE_UTF8_STRING      => 0,
         FILE_ASN1_TYPE_BMP_STRING       => 2,
         FILE_ASN1_TYPE_UNIVERSAL_STRING => 4,
@@ -247,14 +219,11 @@ class File_ASN1
      *
      * @access public
      */
-    function File_ASN1()
+    public function __construct()
     {
         static $static_init = null;
         if (!$static_init) {
             $static_init = true;
-            if (!class_exists('Math_BigInteger')) {
-                include_once 'Math/BigInteger.php';
-            }
         }
     }
 
@@ -267,7 +236,7 @@ class File_ASN1
      * @return Array
      * @access public
      */
-    function decodeBER($encoded)
+    public function decodeBER($encoded)
     {
         if (is_object($encoded) && strtolower(get_class($encoded)) == 'file_asn1_element') {
             $encoded = $encoded->element;
@@ -289,7 +258,7 @@ class File_ASN1
      * @return Array
      * @access private
      */
-    function _decode_ber(&$encoded, $start = 0)
+    private function _decode_ber(&$encoded, $start = 0)
     {
         $decoded = array();
 
@@ -379,7 +348,7 @@ class File_ASN1
                     break;
                 case FILE_ASN1_TYPE_INTEGER:
                 case FILE_ASN1_TYPE_ENUMERATED:
-                    $current['content'] = new Math_BigInteger($content, -256);
+                    $current['content'] = new BigInteger($content, -256);
                     break;
                 case FILE_ASN1_TYPE_REAL: // not currently supported
                     return false;
@@ -509,7 +478,7 @@ class File_ASN1
      * @return Array
      * @access public
      */
-    function asn1map($decoded, $mapping, $special = array())
+    public function asn1map($decoded, $mapping, $special = array())
     {
         if (isset($mapping['explicit'])) {
             $decoded = $decoded['content'][0];
@@ -519,7 +488,7 @@ class File_ASN1
             case $mapping['type'] == FILE_ASN1_TYPE_ANY:
                 $intype = $decoded['type'];
                 if (isset($decoded['constant']) || !isset($this->ANYmap[$intype]) || ($this->encoded[$decoded['start']] & 0x20)) {
-                    return new File_ASN1_Element(substr($this->encoded, $decoded['start'], $decoded['length']));
+                    return new Element(substr($this->encoded, $decoded['start'], $decoded['length']));
                 }
                 $inmap = $this->ANYmap[$intype];
                 if (is_string($inmap)) {
@@ -767,7 +736,7 @@ class File_ASN1
             case FILE_ASN1_TYPE_ENUMERATED:
                 $temp = $decoded['content'];
                 if (isset($mapping['implicit'])) {
-                    $temp = new Math_BigInteger($decoded['content'], -256);
+                    $temp = new BigInteger($decoded['content'], -256);
                 }
                 if (isset($mapping['mapping'])) {
                     $temp = (int) $temp->toString();
@@ -793,7 +762,7 @@ class File_ASN1
      * @return String
      * @access public
      */
-    function encodeDER($source, $mapping, $special = array())
+    public function encodeDER($source, $mapping, $special = array())
     {
         $this->location = array();
         return $this->_encode_der($source, $mapping, null, $special);
@@ -818,7 +787,7 @@ class File_ASN1
      * @return String
      * @access private
      */
-    function _encode_der($source, $mapping, $idx = null, $special = array())
+    private function _encode_der($source, $mapping, $idx = null, $special = array())
     {
         if (is_object($source) && strtolower(get_class($source)) == 'file_asn1_element') {
             return $source->element;
@@ -950,7 +919,7 @@ class File_ASN1
                     if ($value === false) {
                         return false;
                     }
-                    $value = new Math_BigInteger($value);
+                    $value = new BigInteger($value);
                     $value = $value->toBytes(true);
                 }
                 if (!strlen($value)) {
@@ -1103,7 +1072,7 @@ class File_ASN1
      * @param Integer $length
      * @return String
      */
-    function _encodeLength($length)
+    private function _encodeLength($length)
     {
         if ($length <= 0x7F) {
             return chr($length);
@@ -1123,7 +1092,7 @@ class File_ASN1
      * @param Integer $tag
      * @return String
      */
-    function _decodeTime($content, $tag)
+    private function _decodeTime($content, $tag)
     {
         /* UTCTime:
            http://tools.ietf.org/html/rfc5280#section-4.1.2.5.1
@@ -1170,7 +1139,7 @@ class File_ASN1
      * @access public
      * @param String $format
      */
-    function setTimeFormat($format)
+    public function setTimeFormat($format)
     {
         $this->format = $format;
     }
@@ -1183,7 +1152,7 @@ class File_ASN1
      * @access public
      * @param Array $oids
      */
-    function loadOIDs($oids)
+    public function loadOIDs($oids)
     {
         $this->oids = $oids;
     }
@@ -1191,12 +1160,12 @@ class File_ASN1
     /**
      * Load filters
      *
-     * See File_X509, etc, for an example.
+     * See File\X509, etc, for an example.
      *
      * @access public
      * @param Array $filters
      */
-    function loadFilters($filters)
+    public function loadFilters($filters)
     {
         $this->filters = $filters;
     }
@@ -1211,7 +1180,7 @@ class File_ASN1
      * @return String
      * @access private
      */
-    function _string_shift(&$string, $index = 1)
+    private function _string_shift(&$string, $index = 1)
     {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
@@ -1230,7 +1199,7 @@ class File_ASN1
      * @return String
      * @access public
      */
-    function convert($in, $from = FILE_ASN1_TYPE_UTF8_STRING, $to = FILE_ASN1_TYPE_UTF8_STRING)
+    public function convert($in, $from = FILE_ASN1_TYPE_UTF8_STRING, $to = FILE_ASN1_TYPE_UTF8_STRING)
     {
         if (!isset($this->stringTypeSize[$from]) || !isset($this->stringTypeSize[$to])) {
             return false;
