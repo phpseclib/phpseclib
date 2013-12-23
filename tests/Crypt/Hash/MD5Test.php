@@ -9,7 +9,7 @@ class Crypt_Hash_MD5Test extends Crypt_Hash_TestCase
 {
 	public function getInstance()
 	{
-		return new Crypt_Hash('md5');
+		return new Hash('md5');
 	}
 
 	/**

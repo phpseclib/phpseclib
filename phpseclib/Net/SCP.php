@@ -13,12 +13,12 @@
  *    include('Net/SCP.php');
  *    include('Net/SSH2.php');
  *
- *    $ssh = new Net_SSH2('www.domain.tld');
+ *    $ssh = new Net\SSH2('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
  *        exit('bad login');
  *    }
 
- *    $scp = new Net_SCP($ssh);
+ *    $scp = new Net\SCP($ssh);
  *    $scp->put('abcd', str_repeat('x', 1024*1024));
  * ?>
  * </code>
@@ -42,16 +42,18 @@
  * THE SOFTWARE.
  *
  * @category  Net
- * @package   Net_SCP
+ * @package   Net\SCP
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMX Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
+namespace PhpSecLib\Net;
+ 
 /**#@+
  * @access public
- * @see Net_SCP::put()
+ * @see Net\SCP::put()
  */
 /**
  * Reads data from a local file.
@@ -65,8 +67,8 @@ define('NET_SCP_STRING',  2);
 
 /**#@+
  * @access private
- * @see Net_SCP::_send()
- * @see Net_SCP::_receive()
+ * @see Net\SCP::_send()
+ * @see Net\SCP::_receive()
  */
 /**
  * SSH1 is being used.
@@ -81,12 +83,12 @@ define('NET_SCP_SSH2',  2);
 /**
  * Pure-PHP implementations of SCP.
  *
- * @package Net_SCP
+ * @package Net\SCP
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
  */
-class Net_SCP
+class SCP
 {
     /**
      * SSH Object
@@ -94,7 +96,7 @@ class Net_SCP
      * @var Object
      * @access private
      */
-    var $ssh;
+    private $ssh;
 
     /**
      * Packet Size
@@ -102,7 +104,7 @@ class Net_SCP
      * @var Integer
      * @access private
      */
-    var $packet_size;
+    private $packet_size;
 
     /**
      * Mode
@@ -110,7 +112,7 @@ class Net_SCP
      * @var Integer
      * @access private
      */
-    var $mode;
+    private $mode;
 
     /**
      * Default Constructor.
@@ -120,10 +122,10 @@ class Net_SCP
      * @param String $host
      * @param optional Integer $port
      * @param optional Integer $timeout
-     * @return Net_SCP
+     * @return Net\SCP
      * @access public
      */
-    function Net_SCP($ssh)
+    public function __construct($ssh)
     {
         if (!is_object($ssh)) {
             return;
@@ -147,8 +149,8 @@ class Net_SCP
     /**
      * Uploads a file to the SCP server.
      *
-     * By default, Net_SCP::put() does not read from the local filesystem.  $data is dumped directly into $remote_file.
-     * So, for example, if you set $data to 'filename.ext' and then do Net_SCP::get(), you will get a file, twelve bytes
+     * By default, Net\SCP::put() does not read from the local filesystem.  $data is dumped directly into $remote_file.
+     * So, for example, if you set $data to 'filename.ext' and then do Net\SCP::get(), you will get a file, twelve bytes
      * long, containing 'filename.ext' as its contents.
      *
      * Setting $mode to NET_SCP_LOCAL_FILE will change the above behavior.  With NET_SCP_LOCAL_FILE, $remote_file will 
@@ -165,7 +167,7 @@ class Net_SCP
      * @return Boolean
      * @access public
      */
-    function put($remote_file, $data, $mode = NET_SCP_STRING, $callback = null)
+    public function put($remote_file, $data, $mode = NET_SCP_STRING, $callback = null)
     {
         if (!isset($this->ssh)) {
             return false;
@@ -240,7 +242,7 @@ class Net_SCP
      * @return Mixed
      * @access public
      */
-    function get($remote_file, $local_file = false)
+    public function get($remote_file, $local_file = false)
     {
         if (!isset($this->ssh)) {
             return false;
@@ -296,7 +298,7 @@ class Net_SCP
      * @param String $data
      * @access private
      */
-    function _send($data)
+    private function _send($data)
     {
         switch ($this->mode) {
             case NET_SCP_SSH2:
@@ -314,7 +316,7 @@ class Net_SCP
      * @return String
      * @access private
      */
-    function _receive()
+    private function _receive()
     {
         switch ($this->mode) {
             case NET_SCP_SSH2:
@@ -349,7 +351,7 @@ class Net_SCP
      *
      * @access private
      */
-    function _close()
+    private function _close()
     {
         switch ($this->mode) {
             case NET_SCP_SSH2:
