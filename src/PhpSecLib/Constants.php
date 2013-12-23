@@ -747,12 +747,12 @@ define('NET_SCP_SSH2',  2);
 /**
  * Returns the message numbers
  */
-define('NET_SFTP_LOG_SIMPLE',  NET_SSH2_LOG_SIMPLE);
+define('NET_SFTP_LOG_SIMPLE',  1);
 
 /**
  * Returns the message content
  */
-define('NET_SFTP_LOG_COMPLEX', NET_SSH2_LOG_COMPLEX);
+define('NET_SFTP_LOG_COMPLEX', 2);
 
 /**
  * Outputs the message content in real-time.
@@ -872,7 +872,7 @@ define('NET_SSH1_AUTH_PASSWORD',   3);
  */
 define('NET_SSH1_AUTH_RHOSTS_RSA', 4);
 
-/**#@+
+/**
  * Terminal Modes
  *
  * @link http://3sp.com/content/developer/maverick-net/docs/Maverick.SSH.PseudoTerminalModesMembers.html
@@ -896,7 +896,7 @@ define('NET_SSH1_RESPONSE_TYPE', 1);
  */
 define('NET_SSH1_RESPONSE_DATA', 2);
 
-/**#@+
+/**
  * Execution Bitmap Masks
  *
  * @see Net\SSH1::bitmap
@@ -917,16 +917,6 @@ define('NET_SSH1_LOG_SIMPLE',  1);
 define('NET_SSH1_LOG_COMPLEX', 2);
 
 /**
- * Outputs the content real-time
- */
-define('NET_SSH2_LOG_REALTIME', 3);
-
-/**
- * Dumps the content real-time to a file
- */
-define('NET_SSH2_LOG_REALTIME_FILE', 4);
-
-/**
  * Returns when a string matching $expect exactly is found
  */
 define('NET_SSH1_READ_SIMPLE',  1);
@@ -936,7 +926,7 @@ define('NET_SSH1_READ_SIMPLE',  1);
  */
 define('NET_SSH1_READ_REGEX', 2);
 
-/**#@+
+/**
  * Execution Bitmap Masks
  *
  * @see Net\SSH2::bitmap
@@ -947,9 +937,8 @@ define('NET_SSH2_MASK_LOGIN_REQ',     0x00000002);
 define('NET_SSH2_MASK_LOGIN',         0x00000004);
 define('NET_SSH2_MASK_SHELL',         0x00000008);
 define('NET_SSH2_MASK_WINDOW_ADJUST', 0X00000010);
-/**#@-*/
 
-/**#@+
+/**
  * Channel constants
  *
  * RFC4254 refers not to client and server channels but rather to sender and recipient channels.  we don't refer
@@ -968,44 +957,38 @@ define('NET_SSH2_MASK_WINDOW_ADJUST', 0X00000010);
 define('NET_SSH2_CHANNEL_EXEC',      0); // PuTTy uses 0x100
 define('NET_SSH2_CHANNEL_SHELL',     1);
 define('NET_SSH2_CHANNEL_SUBSYSTEM', 2);
-/**#@-*/
 
-/**#@+
- * @access public
- * @see Net\SSH2::getLog()
- */
 /**
  * Returns the message numbers
  */
 define('NET_SSH2_LOG_SIMPLE',  1);
+
 /**
  * Returns the message content
  */
 define('NET_SSH2_LOG_COMPLEX', 2);
+
 /**
  * Outputs the content real-time
  */
 define('NET_SSH2_LOG_REALTIME', 3);
+
 /**
  * Dumps the content real-time to a file
  */
 define('NET_SSH2_LOG_REALTIME_FILE', 4);
-/**#@-*/
 
-/**#@+
- * @access public
- * @see Net\SSH2::read()
- */
 /**
  * Returns when a string matching $expect exactly is found
  */
 define('NET_SSH2_READ_SIMPLE',  1);
+
 /**
  * Returns when a string matching the regular expression $expect is found
  */
 define('NET_SSH2_READ_REGEX', 2);
+
 /**
  * Make sure that the log never gets larger than this
  */
 define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
-/**#@-*/

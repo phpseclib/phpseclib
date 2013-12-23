@@ -2599,9 +2599,9 @@ class SSH2
      *
      * @param $client_channel
      * @return Mixed
-     * @access private
+     * @access public
      */
-    private function _get_channel_packet($client_channel, $skip_extended = false)
+    public function _get_channel_packet($client_channel, $skip_extended = false)
     {
         if (!empty($this->channel_buffers[$client_channel])) {
             return array_shift($this->channel_buffers[$client_channel]);
@@ -2932,9 +2932,9 @@ class SSH2
      * @param Integer $client_channel
      * @param String $data
      * @return Boolean
-     * @access private
+     * @access public
      */
-    private function _send_channel_packet($client_channel, $data)
+    public function _send_channel_packet($client_channel, $data)
     {
         /* The maximum amount of data allowed is determined by the maximum
            packet size for the channel, and the current window size, whichever
@@ -2996,9 +2996,9 @@ class SSH2
      * @param Integer $client_channel
      * @param Boolean $want_reply
      * @return Boolean
-     * @access private
+     * @access public
      */
-    private function _close_channel($client_channel, $want_reply = false)
+    public function _close_channel($client_channel, $want_reply = false)
     {
         // see http://tools.ietf.org/html/rfc4254#section-5.3
 

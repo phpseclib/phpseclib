@@ -101,12 +101,12 @@ class SCP
         if (!is_object($ssh)) {
             return;
         }
-
+		
         switch (strtolower(get_class($ssh))) {
-            case'net_ssh2':
+            case 'phpseclib\net\ssh2':
                 $this->mode = NET_SCP_SSH2;
                 break;
-            case 'net_ssh1':
+            case 'phpseclib\net\ssh2':
                 $this->packet_size = 50000;
                 $this->mode = NET_SCP_SSH1;
                 break;
@@ -239,7 +239,7 @@ class SCP
                 return false;
             }
         }
-
+		
         $content = '';
         while ($size < $info['size']) {
             $data = $this->_receive();
@@ -259,7 +259,7 @@ class SCP
             fclose($fp);
             return true;
         }
-
+		
         return $content;
     }
 

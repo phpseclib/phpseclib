@@ -276,7 +276,6 @@ class SSH1
     /**
      * Current Timeout
      *
-     * @see Net\SSH2::_get_channel_packet()
      * @access private
      */
     private $curTimeout;
