@@ -131,9 +131,7 @@ function crypt_random_string($length)
         $old_session_id = session_id();
         $old_use_cookies = ini_get('session.use_cookies');
         $old_session_cache_limiter = session_cache_limiter();
-        if (isset($_SESSION)) {
-            $_OLD_SESSION = $_SESSION;
-        }
+        $_OLD_SESSION = isset($_SESSION) ? $_SESSION : false;
         if ($old_session_id != '') {
             session_write_close();
         }
@@ -166,7 +164,7 @@ function crypt_random_string($length)
             ini_set('session.use_cookies', $old_use_cookies);
             session_cache_limiter($old_session_cache_limiter);
         } else {
-           if (isset($_OLD_SESSION)) {
+           if ($_OLD_SESSION !== false) {
                $_SESSION = $_OLD_SESSION;
                unset($_OLD_SESSION);
             } else {

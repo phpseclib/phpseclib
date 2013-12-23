@@ -1284,7 +1284,8 @@ class Net_SSH2
            -- http://tools.ietf.org/html/rfc4419#section-6.2 */
         $one = new Math_BigInteger(1);
         $keyLength = min($keyLength, $kexHash->getLength());
-        $max = $one->bitwise_leftShift(16 * $keyLength)->subtract($one); // 2 * 8 * $keyLength
+        $max = $one->bitwise_leftShift(16 * $keyLength); // 2 * 8 * $keyLengt
+        $max->subtract($one);
 
         $x = $one->random($one, $max);
         $e = $g->modPow($x, $prime);
@@ -1671,10 +1672,26 @@ class Net_SSH2
      * @param Mixed $password
      * @param Mixed $...
      * @return Boolean
-     * @see _login_helper
+     * @see _login
      * @access public
      */
     function login($username)
+    {
+        $args = func_get_args();
+        return call_user_func_array(array(&$this, '_login'), $args);
+    }
+
+    /**
+     * Login Helper
+     *
+     * @param String $username
+     * @param Mixed $password
+     * @param Mixed $...
+     * @return Boolean
+     * @see _login_helper
+     * @access private
+     */
+    function _login($username)
     {
         $args = array_slice(func_get_args(), 1);
         if (empty($args)) {
