@@ -59,9 +59,9 @@
         "psr-0": {
             "PhpSecLib\\": "src/"
         },
-        "files": {
+        "files": [
         	"src/PhpSecLib/Constants.php"
-        }
+        ]
     },
     "extra": {
         "branch-alias": {
