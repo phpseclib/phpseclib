@@ -57,7 +57,7 @@
     },
     "autoload": {
         "psr-0": {
-            "PhpSecLib\\": "phpseclib/"
+            "PhpSecLib\\": "src/"
         }
     },
     "extra": {
