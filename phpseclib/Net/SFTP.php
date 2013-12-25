@@ -402,7 +402,7 @@ class Net_SFTP extends Net_SSH2
     function login($username)
     {
         $args = func_get_args();
-        if (!call_user_func_array(array('Net_SSH2', 'login'), $args)) {
+        if (!call_user_func_array(array(&$this, '_login'), $args)) {
             return false;
         }
 
@@ -1042,7 +1042,7 @@ class Net_SFTP extends Net_SSH2
      */
     function truncate($filename, $new_size)
     {
-        $attr = pack('N3', NET_SFTP_ATTR_SIZE, $new_size / 0x100000000, $new_size);
+        $attr = pack('N3', NET_SFTP_ATTR_SIZE, $new_size / 4294967296, $new_size); // 4294967296 == 0x100000000 == 1<<32
 
         return $this->_setstat($filename, $attr, false);
     }
@@ -1539,7 +1539,7 @@ class Net_SFTP extends Net_SSH2
         while ($sent < $size) {
             $temp = $mode & NET_SFTP_LOCAL_FILE ? fread($fp, $sftp_packet_size) : substr($data, $sent, $sftp_packet_size);
             $subtemp = $offset + $sent;
-            $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 0x100000000, $subtemp, strlen($temp), $temp);
+            $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, strlen($temp), $temp);
             if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
                 fclose($fp);
                 return false;
@@ -1687,7 +1687,7 @@ class Net_SFTP extends Net_SSH2
 
         $size = $this->max_sftp_packet < $length || $length < 0 ? $this->max_sftp_packet : $length;
         while (true) {
-            $packet = pack('Na*N3', strlen($handle), $handle, $offset / 0x100000000, $offset, $size);
+            $packet = pack('Na*N3', strlen($handle), $handle, $offset / 4294967296, $offset, $size);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
                 if ($local_file !== false) {
                     fclose($fp);
@@ -1925,7 +1925,7 @@ class Net_SFTP extends Net_SSH2
                     // (0xFFFFFFFF bytes), anyway.  as such, we'll just represent all file sizes that are bigger than
                     // 4GB as being 4GB.
                     extract(unpack('Nupper/Nsize', $this->_string_shift($response, 8)));
-                    $attr['size'] = $upper ? 0x100000000 * $upper : 0;
+                    $attr['size'] = $upper ? 4294967296 * $upper : 0;
                     $attr['size']+= $size < 0 ? ($size & 0x7FFFFFFF) + 0x80000000 : $size;
                     break;
                 case NET_SFTP_ATTR_UIDGID: // 0x00000002 (SFTPv3 only)
