@@ -201,11 +201,11 @@ define('NET_SSH1_LOG_COMPLEX', 2);
 /**
  * Outputs the content real-time
  */
-define('NET_SSH2_LOG_REALTIME', 3);
+define('NET_SSH1_LOG_REALTIME', 3);
 /**
  * Dumps the content real-time to a file
  */
-define('NET_SSH2_LOG_REALTIME_FILE', 4);
+define('NET_SSH1_LOG_REALTIME_FILE', 4);
 /**#@-*/
 
 /**#@+
@@ -429,7 +429,7 @@ class Net_SSH1
     /**
      * Current Timeout
      *
-     * @see Net_SSH2::_get_channel_packet()
+     * @see Net_SSH1::_get_channel_packet()
      * @access private
      */
     var $curTimeout;
@@ -1318,7 +1318,7 @@ class Net_SSH1
     /**
      * Returns a log of the packets that have been sent and received.
      *
-     * Returns a string if NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX, an array if NET_SSH2_LOGGING == NET_SSH2_LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
+     * Returns a string if NET_SSH1_LOGGING == NET_SSH1_LOG_COMPLEX, an array if NET_SSH1_LOGGING == NET_SSH1_LOG_SIMPLE and false if !defined('NET_SSH1_LOGGING')
      *
      * @access public
      * @return String or Array
@@ -1507,7 +1507,7 @@ class Net_SSH1
                     $this->_string_shift($message);
                     $this->log_size+= strlen($message);
                     $this->message_log[] = $message;
-                    while ($this->log_size > NET_SSH2_LOG_MAX_SIZE) {
+                    while ($this->log_size > NET_SSH1_LOG_MAX_SIZE) {
                         $this->log_size-= strlen(array_shift($this->message_log));
                         array_shift($this->protocol_flags_log);
                     }
@@ -1527,7 +1527,7 @@ class Net_SSH1
                 case NET_SSH1_LOG_REALTIME_FILE:
                     if (!isset($this->realtime_log_file)) {
                         // PHP doesn't seem to like using constants in fopen()
-                        $filename = NET_SSH2_LOG_REALTIME_FILE;
+                        $filename = NET_SSH1_LOG_REALTIME_FILE;
                         $fp = fopen($filename, 'w');
                         $this->realtime_log_file = $fp;
                     }
