@@ -992,8 +992,9 @@ class Crypt_RSA
                     $iv = pack('H*', trim($matches[2]));
                     $symkey = pack('H*', md5($this->password . substr($iv, 0, 8))); // symkey is short for symmetric key
                     $symkey.= pack('H*', md5($symkey . $this->password . substr($iv, 0, 8)));
-                    $ciphertext = preg_replace('#.+(\r|\n|\r\n)\1|[\r\n]|-.+-| #s', '', $key);
-                    $ciphertext = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $ciphertext) ? base64_decode($ciphertext) : false;
+                    // remove the Proc-Type / DEK-Info sections as they're no longer needed
+                    $key = preg_replace('#^(?:Proc-Type|DEK-Info): .*#m', '', $key);
+                    $ciphertext = $this->_extractBER($key);
                     if ($ciphertext === false) {
                         $ciphertext = $key;
                     }
@@ -1037,8 +1038,7 @@ class Crypt_RSA
                     $crypto->setIV($iv);
                     $decoded = $crypto->decrypt($ciphertext);
                 } else {
-                    $decoded = preg_replace('#-.+-|[\r\n]| #', '', $key);
-                    $decoded = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $decoded) ? base64_decode($decoded) : false;
+                    $decoded = $this->_extractBER($key);
                 }
 
                 if ($decoded !== false) {
@@ -2780,5 +2780,32 @@ class Crypt_RSA
             default:
                 return $this->_rsassa_pss_verify($message, $signature);
         }
+    }
+
+    /**
+     * Extract raw BER from Base64 encoding
+     *
+     * @access private
+     * @param String $str
+     * @return String
+     */
+    function _extractBER($str)
+    {
+        /*
+            X.509 certs are assumed to be base64 encoded but sometimes they'll have additional things in them above and beyond the ceritificate. ie.
+            some may have the following preceding the -----BEGIN CERTIFICATE----- line:
+
+            Bag Attributes
+                localKeyID: 01 00 00 00
+            subject=/O=organization/OU=org unit/CN=common name
+            issuer=/O=organization/CN=common name
+        */
+        $temp = preg_replace('#.*?^-+[^-]+-+#ms', '', $str, 1);
+        // remove the -----BEGIN CERTIFICATE----- and -----END CERTIFICATE----- stuff
+        $temp = preg_replace('#-+[^-]+-+#', '', $temp);
+        // remove new lines
+        $temp = str_replace(array("\r", "\n", ' '), '', $temp);
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        return $temp != false ? $temp : $str;
     }
 }
