@@ -50,6 +50,9 @@ class Net_Logger_RealtimeFile extends Net_Logger_Realtime
         parent::__construct($formatter);
         $this->filename = $filename;
         $this->max_size = $max_size;
+
+        $fp = fopen($this->filename, 'w');
+        $this->file = $fp;
     }
 
     function log($message_number, $message)
@@ -58,16 +61,7 @@ class Net_Logger_RealtimeFile extends Net_Logger_Realtime
         if (strlen($message_number) > 2) {
             $this->_string_shift($message);
         }
-
-        if ($this->file === null) {
-            $fp = fopen($this->filename, 'w');
-            $this->file = $fp;
-        }
-
-        if (!is_resource($this->file)) {
-            return;
-        }
-
+        
         $entry = $this->formatter->format(array($message), array($message_number));
         if ($this->wrap) {
             $temp = "<<< START >>>\r\n";

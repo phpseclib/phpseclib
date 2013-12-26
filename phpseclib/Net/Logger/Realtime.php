@@ -41,7 +41,16 @@ class Net_Logger_Realtime extends Net_Logger_Abstract
                 $start = '<pre>';
                 $stop = '</pre>';
         }
-        echo $start . $this->formatter(array($message), array($message_number)) . $stop;
+
+        $this->_flush($start . $this->formatter->format(array($message), array($message_number)) . $stop);
+    }
+
+    /**
+     * @access private
+     */
+    function _flush($string)
+    {
+        echo $string;
         @flush();
         @ob_flush();
     }
