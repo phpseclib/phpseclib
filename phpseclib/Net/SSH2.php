@@ -3612,7 +3612,10 @@ class Net_SSH2
             return stream_resolve_include_path($suffix) !== false;
         }
 
-        foreach (explode(PATH_SEPARATOR, get_include_path()) as $prefix) {
+        $paths = PATH_SEPARATOR == ':' ?
+            preg_split('#(?<!phar):#', get_include_path()) :
+            explode(PATH_SEPARATOR, get_include_path());
+        foreach ($paths as $prefix) {
             $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
             $file = $prefix . $ds . $suffix;
 
