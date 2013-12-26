@@ -2791,15 +2791,15 @@ class Crypt_RSA
      */
     function _extractBER($str)
     {
-        /*
-            X.509 certs are assumed to be base64 encoded but sometimes they'll have additional things in them above and beyond the ceritificate. ie.
-            some may have the following preceding the -----BEGIN CERTIFICATE----- line:
-
-            Bag Attributes
-                localKeyID: 01 00 00 00
-            subject=/O=organization/OU=org unit/CN=common name
-            issuer=/O=organization/CN=common name
-        */
+        /* X.509 certs are assumed to be base64 encoded but sometimes they'll have additional things in them
+         * above and beyond the ceritificate.
+         * ie. some may have the following preceding the -----BEGIN CERTIFICATE----- line:
+         *
+         * Bag Attributes
+         *     localKeyID: 01 00 00 00
+         * subject=/O=organization/OU=org unit/CN=common name
+         * issuer=/O=organization/CN=common name
+         */
         $temp = preg_replace('#.*?^-+[^-]+-+#ms', '', $str, 1);
         // remove the -----BEGIN CERTIFICATE----- and -----END CERTIFICATE----- stuff
         $temp = preg_replace('#-+[^-]+-+#', '', $temp);
