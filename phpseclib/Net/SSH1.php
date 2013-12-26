@@ -437,7 +437,7 @@ class Net_SSH1
     /**
      * Log Boundary
      *
-     * @see Net_SSH2::_format_log
+     * @see Net_SSH1::_format_log
      * @access private
      */
     var $log_boundary = ':';
@@ -445,7 +445,7 @@ class Net_SSH1
     /**
      * Log Long Width
      *
-     * @see Net_SSH2::_format_log
+     * @see Net_SSH1::_format_log
      * @access private
      */
     var $log_long_width = 65;
@@ -453,7 +453,7 @@ class Net_SSH1
     /**
      * Log Short Width
      *
-     * @see Net_SSH2::_format_log
+     * @see Net_SSH1::_format_log
      * @access private
      */
     var $log_short_width = 16;
