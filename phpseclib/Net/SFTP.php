@@ -67,11 +67,11 @@ if (!class_exists('Net_SSH2')) {
 /**
  * Returns the message numbers
  */
-define('NET_SFTP_LOG_SIMPLE',  NET_SSH2_LOG_SIMPLE);
+define('NET_SFTP_LOG_SIMPLE',  1);
 /**
  * Returns the message content
  */
-define('NET_SFTP_LOG_COMPLEX', NET_SSH2_LOG_COMPLEX);
+define('NET_SFTP_LOG_COMPLEX', 2);
 /**
  * Outputs the message content in real-time.
  */

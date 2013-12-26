@@ -102,28 +102,6 @@ define('NET_SSH2_CHANNEL_SUBSYSTEM', 2);
 
 /**#@+
  * @access public
- * @see Net_SSH2::getLog()
- */
-/**
- * Returns the message numbers
- */
-define('NET_SSH2_LOG_SIMPLE',  1);
-/**
- * Returns the message content
- */
-define('NET_SSH2_LOG_COMPLEX', 2);
-/**
- * Outputs the content real-time
- */
-define('NET_SSH2_LOG_REALTIME', 3);
-/**
- * Dumps the content real-time to a file
- */
-define('NET_SSH2_LOG_REALTIME_FILE', 4);
-/**#@-*/
-
-/**#@+
- * @access public
  * @see Net_SSH2::read()
  */
 /**
@@ -513,23 +491,7 @@ class Net_SSH2
      */
     var $packet_size_client_to_server = array();
 
-    /**
-     * Message Number Log
-     *
-     * @see Net_SSH2::getLog()
-     * @var Array
-     * @access private
-     */
-    var $message_number_log = array();
 
-    /**
-     * Message Log
-     *
-     * @see Net_SSH2::getLog()
-     * @var Array
-     * @access private
-     */
-    var $message_log = array();
 
     /**
      * The Window Size
@@ -625,24 +587,6 @@ class Net_SSH2
     var $curTimeout;
 
     /**
-     * Real-time log file pointer
-     *
-     * @see Net_SSH2::_append_log()
-     * @var Resource
-     * @access private
-     */
-    var $realtime_log_file;
-
-    /**
-     * Real-time log file size
-     *
-     * @see Net_SSH2::_append_log()
-     * @var Integer
-     * @access private
-     */
-    var $realtime_log_size;
-
-    /**
      * Has the signature been validated?
      *
      * @see Net_SSH2::getServerPublicHostKey()
@@ -650,14 +594,6 @@ class Net_SSH2
      * @access private
      */
     var $signature_validated = false;
-
-    /**
-     * Real-time log file wrap boolean
-     *
-     * @see Net_SSH2::_append_log()
-     * @access private
-     */
-    var $realtime_log_wrap;
 
     /**
      * Flag to suppress stderr from output
@@ -748,28 +684,12 @@ class Net_SSH2
     var $is_timeout = false;
 
     /**
-     * Log Boundary
+     * Logger
      *
-     * @see Net_SSH2::_format_log
+     * @see Net_SSH2::_append_log
      * @access private
      */
-    var $log_boundary = ':';
-
-    /**
-     * Log Long Width
-     *
-     * @see Net_SSH2::_format_log
-     * @access private
-     */
-    var $log_long_width = 65;
-
-    /**
-     * Log Short Width
-     *
-     * @see Net_SSH2::_format_log
-     * @access private
-     */
-    var $log_short_width = 16;
+    var $logger;
 
     /**
      * Default Constructor.
@@ -782,7 +702,7 @@ class Net_SSH2
      * @return Net_SSH2
      * @access public
      */
-    function Net_SSH2($host, $port = 22, $timeout = 10)
+    function Net_SSH2($host, $port = 22, $timeout = 10, $logger = null)
     {
         // Include Math_BigInteger
         // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
@@ -797,6 +717,11 @@ class Net_SSH2
         if (!class_exists('Crypt_Hash')) {
             include_once 'Crypt/Hash.php';
         }
+
+        if($logger == null) {
+            $logger = new Net_Logger_Simple();
+        }
+        $this->logger = $logger;
 
         $this->last_packet = microtime(true);
         $this->message_numbers = array(
@@ -934,8 +859,8 @@ class Net_SSH2
         }
 
         if (defined('NET_SSH2_LOGGING')) {
-            $this->_append_log('<-', $extra . $temp);
-            $this->_append_log('->', $this->identifier . "\r\n");
+            $this->logger->log('<-', $extra . $temp);
+            $this->logger->log('->', $this->identifier . "\r\n");
         }
 
         $this->server_identifier = trim($temp, "\r\n");
@@ -1820,9 +1745,8 @@ class Net_SSH2
 
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
-                if (defined('NET_SSH2_LOGGING')) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ';
-                }
+                $this->logger->updateLastPacketName('NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ');
+
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . utf8_decode($this->_string_shift($response, $length));
                 return $this->_disconnect(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
@@ -1935,12 +1859,8 @@ class Net_SSH2
                 // see http://tools.ietf.org/html/rfc4256#section-3.2
                 if (strlen($this->last_interactive_response)) {
                     $this->last_interactive_response = '';
-                } else if (defined('NET_SSH2_LOGGING')) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
-                        'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
-                        $this->message_number_log[count($this->message_number_log) - 1]
-                    );
+                } else {
+                    $this->logger->updateLastPacketName('NET_SSH2_MSG_USERAUTH_INFO_REQUEST');
                 }
 
                 if (!count($responses) && $num_prompts) {
@@ -1964,13 +1884,7 @@ class Net_SSH2
                     return false;
                 }
 
-                if (defined('NET_SSH2_LOGGING') && NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
-                        'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE',
-                        $this->message_number_log[count($this->message_number_log) - 1]
-                    );
-                }
+                $this->logger->updateLastPacketName('NET_SSH2_MSG_USERAUTH_INFO_RESPONSE');
 
                 /*
                    After receiving the response, the server MUST send either an
@@ -2042,13 +1956,7 @@ class Net_SSH2
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
-                if (defined('NET_SSH2_LOGGING') && NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
-                        'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_PK_OK',
-                        $this->message_number_log[count($this->message_number_log) - 1]
-                    );
-                }
+                $this->logger->updateLastPacketName('NET_SSH2_MSG_USERAUTH_PK_OK');
         }
 
         $packet = $part1 . chr(1) . $part2;
@@ -2598,7 +2506,7 @@ class Net_SSH2
             $message_number = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
             $message_number = '<- ' . $message_number .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
-            $this->_append_log($message_number, $payload);
+            $this->logger->log($message_number, $payload);
             $this->last_packet = $current;
         }
 
@@ -2989,87 +2897,11 @@ class Net_SSH2
             $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
             $message_number = '-> ' . $message_number .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
-            $this->_append_log($message_number, isset($logged) ? $logged : $data);
+            $this->logger->log($message_number, isset($logged) ? $logged : $data);
             $this->last_packet = $current;
         }
 
         return $result;
-    }
-
-    /**
-     * Logs data packets
-     *
-     * Makes sure that only the last 1MB worth of packets will be logged
-     *
-     * @param String $data
-     * @access private
-     */
-    function _append_log($message_number, $message)
-    {
-        // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
-        if (strlen($message_number) > 2) {
-            $this->_string_shift($message);
-        }
-
-        switch (NET_SSH2_LOGGING) {
-            // useful for benchmarks
-            case NET_SSH2_LOG_SIMPLE:
-                $this->message_number_log[] = $message_number;
-                break;
-            // the most useful log for SSH2
-            case NET_SSH2_LOG_COMPLEX:
-                $this->message_number_log[] = $message_number;
-                $this->log_size+= strlen($message);
-                $this->message_log[] = $message;
-                while ($this->log_size > NET_SSH2_LOG_MAX_SIZE) {
-                    $this->log_size-= strlen(array_shift($this->message_log));
-                    array_shift($this->message_number_log);
-                }
-                break;
-            // dump the output out realtime; packets may be interspersed with non packets,
-            // passwords won't be filtered out and select other packets may not be correctly
-            // identified
-            case NET_SSH2_LOG_REALTIME:
-                switch (PHP_SAPI) {
-                    case 'cli':
-                        $start = $stop = "\r\n";
-                        break;
-                    default:
-                        $start = '<pre>';
-                        $stop = '</pre>';
-                }
-                echo $start . $this->_format_log(array($message), array($message_number)) . $stop;
-                @flush();
-                @ob_flush();
-                break;
-            // basically the same thing as NET_SSH2_LOG_REALTIME with the caveat that NET_SSH2_LOG_REALTIME_FILE
-            // needs to be defined and that the resultant log file will be capped out at NET_SSH2_LOG_MAX_SIZE.
-            // the earliest part of the log file is denoted by the first <<< START >>> and is not going to necessarily
-            // at the beginning of the file
-            case NET_SSH2_LOG_REALTIME_FILE:
-                if (!isset($this->realtime_log_file)) {
-                    // PHP doesn't seem to like using constants in fopen()
-                    $filename = NET_SSH2_LOG_REALTIME_FILENAME;
-                    $fp = fopen($filename, 'w');
-                    $this->realtime_log_file = $fp;
-                }
-                if (!is_resource($this->realtime_log_file)) {
-                    break;
-                }
-                $entry = $this->_format_log(array($message), array($message_number));
-                if ($this->realtime_log_wrap) {
-                    $temp = "<<< START >>>\r\n";
-                    $entry.= $temp;
-                    fseek($this->realtime_log_file, ftell($this->realtime_log_file) - strlen($temp));
-                }
-                $this->realtime_log_size+= strlen($entry);
-                if ($this->realtime_log_size > NET_SSH2_LOG_MAX_SIZE) {
-                    fseek($this->realtime_log_file, 0);
-                    $this->realtime_log_size = strlen($entry);
-                    $this->realtime_log_wrap = true;
-                }
-                fputs($this->realtime_log_file, $entry);
-        }
     }
 
     /**
@@ -3231,77 +3063,24 @@ class Net_SSH2
     }
 
     /**
-     * Returns a log of the packets that have been sent and received.
-     *
-     * Returns a string if NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX, an array if NET_SSH2_LOGGING == NET_SSH2_LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
+     * Returns the logger
      *
      * @access public
-     * @return String or Array
+     * @return Net_Logger_Abstract
+     */
+    function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * Returns a log of the packets that have been sent and received.
+     * @access public
+     * @return Mixed
      */
     function getLog()
     {
-        if (!defined('NET_SSH2_LOGGING')) {
-            return false;
-        }
-
-        switch (NET_SSH2_LOGGING) {
-            case NET_SSH2_LOG_SIMPLE:
-                return $this->message_number_log;
-                break;
-            case NET_SSH2_LOG_COMPLEX:
-                return $this->_format_log($this->message_log, $this->message_number_log);
-                break;
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Formats a log for printing
-     *
-     * @param Array $message_log
-     * @param Array $message_number_log
-     * @access private
-     * @return String
-     */
-    function _format_log($message_log, $message_number_log)
-    {
-        $output = '';
-        for ($i = 0; $i < count($message_log); $i++) {
-            $output.= $message_number_log[$i] . "\r\n";
-            $current_log = $message_log[$i];
-            $j = 0;
-            do {
-                if (strlen($current_log)) {
-                    $output.= str_pad(dechex($j), 7, '0', STR_PAD_LEFT) . '0  ';
-                }
-                $fragment = $this->_string_shift($current_log, $this->log_short_width);
-                $hex = substr(preg_replace_callback('#.#s', array($this, '_format_log_helper'), $fragment), strlen($this->log_boundary));
-                // replace non ASCII printable characters with dots
-                // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
-                // also replace < with a . since < messes up the output on web browsers
-                $raw = preg_replace('#[^\x20-\x7E]|<#', '.', $fragment);
-                $output.= str_pad($hex, $this->log_long_width - $this->log_short_width, ' ') . $raw . "\r\n";
-                $j++;
-            } while (strlen($current_log));
-            $output.= "\r\n";
-        }
-
-        return $output;
-    }
-
-    /**
-     * Helper function for _format_log
-     *
-     * For use with preg_replace_callback()
-     *
-     * @param Array $matches
-     * @access private
-     * @return String
-     */
-    function _format_log_helper($matches)
-    {
-        return $this->log_boundary . str_pad(dechex(ord($matches[0])), 2, '0', STR_PAD_LEFT);
+        return $this->logger->getLog();
     }
 
     /**
