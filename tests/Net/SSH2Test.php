@@ -47,7 +47,7 @@ class Net_SSH2Test extends PhpseclibTestCase
         $this->assertEquals($expected, $result);
     }
     
-    public function testGenerateIdentifierWithMcryptGmpAndBmath()
+    public function generateIdentifierProvider()
     {
         return array(
             array('SSH-2.0-phpseclib_0.3', array()),
