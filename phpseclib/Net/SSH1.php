@@ -1496,57 +1496,57 @@ class Net_SSH1
      */
     function _append_log($protocol_flags, $message)
     {
-            switch (NET_SSH1_LOGGING) {
-                // useful for benchmarks
-                case NET_SSH1_LOG_SIMPLE:
-                    $this->protocol_flags_log[] = $protocol_flags;
+        switch (NET_SSH1_LOGGING) {
+            // useful for benchmarks
+            case NET_SSH1_LOG_SIMPLE:
+                $this->protocol_flags_log[] = $protocol_flags;
+                break;
+            // the most useful log for SSH1
+            case NET_SSH1_LOG_COMPLEX:
+                $this->protocol_flags_log[] = $protocol_flags;
+                $this->_string_shift($message);
+                $this->log_size+= strlen($message);
+                $this->message_log[] = $message;
+                while ($this->log_size > NET_SSH1_LOG_MAX_SIZE) {
+                    $this->log_size-= strlen(array_shift($this->message_log));
+                    array_shift($this->protocol_flags_log);
+                }
+                break;
+            // dump the output out realtime; packets may be interspersed with non packets,
+            // passwords won't be filtered out and select other packets may not be correctly
+            // identified
+            case NET_SSH1_LOG_REALTIME:
+                echo "<pre>\r\n" . $this->_format_log(array($message), array($protocol_flags)) . "\r\n</pre>\r\n";
+                @flush();
+                @ob_flush();
+                break;
+            // basically the same thing as NET_SSH1_LOG_REALTIME with the caveat that NET_SSH1_LOG_REALTIME_FILE
+            // needs to be defined and that the resultant log file will be capped out at NET_SSH1_LOG_MAX_SIZE.
+            // the earliest part of the log file is denoted by the first <<< START >>> and is not going to necessarily
+            // at the beginning of the file
+            case NET_SSH1_LOG_REALTIME_FILE:
+                if (!isset($this->realtime_log_file)) {
+                    // PHP doesn't seem to like using constants in fopen()
+                    $filename = NET_SSH1_LOG_REALTIME_FILE;
+                    $fp = fopen($filename, 'w');
+                    $this->realtime_log_file = $fp;
+                }
+                if (!is_resource($this->realtime_log_file)) {
                     break;
-                // the most useful log for SSH1
-                case NET_SSH1_LOG_COMPLEX:
-                    $this->protocol_flags_log[] = $protocol_flags;
-                    $this->_string_shift($message);
-                    $this->log_size+= strlen($message);
-                    $this->message_log[] = $message;
-                    while ($this->log_size > NET_SSH1_LOG_MAX_SIZE) {
-                        $this->log_size-= strlen(array_shift($this->message_log));
-                        array_shift($this->protocol_flags_log);
-                    }
-                    break;
-                // dump the output out realtime; packets may be interspersed with non packets,
-                // passwords won't be filtered out and select other packets may not be correctly
-                // identified
-                case NET_SSH1_LOG_REALTIME:
-                    echo "<pre>\r\n" . $this->_format_log(array($message), array($protocol_flags)) . "\r\n</pre>\r\n";
-                    @flush();
-                    @ob_flush();
-                    break;
-                // basically the same thing as NET_SSH1_LOG_REALTIME with the caveat that NET_SSH1_LOG_REALTIME_FILE
-                // needs to be defined and that the resultant log file will be capped out at NET_SSH1_LOG_MAX_SIZE.
-                // the earliest part of the log file is denoted by the first <<< START >>> and is not going to necessarily
-                // at the beginning of the file
-                case NET_SSH1_LOG_REALTIME_FILE:
-                    if (!isset($this->realtime_log_file)) {
-                        // PHP doesn't seem to like using constants in fopen()
-                        $filename = NET_SSH1_LOG_REALTIME_FILE;
-                        $fp = fopen($filename, 'w');
-                        $this->realtime_log_file = $fp;
-                    }
-                    if (!is_resource($this->realtime_log_file)) {
-                        break;
-                    }
-                    $entry = $this->_format_log(array($message), array($protocol_flags));
-                    if ($this->realtime_log_wrap) {
-                        $temp = "<<< START >>>\r\n";
-                        $entry.= $temp;
-                        fseek($this->realtime_log_file, ftell($this->realtime_log_file) - strlen($temp));
-                    }
-                    $this->realtime_log_size+= strlen($entry);
-                    if ($this->realtime_log_size > NET_SSH1_LOG_MAX_SIZE) {
-                        fseek($this->realtime_log_file, 0);
-                        $this->realtime_log_size = strlen($entry);
-                        $this->realtime_log_wrap = true;
-                    }
-                    fputs($this->realtime_log_file, $entry);
-            }
+                }
+                $entry = $this->_format_log(array($message), array($protocol_flags));
+                if ($this->realtime_log_wrap) {
+                    $temp = "<<< START >>>\r\n";
+                    $entry.= $temp;
+                    fseek($this->realtime_log_file, ftell($this->realtime_log_file) - strlen($temp));
+                }
+                $this->realtime_log_size+= strlen($entry);
+                if ($this->realtime_log_size > NET_SSH1_LOG_MAX_SIZE) {
+                    fseek($this->realtime_log_file, 0);
+                    $this->realtime_log_size = strlen($entry);
+                    $this->realtime_log_wrap = true;
+                }
+                fputs($this->realtime_log_file, $entry);
+        }
     }
 }
