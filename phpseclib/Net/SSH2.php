@@ -112,10 +112,6 @@ define('NET_SSH2_READ_SIMPLE',  1);
  * Returns when a string matching the regular expression $expect is found
  */
 define('NET_SSH2_READ_REGEX', 2);
-/**
- * Make sure that the log never gets larger than this
- */
-define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
 /**#@-*/
 
 /**
@@ -559,18 +555,6 @@ class Net_SSH2
     var $interactiveBuffer = '';
 
     /**
-     * Current log size
-     *
-     * Should never exceed NET_SSH2_LOG_MAX_SIZE
-     *
-     * @see Net_SSH2::_send_binary_packet()
-     * @see Net_SSH2::_get_binary_packet()
-     * @var Integer
-     * @access private
-     */
-    var $log_size;
-
-    /**
      * Timeout
      *
      * @see Net_SSH2::setTimeout()
@@ -858,10 +842,8 @@ class Net_SSH2
             $this->identifier.= ' (' . implode(', ', $ext) . ')';
         }
 
-        if (defined('NET_SSH2_LOGGING')) {
-            $this->logger->log('<-', $extra . $temp);
-            $this->logger->log('->', $this->identifier . "\r\n");
-        }
+        $this->logger->log('<-', $extra . $temp);
+        $this->logger->log('->', $this->identifier . "\r\n");
 
         $this->server_identifier = trim($temp, "\r\n");
         if (strlen($extra)) {
@@ -1722,14 +1704,10 @@ class Net_SSH2
         );
 
         // remove the username and password from the logged packet
-        if (!defined('NET_SSH2_LOGGING')) {
-            $logged = null;
-        } else {
-            $logged = pack('CNa*Na*Na*CNa*',
-                NET_SSH2_MSG_USERAUTH_REQUEST, strlen('username'), 'username', strlen('ssh-connection'), 'ssh-connection',
+        $logged = pack('CNa*Na*Na*CNa*',
+            NET_SSH2_MSG_USERAUTH_REQUEST, strlen('username'), 'username', strlen('ssh-connection'), 'ssh-connection',
                 strlen('password'), 'password', 0, strlen('password'), 'password'
-            );
-        }
+        );
 
         if (!$this->_send_binary_packet($packet, $logged)) {
             return false;
@@ -2501,14 +2479,12 @@ class Net_SSH2
 
         $this->get_seq_no++;
 
-        if (defined('NET_SSH2_LOGGING')) {
-            $current = microtime(true);
-            $message_number = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
-            $message_number = '<- ' . $message_number .
-                              ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
-            $this->logger->log($message_number, $payload);
-            $this->last_packet = $current;
-        }
+        $current = microtime(true);
+        $message_number = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
+        $message_number = '<- ' . $message_number .
+                          ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
+        $this->logger->log($message_number, $payload);
+        $this->last_packet = $current;
 
         return $this->_filter($payload);
     }
@@ -2892,14 +2868,12 @@ class Net_SSH2
         $result = strlen($packet) == fputs($this->fsock, $packet);
         $stop = microtime(true);
 
-        if (defined('NET_SSH2_LOGGING')) {
-            $current = microtime(true);
-            $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
-            $message_number = '-> ' . $message_number .
-                              ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
-            $this->logger->log($message_number, isset($logged) ? $logged : $data);
-            $this->last_packet = $current;
-        }
+        $current = microtime(true);
+        $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
+        $message_number = '-> ' . $message_number .
+                          ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
+        $this->logger->log($message_number, isset($logged) ? $logged : $data);
+        $this->last_packet = $current;
 
         return $result;
     }
