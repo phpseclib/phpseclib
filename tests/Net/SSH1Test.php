@@ -5,7 +5,7 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class SSH1Test extends PhpseclibTestCase
+class Net_SSH1Test extends PhpseclibTestCase
 {
     public function formatLogDataProvider()
     {
