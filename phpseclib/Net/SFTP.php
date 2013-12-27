@@ -1718,12 +1718,12 @@ class Net_SFTP extends Net_SSH2
                     return false;
             }
 
-            if ($length > 0 && $length <= $offset - $size) {
+            if ($length > 0 && ($length <= $offset - $size || $length <= $offset)) {
                 break;
             }
         }
 
-        if ($length > 0 && $length <= $offset - $size) {
+        if ($length > 0 && ($length <= $offset - $size || $length < $offset)) {
             if ($local_file === false) {
                 $content = substr($content, 0, $length);
             } else {
