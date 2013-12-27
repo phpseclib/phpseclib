@@ -47,10 +47,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -144,7 +144,7 @@ define('CRYPT_RSA_ASN1_INTEGER',   2);
 /**
  * ASN1 Bit String
  */
-define('CRYPT_RSA_ASN1_BITSTRING', 3); 
+define('CRYPT_RSA_ASN1_BITSTRING', 3);
 /**
  * ASN1 Sequence (with the constucted bit set)
  */
@@ -984,7 +984,7 @@ class Crypt_RSA
                    DES-EDE3-CBC as an algorithm, however, is not discussed anywhere, near as I can tell.
                    DES-CBC and DES-EDE are discussed in RFC1423, however, DES-EDE3-CBC isn't, nor is its key derivation
                    function.  As is, the definitive authority on this encoding scheme isn't the IETF but rather OpenSSL's
-                   own implementation.  ie. the implementation *is* the standard and any bugs that may exist in that 
+                   own implementation.  ie. the implementation *is* the standard and any bugs that may exist in that
                    implementation are part of the standard, as well.
 
                    * OpenSSL is the de facto standard.  It's utilized by OpenSSH and other projects */
@@ -992,8 +992,9 @@ class Crypt_RSA
                     $iv = pack('H*', trim($matches[2]));
                     $symkey = pack('H*', md5($this->password . substr($iv, 0, 8))); // symkey is short for symmetric key
                     $symkey.= pack('H*', md5($symkey . $this->password . substr($iv, 0, 8)));
-                    $ciphertext = preg_replace('#.+(\r|\n|\r\n)\1|[\r\n]|-.+-| #s', '', $key);
-                    $ciphertext = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $ciphertext) ? base64_decode($ciphertext) : false;
+                    // remove the Proc-Type / DEK-Info sections as they're no longer needed
+                    $key = preg_replace('#^(?:Proc-Type|DEK-Info): .*#m', '', $key);
+                    $ciphertext = $this->_extractBER($key);
                     if ($ciphertext === false) {
                         $ciphertext = $key;
                     }
@@ -1037,8 +1038,7 @@ class Crypt_RSA
                     $crypto->setIV($iv);
                     $decoded = $crypto->decrypt($ciphertext);
                 } else {
-                    $decoded = preg_replace('#-.+-|[\r\n]| #', '', $key);
-                    $decoded = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $decoded) ? base64_decode($decoded) : false;
+                    $decoded = $this->_extractBER($key);
                 }
 
                 if ($decoded !== false) {
@@ -1452,7 +1452,7 @@ class Crypt_RSA
                     break;
                 }
             }
-            
+
         } else {
             $components = $this->_parseKey($key, $type);
         }
@@ -2152,7 +2152,7 @@ class Crypt_RSA
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.1.2 RFC3447#section-7.1.2}.  The fact that the error
      * messages aren't distinguishable from one another hinders debugging, but, to quote from RFC3447#section-7.1.2:
-     * 
+     *
      *    Note.  Care must be taken to ensure that an opponent cannot
      *    distinguish the different error conditions in Step 3.g, whether by
      *    error message or timing, or, more generally, learn partial
@@ -2780,5 +2780,32 @@ class Crypt_RSA
             default:
                 return $this->_rsassa_pss_verify($message, $signature);
         }
+    }
+
+    /**
+     * Extract raw BER from Base64 encoding
+     *
+     * @access private
+     * @param String $str
+     * @return String
+     */
+    function _extractBER($str)
+    {
+        /* X.509 certs are assumed to be base64 encoded but sometimes they'll have additional things in them
+         * above and beyond the ceritificate.
+         * ie. some may have the following preceding the -----BEGIN CERTIFICATE----- line:
+         *
+         * Bag Attributes
+         *     localKeyID: 01 00 00 00
+         * subject=/O=organization/OU=org unit/CN=common name
+         * issuer=/O=organization/CN=common name
+         */
+        $temp = preg_replace('#.*?^-+[^-]+-+#ms', '', $str, 1);
+        // remove the -----BEGIN CERTIFICATE----- and -----END CERTIFICATE----- stuff
+        $temp = preg_replace('#-+[^-]+-+#', '', $temp);
+        // remove new lines
+        $temp = str_replace(array("\r", "\n", ' '), '', $temp);
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        return $temp != false ? $temp : $str;
     }
 }

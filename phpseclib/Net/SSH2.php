@@ -46,10 +46,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -1247,23 +1247,23 @@ class Net_SSH2
         }
 
         switch ($kex_algorithms[$i]) {
-            // see http://tools.ietf.org/html/rfc2409#section-6.2 and 
+            // see http://tools.ietf.org/html/rfc2409#section-6.2 and
             // http://tools.ietf.org/html/rfc2412, appendex E
             case 'diffie-hellman-group1-sha1':
-                $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' . 
-                         '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' . 
-                         '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' . 
+                $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
+                         '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
+                         '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
                          'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF';
                 break;
             // see http://tools.ietf.org/html/rfc3526#section-3
             case 'diffie-hellman-group14-sha1':
-                $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' . 
-                         '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' . 
-                         '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' . 
-                         'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF05' . 
-                         '98DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB' . 
-                         '9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' . 
-                         'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF695581718' . 
+                $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
+                         '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
+                         '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
+                         'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF05' .
+                         '98DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB' .
+                         '9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' .
+                         'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF695581718' .
                          '3995497CEA956AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF';
                 break;
         }
@@ -1284,7 +1284,8 @@ class Net_SSH2
            -- http://tools.ietf.org/html/rfc4419#section-6.2 */
         $one = new Math_BigInteger(1);
         $keyLength = min($keyLength, $kexHash->getLength());
-        $max = $one->bitwise_leftShift(16 * $keyLength)->subtract($one); // 2 * 8 * $keyLength
+        $max = $one->bitwise_leftShift(16 * $keyLength); // 2 * 8 * $keyLength
+        $max = $max->subtract($one);
 
         $x = $one->random($one, $max);
         $e = $g->modPow($x, $prime);
@@ -1671,10 +1672,26 @@ class Net_SSH2
      * @param Mixed $password
      * @param Mixed $...
      * @return Boolean
-     * @see _login_helper
+     * @see _login
      * @access public
      */
     function login($username)
+    {
+        $args = func_get_args();
+        return call_user_func_array(array(&$this, '_login'), $args);
+    }
+
+    /**
+     * Login Helper
+     *
+     * @param String $username
+     * @param Mixed $password
+     * @param Mixed $...
+     * @return Boolean
+     * @see _login_helper
+     * @access private
+     */
+    function _login($username)
     {
         $args = array_slice(func_get_args(), 1);
         if (empty($args)) {
@@ -1845,7 +1862,7 @@ class Net_SSH2
      */
     function _keyboard_interactive_login($username, $password)
     {
-        $packet = pack('CNa*Na*Na*Na*Na*', 
+        $packet = pack('CNa*Na*Na*Na*Na*',
             NET_SSH2_MSG_USERAUTH_REQUEST, strlen($username), $username, strlen('ssh-connection'), 'ssh-connection',
             strlen('keyboard-interactive'), 'keyboard-interactive', 0, '', 0, ''
         );
@@ -2080,7 +2097,7 @@ class Net_SSH2
 
     /**
      * Get the output from stdError
-     * 
+     *
      * @access public
      */
     function getStdError()
@@ -2110,7 +2127,7 @@ class Net_SSH2
         }
 
         // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
-        // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but, 
+        // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but,
         // honestly, if you're transfering more than 2GB, you probably shouldn't be using phpseclib, anyway.
         // see http://tools.ietf.org/html/rfc4254#section-5.2 for more info
         $this->window_size_server_to_client[NET_SSH2_CHANNEL_EXEC] = 0x7FFFFFFF;
@@ -2167,7 +2184,7 @@ class Net_SSH2
         // neither will your script.
 
         // although, in theory, the size of SSH_MSG_CHANNEL_REQUEST could exceed the maximum packet size established by
-        // SSH_MSG_CHANNEL_OPEN_CONFIRMATION, RFC4254#section-5.1 states that the "maximum packet size" refers to the 
+        // SSH_MSG_CHANNEL_OPEN_CONFIRMATION, RFC4254#section-5.1 states that the "maximum packet size" refers to the
         // "maximum size of an individual data packet". ie. SSH_MSG_CHANNEL_DATA.  RFC4254#section-5.2 corroborates.
         $packet = pack('CNNa*CNa*',
             NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SSH2_CHANNEL_EXEC], strlen('exec'), 'exec', 1, strlen($command), $command);
@@ -2823,7 +2840,7 @@ class Net_SSH2
                     /*
                     if ($channel == NET_SSH2_CHANNEL_EXEC) {
                         // SCP requires null packets, such as this, be sent.  further, in the case of the ssh.com SSH server
-                        // this actually seems to make things twice as fast.  more to the point, the message right after 
+                        // this actually seems to make things twice as fast.  more to the point, the message right after
                         // SSH_MSG_CHANNEL_DATA (usually SSH_MSG_IGNORE) won't block for as long as it would have otherwise.
                         // in OpenSSH it slows things down but only by a couple thousandths of a second.
                         $this->_send_channel_packet($channel, chr(0));
@@ -2989,70 +3006,70 @@ class Net_SSH2
      */
     function _append_log($message_number, $message)
     {
-            // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
-            if (strlen($message_number) > 2) {
-                $this->_string_shift($message);
-            }
+        // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
+        if (strlen($message_number) > 2) {
+            $this->_string_shift($message);
+        }
 
-            switch (NET_SSH2_LOGGING) {
-                // useful for benchmarks
-                case NET_SSH2_LOG_SIMPLE:
-                    $this->message_number_log[] = $message_number;
-                    break;
-                // the most useful log for SSH2
-                case NET_SSH2_LOG_COMPLEX:
-                    $this->message_number_log[] = $message_number;
-                    $this->log_size+= strlen($message);
-                    $this->message_log[] = $message;
-                    while ($this->log_size > NET_SSH2_LOG_MAX_SIZE) {
-                        $this->log_size-= strlen(array_shift($this->message_log));
-                        array_shift($this->message_number_log);
-                    }
-                    break;
-                // dump the output out realtime; packets may be interspersed with non packets,
-                // passwords won't be filtered out and select other packets may not be correctly
-                // identified
-                case NET_SSH2_LOG_REALTIME:
-                    switch (PHP_SAPI) {
-                        case 'cli':
-                            $start = $stop = "\r\n";
-                            break;
-                        default:
-                            $start = '<pre>';
-                            $stop = '</pre>';
-                    }
-                    echo $start . $this->_format_log(array($message), array($message_number)) . $stop;
-                    @flush();
-                    @ob_flush();
-                    break;
-                // basically the same thing as NET_SSH2_LOG_REALTIME with the caveat that NET_SSH2_LOG_REALTIME_FILE
-                // needs to be defined and that the resultant log file will be capped out at NET_SSH2_LOG_MAX_SIZE. 
-                // the earliest part of the log file is denoted by the first <<< START >>> and is not going to necessarily
-                // at the beginning of the file
-                case NET_SSH2_LOG_REALTIME_FILE:
-                    if (!isset($this->realtime_log_file)) {
-                        // PHP doesn't seem to like using constants in fopen()
-                        $filename = NET_SSH2_LOG_REALTIME_FILENAME;
-                        $fp = fopen($filename, 'w');
-                        $this->realtime_log_file = $fp;
-                    }
-                    if (!is_resource($this->realtime_log_file)) {
+        switch (NET_SSH2_LOGGING) {
+            // useful for benchmarks
+            case NET_SSH2_LOG_SIMPLE:
+                $this->message_number_log[] = $message_number;
+                break;
+            // the most useful log for SSH2
+            case NET_SSH2_LOG_COMPLEX:
+                $this->message_number_log[] = $message_number;
+                $this->log_size+= strlen($message);
+                $this->message_log[] = $message;
+                while ($this->log_size > NET_SSH2_LOG_MAX_SIZE) {
+                    $this->log_size-= strlen(array_shift($this->message_log));
+                    array_shift($this->message_number_log);
+                }
+                break;
+            // dump the output out realtime; packets may be interspersed with non packets,
+            // passwords won't be filtered out and select other packets may not be correctly
+            // identified
+            case NET_SSH2_LOG_REALTIME:
+                switch (PHP_SAPI) {
+                    case 'cli':
+                        $start = $stop = "\r\n";
                         break;
-                    }
-                    $entry = $this->_format_log(array($message), array($message_number));
-                    if ($this->realtime_log_wrap) {
-                        $temp = "<<< START >>>\r\n";
-                        $entry.= $temp;
-                        fseek($this->realtime_log_file, ftell($this->realtime_log_file) - strlen($temp));
-                    }
-                    $this->realtime_log_size+= strlen($entry);
-                    if ($this->realtime_log_size > NET_SSH2_LOG_MAX_SIZE) {
-                        fseek($this->realtime_log_file, 0);
-                        $this->realtime_log_size = strlen($entry);
-                        $this->realtime_log_wrap = true;
-                    }
-                    fputs($this->realtime_log_file, $entry);
-            }
+                    default:
+                        $start = '<pre>';
+                        $stop = '</pre>';
+                }
+                echo $start . $this->_format_log(array($message), array($message_number)) . $stop;
+                @flush();
+                @ob_flush();
+                break;
+            // basically the same thing as NET_SSH2_LOG_REALTIME with the caveat that NET_SSH2_LOG_REALTIME_FILE
+            // needs to be defined and that the resultant log file will be capped out at NET_SSH2_LOG_MAX_SIZE.
+            // the earliest part of the log file is denoted by the first <<< START >>> and is not going to necessarily
+            // at the beginning of the file
+            case NET_SSH2_LOG_REALTIME_FILE:
+                if (!isset($this->realtime_log_file)) {
+                    // PHP doesn't seem to like using constants in fopen()
+                    $filename = NET_SSH2_LOG_REALTIME_FILENAME;
+                    $fp = fopen($filename, 'w');
+                    $this->realtime_log_file = $fp;
+                }
+                if (!is_resource($this->realtime_log_file)) {
+                    break;
+                }
+                $entry = $this->_format_log(array($message), array($message_number));
+                if ($this->realtime_log_wrap) {
+                    $temp = "<<< START >>>\r\n";
+                    $entry.= $temp;
+                    fseek($this->realtime_log_file, ftell($this->realtime_log_file) - strlen($temp));
+                }
+                $this->realtime_log_size+= strlen($entry);
+                if ($this->realtime_log_size > NET_SSH2_LOG_MAX_SIZE) {
+                    fseek($this->realtime_log_file, 0);
+                    $this->realtime_log_size = strlen($entry);
+                    $this->realtime_log_wrap = true;
+                }
+                fputs($this->realtime_log_file, $entry);
+        }
     }
 
     /**
@@ -3607,7 +3624,15 @@ class Net_SSH2
      */
     function _is_includable($suffix)
     {
-        foreach (explode(PATH_SEPARATOR, get_include_path()) as $prefix) {
+        // stream_resolve_include_path was introduced in PHP 5.3.2
+        if (function_exists('stream_resolve_include_path')) {
+            return stream_resolve_include_path($suffix) !== false;
+        }
+
+        $paths = PATH_SEPARATOR == ':' ?
+            preg_split('#(?<!phar):#', get_include_path()) :
+            explode(PATH_SEPARATOR, get_include_path());
+        foreach ($paths as $prefix) {
             $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
             $file = $prefix . $ds . $suffix;
 
