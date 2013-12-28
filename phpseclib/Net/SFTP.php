@@ -1685,6 +1685,7 @@ class Net_SFTP extends Net_SSH2
             $content = '';
         }
 
+        $start = $offset;
         $size = $this->max_sftp_packet < $length || $length < 0 ? $this->max_sftp_packet : $length;
         while (true) {
             $packet = pack('Na*N3', strlen($handle), $handle, $offset / 4294967296, $offset, $size);
@@ -1718,12 +1719,12 @@ class Net_SFTP extends Net_SSH2
                     return false;
             }
 
-            if ($length > 0 && $length <= $offset - $size) {
+            if ($length > 0 && $length <= $offset - $start) {
                 break;
             }
         }
 
-        if ($length > 0 && $length <= $offset - $size) {
+        if ($length > 0 && $length <= $offset - $start) {
             if ($local_file === false) {
                 $content = substr($content, 0, $length);
             } else {
