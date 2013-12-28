@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of SSHv2.
  *
- * PHP versions 4 and 5
+ * PHP version 5.3
  *
  * Here are some examples of how to use this library:
  * <code>
@@ -1768,8 +1768,7 @@ class Net_SSH2
             return !is_string($password) && !is_array($password) ? false : $this->_keyboard_interactive_process($password);
         }
 
-        // although PHP5's get_class() preserves the case, PHP4's does not
-        if (is_object($password) && strtolower(get_class($password)) == 'crypt_rsa') {
+        if ($password instanceof Crypt_RSA) {
             return $this->_privatekey_login($username, $password);
         }
 
