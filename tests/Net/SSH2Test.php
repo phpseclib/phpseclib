@@ -18,7 +18,7 @@ class Net_SSH2Test extends PhpseclibTestCase
             ->setMethods(array('__destruct'))
             ->getMock();
     }
-    
+
     public function formatLogDataProvider()
     {
         return array(
@@ -46,7 +46,7 @@ class Net_SSH2Test extends PhpseclibTestCase
         $result = $ssh->_format_log($message_log, $message_number_log);
         $this->assertEquals($expected, $result);
     }
-    
+
     public function generateIdentifierProvider()
     {
         return array(
@@ -81,4 +81,45 @@ class Net_SSH2Test extends PhpseclibTestCase
         $this->assertEquals($expected, $identifier);
     }
 
+    public function testGetExitStatusIfNotConnected()
+    {
+        $ssh = $this->createSSHMock();
+
+        $this->assertFalse($ssh->getExitStatus());
+    }
+
+    public function testPTYIDefaultValue()
+    {
+        $ssh = $this->createSSHMock();
+        $this->assertFalse($ssh->isPTYEnabled());
+    }
+
+    public function testEnablePTY()
+    {
+        $ssh = $this->createSSHMock();
+
+        $ssh->enablePTY();
+        $this->assertTrue($ssh->isPTYEnabled());
+
+        $ssh->disablePTY();
+        $this->assertFalse($ssh->isPTYEnabled());
+    }
+
+    public function testQuietModeDefaultValue()
+    {
+        $ssh = $this->createSSHMock();
+
+        $this->assertFalse($ssh->isQuietModeEnabled());
+    }
+
+    public function testEnableQuietMode()
+    {
+        $ssh = $this->createSSHMock();
+
+        $ssh->enableQuietMode();
+        $this->assertTrue($ssh->isQuietModeEnabled());
+
+        $ssh->disableQuietMode();
+        $this->assertFalse($ssh->isQuietModeEnabled());
+    }
 }
