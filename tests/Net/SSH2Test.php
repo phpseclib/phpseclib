@@ -65,13 +65,13 @@ class Net_SSH2Test extends PhpseclibTestCase
     public function testGenerateIdentifier($expected, array $requiredExtensions)
     {
         $notAllowed = array('gmp', 'bcmath', 'mcrypt', 'gmp');
-        foreach($notAllowed as $nowAllowedExtension) {
-            if(in_array($nowAllowedExtension, $requiredExtensions)) {
+        foreach($notAllowed as $notAllowedExtension) {
+            if(in_array($notAllowedExtension, $requiredExtensions)) {
                 continue;
             }
 
-            if(extension_loaded($nowAllowedExtension)) {
-                $this->markTestSkipped('Extension ' . $nowAllowedExtension . ' is not allowed for this data-set');
+            if(extension_loaded($notAllowedExtension)) {
+                $this->markTestSkipped('Extension ' . $notAllowedExtension . ' is not allowed for this data-set');
             }
         }
 
