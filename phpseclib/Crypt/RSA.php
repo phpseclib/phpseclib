@@ -1161,7 +1161,12 @@ class Crypt_RSA
             case CRYPT_RSA_PUBLIC_FORMAT_OPENSSH:
                 $parts = explode(' ', $key, 3);
 
-                $key = isset($parts[1]) ? base64_decode($parts[1]) : false;
+		if (isset($parts[1])) {
+			$key = base64_decode($parts[1]);
+		} else {
+			$key = base64_decode($parts[0]);
+		}
+
                 if ($key === false) {
                     return false;
                 }
