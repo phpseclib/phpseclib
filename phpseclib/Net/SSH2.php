@@ -958,6 +958,7 @@ class Net_SSH2
 
     /**
      * Generates the SSH identifier
+     *
      * You should overwrite this method in your own class if you want to use another identifier
      *
      * @access protected
