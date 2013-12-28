@@ -60,24 +60,6 @@ if (!class_exists('Net_SSH2')) {
     include_once 'SSH2.php';
 }
 
-/**#@+
- * @access public
- * @see Net_SFTP::getLog()
- */
-/**
- * Returns the message numbers
- */
-define('NET_SFTP_LOG_SIMPLE',  1);
-/**
- * Returns the message content
- */
-define('NET_SFTP_LOG_COMPLEX', 2);
-/**
- * Outputs the message content in real-time.
- */
-define('NET_SFTP_LOG_REALTIME', 3);
-/**#@-*/
-
 /**
  * SFTP channel constant
  *
@@ -200,24 +182,6 @@ class Net_SFTP extends Net_SSH2
      * @access private
      */
     var $pwd = false;
-
-    /**
-     * Packet Type Log
-     *
-     * @see Net_SFTP::getLog()
-     * @var Array
-     * @access private
-     */
-    var $packet_type_log = array();
-
-    /**
-     * Packet Log
-     *
-     * @see Net_SFTP::getLog()
-     * @var Array
-     * @access private
-     */
-    var $packet_log = array();
 
     /**
      * Error information
@@ -2055,20 +2019,9 @@ class Net_SFTP extends Net_SSH2
         $result = $this->_send_channel_packet(NET_SFTP_CHANNEL, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
 
-        if (defined('NET_SFTP_LOGGING')) {
-            $packet_type = '-> ' . $this->packet_types[$type] .
-                           ' (' . round($stop - $start, 4) . 's)';
-            if (NET_SFTP_LOGGING == NET_SFTP_LOG_REALTIME) {
-                echo "<pre>\r\n" . $this->_format_log(array($data), array($packet_type)) . "\r\n</pre>\r\n";
-                flush();
-                ob_flush();
-            } else {
-                $this->packet_type_log[] = $packet_type;
-                if (NET_SFTP_LOGGING == NET_SFTP_LOG_COMPLEX) {
-                    $this->packet_log[] = $data;
-                }
-            }
-        }
+        $packet_type = '-> ' . $this->packet_types[$type] .
+                       ' (' . round($stop - $start, 4) . 's)';
+        $this->logger->log($packet_type, $data);
 
         return $result;
     }
@@ -2131,46 +2084,11 @@ class Net_SFTP extends Net_SSH2
 
         $packet = $this->_string_shift($this->packet_buffer, $length);
 
-        if (defined('NET_SFTP_LOGGING')) {
-            $packet_type = '<- ' . $this->packet_types[$this->packet_type] .
-                           ' (' . round($stop - $start, 4) . 's)';
-            if (NET_SFTP_LOGGING == NET_SFTP_LOG_REALTIME) {
-                echo "<pre>\r\n" . $this->_format_log(array($packet), array($packet_type)) . "\r\n</pre>\r\n";
-                flush();
-                ob_flush();
-            } else {
-                $this->packet_type_log[] = $packet_type;
-                if (NET_SFTP_LOGGING == NET_SFTP_LOG_COMPLEX) {
-                    $this->packet_log[] = $packet;
-                }
-            }
-        }
+        $packet_type = '<- ' . $this->packet_types[$this->packet_type] .
+                       ' (' . round($stop - $start, 4) . 's)';
+        $this->logger->log($packet_type, $packet);
 
         return $packet;
-    }
-
-    /**
-     * Returns a log of the packets that have been sent and received.
-     *
-     * Returns a string if NET_SFTP_LOGGING == NET_SFTP_LOG_COMPLEX, an array if NET_SFTP_LOGGING == NET_SFTP_LOG_SIMPLE and false if !defined('NET_SFTP_LOGGING')
-     *
-     * @access public
-     * @return String or Array
-     */
-    function getSFTPLog()
-    {
-        if (!defined('NET_SFTP_LOGGING')) {
-            return false;
-        }
-
-        switch (NET_SFTP_LOGGING) {
-            case NET_SFTP_LOG_COMPLEX:
-                return $this->_format_log($this->packet_log, $this->packet_type_log);
-                break;
-            //case NET_SFTP_LOG_SIMPLE:
-            default:
-                return $this->packet_type_log;
-        }
     }
 
     /**
