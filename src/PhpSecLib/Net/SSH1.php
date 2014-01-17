@@ -66,7 +66,9 @@
 
 namespace PhpSecLib\Net;
 
-use PhpSecLib\Crypt\Random,
+use PhpSecLib\Crypt\DES,
+	PhpSecLib\Crypt\Random,
+	PhpSecLib\Crypt\TripleDES,
 	PhpSecLib\Math\BigInteger;
 
 /**

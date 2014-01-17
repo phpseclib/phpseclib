@@ -63,7 +63,7 @@ namespace PhpSecLib\Net;
  * @version 0.1.0
  * @access  public
  */
-class SFTP extends PhpSecLib\Net\SSH2
+class SFTP extends SSH2
 {
     /**
      * Packet Types
@@ -345,7 +345,7 @@ class SFTP extends PhpSecLib\Net\SSH2
     public function login($username)
     {
         $args = func_get_args();
-        if (!call_user_func_array(array('SSH2', 'login'), $args)) {
+        if (!call_user_func_array(array(__NAMESPACE__ . '\SSH2', 'login'), $args)) {
             return false;
         }
 
@@ -516,7 +516,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Mixed
      * @access private
      */
-    private function _realpath($path)
+    protected function _realpath($path)
     {
         if ($this->pwd === false) {
             // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.9
@@ -663,7 +663,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Mixed
      * @access private
      */
-    private function _list($dir, $raw = true, $realpath = true)
+    protected function _list($dir, $raw = true, $realpath = true)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -785,7 +785,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @param String $dir
      * @access private
      */
-    private function _save_dir($dir)
+    protected function _save_dir($dir)
     {
         // preg_replace('#^/|/(?=/)|/$#', '', $dir) == str_replace('//', '/', trim($dir, '/'))
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $dir));
@@ -805,7 +805,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @param String $dir
      * @access private
      */
-    private function _remove_dir($dir)
+    protected function _remove_dir($dir)
     {
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $dir));
 
@@ -831,7 +831,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @param String $dir
      * @access private
      */
-    private function _is_dir($dir)
+    protected function _is_dir($dir)
     {
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $dir));
 
@@ -936,7 +936,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Mixed
      * @access private
      */
-    private function _stat($filename, $type)
+    protected function _stat($filename, $type)
     {
         // SFTPv4+ adds an additional 32-bit integer field - flags - to the following:
         $packet = pack('Na*', strlen($filename), $filename);
@@ -966,7 +966,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Mixed
      * @access private
      */
-    private function _size($filename)
+    protected function _size($filename)
     {
         $result = $this->_stat($filename, NET_SFTP_STAT);
         if ($result === false) {
@@ -1138,7 +1138,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Boolean
      * @access private
      */
-    private function _setstat($filename, $attr, $recursive)
+    protected function _setstat($filename, $attr, $recursive)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1195,7 +1195,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Boolean
      * @access private
      */
-    private function _setstat_recursive($path, $attr, &$i)
+    protected function _setstat_recursive($path, $attr, &$i)
     {
         if (!$this->_read_put_responses($i)) {
             return false;
@@ -1301,7 +1301,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Boolean
      * @access private
      */
-    private function _mkdir_helper($dir, $attr)
+    protected function _mkdir_helper($dir, $attr)
     {
         if (!$this->_send_sftp_packet(NET_SFTP_MKDIR, pack('Na*a*', strlen($dir), $dir, $attr))) {
             return false;
@@ -1525,7 +1525,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Boolean
      * @access private
      */
-    private function _read_put_responses($i)
+    protected function _read_put_responses($i)
     {
         while ($i--) {
             $response = $this->_get_sftp_packet();
@@ -1551,7 +1551,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Boolean
      * @access private
      */
-    private function _close_handle($handle)
+    protected function _close_handle($handle)
     {
         if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
             return false;
@@ -1742,7 +1742,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Boolean
      * @access private
      */
-    private function _delete_recursive($path, &$i)
+    protected function _delete_recursive($path, &$i)
     {
         if (!$this->_read_put_responses($i)) {
             return false;
@@ -1854,7 +1854,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Array
      * @access private
      */
-    private function _parseAttributes(&$response)
+    protected function _parseAttributes(&$response)
     {
         $attr = array();
         extract(unpack('Nflags', $this->_string_shift($response, 4)));
@@ -1909,7 +1909,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Integer
      * @access private
      */
-    private function _parseMode($mode)
+    protected function _parseMode($mode)
     {
         // values come from http://lxr.free-electrons.com/source/include/uapi/linux/stat.h#L12
         // see, also, http://linux.die.net/man/2/stat
@@ -1956,7 +1956,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Mixed
      * @access private
      */
-    private function _parseLongname($longname)
+    protected function _parseLongname($longname)
     {
         // http://en.wikipedia.org/wiki/Unix_file_types
         // http://en.wikipedia.org/wiki/Filesystem_permissions#Notation_of_traditional_Unix_permissions
@@ -1988,7 +1988,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Boolean
      * @access private
      */
-    private function _send_sftp_packet($type, $data)
+    protected function _send_sftp_packet($type, $data)
     {
         $packet = $this->request_id !== false ?
             pack('NCNa*', strlen($data) + 5, $type, $this->request_id, $data) :
@@ -2029,7 +2029,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return String
      * @access private
      */
-    private function _get_sftp_packet()
+    protected function _get_sftp_packet()
     {
         $this->curTimeout = false;
 
@@ -2160,7 +2160,7 @@ class SFTP extends PhpSecLib\Net\SSH2
      * @return Boolean
      * @access private
      */
-    private function _disconnect($reason)
+    protected function _disconnect($reason)
     {
         $this->pwd = false;
         parent::_disconnect($reason);
