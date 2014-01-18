@@ -18,7 +18,7 @@ class Net_SSH2Test extends PhpseclibTestCase
             ->setMethods(array('__destruct'))
             ->getMock();
     }
-    
+
     public function formatLogDataProvider()
     {
         return array(
@@ -46,7 +46,7 @@ class Net_SSH2Test extends PhpseclibTestCase
         $result = $ssh->_format_log($message_log, $message_number_log);
         $this->assertEquals($expected, $result);
     }
-    
+
     public function generateIdentifierProvider()
     {
         return array(
