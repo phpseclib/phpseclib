@@ -6,6 +6,7 @@ php:
   - 5.3
   - 5.4
   - 5.5
+  - hhvm
 
 env:
   global:
@@ -24,3 +25,8 @@ script:
 
 after_success:
   - sh -c "if $TRAVIS_SECURE_ENV_VARS; then tests/code_coverage_upload.sh; fi"
+
+matrix:
+  allow_failures:
+    - php: hhvm
+  fast_finish: true
