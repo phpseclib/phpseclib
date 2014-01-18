@@ -104,11 +104,11 @@ class Crypt_RC4 extends Crypt_Base
     /**
      * Block Length of the cipher
      *
-     * RC4 is a stream cipher 
+     * RC4 is a stream cipher
      * so we the block_size to 0
      *
      * @see Crypt_Base::block_size
-     * @var Integer 
+     * @var Integer
      * @access private
      */
     var $block_size = 0;
