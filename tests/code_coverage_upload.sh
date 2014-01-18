@@ -18,8 +18,8 @@ ID_RSA='tests/code_coverage_id_rsa'
 # Install expect if necessary
 if ! which expect > /dev/null
 then
-	sudo apt-get update -qq
-	sudo apt-get install -qq expect
+    sudo apt-get update -qq
+    sudo apt-get install -qq expect
 fi
 
 # Workaround for rsync not creating target directories with depth > 1
@@ -38,13 +38,13 @@ export RSYNC_RSH="ssh -4 -i $ID_RSA -o ConnectTimeout=5"
 RSYNC_OPT="--recursive --times --links --progress"
 
 expect << EOF
-	spawn rsync $RSYNC_OPT "$RDIRNAME/" "$USERNAME@$HOSTNAME:$RDIRNAME/"
+    spawn rsync $RSYNC_OPT "$RDIRNAME/" "$USERNAME@$HOSTNAME:$RDIRNAME/"
 
-	expect "RSA key fingerprint is $HOSTRSAF."
-	send "yes\n"
+    expect "RSA key fingerprint is $HOSTRSAF."
+    send "yes\n"
 
-	expect "Enter passphrase for key '$ID_RSA':"
-	send "$CODE_COVERAGE_PASSPHRASE\n"
+    expect "Enter passphrase for key '$ID_RSA':"
+    send "$CODE_COVERAGE_PASSPHRASE\n"
 
-	expect eof
+    expect eof
 EOF
