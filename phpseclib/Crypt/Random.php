@@ -47,7 +47,7 @@
  */
 define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
 
-if (!function_exists('crypt_random_string')):
+if (!function_exists('crypt_random_string')) {
 /**
  * Generate a random string.
  *
@@ -245,4 +245,4 @@ function crypt_random_string($length)
     }
     return substr($result, 0, $length);
 }
-endif;
+}
