@@ -218,6 +218,23 @@ class SSH1
 	 */
 	const READ_REGEX = 2;
 	
+	const MSG_DISCONNECT = 1;
+	const SMSG_PUBLIC_KEY = 2;
+	const CMSG_SESSION_KEY = 3;
+	const CMSG_USER = 4;
+	const CMSG_AUTH_PASSWORD = 9;
+	const CMSG_REQUEST_PTY = 10;
+	const CMSG_EXEC_SHELL = 12;
+	const CMSG_EXEC_CMD = 13;
+	const SMSG_SUCCESS = 14;
+	const SMSG_FAILURE = 15;
+	const CMSG_STDIN_DATA = 16;
+	const SMSG_STDOUT_DATA = 17;
+	const SMSG_STDERR_DATA = 18;
+	const CMSG_EOF = 19;
+	const SMSG_EXITSTATUS = 20;
+	const CMSG_EXIT_CONFIRMATION = 33;
+	
     /**
      * The SSH identifier
      *
@@ -434,25 +451,23 @@ class SSH1
     public function __construct($host, $port = 22, $timeout = 10, $cipher = SSH1::CIPHER_3DES)
     {
         $this->protocol_flags = array(
-            1  => 'NET_SSH1_MSG_DISCONNECT',
-            2  => 'NET_SSH1_SMSG_PUBLIC_KEY',
-            3  => 'NET_SSH1_CMSG_SESSION_KEY',
-            4  => 'NET_SSH1_CMSG_USER',
-            9  => 'NET_SSH1_CMSG_AUTH_PASSWORD',
-            10 => 'NET_SSH1_CMSG_REQUEST_PTY',
-            12 => 'NET_SSH1_CMSG_EXEC_SHELL',
-            13 => 'NET_SSH1_CMSG_EXEC_CMD',
-            14 => 'NET_SSH1_SMSG_SUCCESS',
-            15 => 'NET_SSH1_SMSG_FAILURE',
-            16 => 'NET_SSH1_CMSG_STDIN_DATA',
-            17 => 'NET_SSH1_SMSG_STDOUT_DATA',
-            18 => 'NET_SSH1_SMSG_STDERR_DATA',
-            19 => 'NET_SSH1_CMSG_EOF',
-            20 => 'NET_SSH1_SMSG_EXITSTATUS',
-            33 => 'NET_SSH1_CMSG_EXIT_CONFIRMATION'
+            SSH1::MSG_DISCONNECT  => 'SSH1::MSG_DISCONNECT',
+            SSH1::SMSG_PUBLIC_KEY  => 'SSH1::SMSG_PUBLIC_KEY',
+            SSH1::CMSG_SESSION_KEY  => 'SSH1::CMSG_SESSION_KEY',
+            SSH1::CMSG_USER  => 'SSH1::CMSG_USER',
+            SSH1::CMSG_AUTH_PASSWORD  => 'SSH1::CMSG_AUTH_PASSWORD',
+            SSH1::CMSG_REQUEST_PTY => 'SSH1::CMSG_REQUEST_PTY',
+            SSH1::CMSG_EXEC_SHELL => 'SSH1::CMSG_EXEC_SHELL',
+            SSH1::CMSG_EXEC_CMD => 'SSH1::CMSG_EXEC_CMD',
+            SSH1::SMSG_SUCCESS => 'SSH1::SMSG_SUCCESS',
+            SSH1::SMSG_FAILURE => 'SSH1::SMSG_FAILURE',
+            SSH1::CMSG_STDIN_DATA => 'SSH1::CMSG_STDIN_DATA',
+            SSH1::SMSG_STDOUT_DATA => 'SSH1::SMSG_STDOUT_DATA',
+            SSH1::SMSG_STDERR_DATA => 'SSH1::SMSG_STDERR_DATA',
+            SSH1::CMSG_EOF => 'SSH1::CMSG_EOF',
+            SSH1::SMSG_EXITSTATUS => 'SSH1::SMSG_EXITSTATUS',
+            SSH1::CMSG_EXIT_CONFIRMATION => 'SSH1::CMSG_EXIT_CONFIRMATION'
         );
-
-        $this->_define_array($this->protocol_flags);
 
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
@@ -1248,30 +1263,6 @@ class SSH1
         $m = $m->modPow($key[0], $key[1]);
 
         return $m->toBytes();
-    }
-
-    /**
-     * Define Array
-     *
-     * Takes any number of arrays whose indices are integers and whose values are strings and defines a bunch of
-     * named constants from it, using the value as the name of the constant and the index as the value of the constant.
-     * If any of the constants that would be defined already exists, none of the constants will be defined.
-     *
-     * @param Array $array
-     * @access private
-     */
-    private function _define_array()
-    {
-        $args = func_get_args();
-        foreach ($args as $arg) {
-            foreach ($arg as $key=>$value) {
-                if (!defined($value)) {
-                    define($value, $key);
-                } else {
-                    break 2;
-                }
-            }
-        }
     }
 
     /**
