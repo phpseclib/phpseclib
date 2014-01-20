@@ -43,7 +43,9 @@
  */
  
 namespace PhpSecLib\Net\SFTP;
- 
+
+use PhpSecLib\Net\SSH2;
+
 class Stream
 {
     /**
@@ -148,7 +150,7 @@ class Stream
      * Extract a path from a URI and actually connect to an SSH server if appropriate
      *
      * If "notification" is set as a context parameter the message code for successful login is
-     * NET_SSH2_MSG_USERAUTH_SUCCESS. For a failed login it's NET_SSH2_MSG_USERAUTH_FAILURE.
+     * SSH2::MSG_USERAUTH_SUCCESS. For a failed login it's SSH2::MSG_USERAUTH_FAILURE.
      *
      * @param String $path
      * @return String
@@ -222,10 +224,10 @@ class Stream
                     call_user_func($this->notification, STREAM_NOTIFY_CONNECT, STREAM_NOTIFY_SEVERITY_INFO, '', 0, 0, 0);
                     call_user_func($this->notification, STREAM_NOTIFY_AUTH_REQUIRED, STREAM_NOTIFY_SEVERITY_INFO, '', 0, 0, 0);
                     if (!$this->sftp->login($user, $pass)) {
-                        call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_ERR, 'Login Failure', NET_SSH2_MSG_USERAUTH_FAILURE, 0, 0);
+                        call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_ERR, 'Login Failure', SSH2::MSG_USERAUTH_FAILURE, 0, 0);
                         return false;
                     }
-                    call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_INFO, 'Login Success', NET_SSH2_MSG_USERAUTH_SUCCESS, 0, 0);
+                    call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_INFO, 'Login Success', SSH2::MSG_USERAUTH_SUCCESS, 0, 0);
                 } else {
                     if (!$this->sftp->login($user, $pass)) {
                         return false;

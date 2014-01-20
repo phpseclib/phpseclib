@@ -62,6 +62,53 @@ namespace PhpSecLib\Crypt;
  */
 class RC2 extends Base
 {
+	/**
+	 * Encrypt / decrypt using the Counter mode.
+	 *
+	 * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
+	 *
+	 * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
+	 */
+	const MODE_CTR = Base::MODE_CTR;
+	
+	/**
+	 * Encrypt / decrypt using the Electronic Code Book mode.
+	 *
+	 * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
+	 */
+	const MODE_ECB = Base::MODE_ECB;
+	
+	/**
+	 * Encrypt / decrypt using the Code Book Chaining mode.
+	 *
+	 * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
+	 */
+	const MODE_CBC = Base::MODE_CBC;
+	
+	/**
+	 * Encrypt / decrypt using the Cipher Feedback mode.
+	 *
+	 * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
+	 */
+	const MODE_CFB = Base::MODE_CFB;
+	
+	/**
+	 * Encrypt / decrypt using the Cipher Feedback mode.
+	 *
+	 * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
+	 */
+	const MODE_OFB = Base::MODE_OFB;
+	
+	/**
+	 * Toggles the internal implementation
+	 */
+	const MODE_INTERNAL = Base::MODE_INTERNAL;
+	
+	/**
+	 * Toggles the mcrypt implementation
+	 */
+	const MODE_MCRYPT = Base::MODE_MCRYPT;
+
     /**
      * Block Length of the cipher
      *
@@ -263,23 +310,23 @@ class RC2 extends Base
      *
      * $mode could be:
      *
-     * - CRYPT_RC2_MODE_ECB
+     * - RC2::MODE_ECB
      *
-     * - CRYPT_RC2_MODE_CBC
+     * - RC2::MODE_CBC
      *
-     * - CRYPT_RC2_MODE_CTR
+     * - RC2::MODE_CTR
      *
-     * - CRYPT_RC2_MODE_CFB
+     * - RC2::MODE_CFB
      *
-     * - CRYPT_RC2_MODE_OFB
+     * - RC2::MODE_OFB
      *
-     * If not explictly set, CRYPT_RC2_MODE_CBC will be used.
+     * If not explictly set, RC2::MODE_CBC will be used.
      *
      * @see Crypt\Base::Crypt\Base()
      * @param optional Integer $mode
      * @access public
      */
-    public function __construct($mode = CRYPT_RC2_MODE_CBC)
+    public function __construct($mode = RC2::MODE_CBC)
     {
         parent::__construct($mode);
         $this->setKey('');

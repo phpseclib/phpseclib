@@ -5,9 +5,11 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-abstract class Crypt_AES_TestCase extends PhpseclibTestCase
+namespace PhpSecLib\Crypt;
+ 
+abstract class AESTest extends \PhpseclibTestCase
 {
-	static public function setUpBeforeClass()
+	/*static public function setUpBeforeClass()
 	{
 		require_once('Crypt/AES.php');
 
@@ -23,5 +25,5 @@ abstract class Crypt_AES_TestCase extends PhpseclibTestCase
 		{
 			$this->markTestSkipped('Skipping test because CRYPT_AES_MODE is not defined as CRYPT_AES_MODE_INTERNAL.');
 		}
-	}
+	}*/
 }

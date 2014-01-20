@@ -43,7 +43,6 @@
 namespace PhpSecLib\Crypt;
 
 class Random {
-
 	/**
 	 * Generate a random string.
 	 *
@@ -57,7 +56,7 @@ class Random {
 	 */
 	static public function crypt_random_string($length)
 	{
-	    if (CRYPT_RANDOM_IS_WINDOWS) {
+	    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 	        // method 1. prior to PHP 5.3 this would call rand() on windows hence the function_exists('class_alias') call.
 	        // ie. class_alias is a function that was introduced in PHP 5.3
 	        if (function_exists('mcrypt_create_iv') && function_exists('class_alias')) {
@@ -187,13 +186,13 @@ class Random {
 	        // http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Designs_based_on_cryptographic_primitives
 	        switch (true) {
 	            case class_exists('AES'):
-	                $crypto = new AES(CRYPT_AES_MODE_CTR);
+	                $crypto = new AES(AES::MODE_CTR);
 	                break;
 	            case class_exists('TripleDES'):
-	                $crypto = new TripleDES(CRYPT_DES_MODE_CTR);
+	                $crypto = new TripleDES(DES::MODE_CTR);
 	                break;
 	            case class_exists('DES'):
-	                $crypto = new DES(CRYPT_DES_MODE_CTR);
+	                $crypto = new DES(DES::MODE_CTR);
 	                break;
 	            case class_exists('RC4'):
 	                $crypto = new RC4();

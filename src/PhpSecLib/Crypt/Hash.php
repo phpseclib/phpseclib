@@ -68,6 +68,21 @@ use PhpSecLib\Math\BigInteger;
  */
 class Hash
 {
+	/**
+	 * Toggles the internal implementation
+	 */
+	const MODE_INTERNAL = 1;
+	
+	/**
+	 * Toggles the mhash() implementation, which has been deprecated on PHP 5.3.0+.
+	 */
+	const MODE_MHASH = 2;
+	
+	/**
+	 * Toggles the hash() implementation, which works on PHP 5.1.2+.
+	 */
+	const MODE_HASH = 3;
+
     /**
      * Hash Parameter
      *
@@ -130,7 +145,9 @@ class Hash
      * @access private
      */
     protected $ipad;
-
+	
+	private $mode = null;
+	
     /**
      * Default Constructor.
      *
@@ -140,16 +157,16 @@ class Hash
      */
     public function __construct($hash = 'sha1')
     {
-        if ( !defined('CRYPT_HASH_MODE') ) {
+        if ( $this->mode === null ) {
             switch (true) {
                 case extension_loaded('hash'):
-                    define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_HASH);
+                    $this->mode = Hash::MODE_HASH;
                     break;
                 case extension_loaded('mhash'):
-                    define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_MHASH);
+                    $this->mode = Hash::MODE_MHASH;
                     break;
                 default:
-                    define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_INTERNAL);
+                    $this->mode = Hash::MODE_INTERNAL;
             }
         }
 
@@ -215,19 +232,19 @@ class Hash
 
         switch ($hash) {
             case 'md2':
-                $mode = CRYPT_HASH_MODE == CRYPT_HASH_MODE_HASH && in_array('md2', hash_algos()) ?
-                    CRYPT_HASH_MODE_HASH : CRYPT_HASH_MODE_INTERNAL;
+                $mode = $this->mode == Hash::MODE_HASH && in_array('md2', hash_algos()) ?
+                    Hash::MODE_HASH : Hash::MODE_INTERNAL;
                 break;
             case 'sha384':
             case 'sha512':
-                $mode = CRYPT_HASH_MODE == CRYPT_HASH_MODE_MHASH ? CRYPT_HASH_MODE_INTERNAL : CRYPT_HASH_MODE;
+                $mode = $this->mode == Hash::MODE_MHASH ? Hash::MODE_INTERNAL : $this->mode;
                 break;
             default:
-                $mode = CRYPT_HASH_MODE;
+                $mode = $this->mode;
         }
 
         switch ( $mode ) {
-            case CRYPT_HASH_MODE_MHASH:
+            case Hash::MODE_MHASH:
                 switch ($hash) {
                     case 'md5':
                     case 'md5-96':
@@ -242,7 +259,7 @@ class Hash
                         $this->hash = MHASH_SHA1;
                 }
                 return;
-            case CRYPT_HASH_MODE_HASH:
+            case Hash::MODE_HASH:
                 switch ($hash) {
                     case 'md5':
                     case 'md5-96':
@@ -301,17 +318,17 @@ class Hash
      */
     public function hash($text)
     {
-        $mode = is_array($this->hash) ? CRYPT_HASH_MODE_INTERNAL : CRYPT_HASH_MODE;
+        $mode = is_array($this->hash) ? Hash::MODE_INTERNAL : $this->mode;
 
         if (!empty($this->key) || is_string($this->key)) {
             switch ( $mode ) {
-                case CRYPT_HASH_MODE_MHASH:
+                case Hash::MODE_MHASH:
                     $output = mhash($this->hash, $text, $this->key);
                     break;
-                case CRYPT_HASH_MODE_HASH:
+                case Hash::MODE_HASH:
                     $output = hash_hmac($this->hash, $text, $this->key, true);
                     break;
-                case CRYPT_HASH_MODE_INTERNAL:
+                case Hash::MODE_INTERNAL:
                     /* "Applications that use keys longer than B bytes will first hash the key using H and then use the
                         resultant L byte string as the actual key to HMAC."
 
@@ -328,13 +345,13 @@ class Hash
             }
         } else {
             switch ( $mode ) {
-                case CRYPT_HASH_MODE_MHASH:
+                case Hash::MODE_MHASH:
                     $output = mhash($this->hash, $text);
                     break;
-                case CRYPT_HASH_MODE_HASH:
+                case Hash::MODE_HASH:
                     $output = hash($this->hash, $text, true);
                     break;
-                case CRYPT_HASH_MODE_INTERNAL:
+                case Hash::MODE_INTERNAL:
                     $output = call_user_func($this->hash, $text);
             }
         }

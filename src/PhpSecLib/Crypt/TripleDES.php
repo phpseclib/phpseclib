@@ -125,7 +125,7 @@ class TripleDES extends DES
     protected $key_size_max = 24;
 
     /**
-     * Internal flag whether using CRYPT_DES_MODE_3CBC or not
+     * Internal flag whether using DES::MODE_3CBC or not
      *
      * @var Boolean
      * @access private
@@ -149,39 +149,39 @@ class TripleDES extends DES
      *
      * $mode could be:
      *
-     * - CRYPT_DES_MODE_ECB
+     * - DES::MODE_ECB
      *
-     * - CRYPT_DES_MODE_CBC
+     * - DES::MODE_CBC
      *
-     * - CRYPT_DES_MODE_CTR
+     * - DES::MODE_CTR
      *
-     * - CRYPT_DES_MODE_CFB
+     * - DES::MODE_CFB
      *
-     * - CRYPT_DES_MODE_OFB
+     * - DES::MODE_OFB
      *
-     * - CRYPT_DES_MODE_3CBC
+     * - DES::MODE_3CBC
      *
-     * If not explictly set, CRYPT_DES_MODE_CBC will be used.
+     * If not explictly set, DES::MODE_CBC will be used.
      *
      * @see Crypt\DES::Crypt\DES()
      * @see Crypt\Base::Crypt\Base()
      * @param optional Integer $mode
      * @access public
      */
-    public function __construct($mode = CRYPT_DES_MODE_CBC)
+    public function __construct($mode = DES::MODE_CBC)
     {
         switch ($mode) {
-            // In case of CRYPT_DES_MODE_3CBC, we init as CRYPT_DES_MODE_CBC
+            // In case of DES::MODE_3CBC, we init as DES::MODE_CBC
             // and additional flag us internally as 3CBC
-            case CRYPT_DES_MODE_3CBC:
-                parent::__construct(CRYPT_DES_MODE_CBC);
+            case DES::MODE_3CBC:
+                parent::__construct(DES::MODE_CBC);
                 $this->mode_3cbc = true;
 
                 // This three $des'es will do the 3CBC work (if $key > 64bits)
                 $this->des = array(
-                    new DES(CRYPT_DES_MODE_CBC),
-                    new DES(CRYPT_DES_MODE_CBC),
-                    new DES(CRYPT_DES_MODE_CBC),
+                    new DES(DES::MODE_CBC),
+                    new DES(DES::MODE_CBC),
+                    new DES(DES::MODE_CBC),
                 );
 
                 // we're going to be doing the padding, ourselves, so disable it in the Crypt\DES objects
@@ -198,7 +198,7 @@ class TripleDES extends DES
     /**
      * Sets the initialization vector. (optional)
      *
-     * SetIV is not required when CRYPT_DES_MODE_ECB is being used.  If not explictly set, it'll be assumed
+     * SetIV is not required when DES::MODE_ECB is being used.  If not explictly set, it'll be assumed
      * to be all zero's.
      *
      * @see Crypt\Base::setIV()
@@ -243,7 +243,7 @@ class TripleDES extends DES
         }
         parent::setKey($key);
 
-        // And in case of CRYPT_DES_MODE_3CBC:
+        // And in case of DES::MODE_3CBC:
         // if key <= 64bits we not need the 3 $des to work,
         // because we will then act as regular DES-CBC with just a <= 64bit key.
         // So only if the key > 64bits (> 8 bytes) we will call setKey() for the 3 $des.
@@ -265,7 +265,7 @@ class TripleDES extends DES
     public function encrypt($plaintext)
     {
         // parent::en/decrypt() is able to do all the work for all modes and keylengths,
-        // except for: CRYPT_DES_MODE_3CBC (inner chaining CBC) with a key > 64bits
+        // except for: DES::MODE_3CBC (inner chaining CBC) with a key > 64bits
 
         // if the key is smaller then 8, do what we'd normally do
         if ($this->mode_3cbc && strlen($this->key) > 8) {

@@ -10,8 +10,9 @@ date_default_timezone_set('UTC');
 // Set up include path accordingly. This is especially required because some
 // class files of phpseclib require() other dependencies.
 set_include_path(implode(PATH_SEPARATOR, array(
-	dirname(__FILE__) . '/../phpseclib/',
-	dirname(__FILE__) . '/',
+	realpath(dirname(__FILE__) . '/../../src'),
+	realpath(dirname(__FILE__) . '/../../tests'),
+	realpath(dirname(__FILE__) . '/'),
 	get_include_path(),
 )));
 
@@ -21,7 +22,7 @@ function phpseclib_is_includable($suffix)
 	{
 		$ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
 		$file = $prefix . $ds . $suffix;
-
+		
 		if (file_exists($file))
 		{
 			return true;
@@ -33,8 +34,8 @@ function phpseclib_is_includable($suffix)
 
 function phpseclib_autoload($class)
 {
-	$file = str_replace('_', '/', $class) . '.php';
-
+	$file = str_replace('\\', '/', $class) . '.php';
+	
 	if (phpseclib_is_includable($file))
 	{
 		require $file;

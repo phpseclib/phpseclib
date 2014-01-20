@@ -72,6 +72,18 @@ namespace PhpSecLib\Crypt;
  */
 class RC4 extends Base
 {
+	/**
+	 * Toggles the internal implementation
+	 */
+	const MODE_INTERNAL = Base::INTERNAL;
+	/**
+	 * Toggles the mcrypt implementation
+	 */
+	const MODE_MCRYPT = Base::MCRYPT;
+	
+	const ENCRYPT = 0;
+	const DECRYPT = 1;
+
     /**
      * Block Length of the cipher
      *
@@ -151,7 +163,7 @@ class RC4 extends Base
      */
     public function __construct()
     {
-        parent::__construct(CRYPT_MODE_STREAM);
+        parent::__construct(Base::MODE_STREAM);
     }
 
     /**
@@ -203,10 +215,10 @@ class RC4 extends Base
      */
     public function encrypt($plaintext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->engine == Base::MODE_MCRYPT) {
             return parent::encrypt($plaintext);
         }
-        return $this->_crypt($plaintext, CRYPT_RC4_ENCRYPT);
+        return $this->_crypt($plaintext, RC4::ENCRYPT);
     }
 
     /**
@@ -223,10 +235,10 @@ class RC4 extends Base
      */
     public function decrypt($ciphertext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->engine == Base::MODE_MCRYPT) {
             return parent::decrypt($ciphertext);
         }
-        return $this->_crypt($ciphertext, CRYPT_RC4_DECRYPT);
+        return $this->_crypt($ciphertext, RC4::DECRYPT);
     }
 
 
@@ -253,7 +265,7 @@ class RC4 extends Base
         }
 
         $this->stream = array();
-        $this->stream[CRYPT_RC4_DECRYPT] = $this->stream[CRYPT_RC4_ENCRYPT] = array(
+        $this->stream[RC4::DECRYPT] = $this->stream[RC4::ENCRYPT] = array(
             0, // index $i
             0, // index $j
             $keyStream

@@ -5,9 +5,11 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-abstract class Crypt_Hash_TestCase extends PhpseclibTestCase
+namespace PhpSecLib\Crypt;
+ 
+abstract class HashTest extends \PhpseclibTestCase
 {
-	static public function setUpBeforeClass()
+	/*static public function setUpBeforeClass()
 	{
 		require_once('Crypt/Hash.php');
 
@@ -23,7 +25,7 @@ abstract class Crypt_Hash_TestCase extends PhpseclibTestCase
 		{
 			$this->markTestSkipped('Skipping test because CRYPT_HASH_MODE is not defined as CRYPT_HASH_MODE_INTERNAL.');
 		}
-	}
+	}*/
 
 	protected function assertHashesTo(Hash $hash, $message, $expected)
 	{
