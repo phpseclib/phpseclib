@@ -140,15 +140,6 @@ class Rijndael extends Base
     public $password_key_size = 16;
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    public $const_namespace = 'RIJNDAEL';
-
-    /**
      * The mcrypt specific name of the cipher
      *
      * Mcrypt is useable for 128/192/256-bit $block_size/$key_size. For 160/224 not.
@@ -810,7 +801,7 @@ class Rijndael extends Base
      */
     protected function _setupEngine()
     {
-        if (constant('CRYPT_' . $this->const_namespace . '_MODE') == Base::MODE_INTERNAL) {
+        if ($this->mode == Base::MODE_INTERNAL) {
             // No mcrypt support at all for rijndael
             return;
         }

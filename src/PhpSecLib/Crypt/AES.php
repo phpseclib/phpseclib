@@ -121,15 +121,6 @@ class AES extends Rijndael
 	const MODE_MCRYPT = Base::MODE_MCRYPT;
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    public $const_namespace = 'AES';
-
-    /**
      * Default Constructor.
      *
      * Determines whether or not the mcrypt extension should be used.

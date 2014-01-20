@@ -107,16 +107,6 @@ class RC4 extends Base
     public $password_key_size = 128; // = 1024 bits
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    public $const_namespace = 'RC4';
-
-
-    /**
      * The mcrypt specific name of the cipher
      *
      * @see Crypt\Base::cipher_name_mcrypt

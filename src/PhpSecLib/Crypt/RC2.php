@@ -139,15 +139,6 @@ class RC2 extends Base
     public $password_key_size = 16; // = 128 bits
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    public $const_namespace = 'RC2';
-
-    /**
      * The mcrypt specific name of the cipher
      *
      * @see Crypt\Base::cipher_name_mcrypt

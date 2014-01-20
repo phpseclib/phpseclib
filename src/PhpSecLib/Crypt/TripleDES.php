@@ -86,16 +86,6 @@ class TripleDES extends DES
     public $password_default_salt = 'phpseclib';
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see Crypt\DES::const_namespace
-     * @see Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    public $const_namespace = 'DES';
-
-    /**
      * The mcrypt specific name of the cipher
      *
      * @see Crypt\DES::cipher_name_mcrypt

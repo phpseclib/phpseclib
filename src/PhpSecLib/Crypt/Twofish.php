@@ -113,15 +113,6 @@ class Twofish extends Base
 	 * Toggles the mcrypt implementation
 	 */
 	const MODE_MCRYPT = Base::MODE_MCRYPT;
-	
-    /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    public $const_namespace = 'TWOFISH';
 
     /**
      * The mcrypt specific name of the cipher

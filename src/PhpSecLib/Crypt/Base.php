@@ -370,29 +370,6 @@ class Base
     public $password_default_salt = 'phpseclib/salt';
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * ie: AES.php is using AES::MODE_* for its constants
-     *     so $const_namespace is AES
-     *
-     *     DES.php is using DES::MODE_* for its constants
-     *     so $const_namespace is DES... and so on
-     *
-     * All CRYPT_<$const_namespace>_MODE_* are aliases of
-     * the generic Base::* constants, so both could be used
-     * for each cipher.
-     *
-     * Example:
-     * $aes = new Crypt\AES(AES::MODE_CFB); // $aes will operate in cfb mode
-     * $aes = new Crypt\AES(Base::MODE_CFB);     // identical
-     *
-     * @see Crypt\Base::Crypt\Base()
-     * @var String
-     * @access private
-     */
-    public $const_namespace;
-
-    /**
      * The name of the performance-optimized callback function
      *
      * Used by encrypt() / decrypt()
@@ -417,6 +394,8 @@ class Base
      * @access private
      */
     public $use_inline_crypt;
+
+	public $mode = null;
 
     /**
      * Default Constructor.
@@ -444,16 +423,14 @@ class Base
      */
     public function __construct($mode = Base::MODE_CBC)
     {
-        $const_crypt_mode = 'CRYPT_' . $this->const_namespace . '_MODE';
-
         // Determining the availibility of mcrypt support for the cipher
-        if (!defined($const_crypt_mode)) {
+        if ($this->mode === null) {
             switch (true) {
                 case extension_loaded('mcrypt') && in_array($this->cipher_name_mcrypt, mcrypt_list_algorithms()):
-                    define($const_crypt_mode, Base::MODE_MCRYPT);
+                    $this->mode = Base::MODE_MCRYPT;
                     break;
                 default:
-                    define($const_crypt_mode, Base::MODE_INTERNAL);
+                    $this->mode = Base::MODE_INTERNAL;
             }
         }
 
