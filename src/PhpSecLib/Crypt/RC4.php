@@ -75,11 +75,11 @@ class RC4 extends Base
 	/**
 	 * Toggles the internal implementation
 	 */
-	const MODE_INTERNAL = Base::INTERNAL;
+	const MODE_INTERNAL = Base::MODE_INTERNAL;
 	/**
 	 * Toggles the mcrypt implementation
 	 */
-	const MODE_MCRYPT = Base::MCRYPT;
+	const MODE_MCRYPT = Base::MODE_MCRYPT;
 	
 	const ENCRYPT = 0;
 	const DECRYPT = 1;
@@ -94,7 +94,7 @@ class RC4 extends Base
      * @var Integer 
      * @access private
      */
-    protected $block_size = 0;
+    public $block_size = 0;
 
     /**
      * The default password key_size used by setPassword()
@@ -104,7 +104,7 @@ class RC4 extends Base
      * @var Integer
      * @access private
      */
-    protected $password_key_size = 128; // = 1024 bits
+    public $password_key_size = 128; // = 1024 bits
 
     /**
      * The namespace used by the cipher for its constants.
@@ -113,7 +113,7 @@ class RC4 extends Base
      * @var String
      * @access private
      */
-    protected $const_namespace = 'RC4';
+    public $const_namespace = 'RC4';
 
 
     /**
@@ -123,7 +123,7 @@ class RC4 extends Base
      * @var String
      * @access private
      */
-    protected $cipher_name_mcrypt = 'arcfour';
+    public $cipher_name_mcrypt = 'arcfour';
 
     /**
      * Holds whether performance-optimized $inline_crypt() can/should be used.
@@ -132,7 +132,7 @@ class RC4 extends Base
      * @var mixed
      * @access private
      */
-    protected $use_inline_crypt = false; // currently not available
+    public $use_inline_crypt = false; // currently not available
 
     /**
      * The Key
@@ -141,7 +141,7 @@ class RC4 extends Base
      * @var String
      * @access private
      */
-    protected $key = "\0";
+    public $key = "\0";
 
     /**
      * The Key Stream for decryption and encryption
@@ -150,7 +150,7 @@ class RC4 extends Base
      * @var Array
      * @access private
      */
-    protected $stream;
+    public $stream;
 
     /**
      * Default Constructor.

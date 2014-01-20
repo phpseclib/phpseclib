@@ -221,7 +221,7 @@ class RSA
      * @var Array
      * @access private
      */
-    protected $zero;
+    public $zero;
 
     /**
      * Precomputed One
@@ -229,7 +229,7 @@ class RSA
      * @var Array
      * @access private
      */
-    protected $one;
+    public $one;
 
     /**
      * Private Key Format
@@ -237,7 +237,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    protected $privateKeyFormat = RSA::PRIVATE_FORMAT_PKCS1;
+    public $privateKeyFormat = RSA::PRIVATE_FORMAT_PKCS1;
 
     /**
      * Public Key Format
@@ -253,7 +253,7 @@ class RSA
      * @var Math\BigInteger
      * @access private
      */
-    protected $modulus;
+    public $modulus;
 
     /**
      * Modulus length
@@ -261,7 +261,7 @@ class RSA
      * @var Math\BigInteger
      * @access private
      */
-    protected $k;
+    public $k;
 
     /**
      * Exponent (ie. e or d)
@@ -269,7 +269,7 @@ class RSA
      * @var Math\BigInteger
      * @access private
      */
-    protected $exponent;
+    public $exponent;
 
     /**
      * Primes for Chinese Remainder Theorem (ie. p and q)
@@ -277,7 +277,7 @@ class RSA
      * @var Array
      * @access private
      */
-    protected $primes;
+    public $primes;
 
     /**
      * Exponents for Chinese Remainder Theorem (ie. dP and dQ)
@@ -285,7 +285,7 @@ class RSA
      * @var Array
      * @access private
      */
-    protected $exponents;
+    public $exponents;
 
     /**
      * Coefficients for Chinese Remainder Theorem (ie. qInv)
@@ -293,7 +293,7 @@ class RSA
      * @var Array
      * @access private
      */
-    protected $coefficients;
+    public $coefficients;
 
     /**
      * Hash name
@@ -301,7 +301,7 @@ class RSA
      * @var String
      * @access private
      */
-    protected $hashName;
+    public $hashName;
 
     /**
      * Hash function
@@ -309,7 +309,7 @@ class RSA
      * @var Crypt\Hash
      * @access private
      */
-    protected $hash;
+    public $hash;
 
     /**
      * Length of hash function output
@@ -317,7 +317,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    protected $hLen;
+    public $hLen;
 
     /**
      * Length of salt
@@ -325,7 +325,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    protected $sLen;
+    public $sLen;
 
     /**
      * Hash function for the Mask Generation Function
@@ -333,7 +333,7 @@ class RSA
      * @var Crypt\Hash
      * @access private
      */
-    protected $mgfHash;
+    public $mgfHash;
 
     /**
      * Length of MGF hash function output
@@ -341,7 +341,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    protected $mgfHLen;
+    public $mgfHLen;
 
     /**
      * Encryption mode
@@ -349,7 +349,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    protected $encryptionMode = RSA::ENCRYPTION_OAEP;
+    public $encryptionMode = RSA::ENCRYPTION_OAEP;
 
     /**
      * Signature mode
@@ -357,7 +357,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    protected $signatureMode = RSA::SIGNATURE_PSS;
+    public $signatureMode = RSA::SIGNATURE_PSS;
 
     /**
      * Public Exponent
@@ -365,7 +365,7 @@ class RSA
      * @var Mixed
      * @access private
      */
-    protected $publicExponent = false;
+    public $publicExponent = false;
 
     /**
      * Password
@@ -373,7 +373,7 @@ class RSA
      * @var String
      * @access private
      */
-    protected $password = false;
+    public $password = false;
 
     /**
      * Components
@@ -385,7 +385,7 @@ class RSA
      * @var Array
      * @access private
      */
-    protected $components = array();
+    public $components = array();
 
     /**
      * Current String
@@ -397,7 +397,7 @@ class RSA
      * @var Mixed
      * @access private
      */
-    protected $current;
+    public $current;
 
     /**
      * OpenSSL configuration file name.
@@ -415,9 +415,9 @@ class RSA
      * @var String
      * @access private
      */
-    protected $comment = 'phpseclib-generated-key';
+    public $comment = 'phpseclib-generated-key';
 	
-	protected $mode = null;
+	public $mode = null;
 	
     /**
      * The constructor

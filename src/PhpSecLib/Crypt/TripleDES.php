@@ -73,7 +73,7 @@ class TripleDES extends DES
      * @var Integer
      * @access private
      */
-    protected $password_key_size = 24;
+    public $password_key_size = 24;
 
     /**
      * The default salt used by setPassword()
@@ -83,7 +83,7 @@ class TripleDES extends DES
      * @var String
      * @access private
      */
-    protected $password_default_salt = 'phpseclib';
+    public $password_default_salt = 'phpseclib';
 
     /**
      * The namespace used by the cipher for its constants.
@@ -93,7 +93,7 @@ class TripleDES extends DES
      * @var String
      * @access private
      */
-    protected $const_namespace = 'DES';
+    public $const_namespace = 'DES';
 
     /**
      * The mcrypt specific name of the cipher
@@ -103,7 +103,7 @@ class TripleDES extends DES
      * @var String
      * @access private
      */
-    protected $cipher_name_mcrypt = 'tripledes';
+    public $cipher_name_mcrypt = 'tripledes';
 
     /**
      * Optimizing value while CFB-encrypting
@@ -112,7 +112,7 @@ class TripleDES extends DES
      * @var Integer
      * @access private
      */
-    protected $cfb_init_len = 750;
+    public $cfb_init_len = 750;
 
     /**
      * max possible size of $key
@@ -122,7 +122,7 @@ class TripleDES extends DES
      * @var String
      * @access private
      */
-    protected $key_size_max = 24;
+    public $key_size_max = 24;
 
     /**
      * Internal flag whether using DES::MODE_3CBC or not
@@ -130,7 +130,7 @@ class TripleDES extends DES
      * @var Boolean
      * @access private
      */
-    protected $mode_3cbc;
+    public $mode_3cbc;
 
     /**
      * The Crypt\DES objects
@@ -140,7 +140,7 @@ class TripleDES extends DES
      * @var Array
      * @access private
      */
-    protected $des;
+    public $des;
 
     /**
      * Default Constructor.

@@ -116,7 +116,7 @@ class RC2 extends Base
      * @var Integer
      * @access private
      */
-    protected $block_size = 8;
+    public $block_size = 8;
 
     /**
      * The Key
@@ -126,7 +126,7 @@ class RC2 extends Base
      * @var String
      * @access private
      */
-    protected $key = "\0";
+    public $key = "\0";
 
     /**
      * The default password key_size used by setPassword()
@@ -136,7 +136,7 @@ class RC2 extends Base
      * @var Integer
      * @access private
      */
-    protected $password_key_size = 16; // = 128 bits
+    public $password_key_size = 16; // = 128 bits
 
     /**
      * The namespace used by the cipher for its constants.
@@ -145,7 +145,7 @@ class RC2 extends Base
      * @var String
      * @access private
      */
-    protected $const_namespace = 'RC2';
+    public $const_namespace = 'RC2';
 
     /**
      * The mcrypt specific name of the cipher
@@ -154,7 +154,7 @@ class RC2 extends Base
      * @var String
      * @access private
      */
-    protected $cipher_name_mcrypt = 'rc2';
+    public $cipher_name_mcrypt = 'rc2';
 
     /**
      * Optimizing value while CFB-encrypting
@@ -163,7 +163,7 @@ class RC2 extends Base
      * @var Integer
      * @access private
      */
-    protected $cfb_init_len = 500;
+    public $cfb_init_len = 500;
 
 	/**
      * The key length in bits.
@@ -175,7 +175,7 @@ class RC2 extends Base
      * @internal Should be in range [1..1024].
      * @internal Changing this value after setting the key has no effect.
      */
-    protected $default_key_length = 1024;
+    public $default_key_length = 1024;
 
     /**
      * The Key Schedule
@@ -184,7 +184,7 @@ class RC2 extends Base
      * @var Array
      * @access private
      */
-    protected $keys;
+    public $keys;
 
     /**
      * Key expansion randomization table.
@@ -194,7 +194,7 @@ class RC2 extends Base
      * @var Array
      * @access private
      */
-    protected $pitable = array(
+    public $pitable = array(
         0xD9, 0x78, 0xF9, 0xC4, 0x19, 0xDD, 0xB5, 0xED,
         0x28, 0xE9, 0xFD, 0x79, 0x4A, 0xA0, 0xD8, 0x9D,
         0xC6, 0x7E, 0x37, 0x83, 0x2B, 0x76, 0x53, 0x8E,
@@ -268,7 +268,7 @@ class RC2 extends Base
      * @var Array
      * @access private
      */
-    protected $invpitable = array(
+    public $invpitable = array(
         0xD1, 0xDA, 0xB9, 0x6F, 0x9C, 0xC8, 0x78, 0x66,
         0x80, 0x2C, 0xF8, 0x37, 0xEA, 0xE0, 0x62, 0xA4,
         0xCB, 0x71, 0x50, 0x27, 0x4B, 0x95, 0xD9, 0x20,

@@ -121,7 +121,7 @@ class Blowfish extends Base
      * @var Integer
      * @access private
      */
-    protected $block_size = 8;
+    public $block_size = 8;
 
     /**
      * The default password key_size used by setPassword()
@@ -131,7 +131,7 @@ class Blowfish extends Base
      * @var Integer
      * @access private
      */
-    protected $password_key_size = 56;
+    public $password_key_size = 56;
 
     /**
      * The namespace used by the cipher for its constants.
@@ -140,7 +140,7 @@ class Blowfish extends Base
      * @var String
      * @access private
      */
-    protected $const_namespace = 'BLOWFISH';
+    public $const_namespace = 'BLOWFISH';
 
     /**
      * The mcrypt specific name of the cipher
@@ -149,7 +149,7 @@ class Blowfish extends Base
      * @var String
      * @access private
      */
-    protected $cipher_name_mcrypt = 'blowfish';
+    public $cipher_name_mcrypt = 'blowfish';
 
     /**
      * Optimizing value while CFB-encrypting
@@ -158,7 +158,7 @@ class Blowfish extends Base
      * @var Integer
      * @access private
      */
-    protected $cfb_init_len = 500;
+    public $cfb_init_len = 500;
 
     /**
      * The fixed subkeys boxes ($sbox0 - $sbox3) with 256 entries each
@@ -168,7 +168,7 @@ class Blowfish extends Base
      * @access private
      * @var    array
      */
-    protected $sbox0 = array (
+    public $sbox0 = array (
         0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7, 0xb8e1afed, 0x6a267e96, 0xba7c9045, 0xf12c7f99,
         0x24a19947, 0xb3916cf7, 0x0801f2e2, 0x858efc16, 0x636920d8, 0x71574e69, 0xa458fea3, 0xf4933d7e,
         0x0d95748f, 0x728eb658, 0x718bcd58, 0x82154aee, 0x7b54a41d, 0xc25a59b5, 0x9c30d539, 0x2af26013,
@@ -209,7 +209,7 @@ class Blowfish extends Base
      * @access private
      * @var    array
      */
-    protected $sbox1 = array(
+    public $sbox1 = array(
         0x4b7a70e9, 0xb5b32944, 0xdb75092e, 0xc4192623, 0xad6ea6b0, 0x49a7df7d, 0x9cee60b8, 0x8fedb266,
         0xecaa8c71, 0x699a17ff, 0x5664526c, 0xc2b19ee1, 0x193602a5, 0x75094c29, 0xa0591340, 0xe4183a3e,
         0x3f54989a, 0x5b429d65, 0x6b8fe4d6, 0x99f73fd6, 0xa1d29c07, 0xefe830f5, 0x4d2d38e6, 0xf0255dc1,
@@ -250,7 +250,7 @@ class Blowfish extends Base
      * @access private
      * @var    array
      */
-    protected $sbox2 = array(
+    public $sbox2 = array(
         0xe93d5a68, 0x948140f7, 0xf64c261c, 0x94692934, 0x411520f7, 0x7602d4f7, 0xbcf46b2e, 0xd4a20068,
         0xd4082471, 0x3320f46a, 0x43b7d4b7, 0x500061af, 0x1e39f62e, 0x97244546, 0x14214f74, 0xbf8b8840,
         0x4d95fc1d, 0x96b591af, 0x70f4ddd3, 0x66a02f45, 0xbfbc09ec, 0x03bd9785, 0x7fac6dd0, 0x31cb8504,
@@ -291,7 +291,7 @@ class Blowfish extends Base
      * @access private
      * @var    array
      */
-    protected $sbox3 = array(
+    public $sbox3 = array(
         0x3a39ce37, 0xd3faf5cf, 0xabc27737, 0x5ac52d1b, 0x5cb0679e, 0x4fa33742, 0xd3822740, 0x99bc9bbe,
         0xd5118e9d, 0xbf0f7315, 0xd62d1c7e, 0xc700c47b, 0xb78c1b6b, 0x21a19045, 0xb26eb1be, 0x6a366eb4,
         0x5748ab2f, 0xbc946e79, 0xc6a376d2, 0x6549c2c8, 0x530ff8ee, 0x468dde7d, 0xd5730a1d, 0x4cd04dc6,
@@ -332,7 +332,7 @@ class Blowfish extends Base
      * @var array $parray
      * @access private
      */
-    protected $parray = array(
+    public $parray = array(
         0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822, 0x299f31d0,
         0x082efa98, 0xec4e6c89, 0x452821e6, 0x38d01377, 0xbe5466cf, 0x34e90c6c,
         0xc0ac29b7, 0xc97c50dd, 0x3f84d5b5, 0xb5470917, 0x9216d5d9, 0x8979fb1b
@@ -346,7 +346,7 @@ class Blowfish extends Base
      * @var array $bctx
      * @access private
      */
-    protected $bctx;
+    public $bctx;
 
     /**
      * Holds the last used key
@@ -354,7 +354,7 @@ class Blowfish extends Base
      * @var Array
      * @access private
      */
-    protected $kl;
+    public $kl;
 
     /**
      * Default Constructor.

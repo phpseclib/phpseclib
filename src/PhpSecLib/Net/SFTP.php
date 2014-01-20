@@ -116,6 +116,112 @@ class SFTP extends SSH2
 	
 	const QUEUE_SIZE = 50;
 	
+	const INIT = 1;
+	const VERSION = 2;
+	/* the format of SSH_FXP_OPEN changed between SFTPv4 and SFTPv5+:
+	       SFTPv5+: http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.1.1
+	   pre-SFTPv5 : http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.3 */
+	const OPEN = 3;
+	const CLOSE = 4;
+	const READ = 5;
+	const WRITE = 6;
+	const LSTAT = 7;
+	const SETSTAT = 9;
+	const OPENDIR = 11;
+	const READDIR = 12;
+	const REMOVE = 13;
+	const MKDIR = 14;
+	const RMDIR = 15;
+	const REALPATH = 16;
+	const STAT = 17;
+	/* the format of SSH_FXP_RENAME changed between SFTPv4 and SFTPv5+:
+	       SFTPv5+: http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.3
+	   pre-SFTPv5 : http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.5 */
+	const RENAME = 18;
+	
+	const STATUS = 101;
+	const HANDLE = 102;
+	
+	/* the format of SSH_FXP_NAME changed between SFTPv3 and SFTPv4+:
+	       SFTPv4+: http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-9.4
+	   pre-SFTPv4 : http://tools.ietf.org/html/draft-ietf-secsh-filexfer-02#section-7 */
+	const DATA = 103;
+	const NAME = 104;
+	const ATTRS = 105;
+	
+	const EXTENDED = 200;
+	
+	const STATUS_OK = 0;
+	const STATUS_EOF = 1;
+	const STATUS_NO_SUCH_FILE = 2;
+	const STATUS_PERMISSION_DENIED = 3;
+	const STATUS_FAILURE = 4;
+	const STATUS_BAD_MESSAGE = 5;
+	const STATUS_NO_CONNECTION = 6;
+	const STATUS_CONNECTION_LOST = 7;
+	const STATUS_OP_UNSUPPORTED = 8;
+	const STATUS_INVALID_HANDLE = 9;
+	const STATUS_NO_SUCH_PATH = 10;
+	const STATUS_FILE_ALREADY_EXISTS = 11;
+	const STATUS_WRITE_PROTECT = 12;
+	const STATUS_NO_MEDIA = 13;
+	const STATUS_NO_SPACE_ON_FILESYSTEM = 14;
+	const STATUS_QUOTA_EXCEEDED = 15;
+	const STATUS_UNKNOWN_PRINCIPAL = 16;
+	const STATUS_LOCK_CONFLICT = 17;
+	const STATUS_DIR_NOT_EMPTY = 18;
+	const STATUS_NOT_A_DIRECTORY = 19;
+	const STATUS_INVALID_FILENAME = 20;
+	const STATUS_LINK_LOOP = 21;
+	const STATUS_CANNOT_DELETE = 22;
+	const STATUS_INVALID_PARAMETER = 23;
+	const STATUS_FILE_IS_A_DIRECTORY = 24;
+	const STATUS_BYTE_RANGE_LOCK_CONFLICT = 25;
+	const STATUS_BYTE_RANGE_LOCK_REFUSED = 26;
+	const STATUS_DELETE_PENDING = 27;
+	const STATUS_FILE_CORRUPT = 28;
+	const STATUS_OWNER_INVALID = 29;
+	const STATUS_GROUP_INVALID = 30;
+	const STATUS_NO_MATCHING_BYTE_RANGE_LOCK = 31;
+	
+	// http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-7.1
+	// the order, in this case, matters quite a lot - see Net\SFTP::_parseAttributes() to understand why
+	const ATTR_SIZE = 0x00000001;
+	const ATTR_UIDGID = 0x00000002; // defined in SFTPv3, removed in SFTPv4+
+	const ATTR_PERMISSIONS = 0x00000004;
+	const ATTR_ACCESSTIME = 0x00000008;
+	
+	// 0x80000000 will yield a floating point on 32-bit systems and converting floating points to integers
+	// yields inconsistent behavior depending on how php is compiled.  so we left shift -1 (which, in 
+	// two's compliment, consists of all 1 bits) by 31.  on 64-bit systems this'll yield 0xFFFFFFFF80000000.
+	// that's not a problem, however, and 'anded' and a 32-bit number, as all the leading 1 bits are ignored.
+	const ATTR_EXTENDED  =  0x80000000; // -1 << 31
+	
+	// http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.3
+	// the flag definitions change somewhat in SFTPv5+.  if SFTPv5+ support is added to this library, maybe name
+	// the array for that $this->open5_flags and similarily alter the constant names.
+	const OPEN_READ = 0x00000001;
+	const OPEN_WRITE = 0x00000002;
+	const OPEN_APPEND = 0x00000004;
+	const OPEN_CREATE = 0x00000008;
+	const OPEN_TRUNCATE = 0x00000010;
+	const OPEN_EXCL = 0x00000020;
+	
+	// http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-5.2
+	// see Net\SFTP::_parseLongname() for an explanation
+	const TYPE_REGULAR = 1;
+	const TYPE_DIRECTORY = 2;
+	const TYPE_SYMLINK = 3;
+	const TYPE_SPECIAL = 4;
+	const TYPE_UNKNOWN = 5;
+	 
+	// the followin types were first defined for use in SFTPv5+
+	// http://tools.ietf.org/html/draft-ietf-secsh-filexfer-05#section-5.2
+	const TYPE_SOCKET = 6;
+	const TYPE_CHAR_DEVICE = 7;
+	const TYPE_BLOCK_DEVICE = 8;
+	const TYPE_FIFO = 9;
+	
     /**
      * Packet Types
      *
@@ -265,119 +371,112 @@ class SFTP extends SSH2
         $this->max_sftp_packet = 1 << 15;
 
         $this->packet_types = array(
-            1  => 'NET_SFTP_INIT',
-            2  => 'NET_SFTP_VERSION',
+            SFTP::INIT  => 'SFTP::INIT',
+            SFTP::VERSION  => 'SFTP::VERSION',
             /* the format of SSH_FXP_OPEN changed between SFTPv4 and SFTPv5+:
                    SFTPv5+: http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.1.1
                pre-SFTPv5 : http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.3 */
-            3  => 'NET_SFTP_OPEN',
-            4  => 'NET_SFTP_CLOSE',
-            5  => 'NET_SFTP_READ',
-            6  => 'NET_SFTP_WRITE',
-            7  => 'NET_SFTP_LSTAT',
-            9  => 'NET_SFTP_SETSTAT',
-            11 => 'NET_SFTP_OPENDIR',
-            12 => 'NET_SFTP_READDIR',
-            13 => 'NET_SFTP_REMOVE',
-            14 => 'NET_SFTP_MKDIR',
-            15 => 'NET_SFTP_RMDIR',
-            16 => 'NET_SFTP_REALPATH',
-            17 => 'NET_SFTP_STAT',
+            SFTP::OPEN  => 'SFTP::OPEN',
+            SFTP::CLOSE  => 'SFTP::CLOSE',
+            SFTP::READ  => 'SFTP::READ',
+            SFTP::WRITE  => 'SFTP::WRITE',
+            SFTP::LSTAT  => 'SFTP::LSTAT',
+            SFTP::SETSTAT  => 'SFTP::SETSTAT',
+            SFTP::OPENDIR => 'SFTP::OPENDIR',
+            SFTP::READDIR => 'SFTP::READDIR',
+            SFTP::REMOVE => 'SFTP::REMOVE',
+            SFTP::MKDIR => 'SFTP::MKDIR',
+            SFTP::RMDIR => 'SFTP::RMDIR',
+            SFTP::REALPATH => 'SFTP::REALPATH',
+            SFTP::STAT => 'SFTP::STAT',
             /* the format of SSH_FXP_RENAME changed between SFTPv4 and SFTPv5+:
                    SFTPv5+: http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.3
                pre-SFTPv5 : http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.5 */
-            18 => 'NET_SFTP_RENAME',
+            SFTP::RENAME => 'SFTP::RENAME',
 
-            101=> 'NET_SFTP_STATUS',
-            102=> 'NET_SFTP_HANDLE',
+            SFTP::STATUS => 'SFTP::STATUS',
+            SFTP::HANDLE => 'SFTP::HANDLE',
             /* the format of SSH_FXP_NAME changed between SFTPv3 and SFTPv4+:
                    SFTPv4+: http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-9.4
                pre-SFTPv4 : http://tools.ietf.org/html/draft-ietf-secsh-filexfer-02#section-7 */
-            103=> 'NET_SFTP_DATA',
-            104=> 'NET_SFTP_NAME',
-            105=> 'NET_SFTP_ATTRS',
+            SFTP::DATA => 'SFTP::DATA',
+            SFTP::NAME => 'SFTP::NAME',
+            SFTP::ATTRS => 'SFTP::ATTRS',
 
-            200=> 'NET_SFTP_EXTENDED'
+            SFTP::EXTENDED => 'SFTP::EXTENDED'
         );
         $this->status_codes = array(
-            0 => 'NET_SFTP_STATUS_OK',
-            1 => 'NET_SFTP_STATUS_EOF',
-            2 => 'NET_SFTP_STATUS_NO_SUCH_FILE',
-            3 => 'NET_SFTP_STATUS_PERMISSION_DENIED',
-            4 => 'NET_SFTP_STATUS_FAILURE',
-            5 => 'NET_SFTP_STATUS_BAD_MESSAGE',
-            6 => 'NET_SFTP_STATUS_NO_CONNECTION',
-            7 => 'NET_SFTP_STATUS_CONNECTION_LOST',
-            8 => 'NET_SFTP_STATUS_OP_UNSUPPORTED',
-            9 => 'NET_SFTP_STATUS_INVALID_HANDLE',
-            10 => 'NET_SFTP_STATUS_NO_SUCH_PATH',
-            11 => 'NET_SFTP_STATUS_FILE_ALREADY_EXISTS',
-            12 => 'NET_SFTP_STATUS_WRITE_PROTECT',
-            13 => 'NET_SFTP_STATUS_NO_MEDIA',
-            14 => 'NET_SFTP_STATUS_NO_SPACE_ON_FILESYSTEM',
-            15 => 'NET_SFTP_STATUS_QUOTA_EXCEEDED',
-            16 => 'NET_SFTP_STATUS_UNKNOWN_PRINCIPAL',
-            17 => 'NET_SFTP_STATUS_LOCK_CONFLICT',
-            18 => 'NET_SFTP_STATUS_DIR_NOT_EMPTY',
-            19 => 'NET_SFTP_STATUS_NOT_A_DIRECTORY',
-            20 => 'NET_SFTP_STATUS_INVALID_FILENAME',
-            21 => 'NET_SFTP_STATUS_LINK_LOOP',
-            22 => 'NET_SFTP_STATUS_CANNOT_DELETE',
-            23 => 'NET_SFTP_STATUS_INVALID_PARAMETER',
-            24 => 'NET_SFTP_STATUS_FILE_IS_A_DIRECTORY',
-            25 => 'NET_SFTP_STATUS_BYTE_RANGE_LOCK_CONFLICT',
-            26 => 'NET_SFTP_STATUS_BYTE_RANGE_LOCK_REFUSED',
-            27 => 'NET_SFTP_STATUS_DELETE_PENDING',
-            28 => 'NET_SFTP_STATUS_FILE_CORRUPT',
-            29 => 'NET_SFTP_STATUS_OWNER_INVALID',
-            30 => 'NET_SFTP_STATUS_GROUP_INVALID',
-            31 => 'NET_SFTP_STATUS_NO_MATCHING_BYTE_RANGE_LOCK'
+            SFTP::STATUS_OK => 'SFTP::STATUS_OK',
+            SFTP::STATUS_EOF => 'SFTP::STATUS_EOF',
+            SFTP::STATUS_NO_SUCH_FILE => 'SFTP::STATUS_NO_SUCH_FILE',
+            SFTP::STATUS_PERMISSION_DENIED => 'SFTP::STATUS_PERMISSION_DENIED',
+            SFTP::STATUS_FAILURE => 'SFTP::STATUS_FAILURE',
+            SFTP::STATUS_BAD_MESSAGE => 'SFTP::STATUS_BAD_MESSAGE',
+            SFTP::STATUS_NO_CONNECTION => 'SFTP::STATUS_NO_CONNECTION',
+            SFTP::STATUS_CONNECTION_LOST => 'SFTP::STATUS_CONNECTION_LOST',
+            SFTP::STATUS_OP_UNSUPPORTED => 'SFTP::STATUS_OP_UNSUPPORTED',
+            SFTP::STATUS_INVALID_HANDLE => 'SFTP::STATUS_INVALID_HANDLE',
+            SFTP::STATUS_NO_SUCH_PATH => 'SFTP::STATUS_NO_SUCH_PATH',
+            SFTP::STATUS_FILE_ALREADY_EXISTS => 'SFTP::STATUS_FILE_ALREADY_EXISTS',
+            SFTP::STATUS_WRITE_PROTECT => 'SFTP::STATUS_WRITE_PROTECT',
+            SFTP::STATUS_NO_MEDIA => 'SFTP::STATUS_NO_MEDIA',
+            SFTP::STATUS_NO_SPACE_ON_FILESYSTEM => 'SFTP::STATUS_NO_SPACE_ON_FILESYSTEM',
+            SFTP::STATUS_QUOTA_EXCEEDED => 'SFTP::STATUS_QUOTA_EXCEEDED',
+            SFTP::STATUS_UNKNOWN_PRINCIPAL => 'SFTP::STATUS_UNKNOWN_PRINCIPAL',
+            SFTP::STATUS_LOCK_CONFLICT => 'SFTP::STATUS_LOCK_CONFLICT',
+            SFTP::STATUS_DIR_NOT_EMPTY => 'SFTP::STATUS_DIR_NOT_EMPTY',
+            SFTP::STATUS_NOT_A_DIRECTORY => 'SFTP::STATUS_NOT_A_DIRECTORY',
+            SFTP::STATUS_INVALID_FILENAME => 'SFTP::STATUS_INVALID_FILENAME',
+            SFTP::STATUS_LINK_LOOP => 'SFTP::STATUS_LINK_LOOP',
+            SFTP::STATUS_CANNOT_DELETE => 'SFTP::STATUS_CANNOT_DELETE',
+            SFTP::STATUS_INVALID_PARAMETER => 'SFTP::STATUS_INVALID_PARAMETER',
+            SFTP::STATUS_FILE_IS_A_DIRECTORY => 'SFTP::STATUS_FILE_IS_A_DIRECTORY',
+            SFTP::STATUS_BYTE_RANGE_LOCK_CONFLICT => 'SFTP::STATUS_BYTE_RANGE_LOCK_CONFLICT',
+            SFTP::STATUS_BYTE_RANGE_LOCK_REFUSED => 'SFTP::STATUS_BYTE_RANGE_LOCK_REFUSED',
+            SFTP::STATUS_DELETE_PENDING => 'SFTP::STATUS_DELETE_PENDING',
+            SFTP::STATUS_FILE_CORRUPT => 'SFTP::STATUS_FILE_CORRUPT',
+            SFTP::STATUS_OWNER_INVALID => 'SFTP::STATUS_OWNER_INVALID',
+            SFTP::STATUS_GROUP_INVALID => 'SFTP::STATUS_GROUP_INVALID',
+            SFTP::STATUS_NO_MATCHING_BYTE_RANGE_LOCK => 'SFTP::STATUS_NO_MATCHING_BYTE_RANGE_LOCK'
         );
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-7.1
         // the order, in this case, matters quite a lot - see Net\SFTP::_parseAttributes() to understand why
         $this->attributes = array(
-            0x00000001 => 'NET_SFTP_ATTR_SIZE',
-            0x00000002 => 'NET_SFTP_ATTR_UIDGID', // defined in SFTPv3, removed in SFTPv4+
-            0x00000004 => 'NET_SFTP_ATTR_PERMISSIONS',
-            0x00000008 => 'NET_SFTP_ATTR_ACCESSTIME',
+            SFTP::ATTR_SIZE => 'SFTP::ATTR_SIZE',
+            SFTP::ATTR_UIDGID => 'SFTP::ATTR_UIDGID', // defined in SFTPv3, removed in SFTPv4+
+            SFTP::ATTR_PERMISSIONS => 'SFTP::ATTR_PERMISSIONS',
+            SFTP::ATTR_ACCESSTIME => 'SFTP::ATTR_ACCESSTIME',
             // 0x80000000 will yield a floating point on 32-bit systems and converting floating points to integers
             // yields inconsistent behavior depending on how php is compiled.  so we left shift -1 (which, in 
             // two's compliment, consists of all 1 bits) by 31.  on 64-bit systems this'll yield 0xFFFFFFFF80000000.
             // that's not a problem, however, and 'anded' and a 32-bit number, as all the leading 1 bits are ignored.
-              -1 << 31 => 'NET_SFTP_ATTR_EXTENDED'
+            SFTP::ATTR_EXTENDED => 'SFTP::ATTR_EXTENDED'
         );
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.3
         // the flag definitions change somewhat in SFTPv5+.  if SFTPv5+ support is added to this library, maybe name
         // the array for that $this->open5_flags and similarily alter the constant names.
         $this->open_flags = array(
-            0x00000001 => 'NET_SFTP_OPEN_READ',
-            0x00000002 => 'NET_SFTP_OPEN_WRITE',
-            0x00000004 => 'NET_SFTP_OPEN_APPEND',
-            0x00000008 => 'NET_SFTP_OPEN_CREATE',
-            0x00000010 => 'NET_SFTP_OPEN_TRUNCATE',
-            0x00000020 => 'NET_SFTP_OPEN_EXCL'
+            SFTP::OPEN_READ => 'SFTP::OPEN_READ',
+            SFTP::OPEN_WRITE => 'SFTP::OPEN_WRITE',
+            SFTP::OPEN_APPEND => 'SFTP::OPEN_APPEND',
+            SFTP::OPEN_CREATE => 'SFTP::OPEN_CREATE',
+            SFTP::OPEN_TRUNCATE => 'SFTP::OPEN_TRUNCATE',
+            SFTP::OPEN_EXCL => 'SFTP::OPEN_EXCL'
         );
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-5.2
         // see Net\SFTP::_parseLongname() for an explanation
         $this->file_types = array(
-            1 => 'NET_SFTP_TYPE_REGULAR',
-            2 => 'NET_SFTP_TYPE_DIRECTORY',
-            3 => 'NET_SFTP_TYPE_SYMLINK',
-            4 => 'NET_SFTP_TYPE_SPECIAL',
-            5 => 'NET_SFTP_TYPE_UNKNOWN',
+            SFTP::TYPE_REGULAR => 'SFTP::TYPE_REGULAR',
+            SFTP::TYPE_DIRECTORY => 'SFTP::TYPE_DIRECTORY',
+            SFTP::TYPE_SYMLINK => 'SFTP::TYPE_SYMLINK',
+            SFTP::TYPE_SPECIAL => 'SFTP::TYPE_SPECIAL',
+            SFTP::TYPE_UNKNOWN => 'SFTP::TYPE_UNKNOWN',
             // the followin types were first defined for use in SFTPv5+
             // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-05#section-5.2
-            6 => 'NET_SFTP_TYPE_SOCKET',
-            7 => 'NET_SFTP_TYPE_CHAR_DEVICE',
-            8 => 'NET_SFTP_TYPE_BLOCK_DEVICE',
-            9 => 'NET_SFTP_TYPE_FIFO'
-        );
-        $this->_define_array(
-            $this->packet_types,
-            $this->status_codes,
-            $this->attributes,
-            $this->open_flags,
-            $this->file_types
+            SFTP::TYPE_SOCKET => 'SFTP::TYPE_SOCKET',
+            SFTP::TYPE_CHAR_DEVICE => 'SFTP::TYPE_CHAR_DEVICE',
+            SFTP::TYPE_BLOCK_DEVICE => 'SFTP::TYPE_BLOCK_DEVICE',
+            SFTP::TYPE_FIFO => 'SFTP::TYPE_FIFO'
         );
     }
 

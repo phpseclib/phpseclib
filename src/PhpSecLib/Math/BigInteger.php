@@ -1393,8 +1393,6 @@ class BigInteger
      */
     public function divide($y)
     {
-    	print_r($y);
-		
         switch ( $this->mode ) {
             case BigInteger::MODE_GMP:
                 $quotient = new BigInteger();
@@ -1410,8 +1408,6 @@ class BigInteger
             case BigInteger::MODE_BCMATH:
                 $quotient = new BigInteger();
                 $remainder = new BigInteger();
-				
-				print_r($y->value);
 				
                 $quotient->value = bcdiv($this->value, $y->value, 0);
                 $remainder->value = bcmod($this->value, $y->value);

@@ -155,13 +155,68 @@ class SSH2
 	 */
 	const LOG_MAX_SIZE = 1048576;
 	
+	const MSG_DISCONNECT = 1;
+    const MSG_IGNORE = 2;
+    const MSG_UNIMPLEMENTED = 3;
+    const MSG_DEBUG = 4;
+    const MSG_SERVICE_REQUEST = 5;
+    const MSG_SERVICE_ACCEPT = 6;
+    const MSG_KEXINIT = 20;
+    const MSG_NEWKEYS = 21;
+    const MSG_KEXDH_INIT = 30;
+    const MSG_KEXDH_REPLY = 31;
+    const MSG_USERAUTH_REQUEST = 50;
+    const MSG_USERAUTH_FAILURE = 51;
+    const MSG_USERAUTH_SUCCESS = 52;
+    const MSG_USERAUTH_BANNER = 53;
+
+    const MSG_GLOBAL_REQUEST = 80;
+    const MSG_REQUEST_SUCCESS = 81;
+    const MSG_REQUEST_FAILURE = 82;
+    const MSG_CHANNEL_OPEN = 90;
+    const MSG_CHANNEL_OPEN_CONFIRMATION = 91;
+    const MSG_CHANNEL_OPEN_FAILURE = 92;
+    const MSG_CHANNEL_WINDOW_ADJUST = 93;
+    const MSG_CHANNEL_DATA = 94;
+    const MSG_CHANNEL_EXTENDED_DATA = 95;
+    const MSG_CHANNEL_EOF = 96;
+    const MSG_CHANNEL_CLOSE = 97;
+    const MSG_CHANNEL_REQUEST = 98;
+    const MSG_CHANNEL_SUCCESS = 99;
+    const MSG_CHANNEL_FAILURE =  100;
+	
+    const DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT = 1;
+    const DISCONNECT_PROTOCOL_ERROR = 2;
+    const DISCONNECT_KEY_EXCHANGE_FAILED = 3;
+    const DISCONNECT_RESERVED = 4;
+    const DISCONNECT_MAC_ERROR = 5;
+    const DISCONNECT_COMPRESSION_ERROR = 6;
+    const DISCONNECT_SERVICE_NOT_AVAILABLE = 7;
+    const DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED = 8;
+    const DISCONNECT_HOST_KEY_NOT_VERIFIABLE = 9;
+    const DISCONNECT_CONNECTION_LOST = 10;
+    const DISCONNECT_BY_APPLICATION = 11;
+    const DISCONNECT_TOO_MANY_CONNECTIONS = 12;
+    const DISCONNECT_AUTH_CANCELLED_BY_USER = 13;
+    const DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE = 14;
+    const DISCONNECT_ILLEGAL_USER_NAME = 15;
+
+    const OPEN_ADMINISTRATIVELY_PROHIBITED = 1;
+    const TTY_OP_END = 0;
+    const EXTENDED_DATA_STDERR = 1;
+
+    const MSG_USERAUTH_PASSWD_CHANGEREQ = 60;
+    const MSG_USERAUTH_PK_OK = 60;
+    const MSG_USERAUTH_INFO_REQUEST = 60;
+    const MSG_USERAUTH_INFO_RESPONSE = 61;
+	
     /**
      * The SSH identifier
      *
      * @var String
      * @access private
      */
-    protected $identifier = 'SSH-2.0-phpseclib_0.3';
+    public $identifier = 'SSH-2.0-phpseclib_0.3';
 
     /**
      * The Socket Object
@@ -169,7 +224,7 @@ class SSH2
      * @var Object
      * @access private
      */
-    protected $fsock;
+    public $fsock;
 
     /**
      * Execution Bitmap
@@ -180,7 +235,7 @@ class SSH2
      * @var Integer
      * @access private
      */
-    protected $bitmap = 0;
+    public $bitmap = 0;
 
     /**
      * Error information
@@ -190,7 +245,7 @@ class SSH2
      * @var String
      * @access private
      */
-    protected $errors = array();
+    public $errors = array();
 
     /**
      * Server Identifier
@@ -199,7 +254,7 @@ class SSH2
      * @var String
      * @access private
      */
-    protected $server_identifier = '';
+    public $server_identifier = '';
 
     /**
      * Key Exchange Algorithms
@@ -208,7 +263,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $kex_algorithms;
+    public $kex_algorithms;
 
     /**
      * Server Host Key Algorithms
@@ -217,7 +272,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $server_host_key_algorithms;
+    public $server_host_key_algorithms;
 
     /**
      * Encryption Algorithms: Client to Server
@@ -226,7 +281,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $encryption_algorithms_client_to_server;
+    public $encryption_algorithms_client_to_server;
 
     /**
      * Encryption Algorithms: Server to Client
@@ -235,7 +290,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $encryption_algorithms_server_to_client;
+    public $encryption_algorithms_server_to_client;
 
     /**
      * MAC Algorithms: Client to Server
@@ -244,7 +299,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $mac_algorithms_client_to_server;
+    public $mac_algorithms_client_to_server;
 
     /**
      * MAC Algorithms: Server to Client
@@ -253,7 +308,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $mac_algorithms_server_to_client;
+    public $mac_algorithms_server_to_client;
 
     /**
      * Compression Algorithms: Client to Server
@@ -262,7 +317,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $compression_algorithms_client_to_server;
+    public $compression_algorithms_client_to_server;
 
     /**
      * Compression Algorithms: Server to Client
@@ -271,7 +326,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $compression_algorithms_server_to_client;
+    public $compression_algorithms_server_to_client;
 
     /**
      * Languages: Server to Client
@@ -280,7 +335,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $languages_server_to_client;
+    public $languages_server_to_client;
 
     /**
      * Languages: Client to Server
@@ -289,7 +344,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $languages_client_to_server;
+    public $languages_client_to_server;
 
     /**
      * Block Size for Server to Client Encryption
@@ -306,7 +361,7 @@ class SSH2
      * @var Integer
      * @access private
      */
-    protected $encrypt_block_size = 8;
+    public $encrypt_block_size = 8;
 
     /**
      * Block Size for Client to Server Encryption
@@ -316,7 +371,7 @@ class SSH2
      * @var Integer
      * @access private
      */
-    protected $decrypt_block_size = 8;
+    public $decrypt_block_size = 8;
 
     /**
      * Server to Client Encryption Object
@@ -325,7 +380,7 @@ class SSH2
      * @var Object
      * @access private
      */
-    protected $decrypt = false;
+    public $decrypt = false;
 
     /**
      * Client to Server Encryption Object
@@ -334,7 +389,7 @@ class SSH2
      * @var Object
      * @access private
      */
-    protected $encrypt = false;
+    public $encrypt = false;
 
     /**
      * Client to Server HMAC Object
@@ -343,7 +398,7 @@ class SSH2
      * @var Object
      * @access private
      */
-    protected $hmac_create = false;
+    public $hmac_create = false;
 
     /**
      * Server to Client HMAC Object
@@ -352,7 +407,7 @@ class SSH2
      * @var Object
      * @access private
      */
-    protected $hmac_check = false;
+    public $hmac_check = false;
 
     /**
      * Size of server to client HMAC
@@ -365,7 +420,7 @@ class SSH2
      * @var Integer
      * @access private
      */
-    protected $hmac_size = false;
+    public $hmac_size = false;
 
     /**
      * Server Public Host Key
@@ -374,7 +429,7 @@ class SSH2
      * @var String
      * @access private
      */
-    protected $server_public_host_key;
+    public $server_public_host_key;
 
     /**
      * Session identifer
@@ -389,7 +444,7 @@ class SSH2
      * @var String
      * @access private
      */
-    protected $session_id = false;
+    public $session_id = false;
 
     /**
      * Exchange hash
@@ -400,7 +455,7 @@ class SSH2
      * @var String
      * @access private
      */
-    protected $exchange_hash = false;
+    public $exchange_hash = false;
 
     /**
      * Message Numbers
@@ -409,7 +464,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $message_numbers = array();
+    public $message_numbers = array();
 
     /**
      * Disconnection Message 'reason codes' defined in RFC4253
@@ -418,7 +473,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $disconnect_reasons = array();
+    public $disconnect_reasons = array();
 
     /**
      * SSH_MSG_CHANNEL_OPEN_FAILURE 'reason codes', defined in RFC4254
@@ -427,7 +482,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $channel_open_failure_reasons = array();
+    public $channel_open_failure_reasons = array();
 
     /**
      * Terminal Modes
@@ -437,7 +492,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $terminal_modes = array();
+    public $terminal_modes = array();
 
     /**
      * SSH_MSG_CHANNEL_EXTENDED_DATA's data_type_codes
@@ -447,7 +502,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $channel_extended_data_type_codes = array();
+    public $channel_extended_data_type_codes = array();
 
     /**
      * Send Sequence Number
@@ -458,7 +513,7 @@ class SSH2
      * @var Integer
      * @access private
      */
-    protected $send_seq_no = 0;
+    public $send_seq_no = 0;
 
     /**
      * Get Sequence Number
@@ -469,7 +524,7 @@ class SSH2
      * @var Integer
      * @access private
      */
-    protected $get_seq_no = 0;
+    public $get_seq_no = 0;
 
     /**
      * Server Channels
@@ -481,7 +536,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $server_channels = array();
+    public $server_channels = array();
 
     /**
      * Channel Buffers
@@ -494,7 +549,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $channel_buffers = array();
+    public $channel_buffers = array();
 
     /**
      * Channel Status
@@ -505,7 +560,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $channel_status = array();
+    public $channel_status = array();
 
     /**
      * Packet Size
@@ -516,7 +571,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $packet_size_client_to_server = array();
+    public $packet_size_client_to_server = array();
 
     /**
      * Message Number Log
@@ -525,7 +580,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $message_number_log = array();
+    public $message_number_log = array();
 
     /**
      * Message Log
@@ -534,7 +589,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $message_log = array();
+    public $message_log = array();
 
     /**
      * The Window Size
@@ -546,7 +601,7 @@ class SSH2
      * @see Net\SSH2::exec()
      * @access private
      */
-    protected $window_size = 0x7FFFFFFF;
+    public $window_size = 0x7FFFFFFF;
 
     /**
      * Window size, server to client
@@ -557,7 +612,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $window_size_server_to_client = array();
+    public $window_size_server_to_client = array();
 
     /**
      * Window size, client to server
@@ -568,7 +623,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $window_size_client_to_server = array();
+    public $window_size_client_to_server = array();
 
     /**
      * Server signature
@@ -579,7 +634,7 @@ class SSH2
      * @var String
      * @access private
      */
-    protected $signature = '';
+    public $signature = '';
 
     /**
      * Server signature format
@@ -590,7 +645,7 @@ class SSH2
      * @var String
      * @access private
      */
-    protected $signature_format = '';
+    public $signature_format = '';
 
     /**
      * Interactive Buffer
@@ -599,7 +654,7 @@ class SSH2
      * @var Array
      * @access private
      */
-    protected $interactiveBuffer = '';
+    public $interactiveBuffer = '';
 
     /**
      * Current log size
@@ -611,7 +666,7 @@ class SSH2
      * @var Integer
      * @access private
      */
-    protected $log_size;
+    public $log_size;
 
     /**
      * Timeout
@@ -619,7 +674,7 @@ class SSH2
      * @see Net\SSH2::setTimeout()
      * @access private
      */
-    protected $timeout;
+    public $timeout;
 
     /**
      * Current Timeout
@@ -627,7 +682,7 @@ class SSH2
      * @see Net\SSH2::_get_channel_packet()
      * @access private
      */
-    protected $curTimeout;
+    public $curTimeout;
 
     /**
      * Real-time log file pointer
@@ -636,7 +691,7 @@ class SSH2
      * @var Resource
      * @access private
      */
-    protected $realtime_log_file;
+    public $realtime_log_file;
 
     /**
      * Real-time log file size
@@ -645,7 +700,7 @@ class SSH2
      * @var Integer
      * @access private
      */
-    protected $realtime_log_size;
+    public $realtime_log_size;
 
     /**
      * Has the signature been validated?
@@ -654,7 +709,7 @@ class SSH2
      * @var Boolean
      * @access private
      */
-    protected $signature_validated = false;
+    public $signature_validated = false;
 
     /**
      * Real-time log file wrap boolean
@@ -662,7 +717,7 @@ class SSH2
      * @see Net\SSH2::_append_log()
      * @access private
      */
-    protected $realtime_log_wrap;
+    public $realtime_log_wrap;
 
     /**
      * Flag to suppress stderr from output
@@ -670,14 +725,14 @@ class SSH2
      * @see Net\SSH2::enableQuietMode()
      * @access private
      */
-    protected $quiet_mode = false;
+    public $quiet_mode = false;
 
     /**
      * Time of first network activity
      *
      * @access private
      */
-    protected $last_packet;
+    public $last_packet;
 
     /**
      * Exit status returned from ssh if any
@@ -685,7 +740,7 @@ class SSH2
      * @var Integer
      * @access private
      */
-    protected $exit_status;
+    public $exit_status;
 
     /**
      * Flag to request a PTY when using exec()
@@ -693,28 +748,28 @@ class SSH2
      * @see Net\SSH2::enablePTY()
      * @access private
      */
-    protected $request_pty = false;
+    public $request_pty = false;
 
     /**
      * Flag set while exec() is running when using enablePTY()
      *
      * @access private
      */
-    protected $in_request_pty_exec = false;
+    public $in_request_pty_exec = false;
 
     /**
      * Flag set after startSubsystem() is called
      *
      * @access private
      */
-    protected $in_subsystem;
+    public $in_subsystem;
 
     /**
      * Contents of stdError
      *
      * @access private
      */
-    protected $stdErrorLog;
+    public $stdErrorLog;
 
     /**
      * The Last Interactive Response
@@ -722,7 +777,7 @@ class SSH2
      * @see Net\SSH2::_keyboard_interactive_process()
      * @access private
      */
-    protected $last_interactive_response = '';
+    public $last_interactive_response = '';
 
     /**
      * Keyboard Interactive Request / Responses
@@ -730,7 +785,7 @@ class SSH2
      * @see Net\SSH2::_keyboard_interactive_process()
      * @access private
      */
-    protected $keyboard_requests_responses = array();
+    public $keyboard_requests_responses = array();
 
     /**
      * Banner Message
@@ -742,7 +797,7 @@ class SSH2
      * @see Net\SSH2::getBannerMessage()
      * @access private
      */
-    protected $banner_message = '';
+    public $banner_message = '';
 
     /**
      * Did read() timeout or return normally?
@@ -750,7 +805,7 @@ class SSH2
      * @see Net\SSH2::isTimeout
      * @access private
      */
-    protected $is_timeout = false;
+    public $is_timeout = false;
 
     /**
      * Log Boundary
@@ -758,7 +813,7 @@ class SSH2
      * @see Net\SSH2::_format_log
      * @access private
      */
-    protected $log_boundary = ':';
+    public $log_boundary = ':';
 
     /**
      * Log Long Width
@@ -766,7 +821,7 @@ class SSH2
      * @see Net\SSH2::_format_log
      * @access private
      */
-    protected $log_long_width = 65;
+    public $log_long_width = 65;
 
     /**
      * Log Short Width
@@ -774,7 +829,7 @@ class SSH2
      * @see Net\SSH2::_format_log
      * @access private
      */
-    protected $log_short_width = 16;
+    public $log_short_width = 16;
 
     /**
      * Default Constructor.
@@ -791,73 +846,65 @@ class SSH2
     {
         $this->last_packet = microtime(true);
         $this->message_numbers = array(
-            1 => 'NET_SSH2_MSG_DISCONNECT',
-            2 => 'NET_SSH2_MSG_IGNORE',
-            3 => 'NET_SSH2_MSG_UNIMPLEMENTED',
-            4 => 'NET_SSH2_MSG_DEBUG',
-            5 => 'NET_SSH2_MSG_SERVICE_REQUEST',
-            6 => 'NET_SSH2_MSG_SERVICE_ACCEPT',
-            20 => 'NET_SSH2_MSG_KEXINIT',
-            21 => 'NET_SSH2_MSG_NEWKEYS',
-            30 => 'NET_SSH2_MSG_KEXDH_INIT',
-            31 => 'NET_SSH2_MSG_KEXDH_REPLY',
-            50 => 'NET_SSH2_MSG_USERAUTH_REQUEST',
-            51 => 'NET_SSH2_MSG_USERAUTH_FAILURE',
-            52 => 'NET_SSH2_MSG_USERAUTH_SUCCESS',
-            53 => 'NET_SSH2_MSG_USERAUTH_BANNER',
-
-            80 => 'NET_SSH2_MSG_GLOBAL_REQUEST',
-            81 => 'NET_SSH2_MSG_REQUEST_SUCCESS',
-            82 => 'NET_SSH2_MSG_REQUEST_FAILURE',
-            90 => 'NET_SSH2_MSG_CHANNEL_OPEN',
-            91 => 'NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION',
-            92 => 'NET_SSH2_MSG_CHANNEL_OPEN_FAILURE',
-            93 => 'NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST',
-            94 => 'NET_SSH2_MSG_CHANNEL_DATA',
-            95 => 'NET_SSH2_MSG_CHANNEL_EXTENDED_DATA',
-            96 => 'NET_SSH2_MSG_CHANNEL_EOF',
-            97 => 'NET_SSH2_MSG_CHANNEL_CLOSE',
-            98 => 'NET_SSH2_MSG_CHANNEL_REQUEST',
-            99 => 'NET_SSH2_MSG_CHANNEL_SUCCESS',
-            100 => 'NET_SSH2_MSG_CHANNEL_FAILURE'
+            SSH2::MSG_DISCONNECT => 'SSH2::MSG_DISCONNECT',
+            SSH2::MSG_IGNORE => 'SSH2::MSG_IGNORE',
+            SSH2::MSG_UNIMPLEMENTED => 'SSH2::MSG_UNIMPLEMENTED',
+            SSH2::MSG_DEBUG => 'SSH2::MSG_DEBUG',
+            SSH2::MSG_SERVICE_REQUEST=> 'SSH2::MSG_SERVICE_REQUEST',
+            SSH2::MSG_SERVICE_ACCEPT => 'SSH2::MSG_SERVICE_ACCEPT',
+            SSH2::MSG_KEXINIT => 'SSH2::MSG_KEXINIT',
+            SSH2::MSG_NEWKEYS => 'SSH2::MSG_NEWKEYS',
+            SSH2::MSG_KEXDH_INIT => 'SSH2::MSG_KEXDH_INIT',
+            SSH2::MSG_KEXDH_REPLY => 'SSH2::MSG_KEXDH_REPLY',
+            SSH2::MSG_USERAUTH_REQUEST => 'SSH2::MSG_USERAUTH_REQUEST',
+            SSH2::MSG_USERAUTH_FAILURE => 'SSH2::MSG_USERAUTH_FAILURE',
+            SSH2::MSG_USERAUTH_SUCCESS => 'SSH2::MSG_USERAUTH_SUCCESS',
+            SSH2::MSG_USERAUTH_BANNER => 'SSH2::MSG_USERAUTH_BANNER',
+			SSH2::MSG_USERAUTH_PASSWD_CHANGEREQ => 'SSH2::MSG_USERAUTH_PASSWD_CHANGEREQ',
+            SSH2::MSG_USERAUTH_PK_OK => 'SSH2::MSG_USERAUTH_PK_OK',
+            SSH2::MSG_USERAUTH_INFO_REQUEST => 'SSH2::MSG_USERAUTH_INFO_REQUEST',
+            SSH2::MSG_USERAUTH_INFO_RESPONSE => 'SSH2::MSG_USERAUTH_INFO_RESPONSE',
+				  
+            SSH2::MSG_GLOBAL_REQUEST => 'SSH2::MSG_GLOBAL_REQUEST',
+            SSH2::MSG_REQUEST_SUCCESS => 'SSH2::MSG_REQUEST_SUCCESS',
+            SSH2::MSG_REQUEST_FAILURE => 'SSH2::MSG_REQUEST_FAILURE',
+            SSH2::MSG_CHANNEL_OPEN => 'SSH2::MSG_CHANNEL_OPEN',
+            SSH2::MSG_CHANNEL_OPEN_CONFIRMATION => 'SSH2::MSG_CHANNEL_OPEN_CONFIRMATION',
+            SSH2::MSG_CHANNEL_OPEN_FAILURE => 'SSH2::MSG_CHANNEL_OPEN_FAILURE',
+            SSH2::MSG_CHANNEL_WINDOW_ADJUST => 'SSH2::MSG_CHANNEL_WINDOW_ADJUST',
+            SSH2::MSG_CHANNEL_DATA => 'SSH2::MSG_CHANNEL_DATA',
+            SSH2::MSG_CHANNEL_EXTENDED_DATA => 'SSH2::MSG_CHANNEL_EXTENDED_DATA',
+            SSH2::MSG_CHANNEL_EOF => 'SSH2::MSG_CHANNEL_EOF',
+            SSH2::MSG_CHANNEL_CLOSE => 'SSH2::MSG_CHANNEL_CLOSE',
+            SSH2::MSG_CHANNEL_REQUEST => 'SSH2::MSG_CHANNEL_REQUEST',
+            SSH2::MSG_CHANNEL_SUCCESS => 'SSH2::MSG_CHANNEL_SUCCESS',
+            SSH2::MSG_CHANNEL_FAILURE => 'SSH2::MSG_CHANNEL_FAILURE'
         );
         $this->disconnect_reasons = array(
-            1 => 'NET_SSH2_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT',
-            2 => 'NET_SSH2_DISCONNECT_PROTOCOL_ERROR',
-            3 => 'NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED',
-            4 => 'NET_SSH2_DISCONNECT_RESERVED',
-            5 => 'NET_SSH2_DISCONNECT_MAC_ERROR',
-            6 => 'NET_SSH2_DISCONNECT_COMPRESSION_ERROR',
-            7 => 'NET_SSH2_DISCONNECT_SERVICE_NOT_AVAILABLE',
-            8 => 'NET_SSH2_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED',
-            9 => 'NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE',
-            10 => 'NET_SSH2_DISCONNECT_CONNECTION_LOST',
-            11 => 'NET_SSH2_DISCONNECT_BY_APPLICATION',
-            12 => 'NET_SSH2_DISCONNECT_TOO_MANY_CONNECTIONS',
-            13 => 'NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER',
-            14 => 'NET_SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE',
-            15 => 'NET_SSH2_DISCONNECT_ILLEGAL_USER_NAME'
+            SSH2::DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT => 'SSH2::DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT',
+            SSH2::DISCONNECT_PROTOCOL_ERROR => 'SSH2::DISCONNECT_PROTOCOL_ERROR',
+            SSH2::DISCONNECT_KEY_EXCHANGE_FAILED => 'SSH2::DISCONNECT_KEY_EXCHANGE_FAILED',
+            SSH2::DISCONNECT_RESERVED => 'SSH2::DISCONNECT_RESERVED',
+            SSH2::DISCONNECT_MAC_ERROR => 'SSH2::DISCONNECT_MAC_ERROR',
+            SSH2::DISCONNECT_COMPRESSION_ERROR => 'SSH2::DISCONNECT_COMPRESSION_ERROR',
+            SSH2::DISCONNECT_SERVICE_NOT_AVAILABLE => 'SSH2::DISCONNECT_SERVICE_NOT_AVAILABLE',
+            SSH2::DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED => 'SSH2::DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED',
+            SSH2::DISCONNECT_HOST_KEY_NOT_VERIFIABLE => 'SSH2::DISCONNECT_HOST_KEY_NOT_VERIFIABLE',
+            SSH2::DISCONNECT_CONNECTION_LOST => 'SSH2::DISCONNECT_CONNECTION_LOST',
+            SSH2::DISCONNECT_BY_APPLICATION => 'SSH2::DISCONNECT_BY_APPLICATION',
+            SSH2::DISCONNECT_TOO_MANY_CONNECTIONS => 'SSH2::DISCONNECT_TOO_MANY_CONNECTIONS',
+            SSH2::DISCONNECT_AUTH_CANCELLED_BY_USER => 'SSH2::DISCONNECT_AUTH_CANCELLED_BY_USER',
+            SSH2::DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE => 'SSH2::DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE',
+            SSH2::DISCONNECT_ILLEGAL_USER_NAME => 'SSH2::DISCONNECT_ILLEGAL_USER_NAME'
         );
         $this->channel_open_failure_reasons = array(
-            1 => 'NET_SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED'
+            SSH2::OPEN_ADMINISTRATIVELY_PROHIBITED => 'SSH2::OPEN_ADMINISTRATIVELY_PROHIBITED'
         );
         $this->terminal_modes = array(
-            0 => 'NET_SSH2_TTY_OP_END'
+            SSH2::TTY_OP_END => 'SSH2::TTY_OP_END'
         );
         $this->channel_extended_data_type_codes = array(
-            1 => 'NET_SSH2_EXTENDED_DATA_STDERR'
-        );
-
-        $this->_define_array(
-            $this->message_numbers,
-            $this->disconnect_reasons,
-            $this->channel_open_failure_reasons,
-            $this->terminal_modes,
-            $this->channel_extended_data_type_codes,
-            array(60 => 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ'),
-            array(60 => 'NET_SSH2_MSG_USERAUTH_PK_OK'),
-            array(60 => 'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
-                  61 => 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE')
+            SSH2::EXTENDED_DATA_STDERR => 'SSH2::EXTENDED_DATA_STDERR'
         );
 
         $start = microtime(true);
@@ -1741,7 +1788,7 @@ class SSH2
         switch ($type) {
             case SSH2::MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
                 if (defined('SSH2::LOGGING')) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = 'SSH2::MSG_USERAUTH_PASSWD_CHANGEREQ';
+                    $this->message_number_log[count($this->message_number_log) - 1] = 'MSG_USERAUTH_PASSWD_CHANGEREQ';
                 }
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . utf8_decode($this->_string_shift($response, $length));
@@ -1858,7 +1905,7 @@ class SSH2
                 } else if (defined('SSH2::LOGGING')) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
+                        'MSG_USERAUTH_INFO_REQUEST',
                         $this->message_number_log[count($this->message_number_log) - 1]
                     );
                 }
@@ -1887,7 +1934,7 @@ class SSH2
                 if (defined('SSH2::LOGGING') && SSH2::LOGGING == SSH2::LOG_COMPLEX) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE',
+                        'MSG_USERAUTH_INFO_RESPONSE',
                         $this->message_number_log[count($this->message_number_log) - 1]
                     );
                 }
@@ -1965,7 +2012,7 @@ class SSH2
                 if (defined('SSH2::LOGGING') && SSH2::LOGGING == SSH2::LOG_COMPLEX) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_PK_OK',
+                        'MSG_USERAUTH_PK_OK',
                         $this->message_number_log[count($this->message_number_log) - 1]
                     );
                 }
@@ -3124,30 +3171,6 @@ class SSH2
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
         return $substr;
-    }
-
-    /**
-     * Define Array
-     *
-     * Takes any number of arrays whose indices are integers and whose values are strings and defines a bunch of
-     * named constants from it, using the value as the name of the constant and the index as the value of the constant.
-     * If any of the constants that would be defined already exists, none of the constants will be defined.
-     *
-     * @param Array $array
-     * @access protected
-     */
-    protected function _define_array()
-    {
-        $args = func_get_args();
-        foreach ($args as $arg) {
-            foreach ($arg as $key=>$value) {
-                if (!defined($value)) {
-                    define($value, $key);
-                } else {
-                    break 2;
-                }
-            }
-        }
     }
 
     /**
