@@ -395,8 +395,6 @@ class Base
      */
     public $use_inline_crypt;
 
-	public $mode = null;
-
     /**
      * Default Constructor.
      *
