@@ -141,6 +141,11 @@ class SSH2
 	const LOG_REALTIME_FILE = 4;
 	
 	/**
+	 * Make sure that the log never gets larger than this
+	 */
+	const LOG_MAX_SIZE = 1048576;
+	
+	/**
 	 * Returns when a string matching $expect exactly is found
 	 */
 	const READ_SIMPLE = 1;
@@ -149,11 +154,6 @@ class SSH2
 	 * Returns when a string matching the regular expression $expect is found
 	 */
 	const READ_REGEX = 2;
-	
-	/**
-	 * Make sure that the log never gets larger than this
-	 */
-	const LOG_MAX_SIZE = 1048576;
 	
 	const MSG_DISCONNECT = 1;
     const MSG_IGNORE = 2;

@@ -178,7 +178,7 @@ class SCP
         }
 
         if ($this->mode == SCP::SSH2) {
-            $this->packet_size = $this->ssh->packet_size_client_to_server[NET_SSH2_CHANNEL_EXEC] - 4;
+            $this->packet_size = $this->ssh->packet_size_client_to_server[SSH2::CHANNEL_EXEC] - 4;
         }
 
         $remote_file = basename($remote_file);
@@ -297,7 +297,7 @@ class SCP
     {
         switch ($this->mode) {
             case SCP::SSH2:
-                $this->ssh->_send_channel_packet(NET_SSH2_CHANNEL_EXEC, $data);
+                $this->ssh->_send_channel_packet(SSH2::CHANNEL_EXEC, $data);
                 break;
             case SCP::SSH1:
                 $data = pack('CNa*', SSH1::CMSG_STDIN_DATA, strlen($data), $data);
@@ -315,7 +315,7 @@ class SCP
     {
         switch ($this->mode) {
             case SCP::SSH2:
-                return $this->ssh->_get_channel_packet(NET_SSH2_CHANNEL_EXEC, true);
+                return $this->ssh->_get_channel_packet(SSH2::CHANNEL_EXEC, true);
             case SCP::SSH1:
                 if (!$this->ssh->bitmap) {
                     return false;
@@ -350,7 +350,7 @@ class SCP
     {
         switch ($this->mode) {
             case SCP::SSH2:
-                $this->ssh->_close_channel(NET_SSH2_CHANNEL_EXEC, true);
+                $this->ssh->_close_channel(SSH2::CHANNEL_EXEC, true);
                 break;
             case SCP::SSH1:
                 $this->ssh->disconnect();

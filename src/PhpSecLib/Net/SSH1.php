@@ -209,6 +209,21 @@ class SSH1
 	const LOG_COMPLEX = 2;
 	
 	/**
+	 * Outputs the content real-time
+	 */
+	const LOG_REALTIME = 3;
+	
+	/**
+	 * Dumps the content real-time to a file
+	 */
+	const LOG_REALTIME_FILE = 4;
+	
+	/**
+	 * Make sure that the log never gets larger than this
+	 */
+	const LOG_MAX_SIZE = 1048576;
+	
+	/**
 	 * Returns when a string matching $expect exactly is found
 	 */
 	const READ_SIMPLE = 1;
@@ -1268,7 +1283,7 @@ class SSH1
     /**
      * Returns a log of the packets that have been sent and received.
      *
-     * Returns a string if NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX, an array if NET_SSH2_LOGGING == NET_SSH2_LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
+     * Returns a string if SSH1::LOGGING == SSH1::LOG_COMPLEX, an array if SSH1::LOGGING == SSH1::LOG_SIMPLE and false if !defined('SSH1::LOGGING')
      *
      * @access public
      * @return String or Array
@@ -1457,7 +1472,7 @@ class SSH1
                     $this->_string_shift($message);
                     $this->log_size+= strlen($message);
                     $this->message_log[] = $message;
-                    while ($this->log_size > NET_SSH2_LOG_MAX_SIZE) {
+                    while ($this->log_size > SSH1::LOG_MAX_SIZE) {
                         $this->log_size-= strlen(array_shift($this->message_log));
                         array_shift($this->protocol_flags_log);
                     }
@@ -1477,7 +1492,7 @@ class SSH1
                 case SSH1::LOG_REALTIME_FILE:
                     if (!isset($this->realtime_log_file)) {
                         // PHP doesn't seem to like using constants in fopen()
-                        $filename = NET_SSH2_LOG_REALTIME_FILE;
+                        $filename = SSH1::LOG_REALTIME_FILE;
                         $fp = fopen($filename, 'w');
                         $this->realtime_log_file = $fp;
                     }
