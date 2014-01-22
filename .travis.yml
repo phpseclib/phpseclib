@@ -9,12 +9,11 @@ php:
 env:
   global:
     # Defines CODE_COVERAGE_PASSPHRASE which is the passphrase for unlocking
-    # the tests/code_coverage_id_rsa RSA private key.
+    # the travis/code_coverage_id_rsa RSA private key.
     - secure: "jtQTZKQBnzUlp/jz7NlM6470ZDnLGVAs53sgvIm4tcYqf9TWSXSXjIYvFsrS\nKPR2eyZaAevYysUkIGRFTUXTlG6tC36YngMp9+6FPxASl8mnGXsTbKcm613B\n59vD3242pgIgqhhmgFQ0c8gbvnE8PuF2aS4/hluP3r+AxhWN56E="
 
 before_script:
-  - git clone git://github.com/zenovich/runkit.git && cd runkit && phpize && ./configure && make && make install && cd ..
-  - echo "extension=runkit.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
+  - travis/install-php-extensions.sh
   - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then composer install --dev --no-interaction; fi"
 
 script:
@@ -22,4 +21,4 @@ script:
   - phpunit --verbose --coverage-text --coverage-html code_coverage/
 
 after_success:
-  - sh -c "if $TRAVIS_SECURE_ENV_VARS; then tests/code_coverage_upload.sh; fi"
+  - sh -c "if $TRAVIS_SECURE_ENV_VARS; then travis/upload-code-coverage.sh; fi"
