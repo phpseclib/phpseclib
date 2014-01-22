@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# This file is part of the phpseclib test suite.
+# This file is part of the phpseclib project.
 #
 # (c) Andreas Fischer <bantu@phpbb.com>
 #
@@ -13,7 +13,7 @@ HOSTNAME='phpseclib.bantux.org'
 HOSTRSAF='09:40:96:14:6a:cd:67:46:17:e5:b4:39:24:24:6e:9d'
 LDIRNAME='code_coverage'
 RDIRNAME='code_coverage'
-ID_RSA='tests/code_coverage_id_rsa'
+ID_RSA='travis/code_coverage_id_rsa'
 
 # Install expect if necessary
 if ! which expect > /dev/null
