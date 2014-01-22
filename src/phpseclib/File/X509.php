@@ -3463,8 +3463,8 @@ class X509
      */
     public function _sign($key, $signatureAlgorithm)
     {
-        switch (strtolower(get_class($key))) {
-            case 'phpseclib\crypt\rsa':
+        switch (get_class($key)) {
+            case 'phpseclib\Crypt\RSA':
                 switch ($signatureAlgorithm) {
                     case 'md2WithRSAEncryption':
                     case 'md5WithRSAEncryption':
@@ -4024,7 +4024,7 @@ class X509
                 return $this->computeKeyIdentifier($key['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'], $method);
             case !is_object($key):
                 return false;
-            case strtolower(get_class($key)) == 'phpseclib\file\asn1\element':
+            case $key instanceof \phpseclib\File\ASN1\Element:
                 // Assume the element is a bitstring-packed key.
                 $asn1 = new ASN1();
                 $decoded = $asn1->decodeBER($key->element);
@@ -4046,7 +4046,7 @@ class X509
                 }
                 $key = $raw;    // Is a public key.
                 break;
-            case strtolower(get_class($key)) == 'phpseclib\file\x509':
+            case $key instanceof \phpseclib\File\X509:
                 if (isset($key->publicKey)) {
                     return $this->computeKeyIdentifier($key->publicKey, $method);
                 }
@@ -4089,8 +4089,8 @@ class X509
             return false;
         }
 
-        switch (strtolower(get_class($this->publicKey))) {
-            case 'phpseclib\crypt\rsa':
+        switch (get_class($this->publicKey)) {
+            case 'phpseclib\Crypt\RSA':
                 // the following two return statements do the same thing. i dunno.. i just prefer the later for some reason.
                 // the former is a good example of how to do fuzzing on the public key
                 //return new File\ASN1\Element(base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey())));

@@ -235,7 +235,7 @@ class ASN1
      */
     public function decodeBER($encoded)
     {
-        if (is_object($encoded) && strtolower(get_class($encoded)) == 'phpseclib\file\asn1\element') {
+        if ($encoded instanceof \phpseclib\File\ASN1\Element) {
             $encoded = $encoded->element;
         }
 
@@ -786,7 +786,7 @@ class ASN1
      */
     private function _encode_der($source, $mapping, $idx = null, $special = array())
     {
-        if (is_object($source) && strtolower(get_class($source)) == 'phpseclib\file\asn1\element') {
+        if ($source instanceof \phpseclib\File\ASN1\Element) {
             return $source->element;
         }
 
@@ -997,7 +997,7 @@ class ASN1
                     case !isset($source):
                         return $this->_encode_der(null, array('type' => ASN1::TYPE_NULL) + $mapping, null, $special);
                     case is_int($source):
-                    case is_object($source) && strtolower(get_class($source)) == 'phpseclib\math\biginteger':
+                    case $source instanceof \phpseclib\Math\BigInteger:
                         return $this->_encode_der($source, array('type' => ASN1::TYPE_INTEGER) + $mapping, null, $special);
                     case is_float($source):
                         return $this->_encode_der($source, array('type' => ASN1::TYPE_REAL) + $mapping, null, $special);

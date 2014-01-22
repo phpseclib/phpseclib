@@ -126,11 +126,11 @@ class SCP
             return;
         }
         
-        switch (strtolower(get_class($ssh))) {
-            case 'phpseclib\net\ssh2':
+        switch (get_class($ssh)) {
+            case 'phpseclib\Net\SSH2':
                 $this->mode = SCP::SSH2;
                 break;
-            case 'phpseclib\net\ssh2':
+            case 'phpseclib\Net\SSH1':
                 $this->packet_size = 50000;
                 $this->mode = SCP::SSH1;
                 break;

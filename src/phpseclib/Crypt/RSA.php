@@ -1316,7 +1316,7 @@ class RSA
      */
     public function loadKey($key, $type = false)
     {
-        if (is_object($key) && strtolower(get_class($key)) == 'phpseclib\crypt\rsa') {
+        if ($key instanceof \phpseclib\Crypt\RSA) {
             $this->privateKeyFormat = $key->privateKeyFormat;
             $this->publicKeyFormat = $key->publicKeyFormat;
             $this->k = $key->k;

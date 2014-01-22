@@ -174,7 +174,7 @@ class Stream
         if ($host[0] == '$') {
             $host = substr($host, 1);
             global $$host;
-            if (!is_object($$host) || strtolower(get_class($$host)) != 'phpseclib\net\sftp') {
+            if (!$$host instanceof \phpseclib\Net\SFTP) {
                 return false;
             }
             $this->sftp = $$host;
@@ -188,7 +188,7 @@ class Stream
             if (isset($context['sftp']['sftp'])) {
                 $sftp = $context['sftp']['sftp'];
             }
-            if (isset($sftp) && is_object($sftp) && strtolower(get_class($sftp)) == 'phpseclib\net\sftp') {
+            if ($sftp instanceof \phpseclib\Net\SFTP) {
                 $this->sftp = $sftp;
                 return $path;
             }

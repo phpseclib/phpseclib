@@ -1717,8 +1717,7 @@ class SSH2
             return !is_string($password) && !is_array($password) ? false : $this->_keyboard_interactive_process($password);
         }
 
-        // although PHP5's get_class() preserves the case, PHP4's does not
-        if (is_object($password) && strtolower(get_class($password)) == 'phpseclib\crypt\rsa') {
+        if ($password instanceof \phpseclib\Crypt\RSA) {
             return $this->_privatekey_login($username, $password);
         }
 
