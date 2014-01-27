@@ -1062,37 +1062,37 @@ class SSH2
                 'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
             );
 
-            /*if (!$this->_is_includable('Crypt/RC4.php')) {
+            if (class_exists('RC4')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('arcfour256', 'arcfour128', 'arcfour')
                 );
             }
-            if (!$this->_is_includable('Crypt/Rijndael.php')) {
+            if (class_exists('Rijndael')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('aes128-ctr', 'aes192-ctr', 'aes256-ctr', 'aes128-cbc', 'aes192-cbc', 'aes256-cbc')
                 );
             }
-            if (!$this->_is_includable('Crypt/Twofish.php')) {
+            if (class_exists('Twofish')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('twofish128-ctr', 'twofish192-ctr', 'twofish256-ctr', 'twofish128-cbc', 'twofish192-cbc', 'twofish256-cbc', 'twofish-cbc')
                 );
             }
-            if (!$this->_is_includable('Crypt/Blowfish.php')) {
+            if (class_exists('Blowfish')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('blowfish-ctr', 'blowfish-cbc')
                 );
             }
-            if (!$this->_is_includable('Crypt/TripleDES.php')) {
+            if (class_exists('TripleDES')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('3des-ctr', '3des-cbc')
                 );
             }
-            $encryption_algorithms = array_values($encryption_algorithms);*/
+            $encryption_algorithms = array_values($encryption_algorithms);
         }
 
         static $mac_algorithms = array(
@@ -3551,25 +3551,5 @@ class SSH2
             return false;
         }
         return $this->exit_status;
-    }
-
-    /**
-     * Is a path includable?
-     *
-     * @return Boolean
-     * @access private
-     */
-    protected function _is_includable($suffix)
-    {
-        foreach (explode(PATH_SEPARATOR, get_include_path()) as $prefix) {
-            $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
-            $file = $prefix . $ds . $suffix;
-
-            if (file_exists($file)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
