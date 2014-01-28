@@ -41,10 +41,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -94,7 +94,7 @@ class SSH2
     const MASK_LOGIN = 0x00000004;
     const MASK_SHELL = 0x00000008;
     const MASK_WINDOW_ADJUST = 0X00000010;
-    
+
     /**
      * Channel constants
      *
@@ -114,42 +114,42 @@ class SSH2
     const CHANNEL_EXEC = 0; // PuTTy uses 0x100
     const CHANNEL_SHELL = 1;
     const CHANNEL_SUBSYSTEM = 2;
-    
+
     /**
      * Returns the message numbers
      */
     const LOG_SIMPLE = 1;
-    
+
     /**
      * Returns the message content
      */
     const LOG_COMPLEX = 2;
-    
+
     /**
      * Outputs the content real-time
      */
     const LOG_REALTIME = 3;
-    
+
     /**
      * Dumps the content real-time to a file
      */
     const LOG_REALTIME_FILE = 4;
-    
+
     /**
      * Make sure that the log never gets larger than this
      */
     const LOG_MAX_SIZE = 1048576;
-    
+
     /**
      * Returns when a string matching $expect exactly is found
      */
     const READ_SIMPLE = 1;
-    
+
     /**
      * Returns when a string matching the regular expression $expect is found
      */
     const READ_REGEX = 2;
-    
+
     const MSG_DISCONNECT = 1;
     const MSG_IGNORE = 2;
     const MSG_UNIMPLEMENTED = 3;
@@ -179,7 +179,7 @@ class SSH2
     const MSG_CHANNEL_REQUEST = 98;
     const MSG_CHANNEL_SUCCESS = 99;
     const MSG_CHANNEL_FAILURE =  100;
-    
+
     const DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT = 1;
     const DISCONNECT_PROTOCOL_ERROR = 2;
     const DISCONNECT_KEY_EXCHANGE_FAILED = 3;
@@ -204,14 +204,14 @@ class SSH2
     const MSG_USERAUTH_PK_OK = 60;
     const MSG_USERAUTH_INFO_REQUEST = 60;
     const MSG_USERAUTH_INFO_RESPONSE = 61;
-    
+
     /**
      * The SSH identifier
      *
      * @var String
      * @access private
      */
-    var $identifier = 'SSH-2.0-phpseclib_0.3';
+    var $identifier;
 
     /**
      * The Socket Object
@@ -351,7 +351,7 @@ class SSH2
      *
      *  -- http://tools.ietf.org/html/rfc4253#section-6
      *
-     * @see Net\SSH2::Net\SSH2()
+     * @see Net\SSH2::__construct()
      * @see Net\SSH2::_send_binary_packet()
      * @var Integer
      * @access private
@@ -361,7 +361,7 @@ class SSH2
     /**
      * Block Size for Client to Server Encryption
      *
-     * @see Net\SSH2::Net\SSH2()
+     * @see Net\SSH2::__construct()
      * @see Net\SSH2::_get_binary_packet()
      * @var Integer
      * @access private
@@ -455,7 +455,7 @@ class SSH2
     /**
      * Message Numbers
      *
-     * @see Net\SSH2::Net\SSH2()
+     * @see Net\SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -464,7 +464,7 @@ class SSH2
     /**
      * Disconnection Message 'reason codes' defined in RFC4253
      *
-     * @see Net\SSH2::Net\SSH2()
+     * @see Net\SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -473,7 +473,7 @@ class SSH2
     /**
      * SSH_MSG_CHANNEL_OPEN_FAILURE 'reason codes', defined in RFC4254
      *
-     * @see Net\SSH2::Net\SSH2()
+     * @see Net\SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -483,7 +483,7 @@ class SSH2
      * Terminal Modes
      *
      * @link http://tools.ietf.org/html/rfc4254#section-8
-     * @see Net\SSH2::Net\SSH2()
+     * @see Net\SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -493,7 +493,7 @@ class SSH2
      * SSH_MSG_CHANNEL_EXTENDED_DATA's data_type_codes
      *
      * @link http://tools.ietf.org/html/rfc4254#section-5.2
-     * @see Net\SSH2::Net\SSH2()
+     * @see Net\SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -801,7 +801,7 @@ class SSH2
      * @access private
      */
     var $is_timeout = false;
-    
+
     /**
      * Log Boundary
      *
@@ -825,7 +825,7 @@ class SSH2
      * @access private
      */
     var $log_short_width = 16;
-    
+
     /**
      * Logging
      * 
@@ -835,7 +835,7 @@ class SSH2
      * @access private
      */
     static $logging = false;
-    
+
     /**
      * Default Constructor.
      *
@@ -849,7 +849,7 @@ class SSH2
      */
     function __construct($host, $port = 22, $timeout = 10)
     {
-        $this->last_packet = microtime(true);
+        $this->last_packet = strtok(microtime(), ' ') + strtok(''); // == microtime(true) in PHP5
         $this->message_numbers = array(
             SSH2::MSG_DISCONNECT => 'SSH2::MSG_DISCONNECT',
             SSH2::MSG_IGNORE => 'SSH2::MSG_IGNORE',
@@ -912,13 +912,13 @@ class SSH2
             SSH2::EXTENDED_DATA_STDERR => 'SSH2::EXTENDED_DATA_STDERR'
         );
 
-        $start = microtime(true);
+        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
             return;
         }
-        $elapsed = microtime(true) - $start;
+        $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
 
         $timeout-= $elapsed;
 
@@ -962,19 +962,7 @@ class SSH2
             return false;
         }
 
-        $ext = array();
-        if (extension_loaded('mcrypt')) {
-            $ext[] = 'mcrypt';
-        }
-        if (extension_loaded('gmp')) {
-            $ext[] = 'gmp';
-        } else if (extension_loaded('bcmath')) {
-            $ext[] = 'bcmath';
-        }
-
-        if (!empty($ext)) {
-            $this->identifier.= ' (' . implode(', ', $ext) . ')';
-        }
+        $this->identifier = $this->_generate_identifier();
 
         if (self::getLogging() !== false) {
             $this->_append_log('<-', $extra . $temp);
@@ -1009,6 +997,36 @@ class SSH2
         }
 
         $this->bitmap = SSH2::MASK_CONSTRUCTOR;
+    }
+
+    /**
+     * Generates the SSH identifier
+     *
+     * You should overwrite this method in your own class if you want to use another identifier
+     *
+     * @access protected
+     * @return String
+     */
+    function _generate_identifier()
+    {
+        $identifier = 'SSH-2.0-phpseclib_0.3';
+
+        $ext = array();
+        if (extension_loaded('mcrypt')) {
+            $ext[] = 'mcrypt';
+        }
+
+        if (extension_loaded('gmp')) {
+            $ext[] = 'gmp';
+        } elseif (extension_loaded('bcmath')) {
+            $ext[] = 'bcmath';
+        }
+
+        if (!empty($ext)) {
+            $identifier .= ' (' . implode(', ', $ext) . ')';
+        }
+
+        return $identifier;
     }
 
     /**
@@ -1067,31 +1085,31 @@ class SSH2
                 'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
             );
 
-            if (class_exists('RC4')) {
+            if (!class_exists('RC4')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('arcfour256', 'arcfour128', 'arcfour')
                 );
             }
-            if (class_exists('Rijndael')) {
+            if (!class_exists('Rijndael')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('aes128-ctr', 'aes192-ctr', 'aes256-ctr', 'aes128-cbc', 'aes192-cbc', 'aes256-cbc')
                 );
             }
-            if (class_exists('Twofish')) {
+            if (!class_exists('Twofish')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('twofish128-ctr', 'twofish192-ctr', 'twofish256-ctr', 'twofish128-cbc', 'twofish192-cbc', 'twofish256-cbc', 'twofish-cbc')
                 );
             }
-            if (class_exists('Blowfish')) {
+            if (!class_exists('Blowfish')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('blowfish-ctr', 'blowfish-cbc')
                 );
             }
-            if (class_exists('TripleDES')) {
+            if (!class_exists('TripleDES')) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('3des-ctr', '3des-cbc')
@@ -1188,7 +1206,7 @@ class SSH2
             return false;
         }
         // here ends the second place.
-        
+
         // we need to decide upon the symmetric encryption algorithms before we do the diffie-hellman key exchange
         for ($i = 0; $i < count($encryption_algorithms) && !in_array($encryption_algorithms[$i], $this->encryption_algorithms_server_to_client); $i++);
         if ($i == count($encryption_algorithms)) {
@@ -1290,23 +1308,23 @@ class SSH2
         }
 
         switch ($kex_algorithms[$i]) {
-            // see http://tools.ietf.org/html/rfc2409#section-6.2 and 
+            // see http://tools.ietf.org/html/rfc2409#section-6.2 and
             // http://tools.ietf.org/html/rfc2412, appendex E
             case 'diffie-hellman-group1-sha1':
-                $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' . 
-                         '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' . 
-                         '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' . 
+                $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
+                         '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
+                         '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
                          'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF';
                 break;
             // see http://tools.ietf.org/html/rfc3526#section-3
             case 'diffie-hellman-group14-sha1':
-                $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' . 
-                         '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' . 
-                         '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' . 
-                         'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF05' . 
-                         '98DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB' . 
-                         '9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' . 
-                         'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF695581718' . 
+                $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
+                         '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
+                         '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
+                         'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF05' .
+                         '98DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB' .
+                         '9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' .
+                         'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF695581718' .
                          '3995497CEA956AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF';
                 break;
         }
@@ -1327,7 +1345,8 @@ class SSH2
            -- http://tools.ietf.org/html/rfc4419#section-6.2 */
         $one = new BigInteger(1);
         $keyLength = min($keyLength, $kexHash->getLength());
-        $max = $one->bitwise_leftShift(16 * $keyLength)->subtract($one); // 2 * 8 * $keyLength
+        $max = $one->bitwise_leftShift(16 * $keyLength); // 2 * 8 * $keyLength
+        $max = $max->subtract($one);
 
         $x = $one->random($one, $max);
         $e = $g->modPow($x, $prime);
@@ -1660,10 +1679,26 @@ class SSH2
      * @param Mixed $password
      * @param Mixed $...
      * @return Boolean
-     * @see _login_helper
+     * @see _login
      * @access public
      */
     function login($username)
+    {
+        $args = func_get_args();
+        return call_user_func_array(array(&$this, '_login'), $args);
+    }
+
+    /**
+     * Login Helper
+     *
+     * @param String $username
+     * @param Mixed $password
+     * @param Mixed $...
+     * @return Boolean
+     * @see _login_helper
+     * @access private
+     */
+    function _login($username)
     {
         $args = array_slice(func_get_args(), 1);
         if (empty($args)) {
@@ -1792,10 +1827,10 @@ class SSH2
         switch ($type) {
             case SSH2::MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
                 if (self::getLogging() !== false) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = 'MSG_USERAUTH_PASSWD_CHANGEREQ';
+                    $this->message_number_log[count($this->message_number_log) - 1] = 'SSH2::MSG_USERAUTH_PASSWD_CHANGEREQ';
                 }
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . utf8_decode($this->_string_shift($response, $length));
+                $this->errors[] = 'SSH2::MSG_USERAUTH_PASSWD_CHANGEREQ: ' . utf8_decode($this->_string_shift($response, $length));
                 return $this->_disconnect(SSH2::DISCONNECT_AUTH_CANCELLED_BY_USER);
             case SSH2::MSG_USERAUTH_FAILURE:
                 // can we use keyboard-interactive authentication?  if not then either the login is bad or the server employees
@@ -1833,7 +1868,7 @@ class SSH2
      */
     function _keyboard_interactive_login($username, $password)
     {
-        $packet = pack('CNa*Na*Na*Na*Na*', 
+        $packet = pack('CNa*Na*Na*Na*Na*',
             SSH2::MSG_USERAUTH_REQUEST, strlen($username), $username, strlen('ssh-connection'), 'ssh-connection',
             strlen('keyboard-interactive'), 'keyboard-interactive', 0, '', 0, ''
         );
@@ -1909,7 +1944,7 @@ class SSH2
                 } else if (self::getLogging() !== false) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
-                        'MSG_USERAUTH_INFO_REQUEST',
+                        'SSH2::MSG_USERAUTH_INFO_REQUEST',
                         $this->message_number_log[count($this->message_number_log) - 1]
                     );
                 }
@@ -1935,10 +1970,10 @@ class SSH2
                     return false;
                 }
 
-                if (self::getLogging() !== false && self::getLogging() == SSH2::LOG_COMPLEX) {
+                if (self::getLogging() == SSH2::LOG_COMPLEX) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
-                        'MSG_USERAUTH_INFO_RESPONSE',
+                        'SSH2::MSG_USERAUTH_INFO_RESPONSE',
                         $this->message_number_log[count($this->message_number_log) - 1]
                     );
                 }
@@ -2008,15 +2043,15 @@ class SSH2
         switch ($type) {
             case SSH2::MSG_USERAUTH_FAILURE:
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . $this->_string_shift($response, $length);
+                $this->errors[] = 'SSH2::MSG_USERAUTH_FAILURE: ' . $this->_string_shift($response, $length);
                 return false;
             case SSH2::MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
-                if (self::getLogging() !== false && self::getLogging() == SSH2::LOG_COMPLEX) {
+                if (self::getLogging() == SSH2::LOG_COMPLEX) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
-                        'MSG_USERAUTH_PK_OK',
+                        'SSH2::MSG_USERAUTH_PK_OK',
                         $this->message_number_log[count($this->message_number_log) - 1]
                     );
                 }
@@ -2068,7 +2103,7 @@ class SSH2
 
     /**
      * Get the output from stdError
-     * 
+     *
      * @access public
      */
     function getStdError()
@@ -2098,7 +2133,7 @@ class SSH2
         }
 
         // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
-        // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but, 
+        // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but,
         // honestly, if you're transfering more than 2GB, you probably shouldn't be using phpseclib, anyway.
         // see http://tools.ietf.org/html/rfc4254#section-5.2 for more info
         $this->window_size_server_to_client[SSH2::CHANNEL_EXEC] = 0x7FFFFFFF;
@@ -2155,7 +2190,7 @@ class SSH2
         // neither will your script.
 
         // although, in theory, the size of SSH_MSG_CHANNEL_REQUEST could exceed the maximum packet size established by
-        // SSH_MSG_CHANNEL_OPEN_CONFIRMATION, RFC4254#section-5.1 states that the "maximum packet size" refers to the 
+        // SSH_MSG_CHANNEL_OPEN_CONFIRMATION, RFC4254#section-5.1 states that the "maximum packet size" refers to the
         // "maximum size of an individual data packet". ie. SSH_MSG_CHANNEL_DATA.  RFC4254#section-5.2 corroborates.
         $packet = pack('CNNa*CNa*',
             SSH2::MSG_CHANNEL_REQUEST, $this->server_channels[SSH2::CHANNEL_EXEC], strlen('exec'), 'exec', 1, strlen($command), $command);
@@ -2509,7 +2544,7 @@ class SSH2
             return false;
         }
 
-        $start = microtime(true);
+        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $raw = fread($this->fsock, $this->decrypt_block_size);
 
         if (!strlen($raw)) {
@@ -2542,7 +2577,7 @@ class SSH2
             $buffer.= $temp;
             $remaining_length-= strlen($temp);
         }
-        $stop = microtime(true);
+        $stop = strtok(microtime(), ' ') + strtok('');
         if (strlen($buffer)) {
             $raw.= $this->decrypt !== false ? $this->decrypt->decrypt($buffer) : $buffer;
         }
@@ -2565,7 +2600,7 @@ class SSH2
         $this->get_seq_no++;
 
         if (self::getLogging() !== false) {
-            $current = microtime(true);
+            $current = strtok(microtime(), ' ') + strtok('');
             $message_number = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
             $message_number = '<- ' . $message_number .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
@@ -2718,7 +2753,7 @@ class SSH2
      *
      * @param $client_channel
      * @return Mixed
-     * @access public
+     * @access private
      */
     function _get_channel_packet($client_channel, $skip_extended = false)
     {
@@ -2736,7 +2771,7 @@ class SSH2
                 $read = array($this->fsock);
                 $write = $except = null;
 
-                $start = microtime(true);
+                $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
                 $sec = floor($this->curTimeout);
                 $usec = 1000000 * ($this->curTimeout - $sec);
                 // on windows this returns a "Warning: Invalid CRT parameters detected" error
@@ -2744,7 +2779,7 @@ class SSH2
                     $this->is_timeout = true;
                     return true;
                 }
-                $elapsed = microtime(true) - $start;
+                $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
                 $this->curTimeout-= $elapsed;
             }
 
@@ -2811,7 +2846,7 @@ class SSH2
                     /*
                     if ($channel == SSH2::CHANNEL_EXEC) {
                         // SCP requires null packets, such as this, be sent.  further, in the case of the ssh.com SSH server
-                        // this actually seems to make things twice as fast.  more to the point, the message right after 
+                        // this actually seems to make things twice as fast.  more to the point, the message right after
                         // SSH_MSG_CHANNEL_DATA (usually SSH_MSG_IGNORE) won't block for as long as it would have otherwise.
                         // in OpenSSH it slows things down but only by a couple thousandths of a second.
                         $this->_send_channel_packet($channel, chr(0));
@@ -2951,12 +2986,12 @@ class SSH2
 
         $packet.= $hmac;
 
-        $start = microtime(true);
+        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $result = strlen($packet) == fputs($this->fsock, $packet);
-        $stop = microtime(true);
+        $stop = strtok(microtime(), ' ') + strtok('');
 
         if (self::getLogging() !== false) {
-            $current = microtime(true);
+            $current = strtok(microtime(), ' ') + strtok('');
             $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
             $message_number = '-> ' . $message_number .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
@@ -2977,70 +3012,70 @@ class SSH2
      */
     function _append_log($message_number, $message)
     {
-            // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
-            if (strlen($message_number) > 2) {
-                $this->_string_shift($message);
-            }
+        // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
+        if (strlen($message_number) > 2) {
+            $this->_string_shift($message);
+        }
 
-            switch (self::getLogging()) {
-                // useful for benchmarks
-                case SSH2::LOG_SIMPLE:
-                    $this->message_number_log[] = $message_number;
-                    break;
-                // the most useful log for SSH2
-                case SSH2::LOG_COMPLEX:
-                    $this->message_number_log[] = $message_number;
-                    $this->log_size+= strlen($message);
-                    $this->message_log[] = $message;
-                    while ($this->log_size > SSH2::LOG_MAX_SIZE) {
-                        $this->log_size-= strlen(array_shift($this->message_log));
-                        array_shift($this->message_number_log);
-                    }
-                    break;
-                // dump the output out realtime; packets may be interspersed with non packets,
-                // passwords won't be filtered out and select other packets may not be correctly
-                // identified
-                case SSH2::LOG_REALTIME:
-                    switch (PHP_SAPI) {
-                        case 'cli':
-                            $start = $stop = "\r\n";
-                            break;
-                        default:
-                            $start = '<pre>';
-                            $stop = '</pre>';
-                    }
-                    echo $start . $this->_format_log(array($message), array($message_number)) . $stop;
-                    @flush();
-                    @ob_flush();
-                    break;
-                // basically the same thing as SSH2::LOG_REALTIME with the caveat that SSH2::LOG_REALTIME_FILE
-                // needs to be defined and that the resultant log file will be capped out at SSH2::LOG_MAX_SIZE. 
-                // the earliest part of the log file is denoted by the first <<< START >>> and is not going to necessarily
-                // at the beginning of the file
-                case SSH2::LOG_REALTIME_FILE:
-                    if (!isset($this->realtime_log_file)) {
-                        // PHP doesn't seem to like using constants in fopen()
-                        $filename = SSH2::LOG_REALTIME_FILENAME;
-                        $fp = fopen($filename, 'w');
-                        $this->realtime_log_file = $fp;
-                    }
-                    if (!is_resource($this->realtime_log_file)) {
+        switch (self::getLogging()) {
+            // useful for benchmarks
+            case SSH2::LOG_SIMPLE:
+                $this->message_number_log[] = $message_number;
+                break;
+            // the most useful log for SSH2
+            case SSH2::LOG_COMPLEX:
+                $this->message_number_log[] = $message_number;
+                $this->log_size+= strlen($message);
+                $this->message_log[] = $message;
+                while ($this->log_size > SSH2::LOG_MAX_SIZE) {
+                    $this->log_size-= strlen(array_shift($this->message_log));
+                    array_shift($this->message_number_log);
+                }
+                break;
+            // dump the output out realtime; packets may be interspersed with non packets,
+            // passwords won't be filtered out and select other packets may not be correctly
+            // identified
+            case SSH2::LOG_REALTIME:
+                switch (PHP_SAPI) {
+                    case 'cli':
+                        $start = $stop = "\r\n";
                         break;
-                    }
-                    $entry = $this->_format_log(array($message), array($message_number));
-                    if ($this->realtime_log_wrap) {
-                        $temp = "<<< START >>>\r\n";
-                        $entry.= $temp;
-                        fseek($this->realtime_log_file, ftell($this->realtime_log_file) - strlen($temp));
-                    }
-                    $this->realtime_log_size+= strlen($entry);
-                    if ($this->realtime_log_size > SSH2::LOG_MAX_SIZE) {
-                        fseek($this->realtime_log_file, 0);
-                        $this->realtime_log_size = strlen($entry);
-                        $this->realtime_log_wrap = true;
-                    }
-                    fputs($this->realtime_log_file, $entry);
-            }
+                    default:
+                        $start = '<pre>';
+                        $stop = '</pre>';
+                }
+                echo $start . $this->_format_log(array($message), array($message_number)) . $stop;
+                @flush();
+                @ob_flush();
+                break;
+            // basically the same thing as SSH2::LOG_REALTIME with the caveat that SSH2::LOG_REALTIME_FILE
+            // needs to be defined and that the resultant log file will be capped out at SSH2::LOG_MAX_SIZE.
+            // the earliest part of the log file is denoted by the first <<< START >>> and is not going to necessarily
+            // at the beginning of the file
+            case SSH2::LOG_REALTIME_FILE:
+                if (!isset($this->realtime_log_file)) {
+                    // PHP doesn't seem to like using constants in fopen()
+                    $filename = SSH2::LOG_REALTIME_FILENAME;
+                    $fp = fopen($filename, 'w');
+                    $this->realtime_log_file = $fp;
+                }
+                if (!is_resource($this->realtime_log_file)) {
+                    break;
+                }
+                $entry = $this->_format_log(array($message), array($message_number));
+                if ($this->realtime_log_wrap) {
+                    $temp = "<<< START >>>\r\n";
+                    $entry.= $temp;
+                    fseek($this->realtime_log_file, ftell($this->realtime_log_file) - strlen($temp));
+                }
+                $this->realtime_log_size+= strlen($entry);
+                if ($this->realtime_log_size > SSH2::LOG_MAX_SIZE) {
+                    fseek($this->realtime_log_file, 0);
+                    $this->realtime_log_size = strlen($entry);
+                    $this->realtime_log_wrap = true;
+                }
+                fputs($this->realtime_log_file, $entry);
+        }
     }
 
     /**
@@ -3051,7 +3086,7 @@ class SSH2
      * @param Integer $client_channel
      * @param String $data
      * @return Boolean
-     * @access public
+     * @access private
      */
     function _send_channel_packet($client_channel, $data)
     {
@@ -3115,7 +3150,7 @@ class SSH2
      * @param Integer $client_channel
      * @param Boolean $want_reply
      * @return Boolean
-     * @access public
+     * @access private
      */
     function _close_channel($client_channel, $want_reply = false)
     {
@@ -3502,6 +3537,7 @@ class SSH2
                 /*
                 $temp = unpack('Nlength', $this->_string_shift($signature, 4));
                 $signature = $this->_string_shift($signature, $temp['length']);
+
                 $rsa = new RSA();
                 $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
                 $rsa->loadKey(array('e' => $e, 'n' => $n), RSA::PUBLIC_FORMAT_RAW);
@@ -3557,7 +3593,7 @@ class SSH2
         }
         return $this->exit_status;
     }
-    
+
     /**
      * Gets the logging mode
      * 
