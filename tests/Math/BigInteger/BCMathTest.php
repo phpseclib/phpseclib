@@ -6,7 +6,9 @@
  */
 
 namespace phpseclib\Math\BigInteger;
- 
+
+use phpseclib\Math\BigInteger;
+
 class BCMathTest extends \phpseclib\Math\BigIntegerTest
 {
     static public function setUpBeforeClass()

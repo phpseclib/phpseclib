@@ -6,7 +6,9 @@
  */
 
 namespace phpseclib\Math\BigInteger;
- 
+
+use phpseclib\Math\BigInteger;
+
 class InternalOpenSSLTest extends \phpseclib\Math\BigIntegerTest
 {
     static public function setUpBeforeClass()

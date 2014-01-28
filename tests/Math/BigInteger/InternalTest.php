@@ -6,7 +6,9 @@
  */
 
 namespace phpseclib\Math\BigInteger;
- 
+
+use phpseclib\Math\BigInteger;
+
 class InternalTest extends \phpseclib\Math\BigIntegerTest
 {
     static public function setUpBeforeClass()
@@ -14,7 +16,7 @@ class InternalTest extends \phpseclib\Math\BigIntegerTest
         
         parent::setUpBeforeClass();
 
-        BigIntger::setMode(BigInteger::MODE_INTERNAL);
-        BigIntger::setOpenSslEnabled(false);
+        BigInteger::setMode(BigInteger::MODE_INTERNAL);
+        BigInteger::setOpenSslEnabled(false);
     }
 }

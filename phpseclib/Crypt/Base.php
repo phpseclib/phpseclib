@@ -120,15 +120,6 @@ class Base
     const MODE_MCRYPT = 2;
 
     /**
-     * The Encryption Mode
-     *
-     * @see Crypt\Base::__construct
-     * @var Integer
-     * @access private
-     */
-    var $mode;
-
-    /**
      * The Block Length of the block cipher
      *
      * @var Integer
@@ -394,7 +385,16 @@ class Base
      * @access private
      */
     var $use_inline_crypt;
-
+    
+	 /**
+     * The Encryption Mode
+     *
+     * @see Crypt\Base::__construct
+     * @var Integer
+     * @access private
+     */
+    static $mode;
+	
     /**
      * Default Constructor.
      *
@@ -422,23 +422,25 @@ class Base
     function __construct($mode = Base::MODE_CBC)
     {
         // Determining the availibility of mcrypt support for the cipher
-        if ($this->mode === null) {
+        if (self::getMode() === null) {
             switch (true) {
-                case extension_loaded('mcrypt') && in_array($this->cipher_name_mcrypt, mcrypt_list_algorithms()):
-                    $this->mode = Base::MODE_MCRYPT;
+                case extension_loaded('mcrypt') && in_array($this->cipher_name_mcrypt, \mcrypt_list_algorithms()):
+					print_r(\mcrypt_list_algorithms());
+					exit();
+                    self::setMode(Base::MODE_MCRYPT);
                     break;
                 default:
-                    $this->mode = Base::MODE_INTERNAL;
+                    self::setMode(Base::MODE_INTERNAL);
             }
         }
 
         // Determining which internal $engine should be used.
-        // The fastes possible first.
+        // The fastest possible first.
         switch (true) {
             case empty($this->cipher_name_mcrypt): // The cipher module has no mcrypt-engine support at all so we force Base::MODE_INTERNAL
                 $this->engine = Base::MODE_INTERNAL;
                 break;
-            case constant($const_crypt_mode) == Base::MODE_MCRYPT:
+            case self::getMode() == Base::MODE_MCRYPT:
                 $this->engine = Base::MODE_MCRYPT;
                 break;
             default:
@@ -449,18 +451,18 @@ class Base
         switch ($mode) {
             case Base::MODE_ECB:
                 $this->paddable = true;
-                $this->mode = $mode;
+                self::setMode($mode);
                 break;
             case Base::MODE_CTR:
             case Base::MODE_CFB:
             case Base::MODE_OFB:
             case Base::MODE_STREAM:
-                $this->mode = $mode;
+                self::setMode($mode);
                 break;
             case Base::MODE_CBC:
             default:
                 $this->paddable = true;
-                $this->mode = Base::MODE_CBC;
+                self::setMode(Base::MODE_CBC);
         }
 
         // Determining whether inline crypting can be used by the cipher
@@ -482,7 +484,7 @@ class Base
      */
     function setIV($iv)
     {
-        if ($this->mode == Base::MODE_ECB) {
+        if (self::getMode() == Base::MODE_ECB) {
             return;
         }
 
@@ -611,7 +613,7 @@ class Base
             // re: {@link http://phpseclib.sourceforge.net/cfb-demo.phps}
             // using mcrypt's default handing of CFB the above would output two different things.  using phpseclib's
             // rewritten CFB implementation the above outputs the same thing twice.
-            if ($this->mode == Base::MODE_CFB && $this->continuousBuffer) {
+            if (self::getMode() == Base::MODE_CFB && $this->continuousBuffer) {
                 $block_size = $this->block_size;
                 $iv = &$this->encryptIV;
                 $pos = &$this->enbuffer['pos'];
@@ -692,7 +694,7 @@ class Base
         $buffer = &$this->enbuffer;
         $block_size = $this->block_size;
         $ciphertext = '';
-        switch ($this->mode) {
+        switch (self::getMode()) {
             case Base::MODE_ECB:
                 for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                     $ciphertext.= $this->_encryptBlock(substr($plaintext, $i, $block_size));
@@ -837,7 +839,7 @@ class Base
                 $this->dechanged = false;
             }
 
-            if ($this->mode == Base::MODE_CFB && $this->continuousBuffer) {
+            if (self::getMode() == Base::MODE_CFB && $this->continuousBuffer) {
                 $iv = &$this->decryptIV;
                 $pos = &$this->debuffer['pos'];
                 $len = strlen($ciphertext);
@@ -907,7 +909,7 @@ class Base
 
         $buffer = &$this->debuffer;
         $plaintext = '';
-        switch ($this->mode) {
+        switch (self::getMode()) {
             case Base::MODE_ECB:
                 for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
                     $plaintext.= $this->_decryptBlock(substr($ciphertext, $i, $block_size));
@@ -1095,7 +1097,7 @@ class Base
      */
     function enableContinuousBuffer()
     {
-        if ($this->mode == Base::MODE_ECB) {
+        if (self::getMode() == Base::MODE_ECB) {
             return;
         }
 
@@ -1114,7 +1116,7 @@ class Base
      */
     function disableContinuousBuffer()
     {
-        if ($this->mode == Base::MODE_ECB) {
+        if (self::getMode() == Base::MODE_ECB) {
             return;
         }
         if (!$this->continuousBuffer) {
@@ -1244,19 +1246,19 @@ class Base
                 Base::MODE_STREAM => MCRYPT_MODE_STREAM,
             );
 
-            $this->demcrypt = mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
-            $this->enmcrypt = mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
+            $this->demcrypt = mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[self::getMode()], '');
+            $this->enmcrypt = mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[self::getMode()], '');
 
             // we need the $ecb mcrypt resource (only) in MODE_CFB with enableContinuousBuffer()
             // to workaround mcrypt's broken ncfb implementation in buffered mode
             // see: {@link http://phpseclib.sourceforge.net/cfb-demo.phps}
-            if ($this->mode == Base::MODE_CFB) {
+            if (self::getMode() == Base::MODE_CFB) {
                 $this->ecb = mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_ECB, '');
             }
 
         } // else should mcrypt_generic_deinit be called?
 
-        if ($this->mode == Base::MODE_CFB) {
+        if (self::getMode() == Base::MODE_CFB) {
             mcrypt_generic_init($this->ecb, $this->key, str_repeat("\0", $this->block_size));
         }
     }
@@ -1596,7 +1598,7 @@ class Base
         // Generating mode of operation inline code,
         // merged with the $cipher_code algorithm
         // for encrypt- and decryption.
-        switch ($this->mode) {
+        switch (self::getMode()) {
             case Base::MODE_ECB:
                 $encrypt = $init_encrypt . '
                     $_ciphertext = "";
@@ -1952,5 +1954,24 @@ class Base
         static $functions = array();
         return $functions;
     }
+	
+	/**
+     * Gets the mode
+     * 
+     * @return integer
+     * @access public
+     */
+    static function getMode() {
+        return self::$mode;
+    }
+    
+    /**
+     * Sets the mode
+     * 
+     * @param integer $mode Should be one of Base::MODE_CTR, Base::MODE_ECB, Base::MODE_CBC, Base::MODE_CFB, Base::MODE_OFB, Base::MODE_STREAM, Base::MODE_INTERNAL or Base::MODE_MCRYPT.
+     * @access public
+     */
+    static function setMode($mode) {
+        self::$mode = $mode;
+    }
 }
-

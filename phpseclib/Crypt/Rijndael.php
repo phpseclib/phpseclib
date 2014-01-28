@@ -752,7 +752,7 @@ class Rijndael extends Base
      */
     function _setupEngine()
     {
-        if ($this->mode == Base::MODE_INTERNAL) {
+        if (self::getMode() == Base::MODE_INTERNAL) {
             // No mcrypt support at all for rijndael
             return;
         }
@@ -763,7 +763,7 @@ class Rijndael extends Base
         // Determining the availibility/usability of $cipher_name_mcrypt
         switch (true) {
             case $this->key_size % 8: // mcrypt is not usable for 160/224-bit keys, only for 128/192/256-bit keys
-            case !in_array($cipher_name_mcrypt, mcrypt_list_algorithms()): // $cipher_name_mcrypt is not available for the current $block_size
+            case !extension_loaded('mcrypt') || !in_array($cipher_name_mcrypt, \mcrypt_list_algorithms()): // $cipher_name_mcrypt is not available for the current $block_size
                 $engine = Base::MODE_INTERNAL;
                 break;
             default:
@@ -1162,7 +1162,7 @@ class Rijndael extends Base
             $init_decrypt = '$dw = $self->dw;';
         }
 
-        $code_hash = md5(str_pad("Rijndael, {$this->mode}, {$this->block_size}, ", 32, "\0") . implode(',', $w));
+        $code_hash = md5(str_pad("Rijndael, {self::getMode()}, {$this->block_size}, ", 32, "\0") . implode(',', $w));
 
         if (!isset($lambda_functions[$code_hash])) {
             $Nr = $this->Nr;

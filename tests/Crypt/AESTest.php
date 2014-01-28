@@ -6,7 +6,9 @@
  */
 
 namespace phpseclib\Crypt;
- 
+
+use phpseclib\Crypt\AES;
+
 abstract class AESTest extends \PhpseclibTestCase
 {
     static public function setUpBeforeClass()
