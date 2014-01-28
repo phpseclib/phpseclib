@@ -7,8 +7,7 @@
 
 namespace phpseclib\Crypt\AES;
 
-use phpseclib\Crypt\Base,
-    phpseclib\Crypt\AES;
+use phpseclib\Crypt\AES;
 
 class ContinuousBufferTest extends \phpseclib\Crypt\AESTest
 {

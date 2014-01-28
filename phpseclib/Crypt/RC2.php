@@ -580,4 +580,3 @@ class RC2 extends Base
         $this->inline_crypt = $lambda_functions[$code_hash];
     }
 }
-

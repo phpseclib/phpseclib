@@ -1298,4 +1298,3 @@ class Rijndael extends Base
         $this->inline_crypt = $lambda_functions[$code_hash];
     }
 }
-

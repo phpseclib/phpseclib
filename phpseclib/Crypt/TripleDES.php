@@ -386,4 +386,3 @@ class TripleDES extends DES
         parent::_setupKey();
     }
 }
-

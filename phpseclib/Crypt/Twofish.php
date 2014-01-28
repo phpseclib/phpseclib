@@ -848,4 +848,3 @@ class Twofish extends Base
         $this->inline_crypt = $lambda_functions[$code_hash];
     }
 }
-

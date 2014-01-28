@@ -9,6 +9,17 @@ namespace phpseclib\Net;
 
 class SSH2Test extends \phpseclib\AbstractTestCase
 {
+    /**
+     * @return SSH2
+     */
+    private function createSSHMock()
+    {
+        return $this->getMockBuilder('phpseclib\Net\SSH2')
+            ->disableOriginalConstructor()
+            ->setMethods(array('__destruct'))
+            ->getMock();
+    }
+
     public function formatLogDataProvider()
     {
         return array(
@@ -31,13 +42,43 @@ class SSH2Test extends \phpseclib\AbstractTestCase
      */
     public function testFormatLog(array $message_log, array $message_number_log, $expected)
     {
-        $ssh = $this->getMockBuilder('phpseclib\Net\SSH2')
-            ->disableOriginalConstructor()
-            ->setMethods(array('__destruct'))
-            ->getMock();
-        
-        $result = $ssh->_format_log($message_log, $message_number_log);
+        $ssh = $this->createSSHMock();
 
+        $result = $ssh->_format_log($message_log, $message_number_log);
         $this->assertEquals($expected, $result);
+    }
+
+    public function generateIdentifierProvider()
+    {
+        return array(
+            array('SSH-2.0-phpseclib_0.3', array()),
+            array('SSH-2.0-phpseclib_0.3 (gmp)', array('gmp')),
+            array('SSH-2.0-phpseclib_0.3 (bcmath)', array('bcmath')),
+            array('SSH-2.0-phpseclib_0.3 (mcrypt)', array('mcrypt')),
+            array('SSH-2.0-phpseclib_0.3 (mcrypt, gmp)', array('mcrypt', 'gmp')),
+            array('SSH-2.0-phpseclib_0.3 (mcrypt, bcmath)', array('mcrypt', 'bcmath')),
+        );
+    }
+
+    /**
+     * @dataProvider generateIdentifierProvider
+     */
+    public function testGenerateIdentifier($expected, array $requiredExtensions)
+    {
+        $notAllowed = array('gmp', 'bcmath', 'mcrypt', 'gmp');
+        foreach($notAllowed as $notAllowedExtension) {
+            if(in_array($notAllowedExtension, $requiredExtensions)) {
+                continue;
+            }
+
+            if(extension_loaded($notAllowedExtension)) {
+                $this->markTestSkipped('Extension ' . $notAllowedExtension . ' is not allowed for this data-set');
+            }
+        }
+
+        $ssh = $this->createSSHMock();
+        $identifier = $ssh->_generate_identifier();
+
+        $this->assertEquals($expected, $identifier);
     }
 }
