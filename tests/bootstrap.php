@@ -1,4 +1,9 @@
 <?php
+/**
+ * Bootstrapping File for phpseclib Test Suite
+ *
+ * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
+ */
 
 error_reporting(E_ALL | E_STRICT);
 
