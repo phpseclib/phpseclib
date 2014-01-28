@@ -3730,7 +3730,7 @@ class BigInteger
      * @param boolean
      * @access public
      */
-    static function setOpenSslEnabled(boolean $openSslEnabled) {
+    static function setOpenSslEnabled(\boolean $openSslEnabled) {
         self::$openSslEnabled = $openSslEnabled;
     }
 }
