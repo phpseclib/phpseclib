@@ -5,7 +5,9 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Math_BigInteger_GMPTest extends Math_BigInteger_TestCase
+namespace phpseclib\Math\BigInteger;
+ 
+class GMPTest extends \phpseclib\Math\BigIntegerTest
 {
 	static public function setUpBeforeClass()
 	{
@@ -16,6 +18,6 @@ class Math_BigInteger_GMPTest extends Math_BigInteger_TestCase
 
 		parent::setUpBeforeClass();
 
-		self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
+		//self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
 	}
 }

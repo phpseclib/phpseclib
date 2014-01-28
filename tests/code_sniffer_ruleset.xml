@@ -56,18 +56,6 @@
  </rule>
  <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingAfterHint" />
 
- <!-- There MUST NOT be trailing whitespace at the end of lines. -->
- <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace" />
-
- <!-- There MUST NOT be whitespace before the first content of a file -->
- <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.StartFile" />
-
- <!-- There MUST NOT be whitespace after the last content of a file -->
- <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndFile" />
-
- <!-- Functions MUST NOT contain multiple empty lines in a row -->
- <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines" />
-
  <!-- The ?> closing tag MUST be omitted from files containing only PHP. -->
  <rule ref="Zend.Files.ClosingTag" />
 
