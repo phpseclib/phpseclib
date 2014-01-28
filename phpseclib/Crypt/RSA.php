@@ -929,7 +929,7 @@ class RSA
                    DES-EDE3-CBC as an algorithm, however, is not discussed anywhere, near as I can tell.
                    DES-CBC and DES-EDE are discussed in RFC1423, however, DES-EDE3-CBC isn't, nor is its key derivation
                    function.  As is, the definitive authority on this encoding scheme isn't the IETF but rather OpenSSL's
-                   own implementation.  ie. the implementation *is* the standard and any bugs that may exist in that 
+                   own implementation.  ie. the implementation *is* the standard and any bugs that may exist in that
                    implementation are part of the standard, as well.
 
                    * OpenSSL is the de facto standard.  It's utilized by OpenSSH and other projects */
@@ -1379,7 +1379,7 @@ class RSA
                     break;
                 }
             }
-            
+
         } else {
             $components = $this->_parseKey($key, $type);
         }
@@ -2079,7 +2079,7 @@ class RSA
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.1.2 RFC3447#section-7.1.2}.  The fact that the error
      * messages aren't distinguishable from one another hinders debugging, but, to quote from RFC3447#section-7.1.2:
-     * 
+     *
      *    Note.  Care must be taken to ensure that an opponent cannot
      *    distinguish the different error conditions in Step 3.g, whether by
      *    error message or timing, or, more generally, learn partial
@@ -2708,8 +2708,8 @@ class RSA
                 return $this->_rsassa_pss_verify($message, $signature);
         }
     }
- 
-	/**
+
+    /**
      * Extract raw BER from Base64 encoding
      *
      * @access private
