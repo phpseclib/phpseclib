@@ -70,7 +70,7 @@ namespace phpseclib\Crypt;
  */
 class RC4 extends Base
 {
-	/**
+    /**
 	 * Encrypt
 	 */
     const ENCRYPT = 0;
@@ -83,11 +83,11 @@ class RC4 extends Base
     /**
      * Block Length of the cipher
      *
-     * RC4 is a stream cipher 
+     * RC4 is a stream cipher
      * so we the block_size to 0
      *
      * @see Crypt\Base::block_size
-     * @var Integer 
+     * @var Integer
      * @access private
      */
     var $block_size = 0;
@@ -101,6 +101,16 @@ class RC4 extends Base
      * @access private
      */
     var $password_key_size = 128; // = 1024 bits
+
+    /**
+     * The namespace used by the cipher for its constants.
+     *
+     * @see Crypt\Base::const_namespace
+     * @var String
+     * @access private
+     */
+    var $const_namespace = 'RC4';
+
 
     /**
      * The mcrypt specific name of the cipher
@@ -149,7 +159,7 @@ class RC4 extends Base
      */
     function __construct()
     {
-        parent::__construct(Base::MODE_STREAM);
+        parent::__construct(RC4::MODE_STREAM);
     }
 
     /**
@@ -201,7 +211,7 @@ class RC4 extends Base
      */
     function encrypt($plaintext)
     {
-        if ($this->engine == Base::MODE_MCRYPT) {
+        if ($this->engine == RC4::MODE_MCRYPT) {
             return parent::encrypt($plaintext);
         }
         return $this->_crypt($plaintext, RC4::ENCRYPT);
@@ -221,7 +231,7 @@ class RC4 extends Base
      */
     function decrypt($ciphertext)
     {
-        if ($this->engine == Base::MODE_MCRYPT) {
+        if ($this->engine == RC4::MODE_MCRYPT) {
             return parent::decrypt($ciphertext);
         }
         return $this->_crypt($ciphertext, RC4::DECRYPT);
@@ -301,4 +311,3 @@ class RC4 extends Base
         return $text;
     }
 }
-
