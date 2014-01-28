@@ -62,12 +62,12 @@
 
 namespace phpseclib\Net;
 
-use phpseclib\Crypt\DES,
-    phpseclib\Crypt\Random,
-    phpseclib\Crypt\RSA,
-    phpseclib\Crypt\TripleDES,
-    phpseclib\Math\BigInteger,
-    phpseclib\NET\SSH1;
+use phpseclib\Crypt\DES;
+use phpseclib\Crypt\Random;
+use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\TripleDES;
+use phpseclib\Math\BigInteger;
+use phpseclib\NET\SSH1;
 
 /**
  * Pure-PHP implementation of SSHv1.

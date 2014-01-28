@@ -396,7 +396,7 @@ class Twofish extends Base
      *
      * If not explictly set, TwoFish::MODE_CBC will be used.
      *
-     * @see Crypt\Base::Crypt\Base()
+     * @see Crypt\Base::__construct()
      * @param optional Integer $mode
      * @access public
      */

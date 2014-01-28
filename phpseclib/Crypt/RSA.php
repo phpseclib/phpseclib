@@ -65,8 +65,8 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Crypt\Random,
-    phpseclib\Math\BigInteger;
+use phpseclib\Crypt\Random;
+use phpseclib\Math\BigInteger;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
@@ -143,19 +143,19 @@ class RSA
     const MODE_OPENSSL = 2;
     
     /**
-     * PKCS#1 formatted protected key
+     * PKCS#1 formatted private key
      *
      * Used by OpenSSH
      */
     const PRIVATE_FORMAT_PKCS1 = 0;
     
     /**
-     * PuTTY formatted protected key
+     * PuTTY formatted private key
      */
     const PRIVATE_FORMAT_PUTTY = 1;
     
     /**
-     * XML formatted protected key
+     * XML formatted private key
      */
     const PRIVATE_FORMAT_XML = 2;
     
@@ -413,6 +413,12 @@ class RSA
      */
     var $comment = 'phpseclib-generated-key';
     
+	/**
+	 * Mode
+	 * 
+	 * @var integer
+	 * @access private
+	 */
     var $mode = null;
     
     /**
@@ -425,7 +431,7 @@ class RSA
      * @return Crypt\RSA
      * @access public
      */
-    function __construct()
+    function __construct($mode = null)
     {
         $this->configFile = dirname(__FILE__) . '/../openssl.cnf';
 
@@ -481,10 +487,10 @@ class RSA
     }
 
     /**
-     * Create public / protected key pair
+     * Create public / private key pair
      *
      * Returns an array with the following three elements:
-     *  - 'privatekey': The protected key.
+     *  - 'privatekey': The private key.
      *  - 'publickey':  The public key.
      *  - 'partialkey': A partially computed key (if the execution time exceeded $timeout).
      *                  Will need to be passed back to Crypt\RSA::createKey() as the third parameter for further processing.
@@ -652,7 +658,7 @@ class RSA
     }
 
     /**
-     * Convert a protected key to the appropriate format.
+     * Convert a private key to the appropriate format.
      *
      * @access private
      * @see setPrivateKeyFormat()
@@ -710,7 +716,7 @@ class RSA
                 $public = base64_encode($public);
                 $key.= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";
                 $key.= chunk_split($public, 64);
-                $protected = pack('Na*Na*Na*Na*',
+                $private = pack('Na*Na*Na*Na*',
                     strlen($raw['privateExponent']), $raw['privateExponent'], strlen($raw['prime1']), $raw['prime1'],
                     strlen($raw['prime2']), $raw['prime2'], strlen($raw['coefficient']), $raw['coefficient']
                 );
@@ -731,11 +737,11 @@ class RSA
 
                     $crypto->setKey($symkey);
                     $crypto->disablePadding();
-                    $protected = $crypto->encrypt($private);
+                    $private = $crypto->encrypt($private);
                     $hashkey = 'putty-private-key-file-mac-key' . $this->password;
                 }
 
-                $protected = base64_encode($private);
+                $private = base64_encode($private);
                 $key.= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
                 $key.= chunk_split($private, 64);
                 $hash = new Hash('sha1');
@@ -862,7 +868,7 @@ class RSA
     }
 
     /**
-     * Break a public or protected key down into its constituant components
+     * Break a public or private key down into its constituant components
      *
      * @access private
      * @see _convertPublicKey()
@@ -912,9 +918,9 @@ class RSA
                 return isset($components['modulus']) && isset($components['publicExponent']) ? $components : false;
             case RSA::PRIVATE_FORMAT_PKCS1:
             case RSA::PUBLIC_FORMAT_PKCS1:
-                /* Although PKCS#1 proposes a format that public and protected keys can use, encrypting them is
+                /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is
                    "outside the scope" of PKCS#1.  PKCS#1 then refers you to PKCS#12 and PKCS#15 if you're wanting to
-                   protect protected keys, however, that's not what OpenSSL* does.  OpenSSL protects protected keys by adding
+                   protect private keys, however, that's not what OpenSSL* does.  OpenSSL protects private keys by adding
                    two new "fields" to the key - DEK-Info and Proc-Type.  These fields are discussed here:
 
                    http://tools.ietf.org/html/rfc1421#section-4.6.1.1
@@ -931,8 +937,9 @@ class RSA
                     $iv = pack('H*', trim($matches[2]));
                     $symkey = pack('H*', md5($this->password . substr($iv, 0, 8))); // symkey is short for symmetric key
                     $symkey.= pack('H*', md5($symkey . $this->password . substr($iv, 0, 8)));
-                    $ciphertext = preg_replace('#.+(\r|\n|\r\n)\1|[\r\n]|-.+-| #s', '', $key);
-                    $ciphertext = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $ciphertext) ? base64_decode($ciphertext) : false;
+                    // remove the Proc-Type / DEK-Info sections as they're no longer needed
+                    $key = preg_replace('#^(?:Proc-Type|DEK-Info): .*#m', '', $key);
+                    $ciphertext = $this->_extractBER($key);
                     if ($ciphertext === false) {
                         $ciphertext = $key;
                     }
@@ -961,8 +968,7 @@ class RSA
                     $crypto->setIV($iv);
                     $decoded = $crypto->decrypt($ciphertext);
                 } else {
-                    $decoded = preg_replace('#-.+-|[\r\n]| #', '', $key);
-                    $decoded = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $decoded) ? base64_decode($decoded) : false;
+                    $decoded = $this->_extractBER($key);
                 }
 
                 if ($decoded !== false) {
@@ -1159,7 +1165,7 @@ class RSA
                 $components['modulus'] = new BigInteger($this->_string_shift($public, $length), -256);
 
                 $privateLength = trim(preg_replace('#Private-Lines: (\d+)#', '$1', $key[$publicLength + 4]));
-                $protected = base64_decode(implode('', array_map('trim', array_slice($key, $publicLength + 5, $privateLength))));
+                $private = base64_decode(implode('', array_map('trim', array_slice($key, $publicLength + 5, $privateLength))));
 
                 switch ($encryption) {
                     case 'aes256-cbc':
@@ -1176,8 +1182,8 @@ class RSA
                 if ($encryption != 'none') {
                     $crypto->setKey($symkey);
                     $crypto->disablePadding();
-                    $protected = $crypto->decrypt($private);
-                    if ($protected === false) {
+                    $private = $crypto->decrypt($private);
+                    if ($private === false) {
                         return false;
                     }
                 }
@@ -1302,7 +1308,7 @@ class RSA
     }
 
     /**
-     * Loads a public or protected key
+     * Loads a public or private key
      *
      * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
      *
@@ -1422,10 +1428,10 @@ class RSA
     /**
      * Defines the public key
      *
-     * Some protected key formats define the public exponent and some don't.  Those that don't define it are problematic when
+     * Some private key formats define the public exponent and some don't.  Those that don't define it are problematic when
      * used in certain contexts.  For example, in SSH-2, RSA authentication works by sending the public key along with a
-     * message signed by the protected key to the server.  The SSH-2 server looks the public key up in an index of public keys
-     * and if it's present then proceeds to verify the signature.  Problem is, if your protected key doesn't include the public
+     * message signed by the private key to the server.  The SSH-2 server looks the public key up in an index of public keys
+     * and if it's present then proceeds to verify the signature.  Problem is, if your private key doesn't include the public
      * exponent this won't work unless you manually add the public exponent.
      *
      * Do note that when a new key is loaded the index will be cleared.
@@ -1485,9 +1491,9 @@ class RSA
     /**
      * Returns the public key
      *
-     * The public key is only returned under two circumstances - if the protected key had the public key embedded within it
+     * The public key is only returned under two circumstances - if the private key had the public key embedded within it
      * or if the public key was set via setPublicKey().  If the currently loaded key is supposed to be the public key this
-     * function won't return it since this library, for the most part, doesn't distinguish between public and protected keys.
+     * function won't return it since this library, for the most part, doesn't distinguish between public and private keys.
      *
      * @see getPublicKey()
      * @access public
@@ -1508,9 +1514,9 @@ class RSA
     }
 
     /**
-     * Returns the protected key
+     * Returns the private key
      *
-     * The protected key is only returned if the currently loaded key contains the constituent prime numbers.
+     * The private key is only returned if the currently loaded key contains the constituent prime numbers.
      *
      * @see getPublicKey()
      * @access public
@@ -1531,9 +1537,9 @@ class RSA
     }
 
     /**
-     * Returns a minimalistic protected key
+     * Returns a minimalistic private key
      *
-     * Returns the protected key without the prime number constituants.  Structurally identical to a public key that
+     * Returns the private key without the prime number constituants.  Structurally identical to a public key that
      * hasn't been set as the public key
      *
      * @see getPrivateKey()
@@ -1666,7 +1672,7 @@ class RSA
     }
 
     /**
-     * Determines the protected key format
+     * Determines the private key format
      *
      * @see createKey()
      * @access public
@@ -2198,14 +2204,14 @@ class RSA
      *
      * For compatability purposes, this function departs slightly from the description given in RFC3447.
      * The reason being that RFC2313#section-8.1 (PKCS#1 v1.5) states that ciphertext's encrypted by the
-     * protected key should have the second byte set to either 0 or 1 and that ciphertext's encrypted by the
+     * private key should have the second byte set to either 0 or 1 and that ciphertext's encrypted by the
      * public key should have the second byte set to 2.  In RFC3447 (PKCS#1 v2.1), the second byte is supposed
      * to be 2 regardless of which key is used.  For compatability purposes, we'll just check to make sure the
      * second byte is 2 or less.  If it is, we'll accept the decrypted string as valid.
      *
-     * As a consequence of this, a protected key encrypted ciphertext produced with Crypt\RSA may not decrypt
+     * As a consequence of this, a private key encrypted ciphertext produced with Crypt\RSA may not decrypt
      * with a strictly PKCS#1 v1.5 compliant RSA implementation.  Public key encrypted ciphertext's should but
-     * not protected key encrypted ciphertext's.
+     * not private key encrypted ciphertext's.
      *
      * @access private
      * @param String $c
@@ -2701,5 +2707,32 @@ class RSA
             default:
                 return $this->_rsassa_pss_verify($message, $signature);
         }
+    }
+ 
+	/**
+     * Extract raw BER from Base64 encoding
+     *
+     * @access private
+     * @param String $str
+     * @return String
+     */
+    function _extractBER($str)
+    {
+        /* X.509 certs are assumed to be base64 encoded but sometimes they'll have additional things in them
+         * above and beyond the ceritificate.
+         * ie. some may have the following preceding the -----BEGIN CERTIFICATE----- line:
+         *
+         * Bag Attributes
+         *     localKeyID: 01 00 00 00
+         * subject=/O=organization/OU=org unit/CN=common name
+         * issuer=/O=organization/CN=common name
+         */
+        $temp = preg_replace('#.*?^-+[^-]+-+#ms', '', $str, 1);
+        // remove the -----BEGIN CERTIFICATE----- and -----END CERTIFICATE----- stuff
+        $temp = preg_replace('#-+[^-]+-+#', '', $temp);
+        // remove new lines
+        $temp = str_replace(array("\r", "\n", ' '), '', $temp);
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        return $temp != false ? $temp : $str;
     }
 }

@@ -41,8 +41,8 @@
 
 namespace phpseclib\File;
 
-use phpseclib\File\ASN1\Element,
-    phpseclib\Math\BigInteger;
+use phpseclib\File\ASN1\Element;
+use phpseclib\Math\BigInteger;
 
 /**
  * Pure-PHP ASN.1 Parser

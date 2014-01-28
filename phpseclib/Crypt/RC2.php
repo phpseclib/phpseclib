@@ -264,7 +264,7 @@ class RC2 extends Base
      *
      * If not explictly set, RC2::MODE_CBC will be used.
      *
-     * @see Crypt\Base::Crypt\Base()
+     * @see Crypt\Base::__construct()
      * @param optional Integer $mode
      * @access public
      */

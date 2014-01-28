@@ -63,15 +63,15 @@
 
 namespace phpseclib\Net;
 
-use phpseclib\Crypt\Blowfish,
-    phpseclib\Crypt\Hash,
-    phpseclib\Crypt\Random,
-    phpseclib\Crypt\RC4,
-    phpseclib\Crypt\Rijndael,
-    phpseclib\Crypt\RSA,
-    phpseclib\Crypt\TripleDES,
-    phpseclib\Crypt\TwoFish,
-    phpseclib\Math\BigInteger;
+use phpseclib\Crypt\Blowfish;
+use phpseclib\Crypt\Hash;
+use phpseclib\Crypt\Random;
+use phpseclib\Crypt\RC4;
+use phpseclib\Crypt\Rijndael;
+use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\TripleDES;
+use phpseclib\Crypt\TwoFish;
+use phpseclib\Math\BigInteger;
 
 /**
  * Pure-PHP implementation of SSHv2.

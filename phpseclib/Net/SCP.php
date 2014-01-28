@@ -48,9 +48,9 @@
 
 namespace phpseclib\Net;
 
-use phpseclib\NET\SCP,
-    phpseclib\NET\SSH1,
-    phpseclib\NET\SSH2;
+use phpseclib\NET\SCP;
+use phpseclib\NET\SSH1;
+use phpseclib\NET\SSH2;
 
 /**
  * Pure-PHP implementations of SCP.

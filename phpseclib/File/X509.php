@@ -44,10 +44,10 @@
 
 namespace phpseclib\File;
 
-use phpseclib\Crypt\RSA,
-    phpseclib\File\ASN1,
-    phpseclib\File\ASN1\Element,
-    phpseclib\Math\BigInteger;
+use phpseclib\Crypt\RSA;
+use phpseclib\File\ASN1;
+use phpseclib\File\ASN1\Element;
+use phpseclib\Math\BigInteger;
 
 /**
  * Pure-PHP X.509 Parser

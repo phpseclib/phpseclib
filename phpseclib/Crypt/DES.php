@@ -90,7 +90,7 @@ class DES extends Base
      *
      * Outer chaining is used by SSH-2 and when the mode is set to MODE_CBC.
      */
-    const MODE_CBC3 = MODE_CBC;
+    const MODE_CBC3 = self::MODE_CBC;
     
     /**
      * Block Length of the cipher
@@ -619,7 +619,7 @@ class DES extends Base
      *
      * If not explictly set, DES::MODE_CBC will be used.
      *
-     * @see Crypt\Base::Crypt\Base()
+     * @see Crypt\Base::__construct()
      * @param optional Integer $mode
      * @access public
      */

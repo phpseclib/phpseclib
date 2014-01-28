@@ -152,7 +152,7 @@ class TripleDES extends DES
      * If not explictly set, DES::MODE_CBC will be used.
      *
      * @see Crypt\DES::Crypt\DES()
-     * @see Crypt\Base::Crypt\Base()
+     * @see Crypt\Base::__construct()
      * @param optional Integer $mode
      * @access public
      */

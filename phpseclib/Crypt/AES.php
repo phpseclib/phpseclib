@@ -71,6 +71,35 @@ namespace phpseclib\Crypt;
  */
 class AES extends Rijndael
 {
+	/**
+     * Default Constructor.
+     *
+     * Determines whether or not the mcrypt extension should be used.
+     *
+     * $mode could be:
+     *
+     * - AES::MODE_ECB
+     *
+     * - AES::MODE_CBC
+     *
+     * - AES::MODE_CTR
+     *
+     * - AES::MODE_CFB
+     *
+     * - AES::MODE_OFB
+     *
+     * If not explictly set, AES::MODE_CBC will be used.
+     *
+     * @see Crypt\Rijndael::Crypt\Rijndael()
+     * @see Crypt\Base::__construct()
+     * @param optional Integer $mode
+     * @access public
+     */
+    function __construct($mode = AES::MODE_CBC)
+    {
+        parent::__construct($mode);
+    }
+	
     /**
      * Dummy function
      *

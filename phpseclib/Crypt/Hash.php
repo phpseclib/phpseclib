@@ -144,6 +144,12 @@ class Hash
      */
     var $ipad;
     
+	/**
+	 * Mode
+	 * 
+	 * @var Integer
+	 * @access private
+	 */
     var $mode = null;
     
     /**

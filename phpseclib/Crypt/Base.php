@@ -122,7 +122,7 @@ class Base
     /**
      * The Encryption Mode
      *
-     * @see Crypt\Base::Crypt\Base()
+     * @see Crypt\Base::__construct
      * @var Integer
      * @access private
      */
@@ -311,7 +311,7 @@ class Base
     /**
      * Is the mode one that is paddable?
      *
-     * @see Crypt\Base::Crypt\Base()
+     * @see Crypt\Base::__construct
      * @var Boolean
      * @access private
      */
