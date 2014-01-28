@@ -156,11 +156,14 @@ class Hash
      * Default Constructor.
      *
      * @param optional String $hash
+	 * @param optional String $mode
      * @return Crypt\Hash
      * @access public
      */
-    function __construct($hash = 'sha1')
+    function __construct($hash = 'sha1', $mode = null)
     {
+        $this->mode = $mode;
+		
         if ( $this->mode === null ) {
             switch (true) {
                 case extension_loaded('hash'):
