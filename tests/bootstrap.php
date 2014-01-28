@@ -10,7 +10,7 @@ date_default_timezone_set('UTC');
 // Set up include path accordingly. This is especially required because some
 // class files of phpseclib require() other dependencies.
 set_include_path(implode(PATH_SEPARATOR, array(
-	realpath(dirname(__FILE__) . '/../../src'),
+	realpath(dirname(__FILE__) . '/../../phpseclib'),
 	realpath(dirname(__FILE__) . '/../../tests'),
 	realpath(dirname(__FILE__) . '/'),
 	get_include_path(),
