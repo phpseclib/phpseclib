@@ -57,10 +57,7 @@
     },
     "autoload": {
         "psr-4": {
-            "phpseclib\\": [
-            	"phpseclib/",
-            	"tests/"
-            ]
+            "phpseclib\\": "phpseclib/"
         }
     },
     "extra": {

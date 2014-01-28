@@ -15,4 +15,5 @@ if (!file_exists(dirname(__DIR__) . DIRECTORY_SEPARATOR . '/vendor/autoload.php'
 }
 
 // Include the Composer autoloader
-$loader = include realpath(dirname(__FILE__) . '/../vendor/autoload.php');
+$loader = include dirname(__FILE__) . '/../vendor/autoload.php';
+$loader->addPsr4('phpseclib\\', __DIR__);
