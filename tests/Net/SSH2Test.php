@@ -7,7 +7,7 @@
 
 namespace phpseclib\Net;
 
-class SSH2Test extends \PhpseclibTestCase
+class SSH2Test extends \phpseclib\AbstractTestCase
 {
     public function formatLogDataProvider()
     {

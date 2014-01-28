@@ -9,7 +9,7 @@ namespace phpseclib\Crypt;
 
 use phpseclib\Crypt\AES;
 
-abstract class AESTest extends \PhpseclibTestCase
+abstract class AESTest extends \phpseclib\AbstractTestCase
 {
     static public function setUpBeforeClass()
     {

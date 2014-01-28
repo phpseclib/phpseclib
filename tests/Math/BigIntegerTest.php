@@ -9,7 +9,7 @@
 
 namespace phpseclib\Math;
 
-abstract class BigIntegerTest extends \PhpseclibTestCase
+abstract class BigIntegerTest extends \phpseclib\AbstractTestCase
 {
     static public function setUpBeforeClass()
     {

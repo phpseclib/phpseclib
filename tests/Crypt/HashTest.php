@@ -7,7 +7,7 @@
 
 namespace phpseclib\Crypt;
  
-abstract class HashTest extends \PhpseclibTestCase
+abstract class HashTest extends \phpseclib\AbstractTestCase
 {
     static public function setUpBeforeClass()
     {
