@@ -425,8 +425,6 @@ class Base
         if (self::getMode() === null) {
             switch (true) {
                 case extension_loaded('mcrypt') && in_array($this->cipher_name_mcrypt, \mcrypt_list_algorithms()):
-					print_r(\mcrypt_list_algorithms());
-					exit();
                     self::setMode(Base::MODE_MCRYPT);
                     break;
                 default:
