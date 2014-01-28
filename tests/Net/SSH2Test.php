@@ -35,7 +35,7 @@ class SSH2Test extends \PhpseclibTestCase
             ->disableOriginalConstructor()
             ->setMethods(array('__destruct'))
             ->getMock();
-		
+        
         $result = $ssh->_format_log($message_log, $message_number_log);
 
         $this->assertEquals($expected, $result);

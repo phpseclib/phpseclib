@@ -71,13 +71,13 @@ namespace phpseclib\Crypt;
 class RC4 extends Base
 {
     /**
-	 * Encrypt
-	 */
+     * Encrypt
+     */
     const ENCRYPT = 0;
-	
-	/**
-	 * Decrypt
-	 */
+    
+    /**
+     * Decrypt
+     */
     const DECRYPT = 1;
 
     /**

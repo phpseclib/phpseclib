@@ -802,13 +802,6 @@ class SSH2
      */
     var $is_timeout = false;
     
-	/**
-	 * Logging
-	 * Whether logging is enabled or not. Can be one of false, SSH2::LOG_SIMPLE, SSH2::LOG_COMPLEX or SSH2::LOG_REALTIME
-	 * @access private
-	 */
-	var $logging = false;
-	
     /**
      * Log Boundary
      *
@@ -832,7 +825,17 @@ class SSH2
      * @access private
      */
     var $log_short_width = 16;
-
+    
+    /**
+     * Logging
+     * 
+     * @see getLogging()
+     * @see setLogging()
+     * @var mixed
+     * @access private
+     */
+    static $logging = false;
+    
     /**
      * Default Constructor.
      *
@@ -973,7 +976,7 @@ class SSH2
             $this->identifier.= ' (' . implode(', ', $ext) . ')';
         }
 
-        if ($this->logging !== false) {
+        if (self::getLogging() !== false) {
             $this->_append_log('<-', $extra . $temp);
             $this->_append_log('->', $this->identifier . "\r\n");
         }
@@ -1765,7 +1768,7 @@ class SSH2
         );
 
         // remove the username and password from the logged packet
-        if ($this->logging === false) {
+        if (self::getLogging() === false) {
             $logged = null;
         } else {
             $logged = pack('CNa*Na*Na*CNa*',
@@ -1788,7 +1791,7 @@ class SSH2
 
         switch ($type) {
             case SSH2::MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
-                if ($this->logging !== false) {
+                if (self::getLogging() !== false) {
                     $this->message_number_log[count($this->message_number_log) - 1] = 'MSG_USERAUTH_PASSWD_CHANGEREQ';
                 }
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
@@ -1903,7 +1906,7 @@ class SSH2
                 // see http://tools.ietf.org/html/rfc4256#section-3.2
                 if (strlen($this->last_interactive_response)) {
                     $this->last_interactive_response = '';
-                } else if ($this->logging !== false) {
+                } else if (self::getLogging() !== false) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
                         'MSG_USERAUTH_INFO_REQUEST',
@@ -1932,7 +1935,7 @@ class SSH2
                     return false;
                 }
 
-                if ($this->logging !== false && $this->logging == SSH2::LOG_COMPLEX) {
+                if (self::getLogging() !== false && self::getLogging() == SSH2::LOG_COMPLEX) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
                         'MSG_USERAUTH_INFO_RESPONSE',
@@ -2010,7 +2013,7 @@ class SSH2
             case SSH2::MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
-                if ($this->logging !== false && $this->logging == SSH2::LOG_COMPLEX) {
+                if (self::getLogging() !== false && self::getLogging() == SSH2::LOG_COMPLEX) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
                         'MSG_USERAUTH_PK_OK',
@@ -2561,7 +2564,7 @@ class SSH2
 
         $this->get_seq_no++;
 
-        if ($this->logging !== false) {
+        if (self::getLogging() !== false) {
             $current = microtime(true);
             $message_number = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
             $message_number = '<- ' . $message_number .
@@ -2952,7 +2955,7 @@ class SSH2
         $result = strlen($packet) == fputs($this->fsock, $packet);
         $stop = microtime(true);
 
-        if ($this->logging !== false) {
+        if (self::getLogging() !== false) {
             $current = microtime(true);
             $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
             $message_number = '-> ' . $message_number .
@@ -2979,7 +2982,7 @@ class SSH2
                 $this->_string_shift($message);
             }
 
-            switch ($this->logging) {
+            switch (self::getLogging()) {
                 // useful for benchmarks
                 case SSH2::LOG_SIMPLE:
                     $this->message_number_log[] = $message_number;
@@ -3177,18 +3180,18 @@ class SSH2
     /**
      * Returns a log of the packets that have been sent and received.
      *
-     * Returns a string if $this->logging == SSH2::LOG_COMPLEX, an array if $this->logging == SSH2::LOG_SIMPLE and false if $this->logging === false
+     * Returns a string if self::$logging == SSH2::LOG_COMPLEX, an array if self::$logging == SSH2::LOG_SIMPLE and false if self::$logging === false
      *
      * @access public
      * @return String or Array
      */
     function getLog()
     {
-        if ($this->logging === false) {
+        if (self::getLogging() === false) {
             return false;
         }
 
-        switch ($this->logging) {
+        switch (self::getLogging()) {
             case SSH2::LOG_SIMPLE:
                 return $this->message_number_log;
                 break;
@@ -3553,5 +3556,25 @@ class SSH2
             return false;
         }
         return $this->exit_status;
+    }
+    
+    /**
+     * Gets the logging mode
+     * 
+     * @return integer
+     * @access public
+     */
+    static function getLogging() {
+        return self::$logging;
+    }
+    
+    /**
+     * Sets the logging mode
+     * 
+     * @param integer $logging Should be one of false, true (defaults to SSH2::LOG_SIMPLE), SSH2::LOG_SIMPLE, SSH2::LOG_COMPLEX, SSH2::LOG_REALTIME or SSH2::LOG_REALTIME_FILE
+     * @access public
+     */
+    static function setLogging($logging) {
+        self::$logging = $logging === true ? SSH2::LOG_SIMPLE : $logging;
     }
 }

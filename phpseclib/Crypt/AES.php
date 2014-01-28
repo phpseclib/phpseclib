@@ -71,7 +71,7 @@ namespace phpseclib\Crypt;
  */
 class AES extends Rijndael
 {
-	/**
+    /**
      * Default Constructor.
      *
      * Determines whether or not the mcrypt extension should be used.
@@ -99,7 +99,7 @@ class AES extends Rijndael
     {
         parent::__construct($mode);
     }
-	
+    
     /**
      * Dummy function
      *

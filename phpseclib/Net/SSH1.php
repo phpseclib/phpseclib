@@ -397,13 +397,6 @@ class SSH1
     var $message_log = array();
     
     /**
-     * Logging
-     * Whether logging is enabled or not. Can be one of false, SSH1::LOG_SIMPLE, SSH1::LOG_COMPLEX or SSH1::LOG_REALTIME
-     * @access private
-     */
-    var $logging = false;
-    
-    /**
      * Real-time log file pointer
      *
      * @see Net\SSH1::_append_log()
@@ -455,6 +448,16 @@ class SSH1
     var $curTimeout;
     
     /**
+     * Logging
+     * 
+     * @see getLogging()
+     * @see setLogging()
+     * @var mixed
+     * @access private
+     */
+    static $logging = false;
+    
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv1 server
@@ -495,7 +498,7 @@ class SSH1
 
         $this->server_identification = $init_line = fgets($this->fsock, 255);
 
-        if ($this->logging !== false) {
+        if (self::getLogging() !== false) {
             $this->_append_log('<-', $this->server_identification);
             $this->_append_log('->', $this->identifier . "\r\n");
         }
@@ -677,7 +680,7 @@ class SSH1
         }
 
         // remove the username and password from the last logged packet
-        if ($this->logging !== false && $this->logging == SSH1::LOG_COMPLEX) {
+        if (self::getLogging() == SSH1::LOG_COMPLEX) {
             $data = pack('CNa*', SSH1::CMSG_AUTH_PASSWORD, strlen('password'), 'password');
             $this->message_log[count($this->message_log) - 1] = $data;
         }
@@ -1057,7 +1060,7 @@ class SSH1
 
         $type = ord($type);
 
-        if ($this->logging !== false) {
+        if (self::getLogging() !== false) {
             $temp = isset($this->protocol_flags[$type]) ? $this->protocol_flags[$type] : 'UNKNOWN';
             $temp = '<- ' . $temp .
                     ' (' . round($stop - $start, 4) . 's)';
@@ -1105,7 +1108,7 @@ class SSH1
         $result = strlen($packet) == fputs($this->fsock, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
 
-        if ($this->logging !== false) {
+        if (self::getLogging() !== false) {
             $temp = isset($this->protocol_flags[ord($orig[0])]) ? $this->protocol_flags[ord($orig[0])] : 'UNKNOWN';
             $temp = '-> ' . $temp .
                     ' (' . round($stop - $start, 4) . 's)';
@@ -1286,18 +1289,18 @@ class SSH1
     /**
      * Returns a log of the packets that have been sent and received.
      *
-     * Returns a string if $this->logging == SSH1::LOG_COMPLEX, an array if $this->logging == SSH1::LOG_SIMPLE and false if $this->logging === false
+     * Returns a string if self::$logging == SSH1::LOG_COMPLEX, an array if self::$logging == SSH1::LOG_SIMPLE and false if self::$logging === false
      *
      * @access public
      * @return String or Array
      */
     function getLog()
     {
-        if ($this->logging === false) {
+        if (self::getLogging() === false) {
             return false;
         }
 
-        switch ($this->logging) {
+        switch (self::getLogging()) {
             case SSH1::LOG_SIMPLE:
                 return $this->message_number_log;
                 break;
@@ -1464,7 +1467,7 @@ class SSH1
      */
     function _append_log($protocol_flags, $message)
     {
-            switch ($this->logging) {
+            switch (self::getLogging()) {
                 // useful for benchmarks
                 case SSH1::LOG_SIMPLE:
                     $this->protocol_flags_log[] = $protocol_flags;
@@ -1516,5 +1519,25 @@ class SSH1
                     }
                     fputs($this->realtime_log_file, $entry);
             }
+    }
+
+    /**
+     * Gets the logging mode
+     * 
+     * @return integer
+     * @access public
+     */
+    static function getLogging() {
+        return self::$logging;
+    }
+    
+    /**
+     * Sets the logging mode
+     * 
+     * @param integer $logging Should be one of false, true (defaults to SSH1::LOG_SIMPLE), SSH1::LOG_SIMPLE, SSH1::LOG_COMPLEX, SSH1::LOG_REALTIME or SSH1::LOG_REALTIME_FILE
+     * @access public
+     */
+    static function setLogging($logging) {
+        self::$logging = $logging === true ? SSH1::LOG_SIMPLE : $logging;
     }
 }

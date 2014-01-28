@@ -215,11 +215,30 @@ class BigInteger
      */
     var $hex;
     
+    /**
+     * Mode
+     * 
+     * @see getMode()
+     * @see setMode()
+     * @var integer
+     * @access private
+     */
+    static $mode = null;
+    
+    /**
+     * OpenSSL Enabled
+     * 
+     * @see getOpenSslEnabled()
+     * @see setOpenSslEnabled()
+     * @var boolean
+     * @access private
+     */
+    static $openSslEnabled = null;
+    
     /* Moved these variables from global scope to class variables
      * They are not constant value since they are set at runtime and
      * therefore should not be defined via define or const.
      */
-    var $mode = null;
     var $base = null;
     var $baseFull = null;
     var $maxDigit = null;
@@ -250,16 +269,16 @@ class BigInteger
      */
     function __construct($x = 0, $base = 10)
     {
-        if ($this->mode === null) {
+        if (self::getMode() === null) {
             switch (true) {
                 case extension_loaded('gmp'):
-                    $this->mode = BigInteger::MODE_GMP;
+                    self::setMode(BigInteger::MODE_GMP);
                     break;
                 case extension_loaded('bcmath'):
-                    $this->mode = BigInteger::MODE_BCMATH;
+                    self::setMode(BigInteger::MODE_BCMATH);
                     break;
                 default:
-                    $this->mode = BigInteger::MODE_INTERNAL;
+                    self::setMode(BigInteger::MODE_INTERNAL);
             }
         }
 
@@ -267,7 +286,7 @@ class BigInteger
             define('PHP_INT_SIZE', 4);
         }
 
-        if ($this->base === null && $this->mode == BigInteger::MODE_INTERNAL) {
+        if ($this->base === null && self::getMode() == BigInteger::MODE_INTERNAL) {
             switch (PHP_INT_SIZE) {
                 case 8: // use 64-bit integers if int size is 8 bytes
                     $this->base = 31;
@@ -296,7 +315,7 @@ class BigInteger
             }
         }
 
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 if (is_resource($x) && get_resource_type($x) == 'GMP integer') {
                     $this->value = $x;
@@ -324,7 +343,7 @@ class BigInteger
                     $this->is_negative = true;
                 }
             case  256:
-                switch ( $this->mode ) {
+                switch ( self::getMode() ) {
                     case BigInteger::MODE_GMP:
                         $sign = $this->is_negative ? '-' : '';
                         $this->value = gmp_init($sign . '0x' . bin2hex($x));
@@ -353,7 +372,7 @@ class BigInteger
                 }
 
                 if ($this->is_negative) {
-                    if ($this->mode != BigInteger::MODE_INTERNAL) {
+                    if (self::getMode() != BigInteger::MODE_INTERNAL) {
                         $this->is_negative = false;
                     }
                     $temp = $this->add(new BigInteger('-1'));
@@ -375,7 +394,7 @@ class BigInteger
                     $x = bin2hex(~pack('H*', $x));
                 }
 
-                switch ( $this->mode ) {
+                switch ( self::getMode() ) {
                     case BigInteger::MODE_GMP:
                         $temp = $this->is_negative ? '-0x' . $x : '0x' . $x;
                         $this->value = gmp_init($temp);
@@ -405,7 +424,7 @@ class BigInteger
                 // [^-0-9].*: find any non-numeric characters and then any characters that follow that
                 $x = preg_replace('#(?<!^)(?:-).*|(?<=^|-)0*|[^-0-9].*#', '', $x);
 
-                switch ( $this->mode ) {
+                switch ( self::getMode() ) {
                     case BigInteger::MODE_GMP:
                         $this->value = gmp_init($x);
                         break;
@@ -466,34 +485,6 @@ class BigInteger
         }
     }
     
-    public static function isOpenSslEnabled() {
-        if (function_exists('openssl_public_encrypt')) {
-            return false;
-        }
-        
-        // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
-        ob_start();
-        phpinfo();
-        $content = ob_get_contents();
-        ob_end_clean();
-
-        preg_match_all('#OpenSSL (Header|Library) Version(.*)#im', $content, $matches);
-
-        $versions = array();
-        if (!empty($matches[1])) {
-            for ($i = 0; $i < count($matches[1]); $i++) {
-                $versions[$matches[1][$i]] = trim(str_replace('=>', '', strip_tags($matches[2][$i])));
-            }
-        }
-
-        // it doesn't appear that OpenSSL versions were reported upon until PHP 5.3+
-        if (!isset($versions['Header']) || !isset($versions['Library']) || $versions['Header'] == $versions['Library']) {
-            return true;
-        }
-        
-        return false;
-    }
-    
     /**
      * Converts a BigInteger to a byte string (eg. base-256).
      *
@@ -536,7 +527,7 @@ class BigInteger
             return $comparison < 0 ? ~$bytes : $bytes;
         }
 
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 if (gmp_cmp($this->value, gmp_init(0)) == 0) {
                     return $this->precision > 0 ? str_repeat(chr(0), ($this->precision + 1) >> 3) : '';
@@ -671,7 +662,7 @@ class BigInteger
      */
     function toString()
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 return gmp_strval($this->value);
             case BigInteger::MODE_BCMATH:
@@ -826,7 +817,7 @@ class BigInteger
      */
     function add($y)
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 $temp = new BigInteger();
                 $temp->value = gmp_add($this->value, $y->value);
@@ -955,7 +946,7 @@ class BigInteger
      */
     function subtract($y)
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 $temp = new BigInteger();
                 $temp->value = gmp_sub($this->value, $y->value);
@@ -1088,7 +1079,7 @@ class BigInteger
      */
     function multiply($x)
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 $temp = new BigInteger();
                 $temp->value = gmp_mul($this->value, $x->value);
@@ -1373,7 +1364,7 @@ class BigInteger
      */
     function divide($y)
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 $quotient = new BigInteger();
                 $remainder = new BigInteger();
@@ -1622,7 +1613,7 @@ class BigInteger
             return $this->_normalize($temp->modPow($e, $n));
         }
 
-        if ( $this->mode == BigInteger::MODE_GMP ) {
+        if ( self::getMode() == BigInteger::MODE_GMP ) {
             $temp = new BigInteger();
             $temp->value = gmp_powm($this->value, $e->value, $n->value);
 
@@ -1634,7 +1625,7 @@ class BigInteger
             return $temp->modPow($e, $n);
         }
 
-        if ($this->isOpenSslEnabled()) {
+        if ($this->getOpenSslEnabled()) {
             $components = array(
                 'modulus' => $n->toBytes(true),
                 'publicExponent' => $e->toBytes(true)
@@ -1669,7 +1660,7 @@ class BigInteger
             }
         }
 
-        if ( $this->mode == BigInteger::MODE_BCMATH ) {
+        if ( self::getMode() == BigInteger::MODE_BCMATH ) {
                 $temp = new BigInteger();
                 $temp->value = bcpowmod($this->value, $e->value, $n->value, 0);
 
@@ -2387,7 +2378,7 @@ class BigInteger
      */
     function modInverse($n)
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 $temp = new BigInteger();
                 $temp->value = gmp_invert($this->value, $n->value);
@@ -2451,7 +2442,7 @@ class BigInteger
      */
     function extendedGCD($n)
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 extract(gmp_gcdext($this->value, $n->value));
 
@@ -2594,7 +2585,7 @@ class BigInteger
     {
         $temp = new BigInteger();
 
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 $temp->value = gmp_abs($this->value);
                 break;
@@ -2628,7 +2619,7 @@ class BigInteger
      */
     function compare($y)
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 return gmp_cmp($this->value, $y->value);
             case BigInteger::MODE_BCMATH:
@@ -2686,7 +2677,7 @@ class BigInteger
      */
     function equals($x)
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 return gmp_cmp($this->value, $x->value) == 0;
             default:
@@ -2706,7 +2697,7 @@ class BigInteger
     function setPrecision($bits)
     {
         $this->precision = $bits;
-        if ( $this->mode != BigInteger::MODE_BCMATH ) {
+        if ( self::getMode() != BigInteger::MODE_BCMATH ) {
             $this->bitmask = new BigInteger(chr((1 << ($bits & 0x7)) - 1) . str_repeat(chr(0xFF), $bits >> 3), 256);
         } else {
             $this->bitmask = new BigInteger(bcpow('2', $bits, 0));
@@ -2726,7 +2717,7 @@ class BigInteger
      */
     function bitwise_and($x)
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 $temp = new BigInteger();
                 $temp->value = gmp_and($this->value, $x->value);
@@ -2767,7 +2758,7 @@ class BigInteger
      */
     function bitwise_or($x)
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 $temp = new BigInteger();
                 $temp->value = gmp_or($this->value, $x->value);
@@ -2807,7 +2798,7 @@ class BigInteger
      */
     function bitwise_xor($x)
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 $temp = new BigInteger();
                 $temp->value = gmp_xor($this->value, $x->value);
@@ -2887,7 +2878,7 @@ class BigInteger
     {
         $temp = new BigInteger();
 
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 static $two;
 
@@ -2925,7 +2916,7 @@ class BigInteger
     {
         $temp = new BigInteger();
 
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 static $two;
 
@@ -2964,7 +2955,7 @@ class BigInteger
 
         if ($this->precision > 0) {
             $precision = $this->precision;
-            if ( $this->mode == BigInteger::MODE_BCMATH ) {
+            if ( self::getMode() == BigInteger::MODE_BCMATH ) {
                 $mask = $this->bitmask->subtract(new BigInteger(1));
                 $mask = $mask->toBytes();
             } else {
@@ -2989,7 +2980,7 @@ class BigInteger
         $left = $this->bitwise_leftShift($shift);
         $left = $left->bitwise_and(new BigInteger($mask, 256));
         $right = $this->bitwise_rightShift($precision - $shift);
-        $result = $this->mode != BigInteger::MODE_BCMATH ? $left->bitwise_or($right) : $left->add($right);
+        $result = self::getMode() != BigInteger::MODE_BCMATH ? $left->bitwise_or($right) : $left->add($right);
         return $this->_normalize($result);
     }
 
@@ -3167,7 +3158,7 @@ class BigInteger
         $x = $this->random($min, $max);
 
         // gmp_nextprime() requires PHP 5 >= 5.2.0 per <http://php.net/gmp-nextprime>.
-        if ( $this->mode == BigInteger::MODE_GMP && function_exists('gmp_nextprime') ) {
+        if ( self::getMode() == BigInteger::MODE_GMP && function_exists('gmp_nextprime') ) {
             $p = new BigInteger();
             $p->value = gmp_nextprime($x->value);
 
@@ -3233,7 +3224,7 @@ class BigInteger
      */
     function _make_odd()
     {
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 gmp_setbit($this->value, 0);
                 break;
@@ -3285,7 +3276,7 @@ class BigInteger
 
         // ie. gmp_testbit($this, 0)
         // ie. isEven() or !isOdd()
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 return gmp_prob_prime($this->value, $t) != 0;
             case BigInteger::MODE_BCMATH:
@@ -3322,7 +3313,7 @@ class BigInteger
                 953,  967,  971,  977,  983,  991,  997
             );
 
-            if ( $this->mode != BigInteger::MODE_INTERNAL ) {
+            if ( self::getMode() != BigInteger::MODE_INTERNAL ) {
                 for ($i = 0; $i < count($primes); ++$i) {
                     $primes[$i] = new BigInteger($primes[$i]);
                 }
@@ -3338,7 +3329,7 @@ class BigInteger
         }
 
         // see HAC 4.4.1 "Random search for probable primes"
-        if ( $this->mode != BigInteger::MODE_INTERNAL ) {
+        if ( self::getMode() != BigInteger::MODE_INTERNAL ) {
             foreach ($primes as $prime) {
                 list(, $r) = $this->divide($prime);
                 if ($r->equals($zero)) {
@@ -3362,7 +3353,7 @@ class BigInteger
         $r = $n_1->copy();
         $r_value = $r->value;
         // ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
-        if ( $this->mode == BigInteger::MODE_BCMATH ) {
+        if ( self::getMode() == BigInteger::MODE_BCMATH ) {
             $s = 0;
             // if $n was 1, $r would be 0 and this would be an infinite loop, hence our $this->equals($one) check earlier
             while ($r->value[strlen($r->value) - 1] % 2 == 0) {
@@ -3485,7 +3476,7 @@ class BigInteger
         $result->precision = $this->precision;
         $result->bitmask = $this->bitmask;
 
-        switch ( $this->mode ) {
+        switch ( self::getMode() ) {
             case BigInteger::MODE_GMP:
                 if (!empty($result->bitmask->value)) {
                     $result->value = gmp_and($result->value, $result->bitmask->value);
@@ -3670,5 +3661,76 @@ class BigInteger
 
         $temp = ltrim(pack('N', $length), chr(0));
         return pack('Ca*', 0x80 | strlen($temp), $temp);
+    }
+    
+    /**
+     * Gets the mode
+     * 
+     * @return integer
+     * @access public
+     */
+    static function getMode() {
+        return self::$mode;
+    }
+    
+    /**
+     * Sets the mode
+     * 
+     * @param integer $mode Should be one of BigInteger::MODE_INTERNAL, BigInteger::MODE_BCMATH, or BigInteger::MODE_GMP
+     * @access public
+     */
+    static function setMode($mode) {
+        self::$mode = $mode;
+    }
+    
+    /**
+     * Returns true if OpenSSL is available
+     * 
+     * @return boolean
+     * @access public
+     */
+    static function getOpenSslEnabled() {
+        if (self::$openSslEnabled !== null) {
+            return self::$openSslEnabled;
+        }
+        
+        if (function_exists('openssl_public_encrypt')) {
+            self::setOpenSslEnabled(false);
+            return false;
+        }
+        
+        // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
+        ob_start();
+        phpinfo();
+        $content = ob_get_contents();
+        ob_end_clean();
+
+        preg_match_all('#OpenSSL (Header|Library) Version(.*)#im', $content, $matches);
+
+        $versions = array();
+        if (!empty($matches[1])) {
+            for ($i = 0; $i < count($matches[1]); $i++) {
+                $versions[$matches[1][$i]] = trim(str_replace('=>', '', strip_tags($matches[2][$i])));
+            }
+        }
+
+        // it doesn't appear that OpenSSL versions were reported upon until PHP 5.3+
+        if (!isset($versions['Header']) || !isset($versions['Library']) || $versions['Header'] == $versions['Library']) {
+            self::setOpenSslEnabled(true);
+            return true;
+        }
+        
+        self::setOpenSslEnabled(false);
+        return false;
+    }
+    
+    /**
+     * Sets whether or not OpenSsl is enabled
+     * 
+     * @param boolean
+     * @access public
+     */
+    static function setOpenSslEnabled(Boolean $openSslEnabled) {
+        self::$openSslEnabled = $openSslEnabled;
     }
 }

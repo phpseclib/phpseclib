@@ -9,21 +9,16 @@ namespace phpseclib\Crypt;
  
 abstract class AESTest extends \PhpseclibTestCase
 {
-	/*static public function setUpBeforeClass()
-	{
-		require_once('Crypt/AES.php');
+    static public function setUpBeforeClass()
+    {
+        AES::setMode(AES::MODE_INTERNAL);
+    }
 
-		if (!defined('CRYPT_AES_MODE'))
-		{
-			define('CRYPT_AES_MODE', CRYPT_AES_MODE_INTERNAL);
-		}
-	}
-
-	public function setUp()
-	{
-		if (defined('CRYPT_AES_MODE') && CRYPT_AES_MODE !== CRYPT_AES_MODE_INTERNAL)
-		{
-			$this->markTestSkipped('Skipping test because CRYPT_AES_MODE is not defined as CRYPT_AES_MODE_INTERNAL.');
-		}
-	}*/
+    public function setUp()
+    {
+        if (AES::getMode() !== AES::MODE_INTERNAL)
+        {
+            $this->markTestSkipped('Skipping test because AES::$mode is not defined as AES::MODE_INTERNAL.');
+        }
+    }
 }

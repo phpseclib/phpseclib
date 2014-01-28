@@ -144,36 +144,35 @@ class Hash
      */
     var $ipad;
 
-	/**
-	 * Mode
-	 * 
-	 * @var Integer
-	 * @access private
-	 */
-    var $mode = null;
+    /**
+     * Mode
+     * 
+     * @see getMode()
+     * @see setMode()
+     * @var integer
+     * @access private
+     */
+    static $mode = null;
     
     /**
      * Default Constructor.
      *
      * @param optional String $hash
-	 * @param optional String $mode
      * @return Crypt\Hash
      * @access public
      */
-    function __construct($hash = 'sha1', $mode = null)
+    function __construct($hash = 'sha1')
     {
-        $this->mode = $mode;
-		
-        if ( $this->mode === null ) {
+        if ( self::getMode() === null ) {
             switch (true) {
                 case extension_loaded('hash'):
-                    $this->mode = Hash::MODE_HASH;
+                    self::setMode(Hash::MODE_HASH);
                     break;
                 case extension_loaded('mhash'):
-                    $this->mode = Hash::MODE_MHASH;
+                    self::setMode(Hash::MODE_MHASH);
                     break;
                 default:
-                    $this->mode = Hash::MODE_INTERNAL;
+                    self::setMode(Hash::MODE_INTERNAL);
             }
         }
 
@@ -239,15 +238,15 @@ class Hash
 
         switch ($hash) {
             case 'md2':
-                $mode = $this->mode == Hash::MODE_HASH && in_array('md2', hash_algos()) ?
+                $mode = self::getMode() == Hash::MODE_HASH && in_array('md2', hash_algos()) ?
                     Hash::MODE_HASH : Hash::MODE_INTERNAL;
                 break;
             case 'sha384':
             case 'sha512':
-                $mode = $this->mode == Hash::MODE_MHASH ? Hash::MODE_INTERNAL : $this->mode;
+                $mode = self::getMode() == Hash::MODE_MHASH ? Hash::MODE_INTERNAL : self::getMode();
                 break;
             default:
-                $mode = $this->mode;
+                $mode = self::getMode();
         }
 
         switch ( $mode ) {
@@ -325,7 +324,7 @@ class Hash
      */
     function hash($text)
     {
-        $mode = is_array($this->hash) ? Hash::MODE_INTERNAL : $this->mode;
+        $mode = is_array($this->hash) ? Hash::MODE_INTERNAL : self::getMode();
 
         if (!empty($this->key) || is_string($this->key)) {
             switch ( $mode ) {
@@ -847,5 +846,25 @@ class Hash
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
         return $substr;
+    }
+    
+    /**
+     * Gets the mode
+     * 
+     * @return integer
+     * @access public
+     */
+    static function getMode() {
+        return self::$mode;
+    }
+    
+    /**
+     * Sets the mode
+     * 
+     * @param integer $mode Should be one of Hash::MODE_INTERNAL, Hash::MODE_MHASH or Hash::MODE_HASH
+     * @access public
+     */
+    static function setMode($mode) {
+        self::$mode = $mode;
     }
 }

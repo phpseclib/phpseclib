@@ -66,21 +66,6 @@ use phpseclib\Net\SSH2;
 class SFTP extends SSH2
 {
     /**
-     * Returns the message numbers
-     */
-    const LOG_SIMPLE = 1;
-    
-    /**
-     * Returns the message content
-     */
-    const LOG_COMPLEX = 2;
-    
-    /**
-     * Outputs the message content in real-time.
-     */
-    const LOG_REALTIME = 3;
-    
-    /**
      * SFTP channel constant
      *
      * Net\SSH2::exec() uses 0 and Net\SSH2::read() / Net\SSH2::write() use 1.
@@ -350,13 +335,6 @@ class SFTP extends SSH2
      * @access private
      */
     var $max_sftp_packet;
-    
-    /**
-     * Logging
-     * Whether logging is enabled or not. Can be one of false, SFTP::LOG_SIMPLE, SFTP::LOG_COMPLEX or SFTP::LOG_REALTIME
-     * @access private
-     */
-    var $logging = false;
     
     /**
      * Default Constructor.
@@ -2149,16 +2127,16 @@ class SFTP extends SSH2
         $result = $this->_send_channel_packet(SFTP::CHANNEL, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
 
-        if ($this->logging !== false) {
+        if (self::getLogging() !== false) {
             $packet_type = '-> ' . $this->packet_types[$type] . 
                            ' (' . round($stop - $start, 4) . 's)';
-            if ($this->logging == SFTP::LOG_REALTIME) {
+            if (self::getLogging() == SFTP::LOG_REALTIME) {
                 echo "<pre>\r\n" . $this->_format_log(array($data), array($packet_type)) . "\r\n</pre>\r\n";
                 flush();
                 ob_flush();
             } else {
                 $this->packet_type_log[] = $packet_type;
-                if ($this->logging == SFTP::LOG_COMPLEX) {
+                if (self::getLogging() == SFTP::LOG_COMPLEX) {
                     $this->packet_log[] = $data;
                 }
             }
@@ -2225,16 +2203,16 @@ class SFTP extends SSH2
 
         $packet = $this->_string_shift($this->packet_buffer, $length);
 
-        if ($this->logging !== false) {
+        if (self::getLogging() !== false) {
             $packet_type = '<- ' . $this->packet_types[$this->packet_type] . 
                            ' (' . round($stop - $start, 4) . 's)';
-            if ($this->logging == SFTP::LOG_REALTIME) {
+            if (self::getLogging() == SFTP::LOG_REALTIME) {
                 echo "<pre>\r\n" . $this->_format_log(array($packet), array($packet_type)) . "\r\n</pre>\r\n";
                 flush();
                 ob_flush();
             } else {
                 $this->packet_type_log[] = $packet_type;
-                if ($this->logging == SFTP::LOG_COMPLEX) {
+                if (self::getLogging() == SFTP::LOG_COMPLEX) {
                     $this->packet_log[] = $packet;
                 }
             }
@@ -2246,18 +2224,18 @@ class SFTP extends SSH2
     /**
      * Returns a log of the packets that have been sent and received.
      *
-     * Returns a string if $this->logging == SFTP::LOG_COMPLEX, an array if $this->logging == SFTP::LOG_SIMPLE and false if $this->logging === false
+     * Returns a string if self::$logging == SFTP::LOG_COMPLEX, an array if self::$logging == SFTP::LOG_SIMPLE and false if self::$logging === false
      *
      * @access public
      * @return String or Array
      */
     function getSFTPLog()
     {
-        if ($this->logging === false) {
+        if (self::getLogging() === false) {
             return false;
         }
 
-        switch ($this->logging) {
+        switch (self::getLogging()) {
             case SFTP::LOG_COMPLEX:
                 return $this->_format_log($this->packet_log, $this->packet_type_log);
                 break;

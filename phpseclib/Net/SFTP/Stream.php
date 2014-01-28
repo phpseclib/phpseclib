@@ -44,6 +44,7 @@
  
 namespace phpseclib\Net\SFTP;
 
+use phpseclib\Net\SFTP;
 use phpseclib\Net\SSH2;
 
 class Stream
@@ -133,19 +134,13 @@ class Stream
     var $notification;
     
     /**
-     * Logging
-     * Whether logging is enabled or not. Can be one of false, SSH2::LOG_SIMPLE, SSH2::LOG_COMPLEX or SSH2::LOG_REALTIME
-     */
-    var $logging = false;
-    
-    /**
      * The Constructor
      *
      * @access public
      */
     function __construct()
     {
-        if ($this->logging !== false) {
+        if (SFTP::getLogging() !== false) {
             echo "__construct()\r\n";
         }
     }
@@ -748,8 +743,8 @@ class Stream
      * Which kinda begs the question... what methods is PHP calling and what parameters is it passing to them? This function
      * lets you figure that out.
      *
-     * If $this->logging is defined all calls will be output on the screen and then (regardless of whether or not
-     * $this->logging is enabled) the parameters will be passed through to the appropriate method.
+     * If SFTP::getLogging() is not false all calls will be output on the screen and then (regardless of whether or not
+     * SFTP::getLogging() is true) the parameters will be passed through to the appropriate method.
      *
      * @param String
      * @param Array
@@ -758,7 +753,7 @@ class Stream
      */
     function __call($name, $arguments)
     {
-        if ($this->logging !== false) {
+        if (SFTP::getLogging() !== false) {
             echo $name . '(';
             $last = count($arguments) - 1;
             foreach ($arguments as $i => $argument) {

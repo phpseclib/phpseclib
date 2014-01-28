@@ -206,7 +206,7 @@ class RSA
     // per <http://cseweb.ucsd.edu/~hovav/dist/survey.pdf#page=5>, this number ought not result in primes smaller
     // than 256 bits. as a consequence if the key you're trying to create is 1024 bits and you've set RSA::SMALLEST_PRIME
     // to 384 bits then you're going to get a 384 bit prime and a 640 bit prime (384 + 1024 % 384). at least if
-    // $this->mode is set to RSA::MODE_INTERNAL. if $this->mode is set to RSA::MODE_OPENSSL then
+    // self::$mode is set to RSA::MODE_INTERNAL. if self::$mode is set to RSA::MODE_OPENSSL then
     // RSA::SMALLEST_PRIME is ignored (ie. multi-prime RSA support is more intended as a way to speed up RSA key
     // generation when there's a chance neither gmp nor OpenSSL are installed)
     const SMALLEST_PRIME = 4096;
@@ -396,16 +396,6 @@ class RSA
     var $current;
 
     /**
-     * OpenSSL configuration file name.
-     *
-     * Set to null to use system configuration file.
-     * @see Crypt\RSA::createKey()
-     * @var Mixed
-     * @Access public
-     */
-    var $configFile;
-
-    /**
      * Public key comment field.
      *
      * @var String
@@ -413,13 +403,25 @@ class RSA
      */
     var $comment = 'phpseclib-generated-key';
     
-	/**
-	 * Mode
-	 * 
-	 * @var integer
-	 * @access private
-	 */
-    var $mode = null;
+    /**
+     * Mode
+     * 
+     * @see getMode()
+     * @see setMode()
+     * @var integer
+     * @access private
+     */
+    static $mode = null;
+    
+    /**
+     * OpenSSL configuration file name.
+     *
+     * Set to null to use system configuration file.
+     * @see Crypt\RSA::createKey()
+     * @var Mixed
+     * @Access public
+     */
+    static $configFile = null;
     
     /**
      * The constructor
@@ -431,22 +433,22 @@ class RSA
      * @return Crypt\RSA
      * @access public
      */
-    function __construct($mode = null)
+    function __construct()
     {
-        $this->mode = $mode;
-		
-        $this->configFile = dirname(__FILE__) . '/../openssl.cnf';
-
-        if ( $this->mode === null ) {
+        if (self::getConfigFile() === null) {
+            self::setConfigFile(dirname(__FILE__) . '/../openssl.cnf');
+        }
+        
+        if ( self::getMode() === null ) {
             // Math/BigInteger's openssl requirements are a little less stringent than Crypt/RSA's. in particular,
             // Math/BigInteger doesn't require an openssl.cfg file whereas Crypt/RSA does. so if Math/BigInteger
             // can't use OpenSSL it can be pretty trivially assumed, then, that Crypt/RSA can't either.
-            if (BigInteger::isOpenSslEnabled() === false) {
-                $this->mode = RSA::MODE_INTERNAL;
+            if (BigInteger::getOpenSslEnabled() === false) {
+                self::setMode(RSA::MODE_INTERNAL);
             }
 
-            switch ( $this->mode === null ) { // ie. only run this if the above didn't set $this->mode already
-                case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>=') && file_exists($this->configFile):
+            switch ( self::getMode() === null ) { // ie. only run this if the above didn't set self::$mode already
+                case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>=') && file_exists(self::getConfigFile()):
                     // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
                     ob_start();
                     phpinfo();
@@ -467,14 +469,14 @@ class RSA
                         case !isset($versions['Header']):
                         case !isset($versions['Library']):
                         case $versions['Header'] == $versions['Library']:
-                            $this->mode = RSA::MODE_OPENSSL;
+                            self::setMode(RSA::MODE_OPENSSL);
                             break;
                         default:
-                            $this->mode = RSA::MODE_INTERNAL;
+                            self::setMode(RSA::MODE_INTERNAL);
                     }
                     break;
                 case true:
-                    $this->mode = RSA::MODE_INTERNAL;
+                    self::setMode(RSA::MODE_INTERNAL);
             }
         }
 
@@ -505,10 +507,10 @@ class RSA
     function createKey($bits = 1024, $timeout = false, $partial = array())
     {
         // OpenSSL uses 65537 as the exponent and requires RSA keys be 384 bits minimum
-        if ( $this->mode == RSA::MODE_OPENSSL && $bits >= 384 && RSA::EXPONENT == 65537) {
+        if ( self::getMode() == RSA::MODE_OPENSSL && $bits >= 384 && RSA::EXPONENT == 65537) {
             $config = array();
-            if (isset($this->configFile)) {
-                $config['config'] = $this->configFile;
+            if (self::getConfigFile() !== null) {
+                $config['config'] = self::getConfigFile();
             }
             $rsa = openssl_pkey_new(array('private_key_bits' => $bits) + $config);
             openssl_pkey_export($rsa, $privatekey, null, $config);
@@ -1330,9 +1332,10 @@ class RSA
             $this->encryptionMode = $key->encryptionMode;
             $this->signatureMode = $key->signatureMode;
             $this->password = $key->password;
-            $this->configFile = $key->configFile;
             $this->comment = $key->comment;
-
+            
+            self::setConfigFile($key::getConfigFile());
+            
             if (is_object($key->hash)) {
                 $this->hash = new Hash($key->hash->getHash());
             }
@@ -2736,5 +2739,45 @@ class RSA
         $temp = str_replace(array("\r", "\n", ' '), '', $temp);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
         return $temp != false ? $temp : $str;
+    }
+    
+    /**
+     * Gets the mode
+     * 
+     * @return integer
+     * @access public
+     */
+    static function getMode() {
+        return self::$mode;
+    }
+    
+    /**
+     * Sets the mode
+     * 
+     * @param integer $mode Should be one of RSA::MODE_INTERNAL or RSA::MODE_OPENSSL
+     * @access public
+     */
+    static function setMode($mode) {
+        self::$mode = $mode;
+    }
+    
+    /**
+     * Gets the path to the config file
+     * 
+     * @return string
+     * @access public
+     */
+    static function getConfigFile() {
+        return self::$configFile;
+    }
+    
+    /**
+     * Sets the path to the config file
+     * 
+     * @param string $configFile Defaults to ../openssl.cnf.
+     * @access public
+     */
+    static function setConfigFile($configFile) {
+        self::$configFile = $configFile;
     }
 }
