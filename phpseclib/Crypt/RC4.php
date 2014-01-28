@@ -70,15 +70,6 @@ namespace phpseclib\Crypt;
  */
 class RC4 extends Base
 {
-    /**
-     * Toggles the internal implementation
-     */
-    const MODE_INTERNAL = Base::MODE_INTERNAL;
-    /**
-     * Toggles the mcrypt implementation
-     */
-    const MODE_MCRYPT = Base::MODE_MCRYPT;
-    
     const ENCRYPT = 0;
     const DECRYPT = 1;
 
