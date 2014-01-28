@@ -396,13 +396,23 @@ class RSA
     var $current;
 
     /**
+     * OpenSSL configuration file name.
+     *
+     * Set to null to use system configuration file.
+     * @see Crypt\RSA::createKey()
+     * @var Mixed
+     * @Access public
+     */
+    static $configFile = null;
+
+    /**
      * Public key comment field.
      *
      * @var String
      * @access private
      */
     var $comment = 'phpseclib-generated-key';
-    
+
     /**
      * Mode
      * 
@@ -412,17 +422,7 @@ class RSA
      * @access private
      */
     static $mode = null;
-    
-    /**
-     * OpenSSL configuration file name.
-     *
-     * Set to null to use system configuration file.
-     * @see Crypt\RSA::createKey()
-     * @var Mixed
-     * @Access public
-     */
-    static $configFile = null;
-    
+
     /**
      * The constructor
      *
@@ -473,6 +473,7 @@ class RSA
                             break;
                         default:
                             self::setMode(RSA::MODE_INTERNAL);
+							BigInteger::setOpenSslEnabled(false);
                     }
                     break;
                 case true:

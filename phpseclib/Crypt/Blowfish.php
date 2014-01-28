@@ -498,10 +498,10 @@ class Blowfish extends Base
 
         switch (true) {
             case $gen_hi_opt_code:
-                $code_hash = md5(str_pad("Blowfish, {$this->mode}, ", 32, "\0") . $this->key);
+                $code_hash = md5(str_pad("Blowfish, {self::getMode()}, ", 32, "\0") . $this->key);
                 break;
             default:
-                $code_hash = "Blowfish, {$this->mode}";
+                $code_hash = "Blowfish, {self::getMode()}";
         }
 
         if (!isset($lambda_functions[$code_hash])) {

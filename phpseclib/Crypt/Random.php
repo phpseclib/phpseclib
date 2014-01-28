@@ -40,6 +40,11 @@
 
 namespace phpseclib\Crypt;
 
+use phpseclib\Crypt\AES;
+use phpseclib\Crypt\DES;
+use phpseclib\Crypt\TripleDes;
+use phpseclib\Crypt\RC4;
+
 class Random {
     /**
      * Generate a random string.
@@ -125,9 +130,7 @@ class Random {
             $old_session_id = session_id();
             $old_use_cookies = ini_get('session.use_cookies');
             $old_session_cache_limiter = session_cache_limiter();
-            if (isset($_SESSION)) {
-                $_OLD_SESSION = $_SESSION;
-            }
+            $_OLD_SESSION = isset($_SESSION) ? $_SESSION : false;
             if ($old_session_id != '') {
                 session_write_close();
             }
@@ -160,7 +163,7 @@ class Random {
                 ini_set('session.use_cookies', $old_use_cookies);
                 session_cache_limiter($old_session_cache_limiter);
             } else {
-               if (isset($_OLD_SESSION)) {
+               if ($_OLD_SESSION !== false) {
                    $_SESSION = $_OLD_SESSION;
                    unset($_OLD_SESSION);
                 } else {

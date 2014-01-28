@@ -1333,13 +1333,13 @@ class DES extends Base
             case $gen_hi_opt_code:
                 // For hi-optimized code, we create for each combination of
                 // $mode, $des_rounds and $this->key its own encrypt/decrypt function.
-                $code_hash = md5(str_pad("DES, $des_rounds, {$this->mode}, ", 32, "\0") . $this->key);
+                $code_hash = md5(str_pad("DES, $des_rounds, {self::getMode()}, ", 32, "\0") . $this->key);
                 break;
             default:
                 // After max 10 hi-optimized functions, we create generic
                 // (still very fast.. but not ultra) functions for each $mode/$des_rounds
                 // Currently 2 * 5 generic functions will be then max. possible.
-                $code_hash = "DES, $des_rounds, {$this->mode}";
+                $code_hash = "DES, $des_rounds, {self::getMode()}";
         }
 
         // Is there a re-usable $lambda_functions in there? If not, we have to create it.

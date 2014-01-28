@@ -713,10 +713,10 @@ class Twofish extends Base
 
         switch (true) {
             case $gen_hi_opt_code:
-                $code_hash = md5(str_pad("Twofish, {$this->mode}, ", 32, "\0") . $this->key);
+                $code_hash = md5(str_pad("Twofish, {self::getMode()}, ", 32, "\0") . $this->key);
                 break;
             default:
-                $code_hash = "Twofish, {$this->mode}";
+                $code_hash = "Twofish, {self::getMode()}";
         }
 
         if (!isset($lambda_functions[$code_hash])) {
