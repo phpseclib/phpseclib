@@ -9,17 +9,17 @@ namespace phpseclib\Math\BigInteger;
 
 use phpseclib\Math\BigInteger;
 
-class GMPTest extends \phpseclib\Math\BigIntegerTest
+class GMPTest extends \phpseclib\Math\BigInteger\TestCase
 {
-    static public function setUpBeforeClass()
-    {
-        if (!extension_loaded('gmp'))
-        {
-            self::markTestSkipped('GNU Multiple Precision (GMP) extension is not available.');
-        }
+	static public function setUpBeforeClass()
+	{
+		if (!extension_loaded('gmp'))
+		{
+			self::markTestSkipped('GNU Multiple Precision (GMP) extension is not available.');
+		}
 
-        parent::setUpBeforeClass();
-        
-        BigInteger::setMode(BigInteger::MODE_GMP);
-    }
+		parent::setUpBeforeClass();
+
+		BigInteger::setMode(BigInteger::MODE_GMP);
+	}
 }

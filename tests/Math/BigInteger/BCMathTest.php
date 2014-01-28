@@ -9,17 +9,17 @@ namespace phpseclib\Math\BigInteger;
 
 use phpseclib\Math\BigInteger;
 
-class BCMathTest extends \phpseclib\Math\BigIntegerTest
+class BCMathTest extends \phpseclib\Math\BigInteger\TestCase
 {
-    static public function setUpBeforeClass()
-    {
-        if (!extension_loaded('bcmath'))
-        {
-            self::markTestSkipped('BCMath extension is not available.');
-        }
+	static public function setUpBeforeClass()
+	{
+		if (!extension_loaded('bcmath'))
+		{
+			self::markTestSkipped('BCMath extension is not available.');
+		}
 
-        parent::setUpBeforeClass();
-        
-        BigInteger::setMode(BigInteger::MODE_BCMATH);
-    }
+		parent::setUpBeforeClass();
+
+		BigInteger::setMode(BigInteger::MODE_BCMATH);
+	}
 }

@@ -9,14 +9,13 @@ namespace phpseclib\Math\BigInteger;
 
 use phpseclib\Math\BigInteger;
 
-class InternalTest extends \phpseclib\Math\BigIntegerTest
+class InternalTest extends \phpseclib\Math\BigInteger\TestCase
 {
-    static public function setUpBeforeClass()
-    {
-        
-        parent::setUpBeforeClass();
+	static public function setUpBeforeClass()
+	{
+		parent::setUpBeforeClass();
 
-        BigInteger::setMode(BigInteger::MODE_INTERNAL);
-        BigInteger::setOpenSslEnabled(false);
-    }
+		BigInteger::setMode(BigInteger::MODE_INTERNAL);
+		BigInteger::setOpenSslEnabled(false);
+	}
 }

@@ -9,17 +9,17 @@ namespace phpseclib\Math\BigInteger;
 
 use phpseclib\Math\BigInteger;
 
-class InternalOpenSSLTest extends \phpseclib\Math\BigIntegerTest
+class InternalOpenSSLTest extends \phpseclib\Math\BigInteger\TestCase
 {
-    static public function setUpBeforeClass()
-    {
-        if (!function_exists('openssl_public_encrypt'))
-        {
-            self::markTestSkipped('openssl_public_encrypt() function is not available.');
-        }
+	static public function setUpBeforeClass()
+	{
+		if (!function_exists('openssl_public_encrypt'))
+		{
+			self::markTestSkipped('openssl_public_encrypt() function is not available.');
+		}
 
-        parent::setUpBeforeClass();
-        
-        BigInteger::setMode(BigInteger::MODE_INTERNAL);
-    }
+		parent::setUpBeforeClass();
+
+		BigInteger::setMode(BigInteger::MODE_INTERNAL);
+	}
 }

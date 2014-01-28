@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author     Marc Scholten <marc@pedigital.de>
  * @copyright  MMXIII Marc Scholten
@@ -10,7 +11,7 @@ namespace phpseclib\Net;
 class SSH2Test extends \phpseclib\AbstractTestCase
 {
     /**
-     * @return SSH2
+     * @return Net_SSH2
      */
     private function createSSHMock()
     {
@@ -81,4 +82,5 @@ class SSH2Test extends \phpseclib\AbstractTestCase
 
         $this->assertEquals($expected, $identifier);
     }
+
 }
