@@ -8,7 +8,7 @@
  * Internally for phpseclib developers:
  *  If you plan to add a new cipher class, please note following rules:
  *
- *  - The new phpseclib\Crypt\* cipher class should extend Crypt\Base
+ *  - The new Crypt\* cipher class should extend Crypt\Base
  *
  *  - Following methods are then required to be overridden/overloaded:
  *
