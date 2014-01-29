@@ -77,6 +77,11 @@ class Net_Logger_RealtimeFile extends Net_Logger_Realtime
         fputs($this->file, $entry);
     }
 
+    /**
+     * Return nothing
+     * 
+     * @access public
+     */
     function getLog()
     {
         return null;

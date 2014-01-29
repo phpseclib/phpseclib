@@ -13,6 +13,7 @@ class Net_Logger_Complex extends Net_Logger_Simple
 
     /**
      * @param int $max_size Default value is 1mb (1024 * 1024)
+     * @param Net_Logger_Formatter|null $formatter If null the default Net_Logger_Formatter object will be used for formatting
      */
     function __construct($max_size = 1048576, $formatter = null)
     {
@@ -39,6 +40,10 @@ class Net_Logger_Complex extends Net_Logger_Simple
         $this->checkSize();
     }
 
+    /**
+     * If the memory used by this class is greater than $max_size, some of the last messages will be removed
+     * @access private
+     */
     function checkSize()
     {
         while ($this->log_size > $this->max_size) {
@@ -47,6 +52,15 @@ class Net_Logger_Complex extends Net_Logger_Simple
         }
     }
 
+    /**
+     * Returns the logged message formatted by the given formatter.
+     *
+     * Be aware that this method may not give you all message.
+     * @see checkSize()
+     *
+     * @access public
+     * @return string
+     */
     function getLog()
     {
         return $this->formatter->format($this->message_log, $this->message_number_log);

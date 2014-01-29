@@ -7,12 +7,17 @@
 
 class Net_Logger_Simple extends Net_Logger_Abstract
 {
-    public function log($message_number, $message)
+    function log($message_number, $message)
     {
         $this->message_number_log[] = $message_number;
     }
 
-    public function getLog()
+    /**
+     * Returns a list of packets that have been sent and received
+     *
+     * @return array
+     */
+    function getLog()
     {
         return $this->message_number_log;
     }

@@ -11,11 +11,18 @@
  */
 class Net_Logger_Null extends Net_Logger_Abstract
 {
+    /**
+     * Do nothing
+     * @access public
+     */
     function log($message_number, $message)
     {
-        // do nothing
     }
 
+    /**
+     * Return nothing because this logger doesn't log anything
+     * @access public
+     */
     function getLog()
     {
         return null;

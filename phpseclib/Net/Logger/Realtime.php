@@ -13,6 +13,9 @@ class Net_Logger_Realtime extends Net_Logger_Abstract
      */
     var $formatter;
 
+    /**
+     * @param Net_Logger_Formatter|null $formatter If null the default Net_Logger_Formatter object will be used for formatting
+     */
     function __construct($formatter = null)
     {
         if ($formatter == null) {
@@ -22,7 +25,7 @@ class Net_Logger_Realtime extends Net_Logger_Abstract
         $this->formatter = $formatter;
     }
 
-    public function log($message_number, $message)
+    function log($message_number, $message)
     {
         // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
         if (strlen($message_number) > 2) {
@@ -55,6 +58,12 @@ class Net_Logger_Realtime extends Net_Logger_Abstract
         @ob_flush();
     }
 
+    /**
+     * Returns nothing
+     *
+     * @access public
+     * @return null
+     */
     function getLog()
     {
         return null;
