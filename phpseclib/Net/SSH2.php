@@ -703,7 +703,7 @@ class Net_SSH2
         }
 
         if($logger == null) {
-            $logger = new Net_Logger_Simple();
+            $logger = new Net_Logger_Null();
         }
         $this->logger = $logger;
 
