@@ -5,7 +5,7 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace phpseclib\Crypt\MD5;
+namespace phpseclib\Crypt\Hash;
 
 use phpseclib\Crypt\Hash;
 

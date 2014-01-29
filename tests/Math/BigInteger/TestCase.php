@@ -7,6 +7,8 @@
 
 namespace phpseclib\Math\BigInteger;
 
+use phpseclib\Math\BigInteger;
+
 abstract class TestCase extends \phpseclib\AbstractTestCase
 {
 	static public function setUpBeforeClass()
@@ -18,7 +20,7 @@ abstract class TestCase extends \phpseclib\AbstractTestCase
 
 	public function getInstance($x = 0, $base = 10)
 	{
-		return new Math_BigInteger($x, $base);
+		return new BigInteger($x, $base);
 	}
 
 	public function testConstructorBase2()

@@ -9,7 +9,7 @@ namespace phpseclib\Crypt\AES;
 
 use phpseclib\Crypt\AES;
 
-class ContinuousBufferTest extends \phpseclib\Crypt\AESTest
+class ContinuousBufferTest extends \phpseclib\Crypt\AES\TestCase
 {
 	// String intented
 	protected $modes = array(

@@ -6,7 +6,9 @@
  */
 
 namespace phpseclib\Crypt\Hash;
- 
+
+use phpseclib\Crypt\Hash;
+
 abstract class TestCase extends \phpseclib\AbstractTestCase
 {
 	static public function setUpBeforeClass()
