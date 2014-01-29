@@ -99,10 +99,10 @@ class SSH2
      * Channel constants
      *
      * RFC4254 refers not to client and server channels but rather to sender and recipient channels.  we don't refer
-     * to them in that way because RFC4254 toggles the meaning. the client sends a SSH_MSG_CHANNEL_OPEN message with
-     * a sender channel and the server sends a SSH_MSG_CHANNEL_OPEN_CONFIRMATION in response, with a sender and a
-     * recepient channel.  at first glance, you might conclude that SSH_MSG_CHANNEL_OPEN_CONFIRMATION's sender channel
-     * would be the same thing as SSH_MSG_CHANNEL_OPEN's sender channel, but it's not, per this snipet:
+     * to them in that way because RFC4254 toggles the meaning. the client sends a SSH2::MSG_CHANNEL_OPEN message with
+     * a sender channel and the server sends a SSH2::MSG_CHANNEL_OPEN_CONFIRMATION in response, with a sender and a
+     * recepient channel.  at first glance, you might conclude that SSH2::MSG_CHANNEL_OPEN_CONFIRMATION's sender channel
+     * would be the same thing as SSH2::MSG_CHANNEL_OPEN's sender channel, but it's not, per this snipet:
      *     The 'recipient channel' is the channel number given in the original
      *     open request, and 'sender channel' is the channel number allocated by
      *     the other side.
@@ -471,7 +471,7 @@ class SSH2
     var $disconnect_reasons = array();
 
     /**
-     * SSH_MSG_CHANNEL_OPEN_FAILURE 'reason codes', defined in RFC4254
+     * SSH2::MSG_CHANNEL_OPEN_FAILURE 'reason codes', defined in RFC4254
      *
      * @see Net\SSH2::__construct()
      * @var Array
@@ -490,7 +490,7 @@ class SSH2
     var $terminal_modes = array();
 
     /**
-     * SSH_MSG_CHANNEL_EXTENDED_DATA's data_type_codes
+     * SSH2::MSG_CHANNEL_EXTENDED_DATA's data_type_codes
      *
      * @link http://tools.ietf.org/html/rfc4254#section-5.2
      * @see Net\SSH2::__construct()
@@ -849,7 +849,7 @@ class SSH2
      */
     function __construct($host, $port = 22, $timeout = 10)
     {
-        $this->last_packet = strtok(microtime(), ' ') + strtok(''); // == microtime(true) in PHP5
+        $this->last_packet = microtime(true);
         $this->message_numbers = array(
             SSH2::MSG_DISCONNECT => 'SSH2::MSG_DISCONNECT',
             SSH2::MSG_IGNORE => 'SSH2::MSG_IGNORE',
@@ -912,13 +912,13 @@ class SSH2
             SSH2::EXTENDED_DATA_STDERR => 'SSH2::EXTENDED_DATA_STDERR'
         );
 
-        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+        $start = microtime(true);
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
             return;
         }
-        $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+        $elapsed = microtime(true) - $start;
 
         $timeout-= $elapsed;
 
@@ -988,7 +988,7 @@ class SSH2
         }
 
         if (ord($response[0]) != SSH2::MSG_KEXINIT) {
-            user_error('Expected SSH_MSG_KEXINIT');
+            user_error('Expected SSH2::MSG_KEXINIT');
             return;
         }
 
@@ -1155,7 +1155,7 @@ class SSH2
         $client_cookie = Random::crypt_random_string(16);
 
         $response = $kexinit_payload_server;
-        $this->_string_shift($response, 1); // skip past the message number (it should be SSH_MSG_KEXINIT)
+        $this->_string_shift($response, 1); // skip past the message number (it should be SSH2::MSG_KEXINIT)
         $server_cookie = $this->_string_shift($response, 16);
 
         $temp = unpack('Nlength', $this->_string_shift($response, 4));
@@ -1367,7 +1367,7 @@ class SSH2
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         if ($type != SSH2::MSG_KEXDH_REPLY) {
-            user_error('Expected SSH_MSG_KEXDH_REPLY');
+            user_error('Expected SSH2::MSG_KEXDH_REPLY');
             return false;
         }
 
@@ -1432,7 +1432,7 @@ class SSH2
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         if ($type != SSH2::MSG_NEWKEYS) {
-            user_error('Expected SSH_MSG_NEWKEYS');
+            user_error('Expected SSH2::MSG_NEWKEYS');
             return false;
         }
 
@@ -1721,7 +1721,7 @@ class SSH2
      * @return Boolean
      * @access private
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
-     *           by sending dummy SSH_MSG_IGNORE messages.
+     *           by sending dummy SSH2::MSG_IGNORE messages.
      */
     function _login_helper($username, $password = null)
     {
@@ -1747,7 +1747,7 @@ class SSH2
             extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
             if ($type != SSH2::MSG_SERVICE_ACCEPT) {
-                user_error('Expected SSH_MSG_SERVICE_ACCEPT');
+                user_error('Expected SSH2::MSG_SERVICE_ACCEPT');
                 return false;
             }
             $this->bitmap |= SSH2::MASK_LOGIN_REQ;
@@ -1957,7 +1957,7 @@ class SSH2
 
                 /*
                    After obtaining the requested information from the user, the client
-                   MUST respond with an SSH_MSG_USERAUTH_INFO_RESPONSE message.
+                   MUST respond with an SSH2::MSG_USERAUTH_INFO_RESPONSE message.
                 */
                 // see http://tools.ietf.org/html/rfc4256#section-3.4
                 $packet = $logged = pack('CN', SSH2::MSG_USERAUTH_INFO_RESPONSE, count($responses));
@@ -1980,8 +1980,8 @@ class SSH2
 
                 /*
                    After receiving the response, the server MUST send either an
-                   SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, or another
-                   SSH_MSG_USERAUTH_INFO_REQUEST message.
+                   SSH2::MSG_USERAUTH_SUCCESS, SSH2::MSG_USERAUTH_FAILURE, or another
+                   SSH2::MSG_USERAUTH_INFO_REQUEST message.
                 */
                 // maybe phpseclib should force close the connection after x request / responses?  unless something like that is done
                 // there could be an infinite loop of request / responses.
@@ -2003,7 +2003,7 @@ class SSH2
      * @return Boolean
      * @access private
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
-     *           by sending dummy SSH_MSG_IGNORE messages.
+     *           by sending dummy SSH2::MSG_IGNORE messages.
      */
     function _privatekey_login($username, $privatekey)
     {
@@ -2183,15 +2183,15 @@ class SSH2
             $this->in_request_pty_exec = true;
         }
 
-        // sending a pty-req SSH_MSG_CHANNEL_REQUEST message is unnecessary and, in fact, in most cases, slows things
+        // sending a pty-req SSH2::MSG_CHANNEL_REQUEST message is unnecessary and, in fact, in most cases, slows things
         // down.  the one place where it might be desirable is if you're doing something like Net\SSH2::exec('ping localhost &').
-        // with a pty-req SSH_MSG_CHANNEL_REQUEST, exec() will return immediately and the ping process will then
+        // with a pty-req SSH2::MSG_CHANNEL_REQUEST, exec() will return immediately and the ping process will then
         // then immediately terminate.  without such a request exec() will loop indefinitely.  the ping process won't end but
         // neither will your script.
 
-        // although, in theory, the size of SSH_MSG_CHANNEL_REQUEST could exceed the maximum packet size established by
-        // SSH_MSG_CHANNEL_OPEN_CONFIRMATION, RFC4254#section-5.1 states that the "maximum packet size" refers to the
-        // "maximum size of an individual data packet". ie. SSH_MSG_CHANNEL_DATA.  RFC4254#section-5.2 corroborates.
+        // although, in theory, the size of SSH2::MSG_CHANNEL_REQUEST could exceed the maximum packet size established by
+        // SSH2::MSG_CHANNEL_OPEN_CONFIRMATION, RFC4254#section-5.1 states that the "maximum packet size" refers to the
+        // "maximum size of an individual data packet". ie. SSH2::MSG_CHANNEL_DATA.  RFC4254#section-5.2 corroborates.
         $packet = pack('CNNa*CNa*',
             SSH2::MSG_CHANNEL_REQUEST, $this->server_channels[SSH2::CHANNEL_EXEC], strlen('exec'), 'exec', 1, strlen($command), $command);
         if (!$this->_send_binary_packet($packet)) {
@@ -2544,7 +2544,7 @@ class SSH2
             return false;
         }
 
-        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+        $start = microtime(true);
         $raw = fread($this->fsock, $this->decrypt_block_size);
 
         if (!strlen($raw)) {
@@ -2577,7 +2577,7 @@ class SSH2
             $buffer.= $temp;
             $remaining_length-= strlen($temp);
         }
-        $stop = strtok(microtime(), ' ') + strtok('');
+        $stop = microtime(true);
         if (strlen($buffer)) {
             $raw.= $this->decrypt !== false ? $this->decrypt->decrypt($buffer) : $buffer;
         }
@@ -2600,7 +2600,7 @@ class SSH2
         $this->get_seq_no++;
 
         if (self::getLogging() !== false) {
-            $current = strtok(microtime(), ' ') + strtok('');
+            $current = microtime(true);
             $message_number = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
             $message_number = '<- ' . $message_number .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
@@ -2626,7 +2626,7 @@ class SSH2
             case SSH2::MSG_DISCONNECT:
                 $this->_string_shift($payload, 1);
                 extract(unpack('Nreason_code/Nlength', $this->_string_shift($payload, 8)));
-                $this->errors[] = 'SSH_MSG_DISCONNECT: ' . $this->disconnect_reasons[$reason_code] . "\r\n" . utf8_decode($this->_string_shift($payload, $length));
+                $this->errors[] = 'SSH2::MSG_DISCONNECT: ' . $this->disconnect_reasons[$reason_code] . "\r\n" . utf8_decode($this->_string_shift($payload, $length));
                 $this->bitmap = 0;
                 return false;
             case SSH2::MSG_IGNORE:
@@ -2635,7 +2635,7 @@ class SSH2
             case SSH2::MSG_DEBUG:
                 $this->_string_shift($payload, 2);
                 extract(unpack('Nlength', $this->_string_shift($payload, 4)));
-                $this->errors[] = 'SSH_MSG_DEBUG: ' . utf8_decode($this->_string_shift($payload, $length));
+                $this->errors[] = 'SSH2::MSG_DEBUG: ' . utf8_decode($this->_string_shift($payload, $length));
                 $payload = $this->_get_binary_packet();
                 break;
             case SSH2::MSG_UNIMPLEMENTED:
@@ -2664,7 +2664,7 @@ class SSH2
                 case SSH2::MSG_GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
                     $this->_string_shift($payload, 1);
                     extract(unpack('Nlength', $this->_string_shift($payload)));
-                    $this->errors[] = 'SSH_MSG_GLOBAL_REQUEST: ' . utf8_decode($this->_string_shift($payload, $length));
+                    $this->errors[] = 'SSH2::MSG_GLOBAL_REQUEST: ' . utf8_decode($this->_string_shift($payload, $length));
 
                     if (!$this->_send_binary_packet(pack('C', SSH2::MSG_REQUEST_FAILURE))) {
                         return $this->_disconnect(SSH2::DISCONNECT_BY_APPLICATION);
@@ -2675,7 +2675,7 @@ class SSH2
                 case SSH2::MSG_CHANNEL_OPEN: // see http://tools.ietf.org/html/rfc4254#section-5.1
                     $this->_string_shift($payload, 1);
                     extract(unpack('Nlength', $this->_string_shift($payload, 4)));
-                    $this->errors[] = 'SSH_MSG_CHANNEL_OPEN: ' . utf8_decode($this->_string_shift($payload, $length));
+                    $this->errors[] = 'SSH2::MSG_CHANNEL_OPEN: ' . utf8_decode($this->_string_shift($payload, $length));
 
                     $this->_string_shift($payload, 4); // skip over client channel
                     extract(unpack('Nserver_channel', $this->_string_shift($payload, 4)));
@@ -2771,7 +2771,7 @@ class SSH2
                 $read = array($this->fsock);
                 $write = $except = null;
 
-                $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+                $start = microtime(true);
                 $sec = floor($this->curTimeout);
                 $usec = 1000000 * ($this->curTimeout - $sec);
                 // on windows this returns a "Warning: Invalid CRT parameters detected" error
@@ -2779,7 +2779,7 @@ class SSH2
                     $this->is_timeout = true;
                     return true;
                 }
-                $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+                $elapsed = microtime(true) - $start;
                 $this->curTimeout-= $elapsed;
             }
 
@@ -2847,7 +2847,7 @@ class SSH2
                     if ($channel == SSH2::CHANNEL_EXEC) {
                         // SCP requires null packets, such as this, be sent.  further, in the case of the ssh.com SSH server
                         // this actually seems to make things twice as fast.  more to the point, the message right after
-                        // SSH_MSG_CHANNEL_DATA (usually SSH_MSG_IGNORE) won't block for as long as it would have otherwise.
+                        // SSH2::MSG_CHANNEL_DATA (usually SSH2::MSG_IGNORE) won't block for as long as it would have otherwise.
                         // in OpenSSH it slows things down but only by a couple thousandths of a second.
                         $this->_send_channel_packet($channel, chr(0));
                     }
@@ -2890,7 +2890,7 @@ class SSH2
                         case 'exit-signal':
                             $this->_string_shift($response, 1);
                             extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                            $this->errors[] = 'SSH_MSG_CHANNEL_REQUEST (exit-signal): ' . $this->_string_shift($response, $length);
+                            $this->errors[] = 'SSH2::MSG_CHANNEL_REQUEST (exit-signal): ' . $this->_string_shift($response, $length);
                             $this->_string_shift($response, 1);
                             extract(unpack('Nlength', $this->_string_shift($response, 4)));
                             if ($length) {
@@ -2906,7 +2906,7 @@ class SSH2
                         case 'exit-status':
                             extract(unpack('Cfalse/Nexit_status', $this->_string_shift($response, 5)));
                             $this->exit_status = $exit_status;
-                            // "The channel needs to be closed with SSH_MSG_CHANNEL_CLOSE after this message."
+                            // "The channel needs to be closed with SSH2::MSG_CHANNEL_CLOSE after this message."
                             // -- http://tools.ietf.org/html/rfc4254#section-6.10
                             $this->_send_binary_packet(pack('CN', SSH2::MSG_CHANNEL_EOF, $this->server_channels[$client_channel]));
                             $this->_send_binary_packet(pack('CN', SSH2::MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
@@ -2986,12 +2986,12 @@ class SSH2
 
         $packet.= $hmac;
 
-        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+        $start = microtime(true);
         $result = strlen($packet) == fputs($this->fsock, $packet);
-        $stop = strtok(microtime(), ' ') + strtok('');
+        $stop = microtime(true);
 
         if (self::getLogging() !== false) {
-            $current = strtok(microtime(), ' ') + strtok('');
+            $current = microtime(true);
             $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
             $message_number = '-> ' . $message_number .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
@@ -3081,7 +3081,7 @@ class SSH2
     /**
      * Sends channel data
      *
-     * Spans multiple SSH_MSG_CHANNEL_DATAs if appropriate
+     * Spans multiple SSH2::MSG_CHANNEL_DATAs if appropriate
      *
      * @param Integer $client_channel
      * @param String $data
