@@ -225,12 +225,13 @@ class Net_SFTP extends Net_SSH2
      * @param String $host
      * @param optional Integer $port
      * @param optional Integer $timeout
+     * @param Net_Logger_Abstract|null $logger
      * @return Net_SFTP
      * @access public
      */
-    function Net_SFTP($host, $port = 22, $timeout = 10)
+    function Net_SFTP($host, $port = 22, $timeout = 10, $logger = null)
     {
-        parent::Net_SSH2($host, $port, $timeout);
+        parent::Net_SSH2($host, $port, $timeout, $logger);
 
         $this->max_sftp_packet = 1 << 15;
 

@@ -79,7 +79,7 @@ class Net_Logger_RealtimeFile extends Net_Logger_Realtime
 
     /**
      * Return nothing
-     * 
+     *
      * @access public
      */
     function getLog()
