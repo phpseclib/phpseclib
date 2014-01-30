@@ -5,7 +5,9 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Net_SSH1Test extends PhpseclibTestCase
+namespace phpseclib\Net;
+
+class SSH1Test extends \phpseclib\AbstractTestCase
 {
     public function formatLogDataProvider()
     {
@@ -29,7 +31,7 @@ class Net_SSH1Test extends PhpseclibTestCase
      */
     public function testFormatLog(array $message_log, array $message_number_log, $expected)
     {
-        $ssh = $this->getMockBuilder('Net_SSH1')
+        $ssh = $this->getMockBuilder('phpseclib\Net\SSH1')
             ->disableOriginalConstructor()
             ->setMethods(null)
             ->getMock();

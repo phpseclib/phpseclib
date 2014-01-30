@@ -5,16 +5,15 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
-{
-	static public function setUpBeforeClass()
-	{
-		require_once('Crypt/RSA.php');
-	}
+namespace phpseclib\Crypt\RSA;
 
+use phpseclib\Crypt\RSA;
+
+class LoadKeyTest extends \phpseclib\AbstractTestCase
+{
 	public function testBadKey()
 	{
-		$rsa = new Crypt_RSA();
+		$rsa = new RSA();
 
 		$key = 'zzzzzzzzzzzzzz';
 
@@ -23,7 +22,7 @@ class Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 
 	public function testPKCS1Key()
 	{
-		$rsa = new Crypt_RSA();
+		$rsa = new RSA();
 
 		$key = '-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
@@ -44,7 +43,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
 	public function testPKCS1SpacesKey()
 	{
-		$rsa = new Crypt_RSA();
+		$rsa = new RSA();
 
 		$key = '-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
@@ -66,7 +65,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
 	public function testPKCS1NoHeaderKey()
 	{
-		$rsa = new Crypt_RSA();
+		$rsa = new RSA();
 
 		$key = 'MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
 wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5
@@ -85,7 +84,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
 	public function testPKCS1NoWhitespaceNoHeaderKey()
 	{
-		$rsa = new Crypt_RSA();
+		$rsa = new RSA();
 
 		$key = 'MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp' .
 		       'wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5' .
@@ -103,7 +102,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
 	public function testRawPKCS1Key()
 	{
-		$rsa = new Crypt_RSA();
+		$rsa = new RSA();
 
 		$key = 'MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp' .
 		       'wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5' .

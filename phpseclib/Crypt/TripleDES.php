@@ -10,9 +10,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/TripleDES.php');
- *
- *    $des = new Crypt_TripleDES();
+ *    $des = new phpseclib\Crypt\TripleDES();
  *
  *    $des->setKey('abcdefghijklmnopqrstuvwx');
  *
@@ -45,50 +43,31 @@
  * THE SOFTWARE.
  *
  * @category  Crypt
- * @package   Crypt_TripleDES
+ * @package   Crypt\TripleDES
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMVII Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Crypt_DES
- */
-if (!class_exists('Crypt_DES')) {
-    include_once 'DES.php';
-}
-
-/**
- * Encrypt / decrypt using inner chaining
- *
- * Inner chaining is used by SSH-1 and is generally considered to be less secure then outer chaining (CRYPT_DES_MODE_CBC3).
- */
-define('CRYPT_DES_MODE_3CBC', -2);
-
-/**
- * Encrypt / decrypt using outer chaining
- *
- * Outer chaining is used by SSH-2 and when the mode is set to CRYPT_DES_MODE_CBC.
- */
-define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
+namespace phpseclib\Crypt;
 
 /**
  * Pure-PHP implementation of Triple DES.
  *
- * @package Crypt_TripleDES
+ * @package Crypt\TripleDES
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.1.0
  * @access  public
  */
-class Crypt_TripleDES extends Crypt_DES
+class TripleDES extends DES
 {
     /**
      * The default password key_size used by setPassword()
      *
-     * @see Crypt_DES::password_key_size
-     * @see Crypt_Base::password_key_size
-     * @see Crypt_Base::setPassword()
+     * @see Crypt\DES::password_key_size
+     * @see Crypt\Base::password_key_size
+     * @see Crypt\Base::setPassword()
      * @var Integer
      * @access private
      */
@@ -97,28 +76,18 @@ class Crypt_TripleDES extends Crypt_DES
     /**
      * The default salt used by setPassword()
      *
-     * @see Crypt_Base::password_default_salt
-     * @see Crypt_Base::setPassword()
+     * @see Crypt\Base::password_default_salt
+     * @see Crypt\Base::setPassword()
      * @var String
      * @access private
      */
     var $password_default_salt = 'phpseclib';
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see Crypt_DES::const_namespace
-     * @see Crypt_Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'DES';
-
-    /**
      * The mcrypt specific name of the cipher
      *
-     * @see Crypt_DES::cipher_name_mcrypt
-     * @see Crypt_Base::cipher_name_mcrypt
+     * @see Crypt\DES::cipher_name_mcrypt
+     * @see Crypt\Base::cipher_name_mcrypt
      * @var String
      * @access private
      */
@@ -127,7 +96,7 @@ class Crypt_TripleDES extends Crypt_DES
     /**
      * Optimizing value while CFB-encrypting
      *
-     * @see Crypt_Base::cfb_init_len
+     * @see Crypt\Base::cfb_init_len
      * @var Integer
      * @access private
      */
@@ -136,15 +105,15 @@ class Crypt_TripleDES extends Crypt_DES
     /**
      * max possible size of $key
      *
-     * @see Crypt_TripleDES::setKey()
-     * @see Crypt_DES::setKey()
+     * @see Crypt\TripleDES::setKey()
+     * @see Crypt\DES::setKey()
      * @var String
      * @access private
      */
     var $key_size_max = 24;
 
     /**
-     * Internal flag whether using CRYPT_DES_MODE_3CBC or not
+     * Internal flag whether using DES::MODE_3CBC or not
      *
      * @var Boolean
      * @access private
@@ -152,7 +121,7 @@ class Crypt_TripleDES extends Crypt_DES
     var $mode_3cbc;
 
     /**
-     * The Crypt_DES objects
+     * The Crypt\DES objects
      *
      * Used only if $mode_3cbc === true
      *
@@ -168,59 +137,59 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * $mode could be:
      *
-     * - CRYPT_DES_MODE_ECB
+     * - DES::MODE_ECB
      *
-     * - CRYPT_DES_MODE_CBC
+     * - DES::MODE_CBC
      *
-     * - CRYPT_DES_MODE_CTR
+     * - DES::MODE_CTR
      *
-     * - CRYPT_DES_MODE_CFB
+     * - DES::MODE_CFB
      *
-     * - CRYPT_DES_MODE_OFB
+     * - DES::MODE_OFB
      *
-     * - CRYPT_DES_MODE_3CBC
+     * - DES::MODE_3CBC
      *
-     * If not explictly set, CRYPT_DES_MODE_CBC will be used.
+     * If not explictly set, DES::MODE_CBC will be used.
      *
-     * @see Crypt_DES::Crypt_DES()
-     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt\DES::Crypt\DES()
+     * @see Crypt\Base::__construct()
      * @param optional Integer $mode
      * @access public
      */
-    function Crypt_TripleDES($mode = CRYPT_DES_MODE_CBC)
+    function __construct($mode = DES::MODE_CBC)
     {
         switch ($mode) {
-            // In case of CRYPT_DES_MODE_3CBC, we init as CRYPT_DES_MODE_CBC
+            // In case of DES::MODE_3CBC, we init as DES::MODE_CBC
             // and additional flag us internally as 3CBC
-            case CRYPT_DES_MODE_3CBC:
-                parent::Crypt_DES(CRYPT_DES_MODE_CBC);
+            case DES::MODE_3CBC:
+                parent::__construct(DES::MODE_CBC);
                 $this->mode_3cbc = true;
 
                 // This three $des'es will do the 3CBC work (if $key > 64bits)
                 $this->des = array(
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
+                    new DES(DES::MODE_CBC),
+                    new DES(DES::MODE_CBC),
+                    new DES(DES::MODE_CBC),
                 );
 
-                // we're going to be doing the padding, ourselves, so disable it in the Crypt_DES objects
+                // we're going to be doing the padding, ourselves, so disable it in the Crypt\DES objects
                 $this->des[0]->disablePadding();
                 $this->des[1]->disablePadding();
                 $this->des[2]->disablePadding();
                 break;
             // If not 3CBC, we init as usual
             default:
-                parent::Crypt_DES($mode);
+                parent::__construct($mode);
         }
     }
 
     /**
      * Sets the initialization vector. (optional)
      *
-     * SetIV is not required when CRYPT_DES_MODE_ECB is being used.  If not explictly set, it'll be assumed
+     * SetIV is not required when DES::MODE_ECB is being used.  If not explictly set, it'll be assumed
      * to be all zero's.
      *
-     * @see Crypt_Base::setIV()
+     * @see Crypt\Base::setIV()
      * @access public
      * @param String $iv
      */
@@ -245,8 +214,8 @@ class Crypt_TripleDES extends Crypt_DES
      * If the key is not explicitly set, it'll be assumed to be all null bytes.
      *
      * @access public
-     * @see Crypt_DES::setKey()
-     * @see Crypt_Base::setKey()
+     * @see Crypt\DES::setKey()
+     * @see Crypt\Base::setKey()
      * @param String $key
      */
     function setKey($key)
@@ -262,7 +231,7 @@ class Crypt_TripleDES extends Crypt_DES
         }
         parent::setKey($key);
 
-        // And in case of CRYPT_DES_MODE_3CBC:
+        // And in case of DES::MODE_3CBC:
         // if key <= 64bits we not need the 3 $des to work,
         // because we will then act as regular DES-CBC with just a <= 64bit key.
         // So only if the key > 64bits (> 8 bytes) we will call setKey() for the 3 $des.
@@ -276,7 +245,7 @@ class Crypt_TripleDES extends Crypt_DES
     /**
      * Encrypts a message.
      *
-     * @see Crypt_Base::encrypt()
+     * @see Crypt\Base::encrypt()
      * @access public
      * @param String $plaintext
      * @return String $cipertext
@@ -284,7 +253,7 @@ class Crypt_TripleDES extends Crypt_DES
     function encrypt($plaintext)
     {
         // parent::en/decrypt() is able to do all the work for all modes and keylengths,
-        // except for: CRYPT_DES_MODE_3CBC (inner chaining CBC) with a key > 64bits
+        // except for: DES::MODE_3CBC (inner chaining CBC) with a key > 64bits
 
         // if the key is smaller then 8, do what we'd normally do
         if ($this->mode_3cbc && strlen($this->key) > 8) {
@@ -299,7 +268,7 @@ class Crypt_TripleDES extends Crypt_DES
     /**
      * Decrypts a message.
      *
-     * @see Crypt_Base::decrypt()
+     * @see Crypt\Base::decrypt()
      * @access public
      * @param String $ciphertext
      * @return String $plaintext
@@ -344,13 +313,13 @@ class Crypt_TripleDES extends Crypt_DES
      * outputs.  The reason is due to the fact that the initialization vector's change after every encryption /
      * decryption round when the continuous buffer is enabled.  When it's disabled, they remain constant.
      *
-     * Put another way, when the continuous buffer is enabled, the state of the Crypt_DES() object changes after each
+     * Put another way, when the continuous buffer is enabled, the state of the Crypt\DES() object changes after each
      * encryption / decryption round, whereas otherwise, it'd remain constant.  For this reason, it's recommended that
      * continuous buffers not be used.  They do offer better security and are, in fact, sometimes required (SSH uses them),
      * however, they are also less intuitive and more likely to cause you problems.
      *
-     * @see Crypt_Base::enableContinuousBuffer()
-     * @see Crypt_TripleDES::disableContinuousBuffer()
+     * @see Crypt\Base::enableContinuousBuffer()
+     * @see Crypt\TripleDES::disableContinuousBuffer()
      * @access public
      */
     function enableContinuousBuffer()
@@ -368,8 +337,8 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * The default behavior.
      *
-     * @see Crypt_Base::disableContinuousBuffer()
-     * @see Crypt_TripleDES::enableContinuousBuffer()
+     * @see Crypt\Base::disableContinuousBuffer()
+     * @see Crypt\TripleDES::enableContinuousBuffer()
      * @access public
      */
     function disableContinuousBuffer()
@@ -385,8 +354,8 @@ class Crypt_TripleDES extends Crypt_DES
     /**
      * Creates the key schedule
      *
-     * @see Crypt_DES::_setupKey()
-     * @see Crypt_Base::_setupKey()
+     * @see Crypt\DES::_setupKey()
+     * @see Crypt\Base::_setupKey()
      * @access private
      */
     function _setupKey()
@@ -417,4 +386,3 @@ class Crypt_TripleDES extends Crypt_DES
         parent::_setupKey();
     }
 }
-

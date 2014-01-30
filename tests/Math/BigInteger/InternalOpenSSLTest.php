@@ -5,7 +5,11 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Math_BigInteger_InternalOpenSSLTest extends Math_BigInteger_TestCase
+namespace phpseclib\Math\BigInteger;
+
+use phpseclib\Math\BigInteger;
+
+class InternalOpenSSLTest extends \phpseclib\Math\BigInteger\TestCase
 {
 	static public function setUpBeforeClass()
 	{
@@ -16,6 +20,6 @@ class Math_BigInteger_InternalOpenSSLTest extends Math_BigInteger_TestCase
 
 		parent::setUpBeforeClass();
 
-		self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
+		BigInteger::setMode(BigInteger::MODE_INTERNAL);
 	}
 }

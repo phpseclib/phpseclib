@@ -9,7 +9,7 @@
  * utilized scheme is DER or the "Distinguished Encoding Rules".  PEM's are base64 encoded
  * DER blobs.
  *
- * File_ASN1 decodes and encodes DER formatted messages and places them in a semantic context.
+ * File\ASN1 decodes and encodes DER formatted messages and places them in a semantic context.
  *
  * Uses the 1988 ASN.1 syntax.
  *
@@ -32,122 +32,91 @@
  * THE SOFTWARE.
  *
  * @category  File
- * @package   File_ASN1
+ * @package   File\ASN1
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMXII Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
-/**#@+
- * Tag Classes
- *
- * @access private
- * @link http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=12
- */
-define('FILE_ASN1_CLASS_UNIVERSAL',        0);
-define('FILE_ASN1_CLASS_APPLICATION',      1);
-define('FILE_ASN1_CLASS_CONTEXT_SPECIFIC', 2);
-define('FILE_ASN1_CLASS_PRIVATE',          3);
-/**#@-*/
+namespace phpseclib\File;
 
-/**#@+
- * Tag Classes
- *
- * @access private
- * @link http://www.obj-sys.com/asn1tutorial/node124.html
- */
-define('FILE_ASN1_TYPE_BOOLEAN',           1);
-define('FILE_ASN1_TYPE_INTEGER',           2);
-define('FILE_ASN1_TYPE_BIT_STRING',        3);
-define('FILE_ASN1_TYPE_OCTET_STRING',      4);
-define('FILE_ASN1_TYPE_NULL',              5);
-define('FILE_ASN1_TYPE_OBJECT_IDENTIFIER', 6);
-//define('FILE_ASN1_TYPE_OBJECT_DESCRIPTOR', 7);
-//define('FILE_ASN1_TYPE_INSTANCE_OF',       8); // EXTERNAL
-define('FILE_ASN1_TYPE_REAL',              9);
-define('FILE_ASN1_TYPE_ENUMERATED',       10);
-//define('FILE_ASN1_TYPE_EMBEDDED',         11);
-define('FILE_ASN1_TYPE_UTF8_STRING',      12);
-//define('FILE_ASN1_TYPE_RELATIVE_OID',     13);
-define('FILE_ASN1_TYPE_SEQUENCE',         16); // SEQUENCE OF
-define('FILE_ASN1_TYPE_SET',              17); // SET OF
-/**#@-*/
-/**#@+
- * More Tag Classes
- *
- * @access private
- * @link http://www.obj-sys.com/asn1tutorial/node10.html
- */
-define('FILE_ASN1_TYPE_NUMERIC_STRING',   18);
-define('FILE_ASN1_TYPE_PRINTABLE_STRING', 19);
-define('FILE_ASN1_TYPE_TELETEX_STRING',   20); // T61String
-define('FILE_ASN1_TYPE_VIDEOTEX_STRING',  21);
-define('FILE_ASN1_TYPE_IA5_STRING',       22);
-define('FILE_ASN1_TYPE_UTC_TIME',         23);
-define('FILE_ASN1_TYPE_GENERALIZED_TIME', 24);
-define('FILE_ASN1_TYPE_GRAPHIC_STRING',   25);
-define('FILE_ASN1_TYPE_VISIBLE_STRING',   26); // ISO646String
-define('FILE_ASN1_TYPE_GENERAL_STRING',   27);
-define('FILE_ASN1_TYPE_UNIVERSAL_STRING', 28);
-//define('FILE_ASN1_TYPE_CHARACTER_STRING', 29);
-define('FILE_ASN1_TYPE_BMP_STRING',       30);
-/**#@-*/
-
-/**#@+
- * Tag Aliases
- *
- * These tags are kinda place holders for other tags.
- *
- * @access private
- */
-define('FILE_ASN1_TYPE_CHOICE',          -1);
-define('FILE_ASN1_TYPE_ANY',             -2);
-/**#@-*/
-
-/**
- * ASN.1 Element
- *
- * Bypass normal encoding rules in File_ASN1::encodeDER()
- *
- * @package File_ASN1
- * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.3.0
- * @access  public
- */
-class File_ASN1_Element
-{
-    /**
-     * Raw element value
-     *
-     * @var String
-     * @access private
-     */
-    var $element;
-
-    /**
-     * Constructor
-     *
-     * @param String $encoded
-     * @return File_ASN1_Element
-     * @access public
-     */
-    function File_ASN1_Element($encoded)
-    {
-        $this->element = $encoded;
-    }
-}
+use phpseclib\File\ASN1\Element;
+use phpseclib\Math\BigInteger;
 
 /**
  * Pure-PHP ASN.1 Parser
  *
- * @package File_ASN1
+ * @package File\ASN1
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.0
  * @access  public
  */
-class File_ASN1
+class ASN1
 {
+    /**
+     * Tag Classes
+     *
+     * @access private
+     * @link http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=12
+     */
+    const CLASS_UNIVERSAL = 0;
+    const CLASS_APPLICATION = 1;
+    const CLASS_CONTEXT_SPECIFIC = 2;
+    const CLASS_PRIVATE = 3;
+    
+    /**
+     * Tag Classes
+     *
+     * @access private
+     * @link http://www.obj-sys.com/asn1tutorial/node124.html
+     */
+    const TYPE_BOOLEAN = 1;
+    const TYPE_INTEGER = 2;
+    const TYPE_BIT_STRING = 3;
+    const TYPE_OCTET_STRING = 4;
+    const TYPE_NULL = 5;
+    const TYPE_OBJECT_IDENTIFIER = 6;
+    //const TYPE_OBJECT_DESCRIPTOR = 7;
+    //const TYPE_INSTANCE_OF = 8; // EXTERNAL
+    const TYPE_REAL = 9;
+    const TYPE_ENUMERATED = 10;
+    //const TYPE_EMBEDDED = 11;
+    const TYPE_UTF8_STRING = 12;
+    //const TYPE_RELATIVE_OID = 13;
+    const TYPE_SEQUENCE = 16; // SEQUENCE OF
+    const TYPE_SET = 17; // SET OF
+    
+    /**
+     * More Tag Classes
+     *
+     * @access private
+     * @link http://www.obj-sys.com/asn1tutorial/node10.html
+     */
+    const TYPE_NUMERIC_STRING = 18;
+    const TYPE_PRINTABLE_STRING = 19;
+    const TYPE_TELETEX_STRING = 20; // T61String
+    const TYPE_VIDEOTEX_STRING = 21;
+    const TYPE_IA5_STRING = 22;
+    const TYPE_UTC_TIME = 23;
+    const TYPE_GENERALIZED_TIME = 24;
+    const TYPE_GRAPHIC_STRING = 25;
+    const TYPE_VISIBLE_STRING = 26; // ISO646String
+    const TYPE_GENERAL_STRING = 27;
+    const TYPE_UNIVERSAL_STRING = 28;
+    //const TYPE_CHARACTER_STRING = 29;
+    const TYPE_BMP_STRING = 30;
+    
+    /**
+     * Tag Aliases
+     *
+     * These tags are kinda place holders for other tags.
+     *
+     * @access private
+     */
+    const TYPE_CHOICE = -1;
+    const TYPE_ANY = -2;
+    
     /**
      * ASN.1 object identifier
      *
@@ -171,8 +140,8 @@ class File_ASN1
      *
      * @var Array
      * @access private
-     * @see File_ASN1::setTimeFormat()
-     * @see File_ASN1::asn1map()
+     * @see File\ASN1::setTimeFormat()
+     * @see File\ASN1::asn1map()
      * @link http://php.net/class.datetime
      */
     var $encoded;
@@ -180,18 +149,18 @@ class File_ASN1
     /**
      * Filters
      *
-     * If the mapping type is FILE_ASN1_TYPE_ANY what do we actually encode it as?
+     * If the mapping type is ASN1::TYPE_ANY what do we actually encode it as?
      *
      * @var Array
      * @access private
-     * @see File_ASN1::_encode_der()
+     * @see File\ASN1::_encode_der()
      */
     var $filters;
 
     /**
      * Type mapping table for the ANY type.
      *
-     * Structured or unknown types are mapped to a FILE_ASN1_Element.
+     * Structured or unknown types are mapped to a ASN1::Element.
      * Unambiguous types get the direct mapping (int/real/bool).
      * Others are mapped as a choice, with an extra indexing level.
      *
@@ -199,28 +168,28 @@ class File_ASN1
      * @access public
      */
     var $ANYmap = array(
-        FILE_ASN1_TYPE_BOOLEAN              => true,
-        FILE_ASN1_TYPE_INTEGER              => true,
-        FILE_ASN1_TYPE_BIT_STRING           => 'bitString',
-        FILE_ASN1_TYPE_OCTET_STRING         => 'octetString',
-        FILE_ASN1_TYPE_NULL                 => 'null',
-        FILE_ASN1_TYPE_OBJECT_IDENTIFIER    => 'objectIdentifier',
-        FILE_ASN1_TYPE_REAL                 => true,
-        FILE_ASN1_TYPE_ENUMERATED           => 'enumerated',
-        FILE_ASN1_TYPE_UTF8_STRING          => 'utf8String',
-        FILE_ASN1_TYPE_NUMERIC_STRING       => 'numericString',
-        FILE_ASN1_TYPE_PRINTABLE_STRING     => 'printableString',
-        FILE_ASN1_TYPE_TELETEX_STRING       => 'teletexString',
-        FILE_ASN1_TYPE_VIDEOTEX_STRING      => 'videotexString',
-        FILE_ASN1_TYPE_IA5_STRING           => 'ia5String',
-        FILE_ASN1_TYPE_UTC_TIME             => 'utcTime',
-        FILE_ASN1_TYPE_GENERALIZED_TIME     => 'generalTime',
-        FILE_ASN1_TYPE_GRAPHIC_STRING       => 'graphicString',
-        FILE_ASN1_TYPE_VISIBLE_STRING       => 'visibleString',
-        FILE_ASN1_TYPE_GENERAL_STRING       => 'generalString',
-        FILE_ASN1_TYPE_UNIVERSAL_STRING     => 'universalString',
-        //FILE_ASN1_TYPE_CHARACTER_STRING     => 'characterString',
-        FILE_ASN1_TYPE_BMP_STRING           => 'bmpString'
+        ASN1::TYPE_BOOLEAN              => true,
+        ASN1::TYPE_INTEGER              => true,
+        ASN1::TYPE_BIT_STRING           => 'bitString',
+        ASN1::TYPE_OCTET_STRING         => 'octetString',
+        ASN1::TYPE_NULL                 => 'null',
+        ASN1::TYPE_OBJECT_IDENTIFIER    => 'objectIdentifier',
+        ASN1::TYPE_REAL                 => true,
+        ASN1::TYPE_ENUMERATED           => 'enumerated',
+        ASN1::TYPE_UTF8_STRING          => 'utf8String',
+        ASN1::TYPE_NUMERIC_STRING       => 'numericString',
+        ASN1::TYPE_PRINTABLE_STRING     => 'printableString',
+        ASN1::TYPE_TELETEX_STRING       => 'teletexString',
+        ASN1::TYPE_VIDEOTEX_STRING      => 'videotexString',
+        ASN1::TYPE_IA5_STRING           => 'ia5String',
+        ASN1::TYPE_UTC_TIME             => 'utcTime',
+        ASN1::TYPE_GENERALIZED_TIME     => 'generalTime',
+        ASN1::TYPE_GRAPHIC_STRING       => 'graphicString',
+        ASN1::TYPE_VISIBLE_STRING       => 'visibleString',
+        ASN1::TYPE_GENERAL_STRING       => 'generalString',
+        ASN1::TYPE_UNIVERSAL_STRING     => 'universalString',
+        //ASN1::TYPE_CHARACTER_STRING     => 'characterString',
+        ASN1::TYPE_BMP_STRING           => 'bmpString'
     );
 
     /**
@@ -233,13 +202,13 @@ class File_ASN1
      * @access public
      */
     var $stringTypeSize = array(
-        FILE_ASN1_TYPE_UTF8_STRING      => 0,
-        FILE_ASN1_TYPE_BMP_STRING       => 2,
-        FILE_ASN1_TYPE_UNIVERSAL_STRING => 4,
-        FILE_ASN1_TYPE_PRINTABLE_STRING => 1,
-        FILE_ASN1_TYPE_TELETEX_STRING   => 1,
-        FILE_ASN1_TYPE_IA5_STRING       => 1,
-        FILE_ASN1_TYPE_VISIBLE_STRING   => 1,
+        ASN1::TYPE_UTF8_STRING      => 0,
+        ASN1::TYPE_BMP_STRING       => 2,
+        ASN1::TYPE_UNIVERSAL_STRING => 4,
+        ASN1::TYPE_PRINTABLE_STRING => 1,
+        ASN1::TYPE_TELETEX_STRING   => 1,
+        ASN1::TYPE_IA5_STRING       => 1,
+        ASN1::TYPE_VISIBLE_STRING   => 1,
     );
 
     /**
@@ -247,14 +216,11 @@ class File_ASN1
      *
      * @access public
      */
-    function File_ASN1()
+    function __construct()
     {
         static $static_init = null;
         if (!$static_init) {
             $static_init = true;
-            if (!class_exists('Math_BigInteger')) {
-                include_once 'Math/BigInteger.php';
-            }
         }
     }
 
@@ -269,7 +235,7 @@ class File_ASN1
      */
     function decodeBER($encoded)
     {
-        if (is_object($encoded) && strtolower(get_class($encoded)) == 'file_asn1_element') {
+        if ($encoded instanceof \phpseclib\File\ASN1\Element) {
             $encoded = $encoded->element;
         }
 
@@ -281,8 +247,8 @@ class File_ASN1
      * Parse BER-encoding (Helper function)
      *
      * Sometimes we want to get the BER encoding of a particular tag.  $start lets us do that without having to reencode.
-     * $encoded is passed by reference for the recursive calls done for FILE_ASN1_TYPE_BIT_STRING and
-     * FILE_ASN1_TYPE_OCTET_STRING. In those cases, the indefinite length is used.
+     * $encoded is passed by reference for the recursive calls done for ASN1::TYPE_BIT_STRING and
+     * ASN1::TYPE_OCTET_STRING. In those cases, the indefinite length is used.
      *
      * @param String $encoded
      * @param Integer $start
@@ -317,7 +283,7 @@ class File_ASN1
             $length = ord($this->_string_shift($encoded));
             $start++;
             if ( $length == 0x80 ) { // indefinite length
-                // "[A sender shall] use the indefinite form (see 8.1.3.6) if the encoding is constructed and is not all
+                // "[A sender shall] use the indefinite form (see 8.1.3.6) if the encoding is constructed and is not all 
                 //  immediately available." -- paragraph 8.1.3.2.c
                 //if ( !$constructed ) {
                 //    return false;
@@ -353,9 +319,9 @@ class File_ASN1
                  -- http://www.obj-sys.com/asn1tutorial/node12.html */
             $class = ($type >> 6) & 3;
             switch ($class) {
-                case FILE_ASN1_CLASS_APPLICATION:
-                case FILE_ASN1_CLASS_PRIVATE:
-                case FILE_ASN1_CLASS_CONTEXT_SPECIFIC:
+                case ASN1::CLASS_APPLICATION:
+                case ASN1::CLASS_PRIVATE:
+                case ASN1::CLASS_CONTEXT_SPECIFIC:
                     $decoded[] = array(
                         'type'     => $class,
                         'constant' => $tag,
@@ -370,20 +336,20 @@ class File_ASN1
 
             // decode UNIVERSAL tags
             switch ($tag) {
-                case FILE_ASN1_TYPE_BOOLEAN:
+                case ASN1::TYPE_BOOLEAN:
                     // "The contents octets shall consist of a single octet." -- paragraph 8.2.1
                     //if (strlen($content) != 1) {
                     //    return false;
                     //}
                     $current['content'] = (bool) ord($content[0]);
                     break;
-                case FILE_ASN1_TYPE_INTEGER:
-                case FILE_ASN1_TYPE_ENUMERATED:
-                    $current['content'] = new Math_BigInteger($content, -256);
+                case ASN1::TYPE_INTEGER:
+                case ASN1::TYPE_ENUMERATED:
+                    $current['content'] = new BigInteger($content, -256);
                     break;
-                case FILE_ASN1_TYPE_REAL: // not currently supported
+                case ASN1::TYPE_REAL: // not currently supported
                     return false;
-                case FILE_ASN1_TYPE_BIT_STRING:
+                case ASN1::TYPE_BIT_STRING:
                     // The initial octet shall encode, as an unsigned binary integer with bit 1 as the least significant bit,
                     // the number of unused bits in the final subsequent octet. The number shall be in the range zero to
                     // seven.
@@ -395,19 +361,19 @@ class File_ASN1
                         $last = count($temp) - 1;
                         for ($i = 0; $i < $last; $i++) {
                             // all subtags should be bit strings
-                            //if ($temp[$i]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
+                            //if ($temp[$i]['type'] != ASN1::TYPE_BIT_STRING) {
                             //    return false;
                             //}
                             $current['content'].= substr($temp[$i]['content'], 1);
                         }
                         // all subtags should be bit strings
-                        //if ($temp[$last]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
+                        //if ($temp[$last]['type'] != ASN1::TYPE_BIT_STRING) {
                         //    return false;
                         //}
                         $current['content'] = $temp[$last]['content'][0] . $current['content'] . substr($temp[$i]['content'], 1);
                     }
                     break;
-                case FILE_ASN1_TYPE_OCTET_STRING:
+                case ASN1::TYPE_OCTET_STRING:
                     if (!$constructed) {
                         $current['content'] = $content;
                     } else {
@@ -415,25 +381,25 @@ class File_ASN1
                         $length-= strlen($content);
                         for ($i = 0, $size = count($temp); $i < $size; $i++) {
                             // all subtags should be octet strings
-                            //if ($temp[$i]['type'] != FILE_ASN1_TYPE_OCTET_STRING) {
+                            //if ($temp[$i]['type'] != ASN1::TYPE_OCTET_STRING) {
                             //    return false;
                             //}
                             $current['content'].= $temp[$i]['content'];
                         }
-                        // $length =
+                        // $length = 
                     }
                     break;
-                case FILE_ASN1_TYPE_NULL:
+                case ASN1::TYPE_NULL:
                     // "The contents octets shall not contain any octets." -- paragraph 8.8.2
                     //if (strlen($content)) {
                     //    return false;
                     //}
                     break;
-                case FILE_ASN1_TYPE_SEQUENCE:
-                case FILE_ASN1_TYPE_SET:
+                case ASN1::TYPE_SEQUENCE:
+                case ASN1::TYPE_SET:
                     $current['content'] = $this->_decode_ber($content, $start);
                     break;
-                case FILE_ASN1_TYPE_OBJECT_IDENTIFIER:
+                case ASN1::TYPE_OBJECT_IDENTIFIER:
                     $temp = ord($this->_string_shift($content));
                     $current['content'] = sprintf('%d.%d', floor($temp / 40), $temp % 40);
                     $valuen = 0;
@@ -457,33 +423,33 @@ class File_ASN1
 
                      -- X.690-0207.pdf#page=23 (paragraph 8.21.3)
 
-                   Per that, we're not going to do any validation.  If there are any illegal characters in the string,
+                   Per that, we're not going to do any validation.  If there are any illegal characters in the string, 
                    we don't really care */
-                case FILE_ASN1_TYPE_NUMERIC_STRING:
+                case ASN1::TYPE_NUMERIC_STRING:
                     // 0,1,2,3,4,5,6,7,8,9, and space
-                case FILE_ASN1_TYPE_PRINTABLE_STRING:
+                case ASN1::TYPE_PRINTABLE_STRING:
                     // Upper and lower case letters, digits, space, apostrophe, left/right parenthesis, plus sign, comma,
                     // hyphen, full stop, solidus, colon, equal sign, question mark
-                case FILE_ASN1_TYPE_TELETEX_STRING:
+                case ASN1::TYPE_TELETEX_STRING:
                     // The Teletex character set in CCITT's T61, space, and delete
                     // see http://en.wikipedia.org/wiki/Teletex#Character_sets
-                case FILE_ASN1_TYPE_VIDEOTEX_STRING:
+                case ASN1::TYPE_VIDEOTEX_STRING:
                     // The Videotex character set in CCITT's T.100 and T.101, space, and delete
-                case FILE_ASN1_TYPE_VISIBLE_STRING:
+                case ASN1::TYPE_VISIBLE_STRING:
                     // Printing character sets of international ASCII, and space
-                case FILE_ASN1_TYPE_IA5_STRING:
+                case ASN1::TYPE_IA5_STRING:
                     // International Alphabet 5 (International ASCII)
-                case FILE_ASN1_TYPE_GRAPHIC_STRING:
+                case ASN1::TYPE_GRAPHIC_STRING:
                     // All registered G sets, and space
-                case FILE_ASN1_TYPE_GENERAL_STRING:
+                case ASN1::TYPE_GENERAL_STRING:
                     // All registered C and G sets, space and delete
-                case FILE_ASN1_TYPE_UTF8_STRING:
+                case ASN1::TYPE_UTF8_STRING:
                     // ????
-                case FILE_ASN1_TYPE_BMP_STRING:
+                case ASN1::TYPE_BMP_STRING:
                     $current['content'] = $content;
                     break;
-                case FILE_ASN1_TYPE_UTC_TIME:
-                case FILE_ASN1_TYPE_GENERALIZED_TIME:
+                case ASN1::TYPE_UTC_TIME:
+                case ASN1::TYPE_GENERALIZED_TIME:
                     $current['content'] = $this->_decodeTime($content, $tag);
                 default:
 
@@ -516,24 +482,24 @@ class File_ASN1
         }
 
         switch (true) {
-            case $mapping['type'] == FILE_ASN1_TYPE_ANY:
+            case $mapping['type'] == ASN1::TYPE_ANY:
                 $intype = $decoded['type'];
                 if (isset($decoded['constant']) || !isset($this->ANYmap[$intype]) || ($this->encoded[$decoded['start']] & 0x20)) {
-                    return new File_ASN1_Element(substr($this->encoded, $decoded['start'], $decoded['length']));
+                    return new Element(substr($this->encoded, $decoded['start'], $decoded['length']));
                 }
                 $inmap = $this->ANYmap[$intype];
                 if (is_string($inmap)) {
                     return array($inmap => $this->asn1map($decoded, array('type' => $intype) + $mapping, $special));
                 }
                 break;
-            case $mapping['type'] == FILE_ASN1_TYPE_CHOICE:
+            case $mapping['type'] == ASN1::TYPE_CHOICE:
                 foreach ($mapping['children'] as $key => $option) {
                     switch (true) {
                         case isset($option['constant']) && $option['constant'] == $decoded['constant']:
                         case !isset($option['constant']) && $option['type'] == $decoded['type']:
                             $value = $this->asn1map($decoded, $option, $special);
                             break;
-                        case !isset($option['constant']) && $option['type'] == FILE_ASN1_TYPE_CHOICE:
+                        case !isset($option['constant']) && $option['type'] == ASN1::TYPE_CHOICE:
                             $v = $this->asn1map($decoded, $option, $special);
                             if (isset($v)) {
                                 $value = $v;
@@ -560,7 +526,7 @@ class File_ASN1
         }
 
         switch ($decoded['type']) {
-            case FILE_ASN1_TYPE_SEQUENCE:
+            case ASN1::TYPE_SEQUENCE:
                 $map = array();
 
                 // ignore the min and max
@@ -583,18 +549,18 @@ class File_ASN1
                     if ($maymatch) {
                         $temp = $decoded['content'][$i];
 
-                        if ($child['type'] != FILE_ASN1_TYPE_CHOICE) {
+                        if ($child['type'] != ASN1::TYPE_CHOICE) {
                             // Get the mapping and input class & constant.
-                            $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
+                            $childClass = $tempClass = ASN1::CLASS_UNIVERSAL;
                             $constant = null;
                             if (isset($temp['constant'])) {
-                                $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                                $tempClass = isset($temp['class']) ? $temp['class'] : ASN1::CLASS_CONTEXT_SPECIFIC;
                             }
                             if (isset($child['class'])) {
                                 $childClass = $child['class'];
                                 $constant = $child['cast'];
                             } elseif (isset($child['constant'])) {
-                                $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                                $childClass = ASN1::CLASS_CONTEXT_SPECIFIC;
                                 $constant = $child['constant'];
                             }
 
@@ -603,7 +569,7 @@ class File_ASN1
                                 $maymatch = $constant == $temp['constant'] && $childClass == $tempClass;
                             } else {
                                 // Can only match if no constant expected and type matches or is generic.
-                                $maymatch = !isset($child['constant']) && array_search($child['type'], array($temp['type'], FILE_ASN1_TYPE_ANY, FILE_ASN1_TYPE_CHOICE)) !== false;
+                                $maymatch = !isset($child['constant']) && array_search($child['type'], array($temp['type'], ASN1::TYPE_ANY, ASN1::TYPE_CHOICE)) !== false;
                             }
                         }
                     }
@@ -632,7 +598,7 @@ class File_ASN1
                 return $i < $n? null: $map;
 
             // the main diff between sets and sequences is the encapsulation of the foreach in another for loop
-            case FILE_ASN1_TYPE_SET:
+            case ASN1::TYPE_SET:
                 $map = array();
 
                 // ignore the min and max
@@ -649,9 +615,9 @@ class File_ASN1
 
                 for ($i = 0; $i < count($decoded['content']); $i++) {
                     $temp = $decoded['content'][$i];
-                    $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
+                    $tempClass = ASN1::CLASS_UNIVERSAL;
                     if (isset($temp['constant'])) {
-                        $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                        $tempClass = isset($temp['class']) ? $temp['class'] : ASN1::CLASS_CONTEXT_SPECIFIC;
                     }
 
                     foreach ($mapping['children'] as $key => $child) {
@@ -659,14 +625,14 @@ class File_ASN1
                             continue;
                         }
                         $maymatch = true;
-                        if ($child['type'] != FILE_ASN1_TYPE_CHOICE) {
-                            $childClass = FILE_ASN1_CLASS_UNIVERSAL;
+                        if ($child['type'] != ASN1::TYPE_CHOICE) {
+                            $childClass = ASN1::CLASS_UNIVERSAL;
                             $constant = null;
                             if (isset($child['class'])) {
                                 $childClass = $child['class'];
                                 $constant = $child['cast'];
                             } elseif (isset($child['constant'])) {
-                                $childClass = FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                                $childClass = ASN1::CLASS_CONTEXT_SPECIFIC;
                                 $constant = $child['constant'];
                             }
 
@@ -675,7 +641,7 @@ class File_ASN1
                                 $maymatch = $constant == $temp['constant'] && $childClass == $tempClass;
                             } else {
                                 // Can only match if no constant expected and type matches or is generic.
-                                $maymatch = !isset($child['constant']) && array_search($child['type'], array($temp['type'], FILE_ASN1_TYPE_ANY, FILE_ASN1_TYPE_CHOICE)) !== false;
+                                $maymatch = !isset($child['constant']) && array_search($child['type'], array($temp['type'], ASN1::TYPE_ANY, ASN1::TYPE_CHOICE)) !== false;
                             }
                         }
 
@@ -708,15 +674,15 @@ class File_ASN1
                     }
                 }
                 return $map;
-            case FILE_ASN1_TYPE_OBJECT_IDENTIFIER:
+            case ASN1::TYPE_OBJECT_IDENTIFIER:
                 return isset($this->oids[$decoded['content']]) ? $this->oids[$decoded['content']] : $decoded['content'];
-            case FILE_ASN1_TYPE_UTC_TIME:
-            case FILE_ASN1_TYPE_GENERALIZED_TIME:
+            case ASN1::TYPE_UTC_TIME:
+            case ASN1::TYPE_GENERALIZED_TIME:
                 if (isset($mapping['implicit'])) {
                     $decoded['content'] = $this->_decodeTime($decoded['content'], $decoded['type']);
                 }
                 return @date($this->format, $decoded['content']);
-            case FILE_ASN1_TYPE_BIT_STRING:
+            case ASN1::TYPE_BIT_STRING:
                 if (isset($mapping['mapping'])) {
                     $offset = ord($decoded['content'][0]);
                     $size = (strlen($decoded['content']) - 1) * 8 - $offset;
@@ -745,29 +711,29 @@ class File_ASN1
                     }
                     return $values;
                 }
-            case FILE_ASN1_TYPE_OCTET_STRING:
+            case ASN1::TYPE_OCTET_STRING:
                 return base64_encode($decoded['content']);
-            case FILE_ASN1_TYPE_NULL:
+            case ASN1::TYPE_NULL:
                 return '';
-            case FILE_ASN1_TYPE_BOOLEAN:
+            case ASN1::TYPE_BOOLEAN:
                 return $decoded['content'];
-            case FILE_ASN1_TYPE_NUMERIC_STRING:
-            case FILE_ASN1_TYPE_PRINTABLE_STRING:
-            case FILE_ASN1_TYPE_TELETEX_STRING:
-            case FILE_ASN1_TYPE_VIDEOTEX_STRING:
-            case FILE_ASN1_TYPE_IA5_STRING:
-            case FILE_ASN1_TYPE_GRAPHIC_STRING:
-            case FILE_ASN1_TYPE_VISIBLE_STRING:
-            case FILE_ASN1_TYPE_GENERAL_STRING:
-            case FILE_ASN1_TYPE_UNIVERSAL_STRING:
-            case FILE_ASN1_TYPE_UTF8_STRING:
-            case FILE_ASN1_TYPE_BMP_STRING:
+            case ASN1::TYPE_NUMERIC_STRING:
+            case ASN1::TYPE_PRINTABLE_STRING:
+            case ASN1::TYPE_TELETEX_STRING:
+            case ASN1::TYPE_VIDEOTEX_STRING:
+            case ASN1::TYPE_IA5_STRING:
+            case ASN1::TYPE_GRAPHIC_STRING:
+            case ASN1::TYPE_VISIBLE_STRING:
+            case ASN1::TYPE_GENERAL_STRING:
+            case ASN1::TYPE_UNIVERSAL_STRING:
+            case ASN1::TYPE_UTF8_STRING:
+            case ASN1::TYPE_BMP_STRING:
                 return $decoded['content'];
-            case FILE_ASN1_TYPE_INTEGER:
-            case FILE_ASN1_TYPE_ENUMERATED:
+            case ASN1::TYPE_INTEGER:
+            case ASN1::TYPE_ENUMERATED:
                 $temp = $decoded['content'];
                 if (isset($mapping['implicit'])) {
-                    $temp = new Math_BigInteger($decoded['content'], -256);
+                    $temp = new BigInteger($decoded['content'], -256);
                 }
                 if (isset($mapping['mapping'])) {
                     $temp = (int) $temp->toString();
@@ -820,7 +786,7 @@ class File_ASN1
      */
     function _encode_der($source, $mapping, $idx = null, $special = array())
     {
-        if (is_object($source) && strtolower(get_class($source)) == 'file_asn1_element') {
+        if ($source instanceof \phpseclib\File\ASN1\Element) {
             return $source->element;
         }
 
@@ -839,8 +805,8 @@ class File_ASN1
         $tag = $mapping['type'];
 
         switch ($tag) {
-            case FILE_ASN1_TYPE_SET:    // Children order is not important, thus process in sequence.
-            case FILE_ASN1_TYPE_SEQUENCE:
+            case ASN1::TYPE_SET:    // Children order is not important, thus process in sequence.
+            case ASN1::TYPE_SEQUENCE:
                 $tag|= 0x20; // set the constructed bit
                 $value = '';
 
@@ -888,18 +854,18 @@ class File_ASN1
                             AUTOMATIC TAGS, but the type defined by "Type" is an untagged choice type, an untagged open type, or
                             an untagged "DummyReference" (see ITU-T Rec. X.683 | ISO/IEC 8824-4, 8.3)."
                          */
-                        if (isset($child['explicit']) || $child['type'] == FILE_ASN1_TYPE_CHOICE) {
-                            $subtag = chr((FILE_ASN1_CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | $child['constant']);
+                        if (isset($child['explicit']) || $child['type'] == ASN1::TYPE_CHOICE) {
+                            $subtag = chr((ASN1::CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | $child['constant']);
                             $temp = $subtag . $this->_encodeLength(strlen($temp)) . $temp;
                         } else {
-                            $subtag = chr((FILE_ASN1_CLASS_CONTEXT_SPECIFIC << 6) | (ord($temp[0]) & 0x20) | $child['constant']);
+                            $subtag = chr((ASN1::CLASS_CONTEXT_SPECIFIC << 6) | (ord($temp[0]) & 0x20) | $child['constant']);
                             $temp = $subtag . substr($temp, 1);
                         }
                     }
                     $value.= $temp;
                 }
                 break;
-            case FILE_ASN1_TYPE_CHOICE:
+            case ASN1::TYPE_CHOICE:
                 $temp = false;
 
                 foreach ($mapping['children'] as $key => $child) {
@@ -922,11 +888,11 @@ class File_ASN1
 
                     // if isset($child['constant']) is true then isset($child['optional']) should be true as well
                     if (isset($child['constant'])) {
-                        if (isset($child['explicit']) || $child['type'] == FILE_ASN1_TYPE_CHOICE) {
-                            $subtag = chr((FILE_ASN1_CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | $child['constant']);
+                        if (isset($child['explicit']) || $child['type'] == ASN1::TYPE_CHOICE) {
+                            $subtag = chr((ASN1::CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | $child['constant']);
                             $temp = $subtag . $this->_encodeLength(strlen($temp)) . $temp;
                         } else {
-                            $subtag = chr((FILE_ASN1_CLASS_CONTEXT_SPECIFIC << 6) | (ord($temp[0]) & 0x20) | $child['constant']);
+                            $subtag = chr((ASN1::CLASS_CONTEXT_SPECIFIC << 6) | (ord($temp[0]) & 0x20) | $child['constant']);
                             $temp = $subtag . substr($temp, 1);
                         }
                     }
@@ -941,8 +907,8 @@ class File_ASN1
                 }
 
                 return $temp;
-            case FILE_ASN1_TYPE_INTEGER:
-            case FILE_ASN1_TYPE_ENUMERATED:
+            case ASN1::TYPE_INTEGER:
+            case ASN1::TYPE_ENUMERATED:
                 if (!isset($mapping['mapping'])) {
                     $value = $source->toBytes(true);
                 } else {
@@ -950,20 +916,20 @@ class File_ASN1
                     if ($value === false) {
                         return false;
                     }
-                    $value = new Math_BigInteger($value);
+                    $value = new BigInteger($value);
                     $value = $value->toBytes(true);
                 }
                 if (!strlen($value)) {
                     $value = chr(0);
                 }
                 break;
-            case FILE_ASN1_TYPE_UTC_TIME:
-            case FILE_ASN1_TYPE_GENERALIZED_TIME:
-                $format = $mapping['type'] == FILE_ASN1_TYPE_UTC_TIME ? 'y' : 'Y';
+            case ASN1::TYPE_UTC_TIME:
+            case ASN1::TYPE_GENERALIZED_TIME:
+                $format = $mapping['type'] == ASN1::TYPE_UTC_TIME ? 'y' : 'Y';
                 $format.= 'mdHis';
                 $value = @gmdate($format, strtotime($source)) . 'Z';
                 break;
-            case FILE_ASN1_TYPE_BIT_STRING:
+            case ASN1::TYPE_BIT_STRING:
                 if (isset($mapping['mapping'])) {
                     $bits = array_fill(0, count($mapping['mapping']), 0);
                     $size = 0;
@@ -991,14 +957,14 @@ class File_ASN1
 
                     break;
                 }
-            case FILE_ASN1_TYPE_OCTET_STRING:
+            case ASN1::TYPE_OCTET_STRING:
                 /* The initial octet shall encode, as an unsigned binary integer with bit 1 as the least significant bit,
                    the number of unused bits in the final subsequent octet. The number shall be in the range zero to seven.
 
                    -- http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=16 */
                 $value = base64_decode($source);
                 break;
-            case FILE_ASN1_TYPE_OBJECT_IDENTIFIER:
+            case ASN1::TYPE_OBJECT_IDENTIFIER:
                 $oid = preg_match('#(?:\d+\.)+#', $source) ? $source : array_search($source, $this->oids);
                 if ($oid === false) {
                     user_error('Invalid OID');
@@ -1021,7 +987,7 @@ class File_ASN1
                     $value.= $temp;
                 }
                 break;
-            case FILE_ASN1_TYPE_ANY:
+            case ASN1::TYPE_ANY:
                 $loc = $this->location;
                 if (isset($idx)) {
                     array_pop($this->location);
@@ -1029,14 +995,14 @@ class File_ASN1
 
                 switch (true) {
                     case !isset($source):
-                        return $this->_encode_der(null, array('type' => FILE_ASN1_TYPE_NULL) + $mapping, null, $special);
+                        return $this->_encode_der(null, array('type' => ASN1::TYPE_NULL) + $mapping, null, $special);
                     case is_int($source):
-                    case is_object($source) && strtolower(get_class($source)) == 'math_biginteger':
-                        return $this->_encode_der($source, array('type' => FILE_ASN1_TYPE_INTEGER) + $mapping, null, $special);
+                    case $source instanceof \phpseclib\Math\BigInteger:
+                        return $this->_encode_der($source, array('type' => ASN1::TYPE_INTEGER) + $mapping, null, $special);
                     case is_float($source):
-                        return $this->_encode_der($source, array('type' => FILE_ASN1_TYPE_REAL) + $mapping, null, $special);
+                        return $this->_encode_der($source, array('type' => ASN1::TYPE_REAL) + $mapping, null, $special);
                     case is_bool($source):
-                        return $this->_encode_der($source, array('type' => FILE_ASN1_TYPE_BOOLEAN) + $mapping, null, $special);
+                        return $this->_encode_der($source, array('type' => ASN1::TYPE_BOOLEAN) + $mapping, null, $special);
                     case is_array($source) && count($source) == 1:
                         $typename = implode('', array_keys($source));
                         $outtype = array_search($typename, $this->ANYmap, true);
@@ -1058,23 +1024,23 @@ class File_ASN1
                     return false;
                 }
                 return $this->_encode_der($source, $filters + $mapping, null, $special);
-            case FILE_ASN1_TYPE_NULL:
+            case ASN1::TYPE_NULL:
                 $value = '';
                 break;
-            case FILE_ASN1_TYPE_NUMERIC_STRING:
-            case FILE_ASN1_TYPE_TELETEX_STRING:
-            case FILE_ASN1_TYPE_PRINTABLE_STRING:
-            case FILE_ASN1_TYPE_UNIVERSAL_STRING:
-            case FILE_ASN1_TYPE_UTF8_STRING:
-            case FILE_ASN1_TYPE_BMP_STRING:
-            case FILE_ASN1_TYPE_IA5_STRING:
-            case FILE_ASN1_TYPE_VISIBLE_STRING:
-            case FILE_ASN1_TYPE_VIDEOTEX_STRING:
-            case FILE_ASN1_TYPE_GRAPHIC_STRING:
-            case FILE_ASN1_TYPE_GENERAL_STRING:
+            case ASN1::TYPE_NUMERIC_STRING:
+            case ASN1::TYPE_TELETEX_STRING:
+            case ASN1::TYPE_PRINTABLE_STRING:
+            case ASN1::TYPE_UNIVERSAL_STRING:
+            case ASN1::TYPE_UTF8_STRING:
+            case ASN1::TYPE_BMP_STRING:
+            case ASN1::TYPE_IA5_STRING:
+            case ASN1::TYPE_VISIBLE_STRING:
+            case ASN1::TYPE_VIDEOTEX_STRING:
+            case ASN1::TYPE_GRAPHIC_STRING:
+            case ASN1::TYPE_GENERAL_STRING:
                 $value = $source;
                 break;
-            case FILE_ASN1_TYPE_BOOLEAN:
+            case ASN1::TYPE_BOOLEAN:
                 $value = $source ? "\xFF" : "\x00";
                 break;
             default:
@@ -1133,7 +1099,7 @@ class File_ASN1
            http://tools.ietf.org/html/rfc5280#section-4.1.2.5.2
            http://www.obj-sys.com/asn1tutorial/node14.html */
 
-        $pattern = $tag == FILE_ASN1_TYPE_UTC_TIME ?
+        $pattern = $tag == ASN1::TYPE_UTC_TIME ?
             '#(..)(..)(..)(..)(..)(..)(.*)#' :
             '#(....)(..)(..)(..)(..)(..).*([Z+-].*)$#';
 
@@ -1141,7 +1107,7 @@ class File_ASN1
 
         list(, $year, $month, $day, $hour, $minute, $second, $timezone) = $matches;
 
-        if ($tag == FILE_ASN1_TYPE_UTC_TIME) {
+        if ($tag == ASN1::TYPE_UTC_TIME) {
             $year = $year >= 50 ? "19$year" : "20$year";
         }
 
@@ -1191,7 +1157,7 @@ class File_ASN1
     /**
      * Load filters
      *
-     * See File_X509, etc, for an example.
+     * See File\X509, etc, for an example.
      *
      * @access public
      * @param Array $filters
@@ -1230,7 +1196,7 @@ class File_ASN1
      * @return String
      * @access public
      */
-    function convert($in, $from = FILE_ASN1_TYPE_UTF8_STRING, $to = FILE_ASN1_TYPE_UTF8_STRING)
+    function convert($in, $from = ASN1::TYPE_UTF8_STRING, $to = ASN1::TYPE_UTF8_STRING)
     {
         if (!isset($this->stringTypeSize[$from]) || !isset($this->stringTypeSize[$to])) {
             return false;
