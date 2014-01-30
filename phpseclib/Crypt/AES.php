@@ -7,6 +7,10 @@
  *
  * PHP versions 4 and 5
  *
+ * NOTE: Since AES.php is (for compatibility and phpseclib-historical reasons) virtually 
+ * just a wrapper to Rijndael.php you may consider using Rijndael.php instead of
+ * to save one include_once().
+ *
  * If {@link Crypt_AES::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
  * {@link Crypt_AES::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's 136-bits
  * it'll be null-padded to 192-bits and 192 bits will be the key length until {@link Crypt_AES::setKey() setKey()}
@@ -19,7 +23,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/AES.php');
+ *    include_once 'Crypt/AES.php';
  *
  *    $aes = new Crypt_AES();
  *
@@ -108,7 +112,7 @@ define('CRYPT_AES_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
 /**#@+
- * @access private
+ * @access public
  * @see Crypt_AES::Crypt_AES()
  */
 /**
@@ -126,7 +130,7 @@ define('CRYPT_AES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  *
  * @package Crypt_AES
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.0
+ * @version 0.1.1
  * @access  public
  */
 class Crypt_AES extends Crypt_Rijndael
