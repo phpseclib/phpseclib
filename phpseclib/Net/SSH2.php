@@ -2918,12 +2918,9 @@ class Net_SSH2
                         case 'exit-status':
                             extract(unpack('Cfalse/Nexit_status', $this->_string_shift($response, 5)));
                             $this->exit_status = $exit_status;
-                            // "The channel needs to be closed with SSH_MSG_CHANNEL_CLOSE after this message."
-                            // -- http://tools.ietf.org/html/rfc4254#section-6.10
-                            $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$client_channel]));
-                            $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
 
-                            $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_EOF;
+                            // "The client MAY ignore these messages."
+                            // -- http://tools.ietf.org/html/rfc4254#section-6.10
 
                             break;
                         default:
