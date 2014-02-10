@@ -1984,4 +1984,3 @@ class Crypt_Base
         return $functions;
     }
 }
-

@@ -919,4 +919,3 @@ class Crypt_Twofish extends Crypt_Base
         $this->inline_crypt = $lambda_functions[$code_hash];
     }
 }
-
