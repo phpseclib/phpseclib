@@ -132,7 +132,6 @@ class Crypt_RC4 extends Crypt_Base
      */
     var $const_namespace = 'RC4';
 
-
     /**
      * The mcrypt specific name of the cipher
      *
@@ -332,4 +331,3 @@ class Crypt_RC4 extends Crypt_Base
         return $text;
     }
 }
-

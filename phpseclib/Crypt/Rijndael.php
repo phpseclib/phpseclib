@@ -1369,4 +1369,3 @@ class Crypt_Rijndael extends Crypt_Base
         $this->inline_crypt = $lambda_functions[$code_hash];
     }
 }
-
