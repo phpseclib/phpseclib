@@ -651,4 +651,3 @@ class Crypt_RC2 extends Crypt_Base
         $this->inline_crypt = $lambda_functions[$code_hash];
     }
 }
-

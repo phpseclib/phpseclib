@@ -417,4 +417,3 @@ class Crypt_TripleDES extends Crypt_DES
         parent::_setupKey();
     }
 }
-
