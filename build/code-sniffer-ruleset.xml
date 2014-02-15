@@ -4,37 +4,36 @@
  <description>phpseclib coding standard</description>
 
  <!-- We are using the PEAR standard as a base -->
- <rule ref="PEAR"/>
-
- <!-- Temporary exceptions to the PEAR standard follow -->
-
- <rule ref="Generic.ControlStructures.InlineControlStructure.Discouraged"><severity>0</severity></rule>
- <rule ref="Generic.Files.LineLength.TooLong"><severity>0</severity></rule>
- <rule ref="PEAR.NamingConventions.ValidFunctionName.FunctionNoCapital"><severity>0</severity></rule>
- <rule ref="PEAR.NamingConventions.ValidFunctionName.NotCamelCaps"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.ClassComment.InvalidVersion"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.ClassComment.MissingTag"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FileComment.EmptyCopyright"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FileComment.InvalidVersion"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FunctionComment.ExtraParamComment"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FunctionComment.MissingReturn"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FunctionComment.MissingParamComment"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FunctionComment.MissingParamName"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FunctionComment.MissingParamTag"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FunctionComment.ParameterCommentsNotAligned"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FunctionComment.ParameterNamesNotAligned"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FunctionComment.ParamNameNoMatch"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FunctionComment.SpacingAfterParams"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FunctionComment.SpacingBeforeParams"><severity>0</severity></rule>
- <rule ref="PEAR.Commenting.FunctionComment.SpacingBeforeTags"><severity>0</severity></rule>
- <rule ref="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket"><severity>0</severity></rule>
- <rule ref="PEAR.Functions.FunctionCallSignature.CloseBracketLine"><severity>0</severity></rule>
- <rule ref="PEAR.Functions.FunctionCallSignature.Indent"><severity>0</severity></rule>
- <rule ref="PEAR.Functions.FunctionCallSignature.SpaceAfterOpenBracket"><severity>0</severity></rule>
- <rule ref="PEAR.WhiteSpace.ScopeClosingBrace.BreakIdent"><severity>0</severity></rule>
- <rule ref="PEAR.WhiteSpace.ScopeClosingBrace.Indent"><severity>0</severity></rule>
- <rule ref="PEAR.WhiteSpace.ScopeClosingBrace.Line"><severity>0</severity></rule>
- <rule ref="PEAR.WhiteSpace.ScopeIndent.Incorrect"><severity>0</severity></rule>
+ <rule ref="PEAR">
+   <!-- Temporary exceptions to the PEAR standard follow -->
+   <exclude name="Generic.ControlStructures.InlineControlStructure.Discouraged" />
+   <exclude name="Generic.Files.LineLength.TooLong" />
+   <exclude name="PEAR.NamingConventions.ValidFunctionName.FunctionNoCapital" />
+   <exclude name="PEAR.NamingConventions.ValidFunctionName.NotCamelCaps" />
+   <exclude name="PEAR.Commenting.ClassComment.InvalidVersion" />
+   <exclude name="PEAR.Commenting.ClassComment.MissingTag" />
+   <exclude name="PEAR.Commenting.FileComment.EmptyCopyright" />
+   <exclude name="PEAR.Commenting.FileComment.InvalidVersion" />
+   <exclude name="PEAR.Commenting.FunctionComment.ExtraParamComment" />
+   <exclude name="PEAR.Commenting.FunctionComment.MissingReturn" />
+   <exclude name="PEAR.Commenting.FunctionComment.MissingParamComment" />
+   <exclude name="PEAR.Commenting.FunctionComment.MissingParamName" />
+   <exclude name="PEAR.Commenting.FunctionComment.MissingParamTag" />
+   <exclude name="PEAR.Commenting.FunctionComment.ParameterCommentsNotAligned" />
+   <exclude name="PEAR.Commenting.FunctionComment.ParameterNamesNotAligned" />
+   <exclude name="PEAR.Commenting.FunctionComment.ParamNameNoMatch" />
+   <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParams" />
+   <exclude name="PEAR.Commenting.FunctionComment.SpacingBeforeParams" />
+   <exclude name="PEAR.Commenting.FunctionComment.SpacingBeforeTags" />
+   <exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
+   <exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
+   <exclude name="PEAR.Functions.FunctionCallSignature.Indent" />
+   <exclude name="PEAR.Functions.FunctionCallSignature.SpaceAfterOpenBracket" />
+   <exclude name="PEAR.WhiteSpace.ScopeClosingBrace.BreakIdent" />
+   <exclude name="PEAR.WhiteSpace.ScopeClosingBrace.Indent" />
+   <exclude name="PEAR.WhiteSpace.ScopeClosingBrace.Line" />
+   <exclude name="PEAR.WhiteSpace.ScopeIndent.Incorrect" />
+ </rule>
 
  <!-- Useful additional rules follow -->
 
