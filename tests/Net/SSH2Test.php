@@ -81,4 +81,31 @@ class Net_SSH2Test extends PhpseclibTestCase
         $this->assertEquals($expected, $identifier);
     }
 
+    public function testConstructor()
+    {
+        if (!isset($_ENV['TRAVIS']) && !getenv('TRAVIS'))
+        {
+            $this->markTestSkipped('SSH tests only work on Travis for now.');
+        }
+
+        $ssh = new Net_SSH2('localhost');
+
+        $this->assertTrue(
+            is_object($ssh),
+            'Could not construct NET_SSH2 object.'
+        );
+
+        return $ssh;
+    }
+
+    /**
+    * @depends testConstructor
+    */
+    public function testPasswordLogin($ssh)
+    {
+        $this->assertTrue(
+            $ssh->login('phpseclib', 'EePoov8po1aethu2kied1ne0'),
+            'SSH2 login using password failed.'
+        );
+    }
 }
