@@ -19,7 +19,8 @@ before_script:
   - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then composer install --dev --no-interaction; fi"
 
 script:
-  - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then vendor/bin/phpcs -s --extensions=php --standard=tests/code_sniffer_ruleset.xml phpseclib/; fi"
+  - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then vendor/bin/phpcs -s --extensions=php --standard=build/code-sniffer-ruleset.xml phpseclib/; fi"
+  - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then vendor/bin/phpcs -s --extensions=php --standard=build/code-sniffer-ruleset-tests.xml tests/; fi"
   - phpunit --verbose --coverage-text --coverage-html code_coverage/
 
 after_success:
