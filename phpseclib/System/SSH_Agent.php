@@ -69,6 +69,11 @@ define('SYSTEM_SSH_AGENT_SIGN_RESPONSE', 14);
  * Pure-PHP ssh-agent client identity object
  *
  * Instantiation should only be performed by System_SSH_Agent class.
+ * This could be thought of as implementing an interface that Crypt_RSA
+ * implements. ie. maybe a Net_SSH_Auth_PublicKey interface or something.
+ * The methods in this interface would be getPublicKey, setSignatureMode
+ * and sign since those are the methods phpseclib looks for to perform
+ * public key authentication.
  *
  * @package System_SSH_Agent
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -89,7 +94,7 @@ class System_SSH_Agent_Identity
     /**
      * Key Blob
      *
-     * @var Object
+     * @var String
      * @access private
      * @see System_SSH_Agent_Identity::sign()
      */
@@ -98,7 +103,7 @@ class System_SSH_Agent_Identity
     /**
      * Socket Resource
      *
-     * @var Object
+     * @var Resource
      * @access private
      * @see System_SSH_Agent_Identity::sign()
      */
@@ -251,7 +256,7 @@ class System_SSH_Agent
                 return false;
         }
 
-        $this->fsock = fsockopen('unix:///' . $address, 0, $errno, $errstr);
+        $this->fsock = fsockopen('unix://' . $address, 0, $errno, $errstr);
         if (!$this->fsock) {
             user_error("Unable to connect to ssh-agent (Error $errno: $errstr)");
         }
@@ -302,14 +307,15 @@ class System_SSH_Agent
                     $key->loadKey('ssh-rsa ' . base64_encode($key_blob) . ' ' . $key_comment);
                     break;
                 case 'ssh-dss':
+                    // not currently supported
                     break;
             }
             // resources are passed by reference by default
             if (isset($key)) {
-                $agent = new System_SSH_Agent_Identity($this->fsock);
-                $agent->setPublicKey($key);
-                $agent->setPublicKeyBlob($key_blob);
-                $identities[] = $agent;
+                $identity = new System_SSH_Agent_Identity($this->fsock);
+                $identity->setPublicKey($key);
+                $identity->setPublicKeyBlob($key_blob);
+                $identities[] = $identity;
                 unset($key);
             }
         }
