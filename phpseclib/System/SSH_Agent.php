@@ -85,7 +85,7 @@ class System_SSH_Agent_Identity
     /**
      * Key Object
      *
-     * @var Object
+     * @var Crypt_RSA
      * @access private
      * @see System_SSH_Agent_Identity::getPublicKey()
      */
@@ -126,7 +126,7 @@ class System_SSH_Agent_Identity
      *
      * Called by System_SSH_Agent::requestIdentities()
      *
-     * @param Object $key
+     * @param Crypt_RSA $key
      * @access private
      */
     function setPublicKey($key)
@@ -141,7 +141,7 @@ class System_SSH_Agent_Identity
      * Called by System_SSH_Agent::requestIdentities(). The key blob could be extracted from $this->key
      * but this saves a small amount of computation.
      *
-     * @param Object $key_blob
+     * @param String $key_blob
      * @access private
      */
     function setPublicKeyBlob($key_blob)
@@ -170,7 +170,6 @@ class System_SSH_Agent_Identity
      * ssh-agent's only supported mode is CRYPT_RSA_SIGNATURE_PKCS1
      *
      * @param Integer $mode
-     * @return Mixed
      * @access public
      */
     function setSignatureMode($mode)
@@ -180,7 +179,7 @@ class System_SSH_Agent_Identity
     /**
      * Create a signature
      *
-     * see "2.6.2 Protocol 2 private key signature request"
+     * See "2.6.2 Protocol 2 private key signature request"
      *
      * @param String $message
      * @return String
@@ -223,7 +222,7 @@ class System_SSH_Agent
     /**
      * Socket Resource
      *
-     * @var Object
+     * @var Resource
      * @access private
      */
     var $fsock;
