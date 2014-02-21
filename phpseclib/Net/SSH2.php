@@ -1769,8 +1769,13 @@ class Net_SSH2
         }
 
         // although PHP5's get_class() preserves the case, PHP4's does not
-        if (is_object($password) && strtolower(get_class($password)) == 'crypt_rsa') {
-            return $this->_privatekey_login($username, $password);
+        if (is_object($password)) {
+            switch (strtolower(get_class($password))) {
+                case 'crypt_rsa':
+                    return $this->_privatekey_login($username, $password);
+                case 'system_ssh_agent':
+                    return $this->_ssh_agent_login($username, $password);
+            }
         }
 
         if (is_array($password)) {
@@ -2002,6 +2007,26 @@ class Net_SSH2
                 return true;
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 return false;
+        }
+
+        return false;
+    }
+
+    /**
+     * Login with an ssh-agent provided key
+     *
+     * @param String $username
+     * @param System_SSH_Agent $agent
+     * @return Boolean
+     * @access private
+     */
+    function _ssh_agent_login($username, $agent)
+    {
+        $keys = $agent->requestIdentities();
+        foreach ($keys as $key) {
+            if ($this->_privatekey_login($username, $key)) {
+                return true;
+            }
         }
 
         return false;
