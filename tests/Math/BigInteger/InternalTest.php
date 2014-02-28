@@ -5,13 +5,17 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Math_BigInteger_InternalTest extends Math_BigInteger_TestCase
+namespace phpseclib\Math\BigInteger;
+
+use phpseclib\Math\BigInteger;
+
+class InternalTest extends \phpseclib\Math\BigInteger\TestCase
 {
 	static public function setUpBeforeClass()
 	{
 		parent::setUpBeforeClass();
 
-		self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
-		self::ensureConstant('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
+		BigInteger::setMode(BigInteger::MODE_INTERNAL);
+		BigInteger::setOpenSslEnabled(false);
 	}
 }

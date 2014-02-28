@@ -26,22 +26,27 @@
  * THE SOFTWARE.
  *
  * @category  Net
- * @package   Net_SFTP_Stream
+ * @package   Net\SFTP\Stream
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMXIII Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
+namespace phpseclib\Net\SFTP;
+
+use phpseclib\Net\SFTP;
+use phpseclib\Net\SSH2;
+
 /**
  * SFTP Stream Wrapper
  *
- * @package Net_SFTP_Stream
+ * @package Net\SFTP\Stream
  * @author  Jim Wigginton <terrafrost@php.net>
  * @version 0.3.2
  * @access  public
  */
-class Net_SFTP_Stream
+class Stream
 {
     /**
      * SFTP instances
@@ -132,14 +137,10 @@ class Net_SFTP_Stream
      *
      * @access public
      */
-    function Net_SFTP_Stream()
+    function __construct()
     {
-        if (defined('NET_SFTP_STREAM_LOGGING')) {
+        if (SFTP::getLogging() !== false) {
             echo "__construct()\r\n";
-        }
-
-        if (!class_exists('Net_SFTP')) {
-            include_once 'Net/SFTP.php';
         }
     }
 
@@ -149,7 +150,7 @@ class Net_SFTP_Stream
      * Extract a path from a URI and actually connect to an SSH server if appropriate
      *
      * If "notification" is set as a context parameter the message code for successful login is
-     * NET_SSH2_MSG_USERAUTH_SUCCESS. For a failed login it's NET_SSH2_MSG_USERAUTH_FAILURE.
+     * SSH2::MSG_USERAUTH_SUCCESS. For a failed login it's SSH2::MSG_USERAUTH_FAILURE.
      *
      * @param String $path
      * @return String
@@ -173,7 +174,7 @@ class Net_SFTP_Stream
         if ($host[0] == '$') {
             $host = substr($host, 1);
             global $$host;
-            if (!is_object($$host) || get_class($$host) != 'Net_SFTP') {
+            if (!$$host instanceof \phpseclib\Net\SFTP) {
                 return false;
             }
             $this->sftp = $$host;
@@ -187,7 +188,7 @@ class Net_SFTP_Stream
             if (isset($context['sftp']['sftp'])) {
                 $sftp = $context['sftp']['sftp'];
             }
-            if (isset($sftp) && is_object($sftp) && get_class($sftp) == 'Net_SFTP') {
+            if ($sftp instanceof \phpseclib\Net\SFTP) {
                 $this->sftp = $sftp;
                 return $path;
             }
@@ -197,7 +198,7 @@ class Net_SFTP_Stream
             if (isset($context['sftp']['password'])) {
                 $pass = $context['sftp']['password'];
             }
-            if (isset($context['sftp']['privkey']) && is_object($context['sftp']['privkey']) && get_Class($context['sftp']['privkey']) == 'Crypt_RSA') {
+            if (isset($context['sftp']['privkey']) && is_object($context['sftp']['privkey']) && get_Class($context['sftp']['privkey']) == 'RSA') {
                 $pass = $context['sftp']['privkey'];
             }
 
@@ -205,11 +206,11 @@ class Net_SFTP_Stream
                 return false;
             }
 
-            // casting $pass to a string is necessary in the event that it's a Crypt_RSA object
+            // casting $pass to a string is necessary in the event that it's a Crypt\RSA object
             if (isset(self::$instances[$host][$port][$user][(string) $pass])) {
                 $this->sftp = self::$instances[$host][$port][$user][(string) $pass];
             } else {
-                $this->sftp = new Net_SFTP($host, $port);
+                $this->sftp = new SFTP($host, $port);
                 if (isset($this->notification) && is_callable($this->notification)) {
                     /* if !is_callable($this->notification) we could do this:
 
@@ -223,10 +224,10 @@ class Net_SFTP_Stream
                     call_user_func($this->notification, STREAM_NOTIFY_CONNECT, STREAM_NOTIFY_SEVERITY_INFO, '', 0, 0, 0);
                     call_user_func($this->notification, STREAM_NOTIFY_AUTH_REQUIRED, STREAM_NOTIFY_SEVERITY_INFO, '', 0, 0, 0);
                     if (!$this->sftp->login($user, $pass)) {
-                        call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_ERR, 'Login Failure', NET_SSH2_MSG_USERAUTH_FAILURE, 0, 0);
+                        call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_ERR, 'Login Failure', SSH2::MSG_USERAUTH_FAILURE, 0, 0);
                         return false;
                     }
-                    call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_INFO, 'Login Success', NET_SSH2_MSG_USERAUTH_SUCCESS, 0, 0);
+                    call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_INFO, 'Login Success', SSH2::MSG_USERAUTH_SUCCESS, 0, 0);
                 } else {
                     if (!$this->sftp->login($user, $pass)) {
                         return false;
@@ -477,7 +478,7 @@ class Net_SFTP_Stream
      * Renames a file or directory
      *
      * Attempts to rename oldname to newname, moving it between directories if necessary.
-     * If newname exists, it will be overwritten.  This is a departure from what Net_SFTP
+     * If newname exists, it will be overwritten.  This is a departure from what Net\SFTP
      * does.
      *
      * @param String $path_from
@@ -620,7 +621,7 @@ class Net_SFTP_Stream
     /**
      * Flushes the output
      *
-     * See <http://php.net/fflush>. Always returns true because Net_SFTP doesn't cache stuff before writing
+     * See <http://php.net/fflush>. Always returns true because Net\SFTP doesn't cache stuff before writing
      *
      * @return Boolean
      * @access public
@@ -665,7 +666,7 @@ class Net_SFTP_Stream
     /**
      * Retrieve information about a file
      *
-     * Ignores the STREAM_URL_STAT_QUIET flag because the entirety of Net_SFTP_Stream is quiet by default
+     * Ignores the STREAM_URL_STAT_QUIET flag because the entirety of Net\SFTP\Stream is quiet by default
      * might be worthwhile to reconstruct bits 12-16 (ie. the file type) if mode doesn't have them but we'll
      * cross that bridge when and if it's reached
      *
@@ -712,7 +713,7 @@ class Net_SFTP_Stream
      * Change stream options
      *
      * STREAM_OPTION_WRITE_BUFFER isn't supported for the same reason stream_flush isn't.
-     * The other two aren't supported because of limitations in Net_SFTP.
+     * The other two aren't supported because of limitations in Net\SFTP.
      *
      * @param Integer $option
      * @param Integer $arg1
@@ -741,8 +742,8 @@ class Net_SFTP_Stream
      * Which kinda begs the question... what methods is PHP calling and what parameters is it passing to them? This function
      * lets you figure that out.
      *
-     * If NET_SFTP_STREAM_LOGGING is defined all calls will be output on the screen and then (regardless of whether or not
-     * NET_SFTP_STREAM_LOGGING is enabled) the parameters will be passed through to the appropriate method.
+     * If SFTP::getLogging() is not false all calls will be output on the screen and then (regardless of whether or not
+     * SFTP::getLogging() is true) the parameters will be passed through to the appropriate method.
      *
      * @param String
      * @param Array
@@ -751,7 +752,7 @@ class Net_SFTP_Stream
      */
     function __call($name, $arguments)
     {
-        if (defined('NET_SFTP_STREAM_LOGGING')) {
+        if (SFTP::getLogging() !== false) {
             echo $name . '(';
             $last = count($arguments) - 1;
             foreach ($arguments as $i => $argument) {
@@ -771,5 +772,5 @@ class Net_SFTP_Stream
 }
 
 if (function_exists('stream_wrapper_register')) {
-    stream_wrapper_register('sftp', 'Net_SFTP_Stream');
+    stream_wrapper_register('sftp', 'Stream');
 }

@@ -6,14 +6,16 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Net_SSH2Test extends PhpseclibTestCase
+namespace phpseclib\Net;
+
+class SSH2Test extends \phpseclib\AbstractTestCase
 {
     /**
      * @return Net_SSH2
      */
     private function createSSHMock()
     {
-        return $this->getMockBuilder('Net_SSH2')
+        return $this->getMockBuilder('phpseclib\Net\SSH2')
             ->disableOriginalConstructor()
             ->setMethods(array('__destruct'))
             ->getMock();

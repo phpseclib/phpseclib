@@ -14,9 +14,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/RC2.php');
- *
- *    $rc2 = new Crypt_RC2();
+ *    $rc2 = new phpseclib\Crypt\RC2();
  *
  *    $rc2->setKey('abcdefgh');
  *
@@ -45,87 +43,27 @@
  * THE SOFTWARE.
  *
  * @category Crypt
- * @package  Crypt_RC2
+ * @package  Crypt\RC2
  * @author   Patrick Monnerat <pm@datasphere.ch>
  * @license  http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link     http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Crypt_Base
- *
- * Base cipher class
- */
-if (!class_exists('Crypt_Base')) {
-    include_once 'Base.php';
-}
-
-/**#@+
- * @access public
- * @see Crypt_RC2::encrypt()
- * @see Crypt_RC2::decrypt()
- */
-/**
- * Encrypt / decrypt using the Counter mode.
- *
- * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
- */
-define('CRYPT_RC2_MODE_CTR', CRYPT_MODE_CTR);
-/**
- * Encrypt / decrypt using the Electronic Code Book mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
- */
-define('CRYPT_RC2_MODE_ECB', CRYPT_MODE_ECB);
-/**
- * Encrypt / decrypt using the Code Book Chaining mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
- */
-define('CRYPT_RC2_MODE_CBC', CRYPT_MODE_CBC);
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
- */
-define('CRYPT_RC2_MODE_CFB', CRYPT_MODE_CFB);
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
- */
-define('CRYPT_RC2_MODE_OFB', CRYPT_MODE_OFB);
-/**#@-*/
-
-/**#@+
- * @access private
- * @see Crypt_RC2::Crypt_RC2()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_RC2_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RC2_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
+namespace phpseclib\Crypt;
 
 /**
  * Pure-PHP implementation of RC2.
  *
- * @package Crypt_RC2
+ * @package Crypt\RC2
  * @version 0.1.1
  * @access  public
  */
-class Crypt_RC2 extends Crypt_Base
+class RC2 extends Base
 {
     /**
      * Block Length of the cipher
      *
-     * @see Crypt_Base::block_size
+     * @see Crypt\Base::block_size
      * @var Integer
      * @access private
      */
@@ -134,7 +72,7 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * The Key
      *
-     * @see Crypt_Base::key
+     * @see Crypt\Base::key
      * @see setKey()
      * @var String
      * @access private
@@ -144,26 +82,17 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * The default password key_size used by setPassword()
      *
-     * @see Crypt_Base::password_key_size
-     * @see Crypt_Base::setPassword()
+     * @see Crypt\Base::password_key_size
+     * @see Crypt\Base::setPassword()
      * @var Integer
      * @access private
      */
     var $password_key_size = 16; // = 128 bits
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see Crypt_Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'RC2';
-
-    /**
      * The mcrypt specific name of the cipher
      *
-     * @see Crypt_Base::cipher_name_mcrypt
+     * @see Crypt\Base::cipher_name_mcrypt
      * @var String
      * @access private
      */
@@ -172,17 +101,17 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Optimizing value while CFB-encrypting
      *
-     * @see Crypt_Base::cfb_init_len
+     * @see Crypt\Base::cfb_init_len
      * @var Integer
      * @access private
      */
     var $cfb_init_len = 500;
 
-/**
+    /**
      * The key length in bits.
      *
-     * @see Crypt_RC2::setKeyLength()
-     * @see Crypt_RC2::setKey()
+     * @see Crypt\RC2::setKeyLength()
+     * @see Crypt\RC2::setKey()
      * @var Integer
      * @access private
      * @internal Should be in range [1..1024].
@@ -193,7 +122,7 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * The Key Schedule
      *
-     * @see Crypt_RC2::_setupKey()
+     * @see Crypt\RC2::_setupKey()
      * @var Array
      * @access private
      */
@@ -203,7 +132,7 @@ class Crypt_RC2 extends Crypt_Base
      * Key expansion randomization table.
      * Twice the same 256-value sequence to save a modulus in key expansion.
      *
-     * @see Crypt_RC2::setKey()
+     * @see Crypt\RC2::setKey()
      * @var Array
      * @access private
      */
@@ -277,7 +206,7 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Inverse key expansion randomization table.
      *
-     * @see Crypt_RC2::setKey()
+     * @see Crypt\RC2::setKey()
      * @var Array
      * @access private
      */
@@ -323,25 +252,25 @@ class Crypt_RC2 extends Crypt_Base
      *
      * $mode could be:
      *
-     * - CRYPT_RC2_MODE_ECB
+     * - RC2::MODE_ECB
      *
-     * - CRYPT_RC2_MODE_CBC
+     * - RC2::MODE_CBC
      *
-     * - CRYPT_RC2_MODE_CTR
+     * - RC2::MODE_CTR
      *
-     * - CRYPT_RC2_MODE_CFB
+     * - RC2::MODE_CFB
      *
-     * - CRYPT_RC2_MODE_OFB
+     * - RC2::MODE_OFB
      *
-     * If not explictly set, CRYPT_RC2_MODE_CBC will be used.
+     * If not explictly set, RC2::MODE_CBC will be used.
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt\Base::__construct()
      * @param optional Integer $mode
      * @access public
      */
-    function Crypt_RC2($mode = CRYPT_RC2_MODE_CBC)
+    function __construct($mode = RC2::MODE_CBC)
     {
-        parent::Crypt_Base($mode);
+        parent::__construct($mode);
         $this->setKey('');
     }
 
@@ -350,7 +279,7 @@ class Crypt_RC2 extends Crypt_Base
      *
      * Valid key lengths are 1 to 1024.
      * Calling this function after setting the key has no effect until the next
-     *  Crypt_RC2::setKey() call.
+     *  Crypt\RC2::setKey() call.
      *
      * @access public
      * @param Integer $length in bits
@@ -373,7 +302,7 @@ class Crypt_RC2 extends Crypt_Base
      * If the key is not explicitly set, it'll be assumed to be a single
      * null byte.
      *
-     * @see Crypt_Base::setKey()
+     * @see Crypt\Base::setKey()
      * @access public
      * @param String $key
      * @param Integer $t1 optional          Effective key length in bits.
@@ -420,8 +349,8 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Encrypts a block
      *
-     * @see Crypt_Base::_encryptBlock()
-     * @see Crypt_Base::encrypt()
+     * @see Crypt\Base::_encryptBlock()
+     * @see Crypt\Base::encrypt()
      * @access private
      * @param String $in
      * @return String
@@ -465,8 +394,8 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Decrypts a block
      *
-     * @see Crypt_Base::_decryptBlock()
-     * @see Crypt_Base::decrypt()
+     * @see Crypt\Base::_decryptBlock()
+     * @see Crypt\Base::decrypt()
      * @access private
      * @param String $in
      * @return String
@@ -510,12 +439,12 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Creates the key schedule
      *
-     * @see Crypt_Base::_setupKey()
+     * @see Crypt\Base::_setupKey()
      * @access private
      */
     function _setupKey()
     {
-        // Key has already been expanded in Crypt_RC2::setKey():
+        // Key has already been expanded in Crypt\RC2::setKey():
         // Only the first value must be altered.
         $l = unpack('Ca/Cb/v*', $this->key);
         array_unshift($l, $this->pitable[$l['a']] | ($l['b'] << 8));
@@ -527,12 +456,12 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Crypt_Base::_setupInlineCrypt()
+     * @see Crypt\Base::_setupInlineCrypt()
      * @access private
      */
     function _setupInlineCrypt()
     {
-        $lambda_functions = &Crypt_RC2::_getLambdaFunctions();
+        $lambda_functions = &RC2::_getLambdaFunctions();
 
         // The first 10 generated $lambda_functions will use the $keys hardcoded as integers
         // for the mixing rounds, for better inline crypt performance [~20% faster].
@@ -544,7 +473,7 @@ class Crypt_RC2 extends Crypt_Base
             }
         }
 
-        $code_hash = md5(str_pad("Crypt_RC2, {$this->mode}, ", 32, "\0") . implode(',', $keys));
+        $code_hash = md5(str_pad("RC2, {self::getMode()}, ", 32, "\0") . implode(',', $keys));
 
         // Is there a re-usable $lambda_functions in there?
         // If not, we have to create it.
@@ -651,4 +580,3 @@ class Crypt_RC2 extends Crypt_Base
         $this->inline_crypt = $lambda_functions[$code_hash];
     }
 }
-
