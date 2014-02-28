@@ -18,7 +18,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/RC4.php');
+ *    include_once 'Crypt/RC4.php';
  *
  *    $rc4 = new Crypt_RC4();
  *
@@ -70,7 +70,7 @@ if (!class_exists('Crypt_Base')) {
 }
 
 /**#@+
- * @access private
+ * @access public
  * @see Crypt_RC4::Crypt_RC4()
  */
 /**
@@ -96,7 +96,7 @@ define('CRYPT_RC4_DECRYPT', 1);
  *
  * @package Crypt_RC4
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.0
+ * @version 0.1.1
  * @access  public
  */
 class Crypt_RC4 extends Crypt_Base
