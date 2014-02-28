@@ -61,7 +61,8 @@
             "Crypt": "phpseclib/",
             "File": "phpseclib/",
             "Math": "phpseclib/",
-            "Net": "phpseclib/"
+            "Net": "phpseclib/",
+            "System": "phpseclib/"
         },
         "files": [
             "phpseclib/Crypt/Random.php"

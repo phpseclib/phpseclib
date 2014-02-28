@@ -228,14 +228,6 @@ class System_SSH_Agent
     var $fsock;
 
     /**
-     * Is Connected?
-     *
-     * @var Boolean
-     * @access private
-     */
-    var $is_connected = false;
-
-    /**
      * Default Constructor
      *
      * @return System_SSH_Agent
@@ -251,7 +243,7 @@ class System_SSH_Agent
                 $address = $_ENV['SSH_AUTH_SOCK'];
                 break;
             default:
-                user_error('SSH_AUTH_SOCK not found', E_USER_NOTICE);
+                user_error('SSH_AUTH_SOCK not found');
                 return false;
         }
 
@@ -259,7 +251,6 @@ class System_SSH_Agent
         if (!$this->fsock) {
             user_error("Unable to connect to ssh-agent (Error $errno: $errstr)");
         }
-        $this->is_connected = true;
     }
 
     /**
@@ -273,7 +264,7 @@ class System_SSH_Agent
      */
     function requestIdentities()
     {
-        if (!$this->is_connected) {
+        if (!$this->fsock) {
             return array();
         }
 
