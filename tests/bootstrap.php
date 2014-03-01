@@ -9,11 +9,13 @@ date_default_timezone_set('UTC');
 
 error_reporting(E_ALL | E_STRICT);
 
-if (!file_exists(dirname(__DIR__) . DIRECTORY_SEPARATOR . '/vendor/autoload.php')) {
-    die("Dependencies must be installed using composer:\n\nphp composer.phar install --dev\n\n"
-        . "See http://getcomposer.org for help with installing composer\n");
+$loader_path = __DIR__ . '/../vendor/autoload.php';
+if (!file_exists($loader_path)) {
+    echo "Dependencies must be installed using composer:\n\n";
+    echo "php composer.phar install --dev\n\n";
+    echo "See http://getcomposer.org for help with installing composer\n";
+    exit(1);
 }
 
-// Include the Composer autoloader
-$loader = include dirname(__FILE__) . '/../vendor/autoload.php';
+$loader = include $loader_path;
 $loader->addPsr4('phpseclib\\', __DIR__);
