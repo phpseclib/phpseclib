@@ -2531,7 +2531,7 @@ class File_X509
                 return strtolower(bin2hex(pack('N', $hash)));
         }
 
-        // Defaut is to return a string.
+        // Default is to return a string.
         $start = true;
         $output = '';
         $asn1 = new File_ASN1();

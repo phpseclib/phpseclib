@@ -241,7 +241,7 @@ class Crypt_RC4 extends Crypt_Base
      * Decrypts a message.
      *
      * $this->decrypt($this->encrypt($plaintext)) == $this->encrypt($this->encrypt($plaintext)).
-     * Atleast if the continuous buffer is disabled.
+     * At least if the continuous buffer is disabled.
      *
      * @see Crypt_Base::encrypt()
      * @see Crypt_RC4::_crypt()
