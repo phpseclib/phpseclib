@@ -157,7 +157,7 @@ class Crypt_AES extends Crypt_Rijndael
      *
      * - CRYPT_AES_MODE_OFB
      *
-     * If not explictly set, CRYPT_AES_MODE_CBC will be used.
+     * If not explicitly set, CRYPT_AES_MODE_CBC will be used.
      *
      * @see Crypt_Rijndael::Crypt_Rijndael()
      * @see Crypt_Base::Crypt_Base()

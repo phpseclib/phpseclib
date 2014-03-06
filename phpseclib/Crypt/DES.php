@@ -679,7 +679,7 @@ class Crypt_DES extends Crypt_Base
      *
      * - CRYPT_DES_MODE_OFB
      *
-     * If not explictly set, CRYPT_DES_MODE_CBC will be used.
+     * If not explicitly set, CRYPT_DES_MODE_CBC will be used.
      *
      * @see Crypt_Base::Crypt_Base()
      * @param optional Integer $mode

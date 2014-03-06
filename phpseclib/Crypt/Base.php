@@ -279,7 +279,7 @@ class Crypt_Base
      * $buffer bytes > $cfb_init_len than
      * using the $ecb resource furthermore.
      *
-     * This value depends of the choosen cipher
+     * This value depends of the chosen cipher
      * and the time it would be needed for it's
      * initialization [by mcrypt_generic_init()]
      * which, typically, depends on the complexity
@@ -438,9 +438,9 @@ class Crypt_Base
      *
      * - CRYPT_MODE_OFB
      *
-     * (or the alias constants of the choosen cipher, for example for AES: CRYPT_AES_MODE_ECB or CRYPT_AES_MODE_CBC ...)
+     * (or the alias constants of the chosen cipher, for example for AES: CRYPT_AES_MODE_ECB or CRYPT_AES_MODE_CBC ...)
      *
-     * If not explictly set, CRYPT_MODE_CBC will be used.
+     * If not explicitly set, CRYPT_MODE_CBC will be used.
      *
      * @param optional Integer $mode
      * @access public
@@ -500,7 +500,7 @@ class Crypt_Base
     /**
      * Sets the initialization vector. (optional)
      *
-     * SetIV is not required when CRYPT_MODE_ECB (or ie for AES: CRYPT_AES_MODE_ECB) is being used.  If not explictly set, it'll be assumed
+     * SetIV is not required when CRYPT_MODE_ECB (or ie for AES: CRYPT_AES_MODE_ECB) is being used.  If not explicitly set, it'll be assumed
      * to be all zero's.
      *
      * Note: Could, but not must, extend by the child Crypt_* class
@@ -1446,7 +1446,7 @@ class Crypt_Base
      *     - each time on _setup(), after(!) _setupKey()
      *
      *
-     *     This ensures that _setupInlineCrypt() has allways a
+     *     This ensures that _setupInlineCrypt() has always a
      *     full ready2go initializated internal cipher $engine state
      *     where, for example, the keys allready expanded,
      *     keys/block_size calculated and such.
