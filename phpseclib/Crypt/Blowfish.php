@@ -386,7 +386,7 @@ class Crypt_Blowfish extends Crypt_Base
      *
      * - CRYPT_BLOWFISH_MODE_OFB
      *
-     * If not explictly set, CRYPT_BLOWFISH_MODE_CBC will be used.
+     * If not explicitly set, CRYPT_BLOWFISH_MODE_CBC will be used.
      *
      * @see Crypt_Base::Crypt_Base()
      * @param optional Integer $mode

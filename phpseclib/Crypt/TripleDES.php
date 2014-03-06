@@ -180,7 +180,7 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * - CRYPT_DES_MODE_3CBC
      *
-     * If not explictly set, CRYPT_DES_MODE_CBC will be used.
+     * If not explicitly set, CRYPT_DES_MODE_CBC will be used.
      *
      * @see Crypt_DES::Crypt_DES()
      * @see Crypt_Base::Crypt_Base()
@@ -217,7 +217,7 @@ class Crypt_TripleDES extends Crypt_DES
     /**
      * Sets the initialization vector. (optional)
      *
-     * SetIV is not required when CRYPT_DES_MODE_ECB is being used.  If not explictly set, it'll be assumed
+     * SetIV is not required when CRYPT_DES_MODE_ECB is being used.  If not explicitly set, it'll be assumed
      * to be all zero's.
      *
      * @see Crypt_Base::setIV()
