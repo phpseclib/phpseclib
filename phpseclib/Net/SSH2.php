@@ -2258,7 +2258,7 @@ class Net_SSH2
                     return false;
                 default:
                     if (is_callable($callback)) {
-                        $callback($temp);
+                        call_user_func($callback, $temp);
                     } else {
                         $output.= $temp;
                     }
