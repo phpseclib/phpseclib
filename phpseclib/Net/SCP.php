@@ -216,7 +216,7 @@ class Net_SCP
             $sent+= strlen($temp);
 
             if (is_callable($callback)) {
-                $callback($sent);
+                call_user_func($callback, $sent);
             }
         }
         $this->_close();

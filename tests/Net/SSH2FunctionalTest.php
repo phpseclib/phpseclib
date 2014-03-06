@@ -41,5 +41,21 @@ class Net_SSH2FunctionalTest extends PhpseclibFunctionalTestCase
             $ssh->login($username, $password),
             'SSH2 login using password failed.'
         );
+
+        return $ssh;
+    }
+
+    /**
+    * @depends testPasswordLogin
+    * @group bug280
+    */
+    public function testExecWithMethodCallback($ssh)
+    {
+        $callbackObject = $this->getMock('stdClass', array('callbackMethod'));
+        $callbackObject
+            ->expects($this->atLeastOnce())
+            ->method('callbackMethod')
+            ->will($this->returnValue(true));
+        $ssh->exec('ls', array($callbackObject, 'callbackMethod'));
     }
 }
