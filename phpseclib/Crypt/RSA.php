@@ -462,7 +462,6 @@ class Crypt_RSA
     {
         if (!class_exists('Math_BigInteger')) {
             include_once 'Math/BigInteger.php';
-
         }
 
         $dir = '@cfg_dir@' . DIRECTORY_SEPARATOR . 'Crypt_RSA';
