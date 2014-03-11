@@ -241,7 +241,6 @@ define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 7);
  *
  * @package Crypt_RSA
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.0
  * @access  public
  */
 class Crypt_RSA
