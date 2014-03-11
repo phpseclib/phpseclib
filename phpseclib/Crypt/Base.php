@@ -49,7 +49,6 @@
  * @author    Hans-Juergen Petrich <petrich@tronic-media.com>
  * @copyright MMVII Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version   1.0.1
  * @link      http://phpseclib.sourceforge.net
  */
 
@@ -117,7 +116,6 @@ define('CRYPT_MODE_MCRYPT', 2);
  * @package Crypt_Base
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
- * @version 1.0.0
  * @access  public
  */
 class Crypt_Base

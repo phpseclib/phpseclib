@@ -96,7 +96,6 @@ define('CRYPT_RC4_DECRYPT', 1);
  *
  * @package Crypt_RC4
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.0
  * @access  public
  */
 class Crypt_RC4 extends Crypt_Base

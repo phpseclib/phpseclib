@@ -125,7 +125,6 @@ define('FILE_X509_ATTR_REPLACE', -3); // Clear first, then add a value.
  *
  * @package File_X509
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.3.1
  * @access  public
  */
 class File_X509
