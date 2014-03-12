@@ -77,7 +77,6 @@ define('SYSTEM_SSH_AGENT_SIGN_RESPONSE', 14);
  *
  * @package System_SSH_Agent
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.0
  * @access  internal
  */
 class System_SSH_Agent_Identity
@@ -214,7 +213,6 @@ class System_SSH_Agent_Identity
  *
  * @package System_SSH_Agent
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.0
  * @access  internal
  */
 class System_SSH_Agent

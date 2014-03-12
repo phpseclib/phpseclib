@@ -227,7 +227,6 @@ define('NET_SSH1_READ_REGEX', 2);
  *
  * @package Net_SSH1
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.0
  * @access  public
  */
 class Net_SSH1
