@@ -117,7 +117,6 @@ define('CRYPT_RC2_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * Pure-PHP implementation of RC2.
  *
  * @package Crypt_RC2
- * @version 0.1.1
  * @access  public
  */
 class Crypt_RC2 extends Crypt_Base

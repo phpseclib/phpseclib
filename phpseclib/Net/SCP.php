@@ -83,7 +83,6 @@ define('NET_SCP_SSH2',  2);
  *
  * @package Net_SCP
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.0
  * @access  public
  */
 class Net_SCP

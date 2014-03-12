@@ -175,7 +175,6 @@ define('MATH_BIGINTEGER_KARATSUBA_CUTOFF', 25);
  *
  * @package Math_BigInteger
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 1.0.0RC4
  * @access  public
  */
 class Math_BigInteger
