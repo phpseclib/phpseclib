@@ -162,7 +162,7 @@ class File_ASN1
      * @access private
      * @link http://php.net/class.datetime
      */
-    var $format = 'D, d M y H:i:s O';
+    var $format = 'D, d M Y H:i:s O';
 
     /**
      * Default date format
