@@ -3144,14 +3144,15 @@ class Net_SSH2
                 ) - 4;
             }
 
+            $temp = $this->_string_shift($data, $max_size);
             $packet = pack('CN2a*',
                 NET_SSH2_MSG_CHANNEL_DATA,
                 $this->server_channels[$client_channel],
-                $max_size,
-                $this->_string_shift($data, $max_size)
+                strlen($temp),
+                $temp
             );
 
-            $this->window_size_client_to_server[$client_channel]-= $max_size + 4;
+            $this->window_size_client_to_server[$client_channel]-= strlen($temp) + 4;
 
             if (!$this->_send_binary_packet($packet)) {
                 return false;
