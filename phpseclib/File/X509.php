@@ -3132,9 +3132,9 @@ class File_X509
     {
         $year = @gmdate("Y", @strtotime($date)); // the same way ASN1.php parses this
         if ($year < 2050) {
-           return Array('utcTime' => $date);
+           return array('utcTime' => $date);
         } else {
-           return Array('generalTime' => $date);
+           return array('generalTime' => $date);
         }
     }
 
