@@ -1085,7 +1085,12 @@ class File_ASN1
         }
 
         if (isset($mapping['cast'])) {
-            $tag = ($mapping['class'] << 6) | ($tag & 0x20) | $mapping['cast'];
+            if (isset($mapping['explicit']) || $mapping['type'] == FILE_ASN1_TYPE_CHOICE) {
+                $value = chr($tag) . $this->_encodeLength(strlen($value)) . $value;
+                $tag = ($mapping['class'] << 6) | 0x20 | $mapping['cast'];
+            } else {
+                $tag = ($mapping['class'] << 6) | (ord($temp[0]) & 0x20) | $mapping['cast'];
+            }
         }
 
         return chr($tag) . $this->_encodeLength(strlen($value)) . $value;
