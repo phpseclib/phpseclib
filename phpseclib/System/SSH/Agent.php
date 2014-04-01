@@ -311,3 +311,4 @@ class System_SSH_Agent
         return $identities;
     }
 }
+
