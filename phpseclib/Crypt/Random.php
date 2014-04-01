@@ -59,7 +59,7 @@ define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
  * @access public
  */
 
-if (function_exists('crypt_random_string')) return;
+if (!function_exists('crypt_random_string')) {
     
 function crypt_random_string($length)
 {
@@ -246,4 +246,6 @@ function crypt_random_string($length)
         $result.= $r;
     }
     return substr($result, 0, $length);
+}
+
 }
