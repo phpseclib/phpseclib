@@ -13,5 +13,5 @@ set -x
 USERNAME='phpseclib'
 PASSWORD='EePoov8po1aethu2kied1ne0'
 
-sudo useradd "$USERNAME"
+sudo useradd --create-home --base-dir /home "$USERNAME"
 echo "$USERNAME:$PASSWORD" | sudo chpasswd
