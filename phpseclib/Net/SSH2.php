@@ -786,7 +786,8 @@ class Net_SSH2
     /**
      * Hostname
      *
-     * @see Net_SSH2::login()
+     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::_connect()
      * @var String
      * @access private
      */
@@ -795,7 +796,8 @@ class Net_SSH2
     /**
      * Port Number
      *
-     * @see Net_SSH2::login()
+     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::_connect()
      * @var Integer
      * @access private
      */
@@ -806,7 +808,8 @@ class Net_SSH2
      *
      * For historical BC purposes setTimeout() does not effect timeout of constructor
      *
-     * @see Net_SSH2::login()
+     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::_connect()
      * @var Integer
      * @access private
      */
