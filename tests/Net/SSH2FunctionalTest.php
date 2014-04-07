@@ -56,6 +56,6 @@ class Net_SSH2FunctionalTest extends PhpseclibFunctionalTestCase
             ->expects($this->atLeastOnce())
             ->method('callbackMethod')
             ->will($this->returnValue(true));
-        $ssh->exec('ls', array($callbackObject, 'callbackMethod'));
+        $ssh->exec('pwd', array($callbackObject, 'callbackMethod'));
     }
 }
