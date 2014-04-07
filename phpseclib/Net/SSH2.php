@@ -802,6 +802,17 @@ class Net_SSH2
     var $port;
 
     /**
+     * Timeout for Constructor
+     *
+     * For historical BC purposes setTimeout() does not effect timeout of constructor
+     *
+     * @see Net_SSH2::login()
+     * @var Integer
+     * @access private
+     */
+    var $constructorTimeout
+
+    /**
      * Default Constructor.
      *
      * @param String $host
@@ -899,7 +910,7 @@ class Net_SSH2
 
         $this->host = $host;
         $this->port = $port;
-        $this->timeout = $timeout;
+        $this->constructorTimeout = $timeout;
     }
 
     /**
@@ -910,7 +921,7 @@ class Net_SSH2
      */
     function _connect()
     {
-        $timeout = $this->timeout;
+        $timeout = $this->constructorTimeout;
 
         $this->last_packet = strtok(microtime(), ' ') + strtok(''); // == microtime(true) in PHP5
 
