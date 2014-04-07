@@ -810,7 +810,7 @@ class Net_SSH2
      * @var Integer
      * @access private
      */
-    var $constructorTimeout
+    var $constructorTimeout;
 
     /**
      * Default Constructor.
