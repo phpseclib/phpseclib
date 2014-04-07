@@ -1757,7 +1757,7 @@ class Net_SSH2
     function login($username)
     {
         if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap != NET_SSH2_MASK_CONSTRUCTOR;
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
             if (!$this->_connect()) {
                 return false;
             }
