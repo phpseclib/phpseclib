@@ -479,16 +479,19 @@ class Net_SSH1
     var $port;
 
     /**
-     * Timeout for Constructor
+     * Timeout for initial connection
      *
-     * For historical BC purposes setTimeout() does not effect timeout of constructor
+     * Set by the constructor call. Calling setTimeout() is optional. If it's not called functions like
+     * exec() won't timeout unless some PHP setting forces it too. The timeout specified in the constructor,
+     * however, is non-optional. There will be a timeout, whether or not you set it. If you don't it'll be
+     * 10 seconds. It is used by fsockopen() in that function.
      *
      * @see Net_SSH1::Net_SSH1()
      * @see Net_SSH1::_connect()
      * @var Integer
      * @access private
      */
-    var $constructorTimeout;
+    var $connectionTimeout;
 
     /**
      * Default cipher
@@ -550,7 +553,7 @@ class Net_SSH1
 
         $this->host = $host;
         $this->port = $port;
-        $this->constructorTimeout = $timeout;
+        $this->connectionTimeout = $timeout;
         $this->cipher = $cipher;
     }
 
@@ -562,9 +565,9 @@ class Net_SSH1
      */
     function _connect()
     {
-        $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->constructorTimeout);
+        $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
         if (!$this->fsock) {
-            user_error(rtrim("Cannot connect to $this->host:$this->port. Error $errno. $errstr"));
+            user_error(rtrim("Cannot connect to {$this->host}:{$this->port}. Error $errno. $errstr"));
             return false;
         }
 
