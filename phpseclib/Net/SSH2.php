@@ -804,11 +804,10 @@ class Net_SSH2
     /**
      * Default Constructor.
      *
-     * Connects to an SSHv2 server
-     *
      * @param String $host
      * @param optional Integer $port
      * @param optional Integer $timeout
+     * @see login
      * @return Net_SSH2
      * @access public
      */
@@ -903,6 +902,12 @@ class Net_SSH2
         $this->timeout = $timeout;
     }
 
+    /**
+     * Connect to an SSHv2 server
+     *
+     * @return Boolean
+     * @access private
+     */
     function _connect()
     {
         $timeout = $this->timeout;
