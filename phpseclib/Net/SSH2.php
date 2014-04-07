@@ -759,7 +759,7 @@ class Net_SSH2
     /**
      * Log Boundary
      *
-     * @see Net_SSH2::_format_log
+     * @see Net_SSH2::_format_log()
      * @var String
      * @access private
      */
@@ -768,7 +768,7 @@ class Net_SSH2
     /**
      * Log Long Width
      *
-     * @see Net_SSH2::_format_log
+     * @see Net_SSH2::_format_log()
      * @var Integer
      * @access private
      */
@@ -777,7 +777,7 @@ class Net_SSH2
     /**
      * Log Short Width
      *
-     * @see Net_SSH2::_format_log
+     * @see Net_SSH2::_format_log()
      * @var Integer
      * @access private
      */
@@ -824,7 +824,7 @@ class Net_SSH2
      * @param String $host
      * @param optional Integer $port
      * @param optional Integer $timeout
-     * @see login
+     * @see Net_SSH2::login()
      * @return Net_SSH2
      * @access public
      */
