@@ -73,10 +73,11 @@
  * @access private
  */
 define('NET_SSH2_MASK_CONSTRUCTOR',   0x00000001);
-define('NET_SSH2_MASK_LOGIN_REQ',     0x00000002);
-define('NET_SSH2_MASK_LOGIN',         0x00000004);
-define('NET_SSH2_MASK_SHELL',         0x00000008);
-define('NET_SSH2_MASK_WINDOW_ADJUST', 0X00000010);
+define('NET_SSH2_MASK_CONNECTED',     0x00000002);
+define('NET_SSH2_MASK_LOGIN_REQ',     0x00000004);
+define('NET_SSH2_MASK_LOGIN',         0x00000008);
+define('NET_SSH2_MASK_SHELL',         0x00000010);
+define('NET_SSH2_MASK_WINDOW_ADJUST', 0X00000020);
 /**#@-*/
 
 /**#@+
@@ -669,6 +670,7 @@ class Net_SSH2
     /**
      * Time of first network activity
      *
+     * @var Integer
      * @access private
      */
     var $last_packet;
@@ -684,6 +686,7 @@ class Net_SSH2
     /**
      * Flag to request a PTY when using exec()
      *
+     * @var Boolean
      * @see Net_SSH2::enablePTY()
      * @access private
      */
@@ -692,6 +695,7 @@ class Net_SSH2
     /**
      * Flag set while exec() is running when using enablePTY()
      *
+     * @var Boolean
      * @access private
      */
     var $in_request_pty_exec = false;
@@ -699,6 +703,7 @@ class Net_SSH2
     /**
      * Flag set after startSubsystem() is called
      *
+     * @var Boolean
      * @access private
      */
     var $in_subsystem;
@@ -706,6 +711,7 @@ class Net_SSH2
     /**
      * Contents of stdError
      *
+     * @var String
      * @access private
      */
     var $stdErrorLog;
@@ -714,6 +720,7 @@ class Net_SSH2
      * The Last Interactive Response
      *
      * @see Net_SSH2::_keyboard_interactive_process()
+     * @var String
      * @access private
      */
     var $last_interactive_response = '';
@@ -722,6 +729,7 @@ class Net_SSH2
      * Keyboard Interactive Request / Responses
      *
      * @see Net_SSH2::_keyboard_interactive_process()
+     * @var Array
      * @access private
      */
     var $keyboard_requests_responses = array();
@@ -734,6 +742,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::_filter()
      * @see Net_SSH2::getBannerMessage()
+     * @var String
      * @access private
      */
     var $banner_message = '';
@@ -741,7 +750,8 @@ class Net_SSH2
     /**
      * Did read() timeout or return normally?
      *
-     * @see Net_SSH2::isTimeout
+     * @see Net_SSH2::isTimeout()
+     * @var Boolean
      * @access private
      */
     var $is_timeout = false;
@@ -749,7 +759,8 @@ class Net_SSH2
     /**
      * Log Boundary
      *
-     * @see Net_SSH2::_format_log
+     * @see Net_SSH2::_format_log()
+     * @var String
      * @access private
      */
     var $log_boundary = ':';
@@ -757,7 +768,8 @@ class Net_SSH2
     /**
      * Log Long Width
      *
-     * @see Net_SSH2::_format_log
+     * @see Net_SSH2::_format_log()
+     * @var Integer
      * @access private
      */
     var $log_long_width = 65;
@@ -765,19 +777,54 @@ class Net_SSH2
     /**
      * Log Short Width
      *
-     * @see Net_SSH2::_format_log
+     * @see Net_SSH2::_format_log()
+     * @var Integer
      * @access private
      */
     var $log_short_width = 16;
 
     /**
-     * Default Constructor.
+     * Hostname
      *
-     * Connects to an SSHv2 server
+     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::_connect()
+     * @var String
+     * @access private
+     */
+    var $host;
+
+    /**
+     * Port Number
+     *
+     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::_connect()
+     * @var Integer
+     * @access private
+     */
+    var $port;
+
+    /**
+     * Timeout for initial connection
+     *
+     * Set by the constructor call. Calling setTimeout() is optional. If it's not called functions like
+     * exec() won't timeout unless some PHP setting forces it too. The timeout specified in the constructor,
+     * however, is non-optional. There will be a timeout, whether or not you set it. If you don't it'll be
+     * 10 seconds. It is used by fsockopen() and the initial stream_select in that function.
+     *
+     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::_connect()
+     * @var Integer
+     * @access private
+     */
+    var $connectionTimeout;
+
+    /**
+     * Default Constructor.
      *
      * @param String $host
      * @param optional Integer $port
      * @param optional Integer $timeout
+     * @see Net_SSH2::login()
      * @return Net_SSH2
      * @access public
      */
@@ -797,7 +844,6 @@ class Net_SSH2
             include_once 'Crypt/Hash.php';
         }
 
-        $this->last_packet = strtok(microtime(), ' ') + strtok(''); // == microtime(true) in PHP5
         $this->message_numbers = array(
             1 => 'NET_SSH2_MSG_DISCONNECT',
             2 => 'NET_SSH2_MSG_IGNORE',
@@ -868,11 +914,29 @@ class Net_SSH2
                   61 => 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE')
         );
 
+        $this->host = $host;
+        $this->port = $port;
+        $this->connectionTimeout = $timeout;
+    }
+
+    /**
+     * Connect to an SSHv2 server
+     *
+     * @return Boolean
+     * @access private
+     */
+    function _connect()
+    {
+        $timeout = $this->connectionTimeout;
+        $host = $this->host . ':' . $this->port;
+
+        $this->last_packet = strtok(microtime(), ' ') + strtok(''); // == microtime(true) in PHP5
+
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
-        $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
+        $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
-            return;
+            return false;
         }
         $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
 
@@ -880,7 +944,7 @@ class Net_SSH2
 
         if ($timeout <= 0) {
             user_error(rtrim("Cannot connect to $host. Timeout error"));
-            return;
+            return false;
         }
 
         $read = array($this->fsock);
@@ -893,7 +957,7 @@ class Net_SSH2
         // the !count() is done as a workaround for <https://bugs.php.net/42682>
         if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
             user_error(rtrim("Cannot connect to $host. Banner timeout"));
-            return;
+            return false;
         }
 
         /* According to the SSH2 specs,
@@ -932,7 +996,7 @@ class Net_SSH2
 
         if ($matches[1] != '1.99' && $matches[1] != '2.0') {
             user_error("Cannot connect to SSH $matches[1] servers");
-            return;
+            return false;
         }
 
         fputs($this->fsock, $this->identifier . "\r\n");
@@ -940,19 +1004,21 @@ class Net_SSH2
         $response = $this->_get_binary_packet();
         if ($response === false) {
             user_error('Connection closed by server');
-            return;
+            return false;
         }
 
         if (ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
             user_error('Expected SSH_MSG_KEXINIT');
-            return;
+            return false;
         }
 
         if (!$this->_key_exchange($response)) {
-            return;
+            return false;
         }
 
-        $this->bitmap = NET_SSH2_MASK_CONSTRUCTOR;
+        $this->bitmap = NET_SSH2_MASK_CONNECTED;
+
+        return true;
     }
 
     /**
@@ -1710,6 +1776,13 @@ class Net_SSH2
      */
     function _login($username)
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         $args = array_slice(func_get_args(), 1);
         if (empty($args)) {
             return $this->_login_helper($username);
@@ -1735,7 +1808,7 @@ class Net_SSH2
      */
     function _login_helper($username, $password = null)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+        if (!($this->bitmap & NET_SSH2_MASK_CONNECTED)) {
             return false;
         }
 
@@ -2687,7 +2760,7 @@ class Net_SSH2
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
-        if (($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR) && !($this->bitmap & NET_SSH2_MASK_LOGIN) && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
+        if (($this->bitmap & NET_SSH2_MASK_CONNECTED) && !($this->bitmap & NET_SSH2_MASK_LOGIN) && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             $this->_string_shift($payload, 1);
             extract(unpack('Nlength', $this->_string_shift($payload, 4)));
             $this->banner_message = utf8_decode($this->_string_shift($payload, $length));
@@ -2695,7 +2768,7 @@ class Net_SSH2
         }
 
         // only called when we've already logged in
-        if (($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR) && ($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (($this->bitmap & NET_SSH2_MASK_CONNECTED) && ($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             switch (ord($payload[0])) {
                 case NET_SSH2_MSG_GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
                     $this->_string_shift($payload, 1);
@@ -2907,7 +2980,7 @@ class Net_SSH2
                     // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR
                     extract(unpack('Ndata_type_code/Nlength', $this->_string_shift($response, 8)));
                     $data = $this->_string_shift($response, $length);
-                    $this->stdErrorLog .= $data;
+                    $this->stdErrorLog.= $data;
                     if ($skip_extended || $this->quiet_mode) {
                         break;
                     }
