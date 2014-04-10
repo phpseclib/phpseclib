@@ -509,7 +509,7 @@ class File_ASN1
      */
     function asn1map($decoded, $mapping, $special = array())
     {
-        if (isset($mapping['explicit'])) {
+        if (isset($mapping['explicit']) && is_array($decoded['content'])) {
             $decoded = $decoded['content'][0];
         }
 
@@ -550,7 +550,15 @@ class File_ASN1
             case $decoded['type'] == $mapping['type']:
                 break;
             default:
-                return null;
+                // if $decoded['type'] and $mapping['type'] are both strings, but different types of strings,
+                // let it through
+                switch (true) {
+                    case $decoded['type'] < 18: // FILE_ASN1_TYPE_NUMERIC_STRING == 18
+                    case $decoded['type'] > 30: // FILE_ASN1_TYPE_BMP_STRING == 30
+                    case $mapping['type'] < 18:
+                    case $mapping['type'] > 30:
+                        return null;
+                }
         }
 
         if (isset($mapping['implicit'])) {
