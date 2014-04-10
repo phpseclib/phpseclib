@@ -182,8 +182,9 @@ define('NET_SSH1_RESPONSE_DATA', 2);
  * @access private
  */
 define('NET_SSH1_MASK_CONSTRUCTOR', 0x00000001);
-define('NET_SSH1_MASK_LOGIN',       0x00000002);
-define('NET_SSH1_MASK_SHELL',       0x00000004);
+define('NET_SSH1_MASK_CONNECTED',   0x00000002);
+define('NET_SSH1_MASK_LOGIN',       0x00000004);
+define('NET_SSH1_MASK_SHELL',       0x00000008);
 /**#@-*/
 
 /**#@+
@@ -458,6 +459,51 @@ class Net_SSH1
     var $log_short_width = 16;
 
     /**
+     * Hostname
+     *
+     * @see Net_SSH1::Net_SSH1()
+     * @see Net_SSH1::_connect()
+     * @var String
+     * @access private
+     */
+    var $host;
+
+    /**
+     * Port Number
+     *
+     * @see Net_SSH1::Net_SSH1()
+     * @see Net_SSH1::_connect()
+     * @var Integer
+     * @access private
+     */
+    var $port;
+
+    /**
+     * Timeout for initial connection
+     *
+     * Set by the constructor call. Calling setTimeout() is optional. If it's not called functions like
+     * exec() won't timeout unless some PHP setting forces it too. The timeout specified in the constructor,
+     * however, is non-optional. There will be a timeout, whether or not you set it. If you don't it'll be
+     * 10 seconds. It is used by fsockopen() in that function.
+     *
+     * @see Net_SSH1::Net_SSH1()
+     * @see Net_SSH1::_connect()
+     * @var Integer
+     * @access private
+     */
+    var $connectionTimeout;
+
+    /**
+     * Default cipher
+     *
+     * @see Net_SSH1::Net_SSH1()
+     * @see Net_SSH1::_connect()
+     * @var Integer
+     * @access private
+     */
+    var $cipher;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv1 server
@@ -505,10 +551,24 @@ class Net_SSH1
 
         $this->_define_array($this->protocol_flags);
 
-        $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
+        $this->host = $host;
+        $this->port = $port;
+        $this->connectionTimeout = $timeout;
+        $this->cipher = $cipher;
+    }
+
+    /**
+     * Connect to an SSHv1 server
+     *
+     * @return Boolean
+     * @access private
+     */
+    function _connect()
+    {
+        $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
         if (!$this->fsock) {
-            user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
-            return;
+            user_error(rtrim("Cannot connect to {$this->host}:{$this->port}. Error $errno. $errstr"));
+            return false;
         }
 
         $this->server_identification = $init_line = fgets($this->fsock, 255);
@@ -520,11 +580,11 @@ class Net_SSH1
 
         if (!preg_match('#SSH-([0-9\.]+)-(.+)#', $init_line, $parts)) {
             user_error('Can only connect to SSH servers');
-            return;
+            return false;
         }
         if ($parts[1][0] != 1) {
             user_error("Cannot connect to SSH $parts[1] servers");
-            return;
+            return false;
         }
 
         fputs($this->fsock, $this->identifier."\r\n");
@@ -532,7 +592,7 @@ class Net_SSH1
         $response = $this->_get_binary_packet();
         if ($response[NET_SSH1_RESPONSE_TYPE] != NET_SSH1_SMSG_PUBLIC_KEY) {
             user_error('Expected SSH_SMSG_PUBLIC_KEY');
-            return;
+            return false;
         }
 
         $anti_spoofing_cookie = $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 8);
@@ -612,12 +672,12 @@ class Net_SSH1
             );
         }
 
-        $cipher = isset($this->supported_ciphers[$cipher]) ? $cipher : NET_SSH1_CIPHER_3DES;
+        $cipher = isset($this->supported_ciphers[$this->cipher]) ? $this->cipher : NET_SSH1_CIPHER_3DES;
         $data = pack('C2a*na*N', NET_SSH1_CMSG_SESSION_KEY, $cipher, $anti_spoofing_cookie, 8 * strlen($double_encrypted_session_key), $double_encrypted_session_key, 0);
 
         if (!$this->_send_binary_packet($data)) {
             user_error('Error sending SSH_CMSG_SESSION_KEY');
-            return;
+            return false;
         }
 
         switch ($cipher) {
@@ -656,10 +716,12 @@ class Net_SSH1
 
         if ($response[NET_SSH1_RESPONSE_TYPE] != NET_SSH1_SMSG_SUCCESS) {
             user_error('Expected SSH_SMSG_SUCCESS');
-            return;
+            return false;
         }
 
-        $this->bitmap = NET_SSH1_MASK_CONSTRUCTOR;
+        $this->bitmap = NET_SSH1_MASK_CONNECTED;
+
+        return true;
     }
 
     /**
@@ -673,6 +735,13 @@ class Net_SSH1
     function login($username, $password = '')
     {
         if (!($this->bitmap & NET_SSH1_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH1_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
+        if (!($this->bitmap & NET_SSH1_MASK_CONNECTED)) {
             return false;
         }
 
