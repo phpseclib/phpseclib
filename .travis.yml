@@ -20,8 +20,7 @@ before_script:
   - sh -c "if [ '$TRAVIS_PHP_VERSION' != '5.2' ]; then travis/setup-composer.sh; fi"
 
 script:
-  - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then vendor/bin/phpcs -s --extensions=php --standard=build/code-sniffer-ruleset.xml phpseclib/; fi"
-  - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then vendor/bin/phpcs -s --extensions=php --standard=build/code-sniffer-ruleset-tests.xml tests/; fi"
+  - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then vendor/bin/phing -f build/build.xml sniff; fi"
   - travis/run-phpunit.sh
 
 after_success:
