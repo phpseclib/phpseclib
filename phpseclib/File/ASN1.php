@@ -980,8 +980,7 @@ class File_ASN1
                         }
                     }
 
-                    if (isset($mapping['min']) && $mapping['min'] >= 1 && $size < $mapping['min'])
-                    {
+                    if (isset($mapping['min']) && $mapping['min'] >= 1 && $size < $mapping['min']) {
                         $size = $mapping['min'] - 1;
                     }
 
