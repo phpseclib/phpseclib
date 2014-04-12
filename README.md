@@ -31,3 +31,25 @@ Dependencies are managed via Composer.
     ``` sh
     php composer.phar install --dev
     ```
+
+## Contributing
+
+1. Fork the project
+
+2. Install Dependencies
+
+3. Create a feature branch
+
+4. (Optional) Run the Test Suite
+
+    ``` sh
+    vendor/bin/phpunit
+    ```
+
+5. (Optional) Check whether your code conforms to our coding standards by running
+
+    ``` sh
+    vendor/bin/phing -f build/build.xml sniff
+    ```
+
+6. Send us a pull request
