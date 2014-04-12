@@ -266,6 +266,9 @@ abstract class Math_BigInteger_TestCase extends PhpseclibTestCase
         $this->assertSame('18446744073709551616', (string) $y);
     }
 
+    /**
+    * @group github279
+    */
     public function testDiffieHellmanKeyAgreement()
     {
         // "Oakley Group 14" 2048-bit modular exponentiation group as used in
