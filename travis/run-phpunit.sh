@@ -15,7 +15,7 @@ else
 fi
 
 PHPUNIT_EXTRA_ARGS=''
-if [ "$TRAVIS_PHP_VERSION" = '5.3.3' ]
+if [ `php -r "echo (int) version_compare(PHP_VERSION, '5.4', '<');"` = "1" ]
 then
   PHPUNIT_EXTRA_ARGS="$PHPUNIT_EXTRA_ARGS -d zend.enable_gc=0"
 fi
