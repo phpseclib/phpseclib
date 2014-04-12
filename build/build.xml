@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="phpseclib"
+         description="PHP Secure Communications Library"
+         default="all"
+>
+
+  <target name="all" depends="sniff" />
+
+  <!-- Code Sniffer -->
+  <target name="sniff" depends="sniff-php-code,sniff-php-tests" />
+  <target name="sniff-php-code">
+    <exec command="vendor/bin/phpcs -s
+        --extensions=php
+        --standard=build/code-sniffer-ruleset.xml
+        phpseclib/"
+      dir=".." passthru="true" />
+  </target>
+  <target name="sniff-php-tests">
+    <exec command="vendor/bin/phpcs -s
+        --extensions=php
+        --standard=build/code-sniffer-ruleset-tests.xml
+        tests/"
+      dir=".." passthru="true" />
+  </target>
+
+</project>
