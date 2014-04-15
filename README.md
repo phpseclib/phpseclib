@@ -15,7 +15,7 @@ AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 <img src="http://phpseclib.sourceforge.net/pear-icon.png" alt="PEAR Channel" width="16" height="16">
 PEAR Channel: [phpseclib.sourceforge.net](http://phpseclib.sourceforge.net/pear.htm)
 
-## Installing Dependencies
+## Installing Development Dependencies
 
 Dependencies are managed via Composer.
 
@@ -36,7 +36,7 @@ Dependencies are managed via Composer.
 
 1. Fork the Project
 
-2. Install Dependencies
+2. Install Development Dependencies
 
 3. Create a Feature Branch
 
