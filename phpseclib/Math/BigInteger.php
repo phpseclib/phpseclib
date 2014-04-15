@@ -198,7 +198,6 @@ class Math_BigInteger
     /**
      * Random number generator function
      *
-     * @see setRandomGenerator()
      * @access private
      */
     var $generator = 'mt_rand';
@@ -812,7 +811,6 @@ class Math_BigInteger
         $temp = new Math_BigInteger($this->hex, -16);
         $this->value = $temp->value;
         $this->is_negative = $temp->is_negative;
-        $this->setRandomGenerator($this->generator);
         if ($this->precision > 0) {
             // recalculate $this->bitmask
             $this->setPrecision($this->precision);
@@ -3036,18 +3034,6 @@ class Math_BigInteger
     function bitwise_rightRotate($shift)
     {
         return $this->bitwise_leftRotate(-$shift);
-    }
-
-    /**
-     * Set random number generator function
-     *
-     * This function is deprecated.
-     *
-     * @param String $generator
-     * @access public
-     */
-    function setRandomGenerator($generator)
-    {
     }
 
     /**
