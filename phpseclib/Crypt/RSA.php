@@ -477,7 +477,7 @@ class Crypt_RSA
                 case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>=') && file_exists($this->configFile):
                     // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
                     ob_start();
-                    phpinfo();
+                    @phpinfo();
                     $content = ob_get_contents();
                     ob_end_clean();
 
@@ -1478,6 +1478,19 @@ class Crypt_RSA
             $this->publicExponent = false;
         }
 
+        switch ($type) {
+            case CRYPT_RSA_PUBLIC_FORMAT_OPENSSH:
+            case CRYPT_RSA_PUBLIC_FORMAT_RAW:
+                $this->setPublicKey();
+                break;
+            case CRYPT_RSA_PRIVATE_FORMAT_PKCS1:
+                switch (true) {
+                    case strpos($key, '-BEGIN PUBLIC KEY-') !== false:
+                    case strpos($key, '-BEGIN RSA PUBLIC KEY-') !== false:
+                        $this->setPublicKey();
+                }
+        }
+
         return true;
     }
 
@@ -1504,7 +1517,9 @@ class Crypt_RSA
      * used in certain contexts.  For example, in SSH-2, RSA authentication works by sending the public key along with a
      * message signed by the private key to the server.  The SSH-2 server looks the public key up in an index of public keys
      * and if it's present then proceeds to verify the signature.  Problem is, if your private key doesn't include the public
-     * exponent this won't work unless you manually add the public exponent.
+     * exponent this won't work unless you manually add the public exponent. phpseclib tries to guess if the key being used
+     * is the public key but in the event that it guesses incorrectly you might still want to explicitly set the key as being
+     * public.
      *
      * Do note that when a new key is loaded the index will be cleared.
      *
@@ -1557,6 +1572,40 @@ class Crypt_RSA
 
         $this->publicExponent = $components['publicExponent'];
 
+        return true;
+    }
+
+    /**
+     * Defines the private key
+     *
+     * If phpseclib guessed a private key was a public key and loaded it as such it might be desirable to force
+     * phpseclib to treat the key as a private key. This function will do that.
+     *
+     * Do note that when a new key is loaded the index will be cleared.
+     *
+     * Returns true on success, false on failure
+     *
+     * @see getPublicKey()
+     * @access public
+     * @param String $key optional
+     * @param Integer $type optional
+     * @return Boolean
+     */
+    function setPrivateKey($key = false, $type = false)
+    {
+        if ($key === false && !empty($this->publicExponent)) {
+            unset($this->publicExponent);
+            return true;
+        }
+
+        $rsa = new Crypt_RSA();
+        if (!$rsa->loadKey($key, $type)) {
+            return false;
+        }
+        unset($rsa->publicExponent);
+
+        // don't overwrite the old key if the new key is invalid
+        $this->loadKey($rsa);
         return true;
     }
 
