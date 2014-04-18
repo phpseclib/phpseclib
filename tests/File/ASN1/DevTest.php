@@ -1,15 +1,18 @@
 <?php
 /**
- * @author    Andreas Fischer <bantu@phpbb.com>
- * @copyright MMXIII Andreas Fischer
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright MMXIV Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
 require_once 'File/ASN1.php';
 
-class File_ASN1_DevTestCase extends PhpseclibTestCase
+class File_ASN1_DevTest extends PhpseclibTestCase
 {
-    // on older versions of File_ASN1 this would yield a PHP Warning
+    /**
+    * on older versions of File_ASN1 this would yield a PHP Warning
+    * @group github275
+    */
     public function testAnyString()
     {
         $KDC_REP = array(
@@ -76,10 +79,13 @@ class File_ASN1_DevTestCase extends PhpseclibTestCase
         $decoded = $asn1->decodeBER(base64_decode($str));
         $result = $asn1->asn1map($decoded[0], $AS_REP);
 
-        $this->assertTrue(is_array($result));
+        $this->assertInternalType('array', $result);
     }
 
-    // on older versions of File_ASN1 this would produce a null instead of an array
+    /**
+    * on older versions of File_ASN1 this would produce a null instead of an array
+    * @group github275
+    */
     public function testIncorrectString()
     {
         $PA_DATA = array(
@@ -225,6 +231,6 @@ class File_ASN1_DevTestCase extends PhpseclibTestCase
         $decoded = $asn1->decodeBER(base64_decode($str));
         $result = $asn1->asn1map($decoded[0], $AS_REP);
 
-        $this->assertTrue(is_array($result));
+        $this->assertInternalType('array', $result);
     }
 }
