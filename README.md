@@ -14,3 +14,41 @@ AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 
 <img src="http://phpseclib.sourceforge.net/pear-icon.png" alt="PEAR Channel" width="16" height="16">
 PEAR Channel: [phpseclib.sourceforge.net](http://phpseclib.sourceforge.net/pear.htm)
+
+## Installing Development Dependencies
+
+Dependencies are managed via Composer.
+
+1. Download the [`composer.phar`](https://getcomposer.org/composer.phar) executable as per the
+   [Composer Download Instructions](https://getcomposer.org/download/), e.g. by running
+
+    ``` sh
+    curl -sS https://getcomposer.org/installer | php
+    ```
+
+2. Install Dependencies
+
+    ``` sh
+    php composer.phar install --dev
+    ```
+
+## Contributing
+
+1. Fork the Project
+
+2. Install Development Dependencies
+
+3. Create a Feature Branch
+
+4. (Recommended) Run the Test Suite
+
+    ``` sh
+    vendor/bin/phpunit
+    ```
+5. (Recommended) Check whether your code conforms to our Coding Standards by running
+
+    ``` sh
+    vendor/bin/phing -f build/build.xml sniff
+    ```
+
+6. Send us a Pull Request
