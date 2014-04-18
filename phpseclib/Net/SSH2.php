@@ -2836,6 +2836,20 @@ class Net_SSH2
     }
 
     /**
+     * Returns whether Quiet Mode is enabled or not
+     *
+     * @see Net_SSH2::enableQuietMode()
+     * @see Net_SSH2::disableQuietMode()
+     *
+     * @access public
+     * @return boolean
+     */
+    function isQuietModeEnabled()
+    {
+        return $this->quiet_mode;
+    }
+
+    /**
      * Enable request-pty when using exec()
      *
      * @access public
@@ -2853,6 +2867,20 @@ class Net_SSH2
     function disablePTY()
     {
         $this->request_pty = false;
+    }
+
+    /**
+     * Returns whether request-pty is enabled or not
+     *
+     * @see Net_SSH2::enablePTY()
+     * @see Net_SSH2::disablePTY()
+     *
+     * @access public
+     * @return boolean
+     */
+    function isPTYEnabled()
+    {
+        return $this->request_pty;
     }
 
     /**
