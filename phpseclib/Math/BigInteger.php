@@ -1721,6 +1721,11 @@ class Math_BigInteger
 
         return $this->_normalize($this->_slidingWindow($e, $n, MATH_BIGINTEGER_BARRETT));
 
+        // the following code, although not callable, can be run independently of the above code
+        // although the above code performed better in my benchmarks the following could might
+        // perform better under different circumstances. in lieu of deleting it it's just been
+        // made uncallable
+
         // is the modulo odd?
         if ( $n->value[0] & 1 ) {
             return $this->_normalize($this->_slidingWindow($e, $n, MATH_BIGINTEGER_MONTGOMERY));
@@ -2293,6 +2298,11 @@ class Math_BigInteger
     {
         $temp = $this->_multiply($x, false, $y, false);
         return $this->_montgomery($temp[MATH_BIGINTEGER_VALUE], $m);
+
+        // the following code, although not callable, can be run independently of the above code
+        // although the above code performed better in my benchmarks the following could might
+        // perform better under different circumstances. in lieu of deleting it it's just been
+        // made uncallable
 
         static $cache = array(
             MATH_BIGINTEGER_VARIABLE => array(),
