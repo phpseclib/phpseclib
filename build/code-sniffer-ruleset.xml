@@ -27,7 +27,6 @@
    <exclude name="PEAR.Commenting.FunctionComment.SpacingBeforeTags" />
    <exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
    <exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
-   <exclude name="PEAR.Functions.FunctionCallSignature.Indent" />
    <exclude name="PEAR.Functions.FunctionCallSignature.SpaceAfterOpenBracket" />
    <exclude name="PEAR.WhiteSpace.ScopeClosingBrace.BreakIdent" />
    <exclude name="PEAR.WhiteSpace.ScopeClosingBrace.Indent" />
