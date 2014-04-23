@@ -783,7 +783,6 @@ class Math_BigInteger
      * Will be called, automatically, when serialize() is called on a Math_BigInteger object.
      *
      * @see __wakeup()
-
      * @access public
      */
     function __sleep()
