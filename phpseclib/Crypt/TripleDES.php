@@ -288,8 +288,12 @@ class Crypt_TripleDES extends Crypt_DES
         // if the key is smaller then 8, do what we'd normally do
         if ($this->mode_3cbc && strlen($this->key) > 8) {
             return $this->des[2]->encrypt(
-                   $this->des[1]->decrypt(
-                   $this->des[0]->encrypt($this->_pad($plaintext))));
+                $this->des[1]->decrypt(
+                    $this->des[0]->encrypt(
+                        $this->_pad($plaintext)
+                    )
+                )
+            );
         }
 
         return parent::encrypt($plaintext);
@@ -306,9 +310,15 @@ class Crypt_TripleDES extends Crypt_DES
     function decrypt($ciphertext)
     {
         if ($this->mode_3cbc && strlen($this->key) > 8) {
-            return $this->_unpad($this->des[0]->decrypt(
-                                 $this->des[1]->encrypt(
-                                 $this->des[2]->decrypt(str_pad($ciphertext, (strlen($ciphertext) + 7) & 0xFFFFFFF8, "\0")))));
+            return $this->_unpad(
+                $this->des[0]->decrypt(
+                    $this->des[1]->encrypt(
+                        $this->des[2]->decrypt(
+                            str_pad($ciphertext, (strlen($ciphertext) + 7) & 0xFFFFFFF8, "\0")
+                        )
+                    )
+                )
+            );
         }
 
         return parent::decrypt($ciphertext);
