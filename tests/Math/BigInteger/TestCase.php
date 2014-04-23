@@ -289,13 +289,29 @@ abstract class Math_BigInteger_TestCase extends PhpseclibTestCase
         );
         $generator = $this->getInstance(2);
 
+        /*
+        Code for generation of $alicePrivate and $bobPrivate.
         $one = $this->getInstance(1);
         $max = $one->bitwise_leftShift(512)->subtract($one);
-
         $alicePrivate = $one->random($one, $max);
-        $alicePublic = $generator->modPow($alicePrivate, $prime);
-
         $bobPrivate = $one->random($one, $max);
+        var_dump($alicePrivate->toHex(), $bobPrivate->toHex());
+        */
+
+        $alicePrivate = $this->getInstance(
+            '22606EDA7960458BC9D65F46DD96F114F9A004F0493C1F26' .
+            '2139D2C8063B733162E876182CA3BF063AB1A167ABDB7F03' .
+            'E0A225A6205660439F6CE46D252069FF',
+            16
+        );
+        $bobPrivate = $this->getInstance(
+            '6E3EFA13A96025D63E4B0D88A09B3A46DDFE9DD3BC9D1655' .
+            '4898C02B4AC181F0CEB4E818664B12F02C71A07215C400F9' .
+            '88352A4779F3E88836F7C3D3B3C739DE',
+            16
+        );
+
+        $alicePublic = $generator->modPow($alicePrivate, $prime);
         $bobPublic =  $generator->modPow($bobPrivate, $prime);
 
         $aliceShared = $bobPublic->modPow($alicePrivate, $prime);
