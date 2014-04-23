@@ -1491,7 +1491,6 @@ class Math_BigInteger
         $temp_value = array_merge($this->_array_repeat(0, $x_max - $y_max), $y_value);
 
         while ( $x->compare($temp) >= 0 ) {
-echo '.';
             // calculate the "common residue"
             ++$quotient_value[$x_max - $y_max];
             $x = $x->subtract($temp);
