@@ -755,8 +755,8 @@ class Crypt_RSA
                     strlen('ssh-rsa'), 'ssh-rsa', strlen($raw['publicExponent']), $raw['publicExponent'], strlen($raw['modulus']), $raw['modulus']
                 );
                 $source = pack('Na*Na*Na*Na*',
-                              strlen('ssh-rsa'), 'ssh-rsa', strlen($encryption), $encryption,
-                              strlen($this->comment), $this->comment, strlen($public), $public
+                    strlen('ssh-rsa'), 'ssh-rsa', strlen($encryption), $encryption,
+                    strlen($this->comment), $this->comment, strlen($public), $public
                 );
                 $public = base64_encode($public);
                 $key.= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";
