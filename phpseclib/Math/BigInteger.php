@@ -924,7 +924,7 @@ class Math_BigInteger
             $carry = $sum >= MATH_BIGINTEGER_MAX_DIGIT2; // eg. floor($sum / 2**52); only possible values (in any base) are 0 and 1
             $sum = $carry ? $sum - MATH_BIGINTEGER_MAX_DIGIT2 : $sum;
 
-            $temp = (int) ($sum / MATH_BIGINTEGER_BASE_FULL);
+            $temp = $this->_carry($sum);
 
             $value[$i] = (int) ($sum - MATH_BIGINTEGER_BASE_FULL * $temp); // eg. a faster alternative to fmod($sum, 0x4000000)
             $value[$j] = $temp;
@@ -1060,7 +1060,7 @@ class Math_BigInteger
             $carry = $sum < 0; // eg. floor($sum / 2**52); only possible values (in any base) are 0 and 1
             $sum = $carry ? $sum + MATH_BIGINTEGER_MAX_DIGIT2 : $sum;
 
-            $temp = (int) ($sum / MATH_BIGINTEGER_BASE_FULL);
+            $temp = $this->_carry($sum);
 
             $x_value[$i] = (int) ($sum - MATH_BIGINTEGER_BASE_FULL * $temp);
             $x_value[$j] = $temp;
@@ -1208,7 +1208,7 @@ class Math_BigInteger
 
         for ($j = 0; $j < $x_length; ++$j) { // ie. $i = 0
             $temp = $x_value[$j] * $y_value[0] + $carry; // $product_value[$k] == 0
-            $carry = (int) ($temp / MATH_BIGINTEGER_BASE_FULL);
+            $carry = $this->_carry($temp);
             $product_value[$j] = (int) ($temp - MATH_BIGINTEGER_BASE_FULL * $carry);
         }
 
@@ -1221,7 +1221,7 @@ class Math_BigInteger
 
             for ($j = 0, $k = $i; $j < $x_length; ++$j, ++$k) {
                 $temp = $product_value[$k] + $x_value[$j] * $y_value[$i] + $carry;
-                $carry = (int) ($temp / MATH_BIGINTEGER_BASE_FULL);
+                $carry = $this->_carry($temp);
                 $product_value[$k] = (int) ($temp - MATH_BIGINTEGER_BASE_FULL * $carry);
             }
 
@@ -1309,13 +1309,13 @@ class Math_BigInteger
             $i2 = $i << 1;
 
             $temp = $square_value[$i2] + $value[$i] * $value[$i];
-            $carry = (int) ($temp / MATH_BIGINTEGER_BASE_FULL);
+            $carry = $this->_carry($temp);
             $square_value[$i2] = (int) ($temp - MATH_BIGINTEGER_BASE_FULL * $carry);
 
             // note how we start from $i+1 instead of 0 as we do in multiplication.
             for ($j = $i + 1, $k = $i2 + 1; $j <= $max_index; ++$j, ++$k) {
                 $temp = $square_value[$k] + 2 * $value[$j] * $value[$i] + $carry;
-                $carry = (int) ($temp / MATH_BIGINTEGER_BASE_FULL);
+                $carry = $this->_carry($temp);
                 $square_value[$k] = (int) ($temp - MATH_BIGINTEGER_BASE_FULL * $carry);
             }
 
@@ -1513,9 +1513,8 @@ class Math_BigInteger
             if ($x_window[0] == $y_window[0]) {
                 $quotient_value[$q_index] = MATH_BIGINTEGER_MAX_DIGIT;
             } else {
-                $quotient_value[$q_index] = (int) (
-                    ($x_window[0] * MATH_BIGINTEGER_BASE_FULL + $x_window[1])
-                    /
+                $quotient_value[$q_index] = $this->_safe_divide(
+                    $x_window[0] * MATH_BIGINTEGER_BASE_FULL + $x_window[1],
                     $y_window[0]
                 );
             }
@@ -1583,7 +1582,7 @@ class Math_BigInteger
 
         for ($i = count($dividend) - 1; $i >= 0; --$i) {
             $temp = MATH_BIGINTEGER_BASE_FULL * $carry + $dividend[$i];
-            $result[$i] = (int) ($temp / $divisor);
+            $result[$i] = $this->_safe_divide($temp, $divisor);
             $carry = (int) ($temp - $divisor * $result[$i]);
         }
 
@@ -2200,7 +2199,7 @@ class Math_BigInteger
 
         for ($j = 0; $j < $x_length; ++$j) { // ie. $i = 0, $k = $i
             $temp = $x_value[$j] * $y_value[0] + $carry; // $product_value[$k] == 0
-            $carry = (int) ($temp / MATH_BIGINTEGER_BASE_FULL);
+            $carry = $this->_carry($temp);
             $product_value[$j] = (int) ($temp - MATH_BIGINTEGER_BASE_FULL * $carry);
         }
 
@@ -2216,7 +2215,7 @@ class Math_BigInteger
 
             for ($j = 0, $k = $i; $j < $x_length && $k < $stop; ++$j, ++$k) {
                 $temp = $product_value[$k] + $x_value[$j] * $y_value[$i] + $carry;
-                $carry = (int) ($temp / MATH_BIGINTEGER_BASE_FULL);
+                $carry = $this->_carry($temp);
                 $product_value[$k] = (int) ($temp - MATH_BIGINTEGER_BASE_FULL * $carry);
             }
 
@@ -2265,7 +2264,7 @@ class Math_BigInteger
 
         for ($i = 0; $i < $k; ++$i) {
             $temp = $result[MATH_BIGINTEGER_VALUE][$i] * $cache[MATH_BIGINTEGER_DATA][$key];
-            $temp = (int) ($temp - MATH_BIGINTEGER_BASE_FULL * ((int) ($temp / MATH_BIGINTEGER_BASE_FULL)));
+            $temp = $temp - MATH_BIGINTEGER_BASE_FULL * $this->_carry($temp);
             $temp = $this->_regularMultiply(array($temp), $n);
             $temp = array_merge($this->_array_repeat(0, $i), $temp);
             $result = $this->_add($result[MATH_BIGINTEGER_VALUE], false, $temp, false);
@@ -2322,9 +2321,9 @@ class Math_BigInteger
         $a = array(MATH_BIGINTEGER_VALUE => $this->_array_repeat(0, $n + 1));
         for ($i = 0; $i < $n; ++$i) {
             $temp = $a[MATH_BIGINTEGER_VALUE][0] + $x[$i] * $y[0];
-            $temp = (int) ($temp - MATH_BIGINTEGER_BASE_FULL * ((int) ($temp / MATH_BIGINTEGER_BASE_FULL)));
+            $temp = $temp - MATH_BIGINTEGER_BASE_FULL * $this->_carry($temp);
             $temp = $temp * $cache[MATH_BIGINTEGER_DATA][$key];
-            $temp = (int) ($temp - MATH_BIGINTEGER_BASE_FULL * ((int) ($temp / MATH_BIGINTEGER_BASE_FULL)));
+            $temp = $temp - MATH_BIGINTEGER_BASE_FULL * $this->_carry($temp);
             $temp = $this->_add($this->_regularMultiply(array($x[$i]), $y), false, $this->_regularMultiply(array($temp), $m), false);
             $a = $this->_add($a[MATH_BIGINTEGER_VALUE], false, $temp[MATH_BIGINTEGER_VALUE], false);
             $a[MATH_BIGINTEGER_VALUE] = array_slice($a[MATH_BIGINTEGER_VALUE], 1);
@@ -3464,7 +3463,7 @@ class Math_BigInteger
 
         for ($i = 0; $i < count($this->value); ++$i) {
             $temp = $this->value[$i] * $shift + $carry;
-            $carry = (int) ($temp / MATH_BIGINTEGER_BASE_FULL);
+            $carry = $this->_carry($temp);
             $this->value[$i] = (int) ($temp - $carry * MATH_BIGINTEGER_BASE_FULL);
         }
 
@@ -3711,5 +3710,59 @@ class Math_BigInteger
 
         $temp = ltrim(pack('N', $length), chr(0));
         return pack('Ca*', 0x80 | strlen($temp), $temp);
+    }
+
+    /**
+     * Calculate the carry
+     *
+     * when PHP uses int32 phpseclib uses float64 / base-26. at that point the largest intermediary
+     * value numbers can have is 2**52. you can't left shift to get the top 26 bits because left
+     * shift takes in ints, which have 31-bits of usuable precision, since PHP does signed int32.
+     * so we divide.
+     *
+     * when PHP uses int64 phpseclib uses int64 / base-31. at that point the largest intermediary
+     * value numbers can have is 2**62. you can't divide because PHP's division operator returns
+     * a float64 (which doesn't have sufficient precision) unless the two operands are evenly
+     * divisible. but we can left shift.
+     *
+     * here are some examples.
+     *
+     * intval(0x7FFFFFFFFFFFFFFF / 0x80000000) returns 4294967296 when in fact it should
+     * return 4294967295. actually, the answer is 4294967295.999999 but float64 is rounding
+     * up when in fact we want it to round down.
+     *
+     * pow(2, 52) >> 31 returns 0 on int32 when the answer with int64 is 2097152.
+     *
+     * @access private
+     * @param Integer $x
+     * @return Integer
+     */
+    function _carry($x)
+    {
+        if (MATH_BIGINTEGER_BASE === 26) {
+            return (int) ($x / 0x4000000);
+        }
+
+        // MATH_BIGINTEGER_BASE === 31
+        return $x >> 31;
+    }
+
+    /**
+     * Single digit division
+     *
+     * @see _carry()
+     * @access private
+     * @param Integer $x
+     * @param Integer $y
+     * @return Integer
+     */
+    function _safe_divide($x, $y)
+    {
+        if (MATH_BIGINTEGER_BASE === 26) {
+            return (int) ($x / $y);
+        }
+
+        // MATH_BIGINTEGER_BASE === 31
+        return ($x - ($x % $y)) / $y;
     }
 }
