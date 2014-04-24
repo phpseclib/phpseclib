@@ -19,10 +19,6 @@
  * which only supports integers.  Although this fact will slow this library down, the fact that such a high
  * base is being used should more than compensate.
  *
- * When PHP version 6 is officially released, we'll be able to use 64-bit integers.  This should, once again,
- * allow bitwise operators, and will increase the maximum possible base to 2**31 (or 2**62 for addition /
- * subtraction).
- *
  * Numbers are stored in {@link http://en.wikipedia.org/wiki/Endianness little endian} format.  ie.
  * (new Math_BigInteger(pow(2, 26)))->value = array(0, 1)
  *
@@ -3715,12 +3711,12 @@ class Math_BigInteger
     /**
      * Calculate the carry
      *
-     * when PHP uses int32 phpseclib uses float64 / base-26. at that point the largest intermediary
-     * value numbers can have is 2**52. you can't left shift to get the top 26 bits because left
-     * shift takes in ints, which have 31-bits of usuable precision, since PHP does signed int32.
-     * so we divide.
+     * when PHP uses int32, phpseclib uses float64 / base-26. at that point the largest intermediary
+     * value numbers can have is 2**52. you can't left shift to get the top (most significant) 26 bits
+     * because left shift takes in ints, which have 31-bits of usable precision, since PHP does
+     * signed int32. as a consequence of the above, division takes place
      *
-     * when PHP uses int64 phpseclib uses int64 / base-31. at that point the largest intermediary
+     * when PHP uses int64, phpseclib uses int64 / base-31. at that point the largest intermediary
      * value numbers can have is 2**62. you can't divide because PHP's division operator returns
      * a float64 (which doesn't have sufficient precision) unless the two operands are evenly
      * divisible. but we can left shift.
