@@ -51,7 +51,8 @@
     "require-dev": {
         "phing/phing": "2.7.*",
         "phpunit/phpunit": "4.0.*",
-        "squizlabs/php_codesniffer": "1.*"
+        "squizlabs/php_codesniffer": "1.*",
+        "ext-mcrypt": "*"
     },
     "suggest": {
         "ext-mcrypt": "Install the Mcrypt extension in order to speed up a wide variety of cryptographic operations.",

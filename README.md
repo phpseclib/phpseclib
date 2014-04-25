@@ -32,6 +32,8 @@ Dependencies are managed via Composer.
     php composer.phar install --dev
     ```
 
+3. Install any PHP extensions prompted by composer.
+
 ## Contributing
 
 1. Fork the Project
