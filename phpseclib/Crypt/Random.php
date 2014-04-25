@@ -45,7 +45,9 @@
  *
  * @access private
  */
-define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+if (!defined('CRYPT_RANDOM_IS_WINDOWS')) {
+    define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+}
 
 /**
  * Generate a random string.
