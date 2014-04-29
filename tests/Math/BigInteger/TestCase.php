@@ -271,6 +271,14 @@ abstract class Math_BigInteger_TestCase extends PhpseclibTestCase
     */
     public function testDiffieHellmanKeyAgreement()
     {
+        if (getenv('TRAVIS') && PHP_VERSION === '5.3.3'
+            && MATH_BIGINTEGER_MODE === MATH_BIGINTEGER_MODE_INTERNAL
+        ) {
+            $this->markTestIncomplete(
+                'This test hangs on PHP 5.3.3 using internal mode.'
+            );
+        }
+
         // "Oakley Group 14" 2048-bit modular exponentiation group as used in
         // SSH2 diffie-hellman-group14-sha1
         $prime = $this->getInstance(
