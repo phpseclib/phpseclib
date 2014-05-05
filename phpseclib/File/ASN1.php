@@ -950,7 +950,7 @@ class File_ASN1
             case FILE_ASN1_TYPE_INTEGER:
             case FILE_ASN1_TYPE_ENUMERATED:
                 if (!isset($mapping['mapping'])) {
-                    if (is_int($source)) {
+                    if (is_numeric($source)) {
                         $source = new Math_BigInteger($source);
                     }
                     $value = $source->toBytes(true);
