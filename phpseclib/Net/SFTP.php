@@ -717,24 +717,88 @@ class Net_SFTP extends Net_SSH2
      * Returns a list of files in the given directory
      *
      * @param optional String $dir
+     * @param optional Boolean $recursive
      * @return Mixed
      * @access public
      */
-    function nlist($dir = '.')
+    function nlist($dir = '.', $recursive = false)
     {
-        return $this->_list($dir, false);
+        $dir = $this->_realpath($dir . '/');
+        switch (true) {
+            case !$this->use_cache:
+            case !is_array($result = $this->_query_cache($dir)):
+            case !isset($result['.']):
+            case $recursive:
+                break;
+            default:
+                return array_keys($result);
+        }
+        $files = $this->_list($dir, false);
+
+        if (!$recursive) {
+            return $files;
+        }
+
+        static $relativeDir = '';
+
+        $result = array();
+        foreach ($files as $value) {
+            if ($value == '.' || $value == '..') {
+                if ($relativeDir == '') {
+                    $result[] = $value;
+                }
+                continue;
+            }
+            if (is_array($this->_query_cache($this->_realpath($dir . '/' . $value)))) {
+                $oldDir = $relativeDir;
+                $relativeDir.= $value . '/';
+                $temp = $this->nlist($dir . '/' . $value, true);
+                $result = array_merge($result, $temp);
+                $relativeDir = $oldDir;
+            } else {
+                $result[] = $relativeDir . $value;
+            }
+        }
+
+        return $result;
     }
 
     /**
      * Returns a detailed list of files in the given directory
      *
      * @param optional String $dir
+     * @param optional Boolean $recursive
      * @return Mixed
      * @access public
      */
-    function rawlist($dir = '.')
+    function rawlist($dir = '.', $recursive = false)
     {
-        return $this->_list($dir, true);
+        $files = $this->_list($dir, true);
+        if (!$recursive || $files === false) {
+            return $files;
+        }
+
+        static $depth = 0;
+
+        foreach ($files as $key=>$value) {
+            if ($depth != 0 && $key == '..') {
+                unset($files[$key]);
+                continue;
+            }
+            if ($key != '.' && $key != '..' && is_array($this->_query_cache($this->_realpath($dir . '/' . $key)))) {
+                $depth++;
+                $files[$key] = $this->rawlist($dir . '/' . $key, true);
+                $depth--;
+            } else {
+                $temp = new StdClass();
+                foreach ($value as $subkey=>$subvalue) {
+                    $temp->$subkey = $subvalue;
+                }
+                $files[$key] = $temp;
+            }
+        }
+
+        return $files;
     }
 
     /**
