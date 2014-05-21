@@ -151,6 +151,52 @@ class Net_SFTPFunctionalTest extends PhpseclibFunctionalTestCase
     /**
     * @depends testPutSizeGetFile
     */
+    public function testFileExistsIsFileIsDirFile($sftp)
+    {
+        $this->assertTrue(
+            $sftp->file_exists('file1.txt'),
+            'Failed asserting that file_exists() on example file returns true.'
+        );
+
+        $this->assertTrue(
+            $sftp->is_file('file1.txt'),
+            'Failed asserting that is_file() on example file returns true.'
+        );
+
+        $this->assertFalse(
+            $sftp->is_dir('file1.txt'),
+            'Failed asserting that is_dir() on example file returns false.'
+        );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testFileExistsIsFileIsDirFile
+    */
+    public function testFileExistsIsFileIsDirFileNonexistent($sftp)
+    {
+        $this->assertFalse(
+            $sftp->file_exists('file2.txt'),
+            'Failed asserting that a nonexistent file does not exist.'
+        );
+
+        $this->assertFalse(
+            $sftp->is_file('file2.txt'),
+            'Failed asserting that is_file() on nonexistent file returns false.'
+        );
+
+        $this->assertFalse(
+            $sftp->is_dir('file2.txt'),
+            'Failed asserting that is_dir() on nonexistent file returns false.'
+        );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testFileExistsIsFileIsDirFileNonexistent
+    */
     public function testChDirUpHome($sftp)
     {
         $this->assertTrue(
@@ -169,6 +215,29 @@ class Net_SFTPFunctionalTest extends PhpseclibFunctionalTestCase
 
     /**
     * @depends testChDirUpHome
+    */
+    public function testFileExistsIsFileIsDirDir($sftp)
+    {
+        $this->assertTrue(
+            $sftp->file_exists(self::$scratchDir),
+            'Failed asserting that file_exists() on scratch dir returns true.'
+        );
+
+        $this->assertFalse(
+            $sftp->is_file(self::$scratchDir),
+            'Failed asserting that is_file() on example file returns false.'
+        );
+
+        $this->assertTrue(
+            $sftp->is_dir(self::$scratchDir),
+            'Failed asserting that is_dir() on example file returns true.'
+        );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testFileExistsIsFileIsDirDir
     */
     public function testRmDirScratch($sftp)
     {
