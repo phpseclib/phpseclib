@@ -141,7 +141,7 @@ class Net_SFTPFunctionalTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-    * @depends testChDirScratch
+    * @depends testStatOnDir
     */
     public function testPutSizeGetFile($sftp)
     {
@@ -179,7 +179,7 @@ class Net_SFTPFunctionalTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-    * @depends testPutSizeGetFile
+    * @depends testChDirOnFile
     */
     public function testFileExistsIsFileIsDirFile($sftp)
     {
