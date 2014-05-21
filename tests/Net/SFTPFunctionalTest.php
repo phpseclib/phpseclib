@@ -19,6 +19,7 @@ class Net_SFTPFunctionalTest extends PhpseclibFunctionalTestCase
                 'This test hangs on Travis CI on PHP 5.3.3 and below.'
             );
         }
+
         parent::setUpBeforeClass();
 
         self::$scratchDir = uniqid('phpseclib-sftp-scratch-');
@@ -126,6 +127,22 @@ class Net_SFTPFunctionalTest extends PhpseclibFunctionalTestCase
     /**
     * @depends testChDirScratch
     */
+    public function testStatOnDir($sftp)
+    {
+        $stat = $sftp->stat('.');
+
+        $this->assertThat(
+            $stat,
+            $this->logicalNot($this->equalTo(array())),
+            'Failed asserting that the cwd has a non-empty stat'
+        );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testChDirScratch
+    */
     public function testPutSizeGetFile($sftp)
     {
         $this->assertTrue(
@@ -143,6 +160,19 @@ class Net_SFTPFunctionalTest extends PhpseclibFunctionalTestCase
             self::$exampleData,
             $sftp->get('file1.txt'),
             'Failed asserting that get() returns expected example data.'
+        );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testPutSizeGetFile
+    */
+    public function testChDirOnFile($sftp)
+    {
+        $this->assertFalse(
+            $sftp->chdir('file1.txt'),
+            'Failed to assert that the cwd cannot be changed to a file'
         );
 
         return $sftp;
