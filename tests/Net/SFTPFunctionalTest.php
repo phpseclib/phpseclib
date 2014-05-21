@@ -129,12 +129,10 @@ class Net_SFTPFunctionalTest extends PhpseclibFunctionalTestCase
     */
     public function testStatOnDir($sftp)
     {
-        $stat = $sftp->stat('.');
-
-        $this->assertThat(
-            $stat,
-            $this->logicalNot($this->equalTo(array())),
-            'Failed asserting that the cwd has a non-empty stat'
+        $this->assertNotSame(
+            array(),
+            $sftp->stat('.'),
+            'Failed asserting that the cwd has a non-empty stat.'
         );
 
         return $sftp;
