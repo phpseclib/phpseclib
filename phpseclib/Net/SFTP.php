@@ -942,7 +942,7 @@ class Net_SFTP extends Net_SSH2
         // preg_replace('#^/|/(?=/)|/$#', '', $dir) == str_replace('//', '/', trim($path, '/'))
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $path));
 
-        $temp = &$this->cache;
+        $temp = &$this->stat_cache;
         foreach ($dirs as $dir) {
             if (!isset($temp[$dir])) {
                 $temp[$dir] = array();
@@ -965,7 +965,7 @@ class Net_SFTP extends Net_SSH2
     {
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $path));
 
-        $temp = &$this->cache;
+        $temp = &$this->stat_cache;
         foreach ($dirs as $dir) {
             if ($dir == end($dirs)) {
                 unset($temp[$dir]);
@@ -991,7 +991,7 @@ class Net_SFTP extends Net_SSH2
     {
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $path));
 
-        $temp = &$this->cache;
+        $temp = &$this->stat_cache;
         foreach ($dirs as $dir) {
             if (!isset($temp[$dir])) {
                 return false;
