@@ -1033,10 +1033,13 @@ class Net_SFTP extends Net_SSH2
 
         $stat = $this->_stat($filename, NET_SFTP_STAT);
         if ($stat === false) {
-            $this->_update_stat_cache($filename, 0);
+            $this->_remove_from_stat_cache($filename);
             return false;
         }
         if (isset($stat['type'])) {
+            if ($stat['type'] == NET_SFTP_TYPE_DIRECTORY) {
+                $filename.= '/.';
+            }
             $this->_update_stat_cache($filename, (object) $stat);
             return $stat;
         }
@@ -1047,6 +1050,9 @@ class Net_SFTP extends Net_SSH2
             NET_SFTP_TYPE_REGULAR;
         $this->pwd = $pwd;
 
+        if ($stat['type'] == NET_SFTP_TYPE_DIRECTORY) {
+            $filename.= '/.';
+        }
         $this->_update_stat_cache($filename, (object) $stat);
 
         return $stat;
@@ -1084,9 +1090,13 @@ class Net_SFTP extends Net_SSH2
 
         $lstat = $this->_stat($filename, NET_SFTP_LSTAT);
         if ($lstat === false) {
+            $this->_remove_from_stat_cache($filename);
             return false;
         }
         if (isset($lstat['type'])) {
+            if ($lstat['type'] == NET_SFTP_TYPE_DIRECTORY) {
+                $filename.= '/.';
+            }
             $this->_update_stat_cache($filename, (object) $lstat);
             return $lstat;
         }
@@ -1105,6 +1115,9 @@ class Net_SFTP extends Net_SSH2
             NET_SFTP_TYPE_REGULAR;
         $this->pwd = $pwd;
 
+        if ($lstat['type'] == NET_SFTP_TYPE_DIRECTORY) {
+            $filename.= '/.';
+        }
         $this->_update_stat_cache($filename, (object) $lstat);
 
         return $lstat;
