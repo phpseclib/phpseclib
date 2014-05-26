@@ -1004,7 +1004,7 @@ class Net_SFTP extends Net_SSH2
         $temp = &$this->stat_cache;
         foreach ($dirs as $dir) {
             if (!isset($temp[$dir])) {
-                return NULL;
+                return null;
             }
             $temp = &$temp[$dir];
         }
