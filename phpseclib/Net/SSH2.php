@@ -2227,7 +2227,7 @@ class Net_SSH2
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
      * @param String $command
-     * @param optional Boolean $block
+     * @param optional Callback $callback
      * @return String
      * @access public
      */
@@ -2245,7 +2245,7 @@ class Net_SSH2
         // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but,
         // honestly, if you're transfering more than 2GB, you probably shouldn't be using phpseclib, anyway.
         // see http://tools.ietf.org/html/rfc4254#section-5.2 for more info
-        $this->window_size_server_to_client[NET_SSH2_CHANNEL_EXEC] = 0x7FFFFFFF;
+        $this->window_size_server_to_client[NET_SSH2_CHANNEL_EXEC] = $this->window_size;
         // 0x8000 is the maximum max packet size, per http://tools.ietf.org/html/rfc4253#section-6.1, although since PuTTy
         // uses 0x4000, that's what will be used here, as well.
         $packet_size = 0x4000;
@@ -2330,7 +2330,10 @@ class Net_SSH2
                     return false;
                 default:
                     if (is_callable($callback)) {
-                        call_user_func($callback, $temp);
+                        if (call_user_func($callback, $temp) === true) {
+                            $this->_close_channel(NET_SSH2_CHANNEL_EXEC);
+                            return true;
+                        }
                     } else {
                         $output.= $temp;
                     }
@@ -2352,7 +2355,7 @@ class Net_SSH2
             return true;
         }
 
-        $this->window_size_server_to_client[NET_SSH2_CHANNEL_SHELL] = 0x7FFFFFFF;
+        $this->window_size_server_to_client[NET_SSH2_CHANNEL_SHELL] = $this->window_size;
         $packet_size = 0x4000;
 
         $packet = pack('CNa*N3',
