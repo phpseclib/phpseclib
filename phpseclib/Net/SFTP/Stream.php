@@ -209,6 +209,7 @@ class Net_SFTP_Stream
                 $this->sftp = self::$instances[$host][$port][$user][(string) $pass];
             } else {
                 $this->sftp = new Net_SFTP($host, $port);
+                $this->sftp->disableStatCache();
                 if (isset($this->notification) && is_callable($this->notification)) {
                     /* if !is_callable($this->notification) we could do this:
 
