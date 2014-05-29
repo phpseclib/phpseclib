@@ -517,7 +517,20 @@ class Net_SFTP_Stream
      * Open directory handle
      *
      * The only $options is "whether or not to enforce safe_mode (0x04)". Since safe mode was deprecated in 5.3 and
-     * removed in 5.4 I'm just going to ignore it
+     * removed in 5.4 I'm just going to ignore it.
+     *
+     * Also, nlist() is the best that this function is realistically going to be able to do. When an SFTP client
+     * sends a SSH_FXP_READDIR packet you don't generally get info on just one file but on multiple files. quoting
+     * the SFTP specs:
+     *
+     *    The SSH_FXP_NAME response has the following format:
+     *
+     *        uint32     id
+     *        uint32     count
+     *        repeats count times:
+     *                string     filename
+     *                string     longname
+     *                ATTRS      attrs
      *
      * @param String $path
      * @param Integer $options
