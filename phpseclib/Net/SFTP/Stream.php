@@ -520,7 +520,7 @@ class Net_SFTP_Stream
      * removed in 5.4 I'm just going to ignore it.
      *
      * Also, nlist() is the best that this function is realistically going to be able to do. When an SFTP client
-     * sends a SSH_FXP_READDIR packet you don't generally get info on just one file but on multiple files. quoting
+     * sends a SSH_FXP_READDIR packet you don't generally get info on just one file but on multiple files. Quoting
      * the SFTP specs:
      *
      *    The SSH_FXP_NAME response has the following format:
