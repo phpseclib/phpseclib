@@ -3052,8 +3052,7 @@ class Math_BigInteger
      */
     function _random_number_helper($size)
     {
-        $crypt_random = function_exists('crypt_random_string') || (!class_exists('Crypt_Random') && function_exists('crypt_random_string'));
-        if ($crypt_random) {
+        if (function_exists('crypt_random_string')) {
             $random = crypt_random_string($size);
         } else {
             $random = '';
