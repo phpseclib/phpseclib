@@ -1,5 +1,7 @@
 language: php
 
+# When adding environments here, the number of runs specified in .scrutinizer.yml
+# may have to be adjusted.
 php:
   - 5.2
   - 5.3.3

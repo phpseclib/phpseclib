@@ -2,4 +2,5 @@ imports:
     - php
 
 tools:
-    external_code_coverage: true
+    external_code_coverage:
+        runs: 5 # No Code Coverage on PHP 5.2 and HHVM
