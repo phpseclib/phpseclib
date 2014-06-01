@@ -6,7 +6,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Net_SFTPFunctionalTest extends PhpseclibFunctionalTestCase
+class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 {
     static protected $scratchDir;
     static protected $exampleData;
