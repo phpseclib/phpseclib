@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Math_BigInteger_InternalOpenSSLTest extends Math_BigInteger_TestCase
+class Unit_Math_BigInteger_InternalOpenSSLTest extends Unit_Math_BigInteger_TestCase
 {
     static public function setUpBeforeClass()
     {
