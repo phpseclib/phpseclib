@@ -25,6 +25,6 @@ script:
   - travis/run-phpunit.sh
 
 after_success:
-  - sh -c "if $TRAVIS_SECURE_ENV_VARS; then travis/upload-code-coverage.sh; fi"
+  - sh -c "if $TRAVIS_SECURE_ENV_VARS; then travis/upload-code-coverage-html.sh; fi"
   - sh -c "if [ '$TRAVIS_PHP_VERSION' != '5.2' ]; then wget https://scrutinizer-ci.com/ocular.phar; fi"
   - sh -c "if [ '$TRAVIS_PHP_VERSION' != '5.2' ]; then php ocular.phar code-coverage:upload --format=php-clover code_coverage/clover.xml; fi"
