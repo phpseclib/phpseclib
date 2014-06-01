@@ -10,7 +10,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/TripleDES.php');
+ *    include 'Crypt/TripleDES.php';
  *
  *    $des = new Crypt_TripleDES();
  *

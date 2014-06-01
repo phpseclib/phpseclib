@@ -14,7 +14,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Net/SFTP.php');
+ *    include 'Net/SFTP.php';
  *
  *    $sftp = new Net_SFTP('www.domain.tld');
  *    if (!$sftp->login('username', 'password')) {

@@ -19,7 +19,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/AES.php');
+ *    include 'Crypt/AES.php';
  *
  *    $aes = new Crypt_AES();
  *

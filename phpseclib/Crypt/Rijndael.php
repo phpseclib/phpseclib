@@ -28,7 +28,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/Rijndael.php');
+ *    include 'Crypt/Rijndael.php';
  *
  *    $rijndael = new Crypt_Rijndael();
  *

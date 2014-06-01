@@ -10,8 +10,8 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Net/SCP.php');
- *    include('Net/SSH2.php');
+ *    include 'Net/SCP.php';
+ *    include 'Net/SSH2.php';
  *
  *    $ssh = new Net_SSH2('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
