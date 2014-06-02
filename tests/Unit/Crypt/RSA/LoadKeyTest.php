@@ -7,7 +7,7 @@
 
 require_once 'Crypt/RSA.php' ;
 
-class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
+class Phpseclib_Test_Unit_Crypt_RSA_LoadKeyTest extends Phpseclib_Test_Framework_TestCase
 {
     public function testBadKey()
     {

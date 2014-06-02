@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Unit_Crypt_AES_ContinuousBufferTest extends Unit_Crypt_AES_TestCase
+class Phpseclib_Test_Unit_Crypt_AES_ContinuousBufferTest extends Phpseclib_Test_Unit_Crypt_AES_TestCase
 {
     // String intented
     protected $modes = array(

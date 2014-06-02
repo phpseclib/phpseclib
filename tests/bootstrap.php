@@ -11,7 +11,6 @@ date_default_timezone_set('UTC');
 // class files of phpseclib require() other dependencies.
 set_include_path(implode(PATH_SEPARATOR, array(
     dirname(__FILE__) . '/../phpseclib/',
-    dirname(__FILE__) . '/',
     get_include_path(),
 )));
 
@@ -29,7 +28,7 @@ function phpseclib_is_includable($suffix)
     return false;
 }
 
-function phpseclib_autoload($class)
+function phpseclib_autoload_library($class)
 {
     $file = str_replace('_', '/', $class) . '.php';
 
@@ -40,4 +39,18 @@ function phpseclib_autoload($class)
     }
 }
 
-spl_autoload_register('phpseclib_autoload');
+function phpseclib_autoload_tests($class)
+{
+    $prefix = 'Phpseclib_Test_';
+    if (strpos($class, $prefix) === 0) {
+        $classWithoutPrefix = substr($class, strlen($prefix));
+        $basename = str_replace('_', '/', $classWithoutPrefix) . '.php';
+        $file = dirname(__FILE__) . "/$basename";
+        // @codingStandardsIgnoreStart
+        require $file;
+        // @codingStandardsIgnoreEnd
+    }
+}
+
+spl_autoload_register('phpseclib_autoload_library');
+spl_autoload_register('phpseclib_autoload_tests');

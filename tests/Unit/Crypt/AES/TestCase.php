@@ -7,7 +7,7 @@
 
 require_once 'Crypt/AES.php';
 
-abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
+abstract class Phpseclib_Test_Unit_Crypt_AES_TestCase extends Phpseclib_Test_Framework_TestCase
 {
     static public function setUpBeforeClass()
     {

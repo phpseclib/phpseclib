@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Unit_Math_BigInteger_BCMathTest extends Unit_Math_BigInteger_TestCase
+class Phpseclib_Test_Unit_Math_BigInteger_BCMathTest extends Phpseclib_Test_Unit_Math_BigInteger_TestCase
 {
     static public function setUpBeforeClass()
     {

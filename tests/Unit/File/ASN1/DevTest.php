@@ -7,7 +7,7 @@
 
 require_once 'File/ASN1.php';
 
-class Unit_File_ASN1_DevTest extends PhpseclibTestCase
+class Phpseclib_Test_Unit_File_ASN1_DevTest extends Phpseclib_Test_Framework_TestCase
 {
     /**
     * on older versions of File_ASN1 this would yield a PHP Warning
