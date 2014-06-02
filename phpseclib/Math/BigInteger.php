@@ -100,7 +100,7 @@ define('MATH_BIGINTEGER_NONE', 4);
 /**#@+
  * Array constants
  *
- * Rather than create a thousands and thousands of new Math_BigInteger objects in repeated function calls to add() and
+ * Rather than create a thousands and thousands of new BigInteger objects in repeated function calls to add() and
  * multiply() or whatever, we'll just work directly on arrays, taking them in as parameters and returning them.
  *
  * @access private
