@@ -54,6 +54,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+use \phpseclib\Math\BigInteger;
+
 /**#@+
  * @access private
  * @see Crypt_Hash::Crypt_Hash()
@@ -579,10 +581,6 @@ class Crypt_Hash
      */
     function _sha512($m)
     {
-        if (!class_exists('Math_BigInteger')) {
-            include_once 'Math/BigInteger.php';
-        }
-
         static $init384, $init512, $k;
 
         if (!isset($k)) {
@@ -597,9 +595,9 @@ class Crypt_Hash
             );
 
             for ($i = 0; $i < 8; $i++) {
-                $init384[$i] = new Math_BigInteger($init384[$i], 16);
+                $init384[$i] = new BigInteger($init384[$i], 16);
                 $init384[$i]->setPrecision(64);
-                $init512[$i] = new Math_BigInteger($init512[$i], 16);
+                $init512[$i] = new BigInteger($init512[$i], 16);
                 $init512[$i]->setPrecision(64);
             }
 
@@ -629,7 +627,7 @@ class Crypt_Hash
             );
 
             for ($i = 0; $i < 80; $i++) {
-                $k[$i] = new Math_BigInteger($k[$i], 16);
+                $k[$i] = new BigInteger($k[$i], 16);
             }
         }
 
@@ -648,7 +646,7 @@ class Crypt_Hash
         foreach ($chunks as $chunk) {
             $w = array();
             for ($i = 0; $i < 16; $i++) {
-                $temp = new Math_BigInteger($this->_string_shift($chunk, 8), 256);
+                $temp = new BigInteger($this->_string_shift($chunk, 8), 256);
                 $temp->setPrecision(64);
                 $w[] = $temp;
             }
@@ -802,7 +800,7 @@ class Crypt_Hash
      * Add
      *
      * _sha256() adds multiple unsigned 32-bit integers.  Since PHP doesn't support unsigned integers and since the
-     * possibility of overflow exists, care has to be taken.  Math_BigInteger() could be used but this should be faster.
+     * possibility of overflow exists, care has to be taken.  BigInteger could be used but this should be faster.
      *
      * @param Integer $...
      * @return Integer

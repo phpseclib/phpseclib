@@ -64,6 +64,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+use \phpseclib\Math\BigInteger;
+
 /**#@+
  * Encryption Methods
  *
@@ -517,10 +519,6 @@ class Net_SSH1
      */
     function Net_SSH1($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
     {
-        if (!class_exists('Math_BigInteger')) {
-            include_once 'Math/BigInteger.php';
-        }
-
         // Include Crypt_Random
         // the class_exists() will only be called if the crypt_random_string function hasn't been defined and
         // will trigger a call to __autoload() if you're wanting to auto-load classes
@@ -600,21 +598,21 @@ class Net_SSH1
         $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4);
 
         $temp = unpack('nlen', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 2));
-        $server_key_public_exponent = new Math_BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
+        $server_key_public_exponent = new BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
         $this->server_key_public_exponent = $server_key_public_exponent;
 
         $temp = unpack('nlen', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 2));
-        $server_key_public_modulus = new Math_BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
+        $server_key_public_modulus = new BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
         $this->server_key_public_modulus = $server_key_public_modulus;
 
         $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4);
 
         $temp = unpack('nlen', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 2));
-        $host_key_public_exponent = new Math_BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
+        $host_key_public_exponent = new BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
         $this->host_key_public_exponent = $host_key_public_exponent;
 
         $temp = unpack('nlen', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 2));
-        $host_key_public_modulus = new Math_BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
+        $host_key_public_modulus = new BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
         $this->host_key_public_modulus = $host_key_public_modulus;
 
         $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4);
@@ -1377,7 +1375,7 @@ class Net_SSH1
         }
         $temp = chr(0) . chr(2) . $random . chr(0) . $m;
 
-        $m = new Math_BigInteger($temp, 256);
+        $m = new BigInteger($temp, 256);
         $m = $m->modPow($key[0], $key[1]);
 
         return $m->toBytes();

@@ -39,6 +39,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+use \phpseclib\Math\BigInteger;
+
 /**#@+
  * Tag Classes
  *
@@ -241,22 +243,6 @@ class File_ASN1
     );
 
     /**
-     * Default Constructor.
-     *
-     * @access public
-     */
-    function File_ASN1()
-    {
-        static $static_init = null;
-        if (!$static_init) {
-            $static_init = true;
-            if (!class_exists('Math_BigInteger')) {
-                include_once 'Math/BigInteger.php';
-            }
-        }
-    }
-
-    /**
      * Parse BER-encoding
      *
      * Serves a similar purpose to openssl's asn1parse
@@ -377,7 +363,7 @@ class File_ASN1
                     break;
                 case FILE_ASN1_TYPE_INTEGER:
                 case FILE_ASN1_TYPE_ENUMERATED:
-                    $current['content'] = new Math_BigInteger($content, -256);
+                    $current['content'] = new BigInteger($content, -256);
                     break;
                 case FILE_ASN1_TYPE_REAL: // not currently supported
                     return false;
@@ -773,7 +759,7 @@ class File_ASN1
             case FILE_ASN1_TYPE_ENUMERATED:
                 $temp = $decoded['content'];
                 if (isset($mapping['implicit'])) {
-                    $temp = new Math_BigInteger($decoded['content'], -256);
+                    $temp = new BigInteger($decoded['content'], -256);
                 }
                 if (isset($mapping['mapping'])) {
                     $temp = (int) $temp->toString();
@@ -951,7 +937,7 @@ class File_ASN1
             case FILE_ASN1_TYPE_ENUMERATED:
                 if (!isset($mapping['mapping'])) {
                     if (is_numeric($source)) {
-                        $source = new Math_BigInteger($source);
+                        $source = new BigInteger($source);
                     }
                     $value = $source->toBytes(true);
                 } else {
@@ -959,7 +945,7 @@ class File_ASN1
                     if ($value === false) {
                         return false;
                     }
-                    $value = new Math_BigInteger($value);
+                    $value = new BigInteger($value);
                     $value = $value->toBytes(true);
                 }
                 if (!strlen($value)) {
@@ -1044,7 +1030,7 @@ class File_ASN1
                     case !isset($source):
                         return $this->_encode_der(null, array('type' => FILE_ASN1_TYPE_NULL) + $mapping, null, $special);
                     case is_int($source):
-                    case is_object($source) && strtolower(get_class($source)) == 'math_biginteger':
+                    case is_object($source) && strtolower(get_class($source)) == 'math_biginteger': // TODO
                         return $this->_encode_der($source, array('type' => FILE_ASN1_TYPE_INTEGER) + $mapping, null, $special);
                     case is_float($source):
                         return $this->_encode_der($source, array('type' => FILE_ASN1_TYPE_REAL) + $mapping, null, $special);
