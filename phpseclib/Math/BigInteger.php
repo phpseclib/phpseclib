@@ -11,7 +11,7 @@
  * {@internal (all DocBlock comments regarding implementation - such as the one that follows - refer to the
  * {@link MATH_BIGINTEGER_MODE_INTERNAL MATH_BIGINTEGER_MODE_INTERNAL} mode)
  *
- * Math_BigInteger uses base-2**26 to perform operations such as multiplication and division and
+ * BigInteger uses base-2**26 to perform operations such as multiplication and division and
  * base-2**52 (ie. two base 2**26 digits) to perform addition and subtraction.  Because the largest possible
  * value when multiplying two base-2**26 numbers together is a base-2**52 number, double precision floating
  * point numbers - numbers that should be supported on most hardware and whose significand is 53 bits - are
@@ -72,27 +72,27 @@ namespace phpseclib\Math;
  * Reduction constants
  *
  * @access private
- * @see Math_BigInteger::_reduce()
+ * @see BigInteger::_reduce()
  */
 /**
- * @see Math_BigInteger::_montgomery()
- * @see Math_BigInteger::_prepMontgomery()
+ * @see BigInteger::_montgomery()
+ * @see BigInteger::_prepMontgomery()
  */
 define('MATH_BIGINTEGER_MONTGOMERY', 0);
 /**
- * @see Math_BigInteger::_barrett()
+ * @see BigInteger::_barrett()
  */
 define('MATH_BIGINTEGER_BARRETT', 1);
 /**
- * @see Math_BigInteger::_mod2()
+ * @see BigInteger::_mod2()
  */
 define('MATH_BIGINTEGER_POWEROF2', 2);
 /**
- * @see Math_BigInteger::_remainder()
+ * @see BigInteger::_remainder()
  */
 define('MATH_BIGINTEGER_CLASSIC', 3);
 /**
- * @see Math_BigInteger::__clone()
+ * @see BigInteger::__clone()
  */
 define('MATH_BIGINTEGER_NONE', 4);
 /**#@-*/
@@ -117,8 +117,8 @@ define('MATH_BIGINTEGER_SIGN', 1);
 
 /**#@+
  * @access private
- * @see Math_BigInteger::_montgomery()
- * @see Math_BigInteger::_barrett()
+ * @see BigInteger::_montgomery()
+ * @see BigInteger::_barrett()
  */
 /**
  * Cache constants
@@ -136,7 +136,7 @@ define('MATH_BIGINTEGER_DATA', 1);
  * Mode constants.
  *
  * @access private
- * @see Math_BigInteger::Math_BigInteger()
+ * @see BigInteger::__construct()
  */
 /**
  * To use the pure-PHP implementation
@@ -245,7 +245,7 @@ class BigInteger
      *
      * @param optional $x base-10 number or base-$base number if $base set.
      * @param optional integer $base
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access public
      */
     function __construct($x = 0, $base = 10)
@@ -718,7 +718,7 @@ class BigInteger
      *
      * @access public
      * @see __clone()
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      */
     function copy()
     {
@@ -748,14 +748,14 @@ class BigInteger
     /**
      * __clone() magic method
      *
-     * Although you can call Math_BigInteger::__toString() directly in PHP5, you cannot call Math_BigInteger::__clone()
-     * directly in PHP5.  You can in PHP4 since it's not a magic method, but in PHP5, you have to call it by using the PHP5
-     * only syntax of $y = clone $x.  As such, if you're trying to write an application that works on both PHP4 and PHP5,
-     * call Math_BigInteger::copy(), instead.
+     * Although you can call BigInteger::__toString() directly in PHP5, you cannot call BigInteger::__clone() directly
+     * in PHP5.  You can in PHP4 since it's not a magic method, but in PHP5, you have to call it by using the PHP5
+     * only syntax of $y = clone $x.  As such, if you're trying to write an application that works on both PHP4 and
+     * PHP5, call BigInteger::copy(), instead.
      *
      * @access public
      * @see copy()
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      */
     function __clone()
     {
@@ -765,7 +765,7 @@ class BigInteger
     /**
      *  __sleep() magic method
      *
-     * Will be called, automatically, when serialize() is called on a Math_BigInteger object.
+     * Will be called, automatically, when serialize() is called on a BigInteger object.
      *
      * @see __wakeup()
      * @access public
@@ -787,7 +787,7 @@ class BigInteger
     /**
      *  __wakeup() magic method
      *
-     * Will be called, automatically, when unserialize() is called on a Math_BigInteger object.
+     * Will be called, automatically, when unserialize() is called on a BigInteger object.
      *
      * @see __sleep()
      * @access public
@@ -818,8 +818,8 @@ class BigInteger
      * ?>
      * </code>
      *
-     * @param Math_BigInteger $y
-     * @return Math_BigInteger
+     * @param \phpseclib\Math\BigInteger $y
+     * @return \phpseclib\Math\BigInteger
      * @access public
      * @internal Performs base-2**52 addition
      */
@@ -947,8 +947,8 @@ class BigInteger
      * ?>
      * </code>
      *
-     * @param Math_BigInteger $y
-     * @return Math_BigInteger
+     * @param \phpseclib\Math\BigInteger $y
+     * @return \phpseclib\Math\BigInteger
      * @access public
      * @internal Performs base-2**52 subtraction
      */
@@ -1081,8 +1081,8 @@ class BigInteger
      * ?>
      * </code>
      *
-     * @param Math_BigInteger $x
-     * @return Math_BigInteger
+     * @param \phpseclib\Math\BigInteger $x
+     * @return \phpseclib\Math\BigInteger
      * @access public
      */
     function multiply($x)
@@ -1365,7 +1365,7 @@ class BigInteger
      * ?>
      * </code>
      *
-     * @param Math_BigInteger $y
+     * @param \phpseclib\Math\BigInteger $y
      * @return Array
      * @access public
      * @internal This function is based off of {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=9 HAC 14.20}.
@@ -1581,9 +1581,9 @@ class BigInteger
      * ?>
      * </code>
      *
-     * @param Math_BigInteger $e
-     * @param Math_BigInteger $n
-     * @return Math_BigInteger
+     * @param \phpseclib\Math\BigInteger $e
+     * @param \phpseclib\Math\BigInteger $n
+     * @return \phpseclib\Math\BigInteger
      * @access public
      * @internal The most naive approach to modular exponentiation has very unreasonable requirements, and
      *    and although the approach involving repeated squaring does vastly better, it, too, is impractical
@@ -1743,11 +1743,11 @@ class BigInteger
     /**
      * Performs modular exponentiation.
      *
-     * Alias for Math_BigInteger::modPow()
+     * Alias for modPow().
      *
-     * @param Math_BigInteger $e
-     * @param Math_BigInteger $n
-     * @return Math_BigInteger
+     * @param \phpseclib\Math\BigInteger $e
+     * @param \phpseclib\Math\BigInteger $n
+     * @return \phpseclib\Math\BigInteger
      * @access public
      */
     function powMod($e, $n)
@@ -1763,10 +1763,10 @@ class BigInteger
      * however, this function performs a modular reduction after every multiplication and squaring operation.
      * As such, this function has the same preconditions that the reductions being used do.
      *
-     * @param Math_BigInteger $e
-     * @param Math_BigInteger $n
+     * @param \phpseclib\Math\BigInteger $e
+     * @param \phpseclib\Math\BigInteger $n
      * @param Integer $mode
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access private
      */
     function _slidingWindow($e, $n, $mode)
@@ -1935,8 +1935,8 @@ class BigInteger
      *
      * @see _slidingWindow()
      * @access private
-     * @param Math_BigInteger
-     * @return Math_BigInteger
+     * @param \phpseclib\Math\BigInteger
+     * @return \phpseclib\Math\BigInteger
      */
     function _mod2($n)
     {
@@ -2057,7 +2057,7 @@ class BigInteger
     /**
      * (Regular) Barrett Modular Reduction
      *
-     * For numbers with more than four digits Math_BigInteger::_barrett() is faster.  The difference between that and this
+     * For numbers with more than four digits BigInteger::_barrett() is faster.  The difference between that and this
      * is that this function does not fold the denominator into a smaller form.
      *
      * @see _slidingWindow()
@@ -2388,8 +2388,8 @@ class BigInteger
      * ?>
      * </code>
      *
-     * @param Math_BigInteger $n
-     * @return mixed false, if no modular inverse exists, Math_BigInteger, otherwise.
+     * @param \phpseclib\Math\BigInteger $n
+     * @return mixed false, if no modular inverse exists, \phpseclib\Math\BigInteger, otherwise.
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=21 HAC 14.64} for more information.
      */
@@ -2450,8 +2450,8 @@ class BigInteger
      * ?>
      * </code>
      *
-     * @param Math_BigInteger $n
-     * @return Math_BigInteger
+     * @param \phpseclib\Math\BigInteger $n
+     * @return \phpseclib\Math\BigInteger
      * @access public
      * @internal Calculates the GCD using the binary xGCD algorithim described in
      *    {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=19 HAC 14.61}.  As the text above 14.61 notes,
@@ -2582,8 +2582,8 @@ class BigInteger
      * ?>
      * </code>
      *
-     * @param Math_BigInteger $n
-     * @return Math_BigInteger
+     * @param \phpseclib\Math\BigInteger $n
+     * @return \phpseclib\Math\BigInteger
      * @access public
      */
     function gcd($n)
@@ -2595,7 +2595,7 @@ class BigInteger
     /**
      * Absolute value.
      *
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access public
      */
     function abs()
@@ -2628,7 +2628,7 @@ class BigInteger
      *
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
-     * @param Math_BigInteger $y
+     * @param \phpseclib\Math\BigInteger $y
      * @return Integer < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
      * @see equals()
@@ -2685,9 +2685,9 @@ class BigInteger
     /**
      * Tests the equality of two numbers.
      *
-     * If you need to see if one number is greater than or less than another number, use Math_BigInteger::compare()
+     * If you need to see if one number is greater than or less than another number, use BigInteger::compare()
      *
-     * @param Math_BigInteger $x
+     * @param \phpseclib\Math\BigInteger $x
      * @return Boolean
      * @access public
      * @see compare()
@@ -2727,10 +2727,10 @@ class BigInteger
     /**
      * Logical And
      *
-     * @param Math_BigInteger $x
+     * @param \phpseclib\Math\BigInteger $x
      * @access public
      * @internal Implemented per a request by Lluis Pamies i Juarez <lluis _a_ pamies.cat>
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      */
     function bitwise_and($x)
     {
@@ -2768,10 +2768,10 @@ class BigInteger
     /**
      * Logical Or
      *
-     * @param Math_BigInteger $x
+     * @param \phpseclib\Math\BigInteger $x
      * @access public
      * @internal Implemented per a request by Lluis Pamies i Juarez <lluis _a_ pamies.cat>
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      */
     function bitwise_or($x)
     {
@@ -2808,10 +2808,10 @@ class BigInteger
     /**
      * Logical Exclusive-Or
      *
-     * @param Math_BigInteger $x
+     * @param \phpseclib\Math\BigInteger $x
      * @access public
      * @internal Implemented per a request by Lluis Pamies i Juarez <lluis _a_ pamies.cat>
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      */
     function bitwise_xor($x)
     {
@@ -2850,7 +2850,7 @@ class BigInteger
      *
      * @access public
      * @internal Implemented per a request by Lluis Pamies i Juarez <lluis _a_ pamies.cat>
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      */
     function bitwise_not()
     {
@@ -2887,7 +2887,7 @@ class BigInteger
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
      * @param Integer $shift
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access public
      * @internal The only version that yields any speed increases is the internal version.
      */
@@ -2925,7 +2925,7 @@ class BigInteger
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      *
      * @param Integer $shift
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access public
      * @internal The only version that yields any speed increases is the internal version.
      */
@@ -2963,7 +2963,7 @@ class BigInteger
      * Instead of the top x bits being dropped they're appended to the shifted bit string.
      *
      * @param Integer $shift
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access public
      */
     function bitwise_leftRotate($shift)
@@ -3007,7 +3007,7 @@ class BigInteger
      * Instead of the bottom x bits being dropped they're prepended to the shifted bit string.
      *
      * @param Integer $shift
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access public
      */
     function bitwise_rightRotate($shift)
@@ -3021,7 +3021,7 @@ class BigInteger
      * Byte length is equal to $length. Uses crypt_random if it's loaded and mt_rand if it's not.
      *
      * @param Integer $length
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access private
      */
     function _random_number_helper($size)
@@ -3050,7 +3050,7 @@ class BigInteger
      *
      * @param optional Integer $min
      * @param optional Integer $max
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access public
      */
     function random($min = false, $max = false)
@@ -3126,7 +3126,7 @@ class BigInteger
      * @param optional Integer $min
      * @param optional Integer $max
      * @param optional Integer $timeout
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
      */
@@ -3246,7 +3246,7 @@ class BigInteger
      * Checks a numer to see if it's prime
      *
      * Assuming the $t parameter is not set, this function has an error rate of 2**-80.  The main motivation for the
-     * $t parameter is distributability.  Math_BigInteger::randomPrime() can be distributed across multiple pageloads
+     * $t parameter is distributability.  BigInteger::randomPrime() can be distributed across multiple pageloads
      * on a website instead of just one.
      *
      * @param optional Integer $t
@@ -3470,8 +3470,8 @@ class BigInteger
      *
      * Removes leading zeros and truncates (if necessary) to maintain the appropriate precision
      *
-     * @param Math_BigInteger
-     * @return Math_BigInteger
+     * @param \phpseclib\Math\BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @see _trim()
      * @access private
      */
@@ -3521,7 +3521,7 @@ class BigInteger
      * Removes leading zeros
      *
      * @param Array $value
-     * @return Math_BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access private
      */
     function _trim($value)
