@@ -20,7 +20,7 @@
  * base is being used should more than compensate.
  *
  * Numbers are stored in {@link http://en.wikipedia.org/wiki/Endianness little endian} format.  ie.
- * (new Math_BigInteger(pow(2, 26)))->value = array(0, 1)
+ * (new \phpseclib\Math\BigInteger(pow(2, 26)))->value = array(0, 1)
  *
  * Useful resources are as follows:
  *
@@ -31,8 +31,8 @@
  * Here's an example of how to use this library:
  * <code>
  * <?php
- *    $a = new Math_BigInteger(2);
- *    $b = new Math_BigInteger(3);
+ *    $a = new \phpseclib\Math\BigInteger(2);
+ *    $b = new \phpseclib\Math\BigInteger(3);
  *
  *    $c = $a->add($b);
  *
@@ -237,7 +237,7 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger('0x32', 16); // 50 in base-16
+     *    $a = new \phpseclib\Math\BigInteger('0x32', 16); // 50 in base-16
      *
      *    echo $a->toString(); // outputs 50
      * ?>
@@ -503,7 +503,7 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger('65');
+     *    $a = new \phpseclib\Math\BigInteger('65');
      *
      *    echo $a->toBytes(); // outputs chr(65)
      * ?>
@@ -598,7 +598,7 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger('65');
+     *    $a = new \phpseclib\Math\BigInteger('65');
      *
      *    echo $a->toHex(); // outputs '41'
      * ?>
@@ -623,7 +623,7 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger('65');
+     *    $a = new \phpseclib\Math\BigInteger('65');
      *
      *    echo $a->toBits(); // outputs '1000001'
      * ?>
@@ -659,7 +659,7 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger('50');
+     *    $a = new \phpseclib\Math\BigInteger('50');
      *
      *    echo $a->toString(); // outputs 50
      * ?>
@@ -809,8 +809,8 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger('10');
-     *    $b = new Math_BigInteger('20');
+     *    $a = new \phpseclib\Math\BigInteger('10');
+     *    $b = new \phpseclib\Math\BigInteger('20');
      *
      *    $c = $a->add($b);
      *
@@ -938,8 +938,8 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger('10');
-     *    $b = new Math_BigInteger('20');
+     *    $a = new \phpseclib\Math\BigInteger('10');
+     *    $b = new \phpseclib\Math\BigInteger('20');
      *
      *    $c = $a->subtract($b);
      *
@@ -1072,8 +1072,8 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger('10');
-     *    $b = new Math_BigInteger('20');
+     *    $a = new \phpseclib\Math\BigInteger('10');
+     *    $b = new \phpseclib\Math\BigInteger('20');
      *
      *    $c = $a->multiply($b);
      *
@@ -1354,8 +1354,8 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger('10');
-     *    $b = new Math_BigInteger('20');
+     *    $a = new \phpseclib\Math\BigInteger('10');
+     *    $b = new \phpseclib\Math\BigInteger('20');
      *
      *    list($quotient, $remainder) = $a->divide($b);
      *
@@ -1571,9 +1571,9 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger('10');
-     *    $b = new Math_BigInteger('20');
-     *    $c = new Math_BigInteger('30');
+     *    $a = new \phpseclib\Math\BigInteger('10');
+     *    $b = new \phpseclib\Math\BigInteger('20');
+     *    $c = new \phpseclib\Math\BigInteger('30');
      *
      *    $c = $a->modPow($b, $c);
      *
@@ -2374,8 +2374,8 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger(30);
-     *    $b = new Math_BigInteger(17);
+     *    $a = new \phpseclib\Math\BigInteger(30);
+     *    $b = new \phpseclib\Math\BigInteger(17);
      *
      *    $c = $a->modInverse($b);
      *    echo $c->toString(); // outputs 4
@@ -2440,8 +2440,8 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger(693);
-     *    $b = new Math_BigInteger(609);
+     *    $a = new \phpseclib\Math\BigInteger(693);
+     *    $b = new \phpseclib\Math\BigInteger(609);
      *
      *    extract($a->extendedGCD($b));
      *
@@ -2573,8 +2573,8 @@ class BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new Math_BigInteger(693);
-     *    $b = new Math_BigInteger(609);
+     *    $a = new \phpseclib\Math\BigInteger(693);
+     *    $b = new \phpseclib\Math\BigInteger(609);
      *
      *    $gcd = a->extendedGCD($b);
      *
