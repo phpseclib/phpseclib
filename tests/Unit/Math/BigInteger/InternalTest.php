@@ -17,8 +17,8 @@ class Math_BigInteger_InternalTest extends Unit_Math_BigInteger_TestCase
 
     public function testInternalRepresentation()
     {
-        $x = new Math_BigInteger('FFFFFFFFFFFFFFFFC90FDA', 16);
-        $y = new Math_BigInteger("$x");
+        $x = new \phpseclib\Math\BigInteger('FFFFFFFFFFFFFFFFC90FDA', 16);
+        $y = new \phpseclib\Math\BigInteger("$x");
         $this->assertSame($x->value, $y->value);
     }
 }

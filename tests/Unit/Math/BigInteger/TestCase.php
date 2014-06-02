@@ -18,7 +18,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 
     public function getInstance($x = 0, $base = 10)
     {
-        return new Math_BigInteger($x, $base);
+        return new \phpseclib\Math\BigInteger($x, $base);
     }
 
     public function testConstructorBase2()
