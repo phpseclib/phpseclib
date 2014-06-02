@@ -6,7 +6,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
+class Phpseclib_Test_Functional_Net_SSH2Test extends Phpseclib_Test_Framework_FunctionalTestCase
 {
     public function setUp()
     {
