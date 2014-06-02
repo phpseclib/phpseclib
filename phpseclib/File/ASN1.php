@@ -1030,7 +1030,7 @@ class File_ASN1
                     case !isset($source):
                         return $this->_encode_der(null, array('type' => FILE_ASN1_TYPE_NULL) + $mapping, null, $special);
                     case is_int($source):
-                    case is_object($source) && strtolower(get_class($source)) == 'math_biginteger': // TODO
+                    case $source instanceof \phpseclib\Math\BigInteger:
                         return $this->_encode_der($source, array('type' => FILE_ASN1_TYPE_INTEGER) + $mapping, null, $special);
                     case is_float($source):
                         return $this->_encode_der($source, array('type' => FILE_ASN1_TYPE_REAL) + $mapping, null, $special);
