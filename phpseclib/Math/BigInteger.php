@@ -68,6 +68,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+namespace phpseclib\Math;
+
 /**#@+
  * Reduction constants
  *
@@ -173,7 +175,7 @@ define('MATH_BIGINTEGER_KARATSUBA_CUTOFF', 25);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Math_BigInteger
+class BigInteger
 {
     /**
      * Holds the BigInteger's value.
