@@ -8,7 +8,7 @@
  * Here are some examples of how to use this library:
  * <code>
  * <?php
- *    include('Net/SSH2.php');
+ *    include 'Net/SSH2.php';
  *
  *    $ssh = new Net_SSH2('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
@@ -22,8 +22,8 @@
  *
  * <code>
  * <?php
- *    include('Crypt/RSA.php');
- *    include('Net/SSH2.php');
+ *    include 'Crypt/RSA.php';
+ *    include 'Net/SSH2.php';
  *
  *    $key = new Crypt_RSA();
  *    //$key->setPassword('whatever');

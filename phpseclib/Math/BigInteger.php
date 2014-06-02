@@ -31,7 +31,7 @@
  * Here's an example of how to use this library:
  * <code>
  * <?php
- *    include('Math/BigInteger.php');
+ *    include 'Math/BigInteger.php';
  *
  *    $a = new Math_BigInteger(2);
  *    $b = new Math_BigInteger(3);
@@ -237,7 +237,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger('0x32', 16); // 50 in base-16
      *
@@ -505,7 +505,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger('65');
      *
@@ -602,7 +602,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger('65');
      *
@@ -629,7 +629,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger('65');
      *
@@ -667,7 +667,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger('50');
      *
@@ -819,7 +819,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger('10');
      *    $b = new Math_BigInteger('20');
@@ -950,7 +950,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger('10');
      *    $b = new Math_BigInteger('20');
@@ -1086,7 +1086,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger('10');
      *    $b = new Math_BigInteger('20');
@@ -1370,7 +1370,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger('10');
      *    $b = new Math_BigInteger('20');
@@ -1589,7 +1589,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger('10');
      *    $b = new Math_BigInteger('20');
@@ -2394,7 +2394,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger(30);
      *    $b = new Math_BigInteger(17);
@@ -2462,7 +2462,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger(693);
      *    $b = new Math_BigInteger(609);
@@ -2597,7 +2597,7 @@ class Math_BigInteger
      * Here's an example:
      * <code>
      * <?php
-     *    include('Math/BigInteger.php');
+     *    include 'Math/BigInteger.php';
      *
      *    $a = new Math_BigInteger(693);
      *    $b = new Math_BigInteger(609);

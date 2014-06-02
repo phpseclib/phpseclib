@@ -18,7 +18,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/RC4.php');
+ *    include 'Crypt/RC4.php';
  *
  *    $rc4 = new Crypt_RC4();
  *

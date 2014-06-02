@@ -8,7 +8,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/Random.php');
+ *    include 'Crypt/Random.php';
  *
  *    echo bin2hex(crypt_random_string(8));
  * ?>
