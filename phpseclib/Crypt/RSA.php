@@ -8,7 +8,7 @@
  * Here's an example of how to encrypt and decrypt text with this library:
  * <code>
  * <?php
- *    include('Crypt/RSA.php');
+ *    include 'Crypt/RSA.php';
  *
  *    $rsa = new Crypt_RSA();
  *    extract($rsa->createKey());
@@ -26,7 +26,7 @@
  * Here's an example of how to create signatures and verify signatures with this library:
  * <code>
  * <?php
- *    include('Crypt/RSA.php');
+ *    include 'Crypt/RSA.php';
  *
  *    $rsa = new Crypt_RSA();
  *    extract($rsa->createKey());

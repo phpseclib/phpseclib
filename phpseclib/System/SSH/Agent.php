@@ -7,8 +7,8 @@
  * Here are some examples of how to use this library:
  * <code>
  * <?php
- *    include('System/SSH/Agent.php');
- *    include('Net/SSH2.php');
+ *    include 'System/SSH/Agent.php';
+ *    include 'Net/SSH2.php';
  *
  *    $agent = new System_SSH_Agent();
  *

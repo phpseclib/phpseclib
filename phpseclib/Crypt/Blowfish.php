@@ -14,7 +14,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/Blowfish.php');
+ *    include 'Crypt/Blowfish.php';
  *
  *    $blowfish = new Crypt_Blowfish();
  *
