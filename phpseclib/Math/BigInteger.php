@@ -250,7 +250,7 @@ class Math_BigInteger
      * @return Math_BigInteger
      * @access public
      */
-    function Math_BigInteger($x = 0, $base = 10)
+    function __construct($x = 0, $base = 10)
     {
         if ( !defined('MATH_BIGINTEGER_MODE') ) {
             switch (true) {
