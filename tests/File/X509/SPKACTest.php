@@ -36,11 +36,11 @@ class File_X509_SPKACTest extends PhpseclibTestCase
 
     public function testSaveSPKAC()
     {
-        $privKey = new Crypt_RSA(); 
-        extract($privKey->createKey()); 
+        $privKey = new Crypt_RSA();
+        extract($privKey->createKey());
         $privKey->loadKey($privatekey);
 
-        $x509 = new File_X509(); 
+        $x509 = new File_X509();
         $x509->setPrivateKey($privKey);
         $x509->setChallenge('...');
 
@@ -50,7 +50,7 @@ class File_X509_SPKACTest extends PhpseclibTestCase
         $this->assertInternalType('string', $x509->saveSPKAC($spkac));
 
         $x509 = new File_X509();
-        $x509->setPrivateKey($privKey); 
+        $x509->setPrivateKey($privKey);
 
         $spkac = $x509->signSPKAC();
         $this->assertInternalType('array', $spkac);
