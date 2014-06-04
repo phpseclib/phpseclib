@@ -809,16 +809,12 @@ class Net_SFTP extends Net_SSH2
     /**
      * Reads a list, be it detailed or not, of files in the given directory
      *
-     * $realpath exists because, in the case of the recursive deletes and recursive chmod's $realpath has already
-     * been calculated.
-     *
      * @param String $dir
      * @param optional Boolean $raw
-     * @param optional Boolean $realpath
      * @return Mixed
      * @access private
      */
-    function _list($dir, $raw = true, $realpath = true)
+    function _list($dir, $raw = true)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
