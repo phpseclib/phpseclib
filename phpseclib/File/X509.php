@@ -305,10 +305,6 @@ class File_X509
      */
     function File_X509()
     {
-        if (!class_exists('Math_BigInteger')) {
-            include_once 'Math/BigInteger.php';
-        }
-
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1
 
@@ -971,7 +967,7 @@ class File_X509
                                  'constant' => 0,
                                  'optional' => true,
                                  'implicit' => true,
-                                 'default' => new Math_BigInteger(0)
+                                 'default' => new BigInteger(0)
                              ) + $BaseDistance,
                 'maximum' => array(
                                  'constant' => 1,
@@ -3197,7 +3193,7 @@ class File_X509
 
             $startDate = !empty($this->startDate) ? $this->startDate : @date('D, d M Y H:i:s O');
             $endDate = !empty($this->endDate) ? $this->endDate : @date('D, d M Y H:i:s O', strtotime('+1 year'));
-            $serialNumber = !empty($this->serialNumber) ? $this->serialNumber : new Math_BigInteger();
+            $serialNumber = !empty($this->serialNumber) ? $this->serialNumber : new BigInteger();
 
             $this->currentCert = array(
                 'tbsCertificate' =>
@@ -3421,7 +3417,7 @@ class File_X509
             $crlNumber = $this->serialNumber;
         } else {
             $crlNumber = $this->getExtension('id-ce-cRLNumber');
-            $crlNumber = $crlNumber !== false ? $crlNumber->add(new Math_BigInteger(1)) : null;
+            $crlNumber = $crlNumber !== false ? $crlNumber->add(new BigInteger(1)) : null;
         }
 
         $this->removeExtension('id-ce-authorityKeyIdentifier');
@@ -3572,7 +3568,7 @@ class File_X509
      */
     function setSerialNumber($serial, $base = -256)
     {
-        $this->serialNumber = new Math_BigInteger($serial, $base);
+        $this->serialNumber = new BigInteger($serial, $base);
     }
 
     /**
@@ -4219,7 +4215,7 @@ class File_X509
      */
     function _revokedCertificate(&$rclist, $serial, $create = false)
     {
-        $serial = new Math_BigInteger($serial);
+        $serial = new BigInteger($serial);
 
         foreach ($rclist as $i => $rc) {
             if (!($serial->compare($rc['userCertificate']))) {

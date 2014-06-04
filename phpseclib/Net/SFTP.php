@@ -2267,7 +2267,7 @@ class Net_SFTP extends Net_SSH2
             switch ($flags & $key) {
                 case NET_SFTP_ATTR_SIZE: // 0x00000001
                     // size is represented by a 64-bit integer, so we perhaps ought to be doing the following:
-                    // $attr['size'] = new Math_BigInteger($this->_string_shift($response, 8), 256);
+                    // $attr['size'] = new \phpseclib\Math\BigInteger($this->_string_shift($response, 8), 256);
                     // of course, you shouldn't be using Net_SFTP to transfer files that are in excess of 4GB
                     // (0xFFFFFFFF bytes), anyway.  as such, we'll just represent all file sizes that are bigger than
                     // 4GB as being 4GB.
