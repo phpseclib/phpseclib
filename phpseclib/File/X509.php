@@ -3041,8 +3041,9 @@ class File_X509
             return false;
         }
 
+        $algorithm = $this->_subArray($spkac, 'publicKeyAndChallenge/spki/algorithm/algorithm');
         switch (true) {
-            case !($algorithm = $this->_subArray($spkac, 'publicKeyAndChallenge/spki/algorithm/algorithm')):
+            case !$algorithm:
             case is_object($spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']);
                 break;
             default:
@@ -3450,7 +3451,8 @@ class File_X509
         $this->publicKey = new $class();
         $this->publicKey->loadKey($this->privateKey->getPublicKey());
         $this->publicKey->setPublicKey();
-        if (!($publicKey = $this->_formatSubjectPublicKey())) {
+        $publicKey = $this->_formatSubjectPublicKey();
+        if (!$publicKey) {
             return false;
         }
         $this->publicKey = $origPublicKey;
