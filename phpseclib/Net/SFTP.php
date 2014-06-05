@@ -263,6 +263,16 @@ class Net_SFTP extends Net_SSH2
     var $use_stat_cache = true;
 
     /**
+     * Sort Options
+     *
+     * @see Net_SFTP::_comparator()
+     * @see Net_SFTP::setListOrder()
+     * @var Array
+     * @access private
+     */
+    var $sortOptions = array();
+
+    /**
      * Default Constructor.
      *
      * Connects to an SFTP server
