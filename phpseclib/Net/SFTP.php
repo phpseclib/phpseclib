@@ -983,7 +983,7 @@ class Net_SFTP extends Net_SSH2
                     if ($a[$sort] === $b[$sort]) {
                         break;
                     }
-                    return $order === SORT_ASC ? $a[$sort] - $b[$sort] : $b[$sort] - $a[$sort];                
+                    return $order === SORT_ASC ? $a[$sort] - $b[$sort] : $b[$sort] - $a[$sort];
             }
         }
     }
