@@ -24,4 +24,5 @@ fi
   $PHPUNIT_EXTRA_ARGS \
   --verbose \
   --coverage-text \
+  --coverage-clover code_coverage/clover.xml \
   --coverage-html code_coverage/

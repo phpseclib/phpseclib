@@ -14,7 +14,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/Twofish.php');
+ *    include 'Crypt/Twofish.php';
  *
  *    $twofish = new Crypt_Twofish();
  *

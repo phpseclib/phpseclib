@@ -6,7 +6,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Net_SSH2Test extends PhpseclibTestCase
+class Unit_Net_SSH2Test extends PhpseclibTestCase
 {
     public function formatLogDataProvider()
     {
@@ -36,38 +36,27 @@ class Net_SSH2Test extends PhpseclibTestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function generateIdentifierProvider()
+    public function testGenerateIdentifier()
     {
-        return array(
-            array('SSH-2.0-phpseclib_0.3', array()),
-            array('SSH-2.0-phpseclib_0.3 (gmp)', array('gmp')),
-            array('SSH-2.0-phpseclib_0.3 (bcmath)', array('bcmath')),
-            array('SSH-2.0-phpseclib_0.3 (mcrypt)', array('mcrypt')),
-            array('SSH-2.0-phpseclib_0.3 (mcrypt, gmp)', array('mcrypt', 'gmp')),
-            array('SSH-2.0-phpseclib_0.3 (mcrypt, bcmath)', array('mcrypt', 'bcmath')),
-        );
-    }
+        $identifier = $this->createSSHMock()->_generate_identifier();
+        $this->assertStringStartsWith('SSH-2.0-phpseclib_0.3', $identifier);
 
-    /**
-     * @dataProvider generateIdentifierProvider
-     */
-    public function testGenerateIdentifier($expected, array $requiredExtensions)
-    {
-        $notAllowed = array('gmp', 'bcmath', 'mcrypt', 'gmp');
-        foreach ($notAllowed as $notAllowedExtension) {
-            if (in_array($notAllowedExtension, $requiredExtensions)) {
-                continue;
-            }
-
-            if (extension_loaded($notAllowedExtension)) {
-                $this->markTestSkipped('Extension ' . $notAllowedExtension . ' is not allowed for this data-set');
-            }
+        if (extension_loaded('mcrypt')) {
+            $this->assertContains('mcrypt', $identifier);
+        } else {
+            $this->assertNotContains('mcrypt', $identifier);
         }
 
-        $ssh = $this->createSSHMock();
-        $identifier = $ssh->_generate_identifier();
-
-        $this->assertEquals($expected, $identifier);
+        if (extension_loaded('gmp')) {
+            $this->assertContains('gmp', $identifier);
+            $this->assertNotContains('bcmath', $identifier);
+        } else if (extension_loaded('bcmath')) {
+            $this->assertNotContains('gmp', $identifier);
+            $this->assertContains('bcmath', $identifier);
+        } else {
+            $this->assertNotContains('gmp', $identifier);
+            $this->assertNotContains('bcmath', $identifier);
+        }
     }
 
     public function testGetExitStatusIfNotConnected()

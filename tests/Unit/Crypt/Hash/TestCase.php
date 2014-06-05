@@ -7,7 +7,7 @@
 
 require_once 'Crypt/Hash.php';
 
-abstract class Crypt_Hash_TestCase extends PhpseclibTestCase
+abstract class Unit_Crypt_Hash_TestCase extends PhpseclibTestCase
 {
     static public function setUpBeforeClass()
     {

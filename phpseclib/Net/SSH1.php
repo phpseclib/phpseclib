@@ -8,7 +8,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Net/SSH1.php');
+ *    include 'Net/SSH1.php';
  *
  *    $ssh = new Net_SSH1('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
@@ -22,7 +22,7 @@
  * Here's another short example:
  * <code>
  * <?php
- *    include('Net/SSH1.php');
+ *    include 'Net/SSH1.php';
  *
  *    $ssh = new Net_SSH1('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
@@ -704,7 +704,7 @@ class Net_SSH1
                 break;
             //case NET_SSH1_CIPHER_RC4:
             //    if (!class_exists('Crypt_RC4')) {
-            //        include_once('Crypt/RC4.php');
+            //        include_once 'Crypt/RC4.php';
             //    }
             //    $this->crypto = new Crypt_RC4();
             //    $this->crypto->enableContinuousBuffer();

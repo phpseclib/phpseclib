@@ -16,7 +16,7 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include('Crypt/DES.php');
+ *    include 'Crypt/DES.php';
  *
  *    $des = new Crypt_DES();
  *
