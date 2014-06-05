@@ -809,16 +809,12 @@ class Net_SFTP extends Net_SSH2
     /**
      * Reads a list, be it detailed or not, of files in the given directory
      *
-     * $realpath exists because, in the case of the recursive deletes and recursive chmod's $realpath has already
-     * been calculated.
-     *
      * @param String $dir
      * @param optional Boolean $raw
-     * @param optional Boolean $realpath
      * @return Mixed
      * @access private
      */
-    function _list($dir, $raw = true, $realpath = true)
+    function _list($dir, $raw = true)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -878,11 +874,7 @@ class Net_SFTP extends Net_SSH2
                                 $attributes['type'] = $fileType;
                             }
                         }
-                        if (!$raw) {
-                            $contents[] = $shortname;
-                        } else {
-                            $contents[$shortname] = $attributes;
-                        }
+                        $contents[$shortname] = $attributes + array('filename' => $shortname);
 
                         if (isset($attributes['type']) && $attributes['type'] == NET_SFTP_TYPE_DIRECTORY && ($shortname != '.' && $shortname != '..')) {
                             $this->_update_stat_cache($dir . '/' . $shortname, array());
@@ -915,7 +907,108 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
-        return $contents;
+        if (count($this->sortOptions)) {
+            uasort($contents, array(&$this, '_comparator'));
+        }
+
+        return $raw ? $contents : array_keys($contents);
+    }
+
+    /**
+     * Compares two rawlist entries using parameters set by setListOrder()
+     *
+     * Intended for use with uasort()
+     *
+     * @param Array $a
+     * @param Array $b
+     * @return Integer
+     * @access private
+     */
+    function _comparator($a, $b)
+    {
+        switch (true) {
+            case $a['filename'] === '.' || $b['filename'] === '.':
+                if ($a['filename'] === $b['filename']) {
+                    return 0;
+                }
+                return $a['filename'] === '.' ? -1 : 1;
+            case $a['filename'] === '..' || $b['filename'] === '..':
+                if ($a['filename'] === $b['filename']) {
+                    return 0;
+                }
+                return $a['filename'] === '..' ? -1 : 1;
+            case isset($a['type']) && $a['type'] === NET_SFTP_TYPE_DIRECTORY:
+                if (!isset($b['type'])) {
+                    return 1;
+                }
+                if ($b['type'] !== $a['type']) {
+                    return -1;
+                }
+                break;
+            case isset($b['type']) && $b['type'] === NET_SFTP_TYPE_DIRECTORY:
+                return 1;
+        }
+        foreach ($this->sortOptions as $sort => $order) {
+            if (!isset($a[$sort]) || !isset($b[$sort])) {
+                if (isset($a[$sort])) {
+                    return -1;
+                }
+                if (isset($b[$sort])) {
+                    return 1;
+                }
+                return 0;
+            }
+            switch ($sort) {
+                case 'filename':
+                    $result = strcasecmp($a['filename'], $b['filename']);
+                    if ($result) {
+                        return $order === SORT_DESC ? -$result : $result;
+                    }
+                    break;
+                case 'permissions':
+                case 'mode':
+                    $a[$sort]&= 07777;
+                    $b[$sort]&= 07777;
+                default:
+                    if ($a[$sort] === $b[$sort]) {
+                        break;
+                    }
+                    return $order === SORT_ASC ? $a[$sort] - $b[$sort] : $b[$sort] - $a[$sort];                
+            }
+        }
+    }
+
+    /**
+     * Defines how nlist() and rawlist() will be sorted - if at all.
+     *
+     * If sorting is enabled directories and files will be sorted independently with
+     * directories appearing before files in the resultant array that is returned
+     *
+     * Examples:
+     *
+     * $sftp->setListOrder('filename', SORT_ASC);
+     * $sftp->setListOrder('size', SORT_DESC, 'filename', SORT_ASC);
+     * $sftp->setListOrder(true);
+     *    Separates directories from files but doesn't do any sorting beyond that
+     * $sftp->setListOrder();
+     *    Don't do any sort of sorting
+     *
+     * @access public
+     */
+    function setListOrder()
+    {
+        $args = func_get_args();
+        if (empty($args)) {
+            $this->sortOptions = array();
+            return;
+        }
+        $len = count($args) & 0x7FFFFFFE;
+        for ($i = 0; $i < $len; $i+=2) {
+            $this->sortOptions[$args[$i]] = $args[$i + 1];
+        }
+        if (!count($this->sortOptions)) {
+            $this->sortOptions = array('bogus' => true);
+        }
     }
 
     /**

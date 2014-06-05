@@ -298,6 +298,14 @@ class File_X509
     var $caFlag = false;
 
     /**
+     * SPKAC Challenge
+     *
+     * @var String
+     * @access private
+     */
+    var $challenge;
+
+    /**
      * Default Constructor.
      *
      * @return File_X509
@@ -2760,6 +2768,19 @@ class File_X509
     }
 
     /**
+     * Set challenge
+     *
+     * Used for SPKAC CSR's
+     *
+     * @param String $challenge
+     * @access public
+     */
+    function setChallenge($challenge)
+    {
+        $this->challenge = $challenge;
+    }
+
+    /**
      * Gets the public key
      *
      * Returns a Crypt_RSA object or a false.
@@ -2952,7 +2973,8 @@ class File_X509
 
         $asn1 = new File_ASN1();
 
-        $temp = preg_replace('#(?:^[^=]+=)|[\r\n\\\]#', '', $spkac);
+        // OpenSSL produces SPKAC's that are preceeded by the string SPKAC=
+        $temp = preg_replace('#(?:SPKAC=)|[ \r\n\\\]#', '', $spkac);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
         if ($temp != false) {
             $spkac = $temp;
@@ -3002,6 +3024,48 @@ class File_X509
         $this->currentCert = $spkac;
 
         return $spkac;
+    }
+
+    /**
+     * Save a SPKAC CSR request
+     *
+     * @param Array $csr
+     * @param Integer $format optional
+     * @access public
+     * @return String
+     */
+    function saveSPKAC($spkac, $format = FILE_X509_FORMAT_PEM)
+    {
+        if (!is_array($spkac) || !isset($spkac['publicKeyAndChallenge'])) {
+            return false;
+        }
+
+        switch (true) {
+            case !($algorithm = $this->_subArray($spkac, 'publicKeyAndChallenge/spki/algorithm/algorithm')):
+            case is_object($spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']);
+                break;
+            default:
+                switch ($algorithm) {
+                    case 'rsaEncryption':
+                        $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']
+                            = base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey'])));
+                }
+        }
+
+        $asn1 = new File_ASN1();
+
+        $asn1->loadOIDs($this->oids);
+        $spkac = $asn1->encodeDER($spkac, $this->SignedPublicKeyAndChallenge);
+
+        switch ($format) {
+            case FILE_X509_FORMAT_DER:
+                return $spkac;
+            // case FILE_X509_FORMAT_PEM:
+            default:
+                // OpenSSL's implementation of SPKAC requires the SPKAC be preceeded by SPKAC= and since there are pretty much
+                // no other SPKAC decoders phpseclib will use that same format
+                return 'SPKAC=' . base64_encode($spkac);
+        }
     }
 
     /**
@@ -3361,6 +3425,70 @@ class File_X509
 
         $result = $this->_sign($this->privateKey, $signatureAlgorithm);
         $result['certificationRequestInfo'] = $certificationRequestInfo;
+
+        $this->currentCert = $currentCert;
+        $this->signatureSubject = $signatureSubject;
+
+        return $result;
+    }
+
+    /**
+     * Sign a SPKAC
+     *
+     * @access public
+     * @return Mixed
+     */
+    function signSPKAC($signatureAlgorithm = 'sha1WithRSAEncryption')
+    {
+        if (!is_object($this->privateKey)) {
+            return false;
+        }
+
+        $origPublicKey = $this->publicKey;
+        $class = get_class($this->privateKey);
+        $this->publicKey = new $class();
+        $this->publicKey->loadKey($this->privateKey->getPublicKey());
+        $this->publicKey->setPublicKey();
+        if (!($publicKey = $this->_formatSubjectPublicKey())) {
+            return false;
+        }
+        $this->publicKey = $origPublicKey;
+
+        $currentCert = isset($this->currentCert) ? $this->currentCert : null;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: null;
+
+        // re-signing a SPKAC seems silly but since everything else supports re-signing why not?
+        if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['publicKeyAndChallenge'])) {
+            $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
+            $this->currentCert['publicKeyAndChallenge']['spki'] = $publicKey;
+            if (!empty($this->challenge)) {
+                // the bitwise AND ensures that the output is a valid IA5String
+                $this->currentCert['publicKeyAndChallenge']['challenge'] = $this->challenge & str_repeat("\x7F", strlen($this->challenge));
+            }
+        } else {
+            $this->currentCert = array(
+                'publicKeyAndChallenge' =>
+                    array(
+                        'spki' => $publicKey,
+                        // quoting <https://developer.mozilla.org/en-US/docs/Web/HTML/Element/keygen>,
+                        // "A challenge string that is submitted along with the public key. Defaults to an empty string if not specified."
+                        // both Firefox and OpenSSL ("openssl spkac -key private.key") behave this way
+                        // we could alternatively do this instead if we ignored the specs:
+                        // crypt_random_string(8) & str_repeat("\x7F", 8)
+                        'challenge' => !empty($this->challenge) ? $this->challenge : ''
+                    ),
+                'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                'signature'          => false // this is going to be overwritten later
+            );
+        }
+
+        // resync $this->signatureSubject
+        // save $publicKeyAndChallenge in case there are any File_ASN1_Element objects in it
+        $publicKeyAndChallenge = $this->currentCert['publicKeyAndChallenge'];
+        $this->loadSPKAC($this->saveSPKAC($this->currentCert));
+
+        $result = $this->_sign($this->privateKey, $signatureAlgorithm);
+        $result['publicKeyAndChallenge'] = $publicKeyAndChallenge;
 
         $this->currentCert = $currentCert;
         $this->signatureSubject = $signatureSubject;
