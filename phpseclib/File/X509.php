@@ -42,6 +42,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+use \phpseclib\Math\BigInteger;
+
 /**
  * Include File_ASN1
  */
