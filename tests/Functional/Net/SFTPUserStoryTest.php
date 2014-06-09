@@ -317,7 +317,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-    * @depends testFileExistsIsFileIsDirFileNonexistent
+    * @depends testSortOrder
     */
     public function testChDirUpHome($sftp)
     {
