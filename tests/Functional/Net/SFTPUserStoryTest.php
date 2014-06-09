@@ -280,7 +280,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $list = $sftp->nlist();
         $expected = array('.', '..', 'temp', 'file3.txt', 'file2.txt', 'file1.txt');
 
-        $this->assertEquals(
+        $this->assertSame(
             $list,
             $expected,
             'Failed asserting that list sorted correctly.'
@@ -291,7 +291,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $list = $sftp->nlist();
         $expected = array('.', '..', 'temp', 'file1.txt', 'file2.txt', 'file3.txt');
 
-        $this->assertEquals(
+        $this->assertSame(
             $list,
             $expected,
             'Failed asserting that list sorted correctly.'
