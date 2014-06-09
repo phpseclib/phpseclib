@@ -1010,9 +1010,9 @@ class Net_SFTP extends Net_SSH2
      */
     function setListOrder()
     {
+        $this->sortOptions = array();
         $args = func_get_args();
         if (empty($args)) {
-            $this->sortOptions = array();
             return;
         }
         $len = count($args) & 0x7FFFFFFE;

@@ -166,6 +166,48 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     /**
     * @depends testPutSizeGetFile
     */
+    public function testTouch($sftp)
+    {
+        $this->assertTrue(
+            $sftp->touch('file2.txt'),
+            'Failed asserting that touch() successfully ran.'
+        );
+
+        $this->assertTrue(
+            $sftp->file_exists('file2.txt'),
+            'Failed asserting that touch()\'d file exists'
+        );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testPutSizeGetFile
+    */
+    public function testTruncate($sftp)
+    {
+        $this->assertTrue(
+            $sftp->touch('file3.txt'),
+            'Failed asserting that touch() successfully ran.'
+        );
+
+        $this->assertTrue(
+            $sftp->truncate('file3.txt', 1024 * 1024),
+            'Failed asserting that touch() successfully ran.'
+        );
+
+        $this->assertSame(
+            1024 * 1024,
+            $sftp->size('file3.txt'),
+            'Failed asserting that truncate()\'d file has the expected length'
+        );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testTruncate
+    */
     public function testChDirOnFile($sftp)
     {
         $this->assertFalse(
@@ -205,19 +247,71 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testFileExistsIsFileIsDirFileNonexistent($sftp)
     {
         $this->assertFalse(
-            $sftp->file_exists('file2.txt'),
+            $sftp->file_exists('file4.txt'),
             'Failed asserting that a nonexistent file does not exist.'
         );
 
         $this->assertFalse(
-            $sftp->is_file('file2.txt'),
+            $sftp->is_file('file4.txt'),
             'Failed asserting that is_file() on nonexistent file returns false.'
         );
 
         $this->assertFalse(
-            $sftp->is_dir('file2.txt'),
+            $sftp->is_dir('file4.txt'),
             'Failed asserting that is_dir() on nonexistent file returns false.'
         );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testFileExistsIsFileIsDirFileNonexistent
+    */
+    public function testSortOrder($sftp)
+    {
+        $this->assertTrue(
+            $sftp->mkdir('temp'),
+            "Failed asserting that a new scratch directory temp could " .
+            'be created.'
+        );
+
+        $sftp->setListOrder('filename', SORT_DESC);
+
+        $list = $sftp->nlist();
+        $expected = array('.', '..', 'temp', 'file3.txt', 'file2.txt', 'file1.txt');
+
+        $this->assertEquals(
+            $list,
+            $expected,
+            'Failed asserting that list sorted correctly.'
+        );
+
+        $sftp->setListOrder('filename', SORT_ASC);
+
+        $list = $sftp->nlist();
+        $expected = array('.', '..', 'temp', 'file1.txt', 'file2.txt', 'file3.txt');
+
+        $this->assertEquals(
+            $list,
+            $expected,
+            'Failed asserting that list sorted correctly.'
+        );
+
+        $sftp->setListOrder('size', SORT_DESC);
+
+        $files = $sftp->nlist();
+
+        $last_size = 0x7FFFFFFF;
+        foreach ($files as $file) {
+            if ($sftp->is_file($file)) {
+                $cur_size = $sftp->size($file);
+                $this->assertLessThanOrEqual(
+                    $last_size, $cur_size,
+                    'Failed asserting that nlist() is in descending order'
+                );
+                $last_size = $cur_size;
+            }
+        }
 
         return $sftp;
     }
