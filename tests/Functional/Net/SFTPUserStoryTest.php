@@ -182,7 +182,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-    * @depends testPutSizeGetFile
+    * @depends testTouch
     */
     public function testTruncate($sftp)
     {
