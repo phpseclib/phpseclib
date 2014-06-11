@@ -2171,12 +2171,12 @@ class File_X509
         switch ($algorithm) {
             case 'rsaEncryption':
                 return
-                    "-----BEGIN PUBLIC KEY-----\r\n" .
+                    "-----BEGIN RSA PUBLIC KEY-----\r\n" .
                     // subjectPublicKey is stored as a bit string in X.509 certs.  the first byte of a bit string represents how many bits
                     // in the last byte should be ignored.  the following only supports non-zero stuff but as none of the X.509 certs Firefox
                     // uses as a cert authority actually use a non-zero bit I think it's safe to assume that none do.
                     chunk_split(base64_encode(substr(base64_decode($key), 1)), 64) .
-                    '-----END PUBLIC KEY-----';
+                    '-----END RSA PUBLIC KEY-----';
             default:
                 return $key;
         }
