@@ -177,7 +177,7 @@ class Crypt_RC2 extends Crypt_Base
      */
     var $cfb_init_len = 500;
 
-/**
+    /**
      * The key length in bits.
      *
      * @see Crypt_RC2::setKeyLength()
@@ -385,7 +385,7 @@ class Crypt_RC2 extends Crypt_Base
             $t1 = 1024;
         }
         // Key byte count should be 1..128.
-        $key = strlen($key) ? substr($key, 0, 128): "\x00";
+        $key = strlen($key) ? substr($key, 0, 128) : "\x00";
         $t = strlen($key);
 
         // The mcrypt RC2 implementation only supports effective key length
@@ -444,8 +444,8 @@ class Crypt_RC2 extends Crypt_Base
             $r3 = (($r3 + $keys[$j++] + ((($r0 ^ $r1) & $r2) ^ $r0)) & 0xFFFF) << 5;
             $r3 |= $r3 >> 16;
 
-            if ($j == $limit) {
-                if ($limit == 64) {
+            if ($j === $limit) {
+                if ($limit === 64) {
                     break;
                 }
 
@@ -489,8 +489,8 @@ class Crypt_RC2 extends Crypt_Base
             $r0 = ($r0 | ($r0 << 16)) >> 1;
             $r0 = ($r0 - $keys[--$j] - ((($r1 ^ $r2) & $r3) ^ $r1)) & 0xFFFF;
 
-            if ($j == $limit) {
-                if (!$limit) {
+            if ($j === $limit) {
+                if ($limit === 0) {
                     break;
                 }
 
@@ -581,8 +581,8 @@ class Crypt_RC2 extends Crypt_Base
                            ((($r0 ^ $r1) & $r2) ^ $r0)) & 0xFFFF) << 5;
                     $r3 |= $r3 >> 16;';
 
-                if ($j == $limit) {
-                    if ($limit == 64) {
+                if ($j === $limit) {
+                    if ($limit === 64) {
                         break;
                     }
 
@@ -619,8 +619,8 @@ class Crypt_RC2 extends Crypt_Base
                     $r0 = ($r0 - ' . $keys[--$j] . ' -
                            ((($r1 ^ $r2) & $r3) ^ $r1)) & 0xFFFF;';
 
-                if ($j == $limit) {
-                    if (!$limit) {
+                if ($j === $limit) {
+                    if ($limit === 0) {
                         break;
                     }
 
