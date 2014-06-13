@@ -573,7 +573,11 @@ class Crypt_Base
                 $count = isset($func_args[4]) ? $func_args[4] : 1000;
 
                 // Keylength
-                $dkLen = isset($func_args[5]) ? $func_args[5] : $this->password_key_size;
+                if (!isset($func_args[5])) {
+                    $dkLen = $method == 'pbkdf1' ? 2 * $this->password_key_size : $this->password_key_size;
+                } else {
+                    $dkLen = $func_args[5];
+                }
 
                 switch (true) {
                     case $method == 'pbkdf1':
