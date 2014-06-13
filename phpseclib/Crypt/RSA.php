@@ -235,6 +235,7 @@ define('CRYPT_RSA_PUBLIC_FORMAT_RAW', 3);
  *
  * Analogous to ssh-keygen's pem format (as specified by -m)
  */
+define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 4);
 define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1_RAW', 4);
 /**
  * XML formatted public key
@@ -255,11 +256,11 @@ define('CRYPT_RSA_PUBLIC_FORMAT_OPENSSH', 6);
  *
  * -----BEGIN PUBLIC KEY-----
  *
- * Analogous to ssh-keygen's pkcs8 format (as specified by -m)
- * (the applicability of PKCS8 is dubious since PKCS8 is talking about
- *  private keys but whatever)
+ * Analogous to ssh-keygen's pkcs8 format (as specified by -m). Although PKCS8
+ * is specific to private keys it's basically creating a DER-encoded wrapper
+ * for keys. This just extends that same concept to public keys (much like ssh-keygen)
  */
-define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 7);
+define('CRYPT_RSA_PUBLIC_FORMAT_PKCS8', 7);
 /**#@-*/
 
 /**
@@ -301,7 +302,7 @@ class Crypt_RSA
      * @var Integer
      * @access public
      */
-    var $publicKeyFormat = CRYPT_RSA_PUBLIC_FORMAT_PKCS1;
+    var $publicKeyFormat = CRYPT_RSA_PUBLIC_FORMAT_PKCS8;
 
     /**
      * Modulus (ie. n)
@@ -1748,7 +1749,7 @@ class Crypt_RSA
      * @param String $key
      * @param Integer $type optional
      */
-    function getPublicKey($type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
+    function getPublicKey($type = CRYPT_RSA_PUBLIC_FORMAT_PKCS8)
     {
         if (empty($this->modulus) || empty($this->publicExponent)) {
             return false;
@@ -1795,7 +1796,7 @@ class Crypt_RSA
      * @param String $key
      * @param Integer $type optional
      */
-    function _getPrivatePublicKey($mode = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
+    function _getPrivatePublicKey($mode = CRYPT_RSA_PUBLIC_FORMAT_PKCS8)
     {
         if (empty($this->modulus) || empty($this->exponent)) {
             return false;
