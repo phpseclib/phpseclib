@@ -140,19 +140,23 @@ define('CRYPT_RSA_SIGNATURE_PKCS1', 2);
 /**
  * ASN1 Integer
  */
-define('CRYPT_RSA_ASN1_INTEGER',   2);
+define('CRYPT_RSA_ASN1_INTEGER',     2);
 /**
  * ASN1 Bit String
  */
-define('CRYPT_RSA_ASN1_BITSTRING', 3);
+define('CRYPT_RSA_ASN1_BITSTRING',   3);
+/**
+ * ASN1 Octet String
+ */
+define('CRYPT_RSA_ASN1_OCTETSTRING', 4);
 /**
  * ASN1 Object Identifier
  */
-define('CRYPT_RSA_ASN1_OBJECT', 6);
+define('CRYPT_RSA_ASN1_OBJECT',      6);
 /**
  * ASN1 Sequence (with the constucted bit set)
  */
-define('CRYPT_RSA_ASN1_SEQUENCE', 48);
+define('CRYPT_RSA_ASN1_SEQUENCE',   48);
 /**#@-*/
 
 /**#@+
@@ -859,9 +863,43 @@ class Crypt_RSA
                     $RSAPrivateKey = pack('Ca*a*Ca*a*',
                                           CRYPT_RSA_ASN1_INTEGER, "\01\00", $rsaOID, 4, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
                     $RSAPrivateKey = pack('Ca*a*', CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
-                    $RSAPrivateKey = "-----BEGIN PRIVATE KEY-----\r\n" .
-                                     chunk_split(base64_encode($RSAPrivateKey), 64) .
-                                     '-----END PRIVATE KEY-----';
+                    if (!empty($this->password) || is_string($this->password)) {
+                        $salt = crypt_random_string(8);
+                        $iterationCount = 2048;
+
+                        if (!class_exists('Crypt_DES')) {
+                            include_once 'Crypt/DES.php';
+                        }
+                        $crypto = new Crypt_DES();
+                        $crypto->setPassword($this->password, 'pbkdf1', 'md5', $salt, $iterationCount);
+                        $RSAPrivateKey = $crypto->encrypt($RSAPrivateKey);
+
+                        $parameters = pack('Ca*a*Ca*N',
+                            CRYPT_RSA_ASN1_OCTETSTRING, $this->_encodeLength(strlen($salt)), $salt,
+                            CRYPT_RSA_ASN1_INTEGER, $this->_encodeLength(4), $iterationCount
+                        );
+                        $pbeWithMD5AndDES_CBC = "\x2a\x86\x48\x86\xf7\x0d\x01\x05\x03";
+
+                        $encryptionAlgorithm = pack('Ca*a*Ca*a*',
+                            CRYPT_RSA_ASN1_OBJECT, $this->_encodeLength(strlen($pbeWithMD5AndDES_CBC)), $pbeWithMD5AndDES_CBC,
+                            CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($parameters)), $parameters
+                        );
+
+                        $RSAPrivateKey = pack('Ca*a*Ca*a*',
+                            CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($encryptionAlgorithm)), $encryptionAlgorithm,
+                            CRYPT_RSA_ASN1_OCTETSTRING, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey
+                        );
+
+                        $RSAPrivateKey = pack('Ca*a*', CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
+
+                        $RSAPrivateKey = "-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n" .
+                                         chunk_split(base64_encode($RSAPrivateKey), 64) .
+                                         '-----END ENCRYPTED PRIVATE KEY-----';
+                    } else {
+                        $RSAPrivateKey = "-----BEGIN PRIVATE KEY-----\r\n" .
+                                         chunk_split(base64_encode($RSAPrivateKey), 64) .
+                                         '-----END PRIVATE KEY-----';
+                    }
                     return $RSAPrivateKey;
                 }
 
@@ -1150,7 +1188,7 @@ class Crypt_RSA
                                 include_once 'Crypt/DES.php';
                             }
                             $crypto = new Crypt_DES();
-                            $crypto->setPassword($this->password, 'pbkdf1', 'md5', $salt, $iterationCount, 16);
+                            $crypto->setPassword($this->password, 'pbkdf1', 'md5', $salt, $iterationCount);
                             $key = $crypto->decrypt($key);
                             if ($key === false) {
                                 return false;
