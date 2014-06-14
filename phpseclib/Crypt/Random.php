@@ -3,6 +3,9 @@
 /**
  * Random Number Generator
  *
+ * The idea behind this function is that it can be easily replaced with your own crypt_random_string()
+ * function. eg. maybe you have a better source of entropy for creating the initial states or whatever.
+ *
  * PHP versions 4 and 5
  *
  * Here's a short example of how to use this library:
@@ -119,7 +122,7 @@ if (!function_exists('crypt_random_string')) {
         // mt_rand seeds itself by looking at the PID and the time, both of which are (relatively)
         // easy to guess at. linux uses mouse clicks, keyboard timings, etc, as entropy sources, but
         // PHP isn't low level to be able to use those as sources and on a web server there's not likely
-        // going to be a ton of keyboard or mouse action. web servers do have one thing that we can use
+        // going to be a lot of keyboard or mouse action. web servers do have one thing that we can use
         // however. a ton of people visiting the website. obviously you don't want to base your seeding
         // soley on parameters a potential attacker sends but (1) not everything in $_SERVER is controlled
         // by the user and (2) this isn't just looking at the data sent by the current user - it's based
@@ -168,9 +171,9 @@ if (!function_exists('crypt_random_string')) {
                 ini_set('session.use_cookies', $old_use_cookies);
                 session_cache_limiter($old_session_cache_limiter);
             } else {
-               if ($_OLD_SESSION !== false) {
-                   $_SESSION = $_OLD_SESSION;
-                   unset($_OLD_SESSION);
+                if ($_OLD_SESSION !== false) {
+                    $_SESSION = $_OLD_SESSION;
+                    unset($_OLD_SESSION);
                 } else {
                     unset($_SESSION);
                 }
@@ -191,8 +194,14 @@ if (!function_exists('crypt_random_string')) {
             //
             // http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Designs_based_on_cryptographic_primitives
             switch (true) {
-                case class_exists('Crypt_AES'):
-                    $crypto = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                case class_exists('Crypt_Rijndael'):
+                    $crypto = new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
+                    break;
+                case class_exists('Crypt_Twofish'):
+                    $crypto = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
+                    break;
+                case class_exists('Crypt_Blowfish'):
+                    $crypto = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
                     break;
                 case class_exists('Crypt_TripleDES'):
                     $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
@@ -204,7 +213,27 @@ if (!function_exists('crypt_random_string')) {
                     $crypto = new Crypt_RC4();
                     break;
                 default:
-                    $crypto = $seed;
+                    // if mcrypt is loaded mcrypt_create_iv() should be available. the only time it isn't used (despite being available)
+                    // is on Windows / pre-PHP 5.2
+                    /*
+                    if (extension_loaded('mcrypt') && in_array('arcfour', mcrypt_list_algorithms())) {
+                        $crypto = mcrypt_module_open('arcfour', '', MCRYPT_MODE_STREAM, '');
+                        mcrypt_generic_init($crypto, $key, '');
+
+                        return crypt_random_string($length);
+                    }
+                    */
+                    // since all of the Crypt_* objects (Crypt_RC4 included) are optional we'll re-implement RC4 
+                    $crypto = array('keyStream' => array(), 'i' => 0, 'j' => 0);
+                    $keyStream = &$crypto['keyStream'];
+                    $keyStream = range(0, 255, 1);
+                    for ($i = 0, $j = 0; $i < 256; $i++) {
+                        $j = ($j + $keyStream[$i] + ord($key[$i % 20])) & 255;
+                        $temp = $keyStream[$i];
+                        $keyStream[$i] = $keyStream[$j];
+                        $keyStream[$j] = $temp;
+                    }
+
                     return crypt_random_string($length);
             }
 
@@ -213,7 +242,9 @@ if (!function_exists('crypt_random_string')) {
             $crypto->enableContinuousBuffer();
         }
 
-        if (is_string($crypto)) {
+        if (is_object($crypto)) {
+            //return $crypto->encrypt(str_repeat("\0", $length));
+
             // the following is based off of ANSI X9.31:
             //
             // http://csrc.nist.gov/groups/STM/cavp/documents/rng/931rngext.pdf
@@ -222,30 +253,56 @@ if (!function_exists('crypt_random_string')) {
             //
             // http://www.opensource.apple.com/source/OpenSSL/OpenSSL-38/openssl/fips-1.0/rand/fips_rand.c
             // (do a search for "ANS X9.31 A.2.4")
-            //
-            // ANSI X9.31 recommends ciphers be used and phpseclib does use them if they're available (see
-            // later on in the code) but if they're not we'll use sha1
             $result = '';
-            while (strlen($result) < $length) { // each loop adds 20 bytes
-                // microtime() isn't packed as "densely" as it could be but then neither is that the idea.
-                // the idea is simply to ensure that each "block" has a unique element to it.
-                $i = pack('H*', sha1(microtime()));
-                $r = pack('H*', sha1($i ^ $v));
-                $v = pack('H*', sha1($r ^ $i));
+            while (strlen($result) < $length) {
+                $i = $crypto->encrypt(microtime()); // strlen(microtime()) == 21
+                $r = $crypto->encrypt($i ^ $v); // strlen($v) == 20
+                $v = $crypto->encrypt($r ^ $i); // strlen($r) == 20
                 $result.= $r;
             }
             return substr($result, 0, $length);
         }
 
-        //return $crypto->encrypt(str_repeat("\0", $length));
+        $keyStream = &$crypto['keyStream'];
+        $i = &$crypto['i'];
+        $j = &$crypto['j'];
 
         $result = '';
         while (strlen($result) < $length) {
-            $i = $crypto->encrypt(microtime());
-            $r = $crypto->encrypt($i ^ $v);
-            $v = $crypto->encrypt($r ^ $i);
+            $i = crypt_random_string_rc4_prga(microtime(), $keyStream, $i, $j);
+            $r = crypt_random_string_rc4_prga($i ^ $v,     $keyStream, $i, $j);
+            $v = crypt_random_string_rc4_prga($r ^ $i,     $keyStream, $i, $j);
             $result.= $r;
         }
         return substr($result, 0, $length);
+    }
+
+    /**
+     * RC4's PRGA
+     *
+     * A last-resort fallback if no other ciphers are available for available for use.
+     *
+     * @param String $text
+     * @param Array $keyStream
+     * @param Integer $i
+     * @param Integer $j
+     * @return String
+     * @access private
+     */
+    function crypt_random_string_rc4_prga($text, &$keyStream, &$i, &$j)
+    {
+        $len = strlen($text);
+        for ($k = 0; $k < $len; ++$k) {
+            $i = ($i + 1) & 255;
+            $ksi = $keyStream[$i];
+            $j = ($j + $ksi) & 255;
+            $ksj = $keyStream[$j];
+
+            $keyStream[$i] = $ksj;
+            $keyStream[$j] = $ksi;
+            $text[$k] = $text[$k] ^ chr($keyStream[($ksj + $ksi) & 255]);
+        }
+
+	return $text;
     }
 }
