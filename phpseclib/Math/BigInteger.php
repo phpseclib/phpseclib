@@ -3088,19 +3088,26 @@ class Math_BigInteger
     /**
      * Generate a random number
      *
-     * @param optional Integer $min
+     * Returns a random number between $min and $max where $min and $max
+     * can be defined using one of the two methods:
+     *
+     * $generator->random($min, $max)
+     * $min->random($max)
+     *
+     * @param Integer $min
      * @param optional Integer $max
      * @return Math_BigInteger
      * @access public
      */
-    function random($min = false, $max = false)
+    function random($min, $max = false)
     {
         if ($min === false) {
-            $min = new Math_BigInteger(0);
+            return new Math_BigInteger(0);
         }
 
         if ($max === false) {
-            $max = new Math_BigInteger(0x7FFFFFFF);
+            $max = $min->copy();
+            $min = $this->copy();
         }
 
         $compare = $max->compare($min);
@@ -3163,21 +3170,22 @@ class Math_BigInteger
      * If there's not a prime within the given range, false will be returned.  If more than $timeout seconds have elapsed,
      * give up and return false.
      *
-     * @param optional Integer $min
+     * @param Integer $min
      * @param optional Integer $max
      * @param optional Integer $timeout
-     * @return Math_BigInteger
+     * @return Mixed
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
      */
-    function randomPrime($min = false, $max = false, $timeout = false)
+    function randomPrime($min, $max = false, $timeout = false)
     {
         if ($min === false) {
-            $min = new Math_BigInteger(0);
+            return false
         }
 
         if ($max === false) {
-            $max = new Math_BigInteger(0x7FFFFFFF);
+            $max = $min->copy();
+            $min = $this->copy();
         }
 
         $compare = $max->compare($min);

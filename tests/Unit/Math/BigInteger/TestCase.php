@@ -266,6 +266,24 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $this->assertSame('18446744073709551616', (string) $y);
     }
 
+    public function testRandom()
+    {
+        $min = $this->getInstance(0);
+        $max = $this->getInstance('18446744073709551616');
+
+        $rand1 = $min->random($min, $max);
+        // technically $rand1 can equal $min but with the $min and $max we've
+        // chosen it's just not that likely
+        $this->assertTrue($rand1->compareTo($min) > 0);
+        $this->assertTrue($rand1->compareTo($max) < 0);
+
+        $rand2 = $min->random($max);
+        $this->assertTrue($rand1->compareTo($min) > 0);
+        $this->assertTrue($rand1->compareTo($max) < 0);
+
+        $this->assertFalse($rand1->equals($rand2));
+    }
+
     /**
     * @group github279
     */
