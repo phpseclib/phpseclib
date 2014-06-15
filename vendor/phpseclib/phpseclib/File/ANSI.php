@@ -1,5 +1,5 @@
 <?php
-namespace phpseclib;
+namespace phpseclib/phpseclib;
 /**
  * Pure-PHP ANSI Decoder
  *
