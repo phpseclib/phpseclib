@@ -20,7 +20,7 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
 
     public function testConstructor()
     {
-        $ssh = new Net_SSH2($this->getEnv('SSH_HOSTNAME'));
+        $ssh = new \phpseclib\phpseclib\Net_SSH2($this->getEnv('SSH_HOSTNAME'));
 
         $this->assertTrue(
             is_object($ssh),
