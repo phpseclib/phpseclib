@@ -1,5 +1,5 @@
 <?php
-define(LIBRARY_PATH, dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR .'vendors');
+$LIBRARY_PATH = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR .'vendors';
 /**
  * Bootstrapping File for phpseclib Test Suite
  *
@@ -8,5 +8,5 @@ define(LIBRARY_PATH, dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_
 
 date_default_timezone_set('UTC');
 
-require LIBRARY_PATH . DIRECTORY_SEPARATOR . 'Loader.php';
-Loader::init(array(LIBRARY_PATH));
+require $LIBRARY_PATH . DIRECTORY_SEPARATOR . 'Loader.php';
+Loader::init(array($LIBRARY_PATH));
