@@ -59,7 +59,7 @@
         "pear-pear/PHP_Compat": "Install PHP_Compat to get phpseclib working on PHP < 4.3.3."
     },
     "autoload": {
-        "psr-0": { "PHPSecLib\": "PHPSecLib/"
+        "psr-0": { "PHPSecLib\\": "PHPSecLib/"
     },
     "extra": {
         "branch-alias": {
