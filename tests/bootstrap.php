@@ -8,4 +8,4 @@
 date_default_timezone_set('UTC');
 
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Loader.php';
-Loader::init(array($LIBRARY_PATH));
+Loader::init(array('/home/travis/build/phpseclib/phpseclib/vendor'));
