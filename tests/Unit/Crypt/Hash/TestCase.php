@@ -5,7 +5,6 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-require_once 'Crypt/Hash.php';
 
 abstract class Unit_Crypt_Hash_TestCase extends PhpseclibTestCase
 {
