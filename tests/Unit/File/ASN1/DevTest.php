@@ -5,8 +5,6 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-require_once 'File/ASN1.php';
-
 class Unit_File_ASN1_DevTest extends PhpseclibTestCase
 {
     /**
@@ -75,7 +73,7 @@ class Unit_File_ASN1_DevTest extends PhpseclibTestCase
                '4P3wep6uNMLnLzXJmUaAMaopjE+MOcai/t6T9Vg4pERF5Waqwg5ibAbVGK19HuS4LiKiaY3JsyYBuNkEDwiqM7i1Ekw3V+' .
                '+zoEIxqgXjGgPdrWkzU/H6rnXiqMtiZZqUXwWY0zkCmy';
 
-        $asn1 = new File_ASN1();
+        $asn1 = new \phpseclib\phpseclib\File_ASN1();
         $decoded = $asn1->decodeBER(base64_decode($str));
         $result = $asn1->asn1map($decoded[0], $AS_REP);
 
@@ -227,7 +225,7 @@ class Unit_File_ASN1_DevTest extends PhpseclibTestCase
                '4P3wep6uNMLnLzXJmUaAMaopjE+MOcai/t6T9Vg4pERF5Waqwg5ibAbVGK19HuS4LiKiaY3JsyYBuNkEDwiqM7i1Ekw3V+' .
                '+zoEIxqgXjGgPdrWkzU/H6rnXiqMtiZZqUXwWY0zkCmy';
 
-        $asn1 = new File_ASN1();
+        $asn1 = new \phpseclib\phpseclib\File_ASN1();
         $decoded = $asn1->decodeBER(base64_decode($str));
         $result = $asn1->asn1map($decoded[0], $AS_REP);
 
