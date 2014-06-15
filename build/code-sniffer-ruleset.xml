@@ -45,6 +45,9 @@
  <!-- All code files MUST use only UTF-8 without BOM. -->
  <rule ref="Generic.Files.ByteOrderMark" />
 
+ <!-- Constructors MUST be called __construct() instead of after the class. -->
+ <rule ref="Generic.NamingConventions.ConstructorName" />
+
  <!-- Each file MUST end with exactly one newline character -->
  <rule ref="PSR2.Files.EndFileNewline" />
 
