@@ -1,5 +1,5 @@
 <?php
-namespace PHPSecLib;
+namespace phpseclib/phpseclib;
 /**
  * Pure-PHP PKCS#1 (v2.1) compliant implementation of RSA.
  *

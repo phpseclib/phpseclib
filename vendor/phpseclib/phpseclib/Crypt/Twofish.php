@@ -1,5 +1,5 @@
 <?php
-namespace PHPSecLib;
+namespace phpseclib/phpseclib;
 /**
  * Pure-PHP implementation of Twofish.
  *

@@ -1,5 +1,5 @@
 {
-    "name": "PHPSecLib",
+    "name": "phpseclib/phpseclib",
     "type": "library",
     "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
     "keywords": [
@@ -59,7 +59,7 @@
         "pear-pear/PHP_Compat": "Install PHP_Compat to get phpseclib working on PHP < 4.3.3."
     },
     "autoload": {
-        "psr-0": { "PHPSecLib\\": "PHPSecLib/" }
+        "psr-0": { "phpseclib\\": "phpseclib/" }
     },
     "extra": {
         "branch-alias": {

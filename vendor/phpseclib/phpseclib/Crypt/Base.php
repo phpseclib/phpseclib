@@ -1,5 +1,5 @@
 <?php
-namespace PHPSecLib;
+namespace phpseclib/phpseclib;
 /**
  * Base Class for all Crypt_* cipher classes
  *

@@ -1,6 +1,6 @@
 <?php
 
-namespace PHPSecLib;
+namespace phpseclib/phpseclib;
 
 /**
  * Pure-PHP arbitrary precision integer arithmetic library.

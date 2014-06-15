@@ -1,6 +1,6 @@
 <?php
 
-namespace PHPSecLib;
+namespace phpseclib/phpseclib;
 
 /**
  * Random Number Generator

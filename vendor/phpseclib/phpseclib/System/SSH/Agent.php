@@ -1,5 +1,5 @@
 <?php
-namespace PHPSecLib;
+namespace phpseclib/phpseclib;
 /**
  * Pure-PHP ssh-agent client.
  *
