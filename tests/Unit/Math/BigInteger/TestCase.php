@@ -5,20 +5,16 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-require_once 'Math/BigInteger.php';
-
 abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 {
     static public function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
-
-        self::reRequireFile('Math/BigInteger.php');
     }
 
     public function getInstance($x = 0, $base = 10)
     {
-        return new Math_BigInteger($x, $base);
+        return new \phpseclib\phpseclib\Math_BigInteger($x, $base);
     }
 
     public function testConstructorBase2()
