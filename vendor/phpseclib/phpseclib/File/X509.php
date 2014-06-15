@@ -1,5 +1,5 @@
 <?php
-namespace phpseclib;
+namespace  phpseclib/phpseclib;
 /**
  * Pure-PHP X.509 Parser
  *
