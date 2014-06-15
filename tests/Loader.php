@@ -98,7 +98,7 @@ class Loader {
     protected static $_static_data = array();
 
     public static function init($prependPaths = array()) {
-        static::setErrorReporting(!PRODUCTION);
+        static::setErrorReporting(!true);
         static::_synchPaths(true);
         static::appendLoader(get_called_class(), 'load');
         static::prependPaths($prependPaths);
