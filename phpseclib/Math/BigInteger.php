@@ -3094,20 +3094,23 @@ class Math_BigInteger
      * $generator->random($min, $max)
      * $min->random($max)
      *
-     * @param Integer $min
-     * @param optional Integer $max
+     * @param Integer $arg1
+     * @param optional Integer $arg2
      * @return Math_BigInteger
      * @access public
      */
-    function random($min, $max = false)
+    function random($arg1, $arg2 = false)
     {
-        if ($min === false) {
-            return new Math_BigInteger(0);
+        if ($arg1 === false) {
+            return false;
         }
 
-        if ($max === false) {
-            $max = $min->copy();
-            $min = $this->copy();
+        if ($arg2 === false) {
+            $max = $arg1;
+            $min = $this;
+        } else {
+            $min = $arg1;
+            $max = $arg2;
         }
 
         $compare = $max->compare($min);
@@ -3170,22 +3173,25 @@ class Math_BigInteger
      * If there's not a prime within the given range, false will be returned.  If more than $timeout seconds have elapsed,
      * give up and return false.
      *
-     * @param Integer $min
-     * @param optional Integer $max
+     * @param Integer $arg1
+     * @param optional Integer $arg2
      * @param optional Integer $timeout
      * @return Mixed
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
      */
-    function randomPrime($min, $max = false, $timeout = false)
+    function randomPrime($arg1, $arg2 = false, $timeout = false)
     {
-        if ($min === false) {
+        if ($arg1 === false) {
             return false;
         }
 
-        if ($max === false) {
-            $max = $min->copy();
-            $min = $this->copy();
+        if ($arg2 === false) {
+            $max = $arg1;
+            $min = $this;
+        } else {
+            $min = $arg1;
+            $max = $arg2;
         }
 
         $compare = $max->compare($min);
