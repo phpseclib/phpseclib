@@ -1,5 +1,5 @@
 {
-    "name": "phpseclib/phpseclib",
+    "name": "PHPSecLib",
     "type": "library",
     "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
     "keywords": [
@@ -43,10 +43,15 @@
             "name": "Hans-Jürgen Petrich",
             "email": "petrich@tronic-media.com",
             "role": "Developer"
+        },
+        {
+            "name": "John Slegers",
+            "email": "slegersjohn@gmail.com",
+            "role": "Developer"
         }
     ],
     "require": {
-        "php": ">=5.0.0"
+        "php": ">=5.3.0"
     },
     "require-dev": {
         "phing/phing": "2.7.*",
@@ -58,18 +63,8 @@
         "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations.",
         "pear-pear/PHP_Compat": "Install PHP_Compat to get phpseclib working on PHP < 4.3.3."
     },
-    "include-path": ["phpseclib/"],
     "autoload": {
-        "psr-0": {
-            "Crypt": "phpseclib/",
-            "File": "phpseclib/",
-            "Math": "phpseclib/",
-            "Net": "phpseclib/",
-            "System": "phpseclib/"
-        },
-        "files": [
-            "phpseclib/Crypt/Random.php"
-        ]
+        "psr-0": { "PHPSecLib\": "PHPSecLib/" }
     },
     "extra": {
         "branch-alias": {
