@@ -280,7 +280,7 @@ if (!function_exists('crypt_random_string')) {
     /**
      * RC4's PRGA
      *
-     * A last-resort fallback if no other ciphers are available for available for use.
+     * A last-resort fallback if no other ciphers are available for use.
      *
      * @param String $text
      * @param Array $keyStream
