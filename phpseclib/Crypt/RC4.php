@@ -267,12 +267,8 @@ class Crypt_RC4 extends Crypt_Base
     {
         $key = $this->key;
         $keyLength = strlen($key);
-        $keyStream = array();
-        for ($i = 0; $i < 256; $i++) {
-            $keyStream[$i] = $i;
-        }
-        $j = 0;
-        for ($i = 0; $i < 256; $i++) {
+        $keyStream = range(0, 255);
+        for ($i = 0, $j = 0; $i < 256; $i++) {
             $j = ($j + $keyStream[$i] + ord($key[$i % $keyLength])) & 255;
             $temp = $keyStream[$i];
             $keyStream[$i] = $keyStream[$j];
@@ -324,7 +320,7 @@ class Crypt_RC4 extends Crypt_Base
 
             $keyStream[$i] = $ksj;
             $keyStream[$j] = $ksi;
-            $text[$k] = chr(ord($text[$k]) ^ $keyStream[($ksj + $ksi) & 255]);
+            $text[$k] = $text[$k] ^ chr($keyStream[($ksj + $ksi) & 255]);
         }
 
         return $text;
