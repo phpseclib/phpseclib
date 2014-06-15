@@ -5,8 +5,6 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-require_once 'File/X509.php';
-require_once 'Crypt/RSA.php';
 
 class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 {
@@ -24,7 +22,7 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
                 'dmeL7aWrpP+3x3L0A9cATksracQX676XogdAEXJ59fcr/S5AGw1TFErbyBbfyeAWvzDZIXeMXpb9h' .
                 'yNtA==';
 
-        $x509 = new File_X509();
+        $x509 = new \phpseclib\phpseclib\File_X509();
 
         $spkac = $x509->loadSPKAC($test);
 
@@ -46,11 +44,11 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 
     public function testSaveSPKAC()
     {
-        $privKey = new Crypt_RSA();
+        $privKey = new \phpseclib\phpseclib\Crypt_RSA();
         extract($privKey->createKey());
         $privKey->loadKey($privatekey);
 
-        $x509 = new File_X509();
+        $x509 = new \phpseclib\phpseclib\File_X509();
         $x509->setPrivateKey($privKey);
         $x509->setChallenge('...');
 
@@ -59,7 +57,7 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 
         $this->assertInternalType('string', $x509->saveSPKAC($spkac));
 
-        $x509 = new File_X509();
+        $x509 = new \phpseclib\phpseclib\File_X509();
         $x509->setPrivateKey($privKey);
 
         $spkac = $x509->signSPKAC();
@@ -82,7 +80,7 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
                 'dmeL7aWrpP+3x3L0A9cATksracQX676XogdAEXJ59fcr/S5AGw1TFErbyBbfyeAWvzDZIXeMXpb9h' .
                 'yNtA==';
 
-        $x509 = new File_X509();
+        $x509 = new \phpseclib\phpseclib\File_X509();
 
         $spkac = $x509->loadSPKAC($test);
 

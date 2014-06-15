@@ -57,7 +57,7 @@ class Unit_Crypt_AES_ContinuousBufferTest extends Unit_Crypt_AES_TestCase
     */
     public function testEncryptDecrypt($mode, $plaintext, $iv, $key)
     {
-        $aes = new Crypt_AES(constant($mode));
+        $aes = new  \phpseclib\phpseclib\Crypt_AES(constant($mode));
         $aes->enableContinuousBuffer();
         $aes->setIV($iv);
         $aes->setKey($key);

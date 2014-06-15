@@ -5,13 +5,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-require_once 'Crypt/RSA.php' ;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 {
     public function testBadKey()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new \phpseclib\phpseclib\Crypt_RSA();
 
         $key = 'zzzzzzzzzzzzzz';
 
@@ -20,7 +19,7 @@ class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 
     public function testPKCS1Key()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new \phpseclib\phpseclib\Crypt_RSA();
 
         $key = '-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
@@ -42,7 +41,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
     public function testPKCS1SpacesKey()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new \phpseclib\phpseclib\Crypt_RSA();
 
         $key = '-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
@@ -65,7 +64,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
     public function testPKCS1NoHeaderKey()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new \phpseclib\phpseclib\Crypt_RSA();
 
         $key = 'MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
 wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5
@@ -85,7 +84,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
     public function testPKCS1NoWhitespaceNoHeaderKey()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new \phpseclib\phpseclib\Crypt_RSA();
 
         $key = 'MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp' .
                'wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5' .
@@ -105,7 +104,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
     public function testRawPKCS1Key()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new \phpseclib\phpseclib\Crypt_RSA();
 
         $key = 'MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp' .
                'wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5' .
@@ -126,7 +125,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
     public function testPubKey1()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new \phpseclib\phpseclib\Crypt_RSA();
 
         $key = '-----BEGIN RSA PUBLIC KEY-----
 MIIBCgKCAQEA61BjmfXGEvWmegnBGSuS+rU9soUg2FnODva32D1AqhwdziwHINFa
@@ -144,7 +143,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
 
     public function testPubKey2()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new \phpseclib\phpseclib\Crypt_RSA();
 
         $key = '-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA61BjmfXGEvWmegnBGSuS
@@ -163,7 +162,7 @@ ZQIDAQAB
 
     public function testSSHPubKey()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new \phpseclib\phpseclib\Crypt_RSA();
 
         $key = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4e' .
                'CZ0FPqri0cb2JZfXJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMS' .
@@ -177,7 +176,7 @@ ZQIDAQAB
 
     public function testSetPrivate()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new \phpseclib\phpseclib\Crypt_RSA();
 
         $key = '-----BEGIN RSA PUBLIC KEY-----
 MIIBCgKCAQEA61BjmfXGEvWmegnBGSuS+rU9soUg2FnODva32D1AqhwdziwHINFa
