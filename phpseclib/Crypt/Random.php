@@ -226,7 +226,7 @@ if (!function_exists('crypt_random_string')) {
                     // since all of the Crypt_* objects (Crypt_RC4 included) are optional we'll re-implement RC4
                     $crypto = array('keyStream' => array(), 'i' => 0, 'j' => 0);
                     $keyStream = &$crypto['keyStream'];
-                    $keyStream = range(0, 255, 1);
+                    $keyStream = range(0, 255);
                     for ($i = 0, $j = 0; $i < 256; $i++) {
                         $j = ($j + $keyStream[$i] + ord($key[$i % 20])) & 255;
                         $temp = $keyStream[$i];
