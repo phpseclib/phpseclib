@@ -30,7 +30,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
     public function testConstructor()
     {
-        $sftp = new Net_SFTP($this->getEnv('SSH_HOSTNAME'));
+        $sftp = new \phpseclib\phpseclib\Net_SFTP($this->getEnv('SSH_HOSTNAME'));
 
         $this->assertTrue(
             is_object($sftp),
