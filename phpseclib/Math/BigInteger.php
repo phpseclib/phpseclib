@@ -3180,7 +3180,7 @@ class Math_BigInteger
     function randomPrime($min, $max = false, $timeout = false)
     {
         if ($min === false) {
-            return false
+            return false;
         }
 
         if ($max === false) {
