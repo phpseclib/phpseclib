@@ -58,4 +58,16 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
             ->will($this->returnValue(true));
         $ssh->exec('pwd', array($callbackObject, 'callbackMethod'));
     }
+
+    public function testGetServerPublicHostKey()
+    {
+        $ssh = new Net_SSH2($this->getEnv('SSH_HOSTNAME'));
+
+        $this->assertTrue(
+            is_object($ssh),
+            'Could not construct NET_SSH2 object.'
+        );
+
+        $this->assertInternalType('string', $ssh->getServerPublicHostKey());
+    }
 }
