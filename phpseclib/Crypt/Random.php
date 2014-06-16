@@ -3,6 +3,9 @@
 /**
  * Random Number Generator
  *
+ * The idea behind this function is that it can be easily replaced with your own crypt_random_string()
+ * function. eg. maybe you have a better source of entropy for creating the initial states or whatever.
+ *
  * PHP versions 4 and 5
  *
  * Here's a short example of how to use this library:
