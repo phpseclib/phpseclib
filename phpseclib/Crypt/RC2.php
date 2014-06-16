@@ -101,7 +101,7 @@ define('CRYPT_RC2_MODE_OFB', CRYPT_MODE_OFB);
 
 /**#@+
  * @access private
- * @see Crypt_RC2::Crypt_RC2()
+ * @see Crypt_RC2::__construct()
  */
 /**
  * Toggles the internal implementation
@@ -334,13 +334,13 @@ class Crypt_RC2 extends Crypt_Base
      *
      * If not explicitly set, CRYPT_RC2_MODE_CBC will be used.
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt_Base::__construct()
      * @param optional Integer $mode
      * @access public
      */
-    function Crypt_RC2($mode = CRYPT_RC2_MODE_CBC)
+    function __construct($mode = CRYPT_RC2_MODE_CBC)
     {
-        parent::Crypt_Base($mode);
+        parent::__construct($mode);
         $this->setKey('');
     }
 

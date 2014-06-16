@@ -299,7 +299,7 @@ class Net_SSH2
      *
      *  -- http://tools.ietf.org/html/rfc4253#section-6
      *
-     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::__construct()
      * @see Net_SSH2::_send_binary_packet()
      * @var Integer
      * @access private
@@ -309,7 +309,7 @@ class Net_SSH2
     /**
      * Block Size for Client to Server Encryption
      *
-     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::__construct()
      * @see Net_SSH2::_get_binary_packet()
      * @var Integer
      * @access private
@@ -403,7 +403,7 @@ class Net_SSH2
     /**
      * Message Numbers
      *
-     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -412,7 +412,7 @@ class Net_SSH2
     /**
      * Disconnection Message 'reason codes' defined in RFC4253
      *
-     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -421,7 +421,7 @@ class Net_SSH2
     /**
      * SSH_MSG_CHANNEL_OPEN_FAILURE 'reason codes', defined in RFC4254
      *
-     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -431,7 +431,7 @@ class Net_SSH2
      * Terminal Modes
      *
      * @link http://tools.ietf.org/html/rfc4254#section-8
-     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -441,7 +441,7 @@ class Net_SSH2
      * SSH_MSG_CHANNEL_EXTENDED_DATA's data_type_codes
      *
      * @link http://tools.ietf.org/html/rfc4254#section-5.2
-     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -789,7 +789,7 @@ class Net_SSH2
     /**
      * Hostname
      *
-     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::__construct()
      * @see Net_SSH2::_connect()
      * @var String
      * @access private
@@ -799,7 +799,7 @@ class Net_SSH2
     /**
      * Port Number
      *
-     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::__construct()
      * @see Net_SSH2::_connect()
      * @var Integer
      * @access private
@@ -814,7 +814,7 @@ class Net_SSH2
      * however, is non-optional. There will be a timeout, whether or not you set it. If you don't it'll be
      * 10 seconds. It is used by fsockopen() and the initial stream_select in that function.
      *
-     * @see Net_SSH2::Net_SSH2()
+     * @see Net_SSH2::__construct()
      * @see Net_SSH2::_connect()
      * @var Integer
      * @access private
@@ -831,7 +831,7 @@ class Net_SSH2
      * @return Net_SSH2
      * @access public
      */
-    function Net_SSH2($host, $port = 22, $timeout = 10)
+    function __construct($host, $port = 22, $timeout = 10)
     {
         if (!function_exists('crypt_random_string')) {
             include_once 'Crypt/Random.php';

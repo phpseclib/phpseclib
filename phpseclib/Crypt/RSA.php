@@ -155,7 +155,7 @@ define('CRYPT_RSA_ASN1_SEQUENCE', 48);
 
 /**#@+
  * @access private
- * @see Crypt_RSA::Crypt_RSA()
+ * @see Crypt_RSA::__construct()
  */
 /**
  * To use the pure-PHP implementation
@@ -473,7 +473,7 @@ class Crypt_RSA
      * @return Crypt_RSA
      * @access public
      */
-    function Crypt_RSA()
+    function __construct()
     {
         $this->configFile = CRYPT_RSA_OPENSSL_CONFIG;
 

@@ -360,7 +360,7 @@ class Net_SSH1
     /**
      * Protocol Flags
      *
-     * @see Net_SSH1::Net_SSH1()
+     * @see Net_SSH1::__construct()
      * @var Array
      * @access private
      */
@@ -463,7 +463,7 @@ class Net_SSH1
     /**
      * Hostname
      *
-     * @see Net_SSH1::Net_SSH1()
+     * @see Net_SSH1::__construct()
      * @see Net_SSH1::_connect()
      * @var String
      * @access private
@@ -473,7 +473,7 @@ class Net_SSH1
     /**
      * Port Number
      *
-     * @see Net_SSH1::Net_SSH1()
+     * @see Net_SSH1::__construct()
      * @see Net_SSH1::_connect()
      * @var Integer
      * @access private
@@ -488,7 +488,7 @@ class Net_SSH1
      * however, is non-optional. There will be a timeout, whether or not you set it. If you don't it'll be
      * 10 seconds. It is used by fsockopen() in that function.
      *
-     * @see Net_SSH1::Net_SSH1()
+     * @see Net_SSH1::__construct()
      * @see Net_SSH1::_connect()
      * @var Integer
      * @access private
@@ -498,7 +498,7 @@ class Net_SSH1
     /**
      * Default cipher
      *
-     * @see Net_SSH1::Net_SSH1()
+     * @see Net_SSH1::__construct()
      * @see Net_SSH1::_connect()
      * @var Integer
      * @access private
@@ -517,7 +517,7 @@ class Net_SSH1
      * @return Net_SSH1
      * @access public
      */
-    function Net_SSH1($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
+    function __construct($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
     {
         // Include Crypt_Random
         // the class_exists() will only be called if the crypt_random_string function hasn't been defined and
@@ -1333,7 +1333,7 @@ class Net_SSH1
      * should be a number with the property that gcd($e, ($p - 1) * ($q - 1)) == 1.  Could just make anything that
      * calls this call modexp, instead, but I think this makes things clearer, maybe...
      *
-     * @see Net_SSH1::Net_SSH1()
+     * @see Net_SSH1::__construct()
      * @param Math_BigInteger $m
      * @param Array $key
      * @return Math_BigInteger

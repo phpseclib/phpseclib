@@ -120,7 +120,7 @@ define('CRYPT_RIJNDAEL_MODE_OFB', CRYPT_MODE_OFB);
 
 /**#@+
  * @access private
- * @see Crypt_Base::Crypt_Base()
+ * @see Crypt_Base::__construct()
  */
 /**
  * Toggles the internal implementation

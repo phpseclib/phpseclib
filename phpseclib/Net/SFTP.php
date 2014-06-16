@@ -124,7 +124,7 @@ class Net_SFTP extends Net_SSH2
     /**
      * Packet Types
      *
-     * @see Net_SFTP::Net_SFTP()
+     * @see Net_SFTP::__construct()
      * @var Array
      * @access private
      */
@@ -133,7 +133,7 @@ class Net_SFTP extends Net_SSH2
     /**
      * Status Codes
      *
-     * @see Net_SFTP::Net_SFTP()
+     * @see Net_SFTP::__construct()
      * @var Array
      * @access private
      */
@@ -245,7 +245,7 @@ class Net_SFTP extends Net_SSH2
     /**
      * Max SFTP Packet Size
      *
-     * @see Net_SFTP::Net_SFTP()
+     * @see Net_SFTP::__construct()
      * @see Net_SFTP::get()
      * @var Array
      * @access private
@@ -283,9 +283,9 @@ class Net_SFTP extends Net_SSH2
      * @return Net_SFTP
      * @access public
      */
-    function Net_SFTP($host, $port = 22, $timeout = 10)
+    function __construct($host, $port = 22, $timeout = 10)
     {
-        parent::Net_SSH2($host, $port, $timeout);
+        parent::__construct($host, $port, $timeout);
 
         $this->max_sftp_packet = 1 << 15;
 
