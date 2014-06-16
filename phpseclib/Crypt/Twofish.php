@@ -447,34 +447,6 @@ class Crypt_Twofish extends Crypt_Base
     var $kl;
 
     /**
-     * Default Constructor.
-     *
-     * Determines whether or not the mcrypt extension should be used.
-     *
-     * $mode could be:
-     *
-     * - CRYPT_TWOFISH_MODE_ECB
-     *
-     * - CRYPT_TWOFISH_MODE_CBC
-     *
-     * - CRYPT_TWOFISH_MODE_CTR
-     *
-     * - CRYPT_TWOFISH_MODE_CFB
-     *
-     * - CRYPT_TWOFISH_MODE_OFB
-     *
-     * If not explicitly set, CRYPT_TWOFISH_MODE_CBC will be used.
-     *
-     * @see Crypt_Base::Crypt_Base()
-     * @param optional Integer $mode
-     * @access public
-     */
-    function Crypt_Twofish($mode = CRYPT_TWOFISH_MODE_CBC)
-    {
-        parent::Crypt_Base($mode);
-    }
-
-    /**
      * Sets the key.
      *
      * Keys can be of any length. Twofish, itself, requires the use of a key that's 128, 192 or 256-bits long.

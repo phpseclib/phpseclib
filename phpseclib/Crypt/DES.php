@@ -662,34 +662,6 @@ class Crypt_DES extends Crypt_Base
     );
 
     /**
-     * Default Constructor.
-     *
-     * Determines whether or not the mcrypt extension should be used.
-     *
-     * $mode could be:
-     *
-     * - CRYPT_DES_MODE_ECB
-     *
-     * - CRYPT_DES_MODE_CBC
-     *
-     * - CRYPT_DES_MODE_CTR
-     *
-     * - CRYPT_DES_MODE_CFB
-     *
-     * - CRYPT_DES_MODE_OFB
-     *
-     * If not explicitly set, CRYPT_DES_MODE_CBC will be used.
-     *
-     * @see Crypt_Base::Crypt_Base()
-     * @param optional Integer $mode
-     * @access public
-     */
-    function Crypt_DES($mode = CRYPT_DES_MODE_CBC)
-    {
-        parent::Crypt_Base($mode);
-    }
-
-    /**
      * Sets the key.
      *
      * Keys can be of any length.  DES, itself, uses 64-bit keys (eg. strlen($key) == 8), however, we
