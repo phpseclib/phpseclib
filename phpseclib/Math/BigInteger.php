@@ -3091,13 +3091,15 @@ class Math_BigInteger
      * Returns a random number between $min and $max where $min and $max
      * can be defined using one of the two methods:
      *
-     * $generator->random($min, $max)
      * $min->random($max)
+     * $max->random($min)
      *
-     * @param Integer $arg1
-     * @param optional Integer $arg2
+     * @param Math_BigInteger $arg1
+     * @param optional Math_Integer $arg2
      * @return Math_BigInteger
      * @access public
+     * @internal The API for creating random numbers used to be $a->random($min, $max), where $a was a Math_BigInteger object.
+     *           That method is still supported for BC purposes.
      */
     function random($arg1, $arg2 = false)
     {
@@ -3173,8 +3175,8 @@ class Math_BigInteger
      * If there's not a prime within the given range, false will be returned.  If more than $timeout seconds have elapsed,
      * give up and return false.
      *
-     * @param Integer $arg1
-     * @param optional Integer $arg2
+     * @param Math_BigInteger $arg1
+     * @param optional Math_BigInteger $arg2
      * @param optional Integer $timeout
      * @return Mixed
      * @access public
@@ -3303,7 +3305,7 @@ class Math_BigInteger
      * $t parameter is distributability.  Math_BigInteger::randomPrime() can be distributed across multiple pageloads
      * on a website instead of just one.
      *
-     * @param optional Integer $t
+     * @param optional Math_BigInteger $t
      * @return Boolean
      * @access public
      * @internal Uses the
