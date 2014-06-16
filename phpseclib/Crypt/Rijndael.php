@@ -676,34 +676,6 @@ class Crypt_Rijndael extends Crypt_Base
     );
 
     /**
-     * Default Constructor.
-     *
-     * Determines whether or not the mcrypt extension should be used.
-     *
-     * $mode could be:
-     *
-     * - CRYPT_RIJNDAEL_MODE_ECB
-     *
-     * - CRYPT_RIJNDAEL_MODE_CBC
-     *
-     * - CRYPT_RIJNDAEL_MODE_CTR
-     *
-     * - CRYPT_RIJNDAEL_MODE_CFB
-     *
-     * - CRYPT_RIJNDAEL_MODE_OFB
-     *
-     * If not explicitly set, CRYPT_RIJNDAEL_MODE_CBC will be used.
-     *
-     * @see Crypt_Base::Crypt_Base()
-     * @param optional Integer $mode
-     * @access public
-     */
-    function Crypt_Rijndael($mode = CRYPT_RIJNDAEL_MODE_CBC)
-    {
-        parent::Crypt_Base($mode);
-    }
-
-    /**
      * Sets the key.
      *
      * Keys can be of any length.  Rijndael, itself, requires the use of a key that's between 128-bits and 256-bits long and

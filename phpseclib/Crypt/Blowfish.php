@@ -368,34 +368,6 @@ class Crypt_Blowfish extends Crypt_Base
     var $kl;
 
     /**
-     * Default Constructor.
-     *
-     * Determines whether or not the mcrypt extension should be used.
-     *
-     * $mode could be:
-     *
-     * - CRYPT_BLOWFISH_MODE_ECB
-     *
-     * - CRYPT_BLOWFISH_MODE_CBC
-     *
-     * - CRYPT_BLOWFISH_MODE_CTR
-     *
-     * - CRYPT_BLOWFISH_MODE_CFB
-     *
-     * - CRYPT_BLOWFISH_MODE_OFB
-     *
-     * If not explicitly set, CRYPT_BLOWFISH_MODE_CBC will be used.
-     *
-     * @see Crypt_Base::Crypt_Base()
-     * @param optional Integer $mode
-     * @access public
-     */
-    function Crypt_Blowfish($mode = CRYPT_BLOWFISH_MODE_CBC)
-    {
-        parent::Crypt_Base($mode);
-    }
-
-    /**
      * Sets the key.
      *
      * Keys can be of any length.  Blowfish, itself, requires the use of a key between 32 and max. 448-bits long.
