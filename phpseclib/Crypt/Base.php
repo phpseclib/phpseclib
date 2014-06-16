@@ -541,7 +541,7 @@ class Crypt_Base
      * Sets the password.
      *
      * Depending on what $method is set to, setPassword()'s (optional) parameters are as follows:
-     *     {@link http://en.wikipedia.org/wiki/PBKDF2 pbkdf2}:
+     *     {@link http://en.wikipedia.org/wiki/PBKDF2 pbkdf2} or pbkdf1:
      *         $hash, $salt, $count, $dkLen
      *
      *         Where $hash (default = sha1) currently supports the following hashes: see: Crypt/Hash.php
@@ -551,6 +551,7 @@ class Crypt_Base
      * @see Crypt/Hash.php
      * @param String $password
      * @param optional String $method
+     * @return Boolean
      * @access public
      */
     function setPassword($password, $method = 'pbkdf2')
@@ -558,7 +559,7 @@ class Crypt_Base
         $key = '';
 
         switch ($method) {
-            default: // 'pbkdf2'
+            default: // 'pbkdf2' or 'pbkdf1'
                 $func_args = func_get_args();
 
                 // Hash function
@@ -572,10 +573,34 @@ class Crypt_Base
                 $count = isset($func_args[4]) ? $func_args[4] : 1000;
 
                 // Keylength
-                $dkLen = isset($func_args[5]) ? $func_args[5] : $this->password_key_size;
+                if (isset($func_args[5])) {
+                    $dkLen = $func_args[5];
+                } else {
+                    $dkLen = $method == 'pbkdf1' ? 2 * $this->password_key_size : $this->password_key_size;
+                }
 
-                // Determining if php[>=5.5.0]'s hash_pbkdf2() function avail- and useable
                 switch (true) {
+                    case $method == 'pbkdf1':
+                        if (!class_exists('Crypt_Hash')) {
+                            include_once 'Crypt/Hash.php';
+                        }
+                        $hashObj = new Crypt_Hash();
+                        $hashObj->setHash($hash);
+                        if ($dkLen > $hashObj->getLength()) {
+                            user_error('Derived key too long');
+                            return false;
+                        }
+                        $t = $password . $salt;
+                        for ($i = 0; $i < $count; ++$i) {
+                            $t = $hashObj->hash($t);
+                        }
+                        $key = substr($t, 0, $dkLen);
+
+                        $this->setKey(substr($key, 0, $dkLen >> 1));
+                        $this->setIV(substr($key, $dkLen >> 1));
+
+                        return true;
+                    // Determining if php[>=5.5.0]'s hash_pbkdf2() function avail- and useable
                     case !function_exists('hash_pbkdf2'):
                     case !function_exists('hash_algos'):
                     case !in_array($hash, hash_algos()):
@@ -602,6 +627,8 @@ class Crypt_Base
         }
 
         $this->setKey($key);
+
+        return true;
     }
 
     /**
