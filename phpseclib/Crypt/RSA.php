@@ -140,15 +140,23 @@ define('CRYPT_RSA_SIGNATURE_PKCS1', 2);
 /**
  * ASN1 Integer
  */
-define('CRYPT_RSA_ASN1_INTEGER',   2);
+define('CRYPT_RSA_ASN1_INTEGER',     2);
 /**
  * ASN1 Bit String
  */
-define('CRYPT_RSA_ASN1_BITSTRING', 3);
+define('CRYPT_RSA_ASN1_BITSTRING',   3);
+/**
+ * ASN1 Octet String
+ */
+define('CRYPT_RSA_ASN1_OCTETSTRING', 4);
+/**
+ * ASN1 Object Identifier
+ */
+define('CRYPT_RSA_ASN1_OBJECT',      6);
 /**
  * ASN1 Sequence (with the constucted bit set)
  */
-define('CRYPT_RSA_ASN1_SEQUENCE', 48);
+define('CRYPT_RSA_ASN1_SEQUENCE',   48);
 /**#@-*/
 
 /**#@+
@@ -191,6 +199,10 @@ define('CRYPT_RSA_PRIVATE_FORMAT_PUTTY', 1);
  * XML formatted private key
  */
 define('CRYPT_RSA_PRIVATE_FORMAT_XML', 2);
+/**
+ * PKCS#8 formatted private key
+ */
+define('CRYPT_RSA_PRIVATE_FORMAT_PKCS8', 3);
 /**#@-*/
 
 /**#@+
@@ -223,6 +235,7 @@ define('CRYPT_RSA_PUBLIC_FORMAT_RAW', 3);
  *
  * Analogous to ssh-keygen's pem format (as specified by -m)
  */
+define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 4);
 define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1_RAW', 4);
 /**
  * XML formatted public key
@@ -243,11 +256,11 @@ define('CRYPT_RSA_PUBLIC_FORMAT_OPENSSH', 6);
  *
  * -----BEGIN PUBLIC KEY-----
  *
- * Analogous to ssh-keygen's pkcs8 format (as specified by -m)
- * (the applicability of PKCS8 is dubious since PKCS8 is talking about
- *  private keys but whatever)
+ * Analogous to ssh-keygen's pkcs8 format (as specified by -m). Although PKCS8
+ * is specific to private keys it's basically creating a DER-encoded wrapper
+ * for keys. This just extends that same concept to public keys (much like ssh-keygen)
  */
-define('CRYPT_RSA_PUBLIC_FORMAT_PKCS1', 7);
+define('CRYPT_RSA_PUBLIC_FORMAT_PKCS8', 7);
 /**#@-*/
 
 /**
@@ -289,7 +302,7 @@ class Crypt_RSA
      * @var Integer
      * @access public
      */
-    var $publicKeyFormat = CRYPT_RSA_PUBLIC_FORMAT_PKCS1;
+    var $publicKeyFormat = CRYPT_RSA_PUBLIC_FORMAT_PKCS8;
 
     /**
      * Modulus (ie. n)
@@ -846,6 +859,52 @@ class Crypt_RSA
 
                 $RSAPrivateKey = pack('Ca*a*', CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
 
+                if ($this->privateKeyFormat == CRYPT_RSA_PRIVATE_FORMAT_PKCS8) {
+                    $rsaOID = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
+                    $RSAPrivateKey = pack('Ca*a*Ca*a*',
+                        CRYPT_RSA_ASN1_INTEGER, "\01\00", $rsaOID, 4, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey
+                    );
+                    $RSAPrivateKey = pack('Ca*a*', CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
+                    if (!empty($this->password) || is_string($this->password)) {
+                        $salt = crypt_random_string(8);
+                        $iterationCount = 2048;
+
+                        if (!class_exists('Crypt_DES')) {
+                            include_once 'Crypt/DES.php';
+                        }
+                        $crypto = new Crypt_DES();
+                        $crypto->setPassword($this->password, 'pbkdf1', 'md5', $salt, $iterationCount);
+                        $RSAPrivateKey = $crypto->encrypt($RSAPrivateKey);
+
+                        $parameters = pack('Ca*a*Ca*N',
+                            CRYPT_RSA_ASN1_OCTETSTRING, $this->_encodeLength(strlen($salt)), $salt,
+                            CRYPT_RSA_ASN1_INTEGER, $this->_encodeLength(4), $iterationCount
+                        );
+                        $pbeWithMD5AndDES_CBC = "\x2a\x86\x48\x86\xf7\x0d\x01\x05\x03";
+
+                        $encryptionAlgorithm = pack('Ca*a*Ca*a*',
+                            CRYPT_RSA_ASN1_OBJECT, $this->_encodeLength(strlen($pbeWithMD5AndDES_CBC)), $pbeWithMD5AndDES_CBC,
+                            CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($parameters)), $parameters
+                        );
+
+                        $RSAPrivateKey = pack('Ca*a*Ca*a*',
+                            CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($encryptionAlgorithm)), $encryptionAlgorithm,
+                            CRYPT_RSA_ASN1_OCTETSTRING, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey
+                        );
+
+                        $RSAPrivateKey = pack('Ca*a*', CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
+
+                        $RSAPrivateKey = "-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n" .
+                                         chunk_split(base64_encode($RSAPrivateKey), 64) .
+                                         '-----END ENCRYPTED PRIVATE KEY-----';
+                    } else {
+                        $RSAPrivateKey = "-----BEGIN PRIVATE KEY-----\r\n" .
+                                         chunk_split(base64_encode($RSAPrivateKey), 64) .
+                                         '-----END PRIVATE KEY-----';
+                    }
+                    return $RSAPrivateKey;
+                }
+
                 if (!empty($this->password) || is_string($this->password)) {
                     $iv = crypt_random_string(8);
                     $symkey = pack('H*', md5($this->password . $iv)); // symkey is short for symmetric key
@@ -993,6 +1052,7 @@ class Crypt_RSA
                 }
                 return isset($components['modulus']) && isset($components['publicExponent']) ? $components : false;
             case CRYPT_RSA_PRIVATE_FORMAT_PKCS1:
+            case CRYPT_RSA_PRIVATE_FORMAT_PKCS8:
             case CRYPT_RSA_PUBLIC_FORMAT_PKCS1:
                 /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is
                    "outside the scope" of PKCS#1.  PKCS#1 then refers you to PKCS#12 and PKCS#15 if you're wanting to
@@ -1083,7 +1143,9 @@ class Crypt_RSA
                     7:d=1  hl=2 l=  13 cons:  SEQUENCE
                     9:d=2  hl=2 l=   9 prim:   OBJECT            :rsaEncryption
                    20:d=2  hl=2 l=   0 prim:   NULL
-                   22:d=1  hl=4 l= 609 prim:  OCTET STRING */
+                   22:d=1  hl=4 l= 609 prim:  OCTET STRING
+
+                   ie. PKCS8 keys*/
 
                 if ($tag == CRYPT_RSA_ASN1_INTEGER && substr($key, 0, 3) == "\x01\x00\x30") {
                     $this->_string_shift($key, 3);
@@ -1091,6 +1153,52 @@ class Crypt_RSA
                 }
 
                 if ($tag == CRYPT_RSA_ASN1_SEQUENCE) {
+                    $temp = $this->_string_shift($key, $this->_decodeLength($key));
+                    if (ord($this->_string_shift($temp)) != CRYPT_RSA_ASN1_OBJECT) {
+                        return false;
+                    }
+                    $length = $this->_decodeLength($temp);
+                    switch ($this->_string_shift($temp, $length)) {
+                        case "\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01": // rsaEncryption
+                            break;
+                        case "\x2a\x86\x48\x86\xf7\x0d\x01\x05\x03": // pbeWithMD5AndDES-CBC
+                            /*
+                               PBEParameter ::= SEQUENCE {
+                                   salt OCTET STRING (SIZE(8)),
+                                   iterationCount INTEGER }
+                            */
+                            if (ord($this->_string_shift($temp)) != CRYPT_RSA_ASN1_SEQUENCE) {
+                                return false;
+                            }
+                            if ($this->_decodeLength($temp) != strlen($temp)) {
+                                return false;
+                            }
+                            $this->_string_shift($temp); // assume it's an octet string
+                            $salt = $this->_string_shift($temp, $this->_decodeLength($temp));
+                            if (ord($this->_string_shift($temp)) != CRYPT_RSA_ASN1_INTEGER) {
+                                return false;
+                            }
+                            $this->_decodeLength($temp);
+                            list(, $iterationCount) = unpack('N', str_pad($temp, 4, chr(0), STR_PAD_LEFT));
+                            $this->_string_shift($key); // assume it's an octet string
+                            $length = $this->_decodeLength($key);
+                            if (strlen($key) != $length) {
+                                return false;
+                            }
+
+                            if (!class_exists('Crypt_DES')) {
+                                include_once 'Crypt/DES.php';
+                            }
+                            $crypto = new Crypt_DES();
+                            $crypto->setPassword($this->password, 'pbkdf1', 'md5', $salt, $iterationCount);
+                            $key = $crypto->decrypt($key);
+                            if ($key === false) {
+                                return false;
+                            }
+                            return $this->_parseKey($key, CRYPT_RSA_PRIVATE_FORMAT_PKCS1);
+                        default:
+                            return false;
+                    }
                     /* intended for keys for which OpenSSL's asn1parse returns the following:
 
                         0:d=0  hl=4 l= 290 cons: SEQUENCE
@@ -1098,7 +1206,6 @@ class Crypt_RSA
                         6:d=2  hl=2 l=   9 prim:   OBJECT            :rsaEncryption
                        17:d=2  hl=2 l=   0 prim:   NULL
                        19:d=1  hl=4 l= 271 prim:  BIT STRING */
-                    $this->_string_shift($key, $this->_decodeLength($key));
                     $tag = ord($this->_string_shift($key)); // skip over the BIT STRING / OCTET STRING tag
                     $this->_decodeLength($key); // skip over the BIT STRING / OCTET STRING length
                     // "The initial octet shall encode, as an unsigned binary integer wtih bit 1 as the least significant bit, the number of
@@ -1643,7 +1750,7 @@ class Crypt_RSA
      * @param String $key
      * @param Integer $type optional
      */
-    function getPublicKey($type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
+    function getPublicKey($type = CRYPT_RSA_PUBLIC_FORMAT_PKCS8)
     {
         if (empty($this->modulus) || empty($this->publicExponent)) {
             return false;
@@ -1690,7 +1797,7 @@ class Crypt_RSA
      * @param String $key
      * @param Integer $type optional
      */
-    function _getPrivatePublicKey($mode = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
+    function _getPrivatePublicKey($mode = CRYPT_RSA_PUBLIC_FORMAT_PKCS8)
     {
         if (empty($this->modulus) || empty($this->exponent)) {
             return false;
