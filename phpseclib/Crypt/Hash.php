@@ -58,7 +58,7 @@ use \phpseclib\Math\BigInteger;
 
 /**#@+
  * @access private
- * @see Crypt_Hash::Crypt_Hash()
+ * @see Crypt_Hash::__construct()
  */
 /**
  * Toggles the internal implementation
@@ -153,7 +153,7 @@ class Crypt_Hash
      * @return Crypt_Hash
      * @access public
      */
-    function Crypt_Hash($hash = 'sha1')
+    function __construct($hash = 'sha1')
     {
         if ( !defined('CRYPT_HASH_MODE') ) {
             switch (true) {

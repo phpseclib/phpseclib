@@ -71,7 +71,7 @@ if (!class_exists('Crypt_Base')) {
 
 /**#@+
  * @access private
- * @see Crypt_RC4::Crypt_RC4()
+ * @see Crypt_RC4::__construct()
  */
 /**
  * Toggles the internal implementation
@@ -172,13 +172,13 @@ class Crypt_RC4 extends Crypt_Base
      *
      * Determines whether or not the mcrypt extension should be used.
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt_Base::__construct()
      * @return Crypt_RC4
      * @access public
      */
-    function Crypt_RC4()
+    function __construct()
     {
-        parent::Crypt_Base(CRYPT_MODE_STREAM);
+        parent::__construct(CRYPT_MODE_STREAM);
     }
 
     /**

@@ -181,18 +181,18 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * If not explicitly set, CRYPT_DES_MODE_CBC will be used.
      *
-     * @see Crypt_DES::Crypt_DES()
-     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt_DES::__construct()
+     * @see Crypt_Base::__construct()
      * @param optional Integer $mode
      * @access public
      */
-    function Crypt_TripleDES($mode = CRYPT_DES_MODE_CBC)
+    function __construct($mode = CRYPT_DES_MODE_CBC)
     {
         switch ($mode) {
             // In case of CRYPT_DES_MODE_3CBC, we init as CRYPT_DES_MODE_CBC
             // and additional flag us internally as 3CBC
             case CRYPT_DES_MODE_3CBC:
-                parent::Crypt_DES(CRYPT_DES_MODE_CBC);
+                parent::__construct(CRYPT_DES_MODE_CBC);
                 $this->mode_3cbc = true;
 
                 // This three $des'es will do the 3CBC work (if $key > 64bits)
@@ -209,7 +209,7 @@ class Crypt_TripleDES extends Crypt_DES
                 break;
             // If not 3CBC, we init as usual
             default:
-                parent::Crypt_DES($mode);
+                parent::__construct($mode);
         }
     }
 

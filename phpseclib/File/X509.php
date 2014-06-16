@@ -313,7 +313,7 @@ class File_X509
      * @return File_X509
      * @access public
      */
-    function File_X509()
+    function __construct()
     {
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1

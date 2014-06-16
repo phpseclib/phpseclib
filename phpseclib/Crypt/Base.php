@@ -98,7 +98,7 @@ define('CRYPT_MODE_STREAM', 5);
 
 /**#@+
  * @access private
- * @see Crypt_Base::Crypt_Base()
+ * @see Crypt_Base::__construct()
  */
 /**
  * Base value for the internal implementation $engine switch
@@ -123,7 +123,7 @@ class Crypt_Base
     /**
      * The Encryption Mode
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt_Base::__construct()
      * @var Integer
      * @access private
      */
@@ -312,7 +312,7 @@ class Crypt_Base
     /**
      * Is the mode one that is paddable?
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt_Base::__construct()
      * @var Boolean
      * @access private
      */
@@ -387,7 +387,7 @@ class Crypt_Base
      * $aes = new Crypt_AES(CRYPT_AES_MODE_CFB); // $aes will operate in cfb mode
      * $aes = new Crypt_AES(CRYPT_MODE_CFB);     // identical
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt_Base::__construct()
      * @var String
      * @access private
      */
@@ -443,7 +443,7 @@ class Crypt_Base
      * @param optional Integer $mode
      * @access public
      */
-    function Crypt_Base($mode = CRYPT_MODE_CBC)
+    function __construct($mode = CRYPT_MODE_CBC)
     {
         $const_crypt_mode = 'CRYPT_' . $this->const_namespace . '_MODE';
 
