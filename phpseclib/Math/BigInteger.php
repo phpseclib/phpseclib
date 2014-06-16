@@ -3095,7 +3095,7 @@ class Math_BigInteger
      * $max->random($min)
      *
      * @param Math_BigInteger $arg1
-     * @param optional Math_Integer $arg2
+     * @param optional Math_BigInteger $arg2
      * @return Math_BigInteger
      * @access public
      * @internal The API for creating random numbers used to be $a->random($min, $max), where $a was a Math_BigInteger object.
