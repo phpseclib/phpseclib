@@ -109,7 +109,7 @@ define('CRYPT_AES_MODE_OFB', CRYPT_MODE_OFB);
 
 /**#@+
  * @access private
- * @see Crypt_AES::Crypt_AES()
+ * @see Crypt_Base::Crypt_Base()
  */
 /**
  * Toggles the internal implementation

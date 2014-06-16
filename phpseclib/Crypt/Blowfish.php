@@ -103,7 +103,7 @@ define('CRYPT_BLOWFISH_MODE_OFB', CRYPT_MODE_OFB);
 
 /**#@+
  * @access private
- * @see Crypt_Blowfish::Crypt_Blowfish()
+ * @see Crypt_Base::Crypt_Base()
  */
 /**
  * Toggles the internal implementation
