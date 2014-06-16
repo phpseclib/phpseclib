@@ -103,7 +103,7 @@ define('CRYPT_TWOFISH_MODE_OFB', CRYPT_MODE_OFB);
 
 /**#@+
  * @access private
- * @see Crypt_Twofish::Crypt_Twofish()
+ * @see Crypt_Base::Crypt_Base()
  */
 /**
  * Toggles the internal implementation

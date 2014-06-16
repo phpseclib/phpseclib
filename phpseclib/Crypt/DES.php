@@ -123,7 +123,7 @@ define('CRYPT_DES_MODE_OFB', CRYPT_MODE_OFB);
 
 /**#@+
  * @access private
- * @see Crypt_DES::Crypt_DES()
+ * @see Crypt_Base::Crypt_Base()
  */
 /**
  * Toggles the internal implementation
