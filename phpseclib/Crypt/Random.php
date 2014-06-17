@@ -123,7 +123,7 @@ if (!function_exists('crypt_random_string')) {
         // easy to guess at. linux uses mouse clicks, keyboard timings, etc, as entropy sources, but
         // PHP isn't low level to be able to use those as sources and on a web server there's not likely
         // going to be a ton of keyboard or mouse action. web servers do have one thing that we can use
-        // however. a ton of people visiting the website. obviously you don't want to base your seeding
+        // however, a ton of people visiting the website. obviously you don't want to base your seeding
         // soley on parameters a potential attacker sends but (1) not everything in $_SERVER is controlled
         // by the user and (2) this isn't just looking at the data sent by the current user - it's based
         // on the data sent by all users. one user requests the page and a hash of their info is saved.
