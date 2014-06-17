@@ -274,7 +274,7 @@ if (!function_exists('stream_resolve_include_path')) {
             $file = $prefix . $ds . $filename;
 
             if (file_exists($file)) {
-                return $file;
+                return realpath($file);
             }
         }
 
