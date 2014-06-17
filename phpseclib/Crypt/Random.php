@@ -274,8 +274,7 @@ if (!function_exists('stream_resolve_include_path')) {
             preg_split('#(?<!phar):#', get_include_path()) :
             explode(PATH_SEPARATOR, get_include_path());
         foreach ($paths as $prefix) {
-            $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
-            $file = $prefix . $ds . $filename;
+            $file = $prefix . DIRECTORY_SEPARATOR . $filename;
 
             if (file_exists($file)) {
                 return realpath($file);
