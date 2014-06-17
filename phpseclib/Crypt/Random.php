@@ -266,6 +266,10 @@ if (!function_exists('stream_resolve_include_path')) {
      */
     function stream_resolve_include_path($filename)
     {
+        if (file_exists($file)) {
+            return realpath($file);
+        }
+
         $paths = PATH_SEPARATOR == ':' ?
             preg_split('#(?<!phar):#', get_include_path()) :
             explode(PATH_SEPARATOR, get_include_path());
