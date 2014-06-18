@@ -3,6 +3,9 @@
 /**
  * Random Number Generator
  *
+ * The idea behind this function is that it can be easily replaced with your own crypt_random_string()
+ * function. eg. maybe you have a better source of entropy for creating the initial states or whatever.
+ *
  * PHP versions 4 and 5
  *
  * Here's a short example of how to use this library:
@@ -120,7 +123,7 @@ if (!function_exists('crypt_random_string')) {
         // easy to guess at. linux uses mouse clicks, keyboard timings, etc, as entropy sources, but
         // PHP isn't low level to be able to use those as sources and on a web server there's not likely
         // going to be a ton of keyboard or mouse action. web servers do have one thing that we can use
-        // however. a ton of people visiting the website. obviously you don't want to base your seeding
+        // however, a ton of people visiting the website. obviously you don't want to base your seeding
         // soley on parameters a potential attacker sends but (1) not everything in $_SERVER is controlled
         // by the user and (2) this isn't just looking at the data sent by the current user - it's based
         // on the data sent by all users. one user requests the page and a hash of their info is saved.
@@ -247,5 +250,39 @@ if (!function_exists('crypt_random_string')) {
             $result.= $r;
         }
         return substr($result, 0, $length);
+    }
+}
+
+
+if (!function_exists('stream_resolve_include_path')) {
+    /**
+     * Resolve filename against the include path.
+     *
+     * stream_resolve_include_path was introduced in PHP 5.3.2. This is kinda a PHP_Compat layer for those not using that version.
+     *
+     * @param Integer $length
+     * @return String
+     * @access public
+     */
+
+    function stream_resolve_include_path($filename)
+    {
+        if (file_exists($filename)) {
+            return realpath($filename);
+        }
+
+        $paths = PATH_SEPARATOR == ':' ?
+            preg_split('#(?<!phar):#', get_include_path()) :
+            explode(PATH_SEPARATOR, get_include_path());
+        foreach ($paths as $prefix) {
+            $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
+            $file = $prefix . $ds . $filename;
+
+            if (file_exists($file)) {
+                return realpath($file);
+            }
+        }
+
+        return false;
     }
 }
