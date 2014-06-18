@@ -264,22 +264,18 @@ if (!function_exists('stream_resolve_include_path')) {
      * @return String
      * @access public
      */
+
     function stream_resolve_include_path($filename)
     {
-        if (file_exists($file)) {
-exit('a2');
-            return realpath($file);
-        }
-
         $paths = PATH_SEPARATOR == ':' ?
             preg_split('#(?<!phar):#', get_include_path()) :
             explode(PATH_SEPARATOR, get_include_path());
         foreach ($paths as $prefix) {
-            $file = $prefix . DIRECTORY_SEPARATOR . $filename;
+            $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
+            $file = $prefix . $ds . $filename;
 
-            if (file_exists($file)) {
-exit('a1');
-                return realpath($file);
+            if (file_exists($filename)) {
+                return $filename;
             }
         }
 
