@@ -274,8 +274,9 @@ if (!function_exists('stream_resolve_include_path')) {
             $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
             $file = $prefix . $ds . $filename;
 
-            if (file_exists($filename)) {
-                return $filename;
+echo "$file\r\n";
+            if (file_exists($file)) {
+                return $file;
             }
         }
 
