@@ -267,6 +267,7 @@ if (!function_exists('stream_resolve_include_path')) {
     function stream_resolve_include_path($filename)
     {
         if (file_exists($file)) {
+exit('a2');
             return realpath($file);
         }
 
@@ -277,6 +278,7 @@ if (!function_exists('stream_resolve_include_path')) {
             $file = $prefix . DIRECTORY_SEPARATOR . $filename;
 
             if (file_exists($file)) {
+exit('a1');
                 return realpath($file);
             }
         }
