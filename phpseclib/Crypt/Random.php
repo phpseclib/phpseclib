@@ -277,16 +277,24 @@ if (!function_exists('phpseclib_is_includable')) {
         if (function_exists('stream_resolve_include_path')) {
             return stream_resolve_include_path($filename);
         }
+
+        // handle non-relative paths
+        if (file_exists($filename)) {
+            return realpath($filename);
+        }
+
         $paths = PATH_SEPARATOR == ':' ?
             preg_split('#(?<!phar):#', get_include_path()) :
             explode(PATH_SEPARATOR, get_include_path());
         foreach ($paths as $prefix) {
+            // path's specified in include_path don't always end in /
             $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
             $file = $prefix . $ds . $filename;
             if (file_exists($file)) {
-                return $file;
+                return realpath($file);
             }
         }
+
         return false;
     }
 }
