@@ -333,7 +333,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testReadlink($sftp)
     {
         $this->assertInternalType('string', $sftp->readlink('symlink'),
-            'Failed asserting that a symlink's target could be read'
+            'Failed asserting that a symlink\'s target could be read'
         );
     }
 
