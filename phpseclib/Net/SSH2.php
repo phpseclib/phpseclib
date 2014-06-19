@@ -1104,31 +1104,31 @@ class Net_SSH2
                 'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
             );
 
-            if (phpseclib_resolve_include_path('Crypt/RC4.php') === false) {
+            if (stream_resolve_include_path('Crypt/RC4.php') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('arcfour256', 'arcfour128', 'arcfour')
                 );
             }
-            if (phpseclib_resolve_include_path('Crypt/Rijndael.php') === false) {
+            if (stream_resolve_include_path('Crypt/Rijndael.php') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('aes128-ctr', 'aes192-ctr', 'aes256-ctr', 'aes128-cbc', 'aes192-cbc', 'aes256-cbc')
                 );
             }
-            if (phpseclib_resolve_include_path('Crypt/Twofish.php') === false) {
+            if (stream_resolve_include_path('Crypt/Twofish.php') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('twofish128-ctr', 'twofish192-ctr', 'twofish256-ctr', 'twofish128-cbc', 'twofish192-cbc', 'twofish256-cbc', 'twofish-cbc')
                 );
             }
-            if (phpseclib_resolve_include_path('Crypt/Blowfish.php') === false) {
+            if (stream_resolve_include_path('Crypt/Blowfish.php') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('blowfish-ctr', 'blowfish-cbc')
                 );
             }
-            if (phpseclib_resolve_include_path('Crypt/TripleDES.php') === false) {
+            if (stream_resolve_include_path('Crypt/TripleDES.php') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('3des-ctr', '3des-cbc')
