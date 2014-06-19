@@ -3,6 +3,9 @@
 /**
  * Random Number Generator
  *
+ * The idea behind this function is that it can be easily replaced with your own crypt_random_string()
+ * function. eg. maybe you have a better source of entropy for creating the initial states or whatever.
+ *
  * PHP versions 4 and 5
  *
  * Here's a short example of how to use this library:
@@ -120,7 +123,7 @@ if (!function_exists('crypt_random_string')) {
         // easy to guess at. linux uses mouse clicks, keyboard timings, etc, as entropy sources, but
         // PHP isn't low level to be able to use those as sources and on a web server there's not likely
         // going to be a ton of keyboard or mouse action. web servers do have one thing that we can use
-        // however. a ton of people visiting the website. obviously you don't want to base your seeding
+        // however, a ton of people visiting the website. obviously you don't want to base your seeding
         // soley on parameters a potential attacker sends but (1) not everything in $_SERVER is controlled
         // by the user and (2) this isn't just looking at the data sent by the current user - it's based
         // on the data sent by all users. one user requests the page and a hash of their info is saved.
@@ -191,21 +194,45 @@ if (!function_exists('crypt_random_string')) {
             //
             // http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Designs_based_on_cryptographic_primitives
             switch (true) {
-                case class_exists('Crypt_AES'):
+                case phpseclib_resolve_include_path('Crypt/AES.php'):
+                    if (!class_exists('Crypt_AES')) {
+                        include_once 'AES.php';
+                    }
                     $crypto = new Crypt_AES(CRYPT_AES_MODE_CTR);
                     break;
-                case class_exists('Crypt_TripleDES'):
+                case phpseclib_resolve_include_path('Crypt/Twofish.php'):
+                    if (!class_exists('Crypt_Twofish')) {
+                        include_once 'Twofish.php';
+                    }
+                    $crypto = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
+                    break;
+                case phpseclib_resolve_include_path('Crypt/Blowfish.php'):
+                    if (!class_exists('Crypt_Blowfish')) {
+                        include_once 'Blowfish.php';
+                    }
+                    $crypto = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
+                    break;
+                case phpseclib_resolve_include_path('Crypt/TripleDES.php'):
+                    if (!class_exists('Crypt_TripleDES')) {
+                        include_once 'TripleDES.php';
+                    }
                     $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
                     break;
-                case class_exists('Crypt_DES'):
+                case phpseclib_resolve_include_path('Crypt/DES.php'):
+                    if (!class_exists('Crypt_DES')) {
+                        include_once 'DES.php';
+                    }
                     $crypto = new Crypt_DES(CRYPT_DES_MODE_CTR);
                     break;
-                case class_exists('Crypt_RC4'):
+                case phpseclib_resolve_include_path('Crypt/RC4.php'):
+                    if (!class_exists('Crypt_RC4')) {
+                        include_once 'RC4.php';
+                    }
                     $crypto = new Crypt_RC4();
                     break;
                 default:
-                    $crypto = $seed;
-                    return crypt_random_string($length);
+                    user_error('crypt_random_string requires at least one symmetric cipher be loaded');
+                    return false;
             }
 
             $crypto->setKey($key);
@@ -213,39 +240,61 @@ if (!function_exists('crypt_random_string')) {
             $crypto->enableContinuousBuffer();
         }
 
-        if (is_string($crypto)) {
-            // the following is based off of ANSI X9.31:
-            //
-            // http://csrc.nist.gov/groups/STM/cavp/documents/rng/931rngext.pdf
-            //
-            // OpenSSL uses that same standard for it's random numbers:
-            //
-            // http://www.opensource.apple.com/source/OpenSSL/OpenSSL-38/openssl/fips-1.0/rand/fips_rand.c
-            // (do a search for "ANS X9.31 A.2.4")
-            //
-            // ANSI X9.31 recommends ciphers be used and phpseclib does use them if they're available (see
-            // later on in the code) but if they're not we'll use sha1
-            $result = '';
-            while (strlen($result) < $length) { // each loop adds 20 bytes
-                // microtime() isn't packed as "densely" as it could be but then neither is that the idea.
-                // the idea is simply to ensure that each "block" has a unique element to it.
-                $i = pack('H*', sha1(microtime()));
-                $r = pack('H*', sha1($i ^ $v));
-                $v = pack('H*', sha1($r ^ $i));
-                $result.= $r;
-            }
-            return substr($result, 0, $length);
-        }
-
         //return $crypto->encrypt(str_repeat("\0", $length));
 
+        // the following is based off of ANSI X9.31:
+        //
+        // http://csrc.nist.gov/groups/STM/cavp/documents/rng/931rngext.pdf
+        //
+        // OpenSSL uses that same standard for it's random numbers:
+        //
+        // http://www.opensource.apple.com/source/OpenSSL/OpenSSL-38/openssl/fips-1.0/rand/fips_rand.c
+        // (do a search for "ANS X9.31 A.2.4")
         $result = '';
         while (strlen($result) < $length) {
-            $i = $crypto->encrypt(microtime());
-            $r = $crypto->encrypt($i ^ $v);
-            $v = $crypto->encrypt($r ^ $i);
+            $i = $crypto->encrypt(microtime()); // strlen(microtime()) == 21
+            $r = $crypto->encrypt($i ^ $v); // strlen($v) == 20
+            $v = $crypto->encrypt($r ^ $i); // strlen($r) == 20
             $result.= $r;
         }
         return substr($result, 0, $length);
+    }
+}
+
+if (!function_exists('phpseclib_resolve_include_path')) {
+    /**
+     * Resolve filename against the include path.
+     *
+     * Wrapper around stream_resolve_include_path() (which was introduced in
+     * PHP 5.3.2) with fallback implementation for earlier PHP versions.
+     *
+     * @param string $filename
+     * @return mixed Filename (string) on success, false otherwise.
+     * @access public
+     */
+    function phpseclib_resolve_include_path($filename)
+    {
+        if (function_exists('stream_resolve_include_path')) {
+            return stream_resolve_include_path($filename);
+        }
+
+        // handle non-relative paths
+        if (file_exists($filename)) {
+            return realpath($filename);
+        }
+
+        $paths = PATH_SEPARATOR == ':' ?
+            preg_split('#(?<!phar):#', get_include_path()) :
+            explode(PATH_SEPARATOR, get_include_path());
+        foreach ($paths as $prefix) {
+            // path's specified in include_path don't always end in /
+            $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
+            $file = $prefix . $ds . $filename;
+            if (file_exists($file)) {
+                return realpath($file);
+            }
+        }
+
+        return false;
     }
 }

@@ -1104,31 +1104,31 @@ class Net_SSH2
                 'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
             );
 
-            if (!$this->_is_includable('Crypt/RC4.php')) {
+            if (phpseclib_resolve_include_path('Crypt/RC4.php') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('arcfour256', 'arcfour128', 'arcfour')
                 );
             }
-            if (!$this->_is_includable('Crypt/Rijndael.php')) {
+            if (phpseclib_resolve_include_path('Crypt/Rijndael.php') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('aes128-ctr', 'aes192-ctr', 'aes256-ctr', 'aes128-cbc', 'aes192-cbc', 'aes256-cbc')
                 );
             }
-            if (!$this->_is_includable('Crypt/Twofish.php')) {
+            if (phpseclib_resolve_include_path('Crypt/Twofish.php') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('twofish128-ctr', 'twofish192-ctr', 'twofish256-ctr', 'twofish128-cbc', 'twofish192-cbc', 'twofish256-cbc', 'twofish-cbc')
                 );
             }
-            if (!$this->_is_includable('Crypt/Blowfish.php')) {
+            if (phpseclib_resolve_include_path('Crypt/Blowfish.php') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('blowfish-ctr', 'blowfish-cbc')
                 );
             }
-            if (!$this->_is_includable('Crypt/TripleDES.php')) {
+            if (phpseclib_resolve_include_path('Crypt/TripleDES.php') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('3des-ctr', '3des-cbc')
@@ -3771,33 +3771,5 @@ class Net_SSH2
             return false;
         }
         return $this->exit_status;
-    }
-
-    /**
-     * Is a path includable?
-     *
-     * @return Boolean
-     * @access private
-     */
-    function _is_includable($suffix)
-    {
-        // stream_resolve_include_path was introduced in PHP 5.3.2
-        if (function_exists('stream_resolve_include_path')) {
-            return stream_resolve_include_path($suffix) !== false;
-        }
-
-        $paths = PATH_SEPARATOR == ':' ?
-            preg_split('#(?<!phar):#', get_include_path()) :
-            explode(PATH_SEPARATOR, get_include_path());
-        foreach ($paths as $prefix) {
-            $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
-            $file = $prefix . $ds . $suffix;
-
-            if (file_exists($file)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
