@@ -322,7 +322,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testSymlink($sftp)
     {
         $this->assertTrue(
-            $sftp->symlink('symlink', 'file3.txt'),
+            $sftp->symlink('file3.txt', 'symlink'),
             'Failed asserting that a symlink could be created'
         );
     }
