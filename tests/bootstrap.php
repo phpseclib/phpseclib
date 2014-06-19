@@ -21,7 +21,7 @@ function phpseclib_autoload($class)
 {
     $file = str_replace('_', '/', $class) . '.php';
 
-    if (phpseclib_is_includable($file)) {
+    if (phpseclib_resolve_include_path($file)) {
         // @codingStandardsIgnoreStart
         require $file;
         // @codingStandardsIgnoreEnd

@@ -194,37 +194,37 @@ if (!function_exists('crypt_random_string')) {
             //
             // http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Designs_based_on_cryptographic_primitives
             switch (true) {
-                case phpseclib_is_includable('Crypt/AES.php'):
+                case phpseclib_resolve_include_path('Crypt/AES.php'):
                     if (!class_exists('Crypt_AES')) {
                         include_once 'AES.php';
                     }
                     $crypto = new Crypt_AES(CRYPT_AES_MODE_CTR);
                     break;
-                case phpseclib_is_includable('Crypt/Twofish.php'):
+                case phpseclib_resolve_include_path('Crypt/Twofish.php'):
                     if (!class_exists('Crypt_Twofish')) {
                         include_once 'Twofish.php';
                     }
                     $crypto = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
                     break;
-                case phpseclib_is_includable('Crypt/Blowfish.php'):
+                case phpseclib_resolve_include_path('Crypt/Blowfish.php'):
                     if (!class_exists('Crypt_Blowfish')) {
                         include_once 'Blowfish.php';
                     }
                     $crypto = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
                     break;
-                case phpseclib_is_includable('Crypt/TripleDES.php'):
+                case phpseclib_resolve_include_path('Crypt/TripleDES.php'):
                     if (!class_exists('Crypt_TripleDES')) {
                         include_once 'TripleDES.php';
                     }
                     $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
                     break;
-                case phpseclib_is_includable('Crypt/DES.php'):
+                case phpseclib_resolve_include_path('Crypt/DES.php'):
                     if (!class_exists('Crypt_DES')) {
                         include_once 'DES.php';
                     }
                     $crypto = new Crypt_DES(CRYPT_DES_MODE_CTR);
                     break;
-                case phpseclib_is_includable('Crypt/RC4.php'):
+                case phpseclib_resolve_include_path('Crypt/RC4.php'):
                     if (!class_exists('Crypt_RC4')) {
                         include_once 'RC4.php';
                     }
@@ -261,7 +261,7 @@ if (!function_exists('crypt_random_string')) {
     }
 }
 
-if (!function_exists('phpseclib_is_includable')) {
+if (!function_exists('phpseclib_resolve_include_path')) {
     /**
      * Resolve filename against the include path.
      *
@@ -272,7 +272,7 @@ if (!function_exists('phpseclib_is_includable')) {
      * @return mixed Filename (string) on success, false otherwise.
      * @access public
      */
-    function phpseclib_is_includable($filename)
+    function phpseclib_resolve_include_path($filename)
     {
         if (function_exists('stream_resolve_include_path')) {
             return stream_resolve_include_path($filename);
