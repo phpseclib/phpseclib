@@ -319,6 +319,27 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     /**
     * @depends testSortOrder
     */
+    public function testSymlink($sftp)
+    {
+        $this->assertTrue(
+            $sftp->symlink('symlink', 'file3.txt'),
+            'Failed asserting that a symlink could be created'
+        );
+    }
+
+    /**
+    * @depends testSymlink
+    */
+    public function testReadlink($sftp)
+    {
+        $this->assertInternalType('string', $sftp->readlink('symlink'),
+            'Failed asserting that a symlink's target could be read'
+        );
+    }
+
+    /**
+    * @depends testSortOrder
+    */
     public function testChDirUpHome($sftp)
     {
         $this->assertTrue(
