@@ -3797,7 +3797,7 @@ class Net_SSH2
         }
         return $this->exit_status;
     }
-    
+
     /**
      * Returns the number of columns for the terminal window size.
      * 
@@ -3808,7 +3808,7 @@ class Net_SSH2
     {
         return $this->windowColumns;
     }
-    
+
     /**
      * Returns the number of rows for the terminal window size.
      * 
@@ -3819,7 +3819,7 @@ class Net_SSH2
     {
         return $this->windowRows;
     }
-    
+
     /**
      * Sets the number of columns for the terminal window size.
      * 
@@ -3830,7 +3830,7 @@ class Net_SSH2
     {
         $this->windowColumns = $value;
     }
-    
+
     /**
      * Sets the number of rows for the terminal window size.
      * 
@@ -3841,7 +3841,7 @@ class Net_SSH2
     {
         $this->windowRows = $value;
     }
-    
+
     /**
      * Sets the number of columns and rows for the terminal window size.
      * 
