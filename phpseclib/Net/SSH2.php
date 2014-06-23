@@ -819,6 +819,28 @@ class Net_SSH2
     var $connectionTimeout;
 
     /**
+     * Number of columns for terminal window size
+     * 
+     * @see Net_SSH2::getWindowColumns()
+     * @see Net_SSH2::setWindowColumns()
+     * @see Net_SSH2::setWindowSize()
+     * @var Integer
+     * @access private
+     */
+    var $windowColumns = 80;
+
+    /**
+     * Number of columns for terminal window size
+     * 
+     * @see Net_SSH2::getWindowRows()
+     * @see Net_SSH2::setWindowRows()
+     * @see Net_SSH2::setWindowSize()
+     * @var Integer
+     * @access private
+     */
+    var $windowRows = 24;
+
+    /**
      * Default Constructor.
      *
      * @param String $host
@@ -2268,7 +2290,7 @@ class Net_SSH2
             $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
             $packet = pack('CNNa*CNa*N5a*',
                 NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SSH2_CHANNEL_EXEC], strlen('pty-req'), 'pty-req', 1, strlen('vt100'), 'vt100',
-                80, 24, 0, 0, strlen($terminal_modes), $terminal_modes);
+                $this->windowColumns, $this->windowRows, 0, 0, strlen($terminal_modes), $terminal_modes);
 
             if (!$this->_send_binary_packet($packet)) {
                 return false;
@@ -2375,7 +2397,7 @@ class Net_SSH2
         $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
         $packet = pack('CNNa*CNa*N5a*',
             NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SSH2_CHANNEL_SHELL], strlen('pty-req'), 'pty-req', 1, strlen('vt100'), 'vt100',
-            80, 24, 0, 0, strlen($terminal_modes), $terminal_modes);
+            $this->windowColumns, $this->windowRows, 0, 0, strlen($terminal_modes), $terminal_modes);
 
         if (!$this->_send_binary_packet($packet)) {
             return false;
@@ -3774,5 +3796,62 @@ class Net_SSH2
             return false;
         }
         return $this->exit_status;
+    }
+
+    /**
+     * Returns the number of columns for the terminal window size.
+     * 
+     * @return Integer
+     * @access public
+     */
+    function getWindowColumns()
+    {
+        return $this->windowColumns;
+    }
+
+    /**
+     * Returns the number of rows for the terminal window size.
+     * 
+     * @return Integer
+     * @access public
+     */
+    function getWindowRows()
+    {
+        return $this->windowRows;
+    }
+
+    /**
+     * Sets the number of columns for the terminal window size.
+     * 
+     * @param Integer $value
+     * @access public
+     */
+    function setWindowColumns($value)
+    {
+        $this->windowColumns = $value;
+    }
+
+    /**
+     * Sets the number of rows for the terminal window size.
+     * 
+     * @param Integer $value
+     * @access public
+     */
+    function setWindowRows($value)
+    {
+        $this->windowRows = $value;
+    }
+
+    /**
+     * Sets the number of columns and rows for the terminal window size.
+     * 
+     * @param Integer $columns
+     * @param Integer $rows
+     * @access public
+     */
+    function setWindowSize($columns = 80, $rows = 24)
+    {
+        $this->windowColumns = $columns;
+        $this->windowRows = $rows;
     }
 }
