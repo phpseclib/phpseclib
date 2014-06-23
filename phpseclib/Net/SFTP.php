@@ -312,6 +312,8 @@ class Net_SFTP extends Net_SSH2
                    SFTPv5+: http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.3
                pre-SFTPv5 : http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.5 */
             18 => 'NET_SFTP_RENAME',
+            19 => 'NET_SFTP_READLINK',
+            20 => 'NET_SFTP_SYMLINK',
 
             101=> 'NET_SFTP_STATUS',
             102=> 'NET_SFTP_HANDLE',
@@ -1552,6 +1554,86 @@ class Net_SFTP extends Net_SSH2
                 return false;
             }
             $i = 0;
+        }
+
+        return true;
+    }
+
+    /**
+     * Return the target of a symbolic link
+     *
+     * @param String $link
+     * @return Mixed
+     * @access public
+     */
+    function readlink($link)
+    {
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+            return false;
+        }
+
+        $link = $this->_realpath($link);
+
+        if (!$this->_send_sftp_packet(NET_SFTP_READLINK, pack('Na*', strlen($link), $link))) {
+            return false;
+        }
+
+        $response = $this->_get_sftp_packet();
+        switch ($this->packet_type) {
+            case NET_SFTP_NAME:
+                break;
+            case NET_SFTP_STATUS:
+                $this->_logError($response);
+                return false;
+            default:
+                user_error('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
+                return false;
+        }
+
+        extract(unpack('Ncount', $this->_string_shift($response, 4)));
+        // the file isn't a symlink
+        if (!$count) {
+            return false;
+        }
+
+        extract(unpack('Nlength', $this->_string_shift($response, 4)));
+        return $this->_string_shift($response, $length);
+    }
+
+    /**
+     * Create a symlink
+     *
+     * symlink() creates a symbolic link to the existing target with the specified name link.
+     *
+     * @param String $target
+     * @param String $link
+     * @return Boolean
+     * @access public
+     */
+    function symlink($target, $link)
+    {
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+            return false;
+        }
+
+        $target = $this->_realpath($target);
+        $link = $this->_realpath($link);
+
+        $packet = pack('Na*Na*', strlen($target), $target, strlen($link), $link);
+        if (!$this->_send_sftp_packet(NET_SFTP_SYMLINK, $packet)) {
+            return false;
+        }
+
+        $response = $this->_get_sftp_packet();
+        if ($this->packet_type != NET_SFTP_STATUS) {
+            user_error('Expected SSH_FXP_STATUS');
+            return false;
+        }
+
+        extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+        if ($status != NET_SFTP_STATUS_OK) {
+            $this->_logError($response, $status);
+            return false;
         }
 
         return true;
