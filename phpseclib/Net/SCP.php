@@ -170,7 +170,9 @@ class Net_SCP
             return false;
         }
 
-        if (!$this->ssh->exec('scp -t ' . $remote_file, false)) { // -t = to
+        $filename = strpos($remote_file, ' ') !== false ? '"' . $remote_file . '"' : $remote_file;
+
+        if (!$this->ssh->exec('scp -t ' . $filename, false)) { // -t = to
             return false;
         }
 
@@ -245,7 +247,9 @@ class Net_SCP
             return false;
         }
 
-        if (!$this->ssh->exec('scp -f ' . $remote_file, false)) { // -f = from
+        $filename = strpos($remote_file, ' ') !== false ? '"' . $remote_file . '"' : $remote_file;
+
+        if (!$this->ssh->exec('scp -f ' . $filename, false)) { // -f = from
             return false;
         }
 
