@@ -127,6 +127,22 @@ class Net_SFTP_Stream
     var $notification;
 
     /**
+     * Registers this class as a URL wrapper.
+     *
+     * @param optional String $protocol The wrapper name to be registered.
+     * @return Boolean True on success, false otherwise.
+     * @access public
+     */
+    static function register($protocol = 'sftp')
+    {
+        if (in_array($protocol, stream_get_wrappers(), true)) {
+            return false;
+        }
+        $class = function_exists('get_called_class') ? get_called_class() : __CLASS__;
+        return stream_wrapper_register($protocol, $class);
+    }
+
+    /**
      * The Constructor
      *
      * @access public
@@ -783,6 +799,4 @@ class Net_SFTP_Stream
     }
 }
 
-if (function_exists('stream_wrapper_register')) {
-    stream_wrapper_register('sftp', 'Net_SFTP_Stream');
-}
+Net_SFTP_Stream::register();
