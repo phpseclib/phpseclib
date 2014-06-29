@@ -138,8 +138,7 @@ class Net_SFTP_Stream
         if (in_array($protocol, stream_get_wrappers(), true)) {
             return false;
         }
-        $class = function_exists('get_called_class') ? get_called_class() : __CLASS__;
-        return stream_wrapper_register($protocol, $class);
+        return stream_wrapper_register($protocol, get_called_class());
     }
 
     /**
@@ -798,5 +797,3 @@ class Net_SFTP_Stream
         return call_user_func_array(array($this, $name), $arguments);
     }
 }
-
-Net_SFTP_Stream::register();
