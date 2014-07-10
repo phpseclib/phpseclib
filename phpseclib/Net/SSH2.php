@@ -1863,7 +1863,7 @@ class Net_SSH2
         if (is_object($password)) {
             // Ensure that if this class is namespaced, we don't try to match the
             // namespace.
-	    $classname = strtolower(get_class($password));
+            $classname = strtolower(get_class($password));
             if (strpos($classname, "\\") !== false) {
                 $classarr = explode("\\", $c);
                 $classname = end($classarr);

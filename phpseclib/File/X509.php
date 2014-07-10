@@ -4203,7 +4203,7 @@ class File_X509
                 return $this->computeKeyIdentifier($key['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'], $method);
             case !is_object($key):
                 return false;
-	}
+        }
         // Fix the class name to ignore any namespaces that may be applied.
         $classname = strtolower(get_class($key));
         if (strpos($classname, "\\") !== false) {

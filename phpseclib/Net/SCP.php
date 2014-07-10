@@ -131,7 +131,7 @@ class Net_SCP
         $classname = strtolower(get_class($ssh));
         if (strpos($classname, "\\") !== false) {
             $classarr = explode("\\", $c);
-	    $classname = end($classarr);
+            $classname = end($classarr);
         }
 
         switch ($classname) {
