@@ -127,8 +127,14 @@ class Net_SCP
         if (!is_object($ssh)) {
             return;
         }
+        // Ensure that if this class is namespaced, we don't try to match the namespace.
+        $classname = strtolower(get_class($ssh));
+        if (strpos($classname, "\\") !== false) {
+            $classarr = explode("\\", $c);
+	    $classname = end($classarr);
+        }
 
-        switch (strtolower(get_class($ssh))) {
+        switch ($classname) {
             case'net_ssh2':
                 $this->mode = NET_SCP_SSH2;
                 break;
@@ -170,7 +176,7 @@ class Net_SCP
             return false;
         }
 
-        if (!$this->ssh->exec('scp -t ' . $remote_file, false)) { // -t = to
+        if (!$this->ssh->exec('scp -t "' . $remote_file . '"', false)) { // -t = to
             return false;
         }
 
@@ -245,7 +251,7 @@ class Net_SCP
             return false;
         }
 
-        if (!$this->ssh->exec('scp -f ' . $remote_file, false)) { // -f = from
+        if (!$this->ssh->exec('scp -f "' . $remote_file . '"', false)) { // -f = from
             return false;
         }
 

@@ -288,7 +288,7 @@ class System_SSH_Agent
             $key_type = substr($key_blob, 4, $length);
             switch ($key_type) {
                 case 'ssh-rsa':
-                    if (!class_exists('Crypt_RSA')) {
+                    if (!class_exists(__NAMESPACE__.'Crypt_RSA')) {
                         include_once 'Crypt/RSA.php';
                     }
                     $key = new Crypt_RSA();
