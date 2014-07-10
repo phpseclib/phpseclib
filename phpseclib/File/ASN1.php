@@ -819,7 +819,7 @@ class File_ASN1
      */
     function _encode_der($source, $mapping, $idx = null, $special = array())
     {
-        if (is_object($encoded)) {
+        if (is_object($source)) {
             // Ensure that if this class is namespaced, we don't try to match the namespace.
             $classname = strtolower(get_class($source));
             if (strpos($classname, "\\") !== false) {
