@@ -1067,6 +1067,7 @@ class Net_SFTP extends Net_SSH2
             }
             if ($dir == end($dirs)) {
                 $temp[$dir] = $value;
+                break;
             }
             $temp = &$temp[$dir];
         }
