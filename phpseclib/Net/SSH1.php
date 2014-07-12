@@ -520,7 +520,7 @@ class Net_SSH1
     function __construct($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
     {
         // Include Crypt_Random
-        // the class_exists(__NAMESPACE__.) will only be called if the crypt_random_string function hasn't been defined and
+        // the class_exists() will only be called if the crypt_random_string function hasn't been defined and
         // will trigger a call to __autoload() if you're wanting to auto-load classes
         // call function_exists() a second time to stop the include_once from being called outside
         // of the auto loader
