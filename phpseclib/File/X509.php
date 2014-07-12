@@ -47,7 +47,7 @@ use \phpseclib\Math\BigInteger;
 /**
  * Include File_ASN1
  */
-if (!class_exists(__NAMESPACE__.'File_ASN1')) {
+if (!class_exists(__NAMESPACE__.'\File_ASN1')) {
     include_once 'ASN1.php';
 }
 
@@ -2125,7 +2125,7 @@ class File_X509
     {
         switch ($publicKeyAlgorithm) {
             case 'rsaEncryption':
-                if (!class_exists(__NAMESPACE__.'Crypt_RSA')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_RSA')) {
                     include_once 'Crypt/RSA.php';
                 }
                 $rsa = new Crypt_RSA();
@@ -2528,7 +2528,7 @@ class File_X509
                 return $result;
             case FILE_X509_DN_HASH:
                 $dn = $this->getDN(FILE_X509_DN_CANON, $dn);
-                if (!class_exists(__NAMESPACE__.'Crypt_Hash')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_Hash')) {
                     include_once 'Crypt/Hash.php';
                 }
                 $hash = new Crypt_Hash('sha1');
@@ -2809,7 +2809,7 @@ class File_X509
 
         switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                if (!class_exists(__NAMESPACE__.'Crypt_RSA')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_RSA')) {
                     include_once 'Crypt/RSA.php';
                 }
                 $publicKey = new Crypt_RSA();
@@ -2882,7 +2882,7 @@ class File_X509
 
         switch ($algorithm) {
             case 'rsaEncryption':
-                if (!class_exists(__NAMESPACE__.'Crypt_RSA')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_RSA')) {
                     include_once 'Crypt/RSA.php';
                 }
                 $this->publicKey = new Crypt_RSA();
@@ -3008,7 +3008,7 @@ class File_X509
 
         switch ($algorithm) {
             case 'rsaEncryption':
-                if (!class_exists(__NAMESPACE__.'Crypt_RSA')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_RSA')) {
                     include_once 'Crypt/RSA.php';
                 }
                 $this->publicKey = new Crypt_RSA();
@@ -4224,7 +4224,7 @@ class File_X509
                 }
                 $raw = base64_decode($raw);
                 // If the key is private, compute identifier from its corresponding public key.
-                if (!class_exists(__NAMESPACE__.'Crypt_RSA')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_RSA')) {
                     include_once 'Crypt/RSA.php';
                 }
                 $key = new Crypt_RSA();
@@ -4256,7 +4256,7 @@ class File_X509
         $key = $this->_extractBER($key);
 
         // Now we have the key string: compute its sha-1 sum.
-        if (!class_exists(__NAMESPACE__.'Crypt_Hash')) {
+        if (!class_exists(__NAMESPACE__.'\Crypt_Hash')) {
             include_once 'Crypt/Hash.php';
         }
         $hash = new Crypt_Hash('sha1');

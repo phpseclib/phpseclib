@@ -581,7 +581,7 @@ class Crypt_Base
 
                 switch (true) {
                     case $method == 'pbkdf1':
-                        if (!class_exists(__NAMESPACE__.'Crypt_Hash')) {
+                        if (!class_exists(__NAMESPACE__.'\Crypt_Hash')) {
                             include_once 'Crypt/Hash.php';
                         }
                         $hashObj = new Crypt_Hash();
@@ -604,7 +604,7 @@ class Crypt_Base
                     case !function_exists('hash_pbkdf2'):
                     case !function_exists('hash_algos'):
                     case !in_array($hash, hash_algos()):
-                        if (!class_exists(__NAMESPACE__.'Crypt_Hash')) {
+                        if (!class_exists(__NAMESPACE__.'\Crypt_Hash')) {
                             include_once 'Crypt/Hash.php';
                         }
                         $i = 1;

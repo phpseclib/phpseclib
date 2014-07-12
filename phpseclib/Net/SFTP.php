@@ -56,7 +56,7 @@
 /**
  * Include Net_SSH2
  */
-if (!class_exists(__NAMESPACE__.'Net_SSH2')) {
+if (!class_exists(__NAMESPACE__.'\Net_SSH2')) {
     include_once 'SSH2.php';
 }
 

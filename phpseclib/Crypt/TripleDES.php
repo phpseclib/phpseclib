@@ -55,7 +55,7 @@
 /**
  * Include Crypt_DES
  */
-if (!class_exists(__NAMESPACE__.'Crypt_DES')) {
+if (!class_exists(__NAMESPACE__.'\Crypt_DES')) {
     include_once 'DES.php';
 }
 

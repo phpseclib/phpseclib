@@ -524,7 +524,7 @@ class Net_SSH1
         // will trigger a call to __autoload() if you're wanting to auto-load classes
         // call function_exists() a second time to stop the include_once from being called outside
         // of the auto loader
-        if (!function_exists('crypt_random_string') && !class_exists(__NAMESPACE__.'Crypt_Random') && !function_exists('crypt_random_string')) {
+        if (!function_exists('crypt_random_string') && !class_exists(__NAMESPACE__.'\Crypt_Random') && !function_exists('crypt_random_string')) {
             include_once 'Crypt/Random.php';
         }
 
@@ -683,7 +683,7 @@ class Net_SSH1
             //    $this->crypto = new Crypt_Null();
             //    break;
             case NET_SSH1_CIPHER_DES:
-                if (!class_exists(__NAMESPACE__.'Crypt_DES')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_DES')) {
                     include_once 'Crypt/DES.php';
                 }
                 $this->crypto = new Crypt_DES();
@@ -692,7 +692,7 @@ class Net_SSH1
                 $this->crypto->setKey(substr($session_key, 0,  8));
                 break;
             case NET_SSH1_CIPHER_3DES:
-                if (!class_exists(__NAMESPACE__.'Crypt_TripleDES')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_TripleDES')) {
                     include_once 'Crypt/TripleDES.php';
                 }
                 $this->crypto = new Crypt_TripleDES(CRYPT_DES_MODE_3CBC);
@@ -701,7 +701,7 @@ class Net_SSH1
                 $this->crypto->setKey(substr($session_key, 0, 24));
                 break;
             //case NET_SSH1_CIPHER_RC4:
-            //    if (!class_exists(__NAMESPACE__.'Crypt_RC4')) {
+            //    if (!class_exists(__NAMESPACE__.'\Crypt_RC4')) {
             //        include_once 'Crypt/RC4.php';
             //    }
             //    $this->crypto = new Crypt_RC4();
@@ -1342,7 +1342,7 @@ class Net_SSH1
     function _rsa_crypt($m, $key)
     {
         /*
-        if (!class_exists(__NAMESPACE__.'Crypt_RSA')) {
+        if (!class_exists(__NAMESPACE__.'\Crypt_RSA')) {
             include_once 'Crypt/RSA.php';
         }
 
