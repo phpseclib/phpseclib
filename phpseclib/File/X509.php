@@ -47,7 +47,7 @@ use \phpseclib\Math\BigInteger;
 /**
  * Include File_ASN1
  */
-if (!class_exists('File_ASN1')) {
+if (!class_exists(__NAMESPACE__.'\File_ASN1')) {
     include_once 'ASN1.php';
 }
 
@@ -2125,7 +2125,7 @@ class File_X509
     {
         switch ($publicKeyAlgorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_RSA')) {
                     include_once 'Crypt/RSA.php';
                 }
                 $rsa = new Crypt_RSA();
@@ -2528,7 +2528,7 @@ class File_X509
                 return $result;
             case FILE_X509_DN_HASH:
                 $dn = $this->getDN(FILE_X509_DN_CANON, $dn);
-                if (!class_exists('Crypt_Hash')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_Hash')) {
                     include_once 'Crypt/Hash.php';
                 }
                 $hash = new Crypt_Hash('sha1');
@@ -2809,7 +2809,7 @@ class File_X509
 
         switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_RSA')) {
                     include_once 'Crypt/RSA.php';
                 }
                 $publicKey = new Crypt_RSA();
@@ -2882,7 +2882,7 @@ class File_X509
 
         switch ($algorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_RSA')) {
                     include_once 'Crypt/RSA.php';
                 }
                 $this->publicKey = new Crypt_RSA();
@@ -3008,7 +3008,7 @@ class File_X509
 
         switch ($algorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_RSA')) {
                     include_once 'Crypt/RSA.php';
                 }
                 $this->publicKey = new Crypt_RSA();
@@ -3635,7 +3635,14 @@ class File_X509
      */
     function _sign($key, $signatureAlgorithm)
     {
-        switch (strtolower(get_class($key))) {
+        // Ensure that if this class is namespaced, we don't try to match the
+        // namespace.
+        $classname = strtolower(get_class($key));
+        if (strpos($classname, "\\") !== false) {
+            $classarr = explode("\\", $c);
+            $classname = end($classarr);
+        }
+        switch ($classname) {
             case 'crypt_rsa':
                 switch ($signatureAlgorithm) {
                     case 'md2WithRSAEncryption':
@@ -4196,7 +4203,15 @@ class File_X509
                 return $this->computeKeyIdentifier($key['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'], $method);
             case !is_object($key):
                 return false;
-            case strtolower(get_class($key)) == 'file_asn1_element':
+        }
+        // Fix the class name to ignore any namespaces that may be applied.
+        $classname = strtolower(get_class($key));
+        if (strpos($classname, "\\") !== false) {
+            $classarr = explode("\\", $c);
+            $classname = end($classarr);
+        }
+        switch ($classname) {
+            case 'file_asn1_element':
                 // Assume the element is a bitstring-packed key.
                 $asn1 = new File_ASN1();
                 $decoded = $asn1->decodeBER($key->element);
@@ -4209,7 +4224,7 @@ class File_X509
                 }
                 $raw = base64_decode($raw);
                 // If the key is private, compute identifier from its corresponding public key.
-                if (!class_exists('Crypt_RSA')) {
+                if (!class_exists(__NAMESPACE__.'\Crypt_RSA')) {
                     include_once 'Crypt/RSA.php';
                 }
                 $key = new Crypt_RSA();
@@ -4221,7 +4236,7 @@ class File_X509
                 }
                 $key = $raw;    // Is a public key.
                 break;
-            case strtolower(get_class($key)) == 'file_x509':
+            case 'file_x509':
                 if (isset($key->publicKey)) {
                     return $this->computeKeyIdentifier($key->publicKey, $method);
                 }
@@ -4241,7 +4256,7 @@ class File_X509
         $key = $this->_extractBER($key);
 
         // Now we have the key string: compute its sha-1 sum.
-        if (!class_exists('Crypt_Hash')) {
+        if (!class_exists(__NAMESPACE__.'\Crypt_Hash')) {
             include_once 'Crypt/Hash.php';
         }
         $hash = new Crypt_Hash('sha1');
@@ -4267,7 +4282,13 @@ class File_X509
             return false;
         }
 
-        switch (strtolower(get_class($this->publicKey))) {
+        // Fix the class name to ignore any namespaces that may be applied.
+        $classname = strtolower(get_class($this->publicKey));
+        if (strpos($classname, "\\") !== false) {
+            $classarr = explode("\\", $c);
+            $classname = end($classarr);
+        }
+        switch ($classname) {
             case 'crypt_rsa':
                 // the following two return statements do the same thing. i dunno.. i just prefer the later for some reason.
                 // the former is a good example of how to do fuzzing on the public key

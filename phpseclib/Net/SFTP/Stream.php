@@ -152,7 +152,7 @@ class Net_SFTP_Stream
             echo "__construct()\r\n";
         }
 
-        if (!class_exists('Net_SFTP')) {
+        if (!class_exists(__NAMESPACE__.'\Net_SFTP')) {
             include_once 'Net/SFTP.php';
         }
     }
@@ -187,7 +187,7 @@ class Net_SFTP_Stream
         if ($host[0] == '$') {
             $host = substr($host, 1);
             global $$host;
-            if (!is_object($$host) || get_class($$host) != 'Net_SFTP') {
+            if (!is_object($$host) || get_class($$host) != __NAMESPACE__.'\Net_SFTP') {
                 return false;
             }
             $this->sftp = $$host;
@@ -201,7 +201,7 @@ class Net_SFTP_Stream
             if (isset($context[$scheme]['sftp'])) {
                 $sftp = $context[$scheme]['sftp'];
             }
-            if (isset($sftp) && is_object($sftp) && get_class($sftp) == 'Net_SFTP') {
+            if (isset($sftp) && is_object($sftp) && get_class($sftp) == __NAMESPACE__.'\Net_SFTP') {
                 $this->sftp = $sftp;
                 return $path;
             }

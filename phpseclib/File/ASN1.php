@@ -253,10 +253,17 @@ class File_ASN1
      */
     function decodeBER($encoded)
     {
-        if (is_object($encoded) && strtolower(get_class($encoded)) == 'file_asn1_element') {
-            $encoded = $encoded->element;
+        if (is_object($encoded)) {
+            // Ensure that if this class is namespaced, we don't try to match the namespace.
+            $classname = strtolower(get_class($encoded));
+            if (strpos($classname, "\\") !== false) {
+                $classarr = explode("\\", $c);
+                $classname = end($classarr);
+            }
+            if ($classname == 'file_asn1_element') {
+                $encoded = $encoded->element;
+            }
         }
-
         $this->encoded = $encoded;
         return $this->_decode_ber($encoded);
     }
@@ -812,8 +819,16 @@ class File_ASN1
      */
     function _encode_der($source, $mapping, $idx = null, $special = array())
     {
-        if (is_object($source) && strtolower(get_class($source)) == 'file_asn1_element') {
-            return $source->element;
+        if (is_object($source)) {
+            // Ensure that if this class is namespaced, we don't try to match the namespace.
+            $classname = strtolower(get_class($source));
+            if (strpos($classname, "\\") !== false) {
+                $classarr = explode("\\", $c);
+                $classname = end($classarr);
+            }
+            if ($classname == 'file_asn1_element') {
+                return $source->element;
+            }
         }
 
         // do not encode (implicitly optional) fields with value set to default

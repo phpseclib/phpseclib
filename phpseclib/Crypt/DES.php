@@ -63,7 +63,7 @@
  *
  * Base cipher class
  */
-if (!class_exists('Crypt_Base')) {
+if (!class_exists(__NAMESPACE__.'\Crypt_Base')) {
     include_once 'Base.php';
 }
 
