@@ -353,6 +353,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $sftp->touch('testdir');
         $sftp->chdir('..');
         $sftp->delete('testdir', true);
+
+        return $sftp;
     }
 
     /**
