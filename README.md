@@ -9,11 +9,18 @@ AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 * [Download (0.3.7)](http://sourceforge.net/projects/phpseclib/files/phpseclib0.3.7.zip/download)
 * [Browse Git](https://github.com/phpseclib/phpseclib)
 * [Documentation](http://phpseclib.sourceforge.net/)
-* [Support](http://www.frostjedi.com/phpbb/viewforum.php?f=46)
 * [Code Coverage Report](http://phpseclib.bantux.org/code_coverage/php5/latest/)
 
 <img src="http://phpseclib.sourceforge.net/pear-icon.png" alt="PEAR Channel" width="16" height="16">
 PEAR Channel: [phpseclib.sourceforge.net](http://phpseclib.sourceforge.net/pear.htm)
+
+## Support
+
+Need Support?
+
+* [Checkout Questions and Answers on Stack Overflow](http://stackoverflow.com/questions/tagged/phpseclib)
+* [Create a Support Ticket on GitHub](https://github.com/phpseclib/phpseclib/issues/new)
+* [Browse the Support Forum](http://www.frostjedi.com/phpbb/viewforum.php?f=46) (no longer in use)
 
 ## Installing Development Dependencies
 
