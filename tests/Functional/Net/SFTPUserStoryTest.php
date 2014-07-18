@@ -348,11 +348,20 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testStatcacheFix($sftp)
     {
-        $sftp->mkdir('testdir');
-        $sftp->chdir('testdir');
-        $sftp->touch('testdir');
-        $sftp->chdir('..');
-        $sftp->delete('testdir', true);
+        // Name used for both directory and file.
+        $name = 'stattestdir';
+        $this->assertTrue($sftp->mkdir($name));
+        $this->assertTrue($sftp->is_dir($name));
+        $this->assertTrue($sftp->chdir($name));
+        $this->assertStringEndsWith(self::$scratchDir . '/' . $name, $sftp->pwd());
+        $this->assertFalse($sftp->file_exists($name));
+        $this->assertTrue($sftp->touch($name));
+        $this->assertTrue($sftp->is_file($name));
+        $this->assertTrue($sftp->chdir('..'));
+        $this->assertStringEndsWith(self::$scratchDir, $sftp->pwd());
+        $this->assertTrue($sftp->is_dir($name));
+        $this->assertTrue($sftp->is_file("$name/$name"));
+        $this->assertTrue($sftp->delete($name, true));
 
         return $sftp;
     }
