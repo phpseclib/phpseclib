@@ -51,6 +51,7 @@
     "require-dev": {
         "phing/phing": "2.7.*",
         "phpunit/phpunit": "4.0.*",
+        "sami/sami": "1.*",
         "squizlabs/php_codesniffer": "1.*"
     },
     "suggest": {
