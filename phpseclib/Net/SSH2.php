@@ -2655,7 +2655,7 @@ class Net_SSH2
      */
     function isConnected()
     {
-        return $this->bitmap & NET_SSH2_MASK_LOGIN;
+        return $this->bitmap & NET_SSH2_MASK_CONNECTED;
     }
 
     /**
