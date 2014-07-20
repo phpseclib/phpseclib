@@ -1061,11 +1061,12 @@ class Net_SFTP extends Net_SSH2
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $path));
 
         $temp = &$this->stat_cache;
-        foreach ($dirs as $dir) {
+        $max = count($dirs) - 1;
+        foreach ($dirs as $i=>$dir) {
             if (!isset($temp[$dir])) {
                 $temp[$dir] = array();
             }
-            if ($dir == end($dirs)) {
+            if ($i === $max) {
                 $temp[$dir] = $value;
                 break;
             }
@@ -1085,8 +1086,9 @@ class Net_SFTP extends Net_SSH2
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $path));
 
         $temp = &$this->stat_cache;
-        foreach ($dirs as $dir) {
-            if ($dir == end($dirs)) {
+        $max = count($dirs) - 1;
+        foreach ($dirs as $i=>$dir) {
+            if ($i === $max) {
                 unset($temp[$dir]);
                 return true;
             }
@@ -2206,7 +2208,7 @@ class Net_SFTP extends Net_SSH2
             $result = $this->_query_stat_cache($path);
 
             if (isset($result)) {
-                // return true if $result is an array or if it's int(1)
+                // return true if $result is an array or if it's an stdClass object
                 return $result !== false;
             }
         }

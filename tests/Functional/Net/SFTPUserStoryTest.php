@@ -342,7 +342,23 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-    * @depends testSortOrder
+    * on older versions this would result in a fatal error
+    * @depends testReadlink
+    * @group github402
+    */
+    public function testStatcacheFix($sftp)
+    {
+        $sftp->mkdir('testdir');
+        $sftp->chdir('testdir');
+        $sftp->touch('testdir');
+        $sftp->chdir('..');
+        $sftp->delete('testdir', true);
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testStatcacheFix
     */
     public function testChDirUpHome($sftp)
     {
