@@ -820,7 +820,7 @@ class Net_SSH2
 
     /**
      * Number of columns for terminal window size
-     * 
+     *
      * @see Net_SSH2::getWindowColumns()
      * @see Net_SSH2::setWindowColumns()
      * @see Net_SSH2::setWindowSize()
@@ -831,7 +831,7 @@ class Net_SSH2
 
     /**
      * Number of columns for terminal window size
-     * 
+     *
      * @see Net_SSH2::getWindowRows()
      * @see Net_SSH2::setWindowRows()
      * @see Net_SSH2::setWindowSize()
@@ -2654,11 +2654,12 @@ class Net_SSH2
     /**
      * Is the connection still active?
      *
+     * @return boolean
      * @access public
      */
     function isConnected()
     {
-        return $this->bitmap & NET_SSH2_MASK_CONNECTED;
+        return (bool) ($this->bitmap & NET_SSH2_MASK_CONNECTED);
     }
 
     /**
@@ -3800,7 +3801,7 @@ class Net_SSH2
 
     /**
      * Returns the number of columns for the terminal window size.
-     * 
+     *
      * @return Integer
      * @access public
      */
@@ -3811,7 +3812,7 @@ class Net_SSH2
 
     /**
      * Returns the number of rows for the terminal window size.
-     * 
+     *
      * @return Integer
      * @access public
      */
@@ -3822,7 +3823,7 @@ class Net_SSH2
 
     /**
      * Sets the number of columns for the terminal window size.
-     * 
+     *
      * @param Integer $value
      * @access public
      */
@@ -3833,7 +3834,7 @@ class Net_SSH2
 
     /**
      * Sets the number of rows for the terminal window size.
-     * 
+     *
      * @param Integer $value
      * @access public
      */
@@ -3844,7 +3845,7 @@ class Net_SSH2
 
     /**
      * Sets the number of columns and rows for the terminal window size.
-     * 
+     *
      * @param Integer $columns
      * @param Integer $rows
      * @access public
