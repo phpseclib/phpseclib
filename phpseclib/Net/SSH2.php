@@ -1038,7 +1038,7 @@ class Net_SSH2
             return false;
         }
 
-        $this->bitmap = NET_SSH2_MASK_CONNECTED;
+        $this->bitmap|= NET_SSH2_MASK_CONNECTED;
 
         return true;
     }
