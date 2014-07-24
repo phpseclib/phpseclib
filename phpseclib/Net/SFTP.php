@@ -1516,11 +1516,8 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
+        unset($entries['.'], $entries['..']);
         foreach ($entries as $filename=>$props) {
-            if ($filename == '.' || $filename == '..') {
-                continue;
-            }
-
             if (!isset($props['type'])) {
                 return false;
             }
@@ -2146,11 +2143,8 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
+        unset($entries['.'], $entries['..']);
         foreach ($entries as $filename=>$props) {
-            if ($filename == '.' || $filename == '..') {
-                continue;
-            }
-
             if (!isset($props['type'])) {
                 return false;
             }
