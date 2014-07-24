@@ -1871,7 +1871,9 @@ class Net_SFTP extends Net_SSH2
             $subtemp = $offset + $sent;
             $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, strlen($temp), $temp);
             if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
-                fclose($fp);
+                if ($mode & NET_SFTP_LOCAL_FILE) {
+                    fclose($fp);
+                }
                 return false;
             }
             $sent+= strlen($temp);
