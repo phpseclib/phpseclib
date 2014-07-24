@@ -1504,7 +1504,7 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
         $i = 0;
-        $entries = $this->_list($path, true, false);
+        $entries = $this->_list($path, true);
 
         if ($entries === false) {
             return $this->_setstat($path, $attr, false);
@@ -2138,7 +2138,7 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
         $i = 0;
-        $entries = $this->_list($path, true, false);
+        $entries = $this->_list($path, true);
 
         // normally $entries would have at least . and .. but it might not if the directories
         // permissions didn't allow reading
