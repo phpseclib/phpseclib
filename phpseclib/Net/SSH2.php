@@ -3510,6 +3510,13 @@ class Net_SSH2
      */
     function getServerIdentification()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         return $this->server_identifier;
     }
 
@@ -3521,6 +3528,13 @@ class Net_SSH2
      */
     function getKexAlgorithms()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         return $this->kex_algorithms;
     }
 
@@ -3532,6 +3546,13 @@ class Net_SSH2
      */
     function getServerHostKeyAlgorithms()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         return $this->server_host_key_algorithms;
     }
 
@@ -3543,6 +3564,13 @@ class Net_SSH2
      */
     function getEncryptionAlgorithmsClient2Server()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         return $this->encryption_algorithms_client_to_server;
     }
 
@@ -3554,6 +3582,13 @@ class Net_SSH2
      */
     function getEncryptionAlgorithmsServer2Client()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         return $this->encryption_algorithms_server_to_client;
     }
 
@@ -3565,6 +3600,13 @@ class Net_SSH2
      */
     function getMACAlgorithmsClient2Server()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         return $this->mac_algorithms_client_to_server;
     }
 
@@ -3576,6 +3618,13 @@ class Net_SSH2
      */
     function getMACAlgorithmsServer2Client()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         return $this->mac_algorithms_server_to_client;
     }
 
@@ -3587,6 +3636,13 @@ class Net_SSH2
      */
     function getCompressionAlgorithmsClient2Server()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         return $this->compression_algorithms_client_to_server;
     }
 
@@ -3598,6 +3654,13 @@ class Net_SSH2
      */
     function getCompressionAlgorithmsServer2Client()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         return $this->compression_algorithms_server_to_client;
     }
 
@@ -3609,6 +3672,13 @@ class Net_SSH2
      */
     function getLanguagesServer2Client()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         return $this->languages_server_to_client;
     }
 
@@ -3620,6 +3690,13 @@ class Net_SSH2
      */
     function getLanguagesClient2Server()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+            if (!$this->_connect()) {
+                return false;
+            }
+        }
+
         return $this->languages_client_to_server;
     }
 
