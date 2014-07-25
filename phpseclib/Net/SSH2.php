@@ -1163,7 +1163,9 @@ class Net_SSH2
         }
 
         $mac_algorithms = array(
-            'hmac-sha2-256',// RECOMMENDED HMAC-SHA256 (digest length = key length = 32)
+            // from <http://www.ietf.org/rfc/rfc6668.txt>:
+            'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
+            
             'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
             'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
             'hmac-md5-96',  // OPTIONAL        first 96 bits of HMAC-MD5 (digest length = 12, key length = 16)
