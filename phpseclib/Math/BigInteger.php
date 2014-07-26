@@ -2876,7 +2876,7 @@ class BigInteger
         $leading_ones = chr((1 << ($new_bits & 0x7)) - 1) . str_repeat(chr(0xFF), $new_bits >> 3);
         $this->_base256_lshift($leading_ones, $current_bits);
 
-        $temp = str_pad($temp, ceil($this->bits / 8), chr(0), STR_PAD_LEFT);
+        $temp = str_pad($temp, ceil(strlen($this->toBits()) / 8), chr(0), STR_PAD_LEFT);
 
         return $this->_normalize(new static($leading_ones | $temp, 256));
     }
