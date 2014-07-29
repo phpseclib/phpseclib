@@ -117,6 +117,7 @@ define('NET_SSH2_LOG_COMPLEX', 2);
  * Outputs the content real-time
  */
 define('NET_SSH2_LOG_REALTIME', 3);
+define('NET_SSH2_LOGGING', NET_SSH2_LOG_REALTIME);
 /**
  * Dumps the content real-time to a file
  */
