@@ -1166,7 +1166,7 @@ echo "CONNECT CALLED\r\n";
 
         $mac_algorithms = array(
             // from <http://www.ietf.org/rfc/rfc6668.txt>:
-            'hmac-sha2-512',// OPTIONAL        HMAC-SHA512 (digest length = key length = 64)
+            //'hmac-sha2-512',// OPTIONAL        HMAC-SHA512 (digest length = key length = 64)
             'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
 
             'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
