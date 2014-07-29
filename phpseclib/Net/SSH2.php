@@ -950,6 +950,7 @@ class Net_SSH2
      */
     function _connect()
     {
+echo "CONNECT CALLED\r\n";
         $timeout = $this->connectionTimeout;
         $host = $this->host . ':' . $this->port;
 

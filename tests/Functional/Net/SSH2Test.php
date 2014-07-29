@@ -71,6 +71,7 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
             $ssh->login($username, $password),
             'SSH2 login using password failed.'
         );
+exit('THIS FAR');
 
         return $ssh;
     }
