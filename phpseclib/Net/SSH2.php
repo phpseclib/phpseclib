@@ -2754,6 +2754,9 @@ class Net_SSH2
                 $this->bitmap = 0;
                 return false;
             } elseif ($hmac != $this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding))) {
+echo bin2hex($hmac) . "\r\n";
+echo bin2hex($this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding)));
+exit;
                 user_error('Invalid HMAC');
                 return false;
             }
