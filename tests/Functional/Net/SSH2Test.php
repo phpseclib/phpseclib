@@ -8,16 +8,6 @@
 
 class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
 {
-    public function setUp()
-    {
-        if (getenv('TRAVIS') && version_compare(PHP_VERSION, '5.3.3', '<=')) {
-            $this->markTestIncomplete(
-                'This test hangs on Travis CI on PHP 5.3.3 and below.'
-            );
-        }
-        parent::setUp();
-    }
-
     public function testConstructor()
     {
         $ssh = new Net_SSH2($this->getEnv('SSH_HOSTNAME'));
