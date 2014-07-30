@@ -253,6 +253,7 @@ class Math_BigInteger
      */
     function Math_BigInteger($x = 0, $base = 10)
     {
+static $oldMode;
         if ( !defined('MATH_BIGINTEGER_MODE') ) {
 echo "BIGINTEGER MODE NOT DEFINED\r\n";
             switch (true) {
@@ -269,7 +270,10 @@ echo "USING INTERNAL\r\n";
                     define('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
             }
         }
-echo "MATH_BIGINTEGER_MODE = ".MATH_BIGINTEGER_MODE."\r\n";
+if ($oldMode != MATH_BIGINTEGER_MODE) {
+	$oldMode = MATH_BIGINTEGER_MODE;
+	echo "MATH_BIGINTEGER_MODE = ".MATH_BIGINTEGER_MODE."\r\n";
+}
 
         if (function_exists('openssl_public_encrypt') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
             // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
