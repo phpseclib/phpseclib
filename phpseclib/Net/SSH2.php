@@ -117,7 +117,6 @@ define('NET_SSH2_LOG_COMPLEX', 2);
  * Outputs the content real-time
  */
 define('NET_SSH2_LOG_REALTIME', 3);
-define('NET_SSH2_LOGGING', NET_SSH2_LOG_REALTIME);
 /**
  * Dumps the content real-time to a file
  */
@@ -1084,7 +1083,7 @@ echo "CONNECT CALLED\r\n";
     function _key_exchange($kexinit_payload_server)
     {
         static $kex_algorithms = array(
-            'diffie-hellman-group1-sha1', // REQUIRED
+            //'diffie-hellman-group1-sha1', // REQUIRED
             'diffie-hellman-group14-sha1' // REQUIRED
         );
 
@@ -1166,7 +1165,7 @@ echo "CONNECT CALLED\r\n";
 
         $mac_algorithms = array(
             // from <http://www.ietf.org/rfc/rfc6668.txt>:
-            //'hmac-sha2-512',// OPTIONAL        HMAC-SHA512 (digest length = key length = 64)
+            'hmac-sha2-512',// OPTIONAL        HMAC-SHA512 (digest length = key length = 64)
             'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
 
             'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
@@ -2756,9 +2755,6 @@ echo "CONNECT CALLED\r\n";
                 $this->bitmap = 0;
                 return false;
             } elseif ($hmac != $this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding))) {
-echo bin2hex($hmac) . "\r\n";
-echo bin2hex($this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding)));
-exit;
                 user_error('Invalid HMAC');
                 return false;
             }
