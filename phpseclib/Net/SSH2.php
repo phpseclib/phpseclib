@@ -1069,6 +1069,7 @@ class Net_SSH2
         if (!empty($ext)) {
             $identifier .= ' (' . implode(', ', $ext) . ')';
         }
+echo $identifier . "\r\n";
 
         return $identifier;
     }
