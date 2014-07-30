@@ -3575,7 +3575,7 @@ if ($oldMode != MATH_BIGINTEGER_MODE) {
             $length = min(count($value), count($this->bitmask->value));
 if (!is_array($value)) {
 echo "MODE: " . MATH_BIGINTEGER_MODE . "\r\n";
-echo $value . "\r\n";
+echo get_resource_type($value) . "\r\n";
 }
             $value = array_slice($value, 0, $length);
 
