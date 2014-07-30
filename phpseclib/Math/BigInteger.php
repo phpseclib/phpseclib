@@ -1437,10 +1437,7 @@ if ($oldMode != MATH_BIGINTEGER_MODE) {
             return array($this->_normalize($quotient), $this->_normalize($remainder));
         }
 
-        static $zero;
-        if ( !isset($zero) ) {
-            $zero = new Math_BigInteger();
-        }
+        $zero = new Math_BigInteger();
 
         $x = $this->copy();
         $y = $y->copy();
@@ -1483,12 +1480,10 @@ if ($oldMode != MATH_BIGINTEGER_MODE) {
         $quotient_value = &$quotient->value;
         $quotient_value = $this->_array_repeat(0, $x_max - $y_max + 1);
 
-        static $temp, $lhs, $rhs;
-        if (!isset($temp)) {
-            $temp = new Math_BigInteger();
-            $lhs =  new Math_BigInteger();
-            $rhs =  new Math_BigInteger();
-        }
+        $temp= new Math_BigInteger();
+        $lhs =  new Math_BigInteger();
+        $rhs =  new Math_BigInteger();
+
         $temp_value = &$temp->value;
         $rhs_value =  &$rhs->value;
 
@@ -2436,11 +2431,8 @@ if ($oldMode != MATH_BIGINTEGER_MODE) {
                 return ( $temp->value === false ) ? false : $this->_normalize($temp);
         }
 
-        static $zero, $one;
-        if (!isset($zero)) {
-            $zero = new Math_BigInteger();
-            $one = new Math_BigInteger(1);
-        }
+        $zero = new Math_BigInteger();
+        $one = new Math_BigInteger(1);
 
         // $x mod -$n == $x mod $n.
         $n = $n->abs();
@@ -3138,10 +3130,7 @@ if ($oldMode != MATH_BIGINTEGER_MODE) {
             $min = $temp;
         }
 
-        static $one;
-        if (!isset($one)) {
-            $one = new Math_BigInteger(1);
-        }
+        $one = new Math_BigInteger(1);
 
         $max = $max->subtract($min->subtract($one));
         $size = strlen(ltrim($max->toBytes(), chr(0)));
@@ -3219,11 +3208,8 @@ if ($oldMode != MATH_BIGINTEGER_MODE) {
             $min = $temp;
         }
 
-        static $one, $two;
-        if (!isset($one)) {
-            $one = new Math_BigInteger(1);
-            $two = new Math_BigInteger(2);
-        }
+        $one = new Math_BigInteger(1);
+        $two = new Math_BigInteger(2);
 
         $start = time();
 
@@ -3368,7 +3354,11 @@ if ($oldMode != MATH_BIGINTEGER_MODE) {
                 }
         }
 
-        static $primes, $zero, $one, $two;
+        static $primes;
+
+        $zero = new Math_BigInteger();
+        $one = new Math_BigInteger(1);
+        $two = new Math_BigInteger(2);
 
         if (!isset($primes)) {
             $primes = array(
@@ -3390,10 +3380,6 @@ if ($oldMode != MATH_BIGINTEGER_MODE) {
                     $primes[$i] = new Math_BigInteger($primes[$i]);
                 }
             }
-
-            $zero = new Math_BigInteger();
-            $one = new Math_BigInteger(1);
-            $two = new Math_BigInteger(2);
         }
 
         if ($this->equals($one)) {
