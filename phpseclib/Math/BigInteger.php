@@ -2963,6 +2963,7 @@ class Math_BigInteger
 
         switch ( MATH_BIGINTEGER_MODE ) {
             case MATH_BIGINTEGER_MODE_GMP:
+echo "MODE: ".MATH_BIGINTEGER_MODE . ' (GMP: '.MATH_BIGINTEGER_MODE_GMP . ")\r\n";
                 static $two;
 
                 if (!isset($two)) {
@@ -2973,11 +2974,13 @@ class Math_BigInteger
 
                 break;
             case MATH_BIGINTEGER_MODE_BCMATH:
+echo "MODE: ".MATH_BIGINTEGER_MODE . ' (BCMATH: '.MATH_BIGINTEGER_MODE_BCMATH . ")\r\n";
                 $temp->value = bcmul($this->value, bcpow('2', $shift, 0), 0);
 
                 break;
             default: // could just replace _rshift with this, but then all _lshift() calls would need to be rewritten
                      // and I don't want to do that...
+echo "MODE: ".MATH_BIGINTEGER_MODE . " (INTERNAL)\r\n";
                 $temp->value = $this->value;
                 $temp->_lshift($shift);
         }
