@@ -1082,7 +1082,7 @@ class Net_SSH2
     function _key_exchange($kexinit_payload_server)
     {
         static $kex_algorithms = array(
-            'diffie-hellman-group1-sha1', // REQUIRED
+            //'diffie-hellman-group1-sha1', // REQUIRED
             'diffie-hellman-group14-sha1' // REQUIRED
         );
 
