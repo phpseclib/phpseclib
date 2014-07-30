@@ -253,18 +253,27 @@ class Math_BigInteger
      */
     function Math_BigInteger($x = 0, $base = 10)
     {
+static $oldMode;
         if ( !defined('MATH_BIGINTEGER_MODE') ) {
+echo "BIGINTEGER MODE NOT DEFINED\r\n";
             switch (true) {
                 case extension_loaded('gmp'):
+echo "USING GMP\r\n";
                     define('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
                     break;
                 case extension_loaded('bcmath'):
+echo "USING BCMATH\r\n";
                     define('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_BCMATH);
                     break;
                 default:
+echo "USING INTERNAL\r\n";
                     define('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
             }
         }
+if ($oldMode != MATH_BIGINTEGER_MODE) {
+	$oldMode = MATH_BIGINTEGER_MODE;
+	echo "MATH_BIGINTEGER_MODE = ".MATH_BIGINTEGER_MODE."\r\n";
+}
 
         if (function_exists('openssl_public_encrypt') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
             // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
@@ -1428,10 +1437,7 @@ class Math_BigInteger
             return array($this->_normalize($quotient), $this->_normalize($remainder));
         }
 
-        static $zero;
-        if ( !isset($zero) ) {
-            $zero = new Math_BigInteger();
-        }
+        $zero = new Math_BigInteger();
 
         $x = $this->copy();
         $y = $y->copy();
@@ -1474,12 +1480,10 @@ class Math_BigInteger
         $quotient_value = &$quotient->value;
         $quotient_value = $this->_array_repeat(0, $x_max - $y_max + 1);
 
-        static $temp, $lhs, $rhs;
-        if (!isset($temp)) {
-            $temp = new Math_BigInteger();
-            $lhs =  new Math_BigInteger();
-            $rhs =  new Math_BigInteger();
-        }
+        $temp= new Math_BigInteger();
+        $lhs =  new Math_BigInteger();
+        $rhs =  new Math_BigInteger();
+
         $temp_value = &$temp->value;
         $rhs_value =  &$rhs->value;
 
@@ -2427,11 +2431,8 @@ class Math_BigInteger
                 return ( $temp->value === false ) ? false : $this->_normalize($temp);
         }
 
-        static $zero, $one;
-        if (!isset($zero)) {
-            $zero = new Math_BigInteger();
-            $one = new Math_BigInteger(1);
-        }
+        $zero = new Math_BigInteger();
+        $one = new Math_BigInteger(1);
 
         // $x mod -$n == $x mod $n.
         $n = $n->abs();
@@ -2963,6 +2964,7 @@ class Math_BigInteger
 
         switch ( MATH_BIGINTEGER_MODE ) {
             case MATH_BIGINTEGER_MODE_GMP:
+//echo "MODE: ".MATH_BIGINTEGER_MODE . ' (GMP: '.MATH_BIGINTEGER_MODE_GMP . ")\r\n";
                 static $two;
 
                 if (!isset($two)) {
@@ -2973,11 +2975,13 @@ class Math_BigInteger
 
                 break;
             case MATH_BIGINTEGER_MODE_BCMATH:
+//echo "MODE: ".MATH_BIGINTEGER_MODE . ' (BCMATH: '.MATH_BIGINTEGER_MODE_BCMATH . ")\r\n";
                 $temp->value = bcmul($this->value, bcpow('2', $shift, 0), 0);
 
                 break;
             default: // could just replace _rshift with this, but then all _lshift() calls would need to be rewritten
                      // and I don't want to do that...
+//echo "MODE: ".MATH_BIGINTEGER_MODE . " (INTERNAL)\r\n";
                 $temp->value = $this->value;
                 $temp->_lshift($shift);
         }
@@ -3126,10 +3130,7 @@ class Math_BigInteger
             $min = $temp;
         }
 
-        static $one;
-        if (!isset($one)) {
-            $one = new Math_BigInteger(1);
-        }
+        $one = new Math_BigInteger(1);
 
         $max = $max->subtract($min->subtract($one));
         $size = strlen(ltrim($max->toBytes(), chr(0)));
@@ -3207,11 +3208,8 @@ class Math_BigInteger
             $min = $temp;
         }
 
-        static $one, $two;
-        if (!isset($one)) {
-            $one = new Math_BigInteger(1);
-            $two = new Math_BigInteger(2);
-        }
+        $one = new Math_BigInteger(1);
+        $two = new Math_BigInteger(2);
 
         $start = time();
 
@@ -3356,7 +3354,11 @@ class Math_BigInteger
                 }
         }
 
-        static $primes, $zero, $one, $two;
+        static $primes;
+
+        $zero = new Math_BigInteger();
+        $one = new Math_BigInteger(1);
+        $two = new Math_BigInteger(2);
 
         if (!isset($primes)) {
             $primes = array(
@@ -3378,10 +3380,6 @@ class Math_BigInteger
                     $primes[$i] = new Math_BigInteger($primes[$i]);
                 }
             }
-
-            $zero = new Math_BigInteger();
-            $one = new Math_BigInteger(1);
-            $two = new Math_BigInteger(2);
         }
 
         if ($this->equals($one)) {
@@ -3561,6 +3559,10 @@ class Math_BigInteger
 
         if (!empty($result->bitmask->value)) {
             $length = min(count($value), count($this->bitmask->value));
+if (!is_array($value)) {
+echo "MODE: " . MATH_BIGINTEGER_MODE . "\r\n";
+echo get_resource_type($value) . "\r\n";
+}
             $value = array_slice($value, 0, $length);
 
             for ($i = 0; $i < $length; ++$i) {
