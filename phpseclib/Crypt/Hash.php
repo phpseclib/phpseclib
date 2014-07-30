@@ -583,8 +583,6 @@ class Crypt_Hash
             include_once 'Math/BigInteger.php';
         }
 
-        static $init384, $init512, $k;
-
         if (!isset($k)) {
             // Initialize variables
             $init384 = array( // initial values for SHA384
