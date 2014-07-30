@@ -2972,7 +2972,7 @@ if ($oldMode != MATH_BIGINTEGER_MODE) {
 
         switch ( MATH_BIGINTEGER_MODE ) {
             case MATH_BIGINTEGER_MODE_GMP:
-echo "MODE: ".MATH_BIGINTEGER_MODE . ' (GMP: '.MATH_BIGINTEGER_MODE_GMP . ")\r\n";
+//echo "MODE: ".MATH_BIGINTEGER_MODE . ' (GMP: '.MATH_BIGINTEGER_MODE_GMP . ")\r\n";
                 static $two;
 
                 if (!isset($two)) {
@@ -2983,13 +2983,13 @@ echo "MODE: ".MATH_BIGINTEGER_MODE . ' (GMP: '.MATH_BIGINTEGER_MODE_GMP . ")\r\n
 
                 break;
             case MATH_BIGINTEGER_MODE_BCMATH:
-echo "MODE: ".MATH_BIGINTEGER_MODE . ' (BCMATH: '.MATH_BIGINTEGER_MODE_BCMATH . ")\r\n";
+//echo "MODE: ".MATH_BIGINTEGER_MODE . ' (BCMATH: '.MATH_BIGINTEGER_MODE_BCMATH . ")\r\n";
                 $temp->value = bcmul($this->value, bcpow('2', $shift, 0), 0);
 
                 break;
             default: // could just replace _rshift with this, but then all _lshift() calls would need to be rewritten
                      // and I don't want to do that...
-echo "MODE: ".MATH_BIGINTEGER_MODE . " (INTERNAL)\r\n";
+//echo "MODE: ".MATH_BIGINTEGER_MODE . " (INTERNAL)\r\n";
                 $temp->value = $this->value;
                 $temp->_lshift($shift);
         }
@@ -3573,6 +3573,10 @@ echo "MODE: ".MATH_BIGINTEGER_MODE . " (INTERNAL)\r\n";
 
         if (!empty($result->bitmask->value)) {
             $length = min(count($value), count($this->bitmask->value));
+if (!is_array($value)) {
+echo "MODE: " . MATH_BIGINTEGER_MODE . "\r\n";
+echo $value . "\r\n";
+}
             $value = array_slice($value, 0, $length);
 
             for ($i = 0; $i < $length; ++$i) {
