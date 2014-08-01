@@ -7,6 +7,15 @@
 
 abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
 {
+    statuc public function setUpBeforeClass()
+    {
+        self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
+        self::ensureConstant('CRYPT_HASH_MODE', CRYPT_HASH_MODE_HASH);
+        self::reRequireFile('Math/BigInteger.php');
+        self::reRequireFile('Crypt/Hash.php');
+        parent::setUpBeforeClass();
+    }
+
     /**
     * @param string $constant
     * @param mixed $expected
