@@ -7,7 +7,7 @@
 
 abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
 {
-    static protected function setUpBeforeClass()
+    static public function setUpBeforeClass()
     {
         self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
         self::ensureConstant('CRYPT_HASH_MODE', CRYPT_HASH_MODE_HASH);
