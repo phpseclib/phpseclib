@@ -583,9 +583,9 @@ class Crypt_Hash
             include_once 'Math/BigInteger.php';
         }
 
-        static $init384, $init512, $k;
+        //static $init384, $init512, $k;
 
-        if (!isset($k)) {
+        //if (!isset($k)) {
             // Initialize variables
             $init384 = array( // initial values for SHA384
                 'cbbb9d5dc1059ed8', '629a292a367cd507', '9159015a3070dd17', '152fecd8f70e5939',
@@ -631,7 +631,7 @@ class Crypt_Hash
             for ($i = 0; $i < 80; $i++) {
                 $k[$i] = new Math_BigInteger($k[$i], 16);
             }
-        }
+        //}
 
         $hash = $this->l == 48 ? $init384 : $init512;
 
