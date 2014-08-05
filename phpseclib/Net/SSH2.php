@@ -191,100 +191,100 @@ class Net_SSH2
      * Server Identifier
      *
      * @see Net_SSH2::getServerIdentification()
-     * @var String
+     * @var mixed false or Array
      * @access private
      */
-    var $server_identifier = '';
+    var $server_identifier = false;
 
     /**
      * Key Exchange Algorithms
      *
      * @see Net_SSH2::getKexAlgorithims()
-     * @var Array
+     * @var mixed false or Array
      * @access private
      */
-    var $kex_algorithms;
+    var $kex_algorithms = false;
 
     /**
      * Server Host Key Algorithms
      *
      * @see Net_SSH2::getServerHostKeyAlgorithms()
-     * @var Array
+     * @var mixed false or Array
      * @access private
      */
-    var $server_host_key_algorithms;
+    var $server_host_key_algorithms = false;
 
     /**
      * Encryption Algorithms: Client to Server
      *
      * @see Net_SSH2::getEncryptionAlgorithmsClient2Server()
-     * @var Array
+     * @var mixed false or Array
      * @access private
      */
-    var $encryption_algorithms_client_to_server;
+    var $encryption_algorithms_client_to_server = false;
 
     /**
      * Encryption Algorithms: Server to Client
      *
      * @see Net_SSH2::getEncryptionAlgorithmsServer2Client()
-     * @var Array
+     * @var mixed false or Array
      * @access private
      */
-    var $encryption_algorithms_server_to_client;
+    var $encryption_algorithms_server_to_client = false;
 
     /**
      * MAC Algorithms: Client to Server
      *
      * @see Net_SSH2::getMACAlgorithmsClient2Server()
-     * @var Array
+     * @var mixed false or Array
      * @access private
      */
-    var $mac_algorithms_client_to_server;
+    var $mac_algorithms_client_to_server = false;
 
     /**
      * MAC Algorithms: Server to Client
      *
      * @see Net_SSH2::getMACAlgorithmsServer2Client()
-     * @var Array
+     * @var mixed false or Array
      * @access private
      */
-    var $mac_algorithms_server_to_client;
+    var $mac_algorithms_server_to_client = false;
 
     /**
      * Compression Algorithms: Client to Server
      *
      * @see Net_SSH2::getCompressionAlgorithmsClient2Server()
-     * @var Array
+     * @var mixed false or Array
      * @access private
      */
-    var $compression_algorithms_client_to_server;
+    var $compression_algorithms_client_to_server = false;
 
     /**
      * Compression Algorithms: Server to Client
      *
      * @see Net_SSH2::getCompressionAlgorithmsServer2Client()
-     * @var Array
+     * @var mixed false or Array
      * @access private
      */
-    var $compression_algorithms_server_to_client;
+    var $compression_algorithms_server_to_client = false;
 
     /**
      * Languages: Server to Client
      *
      * @see Net_SSH2::getLanguagesServer2Client()
-     * @var Array
+     * @var mixed false or Array
      * @access private
      */
-    var $languages_server_to_client;
+    var $languages_server_to_client = false;
 
     /**
      * Languages: Client to Server
      *
      * @see Net_SSH2::getLanguagesClient2Server()
-     * @var Array
+     * @var mixed false or Array
      * @access private
      */
-    var $languages_client_to_server;
+    var $languages_client_to_server = false;
 
     /**
      * Block Size for Server to Client Encryption
@@ -949,6 +949,12 @@ class Net_SSH2
      */
     function _connect()
     {
+        if ($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR) {
+            return false;
+        }
+
+        $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
+
         $timeout = $this->connectionTimeout;
         $host = $this->host . ':' . $this->port;
 
@@ -1798,11 +1804,8 @@ class Net_SSH2
      */
     function _login($username)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR) || !$this->_connect()) {
+            return false;
         }
 
         $args = array_slice(func_get_args(), 1);
@@ -3510,12 +3513,7 @@ class Net_SSH2
      */
     function getServerIdentification()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
-        }
+        $this->_connect();
 
         return $this->server_identifier;
     }
@@ -3528,12 +3526,7 @@ class Net_SSH2
      */
     function getKexAlgorithms()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
-        }
+        $this->_connect();
 
         return $this->kex_algorithms;
     }
@@ -3546,12 +3539,7 @@ class Net_SSH2
      */
     function getServerHostKeyAlgorithms()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
-        }
+        $this->_connect();
 
         return $this->server_host_key_algorithms;
     }
@@ -3564,12 +3552,7 @@ class Net_SSH2
      */
     function getEncryptionAlgorithmsClient2Server()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
-        }
+        $this->_connect();
 
         return $this->encryption_algorithms_client_to_server;
     }
@@ -3582,12 +3565,7 @@ class Net_SSH2
      */
     function getEncryptionAlgorithmsServer2Client()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
-        }
+        $this->_connect();
 
         return $this->encryption_algorithms_server_to_client;
     }
@@ -3600,12 +3578,7 @@ class Net_SSH2
      */
     function getMACAlgorithmsClient2Server()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
-        }
+        $this->_connect();
 
         return $this->mac_algorithms_client_to_server;
     }
@@ -3618,12 +3591,7 @@ class Net_SSH2
      */
     function getMACAlgorithmsServer2Client()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
-        }
+        $this->_connect();
 
         return $this->mac_algorithms_server_to_client;
     }
@@ -3636,12 +3604,7 @@ class Net_SSH2
      */
     function getCompressionAlgorithmsClient2Server()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
-        }
+        $this->_connect();
 
         return $this->compression_algorithms_client_to_server;
     }
@@ -3654,12 +3617,7 @@ class Net_SSH2
      */
     function getCompressionAlgorithmsServer2Client()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
-        }
+        $this->_connect();
 
         return $this->compression_algorithms_server_to_client;
     }
@@ -3672,12 +3630,7 @@ class Net_SSH2
      */
     function getLanguagesServer2Client()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
-        }
+        $this->_connect();
 
         return $this->languages_server_to_client;
     }
@@ -3690,12 +3643,7 @@ class Net_SSH2
      */
     function getLanguagesClient2Server()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
-            $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
-            if (!$this->_connect()) {
-                return false;
-            }
-        }
+        $this->_connect();
 
         return $this->languages_client_to_server;
     }
