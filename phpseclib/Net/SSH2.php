@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Pure-PHP implementation of SSHv2.
  *
@@ -1804,8 +1803,10 @@ class Net_SSH2
      */
     function _login($username)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR) || !$this->_connect()) {
-            return false;
+        if (!($this->bitmap & NET_SSH2_MASK_CONSTRUCTOR)) {
+            if (!$this->_connect()) {
+                return false;
+            }
         }
 
         $args = array_slice(func_get_args(), 1);
