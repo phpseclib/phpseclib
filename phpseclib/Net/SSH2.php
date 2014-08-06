@@ -1697,7 +1697,7 @@ class Net_SSH2
         switch ($mac_algorithms[$i]) {
             case 'hmac-sha2-256-96':
                 $this->hmac_create = new Crypt_Hash('sha256-96');
-                $createKeyLength = 20;
+                $createKeyLength = 32;
                 break;
             case 'hmac-sha2-256':
                 $this->hmac_create = new Crypt_Hash('sha256');
@@ -1731,7 +1731,7 @@ class Net_SSH2
         switch ($mac_algorithms[$i]) {
             case 'hmac-sha2-256-96':
                 $this->hmac_check = new Crypt_Hash('sha256-96');
-                $checkKeyLength = 20;
+                $checkKeyLength = 32;
                 $this->hmac_size = 12;
                 break;
             case 'hmac-sha2-256':
