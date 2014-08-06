@@ -1164,12 +1164,12 @@ class Net_SSH2
 
         $mac_algorithms = array(
             // from <http://www.ietf.org/rfc/rfc6668.txt>:
-            'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
+            'hmac-sha2-256-96',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
 
-            'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
-            'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
-            'hmac-md5-96',  // OPTIONAL        first 96 bits of HMAC-MD5 (digest length = 12, key length = 16)
-            'hmac-md5',     // OPTIONAL        HMAC-MD5 (digest length = key length = 16)
+            //'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
+            //'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
+            //'hmac-md5-96',  // OPTIONAL        first 96 bits of HMAC-MD5 (digest length = 12, key length = 16)
+            //'hmac-md5',     // OPTIONAL        HMAC-MD5 (digest length = key length = 16)
             //'none'          // OPTIONAL        no MAC; NOT RECOMMENDED
         );
 
@@ -1695,6 +1695,10 @@ class Net_SSH2
 
         $createKeyLength = 0; // ie. $mac_algorithms[$i] == 'none'
         switch ($mac_algorithms[$i]) {
+            case 'hmac-sha2-256-96':
+                $this->hmac_create = new Crypt_Hash('sha256-96');
+                $createKeyLength = 32;
+                break;
             case 'hmac-sha2-256':
                 $this->hmac_create = new Crypt_Hash('sha256');
                 $createKeyLength = 32;
@@ -1725,6 +1729,11 @@ class Net_SSH2
         $checkKeyLength = 0;
         $this->hmac_size = 0;
         switch ($mac_algorithms[$i]) {
+            case 'hmac-sha2-256-96':
+                $this->hmac_check = new Crypt_Hash('sha256-96');
+                $checkKeyLength = 32;
+                $this->hmac_size = 12;
+                break;
             case 'hmac-sha2-256':
                 $this->hmac_check = new Crypt_Hash('sha256');
                 $checkKeyLength = 32;
