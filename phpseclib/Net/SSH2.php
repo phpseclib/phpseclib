@@ -1729,7 +1729,7 @@ class Net_SSH2
         $checkKeyLength = 0;
         $this->hmac_size = 0;
         switch ($mac_algorithms[$i]) {
-            case 'hmac-sha2-256':
+            case 'hmac-sha2-256-96':
                 $this->hmac_check = new Crypt_Hash('sha256-96');
                 $checkKeyLength = 20;
                 $this->hmac_size = 12;
