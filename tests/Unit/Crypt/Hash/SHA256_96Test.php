@@ -25,6 +25,6 @@ class Unit_Crypt_Hash_SHA256_96Test extends Unit_Crypt_Hash_SHA256Test
     */
     public function testHMAC($key, $message, $longResult)
     {
-        parent::testHMAC($this->getInstance(), $key, $message, substr($longResult, 0, 24));
+        parent::testHMAC($key, $message, substr($longResult, 0, 24));
     }
 }
