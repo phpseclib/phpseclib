@@ -5,7 +5,7 @@
  *
  * Uses hash() or mhash() if available and an internal implementation, otherwise.  Currently supports the following:
  *
- * md2, md5, md5-96, sha1, sha1-96, sha256, sha384, and sha512
+ * md2, md5, md5-96, sha1, sha1-96, sha256, sha256-96, sha384, and sha512, sha512-96
  *
  * If {@link Crypt_Hash::setKey() setKey()} is called, {@link Crypt_Hash::hash() hash()} will return the HMAC as opposed to
  * the hash.  If no valid algorithm is provided, sha1 will be used.
@@ -209,6 +209,9 @@ class Crypt_Hash
         switch ($hash) {
             case 'md5-96':
             case 'sha1-96':
+            case 'sha256-96':
+            case 'sha512-96':
+                $hash = substr($hash, 0, -3);
                 $this->l = 12; // 96 / 8 = 12
                 break;
             case 'md2':
@@ -245,14 +248,12 @@ class Crypt_Hash
             case CRYPT_HASH_MODE_MHASH:
                 switch ($hash) {
                     case 'md5':
-                    case 'md5-96':
                         $this->hash = MHASH_MD5;
                         break;
                     case 'sha256':
                         $this->hash = MHASH_SHA256;
                         break;
                     case 'sha1':
-                    case 'sha1-96':
                     default:
                         $this->hash = MHASH_SHA1;
                 }
@@ -260,7 +261,6 @@ class Crypt_Hash
             case CRYPT_HASH_MODE_HASH:
                 switch ($hash) {
                     case 'md5':
-                    case 'md5-96':
                         $this->hash = 'md5';
                         return;
                     case 'md2':
@@ -270,7 +270,6 @@ class Crypt_Hash
                         $this->hash = $hash;
                         return;
                     case 'sha1':
-                    case 'sha1-96':
                     default:
                         $this->hash = 'sha1';
                 }
@@ -283,7 +282,6 @@ class Crypt_Hash
                  $this->hash = array($this, '_md2');
                  break;
             case 'md5':
-            case 'md5-96':
                  $this->b = 64;
                  $this->hash = array($this, '_md5');
                  break;
@@ -297,7 +295,6 @@ class Crypt_Hash
                  $this->hash = array($this, '_sha512');
                  break;
             case 'sha1':
-            case 'sha1-96':
             default:
                  $this->b = 64;
                  $this->hash = array($this, '_sha1');
