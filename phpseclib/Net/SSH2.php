@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP implementation of SSHv2.
  *
