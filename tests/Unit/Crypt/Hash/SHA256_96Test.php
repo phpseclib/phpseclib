@@ -25,7 +25,7 @@ class Unit_Crypt_Hash_SHA256_96Test extends Unit_Crypt_Hash_SHA256Test
     {
         $tests = parent::hashData();
         foreach ($tests as &$test) {
-            $test[3] = substr($test[2], 0, 24);
+            $test[2] = substr($test[2], 0, 24);
         }
         return $tests;
     }
