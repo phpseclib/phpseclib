@@ -25,6 +25,6 @@ class Unit_Crypt_Hash_SHA512_96Test extends Unit_Crypt_Hash_SHA512Test
     */
     public function testHMAC($key, $message, $longResult)
     {
-        $this->assertHMACsTo($this->getInstance(), $key, $message, substr($longResult, 0, 24));
+        parent::testHMAC($this->getInstance(), $key, $message, substr($longResult, 0, 24));
     }
 }
