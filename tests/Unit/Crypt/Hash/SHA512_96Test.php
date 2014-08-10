@@ -23,9 +23,9 @@ class Unit_Crypt_Hash_SHA512_96Test extends Unit_Crypt_Hash_SHA512Test
 
     static public function hmacData()
     {
-        $tests = parent::hashData();
+        $tests = parent::hmacData();
         foreach ($tests as &$test) {
-            $test[3] = substr($test[2], 0, 24);
+            $test[2] = substr($test[2], 0, 24);
         }
         return $tests;
     }

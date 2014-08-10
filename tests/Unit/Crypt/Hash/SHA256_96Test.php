@@ -23,7 +23,7 @@ class Unit_Crypt_Hash_SHA256_96Test extends Unit_Crypt_Hash_SHA256Test
 
     static public function hmacData()
     {
-        $tests = parent::hashData();
+        $tests = parent::hmacData();
         foreach ($tests as &$test) {
             $test[2] = substr($test[2], 0, 24);
         }
