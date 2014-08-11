@@ -12,21 +12,19 @@ class Unit_Crypt_Hash_SHA512_96Test extends Unit_Crypt_Hash_SHA512Test
         return new Crypt_Hash('sha512-96');
     }
 
-    static public function hashData()
+    /**
+    * @dataProvider hashData()
+    */
+    public function testHash($message, $longResult)
     {
-        $tests = parent::hashData();
-        foreach ($tests as &$test) {
-            $test[1] = substr($test[1], 0, 24);
-        }
-        return $tests;
+        parent::testHash($message, substr($longResult, 0, 24));
     }
 
-    static public function hmacData()
+    /**
+    * @dataProvider hmacData()
+    */
+    public function testHMAC($key, $message, $longResult)
     {
-        $tests = parent::hmacData();
-        foreach ($tests as &$test) {
-            $test[2] = substr($test[2], 0, 24);
-        }
-        return $tests;
+        parent::testHMAC($key, $message, substr($longResult, 0, 24));
     }
 }
