@@ -48,10 +48,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $result = array();
 
         // @codingStandardsIgnoreStart
-        foreach ($this->modes as $mode)
-        foreach ($this->plaintexts as $plaintext)
-        foreach ($this->ivs as $iv)
-        foreach ($this->keys as $key)
+        foreach ($modes as $mode)
+        foreach ($plaintexts as $plaintext)
+        foreach ($ivs as $iv)
+        foreach ($keys as $key)
             $result[] = array($mode, $plaintext, $iv, $key);
         // @codingStandardsIgnoreEnd
 
