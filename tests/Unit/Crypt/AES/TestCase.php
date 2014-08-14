@@ -74,6 +74,9 @@ abstract class Unit_Crypt_AES_Test extends PhpSeclibTestcase
         $this->assertEquals($plaintext, $actual);
     }
 
+    /**
+    * @group github451
+    */
     public function testKeyPaddingRijndael()
     {
         // this test case is from the following URL:
@@ -86,6 +89,9 @@ abstract class Unit_Crypt_AES_Test extends PhpSeclibTestcase
         $this->assertEquals($ciphertext, pack('H*', '231d844639b31b412211cfe93712b880'));
     }
 
+    /**
+    * @group github451
+    */
     public function testKeyPaddingAES()
     {
         // same as the above - just with a different ciphertext
