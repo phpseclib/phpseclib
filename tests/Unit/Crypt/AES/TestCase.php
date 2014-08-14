@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-abstract class Unit_Crypt_AES_Test extends PhpSeclibTestcase
+abstract class Unit_Crypt_AES_TestCase extends PhpSeclibTestcase
 {
     static public function setUpBeforeClass()
     {

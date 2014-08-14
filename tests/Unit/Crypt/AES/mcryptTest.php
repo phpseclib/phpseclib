@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Unit_Crypt_AES_mcryptTest extends Unit_Crypt_AES_mcryptCase
+class Unit_Crypt_AES_mcryptTest extends Unit_Crypt_AES_TestCase
 {
     static public function setUpBeforeClass()
     {
