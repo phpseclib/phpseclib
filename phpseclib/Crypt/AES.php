@@ -178,7 +178,7 @@ class Crypt_AES extends Crypt_Rijndael
     /**
      * Sets the key.
      *
-     * Rijndael supports 5x different key lengths, AES only supports 3x different key lengths.
+     * Rijndael supports five different key lengths, AES only supports three.
      *
      * @see Crypt_Rijndael:setKey()
      * @see setKeyLength()
