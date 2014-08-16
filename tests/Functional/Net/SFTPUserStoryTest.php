@@ -319,6 +319,26 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     /**
     * @depends testSortOrder
     */
+    public function testResourceXfer($sftp)
+    {
+        $fp = fopen('res.txt', 'w+');
+        $sftp->get('file1.txt', $fp);
+        rewind($fp);
+        $sftp->put('file4.txt', $fp);
+        fclose($fp);
+
+        $this->assertSame(
+            self::$exampleData,
+            $sftp->get('file4.txt'),
+            'Failed asserting that a file downloaded into a resource and reuploaded from a resource has the correct data'
+        );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testResourceXfer
+    */
     public function testSymlink($sftp)
     {
         $this->assertTrue(
