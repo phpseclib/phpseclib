@@ -1757,7 +1757,7 @@ class Net_SFTP extends Net_SSH2
      * contain as many bytes as filename.ext does on your local filesystem.  If your filename.ext is 1MB then that is how
      * large $remote_file will be, as well.
      *
-     * If $data is a resource then it'll be used a resource instead.
+     * If $data is a resource then it'll be used as a resource instead.
      *
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
      * care of that, yourself.
