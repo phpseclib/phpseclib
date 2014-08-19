@@ -1757,6 +1757,8 @@ class Net_SFTP extends Net_SSH2
      * contain as many bytes as filename.ext does on your local filesystem.  If your filename.ext is 1MB then that is how
      * large $remote_file will be, as well.
      *
+     * If $data is a resource then it'll be used as a resource instead.
+     *
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
      * care of that, yourself.
      *
@@ -1778,7 +1780,7 @@ class Net_SFTP extends Net_SSH2
      * Setting $local_start to > 0 or $mode | NET_SFTP_RESUME_START doesn't do anything unless $mode | NET_SFTP_LOCAL_FILE.
      *
      * @param String $remote_file
-     * @param String $data
+     * @param String|resource $data
      * @param optional Integer $mode
      * @param optional Integer $start
      * @param optional Integer $local_start
@@ -1834,16 +1836,25 @@ class Net_SFTP extends Net_SSH2
         }
 
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
-        if ($mode & NET_SFTP_LOCAL_FILE) {
-            if (!is_file($data)) {
-                user_error("$data is not a valid file");
-                return false;
-            }
-            $fp = @fopen($data, 'rb');
-            if (!$fp) {
-                return false;
-            }
-            $size = filesize($data);
+        switch (true) {
+            case is_resource($data):
+                $mode = $mode & ~NET_SFTP_LOCAL_FILE;
+                $fp = $data;
+                break;
+            case $mode & NET_SFTP_LOCAL_FILE:
+                if (!is_file($data)) {
+                    user_error("$data is not a valid file");
+                    return false;
+                }
+                $fp = @fopen($data, 'rb');
+                if (!$fp) {
+                    return false;
+                }
+        }
+
+        if (isset($fp)) {
+            $stat = fstat($fp);
+            $size = $stat['size'];
 
             if ($local_start >= 0) {
                 fseek($fp, $local_start);
@@ -1864,7 +1875,7 @@ class Net_SFTP extends Net_SSH2
         $sftp_packet_size-= strlen($handle) + 25;
         $i = 0;
         while ($sent < $size) {
-            $temp = $mode & NET_SFTP_LOCAL_FILE ? fread($fp, $sftp_packet_size) : substr($data, $sent, $sftp_packet_size);
+            $temp = isset($fp) ? fread($fp, $sftp_packet_size) : substr($data, $sent, $sftp_packet_size);
             $subtemp = $offset + $sent;
             $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, strlen($temp), $temp);
             if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
@@ -2005,21 +2016,30 @@ class Net_SFTP extends Net_SSH2
                 return false;
         }
 
-        if ($local_file !== false) {
-            $fp = fopen($local_file, 'wb');
-            if (!$fp) {
-                return false;
-            }
+        if (is_resource($local_file)) {
+            $fp = $local_file;
+            $stat = fstat($fp);
+            $res_offset = $stat['size'];
         } else {
-            $content = '';
+            $res_offset = 0;
+            if ($local_file !== false) {
+                $fp = fopen($local_file, 'wb');
+                if (!$fp) {
+                    return false;
+                }
+            } else {
+                $content = '';
+            }
         }
+
+        $fclose_check = $local_file !== false && !is_resource($local_file);
 
         $start = $offset;
         $size = $this->max_sftp_packet < $length || $length < 0 ? $this->max_sftp_packet : $length;
         while (true) {
             $packet = pack('Na*N3', strlen($handle), $handle, $offset / 4294967296, $offset, $size);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
-                if ($local_file !== false) {
+                if ($fclose_check) {
                     fclose($fp);
                 }
                 return false;
@@ -2042,7 +2062,7 @@ class Net_SFTP extends Net_SSH2
                     break 2;
                 default:
                     user_error('Expected SSH_FXP_DATA or SSH_FXP_STATUS');
-                    if ($local_file !== false) {
+                    if ($fclose_check) {
                         fclose($fp);
                     }
                     return false;
@@ -2057,11 +2077,11 @@ class Net_SFTP extends Net_SSH2
             if ($local_file === false) {
                 $content = substr($content, 0, $length);
             } else {
-                ftruncate($fp, $length);
+                ftruncate($fp, $length + $res_offset);
             }
         }
 
-        if ($local_file !== false) {
+        if ($fclose_check) {
             fclose($fp);
         }
 
