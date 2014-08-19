@@ -1780,7 +1780,7 @@ class Net_SFTP extends Net_SSH2
      * Setting $local_start to > 0 or $mode | NET_SFTP_RESUME_START doesn't do anything unless $mode | NET_SFTP_LOCAL_FILE.
      *
      * @param String $remote_file
-     * @param String $data
+     * @param String|resource $data
      * @param optional Integer $mode
      * @param optional Integer $start
      * @param optional Integer $local_start
