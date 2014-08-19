@@ -2032,12 +2032,14 @@ class Net_SFTP extends Net_SSH2
             }
         }
 
+        $fclose_check = $local_file !== false && !is_resource($local_file);
+
         $start = $offset;
         $size = $this->max_sftp_packet < $length || $length < 0 ? $this->max_sftp_packet : $length;
         while (true) {
             $packet = pack('Na*N3', strlen($handle), $handle, $offset / 4294967296, $offset, $size);
             if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
-                if ($local_file !== false && !is_resource($local_file)) {
+                if ($fclose_check) {
                     fclose($fp);
                 }
                 return false;
@@ -2060,7 +2062,7 @@ class Net_SFTP extends Net_SSH2
                     break 2;
                 default:
                     user_error('Expected SSH_FXP_DATA or SSH_FXP_STATUS');
-                    if ($local_file !== false && !is_resource($local_file)) {
+                    if ($fclose_check) {
                         fclose($fp);
                     }
                     return false;
@@ -2079,7 +2081,7 @@ class Net_SFTP extends Net_SSH2
             }
         }
 
-        if ($local_file !== false && !is_resource($local_file)) {
+        if ($fclose_check) {
             fclose($fp);
         }
 
