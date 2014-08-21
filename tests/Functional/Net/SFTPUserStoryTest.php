@@ -165,73 +165,6 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
     /**
     * @depends testPutSizeGetFile
-    * @group github298
-    * @group github455
-    * @group github457
-    */
-    public function testPutSizeLocalFile($sftp)
-    {
-        $tmp_filename = $this->createTempFile(512, 1024 * 1024);
-        $filename = 'file-large-from-local.txt';
-
-        $this->assertTrue(
-            $sftp->put($filename, $tmp_filename, NET_SFTP_LOCAL_FILE),
-            'Failed asserting that local file could be successfully put().'
-        );
-
-        $this->assertSame(
-            512 * 1024 * 1024,
-            $sftp->size($filename),
-            'Failed asserting that uploaded local file has the expected length.'
-        );
-
-        return $sftp;
-    }
-
-    /**
-    * @depends testPutSizeLocalFile
-    */
-    public function testTouch($sftp)
-    {
-        $this->assertTrue(
-            $sftp->touch('file2.txt'),
-            'Failed asserting that touch() successfully ran.'
-        );
-
-        $this->assertTrue(
-            $sftp->file_exists('file2.txt'),
-            'Failed asserting that touch()\'d file exists'
-        );
-
-        return $sftp;
-    }
-
-    /**
-    * @depends testTouch
-    */
-    public function testTruncate($sftp)
-    {
-        $this->assertTrue(
-            $sftp->touch('file3.txt'),
-            'Failed asserting that touch() successfully ran.'
-        );
-
-        $this->assertTrue(
-            $sftp->truncate('file3.txt', 1024 * 1024),
-            'Failed asserting that touch() successfully ran.'
-        );
-
-        $this->assertSame(
-            1024 * 1024,
-            $sftp->size('file3.txt'),
-            'Failed asserting that truncate()\'d file has the expected length'
-        );
-
-        return $sftp;
-    }
-
-    /**
-    * @depends testTruncate
     */
     public function testChDirOnFile($sftp)
     {
@@ -268,6 +201,67 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
     /**
     * @depends testFileExistsIsFileIsDirFile
+    * @group github298
+    * @group github455
+    * @group github457
+    */
+    public function testPutSizeLocalFile($sftp)
+    {
+        $tmp_filename = $this->createTempFile(512, 1024 * 1024);
+
+        $this->assertTrue(
+            $sftp->put('file2.txt', $tmp_filename, NET_SFTP_LOCAL_FILE),
+            'Failed asserting that local file could be successfully put().'
+        );
+
+        $this->assertSame(
+            512 * 1024 * 1024,
+            $sftp->size('file2.txt'),
+            'Failed asserting that uploaded local file has the expected length.'
+        );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testPutSizeLocalFile
+    */
+    public function testTruncate($sftp)
+    {
+        $this->assertTrue(
+            $sftp->truncate('file2.txt', 1024 * 1024),
+            'Failed asserting that touch() successfully ran.'
+        );
+
+        $this->assertSame(
+            1024 * 1024,
+            $sftp->size('file2.txt'),
+            'Failed asserting that truncate()\'d file has the expected length'
+        );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testTruncate
+    */
+    public function testTouch($sftp)
+    {
+        $this->assertTrue(
+            $sftp->touch('file3.txt'),
+            'Failed asserting that touch() successfully ran.'
+        );
+
+        $this->assertTrue(
+            $sftp->file_exists('file3.txt'),
+            'Failed asserting that touch()\'d file exists'
+        );
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testTouch
     */
     public function testFileExistsIsFileIsDirFileNonexistent($sftp)
     {
