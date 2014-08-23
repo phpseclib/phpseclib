@@ -1568,6 +1568,7 @@ class Net_SSH2
         }
 echo $this->encrypt->engine == CRYPT_MODE_MCRYPT ? 'mcrypt' : 'internal';
 echo "\r\n";
+echo MATH_BIGINTEGER_MODE . "\r\n";
 
         switch ($decrypt) {
             case '3des-cbc':
