@@ -493,14 +493,13 @@ class Crypt_RSA
         $this->configFile = CRYPT_RSA_OPENSSL_CONFIG;
 
         if ( !defined('CRYPT_RSA_MODE') ) {
-            // Math/BigInteger's openssl requirements are a little less stringent than Crypt/RSA's. in particular,
-            // Math/BigInteger doesn't require an openssl.cfg file whereas Crypt/RSA does. so if Math/BigInteger
-            // can't use OpenSSL it can be pretty trivially assumed, then, that Crypt/RSA can't either.
-            if ( defined('MATH_BIGINTEGER_OPENSSL_DISABLE') ) {
-                define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
-            }
-
-            switch ( !defined('CRYPT_RSA_MODE') ) { // ie. only run this if the above didn't set CRYPT_RSA_MODE already
+            switch (true) {
+                // Math/BigInteger's openssl requirements are a little less stringent than Crypt/RSA's. in particular,
+                // Math/BigInteger doesn't require an openssl.cfg file whereas Crypt/RSA does. so if Math/BigInteger
+                // can't use OpenSSL it can be pretty trivially assumed, then, that Crypt/RSA can't either.
+                case defined('MATH_BIGINTEGER_OPENSSL_DISABLE'):
+                    define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
+                    break;
                 // openssl_pkey_get_details - which is used in the only place Crypt/RSA.php uses OpenSSL - was introduced in PHP 5.2.0
                 case !function_exists('openssl_pkey_get_details'):
                     define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
@@ -533,7 +532,7 @@ class Crypt_RSA
                             define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
                     }
                     break;
-                case true:
+                default:
                     define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
             }
         }
