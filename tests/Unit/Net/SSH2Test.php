@@ -6,6 +6,9 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+echo extension_loaded('mcrypt') ? "mcrypt is available\r\n" : "mcrypt is NOT available\r\n";
+echo extension_loaded('gmp') ? "gmp is available\r\n" : "gmp is NOT available\r\n";
+
 class Unit_Net_SSH2Test extends PhpseclibTestCase
 {
     public function formatLogDataProvider()
