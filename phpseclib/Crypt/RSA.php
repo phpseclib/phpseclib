@@ -532,7 +532,7 @@ class Crypt_RSA
                             define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
                     }
                     break;
-                case true:
+                default:
                     define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
             }
         }
