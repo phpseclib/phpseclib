@@ -313,7 +313,7 @@ class File_ASN1
         $length = ord($this->_string_shift($encoded));
         $start++;
         if ( $length == 0x80 ) { // indefinite length
-            // "[A sender shall] use the indefinite form (see 8.1.3.6) if the encoding is constructed and is not all 
+            // "[A sender shall] use the indefinite form (see 8.1.3.6) if the encoding is constructed and is not all
             //  immediately available." -- paragraph 8.1.3.2.c
             $length = strlen($encoded);
         } elseif ( $length & 0x80 ) { // definite length, long form
