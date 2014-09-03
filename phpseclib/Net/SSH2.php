@@ -2983,7 +2983,7 @@ class Net_SSH2
 
             extract(unpack('Ctype/Nchannel', $this->_string_shift($response, 5)));
 
-            $this->window_size_server_to_client[$channel]-= strlen($response) + 4;
+            $this->window_size_server_to_client[$channel]-= strlen($response);
 
             // resize the window, if appropriate
             if ($this->window_size_server_to_client[$channel] < 0) {
@@ -3281,7 +3281,7 @@ class Net_SSH2
         $max_size = min(
             $this->packet_size_client_to_server[$client_channel],
             $this->window_size_client_to_server[$client_channel]
-        ) - 4;
+        );
         while (strlen($data) > $max_size) {
             if (!$this->window_size_client_to_server[$client_channel]) {
                 $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
@@ -3291,7 +3291,7 @@ class Net_SSH2
                 $max_size = min(
                     $this->packet_size_client_to_server[$client_channel],
                     $this->window_size_client_to_server[$client_channel]
-                ) - 4;
+                );
             }
 
             $temp = $this->_string_shift($data, $max_size);
@@ -3302,20 +3302,20 @@ class Net_SSH2
                 $temp
             );
 
-            $this->window_size_client_to_server[$client_channel]-= strlen($temp) + 4;
+            $this->window_size_client_to_server[$client_channel]-= strlen($temp);
 
             if (!$this->_send_binary_packet($packet)) {
                 return false;
             }
         }
 
-        if (strlen($data) >= $this->window_size_client_to_server[$client_channel] - 4) {
+        if (strlen($data) >= $this->window_size_client_to_server[$client_channel]) {
             $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
             $this->_get_channel_packet(-1);
             $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
         }
 
-        $this->window_size_client_to_server[$client_channel]-= strlen($data) + 4;
+        $this->window_size_client_to_server[$client_channel]-= strlen($data);
 
         return $this->_send_binary_packet(pack('CN2a*',
             NET_SSH2_MSG_CHANNEL_DATA,
