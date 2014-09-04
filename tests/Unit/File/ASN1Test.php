@@ -241,7 +241,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     {
         $asn1 = new File_ASN1();
         $decoded = $asn1->decodeBER(file_get_contents(dirname(__FILE__) . '/ASN1/FE.pdf.p7m'));
-        $this->assertSame(5, count($decoded[0]['content'][1]['content'][0]['content'])); // older versions would have returned 3
+        $this->assertCount(5, $decoded[0]['content'][1]['content'][0]['content']); // older versions would have returned 3
     }
 
     public function testDefiniteLength()
@@ -266,6 +266,6 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
                'IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==';
         $asn1 = new File_ASN1();
         $decoded = $asn1->decodeBER(base64_decode($str));
-        $this->assertSame(3, count($decoded[0]['content']));
+        $this->assertCount(3, $decoded[0]['content']);
     }
 }
