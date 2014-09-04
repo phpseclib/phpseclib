@@ -20,9 +20,11 @@ function install_php_extension
     echo "extension=$1.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
 }
 
-if [ "$TRAVIS_PHP_VERSION" != "5.6" ]
+# runkit
+if [ "$TRAVIS_PHP_VERSION" == "5.6" ]
 then
-    # runkit
-    git clone git://github.com/zenovich/runkit.git
-    install_php_extension 'runkit'
+    git clone https://github.com/adrianguenter/runkit.git
+else
+    git clone https://github.com/zenovich/runkit.git
 fi
+install_php_extension 'runkit'
