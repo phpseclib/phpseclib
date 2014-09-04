@@ -272,7 +272,8 @@ class File_ASN1
         }
 
         $this->encoded = $encoded;
-        return $this->_decode_ber($encoded);
+        // encapsulate in an array for BC with the old decodeBER
+        return array($this->_decode_ber($encoded));
     }
 
     /**
@@ -287,215 +288,233 @@ class File_ASN1
      * @return Array
      * @access private
      */
-    function _decode_ber(&$encoded, $start = 0)
+    function _decode_ber($encoded, $start = 0)
     {
-        $decoded = array();
+        $current = array('start' => $start);
 
-        while ( strlen($encoded) ) {
-            $current = array('start' => $start);
+        $type = ord($this->_string_shift($encoded));
+        $start++;
 
-            $type = ord($this->_string_shift($encoded));
-            $start++;
+        $constructed = ($type >> 5) & 1;
 
-            $constructed = ($type >> 5) & 1;
-
-            $tag = $type & 0x1F;
-            if ($tag == 0x1F) {
-                $tag = 0;
-                // process septets (since the eighth bit is ignored, it's not an octet)
-                do {
-                    $loop = ord($encoded[0]) >> 7;
-                    $tag <<= 7;
-                    $tag |= ord($this->_string_shift($encoded)) & 0x7F;
-                    $start++;
-                } while ( $loop );
-            }
-
-            // Length, as discussed in paragraph 8.1.3 of X.690-0207.pdf#page=13
-            $length = ord($this->_string_shift($encoded));
-            $start++;
-            if ( $length == 0x80 ) { // indefinite length
-                // "[A sender shall] use the indefinite form (see 8.1.3.6) if the encoding is constructed and is not all
-                //  immediately available." -- paragraph 8.1.3.2.c
-                //if ( !$constructed ) {
-                //    return false;
-                //}
-                $length = strlen($encoded);
-            } elseif ( $length & 0x80 ) { // definite length, long form
-                // technically, the long form of the length can be represented by up to 126 octets (bytes), but we'll only
-                // support it up to four.
-                $length&= 0x7F;
-                $temp = $this->_string_shift($encoded, $length);
-                // tags of indefinite length don't really have a header length; this length includes the tag
-                $current+= array('headerlength' => $length + 2);
-                $start+= $length;
-                extract(unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4)));
-            } else {
-                $current+= array('headerlength' => 2);
-            }
-
-            // End-of-content, see paragraphs 8.1.1.3, 8.1.3.2, 8.1.3.6, 8.1.5, and (for an example) 8.6.4.2
-            if (!$type && !$length) {
-                return $decoded;
-            }
-            $content = $this->_string_shift($encoded, $length);
-
-            /* Class is UNIVERSAL, APPLICATION, PRIVATE, or CONTEXT-SPECIFIC. The UNIVERSAL class is restricted to the ASN.1
-               built-in types. It defines an application-independent data type that must be distinguishable from all other
-               data types. The other three classes are user defined. The APPLICATION class distinguishes data types that
-               have a wide, scattered use within a particular presentation context. PRIVATE distinguishes data types within
-               a particular organization or country. CONTEXT-SPECIFIC distinguishes members of a sequence or set, the
-               alternatives of a CHOICE, or universally tagged set members. Only the class number appears in braces for this
-               data type; the term CONTEXT-SPECIFIC does not appear.
-
-                 -- http://www.obj-sys.com/asn1tutorial/node12.html */
-            $class = ($type >> 6) & 3;
-            switch ($class) {
-                case FILE_ASN1_CLASS_APPLICATION:
-                case FILE_ASN1_CLASS_PRIVATE:
-                case FILE_ASN1_CLASS_CONTEXT_SPECIFIC:
-                    $decoded[] = array(
-                        'type'     => $class,
-                        'constant' => $tag,
-                        'content'  => $constructed ? $this->_decode_ber($content, $start) : $content,
-                        'length'   => $length + $start - $current['start']
-                    ) + $current;
-                    $start+= $length;
-                    continue 2;
-            }
-
-            $current+= array('type' => $tag);
-
-            // decode UNIVERSAL tags
-            switch ($tag) {
-                case FILE_ASN1_TYPE_BOOLEAN:
-                    // "The contents octets shall consist of a single octet." -- paragraph 8.2.1
-                    //if (strlen($content) != 1) {
-                    //    return false;
-                    //}
-                    $current['content'] = (bool) ord($content[0]);
-                    break;
-                case FILE_ASN1_TYPE_INTEGER:
-                case FILE_ASN1_TYPE_ENUMERATED:
-                    $current['content'] = new Math_BigInteger($content, -256);
-                    break;
-                case FILE_ASN1_TYPE_REAL: // not currently supported
-                    return false;
-                case FILE_ASN1_TYPE_BIT_STRING:
-                    // The initial octet shall encode, as an unsigned binary integer with bit 1 as the least significant bit,
-                    // the number of unused bits in the final subsequent octet. The number shall be in the range zero to
-                    // seven.
-                    if (!$constructed) {
-                        $current['content'] = $content;
-                    } else {
-                        $temp = $this->_decode_ber($content, $start);
-                        $length-= strlen($content);
-                        $last = count($temp) - 1;
-                        for ($i = 0; $i < $last; $i++) {
-                            // all subtags should be bit strings
-                            //if ($temp[$i]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
-                            //    return false;
-                            //}
-                            $current['content'].= substr($temp[$i]['content'], 1);
-                        }
-                        // all subtags should be bit strings
-                        //if ($temp[$last]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
-                        //    return false;
-                        //}
-                        $current['content'] = $temp[$last]['content'][0] . $current['content'] . substr($temp[$i]['content'], 1);
-                    }
-                    break;
-                case FILE_ASN1_TYPE_OCTET_STRING:
-                    if (!$constructed) {
-                        $current['content'] = $content;
-                    } else {
-                        $temp = $this->_decode_ber($content, $start);
-                        $length-= strlen($content);
-                        for ($i = 0, $size = count($temp); $i < $size; $i++) {
-                            // all subtags should be octet strings
-                            //if ($temp[$i]['type'] != FILE_ASN1_TYPE_OCTET_STRING) {
-                            //    return false;
-                            //}
-                            $current['content'].= $temp[$i]['content'];
-                        }
-                        // $length =
-                    }
-                    break;
-                case FILE_ASN1_TYPE_NULL:
-                    // "The contents octets shall not contain any octets." -- paragraph 8.8.2
-                    //if (strlen($content)) {
-                    //    return false;
-                    //}
-                    break;
-                case FILE_ASN1_TYPE_SEQUENCE:
-                case FILE_ASN1_TYPE_SET:
-                    $current['content'] = $this->_decode_ber($content, $start);
-                    break;
-                case FILE_ASN1_TYPE_OBJECT_IDENTIFIER:
-                    $temp = ord($this->_string_shift($content));
-                    $current['content'] = sprintf('%d.%d', floor($temp / 40), $temp % 40);
-                    $valuen = 0;
-                    // process septets
-                    while (strlen($content)) {
-                        $temp = ord($this->_string_shift($content));
-                        $valuen <<= 7;
-                        $valuen |= $temp & 0x7F;
-                        if (~$temp & 0x80) {
-                            $current['content'].= ".$valuen";
-                            $valuen = 0;
-                        }
-                    }
-                    // the eighth bit of the last byte should not be 1
-                    //if ($temp >> 7) {
-                    //    return false;
-                    //}
-                    break;
-                /* Each character string type shall be encoded as if it had been declared:
-                   [UNIVERSAL x] IMPLICIT OCTET STRING
-
-                     -- X.690-0207.pdf#page=23 (paragraph 8.21.3)
-
-                   Per that, we're not going to do any validation.  If there are any illegal characters in the string,
-                   we don't really care */
-                case FILE_ASN1_TYPE_NUMERIC_STRING:
-                    // 0,1,2,3,4,5,6,7,8,9, and space
-                case FILE_ASN1_TYPE_PRINTABLE_STRING:
-                    // Upper and lower case letters, digits, space, apostrophe, left/right parenthesis, plus sign, comma,
-                    // hyphen, full stop, solidus, colon, equal sign, question mark
-                case FILE_ASN1_TYPE_TELETEX_STRING:
-                    // The Teletex character set in CCITT's T61, space, and delete
-                    // see http://en.wikipedia.org/wiki/Teletex#Character_sets
-                case FILE_ASN1_TYPE_VIDEOTEX_STRING:
-                    // The Videotex character set in CCITT's T.100 and T.101, space, and delete
-                case FILE_ASN1_TYPE_VISIBLE_STRING:
-                    // Printing character sets of international ASCII, and space
-                case FILE_ASN1_TYPE_IA5_STRING:
-                    // International Alphabet 5 (International ASCII)
-                case FILE_ASN1_TYPE_GRAPHIC_STRING:
-                    // All registered G sets, and space
-                case FILE_ASN1_TYPE_GENERAL_STRING:
-                    // All registered C and G sets, space and delete
-                case FILE_ASN1_TYPE_UTF8_STRING:
-                    // ????
-                case FILE_ASN1_TYPE_BMP_STRING:
-                    $current['content'] = $content;
-                    break;
-                case FILE_ASN1_TYPE_UTC_TIME:
-                case FILE_ASN1_TYPE_GENERALIZED_TIME:
-                    $current['content'] = $this->_decodeTime($content, $tag);
-                default:
-
-            }
-
-            $start+= $length;
-            $decoded[] = $current + array('length' => $start - $current['start']);
+        $tag = $type & 0x1F;
+        if ($tag == 0x1F) {
+            $tag = 0;
+            // process septets (since the eighth bit is ignored, it's not an octet)
+            do {
+                $loop = ord($encoded[0]) >> 7;
+                $tag <<= 7;
+                $tag |= ord($this->_string_shift($encoded)) & 0x7F;
+                $start++;
+            } while ( $loop );
         }
 
-        return $decoded;
+        // Length, as discussed in paragraph 8.1.3 of X.690-0207.pdf#page=13
+        $length = ord($this->_string_shift($encoded));
+        $start++;
+        if ( $length == 0x80 ) { // indefinite length
+            // "[A sender shall] use the indefinite form (see 8.1.3.6) if the encoding is constructed and is not all
+            //  immediately available." -- paragraph 8.1.3.2.c
+            $length = strlen($encoded);
+        } elseif ( $length & 0x80 ) { // definite length, long form
+            // technically, the long form of the length can be represented by up to 126 octets (bytes), but we'll only
+            // support it up to four.
+            $length&= 0x7F;
+            $temp = $this->_string_shift($encoded, $length);
+            // tags of indefinte length don't really have a header length; this length includes the tag
+            $current+= array('headerlength' => $length + 2);
+            $start+= $length;
+            extract(unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4)));
+        } else {
+            $current+= array('headerlength' => 2);
+        }
+
+        $content = $this->_string_shift($encoded, $length);
+
+        // at this point $length can be overwritten. it's only accurate for definite length things as is
+
+        /* Class is UNIVERSAL, APPLICATION, PRIVATE, or CONTEXT-SPECIFIC. The UNIVERSAL class is restricted to the ASN.1
+           built-in types. It defines an application-independent data type that must be distinguishable from all other
+           data types. The other three classes are user defined. The APPLICATION class distinguishes data types that
+           have a wide, scattered use within a particular presentation context. PRIVATE distinguishes data types within
+           a particular organization or country. CONTEXT-SPECIFIC distinguishes members of a sequence or set, the
+           alternatives of a CHOICE, or universally tagged set members. Only the class number appears in braces for this
+           data type; the term CONTEXT-SPECIFIC does not appear.
+
+             -- http://www.obj-sys.com/asn1tutorial/node12.html */
+        $class = ($type >> 6) & 3;
+        switch ($class) {
+            case FILE_ASN1_CLASS_APPLICATION:
+            case FILE_ASN1_CLASS_PRIVATE:
+            case FILE_ASN1_CLASS_CONTEXT_SPECIFIC:
+                $newcontent = $this->_decode_ber($content, $start);
+                $length = $newcontent['length'];
+                if (substr($content, $length, 2) == "\0\0") {
+                    $length+= 2;
+                }
+
+                $start+= $length;
+
+                return array(
+                    'type'     => $class,
+                    'constant' => $tag,
+                    // the array encapsulation is for BC with the old format
+                    'content'  => array($newcontent),
+                    // the only time when $content['headerlength'] isn't defined is when the length is indefinite.
+                    // the absence of $content['headerlength'] is how we know if something is indefinite or not.
+                    // technically, it could be defined to be 2 and then another indicator could be used but whatever.
+                    'length'   => $start - $current['start']
+                ) + $current;
+        }
+
+        $current+= array('type' => $tag);
+
+        // decode UNIVERSAL tags
+        switch ($tag) {
+            case FILE_ASN1_TYPE_BOOLEAN:
+                // "The contents octets shall consist of a single octet." -- paragraph 8.2.1
+                //if (strlen($content) != 1) {
+                //    return false;
+                //}
+                $current['content'] = (bool) ord($content[0]);
+                break;
+            case FILE_ASN1_TYPE_INTEGER:
+            case FILE_ASN1_TYPE_ENUMERATED:
+                $current['content'] = new Math_BigInteger($content, -256);
+                break;
+            case FILE_ASN1_TYPE_REAL: // not currently supported
+                return false;
+            case FILE_ASN1_TYPE_BIT_STRING:
+                // The initial octet shall encode, as an unsigned binary integer with bit 1 as the least significant bit,
+                // the number of unused bits in the final subsequent octet. The number shall be in the range zero to
+                // seven.
+                if (!$constructed) {
+                    $current['content'] = $content;
+                } else {
+                    $temp = $this->_decode_ber($content, $start);
+                    $length-= strlen($content);
+                    $last = count($temp) - 1;
+                    for ($i = 0; $i < $last; $i++) {
+                        // all subtags should be bit strings
+                        //if ($temp[$i]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
+                        //    return false;
+                        //}
+                        $current['content'].= substr($temp[$i]['content'], 1);
+                    }
+                    // all subtags should be bit strings
+                    //if ($temp[$last]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
+                    //    return false;
+                    //}
+                    $current['content'] = $temp[$last]['content'][0] . $current['content'] . substr($temp[$i]['content'], 1);
+                }
+                break;
+            case FILE_ASN1_TYPE_OCTET_STRING:
+                if (!$constructed) {
+                    $current['content'] = $content;
+                } else {
+                    $current['content'] = '';
+                    $length = 0;
+                    while (substr($content, 0, 2) != "\0\0") {
+                        $temp = $this->_decode_ber($content, $length + $start);
+                        $this->_string_shift($content, $temp['length']);
+                        // all subtags should be octet strings
+                        //if ($temp['type'] != FILE_ASN1_TYPE_OCTET_STRING) {
+                        //    return false;
+                        //}
+                        $current['content'].= $temp['content'];
+                        $length+= $temp['length'];
+                    }
+                    if (substr($content, 0, 2) == "\0\0") {
+                        $length+= 2; // +2 for the EOC
+                    }
+                }
+                break;
+            case FILE_ASN1_TYPE_NULL:
+                // "The contents octets shall not contain any octets." -- paragraph 8.8.2
+                //if (strlen($content)) {
+                //    return false;
+                //}
+                break;
+            case FILE_ASN1_TYPE_SEQUENCE:
+            case FILE_ASN1_TYPE_SET:
+                $offset = 0;
+                $current['content'] = array();
+                while (strlen($content)) {
+                    // if indefinite length construction was used and we have an end-of-content string next
+                    // see paragraphs 8.1.1.3, 8.1.3.2, 8.1.3.6, 8.1.5, and (for an example) 8.6.4.2
+                    if (!isset($current['headerlength']) && substr($content, 0, 2) == "\0\0") {
+                        $length = $offset + 2; // +2 for the EOC
+                        break 2;
+                    }
+                    $temp = $this->_decode_ber($content, $start + $offset);
+                    $this->_string_shift($content, $temp['length']);
+                    $current['content'][] = $temp;
+                    $offset+= $temp['length'];
+                }
+                break;
+            case FILE_ASN1_TYPE_OBJECT_IDENTIFIER:
+                $temp = ord($this->_string_shift($content));
+                $current['content'] = sprintf('%d.%d', floor($temp / 40), $temp % 40);
+                $valuen = 0;
+                // process septets
+                while (strlen($content)) {
+                    $temp = ord($this->_string_shift($content));
+                    $valuen <<= 7;
+                    $valuen |= $temp & 0x7F;
+                    if (~$temp & 0x80) {
+                        $current['content'].= ".$valuen";
+                        $valuen = 0;
+                    }
+                }
+                // the eighth bit of the last byte should not be 1
+                //if ($temp >> 7) {
+                //    return false;
+                //}
+                break;
+            /* Each character string type shall be encoded as if it had been declared:
+               [UNIVERSAL x] IMPLICIT OCTET STRING
+
+                 -- X.690-0207.pdf#page=23 (paragraph 8.21.3)
+
+               Per that, we're not going to do any validation.  If there are any illegal characters in the string,
+               we don't really care */
+            case FILE_ASN1_TYPE_NUMERIC_STRING:
+                // 0,1,2,3,4,5,6,7,8,9, and space
+            case FILE_ASN1_TYPE_PRINTABLE_STRING:
+                // Upper and lower case letters, digits, space, apostrophe, left/right parenthesis, plus sign, comma,
+                // hyphen, full stop, solidus, colon, equal sign, question mark
+            case FILE_ASN1_TYPE_TELETEX_STRING:
+                // The Teletex character set in CCITT's T61, space, and delete
+                // see http://en.wikipedia.org/wiki/Teletex#Character_sets
+            case FILE_ASN1_TYPE_VIDEOTEX_STRING:
+                // The Videotex character set in CCITT's T.100 and T.101, space, and delete
+            case FILE_ASN1_TYPE_VISIBLE_STRING:
+                // Printing character sets of international ASCII, and space
+            case FILE_ASN1_TYPE_IA5_STRING:
+                // International Alphabet 5 (International ASCII)
+            case FILE_ASN1_TYPE_GRAPHIC_STRING:
+                // All registered G sets, and space
+            case FILE_ASN1_TYPE_GENERAL_STRING:
+                // All registered C and G sets, space and delete
+            case FILE_ASN1_TYPE_UTF8_STRING:
+                // ????
+            case FILE_ASN1_TYPE_BMP_STRING:
+                $current['content'] = $content;
+                break;
+            case FILE_ASN1_TYPE_UTC_TIME:
+            case FILE_ASN1_TYPE_GENERALIZED_TIME:
+                $current['content'] = $this->_decodeTime($content, $tag);
+            default:
+        }
+
+        $start+= $length;
+
+        // ie. length is the length of the full TLV encoding - it's not just the length of the value
+        return $current + array('length' => $start - $current['start']);
     }
 
     /**
-     * ASN.1 Decode
+     * ASN.1 Map
      *
      * Provides an ASN.1 semantic mapping ($mapping) from a parsed BER-encoding to a human readable format.
      *
@@ -805,16 +824,6 @@ class File_ASN1
         return $this->_encode_der($source, $mapping, null, $special);
     }
 
-    /**
-     * ASN.1 Encode (Helper function)
-     *
-     * @param String $source
-     * @param Array $mapping
-     * @param Integer $idx
-     * @param Array $special
-     * @return String
-     * @access private
-     */
     /**
      * ASN.1 Encode (Helper function)
      *
