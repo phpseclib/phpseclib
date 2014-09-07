@@ -2076,7 +2076,6 @@ class Net_SSH2
 
                 if (!count($responses) && $num_prompts) {
                     $this->last_interactive_response = $orig;
-                    $this->bitmap |= NET_SSH_MASK_LOGIN_INTERACTIVE;
                     return false;
                 }
 
