@@ -1334,9 +1334,9 @@ class Net_SSH1
      * calls this call modexp, instead, but I think this makes things clearer, maybe...
      *
      * @see Net_SSH1::__construct()
-     * @param Math_BigInteger $m
+     * @param BigInteger $m
      * @param Array $key
-     * @return Math_BigInteger
+     * @return BigInteger
      * @access private
      */
     function _rsa_crypt($m, $key)
