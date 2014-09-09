@@ -259,4 +259,24 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
         $this->assertGreaterThanOrEqual(1, strlen("$rsa"));
         $this->assertFalse($rsa->getPublicKey());
     }
+
+    /**
+    * make phpseclib generated XML keys be unsigned. this may need to be reverted
+    * if it is later learned that XML keys are, in fact, supposed to be signed
+    * @group github468
+    */
+    public function testUnsignedXML()
+    {
+        $rsa = new Crypt_RSA();
+
+        $key = '<RSAKeyValue>
+<Modulus>v5OxcEgxPUfa701NpxnScCmlRkbwSGBiTWobHkIWZEB+AlRTHaVoZg/D8l6YzR7VdQidG6gF+nuUMjY75dBXgY/XcyVq0Hccf1jTfgARuNuq4GGG3hnCJVi2QsOgcf9R7TeXn+p1RKIhjQoWCiEQeEBTotNbJhcabNcPGSEJw+s=</Modulus>
+<Exponent>AQAB</Exponent>
+</RSAKeyValue>';
+
+        $rsa->loadKey($key);
+        $newkey = $rsa->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_XML);
+
+        $this->assertSame($key, $newkey);
+    }
 }
