@@ -278,7 +278,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
         $rsa->setPublicKey();
         $newkey = $rsa->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_XML);
 
-        $this->assertSame(preg_replace('#\s\', '', $key), preg_replace('#\s\', '', $newkey));
+        $this->assertSame(preg_replace('#\s#', '', $key), preg_replace('#\s#', '', $newkey));
     }
 
     /**
@@ -299,6 +299,6 @@ JWrQdxx/WNN+ABG426rgYYbeGcIlWLZCw6Bx/1HtN5ef6nVEoiGNChYKIRB4QFOi
         $rsa->setPublicKey();
         $newkey = $rsa->getPublicKey();
 
-        $this->assertSame(preg_replace('#\s\', '', $key), preg_replace('#\s\', '', $newkey));
+        $this->assertSame(preg_replace('#\s#', '', $key), preg_replace('#\s#', '', $newkey));
     }
 }
