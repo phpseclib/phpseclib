@@ -742,17 +742,18 @@ class Crypt_RSA
      */
     function _convertPrivateKey($n, $e, $d, $primes, $exponents, $coefficients)
     {
+        $signed = $this->privateKeyFormat != CRYPT_RSA_PRIVATE_FORMAT_XML;
         $num_primes = count($primes);
         $raw = array(
             'version' => $num_primes == 2 ? chr(0) : chr(1), // two-prime vs. multi
-            'modulus' => $n->toBytes(true),
-            'publicExponent' => $e->toBytes(true),
-            'privateExponent' => $d->toBytes(true),
-            'prime1' => $primes[1]->toBytes(true),
-            'prime2' => $primes[2]->toBytes(true),
-            'exponent1' => $exponents[1]->toBytes(true),
-            'exponent2' => $exponents[2]->toBytes(true),
-            'coefficient' => $coefficients[2]->toBytes(true)
+            'modulus' => $n->toBytes($signed),
+            'publicExponent' => $e->toBytes($signed),
+            'privateExponent' => $d->toBytes($signed),
+            'prime1' => $primes[1]->toBytes($signed),
+            'prime2' => $primes[2]->toBytes($signed),
+            'exponent1' => $exponents[1]->toBytes($signed),
+            'exponent2' => $exponents[2]->toBytes($signed),
+            'coefficient' => $coefficients[2]->toBytes($signed)
         );
 
         // if the format in question does not support multi-prime rsa and multi-prime rsa was used,
@@ -941,8 +942,10 @@ class Crypt_RSA
      */
     function _convertPublicKey($n, $e)
     {
-        $modulus = $n->toBytes(true);
-        $publicExponent = $e->toBytes(true);
+        $signed = $this->publicKeyFormat != CRYPT_RSA_PUBLIC_FORMAT_XML;
+
+        $modulus = $n->toBytes($signed);
+        $publicExponent = $e->toBytes($signed);
 
         switch ($this->publicKeyFormat) {
             case CRYPT_RSA_PUBLIC_FORMAT_RAW:

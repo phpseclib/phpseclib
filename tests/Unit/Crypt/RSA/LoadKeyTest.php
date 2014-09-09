@@ -259,4 +259,46 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
         $this->assertGreaterThanOrEqual(1, strlen("$rsa"));
         $this->assertFalse($rsa->getPublicKey());
     }
+
+    /**
+    * make phpseclib generated XML keys be unsigned. this may need to be reverted
+    * if it is later learned that XML keys are, in fact, supposed to be signed
+    * @group github468
+    */
+    public function testUnsignedXML()
+    {
+        $rsa = new Crypt_RSA();
+
+        $key = '<RSAKeyValue>
+  <Modulus>v5OxcEgxPUfa701NpxnScCmlRkbwSGBiTWobHkIWZEB+AlRTHaVoZg/D8l6YzR7VdQidG6gF+nuUMjY75dBXgY/XcyVq0Hccf1jTfgARuNuq4GGG3hnCJVi2QsOgcf9R7TeXn+p1RKIhjQoWCiEQeEBTotNbJhcabNcPGSEJw+s=</Modulus>
+  <Exponent>AQAB</Exponent>
+</RSAKeyValue>';
+
+        $rsa->loadKey($key);
+        $rsa->setPublicKey();
+        $newkey = $rsa->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_XML);
+
+        $this->assertSame(preg_replace('#\s#', '', $key), preg_replace('#\s#', '', $newkey));
+    }
+
+    /**
+    * @group github468
+    */
+    public function testSignedPKCS1()
+    {
+        $rsa = new Crypt_RSA();
+
+        $key = '-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC/k7FwSDE9R9rvTU2nGdJwKaVG
+RvBIYGJNahseQhZkQH4CVFMdpWhmD8PyXpjNHtV1CJ0bqAX6e5QyNjvl0FeBj9dz
+JWrQdxx/WNN+ABG426rgYYbeGcIlWLZCw6Bx/1HtN5ef6nVEoiGNChYKIRB4QFOi
+01smFxps1w8ZIQnD6wIDAQAB
+-----END PUBLIC KEY-----';
+
+        $rsa->loadKey($key);
+        $rsa->setPublicKey();
+        $newkey = $rsa->getPublicKey();
+
+        $this->assertSame(preg_replace('#\s#', '', $key), preg_replace('#\s#', '', $newkey));
+    }
 }
