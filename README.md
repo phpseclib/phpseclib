@@ -6,7 +6,7 @@ MIT-licensed pure-PHP implementations of an arbitrary-precision integer
 arithmetic library, fully PKCS#1 (v2.1) compliant RSA, DES, 3DES, RC4, Rijndael,
 AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 
-* [Download (0.3.7)](http://sourceforge.net/projects/phpseclib/files/phpseclib0.3.7.zip/download)
+* [Download (0.3.8)](http://sourceforge.net/projects/phpseclib/files/phpseclib0.3.8.zip/download)
 * [Browse Git](https://github.com/phpseclib/phpseclib)
 * [Code Coverage Report](http://phpseclib.bantux.org/code_coverage/master/latest/)
 
