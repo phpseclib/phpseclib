@@ -347,10 +347,15 @@ class File_ASN1
             case FILE_ASN1_CLASS_APPLICATION:
             case FILE_ASN1_CLASS_PRIVATE:
             case FILE_ASN1_CLASS_CONTEXT_SPECIFIC:
-                $newcontent = $this->_decode_ber($content, $start);
-                $length = $newcontent['length'];
-                if (substr($content, $length, 2) == "\0\0") {
-                    $length+= 2;
+                if ($constructed) {
+                    $newcontent = $this->_decode_ber($content, $start);
+                    $length = $newcontent['length'];
+                    if (substr($content, $length, 2) == "\0\0") {
+                        $length+= 2;
+                    }
+
+                    // the array encapsulation is for BC with the old format
+                    $content = array($newcontent);
                 }
 
                 $start+= $length;
@@ -359,7 +364,7 @@ class File_ASN1
                     'type'     => $class,
                     'constant' => $tag,
                     // the array encapsulation is for BC with the old format
-                    'content'  => array($newcontent),
+                    'content'  => $content,
                     // the only time when $content['headerlength'] isn't defined is when the length is indefinite.
                     // the absence of $content['headerlength'] is how we know if something is indefinite or not.
                     // technically, it could be defined to be 2 and then another indicator could be used but whatever.
