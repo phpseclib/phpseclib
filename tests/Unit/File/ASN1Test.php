@@ -272,8 +272,9 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     /**
     * @group github477
     */
-    public function contextSpecificNonConstructed()
+    public function testContextSpecificNonConstructed()
     {
+        $asn1 = new File_ASN1();
         $decoded = $asn1->decodeBER(base64_decode('MBaAFJtUo7c00HsI5EPZ4bkICfkOY2Pv'));
         $this->assertInternalType('string', $decoded[0]['content'][0]['content']);
     }
