@@ -968,7 +968,7 @@ class Net_SSH2
         $timeout-= $elapsed;
 
         if ($timeout <= 0) {
-            user_error(rtrim("Cannot connect to $host. Timeout error"));
+            user_error("Cannot connect to $host. Timeout error");
             return false;
         }
 
@@ -981,7 +981,7 @@ class Net_SSH2
         // on windows this returns a "Warning: Invalid CRT parameters detected" error
         // the !count() is done as a workaround for <https://bugs.php.net/42682>
         if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
-            user_error(rtrim("Cannot connect to $host. Banner timeout"));
+            user_error("Cannot connect to $host. Banner timeout");
             return false;
         }
 
