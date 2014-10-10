@@ -2540,7 +2540,7 @@ class Net_SFTP extends Net_SSH2
             case 0020000: // character special
                 return NET_SFTP_TYPE_CHAR_DEVICE;
             case 0060000: // block special
-                return NET_SFTP_BLOCK_DEVICE;
+                return NET_SFTP_TYPE_BLOCK_DEVICE;
             case 0140000: // socket
                 return NET_SFTP_TYPE_SOCKET;
             case 0160000: // whiteout
