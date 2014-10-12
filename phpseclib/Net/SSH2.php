@@ -841,6 +841,16 @@ class Net_SSH2
     var $windowRows = 24;
 
     /**
+     * Crypto Engine
+     *
+     * @see Net_SSH2::setCryptoEngine()
+     * @see Net_SSH2::_key_exchange()
+     * @var Integer
+     * @access private
+     */
+    var $crypto_engine = false;
+
+    /**
      * Default Constructor.
      *
      * @param String $host
@@ -939,6 +949,20 @@ class Net_SSH2
         $this->host = $host;
         $this->port = $port;
         $this->connectionTimeout = $timeout;
+    }
+
+    /**
+     * Set Crypto Engine Mode
+     *
+     * Possible $engine values:
+     * CRYPT_MODE_INTERNAL, CRYPT_MODE_MCRYPT
+     *
+     * @param Integer $engine
+     * @access private
+     */
+    function setCryptoEngine($engine)
+    {
+        $this->crypto_engine = $engine;
     }
 
     /**
@@ -1646,6 +1670,9 @@ class Net_SSH2
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
 
         if ($this->encrypt) {
+            if ($this->crypto_engine) {
+                $this->encrypt->setEngine($this->crypto_engine);
+            }
             $this->encrypt->enableContinuousBuffer();
             $this->encrypt->disablePadding();
 
@@ -1663,6 +1690,9 @@ class Net_SSH2
         }
 
         if ($this->decrypt) {
+            if ($this->crypto_engine) {
+                $this->decrypt->setEngine($this->crypto_engine);
+            }
             $this->decrypt->enableContinuousBuffer();
             $this->decrypt->disablePadding();
 
