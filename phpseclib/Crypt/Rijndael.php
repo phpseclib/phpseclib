@@ -437,11 +437,6 @@ class Crypt_Rijndael extends Crypt_Base
             // mcrypt is not usable for them, only for 128/192/256-bit keys
             // so we are forced to set the slower MODE_INTERNAL $engine
             $this->setEngine(CRYPT_MODE_INTERNAL);
-        } else {
-            // Set what is set/preferred in CRYPT_RIJNDAEL_MODE
-            // If its CRYPT_RIJNDAEL_MODE_MCRYPT and $this->cipher_name_mcrypt not available
-            // setEngine() will set to CRYPT_RIJNDAEL_MODE_INTERNAL automatically
-            $this->setEngine(constant('CRYPT_' . $this->const_namespace . '_MODE')); 
         }
     }
 
