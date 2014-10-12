@@ -121,6 +121,7 @@ define('CRYPT_BLOWFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
  * @package Crypt_Blowfish
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
+ * @version 1.0.1
  * @access  public
  */
 class Crypt_Blowfish extends Crypt_Base
@@ -174,7 +175,7 @@ class Crypt_Blowfish extends Crypt_Base
     /**
      * The fixed subkeys boxes ($sbox0 - $sbox3) with 256 entries each
      *
-     * S-Box 1
+     * S-Box 0
      *
      * @access private
      * @var    array
@@ -472,17 +473,17 @@ class Crypt_Blowfish extends Crypt_Base
         $r = $in[2];
 
         for ($i = 0; $i < 16; $i+= 2) {
-                $l^= $p[$i];
-                $r^= ($sb_0[$l >> 24 & 0xff]  +
-                      $sb_1[$l >> 16 & 0xff]  ^
-                      $sb_2[$l >>  8 & 0xff]) +
-                      $sb_3[$l       & 0xff];
+            $l^= $p[$i];
+            $r^= ($sb_0[$l >> 24 & 0xff]  +
+                  $sb_1[$l >> 16 & 0xff]  ^
+                  $sb_2[$l >>  8 & 0xff]) +
+                  $sb_3[$l       & 0xff];
 
-                $r^= $p[$i + 1];
-                $l^= ($sb_0[$r >> 24 & 0xff]  +
-                      $sb_1[$r >> 16 & 0xff]  ^
-                      $sb_2[$r >>  8 & 0xff]) +
-                      $sb_3[$r       & 0xff];
+            $r^= $p[$i + 1];
+            $l^= ($sb_0[$r >> 24 & 0xff]  +
+                  $sb_1[$r >> 16 & 0xff]  ^
+                  $sb_2[$r >>  8 & 0xff]) +
+                  $sb_3[$r       & 0xff];
         }
         return pack("N*", $r ^ $p[17], $l ^ $p[16]);
     }
@@ -519,7 +520,6 @@ class Crypt_Blowfish extends Crypt_Base
                   $sb_2[$r >>  8 & 0xff]) +
                   $sb_3[$r       & 0xff];
         }
-
         return pack("N*", $r ^ $p[0], $l ^ $p[1]);
     }
 
@@ -534,15 +534,14 @@ class Crypt_Blowfish extends Crypt_Base
         $lambda_functions =& Crypt_Blowfish::_getLambdaFunctions();
 
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
+        // (Currently, for Crypt_Blowfish, one generated $lambda_function cost on php5.5@32bit ~100kb unfreeable mem and ~180kb on php5.5@64bit)
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one.
-        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10);
+        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
-        switch (true) {
-            case $gen_hi_opt_code:
-                $code_hash = md5(str_pad("Crypt_Blowfish, {$this->mode}, ", 32, "\0") . $this->key);
-                break;
-            default:
-                $code_hash = "Crypt_Blowfish, {$this->mode}";
+        // Generation of a uniqe hash for our generated code
+        $code_hash = "Crypt_Blowfish, {$this->mode}";
+        if ($gen_hi_opt_code) {
+            $code_hash = str_pad($code_hash, 32) . $this->_trapdoor($this->key);
         }
 
         if (!isset($lambda_functions[$code_hash])) {

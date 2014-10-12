@@ -70,7 +70,7 @@ if (!class_exists('Crypt_Base')) {
 }
 
 /**#@+
- * @access private
+ * @access public
  * @see Crypt_RC4::Crypt_RC4()
  */
 /**
@@ -96,6 +96,7 @@ define('CRYPT_RC4_DECRYPT', 1);
  *
  * @package Crypt_RC4
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @version 0.1.1
  * @access  public
  */
 class Crypt_RC4 extends Crypt_Base

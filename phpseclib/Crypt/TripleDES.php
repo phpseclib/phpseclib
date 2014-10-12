@@ -59,25 +59,30 @@ if (!class_exists('Crypt_DES')) {
     include_once 'DES.php';
 }
 
+/**#@+
+ * @access public
+ * @see Crypt_TripleDES::Crypt_TripleDES()
+ */
 /**
  * Encrypt / decrypt using inner chaining
  *
  * Inner chaining is used by SSH-1 and is generally considered to be less secure then outer chaining (CRYPT_DES_MODE_CBC3).
  */
 define('CRYPT_DES_MODE_3CBC', -2);
-
 /**
  * Encrypt / decrypt using outer chaining
  *
  * Outer chaining is used by SSH-2 and when the mode is set to CRYPT_DES_MODE_CBC.
  */
 define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
+/**#@-*/
 
 /**
  * Pure-PHP implementation of Triple DES.
  *
  * @package Crypt_TripleDES
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @version 0.1.1
  * @access  public
  */
 class Crypt_TripleDES extends Crypt_DES
@@ -424,5 +429,25 @@ class Crypt_TripleDES extends Crypt_DES
         }
         // setup our key
         parent::_setupKey();
+    }
+
+    /**
+     * Sets the internal crypt engine
+     *
+     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt_Base::setEngine()
+     * @param optional Integer $engine
+     * @access public
+     * @return Integer
+     */
+    function setEngine($engine = CRYPT_DES_MODE_MCRYPT)
+    {
+        if ($this->mode_3cbc) {
+            $this->des[0]->setEngine($engine);
+            $this->des[1]->setEngine($engine);
+            $this->des[2]->setEngine($engine);
+        }
+
+        return parent::setEngine($engine);
     }
 }

@@ -53,9 +53,10 @@
  */
 
 /**#@+
- * @access public
+ * @access private
  * @see Crypt_Base::encrypt()
  * @see Crypt_Base::decrypt()
+ * @internal This constants are for internal usage only
  */
 /**
  * Encrypt / decrypt using the Counter mode.
@@ -99,6 +100,7 @@ define('CRYPT_MODE_STREAM', 5);
 /**#@+
  * @access private
  * @see Crypt_Base::Crypt_Base()
+ * @internal This constants are for internal usage only
  */
 /**
  * Base value for the internal implementation $engine switch
@@ -116,6 +118,7 @@ define('CRYPT_MODE_MCRYPT', 2);
  * @package Crypt_Base
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
+ * @version 1.0.1
  * @access  public
  */
 class Crypt_Base
@@ -447,28 +450,11 @@ class Crypt_Base
     {
         $const_crypt_mode = 'CRYPT_' . $this->const_namespace . '_MODE';
 
-        // Determining the availibility of mcrypt support for the cipher
-        if (!defined($const_crypt_mode)) {
-            switch (true) {
-                case extension_loaded('mcrypt') && in_array($this->cipher_name_mcrypt, mcrypt_list_algorithms()):
-                    define($const_crypt_mode, CRYPT_MODE_MCRYPT);
-                    break;
-                default:
-                    define($const_crypt_mode, CRYPT_MODE_INTERNAL);
-            }
-        }
-
-        // Determining which internal $engine should be used.
-        // The fastes possible first.
-        switch (true) {
-            case empty($this->cipher_name_mcrypt): // The cipher module has no mcrypt-engine support at all so we force CRYPT_MODE_INTERNAL
-                $this->engine = CRYPT_MODE_INTERNAL;
-                break;
-            case constant($const_crypt_mode) == CRYPT_MODE_MCRYPT:
-                $this->engine = CRYPT_MODE_MCRYPT;
-                break;
-            default:
-                $this->engine = CRYPT_MODE_INTERNAL;
+        // Setup the internal crypt engine
+        if (defined($const_crypt_mode)) {
+            $this->engine = constant($const_crypt_mode);
+        } else {
+            define($const_crypt_mode, $this->setEngine());
         }
 
         // $mode dependent settings
@@ -501,10 +487,9 @@ class Crypt_Base
      * SetIV is not required when CRYPT_MODE_ECB (or ie for AES: CRYPT_AES_MODE_ECB) is being used.  If not explicitly set, it'll be assumed
      * to be all zero's.
      *
-     * Note: Could, but not must, extend by the child Crypt_* class
-     *
      * @access public
      * @param String $iv
+     * @internal Could, but not must, extend by the child Crypt_* class
      */
     function setIV($iv)
     {
@@ -526,10 +511,9 @@ class Crypt_Base
      *
      * If the key is not explicitly set, it'll be assumed to be all null bytes.
      *
-     * Note: Could, but not must, extend by the child Crypt_* class
-     *
      * @access public
      * @param String $key
+     * @internal Could, but not must, extend by the child Crypt_* class
      */
     function setKey($key)
     {
@@ -546,13 +530,12 @@ class Crypt_Base
      *
      *         Where $hash (default = sha1) currently supports the following hashes: see: Crypt/Hash.php
      *
-     * Note: Could, but not must, extend by the child Crypt_* class
-     *
      * @see Crypt/Hash.php
      * @param String $password
      * @param optional String $method
      * @return Boolean
      * @access public
+     * @internal Could, but not must, extend by the child Crypt_* class
      */
     function setPassword($password, $method = 'pbkdf2')
     {
@@ -645,12 +628,11 @@ class Crypt_Base
      * strlen($plaintext) will still need to be a multiple of the block size, however, arbitrary values can be added to make it that
      * length.
      *
-     * Note: Could, but not must, extend by the child Crypt_* class
-     *
      * @see Crypt_Base::decrypt()
      * @access public
      * @param String $plaintext
      * @return String $cipertext
+     * @internal Could, but not must, extend by the child Crypt_* class
      */
     function encrypt($plaintext)
     {
@@ -873,12 +855,11 @@ class Crypt_Base
      * If strlen($ciphertext) is not a multiple of the block size, null bytes will be added to the end of the string until
      * it is.
      *
-     * Note: Could, but not must, extend by the child Crypt_* class
-     *
      * @see Crypt_Base::encrypt()
      * @access public
      * @param String $ciphertext
      * @return String $plaintext
+     * @internal Could, but not must, extend by the child Crypt_* class
      */
     function decrypt($ciphertext)
     {
@@ -1144,10 +1125,9 @@ class Crypt_Base
      * continuous buffers not be used.  They do offer better security and are, in fact, sometimes required (SSH uses them),
      * however, they are also less intuitive and more likely to cause you problems.
      *
-     * Note: Could, but not must, extend by the child Crypt_* class
-     *
      * @see Crypt_Base::disableContinuousBuffer()
      * @access public
+     * @internal Could, but not must, extend by the child Crypt_* class
      */
     function enableContinuousBuffer()
     {
@@ -1163,10 +1143,9 @@ class Crypt_Base
      *
      * The default behavior.
      *
-     * Note: Could, but not must, extend by the child Crypt_* class
-     *
      * @see Crypt_Base::enableContinuousBuffer()
      * @access public
+     * @internal Could, but not must, extend by the child Crypt_* class
      */
     function disableContinuousBuffer()
     {
@@ -1182,13 +1161,77 @@ class Crypt_Base
     }
 
     /**
-     * Encrypts a block
+     * Sets the internal crypt engine
      *
-     * Note: Must extend by the child Crypt_* class
+     * Will be called automatically on "__construct()", so normally it's not 
+     * necessary to call setEngine() manually, but ie for debuging or testing.
+     *
+     * Currently, $engine could be:
+     *
+     * - CRYPT_MODE_MCRYPT   [fast]
+     *
+     * - CRYPT_MODE_INTERNAL [slow]
+     *
+     * Respectivly the officially alias constants of the choosen cipher, 
+     * ie for AES: CRYPT_AES_MODE_MCRYPT or CRYPT_AES_MODE_INTERNAL
+     *
+     * If $engine is not explictly set, the fastest available $engine 
+     * will be set (currently: CRYPT_MODE_MCRYPT)
+     *
+     * If $engine == CRYPT_MODE_MCRYPT but the mcrypt extension is not loaded/available it 
+     * will be set the next available fastest $engine (currently: CRYPT_MODE_INTERNAL)
+     *
+     * If called, all internal buffers and cipher states will be reset, so, 
+     * for example, switching the $engine while enableContinuousBuffer() will 
+     * reset the ContinuousBuffer's.
+     *
+     * setEngine() returns always the $engine which was effectively set.
+     *
+     * @see Crypt_Base::Crypt_Base()
+     * @param optional Integer $engine
+     * @access public
+     * @return Integer
+     * @internal Could, but not must, extend by the child Crypt_* class
+     */
+    function setEngine($engine = CRYPT_MODE_MCRYPT)
+    {
+        switch ($engine) {
+            case CRYPT_MODE_INTERNAL:
+                $this->engine = CRYPT_MODE_INTERNAL;
+                break;
+            default:
+                if ($this->cipher_name_mcrypt && extension_loaded('mcrypt') && in_array($this->cipher_name_mcrypt, mcrypt_list_algorithms())) {
+                    $this->engine = CRYPT_MODE_MCRYPT;
+                } else {
+                    $this->engine = CRYPT_MODE_INTERNAL;
+                }
+        }
+
+        if ($this->enmcrypt) {
+            // Closing the current mcrypt resource(s). _mcryptSetup() will, if needed,
+            // (re)open them with the module named in $this->cipher_name_mcrypt
+            mcrypt_module_close($this->enmcrypt);
+            mcrypt_module_close($this->demcrypt);
+            $this->enmcrypt = null;
+            $this->demcrypt = null;
+
+            if ($this->ecb) {
+                mcrypt_module_close($this->ecb);
+                $this->ecb = null;
+            }
+        }
+
+        $this->changed = true;
+        return $this->engine;
+    }
+
+    /**
+     * Encrypts a block
      *
      * @access private
      * @param String $in
      * @return String
+     * @internal Must extend by the child Crypt_* class
      */
     function _encryptBlock($in)
     {
@@ -1198,11 +1241,10 @@ class Crypt_Base
     /**
      * Decrypts a block
      *
-     * Note: Must extend by the child Crypt_* class
-     *
      * @access private
      * @param String $in
      * @return String
+     * @internal Must extend by the child Crypt_* class
      */
     function _decryptBlock($in)
     {
@@ -1214,10 +1256,9 @@ class Crypt_Base
      *
      * Only used if $engine == CRYPT_MODE_INTERNAL
      *
-     * Note: Must extend by the child Crypt_* class
-     *
      * @see Crypt_Base::_setup()
      * @access private
+     * @internal Must extend by the child Crypt_* class
      */
     function _setupKey()
     {
@@ -1241,14 +1282,12 @@ class Crypt_Base
      *
      * - First run of encrypt() / decrypt() with no init-settings
      *
-     * Internally: _setup() is called always before(!) en/decryption.
-     *
-     * Note: Could, but not must, extend by the child Crypt_* class
-     *
      * @see setKey()
      * @see setIV()
      * @see disableContinuousBuffer()
      * @access private
+     * @internal _setup() is called always before(!) en/decryption.
+     * @internal Could, but not must, extend by the child Crypt_* class
      */
     function _setup()
     {
@@ -1277,13 +1316,11 @@ class Crypt_Base
      *
      * - First run of encrypt() / decrypt()
      *
-     *
-     * Note: Could, but not must, extend by the child Crypt_* class
-     *
      * @see setKey()
      * @see setIV()
      * @see disableContinuousBuffer()
      * @access private
+     * @internal Could, but not must, extend by the child Crypt_* class
      */
     function _setupMcrypt()
     {
@@ -1383,9 +1420,8 @@ class Crypt_Base
      * after disableContinuousBuffer() or on cipher $engine (re)init
      * ie after setKey() or setIV()
      *
-     * Note: Could, but not must, extend by the child Crypt_* class
-     *
      * @access public
+     * @internal Could, but not must, extend by the child Crypt_* class
      */
     function _clearBuffers()
     {
@@ -1512,11 +1548,10 @@ class Crypt_Base
      * @see Crypt_Base::encrypt()
      * @see Crypt_Base::decrypt()
      * @access private
+     * @internal If a Crypt_* class providing inline crypting it must extend _setupInlineCrypt()
      */
     function _setupInlineCrypt()
     {
-        // If a Crypt_* class providing inline crypting it must extend _setupInlineCrypt()
-
         // If, for any reason, an extending Crypt_Base() Crypt_* class
         // not using inline crypting then it must be ensured that: $this->use_inline_crypt = false
         // ie in the class var declaration of $use_inline_crypt in general for the Crypt_* class,
@@ -2001,11 +2036,48 @@ class Crypt_Base
      * for which $mode the lambda function was created.
      *
      * @access private
-     * @return &Array
+     * @return Array &$functions
      */
     function &_getLambdaFunctions()
     {
         static $functions = array();
         return $functions;
+    }
+
+    /**
+     * Generates a digest from $bytes
+     *
+     * @see _setupInlineCrypt()
+     * @access private
+     * @param $bytes
+     * @return String
+     */
+    function _trapdoor($bytes)
+    {
+        if (!defined('CRYPT_BASE_WHIRLPOOL_AVAILABLE')) {
+            define('CRYPT_BASE_WHIRLPOOL_AVAILABLE', (bool)(extension_loaded('hash') && in_array('whirlpool', hash_algos())));
+        }
+
+        // return pack('H*', md5($bytes) . sha1($bytes) . (CRYPT_BASE_WHIRLPOOL_AVAILABLE ? hash('whirlpool', $bytes) : '')); // Alternativ
+
+        $result = '';
+        $hash = $bytes;
+
+        switch (true) {
+            case CRYPT_BASE_WHIRLPOOL_AVAILABLE:
+                foreach (str_split($bytes, 64) as $t) {
+                    $hash = hash('whirlpool', $hash, true);
+                    $result .= $t ^ $hash;
+                }
+                return $result . hash('whirlpool', $hash, true);
+            default:
+                $len = strlen($bytes);
+                for ($i = 0; $i < $len; $i+=20) {
+                    $t = substr($bytes, $i, 20);
+                    $hash = pack('H*', sha1($hash));
+                    $result .= $t ^ $hash;
+                }
+                return $result . pack('H*', sha1($hash));
+        }
     }
 }
