@@ -876,6 +876,11 @@ class Net_SSH2
             include_once 'Crypt/Hash.php';
         }
 
+        // include Crypt_Base so constants can be defined for setCryptoEngine()
+        if (!class_exists('Crypt_Base')) {
+            include_once 'Crypt/Base.php';
+        }
+
         $this->message_numbers = array(
             1 => 'NET_SSH2_MSG_DISCONNECT',
             2 => 'NET_SSH2_MSG_IGNORE',
