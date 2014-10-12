@@ -1104,7 +1104,7 @@ class Net_SSH2
                 'arcfour256',
                 'arcfour128',
 
-                //'arcfour',        // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
+                //'arcfour',      // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
 
                 // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
                 'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
@@ -1132,7 +1132,7 @@ class Net_SSH2
                 '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
 
                 '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
-                //'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
+                 //'none'         // OPTIONAL          no encryption; NOT RECOMMENDED
             );
 
             if (phpseclib_resolve_include_path('Crypt/RC4.php') === false) {
