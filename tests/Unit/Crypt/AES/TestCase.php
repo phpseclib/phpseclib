@@ -9,12 +9,11 @@ require_once 'Crypt/AES.php';
 
 abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 {
+    protected static $engine;
+
     static public function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
-
-        self::reRequireFile('Crypt/Rijndael.php');
-        self::reRequireFile('Crypt/AES.php');
     }
 
     /**
@@ -64,6 +63,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     public function testEncryptDecryptWithContinuousBuffer($mode, $plaintext, $iv, $key)
     {
         $aes = new Crypt_AES(constant($mode));
+        $aes->setEngine(self::$engine);
         $aes->enableContinuousBuffer();
         $aes->setIV($iv);
         $aes->setKey($key);
@@ -85,6 +85,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         // https://web.archive.org/web/20070209120224/http://fp.gladman.plus.com/cryptography_technology/rijndael/aesdvec.zip
 
         $aes = new Crypt_Rijndael();
+        $aes->setEngine(self::$engine);
         $aes->disablePadding();
         $aes->setKey(pack('H*', '2b7e151628aed2a6abf7158809cf4f3c762e7160')); // 160-bit key. Valid in Rijndael.
         $ciphertext = $aes->encrypt(pack('H*', '3243f6a8885a308d313198a2e0370734'));
@@ -99,6 +100,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         // same as the above - just with a different ciphertext
 
         $aes = new Crypt_AES();
+        $aes->setEngine(self::$engine);
         $aes->disablePadding();
         $aes->setKey(pack('H*', '2b7e151628aed2a6abf7158809cf4f3c762e7160')); // 160-bit key. AES should null pad to 192-bits
         $ciphertext = $aes->encrypt(pack('H*', '3243f6a8885a308d313198a2e0370734'));

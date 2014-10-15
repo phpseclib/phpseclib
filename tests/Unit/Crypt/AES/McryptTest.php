@@ -13,9 +13,8 @@ class Unit_Crypt_AES_McryptTest extends Unit_Crypt_AES_TestCase
             self::markTestSkipped('mcrypt extension is not available.');
         }
 
-        parent::setUpBeforeClass();
+        self::$engine = CRYPT_MODE_MCRYPT;
 
-        self::ensureConstant('CRYPT_AES_MODE', CRYPT_AES_MODE_MCRYPT);
-        self::ensureConstant('CRYPT_RIJNDAEL_MODE', CRYPT_RIJNDAEL_MODE_MCRYPT);
+        parent::setUpBeforeClass();
     }
 }
