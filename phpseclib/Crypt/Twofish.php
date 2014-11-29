@@ -101,20 +101,6 @@ define('CRYPT_TWOFISH_MODE_CFB', CRYPT_MODE_CFB);
 define('CRYPT_TWOFISH_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
-/**#@+
- * @access private
- * @see Crypt_Base::Crypt_Base()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_TWOFISH_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_TWOFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of Twofish.
  *

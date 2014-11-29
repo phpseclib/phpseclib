@@ -206,7 +206,7 @@ class Crypt_AES extends Crypt_Rijndael
                 default:
                     $this->key_size = 32;
             }
-            $this->_setupEngine();
+            $this->_setEngine();
         }
     }
 }

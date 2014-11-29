@@ -121,20 +121,6 @@ define('CRYPT_DES_MODE_CFB', CRYPT_MODE_CFB);
 define('CRYPT_DES_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
-/**#@+
- * @access private
- * @see Crypt_Base::Crypt_Base()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_DES_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_DES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of DES.
  *
@@ -191,6 +177,21 @@ class Crypt_DES extends Crypt_Base
      * @access private
      */
     var $cipher_name_mcrypt = 'des';
+
+    /**
+     * The OpenSSL names of the cipher / modes
+     *
+     * @see Crypt_Base::openssl_mode_names
+     * @var Array
+     * @access private
+     */
+    var $openssl_mode_names = array(
+        CRYPT_MODE_ECB => 'des-ecb',
+        CRYPT_MODE_CBC => 'des-cbc',
+        CRYPT_MODE_CFB => 'des-cfb',
+        CRYPT_MODE_OFB => 'des-ofb'
+        // CRYPT_MODE_CTR is undefined for DES
+    );
 
     /**
      * Optimizing value while CFB-encrypting
@@ -661,6 +662,26 @@ class Crypt_DES extends Crypt_Base
         0x08020820, 0x00020800, 0x00020800, 0x00000820,
         0x00000820, 0x00020020, 0x08000000, 0x08020800
     );
+
+    /**
+     * Test for engine validity
+     *
+     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     *
+     * @see Crypt_Base::Crypt_Base()
+     * @param Integer $engine
+     * @access public
+     * @return Boolean
+     */
+    function isValidEngine($engine)
+    {
+        if ($engine == CRYPT_MODE_OPENSSL) {
+            $this->cipher_name_openssl_ecb = 'des-ecb';
+            $this->cipher_name_openssl = 'des-' . $this->_openssl_translate_mode();
+        }
+
+        return parent::isValidEngine($engine);
+    }
 
     /**
      * Sets the key.

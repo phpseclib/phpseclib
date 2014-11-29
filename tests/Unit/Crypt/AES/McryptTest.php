@@ -7,14 +7,8 @@
 
 class Unit_Crypt_AES_McryptTest extends Unit_Crypt_AES_TestCase
 {
-    static public function setUpBeforeClass()
+    protected function setUp()
     {
-        if (!extension_loaded('mcrypt')) {
-            self::markTestSkipped('mcrypt extension is not available.');
-        }
-
-        self::$engine = CRYPT_MODE_MCRYPT;
-
-        parent::setUpBeforeClass();
+        $this->engine = CRYPT_MODE_MCRYPT;
     }
 }

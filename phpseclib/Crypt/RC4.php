@@ -70,20 +70,6 @@ if (!class_exists('Crypt_Base')) {
 }
 
 /**#@+
- * @access public
- * @see Crypt_RC4::Crypt_RC4()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_RC4_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RC4_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
-/**#@+
  * @access private
  * @see Crypt_RC4::_crypt()
  */
@@ -180,6 +166,38 @@ class Crypt_RC4 extends Crypt_Base
     function Crypt_RC4()
     {
         parent::Crypt_Base(CRYPT_MODE_STREAM);
+    }
+
+    /**
+     * Test for engine validity
+     *
+     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     *
+     * @see Crypt_Base::Crypt_Base()
+     * @param Integer $engine
+     * @access public
+     * @return Boolean
+     */
+    function isValidEngine($engine)
+    {
+        switch ($engine) {
+            case CRYPT_MODE_OPENSSL:
+                switch (strlen($this->key)) {
+                    case 5:
+                        $this->cipher_name_openssl = 'rc4-40';
+                        break;
+                    case 8:
+                        $this->cipher_name_openssl = 'rc4-64';
+                        break;
+                    case 16:
+                        $this->cipher_name_openssl = 'rc4';
+                        break;
+                    default:
+                        return false;
+                }
+        }
+
+        return parent::isValidEngine($engine);
     }
 
     /**

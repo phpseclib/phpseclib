@@ -101,20 +101,6 @@ define('CRYPT_BLOWFISH_MODE_CFB', CRYPT_MODE_CFB);
 define('CRYPT_BLOWFISH_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
-/**#@+
- * @access private
- * @see Crypt_Base::Crypt_Base()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_BLOWFISH_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_BLOWFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of Blowfish.
  *
@@ -384,7 +370,6 @@ class Crypt_Blowfish extends Crypt_Base
      * @param String $key
      */
     function setKey($key)
-    {
         $keylength = strlen($key);
 
         if (!$keylength) {
@@ -394,6 +379,29 @@ class Crypt_Blowfish extends Crypt_Base
         }
 
         parent::setKey($key);
+    }
+
+    /**
+     * Test for engine validity
+     *
+     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     *
+     * @see Crypt_Base::Crypt_Base()
+     * @param Integer $engine
+     * @access public
+     * @return Boolean
+     */
+    function isValidEngine($engine)
+    {
+        if ($engine == CRYPT_MODE_OPENSSL) {
+            if (strlen($this->key) != 16) {
+                return false;
+            }
+            $this->cipher_name_openssl_ecb = 'bf-ecb';
+            $this->cipher_name_openssl = 'bf-' . $this->_openssl_translate_mode();
+        }
+
+        return parent::isValidEngine($engine);
     }
 
     /**

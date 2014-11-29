@@ -118,20 +118,6 @@ define('CRYPT_RIJNDAEL_MODE_CFB', CRYPT_MODE_CFB);
 define('CRYPT_RIJNDAEL_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
-/**#@+
- * @access private
- * @see Crypt_Base::Crypt_Base()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_RIJNDAEL_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RIJNDAEL_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of Rijndael.
  *
@@ -171,7 +157,7 @@ class Crypt_Rijndael extends Crypt_Base
      *
      * @see Crypt_Base::cipher_name_mcrypt
      * @see Crypt_Base::engine
-     * @see _setupEngine()
+     * @see isValidEngine()
      * @var String
      * @access private
      */
@@ -323,8 +309,6 @@ class Crypt_Rijndael extends Crypt_Base
      */
     function setKey($key)
     {
-        parent::setKey($key);
-
         if (!$this->explicit_key_length) {
             $length = strlen($key);
             switch (true) {
@@ -343,8 +327,8 @@ class Crypt_Rijndael extends Crypt_Base
                 default:
                     $this->key_size = 32;
             }
-            $this->_setupEngine();
         }
+        parent::setKey($key);
     }
 
     /**
@@ -388,7 +372,7 @@ class Crypt_Rijndael extends Crypt_Base
 
         $this->explicit_key_length = true;
         $this->changed = true;
-        $this->_setupEngine();
+        $this->_setEngine();
     }
 
     /**
@@ -411,33 +395,38 @@ class Crypt_Rijndael extends Crypt_Base
         $this->Nb = $length;
         $this->block_size = $length << 2;
         $this->changed = true;
-        $this->_setupEngine();
+        $this->_setEngine();
     }
 
     /**
-     * Setup the fastest possible $engine
+     * Test for engine validity
      *
-     * Determines if the mcrypt (MODE_MCRYPT) $engine available
-     * and usable for the current $block_size and $key_size.
+     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
      *
-     * If not, the slower MODE_INTERNAL $engine will be set.
-     *
-     * @see setKey()
-     * @see setKeyLength()
-     * @see setBlockLength()
-     * @access private
+     * @see Crypt_Base::Crypt_Base()
+     * @param Integer $engine
+     * @access public
+     * @return Boolean
      */
-    function _setupEngine()
+    function isValidEngine($engine)
     {
-        // Set the mcrypt module name for the current $block_size of rijndael
-        $this->cipher_name_mcrypt = 'rijndael-' . ($this->block_size << 3);
-
-        // Set the engine
-        if ($this->key_size % 8) { // is it a 160/224-bit key?
-            // mcrypt is not usable for them, only for 128/192/256-bit keys
-            // so we are forced to set the slower MODE_INTERNAL $engine
-            $this->setEngine(CRYPT_MODE_INTERNAL);
+        switch ($engine) {
+            case CRYPT_MODE_OPENSSL:
+                if ($this->block_size != 16) {
+                    return false;
+                }
+                $this->cipher_name_openssl_ecb = 'aes-' . ($this->key_size << 3) . '-ecb';
+                $this->cipher_name_openssl = 'aes-' . ($this->key_size << 3) . '-' . $this->_openssl_translate_mode();
+                break;
+            case CRYPT_MODE_MCRYPT:
+                $this->cipher_name_mcrypt = 'rijndael-' . ($this->block_size << 3);
+                if ($this->key_size % 8) { // is it a 160/224-bit key?
+                    // mcrypt is not usable for them, only for 128/192/256-bit keys
+                    return false;
+                }
         }
+
+        return parent::isValidEngine($engine);
     }
 
     /**
