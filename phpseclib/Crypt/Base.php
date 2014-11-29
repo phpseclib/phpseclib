@@ -697,7 +697,7 @@ class Crypt_Base
                     $result = openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, $this->openssl_options);
                     return !defined('OPENSSL_RAW_DATA') ? substr($result, 0, -$this->block_size) : $result;
                 case CRYPT_MODE_CBC:
-                    $ciphertext = openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->encryptIV);
+                    $result = openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->encryptIV);
                     if ($this->continuousBuffer) {
                         $this->encryptIV = substr($ciphertext, -$this->block_size);
                     }
@@ -707,6 +707,7 @@ class Crypt_Base
                 case CRYPT_MODE_CFB:
                     // cfb loosely routines inspired by openssl's:
                     // {@link http://cvs.openssl.org/fileview?f=openssl/crypto/modes/cfb128.c&v=1.3.2.2.2.1}
+                    $ciphertext = '';
                     if ($this->continuousBuffer) {
                         $iv = &$this->encryptIV;
                         $pos = &$this->enbuffer['pos'];
@@ -863,14 +864,14 @@ class Crypt_Base
                 break;
             case CRYPT_MODE_CTR:
                 $xor = $this->encryptIV;
-                if (strlen($buffer['encrypted'])) {
+                if (strlen($buffer['ciphertext'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                         $block = substr($plaintext, $i, $block_size);
-                        if (strlen($block) > strlen($buffer['encrypted'])) {
-                            $buffer['encrypted'].= $this->_encryptBlock($xor);
+                        if (strlen($block) > strlen($buffer['ciphertext'])) {
+                            $buffer['ciphertext'].= $this->_encryptBlock($xor);
                         }
                         $this->_increment_str($xor);
-                        $key = $this->_string_shift($buffer['encrypted'], $block_size);
+                        $key = $this->_string_shift($buffer['ciphertext'], $block_size);
                         $ciphertext.= $block ^ $key;
                     }
                 } else {
@@ -884,7 +885,7 @@ class Crypt_Base
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                     if ($start = strlen($plaintext) % $block_size) {
-                        $buffer['encrypted'] = substr($key, $start) . $buffer['encrypted'];
+                        $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                     }
                 }
                 break;
@@ -1005,6 +1006,7 @@ class Crypt_Base
                 case CRYPT_MODE_CFB:
                     // cfb loosely routines inspired by openssl's:
                     // {@link http://cvs.openssl.org/fileview?f=openssl/crypto/modes/cfb128.c&v=1.3.2.2.2.1}
+                    $plaintext = '';
                     if ($this->continuousBuffer) {
                         $iv = &$this->decryptIV;
                         $pos = &$this->buffer['pos'];
@@ -1273,16 +1275,16 @@ class Crypt_Base
 
         if ($this->openssl_emulate_ctr) {
             $xor = $encryptIV;
-            if (strlen($buffer['encrypted'])) {
+            if (strlen($buffer['ciphertext'])) {
                 for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                     $block = substr($plaintext, $i, $block_size);
-                    if (strlen($block) > strlen($buffer['encrypted'])) {
+                    if (strlen($block) > strlen($buffer['ciphertext'])) {
                         $result = openssl_encrypt($xor, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
                         $result = !defined('OPENSSL_RAW_DATA') ? substr($result, 0, -$this->block_size) : $result;
-                        $buffer['encrypted'].= $result;
+                        $buffer['ciphertext'].= $result;
                     }
                     $this->_increment_str($xor);
-                    $otp = $this->_string_shift($buffer['encrypted'], $block_size);
+                    $otp = $this->_string_shift($buffer['ciphertext'], $block_size);
                     $ciphertext.= $block ^ $otp;
                 }
             } else {
@@ -1297,15 +1299,15 @@ class Crypt_Base
             if ($this->continuousBuffer) {
                 $encryptIV = $xor;
                 if ($start = strlen($plaintext) % $block_size) {
-                    $buffer['encrypted'] = substr($key, $start) . $buffer['encrypted'];
+                    $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                 }
             }
 
             return $ciphertext;
         }
 
-        if (strlen($buffer['encrypted'])) {
-            $ciphertext = $plaintext ^ $this->_string_shift($buffer['encrypted'], strlen($plaintext));
+        if (strlen($buffer['ciphertext'])) {
+            $ciphertext = $plaintext ^ $this->_string_shift($buffer['ciphertext'], strlen($plaintext));
             $plaintext = substr($plaintext, strlen($ciphertext));
 
             if (!strlen($plaintext)) {
@@ -1319,8 +1321,8 @@ class Crypt_Base
             $encrypted = openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
             $encryptIV = $this->_string_pop($encrypted, $block_size);
             $ciphertext.= $encrypted . ($plaintext2 ^ $encryptIV);
-            $buffer['encrypted'] = substr($encryptIV, $overflow);
-        } else if (!strlen($buffer['encrypted'])) {
+            $buffer['ciphertext'] = substr($encryptIV, $overflow);
+        } else if (!strlen($buffer['ciphertext'])) {
             $ciphertext.= openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
             $encryptIV = $this->_string_pop($ciphertext, $block_size);
         }
@@ -1842,8 +1844,7 @@ class Crypt_Base
      */
     function _clearBuffers()
     {
-        $this->enbuffer = array('encrypted'  => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true);
-        $this->debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0, 'demcrypt_init' => true);
+        $this->enbuffer = $this->debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true);
 
         // mcrypt's handling of invalid's $iv:
         // $this->encryptIV = $this->decryptIV = strlen($this->iv) == $this->block_size ? $this->iv : str_repeat("\0", $this->block_size);
