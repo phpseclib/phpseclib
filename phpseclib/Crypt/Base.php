@@ -1322,7 +1322,7 @@ class Crypt_Base
             $buffer['encrypted'] = substr($encryptIV, $overflow);
         } else if (!strlen($buffer['encrypted'])) {
             $ciphertext.= openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
-            $encryptIV = $this->_string_pop($ciphertext, $block_size); 
+            $encryptIV = $this->_string_pop($ciphertext, $block_size);
         }
         $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
         if ($overflow) {
@@ -1522,8 +1522,8 @@ class Crypt_Base
         switch ($engine) {
             case CRYPT_MODE_OPENSSL:
                 $this->openssl_emulate_ctr = false;
-                $result = $this->cipher_name_openssl && 
-                          extension_loaded('openssl') && 
+                $result = $this->cipher_name_openssl &&
+                          extension_loaded('openssl') &&
                           version_compare(PHP_VERSION, '5.3.0');
                 if (!$result) {
                     return false;
