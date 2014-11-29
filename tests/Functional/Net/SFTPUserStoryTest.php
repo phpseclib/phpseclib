@@ -431,6 +431,20 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     /**
     * @depends testFileExistsIsFileIsDirDir
     */
+    public function testTruncateLargeFile($sftp)
+    {
+        $filesize = (4 * 1024 + 16) * 1024 * 1024;
+        $filename = 'file-large-from-truncate-4112MiB.txt';
+        $this->assertTrue($sftp->touch($filename));
+        $this->assertTrue($sftp->truncate($filename, $filesize));
+        $this->assertSame($filesize, $sftp->size($filename));
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testTruncateLargeFile
+    */
     public function testRmDirScratch($sftp)
     {
         $this->assertFalse(
