@@ -2154,16 +2154,16 @@ class Crypt_Base
                     $_plaintext_len = strlen($_text);
                     $_xor = $self->encryptIV;
                     $_buffer = &$self->enbuffer;
-                    if (strlen($_buffer["encrypted"])) {
+                    if (strlen($_buffer["ciphertext"])) {
                         for ($_i = 0; $_i < $_plaintext_len; $_i+= '.$block_size.') {
                             $_block = substr($_text, $_i, '.$block_size.');
-                            if (strlen($_block) > strlen($_buffer["encrypted"])) {
+                            if (strlen($_block) > strlen($_buffer["ciphertext"])) {
                                 $in = $_xor;
                                 '.$encrypt_block.'
                                 $self->_increment_str($_xor);
-                                $_buffer["encrypted"].= $in;
+                                $_buffer["ciphertext"].= $in;
                             }
-                            $_key = $self->_string_shift($_buffer["encrypted"], '.$block_size.');
+                            $_key = $self->_string_shift($_buffer["ciphertext"], '.$block_size.');
                             $_ciphertext.= $_block ^ $_key;
                         }
                     } else {
@@ -2179,7 +2179,7 @@ class Crypt_Base
                     if ($self->continuousBuffer) {
                         $self->encryptIV = $_xor;
                         if ($_start = $_plaintext_len % '.$block_size.') {
-                            $_buffer["encrypted"] = substr($_key, $_start) . $_buffer["encrypted"];
+                            $_buffer["ciphertext"] = substr($_key, $_start) . $_buffer["ciphertext"];
                         }
                     }
 
