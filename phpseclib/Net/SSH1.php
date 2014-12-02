@@ -520,11 +520,6 @@ class Net_SSH1
      */
     function __construct($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
     {
-        // Include Crypt\Random
-        if (!class_exists('phpseclib\Crypt\Random')) {
-            include_once 'Crypt/Random.php';
-        }
-
         $this->protocol_flags = array(
             1  => 'NET_SSH1_MSG_DISCONNECT',
             2  => 'NET_SSH1_SMSG_PUBLIC_KEY',

@@ -71,13 +71,6 @@ use \phpseclib\Crypt\Random;
 use \phpseclib\Math\BigInteger;
 
 /**
- * Include Crypt\Random
- */
-if (!class_exists('phpseclib\Crypt\Random')) {
-    include_once 'Random.php';
-}
-
-/**
  * Include Crypt_Hash
  */
 if (!class_exists('Crypt_Hash')) {

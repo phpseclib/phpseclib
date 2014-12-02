@@ -856,10 +856,6 @@ class Net_SSH2
      */
     function __construct($host, $port = 22, $timeout = 10)
     {
-        if (!class_exists('phpseclib\Crypt\Random')) {
-            include_once 'Crypt/Random.php';
-        }
-
         if (!class_exists('Crypt_Hash')) {
             include_once 'Crypt/Hash.php';
         }

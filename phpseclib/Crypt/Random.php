@@ -228,7 +228,7 @@ class Random
                     $crypto = new Crypt_RC4();
                     break;
                 default:
-                    user_error('string requires at least one symmetric cipher be loaded');
+                    user_error(__CLASS__ . ' requires at least one symmetric cipher be loaded');
                     return false;
             }
 
