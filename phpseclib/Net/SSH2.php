@@ -855,7 +855,7 @@ class Net_SSH2
      */
     function __construct($host, $port = 22, $timeout = 10)
     {
-        if (!function_exists('crypt_random_string')) {
+        if (!class_exists('Crypt_Random')) {
             include_once 'Crypt/Random.php';
         }
 
@@ -1202,7 +1202,7 @@ class Net_SSH2
             $compression_algorithms_server_to_client = $compression_algorithms_client_to_server = implode(',', $compression_algorithms);
         }
 
-        $client_cookie = crypt_random_string(16);
+        $client_cookie = Crypt_Random::crypt_random_string(16);
 
         $response = $kexinit_payload_server;
         $this->_string_shift($response, 1); // skip past the message number (it should be SSH_MSG_KEXINIT)
@@ -3154,7 +3154,7 @@ class Net_SSH2
         $packet_length+= (($this->encrypt_block_size - 1) * $packet_length) % $this->encrypt_block_size;
         // subtracting strlen($data) is obvious - subtracting 5 is necessary because of packet_length and padding_length
         $padding_length = $packet_length - strlen($data) - 5;
-        $padding = crypt_random_string($padding_length);
+        $padding = Crypt_Random::crypt_random_string($padding_length);
 
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself
         $packet = pack('NCa*', $packet_length - 4, $padding_length, $data . $padding);

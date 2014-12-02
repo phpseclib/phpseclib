@@ -69,10 +69,7 @@
         },
         "psr-4": {
             "phpseclib\\": "phpseclib/"
-        },
-        "files": [
-            "phpseclib/Crypt/Random.php"
-        ]
+        }
     },
     "extra": {
         "branch-alias": {

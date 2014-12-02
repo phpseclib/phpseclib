@@ -43,17 +43,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-// laravel is a PHP framework that utilizes phpseclib. laravel workbenches may, independently,
-// have phpseclib as a requirement as well. if you're developing such a program you may encounter
-// a "Cannot redeclare crypt_random_string()" error.
-if (!function_exists('crypt_random_string')) {
-    /**
-     * "Is Windows" test
-     *
-     * @access private
-     */
-    define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
-
+class Crypt_Random
+{
     /**
      * Generate a random string.
      *
@@ -65,9 +56,9 @@ if (!function_exists('crypt_random_string')) {
      * @return String
      * @access public
      */
-    function crypt_random_string($length)
+    static function crypt_random_string($length)
     {
-        if (CRYPT_RANDOM_IS_WINDOWS) {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             // method 1. prior to PHP 5.3 this would call rand() on windows hence the function_exists('class_alias') call.
             // ie. class_alias is a function that was introduced in PHP 5.3
             if (function_exists('mcrypt_create_iv') && function_exists('class_alias')) {
