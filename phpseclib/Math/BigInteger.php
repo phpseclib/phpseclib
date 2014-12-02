@@ -68,7 +68,7 @@
 
 namespace phpseclib\Math;
 
-use Crypt_Random;
+use \phpseclib\Crypt\Random;
 
 /**#@+
  * Reduction constants
@@ -3023,7 +3023,7 @@ class BigInteger
     /**
      * Generates a random BigInteger
      *
-     * Byte length is equal to $length. Uses Crypt_Random if it's loaded and mt_rand if it's not.
+     * Byte length is equal to $length. Uses Crypt\Random if it's loaded and mt_rand if it's not.
      *
      * @param Integer $length
      * @return \phpseclib\Math\BigInteger
@@ -3031,8 +3031,8 @@ class BigInteger
      */
     function _random_number_helper($size)
     {
-        if (class_exists('Crypt_Random')) {
-            $random = Crypt_Random::crypt_random_string($size);
+        if (class_exists('phpseclib\Crypt\Random')) {
+            $random = Random::crypt_random_string($size);
         } else {
             $random = '';
 

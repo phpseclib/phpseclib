@@ -36,21 +36,23 @@
  * THE SOFTWARE.
  *
  * @category  Crypt
- * @package   Crypt_Random
+ * @package   Random
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMVII Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
+namespace phpseclib\Crypt;
+
 /**
  * Pure-PHP Random Number Generator
  *
- * @package Crypt_Random
+ * @package Random
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Crypt_Random
+class Random
 {
     /**
      * Generate a random string.

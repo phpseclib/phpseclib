@@ -64,6 +64,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+use \phpseclib\Crypt\Random;
 use \phpseclib\Math\BigInteger;
 
 /**#@+
@@ -519,8 +520,8 @@ class Net_SSH1
      */
     function __construct($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
     {
-        // Include Crypt_Random
-        if (!class_exists('Crypt_Random')) {
+        // Include Crypt\Random
+        if (!class_exists('phpseclib\Crypt\Random')) {
             include_once 'Crypt/Random.php';
         }
 
@@ -631,7 +632,7 @@ class Net_SSH1
 
         $session_id = pack('H*', md5($host_key_public_modulus->toBytes() . $server_key_public_modulus->toBytes() . $anti_spoofing_cookie));
 
-        $session_key = Crypt_Random::crypt_random_string(32);
+        $session_key = Random::crypt_random_string(32);
         $double_encrypted_session_key = $session_key ^ str_pad($session_id, 32, chr(0));
 
         if ($server_key_public_modulus->compare($host_key_public_modulus) < 0) {
@@ -1179,7 +1180,7 @@ class Net_SSH1
 
         $length = strlen($data) + 4;
 
-        $padding = Crypt_Random::crypt_random_string(8 - ($length & 7));
+        $padding = Random::crypt_random_string(8 - ($length & 7));
 
         $orig = $data;
         $data = $padding . $data;
@@ -1365,7 +1366,7 @@ class Net_SSH1
         $length = strlen($modulus) - strlen($m) - 3;
         $random = '';
         while (strlen($random) != $length) {
-            $block = Crypt_Random::crypt_random_string($length - strlen($random));
+            $block = Random::crypt_random_string($length - strlen($random));
             $block = str_replace("\x00", '', $block);
             $random.= $block;
         }
