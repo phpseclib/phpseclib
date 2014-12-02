@@ -3,9 +3,6 @@
 /**
  * Random Number Generator
  *
- * The idea behind this function is that it can be easily replaced with your own crypt_random_string()
- * function. eg. maybe you have a better source of entropy for creating the initial states or whatever.
- *
  * PHP versions 4 and 5
  *
  * Here's a short example of how to use this library:
@@ -13,7 +10,7 @@
  * <?php
  *    include 'Crypt/Random.php';
  *
- *    echo bin2hex(crypt_random_string(8));
+ *    echo bin2hex(Random::string(8));
  * ?>
  * </code>
  *
@@ -65,7 +62,7 @@ class Random
      * @return String
      * @access public
      */
-    static function crypt_random_string($length)
+    static function string($length)
     {
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             // method 1. prior to PHP 5.3 this would call rand() on windows hence the function_exists('class_alias') call.
@@ -231,7 +228,7 @@ class Random
                     $crypto = new Crypt_RC4();
                     break;
                 default:
-                    user_error('crypt_random_string requires at least one symmetric cipher be loaded');
+                    user_error('string requires at least one symmetric cipher be loaded');
                     return false;
             }
 

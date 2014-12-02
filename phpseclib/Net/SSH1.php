@@ -632,7 +632,7 @@ class Net_SSH1
 
         $session_id = pack('H*', md5($host_key_public_modulus->toBytes() . $server_key_public_modulus->toBytes() . $anti_spoofing_cookie));
 
-        $session_key = Random::crypt_random_string(32);
+        $session_key = Random::string(32);
         $double_encrypted_session_key = $session_key ^ str_pad($session_id, 32, chr(0));
 
         if ($server_key_public_modulus->compare($host_key_public_modulus) < 0) {
@@ -1180,7 +1180,7 @@ class Net_SSH1
 
         $length = strlen($data) + 4;
 
-        $padding = Random::crypt_random_string(8 - ($length & 7));
+        $padding = Random::string(8 - ($length & 7));
 
         $orig = $data;
         $data = $padding . $data;
@@ -1366,7 +1366,7 @@ class Net_SSH1
         $length = strlen($modulus) - strlen($m) - 3;
         $random = '';
         while (strlen($random) != $length) {
-            $block = Random::crypt_random_string($length - strlen($random));
+            $block = Random::string($length - strlen($random));
             $block = str_replace("\x00", '', $block);
             $random.= $block;
         }
