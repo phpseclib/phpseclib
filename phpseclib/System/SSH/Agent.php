@@ -225,13 +225,15 @@ class System_SSH_Agent
      */
     var $fsock;
 
+    var $request_forwarding;
+
     /**
      * Default Constructor
      *
      * @return System_SSH_Agent
      * @access public
      */
-    function System_SSH_Agent()
+    function System_SSH_Agent($request_forwarding = false)
     {
         switch (true) {
             case isset($_SERVER['SSH_AUTH_SOCK']):
@@ -248,6 +250,11 @@ class System_SSH_Agent
         $this->fsock = fsockopen('unix://' . $address, 0, $errno, $errstr);
         if (!$this->fsock) {
             user_error("Unable to connect to ssh-agent (Error $errno: $errstr)");
+        }
+
+        $this->request_forwarding = $request_forwarding;
+        if ($this->request_forwarding) {
+            stream_set_timeout($this->fsock, 1);
         }
     }
 
@@ -309,5 +316,13 @@ class System_SSH_Agent
         }
 
         return $identities;
+    }
+
+    function proxy_process($packet) 
+    {
+        if (strlen($packet) != fwrite($this->fsock, $packet)) {
+            user_error('Connection closed during signing');
+        }
+        return fread($this->fsock, 2048);
     }
 }
