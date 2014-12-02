@@ -1,18 +1,6 @@
 <?php
 
 /**
- * Pure-PHP ASN.1 Parser
- *
- * PHP versions 4 and 5
- *
- * ASN.1 provides the semantics for data encoded using various schemes.  The most commonly
- * utilized scheme is DER or the "Distinguished Encoding Rules".  PEM's are base64 encoded
- * DER blobs.
- *
- * File_ASN1 decodes and encodes DER formatted messages and places them in a semantic context.
- *
- * Uses the 1988 ASN.1 syntax.
- *
  * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
