@@ -43,6 +43,13 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+/**
+ * Pure-PHP Random Number Generator
+ *
+ * @package Crypt_Random
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @access  public
+ */
 class Crypt_Random
 {
     /**
