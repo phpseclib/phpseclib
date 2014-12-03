@@ -15,6 +15,6 @@ class Unit_Math_BigInteger_BCMathTest extends Unit_Math_BigInteger_TestCase
 
         parent::setUpBeforeClass();
 
-        self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_BCMATH);
+        self::ensureConstant('MATH_BIGINTEGER_MODE', \phpseclib\Math\BigInteger::MATH_BIGINTEGER_MODE_BCMATH);
     }
 }
