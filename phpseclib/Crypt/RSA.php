@@ -67,18 +67,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+use \phpseclib\Crypt\Random;
 use \phpseclib\Math\BigInteger;
-
-/**
- * Include Crypt_Random
- */
-// the class_exists() will only be called if the crypt_random_string function hasn't been defined and
-// will trigger a call to __autoload() if you're wanting to auto-load classes
-// call function_exists() a second time to stop the include_once from being called outside
-// of the auto loader
-if (!function_exists('crypt_random_string')) {
-    include_once 'Random.php';
-}
 
 /**
  * Include Crypt_Hash
@@ -798,7 +788,7 @@ class Crypt_RSA
                     $source.= pack('Na*', strlen($private), $private);
                     $hashkey = 'putty-private-key-file-mac-key';
                 } else {
-                    $private.= crypt_random_string(16 - (strlen($private) & 15));
+                    $private.= Random::string(16 - (strlen($private) & 15));
                     $source.= pack('Na*', strlen($private), $private);
                     if (!class_exists('Crypt_AES')) {
                         include_once 'Crypt/AES.php';
@@ -864,7 +854,7 @@ class Crypt_RSA
                     );
                     $RSAPrivateKey = pack('Ca*a*', CRYPT_RSA_ASN1_SEQUENCE, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
                     if (!empty($this->password) || is_string($this->password)) {
-                        $salt = crypt_random_string(8);
+                        $salt = Random::string(8);
                         $iterationCount = 2048;
 
                         if (!class_exists('Crypt_DES')) {
@@ -904,7 +894,7 @@ class Crypt_RSA
                 }
 
                 if (!empty($this->password) || is_string($this->password)) {
-                    $iv = crypt_random_string(8);
+                    $iv = Random::string(8);
                     $symkey = pack('H*', md5($this->password . $iv)); // symkey is short for symmetric key
                     $symkey.= substr(pack('H*', md5($symkey . $this->password . $iv)), 0, 8);
                     if (!class_exists('Crypt_TripleDES')) {
@@ -2306,7 +2296,7 @@ class Crypt_RSA
         $lHash = $this->hash->hash($l);
         $ps = str_repeat(chr(0), $this->k - $mLen - 2 * $this->hLen - 2);
         $db = $lHash . $ps . chr(1) . $m;
-        $seed = crypt_random_string($this->hLen);
+        $seed = Random::string($this->hLen);
         $dbMask = $this->_mgf1($seed, $this->k - $this->hLen - 1);
         $maskedDB = $db ^ $dbMask;
         $seedMask = $this->_mgf1($maskedDB, $this->hLen);
@@ -2424,7 +2414,7 @@ class Crypt_RSA
         $psLen = $this->k - $mLen - 3;
         $ps = '';
         while (strlen($ps) != $psLen) {
-            $temp = crypt_random_string($psLen - strlen($ps));
+            $temp = Random::string($psLen - strlen($ps));
             $temp = str_replace("\x00", '', $temp);
             $ps.= $temp;
         }
@@ -2530,7 +2520,7 @@ class Crypt_RSA
             return false;
         }
 
-        $salt = crypt_random_string($sLen);
+        $salt = Random::string($sLen);
         $m2 = "\0\0\0\0\0\0\0\0" . $mHash . $salt;
         $h = $this->hash->hash($m2);
         $ps = str_repeat(chr(0), $emLen - $sLen - $this->hLen - 2);

@@ -108,35 +108,10 @@ define('FILE_ASN1_TYPE_ANY',             -2);
 /**#@-*/
 
 /**
- * ASN.1 Element
- *
- * Bypass normal encoding rules in File_ASN1::encodeDER()
- *
- * @package File_ASN1
- * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
+ * Include File_ASN1_Element
  */
-class File_ASN1_Element
-{
-    /**
-     * Raw element value
-     *
-     * @var String
-     * @access private
-     */
-    var $element;
-
-    /**
-     * Constructor
-     *
-     * @param String $encoded
-     * @return File_ASN1_Element
-     * @access public
-     */
-    function __construct($encoded)
-    {
-        $this->element = $encoded;
-    }
+if (!class_exists('File_ASN1_Element')) {
+    include_once 'ASN1/Element.php';
 }
 
 /**
