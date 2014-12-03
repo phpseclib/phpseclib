@@ -15,6 +15,6 @@ class Unit_Math_BigInteger_InternalOpenSSLTest extends Unit_Math_BigInteger_Test
 
         parent::setUpBeforeClass();
 
-        self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
+        self::ensureConstant('MATH_BIGINTEGER_MODE', \phpseclib\Math\BigInteger::MATH_BIGINTEGER_MODE_INTERNAL);
     }
 }

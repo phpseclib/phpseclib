@@ -300,7 +300,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
     public function testDiffieHellmanKeyAgreement()
     {
         if (getenv('TRAVIS') && PHP_VERSION === '5.3.3'
-            && MATH_BIGINTEGER_MODE === MATH_BIGINTEGER_MODE_INTERNAL
+            && MATH_BIGINTEGER_MODE === \phpseclib\Math\BigInteger::MATH_BIGINTEGER_MODE_INTERNAL
         ) {
             $this->markTestIncomplete(
                 'This test hangs on PHP 5.3.3 using internal mode.'
