@@ -195,7 +195,6 @@ class Net_SCP
 
             $fp = @fopen($data, 'rb');
             if (!$fp) {
-                fclose($fp);
                 return false;
             }
             $size = filesize($data);
