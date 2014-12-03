@@ -316,7 +316,7 @@ class BigInteger
             define('PHP_INT_SIZE', 4);
         }
 
-        if (!defined('$this->base') && MATH_BIGINTEGER_MODE == self::MATH_BIGINTEGER_MODE_INTERNAL) {
+        if (!empty($this->base) && MATH_BIGINTEGER_MODE == self::MATH_BIGINTEGER_MODE_INTERNAL) {
             switch (PHP_INT_SIZE) {
                 case 8: // use 64-bit integers if int size is 8 bytes
                     $this->base      = 31;
