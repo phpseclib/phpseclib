@@ -1,5 +1,9 @@
 <?php
 /**
+ * Pure-PHP ssh-agent client.
+ *
+ * PHP versions 4 and 5
+ *
  * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
