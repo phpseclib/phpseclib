@@ -334,7 +334,7 @@ class Net_SFTP_Stream
                 return false;
         }
 
-        $result = $this->sftp->put($this->path, $data, NET_SFTP_STRING, $this->pos);
+        $result = $this->sftp->put($this->path, $data, Net_SFTP::SOURCE_STRING, $this->pos);
         if (isset($this->notification) && is_callable($this->notification)) {
             if (!$result) {
                 call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $this->sftp->getLastSFTPError(), NET_SFTP_OPEN, 0, 0);
