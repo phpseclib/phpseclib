@@ -568,7 +568,7 @@ class Crypt_RSA
 
         static $e;
         if (!isset($e)) {
-            $e = new BigInteger(self::EXPONENT);
+            $e = new BigInteger(CRYPT_RSA_EXPONENT);
         }
 
         extract($this->_generateMinMax($bits));
