@@ -135,7 +135,7 @@ class System_SSH_Agent_Identity
     function sign($message)
     {
         // the last parameter (currently 0) is for flags and ssh-agent only defines one flag (for ssh-dss): SSH_AGENT_OLD_SIGNATURE
-        $packet = pack('CNa*Na*N', SYSTEM_SSH_AGENTC_SIGN_REQUEST, strlen($this->key_blob), $this->key_blob, strlen($message), $message, 0);
+        $packet = pack('CNa*Na*N', System_SSH_Agent::SYSTEM_SSH_AGENTC_SIGN_REQUEST, strlen($this->key_blob), $this->key_blob, strlen($message), $message, 0);
         $packet = pack('Na*', strlen($packet), $packet);
         if (strlen($packet) != fputs($this->fsock, $packet)) {
             user_error('Connection closed during signing');
@@ -143,7 +143,7 @@ class System_SSH_Agent_Identity
 
         $length = current(unpack('N', fread($this->fsock, 4)));
         $type = ord(fread($this->fsock, 1));
-        if ($type != SYSTEM_SSH_AGENT_SIGN_RESPONSE) {
+        if ($type != System_SSH_Agent::SYSTEM_SSH_AGENT_SIGN_RESPONSE) {
             user_error('Unable to retreive signature');
         }
 
