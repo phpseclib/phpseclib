@@ -148,7 +148,7 @@ class File_ASN1
     /**
      * Type mapping table for the ANY type.
      *
-     * Structured or unknown types are mapped to a File\ASN1\Element.
+     * Structured or unknown types are mapped to a File_ASN1_Element.
      * Unambiguous types get the direct mapping (int/real/bool).
      * Others are mapped as a choice, with an extra indexing level.
      *
