@@ -62,6 +62,11 @@ class System_SSH_Agent
     /**#@-*/
 
     /**
+     * Unused
+     */
+    const SSH_AGENT_FAILURE = 5;
+
+    /**
      * Socket Resource
      *
      * @var Resource
