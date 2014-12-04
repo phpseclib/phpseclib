@@ -31,35 +31,6 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-/**#@+
- * @access public
- * @see Net_SCP::put()
- */
-/**
- * Reads data from a local file.
- */
-define('NET_SCP_LOCAL_FILE', 1);
-/**
- * Reads data from a string.
- */
-define('NET_SCP_STRING',  2);
-/**#@-*/
-
-/**#@+
- * @access private
- * @see Net_SCP::_send()
- * @see Net_SCP::_receive()
- */
-/**
- * SSH1 is being used.
- */
-define('NET_SCP_SSH1', 1);
-/**
- * SSH2 is being used.
- */
-define('NET_SCP_SSH2',  2);
-/**#@-*/
-
 /**
  * Pure-PHP implementations of SCP.
  *
@@ -69,6 +40,35 @@ define('NET_SCP_SSH2',  2);
  */
 class Net_SCP
 {
+    /**#@+
+     * @access public
+     * @see Net_SCP::put()
+     */
+    /**
+     * Reads data from a local file.
+     */
+    const SOURCE_LOCAL_FILE = 1;
+    /**
+     * Reads data from a string.
+    */
+    const SOURCE_STRING = 2;
+    /**#@-*/
+
+    /**#@+
+     * @access private
+     * @see Net_SCP::_send()
+     * @see Net_SCP::_receive()
+    */
+    /**
+     * SSH1 is being used.
+    */
+    const MODE_SSH1 = 1;
+    /**
+     * SSH2 is being used.
+    */
+    const MODE_SSH2 = 2;
+    /**#@-*/
+
     /**
      * SSH Object
      *
@@ -112,11 +112,11 @@ class Net_SCP
 
         switch (strtolower(get_class($ssh))) {
             case'net_ssh2':
-                $this->mode = NET_SCP_SSH2;
+                $this->mode = self::MODE_SSH2;
                 break;
             case 'net_ssh1':
                 $this->packet_size = 50000;
-                $this->mode = NET_SCP_SSH1;
+                $this->mode = self::MODE_SSH1;
                 break;
             default:
                 return;
@@ -132,7 +132,7 @@ class Net_SCP
      * So, for example, if you set $data to 'filename.ext' and then do Net_SCP::get(), you will get a file, twelve bytes
      * long, containing 'filename.ext' as its contents.
      *
-     * Setting $mode to NET_SCP_LOCAL_FILE will change the above behavior.  With NET_SCP_LOCAL_FILE, $remote_file will
+     * Setting $mode to self::SOURCE_LOCAL_FILE will change the above behavior.  With self::SOURCE_LOCAL_FILE, $remote_file will
      * contain as many bytes as filename.ext does on your local filesystem.  If your filename.ext is 1MB then that is how
      * large $remote_file will be, as well.
      *
@@ -146,7 +146,7 @@ class Net_SCP
      * @return Boolean
      * @access public
      */
-    function put($remote_file, $data, $mode = NET_SCP_STRING, $callback = null)
+    function put($remote_file, $data, $mode = self::SOURCE_STRING, $callback = null)
     {
         if (!isset($this->ssh)) {
             return false;
@@ -161,13 +161,13 @@ class Net_SCP
             return false;
         }
 
-        if ($this->mode == NET_SCP_SSH2) {
-            $this->packet_size = $this->ssh->packet_size_client_to_server[NET_SSH2_CHANNEL_EXEC] - 4;
+        if ($this->mode == self::MODE_SSH2) {
+            $this->packet_size = $this->ssh->packet_size_client_to_server[Net_SSH2::CHANNEL_EXEC] - 4;
         }
 
         $remote_file = basename($remote_file);
 
-        if ($mode == NET_SCP_STRING) {
+        if ($mode == self::SOURCE_STRING) {
             $size = strlen($data);
         } else {
             if (!is_file($data)) {
@@ -191,7 +191,7 @@ class Net_SCP
 
         $sent = 0;
         while ($sent < $size) {
-            $temp = $mode & NET_SCP_STRING ? substr($data, $sent, $this->packet_size) : fread($fp, $this->packet_size);
+            $temp = $mode & self::SOURCE_STRING ? substr($data, $sent, $this->packet_size) : fread($fp, $this->packet_size);
             $this->_send($temp);
             $sent+= strlen($temp);
 
@@ -201,7 +201,7 @@ class Net_SCP
         }
         $this->_close();
 
-        if ($mode != NET_SCP_STRING) {
+        if ($mode != self::SOURCE_STRING) {
             fclose($fp);
         }
 
@@ -279,10 +279,10 @@ class Net_SCP
     function _send($data)
     {
         switch ($this->mode) {
-            case NET_SCP_SSH2:
-                $this->ssh->_send_channel_packet(NET_SSH2_CHANNEL_EXEC, $data);
+            case self::MODE_SSH2:
+                $this->ssh->_send_channel_packet(Net_SSH2::CHANNEL_EXEC, $data);
                 break;
-            case NET_SCP_SSH1:
+            case self::MODE_SSH1:
                 $data = pack('CNa*', NET_SSH1_CMSG_STDIN_DATA, strlen($data), $data);
                 $this->ssh->_send_binary_packet($data);
          }
@@ -297,18 +297,18 @@ class Net_SCP
     function _receive()
     {
         switch ($this->mode) {
-            case NET_SCP_SSH2:
-                return $this->ssh->_get_channel_packet(NET_SSH2_CHANNEL_EXEC, true);
-            case NET_SCP_SSH1:
+            case self::MODE_SSH2:
+                return $this->ssh->_get_channel_packet(Net_SSH2::CHANNEL_EXEC, true);
+            case self::MODE_SSH1:
                 if (!$this->ssh->bitmap) {
                     return false;
                 }
                 while (true) {
                     $response = $this->ssh->_get_binary_packet();
-                    switch ($response[NET_SSH1_RESPONSE_TYPE]) {
+                    switch ($response[Net_SSH1::RESPONSE_TYPE]) {
                         case NET_SSH1_SMSG_STDOUT_DATA:
-                            extract(unpack('Nlength', $response[NET_SSH1_RESPONSE_DATA]));
-                            return $this->ssh->_string_shift($response[NET_SSH1_RESPONSE_DATA], $length);
+                            extract(unpack('Nlength', $response[Net_SSH1::RESPONSE_DATA]));
+                            return $this->ssh->_string_shift($response[Net_SSH1::RESPONSE_DATA], $length);
                         case NET_SSH1_SMSG_STDERR_DATA:
                             break;
                         case NET_SSH1_SMSG_EXITSTATUS:
@@ -332,10 +332,10 @@ class Net_SCP
     function _close()
     {
         switch ($this->mode) {
-            case NET_SCP_SSH2:
-                $this->ssh->_close_channel(NET_SSH2_CHANNEL_EXEC, true);
+            case self::MODE_SSH2:
+                $this->ssh->_close_channel(Net_SSH2::CHANNEL_EXEC, true);
                 break;
-            case NET_SCP_SSH1:
+            case self::MODE_SSH1:
                 $this->ssh->disconnect();
          }
     }
