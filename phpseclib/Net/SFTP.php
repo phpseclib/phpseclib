@@ -42,58 +42,6 @@ if (!class_exists('Net_SSH2')) {
     include_once 'SSH2.php';
 }
 
-/**#@+
- * @access public
- * @see Net_SFTP::getLog()
- */
-/**
- * Returns the message numbers
- */
-define('NET_SFTP_LOG_SIMPLE',  NET_SSH2_LOG_SIMPLE);
-/**
- * Returns the message content
- */
-define('NET_SFTP_LOG_COMPLEX', NET_SSH2_LOG_COMPLEX);
-/**
- * Outputs the message content in real-time.
- */
-define('NET_SFTP_LOG_REALTIME', 3);
-/**#@-*/
-
-/**
- * SFTP channel constant
- *
- * Net_SSH2::exec() uses 0 and Net_SSH2::read() / Net_SSH2::write() use 1.
- *
- * @see Net_SSH2::_send_channel_packet()
- * @see Net_SSH2::_get_channel_packet()
- * @access private
- */
-define('NET_SFTP_CHANNEL', 0x100);
-
-/**#@+
- * @access public
- * @see Net_SFTP::put()
- */
-/**
- * Reads data from a local file.
- */
-define('NET_SFTP_LOCAL_FILE',    1);
-/**
- * Reads data from a string.
- */
-// this value isn't really used anymore but i'm keeping it reserved for historical reasons
-define('NET_SFTP_STRING',        2);
-/**
- * Resumes an upload
- */
-define('NET_SFTP_RESUME',        4);
-/**
- * Append a local file to an already existing remote file
- */
-define('NET_SFTP_RESUME_START',  8);
-/**#@-*/
-
 /**
  * Pure-PHP implementations of SFTP.
  *
@@ -103,6 +51,40 @@ define('NET_SFTP_RESUME_START',  8);
  */
 class Net_SFTP extends Net_SSH2
 {
+    /**
+     * SFTP channel constant
+     *
+     * Net_SSH2::exec() uses 0 and Net_SSH2::read() / Net_SSH2::write() use 1.
+     *
+     * @see Net_SSH2::_send_channel_packet()
+     * @see Net_SSH2::_get_channel_packet()
+     * @access private
+    */
+    const CHANNEL = 0x100;
+
+    /**#@+
+     * @access public
+     * @see Net_SFTP::put()
+    */
+    /**
+     * Reads data from a local file.
+    */
+    const SOURCE_LOCAL_FILE = 1;
+    /**
+     * Reads data from a string.
+    */
+    // this value isn't really used anymore but i'm keeping it reserved for historical reasons
+    const SOURCE_STRING = 2;
+    /**
+     * Resumes an upload
+    */
+    const RESUME = 4;
+    /**
+     * Append a local file to an already existing remote file
+    */
+    const RESUME_START = 8;
+    /**#@-*/
+
     /**
      * Packet Types
      *
@@ -409,31 +391,31 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
-        $this->window_size_server_to_client[NET_SFTP_CHANNEL] = $this->window_size;
+        $this->window_size_server_to_client[self::CHANNEL] = $this->window_size;
 
         $packet = pack('CNa*N3',
-            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SFTP_CHANNEL, $this->window_size, 0x4000);
+            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', self::CHANNEL, $this->window_size, 0x4000);
 
         if (!$this->_send_binary_packet($packet)) {
             return false;
         }
 
-        $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_OPEN;
+        $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_OPEN;
 
-        $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+        $response = $this->_get_channel_packet(self::CHANNEL);
         if ($response === false) {
             return false;
         }
 
         $packet = pack('CNNa*CNa*',
-            NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SFTP_CHANNEL], strlen('subsystem'), 'subsystem', 1, strlen('sftp'), 'sftp');
+            NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[self::CHANNEL], strlen('subsystem'), 'subsystem', 1, strlen('sftp'), 'sftp');
         if (!$this->_send_binary_packet($packet)) {
             return false;
         }
 
-        $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
+        $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
-        $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+        $response = $this->_get_channel_packet(self::CHANNEL);
         if ($response === false) {
             // from PuTTY's psftp.exe
             $command = "test -x /usr/lib/sftp-server && exec /usr/lib/sftp-server\n" .
@@ -442,20 +424,20 @@ class Net_SFTP extends Net_SSH2
             // we don't do $this->exec($command, false) because exec() operates on a different channel and plus the SSH_MSG_CHANNEL_OPEN that exec() does
             // is redundant
             $packet = pack('CNNa*CNa*',
-                NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SFTP_CHANNEL], strlen('exec'), 'exec', 1, strlen($command), $command);
+                NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[self::CHANNEL], strlen('exec'), 'exec', 1, strlen($command), $command);
             if (!$this->_send_binary_packet($packet)) {
                 return false;
             }
 
-            $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
+            $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
-            $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+            $response = $this->_get_channel_packet(self::CHANNEL);
             if ($response === false) {
                 return false;
             }
         }
 
-        $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_DATA;
+        $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_DATA;
 
         if (!$this->_send_sftp_packet(NET_SFTP_INIT, "\0\0\0\3")) {
             return false;
@@ -664,7 +646,7 @@ class Net_SFTP extends Net_SSH2
      */
     function chdir($dir)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -810,7 +792,7 @@ class Net_SFTP extends Net_SSH2
      */
     function _list($dir, $raw = true)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -1019,7 +1001,7 @@ class Net_SFTP extends Net_SSH2
      */
     function size($filename)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -1115,7 +1097,7 @@ class Net_SFTP extends Net_SSH2
      */
     function stat($filename)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -1172,7 +1154,7 @@ class Net_SFTP extends Net_SSH2
      */
     function lstat($filename)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -1286,7 +1268,7 @@ class Net_SFTP extends Net_SSH2
      */
     function touch($filename, $time = null, $atime = null)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -1423,7 +1405,7 @@ class Net_SFTP extends Net_SSH2
      */
     function _setstat($filename, $attr, $recursive)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -1550,7 +1532,7 @@ class Net_SFTP extends Net_SSH2
      */
     function readlink($link)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -1594,7 +1576,7 @@ class Net_SFTP extends Net_SSH2
      */
     function symlink($target, $link)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -1630,7 +1612,7 @@ class Net_SFTP extends Net_SSH2
      */
     function mkdir($dir, $mode = -1, $recursive = false)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -1693,7 +1675,7 @@ class Net_SFTP extends Net_SSH2
      */
     function rmdir($dir)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -1735,7 +1717,7 @@ class Net_SFTP extends Net_SSH2
      * So, for example, if you set $data to 'filename.ext' and then do Net_SFTP::get(), you will get a file, twelve bytes
      * long, containing 'filename.ext' as its contents.
      *
-     * Setting $mode to NET_SFTP_LOCAL_FILE will change the above behavior.  With NET_SFTP_LOCAL_FILE, $remote_file will
+     * Setting $mode to self::SOURCE_LOCAL_FILE will change the above behavior.  With self::SOURCE_LOCAL_FILE, $remote_file will
      * contain as many bytes as filename.ext does on your local filesystem.  If your filename.ext is 1MB then that is how
      * large $remote_file will be, as well.
      *
@@ -1744,22 +1726,22 @@ class Net_SFTP extends Net_SSH2
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
      * care of that, yourself.
      *
-     * $mode can take an additional two parameters - NET_SFTP_RESUME and NET_SFTP_RESUME_START. These are bitwise AND'd with
+     * $mode can take an additional two parameters - self::RESUME and self::RESUME_START. These are bitwise AND'd with
      * $mode. So if you want to resume upload of a 300mb file on the local file system you'd set $mode to the following:
      *
-     * NET_SFTP_LOCAL_FILE | NET_SFTP_RESUME
+     * self::SOURCE_LOCAL_FILE | self::RESUME
      *
      * If you wanted to simply append the full contents of a local file to the full contents of a remote file you'd replace
-     * NET_SFTP_RESUME with NET_SFTP_RESUME_START.
+     * self::RESUME with self::RESUME_START.
      *
-     * If $mode & (NET_SFTP_RESUME | NET_SFTP_RESUME_START) then NET_SFTP_RESUME_START will be assumed.
+     * If $mode & (self::RESUME | self::RESUME_START) then self::RESUME_START will be assumed.
      *
-     * $start and $local_start give you more fine grained control over this process and take precident over NET_SFTP_RESUME
-     * when they're non-negative. ie. $start could let you write at the end of a file (like NET_SFTP_RESUME) or in the middle
-     * of one. $local_start could let you start your reading from the end of a file (like NET_SFTP_RESUME_START) or in the
+     * $start and $local_start give you more fine grained control over this process and take precident over self::RESUME
+     * when they're non-negative. ie. $start could let you write at the end of a file (like self::RESUME) or in the middle
+     * of one. $local_start could let you start your reading from the end of a file (like self::RESUME_START) or in the
      * middle of one.
      *
-     * Setting $local_start to > 0 or $mode | NET_SFTP_RESUME_START doesn't do anything unless $mode | NET_SFTP_LOCAL_FILE.
+     * Setting $local_start to > 0 or $mode | self::RESUME_START doesn't do anything unless $mode | self::SOURCE_LOCAL_FILE.
      *
      * @param String $remote_file
      * @param String|resource $data
@@ -1770,9 +1752,9 @@ class Net_SFTP extends Net_SSH2
      * @access public
      * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - Net_SFTP::setMode().
      */
-    function put($remote_file, $data, $mode = NET_SFTP_STRING, $start = -1, $local_start = -1)
+    function put($remote_file, $data, $mode = self::SOURCE_STRING, $start = -1, $local_start = -1)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -1786,11 +1768,11 @@ class Net_SFTP extends Net_SSH2
         $flags = NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE;
         // according to the SFTP specs, NET_SFTP_OPEN_APPEND should "force all writes to append data at the end of the file."
         // in practice, it doesn't seem to do that.
-        //$flags|= ($mode & NET_SFTP_RESUME) ? NET_SFTP_OPEN_APPEND : NET_SFTP_OPEN_TRUNCATE;
+        //$flags|= ($mode & self::RESUME) ? NET_SFTP_OPEN_APPEND : NET_SFTP_OPEN_TRUNCATE;
 
         if ($start >= 0) {
             $offset = $start;
-        } elseif ($mode & NET_SFTP_RESUME) {
+        } elseif ($mode & self::RESUME) {
             // if NET_SFTP_OPEN_APPEND worked as it should _size() wouldn't need to be called
             $size = $this->size($remote_file);
             $offset = $size !== false ? $size : 0;
@@ -1820,10 +1802,10 @@ class Net_SFTP extends Net_SSH2
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
         switch (true) {
             case is_resource($data):
-                $mode = $mode & ~NET_SFTP_LOCAL_FILE;
+                $mode = $mode & ~self::SOURCE_LOCAL_FILE;
                 $fp = $data;
                 break;
-            case $mode & NET_SFTP_LOCAL_FILE:
+            case $mode & self::SOURCE_LOCAL_FILE:
                 if (!is_file($data)) {
                     user_error("$data is not a valid file");
                     return false;
@@ -1840,7 +1822,7 @@ class Net_SFTP extends Net_SSH2
 
             if ($local_start >= 0) {
                 fseek($fp, $local_start);
-            } elseif ($mode & NET_SFTP_RESUME_START) {
+            } elseif ($mode & self::RESUME_START) {
                 // do nothing
             } else {
                 fseek($fp, $offset);
@@ -1861,7 +1843,7 @@ class Net_SFTP extends Net_SSH2
             $subtemp = $offset + $sent;
             $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, strlen($temp), $temp);
             if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
-                if ($mode & NET_SFTP_LOCAL_FILE) {
+                if ($mode & self::SOURCE_LOCAL_FILE) {
                     fclose($fp);
                 }
                 return false;
@@ -1880,14 +1862,14 @@ class Net_SFTP extends Net_SSH2
         }
 
         if (!$this->_read_put_responses($i)) {
-            if ($mode & NET_SFTP_LOCAL_FILE) {
+            if ($mode & self::SOURCE_LOCAL_FILE) {
                 fclose($fp);
             }
             $this->_close_handle($handle);
             return false;
         }
 
-        if ($mode & NET_SFTP_LOCAL_FILE) {
+        if ($mode & self::SOURCE_LOCAL_FILE) {
             fclose($fp);
         }
 
@@ -1971,7 +1953,7 @@ class Net_SFTP extends Net_SSH2
      */
     function get($remote_file, $local_file = false, $offset = 0, $length = -1)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -2085,7 +2067,7 @@ class Net_SFTP extends Net_SSH2
      */
     function delete($path, $recursive = true)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -2400,7 +2382,7 @@ class Net_SFTP extends Net_SSH2
      */
     function rename($oldname, $newname)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & Net_SSH2::MASK_LOGIN)) {
             return false;
         }
 
@@ -2587,7 +2569,7 @@ class Net_SFTP extends Net_SSH2
             pack('NCa*',  strlen($data) + 1, $type, $data);
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
-        $result = $this->_send_channel_packet(NET_SFTP_CHANNEL, $packet);
+        $result = $this->_send_channel_packet(self::CHANNEL, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
 
         if (defined('NET_SFTP_LOGGING')) {
@@ -2629,7 +2611,7 @@ class Net_SFTP extends Net_SSH2
 
         // SFTP packet length
         while (strlen($this->packet_buffer) < 4) {
-            $temp = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+            $temp = $this->_get_channel_packet(self::CHANNEL);
             if (is_bool($temp)) {
                 $this->packet_type = false;
                 $this->packet_buffer = '';
@@ -2643,7 +2625,7 @@ class Net_SFTP extends Net_SSH2
 
         // SFTP packet type and data payload
         while ($tempLength > 0) {
-            $temp = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+            $temp = $this->_get_channel_packet(self::CHANNEL);
             if (is_bool($temp)) {
                 $this->packet_type = false;
                 $this->packet_buffer = '';
