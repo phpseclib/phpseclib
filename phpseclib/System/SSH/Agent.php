@@ -31,22 +31,6 @@
  * @internal  See http://api.libssh.org/rfc/PROTOCOL.agent
  */
 
-/**#@+
- * Message numbers
- *
- * @access private
- */
-// to request SSH1 keys you have to use SSH_AGENTC_REQUEST_RSA_IDENTITIES (1)
-define('SYSTEM_SSH_AGENTC_REQUEST_IDENTITIES', 11);
-// this is the SSH2 response; the SSH1 response is SSH_AGENT_RSA_IDENTITIES_ANSWER (2).
-define('SYSTEM_SSH_AGENT_IDENTITIES_ANSWER', 12);
-define('SYSTEM_SSH_AGENT_FAILURE', 5);
-// the SSH1 request is SSH_AGENTC_RSA_CHALLENGE (3)
-define('SYSTEM_SSH_AGENTC_SIGN_REQUEST', 13);
-// the SSH1 response is SSH_AGENT_RSA_RESPONSE (4)
-define('SYSTEM_SSH_AGENT_SIGN_RESPONSE', 14);
-/**#@-*/
-
 if (!class_exists('System_SSH_Agent_Identity')) {
     include_once 'Agent/Identity.php';
 }
@@ -62,6 +46,26 @@ if (!class_exists('System_SSH_Agent_Identity')) {
  */
 class System_SSH_Agent
 {
+    /**#@+
+     * Message numbers
+     *
+     * @access private
+     */
+    // to request SSH1 keys you have to use SSH_AGENTC_REQUEST_RSA_IDENTITIES (1)
+    const SSH_AGENTC_REQUEST_IDENTITIES = 11;
+    // this is the SSH2 response; the SSH1 response is SSH_AGENT_RSA_IDENTITIES_ANSWER (2).
+    const SSH_AGENT_IDENTITIES_ANSWER = 12;
+    // the SSH1 request is SSH_AGENTC_RSA_CHALLENGE (3)
+    const SSH_AGENTC_SIGN_REQUEST = 13;
+    // the SSH1 response is SSH_AGENT_RSA_RESPONSE (4)
+    const SSH_AGENT_SIGN_RESPONSE = 14;
+    /**#@-*/
+
+    /**
+     * Unused
+     */
+    const SSH_AGENT_FAILURE = 5;
+
     /**
      * Socket Resource
      *
@@ -111,14 +115,14 @@ class System_SSH_Agent
             return array();
         }
 
-        $packet = pack('NC', 1, SYSTEM_SSH_AGENTC_REQUEST_IDENTITIES);
+        $packet = pack('NC', 1, self::SSH_AGENTC_REQUEST_IDENTITIES);
         if (strlen($packet) != fputs($this->fsock, $packet)) {
             user_error('Connection closed while requesting identities');
         }
 
         $length = current(unpack('N', fread($this->fsock, 4)));
         $type = ord(fread($this->fsock, 1));
-        if ($type != SYSTEM_SSH_AGENT_IDENTITIES_ANSWER) {
+        if ($type != self::SSH_AGENT_IDENTITIES_ANSWER) {
             user_error('Unable to request identities');
         }
 
