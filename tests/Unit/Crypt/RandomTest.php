@@ -36,8 +36,9 @@ class Unit_Crypt_RandomTest extends PhpseclibTestCase
         for ($i = 0; $i < 10000; ++$i) {
             $rand = crypt_random_string(16);
             $this->assertSame(16, strlen($rand));
-            $this->assertFalse(
-                isset($values[$rand]),
+            $this->assertArrayNotHasKey(
+                $rand,
+                $values,
                 'Failed asserting that generated value does not exist in set.'
             );
             $values[$rand] = true;
