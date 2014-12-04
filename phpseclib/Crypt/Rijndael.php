@@ -61,59 +61,6 @@ if (!class_exists('Crypt_Base')) {
     include_once 'Base.php';
 }
 
-/**#@+
- * @access public
- * @see Crypt_Rijndael::encrypt()
- * @see Crypt_Rijndael::decrypt()
- */
-/**
- * Encrypt / decrypt using the Counter mode.
- *
- * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
- */
-define('CRYPT_RIJNDAEL_MODE_CTR', CRYPT_MODE_CTR);
-/**
- * Encrypt / decrypt using the Electronic Code Book mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
- */
-define('CRYPT_RIJNDAEL_MODE_ECB', CRYPT_MODE_ECB);
-/**
- * Encrypt / decrypt using the Code Book Chaining mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
- */
-define('CRYPT_RIJNDAEL_MODE_CBC', CRYPT_MODE_CBC);
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
- */
-define('CRYPT_RIJNDAEL_MODE_CFB', CRYPT_MODE_CFB);
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
- */
-define('CRYPT_RIJNDAEL_MODE_OFB', CRYPT_MODE_OFB);
-/**#@-*/
-
-/**#@+
- * @access private
- * @see Crypt_Base::__construct()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_RIJNDAEL_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RIJNDAEL_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of Rijndael.
  *
@@ -132,15 +79,6 @@ class Crypt_Rijndael extends Crypt_Base
      * @access private
      */
     var $password_key_size = 16;
-
-    /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see Crypt_Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'RIJNDAEL';
 
     /**
      * The mcrypt specific name of the cipher
@@ -782,7 +720,7 @@ class Crypt_Rijndael extends Crypt_Base
      */
     function _setupEngine()
     {
-        if (constant('CRYPT_' . $this->const_namespace . '_MODE') == CRYPT_MODE_INTERNAL) {
+        if (CRYPT_ENGINE == Crypt_Base::ENGINE_INTERNAL) {
             // No mcrypt support at all for rijndael
             return;
         }
@@ -794,10 +732,10 @@ class Crypt_Rijndael extends Crypt_Base
         switch (true) {
             case $this->key_size % 8: // mcrypt is not usable for 160/224-bit keys, only for 128/192/256-bit keys
             case !in_array($cipher_name_mcrypt, mcrypt_list_algorithms()): // $cipher_name_mcrypt is not available for the current $block_size
-                $engine = CRYPT_MODE_INTERNAL;
+                $engine = Crypt_Base::ENGINE_INTERNAL;
                 break;
             default:
-                $engine = CRYPT_MODE_MCRYPT;
+                $engine = Crypt_Base::ENGINE_MCRYPT;
         }
 
         if ($this->engine == $engine && $this->cipher_name_mcrypt == $cipher_name_mcrypt) {
@@ -825,7 +763,7 @@ class Crypt_Rijndael extends Crypt_Base
     }
 
     /**
-     * Setup the CRYPT_MODE_MCRYPT $engine
+     * Setup the Crypt_Base::ENGINE_MCRYPT $engine
      *
      * @see Crypt_Base::_setupMcrypt()
      * @access private

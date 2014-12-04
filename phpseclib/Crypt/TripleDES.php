@@ -42,20 +42,6 @@ if (!class_exists('Crypt_DES')) {
 }
 
 /**
- * Encrypt / decrypt using inner chaining
- *
- * Inner chaining is used by SSH-1 and is generally considered to be less secure then outer chaining (CRYPT_DES_MODE_CBC3).
- */
-define('CRYPT_DES_MODE_3CBC', -2);
-
-/**
- * Encrypt / decrypt using outer chaining
- *
- * Outer chaining is used by SSH-2 and when the mode is set to CRYPT_DES_MODE_CBC.
- */
-define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
-
-/**
  * Pure-PHP implementation of Triple DES.
  *
  * @package Crypt_TripleDES
@@ -64,6 +50,20 @@ define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
  */
 class Crypt_TripleDES extends Crypt_DES
 {
+    /**
+     * Encrypt / decrypt using inner chaining
+     *
+     * Inner chaining is used by SSH-1 and is generally considered to be less secure then outer chaining (self::MODE_CBC3).
+     */
+    const MODE_3CBC = -2;
+
+    /**
+     * Encrypt / decrypt using outer chaining
+     *
+     * Outer chaining is used by SSH-2 and when the mode is set to Crypt_Base::MODE_CBC.
+    */
+    const MODE_CBC3 = Crypt_Base::MODE_CBC;
+
     /**
      * The default password key_size used by setPassword()
      *
@@ -84,16 +84,6 @@ class Crypt_TripleDES extends Crypt_DES
      * @access private
      */
     var $password_default_salt = 'phpseclib';
-
-    /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see Crypt_DES::const_namespace
-     * @see Crypt_Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'DES';
 
     /**
      * The mcrypt specific name of the cipher
@@ -125,7 +115,7 @@ class Crypt_TripleDES extends Crypt_DES
     var $key_size_max = 24;
 
     /**
-     * Internal flag whether using CRYPT_DES_MODE_3CBC or not
+     * Internal flag whether using self::MODE_3CBC or not
      *
      * @var Boolean
      * @access private
@@ -149,39 +139,39 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * $mode could be:
      *
-     * - CRYPT_DES_MODE_ECB
+     * - Crypt_Base::MODE_ECB
      *
-     * - CRYPT_DES_MODE_CBC
+     * - Crypt_Base::MODE_CBC
      *
-     * - CRYPT_DES_MODE_CTR
+     * - Crypt_Base::MODE_CTR
      *
-     * - CRYPT_DES_MODE_CFB
+     * - Crypt_Base::MODE_CFB
      *
-     * - CRYPT_DES_MODE_OFB
+     * - Crypt_Base::MODE_OFB
      *
-     * - CRYPT_DES_MODE_3CBC
+     * - self::MODE_3CBC
      *
-     * If not explicitly set, CRYPT_DES_MODE_CBC will be used.
+     * If not explicitly set, Crypt_Base::MODE_CBC will be used.
      *
      * @see Crypt_DES::__construct()
      * @see Crypt_Base::__construct()
      * @param optional Integer $mode
      * @access public
      */
-    function __construct($mode = CRYPT_DES_MODE_CBC)
+    function __construct($mode = Crypt_Base::MODE_CBC)
     {
         switch ($mode) {
-            // In case of CRYPT_DES_MODE_3CBC, we init as CRYPT_DES_MODE_CBC
+            // In case of self::MODE_3CBC, we init as Crypt_Base::MODE_CBC
             // and additional flag us internally as 3CBC
-            case CRYPT_DES_MODE_3CBC:
-                parent::__construct(CRYPT_DES_MODE_CBC);
+            case self::MODE_3CBC:
+                parent::__construct(Crypt_Base::MODE_CBC);
                 $this->mode_3cbc = true;
 
                 // This three $des'es will do the 3CBC work (if $key > 64bits)
                 $this->des = array(
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
+                    new Crypt_DES(Crypt_Base::MODE_CBC),
+                    new Crypt_DES(Crypt_Base::MODE_CBC),
+                    new Crypt_DES(Crypt_Base::MODE_CBC),
                 );
 
                 // we're going to be doing the padding, ourselves, so disable it in the Crypt_DES objects
@@ -198,7 +188,7 @@ class Crypt_TripleDES extends Crypt_DES
     /**
      * Sets the initialization vector. (optional)
      *
-     * SetIV is not required when CRYPT_DES_MODE_ECB is being used.  If not explicitly set, it'll be assumed
+     * SetIV is not required when Crypt_Base::MODE_ECB is being used.  If not explicitly set, it'll be assumed
      * to be all zero's.
      *
      * @see Crypt_Base::setIV()
@@ -243,7 +233,7 @@ class Crypt_TripleDES extends Crypt_DES
         }
         parent::setKey($key);
 
-        // And in case of CRYPT_DES_MODE_3CBC:
+        // And in case of self::MODE_3CBC:
         // if key <= 64bits we not need the 3 $des to work,
         // because we will then act as regular DES-CBC with just a <= 64bit key.
         // So only if the key > 64bits (> 8 bytes) we will call setKey() for the 3 $des.
@@ -265,7 +255,7 @@ class Crypt_TripleDES extends Crypt_DES
     function encrypt($plaintext)
     {
         // parent::en/decrypt() is able to do all the work for all modes and keylengths,
-        // except for: CRYPT_DES_MODE_3CBC (inner chaining CBC) with a key > 64bits
+        // except for: self::MODE_3CBC (inner chaining CBC) with a key > 64bits
 
         // if the key is smaller then 8, do what we'd normally do
         if ($this->mode_3cbc && strlen($this->key) > 8) {

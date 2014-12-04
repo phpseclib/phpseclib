@@ -25,9 +25,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     public function continuousBufferCombos()
     {
         $modes = array(
-            'CRYPT_AES_MODE_CTR',
-            'CRYPT_AES_MODE_OFB',
-            'CRYPT_AES_MODE_CFB',
+            'Crypt_Base::MODE_CTR',
+            'Crypt_Base::MODE_OFB',
+            'Crypt_Base::MODE_CFB',
         );
         $plaintexts = array(
             '',

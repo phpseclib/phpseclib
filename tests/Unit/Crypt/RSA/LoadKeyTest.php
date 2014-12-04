@@ -184,7 +184,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
         $this->assertTrue($rsa->loadKey($key));
 
-        $key = $rsa->getPrivateKey(CRYPT_RSA_PRIVATE_FORMAT_PKCS8);
+        $key = $rsa->getPrivateKey(Crypt_RSA::PRIVATE_FORMAT_PKCS8);
         $this->assertInternalType('string', $key);
 
         $this->assertTrue($rsa->loadKey($key));
@@ -276,7 +276,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
 
         $rsa->loadKey($key);
         $rsa->setPublicKey();
-        $newkey = $rsa->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_XML);
+        $newkey = $rsa->getPublicKey(Crypt_RSA::PUBLIC_FORMAT_XML);
 
         $this->assertSame(preg_replace('#\s#', '', $key), preg_replace('#\s#', '', $newkey));
     }
