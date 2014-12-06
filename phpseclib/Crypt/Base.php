@@ -1333,6 +1333,8 @@ exit;
 }
 echo "encryptIV = ";
 var_dump($encryptIV);
+echo "\r\n";
+echo "iv len = ".strlen($encryptIV) . "\r\n";
             $encrypted = openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
             $encryptIV = $this->_string_pop($encrypted, $block_size);
             $ciphertext.= $encrypted . ($plaintext2 ^ $encryptIV);
