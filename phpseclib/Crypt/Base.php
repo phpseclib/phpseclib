@@ -1319,6 +1319,11 @@ class Crypt_Base
         $overflow = strlen($plaintext) % $block_size;
         if ($overflow) {
             $plaintext2 = $this->_string_pop($plaintext, $overflow); // ie. trim $plaintext to a multiple of $block_size and put rest of $plaintext in $plaintext2
+echo "encryptIV = ";
+var_dump($encryptIV);
+echo "\r\n";
+echo "iv len = ".strlen($encryptIV) . "\r\n";
+            $encrypted = openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
 if ($encryptIV === false) {
 $backtrace = debug_backtrace(); 
 for ($i = 0; $i < count($backtrace); $i++) { 
@@ -1331,11 +1336,6 @@ global $zzzz;
 var_dump($zzzz);
 exit;
 }
-echo "encryptIV = ";
-var_dump($encryptIV);
-echo "\r\n";
-echo "iv len = ".strlen($encryptIV) . "\r\n";
-            $encrypted = openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
             $encryptIV = $this->_string_pop($encrypted, $block_size);
             $ciphertext.= $encrypted . ($plaintext2 ^ $encryptIV);
             $buffer['ciphertext'] = substr($encryptIV, $overflow);
