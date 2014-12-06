@@ -85,6 +85,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             $actual .= $aes->decrypt($aes->encrypt($plaintext[$i]));
         }
 
+global $zzzz;
+$zzzz = func_get_args();
+
         $this->assertEquals($plaintext, $actual);
     }
 
@@ -168,6 +171,8 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     */
     public function testContinuousBufferBattery($op, $mode, $test)
     {
+global $zzzz;
+$zzzz = func_get_args();
         $iv = str_repeat('x', 16);
         $key = str_repeat('a', 16);
 

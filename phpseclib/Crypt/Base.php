@@ -1319,6 +1319,11 @@ class Crypt_Base
         $overflow = strlen($plaintext) % $block_size;
         if ($overflow) {
             $plaintext2 = $this->_string_pop($plaintext, $overflow); // ie. trim $plaintext to a multiple of $block_size and put rest of $plaintext in $plaintext2
+if ($encryptIV === false) {
+global $zzzz;
+var_dump($zzzz);
+exit;
+}
 echo "encryptIV = ";
 var_dump($encryptIV);
             $encrypted = openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
