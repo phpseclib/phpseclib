@@ -39,8 +39,8 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             //'CRYPT_AES_MODE_CFB',
         );
         $plaintexts = array(
-            '',
-            //'12345678901234567', // https://github.com/phpseclib/phpseclib/issues/39
+            //'',
+            '12345678901234567', // https://github.com/phpseclib/phpseclib/issues/39
             //"\xDE\xAD\xBE\xAF",
             //':-):-):-):-):-):-)', // https://github.com/phpseclib/phpseclib/pull/43
         );
