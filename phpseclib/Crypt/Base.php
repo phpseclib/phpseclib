@@ -1864,6 +1864,7 @@ var_dump($encryptIV);
         // mcrypt's handling of invalid's $iv:
         // $this->encryptIV = $this->decryptIV = strlen($this->iv) == $this->block_size ? $this->iv : str_repeat("\0", $this->block_size);
         $this->encryptIV = $this->decryptIV = str_pad(substr($this->iv, 0, $this->block_size), $this->block_size, "\0");
+echo "CLEAR BUFFERS CALLED\r\n";
     }
 
     /**
