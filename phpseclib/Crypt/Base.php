@@ -1344,7 +1344,13 @@ echo 'len of encryptIV after string pop: ' . strlen($encryptIV) . "\r\n";
             $ciphertext.= openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
             $encryptIV = $this->_string_pop($ciphertext, $block_size);
         }
+if ($this->openssl_options === true) {
+    $encryptIV.= str_repeat("\0", $block_size);
+}
         $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
+if ($this->openssl_options === true) {
+    $encryptIV = substr($encryptIV, 0, $this->block_size);
+}
 echo 'len of encryptIV after decrypt: ' . strlen($encryptIV) . "\r\n";
         if ($overflow) {
             $this->_increment_str($encryptIV);
