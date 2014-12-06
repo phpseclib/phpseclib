@@ -1320,6 +1320,13 @@ class Crypt_Base
         if ($overflow) {
             $plaintext2 = $this->_string_pop($plaintext, $overflow); // ie. trim $plaintext to a multiple of $block_size and put rest of $plaintext in $plaintext2
 if ($encryptIV === false) {
+$backtrace = debug_backtrace(); 
+for ($i = 0; $i < count($backtrace); $i++) { 
+    unset($backtrace[$i]['args']); 
+    unset($backtrace[$i]['object']); 
+} 
+print_r($backtrace);
+echo "\r\n------------------------------------------\r\n";
 global $zzzz;
 var_dump($zzzz);
 exit;
