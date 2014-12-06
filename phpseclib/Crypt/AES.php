@@ -73,7 +73,7 @@ if (!class_exists('Crypt_Rijndael')) {
 }
 
 //$aes = new Crypt_AES(CRYPT_MODE_CTR);
-/echo $aes->getEngine() . "\r\n";
+//echo $aes->getEngine() . "\r\n";
 //$aes->setKey('ddd');
 
 //echo bin2hex($aes->encrypt('12345678901234567'));
