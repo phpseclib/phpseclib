@@ -125,6 +125,8 @@ define('CRYPT_MODE_OPENSSL', 3);
  * @version 1.0.2
  * @access  public
  */
+phpinfo(); exit;
+
 class Crypt_Base
 {
     /**
