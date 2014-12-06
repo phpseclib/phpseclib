@@ -80,13 +80,13 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $this->checkEngine($aes);
 
+global $zzzz;
+$zzzz = func_get_args();
+
         $actual = '';
         for ($i = 0, $strlen = strlen($plaintext); $i < $strlen; ++$i) {
             $actual .= $aes->decrypt($aes->encrypt($plaintext[$i]));
         }
-
-global $zzzz;
-$zzzz = func_get_args();
 
         $this->assertEquals($plaintext, $actual);
     }
