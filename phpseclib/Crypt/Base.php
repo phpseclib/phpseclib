@@ -125,7 +125,6 @@ define('CRYPT_MODE_OPENSSL', 3);
  * @version 1.0.2
  * @access  public
  */
-phpinfo(); exit;
 
 class Crypt_Base
 {
@@ -1320,6 +1319,8 @@ class Crypt_Base
         $overflow = strlen($plaintext) % $block_size;
         if ($overflow) {
             $plaintext2 = $this->_string_pop($plaintext, $overflow); // ie. trim $plaintext to a multiple of $block_size and put rest of $plaintext in $plaintext2
+echo "encryptIV = ";
+var_dump($encryptIV);
             $encrypted = openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
             $encryptIV = $this->_string_pop($encrypted, $block_size);
             $ciphertext.= $encrypted . ($plaintext2 ^ $encryptIV);
