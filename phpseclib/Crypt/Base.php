@@ -1337,6 +1337,7 @@ var_dump($zzzz);
 exit;
 }
             $encryptIV = $this->_string_pop($encrypted, $block_size);
+echo 'len of encryptIV after string pop: ' . strlen($encryptIV) . "\r\n";
             $ciphertext.= $encrypted . ($plaintext2 ^ $encryptIV);
             $buffer['ciphertext'] = substr($encryptIV, $overflow);
         } else if (!strlen($buffer['ciphertext'])) {
@@ -1344,8 +1345,10 @@ exit;
             $encryptIV = $this->_string_pop($ciphertext, $block_size);
         }
         $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
+echo 'len of encryptIV after decrypt: ' . strlen($encryptIV) . "\r\n";
         if ($overflow) {
             $this->_increment_str($encryptIV);
+echo 'len of encryptIV after increment_str: ' . strlen($encryptIV) . "\r\n";
         }
 
         return $ciphertext;
