@@ -42,9 +42,8 @@ class Random
      *
      * @param Integer $length
      * @return String
-     * @access public
      */
-    static function string($length)
+    public static function string($length)
     {
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             // method 1. prior to PHP 5.3 this would call rand() on windows hence the function_exists('class_alias') call.
