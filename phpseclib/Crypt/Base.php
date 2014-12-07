@@ -1326,6 +1326,9 @@ class Crypt_Base
             $ciphertext.= openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
             $encryptIV = $this->_string_pop($ciphertext, $block_size);
         }
+        if (!defined('OPENSSL_RAW_DATA')) {
+            $encryptIV.= openssl_encrypt(str_repeat(chr($this->block_size), $this->block_size), $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
+        }
         $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
         if ($overflow) {
             $this->_increment_str($encryptIV);
