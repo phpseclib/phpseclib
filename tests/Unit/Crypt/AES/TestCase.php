@@ -9,12 +9,21 @@ require_once 'Crypt/AES.php';
 
 abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 {
-    static public function setUpBeforeClass()
-    {
-        parent::setUpBeforeClass();
+    protected $engine;
 
-        self::reRequireFile('Crypt/Rijndael.php');
-        self::reRequireFile('Crypt/AES.php');
+    private function checkEngine($aes)
+    {
+        if ($aes->getEngine() != $this->engine) {
+            $engine = 'internal';
+            switch ($this->engine) {
+                case CRYPT_MODE_OPENSSL:
+                    $engine = 'OpenSSL';
+                    break;
+                case CRYPT_MODE_MCRYPT:
+                    $engine = 'mcrypt';
+            }
+            self::markTestSkipped('Unable to initialize ' . $engine . ' engine');
+        }
     }
 
     /**
@@ -26,23 +35,23 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     {
         $modes = array(
             'CRYPT_AES_MODE_CTR',
-            'CRYPT_AES_MODE_OFB',
-            'CRYPT_AES_MODE_CFB',
+            //'CRYPT_AES_MODE_OFB',
+            //'CRYPT_AES_MODE_CFB',
         );
         $plaintexts = array(
-            '',
+            //'',
             '12345678901234567', // https://github.com/phpseclib/phpseclib/issues/39
-            "\xDE\xAD\xBE\xAF",
-            ':-):-):-):-):-):-)', // https://github.com/phpseclib/phpseclib/pull/43
+            //"\xDE\xAD\xBE\xAF",
+            //':-):-):-):-):-):-)', // https://github.com/phpseclib/phpseclib/pull/43
         );
         $ivs = array(
             '',
-            'test123',
+            //'test123',
         );
         $keys = array(
             '',
-            ':-8', // https://github.com/phpseclib/phpseclib/pull/43
-            'FOOBARZ',
+            //':-8', // https://github.com/phpseclib/phpseclib/pull/43
+            //'FOOBARZ',
         );
 
         $result = array();
@@ -64,9 +73,15 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     public function testEncryptDecryptWithContinuousBuffer($mode, $plaintext, $iv, $key)
     {
         $aes = new Crypt_AES(constant($mode));
+        $aes->setPreferredEngine($this->engine);
         $aes->enableContinuousBuffer();
         $aes->setIV($iv);
         $aes->setKey($key);
+
+        $this->checkEngine($aes);
+
+global $zzzz;
+$zzzz = func_get_args();
 
         $actual = '';
         for ($i = 0, $strlen = strlen($plaintext); $i < $strlen; ++$i) {
@@ -76,32 +91,4 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $this->assertEquals($plaintext, $actual);
     }
 
-    /**
-    * @group github451
-    */
-    public function testKeyPaddingRijndael()
-    {
-        // this test case is from the following URL:
-        // https://web.archive.org/web/20070209120224/http://fp.gladman.plus.com/cryptography_technology/rijndael/aesdvec.zip
-
-        $aes = new Crypt_Rijndael();
-        $aes->disablePadding();
-        $aes->setKey(pack('H*', '2b7e151628aed2a6abf7158809cf4f3c762e7160')); // 160-bit key. Valid in Rijndael.
-        $ciphertext = $aes->encrypt(pack('H*', '3243f6a8885a308d313198a2e0370734'));
-        $this->assertEquals($ciphertext, pack('H*', '231d844639b31b412211cfe93712b880'));
-    }
-
-    /**
-    * @group github451
-    */
-    public function testKeyPaddingAES()
-    {
-        // same as the above - just with a different ciphertext
-
-        $aes = new Crypt_AES();
-        $aes->disablePadding();
-        $aes->setKey(pack('H*', '2b7e151628aed2a6abf7158809cf4f3c762e7160')); // 160-bit key. AES should null pad to 192-bits
-        $ciphertext = $aes->encrypt(pack('H*', '3243f6a8885a308d313198a2e0370734'));
-        $this->assertEquals($ciphertext, pack('H*', 'c109292b173f841b88e0ee49f13db8c0'));
-    }
 }
