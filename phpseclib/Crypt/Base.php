@@ -1346,7 +1346,7 @@ echo 'len of encryptIV after string pop: ' . strlen($encryptIV) . "\r\n";
         }
 if (!defined('OPENSSL_RAW_DATA')) {
 echo "PADDING encryptIV\r\n";
-    $encryptIV.= openssl_encrypt(str_repeat(chr($this->block_size), $this->block_size), $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
+    $encryptIV.= openssl_encrypt('', $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
 }
         $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
 echo bin2hex($encryptIV) . "\r\n";
