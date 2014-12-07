@@ -1345,6 +1345,7 @@ echo 'len of encryptIV after string pop: ' . strlen($encryptIV) . "\r\n";
             $encryptIV = $this->_string_pop($ciphertext, $block_size);
         }
 if ($this->openssl_options === true) {
+echo "PADDING encryptIV\r\n";
     $encryptIV.= str_repeat("\0", $block_size);
 }
         $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
