@@ -1349,6 +1349,7 @@ echo "PADDING encryptIV\r\n";
     $encryptIV.= openssl_encrypt(str_repeat(chr($this->block_size), $this->block_size), $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
 }
         $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
+echo bin2hex($encryptIV) . "\r\n";
 echo 'len of encryptIV after decrypt: ' . strlen($encryptIV) . "\r\n";
         if ($overflow) {
             $this->_increment_str($encryptIV);
