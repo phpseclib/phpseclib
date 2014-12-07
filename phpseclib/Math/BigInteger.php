@@ -163,7 +163,17 @@ class BigInteger
     protected static $baseFull;
     protected static $maxDigit;
     protected static $msb;
+
+    /**
+     * $max10 in greatest $max10Len satisfying
+     * $max10 = 10**$max10Len <= 2**$base.
+    */
     protected static $max10;
+
+    /**
+     * $max10Len in greatest $max10Len satisfying
+     * $max10 = 10**$max10Len <= 2**$base.
+    */
     protected static $max10Len;
     protected static $maxDigit2;
 
@@ -294,7 +304,7 @@ class BigInteger
                     self::$baseFull  = 0x80000000;
                     self::$maxDigit  = 0x7FFFFFFF;
                     self::$msb       = 0x40000000;
-                    self::$max10     = 1000000000; // 10**9 is the closest we can get to 2**31 without passing it
+                    self::$max10     = 1000000000;
                     self::$max10Len  = 9;
                     self::$maxDigit2 = pow(2, 62);
                     break;
@@ -304,9 +314,9 @@ class BigInteger
                     self::$baseFull  = 0x4000000;
                     self::$maxDigit  = 0x3FFFFFF;
                     self::$msb       = 0x2000000;
-                    self::$max10     = 10000000; // 10**7 is the closest to 2**26 without passing it
+                    self::$max10     = 10000000;
                     self::$max10Len  = 7;
-                    self::$maxDigit2 = pow(2, 52); // we do pow(2, 52) instead of using 4503599627370496 directly because some PHP installations will truncate 4503599627370496.
+                    self::$maxDigit2 = pow(2, 52); // pow() prevents truncation
                     break;
             }
         }
