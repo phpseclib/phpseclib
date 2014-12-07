@@ -370,6 +370,7 @@ class Crypt_Blowfish extends Crypt_Base
      * @param String $key
      */
     function setKey($key)
+    {
         $keylength = strlen($key);
 
         if (!$keylength) {
