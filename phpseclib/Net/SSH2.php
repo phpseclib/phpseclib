@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP implementation of SSHv2.
  *
@@ -99,7 +100,7 @@ define('NET_SSH2_CHANNEL_EXEC',      0); // PuTTy uses 0x100
 define('NET_SSH2_CHANNEL_SHELL',     1);
 define('NET_SSH2_CHANNEL_SUBSYSTEM', 2);
 define('NET_SSH2_CHANNEL_AGENT_REQUEST', 3);
-define('NET_SSH2_CHANNEL_AGENT_PROXY', 4);
+define('NET_SSH2_CHANNEL_AGENT_FORWARD', 4);
 
 
 /**#@-*/
@@ -2147,9 +2148,7 @@ class Net_SSH2
         $keys = $agent->requestIdentities();
         foreach ($keys as $key) {
             if ($this->_privatekey_login($username, $key)) {
-                if ($this->agent->request_forwarding) {
-                    $this->_request_agent_forwarding();
-                }
+                $this->agent->_on_login_success($this);
                 return true;
             }
         }
@@ -2249,47 +2248,6 @@ class Net_SSH2
         return false;
     }
 
-    /**
-     * Request the remote server attempt to forward authentication requests to local SSH agent
-     *
-     * @return Boolean
-     * @access private
-     */
-    function _request_agent_forwarding() 
-    {
-        $this->window_size_server_to_client[NET_SSH2_CHANNEL_AGENT_REQUEST] = $this->window_size;
-        $packet_size = 0x4000;
-
-        $packet = pack('CNa*N3',
-            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SSH2_CHANNEL_AGENT_REQUEST, $this->window_size_server_to_client[NET_SSH2_CHANNEL_AGENT_REQUEST], $packet_size);
-
-        $this->channel_status[NET_SSH2_CHANNEL_AGENT_REQUEST] = NET_SSH2_MSG_CHANNEL_OPEN;
-
-        if (!$this->_send_binary_packet($packet)) {
-            return false;
-        }
-
-        $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_AGENT_REQUEST);
-        if ($response === false) {
-            return false;
-        }
-
-        $packet = pack('CNNa*C',
-            NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[NET_SSH2_CHANNEL_AGENT_REQUEST], strlen('auth-agent-req@openssh.com'), 'auth-agent-req@openssh.com', 1);
-
-        $this->channel_status[NET_SSH2_CHANNEL_AGENT_REQUEST] = NET_SSH2_MSG_CHANNEL_REQUEST;
-
-        if (!$this->_send_binary_packet($packet)) { 
-            return false;
-        }
-
-        $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_AGENT_REQUEST);
-        if ($response === false) {
-            return false;
-        }
-
-        return true;
-    }
 
     /**
      * Set Timeout
@@ -3089,28 +3047,29 @@ class Net_SSH2
                         case 'auth-agent':
                         case 'auth-agent@openssh.com':
                             if (isset($this->agent)) {
-                                extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
-                                extract(unpack('Nremote_window_size', $this->_string_shift($response, 4)));
-                                extract(unpack('Nremote_maximum_packet_size', $this->_string_shift($response, 4)));
-
-                                $this->packet_size_client_to_server[NET_SSH2_CHANNEL_AGENT_PROXY] = $remote_window_size;
-                                $this->window_size_server_to_client[NET_SSH2_CHANNEL_AGENT_PROXY] = $remote_maximum_packet_size;
-                                $this->window_size_client_to_server[NET_SSH2_CHANNEL_AGENT_PROXY] = $this->window_size;
-
-                                $packet_size = 0x4000;
-
-                                $packet = pack('CN4',
-                                    NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION, $server_channel,
-                                    NET_SSH2_CHANNEL_AGENT_PROXY, $packet_size, $packet_size
-                                );
-
-                                $this->server_channels[NET_SSH2_CHANNEL_AGENT_PROXY] = $server_channel;
-                                $this->channel_status[NET_SSH2_CHANNEL_AGENT_PROXY] = NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION;
-
-                                if (!$this->_send_binary_packet($packet)) {
-                                    return false;
-                                }
+                                $new_channel = NET_SSH2_CHANNEL_AGENT_FORWARD;
                             }
+                    }
+                    if (isset($new_channel)) {
+                        extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
+                        extract(unpack('Nremote_window_size', $this->_string_shift($response, 4)));
+                        extract(unpack('Nremote_maximum_packet_size', $this->_string_shift($response, 4)));
+
+                        $this->packet_size_client_to_server[$new_channel] = $remote_window_size;
+                        $this->window_size_server_to_client[$new_channel] = $remote_maximum_packet_size;
+                        $this->window_size_client_to_server[$new_channel] = $this->window_size;
+
+                        $packet_size = 0x4000;
+
+                        $packet = pack('CN4',
+                            NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION, $server_channel, $new_channel, $packet_size, $packet_size);
+
+                        $this->server_channels[$new_channel] = $server_channel;
+                        $this->channel_status[$new_channel] = NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION;
+
+                        if (!$this->_send_binary_packet($packet)) {
+                            return false;
+                        }
                     }
                     break; 
                 case NET_SSH2_MSG_CHANNEL_DATA:
@@ -3126,8 +3085,8 @@ class Net_SSH2
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
                     $data = $this->_string_shift($response, $length);
 
-                    if ($channel == NET_SSH2_CHANNEL_AGENT_PROXY) {
-                        $this->_send_channel_packet($channel, $this->agent->proxy_process($data));
+                    if ($channel == NET_SSH2_CHANNEL_AGENT_FORWARD) {
+                        $this->_send_channel_packet($channel, $this->agent->_forward_data($data));
                         break;
                     }
 
