@@ -3251,26 +3251,22 @@ class Net_SSH2
      */
     function _send_channel_packet($client_channel, $data)
     {
-        /* The maximum amount of data allowed is determined by the maximum
-           packet size for the channel, and the current window size, whichever
-           is smaller.
-
-           -- http://tools.ietf.org/html/rfc4254#section-5.2 */
-        $max_size = min(
-            $this->packet_size_client_to_server[$client_channel],
-            $this->window_size_client_to_server[$client_channel]
-        );
-        while (strlen($data) > $max_size) {
+        while (strlen($data)) {
             if (!$this->window_size_client_to_server[$client_channel]) {
                 $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
                 // using an invalid channel will let the buffers be built up for the valid channels
-                $output = $this->_get_channel_packet(-1);
+                $this->_get_channel_packet(-1);
                 $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
-                $max_size = min(
-                    $this->packet_size_client_to_server[$client_channel],
-                    $this->window_size_client_to_server[$client_channel]
-                );
             }
+
+            /* The maximum amount of data allowed is determined by the maximum
+               packet size for the channel, and the current window size, whichever
+               is smaller.
+                 -- http://tools.ietf.org/html/rfc4254#section-5.2 */
+            $max_size = min(
+                $this->packet_size_client_to_server[$client_channel],
+                $this->window_size_client_to_server[$client_channel]
+            );
 
             $temp = $this->_string_shift($data, $max_size);
             $packet = pack('CN2a*',
@@ -3279,27 +3275,13 @@ class Net_SSH2
                 strlen($temp),
                 $temp
             );
-
             $this->window_size_client_to_server[$client_channel]-= strlen($temp);
-
             if (!$this->_send_binary_packet($packet)) {
                 return false;
             }
         }
 
-        if (strlen($data) >= $this->window_size_client_to_server[$client_channel]) {
-            $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
-            $this->_get_channel_packet(-1);
-            $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
-        }
-
-        $this->window_size_client_to_server[$client_channel]-= strlen($data);
-
-        return $this->_send_binary_packet(pack('CN2a*',
-            NET_SSH2_MSG_CHANNEL_DATA,
-            $this->server_channels[$client_channel],
-            strlen($data),
-            $data));
+        return true;
     }
 
     /**
