@@ -159,6 +159,11 @@ class BigInteger
     */
     const KARATSUBA_CUTOFF = 25;
 
+    /**#@+
+     * Static properties used by the pure-PHP implementation.
+     *
+     * @see __construct()
+     */
     protected static $base;
     protected static $baseFull;
     protected static $maxDigit;
@@ -176,6 +181,7 @@ class BigInteger
     */
     protected static $max10Len;
     protected static $maxDigit2;
+    /**#@-*/
 
     /**
      * Holds the BigInteger's value.
