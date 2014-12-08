@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP ssh-agent client.
  *
@@ -230,6 +231,7 @@ class System_SSH_Agent
     /**
      * Default Constructor
      *
+     * @param Boolean $request_forwarding
      * @return System_SSH_Agent
      * @access public
      */
@@ -318,10 +320,77 @@ class System_SSH_Agent
         return $identities;
     }
 
-    function proxy_process($packet) 
+    /**
+     * Request the remote server attempt to forward authentication requests to local SSH agent
+     *
+     * @param Net_SSH2 $ssh
+     * @return Boolean
+     * @access private
+     */
+    function _request_forwarding($ssh)
     {
-        if (strlen($packet) != fwrite($this->fsock, $packet)) {
-            user_error('Connection closed during signing');
+        $ssh->window_size_server_to_client[NET_SSH2_CHANNEL_AGENT_REQUEST] = $ssh->window_size;
+        $packet_size = 0x4000;
+
+        $packet = pack('CNa*N3',
+            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', NET_SSH2_CHANNEL_AGENT_REQUEST, $ssh->window_size_server_to_client[NET_SSH2_CHANNEL_AGENT_REQUEST], $packet_size);
+
+        $ssh->channel_status[NET_SSH2_CHANNEL_AGENT_REQUEST] = NET_SSH2_MSG_CHANNEL_OPEN;
+
+        if (!$ssh->_send_binary_packet($packet)) {
+            return false;
+        }
+
+        $response = $ssh->_get_channel_packet(NET_SSH2_CHANNEL_AGENT_REQUEST);
+        if ($response === false) {
+            return false;
+        }
+
+        $packet = pack('CNNa*C',
+            NET_SSH2_MSG_CHANNEL_REQUEST, $ssh->server_channels[NET_SSH2_CHANNEL_AGENT_REQUEST], strlen('auth-agent-req@openssh.com'), 'auth-agent-req@openssh.com', 1);
+
+        $ssh->channel_status[NET_SSH2_CHANNEL_AGENT_REQUEST] = NET_SSH2_MSG_CHANNEL_REQUEST;
+
+        if (!$ssh->_send_binary_packet($packet)) {
+            return false;
+        }
+
+        $response = $ssh->_get_channel_packet(NET_SSH2_CHANNEL_AGENT_REQUEST);
+        if ($response === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * On Successful Login
+     *
+     * This method should be called upon successful SSH login if you
+     * wish to give the SSH Agent an opportunity to take further
+     * action. i.e. request agent forwarding
+     *
+     * @param Net_SSH2 $ssh
+     * @access private
+     */
+    function _on_login_success($ssh)
+    {
+        if ($this->request_forwarding) {
+            $this->_request_forwarding($ssh);
+        }
+    }
+
+    /**
+     * Forward data to SSH Agent and return data reply
+     *
+     * @param String $data
+     * @return data from SSH Agent
+     * @access private
+     */
+    function _forward_data($data)
+    {
+        if (strlen($data) != fwrite($this->fsock, $data)) {
+            user_error('Connection closed attempting to forward data to SSH agent');
         }
         return fread($this->fsock, 2048);
     }
