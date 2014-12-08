@@ -1,5 +1,4 @@
 <?php
-/* vim: set ts=4 sw=4 et: */
 /**
  * @author    Chris Kruger <chris.kruger@mokosocialmedia.com>
  * @copyright MMXIV Chris Kruger
@@ -21,7 +20,6 @@ class Functional_Net_SSH2UseAgentTest extends PhpseclibFunctionalTestCase
     public function testConstructor()
     {
         $ssh = new Net_SSH2($this->getEnv('SSH_HOSTNAME'));
-        #$ssh->setTimeout(3);
         $this->assertTrue(
             is_object($ssh),
             'Could not construct NET_SSH2 object.'
@@ -59,16 +57,17 @@ class Functional_Net_SSH2UseAgentTest extends PhpseclibFunctionalTestCase
         $ssh->exec('pwd', array($callbackObject, 'callbackMethod'));
     }
 
-    public function result_handler($str) 
-    {
-        echo $str;
-    }
-
     /**
      * @depends testAgentLogin
      */
     public function testAgentForward($ssh) 
     {
-        $ssh->exec('ssh -T git@bitbucket.org', array($this, 'result_handler'));
+        $callbackObject = $this->getMock('stdClass', array('callbackMethod'));
+        $callbackObject
+            ->expects($this->atLeastOnce())
+            ->method('callbackMethod')
+            ->will($this->returnValue(true));
+
+        $ssh->exec('ssh -T git@bitbucket.org', array($callbackObject, 'callbackMethod'));
     }
 }
