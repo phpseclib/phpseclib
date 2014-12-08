@@ -16,48 +16,48 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     public function testAnyString()
     {
         $KDC_REP = array(
-            'type' => FILE_ASN1_TYPE_SEQUENCE,
+            'type' => File_ASN1::TYPE_SEQUENCE,
             'children' => array(
                  'pvno' => array(
                     'constant' => 0,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_ANY),
+                    'type' => File_ASN1::TYPE_ANY),
                 'msg-type' => array(
                     'constant' => 1,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_ANY),
+                    'type' => File_ASN1::TYPE_ANY),
                 'padata' => array(
                     'constant' => 2,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_ANY),
+                    'type' => File_ASN1::TYPE_ANY),
                 'crealm' => array(
                     'constant' => 3,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_ANY),
+                    'type' => File_ASN1::TYPE_ANY),
                 'cname' => array(
                     'constant' => 4,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_ANY),
+                    'type' => File_ASN1::TYPE_ANY),
                 'ticket' => array(
                     'constant' => 5,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_ANY),
+                    'type' => File_ASN1::TYPE_ANY),
                 'enc-part' => array(
                     'constant' => 6,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_ANY)
+                    'type' => File_ASN1::TYPE_ANY)
             )
         );
 
         $AS_REP = array(
-            'class'    => FILE_ASN1_CLASS_APPLICATION,
+            'class'    => File_ASN1::CLASS_APPLICATION,
             'cast'     => 11,
             'optional' => true,
             'explicit' => true
@@ -89,31 +89,31 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     public function testIncorrectString()
     {
         $PA_DATA = array(
-            'type' => FILE_ASN1_TYPE_SEQUENCE,
+            'type' => File_ASN1::TYPE_SEQUENCE,
             'children' => array(
                 'padata-type' => array(
                     'constant' => 1,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_INTEGER
+                    'type' => File_ASN1::TYPE_INTEGER
                 ),
                 'padata-value' => array(
                     'constant' => 2,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_OCTET_STRING
+                    'type' => File_ASN1::TYPE_OCTET_STRING
                 )
             )
         );
 
         $PrincipalName = array(
-            'type' => FILE_ASN1_TYPE_SEQUENCE,
+            'type' => File_ASN1::TYPE_SEQUENCE,
             'children' => array(
                 'name-type' => array(
                     'constant' => 0,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_INTEGER
+                    'type' => File_ASN1::TYPE_INTEGER
                 ),
                 'name-string' => array(
                     'constant' => 1,
@@ -121,95 +121,95 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
                     'explicit' => true,
                     'min' => 0,
                     'max' => -1,
-                    'type' => FILE_ASN1_TYPE_SEQUENCE,
-                    'children' => array('type' => FILE_ASN1_TYPE_IA5_STRING) // should be FILE_ASN1_TYPE_GENERAL_STRING
+                    'type' => File_ASN1::TYPE_SEQUENCE,
+                    'children' => array('type' => File_ASN1::TYPE_IA5_STRING) // should be File_ASN1::TYPE_GENERAL_STRING
                 )
             )
         );
 
         $Ticket = array(
-            'class'    => FILE_ASN1_CLASS_APPLICATION,
+            'class'    => File_ASN1::CLASS_APPLICATION,
             'cast'     => 1,
             'optional' => true,
             'explicit' => true,
-            'type' => FILE_ASN1_TYPE_SEQUENCE,
+            'type' => File_ASN1::TYPE_SEQUENCE,
             'children' => array(
                 'tkt-vno' => array(
                     'constant' => 0,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_INTEGER
+                    'type' => File_ASN1::TYPE_INTEGER
                 ),
                 'realm' => array(
                     'constant' => 1,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_ANY
+                    'type' => File_ASN1::TYPE_ANY
                 ),
                 'sname' => array(
                     'constant' => 2,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_ANY
+                    'type' => File_ASN1::TYPE_ANY
                 ),
                 'enc-part' => array(
                     'constant' => 3,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_ANY
+                    'type' => File_ASN1::TYPE_ANY
                 )
             )
         );
 
         $KDC_REP = array(
-            'type' => FILE_ASN1_TYPE_SEQUENCE,
+            'type' => File_ASN1::TYPE_SEQUENCE,
             'children' => array(
                 'pvno' => array(
                     'constant' => 0,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_INTEGER),
+                    'type' => File_ASN1::TYPE_INTEGER),
                 'msg-type' => array(
                      'constant' => 1,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_INTEGER),
+                    'type' => File_ASN1::TYPE_INTEGER),
                 'padata' => array(
                     'constant' => 2,
                     'optional' => true,
                     'explicit' => true,
                     'min' => 0,
                     'max' => -1,
-                    'type' => FILE_ASN1_TYPE_SEQUENCE,
+                    'type' => File_ASN1::TYPE_SEQUENCE,
                     'children' => $PA_DATA),
                 'crealm' => array(
                     'constant' => 3,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_OCTET_STRING),
+                    'type' => File_ASN1::TYPE_OCTET_STRING),
                 'cname' => array(
                     'constant' => 4,
                     'optional' => true,
                     'explicit' => true) + $PrincipalName,
-                    //'type' => FILE_ASN1_TYPE_ANY),
+                    //'type' => File_ASN1::TYPE_ANY),
                 'ticket' => array(
                     'constant' => 5,
                     'optional' => true,
                     'implicit' => true,
                     'min' => 0,
                     'max' => 1,
-                    'type' => FILE_ASN1_TYPE_SEQUENCE,
+                    'type' => File_ASN1::TYPE_SEQUENCE,
                     'children' => $Ticket),
                 'enc-part' => array(
                     'constant' => 6,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => FILE_ASN1_TYPE_ANY)
+                    'type' => File_ASN1::TYPE_ANY)
             )
         );
 
         $AS_REP = array(
-            'class'    => FILE_ASN1_CLASS_APPLICATION,
+            'class'    => File_ASN1::CLASS_APPLICATION,
             'cast'     => 11,
             'optional' => true,
             'explicit' => true

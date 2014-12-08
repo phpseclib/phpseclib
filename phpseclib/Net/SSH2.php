@@ -52,6 +52,45 @@ use \phpseclib\Crypt\Random;
 // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
 use \phpseclib\Math\BigInteger;
 
+/**#@+
+ * Execution Bitmap Masks
+ *
+ * @see Net_SSH2::bitmap
+ * @access private
+ */
+define('NET_SSH2_MASK_CONSTRUCTOR',   0x00000001);
+define('NET_SSH2_MASK_CONNECTED',     0x00000002);
+define('NET_SSH2_MASK_LOGIN_REQ',     0x00000004);
+define('NET_SSH2_MASK_LOGIN',         0x00000008);
+define('NET_SSH2_MASK_SHELL',         0x00000010);
+define('NET_SSH2_MASK_WINDOW_ADJUST', 0x00000020);
+/**#@-*/
+
+/**#@+
+ * Channel constants
+ *
+ * RFC4254 refers not to client and server channels but rather to sender and recipient channels.  we don't refer
+ * to them in that way because RFC4254 toggles the meaning. the client sends a SSH_MSG_CHANNEL_OPEN message with
+ * a sender channel and the server sends a SSH_MSG_CHANNEL_OPEN_CONFIRMATION in response, with a sender and a
+ * recepient channel.  at first glance, you might conclude that SSH_MSG_CHANNEL_OPEN_CONFIRMATION's sender channel
+ * would be the same thing as SSH_MSG_CHANNEL_OPEN's sender channel, but it's not, per this snipet:
+ *     The 'recipient channel' is the channel number given in the original
+ *     open request, and 'sender channel' is the channel number allocated by
+ *     the other side.
+ *
+ * @see Net_SSH2::_send_channel_packet()
+ * @see Net_SSH2::_get_channel_packet()
+ * @access private
+ */
+define('NET_SSH2_CHANNEL_EXEC',      0); // PuTTy uses 0x100
+define('NET_SSH2_CHANNEL_SHELL',     1);
+define('NET_SSH2_CHANNEL_SUBSYSTEM', 2);
+/**#@-*/
+
+/**#@+
+ * @access public
+ * @see Net_SSH2::getLog()
+ */
 /**
  * Pure-PHP implementation of SSHv2.
  *
@@ -3251,26 +3290,22 @@ class Net_SSH2
      */
     function _send_channel_packet($client_channel, $data)
     {
-        /* The maximum amount of data allowed is determined by the maximum
-           packet size for the channel, and the current window size, whichever
-           is smaller.
-
-           -- http://tools.ietf.org/html/rfc4254#section-5.2 */
-        $max_size = min(
-            $this->packet_size_client_to_server[$client_channel],
-            $this->window_size_client_to_server[$client_channel]
-        );
-        while (strlen($data) > $max_size) {
+        while (strlen($data)) {
             if (!$this->window_size_client_to_server[$client_channel]) {
                 $this->bitmap^= self::MASK_WINDOW_ADJUST;
                 // using an invalid channel will let the buffers be built up for the valid channels
-                $output = $this->_get_channel_packet(-1);
-                $this->bitmap^= self::MASK_WINDOW_ADJUST;
-                $max_size = min(
-                    $this->packet_size_client_to_server[$client_channel],
-                    $this->window_size_client_to_server[$client_channel]
-                );
+                $this->_get_channel_packet(-1);
+                $this->bitmap^= NET_SSH2_MASK_WINDOW_ADJUST;
             }
+
+            /* The maximum amount of data allowed is determined by the maximum
+               packet size for the channel, and the current window size, whichever
+               is smaller.
+                 -- http://tools.ietf.org/html/rfc4254#section-5.2 */
+            $max_size = min(
+                $this->packet_size_client_to_server[$client_channel],
+                $this->window_size_client_to_server[$client_channel]
+            );
 
             $temp = $this->_string_shift($data, $max_size);
             $packet = pack('CN2a*',
@@ -3279,27 +3314,13 @@ class Net_SSH2
                 strlen($temp),
                 $temp
             );
-
             $this->window_size_client_to_server[$client_channel]-= strlen($temp);
-
             if (!$this->_send_binary_packet($packet)) {
                 return false;
             }
         }
 
-        if (strlen($data) >= $this->window_size_client_to_server[$client_channel]) {
-            $this->bitmap^= self::MASK_WINDOW_ADJUST;
-            $this->_get_channel_packet(-1);
-            $this->bitmap^= self::MASK_WINDOW_ADJUST;
-        }
-
-        $this->window_size_client_to_server[$client_channel]-= strlen($data);
-
-        return $this->_send_binary_packet(pack('CN2a*',
-            NET_SSH2_MSG_CHANNEL_DATA,
-            $this->server_channels[$client_channel],
-            strlen($data),
-            $data));
+        return true;
     }
 
     /**
