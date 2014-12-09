@@ -1,7 +1,7 @@
 <?php
 /**
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright MMXIV Jim Wigginton
+ * @copyright 2014 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 

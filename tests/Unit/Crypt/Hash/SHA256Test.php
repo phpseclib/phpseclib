@@ -1,7 +1,7 @@
 <?php
 /**
  * @author    Andreas Fischer <bantu@phpbb.com>
- * @copyright MMXIV Andreas Fischer
+ * @copyright 2014 Andreas Fischer
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 

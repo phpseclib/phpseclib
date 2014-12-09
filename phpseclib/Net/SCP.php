@@ -26,7 +26,7 @@
  * @category  Net
  * @package   Net_SCP
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright MMX Jim Wigginton
+ * @copyright 2010 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
