@@ -114,7 +114,7 @@ class System_SSH_Agent_Identity
      * Set Signature Mode
      *
      * Doesn't do anything as ssh-agent doesn't let you pick and choose the signature mode. ie.
-     * ssh-agent's only supported mode is CRYPT_RSA_SIGNATURE_PKCS1
+     * ssh-agent's only supported mode is Crypt_RSA::SIGNATURE_PKCS1
      *
      * @param Integer $mode
      * @access public
