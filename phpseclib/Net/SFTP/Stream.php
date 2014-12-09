@@ -28,7 +28,7 @@
  * @category  Net
  * @package   Net_SFTP_Stream
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright MMXIII Jim Wigginton
+ * @copyright 2013 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */

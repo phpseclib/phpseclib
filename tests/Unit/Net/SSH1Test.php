@@ -1,7 +1,7 @@
 <?php
 /**
  * @author    Marc Scholten <marc@pedigital.de>
- * @copyright MMXIII Marc Scholten
+ * @copyright 2013 Marc Scholten
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 

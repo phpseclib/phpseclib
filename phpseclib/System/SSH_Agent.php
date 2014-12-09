@@ -30,7 +30,7 @@
  * @category  System
  * @package   System_SSH_Agent
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright MMXIV Jim Wigginton
+ * @copyright 2014 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  * @internal  See http://api.libssh.org/rfc/PROTOCOL.agent
