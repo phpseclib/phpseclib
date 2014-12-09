@@ -2122,7 +2122,7 @@ class File_X509
                     case 'sha384WithRSAEncryption':
                     case 'sha512WithRSAEncryption':
                         $rsa->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
-                        $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+                        $rsa->setSignatureMode(Crypt_RSA::SIGNATURE_PKCS1);
                         if (!@$rsa->verify($signatureSubject, $signature)) {
                             return false;
                         }
@@ -3628,7 +3628,7 @@ class File_X509
                     case 'sha384WithRSAEncryption':
                     case 'sha512WithRSAEncryption':
                         $key->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
-                        $key->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+                        $key->setSignatureMode(Crypt_RSA::SIGNATURE_PKCS1);
 
                         $this->currentCert['signature'] = base64_encode("\0" . $key->sign($this->signatureSubject));
                         return $this->currentCert;
@@ -4215,7 +4215,7 @@ class File_X509
                 }
                 return false;
             default: // Should be a key object (i.e.: Crypt_RSA).
-                $key = $key->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_PKCS1);
+                $key = $key->getPublicKey(Crypt_RSA::PUBLIC_FORMAT_PKCS1);
                 break;
         }
 
@@ -4256,7 +4256,7 @@ class File_X509
                 //return new File_ASN1_Element(base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey())));
                 return array(
                     'algorithm' => array('algorithm' => 'rsaEncryption'),
-                    'subjectPublicKey' => $this->publicKey->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
+                    'subjectPublicKey' => $this->publicKey->getPublicKey(Crypt_RSA::PUBLIC_FORMAT_PKCS1)
                 );
             default:
                 return false;

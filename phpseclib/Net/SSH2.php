@@ -1516,7 +1516,7 @@ class Net_SSH2
                 if (!class_exists('Crypt_TripleDES')) {
                     include_once 'Crypt/TripleDES.php';
                 }
-                $this->encrypt = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
+                $this->encrypt = new Crypt_TripleDES(Crypt_Base::MODE_CTR);
                 // $this->encrypt_block_size = 64 / 8 == the default
                 break;
             case 'aes256-cbc':
@@ -1534,7 +1534,7 @@ class Net_SSH2
                 if (!class_exists('Crypt_Rijndael')) {
                     include_once 'Crypt/Rijndael.php';
                 }
-                $this->encrypt = new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
+                $this->encrypt = new Crypt_Rijndael(Crypt_Base::MODE_CTR);
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'blowfish-cbc':
@@ -1548,7 +1548,7 @@ class Net_SSH2
                 if (!class_exists('Crypt_Blowfish')) {
                     include_once 'Crypt/Blowfish.php';
                 }
-                $this->encrypt = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
+                $this->encrypt = new Crypt_Blowfish(Crypt_Base::MODE_CTR);
                 $this->encrypt_block_size = 8;
                 break;
             case 'twofish128-cbc':
@@ -1567,7 +1567,7 @@ class Net_SSH2
                 if (!class_exists('Crypt_Twofish')) {
                     include_once 'Crypt/Twofish.php';
                 }
-                $this->encrypt = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
+                $this->encrypt = new Crypt_Twofish(Crypt_Base::MODE_CTR);
                 $this->encrypt_block_size = 16;
                 break;
             case 'arcfour':
@@ -1593,7 +1593,7 @@ class Net_SSH2
                 if (!class_exists('Crypt_TripleDES')) {
                     include_once 'Crypt/TripleDES.php';
                 }
-                $this->decrypt = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
+                $this->decrypt = new Crypt_TripleDES(Crypt_Base::MODE_CTR);
                 break;
             case 'aes256-cbc':
             case 'aes192-cbc':
@@ -1610,7 +1610,7 @@ class Net_SSH2
                 if (!class_exists('Crypt_Rijndael')) {
                     include_once 'Crypt/Rijndael.php';
                 }
-                $this->decrypt = new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
+                $this->decrypt = new Crypt_Rijndael(Crypt_Base::MODE_CTR);
                 $this->decrypt_block_size = 16;
                 break;
             case 'blowfish-cbc':
@@ -1624,7 +1624,7 @@ class Net_SSH2
                 if (!class_exists('Crypt_Blowfish')) {
                     include_once 'Crypt/Blowfish.php';
                 }
-                $this->decrypt = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
+                $this->decrypt = new Crypt_Blowfish(Crypt_Base::MODE_CTR);
                 $this->decrypt_block_size = 8;
                 break;
             case 'twofish128-cbc':
@@ -1643,7 +1643,7 @@ class Net_SSH2
                 if (!class_exists('Crypt_Twofish')) {
                     include_once 'Crypt/Twofish.php';
                 }
-                $this->decrypt = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
+                $this->decrypt = new Crypt_Twofish(Crypt_Base::MODE_CTR);
                 $this->decrypt_block_size = 16;
                 break;
             case 'arcfour':
@@ -2170,7 +2170,7 @@ class Net_SSH2
     function _privatekey_login($username, $privatekey)
     {
         // see http://tools.ietf.org/html/rfc4253#page-15
-        $publickey = $privatekey->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_RAW);
+        $publickey = $privatekey->getPublicKey(Crypt_RSA::PUBLIC_FORMAT_RAW);
         if ($publickey === false) {
             return false;
         }
@@ -2220,7 +2220,7 @@ class Net_SSH2
         }
 
         $packet = $part1 . chr(1) . $part2;
-        $privatekey->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+        $privatekey->setSignatureMode(Crypt_RSA::SIGNATURE_PKCS1);
         $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet));
         $signature = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($signature), $signature);
         $packet.= pack('Na*', strlen($signature), $signature);
@@ -3779,8 +3779,8 @@ class Net_SSH2
                 }
 
                 $rsa = new Crypt_RSA();
-                $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
-                $rsa->loadKey(array('e' => $e, 'n' => $n), CRYPT_RSA_PUBLIC_FORMAT_RAW);
+                $rsa->setSignatureMode(Crypt_RSA::SIGNATURE_PKCS1);
+                $rsa->loadKey(array('e' => $e, 'n' => $n), Crypt_RSA::PUBLIC_FORMAT_RAW);
                 if (!$rsa->verify($this->exchange_hash, $signature)) {
                     user_error('Bad server signature');
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
