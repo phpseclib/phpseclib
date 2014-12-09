@@ -12,15 +12,15 @@ abstract class Unit_Crypt_Hash_TestCase extends PhpseclibTestCase
     static public function setUpBeforeClass()
     {
         if (!defined('CRYPT_HASH_MODE')) {
-            define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_INTERNAL);
+            define('CRYPT_HASH_MODE', Crypt_Hash::MODE_INTERNAL);
         }
     }
 
     public function setUp()
     {
-        if (defined('CRYPT_HASH_MODE') && CRYPT_HASH_MODE !== CRYPT_HASH_MODE_INTERNAL) {
+        if (defined('CRYPT_HASH_MODE') && CRYPT_HASH_MODE !== Crypt_Hash::MODE_INTERNAL) {
             $this->markTestSkipped(
-                'Skipping test because CRYPT_HASH_MODE is not defined as CRYPT_HASH_MODE_INTERNAL.'
+                'Skipping test because CRYPT_HASH_MODE is not defined as Crypt_Hash::MODE_INTERNAL.'
             );
         }
     }

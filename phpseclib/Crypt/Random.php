@@ -176,31 +176,31 @@ class Random
                     if (!class_exists('Crypt_AES')) {
                         include_once 'AES.php';
                     }
-                    $crypto = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                    $crypto = new Crypt_AES(Crypt_AES::MODE_CTR);
                     break;
                 case stream_resolve_include_path('Crypt/Twofish.php'):
                     if (!class_exists('Crypt_Twofish')) {
                         include_once 'Twofish.php';
                     }
-                    $crypto = new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
+                    $crypto = new Crypt_Twofish(Crypt_Twofish::MODE_CTR);
                     break;
                 case stream_resolve_include_path('Crypt/Blowfish.php'):
                     if (!class_exists('Crypt_Blowfish')) {
                         include_once 'Blowfish.php';
                     }
-                    $crypto = new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
+                    $crypto = new Crypt_Blowfish(Crypt_Blowfish::MODE_CTR);
                     break;
                 case stream_resolve_include_path('Crypt/TripleDES.php'):
                     if (!class_exists('Crypt_TripleDES')) {
                         include_once 'TripleDES.php';
                     }
-                    $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
+                    $crypto = new Crypt_TripleDES(Crypt_TripleDES::MODE_CTR);
                     break;
                 case stream_resolve_include_path('Crypt/DES.php'):
                     if (!class_exists('Crypt_DES')) {
                         include_once 'DES.php';
                     }
-                    $crypto = new Crypt_DES(CRYPT_DES_MODE_CTR);
+                    $crypto = new Crypt_DES(Crypt_DES::MODE_CTR);
                     break;
                 case stream_resolve_include_path('Crypt/RC4.php'):
                     if (!class_exists('Crypt_RC4')) {

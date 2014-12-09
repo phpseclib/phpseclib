@@ -669,7 +669,7 @@ class Net_SSH1
                 if (!class_exists('Crypt_TripleDES')) {
                     include_once 'Crypt/TripleDES.php';
                 }
-                $this->crypto = new Crypt_TripleDES(CRYPT_DES_MODE_3CBC);
+                $this->crypto = new Crypt_TripleDES(Crypt_TripleDES::MODE_3CBC);
                 $this->crypto->disablePadding();
                 $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0, 24));
@@ -1321,8 +1321,8 @@ class Net_SSH1
         }
 
         $rsa = new Crypt_RSA();
-        $rsa->loadKey($key, CRYPT_RSA_PUBLIC_FORMAT_RAW);
-        $rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
+        $rsa->loadKey($key, Crypt_RSA::PUBLIC_FORMAT_RAW);
+        $rsa->setEncryptionMode(Crypt_RSA::ENCRYPTION_PKCS1);
         return $rsa->encrypt($m);
         */
 

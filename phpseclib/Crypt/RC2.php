@@ -42,59 +42,6 @@ if (!class_exists('Crypt_Base')) {
     include_once 'Base.php';
 }
 
-/**#@+
- * @access public
- * @see Crypt_RC2::encrypt()
- * @see Crypt_RC2::decrypt()
- */
-/**
- * Encrypt / decrypt using the Counter mode.
- *
- * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
- */
-define('CRYPT_RC2_MODE_CTR', CRYPT_MODE_CTR);
-/**
- * Encrypt / decrypt using the Electronic Code Book mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
- */
-define('CRYPT_RC2_MODE_ECB', CRYPT_MODE_ECB);
-/**
- * Encrypt / decrypt using the Code Book Chaining mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
- */
-define('CRYPT_RC2_MODE_CBC', CRYPT_MODE_CBC);
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
- */
-define('CRYPT_RC2_MODE_CFB', CRYPT_MODE_CFB);
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
- */
-define('CRYPT_RC2_MODE_OFB', CRYPT_MODE_OFB);
-/**#@-*/
-
-/**#@+
- * @access private
- * @see Crypt_RC2::__construct()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_RC2_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RC2_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of RC2.
  *
@@ -304,23 +251,23 @@ class Crypt_RC2 extends Crypt_Base
      *
      * $mode could be:
      *
-     * - CRYPT_RC2_MODE_ECB
+     * - Crypt_Base::MODE_ECB
      *
-     * - CRYPT_RC2_MODE_CBC
+     * - Crypt_Base::MODE_CBC
      *
-     * - CRYPT_RC2_MODE_CTR
+     * - Crypt_Base::MODE_CTR
      *
-     * - CRYPT_RC2_MODE_CFB
+     * - Crypt_Base::MODE_CFB
      *
-     * - CRYPT_RC2_MODE_OFB
+     * - Crypt_Base::MODE_OFB
      *
-     * If not explicitly set, CRYPT_RC2_MODE_CBC will be used.
+     * If not explicitly set, Crypt_Base::MODE_CBC will be used.
      *
      * @see Crypt_Base::__construct()
      * @param optional Integer $mode
      * @access public
      */
-    function __construct($mode = CRYPT_RC2_MODE_CBC)
+    function __construct($mode = Crypt_Base::MODE_CBC)
     {
         parent::__construct($mode);
         $this->setKey('');
