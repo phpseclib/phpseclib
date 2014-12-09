@@ -7,11 +7,11 @@
  *
  * PHP versions 4 and 5
  *
- * If {@link Crypt_Rijndael::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
- * {@link Crypt_Rijndael::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
- * {@link Crypt_Rijndael::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
+ * If {@link \phpseclib\Crypt\Rijndael::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
+ * {@link \phpseclib\Crypt\Rijndael::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
+ * {@link \phpseclib\Crypt\Rijndael::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
  * 136-bits it'll be null-padded to 192-bits and 192 bits will be the key length until
- * {@link Crypt_Rijndael::setKey() setKey()} is called, again, at which point, it'll be recalculated.
+ * {@link \phpseclib\Crypt\Rijndael::setKey() setKey()} is called, again, at which point, it'll be recalculated.
  *
  * Not all Rijndael implementations may support 160-bits or 224-bits as the block length / key length.  mcrypt, for example,
  * does not.  AES, itself, only supports block lengths of 128 and key lengths of 128, 192, and 256.
@@ -28,9 +28,9 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include 'Crypt/Rijndael.php';
+ *    include 'vendor/autoload.php';
  *
- *    $rijndael = new Crypt_Rijndael();
+ *    $rijndael = new \phpseclib\Crypt\Rijndael();
  *
  *    $rijndael->setKey('abcdefghijklmnop');
  *
@@ -45,36 +45,31 @@
  * </code>
  *
  * @category  Crypt
- * @package   Crypt_Rijndael
+ * @package   Rijndael
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMVIII Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Crypt_Base
- *
- * Base cipher class
- */
-if (!class_exists('Crypt_Base')) {
-    include_once 'Base.php';
-}
+namespace phpseclib\Crypt;
+
+use phpseclib\Crypt\Base;
 
 /**
  * Pure-PHP implementation of Rijndael.
  *
- * @package Crypt_Rijndael
+ * @package Rijndael
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Crypt_Rijndael extends Crypt_Base
+class Rijndael extends Base
 {
     /**
      * The default password key_size used by setPassword()
      *
-     * @see Crypt_Base::password_key_size
-     * @see Crypt_Base::setPassword()
+     * @see \phpseclib\Crypt\Base::password_key_size
+     * @see \phpseclib\Crypt\Base::setPassword()
      * @var Integer
      * @access private
      */
@@ -83,7 +78,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The namespace used by the cipher for its constants.
      *
-     * @see Crypt_Base::const_namespace
+     * @see \phpseclib\Crypt\Base::const_namespace
      * @var String
      * @access private
      */
@@ -93,12 +88,12 @@ class Crypt_Rijndael extends Crypt_Base
      * The mcrypt specific name of the cipher
      *
      * Mcrypt is useable for 128/192/256-bit $block_size/$key_size. For 160/224 not.
-     * Crypt_Rijndael determines automatically whether mcrypt is useable
+     * \phpseclib\Crypt\Rijndael determines automatically whether mcrypt is useable
      * or not for the current $block_size/$key_size.
      * In case of, $cipher_name_mcrypt will be set dynamically at run time accordingly.
      *
-     * @see Crypt_Base::cipher_name_mcrypt
-     * @see Crypt_Base::engine
+     * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
+     * @see \phpseclib\Crypt\Base::engine
      * @see _setupEngine()
      * @var String
      * @access private
@@ -108,8 +103,8 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The default salt used by setPassword()
      *
-     * @see Crypt_Base::password_default_salt
-     * @see Crypt_Base::setPassword()
+     * @see \phpseclib\Crypt\Base::password_default_salt
+     * @see \phpseclib\Crypt\Base::setPassword()
      * @var String
      * @access private
      */
@@ -211,8 +206,8 @@ class Crypt_Rijndael extends Crypt_Base
      * precomputed tables can be used in the mixColumns phase.  in that example, they're assigned t0...t3, so
      * those are the names we'll use.
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_encryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
@@ -254,8 +249,8 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed mixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_encryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
@@ -297,8 +292,8 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed mixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_encryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
@@ -340,8 +335,8 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed mixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_encryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
@@ -383,8 +378,8 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed invMixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_encryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
@@ -426,8 +421,8 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed invMixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_encryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
@@ -469,8 +464,8 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed invMixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_encryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
@@ -512,8 +507,8 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Precomputed invMixColumns table
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_decryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_encryptBlock()
+     * @see \phpseclib\Crypt\Rijndael:_decryptBlock()
      * @var Array
      * @access private
      */
@@ -555,7 +550,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The SubByte S-Box
      *
-     * @see Crypt_Rijndael::_encryptBlock()
+     * @see \phpseclib\Crypt\Rijndael::_encryptBlock()
      * @var Array
      * @access private
      */
@@ -581,7 +576,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The inverse SubByte S-Box
      *
-     * @see Crypt_Rijndael::_decryptBlock()
+     * @see \phpseclib\Crypt\Rijndael::_decryptBlock()
      * @var Array
      * @access private
      */
@@ -616,7 +611,7 @@ class Crypt_Rijndael extends Crypt_Base
      *
      * Note: 160/224-bit keys must explicitly set by setKeyLength(), otherwise they will be round/pad up to 192/256 bits.
      *
-     * @see Crypt_Base:setKey()
+     * @see \phpseclib\Crypt\Base:setKey()
      * @see setKeyLength()
      * @access public
      * @param String $key
@@ -717,10 +712,10 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Setup the fastest possible $engine
      *
-     * Determines if the mcrypt (Crypt_Base::ENGINE_MCRYPT) $engine available
+     * Determines if the mcrypt (\phpseclib\Crypt\Base::ENGINE_MCRYPT) $engine available
      * and usable for the current $block_size and $key_size.
      *
-     * If not, the slower Crypt_Base::ENGINE_INTERNAL $engine will be set.
+     * If not, the slower \phpseclib\Crypt\Base::ENGINE_INTERNAL $engine will be set.
      *
      * @see setKey()
      * @see setKeyLength()
@@ -729,7 +724,7 @@ class Crypt_Rijndael extends Crypt_Base
      */
     function _setupEngine()
     {
-        if (constant('CRYPT_' . $this->const_namespace . '_MODE') == Crypt_Base::ENGINE_INTERNAL) {
+        if (constant('CRYPT_' . $this->const_namespace . '_MODE') == Base::ENGINE_INTERNAL) {
             // No mcrypt support at all for rijndael
             return;
         }
@@ -741,10 +736,10 @@ class Crypt_Rijndael extends Crypt_Base
         switch (true) {
             case $this->key_size % 8: // mcrypt is not usable for 160/224-bit keys, only for 128/192/256-bit keys
             case !in_array($cipher_name_mcrypt, mcrypt_list_algorithms()): // $cipher_name_mcrypt is not available for the current $block_size
-                $engine = Crypt_Base::ENGINE_INTERNAL;
+                $engine = Base::ENGINE_INTERNAL;
                 break;
             default:
-                $engine = Crypt_Base::ENGINE_MCRYPT;
+                $engine = Base::ENGINE_MCRYPT;
         }
 
         if ($this->engine == $engine && $this->cipher_name_mcrypt == $cipher_name_mcrypt) {
@@ -772,9 +767,9 @@ class Crypt_Rijndael extends Crypt_Base
     }
 
     /**
-     * Setup the Crypt_Base::ENGINE_MCRYPT $engine
+     * Setup the \phpseclib\Crypt\Base::ENGINE_MCRYPT $engine
      *
-     * @see Crypt_Base::_setupMcrypt()
+     * @see \phpseclib\Crypt\Base::_setupMcrypt()
      * @access private
      */
     function _setupMcrypt()
@@ -979,7 +974,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Setup the key (expansion)
      *
-     * @see Crypt_Base::_setupKey()
+     * @see \phpseclib\Crypt\Base::_setupKey()
      * @access private
      */
     function _setupKey()
@@ -1111,7 +1106,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Crypt_Base::_setupInlineCrypt()
+     * @see \phpseclib\Crypt\Base::_setupInlineCrypt()
      * @access private
      */
     function _setupInlineCrypt()
@@ -1120,7 +1115,7 @@ class Crypt_Rijndael extends Crypt_Base
         // So here we are'nt under the same heavy timing-stress as we are in _de/encryptBlock() or de/encrypt().
         // However...the here generated function- $code, stored as php callback in $this->inline_crypt, must work as fast as even possible.
 
-        $lambda_functions =& Crypt_Rijndael::_getLambdaFunctions();
+        $lambda_functions =& self::_getLambdaFunctions();
 
         // The first 10 generated $lambda_functions will use the key-words hardcoded for better performance.
         // For memory reason we limit those ultra-optimized functions.
@@ -1139,7 +1134,7 @@ class Crypt_Rijndael extends Crypt_Base
             $init_decrypt = '$dw = $self->dw;';
         }
 
-        $code_hash = md5(str_pad("Crypt_Rijndael, {$this->mode}, {$this->block_size}, ", 32, "\0") . implode(',', $w));
+        $code_hash = md5(str_pad("Rijndael, {$this->mode}, {$this->block_size}, ", 32, "\0") . implode(',', $w));
 
         if (!isset($lambda_functions[$code_hash])) {
             $Nr = $this->Nr;

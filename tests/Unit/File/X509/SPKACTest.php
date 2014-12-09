@@ -5,8 +5,9 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib\Crypt\RSA;
+
 require_once 'File/X509.php';
-require_once 'Crypt/RSA.php';
 
 class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 {
@@ -46,7 +47,7 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 
     public function testSaveSPKAC()
     {
-        $privKey = new Crypt_RSA();
+        $privKey = new RSA();
         extract($privKey->createKey());
         $privKey->loadKey($privatekey);
 

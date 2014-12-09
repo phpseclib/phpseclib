@@ -8,9 +8,9 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include 'Crypt/Random.php';
+ *    include 'vendor/autoload.php';
  *
- *    echo bin2hex(Random::string(8));
+ *    echo bin2hex(\phpseclib\Crypt\Random::string(8));
  * ?>
  * </code>
  *
@@ -23,6 +23,14 @@
  */
 
 namespace phpseclib\Crypt;
+
+use phpseclib\Crypt\AES;
+use phpseclib\Crypt\Base;
+use phpseclib\Crypt\Blowfish;
+use phpseclib\Crypt\DES;
+use phpseclib\Crypt\RC4;
+use phpseclib\Crypt\TripleDES;
+use phpseclib\Crypt\Twofish;
 
 /**
  * Pure-PHP Random Number Generator
@@ -172,41 +180,23 @@ class Random
             //
             // http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Designs_based_on_cryptographic_primitives
             switch (true) {
-                case stream_resolve_include_path('Crypt/AES.php'):
-                    if (!class_exists('Crypt_AES')) {
-                        include_once 'AES.php';
-                    }
-                    $crypto = new Crypt_AES(Crypt_AES::MODE_CTR);
+                case class_exists('\phpseclib\Crypt\AES'):
+                    $crypto = new AES(Base::MODE_CTR);
                     break;
-                case stream_resolve_include_path('Crypt/Twofish.php'):
-                    if (!class_exists('Crypt_Twofish')) {
-                        include_once 'Twofish.php';
-                    }
-                    $crypto = new Crypt_Twofish(Crypt_Twofish::MODE_CTR);
+                case class_exists('\phpseclib\Crypt\Twofish'):
+                    $crypto = new Twofish(Base::MODE_CTR);
                     break;
-                case stream_resolve_include_path('Crypt/Blowfish.php'):
-                    if (!class_exists('Crypt_Blowfish')) {
-                        include_once 'Blowfish.php';
-                    }
-                    $crypto = new Crypt_Blowfish(Crypt_Blowfish::MODE_CTR);
+                case class_exists('\phpseclib\Crypt\Blowfish'):
+                    $crypto = new Blowfish(Base::MODE_CTR);
                     break;
-                case stream_resolve_include_path('Crypt/TripleDES.php'):
-                    if (!class_exists('Crypt_TripleDES')) {
-                        include_once 'TripleDES.php';
-                    }
-                    $crypto = new Crypt_TripleDES(Crypt_TripleDES::MODE_CTR);
+                case class_exists('\phpseclib\Crypt\TripleDES'):
+                    $crypto = new TripleDES(Base::MODE_CTR);
                     break;
-                case stream_resolve_include_path('Crypt/DES.php'):
-                    if (!class_exists('Crypt_DES')) {
-                        include_once 'DES.php';
-                    }
-                    $crypto = new Crypt_DES(Crypt_DES::MODE_CTR);
+                case class_exists('\phpseclib\Crypt\DES'):
+                    $crypto = new DES(Base::MODE_CTR);
                     break;
-                case stream_resolve_include_path('Crypt/RC4.php'):
-                    if (!class_exists('Crypt_RC4')) {
-                        include_once 'RC4.php';
-                    }
-                    $crypto = new Crypt_RC4();
+                case class_exists('\phpseclib\Crypt\RC4'):
+                    $crypto = new RC4();
                     break;
                 default:
                     user_error(__CLASS__ . ' requires at least one symmetric cipher be loaded');

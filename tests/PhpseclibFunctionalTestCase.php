@@ -5,15 +5,16 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib\Crypt\Hash;
+use phpseclib\Math\BigInteger;
+
 abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
 {
     static public function setUpBeforeClass()
     {
         if (extension_loaded('runkit')) {
-            self::ensureConstant('MATH_BIGINTEGER_MODE', \phpseclib\Math\BigInteger::MODE_GMP);
-            self::ensureConstant('CRYPT_HASH_MODE', Crypt_Hash::MODE_HASH);
-            self::reRequireFile('Math/BigInteger.php');
-            self::reRequireFile('Crypt/Hash.php');
+            self::ensureConstant('MATH_BIGINTEGER_MODE', BigInteger::MODE_GMP);
+            self::ensureConstant('CRYPT_HASH_MODE', Hash::MODE_HASH);
         }
         parent::setUpBeforeClass();
     }

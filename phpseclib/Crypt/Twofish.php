@@ -14,9 +14,9 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include 'Crypt/Twofish.php';
+ *    include 'vendor/autoload.php';
  *
- *    $twofish = new Crypt_Twofish();
+ *    $twofish = new \phpseclib\Crypt\Twofish();
  *
  *    $twofish->setKey('12345678901234567890123456789012');
  *
@@ -27,7 +27,7 @@
  * </code>
  *
  * @category  Crypt
- * @package   Crypt_Twofish
+ * @package   Twofish
  * @author    Jim Wigginton <terrafrost@php.net>
  * @author    Hans-Juergen Petrich <petrich@tronic-media.com>
  * @copyright MMVII Jim Wigginton
@@ -35,29 +35,24 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Crypt_Base
- *
- * Base cipher class
- */
-if (!class_exists('Crypt_Base')) {
-    include_once 'Base.php';
-}
+namespace phpseclib\Crypt;
+
+use phpseclib\Crypt\Base;
 
 /**
  * Pure-PHP implementation of Twofish.
  *
- * @package Crypt_Twofish
+ * @package Twofish
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  * @access  public
  */
-class Crypt_Twofish extends Crypt_Base
+class Twofish extends Base
 {
     /**
      * The namespace used by the cipher for its constants.
      *
-     * @see Crypt_Base::const_namespace
+     * @see \phpseclib\Crypt\Base::const_namespace
      * @var String
      * @access private
      */
@@ -66,7 +61,7 @@ class Crypt_Twofish extends Crypt_Base
     /**
      * The mcrypt specific name of the cipher
      *
-     * @see Crypt_Base::cipher_name_mcrypt
+     * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
      * @var String
      * @access private
      */
@@ -75,7 +70,7 @@ class Crypt_Twofish extends Crypt_Base
     /**
      * Optimizing value while CFB-encrypting
      *
-     * @see Crypt_Base::cfb_init_len
+     * @see \phpseclib\Crypt\Base::cfb_init_len
      * @var Integer
      * @access private
      */
@@ -385,7 +380,7 @@ class Crypt_Twofish extends Crypt_Base
      * If the key is not explicitly set, it'll be assumed a 128 bits key to be all null bytes.
      *
      * @access public
-     * @see Crypt_Base::setKey()
+     * @see \phpseclib\Crypt\Base::setKey()
      * @param String $key
      */
     function setKey($key)
@@ -410,7 +405,7 @@ class Crypt_Twofish extends Crypt_Base
     /**
      * Setup the key (expansion)
      *
-     * @see Crypt_Base::_setupKey()
+     * @see \phpseclib\Crypt\Base::_setupKey()
      * @access private
      */
     function _setupKey()
@@ -675,22 +670,22 @@ class Crypt_Twofish extends Crypt_Base
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Crypt_Base::_setupInlineCrypt()
+     * @see \phpseclib\Crypt\Base::_setupInlineCrypt()
      * @access private
      */
     function _setupInlineCrypt()
     {
-        $lambda_functions =& Crypt_Twofish::_getLambdaFunctions();
+        $lambda_functions =& self::_getLambdaFunctions();
 
         // Max. 10 Ultra-Hi-optimized inline-crypt functions. After that, we'll (still) create very fast code, but not the ultimate fast one.
         $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
         switch (true) {
             case $gen_hi_opt_code:
-                $code_hash = md5(str_pad("Crypt_Twofish, {$this->mode}, ", 32, "\0") . $this->key);
+                $code_hash = md5(str_pad("Twofish, {$this->mode}, ", 32, "\0") . $this->key);
                 break;
             default:
-                $code_hash = "Crypt_Twofish, {$this->mode}";
+                $code_hash = "Twofish, {$this->mode}";
         }
 
         if (!isset($lambda_functions[$code_hash])) {

@@ -5,11 +5,13 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib\Crypt\Hash;
+
 class Unit_Crypt_Hash_SHA512Test extends Unit_Crypt_Hash_TestCase
 {
     public function getInstance()
     {
-        return new Crypt_Hash('sha512');
+        return new Hash('sha512');
     }
 
     /**

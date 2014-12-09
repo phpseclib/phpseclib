@@ -31,6 +31,8 @@
  * @internal  See http://api.libssh.org/rfc/PROTOCOL.agent
  */
 
+use phpseclib\Crypt\RSA;
+
 if (!class_exists('System_SSH_Agent_Identity')) {
     include_once 'Agent/Identity.php';
 }
@@ -137,10 +139,7 @@ class System_SSH_Agent
             $key_type = substr($key_blob, 4, $length);
             switch ($key_type) {
                 case 'ssh-rsa':
-                    if (!class_exists('Crypt_RSA')) {
-                        include_once 'Crypt/RSA.php';
-                    }
-                    $key = new Crypt_RSA();
+                    $key = new RSA();
                     $key->loadKey('ssh-rsa ' . base64_encode($key_blob) . ' ' . $key_comment);
                     break;
                 case 'ssh-dss':

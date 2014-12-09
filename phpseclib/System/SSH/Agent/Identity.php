@@ -17,7 +17,7 @@
  * Pure-PHP ssh-agent client identity object
  *
  * Instantiation should only be performed by System_SSH_Agent class.
- * This could be thought of as implementing an interface that Crypt_RSA
+ * This could be thought of as implementing an interface that \phpseclib\Crypt\RSA
  * implements. ie. maybe a Net_SSH_Auth_PublicKey interface or something.
  * The methods in this interface would be getPublicKey, setSignatureMode
  * and sign since those are the methods phpseclib looks for to perform
@@ -32,7 +32,7 @@ class System_SSH_Agent_Identity
     /**
      * Key Object
      *
-     * @var Crypt_RSA
+     * @var \phpseclib\Crypt\RSA
      * @access private
      * @see System_SSH_Agent_Identity::getPublicKey()
      */
@@ -73,7 +73,7 @@ class System_SSH_Agent_Identity
      *
      * Called by System_SSH_Agent::requestIdentities()
      *
-     * @param Crypt_RSA $key
+     * @param \phpseclib\Crypt\RSA $key
      * @access private
      */
     function setPublicKey($key)
@@ -114,7 +114,7 @@ class System_SSH_Agent_Identity
      * Set Signature Mode
      *
      * Doesn't do anything as ssh-agent doesn't let you pick and choose the signature mode. ie.
-     * ssh-agent's only supported mode is Crypt_RSA::SIGNATURE_PKCS1
+     * ssh-agent's only supported mode is \phpseclib\Crypt\RSA::SIGNATURE_PKCS1
      *
      * @param Integer $mode
      * @access public
