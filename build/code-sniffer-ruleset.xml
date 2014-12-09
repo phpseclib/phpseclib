@@ -48,6 +48,15 @@
  <!-- Constructors MUST be called __construct() instead of after the class. -->
  <rule ref="Generic.NamingConventions.ConstructorName" />
 
+ <!-- Classes etc. MUST be namespaced -->
+ <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace" />
+
+ <!-- A file MUST not contain more than one class/interface -->
+ <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses" />
+
+ <!-- Files containing classes MUST not have any side-effects -->
+ <rule ref="PSR1.Files.SideEffects.FoundWithSymbols" />
+
  <!-- Each file MUST end with exactly one newline character -->
  <rule ref="PSR2.Files.EndFileNewline" />
 
