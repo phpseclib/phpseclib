@@ -73,7 +73,7 @@ class RC4 extends Base
      * @var Integer
      * @access private
      */
-    var $block_size = 0;
+    public $block_size = 0;
 
     /**
      * The default password key_size used by setPassword()
@@ -83,7 +83,7 @@ class RC4 extends Base
      * @var Integer
      * @access private
      */
-    var $password_key_size = 128; // = 1024 bits
+    public $password_key_size = 128; // = 1024 bits
 
     /**
      * The namespace used by the cipher for its constants.
@@ -92,7 +92,7 @@ class RC4 extends Base
      * @var String
      * @access private
      */
-    var $const_namespace = 'RC4';
+    public $const_namespace = 'RC4';
 
     /**
      * The mcrypt specific name of the cipher
@@ -101,7 +101,7 @@ class RC4 extends Base
      * @var String
      * @access private
      */
-    var $cipher_name_mcrypt = 'arcfour';
+    public $cipher_name_mcrypt = 'arcfour';
 
     /**
      * Holds whether performance-optimized $inline_crypt() can/should be used.
@@ -110,7 +110,7 @@ class RC4 extends Base
      * @var mixed
      * @access private
      */
-    var $use_inline_crypt = false; // currently not available
+    public $use_inline_crypt = false; // currently not available
 
     /**
      * The Key
@@ -119,7 +119,7 @@ class RC4 extends Base
      * @var String
      * @access private
      */
-    var $key = "\0";
+    public $key = "\0";
 
     /**
      * The Key Stream for decryption and encryption
@@ -128,7 +128,7 @@ class RC4 extends Base
      * @var Array
      * @access private
      */
-    var $stream;
+    public $stream;
 
     /**
      * Default Constructor.

@@ -5,12 +5,20 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Base;
 use phpseclib\Crypt\AES;
+use phpseclib\Crypt\Base;
 use phpseclib\Crypt\Rijndael;
 
 abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 {
+    static public function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+
+        self::reRequireFile('Crypt/Rijndael.php');
+        self::reRequireFile('Crypt/AES.php');
+    }
+
     /**
     * Produces all combinations of test values.
     *

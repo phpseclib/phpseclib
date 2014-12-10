@@ -5,8 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\AES;
-use phpseclib\Crypt\Rijndael;
+use phpseclib\Crypt\Base;
 
 class Unit_Crypt_AES_McryptTest extends Unit_Crypt_AES_TestCase
 {
@@ -18,7 +17,7 @@ class Unit_Crypt_AES_McryptTest extends Unit_Crypt_AES_TestCase
 
         parent::setUpBeforeClass();
 
-        self::ensureConstant('CRYPT_AES_ENGINE', AES::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_RIJNDAEL_ENGINE', Rijndael::ENGINE_MCRYPT);
+        self::ensureConstant('CRYPT_AES_ENGINE', Base::ENGINE_MCRYPT);
+        self::ensureConstant('CRYPT_RIJNDAEL_ENGINE', Base::ENGINE_MCRYPT);
     }
 }

@@ -75,7 +75,7 @@ class DES extends Base
      * @var Integer
      * @access private
      */
-    var $block_size = 8;
+    public $block_size = 8;
 
     /**
      * The Key
@@ -85,7 +85,7 @@ class DES extends Base
      * @var String
      * @access private
      */
-    var $key = "\0\0\0\0\0\0\0\0";
+    public $key = "\0\0\0\0\0\0\0\0";
 
     /**
      * The default password key_size used by setPassword()
@@ -95,7 +95,7 @@ class DES extends Base
      * @var Integer
      * @access private
      */
-    var $password_key_size = 8;
+    public $password_key_size = 8;
 
     /**
      * The namespace used by the cipher for its constants.
@@ -104,7 +104,7 @@ class DES extends Base
      * @var String
      * @access private
      */
-    var $const_namespace = 'DES';
+    public $const_namespace = 'DES';
 
     /**
      * The mcrypt specific name of the cipher
@@ -113,7 +113,7 @@ class DES extends Base
      * @var String
      * @access private
      */
-    var $cipher_name_mcrypt = 'des';
+    public $cipher_name_mcrypt = 'des';
 
     /**
      * Optimizing value while CFB-encrypting
@@ -122,7 +122,7 @@ class DES extends Base
      * @var Integer
      * @access private
      */
-    var $cfb_init_len = 500;
+    public $cfb_init_len = 500;
 
     /**
      * Switch for DES/3DES encryption
@@ -134,7 +134,7 @@ class DES extends Base
      * @var Integer
      * @access private
      */
-    var $des_rounds = 1;
+    public $des_rounds = 1;
 
     /**
      * max possible size of $key
@@ -143,7 +143,7 @@ class DES extends Base
      * @var String
      * @access private
      */
-    var $key_size_max = 8;
+    public $key_size_max = 8;
 
     /**
      * The Key Schedule
@@ -152,7 +152,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $keys;
+    public $keys;
 
     /**
      * Shuffle table.
@@ -166,7 +166,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $shuffle = array(
+    public $shuffle = array(
         "\x00\x00\x00\x00\x00\x00\x00\x00", "\x00\x00\x00\x00\x00\x00\x00\xFF",
         "\x00\x00\x00\x00\x00\x00\xFF\x00", "\x00\x00\x00\x00\x00\x00\xFF\xFF",
         "\x00\x00\x00\x00\x00\xFF\x00\x00", "\x00\x00\x00\x00\x00\xFF\x00\xFF",
@@ -305,7 +305,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $ipmap = array(
+    public $ipmap = array(
         0x00, 0x10, 0x01, 0x11, 0x20, 0x30, 0x21, 0x31,
         0x02, 0x12, 0x03, 0x13, 0x22, 0x32, 0x23, 0x33,
         0x40, 0x50, 0x41, 0x51, 0x60, 0x70, 0x61, 0x71,
@@ -347,7 +347,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $invipmap = array(
+    public $invipmap = array(
         0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0,
         0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0,
         0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8,
@@ -391,7 +391,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $sbox1 = array(
+    public $sbox1 = array(
         0x00808200, 0x00000000, 0x00008000, 0x00808202,
         0x00808002, 0x00008202, 0x00000002, 0x00008000,
         0x00000200, 0x00808200, 0x00808202, 0x00000200,
@@ -416,7 +416,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $sbox2 = array(
+    public $sbox2 = array(
         0x40084010, 0x40004000, 0x00004000, 0x00084010,
         0x00080000, 0x00000010, 0x40080010, 0x40004010,
         0x40000010, 0x40084010, 0x40084000, 0x40000000,
@@ -441,7 +441,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $sbox3 = array(
+    public $sbox3 = array(
         0x00000104, 0x04010100, 0x00000000, 0x04010004,
         0x04000100, 0x00000000, 0x00010104, 0x04000100,
         0x00010004, 0x04000004, 0x04000004, 0x00010000,
@@ -466,7 +466,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $sbox4 = array(
+    public $sbox4 = array(
         0x80401000, 0x80001040, 0x80001040, 0x00000040,
         0x00401040, 0x80400040, 0x80400000, 0x80001000,
         0x00000000, 0x00401000, 0x00401000, 0x80401040,
@@ -491,7 +491,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $sbox5 = array(
+    public $sbox5 = array(
         0x00000080, 0x01040080, 0x01040000, 0x21000080,
         0x00040000, 0x00000080, 0x20000000, 0x01040000,
         0x20040080, 0x00040000, 0x01000080, 0x20040080,
@@ -516,7 +516,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $sbox6 = array(
+    public $sbox6 = array(
         0x10000008, 0x10200000, 0x00002000, 0x10202008,
         0x10200000, 0x00000008, 0x10202008, 0x00200000,
         0x10002000, 0x00202008, 0x00200000, 0x10000008,
@@ -541,7 +541,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $sbox7 = array(
+    public $sbox7 = array(
         0x00100000, 0x02100001, 0x02000401, 0x00000000,
         0x00000400, 0x02000401, 0x00100401, 0x02100400,
         0x02100401, 0x00100000, 0x00000000, 0x02000001,
@@ -566,7 +566,7 @@ class DES extends Base
      * @var Array
      * @access private
      */
-    var $sbox8 = array(
+    public $sbox8 = array(
         0x08000820, 0x00000800, 0x00020000, 0x08020820,
         0x08000000, 0x08000820, 0x00000020, 0x08000000,
         0x00020020, 0x08020000, 0x08020820, 0x00020800,

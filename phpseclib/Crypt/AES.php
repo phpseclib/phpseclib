@@ -63,7 +63,7 @@ class AES extends Rijndael
      * @var String
      * @access private
      */
-    var $const_namespace = 'AES';
+    public $const_namespace = 'AES';
 
     /**
      * Dummy function
