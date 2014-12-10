@@ -2141,7 +2141,7 @@ class Net_SSH2
      * Login with an ssh-agent provided key
      *
      * @param String $username
-     * @param System_SSH_Agent $agent
+     * @param \phpseclib\System\SSH\Agent $agent
      * @return Boolean
      * @access private
      */
