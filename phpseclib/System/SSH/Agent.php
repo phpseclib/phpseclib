@@ -10,7 +10,7 @@
  *    include 'System/SSH/Agent.php';
  *    include 'Net/SSH2.php';
  *
- *    $agent = new System_SSH_Agent();
+ *    $agent = new \phpseclib\System\SSH\Agent();
  *
  *    $ssh = new Net_SSH2('www.domain.tld');
  *    if (!$ssh->login('username', $agent)) {
@@ -23,7 +23,7 @@
  * </code>
  *
  * @category  System
- * @package   System_SSH_Agent
+ * @package   SSH\Agent
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMXIV Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -31,20 +31,20 @@
  * @internal  See http://api.libssh.org/rfc/PROTOCOL.agent
  */
 
-if (!class_exists('System_SSH_Agent_Identity')) {
-    include_once 'Agent/Identity.php';
-}
+namespace phpseclib\System\SSH;
+
+use phpseclib\System\SSH\Agent\Identity;
 
 /**
  * Pure-PHP ssh-agent client identity factory
  *
- * requestIdentities() method pumps out System_SSH_Agent_Identity objects
+ * requestIdentities() method pumps out \phpseclib\System\SSH\Agent\Identity objects
  *
- * @package System_SSH_Agent
+ * @package SSH\Agent
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  internal
  */
-class System_SSH_Agent
+class Agent
 {
     /**#@+
      * Message numbers
@@ -77,7 +77,7 @@ class System_SSH_Agent
     /**
      * Default Constructor
      *
-     * @return System_SSH_Agent
+     * @return \phpseclib\System\SSH\Agent
      * @access public
      */
     function __construct()
@@ -104,7 +104,7 @@ class System_SSH_Agent
      * Request Identities
      *
      * See "2.5.2 Requesting a list of protocol 2 keys"
-     * Returns an array containing zero or more System_SSH_Agent_Identity objects
+     * Returns an array containing zero or more \phpseclib\System\SSH\Agent\Identity objects
      *
      * @return Array
      * @access public
@@ -149,7 +149,7 @@ class System_SSH_Agent
             }
             // resources are passed by reference by default
             if (isset($key)) {
-                $identity = new System_SSH_Agent_Identity($this->fsock);
+                $identity = new Identity($this->fsock);
                 $identity->setPublicKey($key);
                 $identity->setPublicKeyBlob($key_blob);
                 $identities[] = $identity;

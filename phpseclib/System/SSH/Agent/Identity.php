@@ -5,7 +5,7 @@
  * PHP versions 4 and 5
  *
  * @category  System
- * @package   System_SSH_Agent
+ * @package   SSH\Agent
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright MMXIV Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -13,28 +13,32 @@
  * @internal  See http://api.libssh.org/rfc/PROTOCOL.agent
  */
 
+namespace phpseclib\System\SSH\Agent;
+
+use phpseclib\System\SSH\Agent;
+
 /**
  * Pure-PHP ssh-agent client identity object
  *
- * Instantiation should only be performed by System_SSH_Agent class.
+ * Instantiation should only be performed by \phpseclib\System\SSH\Agent class.
  * This could be thought of as implementing an interface that Crypt_RSA
  * implements. ie. maybe a Net_SSH_Auth_PublicKey interface or something.
  * The methods in this interface would be getPublicKey, setSignatureMode
  * and sign since those are the methods phpseclib looks for to perform
  * public key authentication.
  *
- * @package System_SSH_Agent
+ * @package SSH\Agent
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  internal
  */
-class System_SSH_Agent_Identity
+class Identity
 {
     /**
      * Key Object
      *
      * @var Crypt_RSA
      * @access private
-     * @see System_SSH_Agent_Identity::getPublicKey()
+     * @see \phpseclib\System\SSH\Agent\Identity::getPublicKey()
      */
     var $key;
 
@@ -43,7 +47,7 @@ class System_SSH_Agent_Identity
      *
      * @var String
      * @access private
-     * @see System_SSH_Agent_Identity::sign()
+     * @see \phpseclib\System\SSH\Agent\Identity::sign()
      */
     var $key_blob;
 
@@ -52,7 +56,7 @@ class System_SSH_Agent_Identity
      *
      * @var Resource
      * @access private
-     * @see System_SSH_Agent_Identity::sign()
+     * @see \phpseclib\System\SSH\Agent\Identity::sign()
      */
     var $fsock;
 
@@ -60,7 +64,7 @@ class System_SSH_Agent_Identity
      * Default Constructor.
      *
      * @param Resource $fsock
-     * @return System_SSH_Agent_Identity
+     * @return \phpseclib\System\SSH\Agent\Identity
      * @access private
      */
     function __construct($fsock)
@@ -71,7 +75,7 @@ class System_SSH_Agent_Identity
     /**
      * Set Public Key
      *
-     * Called by System_SSH_Agent::requestIdentities()
+     * Called by \phpseclib\System\SSH\Agent::requestIdentities()
      *
      * @param Crypt_RSA $key
      * @access private
@@ -85,7 +89,7 @@ class System_SSH_Agent_Identity
     /**
      * Set Public Key
      *
-     * Called by System_SSH_Agent::requestIdentities(). The key blob could be extracted from $this->key
+     * Called by \phpseclib\System\SSH\Agent::requestIdentities(). The key blob could be extracted from $this->key
      * but this saves a small amount of computation.
      *
      * @param String $key_blob
@@ -135,7 +139,7 @@ class System_SSH_Agent_Identity
     function sign($message)
     {
         // the last parameter (currently 0) is for flags and ssh-agent only defines one flag (for ssh-dss): SSH_AGENT_OLD_SIGNATURE
-        $packet = pack('CNa*Na*N', System_SSH_Agent::SSH_AGENTC_SIGN_REQUEST, strlen($this->key_blob), $this->key_blob, strlen($message), $message, 0);
+        $packet = pack('CNa*Na*N', Agent::SSH_AGENTC_SIGN_REQUEST, strlen($this->key_blob), $this->key_blob, strlen($message), $message, 0);
         $packet = pack('Na*', strlen($packet), $packet);
         if (strlen($packet) != fputs($this->fsock, $packet)) {
             user_error('Connection closed during signing');
@@ -143,7 +147,7 @@ class System_SSH_Agent_Identity
 
         $length = current(unpack('N', fread($this->fsock, 4)));
         $type = ord(fread($this->fsock, 1));
-        if ($type != System_SSH_Agent::SSH_AGENT_SIGN_RESPONSE) {
+        if ($type != Agent::SSH_AGENT_SIGN_RESPONSE) {
             user_error('Unable to retreive signature');
         }
 
