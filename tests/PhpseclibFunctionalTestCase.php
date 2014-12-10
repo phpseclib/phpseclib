@@ -15,6 +15,8 @@ abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
         if (extension_loaded('runkit')) {
             self::ensureConstant('MATH_BIGINTEGER_MODE', BigInteger::MODE_GMP);
             self::ensureConstant('CRYPT_HASH_MODE', Hash::MODE_HASH);
+            self::reRequireFile('Math/BigInteger.php');
+            self::reRequireFile('Crypt/Hash.php');
         }
         parent::setUpBeforeClass();
     }
