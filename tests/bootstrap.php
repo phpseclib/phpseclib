@@ -17,9 +17,14 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once 'Crypt/Random.php';
 
+function phpseclib_class2file($class)
+{
+    return str_replace('_', '/', $class) . '.php';
+}
+
 function phpseclib_autoload($class)
 {
-    $file = str_replace('_', '/', $class) . '.php';
+    $file = phpseclib_class2file($class);
 
     if (phpseclib_resolve_include_path($file)) {
         // @codingStandardsIgnoreStart

@@ -7,6 +7,12 @@
 
 abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
 {
+    static protected $constantsBootstrapped = false;
+    static protected $classesUsingConstants = array(
+        'Math_BigInteger',
+        'Crypt_Hash',
+    );
+
     protected $tempFilesToUnlinkOnTearDown = array();
 
     public function tearDown()
@@ -31,6 +37,12 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
         $filename = tempnam(sys_get_temp_dir(), 'phpseclib-test-');
         $this->tempFilesToUnlinkOnTearDown[] = $filename;
         return $filename;
+    }
+
+    static public function setUpBeforeClass()
+    {
+        self::recalibrateConstants();
+        parent::setUpBeforeClass();
     }
 
     /**
@@ -85,6 +97,23 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
             if (!$result) {
                 self::markTestSkipped("Failed to reimport file $filename");
             }
+        }
+    }
+
+    /**
+    * @return null
+    */
+    static protected function recalibrateConstants()
+    {
+        $runkit = extension_loaded('runkit');
+        if ($runkit || !self::$constantsBootstrapped) {
+            foreach (self::$classesUsingConstants as $class) {
+                if ($runkit) {
+                    self::reRequireFile(phpseclib_class2file($class));
+                }
+                new $class;
+            }
+            self::$constantsBootstrapped = true;
         }
     }
 }
