@@ -8,11 +8,11 @@
  * <code>
  * <?php
  *    include 'System/SSH/Agent.php';
- *    include 'Net/SSH2.php';
+ *    include 'vendor/autoload.php';
  *
  *    $agent = new \phpseclib\System\SSH\Agent();
  *
- *    $ssh = new Net_SSH2('www.domain.tld');
+ *    $ssh = new \phpseclib\Net\SSH2('www.domain.tld');
  *    if (!$ssh->login('username', $agent)) {
  *        exit('Login Failed');
  *    }
