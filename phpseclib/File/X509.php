@@ -25,6 +25,9 @@
  */
 
 namespace phpseclib\File;
+use phpseclib\Crypt\Hash;
+use phpseclib\Crypt\RSA;
+use phpseclib\Math\BigInteger;
 
 use Crypt_RSA; // This should get removed after the Crypt package has been fully namespaced
 use phpseclib\File\ASN1;
@@ -2105,10 +2108,7 @@ class X509
     {
         switch ($publicKeyAlgorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    include_once 'Crypt/RSA.php';
-                }
-                $rsa = new Crypt_RSA();
+                $rsa = new RSA();
                 $rsa->loadKey($publicKey);
 
                 switch ($signatureAlgorithm) {
@@ -2120,7 +2120,7 @@ class X509
                     case 'sha384WithRSAEncryption':
                     case 'sha512WithRSAEncryption':
                         $rsa->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
-                        $rsa->setSignatureMode(Crypt_RSA::SIGNATURE_PKCS1);
+                        $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
                         if (!@$rsa->verify($signatureSubject, $signature)) {
                             return false;
                         }
@@ -2508,10 +2508,7 @@ class X509
                 return $result;
             case self::DN_HASH:
                 $dn = $this->getDN(self::DN_CANON, $dn);
-                if (!class_exists('Crypt_Hash')) {
-                    include_once 'Crypt/Hash.php';
-                }
-                $hash = new Crypt_Hash('sha1');
+                $hash = new Hash('sha1');
                 $hash = $hash->hash($dn);
                 extract(unpack('Vhash', $hash));
                 return strtolower(bin2hex(pack('N', $hash)));
@@ -2721,7 +2718,7 @@ class X509
     /**
      * Set public key
      *
-     * Key needs to be a Crypt_RSA object
+     * Key needs to be a \phpseclib\Crypt\RSA object
      *
      * @param Object $key
      * @access public
@@ -2736,7 +2733,7 @@ class X509
     /**
      * Set private key
      *
-     * Key needs to be a Crypt_RSA object
+     * Key needs to be a \phpseclib\Crypt\RSA object
      *
      * @param Object $key
      * @access public
@@ -2762,7 +2759,7 @@ class X509
     /**
      * Gets the public key
      *
-     * Returns a Crypt_RSA object or a false.
+     * Returns a \phpseclib\Crypt\RSA object or a false.
      *
      * @access public
      * @return Mixed
@@ -2789,10 +2786,7 @@ class X509
 
         switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    include_once 'Crypt/RSA.php';
-                }
-                $publicKey = new Crypt_RSA();
+                $publicKey = new RSA();
                 $publicKey->loadKey($key);
                 $publicKey->setPublicKey();
                 break;
@@ -2862,10 +2856,7 @@ class X509
 
         switch ($algorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    include_once 'Crypt/RSA.php';
-                }
-                $this->publicKey = new Crypt_RSA();
+                $this->publicKey = new RSA();
                 $this->publicKey->loadKey($key);
                 $this->publicKey->setPublicKey();
                 break;
@@ -2988,10 +2979,7 @@ class X509
 
         switch ($algorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    include_once 'Crypt/RSA.php';
-                }
-                $this->publicKey = new Crypt_RSA();
+                $this->publicKey = new RSA();
                 $this->publicKey->loadKey($key);
                 $this->publicKey->setPublicKey();
                 break;
@@ -3615,8 +3603,8 @@ class X509
      */
     function _sign($key, $signatureAlgorithm)
     {
-        switch (strtolower(get_class($key))) {
-            case 'crypt_rsa':
+        switch (get_class($key)) {
+            case 'phpseclib\Crypt\RSA':
                 switch ($signatureAlgorithm) {
                     case 'md2WithRSAEncryption':
                     case 'md5WithRSAEncryption':
@@ -3626,7 +3614,7 @@ class X509
                     case 'sha384WithRSAEncryption':
                     case 'sha512WithRSAEncryption':
                         $key->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
-                        $key->setSignatureMode(Crypt_RSA::SIGNATURE_PKCS1);
+                        $key->setSignatureMode(RSA::SIGNATURE_PKCS1);
 
                         $this->currentCert['signature'] = base64_encode("\0" . $key->sign($this->signatureSubject));
                         return $this->currentCert;
@@ -4189,10 +4177,7 @@ class X509
                 }
                 $raw = base64_decode($raw);
                 // If the key is private, compute identifier from its corresponding public key.
-                if (!class_exists('Crypt_RSA')) {
-                    include_once 'Crypt/RSA.php';
-                }
-                $key = new Crypt_RSA();
+                $key = new RSA();
                 if (!$key->loadKey($raw)) {
                     return false;   // Not an unencrypted RSA key.
                 }
@@ -4212,8 +4197,8 @@ class X509
                     return $this->computeKeyIdentifier($key->currentCert, $method);
                 }
                 return false;
-            default: // Should be a key object (i.e.: Crypt_RSA).
-                $key = $key->getPublicKey(Crypt_RSA::PUBLIC_FORMAT_PKCS1);
+            default: // Should be a key object (i.e.: \phpseclib\Crypt\RSA).
+                $key = $key->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1);
                 break;
         }
 
@@ -4221,10 +4206,7 @@ class X509
         $key = $this->_extractBER($key);
 
         // Now we have the key string: compute its sha-1 sum.
-        if (!class_exists('Crypt_Hash')) {
-            include_once 'Crypt/Hash.php';
-        }
-        $hash = new Crypt_Hash('sha1');
+        $hash = new Hash('sha1');
         $hash = $hash->hash($key);
 
         if ($method == 2) {
@@ -4247,14 +4229,14 @@ class X509
             return false;
         }
 
-        switch (strtolower(get_class($this->publicKey))) {
-            case 'crypt_rsa':
+        switch (get_class($this->publicKey)) {
+            case 'phpseclib\Crypt\RSA':
                 // the following two return statements do the same thing. i dunno.. i just prefer the later for some reason.
                 // the former is a good example of how to do fuzzing on the public key
                 //return new Element(base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey())));
                 return array(
                     'algorithm' => array('algorithm' => 'rsaEncryption'),
-                    'subjectPublicKey' => $this->publicKey->getPublicKey(Crypt_RSA::PUBLIC_FORMAT_PKCS1)
+                    'subjectPublicKey' => $this->publicKey->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1)
                 );
             default:
                 return false;

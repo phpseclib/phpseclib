@@ -14,9 +14,9 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include 'Crypt/RC2.php';
+ *    include 'vendor/autoload.php';
  *
- *    $rc2 = new Crypt_RC2();
+ *    $rc2 = new \phpseclib\Crypt\RC2();
  *
  *    $rc2->setKey('abcdefgh');
  *
@@ -27,115 +27,110 @@
  * </code>
  *
  * @category Crypt
- * @package  Crypt_RC2
+ * @package  RC2
  * @author   Patrick Monnerat <pm@datasphere.ch>
  * @license  http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link     http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Crypt_Base
- *
- * Base cipher class
- */
-if (!class_exists('Crypt_Base')) {
-    include_once 'Base.php';
-}
+namespace phpseclib\Crypt;
+
+use phpseclib\Crypt\Base;
 
 /**
  * Pure-PHP implementation of RC2.
  *
- * @package Crypt_RC2
+ * @package RC2
  * @access  public
  */
-class Crypt_RC2 extends Crypt_Base
+class RC2 extends Base
 {
     /**
      * Block Length of the cipher
      *
-     * @see Crypt_Base::block_size
+     * @see \phpseclib\Crypt\Base::block_size
      * @var Integer
      * @access private
      */
-    var $block_size = 8;
+    public $block_size = 8;
 
     /**
      * The Key
      *
-     * @see Crypt_Base::key
+     * @see \phpseclib\Crypt\Base::key
      * @see setKey()
      * @var String
      * @access private
      */
-    var $key = "\0";
+    public $key = "\0";
 
     /**
      * The default password key_size used by setPassword()
      *
-     * @see Crypt_Base::password_key_size
-     * @see Crypt_Base::setPassword()
+     * @see \phpseclib\Crypt\Base::password_key_size
+     * @see \phpseclib\Crypt\Base::setPassword()
      * @var Integer
      * @access private
      */
-    var $password_key_size = 16; // = 128 bits
+    public $password_key_size = 16; // = 128 bits
 
     /**
      * The namespace used by the cipher for its constants.
      *
-     * @see Crypt_Base::const_namespace
+     * @see \phpseclib\Crypt\Base::const_namespace
      * @var String
      * @access private
      */
-    var $const_namespace = 'RC2';
+    public $const_namespace = 'RC2';
 
     /**
      * The mcrypt specific name of the cipher
      *
-     * @see Crypt_Base::cipher_name_mcrypt
+     * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
      * @var String
      * @access private
      */
-    var $cipher_name_mcrypt = 'rc2';
+    public $cipher_name_mcrypt = 'rc2';
 
     /**
      * Optimizing value while CFB-encrypting
      *
-     * @see Crypt_Base::cfb_init_len
+     * @see \phpseclib\Crypt\Base::cfb_init_len
      * @var Integer
      * @access private
      */
-    var $cfb_init_len = 500;
+    public $cfb_init_len = 500;
 
     /**
      * The key length in bits.
      *
-     * @see Crypt_RC2::setKeyLength()
-     * @see Crypt_RC2::setKey()
+     * @see \phpseclib\Crypt\RC2::setKeyLength()
+     * @see \phpseclib\Crypt\RC2::setKey()
      * @var Integer
      * @access private
      * @internal Should be in range [1..1024].
      * @internal Changing this value after setting the key has no effect.
      */
-    var $default_key_length = 1024;
+    public $default_key_length = 1024;
 
     /**
      * The Key Schedule
      *
-     * @see Crypt_RC2::_setupKey()
+     * @see \phpseclib\Crypt\RC2::_setupKey()
      * @var Array
      * @access private
      */
-    var $keys;
+    public $keys;
 
     /**
      * Key expansion randomization table.
      * Twice the same 256-value sequence to save a modulus in key expansion.
      *
-     * @see Crypt_RC2::setKey()
+     * @see \phpseclib\Crypt\RC2::setKey()
      * @var Array
      * @access private
      */
-    var $pitable = array(
+    public $pitable = array(
         0xD9, 0x78, 0xF9, 0xC4, 0x19, 0xDD, 0xB5, 0xED,
         0x28, 0xE9, 0xFD, 0x79, 0x4A, 0xA0, 0xD8, 0x9D,
         0xC6, 0x7E, 0x37, 0x83, 0x2B, 0x76, 0x53, 0x8E,
@@ -205,11 +200,11 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Inverse key expansion randomization table.
      *
-     * @see Crypt_RC2::setKey()
+     * @see \phpseclib\Crypt\RC2::setKey()
      * @var Array
      * @access private
      */
-    var $invpitable = array(
+    public $invpitable = array(
         0xD1, 0xDA, 0xB9, 0x6F, 0x9C, 0xC8, 0x78, 0x66,
         0x80, 0x2C, 0xF8, 0x37, 0xEA, 0xE0, 0x62, 0xA4,
         0xCB, 0x71, 0x50, 0x27, 0x4B, 0x95, 0xD9, 0x20,
@@ -251,23 +246,23 @@ class Crypt_RC2 extends Crypt_Base
      *
      * $mode could be:
      *
-     * - Crypt_Base::MODE_ECB
+     * - \phpseclib\Crypt\Base::MODE_ECB
      *
-     * - Crypt_Base::MODE_CBC
+     * - \phpseclib\Crypt\Base::MODE_CBC
      *
-     * - Crypt_Base::MODE_CTR
+     * - \phpseclib\Crypt\Base::MODE_CTR
      *
-     * - Crypt_Base::MODE_CFB
+     * - \phpseclib\Crypt\Base::MODE_CFB
      *
-     * - Crypt_Base::MODE_OFB
+     * - \phpseclib\Crypt\Base::MODE_OFB
      *
-     * If not explicitly set, Crypt_Base::MODE_CBC will be used.
+     * If not explicitly set, \phpseclib\Crypt\Base::MODE_CBC will be used.
      *
-     * @see Crypt_Base::__construct()
+     * @see \phpseclib\Crypt\Base::__construct()
      * @param optional Integer $mode
      * @access public
      */
-    function __construct($mode = Crypt_Base::MODE_CBC)
+    function __construct($mode = Base::MODE_CBC)
     {
         parent::__construct($mode);
         $this->setKey('');
@@ -278,7 +273,7 @@ class Crypt_RC2 extends Crypt_Base
      *
      * Valid key lengths are 1 to 1024.
      * Calling this function after setting the key has no effect until the next
-     *  Crypt_RC2::setKey() call.
+     *  \phpseclib\Crypt\RC2::setKey() call.
      *
      * @access public
      * @param Integer $length in bits
@@ -301,7 +296,7 @@ class Crypt_RC2 extends Crypt_Base
      * If the key is not explicitly set, it'll be assumed to be a single
      * null byte.
      *
-     * @see Crypt_Base::setKey()
+     * @see \phpseclib\Crypt\Base::setKey()
      * @access public
      * @param String $key
      * @param Integer $t1 optional          Effective key length in bits.
@@ -348,8 +343,8 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Encrypts a block
      *
-     * @see Crypt_Base::_encryptBlock()
-     * @see Crypt_Base::encrypt()
+     * @see \phpseclib\Crypt\Base::_encryptBlock()
+     * @see \phpseclib\Crypt\Base::encrypt()
      * @access private
      * @param String $in
      * @return String
@@ -393,8 +388,8 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Decrypts a block
      *
-     * @see Crypt_Base::_decryptBlock()
-     * @see Crypt_Base::decrypt()
+     * @see \phpseclib\Crypt\Base::_decryptBlock()
+     * @see \phpseclib\Crypt\Base::decrypt()
      * @access private
      * @param String $in
      * @return String
@@ -438,12 +433,12 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Creates the key schedule
      *
-     * @see Crypt_Base::_setupKey()
+     * @see \phpseclib\Crypt\Base::_setupKey()
      * @access private
      */
     function _setupKey()
     {
-        // Key has already been expanded in Crypt_RC2::setKey():
+        // Key has already been expanded in \phpseclib\Crypt\RC2::setKey():
         // Only the first value must be altered.
         $l = unpack('Ca/Cb/v*', $this->key);
         array_unshift($l, $this->pitable[$l['a']] | ($l['b'] << 8));
@@ -455,12 +450,12 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Crypt_Base::_setupInlineCrypt()
+     * @see \phpseclib\Crypt\Base::_setupInlineCrypt()
      * @access private
      */
     function _setupInlineCrypt()
     {
-        $lambda_functions = &Crypt_RC2::_getLambdaFunctions();
+        $lambda_functions =& self::_getLambdaFunctions();
 
         // The first 10 generated $lambda_functions will use the $keys hardcoded as integers
         // for the mixing rounds, for better inline crypt performance [~20% faster].
@@ -472,7 +467,7 @@ class Crypt_RC2 extends Crypt_Base
             }
         }
 
-        $code_hash = md5(str_pad("Crypt_RC2, {$this->mode}, ", 32, "\0") . implode(',', $keys));
+        $code_hash = md5(str_pad("RC2, {$this->mode}, ", 32, "\0") . implode(',', $keys));
 
         // Is there a re-usable $lambda_functions in there?
         // If not, we have to create it.

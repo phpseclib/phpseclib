@@ -46,6 +46,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+<<<<<<< HEAD
 namespace phpseclib\Net;
 
 // These should be removed once the Crypt package is fully namespaced
@@ -54,6 +55,11 @@ use Crypt_TripleDES;
 // End unnecessary Use Statements
 
 use phpseclib\Crypt\Random;
+=======
+use phpseclib\Crypt\DES;
+use phpseclib\Crypt\Random;
+use phpseclib\Crypt\TripleDES;
+>>>>>>> Namespaced classes
 use phpseclib\Math\BigInteger;
 
 /**
@@ -661,31 +667,22 @@ class SSH1
 
         switch ($cipher) {
             //case self::CIPHER_NONE:
-            //    $this->crypto = new Crypt_Null();
+            //    $this->crypto = new \phpseclib\Crypt\Null();
             //    break;
             case self::CIPHER_DES:
-                if (!class_exists('Crypt_DES')) {
-                    include_once 'Crypt/DES.php';
-                }
-                $this->crypto = new Crypt_DES();
+                $this->crypto = new DES();
                 $this->crypto->disablePadding();
                 $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0,  8));
                 break;
             case self::CIPHER_3DES:
-                if (!class_exists('Crypt_TripleDES')) {
-                    include_once 'Crypt/TripleDES.php';
-                }
-                $this->crypto = new Crypt_TripleDES(Crypt_TripleDES::MODE_3CBC);
+                $this->crypto = new TripleDES(TripleDES::MODE_3CBC);
                 $this->crypto->disablePadding();
                 $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0, 24));
                 break;
             //case self::CIPHER_RC4:
-            //    if (!class_exists('Crypt_RC4')) {
-            //        include_once 'Crypt/RC4.php';
-            //    }
-            //    $this->crypto = new Crypt_RC4();
+            //    $this->crypto = new RC4();
             //    $this->crypto->enableContinuousBuffer();
             //    $this->crypto->setKey(substr($session_key, 0,  16));
             //    break;
@@ -1323,13 +1320,9 @@ class SSH1
     function _rsa_crypt($m, $key)
     {
         /*
-        if (!class_exists('Crypt_RSA')) {
-            include_once 'Crypt/RSA.php';
-        }
-
-        $rsa = new Crypt_RSA();
-        $rsa->loadKey($key, Crypt_RSA::PUBLIC_FORMAT_RAW);
-        $rsa->setEncryptionMode(Crypt_RSA::ENCRYPTION_PKCS1);
+        $rsa = new RSA();
+        $rsa->loadKey($key, RSA::PUBLIC_FORMAT_RAW);
+        $rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
         return $rsa->encrypt($m);
         */
 

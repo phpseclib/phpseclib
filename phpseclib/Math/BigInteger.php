@@ -50,7 +50,7 @@
 
 namespace phpseclib\Math;
 
-use \phpseclib\Crypt\Random;
+use phpseclib\Crypt\Random;
 
 /**
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
@@ -3024,7 +3024,7 @@ class BigInteger
     /**
      * Generates a random BigInteger
      *
-     * Byte length is equal to $length. Uses Crypt\Random if it's loaded and mt_rand if it's not.
+     * Byte length is equal to $length. Uses \phpseclib\Crypt\Random if it's loaded and mt_rand if it's not.
      *
      * @param Integer $length
      * @return \phpseclib\Math\BigInteger

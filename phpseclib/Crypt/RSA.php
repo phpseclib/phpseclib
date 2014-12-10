@@ -8,9 +8,9 @@
  * Here's an example of how to encrypt and decrypt text with this library:
  * <code>
  * <?php
- *    include 'Crypt/RSA.php';
+ *    include 'vendor/autoload.php';
  *
- *    $rsa = new Crypt_RSA();
+ *    $rsa = new \phpseclib\Crypt\RSA();
  *    extract($rsa->createKey());
  *
  *    $plaintext = 'terrafrost';
@@ -26,9 +26,9 @@
  * Here's an example of how to create signatures and verify signatures with this library:
  * <code>
  * <?php
- *    include 'Crypt/RSA.php';
+ *    include 'vendor/autoload.php';
  *
- *    $rsa = new Crypt_RSA();
+ *    $rsa = new \phpseclib\Crypt\RSA();
  *    extract($rsa->createKey());
  *
  *    $plaintext = 'terrafrost';
@@ -42,36 +42,37 @@
  * </code>
  *
  * @category  Crypt
- * @package   Crypt_RSA
+ * @package   RSA
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2009 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
-use \phpseclib\Crypt\Random;
-use \phpseclib\Math\BigInteger;
+namespace phpseclib\Crypt;
 
-/**
- * Include Crypt_Hash
- */
-if (!class_exists('Crypt_Hash')) {
-    include_once 'Hash.php';
-}
+use phpseclib\Crypt\AES;
+use phpseclib\Crypt\Base;
+use phpseclib\Crypt\DES;
+use phpseclib\Crypt\Hash;
+use phpseclib\Crypt\Random;
+use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\TripleDES;
+use phpseclib\Math\BigInteger;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
  *
- * @package Crypt_RSA
+ * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Crypt_RSA
+class RSA
 {
     /**#@+
      * @access public
-     * @see Crypt_RSA::encrypt()
-     * @see Crypt_RSA::decrypt()
+     * @see \phpseclib\Crypt\RSA::encrypt()
+     * @see \phpseclib\Crypt\RSA::decrypt()
      */
     /**
      * Use {@link http://en.wikipedia.org/wiki/Optimal_Asymmetric_Encryption_Padding Optimal Asymmetric Encryption Padding}
@@ -79,8 +80,8 @@ class Crypt_RSA
      *
      * Uses sha1 by default.
      *
-     * @see Crypt_RSA::setHash()
-     * @see Crypt_RSA::setMGFHash()
+     * @see \phpseclib\Crypt\RSA::setHash()
+     * @see \phpseclib\Crypt\RSA::setMGFHash()
      */
     const ENCRYPTION_OAEP = 1;
     /**
@@ -94,17 +95,17 @@ class Crypt_RSA
 
     /**#@+
      * @access public
-     * @see Crypt_RSA::sign()
-     * @see Crypt_RSA::verify()
-     * @see Crypt_RSA::setHash()
+     * @see \phpseclib\Crypt\RSA::sign()
+     * @see \phpseclib\Crypt\RSA::verify()
+     * @see \phpseclib\Crypt\RSA::setHash()
     */
     /**
      * Use the Probabilistic Signature Scheme for signing
      *
      * Uses sha1 by default.
      *
-     * @see Crypt_RSA::setSaltLength()
-     * @see Crypt_RSA::setMGFHash()
+     * @see \phpseclib\Crypt\RSA::setSaltLength()
+     * @see \phpseclib\Crypt\RSA::setMGFHash()
     */
     const SIGNATURE_PSS = 1;
     /**
@@ -118,7 +119,7 @@ class Crypt_RSA
 
     /**#@+
      * @access private
-     * @see Crypt_RSA::createKey()
+     * @see \phpseclib\Crypt\RSA::createKey()
     */
     /**
      * ASN1 Integer
@@ -144,7 +145,7 @@ class Crypt_RSA
 
     /**#@+
      * @access private
-     * @see Crypt_RSA::__construct()
+     * @see \phpseclib\Crypt\RSA::__construct()
     */
     /**
      * To use the pure-PHP implementation
@@ -160,8 +161,8 @@ class Crypt_RSA
 
     /**#@+
      * @access public
-     * @see Crypt_RSA::createKey()
-     * @see Crypt_RSA::setPrivateKeyFormat()
+     * @see \phpseclib\Crypt\RSA::createKey()
+     * @see \phpseclib\Crypt\RSA::setPrivateKeyFormat()
     */
     /**
      * PKCS#1 formatted private key
@@ -185,8 +186,8 @@ class Crypt_RSA
 
     /**#@+
      * @access public
-     * @see Crypt_RSA::createKey()
-     * @see Crypt_RSA::setPublicKeyFormat()
+     * @see \phpseclib\Crypt\RSA::createKey()
+     * @see \phpseclib\Crypt\RSA::setPublicKeyFormat()
     */
     /**
      * Raw public key
@@ -247,7 +248,7 @@ class Crypt_RSA
      * @var Array
      * @access private
      */
-    var $zero;
+    public $zero;
 
     /**
      * Precomputed One
@@ -255,7 +256,7 @@ class Crypt_RSA
      * @var Array
      * @access private
      */
-    var $one;
+    public $one;
 
     /**
      * Private Key Format
@@ -263,7 +264,7 @@ class Crypt_RSA
      * @var Integer
      * @access private
      */
-    var $privateKeyFormat = self::PRIVATE_FORMAT_PKCS1;
+    public $privateKeyFormat = self::PRIVATE_FORMAT_PKCS1;
 
     /**
      * Public Key Format
@@ -271,7 +272,7 @@ class Crypt_RSA
      * @var Integer
      * @access public
      */
-    var $publicKeyFormat = self::PUBLIC_FORMAT_PKCS8;
+    public $publicKeyFormat = self::PUBLIC_FORMAT_PKCS8;
 
     /**
      * Modulus (ie. n)
@@ -279,7 +280,7 @@ class Crypt_RSA
      * @var \phpseclib\Math\BigInteger
      * @access private
      */
-    var $modulus;
+    public $modulus;
 
     /**
      * Modulus length
@@ -287,7 +288,7 @@ class Crypt_RSA
      * @var \phpseclib\Math\BigInteger
      * @access private
      */
-    var $k;
+    public $k;
 
     /**
      * Exponent (ie. e or d)
@@ -295,7 +296,7 @@ class Crypt_RSA
      * @var \phpseclib\Math\BigInteger
      * @access private
      */
-    var $exponent;
+    public $exponent;
 
     /**
      * Primes for Chinese Remainder Theorem (ie. p and q)
@@ -303,7 +304,7 @@ class Crypt_RSA
      * @var Array
      * @access private
      */
-    var $primes;
+    public $primes;
 
     /**
      * Exponents for Chinese Remainder Theorem (ie. dP and dQ)
@@ -311,7 +312,7 @@ class Crypt_RSA
      * @var Array
      * @access private
      */
-    var $exponents;
+    public $exponents;
 
     /**
      * Coefficients for Chinese Remainder Theorem (ie. qInv)
@@ -319,7 +320,7 @@ class Crypt_RSA
      * @var Array
      * @access private
      */
-    var $coefficients;
+    public $coefficients;
 
     /**
      * Hash name
@@ -327,15 +328,15 @@ class Crypt_RSA
      * @var String
      * @access private
      */
-    var $hashName;
+    public $hashName;
 
     /**
      * Hash function
      *
-     * @var Crypt_Hash
+     * @var \phpseclib\Crypt\Hash
      * @access private
      */
-    var $hash;
+    public $hash;
 
     /**
      * Length of hash function output
@@ -343,7 +344,7 @@ class Crypt_RSA
      * @var Integer
      * @access private
      */
-    var $hLen;
+    public $hLen;
 
     /**
      * Length of salt
@@ -351,15 +352,15 @@ class Crypt_RSA
      * @var Integer
      * @access private
      */
-    var $sLen;
+    public $sLen;
 
     /**
      * Hash function for the Mask Generation Function
      *
-     * @var Crypt_Hash
+     * @var \phpseclib\Crypt\Hash
      * @access private
      */
-    var $mgfHash;
+    public $mgfHash;
 
     /**
      * Length of MGF hash function output
@@ -367,7 +368,7 @@ class Crypt_RSA
      * @var Integer
      * @access private
      */
-    var $mgfHLen;
+    public $mgfHLen;
 
     /**
      * Encryption mode
@@ -375,7 +376,7 @@ class Crypt_RSA
      * @var Integer
      * @access private
      */
-    var $encryptionMode = self::ENCRYPTION_OAEP;
+    public $encryptionMode = self::ENCRYPTION_OAEP;
 
     /**
      * Signature mode
@@ -383,7 +384,7 @@ class Crypt_RSA
      * @var Integer
      * @access private
      */
-    var $signatureMode = self::SIGNATURE_PSS;
+    public $signatureMode = self::SIGNATURE_PSS;
 
     /**
      * Public Exponent
@@ -391,7 +392,7 @@ class Crypt_RSA
      * @var Mixed
      * @access private
      */
-    var $publicExponent = false;
+    public $publicExponent = false;
 
     /**
      * Password
@@ -399,7 +400,7 @@ class Crypt_RSA
      * @var String
      * @access private
      */
-    var $password = false;
+    public $password = false;
 
     /**
      * Components
@@ -407,33 +408,33 @@ class Crypt_RSA
      * For use with parsing XML formatted keys.  PHP's XML Parser functions use utilized - instead of PHP's DOM functions -
      * because PHP's XML Parser functions work on PHP4 whereas PHP's DOM functions - although surperior - don't.
      *
-     * @see Crypt_RSA::_start_element_handler()
+     * @see \phpseclib\Crypt\RSA::_start_element_handler()
      * @var Array
      * @access private
      */
-    var $components = array();
+    public $components = array();
 
     /**
      * Current String
      *
      * For use with parsing XML formatted keys.
      *
-     * @see Crypt_RSA::_character_handler()
-     * @see Crypt_RSA::_stop_element_handler()
+     * @see \phpseclib\Crypt\RSA::_character_handler()
+     * @see \phpseclib\Crypt\RSA::_stop_element_handler()
      * @var Mixed
      * @access private
      */
-    var $current;
+    public $current;
 
     /**
      * OpenSSL configuration file name.
      *
      * Set to null to use system configuration file.
-     * @see Crypt_RSA::createKey()
+     * @see \phpseclib\Crypt\RSA::createKey()
      * @var Mixed
      * @Access public
      */
-    var $configFile;
+    public $configFile;
 
     /**
      * Public key comment field.
@@ -441,16 +442,16 @@ class Crypt_RSA
      * @var String
      * @access private
      */
-    var $comment = 'phpseclib-generated-key';
+    public $comment = 'phpseclib-generated-key';
 
     /**
      * The constructor
      *
      * If you want to make use of the openssl extension, you'll need to set the mode manually, yourself.  The reason
-     * Crypt_RSA doesn't do it is because OpenSSL doesn't fail gracefully.  openssl_pkey_new(), in particular, requires
+     * \phpseclib\Crypt\RSA doesn't do it is because OpenSSL doesn't fail gracefully.  openssl_pkey_new(), in particular, requires
      * openssl.cnf be present somewhere and, unfortunately, the only real way to find out is too late.
      *
-     * @return Crypt_RSA
+     * @return \phpseclib\Crypt\RSA
      * @access public
      */
     function __construct()
@@ -505,10 +506,10 @@ class Crypt_RSA
         $this->zero = new BigInteger();
         $this->one = new BigInteger(1);
 
-        $this->hash = new Crypt_Hash('sha1');
+        $this->hash = new Hash('sha1');
         $this->hLen = $this->hash->getLength();
         $this->hashName = 'sha1';
-        $this->mgfHash = new Crypt_Hash('sha1');
+        $this->mgfHash = new Hash('sha1');
         $this->mgfHLen = $this->mgfHash->getLength();
     }
 
@@ -519,7 +520,7 @@ class Crypt_RSA
      *  - 'privatekey': The private key.
      *  - 'publickey':  The public key.
      *  - 'partialkey': A partially computed key (if the execution time exceeded $timeout).
-     *                  Will need to be passed back to Crypt_RSA::createKey() as the third parameter for further processing.
+     *                  Will need to be passed back to \phpseclib\Crypt\RSA::createKey() as the third parameter for further processing.
      *
      * @access public
      * @param optional Integer $bits
@@ -767,9 +768,6 @@ class Crypt_RSA
                 } else {
                     $private.= Random::string(16 - (strlen($private) & 15));
                     $source.= pack('Na*', strlen($private), $private);
-                    if (!class_exists('Crypt_AES')) {
-                        include_once 'Crypt/AES.php';
-                    }
                     $sequence = 0;
                     $symkey = '';
                     while (strlen($symkey) < 32) {
@@ -777,7 +775,7 @@ class Crypt_RSA
                         $symkey.= pack('H*', sha1($temp));
                     }
                     $symkey = substr($symkey, 0, 32);
-                    $crypto = new Crypt_AES();
+                    $crypto = new AES();
 
                     $crypto->setKey($symkey);
                     $crypto->disablePadding();
@@ -788,10 +786,7 @@ class Crypt_RSA
                 $private = base64_encode($private);
                 $key.= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
                 $key.= chunk_split($private, 64);
-                if (!class_exists('Crypt_Hash')) {
-                    include_once 'Crypt/Hash.php';
-                }
-                $hash = new Crypt_Hash('sha1');
+                $hash = new Hash('sha1');
                 $hash->setKey(pack('H*', sha1($hashkey)));
                 $key.= 'Private-MAC: ' . bin2hex($hash->hash($source)) . "\r\n";
 
@@ -834,10 +829,7 @@ class Crypt_RSA
                         $salt = Random::string(8);
                         $iterationCount = 2048;
 
-                        if (!class_exists('Crypt_DES')) {
-                            include_once 'Crypt/DES.php';
-                        }
-                        $crypto = new Crypt_DES();
+                        $crypto = new DES();
                         $crypto->setPassword($this->password, 'pbkdf1', 'md5', $salt, $iterationCount);
                         $RSAPrivateKey = $crypto->encrypt($RSAPrivateKey);
 
@@ -874,10 +866,7 @@ class Crypt_RSA
                     $iv = Random::string(8);
                     $symkey = pack('H*', md5($this->password . $iv)); // symkey is short for symmetric key
                     $symkey.= substr(pack('H*', md5($symkey . $this->password . $iv)), 0, 8);
-                    if (!class_exists('Crypt_TripleDES')) {
-                        include_once 'Crypt/TripleDES.php';
-                    }
-                    $des = new Crypt_TripleDES();
+                    $des = new TripleDES();
                     $des->setKey($symkey);
                     $des->setIV($iv);
                     $iv = strtoupper(bin2hex($iv));
@@ -1048,36 +1037,21 @@ class Crypt_RSA
                     }
                     switch ($matches[1]) {
                         case 'AES-256-CBC':
-                            if (!class_exists('Crypt_AES')) {
-                                include_once 'Crypt/AES.php';
-                            }
-                            $crypto = new Crypt_AES();
+                            $crypto = new AES();
                             break;
                         case 'AES-128-CBC':
-                            if (!class_exists('Crypt_AES')) {
-                                include_once 'Crypt/AES.php';
-                            }
                             $symkey = substr($symkey, 0, 16);
-                            $crypto = new Crypt_AES();
+                            $crypto = new AES();
                             break;
                         case 'DES-EDE3-CFB':
-                            if (!class_exists('Crypt_TripleDES')) {
-                                include_once 'Crypt/TripleDES.php';
-                            }
-                            $crypto = new Crypt_TripleDES(Crypt_TripleDES::MODE_CFB);
+                            $crypto = new TripleDES(Base::MODE_CFB);
                             break;
                         case 'DES-EDE3-CBC':
-                            if (!class_exists('Crypt_TripleDES')) {
-                                include_once 'Crypt/TripleDES.php';
-                            }
                             $symkey = substr($symkey, 0, 24);
-                            $crypto = new Crypt_TripleDES();
+                            $crypto = new TripleDES();
                             break;
                         case 'DES-CBC':
-                            if (!class_exists('Crypt_DES')) {
-                                include_once 'Crypt/DES.php';
-                            }
-                            $crypto = new Crypt_DES();
+                            $crypto = new DES();
                             break;
                         default:
                             return false;
@@ -1153,10 +1127,7 @@ class Crypt_RSA
                                 return false;
                             }
 
-                            if (!class_exists('Crypt_DES')) {
-                                include_once 'Crypt/DES.php';
-                            }
-                            $crypto = new Crypt_DES();
+                            $crypto = new DES();
                             $crypto->setPassword($this->password, 'pbkdf1', 'md5', $salt, $iterationCount);
                             $key = $crypto->decrypt($key);
                             if ($key === false) {
@@ -1334,9 +1305,6 @@ class Crypt_RSA
 
                 switch ($encryption) {
                     case 'aes256-cbc':
-                        if (!class_exists('Crypt_AES')) {
-                            include_once 'Crypt/AES.php';
-                        }
                         $symkey = '';
                         $sequence = 0;
                         while (strlen($symkey) < 32) {
@@ -1344,7 +1312,7 @@ class Crypt_RSA
                             $symkey.= pack('H*', sha1($temp));
                         }
                         $symkey = substr($symkey, 0, 32);
-                        $crypto = new Crypt_AES();
+                        $crypto = new AES();
                 }
 
                 if ($encryption != 'none') {
@@ -1486,7 +1454,7 @@ class Crypt_RSA
      */
     function loadKey($key, $type = false)
     {
-        if (is_object($key) && strtolower(get_class($key)) == 'crypt_rsa') {
+        if (is_object($key) && get_class($key) == 'phpseclib\Crypt\RSA') {
             $this->privateKeyFormat = $key->privateKeyFormat;
             $this->publicKeyFormat = $key->publicKeyFormat;
             $this->k = $key->k;
@@ -1500,10 +1468,10 @@ class Crypt_RSA
             $this->comment = $key->comment;
 
             if (is_object($key->hash)) {
-                $this->hash = new Crypt_Hash($key->hash->getHash());
+                $this->hash = new Hash($key->hash->getHash());
             }
             if (is_object($key->mgfHash)) {
-                $this->mgfHash = new Crypt_Hash($key->mgfHash->getHash());
+                $this->mgfHash = new Hash($key->mgfHash->getHash());
             }
 
             if (is_object($key->modulus)) {
@@ -1694,7 +1662,7 @@ class Crypt_RSA
             return true;
         }
 
-        $rsa = new Crypt_RSA();
+        $rsa = new RSA();
         if (!$rsa->loadKey($key, $type)) {
             return false;
         }
@@ -1799,7 +1767,7 @@ class Crypt_RSA
      */
     function __clone()
     {
-        $key = new Crypt_RSA();
+        $key = new RSA();
         $key->loadKey($this);
         return $key;
     }
@@ -1923,7 +1891,7 @@ class Crypt_RSA
      */
     function setHash($hash)
     {
-        // Crypt_Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
+        // \phpseclib\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
         switch ($hash) {
             case 'md2':
             case 'md5':
@@ -1931,11 +1899,11 @@ class Crypt_RSA
             case 'sha256':
             case 'sha384':
             case 'sha512':
-                $this->hash = new Crypt_Hash($hash);
+                $this->hash = new Hash($hash);
                 $this->hashName = $hash;
                 break;
             default:
-                $this->hash = new Crypt_Hash('sha1');
+                $this->hash = new Hash('sha1');
                 $this->hashName = 'sha1';
         }
         $this->hLen = $this->hash->getLength();
@@ -1952,7 +1920,7 @@ class Crypt_RSA
      */
     function setMGFHash($hash)
     {
-        // Crypt_Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
+        // \phpseclib\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
         switch ($hash) {
             case 'md2':
             case 'md5':
@@ -1960,10 +1928,10 @@ class Crypt_RSA
             case 'sha256':
             case 'sha384':
             case 'sha512':
-                $this->mgfHash = new Crypt_Hash($hash);
+                $this->mgfHash = new Hash($hash);
                 break;
             default:
-                $this->mgfHash = new Crypt_Hash('sha1');
+                $this->mgfHash = new Hash('sha1');
         }
         $this->mgfHLen = $this->mgfHash->getLength();
     }
@@ -2426,7 +2394,7 @@ class Crypt_RSA
      * to be 2 regardless of which key is used.  For compatibility purposes, we'll just check to make sure the
      * second byte is 2 or less.  If it is, we'll accept the decrypted string as valid.
      *
-     * As a consequence of this, a private key encrypted ciphertext produced with Crypt_RSA may not decrypt
+     * As a consequence of this, a private key encrypted ciphertext produced with \phpseclib\Crypt\RSA may not decrypt
      * with a strictly PKCS#1 v1.5 compliant RSA implementation.  Public key encrypted ciphertext's should but
      * not private key encrypted ciphertext's.
      *

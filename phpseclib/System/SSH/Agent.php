@@ -31,10 +31,18 @@
  * @internal  See http://api.libssh.org/rfc/PROTOCOL.agent
  */
 
+<<<<<<< HEAD
 namespace phpseclib\System\SSH;
 
 use Crypt_RSA; //This should be removed once the Crypt package is fully namespaced
 use phpseclib\System\SSH\Agent\Identity;
+=======
+use phpseclib\Crypt\RSA;
+
+if (!class_exists('System_SSH_Agent_Identity')) {
+    include_once 'Agent/Identity.php';
+}
+>>>>>>> Namespaced classes
 
 /**
  * Pure-PHP ssh-agent client identity factory
@@ -138,10 +146,7 @@ class Agent
             $key_type = substr($key_blob, 4, $length);
             switch ($key_type) {
                 case 'ssh-rsa':
-                    if (!class_exists('Crypt_RSA')) {
-                        include_once 'Crypt/RSA.php';
-                    }
-                    $key = new Crypt_RSA();
+                    $key = new RSA();
                     $key->loadKey('ssh-rsa ' . base64_encode($key_blob) . ' ' . $key_comment);
                     break;
                 case 'ssh-dss':

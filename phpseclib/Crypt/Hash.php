@@ -7,7 +7,7 @@
  *
  * md2, md5, md5-96, sha1, sha1-96, sha256, sha256-96, sha384, and sha512, sha512-96
  *
- * If {@link Crypt_Hash::setKey() setKey()} is called, {@link Crypt_Hash::hash() hash()} will return the HMAC as opposed to
+ * If {@link \phpseclib\Crypt\Hash::setKey() setKey()} is called, {@link \phpseclib\Crypt\Hash::hash() hash()} will return the HMAC as opposed to
  * the hash.  If no valid algorithm is provided, sha1 will be used.
  *
  * PHP versions 4 and 5
@@ -18,9 +18,9 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include 'Crypt/Hash.php';
+ *    include 'vendor/autoload.php';
  *
- *    $hash = new Crypt_Hash('sha1');
+ *    $hash = new \phpseclib\Crypt\Hash('sha1');
  *
  *    $hash->setKey('abcdefg');
  *
@@ -29,27 +29,29 @@
  * </code>
  *
  * @category  Crypt
- * @package   Crypt_Hash
+ * @package   Hash
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2007 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
+namespace phpseclib\Crypt;
+
 use \phpseclib\Math\BigInteger;
 
 /**
  * Pure-PHP implementations of keyed-hash message authentication codes (HMACs) and various cryptographic hashing functions.
  *
- * @package Crypt_Hash
+ * @package Hash
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Crypt_Hash
+class Hash
 {
     /**#@+
      * @access private
-     * @see Crypt_Hash::__construct()
+     * @see \phpseclib\Crypt\Hash::__construct()
      */
     /**
      * Toggles the internal implementation
@@ -68,71 +70,71 @@ class Crypt_Hash
     /**
      * Hash Parameter
      *
-     * @see Crypt_Hash::setHash()
+     * @see \phpseclib\Crypt\Hash::setHash()
      * @var Integer
      * @access private
      */
-    var $hashParam;
+    public $hashParam;
 
     /**
      * Byte-length of compression blocks / key (Internal HMAC)
      *
-     * @see Crypt_Hash::setAlgorithm()
+     * @see \phpseclib\Crypt\Hash::setAlgorithm()
      * @var Integer
      * @access private
      */
-    var $b;
+    public $b;
 
     /**
      * Byte-length of hash output (Internal HMAC)
      *
-     * @see Crypt_Hash::setHash()
+     * @see \phpseclib\Crypt\Hash::setHash()
      * @var Integer
      * @access private
      */
-    var $l = false;
+    public $l = false;
 
     /**
      * Hash Algorithm
      *
-     * @see Crypt_Hash::setHash()
+     * @see \phpseclib\Crypt\Hash::setHash()
      * @var String
      * @access private
      */
-    var $hash;
+    public $hash;
 
     /**
      * Key
      *
-     * @see Crypt_Hash::setKey()
+     * @see \phpseclib\Crypt\Hash::setKey()
      * @var String
      * @access private
      */
-    var $key = false;
+    public $key = false;
 
     /**
      * Outer XOR (Internal HMAC)
      *
-     * @see Crypt_Hash::setKey()
+     * @see \phpseclib\Crypt\Hash::setKey()
      * @var String
      * @access private
      */
-    var $opad;
+    public $opad;
 
     /**
      * Inner XOR (Internal HMAC)
      *
-     * @see Crypt_Hash::setKey()
+     * @see \phpseclib\Crypt\Hash::setKey()
      * @var String
      * @access private
      */
-    var $ipad;
+    public $ipad;
 
     /**
      * Default Constructor.
      *
      * @param optional String $hash
-     * @return Crypt_Hash
+     * @return \phpseclib\Crypt\Hash
      * @access public
      */
     function __construct($hash = 'sha1')
@@ -721,7 +723,7 @@ class Crypt_Hash
         }
 
         // Produce the final hash value (big-endian)
-        // (Crypt_Hash::hash() trims the output for hashes but not for HMACs.  as such, we trim the output here)
+        // (\phpseclib\Crypt\Hash::hash() trims the output for hashes but not for HMACs.  as such, we trim the output here)
         $temp = $hash[0]->toBytes() . $hash[1]->toBytes() . $hash[2]->toBytes() . $hash[3]->toBytes() .
                 $hash[4]->toBytes() . $hash[5]->toBytes();
         if ($this->l != 48) {
