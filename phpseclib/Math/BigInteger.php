@@ -63,7 +63,7 @@
  * @category  Math
  * @package   Math_BigInteger
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright MMVI Jim Wigginton
+ * @copyright 2006 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://pear.php.net/package/Math_BigInteger
  */
