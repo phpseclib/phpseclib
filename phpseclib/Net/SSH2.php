@@ -1845,10 +1845,10 @@ class Net_SSH2
 
         // although PHP5's get_class() preserves the case, PHP4's does not
         if (is_object($password)) {
-            switch (strtolower(get_class($password))) {
-                case 'crypt_rsa':
+            switch (get_class($password)) {
+                case 'phpseclib\Crypt\RSA':
                     return $this->_privatekey_login($username, $password);
-                case 'system_ssh_agent':
+                case 'System_SSH_Agent':
                     return $this->_ssh_agent_login($username, $password);
             }
         }

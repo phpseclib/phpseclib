@@ -3604,8 +3604,8 @@ class File_X509
      */
     function _sign($key, $signatureAlgorithm)
     {
-        switch (strtolower(get_class($key))) {
-            case 'crypt_rsa':
+        switch (get_class($key)) {
+            case 'phpseclib\Crypt\RSA':
                 switch ($signatureAlgorithm) {
                     case 'md2WithRSAEncryption':
                     case 'md5WithRSAEncryption':
@@ -4230,8 +4230,8 @@ class File_X509
             return false;
         }
 
-        switch (strtolower(get_class($this->publicKey))) {
-            case 'crypt_rsa':
+        switch (get_class($this->publicKey)) {
+            case 'phpseclib\Crypt\RSA':
                 // the following two return statements do the same thing. i dunno.. i just prefer the later for some reason.
                 // the former is a good example of how to do fuzzing on the public key
                 //return new File_ASN1_Element(base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey())));
