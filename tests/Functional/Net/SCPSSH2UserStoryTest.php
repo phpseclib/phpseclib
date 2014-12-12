@@ -14,11 +14,6 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
 
     static public function setUpBeforeClass()
     {
-        if (getenv('TRAVIS') && version_compare(PHP_VERSION, '5.3.0', '<')) {
-            self::markTestIncomplete(
-                'This test fails on Travis CI on PHP 5.2 due to requiring GMP.'
-            );
-        }
         parent::setUpBeforeClass();
         self::$remoteFile = uniqid('phpseclib-scp-ssh2-') . '.txt';
         self::$exampleData = str_repeat('abscp12345', 1000);
