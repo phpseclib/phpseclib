@@ -41,8 +41,10 @@ class Functional_Net_SFTPLargeFileTest extends PhpseclibFunctionalTestCase
 
     public function tearDown()
     {
-        $this->sftp->chdir($this->getEnv('SSH_HOME'));
-        $this->sftp->delete($this->scratchDir);
+        if ($this->sftp) {
+            $this->sftp->chdir($this->getEnv('SSH_HOME'));
+            $this->sftp->delete($this->scratchDir);
+        }
         parent::tearDown();
     }
 
