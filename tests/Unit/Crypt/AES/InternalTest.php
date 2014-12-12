@@ -11,7 +11,7 @@ class Unit_Crypt_AES_InternalTest extends Unit_Crypt_AES_TestCase
     {
         parent::setUpBeforeClass();
 
-        self::ensureConstant('CRYPT_AES_ENGINE', Crypt_AES::ENGINE_INTERNAL);
-        self::ensureConstant('CRYPT_RIJNDAEL_ENGINE', Crypt_Rijndael::ENGINE_INTERNAL);
+        self::ensureConstant('CRYPT_AES_MODE', Crypt_AES::ENGINE_INTERNAL);
+        self::ensureConstant('CRYPT_RIJNDAEL_MODE', Crypt_Rijndael::ENGINE_INTERNAL);
     }
 }

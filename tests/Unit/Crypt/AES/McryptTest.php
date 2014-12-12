@@ -15,7 +15,7 @@ class Unit_Crypt_AES_McryptTest extends Unit_Crypt_AES_TestCase
 
         parent::setUpBeforeClass();
 
-        self::ensureConstant('CRYPT_AES_ENGINE', Crypt_AES::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_RIJNDAEL_ENGINE', Crypt_Rijndael::ENGINE_MCRYPT);
+        self::ensureConstant('CRYPT_AES_MODE', Crypt_AES::ENGINE_MCRYPT);
+        self::ensureConstant('CRYPT_RIJNDAEL_MODE', Crypt_Rijndael::ENGINE_MCRYPT);
     }
 }
