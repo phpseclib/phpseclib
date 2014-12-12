@@ -25,11 +25,9 @@
  */
 
 namespace phpseclib\File;
+
 use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\RSA;
-use phpseclib\Math\BigInteger;
-
-use Crypt_RSA; // This should get removed after the Crypt package has been fully namespaced
 use phpseclib\File\ASN1;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
