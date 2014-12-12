@@ -55,6 +55,7 @@ use Crypt_Blowfish;
 use Crypt_Hash;
 use Crypt_RC4;
 use Crypt_Rijndael;
+use Crypt_RSA;
 use Crypt_TripleDES;
 use Crypt_Twofish;
 // End unnecessary Use Statements
