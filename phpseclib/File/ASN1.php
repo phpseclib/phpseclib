@@ -9,35 +9,31 @@
  * utilized scheme is DER or the "Distinguished Encoding Rules".  PEM's are base64 encoded
  * DER blobs.
  *
- * File_ASN1 decodes and encodes DER formatted messages and places them in a semantic context.
+ * \phpseclib\File\ASN1 decodes and encodes DER formatted messages and places them in a semantic context.
  *
  * Uses the 1988 ASN.1 syntax.
  *
  * @category  File
- * @package   File_ASN1
+ * @package   ASN1
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2012 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
-use \phpseclib\Math\BigInteger;
+namespace phpseclib\File;
 
-/**
- * Include File_ASN1_Element
- */
-if (!class_exists('File_ASN1_Element')) {
-    include_once 'ASN1/Element.php';
-}
+use phpseclib\File\ASN1\Element;
+use phpseclib\Math\BigInteger;
 
 /**
  * Pure-PHP ASN.1 Parser
  *
- * @package File_ASN1
+ * @package ASN1
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class File_ASN1
+class ASN1
 {
     /**#@+
      * Tag Classes
@@ -128,8 +124,8 @@ class File_ASN1
      *
      * @var Array
      * @access private
-     * @see File_ASN1::setTimeFormat()
-     * @see File_ASN1::asn1map()
+     * @see \phpseclib\File\ASN1::setTimeFormat()
+     * @see \phpseclib\File\ASN1::asn1map()
      * @link http://php.net/class.datetime
      */
     var $encoded;
@@ -141,14 +137,14 @@ class File_ASN1
      *
      * @var Array
      * @access private
-     * @see File_ASN1::_encode_der()
+     * @see \phpseclib\File\ASN1::_encode_der()
      */
     var $filters;
 
     /**
      * Type mapping table for the ANY type.
      *
-     * Structured or unknown types are mapped to a File_ASN1_Element.
+     * Structured or unknown types are mapped to a \phpseclib\File\ASN1\Element.
      * Unambiguous types get the direct mapping (int/real/bool).
      * Others are mapped as a choice, with an extra indexing level.
      *
@@ -484,7 +480,7 @@ class File_ASN1
             case $mapping['type'] == self::TYPE_ANY:
                 $intype = $decoded['type'];
                 if (isset($decoded['constant']) || !isset($this->ANYmap[$intype]) || ($this->encoded[$decoded['start']] & 0x20)) {
-                    return new File_ASN1_Element(substr($this->encoded, $decoded['start'], $decoded['length']));
+                    return new Element(substr($this->encoded, $decoded['start'], $decoded['length']));
                 }
                 $inmap = $this->ANYmap[$intype];
                 if (is_string($inmap)) {
@@ -1166,7 +1162,7 @@ class File_ASN1
     /**
      * Load filters
      *
-     * See File_X509, etc, for an example.
+     * See \phpseclib\File\X509, etc, for an example.
      *
      * @access public
      * @param Array $filters
