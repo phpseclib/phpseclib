@@ -100,7 +100,7 @@ define('CRYPT_MODE_STREAM', 5);
 /**#@+
  * @access private
  * @see Crypt_Base::Crypt_Base()
- * @internal This constants are for internal usage only
+ * @internal This constants are for internal use only
  */
 /**
  * Base value for the internal implementation $engine switch
@@ -532,7 +532,7 @@ class Crypt_Base
      *
      * @access public
      * @param String $iv
-     * @internal Could, but not must, extend by the child Crypt_* class
+     * @internal Can be overwritten by a sub class, but does not have to be
      */
     function setIV($iv)
     {
