@@ -56,7 +56,7 @@
  * @access private
  * @see Crypt_Base::encrypt()
  * @see Crypt_Base::decrypt()
- * @internal This constants are for internal usage only
+ * @internal This constants are for internal use only
  */
 /**
  * Encrypt / decrypt using the Counter mode.
