@@ -11,8 +11,11 @@ class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 {
     public function testLoadPKCS8PrivateKey()
     {
+echo "testing load key\r\n";
         $rsa = new Crypt_RSA();
+echo "crypt rsa obj init\r\n";
         $rsa->setPassword('password');
+echo "password set\r\n";
 
         $key = '-----BEGIN ENCRYPTED PRIVATE KEY-----
 MIIE6TAbBgkqhkiG9w0BBQMwDgQIcWWgZeQYPTcCAggABIIEyLoa5b3ktcPmy4VB
@@ -43,9 +46,12 @@ FqV4aKq70H6dNJ43bLVRPhtF5Bip5P7k/6KIsGTPUd54PHey+DuWRjitfheL0G2w
 GF/qoZyC1mbqdtyyeWgHtVbJVUORmpbNnXOII9duEqBUNDiO9VSZNn/8h/VsYeAB
 xryZaRDVmtMuf/OZBQ==
 -----END ENCRYPTED PRIVATE KEY-----';
+echo "\$key set\r\n";
 
         $this->assertTrue($rsa->loadKey($key));
+echo "assert true one\r\n";
         $this->assertInternalType('string', $rsa->getPrivateKey());
+echo "assert true two\r\n";
     }
 /*
     public function testSavePKCS8PrivateKey()
