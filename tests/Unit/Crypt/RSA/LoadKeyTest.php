@@ -4,7 +4,7 @@
  * @copyright 2013 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
-
+echo "requiring crypt rsa\r\n";
 require_once 'Crypt/RSA.php' ;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
