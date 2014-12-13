@@ -17,19 +17,19 @@ class Unit_Crypt_DES_TestCase extends PhpseclibTestCase
         $des->setKey('d');
         $des->setIV('d');
 
-        $des->setPreferredEngine(CRYPT_MODE_INTERNAL);
+        $des->setPreferredEngine(CRYPT_ENGINE_INTERNAL);
         $internal = $des->encrypt('d');
 
-        $des->setPreferredEngine(CRYPT_MODE_MCRYPT);
-        if ($des->getEngine() == CRYPT_MODE_MCRYPT) {
+        $des->setPreferredEngine(CRYPT_ENGINE_MCRYPT);
+        if ($des->getEngine() == CRYPT_ENGINE_MCRYPT) {
             $mcrypt = $des->encrypt('d');
             $this->assertEquals($internal, $mcrypt, 'Failed asserting that the internal and mcrypt engines produce identical results');
         } else {
             self::markTestSkipped('Unable to initialize mcrypt engine');
         }
 
-        $des->setPreferredEngine(CRYPT_MODE_OPENSSL);
-        if ($des->getEngine() == CRYPT_MODE_OPENSSL) {
+        $des->setPreferredEngine(CRYPT_ENGINE_OPENSSL);
+        if ($des->getEngine() == CRYPT_ENGINE_OPENSSL) {
             $openssl = $des->encrypt('d');
             $this->assertEquals($internal, $openssl,  'Failed asserting that the internal and OpenSSL engines produce identical results');
         } else {
@@ -47,19 +47,19 @@ class Unit_Crypt_DES_TestCase extends PhpseclibTestCase
         //$des->setKey();
         //$des->setIV();
 
-        $des->setPreferredEngine(CRYPT_MODE_INTERNAL);
+        $des->setPreferredEngine(CRYPT_ENGINE_INTERNAL);
         $internal = $des->decrypt('d');
 
-        $des->setPreferredEngine(CRYPT_MODE_MCRYPT);
-        if ($des->getEngine() == CRYPT_MODE_MCRYPT) {
+        $des->setPreferredEngine(CRYPT_ENGINE_MCRYPT);
+        if ($des->getEngine() == CRYPT_ENGINE_MCRYPT) {
             $mcrypt = $des->decrypt('d');
             $this->assertEquals($internal, $mcrypt, 'Failed asserting that the internal and mcrypt engines produce identical results');
         } else {
             self::markTestSkipped('Unable to initialize mcrypt engine');
         }
 
-        $des->setPreferredEngine(CRYPT_MODE_OPENSSL);
-        if ($des->getEngine() == CRYPT_MODE_OPENSSL) {
+        $des->setPreferredEngine(CRYPT_ENGINE_OPENSSL);
+        if ($des->getEngine() == CRYPT_ENGINE_OPENSSL) {
             $openssl = $des->decrypt('d');
             $this->assertEquals($internal, $openssl,  'Failed asserting that the internal and OpenSSL engines produce identical results');
         } else {

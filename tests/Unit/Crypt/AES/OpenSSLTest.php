@@ -9,6 +9,6 @@ class Unit_Crypt_AES_OpenSSLTest extends Unit_Crypt_AES_TestCase
 {
     protected function setUp()
     {
-        $this->engine = CRYPT_MODE_OPENSSL;
+        $this->engine = CRYPT_ENGINE_OPENSSL;
     }
 }

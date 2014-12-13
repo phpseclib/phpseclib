@@ -9,6 +9,6 @@ class Unit_Crypt_AES_McryptTest extends Unit_Crypt_AES_TestCase
 {
     protected function setUp()
     {
-        $this->engine = CRYPT_MODE_MCRYPT;
+        $this->engine = CRYPT_ENGINE_MCRYPT;
     }
 }

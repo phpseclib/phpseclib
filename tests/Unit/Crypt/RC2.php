@@ -49,19 +49,19 @@ class Unit_Crypt_RC2_TestCase extends PhpseclibTestCase
 
         $rc2->setKey(str_repeat('d', 16), 128);
 
-        $rc2->setPreferredEngine(CRYPT_MODE_INTERNAL);
+        $rc2->setPreferredEngine(CRYPT_ENGINE_INTERNAL);
         $internal = $rc2->encrypt('d');
 
-        $rc2->setPreferredEngine(CRYPT_MODE_MCRYPT);
-        if ($rc2->getEngine() == CRYPT_MODE_MCRYPT) {
+        $rc2->setPreferredEngine(CRYPT_ENGINE_MCRYPT);
+        if ($rc2->getEngine() == CRYPT_ENGINE_MCRYPT) {
             $mcrypt = $rc2->encrypt('d');
             $this->assertEquals($internal, $mcrypt, 'Failed asserting that the internal and mcrypt engines produce identical results');
         } else {
             self::markTestSkipped('Unable to initialize mcrypt engine');
         }
 
-        $rc2->setPreferredEngine(CRYPT_MODE_OPENSSL);
-        if ($rc2->getEngine() == CRYPT_MODE_OPENSSL) {
+        $rc2->setPreferredEngine(CRYPT_ENGINE_OPENSSL);
+        if ($rc2->getEngine() == CRYPT_ENGINE_OPENSSL) {
             $openssl = $rc2->encrypt('d');
             $this->assertEquals($internal, $openssl,  'Failed asserting that the internal and OpenSSL engines produce identical results');
         } else {
