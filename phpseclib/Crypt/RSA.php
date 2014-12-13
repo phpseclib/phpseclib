@@ -1160,6 +1160,7 @@ class Crypt_RSA
                         return false;
                     }
                     $length = $this->_decodeLength($temp);
+echo "\r\nthis far this far\r\n";
                     switch ($this->_string_shift($temp, $length)) {
                         case "\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01": // rsaEncryption
                             break;
