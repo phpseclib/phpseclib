@@ -103,7 +103,6 @@ define('CRYPT_RC2_MODE_OFB', CRYPT_MODE_OFB);
  * Pure-PHP implementation of RC2.
  *
  * @package Crypt_RC2
- * @version 0.1.2
  * @access  public
  */
 class Crypt_RC2 extends Crypt_Base

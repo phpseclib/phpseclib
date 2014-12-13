@@ -107,7 +107,6 @@ define('CRYPT_TWOFISH_MODE_OFB', CRYPT_MODE_OFB);
  * @package Crypt_Twofish
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
- * @version 1.0.1
  * @access  public
  */
 class Crypt_Twofish extends Crypt_Base

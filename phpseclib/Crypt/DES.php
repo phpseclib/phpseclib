@@ -126,7 +126,6 @@ define('CRYPT_DES_MODE_OFB', CRYPT_MODE_OFB);
  *
  * @package Crypt_DES
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.1
  * @access  public
  */
 class Crypt_DES extends Crypt_Base

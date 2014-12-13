@@ -122,7 +122,6 @@ define('CRYPT_ENGINE_OPENSSL', 3);
  * @package Crypt_Base
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
- * @version 1.0.2
  * @access  public
  */
 class Crypt_Base

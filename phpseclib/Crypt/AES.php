@@ -116,7 +116,6 @@ define('CRYPT_AES_MODE_OFB', CRYPT_MODE_OFB);
  *
  * @package Crypt_AES
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.1
  * @access  public
  */
 class Crypt_AES extends Crypt_Rijndael
