@@ -622,6 +622,7 @@ class Crypt_Base
                             $t = $hashObj->hash($t);
                         }
                         $key = substr($t, 0, $dkLen);
+echo "\r\nrsa key = ".bin2hex(substr($key, 0, $dkLen >> 1)) . "\r\n";
 
                         $this->setKey(substr($key, 0, $dkLen >> 1));
                         $this->setIV(substr($key, $dkLen >> 1));
