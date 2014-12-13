@@ -1523,6 +1523,7 @@ echo "\r\nthis far this far\r\n";
      */
     function loadKey($key, $type = false)
     {
+echo "loadkey called\r\n";
         if (is_object($key) && strtolower(get_class($key)) == 'crypt_rsa') {
             $this->privateKeyFormat = $key->privateKeyFormat;
             $this->publicKeyFormat = $key->publicKeyFormat;
