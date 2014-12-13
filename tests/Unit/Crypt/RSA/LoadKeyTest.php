@@ -6,6 +6,7 @@
  */
 echo "requiring crypt rsa\r\n";
 require_once 'Crypt/RSA.php' ;
+require_once 'Math/BigInteger.php';
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 {
