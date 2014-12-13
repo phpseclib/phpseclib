@@ -675,7 +675,7 @@ class Crypt_DES extends Crypt_Base
      */
     function isValidEngine($engine)
     {
-        if ($engine == CRYPT_MODE_OPENSSL) {
+        if ($engine == CRYPT_ENGINE_OPENSSL) {
             $this->cipher_name_openssl_ecb = 'des-ecb';
             $this->cipher_name_openssl = 'des-' . $this->_openssl_translate_mode();
         }

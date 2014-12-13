@@ -105,15 +105,15 @@ define('CRYPT_MODE_STREAM', 5);
 /**
  * Base value for the internal implementation $engine switch
  */
-define('CRYPT_MODE_INTERNAL', 1);
+define('CRYPT_ENGINE_INTERNAL', 1);
 /**
  * Base value for the mcrypt implementation $engine switch
  */
-define('CRYPT_MODE_MCRYPT', 2);
+define('CRYPT_ENGINE_MCRYPT', 2);
 /**
  * Base value for the OpenSSL implementation $engine switch
  */
-define('CRYPT_MODE_OPENSSL', 3);
+define('CRYPT_ENGINE_OPENSSL', 3);
 /**#@-*/
 
 /**
@@ -278,7 +278,7 @@ class Crypt_Base
      * Optimizing value while CFB-encrypting
      *
      * Only relevant if $continuousBuffer enabled
-     * and $engine == CRYPT_MODE_MCRYPT
+     * and $engine == CRYPT_ENGINE_MCRYPT
      *
      * It's faster to re-init $enmcrypt if
      * $buffer bytes > $cfb_init_len than
@@ -330,9 +330,9 @@ class Crypt_Base
      * which will be determined automatically on __construct()
      *
      * Currently available $engines are:
-     * - CRYPT_MODE_OPENSSL  (very fast, php-extension: openssl, extension_loaded('openssl') required)
-     * - CRYPT_MODE_MCRYPT   (fast, php-extension: mcrypt, extension_loaded('mcrypt') required)
-     * - CRYPT_MODE_INTERNAL (slower, pure php-engine, no php-extension required)
+     * - CRYPT_ENGINE_OPENSSL  (very fast, php-extension: openssl, extension_loaded('openssl') required)
+     * - CRYPT_ENGINE_MCRYPT   (fast, php-extension: mcrypt, extension_loaded('mcrypt') required)
+     * - CRYPT_ENGINE_INTERNAL (slower, pure php-engine, no php-extension required)
      *
      * @see Crypt_Base::_setEngine()
      * @see Crypt_Base::encrypt()
@@ -355,7 +355,7 @@ class Crypt_Base
     /**
      * The mcrypt specific name of the cipher
      *
-     * Only used if $engine == CRYPT_MODE_MCRYPT
+     * Only used if $engine == CRYPT_ENGINE_MCRYPT
      *
      * @link http://www.php.net/mcrypt_module_open
      * @link http://www.php.net/mcrypt_list_algorithms
@@ -368,7 +368,7 @@ class Crypt_Base
     /**
      * The openssl specific name of the cipher
      *
-     * Only used if $engine == CRYPT_MODE_OPENSSL
+     * Only used if $engine == CRYPT_ENGINE_OPENSSL
      *
      * @link http://www.php.net/openssl-get-cipher-methods
      * @var String
@@ -433,7 +433,7 @@ class Crypt_Base
      * The name of the performance-optimized callback function
      *
      * Used by encrypt() / decrypt()
-     * only if $engine == CRYPT_MODE_INTERNAL
+     * only if $engine == CRYPT_ENGINE_INTERNAL
      *
      * @see Crypt_Base::encrypt()
      * @see Crypt_Base::decrypt()
@@ -685,7 +685,7 @@ class Crypt_Base
             $plaintext = $this->_pad($plaintext);
         }
 
-        if ($this->engine === CRYPT_MODE_OPENSSL) {
+        if ($this->engine === CRYPT_ENGINE_OPENSSL) {
             if ($this->changed) {
                 $this->_clearBuffers();
                 $this->changed = false;
@@ -757,7 +757,7 @@ class Crypt_Base
             }
         }
 
-        if ($this->engine === CRYPT_MODE_MCRYPT) {
+        if ($this->engine === CRYPT_ENGINE_MCRYPT) {
             if ($this->changed) {
                 $this->_setupMcrypt();
                 $this->changed = false;
@@ -984,7 +984,7 @@ class Crypt_Base
             $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($this->block_size - strlen($ciphertext) % $this->block_size) % $this->block_size, chr(0));
         }
 
-        if ($this->engine === CRYPT_MODE_OPENSSL) {
+        if ($this->engine === CRYPT_ENGINE_OPENSSL) {
             if ($this->changed) {
                 $this->_clearBuffers();
                 $this->changed = false;
@@ -1055,7 +1055,7 @@ class Crypt_Base
             return $this->paddable ? $this->_unpad($plaintext) : $plaintext;
         }
 
-        if ($this->engine === CRYPT_MODE_MCRYPT) {
+        if ($this->engine === CRYPT_ENGINE_MCRYPT) {
             $block_size = $this->block_size;
             if ($this->changed) {
                 $this->_setupMcrypt();
@@ -1525,7 +1525,7 @@ class Crypt_Base
     function isValidEngine($engine)
     {
         switch ($engine) {
-            case CRYPT_MODE_OPENSSL:
+            case CRYPT_ENGINE_OPENSSL:
                 $this->openssl_emulate_ctr = false;
                 $result = $this->cipher_name_openssl &&
                           extension_loaded('openssl') &&
@@ -1556,11 +1556,11 @@ class Crypt_Base
                         }
                 }
                 return false;
-            case CRYPT_MODE_MCRYPT:
+            case CRYPT_ENGINE_MCRYPT:
                 return $this->cipher_name_mcrypt &&
                        extension_loaded('mcrypt') &&
                        in_array($this->cipher_name_mcrypt, mcrypt_list_algorithms());
-            case CRYPT_MODE_INTERNAL:
+            case CRYPT_ENGINE_INTERNAL:
                 return true;
         }
     }
@@ -1570,11 +1570,11 @@ class Crypt_Base
      *
      * Currently, $engine could be:
      *
-     * - CRYPT_MODE_OPENSSL  [very fast]
+     * - CRYPT_ENGINE_OPENSSL  [very fast]
      *
-     * - CRYPT_MODE_MCRYPT   [fast]
+     * - CRYPT_ENGINE_MCRYPT   [fast]
      *
-     * - CRYPT_MODE_INTERNAL [slow]
+     * - CRYPT_ENGINE_INTERNAL [slow]
      *
      * If the preferred crypt engine is not available the fastest available one will be used
      *
@@ -1585,13 +1585,13 @@ class Crypt_Base
     function setPreferredEngine($engine)
     {
         switch ($engine) {
-            //case CRYPT_MODE_OPENSSL:
-            case CRYPT_MODE_MCRYPT:
-            case CRYPT_MODE_INTERNAL:
+            //case CRYPT_ENGINE_OPENSSL:
+            case CRYPT_ENGINE_MCRYPT:
+            case CRYPT_ENGINE_INTERNAL:
                 $this->preferredEngine = $engine;
                 break;
             default:
-                $this->preferredEngine = CRYPT_MODE_OPENSSL;
+                $this->preferredEngine = CRYPT_ENGINE_OPENSSL;
         }
 
         $this->_setEngine();
@@ -1620,17 +1620,17 @@ class Crypt_Base
             case $this->isValidEngine($this->preferredEngine):
                 $this->engine = $this->preferredEngine;
                 break;
-            case $this->isValidEngine(CRYPT_MODE_OPENSSL):
-                $this->engine = CRYPT_MODE_OPENSSL;
+            case $this->isValidEngine(CRYPT_ENGINE_OPENSSL):
+                $this->engine = CRYPT_ENGINE_OPENSSL;
                 break;
-            case $this->isValidEngine(CRYPT_MODE_MCRYPT):
-                $this->engine = CRYPT_MODE_MCRYPT;
+            case $this->isValidEngine(CRYPT_ENGINE_MCRYPT):
+                $this->engine = CRYPT_ENGINE_MCRYPT;
                 break;
             default:
-                $this->engine = CRYPT_MODE_INTERNAL;
+                $this->engine = CRYPT_ENGINE_INTERNAL;
         }
 
-        if ($this->engine != CRYPT_MODE_MCRYPT && $this->enmcrypt) {
+        if ($this->engine != CRYPT_ENGINE_MCRYPT && $this->enmcrypt) {
             // Closing the current mcrypt resource(s). _mcryptSetup() will, if needed,
             // (re)open them with the module named in $this->cipher_name_mcrypt
             mcrypt_module_close($this->enmcrypt);
@@ -1676,7 +1676,7 @@ class Crypt_Base
     /**
      * Setup the key (expansion)
      *
-     * Only used if $engine == CRYPT_MODE_INTERNAL
+     * Only used if $engine == CRYPT_ENGINE_INTERNAL
      *
      * @see Crypt_Base::_setup()
      * @access private
@@ -1688,10 +1688,10 @@ class Crypt_Base
     }
 
     /**
-     * Setup the CRYPT_MODE_INTERNAL $engine
+     * Setup the CRYPT_ENGINE_INTERNAL $engine
      *
      * (re)init, if necessary, the internal cipher $engine and flush all $buffers
-     * Used (only) if $engine == CRYPT_MODE_INTERNAL
+     * Used (only) if $engine == CRYPT_ENGINE_INTERNAL
      *
      * _setup() will be called each time if $changed === true
      * typically this happens when using one or more of following public methods:
@@ -1722,10 +1722,10 @@ class Crypt_Base
     }
 
     /**
-     * Setup the CRYPT_MODE_MCRYPT $engine
+     * Setup the CRYPT_ENGINE_MCRYPT $engine
      *
      * (re)init, if necessary, the (ext)mcrypt resources and flush all $buffers
-     * Used (only) if $engine = CRYPT_MODE_MCRYPT
+     * Used (only) if $engine = CRYPT_ENGINE_MCRYPT
      *
      * _setupMcrypt() will be called each time if $changed === true
      * typically this happens when using one or more of following public methods:
@@ -1935,7 +1935,7 @@ class Crypt_Base
      *
      *     _setupInlineCrypt() would be called only if:
      *
-     *     - $engine == CRYPT_MODE_INTERNAL and
+     *     - $engine == CRYPT_ENGINE_INTERNAL and
      *
      *     - $use_inline_crypt === true
      *

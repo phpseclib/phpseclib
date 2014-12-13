@@ -411,14 +411,14 @@ class Crypt_Rijndael extends Crypt_Base
     function isValidEngine($engine)
     {
         switch ($engine) {
-            case CRYPT_MODE_OPENSSL:
+            case CRYPT_ENGINE_OPENSSL:
                 if ($this->block_size != 16) {
                     return false;
                 }
                 $this->cipher_name_openssl_ecb = 'aes-' . ($this->key_size << 3) . '-ecb';
                 $this->cipher_name_openssl = 'aes-' . ($this->key_size << 3) . '-' . $this->_openssl_translate_mode();
                 break;
-            case CRYPT_MODE_MCRYPT:
+            case CRYPT_ENGINE_MCRYPT:
                 $this->cipher_name_mcrypt = 'rijndael-' . ($this->block_size << 3);
                 if ($this->key_size % 8) { // is it a 160/224-bit key?
                     // mcrypt is not usable for them, only for 128/192/256-bit keys
@@ -430,7 +430,7 @@ class Crypt_Rijndael extends Crypt_Base
     }
 
     /**
-     * Setup the CRYPT_MODE_MCRYPT $engine
+     * Setup the CRYPT_ENGINE_MCRYPT $engine
      *
      * @see Crypt_Base::_setupMcrypt()
      * @access private

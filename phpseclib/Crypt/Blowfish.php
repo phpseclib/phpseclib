@@ -394,7 +394,7 @@ class Crypt_Blowfish extends Crypt_Base
      */
     function isValidEngine($engine)
     {
-        if ($engine == CRYPT_MODE_OPENSSL) {
+        if ($engine == CRYPT_ENGINE_OPENSSL) {
             if (strlen($this->key) != 16) {
                 return false;
             }

@@ -181,7 +181,7 @@ class Crypt_RC4 extends Crypt_Base
     function isValidEngine($engine)
     {
         switch ($engine) {
-            case CRYPT_MODE_OPENSSL:
+            case CRYPT_ENGINE_OPENSSL:
                 switch (strlen($this->key)) {
                     case 5:
                         $this->cipher_name_openssl = 'rc4-40';
@@ -249,7 +249,7 @@ class Crypt_RC4 extends Crypt_Base
      */
     function encrypt($plaintext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->engine == CRYPT_ENGINE_MCRYPT) {
             return parent::encrypt($plaintext);
         }
         return $this->_crypt($plaintext, CRYPT_RC4_ENCRYPT);
@@ -269,7 +269,7 @@ class Crypt_RC4 extends Crypt_Base
      */
     function decrypt($ciphertext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->engine == CRYPT_ENGINE_MCRYPT) {
             return parent::decrypt($ciphertext);
         }
         return $this->_crypt($ciphertext, CRYPT_RC4_DECRYPT);

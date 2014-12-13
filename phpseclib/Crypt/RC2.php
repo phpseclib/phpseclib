@@ -366,7 +366,7 @@ class Crypt_RC2 extends Crypt_Base
     function isValidEngine($engine)
     {
         switch ($engine) {
-            case CRYPT_MODE_OPENSSL:
+            case CRYPT_ENGINE_OPENSSL:
                 if ($this->current_key_length != 128 && strlen($this->orig_key) != 16) {
                     return false;
                 }
@@ -464,7 +464,7 @@ class Crypt_RC2 extends Crypt_Base
      */
     function encrypt($plaintext)
     {
-        if ($this->engine == CRYPT_MODE_OPENSSL) {
+        if ($this->engine == CRYPT_ENGINE_OPENSSL) {
             $temp = $this->key;
             $this->key = $this->orig_key;
             $result = parent::encrypt($plaintext);
@@ -487,7 +487,7 @@ class Crypt_RC2 extends Crypt_Base
      */
     function decrypt($ciphertext)
     {
-        if ($this->engine == CRYPT_MODE_OPENSSL) {
+        if ($this->engine == CRYPT_ENGINE_OPENSSL) {
             $temp = $this->key;
             $this->key = $this->orig_key;
             $result = parent::decrypt($ciphertext);
@@ -589,7 +589,7 @@ class Crypt_RC2 extends Crypt_Base
     }
 
     /**
-     * Setup the CRYPT_MODE_MCRYPT $engine
+     * Setup the CRYPT_ENGINE_MCRYPT $engine
      *
      * @see Crypt_Base::_setupMcrypt()
      * @access private
