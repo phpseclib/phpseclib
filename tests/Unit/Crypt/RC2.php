@@ -21,7 +21,7 @@ class Unit_Crypt_RC2_TestCase extends PhpseclibTestCase
         // admittedly, phpseclib is inconsistent in this regard. RC4 and Blowfish support arbitrary key lengths between a certain range, as well,
         // and they don't have any way to set the key length. but then again, neither do those algorithms have their own key expansion algorithm,
         // whereas RC2 does. and technically, AES / Rijndael (and even Twofish) don't support arbitrary key lengths - they support variable key
-        // lengths. so in some ways, i suppose this inconsistency somewhat makes sense, although the fact that Crypt_Twofish doesn't have a 
+        // lengths. so in some ways, i suppose this inconsistency somewhat makes sense, although the fact that Crypt_Twofish doesn't have a
         // setKeyLength() function whereas Crypt_AES / Crypt_Rijndael do not is, itself, an inconsistency.
 
         // but that said, Crypt_RC2 is inconsistent in other ways: if you pass a 128-bit (16-byte) key to it via setKey() the key is not treated
