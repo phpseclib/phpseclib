@@ -1195,8 +1195,10 @@ echo "\r\nthis far this far\r\n";
                             }
                             $crypto = new Crypt_DES();
                             $crypto->setPassword($this->password, 'pbkdf1', 'md5', $salt, $iterationCount);
+echo "\r\n" . bin2hex($key) . "\r\n";
                             $key = $crypto->decrypt($key);
                             if ($key === false) {
+exit("\r\nKEY IS FALSE\r\n");
                                 return false;
                             }
                             return $this->_parseKey($key, CRYPT_RSA_PRIVATE_FORMAT_PKCS1);
