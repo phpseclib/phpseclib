@@ -14,15 +14,21 @@ else
   PHPUNIT="$(dirname "$0")/../vendor/bin/phpunit"
 fi
 
-PHPUNIT_EXTRA_ARGS=''
+PHPUNIT_ARGS='--verbose'
 if [ `php -r "echo (int) version_compare(PHP_VERSION, '5.4', '<');"` = "1" ]
 then
-  PHPUNIT_EXTRA_ARGS="$PHPUNIT_EXTRA_ARGS -d zend.enable_gc=0"
+  PHPUNIT_ARGS="$PHPUNIT_ARGS -d zend.enable_gc=0"
 fi
 
-"$PHPUNIT" \
-  $PHPUNIT_EXTRA_ARGS \
-  --verbose \
-  --coverage-text \
-  --coverage-clover code_coverage/clover.xml \
-  --coverage-html code_coverage/
+if [ "$TRAVIS_PHP_VERSION" = 'hhvm' ]
+then
+  find tests -type f -name "*Test.php" | \
+    parallel --gnu --keep-order \
+      "echo '== {} =='; \"$PHPUNIT\" $PHPUNIT_ARGS {};"
+else
+  "$PHPUNIT" \
+    $PHPUNIT_ARGS \
+    --coverage-text \
+    --coverage-clover code_coverage/clover.xml \
+    --coverage-html code_coverage/
+fi
