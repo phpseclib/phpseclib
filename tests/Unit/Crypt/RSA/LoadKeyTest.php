@@ -44,6 +44,9 @@ FqV4aKq70H6dNJ43bLVRPhtF5Bip5P7k/6KIsGTPUd54PHey+DuWRjitfheL0G2w
 GF/qoZyC1mbqdtyyeWgHtVbJVUORmpbNnXOII9duEqBUNDiO9VSZNn/8h/VsYeAB
 xryZaRDVmtMuf/OZBQ==
 -----END ENCRYPTED PRIVATE KEY-----';
+echo "VALUE OF LOADKEY = ";
+var_dump($rsa->loadKey($key));
+echo "\r\n";
 
         $this->assertTrue($rsa->loadKey($key));
         $this->assertInternalType('string', $rsa->getPrivateKey());
