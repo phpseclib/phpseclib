@@ -997,7 +997,9 @@ echo "the engine is = ".$this->engine."\r\n";
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options);
                     break;
                 case CRYPT_MODE_CBC:
+echo "aaa\r\n";
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->decryptIV);
+echo gettype($plaintext)."\r\n";
                     if ($this->continuousBuffer) {
                         $this->decryptIV = substr($ciphertext, -$this->block_size);
                     }
