@@ -71,20 +71,6 @@ if (!class_exists('Crypt_Base')) {
 
 /**#@+
  * @access private
- * @see Crypt_RC4::Crypt_RC4()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_RC4_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RC4_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
-/**#@+
- * @access private
  * @see Crypt_RC4::_crypt()
  */
 define('CRYPT_RC4_ENCRYPT', 0);
@@ -182,6 +168,38 @@ class Crypt_RC4 extends Crypt_Base
     }
 
     /**
+     * Test for engine validity
+     *
+     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     *
+     * @see Crypt_Base::Crypt_Base()
+     * @param Integer $engine
+     * @access public
+     * @return Boolean
+     */
+    function isValidEngine($engine)
+    {
+        switch ($engine) {
+            case CRYPT_ENGINE_OPENSSL:
+                switch (strlen($this->key)) {
+                    case 5:
+                        $this->cipher_name_openssl = 'rc4-40';
+                        break;
+                    case 8:
+                        $this->cipher_name_openssl = 'rc4-64';
+                        break;
+                    case 16:
+                        $this->cipher_name_openssl = 'rc4';
+                        break;
+                    default:
+                        return false;
+                }
+        }
+
+        return parent::isValidEngine($engine);
+    }
+
+    /**
      * Dummy function.
      *
      * Some protocols, such as WEP, prepend an "initialization vector" to the key, effectively creating a new key [1].
@@ -230,7 +248,7 @@ class Crypt_RC4 extends Crypt_Base
      */
     function encrypt($plaintext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->engine == CRYPT_ENGINE_MCRYPT) {
             return parent::encrypt($plaintext);
         }
         return $this->_crypt($plaintext, CRYPT_RC4_ENCRYPT);
@@ -250,7 +268,7 @@ class Crypt_RC4 extends Crypt_Base
      */
     function decrypt($ciphertext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->engine == CRYPT_ENGINE_MCRYPT) {
             return parent::decrypt($ciphertext);
         }
         return $this->_crypt($ciphertext, CRYPT_RC4_DECRYPT);

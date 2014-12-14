@@ -1056,6 +1056,7 @@ class Crypt_RSA
             case CRYPT_RSA_PRIVATE_FORMAT_PKCS1:
             case CRYPT_RSA_PRIVATE_FORMAT_PKCS8:
             case CRYPT_RSA_PUBLIC_FORMAT_PKCS1:
+echo "zzzzzzzzzzzzzzzz\r\n";
                 /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is
                    "outside the scope" of PKCS#1.  PKCS#1 then refers you to PKCS#12 and PKCS#15 if you're wanting to
                    protect private keys, however, that's not what OpenSSL* does.  OpenSSL protects private keys by adding
@@ -1160,6 +1161,7 @@ class Crypt_RSA
                         return false;
                     }
                     $length = $this->_decodeLength($temp);
+echo "\r\nthis far this far\r\n";
                     switch ($this->_string_shift($temp, $length)) {
                         case "\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01": // rsaEncryption
                             break;
@@ -1193,8 +1195,10 @@ class Crypt_RSA
                             }
                             $crypto = new Crypt_DES();
                             $crypto->setPassword($this->password, 'pbkdf1', 'md5', $salt, $iterationCount);
+echo "\r\n" . bin2hex($key) . "\r\n";
                             $key = $crypto->decrypt($key);
                             if ($key === false) {
+exit("\r\nKEY IS FALSE\r\n");
                                 return false;
                             }
                             return $this->_parseKey($key, CRYPT_RSA_PRIVATE_FORMAT_PKCS1);
@@ -1521,6 +1525,7 @@ class Crypt_RSA
      */
     function loadKey($key, $type = false)
     {
+echo "loadkey called\r\n";
         if (is_object($key) && strtolower(get_class($key)) == 'crypt_rsa') {
             $this->privateKeyFormat = $key->privateKeyFormat;
             $this->publicKeyFormat = $key->publicKeyFormat;
