@@ -990,10 +990,20 @@ class Crypt_Base
             }
             switch ($this->mode) {
                 case CRYPT_MODE_STREAM:
+                    $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options);
+                    break;
                 case CRYPT_MODE_ECB:
+                    if (!defined('OPENSSL_RAW_DATA')) {
+                        $padding = str_repeat(chr($this->block_size), $this->block_size);
+                        $ciphetext.= openssl_encrypt($padding, $this->cipher_name_openssl_ecb, $this->key, true);
+                    }
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options);
                     break;
                 case CRYPT_MODE_CBC:
+                    if (!defined('OPENSSL_RAW_DATA')) {
+                        $padding = str_repeat(chr($this->block_size), $this->block_size) ^ substr($ciphertext, -$block_size);
+                        $plaintext.= openssl_encrypt($padding, $this->cipher_name_openssl_ecb, $this->key, true);
+                    }
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->decryptIV);
                     if ($this->continuousBuffer) {
                         $this->decryptIV = substr($ciphertext, -$this->block_size);
@@ -1528,7 +1538,8 @@ class Crypt_Base
                 $this->openssl_emulate_ctr = false;
                 $result = $this->cipher_name_openssl &&
                           extension_loaded('openssl') &&
-                          version_compare(PHP_VERSION, '5.3.0');
+                          // PHP 5.3.0 - 5.3.2 did not let you set IV's
+                          version_compare(PHP_VERSION, '5.3.3', '>=');
                 if (!$result) {
                     return false;
                 }
