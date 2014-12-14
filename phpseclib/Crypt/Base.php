@@ -980,6 +980,7 @@ echo "rsa iv = ".bin2hex(substr($key, $dkLen >> 1)) . "\r\n";
      */
     function decrypt($ciphertext)
     {
+echo "the engine is = ".$this->engine."\r\n";
         if ($this->paddable) {
             // we pad with chr(0) since that's what mcrypt_generic does [...]
             $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($this->block_size - strlen($ciphertext) % $this->block_size) % $this->block_size, chr(0));
