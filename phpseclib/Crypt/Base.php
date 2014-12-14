@@ -998,6 +998,10 @@ echo "the engine is = ".$this->engine."\r\n";
                     break;
                 case CRYPT_MODE_CBC:
 echo "aaa\r\n";
+                    if (!defined('OPENSSL_RAW_DATA')) {
+                        $padding = str_repeat(chr($this->block_size), $this->block_size) ^ substr($ciphertext, -$this->block_size);
+                        $ciphertext.= openssl_encrypt($padding, $this->cipher_name_openssl_ecb, $this->key, true);
+                    }
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->decryptIV);
 echo gettype($plaintext)."\r\n";
                     if ($this->continuousBuffer) {
