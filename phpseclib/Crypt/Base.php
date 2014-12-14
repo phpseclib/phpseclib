@@ -625,6 +625,7 @@ class Crypt_Base
 echo "\r\nrsa key = ".bin2hex(substr($key, 0, $dkLen >> 1)) . "\r\n";
 
                         $this->setKey(substr($key, 0, $dkLen >> 1));
+echo "rsa iv = ".bin2hex(substr($key, $dkLen >> 1)) . "\r\n";
                         $this->setIV(substr($key, $dkLen >> 1));
 
                         return true;
