@@ -994,15 +994,14 @@ class Crypt_Base
                     break;
                 case CRYPT_MODE_ECB:
                     if (!defined('OPENSSL_RAW_DATA')) {
-                        $padding = str_repeat(chr($this->block_size), $this->block_size);
-                        $ciphetext.= openssl_encrypt($padding, $this->cipher_name_openssl_ecb, $this->key, true);
+                        $ciphetext.= openssl_encrypt('', $this->cipher_name_openssl_ecb, $this->key, true);
                     }
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options);
                     break;
                 case CRYPT_MODE_CBC:
                     if (!defined('OPENSSL_RAW_DATA')) {
                         $padding = str_repeat(chr($this->block_size), $this->block_size) ^ substr($ciphertext, -$this->block_size);
-                        $ciphertext.= openssl_encrypt($padding, $this->cipher_name_openssl_ecb, $this->key, true);
+                        $ciphertext.= substr(openssl_encrypt($padding, $this->cipher_name_openssl_ecb, $this->key, true), 0, $this->block_size);
                     }
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->decryptIV);
                     if ($this->continuousBuffer) {
