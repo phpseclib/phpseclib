@@ -52,45 +52,6 @@ use \phpseclib\Crypt\Random;
 // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
 use \phpseclib\Math\BigInteger;
 
-/**#@+
- * Execution Bitmap Masks
- *
- * @see Net_SSH2::bitmap
- * @access private
- */
-define('NET_SSH2_MASK_CONSTRUCTOR',   0x00000001);
-define('NET_SSH2_MASK_CONNECTED',     0x00000002);
-define('NET_SSH2_MASK_LOGIN_REQ',     0x00000004);
-define('NET_SSH2_MASK_LOGIN',         0x00000008);
-define('NET_SSH2_MASK_SHELL',         0x00000010);
-define('NET_SSH2_MASK_WINDOW_ADJUST', 0x00000020);
-/**#@-*/
-
-/**#@+
- * Channel constants
- *
- * RFC4254 refers not to client and server channels but rather to sender and recipient channels.  we don't refer
- * to them in that way because RFC4254 toggles the meaning. the client sends a SSH_MSG_CHANNEL_OPEN message with
- * a sender channel and the server sends a SSH_MSG_CHANNEL_OPEN_CONFIRMATION in response, with a sender and a
- * recepient channel.  at first glance, you might conclude that SSH_MSG_CHANNEL_OPEN_CONFIRMATION's sender channel
- * would be the same thing as SSH_MSG_CHANNEL_OPEN's sender channel, but it's not, per this snipet:
- *     The 'recipient channel' is the channel number given in the original
- *     open request, and 'sender channel' is the channel number allocated by
- *     the other side.
- *
- * @see Net_SSH2::_send_channel_packet()
- * @see Net_SSH2::_get_channel_packet()
- * @access private
- */
-define('NET_SSH2_CHANNEL_EXEC',      0); // PuTTy uses 0x100
-define('NET_SSH2_CHANNEL_SHELL',     1);
-define('NET_SSH2_CHANNEL_SUBSYSTEM', 2);
-/**#@-*/
-
-/**#@+
- * @access public
- * @see Net_SSH2::getLog()
- */
 /**
  * Pure-PHP implementation of SSHv2.
  *
@@ -1896,10 +1857,10 @@ class Net_SSH2
 
         // although PHP5's get_class() preserves the case, PHP4's does not
         if (is_object($password)) {
-            switch (strtolower(get_class($password))) {
-                case 'crypt_rsa':
+            switch (get_class($password)) {
+                case 'Crypt_RSA':
                     return $this->_privatekey_login($username, $password);
-                case 'system_ssh_agent':
+                case 'phpseclib\System\SSH\Agent':
                     return $this->_ssh_agent_login($username, $password);
             }
         }

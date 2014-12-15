@@ -33,6 +33,7 @@
 
 namespace phpseclib\System\SSH;
 
+use Crypt_RSA; //This should be removed once the Crypt package is fully namespaced
 use phpseclib\System\SSH\Agent\Identity;
 
 /**
