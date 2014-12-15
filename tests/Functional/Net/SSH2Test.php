@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib\Net\SSH2;
+
 class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
 {
     public function setUp()
@@ -20,7 +22,7 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
 
     public function testConstructor()
     {
-        $ssh = new Net_SSH2($this->getEnv('SSH_HOSTNAME'));
+        $ssh = new SSH2($this->getEnv('SSH_HOSTNAME'));
 
         $this->assertTrue(
             is_object($ssh),
@@ -91,7 +93,7 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
 
     public function testGetServerPublicHostKey()
     {
-        $ssh = new Net_SSH2($this->getEnv('SSH_HOSTNAME'));
+        $ssh = new SSH2($this->getEnv('SSH_HOSTNAME'));
 
         $this->assertInternalType('string', $ssh->getServerPublicHostKey());
     }

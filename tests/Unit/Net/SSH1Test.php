@@ -29,7 +29,7 @@ class Unit_Net_SSH1Test extends PhpseclibTestCase
      */
     public function testFormatLog(array $message_log, array $message_number_log, $expected)
     {
-        $ssh = $this->getMockBuilder('Net_SSH1')
+        $ssh = $this->getMockBuilder('phpseclib\Net\SSH1')
             ->disableOriginalConstructor()
             ->setMethods(null)
             ->getMock();

@@ -102,11 +102,11 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
     }
 
     /**
-     * @return Net_SSH2
+     * @return \phpseclib\Net\SSH2
      */
     protected function createSSHMock()
     {
-        return $this->getMockBuilder('Net_SSH2')
+        return $this->getMockBuilder('phpseclib\Net\SSH2')
             ->disableOriginalConstructor()
             ->setMethods(array('__destruct'))
             ->getMock();

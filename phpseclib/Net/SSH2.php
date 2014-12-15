@@ -8,9 +8,9 @@
  * Here are some examples of how to use this library:
  * <code>
  * <?php
- *    include 'Net/SSH2.php';
+ *    include 'vendor/autoload.php';
  *
- *    $ssh = new Net_SSH2('www.domain.tld');
+ *    $ssh = new \phpseclib\Net\SSH2('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
  *        exit('Login Failed');
  *    }
@@ -23,13 +23,13 @@
  * <code>
  * <?php
  *    include 'Crypt/RSA.php';
- *    include 'Net/SSH2.php';
+ *    include 'vendor/autoload.php';
  *
  *    $key = new Crypt_RSA();
  *    //$key->setPassword('whatever');
  *    $key->loadKey(file_get_contents('privatekey'));
  *
- *    $ssh = new Net_SSH2('www.domain.tld');
+ *    $ssh = new \phpseclib\Net\SSH2('www.domain.tld');
  *    if (!$ssh->login('username', $key)) {
  *        exit('Login Failed');
  *    }
@@ -41,30 +41,42 @@
  * </code>
  *
  * @category  Net
- * @package   Net_SSH2
+ * @package   SSH2
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2007 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
-use \phpseclib\Crypt\Random;
+namespace phpseclib\Net;
+
+// These should be removed once the Crypt package is fully namespaced
+use Crypt_Blowfish;
+use Crypt_Hash;
+use Crypt_RC4;
+use Crypt_Rijndael;
+use Crypt_RSA;
+use Crypt_TripleDES;
+use Crypt_Twofish;
+// End unnecessary Use Statements
+
+use phpseclib\Crypt\Random;
 // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
-use \phpseclib\Math\BigInteger;
+use phpseclib\Math\BigInteger;
 
 /**
  * Pure-PHP implementation of SSHv2.
  *
- * @package Net_SSH2
+ * @package SSH2
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Net_SSH2
+class SSH2
 {
     /**#@+
      * Execution Bitmap Masks
      *
-     * @see Net_SSH2::bitmap
+     * @see \phpseclib\Net\SSH2::bitmap
      * @access private
      */
     const MASK_CONSTRUCTOR   = 0x00000001;
@@ -87,8 +99,8 @@ class Net_SSH2
      *     open request, and 'sender channel' is the channel number allocated by
      *     the other side.
      *
-     * @see Net_SSH2::_send_channel_packet()
-     * @see Net_SSH2::_get_channel_packet()
+     * @see \phpseclib\Net\SSH2::_send_channel_packet()
+     * @see \phpseclib\Net\SSH2::_get_channel_packet()
      * @access private
     */
     const CHANNEL_EXEC      = 0; // PuTTy uses 0x100
@@ -98,7 +110,7 @@ class Net_SSH2
 
     /**#@+
      * @access public
-     * @see Net_SSH2::getLog()
+     * @see \phpseclib\Net\SSH2::getLog()
     */
     /**
      * Returns the message numbers
@@ -120,7 +132,7 @@ class Net_SSH2
 
     /**#@+
      * @access public
-     * @see Net_SSH2::read()
+     * @see \phpseclib\Net\SSH2::read()
     */
     /**
      * Returns when a string matching $expect exactly is found
@@ -166,8 +178,8 @@ class Net_SSH2
     /**
      * Error information
      *
-     * @see Net_SSH2::getErrors()
-     * @see Net_SSH2::getLastError()
+     * @see \phpseclib\Net\SSH2::getErrors()
+     * @see \phpseclib\Net\SSH2::getLastError()
      * @var String
      * @access private
      */
@@ -176,7 +188,7 @@ class Net_SSH2
     /**
      * Server Identifier
      *
-     * @see Net_SSH2::getServerIdentification()
+     * @see \phpseclib\Net\SSH2::getServerIdentification()
      * @var mixed false or Array
      * @access private
      */
@@ -185,7 +197,7 @@ class Net_SSH2
     /**
      * Key Exchange Algorithms
      *
-     * @see Net_SSH2::getKexAlgorithims()
+     * @see \phpseclib\Net\SSH2::getKexAlgorithims()
      * @var mixed false or Array
      * @access private
      */
@@ -194,7 +206,7 @@ class Net_SSH2
     /**
      * Server Host Key Algorithms
      *
-     * @see Net_SSH2::getServerHostKeyAlgorithms()
+     * @see \phpseclib\Net\SSH2::getServerHostKeyAlgorithms()
      * @var mixed false or Array
      * @access private
      */
@@ -203,7 +215,7 @@ class Net_SSH2
     /**
      * Encryption Algorithms: Client to Server
      *
-     * @see Net_SSH2::getEncryptionAlgorithmsClient2Server()
+     * @see \phpseclib\Net\SSH2::getEncryptionAlgorithmsClient2Server()
      * @var mixed false or Array
      * @access private
      */
@@ -212,7 +224,7 @@ class Net_SSH2
     /**
      * Encryption Algorithms: Server to Client
      *
-     * @see Net_SSH2::getEncryptionAlgorithmsServer2Client()
+     * @see \phpseclib\Net\SSH2::getEncryptionAlgorithmsServer2Client()
      * @var mixed false or Array
      * @access private
      */
@@ -221,7 +233,7 @@ class Net_SSH2
     /**
      * MAC Algorithms: Client to Server
      *
-     * @see Net_SSH2::getMACAlgorithmsClient2Server()
+     * @see \phpseclib\Net\SSH2::getMACAlgorithmsClient2Server()
      * @var mixed false or Array
      * @access private
      */
@@ -230,7 +242,7 @@ class Net_SSH2
     /**
      * MAC Algorithms: Server to Client
      *
-     * @see Net_SSH2::getMACAlgorithmsServer2Client()
+     * @see \phpseclib\Net\SSH2::getMACAlgorithmsServer2Client()
      * @var mixed false or Array
      * @access private
      */
@@ -239,7 +251,7 @@ class Net_SSH2
     /**
      * Compression Algorithms: Client to Server
      *
-     * @see Net_SSH2::getCompressionAlgorithmsClient2Server()
+     * @see \phpseclib\Net\SSH2::getCompressionAlgorithmsClient2Server()
      * @var mixed false or Array
      * @access private
      */
@@ -248,7 +260,7 @@ class Net_SSH2
     /**
      * Compression Algorithms: Server to Client
      *
-     * @see Net_SSH2::getCompressionAlgorithmsServer2Client()
+     * @see \phpseclib\Net\SSH2::getCompressionAlgorithmsServer2Client()
      * @var mixed false or Array
      * @access private
      */
@@ -257,7 +269,7 @@ class Net_SSH2
     /**
      * Languages: Server to Client
      *
-     * @see Net_SSH2::getLanguagesServer2Client()
+     * @see \phpseclib\Net\SSH2::getLanguagesServer2Client()
      * @var mixed false or Array
      * @access private
      */
@@ -266,7 +278,7 @@ class Net_SSH2
     /**
      * Languages: Client to Server
      *
-     * @see Net_SSH2::getLanguagesClient2Server()
+     * @see \phpseclib\Net\SSH2::getLanguagesClient2Server()
      * @var mixed false or Array
      * @access private
      */
@@ -282,8 +294,8 @@ class Net_SSH2
      *
      *  -- http://tools.ietf.org/html/rfc4253#section-6
      *
-     * @see Net_SSH2::__construct()
-     * @see Net_SSH2::_send_binary_packet()
+     * @see \phpseclib\Net\SSH2::__construct()
+     * @see \phpseclib\Net\SSH2::_send_binary_packet()
      * @var Integer
      * @access private
      */
@@ -292,8 +304,8 @@ class Net_SSH2
     /**
      * Block Size for Client to Server Encryption
      *
-     * @see Net_SSH2::__construct()
-     * @see Net_SSH2::_get_binary_packet()
+     * @see \phpseclib\Net\SSH2::__construct()
+     * @see \phpseclib\Net\SSH2::_get_binary_packet()
      * @var Integer
      * @access private
      */
@@ -302,7 +314,7 @@ class Net_SSH2
     /**
      * Server to Client Encryption Object
      *
-     * @see Net_SSH2::_get_binary_packet()
+     * @see \phpseclib\Net\SSH2::_get_binary_packet()
      * @var Object
      * @access private
      */
@@ -311,7 +323,7 @@ class Net_SSH2
     /**
      * Client to Server Encryption Object
      *
-     * @see Net_SSH2::_send_binary_packet()
+     * @see \phpseclib\Net\SSH2::_send_binary_packet()
      * @var Object
      * @access private
      */
@@ -320,7 +332,7 @@ class Net_SSH2
     /**
      * Client to Server HMAC Object
      *
-     * @see Net_SSH2::_send_binary_packet()
+     * @see \phpseclib\Net\SSH2::_send_binary_packet()
      * @var Object
      * @access private
      */
@@ -329,7 +341,7 @@ class Net_SSH2
     /**
      * Server to Client HMAC Object
      *
-     * @see Net_SSH2::_get_binary_packet()
+     * @see \phpseclib\Net\SSH2::_get_binary_packet()
      * @var Object
      * @access private
      */
@@ -342,7 +354,7 @@ class Net_SSH2
      * For the client to server side, the HMAC object will make the HMAC as long as it needs to be.  All we need to do is
      * append it.
      *
-     * @see Net_SSH2::_get_binary_packet()
+     * @see \phpseclib\Net\SSH2::_get_binary_packet()
      * @var Integer
      * @access private
      */
@@ -351,7 +363,7 @@ class Net_SSH2
     /**
      * Server Public Host Key
      *
-     * @see Net_SSH2::getServerPublicHostKey()
+     * @see \phpseclib\Net\SSH2::getServerPublicHostKey()
      * @var String
      * @access private
      */
@@ -366,7 +378,7 @@ class Net_SSH2
      *
      *  -- http://tools.ietf.org/html/rfc4253#section-7.2
      *
-     * @see Net_SSH2::_key_exchange()
+     * @see \phpseclib\Net\SSH2::_key_exchange()
      * @var String
      * @access private
      */
@@ -377,7 +389,7 @@ class Net_SSH2
      *
      * The current exchange hash
      *
-     * @see Net_SSH2::_key_exchange()
+     * @see \phpseclib\Net\SSH2::_key_exchange()
      * @var String
      * @access private
      */
@@ -386,7 +398,7 @@ class Net_SSH2
     /**
      * Message Numbers
      *
-     * @see Net_SSH2::__construct()
+     * @see \phpseclib\Net\SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -395,7 +407,7 @@ class Net_SSH2
     /**
      * Disconnection Message 'reason codes' defined in RFC4253
      *
-     * @see Net_SSH2::__construct()
+     * @see \phpseclib\Net\SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -404,7 +416,7 @@ class Net_SSH2
     /**
      * SSH_MSG_CHANNEL_OPEN_FAILURE 'reason codes', defined in RFC4254
      *
-     * @see Net_SSH2::__construct()
+     * @see \phpseclib\Net\SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -414,7 +426,7 @@ class Net_SSH2
      * Terminal Modes
      *
      * @link http://tools.ietf.org/html/rfc4254#section-8
-     * @see Net_SSH2::__construct()
+     * @see \phpseclib\Net\SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -424,7 +436,7 @@ class Net_SSH2
      * SSH_MSG_CHANNEL_EXTENDED_DATA's data_type_codes
      *
      * @link http://tools.ietf.org/html/rfc4254#section-5.2
-     * @see Net_SSH2::__construct()
+     * @see \phpseclib\Net\SSH2::__construct()
      * @var Array
      * @access private
      */
@@ -435,7 +447,7 @@ class Net_SSH2
      *
      * See 'Section 6.4.  Data Integrity' of rfc4253 for more info.
      *
-     * @see Net_SSH2::_send_binary_packet()
+     * @see \phpseclib\Net\SSH2::_send_binary_packet()
      * @var Integer
      * @access private
      */
@@ -446,7 +458,7 @@ class Net_SSH2
      *
      * See 'Section 6.4.  Data Integrity' of rfc4253 for more info.
      *
-     * @see Net_SSH2::_get_binary_packet()
+     * @see \phpseclib\Net\SSH2::_get_binary_packet()
      * @var Integer
      * @access private
      */
@@ -457,8 +469,8 @@ class Net_SSH2
      *
      * Maps client channels to server channels
      *
-     * @see Net_SSH2::_get_channel_packet()
-     * @see Net_SSH2::exec()
+     * @see \phpseclib\Net\SSH2::_get_channel_packet()
+     * @see \phpseclib\Net\SSH2::exec()
      * @var Array
      * @access private
      */
@@ -470,8 +482,8 @@ class Net_SSH2
      * If a client requests a packet from one channel but receives two packets from another those packets should
      * be placed in a buffer
      *
-     * @see Net_SSH2::_get_channel_packet()
-     * @see Net_SSH2::exec()
+     * @see \phpseclib\Net\SSH2::_get_channel_packet()
+     * @see \phpseclib\Net\SSH2::exec()
      * @var Array
      * @access private
      */
@@ -482,7 +494,7 @@ class Net_SSH2
      *
      * Contains the type of the last sent message
      *
-     * @see Net_SSH2::_get_channel_packet()
+     * @see \phpseclib\Net\SSH2::_get_channel_packet()
      * @var Array
      * @access private
      */
@@ -493,7 +505,7 @@ class Net_SSH2
      *
      * Maximum packet size indexed by channel
      *
-     * @see Net_SSH2::_send_channel_packet()
+     * @see \phpseclib\Net\SSH2::_send_channel_packet()
      * @var Array
      * @access private
      */
@@ -502,7 +514,7 @@ class Net_SSH2
     /**
      * Message Number Log
      *
-     * @see Net_SSH2::getLog()
+     * @see \phpseclib\Net\SSH2::getLog()
      * @var Array
      * @access private
      */
@@ -511,7 +523,7 @@ class Net_SSH2
     /**
      * Message Log
      *
-     * @see Net_SSH2::getLog()
+     * @see \phpseclib\Net\SSH2::getLog()
      * @var Array
      * @access private
      */
@@ -523,8 +535,8 @@ class Net_SSH2
      * Bytes the other party can send before it must wait for the window to be adjusted (0x7FFFFFFF = 2GB)
      *
      * @var Integer
-     * @see Net_SSH2::_send_channel_packet()
-     * @see Net_SSH2::exec()
+     * @see \phpseclib\Net\SSH2::_send_channel_packet()
+     * @see \phpseclib\Net\SSH2::exec()
      * @access private
      */
     var $window_size = 0x7FFFFFFF;
@@ -534,7 +546,7 @@ class Net_SSH2
      *
      * Window size indexed by channel
      *
-     * @see Net_SSH2::_send_channel_packet()
+     * @see \phpseclib\Net\SSH2::_send_channel_packet()
      * @var Array
      * @access private
      */
@@ -545,7 +557,7 @@ class Net_SSH2
      *
      * Window size indexed by channel
      *
-     * @see Net_SSH2::_get_channel_packet()
+     * @see \phpseclib\Net\SSH2::_get_channel_packet()
      * @var Array
      * @access private
      */
@@ -556,7 +568,7 @@ class Net_SSH2
      *
      * Verified against $this->session_id
      *
-     * @see Net_SSH2::getServerPublicHostKey()
+     * @see \phpseclib\Net\SSH2::getServerPublicHostKey()
      * @var String
      * @access private
      */
@@ -567,7 +579,7 @@ class Net_SSH2
      *
      * ssh-rsa or ssh-dss.
      *
-     * @see Net_SSH2::getServerPublicHostKey()
+     * @see \phpseclib\Net\SSH2::getServerPublicHostKey()
      * @var String
      * @access private
      */
@@ -576,7 +588,7 @@ class Net_SSH2
     /**
      * Interactive Buffer
      *
-     * @see Net_SSH2::read()
+     * @see \phpseclib\Net\SSH2::read()
      * @var Array
      * @access private
      */
@@ -587,8 +599,8 @@ class Net_SSH2
      *
      * Should never exceed self::LOG_MAX_SIZE
      *
-     * @see Net_SSH2::_send_binary_packet()
-     * @see Net_SSH2::_get_binary_packet()
+     * @see \phpseclib\Net\SSH2::_send_binary_packet()
+     * @see \phpseclib\Net\SSH2::_get_binary_packet()
      * @var Integer
      * @access private
      */
@@ -597,7 +609,7 @@ class Net_SSH2
     /**
      * Timeout
      *
-     * @see Net_SSH2::setTimeout()
+     * @see \phpseclib\Net\SSH2::setTimeout()
      * @access private
      */
     var $timeout;
@@ -605,7 +617,7 @@ class Net_SSH2
     /**
      * Current Timeout
      *
-     * @see Net_SSH2::_get_channel_packet()
+     * @see \phpseclib\Net\SSH2::_get_channel_packet()
      * @access private
      */
     var $curTimeout;
@@ -613,7 +625,7 @@ class Net_SSH2
     /**
      * Real-time log file pointer
      *
-     * @see Net_SSH2::_append_log()
+     * @see \phpseclib\Net\SSH2::_append_log()
      * @var Resource
      * @access private
      */
@@ -622,7 +634,7 @@ class Net_SSH2
     /**
      * Real-time log file size
      *
-     * @see Net_SSH2::_append_log()
+     * @see \phpseclib\Net\SSH2::_append_log()
      * @var Integer
      * @access private
      */
@@ -631,7 +643,7 @@ class Net_SSH2
     /**
      * Has the signature been validated?
      *
-     * @see Net_SSH2::getServerPublicHostKey()
+     * @see \phpseclib\Net\SSH2::getServerPublicHostKey()
      * @var Boolean
      * @access private
      */
@@ -640,7 +652,7 @@ class Net_SSH2
     /**
      * Real-time log file wrap boolean
      *
-     * @see Net_SSH2::_append_log()
+     * @see \phpseclib\Net\SSH2::_append_log()
      * @access private
      */
     var $realtime_log_wrap;
@@ -648,7 +660,7 @@ class Net_SSH2
     /**
      * Flag to suppress stderr from output
      *
-     * @see Net_SSH2::enableQuietMode()
+     * @see \phpseclib\Net\SSH2::enableQuietMode()
      * @access private
      */
     var $quiet_mode = false;
@@ -673,7 +685,7 @@ class Net_SSH2
      * Flag to request a PTY when using exec()
      *
      * @var Boolean
-     * @see Net_SSH2::enablePTY()
+     * @see \phpseclib\Net\SSH2::enablePTY()
      * @access private
      */
     var $request_pty = false;
@@ -705,7 +717,7 @@ class Net_SSH2
     /**
      * The Last Interactive Response
      *
-     * @see Net_SSH2::_keyboard_interactive_process()
+     * @see \phpseclib\Net\SSH2::_keyboard_interactive_process()
      * @var String
      * @access private
      */
@@ -714,7 +726,7 @@ class Net_SSH2
     /**
      * Keyboard Interactive Request / Responses
      *
-     * @see Net_SSH2::_keyboard_interactive_process()
+     * @see \phpseclib\Net\SSH2::_keyboard_interactive_process()
      * @var Array
      * @access private
      */
@@ -726,8 +738,8 @@ class Net_SSH2
      * Quoting from the RFC, "in some jurisdictions, sending a warning message before
      * authentication may be relevant for getting legal protection."
      *
-     * @see Net_SSH2::_filter()
-     * @see Net_SSH2::getBannerMessage()
+     * @see \phpseclib\Net\SSH2::_filter()
+     * @see \phpseclib\Net\SSH2::getBannerMessage()
      * @var String
      * @access private
      */
@@ -736,7 +748,7 @@ class Net_SSH2
     /**
      * Did read() timeout or return normally?
      *
-     * @see Net_SSH2::isTimeout()
+     * @see \phpseclib\Net\SSH2::isTimeout()
      * @var Boolean
      * @access private
      */
@@ -745,7 +757,7 @@ class Net_SSH2
     /**
      * Log Boundary
      *
-     * @see Net_SSH2::_format_log()
+     * @see \phpseclib\Net\SSH2::_format_log()
      * @var String
      * @access private
      */
@@ -754,7 +766,7 @@ class Net_SSH2
     /**
      * Log Long Width
      *
-     * @see Net_SSH2::_format_log()
+     * @see \phpseclib\Net\SSH2::_format_log()
      * @var Integer
      * @access private
      */
@@ -763,7 +775,7 @@ class Net_SSH2
     /**
      * Log Short Width
      *
-     * @see Net_SSH2::_format_log()
+     * @see \phpseclib\Net\SSH2::_format_log()
      * @var Integer
      * @access private
      */
@@ -772,8 +784,8 @@ class Net_SSH2
     /**
      * Hostname
      *
-     * @see Net_SSH2::__construct()
-     * @see Net_SSH2::_connect()
+     * @see \phpseclib\Net\SSH2::__construct()
+     * @see \phpseclib\Net\SSH2::_connect()
      * @var String
      * @access private
      */
@@ -782,8 +794,8 @@ class Net_SSH2
     /**
      * Port Number
      *
-     * @see Net_SSH2::__construct()
-     * @see Net_SSH2::_connect()
+     * @see \phpseclib\Net\SSH2::__construct()
+     * @see \phpseclib\Net\SSH2::_connect()
      * @var Integer
      * @access private
      */
@@ -797,8 +809,8 @@ class Net_SSH2
      * however, is non-optional. There will be a timeout, whether or not you set it. If you don't it'll be
      * 10 seconds. It is used by fsockopen() and the initial stream_select in that function.
      *
-     * @see Net_SSH2::__construct()
-     * @see Net_SSH2::_connect()
+     * @see \phpseclib\Net\SSH2::__construct()
+     * @see \phpseclib\Net\SSH2::_connect()
      * @var Integer
      * @access private
      */
@@ -807,9 +819,9 @@ class Net_SSH2
     /**
      * Number of columns for terminal window size
      *
-     * @see Net_SSH2::getWindowColumns()
-     * @see Net_SSH2::setWindowColumns()
-     * @see Net_SSH2::setWindowSize()
+     * @see \phpseclib\Net\SSH2::getWindowColumns()
+     * @see \phpseclib\Net\SSH2::setWindowColumns()
+     * @see \phpseclib\Net\SSH2::setWindowSize()
      * @var Integer
      * @access private
      */
@@ -818,9 +830,9 @@ class Net_SSH2
     /**
      * Number of columns for terminal window size
      *
-     * @see Net_SSH2::getWindowRows()
-     * @see Net_SSH2::setWindowRows()
-     * @see Net_SSH2::setWindowSize()
+     * @see \phpseclib\Net\SSH2::getWindowRows()
+     * @see \phpseclib\Net\SSH2::setWindowRows()
+     * @see \phpseclib\Net\SSH2::setWindowSize()
      * @var Integer
      * @access private
      */
@@ -832,8 +844,8 @@ class Net_SSH2
      * @param String $host
      * @param optional Integer $port
      * @param optional Integer $timeout
-     * @see Net_SSH2::login()
-     * @return Net_SSH2
+     * @see \phpseclib\Net\SSH2::login()
+     * @return \phpseclib\Net\SSH2
      * @access public
      */
     function __construct($host, $port = 22, $timeout = 10)
@@ -2237,7 +2249,7 @@ class Net_SSH2
     /**
      * Execute Command
      *
-     * If $callback is set to false then Net_SSH2::_get_channel_packet(self::CHANNEL_EXEC) will need to be called manually.
+     * If $callback is set to false then \phpseclib\Net\SSH2::_get_channel_packet(self::CHANNEL_EXEC) will need to be called manually.
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
      * @param String $command
@@ -2307,7 +2319,7 @@ class Net_SSH2
         }
 
         // sending a pty-req SSH_MSG_CHANNEL_REQUEST message is unnecessary and, in fact, in most cases, slows things
-        // down.  the one place where it might be desirable is if you're doing something like Net_SSH2::exec('ping localhost &').
+        // down.  the one place where it might be desirable is if you're doing something like \phpseclib\Net\SSH2::exec('ping localhost &').
         // with a pty-req SSH_MSG_CHANNEL_REQUEST, exec() will return immediately and the ping process will then
         // then immediately terminate.  without such a request exec() will loop indefinitely.  the ping process won't end but
         // neither will your script.
@@ -2358,8 +2370,8 @@ class Net_SSH2
     /**
      * Creates an interactive shell
      *
-     * @see Net_SSH2::read()
-     * @see Net_SSH2::write()
+     * @see \phpseclib\Net\SSH2::read()
+     * @see \phpseclib\Net\SSH2::write()
      * @return Boolean
      * @access private
      */
@@ -2436,8 +2448,8 @@ class Net_SSH2
     /**
      * Return the channel to be used with read() / write()
      *
-     * @see Net_SSH2::read()
-     * @see Net_SSH2::write()
+     * @see \phpseclib\Net\SSH2::read()
+     * @see \phpseclib\Net\SSH2::write()
      * @return Integer
      * @access public
      */
@@ -2459,7 +2471,7 @@ class Net_SSH2
      * Returns when there's a match for $expect, which can take the form of a string literal or,
      * if $mode == self::READ_REGEX, a regular expression.
      *
-     * @see Net_SSH2::write()
+     * @see \phpseclib\Net\SSH2::write()
      * @param String $expect
      * @param Integer $mode
      * @return String
@@ -2505,7 +2517,7 @@ class Net_SSH2
     /**
      * Inputs a command into an interactive shell.
      *
-     * @see Net_SSH2::read()
+     * @see \phpseclib\Net\SSH2::read()
      * @param String $cmd
      * @return Boolean
      * @access public
@@ -2534,7 +2546,7 @@ class Net_SSH2
      * returns that and then that that was passed into stopSubsystem() but that'll be saved for a future date and implemented
      * if there's sufficient demand for such a feature.
      *
-     * @see Net_SSH2::stopSubsystem()
+     * @see \phpseclib\Net\SSH2::stopSubsystem()
      * @param String $subsystem
      * @return Boolean
      * @access public
@@ -2582,7 +2594,7 @@ class Net_SSH2
     /**
      * Stops a subsystem.
      *
-     * @see Net_SSH2::startSubsystem()
+     * @see \phpseclib\Net\SSH2::startSubsystem()
      * @return Boolean
      * @access public
      */
@@ -2659,7 +2671,7 @@ class Net_SSH2
      *
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
-     * @see Net_SSH2::_send_binary_packet()
+     * @see \phpseclib\Net\SSH2::_send_binary_packet()
      * @return String
      * @access private
      */
@@ -2752,7 +2764,7 @@ class Net_SSH2
      *
      * Because some binary packets need to be ignored...
      *
-     * @see Net_SSH2::_get_binary_packet()
+     * @see \phpseclib\Net\SSH2::_get_binary_packet()
      * @return String
      * @access private
      */
@@ -2865,8 +2877,8 @@ class Net_SSH2
     /**
      * Returns whether Quiet Mode is enabled or not
      *
-     * @see Net_SSH2::enableQuietMode()
-     * @see Net_SSH2::disableQuietMode()
+     * @see \phpseclib\Net\SSH2::enableQuietMode()
+     * @see \phpseclib\Net\SSH2::disableQuietMode()
      *
      * @access public
      * @return boolean
@@ -2899,8 +2911,8 @@ class Net_SSH2
     /**
      * Returns whether request-pty is enabled or not
      *
-     * @see Net_SSH2::enablePTY()
-     * @see Net_SSH2::disablePTY()
+     * @see \phpseclib\Net\SSH2::enablePTY()
+     * @see \phpseclib\Net\SSH2::disablePTY()
      *
      * @access public
      * @return boolean
@@ -3109,7 +3121,7 @@ class Net_SSH2
      *
      * @param String $data
      * @param optional String $logged
-     * @see Net_SSH2::_get_binary_packet()
+     * @see \phpseclib\Net\SSH2::_get_binary_packet()
      * @return Boolean
      * @access private
      */
@@ -3287,7 +3299,7 @@ class Net_SSH2
     /**
      * Closes and flushes a channel
      *
-     * Net_SSH2 doesn't properly close most channels.  For exec() channels are normally closed by the server
+     * \phpseclib\Net\SSH2 doesn't properly close most channels.  For exec() channels are normally closed by the server
      * and for SFTP channels are presumably closed when the client disconnects.  This functions is intended
      * for SCP more than anything.
      *

@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib\Net\SFTP;
+
 class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 {
     static protected $scratchDir;
@@ -30,7 +32,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
     public function testConstructor()
     {
-        $sftp = new Net_SFTP($this->getEnv('SSH_HOSTNAME'));
+        $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
 
         $this->assertTrue(
             is_object($sftp),
