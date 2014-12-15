@@ -20,13 +20,8 @@ use phpseclib\System\SSH\Agent;
 /**
  * Pure-PHP ssh-agent client identity object
  *
-<<<<<<< HEAD
  * Instantiation should only be performed by \phpseclib\System\SSH\Agent class.
- * This could be thought of as implementing an interface that Crypt_RSA
-=======
- * Instantiation should only be performed by System_SSH_Agent class.
- * This could be thought of as implementing an interface that \phpseclib\Crypt\RSA
->>>>>>> Namespaced classes
+ * This could be thought of as implementing an interface that phpseclib\Crypt\RSA
  * implements. ie. maybe a Net_SSH_Auth_PublicKey interface or something.
  * The methods in this interface would be getPublicKey, setSignatureMode
  * and sign since those are the methods phpseclib looks for to perform

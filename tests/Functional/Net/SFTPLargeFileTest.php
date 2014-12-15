@@ -6,6 +6,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib\Crypt\Base;
 use phpseclib\Net\SFTP;
 
 class Functional_Net_SFTPLargeFileTest extends PhpseclibFunctionalTestCase
@@ -19,13 +20,13 @@ class Functional_Net_SFTPLargeFileTest extends PhpseclibFunctionalTestCase
             self::markTestSkipped('This test depends on mcrypt for performance.');
         }
         parent::setUpBeforeClass();
-        self::ensureConstant('CRYPT_AES_MODE', Crypt_Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_BLOWFISH_MODE', Crypt_Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_DES_MODE', Crypt_Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_RC2_MODE', Crypt_Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_RC4_MODE', Crypt_Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_RIJNDAEL_MODE', Crypt_Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_TWOFISH_MODE', Crypt_Base::ENGINE_MCRYPT);
+        self::ensureConstant('CRYPT_AES_MODE', Base::ENGINE_MCRYPT);
+        self::ensureConstant('CRYPT_BLOWFISH_MODE', Base::ENGINE_MCRYPT);
+        self::ensureConstant('CRYPT_DES_MODE', Base::ENGINE_MCRYPT);
+        self::ensureConstant('CRYPT_RC2_MODE', Base::ENGINE_MCRYPT);
+        self::ensureConstant('CRYPT_RC4_MODE', Base::ENGINE_MCRYPT);
+        self::ensureConstant('CRYPT_RIJNDAEL_MODE', Base::ENGINE_MCRYPT);
+        self::ensureConstant('CRYPT_TWOFISH_MODE', Base::ENGINE_MCRYPT);
     }
 
     public function setUp()

@@ -46,20 +46,11 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-<<<<<<< HEAD
 namespace phpseclib\Net;
 
-// These should be removed once the Crypt package is fully namespaced
-use Crypt_DES;
-use Crypt_TripleDES;
-// End unnecessary Use Statements
-
-use phpseclib\Crypt\Random;
-=======
 use phpseclib\Crypt\DES;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\TripleDES;
->>>>>>> Namespaced classes
 use phpseclib\Math\BigInteger;
 
 /**

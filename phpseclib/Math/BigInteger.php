@@ -41,7 +41,7 @@
  * </code>
  *
  * @category  Math
- * @package   Math_BigInteger
+ * @package   BigInteger
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2006 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -56,7 +56,7 @@ use phpseclib\Crypt\Random;
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
  * numbers.
  *
- * @package Math_BigInteger
+ * @package BigInteger
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */

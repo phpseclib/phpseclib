@@ -38,7 +38,7 @@
 
 namespace phpseclib\Crypt;
 
-use \phpseclib\Math\BigInteger;
+use phpseclib\Math\BigInteger;
 
 /**
  * Pure-PHP implementations of keyed-hash message authentication codes (HMACs) and various cryptographic hashing functions.

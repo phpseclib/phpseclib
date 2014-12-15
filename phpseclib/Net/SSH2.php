@@ -22,7 +22,6 @@
  *
  * <code>
  * <?php
- *    include 'Crypt/RSA.php';
  *    include 'vendor/autoload.php';
  *
  *    $key = new \phpseclib\Crypt\RSA();
@@ -48,23 +47,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-<<<<<<< HEAD
 namespace phpseclib\Net;
 
-// These should be removed once the Crypt package is fully namespaced
-use Crypt_Blowfish;
-use Crypt_Hash;
-use Crypt_RC4;
-use Crypt_Rijndael;
-use Crypt_RSA;
-use Crypt_TripleDES;
-use Crypt_Twofish;
-// End unnecessary Use Statements
-
-use phpseclib\Crypt\Random;
-// Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
-use phpseclib\Math\BigInteger;
-=======
 use phpseclib\Crypt\Base;
 use phpseclib\Crypt\Blowfish;
 use phpseclib\Crypt\Hash;
@@ -75,7 +59,6 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\Twofish;
 use phpseclib\Math\BigInteger; // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
->>>>>>> Namespaced classes
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -1822,18 +1805,11 @@ class SSH2
             return !is_string($password) && !is_array($password) ? false : $this->_keyboard_interactive_process($password);
         }
 
-        // although PHP5's get_class() preserves the case, PHP4's does not
         if (is_object($password)) {
             switch (get_class($password)) {
-<<<<<<< HEAD
-                case 'Crypt_RSA':
-                    return $this->_privatekey_login($username, $password);
-                case 'phpseclib\System\SSH\Agent':
-=======
                 case 'phpseclib\Crypt\RSA':
                     return $this->_privatekey_login($username, $password);
-                case 'System_SSH_Agent':
->>>>>>> Namespaced classes
+                case 'phpseclib\System\SSH\Agent':
                     return $this->_ssh_agent_login($username, $password);
             }
         }

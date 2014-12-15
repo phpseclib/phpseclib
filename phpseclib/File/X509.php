@@ -4162,7 +4162,7 @@ class X509
                 return $this->computeKeyIdentifier($key['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'], $method);
             case !is_object($key):
                 return false;
-            case strtolower(get_class($key)) == 'file_asn1_element':
+            case get_class($key) === 'phpseclib\File\ASN1\Element':
                 // Assume the element is a bitstring-packed key.
                 $asn1 = new ASN1();
                 $decoded = $asn1->decodeBER($key->element);
@@ -4184,7 +4184,7 @@ class X509
                 }
                 $key = $raw;    // Is a public key.
                 break;
-            case strtolower(get_class($key)) == 'file_x509':
+            case get_class($key) === 'phpseclib\File\X509':
                 if (isset($key->publicKey)) {
                     return $this->computeKeyIdentifier($key->publicKey, $method);
                 }

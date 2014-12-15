@@ -7,7 +7,6 @@
  * Here are some examples of how to use this library:
  * <code>
  * <?php
- *    include 'System/SSH/Agent.php';
  *    include 'vendor/autoload.php';
  *
  *    $agent = new \phpseclib\System\SSH\Agent();
@@ -31,18 +30,10 @@
  * @internal  See http://api.libssh.org/rfc/PROTOCOL.agent
  */
 
-<<<<<<< HEAD
 namespace phpseclib\System\SSH;
 
-use Crypt_RSA; //This should be removed once the Crypt package is fully namespaced
-use phpseclib\System\SSH\Agent\Identity;
-=======
 use phpseclib\Crypt\RSA;
-
-if (!class_exists('System_SSH_Agent_Identity')) {
-    include_once 'Agent/Identity.php';
-}
->>>>>>> Namespaced classes
+use phpseclib\System\SSH\Agent\Identity;
 
 /**
  * Pure-PHP ssh-agent client identity factory
