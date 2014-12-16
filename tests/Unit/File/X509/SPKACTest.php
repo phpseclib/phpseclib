@@ -6,11 +6,7 @@
  */
 
 use phpseclib\File\X509;
-
-require_once 'Crypt/RSA.php';
 use phpseclib\Crypt\RSA;
-
-require_once 'File/X509.php';
 
 class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 {
