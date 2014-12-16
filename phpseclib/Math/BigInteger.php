@@ -3032,7 +3032,7 @@ class BigInteger
      */
     function _random_number_helper($size)
     {
-        if (class_exists('phpseclib\Crypt\Random')) {
+        if (class_exists('\phpseclib\Crypt\Random')) {
             $random = Random::string($size);
         } else {
             $random = '';
