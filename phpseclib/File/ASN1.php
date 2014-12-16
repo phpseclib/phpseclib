@@ -206,7 +206,7 @@ class ASN1
      */
     function decodeBER($encoded)
     {
-        if (is_object($encoded) && strtolower(get_class($encoded)) == 'file_asn1_element') {
+        if (is_object($encoded) && get_class($encoded) === 'phpseclib\File\ASN1\Element') {
             $encoded = $encoded->element;
         }
 
@@ -779,7 +779,7 @@ class ASN1
      */
     function _encode_der($source, $mapping, $idx = null, $special = array())
     {
-        if (is_object($source) && strtolower(get_class($source)) == 'file_asn1_element') {
+        if (is_object($source) && get_class($source) === 'phpseclib\File\ASN1\Element') {
             return $source->element;
         }
 

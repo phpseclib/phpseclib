@@ -193,7 +193,7 @@ class Stream
             if (isset($context[$scheme]['password'])) {
                 $pass = $context[$scheme]['password'];
             }
-            if (isset($context[$scheme]['privkey']) && is_object($context[$scheme]['privkey']) && get_Class($context[$scheme]['privkey']) == 'Crypt_RSA') {
+            if (isset($context[$scheme]['privkey']) && is_object($context[$scheme]['privkey']) && get_class($context[$scheme]['privkey']) == 'phpseclib\Crypt\RSA') {
                 $pass = $context[$scheme]['privkey'];
             }
 
@@ -201,7 +201,7 @@ class Stream
                 return false;
             }
 
-            // casting $pass to a string is necessary in the event that it's a Crypt_RSA object
+            // casting $pass to a string is necessary in the event that it's a \phpseclib\Crypt\RSA object
             if (isset(self::$instances[$host][$port][$user][(string) $pass])) {
                 $this->sftp = self::$instances[$host][$port][$user][(string) $pass];
             } else {

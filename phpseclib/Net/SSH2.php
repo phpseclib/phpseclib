@@ -22,10 +22,9 @@
  *
  * <code>
  * <?php
- *    include 'Crypt/RSA.php';
  *    include 'vendor/autoload.php';
  *
- *    $key = new Crypt_RSA();
+ *    $key = new \phpseclib\Crypt\RSA();
  *    //$key->setPassword('whatever');
  *    $key->loadKey(file_get_contents('privatekey'));
  *
@@ -50,19 +49,16 @@
 
 namespace phpseclib\Net;
 
-// These should be removed once the Crypt package is fully namespaced
-use Crypt_Blowfish;
-use Crypt_Hash;
-use Crypt_RC4;
-use Crypt_Rijndael;
-use Crypt_RSA;
-use Crypt_TripleDES;
-use Crypt_Twofish;
-// End unnecessary Use Statements
-
+use phpseclib\Crypt\Base;
+use phpseclib\Crypt\Blowfish;
+use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\Random;
-// Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
-use phpseclib\Math\BigInteger;
+use phpseclib\Crypt\RC4;
+use phpseclib\Crypt\Rijndael;
+use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\TripleDES;
+use phpseclib\Crypt\Twofish;
+use phpseclib\Math\BigInteger; // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -850,10 +846,6 @@ class SSH2
      */
     function __construct($host, $port = 22, $timeout = 10)
     {
-        if (!class_exists('Crypt_Hash')) {
-            include_once 'Crypt/Hash.php';
-        }
-
         $this->message_numbers = array(
             1 => 'NET_SSH2_MSG_DISCONNECT',
             2 => 'NET_SSH2_MSG_IGNORE',
@@ -1123,31 +1115,31 @@ class SSH2
                 //'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
             );
 
-            if (stream_resolve_include_path('Crypt/RC4.php') === false) {
+            if (class_exists('\phpseclib\Crypt\RC4') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('arcfour256', 'arcfour128', 'arcfour')
                 );
             }
-            if (stream_resolve_include_path('Crypt/Rijndael.php') === false) {
+            if (class_exists('\phpseclib\Crypt\Rijndael') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('aes128-ctr', 'aes192-ctr', 'aes256-ctr', 'aes128-cbc', 'aes192-cbc', 'aes256-cbc')
                 );
             }
-            if (stream_resolve_include_path('Crypt/Twofish.php') === false) {
+            if (class_exists('\phpseclib\Crypt\Twofish') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('twofish128-ctr', 'twofish192-ctr', 'twofish256-ctr', 'twofish128-cbc', 'twofish192-cbc', 'twofish256-cbc', 'twofish-cbc')
                 );
             }
-            if (stream_resolve_include_path('Crypt/Blowfish.php') === false) {
+            if (class_exists('\phpseclib\Crypt\Blowfish') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('blowfish-ctr', 'blowfish-cbc')
                 );
             }
-            if (stream_resolve_include_path('Crypt/TripleDES.php') === false) {
+            if (class_exists('\phpseclib\Crypt\TripleDES') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
                     array('3des-ctr', '3des-cbc')
@@ -1374,7 +1366,7 @@ class SSH2
         // the generator field element is 2 (decimal) and the hash function is sha1.
         $g = new BigInteger(2);
         $prime = new BigInteger($prime, 16);
-        $kexHash = new Crypt_Hash('sha1');
+        $kexHash = new Hash('sha1');
         //$q = $p->bitwise_rightShift(1);
 
         /* To increase the speed of the key exchange, both client and server may
@@ -1479,156 +1471,102 @@ class SSH2
 
         switch ($encrypt) {
             case '3des-cbc':
-                if (!class_exists('Crypt_TripleDES')) {
-                    include_once 'Crypt/TripleDES.php';
-                }
-                $this->encrypt = new Crypt_TripleDES();
+                $this->encrypt = new TripleDES();
                 // $this->encrypt_block_size = 64 / 8 == the default
                 break;
             case '3des-ctr':
-                if (!class_exists('Crypt_TripleDES')) {
-                    include_once 'Crypt/TripleDES.php';
-                }
-                $this->encrypt = new Crypt_TripleDES(Crypt_Base::MODE_CTR);
+                $this->encrypt = new TripleDES(Base::MODE_CTR);
                 // $this->encrypt_block_size = 64 / 8 == the default
                 break;
             case 'aes256-cbc':
             case 'aes192-cbc':
             case 'aes128-cbc':
-                if (!class_exists('Crypt_Rijndael')) {
-                    include_once 'Crypt/Rijndael.php';
-                }
-                $this->encrypt = new Crypt_Rijndael();
+                $this->encrypt = new Rijndael();
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
-                if (!class_exists('Crypt_Rijndael')) {
-                    include_once 'Crypt/Rijndael.php';
-                }
-                $this->encrypt = new Crypt_Rijndael(Crypt_Base::MODE_CTR);
+                $this->encrypt = new Rijndael(Base::MODE_CTR);
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'blowfish-cbc':
-                if (!class_exists('Crypt_Blowfish')) {
-                    include_once 'Crypt/Blowfish.php';
-                }
-                $this->encrypt = new Crypt_Blowfish();
+                $this->encrypt = new Blowfish();
                 $this->encrypt_block_size = 8;
                 break;
             case 'blowfish-ctr':
-                if (!class_exists('Crypt_Blowfish')) {
-                    include_once 'Crypt/Blowfish.php';
-                }
-                $this->encrypt = new Crypt_Blowfish(Crypt_Base::MODE_CTR);
+                $this->encrypt = new Blowfish(Base::MODE_CTR);
                 $this->encrypt_block_size = 8;
                 break;
             case 'twofish128-cbc':
             case 'twofish192-cbc':
             case 'twofish256-cbc':
             case 'twofish-cbc':
-                if (!class_exists('Crypt_Twofish')) {
-                    include_once 'Crypt/Twofish.php';
-                }
-                $this->encrypt = new Crypt_Twofish();
+                $this->encrypt = new Twofish();
                 $this->encrypt_block_size = 16;
                 break;
             case 'twofish128-ctr':
             case 'twofish192-ctr':
             case 'twofish256-ctr':
-                if (!class_exists('Crypt_Twofish')) {
-                    include_once 'Crypt/Twofish.php';
-                }
-                $this->encrypt = new Crypt_Twofish(Crypt_Base::MODE_CTR);
+                $this->encrypt = new Twofish(Base::MODE_CTR);
                 $this->encrypt_block_size = 16;
                 break;
             case 'arcfour':
             case 'arcfour128':
             case 'arcfour256':
-                if (!class_exists('Crypt_RC4')) {
-                    include_once 'Crypt/RC4.php';
-                }
-                $this->encrypt = new Crypt_RC4();
+                $this->encrypt = new RC4();
                 break;
             case 'none';
-                //$this->encrypt = new Crypt_Null();
+                //$this->encrypt = new Null();
         }
 
         switch ($decrypt) {
             case '3des-cbc':
-                if (!class_exists('Crypt_TripleDES')) {
-                    include_once 'Crypt/TripleDES.php';
-                }
-                $this->decrypt = new Crypt_TripleDES();
+                $this->decrypt = new TripleDES();
                 break;
             case '3des-ctr':
-                if (!class_exists('Crypt_TripleDES')) {
-                    include_once 'Crypt/TripleDES.php';
-                }
-                $this->decrypt = new Crypt_TripleDES(Crypt_Base::MODE_CTR);
+                $this->decrypt = new TripleDES(Base::MODE_CTR);
                 break;
             case 'aes256-cbc':
             case 'aes192-cbc':
             case 'aes128-cbc':
-                if (!class_exists('Crypt_Rijndael')) {
-                    include_once 'Crypt/Rijndael.php';
-                }
-                $this->decrypt = new Crypt_Rijndael();
+                $this->decrypt = new Rijndael();
                 $this->decrypt_block_size = 16;
                 break;
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
-                if (!class_exists('Crypt_Rijndael')) {
-                    include_once 'Crypt/Rijndael.php';
-                }
-                $this->decrypt = new Crypt_Rijndael(Crypt_Base::MODE_CTR);
+                $this->decrypt = new Rijndael(Base::MODE_CTR);
                 $this->decrypt_block_size = 16;
                 break;
             case 'blowfish-cbc':
-                if (!class_exists('Crypt_Blowfish')) {
-                    include_once 'Crypt/Blowfish.php';
-                }
-                $this->decrypt = new Crypt_Blowfish();
+                $this->decrypt = new Blowfish();
                 $this->decrypt_block_size = 8;
                 break;
             case 'blowfish-ctr':
-                if (!class_exists('Crypt_Blowfish')) {
-                    include_once 'Crypt/Blowfish.php';
-                }
-                $this->decrypt = new Crypt_Blowfish(Crypt_Base::MODE_CTR);
+                $this->decrypt = new Blowfish(Base::MODE_CTR);
                 $this->decrypt_block_size = 8;
                 break;
             case 'twofish128-cbc':
             case 'twofish192-cbc':
             case 'twofish256-cbc':
             case 'twofish-cbc':
-                if (!class_exists('Crypt_Twofish')) {
-                    include_once 'Crypt/Twofish.php';
-                }
-                $this->decrypt = new Crypt_Twofish();
+                $this->decrypt = new Twofish();
                 $this->decrypt_block_size = 16;
                 break;
             case 'twofish128-ctr':
             case 'twofish192-ctr':
             case 'twofish256-ctr':
-                if (!class_exists('Crypt_Twofish')) {
-                    include_once 'Crypt/Twofish.php';
-                }
-                $this->decrypt = new Crypt_Twofish(Crypt_Base::MODE_CTR);
+                $this->decrypt = new Twofish(Base::MODE_CTR);
                 $this->decrypt_block_size = 16;
                 break;
             case 'arcfour':
             case 'arcfour128':
             case 'arcfour256':
-                if (!class_exists('Crypt_RC4')) {
-                    include_once 'Crypt/RC4.php';
-                }
-                $this->decrypt = new Crypt_RC4();
+                $this->decrypt = new RC4();
                 break;
             case 'none';
-                //$this->decrypt = new Crypt_Null();
+                //$this->decrypt = new Null();
         }
 
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
@@ -1690,23 +1628,23 @@ class SSH2
         $createKeyLength = 0; // ie. $mac_algorithms[$i] == 'none'
         switch ($mac_algorithms[$i]) {
             case 'hmac-sha2-256':
-                $this->hmac_create = new Crypt_Hash('sha256');
+                $this->hmac_create = new Hash('sha256');
                 $createKeyLength = 32;
                 break;
             case 'hmac-sha1':
-                $this->hmac_create = new Crypt_Hash('sha1');
+                $this->hmac_create = new Hash('sha1');
                 $createKeyLength = 20;
                 break;
             case 'hmac-sha1-96':
-                $this->hmac_create = new Crypt_Hash('sha1-96');
+                $this->hmac_create = new Hash('sha1-96');
                 $createKeyLength = 20;
                 break;
             case 'hmac-md5':
-                $this->hmac_create = new Crypt_Hash('md5');
+                $this->hmac_create = new Hash('md5');
                 $createKeyLength = 16;
                 break;
             case 'hmac-md5-96':
-                $this->hmac_create = new Crypt_Hash('md5-96');
+                $this->hmac_create = new Hash('md5-96');
                 $createKeyLength = 16;
         }
 
@@ -1720,27 +1658,27 @@ class SSH2
         $this->hmac_size = 0;
         switch ($mac_algorithms[$i]) {
             case 'hmac-sha2-256':
-                $this->hmac_check = new Crypt_Hash('sha256');
+                $this->hmac_check = new Hash('sha256');
                 $checkKeyLength = 32;
                 $this->hmac_size = 32;
                 break;
             case 'hmac-sha1':
-                $this->hmac_check = new Crypt_Hash('sha1');
+                $this->hmac_check = new Hash('sha1');
                 $checkKeyLength = 20;
                 $this->hmac_size = 20;
                 break;
             case 'hmac-sha1-96':
-                $this->hmac_check = new Crypt_Hash('sha1-96');
+                $this->hmac_check = new Hash('sha1-96');
                 $checkKeyLength = 20;
                 $this->hmac_size = 12;
                 break;
             case 'hmac-md5':
-                $this->hmac_check = new Crypt_Hash('md5');
+                $this->hmac_check = new Hash('md5');
                 $checkKeyLength = 16;
                 $this->hmac_size = 16;
                 break;
             case 'hmac-md5-96':
-                $this->hmac_check = new Crypt_Hash('md5-96');
+                $this->hmac_check = new Hash('md5-96');
                 $checkKeyLength = 16;
                 $this->hmac_size = 12;
         }
@@ -1777,7 +1715,7 @@ class SSH2
     /**
      * Login
      *
-     * The $password parameter can be a plaintext password, a Crypt_RSA object or an array
+     * The $password parameter can be a plaintext password, a \phpseclib\Crypt\RSA object or an array
      *
      * @param String $username
      * @param Mixed $password
@@ -1867,10 +1805,9 @@ class SSH2
             return !is_string($password) && !is_array($password) ? false : $this->_keyboard_interactive_process($password);
         }
 
-        // although PHP5's get_class() preserves the case, PHP4's does not
         if (is_object($password)) {
             switch (get_class($password)) {
-                case 'Crypt_RSA':
+                case 'phpseclib\Crypt\RSA':
                     return $this->_privatekey_login($username, $password);
                 case 'phpseclib\System\SSH\Agent':
                     return $this->_ssh_agent_login($username, $password);
@@ -2134,7 +2071,7 @@ class SSH2
      * Login with an RSA private key
      *
      * @param String $username
-     * @param Crypt_RSA $password
+     * @param \phpseclib\Crypt\RSA $password
      * @return Boolean
      * @access private
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
@@ -2143,7 +2080,7 @@ class SSH2
     function _privatekey_login($username, $privatekey)
     {
         // see http://tools.ietf.org/html/rfc4253#page-15
-        $publickey = $privatekey->getPublicKey(Crypt_RSA::PUBLIC_FORMAT_RAW);
+        $publickey = $privatekey->getPublicKey(RSA::PUBLIC_FORMAT_RAW);
         if ($publickey === false) {
             return false;
         }
@@ -2193,7 +2130,7 @@ class SSH2
         }
 
         $packet = $part1 . chr(1) . $part2;
-        $privatekey->setSignatureMode(Crypt_RSA::SIGNATURE_PKCS1);
+        $privatekey->setSignatureMode(RSA::SIGNATURE_PKCS1);
         $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet));
         $signature = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($signature), $signature);
         $packet.= pack('Na*', strlen($signature), $signature);
@@ -3747,13 +3684,9 @@ class SSH2
                 $temp = unpack('Nlength', $this->_string_shift($signature, 4));
                 $signature = $this->_string_shift($signature, $temp['length']);
 
-                if (!class_exists('Crypt_RSA')) {
-                    include_once 'Crypt/RSA.php';
-                }
-
-                $rsa = new Crypt_RSA();
-                $rsa->setSignatureMode(Crypt_RSA::SIGNATURE_PKCS1);
-                $rsa->loadKey(array('e' => $e, 'n' => $n), Crypt_RSA::PUBLIC_FORMAT_RAW);
+                $rsa = new RSA();
+                $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
+                $rsa->loadKey(array('e' => $e, 'n' => $n), RSA::PUBLIC_FORMAT_RAW);
                 if (!$rsa->verify($this->exchange_hash, $signature)) {
                     user_error('Bad server signature');
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);

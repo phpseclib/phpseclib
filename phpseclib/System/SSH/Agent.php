@@ -7,7 +7,6 @@
  * Here are some examples of how to use this library:
  * <code>
  * <?php
- *    include 'System/SSH/Agent.php';
  *    include 'vendor/autoload.php';
  *
  *    $agent = new \phpseclib\System\SSH\Agent();
@@ -33,7 +32,7 @@
 
 namespace phpseclib\System\SSH;
 
-use Crypt_RSA; //This should be removed once the Crypt package is fully namespaced
+use phpseclib\Crypt\RSA;
 use phpseclib\System\SSH\Agent\Identity;
 
 /**
@@ -138,10 +137,7 @@ class Agent
             $key_type = substr($key_blob, 4, $length);
             switch ($key_type) {
                 case 'ssh-rsa':
-                    if (!class_exists('Crypt_RSA')) {
-                        include_once 'Crypt/RSA.php';
-                    }
-                    $key = new Crypt_RSA();
+                    $key = new RSA();
                     $key->loadKey('ssh-rsa ' . base64_encode($key_blob) . ' ' . $key_comment);
                     break;
                 case 'ssh-dss':
