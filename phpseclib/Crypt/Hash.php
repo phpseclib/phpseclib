@@ -74,7 +74,7 @@ class Hash
      * @var Integer
      * @access private
      */
-    public $hashParam;
+    var $hashParam;
 
     /**
      * Byte-length of compression blocks / key (Internal HMAC)
@@ -83,7 +83,7 @@ class Hash
      * @var Integer
      * @access private
      */
-    public $b;
+    var $b;
 
     /**
      * Byte-length of hash output (Internal HMAC)
@@ -92,7 +92,7 @@ class Hash
      * @var Integer
      * @access private
      */
-    public $l = false;
+    var $l = false;
 
     /**
      * Hash Algorithm
@@ -101,7 +101,7 @@ class Hash
      * @var String
      * @access private
      */
-    public $hash;
+    var $hash;
 
     /**
      * Key
@@ -110,7 +110,7 @@ class Hash
      * @var String
      * @access private
      */
-    public $key = false;
+    var $key = false;
 
     /**
      * Outer XOR (Internal HMAC)
@@ -119,7 +119,7 @@ class Hash
      * @var String
      * @access private
      */
-    public $opad;
+    var $opad;
 
     /**
      * Inner XOR (Internal HMAC)
@@ -128,7 +128,7 @@ class Hash
      * @var String
      * @access private
      */
-    public $ipad;
+    var $ipad;
 
     /**
      * Default Constructor.

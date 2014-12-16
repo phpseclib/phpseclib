@@ -248,7 +248,7 @@ class RSA
      * @var Array
      * @access private
      */
-    public $zero;
+    var $zero;
 
     /**
      * Precomputed One
@@ -256,7 +256,7 @@ class RSA
      * @var Array
      * @access private
      */
-    public $one;
+    var $one;
 
     /**
      * Private Key Format
@@ -264,7 +264,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    public $privateKeyFormat = self::PRIVATE_FORMAT_PKCS1;
+    var $privateKeyFormat = self::PRIVATE_FORMAT_PKCS1;
 
     /**
      * Public Key Format
@@ -272,7 +272,7 @@ class RSA
      * @var Integer
      * @access public
      */
-    public $publicKeyFormat = self::PUBLIC_FORMAT_PKCS8;
+    var $publicKeyFormat = self::PUBLIC_FORMAT_PKCS8;
 
     /**
      * Modulus (ie. n)
@@ -280,7 +280,7 @@ class RSA
      * @var \phpseclib\Math\BigInteger
      * @access private
      */
-    public $modulus;
+    var $modulus;
 
     /**
      * Modulus length
@@ -288,7 +288,7 @@ class RSA
      * @var \phpseclib\Math\BigInteger
      * @access private
      */
-    public $k;
+    var $k;
 
     /**
      * Exponent (ie. e or d)
@@ -296,7 +296,7 @@ class RSA
      * @var \phpseclib\Math\BigInteger
      * @access private
      */
-    public $exponent;
+    var $exponent;
 
     /**
      * Primes for Chinese Remainder Theorem (ie. p and q)
@@ -304,7 +304,7 @@ class RSA
      * @var Array
      * @access private
      */
-    public $primes;
+    var $primes;
 
     /**
      * Exponents for Chinese Remainder Theorem (ie. dP and dQ)
@@ -312,7 +312,7 @@ class RSA
      * @var Array
      * @access private
      */
-    public $exponents;
+    var $exponents;
 
     /**
      * Coefficients for Chinese Remainder Theorem (ie. qInv)
@@ -320,7 +320,7 @@ class RSA
      * @var Array
      * @access private
      */
-    public $coefficients;
+    var $coefficients;
 
     /**
      * Hash name
@@ -328,7 +328,7 @@ class RSA
      * @var String
      * @access private
      */
-    public $hashName;
+    var $hashName;
 
     /**
      * Hash function
@@ -336,7 +336,7 @@ class RSA
      * @var \phpseclib\Crypt\Hash
      * @access private
      */
-    public $hash;
+    var $hash;
 
     /**
      * Length of hash function output
@@ -344,7 +344,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    public $hLen;
+    var $hLen;
 
     /**
      * Length of salt
@@ -352,7 +352,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    public $sLen;
+    var $sLen;
 
     /**
      * Hash function for the Mask Generation Function
@@ -360,7 +360,7 @@ class RSA
      * @var \phpseclib\Crypt\Hash
      * @access private
      */
-    public $mgfHash;
+    var $mgfHash;
 
     /**
      * Length of MGF hash function output
@@ -368,7 +368,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    public $mgfHLen;
+    var $mgfHLen;
 
     /**
      * Encryption mode
@@ -376,7 +376,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    public $encryptionMode = self::ENCRYPTION_OAEP;
+    var $encryptionMode = self::ENCRYPTION_OAEP;
 
     /**
      * Signature mode
@@ -384,7 +384,7 @@ class RSA
      * @var Integer
      * @access private
      */
-    public $signatureMode = self::SIGNATURE_PSS;
+    var $signatureMode = self::SIGNATURE_PSS;
 
     /**
      * Public Exponent
@@ -392,7 +392,7 @@ class RSA
      * @var Mixed
      * @access private
      */
-    public $publicExponent = false;
+    var $publicExponent = false;
 
     /**
      * Password
@@ -400,7 +400,7 @@ class RSA
      * @var String
      * @access private
      */
-    public $password = false;
+    var $password = false;
 
     /**
      * Components
@@ -412,7 +412,7 @@ class RSA
      * @var Array
      * @access private
      */
-    public $components = array();
+    var $components = array();
 
     /**
      * Current String
@@ -424,7 +424,7 @@ class RSA
      * @var Mixed
      * @access private
      */
-    public $current;
+    var $current;
 
     /**
      * OpenSSL configuration file name.
@@ -434,7 +434,7 @@ class RSA
      * @var Mixed
      * @Access public
      */
-    public $configFile;
+    var $configFile;
 
     /**
      * Public key comment field.
@@ -442,7 +442,7 @@ class RSA
      * @var String
      * @access private
      */
-    public $comment = 'phpseclib-generated-key';
+    var $comment = 'phpseclib-generated-key';
 
     /**
      * The constructor

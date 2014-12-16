@@ -113,7 +113,7 @@ class Base
      * @var Integer
      * @access private
      */
-    public $mode;
+    var $mode;
 
     /**
      * The Block Length of the block cipher
@@ -121,7 +121,7 @@ class Base
      * @var Integer
      * @access private
      */
-    public $block_size = 16;
+    var $block_size = 16;
 
     /**
      * The Key
@@ -130,7 +130,7 @@ class Base
      * @var String
      * @access private
      */
-    public $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+    var $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
     /**
      * The Initialization Vector
@@ -139,7 +139,7 @@ class Base
      * @var String
      * @access private
      */
-    public $iv;
+    var $iv;
 
     /**
      * A "sliding" Initialization Vector
@@ -149,7 +149,7 @@ class Base
      * @var String
      * @access private
      */
-    public $encryptIV;
+    var $encryptIV;
 
     /**
      * A "sliding" Initialization Vector
@@ -159,7 +159,7 @@ class Base
      * @var String
      * @access private
      */
-    public $decryptIV;
+    var $decryptIV;
 
     /**
      * Continuous Buffer status
@@ -168,7 +168,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    public $continuousBuffer = false;
+    var $continuousBuffer = false;
 
     /**
      * Encryption buffer for CTR, OFB and CFB modes
@@ -178,7 +178,7 @@ class Base
      * @var Array
      * @access private
      */
-    public $enbuffer;
+    var $enbuffer;
 
     /**
      * Decryption buffer for CTR, OFB and CFB modes
@@ -188,7 +188,7 @@ class Base
      * @var Array
      * @access private
      */
-    public $debuffer;
+    var $debuffer;
 
     /**
      * mcrypt resource for encryption
@@ -200,7 +200,7 @@ class Base
      * @var Resource
      * @access private
      */
-    public $enmcrypt;
+    var $enmcrypt;
 
     /**
      * mcrypt resource for decryption
@@ -212,7 +212,7 @@ class Base
      * @var Resource
      * @access private
      */
-    public $demcrypt;
+    var $demcrypt;
 
     /**
      * Does the enmcrypt resource need to be (re)initialized?
@@ -222,7 +222,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    public $enchanged = true;
+    var $enchanged = true;
 
     /**
      * Does the demcrypt resource need to be (re)initialized?
@@ -232,7 +232,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    public $dechanged = true;
+    var $dechanged = true;
 
     /**
      * mcrypt resource for CFB mode
@@ -251,7 +251,7 @@ class Base
      * @var Resource
      * @access private
      */
-    public $ecb;
+    var $ecb;
 
     /**
      * Optimizing value while CFB-encrypting
@@ -273,7 +273,7 @@ class Base
      * @var Integer
      * @access private
      */
-    public $cfb_init_len = 600;
+    var $cfb_init_len = 600;
 
     /**
      * Does internal cipher state need to be (re)initialized?
@@ -284,7 +284,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    public $changed = true;
+    var $changed = true;
 
     /**
      * Padding status
@@ -293,7 +293,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    public $padding = true;
+    var $padding = true;
 
     /**
      * Is the mode one that is paddable?
@@ -302,7 +302,7 @@ class Base
      * @var Boolean
      * @access private
      */
-    public $paddable = false;
+    var $paddable = false;
 
     /**
      * Holds which crypt engine internaly should be use,
@@ -323,7 +323,7 @@ class Base
      * @var Integer
      * @access private
      */
-    public $engine;
+    var $engine;
 
     /**
      * The mcrypt specific name of the cipher
@@ -336,7 +336,7 @@ class Base
      * @var String
      * @access private
      */
-    public $cipher_name_mcrypt;
+    var $cipher_name_mcrypt;
 
     /**
      * The default password key_size used by setPassword()
@@ -345,7 +345,7 @@ class Base
      * @var Integer
      * @access private
      */
-    public $password_key_size = 32;
+    var $password_key_size = 32;
 
     /**
      * The default salt used by setPassword()
@@ -354,7 +354,7 @@ class Base
      * @var String
      * @access private
      */
-    public $password_default_salt = 'phpseclib/salt';
+    var $password_default_salt = 'phpseclib/salt';
 
     /**
      * The namespace used by the cipher for its constants.
@@ -377,7 +377,7 @@ class Base
      * @var String
      * @access private
      */
-    public $const_namespace;
+    var $const_namespace;
 
     /**
      * The name of the performance-optimized callback function
@@ -392,7 +392,7 @@ class Base
      * @var Callback
      * @access private
      */
-    public $inline_crypt;
+    var $inline_crypt;
 
     /**
      * Holds whether performance-optimized $inline_crypt() can/should be used.
@@ -403,7 +403,7 @@ class Base
      * @var mixed
      * @access private
      */
-    public $use_inline_crypt;
+    var $use_inline_crypt;
 
     /**
      * Default Constructor.
