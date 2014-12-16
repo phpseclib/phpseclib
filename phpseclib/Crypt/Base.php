@@ -766,7 +766,7 @@ class Base
                 }
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
-                    if (($start = strlen($plaintext) % $block_size) != false) {
+                    if ($start = strlen($plaintext) % $block_size) {
                         $buffer['encrypted'] = substr($key, $start) . $buffer['encrypted'];
                     }
                 }
@@ -834,7 +834,7 @@ class Base
                 }
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
-                    if (($start = strlen($plaintext) % $block_size) != false) {
+                    if ($start = strlen($plaintext) % $block_size) {
                          $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
@@ -980,7 +980,7 @@ class Base
                 }
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
-                    if (($start = strlen($ciphertext) % $block_size) != false) {
+                    if ($start = strlen($ciphertext) % $block_size) {
                         $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                     }
                 }
@@ -1047,7 +1047,7 @@ class Base
                 }
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
-                    if (($start = strlen($ciphertext) % $block_size) != false) {
+                    if ($start = strlen($ciphertext) % $block_size) {
                          $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
