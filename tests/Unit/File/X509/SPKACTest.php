@@ -6,8 +6,7 @@
  */
 
 use phpseclib\File\X509;
-
-require_once 'Crypt/RSA.php';
+use phpseclib\Crypt\RSA;
 
 class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 {
@@ -47,7 +46,7 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 
     public function testSaveSPKAC()
     {
-        $privKey = new Crypt_RSA();
+        $privKey = new RSA();
         extract($privKey->createKey());
         $privKey->loadKey($privatekey);
 

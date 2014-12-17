@@ -41,7 +41,7 @@
  * </code>
  *
  * @category  Math
- * @package   Math_BigInteger
+ * @package   BigInteger
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2006 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -50,13 +50,13 @@
 
 namespace phpseclib\Math;
 
-use \phpseclib\Crypt\Random;
+use phpseclib\Crypt\Random;
 
 /**
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
  * numbers.
  *
- * @package Math_BigInteger
+ * @package BigInteger
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
@@ -3024,7 +3024,7 @@ class BigInteger
     /**
      * Generates a random BigInteger
      *
-     * Byte length is equal to $length. Uses Crypt\Random if it's loaded and mt_rand if it's not.
+     * Byte length is equal to $length. Uses \phpseclib\Crypt\Random if it's loaded and mt_rand if it's not.
      *
      * @param Integer $length
      * @return \phpseclib\Math\BigInteger
@@ -3032,7 +3032,7 @@ class BigInteger
      */
     function _random_number_helper($size)
     {
-        if (class_exists('phpseclib\Crypt\Random')) {
+        if (class_exists('\phpseclib\Crypt\Random')) {
             $random = Random::string($size);
         } else {
             $random = '';
