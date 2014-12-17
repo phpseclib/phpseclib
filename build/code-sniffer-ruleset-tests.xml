@@ -16,6 +16,9 @@
    <exclude name="PEAR.Commenting.FileComment.MissingTag" />
    <exclude name="PEAR.Commenting.FileComment.MissingVersion" />
    <exclude name="PEAR.Commenting.FileComment.SpacingBeforeTags" />
+
+   <!-- Test classes do not have to be namespaced. -->
+   <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace" />
  </rule>
 
 </ruleset>
