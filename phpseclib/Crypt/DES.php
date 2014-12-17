@@ -16,9 +16,9 @@
  * Here's a short example of how to use this library:
  * <code>
  * <?php
- *    include 'Crypt/DES.php';
+ *    include 'vendor/autoload.php';
  *
- *    $des = new Crypt_DES();
+ *    $des = new \phpseclib\Crypt\DES();
  *
  *    $des->setKey('abcdefgh');
  *
@@ -33,35 +33,30 @@
  * </code>
  *
  * @category  Crypt
- * @package   Crypt_DES
+ * @package   DES
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2007 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Crypt_Base
- *
- * Base cipher class
- */
-if (!class_exists('Crypt_Base')) {
-    include_once 'Base.php';
-}
+namespace phpseclib\Crypt;
+
+use phpseclib\Crypt\Base;
 
 /**
  * Pure-PHP implementation of DES.
  *
- * @package Crypt_DES
+ * @package DES
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Crypt_DES extends Crypt_Base
+class DES extends Base
 {
     /**#@+
      * @access private
-     * @see Crypt_DES::_setupKey()
-     * @see Crypt_DES::_processBlock()
+     * @see \phpseclib\Crypt\DES::_setupKey()
+     * @see \phpseclib\Crypt\DES::_processBlock()
      */
     /**
      * Contains $keys[self::ENCRYPT]
@@ -76,7 +71,7 @@ class Crypt_DES extends Crypt_Base
     /**
      * Block Length of the cipher
      *
-     * @see Crypt_Base::block_size
+     * @see \phpseclib\Crypt\Base::block_size
      * @var Integer
      * @access private
      */
@@ -85,7 +80,7 @@ class Crypt_DES extends Crypt_Base
     /**
      * The Key
      *
-     * @see Crypt_Base::key
+     * @see \phpseclib\Crypt\Base::key
      * @see setKey()
      * @var String
      * @access private
@@ -95,8 +90,8 @@ class Crypt_DES extends Crypt_Base
     /**
      * The default password key_size used by setPassword()
      *
-     * @see Crypt_Base::password_key_size
-     * @see Crypt_Base::setPassword()
+     * @see \phpseclib\Crypt\Base::password_key_size
+     * @see \phpseclib\Crypt\Base::setPassword()
      * @var Integer
      * @access private
      */
@@ -105,7 +100,7 @@ class Crypt_DES extends Crypt_Base
     /**
      * The namespace used by the cipher for its constants.
      *
-     * @see Crypt_Base::const_namespace
+     * @see \phpseclib\Crypt\Base::const_namespace
      * @var String
      * @access private
      */
@@ -114,7 +109,7 @@ class Crypt_DES extends Crypt_Base
     /**
      * The mcrypt specific name of the cipher
      *
-     * @see Crypt_Base::cipher_name_mcrypt
+     * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
      * @var String
      * @access private
      */
@@ -123,7 +118,7 @@ class Crypt_DES extends Crypt_Base
     /**
      * Optimizing value while CFB-encrypting
      *
-     * @see Crypt_Base::cfb_init_len
+     * @see \phpseclib\Crypt\Base::cfb_init_len
      * @var Integer
      * @access private
      */
@@ -134,8 +129,8 @@ class Crypt_DES extends Crypt_Base
      *
      * Used only if $engine == self::ENGINE_INTERNAL
      *
-     * @see Crypt_DES::_setupKey()
-     * @see Crypt_DES::_processBlock()
+     * @see \phpseclib\Crypt\DES::_setupKey()
+     * @see \phpseclib\Crypt\DES::_processBlock()
      * @var Integer
      * @access private
      */
@@ -144,7 +139,7 @@ class Crypt_DES extends Crypt_Base
     /**
      * max possible size of $key
      *
-     * @see Crypt_DES::setKey()
+     * @see \phpseclib\Crypt\DES::setKey()
      * @var String
      * @access private
      */
@@ -153,7 +148,7 @@ class Crypt_DES extends Crypt_Base
     /**
      * The Key Schedule
      *
-     * @see Crypt_DES::_setupKey()
+     * @see \phpseclib\Crypt\DES::_setupKey()
      * @var Array
      * @access private
      */
@@ -166,8 +161,8 @@ class Crypt_DES extends Crypt_Base
      * with each byte containing all bits in the same state as the
      * corresponding bit in the index value.
      *
-     * @see Crypt_DES::_processBlock()
-     * @see Crypt_DES::_setupKey()
+     * @see \phpseclib\Crypt\DES::_processBlock()
+     * @see \phpseclib\Crypt\DES::_setupKey()
      * @var Array
      * @access private
      */
@@ -601,7 +596,7 @@ class Crypt_DES extends Crypt_Base
      *
      * If the key is not explicitly set, it'll be assumed to be all zero's.
      *
-     * @see Crypt_Base::setKey()
+     * @see \phpseclib\Crypt\Base::setKey()
      * @access public
      * @param String $key
      */
@@ -620,9 +615,9 @@ class Crypt_DES extends Crypt_Base
     /**
      * Encrypts a block
      *
-     * @see Crypt_Base::_encryptBlock()
-     * @see Crypt_Base::encrypt()
-     * @see Crypt_DES::encrypt()
+     * @see \phpseclib\Crypt\Base::_encryptBlock()
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see \phpseclib\Crypt\DES::encrypt()
      * @access private
      * @param String $in
      * @return String
@@ -635,9 +630,9 @@ class Crypt_DES extends Crypt_Base
     /**
      * Decrypts a block
      *
-     * @see Crypt_Base::_decryptBlock()
-     * @see Crypt_Base::decrypt()
-     * @see Crypt_DES::decrypt()
+     * @see \phpseclib\Crypt\Base::_decryptBlock()
+     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see \phpseclib\Crypt\DES::decrypt()
      * @access private
      * @param String $in
      * @return String
@@ -654,8 +649,8 @@ class Crypt_DES extends Crypt_Base
      * {@link http://en.wikipedia.org/wiki/Image:Feistel.png Feistel.png} to get a general
      * idea of what this function does.
      *
-     * @see Crypt_DES::_encryptBlock()
-     * @see Crypt_DES::_decryptBlock()
+     * @see \phpseclib\Crypt\DES::_encryptBlock()
+     * @see \phpseclib\Crypt\DES::_decryptBlock()
      * @access private
      * @param String $block
      * @param Integer $mode
@@ -739,7 +734,7 @@ class Crypt_DES extends Crypt_Base
     /**
      * Creates the key schedule
      *
-     * @see Crypt_Base::_setupKey()
+     * @see \phpseclib\Crypt\Base::_setupKey()
      * @access private
      */
     function _setupKey()
@@ -1274,12 +1269,12 @@ class Crypt_DES extends Crypt_Base
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Crypt_Base::_setupInlineCrypt()
+     * @see \phpseclib\Crypt\Base::_setupInlineCrypt()
      * @access private
      */
     function _setupInlineCrypt()
     {
-        $lambda_functions =& Crypt_DES::_getLambdaFunctions();
+        $lambda_functions =& self::_getLambdaFunctions();
 
         // Engine configuration for:
         // -  DES ($des_rounds == 1) or
@@ -1295,13 +1290,13 @@ class Crypt_DES extends Crypt_Base
             case $gen_hi_opt_code:
                 // For hi-optimized code, we create for each combination of
                 // $mode, $des_rounds and $this->key its own encrypt/decrypt function.
-                $code_hash = md5(str_pad("Crypt_DES, $des_rounds, {$this->mode}, ", 32, "\0") . $this->key);
+                $code_hash = md5(str_pad("DES, $des_rounds, {$this->mode}, ", 32, "\0") . $this->key);
                 break;
             default:
                 // After max 10 hi-optimized functions, we create generic
                 // (still very fast.. but not ultra) functions for each $mode/$des_rounds
                 // Currently 2 * 5 generic functions will be then max. possible.
-                $code_hash = "Crypt_DES, $des_rounds, {$this->mode}";
+                $code_hash = "DES, $des_rounds, {$this->mode}";
         }
 
         // Is there a re-usable $lambda_functions in there? If not, we have to create it.
