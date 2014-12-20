@@ -135,10 +135,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         );
 
         $combos = array(
-             array(16),
-             array(17),
-             array(1, 16),
-             array(3, 6, 7), // (3 to test the openssl_encrypt call and the buffer creation, 6 to test the exclusive use of the buffer and 7 to test the buffer's exhaustion and recreation)
+            array(16),
+            array(17),
+            array(1, 16),
+            array(3, 6, 7), // (3 to test the openssl_encrypt call and the buffer creation, 6 to test the exclusive use of the buffer and 7 to test the buffer's exhaustion and recreation)
             array(15, 4), // (15 to test openssl_encrypt call and buffer creation and 4 to test something that spans multpile bloc
             array(3, 6, 10, 16), // this is why the strlen check in the buffer-only code was needed
             array(16, 16), // two full size blocks

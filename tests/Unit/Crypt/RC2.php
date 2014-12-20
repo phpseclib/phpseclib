@@ -33,7 +33,7 @@ class Unit_Crypt_RC2_TestCase extends PhpseclibTestCase
         // in contrast, to my knowledge, there is no technique for expanding a key less than 128 bits to 128 bits, via RC2 key expansion. the only
         // scenario in that regard is null padding.
 
-        // simple truncation is insufficient, since, quoting RFC2268, "the purpose of th key-expansion algorithm [in RC2] is to modify the key buffer
+        // simple truncation is insufficient, since, quoting RFC2268, "the purpose of the key-expansion algorithm [in RC2] is to modify the key buffer
         // so that each bit of the expanded key depends in a complicated way on every bit of the supplied input key".
 
         // now, to OpenSSL's credit, null padding is internally consistent with OpenSSL. OpenSSL only supports fixed length keys. For rc2, rc4 and
@@ -52,10 +52,13 @@ class Unit_Crypt_RC2_TestCase extends PhpseclibTestCase
         $rc2->setPreferredEngine(CRYPT_ENGINE_INTERNAL);
         $internal = $rc2->encrypt('d');
 
+        $result = pack('H*', 'e3b36057f4821346');
+        $this->assertEquals($result, $internal, 'Failed asserting that the internal engine produced the correct result');
+
         $rc2->setPreferredEngine(CRYPT_ENGINE_MCRYPT);
         if ($rc2->getEngine() == CRYPT_ENGINE_MCRYPT) {
             $mcrypt = $rc2->encrypt('d');
-            $this->assertEquals($internal, $mcrypt, 'Failed asserting that the internal and mcrypt engines produce identical results');
+            $this->assertEquals($result, $mcrypt, 'Failed asserting that the mcrypt engine produced the correct result');
         } else {
             self::markTestSkipped('Unable to initialize mcrypt engine');
         }
@@ -63,7 +66,7 @@ class Unit_Crypt_RC2_TestCase extends PhpseclibTestCase
         $rc2->setPreferredEngine(CRYPT_ENGINE_OPENSSL);
         if ($rc2->getEngine() == CRYPT_ENGINE_OPENSSL) {
             $openssl = $rc2->encrypt('d');
-            $this->assertEquals($internal, $openssl,  'Failed asserting that the internal and OpenSSL engines produce identical results');
+            $this->assertEquals($result, $openssl,  'Failed asserting that the OpenSSL engine produced the correct result');
         } else {
             self::markTestSkipped('Unable to initialize OpenSSL engine');
         }
