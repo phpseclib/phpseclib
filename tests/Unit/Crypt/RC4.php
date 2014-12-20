@@ -86,6 +86,98 @@ class Unit_Crypt_RC4_TestCase extends PhpseclibTestCase
                     array('offset' => 4080, 'result' => 'd5fa5a3469d29aaaf83d23589db8c85b'),
                     array('offset' => 4096, 'result' => '3fb46e2c8f0f068edce8cdcd7dfc5862')
                 )
+            ),
+            array(
+                'key' => pack('H*', '0102030405060708090a'), // 80-bit key
+                'output' => array(
+                    array('offset' =>    0, 'result' => 'ede3b04643e586cc907dc21851709902'),
+                    array('offset' =>   16, 'result' => '03516ba78f413beb223aa5d4d2df6711'),
+                    array('offset' =>  240, 'result' => '3cfd6cb58ee0fdde640176ad0000044d'),
+                    array('offset' =>  256, 'result' => '48532b21fb6079c9114c0ffd9c04a1ad'),
+                    array('offset' =>  496, 'result' => '3e8cea98017109979084b1ef92f99d86'),
+                    array('offset' =>  512, 'result' => 'e20fb49bdb337ee48b8d8dc0f4afeffe'),
+                    array('offset' =>  752, 'result' => '5c2521eacd7966f15e056544bea0d315'),
+                    array('offset' =>  768, 'result' => 'e067a7031931a246a6c3875d2f678acb'),
+                    array('offset' => 1008, 'result' => 'a64f70af88ae56b6f87581c0e23e6b08'),
+                    array('offset' => 1024, 'result' => 'f449031de312814ec6f319291f4a0516'),
+                    array('offset' => 1520, 'result' => 'bdae85924b3cb1d0a2e33a30c6d79599'),
+                    array('offset' => 1536, 'result' => '8a0feddbac865a09bcd127fb562ed60a'),
+                    array('offset' => 2032, 'result' => 'b55a0a5b51a12a8be34899c3e047511a'),
+                    array('offset' => 2048, 'result' => 'd9a09cea3ce75fe39698070317a71339'),
+                    array('offset' => 3056, 'result' => '552225ed1177f44584ac8cfa6c4eb5fc'),
+                    array('offset' => 3072, 'result' => '7e82cbabfc95381b080998442129c2f8'),
+                    array('offset' => 4080, 'result' => '1f135ed14ce60a91369d2322bef25e3c'),
+                    array('offset' => 4096, 'result' => '08b6be45124a43e2eb77953f84dc8553')
+                )
+            ),
+            array(
+                'key' => pack('H*', '0102030405060708090a0b0c0d0e0f10'), // 128-bit key
+                'output' => array(
+                    array('offset' =>    0, 'result' => '9ac7cc9a609d1ef7b2932899cde41b97'),
+                    array('offset' =>   16, 'result' => '5248c4959014126a6e8a84f11d1a9e1c'),
+                    array('offset' =>  240, 'result' => '065902e4b620f6cc36c8589f66432f2b'),
+                    array('offset' =>  256, 'result' => 'd39d566bc6bce3010768151549f3873f'),
+                    array('offset' =>  496, 'result' => 'b6d1e6c4a5e4771cad79538df295fb11'),
+                    array('offset' =>  512, 'result' => 'c68c1d5c559a974123df1dbc52a43b89'),
+                    array('offset' =>  752, 'result' => 'c5ecf88de897fd57fed301701b82a259'),
+                    array('offset' =>  768, 'result' => 'eccbe13de1fcc91c11a0b26c0bc8fa4d'),
+                    array('offset' => 1008, 'result' => 'e7a72574f8782ae26aabcf9ebcd66065'),
+                    array('offset' => 1024, 'result' => 'bdf0324e6083dcc6d3cedd3ca8c53c16'),
+                    array('offset' => 1520, 'result' => 'b40110c4190b5622a96116b0017ed297'),
+                    array('offset' => 1536, 'result' => 'ffa0b514647ec04f6306b892ae661181'),
+                    array('offset' => 2032, 'result' => 'd03d1bc03cd33d70dff9fa5d71963ebd'),
+                    array('offset' => 2048, 'result' => '8a44126411eaa78bd51e8d87a8879bf5'),
+                    array('offset' => 3056, 'result' => 'fabeb76028ade2d0e48722e46c4615a3'),
+                    array('offset' => 3072, 'result' => 'c05d88abd50357f935a63c59ee537623'),
+                    array('offset' => 4080, 'result' => 'ff38265c1642c1abe8d3c2fe5e572bf8'),
+                    array('offset' => 4096, 'result' => 'a36a4c301ae8ac13610ccbc12256cacc')
+                )
+            ),
+            array(
+                'key' => pack('H*', '0102030405060708090a0b0c0d0e0f101112131415161718'), // 192-bit key
+                'output' => array(
+                    array('offset' =>    0, 'result' => '0595e57fe5f0bb3c706edac8a4b2db11'),
+                    array('offset' =>   16, 'result' => 'dfde31344a1af769c74f070aee9e2326'),
+                    array('offset' =>  240, 'result' => 'b06b9b1e195d13d8f4a7995c4553ac05'),
+                    array('offset' =>  256, 'result' => '6bd2378ec341c9a42f37ba79f88a32ff'),
+                    array('offset' =>  496, 'result' => 'e70bce1df7645adb5d2c4130215c3522'),
+                    array('offset' =>  512, 'result' => '9a5730c7fcb4c9af51ffda89c7f1ad22'),
+                    array('offset' =>  752, 'result' => '0485055fd4f6f0d963ef5ab9a5476982'),
+                    array('offset' =>  768, 'result' => '591fc66bcda10e452b03d4551f6b62ac'),
+                    array('offset' => 1008, 'result' => '2753cc83988afa3e1688a1d3b42c9a02'),
+                    array('offset' => 1024, 'result' => '93610d523d1d3f0062b3c2a3bbc7c7f0'),
+                    array('offset' => 1520, 'result' => '96c248610aadedfeaf8978c03de8205a'),
+                    array('offset' => 1536, 'result' => '0e317b3d1c73b9e9a4688f296d133a19'),
+                    array('offset' => 2032, 'result' => 'bdf0e6c3cca5b5b9d533b69c56ada120'),
+                    array('offset' => 2048, 'result' => '88a218b6e2ece1e6246d44c759d19b10'),
+                    array('offset' => 3056, 'result' => '6866397e95c140534f94263421006e40'),
+                    array('offset' => 3072, 'result' => '32cb0a1e9542c6b3b8b398abc3b0f1d5'),
+                    array('offset' => 4080, 'result' => '29a0b8aed54a132324c62e423f54b4c8'),
+                    array('offset' => 4096, 'result' => '3cb0f3b5020a98b82af9fe154484a168')
+                )
+            ),
+            array(
+                'key' => pack('H*', '0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20'), // 256-bit key
+                'output' => array(
+                    array('offset' =>    0, 'result' => 'eaa6bd25880bf93d3f5d1e4ca2611d91'),
+                    array('offset' =>   16, 'result' => 'cfa45c9f7e714b54bdfa80027cb14380'),
+                    array('offset' =>  240, 'result' => '114ae344ded71b35f2e60febad727fd8'),
+                    array('offset' =>  256, 'result' => '02e1e7056b0f623900496422943e97b6'),
+                    array('offset' =>  496, 'result' => '91cb93c787964e10d9527d999c6f936b'),
+                    array('offset' =>  512, 'result' => '49b18b42f8e8367cbeb5ef104ba1c7cd'),
+                    array('offset' =>  752, 'result' => '87084b3ba700bade955610672745b374'),
+                    array('offset' =>  768, 'result' => 'e7a7b9e9ec540d5ff43bdb12792d1b35'),
+                    array('offset' => 1008, 'result' => 'c799b596738f6b018c76c74b1759bd90'),
+                    array('offset' => 1024, 'result' => '7fec5bfd9f9b89ce6548309092d7e958'),
+                    array('offset' => 1520, 'result' => '40f250b26d1f096a4afd4c340a588815'),
+                    array('offset' => 1536, 'result' => '3e34135c79db010200767651cf263073'),
+                    array('offset' => 2032, 'result' => 'f656abccf88dd827027b2ce917d464ec'),
+                    array('offset' => 2048, 'result' => '18b62503bfbc077fbabb98f20d98ab34'),
+                    array('offset' => 3056, 'result' => '8aed95ee5b0dcbfbef4eb21d3a3f52f9'),
+                    array('offset' => 3072, 'result' => '625a1ab00ee39a5327346bddb01a9c18'),
+                    array('offset' => 4080, 'result' => 'a13a7c79c7e119b5ab0296ab28c300b9'),
+                    array('offset' => 4096, 'result' => 'f3e4c0a2e02d1d01f7f0a74618af2b48')
+                )
             )
         );
         $result = array();
