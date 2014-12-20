@@ -19,7 +19,7 @@ class Unit_Crypt_RC4_TestCase extends PhpseclibTestCase
         // tests from https://tools.ietf.org/html/rfc6229
         $tests = array(
             array(
-                'key' => pack('H*', '0102030405'),
+                'key' => pack('H*', '0102030405'), // 40-bit key
                 'output' => array(
                     array('offset' =>    0, 'result' => 'b2396305f03dc027ccc3524a0a1118a8'),
                     array('offset' =>   16, 'result' => '6982944f18fc82d589c403a47a0d0919'),
@@ -42,7 +42,7 @@ class Unit_Crypt_RC4_TestCase extends PhpseclibTestCase
                 )
             ),
             array(
-                'key' => pack('H*', '01020304050607'),
+                'key' => pack('H*', '01020304050607'), // 56-bit key
                 'output' => array(
                     array('offset' =>    0, 'result' => '293f02d47f37c9b633f2af5285feb46b'),
                     array('offset' =>   16, 'result' => 'e620f1390d19bd84e2e0fd752031afc1'),
@@ -65,7 +65,7 @@ class Unit_Crypt_RC4_TestCase extends PhpseclibTestCase
                 )
             ),
             array(
-                'key' => pack('H*', '0102030405060708'),
+                'key' => pack('H*', '0102030405060708'), // 64-bit key
                 'output' => array(
                     array('offset' =>    0, 'result' => '97ab8a1bf0afb96132f2f67258da15a8'),
                     array('offset' =>   16, 'result' => '8263efdb45c4a18684ef87e6b19e5b09'),
@@ -105,10 +105,10 @@ class Unit_Crypt_RC4_TestCase extends PhpseclibTestCase
     {
         $rc4 = new Crypt_RC4();
         $rc4->setPreferredEngine($engine);
-        if ($rc4->getEngine() != $engine) {
-            self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
-        }
         $rc4->setKey(pack('H*', $key));
+        if ($rc4->getEngine() != $engine) {
+            self::markTestSkipped('Unable to initialize ' . $engineName . ' engine for ' . (strlen($key) * 8) . '-bit key');
+        }
         $result = $rc4->encrypt(str_repeat("\0", $offset + 16));
         $this->assertEquals(bin2hex(substr($result, -16)), $expected, "Failed asserting that key $key yielded expected output at offset $offset in $engineName engine");
     }
