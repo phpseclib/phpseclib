@@ -8,7 +8,7 @@
 require_once 'Crypt/RC2.php';
 
 // this test is just confirming RC2's key expansion
-class Unit_Crypt_RC2_TestCase extends PhpseclibTestCase
+class Unit_Crypt_RC2Test extends PhpseclibTestCase
 {
     public function testEncryptPadding()
     {
