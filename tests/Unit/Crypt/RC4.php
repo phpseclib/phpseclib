@@ -9,7 +9,7 @@ require_once 'Crypt/RC4.php';
 
 echo 'YYY';
 
-class Unit_Crypt_RC4_TestCase extends PhpseclibTestCase
+class Unit_Crypt_RC4Test extends PhpseclibTestCase
 {
     public function engineVectors()
     {
