@@ -182,7 +182,7 @@ class Unit_Crypt_RC4_TestCase extends PhpseclibTestCase
         );
         $result = array();
         // @codingStandardsIgnoreStart
-        foreach ($engines as $engine => $engineName)
+        foreach ($engines as $engine => $engineName) 
         foreach ($tests as $test)
         foreach ($test['output'] as $output)
             $result[] = array($engine, $engineName, $test['key'], $output['offset'], $output['result']);
@@ -199,6 +199,8 @@ class Unit_Crypt_RC4_TestCase extends PhpseclibTestCase
         $rc4->setPreferredEngine($engine);
         $rc4->setKey(pack('H*', $key));
         if ($rc4->getEngine() != $engine) {
+echo 'Unable to initialize ' . $engineName . ' engine for ' . (strlen($key) * 8) . '-bit key';
+echo "\r\n";
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine for ' . (strlen($key) * 8) . '-bit key');
         }
         $result = $rc4->encrypt(str_repeat("\0", $offset + 16));
