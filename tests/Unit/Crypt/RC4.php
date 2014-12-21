@@ -195,6 +195,7 @@ class Unit_Crypt_RC4_TestCase extends PhpseclibTestCase
     */
     public function testVectors($engine, $engineName, $key, $offset, $expected)
     {
+echo 'x';
         $rc4 = new Crypt_RC4();
         $rc4->setPreferredEngine($engine);
         $rc4->setKey(pack('H*', $key));
