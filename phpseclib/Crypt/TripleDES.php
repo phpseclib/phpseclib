@@ -59,19 +59,23 @@ if (!class_exists('Crypt_DES')) {
     include_once 'DES.php';
 }
 
+/**#@+
+ * @access public
+ * @see Crypt_TripleDES::Crypt_TripleDES()
+ */
 /**
  * Encrypt / decrypt using inner chaining
  *
  * Inner chaining is used by SSH-1 and is generally considered to be less secure then outer chaining (CRYPT_DES_MODE_CBC3).
  */
 define('CRYPT_DES_MODE_3CBC', -2);
-
 /**
  * Encrypt / decrypt using outer chaining
  *
  * Outer chaining is used by SSH-2 and when the mode is set to CRYPT_DES_MODE_CBC.
  */
 define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
+/**#@-*/
 
 /**
  * Pure-PHP implementation of Triple DES.
@@ -214,6 +218,27 @@ class Crypt_TripleDES extends Crypt_DES
     }
 
     /**
+     * Test for engine validity
+     *
+     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     *
+     * @see Crypt_Base::Crypt_Base()
+     * @param Integer $engine
+     * @access public
+     * @return Boolean
+     */
+    function isValidEngine($engine)
+    {
+        if ($engine == CRYPT_ENGINE_OPENSSL) {
+            $this->cipher_name_openssl_ecb = 'des-ede3';
+            $mode = $this->_openssl_translate_mode();
+            $this->cipher_name_openssl = $mode == 'ecb' ? 'des-ede3' : 'des-ede3-' . $mode;
+        }
+
+        return parent::isValidEngine($engine);
+    }
+
+    /**
      * Sets the initialization vector. (optional)
      *
      * SetIV is not required when CRYPT_DES_MODE_ECB is being used.  If not explicitly set, it'll be assumed
@@ -255,7 +280,7 @@ class Crypt_TripleDES extends Crypt_DES
             $key = str_pad(substr($key, 0, 24), 24, chr(0));
             // if $key is between 64 and 128-bits, use the first 64-bits as the last, per this:
             // http://php.net/function.mcrypt-encrypt#47973
-            //$key = $length <= 16 ? substr_replace($key, substr($key, 0, 8), 16) : substr($key, 0, 24);
+            $key = $length <= 16 ? substr_replace($key, substr($key, 0, 8), 16) : substr($key, 0, 24);
         } else {
             $key = str_pad($key, 8, chr(0));
         }
@@ -424,5 +449,25 @@ class Crypt_TripleDES extends Crypt_DES
         }
         // setup our key
         parent::_setupKey();
+    }
+
+    /**
+     * Sets the internal crypt engine
+     *
+     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt_Base::setEngine()
+     * @param optional Integer $engine
+     * @access public
+     * @return Integer
+     */
+    function setEngine($engine = CRYPT_DES_MODE_MCRYPT)
+    {
+        if ($this->mode_3cbc) {
+            $this->des[0]->setEngine($engine);
+            $this->des[1]->setEngine($engine);
+            $this->des[2]->setEngine($engine);
+        }
+
+        return parent::setEngine($engine);
     }
 }
