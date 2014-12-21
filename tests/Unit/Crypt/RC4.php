@@ -7,10 +7,13 @@
 
 require_once 'Crypt/RC4.php';
 
+echo 'YYY';
+
 class Unit_Crypt_RC4_TestCase extends PhpseclibTestCase
 {
     public function engineVectors()
     {
+echo 'AAA';
         $engines = array(
             CRYPT_ENGINE_INTERNAL => 'internal',
             CRYPT_ENGINE_MCRYPT => 'mcrypt',
