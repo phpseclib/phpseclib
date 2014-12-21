@@ -197,7 +197,7 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
     {
         $rc4 = new Crypt_RC4();
         $rc4->setPreferredEngine($engine);
-        $rc4->setKey(pack('H*', $key));
+        $rc4->setKey($key);
         if ($rc4->getEngine() != $engine) {
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine for ' . (strlen($key) * 8) . '-bit key');
         }
