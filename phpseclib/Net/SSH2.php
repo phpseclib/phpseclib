@@ -844,7 +844,7 @@ class Net_SSH2
      */
     var $windowRows = 24;
 
-    /** 
+    /**
      * A System_SSH_Agent for use in the SSH2 Agent Forwarding scenario
      *
      * @var System_SSH_Agent
@@ -2144,7 +2144,7 @@ class Net_SSH2
      */
     function _ssh_agent_login($username, $agent)
     {
-        $this->agent = $agent; 
+        $this->agent = $agent;
         $keys = $agent->requestIdentities();
         foreach ($keys as $key) {
             if ($this->_privatekey_login($username, $key)) {
@@ -2825,7 +2825,7 @@ class Net_SSH2
                     }
                     $payload = $this->_get_binary_packet();
                 }
-            default: 
+            default:
                 break;
         }
 
@@ -3043,35 +3043,39 @@ class Net_SSH2
             switch ($type) {
                 case NET_SSH2_MSG_CHANNEL_OPEN: // see http://tools.ietf.org/html/rfc4254#section-5.1
                     $data = $this->_string_shift($response, $length);
-                    switch($data) { 
+                    switch($data) {
                         case 'auth-agent':
                         case 'auth-agent@openssh.com':
-                            if (isset($this->agent)) {
-                                $new_channel = NET_SSH2_CHANNEL_AGENT_FORWARD;
+						    if (!isset($this->agent)) {
+                              break 2;
                             }
+                            break;
+                        default:
+                          break 2;
                     }
-                    if (isset($new_channel)) {
-                        extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
-                        extract(unpack('Nremote_window_size', $this->_string_shift($response, 4)));
-                        extract(unpack('Nremote_maximum_packet_size', $this->_string_shift($response, 4)));
 
-                        $this->packet_size_client_to_server[$new_channel] = $remote_window_size;
-                        $this->window_size_server_to_client[$new_channel] = $remote_maximum_packet_size;
-                        $this->window_size_client_to_server[$new_channel] = $this->window_size;
+                    $new_channel = NET_SSH2_CHANNEL_AGENT_FORWARD;
 
-                        $packet_size = 0x4000;
+                    extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
+                    extract(unpack('Nremote_window_size', $this->_string_shift($response, 4)));
+                    extract(unpack('Nremote_maximum_packet_size', $this->_string_shift($response, 4)));
 
-                        $packet = pack('CN4',
-                            NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION, $server_channel, $new_channel, $packet_size, $packet_size);
+                    $this->packet_size_client_to_server[$new_channel] = $remote_window_size;
+                    $this->window_size_server_to_client[$new_channel] = $remote_maximum_packet_size;
+                    $this->window_size_client_to_server[$new_channel] = $this->window_size;
 
-                        $this->server_channels[$new_channel] = $server_channel;
-                        $this->channel_status[$new_channel] = NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION;
+                    $packet_size = 0x4000;
 
-                        if (!$this->_send_binary_packet($packet)) {
-                            return false;
-                        }
+                    $packet = pack('CN4',
+                        NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION, $server_channel, $new_channel, $packet_size, $packet_size);
+
+                    $this->server_channels[$new_channel] = $server_channel;
+                    $this->channel_status[$new_channel] = NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION;
+
+                    if (!$this->_send_binary_packet($packet)) {
+                        return false;
                     }
-                    break; 
+                    break;
                 case NET_SSH2_MSG_CHANNEL_DATA:
                     /*
                     if ($channel == NET_SSH2_CHANNEL_EXEC) {
@@ -3086,7 +3090,10 @@ class Net_SSH2
                     $data = $this->_string_shift($response, $length);
 
                     if ($channel == NET_SSH2_CHANNEL_AGENT_FORWARD) {
-                        $this->_send_channel_packet($channel, $this->agent->_forward_data($data));
+                        $agent_response = $this->agent->_forward_data($data);
+                        if (!is_bool($agent_response)) {
+                            $this->_send_channel_packet($channel, $agent_response);
+                        }
                         break;
                     }
 

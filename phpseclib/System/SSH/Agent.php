@@ -226,16 +226,36 @@ class System_SSH_Agent
      */
     var $fsock;
 
+    /**
+     * Did we request agent forwarding
+     *
+     * @access private
+     */
     var $request_forwarding;
+
+    /**
+     * Buffer for accumulating forwarded authentication
+     * agent data arriving on SSH data channel destined
+     * for agent unix socket
+     *
+     * @access private
+     */
+    var $socket_buffer = '';
+
+    /**
+     * Tracking the number of bytes we are expecting
+     * to arrive for the agent socket on the SSH data
+     * channel
+     */
+    var $expected_bytes = 0;
 
     /**
      * Default Constructor
      *
-     * @param Boolean $request_forwarding
      * @return System_SSH_Agent
      * @access public
      */
-    function System_SSH_Agent($request_forwarding = false)
+    function System_SSH_Agent()
     {
         switch (true) {
             case isset($_SERVER['SSH_AUTH_SOCK']):
@@ -252,11 +272,6 @@ class System_SSH_Agent
         $this->fsock = fsockopen('unix://' . $address, 0, $errno, $errstr);
         if (!$this->fsock) {
             user_error("Unable to connect to ssh-agent (Error $errno: $errstr)");
-        }
-
-        $this->request_forwarding = $request_forwarding;
-        if ($this->request_forwarding) {
-            stream_set_timeout($this->fsock, 1);
         }
     }
 
@@ -321,7 +336,39 @@ class System_SSH_Agent
     }
 
     /**
-     * Request the remote server attempt to forward authentication requests to local SSH agent
+     * Request the remote server to forward authentication requests to the local SSH agent
+     *
+     * @param Net_SSH2 $ssh
+     * @return Boolean
+     * @access public
+     */
+    function startSSHForwarding($ssh)
+    {
+        if (!$this->request_forwarding) {
+            $this->request_forwarding = true;
+            $this->_request_forwarding($ssh);
+        }
+    }
+
+    /**
+     * Request the remote server to stop forwarding authentication requests to the local SSH agent
+     *
+     * @param Net_SSH2 $ssh
+     * @return Boolean
+     * @access public
+     */
+    function stopSSHForwarding($ssh)
+    {
+        if ($this->request_forwarding) {
+            $ssh->_close_channel(NET_SSH2_CHANNEL_AGENT_FORWARD);
+            $this->request_forwarding = false;
+        }
+    }
+
+    /**
+     * The worker function to make a request to a remote server
+     * asking it to forward authentication requests to the local SSH
+     * agent
      *
      * @param Net_SSH2 $ssh
      * @return Boolean
@@ -389,9 +436,31 @@ class System_SSH_Agent
      */
     function _forward_data($data)
     {
-        if (strlen($data) != fwrite($this->fsock, $data)) {
+        if ($this->expected_bytes > 0) {
+            $this->socket_buffer .= $data;
+            $this->expected_bytes -= strlen($data);
+        } else {
+            $agent_data_bytes = current(unpack('N', $data));
+            $current_data_bytes = strlen($data);
+            $this->socket_buffer = $data;
+            if ($current_data_bytes != $agent_data_bytes + 4) {
+                $this->expected_bytes = ($agent_data_bytes + 4) - $current_data_bytes;
+                return false;
+            }
+        }
+
+        if (strlen($this->socket_buffer) != fwrite($this->fsock, $this->socket_buffer)) {
             user_error('Connection closed attempting to forward data to SSH agent');
         }
-        return fread($this->fsock, 2048);
+
+        $this->socket_buffer = '';
+        $this->expected_bytes = 0;
+
+        $agent_reply_bytes = current(unpack('N', fread($this->fsock, 4)));
+
+        $agent_reply_data = fread($this->fsock, $agent_reply_bytes);
+        $agent_reply_data = current(unpack('a*', $agent_reply_data));
+
+        return pack('Na*', $agent_reply_bytes, $agent_reply_data);
     }
 }
