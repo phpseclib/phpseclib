@@ -17,6 +17,7 @@
 
 namespace phpseclib\Net\SFTP;
 
+use phpseclib\Crypt\RSA;
 use phpseclib\Net\SFTP;
 
 /**
@@ -169,7 +170,7 @@ class Stream
         if ($host[0] == '$') {
             $host = substr($host, 1);
             global $$host;
-            if (!is_object($$host) || get_class($$host) != 'phpseclib\Net\SFTP') {
+            if (($$host instanceof SFTP) === false) {
                 return false;
             }
             $this->sftp = $$host;
@@ -183,7 +184,7 @@ class Stream
             if (isset($context[$scheme]['sftp'])) {
                 $sftp = $context[$scheme]['sftp'];
             }
-            if (isset($sftp) && is_object($sftp) && get_class($sftp) == 'phpseclib\Net\SFTP') {
+            if (isset($sftp) && $sftp instanceof SFTP) {
                 $this->sftp = $sftp;
                 return $path;
             }
@@ -193,7 +194,7 @@ class Stream
             if (isset($context[$scheme]['password'])) {
                 $pass = $context[$scheme]['password'];
             }
-            if (isset($context[$scheme]['privkey']) && is_object($context[$scheme]['privkey']) && get_class($context[$scheme]['privkey']) == 'phpseclib\Crypt\RSA') {
+            if (isset($context[$scheme]['privkey']) && $context[$scheme]['privkey'] instanceof RSA) {
                 $pass = $context[$scheme]['privkey'];
             }
 

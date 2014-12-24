@@ -110,20 +110,13 @@ class SCP
      */
     function __construct($ssh)
     {
-        if (!is_object($ssh)) {
+        if ($ssh instanceof SSH2) {
+            $this->mode = self::MODE_SSH2;
+        } elseif ($ssh instanceof SSH1) {
+            $this->packet_size = 50000;
+            $this->mode = self::MODE_SSH1;
+        } else {
             return;
-        }
-
-        switch (get_class($ssh)) {
-            case 'phpseclib\Net\SSH2':
-                $this->mode = self::MODE_SSH2;
-                break;
-            case 'phpseclib\Net\SSH1':
-                $this->packet_size = 50000;
-                $this->mode = self::MODE_SSH1;
-                break;
-            default:
-                return;
         }
 
         $this->ssh = $ssh;

@@ -3601,25 +3601,24 @@ class X509
      */
     function _sign($key, $signatureAlgorithm)
     {
-        switch (get_class($key)) {
-            case 'phpseclib\Crypt\RSA':
-                switch ($signatureAlgorithm) {
-                    case 'md2WithRSAEncryption':
-                    case 'md5WithRSAEncryption':
-                    case 'sha1WithRSAEncryption':
-                    case 'sha224WithRSAEncryption':
-                    case 'sha256WithRSAEncryption':
-                    case 'sha384WithRSAEncryption':
-                    case 'sha512WithRSAEncryption':
-                        $key->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
-                        $key->setSignatureMode(RSA::SIGNATURE_PKCS1);
+        if ($key instanceof RSA) {
+            switch ($signatureAlgorithm) {
+                case 'md2WithRSAEncryption':
+                case 'md5WithRSAEncryption':
+                case 'sha1WithRSAEncryption':
+                case 'sha224WithRSAEncryption':
+                case 'sha256WithRSAEncryption':
+                case 'sha384WithRSAEncryption':
+                case 'sha512WithRSAEncryption':
+                    $key->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
+                    $key->setSignatureMode(RSA::SIGNATURE_PKCS1);
 
-                        $this->currentCert['signature'] = base64_encode("\0" . $key->sign($this->signatureSubject));
-                        return $this->currentCert;
-                }
-            default:
-                return false;
+                    $this->currentCert['signature'] = base64_encode("\0" . $key->sign($this->signatureSubject));
+                    return $this->currentCert;
+            }
         }
+
+        return false;
     }
 
     /**
@@ -4162,7 +4161,7 @@ class X509
                 return $this->computeKeyIdentifier($key['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'], $method);
             case !is_object($key):
                 return false;
-            case get_class($key) === 'phpseclib\File\ASN1\Element':
+            case $key instanceof Element:
                 // Assume the element is a bitstring-packed key.
                 $asn1 = new ASN1();
                 $decoded = $asn1->decodeBER($key->element);
@@ -4184,7 +4183,7 @@ class X509
                 }
                 $key = $raw;    // Is a public key.
                 break;
-            case get_class($key) === 'phpseclib\File\X509':
+            case $key instanceof X509:
                 if (isset($key->publicKey)) {
                     return $this->computeKeyIdentifier($key->publicKey, $method);
                 }
@@ -4223,22 +4222,17 @@ class X509
      */
     function _formatSubjectPublicKey()
     {
-        if (!isset($this->publicKey) || !is_object($this->publicKey)) {
-            return false;
+        if ($this->publicKey instanceof RSA) {
+            // the following two return statements do the same thing. i dunno.. i just prefer the later for some reason.
+            // the former is a good example of how to do fuzzing on the public key
+            //return new Element(base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey())));
+            return array(
+                'algorithm' => array('algorithm' => 'rsaEncryption'),
+                'subjectPublicKey' => $this->publicKey->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1)
+            );
         }
 
-        switch (get_class($this->publicKey)) {
-            case 'phpseclib\Crypt\RSA':
-                // the following two return statements do the same thing. i dunno.. i just prefer the later for some reason.
-                // the former is a good example of how to do fuzzing on the public key
-                //return new Element(base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey())));
-                return array(
-                    'algorithm' => array('algorithm' => 'rsaEncryption'),
-                    'subjectPublicKey' => $this->publicKey->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1)
-                );
-            default:
-                return false;
-        }
+        return false;
     }
 
     /**
