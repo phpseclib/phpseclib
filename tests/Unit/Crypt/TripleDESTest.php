@@ -90,7 +90,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         // @codingStandardsIgnoreStart
         foreach ($engines as $engine => $engineName) 
         foreach ($tests as $test)
-            $result[] = array($engine, $test[0], $output[1], $output[2]);
+            $result[] = array($engine, $test[0], $test[1], $test[2]);
         // @codingStandardsIgnoreEnd
         return $result;
     }
