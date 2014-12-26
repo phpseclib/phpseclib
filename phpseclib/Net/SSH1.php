@@ -1095,6 +1095,7 @@ class SSH1
 
         $padding_length = 8 - ($temp['length'] & 7);
         $length = $temp['length'] + $padding_length;
+        $raw = '';
 
         while ($length > 0) {
             $temp = fread($this->fsock, $length);
