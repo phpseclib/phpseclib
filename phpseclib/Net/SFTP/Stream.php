@@ -34,7 +34,6 @@ class Stream
      * Rather than re-create the connection we re-use instances if possible
      *
      * @var Array
-     * @access static
      */
     static $instances;
 
