@@ -510,7 +510,7 @@ class Net_SSH1
      *
      * @param string $host
      * @param optional Integer $port
-     * @param int $time (optional)out
+     * @param int $timeout (optional)
      * @param optional Integer $cipher
      * @return Net_SSH1
      * @access public

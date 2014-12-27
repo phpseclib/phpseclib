@@ -279,7 +279,7 @@ class Net_SFTP extends Net_SSH2
      *
      * @param string $host
      * @param optional Integer $port
-     * @param int $time (optional)out
+     * @param int $timeout (optional)
      * @return Net_SFTP
      * @access public
      */

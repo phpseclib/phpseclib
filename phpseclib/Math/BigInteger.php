@@ -3180,7 +3180,7 @@ class Math_BigInteger
      *
      * @param Math_BigInteger $arg1
      * @param optional Math_BigInteger $arg2
-     * @param int $time (optional)out
+     * @param int $timeout (optional)
      * @return mixed
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.

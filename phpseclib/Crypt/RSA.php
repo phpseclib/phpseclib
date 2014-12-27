@@ -558,7 +558,7 @@ class Crypt_RSA
      *
      * @access public
      * @param optional Integer $bits
-     * @param int $time (optional)out
+     * @param int $timeout (optional)
      * @param optional Math_BigInteger $p
      */
     function createKey($bits = 1024, $timeout = false, $partial = array())

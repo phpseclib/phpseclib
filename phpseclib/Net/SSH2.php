@@ -845,7 +845,7 @@ class Net_SSH2
      *
      * @param string $host
      * @param optional Integer $port
-     * @param int $time (optional)out
+     * @param int $timeout (optional)
      * @see Net_SSH2::login()
      * @return Net_SSH2
      * @access public
