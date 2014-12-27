@@ -1788,7 +1788,7 @@ class Net_SFTP extends Net_SSH2
      * @access public
      * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - Net_SFTP::setMode().
      */
-    function put($remote_file, $data, $mode = NET_SFTP_STRING, $start = -1, $local_start = -1)
+    function put($remote_file, $data, $mode = NET_SFTP_STRING, $start = -1, $local_start = -1, $callback = null)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -1885,6 +1885,9 @@ class Net_SFTP extends Net_SSH2
                 return false;
             }
             $sent+= strlen($temp);
+            if (is_callable($callback)) {
+                call_user_func($callback, $sent);
+            }
 
             $i++;
 
