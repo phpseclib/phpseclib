@@ -190,7 +190,7 @@ class Crypt_Rijndael extends Crypt_Base
      * Has the key length explicitly been set or should it be derived from the key, itself?
      *
      * @see setKeyLength()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $explicit_key_length = false;

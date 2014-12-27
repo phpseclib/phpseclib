@@ -102,7 +102,7 @@ class System_SSH_Agent_Identity
     /**
      * Socket Resource
      *
-     * @var Resource
+     * @var resource
      * @access private
      * @see System_SSH_Agent_Identity::sign()
      */
@@ -111,7 +111,7 @@ class System_SSH_Agent_Identity
     /**
      * Default Constructor.
      *
-     * @param Resource $fsock
+     * @param resource $fsock
      * @return System_SSH_Agent_Identity
      * @access private
      */
@@ -220,7 +220,7 @@ class System_SSH_Agent
     /**
      * Socket Resource
      *
-     * @var Resource
+     * @var resource
      * @access private
      */
     var $fsock;

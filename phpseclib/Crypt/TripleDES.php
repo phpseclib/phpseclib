@@ -145,7 +145,7 @@ class Crypt_TripleDES extends Crypt_DES
     /**
      * Internal flag whether using CRYPT_DES_MODE_3CBC or not
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $mode_3cbc;

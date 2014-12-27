@@ -160,7 +160,7 @@ class File_ANSI
     /**
      * Bold flag
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $bold;
@@ -168,7 +168,7 @@ class File_ANSI
     /**
      * Underline flag
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $underline;
@@ -176,7 +176,7 @@ class File_ANSI
     /**
      * Blink flag
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $blink;
@@ -184,7 +184,7 @@ class File_ANSI
     /**
      * Reverse flag
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $reverse;
@@ -192,7 +192,7 @@ class File_ANSI
     /**
      * Color flag
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $color;

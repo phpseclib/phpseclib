@@ -1441,7 +1441,7 @@ class Crypt_RSA
      * Called by xml_set_element_handler()
      *
      * @access private
-     * @param Resource $parser
+     * @param resource $parser
      * @param string $name
      * @param Array $attribs
      */
@@ -1482,7 +1482,7 @@ class Crypt_RSA
      * Called by xml_set_element_handler()
      *
      * @access private
-     * @param Resource $parser
+     * @param resource $parser
      * @param string $name
      */
     function _stop_element_handler($parser, $name)
@@ -1499,7 +1499,7 @@ class Crypt_RSA
      * Called by xml_set_character_data_handler()
      *
      * @access private
-     * @param Resource $parser
+     * @param resource $parser
      * @param string $data
      */
     function _data_handler($parser, $data)
@@ -1660,7 +1660,7 @@ class Crypt_RSA
      * @access public
      * @param string $key optional
      * @param int $type optional
-     * @return Boolean
+     * @return bool
      */
     function setPublicKey($key = false, $type = false)
     {
@@ -1720,7 +1720,7 @@ class Crypt_RSA
      * @access public
      * @param string $key optional
      * @param int $type optional
-     * @return Boolean
+     * @return bool
      */
     function setPrivateKey($key = false, $type = false)
     {
@@ -2166,7 +2166,7 @@ class Crypt_RSA
      * @access private
      * @param string $x
      * @param string $y
-     * @return Boolean
+     * @return bool
      */
     function _equals($x, $y)
     {
@@ -2944,7 +2944,7 @@ class Crypt_RSA
      * @access public
      * @param string $message
      * @param string $signature
-     * @return Boolean
+     * @return bool
      */
     function verify($message, $signature)
     {

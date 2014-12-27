@@ -257,7 +257,7 @@ class Net_SFTP extends Net_SSH2
      *
      * @see Net_SFTP::disableStatCache()
      * @see Net_SFTP::enableStatCache()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $use_stat_cache = true;
@@ -417,7 +417,7 @@ class Net_SFTP extends Net_SSH2
      *
      * @param string $username
      * @param optional string $password
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function login($username)
@@ -677,7 +677,7 @@ class Net_SFTP extends Net_SSH2
      * Changes the current directory
      *
      * @param string $dir
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function chdir($dir)
@@ -752,7 +752,7 @@ class Net_SFTP extends Net_SSH2
      * Helper method for nlist
      *
      * @param string $dir
-     * @param Boolean $recursive
+     * @param bool $recursive
      * @param string $relativeDir
      * @return mixed
      * @access private
@@ -1052,7 +1052,7 @@ class Net_SFTP extends Net_SSH2
      * Save files / directories to cache
      *
      * @param string $path
-     * @param Mixed $value
+     * @param mixed $value
      * @access private
      */
     function _update_stat_cache($path, $value)
@@ -1078,7 +1078,7 @@ class Net_SFTP extends Net_SSH2
      * Remove files / directories from cache
      *
      * @param string $path
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _remove_from_stat_cache($path)
@@ -1281,7 +1281,7 @@ class Net_SFTP extends Net_SSH2
      *
      * @param string $filename
      * @param int $new_size
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function truncate($filename, $new_size)
@@ -1299,7 +1299,7 @@ class Net_SFTP extends Net_SSH2
      * @param string $filename
      * @param int $time (optional)
      * @param int $atime (optional)
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function touch($filename, $time = null, $atime = null)
@@ -1350,7 +1350,7 @@ class Net_SFTP extends Net_SSH2
      * @param string $filename
      * @param int $uid
      * @param optional Boolean $recursive
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function chown($filename, $uid, $recursive = false)
@@ -1370,7 +1370,7 @@ class Net_SFTP extends Net_SSH2
      * @param string $filename
      * @param int $gid
      * @param optional Boolean $recursive
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function chgrp($filename, $gid, $recursive = false)
@@ -1435,8 +1435,8 @@ class Net_SFTP extends Net_SSH2
      *
      * @param string $filename
      * @param string $attr
-     * @param Boolean $recursive
-     * @return Boolean
+     * @param bool $recursive
+     * @return bool
      * @access private
      */
     function _setstat($filename, $attr, $recursive)
@@ -1495,7 +1495,7 @@ class Net_SFTP extends Net_SSH2
      * @param string $path
      * @param string $attr
      * @param int $i
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _setstat_recursive($path, $attr, &$i)
@@ -1607,7 +1607,7 @@ class Net_SFTP extends Net_SSH2
      *
      * @param string $target
      * @param string $link
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function symlink($target, $link)
@@ -1643,7 +1643,7 @@ class Net_SFTP extends Net_SSH2
      * Creates a directory.
      *
      * @param string $dir
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function mkdir($dir, $mode = -1, $recursive = false)
@@ -1678,7 +1678,7 @@ class Net_SFTP extends Net_SSH2
      * Helper function for directory creation
      *
      * @param string $dir
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _mkdir_helper($dir, $attr)
@@ -1706,7 +1706,7 @@ class Net_SFTP extends Net_SSH2
      * Removes a directory.
      *
      * @param string $dir
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function rmdir($dir)
@@ -1784,7 +1784,7 @@ class Net_SFTP extends Net_SSH2
      * @param int $mode (optional)
      * @param optional Integer $start
      * @param optional Integer $local_start
-     * @return Boolean
+     * @return bool
      * @access public
      * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - Net_SFTP::setMode().
      */
@@ -1919,7 +1919,7 @@ class Net_SFTP extends Net_SSH2
      * SSH_FXP_WRITEs, in succession, and then reading $i responses.
      *
      * @param int $i
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _read_put_responses($i)
@@ -1945,7 +1945,7 @@ class Net_SFTP extends Net_SSH2
      * Close handle
      *
      * @param string $handle
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _close_handle($handle)
@@ -2097,8 +2097,8 @@ class Net_SFTP extends Net_SSH2
      * Deletes a file on the SFTP server.
      *
      * @param string $path
-     * @param Boolean $recursive
-     * @return Boolean
+     * @param bool $recursive
+     * @return bool
      * @access public
      */
     function delete($path, $recursive = true)
@@ -2148,7 +2148,7 @@ class Net_SFTP extends Net_SSH2
      *
      * @param string $path
      * @param int $i
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _delete_recursive($path, &$i)
@@ -2213,7 +2213,7 @@ class Net_SFTP extends Net_SSH2
      * Checks whether a file or directory exists
      *
      * @param string $path
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function file_exists($path)
@@ -2236,7 +2236,7 @@ class Net_SFTP extends Net_SSH2
      * Tells whether the filename is a directory
      *
      * @param string $path
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function is_dir($path)
@@ -2252,7 +2252,7 @@ class Net_SFTP extends Net_SSH2
      * Tells whether the filename is a regular file
      *
      * @param string $path
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function is_file($path)
@@ -2268,7 +2268,7 @@ class Net_SFTP extends Net_SSH2
      * Tells whether the filename is a symbolic link
      *
      * @param string $path
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function is_link($path)
@@ -2413,7 +2413,7 @@ class Net_SFTP extends Net_SSH2
      *
      * @param string $oldname
      * @param string $newname
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function rename($oldname, $newname)
@@ -2595,7 +2595,7 @@ class Net_SFTP extends Net_SSH2
      * @param string $data
      * @see Net_SFTP::_get_sftp_packet()
      * @see Net_SSH2::_send_channel_packet()
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _send_sftp_packet($type, $data)
@@ -2767,7 +2767,7 @@ class Net_SFTP extends Net_SSH2
      * Disconnect
      *
      * @param int $reason
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _disconnect($reason)

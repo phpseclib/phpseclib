@@ -292,7 +292,7 @@ class File_X509
     /**
      * CA Flag
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $caFlag = false;
@@ -1843,7 +1843,7 @@ class File_X509
      *
      * @param string $cert
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function loadCA($cert)
     {
@@ -1910,7 +1910,7 @@ class File_X509
      *
      * @param string $url
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function validateURL($url)
     {
@@ -2005,7 +2005,7 @@ class File_X509
      *
      * The behavior of this function is inspired by {@link http://php.net/openssl-verify openssl_verify}.
      *
-     * @param Boolean $caonly optional
+     * @param bool $caonly optional
      * @access public
      * @return mixed
      */
@@ -2307,10 +2307,10 @@ class File_X509
      * Set a Distinguished Name property
      *
      * @param string $propName
-     * @param Mixed $propValue
+     * @param mixed $propValue
      * @param string $type optional
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function setDNProp($propName, $propValue, $type = 'utf8String')
     {
@@ -2369,7 +2369,7 @@ class File_X509
      *
      * @param string $propName
      * @param Array $dn optional
-     * @param Boolean $withType optional
+     * @param bool $withType optional
      * @return mixed
      * @access public
      */
@@ -2418,11 +2418,11 @@ class File_X509
     /**
      * Set a Distinguished Name
      *
-     * @param Mixed $dn
-     * @param Boolean $merge optional
+     * @param mixed $dn
+     * @param bool $merge optional
      * @param string $type optional
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function setDN($dn, $merge = false, $type = 'utf8String')
     {
@@ -2461,10 +2461,10 @@ class File_X509
     /**
      * Get the Distinguished Name for a certificates subject
      *
-     * @param Mixed $format optional
+     * @param mixed $format optional
      * @param Array $dn optional
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function getDN($format = FILE_X509_DN_ARRAY, $dn = null)
     {
@@ -2653,7 +2653,7 @@ class File_X509
      * Get an individual Distinguished Name property for a certificate/crl issuer
      *
      * @param string $propName
-     * @param Boolean $withType optional
+     * @param bool $withType optional
      * @access public
      * @return mixed
      */
@@ -2675,7 +2675,7 @@ class File_X509
      * Get an individual Distinguished Name property for a certificate/csr subject
      *
      * @param string $propName
-     * @param Boolean $withType optional
+     * @param bool $withType optional
      * @access public
      * @return mixed
      */
@@ -2747,7 +2747,7 @@ class File_X509
      *
      * @param Object $key
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function setPublicKey($key)
     {
@@ -3721,7 +3721,7 @@ class File_X509
      *
      * @param array $root
      * @param string $path  absolute path with / as component separator
-     * @param Boolean $create optional
+     * @param bool $create optional
      * @access private
      * @return array item ref or false
      */
@@ -3757,7 +3757,7 @@ class File_X509
      *
      * @param array $root
      * @param string $path optional absolute path with / as component separator
-     * @param Boolean $create optional
+     * @param bool $create optional
      * @access private
      * @return array ref or false
      */
@@ -3813,7 +3813,7 @@ class File_X509
      * @param string $id
      * @param string $path optional
      * @access private
-     * @return Boolean
+     * @return bool
      */
     function _removeExtension($id, $path = null)
     {
@@ -3889,12 +3889,12 @@ class File_X509
      * Set an Extension
      *
      * @param string $id
-     * @param Mixed $value
-     * @param Boolean $critical optional
-     * @param Boolean $replace optional
+     * @param mixed $value
+     * @param bool $critical optional
+     * @param bool $replace optional
      * @param string $path optional
      * @access private
-     * @return Boolean
+     * @return bool
      */
     function _setExtension($id, $value, $critical = false, $replace = true, $path = null)
     {
@@ -3926,7 +3926,7 @@ class File_X509
      *
      * @param string $id
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function removeExtension($id)
     {
@@ -3964,11 +3964,11 @@ class File_X509
      * Set a certificate, CSR or CRL Extension
      *
      * @param string $id
-     * @param Mixed $value
-     * @param Boolean $critical optional
-     * @param Boolean $replace optional
+     * @param mixed $value
+     * @param bool $critical optional
+     * @param bool $replace optional
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function setExtension($id, $value, $critical = false, $replace = true)
     {
@@ -3981,7 +3981,7 @@ class File_X509
      * @param string $id
      * @param int $disposition optional
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function removeAttribute($id, $disposition = FILE_X509_ATTR_ALL)
     {
@@ -4096,10 +4096,10 @@ class File_X509
      * Set a CSR attribute
      *
      * @param string $id
-     * @param Mixed $value
-     * @param Boolean $disposition optional
+     * @param mixed $value
+     * @param bool $disposition optional
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function setAttribute($id, $value, $disposition = FILE_X509_ATTR_ALL)
     {
@@ -4178,7 +4178,7 @@ class File_X509
      * - File_ASN1_Element object
      * - PEM or DER string
      *
-     * @param Mixed $key optional
+     * @param mixed $key optional
      * @param int $method optional
      * @access public
      * @return string binary key identifier
@@ -4344,7 +4344,7 @@ class File_X509
      *
      * @param array $rclist
      * @param string $serial
-     * @param Boolean $create optional
+     * @param bool $create optional
      * @access private
      * @return int or false
      */
@@ -4374,7 +4374,7 @@ class File_X509
      * @param string $serial
      * @param string $date optional
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function revoke($serial, $date = null)
     {
@@ -4401,7 +4401,7 @@ class File_X509
      *
      * @param string $serial
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function unrevoke($serial)
     {
@@ -4468,7 +4468,7 @@ class File_X509
      * @param string $serial
      * @param string $id
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function removeRevokedCertificateExtension($serial, $id)
     {
@@ -4535,11 +4535,11 @@ class File_X509
      *
      * @param string $serial
      * @param string $id
-     * @param Mixed $value
-     * @param Boolean $critical optional
-     * @param Boolean $replace optional
+     * @param mixed $value
+     * @param bool $critical optional
+     * @param bool $replace optional
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function setRevokedCertificateExtension($serial, $id, $value, $critical = false, $replace = true)
     {

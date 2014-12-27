@@ -179,7 +179,7 @@ class Crypt_Base
      * Continuous Buffer status
      *
      * @see Crypt_Base::enableContinuousBuffer()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $continuousBuffer = false;
@@ -211,7 +211,7 @@ class Crypt_Base
      * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
      *
      * @see Crypt_Base::encrypt()
-     * @var Resource
+     * @var resource
      * @access private
      */
     var $enmcrypt;
@@ -223,7 +223,7 @@ class Crypt_Base
      * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
      *
      * @see Crypt_Base::decrypt()
-     * @var Resource
+     * @var resource
      * @access private
      */
     var $demcrypt;
@@ -233,7 +233,7 @@ class Crypt_Base
      *
      * @see Crypt_Twofish::setKey()
      * @see Crypt_Twofish::setIV()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $enchanged = true;
@@ -243,7 +243,7 @@ class Crypt_Base
      *
      * @see Crypt_Twofish::setKey()
      * @see Crypt_Twofish::setIV()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $dechanged = true;
@@ -262,7 +262,7 @@ class Crypt_Base
      * @see Crypt_Base::encrypt()
      * @see Crypt_Base::decrypt()
      * @see Crypt_Base::_setupMcrypt()
-     * @var Resource
+     * @var resource
      * @access private
      */
     var $ecb;
@@ -295,7 +295,7 @@ class Crypt_Base
      * @see setKey()
      * @see setIV()
      * @see disableContinuousBuffer()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $changed = true;
@@ -304,7 +304,7 @@ class Crypt_Base
      * Padding status
      *
      * @see Crypt_Base::enablePadding()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $padding = true;
@@ -313,7 +313,7 @@ class Crypt_Base
      * Is the mode one that is paddable?
      *
      * @see Crypt_Base::Crypt_Base()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $paddable = false;
@@ -551,7 +551,7 @@ class Crypt_Base
      * @see Crypt/Hash.php
      * @param string $password
      * @param optional string $method
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function setPassword($password, $method = 'pbkdf2')

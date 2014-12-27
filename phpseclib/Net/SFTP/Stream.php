@@ -103,7 +103,7 @@ class Net_SFTP_Stream
     /**
      * EOF flag
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $eof;
@@ -113,7 +113,7 @@ class Net_SFTP_Stream
      *
      * Technically this needs to be publically accessible so PHP can set it directly
      *
-     * @var Resource
+     * @var resource
      * @access public
      */
     var $context;
@@ -121,7 +121,7 @@ class Net_SFTP_Stream
     /**
      * Notification callback function
      *
-     * @var Callable
+     * @var callable
      * @access public
      */
     var $notification;
@@ -130,7 +130,7 @@ class Net_SFTP_Stream
      * Registers this class as a URL wrapper.
      *
      * @param optional string $protocol The wrapper name to be registered.
-     * @return Boolean True on success, false otherwise.
+     * @return bool True on success, false otherwise.
      * @access public
      */
     static function register($protocol = 'sftp')
@@ -262,7 +262,7 @@ class Net_SFTP_Stream
      * @param string $mode
      * @param int $options
      * @param string $opened_path
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _stream_open($path, $mode, $options, &$opened_path)
@@ -395,7 +395,7 @@ class Net_SFTP_Stream
      * will return false. do fread($fp, 1) and feof() will then return true. do fseek($fp, 10) on ablank file and feof()
      * will return false. do fread($fp, 1) and feof() will then return true.
      *
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _stream_eof()
@@ -408,7 +408,7 @@ class Net_SFTP_Stream
      *
      * @param int $offset
      * @param int $whence
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _stream_seek($offset, $whence)
@@ -436,8 +436,8 @@ class Net_SFTP_Stream
      *
      * @param string $path
      * @param int $option
-     * @param Mixed $var
-     * @return Boolean
+     * @param mixed $var
+     * @return bool
      * @access public
      */
     function _stream_metadata($path, $option, $var)
@@ -469,7 +469,7 @@ class Net_SFTP_Stream
      * Retrieve the underlaying resource
      *
      * @param int $cast_as
-     * @return Resource
+     * @return resource
      * @access public
      */
     function _stream_cast($cast_as)
@@ -481,7 +481,7 @@ class Net_SFTP_Stream
      * Advisory file locking
      *
      * @param int $operation
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _stream_lock($operation)
@@ -498,7 +498,7 @@ class Net_SFTP_Stream
      *
      * @param string $path_from
      * @param string $path_to
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _rename($path_from, $path_to)
@@ -550,7 +550,7 @@ class Net_SFTP_Stream
      *
      * @param string $path
      * @param int $options
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _dir_opendir($path, $options)
@@ -581,7 +581,7 @@ class Net_SFTP_Stream
     /**
      * Rewind directory handle
      *
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _dir_rewinddir()
@@ -593,7 +593,7 @@ class Net_SFTP_Stream
     /**
      * Close directory handle
      *
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _dir_closedir()
@@ -609,7 +609,7 @@ class Net_SFTP_Stream
      * @param string $path
      * @param int $mode
      * @param int $options
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _mkdir($path, $mode, $options)
@@ -633,7 +633,7 @@ class Net_SFTP_Stream
      * @param string $path
      * @param int $mode
      * @param int $options
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _rmdir($path, $options)
@@ -651,7 +651,7 @@ class Net_SFTP_Stream
      *
      * See <http://php.net/fflush>. Always returns true because Net_SFTP doesn't cache stuff before writing
      *
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _stream_flush()
@@ -678,7 +678,7 @@ class Net_SFTP_Stream
      * Delete a file
      *
      * @param string $path
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _unlink($path)
@@ -722,7 +722,7 @@ class Net_SFTP_Stream
      * Truncate stream
      *
      * @param int $new_size
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _stream_truncate($new_size)
@@ -746,7 +746,7 @@ class Net_SFTP_Stream
      * @param int $option
      * @param int $arg1
      * @param int $arg2
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function _stream_set_option($option, $arg1, $arg2)

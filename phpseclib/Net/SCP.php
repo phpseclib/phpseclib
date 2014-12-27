@@ -161,7 +161,7 @@ class Net_SCP
      * @param string $data
      * @param int $mode (optional)
      * @param optional Callable $callback
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function put($remote_file, $data, $mode = NET_SCP_STRING, $callback = null)

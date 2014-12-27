@@ -186,7 +186,7 @@ class Math_BigInteger
     /**
      * Holds the BigInteger's magnitude.
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $is_negative = false;
@@ -517,7 +517,7 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @param Boolean $twos_compliment
+     * @param bool $twos_compliment
      * @return string
      * @access public
      * @internal Converts a base-2**26 number to base-2**8
@@ -614,7 +614,7 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @param Boolean $twos_compliment
+     * @param bool $twos_compliment
      * @return string
      * @access public
      * @internal Converts a base-2**26 number to base-2**8
@@ -641,7 +641,7 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @param Boolean $twos_compliment
+     * @param bool $twos_compliment
      * @return string
      * @access public
      * @internal Converts a base-2**26 number to base-2**2
@@ -868,9 +868,9 @@ class Math_BigInteger
      * Performs addition.
      *
      * @param Array $x_value
-     * @param Boolean $x_negative
+     * @param bool $x_negative
      * @param Array $y_value
-     * @param Boolean $y_negative
+     * @param bool $y_negative
      * @return Array
      * @access private
      */
@@ -999,9 +999,9 @@ class Math_BigInteger
      * Performs subtraction.
      *
      * @param Array $x_value
-     * @param Boolean $x_negative
+     * @param bool $x_negative
      * @param Array $y_value
-     * @param Boolean $y_negative
+     * @param bool $y_negative
      * @return Array
      * @access private
      */
@@ -1134,9 +1134,9 @@ class Math_BigInteger
      * Performs multiplication.
      *
      * @param Array $x_value
-     * @param Boolean $x_negative
+     * @param bool $x_negative
      * @param Array $y_value
-     * @param Boolean $y_negative
+     * @param bool $y_negative
      * @return Array
      * @access private
      */
@@ -2158,9 +2158,9 @@ class Math_BigInteger
      *
      * @see _regularBarrett()
      * @param Array $x_value
-     * @param Boolean $x_negative
+     * @param bool $x_negative
      * @param Array $y_value
-     * @param Boolean $y_negative
+     * @param bool $y_negative
      * @param int $stop
      * @return Array
      * @access private
@@ -2681,9 +2681,9 @@ class Math_BigInteger
      * Compares two numbers.
      *
      * @param Array $x_value
-     * @param Boolean $x_negative
+     * @param bool $x_negative
      * @param Array $y_value
-     * @param Boolean $y_negative
+     * @param bool $y_negative
      * @return int
      * @see compare()
      * @access private
@@ -2719,7 +2719,7 @@ class Math_BigInteger
      * If you need to see if one number is greater than or less than another number, use Math_BigInteger::compare()
      *
      * @param Math_BigInteger $x
-     * @return Boolean
+     * @return bool
      * @access public
      * @see compare()
      */
@@ -3309,7 +3309,7 @@ class Math_BigInteger
      * on a website instead of just one.
      *
      * @param optional Math_BigInteger $t
-     * @return Boolean
+     * @return bool
      * @access public
      * @internal Uses the
      *     {@link http://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test Miller-Rabin primality test}.  See

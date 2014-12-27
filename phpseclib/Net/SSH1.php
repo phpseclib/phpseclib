@@ -386,7 +386,7 @@ class Net_SSH1
      * Real-time log file pointer
      *
      * @see Net_SSH1::_append_log()
-     * @var Resource
+     * @var resource
      * @access private
      */
     var $realtime_log_file;
@@ -404,7 +404,7 @@ class Net_SSH1
      * Real-time log file wrap boolean
      *
      * @see Net_SSH1::_append_log()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $realtime_log_wrap;
@@ -560,7 +560,7 @@ class Net_SSH1
     /**
      * Connect to an SSHv1 server
      *
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _connect()
@@ -729,7 +729,7 @@ class Net_SSH1
      *
      * @param string $username
      * @param optional string $password
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function login($username, $password = '')
@@ -800,7 +800,7 @@ class Net_SSH1
      * $ssh->exec('ping 127.0.0.1'); on a Linux host will never return and will run indefinitely.  setTimeout() makes it so it'll timeout.
      * Setting $timeout to false or 0 will mean there is no timeout.
      *
-     * @param Mixed $timeout
+     * @param mixed $timeout
      */
     function setTimeout($timeout)
     {
@@ -873,7 +873,7 @@ class Net_SSH1
      *
      * @see Net_SSH1::interactiveRead()
      * @see Net_SSH1::interactiveWrite()
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _initShell()
@@ -917,7 +917,7 @@ class Net_SSH1
      *
      * @see Net_SSH1::interactiveWrite()
      * @param string $cmd
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function write($cmd)
@@ -934,7 +934,7 @@ class Net_SSH1
      * @see Net_SSH1::write()
      * @param string $expect
      * @param int $mode
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function read($expect, $mode = NET_SSH1_READ_SIMPLE)
@@ -973,7 +973,7 @@ class Net_SSH1
      *
      * @see Net_SSH1::interactiveRead()
      * @param string $cmd
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function interactiveWrite($cmd)
@@ -1174,7 +1174,7 @@ class Net_SSH1
      *
      * @see Net_SSH1::_get_binary_packet()
      * @param string $data
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _send_binary_packet($data)
