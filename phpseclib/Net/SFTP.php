@@ -1784,6 +1784,7 @@ class Net_SFTP extends Net_SSH2
      * @param optional Integer $mode
      * @param optional Integer $start
      * @param optional Integer $local_start
+     * @param optional Callable $callback
      * @return Boolean
      * @access public
      * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - Net_SFTP::setMode().
