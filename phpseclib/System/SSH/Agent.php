@@ -93,7 +93,7 @@ class System_SSH_Agent_Identity
     /**
      * Key Blob
      *
-     * @var String
+     * @var string
      * @access private
      * @see System_SSH_Agent_Identity::sign()
      */
@@ -140,7 +140,7 @@ class System_SSH_Agent_Identity
      * Called by System_SSH_Agent::requestIdentities(). The key blob could be extracted from $this->key
      * but this saves a small amount of computation.
      *
-     * @param String $key_blob
+     * @param string $key_blob
      * @access private
      */
     function setPublicKeyBlob($key_blob)
@@ -153,8 +153,8 @@ class System_SSH_Agent_Identity
      *
      * Wrapper for $this->key->getPublicKey()
      *
-     * @param Integer $format optional
-     * @return Mixed
+     * @param int $format optional
+     * @return mixed
      * @access public
      */
     function getPublicKey($format = null)
@@ -168,7 +168,7 @@ class System_SSH_Agent_Identity
      * Doesn't do anything as ssh-agent doesn't let you pick and choose the signature mode. ie.
      * ssh-agent's only supported mode is CRYPT_RSA_SIGNATURE_PKCS1
      *
-     * @param Integer $mode
+     * @param int $mode
      * @access public
      */
     function setSignatureMode($mode)
@@ -180,8 +180,8 @@ class System_SSH_Agent_Identity
      *
      * See "2.6.2 Protocol 2 private key signature request"
      *
-     * @param String $message
-     * @return String
+     * @param string $message
+     * @return string
      * @access public
      */
     function sign($message)

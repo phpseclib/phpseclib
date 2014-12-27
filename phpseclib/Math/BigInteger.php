@@ -224,7 +224,7 @@ class Math_BigInteger
      *
      * @see __sleep()
      * @see __wakeup()
-     * @var String
+     * @var string
      * @access private
      */
     var $hex;
@@ -246,8 +246,8 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @param optional $x base-10 number or base-$base number if $base set.
-     * @param optional integer $base
+     * @param $x base-10 number or base-$base number if $base set. (optional)
+     * @param int $base (optional)
      * @return Math_BigInteger
      * @access public
      */
@@ -518,7 +518,7 @@ class Math_BigInteger
      * </code>
      *
      * @param Boolean $twos_compliment
-     * @return String
+     * @return string
      * @access public
      * @internal Converts a base-2**26 number to base-2**8
      */
@@ -615,7 +615,7 @@ class Math_BigInteger
      * </code>
      *
      * @param Boolean $twos_compliment
-     * @return String
+     * @return string
      * @access public
      * @internal Converts a base-2**26 number to base-2**8
      */
@@ -642,7 +642,7 @@ class Math_BigInteger
      * </code>
      *
      * @param Boolean $twos_compliment
-     * @return String
+     * @return string
      * @access public
      * @internal Converts a base-2**26 number to base-2**2
      */
@@ -679,7 +679,7 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @return String
+     * @return string
      * @access public
      * @internal Converts a base-2**26 number to base-10**7 (which is pretty much base-10)
      */
@@ -1790,7 +1790,7 @@ class Math_BigInteger
      *
      * @param Math_BigInteger $e
      * @param Math_BigInteger $n
-     * @param Integer $mode
+     * @param int $mode
      * @return Math_BigInteger
      * @access private
      */
@@ -1866,7 +1866,7 @@ class Math_BigInteger
      * @access private
      * @param Array $x
      * @param Array $n
-     * @param Integer $mode
+     * @param int $mode
      * @return Array
      */
     function _reduce($x, $n, $mode)
@@ -1903,7 +1903,7 @@ class Math_BigInteger
      * @access private
      * @param Array $x
      * @param Array $n
-     * @param Integer $mode
+     * @param int $mode
      * @return Array
      */
     function _prepareReduce($x, $n, $mode)
@@ -1922,7 +1922,7 @@ class Math_BigInteger
      * @param Array $x
      * @param Array $y
      * @param Array $n
-     * @param Integer $mode
+     * @param int $mode
      * @return Array
      */
     function _multiplyReduce($x, $y, $n, $mode)
@@ -1941,7 +1941,7 @@ class Math_BigInteger
      * @access private
      * @param Array $x
      * @param Array $n
-     * @param Integer $mode
+     * @param int $mode
      * @return Array
      */
     function _squareReduce($x, $n, $mode)
@@ -2161,7 +2161,7 @@ class Math_BigInteger
      * @param Boolean $x_negative
      * @param Array $y_value
      * @param Boolean $y_negative
-     * @param Integer $stop
+     * @param int $stop
      * @return Array
      * @access private
      */
@@ -2378,7 +2378,7 @@ class Math_BigInteger
      * @see _montgomery()
      * @access private
      * @param Array $x
-     * @return Integer
+     * @return int
      */
     function _modInverse67108864($x) // 2**26 == 67,108,864
     {
@@ -2660,7 +2660,7 @@ class Math_BigInteger
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
      * @param Math_BigInteger $y
-     * @return Integer < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
+     * @return int < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
      * @see equals()
      * @internal Could return $this->subtract($x), but that's not as fast as what we do do.
@@ -2684,7 +2684,7 @@ class Math_BigInteger
      * @param Boolean $x_negative
      * @param Array $y_value
      * @param Boolean $y_negative
-     * @return Integer
+     * @return int
      * @see compare()
      * @access private
      */
@@ -2739,7 +2739,7 @@ class Math_BigInteger
      * Some bitwise operations give different results depending on the precision being used.  Examples include left
      * shift, not, and rotates.
      *
-     * @param Integer $bits
+     * @param int $bits
      * @access public
      */
     function setPrecision($bits)
@@ -2917,7 +2917,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @return Math_BigInteger
      * @access public
      * @internal The only version that yields any speed increases is the internal version.
@@ -2955,7 +2955,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @return Math_BigInteger
      * @access public
      * @internal The only version that yields any speed increases is the internal version.
@@ -2993,7 +2993,7 @@ class Math_BigInteger
      *
      * Instead of the top x bits being dropped they're appended to the shifted bit string.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @return Math_BigInteger
      * @access public
      */
@@ -3037,7 +3037,7 @@ class Math_BigInteger
      *
      * Instead of the bottom x bits being dropped they're prepended to the shifted bit string.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @return Math_BigInteger
      * @access public
      */
@@ -3051,7 +3051,7 @@ class Math_BigInteger
      *
      * This function is deprecated.
      *
-     * @param String $generator
+     * @param string $generator
      * @access public
      */
     function setRandomGenerator($generator)
@@ -3063,7 +3063,7 @@ class Math_BigInteger
      *
      * Byte length is equal to $length. Uses crypt_random if it's loaded and mt_rand if it's not.
      *
-     * @param Integer $length
+     * @param int $length
      * @return Math_BigInteger
      * @access private
      */
@@ -3180,8 +3180,8 @@ class Math_BigInteger
      *
      * @param Math_BigInteger $arg1
      * @param optional Math_BigInteger $arg2
-     * @param optional Integer $timeout
-     * @return Mixed
+     * @param int $time (optional)out
+     * @return mixed
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
      */
@@ -3460,7 +3460,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @access private
      */
     function _lshift($shift)
@@ -3495,7 +3495,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @access private
      */
     function _rshift($shift)
@@ -3613,9 +3613,9 @@ class Math_BigInteger
      *
      * Shifts binary strings $shift bits, essentially multiplying by 2**$shift.
      *
-     * @param $x String
-     * @param $shift Integer
-     * @return String
+     * @param $x string
+     * @param int $shift
+     * @return string
      * @access private
      */
     function _base256_lshift(&$x, $shift)
@@ -3642,9 +3642,9 @@ class Math_BigInteger
      *
      * Shifts binary strings $shift bits, essentially dividing by 2**$shift and returning the remainder.
      *
-     * @param $x String
-     * @param $shift Integer
-     * @return String
+     * @param $x string
+     * @param int $shift
+     * @return string
      * @access private
      */
     function _base256_rshift(&$x, $shift)
@@ -3684,8 +3684,8 @@ class Math_BigInteger
     /**
      * Converts 32-bit integers to bytes.
      *
-     * @param Integer $x
-     * @return String
+     * @param int $x
+     * @return string
      * @access private
      */
     function _int2bytes($x)
@@ -3696,8 +3696,8 @@ class Math_BigInteger
     /**
      * Converts bytes to 32-bit integers
      *
-     * @param String $x
-     * @return Integer
+     * @param string $x
+     * @return int
      * @access private
      */
     function _bytes2int($x)
@@ -3713,8 +3713,8 @@ class Math_BigInteger
      *
      * @see modPow()
      * @access private
-     * @param Integer $length
-     * @return String
+     * @param int $length
+     * @return string
      */
     function _encodeASN1Length($length)
     {
@@ -3735,9 +3735,9 @@ class Math_BigInteger
      * we'll guarantee that the dividend is divisible by first subtracting the remainder.
      *
      * @access private
-     * @param Integer $x
-     * @param Integer $y
-     * @return Integer
+     * @param int $x
+     * @param int $y
+     * @return int
      */
     function _safe_divide($x, $y)
     {

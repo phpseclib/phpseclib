@@ -129,7 +129,7 @@ class Crypt_Twofish extends Crypt_Base
      * The namespace used by the cipher for its constants.
      *
      * @see Crypt_Base::const_namespace
-     * @var String
+     * @var string
      * @access private
      */
     var $const_namespace = 'TWOFISH';
@@ -138,7 +138,7 @@ class Crypt_Twofish extends Crypt_Base
      * The mcrypt specific name of the cipher
      *
      * @see Crypt_Base::cipher_name_mcrypt
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'twofish';
@@ -147,7 +147,7 @@ class Crypt_Twofish extends Crypt_Base
      * Optimizing value while CFB-encrypting
      *
      * @see Crypt_Base::cfb_init_len
-     * @var Integer
+     * @var int
      * @access private
      */
     var $cfb_init_len = 800;
@@ -457,7 +457,7 @@ class Crypt_Twofish extends Crypt_Base
      *
      * @access public
      * @see Crypt_Base::setKey()
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
@@ -589,8 +589,8 @@ class Crypt_Twofish extends Crypt_Base
      * _mdsrem function using by the twofish cipher algorithm
      *
      * @access private
-     * @param String $A
-     * @param String $B
+     * @param string $A
+     * @param string $B
      * @return Array
      */
     function _mdsrem($A, $B)
@@ -635,8 +635,8 @@ class Crypt_Twofish extends Crypt_Base
      * Encrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _encryptBlock($in)
     {
@@ -691,8 +691,8 @@ class Crypt_Twofish extends Crypt_Base
      * Decrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _decryptBlock($in)
     {

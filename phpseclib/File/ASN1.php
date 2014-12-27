@@ -119,7 +119,7 @@ class File_ASN1_Element
     /**
      * Raw element value
      *
-     * @var String
+     * @var string
      * @access private
      */
     var $element;
@@ -127,7 +127,7 @@ class File_ASN1_Element
     /**
      * Constructor
      *
-     * @param String $encoded
+     * @param string $encoded
      * @return File_ASN1_Element
      * @access public
      */
@@ -158,7 +158,7 @@ class File_ASN1
     /**
      * Default date format
      *
-     * @var String
+     * @var string
      * @access private
      * @link http://php.net/class.datetime
      */
@@ -222,7 +222,7 @@ class File_ASN1
     );
 
     /**
-     * String type to character size mapping table.
+     * string type to character size mapping table.
      *
      * Non-convertable types are absent from this table.
      * size == 0 indicates variable length encoding.
@@ -261,7 +261,7 @@ class File_ASN1
      *
      * Serves a similar purpose to openssl's asn1parse
      *
-     * @param String $encoded
+     * @param string $encoded
      * @return Array
      * @access public
      */
@@ -283,8 +283,8 @@ class File_ASN1
      * $encoded is passed by reference for the recursive calls done for FILE_ASN1_TYPE_BIT_STRING and
      * FILE_ASN1_TYPE_OCTET_STRING. In those cases, the indefinite length is used.
      *
-     * @param String $encoded
-     * @param Integer $start
+     * @param string $encoded
+     * @param int $start
      * @return Array
      * @access private
      */
@@ -817,10 +817,10 @@ class File_ASN1
      *
      * "Special" mappings can be applied via $special.
      *
-     * @param String $source
-     * @param String $mapping
-     * @param Integer $idx
-     * @return String
+     * @param string $source
+     * @param string $mapping
+     * @param int $idx
+     * @return string
      * @access public
      */
     function encodeDER($source, $mapping, $special = array())
@@ -832,10 +832,10 @@ class File_ASN1
     /**
      * ASN.1 Encode (Helper function)
      *
-     * @param String $source
-     * @param String $mapping
-     * @param Integer $idx
-     * @return String
+     * @param string $source
+     * @param string $mapping
+     * @param int $idx
+     * @return string
      * @access private
      */
     function _encode_der($source, $mapping, $idx = null, $special = array())
@@ -1132,8 +1132,8 @@ class File_ASN1
      * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
      *
      * @access private
-     * @param Integer $length
-     * @return String
+     * @param int $length
+     * @return string
      */
     function _encodeLength($length)
     {
@@ -1151,9 +1151,9 @@ class File_ASN1
      * Called by _decode_ber() and in the case of implicit tags asn1map().
      *
      * @access private
-     * @param String $content
-     * @param Integer $tag
-     * @return String
+     * @param string $content
+     * @param int $tag
+     * @return string
      */
     function _decodeTime($content, $tag)
     {
@@ -1200,7 +1200,7 @@ class File_ASN1
      * Sets the time / date format for asn1map().
      *
      * @access public
-     * @param String $format
+     * @param string $format
      */
     function setTimeFormat($format)
     {
@@ -1234,13 +1234,13 @@ class File_ASN1
     }
 
     /**
-     * String Shift
+     * string Shift
      *
      * Inspired by array_shift
      *
-     * @param String $string
-     * @param optional Integer $index
-     * @return String
+     * @param string $string
+     * @param int $index (optional)
+     * @return string
      * @access private
      */
     function _string_shift(&$string, $index = 1)
@@ -1251,15 +1251,15 @@ class File_ASN1
     }
 
     /**
-     * String type conversion
+     * string type conversion
      *
      * This is a lazy conversion, dealing only with character size.
      * No real conversion table is used.
      *
-     * @param String $in
-     * @param optional Integer $from
-     * @param optional Integer $to
-     * @return String
+     * @param string $in
+     * @param int $from (optional)
+     * @param int $to (optional)
+     * @return string
      * @access public
      */
     function convert($in, $from = FILE_ASN1_TYPE_UTF8_STRING, $to = FILE_ASN1_TYPE_UTF8_STRING)

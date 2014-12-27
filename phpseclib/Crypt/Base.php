@@ -124,7 +124,7 @@ class Crypt_Base
      * The Encryption Mode
      *
      * @see Crypt_Base::Crypt_Base()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $mode;
@@ -132,7 +132,7 @@ class Crypt_Base
     /**
      * The Block Length of the block cipher
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $block_size = 16;
@@ -141,7 +141,7 @@ class Crypt_Base
      * The Key
      *
      * @see Crypt_Base::setKey()
-     * @var String
+     * @var string
      * @access private
      */
     var $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
@@ -150,7 +150,7 @@ class Crypt_Base
      * The Initialization Vector
      *
      * @see Crypt_Base::setIV()
-     * @var String
+     * @var string
      * @access private
      */
     var $iv;
@@ -160,7 +160,7 @@ class Crypt_Base
      *
      * @see Crypt_Base::enableContinuousBuffer()
      * @see Crypt_Base::_clearBuffers()
-     * @var String
+     * @var string
      * @access private
      */
     var $encryptIV;
@@ -170,7 +170,7 @@ class Crypt_Base
      *
      * @see Crypt_Base::enableContinuousBuffer()
      * @see Crypt_Base::_clearBuffers()
-     * @var String
+     * @var string
      * @access private
      */
     var $decryptIV;
@@ -284,7 +284,7 @@ class Crypt_Base
      * on its internaly Key-expanding algorithm.
      *
      * @see Crypt_Base::encrypt()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $cfb_init_len = 600;
@@ -334,7 +334,7 @@ class Crypt_Base
      *
      * @see Crypt_Base::encrypt()
      * @see Crypt_Base::decrypt()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $engine;
@@ -347,7 +347,7 @@ class Crypt_Base
      * @link http://www.php.net/mcrypt_module_open
      * @link http://www.php.net/mcrypt_list_algorithms
      * @see Crypt_Base::_setupMcrypt()
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt;
@@ -356,7 +356,7 @@ class Crypt_Base
      * The default password key_size used by setPassword()
      *
      * @see Crypt_Base::setPassword()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $password_key_size = 32;
@@ -365,7 +365,7 @@ class Crypt_Base
      * The default salt used by setPassword()
      *
      * @see Crypt_Base::setPassword()
-     * @var String
+     * @var string
      * @access private
      */
     var $password_default_salt = 'phpseclib/salt';
@@ -388,7 +388,7 @@ class Crypt_Base
      * $aes = new Crypt_AES(CRYPT_MODE_CFB);     // identical
      *
      * @see Crypt_Base::Crypt_Base()
-     * @var String
+     * @var string
      * @access private
      */
     var $const_namespace;
@@ -440,7 +440,7 @@ class Crypt_Base
      *
      * If not explicitly set, CRYPT_MODE_CBC will be used.
      *
-     * @param optional Integer $mode
+     * @param int $mode (optional)
      * @access public
      */
     function Crypt_Base($mode = CRYPT_MODE_CBC)
@@ -504,7 +504,7 @@ class Crypt_Base
      * Note: Could, but not must, extend by the child Crypt_* class
      *
      * @access public
-     * @param String $iv
+     * @param string $iv
      */
     function setIV($iv)
     {
@@ -529,7 +529,7 @@ class Crypt_Base
      * Note: Could, but not must, extend by the child Crypt_* class
      *
      * @access public
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
@@ -549,8 +549,8 @@ class Crypt_Base
      * Note: Could, but not must, extend by the child Crypt_* class
      *
      * @see Crypt/Hash.php
-     * @param String $password
-     * @param optional String $method
+     * @param string $password
+     * @param optional string $method
      * @return Boolean
      * @access public
      */
@@ -649,8 +649,8 @@ class Crypt_Base
      *
      * @see Crypt_Base::decrypt()
      * @access public
-     * @param String $plaintext
-     * @return String $cipertext
+     * @param string $plaintext
+     * @return string $cipertext
      */
     function encrypt($plaintext)
     {
@@ -877,8 +877,8 @@ class Crypt_Base
      *
      * @see Crypt_Base::encrypt()
      * @access public
-     * @param String $ciphertext
-     * @return String $plaintext
+     * @param string $ciphertext
+     * @return string $plaintext
      */
     function decrypt($ciphertext)
     {
@@ -1187,8 +1187,8 @@ class Crypt_Base
      * Note: Must extend by the child Crypt_* class
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _encryptBlock($in)
     {
@@ -1201,8 +1201,8 @@ class Crypt_Base
      * Note: Must extend by the child Crypt_* class
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _decryptBlock($in)
     {
@@ -1328,9 +1328,9 @@ class Crypt_Base
      * and padding will, hence forth, be enabled.
      *
      * @see Crypt_Base::_unpad()
-     * @param String $text
+     * @param string $text
      * @access private
-     * @return String
+     * @return string
      */
     function _pad($text)
     {
@@ -1357,9 +1357,9 @@ class Crypt_Base
      * and false will be returned.
      *
      * @see Crypt_Base::_pad()
-     * @param String $text
+     * @param string $text
      * @access private
-     * @return String
+     * @return string
      */
     function _unpad($text)
     {
@@ -1398,14 +1398,14 @@ class Crypt_Base
     }
 
     /**
-     * String Shift
+     * string Shift
      *
      * Inspired by array_shift
      *
-     * @param String $string
-     * @param optional Integer $index
+     * @param string $string
+     * @param int $index (optional)
      * @access private
-     * @return String
+     * @return string
      */
     function _stringShift(&$string, $index = 1)
     {
@@ -1422,10 +1422,10 @@ class Crypt_Base
      *
      * @see Crypt_Base::decrypt()
      * @see Crypt_Base::encrypt()
-     * @param String $iv
-     * @param Integer $length
+     * @param string $iv
+     * @param int $length
      * @access private
-     * @return String $xor
+     * @return string $xor
      */
     function _generateXor(&$iv, $length)
     {
@@ -1635,7 +1635,7 @@ class Crypt_Base
      * @see Crypt_Base::decrypt()
      * @param Array $cipher_code
      * @access private
-     * @return String (the name of the created callback function)
+     * @return string (the name of the created callback function)
      */
     function _createInlineCryptFunction($cipher_code)
     {

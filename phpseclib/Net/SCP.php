@@ -98,7 +98,7 @@ class Net_SCP
     /**
      * Packet Size
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $packet_size;
@@ -106,7 +106,7 @@ class Net_SCP
     /**
      * Mode
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $mode;
@@ -116,9 +116,9 @@ class Net_SCP
      *
      * Connects to an SSH server
      *
-     * @param String $host
-     * @param optional Integer $port
-     * @param optional Integer $timeout
+     * @param string $host
+     * @param int $port (optional)
+     * @param int $timeout (optional)
      * @return Net_SCP
      * @access public
      */
@@ -157,9 +157,9 @@ class Net_SCP
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
      * care of that, yourself.
      *
-     * @param String $remote_file
-     * @param String $data
-     * @param optional Integer $mode
+     * @param string $remote_file
+     * @param string $data
+     * @param int $mode (optional)
      * @param optional Callable $callback
      * @return Boolean
      * @access public
@@ -233,9 +233,9 @@ class Net_SCP
      * the operation was unsuccessful.  If $local_file is defined, returns true or false depending on the success of the
      * operation
      *
-     * @param String $remote_file
-     * @param optional String $local_file
-     * @return Mixed
+     * @param string $remote_file
+     * @param optional string $local_file
+     * @return mixed
      * @access public
      */
     function get($remote_file, $local_file = false)
@@ -291,7 +291,7 @@ class Net_SCP
     /**
      * Sends a packet to an SSH server
      *
-     * @param String $data
+     * @param string $data
      * @access private
      */
     function _send($data)
@@ -309,7 +309,7 @@ class Net_SCP
     /**
      * Receives a packet from an SSH server
      *
-     * @return String
+     * @return string
      * @access private
      */
     function _receive()
