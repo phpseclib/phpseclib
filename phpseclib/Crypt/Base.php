@@ -44,9 +44,8 @@ use phpseclib\Crypt\Hash;
  * @package Base
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
- * @access  public
  */
-class Base
+abstract class Base
 {
     /**#@+
      * @access public
@@ -1170,10 +1169,7 @@ class Base
      * @param String $in
      * @return String
      */
-    function _encryptBlock($in)
-    {
-        user_error(__METHOD__ . '() must extend by class ' . get_class($this), E_USER_ERROR);
-    }
+    abstract function _encryptBlock($in);
 
     /**
      * Decrypts a block
@@ -1184,10 +1180,7 @@ class Base
      * @param String $in
      * @return String
      */
-    function _decryptBlock($in)
-    {
-        user_error(__METHOD__ . '() must extend by class ' . get_class($this), E_USER_ERROR);
-    }
+    abstract function _decryptBlock($in);
 
     /**
      * Setup the key (expansion)
@@ -1199,10 +1192,7 @@ class Base
      * @see \phpseclib\Crypt\Base::_setup()
      * @access private
      */
-    function _setupKey()
-    {
-        user_error(__METHOD__ . '() must extend by class ' . get_class($this), E_USER_ERROR);
-    }
+    abstract function _setupKey();
 
     /**
      * Setup the self::ENGINE_INTERNAL $engine
