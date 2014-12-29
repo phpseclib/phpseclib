@@ -106,6 +106,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         }
         $des->setPreferredEngine($engine);
         $des->setKey($key);
+        $des->disablePadding();
         $result = $des->encrypt($plaintext);
         $plaintext = bin2hex($plaintext);
         $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engineName engine");
