@@ -3046,7 +3046,7 @@ class Net_SSH2
                     switch($data) {
                         case 'auth-agent':
                         case 'auth-agent@openssh.com':
-						    if (!isset($this->agent)) {
+                            if (!isset($this->agent)) {
                               break 2;
                             }
                             break;
