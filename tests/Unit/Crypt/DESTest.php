@@ -55,7 +55,7 @@ class Unit_Crypt_DESTest extends PhpseclibTestCase
         $des->setPreferredEngine(CRYPT_ENGINE_INTERNAL);
         $internal = $des->decrypt('d');
 
-        $result = pack('H*', '36a86ebd0f9e048f');
+        $result = pack('H*', '79b305d1ce555221');
         $this->assertEquals($result, $internal, 'Failed asserting that the internal engine produced the correct result');
 
         $des->setPreferredEngine(CRYPT_ENGINE_MCRYPT);
