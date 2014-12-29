@@ -29,3 +29,4 @@ ssh-add "$HOME/.ssh/id_rsa"
 sudo mkdir -p "/home/$USERNAME/.ssh/"
 sudo cp "$HOME/.ssh/id_rsa.pub" "/home/$USERNAME/.ssh/authorized_keys"
 sudo chown "$USERNAME:$USERNAME" "/home/$USERNAME/.ssh/" -R
+sudo ssh-keyscan -t rsa localhost >> "/home/$USERNAME/.ssh/known_hosts"
