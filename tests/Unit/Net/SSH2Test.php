@@ -44,7 +44,7 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
         if (extension_loaded('openssl')) {
             $this->assertContains('openssl', $identifier);
             $this->assertNotContains('mcrypt', $identifier);
-        } else if (extension_loaded('mcrypt') {
+        } else if (extension_loaded('mcrypt')) {
             $this->assertNotContains('openssl', $identifier);
             $this->assertContains('mcrypt', $identifier);
         } else {
