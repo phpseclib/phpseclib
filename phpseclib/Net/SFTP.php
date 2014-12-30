@@ -118,7 +118,7 @@ class SFTP extends SSH2
      * The request ID exists in the off chance that a packet is sent out-of-order.  Of course, this library doesn't support
      * concurrent actions, so it's somewhat academic, here.
      *
-     * @var Integer
+     * @var Integer|boolean
      * @see \phpseclib\Net\SFTP::_get_sftp_packet()
      * @access private
      */
@@ -154,7 +154,7 @@ class SFTP extends SSH2
     /**
      * Current working directory
      *
-     * @var String
+     * @var String|boolean
      * @see \phpseclib\Net\SFTP::_realpath()
      * @see \phpseclib\Net\SFTP::chdir()
      * @access private
@@ -208,7 +208,7 @@ class SFTP extends SSH2
      *
      * @see \phpseclib\Net\SFTP::__construct()
      * @see \phpseclib\Net\SFTP::get()
-     * @var Array
+     * @var Array|integer
      * @access private
      */
     var $max_sftp_packet;
@@ -2477,7 +2477,7 @@ class SFTP extends SSH2
      * Quoting the SFTP RFC, "Implementations MUST NOT send bits that are not defined" but they seem to anyway
      *
      * @param Integer $mode
-     * @return Integer
+     * @return Integer|boolean
      * @access private
      */
     function _parseMode($mode)

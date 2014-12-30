@@ -71,7 +71,7 @@ class Hash
      * Hash Parameter
      *
      * @see \phpseclib\Crypt\Hash::setHash()
-     * @var Integer
+     * @var string
      * @access private
      */
     var $hashParam;
@@ -98,7 +98,7 @@ class Hash
      * Hash Algorithm
      *
      * @see \phpseclib\Crypt\Hash::setHash()
-     * @var String
+     * @var String|array
      * @access private
      */
     var $hash;
@@ -110,7 +110,7 @@ class Hash
      * @var String
      * @access private
      */
-    var $key = false;
+    var $key;
 
     /**
      * Outer XOR (Internal HMAC)
@@ -161,9 +161,9 @@ class Hash
      * Keys can be of any length.
      *
      * @access public
-     * @param optional String $key
+     * @param string $key Optional
      */
-    function setKey($key = false)
+    function setKey($key = '')
     {
         $this->key = $key;
     }

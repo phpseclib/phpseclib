@@ -1339,7 +1339,7 @@ class Base
      * @see \phpseclib\Crypt\Base::_pad()
      * @param String $text
      * @access private
-     * @return String
+     * @return String|boolean
      */
     function _unpad($text)
     {
@@ -1981,7 +1981,7 @@ class Base
      * for which $mode the lambda function was created.
      *
      * @access private
-     * @return &Array
+     * @return array
      */
     function &_getLambdaFunctions()
     {

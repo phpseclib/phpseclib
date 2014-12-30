@@ -76,7 +76,7 @@ class SCP
     /**
      * SSH Object
      *
-     * @var Object
+     * @var \phpseclib\Net\SSH1|\phpseclib\Net\SSH2
      * @access private
      */
     var $ssh;
@@ -84,7 +84,7 @@ class SCP
     /**
      * Packet Size
      *
-     * @var Integer
+     * @var Integer|float
      * @access private
      */
     var $packet_size;
@@ -102,9 +102,7 @@ class SCP
      *
      * Connects to an SSH server
      *
-     * @param String $host
-     * @param optional Integer $port
-     * @param optional Integer $timeout
+     * @param \phpseclib\Net\SSH1|\phpseclib\Net\SSH2 An instance of an SSH object.
      * @return \phpseclib\Net\SCP
      * @access public
      */
@@ -295,7 +293,7 @@ class SCP
     /**
      * Receives a packet from an SSH server
      *
-     * @return String
+     * @return String|boolean
      * @access private
      */
     function _receive()
