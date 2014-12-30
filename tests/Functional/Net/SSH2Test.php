@@ -37,6 +37,7 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
     */
     public function testPreLogin($ssh)
     {
+echo "zzz test pre login\r\n";
         $this->assertFalse(
             $ssh->isConnected(),
             'Failed asserting that SSH2 is not connected after construction.'
@@ -65,6 +66,7 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
     */
     public function testPasswordLogin($ssh)
     {
+echo "zzz test pw login\r\n";
         $username = $this->getEnv('SSH_USERNAME');
         $password = $this->getEnv('SSH_PASSWORD');
         $this->assertTrue(
@@ -81,6 +83,7 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
     */
     public function testExecWithMethodCallback($ssh)
     {
+echo "zzz test exec with method callback\r\n";
         $callbackObject = $this->getMock('stdClass', array('callbackMethod'));
         $callbackObject
             ->expects($this->atLeastOnce())
@@ -91,6 +94,7 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
 
     public function testGetServerPublicHostKey()
     {
+echo "zzz test get server public key host\r\n";
         $ssh = new Net_SSH2($this->getEnv('SSH_HOSTNAME'));
 
         $this->assertInternalType('string', $ssh->getServerPublicHostKey());

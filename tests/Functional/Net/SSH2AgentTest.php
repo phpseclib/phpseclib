@@ -20,6 +20,7 @@ class Functional_Net_SSH2AgentTest extends PhpseclibFunctionalTestCase
 
     public function testAgentLogin()
     {
+echo "test agent login xxx\r\n";
         $ssh = new Net_SSH2($this->getEnv('SSH_HOSTNAME'));
         $agent = new System_SSH_Agent;
 
