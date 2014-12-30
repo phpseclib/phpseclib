@@ -30,6 +30,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
     public function testConstructor()
     {
+echo "test constructor x2\r\n";
         $sftp = new Net_SFTP($this->getEnv('SSH_HOSTNAME'));
 
         $this->assertTrue(
@@ -45,6 +46,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testPasswordLogin($sftp)
     {
+echo "test pw login\r\n";
         $username = $this->getEnv('SSH_USERNAME');
         $password = $this->getEnv('SSH_PASSWORD');
         $this->assertTrue(
@@ -60,6 +62,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testPwdHome($sftp)
     {
+echo "test pwd home\r\n";
         $this->assertEquals(
             $this->getEnv('SSH_HOME'),
             $sftp->pwd(),
@@ -74,6 +77,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testMkDirScratch($sftp)
     {
+echo "test mkdir scratch\r\n";
         $dirname = self::$scratchDir;
 
         $this->assertTrue(
@@ -96,6 +100,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testChDirScratch($sftp)
     {
+echo "test chdir scratch\r\n";
         $this->assertTrue(
             $sftp->chdir(self::$scratchDir),
             sprintf(
@@ -129,6 +134,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testStatOnDir($sftp)
     {
+echo "test stat on dir\r\n";
         $this->assertNotSame(
             array(),
             $sftp->stat('.'),
@@ -143,6 +149,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testPutSizeGetFile($sftp)
     {
+echo "test put size get file\r\n";
         $this->assertTrue(
             $sftp->put('file1.txt', self::$exampleData),
             'Failed asserting that example data could be successfully put().'
@@ -168,6 +175,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testTouch($sftp)
     {
+echo "test touch\r\n";
         $this->assertTrue(
             $sftp->touch('file2.txt'),
             'Failed asserting that touch() successfully ran.'
@@ -186,6 +194,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testTruncate($sftp)
     {
+echo "test truncate\r\n";
         $this->assertTrue(
             $sftp->touch('file3.txt'),
             'Failed asserting that touch() successfully ran.'
@@ -210,6 +219,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testChDirOnFile($sftp)
     {
+echo "test chdir on file\r\n";
         $this->assertFalse(
             $sftp->chdir('file1.txt'),
             'Failed to assert that the cwd cannot be changed to a file'
@@ -223,6 +233,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testFileExistsIsFileIsDirFile($sftp)
     {
+echo "test file exists is file is dir file\r\n";
         $this->assertTrue(
             $sftp->file_exists('file1.txt'),
             'Failed asserting that file_exists() on example file returns true.'
@@ -246,6 +257,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testFileExistsIsFileIsDirFileNonexistent($sftp)
     {
+echo "test file exists is file is dir file non existent\r\n";
         $this->assertFalse(
             $sftp->file_exists('file4.txt'),
             'Failed asserting that a nonexistent file does not exist.'
@@ -269,6 +281,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testSortOrder($sftp)
     {
+echo "test sort order\r\n";
         $this->assertTrue(
             $sftp->mkdir('temp'),
             "Failed asserting that a new scratch directory temp could " .
@@ -321,6 +334,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testResourceXfer($sftp)
     {
+echo "test resource xfer\r\n";
         $fp = fopen('res.txt', 'w+');
         $sftp->get('file1.txt', $fp);
         rewind($fp);
@@ -341,6 +355,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testSymlink($sftp)
     {
+echo "test symlink\r\n";
         $this->assertTrue(
             $sftp->symlink('file3.txt', 'symlink'),
             'Failed asserting that a symlink could be created'
@@ -354,6 +369,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testReadlink($sftp)
     {
+echo "test read link\r\n";
         $this->assertInternalType('string', $sftp->readlink('symlink'),
             'Failed asserting that a symlink\'s target could be read'
         );
@@ -368,6 +384,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testStatcacheFix($sftp)
     {
+echo "test stat cache fix\r\n";
         // Name used for both directory and file.
         $name = 'stattestdir';
         $this->assertTrue($sftp->mkdir($name));
@@ -391,6 +408,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testChDirUpHome($sftp)
     {
+echo "test chdir up home\r\n";
         $this->assertTrue(
             $sftp->chdir('../'),
             'Failed asserting that directory could be changed one level up.'
@@ -410,6 +428,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testFileExistsIsFileIsDirDir($sftp)
     {
+echo "test file exists is file is dir dir\r\n";
         $this->assertTrue(
             $sftp->file_exists(self::$scratchDir),
             'Failed asserting that file_exists() on scratch dir returns true.'
@@ -433,6 +452,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testTruncateLargeFile($sftp)
     {
+echo "test truncate large file\r\n";
         $filesize = (4 * 1024 + 16) * 1024 * 1024;
         $filename = 'file-large-from-truncate-4112MiB.txt';
         $this->assertTrue($sftp->touch($filename));
@@ -447,6 +467,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testRmDirScratch($sftp)
     {
+echo "test rm dir scratch\r\n";
         $this->assertFalse(
             $sftp->rmdir(self::$scratchDir),
             'Failed asserting that non-empty scratch directory could ' .
@@ -461,6 +482,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testDeleteRecursiveScratch($sftp)
     {
+echo "test delete recursive scratch\r\n";
         $this->assertTrue(
             $sftp->delete(self::$scratchDir),
             'Failed asserting that non-empty scratch directory could ' .
@@ -475,6 +497,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     */
     public function testRmDirScratchNonexistent($sftp)
     {
+echo "test rm dir scratch non existant\r\n";
         $this->assertFalse(
             $sftp->rmdir(self::$scratchDir),
             'Failed asserting that nonexistent scratch directory could ' .

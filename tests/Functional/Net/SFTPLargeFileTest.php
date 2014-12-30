@@ -50,6 +50,7 @@ class Functional_Net_SFTPLargeFileTest extends PhpseclibFunctionalTestCase
     */
     public function testPutSizeLocalFile()
     {
+echo "test put size local file\r\n";
         $tmp_filename = $this->createTempFile(128, 1024 * 1024);
         $filename = 'file-large-from-local.txt';
 

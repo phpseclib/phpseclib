@@ -35,6 +35,7 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
     /** @depends testConstructSSH2 */
     public function testConstructor($ssh)
     {
+echo "test constructor\r\n";
         $scp = new Net_SCP($ssh);
         $this->assertTrue(
             is_object($scp),
@@ -46,6 +47,7 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
     /** @depends testConstructor */
     public function testPutGetString($scp)
     {
+echo "test put get string\r\n";
         $this->assertTrue(
             $scp->put(self::$remoteFile, self::$exampleData),
             'Failed asserting that data could successfully be put() into file.'
@@ -68,6 +70,7 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
     /** @depends testPutGetString */
     public function testGetFile($scp)
     {
+echo "test get file\r\n";
         $localFilename = $this->createTempFile();
         $this->assertTrue(
             $scp->get(self::$remoteFile, $localFilename),
