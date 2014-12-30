@@ -2825,8 +2825,6 @@ class Net_SSH2
                     }
                     $payload = $this->_get_binary_packet();
                 }
-            default:
-                break;
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
