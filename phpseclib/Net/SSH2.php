@@ -1166,6 +1166,16 @@ class Net_SSH2
                  //'none'         // OPTIONAL          no encryption; NOT RECOMMENDED
             );
 
+echo "AAAx1\r\n";
+            if (extension_loaded('openssl')) {
+                // OpenSSL does not support arcfour256
+                $encryption_algorithms = array_diff(
+                    $encryption_algorithms,
+                    array('arcfour256')
+                );
+            }
+echo "BBBx2\r\n";
+
             if (phpseclib_resolve_include_path('Crypt/RC4.php') === false) {
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
