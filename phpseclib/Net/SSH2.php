@@ -1091,7 +1091,9 @@ class Net_SSH2
         $identifier = 'SSH-2.0-phpseclib_0.3';
 
         $ext = array();
-        if (extension_loaded('mcrypt')) {
+        if (extension_loaded('openssl')) {
+            $ext[] = 'openssl';
+        } elseif (extension_loaded('mcrypt')) {
             $ext[] = 'mcrypt';
         }
 
