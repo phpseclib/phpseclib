@@ -25,6 +25,7 @@ echo "SETTING UP BEFORE CLASS\r\n";
 
     public function setUp()
     {
+echo "SETUP\r\n";
         $this->scratchDir = uniqid('phpseclib-sftp-large-scratch-');
 
         $this->sftp = new Net_SFTP($this->getEnv('SSH_HOSTNAME'));
@@ -38,6 +39,7 @@ echo "SETTING UP BEFORE CLASS\r\n";
 
     public function tearDown()
     {
+echo "TEAR DOWN\r\n";
         if ($this->sftp) {
             $this->sftp->chdir($this->getEnv('SSH_HOME'));
             $this->sftp->delete($this->scratchDir);
