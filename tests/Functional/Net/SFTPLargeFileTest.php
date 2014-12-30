@@ -1,4 +1,5 @@
 <?php
+echo "LOADING LARGE FILE TEST\r\n";
 
 /**
  * @author    Andreas Fischer <bantu@phpbb.com>
@@ -15,6 +16,7 @@ class Functional_Net_SFTPLargeFileTest extends PhpseclibFunctionalTestCase
 
     static public function setUpBeforeClass()
     {
+echo "SETTING UP BEFORE CLASS\r\n";
         if (!extension_loaded('mcrypt') && !extension_loaded('openssl')) {
             self::markTestSkipped('This test depends on mcrypt or openssl for performance.');
         }
