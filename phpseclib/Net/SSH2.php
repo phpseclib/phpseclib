@@ -1091,7 +1091,9 @@ class Net_SSH2
         $identifier = 'SSH-2.0-phpseclib_0.3';
 
         $ext = array();
-        if (extension_loaded('mcrypt')) {
+        if (extension_loaded('openssl')) {
+            $ext[] = 'openssl';
+        } elseif (extension_loaded('mcrypt')) {
             $ext[] = 'mcrypt';
         }
 
@@ -1163,6 +1165,14 @@ class Net_SSH2
                 '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
                  //'none'         // OPTIONAL          no encryption; NOT RECOMMENDED
             );
+
+            if (extension_loaded('openssl')) {
+                // OpenSSL does not support arcfour256
+                $encryption_algorithms = array_diff(
+                    $encryption_algorithms,
+                    array('arcfour256')
+                );
+            }
 
             if (phpseclib_resolve_include_path('Crypt/RC4.php') === false) {
                 $encryption_algorithms = array_diff(
