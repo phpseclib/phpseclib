@@ -41,9 +41,14 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
         $identifier = $this->createSSHMock()->_generate_identifier();
         $this->assertStringStartsWith('SSH-2.0-phpseclib_0.3', $identifier);
 
-        if (extension_loaded('mcrypt')) {
+        if (extension_loaded('openssl')) {
+            $this->assertContains('openssl', $identifier);
+            $this->assertNotContains('mcrypt', $identifier);
+        } else if (extension_loaded('mcrypt') {
+            $this->assertNotContains('openssl', $identifier);
             $this->assertContains('mcrypt', $identifier);
         } else {
+            $this->assertNotContains('openssl', $identifier);
             $this->assertNotContains('mcrypt', $identifier);
         }
 
