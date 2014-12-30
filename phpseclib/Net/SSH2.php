@@ -1207,6 +1207,7 @@ echo "BBBx2\r\n";
                 );
             }
             $encryption_algorithms = array_values($encryption_algorithms);
+echo "CCC\r\n";
         }
 
         $mac_algorithms = array(
