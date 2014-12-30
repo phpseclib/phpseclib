@@ -30,6 +30,7 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
      */
     public function testFormatLog(array $message_log, array $message_number_log, $expected)
     {
+echo "test format log\r\n";
         $ssh = $this->createSSHMock();
 
         $result = $ssh->_format_log($message_log, $message_number_log);
@@ -38,6 +39,7 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
 
     public function testGenerateIdentifier()
     {
+echo "test generate identifier\r\n";
         $identifier = $this->createSSHMock()->_generate_identifier();
         $this->assertStringStartsWith('SSH-2.0-phpseclib_0.3', $identifier);
 
@@ -61,6 +63,7 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
 
     public function testGetExitStatusIfNotConnected()
     {
+echo "test get exit status if not connected\r\n";
         $ssh = $this->createSSHMock();
 
         $this->assertFalse($ssh->getExitStatus());
@@ -68,12 +71,14 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
 
     public function testPTYIDefaultValue()
     {
+echo "test pty default value\r\n";
         $ssh = $this->createSSHMock();
         $this->assertFalse($ssh->isPTYEnabled());
     }
 
     public function testEnablePTY()
     {
+echo "testenable pty\r\n";
         $ssh = $this->createSSHMock();
 
         $ssh->enablePTY();
@@ -85,6 +90,7 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
 
     public function testQuietModeDefaultValue()
     {
+echo "test quiet mode\r\n";
         $ssh = $this->createSSHMock();
 
         $this->assertFalse($ssh->isQuietModeEnabled());
@@ -92,6 +98,7 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
 
     public function testEnableQuietMode()
     {
+echo "test enable quiet mode\r\n";
         $ssh = $this->createSSHMock();
 
         $ssh->enableQuietMode();
