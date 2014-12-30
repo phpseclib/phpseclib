@@ -21,6 +21,7 @@ echo "SETTING UP BEFORE CLASS\r\n";
             self::markTestSkipped('This test depends on mcrypt or openssl for performance.');
         }
         parent::setUpBeforeClass();
+echo "SETUP BEFORE CLASS DONE\r\n";
     }
 
     public function setUp()
