@@ -69,29 +69,5 @@ echo "test put get string\r\n";
         return $scp;
     }
 
-    /** @depends testPutGetString */
-    public function testGetFile($scp)
-    {
-echo "test get file\r\n";
-        $localFilename = $this->createTempFile();
-echo 'a';
-        $this->assertTrue(
-            $scp->get(self::$remoteFile, $localFilename),
-            'Failed asserting that get() into file was successful.'
-        );
-echo 'b';
-        // TODO: Address https://github.com/phpseclib/phpseclib/issues/146
-        $this->assertContains(
-            filesize($localFilename),
-            array(self::$exampleDataLength, self::$exampleDataLength + 1),
-            'Failed asserting that filesize matches expected data size.'
-        );
-echo 'c';
-        $this->assertContains(
-            file_get_contents($localFilename),
-            array(self::$exampleData, self::$exampleData . "\0"),
-            'Failed asserting that file content matches expected content.'
-        );
-echo 'd';
-    }
+
 }
