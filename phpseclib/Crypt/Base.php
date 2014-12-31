@@ -685,6 +685,7 @@ class Crypt_Base
         }
 
         if ($this->engine === CRYPT_ENGINE_OPENSSL) {
+echo "using openssl\r\n";
             if ($this->changed) {
                 $this->_clearBuffers();
                 $this->changed = false;
@@ -757,6 +758,7 @@ class Crypt_Base
         }
 
         if ($this->engine === CRYPT_ENGINE_MCRYPT) {
+echo "using mcrypt\r\n";
             if ($this->changed) {
                 $this->_setupMcrypt();
                 $this->changed = false;
@@ -830,6 +832,7 @@ class Crypt_Base
 
             return $ciphertext;
         }
+echo "using internal\r\n";
 
         if ($this->changed) {
             $this->_setup();
@@ -1552,6 +1555,7 @@ class Crypt_Base
                 }
 
                 $methods = openssl_get_cipher_methods();
+print_r($methods);
                 if (in_array($this->cipher_name_openssl, $methods)) {
                     return true;
                 }
