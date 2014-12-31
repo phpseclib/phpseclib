@@ -190,6 +190,7 @@ echo "KEY LEN = ".strlen($this->key)."\r\n";
                         $this->cipher_name_openssl = 'rc4-64';
                         break;
                     case 16:
+echo "VALID OPENSSL CIPHER FOUND\r\n";
                         $this->cipher_name_openssl = 'rc4';
                         break;
                     default:
