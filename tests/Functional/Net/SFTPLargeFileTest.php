@@ -8,6 +8,8 @@ echo "LOADING LARGE FILE TEST\r\n";
  */
 
 require_once 'Crypt/Base.php';
+require_once 'Math/BigInteger.php';
+require_once 'Crypt/Hash.php';
 
 class Functional_Net_SFTPLargeFileTest extends PhpseclibFunctionalTestCase
 {
