@@ -111,4 +111,53 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         $plaintext = bin2hex($plaintext);
         $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engineName engine");
     }
+
+    public function engineIVVectors()
+    {
+        $engines = array(
+            CRYPT_ENGINE_INTERNAL => 'internal',
+            CRYPT_ENGINE_MCRYPT => 'mcrypt',
+            CRYPT_ENGINE_OPENSSL => 'OpenSSL',
+        );
+
+        // tests from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf
+        $tests = array(
+            // key, iv, plaintext, ciphertext
+            array(
+                pack('H*', '627f460e08104a10' . '43cd265d5840eaf1' . '313edf97df2a8a8c'),
+                pack('H*', '8e29f75ea77e5475'),
+                pack('H*', '326a494cd33fe756'),
+                pack('H*', 'b22b8d66de970692')),
+            array(
+                pack('H*', '37ae5ebf46dff2dc' . '0754b94f31cbb385' . '5e7fd36dc870bfae'),
+                pack('H*', '3d1de3cc132e3b65'),
+                pack('H*', '84401f78fe6c10876d8ea23094ea5309'),
+                pack('H*', '7b1f7c7e3b1c948ebd04a75ffba7d2f5'))
+        );
+        $result = array();
+        // @codingStandardsIgnoreStart
+        foreach ($engines as $engine => $engineName) 
+        foreach ($tests as $test)
+            $result[] = array($engine, $engineName, $test[0], $test[1], $test[2]);
+        // @codingStandardsIgnoreEnd
+        return $result;
+    }
+
+    /**
+    * @dataProvider engineIVVectors
+    */
+    public function testVectorsWithIV($engine, $engineName, $key, $iv, $plaintext, $expected)
+    {
+        $des = new Crypt_TripleDES();
+        if (!$des->isValidEngine($engine)) {
+            self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
+        }
+        $des->setPreferredEngine($engine);
+        $des->setKey($key);
+        $des->setIV($iv);
+        $des->disablePadding();
+        $result = $des->encrypt($plaintext);
+        $plaintext = bin2hex($plaintext);
+        $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engineName engine");
+    }
 }
