@@ -212,6 +212,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     // pretty much the same as testContinuousBufferBattery with the caveat that continuous mode is not enabled
     public function testNonContinuousBufferBattery($op, $mode, $test)
     {
+        if (count($test) == 1) {
+            return;
+        }
+
         $iv = str_repeat('x', 16);
         $key = str_repeat('a', 16);
 
