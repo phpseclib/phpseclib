@@ -1851,6 +1851,7 @@ echo 'engine = ' . $this->encrypt->getEngine() . "\r\n";
      */
     function login($username)
     {
+echo "LOGIN CALLED\r\n";
         $args = func_get_args();
         return call_user_func_array(array(&$this, '_login'), $args);
     }

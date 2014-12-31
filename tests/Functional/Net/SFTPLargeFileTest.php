@@ -36,6 +36,7 @@ echo "SETUP\r\n";
             $this->getEnv('SSH_USERNAME'),
             $this->getEnv('SSH_PASSWORD')
         ));
+echo "LOGIN SUCCESSFUL\r\n";
         $this->assertTrue($this->sftp->mkdir($this->scratchDir));
         $this->assertTrue($this->sftp->chdir($this->scratchDir));
     }
