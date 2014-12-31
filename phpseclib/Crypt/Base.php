@@ -1,4 +1,5 @@
 <?php
+echo "!!!!!!!!!!!!!\r\n";
 
 /**
  * Base Class for all Crypt_* cipher classes
