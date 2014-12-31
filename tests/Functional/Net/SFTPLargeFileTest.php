@@ -56,7 +56,7 @@ echo "test put size local file\r\n";
 echo "THIS FAR THIS FAR THIS FAR THIS FAR\r\n";
         $filename = 'file-large-from-local.txt';
 
-            $this->sftp->put($filename, $tmp_filename, NET_SFTP_LOCAL_FILE);
-echo "UPLOAD COMPLETE\r\n";
+            //$this->sftp->put($filename, $tmp_filename, NET_SFTP_LOCAL_FILE);
+//echo "UPLOAD COMPLETE\r\n";
 }
 }
