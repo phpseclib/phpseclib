@@ -7,6 +7,7 @@
  */
 
 require_once 'Math/BigInteger.php';
+require_once 'Crypt/Hash.php';
 
 class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
 {
