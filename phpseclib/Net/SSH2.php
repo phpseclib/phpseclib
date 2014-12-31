@@ -3193,6 +3193,7 @@ echo "LOGIN CALLED\r\n";
      */
     function _send_binary_packet($data, $logged = null)
     {
+echo "SENDING BINARY PACKET\r\n";
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             user_error('Connection closed prematurely');
             $this->bitmap = 0;
@@ -3220,6 +3221,7 @@ echo "LOGIN CALLED\r\n";
         $this->send_seq_no++;
 
         if ($this->encrypt !== false) {
+echo "ENCRYPTING BINARY PACKET\r\n";
             $packet = $this->encrypt->encrypt($packet);
         }
 
