@@ -423,6 +423,7 @@ class Net_SFTP extends Net_SSH2
     function login($username)
     {
         $args = func_get_args();
+echo "SFTP LOGIN CALLED\r\n";
         if (!call_user_func_array(array(&$this, '_login'), $args)) {
             return false;
         }
