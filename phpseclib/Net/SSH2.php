@@ -3222,6 +3222,7 @@ echo "SENDING BINARY PACKET\r\n";
 
         if ($this->encrypt !== false) {
 echo "ENCRYPTING BINARY PACKET\r\n";
+echo "ENCRYPT CLASS = ".get_class($this->encrypt)."\r\n";
             $packet = $this->encrypt->encrypt($packet);
         }
 
