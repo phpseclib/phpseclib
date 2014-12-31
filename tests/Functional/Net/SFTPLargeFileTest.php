@@ -51,6 +51,8 @@ echo "TEAR DOWN\r\n";
     }
 
 public function testStuff() {
+echo "test put size local file\r\n";
+        $tmp_filename = $this->createTempFile(128, 1024 * 1024);
 echo "THIS FAR THIS FAR THIS FAR THIS FAR\r\n";
 }
 }
