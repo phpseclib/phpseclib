@@ -26,5 +26,7 @@ echo "SETTING UP BEFORE CLASS\r\n";
 echo "SETUP BEFORE CLASS DONE\r\n";
     }
 
-
+public function testStuff() {
+echo "THIS FAR THIS FAR THIS FAR THIS FAR\r\n";
+}
 }
