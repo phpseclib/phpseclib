@@ -205,4 +205,47 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $this->assertSame(bin2hex($c1), bin2hex($c2));
     }
+
+    /**
+    * @dataProvider continuousBufferBatteryCombos
+    */
+    // pretty much the same as testContinuousBufferBattery with the caveat that continuous mode is not enabled
+    public function testNonContinuousBufferBattery($op, $mode, $test)
+    {
+        $iv = str_repeat('x', 16);
+        $key = str_repeat('a', 16);
+
+        $aes = new Crypt_AES(constant($mode));
+        $aes->setPreferredEngine($this->engine);
+        $aes->setKey($key);
+        $aes->setIV($iv);
+
+        $this->_checkEngine($aes);
+
+        $str = '';
+        $result = '';
+        foreach ($test as $len) {
+            $temp = str_repeat('d', $len);
+            $str.= $temp;
+        }
+
+        $c1 = $aes->$op($str);
+
+        $aes = new Crypt_AES(constant($mode));
+        $aes->setPreferredEngine($this->engine);
+        $aes->setKey($key);
+        $aes->setIV($iv);
+
+        $this->_checkEngine($aes);
+
+        foreach ($test as $len) {
+            $temp = str_repeat('d', $len);
+            $output = $aes->$op($temp);
+            $result.= $output;
+        }
+
+        $c2 = $result;
+
+        $this->assertNotSame(bin2hex($c1), bin2hex($c2));
+    }
 }
