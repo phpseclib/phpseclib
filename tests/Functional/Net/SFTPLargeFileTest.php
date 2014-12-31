@@ -40,6 +40,16 @@ echo "SETUP\r\n";
         $this->assertTrue($this->sftp->chdir($this->scratchDir));
     }
 
+    public function tearDown()
+    {
+echo "TEAR DOWN\r\n";
+        if ($this->sftp) {
+            $this->sftp->chdir($this->getEnv('SSH_HOME'));
+            $this->sftp->delete($this->scratchDir);
+        }
+        parent::tearDown();
+    }
+
 public function testStuff() {
 echo "THIS FAR THIS FAR THIS FAR THIS FAR\r\n";
 }
