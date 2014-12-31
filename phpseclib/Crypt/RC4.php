@@ -181,6 +181,7 @@ class Crypt_RC4 extends Crypt_Base
     {
         switch ($engine) {
             case CRYPT_ENGINE_OPENSSL:
+echo "KEY LEN = ".strlen($this->key)."\r\n";
                 switch (strlen($this->key)) {
                     case 5:
                         $this->cipher_name_openssl = 'rc4-40';
