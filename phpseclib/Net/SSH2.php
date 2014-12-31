@@ -1,4 +1,5 @@
 <?php
+echo "@@@@@@@\r\n";
 
 /**
  * Pure-PHP implementation of SSHv2.
