@@ -680,6 +680,7 @@ class Crypt_Base
      */
     function encrypt($plaintext)
     {
+echo "ENCRYPT CALLED\r\n";
         if ($this->paddable) {
             $plaintext = $this->_pad($plaintext);
         }
@@ -1543,6 +1544,7 @@ echo "using internal\r\n";
                           // PHP 5.3.0 - 5.3.2 did not let you set IV's
                           version_compare(PHP_VERSION, '5.3.3', '>=');
                 if (!$result) {
+echo "FALSE x2\r\n";
                     return false;
                 }
 
@@ -1568,6 +1570,7 @@ print_r($methods);
                             return true;
                         }
                 }
+echo "FALSE x1\r\n";
                 return false;
             case CRYPT_ENGINE_MCRYPT:
                 return $this->cipher_name_mcrypt &&

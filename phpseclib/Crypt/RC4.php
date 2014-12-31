@@ -192,6 +192,7 @@ class Crypt_RC4 extends Crypt_Base
                         $this->cipher_name_openssl = 'rc4';
                         break;
                     default:
+echo "FALSE x3\r\n";
                         return false;
                 }
         }
