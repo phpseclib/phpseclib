@@ -26,6 +26,20 @@ echo "SETTING UP BEFORE CLASS\r\n";
 echo "SETUP BEFORE CLASS DONE\r\n";
     }
 
+    public function setUp()
+    {
+echo "SETUP\r\n";
+        $this->scratchDir = uniqid('phpseclib-sftp-large-scratch-');
+
+        $this->sftp = new Net_SFTP($this->getEnv('SSH_HOSTNAME'));
+        $this->assertTrue($this->sftp->login(
+            $this->getEnv('SSH_USERNAME'),
+            $this->getEnv('SSH_PASSWORD')
+        ));
+        $this->assertTrue($this->sftp->mkdir($this->scratchDir));
+        $this->assertTrue($this->sftp->chdir($this->scratchDir));
+    }
+
 public function testStuff() {
 echo "THIS FAR THIS FAR THIS FAR THIS FAR\r\n";
 }
