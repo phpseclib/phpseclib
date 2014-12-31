@@ -1498,6 +1498,8 @@ class Crypt_Base
         }
 
         $this->continuousBuffer = true;
+
+        $this->_setEngine();
     }
 
     /**
@@ -1520,6 +1522,8 @@ class Crypt_Base
 
         $this->continuousBuffer = false;
         $this->changed = true;
+
+        $this->_setEngine();
     }
 
     /**
@@ -1534,6 +1538,9 @@ class Crypt_Base
     {
         switch ($engine) {
             case CRYPT_ENGINE_OPENSSL:
+                if ($this->mode == CRYPT_MODE_STREAM && $this->continuousBuffer) {
+                    return false;
+                }
                 $this->openssl_emulate_ctr = false;
                 $result = $this->cipher_name_openssl &&
                           extension_loaded('openssl') &&

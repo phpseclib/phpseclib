@@ -1166,11 +1166,12 @@ class Net_SSH2
                  //'none'         // OPTIONAL          no encryption; NOT RECOMMENDED
             );
 
-            if (extension_loaded('openssl')) {
-                // OpenSSL does not support arcfour256
+            if (extension_loaded('openssl') && !extension_loaded('mcrypt')) {
+                // OpenSSL does not support arcfour256 in any capacity and arcfour128 / arcfour support is limited to
+                // instances that do not use continuous buffers
                 $encryption_algorithms = array_diff(
                     $encryption_algorithms,
-                    array('arcfour256')
+                    array('arcfour256', 'arcfour128', 'arcfour')
                 );
             }
 
