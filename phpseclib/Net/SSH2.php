@@ -1685,6 +1685,9 @@ echo "CCC\r\n";
                 //$this->decrypt = new Crypt_Null();
         }
 
+echo "cipher = $encrypt\r\n";
+echo 'engine = ' . $this->encrypt->getEngine() . "\r\n";
+
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
 
         if ($this->encrypt) {
