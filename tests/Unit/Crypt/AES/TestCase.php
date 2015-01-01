@@ -250,6 +250,6 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $c2 = $result;
 
-        $this->assertNotSame(bin2hex($c1), bin2hex($c2));
+        $this->assertNotSame(bin2hex($c1), bin2hex($c2), "{$this->engine} produced identical results for '$op' in $mode with " . implode(',', $test));
     }
 }
