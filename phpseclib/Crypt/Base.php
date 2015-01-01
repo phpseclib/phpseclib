@@ -1327,19 +1327,26 @@ class Crypt_Base
         if ($overflow) {
             $plaintext2 = $this->_string_pop($plaintext, $overflow); // ie. trim $plaintext to a multiple of $block_size and put rest of $plaintext in $plaintext2
             $encrypted = openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
-            $encryptIV = $this->_string_pop($encrypted, $block_size);
-            $ciphertext.= $encrypted . ($plaintext2 ^ $encryptIV);
-            $buffer['ciphertext'] = substr($encryptIV, $overflow);
+            $temp = $this->_string_pop($encrypted, $block_size);
+            $ciphertext.= $encrypted . ($plaintext2 ^ $temp);
+            if ($this->continuousBuffer) {
+                $buffer['ciphertext'] = substr($temp, $overflow);
+                $encryptIV = $temp;
+            }
         } else if (!strlen($buffer['ciphertext'])) {
             $ciphertext.= openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
-            $encryptIV = $this->_string_pop($ciphertext, $block_size);
+            if ($this->continuousBuffer) {
+                $encryptIV = $this->_string_pop($ciphertext, $block_size);
+            }
         }
-        if (!defined('OPENSSL_RAW_DATA')) {
-            $encryptIV.= openssl_encrypt('', $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
-        }
-        $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
-        if ($overflow) {
-            $this->_increment_str($encryptIV);
+        if ($this->continuousBuffer) {
+            if (!defined('OPENSSL_RAW_DATA')) {
+                $encryptIV.= openssl_encrypt('', $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
+            }
+            $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
+            if ($overflow) {
+                $this->_increment_str($encryptIV);
+            }
         }
 
         return $ciphertext;
