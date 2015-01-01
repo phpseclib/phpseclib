@@ -250,6 +250,12 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $c2 = $result;
 
+if (bin2hex($c1) == bin2hex($c2)) {
+	echo 'c1: ' . bin2hex($c1) . "\r\n";
+	echo 'c2: ' . bin2hex($c2) . "\r\n";
+	exit;
+}
+
         $this->assertNotSame(bin2hex($c1), bin2hex($c2));
     }
 }
