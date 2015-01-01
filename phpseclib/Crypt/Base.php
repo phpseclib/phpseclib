@@ -1335,8 +1335,9 @@ class Crypt_Base
             }
         } else if (!strlen($buffer['ciphertext'])) {
             $ciphertext.= openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
+            $temp = $this->_string_pop($ciphertext, $block_size);
             if ($this->continuousBuffer) {
-                $encryptIV = $this->_string_pop($ciphertext, $block_size);
+                $encryptIV = $temp;
             }
         }
         if ($this->continuousBuffer) {
