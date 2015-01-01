@@ -711,7 +711,7 @@ class Crypt_Base
                         $iv = &$this->encryptIV;
                         $pos = &$this->enbuffer['pos'];
                     } else {
-                        $iv = &$this->encryptIV;
+                        $iv = $this->encryptIV;
                         $pos = 0;
                     }
                     $len = strlen($plaintext);
