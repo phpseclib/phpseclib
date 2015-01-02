@@ -252,4 +252,77 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $this->assertNotSame(bin2hex($c1), bin2hex($c2));
     }
+
+    // from http://csrc.nist.gov/groups/STM/cavp/documents/aes/AESAVS.pdf#page=16
+    public function testGFSBox128()
+    {
+        $aes = new Crypt_AES();
+
+        $aes->setKey(pack('H*', '00000000000000000000000000000000'));
+        $aes->setIV(pack('H*', '00000000000000000000000000000000'));
+
+        $aes->setPreferredEngine($this->engine);
+        $this->_checkEngine($aes);
+
+        $result = $aes->encrypt('f34481ec3cc627bacd5dc3fb08f273e6');
+        $this->assertSame($result, '0336763e966d92595a567cc9ce537f5e');
+        $result = $aes->encrypt('9798c4640bad75c7c3227db910174e72');
+        $this->assertSame($result, 'a9a1631bf4996954ebc093957b234589');
+        $result = $aes->encrypt('96ab5c2ff612d9dfaae8c31f30c42168');
+        $this->assertSame($result, 'ff4f8391a6a40ca5b25d23bedd44a597');
+        $result = $aes->encrypt('6a118a874519e64e9963798a503f1d35');
+        $this->assertSame($result, 'dc43be40be0e53712f7e2bf5ca707209');
+        $result = $aes->encrypt('cb9fceec81286ca3e989bd979b0cb284');
+        $this->assertSame($result, '92beedab1895a94faa69b632e5cc47ce');
+        $result = $aes->encrypt('b26aeb1874e47ca8358ff22378f09144');
+        $this->assertSame($result, '459264f4798f6a78bacb89c15ed3d601');
+        $result = $aes->encrypt('58c8e00b2631686d54eab84b91f0aca1');
+        $this->assertSame($result, '08a4e2efec8a8e3312ca7460b9040bbf');
+    }
+
+    public function testGFSBox192()
+    {
+        $aes = new Crypt_AES();
+
+        $aes->setKey(pack('H*', '000000000000000000000000000000000000000000000000'));
+        $aes->setIV(pack('H*', '00000000000000000000000000000000'));
+
+        $aes->setPreferredEngine($this->engine);
+        $this->_checkEngine($aes);
+
+        $result = $aes->encrypt('1b077a6af4b7f98229de786d7516b639');
+        $this->assertSame($result, '275cfc0413d8ccb70513c3859b1d0f72');
+        $result = $aes->encrypt('9c2d8842e5f48f57648205d39a239af1');
+        $this->assertSame($result, 'c9b8135ff1b5adc413dfd053b21bd96d');
+        $result = $aes->encrypt('bff52510095f518ecca60af4205444bb');
+        $this->assertSame($result, '4a3650c3371ce2eb35e389a171427440');
+        $result = $aes->encrypt('51719783d3185a535bd75adc65071ce1');
+        $this->assertSame($result, '4f354592ff7c8847d2d0870ca9481b7c');
+        $result = $aes->encrypt('26aa49dcfe7629a8901a69a9914e6dfd');
+        $this->assertSame($result, 'd5e08bf9a182e857cf40b3a36ee248cc');
+        $result = $aes->encrypt('941a4773058224e1ef66d10e0a6ee782');
+        $this->assertSame($result, '067cd9d3749207791841562507fa9626');
+    }
+
+    public function testGFSBox256()
+    {
+        $aes = new Crypt_AES();
+
+        $aes->setKey(pack('H*', '00000000000000000000000000000000' . '00000000000000000000000000000000'));
+        $aes->setIV(pack('H*', '00000000000000000000000000000000'));
+
+        $aes->setPreferredEngine($this->engine);
+        $this->_checkEngine($aes);
+
+        $result = $aes->encrypt('014730f80ac625fe84f026c60bfd547d');
+        $this->assertSame($result, '5c9d844ed46f9885085e5d6a4f94c7d7');
+        $result = $aes->encrypt('0b24af36193ce4665f2825d7b4749c98');
+        $this->assertSame($result, 'a9ff75bd7cf6613d3731c77c3b6d0c04');
+        $result = $aes->encrypt('761c1fe41a18acf20d241650611d90f1');
+        $this->assertSame($result, '623a52fcea5d443e48d9181ab32c7421');
+        $result = $aes->encrypt('8a560769d605868ad80d819bdba03771');
+        $this->assertSame($result, '38f2c7ae10612415d27ca190d27da8b4');
+        $result = $aes->encrypt('91fbef2d15a97816060bee1feaa49afe');
+        $this->assertSame($result, '1bc704f1bce135ceb810341b216d7abe');
+    }
 }
