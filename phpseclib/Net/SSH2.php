@@ -59,6 +59,7 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\Twofish;
 use phpseclib\Math\BigInteger; // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
+use phpseclib\System\SSH\Agent;
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -1805,13 +1806,10 @@ class SSH2
             return !is_string($password) && !is_array($password) ? false : $this->_keyboard_interactive_process($password);
         }
 
-        if (is_object($password)) {
-            switch (get_class($password)) {
-                case 'phpseclib\Crypt\RSA':
-                    return $this->_privatekey_login($username, $password);
-                case 'phpseclib\System\SSH\Agent':
-                    return $this->_ssh_agent_login($username, $password);
-            }
+        if ($password instanceof RSA) {
+            return $this->_privatekey_login($username, $password);
+        } elseif ($password instanceof Agent) {
+            return $this->_ssh_agent_login($username, $password);
         }
 
         if (is_array($password)) {
