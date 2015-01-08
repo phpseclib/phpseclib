@@ -264,7 +264,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setPreferredEngine($this->engine);
         $this->_checkEngine($aes);
 
-        $result = $aes->encrypt('f34481ec3cc627bacd5dc3fb08f273e6');
+        $result = bin2hex($aes->encrypt('f34481ec3cc627bacd5dc3fb08f273e6'));
         $this->assertSame($result, '0336763e966d92595a567cc9ce537f5e');
         $result = $aes->encrypt('9798c4640bad75c7c3227db910174e72');
         $this->assertSame($result, 'a9a1631bf4996954ebc093957b234589');
@@ -290,7 +290,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setPreferredEngine($this->engine);
         $this->_checkEngine($aes);
 
-        $result = $aes->encrypt('1b077a6af4b7f98229de786d7516b639');
+        $result = bin2hex($aes->encrypt('1b077a6af4b7f98229de786d7516b639'));
         $this->assertSame($result, '275cfc0413d8ccb70513c3859b1d0f72');
         $result = $aes->encrypt('9c2d8842e5f48f57648205d39a239af1');
         $this->assertSame($result, 'c9b8135ff1b5adc413dfd053b21bd96d');
@@ -314,7 +314,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setPreferredEngine($this->engine);
         $this->_checkEngine($aes);
 
-        $result = $aes->encrypt('014730f80ac625fe84f026c60bfd547d');
+        $result = bin2hex($aes->encrypt('014730f80ac625fe84f026c60bfd547d'));
         $this->assertSame($result, '5c9d844ed46f9885085e5d6a4f94c7d7');
         $result = $aes->encrypt('0b24af36193ce4665f2825d7b4749c98');
         $this->assertSame($result, 'a9ff75bd7cf6613d3731c77c3b6d0c04');
