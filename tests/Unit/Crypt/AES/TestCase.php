@@ -260,6 +260,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $aes->setKey(pack('H*', '00000000000000000000000000000000'));
         $aes->setIV(pack('H*', '00000000000000000000000000000000'));
+        $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
         $this->_checkEngine($aes);
@@ -286,6 +287,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $aes->setKey(pack('H*', '000000000000000000000000000000000000000000000000'));
         $aes->setIV(pack('H*', '00000000000000000000000000000000'));
+        $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
         $this->_checkEngine($aes);
@@ -310,6 +312,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $aes->setKey(pack('H*', '00000000000000000000000000000000' . '00000000000000000000000000000000'));
         $aes->setIV(pack('H*', '00000000000000000000000000000000'));
+        $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
         $this->_checkEngine($aes);
