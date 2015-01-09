@@ -481,9 +481,16 @@ class RSA
 
                     $versions = array();
                     if (!empty($matches[1])) {
-                       for ($i = 0; $i < count($matches[1]); $i++) {
-                          $versions[$matches[1][$i]] = trim(str_replace('=>', '', strip_tags($matches[2][$i])));
-                       }
+                        for ($i = 0; $i < count($matches[1]); $i++) {
+                            $fullVersion = trim(str_replace('=>', '', strip_tags($matches[2][$i])));
+
+                            // Remove letter part in OpenSSL version
+                            if (!preg_match('/(\d+\.\d+\.\d+)/i', $fullVersion, $m)) {
+                                $versions[$matches[1][$i]] = $fullVersion;
+                            } else {
+                                $versions[$matches[1][$i]] = $m[0];
+                            }
+                        }
                     }
 
                     // it doesn't appear that OpenSSL versions were reported upon until PHP 5.3+
