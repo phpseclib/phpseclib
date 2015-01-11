@@ -286,24 +286,31 @@ class ASN1
             case self::CLASS_APPLICATION:
             case self::CLASS_PRIVATE:
             case self::CLASS_CONTEXT_SPECIFIC:
-                if ($constructed) {
+                if (!$constructed) {
+                    return array(
+                        'type'     => $class,
+                        'constant' => $tag,
+                        'content'  => $content,
+                        'length'   => $length + $start - $current['start']
+                    );
+                }
+
+                $newcontent = array();
+                if (strlen($content)) {
                     $newcontent = $this->_decode_ber($content, $start);
                     $length = $newcontent['length'];
                     if (substr($content, $length, 2) == "\0\0") {
                         $length+= 2;
                     }
-
-                    // the array encapsulation is for BC with the old format
-                    $content = array($newcontent);
+                    $start+= $length;
+                    $newcontent = array($newcontent);
                 }
-
-                $start+= $length;
 
                 return array(
                     'type'     => $class,
                     'constant' => $tag,
                     // the array encapsulation is for BC with the old format
-                    'content'  => $content,
+                    'content'  => $newcontent,
                     // the only time when $content['headerlength'] isn't defined is when the length is indefinite.
                     // the absence of $content['headerlength'] is how we know if something is indefinite or not.
                     // technically, it could be defined to be 2 and then another indicator could be used but whatever.
