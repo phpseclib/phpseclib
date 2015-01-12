@@ -101,8 +101,6 @@ define('NET_SSH2_CHANNEL_SHELL',     1);
 define('NET_SSH2_CHANNEL_SUBSYSTEM', 2);
 define('NET_SSH2_CHANNEL_AGENT_REQUEST', 3);
 define('NET_SSH2_CHANNEL_AGENT_FORWARD', 4);
-
-
 /**#@-*/
 
 /**#@+
@@ -2248,7 +2246,6 @@ class Net_SSH2
         return false;
     }
 
-
     /**
      * Set Timeout
      *
@@ -2825,8 +2822,6 @@ class Net_SSH2
                     }
                     $payload = $this->_get_binary_packet();
                 }
-            default:
-                break;
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
@@ -3007,7 +3002,7 @@ class Net_SSH2
                 }
 
                 switch ($this->channel_status[$channel]) {
-                    case NET_SSH2_MSG_CHANNEL_OPEN:;
+                    case NET_SSH2_MSG_CHANNEL_OPEN:
                         switch ($type) {
                             case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
                                 extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
