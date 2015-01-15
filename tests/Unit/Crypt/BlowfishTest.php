@@ -81,4 +81,3 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
         $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engineName engine");
     }
 }
-
