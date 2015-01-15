@@ -18,9 +18,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             switch ($this->engine) {
                 case CRYPT_ENGINE_OPENSSL:
                     $engine = 'OpenSSL';
-                    break;
+                    return true;
                 case CRYPT_ENGINE_MCRYPT:
                     $engine = 'mcrypt';
+                    return true;
             }
             self::markTestSkipped('Unable to initialize ' . $engine . ' engine');
         }
@@ -78,7 +79,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setIV($iv);
         $aes->setKey($key);
 
-        $this->_checkEngine($aes);
+        if (!$this->_checkEngine($aes)) {
+            return;
+        }
 
         $actual = '';
         for ($i = 0, $strlen = strlen($plaintext); $i < $strlen; ++$i) {
@@ -116,7 +119,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setPreferredEngine($this->engine);
         $aes->disablePadding();
         $aes->setKey(pack('H*', '2b7e151628aed2a6abf7158809cf4f3c762e7160')); // 160-bit key. AES should null pad to 192-bits
-        $this->_checkEngine($aes);
+        if (!$this->_checkEngine($aes)) {
+            return;
+        }
         $ciphertext = $aes->encrypt(pack('H*', '3243f6a8885a308d313198a2e0370734'));
         $this->assertEquals($ciphertext, pack('H*', 'c109292b173f841b88e0ee49f13db8c0'));
     }
@@ -176,7 +181,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setKey($key);
         $aes->setIV($iv);
 
-        $this->_checkEngine($aes);
+        if (!$this->_checkEngine($aes)) {
+            return;
+        }
 
         $str = '';
         $result = '';
@@ -193,7 +200,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setKey($key);
         $aes->setIV($iv);
 
-        $this->_checkEngine($aes);
+        if (!$this->_checkEngine($aes)) {
+            return;
+        }
 
         foreach ($test as $len) {
             $temp = str_repeat('d', $len);
@@ -224,7 +233,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setKey($key);
         $aes->setIV($iv);
 
-        $this->_checkEngine($aes);
+        if (!$this->_checkEngine($aes)) {
+            return;
+        }
 
         $str = '';
         $result = '';
@@ -263,7 +274,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
-        $this->_checkEngine($aes);
+        if (!$this->_checkEngine($aes)) {
+            return;
+        }
 
         $result = bin2hex($aes->encrypt(pack('H*', 'f34481ec3cc627bacd5dc3fb08f273e6')));
         $this->assertSame($result, '0336763e966d92595a567cc9ce537f5e');
@@ -290,7 +303,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
-        $this->_checkEngine($aes);
+        if (!$this->_checkEngine($aes)) {
+            return;
+        }
 
         $result = bin2hex($aes->encrypt(pack('H*', '1b077a6af4b7f98229de786d7516b639')));
         $this->assertSame($result, '275cfc0413d8ccb70513c3859b1d0f72');
@@ -315,7 +330,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
-        $this->_checkEngine($aes);
+        if (!$this->_checkEngine($aes)) {
+            return;
+        }
 
         $result = bin2hex($aes->encrypt(pack('H*', '014730f80ac625fe84f026c60bfd547d')));
         $this->assertSame($result, '5c9d844ed46f9885085e5d6a4f94c7d7');
