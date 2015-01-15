@@ -18,10 +18,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             switch ($this->engine) {
                 case CRYPT_ENGINE_OPENSSL:
                     $engine = 'OpenSSL';
-                    return true;
+                    break;
                 case CRYPT_ENGINE_MCRYPT:
                     $engine = 'mcrypt';
-                    return true;
             }
             self::markTestSkipped('Unable to initialize ' . $engine . ' engine');
         }
@@ -79,9 +78,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setIV($iv);
         $aes->setKey($key);
 
-        if (!$this->_checkEngine($aes)) {
-            return;
-        }
+        $this->_checkEngine($aes);
 
         $actual = '';
         for ($i = 0, $strlen = strlen($plaintext); $i < $strlen; ++$i) {
@@ -119,9 +116,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setPreferredEngine($this->engine);
         $aes->disablePadding();
         $aes->setKey(pack('H*', '2b7e151628aed2a6abf7158809cf4f3c762e7160')); // 160-bit key. AES should null pad to 192-bits
-        if (!$this->_checkEngine($aes)) {
-            return;
-        }
+        $this->_checkEngine($aes);
         $ciphertext = $aes->encrypt(pack('H*', '3243f6a8885a308d313198a2e0370734'));
         $this->assertEquals($ciphertext, pack('H*', 'c109292b173f841b88e0ee49f13db8c0'));
     }
@@ -181,9 +176,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setKey($key);
         $aes->setIV($iv);
 
-        if (!$this->_checkEngine($aes)) {
-            return;
-        }
+        $this->_checkEngine($aes);
 
         $str = '';
         $result = '';
@@ -233,9 +226,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setKey($key);
         $aes->setIV($iv);
 
-        if (!$this->_checkEngine($aes)) {
-            return;
-        }
+        $this->_checkEngine($aes);
 
         $str = '';
         $result = '';
@@ -274,23 +265,21 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
-        if (!$this->_checkEngine($aes)) {
-            return;
-        }
+        $this->_checkEngine($aes);
 
         $result = bin2hex($aes->encrypt(pack('H*', 'f34481ec3cc627bacd5dc3fb08f273e6')));
         $this->assertSame($result, '0336763e966d92595a567cc9ce537f5e');
-        $result = bin2hex($aes->encrypt('9798c4640bad75c7c3227db910174e72'));
+        $result = bin2hex($aes->encrypt(pack('H*', '9798c4640bad75c7c3227db910174e72')));
         $this->assertSame($result, 'a9a1631bf4996954ebc093957b234589');
-        $result = bin2hex($aes->encrypt('96ab5c2ff612d9dfaae8c31f30c42168'));
+        $result = bin2hex($aes->encrypt(pack('H*', '96ab5c2ff612d9dfaae8c31f30c42168')));
         $this->assertSame($result, 'ff4f8391a6a40ca5b25d23bedd44a597');
-        $result = bin2hex($aes->encrypt('6a118a874519e64e9963798a503f1d35'));
+        $result = bin2hex($aes->encrypt(pack('H*', '6a118a874519e64e9963798a503f1d35')));
         $this->assertSame($result, 'dc43be40be0e53712f7e2bf5ca707209');
-        $result = bin2hex($aes->encrypt('cb9fceec81286ca3e989bd979b0cb284'));
+        $result = bin2hex($aes->encrypt(pack('H*', 'cb9fceec81286ca3e989bd979b0cb284')));
         $this->assertSame($result, '92beedab1895a94faa69b632e5cc47ce');
-        $result = bin2hex($aes->encrypt('b26aeb1874e47ca8358ff22378f09144'));
+        $result = bin2hex($aes->encrypt(pack('H*', 'b26aeb1874e47ca8358ff22378f09144')));
         $this->assertSame($result, '459264f4798f6a78bacb89c15ed3d601');
-        $result = bin2hex($aes->encrypt('58c8e00b2631686d54eab84b91f0aca1'));
+        $result = bin2hex($aes->encrypt(pack('H*', '58c8e00b2631686d54eab84b91f0aca1')));
         $this->assertSame($result, '08a4e2efec8a8e3312ca7460b9040bbf');
     }
 
@@ -303,21 +292,19 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
-        if (!$this->_checkEngine($aes)) {
-            return;
-        }
+        $this->_checkEngine($aes);
 
         $result = bin2hex($aes->encrypt(pack('H*', '1b077a6af4b7f98229de786d7516b639')));
         $this->assertSame($result, '275cfc0413d8ccb70513c3859b1d0f72');
-        $result = bin2hex($aes->encrypt('9c2d8842e5f48f57648205d39a239af1'));
+        $result = bin2hex($aes->encrypt(pack('H*', '9c2d8842e5f48f57648205d39a239af1')));
         $this->assertSame($result, 'c9b8135ff1b5adc413dfd053b21bd96d');
-        $result = bin2hex($aes->encrypt('bff52510095f518ecca60af4205444bb'));
+        $result = bin2hex($aes->encrypt(pack('H*', 'bff52510095f518ecca60af4205444bb')));
         $this->assertSame($result, '4a3650c3371ce2eb35e389a171427440');
-        $result = bin2hex($aes->encrypt('51719783d3185a535bd75adc65071ce1'));
+        $result = bin2hex($aes->encrypt(pack('H*', '51719783d3185a535bd75adc65071ce1')));
         $this->assertSame($result, '4f354592ff7c8847d2d0870ca9481b7c');
-        $result = bin2hex($aes->encrypt('26aa49dcfe7629a8901a69a9914e6dfd'));
+        $result = bin2hex($aes->encrypt(pack('H*', '26aa49dcfe7629a8901a69a9914e6dfd')));
         $this->assertSame($result, 'd5e08bf9a182e857cf40b3a36ee248cc');
-        $result = bin2hex($aes->encrypt('941a4773058224e1ef66d10e0a6ee782'));
+        $result = bin2hex($aes->encrypt(pack('H*', '941a4773058224e1ef66d10e0a6ee782')));
         $this->assertSame($result, '067cd9d3749207791841562507fa9626');
     }
 
@@ -330,19 +317,17 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
-        if (!$this->_checkEngine($aes)) {
-            return;
-        }
+        $this->_checkEngine($aes);
 
         $result = bin2hex($aes->encrypt(pack('H*', '014730f80ac625fe84f026c60bfd547d')));
         $this->assertSame($result, '5c9d844ed46f9885085e5d6a4f94c7d7');
-        $result = bin2hex($aes->encrypt('0b24af36193ce4665f2825d7b4749c98'));
+        $result = bin2hex($aes->encrypt(pack('H*', '0b24af36193ce4665f2825d7b4749c98')));
         $this->assertSame($result, 'a9ff75bd7cf6613d3731c77c3b6d0c04');
-        $result = bin2hex($aes->encrypt('761c1fe41a18acf20d241650611d90f1'));
+        $result = bin2hex($aes->encrypt(pack('H*', '761c1fe41a18acf20d241650611d90f1')));
         $this->assertSame($result, '623a52fcea5d443e48d9181ab32c7421');
-        $result = bin2hex($aes->encrypt('8a560769d605868ad80d819bdba03771'));
+        $result = bin2hex($aes->encrypt(pack('H*', '8a560769d605868ad80d819bdba03771')));
         $this->assertSame($result, '38f2c7ae10612415d27ca190d27da8b4');
-        $result = bin2hex($aes->encrypt('91fbef2d15a97816060bee1feaa49afe'));
+        $result = bin2hex($aes->encrypt(pack('H*', '91fbef2d15a97816060bee1feaa49afe')));
         $this->assertSame($result, '1bc704f1bce135ceb810341b216d7abe');
     }
 }
