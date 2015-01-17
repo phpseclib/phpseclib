@@ -175,7 +175,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
             if (!$des->isValidEngine($engine)) {
 	        self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
             }
-            $result = bin2hex($des->encrypt(str_repeat('a', 16));
+            $result = bin2hex($des->encrypt(str_repeat('a', 16)));
             $this->assertEquals($result, $expected, "Failed asserting inner chainin worked correctly in $engineName engine");
         }
     }
