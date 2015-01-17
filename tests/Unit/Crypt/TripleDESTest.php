@@ -170,7 +170,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         $des = new Crypt_TripleDES(CRYPT_DES_MODE_3CBC);
         $des->setKey('abcdefghijklmnopqrstuvwx');
 
-        for ($this->engines as $engine->$engineName) {
+        foreach ($this->engines as $engine->$engineName) {
             $des->setPreferredEngine($engine);
             if (!$des->isValidEngine($engine)) {
 	        self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
