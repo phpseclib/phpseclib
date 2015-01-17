@@ -68,13 +68,21 @@ if (!class_exists('Crypt_DES')) {
  *
  * Inner chaining is used by SSH-1 and is generally considered to be less secure then outer chaining (CRYPT_DES_MODE_CBC3).
  */
+define('CRYPT_MODE_3CBC', -2);
+/**
+ * BC version of the above.
+ */
 define('CRYPT_DES_MODE_3CBC', -2);
 /**
  * Encrypt / decrypt using outer chaining
  *
  * Outer chaining is used by SSH-2 and when the mode is set to CRYPT_DES_MODE_CBC.
  */
-define('CRYPT_DES_MODE_CBC3', CRYPT_DES_MODE_CBC);
+define('CRYPT_MODE_CBC3', CRYPT_MODE_CBC);
+/**
+ * BC version of the above.
+ */
+define('CRYPT_DES_MODE_CBC3', CRYPT_MODE_CBC3);
 /**#@-*/
 
 /**
@@ -190,20 +198,20 @@ class Crypt_TripleDES extends Crypt_DES
      * @param optional Integer $mode
      * @access public
      */
-    function Crypt_TripleDES($mode = CRYPT_DES_MODE_CBC)
+    function Crypt_TripleDES($mode = CRYPT_MODE_CBC)
     {
         switch ($mode) {
             // In case of CRYPT_DES_MODE_3CBC, we init as CRYPT_DES_MODE_CBC
             // and additional flag us internally as 3CBC
             case CRYPT_DES_MODE_3CBC:
-                parent::Crypt_Base(CRYPT_DES_MODE_CBC);
+                parent::Crypt_Base(CRYPT_MODE_CBC);
                 $this->mode_3cbc = true;
 
                 // This three $des'es will do the 3CBC work (if $key > 64bits)
                 $this->des = array(
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
-                    new Crypt_DES(CRYPT_DES_MODE_CBC),
+                    new Crypt_DES(CRYPT_MODE_CBC),
+                    new Crypt_DES(CRYPT_MODE_CBC),
+                    new Crypt_DES(CRYPT_MODE_CBC),
                 );
 
                 // we're going to be doing the padding, ourselves, so disable it in the Crypt_DES objects
@@ -308,7 +316,7 @@ class Crypt_TripleDES extends Crypt_DES
     function encrypt($plaintext)
     {
         // parent::en/decrypt() is able to do all the work for all modes and keylengths,
-        // except for: CRYPT_DES_MODE_3CBC (inner chaining CBC) with a key > 64bits
+        // except for: CRYPT_MODE_3CBC (inner chaining CBC) with a key > 64bits
 
         // if the key is smaller then 8, do what we'd normally do
         if ($this->mode_3cbc && strlen($this->key) > 8) {
@@ -455,19 +463,19 @@ class Crypt_TripleDES extends Crypt_DES
      * Sets the internal crypt engine
      *
      * @see Crypt_Base::Crypt_Base()
-     * @see Crypt_Base::setEngine()
-     * @param optional Integer $engine
+     * @see Crypt_Base::setPreferredEngine()
+     * @param Integer $engine
      * @access public
      * @return Integer
      */
-    function setEngine($engine = CRYPT_DES_MODE_MCRYPT)
+    function setPreferredEngine($engine)
     {
         if ($this->mode_3cbc) {
-            $this->des[0]->setEngine($engine);
-            $this->des[1]->setEngine($engine);
-            $this->des[2]->setEngine($engine);
+            $this->des[0]->setPreferredEngine($engine);
+            $this->des[1]->setPreferredEngine($engine);
+            $this->des[2]->setPreferredEngine($engine);
         }
 
-        return parent::setEngine($engine);
+        return parent::setPreferredEngine($engine);
     }
 }

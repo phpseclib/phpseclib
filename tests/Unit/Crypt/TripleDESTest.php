@@ -9,14 +9,14 @@ require_once 'Crypt/TripleDES.php';
 
 class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 {
+    var $engines = array(
+        CRYPT_ENGINE_INTERNAL => 'internal',
+        CRYPT_ENGINE_MCRYPT => 'mcrypt',
+        CRYPT_ENGINE_OPENSSL => 'OpenSSL',
+    );
+
     public function engineVectors()
     {
-        $engines = array(
-            CRYPT_ENGINE_INTERNAL => 'internal',
-            CRYPT_ENGINE_MCRYPT => 'mcrypt',
-            CRYPT_ENGINE_OPENSSL => 'OpenSSL',
-        );
-
         // tests from http://csrc.nist.gov/publications/nistpubs/800-20/800-20.pdf#page=273
         $tests = array(
             // Table A.1
@@ -88,7 +88,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         );
         $result = array();
         // @codingStandardsIgnoreStart
-        foreach ($engines as $engine => $engineName) 
+        foreach ($this->engines as $engine => $engineName) 
         foreach ($tests as $test)
             $result[] = array($engine, $engineName, $test[0], $test[1], $test[2]);
         // @codingStandardsIgnoreEnd
@@ -159,5 +159,24 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         $result = $des->encrypt($plaintext);
         $plaintext = bin2hex($plaintext);
         $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engineName engine");
+    }
+
+    public function testInnerChaining()
+    {
+        // regular CBC returns
+        //           e089b6d84708c6bc80be6c2da82bd19a79ffe11f02933ac1
+        $expected = 'e089b6d84708c6bc6f04c8971121603d7be2861efae0f3f5';
+
+        $des = new Crypt_TripleDES(CRYPT_DES_MODE_3CBC);
+        $des->setKey('abcdefghijklmnopqrstuvwx');
+
+        for ($this->engines as $engine->$engineName) {
+            $des->setPreferredEngine($engine);
+            if (!$des->isValidEngine($engine)) {
+	        self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
+            }
+            $result = bin2hex($des->encrypt(str_repeat('a', 16));
+            $this->assertEquals($result, $expected, "Failed asserting inner chainin worked correctly in $engineName engine");
+        }
     }
 }
