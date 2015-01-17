@@ -219,6 +219,27 @@ class RC4 extends Base
         return $this->_crypt($ciphertext, self::DECRYPT);
     }
 
+    /**
+     * Encrypts a block
+     *
+     * @access private
+     * @param String $in
+     */
+    function _encryptBlock($in)
+    {
+        // RC4 does not utilize this method
+    }
+
+    /**
+     * Decrypts a block
+     *
+     * @access private
+     * @param String $in
+     */
+    function _decryptBlock($in)
+    {
+        // RC4 does not utilize this method
+    }
 
     /**
      * Setup the key (expansion)
