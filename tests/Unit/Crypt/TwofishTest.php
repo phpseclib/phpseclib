@@ -19,6 +19,7 @@ class Unit_Crypt_TwofishTest extends PhpseclibTestCase
 
         foreach ($engines as $engine=>$name) {
             $tf = new Crypt_Twofish();
+            $tf->disablePadding();
 
             // tests from https://www.schneier.com/code/ecb_ival.txt
 
