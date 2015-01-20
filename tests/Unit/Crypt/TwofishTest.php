@@ -25,7 +25,7 @@ class Unit_Crypt_TwofishTest extends PhpseclibTestCase
             // key size = 128
             $key = pack('H*', '00000000000000000000000000000000');
             $tf->setKey($key);
-            if (!$bf->isValidEngine($engine)) {
+            if (!$tf->isValidEngine($engine)) {
                 self::markTestSkipped('Unable to initialize ' . $name . ' engine');
             }
 
@@ -41,7 +41,7 @@ class Unit_Crypt_TwofishTest extends PhpseclibTestCase
             // key size = 192
             $key = pack('H*', '0123456789ABCDEFFEDCBA98765432100011223344556677');
             $tf->setKey($key);
-            if (!$bf->isValidEngine($engine)) {
+            if (!$tf->isValidEngine($engine)) {
                 self::markTestSkipped('Unable to initialize ' . $name . ' engine');
             }
             $plaintext = pack('H*', '00000000000000000000000000000000');
@@ -56,7 +56,7 @@ class Unit_Crypt_TwofishTest extends PhpseclibTestCase
             // key size = 256
             $key = pack('H*', '0123456789ABCDEFFEDCBA987654321000112233445566778899AABBCCDDEEFF');
             $tf->setKey($key);
-            if (!$bf->isValidEngine($engine)) {
+            if (!$tf->isValidEngine($engine)) {
                 self::markTestSkipped('Unable to initialize ' . $name . ' engine');
             }
             $plaintext = pack('H*', '00000000000000000000000000000000');
