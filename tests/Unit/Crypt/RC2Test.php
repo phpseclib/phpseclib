@@ -101,6 +101,9 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
         }
     }
 
+    /**
+    * @dataProvider engineVectors
+    */
     public function testVectors($engine, $engineName, $key, $keyLen, $plaintext, $ciphertext)
     {
         $rc2 = new Crypt_RC2();
