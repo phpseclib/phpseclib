@@ -16,12 +16,6 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
     static public function setUpBeforeClass()
     {
-        if (getenv('TRAVIS') && version_compare(PHP_VERSION, '5.3.3', '<=')) {
-            self::markTestIncomplete(
-                'This test hangs on Travis CI on PHP 5.3.3 and below.'
-            );
-        }
-
         parent::setUpBeforeClass();
 
         self::$scratchDir = uniqid('phpseclib-sftp-scratch-');
