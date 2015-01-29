@@ -235,7 +235,7 @@ class Net_SSH1
     /**
      * The SSH identifier
      *
-     * @var String
+     * @var string
      * @access private
      */
     var $identifier = 'SSH-1.5-phpseclib';
@@ -262,7 +262,7 @@ class Net_SSH1
      * The bits that are set represent functions that have been called already.  This is used to determine
      * if a requisite function has been successfully executed.  If not, an error should be thrown.
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $bitmap = 0;
@@ -273,7 +273,7 @@ class Net_SSH1
      * Logged for debug purposes
      *
      * @see Net_SSH1::getServerKeyPublicExponent()
-     * @var String
+     * @var string
      * @access private
      */
     var $server_key_public_exponent;
@@ -284,7 +284,7 @@ class Net_SSH1
      * Logged for debug purposes
      *
      * @see Net_SSH1::getServerKeyPublicModulus()
-     * @var String
+     * @var string
      * @access private
      */
     var $server_key_public_modulus;
@@ -295,7 +295,7 @@ class Net_SSH1
      * Logged for debug purposes
      *
      * @see Net_SSH1::getHostKeyPublicExponent()
-     * @var String
+     * @var string
      * @access private
      */
     var $host_key_public_exponent;
@@ -306,7 +306,7 @@ class Net_SSH1
      * Logged for debug purposes
      *
      * @see Net_SSH1::getHostKeyPublicModulus()
-     * @var String
+     * @var string
      * @access private
      */
     var $host_key_public_modulus;
@@ -350,7 +350,7 @@ class Net_SSH1
      * Server Identification
      *
      * @see Net_SSH1::getServerIdentification()
-     * @var String
+     * @var string
      * @access private
      */
     var $server_identification = '';
@@ -386,7 +386,7 @@ class Net_SSH1
      * Real-time log file pointer
      *
      * @see Net_SSH1::_append_log()
-     * @var Resource
+     * @var resource
      * @access private
      */
     var $realtime_log_file;
@@ -395,7 +395,7 @@ class Net_SSH1
      * Real-time log file size
      *
      * @see Net_SSH1::_append_log()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $realtime_log_size;
@@ -404,7 +404,7 @@ class Net_SSH1
      * Real-time log file wrap boolean
      *
      * @see Net_SSH1::_append_log()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $realtime_log_wrap;
@@ -463,7 +463,7 @@ class Net_SSH1
      *
      * @see Net_SSH1::Net_SSH1()
      * @see Net_SSH1::_connect()
-     * @var String
+     * @var string
      * @access private
      */
     var $host;
@@ -473,7 +473,7 @@ class Net_SSH1
      *
      * @see Net_SSH1::Net_SSH1()
      * @see Net_SSH1::_connect()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $port;
@@ -488,7 +488,7 @@ class Net_SSH1
      *
      * @see Net_SSH1::Net_SSH1()
      * @see Net_SSH1::_connect()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $connectionTimeout;
@@ -498,7 +498,7 @@ class Net_SSH1
      *
      * @see Net_SSH1::Net_SSH1()
      * @see Net_SSH1::_connect()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $cipher;
@@ -508,9 +508,9 @@ class Net_SSH1
      *
      * Connects to an SSHv1 server
      *
-     * @param String $host
+     * @param string $host
      * @param optional Integer $port
-     * @param optional Integer $timeout
+     * @param int $timeout (optional)
      * @param optional Integer $cipher
      * @return Net_SSH1
      * @access public
@@ -560,7 +560,7 @@ class Net_SSH1
     /**
      * Connect to an SSHv1 server
      *
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _connect()
@@ -727,9 +727,9 @@ class Net_SSH1
     /**
      * Login
      *
-     * @param String $username
-     * @param optional String $password
-     * @return Boolean
+     * @param string $username
+     * @param optional string $password
+     * @return bool
      * @access public
      */
     function login($username, $password = '')
@@ -800,7 +800,7 @@ class Net_SSH1
      * $ssh->exec('ping 127.0.0.1'); on a Linux host will never return and will run indefinitely.  setTimeout() makes it so it'll timeout.
      * Setting $timeout to false or 0 will mean there is no timeout.
      *
-     * @param Mixed $timeout
+     * @param mixed $timeout
      */
     function setTimeout($timeout)
     {
@@ -823,7 +823,7 @@ class Net_SSH1
      *
      * @see Net_SSH1::interactiveRead()
      * @see Net_SSH1::interactiveWrite()
-     * @param String $cmd
+     * @param string $cmd
      * @return mixed
      * @access public
      */
@@ -873,7 +873,7 @@ class Net_SSH1
      *
      * @see Net_SSH1::interactiveRead()
      * @see Net_SSH1::interactiveWrite()
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _initShell()
@@ -916,8 +916,8 @@ class Net_SSH1
      * Inputs a command into an interactive shell.
      *
      * @see Net_SSH1::interactiveWrite()
-     * @param String $cmd
-     * @return Boolean
+     * @param string $cmd
+     * @return bool
      * @access public
      */
     function write($cmd)
@@ -932,9 +932,9 @@ class Net_SSH1
      * a regular expression.
      *
      * @see Net_SSH1::write()
-     * @param String $expect
-     * @param Integer $mode
-     * @return Boolean
+     * @param string $expect
+     * @param int $mode
+     * @return bool
      * @access public
      */
     function read($expect, $mode = NET_SSH1_READ_SIMPLE)
@@ -972,8 +972,8 @@ class Net_SSH1
      * Inputs a command into an interactive shell.
      *
      * @see Net_SSH1::interactiveRead()
-     * @param String $cmd
-     * @return Boolean
+     * @param string $cmd
+     * @return bool
      * @access public
      */
     function interactiveWrite($cmd)
@@ -1008,7 +1008,7 @@ class Net_SSH1
      * there's not going to be much recourse.
      *
      * @see Net_SSH1::interactiveRead()
-     * @return String
+     * @return string
      * @access public
      */
     function interactiveRead()
@@ -1059,7 +1059,7 @@ class Net_SSH1
     /**
      * Disconnect
      *
-     * @param String $msg
+     * @param string $msg
      * @access private
      */
     function _disconnect($msg = 'Client Quit')
@@ -1173,8 +1173,8 @@ class Net_SSH1
      * Returns true on success, false on failure.
      *
      * @see Net_SSH1::_get_binary_packet()
-     * @param String $data
-     * @return Boolean
+     * @param string $data
+     * @return bool
      * @access private
      */
     function _send_binary_packet($data)
@@ -1221,8 +1221,8 @@ class Net_SSH1
      *
      * @see Net_SSH1::_get_binary_packet()
      * @see Net_SSH1::_send_binary_packet()
-     * @param String $data
-     * @return Integer
+     * @param string $data
+     * @return int
      * @access private
      */
     function _crc($data)
@@ -1313,13 +1313,13 @@ class Net_SSH1
     }
 
     /**
-     * String Shift
+     * string Shift
      *
      * Inspired by array_shift
      *
-     * @param String $string
-     * @param optional Integer $index
-     * @return String
+     * @param string $string
+     * @param int $index (optional)
+     * @return string
      * @access private
      */
     function _string_shift(&$string, $index = 1)
@@ -1414,7 +1414,7 @@ class Net_SSH1
      * Returns a string if NET_SSH1_LOGGING == NET_SSH1_LOG_COMPLEX, an array if NET_SSH1_LOGGING == NET_SSH1_LOG_SIMPLE and false if !defined('NET_SSH1_LOGGING')
      *
      * @access public
-     * @return String or Array
+     * @return string or Array
      */
     function getLog()
     {
@@ -1440,7 +1440,7 @@ class Net_SSH1
      * @param Array $message_log
      * @param Array $message_number_log
      * @access private
-     * @return String
+     * @return string
      */
     function _format_log($message_log, $message_number_log)
     {
@@ -1475,7 +1475,7 @@ class Net_SSH1
      *
      * @param Array $matches
      * @access private
-     * @return String
+     * @return string
      */
     function _format_log_helper($matches)
     {
@@ -1489,7 +1489,7 @@ class Net_SSH1
      * the raw bytes.  This behavior is similar to PHP's md5() function.
      *
      * @param optional Boolean $raw_output
-     * @return String
+     * @return string
      * @access public
      */
     function getServerKeyPublicExponent($raw_output = false)
@@ -1504,7 +1504,7 @@ class Net_SSH1
      * the raw bytes.  This behavior is similar to PHP's md5() function.
      *
      * @param optional Boolean $raw_output
-     * @return String
+     * @return string
      * @access public
      */
     function getServerKeyPublicModulus($raw_output = false)
@@ -1519,7 +1519,7 @@ class Net_SSH1
      * the raw bytes.  This behavior is similar to PHP's md5() function.
      *
      * @param optional Boolean $raw_output
-     * @return String
+     * @return string
      * @access public
      */
     function getHostKeyPublicExponent($raw_output = false)
@@ -1534,7 +1534,7 @@ class Net_SSH1
      * the raw bytes.  This behavior is similar to PHP's md5() function.
      *
      * @param optional Boolean $raw_output
-     * @return String
+     * @return string
      * @access public
      */
     function getHostKeyPublicModulus($raw_output = false)
@@ -1577,7 +1577,7 @@ class Net_SSH1
     /**
      * Return the server identification.
      *
-     * @return String
+     * @return string
      * @access public
      */
     function getServerIdentification()
@@ -1590,7 +1590,7 @@ class Net_SSH1
      *
      * Makes sure that only the last 1MB worth of packets will be logged
      *
-     * @param String $data
+     * @param string $data
      * @access private
      */
     function _append_log($protocol_flags, $message)

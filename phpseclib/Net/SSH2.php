@@ -153,7 +153,7 @@ class Net_SSH2
     /**
      * The SSH identifier
      *
-     * @var String
+     * @var string
      * @access private
      */
     var $identifier;
@@ -172,7 +172,7 @@ class Net_SSH2
      * The bits that are set represent functions that have been called already.  This is used to determine
      * if a requisite function has been successfully executed.  If not, an error should be thrown.
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $bitmap = 0;
@@ -182,7 +182,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::getErrors()
      * @see Net_SSH2::getLastError()
-     * @var String
+     * @var string
      * @access private
      */
     var $errors = array();
@@ -298,7 +298,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::Net_SSH2()
      * @see Net_SSH2::_send_binary_packet()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $encrypt_block_size = 8;
@@ -308,7 +308,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::Net_SSH2()
      * @see Net_SSH2::_get_binary_packet()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $decrypt_block_size = 8;
@@ -357,7 +357,7 @@ class Net_SSH2
      * append it.
      *
      * @see Net_SSH2::_get_binary_packet()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $hmac_size = false;
@@ -366,7 +366,7 @@ class Net_SSH2
      * Server Public Host Key
      *
      * @see Net_SSH2::getServerPublicHostKey()
-     * @var String
+     * @var string
      * @access private
      */
     var $server_public_host_key;
@@ -381,7 +381,7 @@ class Net_SSH2
      *  -- http://tools.ietf.org/html/rfc4253#section-7.2
      *
      * @see Net_SSH2::_key_exchange()
-     * @var String
+     * @var string
      * @access private
      */
     var $session_id = false;
@@ -392,7 +392,7 @@ class Net_SSH2
      * The current exchange hash
      *
      * @see Net_SSH2::_key_exchange()
-     * @var String
+     * @var string
      * @access private
      */
     var $exchange_hash = false;
@@ -450,7 +450,7 @@ class Net_SSH2
      * See 'Section 6.4.  Data Integrity' of rfc4253 for more info.
      *
      * @see Net_SSH2::_send_binary_packet()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $send_seq_no = 0;
@@ -461,7 +461,7 @@ class Net_SSH2
      * See 'Section 6.4.  Data Integrity' of rfc4253 for more info.
      *
      * @see Net_SSH2::_get_binary_packet()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $get_seq_no = 0;
@@ -536,7 +536,7 @@ class Net_SSH2
      *
      * Bytes the other party can send before it must wait for the window to be adjusted (0x7FFFFFFF = 2GB)
      *
-     * @var Integer
+     * @var int
      * @see Net_SSH2::_send_channel_packet()
      * @see Net_SSH2::exec()
      * @access private
@@ -571,7 +571,7 @@ class Net_SSH2
      * Verified against $this->session_id
      *
      * @see Net_SSH2::getServerPublicHostKey()
-     * @var String
+     * @var string
      * @access private
      */
     var $signature = '';
@@ -582,7 +582,7 @@ class Net_SSH2
      * ssh-rsa or ssh-dss.
      *
      * @see Net_SSH2::getServerPublicHostKey()
-     * @var String
+     * @var string
      * @access private
      */
     var $signature_format = '';
@@ -603,7 +603,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::_send_binary_packet()
      * @see Net_SSH2::_get_binary_packet()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $log_size;
@@ -628,7 +628,7 @@ class Net_SSH2
      * Real-time log file pointer
      *
      * @see Net_SSH2::_append_log()
-     * @var Resource
+     * @var resource
      * @access private
      */
     var $realtime_log_file;
@@ -637,7 +637,7 @@ class Net_SSH2
      * Real-time log file size
      *
      * @see Net_SSH2::_append_log()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $realtime_log_size;
@@ -646,7 +646,7 @@ class Net_SSH2
      * Has the signature been validated?
      *
      * @see Net_SSH2::getServerPublicHostKey()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $signature_validated = false;
@@ -670,7 +670,7 @@ class Net_SSH2
     /**
      * Time of first network activity
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $last_packet;
@@ -678,7 +678,7 @@ class Net_SSH2
     /**
      * Exit status returned from ssh if any
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $exit_status;
@@ -686,7 +686,7 @@ class Net_SSH2
     /**
      * Flag to request a PTY when using exec()
      *
-     * @var Boolean
+     * @var bool
      * @see Net_SSH2::enablePTY()
      * @access private
      */
@@ -695,7 +695,7 @@ class Net_SSH2
     /**
      * Flag set while exec() is running when using enablePTY()
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $in_request_pty_exec = false;
@@ -703,7 +703,7 @@ class Net_SSH2
     /**
      * Flag set after startSubsystem() is called
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $in_subsystem;
@@ -711,7 +711,7 @@ class Net_SSH2
     /**
      * Contents of stdError
      *
-     * @var String
+     * @var string
      * @access private
      */
     var $stdErrorLog;
@@ -720,7 +720,7 @@ class Net_SSH2
      * The Last Interactive Response
      *
      * @see Net_SSH2::_keyboard_interactive_process()
-     * @var String
+     * @var string
      * @access private
      */
     var $last_interactive_response = '';
@@ -742,7 +742,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::_filter()
      * @see Net_SSH2::getBannerMessage()
-     * @var String
+     * @var string
      * @access private
      */
     var $banner_message = '';
@@ -751,7 +751,7 @@ class Net_SSH2
      * Did read() timeout or return normally?
      *
      * @see Net_SSH2::isTimeout()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $is_timeout = false;
@@ -760,7 +760,7 @@ class Net_SSH2
      * Log Boundary
      *
      * @see Net_SSH2::_format_log()
-     * @var String
+     * @var string
      * @access private
      */
     var $log_boundary = ':';
@@ -769,7 +769,7 @@ class Net_SSH2
      * Log Long Width
      *
      * @see Net_SSH2::_format_log()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $log_long_width = 65;
@@ -778,7 +778,7 @@ class Net_SSH2
      * Log Short Width
      *
      * @see Net_SSH2::_format_log()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $log_short_width = 16;
@@ -788,7 +788,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::Net_SSH2()
      * @see Net_SSH2::_connect()
-     * @var String
+     * @var string
      * @access private
      */
     var $host;
@@ -798,7 +798,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::Net_SSH2()
      * @see Net_SSH2::_connect()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $port;
@@ -813,7 +813,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::Net_SSH2()
      * @see Net_SSH2::_connect()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $connectionTimeout;
@@ -824,7 +824,7 @@ class Net_SSH2
      * @see Net_SSH2::getWindowColumns()
      * @see Net_SSH2::setWindowColumns()
      * @see Net_SSH2::setWindowSize()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $windowColumns = 80;
@@ -835,7 +835,7 @@ class Net_SSH2
      * @see Net_SSH2::getWindowRows()
      * @see Net_SSH2::setWindowRows()
      * @see Net_SSH2::setWindowSize()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $windowRows = 24;
@@ -843,9 +843,9 @@ class Net_SSH2
     /**
      * Default Constructor.
      *
-     * @param String $host
+     * @param string $host
      * @param optional Integer $port
-     * @param optional Integer $timeout
+     * @param int $timeout (optional)
      * @see Net_SSH2::login()
      * @return Net_SSH2
      * @access public
@@ -944,7 +944,7 @@ class Net_SSH2
     /**
      * Connect to an SSHv2 server
      *
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _connect()
@@ -1055,7 +1055,7 @@ class Net_SSH2
      * You should overwrite this method in your own class if you want to use another identifier
      *
      * @access protected
-     * @return String
+     * @return string
      */
     function _generate_identifier()
     {
@@ -1082,7 +1082,7 @@ class Net_SSH2
     /**
      * Key Exchange
      *
-     * @param String $kexinit_payload_server
+     * @param string $kexinit_payload_server
      * @access private
      */
     function _key_exchange($kexinit_payload_server)
@@ -1791,10 +1791,10 @@ class Net_SSH2
      *
      * The $password parameter can be a plaintext password, a Crypt_RSA object or an array
      *
-     * @param String $username
-     * @param Mixed $password
-     * @param Mixed $...
-     * @return Boolean
+     * @param string $username
+     * @param mixed $password
+     * @param mixed $...
+     * @return bool
      * @see _login
      * @access public
      */
@@ -1807,10 +1807,10 @@ class Net_SSH2
     /**
      * Login Helper
      *
-     * @param String $username
-     * @param Mixed $password
-     * @param Mixed $...
-     * @return Boolean
+     * @param string $username
+     * @param mixed $password
+     * @param mixed $...
+     * @return bool
      * @see _login_helper
      * @access private
      */
@@ -1838,9 +1838,9 @@ class Net_SSH2
     /**
      * Login Helper
      *
-     * @param String $username
-     * @param optional String $password
-     * @return Boolean
+     * @param string $username
+     * @param optional string $password
+     * @return bool
      * @access private
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.
@@ -1989,9 +1989,9 @@ class Net_SSH2
      *
      * See {@link http://tools.ietf.org/html/rfc4256 RFC4256} for details.  This is not a full-featured keyboard-interactive authenticator.
      *
-     * @param String $username
-     * @param String $password
-     * @return Boolean
+     * @param string $username
+     * @param string $password
+     * @return bool
      * @access private
      */
     function _keyboard_interactive_login($username, $password)
@@ -2011,8 +2011,8 @@ class Net_SSH2
     /**
      * Handle the keyboard-interactive requests / responses.
      *
-     * @param String $responses...
-     * @return Boolean
+     * @param string $responses...
+     * @return bool
      * @access private
      */
     function _keyboard_interactive_process()
@@ -2125,9 +2125,9 @@ class Net_SSH2
     /**
      * Login with an ssh-agent provided key
      *
-     * @param String $username
+     * @param string $username
      * @param System_SSH_Agent $agent
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _ssh_agent_login($username, $agent)
@@ -2145,9 +2145,9 @@ class Net_SSH2
     /**
      * Login with an RSA private key
      *
-     * @param String $username
+     * @param string $username
      * @param Crypt_RSA $password
-     * @return Boolean
+     * @return bool
      * @access private
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.
@@ -2240,7 +2240,7 @@ class Net_SSH2
      * $ssh->exec('ping 127.0.0.1'); on a Linux host will never return and will run indefinitely.  setTimeout() makes it so it'll timeout.
      * Setting $timeout to false or 0 will mean there is no timeout.
      *
-     * @param Mixed $timeout
+     * @param mixed $timeout
      * @access public
      */
     function setTimeout($timeout)
@@ -2264,9 +2264,9 @@ class Net_SSH2
      * If $callback is set to false then Net_SSH2::_get_channel_packet(NET_SSH2_CHANNEL_EXEC) will need to be called manually.
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
-     * @param String $command
+     * @param string $command
      * @param optional Callback $callback
-     * @return String
+     * @return string
      * @access public
      */
     function exec($command, $callback = null)
@@ -2384,7 +2384,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::read()
      * @see Net_SSH2::write()
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _initShell()
@@ -2462,7 +2462,7 @@ class Net_SSH2
      *
      * @see Net_SSH2::read()
      * @see Net_SSH2::write()
-     * @return Integer
+     * @return int
      * @access public
      */
     function _get_interactive_channel()
@@ -2484,9 +2484,9 @@ class Net_SSH2
      * if $mode == NET_SSH2_READ_REGEX, a regular expression.
      *
      * @see Net_SSH2::write()
-     * @param String $expect
-     * @param Integer $mode
-     * @return String
+     * @param string $expect
+     * @param int $mode
+     * @return string
      * @access public
      */
     function read($expect = '', $mode = NET_SSH2_READ_SIMPLE)
@@ -2530,8 +2530,8 @@ class Net_SSH2
      * Inputs a command into an interactive shell.
      *
      * @see Net_SSH2::read()
-     * @param String $cmd
-     * @return Boolean
+     * @param string $cmd
+     * @return bool
      * @access public
      */
     function write($cmd)
@@ -2559,8 +2559,8 @@ class Net_SSH2
      * if there's sufficient demand for such a feature.
      *
      * @see Net_SSH2::stopSubsystem()
-     * @param String $subsystem
-     * @return Boolean
+     * @param string $subsystem
+     * @return bool
      * @access public
      */
     function startSubsystem($subsystem)
@@ -2607,7 +2607,7 @@ class Net_SSH2
      * Stops a subsystem.
      *
      * @see Net_SSH2::startSubsystem()
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function stopSubsystem()
@@ -2684,7 +2684,7 @@ class Net_SSH2
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
      * @see Net_SSH2::_send_binary_packet()
-     * @return String
+     * @return string
      * @access private
      */
     function _get_binary_packet()
@@ -2777,7 +2777,7 @@ class Net_SSH2
      * Because some binary packets need to be ignored...
      *
      * @see Net_SSH2::_get_binary_packet()
-     * @return String
+     * @return string
      * @access private
      */
     function _filter($payload)
@@ -2940,7 +2940,7 @@ class Net_SSH2
      * Returns the data as a string if it's available and false if not.
      *
      * @param $client_channel
-     * @return Mixed
+     * @return mixed
      * @access private
      */
     function _get_channel_packet($client_channel, $skip_extended = false)
@@ -3131,10 +3131,10 @@ class Net_SSH2
      *
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
-     * @param String $data
-     * @param optional String $logged
+     * @param string $data
+     * @param optional string $logged
      * @see Net_SSH2::_get_binary_packet()
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _send_binary_packet($data, $logged = null)
@@ -3192,7 +3192,7 @@ class Net_SSH2
      *
      * Makes sure that only the last 1MB worth of packets will be logged
      *
-     * @param String $data
+     * @param string $data
      * @access private
      */
     function _append_log($message_number, $message)
@@ -3268,9 +3268,9 @@ class Net_SSH2
      *
      * Spans multiple SSH_MSG_CHANNEL_DATAs if appropriate
      *
-     * @param Integer $client_channel
-     * @param String $data
-     * @return Boolean
+     * @param int $client_channel
+     * @param string $data
+     * @return bool
      * @access private
      */
     function _send_channel_packet($client_channel, $data)
@@ -3315,9 +3315,9 @@ class Net_SSH2
      * and for SFTP channels are presumably closed when the client disconnects.  This functions is intended
      * for SCP more than anything.
      *
-     * @param Integer $client_channel
-     * @param Boolean $want_reply
-     * @return Boolean
+     * @param int $client_channel
+     * @param bool $want_reply
+     * @return bool
      * @access private
      */
     function _close_channel($client_channel, $want_reply = false)
@@ -3348,8 +3348,8 @@ class Net_SSH2
     /**
      * Disconnect
      *
-     * @param Integer $reason
-     * @return Boolean
+     * @param int $reason
+     * @return bool
      * @access private
      */
     function _disconnect($reason)
@@ -3364,13 +3364,13 @@ class Net_SSH2
     }
 
     /**
-     * String Shift
+     * string Shift
      *
      * Inspired by array_shift
      *
-     * @param String $string
-     * @param optional Integer $index
-     * @return String
+     * @param string $string
+     * @param int $index (optional)
+     * @return string
      * @access private
      */
     function _string_shift(&$string, $index = 1)
@@ -3410,7 +3410,7 @@ class Net_SSH2
      * Returns a string if NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX, an array if NET_SSH2_LOGGING == NET_SSH2_LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
      *
      * @access public
-     * @return String or Array
+     * @return string or Array
      */
     function getLog()
     {
@@ -3436,7 +3436,7 @@ class Net_SSH2
      * @param Array $message_log
      * @param Array $message_number_log
      * @access private
-     * @return String
+     * @return string
      */
     function _format_log($message_log, $message_number_log)
     {
@@ -3471,7 +3471,7 @@ class Net_SSH2
      *
      * @param Array $matches
      * @access private
-     * @return String
+     * @return string
      */
     function _format_log_helper($matches)
     {
@@ -3481,7 +3481,7 @@ class Net_SSH2
     /**
      * Returns all errors
      *
-     * @return String
+     * @return string
      * @access public
      */
     function getErrors()
@@ -3492,7 +3492,7 @@ class Net_SSH2
     /**
      * Returns the last error
      *
-     * @return String
+     * @return string
      * @access public
      */
     function getLastError()
@@ -3503,7 +3503,7 @@ class Net_SSH2
     /**
      * Return the server identification.
      *
-     * @return String
+     * @return string
      * @access public
      */
     function getServerIdentification()
@@ -3649,7 +3649,7 @@ class Net_SSH2
      * Quoting from the RFC, "in some jurisdictions, sending a warning message before
      * authentication may be relevant for getting legal protection."
      *
-     * @return String
+     * @return string
      * @access public
      */
     function getBannerMessage()
@@ -3663,7 +3663,7 @@ class Net_SSH2
      * Caching this the first time you connect to a server and checking the result on subsequent connections
      * is recommended.  Returns false if the server signature is not signed correctly with the public host key.
      *
-     * @return Mixed
+     * @return mixed
      * @access public
      */
     function getServerPublicHostKey()
@@ -3808,7 +3808,7 @@ class Net_SSH2
     /**
      * Returns the exit status of an SSH command or false.
      *
-     * @return Integer or false
+     * @return int or false
      * @access public
      */
     function getExitStatus()
@@ -3822,7 +3822,7 @@ class Net_SSH2
     /**
      * Returns the number of columns for the terminal window size.
      *
-     * @return Integer
+     * @return int
      * @access public
      */
     function getWindowColumns()
@@ -3833,7 +3833,7 @@ class Net_SSH2
     /**
      * Returns the number of rows for the terminal window size.
      *
-     * @return Integer
+     * @return int
      * @access public
      */
     function getWindowRows()
@@ -3844,7 +3844,7 @@ class Net_SSH2
     /**
      * Sets the number of columns for the terminal window size.
      *
-     * @param Integer $value
+     * @param int $value
      * @access public
      */
     function setWindowColumns($value)
@@ -3855,7 +3855,7 @@ class Net_SSH2
     /**
      * Sets the number of rows for the terminal window size.
      *
-     * @param Integer $value
+     * @param int $value
      * @access public
      */
     function setWindowRows($value)
@@ -3866,8 +3866,8 @@ class Net_SSH2
     /**
      * Sets the number of columns and rows for the terminal window size.
      *
-     * @param Integer $columns
-     * @param Integer $rows
+     * @param int $columns
+     * @param int $rows
      * @access public
      */
     function setWindowSize($columns = 80, $rows = 24)

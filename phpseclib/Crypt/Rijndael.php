@@ -146,7 +146,7 @@ class Crypt_Rijndael extends Crypt_Base
      *
      * @see Crypt_Base::password_key_size
      * @see Crypt_Base::setPassword()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $password_key_size = 16;
@@ -155,7 +155,7 @@ class Crypt_Rijndael extends Crypt_Base
      * The namespace used by the cipher for its constants.
      *
      * @see Crypt_Base::const_namespace
-     * @var String
+     * @var string
      * @access private
      */
     var $const_namespace = 'RIJNDAEL';
@@ -171,7 +171,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @see Crypt_Base::cipher_name_mcrypt
      * @see Crypt_Base::engine
      * @see _setupEngine()
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'rijndael-128';
@@ -181,7 +181,7 @@ class Crypt_Rijndael extends Crypt_Base
      *
      * @see Crypt_Base::password_default_salt
      * @see Crypt_Base::setPassword()
-     * @var String
+     * @var string
      * @access private
      */
     var $password_default_salt = 'phpseclib';
@@ -190,7 +190,7 @@ class Crypt_Rijndael extends Crypt_Base
      * Has the key length explicitly been set or should it be derived from the key, itself?
      *
      * @see setKeyLength()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $explicit_key_length = false;
@@ -217,7 +217,7 @@ class Crypt_Rijndael extends Crypt_Base
      * The Block Length divided by 32
      *
      * @see setBlockLength()
-     * @var Integer
+     * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4.  Exists in conjunction with $block_size
      *    because the encryption / decryption / key schedule creation requires this number and not $block_size.  We could
@@ -231,7 +231,7 @@ class Crypt_Rijndael extends Crypt_Base
      * The Key Length
      *
      * @see setKeyLength()
-     * @var Integer
+     * @var int
      * @access private
      * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
      *    because the encryption / decryption / key schedule creation requires this number and not $key_size.  We could
@@ -244,7 +244,7 @@ class Crypt_Rijndael extends Crypt_Base
      * The Key Length divided by 32
      *
      * @see setKeyLength()
-     * @var Integer
+     * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4
      */
@@ -253,7 +253,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Number of Rounds
      *
-     * @var Integer
+     * @var int
      * @access private
      * @internal The max value is 14, the min value is 10.
      */
@@ -690,7 +690,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @see Crypt_Base:setKey()
      * @see setKeyLength()
      * @access public
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
@@ -736,7 +736,7 @@ class Crypt_Rijndael extends Crypt_Base
      *             This results then in slower encryption.
      *
      * @access public
-     * @param Integer $length
+     * @param int $length
      */
     function setKeyLength($length)
     {
@@ -769,7 +769,7 @@ class Crypt_Rijndael extends Crypt_Base
      * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
      *
      * @access public
-     * @param Integer $length
+     * @param int $length
      */
     function setBlockLength($length)
     {
@@ -858,8 +858,8 @@ class Crypt_Rijndael extends Crypt_Base
      * Encrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _encryptBlock($in)
     {
@@ -960,8 +960,8 @@ class Crypt_Rijndael extends Crypt_Base
      * Decrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _decryptBlock($in)
     {
@@ -1167,7 +1167,7 @@ class Crypt_Rijndael extends Crypt_Base
      * Performs S-Box substitutions
      *
      * @access private
-     * @param Integer $word
+     * @param int $word
      */
     function _subWord($word)
     {

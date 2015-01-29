@@ -129,7 +129,7 @@ class Crypt_Blowfish extends Crypt_Base
      * Block Length of the cipher
      *
      * @see Crypt_Base::block_size
-     * @var Integer
+     * @var int
      * @access private
      */
     var $block_size = 8;
@@ -139,7 +139,7 @@ class Crypt_Blowfish extends Crypt_Base
      *
      * @see Crypt_Base::password_key_size
      * @see Crypt_Base::setPassword()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $password_key_size = 56;
@@ -148,7 +148,7 @@ class Crypt_Blowfish extends Crypt_Base
      * The namespace used by the cipher for its constants.
      *
      * @see Crypt_Base::const_namespace
-     * @var String
+     * @var string
      * @access private
      */
     var $const_namespace = 'BLOWFISH';
@@ -157,7 +157,7 @@ class Crypt_Blowfish extends Crypt_Base
      * The mcrypt specific name of the cipher
      *
      * @see Crypt_Base::cipher_name_mcrypt
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'blowfish';
@@ -166,7 +166,7 @@ class Crypt_Blowfish extends Crypt_Base
      * Optimizing value while CFB-encrypting
      *
      * @see Crypt_Base::cfb_init_len
-     * @var Integer
+     * @var int
      * @access private
      */
     var $cfb_init_len = 500;
@@ -380,7 +380,7 @@ class Crypt_Blowfish extends Crypt_Base
      *
      * @access public
      * @see Crypt_Base::setKey()
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
@@ -455,8 +455,8 @@ class Crypt_Blowfish extends Crypt_Base
      * Encrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _encryptBlock($in)
     {
@@ -491,8 +491,8 @@ class Crypt_Blowfish extends Crypt_Base
      * Decrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _decryptBlock($in)
     {
