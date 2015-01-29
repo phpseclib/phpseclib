@@ -178,7 +178,7 @@ define('CRYPT_RSA_MODE_OPENSSL', 2);
 /**
  * Default openSSL configuration file.
  */
-define('CRYPT_RSA_OPENSSL_CONFIG', dirname(__FILE__) . '/../openssl.cnf');
+define('CRYPT_RSA_OPENSSL_CONFIG', 'openssl.cnf');
 
 /**#@+
  * @access public
@@ -490,7 +490,14 @@ class Crypt_RSA
             include_once 'Math/BigInteger.php';
         }
 
-        $this->configFile = CRYPT_RSA_OPENSSL_CONFIG;
+        $dir = '@cfg_dir@' . DIRECTORY_SEPARATOR . 'Crypt_RSA';
+        if (strpos($dir, '@') === false) {
+            // PEAR installer was used to install the package
+        } else {
+            // manual install
+            $dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..';
+        }
+        $this->configFile = $dir . DIRECTORY_SEPARATOR . CRYPT_RSA_OPENSSL_CONFIG;
 
         if ( !defined('CRYPT_RSA_MODE') ) {
             switch (true) {
