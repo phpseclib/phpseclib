@@ -366,7 +366,7 @@ class Crypt_RC2 extends Crypt_Base
     {
         switch ($engine) {
             case CRYPT_ENGINE_OPENSSL:
-                if ($this->current_key_length != 128 && strlen($this->orig_key) != 16) {
+                if ($this->current_key_length != 128 || strlen($this->orig_key) != 16) {
                     return false;
                 }
                 $this->cipher_name_openssl_ecb = 'rc2-ecb';
