@@ -698,7 +698,7 @@ class Crypt_Base
                 case CRYPT_MODE_CBC:
                     $result = openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->encryptIV);
                     if ($this->continuousBuffer) {
-                        $this->encryptIV = substr($ciphertext, -$this->block_size);
+                        $this->encryptIV = substr($result, -$this->block_size);
                     }
                     return !defined('OPENSSL_RAW_DATA') ? substr($result, 0, -$this->block_size) : $result;
                 case CRYPT_MODE_CTR:
