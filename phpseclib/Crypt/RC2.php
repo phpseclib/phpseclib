@@ -99,20 +99,6 @@ define('CRYPT_RC2_MODE_CFB', CRYPT_MODE_CFB);
 define('CRYPT_RC2_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
-/**#@+
- * @access private
- * @see Crypt_RC2::Crypt_RC2()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_RC2_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RC2_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of RC2.
  *
@@ -138,7 +124,19 @@ class Crypt_RC2 extends Crypt_Base
      * @var String
      * @access private
      */
-    var $key = "\0";
+    var $key;
+
+    /**
+     * The Original (unpadded) Key
+     *
+     * @see Crypt_Base::key
+     * @see setKey()
+     * @see encrypt()
+     * @see decrypt()
+     * @var String
+     * @access private
+     */
+    var $orig_key;
 
     /**
      * The default password key_size used by setPassword()
@@ -188,6 +186,17 @@ class Crypt_RC2 extends Crypt_Base
      * @internal Changing this value after setting the key has no effect.
      */
     var $default_key_length = 1024;
+
+    /**
+     * The key length in bits.
+     *
+     * @see Crypt_RC2::isValidEnine()
+     * @see Crypt_RC2::setKey()
+     * @var Integer
+     * @access private
+     * @internal Should be in range [1..1024].
+     */
+    var $current_key_length;
 
     /**
      * The Key Schedule
@@ -341,7 +350,30 @@ class Crypt_RC2 extends Crypt_Base
     function Crypt_RC2($mode = CRYPT_RC2_MODE_CBC)
     {
         parent::Crypt_Base($mode);
-        $this->setKey('');
+    }
+
+    /**
+     * Test for engine validity
+     *
+     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     *
+     * @see Crypt_Base::Crypt_Base()
+     * @param Integer $engine
+     * @access public
+     * @return Boolean
+     */
+    function isValidEngine($engine)
+    {
+        switch ($engine) {
+            case CRYPT_ENGINE_OPENSSL:
+                if ($this->current_key_length != 128 || strlen($this->orig_key) != 16) {
+                    return false;
+                }
+                $this->cipher_name_openssl_ecb = 'rc2-ecb';
+                $this->cipher_name_openssl = 'rc2-' . $this->_openssl_translate_mode();
+        }
+
+        return parent::isValidEngine($engine);
     }
 
     /**
@@ -375,15 +407,18 @@ class Crypt_RC2 extends Crypt_Base
      * @see Crypt_Base::setKey()
      * @access public
      * @param String $key
-     * @param Integer $t1 optional          Effective key length in bits.
+     * @param Integer $t1 optional Effective key length in bits.
      */
     function setKey($key, $t1 = 0)
     {
+        $this->orig_key = $key;
+
         if ($t1 <= 0) {
             $t1 = $this->default_key_length;
         } else if ($t1 > 1024) {
             $t1 = 1024;
         }
+        $this->current_key_length = $t1;
         // Key byte count should be 1..128.
         $key = strlen($key) ? substr($key, 0, 128) : "\x00";
         $t = strlen($key);
@@ -414,6 +449,52 @@ class Crypt_RC2 extends Crypt_Base
         $l[0] = $this->invpitable[$l[0]];
         array_unshift($l, 'C*');
         parent::setKey(call_user_func_array('pack', $l));
+    }
+
+    /**
+     * Encrypts a message.
+     *
+     * Mostly a wrapper for Crypt_Base::encrypt, with some additional OpenSSL handling code
+     *
+     * @see decrypt()
+     * @access public
+     * @param String $plaintext
+     * @return String $ciphertext
+     */
+    function encrypt($plaintext)
+    {
+        if ($this->engine == CRYPT_ENGINE_OPENSSL) {
+            $temp = $this->key;
+            $this->key = $this->orig_key;
+            $result = parent::encrypt($plaintext);
+            $this->key = $temp;
+            return $result;
+        }
+
+        return parent::encrypt($plaintext);
+    }
+
+    /**
+     * Decrypts a message.
+     *
+     * Mostly a wrapper for Crypt_Base::decrypt, with some additional OpenSSL handling code
+     *
+     * @see encrypt()
+     * @access public
+     * @param String $ciphertext
+     * @return String $plaintext
+     */
+    function decrypt($ciphertext)
+    {
+        if ($this->engine == CRYPT_ENGINE_OPENSSL) {
+            $temp = $this->key;
+            $this->key = $this->orig_key;
+            $result = parent::decrypt($ciphertext);
+            $this->key = $temp;
+            return $result;
+        }
+
+        return parent::encrypt($ciphertext);
     }
 
     /**
@@ -507,6 +588,21 @@ class Crypt_RC2 extends Crypt_Base
     }
 
     /**
+     * Setup the CRYPT_ENGINE_MCRYPT $engine
+     *
+     * @see Crypt_Base::_setupMcrypt()
+     * @access private
+     */
+    function _setupMcrypt()
+    {
+        if (!isset($this->key)) {
+            $this->setKey('');
+        }
+
+        parent::_setupMcrypt();
+    }
+
+    /**
      * Creates the key schedule
      *
      * @see Crypt_Base::_setupKey()
@@ -514,6 +610,10 @@ class Crypt_RC2 extends Crypt_Base
      */
     function _setupKey()
     {
+        if (!isset($this->key)) {
+            $this->setKey('');
+        }
+
         // Key has already been expanded in Crypt_RC2::setKey():
         // Only the first value must be altered.
         $l = unpack('Ca/Cb/v*', $this->key);
@@ -536,20 +636,30 @@ class Crypt_RC2 extends Crypt_Base
         // The first 10 generated $lambda_functions will use the $keys hardcoded as integers
         // for the mixing rounds, for better inline crypt performance [~20% faster].
         // But for memory reason we have to limit those ultra-optimized $lambda_functions to an amount of 10.
-        $keys = $this->keys;
-        if (count($lambda_functions) >= 10) {
-            foreach ($this->keys as $k => $v) {
-                $keys[$k] = '$keys[' . $k . ']';
-            }
-        }
+        // (Currently, for Crypt_RC2, one generated $lambda_function cost on php5.5@32bit ~60kb unfreeable mem and ~100kb on php5.5@64bit)
+        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
-        $code_hash = md5(str_pad("Crypt_RC2, {$this->mode}, ", 32, "\0") . implode(',', $keys));
+        // Generation of a uniqe hash for our generated code
+        $code_hash = "Crypt_RC2, {$this->mode}";
+        if ($gen_hi_opt_code) {
+            $code_hash = str_pad($code_hash, 32) . $this->_trapdoor($this->key);
+        }
 
         // Is there a re-usable $lambda_functions in there?
         // If not, we have to create it.
         if (!isset($lambda_functions[$code_hash])) {
             // Init code for both, encrypt and decrypt.
             $init_crypt = '$keys = $self->keys;';
+
+            switch (true) {
+                case $gen_hi_opt_code:
+                    $keys = $this->keys;
+                default:
+                    $keys = array();
+                    foreach ($this->keys as $k => $v) {
+                        $keys[$k] = '$keys[' . $k . ']';
+                    }
+            }
 
             // $in is the current 8 bytes block which has to be en/decrypt
             $encrypt_block = $decrypt_block = '
