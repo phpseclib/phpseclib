@@ -245,7 +245,7 @@ class RSA
     /**
      * Precomputed Zero
      *
-     * @var Array
+     * @var Array|\phpseclib\Math\BigInteger
      * @access private
      */
     var $zero;
@@ -253,7 +253,7 @@ class RSA
     /**
      * Precomputed One
      *
-     * @var Array
+     * @var Array|\phpseclib\Math\BigInteger
      * @access private
      */
     var $one;
@@ -285,7 +285,7 @@ class RSA
     /**
      * Modulus length
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib\Math\BigInteger|integer
      * @access private
      */
     var $k;
@@ -397,10 +397,10 @@ class RSA
     /**
      * Password
      *
-     * @var String
+     * @var String|boolean
      * @access private
      */
-    var $password = false;
+    var $password;
 
     /**
      * Components
@@ -1574,7 +1574,7 @@ class RSA
      * @see createKey()
      * @see loadKey()
      * @access public
-     * @param String $password
+     * @param String|boolean $password
      */
     function setPassword($password = false)
     {
@@ -1965,7 +1965,7 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#section-4.1 RFC3447#section-4.1}.
      *
      * @access private
-     * @param \phpseclib\Math\BigInteger $x
+     * @param \phpseclib\Math\BigInteger|integer $x
      * @param Integer $xLen
      * @return String
      */
@@ -2129,7 +2129,7 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $m
-     * @return \phpseclib\Math\BigInteger
+     * @return \phpseclib\Math\BigInteger|boolean
      */
     function _rsaep($m)
     {
@@ -2147,7 +2147,7 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $c
-     * @return \phpseclib\Math\BigInteger
+     * @return \phpseclib\Math\BigInteger|boolean
      */
     function _rsadp($c)
     {
@@ -2165,7 +2165,7 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $m
-     * @return \phpseclib\Math\BigInteger
+     * @return \phpseclib\Math\BigInteger|boolean
      */
     function _rsasp1($m)
     {
@@ -2183,7 +2183,7 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $s
-     * @return \phpseclib\Math\BigInteger
+     * @return \phpseclib\Math\BigInteger|boolean
      */
     function _rsavp1($s)
     {
@@ -2605,8 +2605,8 @@ class RSA
      *
      * @access private
      * @param String $m
-     * @param Integer $emLen
-     * @return String
+     * @param \phpseclib\Math\BigInteger|integer $emLen
+     * @return String|boolean
      */
     function _emsa_pkcs1_v1_5_encode($m, $emLen)
     {

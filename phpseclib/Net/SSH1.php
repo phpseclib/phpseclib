@@ -262,7 +262,7 @@ class SSH1
      * Logged for debug purposes
      *
      * @see \phpseclib\Net\SSH1::getServerKeyPublicExponent()
-     * @var String
+     * @var \phpseclib\Math\BigInteger
      * @access private
      */
     var $server_key_public_exponent;
@@ -273,7 +273,7 @@ class SSH1
      * Logged for debug purposes
      *
      * @see \phpseclib\Net\SSH1::getServerKeyPublicModulus()
-     * @var String
+     * @var \phpseclib\Math\BigInteger
      * @access private
      */
     var $server_key_public_modulus;
@@ -284,7 +284,7 @@ class SSH1
      * Logged for debug purposes
      *
      * @see \phpseclib\Net\SSH1::getHostKeyPublicExponent()
-     * @var String
+     * @var \phpseclib\Math\BigInteger
      * @access private
      */
     var $host_key_public_exponent;
@@ -295,7 +295,7 @@ class SSH1
      * Logged for debug purposes
      *
      * @see \phpseclib\Net\SSH1::getHostKeyPublicModulus()
-     * @var String
+     * @var \phpseclib\Math\BigInteger
      * @access private
      */
     var $host_key_public_modulus;
@@ -1304,9 +1304,9 @@ class SSH1
      * calls this call modexp, instead, but I think this makes things clearer, maybe...
      *
      * @see \phpseclib\Net\SSH1::__construct()
-     * @param BigInteger $m
+     * @param \phpseclib\Math\BigInteger $m
      * @param Array $key
-     * @return BigInteger
+     * @return \phpseclib\Math\BigInteger
      * @access private
      */
     function _rsa_crypt($m, $key)
@@ -1377,7 +1377,7 @@ class SSH1
      * Returns a string if NET_SSH1_LOGGING == self::LOG_COMPLEX, an array if NET_SSH1_LOGGING == self::LOG_SIMPLE and false if !defined('NET_SSH1_LOGGING')
      *
      * @access public
-     * @return String or Array
+     * @return String|Array|boolean
      */
     function getLog()
     {

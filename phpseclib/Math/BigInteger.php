@@ -186,7 +186,7 @@ class BigInteger
     /**
      * Holds the BigInteger's value.
      *
-     * @var Array
+     * @var Array|string
      * @access private
      */
     var $value;
@@ -202,6 +202,7 @@ class BigInteger
     /**
      * Random number generator function
      *
+     * @var string
      * @access private
      */
     var $generator = 'mt_rand';
@@ -210,6 +211,7 @@ class BigInteger
      * Precision
      *
      * @see setPrecision()
+     * @var integer
      * @access private
      */
     var $precision = -1;
@@ -218,9 +220,10 @@ class BigInteger
      * Precision Bitmask
      *
      * @see setPrecision()
+     * @var \phpseclib\Math\BigInteger
      * @access private
      */
-    var $bitmask = false;
+    var $bitmask;
 
     /**
      * Mode independent value used for serialization.
@@ -251,8 +254,8 @@ class BigInteger
      * ?>
      * </code>
      *
-     * @param optional $x base-10 number or base-$base number if $base set.
-     * @param optional integer $base
+     * @param mixed $x base-10 number or base-$base number if $base set. Optional.
+     * @param integer $base The base for $x. Optional.
      * @return \phpseclib\Math\BigInteger
      * @access public
      */
@@ -960,7 +963,7 @@ class BigInteger
      * ?>
      * </code>
      *
-     * @param \phpseclib\Math\BigInteger $y
+     * @param \phpseclib\Math\BigInteger|array $y
      * @return \phpseclib\Math\BigInteger
      * @access public
      * @internal Performs base-2**52 subtraction
@@ -1560,7 +1563,7 @@ class BigInteger
      * abc / x = a00 / x + b0 / x + c / x
      *
      * @param Array $dividend
-     * @param Array $divisor
+     * @param Array|\phpseclib\Math\BigInteger $divisor
      * @return Array
      * @access private
      */
@@ -1596,7 +1599,7 @@ class BigInteger
      *
      * @param \phpseclib\Math\BigInteger $e
      * @param \phpseclib\Math\BigInteger $n
-     * @return \phpseclib\Math\BigInteger
+     * @return \phpseclib\Math\BigInteger|boolean
      * @access public
      * @internal The most naive approach to modular exponentiation has very unreasonable requirements, and
      *    and although the approach involving repeated squaring does vastly better, it, too, is impractical
@@ -1620,7 +1623,7 @@ class BigInteger
      */
     function modPow($e, $n)
     {
-        $n = $this->bitmask !== false && $this->bitmask->compare($n) < 0 ? $this->bitmask : $n->abs();
+        $n = $this->bitmask instanceof BigInteger && $this->bitmask->compare($n) < 0 ? $this->bitmask : $n->abs();
 
         if ($e->compare(new static()) < 0) {
             $e = $e->abs();
@@ -2641,7 +2644,7 @@ class BigInteger
      *
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
-     * @param \phpseclib\Math\BigInteger $y
+     * @param \phpseclib\Math\BigInteger|array $y
      * @return Integer < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
      * @see equals()
@@ -3068,8 +3071,8 @@ class BigInteger
      * $max->random($min)
      *
      * @param \phpseclib\Math\BigInteger $arg1
-     * @param optional \phpseclib\Math\BigInteger $arg2
-     * @return \phpseclib\Math\BigInteger
+     * @param boolean|\phpseclib\Math\BigInteger $arg2 Optional
+     * @return boolean|\phpseclib\Math\BigInteger
      * @access public
      * @internal The API for creating random numbers used to be $a->random($min, $max), where $a was a BigInteger object.
      *           That method is still supported for BC purposes.
@@ -3149,9 +3152,9 @@ class BigInteger
      * give up and return false.
      *
      * @param \phpseclib\Math\BigInteger $arg1
-     * @param optional \phpseclib\Math\BigInteger $arg2
-     * @param optional Integer $timeout
-     * @return Mixed
+     * @param boolean|\phpseclib\Math\BigInteger $arg2 Optional. Defaults to false.
+     * @param boolean|integer $timeout Optional. Defaults to false.
+     * @return boolean|\phpseclib\Math\BigInteger
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
      */

@@ -665,7 +665,7 @@ class SSH2
     /**
      * Time of first network activity
      *
-     * @var Integer
+     * @var float Value comes from microtime(true)
      * @access private
      */
     var $last_packet;
@@ -1913,7 +1913,7 @@ class SSH2
      * See {@link http://tools.ietf.org/html/rfc4256 RFC4256} for details.  This is not a full-featured keyboard-interactive authenticator.
      *
      * @param String $username
-     * @param String $password
+     * @param String|array $password
      * @return Boolean
      * @access private
      */
@@ -2607,7 +2607,7 @@ class SSH2
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
      * @see \phpseclib\Net\SSH2::_send_binary_packet()
-     * @return String
+     * @return String|boolean
      * @access private
      */
     function _get_binary_packet()
@@ -2700,7 +2700,7 @@ class SSH2
      * Because some binary packets need to be ignored...
      *
      * @see \phpseclib\Net\SSH2::_get_binary_packet()
-     * @return String
+     * @return String|boolean
      * @access private
      */
     function _filter($payload)

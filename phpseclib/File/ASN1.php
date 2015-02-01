@@ -474,7 +474,7 @@ class ASN1
      * @param Array $decoded
      * @param Array $mapping
      * @param Array $special
-     * @return Array
+     * @return \phpseclib\File\ASN1\Element|array|string|null
      * @access public
      */
     function asn1map($decoded, $mapping, $special = array())
@@ -763,7 +763,7 @@ class ASN1
      *
      * "Special" mappings can be applied via $special.
      *
-     * @param String $source
+     * @param mixed $source
      * @param String $mapping
      * @param Integer $idx
      * @return String
@@ -778,10 +778,10 @@ class ASN1
     /**
      * ASN.1 Encode (Helper function)
      *
-     * @param String $source
+     * @param mixed $source
      * @param String $mapping
      * @param Integer $idx
-     * @return String
+     * @return String|boolean
      * @access private
      */
     function _encode_der($source, $mapping, $idx = null, $special = array())

@@ -1126,6 +1126,8 @@ class Rijndael extends Base
             $init_encrypt = '';
             $init_decrypt = '';
         } else {
+            $w = array();
+            $dw = array();
             for ($i = 0, $cw = count($this->w); $i < $cw; ++$i) {
                 $w[]  = '$w['  . $i . ']';
                 $dw[] = '$dw[' . $i . ']';

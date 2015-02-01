@@ -180,7 +180,7 @@ class X509
     /**
      * Distinguished Name
      *
-     * @var Array
+     * @var Array|null
      * @access private
      */
     var $dn;
@@ -188,7 +188,7 @@ class X509
     /**
      * Public key
      *
-     * @var String
+     * @var \phpseclib\Crypt\RSA
      * @access private
      */
     var $publicKey;
@@ -196,7 +196,7 @@ class X509
     /**
      * Private key
      *
-     * @var String
+     * @var \phpseclib\Crypt\RSA
      * @access private
      */
     var $privateKey;
@@ -248,7 +248,7 @@ class X509
     /**
      * Certificate End Date
      *
-     * @var String
+     * @var String|\phpseclib\File\ASN1\Element
      * @access private
      */
     var $endDate;
@@ -256,7 +256,7 @@ class X509
     /**
      * Serial Number
      *
-     * @var String
+     * @var \phpseclib\Math\BigInteger
      * @access private
      */
     var $serialNumber;
@@ -1429,7 +1429,7 @@ class X509
         $cert = $this->_extractBER($cert);
 
         if ($cert === false) {
-            $this->currentCert = false;
+            unset($this->currentCert);
             return false;
         }
 
@@ -1440,7 +1440,7 @@ class X509
             $x509 = $asn1->asn1map($decoded[0], $this->Certificate);
         }
         if (!isset($x509) || $x509 === false) {
-            $this->currentCert = false;
+            unset($this->currentCert);
             return false;
         }
 
@@ -2440,7 +2440,7 @@ class X509
      * @param Mixed $format optional
      * @param Array $dn optional
      * @access public
-     * @return Boolean
+     * @return Boolean|string|array
      */
     function getDN($format = self::DN_ARRAY, $dn = null)
     {
@@ -2716,9 +2716,7 @@ class X509
     /**
      * Set public key
      *
-     * Key needs to be a \phpseclib\Crypt\RSA object
-     *
-     * @param Object $key
+     * @param \phpseclib\Crypt\RSA $key
      * @access public
      * @return Boolean
      */
@@ -2731,9 +2729,7 @@ class X509
     /**
      * Set private key
      *
-     * Key needs to be a \phpseclib\Crypt\RSA object
-     *
-     * @param Object $key
+     * @param \phpseclib\Crypt\RSA $key
      * @access public
      */
     function setPrivateKey($key)
@@ -2757,10 +2753,8 @@ class X509
     /**
      * Gets the public key
      *
-     * Returns a \phpseclib\Crypt\RSA object or a false.
-     *
      * @access public
-     * @return Mixed
+     * @return \phpseclib\Crypt\RSA|false
      */
     function getPublicKey()
     {
@@ -2825,7 +2819,7 @@ class X509
         $orig = $csr;
 
         if ($csr === false) {
-            $this->currentCert = false;
+            unset($this->currentCert);
             return false;
         }
 
@@ -2833,13 +2827,13 @@ class X509
         $decoded = $asn1->decodeBER($csr);
 
         if (empty($decoded)) {
-            $this->currentCert = false;
+            unset($this->currentCert);
             return false;
         }
 
         $csr = $asn1->asn1map($decoded[0], $this->CertificationRequest);
         if (!isset($csr) || $csr === false) {
-            $this->currentCert = false;
+            unset($this->currentCert);
             return false;
         }
 
@@ -2950,7 +2944,7 @@ class X509
         $orig = $spkac;
 
         if ($spkac === false) {
-            $this->currentCert = false;
+            unset($this->currentCert);
             return false;
         }
 
@@ -2958,14 +2952,14 @@ class X509
         $decoded = $asn1->decodeBER($spkac);
 
         if (empty($decoded)) {
-            $this->currentCert = false;
+            unset($this->currentCert);
             return false;
         }
 
         $spkac = $asn1->asn1map($decoded[0], $this->SignedPublicKeyAndChallenge);
 
         if (!isset($spkac) || $spkac === false) {
-            $this->currentCert = false;
+            unset($this->currentCert);
             return false;
         }
 
@@ -3055,7 +3049,7 @@ class X509
         $orig = $crl;
 
         if ($crl === false) {
-            $this->currentCert = false;
+            unset($this->currentCert);
             return false;
         }
 
@@ -3063,13 +3057,13 @@ class X509
         $decoded = $asn1->decodeBER($crl);
 
         if (empty($decoded)) {
-            $this->currentCert = false;
+            unset($this->currentCert);
             return false;
         }
 
         $crl = $asn1->asn1map($decoded[0], $this->CertificateList);
         if (!isset($crl) || $crl === false) {
-            $this->currentCert = false;
+            unset($this->currentCert);
             return false;
         }
 
@@ -3661,7 +3655,7 @@ class X509
      * Set Serial Number
      *
      * @param String $serial
-     * @param $base optional
+     * @param Integer $base
      * @access public
      */
     function setSerialNumber($serial, $base = -256)
@@ -3686,24 +3680,22 @@ class X509
      * @param String $path  absolute path with / as component separator
      * @param Boolean $create optional
      * @access private
-     * @return array item ref or false
+     * @return array|boolean
      */
     function &_subArray(&$root, $path, $create = false)
     {
-        $false = false;
-
         if (!is_array($root)) {
-            return $false;
+            return false;
         }
 
         foreach (explode('/', $path) as $i) {
             if (!is_array($root)) {
-                return $false;
+                return false;
             }
 
             if (!isset($root[$i])) {
                 if (!$create) {
-                    return $false;
+                    return false;
                 }
 
                 $root[$i] = array();

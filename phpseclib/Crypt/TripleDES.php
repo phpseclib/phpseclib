@@ -286,7 +286,7 @@ class TripleDES extends DES
      * @see \phpseclib\Crypt\Base::decrypt()
      * @access public
      * @param String $ciphertext
-     * @return String $plaintext
+     * @return String|boolean $plaintext
      */
     function decrypt($ciphertext)
     {
