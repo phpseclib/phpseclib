@@ -16,8 +16,9 @@ $iterator = Symfony\Component\Finder\Finder::create()
 ;
 
 $versions = Sami\Version\GitVersionCollection::create(__DIR__ . '/../')
+    ->add('1.0')
+    ->add('2.0')
     ->add('master')
-    ->add('php5')
 ;
 
 return new Sami\Sami($iterator, array(
