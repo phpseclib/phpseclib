@@ -351,21 +351,6 @@ class System_SSH_Agent
     }
 
     /**
-     * Request the remote server to stop forwarding authentication requests to the local SSH agent
-     *
-     * @param Net_SSH2 $ssh
-     * @return Boolean
-     * @access public
-     */
-    function stopSSHForwarding($ssh)
-    {
-        if ($this->request_forwarding) {
-            $ssh->_close_channel(NET_SSH2_CHANNEL_AGENT_FORWARD);
-            $this->request_forwarding = false;
-        }
-    }
-
-    /**
      * The worker function to make a request to a remote server
      * asking it to forward authentication requests to the local SSH
      * agent
