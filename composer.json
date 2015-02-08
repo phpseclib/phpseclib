@@ -63,10 +63,5 @@
         "psr-4": {
             "phpseclib\\": "phpseclib/"
         }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-php5": "2.0-dev"
-        }
     }
 }
