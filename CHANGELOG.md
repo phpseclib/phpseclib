@@ -2,7 +2,7 @@
 
 ## 0.3.10 - 2015-02-04
 
-- simplify window size handling ([#538](https://github.com/phpseclib/phpseclib/pull/538))
+- simplify SSH2 window size handling ([#538](https://github.com/phpseclib/phpseclib/pull/538))
 - slightly relax the conditions under which OpenSSL is used ([#598](https://github.com/phpseclib/phpseclib/pull/598))
 - fix issue with empty constructed context-specific tags in ASN1 ([#606](https://github.com/phpseclib/phpseclib/pull/606))
 
