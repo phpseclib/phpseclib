@@ -2,7 +2,7 @@
 
 /**
  * @author    Andreas Fischer <bantu@phpbb.com>
- * @copyright MMXIV Andreas Fischer
+ * @copyright 2014 Andreas Fischer
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
@@ -14,12 +14,6 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
     static public function setUpBeforeClass()
     {
-        if (getenv('TRAVIS') && version_compare(PHP_VERSION, '5.3.3', '<=')) {
-            self::markTestIncomplete(
-                'This test hangs on Travis CI on PHP 5.3.3 and below.'
-            );
-        }
-
         parent::setUpBeforeClass();
 
         self::$scratchDir = uniqid('phpseclib-sftp-scratch-');
@@ -430,6 +424,20 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
     /**
     * @depends testFileExistsIsFileIsDirDir
+    */
+    public function testTruncateLargeFile($sftp)
+    {
+        $filesize = (4 * 1024 + 16) * 1024 * 1024;
+        $filename = 'file-large-from-truncate-4112MiB.txt';
+        $this->assertTrue($sftp->touch($filename));
+        $this->assertTrue($sftp->truncate($filename, $filesize));
+        $this->assertSame($filesize, $sftp->size($filename));
+
+        return $sftp;
+    }
+
+    /**
+    * @depends testTruncateLargeFile
     */
     public function testRmDirScratch($sftp)
     {

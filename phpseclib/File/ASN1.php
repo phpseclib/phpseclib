@@ -34,7 +34,7 @@
  * @category  File
  * @package   File_ASN1
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright MMXII Jim Wigginton
+ * @copyright 2012 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
@@ -347,24 +347,31 @@ class File_ASN1
             case FILE_ASN1_CLASS_APPLICATION:
             case FILE_ASN1_CLASS_PRIVATE:
             case FILE_ASN1_CLASS_CONTEXT_SPECIFIC:
-                if ($constructed) {
+                if (!$constructed) {
+                    return array(
+                        'type'     => $class,
+                        'constant' => $tag,
+                        'content'  => $content,
+                        'length'   => $length + $start - $current['start']
+                    );
+                }
+
+                $newcontent = array();
+                if (strlen($content)) {
                     $newcontent = $this->_decode_ber($content, $start);
                     $length = $newcontent['length'];
                     if (substr($content, $length, 2) == "\0\0") {
                         $length+= 2;
                     }
-
-                    // the array encapsulation is for BC with the old format
-                    $content = array($newcontent);
+                    $start+= $length;
+                    $newcontent = array($newcontent);
                 }
-
-                $start+= $length;
 
                 return array(
                     'type'     => $class,
                     'constant' => $tag,
                     // the array encapsulation is for BC with the old format
-                    'content'  => $content,
+                    'content'  => $newcontent,
                     // the only time when $content['headerlength'] isn't defined is when the length is indefinite.
                     // the absence of $content['headerlength'] is how we know if something is indefinite or not.
                     // technically, it could be defined to be 2 and then another indicator could be used but whatever.
