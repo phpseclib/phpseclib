@@ -121,26 +121,11 @@ define('CRYPT_DES_MODE_CFB', CRYPT_MODE_CFB);
 define('CRYPT_DES_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
-/**#@+
- * @access private
- * @see Crypt_Base::Crypt_Base()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_DES_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_DES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of DES.
  *
  * @package Crypt_DES
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.1
  * @access  public
  */
 class Crypt_DES extends Crypt_Base

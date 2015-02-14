@@ -70,20 +70,6 @@ if (!class_exists('Crypt_Base')) {
 }
 
 /**#@+
- * @access public
- * @see Crypt_RC4::Crypt_RC4()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_RC4_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RC4_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
-/**#@+
  * @access private
  * @see Crypt_RC4::_crypt()
  */
@@ -96,7 +82,6 @@ define('CRYPT_RC4_DECRYPT', 1);
  *
  * @package Crypt_RC4
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.1
  * @access  public
  */
 class Crypt_RC4 extends Crypt_Base
@@ -231,7 +216,7 @@ class Crypt_RC4 extends Crypt_Base
      */
     function encrypt($plaintext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->engine != CRYPT_ENGINE_INTERNAL) {
             return parent::encrypt($plaintext);
         }
         return $this->_crypt($plaintext, CRYPT_RC4_ENCRYPT);
@@ -251,7 +236,7 @@ class Crypt_RC4 extends Crypt_Base
      */
     function decrypt($ciphertext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->engine != CRYPT_ENGINE_INTERNAL) {
             return parent::decrypt($ciphertext);
         }
         return $this->_crypt($ciphertext, CRYPT_RC4_DECRYPT);

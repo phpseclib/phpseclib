@@ -99,25 +99,10 @@ define('CRYPT_RC2_MODE_CFB', CRYPT_MODE_CFB);
 define('CRYPT_RC2_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
-/**#@+
- * @access public
- * @see Crypt_RC2::Crypt_RC2()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_RC2_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RC2_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of RC2.
  *
  * @package Crypt_RC2
- * @version 0.1.2
  * @access  public
  */
 class Crypt_RC2 extends Crypt_Base
@@ -507,7 +492,7 @@ class Crypt_RC2 extends Crypt_Base
     }
 
     /**
-     * Setup the CRYPT_MODE_MCRYPT $engine
+     * Setup the CRYPT_ENGINE_MCRYPT $engine
      *
      * @see Crypt_Base::_setupMcrypt()
      * @access private

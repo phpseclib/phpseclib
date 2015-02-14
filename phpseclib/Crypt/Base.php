@@ -56,7 +56,7 @@
  * @access private
  * @see Crypt_Base::encrypt()
  * @see Crypt_Base::decrypt()
- * @internal This constants are for internal usage only
+ * @internal This constants are for internal use only
  */
 /**
  * Encrypt / decrypt using the Counter mode.
@@ -100,16 +100,16 @@ define('CRYPT_MODE_STREAM', 5);
 /**#@+
  * @access private
  * @see Crypt_Base::Crypt_Base()
- * @internal This constants are for internal usage only
+ * @internal This constants are for internal use only
  */
 /**
  * Base value for the internal implementation $engine switch
  */
-define('CRYPT_MODE_INTERNAL', 1);
+define('CRYPT_ENGINE_INTERNAL', 1);
 /**
  * Base value for the mcrypt implementation $engine switch
  */
-define('CRYPT_MODE_MCRYPT', 2);
+define('CRYPT_ENGINE_MCRYPT', 2);
 /**#@-*/
 
 /**
@@ -118,7 +118,6 @@ define('CRYPT_MODE_MCRYPT', 2);
  * @package Crypt_Base
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
- * @version 1.0.1
  * @access  public
  */
 class Crypt_Base
@@ -274,7 +273,7 @@ class Crypt_Base
      * Optimizing value while CFB-encrypting
      *
      * Only relevant if $continuousBuffer enabled
-     * and $engine == CRYPT_MODE_MCRYPT
+     * and $engine == CRYPT_ENGINE_MCRYPT
      *
      * It's faster to re-init $enmcrypt if
      * $buffer bytes > $cfb_init_len than
@@ -326,15 +325,10 @@ class Crypt_Base
      * which will be determined automatically on __construct()
      *
      * Currently available $engines are:
-     * - CRYPT_MODE_MCRYPT   (fast, php-extension: mcrypt, extension_loaded('mcrypt') required)
-     * - CRYPT_MODE_INTERNAL (slower, pure php-engine, no php-extension required)
+     * - CRYPT_ENGINE_MCRYPT   (fast, php-extension: mcrypt, extension_loaded('mcrypt') required)
+     * - CRYPT_ENGINE_INTERNAL (slower, pure php-engine, no php-extension required)
      *
-     * In the pipeline... maybe. But currently not available:
-     * - CRYPT_MODE_OPENSSL  (very fast, php-extension: openssl, extension_loaded('openssl') required)
-     *
-     * If possible, CRYPT_MODE_MCRYPT will be used for each cipher.
-     * Otherwise CRYPT_MODE_INTERNAL
-     *
+     * @see Crypt_Base::_setEngine()
      * @see Crypt_Base::encrypt()
      * @see Crypt_Base::decrypt()
      * @var Integer
@@ -343,9 +337,19 @@ class Crypt_Base
     var $engine;
 
     /**
+     * Holds the preferred crypt engine
+     *
+     * @see Crypt_Base::_setEngine()
+     * @see Crypt_Base::setPreferredEngine()
+     * @var Integer
+     * @access private
+     */
+    var $preferredEngine;
+
+    /**
      * The mcrypt specific name of the cipher
      *
-     * Only used if $engine == CRYPT_MODE_MCRYPT
+     * Only used if $engine == CRYPT_ENGINE_MCRYPT
      *
      * @link http://www.php.net/mcrypt_module_open
      * @link http://www.php.net/mcrypt_list_algorithms
@@ -400,7 +404,7 @@ class Crypt_Base
      * The name of the performance-optimized callback function
      *
      * Used by encrypt() / decrypt()
-     * only if $engine == CRYPT_MODE_INTERNAL
+     * only if $engine == CRYPT_ENGINE_INTERNAL
      *
      * @see Crypt_Base::encrypt()
      * @see Crypt_Base::decrypt()
@@ -448,20 +452,11 @@ class Crypt_Base
      */
     function Crypt_Base($mode = CRYPT_MODE_CBC)
     {
-        $const_crypt_mode = 'CRYPT_' . $this->const_namespace . '_MODE';
-
-        // Setup the internal crypt engine
-        if (defined($const_crypt_mode)) {
-            $this->engine = constant($const_crypt_mode);
-        } else {
-            define($const_crypt_mode, $this->setEngine());
-        }
-
         // $mode dependent settings
         switch ($mode) {
             case CRYPT_MODE_ECB:
                 $this->paddable = true;
-                $this->mode = $mode;
+                $this->mode = CRYPT_MODE_ECB;
                 break;
             case CRYPT_MODE_CTR:
             case CRYPT_MODE_CFB:
@@ -474,6 +469,8 @@ class Crypt_Base
                 $this->paddable = true;
                 $this->mode = CRYPT_MODE_CBC;
         }
+
+        $this->_setEngine();
 
         // Determining whether inline crypting can be used by the cipher
         if ($this->use_inline_crypt !== false && function_exists('create_function')) {
@@ -489,7 +486,7 @@ class Crypt_Base
      *
      * @access public
      * @param String $iv
-     * @internal Could, but not must, extend by the child Crypt_* class
+     * @internal Can be overwritten by a sub class, but does not have to be
      */
     function setIV($iv)
     {
@@ -519,6 +516,7 @@ class Crypt_Base
     {
         $this->key = $key;
         $this->changed = true;
+        $this->_setEngine();
     }
 
     /**
@@ -631,12 +629,16 @@ class Crypt_Base
      * @see Crypt_Base::decrypt()
      * @access public
      * @param String $plaintext
-     * @return String $cipertext
+     * @return String $ciphertext
      * @internal Could, but not must, extend by the child Crypt_* class
      */
     function encrypt($plaintext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->paddable) {
+            $plaintext = $this->_pad($plaintext);
+        }
+
+        if ($this->engine == CRYPT_ENGINE_MCRYPT) {
             if ($this->changed) {
                 $this->_setupMcrypt();
                 $this->changed = false;
@@ -702,10 +704,6 @@ class Crypt_Base
                 return $ciphertext;
             }
 
-            if ($this->paddable) {
-                $plaintext = $this->_pad($plaintext);
-            }
-
             $ciphertext = mcrypt_generic($this->enmcrypt, $plaintext);
 
             if (!$this->continuousBuffer) {
@@ -722,9 +720,6 @@ class Crypt_Base
         if ($this->use_inline_crypt) {
             $inline = $this->inline_crypt;
             return $inline('encrypt', $this, $plaintext);
-        }
-        if ($this->paddable) {
-            $plaintext = $this->_pad($plaintext);
         }
 
         $buffer = &$this->enbuffer;
@@ -750,13 +745,13 @@ class Crypt_Base
                 break;
             case CRYPT_MODE_CTR:
                 $xor = $this->encryptIV;
-                if (strlen($buffer['encrypted'])) {
+                if (strlen($buffer['ciphertext'])) {
                     for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                         $block = substr($plaintext, $i, $block_size);
-                        if (strlen($block) > strlen($buffer['encrypted'])) {
-                            $buffer['encrypted'].= $this->_encryptBlock($this->_generateXor($xor, $block_size));
+                        if (strlen($block) > strlen($buffer['ciphertext'])) {
+                            $buffer['ciphertext'].= $this->_encryptBlock($this->_generateXor($xor, $block_size));
                         }
-                        $key = $this->_stringShift($buffer['encrypted'], $block_size);
+                        $key = $this->_stringShift($buffer['ciphertext'], $block_size);
                         $ciphertext.= $block ^ $key;
                     }
                 } else {
@@ -769,7 +764,7 @@ class Crypt_Base
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                     if ($start = strlen($plaintext) % $block_size) {
-                        $buffer['encrypted'] = substr($key, $start) . $buffer['encrypted'];
+                        $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                     }
                 }
                 break;
@@ -863,7 +858,12 @@ class Crypt_Base
      */
     function decrypt($ciphertext)
     {
-        if ($this->engine == CRYPT_MODE_MCRYPT) {
+        if ($this->paddable) {
+            // we pad with chr(0) since that's what mcrypt_generic does [...]
+            $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($this->block_size - strlen($ciphertext) % $this->block_size) % $this->block_size, chr(0));
+        }
+
+        if ($this->engine == CRYPT_ENGNINE_MCRYPT) {
             $block_size = $this->block_size;
             if ($this->changed) {
                 $this->_setupMcrypt();
@@ -912,12 +912,6 @@ class Crypt_Base
                 return $plaintext;
             }
 
-            if ($this->paddable) {
-                // we pad with chr(0) since that's what mcrypt_generic does.  to quote from {@link http://www.php.net/function.mcrypt-generic}:
-                // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
-                $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($block_size - strlen($ciphertext) % $block_size) % $block_size, chr(0));
-            }
-
             $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
 
             if (!$this->continuousBuffer) {
@@ -937,10 +931,6 @@ class Crypt_Base
         }
 
         $block_size = $this->block_size;
-        if ($this->paddable) {
-            // we pad with chr(0) since that's what mcrypt_generic does [...]
-            $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($block_size - strlen($ciphertext) % $block_size) % $block_size, chr(0));
-        }
 
         $buffer = &$this->debuffer;
         $plaintext = '';
@@ -1136,6 +1126,8 @@ class Crypt_Base
         }
 
         $this->continuousBuffer = true;
+
+        $this->_setEngine();
     }
 
     /**
@@ -1158,56 +1150,90 @@ class Crypt_Base
 
         $this->continuousBuffer = false;
         $this->changed = true;
+
+        $this->_setEngine();
     }
 
     /**
-     * Sets the internal crypt engine
+     * Test for engine validity
      *
-     * Will be called automatically on "__construct()", so normally it's not 
-     * necessary to call setEngine() manually, but ie for debuging or testing.
+     * @see Crypt_Base::Crypt_Base()
+     * @param Integer $engine
+     * @access public
+     * @return Boolean
+     */
+    function isValidEngine($engine)
+    {
+        switch ($engine) {
+            case CRYPT_ENGINE_MCRYPT:
+                return $this->cipher_name_mcrypt &&
+                       extension_loaded('mcrypt') &&
+                       in_array($this->cipher_name_mcrypt, mcrypt_list_algorithms());
+            case CRYPT_ENGINE_INTERNAL:
+                return true;
+        }
+    }
+
+    /**
+     * Sets the preferred crypt engine
      *
      * Currently, $engine could be:
      *
-     * - CRYPT_MODE_MCRYPT   [fast]
+     * - CRYPT_ENGINE_MCRYPT   [fast]
      *
-     * - CRYPT_MODE_INTERNAL [slow]
+     * - CRYPT_ENGINE_INTERNAL [slow]
      *
-     * Respectivly the officially alias constants of the choosen cipher, 
-     * ie for AES: CRYPT_AES_MODE_MCRYPT or CRYPT_AES_MODE_INTERNAL
-     *
-     * If $engine is not explictly set, the fastest available $engine 
-     * will be set (currently: CRYPT_MODE_MCRYPT)
-     *
-     * If $engine == CRYPT_MODE_MCRYPT but the mcrypt extension is not loaded/available it 
-     * will be set the next available fastest $engine (currently: CRYPT_MODE_INTERNAL)
-     *
-     * If called, all internal buffers and cipher states will be reset, so, 
-     * for example, switching the $engine while enableContinuousBuffer() will 
-     * reset the ContinuousBuffer's.
-     *
-     * setEngine() returns always the $engine which was effectively set.
+     * If the preferred crypt engine is not available the fastest available one will be used
      *
      * @see Crypt_Base::Crypt_Base()
-     * @param optional Integer $engine
+     * @param Integer $engine
      * @access public
-     * @return Integer
-     * @internal Could, but not must, extend by the child Crypt_* class
      */
-    function setEngine($engine = CRYPT_MODE_MCRYPT)
+    function setPreferredEngine($engine)
     {
         switch ($engine) {
-            case CRYPT_MODE_INTERNAL:
-                $this->engine = CRYPT_MODE_INTERNAL;
+            //case CRYPT_ENGINE_MCRYPT:
+            case CRYPT_ENGINE_INTERNAL:
+                $this->preferredEngine = $engine;
                 break;
             default:
-                if ($this->cipher_name_mcrypt && extension_loaded('mcrypt') && in_array($this->cipher_name_mcrypt, mcrypt_list_algorithms())) {
-                    $this->engine = CRYPT_MODE_MCRYPT;
-                } else {
-                    $this->engine = CRYPT_MODE_INTERNAL;
-                }
+                $this->preferredEngine = CRYPT_ENGINE_MCRYPT;
         }
 
-        if ($this->enmcrypt) {
+        $this->_setEngine();
+    }
+
+    /**
+     * Returns the engine currently being utilized
+     *
+     * @see Crypt_Base::_setEngine()
+     * @access public
+     */
+    function getEngine()
+    {
+        return $this->engine;
+    }
+
+    /**
+     * Sets the engine as appropriate
+     *
+     * @see Crypt_Base::Crypt_Base()
+     * @access private
+     */
+    function _setEngine()
+    {
+        switch (true) {
+            case $this->isValidEngine($this->preferredEngine):
+                $this->engine = $this->preferredEngine;
+                break;
+            case $this->isValidEngine(CRYPT_ENGINE_MCRYPT):
+                $this->engine = CRYPT_ENGINE_MCRYPT;
+                break;
+            default:
+                $this->engine = CRYPT_ENGINE_INTERNAL;
+        }
+
+        if ($this->engine != CRYPT_ENGINE_MCRYPT && $this->enmcrypt) {
             // Closing the current mcrypt resource(s). _mcryptSetup() will, if needed,
             // (re)open them with the module named in $this->cipher_name_mcrypt
             mcrypt_module_close($this->enmcrypt);
@@ -1222,7 +1248,6 @@ class Crypt_Base
         }
 
         $this->changed = true;
-        return $this->engine;
     }
 
     /**
@@ -1254,7 +1279,7 @@ class Crypt_Base
     /**
      * Setup the key (expansion)
      *
-     * Only used if $engine == CRYPT_MODE_INTERNAL
+     * Only used if $engine == CRYPT_ENGINE_INTERNAL
      *
      * @see Crypt_Base::_setup()
      * @access private
@@ -1266,10 +1291,10 @@ class Crypt_Base
     }
 
     /**
-     * Setup the CRYPT_MODE_INTERNAL $engine
+     * Setup the CRYPT_ENGINE_INTERNAL $engine
      *
      * (re)init, if necessary, the internal cipher $engine and flush all $buffers
-     * Used (only) if $engine == CRYPT_MODE_INTERNAL
+     * Used (only) if $engine == CRYPT_ENGINE_INTERNAL
      *
      * _setup() will be called each time if $changed === true
      * typically this happens when using one or more of following public methods:
@@ -1300,10 +1325,10 @@ class Crypt_Base
     }
 
     /**
-     * Setup the CRYPT_MODE_MCRYPT $engine
+     * Setup the CRYPT_ENGINE_MCRYPT $engine
      *
      * (re)init, if necessary, the (ext)mcrypt resources and flush all $buffers
-     * Used (only) if $engine = CRYPT_MODE_MCRYPT
+     * Used (only) if $engine = CRYPT_ENGINE_MCRYPT
      *
      * _setupMcrypt() will be called each time if $changed === true
      * typically this happens when using one or more of following public methods:
@@ -1425,8 +1450,7 @@ class Crypt_Base
      */
     function _clearBuffers()
     {
-        $this->enbuffer = array('encrypted'  => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true);
-        $this->debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0, 'demcrypt_init' => true);
+        $this->enbuffer = $this->debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true);
 
         // mcrypt's handling of invalid's $iv:
         // $this->encryptIV = $this->decryptIV = strlen($this->iv) == $this->block_size ? $this->iv : str_repeat("\0", $this->block_size);
@@ -1500,7 +1524,7 @@ class Crypt_Base
      *
      *     _setupInlineCrypt() would be called only if:
      *
-     *     - $engine == CRYPT_MODE_INTERNAL and
+     *     - $engine == CRYPT_ENGINE_INTERNAL and
      *
      *     - $use_inline_crypt === true
      *
@@ -1691,7 +1715,6 @@ class Crypt_Base
             case CRYPT_MODE_ECB:
                 $encrypt = $init_encrypt . '
                     $_ciphertext = "";
-                    $_text = $self->_pad($_text);
                     $_plaintext_len = strlen($_text);
 
                     for ($_i = 0; $_i < $_plaintext_len; $_i+= '.$block_size.') {
@@ -1723,16 +1746,15 @@ class Crypt_Base
                     $_plaintext_len = strlen($_text);
                     $_xor = $self->encryptIV;
                     $_buffer = &$self->enbuffer;
-
-                    if (strlen($_buffer["encrypted"])) {
+                    if (strlen($_buffer["ciphertext"])) {
                         for ($_i = 0; $_i < $_plaintext_len; $_i+= '.$block_size.') {
                             $_block = substr($_text, $_i, '.$block_size.');
-                            if (strlen($_block) > strlen($_buffer["encrypted"])) {
+                            if (strlen($_block) > strlen($_buffer["ciphertext"])) {
                                 $in = $self->_generateXor($_xor, '.$block_size.');
                                 '.$encrypt_block.'
                                 $_buffer["encrypted"].= $in;
                             }
-                            $_key = $self->_stringShift($_buffer["encrypted"], '.$block_size.');
+                            $_key = $self->_stringShift($_buffer["ciphertext"], '.$block_size.');
                             $_ciphertext.= $_block ^ $_key;
                         }
                     } else {
@@ -1747,7 +1769,7 @@ class Crypt_Base
                     if ($self->continuousBuffer) {
                         $self->encryptIV = $_xor;
                         if ($_start = $_plaintext_len % '.$block_size.') {
-                            $_buffer["encrypted"] = substr($_key, $_start) . $_buffer["encrypted"];
+                            $_buffer["ciphertext"] = substr($_key, $_start) . $_buffer["ciphertext"];
                         }
                     }
 
@@ -1978,7 +2000,6 @@ class Crypt_Base
             default:
                 $encrypt = $init_encrypt . '
                     $_ciphertext = "";
-                    $_text = $self->_pad($_text);
                     $_plaintext_len = strlen($_text);
 
                     $in = $self->encryptIV;
@@ -2058,7 +2079,7 @@ class Crypt_Base
             define('CRYPT_BASE_WHIRLPOOL_AVAILABLE', (bool)(extension_loaded('hash') && in_array('whirlpool', hash_algos())));
         }
 
-        // return pack('H*', md5($bytes) . sha1($bytes) . (CRYPT_BASE_WHIRLPOOL_AVAILABLE ? hash('whirlpool', $bytes) : '')); // Alternativ
+        // return pack('H*', md5($bytes) . sha1($bytes) . (CRYPT_BASE_WHIRLPOOL_AVAILABLE ? hash('whirlpool', $bytes) : '')); // Alternative
 
         $result = '';
         $hash = $bytes;

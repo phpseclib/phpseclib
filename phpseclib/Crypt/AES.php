@@ -111,26 +111,11 @@ define('CRYPT_AES_MODE_CFB', CRYPT_MODE_CFB);
 define('CRYPT_AES_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
-/**#@+
- * @access private
- * @see Crypt_Base::Crypt_Base()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_AES_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_AES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of AES.
  *
  * @package Crypt_AES
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.1.1
  * @access  public
  */
 class Crypt_AES extends Crypt_Rijndael
@@ -206,7 +191,7 @@ class Crypt_AES extends Crypt_Rijndael
                 default:
                     $this->key_size = 32;
             }
-            $this->_setupEngine();
+            $this->_setEngine();
         }
     }
 }
