@@ -116,7 +116,6 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         $engines = array(
             CRYPT_ENGINE_INTERNAL => 'internal',
             CRYPT_ENGINE_MCRYPT => 'mcrypt',
-            CRYPT_ENGINE_OPENSSL => 'OpenSSL',
         );
 
         // tests from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf
