@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.10 - 2015-02-04
+
+- simplify SSH2 window size handling ([#538](https://github.com/phpseclib/phpseclib/pull/538))
+- slightly relax the conditions under which OpenSSL is used ([#598](https://github.com/phpseclib/phpseclib/pull/598))
+- fix issue with empty constructed context-specific tags in ASN1 ([#606](https://github.com/phpseclib/phpseclib/pull/606))
+
 ## 0.3.9 - 2014-11-09
 
 - PHP 5.6 improvements ([#482](https://github.com/phpseclib/phpseclib/pull/482), [#491](https://github.com/phpseclib/phpseclib/issues/491))
