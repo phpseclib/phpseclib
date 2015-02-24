@@ -523,10 +523,10 @@ class Crypt_Blowfish extends Crypt_Base
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one.
         $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
-        // Generation of a uniqe hash for our generated code
+        // Generation of a unique hash for our generated code
         $code_hash = "Crypt_Blowfish, {$this->mode}";
         if ($gen_hi_opt_code) {
-            $code_hash = str_pad($code_hash, 32) . $this->_trapdoor($this->key);
+            $code_hash = str_pad($code_hash, 32) . $this->_hashInlineCryptFunction($this->key);
         }
 
         if (!isset($lambda_functions[$code_hash])) {
