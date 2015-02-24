@@ -53,7 +53,7 @@
  */
 
 /**#@+
- * @access private
+ * @access public
  * @see Crypt_Base::encrypt()
  * @see Crypt_Base::decrypt()
  * @internal This constants are for internal use only
@@ -1587,6 +1587,8 @@ class Crypt_Base
             case CRYPT_ENGINE_INTERNAL:
                 return true;
         }
+
+        return false;
     }
 
     /**
@@ -1640,18 +1642,21 @@ class Crypt_Base
      */
     function _setEngine()
     {
-        switch (true) {
-            case $this->isValidEngine($this->preferredEngine):
+        $this->engine = null;
+
+        $candidateEngines = array(
+            $this->preferredEngine,
+            CRYPT_ENGINE_MCRYPT,
+            CRYPT_ENGINE_OPENSSL
+        );
+        foreach ($candidateEngines as $engine) {
+            if ($this->isValidEngine($engine)) {
                 $this->engine = $this->preferredEngine;
                 break;
-            case $this->isValidEngine(CRYPT_ENGINE_OPENSSL):
-                $this->engine = CRYPT_ENGINE_OPENSSL;
-                break;
-            case $this->isValidEngine(CRYPT_ENGINE_MCRYPT):
-                $this->engine = CRYPT_ENGINE_MCRYPT;
-                break;
-            default:
-                $this->engine = CRYPT_ENGINE_INTERNAL;
+            }
+        }
+        if (!$this->engine) {
+            $this->engine = CRYPT_ENGINE_INTERNAL;
         }
 
         if ($this->engine != CRYPT_ENGINE_MCRYPT && $this->enmcrypt) {
@@ -1732,7 +1737,7 @@ class Crypt_Base
      * @see setIV()
      * @see disableContinuousBuffer()
      * @access private
-     * @internal _setup() is called always before(!) en/decryption.
+     * @internal _setup() is always called before en/decryption.
      * @internal Could, but not must, extend by the child Crypt_* class
      */
     function _setup()
@@ -2512,13 +2517,11 @@ class Crypt_Base
      * @param $bytes
      * @return String
      */
-    function _trapdoor($bytes)
+    function _hashInlineCryptFunction($bytes)
     {
         if (!defined('CRYPT_BASE_WHIRLPOOL_AVAILABLE')) {
             define('CRYPT_BASE_WHIRLPOOL_AVAILABLE', (bool)(extension_loaded('hash') && in_array('whirlpool', hash_algos())));
         }
-
-        // return pack('H*', md5($bytes) . sha1($bytes) . (CRYPT_BASE_WHIRLPOOL_AVAILABLE ? hash('whirlpool', $bytes) : '')); // Alternative
 
         $result = '';
         $hash = $bytes;
