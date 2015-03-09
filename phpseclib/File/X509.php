@@ -1589,7 +1589,7 @@ class File_X509
                             }
                         }
                     }
-                } elseif ($map) {
+                } else {
                     $value = base64_encode($value);
                 }
             }
