@@ -5,6 +5,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib\File\ASN1;
+use phpseclib\File\ASN1\Element;
 use phpseclib\File\X509;
 
 class Unit_File_X509_X509Test extends PhpseclibTestCase
@@ -56,5 +58,68 @@ k6m17mi63YW/+iPCGOWZ2qXmY5HPEyyF2L4L4IDryFJ+8xLyw3pH9/yp5aHZDtp6
         $cert = $x509->loadX509($test);
 
         $this->assertEquals('MDUwDgYIKoZIhvcNAwICAgCAMA4GCCqGSIb3DQMEAgIAgDAHBgUrDgMCBzAKBggqhkiG9w0DBw==', $cert['tbsCertificate']['extensions'][8]['extnValue']);
+    }
+
+    public function testSaveUnsupportedExtension()
+    {
+        $x509 = new X509();
+        $cert = $x509->loadX509('-----BEGIN CERTIFICATE-----
+MIIDITCCAoqgAwIBAgIQT52W2WawmStUwpV8tBV9TTANBgkqhkiG9w0BAQUFADBM
+MQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkg
+THRkLjEWMBQGA1UEAxMNVGhhd3RlIFNHQyBDQTAeFw0xMTEwMjYwMDAwMDBaFw0x
+MzA5MzAyMzU5NTlaMGgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlh
+MRYwFAYDVQQHFA1Nb3VudGFpbiBWaWV3MRMwEQYDVQQKFApHb29nbGUgSW5jMRcw
+FQYDVQQDFA53d3cuZ29vZ2xlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkC
+gYEA3rcmQ6aZhc04pxUJuc8PycNVjIjujI0oJyRLKl6g2Bb6YRhLz21ggNM1QDJy
+wI8S2OVOj7my9tkVXlqGMaO6hqpryNlxjMzNJxMenUJdOPanrO/6YvMYgdQkRn8B
+d3zGKokUmbuYOR2oGfs5AER9G5RqeC1prcB6LPrQ2iASmNMCAwEAAaOB5zCB5DAM
+BgNVHRMBAf8EAjAAMDYGA1UdHwQvMC0wK6ApoCeGJWh0dHA6Ly9jcmwudGhhd3Rl
+LmNvbS9UaGF3dGVTR0NDQS5jcmwwKAYDVR0lBCEwHwYIKwYBBQUHAwEGCCsGAQUF
+BwMCBglghkgBhvhCBAEwcgYIKwYBBQUHAQEEZjBkMCIGCCsGAQUFBzABhhZodHRw
+Oi8vb2NzcC50aGF3dGUuY29tMD4GCCsGAQUFBzAChjJodHRwOi8vd3d3LnRoYXd0
+ZS5jb20vcmVwb3NpdG9yeS9UaGF3dGVfU0dDX0NBLmNydDANBgkqhkiG9w0BAQUF
+AAOBgQAhrNWuyjSJWsKrUtKyNGadeqvu5nzVfsJcKLt0AMkQH0IT/GmKHiSgAgDp
+ulvKGQSy068Bsn5fFNum21K5mvMSf3yinDtvmX3qUA12IxL/92ZzKbeVCq3Yi7Le
+IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
+-----END CERTIFICATE-----');
+
+        $asn1 = new ASN1();
+
+        $value = $this->encodeOID('1.2.3.4');
+        $ext = chr(ASN1::TYPE_OBJECT_IDENTIFIER) . $asn1->_encodeLength(strlen($value)) . $value;
+        $value = 'zzzzzzzzz';
+        $ext.= chr(ASN1::TYPE_OCTET_STRING) . $asn1->_encodeLength(strlen($value)) . $value;
+        $ext = chr(ASN1::TYPE_SEQUENCE | 0x20) . $asn1->_encodeLength(strlen($ext)) . $ext;
+
+        $cert['tbsCertificate']['extensions'][4] = new Element($ext);
+
+        $result = $x509->loadX509($x509->saveX509($cert));
+
+        $this->assertCount(5, $result['tbsCertificate']['extensions']);
+    }
+
+    function encodeOID($oid)
+    {
+        if ($oid === false) {
+            user_error('Invalid OID');
+            return false;
+        }
+        $value = '';
+        $parts = explode('.', $oid);
+        $value = chr(40 * $parts[0] + $parts[1]);
+        for ($i = 2; $i < count($parts); $i++) {
+            $temp = '';
+            if (!$parts[$i]) {
+                $temp = "\0";
+            } else {
+                while ($parts[$i]) {
+                    $temp = chr(0x80 | ($parts[$i] & 0x7F)) . $temp;
+                    $parts[$i] >>= 7;
+                }
+                $temp[strlen($temp) - 1] = $temp[strlen($temp) - 1] & chr(0x7F);
+            }
+            $value.= $temp;
+        }
+        return $value;
     }
 }

@@ -1591,6 +1591,10 @@ class X509
         if (is_array($extensions)) {
             $size = count($extensions);
             for ($i = 0; $i < $size; $i++) {
+                if ($extensions[$i] instanceof Element) {
+                    continue;
+                }
+
                 $id = $extensions[$i]['extnId'];
                 $value = &$extensions[$i]['extnValue'];
 
