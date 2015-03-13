@@ -978,7 +978,6 @@ class SSH2
            MUST be able to process such lines." */
         $temp = '';
         $extra = '';
-        stream_set_timeout($this->fsock, $sec, $usec);
         while (!feof($this->fsock) && !preg_match('#^SSH-(\d\.\d+)#', $temp, $matches)) {
             if (substr($temp, -2) == "\r\n") {
                 $extra.= $temp;
@@ -988,7 +987,7 @@ class SSH2
 
             $info = stream_get_meta_data($this->fsock);
             if($info['timed_out']) {
-                user_error('Banner timeout or wrong.');
+                user_error('Banner read timeout or wrong.');
                 return false;
             }
         }
