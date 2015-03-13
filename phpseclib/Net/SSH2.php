@@ -985,12 +985,12 @@ class SSH2
                 $temp = '';
             }
             $temp.= fgets($this->fsock, 255);
-            
+
             $info = stream_get_meta_data($this->fsock);
-	        if($info['timed_out']) {
-		        user_error('Banner timeout or wrong.');
-		        return false;
-	        }
+            if($info['timed_out']) {
+                user_error('Banner timeout or wrong.');
+                return false;
+            }
         }
 
         if (feof($this->fsock)) {
