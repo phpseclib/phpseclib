@@ -1651,7 +1651,7 @@ class Crypt_Base
         );
         foreach ($candidateEngines as $engine) {
             if ($this->isValidEngine($engine)) {
-                $this->engine = $this->preferredEngine;
+                $this->engine = $engine;
                 break;
             }
         }
