@@ -991,8 +991,6 @@ class Net_SSH2
                 $temp = '';
             }
 
-            $read = array($this->fsock);
-
             if ($this->curTimeout) {
                 if ($this->curTimeout < 0) {
                     $this->is_timeout = true;
@@ -1000,7 +998,7 @@ class Net_SSH2
                 }
                 $read = array($this->fsock);
                 $write = $except = null;
-                $start = microtime(true);
+                $start = strtok(microtime(), ' ') + strtok('');
                 $sec = floor($this->curTimeout);
                 $usec = 1000000 * ($this->curTimeout - $sec);
                 // on windows this returns a "Warning: Invalid CRT parameters detected" error
@@ -1009,7 +1007,7 @@ class Net_SSH2
                     $this->is_timeout = true;
                     return false;
                 }
-                $elapsed = microtime(true) - $start;
+                $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
                 $this->curTimeout-= $elapsed;
             }
 
