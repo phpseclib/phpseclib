@@ -170,7 +170,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $iv = str_repeat('x', 16);
         $key = str_repeat('a', 16);
 
-        $aes = new Crypt_AES(constant($mode));
+        $aes = new AES($mode);
         $aes->setPreferredEngine($this->engine);
         $aes->setKey($key);
         $aes->setIV($iv);
@@ -186,7 +186,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $c1 = $aes->$op($str);
 
-        $aes = new Crypt_AES(constant($mode));
+        $aes = new AES($mode);
         $aes->setPreferredEngine($this->engine);
         $aes->enableContinuousBuffer();
         $aes->setKey($key);
@@ -220,7 +220,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $iv = str_repeat('x', 16);
         $key = str_repeat('a', 16);
 
-        $aes = new Crypt_AES(constant($mode));
+        $aes = new AES($mode);
         $aes->setPreferredEngine($this->engine);
         $aes->setKey($key);
         $aes->setIV($iv);
@@ -236,7 +236,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $c1 = $aes->$op($str);
 
-        $aes = new Crypt_AES(constant($mode));
+        $aes = new AES($mode);
         $aes->setPreferredEngine($this->engine);
         $aes->setKey($key);
         $aes->setIV($iv);
@@ -257,7 +257,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     // from http://csrc.nist.gov/groups/STM/cavp/documents/aes/AESAVS.pdf#page=16
     public function testGFSBox128()
     {
-        $aes = new Crypt_AES();
+        $aes = new AES();
 
         $aes->setKey(pack('H*', '00000000000000000000000000000000'));
         $aes->setIV(pack('H*', '00000000000000000000000000000000'));
@@ -284,7 +284,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
     public function testGFSBox192()
     {
-        $aes = new Crypt_AES();
+        $aes = new AES();
 
         $aes->setKey(pack('H*', '000000000000000000000000000000000000000000000000'));
         $aes->setIV(pack('H*', '00000000000000000000000000000000'));
@@ -309,7 +309,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
     public function testGFSBox256()
     {
-        $aes = new Crypt_AES();
+        $aes = new AES();
 
         $aes->setKey(pack('H*', '00000000000000000000000000000000' . '00000000000000000000000000000000'));
         $aes->setIV(pack('H*', '00000000000000000000000000000000'));
