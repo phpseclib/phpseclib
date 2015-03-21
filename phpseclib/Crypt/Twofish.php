@@ -101,20 +101,6 @@ define('CRYPT_TWOFISH_MODE_CFB', CRYPT_MODE_CFB);
 define('CRYPT_TWOFISH_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
-/**#@+
- * @access private
- * @see Crypt_Base::Crypt_Base()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_TWOFISH_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_TWOFISH_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of Twofish.
  *
@@ -754,21 +740,19 @@ class Crypt_Twofish extends Crypt_Base
         $lambda_functions =& Crypt_Twofish::_getLambdaFunctions();
 
         // Max. 10 Ultra-Hi-optimized inline-crypt functions. After that, we'll (still) create very fast code, but not the ultimate fast one.
+        // (Currently, for Crypt_Twofish, one generated $lambda_function cost on php5.5@32bit ~140kb unfreeable mem and ~240kb on php5.5@64bit)
         $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
-        switch (true) {
-            case $gen_hi_opt_code:
-                $code_hash = md5(str_pad("Crypt_Twofish, {$this->mode}, ", 32, "\0") . $this->key);
-                break;
-            default:
-                $code_hash = "Crypt_Twofish, {$this->mode}";
+        // Generation of a uniqe hash for our generated code
+        $code_hash = "Crypt_Twofish, {$this->mode}";
+        if ($gen_hi_opt_code) {
+            $code_hash = str_pad($code_hash, 32) . $this->_hashInlineCryptFunction($this->key);
         }
 
         if (!isset($lambda_functions[$code_hash])) {
             switch (true) {
                 case $gen_hi_opt_code:
                     $K = $this->K;
-
                     $init_crypt = '
                         static $S0, $S1, $S2, $S3;
                         if (!$S0) {
@@ -786,7 +770,6 @@ class Crypt_Twofish extends Crypt_Base
                     for ($i = 0; $i < 40; ++$i) {
                         $K[] = '$K_' . $i;
                     }
-
                     $init_crypt = '
                         $S0 = $self->S0;
                         $S1 = $self->S1;

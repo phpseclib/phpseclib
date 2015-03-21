@@ -121,20 +121,6 @@ define('CRYPT_DES_MODE_CFB', CRYPT_MODE_CFB);
 define('CRYPT_DES_MODE_OFB', CRYPT_MODE_OFB);
 /**#@-*/
 
-/**#@+
- * @access private
- * @see Crypt_Base::Crypt_Base()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_DES_MODE_INTERNAL', CRYPT_MODE_INTERNAL);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_DES_MODE_MCRYPT', CRYPT_MODE_MCRYPT);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of DES.
  *
@@ -1358,21 +1344,20 @@ class Crypt_DES extends Crypt_Base
         $des_rounds = $this->des_rounds;
 
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
+        // (Currently, for Crypt_DES,       one generated $lambda_function cost on php5.5@32bit ~135kb unfreeable mem and ~230kb on php5.5@64bit)
+        // (Currently, for Crypt_TripleDES, one generated $lambda_function cost on php5.5@32bit ~240kb unfreeable mem and ~340kb on php5.5@64bit)
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one
         $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
         // Generation of a uniqe hash for our generated code
-        switch (true) {
-            case $gen_hi_opt_code:
-                // For hi-optimized code, we create for each combination of
-                // $mode, $des_rounds and $this->key its own encrypt/decrypt function.
-                $code_hash = md5(str_pad("Crypt_DES, $des_rounds, {$this->mode}, ", 32, "\0") . $this->key);
-                break;
-            default:
-                // After max 10 hi-optimized functions, we create generic
-                // (still very fast.. but not ultra) functions for each $mode/$des_rounds
-                // Currently 2 * 5 generic functions will be then max. possible.
-                $code_hash = "Crypt_DES, $des_rounds, {$this->mode}";
+        $code_hash = "Crypt_DES, $des_rounds, {$this->mode}";
+        if ($gen_hi_opt_code) {
+            // For hi-optimized code, we create for each combination of
+            // $mode, $des_rounds and $this->key its own encrypt/decrypt function.
+            // After max 10 hi-optimized functions, we create generic
+            // (still very fast.. but not ultra) functions for each $mode/$des_rounds
+            // Currently 2 * 5 generic functions will be then max. possible.
+            $code_hash = str_pad($code_hash, 32) . $this->_hashInlineCryptFunction($this->key);
         }
 
         // Is there a re-usable $lambda_functions in there? If not, we have to create it.
