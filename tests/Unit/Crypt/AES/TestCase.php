@@ -128,9 +128,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     public function continuousBufferBatteryCombos()
     {
         $modes = array(
-            'CRYPT_MODE_CTR',
-            'CRYPT_MODE_OFB',
-            'CRYPT_MODE_CFB',
+            Base::MODE_CTR,
+            Base::MODE_OFB,
+            Base::MODE_CFB,
         );
 
         $combos = array(
