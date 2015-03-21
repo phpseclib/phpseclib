@@ -5,13 +5,13 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-require_once 'Crypt/TripleDES.php';
+use phpseclib\Crypt\TripleDES;
 
 class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 {
     var $engines = array(
-        CRYPT_ENGINE_INTERNAL => 'internal',
-        CRYPT_ENGINE_MCRYPT => 'mcrypt',
+        Crypt_Base::ENGINE_INTERNAL => 'internal',
+        Crypt_Base::ENGINE_MCRYPT => 'mcrypt',
     );
 
     public function engineVectors()
@@ -99,7 +99,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
     */
     public function testVectors($engine, $engineName, $key, $plaintext, $expected)
     {
-        $des = new Crypt_TripleDES();
+        $des = new TripleDES();
         if (!$des->isValidEngine($engine)) {
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
         }
@@ -114,8 +114,8 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
     public function engineIVVectors()
     {
         $engines = array(
-            CRYPT_ENGINE_INTERNAL => 'internal',
-            CRYPT_ENGINE_MCRYPT => 'mcrypt',
+            Crypt_Base::ENGINE_INTERNAL => 'internal',
+            Crypt_Base::ENGINE_MCRYPT => 'mcrypt',
         );
 
         // tests from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf
@@ -146,7 +146,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
     */
     public function testVectorsWithIV($engine, $engineName, $key, $iv, $plaintext, $expected)
     {
-        $des = new Crypt_TripleDES();
+        $des = new TripleDES();
         if (!$des->isValidEngine($engine)) {
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
         }
@@ -165,7 +165,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         //           e089b6d84708c6bc80be6c2da82bd19a79ffe11f02933ac1
         $expected = 'e089b6d84708c6bc6f04c8971121603d7be2861efae0f3f5';
 
-        $des = new Crypt_TripleDES(CRYPT_DES_MODE_3CBC);
+        $des = new TripleDES(CRYPT_DES_MODE_3CBC);
         $des->setKey('abcdefghijklmnopqrstuvwx');
 
         foreach ($this->engines as $engine => $engineName) {

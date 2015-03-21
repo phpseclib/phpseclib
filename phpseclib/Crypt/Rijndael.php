@@ -343,7 +343,7 @@ class Rijndael extends Base
     function isValidEngine($engine)
     {
         switch ($engine) {
-            case CRYPT_ENGINE_MCRYPT:
+            case self::ENGINE_MCRYPT:
                 $this->cipher_name_mcrypt = 'rijndael-' . ($this->block_size << 3);
                 if ($this->key_size % 8) { // is it a 160/224-bit key?
                     // mcrypt is not usable for them, only for 128/192/256-bit keys

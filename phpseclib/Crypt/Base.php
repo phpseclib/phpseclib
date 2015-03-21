@@ -1142,11 +1142,11 @@ abstract class Base
     function isValidEngine($engine)
     {
         switch ($engine) {
-            case CRYPT_ENGINE_MCRYPT:
+            case self::ENGINE_MCRYPT:
                 return $this->cipher_name_mcrypt &&
                        extension_loaded('mcrypt') &&
                        in_array($this->cipher_name_mcrypt, mcrypt_list_algorithms());
-            case CRYPT_ENGINE_INTERNAL:
+            case self::ENGINE_INTERNAL:
                 return true;
         }
 
@@ -1158,9 +1158,9 @@ abstract class Base
      *
      * Currently, $engine could be:
      *
-     * - CRYPT_ENGINE_MCRYPT   [fast]
+     * - Crypt_Base::ENGINE_MCRYPT   [fast]
      *
-     * - CRYPT_ENGINE_INTERNAL [slow]
+     * - Crypt_Base::ENGINE_INTERNAL [slow]
      *
      * If the preferred crypt engine is not available the fastest available one will be used
      *
@@ -1171,12 +1171,12 @@ abstract class Base
     function setPreferredEngine($engine)
     {
         switch ($engine) {
-            //case CRYPT_ENGINE_MCRYPT:
-            case CRYPT_ENGINE_INTERNAL:
+            //case self::ENGINE_MCRYPT:
+            case self::ENGINE_INTERNAL:
                 $this->preferredEngine = $engine;
                 break;
             default:
-                $this->preferredEngine = CRYPT_ENGINE_MCRYPT;
+                $this->preferredEngine = self::ENGINE_MCRYPT;
         }
 
         $this->_setEngine();
@@ -1205,7 +1205,7 @@ abstract class Base
 
         $candidateEngines = array(
             $this->preferredEngine,
-            CRYPT_ENGINE_MCRYPT
+            self::ENGINE_MCRYPT
         );
         foreach ($candidateEngines as $engine) {
             if ($this->isValidEngine($engine)) {
@@ -1214,10 +1214,10 @@ abstract class Base
             }
         }
         if (!$this->engine) {
-            $this->engine = CRYPT_ENGINE_INTERNAL;
+            $this->engine = self::ENGINE_INTERNAL;
         }
 
-        if ($this->engine != CRYPT_ENGINE_MCRYPT && $this->enmcrypt) {
+        if ($this->engine != self::ENGINE_MCRYPT && $this->enmcrypt) {
             // Closing the current mcrypt resource(s). _mcryptSetup() will, if needed,
             // (re)open them with the module named in $this->cipher_name_mcrypt
             mcrypt_module_close($this->enmcrypt);
@@ -1244,6 +1244,7 @@ abstract class Base
      * @return String
      */
     abstract function _encryptBlock($in);
+
     /**
      * Decrypts a block
      *
@@ -1254,6 +1255,7 @@ abstract class Base
      * @return String
      */
     abstract function _decryptBlock($in);
+
     /**
      * Setup the key (expansion)
      *

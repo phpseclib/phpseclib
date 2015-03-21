@@ -5,15 +5,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-require_once 'Crypt/RC4.php';
+use phpseclib\Crypt\RC4;
 
 class Unit_Crypt_RC4Test extends PhpseclibTestCase
 {
     public function engineVectors()
     {
         $engines = array(
-            CRYPT_ENGINE_INTERNAL => 'internal',
-            CRYPT_ENGINE_MCRYPT => 'mcrypt',
+            Crypt_Base::ENGINE_INTERNAL => 'internal',
+            Crypt_Base::ENGINE_MCRYPT => 'mcrypt',
         );
         // tests from https://tools.ietf.org/html/rfc6229
         $tests = array(
@@ -194,7 +194,7 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
     */
     public function testVectors($engine, $engineName, $key, $offset, $expected)
     {
-        $rc4 = new Crypt_RC4();
+        $rc4 = new RC4();
         $rc4->setPreferredEngine($engine);
         $rc4->setKey($key);
         if ($rc4->getEngine() != $engine) {

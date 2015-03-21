@@ -430,7 +430,7 @@ class RC2 extends Base
     }
 
     /**
-     * Setup the CRYPT_ENGINE_MCRYPT $engine
+     * Setup the Crypt_Base::ENGINE_MCRYPT $engine
      *
      * @see Crypt_Base::_setupMcrypt()
      * @access private

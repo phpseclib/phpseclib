@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-require_once 'Crypt/DES.php';
+use phpseclib\Crypt\DES;
 
 // the AES tests establish the correctness of the modes of operation. this test is inteded to establish the consistency of
 // key and iv padding between the multiple engines
@@ -13,19 +13,19 @@ class Unit_Crypt_DESTest extends PhpseclibTestCase
 {
     public function testEncryptPadding()
     {
-        $des = new Crypt_DES(CRYPT_MODE_CBC);
+        $des = new DES(Crypt_Base::MODE_CBC);
         $des->setKey('d');
         $des->setIV('d');
 
-        $des->setPreferredEngine(CRYPT_ENGINE_INTERNAL);
+        $des->setPreferredEngine(Crypt_Base::ENGINE_INTERNAL);
 
         $result = pack('H*', '3e7613642049af1e');
 
         $internal = $des->encrypt('d');
         $this->assertEquals($result, $internal, 'Failed asserting that the internal engine produced the correct result');
 
-        $des->setPreferredEngine(CRYPT_ENGINE_MCRYPT);
-        if ($des->getEngine() == CRYPT_ENGINE_MCRYPT) {
+        $des->setPreferredEngine(Crypt_Base::ENGINE_MCRYPT);
+        if ($des->getEngine() == Crypt_Base::ENGINE_MCRYPT) {
             $mcrypt = $des->encrypt('d');
             $this->assertEquals($result, $mcrypt, 'Failed asserting that the mcrypt engine produced the correct result');
         } else {
@@ -38,20 +38,20 @@ class Unit_Crypt_DESTest extends PhpseclibTestCase
     // behavior between the various engine's
     public function testDecryptPadding()
     {
-        $des = new Crypt_DES(CRYPT_MODE_CBC);
+        $des = new DES(Crypt_Base::MODE_CBC);
         $des->disablePadding();
         // when the key and iv are not specified they should be null padded
         //$des->setKey();
         //$des->setIV();
 
-        $des->setPreferredEngine(CRYPT_ENGINE_INTERNAL);
+        $des->setPreferredEngine(Crypt_Base::ENGINE_INTERNAL);
         $internal = $des->decrypt('d');
 
         $result = pack('H*', '79b305d1ce555221');
         $this->assertEquals($result, $internal, 'Failed asserting that the internal engine produced the correct result');
 
-        $des->setPreferredEngine(CRYPT_ENGINE_MCRYPT);
-        if ($des->getEngine() == CRYPT_ENGINE_MCRYPT) {
+        $des->setPreferredEngine(Crypt_Base::ENGINE_MCRYPT);
+        if ($des->getEngine() == Crypt_Base::ENGINE_MCRYPT) {
             $mcrypt = $des->decrypt('d');
             $this->assertEquals($result, $mcrypt, 'Failed asserting that the mcrypt engine produced the correct result');
         } else {
