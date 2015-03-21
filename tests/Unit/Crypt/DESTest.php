@@ -5,6 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib\Crypt\Base;
 use phpseclib\Crypt\DES;
 
 // the AES tests establish the correctness of the modes of operation. this test is inteded to establish the consistency of
