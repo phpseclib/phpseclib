@@ -10,8 +10,8 @@ use phpseclib\Crypt\TripleDES;
 class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 {
     var $engines = array(
-        Crypt_Base::ENGINE_INTERNAL => 'internal',
-        Crypt_Base::ENGINE_MCRYPT => 'mcrypt',
+        Base::ENGINE_INTERNAL => 'internal',
+        Base::ENGINE_MCRYPT => 'mcrypt',
     );
 
     public function engineVectors()
@@ -114,8 +114,8 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
     public function engineIVVectors()
     {
         $engines = array(
-            Crypt_Base::ENGINE_INTERNAL => 'internal',
-            Crypt_Base::ENGINE_MCRYPT => 'mcrypt',
+            Base::ENGINE_INTERNAL => 'internal',
+            Base::ENGINE_MCRYPT => 'mcrypt',
         );
 
         // tests from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf
@@ -165,7 +165,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         //           e089b6d84708c6bc80be6c2da82bd19a79ffe11f02933ac1
         $expected = 'e089b6d84708c6bc6f04c8971121603d7be2861efae0f3f5';
 
-        $des = new TripleDES(CRYPT_DES_MODE_3CBC);
+        $des = new TripleDES(Crypt_TripleDES::MODE_3CBC);
         $des->setKey('abcdefghijklmnopqrstuvwx');
 
         foreach ($this->engines as $engine => $engineName) {

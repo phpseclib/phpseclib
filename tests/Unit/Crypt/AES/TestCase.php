@@ -18,7 +18,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         if ($aes->getEngine() != $this->engine) {
             $engine = 'internal';
             switch ($this->engine) {
-                case Crypt_Base::ENGINE_MCRYPT:
+                case Base::ENGINE_MCRYPT:
                     $engine = 'mcrypt';
             }
             self::markTestSkipped('Unable to initialize ' . $engine . ' engine');

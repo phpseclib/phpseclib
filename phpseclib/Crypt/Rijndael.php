@@ -206,19 +206,19 @@ class Rijndael extends Base
      *
      * $mode could be:
      *
-     * - CRYPT_RIJNDAEL_MODE_ECB
+     * - \phpseclib\Crypt\Base::MODE_ECB
      *
-     * - CRYPT_RIJNDAEL_MODE_CBC
+     * - \phpseclib\Crypt\Base::MODE_CBC
      *
-     * - CRYPT_RIJNDAEL_MODE_CTR
+     * - \phpseclib\Crypt\Base::MODE_CTR
      *
-     * - CRYPT_RIJNDAEL_MODE_CFB
+     * - \phpseclib\Crypt\Base::MODE_CFB
      *
-     * - CRYPT_RIJNDAEL_MODE_OFB
+     * - \phpseclib\Crypt\Base::MODE_OFB
      *
-     * If not explictly set, CRYPT_RIJNDAEL_MODE_CBC will be used.
+     * If not explictly set, \phpseclib\Crypt\Base::MODE_CBC will be used.
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::Crypt_Base()
      * @param optional Integer $mode
      * @access public
 
@@ -333,9 +333,9 @@ class Rijndael extends Base
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::Crypt_Base()
      * @param Integer $engine
      * @access public
      * @return Boolean

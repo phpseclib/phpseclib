@@ -10,8 +10,8 @@ use phpseclib\Crypt\RC2;
 class Unit_Crypt_RC2Test extends PhpseclibTestCase
 {
     var $engines = array(
-        Crypt_Base::ENGINE_INTERNAL => 'internal',
-        Crypt_Base::ENGINE_MCRYPT => 'mcrypt',
+        Base::ENGINE_INTERNAL => 'internal',
+        Base::ENGINE_MCRYPT => 'mcrypt',
     );
 
     public function engineVectors()
@@ -40,7 +40,7 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
     // this test is just confirming RC2's key expansion
     public function testEncryptPadding()
     {
-        $rc2 = new RC2(Crypt_Base::MODE_ECB);
+        $rc2 = new RC2(Base::MODE_ECB);
 
         // unlike Crypt_AES / Crypt_Rijndael, when you tell Crypt_RC2 that the key length is 128-bits the key isn't null padded to that length.
         // instead, RC2 key expansion is used to extend it out to that length. this isn't done for AES / Rijndael since that doesn't define any
@@ -77,14 +77,14 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
 
         $rc2->setKey(str_repeat('d', 16), 128);
 
-        $rc2->setPreferredEngine(Crypt_Base::ENGINE_INTERNAL);
+        $rc2->setPreferredEngine(Base::ENGINE_INTERNAL);
         $internal = $rc2->encrypt('d');
 
         $result = pack('H*', 'e3b36057f4821346');
         $this->assertEquals($result, $internal, 'Failed asserting that the internal engine produced the correct result');
 
-        $rc2->setPreferredEngine(Crypt_Base::ENGINE_MCRYPT);
-        if ($rc2->getEngine() == Crypt_Base::ENGINE_MCRYPT) {
+        $rc2->setPreferredEngine(Base::ENGINE_MCRYPT);
+        if ($rc2->getEngine() == Base::ENGINE_MCRYPT) {
             $mcrypt = $rc2->encrypt('d');
             $this->assertEquals($result, $mcrypt, 'Failed asserting that the mcrypt engine produced the correct result');
         } else {

@@ -410,8 +410,8 @@ class TripleDES extends DES
     /**
      * Sets the internal crypt engine
      *
-     * @see Crypt_Base::Crypt_Base()
-     * @see Crypt_Base::setPreferredEngine()
+     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::setPreferredEngine()
      * @param Integer $engine
      * @access public
      * @return Integer

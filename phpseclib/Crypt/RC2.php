@@ -430,9 +430,9 @@ class RC2 extends Base
     }
 
     /**
-     * Setup the Crypt_Base::ENGINE_MCRYPT $engine
+     * Setup the \phpseclib\Crypt\Base::ENGINE_MCRYPT $engine
      *
-     * @see Crypt_Base::_setupMcrypt()
+     * @see \phpseclib\Crypt\Base::_setupMcrypt()
      * @access private
      */
     function _setupMcrypt()

@@ -322,8 +322,8 @@ abstract class Base
     /**
      * Holds the preferred crypt engine
      *
-     * @see Crypt_Base::_setEngine()
-     * @see Crypt_Base::setPreferredEngine()
+     * @see \phpseclib\Crypt\Base::_setEngine()
+     * @see \phpseclib\Crypt\Base::setPreferredEngine()
      * @var Integer
      * @access private
      */
@@ -1134,7 +1134,7 @@ abstract class Base
     /**
      * Test for engine validity
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::Crypt_Base()
      * @param Integer $engine
      * @access public
      * @return Boolean
@@ -1158,13 +1158,13 @@ abstract class Base
      *
      * Currently, $engine could be:
      *
-     * - Crypt_Base::ENGINE_MCRYPT   [fast]
+     * - \phpseclib\Crypt\Base::ENGINE_MCRYPT   [fast]
      *
-     * - Crypt_Base::ENGINE_INTERNAL [slow]
+     * - \phpseclib\Crypt\Base::ENGINE_INTERNAL [slow]
      *
      * If the preferred crypt engine is not available the fastest available one will be used
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::Crypt_Base()
      * @param Integer $engine
      * @access public
      */
@@ -1185,7 +1185,7 @@ abstract class Base
     /**
      * Returns the engine currently being utilized
      *
-     * @see Crypt_Base::_setEngine()
+     * @see \phpseclib\Crypt\Base::_setEngine()
      * @access public
      */
     function getEngine()
@@ -1196,7 +1196,7 @@ abstract class Base
     /**
      * Sets the engine as appropriate
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::Crypt_Base()
      * @access private
      */
     function _setEngine()

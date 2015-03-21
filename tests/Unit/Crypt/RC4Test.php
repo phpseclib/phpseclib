@@ -12,8 +12,8 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
     public function engineVectors()
     {
         $engines = array(
-            Crypt_Base::ENGINE_INTERNAL => 'internal',
-            Crypt_Base::ENGINE_MCRYPT => 'mcrypt',
+            Base::ENGINE_INTERNAL => 'internal',
+            Base::ENGINE_MCRYPT => 'mcrypt',
         );
         // tests from https://tools.ietf.org/html/rfc6229
         $tests = array(
