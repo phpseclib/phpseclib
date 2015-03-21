@@ -231,34 +231,6 @@ class RC2 extends Base
     );
 
     /**
-     * Default Constructor.
-     *
-     * Determines whether or not the mcrypt extension should be used.
-     *
-     * $mode could be:
-     *
-     * - \phpseclib\Crypt\Base::MODE_ECB
-     *
-     * - \phpseclib\Crypt\Base::MODE_CBC
-     *
-     * - \phpseclib\Crypt\Base::MODE_CTR
-     *
-     * - \phpseclib\Crypt\Base::MODE_CFB
-     *
-     * - \phpseclib\Crypt\Base::MODE_OFB
-     *
-     * If not explicitly set, \phpseclib\Crypt\Base::MODE_CBC will be used.
-     *
-     * @see \phpseclib\Crypt\Base::__construct()
-     * @param optional Integer $mode
-     * @access public
-     */
-    function __construct($mode = Base::MODE_CBC)
-    {
-        parent::__construct($mode);
-    }
-
-    /**
      * Sets the key length
      *
      * Valid key lengths are 1 to 1024.
