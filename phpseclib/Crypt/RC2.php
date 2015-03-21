@@ -62,7 +62,7 @@ class RC2 extends Base
      * @var String
      * @access private
      */
-    var $key = "\0";
+    var $key;
 
     /**
      * The default password key_size used by setPassword()
@@ -265,7 +265,6 @@ class RC2 extends Base
     function __construct($mode = Base::MODE_CBC)
     {
         parent::__construct($mode);
-        $this->setKey('');
     }
 
     /**
@@ -431,6 +430,21 @@ class RC2 extends Base
     }
 
     /**
+     * Setup the CRYPT_ENGINE_MCRYPT $engine
+     *
+     * @see Crypt_Base::_setupMcrypt()
+     * @access private
+     */
+    function _setupMcrypt()
+    {
+        if (!isset($this->key)) {
+            $this->setKey('');
+        }
+
+        parent::_setupMcrypt();
+    }
+
+    /**
      * Creates the key schedule
      *
      * @see \phpseclib\Crypt\Base::_setupKey()
@@ -438,6 +452,10 @@ class RC2 extends Base
      */
     function _setupKey()
     {
+        if (!isset($this->key)) {
+            $this->setKey('');
+        }
+
         // Key has already been expanded in \phpseclib\Crypt\RC2::setKey():
         // Only the first value must be altered.
         $l = unpack('Ca/Cb/v*', $this->key);
@@ -460,20 +478,30 @@ class RC2 extends Base
         // The first 10 generated $lambda_functions will use the $keys hardcoded as integers
         // for the mixing rounds, for better inline crypt performance [~20% faster].
         // But for memory reason we have to limit those ultra-optimized $lambda_functions to an amount of 10.
-        $keys = $this->keys;
-        if (count($lambda_functions) >= 10) {
-            foreach ($this->keys as $k => $v) {
-                $keys[$k] = '$keys[' . $k . ']';
-            }
-        }
+        // (Currently, for Crypt_RC2, one generated $lambda_function cost on php5.5@32bit ~60kb unfreeable mem and ~100kb on php5.5@64bit)
+        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
-        $code_hash = md5(str_pad("RC2, {$this->mode}, ", 32, "\0") . implode(',', $keys));
+        // Generation of a uniqe hash for our generated code
+        $code_hash = "Crypt_RC2, {$this->mode}";
+        if ($gen_hi_opt_code) {
+            $code_hash = str_pad($code_hash, 32) . $this->_hashInlineCryptFunction($this->key);
+        }
 
         // Is there a re-usable $lambda_functions in there?
         // If not, we have to create it.
         if (!isset($lambda_functions[$code_hash])) {
             // Init code for both, encrypt and decrypt.
             $init_crypt = '$keys = $self->keys;';
+
+            switch (true) {
+                case $gen_hi_opt_code:
+                    $keys = $this->keys;
+                default:
+                    $keys = array();
+                    foreach ($this->keys as $k => $v) {
+                        $keys[$k] = '$keys[' . $k . ']';
+                    }
+            }
 
             // $in is the current 8 bytes block which has to be en/decrypt
             $encrypt_block = $decrypt_block = '

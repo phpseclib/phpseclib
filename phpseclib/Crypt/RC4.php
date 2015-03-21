@@ -193,7 +193,7 @@ class RC4 extends Base
      */
     function encrypt($plaintext)
     {
-        if ($this->engine == Base::ENGINE_MCRYPT) {
+        if ($this->engine != Base::ENGINE_INTERNAL) {
             return parent::encrypt($plaintext);
         }
         return $this->_crypt($plaintext, self::ENCRYPT);
@@ -213,7 +213,7 @@ class RC4 extends Base
      */
     function decrypt($ciphertext)
     {
-        if ($this->engine == Base::ENGINE_MCRYPT) {
+        if ($this->engine != Base::ENGINE_INTERNAL) {
             return parent::decrypt($ciphertext);
         }
         return $this->_crypt($ciphertext, self::DECRYPT);

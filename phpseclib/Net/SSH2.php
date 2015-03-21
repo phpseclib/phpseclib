@@ -836,6 +836,16 @@ class SSH2
     var $windowRows = 24;
 
     /**
+     * Crypto Engine
+     *
+     * @see Net_SSH2::setCryptoEngine()
+     * @see Net_SSH2::_key_exchange()
+     * @var Integer
+     * @access private
+     */
+    var $crypto_engine = false;
+
+    /**
      * Default Constructor.
      *
      * @param String $host
@@ -920,6 +930,20 @@ class SSH2
         $this->host = $host;
         $this->port = $port;
         $this->connectionTimeout = $timeout;
+    }
+
+    /**
+     * Set Crypto Engine Mode
+     *
+     * Possible $engine values:
+     * CRYPT_MODE_INTERNAL, CRYPT_MODE_MCRYPT
+     *
+     * @param Integer $engine
+     * @access private
+     */
+    function setCryptoEngine($engine)
+    {
+        $this->crypto_engine = $engine;
     }
 
     /**
@@ -1085,7 +1109,7 @@ class SSH2
                 'arcfour256',
                 'arcfour128',
 
-                //'arcfour',        // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
+                //'arcfour',      // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
 
                 // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
                 'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
@@ -1113,7 +1137,7 @@ class SSH2
                 '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
 
                 '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
-                //'none'            // OPTIONAL          no encryption; NOT RECOMMENDED
+                 //'none'         // OPTIONAL          no encryption; NOT RECOMMENDED
             );
 
             if (class_exists('\phpseclib\Crypt\RC4') === false) {
@@ -1573,6 +1597,9 @@ class SSH2
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
 
         if ($this->encrypt) {
+            if ($this->crypto_engine) {
+                $this->encrypt->setEngine($this->crypto_engine);
+            }
             $this->encrypt->enableContinuousBuffer();
             $this->encrypt->disablePadding();
 
@@ -1590,6 +1617,9 @@ class SSH2
         }
 
         if ($this->decrypt) {
+            if ($this->crypto_engine) {
+                $this->decrypt->setEngine($this->crypto_engine);
+            }
             $this->decrypt->enableContinuousBuffer();
             $this->decrypt->disablePadding();
 

@@ -7,6 +7,10 @@
  *
  * PHP versions 4 and 5
  *
+ * NOTE: Since AES.php is (for compatibility and phpseclib-historical reasons) virtually 
+ * just a wrapper to Rijndael.php you may consider using Rijndael.php instead of
+ * to save one include_once().
+ *
  * If {@link \phpseclib\Crypt\AES::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
  * {@link \phpseclib\Crypt\AES::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's 136-bits
  * it'll be null-padded to 192-bits and 192 bits will be the key length until {@link \phpseclib\Crypt\AES::setKey() setKey()}
@@ -127,7 +131,7 @@ class AES extends Rijndael
                 default:
                     $this->key_size = 32;
             }
-            $this->_setupEngine();
+            $this->_setEngine();
         }
     }
 }
