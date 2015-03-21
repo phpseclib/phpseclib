@@ -76,15 +76,6 @@ class Rijndael extends Base
     var $password_key_size = 16;
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see \phpseclib\Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'RIJNDAEL';
-
-    /**
      * The mcrypt specific name of the cipher
      *
      * Mcrypt is useable for 128/192/256-bit $block_size/$key_size. For 160/224 not.

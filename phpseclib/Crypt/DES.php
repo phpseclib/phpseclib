@@ -98,15 +98,6 @@ class DES extends Base
     var $password_key_size = 8;
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see \phpseclib\Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'DES';
-
-    /**
      * The mcrypt specific name of the cipher
      *
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt

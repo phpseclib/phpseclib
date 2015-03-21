@@ -61,15 +61,6 @@ use phpseclib\Crypt\Rijndael;
 class AES extends Rijndael
 {
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see \phpseclib\Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'AES';
-
-    /**
      * Dummy function
      *
      * Since \phpseclib\Crypt\AES extends \phpseclib\Crypt\Rijndael, this function is, technically, available, but it doesn't do anything.

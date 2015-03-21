@@ -69,15 +69,6 @@ class Blowfish extends Base
     var $password_key_size = 56;
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see \phpseclib\Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'BLOWFISH';
-
-    /**
      * The mcrypt specific name of the cipher
      *
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt

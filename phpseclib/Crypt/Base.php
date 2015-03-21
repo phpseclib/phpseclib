@@ -361,29 +361,6 @@ abstract class Base
     var $password_default_salt = 'phpseclib/salt';
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * ie: AES.php is using CRYPT_AES_MODE_* for its constants
-     *     so $const_namespace is AES
-     *
-     *     DES.php is using CRYPT_DES_MODE_* for its constants
-     *     so $const_namespace is DES... and so on
-     *
-     * All CRYPT_<$const_namespace>_MODE_* are aliases of
-     * the generic CRYPT_MODE_* constants, so both could be used
-     * for each cipher.
-     *
-     * Example:
-     * $aes = new \phpseclib\Crypt\AES(\phpseclib\Crypt\AES::MODE_CFB); // $aes will operate in cfb mode
-     * $aes = new \phpseclib\Crypt\AES(self::MODE_CFB);     // identical
-     *
-     * @see \phpseclib\Crypt\Base::__construct()
-     * @var String
-     * @access private
-     */
-    var $const_namespace;
-
-    /**
      * The name of the performance-optimized callback function
      *
      * Used by encrypt() / decrypt()
@@ -439,7 +416,7 @@ abstract class Base
         switch ($mode) {
             case self::MODE_ECB:
                 $this->paddable = true;
-                $this->mode = CRYPT_MODE_ECB;
+                $this->mode = self::MODE_ECB;
                 break;
             case self::MODE_CTR:
             case self::MODE_CFB:
