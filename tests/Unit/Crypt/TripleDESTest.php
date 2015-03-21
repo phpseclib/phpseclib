@@ -166,7 +166,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         //           e089b6d84708c6bc80be6c2da82bd19a79ffe11f02933ac1
         $expected = 'e089b6d84708c6bc6f04c8971121603d7be2861efae0f3f5';
 
-        $des = new TripleDES(Crypt_TripleDES::MODE_3CBC);
+        $des = new TripleDES(TripleDES::MODE_3CBC);
         $des->setKey('abcdefghijklmnopqrstuvwx');
 
         foreach ($this->engines as $engine => $engineName) {
