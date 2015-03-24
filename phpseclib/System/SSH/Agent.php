@@ -374,6 +374,10 @@ class System_SSH_Agent
     function _request_forwarding($ssh)
     {
         $request_channel = $ssh->_get_open_channel();
+        if ($request_channel === false) {
+            user_error("failed to request channel");
+            return false;
+        }
 
         $packet = pack('CNNa*C',
             NET_SSH2_MSG_CHANNEL_REQUEST, $ssh->server_channels[$request_channel], strlen('auth-agent-req@openssh.com'), 'auth-agent-req@openssh.com', 1);

@@ -2499,12 +2499,12 @@ class Net_SSH2
     {
         $channel = NET_SSH2_CHANNEL_EXEC;
         do {
-            if (array_key_exists($channel, $this->channel_status) && $this->channel_status[$channel] == NET_SSH2_MSG_CHANNEL_OPEN) {
+            if (isset($this->channel_status[$channel]) && $this->channel_status[$channel] == NET_SSH2_MSG_CHANNEL_OPEN) {
                 return $channel;
             }
         } while ($channel++ < NET_SSH2_CHANNEL_SUBSYSTEM);
 
-        user_error("Unable to find an open channel");
+        return false;
     }
 
     /**
@@ -2891,6 +2891,7 @@ class Net_SSH2
                                       return false;
                                   }
                             }
+                            break;
                         default:
                             $packet = pack('CN3a*Na*',
                                 NET_SSH2_MSG_REQUEST_FAILURE, $server_channel, NET_SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED, 0, '', 0, '');
