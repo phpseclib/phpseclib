@@ -375,7 +375,6 @@ class System_SSH_Agent
     {
         $request_channel = $ssh->_get_open_channel();
         if ($request_channel === false) {
-            user_error("failed to request channel");
             return false;
         }
 
