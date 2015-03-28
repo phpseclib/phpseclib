@@ -804,21 +804,6 @@ class Net_SSH2
     var $port;
 
     /**
-     * Timeout for initial connection
-     *
-     * Set by the constructor call. Calling setTimeout() is optional. If it's not called functions like
-     * exec() won't timeout unless some PHP setting forces it too. The timeout specified in the constructor,
-     * however, is non-optional. There will be a timeout, whether or not you set it. If you don't it'll be
-     * 10 seconds. It is used by fsockopen() and the initial stream_select in that function.
-     *
-     * @see Net_SSH2::Net_SSH2()
-     * @see Net_SSH2::_connect()
-     * @var Integer
-     * @access private
-     */
-    var $connectionTimeout;
-
-    /**
      * Number of columns for terminal window size
      *
      * @see Net_SSH2::getWindowColumns()
