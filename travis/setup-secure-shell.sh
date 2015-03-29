@@ -28,4 +28,6 @@ ssh-add "$HOME/.ssh/id_rsa"
 # Allow the private key of the travis user to log in as phpseclib user
 sudo mkdir -p "/home/$USERNAME/.ssh/"
 sudo cp "$HOME/.ssh/id_rsa.pub" "/home/$USERNAME/.ssh/authorized_keys"
+sudo ssh-keyscan -t rsa localhost > "/tmp/known_hosts"
+sudo cp "/tmp/known_hosts" "/home/$USERNAME/.ssh/known_hosts"
 sudo chown "$USERNAME:$USERNAME" "/home/$USERNAME/.ssh/" -R

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP ssh-agent client.
  *
@@ -63,6 +64,20 @@ define('SYSTEM_SSH_AGENT_FAILURE', 5);
 define('SYSTEM_SSH_AGENTC_SIGN_REQUEST', 13);
 // the SSH1 response is SSH_AGENT_RSA_RESPONSE (4)
 define('SYSTEM_SSH_AGENT_SIGN_RESPONSE', 14);
+
+
+/**@+
+ * Agent forwarding status
+ *
+ * @access private
+ */
+// no forwarding requested and not active
+define('SYSTEM_SSH_AGENT_FORWARD_NONE', 0);
+// request agent forwarding when opportune
+define('SYSTEM_SSH_AGENT_FORWARD_REQUEST', 1);
+// forwarding has been request and is active
+define('SYSTEM_SSH_AGENT_FORWARD_ACTIVE', 2);
+
 /**#@-*/
 
 /**
@@ -226,6 +241,29 @@ class System_SSH_Agent
     var $fsock;
 
     /**
+     * Agent forwarding status
+     *
+     * @access private
+     */
+    var $forward_status = SYSTEM_SSH_AGENT_FORWARD_NONE;
+
+    /**
+     * Buffer for accumulating forwarded authentication
+     * agent data arriving on SSH data channel destined
+     * for agent unix socket
+     *
+     * @access private
+     */
+    var $socket_buffer = '';
+
+    /**
+     * Tracking the number of bytes we are expecting
+     * to arrive for the agent socket on the SSH data
+     * channel
+     */
+    var $expected_bytes = 0;
+
+    /**
      * Default Constructor
      *
      * @return System_SSH_Agent
@@ -309,5 +347,108 @@ class System_SSH_Agent
         }
 
         return $identities;
+    }
+
+    /**
+     * Signal that agent forwarding should
+     * be requested when a channel is opened
+     *
+     * @param Net_SSH2 $ssh
+     * @return Boolean
+     * @access public
+     */
+    function startSSHForwarding($ssh)
+    {
+        if ($this->forward_status == SYSTEM_SSH_AGENT_FORWARD_NONE) {
+            $this->forward_status = SYSTEM_SSH_AGENT_FORWARD_REQUEST;
+        }
+    }
+
+    /**
+     * Request agent forwarding of remote server
+     *
+     * @param Net_SSH2 $ssh
+     * @return Boolean
+     * @access private
+     */
+    function _request_forwarding($ssh)
+    {
+        $request_channel = $ssh->_get_open_channel();
+        if ($request_channel === false) {
+            return false;
+        }
+
+        $packet = pack('CNNa*C',
+            NET_SSH2_MSG_CHANNEL_REQUEST, $ssh->server_channels[$request_channel], strlen('auth-agent-req@openssh.com'), 'auth-agent-req@openssh.com', 1);
+
+        $ssh->channel_status[$request_channel] = NET_SSH2_MSG_CHANNEL_REQUEST;
+
+        if (!$ssh->_send_binary_packet($packet)) {
+            return false;
+        }
+
+        $response = $ssh->_get_channel_packet($request_channel);
+        if ($response === false) {
+            return false;
+        }
+
+        $ssh->channel_status[$request_channel] = NET_SSH2_MSG_CHANNEL_OPEN;
+        $this->forward_status = SYSTEM_SSH_AGENT_FORWARD_ACTIVE;
+
+        return true;
+    }
+
+    /**
+     * On successful channel open
+     *
+     * This method is called upon successful channel
+     * open to give the SSH Agent an opportunity
+     * to take further action. i.e. request agent forwarding
+     *
+     * @param Net_SSH2 $ssh
+     * @access private
+     */
+    function _on_channel_open($ssh)
+    {
+        if ($this->forward_status == SYSTEM_SSH_AGENT_FORWARD_REQUEST) {
+            $this->_request_forwarding($ssh);
+        }
+    }
+
+    /**
+     * Forward data to SSH Agent and return data reply
+     *
+     * @param String $data
+     * @return data from SSH Agent
+     * @access private
+     */
+    function _forward_data($data)
+    {
+        if ($this->expected_bytes > 0) {
+            $this->socket_buffer.= $data;
+            $this->expected_bytes -= strlen($data);
+        } else {
+            $agent_data_bytes = current(unpack('N', $data));
+            $current_data_bytes = strlen($data);
+            $this->socket_buffer = $data;
+            if ($current_data_bytes != $agent_data_bytes + 4) {
+                $this->expected_bytes = ($agent_data_bytes + 4) - $current_data_bytes;
+                return false;
+            }
+        }
+
+        if (strlen($this->socket_buffer) != fwrite($this->fsock, $this->socket_buffer)) {
+            user_error('Connection closed attempting to forward data to SSH agent');
+        }
+
+        $this->socket_buffer = '';
+        $this->expected_bytes = 0;
+
+        $agent_reply_bytes = current(unpack('N', fread($this->fsock, 4)));
+
+        $agent_reply_data = fread($this->fsock, $agent_reply_bytes);
+        $agent_reply_data = current(unpack('a*', $agent_reply_data));
+
+        return pack('Na*', $agent_reply_bytes, $agent_reply_data);
     }
 }
