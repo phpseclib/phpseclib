@@ -50,7 +50,7 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
         if (extension_loaded('gmp')) {
             $this->assertContains('gmp', $identifier);
             $this->assertNotContains('bcmath', $identifier);
-        } else if (extension_loaded('bcmath')) {
+        } elseif (extension_loaded('bcmath')) {
             $this->assertNotContains('gmp', $identifier);
             $this->assertContains('bcmath', $identifier);
         } else {
