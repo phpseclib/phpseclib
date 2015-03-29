@@ -3329,7 +3329,7 @@ class Math_BigInteger
         if (!$t) {
             // see HAC 4.49 "Note (controlling the error probability)"
             // @codingStandardsIgnoreStart
-                 if ($length >= 163) { $t =  2; } // floor(1300 / 8)
+                if ($length >= 163) { $t =  2; } // floor(1300 / 8)
             elseif ($length >= 106) { $t =  3; } // floor( 850 / 8)
             elseif ($length >= 81 ) { $t =  4; } // floor( 650 / 8)
             elseif ($length >= 68 ) { $t =  5; } // floor( 550 / 8)
@@ -3340,7 +3340,7 @@ class Math_BigInteger
             elseif ($length >= 31 ) { $t = 12; } // floor( 250 / 8)
             elseif ($length >= 25 ) { $t = 15; } // floor( 200 / 8)
             elseif ($length >= 18 ) { $t = 18; } // floor( 150 / 8)
-            else                     { $t = 27; }
+            else                    { $t = 27; }
             // @codingStandardsIgnoreEnd
         }
 
