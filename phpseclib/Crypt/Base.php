@@ -979,7 +979,8 @@ class Crypt_Base
     function decrypt($ciphertext)
     {
         if ($this->paddable) {
-            // we pad with chr(0) since that's what mcrypt_generic does [...]
+            // we pad with chr(0) since that's what mcrypt_generic does.  to quote from {@link http://www.php.net/function.mcrypt-generic}:
+            // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
             $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($this->block_size - strlen($ciphertext) % $this->block_size) % $this->block_size, chr(0));
         }
 
@@ -1110,12 +1111,6 @@ class Crypt_Base
                 }
 
                 return $plaintext;
-            }
-
-            if ($this->paddable) {
-                // we pad with chr(0) since that's what mcrypt_generic does.  to quote from {@link http://www.php.net/function.mcrypt-generic}:
-                // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
-                $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($block_size - strlen($ciphertext) % $block_size) % $block_size, chr(0));
             }
 
             $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
