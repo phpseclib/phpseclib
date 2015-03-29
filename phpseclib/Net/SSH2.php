@@ -3029,7 +3029,7 @@ class SSH2
                     extract(unpack('Nlength', $this->_string_shift($response, 4)));
                     $data = $this->_string_shift($response, $length);
 
-                    if ($channel == NET_SSH2_CHANNEL_AGENT_FORWARD) {
+                    if ($channel == self::CHANNEL_AGENT_FORWARD) {
                         $agent_response = $this->agent->_forward_data($data);
                         if (!is_bool($agent_response)) {
                             $this->_send_channel_packet($channel, $agent_response);
