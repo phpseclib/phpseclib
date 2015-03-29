@@ -9,11 +9,8 @@ use phpseclib\Crypt\Base;
 
 class Unit_Crypt_AES_InternalTest extends Unit_Crypt_AES_TestCase
 {
-    static public function setUpBeforeClass()
+    protected function setUp()
     {
-        parent::setUpBeforeClass();
-
-        self::ensureConstant('CRYPT_AES_MODE', Base::ENGINE_INTERNAL);
-        self::ensureConstant('CRYPT_RIJNDAEL_MODE', Base::ENGINE_INTERNAL);
+        $this->engine = Base::ENGINE_INTERNAL;
     }
 }
