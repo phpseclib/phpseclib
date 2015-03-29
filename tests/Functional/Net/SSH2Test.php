@@ -21,10 +21,10 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
     }
 
     /**
-    * @depends testConstructor
-    * @group github408
-    * @group github412
-    */
+     * @depends testConstructor
+     * @group github408
+     * @group github412
+     */
     public function testPreLogin($ssh)
     {
         $this->assertFalse(
@@ -51,8 +51,8 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
     }
 
     /**
-    * @depends testPreLogin
-    */
+     * @depends testPreLogin
+     */
     public function testPasswordLogin($ssh)
     {
         $username = $this->getEnv('SSH_USERNAME');
@@ -66,9 +66,9 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
     }
 
     /**
-    * @depends testPasswordLogin
-    * @group github280
-    */
+     * @depends testPasswordLogin
+     * @group github280
+     */
     public function testExecWithMethodCallback($ssh)
     {
         $callbackObject = $this->getMock('stdClass', array('callbackMethod'));

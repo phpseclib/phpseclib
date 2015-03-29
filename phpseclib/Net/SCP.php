@@ -17,7 +17,7 @@
  *    if (!$ssh->login('username', 'password')) {
  *        exit('bad login');
  *    }
-
+ *
  *    $scp = new Net_SCP($ssh);
  *    $scp->put('abcd', str_repeat('x', 1024*1024));
  * ?>
