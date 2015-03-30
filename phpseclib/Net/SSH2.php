@@ -805,21 +805,6 @@ class Net_SSH2
     var $port;
 
     /**
-     * Timeout for initial connection
-     *
-     * Set by the constructor call. Calling setTimeout() is optional. If it's not called functions like
-     * exec() won't timeout unless some PHP setting forces it too. The timeout specified in the constructor,
-     * however, is non-optional. There will be a timeout, whether or not you set it. If you don't it'll be
-     * 10 seconds. It is used by fsockopen() and the initial stream_select in that function.
-     *
-     * @see Net_SSH2::Net_SSH2()
-     * @see Net_SSH2::_connect()
-     * @var Integer
-     * @access private
-     */
-    var $connectionTimeout;
-
-    /**
      * Number of columns for terminal window size
      *
      * @see Net_SSH2::getWindowColumns()
@@ -947,7 +932,7 @@ class Net_SSH2
 
         $this->host = $host;
         $this->port = $port;
-        $this->connectionTimeout = $timeout;
+        $this->timeout = $timeout;
     }
 
     /**
@@ -964,36 +949,24 @@ class Net_SSH2
 
         $this->bitmap |= NET_SSH2_MASK_CONSTRUCTOR;
 
-        $timeout = $this->connectionTimeout;
+        $this->curTimeout = $this->timeout;
+
         $host = $this->host . ':' . $this->port;
 
         $this->last_packet = strtok(microtime(), ' ') + strtok(''); // == microtime(true) in PHP5
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
-        $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $timeout);
+        $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout);
         if (!$this->fsock) {
             user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
             return false;
         }
         $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
 
-        $timeout-= $elapsed;
+        $this->curTimeout-= $elapsed;
 
-        if ($timeout <= 0) {
-            user_error("Cannot connect to $host. Timeout error");
-            return false;
-        }
-
-        $read = array($this->fsock);
-        $write = $except = null;
-
-        $sec = floor($timeout);
-        $usec = 1000000 * ($timeout - $sec);
-
-        // on windows this returns a "Warning: Invalid CRT parameters detected" error
-        // the !count() is done as a workaround for <https://bugs.php.net/42682>
-        if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
-            user_error("Cannot connect to $host. Banner timeout");
+        if ($this->curTimeout <= 0) {
+            $this->is_timeout = true;
             return false;
         }
 
@@ -1011,6 +984,27 @@ class Net_SSH2
                 $extra.= $temp;
                 $temp = '';
             }
+
+            if ($this->curTimeout) {
+                if ($this->curTimeout < 0) {
+                    $this->is_timeout = true;
+                    return false;
+                }
+                $read = array($this->fsock);
+                $write = $except = null;
+                $start = strtok(microtime(), ' ') + strtok('');
+                $sec = floor($this->curTimeout);
+                $usec = 1000000 * ($this->curTimeout - $sec);
+                // on windows this returns a "Warning: Invalid CRT parameters detected" error
+                // the !count() is done as a workaround for <https://bugs.php.net/42682>
+                if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
+                    $this->is_timeout = true;
+                    return false;
+                }
+                $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+                $this->curTimeout-= $elapsed;
+            }
+
             $temp.= fgets($this->fsock, 255);
         }
 
