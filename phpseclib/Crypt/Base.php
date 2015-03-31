@@ -56,7 +56,6 @@
  * @access public
  * @see Crypt_Base::encrypt()
  * @see Crypt_Base::decrypt()
- * @internal This constants are for internal use only
  */
 /**
  * Encrypt / decrypt using the Counter mode.
@@ -100,7 +99,7 @@ define('CRYPT_MODE_STREAM', 5);
 /**#@+
  * @access private
  * @see Crypt_Base::Crypt_Base()
- * @internal This constants are for internal use only
+ * @internal These constants are for internal use only
  */
 /**
  * Base value for the internal implementation $engine switch
@@ -1641,8 +1640,8 @@ class Crypt_Base
 
         $candidateEngines = array(
             $this->preferredEngine,
-            CRYPT_ENGINE_MCRYPT,
-            CRYPT_ENGINE_OPENSSL
+            CRYPT_ENGINE_OPENSSL,
+            CRYPT_ENGINE_MCRYPT
         );
         foreach ($candidateEngines as $engine) {
             if ($this->isValidEngine($engine)) {
