@@ -1676,7 +1676,7 @@ class Crypt_Base
      * @access private
      * @param String $in
      * @return String
-     * @internal Must extend by the child Crypt_* class
+     * @internal Must be extended by the child Crypt_* class
      */
     function _encryptBlock($in)
     {
@@ -1689,7 +1689,7 @@ class Crypt_Base
      * @access private
      * @param String $in
      * @return String
-     * @internal Must extend by the child Crypt_* class
+     * @internal Must be extended by the child Crypt_* class
      */
     function _decryptBlock($in)
     {
@@ -1703,7 +1703,7 @@ class Crypt_Base
      *
      * @see Crypt_Base::_setup()
      * @access private
-     * @internal Must extend by the child Crypt_* class
+     * @internal Must be extended by the child Crypt_* class
      */
     function _setupKey()
     {
