@@ -13,7 +13,7 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
     var $engines = array(
         Base::ENGINE_INTERNAL => 'internal',
         Base::ENGINE_MCRYPT => 'mcrypt',
-        Base::ENGINE_OPENSL => 'OpenSSL',
+        Base::ENGINE_OPENSSL => 'OpenSSL',
     );
 
     public function engineVectors()

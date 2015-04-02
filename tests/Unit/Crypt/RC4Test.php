@@ -15,7 +15,7 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
         $engines = array(
             Base::ENGINE_INTERNAL => 'internal',
             Base::ENGINE_MCRYPT => 'mcrypt',
-            Base::ENGINE_MCRYPT => 'OpenSSL',
+            Base::ENGINE_OPENSSL => 'OpenSSL',
         );
         // tests from https://tools.ietf.org/html/rfc6229
         $tests = array(
