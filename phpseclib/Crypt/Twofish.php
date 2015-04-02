@@ -746,7 +746,7 @@ class Crypt_Twofish extends Crypt_Base
         // Generation of a uniqe hash for our generated code
         $code_hash = "Crypt_Twofish, {$this->mode}";
         if ($gen_hi_opt_code) {
-            $code_hash = str_pad($code_hash, 32) . $this->_trapdoor($this->key);
+            $code_hash = str_pad($code_hash, 32) . $this->_hashInlineCryptFunction($this->key);
         }
 
         if (!isset($lambda_functions[$code_hash])) {

@@ -53,10 +53,9 @@
  */
 
 /**#@+
- * @access private
+ * @access public
  * @see Crypt_Base::encrypt()
  * @see Crypt_Base::decrypt()
- * @internal This constants are for internal use only
  */
 /**
  * Encrypt / decrypt using the Counter mode.
@@ -100,7 +99,7 @@ define('CRYPT_MODE_STREAM', 5);
 /**#@+
  * @access private
  * @see Crypt_Base::Crypt_Base()
- * @internal This constants are for internal use only
+ * @internal These constants are for internal use only
  */
 /**
  * Base value for the internal implementation $engine switch
@@ -979,7 +978,8 @@ class Crypt_Base
     function decrypt($ciphertext)
     {
         if ($this->paddable) {
-            // we pad with chr(0) since that's what mcrypt_generic does [...]
+            // we pad with chr(0) since that's what mcrypt_generic does.  to quote from {@link http://www.php.net/function.mcrypt-generic}:
+            // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
             $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($this->block_size - strlen($ciphertext) % $this->block_size) % $this->block_size, chr(0));
         }
 
@@ -1110,12 +1110,6 @@ class Crypt_Base
                 }
 
                 return $plaintext;
-            }
-
-            if ($this->paddable) {
-                // we pad with chr(0) since that's what mcrypt_generic does.  to quote from {@link http://www.php.net/function.mcrypt-generic}:
-                // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
-                $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($block_size - strlen($ciphertext) % $block_size) % $block_size, chr(0));
             }
 
             $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
@@ -1587,6 +1581,8 @@ class Crypt_Base
             case CRYPT_ENGINE_INTERNAL:
                 return true;
         }
+
+        return false;
     }
 
     /**
@@ -1640,18 +1636,21 @@ class Crypt_Base
      */
     function _setEngine()
     {
-        switch (true) {
-            case $this->isValidEngine($this->preferredEngine):
-                $this->engine = $this->preferredEngine;
+        $this->engine = null;
+
+        $candidateEngines = array(
+            $this->preferredEngine,
+            CRYPT_ENGINE_OPENSSL,
+            CRYPT_ENGINE_MCRYPT
+        );
+        foreach ($candidateEngines as $engine) {
+            if ($this->isValidEngine($engine)) {
+                $this->engine = $engine;
                 break;
-            case $this->isValidEngine(CRYPT_ENGINE_OPENSSL):
-                $this->engine = CRYPT_ENGINE_OPENSSL;
-                break;
-            case $this->isValidEngine(CRYPT_ENGINE_MCRYPT):
-                $this->engine = CRYPT_ENGINE_MCRYPT;
-                break;
-            default:
-                $this->engine = CRYPT_ENGINE_INTERNAL;
+            }
+        }
+        if (!$this->engine) {
+            $this->engine = CRYPT_ENGINE_INTERNAL;
         }
 
         if ($this->engine != CRYPT_ENGINE_MCRYPT && $this->enmcrypt) {
@@ -1732,7 +1731,7 @@ class Crypt_Base
      * @see setIV()
      * @see disableContinuousBuffer()
      * @access private
-     * @internal _setup() is called always before(!) en/decryption.
+     * @internal _setup() is always called before en/decryption.
      * @internal Could, but not must, extend by the child Crypt_* class
      */
     function _setup()
@@ -2512,13 +2511,11 @@ class Crypt_Base
      * @param $bytes
      * @return String
      */
-    function _trapdoor($bytes)
+    function _hashInlineCryptFunction($bytes)
     {
         if (!defined('CRYPT_BASE_WHIRLPOOL_AVAILABLE')) {
             define('CRYPT_BASE_WHIRLPOOL_AVAILABLE', (bool)(extension_loaded('hash') && in_array('whirlpool', hash_algos())));
         }
-
-        // return pack('H*', md5($bytes) . sha1($bytes) . (CRYPT_BASE_WHIRLPOOL_AVAILABLE ? hash('whirlpool', $bytes) : '')); // Alternative
 
         $result = '';
         $hash = $bytes;
