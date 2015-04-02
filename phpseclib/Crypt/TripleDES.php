@@ -85,16 +85,6 @@ class TripleDES extends DES
     var $password_default_salt = 'phpseclib';
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see \phpseclib\Crypt\DES::const_namespace
-     * @see \phpseclib\Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'DES';
-
-    /**
      * The mcrypt specific name of the cipher
      *
      * @see \phpseclib\Crypt\DES::cipher_name_mcrypt
@@ -195,6 +185,27 @@ class TripleDES extends DES
     }
 
     /**
+     * Test for engine validity
+     *
+     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
+     *
+     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @param Integer $engine
+     * @access public
+     * @return Boolean
+     */
+    function isValidEngine($engine)
+    {
+        if ($engine == self::ENGINE_OPENSSL) {
+            $this->cipher_name_openssl_ecb = 'des-ede3';
+            $mode = $this->_openssl_translate_mode();
+            $this->cipher_name_openssl = $mode == 'ecb' ? 'des-ede3' : 'des-ede3-' . $mode;
+        }
+
+        return parent::isValidEngine($engine);
+    }
+
+    /**
      * Sets the initialization vector. (optional)
      *
      * SetIV is not required when \phpseclib\Crypt\Base::MODE_ECB is being used.  If not explicitly set, it'll be assumed
@@ -236,7 +247,7 @@ class TripleDES extends DES
             $key = str_pad(substr($key, 0, 24), 24, chr(0));
             // if $key is between 64 and 128-bits, use the first 64-bits as the last, per this:
             // http://php.net/function.mcrypt-encrypt#47973
-            //$key = $length <= 16 ? substr_replace($key, substr($key, 0, 8), 16) : substr($key, 0, 24);
+            $key = $length <= 16 ? substr_replace($key, substr($key, 0, 8), 16) : substr($key, 0, 24);
         } else {
             $key = str_pad($key, 8, chr(0));
         }
@@ -405,5 +416,25 @@ class TripleDES extends DES
         }
         // setup our key
         parent::_setupKey();
+    }
+
+    /**
+     * Sets the internal crypt engine
+     *
+     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::setPreferredEngine()
+     * @param Integer $engine
+     * @access public
+     * @return Integer
+     */
+    function setPreferredEngine($engine)
+    {
+        if ($this->mode_3cbc) {
+            $this->des[0]->setPreferredEngine($engine);
+            $this->des[1]->setPreferredEngine($engine);
+            $this->des[2]->setPreferredEngine($engine);
+        }
+
+        return parent::setPreferredEngine($engine);
     }
 }
