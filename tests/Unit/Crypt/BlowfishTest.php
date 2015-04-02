@@ -15,7 +15,7 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
         $engines = array(
             Base::ENGINE_INTERNAL => 'internal',
             Base::ENGINE_MCRYPT => 'mcrypt',
-            Base::ENINE_OPENSSL => 'OpenSSL',
+            Base::ENGINE_OPENSSL => 'OpenSSL',
         );
 
         // tests from https://www.schneier.com/code/vectors.txt
