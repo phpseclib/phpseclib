@@ -27,5 +27,26 @@ class Functional_Net_SSH2AgentTest extends PhpseclibFunctionalTestCase
             $ssh->login($this->getEnv('SSH_USERNAME'), $agent),
             'SSH2 login using Agent failed.'
         );
+
+        return array('ssh' => $ssh, 'ssh-agent' => $agent);
+    }
+
+    /**
+     * @depends testAgentLogin
+     */
+    public function testAgentForward($args)
+    {
+        $ssh = $args['ssh'];
+        $agent = $args['ssh-agent'];
+
+        $hostname = $this->getEnv('SSH_HOSTNAME');
+        $username = $this->getEnv('SSH_USERNAME');
+
+        $this->assertEquals($username, trim($ssh->exec('whoami')));
+
+        $agent->startSSHForwarding($ssh);
+        $this->assertEquals($username, trim($ssh->exec("ssh " . $username . "@" . $hostname . ' \'whoami\'')));
+
+        return $args;
     }
 }
