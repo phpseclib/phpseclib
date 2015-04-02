@@ -97,7 +97,7 @@ abstract class Base
      * @var Boolean
      * @access private
      */
-    static WHIRLPOOL_AVAILABLE;
+    public static WHIRLPOOL_AVAILABLE;
 
     /**#@+
      * @access private
