@@ -2478,7 +2478,7 @@ abstract class Base
         $hash = $bytes;
 
         switch (true) {
-            case self::WHIRLPOOL_AVAILABLE:
+            case self::$WHIRLPOOL_AVAILABLE:
                 foreach (str_split($bytes, 64) as $t) {
                     $hash = hash('whirlpool', $hash, true);
                     $result .= $t ^ $hash;
