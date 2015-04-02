@@ -97,7 +97,7 @@ abstract class Base
      * @var Boolean
      * @access private
      */
-    public static WHIRLPOOL_AVAILABLE;
+    static $WHIRLPOOL_AVAILABLE;
 
     /**#@+
      * @access private
@@ -2470,8 +2470,8 @@ abstract class Base
      */
     function _hashInlineCryptFunction($bytes)
     {
-        if (!isset(self::WHIRLPOOL_AVAILABLE)) {
-            self::WHIRLPOOL_AVAILABLE = extension_loaded('hash') && in_array('whirlpool', hash_algos());
+        if (!isset(self::$WHIRLPOOL_AVAILABLE)) {
+            self::$WHIRLPOOL_AVAILABLE = extension_loaded('hash') && in_array('whirlpool', hash_algos());
         }
 
         $result = '';
