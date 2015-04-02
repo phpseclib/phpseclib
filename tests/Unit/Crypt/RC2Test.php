@@ -93,8 +93,8 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
             self::markTestSkipped('Unable to initialize mcrypt engine');
         }
 
-        $rc2->setPreferredEngine(self::ENGINE_OPENSSL);
-        if ($rc2->getEngine() == self::ENGINE_OPENSSL) {
+        $rc2->setPreferredEngine(Base::ENGINE_OPENSSL);
+        if ($rc2->getEngine() == Base::ENGINE_OPENSSL) {
             $openssl = $rc2->encrypt('d');
             $this->assertEquals($result, $openssl,  'Failed asserting that the OpenSSL engine produced the correct result');
         } else {
