@@ -1374,15 +1374,15 @@ abstract class Base
     function _openssl_translate_mode()
     {
         switch ($this->mode) {
-            case CRYPT_MODE_ECB:
+            case self::MODE_ECB:
                 return 'ecb';
-            case CRYPT_MODE_CBC:
+            case self::MODE_CBC:
                 return 'cbc';
-            case CRYPT_MODE_CTR:
+            case self::MODE_CTR:
                 return 'ctr';
-            case CRYPT_MODE_CFB:
+            case self::MODE_CFB:
                 return 'cfb';
-            case CRYPT_MODE_OFB:
+            case self::MODE_OFB:
                 return 'ofb';
         }
     }
