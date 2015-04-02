@@ -5,7 +5,7 @@
  *
  * Uses mcrypt, if available, and an internal implementation, otherwise.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * Useful resources are as follows:
  *

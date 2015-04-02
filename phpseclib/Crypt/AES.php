@@ -5,7 +5,7 @@
  *
  * Uses mcrypt, if available/possible, and an internal implementation, otherwise.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * NOTE: Since AES.php is (for compatibility and phpseclib-historical reasons) virtually 
  * just a wrapper to Rijndael.php you may consider using Rijndael.php instead of

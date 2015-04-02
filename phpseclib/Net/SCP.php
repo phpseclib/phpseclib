@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of SCP.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * The API for this library is modeled after the API from PHP's {@link http://php.net/book.ftp FTP extension}.
  *

@@ -6,7 +6,7 @@
  * Supports base-2, base-10, base-16, and base-256 numbers.  Uses the GMP or BCMath extensions, if available,
  * and an internal implementation, otherwise.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * {@internal (all DocBlock comments regarding implementation - such as the one that follows - refer to the
  * {@link self::MODE_INTERNAL self::MODE_INTERNAL} mode)

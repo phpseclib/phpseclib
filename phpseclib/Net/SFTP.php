@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of SFTP.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * Currently only supports SFTPv2 and v3, which, according to wikipedia.org, "is the most widely used version,
  * implemented by the popular OpenSSH SFTP server".  If you want SFTPv4/5/6 support, provide me with access

@@ -3,7 +3,7 @@
 /**
  * Random Number Generator
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * Here's a short example of how to use this library:
  * <code>

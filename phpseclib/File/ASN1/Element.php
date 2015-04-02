@@ -2,7 +2,7 @@
 /**
  * Pure-PHP ASN.1 Parser
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * @category  File
  * @package   ASN1

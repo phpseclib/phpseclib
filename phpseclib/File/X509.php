@@ -3,7 +3,7 @@
 /**
  * Pure-PHP X.509 Parser
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * Encode and decode X.509 certificates.
  *

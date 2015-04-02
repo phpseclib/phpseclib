@@ -5,7 +5,7 @@
  *
  * Uses mcrypt, if available/possible, and an internal implementation, otherwise.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * If {@link \phpseclib\Crypt\Rijndael::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
  * {@link \phpseclib\Crypt\Rijndael::setKeyLength() setKeyLength()} isn't called, it'll be calculated from

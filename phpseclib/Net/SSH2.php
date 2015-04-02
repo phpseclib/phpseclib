@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of SSHv2.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * Here are some examples of how to use this library:
  * <code>
