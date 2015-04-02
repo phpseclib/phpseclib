@@ -667,7 +667,7 @@ class Crypt_DES extends Crypt_Base
      *
      * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see Crypt_Base::isValidEngine()
      * @param Integer $engine
      * @access public
      * @return Boolean
