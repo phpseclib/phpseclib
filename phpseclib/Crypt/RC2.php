@@ -314,7 +314,6 @@ class RC2 extends Base
     {
         $this->orig_key = $key;
 
-
         if ($t1 <= 0) {
             $t1 = $this->default_key_length;
         } else if ($t1 > 1024) {

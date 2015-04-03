@@ -365,7 +365,7 @@ abstract class Base
      * @access private
      */
     var $cipher_name_openssl;
- 
+
     /**
      * The openssl specific name of the cipher in ECB mode
      *
@@ -430,7 +430,7 @@ abstract class Base
      * @access private
      */
     var $openssl_emulate_ctr = false;
- 
+
     /**
      * Determines what options are passed to openssl_encrypt/decrypt
      *
