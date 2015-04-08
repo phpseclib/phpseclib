@@ -73,6 +73,11 @@ class SFTP extends SSH2
     // this value isn't really used anymore but i'm keeping it reserved for historical reasons
     const SOURCE_STRING = 2;
     /**
+     * Reads data from callback:
+     * function callback($length) returns string to proceed, null for EOF
+     */
+    const SOURCE_CALLBACK = 16;
+    /**
      * Resumes an upload
     */
     const RESUME = 4;
@@ -1718,6 +1723,8 @@ class SFTP extends SSH2
      * contain as many bytes as filename.ext does on your local filesystem.  If your filename.ext is 1MB then that is how
      * large $remote_file will be, as well.
      *
+     * Setting $mode to self::SOURCE_CALLBACK will use $data as callback function, which gets only one parameter -- number of bytes to return, and returns a string if there is some data or null if there is no more data
+     *
      * If $data is a resource then it'll be used as a resource instead.
      *
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
@@ -1797,7 +1804,12 @@ class SFTP extends SSH2
         }
 
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
+        $callback = false;
         switch (true) {
+            case $mode & self::SOURCE_CALLBACK;
+                $callback = $data;
+                // do nothing
+                break;
             case is_resource($data):
                 $mode = $mode & ~self::SOURCE_LOCAL_FILE;
                 $fp = $data;
@@ -1824,6 +1836,8 @@ class SFTP extends SSH2
             } else {
                 fseek($fp, $offset);
             }
+        } elseif ($callback) {
+            $size = 0;
         } else {
             $size = strlen($data);
         }
@@ -1835,8 +1849,13 @@ class SFTP extends SSH2
         // make the SFTP packet be exactly 4096 bytes by including the bytes in the NET_SFTP_WRITE packets "header"
         $sftp_packet_size-= strlen($handle) + 25;
         $i = 0;
-        while ($sent < $size) {
-            $temp = isset($fp) ? fread($fp, $sftp_packet_size) : substr($data, $sent, $sftp_packet_size);
+        while ($callback || $sent < $size) {
+            if ($callback) {
+                $temp = call_user_func($callback, $sftp_packet_size);
+                if (is_null($temp)) break;
+            } else {
+                $temp = isset($fp) ? fread($fp, $sftp_packet_size) : substr($data, $sent, $sftp_packet_size);
+            }
             $subtemp = $offset + $sent;
             $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, strlen($temp), $temp);
             if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
