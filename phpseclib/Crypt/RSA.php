@@ -3,7 +3,7 @@
 /**
  * Pure-PHP PKCS#1 (v2.1) compliant implementation of RSA.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * Here's an example of how to encrypt and decrypt text with this library:
  * <code>

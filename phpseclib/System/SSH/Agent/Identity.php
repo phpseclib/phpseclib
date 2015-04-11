@@ -2,7 +2,7 @@
 /**
  * Pure-PHP ssh-agent client.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * @category  System
  * @package   SSH\Agent

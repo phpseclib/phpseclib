@@ -5,7 +5,11 @@
  *
  * Uses mcrypt, if available/possible, and an internal implementation, otherwise.
  *
- * PHP versions 4 and 5
+ * PHP version 5
+ *
+ * NOTE: Since AES.php is (for compatibility and phpseclib-historical reasons) virtually 
+ * just a wrapper to Rijndael.php you may consider using Rijndael.php instead of
+ * to save one include_once().
  *
  * If {@link \phpseclib\Crypt\AES::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
  * {@link \phpseclib\Crypt\AES::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's 136-bits
@@ -56,15 +60,6 @@ use phpseclib\Crypt\Rijndael;
  */
 class AES extends Rijndael
 {
-    /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see \phpseclib\Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'AES';
-
     /**
      * Dummy function
      *
@@ -127,7 +122,7 @@ class AES extends Rijndael
                 default:
                     $this->key_size = 32;
             }
-            $this->_setupEngine();
+            $this->_setEngine();
         }
     }
 }

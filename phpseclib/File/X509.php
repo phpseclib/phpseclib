@@ -3,7 +3,7 @@
 /**
  * Pure-PHP X.509 Parser
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * Encode and decode X.509 certificates.
  *
@@ -1568,7 +1568,7 @@ class X509
                             }
                         }
                     }
-                } elseif ($map) {
+                } else {
                     $value = base64_encode($value);
                 }
             }
@@ -1591,6 +1591,10 @@ class X509
         if (is_array($extensions)) {
             $size = count($extensions);
             for ($i = 0; $i < $size; $i++) {
+                if ($extensions[$i] instanceof Element) {
+                    continue;
+                }
+
                 $id = $extensions[$i]['extnId'];
                 $value = &$extensions[$i]['extnValue'];
 

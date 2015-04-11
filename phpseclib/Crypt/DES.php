@@ -5,7 +5,7 @@
  *
  * Uses mcrypt, if available, and an internal implementation, otherwise.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * Useful resources are as follows:
  *
@@ -98,15 +98,6 @@ class DES extends Base
     var $password_key_size = 8;
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see \phpseclib\Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'DES';
-
-    /**
      * The mcrypt specific name of the cipher
      *
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
@@ -114,6 +105,21 @@ class DES extends Base
      * @access private
      */
     var $cipher_name_mcrypt = 'des';
+
+    /**
+     * The OpenSSL names of the cipher / modes
+     *
+     * @see \phpseclib\Crypt\Base::openssl_mode_names
+     * @var Array
+     * @access private
+     */
+    var $openssl_mode_names = array(
+        self::MODE_ECB => 'des-ecb',
+        self::MODE_CBC => 'des-cbc',
+        self::MODE_CFB => 'des-cfb',
+        self::MODE_OFB => 'des-ofb'
+        // self::MODE_CTR is undefined for DES
+    );
 
     /**
      * Optimizing value while CFB-encrypting
@@ -584,6 +590,28 @@ class DES extends Base
         0x08020820, 0x00020800, 0x00020800, 0x00000820,
         0x00000820, 0x00020020, 0x08000000, 0x08020800
     );
+
+    /**
+     * Test for engine validity
+     *
+     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     *
+     * @see \phpseclib\Crypt\Base::isValidEngine()
+     * @param Integer $engine
+     * @access public
+     * @return Boolean
+     */
+    function isValidEngine($engine)
+    {
+        if ($this->key_size_max == 8) {
+            if ($engine == self::ENGINE_OPENSSL) {
+                $this->cipher_name_openssl_ecb = 'des-ecb';
+                $this->cipher_name_openssl = 'des-' . $this->_openssl_translate_mode();
+            }
+        }
+
+        return parent::isValidEngine($engine);
+    }
 
     /**
      * Sets the key.
@@ -1282,21 +1310,20 @@ class DES extends Base
         $des_rounds = $this->des_rounds;
 
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
+        // (Currently, for Crypt_DES,       one generated $lambda_function cost on php5.5@32bit ~135kb unfreeable mem and ~230kb on php5.5@64bit)
+        // (Currently, for Crypt_TripleDES, one generated $lambda_function cost on php5.5@32bit ~240kb unfreeable mem and ~340kb on php5.5@64bit)
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one
         $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
         // Generation of a uniqe hash for our generated code
-        switch (true) {
-            case $gen_hi_opt_code:
-                // For hi-optimized code, we create for each combination of
-                // $mode, $des_rounds and $this->key its own encrypt/decrypt function.
-                $code_hash = md5(str_pad("DES, $des_rounds, {$this->mode}, ", 32, "\0") . $this->key);
-                break;
-            default:
-                // After max 10 hi-optimized functions, we create generic
-                // (still very fast.. but not ultra) functions for each $mode/$des_rounds
-                // Currently 2 * 5 generic functions will be then max. possible.
-                $code_hash = "DES, $des_rounds, {$this->mode}";
+        $code_hash = "Crypt_DES, $des_rounds, {$this->mode}";
+        if ($gen_hi_opt_code) {
+            // For hi-optimized code, we create for each combination of
+            // $mode, $des_rounds and $this->key its own encrypt/decrypt function.
+            // After max 10 hi-optimized functions, we create generic
+            // (still very fast.. but not ultra) functions for each $mode/$des_rounds
+            // Currently 2 * 5 generic functions will be then max. possible.
+            $code_hash = str_pad($code_hash, 32) . $this->_hashInlineCryptFunction($this->key);
         }
 
         // Is there a re-usable $lambda_functions in there? If not, we have to create it.

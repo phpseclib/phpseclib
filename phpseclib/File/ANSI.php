@@ -3,7 +3,7 @@
 /**
  * Pure-PHP ANSI Decoder
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * If you call read() in \phpseclib\Net\SSH2 you may get {@link http://en.wikipedia.org/wiki/ANSI_escape_code ANSI escape codes} back.
  * They'd look like chr(0x1B) . '[00m' or whatever (0x1B = ESC).  They tell a

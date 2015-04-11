@@ -16,17 +16,10 @@ class Functional_Net_SFTPLargeFileTest extends PhpseclibFunctionalTestCase
 
     static public function setUpBeforeClass()
     {
-        if (!extension_loaded('mcrypt')) {
-            self::markTestSkipped('This test depends on mcrypt for performance.');
+        if (!extension_loaded('mcrypt') && !extension_loaded('openssl')) {
+            self::markTestSkipped('This test depends on mcrypt or openssl for performance.');
         }
         parent::setUpBeforeClass();
-        self::ensureConstant('CRYPT_AES_MODE', Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_BLOWFISH_MODE', Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_DES_MODE', Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_RC2_MODE', Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_RC4_MODE', Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_RIJNDAEL_MODE', Base::ENGINE_MCRYPT);
-        self::ensureConstant('CRYPT_TWOFISH_MODE', Base::ENGINE_MCRYPT);
     }
 
     public function setUp()

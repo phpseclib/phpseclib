@@ -5,7 +5,7 @@
  *
  * Uses mcrypt, if available, and an internal implementation, otherwise.
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * Useful resources are as follows:
  *
@@ -69,15 +69,6 @@ class Blowfish extends Base
     var $password_key_size = 56;
 
     /**
-     * The namespace used by the cipher for its constants.
-     *
-     * @see \phpseclib\Crypt\Base::const_namespace
-     * @var String
-     * @access private
-     */
-    var $const_namespace = 'BLOWFISH';
-
-    /**
      * The mcrypt specific name of the cipher
      *
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
@@ -98,7 +89,7 @@ class Blowfish extends Base
     /**
      * The fixed subkeys boxes ($sbox0 - $sbox3) with 256 entries each
      *
-     * S-Box 1
+     * S-Box 0
      *
      * @access private
      * @var    array
@@ -320,6 +311,29 @@ class Blowfish extends Base
     }
 
     /**
+     * Test for engine validity
+     *
+     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     *
+     * @see \phpseclib\Crypt\Base::isValidEngine()
+     * @param Integer $engine
+     * @access public
+     * @return Boolean
+     */
+    function isValidEngine($engine)
+    {
+        if ($engine == self::ENGINE_OPENSSL) {
+            if (strlen($this->key) != 16) {
+                return false;
+            }
+            $this->cipher_name_openssl_ecb = 'bf-ecb';
+            $this->cipher_name_openssl = 'bf-' . $this->_openssl_translate_mode();
+        }
+
+        return parent::isValidEngine($engine);
+    }
+
+    /**
      * Setup the key (expansion)
      *
      * @see \phpseclib\Crypt\Base::_setupKey()
@@ -396,17 +410,17 @@ class Blowfish extends Base
         $r = $in[2];
 
         for ($i = 0; $i < 16; $i+= 2) {
-                $l^= $p[$i];
-                $r^= ($sb_0[$l >> 24 & 0xff]  +
-                      $sb_1[$l >> 16 & 0xff]  ^
-                      $sb_2[$l >>  8 & 0xff]) +
-                      $sb_3[$l       & 0xff];
+            $l^= $p[$i];
+            $r^= ($sb_0[$l >> 24 & 0xff]  +
+                  $sb_1[$l >> 16 & 0xff]  ^
+                  $sb_2[$l >>  8 & 0xff]) +
+                  $sb_3[$l       & 0xff];
 
-                $r^= $p[$i + 1];
-                $l^= ($sb_0[$r >> 24 & 0xff]  +
-                      $sb_1[$r >> 16 & 0xff]  ^
-                      $sb_2[$r >>  8 & 0xff]) +
-                      $sb_3[$r       & 0xff];
+            $r^= $p[$i + 1];
+            $l^= ($sb_0[$r >> 24 & 0xff]  +
+                  $sb_1[$r >> 16 & 0xff]  ^
+                  $sb_2[$r >>  8 & 0xff]) +
+                  $sb_3[$r       & 0xff];
         }
         return pack("N*", $r ^ $p[17], $l ^ $p[16]);
     }
@@ -443,7 +457,6 @@ class Blowfish extends Base
                   $sb_2[$r >>  8 & 0xff]) +
                   $sb_3[$r       & 0xff];
         }
-
         return pack("N*", $r ^ $p[0], $l ^ $p[1]);
     }
 
@@ -458,15 +471,14 @@ class Blowfish extends Base
         $lambda_functions =& self::_getLambdaFunctions();
 
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
+        // (Currently, for Crypt_Blowfish, one generated $lambda_function cost on php5.5@32bit ~100kb unfreeable mem and ~180kb on php5.5@64bit)
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one.
-        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10);
+        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
-        switch (true) {
-            case $gen_hi_opt_code:
-                $code_hash = md5(str_pad("Blowfish, {$this->mode}, ", 32, "\0") . $this->key);
-                break;
-            default:
-                $code_hash = "Blowfish, {$this->mode}";
+        // Generation of a unique hash for our generated code
+        $code_hash = "Crypt_Blowfish, {$this->mode}";
+        if ($gen_hi_opt_code) {
+            $code_hash = str_pad($code_hash, 32) . $this->_hashInlineCryptFunction($this->key);
         }
 
         if (!isset($lambda_functions[$code_hash])) {
