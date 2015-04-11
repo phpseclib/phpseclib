@@ -1807,6 +1807,9 @@ class SFTP extends SSH2
         $callback = false;
         switch (true) {
             case $mode & self::SOURCE_CALLBACK;
+                if (!is_callable($data)) {
+                    throw new Exception('if you specify SOURCE_CALLBACK then $data should be callable');
+                }
                 $callback = $data;
                 // do nothing
                 break;
@@ -1852,7 +1855,9 @@ class SFTP extends SSH2
         while ($callback || $sent < $size) {
             if ($callback) {
                 $temp = call_user_func($callback, $sftp_packet_size);
-                if (is_null($temp)) break;
+                if (is_null($temp)) {
+                    break;
+                }
             } else {
                 $temp = isset($fp) ? fread($fp, $sftp_packet_size) : substr($data, $sent, $sftp_packet_size);
             }
