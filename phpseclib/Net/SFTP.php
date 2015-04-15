@@ -1808,7 +1808,7 @@ class SFTP extends SSH2
         switch (true) {
             case $mode & self::SOURCE_CALLBACK;
                 if (!is_callable($data)) {
-                    throw new Exception('if you specify SOURCE_CALLBACK then $data should be callable');
+                    user_error("\$data should be is_callable() if you specify SOURCE_CALLBACK flag");
                 }
                 $callback = $data;
                 // do nothing
