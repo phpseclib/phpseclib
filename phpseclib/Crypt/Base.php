@@ -91,7 +91,6 @@ define('CRYPT_MODE_CFB', 3);
 define('CRYPT_MODE_OFB', 4);
 /**
  * Encrypt / decrypt using streaming mode.
- *
  */
 define('CRYPT_MODE_STREAM', 5);
 /**#@-*/

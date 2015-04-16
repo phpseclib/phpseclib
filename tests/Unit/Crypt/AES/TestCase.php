@@ -27,10 +27,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-    * Produces all combinations of test values.
-    *
-    * @return array
-    */
+     * Produces all combinations of test values.
+     *
+     * @return array
+     */
     public function continuousBufferCombos()
     {
         $modes = array(
@@ -68,8 +68,8 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-    * @dataProvider continuousBufferCombos
-    */
+     * @dataProvider continuousBufferCombos
+     */
     public function testEncryptDecryptWithContinuousBuffer($mode, $plaintext, $iv, $key)
     {
         $aes = new Crypt_AES(constant($mode));
@@ -89,8 +89,8 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-    * @group github451
-    */
+     * @group github451
+     */
     public function testKeyPaddingRijndael()
     {
         // this test case is from the following URL:
@@ -106,8 +106,8 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-    * @group github451
-    */
+     * @group github451
+     */
     public function testKeyPaddingAES()
     {
         // same as the above - just with a different ciphertext
