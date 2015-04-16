@@ -1745,11 +1745,12 @@ class SFTP extends SSH2
      * @param optional Integer $mode
      * @param optional Integer $start
      * @param optional Integer $local_start
+     * @param optional callable|null $callback
      * @return Boolean
      * @access public
      * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - \phpseclib\Net\SFTP::setMode().
      */
-    function put($remote_file, $data, $mode = self::SOURCE_STRING, $start = -1, $local_start = -1)
+    function put($remote_file, $data, $mode = self::SOURCE_STRING, $start = -1, $local_start = -1, $callback = null)
     {
         if (!($this->bitmap & SSH2::MASK_LOGIN)) {
             return false;
@@ -1846,6 +1847,9 @@ class SFTP extends SSH2
                 return false;
             }
             $sent+= strlen($temp);
+            if (is_callable($callback)) {
+                call_user_func($callback, $sent);
+            }
 
             $i++;
 
