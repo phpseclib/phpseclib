@@ -20,17 +20,17 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
     }
 
     /**
-    * Creates a temporary file on the local filesystem and returns its path.
-    * The $number_of_writes and $bytes_per_write parameters can be used to
-    * write $number_of_writes * $bytes_per_write times the character 'a' to the
-    * temporary file. All files created using this method will be deleted from
-    * the filesystem on tearDown(), i.e. after each test method was run.
-    *
-    * @param int $number_of_writes
-    * @param int $bytes_per_write
-    *
-    * @return string
-    */
+     * Creates a temporary file on the local filesystem and returns its path.
+     * The $number_of_writes and $bytes_per_write parameters can be used to
+     * write $number_of_writes * $bytes_per_write times the character 'a' to the
+     * temporary file. All files created using this method will be deleted from
+     * the filesystem on tearDown(), i.e. after each test method was run.
+     *
+     * @param int $number_of_writes
+     * @param int $bytes_per_write
+     *
+     * @return string
+     */
     protected function createTempFile($number_of_writes = 0, $bytes_per_write = 0)
     {
         $filename = tempnam(sys_get_temp_dir(), 'phpseclib-test-');
@@ -48,11 +48,11 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
     }
 
     /**
-    * @param string $constant
-    * @param mixed $expected
-    *
-    * @return null
-    */
+     * @param string $constant
+     * @param mixed $expected
+     *
+     * @return null
+     */
     static protected function ensureConstant($constant, $expected)
     {
         if (defined($constant)) {
@@ -82,10 +82,10 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
     }
 
     /**
-    * @param string $filename
-    *
-    * @return null
-    */
+     * @param string $filename
+     *
+     * @return null
+     */
     static protected function reRequireFile($filename)
     {
         if (function_exists('runkit_import')) {

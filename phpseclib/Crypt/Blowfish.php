@@ -255,7 +255,7 @@ class Blowfish extends Base
     /**
      * P-Array consists of 18 32-bit subkeys
      *
-     * @var array $parray
+     * @var array
      * @access private
      */
     var $parray = array(
@@ -269,7 +269,7 @@ class Blowfish extends Base
      *
      * Holds the expanded key [p] and the key-depended s-boxes [sb]
      *
-     * @var array $bctx
+     * @var array
      * @access private
      */
     var $bctx;

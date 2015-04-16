@@ -15,8 +15,8 @@ class Unit_Crypt_Hash_MD5Test extends Unit_Crypt_Hash_TestCase
     }
 
     /**
-    * @dataProvider hashData()
-    */
+     * @dataProvider hashData()
+     */
     public function testHash($message, $result)
     {
         $this->assertHashesTo($this->getInstance(), $message, $result);
@@ -32,8 +32,8 @@ class Unit_Crypt_Hash_MD5Test extends Unit_Crypt_Hash_TestCase
     }
 
     /**
-    * @dataProvider hmacData()
-    */
+     * @dataProvider hmacData()
+     */
     public function testHMAC($key, $message, $result)
     {
         $this->assertHMACsTo($this->getInstance(), $key, $message, $result);

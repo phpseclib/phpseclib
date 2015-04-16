@@ -29,9 +29,9 @@ class Unit_Crypt_RandomTest extends PhpseclibTestCase
     }
 
     /**
-    * Takes a set of random values of length 128 bits and asserts all taken
-    * values are unique.
-    */
+     * Takes a set of random values of length 128 bits and asserts all taken
+     * values are unique.
+     */
     public function testStringUniqueness()
     {
         $values = array();

@@ -138,7 +138,6 @@ class Rijndael extends Base
      *    because the encryption / decryption / key schedule creation requires this number and not $block_size.  We could
      *    derive this from $block_size or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
      *    of that, we'll just precompute it once.
-     *
      */
     var $Nb = 4;
 
