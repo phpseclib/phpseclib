@@ -10,9 +10,9 @@ use phpseclib\File\ASN1;
 class Unit_File_ASN1Test extends PhpseclibTestCase
 {
     /**
-    * on older versions of \phpseclib\File\ASN1 this would yield a PHP Warning
-    * @group github275
-    */
+     * on older versions of \phpseclib\File\ASN1 this would yield a PHP Warning
+     * @group github275
+     */
     public function testAnyString()
     {
         $KDC_REP = array(
@@ -83,9 +83,9 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     }
 
     /**
-    * on older versions of \phpseclib\File\ASN1 this would produce a null instead of an array
-    * @group github275
-    */
+     * on older versions of \phpseclib\File\ASN1 this would produce a null instead of an array
+     * @group github275
+     */
     public function testIncorrectString()
     {
         $PA_DATA = array(
@@ -235,8 +235,8 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     }
 
     /**
-    * older versions of ASN1 didn't handle indefinite length tags very well
-    */
+     * older versions of ASN1 didn't handle indefinite length tags very well
+     */
     public function testIndefiniteLength()
     {
         $asn1 = new ASN1();
@@ -270,8 +270,8 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     }
 
     /**
-    * @group github477
-    */
+     * @group github477
+     */
     public function testContextSpecificNonConstructed()
     {
         $asn1 = new ASN1();
@@ -280,8 +280,8 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     }
 
     /**
-    * @group github602
-    */
+     * @group github602
+     */
     public function testEmptyContextTag()
     {
         $asn1 = new ASN1();

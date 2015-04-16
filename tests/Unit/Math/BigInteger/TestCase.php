@@ -295,8 +295,8 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
     }
 
     /**
-    * @group github279
-    */
+     * @group github279
+     */
     public function testDiffieHellmanKeyAgreement()
     {
         if (getenv('TRAVIS') && PHP_VERSION === '5.3.3'
