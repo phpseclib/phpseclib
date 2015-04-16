@@ -13,6 +13,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     static protected $scratchDir;
     static protected $exampleData;
     static protected $exampleDataLength;
+    static protected $buffer;
 
     static public function setUpBeforeClass()
     {
@@ -141,6 +142,41 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $this->assertTrue(
             $sftp->put('file1.txt', self::$exampleData),
+            'Failed asserting that example data could be successfully put().'
+        );
+
+        $this->assertSame(
+            self::$exampleDataLength,
+            $sftp->size('file1.txt'),
+            'Failed asserting that put example data has the expected length'
+        );
+
+        $this->assertSame(
+            self::$exampleData,
+            $sftp->get('file1.txt'),
+            'Failed asserting that get() returns expected example data.'
+        );
+
+        return $sftp;
+    }
+
+
+    static function callback($length)
+    {
+        $r = substr(self::$buffer, 0, $length);
+        self::$buffer = substr(self::$buffer, $length);
+        if (strlen($r)) return $r;
+        return null;
+    }
+
+    /**
+    * @depends testStatOnDir
+    */
+    public function testPutSizeGetFileCallback($sftp)
+    {
+        self::$buffer =  self::$exampleData;
+        $this->assertTrue(
+            $sftp->put('file1.txt', array(__CLASS__, 'callback'), $sftp::SOURCE_CALLBACK),
             'Failed asserting that example data could be successfully put().'
         );
 
