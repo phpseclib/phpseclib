@@ -1848,7 +1848,7 @@ class Net_SFTP extends Net_SSH2
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
         $dataCallback = false;
         switch (true) {
-            case $mode & NET_SFTP_CALLBACK;
+            case $mode & NET_SFTP_CALLBACK:
                 if (!is_callable($data)) {
                     user_error("\$data should be is_callable if you set NET_SFTP_CALLBACK flag");
                 }

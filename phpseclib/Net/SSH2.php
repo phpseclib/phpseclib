@@ -1346,7 +1346,7 @@ class Net_SSH2
             case 'arcfour256':
                 $decryptKeyLength = 32; // eg. 128 / 8
                 break;
-            case 'none';
+            case 'none':
                 $decryptKeyLength = 0;
         }
 
@@ -1390,7 +1390,7 @@ class Net_SSH2
             case 'arcfour256':
                 $encryptKeyLength = 32;
                 break;
-            case 'none';
+            case 'none':
                 $encryptKeyLength = 0;
         }
 
@@ -1606,7 +1606,7 @@ class Net_SSH2
                 }
                 $this->encrypt = new Crypt_RC4();
                 break;
-            case 'none';
+            case 'none':
                 //$this->encrypt = new Crypt_Null();
         }
 
@@ -1682,7 +1682,7 @@ class Net_SSH2
                 }
                 $this->decrypt = new Crypt_RC4();
                 break;
-            case 'none';
+            case 'none':
                 //$this->decrypt = new Crypt_Null();
         }
 
