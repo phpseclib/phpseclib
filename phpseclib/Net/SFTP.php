@@ -1765,7 +1765,7 @@ class Net_SFTP extends Net_SSH2
      * If $data is a resource then it'll be used as a resource instead.
      *
      *
-     * Setting $mode to self::SOURCE_CALLBACK will use $data as callback function, which gets only one parameter -- number 
+     * Setting $mode to NET_SFTP_CALLBACK will use $data as callback function, which gets only one parameter -- number
      * of bytes to return, and returns a string if there is some data or null if there is no more data
      *
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
