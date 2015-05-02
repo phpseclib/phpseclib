@@ -261,10 +261,10 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
     }
 
     /**
-    * make phpseclib generated XML keys be unsigned. this may need to be reverted
-    * if it is later learned that XML keys are, in fact, supposed to be signed
-    * @group github468
-    */
+     * make phpseclib generated XML keys be unsigned. this may need to be reverted
+     * if it is later learned that XML keys are, in fact, supposed to be signed
+     * @group github468
+     */
     public function testUnsignedXML()
     {
         $rsa = new Crypt_RSA();
@@ -282,8 +282,8 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
     }
 
     /**
-    * @group github468
-    */
+     * @group github468
+     */
     public function testSignedPKCS1()
     {
         $rsa = new Crypt_RSA();

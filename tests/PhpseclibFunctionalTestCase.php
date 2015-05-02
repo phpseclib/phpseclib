@@ -33,11 +33,11 @@ abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
     }
 
     /**
-    * @param string $variable
-    * @param string|null $message
-    *
-    * @return null
-    */
+     * @param string $variable
+     * @param string|null $message
+     *
+     * @return null
+     */
     protected function requireEnv($variable, $message = null)
     {
         if ($this->_getEnv($variable) === false) {
@@ -50,10 +50,10 @@ abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
     }
 
     /**
-    * @param string $variable
-    *
-    * @return string
-    */
+     * @param string $variable
+     *
+     * @return string
+     */
     protected function getEnv($variable)
     {
         $this->requireEnv($variable);
