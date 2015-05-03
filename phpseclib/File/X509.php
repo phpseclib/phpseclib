@@ -2921,7 +2921,7 @@ class File_X509
 
         switch (true) {
             case !($algorithm = $this->_subArray($csr, 'certificationRequestInfo/subjectPKInfo/algorithm/algorithm')):
-            case is_object($csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']);
+            case is_object($csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']):
                 break;
             default:
                 switch ($algorithm) {
@@ -3048,7 +3048,7 @@ class File_X509
         $algorithm = $this->_subArray($spkac, 'publicKeyAndChallenge/spki/algorithm/algorithm');
         switch (true) {
             case !$algorithm:
-            case is_object($spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']);
+            case is_object($spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']):
                 break;
             default:
                 switch ($algorithm) {
@@ -4128,7 +4128,7 @@ class File_X509
                     case $disposition == FILE_X509_ATTR_APPEND:
                         $last = $key;
                         break;
-                    case $disposition >= $n;
+                    case $disposition >= $n:
                         $disposition -= $n;
                         break;
                     default:
