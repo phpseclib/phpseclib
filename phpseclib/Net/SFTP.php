@@ -1807,7 +1807,7 @@ class SFTP extends SSH2
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
         $dataCallback = false;
         switch (true) {
-            case $mode & self::SOURCE_CALLBACK;
+            case $mode & self::SOURCE_CALLBACK:
                 if (!is_callable($data)) {
                     user_error("\$data should be is_callable() if you specify SOURCE_CALLBACK flag");
                 }
