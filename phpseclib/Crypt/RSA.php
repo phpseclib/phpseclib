@@ -1730,11 +1730,11 @@ class RSA
         switch($algorithm)
         {
             case 'sha256':
-                $hash = new Hash;
-                $base = base64_encode($hash->_sha256($RSAPublicKey));
+                $hash = new Hash('sha256');
+                $base = base64_encode($hash->hash($RSAPublicKey));
                 return substr($base, 0, strlen($base)-1);
             case 'md5':
-                return join(':', str_split(md5($RSAPublicKey), 2));
+                return substr(chunk_split($RSAPublicKey, 2, ':'), 0, -1);
             default:
                 return false;
         }
