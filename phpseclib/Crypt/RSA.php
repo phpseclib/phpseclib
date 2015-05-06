@@ -1734,7 +1734,7 @@ class RSA
                 $base = base64_encode($hash->hash($RSAPublicKey));
                 return substr($base, 0, strlen($base)-1);
             case 'md5':
-                return substr(chunk_split($RSAPublicKey, 2, ':'), 0, -1);
+                return substr(chunk_split(md5($RSAPublicKey), 2, ':'), 0, -1);
             default:
                 return false;
         }
