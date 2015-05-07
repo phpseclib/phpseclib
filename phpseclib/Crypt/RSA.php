@@ -1730,7 +1730,7 @@ class RSA
         switch($algorithm)
         {
             case 'sha256':
-                $hash = new Crypt_Hash('sha256');
+                $hash = new Hash('sha256');
                 $base = base64_encode($hash->hash($RSAPublicKey));
                 return substr($base, 0, strlen($base) - 1);
             case 'md5':
