@@ -511,7 +511,7 @@ class Net_SFTP_Stream
 
         $path_from = $this->_parse_path($path_from);
         $path_to = parse_url($path_to);
-        if ($path_from == false) {
+        if ($path_from === false) {
             return false;
         }
 
