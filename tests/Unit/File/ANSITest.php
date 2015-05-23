@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-require_once 'File/ANSI.php';
+use phpseclib\File\ANSI;
 
 class Unit_File_ANSITest extends PhpseclibTestCase
 {
@@ -17,7 +17,7 @@ class Unit_File_ANSITest extends PhpseclibTestCase
         $str.= "\x1B[m"; // reset everything
         $str.= "bbb";
 
-        $ansi = new File_ANSI();
+        $ansi = new ANSI();
         $ansi->appendString($str);
 
         $expected = '<pre width="80" style="color: white; background: black">';

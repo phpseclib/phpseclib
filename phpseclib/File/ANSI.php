@@ -172,8 +172,8 @@ class ANSI
         $attr_cell->background = 'black';
         $attr_cell->foreground = 'white';
         $attr_cell->reverse = false;
-        $this->base_attr_cell = clone($attr_cell);
-        $this->attr_cell = clone($attr_cell);
+        $this->base_attr_cell = clone $attr_cell;
+        $this->attr_cell = clone $attr_cell;
 
         $this->setHistory(200);
         $this->setDimensions(80, 24);
@@ -314,7 +314,7 @@ class ANSI
                                 foreach ($mods as $mod) {
                                     switch ($mod) {
                                         case 0: // Turn off character attributes
-                                            $attr_cell = clone($this->base_attr_cell);
+                                            $attr_cell = clone $this->base_attr_cell;
                                             break;
                                         case 1: // Turn bold mode on
                                             $attr_cell->bold = true;
@@ -382,7 +382,7 @@ class ANSI
                 case "\x08": // backspace
                     if ($this->x) {
                         $this->x--;
-                        $this->attrs[$this->y][$this->x] = clone($this->base_attr_cell);
+                        $this->attrs[$this->y][$this->x] = clone $this->base_attr_cell;
                         $this->screen[$this->y] = substr_replace(
                             $this->screen[$this->y],
                             $source[$i],
@@ -401,7 +401,7 @@ class ANSI
                     $this->ansi.= "\x1B";
                     break;
                 default:
-                    $this->attrs[$this->y][$this->x] = clone($this->attr_cell);
+                    $this->attrs[$this->y][$this->x] = clone $this->attr_cell;
                     if ($this->x > strlen($this->screen[$this->y])) {
                         $this->screen[$this->y] = str_repeat(' ', $this->x);
                     }
