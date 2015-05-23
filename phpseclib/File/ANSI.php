@@ -543,7 +543,10 @@ class File_ANSI
             }
             $output.= "\r\n";
         }
-        return $output; //rtrim($output);
+        $output = substr($output, 0, -2);
+        // close any remaining open tags
+        $output.= $this->_processCoordinate($last_attr, $this->base_attr_cell, '');
+        return rtrim($output);
     }
 
     /**
@@ -575,7 +578,10 @@ class File_ANSI
             }
             $scrollback.= "\r\n";
         }
+        $base_attr_cell = $this->base_attr_cell;
+        $this->base_attr_cell = $last_attr;
         $scrollback.= $this->_getScreen();
+        $this->base_attr_cell = $base_attr_cell;
 
         return '<pre width="' . ($this->max_x + 1) . '" style="color: white; background: black">' . $scrollback . '</span></pre>';
     }
