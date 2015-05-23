@@ -492,7 +492,7 @@ class File_ANSI
                 if ($cur_attr->background != 'black') {
                     $open.= '<span style="background: ' . $cur_attr->background . '">';
                 }
-                if ($last_attr->backtground != 'black') {
+                if ($last_attr->background != 'black') {
                     $close = '</span>' . $close;
                 }
             }
