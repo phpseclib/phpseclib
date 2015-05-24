@@ -165,7 +165,7 @@ class ANSI
      */
     function __construct()
     {
-        $attr_cell = new stdClass();
+        $attr_cell = new \stdClass();
         $attr_cell->bold = false;
         $attr_cell->underline = false;
         $attr_cell->blink = false;
