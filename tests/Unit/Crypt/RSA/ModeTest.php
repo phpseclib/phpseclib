@@ -38,6 +38,6 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $this->assertEquals($result, $expected);
 
         $rsa->loadKey($privatekey);
-        $this->assertEquals(trim($rsa->decrypt($a), "\0"), $plaintext);
+        $this->assertEquals(trim($rsa->decrypt($result), "\0"), $plaintext);
     }
 }
