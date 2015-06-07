@@ -62,7 +62,7 @@ secxBTTCNgI48YezK3GDkn65cmlnkt6F6Mf0MwoDaXTuB88Jycbwb5ihKnHEJIsO
 draiRBZruwMPwPIP
 -----END NEW CERTIFICATE REQUEST-----';
 
-        $x509 = new File_X509();
+        $x509 = new X509();
 
         $csr = $x509->loadCSR($test);
 
