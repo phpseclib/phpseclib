@@ -329,6 +329,10 @@ class File_ASN1
             $current+= array('headerlength' => 2);
         }
 
+        if ($length > strlen($encoded)) {
+            return false;
+        }
+
         $content = $this->_string_shift($encoded, $length);
 
         // at this point $length can be overwritten. it's only accurate for definite length things as is
@@ -358,7 +362,7 @@ class File_ASN1
 
                 $newcontent = array();
                 $remainingLength = $length;
-                while ($remainingLength) {
+                while ($remainingLength > 0) {
                     $temp = $this->_decode_ber($content, $start);
                     $length = $temp['length'];
                     // end-of-content octets - see paragraph 8.1.5
