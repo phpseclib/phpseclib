@@ -107,6 +107,13 @@ define('CRYPT_RSA_ENCRYPTION_OAEP',  1);
  * compatibility with protocols (like SSH-1) written before OAEP's introduction.
  */
 define('CRYPT_RSA_ENCRYPTION_PKCS1', 2);
+/**
+ * Do not use any padding
+ *
+ * Although this method is not recommended it can none-the-less sometimes be useful if you're trying to decrypt some legacy
+ * stuff, if you're trying to diagnose why an encrypted message isn't decrypting, etc.
+ */
+define('CRYPT_RSA_ENCRYPTION_NONE', 3);
 /**#@-*/
 
 /**#@+
@@ -2445,6 +2452,22 @@ class Crypt_RSA
     }
 
     /**
+     * Raw Encryption / Decryption
+     *
+     * Doesn't use padding and is not recommended.
+     *
+     * @access private
+     * @param String $m
+     * @return String
+     */
+    function _raw_encrypt($m)
+    {
+        $temp = $this->_os2ip($m);
+        $temp = $this->_rsaep($temp);
+        return  $this->_i2osp($temp, $this->k);
+    }
+
+    /**
      * RSAES-PKCS1-V1_5-ENCRYPT
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.2.1 RFC3447#section-7.2.1}.
@@ -2890,6 +2913,13 @@ class Crypt_RSA
     function encrypt($plaintext)
     {
         switch ($this->encryptionMode) {
+            case CRYPT_RSA_ENCRYPTION_NONE:
+                $plaintext = str_split($plaintext, $this->k);
+                $ciphertext = '';
+                foreach ($plaintext as $m) {
+                    $ciphertext.= $this->_raw_encrypt($m);
+                }
+                return $ciphertext;
             case CRYPT_RSA_ENCRYPTION_PKCS1:
                 $length = $this->k - 11;
                 if ($length <= 0) {
@@ -2938,6 +2968,9 @@ class Crypt_RSA
         $plaintext = '';
 
         switch ($this->encryptionMode) {
+            case CRYPT_RSA_ENCRYPTION_NONE:
+                $decrypt = '_raw_encrypt';
+                break;
             case CRYPT_RSA_ENCRYPTION_PKCS1:
                 $decrypt = '_rsaes_pkcs1_v1_5_decrypt';
                 break;
