@@ -1482,6 +1482,7 @@ class X509
             default:
                 switch ($algorithm) {
                     case 'rsaEncryption':
+                        $cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters']['value'] = null;
                         $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']
                             = base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
                 }
@@ -1496,7 +1497,11 @@ class X509
         $filters['tbsCertificate']['signature']['issuer']['rdnSequence']['value'] = $type_utf8_string;
         $filters['tbsCertificate']['issuer']['rdnSequence']['value'] = $type_utf8_string;
         $filters['tbsCertificate']['subject']['rdnSequence']['value'] = $type_utf8_string;
-        $filters['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = $type_utf8_string;
+        if ($cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters']['value'] == null) {
+            $filters['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = array('type' => ASN1::TYPE_NULL);
+        } else {
+            $filters['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = $type_utf8_string;
+        }
         $filters['signatureAlgorithm']['parameters'] = $type_utf8_string;
         $filters['authorityCertIssuer']['directoryName']['rdnSequence']['value'] = $type_utf8_string;
         //$filters['policyQualifiers']['qualifier'] = $type_utf8_string;
