@@ -268,6 +268,10 @@ class ASN1
             $current+= array('headerlength' => 2);
         }
 
+        if ($length > strlen($encoded)) {
+            return false;
+        }
+
         $content = $this->_string_shift($encoded, $length);
 
         // at this point $length can be overwritten. it's only accurate for definite length things as is
@@ -296,14 +300,21 @@ class ASN1
                 }
 
                 $newcontent = array();
-                if (strlen($content)) {
-                    $newcontent = $this->_decode_ber($content, $start);
-                    $length = $newcontent['length'];
+                $remainingLength = $length;
+                while ($remainingLength > 0) {
+                    $temp = $this->_decode_ber($content, $start);
+                    $length = $temp['length'];
+                    // end-of-content octets - see paragraph 8.1.5
                     if (substr($content, $length, 2) == "\0\0") {
                         $length+= 2;
+                        $start+= $length;
+                        $newcontent[] = $temp;
+                        break;
                     }
                     $start+= $length;
-                    $newcontent = array($newcontent);
+                    $remainingLength-= $length;
+                    $newcontent[] = $temp;
+                    $this->_string_shift($content, $length);
                 }
 
                 return array(

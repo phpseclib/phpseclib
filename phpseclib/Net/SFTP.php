@@ -862,7 +862,7 @@ class SFTP extends SSH2
                             } else {
                                 $temp = $dir . '/' . $shortname;
                             }
-                            $this->_update_stat_cache($temp, (object) $attributes);
+                            $this->_update_stat_cache($temp, (object) array('stat' => $attributes));
                         }
                         // SFTPv6 has an optional boolean end-of-list field, but we'll ignore that, since the
                         // final SSH_FXP_STATUS packet should tell us that, already.
@@ -1033,6 +1033,14 @@ class SFTP extends SSH2
                 $temp[$dir] = array();
             }
             if ($i === $max) {
+                if (is_object($temp[$dir])) {
+                    if (!isset($value->stat) && isset($temp[$dir]->stat)) {
+                        $value->stat = $temp[$dir]->stat;
+                    }
+                    if (!isset($value->lstat) && isset($temp[$dir]->lstat)) {
+                        $value->lstat = $temp[$dir]->lstat;
+                    }
+                }
                 $temp[$dir] = $value;
                 break;
             }
@@ -1111,10 +1119,10 @@ class SFTP extends SSH2
         if ($this->use_stat_cache) {
             $result = $this->_query_stat_cache($filename);
             if (is_array($result) && isset($result['.'])) {
-                return (array) $result['.'];
+                return $result['.']->stat;
             }
-            if (is_object($result)) {
-                return (array) $result;
+            if (is_object($result) && isset($result->stat)) {
+                return $result->stat;
             }
         }
 
@@ -1127,7 +1135,7 @@ class SFTP extends SSH2
             if ($stat['type'] == NET_SFTP_TYPE_DIRECTORY) {
                 $filename.= '/.';
             }
-            $this->_update_stat_cache($filename, (object) $stat);
+            $this->_update_stat_cache($filename, (object) array('stat' => $stat));
             return $stat;
         }
 
@@ -1140,7 +1148,7 @@ class SFTP extends SSH2
         if ($stat['type'] == NET_SFTP_TYPE_DIRECTORY) {
             $filename.= '/.';
         }
-        $this->_update_stat_cache($filename, (object) $stat);
+        $this->_update_stat_cache($filename, (object) array('stat' => $stat));
 
         return $stat;
     }
@@ -1168,10 +1176,10 @@ class SFTP extends SSH2
         if ($this->use_stat_cache) {
             $result = $this->_query_stat_cache($filename);
             if (is_array($result) && isset($result['.'])) {
-                return (array) $result['.'];
+                return $result['.']->lstat;
             }
-            if (is_object($result)) {
-                return (array) $result;
+            if (is_object($result) && isset($result->lstat)) {
+                return $result->lstat;
             }
         }
 
@@ -1184,7 +1192,7 @@ class SFTP extends SSH2
             if ($lstat['type'] == NET_SFTP_TYPE_DIRECTORY) {
                 $filename.= '/.';
             }
-            $this->_update_stat_cache($filename, (object) $lstat);
+            $this->_update_stat_cache($filename, (object) array('lstat' => $lstat));
             return $lstat;
         }
 
@@ -1192,7 +1200,7 @@ class SFTP extends SSH2
 
         if ($lstat != $stat) {
             $lstat = array_merge($lstat, array('type' => NET_SFTP_TYPE_SYMLINK));
-            $this->_update_stat_cache($filename, (object) $lstat);
+            $this->_update_stat_cache($filename, (object) array('lstat' => $lstat));
             return $stat;
         }
 
@@ -1205,7 +1213,7 @@ class SFTP extends SSH2
         if ($lstat['type'] == NET_SFTP_TYPE_DIRECTORY) {
             $filename.= '/.';
         }
-        $this->_update_stat_cache($filename, (object) $lstat);
+        $this->_update_stat_cache($filename, (object) array('lstat' => $lstat));
 
         return $lstat;
     }
@@ -2262,7 +2270,7 @@ class SFTP extends SSH2
      */
     function is_link($path)
     {
-        $result = $this->_get_stat_cache_prop($path, 'type');
+        $result = $this->_get_lstat_cache_prop($path, 'type');
         if ($result === false) {
             return false;
         }
@@ -2378,17 +2386,47 @@ class SFTP extends SSH2
      */
     function _get_stat_cache_prop($path, $prop)
     {
+        return $this->_get_xstat_cache_prop($path, $prop, 'stat');
+    }
+
+    /**
+     * Return an lstat properity
+     *
+     * Uses cache if appropriate.
+     *
+     * @param String $path
+     * @param String $prop
+     * @return Mixed
+     * @access private
+     */
+    function _get_lstat_cache_prop($path, $prop)
+    {
+        return $this->_get_xstat_cache_prop($path, $prop, 'lstat');
+    }
+
+    /**
+     * Return a stat or lstat properity
+     *
+     * Uses cache if appropriate.
+     *
+     * @param String $path
+     * @param String $prop
+     * @return Mixed
+     * @access private
+     */
+    function _get_xstat_cache_prop($path, $prop, $type)
+    {
         if ($this->use_stat_cache) {
             $path = $this->_realpath($path);
 
             $result = $this->_query_stat_cache($path);
 
-            if (is_object($result) && isset($result->$prop)) {
-                return $result->$prop;
+            if (is_object($result) && isset($result->$type)) {
+                return $result->{$type}[$prop];
             }
         }
 
-        $result = $this->stat($path);
+        $result = $this->$type($path);
 
         if ($result === false || !isset($result[$prop])) {
             return false;
