@@ -207,6 +207,33 @@ class Net_SSH2
     var $kex_algorithms = false;
 
     /**
+     * Minimum Diffie-Hellman Group Bit Size in RFC 4419 Key Exchange Methods
+     *
+     * @see Net_SSH2::_key_exchange()
+     * @var Integer
+     * @access private
+     */
+    var $kex_dh_group_size_min = 1536;
+
+    /**
+     * Preferred Diffie-Hellman Group Bit Size in RFC 4419 Key Exchange Methods
+     *
+     * @see Net_SSH2::_key_exchange()
+     * @var Integer
+     * @access private
+     */
+    var $kex_dh_group_size_preferred = 2048;
+
+    /**
+     * Maximum Diffie-Hellman Group Bit Size in RFC 4419 Key Exchange Methods
+     *
+     * @see Net_SSH2::_key_exchange()
+     * @var Integer
+     * @access private
+     */
+    var $kex_dh_group_size_max = 4096;
+
+    /**
      * Server Host Key Algorithms
      *
      * @see Net_SSH2::getServerHostKeyAlgorithms()
@@ -942,7 +969,13 @@ class Net_SSH2
             array(60 => 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ'),
             array(60 => 'NET_SSH2_MSG_USERAUTH_PK_OK'),
             array(60 => 'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
-                  61 => 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE')
+                  61 => 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE'),
+            // RFC 4419 - diffie-hellman-group-exchange-sha{1,256}
+            array(30 => 'NET_SSH2_MSG_KEXDH_GEX_REQUEST_OLD',
+                  31 => 'NET_SSH2_MSG_KEXDH_GEX_GROUP',
+                  32 => 'NET_SSH2_MSG_KEXDH_GEX_INIT',
+                  33 => 'NET_SSH2_MSG_KEXDH_GEX_REPLY',
+                  34 => 'NET_SSH2_MSG_KEXDH_GEX_REQUEST')
         );
 
         $this->host = $host;
@@ -1123,7 +1156,9 @@ class Net_SSH2
     {
         static $kex_algorithms = array(
             'diffie-hellman-group1-sha1', // REQUIRED
-            'diffie-hellman-group14-sha1' // REQUIRED
+            'diffie-hellman-group14-sha1', // REQUIRED
+            'diffie-hellman-group-exchange-sha1', // RFC 4419
+            'diffie-hellman-group-exchange-sha256', // RFC 4419
         );
 
         static $server_host_key_algorithms = array(
@@ -1403,34 +1438,85 @@ class Net_SSH2
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
-        switch ($kex_algorithms[$i]) {
-            // see http://tools.ietf.org/html/rfc2409#section-6.2 and
-            // http://tools.ietf.org/html/rfc2412, appendex E
-            case 'diffie-hellman-group1-sha1':
-                $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
-                         '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
-                         '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
-                         'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF';
-                break;
-            // see http://tools.ietf.org/html/rfc3526#section-3
-            case 'diffie-hellman-group14-sha1':
-                $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
-                         '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
-                         '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
-                         'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF05' .
-                         '98DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB' .
-                         '9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' .
-                         'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF695581718' .
-                         '3995497CEA956AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF';
-                break;
+        if (strpos($kex_algorithms[$i], 'diffie-hellman-group-exchange') === 0) {
+            $dh_group_sizes_packed = pack('NNN',
+                $this->kex_dh_group_size_min,
+                $this->kex_dh_group_size_preferred,
+                $this->kex_dh_group_size_max
+            );
+            $packet = pack('Ca*',
+                NET_SSH2_MSG_KEXDH_GEX_REQUEST,
+                $dh_group_sizes_packed
+            );
+            if (!$this->_send_binary_packet($packet)) {
+                return false;
+            }
+
+            $response = $this->_get_binary_packet();
+            if ($response === false) {
+                user_error('Connection closed by server');
+                return false;
+            }
+            extract(unpack('Ctype', $this->_string_shift($response, 1)));
+            if ($type != NET_SSH2_MSG_KEXDH_GEX_GROUP) {
+                user_error('Expected SSH_MSG_KEX_DH_GEX_GROUP');
+                return false;
+            }
+
+            extract(unpack('NprimeLength', $this->_string_shift($response, 4)));
+            $primeBytes = $this->_string_shift($response, $primeLength);
+            $prime = new Math_BigInteger($primeBytes, -256);
+
+            extract(unpack('NgLength', $this->_string_shift($response, 4)));
+            $gBytes = $this->_string_shift($response, $gLength);
+            $g = new Math_BigInteger($gBytes, -256);
+
+            $exchange_hash_rfc4419 = pack('a*Na*Na*',
+                $dh_group_sizes_packed,
+                $primeLength, $primeBytes,
+                $gLength, $gBytes
+            );
+
+            $clientKexInitMessage = NET_SSH2_MSG_KEXDH_GEX_INIT;
+            $serverKexReplyMessage = NET_SSH2_MSG_KEXDH_GEX_REPLY;
+        } else {
+            switch ($kex_algorithms[$i]) {
+                // see http://tools.ietf.org/html/rfc2409#section-6.2 and
+                // http://tools.ietf.org/html/rfc2412, appendex E
+                case 'diffie-hellman-group1-sha1':
+                    $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
+                            '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
+                            '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
+                            'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF';
+                    break;
+                // see http://tools.ietf.org/html/rfc3526#section-3
+                case 'diffie-hellman-group14-sha1':
+                    $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
+                            '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
+                            '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
+                            'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF05' .
+                            '98DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB' .
+                            '9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' .
+                            'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF695581718' .
+                            '3995497CEA956AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF';
+                    break;
+            }
+            // For both diffie-hellman-group1-sha1 and diffie-hellman-group14-sha1
+            // the generator field element is 2 (decimal) and the hash function is sha1.
+            $g = new Math_BigInteger(2);
+            $prime = new Math_BigInteger($prime, 16);
+            $exchange_hash_rfc4419 = '';
+            $clientKexInitMessage = NET_SSH2_MSG_KEXDH_INIT;
+            $serverKexReplyMessage = NET_SSH2_MSG_KEXDH_REPLY;
         }
 
-        // For both diffie-hellman-group1-sha1 and diffie-hellman-group14-sha1
-        // the generator field element is 2 (decimal) and the hash function is sha1.
-        $g = new Math_BigInteger(2);
-        $prime = new Math_BigInteger($prime, 16);
-        $kexHash = new Crypt_Hash('sha1');
-        //$q = $p->bitwise_rightShift(1);
+        switch ($kex_algorithms[$i]) {
+            case 'diffie-hellman-group-exchange-sha256':
+                $kexHash = new Crypt_Hash('sha256');
+                break;
+            default:
+                $kexHash = new Crypt_Hash('sha1');
+        }
 
         /* To increase the speed of the key exchange, both client and server may
            reduce the size of their private exponents.  It should be at least
@@ -1448,7 +1534,7 @@ class Net_SSH2
         $e = $g->modPow($x, $prime);
 
         $eBytes = $e->toBytes(true);
-        $data = pack('CNa*', NET_SSH2_MSG_KEXDH_INIT, strlen($eBytes), $eBytes);
+        $data = pack('CNa*', $clientKexInitMessage, strlen($eBytes), $eBytes);
 
         if (!$this->_send_binary_packet($data)) {
             user_error('Connection closed by server');
@@ -1462,7 +1548,7 @@ class Net_SSH2
         }
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
-        if ($type != NET_SSH2_MSG_KEXDH_REPLY) {
+        if ($type != $serverKexReplyMessage) {
             user_error('Expected SSH_MSG_KEXDH_REPLY');
             return false;
         }
@@ -1486,11 +1572,16 @@ class Net_SSH2
         $key = $f->modPow($x, $prime);
         $keyBytes = $key->toBytes(true);
 
-        $this->exchange_hash = pack('Na*Na*Na*Na*Na*Na*Na*Na*',
-            strlen($this->identifier), $this->identifier, strlen($this->server_identifier), $this->server_identifier,
-            strlen($kexinit_payload_client), $kexinit_payload_client, strlen($kexinit_payload_server),
-            $kexinit_payload_server, strlen($this->server_public_host_key), $this->server_public_host_key, strlen($eBytes),
-            $eBytes, strlen($fBytes), $fBytes, strlen($keyBytes), $keyBytes
+        $this->exchange_hash = pack('Na*Na*Na*Na*Na*a*Na*Na*Na*',
+            strlen($this->identifier), $this->identifier,
+            strlen($this->server_identifier), $this->server_identifier,
+            strlen($kexinit_payload_client), $kexinit_payload_client,
+            strlen($kexinit_payload_server), $kexinit_payload_server,
+            strlen($this->server_public_host_key), $this->server_public_host_key,
+            $exchange_hash_rfc4419,
+            strlen($eBytes), $eBytes,
+            strlen($fBytes), $fBytes,
+            strlen($keyBytes), $keyBytes
         );
 
         $this->exchange_hash = $kexHash->hash($this->exchange_hash);
