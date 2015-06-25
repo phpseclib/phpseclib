@@ -288,7 +288,6 @@ class Net_SFTP_Stream
                 case 'x':
                     return false;
                 case 'w':
-                case 'c':
                     $this->sftp->truncate($path, 0);
             }
         }
