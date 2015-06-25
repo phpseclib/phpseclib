@@ -282,6 +282,7 @@ class Net_SFTP_Stream
                 return false;
             } else {
                 $this->sftp->touch($path);
+                $this->size = 0;
             }
         } else {
             switch ($this->mode[0]) {
@@ -289,6 +290,7 @@ class Net_SFTP_Stream
                     return false;
                 case 'w':
                     $this->sftp->truncate($path, 0);
+                    $this->size = 0;
             }
         }
 
