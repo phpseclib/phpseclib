@@ -433,10 +433,14 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testStatOnCWD($sftp)
     {
         $stat = $sftp->stat('.');
+        $this->assertInternalType(
+            'array', $lstat,
+            'Failed asserting that stat on . returns an array'
+        );
         $lstat = $sftp->lstat('.');
-        $this->assertEquals(
-            $stat, $lstat,
-            'Failed asserting that stat and lstat on . are the same'
+        $this->assertInternalType(
+            'array', $lstat,
+            'Failed asserting that lstat on . returns an array'
         );
 
         return $sftp;
