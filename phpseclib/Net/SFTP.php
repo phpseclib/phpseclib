@@ -1175,7 +1175,7 @@ class SFTP extends SSH2
 
         if ($this->use_stat_cache) {
             $result = $this->_query_stat_cache($filename);
-            if (is_array($result) && isset($result['.'])) {
+            if (is_array($result) && isset($result['.']) && isset($result['.']->lstat)) {
                 return $result['.']->lstat;
             }
             if (is_object($result) && isset($result->lstat)) {
