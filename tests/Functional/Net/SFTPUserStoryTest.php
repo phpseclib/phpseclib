@@ -427,8 +427,24 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * on older versions this would result in a fatal error
      * @depends testReadlink
+     * @group github716
+     */
+    public function testStatOnCWD($sftp)
+    {
+        $stat = $sftp->stat('.');
+        $lstat = $sftp->lstat('.');
+        $this->assertEquals(
+            $stat, $lstat,
+            'Failed asserting that stat and lstat on . are the same'
+        );
+
+        return $sftp;
+    }
+
+    /**
+     * on older versions this would result in a fatal error
+     * @depends testStatOnCWD
      * @group github402
      */
     public function testStatcacheFix($sftp)
