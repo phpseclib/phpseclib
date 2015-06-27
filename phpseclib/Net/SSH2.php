@@ -3020,6 +3020,10 @@ class SSH2
                                 extract(unpack('Nserver_channel', $this->_string_shift($response, 4)));
                                 $this->server_channels[$channel] = $server_channel;
                                 extract(unpack('Nwindow_size', $this->_string_shift($response, 4)));
+                                if ($window_size < 0) {
+                                    $window_size&= 0x7FFFFFFF;
+                                    $window_size+= 0x80000000;
+                                }
                                 $this->window_size_client_to_server[$channel] = $window_size;
                                 $temp = unpack('Npacket_size_client_to_server', $this->_string_shift($response, 4));
                                 $this->packet_size_client_to_server[$channel] = $temp['packet_size_client_to_server'];
