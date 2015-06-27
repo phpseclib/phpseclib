@@ -434,7 +434,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $stat = $sftp->stat('.');
         $this->assertInternalType(
-            'array', $lstat,
+            'array', $stat,
             'Failed asserting that stat on . returns an array'
         );
         $lstat = $sftp->lstat('.');
