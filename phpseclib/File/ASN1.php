@@ -897,7 +897,7 @@ class File_ASN1
                 }
 
                 foreach ($mapping['children'] as $key => $child) {
-                    if (!isset($source[$key])) {
+                    if (!array_key_exists($key, $source)) {
                         if (!isset($child['optional'])) {
                             return false;
                         }
