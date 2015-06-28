@@ -83,7 +83,7 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
 
         $asn1 = new File_ASN1();
 
-        $value = $this->encodeOID('1.2.3.4');
+        $value = $this->_encodeOID('1.2.3.4');
         $ext = chr(FILE_ASN1_TYPE_OBJECT_IDENTIFIER) . $asn1->_encodeLength(strlen($value)) . $value;
         $value = 'zzzzzzzzz';
         $ext.= chr(FILE_ASN1_TYPE_OCTET_STRING) . $asn1->_encodeLength(strlen($value)) . $value;
@@ -139,7 +139,7 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         $this->assertArrayHasKey('parameters', $cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']);
     }
 
-    private function encodeOID($oid)
+    private function _encodeOID($oid)
     {
         if ($oid === false) {
             user_error('Invalid OID');
