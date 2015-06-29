@@ -8,6 +8,7 @@
 use phpseclib\File\ASN1;
 use phpseclib\File\ASN1\Element;
 use phpseclib\File\X509;
+use phpseclib\Crypt\RSA;
 
 class Unit_File_X509_X509Test extends PhpseclibTestCase
 {
@@ -85,7 +86,7 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
 
         $asn1 = new ASN1();
 
-        $value = $this->encodeOID('1.2.3.4');
+        $value = $this->_encodeOID('1.2.3.4');
         $ext = chr(ASN1::TYPE_OBJECT_IDENTIFIER) . $asn1->_encodeLength(strlen($value)) . $value;
         $value = 'zzzzzzzzz';
         $ext.= chr(ASN1::TYPE_OCTET_STRING) . $asn1->_encodeLength(strlen($value)) . $value;
@@ -98,7 +99,50 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
         $this->assertCount(5, $result['tbsCertificate']['extensions']);
     }
 
-    function encodeOID($oid)
+    /**
+     * @group github705
+     */
+    public function testSaveNullRSAParam()
+    {
+        $privKey = new RSA();
+        $privKey->loadKey('-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQDMswfEpAgnUDWA74zZw5XcPsWh1ly1Vk99tsqwoFDkLF7jvXy1
+dDLHYfuquvfxCgcp8k/4fQhx4ubR8bbGgEq9B05YRnViK0R0iBB5Ui4IaxWYYhKE
+8xqAEH2fL+/7nsqqNFKkEN9KeFwc7WbMY49U2adlMrpBdRjk1DqIEW3QTwIDAQAB
+AoGBAJ+83cT/1DUJjJcPWLTeweVbPtJp+3Ku5d1OdaGbmURVs764scbP5Ihe2AuF
+V9LLZoe/RdS9jYeB72nJ3D3PA4JVYYgqMOnJ8nlUMNQ+p0yGl5TqQk6EKLI8MbX5
+kQEazNqFXsiWVQXubAd5wjtb6g0n0KD3zoT/pWLES7dtUFexAkEA89h5+vbIIl2P
+H/NnkPie2NWYDZ1YiMGHFYxPDwsd9KCZMSbrLwAhPg9bPgqIeVNfpwxrzeksS6D9
+P98tJt335QJBANbnCe+LhDSrkpHMy9aOG2IdbLGG63MSRUCPz8v2gKPq3kYXDxq6
+Y1iqF8N5g0k5iirHD2qlWV5Q+nuGvFTafCMCQQC1wQiC0IkyXEw/Q31RqI82Dlcs
+5rhEDwQyQof3LZEhcsdcxKaOPOmKSYX4A3/f9w4YBIEiVQfoQ1Ig1qfgDZklAkAT
+TQDJcOBY0qgBTEFqbazr7PScJR/0X8m0eLYS/XqkPi3kYaHLpr3RcsVbmwg9hVtx
+aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
+4vca9v/F2hGVJuHIMJ8mguwYlNYzh2NqoIDJTtgOkBmt
+-----END RSA PRIVATE KEY-----');
+
+        $pubKey = new RSA();
+        $pubKey->loadKey($privKey->getPublicKey());
+        $pubKey->setPublicKey();
+
+        $subject = new X509();
+        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $subject->setPublicKey($pubKey);
+
+        $issuer = new X509();
+        $issuer->setPrivateKey($privKey);
+        $issuer->setDN($subject->getDN());
+
+        $x509 = new X509();
+
+        $result = $x509->sign($issuer, $subject);
+        $cert = $x509->saveX509($result);
+        $cert = $x509->loadX509($cert);
+
+        $this->assertArrayHasKey('parameters', $cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']);
+    }
+
+    private function _encodeOID($oid)
     {
         if ($oid === false) {
             user_error('Invalid OID');
