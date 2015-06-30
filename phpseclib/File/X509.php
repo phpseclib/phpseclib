@@ -1514,6 +1514,7 @@ class File_X509
                         $cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = null;
                         // https://tools.ietf.org/html/rfc3279#section-2.2.1
                         $cert['signatureAlgorithm']['parameters'] = null;
+                        $cert['tbsCertificate']['signature']['parameters'] = null;
                 }
         }
 
