@@ -140,6 +140,8 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         $cert = $x509->loadX509($cert);
 
         $this->assertArrayHasKey('parameters', $cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']);
+        $this->assertArrayHasKey('parameters', $cert['signatureAlgorithm']);
+        $this->assertArrayHasKey('parameters', $cert['tbsCertificate']['signature']);
     }
 
     private function _encodeOID($oid)
