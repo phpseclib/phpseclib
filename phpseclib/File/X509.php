@@ -1491,6 +1491,9 @@ class X509
                            it seems like perhaps the ASN.1 description ought not say the parameters field is OPTIONAL, but whatever.
                          */
                         $cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = null;
+                        // https://tools.ietf.org/html/rfc3279#section-2.2.1
+                        $cert['signatureAlgorithm']['parameters'] = null;
+                        $cert['tbsCertificate']['signature']['parameters'] = null;
                 }
         }
 
