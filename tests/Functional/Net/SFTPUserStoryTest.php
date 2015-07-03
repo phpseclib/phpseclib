@@ -565,6 +565,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
             'Failed asserting that nonexistent scratch directory could ' .
             'not be deleted using rmdir().'
         );
+
+        return $sftp;
     }
 
     /**
