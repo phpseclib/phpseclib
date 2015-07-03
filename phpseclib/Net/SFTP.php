@@ -2219,6 +2219,8 @@ class Net_SFTP extends Net_SSH2
                     return false;
                 }
 
+                $this->_remove_from_stat_cache($temp);
+
                 $i++;
 
                 if ($i >= NET_SFTP_QUEUE_SIZE) {
@@ -2234,6 +2236,8 @@ class Net_SFTP extends Net_SSH2
         if (!$this->_send_sftp_packet(NET_SFTP_RMDIR, pack('Na*', strlen($path), $path))) {
             return false;
         }
+
+        $this->_remove_from_stat_cache($path);
 
         $i++;
 
