@@ -1,7 +1,0 @@
-imports:
-    - php
-
-tools:
-    external_code_coverage:
-        runs: 5 # No Code Coverage and HHVM
-        timeout: 10800 # 3 hours
