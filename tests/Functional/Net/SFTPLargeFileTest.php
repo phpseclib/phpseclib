@@ -9,39 +9,14 @@
 use phpseclib\Crypt\Base;
 use phpseclib\Net\SFTP;
 
-class Functional_Net_SFTPLargeFileTest extends PhpseclibFunctionalTestCase
+class Functional_Net_SFTPLargeFileTest extends Functional_Net_SFTPTestCase
 {
-    protected $sftp;
-    protected $scratchDir;
-
     static public function setUpBeforeClass()
     {
         if (!extension_loaded('mcrypt') && !extension_loaded('openssl')) {
             self::markTestSkipped('This test depends on mcrypt or openssl for performance.');
         }
         parent::setUpBeforeClass();
-    }
-
-    public function setUp()
-    {
-        $this->scratchDir = uniqid('phpseclib-sftp-large-scratch-');
-
-        $this->sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
-        $this->assertTrue($this->sftp->login(
-            $this->getEnv('SSH_USERNAME'),
-            $this->getEnv('SSH_PASSWORD')
-        ));
-        $this->assertTrue($this->sftp->mkdir($this->scratchDir));
-        $this->assertTrue($this->sftp->chdir($this->scratchDir));
-    }
-
-    public function tearDown()
-    {
-        if ($this->sftp) {
-            $this->sftp->chdir($this->getEnv('SSH_HOME'));
-            $this->sftp->delete($this->scratchDir);
-        }
-        parent::tearDown();
     }
 
     /**
