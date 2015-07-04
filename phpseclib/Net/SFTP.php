@@ -2230,7 +2230,6 @@ class Net_SFTP extends Net_SSH2
                     $i = 0;
                 }
             }
-            $this->_remove_from_stat_cache($path);
         }
 
         if (!$this->_send_sftp_packet(NET_SFTP_RMDIR, pack('Na*', strlen($path), $path))) {
