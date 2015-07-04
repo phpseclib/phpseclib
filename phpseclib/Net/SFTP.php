@@ -1062,6 +1062,10 @@ class Net_SFTP extends Net_SSH2
      */
     function _update_stat_cache($path, $value)
     {
+        if ($this->use_stat_cache === false) {
+            return;
+        }
+
         // preg_replace('#^/|/(?=/)|/$#', '', $dir) == str_replace('//', '/', trim($path, '/'))
         $dirs = explode('/', preg_replace('#^/|/(?=/)|/$#', '', $path));
 
