@@ -280,14 +280,17 @@ class Net_SFTP_Stream
         if ($this->size === false) {
             if ($this->mode[0] == 'r') {
                 return false;
+            } else {
+                $this->sftp->touch($path);
+                $this->size = 0;
             }
         } else {
             switch ($this->mode[0]) {
                 case 'x':
                     return false;
                 case 'w':
-                case 'c':
                     $this->sftp->truncate($path, 0);
+                    $this->size = 0;
             }
         }
 
