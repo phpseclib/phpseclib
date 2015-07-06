@@ -2177,6 +2177,7 @@ class SFTP extends SSH2
                 if (!$this->_send_sftp_packet(NET_SFTP_REMOVE, pack('Na*', strlen($temp), $temp))) {
                     return false;
                 }
+                $this->_remove_from_stat_cache($temp);
 
                 $i++;
 
@@ -2187,12 +2188,12 @@ class SFTP extends SSH2
                     $i = 0;
                 }
             }
-            $this->_remove_from_stat_cache($path);
         }
 
         if (!$this->_send_sftp_packet(NET_SFTP_RMDIR, pack('Na*', strlen($path), $path))) {
             return false;
         }
+        $this->_remove_from_stat_cache($path);
 
         $i++;
 

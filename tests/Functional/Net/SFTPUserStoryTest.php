@@ -567,5 +567,34 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
             'Failed asserting that nonexistent scratch directory could ' .
             'not be deleted using rmdir().'
         );
+
+        return $sftp;
+    }
+
+    /**
+     * @depends testRmDirScratchNonexistent
+     * @group github706
+     */
+    public function testDeleteEmptyDir($sftp)
+    {
+        $this->assertTrue(
+            $sftp->mkdir(self::$scratchDir),
+            'Failed asserting that scratch directory could ' .
+            'be created.'
+        );
+        $this->assertInternalType(
+            'array',
+            $sftp->stat(self::$scratchDir),
+            'Failed asserting that stat on an existant empty directory returns an array'
+        );
+        $this->assertTrue(
+            $sftp->delete(self::$scratchDir),
+            'Failed asserting that empty scratch directory could ' .
+            'be deleted using recursive delete().'
+        );
+        $this->assertFalse(
+            $sftp->stat(self::$scratchDir),
+            'Failed asserting that stat on a deleted directory returns false'
+        );
     }
 }
