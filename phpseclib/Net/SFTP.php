@@ -1167,7 +1167,7 @@ class Net_SFTP extends Net_SSH2
 
         if ($this->use_stat_cache) {
             $result = $this->_query_stat_cache($filename);
-            if (is_array($result) && isset($result['.'])) {
+            if (is_array($result) && isset($result['.']) && isset($result['.']->stat) {
                 return $result['.']->stat;
             }
             if (is_object($result) && isset($result->stat)) {
