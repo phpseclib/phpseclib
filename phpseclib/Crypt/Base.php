@@ -37,6 +37,8 @@
 namespace phpseclib\Crypt;
 
 use phpseclib\Crypt\Hash;
+use phpseclib\Exception\InvalidInputException;
+use phpseclib\Exception\KeyGenerationException;
 
 /**
  * Base Class for all \phpseclib\Crypt\* cipher classes
@@ -579,8 +581,7 @@ abstract class Base
                         $hashObj = new Hash();
                         $hashObj->setHash($hash);
                         if ($dkLen > $hashObj->getLength()) {
-                            user_error('Derived key too long');
-                            return false;
+                            throw new KeyGenerationException('Derived key too long');
                         }
                         $t = $password . $salt;
                         for ($i = 0; $i < $count; ++$i) {
@@ -1779,8 +1780,7 @@ abstract class Base
             if ($length % $this->block_size == 0) {
                 return $text;
             } else {
-                user_error("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size})");
-                $this->padding = true;
+                throw new InvalidInputException("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size}). Try enabling padding.");
             }
         }
 
@@ -1809,7 +1809,7 @@ abstract class Base
         $length = ord($text[strlen($text) - 1]);
 
         if (!$length || $length > $this->block_size) {
-            return false;
+            throw new InvalidInputException("The ciphertext has an invalid padding length ($length) compared to the block size ({$this->block_size})");
         }
 
         return substr($text, 0, -$length);
