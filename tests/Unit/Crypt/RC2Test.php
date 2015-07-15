@@ -95,7 +95,7 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
         $rc2->setPreferredEngine(CRYPT_ENGINE_OPENSSL);
         if ($rc2->getEngine() == CRYPT_ENGINE_OPENSSL) {
             $openssl = $rc2->encrypt('d');
-            $this->assertEquals($result, $openssl,  'Failed asserting that the OpenSSL engine produced the correct result');
+            $this->assertEquals($result, $openssl, 'Failed asserting that the OpenSSL engine produced the correct result');
         } else {
             self::markTestSkipped('Unable to initialize OpenSSL engine');
         }

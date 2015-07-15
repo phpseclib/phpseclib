@@ -153,7 +153,7 @@ class Crypt_Hash
      */
     function Crypt_Hash($hash = 'sha1')
     {
-        if ( !defined('CRYPT_HASH_MODE') ) {
+        if (!defined('CRYPT_HASH_MODE')) {
             switch (true) {
                 case extension_loaded('hash'):
                     define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_HASH);
@@ -242,7 +242,7 @@ class Crypt_Hash
                 $mode = CRYPT_HASH_MODE;
         }
 
-        switch ( $mode ) {
+        switch ($mode) {
             case CRYPT_HASH_MODE_MHASH:
                 switch ($hash) {
                     case 'md5':
@@ -278,20 +278,20 @@ class Crypt_Hash
             case 'md2':
                  $this->b = 16;
                  $this->hash = array($this, '_md2');
-                 break;
+                break;
             case 'md5':
                  $this->b = 64;
                  $this->hash = array($this, '_md5');
-                 break;
+                break;
             case 'sha256':
                  $this->b = 64;
                  $this->hash = array($this, '_sha256');
-                 break;
+                break;
             case 'sha384':
             case 'sha512':
                  $this->b = 128;
                  $this->hash = array($this, '_sha512');
-                 break;
+                break;
             case 'sha1':
             default:
                  $this->b = 64;
@@ -314,7 +314,7 @@ class Crypt_Hash
         $mode = is_array($this->hash) ? CRYPT_HASH_MODE_INTERNAL : CRYPT_HASH_MODE;
 
         if (!empty($this->key) || is_string($this->key)) {
-            switch ( $mode ) {
+            switch ($mode) {
                 case CRYPT_HASH_MODE_MHASH:
                     $output = mhash($this->hash, $text, $this->key);
                     break;
@@ -337,7 +337,7 @@ class Crypt_Hash
                     $output = call_user_func($this->hash, $output); // step 7
             }
         } else {
-            switch ( $mode ) {
+            switch ($mode) {
                 case CRYPT_HASH_MODE_MHASH:
                     $output = mhash($this->hash, $text);
                     break;

@@ -387,7 +387,7 @@ class Crypt_Rijndael extends Crypt_Base
         $length >>= 5;
         if ($length > 8) {
             $length = 8;
-        } else if ($length < 4) {
+        } elseif ($length < 4) {
             $length = 4;
         }
         $this->Nb = $length;
@@ -690,7 +690,7 @@ class Crypt_Rijndael extends Crypt_Base
                 // with 0xFFFFFFFF (or 0xFFFFFF00) on a 32-bit machine is unnecessary, but on a 64-bit machine, it is.
                 $temp = (($temp << 8) & 0xFFFFFF00) | (($temp >> 24) & 0x000000FF); // rotWord
                 $temp = $this->_subWord($temp) ^ $rcon[$i / $this->Nk];
-            } else if ($this->Nk > 6 && $i % $this->Nk == 4) {
+            } elseif ($this->Nk > 6 && $i % $this->Nk == 4) {
                 $temp = $this->_subWord($temp);
             }
             $w[$i] = $w[$i - $this->Nk] ^ $temp;

@@ -12,7 +12,7 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
     static protected $exampleData;
     static protected $exampleDataLength;
 
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
         self::$remoteFile = uniqid('phpseclib-scp-ssh2-') . '.txt';

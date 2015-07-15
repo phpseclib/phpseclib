@@ -306,17 +306,17 @@ class File_ASN1
                 $tag <<= 7;
                 $tag |= ord($this->_string_shift($encoded)) & 0x7F;
                 $start++;
-            } while ( $loop );
+            } while ($loop);
         }
 
         // Length, as discussed in paragraph 8.1.3 of X.690-0207.pdf#page=13
         $length = ord($this->_string_shift($encoded));
         $start++;
-        if ( $length == 0x80 ) { // indefinite length
+        if ($length == 0x80) { // indefinite length
             // "[A sender shall] use the indefinite form (see 8.1.3.6) if the encoding is constructed and is not all
             //  immediately available." -- paragraph 8.1.3.2.c
             $length = strlen($encoded);
-        } elseif ( $length & 0x80 ) { // definite length, long form
+        } elseif ($length & 0x80) { // definite length, long form
             // technically, the long form of the length can be represented by up to 126 octets (bytes), but we'll only
             // support it up to four.
             $length&= 0x7F;
@@ -1088,7 +1088,7 @@ class File_ASN1
                         if ($outtype !== false) {
                             return $this->_encode_der($source[$typename], array('type' => $outtype) + $mapping, null, $special);
                         }
-                    }
+                }
 
                 $filters = $this->filters;
                 foreach ($loc as $part) {

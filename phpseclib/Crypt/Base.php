@@ -743,7 +743,7 @@ class Crypt_Base
                         $iv = substr_replace($iv, $block, 0, $overflow);
                         $ciphertext.= $block;
                         $pos = $overflow;
-                    } else if ($len) {
+                    } elseif ($len) {
                         $ciphertext = openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $iv);
                         $iv = substr($ciphertext, -$this->block_size);
                     }
@@ -1050,7 +1050,7 @@ class Crypt_Base
                         $plaintext.= $iv ^ substr($ciphertext, -$overflow);
                         $iv = substr_replace($iv, substr($ciphertext, -$overflow), 0, $overflow);
                         $pos = $overflow;
-                    } else if ($len) {
+                    } elseif ($len) {
                         $plaintext.= openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $iv);
                         $iv = substr($ciphertext, -$this->block_size);
                     }
@@ -1326,7 +1326,7 @@ class Crypt_Base
                 $buffer['ciphertext'] = substr($temp, $overflow);
                 $encryptIV = $temp;
             }
-        } else if (!strlen($buffer['ciphertext'])) {
+        } elseif (!strlen($buffer['ciphertext'])) {
             $ciphertext.= openssl_encrypt($plaintext . str_repeat("\0", $block_size), $this->cipher_name_openssl, $key, $this->openssl_options, $encryptIV);
             $temp = $this->_string_pop($ciphertext, $block_size);
             if ($this->continuousBuffer) {

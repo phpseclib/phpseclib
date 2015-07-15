@@ -1449,7 +1449,6 @@ class Crypt_DES extends Crypt_Base
             // Creating code for en- and decryption.
             $crypt_block = array();
             foreach (array(CRYPT_DES_ENCRYPT, CRYPT_DES_DECRYPT) as $c) {
-
                 /* Do the initial IP permutation. */
                 $crypt_block[$c] = '
                     $in = unpack("N*", $in);
