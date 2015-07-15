@@ -22,7 +22,6 @@
   <exclude name="Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma" />
   <exclude name="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonCASE" />
   <exclude name="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonDEFAULT" />
-  <exclude name="PSR2.Methods.FunctionCallSignature.SpaceAfterOpenBracket" />
 
   <!-- Other Exceptions -->
   <exclude name="Generic.Files.LineLength.TooLong" />
