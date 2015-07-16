@@ -317,6 +317,10 @@ class File_X509
             include_once 'Math/BigInteger.php';
         }
 
+        if (!function_exists('crypt_random_string')) {
+            include_once 'Crypt/Random.php';
+        }
+
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1
 
@@ -3277,7 +3281,12 @@ class File_X509
 
             $startDate = !empty($this->startDate) ? $this->startDate : @date('D, d M Y H:i:s O');
             $endDate = !empty($this->endDate) ? $this->endDate : @date('D, d M Y H:i:s O', strtotime('+1 year'));
-            $serialNumber = !empty($this->serialNumber) ? $this->serialNumber : new Math_BigInteger();
+            // "The serial number MUST be a positive integer"
+            // "Conforming CAs MUST NOT use serialNumber values longer than 20 octets."
+            //  -- https://tools.ietf.org/html/rfc5280#section-4.1.2.2
+            $serialNumber = !empty($this->serialNumber) ?
+                $this->serialNumber :
+                new Math_BigInteger(crypt_random_string(20) & ("\x7F" . str_repeat("\xFF", 19)), 256);
 
             $this->currentCert = array(
                 'tbsCertificate' =>
@@ -3566,6 +3575,11 @@ class File_X509
             $crlNumber = $this->serialNumber;
         } else {
             $crlNumber = $this->getExtension('id-ce-cRLNumber');
+            // "The CRL number is a non-critical CRL extension that conveys a
+            //  monotonically increasing sequence number for a given CRL scope and
+            //  CRL issuer.  This extension allows users to easily determine when a
+            //  particular CRL supersedes another CRL."
+            // -- https://tools.ietf.org/html/rfc5280#section-5.2.3
             $crlNumber = $crlNumber !== false ? $crlNumber->add(new Math_BigInteger(1)) : null;
         }
 
