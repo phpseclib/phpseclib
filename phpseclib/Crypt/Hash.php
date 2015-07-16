@@ -276,26 +276,26 @@ class Crypt_Hash
 
         switch ($hash) {
             case 'md2':
-                 $this->b = 16;
-                 $this->hash = array($this, '_md2');
+                $this->b = 16;
+                $this->hash = array($this, '_md2');
                 break;
             case 'md5':
-                 $this->b = 64;
-                 $this->hash = array($this, '_md5');
+                $this->b = 64;
+                $this->hash = array($this, '_md5');
                 break;
             case 'sha256':
-                 $this->b = 64;
-                 $this->hash = array($this, '_sha256');
+                $this->b = 64;
+                $this->hash = array($this, '_sha256');
                 break;
             case 'sha384':
             case 'sha512':
-                 $this->b = 128;
-                 $this->hash = array($this, '_sha512');
+                $this->b = 128;
+                $this->hash = array($this, '_sha512');
                 break;
             case 'sha1':
             default:
-                 $this->b = 64;
-                 $this->hash = array($this, '_sha1');
+                $this->b = 64;
+                $this->hash = array($this, '_sha1');
         }
 
         $this->ipad = str_repeat(chr(0x36), $this->b);
