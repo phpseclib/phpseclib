@@ -10,7 +10,7 @@ use phpseclib\Net\SFTP\Stream;
 
 class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
 {
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         Stream::register();
         parent::setUpBeforeClass();
