@@ -10,7 +10,7 @@ use phpseclib\Math\BigInteger;
 
 abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
 {
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         if (extension_loaded('runkit')) {
             if (extension_loaded('gmp')) {

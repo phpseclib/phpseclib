@@ -2500,7 +2500,7 @@ class X509
                 $asn1->loadFilters($filters);
                 $result = '';
                 foreach ($dn['rdnSequence'] as $rdn) {
-                    foreach ($rdn as $i=>$attr) {
+                    foreach ($rdn as $i => $attr) {
                         $attr = &$rdn[$i];
                         if (is_array($attr['value'])) {
                             foreach ($attr['value'] as $type => $v) {
@@ -2721,7 +2721,7 @@ class X509
                 break;
             }
         }
-        foreach ($chain as $key=>$value) {
+        foreach ($chain as $key => $value) {
             $chain[$key] = new X509();
             $chain[$key]->loadX509($value);
         }
@@ -3177,9 +3177,9 @@ class X509
     {
         $year = @gmdate("Y", @strtotime($date)); // the same way ASN1.php parses this
         if ($year < 2050) {
-           return array('utcTime' => $date);
+            return array('utcTime' => $date);
         } else {
-           return array('generalTime' => $date);
+            return array('generalTime' => $date);
         }
     }
 
@@ -3233,7 +3233,7 @@ class X509
             if (isset($subject->domains)) {
                 $this->removeExtension('id-ce-subjectAltName');
             }
-        } else if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertList'])) {
+        } elseif (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertList'])) {
             return false;
         } else {
             if (!isset($subject->publicKey)) {
@@ -3267,8 +3267,8 @@ class X509
                         'subject' => $subject->dn,
                         'subjectPublicKeyInfo' => $subjectPublicKey
                     ),
-                'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
-                'signature'          => false // this is going to be overwritten later
+                    'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                    'signature'          => false // this is going to be overwritten later
             );
 
             // Copy extensions from CSR.
@@ -3289,8 +3289,7 @@ class X509
                     //    )
                     //),
                     'keyIdentifier' => $issuer->currentKeyIdentifier
-                )
-            );
+                ));
             //$extensions = &$this->currentCert['tbsCertificate']['extensions'];
             //if (isset($issuer->serialNumber)) {
             //    $extensions[count($extensions) - 1]['authorityCertSerialNumber'] = $issuer->serialNumber;
@@ -3333,7 +3332,8 @@ class X509
                 $keyUsage = array();
             }
 
-            $this->setExtension('id-ce-keyUsage',
+            $this->setExtension(
+                'id-ce-keyUsage',
                 array_values(array_unique(array_merge($keyUsage, array('cRLSign', 'keyCertSign'))))
             );
 
@@ -3342,8 +3342,11 @@ class X509
                 $basicConstraints = array();
             }
 
-            $this->setExtension('id-ce-basicConstraints',
-                array_unique(array_merge(array('cA' => true), $basicConstraints)), true);
+            $this->setExtension(
+                'id-ce-basicConstraints',
+                array_unique(array_merge(array('cA' => true), $basicConstraints)),
+                true
+            );
 
             if (!isset($subject->currentKeyIdentifier)) {
                 $this->setExtension('id-ce-subjectKeyIdentifier', base64_encode($this->computeKeyIdentifier($this->currentCert)), false, false);
@@ -3403,8 +3406,8 @@ class X509
                         'subject' => $this->dn,
                         'subjectPKInfo' => $publicKey
                     ),
-                'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
-                'signature'          => false // this is going to be overwritten later
+                    'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                    'signature'          => false // this is going to be overwritten later
             );
         }
 
@@ -3468,8 +3471,8 @@ class X509
                         // Random::string(8) & str_repeat("\x7F", 8)
                         'challenge' => !empty($this->challenge) ? $this->challenge : ''
                     ),
-                'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
-                'signature'          => false // this is going to be overwritten later
+                    'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                    'signature'          => false // this is going to be overwritten later
             );
         }
 
@@ -3521,8 +3524,8 @@ class X509
                         'issuer' => false, // this is going to be overwritten later
                         'thisUpdate' => $this->_timeField($thisUpdate) // $this->setStartDate()
                     ),
-                'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
-                'signature'          => false // this is going to be overwritten later
+                    'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                    'signature'          => false // this is going to be overwritten later
             );
         }
 
@@ -3583,8 +3586,7 @@ class X509
                         //    )
                         //),
                         'keyIdentifier' => $issuer->currentKeyIdentifier
-                    )
-                );
+                    ));
                 //$extensions = &$tbsCertList['crlExtensions'];
                 //if (isset($issuer->serialNumber)) {
                 //    $extensions[count($extensions) - 1]['authorityCertSerialNumber'] = $issuer->serialNumber;
@@ -4363,7 +4365,6 @@ class X509
             if (is_array($rclist = &$this->_subArray($this->currentCert, 'tbsCertList/revokedCertificates', true))) {
                 if ($this->_revokedCertificate($rclist, $serial) === false) { // If not yet revoked
                     if (($i = $this->_revokedCertificate($rclist, $serial, true)) !== false) {
-
                         if (!empty($date)) {
                             $rclist[$i]['revocationDate'] = $this->_timeField($date);
                         }

@@ -3,35 +3,25 @@
 
  <description>phpseclib coding standard</description>
 
- <!-- We are using the PEAR standard as a base -->
- <rule ref="PEAR">
-   <!-- Temporary exceptions to the PEAR standard follow -->
-   <exclude name="Generic.ControlStructures.InlineControlStructure.Discouraged" />
-   <exclude name="Generic.Files.LineLength.TooLong" />
-   <exclude name="PEAR.NamingConventions.ValidFunctionName.FunctionNoCapital" />
-   <exclude name="PEAR.NamingConventions.ValidFunctionName.NotCamelCaps" />
-   <exclude name="PEAR.Commenting.ClassComment.InvalidVersion" />
-   <exclude name="PEAR.Commenting.ClassComment.MissingTag" />
-   <exclude name="PEAR.Commenting.FileComment.EmptyCopyright" />
-   <exclude name="PEAR.Commenting.FileComment.InvalidVersion" />
-   <exclude name="PEAR.Commenting.FunctionComment.ExtraParamComment" />
-   <exclude name="PEAR.Commenting.FunctionComment.MissingReturn" />
-   <exclude name="PEAR.Commenting.FunctionComment.MissingParamComment" />
-   <exclude name="PEAR.Commenting.FunctionComment.MissingParamName" />
-   <exclude name="PEAR.Commenting.FunctionComment.MissingParamTag" />
-   <exclude name="PEAR.Commenting.FunctionComment.ParameterCommentsNotAligned" />
-   <exclude name="PEAR.Commenting.FunctionComment.ParameterNamesNotAligned" />
-   <exclude name="PEAR.Commenting.FunctionComment.ParamNameNoMatch" />
-   <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParams" />
-   <exclude name="PEAR.Commenting.FunctionComment.SpacingBeforeParams" />
-   <exclude name="PEAR.Commenting.FunctionComment.SpacingBeforeTags" />
-   <exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
-   <exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
-   <exclude name="PEAR.Functions.FunctionCallSignature.SpaceAfterOpenBracket" />
-   <exclude name="PEAR.WhiteSpace.ScopeClosingBrace.BreakIdent" />
-   <exclude name="PEAR.WhiteSpace.ScopeClosingBrace.Indent" />
-   <exclude name="PEAR.WhiteSpace.ScopeClosingBrace.Line" />
-   <exclude name="PEAR.WhiteSpace.ScopeIndent.Incorrect" />
+ <!-- We are using the PSR2 standard as a base -->
+ <rule ref="PSR2">
+  <!-- Exceptions due to legacy code with PHP4 compatibility -->
+  <exclude name="PSR2.Classes.PropertyDeclaration.ScopeMissing" />
+  <exclude name="PSR2.Classes.PropertyDeclaration.VarUsed" />
+  <exclude name="Squiz.Scope.MethodScope.Missing" />
+
+  <!-- Exceptions for backward compatibility -->
+  <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps" />
+  <exclude name="PSR2.Methods.MethodDeclaration.Underscore" />
+
+  <!-- Exceptions for whitespacing -->
+  <exclude name="Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma" />
+  <exclude name="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonCASE" />
+  <exclude name="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonDEFAULT" />
+
+  <!-- Other Exceptions -->
+  <exclude name="Generic.Files.LineLength.TooLong" />
+  <exclude name="PSR2.ControlStructures.SwitchDeclaration.TerminatingComment" />
  </rule>
 
  <!-- Useful additional rules follow -->
@@ -41,47 +31,5 @@
 
  <!-- A method MUST not only call its parent -->
  <rule ref="Generic.CodeAnalysis.UselessOverridingMethod" />
-
- <!-- All code files MUST use only UTF-8 without BOM. -->
- <rule ref="Generic.Files.ByteOrderMark" />
-
- <!-- Constructors MUST be called __construct() instead of after the class. -->
- <rule ref="Generic.NamingConventions.ConstructorName" />
-
- <!-- Classes etc. MUST be namespaced -->
- <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace" />
-
- <!-- A file MUST not contain more than one class/interface -->
- <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses" />
-
- <!-- Files containing classes MUST not have any side-effects -->
- <rule ref="PSR1.Files.SideEffects.FoundWithSymbols" />
-
- <!-- Each file MUST end with exactly one newline character -->
- <rule ref="PSR2.Files.EndFileNewline" />
-
- <!-- In the argument list, there MUST NOT be a space before each comma,
-      and there MUST be one space after each comma. -->
- <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing">
-  <properties>
-   <property name="equalsSpacing" value="1"/>
-  </properties>
- </rule>
- <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingAfterHint" />
-
- <!-- There MUST NOT be trailing whitespace at the end of lines. -->
- <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace" />
-
- <!-- There MUST NOT be whitespace before the first content of a file -->
- <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.StartFile" />
-
- <!-- There MUST NOT be whitespace after the last content of a file -->
- <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndFile" />
-
- <!-- Functions MUST NOT contain multiple empty lines in a row -->
- <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines" />
-
- <!-- The ?> closing tag MUST be omitted from files containing only PHP. -->
- <rule ref="Zend.Files.ClosingTag" />
 
 </ruleset>

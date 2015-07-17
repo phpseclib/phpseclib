@@ -1378,7 +1378,6 @@ class DES extends Base
             // Creating code for en- and decryption.
             $crypt_block = array();
             foreach (array(self::ENCRYPT, self::DECRYPT) as $c) {
-
                 /* Do the initial IP permutation. */
                 $crypt_block[$c] = '
                     $in = unpack("N*", $in);

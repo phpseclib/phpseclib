@@ -7,7 +7,7 @@
  *
  * PHP version 5
  *
- * NOTE: Since AES.php is (for compatibility and phpseclib-historical reasons) virtually 
+ * NOTE: Since AES.php is (for compatibility and phpseclib-historical reasons) virtually
  * just a wrapper to Rijndael.php you may consider using Rijndael.php instead of
  * to save one include_once().
  *

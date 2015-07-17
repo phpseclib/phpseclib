@@ -7,7 +7,7 @@
 
 class Unit_Math_BigInteger_InternalTest extends Unit_Math_BigInteger_TestCase
 {
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
 
