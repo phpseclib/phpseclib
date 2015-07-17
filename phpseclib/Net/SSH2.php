@@ -2587,7 +2587,7 @@ class SSH2
         $match = $expect;
         while (true) {
             if ($mode == self::READ_REGEX) {
-                preg_match($expect, $this->interactiveBuffer, $matches);
+                preg_match($expect, substr($this->interactiveBuffer, -1024), $matches);
                 $match = isset($matches[0]) ? $matches[0] : '';
             }
             $pos = strlen($match) ? strpos($this->interactiveBuffer, $match) : false;
