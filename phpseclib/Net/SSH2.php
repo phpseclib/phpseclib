@@ -1333,16 +1333,9 @@ class SSH2
         // here ends the second place.
 
         // we need to decide upon the symmetric encryption algorithms before we do the diffie-hellman key exchange
-        for ($i = 0; $i < count($encryption_algorithms) && !in_array($encryption_algorithms[$i], $this->encryption_algorithms_server_to_client); $i++) {
-        }
-        if ($i == count($encryption_algorithms)) {
-            user_error('No compatible server to client encryption algorithms found');
-            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-        }
-
         // we don't initialize any crypto-objects, yet - we do that, later. for now, we need the lengths to make the
         // diffie-hellman key exchange as fast as possible
-        $decrypt = $encryption_algorithms[$i];
+        $decrypt = $this->_array_intersect_first($encryption_algorithms, $this->encryption_algorithms_server_to_client);
         switch ($decrypt) {
             case '3des-cbc':
             case '3des-ctr':
@@ -1378,16 +1371,13 @@ class SSH2
                 break;
             case 'none':
                 $decryptKeyLength = 0;
+                break;
+            default:
+                user_error('No compatible server to client encryption algorithms found');
+                return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
-        for ($i = 0; $i < count($encryption_algorithms) && !in_array($encryption_algorithms[$i], $this->encryption_algorithms_client_to_server); $i++) {
-        }
-        if ($i == count($encryption_algorithms)) {
-            user_error('No compatible client to server encryption algorithms found');
-            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-        }
-
-        $encrypt = $encryption_algorithms[$i];
+        $encrypt = $this->_array_intersect_first($encryption_algorithms, $this->encryption_algorithms_client_to_server);
         switch ($encrypt) {
             case '3des-cbc':
             case '3des-ctr':
@@ -1423,19 +1413,21 @@ class SSH2
                 break;
             case 'none':
                 $encryptKeyLength = 0;
+                break;
+            default:
+                user_error('No compatible client to server encryption algorithms found');
+                return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
         $keyLength = $decryptKeyLength > $encryptKeyLength ? $decryptKeyLength : $encryptKeyLength;
 
         // through diffie-hellman key exchange a symmetric key is obtained
-        for ($i = 0; $i < count($kex_algorithms) && !in_array($kex_algorithms[$i], $this->kex_algorithms); $i++) {
-        }
-        if ($i == count($kex_algorithms)) {
+        $kex_algorithm = $this->_array_intersect_first($kex_algorithms, $this->kex_algorithms);
+        if ($kex_algorithm === false) {
             user_error('No compatible key exchange algorithms found');
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
-
-        if (strpos($kex_algorithms[$i], 'diffie-hellman-group-exchange') === 0) {
+        if (strpos($kex_algorithm, 'diffie-hellman-group-exchange') === 0) {
             $dh_group_sizes_packed = pack(
                 'NNN',
                 $this->kex_dh_group_size_min,
@@ -1482,7 +1474,7 @@ class SSH2
             $clientKexInitMessage = NET_SSH2_MSG_KEXDH_GEX_INIT;
             $serverKexReplyMessage = NET_SSH2_MSG_KEXDH_GEX_REPLY;
         } else {
-            switch ($kex_algorithms[$i]) {
+            switch ($kex_algorithm) {
                 // see http://tools.ietf.org/html/rfc2409#section-6.2 and
                 // http://tools.ietf.org/html/rfc2412, appendex E
                 case 'diffie-hellman-group1-sha1':
@@ -1512,7 +1504,7 @@ class SSH2
             $serverKexReplyMessage = NET_SSH2_MSG_KEXDH_REPLY;
         }
 
-        switch ($kex_algorithms[$i]) {
+        switch ($kex_algorithm) {
             case 'diffie-hellman-group-exchange-sha256':
                 $kexHash = new Hash('sha256');
                 break;
@@ -1601,14 +1593,13 @@ class SSH2
             $this->session_id = $this->exchange_hash;
         }
 
-        for ($i = 0; $i < count($server_host_key_algorithms) && !in_array($server_host_key_algorithms[$i], $this->server_host_key_algorithms); $i++) {
-        }
-        if ($i == count($server_host_key_algorithms)) {
+        $server_host_key_algorithm = $this->_array_intersect_first($server_host_key_algorithms, $this->server_host_key_algorithms);
+        if ($server_host_key_algorithm === false) {
             user_error('No compatible server host key algorithms found');
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
-        if ($public_key_format != $server_host_key_algorithms[$i] || $this->signature_format != $server_host_key_algorithms[$i]) {
+        if ($public_key_format != $server_host_key_algorithm || $this->signature_format != $server_host_key_algorithm) {
             user_error('Server Host Key Algorithm Mismatch');
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
@@ -1792,15 +1783,14 @@ class SSH2
             $this->decrypt->decrypt(str_repeat("\0", 1536));
         }
 
-        for ($i = 0; $i < count($mac_algorithms) && !in_array($mac_algorithms[$i], $this->mac_algorithms_client_to_server); $i++) {
-        }
-        if ($i == count($mac_algorithms)) {
+        $mac_algorithm = $this->_array_intersect_first($mac_algorithms, $this->mac_algorithms_client_to_server);
+        if ($mac_algorithm === false) {
             user_error('No compatible client to server message authentication algorithms found');
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
-        $createKeyLength = 0; // ie. $mac_algorithms[$i] == 'none'
-        switch ($mac_algorithms[$i]) {
+        $createKeyLength = 0; // ie. $mac_algorithm == 'none'
+        switch ($mac_algorithm) {
             case 'hmac-sha2-256':
                 $this->hmac_create = new Hash('sha256');
                 $createKeyLength = 32;
@@ -1822,16 +1812,15 @@ class SSH2
                 $createKeyLength = 16;
         }
 
-        for ($i = 0; $i < count($mac_algorithms) && !in_array($mac_algorithms[$i], $this->mac_algorithms_server_to_client); $i++) {
-        }
-        if ($i == count($mac_algorithms)) {
+        $mac_algorithm = $this->_array_intersect_first($mac_algorithms, $this->mac_algorithms_server_to_client);
+        if ($mac_algorithm === false) {
             user_error('No compatible server to client message authentication algorithms found');
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
         $checkKeyLength = 0;
         $this->hmac_size = 0;
-        switch ($mac_algorithms[$i]) {
+        switch ($mac_algorithm) {
             case 'hmac-sha2-256':
                 $this->hmac_check = new Hash('sha256');
                 $checkKeyLength = 32;
@@ -1870,21 +1859,19 @@ class SSH2
         }
         $this->hmac_check->setKey(substr($key, 0, $checkKeyLength));
 
-        for ($i = 0; $i < count($compression_algorithms) && !in_array($compression_algorithms[$i], $this->compression_algorithms_server_to_client); $i++) {
-        }
-        if ($i == count($compression_algorithms)) {
+        $compression_algorithm = $this->_array_intersect_first($compression_algorithms, $this->compression_algorithms_server_to_client);
+        if ($compression_algorithm === false) {
             user_error('No compatible server to client compression algorithms found');
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
-        $this->decompress = $compression_algorithms[$i] == 'zlib';
+        $this->decompress = $compression_algorithm == 'zlib';
 
-        for ($i = 0; $i < count($compression_algorithms) && !in_array($compression_algorithms[$i], $this->compression_algorithms_client_to_server); $i++) {
-        }
-        if ($i == count($compression_algorithms)) {
+        $compression_algorithm = $this->_array_intersect_first($compression_algorithms, $this->compression_algorithms_client_to_server);
+        if ($compression_algorithm === false) {
             user_error('No compatible client to server compression algorithms found');
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
-        $this->compress = $compression_algorithms[$i] == 'zlib';
+        $this->compress = $compression_algorithm == 'zlib';
 
         return true;
     }
@@ -3791,6 +3778,25 @@ class SSH2
         if (isset($this->agent)) {
             $this->agent->_on_channel_open($this);
         }
+    }
+
+    /**
+     * Returns the first value of the intersection of two arrays or false if
+     * the intersection is empty. The order is defined by the first parameter.
+     *
+     * @param Array $array1
+     * @param Array $array2
+     * @return Mixed False if intersection is empty, else intersected value.
+     * @access private
+     */
+    function _array_intersect_first($array1, $array2)
+    {
+        foreach ($array1 as $value) {
+            if (in_array($value, $array2)) {
+                return $value;
+            }
+        }
+        return false;
     }
 
     /**
