@@ -596,5 +596,52 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
             $sftp->stat(self::$scratchDir),
             'Failed asserting that stat on a deleted directory returns false'
         );
+
+        return $sftp;
+    }
+
+    /**
+     * @depends testDeleteEmptyDir
+     * @group github735
+     */
+    public function testStatVsLstat($sftp)
+    {
+        $this->assertTrue($sftp->mkdir(self::$scratchDir));
+        $this->assertTrue($sftp->chdir(self::$scratchDir));
+        $this->assertTrue($sftp->put('text.txt', 'zzzzz'));
+        $this->assertTrue($sftp->symlink('text.txt', 'link.txt'));
+        $this->assertTrue($sftp->mkdir('subdir'));
+        $this->assertTrue($sftp->symlink('subdir', 'linkdir'));
+
+        $sftp->clearStatCache();
+
+        // pre-populate the stat cache
+        $sftp->nlist();
+
+        $stat = $sftp->stat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_REGULAR);
+        $stat = $sftp->lstat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+
+        $stat = $sftp->stat('linkdir');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_DIRECTORY);
+        $stat = $sftp->lstat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+
+        $sftp->disableStatCache();
+
+        $sftp->nlist();
+
+        $stat = $sftp->stat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_REGULAR);
+        $stat = $sftp->lstat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+
+        $stat = $sftp->stat('linkdir');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_DIRECTORY);
+        $stat = $sftp->lstat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+
+        $sftp->enableStatCache();
     }
 }

@@ -862,7 +862,7 @@ class SFTP extends SSH2
                             } else {
                                 $temp = $dir . '/' . $shortname;
                             }
-                            $this->_update_stat_cache($temp, (object) array('stat' => $attributes));
+                            $this->_update_stat_cache($temp, (object) array('lstat' => $attributes));
                         }
                         // SFTPv6 has an optional boolean end-of-list field, but we'll ignore that, since the
                         // final SSH_FXP_STATUS packet should tell us that, already.
@@ -1033,6 +1033,12 @@ class SFTP extends SSH2
         $temp = &$this->stat_cache;
         $max = count($dirs) - 1;
         foreach ($dirs as $i=>$dir) {
+            // if $temp is an object that means one of two things.
+            //  1. a file was deleted and changed to a directory behind phpseclib's back
+            //  2. it's a symlink. when lstat is done it's unclear what it's a symlink to
+            if (is_object($temp)) {
+                $temp = array();
+            }
             if (!isset($temp[$dir])) {
                 $temp[$dir] = array();
             }
@@ -1122,7 +1128,7 @@ class SFTP extends SSH2
 
         if ($this->use_stat_cache) {
             $result = $this->_query_stat_cache($filename);
-            if (is_array($result) && isset($result['.'])) {
+            if (is_array($result) && isset($result['.']) && isset($result['.']->stat)) {
                 return $result['.']->stat;
             }
             if (is_object($result) && isset($result->stat)) {
