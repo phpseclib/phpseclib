@@ -1022,14 +1022,13 @@ class Net_SSH2
 
         $this->curTimeout = $this->timeout;
 
-        $host = $this->host . ':' . $this->port;
-
         $this->last_packet = strtok(microtime(), ' ') + strtok(''); // == microtime(true) in PHP5
 
         if (!is_resource($this->fsock)) {
             $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
             $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout);
             if (!$this->fsock) {
+                $host = $this->host . ':' . $this->port;
                 user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
                 return false;
             }
