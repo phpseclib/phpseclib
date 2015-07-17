@@ -35,7 +35,7 @@ class Unit_Crypt_DESTest extends PhpseclibTestCase
         $des->setPreferredEngine(CRYPT_ENGINE_OPENSSL);
         if ($des->getEngine() == CRYPT_ENGINE_OPENSSL) {
             $openssl = $des->encrypt('d');
-            $this->assertEquals($result, $openssl,  'Failed asserting that the OpenSSL engine produced the correct result');
+            $this->assertEquals($result, $openssl, 'Failed asserting that the OpenSSL engine produced the correct result');
         } else {
             self::markTestSkipped('Unable to initialize OpenSSL engine');
         }
@@ -69,7 +69,7 @@ class Unit_Crypt_DESTest extends PhpseclibTestCase
         $des->setPreferredEngine(CRYPT_ENGINE_OPENSSL);
         if ($des->getEngine() == CRYPT_ENGINE_OPENSSL) {
             $openssl = $des->decrypt('d');
-            $this->assertEquals($result, $openssl,  'Failed asserting that the OpenSSL engine produced the correct result');
+            $this->assertEquals($result, $openssl, 'Failed asserting that the OpenSSL engine produced the correct result');
         } else {
             self::markTestSkipped('Unable to initialize OpenSSL engine');
         }

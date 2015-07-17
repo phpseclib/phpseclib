@@ -20,7 +20,7 @@ class Unit_Crypt_Hash_MD5Test extends Unit_Crypt_Hash_TestCase
         $this->assertHashesTo($this->getInstance(), $message, $result);
     }
 
-    static public function hashData()
+    public static function hashData()
     {
         return array(
             array('', 'd41d8cd98f00b204e9800998ecf8427e'),
@@ -37,7 +37,7 @@ class Unit_Crypt_Hash_MD5Test extends Unit_Crypt_Hash_TestCase
         $this->assertHMACsTo($this->getInstance(), $key, $message, $result);
     }
 
-    static public function hmacData()
+    public static function hmacData()
     {
         return array(
             array('', '', '74e6f7298a9c2d168935f58c001bad88'),

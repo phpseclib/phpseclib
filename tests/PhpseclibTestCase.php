@@ -53,7 +53,7 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
      *
      * @return null
      */
-    static protected function ensureConstant($constant, $expected)
+    protected static function ensureConstant($constant, $expected)
     {
         if (defined($constant)) {
             $value = constant($constant);
@@ -86,7 +86,7 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
      *
      * @return null
      */
-    static protected function reRequireFile($filename)
+    protected static function reRequireFile($filename)
     {
         if (function_exists('runkit_import')) {
             $result = runkit_import(

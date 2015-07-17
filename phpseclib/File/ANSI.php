@@ -353,6 +353,7 @@ class File_ANSI
                                             //$back = $attr_cell->reverse ? &$attr_cell->foreground : &$attr_cell->background;
                                             $back = &$attr_cell->{ $attr_cell->reverse ? 'foreground' : 'background' };
                                             switch ($mod) {
+                                                // @codingStandardsIgnoreStart
                                                 case 30: $front = 'black'; break;
                                                 case 31: $front = 'red'; break;
                                                 case 32: $front = 'green'; break;
@@ -370,6 +371,7 @@ class File_ANSI
                                                 case 45: $back = 'magenta'; break;
                                                 case 46: $back = 'cyan'; break;
                                                 case 47: $back = 'white'; break;
+                                                // @codingStandardsIgnoreEnd
 
                                                 default:
                                                     //user_error('Unsupported attribute: ' . $mod);

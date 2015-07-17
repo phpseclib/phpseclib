@@ -9,7 +9,7 @@ require_once 'Crypt/Hash.php';
 
 abstract class Unit_Crypt_Hash_TestCase extends PhpseclibTestCase
 {
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         if (!defined('CRYPT_HASH_MODE')) {
             define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_INTERNAL);
