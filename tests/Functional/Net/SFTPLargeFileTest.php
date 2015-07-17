@@ -11,7 +11,7 @@ use phpseclib\Net\SFTP;
 
 class Functional_Net_SFTPLargeFileTest extends Functional_Net_SFTPTestCase
 {
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         if (!extension_loaded('mcrypt') && !extension_loaded('openssl')) {
             self::markTestSkipped('This test depends on mcrypt or openssl for performance.');

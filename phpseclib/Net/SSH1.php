@@ -597,7 +597,7 @@ class SSH1
 
         // get a list of the supported ciphers
         extract(unpack('Nsupported_ciphers_mask', $this->_string_shift($response[self::RESPONSE_DATA], 4)));
-        foreach ($this->supported_ciphers as $mask=>$name) {
+        foreach ($this->supported_ciphers as $mask => $name) {
             if (($supported_ciphers_mask & (1 << $mask)) == 0) {
                 unset($this->supported_ciphers[$mask]);
             }
@@ -605,7 +605,7 @@ class SSH1
 
         // get a list of the supported authentications
         extract(unpack('Nsupported_authentications_mask', $this->_string_shift($response[self::RESPONSE_DATA], 4)));
-        foreach ($this->supported_authentications as $mask=>$name) {
+        foreach ($this->supported_authentications as $mask => $name) {
             if (($supported_authentications_mask & (1 << $mask)) == 0) {
                 unset($this->supported_authentications[$mask]);
             }
@@ -727,7 +727,7 @@ class SSH1
         if ($response[self::RESPONSE_TYPE] == NET_SSH1_SMSG_SUCCESS) {
             $this->bitmap |= self::MASK_LOGIN;
             return true;
-        } else if ($response[self::RESPONSE_TYPE] != NET_SSH1_SMSG_FAILURE) {
+        } elseif ($response[self::RESPONSE_TYPE] != NET_SSH1_SMSG_FAILURE) {
             user_error('Expected SSH_SMSG_SUCCESS or SSH_SMSG_FAILURE');
             return false;
         }
@@ -753,7 +753,7 @@ class SSH1
         if ($response[self::RESPONSE_TYPE] == NET_SSH1_SMSG_SUCCESS) {
             $this->bitmap |= self::MASK_LOGIN;
             return true;
-        } else if ($response[self::RESPONSE_TYPE] == NET_SSH1_SMSG_FAILURE) {
+        } elseif ($response[self::RESPONSE_TYPE] == NET_SSH1_SMSG_FAILURE) {
             return false;
         } else {
             user_error('Expected SSH_SMSG_SUCCESS or SSH_SMSG_FAILURE');
@@ -1266,7 +1266,7 @@ class SSH1
         $crc = 0x00000000;
         $length = strlen($data);
 
-        for ($i=0;$i<$length;$i++) {
+        for ($i=0; $i<$length; $i++) {
             // We AND $crc >> 8 with 0x00FFFFFF because we want the eight newly added bits to all
             // be zero.  PHP, unfortunately, doesn't always do this.  0x80000000 >> 8, as an example,
             // yields 0xFF800000 - not 0x00800000.  The following link elaborates:
@@ -1361,7 +1361,7 @@ class SSH1
     {
         $args = func_get_args();
         foreach ($args as $arg) {
-            foreach ($arg as $key=>$value) {
+            foreach ($arg as $key => $value) {
                 if (!defined($value)) {
                     define($value, $key);
                 } else {

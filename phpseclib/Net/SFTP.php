@@ -395,8 +395,15 @@ class SFTP extends SSH2
 
         $this->window_size_server_to_client[self::CHANNEL] = $this->window_size;
 
-        $packet = pack('CNa*N3',
-            NET_SSH2_MSG_CHANNEL_OPEN, strlen('session'), 'session', self::CHANNEL, $this->window_size, 0x4000);
+        $packet = pack(
+            'CNa*N3',
+            NET_SSH2_MSG_CHANNEL_OPEN,
+            strlen('session'),
+            'session',
+            self::CHANNEL,
+            $this->window_size,
+            0x4000
+        );
 
         if (!$this->_send_binary_packet($packet)) {
             return false;
@@ -409,8 +416,16 @@ class SFTP extends SSH2
             return false;
         }
 
-        $packet = pack('CNNa*CNa*',
-            NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[self::CHANNEL], strlen('subsystem'), 'subsystem', 1, strlen('sftp'), 'sftp');
+        $packet = pack(
+            'CNNa*CNa*',
+            NET_SSH2_MSG_CHANNEL_REQUEST,
+            $this->server_channels[self::CHANNEL],
+            strlen('subsystem'),
+            'subsystem',
+            1,
+            strlen('sftp'),
+            'sftp'
+        );
         if (!$this->_send_binary_packet($packet)) {
             return false;
         }
@@ -425,8 +440,16 @@ class SFTP extends SSH2
                        "exec sftp-server";
             // we don't do $this->exec($command, false) because exec() operates on a different channel and plus the SSH_MSG_CHANNEL_OPEN that exec() does
             // is redundant
-            $packet = pack('CNNa*CNa*',
-                NET_SSH2_MSG_CHANNEL_REQUEST, $this->server_channels[self::CHANNEL], strlen('exec'), 'exec', 1, strlen($command), $command);
+            $packet = pack(
+                'CNNa*CNa*',
+                NET_SSH2_MSG_CHANNEL_REQUEST,
+                $this->server_channels[self::CHANNEL],
+                strlen('exec'),
+                'exec',
+                1,
+                strlen($command),
+                $command
+            );
             if (!$this->_send_binary_packet($packet)) {
                 return false;
             }
@@ -767,7 +790,7 @@ class SFTP extends SSH2
 
         static $depth = 0;
 
-        foreach ($files as $key=>$value) {
+        foreach ($files as $key => $value) {
             if ($depth != 0 && $key == '..') {
                 unset($files[$key]);
                 continue;
@@ -1032,7 +1055,7 @@ class SFTP extends SSH2
 
         $temp = &$this->stat_cache;
         $max = count($dirs) - 1;
-        foreach ($dirs as $i=>$dir) {
+        foreach ($dirs as $i => $dir) {
             // if $temp is an object that means one of two things.
             //  1. a file was deleted and changed to a directory behind phpseclib's back
             //  2. it's a symlink. when lstat is done it's unclear what it's a symlink to
@@ -1071,7 +1094,7 @@ class SFTP extends SSH2
 
         $temp = &$this->stat_cache;
         $max = count($dirs) - 1;
-        foreach ($dirs as $i=>$dir) {
+        foreach ($dirs as $i => $dir) {
             if ($i === $max) {
                 unset($temp[$dir]);
                 return true;
@@ -1501,7 +1524,7 @@ class SFTP extends SSH2
         }
 
         unset($entries['.'], $entries['..']);
-        foreach ($entries as $filename=>$props) {
+        foreach ($entries as $filename => $props) {
             if (!isset($props['type'])) {
                 return false;
             }
@@ -2173,7 +2196,7 @@ class SFTP extends SSH2
         }
 
         unset($entries['.'], $entries['..']);
-        foreach ($entries as $filename=>$props) {
+        foreach ($entries as $filename => $props) {
             if (!isset($props['type'])) {
                 return false;
             }
@@ -2375,13 +2398,20 @@ class SFTP extends SSH2
         }
 
         switch ($type) {
-            case NET_SFTP_TYPE_BLOCK_DEVICE: return 'block';
-            case NET_SFTP_TYPE_CHAR_DEVICE: return 'char';
-            case NET_SFTP_TYPE_DIRECTORY: return 'dir';
-            case NET_SFTP_TYPE_FIFO: return 'fifo';
-            case NET_SFTP_TYPE_REGULAR: return 'file';
-            case NET_SFTP_TYPE_SYMLINK: return 'link';
-            default: return false;
+            case NET_SFTP_TYPE_BLOCK_DEVICE:
+                return 'block';
+            case NET_SFTP_TYPE_CHAR_DEVICE:
+                return 'char';
+            case NET_SFTP_TYPE_DIRECTORY:
+                return 'dir';
+            case NET_SFTP_TYPE_FIFO:
+                return 'fifo';
+            case NET_SFTP_TYPE_REGULAR:
+                return 'file';
+            case NET_SFTP_TYPE_SYMLINK:
+                return 'link';
+            default:
+                return false;
         }
     }
 

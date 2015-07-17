@@ -22,7 +22,7 @@ class Unit_Crypt_Hash_SHA256Test extends Unit_Crypt_Hash_TestCase
         $this->assertHashesTo($this->getInstance(), $message, $result);
     }
 
-    static public function hashData()
+    public static function hashData()
     {
         return array(
             array(
@@ -48,7 +48,7 @@ class Unit_Crypt_Hash_SHA256Test extends Unit_Crypt_Hash_TestCase
         $this->assertHMACsTo($this->getInstance(), $key, $message, $result);
     }
 
-    static public function hmacData()
+    public static function hmacData()
     {
         return array(
             // RFC 4231

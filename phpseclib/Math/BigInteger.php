@@ -258,7 +258,7 @@ class BigInteger
      */
     function __construct($x = 0, $base = 10)
     {
-        if ( !defined('MATH_BIGINTEGER_MODE') ) {
+        if (!defined('MATH_BIGINTEGER_MODE')) {
             switch (true) {
                 case extension_loaded('gmp'):
                     define('MATH_BIGINTEGER_MODE', self::MODE_GMP);
@@ -334,7 +334,7 @@ class BigInteger
             }
         }
 
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 switch (true) {
                     case is_resource($x) && get_resource_type($x) == 'GMP integer':
@@ -364,8 +364,8 @@ class BigInteger
                     $x = ~$x;
                     $this->is_negative = true;
                 }
-            case  256:
-                switch ( MATH_BIGINTEGER_MODE ) {
+            case 256:
+                switch (MATH_BIGINTEGER_MODE) {
                     case self::MODE_GMP:
                         $sign = $this->is_negative ? '-' : '';
                         $this->value = gmp_init($sign . '0x' . bin2hex($x));
@@ -401,7 +401,7 @@ class BigInteger
                     $this->value = $temp->value;
                 }
                 break;
-            case  16:
+            case 16:
             case -16:
                 if ($base > 0 && $x[0] == '-') {
                     $this->is_negative = true;
@@ -416,7 +416,7 @@ class BigInteger
                     $x = bin2hex(~pack('H*', $x));
                 }
 
-                switch ( MATH_BIGINTEGER_MODE ) {
+                switch (MATH_BIGINTEGER_MODE) {
                     case self::MODE_GMP:
                         $temp = $this->is_negative ? '-0x' . $x : '0x' . $x;
                         $this->value = gmp_init($temp);
@@ -439,14 +439,14 @@ class BigInteger
                     $this->value = $temp->value;
                 }
                 break;
-            case  10:
+            case 10:
             case -10:
                 // (?<!^)(?:-).*: find any -'s that aren't at the beginning and then any characters that follow that
                 // (?<=^|-)0*: find any 0's that are preceded by the start of the string or by a - (ie. octals)
                 // [^-0-9].*: find any non-numeric characters and then any characters that follow that
                 $x = preg_replace('#(?<!^)(?:-).*|(?<=^|-)0*|[^-0-9].*#', '', $x);
 
-                switch ( MATH_BIGINTEGER_MODE ) {
+                switch (MATH_BIGINTEGER_MODE) {
                     case self::MODE_GMP:
                         $this->value = gmp_init($x);
                         break;
@@ -476,7 +476,7 @@ class BigInteger
                         $this->value = $temp->value;
                 }
                 break;
-            case  2: // base-2 support originally implemented by Lluis Pamies - thanks!
+            case 2: // base-2 support originally implemented by Lluis Pamies - thanks!
             case -2:
                 if ($base > 0 && $x[0] == '-') {
                     $this->is_negative = true;
@@ -549,7 +549,7 @@ class BigInteger
             return $comparison < 0 ? ~$bytes : $bytes;
         }
 
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 if (gmp_cmp($this->value, gmp_init(0)) == 0) {
                     return $this->precision > 0 ? str_repeat(chr(0), ($this->precision + 1) >> 3) : '';
@@ -684,7 +684,7 @@ class BigInteger
      */
     function toString()
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 return gmp_strval($this->value);
             case self::MODE_BCMATH:
@@ -838,7 +838,7 @@ class BigInteger
      */
     function add($y)
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 $temp = new static();
                 $temp->value = gmp_add($this->value, $y->value);
@@ -880,7 +880,7 @@ class BigInteger
                 self::VALUE => $y_value,
                 self::SIGN => $y_negative
             );
-        } else if ($y_size == 0) {
+        } elseif ($y_size == 0) {
             return array(
                 self::VALUE => $x_value,
                 self::SIGN => $x_negative
@@ -888,8 +888,8 @@ class BigInteger
         }
 
         // subtract, if appropriate
-        if ( $x_negative != $y_negative ) {
-            if ( $x_value == $y_value ) {
+        if ($x_negative != $y_negative) {
+            if ($x_value == $y_value) {
                 return array(
                     self::VALUE => array(),
                     self::SIGN => false
@@ -967,7 +967,7 @@ class BigInteger
      */
     function subtract($y)
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 $temp = new static();
                 $temp->value = gmp_sub($this->value, $y->value);
@@ -1009,7 +1009,7 @@ class BigInteger
                 self::VALUE => $y_value,
                 self::SIGN => !$y_negative
             );
-        } else if ($y_size == 0) {
+        } elseif ($y_size == 0) {
             return array(
                 self::VALUE => $x_value,
                 self::SIGN => $x_negative
@@ -1017,7 +1017,7 @@ class BigInteger
         }
 
         // add, if appropriate (ie. -$x - +$y or +$x - -$y)
-        if ( $x_negative != $y_negative ) {
+        if ($x_negative != $y_negative) {
             $temp = $this->_add($x_value, false, $y_value, false);
             $temp[self::SIGN] = $x_negative;
 
@@ -1026,7 +1026,7 @@ class BigInteger
 
         $diff = $this->_compare($x_value, $x_negative, $y_value, $y_negative);
 
-        if ( !$diff ) {
+        if (!$diff) {
             return array(
                 self::VALUE => array(),
                 self::SIGN => false
@@ -1034,7 +1034,7 @@ class BigInteger
         }
 
         // switch $x and $y around, if appropriate.
-        if ( (!$x_negative && $diff < 0) || ($x_negative && $diff > 0) ) {
+        if ((!$x_negative && $diff < 0) || ($x_negative && $diff > 0)) {
             $temp = $x_value;
             $x_value = $y_value;
             $y_value = $temp;
@@ -1100,7 +1100,7 @@ class BigInteger
      */
     function multiply($x)
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 $temp = new static();
                 $temp->value = gmp_mul($this->value, $x->value);
@@ -1144,7 +1144,7 @@ class BigInteger
         $x_length = count($x_value);
         $y_length = count($y_value);
 
-        if ( !$x_length || !$y_length ) { // a 0 is being multiplied
+        if (!$x_length || !$y_length) { // a 0 is being multiplied
             return array(
                 self::VALUE => array(),
                 self::SIGN => false
@@ -1174,11 +1174,11 @@ class BigInteger
         $x_length = count($x_value);
         $y_length = count($y_value);
 
-        if ( !$x_length || !$y_length ) { // a 0 is being multiplied
+        if (!$x_length || !$y_length) { // a 0 is being multiplied
             return array();
         }
 
-        if ( $x_length < $y_length ) {
+        if ($x_length < $y_length) {
             $temp = $x_value;
             $x_value = $y_value;
             $y_value = $temp;
@@ -1291,7 +1291,7 @@ class BigInteger
      */
     function _baseSquare($value)
     {
-        if ( empty($value) ) {
+        if (empty($value)) {
             return array();
         }
         $square_value = $this->_array_repeat(0, 2 * count($value));
@@ -1385,7 +1385,7 @@ class BigInteger
      */
     function divide($y)
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 $quotient = new static();
                 $remainder = new static();
@@ -1422,7 +1422,7 @@ class BigInteger
         }
 
         static $zero;
-        if ( !isset($zero) ) {
+        if (!isset($zero)) {
             $zero = new static();
         }
 
@@ -1436,16 +1436,16 @@ class BigInteger
 
         $diff = $x->compare($y);
 
-        if ( !$diff ) {
+        if (!$diff) {
             $temp = new static();
             $temp->value = array(1);
             $temp->is_negative = $x_sign != $y_sign;
             return array($this->_normalize($temp), $this->_normalize(new static()));
         }
 
-        if ( $diff < 0 ) {
+        if ($diff < 0) {
             // if $x is negative, "add" $y.
-            if ( $x_sign ) {
+            if ($x_sign) {
                 $x = $y->subtract($x);
             }
             return array($this->_normalize(new static()), $this->_normalize($x));
@@ -1479,7 +1479,7 @@ class BigInteger
         // $temp = $y << ($x_max - $y_max-1) in base 2**26
         $temp_value = array_merge($this->_array_repeat(0, $x_max - $y_max), $y_value);
 
-        while ( $x->compare($temp) >= 0 ) {
+        while ($x->compare($temp) >= 0) {
             // calculate the "common residue"
             ++$quotient_value[$x_max - $y_max];
             $x = $x->subtract($temp);
@@ -1515,7 +1515,7 @@ class BigInteger
 
             $rhs_value = array($x_window[2], $x_window[1], $x_window[0]);
 
-            while ( $lhs->compare($rhs) > 0 ) {
+            while ($lhs->compare($rhs) > 0) {
                 --$quotient_value[$q_index];
 
                 $lhs->value = array($quotient_value[$q_index]);
@@ -1546,7 +1546,7 @@ class BigInteger
         $quotient->is_negative = $x_sign != $y_sign;
 
         // calculate the "common residue", if appropriate
-        if ( $x_sign ) {
+        if ($x_sign) {
             $y->_rshift($shift);
             $x = $y->subtract($x);
         }
@@ -1633,7 +1633,7 @@ class BigInteger
             return $this->_normalize($temp->modPow($e, $n));
         }
 
-        if ( MATH_BIGINTEGER_MODE == self::MODE_GMP ) {
+        if (MATH_BIGINTEGER_MODE == self::MODE_GMP) {
             $temp = new static();
             $temp->value = gmp_powm($this->value, $e->value, $n->value);
 
@@ -1656,17 +1656,23 @@ class BigInteger
                 'publicExponent' => pack('Ca*a*', 2, $this->_encodeASN1Length(strlen($components['publicExponent'])), $components['publicExponent'])
             );
 
-            $RSAPublicKey = pack('Ca*a*a*',
-                48, $this->_encodeASN1Length(strlen($components['modulus']) + strlen($components['publicExponent'])),
-                $components['modulus'], $components['publicExponent']
+            $RSAPublicKey = pack(
+                'Ca*a*a*',
+                48,
+                $this->_encodeASN1Length(strlen($components['modulus']) + strlen($components['publicExponent'])),
+                $components['modulus'],
+                $components['publicExponent']
             );
 
             $rsaOID = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
             $RSAPublicKey = chr(0) . $RSAPublicKey;
             $RSAPublicKey = chr(3) . $this->_encodeASN1Length(strlen($RSAPublicKey)) . $RSAPublicKey;
 
-            $encapsulated = pack('Ca*a*',
-                48, $this->_encodeASN1Length(strlen($rsaOID . $RSAPublicKey)), $rsaOID . $RSAPublicKey
+            $encapsulated = pack(
+                'Ca*a*',
+                48,
+                $this->_encodeASN1Length(strlen($rsaOID . $RSAPublicKey)),
+                $rsaOID . $RSAPublicKey
             );
 
             $RSAPublicKey = "-----BEGIN PUBLIC KEY-----\r\n" .
@@ -1680,25 +1686,25 @@ class BigInteger
             }
         }
 
-        if ( MATH_BIGINTEGER_MODE == self::MODE_BCMATH ) {
+        if (MATH_BIGINTEGER_MODE == self::MODE_BCMATH) {
                 $temp = new static();
                 $temp->value = bcpowmod($this->value, $e->value, $n->value, 0);
 
                 return $this->_normalize($temp);
         }
 
-        if ( empty($e->value) ) {
+        if (empty($e->value)) {
             $temp = new static();
             $temp->value = array(1);
             return $this->_normalize($temp);
         }
 
-        if ( $e->value == array(1) ) {
+        if ($e->value == array(1)) {
             list(, $temp) = $this->divide($n);
             return $this->_normalize($temp);
         }
 
-        if ( $e->value == array(2) ) {
+        if ($e->value == array(2)) {
             $temp = new static();
             $temp->value = $this->_square($this->value);
             list(, $temp) = $temp->divide($n);
@@ -1713,14 +1719,14 @@ class BigInteger
         // made uncallable
 
         // is the modulo odd?
-        if ( $n->value[0] & 1 ) {
+        if ($n->value[0] & 1) {
             return $this->_normalize($this->_slidingWindow($e, $n, self::MONTGOMERY));
         }
         // if it's not, it's even
 
         // find the lowest set bit (eg. the max pow of 2 that divides $n)
         for ($i = 0; $i < count($n->value); ++$i) {
-            if ( $n->value[$i] ) {
+            if ($n->value[$i]) {
                 $temp = decbin($n->value[$i]);
                 $j = strlen($temp) - strrpos($temp, '1') - 1;
                 $j+= 26 * $i;
@@ -1798,7 +1804,8 @@ class BigInteger
 
         // calculate the appropriate window size.
         // $window_size == 3 if $window_ranges is between 25 and 81, for example.
-        for ($i = 0, $window_size = 1; $e_length > $window_ranges[$i] && $i < count($window_ranges); ++$window_size, ++$i);
+        for ($i = 0, $window_size = 1; $e_length > $window_ranges[$i] && $i < count($window_ranges); ++$window_size, ++$i) {
+        }
 
         $n_value = $n->value;
 
@@ -1818,13 +1825,13 @@ class BigInteger
         $result = array(1);
         $result = $this->_prepareReduce($result, $n_value, $mode);
 
-        for ($i = 0; $i < $e_length; ) {
-            if ( !$e_bits[$i] ) {
+        for ($i = 0; $i < $e_length;) {
+            if (!$e_bits[$i]) {
                 $result = $this->_squareReduce($result, $n_value, $mode);
                 ++$i;
             } else {
                 for ($j = $window_size - 1; $j > 0; --$j) {
-                    if ( !empty($e_bits[$i + $j]) ) {
+                    if (!empty($e_bits[$i + $j])) {
                         break;
                     }
                 }
@@ -2008,7 +2015,7 @@ class BigInteger
 
         // n = 2 * m.length
 
-        if ( ($key = array_search($m, $cache[self::VARIABLE])) === false ) {
+        if (($key = array_search($m, $cache[self::VARIABLE])) === false) {
             $key = count($cache[self::VARIABLE]);
             $cache[self::VARIABLE][] = $m;
 
@@ -2097,7 +2104,7 @@ class BigInteger
             return $temp->value;
         }
 
-        if ( ($key = array_search($n, $cache[self::VARIABLE])) === false ) {
+        if (($key = array_search($n, $cache[self::VARIABLE])) === false) {
             $key = count($cache[self::VARIABLE]);
             $cache[self::VARIABLE][] = $n;
             $lhs = new static();
@@ -2158,14 +2165,14 @@ class BigInteger
         $x_length = count($x_value);
         $y_length = count($y_value);
 
-        if ( !$x_length || !$y_length ) { // a 0 is being multiplied
+        if (!$x_length || !$y_length) { // a 0 is being multiplied
             return array(
                 self::VALUE => array(),
                 self::SIGN => false
             );
         }
 
-        if ( $x_length < $y_length ) {
+        if ($x_length < $y_length) {
             $temp = $x_value;
             $x_value = $y_value;
             $y_value = $temp;
@@ -2239,7 +2246,7 @@ class BigInteger
             self::DATA => array()
         );
 
-        if ( ($key = array_search($n, $cache[self::VARIABLE])) === false ) {
+        if (($key = array_search($n, $cache[self::VARIABLE])) === false) {
             $key = count($cache[self::VARIABLE]);
             $cache[self::VARIABLE][] = $x;
             $cache[self::DATA][] = $this->_modInverse67108864($n);
@@ -2295,7 +2302,7 @@ class BigInteger
             self::DATA => array()
         );
 
-        if ( ($key = array_search($m, $cache[self::VARIABLE])) === false ) {
+        if (($key = array_search($m, $cache[self::VARIABLE])) === false) {
             $key = count($cache[self::VARIABLE]);
             $cache[self::VARIABLE][] = $m;
             $cache[self::DATA][] = $this->_modInverse67108864($m);
@@ -2408,7 +2415,7 @@ class BigInteger
      */
     function modInverse($n)
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 $temp = new static();
                 $temp->value = gmp_invert($this->value, $n->value);
@@ -2472,7 +2479,7 @@ class BigInteger
      */
     function extendedGCD($n)
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 extract(gmp_gcdext($this->value, $n->value));
 
@@ -2522,7 +2529,7 @@ class BigInteger
         $g = new static();
         $g->value = array(1);
 
-        while ( !(($x->value[0] & 1)|| ($y->value[0] & 1)) ) {
+        while (!(($x->value[0] & 1)|| ($y->value[0] & 1))) {
             $x->_rshift(1);
             $y->_rshift(1);
             $g->_lshift(1);
@@ -2539,10 +2546,10 @@ class BigInteger
         $a->value = $d->value = $g->value = array(1);
         $b->value = $c->value = array();
 
-        while ( !empty($u->value) ) {
-            while ( !($u->value[0] & 1) ) {
+        while (!empty($u->value)) {
+            while (!($u->value[0] & 1)) {
                 $u->_rshift(1);
-                if ( (!empty($a->value) && ($a->value[0] & 1)) || (!empty($b->value) && ($b->value[0] & 1)) ) {
+                if ((!empty($a->value) && ($a->value[0] & 1)) || (!empty($b->value) && ($b->value[0] & 1))) {
                     $a = $a->add($y);
                     $b = $b->subtract($x);
                 }
@@ -2550,9 +2557,9 @@ class BigInteger
                 $b->_rshift(1);
             }
 
-            while ( !($v->value[0] & 1) ) {
+            while (!($v->value[0] & 1)) {
                 $v->_rshift(1);
-                if ( (!empty($d->value) && ($d->value[0] & 1)) || (!empty($c->value) && ($c->value[0] & 1)) ) {
+                if ((!empty($d->value) && ($d->value[0] & 1)) || (!empty($c->value) && ($c->value[0] & 1))) {
                     $c = $c->add($y);
                     $d = $d->subtract($x);
                 }
@@ -2615,7 +2622,7 @@ class BigInteger
     {
         $temp = new static();
 
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 $temp->value = gmp_abs($this->value);
                 break;
@@ -2649,7 +2656,7 @@ class BigInteger
      */
     function compare($y)
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 return gmp_cmp($this->value, $y->value);
             case self::MODE_BCMATH:
@@ -2672,13 +2679,13 @@ class BigInteger
      */
     function _compare($x_value, $x_negative, $y_value, $y_negative)
     {
-        if ( $x_negative != $y_negative ) {
+        if ($x_negative != $y_negative) {
             return ( !$x_negative && $y_negative ) ? 1 : -1;
         }
 
         $result = $x_negative ? -1 : 1;
 
-        if ( count($x_value) != count($y_value) ) {
+        if (count($x_value) != count($y_value)) {
             return ( count($x_value) > count($y_value) ) ? $result : -$result;
         }
         $size = max(count($x_value), count($y_value));
@@ -2707,7 +2714,7 @@ class BigInteger
      */
     function equals($x)
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 return gmp_cmp($this->value, $x->value) == 0;
             default:
@@ -2727,7 +2734,7 @@ class BigInteger
     function setPrecision($bits)
     {
         $this->precision = $bits;
-        if ( MATH_BIGINTEGER_MODE != self::MODE_BCMATH ) {
+        if (MATH_BIGINTEGER_MODE != self::MODE_BCMATH) {
             $this->bitmask = new static(chr((1 << ($bits & 0x7)) - 1) . str_repeat(chr(0xFF), $bits >> 3), 256);
         } else {
             $this->bitmask = new static(bcpow('2', $bits, 0));
@@ -2747,7 +2754,7 @@ class BigInteger
      */
     function bitwise_and($x)
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 $temp = new static();
                 $temp->value = gmp_and($this->value, $x->value);
@@ -2788,7 +2795,7 @@ class BigInteger
      */
     function bitwise_or($x)
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 $temp = new static();
                 $temp->value = gmp_or($this->value, $x->value);
@@ -2828,7 +2835,7 @@ class BigInteger
      */
     function bitwise_xor($x)
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 $temp = new static();
                 $temp->value = gmp_xor($this->value, $x->value);
@@ -2908,7 +2915,7 @@ class BigInteger
     {
         $temp = new static();
 
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 static $two;
 
@@ -2946,7 +2953,7 @@ class BigInteger
     {
         $temp = new static();
 
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 static $two;
 
@@ -2985,7 +2992,7 @@ class BigInteger
 
         if ($this->precision > 0) {
             $precision = $this->precision;
-            if ( MATH_BIGINTEGER_MODE == self::MODE_BCMATH ) {
+            if (MATH_BIGINTEGER_MODE == self::MODE_BCMATH) {
                 $mask = $this->bitmask->subtract(new static(1));
                 $mask = $mask->toBytes();
             } else {
@@ -2993,7 +3000,8 @@ class BigInteger
             }
         } else {
             $temp = ord($bits[0]);
-            for ($i = 0; $temp >> $i; ++$i);
+            for ($i = 0; $temp >> $i; ++$i) {
+            }
             $precision = 8 * strlen($bits) - 8 + $i;
             $mask = chr((1 << ($precision & 0x7)) - 1) . str_repeat(chr(0xFF), $precision >> 3);
         }
@@ -3092,7 +3100,7 @@ class BigInteger
 
         if (!$compare) {
             return $this->_normalize($min);
-        } else if ($compare < 0) {
+        } elseif ($compare < 0) {
             // if $min is bigger then $max, swap $min and $max
             $temp = $max;
             $max = $min;
@@ -3173,7 +3181,7 @@ class BigInteger
 
         if (!$compare) {
             return $min->isPrime() ? $min : false;
-        } else if ($compare < 0) {
+        } elseif ($compare < 0) {
             // if $min is bigger then $max, swap $min and $max
             $temp = $max;
             $max = $min;
@@ -3191,7 +3199,7 @@ class BigInteger
         $x = $this->random($min, $max);
 
         // gmp_nextprime() requires PHP 5 >= 5.2.0 per <http://php.net/gmp-nextprime>.
-        if ( MATH_BIGINTEGER_MODE == self::MODE_GMP && function_exists('gmp_nextprime') ) {
+        if (MATH_BIGINTEGER_MODE == self::MODE_GMP && function_exists('gmp_nextprime')) {
             $p = new static();
             $p->value = gmp_nextprime($x->value);
 
@@ -3257,7 +3265,7 @@ class BigInteger
      */
     function _make_odd()
     {
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 gmp_setbit($this->value, 0);
                 break;
@@ -3309,7 +3317,7 @@ class BigInteger
 
         // ie. gmp_testbit($this, 0)
         // ie. isEven() or !isOdd()
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 return gmp_prob_prime($this->value, $t) != 0;
             case self::MODE_BCMATH:
@@ -3346,7 +3354,7 @@ class BigInteger
                 953,  967,  971,  977,  983,  991,  997
             );
 
-            if ( MATH_BIGINTEGER_MODE != self::MODE_INTERNAL ) {
+            if (MATH_BIGINTEGER_MODE != self::MODE_INTERNAL) {
                 for ($i = 0; $i < count($primes); ++$i) {
                     $primes[$i] = new static($primes[$i]);
                 }
@@ -3362,7 +3370,7 @@ class BigInteger
         }
 
         // see HAC 4.4.1 "Random search for probable primes"
-        if ( MATH_BIGINTEGER_MODE != self::MODE_INTERNAL ) {
+        if (MATH_BIGINTEGER_MODE != self::MODE_INTERNAL) {
             foreach ($primes as $prime) {
                 list(, $r) = $this->divide($prime);
                 if ($r->equals($zero)) {
@@ -3386,7 +3394,7 @@ class BigInteger
         $r = $n_1->copy();
         $r_value = $r->value;
         // ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
-        if ( MATH_BIGINTEGER_MODE == self::MODE_BCMATH ) {
+        if (MATH_BIGINTEGER_MODE == self::MODE_BCMATH) {
             $s = 0;
             // if $n was 1, $r would be 0 and this would be an infinite loop, hence our $this->equals($one) check earlier
             while ($r->value[strlen($r->value) - 1] % 2 == 0) {
@@ -3396,7 +3404,8 @@ class BigInteger
         } else {
             for ($i = 0, $r_length = count($r_value); $i < $r_length; ++$i) {
                 $temp = ~$r_value[$i] & 0xFFFFFF;
-                for ($j = 1; ($temp >> $j) & 1; ++$j);
+                for ($j = 1; ($temp >> $j) & 1; ++$j) {
+                }
                 if ($j != 25) {
                     break;
                 }
@@ -3435,7 +3444,7 @@ class BigInteger
      */
     function _lshift($shift)
     {
-        if ( $shift == 0 ) {
+        if ($shift == 0) {
             return;
         }
 
@@ -3451,7 +3460,7 @@ class BigInteger
             $this->value[$i] = (int) ($temp - $carry * self::$baseFull);
         }
 
-        if ( $carry ) {
+        if ($carry) {
             $this->value[count($this->value)] = $carry;
         }
 
@@ -3479,7 +3488,7 @@ class BigInteger
         $carry_shift = self::$base - $shift;
         $carry_mask = (1 << $shift) - 1;
 
-        if ( $num_digits ) {
+        if ($num_digits) {
             $this->value = array_slice($this->value, $num_digits);
         }
 
@@ -3509,7 +3518,7 @@ class BigInteger
         $result->precision = $this->precision;
         $result->bitmask = $this->bitmask;
 
-        switch ( MATH_BIGINTEGER_MODE ) {
+        switch (MATH_BIGINTEGER_MODE) {
             case self::MODE_GMP:
                 if (!empty($result->bitmask->value)) {
                     $result->value = gmp_and($result->value, $result->bitmask->value);
@@ -3526,7 +3535,7 @@ class BigInteger
 
         $value = &$result->value;
 
-        if ( !count($value) ) {
+        if (!count($value)) {
             return $result;
         }
 
@@ -3556,7 +3565,7 @@ class BigInteger
     function _trim($value)
     {
         for ($i = count($value) - 1; $i >= 0; --$i) {
-            if ( $value[$i] ) {
+            if ($value[$i]) {
                 break;
             }
             unset($value[$i]);
