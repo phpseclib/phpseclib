@@ -3283,9 +3283,13 @@ class File_X509
                 if (!function_exists('crypt_random_string')) {
                     include_once 'Crypt/Random.php';
                 }
-                // "The serial number MUST be a positive integer"
-                // "Conforming CAs MUST NOT use serialNumber values longer than 20 octets."
-                //  -- https://tools.ietf.org/html/rfc5280#section-4.1.2.2
+                /* "The serial number MUST be a positive integer"
+                   "Conforming CAs MUST NOT use serialNumber values longer than 20 octets."
+                    -- https://tools.ietf.org/html/rfc5280#section-4.1.2.2
+
+                   for the integer to be positive the leading bit needs to be 0 hence the
+                   application of a bitmap
+                */
                 $serialNumber = new Math_BigInteger(crypt_random_string(20) & ("\x7F" . str_repeat("\xFF", 19)), 256);
             }
 
