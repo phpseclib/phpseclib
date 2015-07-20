@@ -1,51 +1,34 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
  * Pure-PHP ANSI Decoder
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
- * If you call read() in Net_SSH2 you may get {@link http://en.wikipedia.org/wiki/ANSI_escape_code ANSI escape codes} back.
+ * If you call read() in \phpseclib\Net\SSH2 you may get {@link http://en.wikipedia.org/wiki/ANSI_escape_code ANSI escape codes} back.
  * They'd look like chr(0x1B) . '[00m' or whatever (0x1B = ESC).  They tell a
  * {@link http://en.wikipedia.org/wiki/Terminal_emulator terminal emulator} how to format the characters, what
- * color to display them in, etc. File_ANSI is a {@link http://en.wikipedia.org/wiki/VT100 VT100} terminal emulator.
+ * color to display them in, etc. \phpseclib\File\ANSI is a {@link http://en.wikipedia.org/wiki/VT100 VT100} terminal emulator.
  *
- * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- * @category   File
- * @package    File_ANSI
- * @author     Jim Wigginton <terrafrost@php.net>
- * @copyright  MMXII Jim Wigginton
- * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link       http://phpseclib.sourceforge.net
+ * @category  File
+ * @package   ANSI
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2012 Jim Wigginton
+ * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @link      http://phpseclib.sourceforge.net
  */
+
+namespace phpseclib\File;
 
 /**
  * Pure-PHP ANSI Decoder
  *
+ * @package ANSI
  * @author  Jim Wigginton <terrafrost@php.net>
- * @version 0.3.0
  * @access  public
- * @package File_ANSI
  */
-class File_ANSI {
+class ANSI
+{
     /**
      * Max Width
      *
@@ -119,6 +102,22 @@ class File_ANSI {
     var $old_y;
 
     /**
+     * An empty attribute cell
+     *
+     * @var Object
+     * @access private
+     */
+    var $base_attr_cell;
+
+    /**
+     * The current attribute cell
+     *
+     * @var Object
+     * @access private
+     */
+    var $attr_cell;
+
+    /**
      * An empty attribute row
      *
      * @var Array
@@ -143,62 +142,6 @@ class File_ANSI {
     var $attrs;
 
     /**
-     * The current foreground color
-     *
-     * @var String
-     * @access private
-     */
-    var $foreground;
-
-    /**
-     * The current background color
-     *
-     * @var String
-     * @access private
-     */
-    var $background;
-
-    /**
-     * Bold flag
-     *
-     * @var Boolean
-     * @access private
-     */
-    var $bold;
-
-    /**
-     * Underline flag
-     *
-     * @var Boolean
-     * @access private
-     */
-    var $underline;
-
-    /**
-     * Blink flag
-     *
-     * @var Boolean
-     * @access private
-     */
-    var $blink;
-
-    /**
-     * Reverse flag
-     *
-     * @var Boolean
-     * @access private
-     */
-    var $reverse;
-
-    /**
-     * Color flag
-     *
-     * @var Boolean
-     * @access private
-     */
-    var $color;
-
-    /**
      * Current ANSI code
      *
      * @var String
@@ -207,13 +150,31 @@ class File_ANSI {
     var $ansi;
 
     /**
+     * Tokenization
+     *
+     * @var Array
+     * @access private
+     */
+    var $tokenization;
+
+    /**
      * Default Constructor.
      *
-     * @return File_ANSI
+     * @return \phpseclib\File\ANSI
      * @access public
      */
-    function File_ANSI()
+    function __construct()
     {
+        $attr_cell = new \stdClass();
+        $attr_cell->bold = false;
+        $attr_cell->underline = false;
+        $attr_cell->blink = false;
+        $attr_cell->background = 'black';
+        $attr_cell->foreground = 'white';
+        $attr_cell->reverse = false;
+        $this->base_attr_cell = clone $attr_cell;
+        $this->attr_cell = clone $attr_cell;
+
         $this->setHistory(200);
         $this->setDimensions(80, 24);
     }
@@ -233,17 +194,9 @@ class File_ANSI {
         $this->max_y = $y - 1;
         $this->x = $this->y = 0;
         $this->history = $this->history_attrs = array();
-        $this->attr_row = array_fill(0, $this->max_x + 1, '');
+        $this->attr_row = array_fill(0, $this->max_x + 2, $this->base_attr_cell);
         $this->screen = array_fill(0, $this->max_y + 1, '');
         $this->attrs = array_fill(0, $this->max_y + 1, $this->attr_row);
-        $this->foreground = 'white';
-        $this->background = 'black';
-        $this->bold = false;
-        $this->underline = false;
-        $this->blink = false;
-        $this->reverse = false;
-        $this->color = false;
-
         $this->ansi = '';
     }
 
@@ -279,6 +232,7 @@ class File_ANSI {
      */
     function appendString($source)
     {
+        $this->tokenization = array('');
         for ($i = 0; $i < strlen($source); $i++) {
             if (strlen($this->ansi)) {
                 $this->ansi.= $source[$i];
@@ -295,6 +249,8 @@ class File_ANSI {
                     default:
                         continue 2;
                 }
+                $this->tokenization[] = $this->ansi;
+                $this->tokenization[] = '';
                 // http://ascii-table.com/ansi-escape-sequences-vt-100.php
                 switch ($this->ansi) {
                     case "\x1B[H": // Move cursor to upper left corner
@@ -316,7 +272,7 @@ class File_ANSI {
                     case "\x1B[K": // Clear screen from cursor right
                         $this->screen[$this->y] = substr($this->screen[$this->y], 0, $this->x);
 
-                        array_splice($this->attrs[$this->y], $this->x + 1);
+                        array_splice($this->attrs[$this->y], $this->x + 1, $this->max_x - $this->x, array_fill($this->x, $this->max_x - $this->x - 1, $this->base_attr_cell));
                         break;
                     case "\x1B[2K": // Clear entire line
                         $this->screen[$this->y] = str_repeat(' ', $this->x);
@@ -324,6 +280,7 @@ class File_ANSI {
                         break;
                     case "\x1B[?1h": // set cursor key to application
                     case "\x1B[?25h": // show the cursor
+                    case "\x1B(B": // set united states g0 character set
                         break;
                     case "\x1BE": // Move to next line
                         $this->_newLine();
@@ -331,6 +288,10 @@ class File_ANSI {
                         break;
                     default:
                         switch (true) {
+                            case preg_match('#\x1B\[(\d+)B#', $this->ansi, $match): // Move cursor down n lines
+                                $this->old_y = $this->y;
+                                $this->y+= $match[1];
+                                break;
                             case preg_match('#\x1B\[(\d+);(\d+)H#', $this->ansi, $match): // Move cursor to screen location v,h
                                 $this->old_x = $this->x;
                                 $this->old_y = $this->y;
@@ -339,65 +300,44 @@ class File_ANSI {
                                 break;
                             case preg_match('#\x1B\[(\d+)C#', $this->ansi, $match): // Move cursor right n lines
                                 $this->old_x = $this->x;
-                                $x = $match[1] - 1;
+                                $this->x+= $match[1];
+                                break;
+                            case preg_match('#\x1B\[(\d+)D#', $this->ansi, $match): // Move cursor left n lines
+                                $this->old_x = $this->x;
+                                $this->x-= $match[1];
                                 break;
                             case preg_match('#\x1B\[(\d+);(\d+)r#', $this->ansi, $match): // Set top and bottom lines of a window
                                 break;
                             case preg_match('#\x1B\[(\d*(?:;\d*)*)m#', $this->ansi, $match): // character attributes
+                                $attr_cell = &$this->attr_cell;
                                 $mods = explode(';', $match[1]);
                                 foreach ($mods as $mod) {
                                     switch ($mod) {
                                         case 0: // Turn off character attributes
-                                            $this->attrs[$this->y][$this->x] = '';
-
-                                            if ($this->bold) $this->attrs[$this->y][$this->x].= '</b>';
-                                            if ($this->underline) $this->attrs[$this->y][$this->x].= '</u>';
-                                            if ($this->blink) $this->attrs[$this->y][$this->x].= '</blink>';
-                                            if ($this->color) $this->attrs[$this->y][$this->x].= '</span>';
-
-                                            if ($this->reverse) {
-                                                $temp = $this->background;
-                                                $this->background = $this->foreground;
-                                                $this->foreground = $temp;
-                                            }
-
-                                            $this->bold = $this->underline = $this->blink = $this->color = $this->reverse = false;
+                                            $attr_cell = clone $this->base_attr_cell;
                                             break;
                                         case 1: // Turn bold mode on
-                                            if (!$this->bold) {
-                                                $this->attrs[$this->y][$this->x] = '<b>';
-                                                $this->bold = true;
-                                            }
+                                            $attr_cell->bold = true;
                                             break;
                                         case 4: // Turn underline mode on
-                                            if (!$this->underline) {
-                                                $this->attrs[$this->y][$this->x] = '<u>';
-                                                $this->underline = true;
-                                            }
+                                            $attr_cell->underline = true;
                                             break;
                                         case 5: // Turn blinking mode on
-                                            if (!$this->blink) {
-                                                $this->attrs[$this->y][$this->x] = '<blink>';
-                                                $this->blink = true;
-                                            }
+                                            $attr_cell->blink = true;
                                             break;
                                         case 7: // Turn reverse video on
-                                            $this->reverse = !$this->reverse;
-                                            $temp = $this->background;
-                                            $this->background = $this->foreground;
-                                            $this->foreground = $temp;
-                                            $this->attrs[$this->y][$this->x] = '<span style="color: ' . $this->foreground . '; background: ' . $this->background . '">';
-                                            if ($this->color) {
-                                                $this->attrs[$this->y][$this->x] = '</span>' . $this->attrs[$this->y][$this->x];
-                                            }
-                                            $this->color = true;
+                                            $attr_cell->reverse = !$attr_cell->reverse;
+                                            $temp = $attr_cell->background;
+                                            $attr_cell->background = $attr_cell->foreground;
+                                            $attr_cell->foreground = $temp;
                                             break;
                                         default: // set colors
-                                            //$front = $this->reverse ? &$this->background : &$this->foreground;
-                                            $front = &$this->{ $this->reverse ? 'background' : 'foreground' };
-                                            //$back = $this->reverse ? &$this->foreground : &$this->background;
-                                            $back = &$this->{ $this->reverse ? 'foreground' : 'background' };
+                                            //$front = $attr_cell->reverse ? &$attr_cell->background : &$attr_cell->foreground;
+                                            $front = &$attr_cell->{ $attr_cell->reverse ? 'background' : 'foreground' };
+                                            //$back = $attr_cell->reverse ? &$attr_cell->foreground : &$attr_cell->background;
+                                            $back = &$attr_cell->{ $attr_cell->reverse ? 'foreground' : 'background' };
                                             switch ($mod) {
+                                                // @codingStandardsIgnoreStart
                                                 case 30: $front = 'black'; break;
                                                 case 31: $front = 'red'; break;
                                                 case 32: $front = 'green'; break;
@@ -415,30 +355,25 @@ class File_ANSI {
                                                 case 45: $back = 'magenta'; break;
                                                 case 46: $back = 'cyan'; break;
                                                 case 47: $back = 'white'; break;
+                                                // @codingStandardsIgnoreEnd
 
                                                 default:
-                                                    user_error('Unsupported attribute: ' . $mod);
+                                                    //user_error('Unsupported attribute: ' . $mod);
                                                     $this->ansi = '';
                                                     break 2;
                                             }
-
-                                            unset($temp);
-                                            $this->attrs[$this->y][$this->x] = '<span style="color: ' . $this->foreground . '; background: ' . $this->background . '">';
-                                            if ($this->color) {
-                                                $this->attrs[$this->y][$this->x] = '</span>' . $this->attrs[$this->y][$this->x];
-                                            }
-                                            $this->color = true;
                                     }
                                 }
                                 break;
                             default:
-                                user_error("{$this->ansi} unsupported\r\n");
+                                //user_error("{$this->ansi} is unsupported\r\n");
                         }
                 }
                 $this->ansi = '';
                 continue;
             }
 
+            $this->tokenization[count($this->tokenization) - 1].= $source[$i];
             switch ($source[$i]) {
                 case "\r":
                     $this->x = 0;
@@ -446,12 +381,32 @@ class File_ANSI {
                 case "\n":
                     $this->_newLine();
                     break;
+                case "\x08": // backspace
+                    if ($this->x) {
+                        $this->x--;
+                        $this->attrs[$this->y][$this->x] = clone $this->base_attr_cell;
+                        $this->screen[$this->y] = substr_replace(
+                            $this->screen[$this->y],
+                            $source[$i],
+                            $this->x,
+                            1
+                        );
+                    }
+                    break;
                 case "\x0F": // shift
                     break;
                 case "\x1B": // start ANSI escape code
+                    $this->tokenization[count($this->tokenization) - 1] = substr($this->tokenization[count($this->tokenization) - 1], 0, -1);
+                    //if (!strlen($this->tokenization[count($this->tokenization) - 1])) {
+                    //    array_pop($this->tokenization);
+                    //}
                     $this->ansi.= "\x1B";
                     break;
                 default:
+                    $this->attrs[$this->y][$this->x] = clone $this->attr_cell;
+                    if ($this->x > strlen($this->screen[$this->y])) {
+                        $this->screen[$this->y] = str_repeat(' ', $this->x);
+                    }
                     $this->screen[$this->y] = substr_replace(
                         $this->screen[$this->y],
                         $source[$i],
@@ -500,6 +455,63 @@ class File_ANSI {
     }
 
     /**
+     * Returns the current coordinate without preformating
+     *
+     * @access private
+     * @return String
+     */
+    function _processCoordinate($last_attr, $cur_attr, $char)
+    {
+        $output = '';
+
+        if ($last_attr != $cur_attr) {
+            $close = $open = '';
+            if ($last_attr->foreground != $cur_attr->foreground) {
+                if ($cur_attr->foreground != 'white') {
+                    $open.= '<span style="color: ' . $cur_attr->foreground . '">';
+                }
+                if ($last_attr->foreground != 'white') {
+                    $close = '</span>' . $close;
+                }
+            }
+            if ($last_attr->background != $cur_attr->background) {
+                if ($cur_attr->background != 'black') {
+                    $open.= '<span style="background: ' . $cur_attr->background . '">';
+                }
+                if ($last_attr->background != 'black') {
+                    $close = '</span>' . $close;
+                }
+            }
+            if ($last_attr->bold != $cur_attr->bold) {
+                if ($cur_attr->bold) {
+                    $open.= '<b>';
+                } else {
+                    $close = '</b>' . $close;
+                }
+            }
+            if ($last_attr->underline != $cur_attr->underline) {
+                if ($cur_attr->underline) {
+                    $open.= '<u>';
+                } else {
+                    $close = '</u>' . $close;
+                }
+            }
+            if ($last_attr->blink != $cur_attr->blink) {
+                if ($cur_attr->blink) {
+                    $open.= '<blink>';
+                } else {
+                    $close = '</blink>' . $close;
+                }
+            }
+            $output.= $close . $open;
+        }
+
+        $output.= htmlspecialchars($char);
+
+        return $output;
+    }
+
+    /**
      * Returns the current screen without preformating
      *
      * @access private
@@ -508,17 +520,18 @@ class File_ANSI {
     function _getScreen()
     {
         $output = '';
+        $last_attr = $this->base_attr_cell;
         for ($i = 0; $i <= $this->max_y; $i++) {
-            for ($j = 0; $j <= $this->max_x + 1; $j++) {
-                if (isset($this->attrs[$i][$j])) {
-                    $output.= $this->attrs[$i][$j];
-                }
-                if (isset($this->screen[$i][$j])) {
-                    $output.= htmlspecialchars($this->screen[$i][$j]);
-                }
+            for ($j = 0; $j <= $this->max_x; $j++) {
+                $cur_attr = $this->attrs[$i][$j];
+                $output.= $this->_processCoordinate($last_attr, $cur_attr, isset($this->screen[$i][$j]) ? $this->screen[$i][$j] : '');
+                $last_attr = $this->attrs[$i][$j];
             }
             $output.= "\r\n";
         }
+        $output = substr($output, 0, -2);
+        // close any remaining open tags
+        $output.= $this->_processCoordinate($last_attr, $this->base_attr_cell, '');
         return rtrim($output);
     }
 
@@ -530,7 +543,7 @@ class File_ANSI {
      */
     function getScreen()
     {
-        return '<pre style="color: white; background: black" width="' . ($this->max_x + 1) . '">' . $this->_getScreen() . '</pre>';
+        return '<pre width="' . ($this->max_x + 1) . '" style="color: white; background: black">' . $this->_getScreen() . '</pre>';
     }
 
     /**
@@ -542,19 +555,20 @@ class File_ANSI {
     function getHistory()
     {
         $scrollback = '';
+        $last_attr = $this->base_attr_cell;
         for ($i = 0; $i < count($this->history); $i++) {
             for ($j = 0; $j <= $this->max_x + 1; $j++) {
-                if (isset($this->history_attrs[$i][$j])) {
-                    $scrollback.= $this->history_attrs[$i][$j];
-                }
-                if (isset($this->history[$i][$j])) {
-                    $scrollback.= htmlspecialchars($this->history[$i][$j]);
-                }
+                $cur_attr = $this->history_attrs[$i][$j];
+                $scrollback.= $this->_processCoordinate($last_attr, $cur_attr, isset($this->history[$i][$j]) ? $this->history[$i][$j] : '');
+                $last_attr = $this->history_attrs[$i][$j];
             }
             $scrollback.= "\r\n";
         }
+        $base_attr_cell = $this->base_attr_cell;
+        $this->base_attr_cell = $last_attr;
         $scrollback.= $this->_getScreen();
+        $this->base_attr_cell = $base_attr_cell;
 
-        return '<pre style="color: white; background: black" width="' . ($this->max_x + 1) . '">' . $scrollback . '</pre>';
+        return '<pre width="' . ($this->max_x + 1) . '" style="color: white; background: black">' . $scrollback . '</span></pre>';
     }
 }

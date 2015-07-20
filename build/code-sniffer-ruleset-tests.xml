@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<ruleset name="phpseclib Test Standard">
+
+ <description>phpseclib coding standard for tests</description>
+
+ <!-- In general rules that apply to library code also apply to tests. -->
+ <rule ref="./code-sniffer-ruleset.xml">
+  <!-- Exceptions to the library coding standard follow. -->
+
+  <!-- Test classes do not have to be namespaced but may use pseudo-namespacing
+       using underscore. -->
+  <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace" />
+  <exclude name="Squiz.Classes.ValidClassName.NotCamelCaps" />
+ </rule>
+
+</ruleset>

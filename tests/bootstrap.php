@@ -2,41 +2,18 @@
 /**
  * Bootstrapping File for phpseclib Test Suite
  *
- * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @license http://www.opensource.org/licenses/mit-license.html MIT License
  */
 
-// Set up include path accordingly. This is especially required because some
-// class files of phpseclib require() other dependencies.
-set_include_path(implode(PATH_SEPARATOR, array(
-	dirname(__FILE__) . '/../phpseclib/',
-	dirname(__FILE__) . '/',
-	get_include_path(),
-)));
+date_default_timezone_set('UTC');
 
-function phpseclib_is_includable($suffix)
-{
-	foreach (explode(PATH_SEPARATOR, get_include_path()) as $prefix)
-	{
-		$ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
-		$file = $prefix . $ds . $suffix;
-
-		if (file_exists($file))
-		{
-			return true;
-		}
-	}
-
-	return false;
+$loader_path = __DIR__ . '/../vendor/autoload.php';
+if (!file_exists($loader_path)) {
+    echo "Dependencies must be installed using composer:\n\n";
+    echo "php composer.phar install --dev\n\n";
+    echo "See http://getcomposer.org for help with installing composer\n";
+    exit(1);
 }
 
-function phpseclib_autoload($class)
-{
-	$file = str_replace('_', '/', $class) . '.php';
-
-	if (phpseclib_is_includable($file))
-	{
-		require $file;
-	}
-}
-
-spl_autoload_register('phpseclib_autoload');
+$loader = include $loader_path;
+$loader->add('', __DIR__);
