@@ -2747,7 +2747,7 @@ class SFTP extends SSH2
             $this->_string_shift($this->packet_buffer, 4); // remove the request id
             $length-= 5; // account for the request id and the packet type
         } else {
-            --$length; // account for the packet type
+            $length-= 1; // account for the packet type
         }
 
         $packet = $this->_string_shift($this->packet_buffer, $length);
