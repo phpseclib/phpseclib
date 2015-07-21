@@ -874,7 +874,9 @@ class Net_SSH2
     /**
      * Default Constructor.
      *
-     * @param String $host
+     * $host can either be a string, representing the host, or a stream resource.
+     *
+     * @param Mixed $host
      * @param optional Integer $port
      * @param optional Integer $timeout
      * @see Net_SSH2::login()
@@ -978,9 +980,16 @@ class Net_SSH2
                   34 => 'NET_SSH2_MSG_KEXDH_GEX_REQUEST')
         );
 
-        $this->host = $host;
-        $this->port = $port;
-        $this->timeout = $timeout;
+        if (is_resource($host)) {
+            $this->fsock = $host;
+            return;
+        }
+
+        if (is_string($host)) {
+            $this->host = $host;
+            $this->port = $port;
+            $this->timeout = $timeout;
+        }
     }
 
     /**
@@ -1013,23 +1022,24 @@ class Net_SSH2
 
         $this->curTimeout = $this->timeout;
 
-        $host = $this->host . ':' . $this->port;
-
         $this->last_packet = strtok(microtime(), ' ') + strtok(''); // == microtime(true) in PHP5
 
-        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
-        $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout);
-        if (!$this->fsock) {
-            user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
-            return false;
-        }
-        $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+        if (!is_resource($this->fsock)) {
+            $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout);
+            if (!$this->fsock) {
+                $host = $this->host . ':' . $this->port;
+                user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
+                return false;
+            }
+            $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
 
-        $this->curTimeout-= $elapsed;
+            $this->curTimeout-= $elapsed;
 
-        if ($this->curTimeout <= 0) {
-            $this->is_timeout = true;
-            return false;
+            if ($this->curTimeout <= 0) {
+                $this->is_timeout = true;
+                return false;
+            }
         }
 
         /* According to the SSH2 specs,
