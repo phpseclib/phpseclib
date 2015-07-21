@@ -87,4 +87,17 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
 
         $this->assertInternalType('string', $ssh->getServerPublicHostKey());
     }
+
+    public function testOpenSocketConnect()
+    {
+        $fsock = fsockopen($this->getEnv('SSH_HOSTNAME'), 22);
+        $ssh = new SSH2($fsock);
+
+        $username = $this->getEnv('SSH_USERNAME');
+        $password = $this->getEnv('SSH_PASSWORD');
+        $this->assertTrue(
+            $ssh->login($username, $password),
+            'SSH2 login using an open socket failed.'
+        );
+    }
 }
