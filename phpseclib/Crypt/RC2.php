@@ -519,8 +519,7 @@ class RC2 extends Base
         // Only the first value must be altered.
         $l = unpack('Ca/Cb/v*', $this->key);
         array_unshift($l, $this->pitable[$l['a']] | ($l['b'] << 8));
-        unset($l['a']);
-        unset($l['b']);
+        unset($l['a'], $l['b']);
         $this->keys = $l;
     }
 

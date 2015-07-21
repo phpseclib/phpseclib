@@ -1409,8 +1409,7 @@ class X509
     function loadX509($cert)
     {
         if (is_array($cert) && isset($cert['tbsCertificate'])) {
-            unset($this->currentCert);
-            unset($this->currentKeyIdentifier);
+            unset($this->currentCert, $this->currentKeyIdentifier);
             $this->dn = $cert['tbsCertificate']['subject'];
             if (!isset($this->dn)) {
                 return false;
@@ -2820,9 +2819,7 @@ class X509
     function loadCSR($csr)
     {
         if (is_array($csr) && isset($csr['certificationRequestInfo'])) {
-            unset($this->currentCert);
-            unset($this->currentKeyIdentifier);
-            unset($this->signatureSubject);
+            unset($this->currentCert, $this->currentKeyIdentifier, $this->signatureSubject);
             $this->dn = $csr['certificationRequestInfo']['subject'];
             if (!isset($this->dn)) {
                 return false;
@@ -2945,9 +2942,7 @@ class X509
     function loadSPKAC($spkac)
     {
         if (is_array($spkac) && isset($spkac['publicKeyAndChallenge'])) {
-            unset($this->currentCert);
-            unset($this->currentKeyIdentifier);
-            unset($this->signatureSubject);
+            unset($this->currentCert, $this->currentKeyIdentifier, $this->signatureSubject);
             $this->currentCert = $spkac;
             return $spkac;
         }
@@ -4179,7 +4174,7 @@ class X509
      */
     function computeKeyIdentifier($key = null, $method = 1)
     {
-        if (is_null($key)) {
+        if (null === $key) {
             $key = $this;
         }
 
