@@ -1897,7 +1897,7 @@ class Net_SFTP extends Net_SSH2
                 // do nothing
                 break;
             case is_resource($data):
-                $mode = $mode & ~NET_SFTP_LOCAL_FILE;
+                $mode &= ~NET_SFTP_LOCAL_FILE;
                 $fp = $data;
                 break;
             case $mode & NET_SFTP_LOCAL_FILE:
@@ -1938,7 +1938,7 @@ class Net_SFTP extends Net_SSH2
         while ($dataCallback || ($sent < $size)) {
             if ($dataCallback) {
                 $temp = call_user_func($dataCallback, $sftp_packet_size);
-                if (is_null($temp)) {
+                if (null === $temp) {
                     break;
                 }
             } else {
@@ -2124,7 +2124,7 @@ class Net_SFTP extends Net_SSH2
                     if ($local_file === false) {
                         $content.= $temp;
                     } else {
-                        fputs($fp, $temp);
+                        fwrite($fp, $temp);
                     }
                     break;
                 case NET_SFTP_STATUS:
