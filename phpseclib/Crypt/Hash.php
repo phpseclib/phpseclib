@@ -152,6 +152,17 @@ class Hash
                 $this->l = 64;
                 break;
             default:
+                // see if the hash isn't "officially" supported see if it can be "unofficially" supported and calculate the length accordingly
+                if (in_array($hash, hash_algos())) {
+                    $this->l = strlen(hash($hash, '', true));
+                    break;
+                }
+                // if the hash algorithm doens't exist maybe it's a truncated hash. eg. md5-96 or some such
+                if (preg_match('#(-\d+)$#', $hash, $matches) && in_array(substr($hash, 0, -strlen($matches[1]), hash_algos())) {
+                    $this->l = abs($matches[1]) >> 3;
+                    break;
+                }
+                // if no other usable option exists use sha1
                 $hash = 'sha1';
                 $this->l = 20;
         }
@@ -172,7 +183,7 @@ class Hash
             hash_hmac($this->hash, $text, $this->key, true) :
             hash($this->hash, $text, true);
 
-        return substr($output, 0, $this->l);
+        return strlen($output) > $this->l ? substr($output, 0, $this->l) : $output;
     }
 
     /**
