@@ -4215,7 +4215,7 @@ class File_X509
      */
     function computeKeyIdentifier($key = null, $method = 1)
     {
-        if (null === $key) {
+        if ($key === null) {
             $key = $this;
         }
 
