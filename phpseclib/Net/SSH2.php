@@ -1346,87 +1346,17 @@ class SSH2
         // we don't initialize any crypto-objects, yet - we do that, later. for now, we need the lengths to make the
         // diffie-hellman key exchange as fast as possible
         $decrypt = $this->_array_intersect_first($encryption_algorithms, $this->encryption_algorithms_server_to_client);
-        switch ($decrypt) {
-            case '3des-cbc':
-            case '3des-ctr':
-                $decryptKeyLength = 24; // eg. 192 / 8
-                break;
-            case 'aes256-cbc':
-            case 'aes256-ctr':
-            case 'twofish-cbc':
-            case 'twofish256-cbc':
-            case 'twofish256-ctr':
-                $decryptKeyLength = 32; // eg. 256 / 8
-                break;
-            case 'aes192-cbc':
-            case 'aes192-ctr':
-            case 'twofish192-cbc':
-            case 'twofish192-ctr':
-                $decryptKeyLength = 24; // eg. 192 / 8
-                break;
-            case 'aes128-cbc':
-            case 'aes128-ctr':
-            case 'twofish128-cbc':
-            case 'twofish128-ctr':
-            case 'blowfish-cbc':
-            case 'blowfish-ctr':
-                $decryptKeyLength = 16; // eg. 128 / 8
-                break;
-            case 'arcfour':
-            case 'arcfour128':
-                $decryptKeyLength = 16; // eg. 128 / 8
-                break;
-            case 'arcfour256':
-                $decryptKeyLength = 32; // eg. 128 / 8
-                break;
-            case 'none':
-                $decryptKeyLength = 0;
-                break;
-            default:
-                user_error('No compatible server to client encryption algorithms found');
-                return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+        $decryptKeyLength = $this->_encryption_algorithm_to_key_size($decrypt);
+        if ($decryptKeyLength === null) {
+            user_error('No compatible server to client encryption algorithms found');
+            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
         $encrypt = $this->_array_intersect_first($encryption_algorithms, $this->encryption_algorithms_client_to_server);
-        switch ($encrypt) {
-            case '3des-cbc':
-            case '3des-ctr':
-                $encryptKeyLength = 24;
-                break;
-            case 'aes256-cbc':
-            case 'aes256-ctr':
-            case 'twofish-cbc':
-            case 'twofish256-cbc':
-            case 'twofish256-ctr':
-                $encryptKeyLength = 32;
-                break;
-            case 'aes192-cbc':
-            case 'aes192-ctr':
-            case 'twofish192-cbc':
-            case 'twofish192-ctr':
-                $encryptKeyLength = 24;
-                break;
-            case 'aes128-cbc':
-            case 'aes128-ctr':
-            case 'twofish128-cbc':
-            case 'twofish128-ctr':
-            case 'blowfish-cbc':
-            case 'blowfish-ctr':
-                $encryptKeyLength = 16;
-                break;
-            case 'arcfour':
-            case 'arcfour128':
-                $encryptKeyLength = 16;
-                break;
-            case 'arcfour256':
-                $encryptKeyLength = 32;
-                break;
-            case 'none':
-                $encryptKeyLength = 0;
-                break;
-            default:
-                user_error('No compatible client to server encryption algorithms found');
-                return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+        $encryptKeyLength = $this->_encryption_algorithm_to_key_size($encrypt);
+        if ($encryptKeyLength === null) {
+            user_error('No compatible client to server encryption algorithms found');
+            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
         $keyLength = $decryptKeyLength > $encryptKeyLength ? $decryptKeyLength : $encryptKeyLength;
@@ -1884,6 +1814,45 @@ class SSH2
         $this->compress = $compression_algorithm == 'zlib';
 
         return true;
+    }
+
+    /**
+     * Maps an encryption algorithm name to the number of key bytes.
+     *
+     * @param String $algorithm Name of the encryption algorithm
+     * @return Mixed Number of bytes as an integer or null for unknown
+     * @access private
+     */
+    function _encryption_algorithm_to_key_size($algorithm)
+    {
+        switch ($algorithm) {
+            case 'none':
+                return 0;
+            case 'aes128-cbc':
+            case 'aes128-ctr':
+            case 'arcfour':
+            case 'arcfour128':
+            case 'blowfish-cbc':
+            case 'blowfish-ctr':
+            case 'twofish128-cbc':
+            case 'twofish128-ctr':
+                return 16;
+            case '3des-cbc':
+            case '3des-ctr':
+            case 'aes192-cbc':
+            case 'aes192-ctr':
+            case 'twofish192-cbc':
+            case 'twofish192-ctr':
+                return 24;
+            case 'aes256-cbc':
+            case 'aes256-ctr':
+            case 'arcfour256':
+            case 'twofish-cbc':
+            case 'twofish256-cbc':
+            case 'twofish256-ctr':
+                return 32;
+        }
+        return null;
     }
 
     /**
