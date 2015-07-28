@@ -1605,111 +1605,15 @@ class SSH2
             return false;
         }
 
-        switch ($encrypt) {
-            case '3des-cbc':
-                $this->encrypt = new TripleDES();
-                // $this->encrypt_block_size = 64 / 8 == the default
-                break;
-            case '3des-ctr':
-                $this->encrypt = new TripleDES(Base::MODE_CTR);
-                // $this->encrypt_block_size = 64 / 8 == the default
-                break;
-            case 'aes256-cbc':
-            case 'aes192-cbc':
-            case 'aes128-cbc':
-                $this->encrypt = new Rijndael();
-                $this->encrypt_block_size = 16; // eg. 128 / 8
-                break;
-            case 'aes256-ctr':
-            case 'aes192-ctr':
-            case 'aes128-ctr':
-                $this->encrypt = new Rijndael(Base::MODE_CTR);
-                $this->encrypt_block_size = 16; // eg. 128 / 8
-                break;
-            case 'blowfish-cbc':
-                $this->encrypt = new Blowfish();
-                $this->encrypt_block_size = 8;
-                break;
-            case 'blowfish-ctr':
-                $this->encrypt = new Blowfish(Base::MODE_CTR);
-                $this->encrypt_block_size = 8;
-                break;
-            case 'twofish128-cbc':
-            case 'twofish192-cbc':
-            case 'twofish256-cbc':
-            case 'twofish-cbc':
-                $this->encrypt = new Twofish();
-                $this->encrypt_block_size = 16;
-                break;
-            case 'twofish128-ctr':
-            case 'twofish192-ctr':
-            case 'twofish256-ctr':
-                $this->encrypt = new Twofish(Base::MODE_CTR);
-                $this->encrypt_block_size = 16;
-                break;
-            case 'arcfour':
-            case 'arcfour128':
-            case 'arcfour256':
-                $this->encrypt = new RC4();
-                break;
-            case 'none':
-                //$this->encrypt = new Null();
-        }
-
-        switch ($decrypt) {
-            case '3des-cbc':
-                $this->decrypt = new TripleDES();
-                break;
-            case '3des-ctr':
-                $this->decrypt = new TripleDES(Base::MODE_CTR);
-                break;
-            case 'aes256-cbc':
-            case 'aes192-cbc':
-            case 'aes128-cbc':
-                $this->decrypt = new Rijndael();
-                $this->decrypt_block_size = 16;
-                break;
-            case 'aes256-ctr':
-            case 'aes192-ctr':
-            case 'aes128-ctr':
-                $this->decrypt = new Rijndael(Base::MODE_CTR);
-                $this->decrypt_block_size = 16;
-                break;
-            case 'blowfish-cbc':
-                $this->decrypt = new Blowfish();
-                $this->decrypt_block_size = 8;
-                break;
-            case 'blowfish-ctr':
-                $this->decrypt = new Blowfish(Base::MODE_CTR);
-                $this->decrypt_block_size = 8;
-                break;
-            case 'twofish128-cbc':
-            case 'twofish192-cbc':
-            case 'twofish256-cbc':
-            case 'twofish-cbc':
-                $this->decrypt = new Twofish();
-                $this->decrypt_block_size = 16;
-                break;
-            case 'twofish128-ctr':
-            case 'twofish192-ctr':
-            case 'twofish256-ctr':
-                $this->decrypt = new Twofish(Base::MODE_CTR);
-                $this->decrypt_block_size = 16;
-                break;
-            case 'arcfour':
-            case 'arcfour128':
-            case 'arcfour256':
-                $this->decrypt = new RC4();
-                break;
-            case 'none':
-                //$this->decrypt = new Null();
-        }
-
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
 
+        $this->encrypt = $this->_encryption_algorithm_to_crypt_instance($encrypt);
         if ($this->encrypt) {
             if ($this->crypto_engine) {
                 $this->encrypt->setEngine($this->crypto_engine);
+            }
+            if ($this->encrypt->block_size) {
+                $this->encrypt_block_size = $this->encrypt->block_size;
             }
             $this->encrypt->enableContinuousBuffer();
             $this->encrypt->disablePadding();
@@ -1727,9 +1631,13 @@ class SSH2
             $this->encrypt->setKey(substr($key, 0, $encryptKeyLength));
         }
 
+        $this->decrypt = $this->_encryption_algorithm_to_crypt_instance($decrypt);
         if ($this->decrypt) {
             if ($this->crypto_engine) {
                 $this->decrypt->setEngine($this->crypto_engine);
+            }
+            if ($this->decrypt->block_size) {
+                $this->decrypt_block_size = $this->decrypt->block_size;
             }
             $this->decrypt->enableContinuousBuffer();
             $this->decrypt->disablePadding();
@@ -1889,6 +1797,50 @@ class SSH2
             case 'twofish256-cbc':
             case 'twofish256-ctr':
                 return 32;
+        }
+        return null;
+    }
+
+    /**
+     * Maps an encryption algorithm name to an instance of a subclass of
+     * \phpseclib\Crypt\Base.
+     *
+     * @param String $algorithm Name of the encryption algorithm
+     * @return Mixed Instance of \phpseclib\Crypt\Base or null for unknown
+     * @access private
+     */
+    function _encryption_algorithm_to_crypt_instance($algorithm)
+    {
+        switch ($algorithm) {
+            case '3des-cbc':
+                return new TripleDES();
+            case '3des-ctr':
+                return new TripleDES(Base::MODE_CTR);
+            case 'aes256-cbc':
+            case 'aes192-cbc':
+            case 'aes128-cbc':
+                return new Rijndael();
+            case 'aes256-ctr':
+            case 'aes192-ctr':
+            case 'aes128-ctr':
+                return new Rijndael(Base::MODE_CTR);
+            case 'blowfish-cbc':
+                return new Blowfish();
+            case 'blowfish-ctr':
+                return new Blowfish(Base::MODE_CTR);
+            case 'twofish128-cbc':
+            case 'twofish192-cbc':
+            case 'twofish256-cbc':
+            case 'twofish-cbc':
+                return new Twofish();
+            case 'twofish128-ctr':
+            case 'twofish192-ctr':
+            case 'twofish256-ctr':
+                return new Twofish(Base::MODE_CTR);
+            case 'arcfour':
+            case 'arcfour128':
+            case 'arcfour256':
+                return new RC4();
         }
         return null;
     }
