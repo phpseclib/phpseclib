@@ -1147,7 +1147,7 @@ class SSH2
      */
     function _key_exchange($kexinit_payload_server)
     {
-        static $kex_algorithms = array(
+        $kex_algorithms = array(
             // Elliptic Curve Diffie-Hellman Key Agreement (ECDH) using
             // Curve25519. See doc/curve25519-sha256@libssh.org.txt in the
             // libssh repository for more information.
@@ -1167,90 +1167,87 @@ class SSH2
             );
         }
 
-        static $server_host_key_algorithms = array(
+        $server_host_key_algorithms = array(
             'ssh-rsa', // RECOMMENDED  sign   Raw RSA Key
             'ssh-dss'  // REQUIRED     sign   Raw DSS Key
         );
 
-        static $encryption_algorithms = false;
-        if ($encryption_algorithms === false) {
-            $encryption_algorithms = array(
-                // from <http://tools.ietf.org/html/rfc4345#section-4>:
-                'arcfour256',
-                'arcfour128',
+        $encryption_algorithms = array(
+            // from <http://tools.ietf.org/html/rfc4345#section-4>:
+            'arcfour256',
+            'arcfour128',
 
-                //'arcfour',      // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
+            //'arcfour',      // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
 
-                // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
-                'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
-                'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
-                'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
+            // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
+            'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
+            'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
+            'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
 
-                'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
-                'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
-                'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
+            'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
+            'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
+            'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
 
-                'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
-                'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
-                'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
+            'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
+            'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
+            'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
 
-                'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
-                'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
-                'twofish256-cbc',
-                'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
-                                  //                   (this is being retained for historical reasons)
+            'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
+            'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
+            'twofish256-cbc',
+            'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
+                              //                   (this is being retained for historical reasons)
 
-                'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
+            'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
 
-                'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
+            'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
 
-                '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
+            '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
 
-                '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
-                 //'none'         // OPTIONAL          no encryption; NOT RECOMMENDED
+            '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
+                //'none'         // OPTIONAL          no encryption; NOT RECOMMENDED
+        );
+
+        if (extension_loaded('openssl') && !extension_loaded('mcrypt')) {
+            // OpenSSL does not support arcfour256 in any capacity and arcfour128 / arcfour support is limited to
+            // instances that do not use continuous buffers
+            $encryption_algorithms = array_diff(
+                $encryption_algorithms,
+                array('arcfour256', 'arcfour128', 'arcfour')
             );
-
-            if (extension_loaded('openssl') && !extension_loaded('mcrypt')) {
-                // OpenSSL does not support arcfour256 in any capacity and arcfour128 / arcfour support is limited to
-                // instances that do not use continuous buffers
-                $encryption_algorithms = array_diff(
-                    $encryption_algorithms,
-                    array('arcfour256', 'arcfour128', 'arcfour')
-                );
-            }
-
-            if (class_exists('\phpseclib\Crypt\RC4') === false) {
-                $encryption_algorithms = array_diff(
-                    $encryption_algorithms,
-                    array('arcfour256', 'arcfour128', 'arcfour')
-                );
-            }
-            if (class_exists('\phpseclib\Crypt\Rijndael') === false) {
-                $encryption_algorithms = array_diff(
-                    $encryption_algorithms,
-                    array('aes128-ctr', 'aes192-ctr', 'aes256-ctr', 'aes128-cbc', 'aes192-cbc', 'aes256-cbc')
-                );
-            }
-            if (class_exists('\phpseclib\Crypt\Twofish') === false) {
-                $encryption_algorithms = array_diff(
-                    $encryption_algorithms,
-                    array('twofish128-ctr', 'twofish192-ctr', 'twofish256-ctr', 'twofish128-cbc', 'twofish192-cbc', 'twofish256-cbc', 'twofish-cbc')
-                );
-            }
-            if (class_exists('\phpseclib\Crypt\Blowfish') === false) {
-                $encryption_algorithms = array_diff(
-                    $encryption_algorithms,
-                    array('blowfish-ctr', 'blowfish-cbc')
-                );
-            }
-            if (class_exists('\phpseclib\Crypt\TripleDES') === false) {
-                $encryption_algorithms = array_diff(
-                    $encryption_algorithms,
-                    array('3des-ctr', '3des-cbc')
-                );
-            }
-            $encryption_algorithms = array_values($encryption_algorithms);
         }
+
+        if (class_exists('\phpseclib\Crypt\RC4') === false) {
+            $encryption_algorithms = array_diff(
+                $encryption_algorithms,
+                array('arcfour256', 'arcfour128', 'arcfour')
+            );
+        }
+        if (class_exists('\phpseclib\Crypt\Rijndael') === false) {
+            $encryption_algorithms = array_diff(
+                $encryption_algorithms,
+                array('aes128-ctr', 'aes192-ctr', 'aes256-ctr', 'aes128-cbc', 'aes192-cbc', 'aes256-cbc')
+            );
+        }
+        if (class_exists('\phpseclib\Crypt\Twofish') === false) {
+            $encryption_algorithms = array_diff(
+                $encryption_algorithms,
+                array('twofish128-ctr', 'twofish192-ctr', 'twofish256-ctr', 'twofish128-cbc', 'twofish192-cbc', 'twofish256-cbc', 'twofish-cbc')
+            );
+        }
+        if (class_exists('\phpseclib\Crypt\Blowfish') === false) {
+            $encryption_algorithms = array_diff(
+                $encryption_algorithms,
+                array('blowfish-ctr', 'blowfish-cbc')
+            );
+        }
+        if (class_exists('\phpseclib\Crypt\TripleDES') === false) {
+            $encryption_algorithms = array_diff(
+                $encryption_algorithms,
+                array('3des-ctr', '3des-cbc')
+            );
+        }
+        $encryption_algorithms = array_values($encryption_algorithms);
 
         $mac_algorithms = array(
             // from <http://www.ietf.org/rfc/rfc6668.txt>:
@@ -1263,7 +1260,7 @@ class SSH2
             //'none'          // OPTIONAL        no MAC; NOT RECOMMENDED
         );
 
-        static $compression_algorithms = array(
+        $compression_algorithms = array(
             'none'   // REQUIRED        no compression
             //'zlib' // OPTIONAL        ZLIB (LZ77) compression
         );
@@ -1277,17 +1274,11 @@ class SSH2
                 ));
         }
 
-        static $str_kex_algorithms, $str_server_host_key_algorithms,
-               $encryption_algorithms_server_to_client, $mac_algorithms_server_to_client, $compression_algorithms_server_to_client,
-               $encryption_algorithms_client_to_server, $mac_algorithms_client_to_server, $compression_algorithms_client_to_server;
-
-        if (empty($str_kex_algorithms)) {
-            $str_kex_algorithms = implode(',', $kex_algorithms);
-            $str_server_host_key_algorithms = implode(',', $server_host_key_algorithms);
-            $encryption_algorithms_server_to_client = $encryption_algorithms_client_to_server = implode(',', $encryption_algorithms);
-            $mac_algorithms_server_to_client = $mac_algorithms_client_to_server = implode(',', $mac_algorithms);
-            $compression_algorithms_server_to_client = $compression_algorithms_client_to_server = implode(',', $compression_algorithms);
-        }
+        $str_kex_algorithms = implode(',', $kex_algorithms);
+        $str_server_host_key_algorithms = implode(',', $server_host_key_algorithms);
+        $encryption_algorithms_server_to_client = $encryption_algorithms_client_to_server = implode(',', $encryption_algorithms);
+        $mac_algorithms_server_to_client = $mac_algorithms_client_to_server = implode(',', $mac_algorithms);
+        $compression_algorithms_server_to_client = $compression_algorithms_client_to_server = implode(',', $compression_algorithms);
 
         $client_cookie = Random::string(16);
 
