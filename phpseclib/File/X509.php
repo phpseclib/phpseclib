@@ -31,6 +31,7 @@ use phpseclib\Crypt\RSA;
 use phpseclib\File\ASN1;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
+use phpseclib\Exception\UnsupportedAlgorithmException;
 
 /**
  * Pure-PHP X.509 Parser
@@ -1640,7 +1641,7 @@ class X509
                 $map = $this->_getMapping($id);
                 if (is_bool($map)) {
                     if (!$map) {
-                        user_error($id . ' is not a currently supported extension');
+                        //user_error($id . ' is not a currently supported extension');
                         unset($extensions[$i]);
                     }
                 } else {
@@ -1713,7 +1714,7 @@ class X509
                 $id = $attributes[$i]['type'];
                 $map = $this->_getMapping($id);
                 if ($map === false) {
-                    user_error($id . ' is not a currently supported attribute', E_USER_NOTICE);
+                    //user_error($id . ' is not a currently supported attribute', E_USER_NOTICE);
                     unset($attributes[$i]);
                 } elseif (is_array($attributes[$i]['value'])) {
                     $values = &$attributes[$i]['value'];
@@ -2106,7 +2107,8 @@ class X509
     /**
      * Validates a signature
      *
-     * Returns true if the signature is verified, false if it is not correct or null on error
+     * Returns true if the signature is verified and false if it is not correct.
+     * If the algorithms are unsupposed an exception is thrown.
      *
      * @param String $publicKeyAlgorithm
      * @param String $publicKey
@@ -2114,7 +2116,8 @@ class X509
      * @param String $signature
      * @param String $signatureSubject
      * @access private
-     * @return Integer
+     * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
+     * @return Boolean
      */
     function _validateSignature($publicKeyAlgorithm, $publicKey, $signatureAlgorithm, $signature, $signatureSubject)
     {
@@ -2138,11 +2141,11 @@ class X509
                         }
                         break;
                     default:
-                        return null;
+                        throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
                 }
                 break;
             default:
-                return null;
+                throw new UnsupportedAlgorithmException('Public key algorithm unsupported');
         }
 
         return true;
@@ -3611,6 +3614,7 @@ class X509
      * @param \phpseclib\File\X509 $subject
      * @param String $signatureAlgorithm
      * @access public
+     * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @return Mixed
      */
     function _sign($key, $signatureAlgorithm)
@@ -3629,10 +3633,12 @@ class X509
 
                     $this->currentCert['signature'] = base64_encode("\0" . $key->sign($this->signatureSubject));
                     return $this->currentCert;
+                default:
+                    throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
             }
         }
 
-        return false;
+        throw new UnsupportedAlgorithmException('Unsupported public key algorithm');
     }
 
     /**
