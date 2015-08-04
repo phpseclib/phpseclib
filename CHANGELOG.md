@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.0 - 2015-08-02
+
+- OpenSSL support for symmetric ciphers ([#507](https://github.com/phpseclib/phpseclib/pull/507))
+- rewritten vt100 terminal emulator (File_ANSI) ([#689](https://github.com/phpseclib/phpseclib/pull/689))
+- agent-forwarding support (System_SSH_Agent) ([#592](https://github.com/phpseclib/phpseclib/pull/592))
+- Net_SSH2 improvements
+ - diffie-hellman-group-exchange-sha1/sha256 support ([#714](https://github.com/phpseclib/phpseclib/pull/714))
+ - window size handling updates ([#717](https://github.com/phpseclib/phpseclib/pull/717))
+- Net_SFTP improvements
+ - add callback support to put() ([#655](https://github.com/phpseclib/phpseclib/pull/655))
+ - stat cache fixes ([#743](https://github.com/phpseclib/phpseclib/issues/743), [#730](https://github.com/phpseclib/phpseclib/issues/730), [#709](https://github.com/phpseclib/phpseclib/issues/709), [#726](https://github.com/phpseclib/phpseclib/issues/726))
+- add "none" encryption mode to Crypt_RSA ([#692](https://github.com/phpseclib/phpseclib/pull/692))
+- misc ASN.1 / X.509 parsing fixes ([#721](https://github.com/phpseclib/phpseclib/pull/721), [#627](https://github.com/phpseclib/phpseclib/pull/627))
+- use a random serial number for new X509 certs ([#740](https://github.com/phpseclib/phpseclib/pull/740))
+- add getPublicKeyFingerprint() to Crypt_RSA ([#677](https://github.com/phpseclib/phpseclib/pull/677))
+
 ## 0.3.10 - 2015-02-04
 
 - simplify SSH2 window size handling ([#538](https://github.com/phpseclib/phpseclib/pull/538))
