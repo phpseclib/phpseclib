@@ -1,4 +1,4 @@
-﻿{
+{
     "name": "phpseclib/phpseclib",
     "type": "library",
     "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
