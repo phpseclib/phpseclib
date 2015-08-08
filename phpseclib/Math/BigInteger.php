@@ -1725,7 +1725,7 @@ class BigInteger
         // if it's not, it's even
 
         // find the lowest set bit (eg. the max pow of 2 that divides $n)
-        for ($i = 0; $i < count($n->value); ++$i) {
+        for ($i = 0, $valesCount = count($n->value); $i < $valesCount; ++$i) {
             if ($n->value[$i]) {
                 $temp = decbin($n->value[$i]);
                 $j = strlen($temp) - strrpos($temp, '1') - 1;
@@ -2315,9 +2315,9 @@ class BigInteger
         $a = array(self::VALUE => $this->_array_repeat(0, $n + 1));
         for ($i = 0; $i < $n; ++$i) {
             $temp = $a[self::VALUE][0] + $x[$i] * $y[0];
-            $temp = $temp - self::$baseFull * (self::$base === 26 ? (int) ($temp / 0x4000000) : ($temp >> 31));
-            $temp = $temp * $cache[self::DATA][$key];
-            $temp = $temp - self::$baseFull * (self::$base === 26 ? (int) ($temp / 0x4000000) : ($temp >> 31));
+            $temp -= self::$baseFull * (self::$base === 26 ? (int) ($temp / 0x4000000) : ($temp >> 31));
+            $temp *= $cache[self::DATA][$key];
+            $temp -= self::$baseFull * (self::$base === 26 ? (int) ($temp / 0x4000000) : ($temp >> 31));
             $temp = $this->_add($this->_regularMultiply(array($x[$i]), $y), false, $this->_regularMultiply(array($temp), $m), false);
             $a = $this->_add($a[self::VALUE], false, $temp[self::VALUE], false);
             $a[self::VALUE] = array_slice($a[self::VALUE], 1);
@@ -3355,7 +3355,7 @@ class BigInteger
             );
 
             if (MATH_BIGINTEGER_MODE != self::MODE_INTERNAL) {
-                for ($i = 0; $i < count($primes); ++$i) {
+                for ($i = 0, $primesCount = count($primes); $i < $primesCount; ++$i) {
                     $primes[$i] = new static($primes[$i]);
                 }
             }
@@ -3454,7 +3454,7 @@ class BigInteger
 
         $carry = 0;
 
-        for ($i = 0; $i < count($this->value); ++$i) {
+        for ($i = 0, $valuesCount = count($this->value); $i < $valuesCount; ++$i) {
             $temp = $this->value[$i] * $shift + $carry;
             $carry = self::$base === 26 ? (int) ($temp / 0x4000000) : ($temp >> 31);
             $this->value[$i] = (int) ($temp - $carry * self::$baseFull);
@@ -3645,7 +3645,7 @@ class BigInteger
 
         $carry = 0;
         $carry_shift = 8 - $shift;
-        for ($i = 0; $i < strlen($x); ++$i) {
+        for ($i = 0, $xLength = strlen($x); $i < $xLength; ++$i) {
             $temp = (ord($x[$i]) >> $shift) | $carry;
             $carry = (ord($x[$i]) << $carry_shift) & 0xFF;
             $x[$i] = chr($temp);

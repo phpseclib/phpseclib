@@ -128,7 +128,7 @@ class Agent
                 break;
             default:
                 user_error('SSH_AUTH_SOCK not found');
-                return false;
+                return;
         }
 
         $this->fsock = fsockopen('unix://' . $address, 0, $errno, $errstr);

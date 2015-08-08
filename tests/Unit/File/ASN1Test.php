@@ -240,7 +240,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     public function testIndefiniteLength()
     {
         $asn1 = new ASN1();
-        $decoded = $asn1->decodeBER(file_get_contents(dirname(__FILE__) . '/ASN1/FE.pdf.p7m'));
+        $decoded = $asn1->decodeBER(file_get_contents(__DIR__ . '/ASN1/FE.pdf.p7m'));
         $this->assertCount(5, $decoded[0]['content'][1]['content'][0]['content']); // older versions would have returned 3
     }
 

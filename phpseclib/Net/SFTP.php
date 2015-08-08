@@ -1670,7 +1670,7 @@ class SFTP extends SSH2
                 array_shift($dirs);
                 $dirs[0] = '/' . $dirs[0];
             }
-            for ($i = 0; $i < count($dirs); $i++) {
+            for ($i = 0, $dirsCount = count($dirs); $i < $dirsCount; $i++) {
                 $temp = array_slice($dirs, 0, $i + 1);
                 $temp = implode('/', $temp);
                 $result = $this->_mkdir_helper($temp, $attr);

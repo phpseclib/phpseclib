@@ -463,7 +463,7 @@ class RSA
      */
     function __construct()
     {
-        $this->configFile = dirname(__FILE__) . '/../openssl.cnf';
+        $this->configFile = __DIR__ . '/../openssl.cnf';
 
         if (!defined('CRYPT_RSA_MODE')) {
             switch (true) {
@@ -2205,7 +2205,7 @@ class RSA
         }
 
         $result = 0;
-        for ($i = 0; $i < strlen($x); $i++) {
+        for ($i = 0, $xLength = strlen($x); $i < $xLength; $i++) {
             $result |= ord($x[$i]) ^ ord($y[$i]);
         }
 

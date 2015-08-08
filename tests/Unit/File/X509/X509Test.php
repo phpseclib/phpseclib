@@ -153,7 +153,7 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         $value = '';
         $parts = explode('.', $oid);
         $value = chr(40 * $parts[0] + $parts[1]);
-        for ($i = 2; $i < count($parts); $i++) {
+        for ($i = 2, $partsCount = count($parts); $i < $partsCount; $i++) {
             $temp = '';
             if (!$parts[$i]) {
                 $temp = "\0";
