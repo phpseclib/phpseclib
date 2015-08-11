@@ -43,4 +43,24 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa->loadKey($privatekey);
         $this->assertEquals(trim($rsa->decrypt($result), "\0"), $plaintext);
     }
+
+    /**
+     * @group github768
+     */
+    public function testPSSSigs()
+    {
+        $rsa = new Crypt_RSA();
+        $rsa->loadKey('-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqGKukO1De7zhZj6+H0qtjTkVx
+wTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFnc
+CzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ51s1SPrCBkedbNf0T
+p0GbMJDyR4e9T04ZZwIDAQAB
+-----END PUBLIC KEY-----');
+
+        $sig = pack('H*', '1bd29a1d704a906cd7f726370ce1c63d8fb7b9a620871a05f3141a311c0d6e75fefb5d36dfb50d3ea2d37cd67992471419bfadd35da6e13b494' .
+            '058ddc9b568d4cfea13ddc3c62b86a6256f5f296980d1131d3eaec6089069a3de79983f73eae20198a18721338b4a66e9cfe80e4f8e4fcef7a5bead5cbb' .
+            'b8ac4c76adffbc178c');
+
+        $this->assertTrue($rsa->verify('zzzz', $sig));
+    }
 }
