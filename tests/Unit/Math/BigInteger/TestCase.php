@@ -9,10 +9,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 {
     public static function setUpBeforeClass()
     {
-        include_once 'Math/BigInteger.php';
-
         parent::setUpBeforeClass();
-
         self::reRequireFile('Math/BigInteger.php');
     }
 
