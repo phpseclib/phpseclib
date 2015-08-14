@@ -3287,6 +3287,7 @@ class SSH2
                     }
 
                     if ($client_channel == $channel) {
+                        $this->curTimeout = $this->timeout;
                         return $data;
                     }
                     if (!isset($this->channel_buffers[$channel])) {
@@ -3308,6 +3309,7 @@ class SSH2
                         break;
                     }
                     if ($client_channel == $channel) {
+                        $this->curTimeout = $this->timeout;
                         return $data;
                     }
                     if (!isset($this->channel_buffers[$channel])) {
