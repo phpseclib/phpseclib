@@ -1641,7 +1641,7 @@ class BigInteger
         }
 
         if ($this->compare(new static()) < 0 || $this->compare($n) > 0) {
-            list(, $temp) = $this->divide($n);
+            list($null, $temp) = $this->divide($n);
             return $temp->modPow($e, $n);
         }
 
@@ -1700,14 +1700,14 @@ class BigInteger
         }
 
         if ($e->value == array(1)) {
-            list(, $temp) = $this->divide($n);
+            list($null, $temp) = $this->divide($n);
             return $this->_normalize($temp);
         }
 
         if ($e->value == array(2)) {
             $temp = new static();
             $temp->value = $this->_square($this->value);
-            list(, $temp) = $temp->divide($n);
+            list($null, $temp) = $temp->divide($n);
             return $this->_normalize($temp);
         }
 
@@ -1754,7 +1754,7 @@ class BigInteger
         $temp = $temp->multiply($y2);
 
         $result = $result->add($temp);
-        list(, $result) = $result->divide($n);
+        list($null, $result) = $result->divide($n);
 
         return $this->_normalize($result);
     }
@@ -1882,7 +1882,7 @@ class BigInteger
                 $lhs->value = $x;
                 $rhs = new static();
                 $rhs->value = $n;
-                list(, $temp) = $lhs->divide($rhs);
+                list($null, $temp) = $lhs->divide($rhs);
                 return $temp->value;
             case self::NONE:
                 return $x;
@@ -2004,7 +2004,7 @@ class BigInteger
             $rhs = new static();
             $lhs->value = $n;
             $rhs->value = $m;
-            list(, $temp) = $lhs->divide($rhs);
+            list($null, $temp) = $lhs->divide($rhs);
             return $temp->value;
         }
 
@@ -2100,7 +2100,7 @@ class BigInteger
             $rhs = new static();
             $lhs->value = $x;
             $rhs->value = $n;
-            list(, $temp) = $lhs->divide($rhs);
+            list($null, $temp) = $lhs->divide($rhs);
             return $temp->value;
         }
 
@@ -2345,7 +2345,7 @@ class BigInteger
         $rhs = new static();
         $rhs->value = $n;
 
-        list(, $temp) = $lhs->divide($rhs);
+        list($null, $temp) = $lhs->divide($rhs);
         return $temp->value;
     }
 
@@ -2403,7 +2403,7 @@ class BigInteger
      *    echo "\r\n";
      *
      *    $d = $a->multiply($c);
-     *    list(, $d) = $d->divide($b);
+     *    list($null, $d) = $d->divide($b);
      *    echo $d; // outputs 1 (as per the definition of modular inverse)
      * ?>
      * </code>
@@ -3145,7 +3145,7 @@ class BigInteger
             list($max_multiple) = $random_max->divide($max);
             $max_multiple = $max_multiple->multiply($max);
         }
-        list(, $random) = $random->divide($max);
+        list($null, $random) = $random->divide($max);
 
         return $this->_normalize($random->add($min));
     }
@@ -3372,7 +3372,7 @@ class BigInteger
         // see HAC 4.4.1 "Random search for probable primes"
         if (MATH_BIGINTEGER_MODE != self::MODE_INTERNAL) {
             foreach ($primes as $prime) {
-                list(, $r) = $this->divide($prime);
+                list($null, $r) = $this->divide($prime);
                 if ($r->equals($zero)) {
                     return $this->equals($prime);
                 }
@@ -3380,7 +3380,7 @@ class BigInteger
         } else {
             $value = $this->value;
             foreach ($primes as $prime) {
-                list(, $r) = $this->_divide_digit($value, $prime);
+                list($null, $r) = $this->_divide_digit($value, $prime);
                 if (!$r) {
                     return count($value) == 1 && $value[0] == $prime;
                 }

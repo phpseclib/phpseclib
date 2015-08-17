@@ -2187,7 +2187,7 @@ class X509
     function _decodeIP($ip)
     {
         $ip = base64_decode($ip);
-        list(, $ip) = unpack('N', $ip);
+        list($null, $ip) = unpack('N', $ip);
         return long2ip($ip);
     }
 

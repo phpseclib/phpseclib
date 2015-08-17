@@ -2434,7 +2434,7 @@ class SSH2
                 return false;
             }
 
-            list(, $type) = unpack('C', $this->_string_shift($response, 1));
+            list($null, $type) = unpack('C', $this->_string_shift($response, 1));
 
             switch ($type) {
                 case NET_SSH2_MSG_CHANNEL_SUCCESS:
@@ -2570,7 +2570,7 @@ class SSH2
             return false;
         }
 
-        list(, $type) = unpack('C', $this->_string_shift($response, 1));
+        list($null, $type) = unpack('C', $this->_string_shift($response, 1));
 
         switch ($type) {
             case NET_SSH2_MSG_CHANNEL_SUCCESS:
@@ -4009,17 +4009,17 @@ class SSH2
                 $w = $s->modInverse($q);
 
                 $u1 = $w->multiply(new BigInteger(sha1($this->exchange_hash), 16));
-                list(, $u1) = $u1->divide($q);
+                list($null, $u1) = $u1->divide($q);
 
                 $u2 = $w->multiply($r);
-                list(, $u2) = $u2->divide($q);
+                list($null, $u2) = $u2->divide($q);
 
                 $g = $g->modPow($u1, $p);
                 $y = $y->modPow($u2, $p);
 
                 $v = $g->multiply($y);
-                list(, $v) = $v->divide($p);
-                list(, $v) = $v->divide($q);
+                list($null, $v) = $v->divide($p);
+                list($null, $v) = $v->divide($q);
 
                 if (!$v->equals($r)) {
                     user_error('Bad server signature');

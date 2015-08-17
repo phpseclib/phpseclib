@@ -1182,7 +1182,7 @@ class RSA
                                 return false;
                             }
                             $this->_decodeLength($temp);
-                            list(, $iterationCount) = unpack('N', str_pad($temp, 4, chr(0), STR_PAD_LEFT));
+                            list($null, $iterationCount) = unpack('N', str_pad($temp, 4, chr(0), STR_PAD_LEFT));
                             $this->_string_shift($key); // assume it's an octet string
                             $length = $this->_decodeLength($key);
                             if (strlen($key) != $length) {
@@ -1911,7 +1911,7 @@ class RSA
         if ($length & 0x80) { // definite length, long form
             $length&= 0x7F;
             $temp = $this->_string_shift($string, $length);
-            list(, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
+            list($null, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
         }
         return $length;
     }
@@ -2107,7 +2107,7 @@ class RSA
             );
             $h = $m_i[1]->subtract($m_i[2]);
             $h = $h->multiply($this->coefficients[2]);
-            list(, $h) = $h->divide($this->primes[1]);
+            list($null, $h) = $h->divide($this->primes[1]);
             $m = $m_i[2]->add($h->multiply($this->primes[2]));
 
             $r = $this->primes[1];
@@ -2118,7 +2118,7 @@ class RSA
 
                 $h = $m_i->subtract($m);
                 $h = $h->multiply($this->coefficients[$i]);
-                list(, $h) = $h->divide($this->primes[$i]);
+                list($null, $h) = $h->divide($this->primes[$i]);
 
                 $m = $m->add($r->multiply($h));
             }
@@ -2140,7 +2140,7 @@ class RSA
             );
             $h = $m_i[1]->subtract($m_i[2]);
             $h = $h->multiply($this->coefficients[2]);
-            list(, $h) = $h->divide($this->primes[1]);
+            list($null, $h) = $h->divide($this->primes[1]);
             $m = $m_i[2]->add($h->multiply($this->primes[2]));
 
             $r = $this->primes[1];
@@ -2151,7 +2151,7 @@ class RSA
 
                 $h = $m_i->subtract($m);
                 $h = $h->multiply($this->coefficients[$i]);
-                list(, $h) = $h->divide($this->primes[$i]);
+                list($null, $h) = $h->divide($this->primes[$i]);
 
                 $m = $m->add($r->multiply($h));
             }
@@ -2179,7 +2179,7 @@ class RSA
 
         $r = $r->modInverse($this->primes[$i]);
         $x = $x->multiply($r);
-        list(, $x) = $x->divide($this->primes[$i]);
+        list($null, $x) = $x->divide($this->primes[$i]);
 
         return $x;
     }

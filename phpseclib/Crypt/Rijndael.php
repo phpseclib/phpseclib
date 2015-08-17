@@ -679,7 +679,8 @@ class Rijndael extends Base
     {
         static $sbox;
         if (empty($sbox)) {
-            list(,,,, $sbox) = $this->_getTables();
+            $parts = $this->_getTables();
+            $sbox = $parts[4];
         }
 
         return  $sbox[$word       & 0x000000FF]        |
