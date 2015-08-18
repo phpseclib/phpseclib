@@ -82,7 +82,7 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string $filename
+     * @param string $filename Filename relative to library directory.
      *
      * @return null
      */
@@ -90,7 +90,7 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
     {
         if (function_exists('runkit_import')) {
             $result = runkit_import(
-                $filename,
+                sprintf('%s/../phpseclib/%s', __DIR__, $filename),
                 RUNKIT_IMPORT_FUNCTIONS |
                 RUNKIT_IMPORT_CLASS_METHODS |
                 RUNKIT_IMPORT_OVERRIDE
