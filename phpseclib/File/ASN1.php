@@ -1128,7 +1128,7 @@ class ASN1
 
         preg_match($pattern, $content, $matches);
 
-        list(, $year, $month, $day, $hour, $minute, $second, $timezone) = $matches;
+        list($null, $year, $month, $day, $hour, $minute, $second, $timezone) = $matches;
 
         if ($tag == self::TYPE_UTC_TIME) {
             $year = $year >= 50 ? "19$year" : "20$year";
