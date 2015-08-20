@@ -5,6 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use Hoa\Math\Combinatorics\Combination\CartesianProduct;
 use phpseclib\Crypt\AES;
 use phpseclib\Crypt\Base;
 use phpseclib\Crypt\Rijndael;
@@ -56,17 +57,12 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             'FOOBARZ',
         );
 
-        $result = array();
-
-        // @codingStandardsIgnoreStart
-        foreach ($modes as $mode)
-        foreach ($plaintexts as $plaintext)
-        foreach ($ivs as $iv)
-        foreach ($keys as $key)
-            $result[] = array($mode, $plaintext, $iv, $key);
-        // @codingStandardsIgnoreEnd
-
-        return $result;
+        return new CartesianProduct(
+            $modes,
+            $plaintexts,
+            $ivs,
+            $keys
+        );
     }
 
     /**

@@ -49,6 +49,7 @@
         "php": ">=5.3.3"
     },
     "require-dev": {
+        "hoa/math": "0.15.05.29",
         "phing/phing": "~2.7",
         "phpunit/phpunit": "~4.0",
         "sami/sami": "~2.0",
