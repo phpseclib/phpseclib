@@ -56,7 +56,7 @@ class Random
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             // method 1. prior to PHP 5.3 this would call rand() on windows hence the function_exists('class_alias') call.
             // ie. class_alias is a function that was introduced in PHP 5.3
-            if (function_exists('mcrypt_create_iv') && function_exists('class_alias')) {
+            if (extension_loaded('mcrypt') && function_exists('class_alias')) {
                 return mcrypt_create_iv($length);
             }
             // method 2. openssl_random_pseudo_bytes was introduced in PHP 5.3.0 but prior to PHP 5.3.4 there was,
@@ -72,12 +72,12 @@ class Random
             // https://github.com/php/php-src/blob/7014a0eb6d1611151a286c0ff4f2238f92c120d6/win32/winutil.c#L80
             //
             // we're calling it, all the same, in the off chance that the mcrypt extension is not available
-            if (function_exists('openssl_random_pseudo_bytes') && version_compare(PHP_VERSION, '5.3.4', '>=')) {
+            if (extension_loaded('openssl') && version_compare(PHP_VERSION, '5.3.4', '>=')) {
                 return openssl_random_pseudo_bytes($length);
             }
         } else {
             // method 1. the fastest
-            if (function_exists('openssl_random_pseudo_bytes')) {
+            if (extension_loaded('openssl')) {
                 return openssl_random_pseudo_bytes($length);
             }
             // method 2
@@ -95,7 +95,7 @@ class Random
             // surprisingly slower than method 2. maybe that's because mcrypt_create_iv does a bunch of error checking that we're
             // not doing. regardless, this'll only be called if this PHP script couldn't open /dev/urandom due to open_basedir
             // restrictions or some such
-            if (function_exists('mcrypt_create_iv')) {
+            if (extension_loaded('mcrypt')) {
                 return mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
             }
         }
