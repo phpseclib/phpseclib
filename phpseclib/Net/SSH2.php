@@ -999,24 +999,22 @@ class SSH2
 
         $this->bitmap |= self::MASK_CONSTRUCTOR;
 
-        $this->curTimeout = $this->timeout;
+        $this->restartTimeout();
 
         $this->last_packet = microtime(true);
 
         if (!is_resource($this->fsock)) {
             $start = microtime(true);
-            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout);
+            $sockTimeout = $this->curTimeout ? $this->curTimeout : ini_get("default_socket_timeout");
+            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $sockTimeout);
             if (!$this->fsock) {
                 $host = $this->host . ':' . $this->port;
                 user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
                 return false;
             }
-            $elapsed = microtime(true) - $start;
+            $this->decTimeout($start);
 
-            $this->curTimeout-= $elapsed;
-
-            if ($this->curTimeout <= 0) {
-                $this->is_timeout = true;
+            if ($this->checkTimeout()) {
                 return false;
             }
         }
@@ -1037,8 +1035,7 @@ class SSH2
             }
 
             if ($this->curTimeout) {
-                if ($this->curTimeout < 0) {
-                    $this->is_timeout = true;
+                if ($this->checkTimeout()) {
                     return false;
                 }
                 $read = array($this->fsock);
@@ -1052,8 +1049,7 @@ class SSH2
                     $this->is_timeout = true;
                     return false;
                 }
-                $elapsed = microtime(true) - $start;
-                $this->curTimeout-= $elapsed;
+                $this->decTimeout($start);
             }
 
             $temp.= fgets($this->fsock, 255);
@@ -2345,6 +2341,53 @@ class SSH2
     }
 
     /**
+     * @access public
+     */
+    function disableTimeout()
+    {
+        $this->curTimeout = 0;
+    }
+
+    /**
+     * @access protected
+     */
+    function resetTimeout()
+    {
+        $this->curTimeout = $this->timeout;
+        $this->is_timeout = false;
+    }
+
+    /**
+     * @access protected
+     */
+    function restartTimeout()
+    {
+        $this->curTimeout = $this->timeout;
+    }
+
+    /**
+     * @access protected
+     * @return bool
+     */
+    function checkTimeout()
+    {
+        if ($this->curTimeout < 0) {
+            $this->is_timeout = true;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param float $start
+     * @access protected
+     */
+    function decTimeout($start)
+    {
+        $this->curTimeout -= microtime(true) - $start;
+    }
+
+    /**
      * Get the output from stdError
      *
      * @access public
@@ -2367,8 +2410,7 @@ class SSH2
      */
     function exec($command, $callback = null)
     {
-        $this->curTimeout = $this->timeout;
-        $this->is_timeout = false;
+        $this->resetTimeout();
         $this->stdErrorLog = '';
 
         if (!($this->bitmap & self::MASK_LOGIN)) {
@@ -2660,8 +2702,7 @@ class SSH2
      */
     function read($expect = '', $mode = self::READ_SIMPLE)
     {
-        $this->curTimeout = $this->timeout;
-        $this->is_timeout = false;
+        $this->resetTimeout();
 
         if (!($this->bitmap & self::MASK_LOGIN)) {
             user_error('Operation disallowed prior to login()');
@@ -3171,8 +3212,7 @@ class SSH2
 
         while (true) {
             if ($this->curTimeout) {
-                if ($this->curTimeout < 0) {
-                    $this->is_timeout = true;
+                if ($this->checkTimeout()) {
                     return true;
                 }
 
@@ -3187,8 +3227,7 @@ class SSH2
                     $this->is_timeout = true;
                     return true;
                 }
-                $elapsed = microtime(true) - $start;
-                $this->curTimeout-= $elapsed;
+                $this->decTimeout($start);
             }
 
             $response = $this->_get_binary_packet();
@@ -3350,7 +3389,7 @@ class SSH2
                     }
                     break;
                 case NET_SSH2_MSG_CHANNEL_CLOSE:
-                    $this->curTimeout = 0;
+                    $this->disableTimeout();
 
                     if ($this->bitmap & self::MASK_SHELL) {
                         $this->bitmap&= ~self::MASK_SHELL;
@@ -3577,7 +3616,7 @@ class SSH2
 
         $this->channel_status[$client_channel] = NET_SSH2_MSG_CHANNEL_CLOSE;
 
-        $this->curTimeout = 0;
+        $this->disableTimeout();
 
         while (!is_bool($this->_get_channel_packet($client_channel))) {
         }
