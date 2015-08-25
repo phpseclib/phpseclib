@@ -474,7 +474,7 @@ class RSA
                     define('CRYPT_RSA_MODE', self::MODE_INTERNAL);
                     break;
                 // openssl_pkey_get_details - which is used in the only place Crypt/RSA.php uses OpenSSL - was introduced in PHP 5.2.0
-                case !function_exists('openssl_pkey_get_details'):
+                case extension_loaded('openssl') && version_compare(PHP_VERSION, '5.2.0', "<="):
                     define('CRYPT_RSA_MODE', self::MODE_INTERNAL);
                     break;
                 case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>=') && file_exists($this->configFile):
