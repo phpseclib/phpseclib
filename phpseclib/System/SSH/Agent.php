@@ -128,7 +128,7 @@ class Agent
                 break;
             default:
                 user_error('SSH_AUTH_SOCK not found');
-                return false;
+                return;
         }
 
         $this->fsock = fsockopen('unix://' . $address, 0, $errno, $errstr);
@@ -153,7 +153,7 @@ class Agent
         }
 
         $packet = pack('NC', 1, self::SSH_AGENTC_REQUEST_IDENTITIES);
-        if (strlen($packet) != fputs($this->fsock, $packet)) {
+        if (strlen($packet) != fwrite($this->fsock, $packet)) {
             user_error('Connection closed while requesting identities');
         }
 

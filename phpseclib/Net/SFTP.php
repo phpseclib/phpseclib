@@ -795,7 +795,7 @@ class SFTP extends SSH2
                 unset($files[$key]);
                 continue;
             }
-            if ($key != '.' && $key != '..' && is_array($this->_query_stat_cache($this->_realpath($dir . '/' . $key)))) {
+            if ($key !== '.' && $key !== '..' && is_array($this->_query_stat_cache($this->_realpath($dir . '/' . $key)))) {
                 $depth++;
                 $files[$key] = $this->rawlist($dir . '/' . $key, true);
                 $depth--;
@@ -1897,7 +1897,7 @@ class SFTP extends SSH2
         while ($dataCallback || $sent < $size) {
             if ($dataCallback) {
                 $temp = call_user_func($dataCallback, $sftp_packet_size);
-                if (is_null($temp)) {
+                if (null === $temp) {
                     break;
                 }
             } else {
@@ -2083,7 +2083,7 @@ class SFTP extends SSH2
                     if ($local_file === false) {
                         $content.= $temp;
                     } else {
-                        fputs($fp, $temp);
+                        fwrite($fp, $temp);
                     }
                     break;
                 case NET_SFTP_STATUS:

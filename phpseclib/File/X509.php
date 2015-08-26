@@ -1409,8 +1409,7 @@ class X509
     function loadX509($cert)
     {
         if (is_array($cert) && isset($cert['tbsCertificate'])) {
-            unset($this->currentCert);
-            unset($this->currentKeyIdentifier);
+            unset($this->currentCert, $this->currentKeyIdentifier);
             $this->dn = $cert['tbsCertificate']['subject'];
             if (!isset($this->dn)) {
                 return false;
@@ -1477,7 +1476,7 @@ class X509
 
         switch (true) {
             // "case !$a: case !$b: break; default: whatever();" is the same thing as "if ($a && $b) whatever()"
-            case !($algorithm = $this->_subArray($cert, 'tbsCertificate/subjectPublicKeyInfo/algorithm/algorithm')):
+            case !($algorithm = &$this->_subArray($cert, 'tbsCertificate/subjectPublicKeyInfo/algorithm/algorithm')):
             case is_object($cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']):
                 break;
             default:
@@ -2785,7 +2784,7 @@ class X509
 
         if (isset($this->currentCert) && is_array($this->currentCert)) {
             foreach (array('tbsCertificate/subjectPublicKeyInfo', 'certificationRequestInfo/subjectPKInfo') as $path) {
-                $keyinfo = $this->_subArray($this->currentCert, $path);
+                $keyinfo = &$this->_subArray($this->currentCert, $path);
                 if (!empty($keyinfo)) {
                     break;
                 }
@@ -2820,9 +2819,7 @@ class X509
     function loadCSR($csr)
     {
         if (is_array($csr) && isset($csr['certificationRequestInfo'])) {
-            unset($this->currentCert);
-            unset($this->currentKeyIdentifier);
-            unset($this->signatureSubject);
+            unset($this->currentCert, $this->currentKeyIdentifier, $this->signatureSubject);
             $this->dn = $csr['certificationRequestInfo']['subject'];
             if (!isset($this->dn)) {
                 return false;
@@ -2898,7 +2895,7 @@ class X509
         }
 
         switch (true) {
-            case !($algorithm = $this->_subArray($csr, 'certificationRequestInfo/subjectPKInfo/algorithm/algorithm')):
+            case !($algorithm = &$this->_subArray($csr, 'certificationRequestInfo/subjectPKInfo/algorithm/algorithm')):
             case is_object($csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']):
                 break;
             default:
@@ -2945,9 +2942,7 @@ class X509
     function loadSPKAC($spkac)
     {
         if (is_array($spkac) && isset($spkac['publicKeyAndChallenge'])) {
-            unset($this->currentCert);
-            unset($this->currentKeyIdentifier);
-            unset($this->signatureSubject);
+            unset($this->currentCert, $this->currentKeyIdentifier, $this->signatureSubject);
             $this->currentCert = $spkac;
             return $spkac;
         }
@@ -3020,7 +3015,7 @@ class X509
             return false;
         }
 
-        $algorithm = $this->_subArray($spkac, 'publicKeyAndChallenge/spki/algorithm/algorithm');
+        $algorithm = &$this->_subArray($spkac, 'publicKeyAndChallenge/spki/algorithm/algorithm');
         switch (true) {
             case !$algorithm:
             case is_object($spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']):
@@ -4179,7 +4174,7 @@ class X509
      */
     function computeKeyIdentifier($key = null, $method = 1)
     {
-        if (is_null($key)) {
+        if (null === $key) {
             $key = $this;
         }
 
@@ -4407,7 +4402,7 @@ class X509
      */
     function getRevoked($serial)
     {
-        if (is_array($rclist = $this->_subArray($this->currentCert, 'tbsCertList/revokedCertificates'))) {
+        if (is_array($rclist = &$this->_subArray($this->currentCert, 'tbsCertList/revokedCertificates'))) {
             if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
                 return $rclist[$i];
             }
@@ -4435,7 +4430,7 @@ class X509
 
         $result = array();
 
-        if (is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
+        if (is_array($rclist = &$this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
             foreach ($rclist as $rc) {
                 $result[] = $rc['userCertificate']->toString();
             }
@@ -4480,7 +4475,7 @@ class X509
             $crl = $this->currentCert;
         }
 
-        if (is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
+        if (is_array($rclist = &$this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
             if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
                 return $this->_getExtension($id, $crl,  "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
             }
@@ -4503,7 +4498,7 @@ class X509
             $crl = $this->currentCert;
         }
 
-        if (is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
+        if (is_array($rclist = &$this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
             if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
                 return $this->_getExtensions($crl, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
             }

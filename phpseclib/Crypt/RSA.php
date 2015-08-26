@@ -463,7 +463,7 @@ class RSA
      */
     function __construct()
     {
-        $this->configFile = dirname(__FILE__) . '/../openssl.cnf';
+        $this->configFile = __DIR__ . '/../openssl.cnf';
 
         if (!defined('CRYPT_RSA_MODE')) {
             switch (true) {
