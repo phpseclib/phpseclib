@@ -13,6 +13,9 @@ use phpseclib\Net\SFTP;
  */
 abstract class Functional_Net_SFTPTestCase extends PhpseclibFunctionalTestCase
 {
+    /**
+     * @var SFTP
+     */
     protected $sftp;
     protected $scratchDir;
 

@@ -867,6 +867,14 @@ class SSH2
     var $agent;
 
     /**
+     * Connection storage to replicates ssh2 extension functionality:
+     * {@link http://php.net/manual/en/wrappers.ssh2.php#refsect1-wrappers.ssh2-examples}
+     *
+     * @var SSH2[]
+     */
+    static $connections;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -958,6 +966,8 @@ class SSH2
             array(30 => 'NET_SSH2_MSG_KEX_ECDH_INIT',
                   31 => 'NET_SSH2_MSG_KEX_ECDH_REPLY')
         );
+
+        self::$connections[$this->getResourceId()] = $this;
 
         if (is_resource($host)) {
             $this->fsock = $host;
@@ -2836,6 +2846,7 @@ class SSH2
         if (isset($this->realtime_log_file) && is_resource($this->realtime_log_file)) {
             fclose($this->realtime_log_file);
         }
+        unset(self::$connections[$this->getResourceId()]);
     }
 
     /**
@@ -4151,5 +4162,48 @@ class SSH2
     {
         $this->windowColumns = $columns;
         $this->windowRows = $rows;
+    }
+
+    /**
+     * @return string
+     */
+    function __toString()
+    {
+        return $this->getResourceId();
+    }
+
+    /**
+     * We use {} because that symbols should not be in URL according to
+     * {@link http://tools.ietf.org/html/rfc3986#section-2 RFC}.
+     * It will safe us from any conflicts, because otherwise regexp will
+     * match all alphanumeric domains.
+     *
+     * @return string
+     */
+    function getResourceId()
+    {
+        return '{' . spl_object_hash($this) . '}';
+    }
+
+    /**
+     * Return existing connection
+     *
+     * @param string $id
+     *
+     * @return bool|SSH2 will return false if no such connection
+     */
+    static function getConnectionByResourceId($id)
+    {
+        return isset(self::$connections[$id]) ? self::$connections[$id] : false;
+    }
+
+    /**
+     * Return all excising connections
+     *
+     * @return SSH2[]
+     */
+    static function getConnections()
+    {
+        return self::$connections;
     }
 }
