@@ -4618,9 +4618,10 @@ class File_X509
     /**
      * Returns the OID corresponding to a name
      *
-     * What's returned in the associative array is either a name or an OID if no OID to name mapping is available.
-     * The problem with this is that what may be an unmapped OID in one version of phpseclib may not be unmapped
-     * in the next version, so apps that are looking at this OID may not be able to work from version to version.
+     * What's returned in the associative array returned by loadX509() (or load*()) is either a name or an OID if
+     * no OID to name mapping is available. The problem with this is that what may be an unmapped OID in one version
+     * of phpseclib may not be unmapped in the next version, so apps that are looking at this OID may not be able
+     * to work from version to version.
      *
      * This method will return the OID if a name is passed to it and if no mapping is avialable it'll assume that
      * what's being passed to it already is an OID and return that instead. A few examples.
@@ -4634,7 +4635,10 @@ class File_X509
      */
     function getOID($name)
     {
-        $idx = array_search($name, $this->oids);
-        return $idx === false ? $name : $idx;
+        static $reverseMap;
+        if (!isset($reverseMap)) {
+            $reverseMap = array_flip($this->oids);
+        }
+        return isset($reverseMap[$name]) ? $reverseMap[$name] : $name;
     }
 }
