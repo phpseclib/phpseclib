@@ -1,12 +1,12 @@
 <?php
 
 /**
- * FileNotFoundException
+ * BadConfigurationException
  *
  * PHP version 5
  *
  * @category  Exception
- * @package   FileNotFoundException
+ * @package   BadConfigurationException
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -16,11 +16,11 @@
 namespace phpseclib\Exception;
 
 /**
- * FileNotFoundException
+ * BadConfigurationException
  *
- * @package FileNotFoundException
+ * @package BadConfigurationException
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class FileNotFoundException extends \RuntimeException
+class BadConfigurationException extends \RuntimeException
 {
 }
