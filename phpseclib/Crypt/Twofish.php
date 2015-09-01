@@ -53,7 +53,7 @@ class Twofish extends Base
      * The mcrypt specific name of the cipher
      *
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'twofish';
@@ -62,7 +62,7 @@ class Twofish extends Base
      * Optimizing value while CFB-encrypting
      *
      * @see \phpseclib\Crypt\Base::cfb_init_len
-     * @var Integer
+     * @var int
      * @access private
      */
     var $cfb_init_len = 800;
@@ -70,7 +70,7 @@ class Twofish extends Base
     /**
      * Q-Table
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $q0 = array (
@@ -111,7 +111,7 @@ class Twofish extends Base
     /**
      * Q-Table
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $q1 = array (
@@ -152,7 +152,7 @@ class Twofish extends Base
     /**
      * M-Table
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $m0 = array (
@@ -193,7 +193,7 @@ class Twofish extends Base
     /**
      * M-Table
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $m1 = array (
@@ -234,7 +234,7 @@ class Twofish extends Base
     /**
      * M-Table
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $m2 = array (
@@ -275,7 +275,7 @@ class Twofish extends Base
     /**
      * M-Table
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $m3 = array (
@@ -316,7 +316,7 @@ class Twofish extends Base
     /**
      * The Key Schedule Array
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $K = array();
@@ -324,7 +324,7 @@ class Twofish extends Base
     /**
      * The Key depended S-Table 0
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $S0 = array();
@@ -332,7 +332,7 @@ class Twofish extends Base
     /**
      * The Key depended S-Table 1
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $S1 = array();
@@ -340,7 +340,7 @@ class Twofish extends Base
     /**
      * The Key depended S-Table 2
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $S2 = array();
@@ -348,7 +348,7 @@ class Twofish extends Base
     /**
      * The Key depended S-Table 3
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $S3 = array();
@@ -356,7 +356,7 @@ class Twofish extends Base
     /**
      * Holds the last used key
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $kl;
@@ -372,7 +372,7 @@ class Twofish extends Base
      *
      * @access public
      * @see \phpseclib\Crypt\Base::setKey()
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
@@ -504,9 +504,9 @@ class Twofish extends Base
      * _mdsrem function using by the twofish cipher algorithm
      *
      * @access private
-     * @param String $A
-     * @param String $B
-     * @return Array
+     * @param string $A
+     * @param string $B
+     * @return array
      */
     function _mdsrem($A, $B)
     {
@@ -552,8 +552,8 @@ class Twofish extends Base
      * Encrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _encryptBlock($in)
     {
@@ -608,8 +608,8 @@ class Twofish extends Base
      * Decrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _decryptBlock($in)
     {
