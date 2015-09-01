@@ -124,7 +124,7 @@ class Crypt_AES extends Crypt_Rijndael
      * The namespace used by the cipher for its constants.
      *
      * @see Crypt_Base::const_namespace
-     * @var String
+     * @var string
      * @access private
      */
     var $const_namespace = 'AES';
@@ -136,7 +136,7 @@ class Crypt_AES extends Crypt_Rijndael
      *
      * @see Crypt_Rijndael::setBlockLength()
      * @access public
-     * @param Integer $length
+     * @param int $length
      */
     function setBlockLength($length)
     {
@@ -151,7 +151,7 @@ class Crypt_AES extends Crypt_Rijndael
      *
      * @see Crypt_Rijndael:setKeyLength()
      * @access public
-     * @param Integer $length
+     * @param int $length
      */
     function setKeyLength($length)
     {
@@ -173,7 +173,7 @@ class Crypt_AES extends Crypt_Rijndael
      * @see Crypt_Rijndael:setKey()
      * @see setKeyLength()
      * @access public
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {

@@ -108,7 +108,7 @@ class System_SSH_Agent_Identity
     /**
      * Key Blob
      *
-     * @var String
+     * @var string
      * @access private
      * @see System_SSH_Agent_Identity::sign()
      */
@@ -117,7 +117,7 @@ class System_SSH_Agent_Identity
     /**
      * Socket Resource
      *
-     * @var Resource
+     * @var resource
      * @access private
      * @see System_SSH_Agent_Identity::sign()
      */
@@ -126,7 +126,7 @@ class System_SSH_Agent_Identity
     /**
      * Default Constructor.
      *
-     * @param Resource $fsock
+     * @param resource $fsock
      * @return System_SSH_Agent_Identity
      * @access private
      */
@@ -155,7 +155,7 @@ class System_SSH_Agent_Identity
      * Called by System_SSH_Agent::requestIdentities(). The key blob could be extracted from $this->key
      * but this saves a small amount of computation.
      *
-     * @param String $key_blob
+     * @param string $key_blob
      * @access private
      */
     function setPublicKeyBlob($key_blob)
@@ -168,8 +168,8 @@ class System_SSH_Agent_Identity
      *
      * Wrapper for $this->key->getPublicKey()
      *
-     * @param Integer $format optional
-     * @return Mixed
+     * @param int $format optional
+     * @return mixed
      * @access public
      */
     function getPublicKey($format = null)
@@ -183,7 +183,7 @@ class System_SSH_Agent_Identity
      * Doesn't do anything as ssh-agent doesn't let you pick and choose the signature mode. ie.
      * ssh-agent's only supported mode is CRYPT_RSA_SIGNATURE_PKCS1
      *
-     * @param Integer $mode
+     * @param int $mode
      * @access public
      */
     function setSignatureMode($mode)
@@ -195,8 +195,8 @@ class System_SSH_Agent_Identity
      *
      * See "2.6.2 Protocol 2 private key signature request"
      *
-     * @param String $message
-     * @return String
+     * @param string $message
+     * @return string
      * @access public
      */
     function sign($message)
@@ -235,7 +235,7 @@ class System_SSH_Agent
     /**
      * Socket Resource
      *
-     * @var Resource
+     * @var resource
      * @access private
      */
     var $fsock;
@@ -295,7 +295,7 @@ class System_SSH_Agent
      * See "2.5.2 Requesting a list of protocol 2 keys"
      * Returns an array containing zero or more System_SSH_Agent_Identity objects
      *
-     * @return Array
+     * @return array
      * @access public
      */
     function requestIdentities()
@@ -354,7 +354,7 @@ class System_SSH_Agent
      * be requested when a channel is opened
      *
      * @param Net_SSH2 $ssh
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function startSSHForwarding($ssh)
@@ -368,7 +368,7 @@ class System_SSH_Agent
      * Request agent forwarding of remote server
      *
      * @param Net_SSH2 $ssh
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _request_forwarding($ssh)
@@ -424,7 +424,7 @@ class System_SSH_Agent
     /**
      * Forward data to SSH Agent and return data reply
      *
-     * @param String $data
+     * @param string $data
      * @return data from SSH Agent
      * @access private
      */

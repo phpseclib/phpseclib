@@ -132,7 +132,7 @@ class Crypt_Rijndael extends Crypt_Base
      *
      * @see Crypt_Base::password_key_size
      * @see Crypt_Base::setPassword()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $password_key_size = 16;
@@ -141,7 +141,7 @@ class Crypt_Rijndael extends Crypt_Base
      * The namespace used by the cipher for its constants.
      *
      * @see Crypt_Base::const_namespace
-     * @var String
+     * @var string
      * @access private
      */
     var $const_namespace = 'RIJNDAEL';
@@ -157,7 +157,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @see Crypt_Base::cipher_name_mcrypt
      * @see Crypt_Base::engine
      * @see isValidEngine()
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'rijndael-128';
@@ -167,7 +167,7 @@ class Crypt_Rijndael extends Crypt_Base
      *
      * @see Crypt_Base::password_default_salt
      * @see Crypt_Base::setPassword()
-     * @var String
+     * @var string
      * @access private
      */
     var $password_default_salt = 'phpseclib';
@@ -176,7 +176,7 @@ class Crypt_Rijndael extends Crypt_Base
      * Has the key length explicitly been set or should it be derived from the key, itself?
      *
      * @see setKeyLength()
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $explicit_key_length = false;
@@ -185,7 +185,7 @@ class Crypt_Rijndael extends Crypt_Base
      * The Key Schedule
      *
      * @see _setup()
-     * @var Array
+     * @var array
      * @access private
      */
     var $w;
@@ -194,7 +194,7 @@ class Crypt_Rijndael extends Crypt_Base
      * The Inverse Key Schedule
      *
      * @see _setup()
-     * @var Array
+     * @var array
      * @access private
      */
     var $dw;
@@ -203,7 +203,7 @@ class Crypt_Rijndael extends Crypt_Base
      * The Block Length divided by 32
      *
      * @see setBlockLength()
-     * @var Integer
+     * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4.  Exists in conjunction with $block_size
      *    because the encryption / decryption / key schedule creation requires this number and not $block_size.  We could
@@ -216,7 +216,7 @@ class Crypt_Rijndael extends Crypt_Base
      * The Key Length
      *
      * @see setKeyLength()
-     * @var Integer
+     * @var int
      * @access private
      * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
      *    because the encryption / decryption / key schedule creation requires this number and not $key_size.  We could
@@ -229,7 +229,7 @@ class Crypt_Rijndael extends Crypt_Base
      * The Key Length divided by 32
      *
      * @see setKeyLength()
-     * @var Integer
+     * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4
      */
@@ -238,7 +238,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Number of Rounds
      *
-     * @var Integer
+     * @var int
      * @access private
      * @internal The max value is 14, the min value is 10.
      */
@@ -247,7 +247,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Shift offsets
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $c;
@@ -255,7 +255,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Holds the last used key- and block_size information
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $kl;
@@ -280,7 +280,7 @@ class Crypt_Rijndael extends Crypt_Base
      * If not explictly set, CRYPT_RIJNDAEL_MODE_CBC will be used.
      *
      * @see Crypt_Base::Crypt_Base()
-     * @param Integer $mode
+     * @param int $mode
      * @access public
      */
     function Crypt_Rijndael($mode = CRYPT_RIJNDAEL_MODE_CBC)
@@ -303,7 +303,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @see Crypt_Base:setKey()
      * @see setKeyLength()
      * @access public
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
@@ -347,7 +347,7 @@ class Crypt_Rijndael extends Crypt_Base
      *             This results then in slower encryption.
      *
      * @access public
-     * @param Integer $length
+     * @param int $length
      */
     function setKeyLength($length)
     {
@@ -380,7 +380,7 @@ class Crypt_Rijndael extends Crypt_Base
      * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
      *
      * @access public
-     * @param Integer $length
+     * @param int $length
      */
     function setBlockLength($length)
     {
@@ -402,9 +402,9 @@ class Crypt_Rijndael extends Crypt_Base
      * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
      *
      * @see Crypt_Base::Crypt_Base()
-     * @param Integer $engine
+     * @param int $engine
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function isValidEngine($engine)
     {
@@ -443,8 +443,8 @@ class Crypt_Rijndael extends Crypt_Base
      * Encrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _encryptBlock($in)
     {
@@ -544,8 +544,8 @@ class Crypt_Rijndael extends Crypt_Base
      * Decrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _decryptBlock($in)
     {
@@ -749,7 +749,7 @@ class Crypt_Rijndael extends Crypt_Base
      * Performs S-Box substitutions
      *
      * @access private
-     * @param Integer $word
+     * @param int $word
      */
     function _subWord($word)
     {
@@ -771,7 +771,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @see Crypt_Rijndael:_setupInlineCrypt()
      * @see Crypt_Rijndael:_subWord()
      * @access private
-     * @return Array &$tables
+     * @return array &$tables
      */
     function &_getTables()
     {
@@ -860,7 +860,7 @@ class Crypt_Rijndael extends Crypt_Base
      * @see Crypt_Rijndael:_setupInlineCrypt()
      * @see Crypt_Rijndael:_setupKey()
      * @access private
-     * @return Array &$tables
+     * @return array &$tables
      */
     function &_getInvTables()
     {
