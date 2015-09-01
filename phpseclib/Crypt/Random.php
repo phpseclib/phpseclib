@@ -56,8 +56,7 @@ class Random
         if (version_compare(PHP_VERSION, '7.0.0', '>=')) {
             try {
                 return random_bytes($length);
-            }
-            catch (\Error $e) {
+            } catch (\Error $e) {
                 // If a sufficient source of randomness is unavailable, random_bytes() will emit a warning.
                 // We don't actually need to do anything here. The string() method should just continue
                 // as normal. Note, however, that if we don't have a sufficient source of randomness for
