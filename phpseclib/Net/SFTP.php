@@ -38,6 +38,7 @@
 namespace phpseclib\Net;
 
 use phpseclib\Net\SSH2;
+use phpseclib\Exception\FileNotFoundException;
 
 /**
  * Pure-PHP implementations of SFTP.
@@ -383,6 +384,7 @@ class SFTP extends SSH2
      *
      * @param String $username
      * @param optional String $password
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Boolean
      * @access public
      */
@@ -447,8 +449,7 @@ class SFTP extends SSH2
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_VERSION) {
-            user_error('Expected SSH_FXP_VERSION');
-            return false;
+            throw new \UnexpectedValueException('Expected SSH_FXP_VERSION');
         }
 
         extract(unpack('Nversion', $this->_string_shift($response, 4)));
@@ -587,6 +588,7 @@ class SFTP extends SSH2
      *
      * @see \phpseclib\Net\SFTP::chdir()
      * @param String $path
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Mixed
      * @access private
      */
@@ -611,8 +613,7 @@ class SFTP extends SSH2
                     $this->_logError($response);
                     return false;
                 default:
-                    user_error('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
-                    return false;
+                    throw new \UnexpectedValueException('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
             }
         }
 
@@ -643,6 +644,7 @@ class SFTP extends SSH2
      * Changes the current directory
      *
      * @param String $dir
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Boolean
      * @access public
      */
@@ -687,8 +689,7 @@ class SFTP extends SSH2
                 $this->_logError($response);
                 return false;
             default:
-                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
-                return false;
+                throw new \UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
         }
 
         if (!$this->_close_handle($handle)) {
@@ -790,6 +791,7 @@ class SFTP extends SSH2
      * @param String $dir
      * @param optional Boolean $raw
      * @return Mixed
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @access private
      */
     function _list($dir, $raw = true)
@@ -821,8 +823,7 @@ class SFTP extends SSH2
                 $this->_logError($response);
                 return false;
             default:
-                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
-                return false;
+                throw new \UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
         }
 
         $this->_update_stat_cache($dir, array());
@@ -876,8 +877,7 @@ class SFTP extends SSH2
                     }
                     break 2;
                 default:
-                    user_error('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
-                    return false;
+                    throw new \UnexpectedValueException('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
             }
         }
 
@@ -1230,6 +1230,7 @@ class SFTP extends SSH2
      *
      * @param String $filename
      * @param Integer $type
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Mixed
      * @access private
      */
@@ -1250,8 +1251,7 @@ class SFTP extends SSH2
                 return false;
         }
 
-        user_error('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS');
-        return false;
+        throw new \UnexpectedValueException('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS');
     }
 
     /**
@@ -1277,6 +1277,7 @@ class SFTP extends SSH2
      * @param String $filename
      * @param optional Integer $time
      * @param optional Integer $atime
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Boolean
      * @access public
      */
@@ -1313,8 +1314,7 @@ class SFTP extends SSH2
                 $this->_logError($response);
                 break;
             default:
-                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
-                return false;
+                throw new \UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
         }
 
         return $this->_setstat($filename, $attr, false);
@@ -1367,6 +1367,7 @@ class SFTP extends SSH2
      * @param Integer $mode
      * @param String $filename
      * @param optional Boolean $recursive
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Mixed
      * @access public
      */
@@ -1404,8 +1405,7 @@ class SFTP extends SSH2
                 return false;
         }
 
-        user_error('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS');
-        return false;
+        throw new \UnexpectedValueException('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS');
     }
 
     /**
@@ -1414,6 +1414,7 @@ class SFTP extends SSH2
      * @param String $filename
      * @param String $attr
      * @param Boolean $recursive
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Boolean
      * @access private
      */
@@ -1452,8 +1453,7 @@ class SFTP extends SSH2
         */
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
+            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -1541,6 +1541,7 @@ class SFTP extends SSH2
      * Return the target of a symbolic link
      *
      * @param String $link
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Mixed
      * @access public
      */
@@ -1564,8 +1565,7 @@ class SFTP extends SSH2
                 $this->_logError($response);
                 return false;
             default:
-                user_error('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
-                return false;
+                throw new \UnexpectedValueException('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
         }
 
         extract(unpack('Ncount', $this->_string_shift($response, 4)));
@@ -1585,6 +1585,7 @@ class SFTP extends SSH2
      *
      * @param String $target
      * @param String $link
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Boolean
      * @access public
      */
@@ -1604,8 +1605,7 @@ class SFTP extends SSH2
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
+            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -1657,6 +1657,7 @@ class SFTP extends SSH2
      *
      * @param String $dir
      * @return Boolean
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @access private
      */
     function _mkdir_helper($dir, $attr)
@@ -1667,8 +1668,7 @@ class SFTP extends SSH2
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
+            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -1684,6 +1684,7 @@ class SFTP extends SSH2
      * Removes a directory.
      *
      * @param String $dir
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Boolean
      * @access public
      */
@@ -1704,8 +1705,7 @@ class SFTP extends SSH2
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
+            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -1765,6 +1765,9 @@ class SFTP extends SSH2
      * @param optional Integer $start
      * @param optional Integer $local_start
      * @param optional callable|null $progressCallback
+     * @throws \UnexpectedValueException on receipt of unexpected packets
+     * @throws \BadFunctionCallException if you're uploading via a callback and the callback function is invalid
+     * @throws \phpseclib\Exception\FileNotFoundException if you're uploading via a file and the file doesn't exist
      * @return Boolean
      * @access public
      * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - \phpseclib\Net\SFTP::setMode().
@@ -1812,8 +1815,7 @@ class SFTP extends SSH2
                 $this->_logError($response);
                 return false;
             default:
-                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
-                return false;
+                throw new \UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
         }
 
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
@@ -1821,7 +1823,7 @@ class SFTP extends SSH2
         switch (true) {
             case $mode & self::SOURCE_CALLBACK:
                 if (!is_callable($data)) {
-                    user_error("\$data should be is_callable() if you specify SOURCE_CALLBACK flag");
+                    throw new \BadFunctionCallException("\$data should be is_callable() if you specify SOURCE_CALLBACK flag");
                 }
                 $dataCallback = $data;
                 // do nothing
@@ -1832,8 +1834,7 @@ class SFTP extends SSH2
                 break;
             case $mode & self::SOURCE_LOCAL_FILE:
                 if (!is_file($data)) {
-                    user_error("$data is not a valid file");
-                    return false;
+                    throw new FileNotFoundException("$data is not a valid file");
                 }
                 $fp = @fopen($data, 'rb');
                 if (!$fp) {
@@ -1921,6 +1922,7 @@ class SFTP extends SSH2
      *
      * @param Integer $i
      * @return Boolean
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @access private
      */
     function _read_put_responses($i)
@@ -1928,8 +1930,7 @@ class SFTP extends SSH2
         while ($i--) {
             $response = $this->_get_sftp_packet();
             if ($this->packet_type != NET_SFTP_STATUS) {
-                user_error('Expected SSH_FXP_STATUS');
-                return false;
+                throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
             }
 
             extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -1947,6 +1948,7 @@ class SFTP extends SSH2
      *
      * @param String $handle
      * @return Boolean
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @access private
      */
     function _close_handle($handle)
@@ -1959,8 +1961,7 @@ class SFTP extends SSH2
         //  -- http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.1.3
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
+            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -1985,6 +1986,7 @@ class SFTP extends SSH2
      * @param optional String $local_file
      * @param optional Integer $offset
      * @param optional Integer $length
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Mixed
      * @access public
      */
@@ -2013,8 +2015,7 @@ class SFTP extends SSH2
                 $this->_logError($response);
                 return false;
             default:
-                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
-                return false;
+                throw new \UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
         }
 
         if (is_resource($local_file)) {
@@ -2062,11 +2063,10 @@ class SFTP extends SSH2
                     $this->_logError($response);
                     break 2;
                 default:
-                    user_error('Expected SSH_FXP_DATA or SSH_FXP_STATUS');
                     if ($fclose_check) {
                         fclose($fp);
                     }
-                    return false;
+                    throw new \UnexpectedValueException('Expected SSH_FXP_DATA or SSH_FXP_STATUS');
             }
 
             if ($length > 0 && $length <= $offset - $start) {
@@ -2100,6 +2100,7 @@ class SFTP extends SSH2
      * @param String $path
      * @param Boolean $recursive
      * @return Boolean
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @access public
      */
     function delete($path, $recursive = true)
@@ -2120,8 +2121,7 @@ class SFTP extends SSH2
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
+            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
         }
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
@@ -2446,6 +2446,7 @@ class SFTP extends SSH2
      * @param String $oldname
      * @param String $newname
      * @return Boolean
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      * @access public
      */
     function rename($oldname, $newname)
@@ -2468,8 +2469,7 @@ class SFTP extends SSH2
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS');
-            return false;
+            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
         }
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
