@@ -537,9 +537,9 @@ class RSA
      *                  Will need to be passed back to \phpseclib\Crypt\RSA::createKey() as the third parameter for further processing.
      *
      * @access public
-     * @param optional Integer $bits
-     * @param optional Integer $timeout
-     * @param optional array $p
+     * @param Integer $bits
+     * @param Integer $timeout
+     * @param array $p
      */
     function createKey($bits = 1024, $timeout = false, $partial = array())
     {
@@ -1942,7 +1942,7 @@ class RSA
      * Inspired by array_shift
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @return String
      * @access private
      */

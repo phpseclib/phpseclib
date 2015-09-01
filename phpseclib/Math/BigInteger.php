@@ -251,8 +251,8 @@ class BigInteger
      * ?>
      * </code>
      *
-     * @param optional $x base-10 number or base-$base number if $base set.
-     * @param optional integer $base
+     * @param $x base-10 number or base-$base number if $base set.
+     * @param integer $base
      * @return \phpseclib\Math\BigInteger
      * @access public
      */
@@ -3076,7 +3076,7 @@ class BigInteger
      * $max->random($min)
      *
      * @param \phpseclib\Math\BigInteger $arg1
-     * @param optional \phpseclib\Math\BigInteger $arg2
+     * @param \phpseclib\Math\BigInteger $arg2
      * @return \phpseclib\Math\BigInteger
      * @access public
      * @internal The API for creating random numbers used to be $a->random($min, $max), where $a was a BigInteger object.
@@ -3157,8 +3157,8 @@ class BigInteger
      * give up and return false.
      *
      * @param \phpseclib\Math\BigInteger $arg1
-     * @param optional \phpseclib\Math\BigInteger $arg2
-     * @param optional Integer $timeout
+     * @param \phpseclib\Math\BigInteger $arg2
+     * @param Integer $timeout
      * @return Mixed
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
@@ -3286,7 +3286,7 @@ class BigInteger
      * $t parameter is distributability.  BigInteger::randomPrime() can be distributed across multiple pageloads
      * on a website instead of just one.
      *
-     * @param optional \phpseclib\Math\BigInteger $t
+     * @param \phpseclib\Math\BigInteger $t
      * @return Boolean
      * @access public
      * @internal Uses the

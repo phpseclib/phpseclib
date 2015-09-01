@@ -103,8 +103,8 @@ class SCP
      * Connects to an SSH server
      *
      * @param String $host
-     * @param optional Integer $port
-     * @param optional Integer $timeout
+     * @param Integer $port
+     * @param Integer $timeout
      * @return \phpseclib\Net\SCP
      * @access public
      */
@@ -138,8 +138,8 @@ class SCP
      *
      * @param String $remote_file
      * @param String $data
-     * @param optional Integer $mode
-     * @param optional Callable $callback
+     * @param Integer $mode
+     * @param Callable $callback
      * @return Boolean
      * @access public
      */
@@ -213,7 +213,7 @@ class SCP
      * operation
      *
      * @param String $remote_file
-     * @param optional String $local_file
+     * @param String $local_file
      * @return Mixed
      * @access public
      */

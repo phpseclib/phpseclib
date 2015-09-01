@@ -1196,7 +1196,7 @@ class ASN1
      * Inspired by array_shift
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @return String
      * @access private
      */
@@ -1214,8 +1214,8 @@ class ASN1
      * No real conversion table is used.
      *
      * @param String $in
-     * @param optional Integer $from
-     * @param optional Integer $to
+     * @param Integer $from
+     * @param Integer $to
      * @return String
      * @access public
      */

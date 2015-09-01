@@ -154,7 +154,7 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\DES::__construct()
      * @see \phpseclib\Crypt\Base::__construct()
-     * @param optional Integer $mode
+     * @param Integer $mode
      * @access public
      */
     function __construct($mode = Base::MODE_CBC)

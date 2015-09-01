@@ -133,7 +133,7 @@ class Hash
     /**
      * Default Constructor.
      *
-     * @param optional String $hash
+     * @param String $hash
      * @return \phpseclib\Crypt\Hash
      * @access public
      */
@@ -161,7 +161,7 @@ class Hash
      * Keys can be of any length.
      *
      * @access public
-     * @param optional String $key
+     * @param String $key
      */
     function setKey($key = false)
     {
@@ -812,7 +812,7 @@ class Hash
      * Inspired by array_shift
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @return String
      * @access private
      */
