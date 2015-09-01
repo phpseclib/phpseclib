@@ -491,7 +491,7 @@ class Crypt_Base
      *
      * If not explicitly set, CRYPT_MODE_CBC will be used.
      *
-     * @param optional Integer $mode
+     * @param Integer $mode
      * @access public
      */
     function Crypt_Base($mode = CRYPT_MODE_CBC)
@@ -574,7 +574,7 @@ class Crypt_Base
      *
      * @see Crypt/Hash.php
      * @param String $password
-     * @param optional String $method
+     * @param String $method
      * @return Boolean
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
@@ -1882,7 +1882,7 @@ class Crypt_Base
      * Inspired by array_shift
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @access private
      * @return String
      */
@@ -1899,7 +1899,7 @@ class Crypt_Base
      * Inspired by array_pop
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @access private
      * @return String
      */

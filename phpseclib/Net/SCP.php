@@ -117,8 +117,8 @@ class Net_SCP
      * Connects to an SSH server
      *
      * @param String $host
-     * @param optional Integer $port
-     * @param optional Integer $timeout
+     * @param Integer $port
+     * @param Integer $timeout
      * @return Net_SCP
      * @access public
      */
@@ -159,8 +159,8 @@ class Net_SCP
      *
      * @param String $remote_file
      * @param String $data
-     * @param optional Integer $mode
-     * @param optional Callable $callback
+     * @param Integer $mode
+     * @param Callable $callback
      * @return Boolean
      * @access public
      */
@@ -234,7 +234,7 @@ class Net_SCP
      * operation
      *
      * @param String $remote_file
-     * @param optional String $local_file
+     * @param String $local_file
      * @return Mixed
      * @access public
      */

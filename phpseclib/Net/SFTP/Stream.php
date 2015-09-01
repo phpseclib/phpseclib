@@ -128,7 +128,7 @@ class Net_SFTP_Stream
     /**
      * Registers this class as a URL wrapper.
      *
-     * @param optional String $protocol The wrapper name to be registered.
+     * @param String $protocol The wrapper name to be registered.
      * @return Boolean True on success, false otherwise.
      * @access public
      */

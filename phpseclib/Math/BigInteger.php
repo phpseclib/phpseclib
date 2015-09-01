@@ -246,8 +246,8 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @param optional $x base-10 number or base-$base number if $base set.
-     * @param optional integer $base
+     * @param $x base-10 number or base-$base number if $base set.
+     * @param integer $base
      * @return Math_BigInteger
      * @access public
      */
@@ -3113,7 +3113,7 @@ class Math_BigInteger
      * $max->random($min)
      *
      * @param Math_BigInteger $arg1
-     * @param optional Math_BigInteger $arg2
+     * @param Math_BigInteger $arg2
      * @return Math_BigInteger
      * @access public
      * @internal The API for creating random numbers used to be $a->random($min, $max), where $a was a Math_BigInteger object.
@@ -3194,8 +3194,8 @@ class Math_BigInteger
      * give up and return false.
      *
      * @param Math_BigInteger $arg1
-     * @param optional Math_BigInteger $arg2
-     * @param optional Integer $timeout
+     * @param Math_BigInteger $arg2
+     * @param Integer $timeout
      * @return Mixed
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
@@ -3323,7 +3323,7 @@ class Math_BigInteger
      * $t parameter is distributability.  Math_BigInteger::randomPrime() can be distributed across multiple pageloads
      * on a website instead of just one.
      *
-     * @param optional Math_BigInteger $t
+     * @param Math_BigInteger $t
      * @return Boolean
      * @access public
      * @internal Uses the

@@ -195,7 +195,7 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * @see Crypt_DES::Crypt_DES()
      * @see Crypt_Base::Crypt_Base()
-     * @param optional Integer $mode
+     * @param Integer $mode
      * @access public
      */
     function Crypt_TripleDES($mode = CRYPT_MODE_CBC)

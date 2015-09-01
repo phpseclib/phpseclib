@@ -571,9 +571,9 @@ class Crypt_RSA
      *                  Will need to be passed back to Crypt_RSA::createKey() as the third parameter for further processing.
      *
      * @access public
-     * @param optional Integer $bits
-     * @param optional Integer $timeout
-     * @param optional Math_BigInteger $p
+     * @param Integer $bits
+     * @param Integer $timeout
+     * @param Math_BigInteger $p
      */
     function createKey($bits = 1024, $timeout = false, $partial = array())
     {
@@ -2009,7 +2009,7 @@ class Crypt_RSA
      * Inspired by array_shift
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @return String
      * @access private
      */

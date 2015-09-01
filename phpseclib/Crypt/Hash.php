@@ -147,7 +147,7 @@ class Crypt_Hash
     /**
      * Default Constructor.
      *
-     * @param optional String $hash
+     * @param String $hash
      * @return Crypt_Hash
      * @access public
      */
@@ -175,7 +175,7 @@ class Crypt_Hash
      * Keys can be of any length.
      *
      * @access public
-     * @param optional String $key
+     * @param String $key
      */
     function setKey($key = false)
     {
@@ -830,7 +830,7 @@ class Crypt_Hash
      * Inspired by array_shift
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @return String
      * @access private
      */

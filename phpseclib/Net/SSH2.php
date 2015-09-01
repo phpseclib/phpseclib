@@ -877,8 +877,8 @@ class Net_SSH2
      * $host can either be a string, representing the host, or a stream resource.
      *
      * @param Mixed $host
-     * @param optional Integer $port
-     * @param optional Integer $timeout
+     * @param Integer $port
+     * @param Integer $timeout
      * @see Net_SSH2::login()
      * @return Net_SSH2
      * @access public
@@ -1986,7 +1986,7 @@ class Net_SSH2
      * Login Helper
      *
      * @param String $username
-     * @param optional String $password
+     * @param String $password
      * @return Boolean
      * @access private
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
@@ -2462,7 +2462,7 @@ class Net_SSH2
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
      * @param String $command
-     * @param optional Callback $callback
+     * @param Callback $callback
      * @return String
      * @access public
      */
@@ -3478,7 +3478,7 @@ class Net_SSH2
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
      * @param String $data
-     * @param optional String $logged
+     * @param String $logged
      * @see Net_SSH2::_get_binary_packet()
      * @return Boolean
      * @access private
@@ -3717,7 +3717,7 @@ class Net_SSH2
      * Inspired by array_shift
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @return String
      * @access private
      */

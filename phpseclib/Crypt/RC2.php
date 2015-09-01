@@ -344,7 +344,7 @@ class Crypt_RC2 extends Crypt_Base
      * If not explicitly set, CRYPT_RC2_MODE_CBC will be used.
      *
      * @see Crypt_Base::Crypt_Base()
-     * @param optional Integer $mode
+     * @param Integer $mode
      * @access public
      */
     function Crypt_RC2($mode = CRYPT_RC2_MODE_CBC)

@@ -280,7 +280,7 @@ class Crypt_Rijndael extends Crypt_Base
      * If not explictly set, CRYPT_RIJNDAEL_MODE_CBC will be used.
      *
      * @see Crypt_Base::Crypt_Base()
-     * @param optional Integer $mode
+     * @param Integer $mode
      * @access public
      */
     function Crypt_Rijndael($mode = CRYPT_RIJNDAEL_MODE_CBC)
