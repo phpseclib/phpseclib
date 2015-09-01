@@ -9,7 +9,7 @@ class Unit_Math_BigInteger_InternalOpenSSLTest extends Unit_Math_BigInteger_Test
 {
     public static function setUpBeforeClass()
     {
-        if (!function_exists('openssl_public_encrypt')) {
+        if (!extension_loaded('openssl')) {
             self::markTestSkipped('openssl_public_encrypt() function is not available.');
         }
 
