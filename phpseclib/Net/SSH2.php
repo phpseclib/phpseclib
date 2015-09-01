@@ -1431,13 +1431,11 @@ class SSH2
 
             $response = $this->_get_binary_packet();
             if ($response === false) {
-                user_error('Connection closed by server');
-                return false;
+                throw new \RuntimeException('Connection closed by server');
             }
             extract(unpack('Ctype', $this->_string_shift($response, 1)));
             if ($type != NET_SSH2_MSG_KEXDH_GEX_GROUP) {
-                user_error('Expected SSH_MSG_KEX_DH_GEX_GROUP');
-                return false;
+                throw new \UnexpectedValueException('Expected SSH_MSG_KEX_DH_GEX_GROUP');
             }
 
             extract(unpack('NprimeLength', $this->_string_shift($response, 4)));
@@ -1963,8 +1961,7 @@ class SSH2
 
             $response = $this->_get_binary_packet();
             if ($response === false) {
-                user_error('Connection closed by server');
-                return false;
+                throw new \RuntimeException('Connection closed by server');
             }
 
             extract(unpack('Ctype', $this->_string_shift($response, 1)));
@@ -2569,8 +2566,7 @@ class SSH2
         $this->is_timeout = false;
 
         if (!($this->bitmap & self::MASK_LOGIN)) {
-            user_error('Operation disallowed prior to login()');
-            return false;
+            throw new \RuntimeException('Operation disallowed prior to login()');
         }
 
         if (!($this->bitmap & self::MASK_SHELL) && !$this->_initShell()) {
@@ -2778,8 +2774,7 @@ class SSH2
             $raw = $this->decrypt->decrypt($raw);
         }
         if ($raw === false) {
-            user_error('Unable to decrypt content');
-            return false;
+            throw new \RuntimeException('Unable to decrypt content');
         }
 
         extract(unpack('Npacket_length/Cpadding_length', $this->_string_shift($raw, 5)));
@@ -3065,7 +3060,6 @@ class SSH2
             $response = $this->_get_binary_packet();
             if ($response === false) {
                 throw new \RuntimeException('Connection closed by server');
-                return false;
             }
             if ($client_channel == -1 && $response === true) {
                 return true;
@@ -3255,9 +3249,8 @@ class SSH2
     function _send_binary_packet($data, $logged = null)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
-            user_error('Connection closed prematurely');
             $this->bitmap = 0;
-            return false;
+            throw new \RuntimeException('Connection closed prematurely');
         }
 
         //if ($this->compress) {
