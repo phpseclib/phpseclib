@@ -461,7 +461,7 @@ abstract class Base
      *
      * If not explicitly set, self::MODE_CBC will be used.
      *
-     * @param optional Integer $mode
+     * @param Integer $mode
      * @access public
      */
     function __construct($mode = self::MODE_CBC)
@@ -544,7 +544,7 @@ abstract class Base
      *
      * @see Crypt/Hash.php
      * @param String $password
-     * @param optional String $method
+     * @param String $method
      * @throws \LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
      * @return Boolean
      * @access public
@@ -1841,7 +1841,7 @@ abstract class Base
      * Inspired by array_shift
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @access private
      * @return String
      */
@@ -1858,7 +1858,7 @@ abstract class Base
      * Inspired by array_pop
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @access private
      * @return String
      */

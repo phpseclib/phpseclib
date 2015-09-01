@@ -873,8 +873,8 @@ class SSH2
      * $host can either be a string, representing the host, or a stream resource.
      *
      * @param Mixed $host
-     * @param optional Integer $port
-     * @param optional Integer $timeout
+     * @param Integer $port
+     * @param Integer $timeout
      * @see \phpseclib\Net\SSH2::login()
      * @return \phpseclib\Net\SSH2
      * @access public
@@ -1886,7 +1886,7 @@ class SSH2
      * Login Helper
      *
      * @param String $username
-     * @param optional String $password
+     * @param String $password
      * @return Boolean
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @throws \RuntimeException on other errors
@@ -2355,7 +2355,7 @@ class SSH2
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
      * @param String $command
-     * @param optional Callback $callback
+     * @param Callback $callback
      * @return String
      * @throws \RuntimeException on connection error
      * @access public
@@ -3364,7 +3364,7 @@ class SSH2
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
      * @param String $data
-     * @param optional String $logged
+     * @param String $logged
      * @see \phpseclib\Net\SSH2::_get_binary_packet()
      * @return Boolean
      * @access private
@@ -3602,7 +3602,7 @@ class SSH2
      * Inspired by array_shift
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @return String
      * @access private
      */

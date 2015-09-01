@@ -209,7 +209,7 @@ class Rijndael extends Base
      * If not explictly set, \phpseclib\Crypt\Base::MODE_CBC will be used.
      *
      * @see \phpseclib\Crypt\Base::Crypt_Base()
-     * @param optional Integer $mode
+     * @param Integer $mode
      * @access public
 
     /**

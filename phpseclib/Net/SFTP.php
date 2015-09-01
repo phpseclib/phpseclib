@@ -245,8 +245,8 @@ class SFTP extends SSH2
      * Connects to an SFTP server
      *
      * @param String $host
-     * @param optional Integer $port
-     * @param optional Integer $timeout
+     * @param Integer $port
+     * @param Integer $timeout
      * @return \phpseclib\Net\SFTP
      * @access public
      */
@@ -383,7 +383,7 @@ class SFTP extends SSH2
      * Login
      *
      * @param String $username
-     * @param optional String $password
+     * @param String $password
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Boolean
      * @access public
@@ -584,7 +584,7 @@ class SFTP extends SSH2
      * Logs errors
      *
      * @param String $response
-     * @param optional Integer $status
+     * @param Integer $status
      * @access public
      */
     function _logError($response, $status = -1)
@@ -728,8 +728,8 @@ class SFTP extends SSH2
     /**
      * Returns a list of files in the given directory
      *
-     * @param optional String $dir
-     * @param optional Boolean $recursive
+     * @param String $dir
+     * @param Boolean $recursive
      * @return Mixed
      * @access public
      */
@@ -777,8 +777,8 @@ class SFTP extends SSH2
     /**
      * Returns a detailed list of files in the given directory
      *
-     * @param optional String $dir
-     * @param optional Boolean $recursive
+     * @param String $dir
+     * @param Boolean $recursive
      * @return Mixed
      * @access public
      */
@@ -812,7 +812,7 @@ class SFTP extends SSH2
      * Reads a list, be it detailed or not, of files in the given directory
      *
      * @param String $dir
-     * @param optional Boolean $raw
+     * @param Boolean $raw
      * @return Mixed
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @access private
@@ -1304,8 +1304,8 @@ class SFTP extends SSH2
      * If the file does not exist, it will be created.
      *
      * @param String $filename
-     * @param optional Integer $time
-     * @param optional Integer $atime
+     * @param Integer $time
+     * @param Integer $atime
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Boolean
      * @access public
@@ -1356,7 +1356,7 @@ class SFTP extends SSH2
      *
      * @param String $filename
      * @param Integer $uid
-     * @param optional Boolean $recursive
+     * @param Boolean $recursive
      * @return Boolean
      * @access public
      */
@@ -1376,7 +1376,7 @@ class SFTP extends SSH2
      *
      * @param String $filename
      * @param Integer $gid
-     * @param optional Boolean $recursive
+     * @param Boolean $recursive
      * @return Boolean
      * @access public
      */
@@ -1395,7 +1395,7 @@ class SFTP extends SSH2
      *
      * @param Integer $mode
      * @param String $filename
-     * @param optional Boolean $recursive
+     * @param Boolean $recursive
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Mixed
      * @access public
@@ -1790,10 +1790,10 @@ class SFTP extends SSH2
      *
      * @param String $remote_file
      * @param String|resource $data
-     * @param optional Integer $mode
-     * @param optional Integer $start
-     * @param optional Integer $local_start
-     * @param optional callable|null $progressCallback
+     * @param Integer $mode
+     * @param Integer $start
+     * @param Integer $local_start
+     * @param callable|null $progressCallback
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @throws \BadFunctionCallException if you're uploading via a callback and the callback function is invalid
      * @throws \phpseclib\Exception\FileNotFoundException if you're uploading via a file and the file doesn't exist
@@ -2012,9 +2012,9 @@ class SFTP extends SSH2
      * $offset and $length can be used to download files in chunks.
      *
      * @param String $remote_file
-     * @param optional String $local_file
-     * @param optional Integer $offset
-     * @param optional Integer $length
+     * @param String $local_file
+     * @param Integer $offset
+     * @param Integer $length
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return Mixed
      * @access public

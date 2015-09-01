@@ -498,9 +498,9 @@ class SSH1
      * Connects to an SSHv1 server
      *
      * @param String $host
-     * @param optional Integer $port
-     * @param optional Integer $timeout
-     * @param optional Integer $cipher
+     * @param Integer $port
+     * @param Integer $timeout
+     * @param Integer $cipher
      * @return \phpseclib\Net\SSH1
      * @access public
      */
@@ -695,7 +695,7 @@ class SSH1
      * Login
      *
      * @param String $username
-     * @param optional String $password
+     * @param String $password
      * @return Boolean
      * @access public
      */
@@ -1285,7 +1285,7 @@ class SSH1
      * Inspired by array_shift
      *
      * @param String $string
-     * @param optional Integer $index
+     * @param Integer $index
      * @return String
      * @access private
      */
@@ -1451,7 +1451,7 @@ class SSH1
      * Returns, by default, the base-10 representation.  If $raw_output is set to true, returns, instead,
      * the raw bytes.  This behavior is similar to PHP's md5() function.
      *
-     * @param optional Boolean $raw_output
+     * @param Boolean $raw_output
      * @return String
      * @access public
      */
@@ -1466,7 +1466,7 @@ class SSH1
      * Returns, by default, the base-10 representation.  If $raw_output is set to true, returns, instead,
      * the raw bytes.  This behavior is similar to PHP's md5() function.
      *
-     * @param optional Boolean $raw_output
+     * @param Boolean $raw_output
      * @return String
      * @access public
      */
@@ -1481,7 +1481,7 @@ class SSH1
      * Returns, by default, the base-10 representation.  If $raw_output is set to true, returns, instead,
      * the raw bytes.  This behavior is similar to PHP's md5() function.
      *
-     * @param optional Boolean $raw_output
+     * @param Boolean $raw_output
      * @return String
      * @access public
      */
@@ -1496,7 +1496,7 @@ class SSH1
      * Returns, by default, the base-10 representation.  If $raw_output is set to true, returns, instead,
      * the raw bytes.  This behavior is similar to PHP's md5() function.
      *
-     * @param optional Boolean $raw_output
+     * @param Boolean $raw_output
      * @return String
      * @access public
      */
@@ -1512,7 +1512,7 @@ class SSH1
      * is set to true, returns, instead, an array of constants.  ie. instead of array('Triple-DES in CBC mode'), you'll
      * get array(self::CIPHER_3DES).
      *
-     * @param optional Boolean $raw_output
+     * @param Boolean $raw_output
      * @return Array
      * @access public
      */
@@ -1528,7 +1528,7 @@ class SSH1
      * is set to true, returns, instead, an array of constants.  ie. instead of array('password authentication'), you'll
      * get array(self::AUTH_PASSWORD).
      *
-     * @param optional Boolean $raw_output
+     * @param Boolean $raw_output
      * @return Array
      * @access public
      */
