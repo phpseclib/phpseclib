@@ -53,6 +53,20 @@ class Random
      */
     public static function string($length)
     {
+        if (version_compare(PHP_VERSION, '7.0.0', '>=')) {
+            try {
+                $string = random_bytes($length);
+                return $string;
+            }
+            catch (\EngineException $e) {
+                // If a sufficient source of randomness is unavailable, random_bytes() will emit a warning.
+                // We don't actually need to do anything here. The string() method should just continue
+                // as normal. Note, however, that if we don't have a sufficient source of randomness for
+                // random_bytes(), most of the other calls here will fail too, so we'll end up using
+                // the PHP implementation.
+            }
+        }
+
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             // method 1. prior to PHP 5.3 this would call rand() on windows hence the function_exists('class_alias') call.
             // ie. class_alias is a function that was introduced in PHP 5.3
