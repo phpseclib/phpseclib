@@ -53,7 +53,7 @@ class Blowfish extends Base
      * Block Length of the cipher
      *
      * @see \phpseclib\Crypt\Base::block_size
-     * @var Integer
+     * @var int
      * @access private
      */
     var $block_size = 8;
@@ -63,7 +63,7 @@ class Blowfish extends Base
      *
      * @see \phpseclib\Crypt\Base::password_key_size
      * @see \phpseclib\Crypt\Base::setPassword()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $password_key_size = 56;
@@ -72,7 +72,7 @@ class Blowfish extends Base
      * The mcrypt specific name of the cipher
      *
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'blowfish';
@@ -81,7 +81,7 @@ class Blowfish extends Base
      * Optimizing value while CFB-encrypting
      *
      * @see \phpseclib\Crypt\Base::cfb_init_len
-     * @var Integer
+     * @var int
      * @access private
      */
     var $cfb_init_len = 500;
@@ -277,7 +277,7 @@ class Blowfish extends Base
     /**
      * Holds the last used key
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $kl;
@@ -295,7 +295,7 @@ class Blowfish extends Base
      *
      * @access public
      * @see \phpseclib\Crypt\Base::setKey()
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
@@ -316,9 +316,9 @@ class Blowfish extends Base
      * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
      *
      * @see \phpseclib\Crypt\Base::isValidEngine()
-     * @param Integer $engine
+     * @param int $engine
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function isValidEngine($engine)
     {
@@ -393,8 +393,8 @@ class Blowfish extends Base
      * Encrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _encryptBlock($in)
     {
@@ -429,8 +429,8 @@ class Blowfish extends Base
      * Decrypts a block
      *
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _decryptBlock($in)
     {
