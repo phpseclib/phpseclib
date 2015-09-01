@@ -15,6 +15,12 @@ env:
     # the travis/code_coverage_id_rsa RSA private key.
     - secure: "jtQTZKQBnzUlp/jz7NlM6470ZDnLGVAs53sgvIm4tcYqf9TWSXSXjIYvFsrS\nKPR2eyZaAevYysUkIGRFTUXTlG6tC36YngMp9+6FPxASl8mnGXsTbKcm613B\n59vD3242pgIgqhhmgFQ0c8gbvnE8PuF2aS4/hluP3r+AxhWN56E="
 
+# Allow failures on PHP 7.0 for now (until a final release).
+# @TODO: Remove this.
+matrix:
+  allow_failures:
+    - php: 7.0
+
 before_install: true
 
 install:
