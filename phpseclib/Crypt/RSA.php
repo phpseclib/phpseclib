@@ -2747,7 +2747,7 @@ class RSA
         // Length checking
 
         if (strlen($s) != $this->k) {
-            throw new \RuntimeSignature('Invalid signature');
+            throw new \RuntimeException('Invalid signature');
         }
 
         // RSA verification
@@ -2755,11 +2755,11 @@ class RSA
         $s = $this->_os2ip($s);
         $m2 = $this->_rsavp1($s);
         if ($m2 === false) {
-            throw new \RuntimeSignature('Invalid signature');
+            throw new \RuntimeException('Invalid signature');
         }
         $em = $this->_i2osp($m2, $this->k);
         if ($em === false) {
-            throw new \RuntimeSignature('Invalid signature');
+            throw new \RuntimeException('Invalid signature');
         }
 
         // EMSA-PKCS1-v1_5 encoding
