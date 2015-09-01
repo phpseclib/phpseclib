@@ -1,7 +1,7 @@
 <?php
 
 /**
- * NoSupportedAlgorithmsException 
+ * NoSupportedAlgorithmsException
  *
  * PHP version 5
  *
