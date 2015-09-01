@@ -283,7 +283,7 @@ class SCP
             case self::MODE_SSH1:
                 $data = pack('CNa*', NET_SSH1_CMSG_STDIN_DATA, strlen($data), $data);
                 $this->ssh->_send_binary_packet($data);
-         }
+        }
     }
 
     /**
@@ -319,7 +319,7 @@ class SCP
                             throw new \UnexpectedValueException('Unknown packet received');
                     }
                 }
-         }
+        }
     }
 
     /**
@@ -335,6 +335,6 @@ class SCP
                 break;
             case self::MODE_SSH1:
                 $this->ssh->disconnect();
-         }
+        }
     }
 }

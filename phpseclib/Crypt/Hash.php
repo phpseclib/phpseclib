@@ -139,7 +139,7 @@ class Hash
      */
     function __construct($hash = 'sha1')
     {
-        if ( !defined('CRYPT_HASH_MODE') ) {
+        if (!defined('CRYPT_HASH_MODE')) {
             switch (true) {
                 case extension_loaded('hash'):
                     define('CRYPT_HASH_MODE', self::MODE_HASH);
@@ -228,7 +228,7 @@ class Hash
                 $mode = CRYPT_HASH_MODE;
         }
 
-        switch ( $mode ) {
+        switch ($mode) {
             case self::MODE_MHASH:
                 switch ($hash) {
                     case 'md5':
@@ -262,26 +262,26 @@ class Hash
 
         switch ($hash) {
             case 'md2':
-                 $this->b = 16;
-                 $this->hash = array($this, '_md2');
-                 break;
+                $this->b = 16;
+                $this->hash = array($this, '_md2');
+                break;
             case 'md5':
-                 $this->b = 64;
-                 $this->hash = array($this, '_md5');
-                 break;
+                $this->b = 64;
+                $this->hash = array($this, '_md5');
+                break;
             case 'sha256':
-                 $this->b = 64;
-                 $this->hash = array($this, '_sha256');
-                 break;
+                $this->b = 64;
+                $this->hash = array($this, '_sha256');
+                break;
             case 'sha384':
             case 'sha512':
-                 $this->b = 128;
-                 $this->hash = array($this, '_sha512');
-                 break;
+                $this->b = 128;
+                $this->hash = array($this, '_sha512');
+                break;
             case 'sha1':
             default:
-                 $this->b = 64;
-                 $this->hash = array($this, '_sha1');
+                $this->b = 64;
+                $this->hash = array($this, '_sha1');
         }
 
         $this->ipad = str_repeat(chr(0x36), $this->b);
@@ -300,7 +300,7 @@ class Hash
         $mode = is_array($this->hash) ? self::MODE_INTERNAL : CRYPT_HASH_MODE;
 
         if (!empty($this->key) || is_string($this->key)) {
-            switch ( $mode ) {
+            switch ($mode) {
                 case self::MODE_MHASH:
                     $output = mhash($this->hash, $text, $this->key);
                     break;
@@ -323,7 +323,7 @@ class Hash
                     $output = call_user_func($this->hash, $output); // step 7
             }
         } else {
-            switch ( $mode ) {
+            switch ($mode) {
                 case self::MODE_MHASH:
                     $output = mhash($this->hash, $text);
                     break;
@@ -497,12 +497,14 @@ class Hash
 
             // Extend the sixteen 32-bit words into sixty-four 32-bit words
             for ($i = 16; $i < 64; $i++) {
+                // @codingStandardsIgnoreStart
                 $s0 = $this->_rightRotate($w[$i - 15],  7) ^
                       $this->_rightRotate($w[$i - 15], 18) ^
                       $this->_rightShift( $w[$i - 15],  3);
                 $s1 = $this->_rightRotate($w[$i - 2], 17) ^
                       $this->_rightRotate($w[$i - 2], 19) ^
                       $this->_rightShift( $w[$i - 2], 10);
+                // @codingStandardsIgnoreEnd
                 $w[$i] = $this->_add($w[$i - 16], $s0, $w[$i - 7], $s1);
 
             }

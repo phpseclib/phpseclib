@@ -53,7 +53,7 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
      *
      * @return null
      */
-    static protected function ensureConstant($constant, $expected)
+    protected static function ensureConstant($constant, $expected)
     {
         if (defined($constant)) {
             $value = constant($constant);
@@ -82,15 +82,15 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string $filename
+     * @param string $filename Filename relative to library directory.
      *
      * @return null
      */
-    static protected function reRequireFile($filename)
+    protected static function reRequireFile($filename)
     {
         if (function_exists('runkit_import')) {
             $result = runkit_import(
-                $filename,
+                sprintf('%s/../phpseclib/%s', __DIR__, $filename),
                 RUNKIT_IMPORT_FUNCTIONS |
                 RUNKIT_IMPORT_CLASS_METHODS |
                 RUNKIT_IMPORT_OVERRIDE

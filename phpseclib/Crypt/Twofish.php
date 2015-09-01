@@ -533,7 +533,9 @@ class Twofish extends Base
             $u^= 0x7fffffff & ($t >> 1);
 
             // Add the modular polynomial on underflow.
-            if ($t & 0x01) $u^= 0xa6 ;
+            if ($t & 0x01) {
+                $u^= 0xa6 ;
+            }
 
             // Remove t * (a + 1/a) * (x^3 + x).
             $B^= ($u << 24) | ($u << 8);

@@ -7,12 +7,9 @@
 
 abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 {
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
-        include_once 'Math/BigInteger.php';
-
         parent::setUpBeforeClass();
-
         self::reRequireFile('Math/BigInteger.php');
     }
 
@@ -63,7 +60,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
     public function testAdd()
     {
         $x = $this->getInstance('18446744073709551615');
-        $y = $this->getInstance(        '100000000000');
+        $y = $this->getInstance('100000000000');
 
         $a = $x->add($y);
         $b = $y->add($x);
@@ -78,7 +75,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
     public function testSubtract()
     {
         $x = $this->getInstance('18446744073709551618');
-        $y = $this->getInstance(       '4000000000000');
+        $y = $this->getInstance('4000000000000');
         $this->assertSame('18446740073709551618', (string) $x->subtract($y));
     }
 

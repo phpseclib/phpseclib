@@ -18,7 +18,7 @@ class Unit_Crypt_TwofishTest extends PhpseclibTestCase
             Base::ENGINE_OPENSSL => 'OpenSSL',
         );
 
-        foreach ($engines as $engine=>$name) {
+        foreach ($engines as $engine => $name) {
             $tf = new Twofish();
             $tf->disablePadding();
 

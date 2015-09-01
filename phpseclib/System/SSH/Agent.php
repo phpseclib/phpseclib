@@ -226,8 +226,14 @@ class Agent
             return false;
         }
 
-        $packet = pack('CNNa*C',
-            NET_SSH2_MSG_CHANNEL_REQUEST, $ssh->server_channels[$request_channel], strlen('auth-agent-req@openssh.com'), 'auth-agent-req@openssh.com', 1);
+        $packet = pack(
+            'CNNa*C',
+            NET_SSH2_MSG_CHANNEL_REQUEST,
+            $ssh->server_channels[$request_channel],
+            strlen('auth-agent-req@openssh.com'),
+            'auth-agent-req@openssh.com',
+            1
+        );
 
         $ssh->channel_status[$request_channel] = NET_SSH2_MSG_CHANNEL_REQUEST;
 

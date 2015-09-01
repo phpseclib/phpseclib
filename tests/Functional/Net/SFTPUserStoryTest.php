@@ -15,7 +15,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     static protected $exampleDataLength;
     static protected $buffer;
 
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
 
@@ -164,7 +164,9 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $r = substr(self::$buffer, 0, $length);
         self::$buffer = substr(self::$buffer, $length);
-        if (strlen($r)) return $r;
+        if (strlen($r)) {
+            return $r;
+        }
         return null;
     }
 
@@ -337,7 +339,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
             if ($sftp->is_file($file)) {
                 $cur_size = $sftp->size($file);
                 $this->assertLessThanOrEqual(
-                    $last_size, $cur_size,
+                    $last_size,
+                    $cur_size,
                     'Failed asserting that nlist() is in descending order'
                 );
                 $last_size = $cur_size;
@@ -388,7 +391,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $stat = $sftp->stat('symlink');
         $lstat = $sftp->lstat('symlink');
         $this->assertNotEquals(
-            $stat, $lstat,
+            $stat,
+            $lstat,
             'Failed asserting that stat and lstat returned different output for a symlink'
         );
 
@@ -421,7 +425,9 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
      */
     public function testReadlink($sftp)
     {
-        $this->assertInternalType('string', $sftp->readlink('symlink'),
+        $this->assertInternalType(
+            'string',
+            $sftp->readlink('symlink'),
             'Failed asserting that a symlink\'s target could be read'
         );
 
@@ -436,12 +442,14 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $stat = $sftp->stat('.');
         $this->assertInternalType(
-            'array', $stat,
+            'array',
+            $stat,
             'Failed asserting that stat on . returns an array'
         );
         $lstat = $sftp->lstat('.');
         $this->assertInternalType(
-            'array', $lstat,
+            'array',
+            $lstat,
             'Failed asserting that lstat on . returns an array'
         );
 
@@ -596,5 +604,52 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
             $sftp->stat(self::$scratchDir),
             'Failed asserting that stat on a deleted directory returns false'
         );
+
+        return $sftp;
+    }
+
+    /**
+     * @depends testDeleteEmptyDir
+     * @group github735
+     */
+    public function testStatVsLstat($sftp)
+    {
+        $this->assertTrue($sftp->mkdir(self::$scratchDir));
+        $this->assertTrue($sftp->chdir(self::$scratchDir));
+        $this->assertTrue($sftp->put('text.txt', 'zzzzz'));
+        $this->assertTrue($sftp->symlink('text.txt', 'link.txt'));
+        $this->assertTrue($sftp->mkdir('subdir'));
+        $this->assertTrue($sftp->symlink('subdir', 'linkdir'));
+
+        $sftp->clearStatCache();
+
+        // pre-populate the stat cache
+        $sftp->nlist();
+
+        $stat = $sftp->stat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_REGULAR);
+        $stat = $sftp->lstat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+
+        $stat = $sftp->stat('linkdir');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_DIRECTORY);
+        $stat = $sftp->lstat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+
+        $sftp->disableStatCache();
+
+        $sftp->nlist();
+
+        $stat = $sftp->stat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_REGULAR);
+        $stat = $sftp->lstat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+
+        $stat = $sftp->stat('linkdir');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_DIRECTORY);
+        $stat = $sftp->lstat('link.txt');
+        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+
+        $sftp->enableStatCache();
     }
 }
