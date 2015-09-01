@@ -2057,14 +2057,14 @@ class RSA
      * @access private
      * @param \phpseclib\Math\BigInteger $x
      * @param Integer $xLen
+     * @throws \OutOfBoundsException if strlen($x) > $xLen
      * @return String
      */
     function _i2osp($x, $xLen)
     {
         $x = $x->toBytes();
         if (strlen($x) > $xLen) {
-            user_error('Integer too large');
-            return false;
+            throw new \OutOfBoundsException('Integer too large');
         }
         return str_pad($x, $xLen, chr(0), STR_PAD_LEFT);
     }
@@ -2219,13 +2219,13 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $m
+     * @throws \OutOfRangeException if $m < 0 or $m > $this->modulus
      * @return \phpseclib\Math\BigInteger
      */
     function _rsaep($m)
     {
         if ($m->compare($this->zero) < 0 || $m->compare($this->modulus) > 0) {
-            user_error('Message representative out of range');
-            return false;
+            throw new \OutOfRangeException('Message representative out of range');
         }
         return $this->_exponentiate($m);
     }
@@ -2237,13 +2237,13 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $c
+     * @throws \OutOfRangeException if $c < 0 or $c > $this->modulus
      * @return \phpseclib\Math\BigInteger
      */
     function _rsadp($c)
     {
         if ($c->compare($this->zero) < 0 || $c->compare($this->modulus) > 0) {
-            user_error('Ciphertext representative out of range');
-            return false;
+            throw new \OutOfRangeException('Ciphertext representative out of range');
         }
         return $this->_exponentiate($c);
     }
@@ -2255,13 +2255,13 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $m
+     * @throws \OutOfRangeException if $m < 0 or $m > $this->modulus
      * @return \phpseclib\Math\BigInteger
      */
     function _rsasp1($m)
     {
         if ($m->compare($this->zero) < 0 || $m->compare($this->modulus) > 0) {
-            user_error('Message representative out of range');
-            return false;
+            throw new \OutOfRangeException('Message representative out of range');
         }
         return $this->_exponentiate($m);
     }
@@ -2273,13 +2273,13 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $s
+     * @throws \OutOfRangeException if $s < 0 or $s > $this->modulus
      * @return \phpseclib\Math\BigInteger
      */
     function _rsavp1($s)
     {
         if ($s->compare($this->zero) < 0 || $s->compare($this->modulus) > 0) {
-            user_error('Signature representative out of range');
-            return false;
+            throw new \OutOfRangeException('Signature representative out of range');
         }
         return $this->_exponentiate($s);
     }
@@ -2317,6 +2317,7 @@ class RSA
      * @access private
      * @param String $m
      * @param String $l
+     * @throws \OutOfBoundsException if strlen($m) > $this->k - 2 * $this->hLen - 2
      * @return String
      */
     function _rsaes_oaep_encrypt($m, $l = '')
@@ -2329,8 +2330,7 @@ class RSA
         // be output.
 
         if ($mLen > $this->k - 2 * $this->hLen - 2) {
-            user_error('Message too long');
-            return false;
+            throw new \OutOfBoundsException('Message too long');
         }
 
         // EME-OAEP encoding
@@ -2380,6 +2380,7 @@ class RSA
      * @access private
      * @param String $c
      * @param String $l
+     * @throws \RuntimeException on decryption error
      * @return String
      */
     function _rsaes_oaep_decrypt($c, $l = '')
@@ -2390,8 +2391,7 @@ class RSA
         // be output.
 
         if (strlen($c) != $this->k || $this->k < 2 * $this->hLen + 2) {
-            user_error('Decryption error');
-            return false;
+            throw new \RuntimeException('Decryption error');
         }
 
         // RSA decryption
@@ -2399,8 +2399,7 @@ class RSA
         $c = $this->_os2ip($c);
         $m = $this->_rsadp($c);
         if ($m === false) {
-            user_error('Decryption error');
-            return false;
+            throw new \RuntimeException('Decryption error');
         }
         $em = $this->_i2osp($m, $this->k);
 
@@ -2417,13 +2416,11 @@ class RSA
         $lHash2 = substr($db, 0, $this->hLen);
         $m = substr($db, $this->hLen);
         if ($lHash != $lHash2) {
-            user_error('Decryption error');
-            return false;
+            throw new \RuntimeException('Decryption error');
         }
         $m = ltrim($m, chr(0));
         if (ord($m[0]) != 1) {
-            user_error('Decryption error');
-            return false;
+            throw new \RuntimeException('Decryption error');
         }
 
         // Output the message M
@@ -2454,6 +2451,7 @@ class RSA
      *
      * @access private
      * @param String $m
+     * @throws \OutOfBoundsException if strlen($m) > $this->k - 11
      * @return String
      */
     function _rsaes_pkcs1_v1_5_encrypt($m)
@@ -2463,8 +2461,7 @@ class RSA
         // Length checking
 
         if ($mLen > $this->k - 11) {
-            user_error('Message too long');
-            return false;
+            throw new \OutOfBoundsException('Message too long');
         }
 
         // EME-PKCS1-v1_5 encoding
@@ -2513,6 +2510,7 @@ class RSA
      *
      * @access private
      * @param String $c
+     * @throws \RuntimeException on decryption error
      * @return String
      */
     function _rsaes_pkcs1_v1_5_decrypt($c)
@@ -2520,8 +2518,7 @@ class RSA
         // Length checking
 
         if (strlen($c) != $this->k) { // or if k < 11
-            user_error('Decryption error');
-            return false;
+            throw new \RuntimeException('Decryption error');
         }
 
         // RSA decryption
@@ -2530,24 +2527,21 @@ class RSA
         $m = $this->_rsadp($c);
 
         if ($m === false) {
-            user_error('Decryption error');
-            return false;
+            throw new \RuntimeException('Decryption error');
         }
         $em = $this->_i2osp($m, $this->k);
 
         // EME-PKCS1-v1_5 decoding
 
         if (ord($em[0]) != 0 || ord($em[1]) > 2) {
-            user_error('Decryption error');
-            return false;
+            throw new \RuntimeException('Decryption error');
         }
 
         $ps = substr($em, 2, strpos($em, chr(0), 2) - 2);
         $m = substr($em, strlen($ps) + 3);
 
         if (strlen($ps) < 8) {
-            user_error('Decryption error');
-            return false;
+            throw new \RuntimeException('Decryption error');
         }
 
         // Output M
@@ -2562,6 +2556,7 @@ class RSA
      *
      * @access private
      * @param String $m
+     * @throws \RuntimeException on encoding error
      * @param Integer $emBits
      */
     function _emsa_pss_encode($m, $emBits)
@@ -2574,8 +2569,7 @@ class RSA
 
         $mHash = $this->hash->hash($m);
         if ($emLen < $this->hLen + $sLen + 2) {
-            user_error('Encoding error');
-            return false;
+            throw new \RuntimeException('Encoding error');
         }
 
         $salt = Random::string($sLen);
@@ -2672,6 +2666,7 @@ class RSA
      * @access private
      * @param String $m
      * @param String $s
+     * @throws \RuntimeException on invalid signature
      * @return String
      */
     function _rsassa_pss_verify($m, $s)
@@ -2679,8 +2674,7 @@ class RSA
         // Length checking
 
         if (strlen($s) != $this->k) {
-            user_error('Invalid signature');
-            return false;
+            throw new \RuntimeException('Invalid signature');
         }
 
         // RSA verification
@@ -2690,13 +2684,11 @@ class RSA
         $s2 = $this->_os2ip($s);
         $m2 = $this->_rsavp1($s2);
         if ($m2 === false) {
-            user_error('Invalid signature');
-            return false;
+            throw new \RuntimeException('Invalid signature');
         }
         $em = $this->_i2osp($m2, $modBits >> 3);
         if ($em === false) {
-            user_error('Invalid signature');
-            return false;
+            throw new \RuntimeException('Invalid signature');
         }
 
         // EMSA-PSS verification
@@ -2712,6 +2704,7 @@ class RSA
      * @access private
      * @param String $m
      * @param Integer $emLen
+     * @throws \LengthException if the intended encoded message length is too short
      * @return String
      */
     function _emsa_pkcs1_v1_5_encode($m, $emLen)
@@ -2745,8 +2738,7 @@ class RSA
         $tLen = strlen($t);
 
         if ($emLen < $tLen + 11) {
-            user_error('Intended encoded message length too short');
-            return false;
+            throw new \LengthException('Intended encoded message length too short');
         }
 
         $ps = str_repeat(chr(0xFF), $emLen - $tLen - 3);
@@ -2763,6 +2755,7 @@ class RSA
      *
      * @access private
      * @param String $m
+     * @throws \LengthException if the RSA modulus is too short
      * @return String
      */
     function _rsassa_pkcs1_v1_5_sign($m)
@@ -2771,8 +2764,7 @@ class RSA
 
         $em = $this->_emsa_pkcs1_v1_5_encode($m, $this->k);
         if ($em === false) {
-            user_error('RSA modulus too short');
-            return false;
+            throw new \LengthException('RSA modulus too short');
         }
 
         // RSA signature
@@ -2793,6 +2785,8 @@ class RSA
      *
      * @access private
      * @param String $m
+     * @throws \RuntimeException if the signature is invalid
+     * @throws \LengthException if the RSA modulus is too short
      * @return String
      */
     function _rsassa_pkcs1_v1_5_verify($m, $s)
@@ -2800,8 +2794,7 @@ class RSA
         // Length checking
 
         if (strlen($s) != $this->k) {
-            user_error('Invalid signature');
-            return false;
+            throw new \RuntimeException('Invalid signature');
         }
 
         // RSA verification
@@ -2809,21 +2802,18 @@ class RSA
         $s = $this->_os2ip($s);
         $m2 = $this->_rsavp1($s);
         if ($m2 === false) {
-            user_error('Invalid signature');
-            return false;
+            throw new \RuntimeException('Invalid signature');
         }
         $em = $this->_i2osp($m2, $this->k);
         if ($em === false) {
-            user_error('Invalid signature');
-            return false;
+            throw new \RuntimeException('Invalid signature');
         }
 
         // EMSA-PKCS1-v1_5 encoding
 
         $em2 = $this->_emsa_pkcs1_v1_5_encode($m, $this->k);
         if ($em2 === false) {
-            user_error('RSA modulus too short');
-            return false;
+            throw new \LengthException('RSA modulus too short');
         }
 
         // Compare
