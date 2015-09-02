@@ -214,4 +214,12 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         }
         return $value;
     }
+
+    public function testGetOID()
+    {
+        $x509 = new File_X509();
+        $this->assertEquals($x509->getOID('2.16.840.1.101.3.4.2.1'), '2.16.840.1.101.3.4.2.1');
+        $this->assertEquals($x509->getOID('id-sha256'), '2.16.840.1.101.3.4.2.1');
+        $this->assertEquals($x509->getOID('zzz'), 'zzz');
+    }
 }
