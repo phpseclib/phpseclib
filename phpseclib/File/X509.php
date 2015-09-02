@@ -4568,4 +4568,31 @@ class X509
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
         return $temp != false ? $temp : $str;
     }
+
+    /**
+     * Returns the OID corresponding to a name
+     *
+     * What's returned in the associative array returned by loadX509() (or load*()) is either a name or an OID if
+     * no OID to name mapping is available. The problem with this is that what may be an unmapped OID in one version
+     * of phpseclib may not be unmapped in the next version, so apps that are looking at this OID may not be able
+     * to work from version to version.
+     *
+     * This method will return the OID if a name is passed to it and if no mapping is avialable it'll assume that
+     * what's being passed to it already is an OID and return that instead. A few examples.
+     *
+     * getOID('2.16.840.1.101.3.4.2.1') == '2.16.840.1.101.3.4.2.1'
+     * getOID('id-sha256') == '2.16.840.1.101.3.4.2.1'
+     * getOID('zzz') == 'zzz'
+     *
+     * @access public
+     * @return String
+     */
+    function getOID($name)
+    {
+        static $reverseMap;
+        if (!isset($reverseMap)) {
+            $reverseMap = array_flip($this->oids);
+        }
+        return isset($reverseMap[$name]) ? $reverseMap[$name] : $name;
+    }
 }
