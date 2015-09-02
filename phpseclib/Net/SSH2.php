@@ -2660,6 +2660,7 @@ class SSH2
      * @see \phpseclib\Net\SSH2::write()
      * @param String $expect
      * @param Integer $mode
+     * @param boolean $passthru
      * @return String
      * @throws \RuntimeException on connection error
      * @access public
