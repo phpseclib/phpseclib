@@ -100,7 +100,7 @@ class Crypt_TripleDES extends Crypt_DES
      * @see Crypt_DES::password_key_size
      * @see Crypt_Base::password_key_size
      * @see Crypt_Base::setPassword()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $password_key_size = 24;
@@ -110,7 +110,7 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * @see Crypt_Base::password_default_salt
      * @see Crypt_Base::setPassword()
-     * @var String
+     * @var string
      * @access private
      */
     var $password_default_salt = 'phpseclib';
@@ -120,7 +120,7 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * @see Crypt_DES::const_namespace
      * @see Crypt_Base::const_namespace
-     * @var String
+     * @var string
      * @access private
      */
     var $const_namespace = 'DES';
@@ -130,7 +130,7 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * @see Crypt_DES::cipher_name_mcrypt
      * @see Crypt_Base::cipher_name_mcrypt
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'tripledes';
@@ -139,7 +139,7 @@ class Crypt_TripleDES extends Crypt_DES
      * Optimizing value while CFB-encrypting
      *
      * @see Crypt_Base::cfb_init_len
-     * @var Integer
+     * @var int
      * @access private
      */
     var $cfb_init_len = 750;
@@ -149,7 +149,7 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * @see Crypt_TripleDES::setKey()
      * @see Crypt_DES::setKey()
-     * @var String
+     * @var string
      * @access private
      */
     var $key_size_max = 24;
@@ -157,7 +157,7 @@ class Crypt_TripleDES extends Crypt_DES
     /**
      * Internal flag whether using CRYPT_DES_MODE_3CBC or not
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $mode_3cbc;
@@ -167,7 +167,7 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * Used only if $mode_3cbc === true
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $des;
@@ -195,7 +195,7 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * @see Crypt_DES::Crypt_DES()
      * @see Crypt_Base::Crypt_Base()
-     * @param optional Integer $mode
+     * @param int $mode
      * @access public
      */
     function Crypt_TripleDES($mode = CRYPT_MODE_CBC)
@@ -231,9 +231,9 @@ class Crypt_TripleDES extends Crypt_DES
      * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
      *
      * @see Crypt_Base::Crypt_Base()
-     * @param Integer $engine
+     * @param int $engine
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function isValidEngine($engine)
     {
@@ -254,7 +254,7 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * @see Crypt_Base::setIV()
      * @access public
-     * @param String $iv
+     * @param string $iv
      */
     function setIV($iv)
     {
@@ -279,7 +279,7 @@ class Crypt_TripleDES extends Crypt_DES
      * @access public
      * @see Crypt_DES::setKey()
      * @see Crypt_Base::setKey()
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
@@ -310,8 +310,8 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * @see Crypt_Base::encrypt()
      * @access public
-     * @param String $plaintext
-     * @return String $cipertext
+     * @param string $plaintext
+     * @return string $cipertext
      */
     function encrypt($plaintext)
     {
@@ -337,8 +337,8 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * @see Crypt_Base::decrypt()
      * @access public
-     * @param String $ciphertext
-     * @return String $plaintext
+     * @param string $ciphertext
+     * @return string $plaintext
      */
     function decrypt($ciphertext)
     {
@@ -464,9 +464,9 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * @see Crypt_Base::Crypt_Base()
      * @see Crypt_Base::setPreferredEngine()
-     * @param Integer $engine
+     * @param int $engine
      * @access public
-     * @return Integer
+     * @return int
      */
     function setPreferredEngine($engine)
     {

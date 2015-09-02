@@ -93,7 +93,7 @@ class Crypt_RC4 extends Crypt_Base
      * so we the block_size to 0
      *
      * @see Crypt_Base::block_size
-     * @var Integer
+     * @var int
      * @access private
      */
     var $block_size = 0;
@@ -103,7 +103,7 @@ class Crypt_RC4 extends Crypt_Base
      *
      * @see Crypt_Base::password_key_size
      * @see Crypt_Base::setPassword()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $password_key_size = 128; // = 1024 bits
@@ -112,7 +112,7 @@ class Crypt_RC4 extends Crypt_Base
      * The namespace used by the cipher for its constants.
      *
      * @see Crypt_Base::const_namespace
-     * @var String
+     * @var string
      * @access private
      */
     var $const_namespace = 'RC4';
@@ -121,7 +121,7 @@ class Crypt_RC4 extends Crypt_Base
      * The mcrypt specific name of the cipher
      *
      * @see Crypt_Base::cipher_name_mcrypt
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'arcfour';
@@ -139,7 +139,7 @@ class Crypt_RC4 extends Crypt_Base
      * The Key
      *
      * @see Crypt_RC4::setKey()
-     * @var String
+     * @var string
      * @access private
      */
     var $key = "\0";
@@ -148,7 +148,7 @@ class Crypt_RC4 extends Crypt_Base
      * The Key Stream for decryption and encryption
      *
      * @see Crypt_RC4::setKey()
-     * @var Array
+     * @var array
      * @access private
      */
     var $stream;
@@ -173,9 +173,9 @@ class Crypt_RC4 extends Crypt_Base
      * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
      *
      * @see Crypt_Base::Crypt_Base()
-     * @param Integer $engine
+     * @param int $engine
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function isValidEngine($engine)
     {
@@ -214,7 +214,7 @@ class Crypt_RC4 extends Crypt_Base
      * {@link http://www.rsa.com/rsalabs/node.asp?id=2009 http://www.rsa.com/rsalabs/node.asp?id=2009}
      * {@link http://en.wikipedia.org/wiki/Related_key_attack http://en.wikipedia.org/wiki/Related_key_attack}
      *
-     * @param String $iv
+     * @param string $iv
      * @see Crypt_RC4::setKey()
      * @access public
      */
@@ -230,7 +230,7 @@ class Crypt_RC4 extends Crypt_Base
      *
      * @access public
      * @see Crypt_Base::setKey()
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
@@ -243,8 +243,8 @@ class Crypt_RC4 extends Crypt_Base
      * @see Crypt_Base::decrypt()
      * @see Crypt_RC4::_crypt()
      * @access public
-     * @param String $plaintext
-     * @return String $ciphertext
+     * @param string $plaintext
+     * @return string $ciphertext
      */
     function encrypt($plaintext)
     {
@@ -263,8 +263,8 @@ class Crypt_RC4 extends Crypt_Base
      * @see Crypt_Base::encrypt()
      * @see Crypt_RC4::_crypt()
      * @access public
-     * @param String $ciphertext
-     * @return String $plaintext
+     * @param string $ciphertext
+     * @return string $plaintext
      */
     function decrypt($ciphertext)
     {
@@ -308,9 +308,9 @@ class Crypt_RC4 extends Crypt_Base
      * @see Crypt_RC4::encrypt()
      * @see Crypt_RC4::decrypt()
      * @access private
-     * @param String $text
-     * @param Integer $mode
-     * @return String $text
+     * @param string $text
+     * @param int $mode
+     * @return string $text
      */
     function _crypt($text, $mode)
     {

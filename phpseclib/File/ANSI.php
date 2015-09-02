@@ -48,7 +48,7 @@ class File_ANSI
     /**
      * Max Width
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $max_x;
@@ -56,7 +56,7 @@ class File_ANSI
     /**
      * Max Height
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $max_y;
@@ -64,7 +64,7 @@ class File_ANSI
     /**
      * Max History
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $max_history;
@@ -72,7 +72,7 @@ class File_ANSI
     /**
      * History
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $history;
@@ -80,7 +80,7 @@ class File_ANSI
     /**
      * History Attributes
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $history_attrs;
@@ -88,7 +88,7 @@ class File_ANSI
     /**
      * Current Column
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $x;
@@ -96,7 +96,7 @@ class File_ANSI
     /**
      * Current Row
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $y;
@@ -104,7 +104,7 @@ class File_ANSI
     /**
      * Old Column
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $old_x;
@@ -112,7 +112,7 @@ class File_ANSI
     /**
      * Old Row
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $old_y;
@@ -120,7 +120,7 @@ class File_ANSI
     /**
      * An empty attribute cell
      *
-     * @var Object
+     * @var object
      * @access private
      */
     var $base_attr_cell;
@@ -128,7 +128,7 @@ class File_ANSI
     /**
      * The current attribute cell
      *
-     * @var Object
+     * @var object
      * @access private
      */
     var $attr_cell;
@@ -136,7 +136,7 @@ class File_ANSI
     /**
      * An empty attribute row
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $attr_row;
@@ -144,7 +144,7 @@ class File_ANSI
     /**
      * The current screen text
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $screen;
@@ -152,7 +152,7 @@ class File_ANSI
     /**
      * The current screen attributes
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $attrs;
@@ -160,7 +160,7 @@ class File_ANSI
     /**
      * Current ANSI code
      *
-     * @var String
+     * @var string
      * @access private
      */
     var $ansi;
@@ -168,7 +168,7 @@ class File_ANSI
     /**
      * Tokenization
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $tokenization;
@@ -200,8 +200,8 @@ class File_ANSI
      *
      * Resets the screen as well
      *
-     * @param Integer $x
-     * @param Integer $y
+     * @param int $x
+     * @param int $y
      * @access public
      */
     function setDimensions($x, $y)
@@ -219,8 +219,8 @@ class File_ANSI
     /**
      * Set the number of lines that should be logged past the terminal height
      *
-     * @param Integer $x
-     * @param Integer $y
+     * @param int $x
+     * @param int $y
      * @access public
      */
     function setHistory($history)
@@ -231,7 +231,7 @@ class File_ANSI
     /**
      * Load a string
      *
-     * @param String $source
+     * @param string $source
      * @access public
      */
     function loadString($source)
@@ -243,7 +243,7 @@ class File_ANSI
     /**
      * Appdend a string
      *
-     * @param String $source
+     * @param string $source
      * @access public
      */
     function appendString($source)
@@ -474,7 +474,7 @@ class File_ANSI
      * Returns the current coordinate without preformating
      *
      * @access private
-     * @return String
+     * @return string
      */
     function _processCoordinate($last_attr, $cur_attr, $char)
     {
@@ -531,7 +531,7 @@ class File_ANSI
      * Returns the current screen without preformating
      *
      * @access private
-     * @return String
+     * @return string
      */
     function _getScreen()
     {
@@ -555,7 +555,7 @@ class File_ANSI
      * Returns the current screen
      *
      * @access public
-     * @return String
+     * @return string
      */
     function getScreen()
     {
@@ -566,7 +566,7 @@ class File_ANSI
      * Returns the current screen and the x previous lines
      *
      * @access public
-     * @return String
+     * @return string
      */
     function getHistory()
     {

@@ -178,7 +178,7 @@ class Math_BigInteger
     /**
      * Holds the BigInteger's value.
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $value;
@@ -186,7 +186,7 @@ class Math_BigInteger
     /**
      * Holds the BigInteger's magnitude.
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $is_negative = false;
@@ -224,7 +224,7 @@ class Math_BigInteger
      *
      * @see __sleep()
      * @see __wakeup()
-     * @var String
+     * @var string
      * @access private
      */
     var $hex;
@@ -246,8 +246,8 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @param optional $x base-10 number or base-$base number if $base set.
-     * @param optional integer $base
+     * @param $x base-10 number or base-$base number if $base set.
+     * @param int $base
      * @return Math_BigInteger
      * @access public
      */
@@ -524,8 +524,8 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @param Boolean $twos_compliment
-     * @return String
+     * @param bool $twos_compliment
+     * @return string
      * @access public
      * @internal Converts a base-2**26 number to base-2**8
      */
@@ -621,8 +621,8 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @param Boolean $twos_compliment
-     * @return String
+     * @param bool $twos_compliment
+     * @return string
      * @access public
      * @internal Converts a base-2**26 number to base-2**8
      */
@@ -648,8 +648,8 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @param Boolean $twos_compliment
-     * @return String
+     * @param bool $twos_compliment
+     * @return string
      * @access public
      * @internal Converts a base-2**26 number to base-2**2
      */
@@ -686,7 +686,7 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @return String
+     * @return string
      * @access public
      * @internal Converts a base-2**26 number to base-10**7 (which is pretty much base-10)
      */
@@ -874,11 +874,11 @@ class Math_BigInteger
     /**
      * Performs addition.
      *
-     * @param Array $x_value
-     * @param Boolean $x_negative
-     * @param Array $y_value
-     * @param Boolean $y_negative
-     * @return Array
+     * @param array $x_value
+     * @param bool $x_negative
+     * @param array $y_value
+     * @param bool $y_negative
+     * @return array
      * @access private
      */
     function _add($x_value, $x_negative, $y_value, $y_negative)
@@ -1005,11 +1005,11 @@ class Math_BigInteger
     /**
      * Performs subtraction.
      *
-     * @param Array $x_value
-     * @param Boolean $x_negative
-     * @param Array $y_value
-     * @param Boolean $y_negative
-     * @return Array
+     * @param array $x_value
+     * @param bool $x_negative
+     * @param array $y_value
+     * @param bool $y_negative
+     * @return array
      * @access private
      */
     function _subtract($x_value, $x_negative, $y_value, $y_negative)
@@ -1140,11 +1140,11 @@ class Math_BigInteger
     /**
      * Performs multiplication.
      *
-     * @param Array $x_value
-     * @param Boolean $x_negative
-     * @param Array $y_value
-     * @param Boolean $y_negative
-     * @return Array
+     * @param array $x_value
+     * @param bool $x_negative
+     * @param array $y_value
+     * @param bool $y_negative
+     * @return array
      * @access private
      */
     function _multiply($x_value, $x_negative, $y_value, $y_negative)
@@ -1179,9 +1179,9 @@ class Math_BigInteger
      *
      * Modeled after 'multiply' in MutableBigInteger.java.
      *
-     * @param Array $x_value
-     * @param Array $y_value
-     * @return Array
+     * @param array $x_value
+     * @param array $y_value
+     * @return array
      * @access private
      */
     function _regularMultiply($x_value, $y_value)
@@ -1243,9 +1243,9 @@ class Math_BigInteger
      * See {@link http://en.wikipedia.org/wiki/Karatsuba_algorithm Karatsuba algorithm} and
      * {@link http://math.libtomcrypt.com/files/tommath.pdf#page=120 MPM 5.2.3}.
      *
-     * @param Array $x_value
-     * @param Array $y_value
-     * @return Array
+     * @param array $x_value
+     * @param array $y_value
+     * @return array
      * @access private
      */
     function _karatsuba($x_value, $y_value)
@@ -1282,8 +1282,8 @@ class Math_BigInteger
     /**
      * Performs squaring
      *
-     * @param Array $x
-     * @return Array
+     * @param array $x
+     * @return array
      * @access private
      */
     function _square($x = false)
@@ -1300,8 +1300,8 @@ class Math_BigInteger
      * {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=7 HAC 14.2.4} /
      * {@link http://math.libtomcrypt.com/files/tommath.pdf#page=141 MPM 5.3} for more information.
      *
-     * @param Array $value
-     * @return Array
+     * @param array $value
+     * @return array
      * @access private
      */
     function _baseSquare($value)
@@ -1339,8 +1339,8 @@ class Math_BigInteger
      * See {@link http://en.wikipedia.org/wiki/Karatsuba_algorithm Karatsuba algorithm} and
      * {@link http://math.libtomcrypt.com/files/tommath.pdf#page=151 MPM 5.3.4}.
      *
-     * @param Array $value
-     * @return Array
+     * @param array $value
+     * @return array
      * @access private
      */
     function _karatsubaSquare($value)
@@ -1396,7 +1396,7 @@ class Math_BigInteger
      * </code>
      *
      * @param Math_BigInteger $y
-     * @return Array
+     * @return array
      * @access public
      * @internal This function is based off of {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=9 HAC 14.20}.
      */
@@ -1576,9 +1576,9 @@ class Math_BigInteger
      *
      * abc / x = a00 / x + b0 / x + c / x
      *
-     * @param Array $dividend
-     * @param Array $divisor
-     * @return Array
+     * @param array $dividend
+     * @param array $divisor
+     * @return array
      * @access private
      */
     function _divide_digit($dividend, $divisor)
@@ -1803,7 +1803,7 @@ class Math_BigInteger
      *
      * @param Math_BigInteger $e
      * @param Math_BigInteger $n
-     * @param Integer $mode
+     * @param int $mode
      * @return Math_BigInteger
      * @access private
      */
@@ -1878,10 +1878,10 @@ class Math_BigInteger
      *
      * @see _slidingWindow()
      * @access private
-     * @param Array $x
-     * @param Array $n
-     * @param Integer $mode
-     * @return Array
+     * @param array $x
+     * @param array $n
+     * @param int $mode
+     * @return array
      */
     function _reduce($x, $n, $mode)
     {
@@ -1915,10 +1915,10 @@ class Math_BigInteger
      *
      * @see _slidingWindow()
      * @access private
-     * @param Array $x
-     * @param Array $n
-     * @param Integer $mode
-     * @return Array
+     * @param array $x
+     * @param array $n
+     * @param int $mode
+     * @return array
      */
     function _prepareReduce($x, $n, $mode)
     {
@@ -1933,11 +1933,11 @@ class Math_BigInteger
      *
      * @see _slidingWindow()
      * @access private
-     * @param Array $x
-     * @param Array $y
-     * @param Array $n
-     * @param Integer $mode
-     * @return Array
+     * @param array $x
+     * @param array $y
+     * @param array $n
+     * @param int $mode
+     * @return array
      */
     function _multiplyReduce($x, $y, $n, $mode)
     {
@@ -1953,10 +1953,10 @@ class Math_BigInteger
      *
      * @see _slidingWindow()
      * @access private
-     * @param Array $x
-     * @param Array $n
-     * @param Integer $mode
-     * @return Array
+     * @param array $x
+     * @param array $n
+     * @param int $mode
+     * @return array
      */
     function _squareReduce($x, $n, $mode)
     {
@@ -2004,9 +2004,9 @@ class Math_BigInteger
      *
      * @see _slidingWindow()
      * @access private
-     * @param Array $n
-     * @param Array $m
-     * @return Array
+     * @param array $n
+     * @param array $m
+     * @return array
      */
     function _barrett($n, $m)
     {
@@ -2101,9 +2101,9 @@ class Math_BigInteger
      *
      * @see _slidingWindow()
      * @access private
-     * @param Array $x
-     * @param Array $n
-     * @return Array
+     * @param array $x
+     * @param array $n
+     * @return array
      */
     function _regularBarrett($x, $n)
     {
@@ -2171,12 +2171,12 @@ class Math_BigInteger
      * If you're going to be doing array_slice($product->value, 0, $stop), some cycles can be saved.
      *
      * @see _regularBarrett()
-     * @param Array $x_value
-     * @param Boolean $x_negative
-     * @param Array $y_value
-     * @param Boolean $y_negative
-     * @param Integer $stop
-     * @return Array
+     * @param array $x_value
+     * @param bool $x_negative
+     * @param array $y_value
+     * @param bool $y_negative
+     * @param int $stop
+     * @return array
      * @access private
      */
     function _multiplyLower($x_value, $x_negative, $y_value, $y_negative, $stop)
@@ -2254,9 +2254,9 @@ class Math_BigInteger
      * @see _prepMontgomery()
      * @see _slidingWindow()
      * @access private
-     * @param Array $x
-     * @param Array $n
-     * @return Array
+     * @param array $x
+     * @param array $n
+     * @return array
      */
     function _montgomery($x, $n)
     {
@@ -2301,10 +2301,10 @@ class Math_BigInteger
      * @see _prepMontgomery()
      * @see _montgomery()
      * @access private
-     * @param Array $x
-     * @param Array $y
-     * @param Array $m
-     * @return Array
+     * @param array $x
+     * @param array $y
+     * @param array $m
+     * @return array
      */
     function _montgomeryMultiply($x, $y, $m)
     {
@@ -2353,9 +2353,9 @@ class Math_BigInteger
      * @see _montgomery()
      * @see _slidingWindow()
      * @access private
-     * @param Array $x
-     * @param Array $n
-     * @return Array
+     * @param array $x
+     * @param array $n
+     * @return array
      */
     function _prepMontgomery($x, $n)
     {
@@ -2391,8 +2391,8 @@ class Math_BigInteger
      *
      * @see _montgomery()
      * @access private
-     * @param Array $x
-     * @return Integer
+     * @param array $x
+     * @return int
      */
     function _modInverse67108864($x) // 2**26 == 67,108,864
     {
@@ -2674,7 +2674,7 @@ class Math_BigInteger
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
      * @param Math_BigInteger $y
-     * @return Integer < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
+     * @return int < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
      * @see equals()
      * @internal Could return $this->subtract($x), but that's not as fast as what we do do.
@@ -2694,11 +2694,11 @@ class Math_BigInteger
     /**
      * Compares two numbers.
      *
-     * @param Array $x_value
-     * @param Boolean $x_negative
-     * @param Array $y_value
-     * @param Boolean $y_negative
-     * @return Integer
+     * @param array $x_value
+     * @param bool $x_negative
+     * @param array $y_value
+     * @param bool $y_negative
+     * @return int
      * @see compare()
      * @access private
      */
@@ -2733,7 +2733,7 @@ class Math_BigInteger
      * If you need to see if one number is greater than or less than another number, use Math_BigInteger::compare()
      *
      * @param Math_BigInteger $x
-     * @return Boolean
+     * @return bool
      * @access public
      * @see compare()
      */
@@ -2753,7 +2753,7 @@ class Math_BigInteger
      * Some bitwise operations give different results depending on the precision being used.  Examples include left
      * shift, not, and rotates.
      *
-     * @param Integer $bits
+     * @param int $bits
      * @access public
      */
     function setPrecision($bits)
@@ -2931,7 +2931,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @return Math_BigInteger
      * @access public
      * @internal The only version that yields any speed increases is the internal version.
@@ -2969,7 +2969,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @return Math_BigInteger
      * @access public
      * @internal The only version that yields any speed increases is the internal version.
@@ -3007,7 +3007,7 @@ class Math_BigInteger
      *
      * Instead of the top x bits being dropped they're appended to the shifted bit string.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @return Math_BigInteger
      * @access public
      */
@@ -3052,7 +3052,7 @@ class Math_BigInteger
      *
      * Instead of the bottom x bits being dropped they're prepended to the shifted bit string.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @return Math_BigInteger
      * @access public
      */
@@ -3066,7 +3066,7 @@ class Math_BigInteger
      *
      * This function is deprecated.
      *
-     * @param String $generator
+     * @param string $generator
      * @access public
      */
     function setRandomGenerator($generator)
@@ -3078,7 +3078,7 @@ class Math_BigInteger
      *
      * Byte length is equal to $length. Uses crypt_random if it's loaded and mt_rand if it's not.
      *
-     * @param Integer $length
+     * @param int $length
      * @return Math_BigInteger
      * @access private
      */
@@ -3113,7 +3113,7 @@ class Math_BigInteger
      * $max->random($min)
      *
      * @param Math_BigInteger $arg1
-     * @param optional Math_BigInteger $arg2
+     * @param Math_BigInteger $arg2
      * @return Math_BigInteger
      * @access public
      * @internal The API for creating random numbers used to be $a->random($min, $max), where $a was a Math_BigInteger object.
@@ -3194,9 +3194,9 @@ class Math_BigInteger
      * give up and return false.
      *
      * @param Math_BigInteger $arg1
-     * @param optional Math_BigInteger $arg2
-     * @param optional Integer $timeout
-     * @return Mixed
+     * @param Math_BigInteger $arg2
+     * @param int $timeout
+     * @return mixed
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
      */
@@ -3323,8 +3323,8 @@ class Math_BigInteger
      * $t parameter is distributability.  Math_BigInteger::randomPrime() can be distributed across multiple pageloads
      * on a website instead of just one.
      *
-     * @param optional Math_BigInteger $t
-     * @return Boolean
+     * @param Math_BigInteger $t
+     * @return bool
      * @access public
      * @internal Uses the
      *     {@link http://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test Miller-Rabin primality test}.  See
@@ -3476,7 +3476,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @access private
      */
     function _lshift($shift)
@@ -3511,7 +3511,7 @@ class Math_BigInteger
      *
      * Shifts BigInteger's by $shift bits.
      *
-     * @param Integer $shift
+     * @param int $shift
      * @access private
      */
     function _rshift($shift)
@@ -3595,7 +3595,7 @@ class Math_BigInteger
      *
      * Removes leading zeros
      *
-     * @param Array $value
+     * @param array $value
      * @return Math_BigInteger
      * @access private
      */
@@ -3616,7 +3616,7 @@ class Math_BigInteger
      *
      * @param $input Array
      * @param $multiplier mixed
-     * @return Array
+     * @return array
      * @access private
      */
     function _array_repeat($input, $multiplier)
@@ -3631,7 +3631,7 @@ class Math_BigInteger
      *
      * @param $x String
      * @param $shift Integer
-     * @return String
+     * @return string
      * @access private
      */
     function _base256_lshift(&$x, $shift)
@@ -3660,7 +3660,7 @@ class Math_BigInteger
      *
      * @param $x String
      * @param $shift Integer
-     * @return String
+     * @return string
      * @access private
      */
     function _base256_rshift(&$x, $shift)
@@ -3700,8 +3700,8 @@ class Math_BigInteger
     /**
      * Converts 32-bit integers to bytes.
      *
-     * @param Integer $x
-     * @return String
+     * @param int $x
+     * @return string
      * @access private
      */
     function _int2bytes($x)
@@ -3712,8 +3712,8 @@ class Math_BigInteger
     /**
      * Converts bytes to 32-bit integers
      *
-     * @param String $x
-     * @return Integer
+     * @param string $x
+     * @return int
      * @access private
      */
     function _bytes2int($x)
@@ -3729,8 +3729,8 @@ class Math_BigInteger
      *
      * @see modPow()
      * @access private
-     * @param Integer $length
-     * @return String
+     * @param int $length
+     * @return string
      */
     function _encodeASN1Length($length)
     {
@@ -3751,9 +3751,9 @@ class Math_BigInteger
      * we'll guarantee that the dividend is divisible by first subtracting the remainder.
      *
      * @access private
-     * @param Integer $x
-     * @param Integer $y
-     * @return Integer
+     * @param int $x
+     * @param int $y
+     * @return int
      */
     function _safe_divide($x, $y)
     {
