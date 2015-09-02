@@ -19,6 +19,7 @@ namespace phpseclib\Net\SFTP;
 
 use phpseclib\Crypt\RSA;
 use phpseclib\Net\SFTP;
+use phpseclib\Net\SSH2;
 
 /**
  * SFTP Stream Wrapper
@@ -166,13 +167,12 @@ class Stream
             }
         }
 
-        if ($host[0] == '$') {
-            $host = substr($host, 1);
-            global $$host;
-            if (($$host instanceof SFTP) === false) {
+        if (preg_match('/^{[a-z0-9]+}$/i', $host)) {
+            $host = SSH2::getConnectionByResourceId($host);
+            if ($host === false) {
                 return false;
             }
-            $this->sftp = $$host;
+            $this->sftp = $host;
         } else {
             if (isset($this->context)) {
                 $context = stream_context_get_options($this->context);
