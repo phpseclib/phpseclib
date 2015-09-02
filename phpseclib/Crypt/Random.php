@@ -48,9 +48,9 @@ class Random
      * microoptimizations because this function has the potential of being called a huge number of times.
      * eg. for RSA key generation.
      *
-     * @param Integer $length
+     * @param int $length
      * @throws \RuntimeException if a symmetric cipher is needed but not loaded
-     * @return String
+     * @return string
      */
     public static function string($length)
     {

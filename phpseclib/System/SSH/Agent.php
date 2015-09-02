@@ -84,7 +84,7 @@ class Agent
     /**
      * Socket Resource
      *
-     * @var Resource
+     * @var resource
      * @access private
      */
     var $fsock;
@@ -145,7 +145,7 @@ class Agent
      * See "2.5.2 Requesting a list of protocol 2 keys"
      * Returns an array containing zero or more \phpseclib\System\SSH\Agent\Identity objects
      *
-     * @return Array
+     * @return array
      * @throws \RuntimeException on receipt of unexpected packets
      * @access public
      */
@@ -202,7 +202,7 @@ class Agent
      * be requested when a channel is opened
      *
      * @param Net_SSH2 $ssh
-     * @return Boolean
+     * @return bool
      * @access public
      */
     function startSSHForwarding($ssh)
@@ -216,7 +216,7 @@ class Agent
      * Request agent forwarding of remote server
      *
      * @param Net_SSH2 $ssh
-     * @return Boolean
+     * @return bool
      * @access private
      */
     function _request_forwarding($ssh)
@@ -272,7 +272,7 @@ class Agent
     /**
      * Forward data to SSH Agent and return data reply
      *
-     * @param String $data
+     * @param string $data
      * @return data from SSH Agent
      * @throws \RuntimeException on connection errors
      * @access private
