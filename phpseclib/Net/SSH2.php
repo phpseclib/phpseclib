@@ -2664,7 +2664,7 @@ class SSH2
      * @throws \RuntimeException on connection error
      * @access public
      */
-    function read($expect = '', $mode = self::READ_SIMPLE)
+    function read($expect = '', $mode = self::READ_SIMPLE, $passthru = false)
     {
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;
@@ -2693,6 +2693,12 @@ class SSH2
             if (is_bool($response)) {
                 $this->in_request_pty_exec = false;
                 return $response ? $this->_string_shift($this->interactiveBuffer, strlen($this->interactiveBuffer)) : false;
+            }
+            
+            if ($passthru === true) {
+            
+                echo $response;
+                flush();
             }
 
             $this->interactiveBuffer.= $response;
