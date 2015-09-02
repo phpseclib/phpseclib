@@ -2697,7 +2697,6 @@ class SSH2
             }
             
             if ($passthru === true) {
-            
                 echo $response;
                 flush();
             }
