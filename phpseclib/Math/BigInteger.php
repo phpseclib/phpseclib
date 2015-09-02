@@ -3236,7 +3236,7 @@ class Math_BigInteger
         $x = $this->random($min, $max);
 
         // gmp_nextprime() requires PHP 5 >= 5.2.0 per <http://php.net/gmp-nextprime>.
-        if (MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP && (extension_loaded('gmp') && version_compare(PHP_VERSION, '5.2.0', '>='))) {
+        if (MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP && extension_loaded('gmp') && version_compare(PHP_VERSION, '5.2.0', '>=')) {
             $p = new Math_BigInteger();
             $p->value = gmp_nextprime($x->value);
 
