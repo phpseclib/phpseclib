@@ -266,7 +266,7 @@ class Math_BigInteger
             }
         }
 
-        if (function_exists('openssl_public_encrypt') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
+        if (extension_loaded('openssl') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
             // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
             ob_start();
             @phpinfo();
@@ -3236,7 +3236,7 @@ class Math_BigInteger
         $x = $this->random($min, $max);
 
         // gmp_nextprime() requires PHP 5 >= 5.2.0 per <http://php.net/gmp-nextprime>.
-        if (MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP && function_exists('gmp_nextprime')) {
+        if (MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_GMP && extension_loaded('gmp') && version_compare(PHP_VERSION, '5.2.0', '>=')) {
             $p = new Math_BigInteger();
             $p->value = gmp_nextprime($x->value);
 
