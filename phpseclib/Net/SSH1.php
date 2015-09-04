@@ -556,7 +556,7 @@ class SSH1
         }
 
         if (!preg_match('#SSH-([0-9\.]+)-(.+)#', $init_line, $parts)) {
-            throw new \RuntimeException("Can only connect to SSH servers");
+            throw new \RuntimeException('Can only connect to SSH servers');
         }
         if ($parts[1][0] != 1) {
             throw new \RuntimeException("Cannot connect to $parts[1] servers");
@@ -719,7 +719,7 @@ class SSH1
         $response = $this->_get_binary_packet();
 
         if ($response === true) {
-            throw new \RuntimeException('Connection closed by server');
+            return false;
         }
         if ($response[self::RESPONSE_TYPE] == NET_SSH1_SMSG_SUCCESS) {
             $this->bitmap |= self::MASK_LOGIN;
@@ -743,7 +743,7 @@ class SSH1
         $response = $this->_get_binary_packet();
 
         if ($response === true) {
-            throw new \RuntimeException('Connection closed by server');
+            return false;
         }
         if ($response[self::RESPONSE_TYPE] == NET_SSH1_SMSG_SUCCESS) {
             $this->bitmap |= self::MASK_LOGIN;
