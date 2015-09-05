@@ -993,7 +993,7 @@ class Crypt_Base
                     break;
                 case CRYPT_MODE_ECB:
                     if (!defined('OPENSSL_RAW_DATA')) {
-                        $ciphetext.= openssl_encrypt('', $this->cipher_name_openssl_ecb, $this->key, true);
+                        $ciphertext.= openssl_encrypt('', $this->cipher_name_openssl_ecb, $this->key, true);
                     }
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options);
                     break;
