@@ -1507,10 +1507,7 @@ abstract class Base
                     return false;
                 }
                 $this->openssl_emulate_ctr = false;
-                $result = $this->cipher_name_openssl &&
-                          extension_loaded('openssl') &&
-                          // PHP 5.3.0 - 5.3.2 did not let you set IV's
-                          version_compare(PHP_VERSION, '5.3.3', '>=');
+                $result = $this->cipher_name_openssl && extension_loaded('openssl');
                 if (!$result) {
                     return false;
                 }
