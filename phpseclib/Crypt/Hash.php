@@ -50,7 +50,7 @@ class Hash
      * Hash Parameter
      *
      * @see \phpseclib\Crypt\Hash::setHash()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $hashParam;
@@ -59,7 +59,7 @@ class Hash
      * Byte-length of hash output (Internal HMAC)
      *
      * @see \phpseclib\Crypt\Hash::setHash()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $l = false;
@@ -68,7 +68,7 @@ class Hash
      * Hash Algorithm
      *
      * @see \phpseclib\Crypt\Hash::setHash()
-     * @var String
+     * @var string
      * @access private
      */
     var $hash;
@@ -77,7 +77,7 @@ class Hash
      * Key
      *
      * @see \phpseclib\Crypt\Hash::setKey()
-     * @var String
+     * @var string
      * @access private
      */
     var $key = false;
@@ -85,7 +85,7 @@ class Hash
     /**
      * Default Constructor.
      *
-     * @param optional String $hash
+     * @param string $hash
      * @return \phpseclib\Crypt\Hash
      * @access public
      */
@@ -100,7 +100,7 @@ class Hash
      * Keys can be of any length.
      *
      * @access public
-     * @param optional String $key
+     * @param string $key
      */
     function setKey($key = false)
     {
@@ -113,7 +113,7 @@ class Hash
      * As set by the constructor or by the setHash() method.
      *
      * @access public
-     * @return String
+     * @return string
      */
     function getHash()
     {
@@ -124,7 +124,7 @@ class Hash
      * Sets the hash function.
      *
      * @access public
-     * @param String $hash
+     * @param string $hash
      */
     function setHash($hash)
     {
@@ -174,8 +174,8 @@ class Hash
      * Compute the HMAC.
      *
      * @access public
-     * @param String $text
-     * @return String
+     * @param string $text
+     * @return string
      */
     function hash($text)
     {
@@ -190,7 +190,7 @@ class Hash
      * Returns the hash length (in bytes)
      *
      * @access public
-     * @return Integer
+     * @return int
      */
     function getLength()
     {

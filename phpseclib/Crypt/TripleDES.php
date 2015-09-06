@@ -69,7 +69,7 @@ class TripleDES extends DES
      * @see \phpseclib\Crypt\DES::password_key_size
      * @see \phpseclib\Crypt\Base::password_key_size
      * @see \phpseclib\Crypt\Base::setPassword()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $password_key_size = 24;
@@ -79,7 +79,7 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\Base::password_default_salt
      * @see \phpseclib\Crypt\Base::setPassword()
-     * @var String
+     * @var string
      * @access private
      */
     var $password_default_salt = 'phpseclib';
@@ -89,7 +89,7 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\DES::cipher_name_mcrypt
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'tripledes';
@@ -98,7 +98,7 @@ class TripleDES extends DES
      * Optimizing value while CFB-encrypting
      *
      * @see \phpseclib\Crypt\Base::cfb_init_len
-     * @var Integer
+     * @var int
      * @access private
      */
     var $cfb_init_len = 750;
@@ -108,7 +108,7 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\TripleDES::setKey()
      * @see \phpseclib\Crypt\DES::setKey()
-     * @var String
+     * @var string
      * @access private
      */
     var $key_size_max = 24;
@@ -116,7 +116,7 @@ class TripleDES extends DES
     /**
      * Internal flag whether using self::MODE_3CBC or not
      *
-     * @var Boolean
+     * @var bool
      * @access private
      */
     var $mode_3cbc;
@@ -126,7 +126,7 @@ class TripleDES extends DES
      *
      * Used only if $mode_3cbc === true
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $des;
@@ -154,7 +154,7 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\DES::__construct()
      * @see \phpseclib\Crypt\Base::__construct()
-     * @param optional Integer $mode
+     * @param int $mode
      * @access public
      */
     function __construct($mode = Base::MODE_CBC)
@@ -190,9 +190,9 @@ class TripleDES extends DES
      * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
      *
      * @see \phpseclib\Crypt\Base::Crypt_Base()
-     * @param Integer $engine
+     * @param int $engine
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function isValidEngine($engine)
     {
@@ -213,7 +213,7 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\Base::setIV()
      * @access public
-     * @param String $iv
+     * @param string $iv
      */
     function setIV($iv)
     {
@@ -238,7 +238,7 @@ class TripleDES extends DES
      * @access public
      * @see \phpseclib\Crypt\DES::setKey()
      * @see \phpseclib\Crypt\Base::setKey()
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
@@ -269,8 +269,8 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\Base::encrypt()
      * @access public
-     * @param String $plaintext
-     * @return String $cipertext
+     * @param string $plaintext
+     * @return string $cipertext
      */
     function encrypt($plaintext)
     {
@@ -296,8 +296,8 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\Base::decrypt()
      * @access public
-     * @param String $ciphertext
-     * @return String $plaintext
+     * @param string $ciphertext
+     * @return string $plaintext
      */
     function decrypt($ciphertext)
     {
@@ -423,9 +423,9 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\Base::Crypt_Base()
      * @see \phpseclib\Crypt\Base::setPreferredEngine()
-     * @param Integer $engine
+     * @param int $engine
      * @access public
-     * @return Integer
+     * @return int
      */
     function setPreferredEngine($engine)
     {

@@ -252,7 +252,7 @@ class RSA
     /**
      * Precomputed Zero
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $zero;
@@ -260,7 +260,7 @@ class RSA
     /**
      * Precomputed One
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $one;
@@ -268,7 +268,7 @@ class RSA
     /**
      * Private Key Format
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $privateKeyFormat = self::PRIVATE_FORMAT_PKCS1;
@@ -276,7 +276,7 @@ class RSA
     /**
      * Public Key Format
      *
-     * @var Integer
+     * @var int
      * @access public
      */
     var $publicKeyFormat = self::PUBLIC_FORMAT_PKCS8;
@@ -308,7 +308,7 @@ class RSA
     /**
      * Primes for Chinese Remainder Theorem (ie. p and q)
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $primes;
@@ -316,7 +316,7 @@ class RSA
     /**
      * Exponents for Chinese Remainder Theorem (ie. dP and dQ)
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $exponents;
@@ -324,7 +324,7 @@ class RSA
     /**
      * Coefficients for Chinese Remainder Theorem (ie. qInv)
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $coefficients;
@@ -332,7 +332,7 @@ class RSA
     /**
      * Hash name
      *
-     * @var String
+     * @var string
      * @access private
      */
     var $hashName;
@@ -348,7 +348,7 @@ class RSA
     /**
      * Length of hash function output
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $hLen;
@@ -356,7 +356,7 @@ class RSA
     /**
      * Length of salt
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $sLen;
@@ -372,7 +372,7 @@ class RSA
     /**
      * Length of MGF hash function output
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $mgfHLen;
@@ -380,7 +380,7 @@ class RSA
     /**
      * Encryption mode
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $encryptionMode = self::ENCRYPTION_OAEP;
@@ -388,7 +388,7 @@ class RSA
     /**
      * Signature mode
      *
-     * @var Integer
+     * @var int
      * @access private
      */
     var $signatureMode = self::SIGNATURE_PSS;
@@ -396,7 +396,7 @@ class RSA
     /**
      * Public Exponent
      *
-     * @var Mixed
+     * @var mixed
      * @access private
      */
     var $publicExponent = false;
@@ -404,7 +404,7 @@ class RSA
     /**
      * Password
      *
-     * @var String
+     * @var string
      * @access private
      */
     var $password = false;
@@ -416,7 +416,7 @@ class RSA
      * because PHP's XML Parser functions work on PHP4 whereas PHP's DOM functions - although surperior - don't.
      *
      * @see \phpseclib\Crypt\RSA::_start_element_handler()
-     * @var Array
+     * @var array
      * @access private
      */
     var $components = array();
@@ -428,7 +428,7 @@ class RSA
      *
      * @see \phpseclib\Crypt\RSA::_character_handler()
      * @see \phpseclib\Crypt\RSA::_stop_element_handler()
-     * @var Mixed
+     * @var mixed
      * @access private
      */
     var $current;
@@ -438,7 +438,7 @@ class RSA
      *
      * Set to null to use system configuration file.
      * @see \phpseclib\Crypt\RSA::createKey()
-     * @var Mixed
+     * @var mixed
      * @Access public
      */
     var $configFile;
@@ -446,7 +446,7 @@ class RSA
     /**
      * Public key comment field.
      *
-     * @var String
+     * @var string
      * @access private
      */
     var $comment = 'phpseclib-generated-key';
@@ -473,11 +473,7 @@ class RSA
                 case defined('MATH_BIGINTEGER_OPENSSL_DISABLE'):
                     define('CRYPT_RSA_MODE', self::MODE_INTERNAL);
                     break;
-                // openssl_pkey_get_details - which is used in the only place Crypt/RSA.php uses OpenSSL - was introduced in PHP 5.2.0
-                case !function_exists('openssl_pkey_get_details'):
-                    define('CRYPT_RSA_MODE', self::MODE_INTERNAL);
-                    break;
-                case extension_loaded('openssl') && version_compare(PHP_VERSION, '4.2.0', '>=') && file_exists($this->configFile):
+                case extension_loaded('openssl') && file_exists($this->configFile):
                     // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
                     ob_start();
                     @phpinfo();
@@ -537,9 +533,9 @@ class RSA
      *                  Will need to be passed back to \phpseclib\Crypt\RSA::createKey() as the third parameter for further processing.
      *
      * @access public
-     * @param optional Integer $bits
-     * @param optional Integer $timeout
-     * @param optional array $p
+     * @param int $bits
+     * @param int $timeout
+     * @param array $p
      */
     function createKey($bits = 1024, $timeout = false, $partial = array())
     {
@@ -718,8 +714,8 @@ class RSA
      *
      * @access private
      * @see setPrivateKeyFormat()
-     * @param String $RSAPrivateKey
-     * @return String
+     * @param string $RSAPrivateKey
+     * @return string
      */
     function _convertPrivateKey($n, $e, $d, $primes, $exponents, $coefficients)
     {
@@ -947,8 +943,8 @@ class RSA
      *
      * @access private
      * @see setPublicKeyFormat()
-     * @param String $RSAPrivateKey
-     * @return String
+     * @param string $RSAPrivateKey
+     * @return string
      */
     function _convertPublicKey($n, $e)
     {
@@ -1026,9 +1022,9 @@ class RSA
      * @access private
      * @see _convertPublicKey()
      * @see _convertPrivateKey()
-     * @param String $key
-     * @param Integer $type
-     * @return Array
+     * @param string $key
+     * @param int $type
+     * @return array
      */
     function _parseKey($key, $type)
     {
@@ -1423,7 +1419,7 @@ class RSA
      * More specifically, this returns the size of the modulo in bits.
      *
      * @access public
-     * @return Integer
+     * @return int
      */
     function getSize()
     {
@@ -1436,9 +1432,9 @@ class RSA
      * Called by xml_set_element_handler()
      *
      * @access private
-     * @param Resource $parser
-     * @param String $name
-     * @param Array $attribs
+     * @param resource $parser
+     * @param string $name
+     * @param array $attribs
      */
     function _start_element_handler($parser, $name, $attribs)
     {
@@ -1477,8 +1473,8 @@ class RSA
      * Called by xml_set_element_handler()
      *
      * @access private
-     * @param Resource $parser
-     * @param String $name
+     * @param resource $parser
+     * @param string $name
      */
     function _stop_element_handler($parser, $name)
     {
@@ -1494,8 +1490,8 @@ class RSA
      * Called by xml_set_character_data_handler()
      *
      * @access private
-     * @param Resource $parser
-     * @param String $data
+     * @param resource $parser
+     * @param string $data
      */
     function _data_handler($parser, $data)
     {
@@ -1511,8 +1507,8 @@ class RSA
      * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
      *
      * @access public
-     * @param String $key
-     * @param Integer $type optional
+     * @param string $key
+     * @param int $type optional
      */
     function loadKey($key, $type = false)
     {
@@ -1629,7 +1625,7 @@ class RSA
      * @see createKey()
      * @see loadKey()
      * @access public
-     * @param String $password
+     * @param string $password
      */
     function setPassword($password = false)
     {
@@ -1653,9 +1649,9 @@ class RSA
      *
      * @see getPublicKey()
      * @access public
-     * @param String $key optional
-     * @param Integer $type optional
-     * @return Boolean
+     * @param string $key optional
+     * @param int $type optional
+     * @return bool
      */
     function setPublicKey($key = false, $type = false)
     {
@@ -1713,9 +1709,9 @@ class RSA
      *
      * @see getPublicKey()
      * @access public
-     * @param String $key optional
-     * @param Integer $type optional
-     * @return Boolean
+     * @param string $key optional
+     * @param int $type optional
+     * @return bool
      */
     function setPrivateKey($key = false, $type = false)
     {
@@ -1744,8 +1740,8 @@ class RSA
      *
      * @see getPublicKey()
      * @access public
-     * @param String $key
-     * @param Integer $type optional
+     * @param string $key
+     * @param int $type optional
      */
     function getPublicKey($type = self::PUBLIC_FORMAT_PKCS8)
     {
@@ -1768,7 +1764,7 @@ class RSA
      * Example output (md5): "c1:b1:30:29:d7:b8:de:6c:97:77:10:d7:46:41:63:87" (as specified by RFC 4716)
      *
      * @access public
-     * @param String $algorithm The hashing algorithm to be used. Valid options are 'md5' and 'sha256'. False is returned
+     * @param string $algorithm The hashing algorithm to be used. Valid options are 'md5' and 'sha256'. False is returned
      * for invalid values.
      */
     public function getPublicKeyFingerprint($algorithm = 'md5')
@@ -1802,8 +1798,8 @@ class RSA
      *
      * @see getPublicKey()
      * @access public
-     * @param String $key
-     * @param Integer $type optional
+     * @param string $key
+     * @param int $type optional
      */
     function getPrivateKey($type = self::PUBLIC_FORMAT_PKCS1)
     {
@@ -1826,8 +1822,8 @@ class RSA
      *
      * @see getPrivateKey()
      * @access private
-     * @param String $key
-     * @param Integer $type optional
+     * @param string $key
+     * @param int $type optional
      */
     function _getPrivatePublicKey($mode = self::PUBLIC_FORMAT_PKCS8)
     {
@@ -1873,8 +1869,8 @@ class RSA
      * Generates the smallest and largest numbers requiring $bits bits
      *
      * @access private
-     * @param Integer $bits
-     * @return Array
+     * @param int $bits
+     * @return array
      */
     function _generateMinMax($bits)
     {
@@ -1902,8 +1898,8 @@ class RSA
      * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
      *
      * @access private
-     * @param String $string
-     * @return Integer
+     * @param string $string
+     * @return int
      */
     function _decodeLength(&$string)
     {
@@ -1923,8 +1919,8 @@ class RSA
      * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
      *
      * @access private
-     * @param Integer $length
-     * @return String
+     * @param int $length
+     * @return string
      */
     function _encodeLength($length)
     {
@@ -1941,9 +1937,9 @@ class RSA
      *
      * Inspired by array_shift
      *
-     * @param String $string
-     * @param optional Integer $index
-     * @return String
+     * @param string $string
+     * @param int $index
+     * @return string
      * @access private
      */
     function _string_shift(&$string, $index = 1)
@@ -1958,7 +1954,7 @@ class RSA
      *
      * @see createKey()
      * @access public
-     * @param Integer $format
+     * @param int $format
      */
     function setPrivateKeyFormat($format)
     {
@@ -1970,7 +1966,7 @@ class RSA
      *
      * @see createKey()
      * @access public
-     * @param Integer $format
+     * @param int $format
      */
     function setPublicKeyFormat($format)
     {
@@ -1984,7 +1980,7 @@ class RSA
      * decryption.  If $hash isn't supported, sha1 is used.
      *
      * @access public
-     * @param String $hash
+     * @param string $hash
      */
     function setHash($hash)
     {
@@ -2013,7 +2009,7 @@ class RSA
      * best if Hash and MGFHash are set to the same thing this is not a requirement.
      *
      * @access public
-     * @param String $hash
+     * @param string $hash
      */
     function setMGFHash($hash)
     {
@@ -2042,7 +2038,7 @@ class RSA
      *    of the hash function Hash) and 0.
      *
      * @access public
-     * @param Integer $format
+     * @param int $format
      */
     function setSaltLength($sLen)
     {
@@ -2056,8 +2052,8 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $x
-     * @param Integer $xLen
-     * @return String
+     * @param int $xLen
+     * @return string
      */
     function _i2osp($x, $xLen)
     {
@@ -2075,7 +2071,7 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#section-4.2 RFC3447#section-4.2}.
      *
      * @access private
-     * @param String $x
+     * @param string $x
      * @return \phpseclib\Math\BigInteger
      */
     function _os2ip($x)
@@ -2169,7 +2165,7 @@ class RSA
      * @access private
      * @param \phpseclib\Math\BigInteger $x
      * @param \phpseclib\Math\BigInteger $r
-     * @param Integer $i
+     * @param int $i
      * @return \phpseclib\Math\BigInteger
      */
     function _blind($x, $r, $i)
@@ -2194,9 +2190,9 @@ class RSA
      * Thanks for the heads up singpolyma!
      *
      * @access private
-     * @param String $x
-     * @param String $y
-     * @return Boolean
+     * @param string $x
+     * @param string $y
+     * @return bool
      */
     function _equals($x, $y)
     {
@@ -2290,9 +2286,9 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#appendix-B.2.1 RFC3447#appendix-B.2.1}.
      *
      * @access private
-     * @param String $mgfSeed
-     * @param Integer $mgfLen
-     * @return String
+     * @param string $mgfSeed
+     * @param int $mgfLen
+     * @return string
      */
     function _mgf1($mgfSeed, $maskLen)
     {
@@ -2315,9 +2311,9 @@ class RSA
      * {http://en.wikipedia.org/wiki/Optimal_Asymmetric_Encryption_Padding OAES}.
      *
      * @access private
-     * @param String $m
-     * @param String $l
-     * @return String
+     * @param string $m
+     * @param string $l
+     * @return string
      */
     function _rsaes_oaep_encrypt($m, $l = '')
     {
@@ -2378,9 +2374,9 @@ class RSA
      *    this document.
      *
      * @access private
-     * @param String $c
-     * @param String $l
-     * @return String
+     * @param string $c
+     * @param string $l
+     * @return string
      */
     function _rsaes_oaep_decrypt($c, $l = '')
     {
@@ -2437,8 +2433,8 @@ class RSA
      * Doesn't use padding and is not recommended.
      *
      * @access private
-     * @param String $m
-     * @return String
+     * @param string $m
+     * @return string
      */
     function _raw_encrypt($m)
     {
@@ -2453,8 +2449,8 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.2.1 RFC3447#section-7.2.1}.
      *
      * @access private
-     * @param String $m
-     * @return String
+     * @param string $m
+     * @return string
      */
     function _rsaes_pkcs1_v1_5_encrypt($m)
     {
@@ -2512,8 +2508,8 @@ class RSA
      * not private key encrypted ciphertext's.
      *
      * @access private
-     * @param String $c
-     * @return String
+     * @param string $c
+     * @return string
      */
     function _rsaes_pkcs1_v1_5_decrypt($c)
     {
@@ -2561,8 +2557,8 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.1.1 RFC3447#section-9.1.1}.
      *
      * @access private
-     * @param String $m
-     * @param Integer $emBits
+     * @param string $m
+     * @param int $emBits
      */
     function _emsa_pss_encode($m, $emBits)
     {
@@ -2570,7 +2566,7 @@ class RSA
         // be output.
 
         $emLen = ($emBits + 1) >> 3; // ie. ceil($emBits / 8)
-        $sLen = $this->sLen === false ? $this->hLen : $this->sLen;
+        $sLen = $this->sLen ? $this->sLen : $this->hLen;
 
         $mHash = $this->hash->hash($m);
         if ($emLen < $this->hLen + $sLen + 2) {
@@ -2597,10 +2593,10 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.1.2 RFC3447#section-9.1.2}.
      *
      * @access private
-     * @param String $m
-     * @param String $em
-     * @param Integer $emBits
-     * @return String
+     * @param string $m
+     * @param string $em
+     * @param int $emBits
+     * @return string
      */
     function _emsa_pss_verify($m, $em, $emBits)
     {
@@ -2608,7 +2604,7 @@ class RSA
         // be output.
 
         $emLen = ($emBits + 1) >> 3; // ie. ceil($emBits / 8);
-        $sLen = $this->sLen === false ? $this->hLen : $this->sLen;
+        $sLen = $this->sLen ? $this->sLen : $this->hLen;
 
         $mHash = $this->hash->hash($m);
         if ($emLen < $this->hLen + $sLen + 2) {
@@ -2644,8 +2640,8 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.1.1 RFC3447#section-8.1.1}.
      *
      * @access private
-     * @param String $m
-     * @return String
+     * @param string $m
+     * @return string
      */
     function _rsassa_pss_sign($m)
     {
@@ -2670,9 +2666,9 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.1.2 RFC3447#section-8.1.2}.
      *
      * @access private
-     * @param String $m
-     * @param String $s
-     * @return String
+     * @param string $m
+     * @param string $s
+     * @return string
      */
     function _rsassa_pss_verify($m, $s)
     {
@@ -2710,9 +2706,9 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.2 RFC3447#section-9.2}.
      *
      * @access private
-     * @param String $m
-     * @param Integer $emLen
-     * @return String
+     * @param string $m
+     * @param int $emLen
+     * @return string
      */
     function _emsa_pkcs1_v1_5_encode($m, $emLen)
     {
@@ -2762,8 +2758,8 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.2.1 RFC3447#section-8.2.1}.
      *
      * @access private
-     * @param String $m
-     * @return String
+     * @param string $m
+     * @return string
      */
     function _rsassa_pkcs1_v1_5_sign($m)
     {
@@ -2792,8 +2788,8 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.2.2 RFC3447#section-8.2.2}.
      *
      * @access private
-     * @param String $m
-     * @return String
+     * @param string $m
+     * @return string
      */
     function _rsassa_pkcs1_v1_5_verify($m, $s)
     {
@@ -2836,7 +2832,7 @@ class RSA
      * Valid values include self::ENCRYPTION_OAEP and self::ENCRYPTION_PKCS1.
      *
      * @access public
-     * @param Integer $mode
+     * @param int $mode
      */
     function setEncryptionMode($mode)
     {
@@ -2849,7 +2845,7 @@ class RSA
      * Valid values include self::SIGNATURE_PSS and self::SIGNATURE_PKCS1
      *
      * @access public
-     * @param Integer $mode
+     * @param int $mode
      */
     function setSignatureMode($mode)
     {
@@ -2860,7 +2856,7 @@ class RSA
      * Set public key comment.
      *
      * @access public
-     * @param String $comment
+     * @param string $comment
      */
     function setComment($comment)
     {
@@ -2871,7 +2867,7 @@ class RSA
      * Get public key comment.
      *
      * @access public
-     * @return String
+     * @return string
      */
     function getComment()
     {
@@ -2887,8 +2883,8 @@ class RSA
      *
      * @see decrypt()
      * @access public
-     * @param String $plaintext
-     * @return String
+     * @param string $plaintext
+     * @return string
      */
     function encrypt($plaintext)
     {
@@ -2933,8 +2929,8 @@ class RSA
      *
      * @see encrypt()
      * @access public
-     * @param String $plaintext
-     * @return String
+     * @param string $plaintext
+     * @return string
      */
     function decrypt($ciphertext)
     {
@@ -2975,8 +2971,8 @@ class RSA
      *
      * @see verify()
      * @access public
-     * @param String $message
-     * @return String
+     * @param string $message
+     * @return string
      */
     function sign($message)
     {
@@ -2998,9 +2994,9 @@ class RSA
      *
      * @see sign()
      * @access public
-     * @param String $message
-     * @param String $signature
-     * @return Boolean
+     * @param string $message
+     * @param string $signature
+     * @return bool
      */
     function verify($message, $signature)
     {
@@ -3021,8 +3017,8 @@ class RSA
      * Extract raw BER from Base64 encoding
      *
      * @access private
-     * @param String $str
-     * @return String
+     * @param string $str
+     * @return string
      */
     function _extractBER($str)
     {

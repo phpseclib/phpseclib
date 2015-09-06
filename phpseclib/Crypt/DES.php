@@ -72,7 +72,7 @@ class DES extends Base
      * Block Length of the cipher
      *
      * @see \phpseclib\Crypt\Base::block_size
-     * @var Integer
+     * @var int
      * @access private
      */
     var $block_size = 8;
@@ -82,7 +82,7 @@ class DES extends Base
      *
      * @see \phpseclib\Crypt\Base::key
      * @see setKey()
-     * @var String
+     * @var string
      * @access private
      */
     var $key = "\0\0\0\0\0\0\0\0";
@@ -92,7 +92,7 @@ class DES extends Base
      *
      * @see \phpseclib\Crypt\Base::password_key_size
      * @see \phpseclib\Crypt\Base::setPassword()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $password_key_size = 8;
@@ -101,7 +101,7 @@ class DES extends Base
      * The mcrypt specific name of the cipher
      *
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'des';
@@ -110,7 +110,7 @@ class DES extends Base
      * The OpenSSL names of the cipher / modes
      *
      * @see \phpseclib\Crypt\Base::openssl_mode_names
-     * @var Array
+     * @var array
      * @access private
      */
     var $openssl_mode_names = array(
@@ -125,7 +125,7 @@ class DES extends Base
      * Optimizing value while CFB-encrypting
      *
      * @see \phpseclib\Crypt\Base::cfb_init_len
-     * @var Integer
+     * @var int
      * @access private
      */
     var $cfb_init_len = 500;
@@ -137,7 +137,7 @@ class DES extends Base
      *
      * @see \phpseclib\Crypt\DES::_setupKey()
      * @see \phpseclib\Crypt\DES::_processBlock()
-     * @var Integer
+     * @var int
      * @access private
      */
     var $des_rounds = 1;
@@ -146,7 +146,7 @@ class DES extends Base
      * max possible size of $key
      *
      * @see \phpseclib\Crypt\DES::setKey()
-     * @var String
+     * @var string
      * @access private
      */
     var $key_size_max = 8;
@@ -155,7 +155,7 @@ class DES extends Base
      * The Key Schedule
      *
      * @see \phpseclib\Crypt\DES::_setupKey()
-     * @var Array
+     * @var array
      * @access private
      */
     var $keys;
@@ -169,7 +169,7 @@ class DES extends Base
      *
      * @see \phpseclib\Crypt\DES::_processBlock()
      * @see \phpseclib\Crypt\DES::_setupKey()
-     * @var Array
+     * @var array
      * @access private
      */
     var $shuffle = array(
@@ -308,7 +308,7 @@ class DES extends Base
      *
      * Indexing this table with each source byte performs the initial bit permutation.
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $ipmap = array(
@@ -350,7 +350,7 @@ class DES extends Base
      * Inverse IP mapping helper table.
      * Indexing this table with a byte value reverses the bit order.
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $invipmap = array(
@@ -394,7 +394,7 @@ class DES extends Base
      * Each box ($sbox1-$sbox8) has been vectorized, then each value pre-permuted using the
      * P table: concatenation can then be replaced by exclusive ORs.
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $sbox1 = array(
@@ -419,7 +419,7 @@ class DES extends Base
     /**
      * Pre-permuted S-box2
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $sbox2 = array(
@@ -444,7 +444,7 @@ class DES extends Base
     /**
      * Pre-permuted S-box3
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $sbox3 = array(
@@ -469,7 +469,7 @@ class DES extends Base
     /**
      * Pre-permuted S-box4
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $sbox4 = array(
@@ -494,7 +494,7 @@ class DES extends Base
     /**
      * Pre-permuted S-box5
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $sbox5 = array(
@@ -519,7 +519,7 @@ class DES extends Base
     /**
      * Pre-permuted S-box6
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $sbox6 = array(
@@ -544,7 +544,7 @@ class DES extends Base
     /**
      * Pre-permuted S-box7
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $sbox7 = array(
@@ -569,7 +569,7 @@ class DES extends Base
     /**
      * Pre-permuted S-box8
      *
-     * @var Array
+     * @var array
      * @access private
      */
     var $sbox8 = array(
@@ -597,9 +597,9 @@ class DES extends Base
      * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
      *
      * @see \phpseclib\Crypt\Base::isValidEngine()
-     * @param Integer $engine
+     * @param int $engine
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function isValidEngine($engine)
     {
@@ -626,7 +626,7 @@ class DES extends Base
      *
      * @see \phpseclib\Crypt\Base::setKey()
      * @access public
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
@@ -647,8 +647,8 @@ class DES extends Base
      * @see \phpseclib\Crypt\Base::encrypt()
      * @see \phpseclib\Crypt\DES::encrypt()
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _encryptBlock($in)
     {
@@ -662,8 +662,8 @@ class DES extends Base
      * @see \phpseclib\Crypt\Base::decrypt()
      * @see \phpseclib\Crypt\DES::decrypt()
      * @access private
-     * @param String $in
-     * @return String
+     * @param string $in
+     * @return string
      */
     function _decryptBlock($in)
     {
@@ -680,9 +680,9 @@ class DES extends Base
      * @see \phpseclib\Crypt\DES::_encryptBlock()
      * @see \phpseclib\Crypt\DES::_decryptBlock()
      * @access private
-     * @param String $block
-     * @param Integer $mode
-     * @return String
+     * @param string $block
+     * @param int $mode
+     * @return string
      */
     function _processBlock($block, $mode)
     {

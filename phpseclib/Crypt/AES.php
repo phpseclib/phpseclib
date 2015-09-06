@@ -67,7 +67,7 @@ class AES extends Rijndael
      *
      * @see \phpseclib\Crypt\Rijndael::setBlockLength()
      * @access public
-     * @param Integer $length
+     * @param int $length
      */
     function setBlockLength($length)
     {
@@ -82,7 +82,7 @@ class AES extends Rijndael
      *
      * @see \phpseclib\Crypt\Rijndael:setKeyLength()
      * @access public
-     * @param Integer $length
+     * @param int $length
      */
     function setKeyLength($length)
     {
@@ -104,7 +104,7 @@ class AES extends Rijndael
      * @see \phpseclib\Crypt\Rijndael:setKey()
      * @see setKeyLength()
      * @access public
-     * @param String $key
+     * @param string $key
      */
     function setKey($key)
     {
