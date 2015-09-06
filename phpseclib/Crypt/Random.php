@@ -268,7 +268,7 @@ if (!function_exists('phpseclib_resolve_include_path')) {
      * PHP 5.3.2) with fallback implementation for earlier PHP versions.
      *
      * @param string $filename
-     * @return mixed Filename (string) on success, false otherwise.
+     * @return string|false
      * @access public
      */
     function phpseclib_resolve_include_path($filename)

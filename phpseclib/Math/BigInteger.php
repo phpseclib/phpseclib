@@ -2430,7 +2430,7 @@ class Math_BigInteger
      * </code>
      *
      * @param Math_BigInteger $n
-     * @return mixed false, if no modular inverse exists, Math_BigInteger, otherwise.
+     * @return Math_BigInteger|false
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=21 HAC 14.64} for more information.
      */
@@ -3190,13 +3190,13 @@ class Math_BigInteger
     /**
      * Generate a random prime number.
      *
-     * If there's not a prime within the given range, false will be returned.  If more than $timeout seconds have elapsed,
-     * give up and return false.
+     * If there's not a prime within the given range, false will be returned.
+     * If more than $timeout seconds have elapsed, give up and return false.
      *
      * @param Math_BigInteger $arg1
      * @param Math_BigInteger $arg2
      * @param int $timeout
-     * @return mixed
+     * @return Math_BigInteger|false
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
      */
