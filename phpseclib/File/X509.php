@@ -3794,7 +3794,7 @@ class File_X509
      * @param string $path optional absolute path with / as component separator
      * @param bool $create optional
      * @access private
-     * @return mixed
+     * @return array|false
      */
     function &_extensions(&$root, $path = null, $create = false)
     {
