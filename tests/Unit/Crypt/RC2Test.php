@@ -29,12 +29,15 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
             array('88bca90e90875a7f0f79c384627bafb2', 128, '0000000000000000', '2269552ab0f85ca6'),
             array('88bca90e90875a7f0f79c384627bafb216f80a6f85920584c42fceb0be255daf1e', 129, '0000000000000000', '5b78d3a43dfff1f1')
         );
+
         $result = array();
-        // @codingStandardsIgnoreStart
-        foreach ($this->engines as $engine => $engineName) 
-        foreach ($tests as $test)
-            $result[] = array($engine, $engineName, $test[0], $test[1], $test[2], $test[3]);
-        // @codingStandardsIgnoreEnd
+
+        foreach ($this->engines as $engine => $engineName) {
+            foreach ($tests as $test) {
+                $result[] = array($engine, $engineName, $test[0], $test[1], $test[2], $test[3]);
+            }
+        }
+
         return $result;
     }
 
@@ -102,8 +105,8 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
     }
 
     /**
-    * @dataProvider engineVectors
-    */
+     * @dataProvider engineVectors
+     */
     public function testVectors($engine, $engineName, $key, $keyLen, $plaintext, $ciphertext)
     {
         $rc2 = new Crypt_RC2();

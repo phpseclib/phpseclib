@@ -755,7 +755,7 @@ class Crypt_Rijndael extends Crypt_Base
     {
         static $sbox;
         if (empty($sbox)) {
-            list(,,,, $sbox) = $this->_getTables();
+            list(, , , , $sbox) = $this->_getTables();
         }
 
         return  $sbox[$word       & 0x000000FF]        |
@@ -954,7 +954,7 @@ class Crypt_Rijndael extends Crypt_Base
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
         // (Currently, for Crypt_Rijndael/AES, one generated $lambda_function cost on php5.5@32bit ~80kb unfreeable mem and ~130kb on php5.5@64bit)
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one.
-        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
+        $gen_hi_opt_code = (bool)(count($lambda_functions) < 10);
 
         // Generation of a uniqe hash for our generated code
         $code_hash = "Crypt_Rijndael, {$this->mode}, {$this->Nr}, {$this->Nb}";

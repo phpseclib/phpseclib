@@ -637,7 +637,7 @@ class Crypt_RC2 extends Crypt_Base
         // for the mixing rounds, for better inline crypt performance [~20% faster].
         // But for memory reason we have to limit those ultra-optimized $lambda_functions to an amount of 10.
         // (Currently, for Crypt_RC2, one generated $lambda_function cost on php5.5@32bit ~60kb unfreeable mem and ~100kb on php5.5@64bit)
-        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
+        $gen_hi_opt_code = (bool)(count($lambda_functions) < 10);
 
         // Generation of a uniqe hash for our generated code
         $code_hash = "Crypt_RC2, {$this->mode}";

@@ -1644,7 +1644,6 @@ class Crypt_RSA
                     break;
                 }
             }
-
         } else {
             $components = $this->_parseKey($key, $type);
         }
@@ -1859,7 +1858,6 @@ class Crypt_RSA
             default:
                 return false;
         }
-
     }
 
     /**

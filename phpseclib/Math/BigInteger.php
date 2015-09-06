@@ -423,13 +423,13 @@ class Math_BigInteger
                         $this->is_negative = false;
                         break;
                     case MATH_BIGINTEGER_MODE_BCMATH:
-                        $x = ( strlen($x) & 1 ) ? '0' . $x : $x;
+                        $x = (strlen($x) & 1) ? '0' . $x : $x;
                         $temp = new Math_BigInteger(pack('H*', $x), 256);
                         $this->value = $this->is_negative ? '-' . $temp->value : $temp->value;
                         $this->is_negative = false;
                         break;
                     default:
-                        $x = ( strlen($x) & 1 ) ? '0' . $x : $x;
+                        $x = (strlen($x) & 1) ? '0' . $x : $x;
                         $temp = new Math_BigInteger(pack('H*', $x), 256);
                         $this->value = $temp->value;
                 }
@@ -558,7 +558,7 @@ class Math_BigInteger
                 }
 
                 $temp = gmp_strval(gmp_abs($this->value), 16);
-                $temp = ( strlen($temp) & 1 ) ? '0' . $temp : $temp;
+                $temp = (strlen($temp) & 1) ? '0' . $temp : $temp;
                 $temp = pack('H*', $temp);
 
                 return $this->precision > 0 ?
@@ -802,7 +802,6 @@ class Math_BigInteger
             $vars[] = 'precision';
         }
         return $vars;
-
     }
 
     /**
@@ -1512,7 +1511,7 @@ class Math_BigInteger
             );
             $y_window = array(
                 $y_value[$y_max],
-                ( $y_max > 0 ) ? $y_value[$y_max - 1] : 0
+                ($y_max > 0) ? $y_value[$y_max - 1] : 0
             );
 
             $q_index = $i - $y_max - 1;
@@ -1706,10 +1705,10 @@ class Math_BigInteger
         }
 
         if (MATH_BIGINTEGER_MODE == MATH_BIGINTEGER_MODE_BCMATH) {
-                $temp = new Math_BigInteger();
-                $temp->value = bcpowmod($this->value, $e->value, $n->value, 0);
+            $temp = new Math_BigInteger();
+            $temp->value = bcpowmod($this->value, $e->value, $n->value, 0);
 
-                return $this->_normalize($temp);
+            return $this->_normalize($temp);
         }
 
         if (empty($e->value)) {
@@ -1760,7 +1759,7 @@ class Math_BigInteger
         $mod2->value = array(1);
         $mod2->_lshift($j);
 
-        $part1 = ( $mod1->value != array(1) ) ? $this->_slidingWindow($e, $mod1, MATH_BIGINTEGER_MONTGOMERY) : new Math_BigInteger();
+        $part1 = ($mod1->value != array(1)) ? $this->_slidingWindow($e, $mod1, MATH_BIGINTEGER_MONTGOMERY) : new Math_BigInteger();
         $part2 = $this->_slidingWindow($e, $mod2, MATH_BIGINTEGER_POWEROF2);
 
         $y1 = $mod2->modInverse($mod1);
@@ -1855,7 +1854,8 @@ class Math_BigInteger
                     }
                 }
 
-                for ($k = 0; $k <= $j; ++$k) {// eg. the length of substr($e_bits, $i, $j+1)
+                for ($k = 0; $k <= $j; ++$k) {
+                    // eg. the length of substr($e_bits, $i, $j+1)
                     $result = $this->_squareReduce($result, $n_value, $mode);
                 }
 
@@ -2441,7 +2441,7 @@ class Math_BigInteger
                 $temp = new Math_BigInteger();
                 $temp->value = gmp_invert($this->value, $n->value);
 
-                return ( $temp->value === false ) ? false : $this->_normalize($temp);
+                return ($temp->value === false) ? false : $this->_normalize($temp);
         }
 
         static $zero, $one;
@@ -2705,13 +2705,13 @@ class Math_BigInteger
     function _compare($x_value, $x_negative, $y_value, $y_negative)
     {
         if ($x_negative != $y_negative) {
-            return ( !$x_negative && $y_negative ) ? 1 : -1;
+            return (!$x_negative && $y_negative) ? 1 : -1;
         }
 
         $result = $x_negative ? -1 : 1;
 
         if (count($x_value) != count($y_value)) {
-            return ( count($x_value) > count($y_value) ) ? $result : -$result;
+            return (count($x_value) > count($y_value)) ? $result : -$result;
         }
         $size = max(count($x_value), count($y_value));
 
@@ -2720,7 +2720,7 @@ class Math_BigInteger
 
         for ($i = count($x_value) - 1; $i >= 0; --$i) {
             if ($x_value[$i] != $y_value[$i]) {
-                return ( $x_value[$i] > $y_value[$i] ) ? $result : -$result;
+                return ($x_value[$i] > $y_value[$i]) ? $result : -$result;
             }
         }
 
