@@ -83,11 +83,6 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 'The quick brown fox jumps over the lazy dog.',
                 '87a7ff096082e3ffeb86db10feb91c5af36c2c71bc426fe310ce662e0338223e217def0eab0b02b80eecf875657802bc5965e48f5c0a05467756f0d3f396faba'
             ),
-            array(
-                'tiger192,3',
-                'The quick brown fox jumps over the lazy dog.',
-                '0bf46f237681b35301d46aa08d43c449643408521a263929'
-            ),
         );
     }
 
@@ -175,13 +170,6 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 'abcd',
                 'The quick brown fox jumps over the lazy dog',
                 'e71aabb2588d789292fa6fef00b35cc269ec3ea912b1c1cd7127daf95f004a5df5392ee563d322bac7e19d9eab161932fe9c257d63e0d09eca0d91ab4010125e',
-            ),
-            // from https://www.cosic.esat.kuleuven.be/nessie/testvectors/mac/hmac-tiger/HMAC-Tiger-512-192.test-vectors
-            array(
-                'tiger192,3',
-                pack('H*', '00112233445566778899AABBCCDDEEFF0123456789ABCDEF00112233445566778899AABBCCDDEEFF0123456789ABCDEF00112233445566778899AABBCCDDEEFF'),
-                '',
-                '2fa999c02aba3644471b5a7ccf542bf61827e8f53bea0195',
             ),
         );
     }
