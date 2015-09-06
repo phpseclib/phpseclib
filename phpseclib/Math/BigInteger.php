@@ -1854,14 +1854,14 @@ class Math_BigInteger
                     }
                 }
 
+                // eg. the length of substr($e_bits, $i, $j + 1)
                 for ($k = 0; $k <= $j; ++$k) {
-                    // eg. the length of substr($e_bits, $i, $j+1)
                     $result = $this->_squareReduce($result, $n_value, $mode);
                 }
 
                 $result = $this->_multiplyReduce($result, $powers[bindec(substr($e_bits, $i, $j + 1))], $n_value, $mode);
 
-                $i+=$j + 1;
+                $i += $j + 1;
             }
         }
 
