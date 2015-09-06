@@ -35,6 +35,8 @@
 
 namespace phpseclib\Crypt;
 
+use phpseclib\Exception\UnsupportedAlgorithmException;
+
 /**
  * Pure-PHP implementations of keyed-hash message authentication codes (HMACs) and various cryptographic hashing functions.
  *
@@ -87,7 +89,7 @@ class Hash
      * @return \phpseclib\Crypt\Hash
      * @access public
      */
-    function __construct($hash = 'sha1')
+    function __construct($hash = 'sha256')
     {
         $this->setHash($hash);
     }
@@ -162,9 +164,7 @@ class Hash
                     $this->l = abs($matches[1]) >> 3;
                     break;
                 }
-                // if no other usable option exists use sha1
-                $hash = 'sha1';
-                $this->l = 20;
+                throw new UnsupportedAlgorithmException("$hash is not a supported algorithm");
         }
 
         $this->hash = $hash;
