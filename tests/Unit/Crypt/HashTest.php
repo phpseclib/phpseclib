@@ -73,6 +73,21 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 'The quick brown fox jumps over the lazy dog.',
                 '91ea1245f20d46ae9a037a989f54f1f790f0a47607eeb8a14d12890cea77a1bbc6c7ed9cf205e67b7f2b8fd4c7dfd3a7a8617e45f3c463d481c7e586c39ac1ed',
             ),
+            array(
+                'whirlpool',
+                'The quick brown fox jumps over the lazy dog.',
+                '87a7ff096082e3ffeb86db10feb91c5af36c2c71bc426fe310ce662e0338223e217def0eab0b02b80eecf875657802bc5965e48f5c0a05467756f0d3f396faba'
+            ),
+            array(
+                'whirlpool',
+                'The quick brown fox jumps over the lazy dog.',
+                '87a7ff096082e3ffeb86db10feb91c5af36c2c71bc426fe310ce662e0338223e217def0eab0b02b80eecf875657802bc5965e48f5c0a05467756f0d3f396faba'
+            ),
+            array(
+                'tiger192,3',
+                'The quick brown fox jumps over the lazy dog.',
+                '0bf46f237681b35301d46aa08d43c449643408521a263929'
+            ),
         );
     }
 
@@ -155,7 +170,19 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 pack('H*', 'cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd'),
                 'b0ba465637458c6990e5a8c5f61d4af7e576d97ff94b872de76f8050361ee3dba91ca5c11aa25eb4d679275cc5788063a5f19741120c4f2de2adebeb10a298dd',
             ),
-
+            array(
+                'whirlpool',
+                'abcd',
+                'The quick brown fox jumps over the lazy dog',
+                'e71aabb2588d789292fa6fef00b35cc269ec3ea912b1c1cd7127daf95f004a5df5392ee563d322bac7e19d9eab161932fe9c257d63e0d09eca0d91ab4010125e',
+            ),
+            // from https://www.cosic.esat.kuleuven.be/nessie/testvectors/mac/hmac-tiger/HMAC-Tiger-512-192.test-vectors
+            array(
+                'tiger192,3',
+                pack('H*', '00112233445566778899AABBCCDDEEFF0123456789ABCDEF00112233445566778899AABBCCDDEEFF0123456789ABCDEF00112233445566778899AABBCCDDEEFF'),
+                '',
+                '2fa999c02aba3644471b5a7ccf542bf61827e8f53bea0195',
+            ),
         );
     }
 
@@ -173,5 +200,33 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
     public function testHash96($hash, $message, $result)
     {
         $this->assertHashesTo($hash . '-96', $message, substr($result, 0, 24));
+    }
+
+    public function testGetHash()
+    {
+        $hash = new Hash();
+        $this->assertEquals($hash->getHash(), 'sha256');
+        $hash = new Hash('whirpool');
+        $this->assertEquals($hash->getHash(), 'whirlpool');
+        $hash = new Hash('md5');
+        $this->assertEquals($hash->getHash(), 'md5');
+        $hash->setHash('whirpool');
+        $this->assertEquals($hash->getHash(), 'whirlpool');
+        $hash->setHash('md5');
+        $this->assertEquals($hash->getHash(), 'md5');
+    }
+
+    public function testGetLength()
+    {
+        $hash = new Hash();
+        $this->assertEquals($hash->getLength(), 64);
+        $hash = new Hash('whirpool');
+        $this->assertEquals($hash->getLength(), 128);
+        $hash = new Hash('md5');
+        $this->assertEquals($hash->getLength(), 32);
+        $hash->setHash('whirpool');
+        $this->assertEquals($hash->getLength(), 128);
+        $hash->setHash('md5');
+        $this->assertEquals($hash->getLength(), 32);
     }
 }
