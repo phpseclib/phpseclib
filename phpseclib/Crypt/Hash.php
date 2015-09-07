@@ -86,7 +86,6 @@ class Hash
      * Default Constructor.
      *
      * @param string $hash
-     * @return \phpseclib\Crypt\Hash
      * @access public
      */
     function __construct($hash = 'sha256')
