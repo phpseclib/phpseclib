@@ -62,7 +62,7 @@ class Hash
      * @var int
      * @access private
      */
-    var $length = false;
+    var $length;
 
     /**
      * Hash Algorithm
