@@ -1,23 +1,20 @@
 <?php
 
 /**
- * Pure-PHP implementations of keyed-hash message authentication codes (HMACs) and various cryptographic hashing functions.
+ * Wrapper around hash() and hash_hmac() functions supporting truncated hashes
+ * such as sha256-96.  Any hash algorithm returned by hash_algos() (and
+ * truncated versions thereof) are supported.
  *
- * Basically a wrapper for hash().  Currently supports the following:
- *
- * md2, md5, md5-96, sha1, sha1-96, sha256, sha256-96, sha384, and sha512, sha512-96
- *
- * If {@link \phpseclib\Crypt\Hash::setKey() setKey()} is called, {@link \phpseclib\Crypt\Hash::hash() hash()} will return the HMAC as opposed to
- * the hash.  If no valid algorithm is provided, sha1 will be used.
- *
- * PHP version 5
+ * If {@link \phpseclib\Crypt\Hash::setKey() setKey()} is called,
+ * {@link \phpseclib\Crypt\Hash::hash() hash()} will return the HMAC as opposed
+ * to the hash.
  *
  * Here's a short example of how to use this library:
  * <code>
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $hash = new \phpseclib\Crypt\Hash('sha1');
+ *    $hash = new \phpseclib\Crypt\Hash('sha512');
  *
  *    $hash->setKey('abcdefg');
  *
@@ -28,7 +25,9 @@
  * @category  Crypt
  * @package   Hash
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright 2007 Jim Wigginton
+ * @copyright 2015 Jim Wigginton
+ * @author    Andreas Fischer <bantu@phpbb.com>
+ * @copyright 2015 Andreas Fischer
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
@@ -38,10 +37,9 @@ namespace phpseclib\Crypt;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 
 /**
- * Pure-PHP implementations of keyed-hash message authentication codes (HMACs) and various cryptographic hashing functions.
- *
  * @package Hash
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @author  Andreas Fischer <bantu@phpbb.com>
  * @access  public
  */
 class Hash
@@ -153,17 +151,25 @@ class Hash
                 $this->length = 64;
                 break;
             default:
-                // see if the hash isn't "officially" supported see if it can be "unofficially" supported and calculate the length accordingly
+                // see if the hash isn't "officially" supported see if it can
+                // be "unofficially" supported and calculate the length
+                // accordingly.
                 if (in_array($hash, hash_algos())) {
                     $this->length = strlen(hash($hash, '', true));
                     break;
                 }
-                // if the hash algorithm doens't exist maybe it's a truncated hash. eg. md5-96 or some such
-                if (preg_match('#(-\d+)$#', $hash, $matches) && in_array($hash = substr($hash, 0, -strlen($matches[1])), hash_algos())) {
-                    $this->length = abs($matches[1]) >> 3;
-                    break;
+                // if the hash algorithm doens't exist maybe it's a truncated
+                // hash, e.g. whirlpool-12 or some such.
+                if (preg_match('#(-\d+)$#', $hash, $matches)) {
+                    $hash = substr($hash, 0, -strlen($matches[1]));
+                    if (in_array($hash, hash_algos())) {
+                        $this->length = abs($matches[1]) >> 3;
+                        break;
+                    }
                 }
-                throw new UnsupportedAlgorithmException("$hash is not a supported algorithm");
+                throw new UnsupportedAlgorithmException(
+                    "$hash is not a supported algorithm"
+                );
         }
 
         $this->hash = $hash;
@@ -182,7 +188,9 @@ class Hash
             hash_hmac($this->hash, $text, $this->key, true) :
             hash($this->hash, $text, true);
 
-        return strlen($output) > $this->length ? substr($output, 0, $this->length) : $output;
+        return strlen($output) > $this->length
+            ? substr($output, 0, $this->length)
+            : $output;
     }
 
     /**
