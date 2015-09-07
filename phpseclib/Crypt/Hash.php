@@ -62,7 +62,7 @@ class Hash
      * @var int
      * @access private
      */
-    var $l = false;
+    var $length = false;
 
     /**
      * Hash Algorithm
@@ -135,33 +135,33 @@ class Hash
             case 'sha256-96':
             case 'sha512-96':
                 $hash = substr($hash, 0, -3);
-                $this->l = 12; // 96 / 8 = 12
+                $this->length = 12; // 96 / 8 = 12
                 break;
             case 'md2':
             case 'md5':
-                $this->l = 16;
+                $this->length = 16;
                 break;
             case 'sha1':
-                $this->l = 20;
+                $this->length = 20;
                 break;
             case 'sha256':
-                $this->l = 32;
+                $this->length = 32;
                 break;
             case 'sha384':
-                $this->l = 48;
+                $this->length = 48;
                 break;
             case 'sha512':
-                $this->l = 64;
+                $this->length = 64;
                 break;
             default:
                 // see if the hash isn't "officially" supported see if it can be "unofficially" supported and calculate the length accordingly
                 if (in_array($hash, hash_algos())) {
-                    $this->l = strlen(hash($hash, '', true));
+                    $this->length = strlen(hash($hash, '', true));
                     break;
                 }
                 // if the hash algorithm doens't exist maybe it's a truncated hash. eg. md5-96 or some such
                 if (preg_match('#(-\d+)$#', $hash, $matches) && in_array($hash = substr($hash, 0, -strlen($matches[1])), hash_algos())) {
-                    $this->l = abs($matches[1]) >> 3;
+                    $this->length = abs($matches[1]) >> 3;
                     break;
                 }
                 throw new UnsupportedAlgorithmException("$hash is not a supported algorithm");
@@ -183,7 +183,7 @@ class Hash
             hash_hmac($this->hash, $text, $this->key, true) :
             hash($this->hash, $text, true);
 
-        return strlen($output) > $this->l ? substr($output, 0, $this->l) : $output;
+        return strlen($output) > $this->length ? substr($output, 0, $this->length) : $output;
     }
 
     /**
@@ -194,6 +194,6 @@ class Hash
      */
     function getLength()
     {
-        return $this->l;
+        return $this->length;
     }
 }
