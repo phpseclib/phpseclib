@@ -228,7 +228,7 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
     public function testSetHashInvalid()
     {
         $hash = new Hash('md5');
-        $hash->setHash('abcdefghijklmnopqrst');
+        $hash->setHash('abcdefghijklmnopqrst-96');
     }
 
     public function testSetHashValid()
