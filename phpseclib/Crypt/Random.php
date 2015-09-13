@@ -52,7 +52,7 @@ class Random
      * @throws \RuntimeException if a symmetric cipher is needed but not loaded
      * @return string
      */
-    public static function string($length)
+    static function string($length)
     {
         if (version_compare(PHP_VERSION, '7.0.0', '>=')) {
             try {
