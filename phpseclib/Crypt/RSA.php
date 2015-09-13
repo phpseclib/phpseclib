@@ -2010,7 +2010,7 @@ class RSA
      * @param mixed $arg1
      * @param string $arg2 optional
      */
-    function setPassword($arg1 = false, $arg2 = false)
+    static function setPassword($arg1 = false, $arg2 = false)
     {
         if ($arg1 instanceof RSA) {
             $arg1->password = $arg2;
