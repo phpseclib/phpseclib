@@ -2239,7 +2239,7 @@ class RSA
      */
     function _rsaep($m)
     {
-        if ($m->compare($this->zero) < 0 || $m->compare($this->modulus) > 0) {
+        if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
             throw new \OutOfRangeException('Message representative out of range');
         }
         return $this->_exponentiate($m);
@@ -2257,7 +2257,7 @@ class RSA
      */
     function _rsadp($c)
     {
-        if ($c->compare($this->zero) < 0 || $c->compare($this->modulus) > 0) {
+        if ($c->compare(self::$zero) < 0 || $c->compare($this->modulus) > 0) {
             throw new \OutOfRangeException('Ciphertext representative out of range');
         }
         return $this->_exponentiate($c);
@@ -2275,7 +2275,7 @@ class RSA
      */
     function _rsasp1($m)
     {
-        if ($m->compare($this->zero) < 0 || $m->compare($this->modulus) > 0) {
+        if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
             throw new \OutOfRangeException('Message representative out of range');
         }
         return $this->_exponentiate($m);
@@ -2293,7 +2293,7 @@ class RSA
      */
     function _rsavp1($s)
     {
-        if ($s->compare($this->zero) < 0 || $s->compare($this->modulus) > 0) {
+        if ($s->compare(self::$zero) < 0 || $s->compare($this->modulus) > 0) {
             throw new \OutOfRangeException('Signature representative out of range');
         }
         return $this->_exponentiate($s);
