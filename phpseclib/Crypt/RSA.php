@@ -462,13 +462,15 @@ class RSA
     /**
      * Initialize static variables
      *
-     * @access public
+     * @access private
      */
-    static function init()
+    static function _initialize_static_variables()
     {
-        self::$zero= new BigInteger(0);
-        self::$one = new BigInteger(1);
-        self::$configFile = __DIR__ . '/../openssl.cnf';
+        if (!isset(self::$zero)) {
+            self::$zero= new BigInteger(0);
+            self::$one = new BigInteger(1);
+            self::$configFile = __DIR__ . '/../openssl.cnf';
+        }
     }
 
     /**
@@ -483,6 +485,8 @@ class RSA
      */
     function __construct()
     {
+        self::_initialize_static_variables();
+
         if (!defined('CRYPT_RSA_MODE')) {
             switch (true) {
                 // Math/BigInteger's openssl requirements are a little less stringent than Crypt/RSA's. in particular,
@@ -554,9 +558,10 @@ class RSA
      */
     static function createKey($bits = 1024, $timeout = false, $partial = array())
     {
+        self::_initialize_static_variables();
+
         if (!isset(self::$instance)) {
-            $class = __CLASS__;
-            self::$instance = new $class;
+            self::$instance = new static();
         }
 
         if (!defined('CRYPT_RSA_EXPONENT')) {
@@ -3049,5 +3054,3 @@ class RSA
         return $temp != false ? $temp : $str;
     }
 }
-
-RSA::init();
