@@ -423,13 +423,13 @@ class BigInteger
                         $this->is_negative = false;
                         break;
                     case self::MODE_BCMATH:
-                        $x = ( strlen($x) & 1 ) ? '0' . $x : $x;
+                        $x = (strlen($x) & 1) ? '0' . $x : $x;
                         $temp = new static(pack('H*', $x), 256);
                         $this->value = $this->is_negative ? '-' . $temp->value : $temp->value;
                         $this->is_negative = false;
                         break;
                     default:
-                        $x = ( strlen($x) & 1 ) ? '0' . $x : $x;
+                        $x = (strlen($x) & 1) ? '0' . $x : $x;
                         $temp = new static(pack('H*', $x), 256);
                         $this->value = $temp->value;
                 }
@@ -556,7 +556,7 @@ class BigInteger
                 }
 
                 $temp = gmp_strval(gmp_abs($this->value), 16);
-                $temp = ( strlen($temp) & 1 ) ? '0' . $temp : $temp;
+                $temp = (strlen($temp) & 1) ? '0' . $temp : $temp;
                 $temp = pack('H*', $temp);
 
                 return $this->precision > 0 ?
@@ -794,7 +794,6 @@ class BigInteger
             $vars[] = 'precision';
         }
         return $vars;
-
     }
 
     /**
@@ -1495,7 +1494,7 @@ class BigInteger
             );
             $y_window = array(
                 $y_value[$y_max],
-                ( $y_max > 0 ) ? $y_value[$y_max - 1] : 0
+                ($y_max > 0) ? $y_value[$y_max - 1] : 0
             );
 
             $q_index = $i - $y_max - 1;
@@ -1687,10 +1686,10 @@ class BigInteger
         }
 
         if (MATH_BIGINTEGER_MODE == self::MODE_BCMATH) {
-                $temp = new static();
-                $temp->value = bcpowmod($this->value, $e->value, $n->value, 0);
+            $temp = new static();
+            $temp->value = bcpowmod($this->value, $e->value, $n->value, 0);
 
-                return $this->_normalize($temp);
+            return $this->_normalize($temp);
         }
 
         if (empty($e->value)) {
@@ -1741,7 +1740,7 @@ class BigInteger
         $mod2->value = array(1);
         $mod2->_lshift($j);
 
-        $part1 = ( $mod1->value != array(1) ) ? $this->_slidingWindow($e, $mod1, self::MONTGOMERY) : new static();
+        $part1 = ($mod1->value != array(1)) ? $this->_slidingWindow($e, $mod1, self::MONTGOMERY) : new static();
         $part2 = $this->_slidingWindow($e, $mod2, self::POWEROF2);
 
         $y1 = $mod2->modInverse($mod1);
@@ -1836,13 +1835,14 @@ class BigInteger
                     }
                 }
 
-                for ($k = 0; $k <= $j; ++$k) {// eg. the length of substr($e_bits, $i, $j+1)
+                // eg. the length of substr($e_bits, $i, $j + 1)
+                for ($k = 0; $k <= $j; ++$k) {
                     $result = $this->_squareReduce($result, $n_value, $mode);
                 }
 
                 $result = $this->_multiplyReduce($result, $powers[bindec(substr($e_bits, $i, $j + 1))], $n_value, $mode);
 
-                $i+=$j + 1;
+                $i += $j + 1;
             }
         }
 
@@ -2409,7 +2409,7 @@ class BigInteger
      * </code>
      *
      * @param \phpseclib\Math\BigInteger $n
-     * @return mixed false, if no modular inverse exists, \phpseclib\Math\BigInteger, otherwise.
+     * @return \phpseclib\Math\BigInteger|false
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=21 HAC 14.64} for more information.
      */
@@ -2420,7 +2420,7 @@ class BigInteger
                 $temp = new static();
                 $temp->value = gmp_invert($this->value, $n->value);
 
-                return ( $temp->value === false ) ? false : $this->_normalize($temp);
+                return ($temp->value === false) ? false : $this->_normalize($temp);
         }
 
         static $zero, $one;
@@ -2680,13 +2680,13 @@ class BigInteger
     function _compare($x_value, $x_negative, $y_value, $y_negative)
     {
         if ($x_negative != $y_negative) {
-            return ( !$x_negative && $y_negative ) ? 1 : -1;
+            return (!$x_negative && $y_negative) ? 1 : -1;
         }
 
         $result = $x_negative ? -1 : 1;
 
         if (count($x_value) != count($y_value)) {
-            return ( count($x_value) > count($y_value) ) ? $result : -$result;
+            return (count($x_value) > count($y_value)) ? $result : -$result;
         }
         $size = max(count($x_value), count($y_value));
 
@@ -2695,7 +2695,7 @@ class BigInteger
 
         for ($i = count($x_value) - 1; $i >= 0; --$i) {
             if ($x_value[$i] != $y_value[$i]) {
-                return ( $x_value[$i] > $y_value[$i] ) ? $result : -$result;
+                return ($x_value[$i] > $y_value[$i]) ? $result : -$result;
             }
         }
 
@@ -3153,13 +3153,13 @@ class BigInteger
     /**
      * Generate a random prime number.
      *
-     * If there's not a prime within the given range, false will be returned.  If more than $timeout seconds have elapsed,
-     * give up and return false.
+     * If there's not a prime within the given range, false will be returned.
+     * If more than $timeout seconds have elapsed, give up and return false.
      *
      * @param \phpseclib\Math\BigInteger $arg1
      * @param \phpseclib\Math\BigInteger $arg2
      * @param int $timeout
-     * @return mixed
+     * @return Math_BigInteger|false
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
      */

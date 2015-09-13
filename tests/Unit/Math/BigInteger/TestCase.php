@@ -49,7 +49,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 
     public function testToHex()
     {
-         $this->assertSame('41', $this->getInstance('65')->toHex());
+        $this->assertSame('41', $this->getInstance('65')->toHex());
     }
 
     public function testToBits()

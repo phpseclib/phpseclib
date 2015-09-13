@@ -94,6 +94,5 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
             $x509->validateSignature(),
             'Failed asserting that the signature is invalid'
         );
-
     }
 }

@@ -914,7 +914,7 @@ abstract class Base
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                     if ($start = strlen($plaintext) % $block_size) {
-                         $buffer['xor'] = substr($key, $start) . $buffer['xor'];
+                        $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
                 break;
@@ -1204,7 +1204,7 @@ abstract class Base
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                     if ($start = strlen($ciphertext) % $block_size) {
-                         $buffer['xor'] = substr($key, $start) . $buffer['xor'];
+                        $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
                 break;
@@ -1748,7 +1748,6 @@ abstract class Base
             if ($this->mode == self::MODE_CFB) {
                 $this->ecb = mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_ECB, '');
             }
-
         } // else should mcrypt_generic_deinit be called?
 
         if ($this->mode == self::MODE_CFB) {
