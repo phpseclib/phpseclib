@@ -330,7 +330,6 @@ class BigInteger
                     self::$max10     = 10000000;
                     self::$max10Len  = 7;
                     self::$maxDigit2 = pow(2, 52); // pow() prevents truncation
-                    break;
             }
         }
 
