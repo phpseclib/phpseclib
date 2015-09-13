@@ -470,6 +470,7 @@ class RSA
             self::$zero= new BigInteger(0);
             self::$one = new BigInteger(1);
             self::$configFile = __DIR__ . '/../openssl.cnf';
+            self::$instance = new static();
         }
     }
 
@@ -486,6 +487,12 @@ class RSA
     function __construct()
     {
         self::_initialize_static_variables();
+
+        if (isset(self::$instance)) {
+            $this->password = self::$instance->password;
+            $this->privateKeyFormat = self::$instance->privateKeyFormat;
+            $this->publicKeyFormat = self::$instance->publicKeyFormat;
+        }
 
         if (!defined('CRYPT_RSA_MODE')) {
             switch (true) {
@@ -559,10 +566,6 @@ class RSA
     static function createKey($bits = 1024, $timeout = false, $partial = array())
     {
         self::_initialize_static_variables();
-
-        if (!isset(self::$instance)) {
-            self::$instance = new static();
-        }
 
         if (!defined('CRYPT_RSA_EXPONENT')) {
             // http://en.wikipedia.org/wiki/65537_%28number%29
@@ -1641,22 +1644,6 @@ class RSA
     }
 
     /**
-     * Sets the password
-     *
-     * Private keys can be encrypted with a password.  To unset the password, pass in the empty string or false.
-     * Or rather, pass in $password such that empty($password) && !is_string($password) is true.
-     *
-     * @see createKey()
-     * @see loadKey()
-     * @access public
-     * @param string $password
-     */
-    function setPassword($password = false)
-    {
-        $this->password = $password;
-    }
-
-    /**
      * Defines the public key
      *
      * Some private key formats define the public exponent and some don't.  Those that don't define it are problematic when
@@ -1977,24 +1964,60 @@ class RSA
      * Determines the private key format
      *
      * @see createKey()
+     * @see __toString()
      * @access public
-     * @param int $format
+     * @param mixed $arg1
+     * @param int $arg2 optional
      */
-    function setPrivateKeyFormat($format)
+    static function setPrivateKeyFormat($arg1 = false, $arg2 = false)
     {
-        $this->privateKeyFormat = $format;
+        if ($arg1 instanceof RSA) {
+            $arg1->publicKeyFormat = $arg2;
+        } else {
+            self::_initialize_static_variables();
+            self::$instance->privateKeyFormat = $arg1;
+        }
     }
 
     /**
      * Determines the public key format
      *
      * @see createKey()
+     * @see __toString()
      * @access public
-     * @param int $format
+     * @param mixed $arg1
+     * @param int $arg2 optional
      */
-    function setPublicKeyFormat($format)
+    static function setPublicKeyFormat($arg1 = false, $arg2 = false)
     {
-        $this->publicKeyFormat = $format;
+        if ($arg1 instanceof RSA) {
+            $arg1->publicKeyFormat = $arg2;
+        } else {
+            self::_initialize_static_variables();
+            self::$instance->publicKeyFormat = $arg1;
+        }
+    }
+
+    /**
+     * Sets the password
+     *
+     * Private keys can be encrypted with a password.  To unset the password, pass in the empty string or false.
+     * Or rather, pass in $password such that empty($password) && !is_string($password) is true.
+     *
+     * @see createKey()
+     * @see loadKey()
+     * @access public
+     * @param mixed $arg1
+     * @param string $arg2 optional
+     */
+    function setPassword($arg1 = false, $arg2 = false)
+    {
+        if ($arg1 instanceof RSA) {
+            $arg1->password = $arg2;
+        } else {
+            self::_initialize_static_variables();
+            self::$instance->password = $arg1;
+        }
     }
 
     /**
