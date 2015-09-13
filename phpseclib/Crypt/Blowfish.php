@@ -165,7 +165,7 @@ class Crypt_Blowfish extends Crypt_Base
      * @access private
      * @var    array
      */
-    var $sbox0 = array (
+    var $sbox0 = array(
         0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7, 0xb8e1afed, 0x6a267e96, 0xba7c9045, 0xf12c7f99,
         0x24a19947, 0xb3916cf7, 0x0801f2e2, 0x858efc16, 0x636920d8, 0x71574e69, 0xa458fea3, 0xf4933d7e,
         0x0d95748f, 0x728eb658, 0x718bcd58, 0x82154aee, 0x7b54a41d, 0xc25a59b5, 0x9c30d539, 0x2af26013,
@@ -544,7 +544,7 @@ class Crypt_Blowfish extends Crypt_Base
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
         // (Currently, for Crypt_Blowfish, one generated $lambda_function cost on php5.5@32bit ~100kb unfreeable mem and ~180kb on php5.5@64bit)
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one.
-        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
+        $gen_hi_opt_code = (bool)(count($lambda_functions) < 10);
 
         // Generation of a unique hash for our generated code
         $code_hash = "Crypt_Blowfish, {$this->mode}";
