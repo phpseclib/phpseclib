@@ -127,7 +127,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
     public function testLoadPKCS8PrivateKey()
     {
         $rsa = new RSA();
-        $rsa->setPassword('password');
+        $rsa::setPassword($rsa, 'password');
 
         $key = '-----BEGIN ENCRYPTED PRIVATE KEY-----
 MIIE6TAbBgkqhkiG9w0BBQMwDgQIcWWgZeQYPTcCAggABIIEyLoa5b3ktcPmy4VB
