@@ -1365,7 +1365,7 @@ class SSH1
      * Returns a string if NET_SSH1_LOGGING == self::LOG_COMPLEX, an array if NET_SSH1_LOGGING == self::LOG_SIMPLE and false if !defined('NET_SSH1_LOGGING')
      *
      * @access public
-     * @return string or Array
+     * @return array|false|string
      */
     function getLog()
     {

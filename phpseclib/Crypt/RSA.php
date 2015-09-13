@@ -1573,7 +1573,6 @@ class RSA
                     break;
                 }
             }
-
         } else {
             $components = $this->_parseKey($key, $type);
         }
@@ -1788,7 +1787,6 @@ class RSA
             default:
                 return false;
         }
-
     }
 
     /**

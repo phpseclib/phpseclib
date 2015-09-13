@@ -58,13 +58,15 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $result = array();
 
-        // @codingStandardsIgnoreStart
-        foreach ($modes as $mode)
-        foreach ($plaintexts as $plaintext)
-        foreach ($ivs as $iv)
-        foreach ($keys as $key)
-            $result[] = array($mode, $plaintext, $iv, $key);
-        // @codingStandardsIgnoreEnd
+        foreach ($modes as $mode) {
+            foreach ($plaintexts as $plaintext) {
+                foreach ($ivs as $iv) {
+                    foreach ($keys as $key) {
+                        $result[] = array($mode, $plaintext, $iv, $key);
+                    }
+                }
+            }
+        }
 
         return $result;
     }
@@ -124,10 +126,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-    * Produces all combinations of test values.
-    *
-    * @return array
-    */
+     * Produces all combinations of test values.
+     *
+     * @return array
+     */
     public function continuousBufferBatteryCombos()
     {
         $modes = array(
@@ -155,19 +157,20 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $result = array();
 
-        // @codingStandardsIgnoreStart
-        foreach ($modes as $mode)
-        foreach ($combos as $combo)
-        foreach (array('encrypt', 'decrypt') as $op)
-            $result[] = array($op, $mode, $combo);
-        // @codingStandardsIgnoreEnd
+        foreach ($modes as $mode) {
+            foreach ($combos as $combo) {
+                foreach (array('encrypt', 'decrypt') as $op) {
+                    $result[] = array($op, $mode, $combo);
+                }
+            }
+        }
 
         return $result;
     }
 
     /**
-    * @dataProvider continuousBufferBatteryCombos
-    */
+     * @dataProvider continuousBufferBatteryCombos
+     */
     public function testContinuousBufferBattery($op, $mode, $test)
     {
         $iv = str_repeat('x', 16);
@@ -211,9 +214,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-    * @dataProvider continuousBufferBatteryCombos
-    */
-    // pretty much the same as testContinuousBufferBattery with the caveat that continuous mode is not enabled
+     * Pretty much the same as testContinuousBufferBattery with the caveat that continuous mode is not enabled.
+     *
+     * @dataProvider continuousBufferBatteryCombos
+     */
     public function testNonContinuousBufferBattery($op, $mode, $test)
     {
         if (count($test) == 1) {

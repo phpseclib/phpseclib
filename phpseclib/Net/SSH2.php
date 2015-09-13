@@ -188,7 +188,7 @@ class SSH2
      * Server Identifier
      *
      * @see \phpseclib\Net\SSH2::getServerIdentification()
-     * @var mixed false or Array
+     * @var array|false
      * @access private
      */
     var $server_identifier = false;
@@ -197,7 +197,7 @@ class SSH2
      * Key Exchange Algorithms
      *
      * @see \phpseclib\Net\SSH2::getKexAlgorithims()
-     * @var mixed false or Array
+     * @var array|false
      * @access private
      */
     var $kex_algorithms = false;
@@ -233,7 +233,7 @@ class SSH2
      * Server Host Key Algorithms
      *
      * @see \phpseclib\Net\SSH2::getServerHostKeyAlgorithms()
-     * @var mixed false or Array
+     * @var array|false
      * @access private
      */
     var $server_host_key_algorithms = false;
@@ -242,7 +242,7 @@ class SSH2
      * Encryption Algorithms: Client to Server
      *
      * @see \phpseclib\Net\SSH2::getEncryptionAlgorithmsClient2Server()
-     * @var mixed false or Array
+     * @var array|false
      * @access private
      */
     var $encryption_algorithms_client_to_server = false;
@@ -251,7 +251,7 @@ class SSH2
      * Encryption Algorithms: Server to Client
      *
      * @see \phpseclib\Net\SSH2::getEncryptionAlgorithmsServer2Client()
-     * @var mixed false or Array
+     * @var array|false
      * @access private
      */
     var $encryption_algorithms_server_to_client = false;
@@ -260,7 +260,7 @@ class SSH2
      * MAC Algorithms: Client to Server
      *
      * @see \phpseclib\Net\SSH2::getMACAlgorithmsClient2Server()
-     * @var mixed false or Array
+     * @var array|false
      * @access private
      */
     var $mac_algorithms_client_to_server = false;
@@ -269,7 +269,7 @@ class SSH2
      * MAC Algorithms: Server to Client
      *
      * @see \phpseclib\Net\SSH2::getMACAlgorithmsServer2Client()
-     * @var mixed false or Array
+     * @var array|false
      * @access private
      */
     var $mac_algorithms_server_to_client = false;
@@ -278,7 +278,7 @@ class SSH2
      * Compression Algorithms: Client to Server
      *
      * @see \phpseclib\Net\SSH2::getCompressionAlgorithmsClient2Server()
-     * @var mixed false or Array
+     * @var array|false
      * @access private
      */
     var $compression_algorithms_client_to_server = false;
@@ -287,7 +287,7 @@ class SSH2
      * Compression Algorithms: Server to Client
      *
      * @see \phpseclib\Net\SSH2::getCompressionAlgorithmsServer2Client()
-     * @var mixed false or Array
+     * @var array|false
      * @access private
      */
     var $compression_algorithms_server_to_client = false;
@@ -296,7 +296,7 @@ class SSH2
      * Languages: Server to Client
      *
      * @see \phpseclib\Net\SSH2::getLanguagesServer2Client()
-     * @var mixed false or Array
+     * @var array|false
      * @access private
      */
     var $languages_server_to_client = false;
@@ -305,7 +305,7 @@ class SSH2
      * Languages: Client to Server
      *
      * @see \phpseclib\Net\SSH2::getLanguagesClient2Server()
-     * @var mixed false or Array
+     * @var array|false
      * @access private
      */
     var $languages_client_to_server = false;
@@ -1764,7 +1764,7 @@ class SSH2
      * Maps an encryption algorithm name to the number of key bytes.
      *
      * @param string $algorithm Name of the encryption algorithm
-     * @return mixed Number of bytes as an integer or null for unknown
+     * @return int|null Number of bytes as an integer or null for unknown
      * @access private
      */
     function _encryption_algorithm_to_key_size($algorithm)
@@ -3654,7 +3654,7 @@ class SSH2
      * Returns a string if NET_SSH2_LOGGING == self::LOG_COMPLEX, an array if NET_SSH2_LOGGING == self::LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
      *
      * @access public
-     * @return string or Array
+     * @return array|false|string
      */
     function getLog()
     {
@@ -4085,7 +4085,7 @@ class SSH2
     /**
      * Returns the exit status of an SSH command or false.
      *
-     * @return int or false
+     * @return false|int
      * @access public
      */
     function getExitStatus()

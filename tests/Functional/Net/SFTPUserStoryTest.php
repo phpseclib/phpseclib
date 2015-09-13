@@ -171,8 +171,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-    * @depends testStatOnDir
-    */
+     * @depends testStatOnDir
+     */
     public function testPutSizeGetFileCallback($sftp)
     {
         self::$buffer = self::$exampleData;

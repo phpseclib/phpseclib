@@ -3723,7 +3723,7 @@ class X509
      * @param string $path  absolute path with / as component separator
      * @param bool $create optional
      * @access private
-     * @return array item ref or false
+     * @return array|false
      */
     function &_subArray(&$root, $path, $create = false)
     {
@@ -3759,7 +3759,7 @@ class X509
      * @param string $path optional absolute path with / as component separator
      * @param bool $create optional
      * @access private
-     * @return array ref or false
+     * @return array|false
      */
     function &_extensions(&$root, $path = null, $create = false)
     {
@@ -4335,7 +4335,7 @@ class X509
      * @param string $serial
      * @param bool $create optional
      * @access private
-     * @return int or false
+     * @return int|false
      */
     function _revokedCertificate(&$rclist, $serial, $create = false)
     {
@@ -4585,7 +4585,7 @@ class X509
      * getOID('zzz') == 'zzz'
      *
      * @access public
-     * @return String
+     * @return string
      */
     function getOID($name)
     {
