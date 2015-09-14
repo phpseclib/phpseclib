@@ -13,7 +13,7 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
     {
         $hash = new Hash($hash);
 
-        $this->assertEquals(
+        $this->assertSame(
             strtolower($expected),
             bin2hex($hash->hash($message)),
             sprintf("Failed asserting that '%s' hashes to '%s'.", $message, $expected)
@@ -25,7 +25,7 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
         $hash = new Hash($hash);
         $hash->setKey($key);
 
-        $this->assertEquals(
+        $this->assertSame(
             strtolower($expected),
             bin2hex($hash->hash($message)),
             sprintf(
@@ -43,6 +43,8 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
             array('md5', '', 'd41d8cd98f00b204e9800998ecf8427e'),
             array('md5', 'The quick brown fox jumps over the lazy dog', '9e107d9d372bb6826bd81d3542a419d6'),
             array('md5', 'The quick brown fox jumps over the lazy dog.', 'e4d909c290d0fb1ca068ffaddf22cbd0'),
+            array('sha1', 'The quick brown fox jumps over the lazy dog', '2fd4e1c67a2d28fced849ee1bb76e7391b93eb12'),
+            array('sha1', 'The quick brown fox jumps over the lazy dog.', '408d94384216f890ff7a0c3528e8bed1e0b01621'),
             array(
                 'sha256',
                 '',
@@ -57,6 +59,16 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 'sha256',
                 'The quick brown fox jumps over the lazy dog.',
                 'ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c',
+            ),
+            array(
+                'sha384',
+                '',
+                '38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b'
+            ),
+            array(
+                'sha384',
+                'The quick brown fox jumps over the lazy dog',
+                'ca737f1014a48f4c0b6dd43cb177b0afd9e5169367544c494011e3317dbf9a509cb1e5dc1e85a941bbee3d7f2afbc9b1',
             ),
             array(
                 'sha512',
@@ -190,31 +202,64 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
         $this->assertHashesTo($hash . '-96', $message, substr($result, 0, 24));
     }
 
-    public function testGetHash()
+    public function testConstructorDefault()
     {
         $hash = new Hash();
-        $this->assertEquals($hash->getHash(), 'sha256');
-        $hash = new Hash('whirlpool');
-        $this->assertEquals($hash->getHash(), 'whirlpool');
-        $hash = new Hash('md5');
-        $this->assertEquals($hash->getHash(), 'md5');
-        $hash->setHash('whirlpool');
-        $this->assertEquals($hash->getHash(), 'whirlpool');
-        $hash->setHash('md5');
-        $this->assertEquals($hash->getHash(), 'md5');
+        $this->assertSame($hash->getHash(), 'sha256');
     }
 
-    public function testGetLength()
+    /**
+     * @expectedException \phpseclib\Exception\UnsupportedAlgorithmException
+     */
+    public function testConstructorArgumentInvalid()
     {
-        $hash = new Hash();
-        $this->assertEquals($hash->getLength(), 32);
+        new Hash('abcdefghijklmnopqrst');
+    }
+
+    public function testConstructorArgumentValid()
+    {
         $hash = new Hash('whirlpool');
-        $this->assertEquals($hash->getLength(), 64);
+        $this->assertSame($hash->getHash(), 'whirlpool');
+    }
+
+    /**
+     * @expectedException \phpseclib\Exception\UnsupportedAlgorithmException
+     */
+    public function testSetHashInvalid()
+    {
         $hash = new Hash('md5');
-        $this->assertEquals($hash->getLength(), 16);
-        $hash->setHash('whirlpool');
-        $this->assertEquals($hash->getLength(), 64);
-        $hash->setHash('md5');
-        $this->assertEquals($hash->getLength(), 16);
+        $hash->setHash('abcdefghijklmnopqrst-96');
+    }
+
+    public function testSetHashValid()
+    {
+        $hash = new Hash('md5');
+        $this->assertSame($hash->getHash(), 'md5');
+        $hash->setHash('sha1');
+        $this->assertSame($hash->getHash(), 'sha1');
+    }
+
+    /**
+     * @dataProvider lengths
+     */
+    public function testGetLengthKnown($algorithm, $length)
+    {
+        $hash = new Hash($algorithm);
+        $this->assertSame($hash->getLength(), $length);
+    }
+
+    public function lengths()
+    {
+        return array(
+            // known
+            array('md5-96', 12),
+            array('md5', 16),
+            array('sha1', 20),
+            array('sha256', 32),
+            array('sha384', 48),
+            array('sha512', 64),
+            // unknown
+            array('whirlpool', 64),
+        );
     }
 }
