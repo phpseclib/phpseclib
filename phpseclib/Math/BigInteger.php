@@ -3557,7 +3557,7 @@ class Math_BigInteger
 
         switch (MATH_BIGINTEGER_MODE) {
             case MATH_BIGINTEGER_MODE_GMP:
-                if (!empty($result->bitmask->value)) {
+                if ($this->bitmask !== false) {
                     $result->value = gmp_and($result->value, $result->bitmask->value);
                 }
 
