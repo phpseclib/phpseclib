@@ -78,24 +78,24 @@ class SSH1
      * IDEA in CFB mode
      *
      * Not supported.
-    */
+     */
     const CIPHER_IDEA = 1;
     /**
      * DES in CBC mode
-    */
+     */
     const CIPHER_DES = 2;
     /**
      * Triple-DES in CBC mode
      *
      * All implementations are required to support this
-    */
+     */
     const CIPHER_3DES = 3;
     /**
      * TRI's Simple Stream encryption CBC
      *
      * Not supported nor is it defined in the official SSH1 specs.  OpenSSH, however, does define it (see cipher.h),
      * although it doesn't use it (see cipher.c)
-    */
+     */
     const CIPHER_BROKEN_TSS = 4;
     /**
      * RC4
@@ -111,14 +111,14 @@ class SSH1
      *
      *     This library currently only supports encryption when the same key is being used for both directions.  This is
      *     because there's only one $crypto object.  Two could be added ($encrypt and $decrypt, perhaps).
-    */
+     */
     const CIPHER_RC4 = 5;
     /**
      * Blowfish
      *
      * Not supported nor is it defined in the official SSH1 specs.  OpenSSH, however, defines it (see cipher.h) and
      * uses it (see cipher.c)
-    */
+     */
     const CIPHER_BLOWFISH = 6;
     /**#@-*/
 
@@ -130,21 +130,21 @@ class SSH1
     */
     /**
      * .rhosts or /etc/hosts.equiv
-    */
+     */
     const AUTH_RHOSTS = 1;
     /**
      * pure RSA authentication
-    */
+     */
     const AUTH_RSA = 2;
     /**
      * password authentication
      *
      * This is the only method that is supported by this library.
-    */
+     */
     const AUTH_PASSWORD = 3;
     /**
      * .rhosts with RSA host authentication
-    */
+     */
     const AUTH_RHOSTS_RSA = 4;
     /**#@-*/
 
@@ -162,7 +162,7 @@ class SSH1
      *
      * @see \phpseclib\Net\SSH1::_get_binary_packet()
      * @access private
-    */
+     */
     const RESPONSE_TYPE = 1;
 
     /**
@@ -170,7 +170,7 @@ class SSH1
      *
      * @see \phpseclib\Net\SSH1::_get_binary_packet()
      * @access private
-    */
+     */
     const RESPONSE_DATA = 2;
 
     /**#@+
@@ -191,19 +191,19 @@ class SSH1
     */
     /**
      * Returns the message numbers
-    */
+     */
     const LOG_SIMPLE = 1;
     /**
      * Returns the message content
-    */
+     */
     const LOG_COMPLEX = 2;
     /**
      * Outputs the content real-time
-    */
+     */
     const LOG_REALTIME = 3;
     /**
      * Dumps the content real-time to a file
-    */
+     */
     const LOG_REALTIME_FILE = 4;
     /**#@-*/
 
@@ -213,11 +213,11 @@ class SSH1
     */
     /**
      * Returns when a string matching $expect exactly is found
-    */
+     */
     const READ_SIMPLE = 1;
     /**
      * Returns when a string matching the regular expression $expect is found
-    */
+     */
     const READ_REGEX = 2;
     /**#@-*/
 

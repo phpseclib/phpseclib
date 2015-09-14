@@ -60,7 +60,7 @@ class TripleDES extends DES
      * Encrypt / decrypt using outer chaining
      *
      * Outer chaining is used by SSH-2 and when the mode is set to \phpseclib\Crypt\Base::MODE_CBC.
-    */
+     */
     const MODE_CBC3 = Base::MODE_CBC;
 
     /**

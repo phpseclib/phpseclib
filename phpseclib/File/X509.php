@@ -57,27 +57,27 @@ class X509
     */
     /**
      * Return internal array representation
-    */
+     */
     const DN_ARRAY = 0;
     /**
      * Return string
-    */
+     */
     const DN_STRING = 1;
     /**
      * Return ASN.1 name string
-    */
+     */
     const DN_ASN1 = 2;
     /**
      * Return OpenSSL compatible array
-    */
+     */
     const DN_OPENSSL = 3;
     /**
      * Return canonical ASN.1 RDNs string
-    */
+     */
     const DN_CANON = 4;
     /**
      * Return name hash for file indexing
-    */
+     */
     const DN_HASH = 5;
     /**#@-*/
 
@@ -91,24 +91,24 @@ class X509
      * Save as PEM
      *
      * ie. a base64-encoded PEM with a header and a footer
-    */
+     */
     const FORMAT_PEM = 0;
     /**
      * Save as DER
-    */
+     */
     const FORMAT_DER = 1;
     /**
      * Save as a SPKAC
      *
      * Only works on CSRs. Not currently supported.
-    */
+     */
     const FORMAT_SPKAC = 2;
     /**#@-*/
 
     /**
      * Attribute value disposition.
      * If disposition is >= 0, this is the index of the target value.
-    */
+     */
     const ATTR_ALL = -1; // All attribute values (array).
     const ATTR_APPEND = -2; // Add a value.
     const ATTR_REPLACE = -3; // Clear first, then add a value.

@@ -56,7 +56,7 @@ class SFTP extends SSH2
      * @see \phpseclib\Net\SSH2::_send_channel_packet()
      * @see \phpseclib\Net\SSH2::_get_channel_packet()
      * @access private
-    */
+     */
     const CHANNEL = 0x100;
 
     /**#@+
@@ -65,11 +65,11 @@ class SFTP extends SSH2
     */
     /**
      * Reads data from a local file.
-    */
+     */
     const SOURCE_LOCAL_FILE = 1;
     /**
      * Reads data from a string.
-    */
+     */
     // this value isn't really used anymore but i'm keeping it reserved for historical reasons
     const SOURCE_STRING = 2;
     /**
@@ -79,11 +79,11 @@ class SFTP extends SSH2
     const SOURCE_CALLBACK = 16;
     /**
      * Resumes an upload
-    */
+     */
     const RESUME = 4;
     /**
      * Append a local file to an already existing remote file
-    */
+     */
     const RESUME_START = 8;
     /**#@-*/
 

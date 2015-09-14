@@ -75,19 +75,19 @@ class BigInteger
     const MONTGOMERY = 0;
     /**
      * @see BigInteger::_barrett()
-    */
+     */
     const BARRETT = 1;
     /**
      * @see BigInteger::_mod2()
-    */
+     */
     const POWEROF2 = 2;
     /**
      * @see BigInteger::_remainder()
-    */
+     */
     const CLASSIC = 3;
     /**
      * @see BigInteger::__clone()
-    */
+     */
     const NONE = 4;
     /**#@-*/
 
@@ -101,11 +101,11 @@ class BigInteger
     */
     /**
      * $result[self::VALUE] contains the value.
-    */
+     */
     const VALUE = 0;
     /**
      * $result[self::SIGN] contains the sign.
-    */
+     */
     const SIGN = 1;
     /**#@-*/
 
@@ -118,11 +118,11 @@ class BigInteger
      * Cache constants
      *
      * $cache[self::VARIABLE] tells us whether or not the cached data is still valid.
-    */
+     */
     const VARIABLE = 0;
     /**
      * $cache[self::DATA] contains the cached data.
-    */
+     */
     const DATA = 1;
     /**#@-*/
 
@@ -134,19 +134,19 @@ class BigInteger
     */
     /**
      * To use the pure-PHP implementation
-    */
+     */
     const MODE_INTERNAL = 1;
     /**
      * To use the BCMath library
      *
      * (if enabled; otherwise, the internal implementation will be used)
-    */
+     */
     const MODE_BCMATH = 2;
     /**
      * To use the GMP library
      *
      * (if present; otherwise, either the BCMath or the internal implementation will be used)
-    */
+     */
     const MODE_GMP = 3;
     /**#@-*/
 
@@ -156,7 +156,7 @@ class BigInteger
      * At what point do we switch between Karatsuba multiplication and schoolbook long multiplication?
      *
      * @access private
-    */
+     */
     const KARATSUBA_CUTOFF = 25;
 
     /**#@+
@@ -172,13 +172,13 @@ class BigInteger
     /**
      * $max10 in greatest $max10Len satisfying
      * $max10 = 10**$max10Len <= 2**$base.
-    */
+     */
     protected static $max10;
 
     /**
      * $max10Len in greatest $max10Len satisfying
      * $max10 = 10**$max10Len <= 2**$base.
-    */
+     */
     protected static $max10Len;
     protected static $maxDigit2;
     /**#@-*/
