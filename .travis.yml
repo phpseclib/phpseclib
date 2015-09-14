@@ -31,8 +31,3 @@ script:
 
 after_success:
   - sh -c "if $TRAVIS_SECURE_ENV_VARS; then travis/upload-code-coverage-html.sh; fi"
-
-matrix:
-  allow_failures:
-    - php: 7.0
-  fast_finish: true
