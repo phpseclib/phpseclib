@@ -85,7 +85,7 @@ class Random
             // https://github.com/php/php-src/blob/7014a0eb6d1611151a286c0ff4f2238f92c120d6/win32/winutil.c#L80
             //
             // we're calling it, all the same, in the off chance that the mcrypt extension is not available
-            if (extension_loaded('openssl') && version_compare(PHP_VERSION, '5.3.4', '>=')) {
+            if (extension_loaded('openssl')) {
                 return openssl_random_pseudo_bytes($length);
             }
         } else {
