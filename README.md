@@ -8,7 +8,7 @@ AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 
 * [Download (1.0.0)](http://sourceforge.net/projects/phpseclib/files/phpseclib1.0.0.zip/download)
 * [Browse Git](https://github.com/phpseclib/phpseclib)
-* [Code Coverage Report](http://phpseclib.bantux.org/code_coverage/php5/latest/)
+* [Code Coverage Report](http://phpseclib.bantux.org/code_coverage/2.0/latest/)
 
 <img src="http://phpseclib.sourceforge.net/pear-icon.png" alt="PEAR Channel" width="16" height="16">
 PEAR Channel: [phpseclib.sourceforge.net](http://phpseclib.sourceforge.net/pear.htm)
