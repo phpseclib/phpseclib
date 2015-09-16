@@ -17,7 +17,7 @@
  *        exit('bad login');
  *    }
  *    $scp = new \phpseclib\Net\SCP($ssh);
-
+ *
  *    $scp->put('abcd', str_repeat('x', 1024*1024));
  * ?>
  * </code>
@@ -54,7 +54,7 @@ class SCP
     const SOURCE_LOCAL_FILE = 1;
     /**
      * Reads data from a string.
-    */
+     */
     const SOURCE_STRING = 2;
     /**#@-*/
 
@@ -65,11 +65,11 @@ class SCP
     */
     /**
      * SSH1 is being used.
-    */
+     */
     const MODE_SSH1 = 1;
     /**
      * SSH2 is being used.
-    */
+     */
     const MODE_SSH2 =  2;
     /**#@-*/
 

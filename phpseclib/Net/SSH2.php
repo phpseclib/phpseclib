@@ -112,19 +112,19 @@ class SSH2
     */
     /**
      * Returns the message numbers
-    */
+     */
     const LOG_SIMPLE = 1;
     /**
      * Returns the message content
-    */
+     */
     const LOG_COMPLEX = 2;
     /**
      * Outputs the content real-time
-    */
+     */
     const LOG_REALTIME = 3;
     /**
      * Dumps the content real-time to a file
-    */
+     */
     const LOG_REALTIME_FILE = 4;
     /**#@-*/
 
@@ -134,15 +134,15 @@ class SSH2
     */
     /**
      * Returns when a string matching $expect exactly is found
-    */
+     */
     const READ_SIMPLE = 1;
     /**
      * Returns when a string matching the regular expression $expect is found
-    */
+     */
     const READ_REGEX = 2;
     /**
      * Make sure that the log never gets larger than this
-    */
+     */
     const LOG_MAX_SIZE = 1048576; // 1024 * 1024
     /**#@-*/
 

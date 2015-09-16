@@ -190,29 +190,6 @@ class Rijndael extends Base
     var $kl;
 
     /**
-     * Default Constructor.
-     *
-     * Determines whether or not the mcrypt extension should be used.
-     *
-     * $mode could be:
-     *
-     * - \phpseclib\Crypt\Base::MODE_ECB
-     *
-     * - \phpseclib\Crypt\Base::MODE_CBC
-     *
-     * - \phpseclib\Crypt\Base::MODE_CTR
-     *
-     * - \phpseclib\Crypt\Base::MODE_CFB
-     *
-     * - \phpseclib\Crypt\Base::MODE_OFB
-     *
-     * If not explictly set, \phpseclib\Crypt\Base::MODE_CBC will be used.
-     *
-     * @see \phpseclib\Crypt\Base::Crypt_Base()
-     * @param int $mode
-     * @access public
-
-    /**
      * Sets the key.
      *
      * Keys can be of any length.  Rijndael, itself, requires the use of a key that's between 128-bits and 256-bits long and
