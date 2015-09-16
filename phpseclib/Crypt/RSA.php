@@ -89,7 +89,7 @@ class RSA
      *
      * Although self::ENCRYPTION_OAEP offers more security, including PKCS#1 padding is necessary for purposes of backwards
      * compatibility with protocols (like SSH-1) written before OAEP's introduction.
-    */
+     */
     const ENCRYPTION_PKCS1 = 2;
     /**
      * Do not use any padding
@@ -113,14 +113,14 @@ class RSA
      *
      * @see \phpseclib\Crypt\RSA::setSaltLength()
      * @see \phpseclib\Crypt\RSA::setMGFHash()
-    */
+     */
     const SIGNATURE_PSS = 1;
     /**
      * Use the PKCS#1 scheme by default.
      *
      * Although self::SIGNATURE_PSS offers more security, including PKCS#1 signing is necessary for purposes of backwards
      * compatibility with protocols (like SSH-2) written before PSS's introduction.
-    */
+     */
     const SIGNATURE_PKCS1 = 2;
     /**#@-*/
 
@@ -130,23 +130,23 @@ class RSA
     */
     /**
      * ASN1 Integer
-    */
+     */
     const ASN1_INTEGER = 2;
     /**
      * ASN1 Bit String
-    */
+     */
     const ASN1_BITSTRING = 3;
     /**
      * ASN1 Octet String
-    */
+     */
     const ASN1_OCTETSTRING = 4;
     /**
      * ASN1 Object Identifier
-    */
+     */
     const ASN1_OBJECT = 6;
     /**
      * ASN1 Sequence (with the constucted bit set)
-    */
+     */
     const ASN1_SEQUENCE = 48;
     /**#@-*/
 
@@ -156,13 +156,13 @@ class RSA
     */
     /**
      * To use the pure-PHP implementation
-    */
+     */
     const MODE_INTERNAL = 1;
     /**
      * To use the OpenSSL library
      *
      * (if enabled; otherwise, the internal implementation will be used)
-    */
+     */
     const MODE_OPENSSL = 2;
     /**#@-*/
 
@@ -175,19 +175,19 @@ class RSA
      * PKCS#1 formatted private key
      *
      * Used by OpenSSH
-    */
+     */
     const PRIVATE_FORMAT_PKCS1 = 0;
     /**
      * PuTTY formatted private key
-    */
+     */
     const PRIVATE_FORMAT_PUTTY = 1;
     /**
      * XML formatted private key
-    */
+     */
     const PRIVATE_FORMAT_XML = 2;
     /**
      * PKCS#8 formatted private key
-    */
+     */
     const PRIVATE_FORMAT_PKCS8 = 3;
     /**#@-*/
 
@@ -208,7 +208,7 @@ class RSA
      * The modulus can be indexed with any of the following:
      *
      * 1, n, modulo, modulus
-    */
+     */
     const PUBLIC_FORMAT_RAW = 3;
     /**
      * PKCS#1 formatted public key (raw)
@@ -220,18 +220,18 @@ class RSA
      * -----BEGIN RSA PUBLIC KEY-----
      *
      * Analogous to ssh-keygen's pem format (as specified by -m)
-    */
+     */
     const PUBLIC_FORMAT_PKCS1 = 4;
     const PUBLIC_FORMAT_PKCS1_RAW = 4;
     /**
      * XML formatted public key
-    */
+     */
     const PUBLIC_FORMAT_XML = 5;
     /**
      * OpenSSH formatted public key
      *
      * Place in $HOME/.ssh/authorized_keys
-    */
+     */
     const PUBLIC_FORMAT_OPENSSH = 6;
     /**
      * PKCS#1 formatted public key (encapsulated)
@@ -245,7 +245,7 @@ class RSA
      * Analogous to ssh-keygen's pkcs8 format (as specified by -m). Although PKCS8
      * is specific to private keys it's basically creating a DER-encoded wrapper
      * for keys. This just extends that same concept to public keys (much like ssh-keygen)
-    */
+     */
     const PUBLIC_FORMAT_PKCS8 = 7;
     /**#@-*/
 

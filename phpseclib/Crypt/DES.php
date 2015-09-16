@@ -64,7 +64,7 @@ class DES extends Base
     const ENCRYPT = 0;
     /**
      * Contains $keys[self::DECRYPT]
-    */
+     */
     const DECRYPT = 1;
     /**#@-*/
 
