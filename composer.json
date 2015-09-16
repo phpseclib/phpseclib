@@ -43,6 +43,11 @@
             "name": "Hans-Jürgen Petrich",
             "email": "petrich@tronic-media.com",
             "role": "Developer"
+        },
+        {
+            "name": "Graham Campbell",
+            "email": "graham@alt-three.com",
+            "role": "Developer"
         }
     ],
     "require": {
