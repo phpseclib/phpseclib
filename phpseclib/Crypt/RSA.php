@@ -15,10 +15,10 @@
  *
  *    $plaintext = 'terrafrost';
  *
- *    $rsa->loadKey($privatekey);
+ *    $rsa->load($privatekey);
  *    $ciphertext = $rsa->encrypt($plaintext);
  *
- *    $rsa->loadKey($publickey);
+ *    $rsa->load($publickey);
  *    echo $rsa->decrypt($ciphertext);
  * ?>
  * </code>
@@ -33,10 +33,10 @@
  *
  *    $plaintext = 'terrafrost';
  *
- *    $rsa->loadKey($privatekey);
+ *    $rsa->load($privatekey);
  *    $signature = $rsa->sign($plaintext);
  *
- *    $rsa->loadKey($publickey);
+ *    $rsa->load($publickey);
  *    echo $rsa->verify($plaintext, $signature) ? 'verified' : 'unverified';
  * ?>
  * </code>
@@ -255,7 +255,7 @@ class RSA
      * @var array
      * @access private
      */
-    var $zero;
+    static $zero;
 
     /**
      * Precomputed One
@@ -263,7 +263,7 @@ class RSA
      * @var array
      * @access private
      */
-    var $one;
+    static $one;
 
     /**
      * Private Key Format
@@ -437,11 +437,12 @@ class RSA
      * OpenSSL configuration file name.
      *
      * Set to null to use system configuration file.
+     *
      * @see \phpseclib\Crypt\RSA::createKey()
      * @var mixed
-     * @Access public
+     * @access public
      */
-    var $configFile;
+    static $configFile;
 
     /**
      * Public key comment field.
@@ -450,6 +451,20 @@ class RSA
      * @access private
      */
     var $comment = 'phpseclib-generated-key';
+
+    /**
+     * Initialize static variables
+     *
+     * @access private
+     */
+    static function _initialize_static_variables()
+    {
+        if (!isset(self::$zero)) {
+            self::$zero= new BigInteger(0);
+            self::$one = new BigInteger(1);
+            self::$configFile = __DIR__ . '/../openssl.cnf';
+        }
+    }
 
     /**
      * The constructor
@@ -463,7 +478,32 @@ class RSA
      */
     function __construct()
     {
-        $this->configFile = dirname(__FILE__) . '/../openssl.cnf';
+        self::_initialize_static_variables();
+
+        $this->hash = new Hash('sha1');
+        $this->hLen = $this->hash->getLength();
+        $this->hashName = 'sha1';
+        $this->mgfHash = new Hash('sha1');
+        $this->mgfHLen = $this->mgfHash->getLength();
+    }
+
+    /**
+     * Create public / private key pair
+     *
+     * Returns an array with the following three elements:
+     *  - 'privatekey': The private key.
+     *  - 'publickey':  The public key.
+     *  - 'partialkey': A partially computed key (if the execution time exceeded $timeout).
+     *                  Will need to be passed back to \phpseclib\Crypt\RSA::createKey() as the third parameter for further processing.
+     *
+     * @access public
+     * @param int $bits
+     * @param int $timeout
+     * @param array $p
+     */
+    static function createKey($bits = 1024, $timeout = false, $partial = array())
+    {
+        self::_initialize_static_variables();
 
         if (!defined('CRYPT_RSA_MODE')) {
             switch (true) {
@@ -473,7 +513,7 @@ class RSA
                 case defined('MATH_BIGINTEGER_OPENSSL_DISABLE'):
                     define('CRYPT_RSA_MODE', self::MODE_INTERNAL);
                     break;
-                case extension_loaded('openssl') && file_exists($this->configFile):
+                case extension_loaded('openssl') && file_exists(self::$configFile):
                     // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
                     ob_start();
                     @phpinfo();
@@ -513,32 +553,6 @@ class RSA
             }
         }
 
-        $this->zero = new BigInteger();
-        $this->one = new BigInteger(1);
-
-        $this->hash = new Hash('sha1');
-        $this->hLen = $this->hash->getLength();
-        $this->hashName = 'sha1';
-        $this->mgfHash = new Hash('sha1');
-        $this->mgfHLen = $this->mgfHash->getLength();
-    }
-
-    /**
-     * Create public / private key pair
-     *
-     * Returns an array with the following three elements:
-     *  - 'privatekey': The private key.
-     *  - 'publickey':  The public key.
-     *  - 'partialkey': A partially computed key (if the execution time exceeded $timeout).
-     *                  Will need to be passed back to \phpseclib\Crypt\RSA::createKey() as the third parameter for further processing.
-     *
-     * @access public
-     * @param int $bits
-     * @param int $timeout
-     * @param array $p
-     */
-    function createKey($bits = 1024, $timeout = false, $partial = array())
-    {
         if (!defined('CRYPT_RSA_EXPONENT')) {
             // http://en.wikipedia.org/wiki/65537_%28number%29
             define('CRYPT_RSA_EXPONENT', '65537');
@@ -556,16 +570,17 @@ class RSA
         // OpenSSL uses 65537 as the exponent and requires RSA keys be 384 bits minimum
         if (CRYPT_RSA_MODE == self::MODE_OPENSSL && $bits >= 384 && CRYPT_RSA_EXPONENT == 65537) {
             $config = array();
-            if (isset($this->configFile)) {
-                $config['config'] = $this->configFile;
+            if (isset(self::$configFile)) {
+                $config['config'] = self::$configFile;
             }
             $rsa = openssl_pkey_new(array('private_key_bits' => $bits) + $config);
-            openssl_pkey_export($rsa, $privatekey, null, $config);
-            $publickey = openssl_pkey_get_details($rsa);
-            $publickey = $publickey['key'];
+            openssl_pkey_export($rsa, $privatekeystr, null, $config);
+            $privatekey = new RSA();
+            $privatekey->load($privatekeystr);
 
-            $privatekey = call_user_func_array(array($this, '_convertPrivateKey'), array_values($this->_parseKey($privatekey, self::PRIVATE_FORMAT_PKCS1)));
-            $publickey = call_user_func_array(array($this, '_convertPublicKey'), array_values($this->_parseKey($publickey, self::PUBLIC_FORMAT_PKCS1)));
+            $publickeyarr = openssl_pkey_get_details($rsa);
+            $publickey = new RSA();
+            $publickey->load($publickeyarr['key']);
 
             // clear the buffer of error strings stemming from a minimalistic openssl.cnf
             while (openssl_error_string() !== false) {
@@ -583,7 +598,7 @@ class RSA
             $e = new BigInteger(CRYPT_RSA_EXPONENT);
         }
 
-        extract($this->_generateMinMax($bits));
+        extract(self::_generateMinMax($bits));
         $absoluteMin = $min;
         $temp = $bits >> 1; // divide by two to see how many bits P and Q would be
         if ($temp > CRYPT_RSA_SMALLEST_PRIME) {
@@ -592,19 +607,19 @@ class RSA
         } else {
             $num_primes = 2;
         }
-        extract($this->_generateMinMax($temp + $bits % $temp));
+        extract(self::_generateMinMax($temp + $bits % $temp));
         $finalMax = $max;
-        extract($this->_generateMinMax($temp));
+        extract(self::_generateMinMax($temp));
 
         $generator = new BigInteger();
 
-        $n = $this->one->copy();
+        $n = self::$one->copy();
         if (!empty($partial)) {
             extract(unserialize($partial));
         } else {
             $exponents = $coefficients = $primes = array();
             $lcm = array(
-                'top' => $this->one->copy(),
+                'top' => self::$one->copy(),
                 'bottom' => false
             );
         }
@@ -633,8 +648,8 @@ class RSA
 
                 if ($i == $num_primes) {
                     list($min, $temp) = $absoluteMin->divide($n);
-                    if (!$temp->equals($this->zero)) {
-                        $min = $min->add($this->one); // ie. ceil()
+                    if (!$temp->equals(self::$zero)) {
+                        $min = $min->add(self::$one); // ie. ceil()
                     }
                     $primes[$i] = $generator->randomPrime($min, $finalMax, $timeout);
                 } else {
@@ -655,8 +670,8 @@ class RSA
                     }
 
                     return array(
-                        'privatekey' => '',
-                        'publickey'  => '',
+                        'privatekey' => false,
+                        'publickey'  => false,
                         'partialkey' => $partialkey
                     );
                 }
@@ -669,7 +684,7 @@ class RSA
 
                 $n = $n->multiply($primes[$i]);
 
-                $temp = $primes[$i]->subtract($this->one);
+                $temp = $primes[$i]->subtract(self::$one);
 
                 // textbook RSA implementations use Euler's totient function instead of the least common multiple.
                 // see http://en.wikipedia.org/wiki/Euler%27s_totient_function
@@ -682,7 +697,7 @@ class RSA
             list($temp) = $lcm['top']->divide($lcm['bottom']);
             $gcd = $temp->gcd($e);
             $i0 = 1;
-        } while (!$gcd->equals($this->one));
+        } while (!$gcd->equals(self::$one));
 
         $d = $e->modInverse($temp);
 
@@ -701,10 +716,24 @@ class RSA
         //     coefficient       INTEGER,  -- (inverse of q) mod p
         //     otherPrimeInfos   OtherPrimeInfos OPTIONAL
         // }
+        $privatekey = new RSA();
+        $privatekey->modulus = $n;
+        $privatekey->k = $bits >> 3;
+        $privatekey->publicExponent = $e;
+        $privatekey->exponent = $d;
+        $privatekey->privateExponent = $e;
+        $privatekey->primes = $primes;
+        $privatekey->exponents = $exponents;
+        $privatekey->coefficients = $coefficients;
+
+        $publickey = new RSA();
+        $publickey->modulus = $n;
+        $publickey->k = $bits >> 3;
+        $publickey->exponent = $e;
 
         return array(
-            'privatekey' => $this->_convertPrivateKey($n, $e, $d, $primes, $exponents, $coefficients),
-            'publickey'  => $this->_convertPublicKey($n, $e),
+            'privatekey' => $privatekey,
+            'publickey'  => $publickey,
             'partialkey' => false
         );
     }
@@ -1398,9 +1427,9 @@ class RSA
                 }
                 $components['primes'][] = new BigInteger($this->_string_shift($private, $length), -256);
 
-                $temp = $components['primes'][1]->subtract($this->one);
+                $temp = $components['primes'][1]->subtract(self::$one);
                 $components['exponents'] = array(1 => $components['publicExponent']->modInverse($temp));
-                $temp = $components['primes'][2]->subtract($this->one);
+                $temp = $components['primes'][2]->subtract(self::$one);
                 $components['exponents'][] = $components['publicExponent']->modInverse($temp);
 
                 extract(unpack('Nlength', $this->_string_shift($private, 4)));
@@ -1510,7 +1539,7 @@ class RSA
      * @param string $key
      * @param int $type optional
      */
-    function loadKey($key, $type = false)
+    function load($key, $type = false)
     {
         if ($key instanceof RSA) {
             $this->privateKeyFormat = $key->privateKeyFormat;
@@ -1522,7 +1551,6 @@ class RSA
             $this->encryptionMode = $key->encryptionMode;
             $this->signatureMode = $key->signatureMode;
             $this->password = $key->password;
-            $this->configFile = $key->configFile;
             $this->comment = $key->comment;
 
             if (is_object($key->hash)) {
@@ -1622,7 +1650,7 @@ class RSA
      * Or rather, pass in $password such that empty($password) && !is_string($password) is true.
      *
      * @see createKey()
-     * @see loadKey()
+     * @see load()
      * @access public
      * @param string $password
      */
@@ -1720,13 +1748,13 @@ class RSA
         }
 
         $rsa = new RSA();
-        if (!$rsa->loadKey($key, $type)) {
+        if (!$rsa->load($key, $type)) {
             return false;
         }
         unset($rsa->publicExponent);
 
         // don't overwrite the old key if the new key is invalid
-        $this->loadKey($rsa);
+        $this->load($rsa);
         return true;
     }
 
@@ -1859,7 +1887,7 @@ class RSA
     function __clone()
     {
         $key = new RSA();
-        $key->loadKey($this);
+        $key->load($this);
         return $key;
     }
 
@@ -1870,7 +1898,7 @@ class RSA
      * @param int $bits
      * @return array
      */
-    function _generateMinMax($bits)
+    static function _generateMinMax($bits)
     {
         $bytes = $bits >> 3;
         $min = str_repeat(chr(0), $bytes);
@@ -2218,7 +2246,7 @@ class RSA
      */
     function _rsaep($m)
     {
-        if ($m->compare($this->zero) < 0 || $m->compare($this->modulus) > 0) {
+        if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
             throw new \OutOfRangeException('Message representative out of range');
         }
         return $this->_exponentiate($m);
@@ -2236,7 +2264,7 @@ class RSA
      */
     function _rsadp($c)
     {
-        if ($c->compare($this->zero) < 0 || $c->compare($this->modulus) > 0) {
+        if ($c->compare(self::$zero) < 0 || $c->compare($this->modulus) > 0) {
             throw new \OutOfRangeException('Ciphertext representative out of range');
         }
         return $this->_exponentiate($c);
@@ -2254,7 +2282,7 @@ class RSA
      */
     function _rsasp1($m)
     {
-        if ($m->compare($this->zero) < 0 || $m->compare($this->modulus) > 0) {
+        if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
             throw new \OutOfRangeException('Message representative out of range');
         }
         return $this->_exponentiate($m);
@@ -2272,7 +2300,7 @@ class RSA
      */
     function _rsavp1($s)
     {
-        if ($s->compare($this->zero) < 0 || $s->compare($this->modulus) > 0) {
+        if ($s->compare(self::$zero) < 0 || $s->compare($this->modulus) > 0) {
             throw new \OutOfRangeException('Signature representative out of range');
         }
         return $this->_exponentiate($s);
