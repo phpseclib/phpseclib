@@ -471,6 +471,24 @@ class Crypt_Base
     var $openssl_options;
 
     /**
+     * Has the key length explicitly been set or should it be derived from the key, itself?
+     *
+     * @see setKeyLength()
+     * @var bool
+     * @access private
+     */
+    var $explicit_key_length = false;
+
+    /**
+     * Don't truncate / null pad key
+     *
+     * @see Crypt_Base::_clearBuffers
+     * @var bool
+     * @access private
+     */
+    var $skip_key_adjustment = false;
+
+    /**
      * Default Constructor.
      *
      * Determines whether or not the mcrypt extension should be used.
@@ -543,6 +561,32 @@ class Crypt_Base
     }
 
     /**
+     * Sets the key length.
+     *
+     * Keys with explicitly set lengths need to be treated accordingly
+     *
+     * @access public
+     * @param int $length
+     */
+    function setKeyLength($length)
+    {
+        $this->explicit_key_length = true;
+        $this->changed = true;
+        $this->_setEngine();
+    }
+
+    /**
+     * Returns the current key length
+     *
+     * @access public
+     * @return int
+     */
+    function getKeyLength()
+    {
+        return $this->key_size << 3;
+    }
+
+    /**
      * Sets the key.
      *
      * The min/max length(s) of the key depends on the cipher which is used.
@@ -558,6 +602,11 @@ class Crypt_Base
      */
     function setKey($key)
     {
+        if (!$this->explicit_key_length) {
+            $this->setKeyLength(strlen($key) << 3);
+            $this->explicit_key_length = false;
+        }
+
         $this->key = $key;
         $this->changed = true;
         $this->_setEngine();
@@ -601,7 +650,7 @@ class Crypt_Base
                 if (isset($func_args[5])) {
                     $dkLen = $func_args[5];
                 } else {
-                    $dkLen = $method == 'pbkdf1' ? 2 * $this->password_key_size : $this->password_key_size;
+                    $dkLen = $method == 'pbkdf1' ? 2 * $this->key_size : $this->key_size;
                 }
 
                 switch (true) {
@@ -1873,6 +1922,10 @@ class Crypt_Base
         // mcrypt's handling of invalid's $iv:
         // $this->encryptIV = $this->decryptIV = strlen($this->iv) == $this->block_size ? $this->iv : str_repeat("\0", $this->block_size);
         $this->encryptIV = $this->decryptIV = str_pad(substr($this->iv, 0, $this->block_size), $this->block_size, "\0");
+
+        if (!$this->skip_key_adjustment) {
+            $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, "\0");
+        }
     }
 
     /**

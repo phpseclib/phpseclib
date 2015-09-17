@@ -95,15 +95,13 @@ define('CRYPT_DES_MODE_CBC3', CRYPT_MODE_CBC3);
 class Crypt_TripleDES extends Crypt_DES
 {
     /**
-     * The default password key_size used by setPassword()
+     * Key Length
      *
-     * @see Crypt_DES::password_key_size
-     * @see Crypt_Base::password_key_size
-     * @see Crypt_Base::setPassword()
+     * @see Crypt_TripleDES::setKeyLength()
      * @var int
      * @access private
      */
-    var $password_key_size = 24;
+    var $key_size = 24;
 
     /**
      * The default salt used by setPassword()
@@ -267,6 +265,32 @@ class Crypt_TripleDES extends Crypt_DES
     }
 
     /**
+     * Sets the key length.
+     *
+     * Valid key lengths are 64, 128 and 192
+     *
+     * @see Crypt_Rijndael:setKeyLength()
+     * @access public
+     * @param int $length
+     */
+    function setKeyLength($length)
+    {
+        $length >>= 3;
+        switch (true) {
+            case $length <= 8:
+                $this->key_size = 8;
+                break;
+            case $length <= 16:
+                $this->key_size = 16;
+                break;
+            default:
+                $this->key_size = 24;
+        }
+
+        parent::setKeyLength($length);
+    }
+
+    /**
      * Sets the key.
      *
      * Keys can be of any length.  Triple DES, itself, can use 128-bit (eg. strlen($key) == 16) or
@@ -283,7 +307,7 @@ class Crypt_TripleDES extends Crypt_DES
      */
     function setKey($key)
     {
-        $length = strlen($key);
+        $length = $this->explicit_key_length ? $this->key_size : strlen($key);
         if ($length > 8) {
             $key = str_pad(substr($key, 0, 24), 24, chr(0));
             // if $key is between 64 and 128-bits, use the first 64-bits as the last, per this:

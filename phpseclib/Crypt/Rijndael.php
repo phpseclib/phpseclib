@@ -128,16 +128,6 @@ define('CRYPT_RIJNDAEL_MODE_OFB', CRYPT_MODE_OFB);
 class Crypt_Rijndael extends Crypt_Base
 {
     /**
-     * The default password key_size used by setPassword()
-     *
-     * @see Crypt_Base::password_key_size
-     * @see Crypt_Base::setPassword()
-     * @var int
-     * @access private
-     */
-    var $password_key_size = 16;
-
-    /**
      * The namespace used by the cipher for its constants.
      *
      * @see Crypt_Base::const_namespace
@@ -171,15 +161,6 @@ class Crypt_Rijndael extends Crypt_Base
      * @access private
      */
     var $password_default_salt = 'phpseclib';
-
-    /**
-     * Has the key length explicitly been set or should it be derived from the key, itself?
-     *
-     * @see setKeyLength()
-     * @var bool
-     * @access private
-     */
-    var $explicit_key_length = false;
 
     /**
      * The Key Schedule
@@ -289,48 +270,7 @@ class Crypt_Rijndael extends Crypt_Base
     }
 
     /**
-     * Sets the key.
-     *
-     * Keys can be of any length.  Rijndael, itself, requires the use of a key that's between 128-bits and 256-bits long and
-     * whose length is a multiple of 32.  If the key is less than 256-bits and the key length isn't set, we round the length
-     * up to the closest valid key length, padding $key with null bytes.  If the key is more than 256-bits, we trim the
-     * excess bits.
-     *
-     * If the key is not explicitly set, it'll be assumed to be all null bytes.
-     *
-     * Note: 160/224-bit keys must explicitly set by setKeyLength(), otherwise they will be round/pad up to 192/256 bits.
-     *
-     * @see Crypt_Base:setKey()
-     * @see setKeyLength()
-     * @access public
-     * @param string $key
-     */
-    function setKey($key)
-    {
-        if (!$this->explicit_key_length) {
-            $length = strlen($key);
-            switch (true) {
-                case $length <= 16:
-                    $this->key_size = 16;
-                    break;
-                case $length <= 20:
-                    $this->key_size = 20;
-                    break;
-                case $length <= 24:
-                    $this->key_size = 24;
-                    break;
-                case $length <= 28:
-                    $this->key_size = 28;
-                    break;
-                default:
-                    $this->key_size = 32;
-            }
-        }
-        parent::setKey($key);
-    }
-
-    /**
-     * Sets the key length
+     * Sets the key length.
      *
      * Valid key lengths are 128, 160, 192, 224, and 256.  If the length is less than 128, it will be rounded up to
      * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
@@ -352,25 +292,23 @@ class Crypt_Rijndael extends Crypt_Base
     function setKeyLength($length)
     {
         switch (true) {
-            case $length == 160:
-                $this->key_size = 20;
-                break;
-            case $length == 224:
-                $this->key_size = 28;
-                break;
             case $length <= 128:
                 $this->key_size = 16;
                 break;
+            case $length <= 160:
+                $this->key_size = 20;
+                break;
             case $length <= 192:
                 $this->key_size = 24;
+                break;
+            case $length <= 224:
+                $this->key_size = 28;
                 break;
             default:
                 $this->key_size = 32;
         }
 
-        $this->explicit_key_length = true;
-        $this->changed = true;
-        $this->_setEngine();
+        parent::setKeyLength($length);
     }
 
     /**
@@ -425,18 +363,6 @@ class Crypt_Rijndael extends Crypt_Base
         }
 
         return parent::isValidEngine($engine);
-    }
-
-    /**
-     * Setup the CRYPT_ENGINE_MCRYPT $engine
-     *
-     * @see Crypt_Base::_setupMcrypt()
-     * @access private
-     */
-    function _setupMcrypt()
-    {
-        $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, "\0");
-        parent::_setupMcrypt();
     }
 
     /**
@@ -648,8 +574,6 @@ class Crypt_Rijndael extends Crypt_Base
             0x97000000, 0x35000000, 0x6A000000, 0xD4000000, 0xB3000000,
             0x7D000000, 0xFA000000, 0xEF000000, 0xC5000000, 0x91000000
         );
-
-        $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, "\0");
 
         if (isset($this->kl['key']) && $this->key === $this->kl['key'] && $this->key_size === $this->kl['key_size'] && $this->block_size === $this->kl['block_size']) {
             // already expanded
