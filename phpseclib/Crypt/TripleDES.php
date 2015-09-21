@@ -64,15 +64,13 @@ class TripleDES extends DES
     const MODE_CBC3 = Base::MODE_CBC;
 
     /**
-     * The default password key_size used by setPassword()
+     * Key Length
      *
-     * @see \phpseclib\Crypt\DES::password_key_size
-     * @see \phpseclib\Crypt\Base::password_key_size
-     * @see \phpseclib\Crypt\Base::setPassword()
+     * @see \phpseclib\Crypt\TripleDES::setKeyLength()
      * @var int
      * @access private
      */
-    var $password_key_size = 24;
+    var $key_size = 24;
 
     /**
      * The default salt used by setPassword()
@@ -189,7 +187,7 @@ class TripleDES extends DES
      *
      * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
      *
-     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::__construct()
      * @param int $engine
      * @access public
      * @return bool
@@ -226,6 +224,32 @@ class TripleDES extends DES
     }
 
     /**
+     * Sets the key length.
+     *
+     * Valid key lengths are 64, 128 and 192
+     *
+     * @see \phpseclib\Crypt\Base:setKeyLength()
+     * @access public
+     * @param int $length
+     */
+    function setKeyLength($length)
+    {
+        $length >>= 3;
+        switch (true) {
+            case $length <= 8:
+                $this->key_size = 8;
+                break;
+            case $length <= 16:
+                $this->key_size = 16;
+                break;
+            default:
+                $this->key_size = 24;
+        }
+
+        parent::setKeyLength($length);
+    }
+
+    /**
      * Sets the key.
      *
      * Keys can be of any length.  Triple DES, itself, can use 128-bit (eg. strlen($key) == 16) or
@@ -242,7 +266,7 @@ class TripleDES extends DES
      */
     function setKey($key)
     {
-        $length = strlen($key);
+        $length = $this->explicit_key_length ? $this->key_size : strlen($key);
         if ($length > 8) {
             $key = str_pad(substr($key, 0, 24), 24, chr(0));
             // if $key is between 64 and 128-bits, use the first 64-bits as the last, per this:
@@ -421,7 +445,7 @@ class TripleDES extends DES
     /**
      * Sets the internal crypt engine
      *
-     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::__construct()
      * @see \phpseclib\Crypt\Base::setPreferredEngine()
      * @param int $engine
      * @access public
