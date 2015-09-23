@@ -78,24 +78,13 @@ class DES extends Base
     var $block_size = 8;
 
     /**
-     * The Key
+     * Key Length
      *
-     * @see \phpseclib\Crypt\Base::key
-     * @see setKey()
-     * @var string
-     * @access private
-     */
-    var $key = "\0\0\0\0\0\0\0\0";
-
-    /**
-     * The default password key_size used by setPassword()
-     *
-     * @see \phpseclib\Crypt\Base::password_key_size
-     * @see \phpseclib\Crypt\Base::setPassword()
+     * @see \phpseclib\Crypt\Base::setKeyLength()
      * @var int
      * @access private
      */
-    var $password_key_size = 8;
+    var $key_size = 8;
 
     /**
      * The mcrypt specific name of the cipher
@@ -594,7 +583,7 @@ class DES extends Base
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
      *
      * @see \phpseclib\Crypt\Base::isValidEngine()
      * @param int $engine
