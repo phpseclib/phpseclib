@@ -576,7 +576,7 @@ class Crypt_Base
     }
 
     /**
-     * Returns the current key length
+     * Returns the current key length in bits
      *
      * @access public
      * @return int
@@ -584,6 +584,17 @@ class Crypt_Base
     function getKeyLength()
     {
         return $this->key_size << 3;
+    }
+
+    /**
+     * Returns the current block length in bits
+     *
+     * @access public
+     * @return int
+     */
+    function getBlockLength()
+    {
+        return $this->block_size << 3;
     }
 
     /**
