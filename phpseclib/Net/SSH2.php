@@ -26,7 +26,7 @@
  *
  *    $key = new \phpseclib\Crypt\RSA();
  *    //$key->setPassword('whatever');
- *    $key->loadKey(file_get_contents('privatekey'));
+ *    $key->load(file_get_contents('privatekey'));
  *
  *    $ssh = new \phpseclib\Net\SSH2('www.domain.tld');
  *    if (!$ssh->login('username', $key)) {
@@ -4042,7 +4042,7 @@ class SSH2
 
                 $rsa = new RSA();
                 $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
-                $rsa->loadKey(array('e' => $e, 'n' => $n), RSA::PUBLIC_FORMAT_RAW);
+                $rsa->load(array('e' => $e, 'n' => $n), RSA::PUBLIC_FORMAT_RAW);
                 if (!$rsa->verify($this->exchange_hash, $signature)) {
                     //user_error('Bad server signature');
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);

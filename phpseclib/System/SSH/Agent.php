@@ -178,7 +178,7 @@ class Agent
             switch ($key_type) {
                 case 'ssh-rsa':
                     $key = new RSA();
-                    $key->loadKey('ssh-rsa ' . base64_encode($key_blob) . ' ' . $key_comment);
+                    $key->load('ssh-rsa ' . base64_encode($key_blob) . ' ' . $key_comment);
                     break;
                 case 'ssh-dss':
                     // not currently supported

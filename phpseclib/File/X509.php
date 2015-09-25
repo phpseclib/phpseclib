@@ -2125,7 +2125,7 @@ class X509
         switch ($publicKeyAlgorithm) {
             case 'rsaEncryption':
                 $rsa = new RSA();
-                $rsa->loadKey($publicKey);
+                $rsa->load($publicKey);
 
                 switch ($signatureAlgorithm) {
                     case 'md2WithRSAEncryption':
@@ -2803,7 +2803,7 @@ class X509
         switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
                 $publicKey = new RSA();
-                $publicKey->loadKey($key);
+                $publicKey->load($key);
                 $publicKey->setPublicKey();
                 break;
             default:
@@ -2873,7 +2873,7 @@ class X509
         switch ($algorithm) {
             case 'rsaEncryption':
                 $this->publicKey = new RSA();
-                $this->publicKey->loadKey($key);
+                $this->publicKey->load($key);
                 $this->publicKey->setPublicKey();
                 break;
             default:
@@ -2996,7 +2996,7 @@ class X509
         switch ($algorithm) {
             case 'rsaEncryption':
                 $this->publicKey = new RSA();
-                $this->publicKey->loadKey($key);
+                $this->publicKey->load($key);
                 $this->publicKey->setPublicKey();
                 break;
             default:
@@ -3385,7 +3385,7 @@ class X509
         $origPublicKey = $this->publicKey;
         $class = get_class($this->privateKey);
         $this->publicKey = new $class();
-        $this->publicKey->loadKey($this->privateKey->getPublicKey());
+        $this->publicKey->load($this->privateKey->getPublicKey());
         $this->publicKey->setPublicKey();
         if (!($publicKey = $this->_formatSubjectPublicKey())) {
             return false;
@@ -3443,7 +3443,7 @@ class X509
         $origPublicKey = $this->publicKey;
         $class = get_class($this->privateKey);
         $this->publicKey = new $class();
-        $this->publicKey->loadKey($this->privateKey->getPublicKey());
+        $this->publicKey->load($this->privateKey->getPublicKey());
         $this->publicKey->setPublicKey();
         $publicKey = $this->_formatSubjectPublicKey();
         if (!$publicKey) {
@@ -4212,7 +4212,7 @@ class X509
                 $raw = base64_decode($raw);
                 // If the key is private, compute identifier from its corresponding public key.
                 $key = new RSA();
-                if (!$key->loadKey($raw)) {
+                if (!$key->load($raw)) {
                     return false;   // Not an unencrypted RSA key.
                 }
                 if ($key->getPrivateKey() !== false) {  // If private.
