@@ -651,5 +651,22 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
 
         $sftp->enableStatCache();
+
+        return $sftp;
+    }
+
+    /**
+     * @depends testStatVsLstat
+     * @group github830
+     */
+    public function testEndlessLoopOnUpload($sftp)
+    {
+        $sftp->put('endless.txt', 'res.txt', SFTP::SOURCE_LOCAL_FILE, 0, 10);
+
+        $this->assertSame(
+            substr(self::$exampleData, 10),
+            $sftp->get('endless.txt'),
+            'Failed asserting that portions of a file could be uploaded.'
+        );
     }
 }
