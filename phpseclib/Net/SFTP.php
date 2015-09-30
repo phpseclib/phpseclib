@@ -1877,10 +1877,7 @@ class SFTP extends SSH2
 
             if ($local_start >= 0) {
                 fseek($fp, $local_start);
-            } elseif ($mode & self::RESUME_START) {
-                // do nothing
-            } else {
-                fseek($fp, $offset);
+                $size-= $local_start;
             }
         } elseif ($dataCallback) {
             $size = 0;
