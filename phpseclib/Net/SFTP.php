@@ -2678,7 +2678,7 @@ class SFTP extends SSH2
             if (NET_SFTP_LOGGING == self::LOG_REALTIME_FILE) {
                 echo "<pre>\r\n" . $this->_format_log(array($data), array($packet_type)) . "\r\n</pre>\r\n";
                 flush();
-                ob_flush();
+//                ob_flush();
             } else {
                 $this->packet_type_log[] = $packet_type;
                 if (NET_SFTP_LOGGING == self::LOG_COMPLEX) {
@@ -2754,7 +2754,7 @@ class SFTP extends SSH2
             if (NET_SFTP_LOGGING == self::LOG_REALTIME) {
                 echo "<pre>\r\n" . $this->_format_log(array($packet), array($packet_type)) . "\r\n</pre>\r\n";
                 flush();
-                ob_flush();
+//                ob_flush();
             } else {
                 $this->packet_type_log[] = $packet_type;
                 if (NET_SFTP_LOGGING == self::LOG_COMPLEX) {
