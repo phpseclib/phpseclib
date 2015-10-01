@@ -2239,7 +2239,7 @@ class SSH2
     function _privatekey_login($username, $privatekey)
     {
         // see http://tools.ietf.org/html/rfc4253#page-15
-        $publickey = $privatekey->getPublicKey(RSA::PUBLIC_FORMAT_RAW);
+        $publickey = $privatekey->getPublicKey('Raw');
         if ($publickey === false) {
             return false;
         }
@@ -4042,7 +4042,7 @@ class SSH2
 
                 $rsa = new RSA();
                 $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
-                $rsa->loadKey(array('e' => $e, 'n' => $n), RSA::PUBLIC_FORMAT_RAW);
+                $rsa->loadKey(array('e' => $e, 'n' => $n), 'Raw');
                 if (!$rsa->verify($this->exchange_hash, $signature)) {
                     user_error('Bad server signature');
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
