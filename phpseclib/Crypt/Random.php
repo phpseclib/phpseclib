@@ -49,6 +49,7 @@ class Random
      * eg. for RSA key generation.
      *
      * @param int $length
+     * @throws \RuntimeException if a symmetric cipher is needed but not loaded
      * @return string
      */
     static function string($length)
@@ -211,8 +212,7 @@ class Random
                     $crypto = new RC4();
                     break;
                 default:
-                    user_error(__CLASS__ . ' requires at least one symmetric cipher be loaded');
-                    return false;
+                    throw new \RuntimeException(__CLASS__ . ' requires at least one symmetric cipher be loaded');
             }
 
             $crypto->setKey($key);

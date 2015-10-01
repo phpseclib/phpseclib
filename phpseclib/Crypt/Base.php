@@ -605,6 +605,7 @@ abstract class Base
      * @see Crypt/Hash.php
      * @param string $password
      * @param string $method
+     * @throws \LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
      * @return bool
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
@@ -639,8 +640,7 @@ abstract class Base
                         $hashObj = new Hash();
                         $hashObj->setHash($hash);
                         if ($dkLen > $hashObj->getLength()) {
-                            user_error('Derived key too long');
-                            return false;
+                            throw new \LengthException('Derived key length cannot be longer than the hash length');
                         }
                         $t = $password . $salt;
                         for ($i = 0; $i < $count; ++$i) {
@@ -1827,6 +1827,7 @@ abstract class Base
      *
      * @see \phpseclib\Crypt\Base::_unpad()
      * @param string $text
+     * @throws \LengthException if padding is disabled and the plaintext's length is not a multiple of the block size
      * @access private
      * @return string
      */
@@ -1838,8 +1839,7 @@ abstract class Base
             if ($length % $this->block_size == 0) {
                 return $text;
             } else {
-                user_error("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size})");
-                $this->padding = true;
+                throw new \LengthException("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size}). Try enabling padding.");
             }
         }
 
@@ -1856,6 +1856,7 @@ abstract class Base
      *
      * @see \phpseclib\Crypt\Base::_pad()
      * @param string $text
+     * @throws \LengthException if the ciphertext's length is not a multiple of the block size
      * @access private
      * @return string
      */
@@ -1868,7 +1869,7 @@ abstract class Base
         $length = ord($text[strlen($text) - 1]);
 
         if (!$length || $length > $this->block_size) {
-            return false;
+            throw new \LengthException("The ciphertext has an invalid padding length ($length) compared to the block size ({$this->block_size})");
         }
 
         return substr($text, 0, -$length);

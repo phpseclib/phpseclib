@@ -29,11 +29,9 @@
  *
  * $plaintext = 'terrafrost';
  *
- * $rsa->loadKey($privatekey);
- * $signature = $rsa->sign($plaintext);
+ * $signature = $privatekey->sign($plaintext);
  *
- * $rsa->loadKey($publickey);
- * echo $rsa->verify($plaintext, $signature) ? 'verified' : 'unverified';
+ * echo $publickey->verify($plaintext, $signature) ? 'verified' : 'unverified';
  * ?>
  * </code>
  *
@@ -336,6 +334,20 @@ class RSA
      * @access private
      */
     static $fileFormats = false;
+
+    /**
+     * Initialize static variables
+     *
+     * @access private
+     */
+    static function _initialize_static_variables()
+    {
+        if (!isset(self::$zero)) {
+            self::$zero= new BigInteger(0);
+            self::$one = new BigInteger(1);
+            self::$configFile = __DIR__ . '/../openssl.cnf';
+        }
+    }
 
     /**
      * Initialize static variables
@@ -664,7 +676,6 @@ class RSA
             $this->encryptionMode = $key->encryptionMode;
             $this->signatureMode = $key->signatureMode;
             $this->password = $key->password;
-            $this->configFile = $key->configFile;
             $this->comment = $key->comment;
 
             if (is_object($key->hash)) {
