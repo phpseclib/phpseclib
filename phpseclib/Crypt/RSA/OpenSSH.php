@@ -56,48 +56,48 @@ class OpenSSH
      */
     static function load($key, $password = '')
     {
-       $parts = explode(' ', $key, 3);
+        $parts = explode(' ', $key, 3);
 
-       $key = isset($parts[1]) ? base64_decode($parts[1]) : false;
-       if ($key === false) {
-           return false;
-       }
+        $key = isset($parts[1]) ? base64_decode($parts[1]) : false;
+        if ($key === false) {
+            return false;
+        }
 
-       $comment = isset($parts[2]) ? $parts[2] : false;
+        $comment = isset($parts[2]) ? $parts[2] : false;
 
-       $cleanup = substr($key, 0, 11) == "\0\0\0\7ssh-rsa";
+        $cleanup = substr($key, 0, 11) == "\0\0\0\7ssh-rsa";
 
-       if (strlen($key) <= 4) {
-           return false;
-       }
-       extract(unpack('Nlength', self::_string_shift($key, 4)));
-       $publicExponent = new BigInteger(self::_string_shift($key, $length), -256);
-       if (strlen($key) <= 4) {
-           return false;
-       }
-       extract(unpack('Nlength', self::_string_shift($key, 4)));
-       $modulus = new BigInteger(self::_string_shift($key, $length), -256);
+        if (strlen($key) <= 4) {
+            return false;
+        }
+        extract(unpack('Nlength', self::_string_shift($key, 4)));
+        $publicExponent = new BigInteger(self::_string_shift($key, $length), -256);
+        if (strlen($key) <= 4) {
+            return false;
+        }
+        extract(unpack('Nlength', self::_string_shift($key, 4)));
+        $modulus = new BigInteger(self::_string_shift($key, $length), -256);
 
-       if ($cleanup && strlen($key)) {
-           if (strlen($key) <= 4) {
-               return false;
-           }
-           extract(unpack('Nlength', self::_string_shift($key, 4)));
-           $realModulus = new BigInteger(self::_string_shift($key, $length), -256);
-           return strlen($key) ? false : array(
-               'isPublicKey' => true,
-               'modulus' => $realModulus,
-               'publicExponent' => $modulus,
-               'comment' => $comment
-           );
-       } else {
-           return strlen($key) ? false : array(
-               'isPublicKey' => true,
-               'modulus' => $modulus,
-               'publicExponent' => $publicExponent,
-               'comment' => $comment
-           );
-       }
+        if ($cleanup && strlen($key)) {
+            if (strlen($key) <= 4) {
+                return false;
+            }
+            extract(unpack('Nlength', self::_string_shift($key, 4)));
+            $realModulus = new BigInteger(self::_string_shift($key, $length), -256);
+            return strlen($key) ? false : array(
+                'isPublicKey' => true,
+                'modulus' => $realModulus,
+                'publicExponent' => $modulus,
+                'comment' => $comment
+            );
+        } else {
+            return strlen($key) ? false : array(
+                'isPublicKey' => true,
+                'modulus' => $modulus,
+                'publicExponent' => $publicExponent,
+                'comment' => $comment
+            );
+        }
     }
 
     /**
