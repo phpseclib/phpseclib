@@ -350,20 +350,6 @@ class RSA
     }
 
     /**
-     * Initialize static variables
-     *
-     * @access private
-     */
-    static function _initialize_static_variables()
-    {
-        if (!isset(self::$zero)) {
-            self::$zero= new BigInteger(0);
-            self::$one = new BigInteger(1);
-            self::$configFile = __DIR__ . '/../openssl.cnf';
-        }
-    }
-
-    /**
      * The constructor
      *
      * If you want to make use of the openssl extension, you'll need to set the mode manually, yourself.  The reason
