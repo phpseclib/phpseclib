@@ -16,6 +16,7 @@ namespace phpseclib\Crypt\RSA;
 
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\AES;
+use phpseclib\Crypt\Hash;
 
 /**
  * PuTTY Formatted RSA Key Handler
@@ -75,6 +76,11 @@ class PuTTY
      */
     static function load($key, $password = '')
     {
+        static $one;
+        if (!isset($one)) {
+            $one = new BigInteger(1);
+        }
+
         $components = array('isPublicKey' => false);
         $key = preg_split('#\r\n|\r|\n#', $key);
         $type = trim(preg_replace('#PuTTY-User-Key-File-2: (.+)#', '$1', $key[0]));
@@ -126,9 +132,9 @@ class PuTTY
         }
         $components['primes'][] = new BigInteger(self::_string_shift($private, $length), -256);
 
-        $temp = $components['primes'][1]->subtract(self::$one);
+        $temp = $components['primes'][1]->subtract($one);
         $components['exponents'] = array(1 => $components['publicExponent']->modInverse($temp));
-        $temp = $components['primes'][2]->subtract(self::$one);
+        $temp = $components['primes'][2]->subtract($one);
         $components['exponents'][] = $components['publicExponent']->modInverse($temp);
 
         extract(unpack('Nlength', self::_string_shift($private, 4)));
@@ -177,7 +183,6 @@ class PuTTY
         }
 
         $raw = array(
-            'version' => $num_primes == 2 ? chr(0) : chr(1), // two-prime vs. multi
             'modulus' => $n->toBytes(true),
             'publicExponent' => $e->toBytes(true),
             'privateExponent' => $d->toBytes(true),

@@ -662,7 +662,6 @@ class RSA
             $this->encryptionMode = $key->encryptionMode;
             $this->signatureMode = $key->signatureMode;
             $this->password = $key->password;
-            $this->comment = $key->comment;
 
             if (is_object($key->hash)) {
                 $this->hash = new Hash($key->hash->getHash());
@@ -728,9 +727,6 @@ class RSA
             return false;
         }
 
-        if (isset($components['comment']) && $components['comment'] !== false) {
-            $this->comment = $components['comment'];
-        }
         $this->modulus = $components['modulus'];
         $this->k = strlen($this->modulus->toBytes());
         $this->exponent = isset($components['privateExponent']) ? $components['privateExponent'] : $components['publicExponent'];
@@ -2020,28 +2016,6 @@ class RSA
     function setSignatureMode($mode)
     {
         $this->signatureMode = $mode;
-    }
-
-    /**
-     * Set public key comment.
-     *
-     * @access public
-     * @param string $comment
-     */
-    function setComment($comment)
-    {
-        $this->comment = $comment;
-    }
-
-    /**
-     * Get public key comment.
-     *
-     * @access public
-     * @return string
-     */
-    function getComment()
-    {
-        return $this->comment;
     }
 
     /**
