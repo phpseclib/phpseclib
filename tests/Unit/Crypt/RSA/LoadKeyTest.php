@@ -317,4 +317,46 @@ JWrQdxx/WNN+ABG426rgYYbeGcIlWLZCw6Bx/1HtN5ef6nVEoiGNChYKIRB4QFOi
 
         $this->assertSame(preg_replace('#\s#', '', $key), preg_replace('#\s#', '', $newkey));
     }
+
+    public function testPKCS1EncryptionChange()
+    {
+        $rsa = new RSA();
+
+        $key = 'PuTTY-User-Key-File-2: ssh-rsa
+Encryption: none
+Comment: phpseclib-generated-key
+Public-Lines: 4
+AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4
+eCZ0FPqri0cb2JZfXJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RK
+NUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDy
+R4e9T04ZZw==
+Private-Lines: 8
+AAAAgBYo5KOevqhsjfDNEVcmkQF8/vsU6hwS4d7ceFYDLa0PlhIAo4aE8KNtyjAQ
+LiRkmJ0ZqAWTN5TH0ynryJAInTxMb2AnZuXWKt106C5JC7+S9qSCFThTAxvihEpw
+BVe5dnPnJ80TFtPm+n/JkdQic2bsVSy+kNNn7y4uef5m0mMRAAAAQQDeAw6fiIQX
+GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJ
+rmfPwIGm63ilAAAAQQDEIvkdBvZtCvgHKitwxab+EQ/YxnNE5XvfIXjWE+xEL2br
+oquF470c9Mm6jf/2zmn6yobE6UUvQ0O3hKSiyOAbAAAAQBGoiuSoSjafUhV7i1cE
+Gpb88h5NBYZzWXGZ37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ
+4p0=
+Private-MAC: 03e2cb74e1d67652fbad063d2ed0478f31bdf256';
+        $this->assertTrue($rsa->load($key));
+
+        PKCS1::setEncryptionAlgorithm('AES-256-CBC');
+        $rsa->setPassword('demo');
+
+        $encryptedKey = (string) $key;
+
+        // change back to the original format to demonstrate that this doesn't break anything
+        PKCS1::setEncryptionAlgorithm('DES-EDE3-CBC');
+
+        $rsa = new RSA();
+        $rsa->setPassword('demo');
+        $this->assertTrue($rsa->load($encryptedKey));
+        $rsa->setPassword();
+        $rsa->setPrivateKeyFormat('PuTTY');
+        $key2 = (string) $rsa;
+
+        $this->assertSame($key, $key2);
+    }
 }
