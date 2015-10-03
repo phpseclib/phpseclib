@@ -590,7 +590,7 @@ class ASN1
                                 $maymatch = $constant == $temp['constant'] && $childClass == $tempClass;
                             } else {
                                 // Can only match if no constant expected and type matches or is generic.
-                                $maymatch = !isset($child['constant']) && array_search($child['type'], array($temp['type'], self::TYPE_ANY, self::TYPE_CHOICE)) !== false;
+                                $maymatch = !isset($child['constant']) && in_array($child['type'], array($temp['type'], self::TYPE_ANY, self::TYPE_CHOICE));
                             }
                         }
                     }
@@ -662,7 +662,7 @@ class ASN1
                                 $maymatch = $constant == $temp['constant'] && $childClass == $tempClass;
                             } else {
                                 // Can only match if no constant expected and type matches or is generic.
-                                $maymatch = !isset($child['constant']) && array_search($child['type'], array($temp['type'], self::TYPE_ANY, self::TYPE_CHOICE)) !== false;
+                                $maymatch = !isset($child['constant']) && in_array($child['type'], array($temp['type'], self::TYPE_ANY, self::TYPE_CHOICE));
                             }
                         }
 

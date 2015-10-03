@@ -1670,7 +1670,7 @@ class SFTP extends SSH2
                 array_shift($dirs);
                 $dirs[0] = '/' . $dirs[0];
             }
-            for ($i = 0; $i < count($dirs); $i++) {
+            for ($i = 0, $dirsCount = count($dirs); $i < $dirsCount; $i++) {
                 $temp = array_slice($dirs, 0, $i + 1);
                 $temp = implode('/', $temp);
                 $result = $this->_mkdir_helper($temp, $attr);
@@ -1856,7 +1856,7 @@ class SFTP extends SSH2
                 // do nothing
                 break;
             case is_resource($data):
-                $mode = $mode & ~self::SOURCE_LOCAL_FILE;
+                $mode &= ~self::SOURCE_LOCAL_FILE;
                 $fp = $data;
                 break;
             case $mode & self::SOURCE_LOCAL_FILE:
@@ -1894,7 +1894,7 @@ class SFTP extends SSH2
         while ($dataCallback || $sent < $size) {
             if ($dataCallback) {
                 $temp = call_user_func($dataCallback, $sftp_packet_size);
-                if (is_null($temp)) {
+                if ($temp === null) {
                     break;
                 }
             } else {
@@ -2080,7 +2080,7 @@ class SFTP extends SSH2
                     if ($local_file === false) {
                         $content.= $temp;
                     } else {
-                        fputs($fp, $temp);
+                        fwrite($fp, $temp);
                     }
                     break;
                 case NET_SFTP_STATUS:

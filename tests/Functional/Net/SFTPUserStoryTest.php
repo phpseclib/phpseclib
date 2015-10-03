@@ -19,7 +19,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         parent::setUpBeforeClass();
 
-        self::$scratchDir = uniqid('phpseclib-sftp-scratch-');
+        self::$scratchDir = uniqid('phpseclib-sftp-scratch-', true);
 
         self::$exampleData = str_repeat('abcde12345', 1000);
         self::$exampleDataLength = 10000;

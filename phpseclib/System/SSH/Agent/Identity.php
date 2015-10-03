@@ -141,7 +141,7 @@ class Identity
         // the last parameter (currently 0) is for flags and ssh-agent only defines one flag (for ssh-dss): SSH_AGENT_OLD_SIGNATURE
         $packet = pack('CNa*Na*N', Agent::SSH_AGENTC_SIGN_REQUEST, strlen($this->key_blob), $this->key_blob, strlen($message), $message, 0);
         $packet = pack('Na*', strlen($packet), $packet);
-        if (strlen($packet) != fputs($this->fsock, $packet)) {
+        if (strlen($packet) != fwrite($this->fsock, $packet)) {
             user_error('Connection closed during signing');
         }
 

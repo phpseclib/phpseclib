@@ -563,7 +563,7 @@ class SSH1
             return false;
         }
 
-        fputs($this->fsock, $this->identifier."\r\n");
+        fwrite($this->fsock, $this->identifier."\r\n");
 
         $response = $this->_get_binary_packet();
         if ($response[self::RESPONSE_TYPE] != NET_SSH1_SMSG_PUBLIC_KEY) {
@@ -1166,7 +1166,7 @@ class SSH1
         $packet = pack('Na*', $length, $data);
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
-        $result = strlen($packet) == fputs($this->fsock, $packet);
+        $result = strlen($packet) == fwrite($this->fsock, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
 
         if (defined('NET_SSH1_LOGGING')) {
@@ -1408,7 +1408,7 @@ class SSH1
     function _format_log($message_log, $message_number_log)
     {
         $output = '';
-        for ($i = 0; $i < count($message_log); $i++) {
+        for ($i = 0, $messageLogCount = count($message_log); $i < $messageLogCount; $i++) {
             $output.= $message_number_log[$i] . "\r\n";
             $current_log = $message_log[$i];
             $j = 0;
@@ -1608,7 +1608,7 @@ class SSH1
                     $this->realtime_log_size = strlen($entry);
                     $this->realtime_log_wrap = true;
                 }
-                fputs($this->realtime_log_file, $entry);
+                fwrite($this->realtime_log_file, $entry);
         }
     }
 }

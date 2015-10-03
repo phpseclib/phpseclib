@@ -190,7 +190,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $y = $this->getInstance('33333333333333333333333', 16);
         $z = $this->getInstance('22222222222222222222222', 16);
 
-        $this->assertSame($z->toHex(), $x->bitwise_AND($y)->toHex());
+        $this->assertSame($z->toHex(), $x->bitwise_and($y)->toHex());
     }
 
     public function testBitwiseOR()
@@ -199,7 +199,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $y = $this->getInstance('EEEEEEEEEEEEEEEEEEEEEEE', 16);
         $z = $this->getInstance('FFFFFFFFFFFFFFFFFFFFFFF', 16);
 
-        $this->assertSame($z->toHex(), $x->bitwise_OR($y)->toHex());
+        $this->assertSame($z->toHex(), $x->bitwise_or($y)->toHex());
     }
 
     public function testBitwiseXOR()
@@ -208,7 +208,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $y = $this->getInstance('133713371337133713371337', 16);
         $z = $this->getInstance('BC98BC98BC98BC98BC98BC98', 16);
 
-        $this->assertSame($z->toHex(), $x->bitwise_XOR($y)->toHex());
+        $this->assertSame($z->toHex(), $x->bitwise_xor($y)->toHex());
     }
 
     public function testBitwiseNOT()
@@ -216,7 +216,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $x = $this->getInstance('EEEEEEEEEEEEEEEEEEEEEEE', 16);
         $z = $this->getInstance('11111111111111111111111', 16);
 
-        $this->assertSame($z->toHex(), $x->bitwise_NOT()->toHex());
+        $this->assertSame($z->toHex(), $x->bitwise_not()->toHex());
     }
 
     public function testBitwiseLeftShift()
@@ -224,7 +224,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $x = $this->getInstance('0x0000000FF0000000', 16);
         $y = $this->getInstance('0x000FF00000000000', 16);
 
-        $this->assertSame($y->toHex(), $x->bitwise_LeftShift(16)->toHex());
+        $this->assertSame($y->toHex(), $x->bitwise_leftShift(16)->toHex());
     }
 
     public function testBitwiseRightShift()
@@ -234,9 +234,9 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $z = $this->getInstance('0x000000000000000F', 16);
         $n = $this->getInstance(0);
 
-        $this->assertSame($y->toHex(), $x->bitwise_RightShift(16)->toHex());
-        $this->assertSame($z->toHex(), $x->bitwise_RightShift(32)->toHex());
-        $this->assertSame($n->toHex(), $x->bitwise_RightShift(36)->toHex());
+        $this->assertSame($y->toHex(), $x->bitwise_rightShift(16)->toHex());
+        $this->assertSame($z->toHex(), $x->bitwise_rightShift(32)->toHex());
+        $this->assertSame($n->toHex(), $x->bitwise_rightShift(36)->toHex());
     }
 
     public function testSerializable()

@@ -1081,7 +1081,7 @@ class SSH2
             return false;
         }
 
-        fputs($this->fsock, $this->identifier . "\r\n");
+        fwrite($this->fsock, $this->identifier . "\r\n");
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
@@ -2171,7 +2171,7 @@ class SSH2
                 */
                 // see http://tools.ietf.org/html/rfc4256#section-3.4
                 $packet = $logged = pack('CN', NET_SSH2_MSG_USERAUTH_INFO_RESPONSE, count($responses));
-                for ($i = 0; $i < count($responses); $i++) {
+                for ($i = 0, $responsesCount = count($responses); $i < $responsesCount; $i++) {
                     $packet.= pack('Na*', strlen($responses[$i]), $responses[$i]);
                     $logged.= pack('Na*', strlen('dummy-answer'), 'dummy-answer');
                 }
@@ -3416,7 +3416,7 @@ class SSH2
         $packet.= $hmac;
 
         $start = microtime(true);
-        $result = strlen($packet) == fputs($this->fsock, $packet);
+        $result = strlen($packet) == fwrite($this->fsock, $packet);
         $stop = microtime(true);
 
         if (defined('NET_SSH2_LOGGING')) {
@@ -3503,7 +3503,7 @@ class SSH2
                     $this->realtime_log_size = strlen($entry);
                     $this->realtime_log_wrap = true;
                 }
-                fputs($this->realtime_log_file, $entry);
+                fwrite($this->realtime_log_file, $entry);
         }
     }
 
@@ -3687,7 +3687,7 @@ class SSH2
     function _format_log($message_log, $message_number_log)
     {
         $output = '';
-        for ($i = 0; $i < count($message_log); $i++) {
+        for ($i = 0, $messagesLogCount = count($message_log); $i < $messagesLogCount; $i++) {
             $output.= $message_number_log[$i] . "\r\n";
             $current_log = $message_log[$i];
             $j = 0;
@@ -4090,7 +4090,7 @@ class SSH2
      */
     function getExitStatus()
     {
-        if (is_null($this->exit_status)) {
+        if ($this->exit_status === null) {
             return false;
         }
         return $this->exit_status;

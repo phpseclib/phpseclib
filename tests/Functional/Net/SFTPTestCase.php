@@ -19,7 +19,7 @@ abstract class Functional_Net_SFTPTestCase extends PhpseclibFunctionalTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->scratchDir = uniqid('phpseclib-sftp-scratch-');
+        $this->scratchDir = uniqid('phpseclib-sftp-scratch-', true);
 
         $this->sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
         $this->assertTrue($this->sftp->login(
