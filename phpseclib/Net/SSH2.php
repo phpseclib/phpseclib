@@ -1102,7 +1102,7 @@ class Net_SSH2
             return false;
         }
 
-        fputs($this->fsock, $this->identifier . "\r\n");
+        fwrite($this->fsock, $this->identifier . "\r\n");
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
@@ -3518,7 +3518,7 @@ class Net_SSH2
         $packet.= $hmac;
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
-        $result = strlen($packet) == fputs($this->fsock, $packet);
+        $result = strlen($packet) == fwrite($this->fsock, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
 
         if (defined('NET_SSH2_LOGGING')) {
@@ -3605,7 +3605,7 @@ class Net_SSH2
                     $this->realtime_log_size = strlen($entry);
                     $this->realtime_log_wrap = true;
                 }
-                fputs($this->realtime_log_file, $entry);
+                fwrite($this->realtime_log_file, $entry);
         }
     }
 
@@ -4196,7 +4196,7 @@ class Net_SSH2
      */
     function getExitStatus()
     {
-        if (is_null($this->exit_status)) {
+        if ($this->exit_status === null) {
             return false;
         }
         return $this->exit_status;
