@@ -346,7 +346,7 @@ class Crypt_Blowfish extends Crypt_Base
     /**
      * The Key Length
      *
-     * @see setKeyLength()
+     * @see Crypt_Base::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk

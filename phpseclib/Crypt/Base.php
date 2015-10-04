@@ -473,7 +473,7 @@ class Crypt_Base
     /**
      * Has the key length explicitly been set or should it be derived from the key, itself?
      *
-     * @see setKeyLength()
+     * @see Crypt_Base::setKeyLength()
      * @var bool
      * @access private
      */
@@ -482,7 +482,7 @@ class Crypt_Base
     /**
      * Don't truncate / null pad key
      *
-     * @see Crypt_Base::_clearBuffers
+     * @see Crypt_Base::_clearBuffers()
      * @var bool
      * @access private
      */

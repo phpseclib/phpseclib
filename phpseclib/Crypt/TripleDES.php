@@ -269,7 +269,7 @@ class Crypt_TripleDES extends Crypt_DES
      *
      * Valid key lengths are 64, 128 and 192
      *
-     * @see Crypt_Rijndael:setKeyLength()
+     * @see Crypt_Base:setKeyLength()
      * @access public
      * @param int $length
      */

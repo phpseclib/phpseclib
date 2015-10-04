@@ -141,7 +141,7 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Don't truncate / null pad key
      *
-     * @see Crypt_Base::_clearBuffers
+     * @see Crypt_Base::_clearBuffers()
      * @var bool
      * @access private
      */
