@@ -79,7 +79,7 @@ class RC2 extends Base
     /**
      * Don't truncate / null pad key
      *
-     * @see \phpseclib\Crypt\Base::_clearBuffers
+     * @see \phpseclib\Crypt\Base::_clearBuffers()
      * @var bool
      * @access private
      */
