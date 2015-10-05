@@ -1942,7 +1942,7 @@ class Net_SSH2
      * @param mixed $password
      * @param mixed $...
      * @return bool
-     * @see _login
+     * @see Net_SSH2::_login()
      * @access public
      */
     function login($username)
@@ -1958,7 +1958,7 @@ class Net_SSH2
      * @param mixed $password
      * @param mixed $...
      * @return bool
-     * @see _login_helper
+     * @see Net_SSH2::_login_helper()
      * @access private
      */
     function _login($username)

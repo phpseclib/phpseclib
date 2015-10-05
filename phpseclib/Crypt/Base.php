@@ -296,9 +296,9 @@ class Crypt_Base
     /**
      * Does internal cipher state need to be (re)initialized?
      *
-     * @see setKey()
-     * @see setIV()
-     * @see disableContinuousBuffer()
+     * @see Crypt_Base::setKey()
+     * @see Crypt_Base::setIV()
+     * @see Crypt_Base::disableContinuousBuffer()
      * @var bool
      * @access private
      */
@@ -1726,9 +1726,9 @@ class Crypt_Base
      *
      * - First run of encrypt() / decrypt() with no init-settings
      *
-     * @see setKey()
-     * @see setIV()
-     * @see disableContinuousBuffer()
+     * @see Crypt_Base::setKey()
+     * @see Crypt_Base::setIV()
+     * @see Crypt_Base::disableContinuousBuffer()
      * @access private
      * @internal _setup() is always called before en/decryption.
      * @internal Could, but not must, extend by the child Crypt_* class
@@ -1760,9 +1760,9 @@ class Crypt_Base
      *
      * - First run of encrypt() / decrypt()
      *
-     * @see setKey()
-     * @see setIV()
-     * @see disableContinuousBuffer()
+     * @see Crypt_Base::setKey()
+     * @see Crypt_Base::setIV()
+     * @see Crypt_Base::disableContinuousBuffer()
      * @access private
      * @internal Could, but not must, extend by the child Crypt_* class
      */
@@ -2504,7 +2504,7 @@ class Crypt_Base
     /**
      * Generates a digest from $bytes
      *
-     * @see _setupInlineCrypt()
+     * @see Crypt_Base::_setupInlineCrypt()
      * @access private
      * @param $bytes
      * @return string

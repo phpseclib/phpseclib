@@ -120,7 +120,7 @@ class Crypt_RC2 extends Crypt_Base
      * The Key
      *
      * @see Crypt_Base::key
-     * @see setKey()
+     * @see Crypt_RC2::setKey()
      * @var string
      * @access private
      */
@@ -130,9 +130,9 @@ class Crypt_RC2 extends Crypt_Base
      * The Original (unpadded) Key
      *
      * @see Crypt_Base::key
-     * @see setKey()
-     * @see encrypt()
-     * @see decrypt()
+     * @see Crypt_RC2::setKey()
+     * @see Crypt_RC2::encrypt()
+     * @see Crypt_RC2::decrypt()
      * @var string
      * @access private
      */
@@ -456,7 +456,7 @@ class Crypt_RC2 extends Crypt_Base
      *
      * Mostly a wrapper for Crypt_Base::encrypt, with some additional OpenSSL handling code
      *
-     * @see decrypt()
+     * @see Crypt_RC2::decrypt()
      * @access public
      * @param string $plaintext
      * @return string $ciphertext
@@ -479,7 +479,7 @@ class Crypt_RC2 extends Crypt_Base
      *
      * Mostly a wrapper for Crypt_Base::decrypt, with some additional OpenSSL handling code
      *
-     * @see encrypt()
+     * @see Crypt_RC2::encrypt()
      * @access public
      * @param string $ciphertext
      * @return string $plaintext

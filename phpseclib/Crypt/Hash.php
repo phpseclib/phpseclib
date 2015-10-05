@@ -759,7 +759,7 @@ class Crypt_Hash
      * @access private
      * @param int $int
      * @param int $amt
-     * @see _sha256()
+     * @see Crypt_Hash::_sha256()
      * @return int
      */
     function _rightRotate($int, $amt)
@@ -775,7 +775,7 @@ class Crypt_Hash
      * @access private
      * @param int $int
      * @param int $amt
-     * @see _sha256()
+     * @see Crypt_Hash::_sha256()
      * @return int
      */
     function _rightShift($int, $amt)
@@ -789,7 +789,7 @@ class Crypt_Hash
      *
      * @access private
      * @param int $int
-     * @see _sha256()
+     * @see Crypt_Hash::_sha256()
      * @return int
      */
     function _not($int)
@@ -805,7 +805,7 @@ class Crypt_Hash
      *
      * @param int $...
      * @return int
-     * @see _sha256()
+     * @see Crypt_Hash::_sha256()
      * @access private
      */
     function _add()

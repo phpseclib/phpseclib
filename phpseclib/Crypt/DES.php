@@ -143,7 +143,7 @@ class Crypt_DES extends Crypt_Base
      * The Key
      *
      * @see Crypt_Base::key
-     * @see setKey()
+     * @see Crypt_Base::setKey()
      * @var string
      * @access private
      */

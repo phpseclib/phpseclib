@@ -751,7 +751,7 @@ class Crypt_RSA
      * Convert a private key to the appropriate format.
      *
      * @access private
-     * @see setPrivateKeyFormat()
+     * @see Crypt_RSA::setPrivateKeyFormat()
      * @param string $RSAPrivateKey
      * @return string
      */
@@ -992,7 +992,7 @@ class Crypt_RSA
      * Convert a public key to the appropriate format
      *
      * @access private
-     * @see setPublicKeyFormat()
+     * @see Crypt_RSA::setPublicKeyFormat()
      * @param string $RSAPrivateKey
      * @return string
      */
@@ -1070,8 +1070,8 @@ class Crypt_RSA
      * Break a public or private key down into its constituant components
      *
      * @access private
-     * @see _convertPublicKey()
-     * @see _convertPrivateKey()
+     * @see Crypt_RSA::_convertPublicKey()
+     * @see Crypt_RSA::_convertPrivateKey()
      * @param string $key
      * @param int $type
      * @return array
@@ -1692,8 +1692,8 @@ class Crypt_RSA
      * Private keys can be encrypted with a password.  To unset the password, pass in the empty string or false.
      * Or rather, pass in $password such that empty($password) && !is_string($password) is true.
      *
-     * @see createKey()
-     * @see loadKey()
+     * @see Crypt_RSA::createKey()
+     * @see Crypt_RSA::loadKey()
      * @access public
      * @param string $password
      */
@@ -1717,7 +1717,7 @@ class Crypt_RSA
      *
      * Returns true on success, false on failure
      *
-     * @see getPublicKey()
+     * @see Crypt_RSA::getPublicKey()
      * @access public
      * @param string $key optional
      * @param int $type optional
@@ -1777,7 +1777,7 @@ class Crypt_RSA
      *
      * Returns true on success, false on failure
      *
-     * @see getPublicKey()
+     * @see Crypt_RSA::getPublicKey()
      * @access public
      * @param string $key optional
      * @param int $type optional
@@ -1808,7 +1808,7 @@ class Crypt_RSA
      * or if the public key was set via setPublicKey().  If the currently loaded key is supposed to be the public key this
      * function won't return it since this library, for the most part, doesn't distinguish between public and private keys.
      *
-     * @see getPublicKey()
+     * @see Crypt_RSA::getPublicKey()
      * @access public
      * @param string $key
      * @param int $type optional
@@ -1836,6 +1836,7 @@ class Crypt_RSA
      * @access public
      * @param string $algorithm The hashing algorithm to be used. Valid options are 'md5' and 'sha256'. False is returned
      * for invalid values.
+     * @return mixed
      */
     public function getPublicKeyFingerprint($algorithm = 'md5')
     {
@@ -1865,10 +1866,11 @@ class Crypt_RSA
      *
      * The private key is only returned if the currently loaded key contains the constituent prime numbers.
      *
-     * @see getPublicKey()
+     * @see Crypt_RSA::getPublicKey()
      * @access public
      * @param string $key
      * @param int $type optional
+     * @return mixed
      */
     function getPrivateKey($type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
     {
@@ -1889,7 +1891,7 @@ class Crypt_RSA
      * Returns the private key without the prime number constituants.  Structurally identical to a public key that
      * hasn't been set as the public key
      *
-     * @see getPrivateKey()
+     * @see Crypt_RSA::getPrivateKey()
      * @access private
      * @param string $key
      * @param int $type optional
@@ -1911,6 +1913,7 @@ class Crypt_RSA
      *  __toString() magic method
      *
      * @access public
+     * @return string
      */
     function __toString()
     {
@@ -1926,6 +1929,7 @@ class Crypt_RSA
      *  __clone() magic method
      *
      * @access public
+     * @return Crypt_RSA
      */
     function __clone()
     {
@@ -2021,7 +2025,7 @@ class Crypt_RSA
     /**
      * Determines the private key format
      *
-     * @see createKey()
+     * @see Crypt_RSA::createKey()
      * @access public
      * @param int $format
      */
@@ -2033,7 +2037,7 @@ class Crypt_RSA
     /**
      * Determines the public key format
      *
-     * @see createKey()
+     * @see Crypt_RSA::createKey()
      * @access public
      * @param int $format
      */
@@ -2950,7 +2954,7 @@ class Crypt_RSA
      * If $plaintext exceeds those limits it will be broken up so that it does and the resultant ciphertext's will
      * be concatenated together.
      *
-     * @see decrypt()
+     * @see Crypt_RSA::decrypt()
      * @access public
      * @param string $plaintext
      * @return string
@@ -2996,7 +3000,7 @@ class Crypt_RSA
     /**
      * Decryption
      *
-     * @see encrypt()
+     * @see Crypt_RSA::encrypt()
      * @access public
      * @param string $plaintext
      * @return string
@@ -3038,7 +3042,7 @@ class Crypt_RSA
     /**
      * Create a signature
      *
-     * @see verify()
+     * @see Crypt_RSA::verify()
      * @access public
      * @param string $message
      * @return string
@@ -3061,7 +3065,7 @@ class Crypt_RSA
     /**
      * Verifies a signature
      *
-     * @see sign()
+     * @see Crypt_RSA::sign()
      * @access public
      * @param string $message
      * @param string $signature

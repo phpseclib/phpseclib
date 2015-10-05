@@ -156,7 +156,7 @@ class Crypt_Rijndael extends Crypt_Base
      *
      * @see Crypt_Base::cipher_name_mcrypt
      * @see Crypt_Base::engine
-     * @see isValidEngine()
+     * @see Crypt_Rijndael::isValidEngine()
      * @var string
      * @access private
      */
@@ -175,7 +175,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Has the key length explicitly been set or should it be derived from the key, itself?
      *
-     * @see setKeyLength()
+     * @see Crypt_Rijndael::setKeyLength()
      * @var bool
      * @access private
      */
@@ -184,7 +184,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Key Schedule
      *
-     * @see _setup()
+     * @see Crypt_Rijndael::_setup()
      * @var array
      * @access private
      */
@@ -193,7 +193,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Inverse Key Schedule
      *
-     * @see _setup()
+     * @see Crypt_Rijndael::_setup()
      * @var array
      * @access private
      */
@@ -202,7 +202,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Block Length divided by 32
      *
-     * @see setBlockLength()
+     * @see Crypt_Rijndael::setBlockLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4.  Exists in conjunction with $block_size
@@ -215,7 +215,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Key Length
      *
-     * @see setKeyLength()
+     * @see Crypt_Rijndael::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
@@ -228,7 +228,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Key Length divided by 32
      *
-     * @see setKeyLength()
+     * @see Crypt_Rijndael::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4
@@ -301,7 +301,7 @@ class Crypt_Rijndael extends Crypt_Base
      * Note: 160/224-bit keys must explicitly set by setKeyLength(), otherwise they will be round/pad up to 192/256 bits.
      *
      * @see Crypt_Base:setKey()
-     * @see setKeyLength()
+     * @see Crypt_Rijndael::setKeyLength()
      * @access public
      * @param string $key
      */
