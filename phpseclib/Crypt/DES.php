@@ -78,13 +78,13 @@ class DES extends Base
     var $block_size = 8;
 
     /**
-     * Key Length
+     * Key Length (in bytes)
      *
      * @see \phpseclib\Crypt\Base::setKeyLength()
      * @var int
      * @access private
      */
-    var $key_size = 8;
+    var $key_length = 8;
 
     /**
      * The mcrypt specific name of the cipher
@@ -138,7 +138,7 @@ class DES extends Base
      * @var string
      * @access private
      */
-    var $key_size_max = 8;
+    var $key_length_max = 8;
 
     /**
      * The Key Schedule
@@ -592,7 +592,7 @@ class DES extends Base
      */
     function isValidEngine($engine)
     {
-        if ($this->key_size_max == 8) {
+        if ($this->key_length_max == 8) {
             if ($engine == self::ENGINE_OPENSSL) {
                 $this->cipher_name_openssl_ecb = 'des-ecb';
                 $this->cipher_name_openssl = 'des-' . $this->_openssl_translate_mode();
@@ -621,8 +621,8 @@ class DES extends Base
     {
         // We check/cut here only up to max length of the key.
         // Key padding to the proper length will be done in _setupKey()
-        if (strlen($key) > $this->key_size_max) {
-            $key = substr($key, 0, $this->key_size_max);
+        if (strlen($key) > $this->key_length_max) {
+            $key = substr($key, 0, $this->key_length_max);
         }
 
         // Sets the key

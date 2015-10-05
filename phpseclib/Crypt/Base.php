@@ -379,15 +379,6 @@ abstract class Base
     var $cipher_name_openssl_ecb;
 
     /**
-     * The default password key_size used by setPassword()
-     *
-     * @see \phpseclib\Crypt\Base::setPassword()
-     * @var int
-     * @access private
-     */
-    var $password_key_size = 32;
-
-    /**
      * The default salt used by setPassword()
      *
      * @see \phpseclib\Crypt\Base::setPassword()
@@ -553,7 +544,7 @@ abstract class Base
      */
     function getKeyLength()
     {
-        return $this->key_size << 3;
+        return $this->key_length << 3;
     }
 
     /**
@@ -631,7 +622,7 @@ abstract class Base
                 if (isset($func_args[5])) {
                     $dkLen = $func_args[5];
                 } else {
-                    $dkLen = $method == 'pbkdf1' ? 2 * $this->key_size : $this->key_size;
+                    $dkLen = $method == 'pbkdf1' ? 2 * $this->key_length : $this->key_length;
                 }
 
                 switch (true) {
@@ -1893,7 +1884,7 @@ abstract class Base
         $this->encryptIV = $this->decryptIV = str_pad(substr($this->iv, 0, $this->block_size), $this->block_size, "\0");
 
         if (!$this->skip_key_adjustment) {
-            $this->key = str_pad(substr($this->key, 0, $this->key_size), $this->key_size, "\0");
+            $this->key = str_pad(substr($this->key, 0, $this->key_length), $this->key_length, "\0");
         }
     }
 

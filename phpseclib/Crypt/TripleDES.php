@@ -64,13 +64,13 @@ class TripleDES extends DES
     const MODE_CBC3 = Base::MODE_CBC;
 
     /**
-     * Key Length
+     * Key Length (in bytes)
      *
      * @see \phpseclib\Crypt\TripleDES::setKeyLength()
      * @var int
      * @access private
      */
-    var $key_size = 24;
+    var $key_length = 24;
 
     /**
      * The default salt used by setPassword()
@@ -109,7 +109,7 @@ class TripleDES extends DES
      * @var string
      * @access private
      */
-    var $key_size_max = 24;
+    var $key_length_max = 24;
 
     /**
      * Internal flag whether using self::MODE_3CBC or not
@@ -237,13 +237,13 @@ class TripleDES extends DES
         $length >>= 3;
         switch (true) {
             case $length <= 8:
-                $this->key_size = 8;
+                $this->key_length = 8;
                 break;
             case $length <= 16:
-                $this->key_size = 16;
+                $this->key_length = 16;
                 break;
             default:
-                $this->key_size = 24;
+                $this->key_length = 24;
         }
 
         parent::setKeyLength($length);
@@ -266,7 +266,7 @@ class TripleDES extends DES
      */
     function setKey($key)
     {
-        $length = $this->explicit_key_length ? $this->key_size : strlen($key);
+        $length = $this->explicit_key_length ? $this->key_length : strlen($key);
         if ($length > 8) {
             $key = str_pad(substr($key, 0, 24), 24, chr(0));
             // if $key is between 64 and 128-bits, use the first 64-bits as the last, per this:

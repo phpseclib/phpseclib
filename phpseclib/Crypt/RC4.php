@@ -76,13 +76,13 @@ class RC4 extends Base
     var $block_size = 0;
 
     /**
-     * Key Length
+     * Key Length (in bytes)
      *
      * @see \phpseclib\Crypt\RC4::setKeyLength()
      * @var int
      * @access private
      */
-    var $key_size = 128; // = 1024 bits
+    var $key_length = 128; // = 1024 bits
 
     /**
      * The mcrypt specific name of the cipher
@@ -200,11 +200,11 @@ class RC4 extends Base
     function setKeyLength($length)
     {
         if ($length < 8) {
-            $this->key_size = 1;
+            $this->key_length = 1;
         } elseif ($length > 2048) {
-            $this->key_size = 248;
+            $this->key_length = 248;
         } else {
-            $this->key_size = $length >> 3;
+            $this->key_length = $length >> 3;
         }
 
         parent::setKeyLength($length);

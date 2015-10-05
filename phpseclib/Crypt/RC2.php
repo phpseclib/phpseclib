@@ -86,13 +86,13 @@ class RC2 extends Base
     var $skip_key_adjustment = true;
 
     /**
-     * Key Length
+     * Key Length (in bytes)
      *
      * @see \phpseclib\Crypt\RC2::setKeyLength()
      * @var int
      * @access private
      */
-    var $key_size = 16; // = 128 bits
+    var $key_length = 16; // = 128 bits
 
     /**
      * The mcrypt specific name of the cipher
