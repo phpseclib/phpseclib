@@ -344,17 +344,17 @@ class Crypt_Blowfish extends Crypt_Base
     var $kl;
 
     /**
-     * The Key Length
+     * The Key Length (in bytes)
      *
      * @see Crypt_Base::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
-     *    because the encryption / decryption / key schedule creation requires this number and not $key_size.  We could
-     *    derive this from $key_size or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
+     *    because the encryption / decryption / key schedule creation requires this number and not $key_length.  We could
+     *    derive this from $key_length or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
      *    of that, we'll just precompute it once.
      */
-    var $key_size = 16;
+    var $key_length = 16;
 
     /**
      * Sets the key length.
@@ -367,11 +367,11 @@ class Crypt_Blowfish extends Crypt_Base
     function setKeyLength($length)
     {
         if ($length < 32) {
-            $this->key_size = 7;
+            $this->key_length = 7;
         } elseif ($length > 448) {
-            $this->key_size = 56;
+            $this->key_length = 56;
         } else {
-            $this->key_size = $length >> 3;
+            $this->key_length = $length >> 3;
         }
 
         parent::setKeyLength($length);
@@ -390,7 +390,7 @@ class Crypt_Blowfish extends Crypt_Base
     function isValidEngine($engine)
     {
         if ($engine == CRYPT_ENGINE_OPENSSL) {
-            if ($this->key_size != 16) {
+            if ($this->key_length != 16) {
                 return false;
             }
             $this->cipher_name_openssl_ecb = 'bf-ecb';

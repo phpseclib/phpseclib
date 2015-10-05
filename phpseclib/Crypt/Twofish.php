@@ -433,6 +433,15 @@ class Crypt_Twofish extends Crypt_Base
     var $kl;
 
     /**
+     * The Key Length (in bytes)
+     *
+     * @see Crypt_Twofish::setKeyLength()
+     * @var int
+     * @access private
+     */
+    var $key_length = 16;
+
+    /**
      * Sets the key length.
      *
      * Valid key lengths are 128, 192 or 256 bits
@@ -444,13 +453,13 @@ class Crypt_Twofish extends Crypt_Base
     {
         switch (true) {
             case $length <= 128:
-                $this->key_size = 16;
+                $this->key_length = 16;
                 break;
             case $length <= 192:
-                $this->key_size = 24;
+                $this->key_length = 24;
                 break;
             default:
-                $this->key_size = 32;
+                $this->key_length = 32;
         }
 
         parent::setKeyLength($length);

@@ -148,13 +148,13 @@ class Crypt_RC2 extends Crypt_Base
     var $skip_key_adjustment = true;
 
     /**
-     * Key Length
+     * Key Length (in bytes)
      *
      * @see Crypt_RC2::setKeyLength()
      * @var int
      * @access private
      */
-    var $key_size = 16; // = 128 bits
+    var $key_length = 16; // = 128 bits
 
     /**
      * The namespace used by the cipher for its constants.
