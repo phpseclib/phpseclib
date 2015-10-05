@@ -346,6 +346,18 @@ class RSA
             self::$zero= new BigInteger(0);
             self::$one = new BigInteger(1);
             self::$configFile = __DIR__ . '/../openssl.cnf';
+
+            if (self::$fileFormats === false) {
+                self::$fileFormats = array();
+                foreach (glob(__DIR__ . '/RSA/*.php') as $file) {
+                    $name = pathinfo($file, PATHINFO_FILENAME);
+                    $type = 'phpseclib\Crypt\RSA\\' . $name;
+                    $meta = new \ReflectionClass($type);
+                    if (!$meta->isAbstract()) {
+                        self::$fileFormats[strtolower($name)] = $type;
+                    }
+                }
+            }
         }
     }
 
@@ -622,22 +634,24 @@ class RSA
     }
 
     /**
-     * Pre-loads all the key format plugins
+     * Add a fileformat plugin
      *
-     * @see load()
-     * @access private
+     * The plugin needs to either already be loaded or be auto-loadable.
+     * Loading a plugin whose shortname overwrite an existing shortname will overwrite the old plugin.
+     *
+     * @see \phpseclib\Crypt\RSA::load()
+     * @param string $fullname
+     * @access public
+     * @return bool
      */
-    function _loadFileFormats()
+    static function addFileFormat($fullname)
     {
-        if (self::$fileFormats === false) {
-            self::$fileFormats = array();
-            foreach (glob(__DIR__ . '/RSA/*.php') as $file) {
-                $type = 'phpseclib\Crypt\RSA\\' . pathinfo($file, PATHINFO_FILENAME);
-                $meta = new \ReflectionClass($type);
-                if (!$meta->isAbstract()) {
-                    self::$fileFormats[] = $type;
-                }
-            }
+        self::_initialize_static_variables();
+
+        if (class_exists($fullname)) {
+            $meta = new \ReflectionClass($path);
+            $shortname = strtolower($meta->getShortName());
+            self::$fileFormats[$shortname] = $fullname;
         }
     }
 
@@ -699,7 +713,6 @@ class RSA
 
         $components = false;
         if ($type === false) {
-            $this->_loadFileFormats();
             foreach (self::$fileFormats as $format) {
                 try {
                     $components = $format::load($key, $this->password);
@@ -711,10 +724,9 @@ class RSA
                 }
             }
         } else {
-            if ($type[0] != '\\') {
-                $type = '\phpseclib\Crypt\RSA\\' . $type;
-            }
-            if (class_exists($type)) {
+            $type = strtolower($type);
+            if (isset(self::$fileFormats[$type])) {
+                $type = self::$fileFormats[$type];
                 try {
                     $components = $type::load($key, $this->password);
                 } catch (Exception $e) {
@@ -760,10 +772,12 @@ class RSA
      */
     function getPrivateKey($type = 'PKCS1')
     {
-        if ($type[0] != '\\') {
-            $type = '\phpseclib\Crypt\RSA\\' . $type;
+        $type = strtolower($type);
+        if (!isset(self::$fileFormats[$type])) {
+            return false;
         }
-        if (!class_exists($type) || !method_exists($type, 'savePrivateKey')) {
+        $type = self::$fileFormats[$type];
+        if (!method_exists($type, 'savePrivateKey')) {
             return false;
         }
 
@@ -842,7 +856,6 @@ class RSA
 
         $components = false;
         if ($type === false) {
-            $this->_loadFileFormats();
             foreach (self::$fileFormats as $format) {
                 if (!method_exists($format, 'savePublicKey')) {
                     continue;
@@ -857,10 +870,9 @@ class RSA
                 }
             }
         } else {
-            if ($type[0] != '\\') {
-                $type = '\phpseclib\Crypt\RSA\\' . $type;
-            }
-            if (class_exists($type)) {
+            $type = strtolower($type);
+            if (isset(self::$fileFormats[$type])) {
+                $type = self::$fileFormats[$type];
                 try {
                     $components = $type::load($key, $this->password);
                 } catch (Exception $e) {
@@ -931,10 +943,12 @@ class RSA
      */
     function getPublicKey($type = 'PKCS8')
     {
-        if ($type[0] != '\\') {
-            $type = '\phpseclib\Crypt\RSA\\' . $type;
+        $type = strtolower($type);
+        if (!isset(self::$fileFormats[$type])) {
+            return false;
         }
-        if (!class_exists($type) || !method_exists($type, 'savePublicKey')) {
+        $type = self::$fileFormats[$type];
+        if (!method_exists($type, 'savePublicKey')) {
             return false;
         }
 
@@ -995,10 +1009,12 @@ class RSA
      */
     function _getPrivatePublicKey($type = 'PKCS8')
     {
-        if ($type[0] != '\\') {
-            $type = '\phpseclib\Crypt\RSA\\' . $type;
+        $type = strtolower($type);
+        if (!isset(self::$fileFormats[$type])) {
+            return false;
         }
-        if (!class_exists($type) || !method_exists($type, 'savePublicKey')) {
+        $type = self::$fileFormats[$type];
+        if (!method_exists($type, 'savePublicKey')) {
             return false;
         }
 
