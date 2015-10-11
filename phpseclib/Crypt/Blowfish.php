@@ -64,8 +64,8 @@ if (!class_exists('Crypt_Base')) {
 
 /**#@+
  * @access public
- * @see Crypt_Blowfish::encrypt()
- * @see Crypt_Blowfish::decrypt()
+ * @see self::encrypt()
+ * @see self::decrypt()
  */
 /**
  * Encrypt / decrypt using the Counter mode.

@@ -7,11 +7,11 @@
  *
  * PHP versions 4 and 5
  *
- * If {@link Crypt_Rijndael::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
- * {@link Crypt_Rijndael::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
- * {@link Crypt_Rijndael::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
+ * If {@link self::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
+ * {@link self::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
+ * {@link self::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
  * 136-bits it'll be null-padded to 192-bits and 192 bits will be the key length until
- * {@link Crypt_Rijndael::setKey() setKey()} is called, again, at which point, it'll be recalculated.
+ * {@link self::setKey() setKey()} is called, again, at which point, it'll be recalculated.
  *
  * Not all Rijndael implementations may support 160-bits or 224-bits as the block length / key length.  mcrypt, for example,
  * does not.  AES, itself, only supports block lengths of 128 and key lengths of 128, 192, and 256.
@@ -81,8 +81,8 @@ if (!class_exists('Crypt_Base')) {
 
 /**#@+
  * @access public
- * @see Crypt_Rijndael::encrypt()
- * @see Crypt_Rijndael::decrypt()
+ * @see self::encrypt()
+ * @see self::decrypt()
  */
 /**
  * Encrypt / decrypt using the Counter mode.
@@ -156,7 +156,7 @@ class Crypt_Rijndael extends Crypt_Base
      *
      * @see Crypt_Base::cipher_name_mcrypt
      * @see Crypt_Base::engine
-     * @see Crypt_Rijndael::isValidEngine()
+     * @see self::isValidEngine()
      * @var string
      * @access private
      */
@@ -175,7 +175,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * Has the key length explicitly been set or should it be derived from the key, itself?
      *
-     * @see Crypt_Rijndael::setKeyLength()
+     * @see self::setKeyLength()
      * @var bool
      * @access private
      */
@@ -184,7 +184,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Key Schedule
      *
-     * @see Crypt_Rijndael::_setup()
+     * @see self::_setup()
      * @var array
      * @access private
      */
@@ -193,7 +193,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Inverse Key Schedule
      *
-     * @see Crypt_Rijndael::_setup()
+     * @see self::_setup()
      * @var array
      * @access private
      */
@@ -202,7 +202,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Block Length divided by 32
      *
-     * @see Crypt_Rijndael::setBlockLength()
+     * @see self::setBlockLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4.  Exists in conjunction with $block_size
@@ -215,7 +215,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Key Length
      *
-     * @see Crypt_Rijndael::setKeyLength()
+     * @see self::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
@@ -228,7 +228,7 @@ class Crypt_Rijndael extends Crypt_Base
     /**
      * The Key Length divided by 32
      *
-     * @see Crypt_Rijndael::setKeyLength()
+     * @see self::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4
@@ -301,7 +301,7 @@ class Crypt_Rijndael extends Crypt_Base
      * Note: 160/224-bit keys must explicitly set by setKeyLength(), otherwise they will be round/pad up to 192/256 bits.
      *
      * @see Crypt_Base:setKey()
-     * @see Crypt_Rijndael::setKeyLength()
+     * @see self::setKeyLength()
      * @access public
      * @param string $key
      */

@@ -61,7 +61,7 @@ if (!class_exists('Crypt_DES')) {
 
 /**#@+
  * @access public
- * @see Crypt_TripleDES::Crypt_TripleDES()
+ * @see self::Crypt_TripleDES()
  */
 /**
  * Encrypt / decrypt using inner chaining
@@ -147,7 +147,7 @@ class Crypt_TripleDES extends Crypt_DES
     /**
      * max possible size of $key
      *
-     * @see Crypt_TripleDES::setKey()
+     * @see self::setKey()
      * @see Crypt_DES::setKey()
      * @var string
      * @access private
@@ -392,7 +392,7 @@ class Crypt_TripleDES extends Crypt_DES
      * however, they are also less intuitive and more likely to cause you problems.
      *
      * @see Crypt_Base::enableContinuousBuffer()
-     * @see Crypt_TripleDES::disableContinuousBuffer()
+     * @see self::disableContinuousBuffer()
      * @access public
      */
     function enableContinuousBuffer()
@@ -411,7 +411,7 @@ class Crypt_TripleDES extends Crypt_DES
      * The default behavior.
      *
      * @see Crypt_Base::disableContinuousBuffer()
-     * @see Crypt_TripleDES::enableContinuousBuffer()
+     * @see self::enableContinuousBuffer()
      * @access public
      */
     function disableContinuousBuffer()

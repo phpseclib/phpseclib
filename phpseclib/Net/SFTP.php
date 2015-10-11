@@ -62,7 +62,7 @@ if (!class_exists('Net_SSH2')) {
 
 /**#@+
  * @access public
- * @see Net_SFTP::getLog()
+ * @see self::getLog()
  */
 /**
  * Returns the message numbers
@@ -91,7 +91,7 @@ define('NET_SFTP_CHANNEL', 0x100);
 
 /**#@+
  * @access public
- * @see Net_SFTP::put()
+ * @see self::put()
  */
 /**
  * Reads data from a local file.
@@ -129,7 +129,7 @@ class Net_SFTP extends Net_SSH2
     /**
      * Packet Types
      *
-     * @see Net_SFTP::Net_SFTP()
+     * @see self::Net_SFTP()
      * @var array
      * @access private
      */
@@ -138,7 +138,7 @@ class Net_SFTP extends Net_SSH2
     /**
      * Status Codes
      *
-     * @see Net_SFTP::Net_SFTP()
+     * @see self::Net_SFTP()
      * @var array
      * @access private
      */
@@ -151,7 +151,7 @@ class Net_SFTP extends Net_SSH2
      * concurrent actions, so it's somewhat academic, here.
      *
      * @var int
-     * @see Net_SFTP::_send_sftp_packet()
+     * @see self::_send_sftp_packet()
      * @access private
      */
     var $request_id = false;
@@ -163,7 +163,7 @@ class Net_SFTP extends Net_SSH2
      * concurrent actions, so it's somewhat academic, here.
      *
      * @var int
-     * @see Net_SFTP::_get_sftp_packet()
+     * @see self::_get_sftp_packet()
      * @access private
      */
     var $packet_type = -1;
@@ -172,7 +172,7 @@ class Net_SFTP extends Net_SSH2
      * Packet Buffer
      *
      * @var string
-     * @see Net_SFTP::_get_sftp_packet()
+     * @see self::_get_sftp_packet()
      * @access private
      */
     var $packet_buffer = '';
@@ -181,7 +181,7 @@ class Net_SFTP extends Net_SSH2
      * Extensions supported by the server
      *
      * @var array
-     * @see Net_SFTP::_initChannel()
+     * @see self::_initChannel()
      * @access private
      */
     var $extensions = array();
@@ -190,7 +190,7 @@ class Net_SFTP extends Net_SSH2
      * Server SFTP version
      *
      * @var int
-     * @see Net_SFTP::_initChannel()
+     * @see self::_initChannel()
      * @access private
      */
     var $version;
@@ -199,8 +199,8 @@ class Net_SFTP extends Net_SSH2
      * Current working directory
      *
      * @var string
-     * @see Net_SFTP::_realpath()
-     * @see Net_SFTP::chdir()
+     * @see self::_realpath()
+     * @see self::chdir()
      * @access private
      */
     var $pwd = false;
@@ -208,7 +208,7 @@ class Net_SFTP extends Net_SSH2
     /**
      * Packet Type Log
      *
-     * @see Net_SFTP::getLog()
+     * @see self::getLog()
      * @var array
      * @access private
      */
@@ -217,7 +217,7 @@ class Net_SFTP extends Net_SSH2
     /**
      * Packet Log
      *
-     * @see Net_SFTP::getLog()
+     * @see self::getLog()
      * @var array
      * @access private
      */
@@ -226,8 +226,8 @@ class Net_SFTP extends Net_SSH2
     /**
      * Error information
      *
-     * @see Net_SFTP::getSFTPErrors()
-     * @see Net_SFTP::getLastSFTPError()
+     * @see self::getSFTPErrors()
+     * @see self::getLastSFTPError()
      * @var string
      * @access private
      */
@@ -239,9 +239,9 @@ class Net_SFTP extends Net_SSH2
      * Rather than always having to open a directory and close it immediately there after to see if a file is a directory
      * we'll cache the results.
      *
-     * @see Net_SFTP::_update_stat_cache()
-     * @see Net_SFTP::_remove_from_stat_cache()
-     * @see Net_SFTP::_query_stat_cache()
+     * @see self::_update_stat_cache()
+     * @see self::_remove_from_stat_cache()
+     * @see self::_query_stat_cache()
      * @var array
      * @access private
      */
@@ -250,8 +250,8 @@ class Net_SFTP extends Net_SSH2
     /**
      * Max SFTP Packet Size
      *
-     * @see Net_SFTP::Net_SFTP()
-     * @see Net_SFTP::get()
+     * @see self::Net_SFTP()
+     * @see self::get()
      * @var array
      * @access private
      */
@@ -260,8 +260,8 @@ class Net_SFTP extends Net_SSH2
     /**
      * Stat Cache Flag
      *
-     * @see Net_SFTP::disableStatCache()
-     * @see Net_SFTP::enableStatCache()
+     * @see self::disableStatCache()
+     * @see self::enableStatCache()
      * @var bool
      * @access private
      */
@@ -270,8 +270,8 @@ class Net_SFTP extends Net_SSH2
     /**
      * Sort Options
      *
-     * @see Net_SFTP::_comparator()
-     * @see Net_SFTP::setListOrder()
+     * @see self::_comparator()
+     * @see self::setListOrder()
      * @var array
      * @access private
      */
@@ -647,7 +647,7 @@ class Net_SFTP extends Net_SSH2
      * SFTP doesn't provide a mechanism by which the current working directory can be changed, so we'll emulate it.  Returns
      * the absolute (canonicalized) path.
      *
-     * @see Net_SFTP::chdir()
+     * @see self::chdir()
      * @param string $path
      * @return mixed
      * @access private
@@ -2699,7 +2699,7 @@ class Net_SFTP extends Net_SSH2
      *
      * @param int $type
      * @param string $data
-     * @see Net_SFTP::_get_sftp_packet()
+     * @see self::_get_sftp_packet()
      * @see Net_SSH2::_send_channel_packet()
      * @return bool
      * @access private
@@ -2741,7 +2741,7 @@ class Net_SFTP extends Net_SSH2
      * There can be one SSH_MSG_CHANNEL_DATA messages containing two SFTP packets or there can be two SSH_MSG_CHANNEL_DATA
      * messages containing one SFTP packet.
      *
-     * @see Net_SFTP::_send_sftp_packet()
+     * @see self::_send_sftp_packet()
      * @return string
      * @access private
      */
