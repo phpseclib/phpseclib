@@ -48,7 +48,6 @@ use phpseclib\Crypt\DES;
  */
 class TripleDES extends DES
 {
-
     /**
      * Encrypt / decrypt using inner chaining
      *
@@ -106,7 +105,7 @@ class TripleDES extends DES
     /**
      * max possible size of $key
      *
-     * @see \phpseclib\Crypt\TripleDES::setKey()
+     * @see self::setKey()
      * @see \phpseclib\Crypt\DES::setKey()
      * @var string
      * @access private
@@ -351,7 +350,7 @@ class TripleDES extends DES
      * however, they are also less intuitive and more likely to cause you problems.
      *
      * @see \phpseclib\Crypt\Base::enableContinuousBuffer()
-     * @see \phpseclib\Crypt\TripleDES::disableContinuousBuffer()
+     * @see self::disableContinuousBuffer()
      * @access public
      */
     function enableContinuousBuffer()
@@ -370,7 +369,7 @@ class TripleDES extends DES
      * The default behavior.
      *
      * @see \phpseclib\Crypt\Base::disableContinuousBuffer()
-     * @see \phpseclib\Crypt\TripleDES::enableContinuousBuffer()
+     * @see self::enableContinuousBuffer()
      * @access public
      */
     function disableContinuousBuffer()

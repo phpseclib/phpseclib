@@ -120,7 +120,7 @@ abstract class Base
     /**
      * The Encryption Mode
      *
-     * @see \phpseclib\Crypt\Base::__construct()
+     * @see self::__construct()
      * @var int
      * @access private
      */
@@ -137,7 +137,7 @@ abstract class Base
     /**
      * The Key
      *
-     * @see \phpseclib\Crypt\Base::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -146,7 +146,7 @@ abstract class Base
     /**
      * The Initialization Vector
      *
-     * @see \phpseclib\Crypt\Base::setIV()
+     * @see self::setIV()
      * @var string
      * @access private
      */
@@ -155,8 +155,8 @@ abstract class Base
     /**
      * A "sliding" Initialization Vector
      *
-     * @see \phpseclib\Crypt\Base::enableContinuousBuffer()
-     * @see \phpseclib\Crypt\Base::_clearBuffers()
+     * @see self::enableContinuousBuffer()
+     * @see self::_clearBuffers()
      * @var string
      * @access private
      */
@@ -165,8 +165,8 @@ abstract class Base
     /**
      * A "sliding" Initialization Vector
      *
-     * @see \phpseclib\Crypt\Base::enableContinuousBuffer()
-     * @see \phpseclib\Crypt\Base::_clearBuffers()
+     * @see self::enableContinuousBuffer()
+     * @see self::_clearBuffers()
      * @var string
      * @access private
      */
@@ -175,7 +175,7 @@ abstract class Base
     /**
      * Continuous Buffer status
      *
-     * @see \phpseclib\Crypt\Base::enableContinuousBuffer()
+     * @see self::enableContinuousBuffer()
      * @var bool
      * @access private
      */
@@ -184,8 +184,8 @@ abstract class Base
     /**
      * Encryption buffer for CTR, OFB and CFB modes
      *
-     * @see \phpseclib\Crypt\Base::encrypt()
-     * @see \phpseclib\Crypt\Base::_clearBuffers()
+     * @see self::encrypt()
+     * @see self::_clearBuffers()
      * @var array
      * @access private
      */
@@ -194,8 +194,8 @@ abstract class Base
     /**
      * Decryption buffer for CTR, OFB and CFB modes
      *
-     * @see \phpseclib\Crypt\Base::decrypt()
-     * @see \phpseclib\Crypt\Base::_clearBuffers()
+     * @see self::decrypt()
+     * @see self::_clearBuffers()
      * @var array
      * @access private
      */
@@ -207,7 +207,7 @@ abstract class Base
      * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
      * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
      *
-     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see self::encrypt()
      * @var resource
      * @access private
      */
@@ -219,7 +219,7 @@ abstract class Base
      * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
      * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
      *
-     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see self::decrypt()
      * @var resource
      * @access private
      */
@@ -256,9 +256,9 @@ abstract class Base
      * use a separate ECB-mode mcrypt resource.
      *
      * @link http://phpseclib.sourceforge.net/cfb-demo.phps
-     * @see \phpseclib\Crypt\Base::encrypt()
-     * @see \phpseclib\Crypt\Base::decrypt()
-     * @see \phpseclib\Crypt\Base::_setupMcrypt()
+     * @see self::encrypt()
+     * @see self::decrypt()
+     * @see self::_setupMcrypt()
      * @var resource
      * @access private
      */
@@ -280,7 +280,7 @@ abstract class Base
      * which, typically, depends on the complexity
      * on its internaly Key-expanding algorithm.
      *
-     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see self::encrypt()
      * @var int
      * @access private
      */
@@ -289,9 +289,9 @@ abstract class Base
     /**
      * Does internal cipher state need to be (re)initialized?
      *
-     * @see setKey()
-     * @see setIV()
-     * @see disableContinuousBuffer()
+     * @see self::setKey()
+     * @see self::setIV()
+     * @see self::disableContinuousBuffer()
      * @var bool
      * @access private
      */
@@ -300,7 +300,7 @@ abstract class Base
     /**
      * Padding status
      *
-     * @see \phpseclib\Crypt\Base::enablePadding()
+     * @see self::enablePadding()
      * @var bool
      * @access private
      */
@@ -309,7 +309,7 @@ abstract class Base
     /**
      * Is the mode one that is paddable?
      *
-     * @see \phpseclib\Crypt\Base::__construct()
+     * @see self::__construct()
      * @var bool
      * @access private
      */
@@ -324,9 +324,9 @@ abstract class Base
      * - self::ENGINE_MCRYPT   (fast, php-extension: mcrypt, extension_loaded('mcrypt') required)
      * - self::ENGINE_INTERNAL (slower, pure php-engine, no php-extension required)
      *
-     * @see \phpseclib\Crypt\Base::_setEngine()
-     * @see \phpseclib\Crypt\Base::encrypt()
-     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see self::_setEngine()
+     * @see self::encrypt()
+     * @see self::decrypt()
      * @var int
      * @access private
      */
@@ -335,8 +335,8 @@ abstract class Base
     /**
      * Holds the preferred crypt engine
      *
-     * @see \phpseclib\Crypt\Base::_setEngine()
-     * @see \phpseclib\Crypt\Base::setPreferredEngine()
+     * @see self::_setEngine()
+     * @see self::setPreferredEngine()
      * @var int
      * @access private
      */
@@ -349,7 +349,7 @@ abstract class Base
      *
      * @link http://www.php.net/mcrypt_module_open
      * @link http://www.php.net/mcrypt_list_algorithms
-     * @see \phpseclib\Crypt\Base::_setupMcrypt()
+     * @see self::_setupMcrypt()
      * @var string
      * @access private
      */
@@ -358,7 +358,7 @@ abstract class Base
     /**
      * The openssl specific name of the cipher
      *
-     * Only used if $engine == CRYPT_ENGINE_OPENSSL
+     * Only used if $engine == self::ENGINE_OPENSSL
      *
      * @link http://www.php.net/openssl-get-cipher-methods
      * @var string
@@ -381,7 +381,7 @@ abstract class Base
     /**
      * The default password key_size used by setPassword()
      *
-     * @see \phpseclib\Crypt\Base::setPassword()
+     * @see self::setPassword()
      * @var int
      * @access private
      */
@@ -390,7 +390,7 @@ abstract class Base
     /**
      * The default salt used by setPassword()
      *
-     * @see \phpseclib\Crypt\Base::setPassword()
+     * @see self::setPassword()
      * @var string
      * @access private
      */
@@ -402,10 +402,10 @@ abstract class Base
      * Used by encrypt() / decrypt()
      * only if $engine == self::ENGINE_INTERNAL
      *
-     * @see \phpseclib\Crypt\Base::encrypt()
-     * @see \phpseclib\Crypt\Base::decrypt()
-     * @see \phpseclib\Crypt\Base::_setupInlineCrypt()
-     * @see \phpseclib\Crypt\Base::$use_inline_crypt
+     * @see self::encrypt()
+     * @see self::decrypt()
+     * @see self::_setupInlineCrypt()
+     * @see self::$use_inline_crypt
      * @var Callback
      * @access private
      */
@@ -414,9 +414,9 @@ abstract class Base
     /**
      * Holds whether performance-optimized $inline_crypt() can/should be used.
      *
-     * @see \phpseclib\Crypt\Base::encrypt()
-     * @see \phpseclib\Crypt\Base::decrypt()
-     * @see \phpseclib\Crypt\Base::inline_crypt
+     * @see self::encrypt()
+     * @see self::decrypt()
+     * @see self::inline_crypt
      * @var mixed
      * @access private
      */
@@ -425,7 +425,7 @@ abstract class Base
     /**
      * If OpenSSL can be used in ECB but not in CTR we can emulate CTR
      *
-     * @see \phpseclib\Crypt\Base::_openssl_ctr_process()
+     * @see self::_openssl_ctr_process()
      * @var bool
      * @access private
      */
@@ -434,7 +434,7 @@ abstract class Base
     /**
      * Determines what options are passed to openssl_encrypt/decrypt
      *
-     * @see \phpseclib\Crypt\Base::isValidEngine()
+     * @see self::isValidEngine()
      * @var mixed
      * @access private
      */
@@ -456,8 +456,6 @@ abstract class Base
      * - self::MODE_CFB
      *
      * - self::MODE_OFB
-     *
-     * (or the alias constants of the chosen cipher, for example for AES: CRYPT_AES_MODE_ECB or CRYPT_AES_MODE_CBC ...)
      *
      * If not explicitly set, self::MODE_CBC will be used.
      *
@@ -634,7 +632,7 @@ abstract class Base
      * strlen($plaintext) will still need to be a multiple of the block size, however, arbitrary values can be added to make it that
      * length.
      *
-     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see self::decrypt()
      * @access public
      * @param string $plaintext
      * @return string $ciphertext
@@ -932,7 +930,7 @@ abstract class Base
      * If strlen($ciphertext) is not a multiple of the block size, null bytes will be added to the end of the string until
      * it is.
      *
-     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see self::encrypt()
      * @access public
      * @param string $ciphertext
      * @return string $plaintext
@@ -1219,12 +1217,12 @@ abstract class Base
      * OpenSSL CTR Processor
      *
      * PHP's OpenSSL bindings do not operate in continuous mode so we'll wrap around it. Since the keystream
-     * for CTR is the same for both encrypting and decrypting this function is re-used by both Crypt_Base::encrypt()
-     * and Crypt_Base::decrypt(). Also, OpenSSL doesn't implement CTR for all of it's symmetric ciphers so this
+     * for CTR is the same for both encrypting and decrypting this function is re-used by both Base::encrypt()
+     * and Base::decrypt(). Also, OpenSSL doesn't implement CTR for all of it's symmetric ciphers so this
      * function will emulate CTR with ECB when necesary.
      *
-     * @see Crypt_Base::encrypt()
-     * @see Crypt_Base::decrypt()
+     * @see self::encrypt()
+     * @see self::decrypt()
      * @param string $plaintext
      * @param string $encryptIV
      * @param array $buffer
@@ -1314,11 +1312,11 @@ abstract class Base
      * OpenSSL OFB Processor
      *
      * PHP's OpenSSL bindings do not operate in continuous mode so we'll wrap around it. Since the keystream
-     * for OFB is the same for both encrypting and decrypting this function is re-used by both Crypt_Base::encrypt()
-     * and Crypt_Base::decrypt().
+     * for OFB is the same for both encrypting and decrypting this function is re-used by both Base::encrypt()
+     * and Base::decrypt().
      *
-     * @see Crypt_Base::encrypt()
-     * @see Crypt_Base::decrypt()
+     * @see self::encrypt()
+     * @see self::decrypt()
      * @param string $plaintext
      * @param string $encryptIV
      * @param array $buffer
@@ -1399,7 +1397,7 @@ abstract class Base
      * away characters that shouldn't be stripped away. (SSH knows how many bytes are added because the length is
      * transmitted separately)
      *
-     * @see \phpseclib\Crypt\Base::disablePadding()
+     * @see self::disablePadding()
      * @access public
      */
     function enablePadding()
@@ -1410,7 +1408,7 @@ abstract class Base
     /**
      * Do not pad packets.
      *
-     * @see \phpseclib\Crypt\Base::enablePadding()
+     * @see self::enablePadding()
      * @access public
      */
     function disablePadding()
@@ -1452,7 +1450,7 @@ abstract class Base
      * continuous buffers not be used.  They do offer better security and are, in fact, sometimes required (SSH uses them),
      * however, they are also less intuitive and more likely to cause you problems.
      *
-     * @see \phpseclib\Crypt\Base::disableContinuousBuffer()
+     * @see self::disableContinuousBuffer()
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
      */
@@ -1472,7 +1470,7 @@ abstract class Base
      *
      * The default behavior.
      *
-     * @see \phpseclib\Crypt\Base::enableContinuousBuffer()
+     * @see self::enableContinuousBuffer()
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
      */
@@ -1494,7 +1492,7 @@ abstract class Base
     /**
      * Test for engine validity
      *
-     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @see self::__construct()
      * @param int $engine
      * @access public
      * @return bool
@@ -1561,7 +1559,7 @@ abstract class Base
      *
      * If the preferred crypt engine is not available the fastest available one will be used
      *
-     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @see self::__construct()
      * @param int $engine
      * @access public
      */
@@ -1583,7 +1581,7 @@ abstract class Base
     /**
      * Returns the engine currently being utilized
      *
-     * @see \phpseclib\Crypt\Base::_setEngine()
+     * @see self::_setEngine()
      * @access public
      */
     function getEngine()
@@ -1594,7 +1592,7 @@ abstract class Base
     /**
      * Sets the engine as appropriate
      *
-     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @see self::__construct()
      * @access private
      */
     function _setEngine()
@@ -1662,7 +1660,7 @@ abstract class Base
      *
      * Note: Must extend by the child \phpseclib\Crypt\* class
      *
-     * @see \phpseclib\Crypt\Base::_setup()
+     * @see self::_setup()
      * @access private
      */
     abstract function _setupKey();
@@ -1684,9 +1682,9 @@ abstract class Base
      *
      * - First run of encrypt() / decrypt() with no init-settings
      *
-     * @see setKey()
-     * @see setIV()
-     * @see disableContinuousBuffer()
+     * @see self::setKey()
+     * @see self::setIV()
+     * @see self::disableContinuousBuffer()
      * @access private
      * @internal _setup() is always called before en/decryption.
      * @internal Could, but not must, extend by the child Crypt_* class
@@ -1718,9 +1716,9 @@ abstract class Base
      *
      * - First run of encrypt() / decrypt()
      *
-     * @see setKey()
-     * @see setIV()
-     * @see disableContinuousBuffer()
+     * @see self::setKey()
+     * @see self::setIV()
+     * @see self::disableContinuousBuffer()
      * @access private
      * @internal Could, but not must, extend by the child Crypt_* class
      */
@@ -1765,7 +1763,7 @@ abstract class Base
      * If padding is disabled and $text is not a multiple of the blocksize, the string will be padded regardless
      * and padding will, hence forth, be enabled.
      *
-     * @see \phpseclib\Crypt\Base::_unpad()
+     * @see self::_unpad()
      * @param string $text
      * @access private
      * @return string
@@ -1794,7 +1792,7 @@ abstract class Base
      * If padding is enabled and the reported padding length is invalid the encryption key will be assumed to be wrong
      * and false will be returned.
      *
-     * @see \phpseclib\Crypt\Base::_pad()
+     * @see self::_pad()
      * @param string $text
      * @access private
      * @return string
@@ -1870,8 +1868,8 @@ abstract class Base
     /**
      * Increment the current string
      *
-     * @see \phpseclib\Crypt\Base::decrypt()
-     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see self::decrypt()
+     * @see self::encrypt()
      * @param string $var
      * @access private
      */
@@ -1957,10 +1955,10 @@ abstract class Base
      *       - The callback function should not use the 'return' statement, but en/decrypt'ing the content of $in only
      *
      *
-     * @see \phpseclib\Crypt\Base::_setup()
-     * @see \phpseclib\Crypt\Base::_createInlineCryptFunction()
-     * @see \phpseclib\Crypt\Base::encrypt()
-     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see self::_setup()
+     * @see self::_createInlineCryptFunction()
+     * @see self::encrypt()
+     * @see self::decrypt()
      * @access private
      * @internal If a Crypt_* class providing inline crypting it must extend _setupInlineCrypt()
      */
@@ -2079,9 +2077,9 @@ abstract class Base
      *    );
      *    </code>
      *
-     * @see \phpseclib\Crypt\Base::_setupInlineCrypt()
-     * @see \phpseclib\Crypt\Base::encrypt()
-     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see self::_setupInlineCrypt()
+     * @see self::encrypt()
+     * @see self::decrypt()
      * @param array $cipher_code
      * @access private
      * @return string (the name of the created callback function)
@@ -2462,7 +2460,7 @@ abstract class Base
     /**
      * Generates a digest from $bytes
      *
-     * @see _setupInlineCrypt()
+     * @see self::_setupInlineCrypt()
      * @access private
      * @param $bytes
      * @return string

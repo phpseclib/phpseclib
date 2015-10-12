@@ -7,11 +7,11 @@
  *
  * PHP version 5
  *
- * If {@link \phpseclib\Crypt\Rijndael::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
- * {@link \phpseclib\Crypt\Rijndael::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
- * {@link \phpseclib\Crypt\Rijndael::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
+ * If {@link self::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
+ * {@link self::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
+ * {@link self::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
  * 136-bits it'll be null-padded to 192-bits and 192 bits will be the key length until
- * {@link \phpseclib\Crypt\Rijndael::setKey() setKey()} is called, again, at which point, it'll be recalculated.
+ * {@link self::setKey() setKey()} is called, again, at which point, it'll be recalculated.
  *
  * Not all Rijndael implementations may support 160-bits or 224-bits as the block length / key length.  mcrypt, for example,
  * does not.  AES, itself, only supports block lengths of 128 and key lengths of 128, 192, and 256.
@@ -85,7 +85,7 @@ class Rijndael extends Base
      *
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
      * @see \phpseclib\Crypt\Base::engine
-     * @see isValidEngine()
+     * @see self::isValidEngine()
      * @var string
      * @access private
      */
@@ -104,7 +104,7 @@ class Rijndael extends Base
     /**
      * Has the key length explicitly been set or should it be derived from the key, itself?
      *
-     * @see setKeyLength()
+     * @see self::setKeyLength()
      * @var bool
      * @access private
      */
@@ -113,7 +113,7 @@ class Rijndael extends Base
     /**
      * The Key Schedule
      *
-     * @see _setup()
+     * @see self::_setup()
      * @var array
      * @access private
      */
@@ -122,7 +122,7 @@ class Rijndael extends Base
     /**
      * The Inverse Key Schedule
      *
-     * @see _setup()
+     * @see self::_setup()
      * @var array
      * @access private
      */
@@ -131,7 +131,7 @@ class Rijndael extends Base
     /**
      * The Block Length divided by 32
      *
-     * @see setBlockLength()
+     * @see self::setBlockLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4.  Exists in conjunction with $block_size
@@ -144,7 +144,7 @@ class Rijndael extends Base
     /**
      * The Key Length
      *
-     * @see setKeyLength()
+     * @see self::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
@@ -157,7 +157,7 @@ class Rijndael extends Base
     /**
      * The Key Length divided by 32
      *
-     * @see setKeyLength()
+     * @see self::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4
@@ -202,7 +202,7 @@ class Rijndael extends Base
      * Note: 160/224-bit keys must explicitly set by setKeyLength(), otherwise they will be round/pad up to 192/256 bits.
      *
      * @see \phpseclib\Crypt\Base:setKey()
-     * @see setKeyLength()
+     * @see self::setKeyLength()
      * @access public
      * @param string $key
      */
@@ -302,7 +302,7 @@ class Rijndael extends Base
      *
      * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
      *
-     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::__construct()
      * @param int $engine
      * @access public
      * @return bool
@@ -668,9 +668,9 @@ class Rijndael extends Base
     /**
      * Provides the mixColumns and sboxes tables
      *
-     * @see Crypt_Rijndael:_encryptBlock()
-     * @see Crypt_Rijndael:_setupInlineCrypt()
-     * @see Crypt_Rijndael:_subWord()
+     * @see self::_encryptBlock()
+     * @see self::_setupInlineCrypt()
+     * @see self::_subWord()
      * @access private
      * @return array &$tables
      */
@@ -757,9 +757,9 @@ class Rijndael extends Base
     /**
      * Provides the inverse mixColumns and inverse sboxes tables
      *
-     * @see Crypt_Rijndael:_decryptBlock()
-     * @see Crypt_Rijndael:_setupInlineCrypt()
-     * @see Crypt_Rijndael:_setupKey()
+     * @see self::_decryptBlock()
+     * @see self::_setupInlineCrypt()
+     * @see self::_setupKey()
      * @access private
      * @return array &$tables
      */
