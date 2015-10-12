@@ -166,7 +166,6 @@ class RSA
     const MODE_OPENSSL = 2;
     /**#@-*/
 
-<<<<<<< HEAD
     /**#@+
      * @access public
      * @see \phpseclib\Crypt\RSA::createKey()
