@@ -261,7 +261,7 @@ class SSH1
      *
      * Logged for debug purposes
      *
-     * @see \phpseclib\Net\SSH1::getServerKeyPublicExponent()
+     * @see self::getServerKeyPublicExponent()
      * @var string
      * @access private
      */
@@ -272,7 +272,7 @@ class SSH1
      *
      * Logged for debug purposes
      *
-     * @see \phpseclib\Net\SSH1::getServerKeyPublicModulus()
+     * @see self::getServerKeyPublicModulus()
      * @var string
      * @access private
      */
@@ -283,7 +283,7 @@ class SSH1
      *
      * Logged for debug purposes
      *
-     * @see \phpseclib\Net\SSH1::getHostKeyPublicExponent()
+     * @see self::getHostKeyPublicExponent()
      * @var string
      * @access private
      */
@@ -294,7 +294,7 @@ class SSH1
      *
      * Logged for debug purposes
      *
-     * @see \phpseclib\Net\SSH1::getHostKeyPublicModulus()
+     * @see self::getHostKeyPublicModulus()
      * @var string
      * @access private
      */
@@ -305,7 +305,7 @@ class SSH1
      *
      * Logged for debug purposes
      *
-     * @see \phpseclib\Net\SSH1::getSupportedCiphers()
+     * @see self::getSupportedCiphers()
      * @var array
      * @access private
      */
@@ -324,7 +324,7 @@ class SSH1
      *
      * Logged for debug purposes
      *
-     * @see \phpseclib\Net\SSH1::getSupportedAuthentications()
+     * @see self::getSupportedAuthentications()
      * @var array
      * @access private
      */
@@ -338,7 +338,7 @@ class SSH1
     /**
      * Server Identification
      *
-     * @see \phpseclib\Net\SSH1::getServerIdentification()
+     * @see self::getServerIdentification()
      * @var string
      * @access private
      */
@@ -347,7 +347,7 @@ class SSH1
     /**
      * Protocol Flags
      *
-     * @see \phpseclib\Net\SSH1::__construct()
+     * @see self::__construct()
      * @var array
      * @access private
      */
@@ -356,7 +356,7 @@ class SSH1
     /**
      * Protocol Flag Log
      *
-     * @see \phpseclib\Net\SSH1::getLog()
+     * @see self::getLog()
      * @var array
      * @access private
      */
@@ -365,7 +365,7 @@ class SSH1
     /**
      * Message Log
      *
-     * @see \phpseclib\Net\SSH1::getLog()
+     * @see self::getLog()
      * @var array
      * @access private
      */
@@ -374,7 +374,7 @@ class SSH1
     /**
      * Real-time log file pointer
      *
-     * @see \phpseclib\Net\SSH1::_append_log()
+     * @see self::_append_log()
      * @var resource
      * @access private
      */
@@ -383,7 +383,7 @@ class SSH1
     /**
      * Real-time log file size
      *
-     * @see \phpseclib\Net\SSH1::_append_log()
+     * @see self::_append_log()
      * @var int
      * @access private
      */
@@ -392,7 +392,7 @@ class SSH1
     /**
      * Real-time log file wrap boolean
      *
-     * @see \phpseclib\Net\SSH1::_append_log()
+     * @see self::_append_log()
      * @var bool
      * @access private
      */
@@ -401,7 +401,7 @@ class SSH1
     /**
      * Interactive Buffer
      *
-     * @see \phpseclib\Net\SSH1::read()
+     * @see self::read()
      * @var array
      * @access private
      */
@@ -410,7 +410,7 @@ class SSH1
     /**
      * Timeout
      *
-     * @see \phpseclib\Net\SSH1::setTimeout()
+     * @see self::setTimeout()
      * @access private
      */
     var $timeout;
@@ -418,7 +418,7 @@ class SSH1
     /**
      * Current Timeout
      *
-     * @see \phpseclib\Net\SSH1::_get_channel_packet()
+     * @see self::_get_channel_packet()
      * @access private
      */
     var $curTimeout;
@@ -426,7 +426,7 @@ class SSH1
     /**
      * Log Boundary
      *
-     * @see \phpseclib\Net\SSH1::_format_log
+     * @see self::_format_log()
      * @access private
      */
     var $log_boundary = ':';
@@ -434,7 +434,7 @@ class SSH1
     /**
      * Log Long Width
      *
-     * @see \phpseclib\Net\SSH1::_format_log
+     * @see self::_format_log()
      * @access private
      */
     var $log_long_width = 65;
@@ -442,7 +442,7 @@ class SSH1
     /**
      * Log Short Width
      *
-     * @see \phpseclib\Net\SSH1::_format_log
+     * @see self::_format_log()
      * @access private
      */
     var $log_short_width = 16;
@@ -450,8 +450,8 @@ class SSH1
     /**
      * Hostname
      *
-     * @see \phpseclib\Net\SSH1::__construct()
-     * @see \phpseclib\Net\SSH1::_connect()
+     * @see self::__construct()
+     * @see self::_connect()
      * @var string
      * @access private
      */
@@ -460,8 +460,8 @@ class SSH1
     /**
      * Port Number
      *
-     * @see \phpseclib\Net\SSH1::__construct()
-     * @see \phpseclib\Net\SSH1::_connect()
+     * @see self::__construct()
+     * @see self::_connect()
      * @var int
      * @access private
      */
@@ -475,8 +475,8 @@ class SSH1
      * however, is non-optional. There will be a timeout, whether or not you set it. If you don't it'll be
      * 10 seconds. It is used by fsockopen() in that function.
      *
-     * @see \phpseclib\Net\SSH1::__construct()
-     * @see \phpseclib\Net\SSH1::_connect()
+     * @see self::__construct()
+     * @see self::_connect()
      * @var int
      * @access private
      */
@@ -485,8 +485,8 @@ class SSH1
     /**
      * Default cipher
      *
-     * @see \phpseclib\Net\SSH1::__construct()
-     * @see \phpseclib\Net\SSH1::_connect()
+     * @see self::__construct()
+     * @see self::_connect()
      * @var int
      * @access private
      */
@@ -782,8 +782,8 @@ class SSH1
      *
      * Returns false on failure and the output, otherwise.
      *
-     * @see \phpseclib\Net\SSH1::interactiveRead()
-     * @see \phpseclib\Net\SSH1::interactiveWrite()
+     * @see self::interactiveRead()
+     * @see self::interactiveWrite()
      * @param string $cmd
      * @return mixed
      * @throws \RuntimeException on error sending command
@@ -831,8 +831,8 @@ class SSH1
     /**
      * Creates an interactive shell
      *
-     * @see \phpseclib\Net\SSH1::interactiveRead()
-     * @see \phpseclib\Net\SSH1::interactiveWrite()
+     * @see self::interactiveRead()
+     * @see self::interactiveWrite()
      * @return bool
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @throws \RuntimeException on other errors
@@ -874,7 +874,7 @@ class SSH1
     /**
      * Inputs a command into an interactive shell.
      *
-     * @see \phpseclib\Net\SSH1::interactiveWrite()
+     * @see self::interactiveWrite()
      * @param string $cmd
      * @return bool
      * @access public
@@ -890,7 +890,7 @@ class SSH1
      * $expect can take the form of a string literal or, if $mode == self::READ__REGEX,
      * a regular expression.
      *
-     * @see \phpseclib\Net\SSH1::write()
+     * @see self::write()
      * @param string $expect
      * @param int $mode
      * @return bool
@@ -929,7 +929,7 @@ class SSH1
     /**
      * Inputs a command into an interactive shell.
      *
-     * @see \phpseclib\Net\SSH1::interactiveRead()
+     * @see self::interactiveRead()
      * @param string $cmd
      * @return bool
      * @throws \RuntimeException on connection error
@@ -963,7 +963,7 @@ class SSH1
      * does not support ANSI escape sequences in Win32 Console applications", so if you're a Windows user,
      * there's not going to be much recourse.
      *
-     * @see \phpseclib\Net\SSH1::interactiveRead()
+     * @see self::interactiveRead()
      * @return string
      * @throws \RuntimeException on connection error
      * @access public
@@ -1051,7 +1051,7 @@ class SSH1
      * Also, this function could be improved upon by adding detection for the following exploit:
      * http://www.securiteam.com/securitynews/5LP042K3FY.html
      *
-     * @see \phpseclib\Net\SSH1::_send_binary_packet()
+     * @see self::_send_binary_packet()
      * @return array
      * @access private
      */
@@ -1127,7 +1127,7 @@ class SSH1
      *
      * Returns true on success, false on failure.
      *
-     * @see \phpseclib\Net\SSH1::_get_binary_packet()
+     * @see self::_get_binary_packet()
      * @param string $data
      * @return bool
      * @access private
@@ -1174,8 +1174,8 @@ class SSH1
      * we've reimplemented it. A more detailed discussion of the differences can be found after
      * $crc_lookup_table's initialization.
      *
-     * @see \phpseclib\Net\SSH1::_get_binary_packet()
-     * @see \phpseclib\Net\SSH1::_send_binary_packet()
+     * @see self::_get_binary_packet()
+     * @see self::_send_binary_packet()
      * @param string $data
      * @return int
      * @access private
@@ -1291,7 +1291,7 @@ class SSH1
      * should be a number with the property that gcd($e, ($p - 1) * ($q - 1)) == 1.  Could just make anything that
      * calls this call modexp, instead, but I think this makes things clearer, maybe...
      *
-     * @see \phpseclib\Net\SSH1::__construct()
+     * @see self::__construct()
      * @param BigInteger $m
      * @param array $key
      * @return BigInteger

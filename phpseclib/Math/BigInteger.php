@@ -200,16 +200,9 @@ class BigInteger
     var $is_negative = false;
 
     /**
-     * Random number generator function
-     *
-     * @access private
-     */
-    var $generator = 'mt_rand';
-
-    /**
      * Precision
      *
-     * @see setPrecision()
+     * @see self::setPrecision()
      * @access private
      */
     var $precision = -1;
@@ -217,7 +210,7 @@ class BigInteger
     /**
      * Precision Bitmask
      *
-     * @see setPrecision()
+     * @see self::setPrecision()
      * @access private
      */
     var $bitmask = false;
@@ -229,8 +222,8 @@ class BigInteger
      * a variable that'll be serializable regardless of whether or not extensions are being used.  Unlike $this->value,
      * however, $this->hex is only calculated when $this->__sleep() is called.
      *
-     * @see __sleep()
-     * @see __wakeup()
+     * @see self::__sleep()
+     * @see self::__wakeup()
      * @var string
      * @access private
      */
@@ -729,7 +722,7 @@ class BigInteger
      * {@link http://php.net/language.oop5.basic#51624}
      *
      * @access public
-     * @see __clone()
+     * @see self::__clone()
      * @return \phpseclib\Math\BigInteger
      */
     function copy()
@@ -737,7 +730,6 @@ class BigInteger
         $temp = new static();
         $temp->value = $this->value;
         $temp->is_negative = $this->is_negative;
-        $temp->generator = $this->generator;
         $temp->precision = $this->precision;
         $temp->bitmask = $this->bitmask;
         return $temp;
@@ -766,7 +758,7 @@ class BigInteger
      * PHP5, call BigInteger::copy(), instead.
      *
      * @access public
-     * @see copy()
+     * @see self::copy()
      * @return \phpseclib\Math\BigInteger
      */
     function __clone()
@@ -779,16 +771,13 @@ class BigInteger
      *
      * Will be called, automatically, when serialize() is called on a BigInteger object.
      *
-     * @see __wakeup()
+     * @see self::__wakeup()
      * @access public
      */
     function __sleep()
     {
         $this->hex = $this->toHex(true);
         $vars = array('hex');
-        if ($this->generator != 'mt_rand') {
-            $vars[] = 'generator';
-        }
         if ($this->precision > 0) {
             $vars[] = 'precision';
         }
@@ -800,7 +789,7 @@ class BigInteger
      *
      * Will be called, automatically, when unserialize() is called on a BigInteger object.
      *
-     * @see __sleep()
+     * @see self::__sleep()
      * @access public
      */
     function __wakeup()
@@ -1856,7 +1845,7 @@ class BigInteger
      *
      * For most $modes this will return the remainder.
      *
-     * @see _slidingWindow()
+     * @see self::_slidingWindow()
      * @access private
      * @param array $x
      * @param array $n
@@ -1893,7 +1882,7 @@ class BigInteger
     /**
      * Modular reduction preperation
      *
-     * @see _slidingWindow()
+     * @see self::_slidingWindow()
      * @access private
      * @param array $x
      * @param array $n
@@ -1911,7 +1900,7 @@ class BigInteger
     /**
      * Modular multiply
      *
-     * @see _slidingWindow()
+     * @see self::_slidingWindow()
      * @access private
      * @param array $x
      * @param array $y
@@ -1931,7 +1920,7 @@ class BigInteger
     /**
      * Modular square
      *
-     * @see _slidingWindow()
+     * @see self::_slidingWindow()
      * @access private
      * @param array $x
      * @param array $n
@@ -1952,7 +1941,7 @@ class BigInteger
      * Calculates $x%$n, where $n = 2**$e, for some $e.  Since this is basically the same as doing $x & ($n-1),
      * we'll just use this function as a wrapper for doing that.
      *
-     * @see _slidingWindow()
+     * @see self::_slidingWindow()
      * @access private
      * @param \phpseclib\Math\BigInteger
      * @return \phpseclib\Math\BigInteger
@@ -1982,7 +1971,7 @@ class BigInteger
      * (x >> 1) + (x >> 1) != x / 2 + x / 2.  If x is even, they're the same, but if x is odd, they're not.  See the in-line
      * comments for details.
      *
-     * @see _slidingWindow()
+     * @see self::_slidingWindow()
      * @access private
      * @param array $n
      * @param array $m
@@ -2079,7 +2068,7 @@ class BigInteger
      * For numbers with more than four digits BigInteger::_barrett() is faster.  The difference between that and this
      * is that this function does not fold the denominator into a smaller form.
      *
-     * @see _slidingWindow()
+     * @see self::_slidingWindow()
      * @access private
      * @param array $x
      * @param array $n
@@ -2150,7 +2139,7 @@ class BigInteger
      *
      * If you're going to be doing array_slice($product->value, 0, $stop), some cycles can be saved.
      *
-     * @see _regularBarrett()
+     * @see self::_regularBarrett()
      * @param array $x_value
      * @param bool $x_negative
      * @param array $y_value
@@ -2231,8 +2220,8 @@ class BigInteger
      * improved upon (basically, by using the comba method).  gcd($n, 2) must be equal to one for this function
      * to work correctly.
      *
-     * @see _prepMontgomery()
-     * @see _slidingWindow()
+     * @see self::_prepMontgomery()
+     * @see self::_slidingWindow()
      * @access private
      * @param array $x
      * @param array $n
@@ -2278,8 +2267,8 @@ class BigInteger
      * Interleaves the montgomery reduction and long multiplication algorithms together as described in
      * {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=13 HAC 14.36}
      *
-     * @see _prepMontgomery()
-     * @see _montgomery()
+     * @see self::_prepMontgomery()
+     * @see self::_montgomery()
      * @access private
      * @param array $x
      * @param array $y
@@ -2330,8 +2319,8 @@ class BigInteger
     /**
      * Prepare a number for use in Montgomery Modular Reductions
      *
-     * @see _montgomery()
-     * @see _slidingWindow()
+     * @see self::_montgomery()
+     * @see self::_slidingWindow()
      * @access private
      * @param array $x
      * @param array $n
@@ -2369,7 +2358,7 @@ class BigInteger
      *
      * Thanks to Pedro Gimeno Fortea for input!
      *
-     * @see _montgomery()
+     * @see self::_montgomery()
      * @access private
      * @param array $x
      * @return int
@@ -2650,7 +2639,7 @@ class BigInteger
      * @param \phpseclib\Math\BigInteger $y
      * @return int < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
-     * @see equals()
+     * @see self::equals()
      * @internal Could return $this->subtract($x), but that's not as fast as what we do do.
      */
     function compare($y)
@@ -2673,7 +2662,7 @@ class BigInteger
      * @param array $y_value
      * @param bool $y_negative
      * @return int
-     * @see compare()
+     * @see self::compare()
      * @access private
      */
     function _compare($x_value, $x_negative, $y_value, $y_negative)
@@ -2709,7 +2698,7 @@ class BigInteger
      * @param \phpseclib\Math\BigInteger $x
      * @return bool
      * @access public
-     * @see compare()
+     * @see self::compare()
      */
     function equals($x)
     {
@@ -3259,7 +3248,7 @@ class BigInteger
      *
      * If the current number is odd it'll be unchanged.  If it's even, one will be added to it.
      *
-     * @see randomPrime()
+     * @see self::randomPrime()
      * @access private
      */
     function _make_odd()
@@ -3509,7 +3498,7 @@ class BigInteger
      *
      * @param \phpseclib\Math\BigInteger
      * @return \phpseclib\Math\BigInteger
-     * @see _trim()
+     * @see self::_trim()
      * @access private
      */
     function _normalize($result)
@@ -3689,7 +3678,7 @@ class BigInteger
      *
      * The ability to DER-encode integers is needed to create RSA public keys for use with OpenSSL
      *
-     * @see modPow()
+     * @see self::modPow()
      * @access private
      * @param int $length
      * @return string
