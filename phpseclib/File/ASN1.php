@@ -124,8 +124,8 @@ class ASN1
      *
      * @var array
      * @access private
-     * @see \phpseclib\File\ASN1::setTimeFormat()
-     * @see \phpseclib\File\ASN1::asn1map()
+     * @see self::setTimeFormat()
+     * @see self::asn1map()
      * @link http://php.net/class.datetime
      */
     var $encoded;
@@ -137,7 +137,7 @@ class ASN1
      *
      * @var array
      * @access private
-     * @see \phpseclib\File\ASN1::_encode_der()
+     * @see self::_encode_der()
      */
     var $filters;
 

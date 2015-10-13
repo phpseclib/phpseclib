@@ -7,7 +7,7 @@
  *
  * md2, md5, md5-96, sha1, sha1-96, sha256, sha256-96, sha384, and sha512, sha512-96
  *
- * If {@link \phpseclib\Crypt\Hash::setKey() setKey()} is called, {@link \phpseclib\Crypt\Hash::hash() hash()} will return the HMAC as opposed to
+ * If {@link self::setKey() setKey()} is called, {@link self::hash() hash()} will return the HMAC as opposed to
  * the hash.  If no valid algorithm is provided, sha1 will be used.
  *
  * PHP version 5
@@ -70,7 +70,7 @@ class Hash
     /**
      * Hash Parameter
      *
-     * @see \phpseclib\Crypt\Hash::setHash()
+     * @see self::setHash()
      * @var int
      * @access private
      */
@@ -79,7 +79,7 @@ class Hash
     /**
      * Byte-length of compression blocks / key (Internal HMAC)
      *
-     * @see \phpseclib\Crypt\Hash::setAlgorithm()
+     * @see self::setAlgorithm()
      * @var int
      * @access private
      */
@@ -88,7 +88,7 @@ class Hash
     /**
      * Byte-length of hash output (Internal HMAC)
      *
-     * @see \phpseclib\Crypt\Hash::setHash()
+     * @see self::setHash()
      * @var int
      * @access private
      */
@@ -97,7 +97,7 @@ class Hash
     /**
      * Hash Algorithm
      *
-     * @see \phpseclib\Crypt\Hash::setHash()
+     * @see self::setHash()
      * @var string
      * @access private
      */
@@ -106,7 +106,7 @@ class Hash
     /**
      * Key
      *
-     * @see \phpseclib\Crypt\Hash::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -115,7 +115,7 @@ class Hash
     /**
      * Outer XOR (Internal HMAC)
      *
-     * @see \phpseclib\Crypt\Hash::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -124,7 +124,7 @@ class Hash
     /**
      * Inner XOR (Internal HMAC)
      *
-     * @see \phpseclib\Crypt\Hash::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -741,7 +741,7 @@ class Hash
      * @access private
      * @param int $int
      * @param int $amt
-     * @see _sha256()
+     * @see self::_sha256()
      * @return int
      */
     function _rightRotate($int, $amt)
@@ -757,7 +757,7 @@ class Hash
      * @access private
      * @param int $int
      * @param int $amt
-     * @see _sha256()
+     * @see self::_sha256()
      * @return int
      */
     function _rightShift($int, $amt)
@@ -771,7 +771,7 @@ class Hash
      *
      * @access private
      * @param int $int
-     * @see _sha256()
+     * @see self::_sha256()
      * @return int
      */
     function _not($int)
@@ -787,7 +787,7 @@ class Hash
      *
      * @param int $...
      * @return int
-     * @see _sha256()
+     * @see self::_sha256()
      * @access private
      */
     function _add()

@@ -38,7 +38,7 @@ class Identity
      *
      * @var \phpseclib\Crypt\RSA
      * @access private
-     * @see \phpseclib\System\SSH\Agent\Identity::getPublicKey()
+     * @see self::getPublicKey()
      */
     var $key;
 
@@ -47,7 +47,7 @@ class Identity
      *
      * @var string
      * @access private
-     * @see \phpseclib\System\SSH\Agent\Identity::sign()
+     * @see self::sign()
      */
     var $key_blob;
 
@@ -56,7 +56,7 @@ class Identity
      *
      * @var resource
      * @access private
-     * @see \phpseclib\System\SSH\Agent\Identity::sign()
+     * @see self::sign()
      */
     var $fsock;
 

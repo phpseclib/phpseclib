@@ -90,7 +90,7 @@ class SFTP extends SSH2
     /**
      * Packet Types
      *
-     * @see \phpseclib\Net\SFTP::__construct()
+     * @see self::__construct()
      * @var array
      * @access private
      */
@@ -99,7 +99,7 @@ class SFTP extends SSH2
     /**
      * Status Codes
      *
-     * @see \phpseclib\Net\SFTP::__construct()
+     * @see self::__construct()
      * @var array
      * @access private
      */
@@ -112,7 +112,7 @@ class SFTP extends SSH2
      * concurrent actions, so it's somewhat academic, here.
      *
      * @var int
-     * @see \phpseclib\Net\SFTP::_send_sftp_packet()
+     * @see self::_send_sftp_packet()
      * @access private
      */
     var $request_id = false;
@@ -124,7 +124,7 @@ class SFTP extends SSH2
      * concurrent actions, so it's somewhat academic, here.
      *
      * @var int
-     * @see \phpseclib\Net\SFTP::_get_sftp_packet()
+     * @see self::_get_sftp_packet()
      * @access private
      */
     var $packet_type = -1;
@@ -133,7 +133,7 @@ class SFTP extends SSH2
      * Packet Buffer
      *
      * @var string
-     * @see \phpseclib\Net\SFTP::_get_sftp_packet()
+     * @see self::_get_sftp_packet()
      * @access private
      */
     var $packet_buffer = '';
@@ -142,7 +142,7 @@ class SFTP extends SSH2
      * Extensions supported by the server
      *
      * @var array
-     * @see \phpseclib\Net\SFTP::_initChannel()
+     * @see self::_initChannel()
      * @access private
      */
     var $extensions = array();
@@ -151,7 +151,7 @@ class SFTP extends SSH2
      * Server SFTP version
      *
      * @var int
-     * @see \phpseclib\Net\SFTP::_initChannel()
+     * @see self::_initChannel()
      * @access private
      */
     var $version;
@@ -160,8 +160,8 @@ class SFTP extends SSH2
      * Current working directory
      *
      * @var string
-     * @see \phpseclib\Net\SFTP::_realpath()
-     * @see \phpseclib\Net\SFTP::chdir()
+     * @see self::_realpath()
+     * @see self::chdir()
      * @access private
      */
     var $pwd = false;
@@ -169,7 +169,7 @@ class SFTP extends SSH2
     /**
      * Packet Type Log
      *
-     * @see \phpseclib\Net\SFTP::getLog()
+     * @see self::getLog()
      * @var array
      * @access private
      */
@@ -178,7 +178,7 @@ class SFTP extends SSH2
     /**
      * Packet Log
      *
-     * @see \phpseclib\Net\SFTP::getLog()
+     * @see self::getLog()
      * @var array
      * @access private
      */
@@ -187,8 +187,8 @@ class SFTP extends SSH2
     /**
      * Error information
      *
-     * @see \phpseclib\Net\SFTP::getSFTPErrors()
-     * @see \phpseclib\Net\SFTP::getLastSFTPError()
+     * @see self::getSFTPErrors()
+     * @see self::getLastSFTPError()
      * @var string
      * @access private
      */
@@ -200,9 +200,9 @@ class SFTP extends SSH2
      * Rather than always having to open a directory and close it immediately there after to see if a file is a directory
      * we'll cache the results.
      *
-     * @see \phpseclib\Net\SFTP::_update_stat_cache()
-     * @see \phpseclib\Net\SFTP::_remove_from_stat_cache()
-     * @see \phpseclib\Net\SFTP::_query_stat_cache()
+     * @see self::_update_stat_cache()
+     * @see self::_remove_from_stat_cache()
+     * @see self::_query_stat_cache()
      * @var array
      * @access private
      */
@@ -211,8 +211,8 @@ class SFTP extends SSH2
     /**
      * Max SFTP Packet Size
      *
-     * @see \phpseclib\Net\SFTP::__construct()
-     * @see \phpseclib\Net\SFTP::get()
+     * @see self::__construct()
+     * @see self::get()
      * @var array
      * @access private
      */
@@ -221,8 +221,8 @@ class SFTP extends SSH2
     /**
      * Stat Cache Flag
      *
-     * @see \phpseclib\Net\SFTP::disableStatCache()
-     * @see \phpseclib\Net\SFTP::enableStatCache()
+     * @see self::disableStatCache()
+     * @see self::enableStatCache()
      * @var bool
      * @access private
      */
@@ -231,8 +231,8 @@ class SFTP extends SSH2
     /**
      * Sort Options
      *
-     * @see \phpseclib\Net\SFTP::_comparator()
-     * @see \phpseclib\Net\SFTP::setListOrder()
+     * @see self::_comparator()
+     * @see self::setListOrder()
      * @var array
      * @access private
      */
@@ -608,7 +608,7 @@ class SFTP extends SSH2
      * SFTP doesn't provide a mechanism by which the current working directory can be changed, so we'll emulate it.  Returns
      * the absolute (canonicalized) path.
      *
-     * @see \phpseclib\Net\SFTP::chdir()
+     * @see self::chdir()
      * @param string $path
      * @return mixed
      * @access private
@@ -2658,8 +2658,8 @@ class SFTP extends SSH2
      *
      * @param int $type
      * @param string $data
-     * @see \phpseclib\Net\SFTP::_get_sftp_packet()
-     * @see \phpseclib\Net\SSH2::_send_channel_packet()
+     * @see self::_get_sftp_packet()
+     * @see self::_send_channel_packet()
      * @return bool
      * @access private
      */
@@ -2700,7 +2700,7 @@ class SFTP extends SSH2
      * There can be one SSH_MSG_CHANNEL_DATA messages containing two SFTP packets or there can be two SSH_MSG_CHANNEL_DATA
      * messages containing one SFTP packet.
      *
-     * @see \phpseclib\Net\SFTP::_send_sftp_packet()
+     * @see self::_send_sftp_packet()
      * @return string
      * @access private
      */
