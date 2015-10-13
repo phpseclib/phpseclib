@@ -51,7 +51,8 @@
         }
     ],
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.3.3",
+        "paragonie/random_compat": "~1.0"
     },
     "require-dev": {
         "phing/phing": "~2.7",
