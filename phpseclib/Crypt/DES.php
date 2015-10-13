@@ -78,24 +78,13 @@ class DES extends Base
     var $block_size = 8;
 
     /**
-     * The Key
+     * Key Length (in bytes)
      *
-     * @see \phpseclib\Crypt\Base::key
-     * @see setKey()
-     * @var string
-     * @access private
-     */
-    var $key = "\0\0\0\0\0\0\0\0";
-
-    /**
-     * The default password key_size used by setPassword()
-     *
-     * @see \phpseclib\Crypt\Base::password_key_size
-     * @see \phpseclib\Crypt\Base::setPassword()
+     * @see \phpseclib\Crypt\Base::setKeyLength()
      * @var int
      * @access private
      */
-    var $password_key_size = 8;
+    var $key_length = 8;
 
     /**
      * The mcrypt specific name of the cipher
@@ -149,7 +138,7 @@ class DES extends Base
      * @var string
      * @access private
      */
-    var $key_size_max = 8;
+    var $key_length_max = 8;
 
     /**
      * The Key Schedule
@@ -594,7 +583,7 @@ class DES extends Base
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
      *
      * @see \phpseclib\Crypt\Base::isValidEngine()
      * @param int $engine
@@ -603,7 +592,7 @@ class DES extends Base
      */
     function isValidEngine($engine)
     {
-        if ($this->key_size_max == 8) {
+        if ($this->key_length_max == 8) {
             if ($engine == self::ENGINE_OPENSSL) {
                 $this->cipher_name_openssl_ecb = 'des-ecb';
                 $this->cipher_name_openssl = 'des-' . $this->_openssl_translate_mode();
@@ -632,8 +621,8 @@ class DES extends Base
     {
         // We check/cut here only up to max length of the key.
         // Key padding to the proper length will be done in _setupKey()
-        if (strlen($key) > $this->key_size_max) {
-            $key = substr($key, 0, $this->key_size_max);
+        if (strlen($key) > $this->key_length_max) {
+            $key = substr($key, 0, $this->key_length_max);
         }
 
         // Sets the key

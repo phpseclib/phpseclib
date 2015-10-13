@@ -114,13 +114,13 @@ class AES extends Rijndael
             $length = strlen($key);
             switch (true) {
                 case $length <= 16:
-                    $this->key_size = 16;
+                    $this->key_length = 16;
                     break;
                 case $length <= 24:
-                    $this->key_size = 24;
+                    $this->key_length = 24;
                     break;
                 default:
-                    $this->key_size = 32;
+                    $this->key_length = 32;
             }
             $this->_setEngine();
         }

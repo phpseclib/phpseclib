@@ -77,14 +77,22 @@ class RC2 extends Base
     var $orig_key;
 
     /**
-     * The default password key_size used by setPassword()
+     * Don't truncate / null pad key
      *
-     * @see \phpseclib\Crypt\Base::password_key_size
-     * @see \phpseclib\Crypt\Base::setPassword()
+     * @see \phpseclib\Crypt\Base::_clearBuffers()
+     * @var bool
+     * @access private
+     */
+    var $skip_key_adjustment = true;
+
+    /**
+     * Key Length (in bytes)
+     *
+     * @see \phpseclib\Crypt\RC2::setKeyLength()
      * @var int
      * @access private
      */
-    var $password_key_size = 16; // = 128 bits
+    var $key_length = 16; // = 128 bits
 
     /**
      * The mcrypt specific name of the cipher
@@ -256,9 +264,9 @@ class RC2 extends Base
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
      *
-     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::__construct()
      * @param int $engine
      * @access public
      * @return bool
@@ -267,7 +275,7 @@ class RC2 extends Base
     {
         switch ($engine) {
             case self::ENGINE_OPENSSL:
-                if ($this->current_key_length != 128 || strlen($this->orig_key) != 16) {
+                if ($this->current_key_length != 128 || strlen($this->orig_key) < 16) {
                     return false;
                 }
                 $this->cipher_name_openssl_ecb = 'rc2-ecb';
@@ -278,7 +286,7 @@ class RC2 extends Base
     }
 
     /**
-     * Sets the key length
+     * Sets the key length.
      *
      * Valid key lengths are 1 to 1024.
      * Calling this function after setting the key has no effect until the next
@@ -292,6 +300,17 @@ class RC2 extends Base
         if ($length >= 1 && $length <= 1024) {
             $this->default_key_length = $length;
         }
+    }
+
+    /**
+     * Returns the current key length
+     *
+     * @access public
+     * @return int
+     */
+    function getKeyLength()
+    {
+        return $this->current_key_length;
     }
 
     /**
@@ -349,13 +368,14 @@ class RC2 extends Base
         // Prepare the key for mcrypt.
         $l[0] = $this->invpitable[$l[0]];
         array_unshift($l, 'C*');
+
         parent::setKey(call_user_func_array('pack', $l));
     }
 
     /**
      * Encrypts a message.
      *
-     * Mostly a wrapper for Crypt_Base::encrypt, with some additional OpenSSL handling code
+     * Mostly a wrapper for \phpseclib\Crypt\Base::encrypt, with some additional OpenSSL handling code
      *
      * @see decrypt()
      * @access public
@@ -378,7 +398,7 @@ class RC2 extends Base
     /**
      * Decrypts a message.
      *
-     * Mostly a wrapper for Crypt_Base::decrypt, with some additional OpenSSL handling code
+     * Mostly a wrapper for \phpseclib\Crypt\Base::decrypt, with some additional OpenSSL handling code
      *
      * @see encrypt()
      * @access public
