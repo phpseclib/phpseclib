@@ -69,8 +69,8 @@ if (!class_exists('Crypt_Base')) {
 
 /**#@+
  * @access private
- * @see Crypt_DES::_setupKey()
- * @see Crypt_DES::_processBlock()
+ * @see self::_setupKey()
+ * @see self::_processBlock()
  */
 /**
  * Contains $keys[CRYPT_DES_ENCRYPT]
@@ -84,8 +84,8 @@ define('CRYPT_DES_DECRYPT', 1);
 
 /**#@+
  * @access public
- * @see Crypt_DES::encrypt()
- * @see Crypt_DES::decrypt()
+ * @see self::encrypt()
+ * @see self::decrypt()
  */
 /**
  * Encrypt / decrypt using the Counter mode.
@@ -195,8 +195,8 @@ class Crypt_DES extends Crypt_Base
      *
      * Used only if $engine == CRYPT_DES_MODE_INTERNAL
      *
-     * @see Crypt_DES::_setupKey()
-     * @see Crypt_DES::_processBlock()
+     * @see self::_setupKey()
+     * @see self::_processBlock()
      * @var int
      * @access private
      */
@@ -205,7 +205,7 @@ class Crypt_DES extends Crypt_Base
     /**
      * max possible size of $key
      *
-     * @see Crypt_DES::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -214,7 +214,7 @@ class Crypt_DES extends Crypt_Base
     /**
      * The Key Schedule
      *
-     * @see Crypt_DES::_setupKey()
+     * @see self::_setupKey()
      * @var array
      * @access private
      */
@@ -227,8 +227,8 @@ class Crypt_DES extends Crypt_Base
      * with each byte containing all bits in the same state as the
      * corresponding bit in the index value.
      *
-     * @see Crypt_DES::_processBlock()
-     * @see Crypt_DES::_setupKey()
+     * @see self::_processBlock()
+     * @see self::_setupKey()
      * @var array
      * @access private
      */
@@ -705,7 +705,7 @@ class Crypt_DES extends Crypt_Base
      *
      * @see Crypt_Base::_encryptBlock()
      * @see Crypt_Base::encrypt()
-     * @see Crypt_DES::encrypt()
+     * @see self::encrypt()
      * @access private
      * @param string $in
      * @return string
@@ -720,7 +720,7 @@ class Crypt_DES extends Crypt_Base
      *
      * @see Crypt_Base::_decryptBlock()
      * @see Crypt_Base::decrypt()
-     * @see Crypt_DES::decrypt()
+     * @see self::decrypt()
      * @access private
      * @param string $in
      * @return string
@@ -737,8 +737,8 @@ class Crypt_DES extends Crypt_Base
      * {@link http://en.wikipedia.org/wiki/Image:Feistel.png Feistel.png} to get a general
      * idea of what this function does.
      *
-     * @see Crypt_DES::_encryptBlock()
-     * @see Crypt_DES::_decryptBlock()
+     * @see self::_encryptBlock()
+     * @see self::_decryptBlock()
      * @access private
      * @param string $block
      * @param int $mode

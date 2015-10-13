@@ -101,7 +101,7 @@ class System_SSH_Agent_Identity
      *
      * @var Crypt_RSA
      * @access private
-     * @see System_SSH_Agent_Identity::getPublicKey()
+     * @see self::getPublicKey()
      */
     var $key;
 
@@ -110,7 +110,7 @@ class System_SSH_Agent_Identity
      *
      * @var string
      * @access private
-     * @see System_SSH_Agent_Identity::sign()
+     * @see self::sign()
      */
     var $key_blob;
 
@@ -119,7 +119,7 @@ class System_SSH_Agent_Identity
      *
      * @var resource
      * @access private
-     * @see System_SSH_Agent_Identity::sign()
+     * @see self::sign()
      */
     var $fsock;
 

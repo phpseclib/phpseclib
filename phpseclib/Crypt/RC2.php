@@ -62,8 +62,8 @@ if (!class_exists('Crypt_Base')) {
 
 /**#@+
  * @access public
- * @see Crypt_RC2::encrypt()
- * @see Crypt_RC2::decrypt()
+ * @see self::encrypt()
+ * @see self::decrypt()
  */
 /**
  * Encrypt / decrypt using the Counter mode.
@@ -120,7 +120,7 @@ class Crypt_RC2 extends Crypt_Base
      * The Key
      *
      * @see Crypt_Base::key
-     * @see setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -130,9 +130,9 @@ class Crypt_RC2 extends Crypt_Base
      * The Original (unpadded) Key
      *
      * @see Crypt_Base::key
-     * @see setKey()
-     * @see encrypt()
-     * @see decrypt()
+     * @see self::setKey()
+     * @see self::encrypt()
+     * @see self::decrypt()
      * @var string
      * @access private
      */
@@ -186,8 +186,8 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * The key length in bits.
      *
-     * @see Crypt_RC2::setKeyLength()
-     * @see Crypt_RC2::setKey()
+     * @see self::setKeyLength()
+     * @see self::setKey()
      * @var int
      * @access private
      * @internal Should be in range [1..1024].
@@ -198,8 +198,8 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * The key length in bits.
      *
-     * @see Crypt_RC2::isValidEnine()
-     * @see Crypt_RC2::setKey()
+     * @see self::isValidEnine()
+     * @see self::setKey()
      * @var int
      * @access private
      * @internal Should be in range [1..1024].
@@ -209,7 +209,7 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * The Key Schedule
      *
-     * @see Crypt_RC2::_setupKey()
+     * @see self::_setupKey()
      * @var array
      * @access private
      */
@@ -219,7 +219,7 @@ class Crypt_RC2 extends Crypt_Base
      * Key expansion randomization table.
      * Twice the same 256-value sequence to save a modulus in key expansion.
      *
-     * @see Crypt_RC2::setKey()
+     * @see self::setKey()
      * @var array
      * @access private
      */
@@ -293,7 +293,7 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Inverse key expansion randomization table.
      *
-     * @see Crypt_RC2::setKey()
+     * @see self::setKey()
      * @var array
      * @access private
      */
@@ -476,7 +476,7 @@ class Crypt_RC2 extends Crypt_Base
      *
      * Mostly a wrapper for Crypt_Base::encrypt, with some additional OpenSSL handling code
      *
-     * @see decrypt()
+     * @see self::decrypt()
      * @access public
      * @param string $plaintext
      * @return string $ciphertext
@@ -499,7 +499,7 @@ class Crypt_RC2 extends Crypt_Base
      *
      * Mostly a wrapper for Crypt_Base::decrypt, with some additional OpenSSL handling code
      *
-     * @see encrypt()
+     * @see self::encrypt()
      * @access public
      * @param string $ciphertext
      * @return string $plaintext

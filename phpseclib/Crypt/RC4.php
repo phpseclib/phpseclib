@@ -71,7 +71,7 @@ if (!class_exists('Crypt_Base')) {
 
 /**#@+
  * @access private
- * @see Crypt_RC4::_crypt()
+ * @see self::_crypt()
  */
 define('CRYPT_RC4_ENCRYPT', 0);
 define('CRYPT_RC4_DECRYPT', 1);
@@ -137,7 +137,7 @@ class Crypt_RC4 extends Crypt_Base
     /**
      * The Key
      *
-     * @see Crypt_RC4::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -146,7 +146,7 @@ class Crypt_RC4 extends Crypt_Base
     /**
      * The Key Stream for decryption and encryption
      *
-     * @see Crypt_RC4::setKey()
+     * @see self::setKey()
      * @var array
      * @access private
      */
@@ -214,7 +214,7 @@ class Crypt_RC4 extends Crypt_Base
      * {@link http://en.wikipedia.org/wiki/Related_key_attack http://en.wikipedia.org/wiki/Related_key_attack}
      *
      * @param string $iv
-     * @see Crypt_RC4::setKey()
+     * @see self::setKey()
      * @access public
      */
     function setIV($iv)
@@ -246,7 +246,7 @@ class Crypt_RC4 extends Crypt_Base
      * Encrypts a message.
      *
      * @see Crypt_Base::decrypt()
-     * @see Crypt_RC4::_crypt()
+     * @see self::_crypt()
      * @access public
      * @param string $plaintext
      * @return string $ciphertext
@@ -266,7 +266,7 @@ class Crypt_RC4 extends Crypt_Base
      * At least if the continuous buffer is disabled.
      *
      * @see Crypt_Base::encrypt()
-     * @see Crypt_RC4::_crypt()
+     * @see self::_crypt()
      * @access public
      * @param string $ciphertext
      * @return string $plaintext
@@ -310,8 +310,8 @@ class Crypt_RC4 extends Crypt_Base
     /**
      * Encrypts or decrypts a message.
      *
-     * @see Crypt_RC4::encrypt()
-     * @see Crypt_RC4::decrypt()
+     * @see self::encrypt()
+     * @see self::decrypt()
      * @access private
      * @param string $text
      * @param int $mode

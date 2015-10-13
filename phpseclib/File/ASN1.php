@@ -169,8 +169,8 @@ class File_ASN1
      *
      * @var array
      * @access private
-     * @see File_ASN1::setTimeFormat()
-     * @see File_ASN1::asn1map()
+     * @see self::setTimeFormat()
+     * @see self::asn1map()
      * @link http://php.net/class.datetime
      */
     var $encoded;
@@ -182,7 +182,7 @@ class File_ASN1
      *
      * @var array
      * @access private
-     * @see File_ASN1::_encode_der()
+     * @see self::_encode_der()
      */
     var $filters;
 

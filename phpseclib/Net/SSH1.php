@@ -67,7 +67,7 @@
 /**#@+
  * Encryption Methods
  *
- * @see Net_SSH1::getSupportedCiphers()
+ * @see self::getSupportedCiphers()
  * @access public
  */
 /**
@@ -127,7 +127,7 @@ define('NET_SSH1_CIPHER_BLOWFISH',   6);
 /**#@+
  * Authentication Methods
  *
- * @see Net_SSH1::getSupportedAuthentications()
+ * @see self::getSupportedAuthentications()
  * @access public
  */
 /**
@@ -162,7 +162,7 @@ define('NET_SSH1_TTY_OP_END',  0);
 /**
  * The Response Type
  *
- * @see Net_SSH1::_get_binary_packet()
+ * @see self::_get_binary_packet()
  * @access private
  */
 define('NET_SSH1_RESPONSE_TYPE', 1);
@@ -170,7 +170,7 @@ define('NET_SSH1_RESPONSE_TYPE', 1);
 /**
  * The Response Data
  *
- * @see Net_SSH1::_get_binary_packet()
+ * @see self::_get_binary_packet()
  * @access private
  */
 define('NET_SSH1_RESPONSE_DATA', 2);
@@ -178,7 +178,7 @@ define('NET_SSH1_RESPONSE_DATA', 2);
 /**#@+
  * Execution Bitmap Masks
  *
- * @see Net_SSH1::bitmap
+ * @see self::bitmap
  * @access private
  */
 define('NET_SSH1_MASK_CONSTRUCTOR', 0x00000001);
@@ -189,7 +189,7 @@ define('NET_SSH1_MASK_SHELL',       0x00000008);
 
 /**#@+
  * @access public
- * @see Net_SSH1::getLog()
+ * @see self::getLog()
  */
 /**
  * Returns the message numbers
@@ -211,7 +211,7 @@ define('NET_SSH1_LOG_REALTIME_FILE', 4);
 
 /**#@+
  * @access public
- * @see Net_SSH1::read()
+ * @see self::read()
  */
 /**
  * Returns when a string matching $expect exactly is found
@@ -272,7 +272,7 @@ class Net_SSH1
      *
      * Logged for debug purposes
      *
-     * @see Net_SSH1::getServerKeyPublicExponent()
+     * @see self::getServerKeyPublicExponent()
      * @var string
      * @access private
      */
@@ -283,7 +283,7 @@ class Net_SSH1
      *
      * Logged for debug purposes
      *
-     * @see Net_SSH1::getServerKeyPublicModulus()
+     * @see self::getServerKeyPublicModulus()
      * @var string
      * @access private
      */
@@ -294,7 +294,7 @@ class Net_SSH1
      *
      * Logged for debug purposes
      *
-     * @see Net_SSH1::getHostKeyPublicExponent()
+     * @see self::getHostKeyPublicExponent()
      * @var string
      * @access private
      */
@@ -305,7 +305,7 @@ class Net_SSH1
      *
      * Logged for debug purposes
      *
-     * @see Net_SSH1::getHostKeyPublicModulus()
+     * @see self::getHostKeyPublicModulus()
      * @var string
      * @access private
      */
@@ -316,7 +316,7 @@ class Net_SSH1
      *
      * Logged for debug purposes
      *
-     * @see Net_SSH1::getSupportedCiphers()
+     * @see self::getSupportedCiphers()
      * @var array
      * @access private
      */
@@ -335,7 +335,7 @@ class Net_SSH1
      *
      * Logged for debug purposes
      *
-     * @see Net_SSH1::getSupportedAuthentications()
+     * @see self::getSupportedAuthentications()
      * @var array
      * @access private
      */
@@ -349,7 +349,7 @@ class Net_SSH1
     /**
      * Server Identification
      *
-     * @see Net_SSH1::getServerIdentification()
+     * @see self::getServerIdentification()
      * @var string
      * @access private
      */
@@ -358,7 +358,7 @@ class Net_SSH1
     /**
      * Protocol Flags
      *
-     * @see Net_SSH1::Net_SSH1()
+     * @see self::Net_SSH1()
      * @var array
      * @access private
      */
@@ -367,7 +367,7 @@ class Net_SSH1
     /**
      * Protocol Flag Log
      *
-     * @see Net_SSH1::getLog()
+     * @see self::getLog()
      * @var array
      * @access private
      */
@@ -376,7 +376,7 @@ class Net_SSH1
     /**
      * Message Log
      *
-     * @see Net_SSH1::getLog()
+     * @see self::getLog()
      * @var array
      * @access private
      */
@@ -385,7 +385,7 @@ class Net_SSH1
     /**
      * Real-time log file pointer
      *
-     * @see Net_SSH1::_append_log()
+     * @see self::_append_log()
      * @var resource
      * @access private
      */
@@ -394,7 +394,7 @@ class Net_SSH1
     /**
      * Real-time log file size
      *
-     * @see Net_SSH1::_append_log()
+     * @see self::_append_log()
      * @var int
      * @access private
      */
@@ -403,7 +403,7 @@ class Net_SSH1
     /**
      * Real-time log file wrap boolean
      *
-     * @see Net_SSH1::_append_log()
+     * @see self::_append_log()
      * @var bool
      * @access private
      */
@@ -412,7 +412,7 @@ class Net_SSH1
     /**
      * Interactive Buffer
      *
-     * @see Net_SSH1::read()
+     * @see self::read()
      * @var array
      * @access private
      */
@@ -421,7 +421,7 @@ class Net_SSH1
     /**
      * Timeout
      *
-     * @see Net_SSH1::setTimeout()
+     * @see self::setTimeout()
      * @access private
      */
     var $timeout;
@@ -429,7 +429,7 @@ class Net_SSH1
     /**
      * Current Timeout
      *
-     * @see Net_SSH1::_get_channel_packet()
+     * @see self::_get_channel_packet()
      * @access private
      */
     var $curTimeout;
@@ -437,7 +437,7 @@ class Net_SSH1
     /**
      * Log Boundary
      *
-     * @see Net_SSH1::_format_log
+     * @see self::_format_log()
      * @access private
      */
     var $log_boundary = ':';
@@ -445,7 +445,7 @@ class Net_SSH1
     /**
      * Log Long Width
      *
-     * @see Net_SSH1::_format_log
+     * @see self::_format_log()
      * @access private
      */
     var $log_long_width = 65;
@@ -453,7 +453,7 @@ class Net_SSH1
     /**
      * Log Short Width
      *
-     * @see Net_SSH1::_format_log
+     * @see self::_format_log()
      * @access private
      */
     var $log_short_width = 16;
@@ -461,8 +461,8 @@ class Net_SSH1
     /**
      * Hostname
      *
-     * @see Net_SSH1::Net_SSH1()
-     * @see Net_SSH1::_connect()
+     * @see self::Net_SSH1()
+     * @see self::_connect()
      * @var string
      * @access private
      */
@@ -471,8 +471,8 @@ class Net_SSH1
     /**
      * Port Number
      *
-     * @see Net_SSH1::Net_SSH1()
-     * @see Net_SSH1::_connect()
+     * @see self::Net_SSH1()
+     * @see self::_connect()
      * @var int
      * @access private
      */
@@ -486,8 +486,8 @@ class Net_SSH1
      * however, is non-optional. There will be a timeout, whether or not you set it. If you don't it'll be
      * 10 seconds. It is used by fsockopen() in that function.
      *
-     * @see Net_SSH1::Net_SSH1()
-     * @see Net_SSH1::_connect()
+     * @see self::Net_SSH1()
+     * @see self::_connect()
      * @var int
      * @access private
      */
@@ -496,8 +496,8 @@ class Net_SSH1
     /**
      * Default cipher
      *
-     * @see Net_SSH1::Net_SSH1()
-     * @see Net_SSH1::_connect()
+     * @see self::Net_SSH1()
+     * @see self::_connect()
      * @var int
      * @access private
      */
@@ -821,8 +821,8 @@ class Net_SSH1
      *
      * Returns false on failure and the output, otherwise.
      *
-     * @see Net_SSH1::interactiveRead()
-     * @see Net_SSH1::interactiveWrite()
+     * @see self::interactiveRead()
+     * @see self::interactiveWrite()
      * @param string $cmd
      * @return mixed
      * @access public
@@ -871,8 +871,8 @@ class Net_SSH1
     /**
      * Creates an interactive shell
      *
-     * @see Net_SSH1::interactiveRead()
-     * @see Net_SSH1::interactiveWrite()
+     * @see self::interactiveRead()
+     * @see self::interactiveWrite()
      * @return bool
      * @access private
      */
@@ -915,7 +915,7 @@ class Net_SSH1
     /**
      * Inputs a command into an interactive shell.
      *
-     * @see Net_SSH1::interactiveWrite()
+     * @see self::interactiveWrite()
      * @param string $cmd
      * @return bool
      * @access public
@@ -931,7 +931,7 @@ class Net_SSH1
      * $expect can take the form of a string literal or, if $mode == NET_SSH1_READ_REGEX,
      * a regular expression.
      *
-     * @see Net_SSH1::write()
+     * @see self::write()
      * @param string $expect
      * @param int $mode
      * @return bool
@@ -971,7 +971,7 @@ class Net_SSH1
     /**
      * Inputs a command into an interactive shell.
      *
-     * @see Net_SSH1::interactiveRead()
+     * @see self::interactiveRead()
      * @param string $cmd
      * @return bool
      * @access public
@@ -1007,7 +1007,7 @@ class Net_SSH1
      * does not support ANSI escape sequences in Win32 Console applications", so if you're a Windows user,
      * there's not going to be much recourse.
      *
-     * @see Net_SSH1::interactiveRead()
+     * @see self::interactiveRead()
      * @return string
      * @access public
      */
@@ -1096,7 +1096,7 @@ class Net_SSH1
      * Also, this function could be improved upon by adding detection for the following exploit:
      * http://www.securiteam.com/securitynews/5LP042K3FY.html
      *
-     * @see Net_SSH1::_send_binary_packet()
+     * @see self::_send_binary_packet()
      * @return array
      * @access private
      */
@@ -1172,7 +1172,7 @@ class Net_SSH1
      *
      * Returns true on success, false on failure.
      *
-     * @see Net_SSH1::_get_binary_packet()
+     * @see self::_get_binary_packet()
      * @param string $data
      * @return bool
      * @access private
@@ -1219,8 +1219,8 @@ class Net_SSH1
      * we've reimplemented it. A more detailed discussion of the differences can be found after
      * $crc_lookup_table's initialization.
      *
-     * @see Net_SSH1::_get_binary_packet()
-     * @see Net_SSH1::_send_binary_packet()
+     * @see self::_get_binary_packet()
+     * @see self::_send_binary_packet()
      * @param string $data
      * @return int
      * @access private
@@ -1336,7 +1336,7 @@ class Net_SSH1
      * should be a number with the property that gcd($e, ($p - 1) * ($q - 1)) == 1.  Could just make anything that
      * calls this call modexp, instead, but I think this makes things clearer, maybe...
      *
-     * @see Net_SSH1::Net_SSH1()
+     * @see self::Net_SSH1()
      * @param Math_BigInteger $m
      * @param array $key
      * @return Math_BigInteger

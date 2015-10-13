@@ -60,7 +60,7 @@ define('FILE_X509_VALIDATE_SIGNATURE_BY_CA', 1);
 
 /**#@+
  * @access public
- * @see File_X509::getDN()
+ * @see self::getDN()
  */
 /**
  * Return internal array representation
@@ -90,9 +90,9 @@ define('FILE_X509_DN_HASH', 5);
 
 /**#@+
  * @access public
- * @see File_X509::saveX509()
- * @see File_X509::saveCSR()
- * @see File_X509::saveCRL()
+ * @see self::saveX509()
+ * @see self::saveCSR()
+ * @see self::saveCRL()
  */
 /**
  * Save as PEM

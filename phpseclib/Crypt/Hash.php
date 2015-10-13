@@ -7,7 +7,7 @@
  *
  * md2, md5, md5-96, sha1, sha1-96, sha256, sha256-96, sha384, and sha512, sha512-96
  *
- * If {@link Crypt_Hash::setKey() setKey()} is called, {@link Crypt_Hash::hash() hash()} will return the HMAC as opposed to
+ * If {@link self::setKey() setKey()} is called, {@link self::hash() hash()} will return the HMAC as opposed to
  * the hash.  If no valid algorithm is provided, sha1 will be used.
  *
  * PHP versions 4 and 5
@@ -56,7 +56,7 @@
 
 /**#@+
  * @access private
- * @see Crypt_Hash::Crypt_Hash()
+ * @see self::Crypt_Hash()
  */
 /**
  * Toggles the internal implementation
@@ -84,7 +84,7 @@ class Crypt_Hash
     /**
      * Hash Parameter
      *
-     * @see Crypt_Hash::setHash()
+     * @see self::setHash()
      * @var int
      * @access private
      */
@@ -93,7 +93,7 @@ class Crypt_Hash
     /**
      * Byte-length of compression blocks / key (Internal HMAC)
      *
-     * @see Crypt_Hash::setAlgorithm()
+     * @see self::setAlgorithm()
      * @var int
      * @access private
      */
@@ -102,7 +102,7 @@ class Crypt_Hash
     /**
      * Byte-length of hash output (Internal HMAC)
      *
-     * @see Crypt_Hash::setHash()
+     * @see self::setHash()
      * @var int
      * @access private
      */
@@ -111,7 +111,7 @@ class Crypt_Hash
     /**
      * Hash Algorithm
      *
-     * @see Crypt_Hash::setHash()
+     * @see self::setHash()
      * @var string
      * @access private
      */
@@ -120,7 +120,7 @@ class Crypt_Hash
     /**
      * Key
      *
-     * @see Crypt_Hash::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -129,7 +129,7 @@ class Crypt_Hash
     /**
      * Outer XOR (Internal HMAC)
      *
-     * @see Crypt_Hash::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -138,7 +138,7 @@ class Crypt_Hash
     /**
      * Inner XOR (Internal HMAC)
      *
-     * @see Crypt_Hash::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -759,7 +759,7 @@ class Crypt_Hash
      * @access private
      * @param int $int
      * @param int $amt
-     * @see _sha256()
+     * @see self::_sha256()
      * @return int
      */
     function _rightRotate($int, $amt)
@@ -775,7 +775,7 @@ class Crypt_Hash
      * @access private
      * @param int $int
      * @param int $amt
-     * @see _sha256()
+     * @see self::_sha256()
      * @return int
      */
     function _rightShift($int, $amt)
@@ -789,7 +789,7 @@ class Crypt_Hash
      *
      * @access private
      * @param int $int
-     * @see _sha256()
+     * @see self::_sha256()
      * @return int
      */
     function _not($int)
@@ -805,7 +805,7 @@ class Crypt_Hash
      *
      * @param int $...
      * @return int
-     * @see _sha256()
+     * @see self::_sha256()
      * @access private
      */
     function _add()

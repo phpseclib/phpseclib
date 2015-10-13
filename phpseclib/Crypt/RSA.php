@@ -87,8 +87,8 @@ if (!class_exists('Crypt_Hash')) {
 
 /**#@+
  * @access public
- * @see Crypt_RSA::encrypt()
- * @see Crypt_RSA::decrypt()
+ * @see self::encrypt()
+ * @see self::decrypt()
  */
 /**
  * Use {@link http://en.wikipedia.org/wiki/Optimal_Asymmetric_Encryption_Padding Optimal Asymmetric Encryption Padding}
@@ -96,8 +96,8 @@ if (!class_exists('Crypt_Hash')) {
  *
  * Uses sha1 by default.
  *
- * @see Crypt_RSA::setHash()
- * @see Crypt_RSA::setMGFHash()
+ * @see self::setHash()
+ * @see self::setMGFHash()
  */
 define('CRYPT_RSA_ENCRYPTION_OAEP',  1);
 /**
@@ -118,17 +118,17 @@ define('CRYPT_RSA_ENCRYPTION_NONE', 3);
 
 /**#@+
  * @access public
- * @see Crypt_RSA::sign()
- * @see Crypt_RSA::verify()
- * @see Crypt_RSA::setHash()
+ * @see self::sign()
+ * @see self::verify()
+ * @see self::setHash()
  */
 /**
  * Use the Probabilistic Signature Scheme for signing
  *
  * Uses sha1 by default.
  *
- * @see Crypt_RSA::setSaltLength()
- * @see Crypt_RSA::setMGFHash()
+ * @see self::setSaltLength()
+ * @see self::setMGFHash()
  */
 define('CRYPT_RSA_SIGNATURE_PSS',  1);
 /**
@@ -142,7 +142,7 @@ define('CRYPT_RSA_SIGNATURE_PKCS1', 2);
 
 /**#@+
  * @access private
- * @see Crypt_RSA::createKey()
+ * @see self::createKey()
  */
 /**
  * ASN1 Integer
@@ -168,7 +168,7 @@ define('CRYPT_RSA_ASN1_SEQUENCE',   48);
 
 /**#@+
  * @access private
- * @see Crypt_RSA::Crypt_RSA()
+ * @see self::Crypt_RSA()
  */
 /**
  * To use the pure-PHP implementation
@@ -189,8 +189,8 @@ define('CRYPT_RSA_OPENSSL_CONFIG', dirname(__FILE__) . '/../openssl.cnf');
 
 /**#@+
  * @access public
- * @see Crypt_RSA::createKey()
- * @see Crypt_RSA::setPrivateKeyFormat()
+ * @see self::createKey()
+ * @see self::setPrivateKeyFormat()
  */
 /**
  * PKCS#1 formatted private key
@@ -214,8 +214,8 @@ define('CRYPT_RSA_PRIVATE_FORMAT_PKCS8', 3);
 
 /**#@+
  * @access public
- * @see Crypt_RSA::createKey()
- * @see Crypt_RSA::setPublicKeyFormat()
+ * @see self::createKey()
+ * @see self::setPublicKeyFormat()
  */
 /**
  * Raw public key
@@ -445,7 +445,7 @@ class Crypt_RSA
      * For use with parsing XML formatted keys.  PHP's XML Parser functions use utilized - instead of PHP's DOM functions -
      * because PHP's XML Parser functions work on PHP4 whereas PHP's DOM functions - although surperior - don't.
      *
-     * @see Crypt_RSA::_start_element_handler()
+     * @see self::_start_element_handler()
      * @var array
      * @access private
      */
@@ -456,8 +456,8 @@ class Crypt_RSA
      *
      * For use with parsing XML formatted keys.
      *
-     * @see Crypt_RSA::_character_handler()
-     * @see Crypt_RSA::_stop_element_handler()
+     * @see self::_character_handler()
+     * @see self::_stop_element_handler()
      * @var mixed
      * @access private
      */
@@ -467,7 +467,7 @@ class Crypt_RSA
      * OpenSSL configuration file name.
      *
      * Set to null to use system configuration file.
-     * @see Crypt_RSA::createKey()
+     * @see self::createKey()
      * @var mixed
      * @Access public
      */
@@ -751,7 +751,7 @@ class Crypt_RSA
      * Convert a private key to the appropriate format.
      *
      * @access private
-     * @see setPrivateKeyFormat()
+     * @see self::setPrivateKeyFormat()
      * @param string $RSAPrivateKey
      * @return string
      */
@@ -992,7 +992,7 @@ class Crypt_RSA
      * Convert a public key to the appropriate format
      *
      * @access private
-     * @see setPublicKeyFormat()
+     * @see self::setPublicKeyFormat()
      * @param string $RSAPrivateKey
      * @return string
      */
@@ -1070,8 +1070,8 @@ class Crypt_RSA
      * Break a public or private key down into its constituant components
      *
      * @access private
-     * @see _convertPublicKey()
-     * @see _convertPrivateKey()
+     * @see self::_convertPublicKey()
+     * @see self::_convertPrivateKey()
      * @param string $key
      * @param int $type
      * @return array
@@ -1692,8 +1692,8 @@ class Crypt_RSA
      * Private keys can be encrypted with a password.  To unset the password, pass in the empty string or false.
      * Or rather, pass in $password such that empty($password) && !is_string($password) is true.
      *
-     * @see createKey()
-     * @see loadKey()
+     * @see self::createKey()
+     * @see self::loadKey()
      * @access public
      * @param string $password
      */
@@ -1717,7 +1717,7 @@ class Crypt_RSA
      *
      * Returns true on success, false on failure
      *
-     * @see getPublicKey()
+     * @see self::getPublicKey()
      * @access public
      * @param string $key optional
      * @param int $type optional
@@ -1777,7 +1777,7 @@ class Crypt_RSA
      *
      * Returns true on success, false on failure
      *
-     * @see getPublicKey()
+     * @see self::getPublicKey()
      * @access public
      * @param string $key optional
      * @param int $type optional
@@ -1808,7 +1808,7 @@ class Crypt_RSA
      * or if the public key was set via setPublicKey().  If the currently loaded key is supposed to be the public key this
      * function won't return it since this library, for the most part, doesn't distinguish between public and private keys.
      *
-     * @see getPublicKey()
+     * @see self::getPublicKey()
      * @access public
      * @param string $key
      * @param int $type optional
@@ -1836,6 +1836,7 @@ class Crypt_RSA
      * @access public
      * @param string $algorithm The hashing algorithm to be used. Valid options are 'md5' and 'sha256'. False is returned
      * for invalid values.
+     * @return mixed
      */
     public function getPublicKeyFingerprint($algorithm = 'md5')
     {
@@ -1865,10 +1866,11 @@ class Crypt_RSA
      *
      * The private key is only returned if the currently loaded key contains the constituent prime numbers.
      *
-     * @see getPublicKey()
+     * @see self::getPublicKey()
      * @access public
      * @param string $key
      * @param int $type optional
+     * @return mixed
      */
     function getPrivateKey($type = CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
     {
@@ -1889,7 +1891,7 @@ class Crypt_RSA
      * Returns the private key without the prime number constituants.  Structurally identical to a public key that
      * hasn't been set as the public key
      *
-     * @see getPrivateKey()
+     * @see self::getPrivateKey()
      * @access private
      * @param string $key
      * @param int $type optional
@@ -1911,6 +1913,7 @@ class Crypt_RSA
      *  __toString() magic method
      *
      * @access public
+     * @return string
      */
     function __toString()
     {
@@ -1926,6 +1929,7 @@ class Crypt_RSA
      *  __clone() magic method
      *
      * @access public
+     * @return Crypt_RSA
      */
     function __clone()
     {
@@ -2021,7 +2025,7 @@ class Crypt_RSA
     /**
      * Determines the private key format
      *
-     * @see createKey()
+     * @see self::createKey()
      * @access public
      * @param int $format
      */
@@ -2033,7 +2037,7 @@ class Crypt_RSA
     /**
      * Determines the public key format
      *
-     * @see createKey()
+     * @see self::createKey()
      * @access public
      * @param int $format
      */
@@ -2950,7 +2954,7 @@ class Crypt_RSA
      * If $plaintext exceeds those limits it will be broken up so that it does and the resultant ciphertext's will
      * be concatenated together.
      *
-     * @see decrypt()
+     * @see self::decrypt()
      * @access public
      * @param string $plaintext
      * @return string
@@ -2996,7 +3000,7 @@ class Crypt_RSA
     /**
      * Decryption
      *
-     * @see encrypt()
+     * @see self::encrypt()
      * @access public
      * @param string $plaintext
      * @return string
@@ -3038,7 +3042,7 @@ class Crypt_RSA
     /**
      * Create a signature
      *
-     * @see verify()
+     * @see self::verify()
      * @access public
      * @param string $message
      * @return string
@@ -3061,7 +3065,7 @@ class Crypt_RSA
     /**
      * Verifies a signature
      *
-     * @see sign()
+     * @see self::sign()
      * @access public
      * @param string $message
      * @param string $signature

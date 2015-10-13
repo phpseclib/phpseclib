@@ -51,7 +51,7 @@
 
 /**#@+
  * @access public
- * @see Net_SCP::put()
+ * @see self::put()
  */
 /**
  * Reads data from a local file.
@@ -65,8 +65,8 @@ define('NET_SCP_STRING',  2);
 
 /**#@+
  * @access private
- * @see Net_SCP::_send()
- * @see Net_SCP::_receive()
+ * @see self::_send()
+ * @see self::_receive()
  */
 /**
  * SSH1 is being used.
