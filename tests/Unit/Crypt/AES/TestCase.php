@@ -334,4 +334,39 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $result = bin2hex($aes->encrypt(pack('H*', '91fbef2d15a97816060bee1feaa49afe')));
         $this->assertSame($result, '1bc704f1bce135ceb810341b216d7abe');
     }
+
+    public function testGetKeyLengthDefault()
+    {
+        $aes = new Crypt_AES();
+        $this->assertSame($aes->getKeyLength(), 128);
+    }
+
+    public function testGetKeyLengthWith192BitKey()
+    {
+        $aes = new Crypt_AES();
+        $aes->setKey(str_repeat('a', 24));
+        $this->assertSame($aes->getKeyLength(), 192);
+    }
+
+    public function testSetKeyLengthWithLargerKey()
+    {
+        $aes = new Crypt_AES();
+        $aes->setKeyLength(128);
+        $aes->setKey(str_repeat('a', 24));
+        $this->assertSame($aes->getKeyLength(), 128);
+        $ciphertext = bin2hex($aes->encrypt('a'));
+        $this->assertSame($ciphertext, '82b7b068dfc60ed2a46893b69fecd6c2');
+        $this->assertSame($aes->getKeyLength(), 128);
+    }
+
+    public function testSetKeyLengthWithSmallerKey()
+    {
+        $aes = new Crypt_AES();
+        $aes->setKeyLength(256);
+        $aes->setKey(str_repeat('a', 16));
+        $this->assertSame($aes->getKeyLength(), 256);
+        $ciphertext = bin2hex($aes->encrypt('a'));
+        $this->assertSame($ciphertext, 'fd4250c0d234aa7e1aa592820aa8406b');
+        $this->assertSame($aes->getKeyLength(), 256);
+    }
 }

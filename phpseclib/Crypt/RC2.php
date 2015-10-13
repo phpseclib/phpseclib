@@ -139,14 +139,22 @@ class Crypt_RC2 extends Crypt_Base
     var $orig_key;
 
     /**
-     * The default password key_size used by setPassword()
+     * Don't truncate / null pad key
      *
-     * @see Crypt_Base::password_key_size
-     * @see Crypt_Base::setPassword()
+     * @see Crypt_Base::_clearBuffers()
+     * @var bool
+     * @access private
+     */
+    var $skip_key_adjustment = true;
+
+    /**
+     * Key Length (in bytes)
+     *
+     * @see Crypt_RC2::setKeyLength()
      * @var int
      * @access private
      */
-    var $password_key_size = 16; // = 128 bits
+    var $key_length = 16; // = 128 bits
 
     /**
      * The namespace used by the cipher for its constants.
@@ -366,7 +374,7 @@ class Crypt_RC2 extends Crypt_Base
     {
         switch ($engine) {
             case CRYPT_ENGINE_OPENSSL:
-                if ($this->current_key_length != 128 || strlen($this->orig_key) != 16) {
+                if ($this->current_key_length != 128 || strlen($this->orig_key) < 16) {
                     return false;
                 }
                 $this->cipher_name_openssl_ecb = 'rc2-ecb';
@@ -377,7 +385,7 @@ class Crypt_RC2 extends Crypt_Base
     }
 
     /**
-     * Sets the key length
+     * Sets the key length.
      *
      * Valid key lengths are 1 to 1024.
      * Calling this function after setting the key has no effect until the next
@@ -391,6 +399,17 @@ class Crypt_RC2 extends Crypt_Base
         if ($length >= 1 && $length <= 1024) {
             $this->default_key_length = $length;
         }
+    }
+
+    /**
+     * Returns the current key length
+     *
+     * @access public
+     * @return int
+     */
+    function getKeyLength()
+    {
+        return $this->current_key_length;
     }
 
     /**
@@ -448,6 +467,7 @@ class Crypt_RC2 extends Crypt_Base
         // Prepare the key for mcrypt.
         $l[0] = $this->invpitable[$l[0]];
         array_unshift($l, 'C*');
+
         parent::setKey(call_user_func_array('pack', $l));
     }
 

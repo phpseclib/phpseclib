@@ -140,24 +140,13 @@ class Crypt_DES extends Crypt_Base
     var $block_size = 8;
 
     /**
-     * The Key
+     * Key Length (in bytes)
      *
-     * @see Crypt_Base::key
-     * @see setKey()
-     * @var string
-     * @access private
-     */
-    var $key = "\0\0\0\0\0\0\0\0";
-
-    /**
-     * The default password key_size used by setPassword()
-     *
-     * @see Crypt_Base::password_key_size
-     * @see Crypt_Base::setPassword()
+     * @see Crypt_Base::setKeyLength()
      * @var int
      * @access private
      */
-    var $password_key_size = 8;
+    var $key_length = 8;
 
     /**
      * The namespace used by the cipher for its constants.
@@ -220,7 +209,7 @@ class Crypt_DES extends Crypt_Base
      * @var string
      * @access private
      */
-    var $key_size_max = 8;
+    var $key_length_max = 8;
 
     /**
      * The Key Schedule
@@ -674,7 +663,7 @@ class Crypt_DES extends Crypt_Base
      */
     function isValidEngine($engine)
     {
-        if ($this->key_size_max == 8) {
+        if ($this->key_length_max == 8) {
             if ($engine == CRYPT_ENGINE_OPENSSL) {
                 $this->cipher_name_openssl_ecb = 'des-ecb';
                 $this->cipher_name_openssl = 'des-' . $this->_openssl_translate_mode();
@@ -703,8 +692,8 @@ class Crypt_DES extends Crypt_Base
     {
         // We check/cut here only up to max length of the key.
         // Key padding to the proper length will be done in _setupKey()
-        if (strlen($key) > $this->key_size_max) {
-            $key = substr($key, 0, $this->key_size_max);
+        if (strlen($key) > $this->key_length_max) {
+            $key = substr($key, 0, $this->key_length_max);
         }
 
         // Sets the key

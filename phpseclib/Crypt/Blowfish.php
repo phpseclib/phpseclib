@@ -121,16 +121,6 @@ class Crypt_Blowfish extends Crypt_Base
     var $block_size = 8;
 
     /**
-     * The default password key_size used by setPassword()
-     *
-     * @see Crypt_Base::password_key_size
-     * @see Crypt_Base::setPassword()
-     * @var int
-     * @access private
-     */
-    var $password_key_size = 56;
-
-    /**
      * The namespace used by the cipher for its constants.
      *
      * @see Crypt_Base::const_namespace
@@ -354,31 +344,37 @@ class Crypt_Blowfish extends Crypt_Base
     var $kl;
 
     /**
-     * Sets the key.
+     * The Key Length (in bytes)
      *
-     * Keys can be of any length.  Blowfish, itself, requires the use of a key between 32 and max. 448-bits long.
-     * If the key is less than 32-bits we NOT fill the key to 32bit but let the key as it is to be compatible
-     * with mcrypt because mcrypt act this way with blowfish key's < 32 bits.
+     * @see Crypt_Base::setKeyLength()
+     * @var int
+     * @access private
+     * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
+     *    because the encryption / decryption / key schedule creation requires this number and not $key_length.  We could
+     *    derive this from $key_length or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
+     *    of that, we'll just precompute it once.
+     */
+    var $key_length = 16;
+
+    /**
+     * Sets the key length.
      *
-     * If the key is more than 448-bits, we trim the excess bits.
-     *
-     * If the key is not explicitly set, or empty, it'll be assumed a 128 bits key to be all null bytes.
+     * Key lengths can be between 32 and 448 bits.
      *
      * @access public
-     * @see Crypt_Base::setKey()
-     * @param string $key
+     * @param int $length
      */
-    function setKey($key)
+    function setKeyLength($length)
     {
-        $keylength = strlen($key);
-
-        if (!$keylength) {
-            $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-        } elseif ($keylength > 56) {
-            $key = substr($key, 0, 56);
+        if ($length < 32) {
+            $this->key_length = 7;
+        } elseif ($length > 448) {
+            $this->key_length = 56;
+        } else {
+            $this->key_length = $length >> 3;
         }
 
-        parent::setKey($key);
+        parent::setKeyLength($length);
     }
 
     /**
@@ -394,7 +390,7 @@ class Crypt_Blowfish extends Crypt_Base
     function isValidEngine($engine)
     {
         if ($engine == CRYPT_ENGINE_OPENSSL) {
-            if (strlen($this->key) != 16) {
+            if ($this->key_length != 16) {
                 return false;
             }
             $this->cipher_name_openssl_ecb = 'bf-ecb';
