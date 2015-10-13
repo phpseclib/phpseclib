@@ -58,7 +58,7 @@ class RC2 extends Base
      * The Key
      *
      * @see \phpseclib\Crypt\Base::key
-     * @see setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -68,9 +68,9 @@ class RC2 extends Base
      * The Original (unpadded) Key
      *
      * @see \phpseclib\Crypt\Base::key
-     * @see setKey()
-     * @see encrypt()
-     * @see decrypt()
+     * @see self::setKey()
+     * @see self::encrypt()
+     * @see self::decrypt()
      * @var string
      * @access private
      */
@@ -115,8 +115,8 @@ class RC2 extends Base
     /**
      * The key length in bits.
      *
-     * @see \phpseclib\Crypt\RC2::setKeyLength()
-     * @see \phpseclib\Crypt\RC2::setKey()
+     * @see self::setKeyLength()
+     * @see self::setKey()
      * @var int
      * @access private
      * @internal Should be in range [1..1024].
@@ -127,8 +127,8 @@ class RC2 extends Base
     /**
      * The key length in bits.
      *
-     * @see \phpseclib\Crypt\RC2::isValidEnine()
-     * @see \phpseclib\Crypt\RC2::setKey()
+     * @see self::isValidEnine()
+     * @see self::setKey()
      * @var int
      * @access private
      * @internal Should be in range [1..1024].
@@ -138,7 +138,7 @@ class RC2 extends Base
     /**
      * The Key Schedule
      *
-     * @see \phpseclib\Crypt\RC2::_setupKey()
+     * @see self::_setupKey()
      * @var array
      * @access private
      */
@@ -148,7 +148,7 @@ class RC2 extends Base
      * Key expansion randomization table.
      * Twice the same 256-value sequence to save a modulus in key expansion.
      *
-     * @see \phpseclib\Crypt\RC2::setKey()
+     * @see self::setKey()
      * @var array
      * @access private
      */
@@ -222,7 +222,7 @@ class RC2 extends Base
     /**
      * Inverse key expansion randomization table.
      *
-     * @see \phpseclib\Crypt\RC2::setKey()
+     * @see self::setKey()
      * @var array
      * @access private
      */
@@ -377,7 +377,7 @@ class RC2 extends Base
      *
      * Mostly a wrapper for \phpseclib\Crypt\Base::encrypt, with some additional OpenSSL handling code
      *
-     * @see decrypt()
+     * @see self::decrypt()
      * @access public
      * @param string $plaintext
      * @return string $ciphertext
@@ -400,7 +400,7 @@ class RC2 extends Base
      *
      * Mostly a wrapper for \phpseclib\Crypt\Base::decrypt, with some additional OpenSSL handling code
      *
-     * @see encrypt()
+     * @see self::encrypt()
      * @access public
      * @param string $ciphertext
      * @return string $plaintext
