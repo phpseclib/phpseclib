@@ -362,35 +362,36 @@ class Twofish extends Base
     var $kl;
 
     /**
-     * Sets the key.
+     * The Key Length (in bytes)
      *
-     * Keys can be of any length. Twofish, itself, requires the use of a key that's 128, 192 or 256-bits long.
-     * If the key is less than 256-bits we round the length up to the closest valid key length,
-     * padding $key with null bytes. If the key is more than 256-bits, we trim the excess bits.
+     * @see Crypt_Twofish::setKeyLength()
+     * @var int
+     * @access private
+     */
+    var $key_length = 16;
+
+    /**
+     * Sets the key length.
      *
-     * If the key is not explicitly set, it'll be assumed a 128 bits key to be all null bytes.
+     * Valid key lengths are 128, 192 or 256 bits
      *
      * @access public
-     * @see \phpseclib\Crypt\Base::setKey()
-     * @param string $key
+     * @param int $length
      */
-    function setKey($key)
+    function setKeyLength($length)
     {
-        $keylength = strlen($key);
         switch (true) {
-            case $keylength <= 16:
-                $key = str_pad($key, 16, "\0");
+            case $length <= 128:
+                $this->key_length = 16;
                 break;
-            case $keylength <= 24:
-                $key = str_pad($key, 24, "\0");
+            case $length <= 192:
+                $this->key_length = 24;
                 break;
-            case $keylength < 32:
-                $key = str_pad($key, 32, "\0");
-                break;
-            case $keylength > 32:
-                $key = substr($key, 0, 32);
+            default:
+                $this->key_length = 32;
         }
-        parent::setKey($key);
+
+        parent::setKeyLength($length);
     }
 
     /**

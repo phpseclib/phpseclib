@@ -76,14 +76,13 @@ class RC4 extends Base
     var $block_size = 0;
 
     /**
-     * The default password key_size used by setPassword()
+     * Key Length (in bytes)
      *
-     * @see \phpseclib\Crypt\Base::password_key_size
-     * @see \phpseclib\Crypt\Base::setPassword()
+     * @see \phpseclib\Crypt\RC4::setKeyLength()
      * @var int
      * @access private
      */
-    var $password_key_size = 128; // = 1024 bits
+    var $key_length = 128; // = 1024 bits
 
     /**
      * The mcrypt specific name of the cipher
@@ -138,9 +137,9 @@ class RC4 extends Base
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
      *
-     * @see Crypt_Base::Crypt_Base()
+     * @see \phpseclib\Crypt\Base::__construct()
      * @param int $engine
      * @access public
      * @return bool
@@ -191,18 +190,24 @@ class RC4 extends Base
     }
 
     /**
-     * Sets the key.
+     * Sets the key length
      *
-     * Keys can be between 1 and 256 bytes long.  If they are longer then 256 bytes, the first 256 bytes will
-     * be used.  If no key is explicitly set, it'll be assumed to be a single null byte.
+     * Keys can be between 1 and 256 bytes long.
      *
      * @access public
-     * @see \phpseclib\Crypt\Base::setKey()
-     * @param string $key
+     * @param int $length
      */
-    function setKey($key)
+    function setKeyLength($length)
     {
-        parent::setKey(substr($key, 0, 256));
+        if ($length < 8) {
+            $this->key_length = 1;
+        } elseif ($length > 2048) {
+            $this->key_length = 248;
+        } else {
+            $this->key_length = $length >> 3;
+        }
+
+        parent::setKeyLength($length);
     }
 
     /**
