@@ -273,17 +273,17 @@ class Blowfish extends Base
     var $kl;
 
     /**
-     * The Key Length
+     * The Key Length (in bytes)
      *
-     * @see setKeyLength()
+     * @see \phpseclib\Crypt\Base::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
-     *    because the encryption / decryption / key schedule creation requires this number and not $key_size.  We could
-     *    derive this from $key_size or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
+     *    because the encryption / decryption / key schedule creation requires this number and not $key_length.  We could
+     *    derive this from $key_length or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
      *    of that, we'll just precompute it once.
      */
-    var $key_size = 16;
+    var $key_length = 16;
 
     /**
      * Sets the key length.
@@ -296,11 +296,11 @@ class Blowfish extends Base
     function setKeyLength($length)
     {
         if ($length < 32) {
-            $this->key_size = 7;
+            $this->key_length = 7;
         } elseif ($length > 448) {
-            $this->key_size = 56;
+            $this->key_length = 56;
         } else {
-            $this->key_size = $length >> 3;
+            $this->key_length = $length >> 3;
         }
 
         parent::setKeyLength($length);
@@ -319,7 +319,7 @@ class Blowfish extends Base
     function isValidEngine($engine)
     {
         if ($engine == self::ENGINE_OPENSSL) {
-            if ($this->key_size != 16) {
+            if ($this->key_length != 16) {
                 return false;
             }
             $this->cipher_name_openssl_ecb = 'bf-ecb';
@@ -467,7 +467,7 @@ class Blowfish extends Base
         $lambda_functions =& self::_getLambdaFunctions();
 
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
-        // (Currently, for Crypt_Blowfish, one generated $lambda_function cost on php5.5@32bit ~100kb unfreeable mem and ~180kb on php5.5@64bit)
+        // (Currently, for Blowfish, one generated $lambda_function cost on php5.5@32bit ~100kb unfreeable mem and ~180kb on php5.5@64bit)
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one.
         $gen_hi_opt_code = (bool)(count($lambda_functions) < 10);
 

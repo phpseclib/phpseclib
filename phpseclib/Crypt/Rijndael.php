@@ -7,11 +7,11 @@
  *
  * PHP version 5
  *
- * If {@link \phpseclib\Crypt\Rijndael::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
- * {@link \phpseclib\Crypt\Rijndael::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
- * {@link \phpseclib\Crypt\Rijndael::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
+ * If {@link self::setBlockLength() setBlockLength()} isn't called, it'll be assumed to be 128 bits.  If
+ * {@link self::setKeyLength() setKeyLength()} isn't called, it'll be calculated from
+ * {@link self::setKey() setKey()}.  ie. if the key is 128-bits, the key length will be 128-bits.  If it's
  * 136-bits it'll be null-padded to 192-bits and 192 bits will be the key length until
- * {@link \phpseclib\Crypt\Rijndael::setKey() setKey()} is called, again, at which point, it'll be recalculated.
+ * {@link self::setKey() setKey()} is called, again, at which point, it'll be recalculated.
  *
  * Not all Rijndael implementations may support 160-bits or 224-bits as the block length / key length.  mcrypt, for example,
  * does not.  AES, itself, only supports block lengths of 128 and key lengths of 128, 192, and 256.
@@ -68,14 +68,14 @@ class Rijndael extends Base
     /**
      * The mcrypt specific name of the cipher
      *
-     * Mcrypt is useable for 128/192/256-bit $block_size/$key_size. For 160/224 not.
+     * Mcrypt is useable for 128/192/256-bit $block_size/$key_length. For 160/224 not.
      * \phpseclib\Crypt\Rijndael determines automatically whether mcrypt is useable
-     * or not for the current $block_size/$key_size.
+     * or not for the current $block_size/$key_length.
      * In case of, $cipher_name_mcrypt will be set dynamically at run time accordingly.
      *
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
      * @see \phpseclib\Crypt\Base::engine
-     * @see isValidEngine()
+     * @see self::isValidEngine()
      * @var string
      * @access private
      */
@@ -94,7 +94,7 @@ class Rijndael extends Base
     /**
      * The Key Schedule
      *
-     * @see _setup()
+     * @see self::_setup()
      * @var array
      * @access private
      */
@@ -103,7 +103,7 @@ class Rijndael extends Base
     /**
      * The Inverse Key Schedule
      *
-     * @see _setup()
+     * @see self::_setup()
      * @var array
      * @access private
      */
@@ -112,7 +112,7 @@ class Rijndael extends Base
     /**
      * The Block Length divided by 32
      *
-     * @see setBlockLength()
+     * @see self::setBlockLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4.  Exists in conjunction with $block_size
@@ -123,22 +123,22 @@ class Rijndael extends Base
     var $Nb = 4;
 
     /**
-     * The Key Length
+     * The Key Length (in bytes)
      *
-     * @see setKeyLength()
+     * @see self::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
-     *    because the encryption / decryption / key schedule creation requires this number and not $key_size.  We could
-     *    derive this from $key_size or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
+     *    because the encryption / decryption / key schedule creation requires this number and not $key_length.  We could
+     *    derive this from $key_length or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
      *    of that, we'll just precompute it once.
      */
-    var $key_size = 16;
+    var $key_length = 16;
 
     /**
      * The Key Length divided by 32
      *
-     * @see setKeyLength()
+     * @see self::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4
@@ -194,19 +194,19 @@ class Rijndael extends Base
     {
         switch (true) {
             case $length <= 128:
-                $this->key_size = 16;
+                $this->key_length = 16;
                 break;
             case $length <= 160:
-                $this->key_size = 20;
+                $this->key_length = 20;
                 break;
             case $length <= 192:
-                $this->key_size = 24;
+                $this->key_length = 24;
                 break;
             case $length <= 224:
-                $this->key_size = 28;
+                $this->key_length = 28;
                 break;
             default:
-                $this->key_size = 32;
+                $this->key_length = 32;
         }
 
         parent::setKeyLength($length);
@@ -252,12 +252,12 @@ class Rijndael extends Base
                 if ($this->block_size != 16) {
                     return false;
                 }
-                $this->cipher_name_openssl_ecb = 'aes-' . ($this->key_size << 3) . '-ecb';
-                $this->cipher_name_openssl = 'aes-' . ($this->key_size << 3) . '-' . $this->_openssl_translate_mode();
+                $this->cipher_name_openssl_ecb = 'aes-' . ($this->key_length << 3) . '-ecb';
+                $this->cipher_name_openssl = 'aes-' . ($this->key_length << 3) . '-' . $this->_openssl_translate_mode();
                 break;
             case self::ENGINE_MCRYPT:
                 $this->cipher_name_mcrypt = 'rijndael-' . ($this->block_size << 3);
-                if ($this->key_size % 8) { // is it a 160/224-bit key?
+                if ($this->key_length % 8) { // is it a 160/224-bit key?
                     // mcrypt is not usable for them, only for 128/192/256-bit keys
                     return false;
                 }
@@ -476,13 +476,13 @@ class Rijndael extends Base
             0x7D000000, 0xFA000000, 0xEF000000, 0xC5000000, 0x91000000
         );
 
-        if (isset($this->kl['key']) && $this->key === $this->kl['key'] && $this->key_size === $this->kl['key_size'] && $this->block_size === $this->kl['block_size']) {
+        if (isset($this->kl['key']) && $this->key === $this->kl['key'] && $this->key_length === $this->kl['key_length'] && $this->block_size === $this->kl['block_size']) {
             // already expanded
             return;
         }
-        $this->kl = array('key' => $this->key, 'key_size' => $this->key_size, 'block_size' => $this->block_size);
+        $this->kl = array('key' => $this->key, 'key_length' => $this->key_length, 'block_size' => $this->block_size);
 
-        $this->Nk = $this->key_size >> 2;
+        $this->Nk = $this->key_length >> 2;
         // see Rijndael-ammended.pdf#page=44
         $this->Nr = max($this->Nk, $this->Nb) + 6;
 
@@ -592,9 +592,9 @@ class Rijndael extends Base
     /**
      * Provides the mixColumns and sboxes tables
      *
-     * @see \phpseclib\Crypt\Rijndael:_encryptBlock()
-     * @see \phpseclib\Crypt\Rijndael:_setupInlineCrypt()
-     * @see \phpseclib\Crypt\Rijndael:_subWord()
+     * @see self::_encryptBlock()
+     * @see self::_setupInlineCrypt()
+     * @see self::_subWord()
      * @access private
      * @return array &$tables
      */
@@ -681,9 +681,9 @@ class Rijndael extends Base
     /**
      * Provides the inverse mixColumns and inverse sboxes tables
      *
-     * @see \phpseclib\Crypt\Rijndael:_decryptBlock()
-     * @see \phpseclib\Crypt\Rijndael:_setupInlineCrypt()
-     * @see \phpseclib\Crypt\Rijndael:_setupKey()
+     * @see self::_decryptBlock()
+     * @see self::_setupInlineCrypt()
+     * @see self::_setupKey()
      * @access private
      * @return array &$tables
      */

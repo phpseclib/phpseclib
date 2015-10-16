@@ -60,8 +60,8 @@ class RSA
 {
     /**#@+
      * @access public
-     * @see \phpseclib\Crypt\RSA::encrypt()
-     * @see \phpseclib\Crypt\RSA::decrypt()
+     * @see self::encrypt()
+     * @see self::decrypt()
      */
     /**
      * Use {@link http://en.wikipedia.org/wiki/Optimal_Asymmetric_Encryption_Padding Optimal Asymmetric Encryption Padding}
@@ -69,8 +69,8 @@ class RSA
      *
      * Uses sha1 by default.
      *
-     * @see \phpseclib\Crypt\RSA::setHash()
-     * @see \phpseclib\Crypt\RSA::setMGFHash()
+     * @see self::setHash()
+     * @see self::setMGFHash()
      */
     const ENCRYPTION_OAEP = 1;
     /**
@@ -91,17 +91,17 @@ class RSA
 
     /**#@+
      * @access public
-     * @see \phpseclib\Crypt\RSA::sign()
-     * @see \phpseclib\Crypt\RSA::verify()
-     * @see \phpseclib\Crypt\RSA::setHash()
+     * @see self::sign()
+     * @see self::verify()
+     * @see self::setHash()
      */
     /**
      * Use the Probabilistic Signature Scheme for signing
      *
      * Uses sha1 by default.
      *
-     * @see \phpseclib\Crypt\RSA::setSaltLength()
-     * @see \phpseclib\Crypt\RSA::setMGFHash()
+     * @see self::setSaltLength()
+     * @see self::setMGFHash()
      */
     const SIGNATURE_PSS = 1;
     /**
@@ -115,7 +115,7 @@ class RSA
 
     /**#@+
      * @access private
-     * @see \phpseclib\Crypt\RSA::createKey()
+     * @see self::createKey()
      */
     /**
      * ASN1 Integer
@@ -141,7 +141,7 @@ class RSA
 
     /**#@+
      * @access private
-     * @see \phpseclib\Crypt\RSA::__construct()
+     * @see self::__construct()
      */
     /**
      * To use the pure-PHP implementation
@@ -320,7 +320,7 @@ class RSA
      *
      * Set to null to use system configuration file.
      *
-     * @see \phpseclib\Crypt\RSA::createKey()
+     * @see self::createKey()
      * @var mixed
      * @access public
      */
@@ -329,7 +329,7 @@ class RSA
     /**
      * Supported file formats
      *
-     * @see \phpseclib\Crypt\RSA::load()
+     * @see self::load()
      * @var array
      * @access private
      */
@@ -639,7 +639,7 @@ class RSA
      * The plugin needs to either already be loaded or be auto-loadable.
      * Loading a plugin whose shortname overwrite an existing shortname will overwrite the old plugin.
      *
-     * @see \phpseclib\Crypt\RSA::load()
+     * @see self::load()
      * @param string $fullname
      * @access public
      * @return bool
@@ -766,9 +766,10 @@ class RSA
      *
      * The private key is only returned if the currently loaded key contains the constituent prime numbers.
      *
-     * @see getPublicKey()
+     * @see self::getPublicKey()
      * @access public
      * @param string $type optional
+     * @return mixed
      */
     function getPrivateKey($type = 'PKCS1')
     {
@@ -811,8 +812,8 @@ class RSA
      * Private keys can be encrypted with a password.  To unset the password, pass in the empty string or false.
      * Or rather, pass in $password such that empty($password) && !is_string($password) is true.
      *
-     * @see createKey()
-     * @see load()
+     * @see self::createKey()
+     * @see self::load()
      * @access public
      * @param string $password
      */
@@ -836,7 +837,7 @@ class RSA
      *
      * Returns true on success, false on failure
      *
-     * @see getPublicKey()
+     * @see self::getPublicKey()
      * @access public
      * @param string $key optional
      * @param int $type optional
@@ -906,7 +907,7 @@ class RSA
      *
      * Returns true on success, false on failure
      *
-     * @see getPublicKey()
+     * @see self::getPublicKey()
      * @access public
      * @param string $key optional
      * @param int $type optional
@@ -937,9 +938,10 @@ class RSA
      * or if the public key was set via setPublicKey().  If the currently loaded key is supposed to be the public key this
      * function won't return it since this library, for the most part, doesn't distinguish between public and private keys.
      *
-     * @see getPrivateKey()
+     * @see self::getPrivateKey()
      * @access public
      * @param string $type optional
+     * @return mixed
      */
     function getPublicKey($type = 'PKCS8')
     {
@@ -973,6 +975,7 @@ class RSA
      * @access public
      * @param string $algorithm The hashing algorithm to be used. Valid options are 'md5' and 'sha256'. False is returned
      * for invalid values.
+     * @return mixed
      */
     public function getPublicKeyFingerprint($algorithm = 'md5')
     {
@@ -1003,7 +1006,7 @@ class RSA
      * Returns the private key without the prime number constituants.  Structurally identical to a public key that
      * hasn't been set as the public key
      *
-     * @see getPrivateKey()
+     * @see self::getPrivateKey()
      * @access private
      * @param string $type optional
      */
@@ -1034,6 +1037,7 @@ class RSA
      * __toString() magic method
      *
      * @access public
+     * @return string
      */
     function __toString()
     {
@@ -1049,6 +1053,7 @@ class RSA
      * __clone() magic method
      *
      * @access public
+     * @return \phpseclib\Crypt\RSA
      */
     function __clone()
     {
@@ -1144,7 +1149,7 @@ class RSA
     /**
      * Determines the private key format
      *
-     * @see createKey()
+     * @see self::createKey()
      * @access public
      * @param int $format
      */
@@ -1156,7 +1161,7 @@ class RSA
     /**
      * Determines the public key format
      *
-     * @see createKey()
+     * @see self::createKey()
      * @access public
      * @param int $format
      */
@@ -2041,7 +2046,7 @@ class RSA
      * If $plaintext exceeds those limits it will be broken up so that it does and the resultant ciphertext's will
      * be concatenated together.
      *
-     * @see decrypt()
+     * @see self::decrypt()
      * @access public
      * @param string $plaintext
      * @return string
@@ -2087,7 +2092,7 @@ class RSA
     /**
      * Decryption
      *
-     * @see encrypt()
+     * @see self::encrypt()
      * @access public
      * @param string $plaintext
      * @return string
@@ -2129,7 +2134,7 @@ class RSA
     /**
      * Create a signature
      *
-     * @see verify()
+     * @see self::verify()
      * @access public
      * @param string $message
      * @return string
@@ -2152,7 +2157,7 @@ class RSA
     /**
      * Verifies a signature
      *
-     * @see sign()
+     * @see self::sign()
      * @access public
      * @param string $message
      * @param string $signature

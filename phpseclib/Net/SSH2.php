@@ -177,8 +177,8 @@ class SSH2
     /**
      * Error information
      *
-     * @see \phpseclib\Net\SSH2::getErrors()
-     * @see \phpseclib\Net\SSH2::getLastError()
+     * @see self::getErrors()
+     * @see self::getLastError()
      * @var string
      * @access private
      */
@@ -187,7 +187,7 @@ class SSH2
     /**
      * Server Identifier
      *
-     * @see \phpseclib\Net\SSH2::getServerIdentification()
+     * @see self::getServerIdentification()
      * @var array|false
      * @access private
      */
@@ -196,7 +196,7 @@ class SSH2
     /**
      * Key Exchange Algorithms
      *
-     * @see \phpseclib\Net\SSH2::getKexAlgorithims()
+     * @see self::getKexAlgorithims()
      * @var array|false
      * @access private
      */
@@ -205,7 +205,7 @@ class SSH2
     /**
      * Minimum Diffie-Hellman Group Bit Size in RFC 4419 Key Exchange Methods
      *
-     * @see Net_SSH2::_key_exchange()
+     * @see self::_key_exchange()
      * @var int
      * @access private
      */
@@ -214,7 +214,7 @@ class SSH2
     /**
      * Preferred Diffie-Hellman Group Bit Size in RFC 4419 Key Exchange Methods
      *
-     * @see Net_SSH2::_key_exchange()
+     * @see self::_key_exchange()
      * @var int
      * @access private
      */
@@ -223,7 +223,7 @@ class SSH2
     /**
      * Maximum Diffie-Hellman Group Bit Size in RFC 4419 Key Exchange Methods
      *
-     * @see Net_SSH2::_key_exchange()
+     * @see self::_key_exchange()
      * @var int
      * @access private
      */
@@ -232,7 +232,7 @@ class SSH2
     /**
      * Server Host Key Algorithms
      *
-     * @see \phpseclib\Net\SSH2::getServerHostKeyAlgorithms()
+     * @see self::getServerHostKeyAlgorithms()
      * @var array|false
      * @access private
      */
@@ -241,7 +241,7 @@ class SSH2
     /**
      * Encryption Algorithms: Client to Server
      *
-     * @see \phpseclib\Net\SSH2::getEncryptionAlgorithmsClient2Server()
+     * @see self::getEncryptionAlgorithmsClient2Server()
      * @var array|false
      * @access private
      */
@@ -250,7 +250,7 @@ class SSH2
     /**
      * Encryption Algorithms: Server to Client
      *
-     * @see \phpseclib\Net\SSH2::getEncryptionAlgorithmsServer2Client()
+     * @see self::getEncryptionAlgorithmsServer2Client()
      * @var array|false
      * @access private
      */
@@ -259,7 +259,7 @@ class SSH2
     /**
      * MAC Algorithms: Client to Server
      *
-     * @see \phpseclib\Net\SSH2::getMACAlgorithmsClient2Server()
+     * @see self::getMACAlgorithmsClient2Server()
      * @var array|false
      * @access private
      */
@@ -268,7 +268,7 @@ class SSH2
     /**
      * MAC Algorithms: Server to Client
      *
-     * @see \phpseclib\Net\SSH2::getMACAlgorithmsServer2Client()
+     * @see self::getMACAlgorithmsServer2Client()
      * @var array|false
      * @access private
      */
@@ -277,7 +277,7 @@ class SSH2
     /**
      * Compression Algorithms: Client to Server
      *
-     * @see \phpseclib\Net\SSH2::getCompressionAlgorithmsClient2Server()
+     * @see self::getCompressionAlgorithmsClient2Server()
      * @var array|false
      * @access private
      */
@@ -286,7 +286,7 @@ class SSH2
     /**
      * Compression Algorithms: Server to Client
      *
-     * @see \phpseclib\Net\SSH2::getCompressionAlgorithmsServer2Client()
+     * @see self::getCompressionAlgorithmsServer2Client()
      * @var array|false
      * @access private
      */
@@ -295,7 +295,7 @@ class SSH2
     /**
      * Languages: Server to Client
      *
-     * @see \phpseclib\Net\SSH2::getLanguagesServer2Client()
+     * @see self::getLanguagesServer2Client()
      * @var array|false
      * @access private
      */
@@ -304,7 +304,7 @@ class SSH2
     /**
      * Languages: Client to Server
      *
-     * @see \phpseclib\Net\SSH2::getLanguagesClient2Server()
+     * @see self::getLanguagesClient2Server()
      * @var array|false
      * @access private
      */
@@ -320,8 +320,8 @@ class SSH2
      *
      *  -- http://tools.ietf.org/html/rfc4253#section-6
      *
-     * @see \phpseclib\Net\SSH2::__construct()
-     * @see \phpseclib\Net\SSH2::_send_binary_packet()
+     * @see self::__construct()
+     * @see self::_send_binary_packet()
      * @var int
      * @access private
      */
@@ -330,8 +330,8 @@ class SSH2
     /**
      * Block Size for Client to Server Encryption
      *
-     * @see \phpseclib\Net\SSH2::__construct()
-     * @see \phpseclib\Net\SSH2::_get_binary_packet()
+     * @see self::__construct()
+     * @see self::_get_binary_packet()
      * @var int
      * @access private
      */
@@ -340,7 +340,7 @@ class SSH2
     /**
      * Server to Client Encryption Object
      *
-     * @see \phpseclib\Net\SSH2::_get_binary_packet()
+     * @see self::_get_binary_packet()
      * @var object
      * @access private
      */
@@ -349,7 +349,7 @@ class SSH2
     /**
      * Client to Server Encryption Object
      *
-     * @see \phpseclib\Net\SSH2::_send_binary_packet()
+     * @see self::_send_binary_packet()
      * @var object
      * @access private
      */
@@ -358,7 +358,7 @@ class SSH2
     /**
      * Client to Server HMAC Object
      *
-     * @see \phpseclib\Net\SSH2::_send_binary_packet()
+     * @see self::_send_binary_packet()
      * @var object
      * @access private
      */
@@ -367,7 +367,7 @@ class SSH2
     /**
      * Server to Client HMAC Object
      *
-     * @see \phpseclib\Net\SSH2::_get_binary_packet()
+     * @see self::_get_binary_packet()
      * @var object
      * @access private
      */
@@ -380,7 +380,7 @@ class SSH2
      * For the client to server side, the HMAC object will make the HMAC as long as it needs to be.  All we need to do is
      * append it.
      *
-     * @see \phpseclib\Net\SSH2::_get_binary_packet()
+     * @see self::_get_binary_packet()
      * @var int
      * @access private
      */
@@ -389,7 +389,7 @@ class SSH2
     /**
      * Server Public Host Key
      *
-     * @see \phpseclib\Net\SSH2::getServerPublicHostKey()
+     * @see self::getServerPublicHostKey()
      * @var string
      * @access private
      */
@@ -404,7 +404,7 @@ class SSH2
      *
      *  -- http://tools.ietf.org/html/rfc4253#section-7.2
      *
-     * @see \phpseclib\Net\SSH2::_key_exchange()
+     * @see self::_key_exchange()
      * @var string
      * @access private
      */
@@ -415,7 +415,7 @@ class SSH2
      *
      * The current exchange hash
      *
-     * @see \phpseclib\Net\SSH2::_key_exchange()
+     * @see self::_key_exchange()
      * @var string
      * @access private
      */
@@ -424,7 +424,7 @@ class SSH2
     /**
      * Message Numbers
      *
-     * @see \phpseclib\Net\SSH2::__construct()
+     * @see self::__construct()
      * @var array
      * @access private
      */
@@ -433,7 +433,7 @@ class SSH2
     /**
      * Disconnection Message 'reason codes' defined in RFC4253
      *
-     * @see \phpseclib\Net\SSH2::__construct()
+     * @see self::__construct()
      * @var array
      * @access private
      */
@@ -442,7 +442,7 @@ class SSH2
     /**
      * SSH_MSG_CHANNEL_OPEN_FAILURE 'reason codes', defined in RFC4254
      *
-     * @see \phpseclib\Net\SSH2::__construct()
+     * @see self::__construct()
      * @var array
      * @access private
      */
@@ -452,7 +452,7 @@ class SSH2
      * Terminal Modes
      *
      * @link http://tools.ietf.org/html/rfc4254#section-8
-     * @see \phpseclib\Net\SSH2::__construct()
+     * @see self::__construct()
      * @var array
      * @access private
      */
@@ -462,7 +462,7 @@ class SSH2
      * SSH_MSG_CHANNEL_EXTENDED_DATA's data_type_codes
      *
      * @link http://tools.ietf.org/html/rfc4254#section-5.2
-     * @see \phpseclib\Net\SSH2::__construct()
+     * @see self::__construct()
      * @var array
      * @access private
      */
@@ -473,7 +473,7 @@ class SSH2
      *
      * See 'Section 6.4.  Data Integrity' of rfc4253 for more info.
      *
-     * @see \phpseclib\Net\SSH2::_send_binary_packet()
+     * @see self::_send_binary_packet()
      * @var int
      * @access private
      */
@@ -484,7 +484,7 @@ class SSH2
      *
      * See 'Section 6.4.  Data Integrity' of rfc4253 for more info.
      *
-     * @see \phpseclib\Net\SSH2::_get_binary_packet()
+     * @see self::_get_binary_packet()
      * @var int
      * @access private
      */
@@ -495,8 +495,8 @@ class SSH2
      *
      * Maps client channels to server channels
      *
-     * @see \phpseclib\Net\SSH2::_get_channel_packet()
-     * @see \phpseclib\Net\SSH2::exec()
+     * @see self::_get_channel_packet()
+     * @see self::exec()
      * @var array
      * @access private
      */
@@ -508,8 +508,8 @@ class SSH2
      * If a client requests a packet from one channel but receives two packets from another those packets should
      * be placed in a buffer
      *
-     * @see \phpseclib\Net\SSH2::_get_channel_packet()
-     * @see \phpseclib\Net\SSH2::exec()
+     * @see self::_get_channel_packet()
+     * @see self::exec()
      * @var array
      * @access private
      */
@@ -520,7 +520,7 @@ class SSH2
      *
      * Contains the type of the last sent message
      *
-     * @see \phpseclib\Net\SSH2::_get_channel_packet()
+     * @see self::_get_channel_packet()
      * @var array
      * @access private
      */
@@ -531,7 +531,7 @@ class SSH2
      *
      * Maximum packet size indexed by channel
      *
-     * @see \phpseclib\Net\SSH2::_send_channel_packet()
+     * @see self::_send_channel_packet()
      * @var array
      * @access private
      */
@@ -540,7 +540,7 @@ class SSH2
     /**
      * Message Number Log
      *
-     * @see \phpseclib\Net\SSH2::getLog()
+     * @see self::getLog()
      * @var array
      * @access private
      */
@@ -549,7 +549,7 @@ class SSH2
     /**
      * Message Log
      *
-     * @see \phpseclib\Net\SSH2::getLog()
+     * @see self::getLog()
      * @var array
      * @access private
      */
@@ -561,8 +561,8 @@ class SSH2
      * Bytes the other party can send before it must wait for the window to be adjusted (0x7FFFFFFF = 2GB)
      *
      * @var int
-     * @see \phpseclib\Net\SSH2::_send_channel_packet()
-     * @see \phpseclib\Net\SSH2::exec()
+     * @see self::_send_channel_packet()
+     * @see self::exec()
      * @access private
      */
     var $window_size = 0x7FFFFFFF;
@@ -572,7 +572,7 @@ class SSH2
      *
      * Window size indexed by channel
      *
-     * @see \phpseclib\Net\SSH2::_send_channel_packet()
+     * @see self::_send_channel_packet()
      * @var array
      * @access private
      */
@@ -583,7 +583,7 @@ class SSH2
      *
      * Window size indexed by channel
      *
-     * @see \phpseclib\Net\SSH2::_get_channel_packet()
+     * @see self::_get_channel_packet()
      * @var array
      * @access private
      */
@@ -594,7 +594,7 @@ class SSH2
      *
      * Verified against $this->session_id
      *
-     * @see \phpseclib\Net\SSH2::getServerPublicHostKey()
+     * @see self::getServerPublicHostKey()
      * @var string
      * @access private
      */
@@ -605,7 +605,7 @@ class SSH2
      *
      * ssh-rsa or ssh-dss.
      *
-     * @see \phpseclib\Net\SSH2::getServerPublicHostKey()
+     * @see self::getServerPublicHostKey()
      * @var string
      * @access private
      */
@@ -614,7 +614,7 @@ class SSH2
     /**
      * Interactive Buffer
      *
-     * @see \phpseclib\Net\SSH2::read()
+     * @see self::read()
      * @var array
      * @access private
      */
@@ -625,8 +625,8 @@ class SSH2
      *
      * Should never exceed self::LOG_MAX_SIZE
      *
-     * @see \phpseclib\Net\SSH2::_send_binary_packet()
-     * @see \phpseclib\Net\SSH2::_get_binary_packet()
+     * @see self::_send_binary_packet()
+     * @see self::_get_binary_packet()
      * @var int
      * @access private
      */
@@ -635,7 +635,7 @@ class SSH2
     /**
      * Timeout
      *
-     * @see \phpseclib\Net\SSH2::setTimeout()
+     * @see self::setTimeout()
      * @access private
      */
     var $timeout;
@@ -643,7 +643,7 @@ class SSH2
     /**
      * Current Timeout
      *
-     * @see \phpseclib\Net\SSH2::_get_channel_packet()
+     * @see self::_get_channel_packet()
      * @access private
      */
     var $curTimeout;
@@ -651,7 +651,7 @@ class SSH2
     /**
      * Real-time log file pointer
      *
-     * @see \phpseclib\Net\SSH2::_append_log()
+     * @see self::_append_log()
      * @var resource
      * @access private
      */
@@ -660,7 +660,7 @@ class SSH2
     /**
      * Real-time log file size
      *
-     * @see \phpseclib\Net\SSH2::_append_log()
+     * @see self::_append_log()
      * @var int
      * @access private
      */
@@ -669,7 +669,7 @@ class SSH2
     /**
      * Has the signature been validated?
      *
-     * @see \phpseclib\Net\SSH2::getServerPublicHostKey()
+     * @see self::getServerPublicHostKey()
      * @var bool
      * @access private
      */
@@ -678,7 +678,7 @@ class SSH2
     /**
      * Real-time log file wrap boolean
      *
-     * @see \phpseclib\Net\SSH2::_append_log()
+     * @see self::_append_log()
      * @access private
      */
     var $realtime_log_wrap;
@@ -686,7 +686,7 @@ class SSH2
     /**
      * Flag to suppress stderr from output
      *
-     * @see \phpseclib\Net\SSH2::enableQuietMode()
+     * @see self::enableQuietMode()
      * @access private
      */
     var $quiet_mode = false;
@@ -711,7 +711,7 @@ class SSH2
      * Flag to request a PTY when using exec()
      *
      * @var bool
-     * @see \phpseclib\Net\SSH2::enablePTY()
+     * @see self::enablePTY()
      * @access private
      */
     var $request_pty = false;
@@ -743,7 +743,7 @@ class SSH2
     /**
      * The Last Interactive Response
      *
-     * @see \phpseclib\Net\SSH2::_keyboard_interactive_process()
+     * @see self::_keyboard_interactive_process()
      * @var string
      * @access private
      */
@@ -752,7 +752,7 @@ class SSH2
     /**
      * Keyboard Interactive Request / Responses
      *
-     * @see \phpseclib\Net\SSH2::_keyboard_interactive_process()
+     * @see self::_keyboard_interactive_process()
      * @var array
      * @access private
      */
@@ -764,8 +764,8 @@ class SSH2
      * Quoting from the RFC, "in some jurisdictions, sending a warning message before
      * authentication may be relevant for getting legal protection."
      *
-     * @see \phpseclib\Net\SSH2::_filter()
-     * @see \phpseclib\Net\SSH2::getBannerMessage()
+     * @see self::_filter()
+     * @see self::getBannerMessage()
      * @var string
      * @access private
      */
@@ -774,7 +774,7 @@ class SSH2
     /**
      * Did read() timeout or return normally?
      *
-     * @see \phpseclib\Net\SSH2::isTimeout()
+     * @see self::isTimeout()
      * @var bool
      * @access private
      */
@@ -783,7 +783,7 @@ class SSH2
     /**
      * Log Boundary
      *
-     * @see \phpseclib\Net\SSH2::_format_log()
+     * @see self::_format_log()
      * @var string
      * @access private
      */
@@ -792,7 +792,7 @@ class SSH2
     /**
      * Log Long Width
      *
-     * @see \phpseclib\Net\SSH2::_format_log()
+     * @see self::_format_log()
      * @var int
      * @access private
      */
@@ -801,7 +801,7 @@ class SSH2
     /**
      * Log Short Width
      *
-     * @see \phpseclib\Net\SSH2::_format_log()
+     * @see self::_format_log()
      * @var int
      * @access private
      */
@@ -810,8 +810,8 @@ class SSH2
     /**
      * Hostname
      *
-     * @see \phpseclib\Net\SSH2::__construct()
-     * @see \phpseclib\Net\SSH2::_connect()
+     * @see self::__construct()
+     * @see self::_connect()
      * @var string
      * @access private
      */
@@ -820,8 +820,8 @@ class SSH2
     /**
      * Port Number
      *
-     * @see \phpseclib\Net\SSH2::__construct()
-     * @see \phpseclib\Net\SSH2::_connect()
+     * @see self::__construct()
+     * @see self::_connect()
      * @var int
      * @access private
      */
@@ -830,9 +830,9 @@ class SSH2
     /**
      * Number of columns for terminal window size
      *
-     * @see \phpseclib\Net\SSH2::getWindowColumns()
-     * @see \phpseclib\Net\SSH2::setWindowColumns()
-     * @see \phpseclib\Net\SSH2::setWindowSize()
+     * @see self::getWindowColumns()
+     * @see self::setWindowColumns()
+     * @see self::setWindowSize()
      * @var int
      * @access private
      */
@@ -841,9 +841,9 @@ class SSH2
     /**
      * Number of columns for terminal window size
      *
-     * @see \phpseclib\Net\SSH2::getWindowRows()
-     * @see \phpseclib\Net\SSH2::setWindowRows()
-     * @see \phpseclib\Net\SSH2::setWindowSize()
+     * @see self::getWindowRows()
+     * @see self::setWindowRows()
+     * @see self::setWindowSize()
      * @var int
      * @access private
      */
@@ -852,8 +852,8 @@ class SSH2
     /**
      * Crypto Engine
      *
-     * @see Net_SSH2::setCryptoEngine()
-     * @see Net_SSH2::_key_exchange()
+     * @see self::setCryptoEngine()
+     * @see self::_key_exchange()
      * @var int
      * @access private
      */
@@ -883,7 +883,7 @@ class SSH2
      * @param mixed $host
      * @param int $port
      * @param int $timeout
-     * @see \phpseclib\Net\SSH2::login()
+     * @see self::login()
      * @return \phpseclib\Net\SSH2
      * @access public
      */
@@ -1852,7 +1852,7 @@ class SSH2
      * @param mixed $password
      * @param mixed $...
      * @return bool
-     * @see _login
+     * @see self::_login()
      * @access public
      */
     function login($username)
@@ -1868,7 +1868,7 @@ class SSH2
      * @param mixed $password
      * @param mixed $...
      * @return bool
-     * @see _login_helper
+     * @see self::_login_helper()
      * @access private
      */
     function _login($username)
@@ -2511,8 +2511,8 @@ class SSH2
     /**
      * Creates an interactive shell
      *
-     * @see \phpseclib\Net\SSH2::read()
-     * @see \phpseclib\Net\SSH2::write()
+     * @see self::read()
+     * @see self::write()
      * @return bool
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @throws \RuntimeException on other errors
@@ -2616,8 +2616,8 @@ class SSH2
     /**
      * Return the channel to be used with read() / write()
      *
-     * @see \phpseclib\Net\SSH2::read()
-     * @see \phpseclib\Net\SSH2::write()
+     * @see self::read()
+     * @see self::write()
      * @return int
      * @access public
      */
@@ -2657,7 +2657,7 @@ class SSH2
      * Returns when there's a match for $expect, which can take the form of a string literal or,
      * if $mode == self::READ_REGEX, a regular expression.
      *
-     * @see \phpseclib\Net\SSH2::write()
+     * @see self::write()
      * @param string $expect
      * @param int $mode
      * @return string
@@ -2702,7 +2702,7 @@ class SSH2
     /**
      * Inputs a command into an interactive shell.
      *
-     * @see \phpseclib\Net\SSH2::read()
+     * @see self::read()
      * @param string $cmd
      * @return bool
      * @throws \RuntimeException on connection error
@@ -2730,7 +2730,7 @@ class SSH2
      * returns that and then that that was passed into stopSubsystem() but that'll be saved for a future date and implemented
      * if there's sufficient demand for such a feature.
      *
-     * @see \phpseclib\Net\SSH2::stopSubsystem()
+     * @see self::stopSubsystem()
      * @param string $subsystem
      * @return bool
      * @access public
@@ -2793,7 +2793,7 @@ class SSH2
     /**
      * Stops a subsystem.
      *
-     * @see \phpseclib\Net\SSH2::startSubsystem()
+     * @see self::startSubsystem()
      * @return bool
      * @access public
      */
@@ -2871,7 +2871,7 @@ class SSH2
      *
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
-     * @see \phpseclib\Net\SSH2::_send_binary_packet()
+     * @see self::_send_binary_packet()
      * @return string
      * @throws \RuntimeException on connection errors
      * @access private
@@ -2959,7 +2959,7 @@ class SSH2
      *
      * Because some binary packets need to be ignored...
      *
-     * @see \phpseclib\Net\SSH2::_get_binary_packet()
+     * @see self::_get_binary_packet()
      * @return string
      * @access private
      */
@@ -3108,9 +3108,8 @@ class SSH2
     /**
      * Returns whether Quiet Mode is enabled or not
      *
-     * @see \phpseclib\Net\SSH2::enableQuietMode()
-     * @see \phpseclib\Net\SSH2::disableQuietMode()
-     *
+     * @see self::enableQuietMode()
+     * @see self::disableQuietMode()
      * @access public
      * @return bool
      */
@@ -3142,9 +3141,8 @@ class SSH2
     /**
      * Returns whether request-pty is enabled or not
      *
-     * @see \phpseclib\Net\SSH2::enablePTY()
-     * @see \phpseclib\Net\SSH2::disablePTY()
-     *
+     * @see self::enablePTY()
+     * @see self::disablePTY()
      * @access public
      * @return bool
      */
@@ -3376,7 +3374,7 @@ class SSH2
      *
      * @param string $data
      * @param string $logged
-     * @see \phpseclib\Net\SSH2::_get_binary_packet()
+     * @see self::_get_binary_packet()
      * @return bool
      * @access private
      */

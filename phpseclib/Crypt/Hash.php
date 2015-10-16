@@ -5,9 +5,8 @@
  * such as sha256-96.  Any hash algorithm returned by hash_algos() (and
  * truncated versions thereof) are supported.
  *
- * If {@link \phpseclib\Crypt\Hash::setKey() setKey()} is called,
- * {@link \phpseclib\Crypt\Hash::hash() hash()} will return the HMAC as opposed
- * to the hash.
+ * If {@link self::setKey() setKey()} is called, {@link self::hash() hash()} will
+ * return the HMAC as opposed to the hash.
  *
  * Here's a short example of how to use this library:
  * <code>
@@ -47,7 +46,7 @@ class Hash
     /**
      * Hash Parameter
      *
-     * @see \phpseclib\Crypt\Hash::setHash()
+     * @see self::setHash()
      * @var int
      * @access private
      */
@@ -56,7 +55,7 @@ class Hash
     /**
      * Byte-length of hash output (Internal HMAC)
      *
-     * @see \phpseclib\Crypt\Hash::setHash()
+     * @see self::setHash()
      * @var int
      * @access private
      */
@@ -65,7 +64,7 @@ class Hash
     /**
      * Hash Algorithm
      *
-     * @see \phpseclib\Crypt\Hash::setHash()
+     * @see self::setHash()
      * @var string
      * @access private
      */
@@ -74,7 +73,7 @@ class Hash
     /**
      * Key
      *
-     * @see \phpseclib\Crypt\Hash::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */

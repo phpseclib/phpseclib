@@ -76,13 +76,13 @@ class RC4 extends Base
     var $block_size = 0;
 
     /**
-     * Key Length
+     * Key Length (in bytes)
      *
      * @see \phpseclib\Crypt\RC4::setKeyLength()
      * @var int
      * @access private
      */
-    var $key_size = 128; // = 1024 bits
+    var $key_length = 128; // = 1024 bits
 
     /**
      * The mcrypt specific name of the cipher
@@ -105,7 +105,7 @@ class RC4 extends Base
     /**
      * The Key
      *
-     * @see \phpseclib\Crypt\RC4::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
@@ -114,7 +114,7 @@ class RC4 extends Base
     /**
      * The Key Stream for decryption and encryption
      *
-     * @see \phpseclib\Crypt\RC4::setKey()
+     * @see self::setKey()
      * @var array
      * @access private
      */
@@ -182,7 +182,7 @@ class RC4 extends Base
      * {@link http://en.wikipedia.org/wiki/Related_key_attack http://en.wikipedia.org/wiki/Related_key_attack}
      *
      * @param string $iv
-     * @see \phpseclib\Crypt\RC4::setKey()
+     * @see self::setKey()
      * @access public
      */
     function setIV($iv)
@@ -200,11 +200,11 @@ class RC4 extends Base
     function setKeyLength($length)
     {
         if ($length < 8) {
-            $this->key_size = 1;
+            $this->key_length = 1;
         } elseif ($length > 2048) {
-            $this->key_size = 248;
+            $this->key_length = 248;
         } else {
-            $this->key_size = $length >> 3;
+            $this->key_length = $length >> 3;
         }
 
         parent::setKeyLength($length);
@@ -214,7 +214,7 @@ class RC4 extends Base
      * Encrypts a message.
      *
      * @see \phpseclib\Crypt\Base::decrypt()
-     * @see \phpseclib\Crypt\RC4::_crypt()
+     * @see self::_crypt()
      * @access public
      * @param string $plaintext
      * @return string $ciphertext
@@ -234,7 +234,7 @@ class RC4 extends Base
      * At least if the continuous buffer is disabled.
      *
      * @see \phpseclib\Crypt\Base::encrypt()
-     * @see \phpseclib\Crypt\RC4::_crypt()
+     * @see self::_crypt()
      * @access public
      * @param string $ciphertext
      * @return string $plaintext
@@ -299,8 +299,8 @@ class RC4 extends Base
     /**
      * Encrypts or decrypts a message.
      *
-     * @see \phpseclib\Crypt\RC4::encrypt()
-     * @see \phpseclib\Crypt\RC4::decrypt()
+     * @see self::encrypt()
+     * @see self::decrypt()
      * @access private
      * @param string $text
      * @param int $mode

@@ -78,13 +78,13 @@ class DES extends Base
     var $block_size = 8;
 
     /**
-     * Key Length
+     * Key Length (in bytes)
      *
      * @see \phpseclib\Crypt\Base::setKeyLength()
      * @var int
      * @access private
      */
-    var $key_size = 8;
+    var $key_length = 8;
 
     /**
      * The mcrypt specific name of the cipher
@@ -124,8 +124,8 @@ class DES extends Base
      *
      * Used only if $engine == self::ENGINE_INTERNAL
      *
-     * @see \phpseclib\Crypt\DES::_setupKey()
-     * @see \phpseclib\Crypt\DES::_processBlock()
+     * @see self::_setupKey()
+     * @see self::_processBlock()
      * @var int
      * @access private
      */
@@ -134,16 +134,16 @@ class DES extends Base
     /**
      * max possible size of $key
      *
-     * @see \phpseclib\Crypt\DES::setKey()
+     * @see self::setKey()
      * @var string
      * @access private
      */
-    var $key_size_max = 8;
+    var $key_length_max = 8;
 
     /**
      * The Key Schedule
      *
-     * @see \phpseclib\Crypt\DES::_setupKey()
+     * @see self::_setupKey()
      * @var array
      * @access private
      */
@@ -156,8 +156,8 @@ class DES extends Base
      * with each byte containing all bits in the same state as the
      * corresponding bit in the index value.
      *
-     * @see \phpseclib\Crypt\DES::_processBlock()
-     * @see \phpseclib\Crypt\DES::_setupKey()
+     * @see self::_processBlock()
+     * @see self::_setupKey()
      * @var array
      * @access private
      */
@@ -592,7 +592,7 @@ class DES extends Base
      */
     function isValidEngine($engine)
     {
-        if ($this->key_size_max == 8) {
+        if ($this->key_length_max == 8) {
             if ($engine == self::ENGINE_OPENSSL) {
                 $this->cipher_name_openssl_ecb = 'des-ecb';
                 $this->cipher_name_openssl = 'des-' . $this->_openssl_translate_mode();
@@ -621,8 +621,8 @@ class DES extends Base
     {
         // We check/cut here only up to max length of the key.
         // Key padding to the proper length will be done in _setupKey()
-        if (strlen($key) > $this->key_size_max) {
-            $key = substr($key, 0, $this->key_size_max);
+        if (strlen($key) > $this->key_length_max) {
+            $key = substr($key, 0, $this->key_length_max);
         }
 
         // Sets the key
@@ -634,7 +634,7 @@ class DES extends Base
      *
      * @see \phpseclib\Crypt\Base::_encryptBlock()
      * @see \phpseclib\Crypt\Base::encrypt()
-     * @see \phpseclib\Crypt\DES::encrypt()
+     * @see self::encrypt()
      * @access private
      * @param string $in
      * @return string
@@ -649,7 +649,7 @@ class DES extends Base
      *
      * @see \phpseclib\Crypt\Base::_decryptBlock()
      * @see \phpseclib\Crypt\Base::decrypt()
-     * @see \phpseclib\Crypt\DES::decrypt()
+     * @see self::decrypt()
      * @access private
      * @param string $in
      * @return string
@@ -666,8 +666,8 @@ class DES extends Base
      * {@link http://en.wikipedia.org/wiki/Image:Feistel.png Feistel.png} to get a general
      * idea of what this function does.
      *
-     * @see \phpseclib\Crypt\DES::_encryptBlock()
-     * @see \phpseclib\Crypt\DES::_decryptBlock()
+     * @see self::_encryptBlock()
+     * @see self::_decryptBlock()
      * @access private
      * @param string $block
      * @param int $mode
@@ -1299,8 +1299,8 @@ class DES extends Base
         $des_rounds = $this->des_rounds;
 
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
-        // (Currently, for Crypt_DES,       one generated $lambda_function cost on php5.5@32bit ~135kb unfreeable mem and ~230kb on php5.5@64bit)
-        // (Currently, for Crypt_TripleDES, one generated $lambda_function cost on php5.5@32bit ~240kb unfreeable mem and ~340kb on php5.5@64bit)
+        // (Currently, for DES, one generated $lambda_function cost on php5.5@32bit ~135kb unfreeable mem and ~230kb on php5.5@64bit)
+        // (Currently, for TripleDES, one generated $lambda_function cost on php5.5@32bit ~240kb unfreeable mem and ~340kb on php5.5@64bit)
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one
         $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
