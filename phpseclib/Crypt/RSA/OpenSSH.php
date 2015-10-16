@@ -56,6 +56,10 @@ class OpenSSH
      */
     static function load($key, $password = '')
     {
+        if (!is_string($key)) {
+            return false;
+        }
+
         $parts = explode(' ', $key, 3);
 
         $key = isset($parts[1]) ? base64_decode($parts[1]) : false;

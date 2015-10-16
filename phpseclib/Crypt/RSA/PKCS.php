@@ -134,6 +134,10 @@ abstract class PKCS
      */
     static function load($key, $password = '')
     {
+        if (!is_string($key)) {
+            return false;
+        }
+
         $components = array('isPublicKey' => strpos($key, 'PUBLIC') !== false);
 
         /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is

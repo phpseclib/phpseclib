@@ -76,6 +76,10 @@ class PuTTY
      */
     static function load($key, $password = '')
     {
+        if (!is_string($key)) {
+            return false;
+        }
+
         static $one;
         if (!isset($one)) {
             $one = new BigInteger(1);
@@ -88,7 +92,7 @@ class PuTTY
             return false;
         }
         $encryption = trim(preg_replace('#Encryption: (.+)#', '$1', $key[1]));
-        $comment = trim(preg_replace('#Comment: (.+)#', '$1', $key[2]));
+        $components['comment'] = trim(preg_replace('#Comment: (.+)#', '$1', $key[2]));
 
         $publicLength = trim(preg_replace('#Public-Lines: (\d+)#', '$1', $key[3]));
         $public = base64_decode(implode('', array_map('trim', array_slice($key, 4, $publicLength))));

@@ -1009,6 +1009,7 @@ class RSA
      * @see self::getPrivateKey()
      * @access private
      * @param string $type optional
+     * @return mixed
      */
     function _getPrivatePublicKey($type = 'PKCS8')
     {

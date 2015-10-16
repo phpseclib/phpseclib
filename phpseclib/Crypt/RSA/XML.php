@@ -40,6 +40,10 @@ class XML
      */
     static function load($key, $password = '')
     {
+        if (!is_string($key)) {
+            return false;
+        }
+
         $components = array(
             'isPublicKey' => false,
             'primes' => array(),

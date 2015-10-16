@@ -7,6 +7,7 @@
 
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\RSA\PKCS1;
+use phpseclib\Crypt\RSA\PuTTY;
 use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
@@ -368,8 +369,8 @@ Private-MAC: 03e2cb74e1d67652fbad063d2ed0478f31bdf256
         $rsa = new RSA();
 
         $key = array(
-            'e' => BigInteger('10001', 16),
-            'n' => BigInteger('aa18aba43b50deef38598faf87d2ab634e4571c130a9bca7b878267414faab8b471bd8965f5c9fc3' .
+            'e' => new BigInteger('10001', 16),
+            'n' => new BigInteger('aa18aba43b50deef38598faf87d2ab634e4571c130a9bca7b878267414faab8b471bd8965f5c9fc3' .
                               '818485eaf529c26246f3055064a8de19c8c338be5496cbaeb059dc0b358143b44a35449eb2641131' .
                               '21a455bd7fde3fac919e94b56fb9bb4f651cdb23ead439d6cd523eb08191e75b35fd13a7419b3090' .
                               'f24787bd4f4e1967', 16)
