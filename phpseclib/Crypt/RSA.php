@@ -1031,22 +1031,22 @@ class RSA
 
 
     /**
-     *  __toString() magic method
+     * __toString() magic method
      *
      * @access public
      */
     function __toString()
     {
         $key = $this->getPrivateKey($this->privateKeyFormat);
-        if ($key !== false) {
+        if (is_string($key)) {
             return $key;
         }
         $key = $this->_getPrivatePublicKey($this->publicKeyFormat);
-        return $key !== false ? $key : '';
+        return is_string($key) ? $key : '';
     }
 
     /**
-     *  __clone() magic method
+     * __clone() magic method
      *
      * @access public
      */

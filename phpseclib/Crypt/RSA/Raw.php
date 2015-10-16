@@ -48,32 +48,42 @@ class Raw
         if (!is_array($key)) {
             return false;
         }
+        if (isset($key['isPublicKey']) && isset($key['modulus'])) {
+            if (isset($key['privateExponent']) || isset($key['publicExponent'])) {
+                if (!isset($key['primes'])) {
+                    return $key;
+                }
+                if (isset($key['exponents']) && isset($key['coefficients']) && isset($key['publicExponent']) && isset($key['privateExponent'])) {
+                    return $key;
+                }
+            }
+        }
         $components = array('isPublicKey' => true);
         switch (true) {
             case isset($key['e']):
-                $components['publicExponent'] = $key['e']->copy();
+                $components['publicExponent'] = $key['e'];
                 break;
             case isset($key['exponent']):
-                $components['publicExponent'] = $key['exponent']->copy();
+                $components['publicExponent'] = $key['exponent'];
                 break;
             case isset($key['publicExponent']):
-                $components['publicExponent'] = $key['publicExponent']->copy();
+                $components['publicExponent'] = $key['publicExponent'];
                 break;
             case isset($key[0]):
-                $components['publicExponent'] = $key[0]->copy();
+                $components['publicExponent'] = $key[0];
         }
         switch (true) {
             case isset($key['n']):
-                $components['modulus'] = $key['n']->copy();
+                $components['modulus'] = $key['n'];
                 break;
             case isset($key['modulo']):
-                $components['modulus'] = $key['modulo']->copy();
+                $components['modulus'] = $key['modulo'];
                 break;
             case isset($key['modulus']):
-                $components['modulus'] = $key['modulus']->copy();
+                $components['modulus'] = $key['modulus'];
                 break;
             case isset($key[1]):
-                $components['modulus'] = $key[1]->copy();
+                $components['modulus'] = $key[1];
         }
         return isset($components['modulus']) && isset($components['publicExponent']) ? $components : false;
     }

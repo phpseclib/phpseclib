@@ -7,6 +7,7 @@
 
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\RSA\PKCS1;
+use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 {
@@ -360,5 +361,50 @@ Private-MAC: 03e2cb74e1d67652fbad063d2ed0478f31bdf256
         $key2 = (string) $rsa;
 
         $this->assertSame($key, $key2);
+    }
+
+    public function testRawKey()
+    {
+        $rsa = new RSA();
+
+        $key = array(
+            'e' => BigInteger('10001', 16),
+            'n' => BigInteger('aa18aba43b50deef38598faf87d2ab634e4571c130a9bca7b878267414faab8b471bd8965f5c9fc3' .
+                              '818485eaf529c26246f3055064a8de19c8c338be5496cbaeb059dc0b358143b44a35449eb2641131' .
+                              '21a455bd7fde3fac919e94b56fb9bb4f651cdb23ead439d6cd523eb08191e75b35fd13a7419b3090' .
+                              'f24787bd4f4e1967', 16)
+        );
+        $this->assertTrue($rsa->load($key));
+        $rsa->setPublicKeyFormat('raw');
+        $this->assertEmpty("$rsa");
+    }
+
+    public function testRawComment()
+    {
+        $key = 'PuTTY-User-Key-File-2: ssh-rsa
+Encryption: aes256-cbc
+Comment: phpseclib-generated-key
+Public-Lines: 4
+AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4
+eCZ0FPqri0cb2JZfXJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RK
+NUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDy
+R4e9T04ZZw==
+Private-Lines: 8
+llx04QMegql0/nE5RvcJSrGrodxt6ytuv/JX2caeZBUyQwQc2WBNYagLHyHPM9jI
+9OUWz59FLhjFXZMDNMoUXxVmjwQpOAaVPYNxxFM9AF6/NXFji64K7huD9n4A+kLn
+sHwMLWPR5a/tZA0r05DZNz9ULA3mQu7Hz4EQ8ifu3uTPJuTmL51x6RmudYKysb20
+fM8VzC3ukvzzRh0pujUVTr/yQdmciASVFnZlt4xQy+ZEOVUAOfwjd//AFfXTvk6x
+7A45rNlU/uicHwLgoY1APvRHCFxw7F+uVW5L4mSX7NNzqBKkZ+1qpQTAfQvIfEIb
+444+CXsgIyOpqt6VxJH2u6elAtE1wau3YaFR8Alm8m97rFYzRi3oDP5NZYkTCWSV
+EOpSeghXSs7IilJu8I6/sB1w5dakdeBSFkIynrlFXkO0uUw+QJJWjxY8SypzgIuP
+DzduF6XsQrCyo6dnIpGQCQ==
+Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
+        $raw = PuTTY::load($key, 'password');
+        $this->assertArrayHasKey('comment', $raw);
+        $this->assertEquals($raw['comment'], 'phpseclib-generated-key');
+
+        $rsa = new RSA();
+        $rsa->load($raw);
+        $this->assertGreaterThanOrEqual(1, strlen("$rsa"));
     }
 }
