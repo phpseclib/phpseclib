@@ -240,6 +240,20 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
     /**
      * @depends testTruncate
+     * @group github850
+     */
+    public function testChModOnFile($sftp)
+    {
+        $this->assertNotFalse(
+            $sftp->chmod(0755, 'file1.txt'),
+            'Failed asserting that chmod() was successful.'
+        );
+
+        return $sftp;
+    }
+
+    /**
+     * @depends testChModOnFile
      */
     public function testChDirOnFile($sftp)
     {
