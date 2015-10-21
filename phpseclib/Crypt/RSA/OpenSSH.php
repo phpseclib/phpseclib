@@ -19,7 +19,7 @@ namespace phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 
 /**
- * XML Formatted RSA Key Handler
+ * OpenSSH Formatted RSA Key Handler
  *
  * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -41,9 +41,9 @@ class OpenSSH
      * @access public
      * @param string $comment
      */
-    static function setEncryptionAlgorithm($comment)
+    static function setComment($comment)
     {
-        self::$comment = $comment;
+        self::$comment = str_replace(array("\r", "\n"), '', $comment);
     }
 
     /**

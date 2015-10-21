@@ -431,7 +431,7 @@ Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
         $this->assertGreaterThanOrEqual(1, strlen("$privKey"));
 
         $pubKey = new RSA();
-        $pubKey->load($privKey->getPublicKey('blob'));
+        $pubKey->load($privKey->getPublicKey('msblob'));
 
         $this->assertGreaterThanOrEqual(1, strlen("$pubKey"));
 

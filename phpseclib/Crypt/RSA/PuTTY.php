@@ -41,9 +41,9 @@ class PuTTY
      * @access public
      * @param string $comment
      */
-    static function setEncryptionAlgorithm($comment)
+    static function setComment($comment)
     {
-        self::$comment = $comment;
+        self::$comment = str_replace(array("\r", "\n"), '', $comment);
     }
 
     /**

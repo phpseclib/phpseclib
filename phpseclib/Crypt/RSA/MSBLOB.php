@@ -1,6 +1,6 @@
 <?php
 /**
- * BLOB Formatted RSA Key Handler
+ * Miccrosoft BLOB Formatted RSA Key Handler
  *
  * More info:
  *
@@ -21,13 +21,13 @@ namespace phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 
 /**
- * BLOB Formatted RSA Key Handler
+ * Microsoft BLOB Formatted RSA Key Handler
  *
  * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class BLOB
+class MSBLOB
 {
     /**#@+
      * @access private
