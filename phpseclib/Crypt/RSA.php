@@ -316,6 +316,14 @@ class RSA
     var $password = false;
 
     /**
+     * Loaded File Format
+     *
+     * @var string
+     * @access private
+     */
+    var $format = false;
+
+    /**
      * OpenSSL configuration file name.
      *
      * Set to null to use system configuration file.
@@ -327,13 +335,23 @@ class RSA
     static $configFile;
 
     /**
-     * Supported file formats
+     * Supported file formats (lower case)
      *
-     * @see self::load()
+     * @see self::_initialize_static_variables()
      * @var array
      * @access private
      */
     static $fileFormats = false;
+
+    /**
+     * Supported file formats (original case)
+     *
+     * @see self::_initialize_static_variables()
+     * @var array
+     * @access private
+     */
+    static $origFileFormats = false;
+
 
     /**
      * Initialize static variables
@@ -355,6 +373,7 @@ class RSA
                     $meta = new \ReflectionClass($type);
                     if (!$meta->isAbstract()) {
                         self::$fileFormats[strtolower($name)] = $type;
+                        self::$origFileFormats[] = $name;
                     }
                 }
             }
@@ -650,9 +669,23 @@ class RSA
 
         if (class_exists($fullname)) {
             $meta = new \ReflectionClass($path);
-            $shortname = strtolower($meta->getShortName());
-            self::$fileFormats[$shortname] = $fullname;
+            $shortname = $meta->getShortName();
+            self::$fileFormats[strtolower($shortname)] = $fullname;
+            self::$origFileFormats[] = $shortname;
         }
+    }
+
+    /**
+     * Returns a list of supported formats.
+     *
+     * @access public
+     * @return array
+     */
+    static function getSupportedFormats()
+    {
+        self::_initialize_static_variables();
+
+        return self::$origFileFormats;
     }
 
     /**
@@ -724,11 +757,11 @@ class RSA
                 }
             }
         } else {
-            $type = strtolower($type);
-            if (isset(self::$fileFormats[$type])) {
-                $type = self::$fileFormats[$type];
+            $format = strtolower($type);
+            if (isset(self::$fileFormats[$format])) {
+                $format = self::$fileFormats[$format];
                 try {
-                    $components = $type::load($key, $this->password);
+                    $components = $format::load($key, $this->password);
                 } catch (Exception $e) {
                     $components = false;
                 }
@@ -736,8 +769,11 @@ class RSA
         }
 
         if ($components === false) {
+            $this->format = false;
             return false;
         }
+
+        $this->format = $format;
 
         $this->modulus = $components['modulus'];
         $this->k = strlen($this->modulus->toBytes());
@@ -761,7 +797,27 @@ class RSA
         return true;
     }
 
-   /**
+    /**
+     * Returns the format of the loaded key.
+     *
+     * If the key that was loaded wasn't in a valid or if the key was auto-generated
+     * with RSA::createKey() then this will return false.
+     *
+     * @see self::load()
+     * @access public
+     * @return mixed
+     */
+    function getLoadedFormat()
+    {
+        if ($this->format === false) {
+            return false;
+        }
+
+        $meta = new \ReflectionClass($this->format);
+        return $meta->getShortName();
+    }
+
+    /**
      * Returns the private key
      *
      * The private key is only returned if the currently loaded key contains the constituent prime numbers.
@@ -871,11 +927,11 @@ class RSA
                 }
             }
         } else {
-            $type = strtolower($type);
-            if (isset(self::$fileFormats[$type])) {
-                $type = self::$fileFormats[$type];
+            $format = strtolower($type);
+            if (isset(self::$fileFormats[$format])) {
+                $format = self::$fileFormats[$format];
                 try {
-                    $components = $type::load($key, $this->password);
+                    $components = $format::load($key, $this->password);
                 } catch (Exception $e) {
                     $components = false;
                 }
@@ -883,8 +939,11 @@ class RSA
         }
 
         if ($components === false) {
+            $this->format = false;
             return false;
         }
+
+        $this->format = $format;
 
         if (empty($this->modulus) || !$this->modulus->equals($components['modulus'])) {
             $this->modulus = $components['modulus'];
