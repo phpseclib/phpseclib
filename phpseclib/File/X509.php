@@ -103,6 +103,12 @@ class X509
      * Only works on CSRs. Not currently supported.
      */
     const FORMAT_SPKAC = 2;
+    /**
+     * Auto-detect the format
+     *
+     * Used only by the load*() functions
+     */
+    const FORMAT_AUTO_DETECT = 3;
     /**#@-*/
 
     /**
@@ -1403,10 +1409,11 @@ class X509
      * Returns an associative array describing the X.509 cert or a false if the cert failed to load
      *
      * @param string $cert
+     * @param int $mode
      * @access public
      * @return mixed
      */
-    function loadX509($cert)
+    function loadX509($cert, $mode = self::FORMAT_AUTO_DETECT)
     {
         if (is_array($cert) && isset($cert['tbsCertificate'])) {
             unset($this->currentCert);
@@ -1427,7 +1434,13 @@ class X509
 
         $asn1 = new ASN1();
 
-        $cert = $this->_extractBER($cert);
+        if ($mode != self::FORMAT_DER) {
+            $newcert = $this->_extractBER($cert);
+            if ($mode == self::FORMAT_PEM && $cert == $newcert) {
+                return false;
+            }
+            $cert = $newcert;
+        }
 
         if ($cert === false) {
             $this->currentCert = false;
@@ -2817,7 +2830,7 @@ class X509
      * @access public
      * @return mixed
      */
-    function loadCSR($csr)
+    function loadCSR($csr, $mode = self::FORMAT_AUTO_DETECT)
     {
         if (is_array($csr) && isset($csr['certificationRequestInfo'])) {
             unset($this->currentCert);
@@ -2836,7 +2849,13 @@ class X509
 
         $asn1 = new ASN1();
 
-        $csr = $this->_extractBER($csr);
+        if ($mode != self::FORMAT_DER) {
+            $newcsr = $this->_extractBER($csr);
+            if ($mode == self::FORMAT_PEM && $csr == $newcsr) {
+                return false;
+            }
+            $csr = $newcsr;
+        }
         $orig = $csr;
 
         if ($csr === false) {
@@ -3056,7 +3075,7 @@ class X509
      * @access public
      * @return mixed
      */
-    function loadCRL($crl)
+    function loadCRL($crl, $mode = self::FORMAT_AUTO_DETECT)
     {
         if (is_array($crl) && isset($crl['tbsCertList'])) {
             $this->currentCert = $crl;
@@ -3066,7 +3085,13 @@ class X509
 
         $asn1 = new ASN1();
 
-        $crl = $this->_extractBER($crl);
+        if ($mode != self::FORMAT_DER) {
+            $newcrl = $this->_extractBER($crl);
+            if ($mode == self::FORMAT_PEM && $crl == $newcrl) {
+                return false;
+            }
+            $crl = $newcrl;
+        }
         $orig = $crl;
 
         if ($crl === false) {
@@ -4554,7 +4579,7 @@ class X509
          * subject=/O=organization/OU=org unit/CN=common name
          * issuer=/O=organization/CN=common name
          */
-        $temp = preg_replace('#.*?^-+[^-]+-+#ms', '', $str, 1);
+        $temp = preg_replace('#.*?^-+[^-]+-+[\r\n ]*$#ms', '', $str, 1);
         // remove the -----BEGIN CERTIFICATE----- and -----END CERTIFICATE----- stuff
         $temp = preg_replace('#-+[^-]+-+#', '', $temp);
         // remove new lines
