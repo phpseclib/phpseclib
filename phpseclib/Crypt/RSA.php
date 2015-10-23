@@ -1383,9 +1383,7 @@ class RSA
                 }
             }
 
-            $one = new BigInteger(1);
-
-            $r = $one->random($one, $smallest->subtract($one));
+            $r = self::$one->random(self::$one, $smallest->subtract(self::$one));
 
             $m_i = array(
                 1 => $this->_blind($x, $r, 1),
@@ -2110,6 +2108,7 @@ class RSA
      * @access public
      * @param string $plaintext
      * @return string
+     * @throws \LengthException if the RSA modulus is too short
      */
     function encrypt($plaintext)
     {
@@ -2124,7 +2123,7 @@ class RSA
             case self::ENCRYPTION_PKCS1:
                 $length = $this->k - 11;
                 if ($length <= 0) {
-                    return false;
+                    throw new \LengthException('RSA modulus too short (' . $this->k . ' bytes long; should be more than 11 bytes with PKCS1)');
                 }
 
                 $plaintext = str_split($plaintext, $length);
@@ -2137,7 +2136,7 @@ class RSA
             default:
                 $length = $this->k - 2 * $this->hLen - 2;
                 if ($length <= 0) {
-                    return false;
+                    throw new \LengthException('RSA modulus too short (' . $this->k . ' bytes long; should be more than ' . (2 * $this->hLen - 2) . ' bytes with OAEP / ' . $this->hashName . ')');
                 }
 
                 $plaintext = str_split($plaintext, $length);

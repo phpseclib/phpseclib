@@ -6,6 +6,7 @@
  */
 
 use phpseclib\Crypt\RSA;
+use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_RSA_ModeTest extends PhpseclibTestCase
 {
@@ -62,5 +63,19 @@ p0GbMJDyR4e9T04ZZwIDAQAB
             'b8ac4c76adffbc178c');
 
         $this->assertTrue($rsa->verify('zzzz', $sig));
+    }
+
+    /**
+     * @expectedException \LengthException
+     */
+    public function testSmallModulo()
+    {
+        $plaintext = 'x';
+        $n = new BigInteger(base64_decode('272435F22706FA96DE26E980D22DFF67'), 256);
+        $e = new BigInteger(base64_decode('158753FF2AF4D1E5BBAB574D5AE6B54D'), 256);
+
+        $rsa = new RSA();
+        $rsa->load(array('n' => $n, 'e' => $e));
+        $rsa->encrypt($plaintext);
     }
 }
