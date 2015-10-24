@@ -32,28 +32,53 @@ abstract class PKCS
     /**#@+
      * @access private
      * @see \phpseclib\Crypt\RSA::createKey()
-    */
+     */
     /**
      * ASN1 Integer
-    */
+     */
     const ASN1_INTEGER = 2;
     /**
      * ASN1 Bit String
-    */
+     */
     const ASN1_BITSTRING = 3;
     /**
      * ASN1 Octet String
-    */
+     */
     const ASN1_OCTETSTRING = 4;
     /**
      * ASN1 Object Identifier
-    */
+     */
     const ASN1_OBJECT = 6;
     /**
      * ASN1 Sequence (with the constucted bit set)
-    */
+     */
     const ASN1_SEQUENCE = 48;
     /**#@-*/
+
+    /**#@+
+     * @access private
+     */
+    /**
+     * Auto-detect the format
+     */
+    const MODE_ANY = 0;
+    /**
+     * Require base64-encoded PEM's be supplied
+     */
+    const MODE_PEM = 1;
+    /**
+     * Require raw DER's be supplied
+     */
+    const MODE_DER = 2;
+    /**#@-*/
+
+    /**
+     * Is the key a base-64 encoded PEM, DER or should it be auto-detected?
+     *
+     * @access private
+     * @param int
+     */
+    static $format = self::MODE_ANY;
 
     /**
      * Returns the mode constant corresponding to the mode string
@@ -166,13 +191,19 @@ abstract class PKCS
             $crypto = self::getEncryptionObject($matches[1]);
             $crypto->setKey(self::generateSymmetricKey($password, $iv, $crypto->getKeyLength() >> 3));
             $crypto->setIV($iv);
-            $decoded = $crypto->decrypt($ciphertext);
+            $key = $crypto->decrypt($ciphertext);
+            if ($key === false) {
+                return false;
+            }
         } else {
-            $decoded = self::_extractBER($key);
-        }
-
-        if ($decoded !== false) {
-            $key = $decoded;
+            if (self::$format != self::MODE_DER) {
+                $decoded = self::_extractBER($key);
+                if ($decoded !== false) {
+                    $key = $decoded;
+                } elseif (self::$format == self::MODE_PEM) {
+                    return false;
+                }
+            }
         }
 
         if (ord(self::_string_shift($key)) != self::ASN1_SEQUENCE) {
@@ -330,6 +361,41 @@ abstract class PKCS
         }
 
         return $components;
+    }
+
+    /**
+     * Require base64-encoded PEM's be supplied
+     *
+     * @see self::load()
+     * @access public
+     */
+    static function requirePEM()
+    {
+        self::$format = self::MODE_PEM;
+    }
+
+    /**
+     * Require raw DER's be supplied
+     *
+     * @see self::load()
+     * @access public
+     */
+    static function requireDER()
+    {
+        self::$format = self::MODE_DER;
+    }
+
+    /**
+     * Accept any format and auto detect the format
+     *
+     * This is the default setting
+     *
+     * @see self::load()
+     * @access public
+     */
+    static function requireAny()
+    {
+        self::$format = self::MODE_ANY;
     }
 
     /**

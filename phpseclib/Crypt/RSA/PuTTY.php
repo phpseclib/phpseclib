@@ -17,6 +17,7 @@ namespace phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\AES;
 use phpseclib\Crypt\Hash;
+use phpseclib\Crypt\RSA\OpenSSH;
 
 /**
  * PuTTY Formatted RSA Key Handler
@@ -83,6 +84,24 @@ class PuTTY
         static $one;
         if (!isset($one)) {
             $one = new BigInteger(1);
+        }
+
+        if (strpos($key, 'BEGIN SSH2 PUBLIC KEY')) {
+            $data = preg_split('#[\r\n]+#', $key);
+            $data = array_splice($data, 2, -1);
+            $data = implode('', $data);
+
+            $components = OpenSSH::load($data);
+            if ($components === false) {
+                return false;
+            }
+
+            if (!preg_match('#Comment: "(.+)"#', $key, $matches)) {
+                return false;
+            }
+            $components['comment'] = str_replace(array('\\\\', '\"'), array('\\', '"'), $matches[1]);
+
+            return $components;
         }
 
         $components = array('isPublicKey' => false);
@@ -255,6 +274,36 @@ class PuTTY
         $hash = new Hash('sha1');
         $hash->setKey(pack('H*', sha1($hashkey)));
         $key.= 'Private-MAC: ' . bin2hex($hash->hash($source)) . "\r\n";
+
+        return $key;
+    }
+
+    /**
+     * Convert a public key to the appropriate format
+     *
+     * @access public
+     * @param \phpseclib\Math\BigInteger $n
+     * @param \phpseclib\Math\BigInteger $e
+     * @return string
+     */
+    static function savePublicKey(BigInteger $n, BigInteger $e)
+    {
+        $n = $n->toBytes(true);
+        $e = $e->toBytes(true);
+
+        $key = pack(
+            'Na*Na*Na*',
+            strlen('ssh-rsa'),
+            'ssh-rsa',
+            strlen($e),
+            $e,
+            strlen($n),
+            $n
+        );
+        $key = "---- BEGIN SSH2 PUBLIC KEY ----\r\n" .
+               'Comment: "' . str_replace(array('\\', '"'), array('\\\\', '\"'), self::$comment) . "\"\r\n";
+               chunk_split(base64_encode($key), 64) .
+               '---- END SSH2 PUBLIC KEY ----';
 
         return $key;
     }

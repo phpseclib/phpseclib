@@ -441,4 +441,34 @@ Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
 
         $this->assertSame($privKey->decrypt($ciphertext), $plaintext);
     }
+
+    public function testNakedOpenSSHKey()
+    {
+        $key = 'AAAAB3NzaC1yc2EAAAABIwAAAIEA/NcGSQFZ0ZgN1EbDusV6LLwLnQjs05ljKcVVP7Z6aKIJUyhUDHE30uJa5XfwPPBsZ3L3Q7S0yycVcuuHjdauugmpn9xx+gyoYs7UiV5G5rvxNcA/Tc+MofGhAMiTmNicorNAs5mv6fRoVbkpIONRXPz6WK0kjx/X04EV42Vm9Qk=';
+
+        $rsa = new RSA();
+        $rsa->load($key);
+
+        $this->assertSame($rsa->getLoadedFormat(), 'OpenSSH');
+
+        $this->assertGreaterThanOrEqual(1, strlen("$rsa"));
+    }
+
+    public function testPuttyPublicKey()
+    {
+        $key = '---- BEGIN SSH2 PUBLIC KEY ----
+Comment: "rsa-key-20151023"
+AAAAB3NzaC1yc2EAAAABJQAAAIEAhC/CSqJ+8vgeQ4H7fJru29h/McqAC9zdGzw0
+9QsifLQ7s5MvXCavhjUPYIfV0KsdLQydNPLJcbKpXmpVD9azo61zLXwsYr8d1eHr
+C/EwUYl8b0fAwEsEF3myb+ryzgA9ihY08Zs9NZdmt1Maa+I7lQcLX9F/65YdcAch
+ILaEujU=
+---- END SSH2 PUBLIC KEY ----';
+
+        $rsa = new RSA();
+        $rsa->load($key);
+
+        $this->assertSame($rsa->getLoadedFormat(), 'PuTTY');
+
+        $this->assertGreaterThanOrEqual(1, strlen("$rsa"));
+    }
 }

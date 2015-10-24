@@ -1301,7 +1301,7 @@ class SSH1
     {
         /*
         $rsa = new RSA();
-        $rsa->load($key, RSA::PUBLIC_FORMAT_RAW);
+        $rsa->load($key, 'raw');
         $rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
         return $rsa->encrypt($m);
         */
