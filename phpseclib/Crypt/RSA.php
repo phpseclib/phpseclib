@@ -209,7 +209,7 @@ define('CRYPT_RSA_PRIVATE_FORMAT_XML', 2);
 /**
  * PKCS#8 formatted private key
  */
-define('CRYPT_RSA_PRIVATE_FORMAT_PKCS8', 3);
+define('CRYPT_RSA_PRIVATE_FORMAT_PKCS8', 8);
 /**#@-*/
 
 /**#@+
