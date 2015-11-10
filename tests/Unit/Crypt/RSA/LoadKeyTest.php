@@ -321,7 +321,6 @@ JWrQdxx/WNN+ABG426rgYYbeGcIlWLZCw6Bx/1HtN5ef6nVEoiGNChYKIRB4QFOi
         $this->assertSame(preg_replace('#\s#', '', $key), preg_replace('#\s#', '', $newkey));
     }
 
-<<<<<<< HEAD
     public function testPKCS1EncryptionChange()
     {
         $rsa = new RSA();
