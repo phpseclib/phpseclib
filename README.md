@@ -40,7 +40,7 @@ Dependencies are managed via Composer.
 2. Install Dependencies
 
     ``` sh
-    php composer.phar install --dev
+    php composer.phar install
     ```
 
 ## Contributing
