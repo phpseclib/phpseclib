@@ -1026,50 +1026,57 @@ class SSH2
 			/**
 				EDIT START
 			**/
-			$socks['port'] = $this->proxyPort; 
-			$socks['address'] = $this->proxyHost; 
+			if (!empty($this->proxyHost))
+			{
+				$socks['port'] = $this->proxyPort; 
+				$socks['address'] = $this->proxyHost; 
 
-			$fsock = fsockopen($socks['address'],$socks['port'],$errno,$errstr,5); 
-			socket_set_timeout($fsock,5); 
-			if (!$fsock) { 
-			   exit("Can't Connect!"); 
-			} 
+				$fsock = fsockopen($socks['address'],$socks['port'],$errno,$errstr,5); 
+				socket_set_timeout($fsock,5); 
+				if (!$fsock) { 
+				   exit("Can't Connect!"); 
+				} 
 
-			$port = chr($this->port >> 8).chr($this->port & 255); 
-			$address = gethostbyname($this->host); 
-			$address = implode('',array_map('chr',explode('.',$address))); 
+				$port = chr($this->port >> 8).chr($this->port & 255); 
+				$address = gethostbyname($this->host); 
+				$address = implode('',array_map('chr',explode('.',$address))); 
 
-			// identify version (v5) / select method (1 method - the "no auth" method 
-			$request = "\5\1\0"; 
-			if (fputs($fsock,$request) != strlen($request)) { 
-			   exit("premature termination"); 
-			} 
+				// identify version (v5) / select method (1 method - the "no auth" method 
+				$request = "\5\1\0"; 
+				if (fputs($fsock,$request) != strlen($request)) { 
+				   exit("premature termination"); 
+				} 
 
-			$response = fgets($fsock); 
+				$response = fgets($fsock); 
 
-			/** we don't check the actual reply as we do in socks4 since the actual spec is somewhat ambigious as to what the first character ought to be 
-			**/ 
-			if (strlen($response) != 2 && substr($response,0,2) != "\5\0") { 
-			   exit("Unsupported protocol or unsupported method"); 
-			} 
+				/** we don't check the actual reply as we do in socks4 since the actual spec is somewhat ambigious as to what the first character ought to be 
+				**/ 
+				if (strlen($response) != 2 && substr($response,0,2) != "\5\0") { 
+				   exit("Unsupported protocol or unsupported method"); 
+				} 
 
-			/** 
-			the first character represents the version (ie. v5), 
-			the second, the command (1 == connect, 2 == bind, 3 == udp associate), 
-			the third is always 0 (i don't know why), 
-			the fourth specifies the address type (1 == ipv4 address, 2 == domain name, 3 == ipv6 address. 
-			save for the last two, which represent the port, the rest represent the destination address 
-			**/ 
-			$request = "\5\1\0\1".$address.$port; 
-			if (fputs($fsock,$request) != strlen($request)) { 
-			   exit("premature termination"); 
-			} 
+				/** 
+				the first character represents the version (ie. v5), 
+				the second, the command (1 == connect, 2 == bind, 3 == udp associate), 
+				the third is always 0 (i don't know why), 
+				the fourth specifies the address type (1 == ipv4 address, 2 == domain name, 3 == ipv6 address. 
+				save for the last two, which represent the port, the rest represent the destination address 
+				**/ 
+				$request = "\5\1\0\1".$address.$port; 
+				if (fputs($fsock,$request) != strlen($request)) { 
+				   exit("premature termination"); 
+				} 
 
-			$response = fgets($fsock); 
+				$response = fgets($fsock); 
 
-			// we don't check the response size since that can very depending on whether or not the outside world sees an IPv4 or IPv6 address.  Why the outside world would see an IPv6 address when IPv4 is all that this script uses, I don't know, but bleh 
-			if (substr($response,0,2) != "\5\0") { 
-			   exit("Unsupported protocol or connection refused"); 
+				// we don't check the response size since that can very depending on whether or not the outside world sees an IPv4 or IPv6 address.  Why the outside world would see an IPv6 address when IPv4 is all that this script uses, I don't know, but bleh 
+				if (substr($response,0,2) != "\5\0") { 
+				   exit("Unsupported protocol or connection refused"); 
+				}
+			}
+			else
+			{
+				$this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout);
 			}
 			
 			/**
