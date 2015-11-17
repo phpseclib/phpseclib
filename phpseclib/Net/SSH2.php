@@ -1067,7 +1067,7 @@ error_log($count);
 				/** we don't check the actual reply as we do in socks4 since the actual spec is somewhat ambigious as to what the first character ought to be 
 				**/ 
 				if (strlen($response) != 2 && substr($response,0,2) != "\5\0") { 
-				   throw new \Exception("Unsupported protocol or unsupported method"); 
+				   throw new \Exception("Unsupported protocol or unsupported method STRING LEN || RESPON"); 
 				} 
  error_log($count);
 				$count++;
@@ -1092,7 +1092,7 @@ error_log($count);
 				
 				// we don't check the response size since that can very depending on whether or not the outside world sees an IPv4 or IPv6 address.  Why the outside world would see an IPv6 address when IPv4 is all that this script uses, I don't know, but bleh 
 				if (substr($response,0,2) != "\5\0") { 
-				   throw new \Exception("Unsupported protocol or connection refused"); 
+				   throw new \Exception("Unsupported protocol or connection refused RESPONSE FAILURE"); 
 				}
 				error_log($count);
 				$count++;
