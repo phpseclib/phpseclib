@@ -72,7 +72,7 @@ use phpseclib\Exception\NoSupportedAlgorithmsException;
 class SSH2
 {
 	public $proxyHost = "";
-	public $proxyPort = "";
+	public $proxyPort = 1080;
 	public $proxyUser = "";
 	public $proxyPass = ""; 
 	
