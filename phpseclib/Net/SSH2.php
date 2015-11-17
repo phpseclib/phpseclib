@@ -1028,33 +1028,50 @@ class SSH2
 			**/
 			if (!empty($this->proxyHost))
 			{
+				$count = 1;
+				
+				error_log($count);
+				$count++;
+				
 				$socks['port'] = $this->proxyPort; 
 				$socks['address'] = $this->proxyHost; 
-
+error_log($count);
+				$count++;
+				
 				$fsock = fsockopen($socks['address'],$socks['port'],$errno,$errstr,5); 
 				socket_set_timeout($fsock,5); 
 				if (!$fsock) { 
 				   throw new \Exception("Can't Connect!"); 
 				} 
-
+error_log($count);
+				$count++;
+				
 				$port = chr($this->port >> 8).chr($this->port & 255); 
 				$address = gethostbyname($this->host); 
 				$address = implode('',array_map('chr',explode('.',$address))); 
-
+error_log($count);
+				$count++;
+				
 				// identify version (v5) / select method (1 method - the "no auth" method 
 				$request = "\5\1\0"; 
 				if (fputs($fsock,$request) != strlen($request)) { 
 				   throw new \Exception("premature termination"); 
 				} 
-
+error_log($count);
+				$count++;
+				
 				$response = fgets($fsock); 
-
+error_log($count);
+				$count++;
+				
 				/** we don't check the actual reply as we do in socks4 since the actual spec is somewhat ambigious as to what the first character ought to be 
 				**/ 
 				if (strlen($response) != 2 && substr($response,0,2) != "\5\0") { 
 				   throw new \Exception("Unsupported protocol or unsupported method"); 
 				} 
-
+ error_log($count);
+				$count++;
+				
 				/** 
 				the first character represents the version (ie. v5), 
 				the second, the command (1 == connect, 2 == bind, 3 == udp associate), 
@@ -1066,20 +1083,27 @@ class SSH2
 				if (fputs($fsock,$request) != strlen($request)) { 
 				   throw new \Exception("premature termination"); 
 				} 
-
+error_log($count);
+				$count++;
+				
 				$response = fgets($fsock); 
-
+error_log($count);
+				$count++;
+				
 				// we don't check the response size since that can very depending on whether or not the outside world sees an IPv4 or IPv6 address.  Why the outside world would see an IPv6 address when IPv4 is all that this script uses, I don't know, but bleh 
 				if (substr($response,0,2) != "\5\0") { 
 				   throw new \Exception("Unsupported protocol or connection refused"); 
 				}
+				error_log($count);
+				$count++;
+				
 			}
 			else
 			{
 				$this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout);
 			}
 			
-			/**
+			/**
 				EDIT END
 			**/
             if (!$this->fsock) {
