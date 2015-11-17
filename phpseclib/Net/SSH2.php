@@ -1092,7 +1092,7 @@ error_log($count);
 				
 				// we don't check the response size since that can very depending on whether or not the outside world sees an IPv4 or IPv6 address.  Why the outside world would see an IPv6 address when IPv4 is all that this script uses, I don't know, but bleh 
 				if (substr($response,0,2) != "\5\0") { 
-				   throw new \Exception("Unsupported protocol or connection refused RESPONSE FAILURE"); 
+				   throw new \Exception("Unsupported protocol or connection refused RESPONSE FAILURE: " . substr($response,0,2)); 
 				}
 				error_log($count);
 				$count++;
