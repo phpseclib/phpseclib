@@ -71,6 +71,11 @@ use phpseclib\Exception\NoSupportedAlgorithmsException;
  */
 class SSH2
 {
+	public $proxyHost = "";
+	public $proxyPort = "";
+	public $proxyUser = "";
+	public $proxyPass = ""; 
+	
     /**#@+
      * Execution Bitmap Masks
      *
@@ -825,7 +830,7 @@ class SSH2
      * @var int
      * @access private
      */
-    var $port;
+    var $port;	
 
     /**
      * Number of columns for terminal window size
