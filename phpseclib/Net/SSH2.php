@@ -1034,7 +1034,7 @@ class SSH2
 				$fsock = fsockopen($socks['address'],$socks['port'],$errno,$errstr,5); 
 				socket_set_timeout($fsock,5); 
 				if (!$fsock) { 
-				   exit("Can't Connect!"); 
+				   throw new \Exception("Can't Connect!"); 
 				} 
 
 				$port = chr($this->port >> 8).chr($this->port & 255); 
@@ -1044,7 +1044,7 @@ class SSH2
 				// identify version (v5) / select method (1 method - the "no auth" method 
 				$request = "\5\1\0"; 
 				if (fputs($fsock,$request) != strlen($request)) { 
-				   exit("premature termination"); 
+				   throw new \Exception("premature termination"); 
 				} 
 
 				$response = fgets($fsock); 
@@ -1052,7 +1052,7 @@ class SSH2
 				/** we don't check the actual reply as we do in socks4 since the actual spec is somewhat ambigious as to what the first character ought to be 
 				**/ 
 				if (strlen($response) != 2 && substr($response,0,2) != "\5\0") { 
-				   exit("Unsupported protocol or unsupported method"); 
+				   throw new \Exception("Unsupported protocol or unsupported method"); 
 				} 
 
 				/** 
@@ -1064,14 +1064,14 @@ class SSH2
 				**/ 
 				$request = "\5\1\0\1".$address.$port; 
 				if (fputs($fsock,$request) != strlen($request)) { 
-				   exit("premature termination"); 
+				   throw new \Exception("premature termination"); 
 				} 
 
 				$response = fgets($fsock); 
 
 				// we don't check the response size since that can very depending on whether or not the outside world sees an IPv4 or IPv6 address.  Why the outside world would see an IPv6 address when IPv4 is all that this script uses, I don't know, but bleh 
 				if (substr($response,0,2) != "\5\0") { 
-				   exit("Unsupported protocol or connection refused"); 
+				   throw new \Exception("Unsupported protocol or connection refused"); 
 				}
 			}
 			else
