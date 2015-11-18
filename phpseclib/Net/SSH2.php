@@ -1050,53 +1050,15 @@ error_log($count);
 				$address = gethostbyname($this->host); 
 				$address = implode('',array_map('chr',explode('.',$address))); 
 error_log($count);
-				$count++;
+				$count++; 
 				
 				// identify version (v5) / select method (1 method - the "no auth" method 
 				$request = "\5\1\0"; 
 				if (fputs($fsock,$request) != strlen($request)) { 
 				   throw new \Exception("premature termination"); 
-				} 
-error_log($count);
-				$count++;
-				
-				$response = fgets($fsock); 
-error_log($count);
-				$count++;
-				
-				/** we don't check the actual reply as we do in socks4 since the actual spec is somewhat ambigious as to what the first character ought to be 
-				**/ 
-				if (strlen($response) != 2 && substr($response,0,2) != "\5\0") { 
-				   throw new \Exception("Unsupported protocol or unsupported method STRING LEN || RESPON"); 
-				} 
- error_log($count);
-				$count++;
-				
-				/** 
-				the first character represents the version (ie. v5), 
-				the second, the command (1 == connect, 2 == bind, 3 == udp associate), 
-				the third is always 0 (i don't know why), 
-				the fourth specifies the address type (1 == ipv4 address, 2 == domain name, 3 == ipv6 address. 
-				save for the last two, which represent the port, the rest represent the destination address 
-				**/ 
-				$request = "\5\1\0\1".$address.$port; 
-				if (fputs($fsock,$request) != strlen($request)) { 
-				   throw new \Exception("premature termination"); 
-				} 
-error_log($count);
-				$count++;
-				
-				$response = fgets($fsock); 
-error_log($count);
-				$count++;
-				
-				// we don't check the response size since that can very depending on whether or not the outside world sees an IPv4 or IPv6 address.  Why the outside world would see an IPv6 address when IPv4 is all that this script uses, I don't know, but bleh 
-				//if (substr($response,0,2) != "\5\0") { 
-				//   throw new \Exception("Unsupported protocol or connection refused RESPONSE FAILURE: " . substr($response,0,2)); 
-				//}
-				error_log($count);
-				$count++;
-				 
+				}
+
+                $this->fsock = $fsock;
 			}
 			else
 			{
