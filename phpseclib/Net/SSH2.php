@@ -3774,7 +3774,11 @@ class SSH2
      */
     function getLastError()
     {
-        return $this->errors[count($this->errors) - 1];
+        $count = count($this->errors);
+
+        if ($count > 0) {
+            return $this->errors[$count - 1];
+        }
     }
 
     /**
