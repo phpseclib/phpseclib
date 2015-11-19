@@ -2051,15 +2051,15 @@ class SSH2
                         $this->bitmap |= self::MASK_LOGIN;
                         return true;
                     }
-                    return false;
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE);
                 }
-                return false;
+                return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 $this->bitmap |= self::MASK_LOGIN;
                 return true;
         }
 
-        return false;
+        return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
     }
 
     /**
