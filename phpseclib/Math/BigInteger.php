@@ -820,7 +820,28 @@ class Math_BigInteger
      */
     function __debugInfo()
     {
-        return array('value' => '0x' . $this->toHex(true));
+        $opts = array();
+        switch (MATH_BIGINTEGER_MODE) {
+            case MATH_BIGINTEGER_MODE_GMP:
+                $engine = 'gmp';
+                break;
+            case MATH_BIGINTEGER_MODE_BCMATH:
+                $engine = 'bcmath';
+                break;
+            case MATH_BIGINTEGER_MODE_INTERNAL:
+                $engine = 'internal';
+                $opts[] = PHP_INT_SIZE == 8 ? '64-bit' : '32-bit';
+        }
+        if (MATH_BIGINTEGER_MODE != MATH_BIGINTEGER_MODE_GMP && defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
+            $opts[] = 'OpenSSL';
+        }
+        if (!empty($opts)) {
+            $engine.= ' (' . implode($opts, ', ') . ')';
+        }
+        return array(
+            'value' => '0x' . $this->toHex(true),
+            'engine' => $engine
+        );
     }
 
     /**
