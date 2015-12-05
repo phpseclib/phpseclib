@@ -804,6 +804,18 @@ class BigInteger
     }
 
     /**
+     *  __debugInfo() magic method
+     *
+     * Will be called, automatically, when print_r() or var_dump() are called
+     *
+     * @access public
+     */
+    function __debugInfo()
+    {
+        return array('value' => '0x' . $this->toHex(true));
+    }
+
+    /**
      * Adds two BigIntegers.
      *
      * Here's an example:
