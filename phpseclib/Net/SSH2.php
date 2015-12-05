@@ -1134,7 +1134,7 @@ class Net_SSH2
      */
     function _generate_identifier()
     {
-        $identifier = 'SSH-2.0-phpseclib_0.3';
+        $identifier = 'SSH-2.0-phpseclib_1.0';
 
         $ext = array();
         if (extension_loaded('openssl')) {
