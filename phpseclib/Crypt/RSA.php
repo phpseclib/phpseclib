@@ -188,7 +188,7 @@ class RSA
     /**
      * PKCS#8 formatted private key
      */
-    const PRIVATE_FORMAT_PKCS8 = 3;
+    const PRIVATE_FORMAT_PKCS8 = 8;
     /**#@-*/
 
     /**#@+
