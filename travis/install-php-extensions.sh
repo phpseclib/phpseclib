@@ -21,10 +21,5 @@ function install_php_extension
 }
 
 # runkit
-if [ "$TRAVIS_PHP_VERSION" == "5.6" ]
-then
-    git clone https://github.com/adrianguenter/runkit.git
-else
-    git clone https://github.com/zenovich/runkit.git
-fi
+git clone https://github.com/zenovich/runkit.git
 install_php_extension 'runkit'
