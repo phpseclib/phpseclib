@@ -814,17 +814,17 @@ class BigInteger
     {
         $opts = array();
         switch (MATH_BIGINTEGER_MODE) {
-            case MATH_BIGINTEGER_MODE_GMP:
+            case self::MODE_GMP:
                 $engine = 'gmp';
                 break;
-            case MATH_BIGINTEGER_MODE_BCMATH:
+            case self::MODE_BCMATH:
                 $engine = 'bcmath';
                 break;
-            case MATH_BIGINTEGER_MODE_INTERNAL:
+            case self::MODE_INTERNAL:
                 $engine = 'internal';
                 $opts[] = PHP_INT_SIZE == 8 ? '64-bit' : '32-bit';
         }
-        if (MATH_BIGINTEGER_MODE != MATH_BIGINTEGER_MODE_GMP && defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
+        if (MATH_BIGINTEGER_MODE != self::MODE_GMP && defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
             $opts[] = 'OpenSSL';
         }
         if (!empty($opts)) {
