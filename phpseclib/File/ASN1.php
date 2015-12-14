@@ -616,7 +616,7 @@ class ASN1
                 }
 
                 // Fail mapping if all input items have not been consumed.
-                return $i < $n? null: $map;
+                return $i < $n ? null: $map;
 
             // the main diff between sets and sequences is the encapsulation of the foreach in another for loop
             case self::TYPE_SET:

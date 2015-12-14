@@ -355,4 +355,15 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
             'Failed asserting that Alice and Bob share the same BigInteger.'
         );
     }
+
+    /**
+     * @requires PHP 5.6
+     */
+    public function testDebugInfo()
+    {
+        $num = new Math_BigInteger(50);
+        $str = print_r($num, true);
+        $this->assertContains('[value] => 0x32', $str);
+        return $str;
+    }
 }
