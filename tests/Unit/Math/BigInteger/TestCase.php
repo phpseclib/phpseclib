@@ -361,7 +361,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
      */
     public function testDebugInfo()
     {
-        $num = new BigInteger(50);
+        $num = $this->getInstance(50);
         $str = print_r($num, true);
         $this->assertContains('[value] => 0x32', $str);
         return $str;
