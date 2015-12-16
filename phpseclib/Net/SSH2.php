@@ -2870,7 +2870,7 @@ class SSH2
      */
     function isAuthenticated()
     {
-        return (bool) ($this->bitmap & NET_SSH2_MASK_LOGIN);
+        return (bool) ($this->bitmap & self::MASK_LOGIN);
     }
 
     /**
