@@ -812,7 +812,28 @@ class BigInteger
      */
     function __debugInfo()
     {
-        return array('value' => '0x' . $this->toHex(true));
+        $opts = array();
+        switch (MATH_BIGINTEGER_MODE) {
+            case self::MODE_GMP:
+                $engine = 'gmp';
+                break;
+            case self::MODE_BCMATH:
+                $engine = 'bcmath';
+                break;
+            case self::MODE_INTERNAL:
+                $engine = 'internal';
+                $opts[] = PHP_INT_SIZE == 8 ? '64-bit' : '32-bit';
+        }
+        if (MATH_BIGINTEGER_MODE != self::MODE_GMP && defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
+            $opts[] = 'OpenSSL';
+        }
+        if (!empty($opts)) {
+            $engine.= ' (' . implode($opts, ', ') . ')';
+        }
+        return array(
+            'value' => '0x' . $this->toHex(true),
+            'engine' => $engine
+        );
     }
 
     /**

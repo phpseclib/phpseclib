@@ -19,7 +19,13 @@ env:
 before_install: true
 
 install:
-  - sudo apt-get install parallel
+  - wget http://ftp.gnu.org/gnu/parallel/parallel-20120522.tar.bz2
+  - tar -xvjf parallel*
+  - cd parallel*
+  - ./configure
+  - make
+  - sudo make install
+  - cd ..
   - eval `ssh-agent -s`
   - travis/setup-secure-shell.sh
   - sh -c "if [ '$TRAVIS_PHP_VERSION' != 'hhvm' -a '$TRAVIS_PHP_VERSION' != '7.0' ]; then travis/install-php-extensions.sh; fi"
