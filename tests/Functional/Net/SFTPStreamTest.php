@@ -27,6 +27,21 @@ class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
         $this->assertSame(0, $this->sftp->size('fooo.txt'));
     }
 
+    /**
+     * @group github778
+     */
+    public function testFilenameWithHash()
+    {
+        $context = stream_context_create(array(
+            'sftp' => array('session' => $this->sftp),
+        ));
+        $fp = fopen($this->buildUrl('te#st.txt'), 'wb', false, $context);
+        fputs($fp, 'zzzz');
+        fclose($fp);
+
+        $this->assertTrue(in_array('te#st.txt', $this->sftp->nlist()));
+    }
+
     protected function buildUrl($suffix)
     {
         return sprintf(
