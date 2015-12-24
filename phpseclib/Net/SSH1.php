@@ -1302,8 +1302,7 @@ class SSH1
         /*
         $rsa = new RSA();
         $rsa->load($key, 'raw');
-        $rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
-        return $rsa->encrypt($m);
+        return $rsa->encrypt($m, RSA::PADDING_PKCS1);
         */
 
         // To quote from protocol-1.5.txt:

@@ -2149,8 +2149,7 @@ class X509
                     case 'sha384WithRSAEncryption':
                     case 'sha512WithRSAEncryption':
                         $rsa->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
-                        $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
-                        if (!@$rsa->verify($signatureSubject, $signature)) {
+                        if (!@$rsa->verify($signatureSubject, $signature, RSA::PADDING_PKCS1)) {
                             return false;
                         }
                         break;
@@ -3671,9 +3670,8 @@ class X509
                 case 'sha384WithRSAEncryption':
                 case 'sha512WithRSAEncryption':
                     $key->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
-                    $key->setSignatureMode(RSA::SIGNATURE_PKCS1);
 
-                    $this->currentCert['signature'] = base64_encode("\0" . $key->sign($this->signatureSubject));
+                    $this->currentCert['signature'] = base64_encode("\0" . $key->sign($this->signatureSubject, RSA::PADDING_PKCS1));
                     return $this->currentCert;
                 default:
                     throw new UnsupportedAlgorithmException('Signature algorithm unsupported');

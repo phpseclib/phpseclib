@@ -2306,8 +2306,7 @@ class SSH2
         }
 
         $packet = $part1 . chr(1) . $part2;
-        $privatekey->setSignatureMode(RSA::SIGNATURE_PKCS1);
-        $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet));
+        $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet), RSA::PADDING_PKCS1);
         $signature = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($signature), $signature);
         $packet.= pack('Na*', strlen($signature), $signature);
 
@@ -4054,9 +4053,8 @@ class SSH2
                 $signature = $this->_string_shift($signature, $temp['length']);
 
                 $rsa = new RSA();
-                $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
                 $rsa->load(array('e' => $e, 'n' => $n), 'raw');
-                if (!$rsa->verify($this->exchange_hash, $signature)) {
+                if (!$rsa->verify($this->exchange_hash, $signature, RSA::PADDING_PKCS1)) {
                     //user_error('Bad server signature');
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
                 }

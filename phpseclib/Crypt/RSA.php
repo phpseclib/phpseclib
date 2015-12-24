@@ -48,6 +48,7 @@ namespace phpseclib\Crypt;
 use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\Random;
 use phpseclib\Math\BigInteger;
+use phpseclib\File\ASN1;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
@@ -67,26 +68,32 @@ class RSA
      * Use {@link http://en.wikipedia.org/wiki/Optimal_Asymmetric_Encryption_Padding Optimal Asymmetric Encryption Padding}
      * (OAEP) for encryption / decryption.
      *
-     * Uses sha1 by default.
+     * Uses sha256 by default
      *
      * @see self::setHash()
      * @see self::setMGFHash()
      */
-    const ENCRYPTION_OAEP = 1;
+    const PADDING_OAEP = 1;
     /**
      * Use PKCS#1 padding.
      *
-     * Although self::ENCRYPTION_OAEP offers more security, including PKCS#1 padding is necessary for purposes of backwards
+     * Although self::PADDING_OAEP / self::PADDING_PSS  offers more security, including PKCS#1 padding is necessary for purposes of backwards
      * compatibility with protocols (like SSH-1) written before OAEP's introduction.
      */
-    const ENCRYPTION_PKCS1 = 2;
+    const PADDING_PKCS1 = 2;
     /**
      * Do not use any padding
      *
      * Although this method is not recommended it can none-the-less sometimes be useful if you're trying to decrypt some legacy
      * stuff, if you're trying to diagnose why an encrypted message isn't decrypting, etc.
      */
-    const ENCRYPTION_NONE = 3;
+    const PADDING_NONE = 3;
+    /**
+     * Use PKCS#1 padding with PKCS1 v1.5 compatability
+     *
+     * A PKCS1 v2.1 encrypted message may not successfully decrypt with a PKCS1 v1.5 implementation (such as OpenSSL).
+     */
+    const PADDING_PKCS15_COMPAT = 6;
     /**#@-*/
 
     /**#@+
@@ -98,19 +105,17 @@ class RSA
     /**
      * Use the Probabilistic Signature Scheme for signing
      *
-     * Uses sha1 by default.
+     * Uses sha256 and 0 as the salt length
      *
      * @see self::setSaltLength()
      * @see self::setMGFHash()
+     * @see self::setHash()
      */
-    const SIGNATURE_PSS = 1;
+    const PADDING_PSS = 4;
     /**
-     * Use the PKCS#1 scheme by default.
-     *
-     * Although self::SIGNATURE_PSS offers more security, including PKCS#1 signing is necessary for purposes of backwards
-     * compatibility with protocols (like SSH-2) written before PSS's introduction.
+     * Use a relaxed version of PKCS#1 padding for signature verification
      */
-    const SIGNATURE_PKCS1 = 2;
+    const PADDING_RELAXED_PKCS1 = 5;
     /**#@-*/
 
     /**#@+
@@ -284,22 +289,6 @@ class RSA
     var $mgfHLen;
 
     /**
-     * Encryption mode
-     *
-     * @var int
-     * @access private
-     */
-    var $encryptionMode = self::ENCRYPTION_OAEP;
-
-    /**
-     * Signature mode
-     *
-     * @var int
-     * @access private
-     */
-    var $signatureMode = self::SIGNATURE_PSS;
-
-    /**
      * Public Exponent
      *
      * @var mixed
@@ -394,10 +383,10 @@ class RSA
     {
         self::_initialize_static_variables();
 
-        $this->hash = new Hash('sha1');
+        $this->hash = new Hash('sha256');
         $this->hLen = $this->hash->getLength();
-        $this->hashName = 'sha1';
-        $this->mgfHash = new Hash('sha1');
+        $this->hashName = 'sha256';
+        $this->mgfHash = new Hash('sha256');
         $this->mgfHLen = $this->mgfHash->getLength();
     }
 
@@ -706,8 +695,6 @@ class RSA
             $this->hLen = $key->hLen;
             $this->sLen = $key->sLen;
             $this->mgfHLen = $key->mgfHLen;
-            $this->encryptionMode = $key->encryptionMode;
-            $this->signatureMode = $key->signatureMode;
             $this->password = $key->password;
 
             if (is_object($key->hash)) {
@@ -1233,7 +1220,7 @@ class RSA
     /**
      * Determines which hashing function should be used
      *
-     * Used with signature production / verification and (if the encryption mode is self::ENCRYPTION_OAEP) encryption and
+     * Used with signature production / verification and (if the encryption mode is self::PADDING_OAEP) encryption and
      * decryption.  If $hash isn't supported, sha1 is used.
      *
      * @access public
@@ -1253,8 +1240,8 @@ class RSA
                 $this->hashName = $hash;
                 break;
             default:
-                $this->hash = new Hash('sha1');
-                $this->hashName = 'sha1';
+                $this->hash = new Hash('sha256');
+                $this->hashName = 'sha256';
         }
         $this->hLen = $this->hash->getLength();
     }
@@ -1262,7 +1249,7 @@ class RSA
     /**
      * Determines which hashing function should be used for the mask generation function
      *
-     * The mask generation function is used by self::ENCRYPTION_OAEP and self::SIGNATURE_PSS and although it's
+     * The mask generation function is used by self::PADDING_OAEP and self::PADDING_PSS and although it's
      * best if Hash and MGFHash are set to the same thing this is not a requirement.
      *
      * @access public
@@ -1310,14 +1297,13 @@ class RSA
      * @access private
      * @param \phpseclib\Math\BigInteger $x
      * @param int $xLen
-     * @throws \OutOfBoundsException if strlen($x) > $xLen
-     * @return string
+     * @return bool|string
      */
     function _i2osp($x, $xLen)
     {
         $x = $x->toBytes();
         if (strlen($x) > $xLen) {
-            throw new \OutOfBoundsException('Integer too large');
+            return false;
         }
         return str_pad($x, $xLen, chr(0), STR_PAD_LEFT);
     }
@@ -1470,13 +1456,12 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $m
-     * @throws \OutOfRangeException if $m < 0 or $m > $this->modulus
-     * @return \phpseclib\Math\BigInteger
+     * @return bool|\phpseclib\Math\BigInteger
      */
     function _rsaep($m)
     {
         if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
-            throw new \OutOfRangeException('Message representative out of range');
+            return false;
         }
         return $this->_exponentiate($m);
     }
@@ -1488,13 +1473,12 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $c
-     * @throws \OutOfRangeException if $c < 0 or $c > $this->modulus
-     * @return \phpseclib\Math\BigInteger
+     * @return bool|\phpseclib\Math\BigInteger
      */
     function _rsadp($c)
     {
         if ($c->compare(self::$zero) < 0 || $c->compare($this->modulus) > 0) {
-            throw new \OutOfRangeException('Ciphertext representative out of range');
+            return false;
         }
         return $this->_exponentiate($c);
     }
@@ -1506,13 +1490,12 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $m
-     * @throws \OutOfRangeException if $m < 0 or $m > $this->modulus
-     * @return \phpseclib\Math\BigInteger
+     * @return bool|\phpseclib\Math\BigInteger
      */
     function _rsasp1($m)
     {
         if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
-            throw new \OutOfRangeException('Message representative out of range');
+            return false;
         }
         return $this->_exponentiate($m);
     }
@@ -1524,13 +1507,12 @@ class RSA
      *
      * @access private
      * @param \phpseclib\Math\BigInteger $s
-     * @throws \OutOfRangeException if $s < 0 or $s > $this->modulus
-     * @return \phpseclib\Math\BigInteger
+     * @return bool|\phpseclib\Math\BigInteger
      */
     function _rsavp1($s)
     {
         if ($s->compare(self::$zero) < 0 || $s->compare($this->modulus) > 0) {
-            throw new \OutOfRangeException('Signature representative out of range');
+            return false;
         }
         return $this->_exponentiate($s);
     }
@@ -1631,8 +1613,7 @@ class RSA
      * @access private
      * @param string $c
      * @param string $l
-     * @throws \RuntimeException on decryption error
-     * @return string
+     * @return bool|string
      */
     function _rsaes_oaep_decrypt($c, $l = '')
     {
@@ -1642,7 +1623,7 @@ class RSA
         // be output.
 
         if (strlen($c) != $this->k || $this->k < 2 * $this->hLen + 2) {
-            throw new \RuntimeException('Decryption error');
+            return false;
         }
 
         // RSA decryption
@@ -1650,7 +1631,7 @@ class RSA
         $c = $this->_os2ip($c);
         $m = $this->_rsadp($c);
         if ($m === false) {
-            throw new \RuntimeException('Decryption error');
+            return false;
         }
         $em = $this->_i2osp($m, $this->k);
 
@@ -1667,11 +1648,11 @@ class RSA
         $lHash2 = substr($db, 0, $this->hLen);
         $m = substr($db, $this->hLen);
         if ($lHash != $lHash2) {
-            throw new \RuntimeException('Decryption error');
+            return false;
         }
         $m = ltrim($m, chr(0));
         if (ord($m[0]) != 1) {
-            throw new \RuntimeException('Decryption error');
+            return false;
         }
 
         // Output the message M
@@ -1705,7 +1686,7 @@ class RSA
      * @throws \OutOfBoundsException if strlen($m) > $this->k - 11
      * @return string
      */
-    function _rsaes_pkcs1_v1_5_encrypt($m)
+    function _rsaes_pkcs1_v1_5_encrypt($m, $pkcs15_compat = false)
     {
         $mLen = strlen($m);
 
@@ -1726,7 +1707,7 @@ class RSA
         }
         $type = 2;
         // see the comments of _rsaes_pkcs1_v1_5_decrypt() to understand why this is being done
-        if (defined('CRYPT_RSA_PKCS15_COMPAT') && (!isset($this->publicExponent) || $this->exponent !== $this->publicExponent)) {
+        if ($pkcs15_compat && (!isset($this->publicExponent) || $this->exponent !== $this->publicExponent)) {
             $type = 1;
             // "The padding string PS shall consist of k-3-||D|| octets. ... for block type 01, they shall have value FF"
             $ps = str_repeat("\xFF", $psLen);
@@ -1761,15 +1742,14 @@ class RSA
      *
      * @access private
      * @param string $c
-     * @throws \RuntimeException on decryption error
-     * @return string
+     * @return bool|string
      */
     function _rsaes_pkcs1_v1_5_decrypt($c)
     {
         // Length checking
 
         if (strlen($c) != $this->k) { // or if k < 11
-            throw new \RuntimeException('Decryption error');
+            return false;
         }
 
         // RSA decryption
@@ -1778,21 +1758,21 @@ class RSA
         $m = $this->_rsadp($c);
 
         if ($m === false) {
-            throw new \RuntimeException('Decryption error');
+            return false;
         }
         $em = $this->_i2osp($m, $this->k);
 
         // EME-PKCS1-v1_5 decoding
 
         if (ord($em[0]) != 0 || ord($em[1]) > 2) {
-            throw new \RuntimeException('Decryption error');
+            return false;
         }
 
         $ps = substr($em, 2, strpos($em, chr(0), 2) - 2);
         $m = substr($em, strlen($ps) + 3);
 
         if (strlen($ps) < 8) {
-            throw new \RuntimeException('Decryption error');
+            return false;
         }
 
         // Output M
@@ -1820,7 +1800,7 @@ class RSA
 
         $mHash = $this->hash->hash($m);
         if ($emLen < $this->hLen + $sLen + 2) {
-            throw new \RuntimeException('Encoding error');
+            return false;
         }
 
         $salt = Random::string($sLen);
@@ -1917,7 +1897,6 @@ class RSA
      * @access private
      * @param string $m
      * @param string $s
-     * @throws \RuntimeException on invalid signature
      * @return string
      */
     function _rsassa_pss_verify($m, $s)
@@ -1925,7 +1904,7 @@ class RSA
         // Length checking
 
         if (strlen($s) != $this->k) {
-            throw new \RuntimeException('Invalid signature');
+            return false;
         }
 
         // RSA verification
@@ -1935,11 +1914,11 @@ class RSA
         $s2 = $this->_os2ip($s);
         $m2 = $this->_rsavp1($s2);
         if ($m2 === false) {
-            throw new \RuntimeException('Invalid signature');
+            return false;
         }
         $em = $this->_i2osp($m2, $modBits >> 3);
         if ($em === false) {
-            throw new \RuntimeException('Invalid signature');
+            return false;
         }
 
         // EMSA-PSS verification
@@ -2013,9 +1992,11 @@ class RSA
     {
         // EMSA-PKCS1-v1_5 encoding
 
+        // If the encoding operation outputs "intended encoded message length too short," output "RSA modulus
+        // too short" and stop.
         $em = $this->_emsa_pkcs1_v1_5_encode($m, $this->k);
         if ($em === false) {
-            throw new \LengthException('RSA modulus too short');
+            return false;
         }
 
         // RSA signature
@@ -2036,16 +2017,15 @@ class RSA
      *
      * @access private
      * @param string $m
-     * @throws \RuntimeException if the signature is invalid
      * @throws \LengthException if the RSA modulus is too short
-     * @return string
+     * @return bool|string
      */
     function _rsassa_pkcs1_v1_5_verify($m, $s)
     {
         // Length checking
 
         if (strlen($s) != $this->k) {
-            throw new \RuntimeException('Invalid signature');
+            return false;
         }
 
         // RSA verification
@@ -2053,17 +2033,20 @@ class RSA
         $s = $this->_os2ip($s);
         $m2 = $this->_rsavp1($s);
         if ($m2 === false) {
-            throw new \RuntimeException('Invalid signature');
+            return false;
         }
         $em = $this->_i2osp($m2, $this->k);
         if ($em === false) {
-            throw new \RuntimeException('Invalid signature');
+            return false;
         }
 
         // EMSA-PKCS1-v1_5 encoding
 
-        $em2 = $this->_emsa_pkcs1_v1_5_encode($m, $this->k);
-        if ($em2 === false) {
+        // If the encoding operation outputs "intended encoded message length too short," output "RSA modulus
+        // too short" and stop.
+        try {
+            $em2 = $this->_emsa_pkcs1_v1_5_encode($m, $this->k);
+        } catch (\LengthException $e) {
             throw new \LengthException('RSA modulus too short');
         }
 
@@ -2072,55 +2055,133 @@ class RSA
     }
 
     /**
-     * Set Encryption Mode
+     * RSASSA-PKCS1-V1_5-VERIFY (relaxed matching)
      *
-     * Valid values include self::ENCRYPTION_OAEP and self::ENCRYPTION_PKCS1.
+     * Per {@link http://tools.ietf.org/html/rfc3447#page-43 RFC3447#page-43} PKCS1 v1.5
+     * specified the use BER encoding rather than DER encoding that PKCS1 v2.0 specified.
+     * This means that under rare conditions you can have a perfectly valid v1.5 signature
+     * that fails to validate with _rsassa_pkcs1_v1_5_verify(). PKCS1 v2.1 also recommends
+     * that if you're going to validate these types of signatures you "should indicate
+     * whether the underlying BER encoding is a DER encoding and hence whether the signature
+     * is valid with respect to the specification given in [PKCS1 v2.0+]". so if you do
+     * $rsa->getLastPadding() and get RSA::PADDING_RELAXED_PKCS1 back instead of
+     * RSA::PADDING_PKCS1... that means BER encoding was used.
      *
-     * @access public
-     * @param int $mode
+     * @access private
+     * @param string $m
+     * @return bool|string
      */
-    function setEncryptionMode($mode)
+    function _rsassa_pkcs1_v1_5_relaxed_verify($m, $s)
     {
-        $this->encryptionMode = $mode;
-    }
+        // Length checking
 
-    /**
-     * Set Signature Mode
-     *
-     * Valid values include self::SIGNATURE_PSS and self::SIGNATURE_PKCS1
-     *
-     * @access public
-     * @param int $mode
-     */
-    function setSignatureMode($mode)
-    {
-        $this->signatureMode = $mode;
+        if (strlen($s) != $this->k) {
+            return false;
+        }
+
+        // RSA verification
+
+        $s = $this->_os2ip($s);
+        $m2 = $this->_rsavp1($s);
+        if ($m2 === false) {
+            return false;
+        }
+        $em = $this->_i2osp($m2, $this->k);
+        if ($em === false) {
+            return false;
+        }
+
+        if ($this->_string_shift($em, 2) != "\0\1") {
+            return false;
+        }
+
+        $em = ltrim($em, "\xFF");
+        if ($this->_string_shift($em) != "\0") {
+            return false;
+        }
+
+        $asn1 = new ASN1();
+        $decoded = $asn1->decodeBER($em);
+        if (!is_array($decoded) || empty($decoded[0]) || strlen($em) > $decoded[0]['length']) {
+            return false;
+        }
+
+        $AlgorithmIdentifier = array(
+            'type'     => ASN1::TYPE_SEQUENCE,
+            'children' => array(
+                'algorithm'  => array('type' => ASN1::TYPE_OBJECT_IDENTIFIER),
+                'parameters' => array(
+                                    'type'     => ASN1::TYPE_ANY,
+                                    'optional' => true
+                                )
+            )
+        );
+
+        $DigestInfo = array(
+            'type'     => ASN1::TYPE_SEQUENCE,
+            'children' => array(
+                'digestAlgorithm' => $AlgorithmIdentifier,
+                'digest' => array('type' => ASN1::TYPE_OCTET_STRING)
+            )
+        );
+
+        $oids = array(
+            '1.2.840.113549.2.2' => 'md2',
+            '1.2.840.113549.2.4' => 'md4', // from PKCS1 v1.5
+            '1.2.840.113549.2.5' => 'md5',
+            '1.3.14.3.2.26' => 'sha1',
+            '2.16.840.1.101.3.4.2.1' => 'sha256',
+            '2.16.840.1.101.3.4.2.2' => 'sha384',
+            '2.16.840.1.101.3.4.2.3' => 'sha512',
+            // from PKCS1 v2.2
+            //'2.16.840.1.101.3.4.2.5' => 'sha512/224',
+            //'2.16.840.1.101.3.4.2.6' => 'sha512/256',
+        );
+
+        $asn1->loadOIDs($oids);
+
+        $decoded = $asn1->asn1map($decoded[0], $DigestInfo);
+        if (!isset($decoded) || $decoded === false) {
+            return false;
+        }
+
+        if (!in_array($decoded['digestAlgorithm']['algorithm'], $oids)) {
+            return false;
+        }
+
+        $hash = new Hash($decoded['digestAlgorithm']['algorithm']);
+        $em = $hash->hash($m);
+        $em2 = base64_decode($decoded['digest']);
+
+        return $this->_equals($em, $em2);
     }
 
     /**
      * Encryption
      *
-     * Both self::ENCRYPTION_OAEP and self::ENCRYPTION_PKCS1 both place limits on how long $plaintext can be.
+     * Both self::PADDING_OAEP and self::PADDING_PKCS1 both place limits on how long $plaintext can be.
      * If $plaintext exceeds those limits it will be broken up so that it does and the resultant ciphertext's will
      * be concatenated together.
      *
      * @see self::decrypt()
      * @access public
      * @param string $plaintext
+     * @param int $padding
      * @return string
      * @throws \LengthException if the RSA modulus is too short
      */
-    function encrypt($plaintext)
+    function encrypt($plaintext, $padding = self::PADDING_OAEP)
     {
-        switch ($this->encryptionMode) {
-            case self::ENCRYPTION_NONE:
+        switch ($padding) {
+            case self::PADDING_NONE:
                 $plaintext = str_split($plaintext, $this->k);
                 $ciphertext = '';
                 foreach ($plaintext as $m) {
                     $ciphertext.= $this->_raw_encrypt($m);
                 }
                 return $ciphertext;
-            case self::ENCRYPTION_PKCS1:
+            case self::PADDING_PKCS15_COMPAT:
+            case self::PADDING_PKCS1:
                 $length = $this->k - 11;
                 if ($length <= 0) {
                     throw new \LengthException('RSA modulus too short (' . $this->k . ' bytes long; should be more than 11 bytes with PKCS1)');
@@ -2129,14 +2190,14 @@ class RSA
                 $plaintext = str_split($plaintext, $length);
                 $ciphertext = '';
                 foreach ($plaintext as $m) {
-                    $ciphertext.= $this->_rsaes_pkcs1_v1_5_encrypt($m);
+                    $ciphertext.= $this->_rsaes_pkcs1_v1_5_encrypt($m, $padding == self::PADDING_PKCS15_COMPAT);
                 }
                 return $ciphertext;
-            //case self::ENCRYPTION_OAEP:
+            //case self::PADDING_OAEP:
             default:
                 $length = $this->k - 2 * $this->hLen - 2;
                 if ($length <= 0) {
-                    throw new \LengthException('RSA modulus too short (' . $this->k . ' bytes long; should be more than ' . (2 * $this->hLen - 2) . ' bytes with OAEP / ' . $this->hashName . ')');
+                    throw new \LengthException('RSA modulus too short (' . $this->k . ' bytes long; should be more than ' . (2 * $this->hLen + 2) . ' bytes with OAEP / ' . $this->hashName . ')');
                 }
 
                 $plaintext = str_split($plaintext, $length);
@@ -2154,9 +2215,10 @@ class RSA
      * @see self::encrypt()
      * @access public
      * @param string $plaintext
+     * @param int|bool $padding
      * @return string
      */
-    function decrypt($ciphertext)
+    function decrypt($ciphertext, $padding = self::PADDING_OAEP)
     {
         if ($this->k <= 0) {
             return false;
@@ -2167,14 +2229,14 @@ class RSA
 
         $plaintext = '';
 
-        switch ($this->encryptionMode) {
-            case self::ENCRYPTION_NONE:
+        switch ($padding) {
+            case self::PADDING_NONE:
                 $decrypt = '_raw_encrypt';
                 break;
-            case self::ENCRYPTION_PKCS1:
+            case self::PADDING_PKCS1:
                 $decrypt = '_rsaes_pkcs1_v1_5_decrypt';
                 break;
-            //case self::ENCRYPTION_OAEP:
+            //case self::PADDING_OAEP:
             default:
                 $decrypt = '_rsaes_oaep_decrypt';
         }
@@ -2196,18 +2258,20 @@ class RSA
      * @see self::verify()
      * @access public
      * @param string $message
+     * @param int $padding
      * @return string
      */
-    function sign($message)
+    function sign($message, $padding = self::PADDING_PSS)
     {
         if (empty($this->modulus) || empty($this->exponent)) {
             return false;
         }
 
-        switch ($this->signatureMode) {
-            case self::SIGNATURE_PKCS1:
+        switch ($padding) {
+            case self::PADDING_PKCS1:
+            case self::PADDING_RELAXED_PKCS1:
                 return $this->_rsassa_pkcs1_v1_5_sign($message);
-            //case self::SIGNATURE_PSS:
+            //case self::PADDING_PSS:
             default:
                 return $this->_rsassa_pss_sign($message);
         }
@@ -2220,18 +2284,21 @@ class RSA
      * @access public
      * @param string $message
      * @param string $signature
+     * @param int|bool $padding
      * @return bool
      */
-    function verify($message, $signature)
+    function verify($message, $signature, $padding = self::PADDING_PSS)
     {
         if (empty($this->modulus) || empty($this->exponent)) {
             return false;
         }
 
-        switch ($this->signatureMode) {
-            case self::SIGNATURE_PKCS1:
+        switch ($padding) {
+            case self::PADDING_RELAXED_PKCS1:
+                return $this->_rsassa_pkcs1_v1_5_relaxed_verify($message, $signature);
+            case self::PADDING_PKCS1:
                 return $this->_rsassa_pkcs1_v1_5_verify($message, $signature);
-            //case self::SIGNATURE_PSS:
+            //case self::PADDING_PSS:
             default:
                 return $this->_rsassa_pss_verify($message, $signature);
         }
