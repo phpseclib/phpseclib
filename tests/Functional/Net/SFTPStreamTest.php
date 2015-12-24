@@ -28,6 +28,21 @@ class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
     }
 
     /**
+     * @group github778
+     */
+    public function testFilenameWithHash()
+    {
+        $context = stream_context_create(array(
+            'sftp' => array('session' => $this->sftp),
+        ));
+        $fp = fopen($this->buildUrl('te#st.txt'), 'wb', false, $context);
+        fputs($fp, 'zzzz');
+        fclose($fp);
+
+        $this->assertTrue(in_array('te#st.txt', $this->sftp->nlist()));
+    }
+
+    /**
      * Tests connection reuse functionality same as ssh2 extension:
      * {@link http://php.net/manual/en/wrappers.ssh2.php#refsect1-wrappers.ssh2-examples}
      */

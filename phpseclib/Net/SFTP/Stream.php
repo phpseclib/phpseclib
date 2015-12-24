@@ -154,7 +154,18 @@ class Stream
      */
     function _parse_path($path)
     {
+        $orig = $path;
         extract(parse_url($path) + array('port' => 22));
+        if (isset($query)) {
+            $path.= '?' . $query;
+        } elseif (preg_match('/(\?|\?#)$/', $orig)) {
+            $path.= '?';
+        }
+        if (isset($fragment)) {
+            $path.= '#' . $fragment;
+        } elseif ($orig[strlen($orig) - 1] == '#') {
+            $path.= '#';
+        }
 
         if (!isset($host)) {
             return false;
