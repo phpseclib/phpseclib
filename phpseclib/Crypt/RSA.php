@@ -525,8 +525,6 @@ class RSA
         $finalMax = $max;
         extract(self::_generateMinMax($temp));
 
-        $generator = new BigInteger();
-
         $n = self::$one->copy();
         if (!empty($partial)) {
             extract(unserialize($partial));
@@ -565,9 +563,9 @@ class RSA
                     if (!$temp->equals(self::$zero)) {
                         $min = $min->add(self::$one); // ie. ceil()
                     }
-                    $primes[$i] = $generator->randomPrime($min, $finalMax, $timeout);
+                    $primes[$i] = BigInteger::randomPrime($min, $finalMax, $timeout);
                 } else {
-                    $primes[$i] = $generator->randomPrime($min, $max, $timeout);
+                    $primes[$i] = BigInteger::randomPrime($min, $max, $timeout);
                 }
 
                 if ($primes[$i] === false) { // if we've reached the timeout
@@ -1383,7 +1381,7 @@ class RSA
                 }
             }
 
-            $r = self::$one->random(self::$one, $smallest->subtract(self::$one));
+            $r = BigInteger::random(self::$one, $smallest->subtract(self::$one));
 
             $m_i = array(
                 1 => $this->_blind($x, $r, 1),
