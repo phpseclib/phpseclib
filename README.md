@@ -74,11 +74,11 @@ SSH into a server with a private key, execute two commands and print the result.
 
 include 'vendor/autoload.php';
 
-$key = new \phpseclib\Crypt\RSA();
+$key = new phpseclib\Crypt\RSA();
 $key->loadKey(file_get_contents('private key'));
 
 // Domain can be an IP too
-$ssh = new \phpseclib\Net\SSH2('www.domain.tld');
+$ssh = new phpseclib\Net\SSH2('www.domain.tld');
 if (!$ssh->login('username', $key)) {
     exit('Login Failed');
 }
