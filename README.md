@@ -63,3 +63,26 @@ Dependencies are managed via Composer.
     ```
 
 6. Send us a Pull Request
+
+
+## Examples
+
+SSH into a server with a private key, execute two commands and print the result.
+
+```
+<?php
+
+include 'vendor/autoload.php';
+
+$key = new phpseclib\Crypt\RSA();
+$key->loadKey(file_get_contents('private-key.txt'));
+
+// Domain can be an IP too
+$ssh = new phpseclib\Net\SSH2('www.domain.tld');
+if (!$ssh->login('username', $key)) {
+    exit('Login Failed');
+}
+
+echo $ssh->exec('pwd');
+echo $ssh->exec('ls -la');
+```
