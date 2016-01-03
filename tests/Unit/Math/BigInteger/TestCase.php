@@ -348,6 +348,17 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $num = $this->getInstance(50);
         $str = print_r($num, true);
         $this->assertContains('[value] => 0x32', $str);
-        return $str;
+    }
+
+    public function testPrecision()
+    {
+        $a = $this->getInstance(50);
+        $this->assertSame($a->getPrecision(), -1);
+        $b = $a;
+        $c = clone $a;
+        $b->setPrecision(4);
+        $this->assertSame($a->getPrecision(), 4);
+        $this->assertSame($b->getPrecision(), 4);
+        $this->assertSame($c->getPrecision(), -1);
     }
 }

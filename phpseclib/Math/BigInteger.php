@@ -2751,6 +2751,12 @@ class BigInteger
      */
     function setPrecision($bits)
     {
+        if ($bits < 1) {
+            $this->precision = -1;
+            $this->bitmask = false;
+
+            return;
+        }
         $this->precision = $bits;
         if (MATH_BIGINTEGER_MODE != self::MODE_BCMATH) {
             $this->bitmask = new static(chr((1 << ($bits & 0x7)) - 1) . str_repeat(chr(0xFF), $bits >> 3), 256);
@@ -2760,6 +2766,18 @@ class BigInteger
 
         $temp = $this->_normalize($this);
         $this->value = $temp->value;
+    }
+
+    /**
+     * Get Precision
+     *
+     * @return int
+     * @see self::setPrecision()
+     * @access public
+     */
+    function getPrecision()
+    {
+        return $this->precision;
     }
 
     /**
