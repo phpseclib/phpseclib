@@ -16,6 +16,8 @@
 namespace phpseclib\System\SSH\Agent;
 
 use phpseclib\System\SSH\Agent;
+use phpseclib\Crypt\RSA;
+use phpseclib\Exception\UnsupportedAlgorithmException;
 
 /**
  * Pure-PHP ssh-agent client identity object
@@ -122,10 +124,15 @@ class Identity
      * @param int|bool $padding
      * @return string
      * @throws \RuntimeException on connection errors
+     * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @access public
      */
-    function sign($message, $padding = false)
+    function sign($message, $padding = RSA::PADDING_PSS)
     {
+        if ($padding != RSA::PADDING_PKCS1 && $padding != RSA::PADDING_RELAXED_PKCS1) {
+            throw new \UnsupportedAlgorithmException('ssh-agent can only create PKCS1 signatures');
+        }
+
         // the last parameter (currently 0) is for flags and ssh-agent only defines one flag (for ssh-dss): SSH_AGENT_OLD_SIGNATURE
         $packet = pack('CNa*Na*N', Agent::SSH_AGENTC_SIGN_REQUEST, strlen($this->key_blob), $this->key_blob, strlen($message), $message, 0);
         $packet = pack('Na*', strlen($packet), $packet);

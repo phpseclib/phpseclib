@@ -45,8 +45,6 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Crypt\Hash;
-use phpseclib\Crypt\Random;
 use phpseclib\Math\BigInteger;
 use phpseclib\File\ASN1;
 
@@ -1683,6 +1681,7 @@ class RSA
      *
      * @access private
      * @param string $m
+     * @param bool $pkcs15_compat optional
      * @throws \OutOfBoundsException if strlen($m) > $this->k - 11
      * @return string
      */
@@ -1870,7 +1869,7 @@ class RSA
      *
      * @access private
      * @param string $m
-     * @return string
+     * @return bool|string
      */
     function _rsassa_pss_sign($m)
     {
@@ -1940,9 +1939,6 @@ class RSA
     function _emsa_pkcs1_v1_5_encode($m, $emLen)
     {
         $h = $this->hash->hash($m);
-        if ($h === false) {
-            return false;
-        }
 
         // see http://tools.ietf.org/html/rfc3447#page-43
         switch ($this->hashName) {
@@ -1986,7 +1982,7 @@ class RSA
      * @access private
      * @param string $m
      * @throws \LengthException if the RSA modulus is too short
-     * @return string
+     * @return bool|string
      */
     function _rsassa_pkcs1_v1_5_sign($m)
     {
@@ -1994,9 +1990,10 @@ class RSA
 
         // If the encoding operation outputs "intended encoded message length too short," output "RSA modulus
         // too short" and stop.
-        $em = $this->_emsa_pkcs1_v1_5_encode($m, $this->k);
-        if ($em === false) {
-            return false;
+        try {
+            $em = $this->_emsa_pkcs1_v1_5_encode($m, $this->k);
+        } catch (\LengthException $e) {
+            throw new \LengthException('RSA modulus too short');
         }
 
         // RSA signature
@@ -2017,8 +2014,9 @@ class RSA
      *
      * @access private
      * @param string $m
+     * @param string $s
      * @throws \LengthException if the RSA modulus is too short
-     * @return bool|string
+     * @return bool
      */
     function _rsassa_pkcs1_v1_5_verify($m, $s)
     {
@@ -2069,7 +2067,8 @@ class RSA
      *
      * @access private
      * @param string $m
-     * @return bool|string
+     * @param string $s
+     * @return bool
      */
     function _rsassa_pkcs1_v1_5_relaxed_verify($m, $s)
     {
@@ -2166,8 +2165,8 @@ class RSA
      * @see self::decrypt()
      * @access public
      * @param string $plaintext
-     * @param int $padding
-     * @return string
+     * @param int $padding optional
+     * @return bool|string
      * @throws \LengthException if the RSA modulus is too short
      */
     function encrypt($plaintext, $padding = self::PADDING_OAEP)
@@ -2177,7 +2176,11 @@ class RSA
                 $plaintext = str_split($plaintext, $this->k);
                 $ciphertext = '';
                 foreach ($plaintext as $m) {
-                    $ciphertext.= $this->_raw_encrypt($m);
+                    $temp = $this->_raw_encrypt($m);
+                    if ($temp === false) {
+                        return false;
+                    }
+                    $ciphertext.= $temp;
                 }
                 return $ciphertext;
             case self::PADDING_PKCS15_COMPAT:
@@ -2190,7 +2193,11 @@ class RSA
                 $plaintext = str_split($plaintext, $length);
                 $ciphertext = '';
                 foreach ($plaintext as $m) {
-                    $ciphertext.= $this->_rsaes_pkcs1_v1_5_encrypt($m, $padding == self::PADDING_PKCS15_COMPAT);
+                    $temp = $this->_rsaes_pkcs1_v1_5_encrypt($m, $padding == self::PADDING_PKCS15_COMPAT);
+                    if ($temp === false) {
+                        return false;
+                    }
+                    $ciphertext.= $temp;
                 }
                 return $ciphertext;
             //case self::PADDING_OAEP:
@@ -2203,7 +2210,11 @@ class RSA
                 $plaintext = str_split($plaintext, $length);
                 $ciphertext = '';
                 foreach ($plaintext as $m) {
-                    $ciphertext.= $this->_rsaes_oaep_encrypt($m);
+                    $temp = $this->_rsaes_oaep_encrypt($m);
+                    if ($temp === false) {
+                        return false;
+                    }
+                    $ciphertext.= $temp;
                 }
                 return $ciphertext;
         }
@@ -2215,7 +2226,7 @@ class RSA
      * @see self::encrypt()
      * @access public
      * @param string $plaintext
-     * @param int|bool $padding
+     * @param int $padding optional
      * @return string
      */
     function decrypt($ciphertext, $padding = self::PADDING_OAEP)
@@ -2258,7 +2269,7 @@ class RSA
      * @see self::verify()
      * @access public
      * @param string $message
-     * @param int $padding
+     * @param int $padding optional
      * @return string
      */
     function sign($message, $padding = self::PADDING_PSS)
@@ -2284,7 +2295,7 @@ class RSA
      * @access public
      * @param string $message
      * @param string $signature
-     * @param int|bool $padding
+     * @param int $padding optional
      * @return bool
      */
     function verify($message, $signature, $padding = self::PADDING_PSS)
