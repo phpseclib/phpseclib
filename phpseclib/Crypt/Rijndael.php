@@ -236,17 +236,6 @@ class Rijndael extends Base
     }
 
     /**
-     * Gets the block length
-     *
-     * @access public
-     * @return int $this->block_size
-     */
-    function getBlockLength()
-    {
-        return $this->block_size;
-    }
-
-    /**
      * Test for engine validity
      *
      * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
