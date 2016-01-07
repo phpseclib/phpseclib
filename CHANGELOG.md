@@ -3,7 +3,7 @@
 ## 2.0.0 - 2015-08-04
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
-- No autoloader is provided anymore (use Composer)
+- The use of an autoloader is now required (e.g. Composer)
 
 ## 1.0.0 - 2015-08-02
 
