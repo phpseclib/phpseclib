@@ -106,13 +106,13 @@ class Identity
      *
      * Wrapper for $this->key->getPublicKey()
      *
-     * @param int $format optional
+     * @param int $type optional
      * @return mixed
      * @access public
      */
-    function getPublicKey($format = null)
+    function getPublicKey($type = 'PKCS8')
     {
-        return !isset($format) ? $this->key->getPublicKey() : $this->key->getPublicKey($format);
+        return $this->key->getPublicKey($type);
     }
 
     /**
@@ -121,13 +121,13 @@ class Identity
      * See "2.6.2 Protocol 2 private key signature request"
      *
      * @param string $message
-     * @param int|bool $padding
+     * @param int $padding optional
      * @return string
      * @throws \RuntimeException on connection errors
      * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @access public
      */
-    function sign($message, $padding = RSA::PADDING_PSS)
+    function sign($message, $padding = RSA::PADDING_PKCS1)
     {
         if ($padding != RSA::PADDING_PKCS1 && $padding != RSA::PADDING_RELAXED_PKCS1) {
             throw new \UnsupportedAlgorithmException('ssh-agent can only create PKCS1 signatures');

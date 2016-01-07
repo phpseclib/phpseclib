@@ -10,7 +10,7 @@
  * <?php
  * include 'vendor/autoload.php';
  *
- * extract(\phpseclib\Crypt\RSA::::createKey());
+ * extract(\phpseclib\Crypt\RSA::createKey());
  *
  * $plaintext = 'terrafrost';
  *
@@ -1219,7 +1219,7 @@ class RSA
      * Determines which hashing function should be used
      *
      * Used with signature production / verification and (if the encryption mode is self::PADDING_OAEP) encryption and
-     * decryption.  If $hash isn't supported, sha1 is used.
+     * decryption.  If $hash isn't supported, sha256 is used.
      *
      * @access public
      * @param string $hash
@@ -1266,7 +1266,7 @@ class RSA
                 $this->mgfHash = new Hash($hash);
                 break;
             default:
-                $this->mgfHash = new Hash('sha1');
+                $this->mgfHash = new Hash('sha256');
         }
         $this->mgfHLen = $this->mgfHash->getLength();
     }
@@ -1293,12 +1293,15 @@ class RSA
      * See {@link http://tools.ietf.org/html/rfc3447#section-4.1 RFC3447#section-4.1}.
      *
      * @access private
-     * @param \phpseclib\Math\BigInteger $x
+     * @param bool|\phpseclib\Math\BigInteger $x
      * @param int $xLen
      * @return bool|string
      */
     function _i2osp($x, $xLen)
     {
+        if ($x === false) {
+            return false;
+        }
         $x = $x->toBytes();
         if (strlen($x) > $xLen) {
             return false;
@@ -1628,10 +1631,10 @@ class RSA
 
         $c = $this->_os2ip($c);
         $m = $this->_rsadp($c);
-        if ($m === false) {
+        $em = $this->_i2osp($m, $this->k);
+        if ($em === false) {
             return false;
         }
-        $em = $this->_i2osp($m, $this->k);
 
         // EME-OAEP decoding
 
@@ -1665,7 +1668,7 @@ class RSA
      *
      * @access private
      * @param string $m
-     * @return string
+     * @return bool|string
      */
     function _raw_encrypt($m)
     {
@@ -1683,7 +1686,7 @@ class RSA
      * @param string $m
      * @param bool $pkcs15_compat optional
      * @throws \OutOfBoundsException if strlen($m) > $this->k - 11
-     * @return string
+     * @return bool|string
      */
     function _rsaes_pkcs1_v1_5_encrypt($m, $pkcs15_compat = false)
     {
@@ -1755,11 +1758,10 @@ class RSA
 
         $c = $this->_os2ip($c);
         $m = $this->_rsadp($c);
-
-        if ($m === false) {
+        $em = $this->_i2osp($m, $this->k);
+        if ($em === false) {
             return false;
         }
-        $em = $this->_i2osp($m, $this->k);
 
         // EME-PKCS1-v1_5 decoding
 
@@ -1896,7 +1898,7 @@ class RSA
      * @access private
      * @param string $m
      * @param string $s
-     * @return string
+     * @return bool|string
      */
     function _rsassa_pss_verify($m, $s)
     {
@@ -1912,9 +1914,6 @@ class RSA
 
         $s2 = $this->_os2ip($s);
         $m2 = $this->_rsavp1($s2);
-        if ($m2 === false) {
-            return false;
-        }
         $em = $this->_i2osp($m2, $modBits >> 3);
         if ($em === false) {
             return false;
@@ -2030,9 +2029,6 @@ class RSA
 
         $s = $this->_os2ip($s);
         $m2 = $this->_rsavp1($s);
-        if ($m2 === false) {
-            return false;
-        }
         $em = $this->_i2osp($m2, $this->k);
         if ($em === false) {
             return false;
@@ -2227,7 +2223,7 @@ class RSA
      * @access public
      * @param string $plaintext
      * @param int $padding optional
-     * @return string
+     * @return bool|string
      */
     function decrypt($ciphertext, $padding = self::PADDING_OAEP)
     {
