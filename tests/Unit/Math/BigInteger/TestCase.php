@@ -217,6 +217,11 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $z = $this->getInstance('11111111111111111111111', 16);
 
         $this->assertSame($z->toHex(), $x->bitwise_NOT()->toHex());
+
+        $a = $this->getInstance(0);
+        $a->bitwise_not();
+
+        $this->assertSame($a->toString(), '0');
     }
 
     public function testBitwiseLeftShift()

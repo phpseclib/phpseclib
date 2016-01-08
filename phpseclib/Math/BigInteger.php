@@ -2875,6 +2875,9 @@ class BigInteger
         // calculuate "not" without regard to $this->precision
         // (will always result in a smaller number.  ie. ~1 isn't 1111 1110 - it's 0)
         $temp = $this->toBytes();
+        if ($temp == '') {
+            return '';
+        }
         $pre_msb = decbin(ord($temp[0]));
         $temp = ~$temp;
         $msb = decbin(ord($temp[0]));
