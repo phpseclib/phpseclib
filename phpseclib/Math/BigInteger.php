@@ -712,28 +712,6 @@ class BigInteger
     }
 
     /**
-     * Copy an object
-     *
-     * PHP5 passes objects by reference while PHP4 passes by value.  As such, we need a function to guarantee
-     * that all objects are passed by value, when appropriate.  More information can be found here:
-     *
-     * {@link http://php.net/language.oop5.basic#51624}
-     *
-     * @access public
-     * @see self::__clone()
-     * @return \phpseclib\Math\BigInteger
-     */
-    function copy()
-    {
-        $temp = new static();
-        $temp->value = $this->value;
-        $temp->is_negative = $this->is_negative;
-        $temp->precision = $this->precision;
-        $temp->bitmask = $this->bitmask;
-        return $temp;
-    }
-
-    /**
      *  __toString() magic method
      *
      * Will be called, automatically, if you're supporting just PHP5.  If you're supporting PHP4, you'll need to call
@@ -745,22 +723,6 @@ class BigInteger
     function __toString()
     {
         return $this->toString();
-    }
-
-    /**
-     * __clone() magic method
-     *
-     * @access public
-     * @return \phpseclib\Math\BigInteger
-     */
-    function __clone()
-    {
-        $temp = new static();
-        $temp->value = $this->value;
-        $temp->is_negative = $this->is_negative;
-        $temp->precision = $this->precision;
-        $temp->bitmask = $this->bitmask;
-        return $temp;
     }
 
     /**
@@ -1443,8 +1405,8 @@ class BigInteger
             $zero = new static();
         }
 
-        $x = $this->copy();
-        $y = $y->copy();
+        $x = clone $this;
+        $y = clone $y;
 
         $x_sign = $x->is_negative;
         $y_sign = $y->is_negative;

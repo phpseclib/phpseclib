@@ -525,13 +525,13 @@ class RSA
         $finalMax = $max;
         extract(self::_generateMinMax($temp));
 
-        $n = self::$one->copy();
+        $n = clone self::$one;
         if (!empty($partial)) {
             extract(unserialize($partial));
         } else {
             $exponents = $coefficients = $primes = array();
             $lcm = array(
-                'top' => self::$one->copy(),
+                'top' => clone self::$one,
                 'bottom' => false
             );
         }
@@ -716,13 +716,13 @@ class RSA
             }
 
             if (is_object($key->modulus)) {
-                $this->modulus = $key->modulus->copy();
+                $this->modulus = clone $key->modulus;
             }
             if (is_object($key->exponent)) {
-                $this->exponent = $key->exponent->copy();
+                $this->exponent = clone $key->exponent;
             }
             if (is_object($key->publicExponent)) {
-                $this->publicExponent = $key->publicExponent->copy();
+                $this->publicExponent = clone $key->publicExponent;
             }
 
             $this->primes = array();
@@ -730,13 +730,13 @@ class RSA
             $this->coefficients = array();
 
             foreach ($this->primes as $prime) {
-                $this->primes[] = $prime->copy();
+                $this->primes[] = clone $prime;
             }
             foreach ($this->exponents as $exponent) {
-                $this->exponents[] = $exponent->copy();
+                $this->exponents[] = clone $exponent;
             }
             foreach ($this->coefficients as $coefficient) {
-                $this->coefficients[] = $coefficient->copy();
+                $this->coefficients[] = clone $coefficient;
             }
 
             return true;

@@ -352,13 +352,16 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 
     public function testPrecision()
     {
-        $a = $this->getInstance(50);
+        $a = $this->getInstance(51);
         $this->assertSame($a->getPrecision(), -1);
         $b = $a;
         $c = clone $a;
-        $b->setPrecision(4);
-        $this->assertSame($a->getPrecision(), 4);
-        $this->assertSame($b->getPrecision(), 4);
+        $b->setPrecision(1);
+        $this->assertSame($a->getPrecision(), 1);
+        $this->assertSame("$a", '1');
+        $this->assertSame($b->getPrecision(), 1);
+        $this->assertSame("$b", '1');
         $this->assertSame($c->getPrecision(), -1);
+        $this->assertSame("$c", '51');
     }
 }
