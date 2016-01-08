@@ -402,7 +402,7 @@ class RSA
      * @param int $timeout
      * @param array $p
      */
-    static function createKey($bits = 1024, $timeout = false, $partial = array())
+    static function createKey($bits = 2048, $timeout = false, $partial = array())
     {
         self::_initialize_static_variables();
 
