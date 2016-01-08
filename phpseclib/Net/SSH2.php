@@ -2965,6 +2965,17 @@ class Net_SSH2
     }
 
     /**
+     * Have you successfully been logged in?
+     *
+     * @return bool
+     * @access public
+     */
+    function isAuthenticated()
+    {
+        return (bool) ($this->bitmap & NET_SSH2_MASK_LOGIN);
+    }
+
+    /**
      * Gets Binary Packets
      *
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
