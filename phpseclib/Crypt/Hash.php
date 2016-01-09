@@ -147,7 +147,12 @@ class Hash
             case 'md5-96':
             case 'sha1-96':
             case 'sha256-96':
+                $this->BlockSize = 512;
+                $hash = substr($hash, 0, -3);
+                $this->length = 12; // 96 / 8 = 12
+                break;
             case 'sha512-96':
+                $this->BlockSize = 1024;
                 $hash = substr($hash, 0, -3);
                 $this->length = 12; // 96 / 8 = 12
                 break;
