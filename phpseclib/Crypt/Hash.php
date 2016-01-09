@@ -109,15 +109,17 @@ class Hash
      */
     function setKey($key = false)
     {
-        if (strlen($key) < $this->length) 
+        if (!empty($this->key) || is_string($this->key))
         {
-            throw new Exception ("Key is too short, it must be at least {$this->length}.");
-        } 
-        elseif (strlen($key) > $this->getBlockSize())
-        {
-               $key = substr($key, 0, $this->getBlockSize());
+            if (strlen($key) < $this->length) 
+            {
+                throw new Exception ("Key is too short, it must be at least {$this->length}.");
+            } 
+            elseif (strlen($key) > $this->getBlockSize())
+            {
+                $key = substr($key, 0, $this->getBlockSize());
+            }
         }
-        
         $this->key = $key;
     }
 
