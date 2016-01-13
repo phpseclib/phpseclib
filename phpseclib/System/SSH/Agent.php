@@ -321,7 +321,9 @@ class System_SSH_Agent
             $length = current(unpack('N', fread($this->fsock, 4)));
             $key_blob = fread($this->fsock, $length);
             $length = current(unpack('N', fread($this->fsock, 4)));
-            $key_comment = fread($this->fsock, $length);
+            if ($length) {
+                $key_comment = fread($this->fsock, $length);
+            }
             $length = current(unpack('N', substr($key_blob, 0, 4)));
             $key_type = substr($key_blob, 4, $length);
             switch ($key_type) {
