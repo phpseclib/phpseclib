@@ -217,6 +217,11 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $z = $this->getInstance('11111111111111111111111', 16);
 
         $this->assertSame($z->toHex(), $x->bitwise_NOT()->toHex());
+
+        $a = $this->getInstance(0);
+        $a->bitwise_not();
+
+        $this->assertSame($a->toString(), '0');
     }
 
     public function testBitwiseLeftShift()
@@ -268,27 +273,11 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $min = $this->getInstance(0);
         $max = $this->getInstance('18446744073709551616');
 
-        $rand1 = $min->random($min, $max);
+        $rand1 = \phpseclib\Math\BigInteger::random($min, $max);
         // technically $rand1 can equal $min but with the $min and $max we've
         // chosen it's just not that likely
         $this->assertTrue($rand1->compare($min) > 0);
         $this->assertTrue($rand1->compare($max) < 0);
-    }
-
-    public function testRandomOneArgument()
-    {
-        $min = $this->getInstance(0);
-        $max = $this->getInstance('18446744073709551616');
-
-        $rand1 = $min->random($max);
-        $this->assertTrue($rand1->compare($min) > 0);
-        $this->assertTrue($rand1->compare($max) < 0);
-
-        $rand2 = $max->random($min);
-        $this->assertTrue($rand2->compare($min) > 0);
-        $this->assertTrue($rand2->compare($max) < 0);
-
-        $this->assertFalse($rand1->equals($rand2));
     }
 
     /**
@@ -326,8 +315,8 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         Code for generation of $alicePrivate and $bobPrivate.
         $one = $this->getInstance(1);
         $max = $one->bitwise_leftShift(512)->subtract($one);
-        $alicePrivate = $one->random($one, $max);
-        $bobPrivate = $one->random($one, $max);
+        $alicePrivate = \phpseclib\Math\BigInteger::random($one, $max);
+        $bobPrivate = \phpseclib\Math\BigInteger::random($one, $max);
         var_dump($alicePrivate->toHex(), $bobPrivate->toHex());
         */
 
@@ -364,6 +353,20 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $num = $this->getInstance(50);
         $str = print_r($num, true);
         $this->assertContains('[value] => 0x32', $str);
-        return $str;
+    }
+
+    public function testPrecision()
+    {
+        $a = $this->getInstance(51);
+        $this->assertSame($a->getPrecision(), -1);
+        $b = $a;
+        $c = clone $a;
+        $b->setPrecision(1);
+        $this->assertSame($a->getPrecision(), 1);
+        $this->assertSame("$a", '1');
+        $this->assertSame($b->getPrecision(), 1);
+        $this->assertSame("$b", '1');
+        $this->assertSame($c->getPrecision(), -1);
+        $this->assertSame("$c", '51');
     }
 }

@@ -512,15 +512,13 @@ class RSA
         $finalMax = $max;
         extract(self::_generateMinMax($temp));
 
-        $generator = new BigInteger();
-
-        $n = self::$one->copy();
+        $n = clone self::$one;
         if (!empty($partial)) {
             extract(unserialize($partial));
         } else {
             $exponents = $coefficients = $primes = array();
             $lcm = array(
-                'top' => self::$one->copy(),
+                'top' => clone self::$one,
                 'bottom' => false
             );
         }
@@ -552,9 +550,9 @@ class RSA
                     if (!$temp->equals(self::$zero)) {
                         $min = $min->add(self::$one); // ie. ceil()
                     }
-                    $primes[$i] = $generator->randomPrime($min, $finalMax, $timeout);
+                    $primes[$i] = BigInteger::randomPrime($min, $finalMax, $timeout);
                 } else {
-                    $primes[$i] = $generator->randomPrime($min, $max, $timeout);
+                    $primes[$i] = BigInteger::randomPrime($min, $max, $timeout);
                 }
 
                 if ($primes[$i] === false) { // if we've reached the timeout
@@ -703,13 +701,13 @@ class RSA
             }
 
             if (is_object($key->modulus)) {
-                $this->modulus = $key->modulus->copy();
+                $this->modulus = clone $key->modulus;
             }
             if (is_object($key->exponent)) {
-                $this->exponent = $key->exponent->copy();
+                $this->exponent = clone $key->exponent;
             }
             if (is_object($key->publicExponent)) {
-                $this->publicExponent = $key->publicExponent->copy();
+                $this->publicExponent = clone $key->publicExponent;
             }
 
             $this->primes = array();
@@ -717,13 +715,13 @@ class RSA
             $this->coefficients = array();
 
             foreach ($this->primes as $prime) {
-                $this->primes[] = $prime->copy();
+                $this->primes[] = clone $prime;
             }
             foreach ($this->exponents as $exponent) {
-                $this->exponents[] = $exponent->copy();
+                $this->exponents[] = clone $exponent;
             }
             foreach ($this->coefficients as $coefficient) {
-                $this->coefficients[] = $coefficient->copy();
+                $this->coefficients[] = clone $coefficient;
             }
 
             return true;
@@ -1370,7 +1368,7 @@ class RSA
                 }
             }
 
-            $r = self::$one->random(self::$one, $smallest->subtract(self::$one));
+            $r = BigInteger::random(self::$one, $smallest->subtract(self::$one));
 
             $m_i = array(
                 1 => $this->_blind($x, $r, 1),
