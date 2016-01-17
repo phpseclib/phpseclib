@@ -104,6 +104,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setPreferredEngine($this->engine);
         $aes->disablePadding();
         $aes->setKey(pack('H*', '2b7e151628aed2a6abf7158809cf4f3c762e7160')); // 160-bit key. Valid in Rijndael.
+        $aes->setIV(str_repeat("\0", 16));
         //$this->_checkEngine($aes); // should only work in internal mode
         $ciphertext = $aes->encrypt(pack('H*', '3243f6a8885a308d313198a2e0370734'));
         $this->assertEquals($ciphertext, pack('H*', '231d844639b31b412211cfe93712b880'));
@@ -120,6 +121,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setPreferredEngine($this->engine);
         $aes->disablePadding();
         $aes->setKey(pack('H*', '2b7e151628aed2a6abf7158809cf4f3c762e7160')); // 160-bit key. AES should null pad to 192-bits
+        $aes->setIV(str_repeat("\0", 16));
         $this->_checkEngine($aes);
         $ciphertext = $aes->encrypt(pack('H*', '3243f6a8885a308d313198a2e0370734'));
         $this->assertEquals($ciphertext, pack('H*', 'c109292b173f841b88e0ee49f13db8c0'));
@@ -355,6 +357,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes = new AES();
         $aes->setKeyLength(128);
         $aes->setKey(str_repeat('a', 24));
+        $aes->setIV(str_repeat("\0", 16));
         $this->assertSame($aes->getKeyLength(), 128);
         $ciphertext = bin2hex($aes->encrypt('a'));
         $this->assertSame($ciphertext, '82b7b068dfc60ed2a46893b69fecd6c2');
@@ -366,6 +369,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes = new AES();
         $aes->setKeyLength(256);
         $aes->setKey(str_repeat('a', 16));
+        $aes->setIV(str_repeat("\0", 16));
         $this->assertSame($aes->getKeyLength(), 256);
         $ciphertext = bin2hex($aes->encrypt('a'));
         $this->assertSame($ciphertext, 'fd4250c0d234aa7e1aa592820aa8406b');

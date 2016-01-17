@@ -51,7 +51,7 @@ class Unit_Crypt_DESTest extends PhpseclibTestCase
         $des->disablePadding();
         // when the key and iv are not specified they should be null padded
         //$des->setKey();
-        //$des->setIV();
+        $des->setIV('');
 
         $des->setPreferredEngine(Base::ENGINE_INTERNAL);
         $internal = $des->decrypt('d');

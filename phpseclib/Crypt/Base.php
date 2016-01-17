@@ -150,7 +150,7 @@ abstract class Base
      * @var string
      * @access private
      */
-    var $iv;
+    var $iv = false;
 
     /**
      * A "sliding" Initialization Vector
@@ -1871,12 +1871,17 @@ abstract class Base
      * after disableContinuousBuffer() or on cipher $engine (re)init
      * ie after setKey() or setIV()
      *
-     * @access public
+     * @access private
      * @internal Could, but not must, extend by the child Crypt_* class
+     * @throws \UnexpectedValueException when an IV is required but not defined
      */
     function _clearBuffers()
     {
         $this->enbuffer = $this->debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true);
+
+        if ($this->iv === false && !in_array($this->mode, array(self::MODE_STREAM, self::MODE_ECB))) {
+            throw new \UnexpectedValueException('No IV has been defined');
+        }
 
         // mcrypt's handling of invalid's $iv:
         // $this->encryptIV = $this->decryptIV = strlen($this->iv) == $this->block_size ? $this->iv : str_repeat("\0", $this->block_size);

@@ -132,6 +132,7 @@ class PuTTY
 
         if ($encryption != 'none') {
             $crypto->setKey($symkey);
+            $crypto->setIV(str_repeat("\0", $crypto->getBlockLength() >> 3));
             $crypto->disablePadding();
             $private = $crypto->decrypt($private);
             if ($private === false) {
@@ -263,6 +264,7 @@ class PuTTY
             $crypto = new AES();
 
             $crypto->setKey(static::generateSymmetricKey($password, 32));
+            $crypto->setIV(str_repeat("\0", $crypto->getBlockLength() >> 3));
             $crypto->disablePadding();
             $private = $crypto->encrypt($private);
             $hashkey = 'putty-private-key-file-mac-key' . $password;
