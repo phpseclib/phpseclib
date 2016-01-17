@@ -1667,9 +1667,14 @@ class RSA
      * @access private
      * @param string $m
      * @return bool|string
+     * @throws \OutOfBoundsException if strlen($m) > $this->k
      */
     function _raw_encrypt($m)
     {
+        if (strlen($m) > $this->k) {
+            throw new \OutOfBoundsException('Message too long');
+        }
+
         $temp = $this->_os2ip($m);
         $temp = $this->_rsaep($temp);
         return  $this->_i2osp($temp, $this->k);
@@ -2167,50 +2172,13 @@ class RSA
     {
         switch ($padding) {
             case self::PADDING_NONE:
-                $plaintext = str_split($plaintext, $this->k);
-                $ciphertext = '';
-                foreach ($plaintext as $m) {
-                    $temp = $this->_raw_encrypt($m);
-                    if ($temp === false) {
-                        return false;
-                    }
-                    $ciphertext.= $temp;
-                }
-                return $ciphertext;
+                return $this->_raw_encrypt($plaintext);
             case self::PADDING_PKCS15_COMPAT:
             case self::PADDING_PKCS1:
-                $length = $this->k - 11;
-                if ($length <= 0) {
-                    throw new \LengthException('RSA modulus too short (' . $this->k . ' bytes long; should be more than 11 bytes with PKCS1)');
-                }
-
-                $plaintext = str_split($plaintext, $length);
-                $ciphertext = '';
-                foreach ($plaintext as $m) {
-                    $temp = $this->_rsaes_pkcs1_v1_5_encrypt($m, $padding == self::PADDING_PKCS15_COMPAT);
-                    if ($temp === false) {
-                        return false;
-                    }
-                    $ciphertext.= $temp;
-                }
-                return $ciphertext;
+                return $this->_rsaes_pkcs1_v1_5_encrypt($plaintext, $padding == self::PADDING_PKCS15_COMPAT);
             //case self::PADDING_OAEP:
             default:
-                $length = $this->k - 2 * $this->hLen - 2;
-                if ($length <= 0) {
-                    throw new \LengthException('RSA modulus too short (' . $this->k . ' bytes long; should be more than ' . (2 * $this->hLen + 2) . ' bytes with OAEP / ' . $this->hashName . ')');
-                }
-
-                $plaintext = str_split($plaintext, $length);
-                $ciphertext = '';
-                foreach ($plaintext as $m) {
-                    $temp = $this->_rsaes_oaep_encrypt($m);
-                    if ($temp === false) {
-                        return false;
-                    }
-                    $ciphertext.= $temp;
-                }
-                return $ciphertext;
+                return $this->_rsaes_oaep_encrypt($plaintext);
         }
     }
 
@@ -2225,36 +2193,15 @@ class RSA
      */
     function decrypt($ciphertext, $padding = self::PADDING_OAEP)
     {
-        if ($this->k <= 0) {
-            return false;
-        }
-
-        $ciphertext = str_split($ciphertext, $this->k);
-        $ciphertext[count($ciphertext) - 1] = str_pad($ciphertext[count($ciphertext) - 1], $this->k, chr(0), STR_PAD_LEFT);
-
-        $plaintext = '';
-
         switch ($padding) {
             case self::PADDING_NONE:
-                $decrypt = '_raw_encrypt';
-                break;
+                return $this->_raw_encrypt($ciphertext);
             case self::PADDING_PKCS1:
-                $decrypt = '_rsaes_pkcs1_v1_5_decrypt';
-                break;
+                return $this->_rsaes_pkcs1_v1_5_decrypt($ciphertext);
             //case self::PADDING_OAEP:
             default:
-                $decrypt = '_rsaes_oaep_decrypt';
+                return $this->_rsaes_oaep_decrypt($ciphertext);
         }
-
-        foreach ($ciphertext as $c) {
-            $temp = $this->$decrypt($c);
-            if ($temp === false) {
-                return false;
-            }
-            $plaintext.= $temp;
-        }
-
-        return $plaintext;
     }
 
     /**
