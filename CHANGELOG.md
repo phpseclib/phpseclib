@@ -1,9 +1,39 @@
 # Changelog
 
+## 2.0.1 - 2016-01-18
+
+- RSA: fix regression in PSS mode ([#769](https://github.com/phpseclib/phpseclib/pull/769))
+- RSA: fix issue loading PKCS8 specific keys ([#861](https://github.com/phpseclib/phpseclib/pull/861))
+- X509: add getOID() method ([#789](https://github.com/phpseclib/phpseclib/pull/789))
+- X509: improve base64-encoded detection rules ([#855](https://github.com/phpseclib/phpseclib/pull/855))
+- SFTP: fix quirky behavior with put() ([#830](https://github.com/phpseclib/phpseclib/pull/830))
+- SFTP: fix E_NOTICE ([#883](https://github.com/phpseclib/phpseclib/pull/883))
+- SFTP/Stream: fix issue with filenames with hashes ([#901](https://github.com/phpseclib/phpseclib/pull/901))
+- SSH2: add isAuthenticated() method ([#897](https://github.com/phpseclib/phpseclib/pull/897))
+- SSH/Agent: fix possible PHP warning ([#923](https://github.com/phpseclib/phpseclib/issues/923))
+- BigInteger: add __debugInfo() magic method ([#881](https://github.com/phpseclib/phpseclib/pull/881))
+- BigInteger: fix issue with doing bitwise not on 0
+- add getBlockLength() method to symmetric ciphers
+
 ## 2.0.0 - 2015-08-04
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.1 - 2016-01-18
+
+- RSA: fix regression in PSS mode ([#769](https://github.com/phpseclib/phpseclib/pull/769))
+- RSA: fix issue loading PKCS8 specific keys ([#861](https://github.com/phpseclib/phpseclib/pull/861))
+- X509: add getOID() method ([#789](https://github.com/phpseclib/phpseclib/pull/789))
+- X509: improve base64-encoded detection rules ([#855](https://github.com/phpseclib/phpseclib/pull/855))
+- SFTP: fix quirky behavior with put() ([#830](https://github.com/phpseclib/phpseclib/pull/830))
+- SFTP: fix E_NOTICE ([#883](https://github.com/phpseclib/phpseclib/pull/883))
+- SFTP/Stream: fix issue with filenames with hashes ([#901](https://github.com/phpseclib/phpseclib/pull/901))
+- SSH2: add isAuthenticated() method ([#897](https://github.com/phpseclib/phpseclib/pull/897))
+- SSH/Agent: fix possible PHP warning ([#923](https://github.com/phpseclib/phpseclib/issues/923))
+- BigInteger: add __debugInfo() magic method ([#881](https://github.com/phpseclib/phpseclib/pull/881))
+- BigInteger: fix issue with doing bitwise not on 0
+- add getBlockLength() method to symmetric ciphers
 
 ## 1.0.0 - 2015-08-02
 
