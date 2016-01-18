@@ -37,7 +37,6 @@
 
 namespace phpseclib\Net;
 
-use phpseclib\Net\SSH2;
 use phpseclib\Exception\FileNotFoundException;
 
 /**

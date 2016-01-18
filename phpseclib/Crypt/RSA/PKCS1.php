@@ -22,12 +22,11 @@
 
 namespace phpseclib\Crypt\RSA;
 
-use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\RSA\PKCS;
-use phpseclib\Crypt\Random;
 use phpseclib\Crypt\AES;
-use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\DES;
+use phpseclib\Crypt\Random;
+use phpseclib\Crypt\TripleDES;
+use phpseclib\Math\BigInteger;
 
 /**
  * PKCS#1 Formatted RSA Key Handler

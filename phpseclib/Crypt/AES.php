@@ -49,8 +49,6 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Crypt\Rijndael;
-
 /**
  * Pure-PHP implementation of AES.
  *

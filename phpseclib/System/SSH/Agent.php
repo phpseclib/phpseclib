@@ -34,8 +34,8 @@
 namespace phpseclib\System\SSH;
 
 use phpseclib\Crypt\RSA;
-use phpseclib\System\SSH\Agent\Identity;
 use phpseclib\Exception\BadConfigurationException;
+use phpseclib\System\SSH\Agent\Identity;
 
 /**
  * Pure-PHP ssh-agent client identity factory

@@ -24,10 +24,9 @@
 
 namespace phpseclib\Crypt\RSA;
 
-use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\RSA\PKCS;
-use phpseclib\Crypt\Random;
 use phpseclib\Crypt\DES;
+use phpseclib\Crypt\Random;
+use phpseclib\Math\BigInteger;
 
 /**
  * PKCS#8 Formatted RSA Key Handler

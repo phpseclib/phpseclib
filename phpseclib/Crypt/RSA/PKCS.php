@@ -14,10 +14,10 @@
 
 namespace phpseclib\Crypt\RSA;
 
-use phpseclib\Crypt\Base;
 use phpseclib\Crypt\AES;
-use phpseclib\Crypt\TripleDES;
+use phpseclib\Crypt\Base;
 use phpseclib\Crypt\DES;
+use phpseclib\Crypt\TripleDES;
 use phpseclib\Math\BigInteger;
 
 /**

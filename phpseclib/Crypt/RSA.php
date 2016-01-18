@@ -45,8 +45,8 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Math\BigInteger;
 use phpseclib\File\ASN1;
+use phpseclib\Math\BigInteger;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.

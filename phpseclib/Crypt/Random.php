@@ -24,14 +24,6 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Crypt\AES;
-use phpseclib\Crypt\Base;
-use phpseclib\Crypt\Blowfish;
-use phpseclib\Crypt\DES;
-use phpseclib\Crypt\RC4;
-use phpseclib\Crypt\TripleDES;
-use phpseclib\Crypt\Twofish;
-
 /**
  * Pure-PHP Random Number Generator
  *
