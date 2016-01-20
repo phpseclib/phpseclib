@@ -500,10 +500,9 @@ abstract class Base
     }
 
     /**
-     * Sets the initialization vector. (optional)
+     * Sets the initialization vector.
      *
-     * SetIV is not required when self::MODE_ECB (or ie for AES: \phpseclib\Crypt\AES::MODE_ECB) is being used.  If not explicitly set, it'll be assumed
-     * to be all zero's.
+     * setIV() is not required when self::MODE_ECB (or ie for AES: \phpseclib\Crypt\AES::MODE_ECB) is being used.
      *
      * @access public
      * @param string $iv
@@ -511,8 +510,10 @@ abstract class Base
      */
     function setIV($iv)
     {
-        if ($this->mode == self::MODE_ECB) {
-            return;
+        switch ($this->mode) {
+            case self::MODE_ECB:
+            case self::MODE_STREAM:
+                return;
         }
 
         $this->iv = $iv;
