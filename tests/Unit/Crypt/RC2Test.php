@@ -114,6 +114,7 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
         $rc2->disablePadding();
         $rc2->setKeyLength($keyLen);
         $rc2->setKey(pack('H*', $key)); // could also do $rc2->setKey(pack('H*', $key), $keyLen)
+        $rc2->setIV(str_repeat("\0", $rc2->getBlockLength() >> 3));
         if (!$rc2->isValidEngine($engine)) {
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
         }

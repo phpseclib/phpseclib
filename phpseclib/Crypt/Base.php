@@ -150,7 +150,7 @@ abstract class Base
      * @var string
      * @access private
      */
-    var $iv;
+    var $iv = false;
 
     /**
      * A "sliding" Initialization Vector
@@ -500,10 +500,9 @@ abstract class Base
     }
 
     /**
-     * Sets the initialization vector. (optional)
+     * Sets the initialization vector.
      *
-     * SetIV is not required when self::MODE_ECB (or ie for AES: \phpseclib\Crypt\AES::MODE_ECB) is being used.  If not explicitly set, it'll be assumed
-     * to be all zero's.
+     * setIV() is not required when self::MODE_ECB (or ie for AES: \phpseclib\Crypt\AES::MODE_ECB) is being used.
      *
      * @access public
      * @param string $iv
@@ -511,8 +510,10 @@ abstract class Base
      */
     function setIV($iv)
     {
-        if ($this->mode == self::MODE_ECB) {
-            return;
+        switch ($this->mode) {
+            case self::MODE_ECB:
+            case self::MODE_STREAM:
+                return;
         }
 
         $this->iv = $iv;
@@ -1871,12 +1872,17 @@ abstract class Base
      * after disableContinuousBuffer() or on cipher $engine (re)init
      * ie after setKey() or setIV()
      *
-     * @access public
+     * @access private
      * @internal Could, but not must, extend by the child Crypt_* class
+     * @throws \UnexpectedValueException when an IV is required but not defined
      */
     function _clearBuffers()
     {
         $this->enbuffer = $this->debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true);
+
+        if ($this->iv === false && !in_array($this->mode, array(self::MODE_STREAM, self::MODE_ECB))) {
+            throw new \UnexpectedValueException('No IV has been defined');
+        }
 
         // mcrypt's handling of invalid's $iv:
         // $this->encryptIV = $this->decryptIV = strlen($this->iv) == $this->block_size ? $this->iv : str_repeat("\0", $this->block_size);
