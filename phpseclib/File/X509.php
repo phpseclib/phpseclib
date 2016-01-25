@@ -27,9 +27,8 @@
 namespace phpseclib\File;
 
 use phpseclib\Crypt\Hash;
-use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\Random;
-use phpseclib\File\ASN1;
+use phpseclib\Crypt\RSA;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
 use phpseclib\Exception\UnsupportedAlgorithmException;
