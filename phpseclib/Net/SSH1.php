@@ -658,16 +658,18 @@ class SSH1
             //    $this->crypto = new \phpseclib\Crypt\Null();
             //    break;
             case self::CIPHER_DES:
-                $this->crypto = new DES();
+                $this->crypto = new DES(DES::MODE_CBC);
                 $this->crypto->disablePadding();
                 $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0,  8));
+                $this->crypto->setIV(str_repeat("\0", 8));
                 break;
             case self::CIPHER_3DES:
                 $this->crypto = new TripleDES(TripleDES::MODE_3CBC);
                 $this->crypto->disablePadding();
                 $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0, 24));
+                $this->crypto->setIV(str_repeat("\0", 8));
                 break;
             //case self::CIPHER_RC4:
             //    $this->crypto = new RC4();
