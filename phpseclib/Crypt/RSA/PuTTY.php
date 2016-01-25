@@ -14,10 +14,9 @@
 
 namespace phpseclib\Crypt\RSA;
 
-use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\AES;
 use phpseclib\Crypt\Hash;
-use phpseclib\Crypt\RSA\OpenSSH;
+use phpseclib\Math\BigInteger;
 
 /**
  * PuTTY Formatted RSA Key Handler

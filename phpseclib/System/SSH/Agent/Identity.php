@@ -15,9 +15,9 @@
 
 namespace phpseclib\System\SSH\Agent;
 
-use phpseclib\System\SSH\Agent;
 use phpseclib\Crypt\RSA;
 use phpseclib\Exception\UnsupportedAlgorithmException;
+use phpseclib\System\SSH\Agent;
 
 /**
  * Pure-PHP ssh-agent client identity object
