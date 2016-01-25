@@ -141,7 +141,7 @@ abstract class Base
      * @var string
      * @access private
      */
-    var $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+    var $key = false;
 
     /**
      * The Initialization Vector
@@ -432,15 +432,6 @@ abstract class Base
     var $openssl_options;
 
     /**
-     * Has the key length explicitly been set or should it be derived from the key, itself?
-     *
-     * @see self::setKeyLength()
-     * @var bool
-     * @access private
-     */
-    var $explicit_key_length = false;
-
-    /**
      * Don't truncate / null pad key
      *
      * @see self::_clearBuffers()
@@ -450,9 +441,16 @@ abstract class Base
     var $skip_key_adjustment = false;
 
     /**
-     * Default Constructor.
+     * Has the key length explicitly been set or should it be derived from the key, itself?
      *
-     * Determines whether or not the mcrypt extension should be used.
+     * @see self::setKeyLength()
+     * @var bool
+     * @access private
+     */
+    var $explicit_key_length = false;
+
+    /**
+     * Default Constructor.
      *
      * $mode could be:
      *
@@ -466,32 +464,29 @@ abstract class Base
      *
      * - self::MODE_OFB
      *
-     * If not explicitly set, self::MODE_CBC will be used.
-     *
      * @param int $mode
      * @access public
+     * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
-    function __construct($mode = self::MODE_CBC)
+    function __construct($mode)
     {
         // $mode dependent settings
         switch ($mode) {
             case self::MODE_ECB:
+            case self::MODE_CBC:
                 $this->paddable = true;
-                $this->mode = self::MODE_ECB;
                 break;
             case self::MODE_CTR:
             case self::MODE_CFB:
             case self::MODE_OFB:
             case self::MODE_STREAM:
-                $this->mode = $mode;
+                $this->paddable = false;
                 break;
-            case self::MODE_CBC:
             default:
-                $this->paddable = true;
-                $this->mode = self::MODE_CBC;
+                throw new \InvalidArgumentException('No valid mode has been specified');
         }
 
-        $this->_setEngine();
+        $this->mode = $mode;
 
         // Determining whether inline crypting can be used by the cipher
         if ($this->use_inline_crypt !== false && function_exists('create_function')) {
@@ -506,14 +501,22 @@ abstract class Base
      *
      * @access public
      * @param string $iv
+     * @throws \LengthException if the IV length isn't equal to the block size
+     * @throws \InvalidArgumentException if an IV is provided when one shouldn't be
      * @internal Can be overwritten by a sub class, but does not have to be
      */
     function setIV($iv)
     {
-        switch ($this->mode) {
-            case self::MODE_ECB:
-            case self::MODE_STREAM:
-                return;
+        if ($this->mode == self::MODE_ECB) {
+            throw new \InvalidArgumentException('This mode does not require an IV.');
+        }
+
+        if ($this->mode == self::MODE_STREAM && $this->usesIV()) {
+            throw new \InvalidArgumentException('This algorithm does not use an IV.');
+        }
+
+        if (strlen($iv) != $this->block_size) {
+            throw new \LengthException('Received initialization vector of size ' . strlen($iv) . ', but size ' . $this->block_size . ' is required');
         }
 
         $this->iv = $iv;
@@ -521,18 +524,14 @@ abstract class Base
     }
 
     /**
-     * Sets the key length.
-     *
-     * Keys with explicitly set lengths need to be treated accordingly
+     * Returns whether or not the algorithm uses an IV
      *
      * @access public
-     * @param int $length
+     * @return bool
      */
-    function setKeyLength($length)
+    function usesIV()
     {
-        $this->explicit_key_length = true;
-        $this->changed = true;
-        $this->_setEngine();
+        return true;
     }
 
     /**
@@ -558,6 +557,24 @@ abstract class Base
     }
 
     /**
+     * Sets the key length.
+     *
+     * Keys with explicitly set lengths need to be treated accordingly
+     *
+     * @access public
+     * @param int $length
+     */
+    function setKeyLength($length)
+    {
+        $this->explicit_key_length = $length >> 3;
+
+        if (is_string($this->key) && strlen($this->key) != $this->explicit_key_length) {
+            $this->key = false;
+            throw new \LengthException('Key has already been set and is not ' .$this->explicit_key_length . ' bytes long');
+        }
+    }
+
+    /**
      * Sets the key.
      *
      * The min/max length(s) of the key depends on the cipher which is used.
@@ -573,12 +590,12 @@ abstract class Base
      */
     function setKey($key)
     {
-        if (!$this->explicit_key_length) {
-            $this->setKeyLength(strlen($key) << 3);
-            $this->explicit_key_length = false;
+        if ($this->explicit_key_length !== false && strlen($key) != $this->explicit_key_length) {
+            throw new \LengthException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');
         }
 
         $this->key = $key;
+        $this->key_length = strlen($key);
         $this->changed = true;
         $this->_setEngine();
     }
@@ -622,7 +639,8 @@ abstract class Base
                 if (isset($func_args[5])) {
                     $dkLen = $func_args[5];
                 } else {
-                    $dkLen = $method == 'pbkdf1' ? 2 * $this->key_length : $this->key_length;
+                    $key_length = $this->explicit_key_length !== false ? $this->explicit_key_length : $this->key_length;
+                    $dkLen = $method == 'pbkdf1' ? 2 * $key_length : $key_length;
                 }
 
                 switch (true) {
@@ -774,7 +792,7 @@ abstract class Base
                 $this->changed = false;
             }
             if ($this->enchanged) {
-                mcrypt_generic_init($this->enmcrypt, $this->key, $this->encryptIV);
+                mcrypt_generic_init($this->enmcrypt, $this->key, $this->_getIV($this->encryptIV));
                 $this->enchanged = false;
             }
 
@@ -837,7 +855,7 @@ abstract class Base
             $ciphertext = mcrypt_generic($this->enmcrypt, $plaintext);
 
             if (!$this->continuousBuffer) {
-                mcrypt_generic_init($this->enmcrypt, $this->key, $this->encryptIV);
+                mcrypt_generic_init($this->enmcrypt, $this->key, $this->_getIV($this->encryptIV));
             }
 
             return $ciphertext;
@@ -986,14 +1004,13 @@ abstract class Base
      * @access public
      * @param string $ciphertext
      * @return string $plaintext
+     * @throws \LengthException if we're inside a block cipher and the ciphertext length is not a multiple of the block size
      * @internal Could, but not must, extend by the child Crypt_* class
      */
     function decrypt($ciphertext)
     {
-        if ($this->paddable) {
-            // we pad with chr(0) since that's what mcrypt_generic does.  to quote from {@link http://www.php.net/function.mcrypt-generic}:
-            // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
-            $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($this->block_size - strlen($ciphertext) % $this->block_size) % $this->block_size, chr(0));
+        if ($this->paddable && strlen($ciphertext) % $this->block_size) {
+            throw new \LengthException('The ciphertext length (' . strlen($ciphertext) . ') needs to be a multiple of the block size (' . $this->block_size . ')');
         }
 
         if ($this->engine === self::ENGINE_OPENSSL) {
@@ -1083,7 +1100,7 @@ abstract class Base
                 $this->changed = false;
             }
             if ($this->dechanged) {
-                mcrypt_generic_init($this->demcrypt, $this->key, $this->decryptIV);
+                mcrypt_generic_init($this->demcrypt, $this->key, $this->_getIV($this->decryptIV));
                 $this->dechanged = false;
             }
 
@@ -1128,7 +1145,7 @@ abstract class Base
             $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
 
             if (!$this->continuousBuffer) {
-                mcrypt_generic_init($this->demcrypt, $this->key, $this->decryptIV);
+                mcrypt_generic_init($this->demcrypt, $this->key, $this->_getIV($this->decryptIV));
             }
 
             return $this->paddable ? $this->_unpad($plaintext) : $plaintext;
@@ -1263,6 +1280,22 @@ abstract class Base
                 break;
         }
         return $this->paddable ? $this->_unpad($plaintext) : $plaintext;
+    }
+
+    /**
+     * Get the IV
+     *
+     * mcrypt requires an IV even if ECB is used
+     *
+     * @see self::encrypt()
+     * @see self::decrypt()
+     * @param string $iv
+     * @return string
+     * @access private
+     */
+    function _getIV($iv)
+    {
+        return $this->mode == self::MODE_ECB ? str_repeat("\0", $this->block_size) : $iv;
     }
 
     /**
@@ -1884,13 +1917,7 @@ abstract class Base
             throw new \UnexpectedValueException('No IV has been defined');
         }
 
-        // mcrypt's handling of invalid's $iv:
-        // $this->encryptIV = $this->decryptIV = strlen($this->iv) == $this->block_size ? $this->iv : str_repeat("\0", $this->block_size);
-        $this->encryptIV = $this->decryptIV = str_pad(substr($this->iv, 0, $this->block_size), $this->block_size, "\0");
-
-        if (!$this->skip_key_adjustment) {
-            $this->key = str_pad(substr($this->key, 0, $this->key_length), $this->key_length, "\0");
-        }
+        $this->encryptIV = $this->decryptIV = $this->iv;
     }
 
     /**

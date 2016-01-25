@@ -108,7 +108,7 @@ class PKCS8 extends PKCS
             $salt = Random::string(8);
             $iterationCount = 2048;
 
-            $crypto = new DES();
+            $crypto = new DES(DES::MODE_CBC);
             $crypto->setPassword($password, 'pbkdf1', 'md5', $salt, $iterationCount);
             $RSAPrivateKey = $crypto->encrypt($RSAPrivateKey);
 

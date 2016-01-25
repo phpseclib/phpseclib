@@ -104,7 +104,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
      */
     public function testVectors($engine, $engineName, $key, $plaintext, $expected)
     {
-        $des = new TripleDES();
+        $des = new TripleDES(TripleDES::MODE_CBC);
         if (!$des->isValidEngine($engine)) {
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
         }
@@ -156,7 +156,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
      */
     public function testVectorsWithIV($engine, $engineName, $key, $iv, $plaintext, $expected)
     {
-        $des = new TripleDES();
+        $des = new TripleDES(TripleDES::MODE_CBC);
         if (!$des->isValidEngine($engine)) {
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
         }

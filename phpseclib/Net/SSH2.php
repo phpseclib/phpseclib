@@ -1616,11 +1616,13 @@ class SSH2
             $this->encrypt->enableContinuousBuffer();
             $this->encrypt->disablePadding();
 
-            $iv = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
-            while ($this->encrypt_block_size > strlen($iv)) {
-                $iv.= $kexHash->hash($keyBytes . $this->exchange_hash . $iv);
+            if ($this->encrypt->usesIV()) {
+                $iv = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
+                while ($this->encrypt_block_size > strlen($iv)) {
+                    $iv.= $kexHash->hash($keyBytes . $this->exchange_hash . $iv);
+                }
+                $this->encrypt->setIV(substr($iv, 0, $this->encrypt_block_size));
             }
-            $this->encrypt->setIV(substr($iv, 0, $this->encrypt_block_size));
 
             $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'C' . $this->session_id);
             while ($encryptKeyLength > strlen($key)) {
@@ -1640,11 +1642,13 @@ class SSH2
             $this->decrypt->enableContinuousBuffer();
             $this->decrypt->disablePadding();
 
-            $iv = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
-            while ($this->decrypt_block_size > strlen($iv)) {
-                $iv.= $kexHash->hash($keyBytes . $this->exchange_hash . $iv);
+            if ($this->decrypt->usesIV()) {
+                $iv = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
+                while ($this->decrypt_block_size > strlen($iv)) {
+                    $iv.= $kexHash->hash($keyBytes . $this->exchange_hash . $iv);
+                }
+                $this->decrypt->setIV(substr($iv, 0, $this->decrypt_block_size));
             }
-            $this->decrypt->setIV(substr($iv, 0, $this->decrypt_block_size));
 
             $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'D' . $this->session_id);
             while ($decryptKeyLength > strlen($key)) {
@@ -1811,26 +1815,26 @@ class SSH2
     {
         switch ($algorithm) {
             case '3des-cbc':
-                return new TripleDES();
+                return new TripleDES(Base::MODE_CBC);
             case '3des-ctr':
                 return new TripleDES(Base::MODE_CTR);
             case 'aes256-cbc':
             case 'aes192-cbc':
             case 'aes128-cbc':
-                return new Rijndael();
+                return new Rijndael(Base::MODE_CBC);
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
                 return new Rijndael(Base::MODE_CTR);
             case 'blowfish-cbc':
-                return new Blowfish();
+                return new Blowfish(Base::MODE_CBC);
             case 'blowfish-ctr':
                 return new Blowfish(Base::MODE_CTR);
             case 'twofish128-cbc':
             case 'twofish192-cbc':
             case 'twofish256-cbc':
             case 'twofish-cbc':
-                return new Twofish();
+                return new Twofish(Base::MODE_CBC);
             case 'twofish128-ctr':
             case 'twofish192-ctr':
             case 'twofish256-ctr':
