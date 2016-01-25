@@ -148,13 +148,13 @@ if (!function_exists('crypt_random_string')) {
             session_start();
 
             $v = $seed = $_SESSION['seed'] = pack('H*', sha1(
-                serialize($_SERVER) .
-                serialize($_POST) .
-                serialize($_GET) .
-                serialize($_COOKIE) .
-                serialize($GLOBALS) .
-                serialize($_SESSION) .
-                serialize($_OLD_SESSION)
+                json_encode($_SERVER) .
+                json_encode($_POST) .
+                json_encode($_GET) .
+                json_encode($_COOKIE) .
+                json_encode($GLOBALS) .
+                json_encode($_SESSION) .
+                json_encode($_OLD_SESSION)
             ));
             if (!isset($_SESSION['count'])) {
                 $_SESSION['count'] = 0;
