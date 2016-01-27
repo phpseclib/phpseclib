@@ -225,4 +225,39 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         $this->assertEquals($x509->getOID('id-sha256'), '2.16.840.1.101.3.4.2.1');
         $this->assertEquals($x509->getOID('zzz'), 'zzz');
     }
+
+    public function testIPAddressSubjectAltNamesDecoding()
+    {
+        $test = '-----BEGIN CERTIFICATE-----
+MIIEcTCCAlmgAwIBAgIBDjANBgkqhkiG9w0BAQsFADAfMR0wGwYDVQQDDBQuU2Vj
+dXJlIElzc3VpbmcgQ0EgMTAeFw0xNjAxMjUyMzIwMjZaFw0yMTAxMjYyMzIwMjZa
+MBoxGDAWBgNVBAMMDzIwNC4xNTIuMjAwLjI1MDCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAM9lMPiYQ26L5qXR1rlUXM0Z3DeRhDsJ/9NadLFJnvxKCV5L
+M9rlrThpK6V5VbgPgEwKVLXGtJoGSEUkLd4roJ25ZTH08GcYszWyp8nLPQRovYnN
++aeE1aefnHcpt524f0Es9NFXh0uwRWV3ZCWSwN+mo9Qo6507KZq+q34if7/q9+De
+O5RJumVQWc9OCjCt6pQBnBua9oCAca+SIHftOdgWXqVw+Xvl6/dLeF70jJD43P00
++bdAnGDgBdgO+p+K+XrOCaCWMcCsRX5xiK4hUG54UM5ayBST+McyfjsKxpO2djPg
+FlSL0RLg+Nj8WehANUUuaNU874Pp3FV5GTI0ZbUCAwEAAaOBvDCBuTAMBgNVHRMB
+Af8EAjAAMAsGA1UdDwQEAwIF4DATBgNVHSUEDDAKBggrBgEFBQcDATAhBgNVHREE
+GjAYhwTMmMj6hxAgAQRw8wkACQAAAAAAAAADMEMGA1UdHwQ8MDowOKA2oDSGMmh0
+dHA6Ly9jcmwuc2VjdXJlb2JzY3VyZS5jb20vP2FjdGlvbj1jcmwmY2E9aXNzdWUx
+MB8GA1UdIwQYMBaAFOJWVCX4poZSBzemgihf9dAhFNHJMA0GCSqGSIb3DQEBCwUA
+A4ICAQAce9whx4InRtzk1to6oeRxTCbeNDjNFuTkotphSws4hDoaz3nyFLSYyMT4
+aKFnNP9AmMS5nEXphtP4HP9wAluTcAFMuip0rDJjiRA/khIE27KurO6cg1faFWHl
+6lh6xnEf9UFZZzTLsXt2miBiMb8olgPrBuVFWjPZ/ConesJRZRFqMd5mfntXC+2V
+zRcXdtwp9h/Am/WuvjsG/gBAPdeRNKffCokIcgfvffd2oklSDD0T9baG2MTgaxnX
+oG6e5saWjoN8bLWuCJpvjA7aErXQwXUyXx1nrTWQ1TCR2N+M62X7e07jZLKSAECP
+v6SqZ9/LDmCacVQbfg4wDC/gbpjDSKaD5fkusH6leXleWQ7X8Z03LsKvVq43a71z
+jO61kkiFAh3CegWsY+TSYjZxDq58xGMiE7y/fK+SHQXDLyY7HU4eky2l3DSy8bXQ
+p64vTJ/OmAcXVNUASfBCNw0kpxuFjlxers/+6zheowB1RIKo0xvSRC4cEDRl/jFA
+b7WUT/MIe6B1r0v1gxHnFG2bFI/MhTT9V+tICOLo7+69z4jf/OFkzjYvqq2QWPgc
+sE3f2TNnmKFRJx67bEMoaaWLIR94Yuq/TWB6dTiWwk9meZkGG3OjQg/YbO6vl/Am
+NDEuGt30Vl2de7G1glnhaceB6Q9KfH7p2gAwNP9JMTtx3PtEcA==
+-----END CERTIFICATE-----';
+
+        $x509 = new X509();
+        $cert = $x509->loadX509($test);
+        $this->assertEquals($cert['tbsCertificate']['extensions'][3]['extnValue'][0]['iPAddress'], '204.152.200.250');
+        $this->assertEquals($cert['tbsCertificate']['extensions'][3]['extnValue'][1]['iPAddress'], '2001:470:f309:9::3');
+    }
 }
