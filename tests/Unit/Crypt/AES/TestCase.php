@@ -369,4 +369,20 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $this->assertSame($ciphertext, 'fd4250c0d234aa7e1aa592820aa8406b');
         $this->assertSame($aes->getKeyLength(), 256);
     }
+
+    /**
+     * @group github938
+     */
+    public function testContinuousBuffer()
+    {
+        $aes = new Crypt_AES();
+        $aes->disablePadding();
+        $aes->enableContinuousBuffer();
+        $aes->setIV(pack('H*', '0457bdb4a6712986688349a29eb82535'));
+        $aes->setKey(pack('H*', '00d596e2c8189b2592fac358e7396ad2'));
+        $aes->decrypt(pack('H*', '9aa234ea7c750a8109a0f32d768b964e'));
+        $plaintext = $aes->decrypt(pack('H*', '0457bdb4a6712986688349a29eb82535'));
+        $expected = pack('H*', '6572617574689e1be8d2d8d43c594cf3');
+        $this->assertSame($plaintext, $expected);
+    }
 }
