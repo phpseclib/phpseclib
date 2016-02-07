@@ -2200,9 +2200,7 @@ class X509
      */
     function _decodeIP($ip)
     {
-        $ip = base64_decode($ip);
-        list(, $ip) = unpack('N', $ip);
-        return long2ip($ip);
+        return inet_ntop(base64_decode($ip));
     }
 
     /**
@@ -2216,7 +2214,7 @@ class X509
      */
     function _encodeIP($ip)
     {
-        return base64_encode(pack('N', ip2long($ip)));
+        return base64_encode(inet_pton($ip));
     }
 
     /**
