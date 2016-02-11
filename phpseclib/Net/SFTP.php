@@ -2064,39 +2064,70 @@ class SFTP extends SSH2
 
         $start = $offset;
         $size = $this->max_sftp_packet < $length || $length < 0 ? $this->max_sftp_packet : $length;
-        while (true) {
-            $packet = pack('Na*N3', strlen($handle), $handle, $offset / 4294967296, $offset, $size);
-            if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
-                if ($fclose_check) {
-                    fclose($fp);
-                }
-                return false;
-            }
+        $read = 0;
+        $error = false;
+        while (!$error) {
+            $request_id_offset = 5;// just like that, a random number
+            $i = $request_id_offset;
 
-            $response = $this->_get_sftp_packet();
-            switch ($this->packet_type) {
-                case NET_SFTP_DATA:
-                    $temp = substr($response, 4);
-                    $offset+= strlen($temp);
-                    if ($local_file === false) {
-                        $content.= $temp;
-                    } else {
-                        fputs($fp, $temp);
-                    }
-                    break;
-                case NET_SFTP_STATUS:
-                    // could, in theory, return false if !strlen($content) but we'll hold off for the time being
-                    $this->_logError($response);
-                    break 2;
-                default:
+            // this puts a constraint on 32 bit systems where files larger than 4GB will not be completely downloaded if length is not specified.
+            $limit = $length > 0 ? max($this->max_sftp_packet, $length) : PHP_INT_MAX;
+
+            while ($i < NET_SFTP_QUEUE_SIZE+$request_id_offset && $read < $limit) {
+                $subtemp = $start + $read;
+                $possible_packet_sizes = array($this->max_sftp_packet, $size);
+                if ($limit - $read > 0) {
+                    $possible_packet_sizes[] = $limit - $read;
+                }
+
+                $packet_size = min($possible_packet_sizes);
+
+                $packet = pack('Na*N3', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, $packet_size);
+                $this->request_id = $i;
+                if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
                     if ($fclose_check) {
                         fclose($fp);
                     }
-                    throw new \UnexpectedValueException('Expected SSH_FXP_DATA or SSH_FXP_STATUS');
+                    return false;
+                }
+                $this->request_id=1;
+
+                $read += $packet_size;
+                $i++;
             }
 
-            if ($length > 0 && $length <= $offset - $start) {
-                break;
+            while ($i > $request_id_offset) {
+                $this->request_id = $i;
+                $response = $this->_get_sftp_packet();
+                $this->request_id=1;
+                switch ($this->packet_type) {
+                    case NET_SFTP_DATA:
+                        $temp = substr($response, 4);
+                        $offset+= strlen($temp);
+                        if ($local_file === false) {
+                            $content.= $temp;
+                        } else {
+                            fputs($fp, $temp);
+                        }
+                        break;
+                    case NET_SFTP_STATUS:
+                        // could, in theory, return false if !strlen($content) but we'll hold off for the time being
+                        $this->_logError($response);
+                        // don't break out of the loop so we can read the remaining responses
+                        $error = true;
+                        break;
+                    default:
+                        if ($fclose_check) {
+                            fclose($fp);
+                        }
+                        throw new \UnexpectedValueException('Expected SSH_FXP_DATA or SSH_FXP_STATUS');
+                }
+
+                if ($length > 0 && $length <= $offset - $start) {
+                    // don't break out of the loop so we can read the remaining responses
+                    $error = true;
+                }
+                $i--;
             }
         }
 
