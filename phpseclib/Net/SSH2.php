@@ -1160,7 +1160,7 @@ class SSH2
             'diffie-hellman-group-exchange-sha1', // RFC 4419
             'diffie-hellman-group-exchange-sha256', // RFC 4419
         );
-        if (!class_exists('\Sodium')) {
+        if (!function_exists('\\Sodium\\library_version_major')) {
             $kex_algorithms = array_diff(
                 $kex_algorithms,
                 array('curve25519-sha256@libssh.org')
