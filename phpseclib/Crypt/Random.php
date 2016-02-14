@@ -268,7 +268,6 @@ if (!function_exists('phpseclib_safe_serialize')) {
      * PHP 5.3 will emit a warning.
      *
      * @param mixed $arr
-     * @param array $refs optional
      * @access public
      */
     function phpseclib_safe_serialize(&$arr)
@@ -280,20 +279,16 @@ if (!function_exists('phpseclib_safe_serialize')) {
             return serialize($arr);
         }
         $safearr = array();
-        $unset = false;
-        if (!isset($arr['__phpseclib_marker'])) {
-            $unset = true;
-            $arr['__phpseclib_marker'] = true;
-        }
+        $arr['__phpseclib_marker'] = true;
         foreach (array_keys($arr) as $key) {
-            if (is_object($arr[$key]) || $key == '__phpseclib_marker') {
-                continue;
+            // do not recurse on:
+            // - the '__phpseclib_marker' key itself
+            // - a circular reference (marked with that key)
+            if ($key !== '__phpseclib_marker' && !isset($arr[$key]['__phpseclib_marker'])) {
+                $safearr[$key] = is_array($arr[$key]) ? phpseclib_safe_serialize($arr[$key]) : $arr[$key];
             }
-            $safearr[$key] = is_array($arr[$key]) ? phpseclib_safe_serialize($arr[$key], $refs) : $arr[$key];
         }
-        if ($unset) {
-            unset($arr['__phpseclib_marker']);
-        }
+        unset($arr['__phpseclib_marker']);
         return serialize($safearr);
     }
 }
