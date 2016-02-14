@@ -148,10 +148,10 @@ if (!function_exists('crypt_random_string')) {
             session_start();
 
             $v = $seed = $_SESSION['seed'] = pack('H*', sha1(
-                phpseclib_safe_serialize($_SERVER) .
-                phpseclib_safe_serialize($_POST) .
-                phpseclib_safe_serialize($_GET) .
-                phpseclib_safe_serialize($_COOKIE) .
+                (isset($_SERVER) ? phpseclib_safe_serialize($_SERVER) : '') .
+                (isset($_POST) ? phpseclib_safe_serialize($_POST) : '') .
+                (isset($_GET) ? phpseclib_safe_serialize($_GET) : '') .
+                (isset($_COOKIE) ? phpseclib_safe_serialize($_COOKIE) : '') .
                 phpseclib_safe_serialize($GLOBALS) .
                 phpseclib_safe_serialize($_SESSION) .
                 phpseclib_safe_serialize($_OLD_SESSION)
