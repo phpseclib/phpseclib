@@ -275,12 +275,12 @@ if (!function_exists('phpseclib_safe_serialize')) {
         if (is_object($arr)) {
             return '';
         }
+        if (!is_array($arr)) {
+            return serialize($arr);
+        }
         // prevent circular array recursion
         if (isset($arr['__phpseclib_marker'])) {
             return '';
-        }
-        if (!is_array($arr)) {
-            return serialize($arr);
         }
         $safearr = array();
         $arr['__phpseclib_marker'] = true;
