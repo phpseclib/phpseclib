@@ -275,17 +275,19 @@ if (!function_exists('phpseclib_safe_serialize')) {
         if (is_object($arr)) {
             return '';
         }
+        // prevent circular array recursion
+        if (isset($arr['__phpseclib_marker'])) {
+            return '';
+        }
         if (!is_array($arr)) {
             return serialize($arr);
         }
         $safearr = array();
         $arr['__phpseclib_marker'] = true;
         foreach (array_keys($arr) as $key) {
-            // do not recurse on:
-            // - the '__phpseclib_marker' key itself
-            // - a circular reference (marked with that key)
-            if ($key !== '__phpseclib_marker' && !isset($arr[$key]['__phpseclib_marker'])) {
-                $safearr[$key] = is_array($arr[$key]) ? phpseclib_safe_serialize($arr[$key]) : $arr[$key];
+            // do not recurse on the '__phpseclib_marker' key itself, for smaller memory usage
+            if ($key !== '__phpseclib_marker') {
+                $safearr[$key] = phpseclib_safe_serialize($arr[$key]);
             }
         }
         unset($arr['__phpseclib_marker']);
