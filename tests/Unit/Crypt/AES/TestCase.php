@@ -381,7 +381,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
      */
     public function testContinuousBuffer()
     {
-        $aes = new Crypt_AES();
+        $aes = new AES();
         $aes->disablePadding();
         $aes->enableContinuousBuffer();
         $aes->setIV(pack('H*', '0457bdb4a6712986688349a29eb82535'));
