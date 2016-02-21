@@ -732,7 +732,7 @@ class RSA
             foreach (self::$fileFormats as $format) {
                 try {
                     $components = $format::load($key, $this->password);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $components = false;
                 }
                 if ($components !== false) {
@@ -745,7 +745,7 @@ class RSA
                 $format = self::$fileFormats[$format];
                 try {
                     $components = $format::load($key, $this->password);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $components = false;
                 }
             }
@@ -902,7 +902,7 @@ class RSA
                 }
                 try {
                     $components = $format::load($key, $this->password);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $components = false;
                 }
                 if ($components !== false) {
@@ -915,7 +915,7 @@ class RSA
                 $format = self::$fileFormats[$format];
                 try {
                     $components = $format::load($key, $this->password);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $components = false;
                 }
             }
