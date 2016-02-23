@@ -2064,41 +2064,31 @@ class SFTP extends SSH2
 
         $start = $offset;
         $read = 0;
-        $break_loop = false;
-        while (!$break_loop) {
-            $request_id_offset = 5;// just like that, a random number
-            $i = $request_id_offset;
+        while (true) {
+            $i = 0;
 
-            while ($i < NET_SFTP_QUEUE_SIZE+$request_id_offset && ($length < 0 || $read < $length)) {
+            while ($i < NET_SFTP_QUEUE_SIZE && ($length < 0 || $read < $length)) {
                 $subtemp = $start + $read;
 
-                $possible_packet_sizes = array($this->max_sftp_packet);
-                if ($length > 0 && $length - $read > 0) {
-                    $possible_packet_sizes[] = $length - $read;
-                }
-
-                $packet_size = min($possible_packet_sizes);
+                $packet_size = $length > 0 ? min($this->max_sftp_packet, $length - $read) : $this->max_sftp_packet;
 
                 $packet = pack('Na*N3', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, $packet_size);
-                $this->request_id = $i;
                 if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
                     if ($fclose_check) {
                         fclose($fp);
                     }
                     return false;
                 }
-                $this->request_id=1;
 
                 $read += $packet_size;
                 $i++;
             }
 
-            if ($i > $request_id_offset) {
-                while ($i > $request_id_offset) {
-                    $this->request_id = $i;
+            if ($i > 0) {
+                $break_loop = false;
+                while ($i > 0) {
                     $response = $this->_get_sftp_packet();
                     $i--;
-                    $this->request_id=1;
                     switch ($this->packet_type) {
                         case NET_SFTP_DATA:
                             $temp = substr($response, 4);
@@ -2112,8 +2102,7 @@ class SFTP extends SSH2
                         case NET_SFTP_STATUS:
                             // could, in theory, return false if !strlen($content) but we'll hold off for the time being
                             $this->_logError($response);
-                            // don't break out of the loop so we can read the remaining responses
-                            $break_loop = true;
+                            $break_loop = true; // don't break out of the loop yet, so we can read the remaining responses
                             break;
                         default:
                             if ($fclose_check) {
@@ -2122,8 +2111,12 @@ class SFTP extends SSH2
                             throw new \UnexpectedValueException('Expected SSH_FXP_DATA or SSH_FXP_STATUS');
                     }
                 }
+
+                if ($break_loop) {
+                    break;
+                }
             } else {
-                $break_loop = true;
+                break;
             }
         }
 
