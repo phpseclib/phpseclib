@@ -2087,8 +2087,15 @@ class SFTP extends SSH2
             if ($i > 0) {
                 $break_loop = false;
                 while ($i > 0) {
-                    $response = $this->_get_sftp_packet();
                     $i--;
+
+                    if ($break_loop) {
+                        $this->_get_sftp_packet();
+                        continue;
+                    } else {
+                        $response = $this->_get_sftp_packet();
+                    }
+
                     switch ($this->packet_type) {
                         case NET_SFTP_DATA:
                             $temp = substr($response, 4);
