@@ -2079,7 +2079,7 @@ class SFTP extends SSH2
                     }
                     return false;
                 }
-
+                $packet = null;
                 $read += $packet_size;
                 $i++;
             }
@@ -2105,6 +2105,7 @@ class SFTP extends SSH2
                             } else {
                                 fputs($fp, $temp);
                             }
+                            $temp = null;
                             break;
                         case NET_SFTP_STATUS:
                             // could, in theory, return false if !strlen($content) but we'll hold off for the time being
@@ -2117,6 +2118,7 @@ class SFTP extends SSH2
                             }
                             throw new \UnexpectedValueException('Expected SSH_FXP_DATA or SSH_FXP_STATUS');
                     }
+                    $response = null;
                 }
 
                 if ($break_loop) {
