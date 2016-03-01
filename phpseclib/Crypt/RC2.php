@@ -514,7 +514,7 @@ class Crypt_RC2 extends Crypt_Base
             return $result;
         }
 
-        return parent::encrypt($ciphertext);
+        return parent::decrypt($ciphertext);
     }
 
     /**
