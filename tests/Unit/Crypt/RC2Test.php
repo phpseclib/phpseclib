@@ -121,5 +121,8 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
 
         $result = bin2hex($rc2->encrypt(pack('H*', $plaintext)));
         $this->assertEquals($result, $ciphertext, "Failed asserting that $plaintext yielded expected output in $engineName engine");
+
+        $result = bin2hex($rc2->decrypt(pack('H*', $ciphertext)));
+        $this->assertEquals($result, $plaintext, "Failed asserting that decrypted result yielded $plaintext as a result in $engineName engine");
     }
 }
