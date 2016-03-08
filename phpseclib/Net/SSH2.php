@@ -1394,7 +1394,7 @@ class SSH2
 
         if ($kex_algorithm === 'curve25519-sha256@libssh.org') {
             $x = Random::string(32);
-            $eBytes = \Sodium::crypto_box_publickey_from_secretkey($x);
+            $eBytes = \Sodium\crypto_box_publickey_from_secretkey($x);
             $clientKexInitMessage = NET_SSH2_MSG_KEX_ECDH_INIT;
             $serverKexReplyMessage = NET_SSH2_MSG_KEX_ECDH_REPLY;
             $kexHash = new Hash('sha256');
@@ -1536,8 +1536,8 @@ class SSH2
                 user_error('Received curve25519 public key of invalid length.');
                 return false;
             }
-            $key = new BigInteger(\Sodium::crypto_scalarmult($x, $fBytes), 256);
-            \Sodium::sodium_memzero($x);
+            $key = new BigInteger(\Sodium\crypto_scalarmult($x, $fBytes), 256);
+            \Sodium\memzero($x);
         } else {
             $f = new BigInteger($fBytes, -256);
             $key = $f->modPow($x, $prime);
