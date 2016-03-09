@@ -556,6 +556,28 @@ abstract class Base
     }
 
     /**
+     * Returns the IV size in bytes
+     *
+     * @access public
+     * @return int
+     */
+    function getIVLength()
+    {
+        return $this->getBlockLength() / 8;
+    }
+
+    /**
+     * Returns random IV bytes
+     *
+     * @access public
+     * @return string
+     */
+    function createIV()
+    {
+        return Random::string($this->getIVLength());
+    }
+
+    /**
      * Sets the key.
      *
      * The min/max length(s) of the key depends on the cipher which is used.
