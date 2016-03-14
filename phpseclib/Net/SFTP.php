@@ -2068,11 +2068,11 @@ class SFTP extends SSH2
             $i = 0;
 
             while ($i < NET_SFTP_QUEUE_SIZE && ($length < 0 || $read < $length)) {
-                $subtemp = $start + $read;
+                $tempoffset = $start + $read;
 
                 $packet_size = $length > 0 ? min($this->max_sftp_packet, $length - $read) : $this->max_sftp_packet;
 
-                $packet = pack('Na*N3', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, $packet_size);
+                $packet = pack('Na*N3', strlen($handle), $handle, $tempoffset / 4294967296, $tempoffset, $packet_size);
                 if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
                     if ($fclose_check) {
                         fclose($fp);
@@ -2080,51 +2080,51 @@ class SFTP extends SSH2
                     return false;
                 }
                 $packet = null;
-                $read += $packet_size;
+                $read+= $packet_size;
                 $i++;
             }
 
-            if ($i > 0) {
-                $break_loop = false;
-                while ($i > 0) {
-                    $i--;
+            if (!$i) {
+                break;
+            }
 
-                    if ($break_loop) {
-                        $this->_get_sftp_packet();
-                        continue;
-                    } else {
-                        $response = $this->_get_sftp_packet();
-                    }
+            $clear_responses = false;
+            while ($i > 0) {
+                $i--;
 
-                    switch ($this->packet_type) {
-                        case NET_SFTP_DATA:
-                            $temp = substr($response, 4);
-                            $offset+= strlen($temp);
-                            if ($local_file === false) {
-                                $content.= $temp;
-                            } else {
-                                fputs($fp, $temp);
-                            }
-                            $temp = null;
-                            break;
-                        case NET_SFTP_STATUS:
-                            // could, in theory, return false if !strlen($content) but we'll hold off for the time being
-                            $this->_logError($response);
-                            $break_loop = true; // don't break out of the loop yet, so we can read the remaining responses
-                            break;
-                        default:
-                            if ($fclose_check) {
-                                fclose($fp);
-                            }
-                            throw new \UnexpectedValueException('Expected SSH_FXP_DATA or SSH_FXP_STATUS');
-                    }
-                    $response = null;
+                if ($clear_responses) {
+                    $this->_get_sftp_packet();
+                    continue;
+                } else {
+                    $response = $this->_get_sftp_packet();
                 }
 
-                if ($break_loop) {
-                    break;
+                switch ($this->packet_type) {
+                    case NET_SFTP_DATA:
+                        $temp = substr($response, 4);
+                        $offset+= strlen($temp);
+                        if ($local_file === false) {
+                            $content.= $temp;
+                        } else {
+                            fputs($fp, $temp);
+                        }
+                        $temp = null;
+                        break;
+                    case NET_SFTP_STATUS:
+                        // could, in theory, return false if !strlen($content) but we'll hold off for the time being
+                        $this->_logError($response);
+                        $clear_responses = true; // don't break out of the loop yet, so we can read the remaining responses
+                        break;
+                    default:
+                        if ($fclose_check) {
+                            fclose($fp);
+                        }
+                        throw new \UnexpectedValueException('Expected SSH_FXP_DATA or SSH_FXP_STATUS');
                 }
-            } else {
+                $response = null;
+            }
+
+            if ($clear_responses) {
                 break;
             }
         }
