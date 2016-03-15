@@ -71,6 +71,11 @@ use phpseclib\Exception\NoSupportedAlgorithmsException;
  */
 class SSH2
 {
+	public $proxyHost = "";
+	public $proxyPort = 1080;
+	public $proxyUser = "";
+	public $proxyPass = ""; 
+	
     /**#@+
      * Execution Bitmap Masks
      *
@@ -825,7 +830,7 @@ class SSH2
      * @var int
      * @access private
      */
-    var $port;
+    var $port;	
 
     /**
      * Number of columns for terminal window size
@@ -1018,7 +1023,51 @@ class SSH2
 
         if (!is_resource($this->fsock)) {
             $start = microtime(true);
-            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout);
+			/**
+				EDIT START
+			**/
+			if (!empty($this->proxyHost))
+			{
+				$count = 1;
+				
+				error_log($count);
+				$count++;
+				
+				$socks['port'] = $this->proxyPort; 
+				$socks['address'] = $this->proxyHost; 
+error_log($count);
+				$count++;
+				
+				$fsock = fsockopen($socks['address'],$socks['port'],$errno,$errstr,5); 
+				socket_set_timeout($fsock,5); 
+				if (!$fsock) { 
+				   throw new \Exception("Can't Connect!"); 
+				} 
+error_log($count);
+				$count++;
+				
+				$port = chr($this->port >> 8).chr($this->port & 255); 
+				$address = gethostbyname($this->host); 
+				$address = implode('',array_map('chr',explode('.',$address))); 
+error_log($count);
+				$count++; 
+				
+				// identify version (v5) / select method (1 method - the "no auth" method 
+				$request = "\5\1\0"; 
+				if (fputs($fsock,$request) != strlen($request)) { 
+				   throw new \Exception("premature termination"); 
+				}
+
+                $this->fsock = $fsock;
+			}
+			else
+			{
+				$this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout);
+			}
+			
+			/**
+				EDIT END
+			**/
             if (!$this->fsock) {
                 $host = $this->host . ':' . $this->port;
                 throw new \RuntimeException(rtrim("Cannot connect to $host. Error $errno. $errstr"));
