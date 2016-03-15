@@ -126,7 +126,7 @@ class PuTTY
         switch ($encryption) {
             case 'aes256-cbc':
                 $symkey = static::generateSymmetricKey($password, 32);
-                $crypto = new AES();
+                $crypto = new AES(AES::MODE_CBC);
         }
 
         if ($encryption != 'none') {

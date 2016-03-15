@@ -209,7 +209,7 @@ class RC4 extends Base
             throw new \LengthException('Key size of ' . $length . ' bytes is not supported by RC4. Keys must be between 1 and 256 bytes long');
         }
 
-        parent::setKey($length);
+        parent::setKey($key);
     }
 
     /**

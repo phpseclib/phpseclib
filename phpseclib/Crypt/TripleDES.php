@@ -275,7 +275,7 @@ class TripleDES extends DES
         $this->changed = true;
         $this->_setEngine();
 
-        if ($this->mode_3cbc && $length > 8) {
+        if ($this->mode_3cbc) {
             $this->des[0]->setKey(substr($key,  0, 8));
             $this->des[1]->setKey(substr($key,  8, 8));
             $this->des[2]->setKey(substr($key, 16, 8));

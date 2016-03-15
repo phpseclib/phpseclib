@@ -662,6 +662,7 @@ class SSH1
                 $this->crypto->disablePadding();
                 $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0,  8));
+                // "The iv (initialization vector) is initialized to all zeroes."
                 $this->crypto->setIV(str_repeat("\0", 8));
                 break;
             case self::CIPHER_3DES:
@@ -669,6 +670,7 @@ class SSH1
                 $this->crypto->disablePadding();
                 $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0, 24));
+                // "All three initialization vectors are initialized to zero."
                 $this->crypto->setIV(str_repeat("\0", 8));
                 break;
             //case self::CIPHER_RC4:

@@ -1815,26 +1815,26 @@ class SSH2
     {
         switch ($algorithm) {
             case '3des-cbc':
-                return new TripleDES();
+                return new TripleDES(Base::MODE_CBC);
             case '3des-ctr':
                 return new TripleDES(Base::MODE_CTR);
             case 'aes256-cbc':
             case 'aes192-cbc':
             case 'aes128-cbc':
-                return new Rijndael();
+                return new Rijndael(Base::MODE_CBC);
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
                 return new Rijndael(Base::MODE_CTR);
             case 'blowfish-cbc':
-                return new Blowfish();
+                return new Blowfish(Base::MODE_CBC);
             case 'blowfish-ctr':
                 return new Blowfish(Base::MODE_CTR);
             case 'twofish128-cbc':
             case 'twofish192-cbc':
             case 'twofish256-cbc':
             case 'twofish-cbc':
-                return new Twofish();
+                return new Twofish(Base::MODE_CBC);
             case 'twofish128-ctr':
             case 'twofish192-ctr':
             case 'twofish256-ctr':
