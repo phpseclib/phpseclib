@@ -62,6 +62,15 @@ class Hash
     var $length;
 
     /**
+     * Bit-length of hash BlockSize (Internal HMAC)
+     *
+     * @see self::setHash()
+     * @var int
+     * @access private
+     */
+    var $BlockSize;
+    
+    /**
      * Hash Algorithm
      *
      * @see self::setHash()
@@ -100,6 +109,17 @@ class Hash
      */
     function setKey($key = false)
     {
+        if (!empty($this->key) || is_string($this->key))
+        {
+            if (strlen($key) < $this->length) 
+            {
+                throw new Exception ("Key is too short, it must be at least {$this->length}.");
+            } 
+            elseif (strlen($key) > $this->getBlockSize())
+            {
+                $key = substr($key, 0, $this->getBlockSize());
+            }
+        }
         $this->key = $key;
     }
 
@@ -129,24 +149,37 @@ class Hash
             case 'md5-96':
             case 'sha1-96':
             case 'sha256-96':
+                $this->BlockSize = 512;
+                $hash = substr($hash, 0, -3);
+                $this->length = 12; // 96 / 8 = 12
+                break;
             case 'sha512-96':
+                $this->BlockSize = 1024;
                 $hash = substr($hash, 0, -3);
                 $this->length = 12; // 96 / 8 = 12
                 break;
             case 'md2':
+                $this->BlockSize = 128;
+                $this->length = 16;
+                break;
             case 'md5':
+                $this->BlockSize = 512;
                 $this->length = 16;
                 break;
             case 'sha1':
+                $this->BlockSize = 512;
                 $this->length = 20;
                 break;
             case 'sha256':
+                $this->BlockSize = 512;
                 $this->length = 32;
                 break;
             case 'sha384':
+                $this->BlockSize = 1024;
                 $this->length = 48;
                 break;
             case 'sha512':
+                $this->BlockSize = 1024;
                 $this->length = 64;
                 break;
             default:
@@ -202,4 +235,27 @@ class Hash
     {
         return $this->length;
     }
+    
+    /**
+     * Returns the hash BlockSize (in bits)
+     *
+     * @access public
+     * @return int
+     */
+    function getBlockSizeInBits()
+    {
+        return $this->BlockSize;
+    }
+    
+    /**
+     * Returns the hash BlockSize (in bytes)
+     *
+     * @access public
+     * @return int
+     */
+    function getBlockSize()
+    {
+        return $this->getBlockSizeInBits() / 8;
+    }
+    
 }
