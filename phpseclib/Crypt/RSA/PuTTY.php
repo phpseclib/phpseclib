@@ -14,10 +14,9 @@
 
 namespace phpseclib\Crypt\RSA;
 
-use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\AES;
 use phpseclib\Crypt\Hash;
-use phpseclib\Crypt\RSA\OpenSSH;
+use phpseclib\Math\BigInteger;
 
 /**
  * PuTTY Formatted RSA Key Handler
@@ -127,7 +126,7 @@ class PuTTY
         switch ($encryption) {
             case 'aes256-cbc':
                 $symkey = static::generateSymmetricKey($password, 32);
-                $crypto = new AES();
+                $crypto = new AES(AES::MODE_CBC);
         }
 
         if ($encryption != 'none') {

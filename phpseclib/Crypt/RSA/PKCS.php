@@ -14,10 +14,10 @@
 
 namespace phpseclib\Crypt\RSA;
 
-use phpseclib\Crypt\Base;
 use phpseclib\Crypt\AES;
-use phpseclib\Crypt\TripleDES;
+use phpseclib\Crypt\Base;
 use phpseclib\Crypt\DES;
+use phpseclib\Crypt\TripleDES;
 use phpseclib\Math\BigInteger;
 
 /**
@@ -264,7 +264,7 @@ abstract class PKCS
                         return false;
                     }
 
-                    $crypto = new DES();
+                    $crypto = new DES(DES::MODE_CBC);
                     $crypto->setPassword($password, 'pbkdf1', 'md5', $salt, $iterationCount);
                     $key = $crypto->decrypt($key);
                     if ($key === false) {

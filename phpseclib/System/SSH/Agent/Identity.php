@@ -15,9 +15,9 @@
 
 namespace phpseclib\System\SSH\Agent;
 
-use phpseclib\System\SSH\Agent;
 use phpseclib\Crypt\RSA;
 use phpseclib\Exception\UnsupportedAlgorithmException;
+use phpseclib\System\SSH\Agent;
 
 /**
  * Pure-PHP ssh-agent client identity object
@@ -116,6 +116,22 @@ class Identity
     }
 
     /**
+     * Sets the hash
+     *
+     * ssh-agent only supports signatures with sha1 hashes but to maintain BC with RSA.php this function exists
+     *
+     * @param string $hash optional
+     * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
+     * @access public
+     */
+    function setHash($hash = 'sha1')
+    {
+        if ($hash != 'sha1') {
+            throw new UnsupportedAlgorithmException('ssh-agent can only be used with the sha1 hash');
+        }
+    }
+
+    /**
      * Create a signature
      *
      * See "2.6.2 Protocol 2 private key signature request"
@@ -130,7 +146,7 @@ class Identity
     function sign($message, $padding = RSA::PADDING_PKCS1)
     {
         if ($padding != RSA::PADDING_PKCS1 && $padding != RSA::PADDING_RELAXED_PKCS1) {
-            throw new \UnsupportedAlgorithmException('ssh-agent can only create PKCS1 signatures');
+            throw new UnsupportedAlgorithmException('ssh-agent can only create PKCS1 signatures');
         }
 
         // the last parameter (currently 0) is for flags and ssh-agent only defines one flag (for ssh-dss): SSH_AGENT_OLD_SIGNATURE

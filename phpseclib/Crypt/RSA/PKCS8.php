@@ -24,10 +24,9 @@
 
 namespace phpseclib\Crypt\RSA;
 
-use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\RSA\PKCS;
-use phpseclib\Crypt\Random;
 use phpseclib\Crypt\DES;
+use phpseclib\Crypt\Random;
+use phpseclib\Math\BigInteger;
 
 /**
  * PKCS#8 Formatted RSA Key Handler
@@ -108,7 +107,7 @@ class PKCS8 extends PKCS
             $salt = Random::string(8);
             $iterationCount = 2048;
 
-            $crypto = new DES();
+            $crypto = new DES(DES::MODE_CBC);
             $crypto->setPassword($password, 'pbkdf1', 'md5', $salt, $iterationCount);
             $RSAPrivateKey = $crypto->encrypt($RSAPrivateKey);
 

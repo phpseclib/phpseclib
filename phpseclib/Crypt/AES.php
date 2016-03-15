@@ -49,8 +49,6 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Crypt\Rijndael;
-
 /**
  * Pure-PHP implementation of AES.
  *
@@ -67,6 +65,7 @@ class AES extends Rijndael
      *
      * @see \phpseclib\Crypt\Rijndael::setBlockLength()
      * @access public
+     * @param int $length
      * @throws \BadMethodCallException anytime it's called
      */
     function setBlockLength($length)
@@ -92,7 +91,7 @@ class AES extends Rijndael
             case 256:
                 break;
             default:
-                throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16, 24 or 32 supported');
+                throw new \LengthException('Key of size ' . $length . ' not supported by this algorithm. Only keys of sizes 128, 192 or 256 supported');
         }
         parent::setKeyLength($length);
     }

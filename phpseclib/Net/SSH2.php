@@ -1171,7 +1171,7 @@ class SSH2
             'diffie-hellman-group-exchange-sha1', // RFC 4419
             'diffie-hellman-group-exchange-sha256', // RFC 4419
         );
-        if (!class_exists('\Sodium')) {
+        if (!function_exists('\\Sodium\\library_version_major')) {
             $kex_algorithms = array_diff(
                 $kex_algorithms,
                 array('curve25519-sha256@libssh.org')
@@ -1815,26 +1815,26 @@ class SSH2
     {
         switch ($algorithm) {
             case '3des-cbc':
-                return new TripleDES();
+                return new TripleDES(Base::MODE_CBC);
             case '3des-ctr':
                 return new TripleDES(Base::MODE_CTR);
             case 'aes256-cbc':
             case 'aes192-cbc':
             case 'aes128-cbc':
-                return new Rijndael();
+                return new Rijndael(Base::MODE_CBC);
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
                 return new Rijndael(Base::MODE_CTR);
             case 'blowfish-cbc':
-                return new Blowfish();
+                return new Blowfish(Base::MODE_CBC);
             case 'blowfish-ctr':
                 return new Blowfish(Base::MODE_CTR);
             case 'twofish128-cbc':
             case 'twofish192-cbc':
             case 'twofish256-cbc':
             case 'twofish-cbc':
-                return new Twofish();
+                return new Twofish(Base::MODE_CBC);
             case 'twofish128-ctr':
             case 'twofish192-ctr':
             case 'twofish256-ctr':
@@ -2310,6 +2310,7 @@ class SSH2
         }
 
         $packet = $part1 . chr(1) . $part2;
+        $privatekey->setHash('sha1');
         $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet), RSA::PADDING_PKCS1);
         $signature = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($signature), $signature);
         $packet.= pack('Na*', strlen($signature), $signature);
@@ -4058,6 +4059,7 @@ class SSH2
 
                 $rsa = new RSA();
                 $rsa->load(array('e' => $e, 'n' => $n), 'raw');
+                $rsa->setHash('sha1');
                 if (!$rsa->verify($this->exchange_hash, $signature, RSA::PADDING_PKCS1)) {
                     //user_error('Bad server signature');
                     return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
