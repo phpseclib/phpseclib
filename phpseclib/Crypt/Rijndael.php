@@ -169,10 +169,25 @@ class Rijndael extends Base
     var $kl;
 
     /**
+     * Default Constructor.
+     *
+     * @param int $mode
+     * @access public
+     * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
+     */
+    function __construct($mode)
+    {
+        if ($mode == self::MODE_STREAM) {
+            throw new \InvalidArgumentException('Block ciphers cannot be ran in stream mode');
+        }
+
+        parent::__construct($mode);
+    }
+
+    /**
      * Sets the key length.
      *
-     * Valid key lengths are 128, 160, 192, 224, and 256.  If the length is less than 128, it will be rounded up to
-     * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
+     * Valid key lengths are 128, 160, 192, 224, and 256.
      *
      * Note: phpseclib extends Rijndael (and AES) for using 160- and 224-bit keys but they are officially not defined
      *       and the most (if not all) implementations are not able using 160/224-bit keys but round/pad them up to
@@ -186,49 +201,75 @@ class Rijndael extends Base
      *             This results then in slower encryption.
      *
      * @access public
+     * @throws \LengthException if the key length is invalid
      * @param int $length
      */
     function setKeyLength($length)
     {
-        switch (true) {
-            case $length <= 128:
-                $this->key_length = 16;
-                break;
-            case $length <= 160:
-                $this->key_length = 20;
-                break;
-            case $length <= 192:
-                $this->key_length = 24;
-                break;
-            case $length <= 224:
-                $this->key_length = 28;
+        switch ($length) {
+            case 128:
+            case 160:
+            case 192:
+            case 224:
+            case 256:
+                $this->key_length = $length >> 3;
                 break;
             default:
-                $this->key_length = 32;
+                throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes 128, 160, 192, 224 or 256 bits are supported');
         }
 
         parent::setKeyLength($length);
     }
 
     /**
+     * Sets the key.
+     *
+     * Rijndael supports five different key lengths
+     *
+     * @see setKeyLength()
+     * @access public
+     * @param string $key
+     * @throws \LengthException if the key length isn't supported
+     */
+    function setKey($key)
+    {
+        switch (strlen($key)) {
+            case 16:
+            case 20:
+            case 24:
+            case 28:
+            case 32:
+                break;
+            default:
+                throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16, 20, 24, 28 or 32 are supported');
+        }
+
+        parent::setKey($key);
+    }
+
+    /**
      * Sets the block length
      *
-     * Valid block lengths are 128, 160, 192, 224, and 256.  If the length is less than 128, it will be rounded up to
-     * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
+     * Valid block lengths are 128, 160, 192, 224, and 256.
      *
      * @access public
      * @param int $length
      */
     function setBlockLength($length)
     {
-        $length >>= 5;
-        if ($length > 8) {
-            $length = 8;
-        } elseif ($length < 4) {
-            $length = 4;
+        switch ($length) {
+            case 128:
+            case 160:
+            case 192:
+            case 224:
+            case 256:
+                break;
+            default:
+                throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes 128, 160, 192, 224 or 256 bits are supported');
         }
-        $this->Nb = $length;
-        $this->block_size = $length << 2;
+
+        $this->Nb = $length >> 5;
+        $this->block_size = $length >> 3;
         $this->changed = true;
         $this->_setEngine();
     }

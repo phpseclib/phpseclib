@@ -73,7 +73,7 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
      */
     public function testVectors($engine, $engineName, $key, $plaintext, $expected)
     {
-        $bf = new Blowfish();
+        $bf = new Blowfish(Blowfish::MODE_CBC);
         $bf->setKey($key);
         $bf->setIV(str_repeat("\0", $bf->getBlockLength() >> 3));
         if (!$bf->isValidEngine($engine)) {

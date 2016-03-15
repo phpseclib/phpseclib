@@ -114,7 +114,7 @@ class PKCS1 extends PKCS
         if (!empty($password) || is_string($password)) {
             $cipher = self::getEncryptionObject(self::$defaultEncryptionAlgorithm);
             $iv = Random::string($cipher->getBlockLength() >> 3);
-            $cipher->setKey(self::generateSymmetricKey($password, $iv, $cipher->getKeyLength()));
+            $cipher->setKey(self::generateSymmetricKey($password, $iv, $cipher->getKeyLength() >> 3));
             $cipher->setIV($iv);
             $iv = strtoupper(bin2hex($iv));
             $RSAPrivateKey = "-----BEGIN RSA PRIVATE KEY-----\r\n" .

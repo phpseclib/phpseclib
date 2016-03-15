@@ -1616,11 +1616,13 @@ class SSH2
             $this->encrypt->enableContinuousBuffer();
             $this->encrypt->disablePadding();
 
-            $iv = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
-            while ($this->encrypt_block_size > strlen($iv)) {
-                $iv.= $kexHash->hash($keyBytes . $this->exchange_hash . $iv);
+            if ($this->encrypt->usesIV()) {
+                $iv = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
+                while ($this->encrypt_block_size > strlen($iv)) {
+                    $iv.= $kexHash->hash($keyBytes . $this->exchange_hash . $iv);
+                }
+                $this->encrypt->setIV(substr($iv, 0, $this->encrypt_block_size));
             }
-            $this->encrypt->setIV(substr($iv, 0, $this->encrypt_block_size));
 
             $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'C' . $this->session_id);
             while ($encryptKeyLength > strlen($key)) {
@@ -1640,11 +1642,13 @@ class SSH2
             $this->decrypt->enableContinuousBuffer();
             $this->decrypt->disablePadding();
 
-            $iv = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
-            while ($this->decrypt_block_size > strlen($iv)) {
-                $iv.= $kexHash->hash($keyBytes . $this->exchange_hash . $iv);
+            if ($this->decrypt->usesIV()) {
+                $iv = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
+                while ($this->decrypt_block_size > strlen($iv)) {
+                    $iv.= $kexHash->hash($keyBytes . $this->exchange_hash . $iv);
+                }
+                $this->decrypt->setIV(substr($iv, 0, $this->decrypt_block_size));
             }
-            $this->decrypt->setIV(substr($iv, 0, $this->decrypt_block_size));
 
             $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'D' . $this->session_id);
             while ($decryptKeyLength > strlen($key)) {

@@ -110,7 +110,7 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
      */
     public function testVectors($engine, $engineName, $key, $keyLen, $plaintext, $ciphertext)
     {
-        $rc2 = new RC2();
+        $rc2 = new RC2(RC2::MODE_CBC);
         $rc2->disablePadding();
         $rc2->setKeyLength($keyLen);
         $rc2->setKey(pack('H*', $key)); // could also do $rc2->setKey(pack('H*', $key), $keyLen)
