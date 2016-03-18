@@ -387,7 +387,7 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Sets the key length.
      *
-     * Valid key lengths are 1 to 1024.
+     * Valid key lengths are 8 to 1024.
      * Calling this function after setting the key has no effect until the next
      *  Crypt_RC2::setKey() call.
      *
@@ -396,9 +396,16 @@ class Crypt_RC2 extends Crypt_Base
      */
     function setKeyLength($length)
     {
-        if ($length >= 1 && $length <= 1024) {
+        if ($length < 8) {
+            $this->default_key_length = 8;
+        } elseif ($length > 1024) {
+            $this->default_key_length = 128;
+        } else {
             $this->default_key_length = $length;
         }
+        $this->current_key_length = $this->default_key_length;
+
+        parent::setKeyLength($length);
     }
 
     /**
@@ -415,7 +422,7 @@ class Crypt_RC2 extends Crypt_Base
     /**
      * Sets the key.
      *
-     * Keys can be of any length. RC2, itself, uses 1 to 1024 bit keys (eg.
+     * Keys can be of any length. RC2, itself, uses 8 to 1024 bit keys (eg.
      * strlen($key) <= 128), however, we only use the first 128 bytes if $key
      * has more then 128 bytes in it, and set $key to a single null byte if
      * it is empty.
