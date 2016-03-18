@@ -302,7 +302,7 @@ class RC2 extends Base
     /**
      * Sets the key length.
      *
-     * Valid key lengths are 1 to 1024.
+     * Valid key lengths are 8 to 1024.
      * Calling this function after setting the key has no effect until the next
      *  \phpseclib\Crypt\RC2::setKey() call.
      *
@@ -312,11 +312,11 @@ class RC2 extends Base
      */
     function setKeyLength($length)
     {
-        if ($length < 1 || $length > 1024) {
+        if ($length < 8 || $length > 1024) {
             throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys between 1 and 1024 bits, inclusive, are supported');
         }
 
-        $this->default_key_length = $length;
+        $this->default_key_length = $this->current_key_length = $length;
     }
 
     /**
@@ -333,7 +333,7 @@ class RC2 extends Base
     /**
      * Sets the key.
      *
-     * Keys can be of any length. RC2, itself, uses 1 to 1024 bit keys (eg.
+     * Keys can be of any length. RC2, itself, uses 8 to 1024 bit keys (eg.
      * strlen($key) <= 128), however, we only use the first 128 bytes if $key
      * has more then 128 bytes in it, and set $key to a single null byte if
      * it is empty.
