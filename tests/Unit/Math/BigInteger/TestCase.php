@@ -371,4 +371,15 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $this->assertContains('[value] => 0x32', $str);
         return $str;
     }
+
+    /**
+     * @group github954
+     */
+    public function testSlidingWindow()
+    {
+        $e = $this->getInstance(str_repeat('1', 1794), 2);
+        $x = $this->getInstance(1);
+        $n = $this->getInstance(2);
+        $x->powMod($e, $n);
+    }
 }
