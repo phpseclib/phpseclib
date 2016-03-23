@@ -95,6 +95,33 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 'The quick brown fox jumps over the lazy dog.',
                 '87a7ff096082e3ffeb86db10feb91c5af36c2c71bc426fe310ce662e0338223e217def0eab0b02b80eecf875657802bc5965e48f5c0a05467756f0d3f396faba'
             ),
+            array(
+                'whirlpool',
+                'The quick brown fox jumps over the lazy dog.',
+                '87a7ff096082e3ffeb86db10feb91c5af36c2c71bc426fe310ce662e0338223e217def0eab0b02b80eecf875657802bc5965e48f5c0a05467756f0d3f396faba'
+            ),
+            // from http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA512_224.pdf
+            array(
+                'sha512/224',
+                'abc',
+                '4634270f707b6a54daae7530460842e20e37ed265ceee9a43e8924aa'
+            ),
+            array(
+                'sha512/224',
+                'abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu',
+                '23fec5bb94d60b23308192640b0c453335d664734fe40e7268674af9'
+            ),
+            // from http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA512_256.pdf
+            array(
+                'sha512/256',
+                'abc',
+                '53048e2681941ef99b2e29b76b4c7dabe4c2d0c634fc6d46e0e2f13107e7af23'
+            ),
+            array(
+                'sha512/256',
+                'abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu',
+                '3928e184fb8690f840da3988121d31be65cb9d3ef83ee6146feac861e19b563a'
+            ),
         );
     }
 
