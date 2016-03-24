@@ -46,7 +46,7 @@ class Random
      */
     static function string($length)
     {
-        if (version_compare(PHP_VERSION, '7.0.0', '>=')) {
+        if (version_compare(PHP_VERSION, '7.0.0', '>=') || defined('RANDOM_COMPAT_READ_BUFFER')) {
             try {
                 return \random_bytes($length);
             } catch (\Throwable $e) {
