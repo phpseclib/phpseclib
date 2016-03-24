@@ -32,6 +32,8 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
+use ParagonIE\ConstantTime\Base64;
+use ParagonIE\ConstantTime\Hex;
 
 /**
  * Pure-PHP X.509 Parser
@@ -1497,7 +1499,7 @@ class X509
                 switch ($algorithm) {
                     case 'rsaEncryption':
                         $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']
-                            = base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
+                            = base64_encode("\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
                         /* "[For RSA keys] the parameters field MUST have ASN.1 type NULL for this algorithm identifier."
                            -- https://tools.ietf.org/html/rfc3279#section-2.3.1
 
@@ -1566,7 +1568,7 @@ class X509
             for ($i = 0; $i < count($extensions); $i++) {
                 $id = $extensions[$i]['extnId'];
                 $value = &$extensions[$i]['extnValue'];
-                $value = base64_decode($value);
+                $value = Base64::decode($value);
                 $decoded = $asn1->decodeBER($value);
                 /* [extnValue] contains the DER encoding of an ASN.1 value
                    corresponding to the extension type identified by extnID */
@@ -2067,7 +2069,7 @@ class X509
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'],
                     $this->currentCert['signatureAlgorithm']['algorithm'],
-                    substr(base64_decode($this->currentCert['signature']), 1),
+                    substr(Base64::decode($this->currentCert['signature']), 1),
                     $this->signatureSubject
                 );
             case isset($this->currentCert['certificationRequestInfo']):
@@ -2075,7 +2077,7 @@ class X509
                     $this->currentCert['certificationRequestInfo']['subjectPKInfo']['algorithm']['algorithm'],
                     $this->currentCert['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'],
                     $this->currentCert['signatureAlgorithm']['algorithm'],
-                    substr(base64_decode($this->currentCert['signature']), 1),
+                    substr(Base64::decode($this->currentCert['signature']), 1),
                     $this->signatureSubject
                 );
             case isset($this->currentCert['publicKeyAndChallenge']):
@@ -2083,7 +2085,7 @@ class X509
                     $this->currentCert['publicKeyAndChallenge']['spki']['algorithm']['algorithm'],
                     $this->currentCert['publicKeyAndChallenge']['spki']['subjectPublicKey'],
                     $this->currentCert['signatureAlgorithm']['algorithm'],
-                    substr(base64_decode($this->currentCert['signature']), 1),
+                    substr(Base64::decode($this->currentCert['signature']), 1),
                     $this->signatureSubject
                 );
             case isset($this->currentCert['tbsCertList']):
@@ -2109,7 +2111,7 @@ class X509
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'],
                     $this->currentCert['signatureAlgorithm']['algorithm'],
-                    substr(base64_decode($this->currentCert['signature']), 1),
+                    substr(Base64::decode($this->currentCert['signature']), 1),
                     $this->signatureSubject
                 );
             default:
@@ -2182,7 +2184,7 @@ class X509
                     // subjectPublicKey is stored as a bit string in X.509 certs.  the first byte of a bit string represents how many bits
                     // in the last byte should be ignored.  the following only supports non-zero stuff but as none of the X.509 certs Firefox
                     // uses as a cert authority actually use a non-zero bit I think it's safe to assume that none do.
-                    chunk_split(base64_encode(substr(base64_decode($key), 1)), 64) .
+                    chunk_split(base64_encode(substr(Base64::decode($key), 1)), 64) .
                     '-----END RSA PUBLIC KEY-----';
             default:
                 return $key;
@@ -2200,7 +2202,7 @@ class X509
      */
     function _decodeIP($ip)
     {
-        return inet_ntop(base64_decode($ip));
+        return inet_ntop(Base64::decode($ip));
     }
 
     /**
@@ -2536,7 +2538,7 @@ class X509
                 $hash = new Hash('sha1');
                 $hash = $hash->hash($dn);
                 extract(unpack('Vhash', $hash));
-                return strtolower(bin2hex(pack('N', $hash)));
+                return Hex::encode(pack('N', $hash));
         }
 
         // Default is to return a string.
@@ -2923,7 +2925,7 @@ class X509
                 switch ($algorithm) {
                     case 'rsaEncryption':
                         $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']
-                            = base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])));
+                            = base64_encode("\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])));
                 }
         }
 
@@ -2976,7 +2978,7 @@ class X509
 
         // OpenSSL produces SPKAC's that are preceeded by the string SPKAC=
         $temp = preg_replace('#(?:SPKAC=)|[ \r\n\\\]#', '', $spkac);
-        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? Base64::decode($temp) : false;
         if ($temp != false) {
             $spkac = $temp;
         }
@@ -3047,7 +3049,7 @@ class X509
                 switch ($algorithm) {
                     case 'rsaEncryption':
                         $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']
-                            = base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey'])));
+                            = base64_encode("\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey'])));
                 }
         }
 
@@ -4229,7 +4231,7 @@ class X509
                 if (empty($raw)) {
                     return false;
                 }
-                $raw = base64_decode($raw);
+                $raw = Base64::decode($raw);
                 // If the key is private, compute identifier from its corresponding public key.
                 $key = new RSA();
                 if (!$key->load($raw)) {
@@ -4282,7 +4284,7 @@ class X509
         if ($this->publicKey instanceof RSA) {
             // the following two return statements do the same thing. i dunno.. i just prefer the later for some reason.
             // the former is a good example of how to do fuzzing on the public key
-            //return new Element(base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey())));
+            //return new Element(Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey())));
             return array(
                 'algorithm' => array('algorithm' => 'rsaEncryption'),
                 'subjectPublicKey' => $this->publicKey->getPublicKey('PKCS1')
@@ -4585,7 +4587,7 @@ class X509
         $temp = preg_replace('#-+[^-]+-+#', '', $temp);
         // remove new lines
         $temp = str_replace(array("\r", "\n", ' '), '', $temp);
-        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? Base64::decode($temp) : false;
         return $temp != false ? $temp : $str;
     }
 

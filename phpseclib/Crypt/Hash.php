@@ -17,7 +17,7 @@
  *
  *    $hash->setKey('abcdefg');
  *
- *    echo base64_encode($hash->hash('abcdefg'));
+ *    echo Base64::encode($hash->hash('abcdefg'));
  * ?>
  * </code>
  *

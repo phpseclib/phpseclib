@@ -17,6 +17,8 @@ namespace phpseclib\Crypt\RSA;
 use phpseclib\Crypt\AES;
 use phpseclib\Crypt\Hash;
 use phpseclib\Math\BigInteger;
+use ParagonIE\ConstantTime\Hex;
+use ParagonIE\ConstantTime\Base64;
 
 /**
  * PuTTY Formatted RSA Key Handler
@@ -61,7 +63,7 @@ class PuTTY
         $sequence = 0;
         while (strlen($symkey) < $length) {
             $temp = pack('Na*', $sequence++, $password);
-            $symkey.= pack('H*', sha1($temp));
+            $symkey.= Hex::decode(sha1($temp));
         }
         return substr($symkey, 0, $length);
     }
@@ -113,7 +115,7 @@ class PuTTY
         $components['comment'] = trim(preg_replace('#Comment: (.+)#', '$1', $key[2]));
 
         $publicLength = trim(preg_replace('#Public-Lines: (\d+)#', '$1', $key[3]));
-        $public = base64_decode(implode('', array_map('trim', array_slice($key, 4, $publicLength))));
+        $public = Base64::decode(implode('', array_map('trim', array_slice($key, 4, $publicLength))));
         $public = substr($public, 11);
         extract(unpack('Nlength', self::_string_shift($public, 4)));
         $components['publicExponent'] = new BigInteger(self::_string_shift($public, $length), -256);
@@ -121,7 +123,7 @@ class PuTTY
         $components['modulus'] = new BigInteger(self::_string_shift($public, $length), -256);
 
         $privateLength = trim(preg_replace('#Private-Lines: (\d+)#', '$1', $key[$publicLength + 4]));
-        $private = base64_decode(implode('', array_map('trim', array_slice($key, $publicLength + 5, $privateLength))));
+        $private = Base64::decode(implode('', array_map('trim', array_slice($key, $publicLength + 5, $privateLength))));
 
         switch ($encryption) {
             case 'aes256-cbc':
@@ -240,7 +242,7 @@ class PuTTY
             strlen($public),
             $public
         );
-        $public = base64_encode($public);
+        $public = Base64::encode($public);
         $key.= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";
         $key.= chunk_split($public, 64);
         $private = pack(
@@ -269,12 +271,12 @@ class PuTTY
             $hashkey = 'putty-private-key-file-mac-key' . $password;
         }
 
-        $private = base64_encode($private);
+        $private = Base64::encode($private);
         $key.= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
         $key.= chunk_split($private, 64);
         $hash = new Hash('sha1');
-        $hash->setKey(pack('H*', sha1($hashkey)));
-        $key.= 'Private-MAC: ' . bin2hex($hash->hash($source)) . "\r\n";
+        $hash->setKey(Hex::decode(sha1($hashkey)));
+        $key.= 'Private-MAC: ' . Hex::encode($hash->hash($source)) . "\r\n";
 
         return $key;
     }
@@ -303,7 +305,7 @@ class PuTTY
         );
         $key = "---- BEGIN SSH2 PUBLIC KEY ----\r\n" .
                'Comment: "' . str_replace(array('\\', '"'), array('\\\\', '\"'), self::$comment) . "\"\r\n";
-               chunk_split(base64_encode($key), 64) .
+               chunk_split(Base64::encode($key), 64) .
                '---- END SSH2 PUBLIC KEY ----';
 
         return $key;
