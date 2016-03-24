@@ -47,6 +47,8 @@ namespace phpseclib\Crypt;
 
 use phpseclib\File\ASN1;
 use phpseclib\Math\BigInteger;
+use ParagonIE\ConstantTime\Hex;
+use ParagonIE\ConstantTime\Base64;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
@@ -1033,7 +1035,7 @@ class RSA
         switch ($algorithm) {
             case 'sha256':
                 $hash = new Hash('sha256');
-                $base = base64_encode($hash->hash($RSAPublicKey));
+                $base = Base64::encode($hash->hash($RSAPublicKey));
                 return substr($base, 0, strlen($base) - 1);
             case 'md5':
                 return substr(chunk_split(md5($RSAPublicKey), 2, ':'), 0, -1);
@@ -1945,22 +1947,22 @@ class RSA
         // see http://tools.ietf.org/html/rfc3447#page-43
         switch ($this->hashName) {
             case 'md2':
-                $t = pack('H*', '3020300c06082a864886f70d020205000410');
+                $t = Hex::decode('3020300c06082a864886f70d020205000410');
                 break;
             case 'md5':
-                $t = pack('H*', '3020300c06082a864886f70d020505000410');
+                $t = Hex::decode('3020300c06082a864886f70d020505000410');
                 break;
             case 'sha1':
-                $t = pack('H*', '3021300906052b0e03021a05000414');
+                $t = Hex::decode('3021300906052b0e03021a05000414');
                 break;
             case 'sha256':
-                $t = pack('H*', '3031300d060960864801650304020105000420');
+                $t = Hex::decode('3031300d060960864801650304020105000420');
                 break;
             case 'sha384':
-                $t = pack('H*', '3041300d060960864801650304020205000430');
+                $t = Hex::decode('3041300d060960864801650304020205000430');
                 break;
             case 'sha512':
-                $t = pack('H*', '3051300d060960864801650304020305000440');
+                $t = Hex::decode('3051300d060960864801650304020305000440');
         }
         $t.= $h;
         $tLen = strlen($t);
@@ -2149,7 +2151,7 @@ class RSA
 
         $hash = new Hash($decoded['digestAlgorithm']['algorithm']);
         $em = $hash->hash($m);
-        $em2 = base64_decode($decoded['digest']);
+        $em2 = Base64::decode($decoded['digest']);
 
         return $this->_equals($em, $em2);
     }

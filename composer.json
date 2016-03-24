@@ -56,6 +56,7 @@
     "require-dev": {
         "phing/phing": "~2.7",
         "phpunit/phpunit": "~4.0",
+        "paragonie/constant_time_encoding": "^0.5",
         "sami/sami": "~2.0",
         "squizlabs/php_codesniffer": "~2.0"
     },
