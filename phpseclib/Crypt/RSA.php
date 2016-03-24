@@ -1232,6 +1232,8 @@ class RSA
             case 'sha256':
             case 'sha384':
             case 'sha512':
+            case 'sha512/224':
+            case 'sha512/256':
                 $this->hash = new Hash($hash);
                 $this->hashName = $hash;
                 break;
@@ -1261,6 +1263,8 @@ class RSA
             case 'sha256':
             case 'sha384':
             case 'sha512':
+            case 'sha512/224':
+            case 'sha512/256':
                 $this->mgfHash = new Hash($hash);
                 break;
             default:
@@ -1961,6 +1965,13 @@ class RSA
                 break;
             case 'sha512':
                 $t = pack('H*', '3051300d060960864801650304020305000440');
+                break;
+            // from https://www.emc.com/collateral/white-papers/h11300-pkcs-1v2-2-rsa-cryptography-standard-wp.pdf#page=40
+            case 'sha512/224':
+                $t = pack('H*', '302d300d06096086480165030402050500041c');
+                break;
+            case 'sha512/256':
+                $t = pack('H*', '3031300d060960864801650304020605000420');
         }
         $t.= $h;
         $tLen = strlen($t);
@@ -2132,8 +2143,8 @@ class RSA
             '2.16.840.1.101.3.4.2.2' => 'sha384',
             '2.16.840.1.101.3.4.2.3' => 'sha512',
             // from PKCS1 v2.2
-            //'2.16.840.1.101.3.4.2.5' => 'sha512/224',
-            //'2.16.840.1.101.3.4.2.6' => 'sha512/256',
+            '2.16.840.1.101.3.4.2.5' => 'sha512/224',
+            '2.16.840.1.101.3.4.2.6' => 'sha512/256',
         );
 
         $asn1->loadOIDs($oids);
