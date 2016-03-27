@@ -48,6 +48,8 @@ class Random
     {
         try {
             return \random_bytes($length);
+        } catch (\Exception $e) {
+            // random_compat will throw an Exception, which in PHP 5 does not implement Throwable
         } catch (\Throwable $e) {
             // If a sufficient source of randomness is unavailable, random_bytes() will throw an
             // object that implements the Throwable interface (Exception, TypeError, Error).
@@ -55,8 +57,6 @@ class Random
             // as normal. Note, however, that if we don't have a sufficient source of randomness for
             // random_bytes(), most of the other calls here will fail too, so we'll end up using
             // the PHP implementation.
-        } catch (\Exception $e) {
-            // random_compat will throw an Exception, which in PHP 5 does not implement Throwable
         }
         // at this point we have no choice but to use a pure-PHP CSPRNG
 
