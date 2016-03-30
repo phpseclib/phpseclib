@@ -122,6 +122,17 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 'abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu',
                 '3928e184fb8690f840da3988121d31be65cb9d3ef83ee6146feac861e19b563a'
             ),
+            // from http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA224.pdf
+            array(
+                'sha224',
+                'abc',
+                '23097D223405D8228642A477BDA255B32AADBCE4BDA0B3F7E36C9DA7'
+            ),
+            array(
+                'sha224',
+                'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq',
+                '75388B16512776CC5DBA5DA1FD890150B0C6455CB4F58B1952522525'
+            ),
         );
     }
 
@@ -209,6 +220,43 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 'abcd',
                 'The quick brown fox jumps over the lazy dog',
                 'e71aabb2588d789292fa6fef00b35cc269ec3ea912b1c1cd7127daf95f004a5df5392ee563d322bac7e19d9eab161932fe9c257d63e0d09eca0d91ab4010125e',
+            ),
+            // from https://tools.ietf.org/rfc/rfc4231.txt
+            array(
+                'sha224',
+                str_repeat("\x0b", 20),
+                'Hi There',
+                '896fb1128abbdf196832107cd49df33f47b4b1169912ba4f53684b22',
+            ),
+            array(
+                'sha224',
+                'Jefe',
+                'what do ya want for nothing?',
+                'a30e01098bc6dbbf45690f3a7e9e6d0f8bbea2a39e6148008fd05e44',
+            ),
+            array(
+                'sha224',
+                pack('H*', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+                pack('H*', 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'),
+                '7fb3cb3588c6c1f6ffa9694d7d6ad2649365b0c1f65d69d1ec8333ea',
+            ),
+            array(
+                'sha224',
+                pack('H*', '0102030405060708090a0b0c0d0e0f10111213141516171819'),
+                pack('H*', 'cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd'),
+                '6c11506874013cac6a2abc1bb382627cec6a90d86efc012de7afec5a',
+            ),
+            array(
+                'sha224',
+                pack('H*', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+                'Test Using Larger Than Block-Size Key - Hash Key First',
+                '95e9a0db962095adaebe9b2d6f0dbce2d499f112f2d2b7273fa6870e',
+            ),
+            array(
+                'sha224',
+                pack('H*', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+                'This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm.',
+                '3a854166ac5d9f023f54d517d0b39dbd946770db9c2b95c9f6f565d1'
             ),
         );
     }
