@@ -371,11 +371,11 @@ EOpSeghXSs7IilJu8I6/sB1w5dakdeBSFkIynrlFXkO0uUw+QJJWjxY8SypzgIuP
 DzduF6XsQrCyo6dnIpGQCQ==
 Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
 
-        $rsa = new Crypt_RSA();
+        $rsa = new RSA();
         $rsa->setPrivateKey($key);
         $rsa->loadKey($key);
 
-        $rsa = new Crypt_RSA();
+        $rsa = new RSA();
         $rsa->loadKey($key);
         $rsa->setPrivateKey();
         $rsa->loadKey($rsa);
