@@ -350,7 +350,6 @@ Z2sKniRCcDT1ZP4=
         $this->assertTrue($result);
     }
 
-<<<<<<< HEAD
     public function testPKCS1EncryptionChange()
     {
         $rsa = new RSA();
@@ -536,3 +535,4 @@ Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
         $rsa->load($rsa);
     }
 }
+
