@@ -500,4 +500,38 @@ ILaEujU=
 
         $this->assertGreaterThanOrEqual(1, strlen("$rsa"));
     }
+
+    /**
+     * @group github960
+     */
+    public function testSetLoad()
+    {
+        $key = 'PuTTY-User-Key-File-2: ssh-rsa
+Encryption: aes256-cbc
+Comment: phpseclib-generated-key
+Public-Lines: 4
+AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4
+eCZ0FPqri0cb2JZfXJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RK
+NUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDy
+R4e9T04ZZw==
+Private-Lines: 8
+llx04QMegql0/nE5RvcJSrGrodxt6ytuv/JX2caeZBUyQwQc2WBNYagLHyHPM9jI
+9OUWz59FLhjFXZMDNMoUXxVmjwQpOAaVPYNxxFM9AF6/NXFji64K7huD9n4A+kLn
+sHwMLWPR5a/tZA0r05DZNz9ULA3mQu7Hz4EQ8ifu3uTPJuTmL51x6RmudYKysb20
+fM8VzC3ukvzzRh0pujUVTr/yQdmciASVFnZlt4xQy+ZEOVUAOfwjd//AFfXTvk6x
+7A45rNlU/uicHwLgoY1APvRHCFxw7F+uVW5L4mSX7NNzqBKkZ+1qpQTAfQvIfEIb
+444+CXsgIyOpqt6VxJH2u6elAtE1wau3YaFR8Alm8m97rFYzRi3oDP5NZYkTCWSV
+EOpSeghXSs7IilJu8I6/sB1w5dakdeBSFkIynrlFXkO0uUw+QJJWjxY8SypzgIuP
+DzduF6XsQrCyo6dnIpGQCQ==
+Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
+
+        $rsa = new RSA();
+        $rsa->setPrivateKey($key);
+        $rsa->load($key);
+
+        $rsa = new RSA();
+        $rsa->load($key);
+        $rsa->setPrivateKey();
+        $rsa->load($rsa);
+    }
 }
