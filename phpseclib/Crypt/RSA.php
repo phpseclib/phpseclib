@@ -958,7 +958,7 @@ class RSA
     function setPrivateKey($key = false, $type = false)
     {
         if ($key === false && !empty($this->publicExponent)) {
-            $rsa->publicExponent = false;
+            $this->publicExponent = false;
             return true;
         }
 

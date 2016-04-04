@@ -350,6 +350,7 @@ Z2sKniRCcDT1ZP4=
         $this->assertTrue($result);
     }
 
+<<<<<<< HEAD
     public function testPKCS1EncryptionChange()
     {
         $rsa = new RSA();
