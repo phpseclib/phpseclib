@@ -169,6 +169,7 @@ class Agent
         $identities = array();
         $keyCount = current(unpack('N', fread($this->fsock, 4)));
         for ($i = 0; $i < $keyCount; $i++) {
+            $key_comment = '';
             $length = current(unpack('N', fread($this->fsock, 4)));
             $key_blob = fread($this->fsock, $length);
             $length = current(unpack('N', fread($this->fsock, 4)));
