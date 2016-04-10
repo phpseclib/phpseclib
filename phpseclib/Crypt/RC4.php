@@ -44,8 +44,6 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Crypt\Base;
-
 /**
  * Pure-PHP implementation of RC4.
  *
@@ -70,26 +68,25 @@ class RC4 extends Base
      * so we the block_size to 0
      *
      * @see \phpseclib\Crypt\Base::block_size
-     * @var Integer
+     * @var int
      * @access private
      */
     var $block_size = 0;
 
     /**
-     * The default password key_size used by setPassword()
+     * Key Length (in bytes)
      *
-     * @see \phpseclib\Crypt\Base::password_key_size
-     * @see \phpseclib\Crypt\Base::setPassword()
-     * @var Integer
+     * @see \phpseclib\Crypt\RC4::setKeyLength()
+     * @var int
      * @access private
      */
-    var $password_key_size = 128; // = 1024 bits
+    var $key_length = 128; // = 1024 bits
 
     /**
      * The mcrypt specific name of the cipher
      *
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
-     * @var String
+     * @var string
      * @access private
      */
     var $cipher_name_mcrypt = 'arcfour';
@@ -106,8 +103,8 @@ class RC4 extends Base
     /**
      * The Key
      *
-     * @see \phpseclib\Crypt\RC4::setKey()
-     * @var String
+     * @see self::setKey()
+     * @var string
      * @access private
      */
     var $key = "\0";
@@ -115,16 +112,14 @@ class RC4 extends Base
     /**
      * The Key Stream for decryption and encryption
      *
-     * @see \phpseclib\Crypt\RC4::setKey()
-     * @var Array
+     * @see self::setKey()
+     * @var array
      * @access private
      */
     var $stream;
 
     /**
      * Default Constructor.
-     *
-     * Determines whether or not the mcrypt extension should be used.
      *
      * @see \phpseclib\Crypt\Base::__construct()
      * @return \phpseclib\Crypt\RC4
@@ -138,12 +133,12 @@ class RC4 extends Base
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
      *
-     * @see Crypt_Base::Crypt_Base()
-     * @param Integer $engine
+     * @see \phpseclib\Crypt\Base::__construct()
+     * @param int $engine
      * @access public
-     * @return Boolean
+     * @return bool
      */
     function isValidEngine($engine)
     {
@@ -168,51 +163,63 @@ class RC4 extends Base
     }
 
     /**
-     * Dummy function.
+     * RC4 does not use an IV
      *
-     * Some protocols, such as WEP, prepend an "initialization vector" to the key, effectively creating a new key [1].
-     * If you need to use an initialization vector in this manner, feel free to prepend it to the key, yourself, before
-     * calling setKey().
-     *
-     * [1] WEP's initialization vectors (IV's) are used in a somewhat insecure way.  Since, in that protocol,
-     * the IV's are relatively easy to predict, an attack described by
-     * {@link http://www.drizzle.com/~aboba/IEEE/rc4_ksaproc.pdf Scott Fluhrer, Itsik Mantin, and Adi Shamir}
-     * can be used to quickly guess at the rest of the key.  The following links elaborate:
-     *
-     * {@link http://www.rsa.com/rsalabs/node.asp?id=2009 http://www.rsa.com/rsalabs/node.asp?id=2009}
-     * {@link http://en.wikipedia.org/wiki/Related_key_attack http://en.wikipedia.org/wiki/Related_key_attack}
-     *
-     * @param String $iv
-     * @see \phpseclib\Crypt\RC4::setKey()
      * @access public
+     * @return bool
      */
-    function setIV($iv)
+    function usesIV()
     {
+        return false;
     }
 
     /**
-     * Sets the key.
+     * Sets the key length
      *
-     * Keys can be between 1 and 256 bytes long.  If they are longer then 256 bytes, the first 256 bytes will
-     * be used.  If no key is explicitly set, it'll be assumed to be a single null byte.
+     * Keys can be between 1 and 256 bytes long.
      *
      * @access public
-     * @see \phpseclib\Crypt\Base::setKey()
-     * @param String $key
+     * @param int $length
+     * @throws \LengthException if the key length is invalid
+     */
+    function setKeyLength($length)
+    {
+        if ($length < 8 || $length > 2048) {
+            throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys between 1 and 256 bytes are supported');
+        }
+
+        $this->key_length = $length >> 3;
+
+        parent::setKeyLength($length);
+    }
+
+    /**
+     * Sets the key length
+     *
+     * Keys can be between 1 and 256 bytes long.
+     *
+     * @access public
+     * @param int $length
+     * @throws \LengthException if the key length is invalid
      */
     function setKey($key)
     {
-        parent::setKey(substr($key, 0, 256));
+        $length = strlen($key);
+        if ($length < 1 || $length > 256) {
+            throw new \LengthException('Key size of ' . $length . ' bytes is not supported by RC4. Keys must be between 1 and 256 bytes long');
+        }
+
+        parent::setKey($key);
     }
 
     /**
      * Encrypts a message.
      *
      * @see \phpseclib\Crypt\Base::decrypt()
-     * @see \phpseclib\Crypt\RC4::_crypt()
+     * @see self::_crypt()
      * @access public
-     * @param String $plaintext
-     * @return String $ciphertext
+     * @param string $plaintext
+     * @return string $ciphertext
      */
     function encrypt($plaintext)
     {
@@ -229,10 +236,10 @@ class RC4 extends Base
      * At least if the continuous buffer is disabled.
      *
      * @see \phpseclib\Crypt\Base::encrypt()
-     * @see \phpseclib\Crypt\RC4::_crypt()
+     * @see self::_crypt()
      * @access public
-     * @param String $ciphertext
-     * @return String $plaintext
+     * @param string $ciphertext
+     * @return string $plaintext
      */
     function decrypt($ciphertext)
     {
@@ -246,7 +253,7 @@ class RC4 extends Base
      * Encrypts a block
      *
      * @access private
-     * @param String $in
+     * @param string $in
      */
     function _encryptBlock($in)
     {
@@ -257,7 +264,7 @@ class RC4 extends Base
      * Decrypts a block
      *
      * @access private
-     * @param String $in
+     * @param string $in
      */
     function _decryptBlock($in)
     {
@@ -294,12 +301,12 @@ class RC4 extends Base
     /**
      * Encrypts or decrypts a message.
      *
-     * @see \phpseclib\Crypt\RC4::encrypt()
-     * @see \phpseclib\Crypt\RC4::decrypt()
+     * @see self::encrypt()
+     * @see self::decrypt()
      * @access private
-     * @param String $text
-     * @param Integer $mode
-     * @return String $text
+     * @param string $text
+     * @param int $mode
+     * @return string $text
      */
     function _crypt($text, $mode)
     {

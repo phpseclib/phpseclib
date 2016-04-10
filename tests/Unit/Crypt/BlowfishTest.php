@@ -56,22 +56,26 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
             array(pack('H*', '0123456789ABCDEF'), pack('H*', '0000000000000000'), pack('H*', '245946885754369A')),
             array(pack('H*', 'FEDCBA9876543210'), pack('H*', 'FFFFFFFFFFFFFFFF'), pack('H*', '6B5C5A9C5D9E0A5A'))
         );
+
         $result = array();
-        // @codingStandardsIgnoreStart
-        foreach ($engines as $engine => $engineName) 
-        foreach ($tests as $test)
-            $result[] = array($engine, $engineName, $test[0], $test[1], $test[2]);
-        // @codingStandardsIgnoreEnd
+
+        foreach ($engines as $engine => $engineName) {
+            foreach ($tests as $test) {
+                $result[] = array($engine, $engineName, $test[0], $test[1], $test[2]);
+            }
+        }
+
         return $result;
     }
 
     /**
-    * @dataProvider engineVectors
-    */
+     * @dataProvider engineVectors
+     */
     public function testVectors($engine, $engineName, $key, $plaintext, $expected)
     {
-        $bf = new Blowfish();
+        $bf = new Blowfish(Blowfish::MODE_CBC);
         $bf->setKey($key);
+        $bf->setIV(str_repeat("\0", $bf->getBlockLength() >> 3));
         if (!$bf->isValidEngine($engine)) {
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
         }

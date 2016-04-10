@@ -18,7 +18,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $KDC_REP = array(
             'type' => ASN1::TYPE_SEQUENCE,
             'children' => array(
-                 'pvno' => array(
+                'pvno' => array(
                     'constant' => 0,
                     'optional' => true,
                     'explicit' => true,

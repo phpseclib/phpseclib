@@ -59,7 +59,7 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
             $value = constant($constant);
 
             if ($value !== $expected) {
-                if (function_exists('runkit_constant_redefine')) {
+                if (extension_loaded('runkit')) {
                     if (!runkit_constant_redefine($constant, $expected)) {
                         self::markTestSkipped(sprintf(
                             "Failed to redefine constant %s to %s",
@@ -82,15 +82,15 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string $filename
+     * @param string $filename Filename relative to library directory.
      *
      * @return null
      */
     protected static function reRequireFile($filename)
     {
-        if (function_exists('runkit_import')) {
+        if (extension_loaded('runkit')) {
             $result = runkit_import(
-                $filename,
+                sprintf('%s/../phpseclib/%s', __DIR__, $filename),
                 RUNKIT_IMPORT_FUNCTIONS |
                 RUNKIT_IMPORT_CLASS_METHODS |
                 RUNKIT_IMPORT_OVERRIDE
