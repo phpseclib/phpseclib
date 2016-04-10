@@ -320,9 +320,10 @@ class System_SSH_Agent
         for ($i = 0; $i < $keyCount; $i++) {
             $length = current(unpack('N', fread($this->fsock, 4)));
             $key_blob = fread($this->fsock, $length);
+            $key_str = 'ssh-rsa ' . base64_encode($key_blob);
             $length = current(unpack('N', fread($this->fsock, 4)));
             if ($length) {
-                $key_comment = fread($this->fsock, $length);
+                $key_str.= ' ' . fread($this->fsock, $length);
             }
             $length = current(unpack('N', substr($key_blob, 0, 4)));
             $key_type = substr($key_blob, 4, $length);
@@ -332,7 +333,7 @@ class System_SSH_Agent
                         include_once 'Crypt/RSA.php';
                     }
                     $key = new Crypt_RSA();
-                    $key->loadKey('ssh-rsa ' . base64_encode($key_blob) . ' ' . $key_comment);
+                    $key->loadKey($key_str);
                     break;
                 case 'ssh-dss':
                     // not currently supported
