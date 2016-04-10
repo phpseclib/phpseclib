@@ -106,7 +106,7 @@ class OpenSSH
      * @param \phpseclib\Math\BigInteger $e
      * @return string
      */
-    function savePublicKey(BigInteger $n, BigInteger $e)
+    static function savePublicKey(BigInteger $n, BigInteger $e)
     {
         $publicExponent = $e->toBytes(true);
         $modulus = $n->toBytes(true);
