@@ -87,30 +87,26 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
             array(str_repeat("\x01", 24), pack('H*', '0000000000000002'), pack('H*', '06E7EA22CE92708F')),
             array(str_repeat("\x01", 24), pack('H*', '0000000000000001'), pack('H*', '166B40B44ABA4BD6'))
         );
-
         $result = array();
-
-        foreach ($this->engines as $engine => $engineName) {
-            foreach ($tests as $test) {
-                $result[] = array($engine, $engineName, $test[0], $test[1], $test[2]);
-            }
-        }
-
+        // @codingStandardsIgnoreStart
+        foreach ($this->engines as $engine => $engineName) 
+        foreach ($tests as $test)
+            $result[] = array($engine, $engineName, $test[0], $test[1], $test[2]);
+        // @codingStandardsIgnoreEnd
         return $result;
     }
 
     /**
-     * @dataProvider engineVectors
-     */
+    * @dataProvider engineVectors
+    */
     public function testVectors($engine, $engineName, $key, $plaintext, $expected)
     {
-        $des = new TripleDES(TripleDES::MODE_CBC);
+        $des = new TripleDES();
         if (!$des->isValidEngine($engine)) {
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
         }
         $des->setPreferredEngine($engine);
         $des->setKey($key);
-        $des->setIV(str_repeat("\0", $des->getBlockLength() >> 3));
         $des->disablePadding();
         $result = $des->encrypt($plaintext);
         $plaintext = bin2hex($plaintext);
@@ -139,24 +135,21 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
                 pack('H*', '84401f78fe6c10876d8ea23094ea5309'),
                 pack('H*', '7b1f7c7e3b1c948ebd04a75ffba7d2f5'))
         );
-
         $result = array();
-
-        foreach ($engines as $engine => $engineName) {
-            foreach ($tests as $test) {
-                $result[] = array($engine, $engineName, $test[0], $test[1], $test[2], $test[3]);
-            }
-        }
-
+        // @codingStandardsIgnoreStart
+        foreach ($engines as $engine => $engineName) 
+        foreach ($tests as $test)
+            $result[] = array($engine, $engineName, $test[0], $test[1], $test[2], $test[3]);
+        // @codingStandardsIgnoreEnd
         return $result;
     }
 
     /**
-     * @dataProvider engineIVVectors
-     */
+    * @dataProvider engineIVVectors
+    */
     public function testVectorsWithIV($engine, $engineName, $key, $iv, $plaintext, $expected)
     {
-        $des = new TripleDES(TripleDES::MODE_CBC);
+        $des = new TripleDES();
         if (!$des->isValidEngine($engine)) {
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
         }
@@ -177,7 +170,6 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 
         $des = new TripleDES(TripleDES::MODE_3CBC);
         $des->setKey('abcdefghijklmnopqrstuvwx');
-        $des->setIV(str_repeat("\0", $des->getBlockLength() >> 3));
 
         foreach ($this->engines as $engine => $engineName) {
             $des->setPreferredEngine($engine);

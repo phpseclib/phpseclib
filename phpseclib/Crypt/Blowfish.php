@@ -37,6 +37,8 @@
 
 namespace phpseclib\Crypt;
 
+use phpseclib\Crypt\Base;
+
 /**
  * Pure-PHP implementation of Blowfish.
  *
@@ -51,16 +53,26 @@ class Blowfish extends Base
      * Block Length of the cipher
      *
      * @see \phpseclib\Crypt\Base::block_size
-     * @var int
+     * @var Integer
      * @access private
      */
     var $block_size = 8;
 
     /**
+     * The default password key_size used by setPassword()
+     *
+     * @see \phpseclib\Crypt\Base::password_key_size
+     * @see \phpseclib\Crypt\Base::setPassword()
+     * @var Integer
+     * @access private
+     */
+    var $password_key_size = 56;
+
+    /**
      * The mcrypt specific name of the cipher
      *
      * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
-     * @var string
+     * @var String
      * @access private
      */
     var $cipher_name_mcrypt = 'blowfish';
@@ -69,7 +81,7 @@ class Blowfish extends Base
      * Optimizing value while CFB-encrypting
      *
      * @see \phpseclib\Crypt\Base::cfb_init_len
-     * @var int
+     * @var Integer
      * @access private
      */
     var $cfb_init_len = 500;
@@ -82,7 +94,7 @@ class Blowfish extends Base
      * @access private
      * @var    array
      */
-    var $sbox0 = array(
+    var $sbox0 = array (
         0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7, 0xb8e1afed, 0x6a267e96, 0xba7c9045, 0xf12c7f99,
         0x24a19947, 0xb3916cf7, 0x0801f2e2, 0x858efc16, 0x636920d8, 0x71574e69, 0xa458fea3, 0xf4933d7e,
         0x0d95748f, 0x728eb658, 0x718bcd58, 0x82154aee, 0x7b54a41d, 0xc25a59b5, 0x9c30d539, 0x2af26013,
@@ -265,73 +277,53 @@ class Blowfish extends Base
     /**
      * Holds the last used key
      *
-     * @var array
+     * @var Array
      * @access private
      */
     var $kl;
 
     /**
-     * The Key Length (in bytes)
+     * Sets the key.
      *
-     * @see \phpseclib\Crypt\Base::setKeyLength()
-     * @var int
-     * @access private
-     * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
-     *    because the encryption / decryption / key schedule creation requires this number and not $key_length.  We could
-     *    derive this from $key_length or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
-     *    of that, we'll just precompute it once.
-     */
-    var $key_length = 16;
-
-    /**
-     * Default Constructor.
+     * Keys can be of any length.  Blowfish, itself, requires the use of a key between 32 and max. 448-bits long.
+     * If the key is less than 32-bits we NOT fill the key to 32bit but let the key as it is to be compatible
+     * with mcrypt because mcrypt act this way with blowfish key's < 32 bits.
      *
-     * @param int $mode
-     * @access public
-     * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
-     */
-    function __construct($mode)
-    {
-        if ($mode == self::MODE_STREAM) {
-            throw new \InvalidArgumentException('Block ciphers cannot be ran in stream mode');
-        }
-
-        parent::__construct($mode);
-    }
-
-    /**
-     * Sets the key length.
+     * If the key is more than 448-bits, we trim the excess bits.
      *
-     * Key lengths can be between 32 and 448 bits.
+     * If the key is not explicitly set, or empty, it'll be assumed a 128 bits key to be all null bytes.
      *
      * @access public
-     * @param int $length
+     * @see \phpseclib\Crypt\Base::setKey()
+     * @param String $key
      */
-    function setKeyLength($length)
+    function setKey($key)
     {
-        if ($length < 32 || $length > 448) {
-                throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes between 32 and 448 bits are supported');
+        $keylength = strlen($key);
+
+        if (!$keylength) {
+            $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+        } elseif ($keylength > 56) {
+            $key = substr($key, 0, 56);
         }
 
-        $this->key_length = $length >> 3;
-
-        parent::setKeyLength($length);
+        parent::setKey($key);
     }
 
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
+     * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
      *
      * @see \phpseclib\Crypt\Base::isValidEngine()
-     * @param int $engine
+     * @param Integer $engine
      * @access public
-     * @return bool
+     * @return Boolean
      */
     function isValidEngine($engine)
     {
         if ($engine == self::ENGINE_OPENSSL) {
-            if ($this->key_length != 16) {
+            if (strlen($this->key) != 16) {
                 return false;
             }
             $this->cipher_name_openssl_ecb = 'bf-ecb';
@@ -401,8 +393,8 @@ class Blowfish extends Base
      * Encrypts a block
      *
      * @access private
-     * @param string $in
-     * @return string
+     * @param String $in
+     * @return String
      */
     function _encryptBlock($in)
     {
@@ -437,8 +429,8 @@ class Blowfish extends Base
      * Decrypts a block
      *
      * @access private
-     * @param string $in
-     * @return string
+     * @param String $in
+     * @return String
      */
     function _decryptBlock($in)
     {
@@ -479,9 +471,9 @@ class Blowfish extends Base
         $lambda_functions =& self::_getLambdaFunctions();
 
         // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
-        // (Currently, for Blowfish, one generated $lambda_function cost on php5.5@32bit ~100kb unfreeable mem and ~180kb on php5.5@64bit)
+        // (Currently, for Crypt_Blowfish, one generated $lambda_function cost on php5.5@32bit ~100kb unfreeable mem and ~180kb on php5.5@64bit)
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one.
-        $gen_hi_opt_code = (bool)(count($lambda_functions) < 10);
+        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
         // Generation of a unique hash for our generated code
         $code_hash = "Crypt_Blowfish, {$this->mode}";

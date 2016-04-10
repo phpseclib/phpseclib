@@ -28,7 +28,7 @@ class Element
     /**
      * Raw element value
      *
-     * @var string
+     * @var String
      * @access private
      */
     var $element;
@@ -36,7 +36,7 @@ class Element
     /**
      * Constructor
      *
-     * @param string $encoded
+     * @param String $encoded
      * @return \phpseclib\File\ASN1\Element
      * @access public
      */

@@ -104,7 +104,7 @@ class ASN1
     /**
      * ASN.1 object identifier
      *
-     * @var array
+     * @var Array
      * @access private
      * @link http://en.wikipedia.org/wiki/Object_identifier
      */
@@ -113,7 +113,7 @@ class ASN1
     /**
      * Default date format
      *
-     * @var string
+     * @var String
      * @access private
      * @link http://php.net/class.datetime
      */
@@ -122,10 +122,10 @@ class ASN1
     /**
      * Default date format
      *
-     * @var array
+     * @var Array
      * @access private
-     * @see self::setTimeFormat()
-     * @see self::asn1map()
+     * @see \phpseclib\File\ASN1::setTimeFormat()
+     * @see \phpseclib\File\ASN1::asn1map()
      * @link http://php.net/class.datetime
      */
     var $encoded;
@@ -135,9 +135,9 @@ class ASN1
      *
      * If the mapping type is self::TYPE_ANY what do we actually encode it as?
      *
-     * @var array
+     * @var Array
      * @access private
-     * @see self::_encode_der()
+     * @see \phpseclib\File\ASN1::_encode_der()
      */
     var $filters;
 
@@ -148,7 +148,7 @@ class ASN1
      * Unambiguous types get the direct mapping (int/real/bool).
      * Others are mapped as a choice, with an extra indexing level.
      *
-     * @var array
+     * @var Array
      * @access public
      */
     var $ANYmap = array(
@@ -182,7 +182,7 @@ class ASN1
      * Non-convertable types are absent from this table.
      * size == 0 indicates variable length encoding.
      *
-     * @var array
+     * @var Array
      * @access public
      */
     var $stringTypeSize = array(
@@ -200,8 +200,8 @@ class ASN1
      *
      * Serves a similar purpose to openssl's asn1parse
      *
-     * @param string $encoded
-     * @return array
+     * @param String $encoded
+     * @return Array
      * @access public
      */
     function decodeBER($encoded)
@@ -222,9 +222,9 @@ class ASN1
      * $encoded is passed by reference for the recursive calls done for self::TYPE_BIT_STRING and
      * self::TYPE_OCTET_STRING. In those cases, the indefinite length is used.
      *
-     * @param string $encoded
-     * @param int $start
-     * @return array
+     * @param String $encoded
+     * @param Integer $start
+     * @return Array
      * @access private
      */
     function _decode_ber($encoded, $start = 0)
@@ -482,10 +482,10 @@ class ASN1
      *
      * "Special" mappings may be applied on a per tag-name basis via $special.
      *
-     * @param array $decoded
-     * @param array $mapping
-     * @param array $special
-     * @return array
+     * @param Array $decoded
+     * @param Array $mapping
+     * @param Array $special
+     * @return Array
      * @access public
      */
     function asn1map($decoded, $mapping, $special = array())
@@ -616,7 +616,7 @@ class ASN1
                 }
 
                 // Fail mapping if all input items have not been consumed.
-                return $i < $n ? null: $map;
+                return $i < $n? null: $map;
 
             // the main diff between sets and sequences is the encapsulation of the foreach in another for loop
             case self::TYPE_SET:
@@ -774,10 +774,10 @@ class ASN1
      *
      * "Special" mappings can be applied via $special.
      *
-     * @param string $source
-     * @param string $mapping
-     * @param int $idx
-     * @return string
+     * @param String $source
+     * @param String $mapping
+     * @param Integer $idx
+     * @return String
      * @access public
      */
     function encodeDER($source, $mapping, $special = array())
@@ -789,11 +789,10 @@ class ASN1
     /**
      * ASN.1 Encode (Helper function)
      *
-     * @param string $source
-     * @param string $mapping
-     * @param int $idx
-     * @return string
-     * @throws \RuntimeException if the input has an error in it
+     * @param String $source
+     * @param String $mapping
+     * @param Integer $idx
+     * @return String
      * @access private
      */
     function _encode_der($source, $mapping, $idx = null, $special = array())
@@ -986,7 +985,7 @@ class ASN1
             case self::TYPE_OBJECT_IDENTIFIER:
                 $oid = preg_match('#(?:\d+\.)+#', $source) ? $source : array_search($source, $this->oids);
                 if ($oid === false) {
-                    throw new \RuntimeException('Invalid OID');
+                    user_error('Invalid OID');
                     return false;
                 }
                 $value = '';
@@ -1039,7 +1038,7 @@ class ASN1
                     $filters = $filters[$part];
                 }
                 if ($filters === false) {
-                    throw new \RuntimeException('No filters defined for ' . implode('/', $loc));
+                    user_error('No filters defined for ' . implode('/', $loc));
                     return false;
                 }
                 return $this->_encode_der($source, $filters + $mapping, null, $special);
@@ -1063,7 +1062,7 @@ class ASN1
                 $value = $source ? "\xFF" : "\x00";
                 break;
             default:
-                throw new \RuntimeException('Mapping provides no type definition for ' . implode('/', $this->location));
+                user_error('Mapping provides no type definition for ' . implode('/', $this->location));
                 return false;
         }
 
@@ -1090,8 +1089,8 @@ class ASN1
      * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
      *
      * @access private
-     * @param int $length
-     * @return string
+     * @param Integer $length
+     * @return String
      */
     function _encodeLength($length)
     {
@@ -1109,9 +1108,9 @@ class ASN1
      * Called by _decode_ber() and in the case of implicit tags asn1map().
      *
      * @access private
-     * @param string $content
-     * @param int $tag
-     * @return string
+     * @param String $content
+     * @param Integer $tag
+     * @return String
      */
     function _decodeTime($content, $tag)
     {
@@ -1158,7 +1157,7 @@ class ASN1
      * Sets the time / date format for asn1map().
      *
      * @access public
-     * @param string $format
+     * @param String $format
      */
     function setTimeFormat($format)
     {
@@ -1171,7 +1170,7 @@ class ASN1
      * Load the relevant OIDs for a particular ASN.1 semantic mapping.
      *
      * @access public
-     * @param array $oids
+     * @param Array $oids
      */
     function loadOIDs($oids)
     {
@@ -1184,7 +1183,7 @@ class ASN1
      * See \phpseclib\File\X509, etc, for an example.
      *
      * @access public
-     * @param array $filters
+     * @param Array $filters
      */
     function loadFilters($filters)
     {
@@ -1196,9 +1195,9 @@ class ASN1
      *
      * Inspired by array_shift
      *
-     * @param string $string
-     * @param int $index
-     * @return string
+     * @param String $string
+     * @param optional Integer $index
+     * @return String
      * @access private
      */
     function _string_shift(&$string, $index = 1)
@@ -1214,10 +1213,10 @@ class ASN1
      * This is a lazy conversion, dealing only with character size.
      * No real conversion table is used.
      *
-     * @param string $in
-     * @param int $from
-     * @param int $to
-     * @return string
+     * @param String $in
+     * @param optional Integer $from
+     * @param optional Integer $to
+     * @return String
      * @access public
      */
     function convert($in, $from = self::TYPE_UTF8_STRING, $to = self::TYPE_UTF8_STRING)
