@@ -36,6 +36,8 @@
 
 namespace phpseclib\Crypt;
 
+use phpseclib\Crypt\Hash;
+
 /**
  * Base Class for all \phpseclib\Crypt\* cipher classes
  *
@@ -92,7 +94,7 @@ abstract class Base
      * Whirlpool available flag
      *
      * @see \phpseclib\Crypt\Base::_hashInlineCryptFunction()
-     * @var bool
+     * @var Boolean
      * @access private
      */
     static $WHIRLPOOL_AVAILABLE;
@@ -118,8 +120,8 @@ abstract class Base
     /**
      * The Encryption Mode
      *
-     * @see self::__construct()
-     * @var int
+     * @see \phpseclib\Crypt\Base::__construct()
+     * @var Integer
      * @access private
      */
     var $mode;
@@ -127,7 +129,7 @@ abstract class Base
     /**
      * The Block Length of the block cipher
      *
-     * @var int
+     * @var Integer
      * @access private
      */
     var $block_size = 16;
@@ -135,27 +137,27 @@ abstract class Base
     /**
      * The Key
      *
-     * @see self::setKey()
-     * @var string
+     * @see \phpseclib\Crypt\Base::setKey()
+     * @var String
      * @access private
      */
-    var $key = false;
+    var $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
     /**
      * The Initialization Vector
      *
-     * @see self::setIV()
-     * @var string
+     * @see \phpseclib\Crypt\Base::setIV()
+     * @var String
      * @access private
      */
-    var $iv = false;
+    var $iv;
 
     /**
      * A "sliding" Initialization Vector
      *
-     * @see self::enableContinuousBuffer()
-     * @see self::_clearBuffers()
-     * @var string
+     * @see \phpseclib\Crypt\Base::enableContinuousBuffer()
+     * @see \phpseclib\Crypt\Base::_clearBuffers()
+     * @var String
      * @access private
      */
     var $encryptIV;
@@ -163,9 +165,9 @@ abstract class Base
     /**
      * A "sliding" Initialization Vector
      *
-     * @see self::enableContinuousBuffer()
-     * @see self::_clearBuffers()
-     * @var string
+     * @see \phpseclib\Crypt\Base::enableContinuousBuffer()
+     * @see \phpseclib\Crypt\Base::_clearBuffers()
+     * @var String
      * @access private
      */
     var $decryptIV;
@@ -173,8 +175,8 @@ abstract class Base
     /**
      * Continuous Buffer status
      *
-     * @see self::enableContinuousBuffer()
-     * @var bool
+     * @see \phpseclib\Crypt\Base::enableContinuousBuffer()
+     * @var Boolean
      * @access private
      */
     var $continuousBuffer = false;
@@ -182,9 +184,9 @@ abstract class Base
     /**
      * Encryption buffer for CTR, OFB and CFB modes
      *
-     * @see self::encrypt()
-     * @see self::_clearBuffers()
-     * @var array
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see \phpseclib\Crypt\Base::_clearBuffers()
+     * @var Array
      * @access private
      */
     var $enbuffer;
@@ -192,9 +194,9 @@ abstract class Base
     /**
      * Decryption buffer for CTR, OFB and CFB modes
      *
-     * @see self::decrypt()
-     * @see self::_clearBuffers()
-     * @var array
+     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see \phpseclib\Crypt\Base::_clearBuffers()
+     * @var Array
      * @access private
      */
     var $debuffer;
@@ -205,8 +207,8 @@ abstract class Base
      * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
      * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
      *
-     * @see self::encrypt()
-     * @var resource
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @var Resource
      * @access private
      */
     var $enmcrypt;
@@ -217,8 +219,8 @@ abstract class Base
      * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
      * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
      *
-     * @see self::decrypt()
-     * @var resource
+     * @see \phpseclib\Crypt\Base::decrypt()
+     * @var Resource
      * @access private
      */
     var $demcrypt;
@@ -228,7 +230,7 @@ abstract class Base
      *
      * @see \phpseclib\Crypt\Twofish::setKey()
      * @see \phpseclib\Crypt\Twofish::setIV()
-     * @var bool
+     * @var Boolean
      * @access private
      */
     var $enchanged = true;
@@ -238,7 +240,7 @@ abstract class Base
      *
      * @see \phpseclib\Crypt\Twofish::setKey()
      * @see \phpseclib\Crypt\Twofish::setIV()
-     * @var bool
+     * @var Boolean
      * @access private
      */
     var $dechanged = true;
@@ -254,10 +256,10 @@ abstract class Base
      * use a separate ECB-mode mcrypt resource.
      *
      * @link http://phpseclib.sourceforge.net/cfb-demo.phps
-     * @see self::encrypt()
-     * @see self::decrypt()
-     * @see self::_setupMcrypt()
-     * @var resource
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see \phpseclib\Crypt\Base::_setupMcrypt()
+     * @var Resource
      * @access private
      */
     var $ecb;
@@ -278,8 +280,8 @@ abstract class Base
      * which, typically, depends on the complexity
      * on its internaly Key-expanding algorithm.
      *
-     * @see self::encrypt()
-     * @var int
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @var Integer
      * @access private
      */
     var $cfb_init_len = 600;
@@ -287,10 +289,10 @@ abstract class Base
     /**
      * Does internal cipher state need to be (re)initialized?
      *
-     * @see self::setKey()
-     * @see self::setIV()
-     * @see self::disableContinuousBuffer()
-     * @var bool
+     * @see setKey()
+     * @see setIV()
+     * @see disableContinuousBuffer()
+     * @var Boolean
      * @access private
      */
     var $changed = true;
@@ -298,8 +300,8 @@ abstract class Base
     /**
      * Padding status
      *
-     * @see self::enablePadding()
-     * @var bool
+     * @see \phpseclib\Crypt\Base::enablePadding()
+     * @var Boolean
      * @access private
      */
     var $padding = true;
@@ -307,8 +309,8 @@ abstract class Base
     /**
      * Is the mode one that is paddable?
      *
-     * @see self::__construct()
-     * @var bool
+     * @see \phpseclib\Crypt\Base::__construct()
+     * @var Boolean
      * @access private
      */
     var $paddable = false;
@@ -322,10 +324,10 @@ abstract class Base
      * - self::ENGINE_MCRYPT   (fast, php-extension: mcrypt, extension_loaded('mcrypt') required)
      * - self::ENGINE_INTERNAL (slower, pure php-engine, no php-extension required)
      *
-     * @see self::_setEngine()
-     * @see self::encrypt()
-     * @see self::decrypt()
-     * @var int
+     * @see \phpseclib\Crypt\Base::_setEngine()
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see \phpseclib\Crypt\Base::decrypt()
+     * @var Integer
      * @access private
      */
     var $engine;
@@ -333,9 +335,9 @@ abstract class Base
     /**
      * Holds the preferred crypt engine
      *
-     * @see self::_setEngine()
-     * @see self::setPreferredEngine()
-     * @var int
+     * @see \phpseclib\Crypt\Base::_setEngine()
+     * @see \phpseclib\Crypt\Base::setPreferredEngine()
+     * @var Integer
      * @access private
      */
     var $preferredEngine;
@@ -347,8 +349,8 @@ abstract class Base
      *
      * @link http://www.php.net/mcrypt_module_open
      * @link http://www.php.net/mcrypt_list_algorithms
-     * @see self::_setupMcrypt()
-     * @var string
+     * @see \phpseclib\Crypt\Base::_setupMcrypt()
+     * @var String
      * @access private
      */
     var $cipher_name_mcrypt;
@@ -356,10 +358,10 @@ abstract class Base
     /**
      * The openssl specific name of the cipher
      *
-     * Only used if $engine == self::ENGINE_OPENSSL
+     * Only used if $engine == CRYPT_ENGINE_OPENSSL
      *
      * @link http://www.php.net/openssl-get-cipher-methods
-     * @var string
+     * @var String
      * @access private
      */
     var $cipher_name_openssl;
@@ -371,16 +373,25 @@ abstract class Base
      * it can still be emulated with ECB mode.
      *
      * @link http://www.php.net/openssl-get-cipher-methods
-     * @var string
+     * @var String
      * @access private
      */
     var $cipher_name_openssl_ecb;
 
     /**
+     * The default password key_size used by setPassword()
+     *
+     * @see \phpseclib\Crypt\Base::setPassword()
+     * @var Integer
+     * @access private
+     */
+    var $password_key_size = 32;
+
+    /**
      * The default salt used by setPassword()
      *
-     * @see self::setPassword()
-     * @var string
+     * @see \phpseclib\Crypt\Base::setPassword()
+     * @var String
      * @access private
      */
     var $password_default_salt = 'phpseclib/salt';
@@ -391,10 +402,10 @@ abstract class Base
      * Used by encrypt() / decrypt()
      * only if $engine == self::ENGINE_INTERNAL
      *
-     * @see self::encrypt()
-     * @see self::decrypt()
-     * @see self::_setupInlineCrypt()
-     * @see self::$use_inline_crypt
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see \phpseclib\Crypt\Base::_setupInlineCrypt()
+     * @see \phpseclib\Crypt\Base::$use_inline_crypt
      * @var Callback
      * @access private
      */
@@ -403,9 +414,9 @@ abstract class Base
     /**
      * Holds whether performance-optimized $inline_crypt() can/should be used.
      *
-     * @see self::encrypt()
-     * @see self::decrypt()
-     * @see self::inline_crypt
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see \phpseclib\Crypt\Base::inline_crypt
      * @var mixed
      * @access private
      */
@@ -414,8 +425,8 @@ abstract class Base
     /**
      * If OpenSSL can be used in ECB but not in CTR we can emulate CTR
      *
-     * @see self::_openssl_ctr_process()
-     * @var bool
+     * @see \phpseclib\Crypt\Base::_openssl_ctr_process()
+     * @var Boolean
      * @access private
      */
     var $openssl_emulate_ctr = false;
@@ -423,32 +434,16 @@ abstract class Base
     /**
      * Determines what options are passed to openssl_encrypt/decrypt
      *
-     * @see self::isValidEngine()
+     * @see \phpseclib\Crypt\Base::isValidEngine()
      * @var mixed
      * @access private
      */
     var $openssl_options;
 
     /**
-     * Don't truncate / null pad key
-     *
-     * @see self::_clearBuffers()
-     * @var bool
-     * @access private
-     */
-    var $skip_key_adjustment = false;
-
-    /**
-     * Has the key length explicitly been set or should it be derived from the key, itself?
-     *
-     * @see self::setKeyLength()
-     * @var bool
-     * @access private
-     */
-    var $explicit_key_length = false;
-
-    /**
      * Default Constructor.
+     *
+     * Determines whether or not the mcrypt extension should be used.
      *
      * $mode could be:
      *
@@ -462,29 +457,34 @@ abstract class Base
      *
      * - self::MODE_OFB
      *
-     * @param int $mode
+     * (or the alias constants of the chosen cipher, for example for AES: CRYPT_AES_MODE_ECB or CRYPT_AES_MODE_CBC ...)
+     *
+     * If not explicitly set, self::MODE_CBC will be used.
+     *
+     * @param optional Integer $mode
      * @access public
-     * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
-    function __construct($mode)
+    function __construct($mode = self::MODE_CBC)
     {
         // $mode dependent settings
         switch ($mode) {
             case self::MODE_ECB:
-            case self::MODE_CBC:
                 $this->paddable = true;
+                $this->mode = self::MODE_ECB;
                 break;
             case self::MODE_CTR:
             case self::MODE_CFB:
             case self::MODE_OFB:
             case self::MODE_STREAM:
-                $this->paddable = false;
+                $this->mode = $mode;
                 break;
+            case self::MODE_CBC:
             default:
-                throw new \InvalidArgumentException('No valid mode has been specified');
+                $this->paddable = true;
+                $this->mode = self::MODE_CBC;
         }
 
-        $this->mode = $mode;
+        $this->_setEngine();
 
         // Determining whether inline crypting can be used by the cipher
         if ($this->use_inline_crypt !== false && function_exists('create_function')) {
@@ -493,83 +493,23 @@ abstract class Base
     }
 
     /**
-     * Sets the initialization vector.
+     * Sets the initialization vector. (optional)
      *
-     * setIV() is not required when self::MODE_ECB (or ie for AES: \phpseclib\Crypt\AES::MODE_ECB) is being used.
+     * SetIV is not required when self::MODE_ECB (or ie for AES: \phpseclib\Crypt\AES::MODE_ECB) is being used.  If not explicitly set, it'll be assumed
+     * to be all zero's.
      *
      * @access public
-     * @param string $iv
-     * @throws \LengthException if the IV length isn't equal to the block size
-     * @throws \InvalidArgumentException if an IV is provided when one shouldn't be
+     * @param String $iv
      * @internal Can be overwritten by a sub class, but does not have to be
      */
     function setIV($iv)
     {
         if ($this->mode == self::MODE_ECB) {
-            throw new \InvalidArgumentException('This mode does not require an IV.');
-        }
-
-        if ($this->mode == self::MODE_STREAM && $this->usesIV()) {
-            throw new \InvalidArgumentException('This algorithm does not use an IV.');
-        }
-
-        if (strlen($iv) != $this->block_size) {
-            throw new \LengthException('Received initialization vector of size ' . strlen($iv) . ', but size ' . $this->block_size . ' is required');
+            return;
         }
 
         $this->iv = $iv;
         $this->changed = true;
-    }
-
-    /**
-     * Returns whether or not the algorithm uses an IV
-     *
-     * @access public
-     * @return bool
-     */
-    function usesIV()
-    {
-        return true;
-    }
-
-    /**
-     * Returns the current key length in bits
-     *
-     * @access public
-     * @return int
-     */
-    function getKeyLength()
-    {
-        return $this->key_length << 3;
-    }
-
-    /**
-     * Returns the current block length in bits
-     *
-     * @access public
-     * @return int
-     */
-    function getBlockLength()
-    {
-        return $this->block_size << 3;
-    }
-
-    /**
-     * Sets the key length.
-     *
-     * Keys with explicitly set lengths need to be treated accordingly
-     *
-     * @access public
-     * @param int $length
-     */
-    function setKeyLength($length)
-    {
-        $this->explicit_key_length = $length >> 3;
-
-        if (is_string($this->key) && strlen($this->key) != $this->explicit_key_length) {
-            $this->key = false;
-            throw new \LengthException('Key has already been set and is not ' .$this->explicit_key_length . ' bytes long');
-        }
     }
 
     /**
@@ -583,17 +523,12 @@ abstract class Base
      * If the key is not explicitly set, it'll be assumed to be all null bytes.
      *
      * @access public
-     * @param string $key
+     * @param String $key
      * @internal Could, but not must, extend by the child Crypt_* class
      */
     function setKey($key)
     {
-        if ($this->explicit_key_length !== false && strlen($key) != $this->explicit_key_length) {
-            throw new \LengthException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');
-        }
-
         $this->key = $key;
-        $this->key_length = strlen($key);
         $this->changed = true;
         $this->_setEngine();
     }
@@ -608,10 +543,9 @@ abstract class Base
      *         Where $hash (default = sha1) currently supports the following hashes: see: Crypt/Hash.php
      *
      * @see Crypt/Hash.php
-     * @param string $password
-     * @param string $method
-     * @throws \LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
-     * @return bool
+     * @param String $password
+     * @param optional String $method
+     * @return Boolean
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
      */
@@ -637,8 +571,7 @@ abstract class Base
                 if (isset($func_args[5])) {
                     $dkLen = $func_args[5];
                 } else {
-                    $key_length = $this->explicit_key_length !== false ? $this->explicit_key_length : $this->key_length;
-                    $dkLen = $method == 'pbkdf1' ? 2 * $key_length : $key_length;
+                    $dkLen = $method == 'pbkdf1' ? 2 * $this->password_key_size : $this->password_key_size;
                 }
 
                 switch (true) {
@@ -646,7 +579,8 @@ abstract class Base
                         $hashObj = new Hash();
                         $hashObj->setHash($hash);
                         if ($dkLen > $hashObj->getLength()) {
-                            throw new \LengthException('Derived key length cannot be longer than the hash length');
+                            user_error('Derived key too long');
+                            return false;
                         }
                         $t = $password . $salt;
                         for ($i = 0; $i < $count; ++$i) {
@@ -700,10 +634,10 @@ abstract class Base
      * strlen($plaintext) will still need to be a multiple of the block size, however, arbitrary values can be added to make it that
      * length.
      *
-     * @see self::decrypt()
+     * @see \phpseclib\Crypt\Base::decrypt()
      * @access public
-     * @param string $plaintext
-     * @return string $ciphertext
+     * @param String $plaintext
+     * @return String $ciphertext
      * @internal Could, but not must, extend by the child Crypt_* class
      */
     function encrypt($plaintext)
@@ -725,13 +659,10 @@ abstract class Base
                     return !defined('OPENSSL_RAW_DATA') ? substr($result, 0, -$this->block_size) : $result;
                 case self::MODE_CBC:
                     $result = openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->encryptIV);
-                    if (!defined('OPENSSL_RAW_DATA')) {
-                        $result = substr($result, 0, -$this->block_size);
-                    }
                     if ($this->continuousBuffer) {
                         $this->encryptIV = substr($result, -$this->block_size);
                     }
-                    return $result;
+                    return !defined('OPENSSL_RAW_DATA') ? substr($result, 0, -$this->block_size) : $result;
                 case self::MODE_CTR:
                     return $this->_openssl_ctr_process($plaintext, $this->encryptIV, $this->enbuffer);
                 case self::MODE_CFB:
@@ -793,7 +724,7 @@ abstract class Base
                 $this->changed = false;
             }
             if ($this->enchanged) {
-                mcrypt_generic_init($this->enmcrypt, $this->key, $this->_getIV($this->encryptIV));
+                mcrypt_generic_init($this->enmcrypt, $this->key, $this->encryptIV);
                 $this->enchanged = false;
             }
 
@@ -856,7 +787,7 @@ abstract class Base
             $ciphertext = mcrypt_generic($this->enmcrypt, $plaintext);
 
             if (!$this->continuousBuffer) {
-                mcrypt_generic_init($this->enmcrypt, $this->key, $this->_getIV($this->encryptIV));
+                mcrypt_generic_init($this->enmcrypt, $this->key, $this->encryptIV);
             }
 
             return $ciphertext;
@@ -983,7 +914,7 @@ abstract class Base
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                     if ($start = strlen($plaintext) % $block_size) {
-                        $buffer['xor'] = substr($key, $start) . $buffer['xor'];
+                         $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
                 break;
@@ -1001,17 +932,18 @@ abstract class Base
      * If strlen($ciphertext) is not a multiple of the block size, null bytes will be added to the end of the string until
      * it is.
      *
-     * @see self::encrypt()
+     * @see \phpseclib\Crypt\Base::encrypt()
      * @access public
-     * @param string $ciphertext
-     * @return string $plaintext
-     * @throws \LengthException if we're inside a block cipher and the ciphertext length is not a multiple of the block size
+     * @param String $ciphertext
+     * @return String $plaintext
      * @internal Could, but not must, extend by the child Crypt_* class
      */
     function decrypt($ciphertext)
     {
-        if ($this->paddable && strlen($ciphertext) % $this->block_size) {
-            throw new \LengthException('The ciphertext length (' . strlen($ciphertext) . ') needs to be a multiple of the block size (' . $this->block_size . ')');
+        if ($this->paddable) {
+            // we pad with chr(0) since that's what mcrypt_generic does.  to quote from {@link http://www.php.net/function.mcrypt-generic}:
+            // "The data is padded with "\0" to make sure the length of the data is n * blocksize."
+            $ciphertext = str_pad($ciphertext, strlen($ciphertext) + ($this->block_size - strlen($ciphertext) % $this->block_size) % $this->block_size, chr(0));
         }
 
         if ($this->engine === self::ENGINE_OPENSSL) {
@@ -1025,7 +957,7 @@ abstract class Base
                     break;
                 case self::MODE_ECB:
                     if (!defined('OPENSSL_RAW_DATA')) {
-                        $ciphertext.= openssl_encrypt('', $this->cipher_name_openssl_ecb, $this->key, true);
+                        $ciphetext.= openssl_encrypt('', $this->cipher_name_openssl_ecb, $this->key, true);
                     }
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options);
                     break;
@@ -1033,13 +965,10 @@ abstract class Base
                     if (!defined('OPENSSL_RAW_DATA')) {
                         $padding = str_repeat(chr($this->block_size), $this->block_size) ^ substr($ciphertext, -$this->block_size);
                         $ciphertext.= substr(openssl_encrypt($padding, $this->cipher_name_openssl_ecb, $this->key, true), 0, $this->block_size);
-                        $offset = 2 * $this->block_size;
-                    } else {
-                        $offset = $this->block_size;
                     }
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->decryptIV);
                     if ($this->continuousBuffer) {
-                        $this->decryptIV = substr($ciphertext, -$offset, $this->block_size);
+                        $this->decryptIV = substr($ciphertext, -$this->block_size);
                     }
                     break;
                 case self::MODE_CTR:
@@ -1104,7 +1033,7 @@ abstract class Base
                 $this->changed = false;
             }
             if ($this->dechanged) {
-                mcrypt_generic_init($this->demcrypt, $this->key, $this->_getIV($this->decryptIV));
+                mcrypt_generic_init($this->demcrypt, $this->key, $this->decryptIV);
                 $this->dechanged = false;
             }
 
@@ -1149,7 +1078,7 @@ abstract class Base
             $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
 
             if (!$this->continuousBuffer) {
-                mcrypt_generic_init($this->demcrypt, $this->key, $this->_getIV($this->decryptIV));
+                mcrypt_generic_init($this->demcrypt, $this->key, $this->decryptIV);
             }
 
             return $this->paddable ? $this->_unpad($plaintext) : $plaintext;
@@ -1275,7 +1204,7 @@ abstract class Base
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                     if ($start = strlen($ciphertext) % $block_size) {
-                        $buffer['xor'] = substr($key, $start) . $buffer['xor'];
+                         $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
                 break;
@@ -1287,35 +1216,19 @@ abstract class Base
     }
 
     /**
-     * Get the IV
-     *
-     * mcrypt requires an IV even if ECB is used
-     *
-     * @see self::encrypt()
-     * @see self::decrypt()
-     * @param string $iv
-     * @return string
-     * @access private
-     */
-    function _getIV($iv)
-    {
-        return $this->mode == self::MODE_ECB ? str_repeat("\0", $this->block_size) : $iv;
-    }
-
-    /**
      * OpenSSL CTR Processor
      *
      * PHP's OpenSSL bindings do not operate in continuous mode so we'll wrap around it. Since the keystream
-     * for CTR is the same for both encrypting and decrypting this function is re-used by both Base::encrypt()
-     * and Base::decrypt(). Also, OpenSSL doesn't implement CTR for all of it's symmetric ciphers so this
+     * for CTR is the same for both encrypting and decrypting this function is re-used by both Crypt_Base::encrypt()
+     * and Crypt_Base::decrypt(). Also, OpenSSL doesn't implement CTR for all of it's symmetric ciphers so this
      * function will emulate CTR with ECB when necesary.
      *
-     * @see self::encrypt()
-     * @see self::decrypt()
-     * @param string $plaintext
-     * @param string $encryptIV
-     * @param array $buffer
-     * @return string
+     * @see Crypt_Base::encrypt()
+     * @see Crypt_Base::decrypt()
+     * @param String $plaintext
+     * @param String $encryptIV
+     * @param Array $buffer
+     * @return String
      * @access private
      */
     function _openssl_ctr_process($plaintext, &$encryptIV, &$buffer)
@@ -1401,15 +1314,15 @@ abstract class Base
      * OpenSSL OFB Processor
      *
      * PHP's OpenSSL bindings do not operate in continuous mode so we'll wrap around it. Since the keystream
-     * for OFB is the same for both encrypting and decrypting this function is re-used by both Base::encrypt()
-     * and Base::decrypt().
+     * for OFB is the same for both encrypting and decrypting this function is re-used by both Crypt_Base::encrypt()
+     * and Crypt_Base::decrypt().
      *
-     * @see self::encrypt()
-     * @see self::decrypt()
-     * @param string $plaintext
-     * @param string $encryptIV
-     * @param array $buffer
-     * @return string
+     * @see Crypt_Base::encrypt()
+     * @see Crypt_Base::decrypt()
+     * @param String $plaintext
+     * @param String $encryptIV
+     * @param Array $buffer
+     * @return String
      * @access private
      */
     function _openssl_ofb_process($plaintext, &$encryptIV, &$buffer)
@@ -1455,7 +1368,7 @@ abstract class Base
      *
      * May need to be overwritten by classes extending this one in some cases
      *
-     * @return int
+     * @return Integer
      * @access private
      */
     function _openssl_translate_mode()
@@ -1486,7 +1399,7 @@ abstract class Base
      * away characters that shouldn't be stripped away. (SSH knows how many bytes are added because the length is
      * transmitted separately)
      *
-     * @see self::disablePadding()
+     * @see \phpseclib\Crypt\Base::disablePadding()
      * @access public
      */
     function enablePadding()
@@ -1497,7 +1410,7 @@ abstract class Base
     /**
      * Do not pad packets.
      *
-     * @see self::enablePadding()
+     * @see \phpseclib\Crypt\Base::enablePadding()
      * @access public
      */
     function disablePadding()
@@ -1539,7 +1452,7 @@ abstract class Base
      * continuous buffers not be used.  They do offer better security and are, in fact, sometimes required (SSH uses them),
      * however, they are also less intuitive and more likely to cause you problems.
      *
-     * @see self::disableContinuousBuffer()
+     * @see \phpseclib\Crypt\Base::disableContinuousBuffer()
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
      */
@@ -1559,7 +1472,7 @@ abstract class Base
      *
      * The default behavior.
      *
-     * @see self::enableContinuousBuffer()
+     * @see \phpseclib\Crypt\Base::enableContinuousBuffer()
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
      */
@@ -1581,10 +1494,10 @@ abstract class Base
     /**
      * Test for engine validity
      *
-     * @see self::__construct()
-     * @param int $engine
+     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @param Integer $engine
      * @access public
-     * @return bool
+     * @return Boolean
      */
     function isValidEngine($engine)
     {
@@ -1648,8 +1561,8 @@ abstract class Base
      *
      * If the preferred crypt engine is not available the fastest available one will be used
      *
-     * @see self::__construct()
-     * @param int $engine
+     * @see \phpseclib\Crypt\Base::Crypt_Base()
+     * @param Integer $engine
      * @access public
      */
     function setPreferredEngine($engine)
@@ -1670,7 +1583,7 @@ abstract class Base
     /**
      * Returns the engine currently being utilized
      *
-     * @see self::_setEngine()
+     * @see \phpseclib\Crypt\Base::_setEngine()
      * @access public
      */
     function getEngine()
@@ -1681,7 +1594,7 @@ abstract class Base
     /**
      * Sets the engine as appropriate
      *
-     * @see self::__construct()
+     * @see \phpseclib\Crypt\Base::Crypt_Base()
      * @access private
      */
     function _setEngine()
@@ -1726,8 +1639,8 @@ abstract class Base
      * Note: Must be extended by the child \phpseclib\Crypt\* class
      *
      * @access private
-     * @param string $in
-     * @return string
+     * @param String $in
+     * @return String
      */
     abstract function _encryptBlock($in);
 
@@ -1737,8 +1650,8 @@ abstract class Base
      * Note: Must be extended by the child \phpseclib\Crypt\* class
      *
      * @access private
-     * @param string $in
-     * @return string
+     * @param String $in
+     * @return String
      */
     abstract function _decryptBlock($in);
 
@@ -1749,7 +1662,7 @@ abstract class Base
      *
      * Note: Must extend by the child \phpseclib\Crypt\* class
      *
-     * @see self::_setup()
+     * @see \phpseclib\Crypt\Base::_setup()
      * @access private
      */
     abstract function _setupKey();
@@ -1771,9 +1684,9 @@ abstract class Base
      *
      * - First run of encrypt() / decrypt() with no init-settings
      *
-     * @see self::setKey()
-     * @see self::setIV()
-     * @see self::disableContinuousBuffer()
+     * @see setKey()
+     * @see setIV()
+     * @see disableContinuousBuffer()
      * @access private
      * @internal _setup() is always called before en/decryption.
      * @internal Could, but not must, extend by the child Crypt_* class
@@ -1805,9 +1718,9 @@ abstract class Base
      *
      * - First run of encrypt() / decrypt()
      *
-     * @see self::setKey()
-     * @see self::setIV()
-     * @see self::disableContinuousBuffer()
+     * @see setKey()
+     * @see setIV()
+     * @see disableContinuousBuffer()
      * @access private
      * @internal Could, but not must, extend by the child Crypt_* class
      */
@@ -1835,6 +1748,7 @@ abstract class Base
             if ($this->mode == self::MODE_CFB) {
                 $this->ecb = mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_ECB, '');
             }
+
         } // else should mcrypt_generic_deinit be called?
 
         if ($this->mode == self::MODE_CFB) {
@@ -1852,11 +1766,10 @@ abstract class Base
      * If padding is disabled and $text is not a multiple of the blocksize, the string will be padded regardless
      * and padding will, hence forth, be enabled.
      *
-     * @see self::_unpad()
-     * @param string $text
-     * @throws \LengthException if padding is disabled and the plaintext's length is not a multiple of the block size
+     * @see \phpseclib\Crypt\Base::_unpad()
+     * @param String $text
      * @access private
-     * @return string
+     * @return String
      */
     function _pad($text)
     {
@@ -1866,7 +1779,8 @@ abstract class Base
             if ($length % $this->block_size == 0) {
                 return $text;
             } else {
-                throw new \LengthException("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size}). Try enabling padding.");
+                user_error("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size})");
+                $this->padding = true;
             }
         }
 
@@ -1881,11 +1795,10 @@ abstract class Base
      * If padding is enabled and the reported padding length is invalid the encryption key will be assumed to be wrong
      * and false will be returned.
      *
-     * @see self::_pad()
-     * @param string $text
-     * @throws \LengthException if the ciphertext's length is not a multiple of the block size
+     * @see \phpseclib\Crypt\Base::_pad()
+     * @param String $text
      * @access private
-     * @return string
+     * @return String
      */
     function _unpad($text)
     {
@@ -1896,7 +1809,7 @@ abstract class Base
         $length = ord($text[strlen($text) - 1]);
 
         if (!$length || $length > $this->block_size) {
-            throw new \LengthException("The ciphertext has an invalid padding length ($length) compared to the block size ({$this->block_size})");
+            return false;
         }
 
         return substr($text, 0, -$length);
@@ -1909,19 +1822,16 @@ abstract class Base
      * after disableContinuousBuffer() or on cipher $engine (re)init
      * ie after setKey() or setIV()
      *
-     * @access private
+     * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
-     * @throws \UnexpectedValueException when an IV is required but not defined
      */
     function _clearBuffers()
     {
         $this->enbuffer = $this->debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true);
 
-        if ($this->iv === false && !in_array($this->mode, array(self::MODE_STREAM, self::MODE_ECB))) {
-            throw new \UnexpectedValueException('No IV has been defined');
-        }
-
-        $this->encryptIV = $this->decryptIV = $this->iv;
+        // mcrypt's handling of invalid's $iv:
+        // $this->encryptIV = $this->decryptIV = strlen($this->iv) == $this->block_size ? $this->iv : str_repeat("\0", $this->block_size);
+        $this->encryptIV = $this->decryptIV = str_pad(substr($this->iv, 0, $this->block_size), $this->block_size, "\0");
     }
 
     /**
@@ -1929,10 +1839,10 @@ abstract class Base
      *
      * Inspired by array_shift
      *
-     * @param string $string
-     * @param int $index
+     * @param String $string
+     * @param optional Integer $index
      * @access private
-     * @return string
+     * @return String
      */
     function _string_shift(&$string, $index = 1)
     {
@@ -1946,10 +1856,10 @@ abstract class Base
      *
      * Inspired by array_pop
      *
-     * @param string $string
-     * @param int $index
+     * @param String $string
+     * @param optional Integer $index
      * @access private
-     * @return string
+     * @return String
      */
     function _string_pop(&$string, $index = 1)
     {
@@ -1961,9 +1871,9 @@ abstract class Base
     /**
      * Increment the current string
      *
-     * @see self::decrypt()
-     * @see self::encrypt()
-     * @param string $var
+     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @param String $var
      * @access private
      */
     function _increment_str(&$var)
@@ -2048,10 +1958,10 @@ abstract class Base
      *       - The callback function should not use the 'return' statement, but en/decrypt'ing the content of $in only
      *
      *
-     * @see self::_setup()
-     * @see self::_createInlineCryptFunction()
-     * @see self::encrypt()
-     * @see self::decrypt()
+     * @see \phpseclib\Crypt\Base::_setup()
+     * @see \phpseclib\Crypt\Base::_createInlineCryptFunction()
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see \phpseclib\Crypt\Base::decrypt()
      * @access private
      * @internal If a Crypt_* class providing inline crypting it must extend _setupInlineCrypt()
      */
@@ -2170,12 +2080,12 @@ abstract class Base
      *    );
      *    </code>
      *
-     * @see self::_setupInlineCrypt()
-     * @see self::encrypt()
-     * @see self::decrypt()
-     * @param array $cipher_code
+     * @see \phpseclib\Crypt\Base::_setupInlineCrypt()
+     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see \phpseclib\Crypt\Base::decrypt()
+     * @param Array $cipher_code
      * @access private
-     * @return string (the name of the created callback function)
+     * @return String (the name of the created callback function)
      */
     function _createInlineCryptFunction($cipher_code)
     {
@@ -2542,7 +2452,7 @@ abstract class Base
      * for which $mode the lambda function was created.
      *
      * @access private
-     * @return array &$functions
+     * @return Array &$functions
      */
     function &_getLambdaFunctions()
     {
@@ -2553,10 +2463,10 @@ abstract class Base
     /**
      * Generates a digest from $bytes
      *
-     * @see self::_setupInlineCrypt()
+     * @see _setupInlineCrypt()
      * @access private
      * @param $bytes
-     * @return string
+     * @return String
      */
     function _hashInlineCryptFunction($bytes)
     {

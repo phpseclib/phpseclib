@@ -28,7 +28,9 @@ abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
                     'Should have gmp or bcmath extension for functional test.'
                 );
             }
+            self::ensureConstant('CRYPT_HASH_MODE', Hash::MODE_HASH);
             self::reRequireFile('Math/BigInteger.php');
+            self::reRequireFile('Crypt/Hash.php');
         }
         parent::setUpBeforeClass();
     }

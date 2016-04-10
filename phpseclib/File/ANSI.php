@@ -32,7 +32,7 @@ class ANSI
     /**
      * Max Width
      *
-     * @var int
+     * @var Integer
      * @access private
      */
     var $max_x;
@@ -40,7 +40,7 @@ class ANSI
     /**
      * Max Height
      *
-     * @var int
+     * @var Integer
      * @access private
      */
     var $max_y;
@@ -48,7 +48,7 @@ class ANSI
     /**
      * Max History
      *
-     * @var int
+     * @var Integer
      * @access private
      */
     var $max_history;
@@ -56,7 +56,7 @@ class ANSI
     /**
      * History
      *
-     * @var array
+     * @var Array
      * @access private
      */
     var $history;
@@ -64,7 +64,7 @@ class ANSI
     /**
      * History Attributes
      *
-     * @var array
+     * @var Array
      * @access private
      */
     var $history_attrs;
@@ -72,7 +72,7 @@ class ANSI
     /**
      * Current Column
      *
-     * @var int
+     * @var Integer
      * @access private
      */
     var $x;
@@ -80,7 +80,7 @@ class ANSI
     /**
      * Current Row
      *
-     * @var int
+     * @var Integer
      * @access private
      */
     var $y;
@@ -88,7 +88,7 @@ class ANSI
     /**
      * Old Column
      *
-     * @var int
+     * @var Integer
      * @access private
      */
     var $old_x;
@@ -96,7 +96,7 @@ class ANSI
     /**
      * Old Row
      *
-     * @var int
+     * @var Integer
      * @access private
      */
     var $old_y;
@@ -104,7 +104,7 @@ class ANSI
     /**
      * An empty attribute cell
      *
-     * @var object
+     * @var Object
      * @access private
      */
     var $base_attr_cell;
@@ -112,7 +112,7 @@ class ANSI
     /**
      * The current attribute cell
      *
-     * @var object
+     * @var Object
      * @access private
      */
     var $attr_cell;
@@ -120,7 +120,7 @@ class ANSI
     /**
      * An empty attribute row
      *
-     * @var array
+     * @var Array
      * @access private
      */
     var $attr_row;
@@ -128,7 +128,7 @@ class ANSI
     /**
      * The current screen text
      *
-     * @var array
+     * @var Array
      * @access private
      */
     var $screen;
@@ -136,7 +136,7 @@ class ANSI
     /**
      * The current screen attributes
      *
-     * @var array
+     * @var Array
      * @access private
      */
     var $attrs;
@@ -144,7 +144,7 @@ class ANSI
     /**
      * Current ANSI code
      *
-     * @var string
+     * @var String
      * @access private
      */
     var $ansi;
@@ -152,7 +152,7 @@ class ANSI
     /**
      * Tokenization
      *
-     * @var array
+     * @var Array
      * @access private
      */
     var $tokenization;
@@ -184,8 +184,8 @@ class ANSI
      *
      * Resets the screen as well
      *
-     * @param int $x
-     * @param int $y
+     * @param Integer $x
+     * @param Integer $y
      * @access public
      */
     function setDimensions($x, $y)
@@ -203,8 +203,8 @@ class ANSI
     /**
      * Set the number of lines that should be logged past the terminal height
      *
-     * @param int $x
-     * @param int $y
+     * @param Integer $x
+     * @param Integer $y
      * @access public
      */
     function setHistory($history)
@@ -215,7 +215,7 @@ class ANSI
     /**
      * Load a string
      *
-     * @param string $source
+     * @param String $source
      * @access public
      */
     function loadString($source)
@@ -227,7 +227,7 @@ class ANSI
     /**
      * Appdend a string
      *
-     * @param string $source
+     * @param String $source
      * @access public
      */
     function appendString($source)
@@ -458,7 +458,7 @@ class ANSI
      * Returns the current coordinate without preformating
      *
      * @access private
-     * @return string
+     * @return String
      */
     function _processCoordinate($last_attr, $cur_attr, $char)
     {
@@ -515,7 +515,7 @@ class ANSI
      * Returns the current screen without preformating
      *
      * @access private
-     * @return string
+     * @return String
      */
     function _getScreen()
     {
@@ -539,7 +539,7 @@ class ANSI
      * Returns the current screen
      *
      * @access public
-     * @return string
+     * @return String
      */
     function getScreen()
     {
@@ -550,7 +550,7 @@ class ANSI
      * Returns the current screen and the x previous lines
      *
      * @access public
-     * @return string
+     * @return String
      */
     function getHistory()
     {

@@ -181,23 +181,19 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
                 )
             )
         );
-
         $result = array();
-
-        foreach ($engines as $engine => $engineName) {
-            foreach ($tests as $test) {
-                foreach ($test['output'] as $output) {
-                    $result[] = array($engine, $engineName, $test['key'], $output['offset'], $output['result']);
-                }
-            }
-        }
-
+        // @codingStandardsIgnoreStart
+        foreach ($engines as $engine => $engineName)
+        foreach ($tests as $test)
+        foreach ($test['output'] as $output)
+            $result[] = array($engine, $engineName, $test['key'], $output['offset'], $output['result']);
+        // @codingStandardsIgnoreEnd
         return $result;
     }
 
     /**
-     * @dataProvider engineVectors
-     */
+    * @dataProvider engineVectors
+    */
     public function testVectors($engine, $engineName, $key, $offset, $expected)
     {
         $rc4 = new RC4();

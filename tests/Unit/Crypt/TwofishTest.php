@@ -19,8 +19,7 @@ class Unit_Crypt_TwofishTest extends PhpseclibTestCase
         );
 
         foreach ($engines as $engine => $name) {
-            $tf = new Twofish(Twofish::MODE_CBC);
-            $tf->setIV(str_repeat("\0", $tf->getBlockLength() >> 3));
+            $tf = new Twofish();
             $tf->disablePadding();
 
             // tests from https://www.schneier.com/code/ecb_ival.txt

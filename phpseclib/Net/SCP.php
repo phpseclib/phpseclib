@@ -17,7 +17,7 @@
  *        exit('bad login');
  *    }
  *    $scp = new \phpseclib\Net\SCP($ssh);
- *
+
  *    $scp->put('abcd', str_repeat('x', 1024*1024));
  * ?>
  * </code>
@@ -32,7 +32,8 @@
 
 namespace phpseclib\Net;
 
-use phpseclib\Exception\FileNotFoundException;
+use phpseclib\Net\SSH1;
+use phpseclib\Net\SSH2;
 
 /**
  * Pure-PHP implementations of SCP.
@@ -53,7 +54,7 @@ class SCP
     const SOURCE_LOCAL_FILE = 1;
     /**
      * Reads data from a string.
-     */
+    */
     const SOURCE_STRING = 2;
     /**#@-*/
 
@@ -64,18 +65,18 @@ class SCP
     */
     /**
      * SSH1 is being used.
-     */
+    */
     const MODE_SSH1 = 1;
     /**
      * SSH2 is being used.
-     */
+    */
     const MODE_SSH2 =  2;
     /**#@-*/
 
     /**
      * SSH Object
      *
-     * @var object
+     * @var Object
      * @access private
      */
     var $ssh;
@@ -83,7 +84,7 @@ class SCP
     /**
      * Packet Size
      *
-     * @var int
+     * @var Integer
      * @access private
      */
     var $packet_size;
@@ -91,7 +92,7 @@ class SCP
     /**
      * Mode
      *
-     * @var int
+     * @var Integer
      * @access private
      */
     var $mode;
@@ -101,9 +102,9 @@ class SCP
      *
      * Connects to an SSH server
      *
-     * @param string $host
-     * @param int $port
-     * @param int $timeout
+     * @param String $host
+     * @param optional Integer $port
+     * @param optional Integer $timeout
      * @return \phpseclib\Net\SCP
      * @access public
      */
@@ -135,12 +136,11 @@ class SCP
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
      * care of that, yourself.
      *
-     * @param string $remote_file
-     * @param string $data
-     * @param int $mode
-     * @param callable $callback
-     * @throws \phpseclib\Exception\FileNotFoundException if you're uploading via a file and the file doesn't exist
-     * @return bool
+     * @param String $remote_file
+     * @param String $data
+     * @param optional Integer $mode
+     * @param optional Callable $callback
+     * @return Boolean
      * @access public
      */
     function put($remote_file, $data, $mode = self::SOURCE_STRING, $callback = null)
@@ -168,7 +168,8 @@ class SCP
             $size = strlen($data);
         } else {
             if (!is_file($data)) {
-                throw new FileNotFoundException("$data is not a valid file");
+                user_error("$data is not a valid file", E_USER_NOTICE);
+                return false;
             }
 
             $fp = @fopen($data, 'rb');
@@ -211,9 +212,9 @@ class SCP
      * the operation was unsuccessful.  If $local_file is defined, returns true or false depending on the success of the
      * operation
      *
-     * @param string $remote_file
-     * @param string $local_file
-     * @return mixed
+     * @param String $remote_file
+     * @param optional String $local_file
+     * @return Mixed
      * @access public
      */
     function get($remote_file, $local_file = false)
@@ -269,7 +270,7 @@ class SCP
     /**
      * Sends a packet to an SSH server
      *
-     * @param string $data
+     * @param String $data
      * @access private
      */
     function _send($data)
@@ -287,8 +288,7 @@ class SCP
     /**
      * Receives a packet from an SSH server
      *
-     * @return string
-     * @throws \UnexpectedValueException on receipt of an unexpected packet
+     * @return String
      * @access private
      */
     function _receive()
@@ -314,7 +314,8 @@ class SCP
                             $this->ssh->bitmap = 0;
                             return false;
                         default:
-                            throw new \UnexpectedValueException('Unknown packet received');
+                            user_error('Unknown packet received', E_USER_NOTICE);
+                            return false;
                     }
                 }
         }
