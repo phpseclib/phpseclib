@@ -130,7 +130,7 @@ class Agent
                 $address = $_ENV['SSH_AUTH_SOCK'];
                 break;
             default:
-                throw new \BadConfigurationException('SSH_AUTH_SOCK not found');
+                throw new BadConfigurationException('SSH_AUTH_SOCK not found');
         }
 
         $this->fsock = fsockopen('unix://' . $address, 0, $errno, $errstr);
