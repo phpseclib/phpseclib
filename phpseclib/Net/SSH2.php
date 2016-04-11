@@ -3495,7 +3495,7 @@ class SSH2
             case self::LOG_REALTIME_FILE:
                 if (!isset($this->realtime_log_file)) {
                     // PHP doesn't seem to like using constants in fopen()
-                    $filename = self::LOG_REALTIME_FILENAME;
+                    $filename = self::LOG_REALTIME_FILE;
                     $fp = fopen($filename, 'w');
                     $this->realtime_log_file = $fp;
                 }
