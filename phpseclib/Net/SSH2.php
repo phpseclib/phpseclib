@@ -3875,7 +3875,7 @@ class Net_SSH2
     /**
      * Returns all errors
      *
-     * @return string
+     * @return string[]
      * @access public
      */
     function getErrors()
