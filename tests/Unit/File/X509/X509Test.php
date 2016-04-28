@@ -154,7 +154,7 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
     public function testSaveNullRSAParam()
     {
         $privKey = new RSA();
-        $privKey->load('-----BEGIN RSA PRIVATE KEY-----
+        $privKey->loadKey('-----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDMswfEpAgnUDWA74zZw5XcPsWh1ly1Vk99tsqwoFDkLF7jvXy1
 dDLHYfuquvfxCgcp8k/4fQhx4ubR8bbGgEq9B05YRnViK0R0iBB5Ui4IaxWYYhKE
 8xqAEH2fL+/7nsqqNFKkEN9KeFwc7WbMY49U2adlMrpBdRjk1DqIEW3QTwIDAQAB
@@ -171,7 +171,7 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
 -----END RSA PRIVATE KEY-----');
 
         $pubKey = new RSA();
-        $pubKey->load($privKey->getPublicKey());
+        $pubKey->loadKey($privKey->getPublicKey());
         $pubKey->setPublicKey();
 
         $subject = new X509();

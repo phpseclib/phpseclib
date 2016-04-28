@@ -537,15 +537,14 @@ class SSH1
      * Connect to an SSHv1 server
      *
      * @return bool
-     * @throws \UnexpectedValueException on receipt of unexpected packets
-     * @throws \RuntimeException on other errors
      * @access private
      */
     function _connect()
     {
         $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
         if (!$this->fsock) {
-            throw new \RuntimeException(rtrim("Cannot connect to $host. Error $errno. $errstr"));
+            user_error(rtrim("Cannot connect to {$this->host}:{$this->port}. Error $errno. $errstr"));
+            return false;
         }
 
         $this->server_identification = $init_line = fgets($this->fsock, 255);
@@ -556,17 +555,20 @@ class SSH1
         }
 
         if (!preg_match('#SSH-([0-9\.]+)-(.+)#', $init_line, $parts)) {
-            throw new \RuntimeException('Can only connect to SSH servers');
+            user_error('Can only connect to SSH servers');
+            return false;
         }
         if ($parts[1][0] != 1) {
-            throw new \RuntimeException("Cannot connect to $parts[1] servers");
+            user_error("Cannot connect to SSH $parts[1] servers");
+            return false;
         }
 
         fputs($this->fsock, $this->identifier."\r\n");
 
         $response = $this->_get_binary_packet();
         if ($response[self::RESPONSE_TYPE] != NET_SSH1_SMSG_PUBLIC_KEY) {
-            throw new \UnexpectedValueException('Expected SSH_SMSG_PUBLIC_KEY');
+            user_error('Expected SSH_SMSG_PUBLIC_KEY');
+            return false;
         }
 
         $anti_spoofing_cookie = $this->_string_shift($response[self::RESPONSE_DATA], 8);
@@ -650,7 +652,8 @@ class SSH1
         $data = pack('C2a*na*N', NET_SSH1_CMSG_SESSION_KEY, $cipher, $anti_spoofing_cookie, 8 * strlen($double_encrypted_session_key), $double_encrypted_session_key, 0);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new \RuntimeException('Error sending SSH_CMSG_SESSION_KEY');
+            user_error('Error sending SSH_CMSG_SESSION_KEY');
+            return false;
         }
 
         switch ($cipher) {
@@ -658,20 +661,16 @@ class SSH1
             //    $this->crypto = new \phpseclib\Crypt\Null();
             //    break;
             case self::CIPHER_DES:
-                $this->crypto = new DES(DES::MODE_CBC);
+                $this->crypto = new DES();
                 $this->crypto->disablePadding();
                 $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0,  8));
-                // "The iv (initialization vector) is initialized to all zeroes."
-                $this->crypto->setIV(str_repeat("\0", 8));
                 break;
             case self::CIPHER_3DES:
                 $this->crypto = new TripleDES(TripleDES::MODE_3CBC);
                 $this->crypto->disablePadding();
                 $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0, 24));
-                // "All three initialization vectors are initialized to zero."
-                $this->crypto->setIV(str_repeat("\0", 8));
                 break;
             //case self::CIPHER_RC4:
             //    $this->crypto = new RC4();
@@ -683,7 +682,8 @@ class SSH1
         $response = $this->_get_binary_packet();
 
         if ($response[self::RESPONSE_TYPE] != NET_SSH1_SMSG_SUCCESS) {
-            throw new \UnexpectedValueException('Expected SSH_SMSG_SUCCESS');
+            user_error('Expected SSH_SMSG_SUCCESS');
+            return false;
         }
 
         $this->bitmap = self::MASK_CONNECTED;
@@ -697,8 +697,6 @@ class SSH1
      * @param string $username
      * @param string $password
      * @return bool
-     * @throws \UnexpectedValueException on receipt of unexpected packets
-     * @throws \RuntimeException on other errors
      * @access public
      */
     function login($username, $password = '')
@@ -717,7 +715,8 @@ class SSH1
         $data = pack('CNa*', NET_SSH1_CMSG_USER, strlen($username), $username);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new \RuntimeException('Error sending SSH_CMSG_USER');
+            user_error('Error sending SSH_CMSG_USER');
+            return false;
         }
 
         $response = $this->_get_binary_packet();
@@ -729,13 +728,15 @@ class SSH1
             $this->bitmap |= self::MASK_LOGIN;
             return true;
         } elseif ($response[self::RESPONSE_TYPE] != NET_SSH1_SMSG_FAILURE) {
-            throw new \UnexpectedValueException('Expected SSH_SMSG_SUCCESS or SSH_SMSG_FAILURE');
+            user_error('Expected SSH_SMSG_SUCCESS or SSH_SMSG_FAILURE');
+            return false;
         }
 
         $data = pack('CNa*', NET_SSH1_CMSG_AUTH_PASSWORD, strlen($password), $password);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new \RuntimeException('Error sending SSH_CMSG_AUTH_PASSWORD');
+            user_error('Error sending SSH_CMSG_AUTH_PASSWORD');
+            return false;
         }
 
         // remove the username and password from the last logged packet
@@ -755,7 +756,8 @@ class SSH1
         } elseif ($response[self::RESPONSE_TYPE] == NET_SSH1_SMSG_FAILURE) {
             return false;
         } else {
-            throw new \UnexpectedValueException('Expected SSH_SMSG_SUCCESS or SSH_SMSG_FAILURE');
+            user_error('Expected SSH_SMSG_SUCCESS or SSH_SMSG_FAILURE');
+            return false;
         }
     }
 
@@ -790,19 +792,20 @@ class SSH1
      * @see self::interactiveWrite()
      * @param string $cmd
      * @return mixed
-     * @throws \RuntimeException on error sending command
      * @access public
      */
     function exec($cmd, $block = true)
     {
         if (!($this->bitmap & self::MASK_LOGIN)) {
-            throw new \RuntimeException('Operation disallowed prior to login()');
+            user_error('Operation disallowed prior to login()');
+            return false;
         }
 
         $data = pack('CNa*', NET_SSH1_CMSG_EXEC_CMD, strlen($cmd), $cmd);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new \RuntimeException('Error sending SSH_CMSG_EXEC_CMD');
+            user_error('Error sending SSH_CMSG_EXEC_CMD');
+            return false;
         }
 
         if (!$block) {
@@ -838,8 +841,6 @@ class SSH1
      * @see self::interactiveRead()
      * @see self::interactiveWrite()
      * @return bool
-     * @throws \UnexpectedValueException on receipt of unexpected packets
-     * @throws \RuntimeException on other errors
      * @access private
      */
     function _initShell()
@@ -850,7 +851,8 @@ class SSH1
         $data = pack('CNa*N4C', NET_SSH1_CMSG_REQUEST_PTY, strlen('vt100'), 'vt100', 24, 80, 0, 0, self::TTY_OP_END);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new \RuntimeException('Error sending SSH_CMSG_REQUEST_PTY');
+            user_error('Error sending SSH_CMSG_REQUEST_PTY');
+            return false;
         }
 
         $response = $this->_get_binary_packet();
@@ -859,13 +861,15 @@ class SSH1
             return false;
         }
         if ($response[self::RESPONSE_TYPE] != NET_SSH1_SMSG_SUCCESS) {
-            throw new \UnexpectedValueException('Expected SSH_SMSG_SUCCESS');
+            user_error('Expected SSH_SMSG_SUCCESS');
+            return false;
         }
 
         $data = pack('C', NET_SSH1_CMSG_EXEC_SHELL);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new \RuntimeException('Error sending SSH_CMSG_EXEC_SHELL');
+            user_error('Error sending SSH_CMSG_EXEC_SHELL');
+            return false;
         }
 
         $this->bitmap |= self::MASK_SHELL;
@@ -898,17 +902,18 @@ class SSH1
      * @param string $expect
      * @param int $mode
      * @return bool
-     * @throws \RuntimeException on connection error
      * @access public
      */
     function read($expect, $mode = self::READ__SIMPLE)
     {
         if (!($this->bitmap & self::MASK_LOGIN)) {
-            throw new \RuntimeException('Operation disallowed prior to login()');
+            user_error('Operation disallowed prior to login()');
+            return false;
         }
 
         if (!($this->bitmap & self::MASK_SHELL) && !$this->_initShell()) {
-            throw new \RuntimeException('Unable to initiate an interactive shell session');
+            user_error('Unable to initiate an interactive shell session');
+            return false;
         }
 
         $match = $expect;
@@ -936,23 +941,25 @@ class SSH1
      * @see self::interactiveRead()
      * @param string $cmd
      * @return bool
-     * @throws \RuntimeException on connection error
      * @access public
      */
     function interactiveWrite($cmd)
     {
         if (!($this->bitmap & self::MASK_LOGIN)) {
-            throw new \RuntimeException('Operation disallowed prior to login()');
+            user_error('Operation disallowed prior to login()');
+            return false;
         }
 
         if (!($this->bitmap & self::MASK_SHELL) && !$this->_initShell()) {
-            throw new \RuntimeException('Unable to initiate an interactive shell session');
+            user_error('Unable to initiate an interactive shell session');
+            return false;
         }
 
         $data = pack('CNa*', NET_SSH1_CMSG_STDIN_DATA, strlen($cmd), $cmd);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new \RuntimeException('Error sending SSH_CMSG_STDIN');
+            user_error('Error sending SSH_CMSG_STDIN');
+            return false;
         }
 
         return true;
@@ -969,17 +976,18 @@ class SSH1
      *
      * @see self::interactiveRead()
      * @return string
-     * @throws \RuntimeException on connection error
      * @access public
      */
     function interactiveRead()
     {
         if (!($this->bitmap & self::MASK_LOGIN)) {
-            throw new \RuntimeException('Operation disallowed prior to login()');
+            user_error('Operation disallowed prior to login()');
+            return false;
         }
 
         if (!($this->bitmap & self::MASK_SHELL) && !$this->_initShell()) {
-            throw new \RuntimeException('Unable to initiate an interactive shell session');
+            user_error('Unable to initiate an interactive shell session');
+            return false;
         }
 
         $read = array($this->fsock);
@@ -1305,9 +1313,9 @@ class SSH1
     {
         /*
         $rsa = new RSA();
-        $rsa->load($key, 'raw');
-        $rsa->setHash('sha1');
-        return $rsa->encrypt($m, RSA::PADDING_PKCS1);
+        $rsa->loadKey($key, RSA::PUBLIC_FORMAT_RAW);
+        $rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
+        return $rsa->encrypt($m);
         */
 
         // To quote from protocol-1.5.txt:

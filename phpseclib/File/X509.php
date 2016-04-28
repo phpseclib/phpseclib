@@ -27,9 +27,9 @@
 namespace phpseclib\File;
 
 use phpseclib\Crypt\Hash;
-use phpseclib\Crypt\Random;
 use phpseclib\Crypt\RSA;
-use phpseclib\Exception\UnsupportedAlgorithmException;
+use phpseclib\Crypt\Random;
+use phpseclib\File\ASN1;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
 
@@ -1654,7 +1654,7 @@ class X509
                 $map = $this->_getMapping($id);
                 if (is_bool($map)) {
                     if (!$map) {
-                        //user_error($id . ' is not a currently supported extension');
+                        user_error($id . ' is not a currently supported extension');
                         unset($extensions[$i]);
                     }
                 } else {
@@ -1727,7 +1727,7 @@ class X509
                 $id = $attributes[$i]['type'];
                 $map = $this->_getMapping($id);
                 if ($map === false) {
-                    //user_error($id . ' is not a currently supported attribute', E_USER_NOTICE);
+                    user_error($id . ' is not a currently supported attribute', E_USER_NOTICE);
                     unset($attributes[$i]);
                 } elseif (is_array($attributes[$i]['value'])) {
                     $values = &$attributes[$i]['value'];
@@ -2120,8 +2120,7 @@ class X509
     /**
      * Validates a signature
      *
-     * Returns true if the signature is verified and false if it is not correct.
-     * If the algorithms are unsupposed an exception is thrown.
+     * Returns true if the signature is verified, false if it is not correct or null on error
      *
      * @param string $publicKeyAlgorithm
      * @param string $publicKey
@@ -2129,15 +2128,14 @@ class X509
      * @param string $signature
      * @param string $signatureSubject
      * @access private
-     * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
-     * @return bool
+     * @return int
      */
     function _validateSignature($publicKeyAlgorithm, $publicKey, $signatureAlgorithm, $signature, $signatureSubject)
     {
         switch ($publicKeyAlgorithm) {
             case 'rsaEncryption':
                 $rsa = new RSA();
-                $rsa->load($publicKey);
+                $rsa->loadKey($publicKey);
 
                 switch ($signatureAlgorithm) {
                     case 'md2WithRSAEncryption':
@@ -2148,16 +2146,17 @@ class X509
                     case 'sha384WithRSAEncryption':
                     case 'sha512WithRSAEncryption':
                         $rsa->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
-                        if (!@$rsa->verify($signatureSubject, $signature, RSA::PADDING_PKCS1)) {
+                        $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
+                        if (!@$rsa->verify($signatureSubject, $signature)) {
                             return false;
                         }
                         break;
                     default:
-                        throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+                        return null;
                 }
                 break;
             default:
-                throw new UnsupportedAlgorithmException('Public key algorithm unsupported');
+                return null;
         }
 
         return true;
@@ -2812,7 +2811,7 @@ class X509
         switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
                 $publicKey = new RSA();
-                $publicKey->load($key);
+                $publicKey->loadKey($key);
                 $publicKey->setPublicKey();
                 break;
             default:
@@ -2888,7 +2887,7 @@ class X509
         switch ($algorithm) {
             case 'rsaEncryption':
                 $this->publicKey = new RSA();
-                $this->publicKey->load($key);
+                $this->publicKey->loadKey($key);
                 $this->publicKey->setPublicKey();
                 break;
             default:
@@ -3011,7 +3010,7 @@ class X509
         switch ($algorithm) {
             case 'rsaEncryption':
                 $this->publicKey = new RSA();
-                $this->publicKey->load($key);
+                $this->publicKey->loadKey($key);
                 $this->publicKey->setPublicKey();
                 break;
             default:
@@ -3406,7 +3405,7 @@ class X509
         $origPublicKey = $this->publicKey;
         $class = get_class($this->privateKey);
         $this->publicKey = new $class();
-        $this->publicKey->load($this->privateKey->getPublicKey());
+        $this->publicKey->loadKey($this->privateKey->getPublicKey());
         $this->publicKey->setPublicKey();
         if (!($publicKey = $this->_formatSubjectPublicKey())) {
             return false;
@@ -3464,7 +3463,7 @@ class X509
         $origPublicKey = $this->publicKey;
         $class = get_class($this->privateKey);
         $this->publicKey = new $class();
-        $this->publicKey->load($this->privateKey->getPublicKey());
+        $this->publicKey->loadKey($this->privateKey->getPublicKey());
         $this->publicKey->setPublicKey();
         $publicKey = $this->_formatSubjectPublicKey();
         if (!$publicKey) {
@@ -3652,7 +3651,6 @@ class X509
      * @param \phpseclib\File\X509 $subject
      * @param string $signatureAlgorithm
      * @access public
-     * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @return mixed
      */
     function _sign($key, $signatureAlgorithm)
@@ -3667,15 +3665,14 @@ class X509
                 case 'sha384WithRSAEncryption':
                 case 'sha512WithRSAEncryption':
                     $key->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
+                    $key->setSignatureMode(RSA::SIGNATURE_PKCS1);
 
-                    $this->currentCert['signature'] = base64_encode("\0" . $key->sign($this->signatureSubject, RSA::PADDING_PKCS1));
+                    $this->currentCert['signature'] = base64_encode("\0" . $key->sign($this->signatureSubject));
                     return $this->currentCert;
-                default:
-                    throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
             }
         }
 
-        throw new UnsupportedAlgorithmException('Unsupported public key algorithm');
+        return false;
     }
 
     /**
@@ -4232,7 +4229,7 @@ class X509
                 $raw = base64_decode($raw);
                 // If the key is private, compute identifier from its corresponding public key.
                 $key = new RSA();
-                if (!$key->load($raw)) {
+                if (!$key->loadKey($raw)) {
                     return false;   // Not an unencrypted RSA key.
                 }
                 if ($key->getPrivateKey() !== false) {  // If private.
@@ -4252,7 +4249,7 @@ class X509
                 }
                 return false;
             default: // Should be a key object (i.e.: \phpseclib\Crypt\RSA).
-                $key = $key->getPublicKey('PKCS1');
+                $key = $key->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1);
                 break;
         }
 
@@ -4285,7 +4282,7 @@ class X509
             //return new Element(base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey())));
             return array(
                 'algorithm' => array('algorithm' => 'rsaEncryption'),
-                'subjectPublicKey' => $this->publicKey->getPublicKey('PKCS1')
+                'subjectPublicKey' => $this->publicKey->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1)
             );
         }
 
