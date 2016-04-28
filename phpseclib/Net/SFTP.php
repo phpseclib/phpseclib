@@ -789,7 +789,7 @@ class Net_SFTP extends Net_SSH2
     {
         $files = $this->_list($dir, false);
 
-        if (!$recursive) {
+        if (!$recursive || $files === false) {
             return $files;
         }
 

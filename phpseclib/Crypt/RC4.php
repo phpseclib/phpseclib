@@ -234,7 +234,7 @@ class Crypt_RC4 extends Crypt_Base
         if ($length < 8) {
             $this->key_length = 1;
         } elseif ($length > 2048) {
-            $this->key_length = 248;
+            $this->key_length = 256;
         } else {
             $this->key_length = $length >> 3;
         }
