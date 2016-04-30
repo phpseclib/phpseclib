@@ -110,6 +110,18 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
         $this->assertFalse($ssh->isQuietModeEnabled());
     }
 
+    public function testGetConnectionByResourceId()
+    {
+        $ssh = new \phpseclib\Net\SSH2('localhost');
+        $this->assertSame($ssh, \phpseclib\Net\SSH2::getConnectionByResourceId($ssh->getResourceId()));
+    }
+
+    public function testGetResourceId()
+    {
+        $ssh = new \phpseclib\Net\SSH2('localhost');
+        $this->assertSame('{' . spl_object_hash($ssh) . '}', $ssh->getResourceId());
+    }
+
     /**
      * @return \phpseclib\Net\SSH2
      */

@@ -51,6 +51,7 @@
         }
     ],
     "require": {
+        "paragonie/random_compat": "^1.4|^2.0",
         "php": ">=5.3.3"
     },
     "require-dev": {

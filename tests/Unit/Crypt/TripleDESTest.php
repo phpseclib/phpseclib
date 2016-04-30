@@ -104,12 +104,13 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
      */
     public function testVectors($engine, $engineName, $key, $plaintext, $expected)
     {
-        $des = new TripleDES();
+        $des = new TripleDES(TripleDES::MODE_CBC);
         if (!$des->isValidEngine($engine)) {
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
         }
         $des->setPreferredEngine($engine);
         $des->setKey($key);
+        $des->setIV(str_repeat("\0", $des->getBlockLength() >> 3));
         $des->disablePadding();
         $result = $des->encrypt($plaintext);
         $plaintext = bin2hex($plaintext);
@@ -155,7 +156,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
      */
     public function testVectorsWithIV($engine, $engineName, $key, $iv, $plaintext, $expected)
     {
-        $des = new TripleDES();
+        $des = new TripleDES(TripleDES::MODE_CBC);
         if (!$des->isValidEngine($engine)) {
             self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
         }
@@ -176,6 +177,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 
         $des = new TripleDES(TripleDES::MODE_3CBC);
         $des->setKey('abcdefghijklmnopqrstuvwx');
+        $des->setIV(str_repeat("\0", $des->getBlockLength() >> 3));
 
         foreach ($this->engines as $engine => $engineName) {
             $des->setPreferredEngine($engine);

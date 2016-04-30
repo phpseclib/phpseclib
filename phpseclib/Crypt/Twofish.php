@@ -37,8 +37,6 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Crypt\Base;
-
 /**
  * Pure-PHP implementation of Twofish.
  *
@@ -371,6 +369,22 @@ class Twofish extends Base
     var $key_length = 16;
 
     /**
+     * Default Constructor.
+     *
+     * @param int $mode
+     * @access public
+     * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
+     */
+    function __construct($mode)
+    {
+        if ($mode == self::MODE_STREAM) {
+            throw new \InvalidArgumentException('Block ciphers cannot be ran in stream mode');
+        }
+
+        parent::__construct($mode);
+    }
+
+    /**
      * Sets the key length.
      *
      * Valid key lengths are 128, 192 or 256 bits
@@ -380,18 +394,40 @@ class Twofish extends Base
      */
     function setKeyLength($length)
     {
-        switch (true) {
-            case $length <= 128:
-                $this->key_length = 16;
-                break;
-            case $length <= 192:
-                $this->key_length = 24;
+        switch ($length) {
+            case 128:
+            case 192:
+            case 256:
                 break;
             default:
-                $this->key_length = 32;
+                throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16, 24 or 32 supported');
         }
 
         parent::setKeyLength($length);
+    }
+
+    /**
+     * Sets the key.
+     *
+     * Rijndael supports five different key lengths
+     *
+     * @see setKeyLength()
+     * @access public
+     * @param string $key
+     * @throws \LengthException if the key length isn't supported
+     */
+    function setKey($key)
+    {
+        switch (strlen($key)) {
+            case 16:
+            case 24:
+            case 32:
+                break;
+            default:
+                throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16, 24 or 32 supported');
+        }
+
+        parent::setKey($key);
     }
 
     /**

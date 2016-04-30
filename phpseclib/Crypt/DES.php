@@ -42,8 +42,6 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Crypt\Base;
-
 /**
  * Pure-PHP implementation of DES.
  *
@@ -581,6 +579,22 @@ class DES extends Base
     );
 
     /**
+     * Default Constructor.
+     *
+     * @param int $mode
+     * @access public
+     * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
+     */
+    function __construct($mode)
+    {
+        if ($mode == self::MODE_STREAM) {
+            throw new \InvalidArgumentException('Block ciphers cannot be ran in stream mode');
+        }
+
+        parent::__construct($mode);
+    }
+
+    /**
      * Test for engine validity
      *
      * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
@@ -605,13 +619,9 @@ class DES extends Base
     /**
      * Sets the key.
      *
-     * Keys can be of any length.  DES, itself, uses 64-bit keys (eg. strlen($key) == 8), however, we
-     * only use the first eight, if $key has more then eight characters in it, and pad $key with the
-     * null byte if it is less then eight characters long.
+     * Keys must be 64-bits long or 8 bytes long.
      *
      * DES also requires that every eighth bit be a parity bit, however, we'll ignore that.
-     *
-     * If the key is not explicitly set, it'll be assumed to be all zero's.
      *
      * @see \phpseclib\Crypt\Base::setKey()
      * @access public
@@ -619,10 +629,8 @@ class DES extends Base
      */
     function setKey($key)
     {
-        // We check/cut here only up to max length of the key.
-        // Key padding to the proper length will be done in _setupKey()
-        if (strlen($key) > $this->key_length_max) {
-            $key = substr($key, 0, $this->key_length_max);
+        if (!($this instanceof TripleDES) && strlen($key) != 8) {
+            throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of size 8 are supported');
         }
 
         // Sets the key

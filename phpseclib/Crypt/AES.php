@@ -49,8 +49,6 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Crypt\Rijndael;
-
 /**
  * Pure-PHP implementation of AES.
  *
@@ -68,30 +66,32 @@ class AES extends Rijndael
      * @see \phpseclib\Crypt\Rijndael::setBlockLength()
      * @access public
      * @param int $length
+     * @throws \BadMethodCallException anytime it's called
      */
     function setBlockLength($length)
     {
-        return;
+        throw new \BadMethodCallException('The block length cannot be set for AES.');
     }
 
     /**
      * Sets the key length
      *
-     * Valid key lengths are 128, 192, and 256.  If the length is less than 128, it will be rounded up to
-     * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
+     * Valid key lengths are 128, 192, and 256.  Set the link to bool(false) to disable a fixed key length
      *
      * @see \phpseclib\Crypt\Rijndael:setKeyLength()
      * @access public
      * @param int $length
+     * @throws \LengthException if the key length isn't supported
      */
     function setKeyLength($length)
     {
         switch ($length) {
-            case 160:
-                $length = 192;
+            case 128:
+            case 192:
+            case 256:
                 break;
-            case 224:
-                $length = 256;
+            default:
+                throw new \LengthException('Key of size ' . $length . ' not supported by this algorithm. Only keys of sizes 128, 192 or 256 supported');
         }
         parent::setKeyLength($length);
     }
@@ -105,24 +105,19 @@ class AES extends Rijndael
      * @see setKeyLength()
      * @access public
      * @param string $key
+     * @throws \LengthException if the key length isn't supported
      */
     function setKey($key)
     {
-        parent::setKey($key);
-
-        if (!$this->explicit_key_length) {
-            $length = strlen($key);
-            switch (true) {
-                case $length <= 16:
-                    $this->key_length = 16;
-                    break;
-                case $length <= 24:
-                    $this->key_length = 24;
-                    break;
-                default:
-                    $this->key_length = 32;
-            }
-            $this->_setEngine();
+        switch (strlen($key)) {
+            case 16:
+            case 24:
+            case 32:
+                break;
+            default:
+                throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16, 24 or 32 supported');
         }
+
+        parent::setKey($key);
     }
 }

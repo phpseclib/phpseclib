@@ -32,8 +32,7 @@
 
 namespace phpseclib\Net;
 
-use phpseclib\Net\SSH1;
-use phpseclib\Net\SSH2;
+use phpseclib\Exception\FileNotFoundException;
 
 /**
  * Pure-PHP implementations of SCP.
@@ -140,6 +139,7 @@ class SCP
      * @param string $data
      * @param int $mode
      * @param callable $callback
+     * @throws \phpseclib\Exception\FileNotFoundException if you're uploading via a file and the file doesn't exist
      * @return bool
      * @access public
      */
@@ -168,8 +168,7 @@ class SCP
             $size = strlen($data);
         } else {
             if (!is_file($data)) {
-                user_error("$data is not a valid file", E_USER_NOTICE);
-                return false;
+                throw new FileNotFoundException("$data is not a valid file");
             }
 
             $fp = @fopen($data, 'rb');
@@ -289,6 +288,7 @@ class SCP
      * Receives a packet from an SSH server
      *
      * @return string
+     * @throws \UnexpectedValueException on receipt of an unexpected packet
      * @access private
      */
     function _receive()
@@ -314,8 +314,7 @@ class SCP
                             $this->ssh->bitmap = 0;
                             return false;
                         default:
-                            user_error('Unknown packet received', E_USER_NOTICE);
-                            return false;
+                            throw new \UnexpectedValueException('Unknown packet received');
                     }
                 }
         }
