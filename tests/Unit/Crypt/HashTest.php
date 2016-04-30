@@ -90,16 +90,6 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 'The quick brown fox jumps over the lazy dog.',
                 '87a7ff096082e3ffeb86db10feb91c5af36c2c71bc426fe310ce662e0338223e217def0eab0b02b80eecf875657802bc5965e48f5c0a05467756f0d3f396faba'
             ),
-            array(
-                'whirlpool',
-                'The quick brown fox jumps over the lazy dog.',
-                '87a7ff096082e3ffeb86db10feb91c5af36c2c71bc426fe310ce662e0338223e217def0eab0b02b80eecf875657802bc5965e48f5c0a05467756f0d3f396faba'
-            ),
-            array(
-                'whirlpool',
-                'The quick brown fox jumps over the lazy dog.',
-                '87a7ff096082e3ffeb86db10feb91c5af36c2c71bc426fe310ce662e0338223e217def0eab0b02b80eecf875657802bc5965e48f5c0a05467756f0d3f396faba'
-            ),
             // from http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA512_224.pdf
             array(
                 'sha512/224',

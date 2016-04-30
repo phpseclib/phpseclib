@@ -180,6 +180,7 @@ class Hash
             case 'sha1':
                 $this->length = 20;
                 break;
+            case 'sha224':
             case 'sha512/224':
                 $this->length = 28;
                 break;
