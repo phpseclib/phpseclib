@@ -1080,7 +1080,7 @@ class X509
         );
 
         $this->SubjectDirectoryAttributes = array(
-            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'type'     => ASN1::TYPE_SEQUENCE,
             'min'      => 1,
             'max'      => -1,
             'children' => $Attribute
@@ -1254,7 +1254,7 @@ class X509
         );
 
         $this->PostalAddress = array(
-            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'type'     => ASN1::TYPE_SEQUENCE,
             'optional' => true,
             'min'      => 1,
             'max'      => -1,
@@ -1833,7 +1833,7 @@ class X509
 
                     $map = $this->_getMapping($type);
                     if (!is_bool($map)) {
-                        $value = new File_ASN1_Element($asn1->encodeDER($value, $map));
+                        $value = new Element($asn1->encodeDER($value, $map));
                     }
                 }
             }
@@ -2128,7 +2128,7 @@ class X509
                 // self-signed cert
                 switch (true) {
                     case !defined('FILE_X509_IGNORE_TYPE') && $this->currentCert['tbsCertificate']['issuer'] === $this->currentCert['tbsCertificate']['subject']:
-                    case defined('FILE_X509_IGNORE_TYPE') && $this->getIssuerDN(FILE_X509_DN_STRING) === $this->getDN(FILE_X509_DN_STRING):
+                    case defined('FILE_X509_IGNORE_TYPE') && $this->getIssuerDN(self::DN_STRING) === $this->getDN(self::DN_STRING):
                         $authorityKey = $this->getExtension('id-ce-authorityKeyIdentifier');
                         $subjectKeyID = $this->getExtension('id-ce-subjectKeyIdentifier');
                         switch (true) {
@@ -2145,7 +2145,7 @@ class X509
                         $ca = $this->CAs[$i];
                         switch (true) {
                             case !defined('FILE_X509_IGNORE_TYPE') && $this->currentCert['tbsCertificate']['issuer'] === $ca['tbsCertificate']['subject']:
-                            case defined('FILE_X509_IGNORE_TYPE') && $this->getDN(FILE_X509_DN_STRING, $this->currentCert['tbsCertificate']['issuer']) === $this->getDN(FILE_X509_DN_STRING, $ca['tbsCertificate']['subject']):
+                            case defined('FILE_X509_IGNORE_TYPE') && $this->getDN(self::DN_STRING, $this->currentCert['tbsCertificate']['issuer']) === $this->getDN(self::DN_STRING, $ca['tbsCertificate']['subject']):
                                 $authorityKey = $this->getExtension('id-ce-authorityKeyIdentifier');
                                 $subjectKeyID = $this->getExtension('id-ce-subjectKeyIdentifier', $ca);
                                 switch (true) {
@@ -2191,7 +2191,7 @@ class X509
                         $ca = $this->CAs[$i];
                         switch (true) {
                             case !defined('FILE_X509_IGNORE_TYPE') && $this->currentCert['tbsCertList']['issuer'] === $ca['tbsCertificate']['subject']:
-                            case defined('FILE_X509_IGNORE_TYPE') && $this->getDN(FILE_X509_DN_STRING, $this->currentCert['tbsCertList']['issuer']) === $this->getDN(FILE_X509_DN_STRING, $ca['tbsCertificate']['subject']):
+                            case defined('FILE_X509_IGNORE_TYPE') && $this->getDN(self::DN_STRING, $this->currentCert['tbsCertList']['issuer']) === $this->getDN(self::DN_STRING, $ca['tbsCertificate']['subject']):
                                 $authorityKey = $this->getExtension('id-ce-authorityKeyIdentifier');
                                 $subjectKeyID = $this->getExtension('id-ce-subjectKeyIdentifier', $ca);
                                 switch (true) {
@@ -2496,7 +2496,7 @@ class X509
         $asn1 = new ASN1();
         $asn1->loadOIDs($this->oids);
         $filters = array();
-        $filters['value'] = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+        $filters['value'] = array('type' => ASN1::TYPE_UTF8_STRING);
         $asn1->loadFilters($filters);
         $this->_mapOutDNs($dn, 'rdnSequence', $asn1);
         $dn = $dn['rdnSequence'];
@@ -2649,7 +2649,7 @@ class X509
         $asn1 = new ASN1();
         $asn1->loadOIDs($this->oids);
         $filters = array();
-        $filters['rdnSequence']['value'] = array('type' => FILE_ASN1_TYPE_UTF8_STRING);
+        $filters['rdnSequence']['value'] = array('type' => ASN1::TYPE_UTF8_STRING);
         $asn1->loadFilters($filters);
         $this->_mapOutDNs($dn, 'rdnSequence', $asn1);
 
@@ -2721,7 +2721,7 @@ class X509
             $start = false;
         }
 
-        return $format == FILE_X509_DN_OPENSSL ? $result : $output;
+        return $format == self::DN_OPENSSL ? $result : $output;
     }
 
     /**

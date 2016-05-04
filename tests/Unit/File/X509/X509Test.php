@@ -226,7 +226,6 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         $this->assertEquals($x509->getOID('zzz'), 'zzz');
     }
 
-<<<<<<< HEAD
     public function testIPAddressSubjectAltNamesDecoding()
     {
         $test = '-----BEGIN CERTIFICATE-----
@@ -264,7 +263,7 @@ NDEuGt30Vl2de7G1glnhaceB6Q9KfH7p2gAwNP9JMTtx3PtEcA==
 
     public function testPostalAddress()
     {
-        $x509 = new File_X509();
+        $x509 = new X509();
         $decoded = $x509->loadX509('-----BEGIN CERTIFICATE-----
 MIIFzzCCBLegAwIBAgIDAfdlMA0GCSqGSIb3DQEBBQUAMHMxCzAJBgNVBAYTAlBM
 MSgwJgYDVQQKDB9LcmFqb3dhIEl6YmEgUm96bGljemVuaW93YSBTLkEuMSQwIgYD
@@ -311,12 +310,12 @@ Mj93S
         $this->assertEquals($x509->getDNProp('id-at-postalAddress'), $expected);
 
         $expected = "C=PL, O=Urz\xC4\x85d Miasta Gdyni/serialNumber=PESEL: 61060603118, CN=Jerzy Przeworski/postalAddress=" . '0F\X0C"AL. MARSZA\XC5\X82KA PI\XC5\X82SUDSKIEGO 52/54\X0C\X0D81-382 GDYNIA\X0C\X06POLSKA\X0C\X09POMORSKIE/givenName=Jerzy, SN=Przeworski';
-        $this->assertEquals($x509->getDN(FILE_X509_DN_STRING), $expected);
+        $this->assertEquals($x509->getDN(X509::DN_STRING), $expected);
     }
 
     public function testStrictComparison()
     {
-        $x509 = new File_X509();
+        $x509 = new X509();
         $x509->loadCA('-----BEGIN CERTIFICATE-----
 MIIEbDCCA1SgAwIBAgIUJguKOMpJm/yRMDlMOW04NV0YPXowDQYJKoZIhvcNAQEF
 BQAwYTELMAkGA1UEBhMCUEwxNzA1BgNVBAoTLkNaaUMgQ2VudHJhc3QgU0EgdyBp
@@ -389,7 +388,7 @@ Mj93S
 
         define('FILE_X509_IGNORE_TYPE', true);
 
-        $x509 = new File_X509();
+        $x509 = new X509();
         $x509->loadCA('-----BEGIN CERTIFICATE-----
 MIIEbDCCA1SgAwIBAgIUJguKOMpJm/yRMDlMOW04NV0YPXowDQYJKoZIhvcNAQEF
 BQAwYTELMAkGA1UEBhMCUEwxNzA1BgNVBAoTLkNaaUMgQ2VudHJhc3QgU0EgdyBp
