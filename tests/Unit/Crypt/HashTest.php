@@ -85,11 +85,6 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 'The quick brown fox jumps over the lazy dog.',
                 '91ea1245f20d46ae9a037a989f54f1f790f0a47607eeb8a14d12890cea77a1bbc6c7ed9cf205e67b7f2b8fd4c7dfd3a7a8617e45f3c463d481c7e586c39ac1ed',
             ),
-            array(
-                'whirlpool',
-                'The quick brown fox jumps over the lazy dog.',
-                '87a7ff096082e3ffeb86db10feb91c5af36c2c71bc426fe310ce662e0338223e217def0eab0b02b80eecf875657802bc5965e48f5c0a05467756f0d3f396faba'
-            ),
             // from http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA512_224.pdf
             array(
                 'sha512/224',
@@ -147,13 +142,6 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
         return array(
             array('md5', '', '', '74e6f7298a9c2d168935f58c001bad88'),
             array('md5', 'key', 'The quick brown fox jumps over the lazy dog', '80070713463e7749b90c2dc24911e275'),
-
-            array(
-                'whirlpool',
-                'abcd',
-                'The quick brown fox jumps over the lazy dog',
-                'e71aabb2588d789292fa6fef00b35cc269ec3ea912b1c1cd7127daf95f004a5df5392ee563d322bac7e19d9eab161932fe9c257d63e0d09eca0d91ab4010125e',
-            ),
 
             // from https://tools.ietf.org/rfc/rfc4231.txt
             // test case 1
@@ -364,12 +352,6 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
         new Hash('abcdefghijklmnopqrst');
     }
 
-    public function testConstructorArgumentValid()
-    {
-        $hash = new Hash('whirlpool');
-        $this->assertSame($hash->getHash(), 'whirlpool');
-    }
-
     /**
      * @expectedException \phpseclib\Exception\UnsupportedAlgorithmException
      */
@@ -406,8 +388,6 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
             array('sha256', 32),
             array('sha384', 48),
             array('sha512', 64),
-            // unknown
-            array('whirlpool', 64),
         );
     }
 }
