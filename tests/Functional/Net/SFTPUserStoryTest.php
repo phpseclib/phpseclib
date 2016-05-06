@@ -686,5 +686,27 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
             $sftp->get('offset.txt'),
             'Failed asserting that you could upload into the middle of a file.'
         );
+
+        return $sftp;
+    }
+
+    /**
+     * @depends testUploadOffsets
+     */
+    public function testReadableWritable($sftp)
+    {
+        $sftp->chmod(0000, 'offset.txt');
+        $this->assertFalse($sftp->is_writable('offset.txt'));
+        $this->assertFalse($sftp->is_writeable('offset.txt'));
+        $this->assertFalse($sftp->is_readable('offset.txt'));
+
+        $sftp->chmod(0777, 'offset.txt');
+        $this->assertTrue($sftp->is_writable('offset.txt'));
+        $this->assertTrue($sftp->is_writeable('offset.txt'));
+        $this->assertTrue($sftp->is_readable('offset.txt'));
+
+        $this->assertFalse($sftp->is_writable('nonexistantfile.ext'));
+        $this->assertFalse($sftp->is_writeable('nonexistantfile.ext'));
+        $this->assertFalse($sftp->is_readable('nonexistantfile.ext'));
     }
 }
