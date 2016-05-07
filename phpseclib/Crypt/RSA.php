@@ -1838,7 +1838,7 @@ class Crypt_RSA
      * for invalid values.
      * @return mixed
      */
-    public function getPublicKeyFingerprint($algorithm = 'md5')
+    function getPublicKeyFingerprint($algorithm = 'md5')
     {
         if (empty($this->modulus) || empty($this->publicExponent)) {
             return false;
