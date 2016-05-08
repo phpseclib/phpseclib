@@ -36,8 +36,6 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Crypt\Hash;
-
 /**
  * Base Class for all \phpseclib\Crypt\* cipher classes
  *
