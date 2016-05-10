@@ -534,4 +534,25 @@ Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
         $rsa->setPrivateKey();
         $rsa->load($rsa);
     }
+
+    /**
+     * @group github980
+     */
+    public function testZeroComponents()
+    {
+        $key = '-----BEGIN RSA PRIVATE KEY-----
+MIGaAgEAAkEAt5yrcHAAjhglnCEn6yecMWPeUXcMyo0+itXrLlkpcKIIyqPw546b
+GThhlb1ppX1ySX/OUA4jSakHekNP5eWPawIBAAJAW6/aVD05qbsZHMvZuS2Aa5Fp
+NNj0BDlf38hOtkhDzz/hkYb+EBYLLvldhgsD0OvRNy8yhz7EjaUqLCB0juIN4QIB
+AAIBAAIBAAIBAAIBAA==
+-----END RSA PRIVATE KEY-----';
+
+        $rsa = new Crypt_RSA();
+        $rsa->loadKey($key);
+        $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+        $rsa->setHash('md5');
+        $rsa->setMGFHash('md5');
+
+        $rsa->sign('zzzz');
+    }
 }
