@@ -51,6 +51,8 @@
 
 namespace phpseclib\Crypt;
 
+use ParagonIE\ConstantTime\Hex;
+use ParagonIE\ConstantTime\Base64;
 use phpseclib\Math\BigInteger;
 
 /**
@@ -734,14 +736,14 @@ class RSA
                     return false;
                 }
                 return "<RSAKeyValue>\r\n" .
-                       '  <Modulus>' . base64_encode($raw['modulus']) . "</Modulus>\r\n" .
-                       '  <Exponent>' . base64_encode($raw['publicExponent']) . "</Exponent>\r\n" .
-                       '  <P>' . base64_encode($raw['prime1']) . "</P>\r\n" .
-                       '  <Q>' . base64_encode($raw['prime2']) . "</Q>\r\n" .
-                       '  <DP>' . base64_encode($raw['exponent1']) . "</DP>\r\n" .
-                       '  <DQ>' . base64_encode($raw['exponent2']) . "</DQ>\r\n" .
-                       '  <InverseQ>' . base64_encode($raw['coefficient']) . "</InverseQ>\r\n" .
-                       '  <D>' . base64_encode($raw['privateExponent']) . "</D>\r\n" .
+                       '  <Modulus>' . Base64::encode($raw['modulus']) . "</Modulus>\r\n" .
+                       '  <Exponent>' . Base64::encode($raw['publicExponent']) . "</Exponent>\r\n" .
+                       '  <P>' . Base64::encode($raw['prime1']) . "</P>\r\n" .
+                       '  <Q>' . Base64::encode($raw['prime2']) . "</Q>\r\n" .
+                       '  <DP>' . Base64::encode($raw['exponent1']) . "</DP>\r\n" .
+                       '  <DQ>' . Base64::encode($raw['exponent2']) . "</DQ>\r\n" .
+                       '  <InverseQ>' . Base64::encode($raw['coefficient']) . "</InverseQ>\r\n" .
+                       '  <D>' . Base64::encode($raw['privateExponent']) . "</D>\r\n" .
                        '</RSAKeyValue>';
                 break;
             case self::PRIVATE_FORMAT_PUTTY:
@@ -772,7 +774,7 @@ class RSA
                     strlen($public),
                     $public
                 );
-                $public = base64_encode($public);
+                $public = Base64::encode($public);
                 $key.= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";
                 $key.= chunk_split($public, 64);
                 $private = pack(
@@ -796,7 +798,7 @@ class RSA
                     $symkey = '';
                     while (strlen($symkey) < 32) {
                         $temp = pack('Na*', $sequence++, $this->password);
-                        $symkey.= pack('H*', sha1($temp));
+                        $symkey.= Hex::decode(sha1($temp));
                     }
                     $symkey = substr($symkey, 0, 32);
                     $crypto = new AES();
@@ -807,12 +809,12 @@ class RSA
                     $hashkey = 'putty-private-key-file-mac-key' . $this->password;
                 }
 
-                $private = base64_encode($private);
+                $private = Base64::encode($private);
                 $key.= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
                 $key.= chunk_split($private, 64);
                 $hash = new Hash('sha1');
-                $hash->setKey(pack('H*', sha1($hashkey)));
-                $key.= 'Private-MAC: ' . bin2hex($hash->hash($source)) . "\r\n";
+                $hash->setKey(Hex::decode(sha1($hashkey)));
+                $key.= 'Private-MAC: ' . Hex::encode($hash->hash($source)) . "\r\n";
 
                 return $key;
             default: // eg. self::PRIVATE_FORMAT_PKCS1
@@ -844,7 +846,7 @@ class RSA
                 $RSAPrivateKey = pack('Ca*a*', self::ASN1_SEQUENCE, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
 
                 if ($this->privateKeyFormat == self::PRIVATE_FORMAT_PKCS8) {
-                    $rsaOID = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
+                    $rsaOID = Hex::decode('300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
                     $RSAPrivateKey = pack(
                         'Ca*a*Ca*a*',
                         self::ASN1_INTEGER,
@@ -897,11 +899,11 @@ class RSA
                         $RSAPrivateKey = pack('Ca*a*', self::ASN1_SEQUENCE, $this->_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
 
                         $RSAPrivateKey = "-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n" .
-                                         chunk_split(base64_encode($RSAPrivateKey), 64) .
+                                         chunk_split(Base64::encode($RSAPrivateKey), 64) .
                                          '-----END ENCRYPTED PRIVATE KEY-----';
                     } else {
                         $RSAPrivateKey = "-----BEGIN PRIVATE KEY-----\r\n" .
-                                         chunk_split(base64_encode($RSAPrivateKey), 64) .
+                                         chunk_split(Base64::encode($RSAPrivateKey), 64) .
                                          '-----END PRIVATE KEY-----';
                     }
                     return $RSAPrivateKey;
@@ -909,21 +911,21 @@ class RSA
 
                 if (!empty($this->password) || is_string($this->password)) {
                     $iv = Random::string(8);
-                    $symkey = pack('H*', md5($this->password . $iv)); // symkey is short for symmetric key
-                    $symkey.= substr(pack('H*', md5($symkey . $this->password . $iv)), 0, 8);
+                    $symkey = Hex::decode(md5($this->password . $iv)); // symkey is short for symmetric key
+                    $symkey.= substr(Hex::decode(md5($symkey . $this->password . $iv)), 0, 8);
                     $des = new TripleDES();
                     $des->setKey($symkey);
                     $des->setIV($iv);
-                    $iv = strtoupper(bin2hex($iv));
+                    $iv = Hex::encodeUpper($iv);
                     $RSAPrivateKey = "-----BEGIN RSA PRIVATE KEY-----\r\n" .
                                      "Proc-Type: 4,ENCRYPTED\r\n" .
                                      "DEK-Info: DES-EDE3-CBC,$iv\r\n" .
                                      "\r\n" .
-                                     chunk_split(base64_encode($des->encrypt($RSAPrivateKey)), 64) .
+                                     chunk_split(Base64::encode($des->encrypt($RSAPrivateKey)), 64) .
                                      '-----END RSA PRIVATE KEY-----';
                 } else {
                     $RSAPrivateKey = "-----BEGIN RSA PRIVATE KEY-----\r\n" .
-                                     chunk_split(base64_encode($RSAPrivateKey), 64) .
+                                     chunk_split(Base64::encode($RSAPrivateKey), 64) .
                                      '-----END RSA PRIVATE KEY-----';
                 }
 
@@ -951,8 +953,8 @@ class RSA
                 return array('e' => $e->copy(), 'n' => $n->copy());
             case self::PUBLIC_FORMAT_XML:
                 return "<RSAKeyValue>\r\n" .
-                       '  <Modulus>' . base64_encode($modulus) . "</Modulus>\r\n" .
-                       '  <Exponent>' . base64_encode($publicExponent) . "</Exponent>\r\n" .
+                       '  <Modulus>' . Base64::encode($modulus) . "</Modulus>\r\n" .
+                       '  <Exponent>' . Base64::encode($publicExponent) . "</Exponent>\r\n" .
                        '</RSAKeyValue>';
                 break;
             case self::PUBLIC_FORMAT_OPENSSH:
@@ -961,7 +963,7 @@ class RSA
                 // mpint     e
                 // mpint     n
                 $RSAPublicKey = pack('Na*Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($publicExponent), $publicExponent, strlen($modulus), $modulus);
-                $RSAPublicKey = 'ssh-rsa ' . base64_encode($RSAPublicKey) . ' ' . $this->comment;
+                $RSAPublicKey = 'ssh-rsa ' . Base64::encode($RSAPublicKey) . ' ' . $this->comment;
 
                 return $RSAPublicKey;
             default: // eg. self::PUBLIC_FORMAT_PKCS1_RAW or self::PUBLIC_FORMAT_PKCS1
@@ -985,11 +987,11 @@ class RSA
 
                 if ($this->publicKeyFormat == self::PUBLIC_FORMAT_PKCS1_RAW) {
                     $RSAPublicKey = "-----BEGIN RSA PUBLIC KEY-----\r\n" .
-                                    chunk_split(base64_encode($RSAPublicKey), 64) .
+                                    chunk_split(Base64::encode($RSAPublicKey), 64) .
                                     '-----END RSA PUBLIC KEY-----';
                 } else {
                     // sequence(oid(1.2.840.113549.1.1.1), null)) = rsaEncryption.
-                    $rsaOID = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
+                    $rsaOID = Hex::decode('300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
                     $RSAPublicKey = chr(0) . $RSAPublicKey;
                     $RSAPublicKey = chr(3) . $this->_encodeLength(strlen($RSAPublicKey)) . $RSAPublicKey;
 
@@ -1001,7 +1003,7 @@ class RSA
                     );
 
                     $RSAPublicKey = "-----BEGIN PUBLIC KEY-----\r\n" .
-                                     chunk_split(base64_encode($RSAPublicKey), 64) .
+                                     chunk_split(Base64::encode($RSAPublicKey), 64) .
                                      '-----END PUBLIC KEY-----';
                 }
 
@@ -1077,9 +1079,9 @@ class RSA
 
                    * OpenSSL is the de facto standard.  It's utilized by OpenSSH and other projects */
                 if (preg_match('#DEK-Info: (.+),(.+)#', $key, $matches)) {
-                    $iv = pack('H*', trim($matches[2]));
-                    $symkey = pack('H*', md5($this->password . substr($iv, 0, 8))); // symkey is short for symmetric key
-                    $symkey.= pack('H*', md5($symkey . $this->password . substr($iv, 0, 8)));
+                    $iv = Hex::decode(trim($matches[2]));
+                    $symkey = Hex::decode(md5($this->password . substr($iv, 0, 8))); // symkey is short for symmetric key
+                    $symkey.= Hex::decode(md5($symkey . $this->password . substr($iv, 0, 8)));
                     // remove the Proc-Type / DEK-Info sections as they're no longer needed
                     $key = preg_replace('#^(?:Proc-Type|DEK-Info): .*#m', '', $key);
                     $ciphertext = $this->_extractBER($key);
@@ -1278,7 +1280,7 @@ class RSA
             case self::PUBLIC_FORMAT_OPENSSH:
                 $parts = explode(' ', $key, 3);
 
-                $key = isset($parts[1]) ? base64_decode($parts[1]) : false;
+                $key = isset($parts[1]) ? Base64::decode($parts[1]) : false;
                 if ($key === false) {
                     return false;
                 }
@@ -1344,7 +1346,7 @@ class RSA
                 $comment = trim(preg_replace('#Comment: (.+)#', '$1', $key[2]));
 
                 $publicLength = trim(preg_replace('#Public-Lines: (\d+)#', '$1', $key[3]));
-                $public = base64_decode(implode('', array_map('trim', array_slice($key, 4, $publicLength))));
+                $public = Base64::decode(implode('', array_map('trim', array_slice($key, 4, $publicLength))));
                 $public = substr($public, 11);
                 extract(unpack('Nlength', $this->_string_shift($public, 4)));
                 $components['publicExponent'] = new BigInteger($this->_string_shift($public, $length), -256);
@@ -1352,7 +1354,7 @@ class RSA
                 $components['modulus'] = new BigInteger($this->_string_shift($public, $length), -256);
 
                 $privateLength = trim(preg_replace('#Private-Lines: (\d+)#', '$1', $key[$publicLength + 4]));
-                $private = base64_decode(implode('', array_map('trim', array_slice($key, $publicLength + 5, $privateLength))));
+                $private = Base64::decode(implode('', array_map('trim', array_slice($key, $publicLength + 5, $privateLength))));
 
                 switch ($encryption) {
                     case 'aes256-cbc':
@@ -1360,7 +1362,7 @@ class RSA
                         $sequence = 0;
                         while (strlen($symkey) < 32) {
                             $temp = pack('Na*', $sequence++, $this->password);
-                            $symkey.= pack('H*', sha1($temp));
+                            $symkey.= Hex::decode(sha1($temp));
                         }
                         $symkey = substr($symkey, 0, 32);
                         $crypto = new AES();
@@ -1472,7 +1474,7 @@ class RSA
     function _stop_element_handler($parser, $name)
     {
         if (isset($this->current)) {
-            $this->current = new BigInteger(base64_decode($this->current), 256);
+            $this->current = new BigInteger(Base64::decode($this->current), 256);
             unset($this->current);
         }
     }
@@ -1774,7 +1776,7 @@ class RSA
         switch ($algorithm) {
             case 'sha256':
                 $hash = new Hash('sha256');
-                $base = base64_encode($hash->hash($RSAPublicKey));
+                $base = Base64::encode($hash->hash($RSAPublicKey));
                 return substr($base, 0, strlen($base) - 1);
             case 'md5':
                 return substr(chunk_split(md5($RSAPublicKey), 2, ':'), 0, -1);
@@ -2715,22 +2717,22 @@ class RSA
         // see http://tools.ietf.org/html/rfc3447#page-43
         switch ($this->hashName) {
             case 'md2':
-                $t = pack('H*', '3020300c06082a864886f70d020205000410');
+                $t = Hex::decode('3020300c06082a864886f70d020205000410');
                 break;
             case 'md5':
-                $t = pack('H*', '3020300c06082a864886f70d020505000410');
+                $t = Hex::decode('3020300c06082a864886f70d020505000410');
                 break;
             case 'sha1':
-                $t = pack('H*', '3021300906052b0e03021a05000414');
+                $t = Hex::decode('3021300906052b0e03021a05000414');
                 break;
             case 'sha256':
-                $t = pack('H*', '3031300d060960864801650304020105000420');
+                $t = Hex::decode('3031300d060960864801650304020105000420');
                 break;
             case 'sha384':
-                $t = pack('H*', '3041300d060960864801650304020205000430');
+                $t = Hex::decode('3041300d060960864801650304020205000430');
                 break;
             case 'sha512':
-                $t = pack('H*', '3051300d060960864801650304020305000440');
+                $t = Hex::decode('3051300d060960864801650304020305000440');
         }
         $t.= $h;
         $tLen = strlen($t);
@@ -3031,7 +3033,7 @@ class RSA
         $temp = preg_replace('#-+[^-]+-+#', '', $temp);
         // remove new lines
         $temp = str_replace(array("\r", "\n", ' '), '', $temp);
-        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? Base64::decode($temp) : false;
         return $temp != false ? $temp : $str;
     }
 }

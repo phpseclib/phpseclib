@@ -38,6 +38,7 @@
 
 namespace phpseclib\Crypt;
 
+use ParagonIE\ConstantTime\Hex;
 use phpseclib\Math\BigInteger;
 
 /**
@@ -354,10 +355,11 @@ class Hash
      *
      * @access private
      * @param string $m
+     * @return string
      */
     function _md5($m)
     {
-        return pack('H*', md5($m));
+        return Hex::decode(md5($m));
     }
 
     /**
@@ -365,10 +367,11 @@ class Hash
      *
      * @access private
      * @param string $m
+     * @return string
      */
     function _sha1($m)
     {
-        return pack('H*', sha1($m));
+        return Hex::decode(sha1($m));
     }
 
     /**
@@ -458,7 +461,7 @@ class Hash
     function _sha256($m)
     {
         if (extension_loaded('suhosin')) {
-            return pack('H*', sha256($m));
+            return Hex::decode(sha256($m));
         }
 
         // Initialize variables
