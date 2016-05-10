@@ -51,8 +51,9 @@
 
 namespace phpseclib\Crypt;
 
-use ParagonIE\ConstantTime\Hex;
 use ParagonIE\ConstantTime\Base64;
+use ParagonIE\ConstantTime\Binary;
+use ParagonIE\ConstantTime\Hex;
 use phpseclib\Math\BigInteger;
 
 /**
@@ -1474,6 +1475,9 @@ class RSA
     function _stop_element_handler($parser, $name)
     {
         if (isset($this->current)) {
+            while (Binary::safeStrlen($this->current) % 4 !== 0) {
+                $this->current .= '=';
+            }
             $this->current = new BigInteger(Base64::decode($this->current), 256);
             unset($this->current);
         }
