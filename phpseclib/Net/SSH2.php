@@ -49,6 +49,7 @@
 
 namespace phpseclib\Net;
 
+use ParagonIE\ConstantTime\Base64;
 use phpseclib\Crypt\Base;
 use phpseclib\Crypt\Blowfish;
 use phpseclib\Crypt\Hash;
@@ -3968,6 +3969,7 @@ class SSH2
             }
         }
 
+        $length = 0;
         $signature = $this->signature;
         $server_public_host_key = $this->server_public_host_key;
 
@@ -3976,7 +3978,7 @@ class SSH2
 
         if ($this->signature_validated) {
             return $this->bitmap ?
-                $this->signature_format . ' ' . base64_encode($this->server_public_host_key) :
+                $this->signature_format . ' ' . Base64::encode($this->server_public_host_key) :
                 false;
         }
 
@@ -4092,7 +4094,7 @@ class SSH2
                 return $this->_disconnect(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
         }
 
-        return $this->signature_format . ' ' . base64_encode($this->server_public_host_key);
+        return $this->signature_format . ' ' . Base64::encode($this->server_public_host_key);
     }
 
     /**

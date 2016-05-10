@@ -23,6 +23,7 @@
 
 namespace phpseclib\File;
 
+use ParagonIE\ConstantTime\Base64;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
 
@@ -733,7 +734,7 @@ class ASN1
                     return $values;
                 }
             case self::TYPE_OCTET_STRING:
-                return base64_encode($decoded['content']);
+                return Base64::encode($decoded['content']);
             case self::TYPE_NULL:
                 return '';
             case self::TYPE_BOOLEAN:
@@ -980,7 +981,7 @@ class ASN1
                    the number of unused bits in the final subsequent octet. The number shall be in the range zero to seven.
 
                    -- http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=16 */
-                $value = base64_decode($source);
+                $value = Base64::decode($source);
                 break;
             case self::TYPE_OBJECT_IDENTIFIER:
                 $oid = preg_match('#(?:\d+\.)+#', $source) ? $source : array_search($source, $this->oids);

@@ -51,7 +51,8 @@
         }
     ],
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.3.3",
+        "paragonie/constant_time_encoding": "^1|^2"
     },
     "require-dev": {
         "phing/phing": "~2.7",

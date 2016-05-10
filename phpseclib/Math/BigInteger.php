@@ -50,6 +50,8 @@
 
 namespace phpseclib\Math;
 
+use ParagonIE\ConstantTime\Hex;
+use ParagonIE\ConstantTime\Base64;
 use phpseclib\Crypt\Random;
 
 /**
@@ -360,7 +362,7 @@ class BigInteger
                 switch (MATH_BIGINTEGER_MODE) {
                     case self::MODE_GMP:
                         $sign = $this->is_negative ? '-' : '';
-                        $this->value = gmp_init($sign . '0x' . bin2hex($x));
+                        $this->value = gmp_init($sign . '0x' . Hex::encode($x));
                         break;
                     case self::MODE_BCMATH:
                         // round $len to the nearest 4 (thanks, DavidMJ!)
@@ -405,7 +407,7 @@ class BigInteger
                 $is_negative = false;
                 if ($base < 0 && hexdec($x[0]) >= 8) {
                     $this->is_negative = $is_negative = true;
-                    $x = bin2hex(~pack('H*', $x));
+                    $x = Hex::encode(Hex::decode($x));
                 }
 
                 switch (MATH_BIGINTEGER_MODE) {
@@ -416,13 +418,13 @@ class BigInteger
                         break;
                     case self::MODE_BCMATH:
                         $x = (strlen($x) & 1) ? '0' . $x : $x;
-                        $temp = new static(pack('H*', $x), 256);
+                        $temp = new static(Hex::decode($x), 256);
                         $this->value = $this->is_negative ? '-' . $temp->value : $temp->value;
                         $this->is_negative = false;
                         break;
                     default:
                         $x = (strlen($x) & 1) ? '0' . $x : $x;
-                        $temp = new static(pack('H*', $x), 256);
+                        $temp = new static(Hex::decode($x), 256);
                         $this->value = $temp->value;
                 }
 
@@ -549,7 +551,7 @@ class BigInteger
 
                 $temp = gmp_strval(gmp_abs($this->value), 16);
                 $temp = (strlen($temp) & 1) ? '0' . $temp : $temp;
-                $temp = pack('H*', $temp);
+                $temp = Hex::decode($temp);
 
                 return $this->precision > 0 ?
                     substr(str_pad($temp, $this->precision >> 3, chr(0), STR_PAD_LEFT), -($this->precision >> 3)) :
@@ -616,7 +618,7 @@ class BigInteger
      */
     function toHex($twos_compliment = false)
     {
-        return bin2hex($this->toBytes($twos_compliment));
+        return Hex::encode($this->toBytes($twos_compliment));
     }
 
     /**
@@ -1684,7 +1686,7 @@ class BigInteger
                 $components['publicExponent']
             );
 
-            $rsaOID = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
+            $rsaOID = Hex::decode('300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
             $RSAPublicKey = chr(0) . $RSAPublicKey;
             $RSAPublicKey = chr(3) . $this->_encodeASN1Length(strlen($RSAPublicKey)) . $RSAPublicKey;
 
@@ -1696,7 +1698,7 @@ class BigInteger
             );
 
             $RSAPublicKey = "-----BEGIN PUBLIC KEY-----\r\n" .
-                             chunk_split(base64_encode($encapsulated)) .
+                             chunk_split(Base64::encode($encapsulated)) .
                              '-----END PUBLIC KEY-----';
 
             $plaintext = str_pad($this->toBytes(), strlen($n->toBytes(true)) - 1, "\0", STR_PAD_LEFT);

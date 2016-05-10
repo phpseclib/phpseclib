@@ -48,6 +48,7 @@
 
 namespace phpseclib\Net;
 
+use ParagonIE\ConstantTime\Hex;
 use phpseclib\Crypt\DES;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\TripleDES;
@@ -611,7 +612,7 @@ class SSH1
             }
         }
 
-        $session_id = pack('H*', md5($host_key_public_modulus->toBytes() . $server_key_public_modulus->toBytes() . $anti_spoofing_cookie));
+        $session_id = Hex::decode(md5($host_key_public_modulus->toBytes() . $server_key_public_modulus->toBytes() . $anti_spoofing_cookie));
 
         $session_key = Random::string(32);
         $double_encrypted_session_key = $session_key ^ str_pad($session_id, 32, chr(0));
