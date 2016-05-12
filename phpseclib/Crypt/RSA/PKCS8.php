@@ -24,6 +24,8 @@
 
 namespace phpseclib\Crypt\RSA;
 
+use ParagonIE\ConstantTime\Base64;
+use ParagonIE\ConstantTime\Hex;
 use phpseclib\Crypt\DES;
 use phpseclib\Crypt\Random;
 use phpseclib\Math\BigInteger;
@@ -92,7 +94,7 @@ class PKCS8 extends PKCS
 
         $RSAPrivateKey = pack('Ca*a*', self::ASN1_SEQUENCE, self::_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
 
-        $rsaOID = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
+        $rsaOID = Hex::decode('300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
         $RSAPrivateKey = pack(
             'Ca*a*Ca*a*',
             self::ASN1_INTEGER,
@@ -145,11 +147,11 @@ class PKCS8 extends PKCS
             $RSAPrivateKey = pack('Ca*a*', self::ASN1_SEQUENCE, self::_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
 
             $RSAPrivateKey = "-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n" .
-                 chunk_split(base64_encode($RSAPrivateKey), 64) .
+                 chunk_split(Base64::encode($RSAPrivateKey), 64) .
                  '-----END ENCRYPTED PRIVATE KEY-----';
         } else {
             $RSAPrivateKey = "-----BEGIN PRIVATE KEY-----\r\n" .
-                 chunk_split(base64_encode($RSAPrivateKey), 64) .
+                 chunk_split(Base64::encode($RSAPrivateKey), 64) .
                  '-----END PRIVATE KEY-----';
         }
 
@@ -188,7 +190,7 @@ class PKCS8 extends PKCS
         );
 
         // sequence(oid(1.2.840.113549.1.1.1), null)) = rsaEncryption.
-        $rsaOID = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
+        $rsaOID = Hex::decode('300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
         $RSAPublicKey = chr(0) . $RSAPublicKey;
         $RSAPublicKey = chr(3) . self::_encodeLength(strlen($RSAPublicKey)) . $RSAPublicKey;
 
@@ -200,7 +202,7 @@ class PKCS8 extends PKCS
         );
 
         $RSAPublicKey = "-----BEGIN PUBLIC KEY-----\r\n" .
-                        chunk_split(base64_encode($RSAPublicKey), 64) .
+                        chunk_split(Base64::encode($RSAPublicKey), 64) .
                         '-----END PUBLIC KEY-----';
 
         return $RSAPublicKey;

@@ -18,6 +18,8 @@
 
 namespace phpseclib\Crypt\RSA;
 
+use ParagonIE\ConstantTime\Base64;
+use ParagonIE\ConstantTime\Binary;
 use phpseclib\Math\BigInteger;
 
 /**
@@ -76,7 +78,7 @@ class MSBLOB
             return false;
         }
 
-        $key = base64_decode($key);
+        $key = Base64::decode($key);
 
         if (!is_string($key) || strlen($key) < 20) {
             return false;
@@ -182,7 +184,7 @@ class MSBLOB
         $key.= strrev($coefficients[1]->toBytes());
         $key.= strrev($d->toBytes());
 
-        return base64_encode($key);
+        return Base64::encode($key);
     }
 
     /**
@@ -201,7 +203,7 @@ class MSBLOB
         $key.= pack('VVa*', self::RSA1, 8 * strlen($n), $e);
         $key.= $n;
 
-        return base64_encode($key);
+        return Base64::encode($key);
     }
 
     /**
