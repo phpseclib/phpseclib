@@ -24,6 +24,9 @@
 
 namespace phpseclib\Crypt;
 
+use ParagonIE\ConstantTime\Base64;
+use ParagonIE\ConstantTime\Hex;
+
 /**
  * Pure-PHP Random Number Generator
  *
@@ -93,7 +96,7 @@ class Random
             session_cache_limiter('');
             session_start();
 
-            $v = $seed = $_SESSION['seed'] = pack('H*', sha1(
+            $v = $seed = $_SESSION['seed'] = Hex::decode(sha1(
                 (isset($_SERVER) ? self::safe_serialize($_SERVER) : '') .
                 (isset($_POST) ? self::safe_serialize($_POST) : '') .
                 (isset($_GET) ? self::safe_serialize($_GET) : '') .
@@ -132,8 +135,8 @@ class Random
             // http://tools.ietf.org/html/rfc4253#section-7.2
             //
             // see the is_string($crypto) part for an example of how to expand the keys
-            $key = pack('H*', sha1($seed . 'A'));
-            $iv = pack('H*', sha1($seed . 'C'));
+            $key = Hex::decode(sha1($seed . 'A'));
+            $iv = Hex::decode(sha1($seed . 'C'));
 
             // ciphers are used as per the nist.gov link below. also, see this link:
             //

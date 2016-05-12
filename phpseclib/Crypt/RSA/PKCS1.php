@@ -22,7 +22,10 @@
 
 namespace phpseclib\Crypt\RSA;
 
+use ParagonIE\ConstantTime\Base64;
+use ParagonIE\ConstantTime\Hex;
 use phpseclib\Crypt\AES;
+use phpseclib\Crypt\Base;
 use phpseclib\Crypt\DES;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\TripleDES;
@@ -116,16 +119,16 @@ class PKCS1 extends PKCS
             $iv = Random::string($cipher->getBlockLength() >> 3);
             $cipher->setKey(self::generateSymmetricKey($password, $iv, $cipher->getKeyLength() >> 3));
             $cipher->setIV($iv);
-            $iv = strtoupper(bin2hex($iv));
+            $iv = strtoupper(Hex::encode($iv));
             $RSAPrivateKey = "-----BEGIN RSA PRIVATE KEY-----\r\n" .
                      "Proc-Type: 4,ENCRYPTED\r\n" .
                      "DEK-Info: " . self::$defaultEncryptionAlgorithm . ",$iv\r\n" .
                      "\r\n" .
-                     chunk_split(base64_encode($cipher->encrypt($RSAPrivateKey)), 64) .
+                     chunk_split(Base64::encode($cipher->encrypt($RSAPrivateKey)), 64) .
                      '-----END RSA PRIVATE KEY-----';
         } else {
             $RSAPrivateKey = "-----BEGIN RSA PRIVATE KEY-----\r\n" .
-                     chunk_split(base64_encode($RSAPrivateKey), 64) .
+                     chunk_split(Base64::encode($RSAPrivateKey), 64) .
                      '-----END RSA PRIVATE KEY-----';
         }
 
@@ -164,7 +167,7 @@ class PKCS1 extends PKCS
         );
 
         $RSAPublicKey = "-----BEGIN RSA PUBLIC KEY-----\r\n" .
-                        chunk_split(base64_encode($RSAPublicKey), 64) .
+                        chunk_split(Base64::encode($RSAPublicKey), 64) .
                         '-----END RSA PUBLIC KEY-----';
 
         return $RSAPublicKey;

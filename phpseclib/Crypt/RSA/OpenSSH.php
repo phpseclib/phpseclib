@@ -16,6 +16,7 @@
 
 namespace phpseclib\Crypt\RSA;
 
+use ParagonIE\ConstantTime\Base64;
 use phpseclib\Math\BigInteger;
 
 /**
@@ -62,7 +63,7 @@ class OpenSSH
 
         $parts = explode(' ', $key, 3);
 
-        $key = isset($parts[1]) ? base64_decode($parts[1]) : base64_decode($parts[0]);
+        $key = isset($parts[1]) ? Base64::decode($parts[1]) : Base64::decode($parts[0]);
         if ($key === false) {
             return false;
         }
@@ -116,7 +117,7 @@ class OpenSSH
         // mpint     e
         // mpint     n
         $RSAPublicKey = pack('Na*Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($publicExponent), $publicExponent, strlen($modulus), $modulus);
-        $RSAPublicKey = 'ssh-rsa ' . base64_encode($RSAPublicKey) . ' ' . self::$comment;
+        $RSAPublicKey = 'ssh-rsa ' . Base64::encode($RSAPublicKey) . ' ' . self::$comment;
 
         return $RSAPublicKey;
     }
