@@ -20,6 +20,16 @@
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
 
+## 1.0.2 - 2016-05-07
+
+- All Ciphers: fix issue with CBC mode / OpenSSL / continuous buffers / decryption (#938)
+- Random: fix issues with serialize() (#932)
+- RC2: fix issue with decrypting
+- RC4: fix issue with key not being truncated correctly
+- SFTP: nlist() on a non-existant directory resulted in error
+- SFTP: add is_writable, is_writeable, is_readable
+- RSA: fix PHP4 compatability issue
+
 ## 1.0.1 - 2016-01-18
 
 - RSA: fix regression in PSS mode ([#769](https://github.com/phpseclib/phpseclib/pull/769))
