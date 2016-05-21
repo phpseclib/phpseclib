@@ -37,6 +37,8 @@
 namespace phpseclib\Crypt;
 use ParagonIE\ConstantTime\Hex;
 
+use ParagonIE\ConstantTime\Hex;
+
 /**
  * Base Class for all \phpseclib\Crypt\* cipher classes
  *

@@ -37,6 +37,7 @@
 
 namespace phpseclib\Net;
 
+use ParagonIE\ConstantTime\Hex;
 use phpseclib\Exception\FileNotFoundException;
 
 /**
