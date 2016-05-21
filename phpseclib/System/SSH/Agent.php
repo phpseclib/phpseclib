@@ -33,6 +33,7 @@
 
 namespace phpseclib\System\SSH;
 
+use ParagonIE\ConstantTime\Base64;
 use phpseclib\Crypt\RSA;
 use phpseclib\Exception\BadConfigurationException;
 use phpseclib\System\SSH\Agent\Identity;
@@ -171,7 +172,7 @@ class Agent
         for ($i = 0; $i < $keyCount; $i++) {
             $length = current(unpack('N', fread($this->fsock, 4)));
             $key_blob = fread($this->fsock, $length);
-            $key_str = 'ssh-rsa ' . base64_encode($key_blob);
+            $key_str = 'ssh-rsa ' . Base64::encode($key_blob);
             $length = current(unpack('N', fread($this->fsock, 4)));
             if ($length) {
                 $key_str.= ' ' . fread($this->fsock, $length);

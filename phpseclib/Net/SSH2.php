@@ -49,6 +49,7 @@
 
 namespace phpseclib\Net;
 
+use ParagonIE\ConstantTime\Base64;
 use phpseclib\Crypt\Base;
 use phpseclib\Crypt\Blowfish;
 use phpseclib\Crypt\Hash;
@@ -3980,7 +3981,7 @@ class SSH2
 
         if ($this->signature_validated) {
             return $this->bitmap ?
-                $this->signature_format . ' ' . base64_encode($this->server_public_host_key) :
+                $this->signature_format . ' ' . Base64::encode($this->server_public_host_key) :
                 false;
         }
 
@@ -4096,7 +4097,7 @@ class SSH2
                 throw new NoSupportedAlgorithmsException('Unsupported signature format');
         }
 
-        return $this->signature_format . ' ' . base64_encode($this->server_public_host_key);
+        return $this->signature_format . ' ' . Base64::encode($this->server_public_host_key);
     }
 
     /**

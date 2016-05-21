@@ -14,6 +14,8 @@
 
 namespace phpseclib\Crypt\RSA;
 
+use ParagonIE\ConstantTime\Base64;
+use ParagonIE\ConstantTime\Hex;
 use phpseclib\Crypt\AES;
 use phpseclib\Crypt\Base;
 use phpseclib\Crypt\DES;
@@ -144,7 +146,7 @@ abstract class PKCS
         $symkey = '';
         $iv = substr($iv, 0, 8);
         while (strlen($symkey) < $length) {
-            $symkey.= pack('H*', md5($symkey . $password . $iv));
+            $symkey.= Hex::decode(md5($symkey . $password . $iv));
         }
         return substr($symkey, 0, $length);
     }
@@ -181,7 +183,7 @@ abstract class PKCS
 
            * OpenSSL is the de facto standard.  It's utilized by OpenSSH and other projects */
         if (preg_match('#DEK-Info: (.+),(.+)#', $key, $matches)) {
-            $iv = pack('H*', trim($matches[2]));
+            $iv = Hex::decode(trim($matches[2]));
             // remove the Proc-Type / DEK-Info sections as they're no longer needed
             $key = preg_replace('#^(?:Proc-Type|DEK-Info): .*#m', '', $key);
             $ciphertext = self::_extractBER($key);
@@ -479,7 +481,7 @@ abstract class PKCS
         $temp = preg_replace('#-+[^-]+-+#', '', $temp);
         // remove new lines
         $temp = str_replace(array("\r", "\n", ' '), '', $temp);
-        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? Base64::decode($temp) : false;
         return $temp != false ? $temp : $str;
     }
 }
