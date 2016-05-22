@@ -1049,35 +1049,40 @@ class Net_SSH2
            Feed.  Such lines MUST NOT begin with "SSH-", and SHOULD be encoded
            in ISO-10646 UTF-8 [RFC3629] (language is not specified).  Clients
            MUST be able to process such lines." */
-        $temp = '';
-        $extra = '';
-        while (!feof($this->fsock) && !preg_match('#^SSH-(\d\.\d+)#', $temp, $matches)) {
-            if (substr($temp, -2) == "\r\n") {
-                $extra.= $temp;
-                $temp = '';
-            }
-
-            if ($this->curTimeout) {
-                if ($this->curTimeout < 0) {
-                    $this->is_timeout = true;
-                    return false;
+        $data = '';
+        while (!feof($this->fsock) && !preg_match('#(.*)^(SSH-(\d\.\d+).*)#ms', $data, $matches)) {
+            $line = '';
+            while (true) {
+                if ($this->curTimeout) {
+                    if ($this->curTimeout < 0) {
+                        $this->is_timeout = true;
+                        return false;
+                    }
+                    $read = array($this->fsock);
+                    $write = $except = null;
+                    $start = strtok(microtime(), ' ') + strtok('');
+                    $sec = floor($this->curTimeout);
+                    $usec = 1000000 * ($this->curTimeout - $sec);
+                    // on windows this returns a "Warning: Invalid CRT parameters detected" error
+                    // the !count() is done as a workaround for <https://bugs.php.net/42682>
+                    if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
+                        $this->is_timeout = true;
+                        return false;
+                    }
+                    $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+                    $this->curTimeout-= $elapsed;
                 }
-                $read = array($this->fsock);
-                $write = $except = null;
-                $start = strtok(microtime(), ' ') + strtok('');
-                $sec = floor($this->curTimeout);
-                $usec = 1000000 * ($this->curTimeout - $sec);
-                // on windows this returns a "Warning: Invalid CRT parameters detected" error
-                // the !count() is done as a workaround for <https://bugs.php.net/42682>
-                if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
-                    $this->is_timeout = true;
-                    return false;
-                }
-                $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
-                $this->curTimeout-= $elapsed;
-            }
 
-            $temp.= fgets($this->fsock, 255);
+                $temp = stream_get_line($this->fsock, 255, "\n");
+                if (strlen($temp) == 255) {
+                    continue;
+                }
+                $line.= "$temp\n";
+                if (substr($line, -2) == "\r\n") {
+                    break;
+                }
+            }
+            $data.= $line;
         }
 
         if (feof($this->fsock)) {
@@ -1085,20 +1090,22 @@ class Net_SSH2
             return false;
         }
 
+        $extra = $matches[1];
+
         $this->identifier = $this->_generate_identifier();
 
         if (defined('NET_SSH2_LOGGING')) {
-            $this->_append_log('<-', $extra . $temp);
+            $this->_append_log('<-', $matches[0]);
             $this->_append_log('->', $this->identifier . "\r\n");
         }
 
         $this->server_identifier = trim($temp, "\r\n");
         if (strlen($extra)) {
-            $this->errors[] = utf8_decode($extra);
+            $this->errors[] = utf8_decode($data);
         }
 
-        if ($matches[1] != '1.99' && $matches[1] != '2.0') {
-            user_error("Cannot connect to SSH $matches[1] servers");
+        if ($matches[3] != '1.99' && $matches[3] != '2.0') {
+            user_error("Cannot connect to SSH $matches[3] servers");
             return false;
         }
 
@@ -2993,7 +3000,7 @@ class Net_SSH2
         }
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
-        $raw = fread($this->fsock, $this->decrypt_block_size);
+        $raw = stream_get_contents($this->fsock, $this->decrypt_block_size);
 
         if (!strlen($raw)) {
             return '';
@@ -3021,7 +3028,7 @@ class Net_SSH2
 
         $buffer = '';
         while ($remaining_length > 0) {
-            $temp = fread($this->fsock, $remaining_length);
+            $temp = stream_get_contents($this->fsock, $remaining_length);
             if ($temp === false || feof($this->fsock)) {
                 user_error('Error reading from socket');
                 $this->bitmap = 0;
@@ -3039,7 +3046,7 @@ class Net_SSH2
         $padding = $this->_string_shift($raw, $padding_length); // should leave $raw empty
 
         if ($this->hmac_check !== false) {
-            $hmac = fread($this->fsock, $this->hmac_size);
+            $hmac = stream_get_contents($this->fsock, $this->hmac_size);
             if ($hmac === false || strlen($hmac) != $this->hmac_size) {
                 user_error('Error reading socket');
                 $this->bitmap = 0;
