@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.2 - 2016-06-04
+
+- All Ciphers: fix issue with CBC mode / OpenSSL / continuous buffers / decryption (#938)
+- Random: fix issues with serialize() (#932)
+- RC2: fix issue with decrypting
+- RC4: fix issue with key not being truncated correctly
+- SFTP: nlist() on a non-existant directory resulted in error
+- SFTP: add is_writable, is_writeable, is_readable
+- X509: add IPv6 support for subjectaltname extension (#936)
+
 ## 2.0.1 - 2016-01-18
 
 - RSA: fix regression in PSS mode ([#769](https://github.com/phpseclib/phpseclib/pull/769))
