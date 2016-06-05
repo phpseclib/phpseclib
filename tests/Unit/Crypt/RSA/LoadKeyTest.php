@@ -393,9 +393,9 @@ NNj0BDlf38hOtkhDzz/hkYb+EBYLLvldhgsD0OvRNy8yhz7EjaUqLCB0juIN4QIB
 AAIBAAIBAAIBAAIBAA==
 -----END RSA PRIVATE KEY-----';
 
-        $rsa = new Crypt_RSA();
+        $rsa = new RSA();
         $rsa->loadKey($key);
-        $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+        $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
         $rsa->setHash('md5');
         $rsa->setMGFHash('md5');
 
