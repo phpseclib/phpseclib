@@ -1645,7 +1645,7 @@ class BigInteger
                 $components['publicExponent']
             );
 
-            $rsaOID = Hex::decode('300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
+            $rsaOID = "\x30\x0d\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01\x05\x00"; // hex version of MA0GCSqGSIb3DQEBAQUA
             $RSAPublicKey = chr(0) . $RSAPublicKey;
             $RSAPublicKey = chr(3) . self::_encodeASN1Length(strlen($RSAPublicKey)) . $RSAPublicKey;
 

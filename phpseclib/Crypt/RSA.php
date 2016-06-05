@@ -46,7 +46,6 @@
 namespace phpseclib\Crypt;
 
 use ParagonIE\ConstantTime\Base64;
-use ParagonIE\ConstantTime\Hex;
 use phpseclib\File\ASN1;
 use phpseclib\Math\BigInteger;
 
@@ -1959,32 +1958,32 @@ class RSA
         // see http://tools.ietf.org/html/rfc3447#page-43
         switch ($this->hashName) {
             case 'md2':
-                $t = Hex::decode('3020300c06082a864886f70d020205000410');
+                $t = "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x02\x05\x00\x04\x10";
                 break;
             case 'md5':
-                $t = Hex::decode('3020300c06082a864886f70d020505000410');
+                $t = "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x05\x05\x00\x04\x10";
                 break;
             case 'sha1':
-                $t = Hex::decode('3021300906052b0e03021a05000414');
+                $t = "\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14";
                 break;
             case 'sha256':
-                $t = Hex::decode('3031300d060960864801650304020105000420');
+                $t = "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20";
                 break;
             case 'sha384':
-                $t = Hex::decode('3041300d060960864801650304020205000430');
+                $t = "\x30\x41\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x02\x05\x00\x04\x30";
                 break;
             case 'sha512':
-                $t = Hex::decode('3051300d060960864801650304020305000440');
+                $t = "\x30\x51\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x03\x05\x00\x04\x40";
                 break;
             // from https://www.emc.com/collateral/white-papers/h11300-pkcs-1v2-2-rsa-cryptography-standard-wp.pdf#page=40
             case 'sha224':
-                $t = Hex::decode('302d300d06096086480165030402040500041c');
+                $t = "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x04\x05\x00\x04\x1c";
                 break;
             case 'sha512/224':
-                $t = Hex::decode('302d300d06096086480165030402050500041c');
+                $t = "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x05\x05\x00\x04\x1c";
                 break;
             case 'sha512/256':
-                $t = Hex::decode('3031300d060960864801650304020605000420');
+                $t = "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x06\x05\x00\x04\x20";
         }
         $t.= $h;
         $tLen = strlen($t);

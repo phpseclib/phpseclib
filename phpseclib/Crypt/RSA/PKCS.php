@@ -146,7 +146,7 @@ abstract class PKCS
         $symkey = '';
         $iv = substr($iv, 0, 8);
         while (strlen($symkey) < $length) {
-            $symkey.= Hex::decode(md5($symkey . $password . $iv));
+            $symkey.= md5($symkey . $password . $iv, true);
         }
         return substr($symkey, 0, $length);
     }
