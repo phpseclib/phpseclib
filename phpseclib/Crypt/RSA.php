@@ -1341,11 +1341,11 @@ class RSA
     {
         switch (true) {
             case empty($this->primes):
-            case $this->primes[1]->equals($this->zero):
+            case $this->primes[1]->equals(self::$zero):
             case empty($this->coefficients):
-            case $this->coefficients[2]->equals($this->zero):
+            case $this->coefficients[2]->equals(self::$zero):
             case empty($this->exponents):
-            case $this->exponents[1]->equals($this->zero):
+            case $this->exponents[1]->equals(self::$zero):
                 return $x->modPow($this->exponent, $this->modulus);
         }
 
