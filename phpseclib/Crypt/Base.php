@@ -2578,7 +2578,7 @@ abstract class Base
                 $len = strlen($bytes);
                 for ($i = 0; $i < $len; $i+=20) {
                     $t = substr($bytes, $i, 20);
-                    $hash = sha1($hash, trie);
+                    $hash = sha1($hash, true);
                     $result .= $t ^ $hash;
                 }
                 return $result . sha1($hash, true);
