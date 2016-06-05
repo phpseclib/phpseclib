@@ -19,7 +19,6 @@
 namespace phpseclib\Crypt\RSA;
 
 use ParagonIE\ConstantTime\Base64;
-use ParagonIE\ConstantTime\Binary;
 use phpseclib\Math\BigInteger;
 
 /**

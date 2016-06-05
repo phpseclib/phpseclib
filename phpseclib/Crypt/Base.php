@@ -35,9 +35,6 @@
  */
 
 namespace phpseclib\Crypt;
-use ParagonIE\ConstantTime\Hex;
-
-use ParagonIE\ConstantTime\Hex;
 
 /**
  * Base Class for all \phpseclib\Crypt\* cipher classes
@@ -2581,10 +2578,10 @@ abstract class Base
                 $len = strlen($bytes);
                 for ($i = 0; $i < $len; $i+=20) {
                     $t = substr($bytes, $i, 20);
-                    $hash = Hex::decode($hash);
+                    $hash = sha1($hash, trie);
                     $result .= $t ^ $hash;
                 }
-                return $result . Hex::decode(sha1($hash));
+                return $result . sha1($hash, true);
         }
     }
 }

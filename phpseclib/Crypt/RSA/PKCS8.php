@@ -25,7 +25,6 @@
 namespace phpseclib\Crypt\RSA;
 
 use ParagonIE\ConstantTime\Base64;
-use ParagonIE\ConstantTime\Hex;
 use phpseclib\Crypt\DES;
 use phpseclib\Crypt\Random;
 use phpseclib\Math\BigInteger;
@@ -94,7 +93,7 @@ class PKCS8 extends PKCS
 
         $RSAPrivateKey = pack('Ca*a*', self::ASN1_SEQUENCE, self::_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
 
-        $rsaOID = Hex::decode('300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
+        $rsaOID = "\x30\x0d\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01\x05\x00"; // hex version of MA0GCSqGSIb3DQEBAQUA
         $RSAPrivateKey = pack(
             'Ca*a*Ca*a*',
             self::ASN1_INTEGER,
@@ -190,7 +189,7 @@ class PKCS8 extends PKCS
         );
 
         // sequence(oid(1.2.840.113549.1.1.1), null)) = rsaEncryption.
-        $rsaOID = Hex::decode('300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
+        $rsaOID = "\x30\x0d\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01\x05\x00"; // hex version of MA0GCSqGSIb3DQEBAQUA
         $RSAPublicKey = chr(0) . $RSAPublicKey;
         $RSAPublicKey = chr(3) . self::_encodeLength(strlen($RSAPublicKey)) . $RSAPublicKey;
 
