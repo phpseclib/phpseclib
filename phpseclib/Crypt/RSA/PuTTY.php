@@ -275,7 +275,7 @@ class PuTTY
         $key.= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
         $key.= chunk_split($private, 64);
         $hash = new Hash('sha1');
-        $hash->setKey(Hex::decode(sha1($hashkey)));
+        $hash->setKey(sha1($hashkey, true));
         $key.= 'Private-MAC: ' . Hex::encode($hash->hash($source)) . "\r\n";
 
         return $key;

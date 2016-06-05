@@ -25,7 +25,6 @@ namespace phpseclib\Crypt\RSA;
 use ParagonIE\ConstantTime\Base64;
 use ParagonIE\ConstantTime\Hex;
 use phpseclib\Crypt\AES;
-use phpseclib\Crypt\Base;
 use phpseclib\Crypt\DES;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\TripleDES;
