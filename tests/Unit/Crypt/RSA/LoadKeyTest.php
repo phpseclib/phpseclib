@@ -548,11 +548,10 @@ AAIBAAIBAAIBAAIBAA==
 -----END RSA PRIVATE KEY-----';
 
         $rsa = new RSA();
-        $rsa->loadKey($key);
-        $rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
+        $rsa->load($key);
         $rsa->setHash('md5');
         $rsa->setMGFHash('md5');
 
-        $rsa->sign('zzzz');
+        $rsa->sign('zzzz', RSA::PADDING_PKCS1);
     }
 }
