@@ -268,36 +268,16 @@ class BigInteger
 
         if (extension_loaded('openssl') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
             // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
-            ob_start();
-            @phpinfo();
-            $content = ob_get_contents();
-            ob_end_clean();
-
-            preg_match_all('#OpenSSL (Header|Library) Version(.*)#im', $content, $matches);
-
-            $versions = array();
-            if (!empty($matches[1])) {
-                for ($i = 0; $i < count($matches[1]); $i++) {
-                    $fullVersion = trim(str_replace('=>', '', strip_tags($matches[2][$i])));
-
-                    // Remove letter part in OpenSSL version
-                    if (!preg_match('/(\d+\.\d+\.\d+)/i', $fullVersion, $m)) {
-                        $versions[$matches[1][$i]] = $fullVersion;
-                    } else {
-                        $versions[$matches[1][$i]] = $m[0];
-                    }
-                }
-            }
-
-            // it doesn't appear that OpenSSL versions were reported upon until PHP 5.3+
-            switch (true) {
-                case !isset($versions['Header']):
-                case !isset($versions['Library']):
-                case $versions['Header'] == $versions['Library']:
-                    define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
-                    break;
-                default:
-                    define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
+            // This used to rely on phpinfo, but that is disabled in
+            // common secure environments. Instead, assume that if the
+            // library version is high enough we'll be fine (which we
+            // will).  The first 1.0.1 heartbleed fixed level is picked
+            // here, as users shouldn't be running lower anyway. 1.0.0
+            // and below are no longer supported.
+            if (OPENSSL_VERSION_NUMBER >= 0x1000107f) {
+                define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
+            } else {
+                define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
             }
         }
 
