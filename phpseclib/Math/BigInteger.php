@@ -267,38 +267,7 @@ class BigInteger
         }
 
         if (extension_loaded('openssl') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
-            // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
-            ob_start();
-            @phpinfo();
-            $content = ob_get_contents();
-            ob_end_clean();
-
-            preg_match_all('#OpenSSL (Header|Library) Version(.*)#im', $content, $matches);
-
-            $versions = array();
-            if (!empty($matches[1])) {
-                for ($i = 0; $i < count($matches[1]); $i++) {
-                    $fullVersion = trim(str_replace('=>', '', strip_tags($matches[2][$i])));
-
-                    // Remove letter part in OpenSSL version
-                    if (!preg_match('/(\d+\.\d+\.\d+)/i', $fullVersion, $m)) {
-                        $versions[$matches[1][$i]] = $fullVersion;
-                    } else {
-                        $versions[$matches[1][$i]] = $m[0];
-                    }
-                }
-            }
-
-            // it doesn't appear that OpenSSL versions were reported upon until PHP 5.3+
-            switch (true) {
-                case !isset($versions['Header']):
-                case !isset($versions['Library']):
-                case $versions['Header'] == $versions['Library']:
-                    define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
-                    break;
-                default:
-                    define('MATH_BIGINTEGER_OPENSSL_DISABLE', true);
-            }
+            define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
         }
 
         if (!defined('PHP_INT_SIZE')) {
