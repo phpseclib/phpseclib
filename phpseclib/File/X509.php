@@ -3222,7 +3222,7 @@ class X509
      * @access public
      * @return mixed
      */
-    function sign($issuer, $subject, $signatureAlgorithm = 'sha1WithRSAEncryption')
+    function sign($issuer, $subject, $signatureAlgorithm = 'sha256WithRSAEncryption')
     {
         if (!is_object($issuer->privateKey) || empty($issuer->dn)) {
             return false;
