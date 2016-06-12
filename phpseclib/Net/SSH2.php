@@ -1096,14 +1096,8 @@ class SSH2
             $this->errors[] = utf8_decode($data);
         }
 
-<<<<<<< HEAD
-        if ($matches[1] != '1.99' && $matches[1] != '2.0') {
-            throw new \RuntimeException("Cannot connect to SSH $matches[1] servers");
-=======
         if ($matches[3] != '1.99' && $matches[3] != '2.0') {
-            user_error("Cannot connect to SSH $matches[3] servers");
-            return false;
->>>>>>> 2.0
+            throw new \RuntimeException("Cannot connect to SSH $matches[1] servers");
         }
 
         fputs($this->fsock, $this->identifier . "\r\n");
