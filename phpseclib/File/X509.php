@@ -3045,6 +3045,9 @@ class X509
                     case 'rsaEncryption':
                         $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']
                             = base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])));
+                        $csr['certificationRequestInfo']['subjectPKInfo']['algorithm']['parameters'] = null;
+                        $csr['signatureAlgorithm']['parameters'] = null;
+                        $csr['certificationRequestInfo']['signature']['parameters'] = null;
                 }
         }
 
