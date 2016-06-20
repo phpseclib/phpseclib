@@ -166,7 +166,9 @@ class Hash
             case 'md2-96':
             case 'md5-96':
             case 'sha1-96':
+            case 'sha224-96':
             case 'sha256-96':
+            case 'sha384-96':
             case 'sha512-96':
             case 'sha512/224-96':
             case 'sha512/256-96':
@@ -195,22 +197,6 @@ class Hash
                 $this->length = 64;
                 break;
             default:
-                // see if the hash isn't "officially" supported see if it can
-                // be "unofficially" supported and calculate the length
-                // accordingly.
-                if (in_array($hash, hash_algos())) {
-                    $this->length = strlen(hash($hash, '', true));
-                    break;
-                }
-                // if the hash algorithm doens't exist maybe it's a truncated
-                // hash, e.g. whirlpool-12 or some such.
-                if (preg_match('#(-\d+)$#', $hash, $matches)) {
-                    $hash = substr($hash, 0, -strlen($matches[1]));
-                    if (in_array($hash, hash_algos())) {
-                        $this->length = abs($matches[1]) >> 3;
-                        break;
-                    }
-                }
                 throw new UnsupportedAlgorithmException(
                     "$hash is not a supported algorithm"
                 );
