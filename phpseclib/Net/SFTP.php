@@ -1933,7 +1933,7 @@ class Net_SFTP extends Net_SSH2
         // make the SFTP packet be exactly 4096 bytes by including the bytes in the NET_SFTP_WRITE packets "header"
         $sftp_packet_size-= strlen($handle) + 25;
         $i = 0;
-        while ($dataCallback || ($sent < $size)) {
+        while ($dataCallback || ($size === 0 || $sent < $size)) {
             if ($dataCallback) {
                 $temp = call_user_func($dataCallback, $sftp_packet_size);
                 if (is_null($temp)) {
@@ -1941,7 +1941,11 @@ class Net_SFTP extends Net_SSH2
                 }
             } else {
                 $temp = isset($fp) ? fread($fp, $sftp_packet_size) : substr($data, $sent, $sftp_packet_size);
+                if ($temp === false) {
+                    break;
+                }
             }
+
             $subtemp = $offset + $sent;
             $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, strlen($temp), $temp);
             if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
@@ -2348,6 +2352,76 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
         return $result === NET_SFTP_TYPE_SYMLINK;
+    }
+
+    /**
+     * Tells whether a file exists and is readable
+     *
+     * @param string $path
+     * @return bool
+     * @access public
+     */
+    function is_readable($path)
+    {
+        $path = $this->_realpath($path);
+
+        $packet = pack('Na*N2', strlen($path), $path, NET_SFTP_OPEN_READ, 0);
+        if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
+            return false;
+        }
+
+        $response = $this->_get_sftp_packet();
+        switch ($this->packet_type) {
+            case NET_SFTP_HANDLE:
+                return true;
+            case NET_SFTP_STATUS: // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
+                return false;
+            default:
+                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
+                return false;
+        }
+    }
+
+    /**
+     * Tells whether the filename is writable
+     *
+     * @param string $path
+     * @return bool
+     * @access public
+     */
+    function is_writable($path)
+    {
+        $path = $this->_realpath($path);
+
+        $packet = pack('Na*N2', strlen($path), $path, NET_SFTP_OPEN_WRITE, 0);
+        if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
+            return false;
+        }
+
+        $response = $this->_get_sftp_packet();
+        switch ($this->packet_type) {
+            case NET_SFTP_HANDLE:
+                return true;
+            case NET_SFTP_STATUS: // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
+                return false;
+            default:
+                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
+                return false;
+        }
+    }
+
+    /**
+     * Tells whether the filename is writeable
+     *
+     * Alias of is_writable
+     *
+     * @param string $path
+     * @return bool
+     * @access public
+     */
+    function is_writeable($path)
+    {
+        return $this->is_writable($path);
     }
 
     /**
