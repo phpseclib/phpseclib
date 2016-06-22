@@ -160,8 +160,8 @@ class Random
                     throw new \RuntimeException(__CLASS__ . ' requires at least one symmetric cipher be loaded');
             }
 
-            $crypto->setKey($key);
-            $crypto->setIV($iv);
+            $crypto->setKey(substr($key, 0, $crypto->getKeyLength() >> 3));
+            $crypto->setIV(substr($iv, 0, $crypto->getBlockLength() >> 3));
             $crypto->enableContinuousBuffer();
         }
 
@@ -193,7 +193,7 @@ class Random
      * @param mixed $arr
      * @access public
      */
-    function safe_serialize(&$arr)
+    static function safe_serialize(&$arr)
     {
         if (is_object($arr)) {
             return '';

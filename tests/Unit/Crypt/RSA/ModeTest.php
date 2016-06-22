@@ -66,7 +66,6 @@ p0GbMJDyR4e9T04ZZwIDAQAB
         $this->assertTrue($rsa->verify('zzzz', $sig));
     }
 
-<<<<<<< HEAD
     /**
      * @expectedException \OutOfBoundsException
      */
@@ -122,13 +121,15 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 -----END RSA PRIVATE KEY-----';
         $rsa->load($privatekey);
         $rsa->setSaltLength(0);
+        $rsa->setHash('sha1');
+        $rsa->setMGFHash('sha1');
 
         // Check we generate the correct signature.
         $sig = pack('H*', '0ddfc93548e21d015c0a289a640b3b79aecfdfae045f583c5925b91cc5c399bba181616ad6ae20d9662d966f0eb2fddb550f4733268e34d640f4c9dadcaf25b3c82c42130a5081c6ebad7883331c65b25b6a37ffa7c4233a468dae56180787e2718ed87c48d8d50b72f5850e4a40963b4f36710be250ecef6fe0bb91249261a3');
         $this->assertEquals($sig, $rsa->sign($plaintext));
 
         // Check we can verify the signature correctly.
-        $rsa->loadKey($rsa->getPublicKey());
+        $rsa->load($rsa->getPublicKey());
         $this->assertTrue($rsa->verify($plaintext, $sig));
     }
 }
