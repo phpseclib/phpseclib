@@ -793,7 +793,6 @@ class ASN1
      * @param string $mapping
      * @param int $idx
      * @return string
-     * @throws \RuntimeException if the input has an error in it
      * @access private
      */
     function _encode_der($source, $mapping, $idx = null, $special = array())
@@ -986,7 +985,7 @@ class ASN1
             case self::TYPE_OBJECT_IDENTIFIER:
                 $oid = preg_match('#(?:\d+\.)+#', $source) ? $source : array_search($source, $this->oids);
                 if ($oid === false) {
-                    throw new \RuntimeException('Invalid OID');
+                    user_error('Invalid OID');
                     return false;
                 }
                 $value = '';
@@ -1039,7 +1038,7 @@ class ASN1
                     $filters = $filters[$part];
                 }
                 if ($filters === false) {
-                    throw new \RuntimeException('No filters defined for ' . implode('/', $loc));
+                    user_error('No filters defined for ' . implode('/', $loc));
                     return false;
                 }
                 return $this->_encode_der($source, $filters + $mapping, null, $special);
@@ -1063,7 +1062,7 @@ class ASN1
                 $value = $source ? "\xFF" : "\x00";
                 break;
             default:
-                throw new \RuntimeException('Mapping provides no type definition for ' . implode('/', $this->location));
+                user_error('Mapping provides no type definition for ' . implode('/', $this->location));
                 return false;
         }
 

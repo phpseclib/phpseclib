@@ -284,22 +284,6 @@ class Blowfish extends Base
     var $key_length = 16;
 
     /**
-     * Default Constructor.
-     *
-     * @param int $mode
-     * @access public
-     * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
-     */
-    function __construct($mode)
-    {
-        if ($mode == self::MODE_STREAM) {
-            throw new \InvalidArgumentException('Block ciphers cannot be ran in stream mode');
-        }
-
-        parent::__construct($mode);
-    }
-
-    /**
      * Sets the key length.
      *
      * Key lengths can be between 32 and 448 bits.
@@ -309,11 +293,13 @@ class Blowfish extends Base
      */
     function setKeyLength($length)
     {
-        if ($length < 32 || $length > 448) {
-                throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes between 32 and 448 bits are supported');
+        if ($length < 32) {
+            $this->key_length = 7;
+        } elseif ($length > 448) {
+            $this->key_length = 56;
+        } else {
+            $this->key_length = $length >> 3;
         }
-
-        $this->key_length = $length >> 3;
 
         parent::setKeyLength($length);
     }
