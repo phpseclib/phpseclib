@@ -68,7 +68,7 @@ p0GbMJDyR4e9T04ZZwIDAQAB
     {
         $plaintext = 'a';
 
-        $rsa = new Crypt_RSA();
+        $rsa = new RSA();
 
         $privatekey = '-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
