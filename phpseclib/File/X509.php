@@ -1484,7 +1484,9 @@ class X509
 
         $this->signatureSubject = substr($cert, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
-        $this->_mapInExtensions($x509, 'tbsCertificate/extensions', $asn1);
+        if ($this->_isSubArrayValid($x509, 'tbsCertificate/extensions')) {
+            $this->_mapInExtensions($x509, 'tbsCertificate/extensions', $asn1);
+        }
         $this->_mapInDNs($x509, 'tbsCertificate/issuer/rdnSequence', $asn1);
         $this->_mapInDNs($x509, 'tbsCertificate/subject/rdnSequence', $asn1);
 
@@ -1588,9 +1590,9 @@ class X509
      */
     function _mapInExtensions(&$root, $path, $asn1)
     {
-        $extensions = &$this->_subArray($root, $path);
+        $extensions = &$this->_subArrayUnchecked($root, $path);
 
-        if (is_array($extensions)) {
+        if ($extensions) {
             for ($i = 0; $i < count($extensions); $i++) {
                 $id = $extensions[$i]['extnId'];
                 $value = &$extensions[$i]['extnValue'];
@@ -1722,7 +1724,7 @@ class X509
                             if ($mapped !== false) {
                                 $values[$j] = $mapped;
                             }
-                            if ($id == 'pkcs-9-at-extensionRequest') {
+                            if ($id == 'pkcs-9-at-extensionRequest' && $this->_isSubArrayValid($values, $j)) {
                                 $this->_mapInExtensions($values, $j, $asn1);
                             }
                         } elseif ($map) {
@@ -3240,11 +3242,18 @@ class X509
         $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
         $this->_mapInDNs($crl, 'tbsCertList/issuer/rdnSequence', $asn1);
-        $this->_mapInExtensions($crl, 'tbsCertList/crlExtensions', $asn1);
-        $rclist = &$this->_subArray($crl, 'tbsCertList/revokedCertificates');
-        if (is_array($rclist)) {
-            foreach ($rclist as $i => $extension) {
-                $this->_mapInExtensions($rclist, "$i/crlEntryExtensions", $asn1);
+        if ($this->_isSubArrayValid($crl, 'tbsCertList/crlExtensions')) {
+            $this->_mapInExtensions($crl, 'tbsCertList/crlExtensions', $asn1);
+        }
+        if ($this->_isSubArrayValid($crl, 'tbsCertList/revokedCertificates')) {
+            $rclist_ref = &$this->_subArrayUnchecked($crl, 'tbsCertList/revokedCertificates');
+            if ($rclist_ref) {
+                $rclist = $crl['tbsCertList']['revokedCertificates'];
+                foreach ($rclist as $i => $extension) {
+                    if ($this->_isSubArrayValid($rclist, "$i/crlEntryExtensions", $asn1)) {
+                        $this->_mapInExtensions($rclist_ref, "$i/crlEntryExtensions", $asn1);
+                    }
+                }
             }
         }
 
@@ -3859,6 +3868,74 @@ class X509
     function makeCA()
     {
         $this->caFlag = true;
+    }
+
+    /**
+     * Check for validity of subarray
+     *
+     * This is intended for use in conjunction with _subArrayUnchecked(),
+     * implementing the checks included in _subArray() but without copying
+     * a potentially large array by passing its reference by-value to is_array().
+     *
+     * @param array $root
+     * @param string $path
+     * @return boolean
+     * @access private
+     */
+    function _isSubArrayValid($root, $path)
+    {
+        if (!is_array($root)) {
+            return false;
+        }
+
+        foreach (explode('/', $path) as $i) {
+            if (!is_array($root)) {
+                return false;
+            }
+
+            if (!isset($root[$i])) {
+                return true;
+            }
+
+            $root = $root[$i];
+        }
+
+        return true;
+    }
+
+    /**
+     * Get a reference to a subarray
+     *
+     * This variant of _subArray() does no is_array() checking,
+     * so $root should be checked with _isSubArrayValid() first.
+     *
+     * This is here for performance reasons:
+     * Passing a reference (i.e. $root) by-value (i.e. to is_array())
+     * creates a copy. If $root is an especially large array, this is expensive.
+     *
+     * @param array $root
+     * @param string $path  absolute path with / as component separator
+     * @param bool $create optional
+     * @access private
+     * @return array|false
+     */
+    function &_subArrayUnchecked(&$root, $path, $create = false)
+    {
+        $false = false;
+
+        foreach (explode('/', $path) as $i) {
+            if (!isset($root[$i])) {
+                if (!$create) {
+                    return $false;
+                }
+
+                $root[$i] = array();
+            }
+
+            $root = &$root[$i];
+        }
+
+        return $root;
     }
 
     /**
