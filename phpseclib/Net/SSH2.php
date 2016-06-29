@@ -3473,7 +3473,9 @@ class Net_SSH2
                     }
 
                     $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_CLOSE;
-                    return true;
+                    if ($client_channel == $channel) {
+                        return true;
+                    }
                 case NET_SSH2_MSG_CHANNEL_EOF:
                     break;
                 default:
