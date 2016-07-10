@@ -710,5 +710,19 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $this->assertFalse($sftp->is_writable('nonexistantfile.ext'));
         $this->assertFalse($sftp->is_writeable('nonexistantfile.ext'));
         $this->assertFalse($sftp->is_readable('nonexistantfile.ext'));
+
+        return $sftp;
+    }
+
+    /**
+     * @depends testReadableWritable
+     * @group github999
+     */
+    public function testExecNlist($sftp)
+    {
+        $sftp->enablePTY();
+        $sftp->exec('ping google.com -c 5');
+        sleep(5);
+        $sftp->nlist();
     }
 }
