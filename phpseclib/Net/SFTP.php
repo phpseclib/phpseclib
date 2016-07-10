@@ -601,6 +601,21 @@ class SFTP extends SSH2
     }
 
     /**
+     * Returns canonicalized absolute pathname
+     *
+     * realpath() expands all symbolic links and resolves references to '/./', '/../' and extra '/' characters in the input
+     * path and returns the canonicalized absolute pathname.
+     *
+     * @param string $path
+     * @return mixed
+     * @access public
+     */
+    function realpath($path)
+    {
+        return $this->_realpath($path);
+    }
+
+    /**
      * Canonicalize the Server-Side Path Name
      *
      * SFTP doesn't provide a mechanism by which the current working directory can be changed, so we'll emulate it.  Returns
@@ -1622,7 +1637,7 @@ class SFTP extends SSH2
             return false;
         }
 
-        $target = $this->_realpath($target);
+        //$target = $this->_realpath($target);
         $link = $this->_realpath($link);
 
         $packet = pack('Na*Na*', strlen($target), $target, strlen($link), $link);
