@@ -116,6 +116,6 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 -----END RSA PRIVATE KEY-----');
         $x509->setPrivateKey($rsa);
         $x509->setDN(array('cn' => 'ncgamers.org'));
-        $x509->saveCSR($x509->signCSR('sha256WithRSAEncryption'), FILE_X509_FORMAT_DER);
+        $x509->saveCSR($x509->signCSR('sha256WithRSAEncryption'), X509::FORMAT_DER);
     }
 }
