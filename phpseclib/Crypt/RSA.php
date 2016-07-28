@@ -245,7 +245,7 @@ class RSA
     /**
      * Precomputed Zero
      *
-     * @var array
+     * @var Math_BigInteger
      * @access private
      */
     var $zero;
@@ -253,7 +253,7 @@ class RSA
     /**
      * Precomputed One
      *
-     * @var array
+     * @var Math_BigInteger
      * @access private
      */
     var $one;
