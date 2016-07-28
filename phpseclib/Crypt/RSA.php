@@ -162,7 +162,7 @@ class RSA
     /**
      * Precomputed Zero
      *
-     * @var array
+     * @var \phpseclib\Math\BigInteger
      * @access private
      */
     static $zero;
@@ -170,7 +170,7 @@ class RSA
     /**
      * Precomputed One
      *
-     * @var array
+     * @var \phpseclib\Math\BigInteger
      * @access private
      */
     static $one;
