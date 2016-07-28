@@ -245,7 +245,7 @@ class RSA
     /**
      * Precomputed Zero
      *
-     * @var Math_BigInteger
+     * @var \phpseclib\Math\BigInteger
      * @access private
      */
     var $zero;
@@ -253,7 +253,7 @@ class RSA
     /**
      * Precomputed One
      *
-     * @var Math_BigInteger
+     * @var \phpseclib\Math\BigInteger
      * @access private
      */
     var $one;
