@@ -282,7 +282,7 @@ class Crypt_RSA
     /**
      * Precomputed Zero
      *
-     * @var array
+     * @var Math_BigInteger
      * @access private
      */
     var $zero;
@@ -290,7 +290,7 @@ class Crypt_RSA
     /**
      * Precomputed One
      *
-     * @var array
+     * @var Math_BigInteger
      * @access private
      */
     var $one;
