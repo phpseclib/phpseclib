@@ -794,11 +794,7 @@ class RSA
             return false;
         }
 
-        $oldFormat = $this->privateKeyFormat;
-        $this->privateKeyFormat = $type;
-        $temp = $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password);
-        $this->privateKeyFormat = $oldFormat;
-        return $temp;
+        return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password);
     }
 
     /**
@@ -969,11 +965,7 @@ class RSA
             return false;
         }
 
-        $oldFormat = $this->publicKeyFormat;
-        $this->publicKeyFormat = $type;
-        $temp = $type::savePublicKey($this->modulus, $this->publicExponent);
-        $this->publicKeyFormat = $oldFormat;
-        return $temp;
+        return $type::savePublicKey($this->modulus, $this->publicExponent);
     }
 
     /**
@@ -1161,9 +1153,9 @@ class RSA
     /**
      * Determines the private key format
      *
-     * @see self::createKey()
+     * @see self::__toString()
      * @access public
-     * @param int $format
+     * @param string $format
      */
     function setPrivateKeyFormat($format)
     {
@@ -1173,9 +1165,9 @@ class RSA
     /**
      * Determines the public key format
      *
-     * @see self::createKey()
+     * @see self::__toString()
      * @access public
-     * @param int $format
+     * @param string $format
      */
     function setPublicKeyFormat($format)
     {
