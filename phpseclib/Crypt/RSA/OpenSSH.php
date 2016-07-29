@@ -28,6 +28,8 @@ use phpseclib\Math\BigInteger;
  */
 class OpenSSH
 {
+    use \phpseclib\Common\StringMethods;
+
     /**
      * Default comment
      *
@@ -120,22 +122,5 @@ class OpenSSH
         $RSAPublicKey = 'ssh-rsa ' . Base64::encode($RSAPublicKey) . ' ' . self::$comment;
 
         return $RSAPublicKey;
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    static function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 }

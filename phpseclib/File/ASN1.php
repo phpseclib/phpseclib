@@ -36,6 +36,8 @@ use phpseclib\Math\BigInteger;
  */
 class ASN1
 {
+    use \phpseclib\Common\StringMethods;
+
     /**#@+
      * Tag Classes
      *
@@ -1205,23 +1207,6 @@ class ASN1
     function loadFilters($filters)
     {
         $this->filters = $filters;
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 
     /**

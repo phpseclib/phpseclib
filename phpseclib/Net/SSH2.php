@@ -72,6 +72,8 @@ use phpseclib\Exception\NoSupportedAlgorithmsException;
  */
 class SSH2
 {
+    use \phpseclib\Common\StringMethods;
+
     /**#@+
      * Execution Bitmap Masks
      *
@@ -3629,23 +3631,6 @@ class SSH2
             fclose($this->fsock);
             return false;
         }
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 
     /**

@@ -30,6 +30,8 @@ use phpseclib\Math\BigInteger;
  */
 class MSBLOB
 {
+    use \phpseclib\Common\StringMethods;
+
     /**#@+
      * @access private
      */
@@ -203,22 +205,5 @@ class MSBLOB
         $key.= $n;
 
         return Base64::encode($key);
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    static function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 }

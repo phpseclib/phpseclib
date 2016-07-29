@@ -44,6 +44,8 @@
 
 namespace phpseclib\Crypt;
 
+use phpseclib\Crypt\Common\StreamCipher;
+
 /**
  * Pure-PHP implementation of RC4.
  *
@@ -51,7 +53,7 @@ namespace phpseclib\Crypt;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class RC4 extends Base
+class RC4 extends StreamCipher
 {
     /**#@+
      * @access private
