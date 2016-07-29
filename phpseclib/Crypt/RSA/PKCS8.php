@@ -6,8 +6,10 @@
  *
  * Used by PHP's openssl_public_encrypt() and openssl's rsautl (when -pubin is set)
  *
- * Has the following header:
+ * Processes keys with the following headers:
  *
+ * -----BEGIN ENCRYPTED PRIVATE KEY-----
+ * -----BEGIN PRIVATE KEY-----
  * -----BEGIN PUBLIC KEY-----
  *
  * Analogous to ssh-keygen's pkcs8 format (as specified by -m). Although PKCS8

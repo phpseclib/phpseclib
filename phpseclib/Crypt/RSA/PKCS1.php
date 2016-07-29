@@ -6,8 +6,9 @@
  *
  * Used by File/X509.php
  *
- * Has the following header:
+ * Processes keys with the following headers:
  *
+ * -----BEGIN RSA PRIVATE KEY-----
  * -----BEGIN RSA PUBLIC KEY-----
  *
  * Analogous to ssh-keygen's pem format (as specified by -m)
