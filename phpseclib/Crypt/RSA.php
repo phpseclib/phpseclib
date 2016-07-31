@@ -88,7 +88,7 @@ class RSA
      */
     const PADDING_NONE = 3;
     /**
-     * Use PKCS#1 padding with PKCS1 v1.5 compatability
+     * Use PKCS#1 padding with PKCS1 v1.5 compatibility
      *
      * A PKCS1 v2.1 encrypted message may not successfully decrypt with a PKCS1 v1.5 implementation (such as OpenSSL).
      */

@@ -159,7 +159,7 @@ class Identity
         $length = current(unpack('N', fread($this->fsock, 4)));
         $type = ord(fread($this->fsock, 1));
         if ($type != Agent::SSH_AGENT_SIGN_RESPONSE) {
-            throw new \RuntimeException('Unable to retreive signature');
+            throw new \RuntimeException('Unable to retrieve signature');
         }
 
         $signature_blob = fread($this->fsock, $length - 1);
