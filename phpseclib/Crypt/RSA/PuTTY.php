@@ -19,6 +19,7 @@ use ParagonIE\ConstantTime\Hex;
 use phpseclib\Crypt\AES;
 use phpseclib\Crypt\Hash;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * PuTTY Formatted RSA Key Handler
@@ -117,10 +118,10 @@ class PuTTY
         $publicLength = trim(preg_replace('#Public-Lines: (\d+)#', '$1', $key[3]));
         $public = Base64::decode(implode('', array_map('trim', array_slice($key, 4, $publicLength))));
         $public = substr($public, 11);
-        extract(unpack('Nlength', self::_string_shift($public, 4)));
-        $components['publicExponent'] = new BigInteger(self::_string_shift($public, $length), -256);
-        extract(unpack('Nlength', self::_string_shift($public, 4)));
-        $components['modulus'] = new BigInteger(self::_string_shift($public, $length), -256);
+        extract(unpack('Nlength', Strings::shift($public, 4)));
+        $components['publicExponent'] = new BigInteger(Strings::shift($public, $length), -256);
+        extract(unpack('Nlength', Strings::shift($public, 4)));
+        $components['modulus'] = new BigInteger(Strings::shift($public, $length), -256);
 
         $privateLength = trim(preg_replace('#Private-Lines: (\d+)#', '$1', $key[$publicLength + 4]));
         $private = Base64::decode(implode('', array_map('trim', array_slice($key, $publicLength + 5, $privateLength))));
@@ -141,51 +142,34 @@ class PuTTY
             }
         }
 
-        extract(unpack('Nlength', self::_string_shift($private, 4)));
+        extract(unpack('Nlength', Strings::shift($private, 4)));
         if (strlen($private) < $length) {
             return false;
         }
-        $components['privateExponent'] = new BigInteger(self::_string_shift($private, $length), -256);
-        extract(unpack('Nlength', self::_string_shift($private, 4)));
+        $components['privateExponent'] = new BigInteger(Strings::shift($private, $length), -256);
+        extract(unpack('Nlength', Strings::shift($private, 4)));
         if (strlen($private) < $length) {
             return false;
         }
-        $components['primes'] = array(1 => new BigInteger(self::_string_shift($private, $length), -256));
-        extract(unpack('Nlength', self::_string_shift($private, 4)));
+        $components['primes'] = array(1 => new BigInteger(Strings::shift($private, $length), -256));
+        extract(unpack('Nlength', Strings::shift($private, 4)));
         if (strlen($private) < $length) {
             return false;
         }
-        $components['primes'][] = new BigInteger(self::_string_shift($private, $length), -256);
+        $components['primes'][] = new BigInteger(Strings::shift($private, $length), -256);
 
         $temp = $components['primes'][1]->subtract($one);
         $components['exponents'] = array(1 => $components['publicExponent']->modInverse($temp));
         $temp = $components['primes'][2]->subtract($one);
         $components['exponents'][] = $components['publicExponent']->modInverse($temp);
 
-        extract(unpack('Nlength', self::_string_shift($private, 4)));
+        extract(unpack('Nlength', Strings::shift($private, 4)));
         if (strlen($private) < $length) {
             return false;
         }
-        $components['coefficients'] = array(2 => new BigInteger(self::_string_shift($private, $length), -256));
+        $components['coefficients'] = array(2 => new BigInteger(Strings::shift($private, $length), -256));
 
         return $components;
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    static function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 
     /**

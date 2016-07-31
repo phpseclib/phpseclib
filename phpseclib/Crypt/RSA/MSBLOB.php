@@ -20,6 +20,7 @@ namespace phpseclib\Crypt\RSA;
 
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * Microsoft BLOB Formatted RSA Key Handler
@@ -85,7 +86,7 @@ class MSBLOB
 
         // PUBLICKEYSTRUC  publickeystruc
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa387453(v=vs.85).aspx
-        extract(unpack('atype/aversion/vreserved/Valgo', self::_string_shift($key, 8)));
+        extract(unpack('atype/aversion/vreserved/Valgo', Strings::shift($key, 8)));
         switch (ord($type)) {
             case self::PUBLICKEYBLOB:
             case self::PUBLICKEYBLOBEX:
@@ -112,7 +113,7 @@ class MSBLOB
         // RSAPUBKEY rsapubkey
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa387685(v=vs.85).aspx
         // could do V for pubexp but that's unsigned 32-bit whereas some PHP installs only do signed 32-bit
-        extract(unpack('Vmagic/Vbitlen/a4pubexp', self::_string_shift($key, 12)));
+        extract(unpack('Vmagic/Vbitlen/a4pubexp', Strings::shift($key, 12)));
         switch ($magic) {
             case self::RSA2:
                 $components['isPublicKey'] = false;
@@ -129,7 +130,7 @@ class MSBLOB
 
         $components[$components['isPublicKey'] ? 'publicExponent' : 'privateExponent'] = new BigInteger(strrev($pubexp), 256);
         // BYTE modulus[rsapubkey.bitlen/8]
-        $components['modulus'] = new BigInteger(strrev(self::_string_shift($key, $bitlen / 8)), 256);
+        $components['modulus'] = new BigInteger(strrev(Strings::shift($key, $bitlen / 8)), 256);
 
         if ($publickey) {
             return $components;
@@ -138,20 +139,20 @@ class MSBLOB
         $components['isPublicKey'] = false;
 
         // BYTE prime1[rsapubkey.bitlen/16]
-        $components['primes'] = array(1 => new BigInteger(strrev(self::_string_shift($key, $bitlen / 16)), 256));
+        $components['primes'] = array(1 => new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256));
         // BYTE prime2[rsapubkey.bitlen/16]
-        $components['primes'][] = new BigInteger(strrev(self::_string_shift($key, $bitlen / 16)), 256);
+        $components['primes'][] = new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256);
         // BYTE exponent1[rsapubkey.bitlen/16]
-        $components['exponents'] = array(1 => new BigInteger(strrev(self::_string_shift($key, $bitlen / 16)), 256));
+        $components['exponents'] = array(1 => new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256));
         // BYTE exponent2[rsapubkey.bitlen/16]
-        $components['exponents'][] = new BigInteger(strrev(self::_string_shift($key, $bitlen / 16)), 256);
+        $components['exponents'][] = new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256);
         // BYTE coefficient[rsapubkey.bitlen/16]
-        $components['coefficients'] = array(2 => new BigInteger(strrev(self::_string_shift($key, $bitlen / 16)), 256));
+        $components['coefficients'] = array(2 => new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256));
         if (isset($components['privateExponent'])) {
             $components['publicExponent'] = $components['privateExponent'];
         }
         // BYTE privateExponent[rsapubkey.bitlen/8]
-        $components['privateExponent'] = new BigInteger(strrev(self::_string_shift($key, $bitlen / 8)), 256);
+        $components['privateExponent'] = new BigInteger(strrev(Strings::shift($key, $bitlen / 8)), 256);
 
         return $components;
     }
@@ -203,22 +204,5 @@ class MSBLOB
         $key.= $n;
 
         return Base64::encode($key);
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    static function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 }

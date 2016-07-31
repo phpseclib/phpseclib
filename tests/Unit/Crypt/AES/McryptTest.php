@@ -5,12 +5,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Base;
+use phpseclib\Crypt\Common\BlockCipher;
 
 class Unit_Crypt_AES_McryptTest extends Unit_Crypt_AES_TestCase
 {
     protected function setUp()
     {
-        $this->engine = Base::ENGINE_MCRYPT;
+        $this->engine = BlockCipher::ENGINE_MCRYPT;
     }
 }

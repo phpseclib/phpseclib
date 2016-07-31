@@ -48,6 +48,7 @@ namespace phpseclib\Crypt;
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\File\ASN1;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
@@ -1104,10 +1105,10 @@ class RSA
      */
     function _decodeLength(&$string)
     {
-        $length = ord($this->_string_shift($string));
+        $length = ord(Strings::shift($string));
         if ($length & 0x80) { // definite length, long form
             $length&= 0x7F;
-            $temp = $this->_string_shift($string, $length);
+            $temp = Strings::shift($string, $length);
             list(, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
         }
         return $length;
@@ -1131,23 +1132,6 @@ class RSA
 
         $temp = ltrim(pack('N', $length), chr(0));
         return pack('Ca*', 0x80 | strlen($temp), $temp);
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 
     /**
@@ -2072,12 +2056,12 @@ class RSA
             return false;
         }
 
-        if ($this->_string_shift($em, 2) != "\0\1") {
+        if (Strings::shift($em, 2) != "\0\1") {
             return false;
         }
 
         $em = ltrim($em, "\xFF");
-        if ($this->_string_shift($em) != "\0") {
+        if (Strings::shift($em) != "\0") {
             return false;
         }
 

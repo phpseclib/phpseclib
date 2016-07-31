@@ -44,6 +44,8 @@
 
 namespace phpseclib\Crypt;
 
+use phpseclib\Crypt\Common\StreamCipher;
+
 /**
  * Pure-PHP implementation of RC4.
  *
@@ -51,7 +53,7 @@ namespace phpseclib\Crypt;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class RC4 extends Base
+class RC4 extends StreamCipher
 {
     /**#@+
      * @access private
@@ -67,7 +69,7 @@ class RC4 extends Base
      * RC4 is a stream cipher
      * so we the block_size to 0
      *
-     * @see \phpseclib\Crypt\Base::block_size
+     * @see \phpseclib\Crypt\Common\SymmetricKey::block_size
      * @var int
      * @access private
      */
@@ -85,7 +87,7 @@ class RC4 extends Base
     /**
      * The mcrypt specific name of the cipher
      *
-     * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
+     * @see \phpseclib\Crypt\Common\SymmetricKey::cipher_name_mcrypt
      * @var string
      * @access private
      */
@@ -94,7 +96,7 @@ class RC4 extends Base
     /**
      * Holds whether performance-optimized $inline_crypt() can/should be used.
      *
-     * @see \phpseclib\Crypt\Base::inline_crypt
+     * @see \phpseclib\Crypt\Common\SymmetricKey::inline_crypt
      * @var mixed
      * @access private
      */
@@ -121,21 +123,21 @@ class RC4 extends Base
     /**
      * Default Constructor.
      *
-     * @see \phpseclib\Crypt\Base::__construct()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
      * @return \phpseclib\Crypt\RC4
      * @access public
      */
     function __construct()
     {
-        parent::__construct(Base::MODE_STREAM);
+        parent::__construct(self::MODE_STREAM);
     }
 
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib\Crypt\Base::__construct()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
      * @access public
      * @return bool
@@ -143,7 +145,7 @@ class RC4 extends Base
     function isValidEngine($engine)
     {
         switch ($engine) {
-            case Base::ENGINE_OPENSSL:
+            case self::ENGINE_OPENSSL:
                 switch (strlen($this->key)) {
                     case 5:
                         $this->cipher_name_openssl = 'rc4-40';
@@ -215,7 +217,7 @@ class RC4 extends Base
     /**
      * Encrypts a message.
      *
-     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::decrypt()
      * @see self::_crypt()
      * @access public
      * @param string $plaintext
@@ -223,7 +225,7 @@ class RC4 extends Base
      */
     function encrypt($plaintext)
     {
-        if ($this->engine != Base::ENGINE_INTERNAL) {
+        if ($this->engine != self::ENGINE_INTERNAL) {
             return parent::encrypt($plaintext);
         }
         return $this->_crypt($plaintext, self::ENCRYPT);
@@ -235,7 +237,7 @@ class RC4 extends Base
      * $this->decrypt($this->encrypt($plaintext)) == $this->encrypt($this->encrypt($plaintext)).
      * At least if the continuous buffer is disabled.
      *
-     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::encrypt()
      * @see self::_crypt()
      * @access public
      * @param string $ciphertext
@@ -243,7 +245,7 @@ class RC4 extends Base
      */
     function decrypt($ciphertext)
     {
-        if ($this->engine != Base::ENGINE_INTERNAL) {
+        if ($this->engine != self::ENGINE_INTERNAL) {
             return parent::decrypt($ciphertext);
         }
         return $this->_crypt($ciphertext, self::DECRYPT);
@@ -274,7 +276,7 @@ class RC4 extends Base
     /**
      * Setup the key (expansion)
      *
-     * @see \phpseclib\Crypt\Base::_setupKey()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::_setupKey()
      * @access private
      */
     function _setupKey()
