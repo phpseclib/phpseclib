@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Miccrosoft BLOB Formatted RSA Key Handler
  *

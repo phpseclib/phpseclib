@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PKCS Formatted RSA Key Handler
  *
@@ -23,6 +24,7 @@ use phpseclib\Crypt\DES;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Math\BigInteger;
 use phpseclib\Common\Functions\Strings;
+use phpseclib\Common\Functions\ASN1;
 
 /**
  * PKCS Formatted RSA Key Handler
@@ -213,7 +215,7 @@ abstract class PKCS
         if (ord(Strings::shift($key)) != self::ASN1_SEQUENCE) {
             return false;
         }
-        if (self::_decodeLength($key) != strlen($key)) {
+        if (ASN1::decodeLength($key) != strlen($key)) {
             return false;
         }
 
@@ -235,11 +237,11 @@ abstract class PKCS
         }
 
         if ($tag == self::ASN1_SEQUENCE) {
-            $temp = Strings::shift($key, self::_decodeLength($key));
+            $temp = Strings::shift($key, ASN1::decodeLength($key));
             if (ord(Strings::shift($temp)) != self::ASN1_OBJECT) {
                 return false;
             }
-            $length = self::_decodeLength($temp);
+            $length = ASN1::decodeLength($temp);
             switch (Strings::shift($temp, $length)) {
                 case "\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01": // rsaEncryption
                     break;
@@ -252,18 +254,18 @@ abstract class PKCS
                     if (ord(Strings::shift($temp)) != self::ASN1_SEQUENCE) {
                         return false;
                     }
-                    if (self::_decodeLength($temp) != strlen($temp)) {
+                    if (ASN1::decodeLength($temp) != strlen($temp)) {
                         return false;
                     }
                     Strings::shift($temp); // assume it's an octet string
-                    $salt = Strings::shift($temp, self::_decodeLength($temp));
+                    $salt = Strings::shift($temp, ASN1::decodeLength($temp));
                     if (ord(Strings::shift($temp)) != self::ASN1_INTEGER) {
                         return false;
                     }
-                    self::_decodeLength($temp);
+                    ASN1::decodeLength($temp);
                     list(, $iterationCount) = unpack('N', str_pad($temp, 4, chr(0), STR_PAD_LEFT));
                     Strings::shift($key); // assume it's an octet string
-                    $length = self::_decodeLength($key);
+                    $length = ASN1::decodeLength($key);
                     if (strlen($key) != $length) {
                         return false;
                     }
@@ -286,7 +288,7 @@ abstract class PKCS
                17:d=2  hl=2 l=   0 prim:   NULL
                19:d=1  hl=4 l= 271 prim:  BIT STRING */
             $tag = ord(Strings::shift($key)); // skip over the BIT STRING / OCTET STRING tag
-            self::_decodeLength($key); // skip over the BIT STRING / OCTET STRING length
+            ASN1::decodeLength($key); // skip over the BIT STRING / OCTET STRING length
             // "The initial octet shall encode, as an unsigned binary integer wtih bit 1 as the least significant bit, the number of
             //  unused bits in the final subsequent octet. The number shall be in the range zero to seven."
             //  -- http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf (section 8.6.2.2)
@@ -296,7 +298,7 @@ abstract class PKCS
             if (ord(Strings::shift($key)) != self::ASN1_SEQUENCE) {
                 return false;
             }
-            if (self::_decodeLength($key) != strlen($key)) {
+            if (ASN1::decodeLength($key) != strlen($key)) {
                 return false;
             }
             $tag = ord(Strings::shift($key));
@@ -305,12 +307,12 @@ abstract class PKCS
             return false;
         }
 
-        $length = self::_decodeLength($key);
+        $length = ASN1::decodeLength($key);
         $temp = Strings::shift($key, $length);
         if (strlen($temp) != 1 || ord($temp) > 2) {
             $components['modulus'] = new BigInteger($temp, 256);
             Strings::shift($key); // skip over self::ASN1_INTEGER
-            $length = self::_decodeLength($key);
+            $length = ASN1::decodeLength($key);
             $components[$components['isPublicKey'] ? 'publicExponent' : 'privateExponent'] = new BigInteger(Strings::shift($key, $length), 256);
 
             return $components;
@@ -318,48 +320,48 @@ abstract class PKCS
         if (ord(Strings::shift($key)) != self::ASN1_INTEGER) {
             return false;
         }
-        $length = self::_decodeLength($key);
+        $length = ASN1::decodeLength($key);
         $components['modulus'] = new BigInteger(Strings::shift($key, $length), 256);
         Strings::shift($key);
-        $length = self::_decodeLength($key);
+        $length = ASN1::decodeLength($key);
         $components['publicExponent'] = new BigInteger(Strings::shift($key, $length), 256);
         Strings::shift($key);
-        $length = self::_decodeLength($key);
+        $length = ASN1::decodeLength($key);
         $components['privateExponent'] = new BigInteger(Strings::shift($key, $length), 256);
         Strings::shift($key);
-        $length = self::_decodeLength($key);
+        $length = ASN1::decodeLength($key);
         $components['primes'] = array(1 => new BigInteger(Strings::shift($key, $length), 256));
         Strings::shift($key);
-        $length = self::_decodeLength($key);
+        $length = ASN1::decodeLength($key);
         $components['primes'][] = new BigInteger(Strings::shift($key, $length), 256);
         Strings::shift($key);
-        $length = self::_decodeLength($key);
+        $length = ASN1::decodeLength($key);
         $components['exponents'] = array(1 => new BigInteger(Strings::shift($key, $length), 256));
         Strings::shift($key);
-        $length = self::_decodeLength($key);
+        $length = ASN1::decodeLength($key);
         $components['exponents'][] = new BigInteger(Strings::shift($key, $length), 256);
         Strings::shift($key);
-        $length = self::_decodeLength($key);
+        $length = ASN1::decodeLength($key);
         $components['coefficients'] = array(2 => new BigInteger(Strings::shift($key, $length), 256));
 
         if (!empty($key)) {
             if (ord(Strings::shift($key)) != self::ASN1_SEQUENCE) {
                 return false;
             }
-            self::_decodeLength($key);
+            ASN1::decodeLength($key);
             while (!empty($key)) {
                 if (ord(Strings::shift($key)) != self::ASN1_SEQUENCE) {
                     return false;
                 }
-                self::_decodeLength($key);
+                ASN1::decodeLength($key);
                 $key = substr($key, 1);
-                $length = self::_decodeLength($key);
+                $length = ASN1::decodeLength($key);
                 $components['primes'][] = new BigInteger(Strings::shift($key, $length), 256);
                 Strings::shift($key);
-                $length = self::_decodeLength($key);
+                $length = ASN1::decodeLength($key);
                 $components['exponents'][] = new BigInteger(Strings::shift($key, $length), 256);
                 Strings::shift($key);
-                $length = self::_decodeLength($key);
+                $length = ASN1::decodeLength($key);
                 $components['coefficients'][] = new BigInteger(Strings::shift($key, $length), 256);
             }
         }
@@ -400,47 +402,6 @@ abstract class PKCS
     static function requireAny()
     {
         self::$format = self::MODE_ANY;
-    }
-
-    /**
-     * DER-decode the length
-     *
-     * DER supports lengths up to (2**8)**127, however, we'll only support lengths up to (2**8)**4.  See
-     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
-     *
-     * @access private
-     * @param string $string
-     * @return int
-     */
-    static function _decodeLength(&$string)
-    {
-        $length = ord(Strings::shift($string));
-        if ($length & 0x80) { // definite length, long form
-            $length&= 0x7F;
-            $temp = Strings::shift($string, $length);
-            list(, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
-        }
-        return $length;
-    }
-
-    /**
-     * DER-encode the length
-     *
-     * DER supports lengths up to (2**8)**127, however, we'll only support lengths up to (2**8)**4.  See
-     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
-     *
-     * @access private
-     * @param int $length
-     * @return string
-     */
-    static function _encodeLength($length)
-    {
-        if ($length <= 0x7F) {
-            return chr($length);
-        }
-
-        $temp = ltrim(pack('N', $length), chr(0));
-        return pack('Ca*', 0x80 | strlen($temp), $temp);
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OpenSSH Formatted RSA Key Handler
  *

@@ -9,6 +9,7 @@ use phpseclib\File\ASN1;
 use phpseclib\File\ASN1\Element;
 use phpseclib\File\X509;
 use phpseclib\Crypt\RSA;
+use phpseclib\Common\Functions\ASN1 as Functions;
 
 class Unit_File_X509_X509Test extends PhpseclibTestCase
 {
@@ -136,10 +137,10 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
         $asn1 = new ASN1();
 
         $value = $this->_encodeOID('1.2.3.4');
-        $ext = chr(ASN1::TYPE_OBJECT_IDENTIFIER) . $asn1->_encodeLength(strlen($value)) . $value;
+        $ext = chr(ASN1::TYPE_OBJECT_IDENTIFIER) . Functions::encodeLength(strlen($value)) . $value;
         $value = 'zzzzzzzzz';
-        $ext.= chr(ASN1::TYPE_OCTET_STRING) . $asn1->_encodeLength(strlen($value)) . $value;
-        $ext = chr(ASN1::TYPE_SEQUENCE | 0x20) . $asn1->_encodeLength(strlen($ext)) . $ext;
+        $ext.= chr(ASN1::TYPE_OCTET_STRING) . Functions::encodeLength(strlen($value)) . $value;
+        $ext = chr(ASN1::TYPE_SEQUENCE | 0x20) . Functions::encodeLength(strlen($ext)) . $ext;
 
         $cert['tbsCertificate']['extensions'][4] = new Element($ext);
 

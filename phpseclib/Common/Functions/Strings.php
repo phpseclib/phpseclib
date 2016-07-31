@@ -30,7 +30,7 @@ class Strings
      *
      * @param string $string
      * @param int $index
-     * @access private
+     * @access public
      * @return string
      */
     static function shift(&$string, $index = 1)
