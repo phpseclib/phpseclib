@@ -138,7 +138,6 @@ define('CRYPT_RSA_SIGNATURE_PSS',  1);
  * compatibility with protocols (like SSH-2) written before PSS's introduction.
  */
 define('CRYPT_RSA_SIGNATURE_PKCS1', 2);
-/**#@-*/
 
 /**#@+
  * @access private

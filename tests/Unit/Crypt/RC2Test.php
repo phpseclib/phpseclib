@@ -70,7 +70,7 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
 
         // now, to OpenSSL's credit, null padding is internally consistent with OpenSSL. OpenSSL only supports fixed length keys. For rc2, rc4 and
         // bf (blowfish), all keys are 128 bits (or are null padded / truncated accordingly). to use 40-bit or 64-bit keys with RC4 with OpenSSL you
-        // don't use the rc4 algorithm - you use the rc4-40 or rc4-64 algorithm. and similarily, it's not aes-cbc that you use - it's either aes-128-cbc
+        // don't use the rc4 algorithm - you use the rc4-40 or rc4-64 algorithm. and similarly, it's not aes-cbc that you use - it's either aes-128-cbc
         // or aes-192-cbc or aes-256-cbc. this is in contrast to mcrypt, which (with the exception of RC2) actually supports variable and arbitrary
         // length keys.
 

@@ -261,7 +261,7 @@ class File_X509
     /**
      * The signature subject
      *
-     * There's no guarantee File_X509 is going to reencode an X.509 cert in the same way it was originally
+     * There's no guarantee File_X509 is going to re-encode an X.509 cert in the same way it was originally
      * encoded so we take save the portion of the original cert that the signature would have made for.
      *
      * @var string
@@ -3134,7 +3134,7 @@ class File_X509
 
         $asn1 = new File_ASN1();
 
-        // OpenSSL produces SPKAC's that are preceeded by the string SPKAC=
+        // OpenSSL produces SPKAC's that are preceded by the string SPKAC=
         $temp = preg_replace('#(?:SPKAC=)|[ \r\n\\\]#', '', $spkac);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? base64_decode($temp) : false;
         if ($temp != false) {
@@ -3224,7 +3224,7 @@ class File_X509
                 return $spkac;
             // case FILE_X509_FORMAT_PEM:
             default:
-                // OpenSSL's implementation of SPKAC requires the SPKAC be preceeded by SPKAC= and since there are pretty much
+                // OpenSSL's implementation of SPKAC requires the SPKAC be preceded by SPKAC= and since there are pretty much
                 // no other SPKAC decoders phpseclib will use that same format
                 return 'SPKAC=' . base64_encode($spkac);
         }
