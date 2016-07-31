@@ -54,6 +54,8 @@
 
 namespace phpseclib\Crypt;
 
+use phpseclib\Crypt\Common\BlockCipher;
+
 /**
  * Pure-PHP implementation of Rijndael.
  *
@@ -61,7 +63,7 @@ namespace phpseclib\Crypt;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Rijndael extends Base
+class Rijndael extends BlockCipher
 {
     /**
      * The mcrypt specific name of the cipher

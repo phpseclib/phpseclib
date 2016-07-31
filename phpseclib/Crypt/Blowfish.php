@@ -37,6 +37,8 @@
 
 namespace phpseclib\Crypt;
 
+use \phpseclib\Crypt\Common\BlockCipher;
+
 /**
  * Pure-PHP implementation of Blowfish.
  *
@@ -45,7 +47,7 @@ namespace phpseclib\Crypt;
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  * @access  public
  */
-class Blowfish extends Base
+class Blowfish extends BlockCipher
 {
     /**
      * Block Length of the cipher

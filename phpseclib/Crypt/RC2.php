@@ -35,13 +35,15 @@
 
 namespace phpseclib\Crypt;
 
+use phpseclib\Crypt\Common\BlockCipher;
+
 /**
  * Pure-PHP implementation of RC2.
  *
  * @package RC2
  * @access  public
  */
-class RC2 extends Base
+class RC2 extends BlockCipher
 {
     /**
      * Block Length of the cipher

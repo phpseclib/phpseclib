@@ -34,7 +34,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib\Crypt\Common;
 
 /**
  * Base Class for all \phpseclib\Crypt\* cipher classes
@@ -43,8 +43,10 @@ namespace phpseclib\Crypt;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  */
-abstract class Base
+abstract class SymmetricKey
 {
+    use \phpseclib\Common\StringMethods;
+
     /**#@+
      * @access public
      * @see \phpseclib\Crypt\Base::encrypt()
@@ -1922,23 +1924,6 @@ abstract class Base
         }
 
         $this->encryptIV = $this->decryptIV = $this->iv;
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @access private
-     * @return string
-     */
-    function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 
     /**

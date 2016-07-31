@@ -37,6 +37,8 @@
 
 namespace phpseclib\Crypt;
 
+use phpseclib\Crypt\Common\BlockCipher;
+
 /**
  * Pure-PHP implementation of Twofish.
  *
@@ -45,7 +47,7 @@ namespace phpseclib\Crypt;
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  * @access  public
  */
-class Twofish extends Base
+class Twofish extends BlockCipher
 {
     /**
      * The mcrypt specific name of the cipher

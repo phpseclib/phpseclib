@@ -29,6 +29,8 @@ use phpseclib\Math\BigInteger;
  */
 class PuTTY
 {
+    use \phpseclib\Common\StringMethods;
+
     /**
      * Default comment
      *
@@ -169,23 +171,6 @@ class PuTTY
         $components['coefficients'] = array(2 => new BigInteger(self::_string_shift($private, $length), -256));
 
         return $components;
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    static function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 
     /**

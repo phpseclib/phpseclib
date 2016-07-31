@@ -42,6 +42,8 @@
 
 namespace phpseclib\Crypt;
 
+use phpseclib\Crypt\Common\BlockCipher;
+
 /**
  * Pure-PHP implementation of DES.
  *
@@ -49,7 +51,7 @@ namespace phpseclib\Crypt;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class DES extends Base
+class DES extends BlockCipher
 {
     /**#@+
      * @access private

@@ -31,6 +31,8 @@ use phpseclib\Math\BigInteger;
  */
 abstract class PKCS
 {
+    use \phpseclib\Common\StringMethods;
+
     /**#@+
      * @access private
      * @see \phpseclib\Crypt\RSA::createKey()
@@ -439,23 +441,6 @@ abstract class PKCS
 
         $temp = ltrim(pack('N', $length), chr(0));
         return pack('Ca*', 0x80 | strlen($temp), $temp);
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    static function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 
     /**
