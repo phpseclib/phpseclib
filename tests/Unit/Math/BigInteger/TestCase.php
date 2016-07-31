@@ -380,4 +380,105 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $n = $this->getInstance(2);
         $x->powMod($e, $n);
     }
+    public function testRoot()
+    {
+        $bigInteger = new \phpseclib\Math\BigInteger('64000000'); // (20^2)^3
+        $three = new \phpseclib\Math\BigInteger('3');
+        $bigInteger = $bigInteger->root();
+        $this->assertSame('8000', (string) $bigInteger);
+        $bigInteger = $bigInteger->root($three);
+        $this->assertSame('20', (string) $bigInteger);
+    }
+
+    public function testPow()
+    {
+        $bigInteger = new \phpseclib\Math\BigInteger('20');
+        $two = new \phpseclib\Math\BigInteger('2');
+        $three = new \phpseclib\Math\BigInteger('3');
+        $bigInteger = $bigInteger->pow($two);
+        $this->assertSame('400', (string) $bigInteger);
+        $bigInteger = $bigInteger->pow($three);
+        $this->assertSame('64000000', (string) $bigInteger); // (20^2)^3
+    }
+
+    public function testMax()
+    {
+        $min = new \phpseclib\Math\BigInteger('20');
+        $max = new \phpseclib\Math\BigInteger('20000');
+        $this->assertSame((string) $max, (string) $min->max($max));
+        $this->assertSame((string) $max, (string) $max->max($min));
+    }
+
+    public function testMin()
+    {
+        $min = new \phpseclib\Math\BigInteger('20');
+        $max = new \phpseclib\Math\BigInteger('20000');
+        $this->assertSame((string) $min, (string) $min->min($max));
+        $this->assertSame((string) $min, (string) $max->min($min));
+    }
+
+    public function testLoopForeach()
+    {
+        $maxBigInteger = new \phpseclib\Math\BigInteger('34');
+        $one = new \phpseclib\Math\BigInteger('1');
+        $vars = [];
+        $maxBigInteger->loopforeach(
+            function ($i, &$vars) {
+                if ($i == 0) {
+                    $vars['first'] = $i;
+                } else {
+                    $vars['last'] = $i;
+                }
+            },
+            $vars
+        );
+        $this->assertSame(0, $vars['first']);
+        $this->assertSame(33, $vars['last']);
+        /* Nope, too slow
+        $maxBigInteger = new \phpseclib\Math\BigInteger(PHP_INT_MAX);
+        $maxBigInteger = $maxBigInteger->add($one);
+        $maxBigInteger->loopforeach(
+            function ($i, &$vars) {
+                if ($i == 0) {
+                    $vars["first"] = $i;
+                } else {
+                    $vars["last"] = $i;
+                }
+            },
+            $vars
+        );
+        $this->assertSame("0", $vars["first"]);
+        $this->assertSame((string)$maxBigInteger->subtract($one), $vars["last"]);*/
+
+
+        $maxBigInteger = new \phpseclib\Math\BigInteger(-34);
+        $maxBigInteger->loopforeach(
+            function ($i, &$vars) {
+                if ($i == 0) {
+                    $vars['first'] = $i;
+                } else {
+                    $vars['last'] = $i;
+                }
+            },
+            $vars
+        );
+        $this->assertSame(0, $vars['first']);
+        $this->assertSame(-33, $vars['last']);
+        /* Nope, too slow
+        $maxBigInteger = new \phpseclib\Math\BigInteger(-PHP_INT_MAX - 1);
+        $maxBigInteger = $maxBigInteger->subtract($one);
+
+        $maxBigInteger->loopforeach(
+            function ($i, &$vars) {
+                if ($i == 0) {
+                    $vars["first"] = $i;
+                } else {
+                    $vars["last"] = $i;
+                }
+            },
+            $vars
+        );
+        $this->assertSame("0", $vars["first"]);
+        $this->assertSame((string)$maxBigInteger->add($one), $vars["last"]);*/
+    }
 }

@@ -3674,4 +3674,241 @@ class BigInteger
         // self::$base === 31
         return ($x - ($x % $y)) / $y;
     }
+
+    /**
+     * Calculates the nth root of a biginteger.
+     *
+     * Returns the nth root of a positive biginteger, where n defaults to 2
+     *
+     * Here's an example:
+     * <code>
+     * <?php
+     *    $a = new \phpseclib\Math\BigInteger('625');
+     *
+     *    $root = $a->root();
+     *
+     *    echo $root->toString(); // outputs 25
+     * ?>
+     * </code>
+     *
+     * @param \phpseclib\Math\BigInteger $n
+     * @access public
+     * @return \phpseclib\Math\BigInteger
+     *
+     * @internal This function is based off of {@link http://mathforum.org/library/drmath/view/52605.html this page} and {@link http://stackoverflow.com/questions/11242920/calculating-nth-root-with-bcmath-in-php this stackoverflow question}.
+     */
+    function root($n = null)
+    {
+        $one = new static(1);
+        $two = new static(2);
+        if ($n === null) {
+            $n = $two;
+        }
+        if ($n->compare($one) == -1) {
+            return new static(0);
+        } // we want positive exponents
+        if ($this->compare($one) == -1) {
+            return new static(0);
+        } // we want positive numbers
+        if ($this->compare($two) == -1) {
+            return $one;
+        } // n-th root of 1 or 2 is 1
+        $root = new static();
+        switch (MATH_BIGINTEGER_MODE) {
+            case self::MODE_BCMATH:
+                // g is our guess number
+                $g = 2;
+                // while (g^n < num) g=g*2
+                while (bccomp(bcpow($g, $n->value), $this->value) == -1) {
+                    $g = bcmul($g, '2');
+                }
+                // if (g^n==num) num is a power of 2, we're lucky, end of job
+                if (bccomp(bcpow($g, $n->value), $this->value) == 0) {
+                    $root->value = $g;
+                    break;
+                }
+
+                // if we're here num wasn't a power of 2 :(
+                $og = $g; // og means original guess and here is our upper bound
+                $g = bcdiv($g, '2'); // g is set to be our lower bound
+                $step = bcdiv(bcsub($og, $g), '2'); // step is the half of upper bound - lower bound
+                $g = bcadd($g, $step); // we start at lower bound + step , basically in the middle of our interval
+
+                // while step!=1
+
+                while (bccomp($step, '1') == 1) {
+                    $guess = bcpow($g, $n);
+                    $step = bcdiv($step, '2');
+                    $comp = bccomp($guess, $this->value); // compare our guess with real number
+                    if ($comp == -1) { // if guess is lower we add the new step
+                        $g = bcadd($g, $step);
+                    } elseif ($comp == 1) { // if guess is higher we sub the new step
+                        $g = bcsub($g, $step);
+                    } else { // if guess is exactly the num we're done, we return the value
+                        $root->value = $g;
+                        break;
+                    }
+                }
+
+                // whatever happened, g is the closest guess we can make so return it
+                $root->value = $g;
+                break;
+            case self::MODE_GMP:
+                if (function_exists('gmp_root')) {
+                    $root->value = gmp_root($this->value, gmp_intval($n->value));
+                    break;
+                }
+            default:
+                // g is our guess number
+                $g = $two;
+                // while (g^n < num) g=g*2
+                while ($g->pow($n)->compare($this) == -1) {
+                    $g = $g->multiply($two);
+                }
+                // if (g^n==num) num is a power of 2, we're lucky, end of job
+                // == 0 bccomp(bcpow($g,$n), $n->value)==0
+                if ($g->pow($n)->equals($this)) {
+                    $root = $g;
+                    break;
+                }
+
+                // if we're here num wasn't a power of 2 :(
+                $og = $g; // og means original guess and here is our upper bound
+                $g = $g->divide($two)[0]; // g is set to be our lower bound
+                $step = $og->subtract($g)->divide($two)[0]; // step is the half of upper bound - lower bound
+                $g = $g->add($step); // we start at lower bound + step , basically in the middle of our interval
+
+                // while step!=1
+
+                while ($step->compare($one) == 1) {
+                    $guess = $g->pow($n);
+                    $step = $step->divide($two)[0];
+                    $comp = $guess->compare($this); // compare our guess with real number
+                    if ($comp == -1) { // if guess is lower we add the new step
+                        $g = $g->add($step);
+                    } elseif ($comp == 1) { // if guess is higher we sub the new step
+                        $g = $g->subtract($step);
+                    } else { // if guess is exactly the num we're done, we return the value
+                        $root = $g;
+                        break;
+                    }
+                }
+
+                // whatever happened, g is the closest guess we can make so return it
+                $root = $g;
+                break;
+        }
+
+        return $this->_normalize($root);
+    }
+
+    /**
+     * Performs exponentiation.
+     *
+     *
+     * @param \phpseclib\Math\BigInteger $n
+     * @access public
+     * @return \phpseclib\Math\BigInteger
+     */
+    function pow($n)
+    {
+        $zero = new static(0);
+        if ($n->compare($zero) == 0) {
+            return new static(1);
+        } // n^0 = 1
+
+        $res = new static();
+        switch (MATH_BIGINTEGER_MODE) {
+            case self::MODE_GMP:
+                $res->value = gmp_pow($this->value, gmp_intval($n->value));
+
+                return $this->_normalize($res);
+            case self::MODE_BCMATH:
+                $res->value = bcpow($this->value, $n->value);
+
+                return $this->_normalize($res);
+            default:
+                $one = new static(1);
+                $res = $this;
+                while (!$n->equals($one)) {
+                    $res = $res->multiply($this);
+                    $n = $n->subtract($one);
+                }
+
+                return $res;
+                break;
+        }
+    }
+
+    /**
+     * Return the minimum BigInteger between two BigIntegers.
+     *
+     *
+     * @param \phpseclib\Math\BigInteger $a
+     * @param \phpseclib\Math\BigInteger $b
+     * @access public
+     *
+     *
+     * @return \phpseclib\Math\BigInteger
+     */
+    function min($b)
+    {
+        if ($this->compare($b) == '1') {
+            return $b;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Return the maximum BigInteger between two BigIntegers.
+     *
+     *
+     * @param \phpseclib\Math\BigInteger $b
+     * @access public
+     *
+     * @return \phpseclib\Math\BigInteger
+     */
+    function max($b)
+    {
+        if ($this->compare($b) == '1') {
+            return $this;
+        }
+
+        return $b;
+    }
+
+    /**
+     * Execute a function n times, where n is the current BigInteger.
+     * The passed function must accept a paremeter that will be set to the the current number
+     * (that number will range from zero to BigInteger - 1 if the BigInteger is positive, and from BigInteger - 1 to zero if the BigInteger is negative).
+     * You can also set it to accept an optional parameter, that will be equal to the optional $userdata parameter.
+     *
+     * @access public
+     * @param callable $function
+     * @param &$userdata
+     *
+     * @return \phpseclib\Math\BigInteger
+     */
+    function loopforeach(callable $function, &$userdata = null)
+    {
+        if ($this->compare(new static(0)) < 0) { // negative
+            $limit = new static(-PHP_INT_MAX - 1);
+            $one = new static(-1);
+        } else { // positive
+            $limit = new static(PHP_INT_MAX);
+            $one = new static(1);
+        }
+        if ($this->compare($limit) == -((int) $one->toString())) {
+            $oneint = (int) $one->toString();
+            $thisint = (int) $this->toString();
+            for ($loop = 0; $loop != $thisint; $loop += $oneint) {
+                $function($loop, $userdata);
+            }
+        } else {
+            for ($loop = new static(0); !$loop->equals($this); $loop = $loop->add($one)) {
+                $function((string) $loop, $userdata);
+            }
+        }
+    }
 }
