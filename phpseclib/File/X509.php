@@ -244,11 +244,7 @@ class X509
     /**
      * The signature subject
      *
-<<<<<<< HEAD
-     * There's no guarantee \phpseclib\File\X509 is going to reencode an X.509 cert in the same way it was originally
-=======
-     * There's no guarantee File_X509 is going to re-encode an X.509 cert in the same way it was originally
->>>>>>> 1.0
+     * There's no guarantee \phpseclib\File\X509 is going to re-encode an X.509 cert in the same way it was originally
      * encoded so we take save the portion of the original cert that the signature would have made for.
      *
      * @var string
