@@ -1302,7 +1302,7 @@ class DES extends Base
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one
         $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
 
-        // Generation of a uniqe hash for our generated code
+        // Generation of a unique hash for our generated code
         $code_hash = "Crypt_DES, $des_rounds, {$this->mode}";
         if ($gen_hi_opt_code) {
             // For hi-optimized code, we create for each combination of

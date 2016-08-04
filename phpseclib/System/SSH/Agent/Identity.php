@@ -23,9 +23,8 @@ use phpseclib\System\SSH\Agent;
  * Instantiation should only be performed by \phpseclib\System\SSH\Agent class.
  * This could be thought of as implementing an interface that phpseclib\Crypt\RSA
  * implements. ie. maybe a Net_SSH_Auth_PublicKey interface or something.
- * The methods in this interface would be getPublicKey, setSignatureMode
- * and sign since those are the methods phpseclib looks for to perform
- * public key authentication.
+ * The methods in this interface would be getPublicKey and sign since those are the
+ * methods phpseclib looks for to perform public key authentication.
  *
  * @package SSH\Agent
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -148,7 +147,7 @@ class Identity
         $length = current(unpack('N', fread($this->fsock, 4)));
         $type = ord(fread($this->fsock, 1));
         if ($type != Agent::SSH_AGENT_SIGN_RESPONSE) {
-            user_error('Unable to retreive signature');
+            user_error('Unable to retrieve signature');
         }
 
         $signature_blob = fread($this->fsock, $length - 1);
