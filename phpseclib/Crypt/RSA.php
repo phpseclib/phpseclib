@@ -138,6 +138,7 @@ define('CRYPT_RSA_SIGNATURE_PSS',  1);
  * compatibility with protocols (like SSH-2) written before PSS's introduction.
  */
 define('CRYPT_RSA_SIGNATURE_PKCS1', 2);
+/**#@-*/
 
 /**#@+
  * @access private
@@ -281,7 +282,7 @@ class Crypt_RSA
     /**
      * Precomputed Zero
      *
-     * @var array
+     * @var Math_BigInteger
      * @access private
      */
     var $zero;
@@ -289,7 +290,7 @@ class Crypt_RSA
     /**
      * Precomputed One
      *
-     * @var array
+     * @var Math_BigInteger
      * @access private
      */
     var $one;
