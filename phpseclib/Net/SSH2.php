@@ -1071,8 +1071,15 @@ class SSH2
                 }
 
                 $line.= "$temp\n";
-                if (substr($line, -2) == "\r\n") {
-                    break;
+                // check the SSH Version for backward compatibility version
+                if (0 === strpos($line, "SSH-1.99")) {
+                    if (substr($line, -1) == "\n") {
+                        break;
+                    }
+                } elseif (0 === strpos($line, "SSH-2.")) {
+                    if (substr($line, -2) == "\r\n") {
+                        break;
+                    }
                 }
             }
             $data.= $line;
