@@ -1026,7 +1026,7 @@ class SSH2
             }
             $elapsed = microtime(true) - $start;
 
-            $this->curTimeout-= $elapsed;
+            $this->curTimeout-= $elapsed / 1e6;
 
             if ($this->curTimeout <= 0) {
                 $this->is_timeout = true;
@@ -1062,7 +1062,7 @@ class SSH2
                         return false;
                     }
                     $elapsed = microtime(true) - $start;
-                    $this->curTimeout-= $elapsed;
+                    $this->curTimeout-= $elapsed / 1e6;
                 }
 
                 $temp = stream_get_line($this->fsock, 255, "\n");
@@ -1071,8 +1071,15 @@ class SSH2
                 }
 
                 $line.= "$temp\n";
-                if (substr($line, -2) == "\r\n") {
-                    break;
+                // check the SSH Version for backward compatibility version
+                if (0 === strpos($line, "SSH-1.99")) {
+                    if (substr($line, -1) == "\n") {
+                        break;
+                    }
+                } elseif (0 === strpos($line, "SSH-2.")) {
+                    if (substr($line, -2) == "\r\n") {
+                        break;
+                    }
                 }
             }
             $data.= $line;
@@ -3210,7 +3217,7 @@ class SSH2
                     return true;
                 }
                 $elapsed = microtime(true) - $start;
-                $this->curTimeout-= $elapsed;
+                $this->curTimeout-= $elapsed / 1e6;
             }
 
             $response = $this->_get_binary_packet();
