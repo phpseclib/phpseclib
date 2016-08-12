@@ -1071,10 +1071,20 @@ class SSH2
                 }
 
                 $line.= "$temp\n";
-                if (substr($line, -2) == "\r\n") {
-                    break;
-                }
+
+                // quoting RFC4253, "Implementers who wish to maintain
+                // compatibility with older, undocumented versions of this protocol may
+                // want to process the identification string without expecting the
+                // presence of the carriage return character for reasons described in
+                // Section 5 of this document."
+
+                //if (substr($line, -2) == "\r\n") {
+                //    break;
+                //}
+
+                break;
             }
+
             $data.= $line;
         }
 
