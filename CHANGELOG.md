@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.3 - 2016-08-18
+
+- BigInteger/RSA: don't compare openssl versions > 1.0 (#946)
+- RSA: don't attempt to use the CRT when zero value components exist (#980)
+- RSA: zero salt length RSA signatures don't work (#1002)
+- ASN1: fix PHP Warning on PHP 7.1 (#1013)
+- X509: set parameter fields to null for CSR's / RSA (#914)
+- CRL optimizations (#1000)
+- SSH2: fix "Expected SSH_FXP_STATUS or ..." error (#999)
+- SFTP: make symlinks support relative target's (#1004)
+- SFTP: fix sending stream resulting in zero byte file (#995)
+
 ## 1.0.2 - 2016-05-07
 
 - All Ciphers: fix issue with CBC mode / OpenSSL / continuous buffers / decryption (#938)
