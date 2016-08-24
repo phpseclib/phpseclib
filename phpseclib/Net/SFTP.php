@@ -1916,7 +1916,7 @@ class SFTP extends SSH2
                 }
             } else {
                 $temp = isset($fp) ? fread($fp, $sftp_packet_size) : substr($data, $sent, $sftp_packet_size);
-                if ($temp === false) {
+                if ($temp === false || $temp === '') {
                     break;
                 }
             }
