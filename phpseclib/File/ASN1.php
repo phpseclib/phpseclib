@@ -305,7 +305,7 @@ class ASN1
                 $newcontent = array();
                 $remainingLength = $length;
                 while ($remainingLength > 0) {
-                    $temp = $this->_decode_ber($content, $start);
+                    $temp = $this->_decode_ber($content, $start, $content_pos);
                     $length = $temp['length'];
                     // end-of-content octets - see paragraph 8.1.5
                     if (substr($content, $content_pos + $length, 2) == "\0\0") {
