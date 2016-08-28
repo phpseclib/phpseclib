@@ -289,4 +289,14 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $this->assertInternalType('array', $decoded);
         $this->assertCount(0, $decoded[0]['content']);
     }
+
+    /**
+     * @group github1027
+     */
+    public function testInfiniteLoop()
+    {
+        $asn1 = new ASN1();
+        $data = base64_decode('MD6gJQYKKwYBBAGCNxQCA6AXDBVvZmZpY2VAY2VydGRpZ2l0YWwucm+BFW9mZmljZUBjZXJ0ZGlnaXRhbC5ybw==');
+        $asn1->decodeBER($data);
+    }
 }
