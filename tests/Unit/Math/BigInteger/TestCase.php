@@ -405,16 +405,16 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
     {
         $min = new \phpseclib\Math\BigInteger('20');
         $max = new \phpseclib\Math\BigInteger('20000');
-        $this->assertSame((string) $max, (string) $min->max($max));
-        $this->assertSame((string) $max, (string) $max->max($min));
+        $this->assertSame((string) $max, (string) \phpseclib\Math\BigInteger::max($min, $max));
+        $this->assertSame((string) $max, (string) \phpseclib\Math\BigInteger::max($max, $min));
     }
 
     public function testMin()
     {
         $min = new \phpseclib\Math\BigInteger('20');
         $max = new \phpseclib\Math\BigInteger('20000');
-        $this->assertSame((string) $min, (string) $min->min($max));
-        $this->assertSame((string) $min, (string) $max->min($min));
+        $this->assertSame((string) $min, (string) \phpseclib\Math\BigInteger::min($min, $max));
+        $this->assertSame((string) $min, (string) \phpseclib\Math\BigInteger::min($max, $min));
     }
 
     public function testLoopForeach()
