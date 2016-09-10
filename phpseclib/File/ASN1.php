@@ -131,9 +131,21 @@ class File_ASN1_Element
      * @return File_ASN1_Element
      * @access public
      */
-    function File_ASN1_Element($encoded)
+    function __construct($encoded)
     {
         $this->element = $encoded;
+    }
+
+    /**
+     * PHP4 compatible Default Constructor.
+     *
+     * @see self::__construct()
+     * @param int $mode
+     * @access public
+     */
+    function File_ASN1_Element($encoded)
+    {
+        $this->__construct($encoded);
     }
 }
 
@@ -245,7 +257,7 @@ class File_ASN1
      *
      * @access public
      */
-    function File_ASN1()
+    function __construct()
     {
         static $static_init = null;
         if (!$static_init) {
@@ -254,6 +266,17 @@ class File_ASN1
                 include_once 'Math/BigInteger.php';
             }
         }
+    }
+
+    /**
+     * PHP4 compatible Default Constructor.
+     *
+     * @see self::__construct()
+     * @access public
+     */
+    function File_ASN1()
+    {
+        $this->__construct($mode);
     }
 
     /**

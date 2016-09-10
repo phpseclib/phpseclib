@@ -883,7 +883,7 @@ class Net_SSH2
      * @return Net_SSH2
      * @access public
      */
-    function Net_SSH2($host, $port = 22, $timeout = 10)
+    function __construct($host, $port = 22, $timeout = 10)
     {
         // Include Math_BigInteger
         // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
@@ -990,6 +990,20 @@ class Net_SSH2
             $this->port = $port;
             $this->timeout = $timeout;
         }
+    }
+
+    /**
+     * PHP4 compatible Default Constructor.
+     *
+     * @see self::__construct()
+     * @param mixed $host
+     * @param int $port
+     * @param int $timeout
+     * @access public
+     */
+    function Net_SSH2($host, $port = 22, $timeout = 10)
+    {
+        $this->__construct($host, $port, $timeout);
     }
 
     /**

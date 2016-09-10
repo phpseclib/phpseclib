@@ -196,7 +196,7 @@ class Crypt_TripleDES extends Crypt_DES
      * @param int $mode
      * @access public
      */
-    function Crypt_TripleDES($mode = CRYPT_MODE_CBC)
+    function __construct($mode = CRYPT_MODE_CBC)
     {
         switch ($mode) {
             // In case of CRYPT_DES_MODE_3CBC, we init as CRYPT_DES_MODE_CBC
@@ -219,8 +219,20 @@ class Crypt_TripleDES extends Crypt_DES
                 break;
             // If not 3CBC, we init as usual
             default:
-                parent::Crypt_Base($mode);
+                parent::__construct($mode);
         }
+    }
+
+    /**
+     * PHP4 compatible Default Constructor.
+     *
+     * @see self::__construct()
+     * @param int $mode
+     * @access public
+     */
+    function Crypt_TripleDES($mode = CRYPT_MODE_CBC)
+    {
+        $this->__construct($mode);
     }
 
     /**

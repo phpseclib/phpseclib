@@ -326,7 +326,7 @@ class File_X509
      * @return File_X509
      * @access public
      */
-    function File_X509()
+    function __construct()
     {
         if (!class_exists('Math_BigInteger')) {
             include_once 'Math/BigInteger.php';
@@ -1446,6 +1446,17 @@ class File_X509
             '1.2.840.113549.1.9.7' => 'pkcs-9-at-challengePassword', // Challenge password for certificate revocations
             '1.2.840.113549.1.9.14' => 'pkcs-9-at-extensionRequest' // Certificate extension request
         );
+    }
+
+    /**
+     * PHP4 compatible Default Constructor.
+     *
+     * @see self::__construct()
+     * @access public
+     */
+    function File_X509()
+    {
+        $this->__construct();
     }
 
     /**

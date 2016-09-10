@@ -151,7 +151,7 @@ class Crypt_Hash
      * @return Crypt_Hash
      * @access public
      */
-    function Crypt_Hash($hash = 'sha1')
+    function __construct($hash = 'sha1')
     {
         if (!defined('CRYPT_HASH_MODE')) {
             switch (true) {
@@ -167,6 +167,18 @@ class Crypt_Hash
         }
 
         $this->setHash($hash);
+    }
+
+    /**
+     * PHP4 compatible Default Constructor.
+     *
+     * @see self::__construct()
+     * @param int $mode
+     * @access public
+     */
+    function Crypt_Hash($hash = 'sha1')
+    {
+        $this->__construct($mode);
     }
 
     /**
