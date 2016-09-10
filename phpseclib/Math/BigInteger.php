@@ -3847,42 +3847,4 @@ class BigInteger
         }
         return $max;
     }
-
-    /**
-     * Execute a function n times, where n is the current BigInteger.
-     * The passed function must accept a parameter that will be set to the the current number
-     * (that number will range from zero to BigInteger - 1 if the BigInteger is positive, and from BigInteger - 1 to zero if the BigInteger is negative).
-     * You can also set it to accept an optional parameter, that will be equal to the optional $userdata parameter.
-     *
-     * @access public
-     * @param callable $function
-     * @param &$userdata
-     * @return \phpseclib\Math\BigInteger
-     */
-    function loopforeach(callable $function, &$userdata = null)
-    {
-        static $zero;
-        if (!isset($zero)) {
-            $zero = new static(0);
-        }
-        if ($this->compare($zero) < 0) { // negative
-            $limit = new static(-PHP_INT_MAX - 1);
-            $one = new static(-1);
-        } else { // positive
-            $limit = new static(PHP_INT_MAX);
-            $one = new static(1);
-        }
-
-        if ($this->compare($limit) == -((int) $one->toString())) {
-            $oneint = (int) $one->toString();
-            $thisint = (int) $this->toString();
-            for ($loop = 0; $loop != $thisint; $loop+= $oneint) {
-                $function($loop, $userdata);
-            }
-        } else {
-            for ($loop = new static(0); !$loop->equals($this); $loop = $loop->add($one)) {
-                $function((string) $loop, $userdata);
-            }
-        }
-    }
 }
