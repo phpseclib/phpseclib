@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Base;
+use phpseclib\Crypt\Common\BlockCipher;
 use phpseclib\Crypt\Twofish;
 
 class Unit_Crypt_TwofishTest extends PhpseclibTestCase
@@ -13,9 +13,9 @@ class Unit_Crypt_TwofishTest extends PhpseclibTestCase
     public function testVectors()
     {
         $engines = array(
-            Base::ENGINE_INTERNAL => 'internal',
-            Base::ENGINE_MCRYPT => 'mcrypt',
-            Base::ENGINE_OPENSSL => 'OpenSSL',
+            BlockCipher::ENGINE_INTERNAL => 'internal',
+            BlockCipher::ENGINE_MCRYPT => 'mcrypt',
+            BlockCipher::ENGINE_OPENSSL => 'OpenSSL',
         );
 
         foreach ($engines as $engine => $name) {

@@ -42,6 +42,8 @@
 
 namespace phpseclib\Crypt;
 
+use phpseclib\Crypt\Common\BlockCipher;
+
 /**
  * Pure-PHP implementation of DES.
  *
@@ -49,7 +51,7 @@ namespace phpseclib\Crypt;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class DES extends Base
+class DES extends BlockCipher
 {
     /**#@+
      * @access private
@@ -69,7 +71,7 @@ class DES extends Base
     /**
      * Block Length of the cipher
      *
-     * @see \phpseclib\Crypt\Base::block_size
+     * @see \phpseclib\Crypt\Common\SymmetricKey::block_size
      * @var int
      * @access private
      */
@@ -78,7 +80,7 @@ class DES extends Base
     /**
      * Key Length (in bytes)
      *
-     * @see \phpseclib\Crypt\Base::setKeyLength()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::setKeyLength()
      * @var int
      * @access private
      */
@@ -87,7 +89,7 @@ class DES extends Base
     /**
      * The mcrypt specific name of the cipher
      *
-     * @see \phpseclib\Crypt\Base::cipher_name_mcrypt
+     * @see \phpseclib\Crypt\Common\SymmetricKey::cipher_name_mcrypt
      * @var string
      * @access private
      */
@@ -96,7 +98,7 @@ class DES extends Base
     /**
      * The OpenSSL names of the cipher / modes
      *
-     * @see \phpseclib\Crypt\Base::openssl_mode_names
+     * @see \phpseclib\Crypt\Common\SymmetricKey::openssl_mode_names
      * @var array
      * @access private
      */
@@ -111,7 +113,7 @@ class DES extends Base
     /**
      * Optimizing value while CFB-encrypting
      *
-     * @see \phpseclib\Crypt\Base::cfb_init_len
+     * @see \phpseclib\Crypt\Common\SymmetricKey::cfb_init_len
      * @var int
      * @access private
      */
@@ -597,9 +599,9 @@ class DES extends Base
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Base::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib\Crypt\Base::isValidEngine()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::isValidEngine()
      * @param int $engine
      * @access public
      * @return bool
@@ -623,7 +625,7 @@ class DES extends Base
      *
      * DES also requires that every eighth bit be a parity bit, however, we'll ignore that.
      *
-     * @see \phpseclib\Crypt\Base::setKey()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::setKey()
      * @access public
      * @param string $key
      */
@@ -640,8 +642,8 @@ class DES extends Base
     /**
      * Encrypts a block
      *
-     * @see \phpseclib\Crypt\Base::_encryptBlock()
-     * @see \phpseclib\Crypt\Base::encrypt()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::_encryptBlock()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::encrypt()
      * @see self::encrypt()
      * @access private
      * @param string $in
@@ -655,8 +657,8 @@ class DES extends Base
     /**
      * Decrypts a block
      *
-     * @see \phpseclib\Crypt\Base::_decryptBlock()
-     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::_decryptBlock()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::decrypt()
      * @see self::decrypt()
      * @access private
      * @param string $in
@@ -759,7 +761,7 @@ class DES extends Base
     /**
      * Creates the key schedule
      *
-     * @see \phpseclib\Crypt\Base::_setupKey()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::_setupKey()
      * @access private
      */
     function _setupKey()
@@ -1294,7 +1296,7 @@ class DES extends Base
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see \phpseclib\Crypt\Base::_setupInlineCrypt()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::_setupInlineCrypt()
      * @access private
      */
     function _setupInlineCrypt()

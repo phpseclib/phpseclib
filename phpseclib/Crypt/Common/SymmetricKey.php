@@ -8,7 +8,7 @@
  * Internally for phpseclib developers:
  *  If you plan to add a new cipher class, please note following rules:
  *
- *  - The new \phpseclib\Crypt\* cipher class should extend \phpseclib\Crypt\Base
+ *  - The new \phpseclib\Crypt\* cipher class should extend \phpseclib\Crypt\Common\SymmetricKey
  *
  *  - Following methods are then required to be overridden/overloaded:
  *
@@ -20,7 +20,7 @@
  *
  *  - All other methods are optional to be overridden/overloaded
  *
- *  - Look at the source code of the current ciphers how they extend \phpseclib\Crypt\Base
+ *  - Look at the source code of the current ciphers how they extend \phpseclib\Crypt\Common\SymmetricKey
  *    and take one of them as a start up for the new cipher class.
  *
  *  - Please read all the other comments/notes/hints here also for each class var/method
@@ -34,7 +34,10 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib\Crypt\Common;
+
+use phpseclib\Crypt\Hash;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * Base Class for all \phpseclib\Crypt\* cipher classes
@@ -43,12 +46,12 @@ namespace phpseclib\Crypt;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  */
-abstract class Base
+abstract class SymmetricKey
 {
     /**#@+
      * @access public
-     * @see \phpseclib\Crypt\Base::encrypt()
-     * @see \phpseclib\Crypt\Base::decrypt()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::encrypt()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::decrypt()
      */
     /**
      * Encrypt / decrypt using the Counter mode.
@@ -91,7 +94,7 @@ abstract class Base
     /**
      * Whirlpool available flag
      *
-     * @see \phpseclib\Crypt\Base::_hashInlineCryptFunction()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::_hashInlineCryptFunction()
      * @var bool
      * @access private
      */
@@ -99,7 +102,7 @@ abstract class Base
 
     /**#@+
      * @access private
-     * @see \phpseclib\Crypt\Base::__construct()
+     * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
      */
     /**
      * Base value for the internal implementation $engine switch
@@ -901,7 +904,7 @@ abstract class Base
                             $buffer['ciphertext'].= $this->_encryptBlock($xor);
                         }
                         $this->_increment_str($xor);
-                        $key = $this->_string_shift($buffer['ciphertext'], $block_size);
+                        $key = Strings::shift($buffer['ciphertext'], $block_size);
                         $ciphertext.= $block ^ $key;
                     }
                 } else {
@@ -970,7 +973,7 @@ abstract class Base
                             $xor = $this->_encryptBlock($xor);
                             $buffer['xor'].= $xor;
                         }
-                        $key = $this->_string_shift($buffer['xor'], $block_size);
+                        $key = Strings::shift($buffer['xor'], $block_size);
                         $ciphertext.= $block ^ $key;
                     }
                 } else {
@@ -1194,7 +1197,7 @@ abstract class Base
                             $buffer['ciphertext'].= $this->_encryptBlock($xor);
                             $this->_increment_str($xor);
                         }
-                        $key = $this->_string_shift($buffer['ciphertext'], $block_size);
+                        $key = Strings::shift($buffer['ciphertext'], $block_size);
                         $plaintext.= $block ^ $key;
                     }
                 } else {
@@ -1262,7 +1265,7 @@ abstract class Base
                             $xor = $this->_encryptBlock($xor);
                             $buffer['xor'].= $xor;
                         }
-                        $key = $this->_string_shift($buffer['xor'], $block_size);
+                        $key = Strings::shift($buffer['xor'], $block_size);
                         $plaintext.= $block ^ $key;
                     }
                 } else {
@@ -1306,9 +1309,9 @@ abstract class Base
      * OpenSSL CTR Processor
      *
      * PHP's OpenSSL bindings do not operate in continuous mode so we'll wrap around it. Since the keystream
-     * for CTR is the same for both encrypting and decrypting this function is re-used by both Base::encrypt()
-     * and Base::decrypt(). Also, OpenSSL doesn't implement CTR for all of it's symmetric ciphers so this
-     * function will emulate CTR with ECB when necessary.
+     * for CTR is the same for both encrypting and decrypting this function is re-used by both SymmetricKey::encrypt()
+     * and SymmetricKey::decrypt(). Also, OpenSSL doesn't implement CTR for all of it's symmetric ciphers so this
+     * function will emulate CTR with ECB when necesary.
      *
      * @see self::encrypt()
      * @see self::decrypt()
@@ -1336,7 +1339,7 @@ abstract class Base
                         $buffer['ciphertext'].= $result;
                     }
                     $this->_increment_str($xor);
-                    $otp = $this->_string_shift($buffer['ciphertext'], $block_size);
+                    $otp = Strings::shift($buffer['ciphertext'], $block_size);
                     $ciphertext.= $block ^ $otp;
                 }
             } else {
@@ -1359,7 +1362,7 @@ abstract class Base
         }
 
         if (strlen($buffer['ciphertext'])) {
-            $ciphertext = $plaintext ^ $this->_string_shift($buffer['ciphertext'], strlen($plaintext));
+            $ciphertext = $plaintext ^ Strings::shift($buffer['ciphertext'], strlen($plaintext));
             $plaintext = substr($plaintext, strlen($ciphertext));
 
             if (!strlen($plaintext)) {
@@ -1401,8 +1404,8 @@ abstract class Base
      * OpenSSL OFB Processor
      *
      * PHP's OpenSSL bindings do not operate in continuous mode so we'll wrap around it. Since the keystream
-     * for OFB is the same for both encrypting and decrypting this function is re-used by both Base::encrypt()
-     * and Base::decrypt().
+     * for OFB is the same for both encrypting and decrypting this function is re-used by both SymmetricKey::encrypt()
+     * and SymmetricKey::decrypt().
      *
      * @see self::encrypt()
      * @see self::decrypt()
@@ -1435,7 +1438,7 @@ abstract class Base
                 if ($this->continuousBuffer) {
                     $encryptIV = $xor;
                 }
-                $ciphertext.= $this->_string_shift($xor, $overflow) ^ substr($plaintext, -$overflow);
+                $ciphertext.= Strings::shift($xor, $overflow) ^ substr($plaintext, -$overflow);
                 if ($this->continuousBuffer) {
                     $buffer['xor'] = $xor;
                 }
@@ -1640,11 +1643,11 @@ abstract class Base
      *
      * Currently, $engine could be:
      *
-     * - \phpseclib\Crypt\Base::ENGINE_OPENSSL  [very fast]
+     * - \phpseclib\Crypt\Common\SymmetricKey::ENGINE_OPENSSL  [very fast]
      *
-     * - \phpseclib\Crypt\Base::ENGINE_MCRYPT   [fast]
+     * - \phpseclib\Crypt\Common\SymmetricKey::ENGINE_MCRYPT   [fast]
      *
-     * - \phpseclib\Crypt\Base::ENGINE_INTERNAL [slow]
+     * - \phpseclib\Crypt\Common\SymmetricKey::ENGINE_INTERNAL [slow]
      *
      * If the preferred crypt engine is not available the fastest available one will be used
      *
@@ -1925,23 +1928,6 @@ abstract class Base
     }
 
     /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @access private
-     * @return string
-     */
-    function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
-    }
-
-    /**
      * String Pop
      *
      * Inspired by array_pop
@@ -2057,7 +2043,7 @@ abstract class Base
      */
     function _setupInlineCrypt()
     {
-        // If, for any reason, an extending \phpseclib\Crypt\Base() \phpseclib\Crypt\* class
+        // If, for any reason, an extending \phpseclib\Crypt\Common\SymmetricKey() \phpseclib\Crypt\* class
         // not using inline crypting then it must be ensured that: $this->use_inline_crypt = false
         // ie in the class var declaration of $use_inline_crypt in general for the \phpseclib\Crypt\* class,
         // in the constructor at object instance-time
@@ -2236,7 +2222,7 @@ abstract class Base
                                 $self->_increment_str($_xor);
                                 $_buffer["ciphertext"].= $in;
                             }
-                            $_key = $self->_string_shift($_buffer["ciphertext"], '.$block_size.');
+                            $_key = \phpseclib\Common\Functions\Strings::shift($_buffer["ciphertext"], '.$block_size.');
                             $_ciphertext.= $_block ^ $_key;
                         }
                     } else {
@@ -2274,7 +2260,7 @@ abstract class Base
                                 $self->_increment_str($_xor);
                                 $_buffer["ciphertext"].= $in;
                             }
-                            $_key = $self->_string_shift($_buffer["ciphertext"], '.$block_size.');
+                            $_key = \phpseclib\Common\Functions\Strings::shift($_buffer["ciphertext"], '.$block_size.');
                             $_plaintext.= $_block ^ $_key;
                         }
                     } else {
@@ -2412,7 +2398,7 @@ abstract class Base
                                 $_xor = $in;
                                 $_buffer["xor"].= $_xor;
                             }
-                            $_key = $self->_string_shift($_buffer["xor"], '.$block_size.');
+                            $_key = \phpseclib\Common\Functions\Strings::shift($_buffer["xor"], '.$block_size.');
                             $_ciphertext.= $_block ^ $_key;
                         }
                     } else {
@@ -2448,7 +2434,7 @@ abstract class Base
                                 $_xor = $in;
                                 $_buffer["xor"].= $_xor;
                             }
-                            $_key = $self->_string_shift($_buffer["xor"], '.$block_size.');
+                            $_key = \phpseclib\Common\Functions\Strings::shift($_buffer["xor"], '.$block_size.');
                             $_plaintext.= $_block ^ $_key;
                         }
                     } else {

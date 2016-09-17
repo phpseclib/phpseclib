@@ -1,4 +1,5 @@
 <?php
+
 /**
  * XML Formatted RSA Key Handler
  *

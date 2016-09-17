@@ -33,6 +33,7 @@
 namespace phpseclib\Net;
 
 use phpseclib\Exception\FileNotFoundException;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * Pure-PHP implementations of SCP.
@@ -303,7 +304,7 @@ class SCP
                     switch ($response[SSH1::RESPONSE_TYPE]) {
                         case NET_SSH1_SMSG_STDOUT_DATA:
                             extract(unpack('Nlength', $response[SSH1::RESPONSE_DATA]));
-                            return $this->ssh->_string_shift($response[SSH1::RESPONSE_DATA], $length);
+                            return Strings::shift($response[SSH1::RESPONSE_DATA], $length);
                         case NET_SSH1_SMSG_STDERR_DATA:
                             break;
                         case NET_SSH1_SMSG_EXITSTATUS:

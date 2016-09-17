@@ -5,15 +5,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Base;
+use phpseclib\Crypt\Common\BlockCipher;
 use phpseclib\Crypt\TripleDES;
 
 class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 {
     var $engines = array(
-        Base::ENGINE_INTERNAL => 'internal',
-        Base::ENGINE_MCRYPT => 'mcrypt',
-        Base::ENGINE_OPENSSL => 'OpenSSL',
+        BlockCipher::ENGINE_INTERNAL => 'internal',
+        BlockCipher::ENGINE_MCRYPT => 'mcrypt',
+        BlockCipher::ENGINE_OPENSSL => 'OpenSSL',
     );
 
     public function engineVectors()
@@ -120,9 +120,9 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
     public function engineIVVectors()
     {
         $engines = array(
-            Base::ENGINE_INTERNAL => 'internal',
-            Base::ENGINE_MCRYPT => 'mcrypt',
-            Base::ENGINE_OPENSSL => 'OpenSSL',
+            BlockCipher::ENGINE_INTERNAL => 'internal',
+            BlockCipher::ENGINE_MCRYPT => 'mcrypt',
+            BlockCipher::ENGINE_OPENSSL => 'OpenSSL',
         );
 
         // tests from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf

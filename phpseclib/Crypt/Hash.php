@@ -35,6 +35,7 @@ namespace phpseclib\Crypt;
 
 use phpseclib\Math\BigInteger;
 use phpseclib\Exception\UnsupportedAlgorithmException;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * @package Hash
@@ -327,7 +328,7 @@ class Hash
         foreach ($chunks as $chunk) {
             $w = array();
             for ($i = 0; $i < 16; $i++) {
-                $temp = new BigInteger(self::_string_shift($chunk, 8), 256);
+                $temp = new BigInteger(Strings::shift($chunk, 8), 256);
                 $temp->setPrecision(64);
                 $w[] = $temp;
             }
@@ -428,22 +429,5 @@ class Hash
                 $hash[4]->toBytes() . $hash[5]->toBytes() . $hash[6]->toBytes() . $hash[7]->toBytes();
 
         return $temp;
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    static function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 }

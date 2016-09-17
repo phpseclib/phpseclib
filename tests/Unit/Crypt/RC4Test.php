@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Base;
+use phpseclib\Crypt\Common\StreamCipher;
 use phpseclib\Crypt\RC4;
 
 class Unit_Crypt_RC4Test extends PhpseclibTestCase
@@ -13,9 +13,9 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
     public function engineVectors()
     {
         $engines = array(
-            Base::ENGINE_INTERNAL => 'internal',
-            Base::ENGINE_MCRYPT => 'mcrypt',
-            Base::ENGINE_OPENSSL => 'OpenSSL',
+            StreamCipher::ENGINE_INTERNAL => 'internal',
+            StreamCipher::ENGINE_MCRYPT => 'mcrypt',
+            StreamCipher::ENGINE_OPENSSL => 'OpenSSL',
         );
         // tests from https://tools.ietf.org/html/rfc6229
         $tests = array(

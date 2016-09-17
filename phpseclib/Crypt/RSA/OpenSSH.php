@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OpenSSH Formatted RSA Key Handler
  *
@@ -18,6 +19,7 @@ namespace phpseclib\Crypt\RSA;
 
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * OpenSSH Formatted RSA Key Handler
@@ -73,23 +75,23 @@ class OpenSSH
         if (substr($key, 0, 11) != "\0\0\0\7ssh-rsa") {
             return false;
         }
-        self::_string_shift($key, 11);
+        Strings::shift($key, 11);
         if (strlen($key) <= 4) {
             return false;
         }
-        extract(unpack('Nlength', self::_string_shift($key, 4)));
+        extract(unpack('Nlength', Strings::shift($key, 4)));
         if (strlen($key) <= $length) {
             return false;
         }
-        $publicExponent = new BigInteger(self::_string_shift($key, $length), -256);
+        $publicExponent = new BigInteger(Strings::shift($key, $length), -256);
         if (strlen($key) <= 4) {
             return false;
         }
-        extract(unpack('Nlength', self::_string_shift($key, 4)));
+        extract(unpack('Nlength', Strings::shift($key, 4)));
         if (strlen($key) != $length) {
             return false;
         }
-        $modulus = new BigInteger(self::_string_shift($key, $length), -256);
+        $modulus = new BigInteger(Strings::shift($key, $length), -256);
 
         return array(
             'isPublicKey' => true,
@@ -120,22 +122,5 @@ class OpenSSH
         $RSAPublicKey = 'ssh-rsa ' . Base64::encode($RSAPublicKey) . ' ' . self::$comment;
 
         return $RSAPublicKey;
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    static function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 }

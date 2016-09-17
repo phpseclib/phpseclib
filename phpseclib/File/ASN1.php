@@ -26,6 +26,7 @@ namespace phpseclib\File;
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\ASN1 as Functions;
 
 /**
  * Pure-PHP ASN.1 Parser
@@ -884,7 +885,7 @@ class ASN1
                          */
                         if (isset($child['explicit']) || $child['type'] == self::TYPE_CHOICE) {
                             $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | $child['constant']);
-                            $temp = $subtag . $this->_encodeLength(strlen($temp)) . $temp;
+                            $temp = $subtag . Functions::encodeLength(strlen($temp)) . $temp;
                         } else {
                             $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | (ord($temp[0]) & 0x20) | $child['constant']);
                             $temp = $subtag . substr($temp, 1);
@@ -918,7 +919,7 @@ class ASN1
                     if (isset($child['constant'])) {
                         if (isset($child['explicit']) || $child['type'] == self::TYPE_CHOICE) {
                             $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | $child['constant']);
-                            $temp = $subtag . $this->_encodeLength(strlen($temp)) . $temp;
+                            $temp = $subtag . Functions::encodeLength(strlen($temp)) . $temp;
                         } else {
                             $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | (ord($temp[0]) & 0x20) | $child['constant']);
                             $temp = $subtag . substr($temp, 1);
@@ -1089,34 +1090,14 @@ class ASN1
 
         if (isset($mapping['cast'])) {
             if (isset($mapping['explicit']) || $mapping['type'] == self::TYPE_CHOICE) {
-                $value = chr($tag) . $this->_encodeLength(strlen($value)) . $value;
+                $value = chr($tag) . Functions::encodeLength(strlen($value)) . $value;
                 $tag = ($mapping['class'] << 6) | 0x20 | $mapping['cast'];
             } else {
                 $tag = ($mapping['class'] << 6) | (ord($temp[0]) & 0x20) | $mapping['cast'];
             }
         }
 
-        return chr($tag) . $this->_encodeLength(strlen($value)) . $value;
-    }
-
-    /**
-     * DER-encode the length
-     *
-     * DER supports lengths up to (2**8)**127, however, we'll only support lengths up to (2**8)**4.  See
-     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
-     *
-     * @access private
-     * @param int $length
-     * @return string
-     */
-    function _encodeLength($length)
-    {
-        if ($length <= 0x7F) {
-            return chr($length);
-        }
-
-        $temp = ltrim(pack('N', $length), chr(0));
-        return pack('Ca*', 0x80 | strlen($temp), $temp);
+        return chr($tag) . Functions::encodeLength(strlen($value)) . $value;
     }
 
     /**
@@ -1205,23 +1186,6 @@ class ASN1
     function loadFilters($filters)
     {
         $this->filters = $filters;
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PKCS#1 Formatted RSA Key Handler
  *
@@ -30,6 +31,7 @@ use phpseclib\Crypt\DES;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\ASN1;
 
 /**
  * PKCS#1 Formatted RSA Key Handler
@@ -89,7 +91,7 @@ class PKCS1 extends PKCS
 
         $components = array();
         foreach ($raw as $name => $value) {
-            $components[$name] = pack('Ca*a*', self::ASN1_INTEGER, self::_encodeLength(strlen($value)), $value);
+            $components[$name] = pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($value)), $value);
         }
 
         $RSAPrivateKey = implode('', $components);
@@ -104,15 +106,15 @@ class PKCS1 extends PKCS
                 //     exponent          INTEGER,  -- di
                 //     coefficient       INTEGER   -- ti
                 // }
-                $OtherPrimeInfo = pack('Ca*a*', self::ASN1_INTEGER, self::_encodeLength(strlen($primes[$i]->toBytes(true))), $primes[$i]->toBytes(true));
-                $OtherPrimeInfo.= pack('Ca*a*', self::ASN1_INTEGER, self::_encodeLength(strlen($exponents[$i]->toBytes(true))), $exponents[$i]->toBytes(true));
-                $OtherPrimeInfo.= pack('Ca*a*', self::ASN1_INTEGER, self::_encodeLength(strlen($coefficients[$i]->toBytes(true))), $coefficients[$i]->toBytes(true));
-                $OtherPrimeInfos.= pack('Ca*a*', self::ASN1_SEQUENCE, self::_encodeLength(strlen($OtherPrimeInfo)), $OtherPrimeInfo);
+                $OtherPrimeInfo = pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($primes[$i]->toBytes(true))), $primes[$i]->toBytes(true));
+                $OtherPrimeInfo.= pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($exponents[$i]->toBytes(true))), $exponents[$i]->toBytes(true));
+                $OtherPrimeInfo.= pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($coefficients[$i]->toBytes(true))), $coefficients[$i]->toBytes(true));
+                $OtherPrimeInfos.= pack('Ca*a*', self::ASN1_SEQUENCE, ASN1::encodeLength(strlen($OtherPrimeInfo)), $OtherPrimeInfo);
             }
-            $RSAPrivateKey.= pack('Ca*a*', self::ASN1_SEQUENCE, self::_encodeLength(strlen($OtherPrimeInfos)), $OtherPrimeInfos);
+            $RSAPrivateKey.= pack('Ca*a*', self::ASN1_SEQUENCE, ASN1::encodeLength(strlen($OtherPrimeInfos)), $OtherPrimeInfos);
         }
 
-        $RSAPrivateKey = pack('Ca*a*', self::ASN1_SEQUENCE, self::_encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
+        $RSAPrivateKey = pack('Ca*a*', self::ASN1_SEQUENCE, ASN1::encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
 
         if (!empty($password) || is_string($password)) {
             $cipher = self::getEncryptionObject(self::$defaultEncryptionAlgorithm);
@@ -154,14 +156,14 @@ class PKCS1 extends PKCS
         //     publicExponent    INTEGER   -- e
         // }
         $components = array(
-            'modulus' => pack('Ca*a*', self::ASN1_INTEGER, self::_encodeLength(strlen($modulus)), $modulus),
-            'publicExponent' => pack('Ca*a*', self::ASN1_INTEGER, self::_encodeLength(strlen($publicExponent)), $publicExponent)
+            'modulus' => pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($modulus)), $modulus),
+            'publicExponent' => pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($publicExponent)), $publicExponent)
         );
 
         $RSAPublicKey = pack(
             'Ca*a*a*',
             self::ASN1_SEQUENCE,
-            self::_encodeLength(strlen($components['modulus']) + strlen($components['publicExponent'])),
+            ASN1::encodeLength(strlen($components['modulus']) + strlen($components['publicExponent'])),
             $components['modulus'],
             $components['publicExponent']
         );

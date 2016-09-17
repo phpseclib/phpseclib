@@ -48,6 +48,7 @@ namespace phpseclib\Crypt;
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\File\ASN1;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
@@ -1093,64 +1094,6 @@ class RSA
     }
 
     /**
-     * DER-decode the length
-     *
-     * DER supports lengths up to (2**8)**127, however, we'll only support lengths up to (2**8)**4.  See
-     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
-     *
-     * @access private
-     * @param string $string
-     * @return int
-     */
-    function _decodeLength(&$string)
-    {
-        $length = ord($this->_string_shift($string));
-        if ($length & 0x80) { // definite length, long form
-            $length&= 0x7F;
-            $temp = $this->_string_shift($string, $length);
-            list(, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
-        }
-        return $length;
-    }
-
-    /**
-     * DER-encode the length
-     *
-     * DER supports lengths up to (2**8)**127, however, we'll only support lengths up to (2**8)**4.  See
-     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
-     *
-     * @access private
-     * @param int $length
-     * @return string
-     */
-    function _encodeLength($length)
-    {
-        if ($length <= 0x7F) {
-            return chr($length);
-        }
-
-        $temp = ltrim(pack('N', $length), chr(0));
-        return pack('Ca*', 0x80 | strlen($temp), $temp);
-    }
-
-    /**
-     * String Shift
-     *
-     * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
-     * @access private
-     */
-    function _string_shift(&$string, $index = 1)
-    {
-        $substr = substr($string, 0, $index);
-        $string = substr($string, $index);
-        return $substr;
-    }
-
-    /**
      * Determines the private key format
      *
      * @see self::__toString()
@@ -2072,12 +2015,12 @@ class RSA
             return false;
         }
 
-        if ($this->_string_shift($em, 2) != "\0\1") {
+        if (Strings::shift($em, 2) != "\0\1") {
             return false;
         }
 
         $em = ltrim($em, "\xFF");
-        if ($this->_string_shift($em) != "\0") {
+        if (Strings::shift($em) != "\0") {
             return false;
         }
 
