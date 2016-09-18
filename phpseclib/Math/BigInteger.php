@@ -3010,15 +3010,15 @@ class BigInteger
     }
 
     /**
-     * Generates a random BigInteger
+     * Generates a random number of a certain size
      *
-     * Byte length is equal to $length. Uses \phpseclib\Crypt\Random if it's loaded and mt_rand if it's not.
+     * Byte length is equal to $size. Uses \phpseclib\Crypt\Random if it's loaded and mt_rand if it's not.
      *
-     * @param int $length
+     * @param int $size
      * @return \phpseclib\Math\BigInteger
-     * @access private
+     * @access public
      */
-    static function _random_number_helper($size)
+    static function random($size)
     {
         if (class_exists('\phpseclib\Crypt\Random')) {
             $random = Random::string($size);
@@ -3040,20 +3040,20 @@ class BigInteger
     }
 
     /**
-     * Generate a random number
+     * Generate a random number between a range
      *
      * Returns a random number between $min and $max where $min and $max
      * can be defined using one of the two methods:
      *
-     * BigInteger::random($min, $max)
-     * BigInteger::random($max, $min)
+     * BigInteger::randomRange($min, $max)
+     * BigInteger::randomRange($max, $min)
      *
      * @param \phpseclib\Math\BigInteger $arg1
      * @param \phpseclib\Math\BigInteger $arg2
      * @return \phpseclib\Math\BigInteger
      * @access public
      */
-    static function random(BigInteger $min, BigInteger $max)
+    static function randomRange(BigInteger $min, BigInteger $max)
     {
         $compare = $max->compare($min);
 
@@ -3090,7 +3090,7 @@ class BigInteger
             http://crypto.stackexchange.com/questions/5708/creating-a-small-number-from-a-cryptographically-secure-random-string
         */
         $random_max = new static(chr(1) . str_repeat("\0", $size), 256);
-        $random = static::_random_number_helper($size);
+        $random = static::random($size);
 
         list($max_multiple) = $random_max->divide($max);
         $max_multiple = $max_multiple->multiply($max);
@@ -3099,7 +3099,7 @@ class BigInteger
             $random = $random->subtract($max_multiple);
             $random_max = $random_max->subtract($max_multiple);
             $random = $random->bitwise_leftShift(8);
-            $random = $random->add(self::_random_number_helper(1));
+            $random = $random->add(self::random(1));
             $random_max = $random_max->bitwise_leftShift(8);
             list($max_multiple) = $random_max->divide($max);
             $max_multiple = $max_multiple->multiply($max);
@@ -3110,7 +3110,36 @@ class BigInteger
     }
 
     /**
-     * Generate a random prime number.
+     * Generates a random prime number of a certain size
+     *
+     * Byte length is equal to $size
+     *
+     * @param int $size
+     * @param int $timeout
+     * @return \phpseclib\Math\BigInteger
+     * @access public
+     */
+    static function randomPrime($size, $timeout = false)
+    {
+        $min = str_repeat(chr(0), $bytes);
+        $max = str_repeat(chr(0xFF), $bytes);
+        $msb = $bits & 7;
+        if ($msb) {
+            $min = chr(1 << ($msb - 1)) . $min;
+            $max = chr((1 << $msb) - 1) . $max;
+        } else {
+            $min[0] = chr(0x80);
+        }
+
+        return self::randomRangePrime(
+            new Math_BigInteger($min, 256),
+            new Math_BigInteger($max, 256),
+            $timeout
+        );
+    }
+
+    /**
+     * Generate a random prime number between a range
      *
      * If there's not a prime within the given range, false will be returned.
      * If more than $timeout seconds have elapsed, give up and return false.
@@ -3122,7 +3151,7 @@ class BigInteger
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
      */
-    static function randomPrime(BigInteger $min, BigInteger $max, $timeout = false)
+    static function randomRangePrime(BigInteger $min, BigInteger $max, $timeout = false)
     {
         $compare = $max->compare($min);
 

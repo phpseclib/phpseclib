@@ -273,7 +273,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $min = $this->getInstance(0);
         $max = $this->getInstance('18446744073709551616');
 
-        $rand1 = \phpseclib\Math\BigInteger::random($min, $max);
+        $rand1 = \phpseclib\Math\BigInteger::randomRange($min, $max);
         // technically $rand1 can equal $min but with the $min and $max we've
         // chosen it's just not that likely
         $this->assertTrue($rand1->compare($min) > 0);
@@ -315,8 +315,8 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         Code for generation of $alicePrivate and $bobPrivate.
         $one = $this->getInstance(1);
         $max = $one->bitwise_leftShift(512)->subtract($one);
-        $alicePrivate = \phpseclib\Math\BigInteger::random($one, $max);
-        $bobPrivate = \phpseclib\Math\BigInteger::random($one, $max);
+        $alicePrivate = \phpseclib\Math\BigInteger::randomRange($one, $max);
+        $bobPrivate = \phpseclib\Math\BigInteger::randomRange($one, $max);
         var_dump($alicePrivate->toHex(), $bobPrivate->toHex());
         */
 

@@ -478,9 +478,8 @@ class RSA
         } else {
             $num_primes = 2;
         }
-        extract(self::_generateMinMax($temp + $bits % $temp));
-        $finalMax = $max;
-        extract(self::_generateMinMax($temp));
+        $regSize = $temp;
+        $finalSize = $temp + $bits % $temp;
 
         $n = clone self::$one;
         if (!empty($partial)) {
@@ -515,15 +514,8 @@ class RSA
                     }
                 }
 
-                if ($i == $num_primes) {
-                    list($min, $temp) = $absoluteMin->divide($n);
-                    if (!$temp->equals(self::$zero)) {
-                        $min = $min->add(self::$one); // ie. ceil()
-                    }
-                    $primes[$i] = BigInteger::randomPrime($min, $finalMax, $timeout);
-                } else {
-                    $primes[$i] = BigInteger::randomPrime($min, $max, $timeout);
-                }
+                $size = $i == $num_primes ? $finalSize : $regSize;
+                $primes[$i] = BigInteger::randomPrime($size, $timeout);
 
                 if ($primes[$i] === false) { // if we've reached the timeout
                     if (count($primes) > 1) {
@@ -1068,32 +1060,6 @@ class RSA
     }
 
     /**
-     * Generates the smallest and largest numbers requiring $bits bits
-     *
-     * @access private
-     * @param int $bits
-     * @return array
-     */
-    static function _generateMinMax($bits)
-    {
-        $bytes = $bits >> 3;
-        $min = str_repeat(chr(0), $bytes);
-        $max = str_repeat(chr(0xFF), $bytes);
-        $msb = $bits & 7;
-        if ($msb) {
-            $min = chr(1 << ($msb - 1)) . $min;
-            $max = chr((1 << $msb) - 1) . $max;
-        } else {
-            $min[0] = chr(0x80);
-        }
-
-        return array(
-            'min' => new BigInteger($min, 256),
-            'max' => new BigInteger($max, 256)
-        );
-    }
-
-    /**
      * Determines the private key format
      *
      * @see self::__toString()
@@ -1284,7 +1250,7 @@ class RSA
                 }
             }
 
-            $r = BigInteger::random(self::$one, $smallest->subtract(self::$one));
+            $r = BigInteger::randomRange(self::$one, $smallest->subtract(self::$one));
 
             $m_i = array(
                 1 => $this->_blind($x, $r, 1),

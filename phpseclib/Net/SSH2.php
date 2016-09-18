@@ -1515,7 +1515,7 @@ class SSH2
             $max = $one->bitwise_leftShift(16 * $keyLength); // 2 * 8 * $keyLength
             $max = $max->subtract($one);
 
-            $x = BigInteger::random($one, $max);
+            $x = BigInteger::randomRange($one, $max);
             $e = $g->modPow($x, $prime);
 
             $eBytes = $e->toBytes(true);
