@@ -380,4 +380,40 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $n = $this->getInstance(2);
         $x->powMod($e, $n);
     }
+    public function testRoot()
+    {
+        $bigInteger = new \phpseclib\Math\BigInteger('64000000'); // (20^2)^3
+        $three = new \phpseclib\Math\BigInteger('3');
+        $bigInteger = $bigInteger->root();
+        $this->assertSame('8000', (string) $bigInteger);
+        $bigInteger = $bigInteger->root($three);
+        $this->assertSame('20', (string) $bigInteger);
+    }
+
+    public function testPow()
+    {
+        $bigInteger = new \phpseclib\Math\BigInteger('20');
+        $two = new \phpseclib\Math\BigInteger('2');
+        $three = new \phpseclib\Math\BigInteger('3');
+        $bigInteger = $bigInteger->pow($two);
+        $this->assertSame('400', (string) $bigInteger);
+        $bigInteger = $bigInteger->pow($three);
+        $this->assertSame('64000000', (string) $bigInteger); // (20^2)^3
+    }
+
+    public function testMax()
+    {
+        $min = new \phpseclib\Math\BigInteger('20');
+        $max = new \phpseclib\Math\BigInteger('20000');
+        $this->assertSame((string) $max, (string) \phpseclib\Math\BigInteger::max($min, $max));
+        $this->assertSame((string) $max, (string) \phpseclib\Math\BigInteger::max($max, $min));
+    }
+
+    public function testMin()
+    {
+        $min = new \phpseclib\Math\BigInteger('20');
+        $max = new \phpseclib\Math\BigInteger('20000');
+        $this->assertSame((string) $min, (string) \phpseclib\Math\BigInteger::min($min, $max));
+        $this->assertSame((string) $min, (string) \phpseclib\Math\BigInteger::min($max, $min));
+    }
 }

@@ -3703,4 +3703,177 @@ class BigInteger
         // self::$base === 31
         return ($x - ($x % $y)) / $y;
     }
+
+    /**
+     * Calculates the nth root of a biginteger.
+     *
+     * Returns the nth root of a positive biginteger, where n defaults to 2
+     *
+     * Here's an example:
+     * <code>
+     * <?php
+     *    $a = new \phpseclib\Math\BigInteger('625');
+     *
+     *    $root = $a->root();
+     *
+     *    echo $root->toString(); // outputs 25
+     * ?>
+     * </code>
+     *
+     * @param \phpseclib\Math\BigInteger $n
+     * @access public
+     * @return \phpseclib\Math\BigInteger
+     *
+     * @internal This function is based off of {@link http://mathforum.org/library/drmath/view/52605.html this page} and {@link http://stackoverflow.com/questions/11242920/calculating-nth-root-with-bcmath-in-php this stackoverflow question}.
+     */
+    function root($n = null)
+    {
+        static $zero, $one, $two;
+        if (!isset($one)) {
+            $zero = new static(0);
+            $one = new static(1);
+            $two = new static(2);
+        }
+        if ($n === null) {
+            $n = $two;
+        }
+        if ($n->compare($one) == -1) {
+            return $zero;
+        } // we want positive exponents
+        if ($this->compare($one) == -1) {
+            return new static(0);
+        } // we want positive numbers
+        if ($this->compare($two) == -1) {
+            return $one;
+        } // n-th root of 1 or 2 is 1
+
+        $root = new static();
+        if (MATH_BIGINTEGER_MODE == self::MODE_GMP && function_exists('gmp_root')) {
+            $root->value = gmp_root($this->value, gmp_intval($n->value));
+            return $this->_normalize($root);
+        }
+
+        // g is our guess number
+        $g = $two;
+        // while (g^n < num) g=g*2
+        while ($g->pow($n)->compare($this) == -1) {
+            $g = $g->multiply($two);
+        }
+        // if (g^n==num) num is a power of 2, we're lucky, end of job
+        // == 0 bccomp(bcpow($g,$n), $n->value)==0
+        if ($g->pow($n)->equals($this)) {
+            $root = $g;
+            return $this->_normalize($root);
+        }
+
+        // if we're here num wasn't a power of 2 :(
+        $og = $g; // og means original guess and here is our upper bound
+        $g = $g->divide($two)[0]; // g is set to be our lower bound
+        $step = $og->subtract($g)->divide($two)[0]; // step is the half of upper bound - lower bound
+        $g = $g->add($step); // we start at lower bound + step , basically in the middle of our interval
+
+        // while step>1
+
+        while ($step->compare($one) == 1) {
+            $guess = $g->pow($n);
+            $step = $step->divide($two)[0];
+            $comp = $guess->compare($this); // compare our guess with real number
+            switch ($comp) {
+                case -1: // if guess is lower we add the new step
+                    $g = $g->add($step);
+                    break;
+                case 1: // if guess is higher we sub the new step
+                    $g = $g->subtract($step);
+                    break;
+                case 0: // if guess is exactly the num we're done, we return the value
+                    $root = $g;
+                    break 2;
+            }
+        }
+
+        if ($comp == 1) {
+            $g = $g->subtract($step);
+        }
+
+        // whatever happened, g is the closest guess we can make so return it
+        $root = $g;
+
+        return $this->_normalize($root);
+    }
+
+    /**
+     * Performs exponentiation.
+     *
+     * @param \phpseclib\Math\BigInteger $n
+     * @access public
+     * @return \phpseclib\Math\BigInteger
+     */
+    function pow($n)
+    {
+        $zero = new static(0);
+        if ($n->compare($zero) == 0) {
+            return new static(1);
+        } // n^0 = 1
+
+        $res = new static();
+        switch (MATH_BIGINTEGER_MODE) {
+            case self::MODE_GMP:
+                $res->value = gmp_pow($this->value, gmp_intval($n->value));
+
+                return $this->_normalize($res);
+            case self::MODE_BCMATH:
+                $res->value = bcpow($this->value, $n->value);
+
+                return $this->_normalize($res);
+            default:
+                $one = new static(1);
+                $res = $this;
+                while (!$n->equals($one)) {
+                    $res = $res->multiply($this);
+                    $n = $n->subtract($one);
+                }
+
+                return $res;
+        }
+    }
+
+    /**
+     * Return the minimum BigInteger between an arbitrary number of BigIntegers.
+     *
+     * @param \phpseclib\Math\BigInteger ...$param
+     * @access public
+     * @return \phpseclib\Math\BigInteger
+     */
+    static function min()
+    {
+        $args = func_get_args();
+        if (count($args) == 1) {
+            return $args[0];
+        }
+        $min = $args[0];
+        for ($i = 1; $i < count($args); $i++) {
+            $min = $min->compare($args[$i]) > 0 ? $args[$i] : $min;
+        }
+        return $min;
+    }
+
+    /**
+     * Return the maximum BigInteger between an arbitrary number of BigIntegers.
+     *
+     * @param \phpseclib\Math\BigInteger ...$param
+     * @access public
+     * @return \phpseclib\Math\BigInteger
+     */
+    static function max()
+    {
+        $args = func_get_args();
+        if (count($args) == 1) {
+            return $args[0];
+        }
+        $max = $args[0];
+        for ($i = 1; $i < count($args); $i++) {
+            $max = $max->compare($args[$i]) < 0 ? $args[$i] : $max;
+        }
+        return $max;
+    }
 }
