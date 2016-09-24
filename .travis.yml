@@ -28,7 +28,7 @@ install:
   - cd ..
   - eval `ssh-agent -s`
   - travis/setup-secure-shell.sh
-  - sh -c "if [ '$TRAVIS_PHP_VERSION' != 'hhvm' -a '$TRAVIS_PHP_VERSION' != '7.0' -a '$TRAVIS_PHP_VERSION' != '7.1' ]; then travis/install-php-extensions.sh; fi"
+  - sh -c "if [ '$TRAVIS_PHP_VERSION' != 'hhvm' -a `php -r "echo (int) version_compare(PHP_VERSION, '7.0', '<');"` = "1" ]; then travis/install-php-extensions.sh; fi"
   - travis/setup-composer.sh
 
 script:
