@@ -333,34 +333,6 @@ class Crypt_RC2 extends Crypt_Base
     );
 
     /**
-     * Default Constructor.
-     *
-     * Determines whether or not the mcrypt extension should be used.
-     *
-     * $mode could be:
-     *
-     * - CRYPT_RC2_MODE_ECB
-     *
-     * - CRYPT_RC2_MODE_CBC
-     *
-     * - CRYPT_RC2_MODE_CTR
-     *
-     * - CRYPT_RC2_MODE_CFB
-     *
-     * - CRYPT_RC2_MODE_OFB
-     *
-     * If not explicitly set, CRYPT_RC2_MODE_CBC will be used.
-     *
-     * @see Crypt_Base::Crypt_Base()
-     * @param int $mode
-     * @access public
-     */
-    function Crypt_RC2($mode = CRYPT_RC2_MODE_CBC)
-    {
-        parent::Crypt_Base($mode);
-    }
-
-    /**
      * Test for engine validity
      *
      * This is mainly just a wrapper to set things up for Crypt_Base::isValidEngine()
