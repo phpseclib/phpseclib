@@ -796,7 +796,7 @@ abstract class SymmetricKey
                 $this->changed = false;
             }
             if ($this->enchanged) {
-                mcrypt_generic_init($this->enmcrypt, $this->key, $this->_getIV($this->encryptIV));
+                @mcrypt_generic_init($this->enmcrypt, $this->key, $this->_getIV($this->encryptIV));
                 $this->enchanged = false;
             }
 
@@ -829,15 +829,15 @@ abstract class SymmetricKey
                 if ($len >= $block_size) {
                     if ($this->enbuffer['enmcrypt_init'] === false || $len > $this->cfb_init_len) {
                         if ($this->enbuffer['enmcrypt_init'] === true) {
-                            mcrypt_generic_init($this->enmcrypt, $this->key, $iv);
+                            @mcrypt_generic_init($this->enmcrypt, $this->key, $iv);
                             $this->enbuffer['enmcrypt_init'] = false;
                         }
-                        $ciphertext.= mcrypt_generic($this->enmcrypt, substr($plaintext, $i, $len - $len % $block_size));
+                        $ciphertext.= @mcrypt_generic($this->enmcrypt, substr($plaintext, $i, $len - $len % $block_size));
                         $iv = substr($ciphertext, -$block_size);
                         $len%= $block_size;
                     } else {
                         while ($len >= $block_size) {
-                            $iv = mcrypt_generic($this->ecb, $iv) ^ substr($plaintext, $i, $block_size);
+                            $iv = @mcrypt_generic($this->ecb, $iv) ^ substr($plaintext, $i, $block_size);
                             $ciphertext.= $iv;
                             $len-= $block_size;
                             $i+= $block_size;
@@ -846,7 +846,7 @@ abstract class SymmetricKey
                 }
 
                 if ($len) {
-                    $iv = mcrypt_generic($this->ecb, $iv);
+                    $iv = @mcrypt_generic($this->ecb, $iv);
                     $block = $iv ^ substr($plaintext, -$len);
                     $iv = substr_replace($iv, $block, 0, $len);
                     $ciphertext.= $block;
@@ -856,10 +856,10 @@ abstract class SymmetricKey
                 return $ciphertext;
             }
 
-            $ciphertext = mcrypt_generic($this->enmcrypt, $plaintext);
+            $ciphertext = @mcrypt_generic($this->enmcrypt, $plaintext);
 
             if (!$this->continuousBuffer) {
-                mcrypt_generic_init($this->enmcrypt, $this->key, $this->_getIV($this->encryptIV));
+                @mcrypt_generic_init($this->enmcrypt, $this->key, $this->_getIV($this->encryptIV));
             }
 
             return $ciphertext;
@@ -1107,7 +1107,7 @@ abstract class SymmetricKey
                 $this->changed = false;
             }
             if ($this->dechanged) {
-                mcrypt_generic_init($this->demcrypt, $this->key, $this->_getIV($this->decryptIV));
+                @mcrypt_generic_init($this->demcrypt, $this->key, $this->_getIV($this->decryptIV));
                 $this->dechanged = false;
             }
 
@@ -1135,12 +1135,12 @@ abstract class SymmetricKey
                 }
                 if ($len >= $block_size) {
                     $cb = substr($ciphertext, $i, $len - $len % $block_size);
-                    $plaintext.= mcrypt_generic($this->ecb, $iv . $cb) ^ $cb;
+                    $plaintext.= @mcrypt_generic($this->ecb, $iv . $cb) ^ $cb;
                     $iv = substr($cb, -$block_size);
                     $len%= $block_size;
                 }
                 if ($len) {
-                    $iv = mcrypt_generic($this->ecb, $iv);
+                    $iv = @mcrypt_generic($this->ecb, $iv);
                     $plaintext.= $iv ^ substr($ciphertext, -$len);
                     $iv = substr_replace($iv, substr($ciphertext, -$len), 0, $len);
                     $pos = $len;
@@ -1149,10 +1149,10 @@ abstract class SymmetricKey
                 return $plaintext;
             }
 
-            $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
+            $plaintext = @mdecrypt_generic($this->demcrypt, $ciphertext);
 
             if (!$this->continuousBuffer) {
-                mcrypt_generic_init($this->demcrypt, $this->key, $this->_getIV($this->decryptIV));
+                @mcrypt_generic_init($this->demcrypt, $this->key, $this->_getIV($this->decryptIV));
             }
 
             return $this->paddable ? $this->_unpad($plaintext) : $plaintext;
@@ -1630,7 +1630,7 @@ abstract class SymmetricKey
             case self::ENGINE_MCRYPT:
                 return $this->cipher_name_mcrypt &&
                        extension_loaded('mcrypt') &&
-                       in_array($this->cipher_name_mcrypt, mcrypt_list_algorithms());
+                       in_array($this->cipher_name_mcrypt, @mcrypt_list_algorithms());
             case self::ENGINE_INTERNAL:
                 return true;
         }
@@ -1709,13 +1709,13 @@ abstract class SymmetricKey
         if ($this->engine != self::ENGINE_MCRYPT && $this->enmcrypt) {
             // Closing the current mcrypt resource(s). _mcryptSetup() will, if needed,
             // (re)open them with the module named in $this->cipher_name_mcrypt
-            mcrypt_module_close($this->enmcrypt);
-            mcrypt_module_close($this->demcrypt);
+            @mcrypt_module_close($this->enmcrypt);
+            @mcrypt_module_close($this->demcrypt);
             $this->enmcrypt = null;
             $this->demcrypt = null;
 
             if ($this->ecb) {
-                mcrypt_module_close($this->ecb);
+                @mcrypt_module_close($this->ecb);
                 $this->ecb = null;
             }
         }
@@ -1829,19 +1829,19 @@ abstract class SymmetricKey
                 self::MODE_STREAM => MCRYPT_MODE_STREAM,
             );
 
-            $this->demcrypt = mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
-            $this->enmcrypt = mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
+            $this->demcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
+            $this->enmcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
 
             // we need the $ecb mcrypt resource (only) in MODE_CFB with enableContinuousBuffer()
             // to workaround mcrypt's broken ncfb implementation in buffered mode
             // see: {@link http://phpseclib.sourceforge.net/cfb-demo.phps}
             if ($this->mode == self::MODE_CFB) {
-                $this->ecb = mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_ECB, '');
+                $this->ecb = @mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_ECB, '');
             }
         } // else should mcrypt_generic_deinit be called?
 
         if ($this->mode == self::MODE_CFB) {
-            mcrypt_generic_init($this->ecb, $this->key, str_repeat("\0", $this->block_size));
+            @mcrypt_generic_init($this->ecb, $this->key, str_repeat("\0", $this->block_size));
         }
     }
 
