@@ -1594,6 +1594,7 @@ abstract class Base
                 return $this->cipher_name_mcrypt &&
                        extension_loaded('mcrypt') &&
                        in_array($this->cipher_name_mcrypt, @mcrypt_list_algorithms());
+            case self::ENGINE_INTERNAL:
                 return true;
         }
 
