@@ -1180,7 +1180,7 @@ class Crypt_Base
                 return $plaintext;
             }
 
-            $plaintext = mdecrypt_generic($this->demcrypt, $ciphertext);
+            $plaintext = @mdecrypt_generic($this->demcrypt, $ciphertext);
 
             if (!$this->continuousBuffer) {
                 @mcrypt_generic_init($this->demcrypt, $this->key, $this->decryptIV);
