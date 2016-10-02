@@ -20,7 +20,7 @@ then
   PHPUNIT_ARGS="$PHPUNIT_ARGS -d zend.enable_gc=0"
 fi
 
-if [ "$TRAVIS_PHP_VERSION" = 'hhvm' -o "$TRAVIS_PHP_VERSION" = '7.0' ]
+if [ "$TRAVIS_PHP_VERSION" = 'hhvm' -o `php -r "echo (int) version_compare(PHP_VERSION, '7.0', '>=');"` = "1" ]
 then
   find tests -type f -name "*Test.php" | \
     parallel --gnu --keep-order \
