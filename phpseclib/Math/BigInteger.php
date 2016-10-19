@@ -53,6 +53,7 @@ namespace phpseclib\Math;
 use ParagonIE\ConstantTime\Base64;
 use ParagonIE\ConstantTime\Hex;
 use phpseclib\Crypt\Random;
+use phpseclib\Common\Functions\ASN1;
 
 /**
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
@@ -1602,26 +1603,26 @@ class BigInteger
             );
 
             $components = array(
-                'modulus' => pack('Ca*a*', 2, self::_encodeASN1Length(strlen($components['modulus'])), $components['modulus']),
-                'publicExponent' => pack('Ca*a*', 2, self::_encodeASN1Length(strlen($components['publicExponent'])), $components['publicExponent'])
+                'modulus' => pack('Ca*a*', 2, ASN1::encodeLength(strlen($components['modulus'])), $components['modulus']),
+                'publicExponent' => pack('Ca*a*', 2, ASN1::encodeLength(strlen($components['publicExponent'])), $components['publicExponent'])
             );
 
             $RSAPublicKey = pack(
                 'Ca*a*a*',
                 48,
-                self::_encodeASN1Length(strlen($components['modulus']) + strlen($components['publicExponent'])),
+                ASN1::encodeLength(strlen($components['modulus']) + strlen($components['publicExponent'])),
                 $components['modulus'],
                 $components['publicExponent']
             );
 
             $rsaOID = "\x30\x0d\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01\x05\x00"; // hex version of MA0GCSqGSIb3DQEBAQUA
             $RSAPublicKey = chr(0) . $RSAPublicKey;
-            $RSAPublicKey = chr(3) . self::_encodeASN1Length(strlen($RSAPublicKey)) . $RSAPublicKey;
+            $RSAPublicKey = chr(3) . ASN1::encodeLength(strlen($RSAPublicKey)) . $RSAPublicKey;
 
             $encapsulated = pack(
                 'Ca*a*',
                 48,
-                self::_encodeASN1Length(strlen($rsaOID . $RSAPublicKey)),
+                ASN1::encodeLength(strlen($rsaOID . $RSAPublicKey)),
                 $rsaOID . $RSAPublicKey
             );
 
@@ -3010,9 +3011,34 @@ class BigInteger
     }
 
     /**
+     * Returns the smallest and largest n-bit number
+     *
+     * @param int $bits
+     * @return \phpseclib\Math\BigInteger
+     * @access public
+     */
+    static function minMaxBits($bits)
+    {
+        $bytes = $bits >> 3;
+        $min = str_repeat(chr(0), $bytes);
+        $max = str_repeat(chr(0xFF), $bytes);
+        $msb = $bits & 7;
+        if ($msb) {
+            $min = chr(1 << ($msb - 1)) . $min;
+            $max = chr((1 << $msb) - 1) . $max;
+        } else {
+            $min[0] = chr(0x80);
+        }
+        return array(
+            'min' => new static($min, 256),
+            'max' => new static($max, 256)
+        );
+    }
+
+    /**
      * Generates a random number of a certain size
      *
-     * Byte length is equal to $size. Uses \phpseclib\Crypt\Random if it's loaded and mt_rand if it's not.
+     * Bit length is equal to $size.
      *
      * @param int $size
      * @return \phpseclib\Math\BigInteger
@@ -3020,23 +3046,8 @@ class BigInteger
      */
     static function random($size)
     {
-        if (class_exists('\phpseclib\Crypt\Random')) {
-            $random = Random::string($size);
-        } else {
-            $random = '';
-
-            if ($size & 1) {
-                $random.= chr(mt_rand(0, 255));
-            }
-
-            $blocks = $size >> 1;
-            for ($i = 0; $i < $blocks; ++$i) {
-                // mt_rand(-2147483648, 0x7FFFFFFF) always produces -2147483648 on some systems
-                $random.= pack('n', mt_rand(0, 0xFFFF));
-            }
-        }
-
-        return new static($random, 256);
+        extract(self::minMaxBits($size));
+        return self::randomRange($min, $max);
     }
 
     /**
@@ -3058,7 +3069,7 @@ class BigInteger
         $compare = $max->compare($min);
 
         if (!$compare) {
-            return $this->_normalize($min);
+            return $min;
         } elseif ($compare < 0) {
             // if $min is bigger then $max, swap $min and $max
             $temp = $max;
@@ -3072,6 +3083,7 @@ class BigInteger
         }
 
         $max = $max->subtract($min->subtract($one));
+
         $size = strlen(ltrim($max->toBytes(), chr(0)));
 
         /*
@@ -3090,7 +3102,7 @@ class BigInteger
             http://crypto.stackexchange.com/questions/5708/creating-a-small-number-from-a-cryptographically-secure-random-string
         */
         $random_max = new static(chr(1) . str_repeat("\0", $size), 256);
-        $random = static::random($size);
+        $random = new static(Random::string($size), 256);
 
         list($max_multiple) = $random_max->divide($max);
         $max_multiple = $max_multiple->multiply($max);
@@ -3099,7 +3111,7 @@ class BigInteger
             $random = $random->subtract($max_multiple);
             $random_max = $random_max->subtract($max_multiple);
             $random = $random->bitwise_leftShift(8);
-            $random = $random->add(self::random(1));
+            $random = $random->add(new static(Random::string(1), 256));
             $random_max = $random_max->bitwise_leftShift(8);
             list($max_multiple) = $random_max->divide($max);
             $max_multiple = $max_multiple->multiply($max);
@@ -3112,46 +3124,30 @@ class BigInteger
     /**
      * Generates a random prime number of a certain size
      *
-     * Byte length is equal to $size
+     * Bit length is equal to $size
      *
      * @param int $size
-     * @param int $timeout
      * @return \phpseclib\Math\BigInteger
      * @access public
      */
-    static function randomPrime($size, $timeout = false)
+    static function randomPrime($size)
     {
-        $min = str_repeat(chr(0), $bytes);
-        $max = str_repeat(chr(0xFF), $bytes);
-        $msb = $bits & 7;
-        if ($msb) {
-            $min = chr(1 << ($msb - 1)) . $min;
-            $max = chr((1 << $msb) - 1) . $max;
-        } else {
-            $min[0] = chr(0x80);
-        }
-
-        return self::randomRangePrime(
-            new Math_BigInteger($min, 256),
-            new Math_BigInteger($max, 256),
-            $timeout
-        );
+        extract(self::minMaxBits($size));
+        return self::randomRangePrime($min, $max);
     }
 
     /**
      * Generate a random prime number between a range
      *
      * If there's not a prime within the given range, false will be returned.
-     * If more than $timeout seconds have elapsed, give up and return false.
      *
      * @param \phpseclib\Math\BigInteger $min
      * @param \phpseclib\Math\BigInteger $max
-     * @param int $timeout
      * @return Math_BigInteger|false
      * @access public
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap4.pdf#page=15 HAC 4.44}.
      */
-    static function randomRangePrime(BigInteger $min, BigInteger $max, $timeout = false)
+    static function randomRangePrime(BigInteger $min, BigInteger $max)
     {
         $compare = $max->compare($min);
 
@@ -3170,9 +3166,7 @@ class BigInteger
             $two = new static(2);
         }
 
-        $start = time();
-
-        $x = self::random($min, $max);
+        $x = self::randomRange($min, $max);
 
         // gmp_nextprime() requires PHP 5 >= 5.2.0 per <http://php.net/gmp-nextprime>.
         if (MATH_BIGINTEGER_MODE == self::MODE_GMP && extension_loaded('gmp')) {
@@ -3187,7 +3181,7 @@ class BigInteger
                 $x = $x->subtract($one);
             }
 
-            return self::randomPrime($min, $x);
+            return self::randomRangePrime($min, $x);
         }
 
         if ($x->equals($two)) {
@@ -3207,10 +3201,6 @@ class BigInteger
         $initial_x = clone $x;
 
         while (true) {
-            if ($timeout !== false && time() - $start > $timeout) {
-                return false;
-            }
-
             if ($x->isPrime()) {
                 return $x;
             }
@@ -3391,7 +3381,7 @@ class BigInteger
         }
 
         for ($i = 0; $i < $t; ++$i) {
-            $a = self::random($two, $n_2);
+            $a = self::randomRange($two, $n_2);
             $y = $a->modPow($r, $n);
 
             if (!$y->equals($one) && !$y->equals($n_1)) {
@@ -3662,26 +3652,6 @@ class BigInteger
     }
 
     /**
-     * DER-encode an integer
-     *
-     * The ability to DER-encode integers is needed to create RSA public keys for use with OpenSSL
-     *
-     * @see self::modPow()
-     * @access private
-     * @param int $length
-     * @return string
-     */
-    static function _encodeASN1Length($length)
-    {
-        if ($length <= 0x7F) {
-            return chr($length);
-        }
-
-        $temp = ltrim(pack('N', $length), chr(0));
-        return pack('Ca*', 0x80 | strlen($temp), $temp);
-    }
-
-    /**
      * Single digit division
      *
      * Even if int64 is being used the division operator will return a float64 value
@@ -3723,7 +3693,6 @@ class BigInteger
      * @param \phpseclib\Math\BigInteger $n
      * @access public
      * @return \phpseclib\Math\BigInteger
-     *
      * @internal This function is based off of {@link http://mathforum.org/library/drmath/view/52605.html this page} and {@link http://stackoverflow.com/questions/11242920/calculating-nth-root-with-bcmath-in-php this stackoverflow question}.
      */
     function root($n = null)
@@ -3875,5 +3844,27 @@ class BigInteger
             $max = $max->compare($args[$i]) < 0 ? $args[$i] : $max;
         }
         return $max;
+    }
+
+    /**
+     * Return the size of a BigInteger in bits
+     *
+     * @access public
+     * @return int
+     */
+    function getLength()
+    {
+        return strlen($this->toBits());
+    }
+
+    /**
+     * Return the size of a BigInteger in bytes
+     *
+     * @access public
+     * @return int
+     */
+    function getLengthInBytes()
+    {
+        return strlen($this->toBytes());
     }
 }

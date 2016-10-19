@@ -375,7 +375,7 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
     public function testGetLengthKnown($algorithm, $length)
     {
         $hash = new Hash($algorithm);
-        $this->assertSame($hash->getLength(), $length);
+        $this->assertSame($hash->getLengthInBytes(), $length);
     }
 
     public function lengths()

@@ -138,9 +138,6 @@ class PuTTY
             $crypto->setIV(str_repeat("\0", $crypto->getBlockLength() >> 3));
             $crypto->disablePadding();
             $private = $crypto->decrypt($private);
-            if ($private === false) {
-                return false;
-            }
         }
 
         extract(unpack('Nlength', Strings::shift($private, 4)));
@@ -289,7 +286,7 @@ class PuTTY
             $n
         );
         $key = "---- BEGIN SSH2 PUBLIC KEY ----\r\n" .
-               'Comment: "' . str_replace(array('\\', '"'), array('\\\\', '\"'), self::$comment) . "\"\r\n";
+               'Comment: "' . str_replace(array('\\', '"'), array('\\\\', '\"'), self::$comment) . "\"\r\n" .
                chunk_split(Base64::encode($key), 64) .
                '---- END SSH2 PUBLIC KEY ----';
 

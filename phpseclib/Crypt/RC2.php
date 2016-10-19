@@ -319,6 +319,7 @@ class RC2 extends BlockCipher
         }
 
         $this->default_key_length = $this->current_key_length = $length;
+        $this->explicit_key_length = $length >> 3;
     }
 
     /**
@@ -340,9 +341,6 @@ class RC2 extends BlockCipher
      * has more then 128 bytes in it, and set $key to a single null byte if
      * it is empty.
      *
-     * If the key is not explicitly set, it'll be assumed to be a single
-     * null byte.
-     *
      * @see \phpseclib\Crypt\Common\SymmetricKey::setKey()
      * @access public
      * @param string $key
@@ -362,8 +360,10 @@ class RC2 extends BlockCipher
         }
 
         $this->current_key_length = $t1;
-        // Key byte count should be 1..128.
-        $key = strlen($key) ? substr($key, 0, 128) : "\x00";
+        if (strlen($key) < 1 || strlen($key) > 128) {
+            throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes between 8 and 1024 bits, inclusive, are supported');
+        }
+
         $t = strlen($key);
 
         // The mcrypt RC2 implementation only supports effective key length
@@ -392,7 +392,10 @@ class RC2 extends BlockCipher
         $l[0] = $this->invpitable[$l[0]];
         array_unshift($l, 'C*');
 
-        parent::setKey(call_user_func_array('pack', $l));
+        $this->key = call_user_func_array('pack', $l);
+        $this->key_length = strlen($this->key);
+        $this->changed = true;
+        $this->_setEngine();
     }
 
     /**

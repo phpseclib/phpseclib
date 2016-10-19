@@ -184,6 +184,7 @@ class Random
             $v = $crypto->encrypt($r ^ $i); // strlen($r) == 20
             $result.= $r;
         }
+
         return substr($result, 0, $length);
     }
 

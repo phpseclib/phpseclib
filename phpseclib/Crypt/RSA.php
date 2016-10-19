@@ -120,44 +120,18 @@ class RSA
 
     /**#@+
      * @access private
-     * @see self::createKey()
-     */
-    /**
-     * ASN1 Integer
-     */
-    const ASN1_INTEGER = 2;
-    /**
-     * ASN1 Bit String
-     */
-    const ASN1_BITSTRING = 3;
-    /**
-     * ASN1 Octet String
-     */
-    const ASN1_OCTETSTRING = 4;
-    /**
-     * ASN1 Object Identifier
-     */
-    const ASN1_OBJECT = 6;
-    /**
-     * ASN1 Sequence (with the constucted bit set)
-     */
-    const ASN1_SEQUENCE = 48;
-    /**#@-*/
-
-    /**#@+
-     * @access private
      * @see self::__construct()
      */
     /**
      * To use the pure-PHP implementation
      */
-    const MODE_INTERNAL = 1;
+    const ENGINE_INTERNAL = 1;
     /**
      * To use the OpenSSL library
      *
      * (if enabled; otherwise, the internal implementation will be used)
      */
-    const MODE_OPENSSL = 2;
+    const ENGINE_OPENSSL = 2;
     /**#@-*/
 
     /**
@@ -182,7 +156,7 @@ class RSA
      * @var string
      * @access private
      */
-    var $privateKeyFormat = 'PKCS1';
+    var $privateKeyFormat = 'PKCS8';
 
     /**
      * Public Key Format
@@ -341,6 +315,39 @@ class RSA
      */
     static $origFileFormats = false;
 
+    /**
+     * Public exponent
+     *
+     * @var int
+     * @link http://en.wikipedia.org/wiki/65537_%28number%29
+     * @access private
+     */
+    static $defaultExponent = 65537;
+
+    /**
+     * Smallest Prime
+     *
+     * Per <http://cseweb.ucsd.edu/~hovav/dist/survey.pdf#page=5>, this number ought not result in primes smaller
+     * than 256 bits. As a consequence if the key you're trying to create is 1024 bits and you've set smallestPrime
+     * to 384 bits then you're going to get a 384 bit prime and a 640 bit prime (384 + 1024 % 384). At least if
+     * engine is set to self::ENGINE_INTERNAL. If Engine is set to self::ENGINE_OPENSSL then smallest Prime is
+     * ignored (ie. multi-prime RSA support is more intended as a way to speed up RSA key generation when there's
+     * a chance neither gmp nor OpenSSL are installed)
+     *
+     * @var int
+     * @access private
+     */
+    static $smallestPrime = 4096;
+
+    /**
+     * Engine
+     *
+     * This is only used for key generation. Valid values are RSA::ENGINE_INTERNAL and RSA::ENGINE_OPENSSL
+     *
+     * @var int
+     * @access private
+     */
+    static $engine = NULL;
 
     /**
      * Initialize static variables
@@ -384,10 +391,49 @@ class RSA
         self::_initialize_static_variables();
 
         $this->hash = new Hash('sha256');
-        $this->hLen = $this->hash->getLength();
+        $this->hLen = $this->hash->getLengthInBytes();
         $this->hashName = 'sha256';
         $this->mgfHash = new Hash('sha256');
-        $this->mgfHLen = $this->mgfHash->getLength();
+        $this->mgfHLen = $this->mgfHash->getLengthInBytes();
+    }
+
+    /**
+     * Sets the public exponent
+     *
+     * This will be 65537 unless changed.
+     *
+     * @access public
+     * @param int $val
+     */
+    static function setExponent($val)
+    {
+        self::$defaultExponent = $val;
+    }
+
+    /**
+     * Sets the smallest prime number in bits
+     *
+     * This will be 4096 unless changed.
+     *
+     * @access public
+     * @param int $val
+     */
+    static function setSmallestPrime($val)
+    {
+        self::$smallestPrime = $val;
+    }
+
+    /**
+     * Sets the engine
+     *
+     * Only used in the constructor. Valid values are RSA::ENGINE_OPENSSL and RSA::ENGINE_INTERNAL
+     *
+     * @access public
+     * @param int $val
+     */
+    static function setEngine($val)
+    {
+        self::$engine = $val;
     }
 
     /**
@@ -404,42 +450,29 @@ class RSA
      * @param int $timeout
      * @param array $p
      */
-    static function createKey($bits = 2048, $timeout = false, $partial = array())
+    static function createKey($bits = 2048)
     {
         self::_initialize_static_variables();
 
-        if (!defined('CRYPT_RSA_MODE')) {
+        if (!isset(self::$engine)) {
             switch (true) {
                 // Math/BigInteger's openssl requirements are a little less stringent than Crypt/RSA's. in particular,
                 // Math/BigInteger doesn't require an openssl.cfg file whereas Crypt/RSA does. so if Math/BigInteger
                 // can't use OpenSSL it can be pretty trivially assumed, then, that Crypt/RSA can't either.
                 case defined('MATH_BIGINTEGER_OPENSSL_DISABLE'):
-                    define('CRYPT_RSA_MODE', self::MODE_INTERNAL);
+                    self::$engine = self::ENGINE_INTERNAL;
                     break;
                 case extension_loaded('openssl') && file_exists(self::$configFile):
-                    define('CRYPT_RSA_MODE', self::MODE_OPENSSL);
+                    self::$engine = self::ENGINE_OPENSSL;
                     break;
                 default:
-                    define('CRYPT_RSA_MODE', self::MODE_INTERNAL);
+                    self::$engine = self::ENGINE_INTERNAL;
             }
         }
 
-        if (!defined('CRYPT_RSA_EXPONENT')) {
-            // http://en.wikipedia.org/wiki/65537_%28number%29
-            define('CRYPT_RSA_EXPONENT', '65537');
-        }
-        // per <http://cseweb.ucsd.edu/~hovav/dist/survey.pdf#page=5>, this number ought not result in primes smaller
-        // than 256 bits. as a consequence if the key you're trying to create is 1024 bits and you've set CRYPT_RSA_SMALLEST_PRIME
-        // to 384 bits then you're going to get a 384 bit prime and a 640 bit prime (384 + 1024 % 384). at least if
-        // CRYPT_RSA_MODE is set to self::MODE_INTERNAL. if CRYPT_RSA_MODE is set to self::MODE_OPENSSL then
-        // CRYPT_RSA_SMALLEST_PRIME is ignored (ie. multi-prime RSA support is more intended as a way to speed up RSA key
-        // generation when there's a chance neither gmp nor OpenSSL are installed)
-        if (!defined('CRYPT_RSA_SMALLEST_PRIME')) {
-            define('CRYPT_RSA_SMALLEST_PRIME', 4096);
-        }
-
         // OpenSSL uses 65537 as the exponent and requires RSA keys be 384 bits minimum
-        if (CRYPT_RSA_MODE == self::MODE_OPENSSL && $bits >= 384 && CRYPT_RSA_EXPONENT == 65537) {
+
+        if (self::$engine == self::ENGINE_OPENSSL && $bits >= 384 && self::$defaultExponent == 65537) {
             $config = array();
             if (isset(self::$configFile)) {
                 $config['config'] = self::$configFile;
@@ -466,75 +499,34 @@ class RSA
 
         static $e;
         if (!isset($e)) {
-            $e = new BigInteger(CRYPT_RSA_EXPONENT);
+            $e = new BigInteger(self::$defaultExponent);
         }
 
-        extract(self::_generateMinMax($bits));
-        $absoluteMin = $min;
-        $temp = $bits >> 1; // divide by two to see how many bits P and Q would be
-        if ($temp > CRYPT_RSA_SMALLEST_PRIME) {
-            $num_primes = floor($bits / CRYPT_RSA_SMALLEST_PRIME);
-            $temp = CRYPT_RSA_SMALLEST_PRIME;
+        $regSize = $bits >> 1; // divide by two to see how many bits P and Q would be
+        if ($regSize > self::$smallestPrime) {
+            $num_primes = floor($bits / self::$smallestPrime);
+            $regSize = self::$smallestPrime;
         } else {
             $num_primes = 2;
         }
-        $regSize = $temp;
-        $finalSize = $temp + $bits % $temp;
 
         $n = clone self::$one;
-        if (!empty($partial)) {
-            extract(unserialize($partial));
-        } else {
-            $exponents = $coefficients = $primes = array();
-            $lcm = array(
-                'top' => clone self::$one,
-                'bottom' => false
-            );
-        }
-
-        $start = time();
-        $i0 = count($primes) + 1;
+        $exponents = $coefficients = $primes = array();
+        $lcm = array(
+            'top' => clone self::$one,
+            'bottom' => false
+        );
 
         do {
-            for ($i = $i0; $i <= $num_primes; $i++) {
-                if ($timeout !== false) {
-                    $timeout-= time() - $start;
-                    $start = time();
-                    if ($timeout <= 0) {
-                        return array(
-                            'privatekey' => '',
-                            'publickey'  => '',
-                            'partialkey' => serialize(array(
-                                'primes' => $primes,
-                                'coefficients' => $coefficients,
-                                'lcm' => $lcm,
-                                'exponents' => $exponents
-                            ))
-                        );
-                    }
-                }
-
-                $size = $i == $num_primes ? $finalSize : $regSize;
-                $primes[$i] = BigInteger::randomPrime($size, $timeout);
-
-                if ($primes[$i] === false) { // if we've reached the timeout
-                    if (count($primes) > 1) {
-                        $partialkey = '';
-                    } else {
-                        array_pop($primes);
-                        $partialkey = serialize(array(
-                            'primes' => $primes,
-                            'coefficients' => $coefficients,
-                            'lcm' => $lcm,
-                            'exponents' => $exponents
-                        ));
-                    }
-
-                    return array(
-                        'privatekey' => false,
-                        'publickey'  => false,
-                        'partialkey' => $partialkey
-                    );
+            for ($i = 1; $i <= $num_primes; $i++) {
+                if ($i != $num_primes) {
+                    $primes[$i] = BigInteger::randomPrime($regSize);
+                } else {
+                    extract(BigInteger::minMaxBits($bits));
+                    list($min) = $min->divide($n);
+                    $min = $min->add(self::$one);
+                    list($max) = $max->divide($n);
+                    $primes[$i] = BigInteger::randomRangePrime($min, $max);
                 }
 
                 // the first coefficient is calculated differently from the rest
@@ -551,8 +543,6 @@ class RSA
                 // see http://en.wikipedia.org/wiki/Euler%27s_totient_function
                 $lcm['top'] = $lcm['top']->multiply($temp);
                 $lcm['bottom'] = $lcm['bottom'] === false ? $temp : $lcm['bottom']->gcd($temp);
-
-                $exponents[$i] = $e->modInverse($temp);
             }
 
             list($temp) = $lcm['top']->divide($lcm['bottom']);
@@ -560,9 +550,14 @@ class RSA
             $i0 = 1;
         } while (!$gcd->equals(self::$one));
 
+        $coefficients[2] = $primes[2]->modInverse($primes[1]);
+
         $d = $e->modInverse($temp);
 
-        $coefficients[2] = $primes[2]->modInverse($primes[1]);
+        foreach ($primes as $i => $prime) {
+            $temp = $prime->subtract(self::$one);
+            $exponents[$i] = $e->modInverse($temp);
+        }
 
         // from <http://tools.ietf.org/html/rfc3447#appendix-A.1.2>:
         // RSAPrivateKey ::= SEQUENCE {
@@ -594,8 +589,7 @@ class RSA
 
         return array(
             'privatekey' => $privatekey,
-            'publickey'  => $publickey,
-            'partialkey' => false
+            'publickey'  => $publickey
         );
     }
 
@@ -705,11 +699,7 @@ class RSA
             $format = strtolower($type);
             if (isset(self::$fileFormats[$format])) {
                 $format = self::$fileFormats[$format];
-                try {
-                    $components = $format::load($key, $this->password);
-                } catch (\Exception $e) {
-                    $components = false;
-                }
+                $components = $format::load($key, $this->password);
             }
         }
 
@@ -721,7 +711,7 @@ class RSA
         $this->format = $format;
 
         $this->modulus = $components['modulus'];
-        $this->k = strlen($this->modulus->toBytes());
+        $this->k = $this->modulus->getLengthInBytes();
         $this->exponent = isset($components['privateExponent']) ? $components['privateExponent'] : $components['publicExponent'];
         if (isset($components['primes'])) {
             $this->primes = $components['primes'];
@@ -788,6 +778,34 @@ class RSA
         }
 
         return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password);
+
+        /*
+        $key = $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password);
+        if ($key !== false || count($this->primes) == 2) {
+            return $key;
+        }
+
+        $nSize = $this->getSize() >> 1;
+
+        $primes = [1 => clone self::$one, clone self::$one];
+        $i = 1;
+        foreach ($this->primes as $prime) {
+            $primes[$i] = $primes[$i]->multiply($prime);
+            if ($primes[$i]->getLength() >= $nSize) {
+                $i++;
+            }
+        }
+
+        $exponents = [];
+        $coefficients = [2 => $primes[2]->modInverse($primes[1])];
+
+        foreach ($primes as $i => $prime) {
+            $temp = $prime->subtract(self::$one);
+            $exponents[$i] = $this->modulus->modInverse($temp);
+        }
+
+        return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $primes, $exponents, $coefficients, $this->password);
+        */
     }
 
     /**
@@ -798,9 +816,9 @@ class RSA
      * @access public
      * @return int
      */
-    function getSize()
+    function getLength()
     {
-        return !isset($this->modulus) ? 0 : strlen($this->modulus->toBits());
+        return !isset($this->modulus) ? 0 : $this->modulus->getLength();
     }
 
     /**
@@ -1038,12 +1056,16 @@ class RSA
      */
     function __toString()
     {
-        $key = $this->getPrivateKey($this->privateKeyFormat);
-        if (is_string($key)) {
-            return $key;
+        try {
+            $key = $this->getPrivateKey($this->privateKeyFormat);
+            if (is_string($key)) {
+                return $key;
+            }
+            $key = $this->_getPrivatePublicKey($this->publicKeyFormat);
+            return is_string($key) ? $key : '';
+        } catch (\Exception $e) {
+            return '';
         }
-        $key = $this->_getPrivatePublicKey($this->publicKeyFormat);
-        return is_string($key) ? $key : '';
     }
 
     /**
@@ -1112,7 +1134,7 @@ class RSA
                 $this->hash = new Hash('sha256');
                 $this->hashName = 'sha256';
         }
-        $this->hLen = $this->hash->getLength();
+        $this->hLen = $this->hash->getLengthInBytes();
     }
 
     /**
@@ -1142,7 +1164,7 @@ class RSA
             default:
                 $this->mgfHash = new Hash('sha256');
         }
-        $this->mgfHLen = $this->mgfHash->getLength();
+        $this->mgfHLen = $this->mgfHash->getLengthInBytes();
     }
 
     /**
@@ -1316,7 +1338,7 @@ class RSA
      * @param string $y
      * @return bool
      */
-    function _equals($x, $y)
+    static function _equals($x, $y)
     {
         if (strlen($x) != strlen($y)) {
             return false;
@@ -1528,7 +1550,7 @@ class RSA
         $db = $maskedDB ^ $dbMask;
         $lHash2 = substr($db, 0, $this->hLen);
         $m = substr($db, $this->hLen);
-        if ($lHash != $lHash2) {
+        if (!self::_equals($lHash, $lHash2)) {
             return false;
         }
         $m = ltrim($m, chr(0));
@@ -1746,7 +1768,7 @@ class RSA
         $salt = substr($db, $temp + 1); // should be $sLen long
         $m2 = "\0\0\0\0\0\0\0\0" . $mHash . $salt;
         $h2 = $this->hash->hash($m2);
-        return $this->_equals($h, $h2);
+        return self::_equals($h, $h2);
     }
 
     /**
@@ -1940,7 +1962,7 @@ class RSA
         }
 
         // Compare
-        return $this->_equals($em, $em2);
+        return self::_equals($em, $em2);
     }
 
     /**
@@ -2044,7 +2066,7 @@ class RSA
         $em = $hash->hash($m);
         $em2 = Base64::decode($decoded['digest']);
 
-        return $this->_equals($em, $em2);
+        return self::_equals($em, $em2);
     }
 
     /**
