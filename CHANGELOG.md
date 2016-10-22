@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.4 - 2016-10-03
+
+- fix E_DEPRECATED errors on PHP 7.0 and 7.1 (#1041)
+- fix float to int conversions on 32-bit Linux pre-PHP 5.3 (#1038, #1034)
+- SFTP: speed up downloads (#945)
+- SFTP: fix infinite loop when uploading empty file (#995)
+- ASN1: fix possible infinite loop in decode (#1027)
+
 ## 1.0.3 - 2016-08-18
 
 - BigInteger/RSA: don't compare openssl versions > 1.0 (#946)
