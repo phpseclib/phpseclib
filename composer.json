@@ -68,16 +68,11 @@
         "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations."
     },
     "autoload": {
-        "psr-0": {
-            "Crypt": "phpseclib/",
-            "File": "phpseclib/",
-            "Math": "phpseclib/",
-            "Net": "phpseclib/",
-            "System": "phpseclib/"
-        },
         "files": [
-            "phpseclib/bootstrap.php",
-            "phpseclib/Crypt/Random.php"
-        ]
+            "phpseclib/bootstrap.php"
+        ],
+        "psr-4": {
+            "phpseclib\\": "phpseclib/"
+        }
     }
 }
