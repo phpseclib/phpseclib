@@ -614,20 +614,32 @@ class Net_SSH1
 
         $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4);
 
+        if (strlen($response[NET_SSH1_RESPONSE_DATA]) < 2) {
+            return false;
+        }
         $temp = unpack('nlen', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 2));
         $server_key_public_exponent = new Math_BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
         $this->server_key_public_exponent = $server_key_public_exponent;
 
+        if (strlen($response[NET_SSH1_RESPONSE_DATA]) < 2) {
+            return false;
+        }
         $temp = unpack('nlen', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 2));
         $server_key_public_modulus = new Math_BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
         $this->server_key_public_modulus = $server_key_public_modulus;
 
         $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4);
 
+        if (strlen($response[NET_SSH1_RESPONSE_DATA]) < 2) {
+            return false;
+        }
         $temp = unpack('nlen', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 2));
         $host_key_public_exponent = new Math_BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
         $this->host_key_public_exponent = $host_key_public_exponent;
 
+        if (strlen($response[NET_SSH1_RESPONSE_DATA]) < 2) {
+            return false;
+        }
         $temp = unpack('nlen', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 2));
         $host_key_public_modulus = new Math_BigInteger($this->_string_shift($response[NET_SSH1_RESPONSE_DATA], ceil($temp['len'] / 8)), 256);
         $this->host_key_public_modulus = $host_key_public_modulus;
@@ -635,6 +647,9 @@ class Net_SSH1
         $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4);
 
         // get a list of the supported ciphers
+        if (strlen($response[NET_SSH1_RESPONSE_DATA]) < 4) {
+            return false;
+        }
         extract(unpack('Nsupported_ciphers_mask', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4)));
         foreach ($this->supported_ciphers as $mask => $name) {
             if (($supported_ciphers_mask & (1 << $mask)) == 0) {
@@ -643,6 +658,9 @@ class Net_SSH1
         }
 
         // get a list of the supported authentications
+        if (strlen($response[NET_SSH1_RESPONSE_DATA]) < 4) {
+            return false;
+        }
         extract(unpack('Nsupported_authentications_mask', $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 4)));
         foreach ($this->supported_authentications as $mask => $name) {
             if (($supported_authentications_mask & (1 << $mask)) == 0) {
@@ -1139,7 +1157,11 @@ class Net_SSH1
         }
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
-        $temp = unpack('Nlength', fread($this->fsock, 4));
+        $data = fread($this->fsock, 4);
+        if (strlen($data) < 4) {
+            return false;
+        }
+        $temp = unpack('Nlength', $data);
 
         $padding_length = 8 - ($temp['length'] & 7);
         $length = $temp['length'] + $padding_length;
@@ -1160,6 +1182,9 @@ class Net_SSH1
         $type = $raw[$padding_length];
         $data = substr($raw, $padding_length + 1, -4);
 
+        if (strlen($raw) < 4) {
+            return false;
+        }
         $temp = unpack('Ncrc', substr($raw, -4));
 
         //if ( $temp['crc'] != $this->_crc($padding . $type . $data) ) {
