@@ -99,7 +99,7 @@ class SCP
      *
      * Connects to an SSH server
      *
-     * @param \phpseclib\Net\SSH1|\phpseclin\Net\SSH2 $ssh
+     * @param \phpseclib\Net\SSH1|\phpseclib\Net\SSH2 $ssh
      * @return \phpseclib\Net\SCP
      * @access public
      */
