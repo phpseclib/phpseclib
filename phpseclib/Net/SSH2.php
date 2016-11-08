@@ -1035,6 +1035,10 @@ class SSH2
             }
         }
 
+        $this->identifier = $this->_generate_identifier();
+
+        fputs($this->fsock, $this->identifier . "\r\n");
+
         /* According to the SSH2 specs,
 
           "The server MAY send other lines of data before sending the version
@@ -1095,8 +1099,6 @@ class SSH2
 
         $extra = $matches[1];
 
-        $this->identifier = $this->_generate_identifier();
-
         if (defined('NET_SSH2_LOGGING')) {
             $this->_append_log('<-', $matches[0]);
             $this->_append_log('->', $this->identifier . "\r\n");
@@ -1110,8 +1112,6 @@ class SSH2
         if ($matches[3] != '1.99' && $matches[3] != '2.0') {
             throw new \RuntimeException("Cannot connect to SSH $matches[1] servers");
         }
-
-        fputs($this->fsock, $this->identifier . "\r\n");
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
