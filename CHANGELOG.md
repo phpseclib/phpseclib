@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.5 - 2016-10-22
+
+- fix issue preventing installation of 1.0.x via Composer (#1048)
+
 ## 1.0.4 - 2016-10-03
 
 - fix E_DEPRECATED errors on PHP 7.0 and 7.1 (#1041)

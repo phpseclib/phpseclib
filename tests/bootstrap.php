@@ -7,25 +7,13 @@
 
 date_default_timezone_set('UTC');
 
-// Set up include path accordingly. This is especially required because some
-// class files of phpseclib require() other dependencies.
-set_include_path(implode(PATH_SEPARATOR, array(
-    dirname(__FILE__) . '/../phpseclib/',
-    dirname(__FILE__) . '/',
-    get_include_path(),
-)));
-
-require_once 'Crypt/Random.php';
-
-function phpseclib_autoload($class)
-{
-    $file = str_replace('_', '/', $class) . '.php';
-
-    if (phpseclib_resolve_include_path($file)) {
-        // @codingStandardsIgnoreStart
-        require $file;
-        // @codingStandardsIgnoreEnd
-    }
+$loader_path = __DIR__ . '/../vendor/autoload.php';
+if (!file_exists($loader_path)) {
+    echo "Dependencies must be installed using composer:\n\n";
+    echo "php composer.phar install\n\n";
+    echo "See http://getcomposer.org for help with installing composer\n";
+    exit(1);
 }
 
-spl_autoload_register('phpseclib_autoload');
+$loader = include $loader_path;
+$loader->add('', __DIR__);

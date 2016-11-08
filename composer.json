@@ -74,8 +74,8 @@
             "System": "phpseclib/"
         },
         "files": [
-            "phpseclib/Crypt/Random.php",
-            "phpseclib/bootstrap.php"
+            "phpseclib/bootstrap.php",
+            "phpseclib/Crypt/Random.php"
         ]
     }
 }
