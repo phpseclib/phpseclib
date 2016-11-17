@@ -28,52 +28,6 @@ use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Common\PKCS1 as Progenitor;
 use phpseclib\File\ASN1;
 
-// version must be multi if otherPrimeInfos present
-define(__NAMESPACE__ . '\Version', [
-    'type'    => ASN1::TYPE_INTEGER,
-    'mapping' => ['two-prime', 'multi']
-]);
-
-define(__NAMESPACE__ . '\OtherPrimeInfo', [
-    'type' => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'prime' =>       ['type' => ASN1::TYPE_INTEGER], // ri
-        'exponent' =>    ['type' => ASN1::TYPE_INTEGER], // di
-        'coefficient' => ['type' => ASN1::TYPE_INTEGER]  // ti
-    ]
-]);
-
-define(__NAMESPACE__ . '\OtherPrimeInfos', [
-    'type' => ASN1::TYPE_SEQUENCE,
-    'min' => 1,
-    'max' => -1,
-    'children' => OtherPrimeInfo
-]);
-
-define(__NAMESPACE__ . '\RSAPrivateKey', [
-    'type' => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'version' =>         Version,
-        'modulus' =>         ['type' => ASN1::TYPE_INTEGER], // n
-        'publicExponent' =>  ['type' => ASN1::TYPE_INTEGER], // e
-        'privateExponent' => ['type' => ASN1::TYPE_INTEGER], // d
-        'prime1' =>          ['type' => ASN1::TYPE_INTEGER], // p
-        'prime2' =>          ['type' => ASN1::TYPE_INTEGER], // q
-        'exponent1' =>       ['type' => ASN1::TYPE_INTEGER], // d mod (p-1)
-        'exponent2' =>       ['type' => ASN1::TYPE_INTEGER], // d mod (q-1)
-        'coefficient' =>     ['type' => ASN1::TYPE_INTEGER], // (inverse of q) mod p
-        'otherPrimeInfos' => OtherPrimeInfos + ['optional' => true]
-    ]
-]);
-
-define(__NAMESPACE__ . '\RSAPublicKey', [
-    'type' => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'modulus' =>         ['type' => ASN1::TYPE_INTEGER],
-        'publicExponent' =>  ['type' => ASN1::TYPE_INTEGER]
-    ]
-]);
-
 /**
  * PKCS#1 Formatted RSA Key Handler
  *
@@ -110,7 +64,7 @@ class PKCS1 extends Progenitor
             return false;
         }
 
-        $key = $asn1->asn1map($decoded[0], RSAPrivateKey);
+        $key = $asn1->asn1map($decoded[0], ASN1\RSAPrivateKey::MAP);
         if (is_array($key)) {
             $components+= [
                 'modulus' => $key['modulus'],
@@ -130,7 +84,7 @@ class PKCS1 extends Progenitor
             return $components;
         }
 
-        $key = $asn1->asn1map($decoded[0], RSAPublicKey);
+        $key = $asn1->asn1map($decoded[0], ASN1\RSAPublicKey::MAP);
 
         return is_array($key) ? $components + $key : false;
     }
@@ -171,7 +125,7 @@ class PKCS1 extends Progenitor
         }
 
         $asn1 = new ASN1();
-        $key = $asn1->encodeDER($key, RSAPrivateKey);
+        $key = $asn1->encodeDER($key, ASN1\RSAPrivateKey::MAP);
 
         return self::wrapPrivateKey($key, 'RSA', $password);
     }
@@ -192,7 +146,7 @@ class PKCS1 extends Progenitor
         ];
 
         $asn1 = new ASN1();
-        $key = $asn1->encodeDER($key, RSAPublicKey);
+        $key = $asn1->encodeDER($key, ASN1\RSAPublicKey::MAP);
 
         return self::wrapPublicKey($key, 'RSA');
     }

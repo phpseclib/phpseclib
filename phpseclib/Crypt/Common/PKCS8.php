@@ -39,138 +39,6 @@ use phpseclib\Math\BigInteger;
 use phpseclib\File\ASN1;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 
-// version is the syntax version number, for compatibility with
-// future revisions of this document.  It shall be 0 for this version
-// of the document.
-define(__NAMESPACE__ . '\Version', [
-    'type'    => ASN1::TYPE_INTEGER,
-    'mapping' => ['v1']
-]);
-
-// we can replace this later once the X509 definitions are rewritten
-define(__NAMESPACE__ . '\AlgorithmIdentifier', [
-    'type' => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'algorithm'  => ['type' => ASN1::TYPE_OBJECT_IDENTIFIER],
-        'parameters' => [
-            'type'     => ASN1::TYPE_ANY,
-            'optional' => true
-         ]
-    ]
-]);
-
-define(__NAMESPACE__ . '\PrivateKey', ['type' => ASN1::TYPE_OCTET_STRING]);
-
-// we can replace this later once the X509 definitions are rewritten
-define(__NAMESPACE__ . '\AttributeType', ['type' => ASN1::TYPE_OBJECT_IDENTIFIER]);
-
-// we can replace this later once the X509 definitions are rewritten
-define(__NAMESPACE__ . '\AttributeValue', ['type' => ASN1::TYPE_ANY]);
-
-// we can replace this later once the X509 definitions are rewritten
-define(__NAMESPACE__ . '\Attribute', [
-    'type'     => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'type' => AttributeType,
-        'value'=> [
-              'type'     => ASN1::TYPE_SET,
-              'min'      => 1,
-              'max'      => -1,
-              'children' => AttributeValue
-        ]
-    ]
-]);
-
-define(__NAMESPACE__ . '\Attributes', [
-    'type'     => ASN1::TYPE_SET,
-    'children' => Attribute
-]);
-
-define(__NAMESPACE__ . '\PrivateKeyInfo', [
-    'type'     => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'version' => Version,
-        'privateKeyAlgorithm'=> AlgorithmIdentifier,
-        'privateKey' => PrivateKey,
-        'attributes' => [
-            'constant' => 0,
-            'optional' => true,
-            'implicit' => true
-        ] + Attributes
-    ]
-]);
-
-define(__NAMESPACE__ . '\EncryptedData', ['type' => ASN1::TYPE_OCTET_STRING]);
-
-define(__NAMESPACE__ . '\EncryptedPrivateKeyInfo', [
-    'type'     => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'encryptionAlgorithm' => AlgorithmIdentifier,
-        'encryptedData'       => EncryptedData
-    ]
-]);
-
-// this format is not formally defined anywhere but is none-the-less the form you
-// get when you do "openssl rsa -in private.pem -outform PEM -pubout"
-define(__NAMESPACE__ . '\PublicKeyInfo', [
-    'type'     => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'publicKeyAlgorithm'=> AlgorithmIdentifier,
-        'publicKey' => ['type' => ASN1::TYPE_BIT_STRING]
-    ]
-]);
-
-// from https://tools.ietf.org/html/rfc2898#appendix-A.3
-define(__NAMESPACE__ . '\PBEParameter', [
-    'type'     => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'salt' => ['type' => ASN1::TYPE_OCTET_STRING],
-        'iterationCount' => ['type' => ASN1::TYPE_INTEGER]
-    ]
-]);
-
-define(__NAMESPACE__ . '\PBES2params', [
-    'type'     => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'keyDerivationFunc'=> AlgorithmIdentifier,
-        'encryptionScheme' => AlgorithmIdentifier
-    ]
-]);
-
-define(__NAMESPACE__ . '\PBMAC1params', [
-    'type'     => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'keyDerivationFunc'=> AlgorithmIdentifier,
-        'messageAuthScheme'=> AlgorithmIdentifier
-    ]
-]);
-
-define(__NAMESPACE__ . '\RC2CBCParameter', [
-    'type'     => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        'rc2ParametersVersion'=> [
-            'type'     => ASN1::TYPE_INTEGER,
-            'optional' => true
-        ],
-        'iv'=> ['type' => ASN1::TYPE_OCTET_STRING]
-    ]
-]);
-
-define(__NAMESPACE__ . '\PBKDF2params', [
-    'type'     => ASN1::TYPE_SEQUENCE,
-    'children' => [
-        // technically, this is a CHOICE in RFC2898 but the other "choice" is, currently, more of a placeholder
-        // in the RFC
-        'salt'=> ['type' => ASN1::TYPE_OCTET_STRING],
-        'iterationCount'=> ['type' => ASN1::TYPE_INTEGER],
-        'keyLength' => [
-            'type'     => ASN1::TYPE_INTEGER,
-            'optional' => true
-        ],
-        'prf' => AlgorithmIdentifier + ['optional' => true]
-    ]
-]);
-
 // from https://tools.ietf.org/html/rfc2898
 define(__NAMESPACE__ . '\oids', [
     // PBES1 encryption schemes
@@ -455,7 +323,7 @@ class PKCS8 extends PKCS
         $meta = [];
 
         $asn1->loadOIDs(oids);
-        $decrypted = $asn1->asn1map($decoded[0], EncryptedPrivateKeyInfo);
+        $decrypted = $asn1->asn1map($decoded[0], ASN1\EncryptedPrivateKeyInfo::MAP);
         if (strlen($password) && is_array($decrypted)) {
             $algorithm = $decrypted['encryptionAlgorithm']['algorithm'];
             switch ($algorithm) {
@@ -479,7 +347,7 @@ class PKCS8 extends PKCS
                     $meta['meta']['algorithm'] = $algorithm;
 
                     $temp = $asn1->decodeBER($decrypted['encryptionAlgorithm']['parameters']);
-                    extract($asn1->asn1map($temp[0], PBEParameter));
+                    extract($asn1->asn1map($temp[0], ASN1\PBEParameter::MAP));
                     $iterationCount = (int) $iterationCount->toString();
                     $cipher->setPassword($password, $kdf, $hash, Base64::decode($salt), $iterationCount);
                     $key = $cipher->decrypt(Base64::decode($decrypted['encryptedData']));
@@ -493,21 +361,21 @@ class PKCS8 extends PKCS
                     $meta['meta']['algorithm'] = $algorithm;
 
                     $temp = $asn1->decodeBER($decrypted['encryptionAlgorithm']['parameters']);
-                    $temp = $asn1->asn1map($temp[0], PBES2params);
+                    $temp = $asn1->asn1map($temp[0], ASN1\PBES2params::MAP);
                     extract($temp);
 
                     $cipher = self::getPBES2EncryptionObject($encryptionScheme['algorithm']);
                     $meta['meta']['cipher'] = $encryptionScheme['algorithm'];
 
                     $temp = $asn1->decodeBER($decrypted['encryptionAlgorithm']['parameters']);
-                    $temp = $asn1->asn1map($temp[0], PBES2params);
+                    $temp = $asn1->asn1map($temp[0], ASN1\PBES2params::MAP);
                     extract($temp);
 
                     if (!$cipher instanceof RC2) {
                         $cipher->setIV(Base64::decode($encryptionScheme['parameters']['octetString']));
                     } else {
                         $temp = $asn1->decodeBER($encryptionScheme['parameters']);
-                        extract($asn1->asn1map($temp[0], RC2CBCParameter));
+                        extract($asn1->asn1map($temp[0], ASN1\RC2CBCParameter::MAP));
                         $effectiveKeyLength = (int) $rc2ParametersVersion->toString();
                         switch ($effectiveKeyLength) {
                             case 160:
@@ -530,7 +398,7 @@ class PKCS8 extends PKCS
                         case 'id-PBKDF2':
                             $temp = $asn1->decodeBER($keyDerivationFunc['parameters']);
                             $prf = ['algorithm' => 'id-hmacWithSHA1'];
-                            $params = $asn1->asn1map($temp[0], PBKDF2params);
+                            $params = $asn1->asn1map($temp[0], ASN1\PBKDF2params::MAP);
                             extract($params);
                             $meta['meta']['prf'] = $prf['algorithm'];
                             $hash = str_replace('-', '/', substr($prf['algorithm'], 11));
@@ -557,14 +425,14 @@ class PKCS8 extends PKCS
                     break;
                 case 'id-PBMAC1':
                     //$temp = $asn1->decodeBER($decrypted['encryptionAlgorithm']['parameters']);
-                    //$value = $asn1->asn1map($temp[0], PBMAC1params);
+                    //$value = $asn1->asn1map($temp[0], ASN1\PBMAC1params::MAP);
                     // since i can't find any implementation that does PBMAC1 it is unsupported
                     throw new UnsupportedAlgorithmException('Only PBES1 and PBES2 PKCS#8 keys are supported.');
                 // at this point we'll assume that the key conforms to PublicKeyInfo
             }
         }
 
-        $private = $asn1->asn1map($decoded[0], PrivateKeyInfo);
+        $private = $asn1->asn1map($decoded[0], ASN1\PrivateKeyInfo::MAP);
         if (is_array($private)) {
             return $private + $meta;
         }
@@ -573,7 +441,7 @@ class PKCS8 extends PKCS
         // is that the former has an octet string and the later has a bit string. the first byte of a bit
         // string represents the number of bits in the last byte that are to be ignored but, currently,
         // bit strings wanting a non-zero amount of bits trimmed are not supported
-        $public = $asn1->asn1map($decoded[0], PublicKeyInfo);
+        $public = $asn1->asn1map($decoded[0], ASN1\PublicKeyInfo::MAP);
         if (is_array($public)) {
             $public['publicKey'] = base64_decode($public['publicKey']);
             if ($public['publicKey'][0] != "\0") {
@@ -609,7 +477,7 @@ class PKCS8 extends PKCS
         if (!empty($attr)) {
             $key['attributes'] = $attr;
         }
-        $key = $asn1->encodeDER($key, PrivateKeyInfo);
+        $key = $asn1->encodeDER($key, ASN1\PrivateKeyInfo::MAP);
         if (!empty($password) && is_string($password)) {
             $salt = Random::string(8);
             $iterationCount = self::$defaultIterationCount;
@@ -625,7 +493,7 @@ class PKCS8 extends PKCS
                     'iterationCount' => $iterationCount,
                     'prf' => ['algorithm' => self::$defaultPRF, 'parameters' => null]
                 ];
-                $PBKDF2params = $asn1->encodeDER($PBKDF2params, PBKDF2params);
+                $PBKDF2params = $asn1->encodeDER($PBKDF2params, ASN1\PBKDF2params::MAP);
 
                 if (!$crypto instanceof RC2) {
                     $params = ['octetString' => Base64::encode($iv)];
@@ -634,7 +502,7 @@ class PKCS8 extends PKCS
                         'rc2ParametersVersion' => 58,
                         'iv' => Base64::encode($iv)
                     ];
-                    $params = $asn1->encodeDER($params, RC2CBCParameter);
+                    $params = $asn1->encodeDER($params, ASN1\RC2CBCParameter::MAP);
                     $params = new ASN1\Element($params);
                 }
 
@@ -648,7 +516,7 @@ class PKCS8 extends PKCS
                         'parameters' => $params
                     ]
                 ];
-                $params = $asn1->encodeDER($params, PBES2params);
+                $params = $asn1->encodeDER($params, ASN1\PBES2params::MAP);
 
                 $crypto->setIV($iv);
             } else {
@@ -660,7 +528,7 @@ class PKCS8 extends PKCS
                     'salt' => Base64::encode($salt),
                     'iterationCount' => $iterationCount
                 ];
-                $params = $asn1->encodeDER($params, PBEParameter);
+                $params = $asn1->encodeDER($params, ASN1\PBEParameter::MAP);
             }
             $crypto->setPassword($password, $kdf, $hash, $salt, $iterationCount);
             $key = $crypto->encrypt($key);
@@ -673,7 +541,7 @@ class PKCS8 extends PKCS
                 'encryptedData' => Base64::encode($key)
             ];
 
-            $key = $asn1->encodeDER($key, EncryptedPrivateKeyInfo);
+            $key = $asn1->encodeDER($key, ASN1\EncryptedPrivateKeyInfo::MAP);
 
             return "-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n" .
                    chunk_split(Base64::encode($key), 64) .
@@ -704,7 +572,7 @@ class PKCS8 extends PKCS
             'publicKey' => Base64::encode("\0" . $key)
         ];
 
-        $key = $asn1->encodeDER($key, PublicKeyInfo);
+        $key = $asn1->encodeDER($key, ASN1\PublicKeyInfo::MAP);
 
         return "-----BEGIN PUBLIC KEY-----\r\n" .
                chunk_split(Base64::encode($key), 64) .

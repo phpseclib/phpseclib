@@ -616,7 +616,14 @@ class ASN1
                         $map[$key] = $candidate;
                         $i++;
                     } elseif (isset($child['default'])) {
-                        $map[$key] = $child['default']; // Use default.
+                        switch ($child['type']) {
+                            case ASN1::TYPE_INTEGER:
+                                $map[$key] = new BigInteger($child['default']);
+                                break;
+                            //case ASN1::TYPE_BOOLEAN:
+                            default:
+                                $map[$key] = $child['type'];
+                        }
                     } elseif (!isset($child['optional'])) {
                         return null; // Syntax error.
                     }
