@@ -178,7 +178,7 @@ class Crypt_Hash
      */
     function Crypt_Hash($hash = 'sha1')
     {
-        $this->__construct($mode);
+        $this->__construct($hash);
     }
 
     /**
