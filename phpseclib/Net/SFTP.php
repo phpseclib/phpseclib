@@ -2237,6 +2237,10 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
+        if (empty($path)) {
+            return false;
+        }
+
         $path = $this->_realpath($path);
         if ($path === false) {
             return false;
