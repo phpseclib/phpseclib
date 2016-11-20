@@ -1020,7 +1020,10 @@ class SSH2
 
         if (!is_resource($this->fsock)) {
             $start = microtime(true);
-            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout);
+            // with stream_select a timeout of 0 means that no timeout takes place;
+            // with fsockopen a timeout of 0 means that you instantly timeout
+            // to resolve this incompatibility a timeout of 100,000 will be used for fsockopen if timeout is 0
+            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout == 0 ? 100000 : $this->curTimeout);
             if (!$this->fsock) {
                 $host = $this->host . ':' . $this->port;
                 throw new \RuntimeException(rtrim("Cannot connect to $host. Error $errno. $errstr"));
