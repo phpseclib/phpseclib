@@ -372,7 +372,7 @@ class SFTP extends SSH2
         );
 
         if (!defined('NET_SFTP_QUEUE_SIZE')) {
-            define('NET_SFTP_QUEUE_SIZE', 50);
+            define('NET_SFTP_QUEUE_SIZE', 32);
         }
     }
 
