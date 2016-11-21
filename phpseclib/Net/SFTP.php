@@ -2180,7 +2180,12 @@ class SFTP extends SSH2
             return false;
         }
 
-        if (empty($path)) {
+        if (is_object($path)) {
+            // It's an object. Cast it as string before we check anything else.
+            $path = (string) $path;
+        }
+
+        if (!is_string($path) || $path == '') {
             return false;
         }
 
