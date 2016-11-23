@@ -27,6 +27,7 @@ namespace phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Common\PKCS1 as Progenitor;
 use phpseclib\File\ASN1;
+use phpseclib\File\ASN1\Maps;
 
 /**
  * PKCS#1 Formatted RSA Key Handler
@@ -58,13 +59,12 @@ class PKCS1 extends Progenitor
             return false;
         }
 
-        $asn1 = new ASN1();
-        $decoded = $asn1->decodeBER($key);
+        $decoded = ASN1::decodeBER($key);
         if (empty($decoded)) {
             return false;
         }
 
-        $key = $asn1->asn1map($decoded[0], ASN1\RSAPrivateKey::MAP);
+        $key = ASN1::asn1map($decoded[0], Maps\RSAPrivateKey::MAP);
         if (is_array($key)) {
             $components+= [
                 'modulus' => $key['modulus'],
@@ -84,7 +84,7 @@ class PKCS1 extends Progenitor
             return $components;
         }
 
-        $key = $asn1->asn1map($decoded[0], ASN1\RSAPublicKey::MAP);
+        $key = ASN1::asn1map($decoded[0], Maps\RSAPublicKey::MAP);
 
         return is_array($key) ? $components + $key : false;
     }
@@ -124,8 +124,7 @@ class PKCS1 extends Progenitor
             ];
         }
 
-        $asn1 = new ASN1();
-        $key = $asn1->encodeDER($key, ASN1\RSAPrivateKey::MAP);
+        $key = ASN1::encodeDER($key, Maps\RSAPrivateKey::MAP);
 
         return self::wrapPrivateKey($key, 'RSA', $password);
     }
@@ -145,8 +144,7 @@ class PKCS1 extends Progenitor
             'publicExponent' => $e
         ];
 
-        $asn1 = new ASN1();
-        $key = $asn1->encodeDER($key, ASN1\RSAPublicKey::MAP);
+        $key = ASN1::encodeDER($key, Maps\RSAPublicKey::MAP);
 
         return self::wrapPublicKey($key, 'RSA');
     }

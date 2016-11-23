@@ -34,6 +34,7 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
+use phpseclib\File\ASN1\Maps;
 
 /**
  * Pure-PHP X.509 Parser
@@ -233,6 +234,14 @@ class X509
     var $challenge;
 
     /**
+     * OIDs loaded
+     *
+     * @var bool
+     * @access private
+     */
+    static $oidsLoaded = false;
+
+    /**
      * Default Constructor.
      *
      * @return \phpseclib\File\X509
@@ -241,173 +250,175 @@ class X509
     function __construct()
     {
         // Explicitly Tagged Module, 1988 Syntax
-        // http://tools.ietf.org/html/rfc5280#appendix-A.1=
+        // http://tools.ietf.org/html/rfc5280#appendix-A.1
 
-        // OIDs from RFC5280 and those RFCs mentioned in RFC5280#section-4.1.1.2
-        $this->oids = array(
-            '1.3.6.1.5.5.7' => 'id-pkix',
-            '1.3.6.1.5.5.7.1' => 'id-pe',
-            '1.3.6.1.5.5.7.2' => 'id-qt',
-            '1.3.6.1.5.5.7.3' => 'id-kp',
-            '1.3.6.1.5.5.7.48' => 'id-ad',
-            '1.3.6.1.5.5.7.2.1' => 'id-qt-cps',
-            '1.3.6.1.5.5.7.2.2' => 'id-qt-unotice',
-            '1.3.6.1.5.5.7.48.1' =>'id-ad-ocsp',
-            '1.3.6.1.5.5.7.48.2' => 'id-ad-caIssuers',
-            '1.3.6.1.5.5.7.48.3' => 'id-ad-timeStamping',
-            '1.3.6.1.5.5.7.48.5' => 'id-ad-caRepository',
-            '2.5.4' => 'id-at',
-            '2.5.4.41' => 'id-at-name',
-            '2.5.4.4' => 'id-at-surname',
-            '2.5.4.42' => 'id-at-givenName',
-            '2.5.4.43' => 'id-at-initials',
-            '2.5.4.44' => 'id-at-generationQualifier',
-            '2.5.4.3' => 'id-at-commonName',
-            '2.5.4.7' => 'id-at-localityName',
-            '2.5.4.8' => 'id-at-stateOrProvinceName',
-            '2.5.4.10' => 'id-at-organizationName',
-            '2.5.4.11' => 'id-at-organizationalUnitName',
-            '2.5.4.12' => 'id-at-title',
-            '2.5.4.13' => 'id-at-description',
-            '2.5.4.46' => 'id-at-dnQualifier',
-            '2.5.4.6' => 'id-at-countryName',
-            '2.5.4.5' => 'id-at-serialNumber',
-            '2.5.4.65' => 'id-at-pseudonym',
-            '2.5.4.17' => 'id-at-postalCode',
-            '2.5.4.9' => 'id-at-streetAddress',
-            '2.5.4.45' => 'id-at-uniqueIdentifier',
-            '2.5.4.72' => 'id-at-role',
-            '2.5.4.16' => 'id-at-postalAddress',
+        if (!self::$oidsLoaded) {
+            // OIDs from RFC5280 and those RFCs mentioned in RFC5280#section-4.1.1.2
+            ASN1::loadOIDs([
+                '1.3.6.1.5.5.7' => 'id-pkix',
+                '1.3.6.1.5.5.7.1' => 'id-pe',
+                '1.3.6.1.5.5.7.2' => 'id-qt',
+                '1.3.6.1.5.5.7.3' => 'id-kp',
+                '1.3.6.1.5.5.7.48' => 'id-ad',
+                '1.3.6.1.5.5.7.2.1' => 'id-qt-cps',
+                '1.3.6.1.5.5.7.2.2' => 'id-qt-unotice',
+                '1.3.6.1.5.5.7.48.1' =>'id-ad-ocsp',
+                '1.3.6.1.5.5.7.48.2' => 'id-ad-caIssuers',
+                '1.3.6.1.5.5.7.48.3' => 'id-ad-timeStamping',
+                '1.3.6.1.5.5.7.48.5' => 'id-ad-caRepository',
+                '2.5.4' => 'id-at',
+                '2.5.4.41' => 'id-at-name',
+                '2.5.4.4' => 'id-at-surname',
+                '2.5.4.42' => 'id-at-givenName',
+                '2.5.4.43' => 'id-at-initials',
+                '2.5.4.44' => 'id-at-generationQualifier',
+                '2.5.4.3' => 'id-at-commonName',
+                '2.5.4.7' => 'id-at-localityName',
+                '2.5.4.8' => 'id-at-stateOrProvinceName',
+                '2.5.4.10' => 'id-at-organizationName',
+                '2.5.4.11' => 'id-at-organizationalUnitName',
+                '2.5.4.12' => 'id-at-title',
+                '2.5.4.13' => 'id-at-description',
+                '2.5.4.46' => 'id-at-dnQualifier',
+                '2.5.4.6' => 'id-at-countryName',
+                '2.5.4.5' => 'id-at-serialNumber',
+                '2.5.4.65' => 'id-at-pseudonym',
+                '2.5.4.17' => 'id-at-postalCode',
+                '2.5.4.9' => 'id-at-streetAddress',
+                '2.5.4.45' => 'id-at-uniqueIdentifier',
+                '2.5.4.72' => 'id-at-role',
+                '2.5.4.16' => 'id-at-postalAddress',
 
-            '0.9.2342.19200300.100.1.25' => 'id-domainComponent',
-            '1.2.840.113549.1.9' => 'pkcs-9',
-            '1.2.840.113549.1.9.1' => 'pkcs-9-at-emailAddress',
-            '2.5.29' => 'id-ce',
-            '2.5.29.35' => 'id-ce-authorityKeyIdentifier',
-            '2.5.29.14' => 'id-ce-subjectKeyIdentifier',
-            '2.5.29.15' => 'id-ce-keyUsage',
-            '2.5.29.16' => 'id-ce-privateKeyUsagePeriod',
-            '2.5.29.32' => 'id-ce-certificatePolicies',
-            '2.5.29.32.0' => 'anyPolicy',
+                '0.9.2342.19200300.100.1.25' => 'id-domainComponent',
+                '1.2.840.113549.1.9' => 'pkcs-9',
+                '1.2.840.113549.1.9.1' => 'pkcs-9-at-emailAddress',
+                '2.5.29' => 'id-ce',
+                '2.5.29.35' => 'id-ce-authorityKeyIdentifier',
+                '2.5.29.14' => 'id-ce-subjectKeyIdentifier',
+                '2.5.29.15' => 'id-ce-keyUsage',
+                '2.5.29.16' => 'id-ce-privateKeyUsagePeriod',
+                '2.5.29.32' => 'id-ce-certificatePolicies',
+                '2.5.29.32.0' => 'anyPolicy',
 
-            '2.5.29.33' => 'id-ce-policyMappings',
-            '2.5.29.17' => 'id-ce-subjectAltName',
-            '2.5.29.18' => 'id-ce-issuerAltName',
-            '2.5.29.9' => 'id-ce-subjectDirectoryAttributes',
-            '2.5.29.19' => 'id-ce-basicConstraints',
-            '2.5.29.30' => 'id-ce-nameConstraints',
-            '2.5.29.36' => 'id-ce-policyConstraints',
-            '2.5.29.31' => 'id-ce-cRLDistributionPoints',
-            '2.5.29.37' => 'id-ce-extKeyUsage',
-            '2.5.29.37.0' => 'anyExtendedKeyUsage',
-            '1.3.6.1.5.5.7.3.1' => 'id-kp-serverAuth',
-            '1.3.6.1.5.5.7.3.2' => 'id-kp-clientAuth',
-            '1.3.6.1.5.5.7.3.3' => 'id-kp-codeSigning',
-            '1.3.6.1.5.5.7.3.4' => 'id-kp-emailProtection',
-            '1.3.6.1.5.5.7.3.8' => 'id-kp-timeStamping',
-            '1.3.6.1.5.5.7.3.9' => 'id-kp-OCSPSigning',
-            '2.5.29.54' => 'id-ce-inhibitAnyPolicy',
-            '2.5.29.46' => 'id-ce-freshestCRL',
-            '1.3.6.1.5.5.7.1.1' => 'id-pe-authorityInfoAccess',
-            '1.3.6.1.5.5.7.1.11' => 'id-pe-subjectInfoAccess',
-            '2.5.29.20' => 'id-ce-cRLNumber',
-            '2.5.29.28' => 'id-ce-issuingDistributionPoint',
-            '2.5.29.27' => 'id-ce-deltaCRLIndicator',
-            '2.5.29.21' => 'id-ce-cRLReasons',
-            '2.5.29.29' => 'id-ce-certificateIssuer',
-            '2.5.29.23' => 'id-ce-holdInstructionCode',
-            '1.2.840.10040.2' => 'holdInstruction',
-            '1.2.840.10040.2.1' => 'id-holdinstruction-none',
-            '1.2.840.10040.2.2' => 'id-holdinstruction-callissuer',
-            '1.2.840.10040.2.3' => 'id-holdinstruction-reject',
-            '2.5.29.24' => 'id-ce-invalidityDate',
+                '2.5.29.33' => 'id-ce-policyMappings',
+                '2.5.29.17' => 'id-ce-subjectAltName',
+                '2.5.29.18' => 'id-ce-issuerAltName',
+                '2.5.29.9' => 'id-ce-subjectDirectoryAttributes',
+                '2.5.29.19' => 'id-ce-basicConstraints',
+                '2.5.29.30' => 'id-ce-nameConstraints',
+                '2.5.29.36' => 'id-ce-policyConstraints',
+                '2.5.29.31' => 'id-ce-cRLDistributionPoints',
+                '2.5.29.37' => 'id-ce-extKeyUsage',
+                '2.5.29.37.0' => 'anyExtendedKeyUsage',
+                '1.3.6.1.5.5.7.3.1' => 'id-kp-serverAuth',
+                '1.3.6.1.5.5.7.3.2' => 'id-kp-clientAuth',
+                '1.3.6.1.5.5.7.3.3' => 'id-kp-codeSigning',
+                '1.3.6.1.5.5.7.3.4' => 'id-kp-emailProtection',
+                '1.3.6.1.5.5.7.3.8' => 'id-kp-timeStamping',
+                '1.3.6.1.5.5.7.3.9' => 'id-kp-OCSPSigning',
+                '2.5.29.54' => 'id-ce-inhibitAnyPolicy',
+                '2.5.29.46' => 'id-ce-freshestCRL',
+                '1.3.6.1.5.5.7.1.1' => 'id-pe-authorityInfoAccess',
+                '1.3.6.1.5.5.7.1.11' => 'id-pe-subjectInfoAccess',
+                '2.5.29.20' => 'id-ce-cRLNumber',
+                '2.5.29.28' => 'id-ce-issuingDistributionPoint',
+                '2.5.29.27' => 'id-ce-deltaCRLIndicator',
+                '2.5.29.21' => 'id-ce-cRLReasons',
+                '2.5.29.29' => 'id-ce-certificateIssuer',
+                '2.5.29.23' => 'id-ce-holdInstructionCode',
+                '1.2.840.10040.2' => 'holdInstruction',
+                '1.2.840.10040.2.1' => 'id-holdinstruction-none',
+                '1.2.840.10040.2.2' => 'id-holdinstruction-callissuer',
+                '1.2.840.10040.2.3' => 'id-holdinstruction-reject',
+                '2.5.29.24' => 'id-ce-invalidityDate',
 
-            '1.2.840.113549.2.2' => 'md2',
-            '1.2.840.113549.2.5' => 'md5',
-            '1.3.14.3.2.26' => 'id-sha1',
-            '1.2.840.10040.4.1' => 'id-dsa',
-            '1.2.840.10040.4.3' => 'id-dsa-with-sha1',
-            '1.2.840.113549.1.1' => 'pkcs-1',
-            '1.2.840.113549.1.1.1' => 'rsaEncryption',
-            '1.2.840.113549.1.1.2' => 'md2WithRSAEncryption',
-            '1.2.840.113549.1.1.4' => 'md5WithRSAEncryption',
-            '1.2.840.113549.1.1.5' => 'sha1WithRSAEncryption',
-            '1.2.840.10046.2.1' => 'dhpublicnumber',
-            '2.16.840.1.101.2.1.1.22' => 'id-keyExchangeAlgorithm',
-            '1.2.840.10045' => 'ansi-X9-62',
-            '1.2.840.10045.4' => 'id-ecSigType',
-            '1.2.840.10045.4.1' => 'ecdsa-with-SHA1',
-            '1.2.840.10045.1' => 'id-fieldType',
-            '1.2.840.10045.1.1' => 'prime-field',
-            '1.2.840.10045.1.2' => 'characteristic-two-field',
-            '1.2.840.10045.1.2.3' => 'id-characteristic-two-basis',
-            '1.2.840.10045.1.2.3.1' => 'gnBasis',
-            '1.2.840.10045.1.2.3.2' => 'tpBasis',
-            '1.2.840.10045.1.2.3.3' => 'ppBasis',
-            '1.2.840.10045.2' => 'id-publicKeyType',
-            '1.2.840.10045.2.1' => 'id-ecPublicKey',
-            '1.2.840.10045.3' => 'ellipticCurve',
-            '1.2.840.10045.3.0' => 'c-TwoCurve',
-            '1.2.840.10045.3.0.1' => 'c2pnb163v1',
-            '1.2.840.10045.3.0.2' => 'c2pnb163v2',
-            '1.2.840.10045.3.0.3' => 'c2pnb163v3',
-            '1.2.840.10045.3.0.4' => 'c2pnb176w1',
-            '1.2.840.10045.3.0.5' => 'c2pnb191v1',
-            '1.2.840.10045.3.0.6' => 'c2pnb191v2',
-            '1.2.840.10045.3.0.7' => 'c2pnb191v3',
-            '1.2.840.10045.3.0.8' => 'c2pnb191v4',
-            '1.2.840.10045.3.0.9' => 'c2pnb191v5',
-            '1.2.840.10045.3.0.10' => 'c2pnb208w1',
-            '1.2.840.10045.3.0.11' => 'c2pnb239v1',
-            '1.2.840.10045.3.0.12' => 'c2pnb239v2',
-            '1.2.840.10045.3.0.13' => 'c2pnb239v3',
-            '1.2.840.10045.3.0.14' => 'c2pnb239v4',
-            '1.2.840.10045.3.0.15' => 'c2pnb239v5',
-            '1.2.840.10045.3.0.16' => 'c2pnb272w1',
-            '1.2.840.10045.3.0.17' => 'c2pnb304w1',
-            '1.2.840.10045.3.0.18' => 'c2pnb359v1',
-            '1.2.840.10045.3.0.19' => 'c2pnb368w1',
-            '1.2.840.10045.3.0.20' => 'c2pnb431r1',
-            '1.2.840.10045.3.1' => 'primeCurve',
-            '1.2.840.10045.3.1.1' => 'prime192v1',
-            '1.2.840.10045.3.1.2' => 'prime192v2',
-            '1.2.840.10045.3.1.3' => 'prime192v3',
-            '1.2.840.10045.3.1.4' => 'prime239v1',
-            '1.2.840.10045.3.1.5' => 'prime239v2',
-            '1.2.840.10045.3.1.6' => 'prime239v3',
-            '1.2.840.10045.3.1.7' => 'prime256v1',
-            '1.2.840.113549.1.1.7' => 'id-RSAES-OAEP',
-            '1.2.840.113549.1.1.9' => 'id-pSpecified',
-            '1.2.840.113549.1.1.10' => 'id-RSASSA-PSS',
-            '1.2.840.113549.1.1.8' => 'id-mgf1',
-            '1.2.840.113549.1.1.14' => 'sha224WithRSAEncryption',
-            '1.2.840.113549.1.1.11' => 'sha256WithRSAEncryption',
-            '1.2.840.113549.1.1.12' => 'sha384WithRSAEncryption',
-            '1.2.840.113549.1.1.13' => 'sha512WithRSAEncryption',
-            '2.16.840.1.101.3.4.2.4' => 'id-sha224',
-            '2.16.840.1.101.3.4.2.1' => 'id-sha256',
-            '2.16.840.1.101.3.4.2.2' => 'id-sha384',
-            '2.16.840.1.101.3.4.2.3' => 'id-sha512',
-            '1.2.643.2.2.4' => 'id-GostR3411-94-with-GostR3410-94',
-            '1.2.643.2.2.3' => 'id-GostR3411-94-with-GostR3410-2001',
-            '1.2.643.2.2.20' => 'id-GostR3410-2001',
-            '1.2.643.2.2.19' => 'id-GostR3410-94',
-            // Netscape Object Identifiers from "Netscape Certificate Extensions"
-            '2.16.840.1.113730' => 'netscape',
-            '2.16.840.1.113730.1' => 'netscape-cert-extension',
-            '2.16.840.1.113730.1.1' => 'netscape-cert-type',
-            '2.16.840.1.113730.1.13' => 'netscape-comment',
-            '2.16.840.1.113730.1.8' => 'netscape-ca-policy-url',
-            // the following are X.509 extensions not supported by phpseclib
-            '1.3.6.1.5.5.7.1.12' => 'id-pe-logotype',
-            '1.2.840.113533.7.65.0' => 'entrustVersInfo',
-            '2.16.840.1.113733.1.6.9' => 'verisignPrivate',
-            // for Certificate Signing Requests
-            // see http://tools.ietf.org/html/rfc2985
-            '1.2.840.113549.1.9.2' => 'pkcs-9-at-unstructuredName', // PKCS #9 unstructured name
-            '1.2.840.113549.1.9.7' => 'pkcs-9-at-challengePassword', // Challenge password for certificate revocations
-            '1.2.840.113549.1.9.14' => 'pkcs-9-at-extensionRequest' // Certificate extension request
-        );
+                '1.2.840.113549.2.2' => 'md2',
+                '1.2.840.113549.2.5' => 'md5',
+                '1.3.14.3.2.26' => 'id-sha1',
+                '1.2.840.10040.4.1' => 'id-dsa',
+                '1.2.840.10040.4.3' => 'id-dsa-with-sha1',
+                '1.2.840.113549.1.1' => 'pkcs-1',
+                '1.2.840.113549.1.1.1' => 'rsaEncryption',
+                '1.2.840.113549.1.1.2' => 'md2WithRSAEncryption',
+                '1.2.840.113549.1.1.4' => 'md5WithRSAEncryption',
+                '1.2.840.113549.1.1.5' => 'sha1WithRSAEncryption',
+                '1.2.840.10046.2.1' => 'dhpublicnumber',
+                '2.16.840.1.101.2.1.1.22' => 'id-keyExchangeAlgorithm',
+                '1.2.840.10045' => 'ansi-X9-62',
+                '1.2.840.10045.4' => 'id-ecSigType',
+                '1.2.840.10045.4.1' => 'ecdsa-with-SHA1',
+                '1.2.840.10045.1' => 'id-fieldType',
+                '1.2.840.10045.1.1' => 'prime-field',
+                '1.2.840.10045.1.2' => 'characteristic-two-field',
+                '1.2.840.10045.1.2.3' => 'id-characteristic-two-basis',
+                '1.2.840.10045.1.2.3.1' => 'gnBasis',
+                '1.2.840.10045.1.2.3.2' => 'tpBasis',
+                '1.2.840.10045.1.2.3.3' => 'ppBasis',
+                '1.2.840.10045.2' => 'id-publicKeyType',
+                '1.2.840.10045.2.1' => 'id-ecPublicKey',
+                '1.2.840.10045.3' => 'ellipticCurve',
+                '1.2.840.10045.3.0' => 'c-TwoCurve',
+                '1.2.840.10045.3.0.1' => 'c2pnb163v1',
+                '1.2.840.10045.3.0.2' => 'c2pnb163v2',
+                '1.2.840.10045.3.0.3' => 'c2pnb163v3',
+                '1.2.840.10045.3.0.4' => 'c2pnb176w1',
+                '1.2.840.10045.3.0.5' => 'c2pnb191v1',
+                '1.2.840.10045.3.0.6' => 'c2pnb191v2',
+                '1.2.840.10045.3.0.7' => 'c2pnb191v3',
+                '1.2.840.10045.3.0.8' => 'c2pnb191v4',
+                '1.2.840.10045.3.0.9' => 'c2pnb191v5',
+                '1.2.840.10045.3.0.10' => 'c2pnb208w1',
+                '1.2.840.10045.3.0.11' => 'c2pnb239v1',
+                '1.2.840.10045.3.0.12' => 'c2pnb239v2',
+                '1.2.840.10045.3.0.13' => 'c2pnb239v3',
+                '1.2.840.10045.3.0.14' => 'c2pnb239v4',
+                '1.2.840.10045.3.0.15' => 'c2pnb239v5',
+                '1.2.840.10045.3.0.16' => 'c2pnb272w1',
+                '1.2.840.10045.3.0.17' => 'c2pnb304w1',
+                '1.2.840.10045.3.0.18' => 'c2pnb359v1',
+                '1.2.840.10045.3.0.19' => 'c2pnb368w1',
+                '1.2.840.10045.3.0.20' => 'c2pnb431r1',
+                '1.2.840.10045.3.1' => 'primeCurve',
+                '1.2.840.10045.3.1.1' => 'prime192v1',
+                '1.2.840.10045.3.1.2' => 'prime192v2',
+                '1.2.840.10045.3.1.3' => 'prime192v3',
+                '1.2.840.10045.3.1.4' => 'prime239v1',
+                '1.2.840.10045.3.1.5' => 'prime239v2',
+                '1.2.840.10045.3.1.6' => 'prime239v3',
+                '1.2.840.10045.3.1.7' => 'prime256v1',
+                '1.2.840.113549.1.1.7' => 'id-RSAES-OAEP',
+                '1.2.840.113549.1.1.9' => 'id-pSpecified',
+                '1.2.840.113549.1.1.10' => 'id-RSASSA-PSS',
+                '1.2.840.113549.1.1.8' => 'id-mgf1',
+                '1.2.840.113549.1.1.14' => 'sha224WithRSAEncryption',
+                '1.2.840.113549.1.1.11' => 'sha256WithRSAEncryption',
+                '1.2.840.113549.1.1.12' => 'sha384WithRSAEncryption',
+                '1.2.840.113549.1.1.13' => 'sha512WithRSAEncryption',
+                '2.16.840.1.101.3.4.2.4' => 'id-sha224',
+                '2.16.840.1.101.3.4.2.1' => 'id-sha256',
+                '2.16.840.1.101.3.4.2.2' => 'id-sha384',
+                '2.16.840.1.101.3.4.2.3' => 'id-sha512',
+                '1.2.643.2.2.4' => 'id-GostR3411-94-with-GostR3410-94',
+                '1.2.643.2.2.3' => 'id-GostR3411-94-with-GostR3410-2001',
+                '1.2.643.2.2.20' => 'id-GostR3410-2001',
+                '1.2.643.2.2.19' => 'id-GostR3410-94',
+                // Netscape Object Identifiers from "Netscape Certificate Extensions"
+                '2.16.840.1.113730' => 'netscape',
+                '2.16.840.1.113730.1' => 'netscape-cert-extension',
+                '2.16.840.1.113730.1.1' => 'netscape-cert-type',
+                '2.16.840.1.113730.1.13' => 'netscape-comment',
+                '2.16.840.1.113730.1.8' => 'netscape-ca-policy-url',
+                // the following are X.509 extensions not supported by phpseclib
+                '1.3.6.1.5.5.7.1.12' => 'id-pe-logotype',
+                '1.2.840.113533.7.65.0' => 'entrustVersInfo',
+                '2.16.840.1.113733.1.6.9' => 'verisignPrivate',
+                // for Certificate Signing Requests
+                // see http://tools.ietf.org/html/rfc2985
+                '1.2.840.113549.1.9.2' => 'pkcs-9-at-unstructuredName', // PKCS #9 unstructured name
+                '1.2.840.113549.1.9.7' => 'pkcs-9-at-challengePassword', // Challenge password for certificate revocations
+                '1.2.840.113549.1.9.14' => 'pkcs-9-at-extensionRequest' // Certificate extension request
+            ]);
+        }
     }
 
     /**
@@ -439,8 +450,6 @@ class X509
             return $cert;
         }
 
-        $asn1 = new ASN1();
-
         if ($mode != self::FORMAT_DER) {
             $newcert = ASN1::extractBER($cert);
             if ($mode == self::FORMAT_PEM && $cert == $newcert) {
@@ -454,11 +463,10 @@ class X509
             return false;
         }
 
-        $asn1->loadOIDs($this->oids);
-        $decoded = $asn1->decodeBER($cert);
+        $decoded = ASN1::decodeBER($cert);
 
         if (!empty($decoded)) {
-            $x509 = $asn1->asn1map($decoded[0], ASN1\Certificate::MAP);
+            $x509 = ASN1::asn1map($decoded[0], Maps\Certificate::MAP);
         }
         if (!isset($x509) || $x509 === false) {
             $this->currentCert = false;
@@ -468,10 +476,10 @@ class X509
         $this->signatureSubject = substr($cert, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
         if ($this->_isSubArrayValid($x509, 'tbsCertificate/extensions')) {
-            $this->_mapInExtensions($x509, 'tbsCertificate/extensions', $asn1);
+            $this->_mapInExtensions($x509, 'tbsCertificate/extensions');
         }
-        $this->_mapInDNs($x509, 'tbsCertificate/issuer/rdnSequence', $asn1);
-        $this->_mapInDNs($x509, 'tbsCertificate/subject/rdnSequence', $asn1);
+        $this->_mapInDNs($x509, 'tbsCertificate/issuer/rdnSequence');
+        $this->_mapInDNs($x509, 'tbsCertificate/subject/rdnSequence');
 
         $key = &$x509['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'];
         $key = $this->_reformatKey($x509['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'], $key);
@@ -522,9 +530,6 @@ class X509
                 }
         }
 
-        $asn1 = new ASN1();
-        $asn1->loadOIDs($this->oids);
-
         $filters = array();
         $type_utf8_string = array('type' => ASN1::TYPE_UTF8_STRING);
         $filters['tbsCertificate']['signature']['parameters'] = $type_utf8_string;
@@ -545,13 +550,13 @@ class X509
         $filters['policyQualifiers']['qualifier']
             = array('type' => ASN1::TYPE_IA5_STRING);
 
-        $asn1->loadFilters($filters);
+        ASN1::setFilters($filters);
 
-        $this->_mapOutExtensions($cert, 'tbsCertificate/extensions', $asn1);
-        $this->_mapOutDNs($cert, 'tbsCertificate/issuer/rdnSequence', $asn1);
-        $this->_mapOutDNs($cert, 'tbsCertificate/subject/rdnSequence', $asn1);
+        $this->_mapOutExtensions($cert, 'tbsCertificate/extensions');
+        $this->_mapOutDNs($cert, 'tbsCertificate/issuer/rdnSequence');
+        $this->_mapOutDNs($cert, 'tbsCertificate/subject/rdnSequence');
 
-        $cert = $asn1->encodeDER($cert, ASN1\Certificate::MAP);
+        $cert = ASN1::encodeDER($cert, Maps\Certificate::MAP);
 
         switch ($format) {
             case self::FORMAT_DER:
@@ -568,10 +573,9 @@ class X509
      *
      * @param array ref $root
      * @param string $path
-     * @param object $asn1
      * @access private
      */
-    function _mapInExtensions(&$root, $path, $asn1)
+    function _mapInExtensions(&$root, $path)
     {
         $extensions = &$this->_subArrayUnchecked($root, $path);
 
@@ -580,12 +584,12 @@ class X509
                 $id = $extensions[$i]['extnId'];
                 $value = &$extensions[$i]['extnValue'];
                 $value = Base64::decode($value);
-                $decoded = $asn1->decodeBER($value);
+                $decoded = ASN1::decodeBER($value);
                 /* [extnValue] contains the DER encoding of an ASN.1 value
                    corresponding to the extension type identified by extnID */
                 $map = $this->_getMapping($id);
                 if (!is_bool($map)) {
-                    $mapped = $asn1->asn1map($decoded[0], $map, array('iPAddress' => array($this, '_decodeIP')));
+                    $mapped = ASN1::asn1map($decoded[0], $map, array('iPAddress' => array($this, '_decodeIP')));
                     $value = $mapped === false ? $decoded[0] : $mapped;
 
                     if ($id == 'id-ce-certificatePolicies') {
@@ -598,8 +602,8 @@ class X509
                                 $map = $this->_getMapping($subid);
                                 $subvalue = &$value[$j]['policyQualifiers'][$k]['qualifier'];
                                 if ($map !== false) {
-                                    $decoded = $asn1->decodeBER($subvalue);
-                                    $mapped = $asn1->asn1map($decoded[0], $map);
+                                    $decoded = ASN1::decodeBER($subvalue);
+                                    $mapped = ASN1::asn1map($decoded[0], $map);
                                     $subvalue = $mapped === false ? $decoded[0] : $mapped;
                                 }
                             }
@@ -618,10 +622,9 @@ class X509
      *
      * @param array ref $root
      * @param string $path
-     * @param object $asn1
      * @access private
      */
-    function _mapOutExtensions(&$root, $path, $asn1)
+    function _mapOutExtensions(&$root, $path)
     {
         $extensions = &$this->_subArray($root, $path);
 
@@ -648,7 +651,7 @@ class X509
                                 if ($map !== false) {
                                     // by default \phpseclib\File\ASN1 will try to render qualifier as a \phpseclib\File\ASN1::TYPE_IA5_STRING since it's
                                     // actual type is \phpseclib\File\ASN1::TYPE_ANY
-                                    $subvalue = new Element($asn1->encodeDER($subvalue, $map));
+                                    $subvalue = new Element(ASN1::encodeDER($subvalue, $map));
                                 }
                             }
                         }
@@ -671,7 +674,7 @@ class X509
                         unset($extensions[$i]);
                     }
                 } else {
-                    $temp = $asn1->encodeDER($value, $map, array('iPAddress' => array($this, '_encodeIP')));
+                    $temp = ASN1::encodeDER($value, $map, array('iPAddress' => array($this, '_encodeIP')));
                     $value = Base64::encode($temp);
                 }
             }
@@ -684,10 +687,9 @@ class X509
      *
      * @param array ref $root
      * @param string $path
-     * @param object $asn1
      * @access private
      */
-    function _mapInAttributes(&$root, $path, $asn1)
+    function _mapInAttributes(&$root, $path)
     {
         $attributes = &$this->_subArray($root, $path);
 
@@ -700,15 +702,15 @@ class X509
                 if (is_array($attributes[$i]['value'])) {
                     $values = &$attributes[$i]['value'];
                     for ($j = 0; $j < count($values); $j++) {
-                        $value = $asn1->encodeDER($values[$j], ASN1\AttributeValue::MAP);
-                        $decoded = $asn1->decodeBER($value);
+                        $value = ASN1::encodeDER($values[$j], Maps\AttributeValue::MAP);
+                        $decoded = ASN1::decodeBER($value);
                         if (!is_bool($map)) {
-                            $mapped = $asn1->asn1map($decoded[0], $map);
+                            $mapped = ASN1::asn1map($decoded[0], $map);
                             if ($mapped !== false) {
                                 $values[$j] = $mapped;
                             }
                             if ($id == 'pkcs-9-at-extensionRequest' && $this->_isSubArrayValid($values, $j)) {
-                                $this->_mapInExtensions($values, $j, $asn1);
+                                $this->_mapInExtensions($values, $j);
                             }
                         } elseif ($map) {
                             $values[$j] = Base64::encode($value);
@@ -725,10 +727,9 @@ class X509
      *
      * @param array ref $root
      * @param string $path
-     * @param object $asn1
      * @access private
      */
-    function _mapOutAttributes(&$root, $path, $asn1)
+    function _mapOutAttributes(&$root, $path)
     {
         $attributes = &$this->_subArray($root, $path);
 
@@ -747,14 +748,14 @@ class X509
                     for ($j = 0; $j < count($values); $j++) {
                         switch ($id) {
                             case 'pkcs-9-at-extensionRequest':
-                                $this->_mapOutExtensions($values, $j, $asn1);
+                                $this->_mapOutExtensions($values, $j);
                                 break;
                         }
 
                         if (!is_bool($map)) {
-                            $temp = $asn1->encodeDER($values[$j], $map);
-                            $decoded = $asn1->decodeBER($temp);
-                            $values[$j] = $asn1->asn1map($decoded[0], ASN1\AttributeValue::MAP);
+                            $temp = ASN1::encodeDER($values[$j], $map);
+                            $decoded = ASN1::decodeBER($temp);
+                            $values[$j] = ASN1::asn1map($decoded[0], Maps\AttributeValue::MAP);
                         }
                     }
                 }
@@ -768,10 +769,9 @@ class X509
      *
      * @param array ref $root
      * @param string $path
-     * @param object $asn1
      * @access private
      */
-    function _mapInDNs(&$root, $path, $asn1)
+    function _mapInDNs(&$root, $path)
     {
         $dns = &$this->_subArray($root, $path);
 
@@ -783,8 +783,8 @@ class X509
                     if (is_object($value) && $value instanceof Element) {
                         $map = $this->_getMapping($type);
                         if (!is_bool($map)) {
-                            $decoded = $asn1->decodeBER($value);
-                            $value = $asn1->asn1map($decoded[0], $map);
+                            $decoded = ASN1::decodeBER($value);
+                            $value = ASN1::asn1map($decoded[0], $map);
                         }
                     }
                 }
@@ -798,10 +798,9 @@ class X509
      *
      * @param array ref $root
      * @param string $path
-     * @param object $asn1
      * @access private
      */
-    function _mapOutDNs(&$root, $path, $asn1)
+    function _mapOutDNs(&$root, $path)
     {
         $dns = &$this->_subArray($root, $path);
 
@@ -817,7 +816,7 @@ class X509
 
                     $map = $this->_getMapping($type);
                     if (!is_bool($map)) {
-                        $value = new Element($asn1->encodeDER($value, $map));
+                        $value = new Element(ASN1::encodeDER($value, $map));
                     }
                 }
             }
@@ -839,47 +838,47 @@ class X509
 
         switch ($extnId) {
             case 'id-ce-keyUsage':
-                return ASN1\KeyUsage::MAP;
+                return Maps\KeyUsage::MAP;
             case 'id-ce-basicConstraints':
-                return ASN1\BasicConstraints::MAP;
+                return Maps\BasicConstraints::MAP;
             case 'id-ce-subjectKeyIdentifier':
-                return ASN1\KeyIdentifier::MAP;
+                return Maps\KeyIdentifier::MAP;
             case 'id-ce-cRLDistributionPoints':
-                return ASN1\CRLDistributionPoints::MAP;
+                return Maps\CRLDistributionPoints::MAP;
             case 'id-ce-authorityKeyIdentifier':
-                return ASN1\AuthorityKeyIdentifier::MAP;
+                return Maps\AuthorityKeyIdentifier::MAP;
             case 'id-ce-certificatePolicies':
-                return ASN1\CertificatePolicies::MAP;
+                return Maps\CertificatePolicies::MAP;
             case 'id-ce-extKeyUsage':
-                return ASN1\ExtKeyUsageSyntax::MAP;
+                return Maps\ExtKeyUsageSyntax::MAP;
             case 'id-pe-authorityInfoAccess':
-                return ASN1\AuthorityInfoAccessSyntax::MAP;
+                return Maps\AuthorityInfoAccessSyntax::MAP;
             case 'id-ce-subjectAltName':
-                return ASN1\SubjectAltName::MAP;
+                return Maps\SubjectAltName::MAP;
             case 'id-ce-subjectDirectoryAttributes':
-                return ASN1\SubjectDirectoryAttributes::MAP;
+                return Maps\SubjectDirectoryAttributes::MAP;
             case 'id-ce-privateKeyUsagePeriod':
-                return ASN1\PrivateKeyUsagePeriod::MAP;
+                return Maps\PrivateKeyUsagePeriod::MAP;
             case 'id-ce-issuerAltName':
-                return ASN1\IssuerAltName::MAP;
+                return Maps\IssuerAltName::MAP;
             case 'id-ce-policyMappings':
-                return ASN1\PolicyMappings::MAP;
+                return Maps\PolicyMappings::MAP;
             case 'id-ce-nameConstraints':
-                return ASN1\NameConstraints::MAP;
+                return Maps\NameConstraints::MAP;
 
             case 'netscape-cert-type':
-                return ASN1\netscape_cert_type::MAP;
+                return Maps\netscape_cert_type::MAP;
             case 'netscape-comment':
-                return ASN1\netscape_comment::MAP;
+                return Maps\netscape_comment::MAP;
             case 'netscape-ca-policy-url':
-                return ASN1\netscape_ca_policy_url::MAP;
+                return Maps\netscape_ca_policy_url::MAP;
 
             // since id-qt-cps isn't a constructed type it will have already been decoded as a string by the time it gets
             // back around to asn1map() and we don't want it decoded again.
             //case 'id-qt-cps':
-            //    return ASN1\CPSuri::MAP;
+            //    return Maps\CPSuri::MAP;
             case 'id-qt-unotice':
-                return ASN1\UserNotice::MAP;
+                return Maps\UserNotice::MAP;
 
             // the following OIDs are unsupported but we don't want them to give notices when calling saveX509().
             case 'id-pe-logotype': // http://www.ietf.org/rfc/rfc3709.txt
@@ -894,31 +893,31 @@ class X509
 
             // CSR attributes
             case 'pkcs-9-at-unstructuredName':
-                return ASN1\PKCS9String::MAP;
+                return Maps\PKCS9String::MAP;
             case 'pkcs-9-at-challengePassword':
-                return ASN1\DirectoryString::MAP;
+                return Maps\DirectoryString::MAP;
             case 'pkcs-9-at-extensionRequest':
-                return ASN1\Extensions::MAP;
+                return Maps\Extensions::MAP;
 
             // CRL extensions.
             case 'id-ce-cRLNumber':
-                return ASN1\CRLNumber::MAP;
+                return Maps\CRLNumber::MAP;
             case 'id-ce-deltaCRLIndicator':
-                return ASN1\CRLNumber::MAP;
+                return Maps\CRLNumber::MAP;
             case 'id-ce-issuingDistributionPoint':
-                return ASN1\IssuingDistributionPoint::MAP;
+                return Maps\IssuingDistributionPoint::MAP;
             case 'id-ce-freshestCRL':
-                return ASN1\CRLDistributionPoints::MAP;
+                return Maps\CRLDistributionPoints::MAP;
             case 'id-ce-cRLReasons':
-                return ASN1\CRLReason::MAP;
+                return Maps\CRLReason::MAP;
             case 'id-ce-invalidityDate':
-                return ASN1\InvalidityDate::MAP;
+                return Maps\InvalidityDate::MAP;
             case 'id-ce-certificateIssuer':
-                return ASN1\CertificateIssuer::MAP;
+                return Maps\CertificateIssuer::MAP;
             case 'id-ce-holdInstructionCode':
-                return ASN1\HoldInstructionCode::MAP;
+                return Maps\HoldInstructionCode::MAP;
             case 'id-at-postalAddress':
-                return ASN1\PostalAddress::MAP;
+                return Maps\PostalAddress::MAP;
         }
 
         return false;
@@ -1478,12 +1477,10 @@ class X509
             return false;
         }
 
-        $asn1 = new ASN1();
-        $asn1->loadOIDs($this->oids);
         $filters = array();
         $filters['value'] = array('type' => ASN1::TYPE_UTF8_STRING);
-        $asn1->loadFilters($filters);
-        $this->_mapOutDNs($dn, 'rdnSequence', $asn1);
+        ASN1::setFilters($filters);
+        $this->_mapOutDNs($dn, 'rdnSequence');
         $dn = $dn['rdnSequence'];
         $result = array();
         for ($i = 0; $i < count($dn); $i++) {
@@ -1492,9 +1489,9 @@ class X509
                 if (!$withType) {
                     if (is_array($v)) {
                         foreach ($v as $type => $s) {
-                            $type = array_search($type, $asn1->ANYmap, true);
-                            if ($type !== false && isset($asn1->stringTypeSize[$type])) {
-                                $s = $asn1->convert($s, $type);
+                            $type = array_search($type, ASN1::ANY_MAP);
+                            if ($type !== false && array_key_exists($type, ASN1::STRING_TYPE_SIZE)) {
+                                $s = ASN1::convert($s, $type);
                                 if ($s !== false) {
                                     $v = $s;
                                     break;
@@ -1507,8 +1504,8 @@ class X509
                     } elseif (is_object($v) && $v instanceof Element) {
                         $map = $this->_getMapping($propName);
                         if (!is_bool($map)) {
-                            $decoded = $asn1->decodeBER($v);
-                            $v = $asn1->asn1map($decoded[0], $map);
+                            $decoded = ASN1::decodeBER($v);
+                            $v = ASN1::asn1map($decoded[0], $map);
                         }
                     }
                 }
@@ -1580,32 +1577,28 @@ class X509
             case self::DN_ARRAY:
                 return $dn;
             case self::DN_ASN1:
-                $asn1 = new ASN1();
-                $asn1->loadOIDs($this->oids);
                 $filters = array();
                 $filters['rdnSequence']['value'] = array('type' => ASN1::TYPE_UTF8_STRING);
-                $asn1->loadFilters($filters);
-                $this->_mapOutDNs($dn, 'rdnSequence', $asn1);
-                return $asn1->encodeDER($dn, ASN1\Name::MAP);
+                ASN1::setFilters($filters);
+                $this->_mapOutDNs($dn, 'rdnSequence');
+                return ASN1::encodeDER($dn, Maps\Name::MAP);
             case self::DN_CANON:
                 //  No SEQUENCE around RDNs and all string values normalized as
                 // trimmed lowercase UTF-8 with all spacing as one blank.
                 // constructed RDNs will not be canonicalized
-                $asn1 = new ASN1();
-                $asn1->loadOIDs($this->oids);
                 $filters = array();
                 $filters['value'] = array('type' => ASN1::TYPE_UTF8_STRING);
-                $asn1->loadFilters($filters);
+                ASN1::setFilters($filters);
                 $result = '';
-                $this->_mapOutDNs($dn, 'rdnSequence', $asn1);
+                $this->_mapOutDNs($dn, 'rdnSequence');
                 foreach ($dn['rdnSequence'] as $rdn) {
                     foreach ($rdn as $i => $attr) {
                         $attr = &$rdn[$i];
                         if (is_array($attr['value'])) {
                             foreach ($attr['value'] as $type => $v) {
-                                $type = array_search($type, $asn1->ANYmap, true);
-                                if ($type !== false && isset($asn1->stringTypeSize[$type])) {
-                                    $v = $asn1->convert($v, $type);
+                                $type = array_search($type, ASN1::ANY_MAP, true);
+                                if ($type !== false && array_key_exists($type, ASN1::STRING_TYPE_SIZE)) {
+                                    $v = ASN1::convert($v, $type);
                                     if ($v !== false) {
                                         $v = preg_replace('/\s+/', ' ', $v);
                                         $attr['value'] = strtolower(trim($v));
@@ -1615,7 +1608,7 @@ class X509
                             }
                         }
                     }
-                    $result .= $asn1->encodeDER($rdn, ASN1\RelativeDistinguishedName::MAP);
+                    $result .= ASN1::encodeDER($rdn, Maps\RelativeDistinguishedName::MAP);
                 }
                 return $result;
             case self::DN_HASH:
@@ -1631,12 +1624,10 @@ class X509
         $output = '';
 
         $result = array();
-        $asn1 = new ASN1();
-        $asn1->loadOIDs($this->oids);
         $filters = array();
         $filters['rdnSequence']['value'] = array('type' => ASN1::TYPE_UTF8_STRING);
-        $asn1->loadFilters($filters);
-        $this->_mapOutDNs($dn, 'rdnSequence', $asn1);
+        ASN1::setFilters($filters);
+        $this->_mapOutDNs($dn, 'rdnSequence');
 
         foreach ($dn['rdnSequence'] as $field) {
             $prop = $field[0]['type'];
@@ -1683,9 +1674,9 @@ class X509
             }
             if (is_array($value)) {
                 foreach ($value as $type => $v) {
-                    $type = array_search($type, $asn1->ANYmap, true);
-                    if ($type !== false && isset($asn1->stringTypeSize[$type])) {
-                        $v = $asn1->convert($v, $type);
+                    $type = array_search($type, ASN1::ANY_MAP, true);
+                    if ($type !== false && array_key_exists($type, ASN1::STRING_TYPE_SIZE)) {
+                        $v = ASN1::convert($v, $type);
                         if ($v !== false) {
                             $value = $v;
                             break;
@@ -1951,8 +1942,6 @@ class X509
 
         // see http://tools.ietf.org/html/rfc2986
 
-        $asn1 = new ASN1();
-
         if ($mode != self::FORMAT_DER) {
             $newcsr = ASN1::extractBER($csr);
             if ($mode == self::FORMAT_PEM && $csr == $newcsr) {
@@ -1967,22 +1956,21 @@ class X509
             return false;
         }
 
-        $asn1->loadOIDs($this->oids);
-        $decoded = $asn1->decodeBER($csr);
+        $decoded = ASN1::decodeBER($csr);
 
         if (empty($decoded)) {
             $this->currentCert = false;
             return false;
         }
 
-        $csr = $asn1->asn1map($decoded[0], ASN1\CertificationRequest::MAP);
+        $csr = ASN1::asn1map($decoded[0], Maps\CertificationRequest::MAP);
         if (!isset($csr) || $csr === false) {
             $this->currentCert = false;
             return false;
         }
 
-        $this->_mapInAttributes($csr, 'certificationRequestInfo/attributes', $asn1);
-        $this->_mapInDNs($csr, 'certificationRequestInfo/subject/rdnSequence', $asn1);
+        $this->_mapInAttributes($csr, 'certificationRequestInfo/attributes');
+        $this->_mapInDNs($csr, 'certificationRequestInfo/subject/rdnSequence');
 
         $this->dn = $csr['certificationRequestInfo']['subject'];
 
@@ -2037,19 +2025,15 @@ class X509
                 }
         }
 
-        $asn1 = new ASN1();
-
-        $asn1->loadOIDs($this->oids);
-
         $filters = array();
         $filters['certificationRequestInfo']['subject']['rdnSequence']['value']
             = array('type' => ASN1::TYPE_UTF8_STRING);
 
-        $asn1->loadFilters($filters);
+        ASN1::setFilters($filters);
 
-        $this->_mapOutDNs($csr, 'certificationRequestInfo/subject/rdnSequence', $asn1);
-        $this->_mapOutAttributes($csr, 'certificationRequestInfo/attributes', $asn1);
-        $csr = $asn1->encodeDER($csr, ASN1\CertificationRequest::MAP);
+        $this->_mapOutDNs($csr, 'certificationRequestInfo/subject/rdnSequence');
+        $this->_mapOutAttributes($csr, 'certificationRequestInfo/attributes');
+        $csr = ASN1::encodeDER($csr, Maps\CertificationRequest::MAP);
 
         switch ($format) {
             case self::FORMAT_DER:
@@ -2083,8 +2067,6 @@ class X509
 
         // see http://www.w3.org/html/wg/drafts/html/master/forms.html#signedpublickeyandchallenge
 
-        $asn1 = new ASN1();
-
         // OpenSSL produces SPKAC's that are preceded by the string SPKAC=
         $temp = preg_replace('#(?:SPKAC=)|[ \r\n\\\]#', '', $spkac);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? Base64::decode($temp) : false;
@@ -2098,15 +2080,14 @@ class X509
             return false;
         }
 
-        $asn1->loadOIDs($this->oids);
-        $decoded = $asn1->decodeBER($spkac);
+        $decoded = ASN1::decodeBER($spkac);
 
         if (empty($decoded)) {
             $this->currentCert = false;
             return false;
         }
 
-        $spkac = $asn1->asn1map($decoded[0], ASN1\SignedPublicKeyAndChallenge::MAP);
+        $spkac = ASN1::asn1map($decoded[0], Maps\SignedPublicKeyAndChallenge::MAP);
 
         if (!isset($spkac) || $spkac === false) {
             $this->currentCert = false;
@@ -2162,10 +2143,7 @@ class X509
                 }
         }
 
-        $asn1 = new ASN1();
-
-        $asn1->loadOIDs($this->oids);
-        $spkac = $asn1->encodeDER($spkac, ASN1\SignedPublicKeyAndChallenge::MAP);
+        $spkac = ASN1::encodeDER($spkac, Maps\SignedPublicKeyAndChallenge::MAP);
 
         switch ($format) {
             case self::FORMAT_DER:
@@ -2193,8 +2171,6 @@ class X509
             return $crl;
         }
 
-        $asn1 = new ASN1();
-
         if ($mode != self::FORMAT_DER) {
             $newcrl = ASN1::extractBER($crl);
             if ($mode == self::FORMAT_PEM && $crl == $newcrl) {
@@ -2209,15 +2185,14 @@ class X509
             return false;
         }
 
-        $asn1->loadOIDs($this->oids);
-        $decoded = $asn1->decodeBER($crl);
+        $decoded = ASN1::decodeBER($crl);
 
         if (empty($decoded)) {
             $this->currentCert = false;
             return false;
         }
 
-        $crl = $asn1->asn1map($decoded[0], ASN1\CertificateList::MAP);
+        $crl = ASN1::asn1map($decoded[0], Maps\CertificateList::MAP);
         if (!isset($crl) || $crl === false) {
             $this->currentCert = false;
             return false;
@@ -2225,17 +2200,17 @@ class X509
 
         $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
-        $this->_mapInDNs($crl, 'tbsCertList/issuer/rdnSequence', $asn1);
+        $this->_mapInDNs($crl, 'tbsCertList/issuer/rdnSequence');
         if ($this->_isSubArrayValid($crl, 'tbsCertList/crlExtensions')) {
-            $this->_mapInExtensions($crl, 'tbsCertList/crlExtensions', $asn1);
+            $this->_mapInExtensions($crl, 'tbsCertList/crlExtensions');
         }
         if ($this->_isSubArrayValid($crl, 'tbsCertList/revokedCertificates')) {
             $rclist_ref = &$this->_subArrayUnchecked($crl, 'tbsCertList/revokedCertificates');
             if ($rclist_ref) {
                 $rclist = $crl['tbsCertList']['revokedCertificates'];
                 foreach ($rclist as $i => $extension) {
-                    if ($this->_isSubArrayValid($rclist, "$i/crlEntryExtensions", $asn1)) {
-                        $this->_mapInExtensions($rclist_ref, "$i/crlEntryExtensions", $asn1);
+                    if ($this->_isSubArrayValid($rclist, "$i/crlEntryExtensions")) {
+                        $this->_mapInExtensions($rclist_ref, "$i/crlEntryExtensions");
                     }
                 }
             }
@@ -2261,10 +2236,6 @@ class X509
             return false;
         }
 
-        $asn1 = new ASN1();
-
-        $asn1->loadOIDs($this->oids);
-
         $filters = array();
         $filters['tbsCertList']['issuer']['rdnSequence']['value']
             = array('type' => ASN1::TYPE_UTF8_STRING);
@@ -2283,18 +2254,18 @@ class X509
                 = array('type' => ASN1::TYPE_NULL);
         }
 
-        $asn1->loadFilters($filters);
+        ASN1::setFilters($filters);
 
-        $this->_mapOutDNs($crl, 'tbsCertList/issuer/rdnSequence', $asn1);
-        $this->_mapOutExtensions($crl, 'tbsCertList/crlExtensions', $asn1);
+        $this->_mapOutDNs($crl, 'tbsCertList/issuer/rdnSequence');
+        $this->_mapOutExtensions($crl, 'tbsCertList/crlExtensions');
         $rclist = &$this->_subArray($crl, 'tbsCertList/revokedCertificates');
         if (is_array($rclist)) {
             foreach ($rclist as $i => $extension) {
-                $this->_mapOutExtensions($rclist, "$i/crlEntryExtensions", $asn1);
+                $this->_mapOutExtensions($rclist, "$i/crlEntryExtensions");
             }
         }
 
-        $crl = $asn1->encodeDER($crl, ASN1\CertificateList::MAP);
+        $crl = ASN1::encodeDER($crl, Maps\CertificateList::MAP);
 
         switch ($format) {
             case self::FORMAT_DER:
@@ -2826,7 +2797,6 @@ class X509
         */
         if (strtolower($date) == 'lifetime') {
             $temp = '99991231235959Z';
-            $asn1 = new ASN1();
             $temp = chr(ASN1::TYPE_GENERALIZED_TIME) . Functions::encodeLength(strlen($temp)) . $temp;
             $this->endDate = new Element($temp);
         } else {
@@ -3408,12 +3378,11 @@ class X509
                 return false;
             case $key instanceof Element:
                 // Assume the element is a bitstring-packed key.
-                $asn1 = new ASN1();
-                $decoded = $asn1->decodeBER($key->element);
+                $decoded = ASN1::decodeBER($key->element);
                 if (empty($decoded)) {
                     return false;
                 }
-                $raw = $asn1->asn1map($decoded[0], array('type' => ASN1::TYPE_BIT_STRING));
+                $raw = ASN1::asn1map($decoded[0], array('type' => ASN1::TYPE_BIT_STRING));
                 if (empty($raw)) {
                     return false;
                 }
@@ -3748,32 +3717,5 @@ class X509
         }
 
         return false;
-    }
-
-    /**
-     * Returns the OID corresponding to a name
-     *
-     * What's returned in the associative array returned by loadX509() (or load*()) is either a name or an OID if
-     * no OID to name mapping is available. The problem with this is that what may be an unmapped OID in one version
-     * of phpseclib may not be unmapped in the next version, so apps that are looking at this OID may not be able
-     * to work from version to version.
-     *
-     * This method will return the OID if a name is passed to it and if no mapping is avialable it'll assume that
-     * what's being passed to it already is an OID and return that instead. A few examples.
-     *
-     * getOID('2.16.840.1.101.3.4.2.1') == '2.16.840.1.101.3.4.2.1'
-     * getOID('id-sha256') == '2.16.840.1.101.3.4.2.1'
-     * getOID('zzz') == 'zzz'
-     *
-     * @access public
-     * @return string
-     */
-    function getOID($name)
-    {
-        static $reverseMap;
-        if (!isset($reverseMap)) {
-            $reverseMap = array_flip($this->oids);
-        }
-        return isset($reverseMap[$name]) ? $reverseMap[$name] : $name;
     }
 }
