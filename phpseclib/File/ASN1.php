@@ -1061,7 +1061,6 @@ class ASN1
                 }
                 if ($oid === false) {
                     throw new \RuntimeException('Invalid OID');
-                    return false;
                 }
                 $value = '';
                 $parts = explode('.', $oid);
@@ -1114,7 +1113,6 @@ class ASN1
                 }
                 if ($filters === false) {
                     throw new \RuntimeException('No filters defined for ' . implode('/', $loc));
-                    return false;
                 }
                 return self::_encode_der($source, $filters + $mapping, null, $special);
             case self::TYPE_NULL:
@@ -1138,7 +1136,6 @@ class ASN1
                 break;
             default:
                 throw new \RuntimeException('Mapping provides no type definition for ' . implode('/', self::$location));
-                return false;
         }
 
         if (isset($idx)) {
