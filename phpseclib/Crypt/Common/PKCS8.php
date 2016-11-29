@@ -368,8 +368,8 @@ class PKCS8 extends PKCS
                     $temp = ASN1::decodeBER($decrypted['encryptionAlgorithm']['parameters']);
                     extract(ASN1::asn1map($temp[0], Maps\PBEParameter::MAP));
                     $iterationCount = (int) $iterationCount->toString();
-                    $cipher->setPassword($password, $kdf, $hash, Base64::decode($salt), $iterationCount);
-                    $key = $cipher->decrypt(Base64::decode($decrypted['encryptedData']));
+                    $cipher->setPassword($password, $kdf, $hash, $salt, $iterationCount);
+                    $key = $cipher->decrypt($decrypted['encryptedData']);
                     $decoded = ASN1::decodeBER($key);
                     if (empty($decoded)) {
                         return false;
@@ -391,7 +391,7 @@ class PKCS8 extends PKCS
                     extract($temp);
 
                     if (!$cipher instanceof RC2) {
-                        $cipher->setIV(Base64::decode($encryptionScheme['parameters']['octetString']));
+                        $cipher->setIV($encryptionScheme['parameters']['octetString']);
                     } else {
                         $temp = ASN1::decodeBER($encryptionScheme['parameters']);
                         extract(ASN1::asn1map($temp[0], Maps\RC2CBCParameter::MAP));
@@ -408,7 +408,7 @@ class PKCS8 extends PKCS
                                 break;
                             //default: // should be >= 256
                         }
-                        $cipher->setIV(Base64::decode($iv));
+                        $cipher->setIV($iv);
                         $cipher->setKeyLength($effectiveKeyLength);
                     }
 
@@ -425,14 +425,14 @@ class PKCS8 extends PKCS
                                 $password,
                                 'pbkdf2',
                                 $hash,
-                                Base64::decode($salt),
+                                $salt,
                                 (int) $iterationCount->toString()
                             ];
                             if (isset($keyLength)) {
                                 $params[] = (int) $keyLength->toString();
                             }
                             call_user_func_array([$cipher, 'setPassword'], $params);
-                            $key = $cipher->decrypt(Base64::decode($decrypted['encryptedData']));
+                            $key = $cipher->decrypt($decrypted['encryptedData']);
                             $decoded = ASN1::decodeBER($key);
                             if (empty($decoded)) {
                                 return false;
@@ -462,11 +462,10 @@ class PKCS8 extends PKCS
         // bit strings wanting a non-zero amount of bits trimmed are not supported
         $public = ASN1::asn1map($decoded[0], Maps\PublicKeyInfo::MAP);
         if (is_array($public)) {
-            $public['publicKey'] = base64_decode($public['publicKey']);
             if ($public['publicKey'][0] != "\0") {
                 return false;
             }
-            $public['publicKey'] = base64_encode(substr($public['publicKey'], 1));
+            $public['publicKey'] = substr($public['publicKey'], 1);
             return $public;
         }
 
@@ -490,7 +489,7 @@ class PKCS8 extends PKCS
         $key = [
             'version' => 'v1',
             'privateKeyAlgorithm' => ['algorithm' => $algorithm], // parameters are not currently supported
-            'privateKey' => Base64::encode($key)
+            'privateKey' => $key
         ];
         if (!empty($attr)) {
             $key['attributes'] = $attr;
@@ -507,18 +506,18 @@ class PKCS8 extends PKCS
                 $iv = Random::string($crypto->getBlockLength() >> 3);
 
                 $PBKDF2params = [
-                    'salt' => Base64::encode($salt),
+                    'salt' => $salt,
                     'iterationCount' => $iterationCount,
                     'prf' => ['algorithm' => self::$defaultPRF, 'parameters' => null]
                 ];
                 $PBKDF2params = ASN1::encodeDER($PBKDF2params, Maps\PBKDF2params::MAP);
 
                 if (!$crypto instanceof RC2) {
-                    $params = ['octetString' => Base64::encode($iv)];
+                    $params = ['octetString' => $iv];
                 } else {
                     $params = [
                         'rc2ParametersVersion' => 58,
-                        'iv' => Base64::encode($iv)
+                        'iv' => $iv
                     ];
                     $params = ASN1::encodeDER($params, Maps\RC2CBCParameter::MAP);
                     $params = new ASN1\Element($params);
@@ -543,7 +542,7 @@ class PKCS8 extends PKCS
                 $kdf = self::getPBES1KDF(self::$defaultEncryptionAlgorithm);
 
                 $params = [
-                    'salt' => Base64::encode($salt),
+                    'salt' => $salt,
                     'iterationCount' => $iterationCount
                 ];
                 $params = ASN1::encodeDER($params, Maps\PBEParameter::MAP);
@@ -556,7 +555,7 @@ class PKCS8 extends PKCS
                     'algorithm' => self::$defaultEncryptionAlgorithm,
                     'parameters' => new ASN1\Element($params)
                 ],
-                'encryptedData' => Base64::encode($key)
+                'encryptedData' => $key
             ];
 
             $key = ASN1::encodeDER($key, Maps\EncryptedPrivateKeyInfo::MAP);
@@ -587,7 +586,7 @@ class PKCS8 extends PKCS
                 'algorithm' => $algorithm,
                 'parameters' => null // parameters are not currently supported
             ],
-            'publicKey' => Base64::encode("\0" . $key)
+            'publicKey' => "\0" . $key
         ];
 
         $key = ASN1::encodeDER($key, Maps\PublicKeyInfo::MAP);

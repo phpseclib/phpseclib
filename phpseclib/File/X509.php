@@ -583,7 +583,6 @@ class X509
             for ($i = 0; $i < count($extensions); $i++) {
                 $id = $extensions[$i]['extnId'];
                 $value = &$extensions[$i]['extnValue'];
-                $value = Base64::decode($value);
                 $decoded = ASN1::decodeBER($value);
                 /* [extnValue] contains the DER encoding of an ASN.1 value
                    corresponding to the extension type identified by extnID */
@@ -609,8 +608,6 @@ class X509
                             }
                         }
                     }
-                } else {
-                    $value = Base64::encode($value);
                 }
             }
         }
@@ -674,8 +671,7 @@ class X509
                         unset($extensions[$i]);
                     }
                 } else {
-                    $temp = ASN1::encodeDER($value, $map, array('iPAddress' => array($this, '_encodeIP')));
-                    $value = Base64::encode($temp);
+                    $value = ASN1::encodeDER($value, $map, array('iPAddress' => array($this, '_encodeIP')));
                 }
             }
         }
@@ -713,7 +709,7 @@ class X509
                                 $this->_mapInExtensions($values, $j);
                             }
                         } elseif ($map) {
-                            $values[$j] = Base64::encode($value);
+                            $values[$j] = $value;
                         }
                     }
                 }
@@ -1149,7 +1145,7 @@ class X509
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'],
                     $this->currentCert['signatureAlgorithm']['algorithm'],
-                    substr(Base64::decode($this->currentCert['signature']), 1),
+                    substr($this->currentCert['signature'], 1),
                     $this->signatureSubject
                 );
             case isset($this->currentCert['certificationRequestInfo']):
@@ -1157,7 +1153,7 @@ class X509
                     $this->currentCert['certificationRequestInfo']['subjectPKInfo']['algorithm']['algorithm'],
                     $this->currentCert['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'],
                     $this->currentCert['signatureAlgorithm']['algorithm'],
-                    substr(Base64::decode($this->currentCert['signature']), 1),
+                    substr($this->currentCert['signature'], 1),
                     $this->signatureSubject
                 );
             case isset($this->currentCert['publicKeyAndChallenge']):
@@ -1165,7 +1161,7 @@ class X509
                     $this->currentCert['publicKeyAndChallenge']['spki']['algorithm']['algorithm'],
                     $this->currentCert['publicKeyAndChallenge']['spki']['subjectPublicKey'],
                     $this->currentCert['signatureAlgorithm']['algorithm'],
-                    substr(Base64::decode($this->currentCert['signature']), 1),
+                    substr($this->currentCert['signature'], 1),
                     $this->signatureSubject
                 );
             case isset($this->currentCert['tbsCertList']):
@@ -1193,7 +1189,7 @@ class X509
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'],
                     $this->currentCert['signatureAlgorithm']['algorithm'],
-                    substr(Base64::decode($this->currentCert['signature']), 1),
+                    substr($this->currentCert['signature'], 1),
                     $this->signatureSubject
                 );
             default:
@@ -1266,7 +1262,7 @@ class X509
                     // subjectPublicKey is stored as a bit string in X.509 certs.  the first byte of a bit string represents how many bits
                     // in the last byte should be ignored.  the following only supports non-zero stuff but as none of the X.509 certs Firefox
                     // uses as a cert authority actually use a non-zero bit I think it's safe to assume that none do.
-                    chunk_split(Base64::encode(substr(Base64::decode($key), 1)), 64) .
+                    chunk_split(Base64::encode(substr($key, 1)), 64) .
                     '-----END RSA PUBLIC KEY-----';
             default:
                 return $key;
@@ -1284,7 +1280,7 @@ class X509
      */
     function _decodeIP($ip)
     {
-        return inet_ntop(Base64::decode($ip));
+        return inet_ntop($ip);
     }
 
     /**
@@ -1298,7 +1294,7 @@ class X509
      */
     function _encodeIP($ip)
     {
-        return Base64::encode(inet_pton($ip));
+        return inet_pton($ip);
     }
 
     /**
@@ -2464,7 +2460,7 @@ class X509
             );
 
             if (!isset($subject->currentKeyIdentifier)) {
-                $this->setExtension('id-ce-subjectKeyIdentifier', Base64::encode($this->computeKeyIdentifier($this->currentCert)), false, false);
+                $this->setExtension('id-ce-subjectKeyIdentifier', $this->computeKeyIdentifier($this->currentCert), false, false);
             }
         }
 
@@ -2759,7 +2755,7 @@ class X509
                 case 'sha512WithRSAEncryption':
                     $key->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
 
-                    $this->currentCert['signature'] = Base64::encode("\0" . $key->sign($this->signatureSubject, RSA::PADDING_PKCS1));
+                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject, RSA::PADDING_PKCS1);
                     return $this->currentCert;
                 default:
                     throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
@@ -3339,7 +3335,7 @@ class X509
         if (empty($value)) {
             unset($this->currentKeyIdentifier);
         } else {
-            $this->currentKeyIdentifier = Base64::encode($value);
+            $this->currentKeyIdentifier = $value;
         }
     }
 
@@ -3386,7 +3382,6 @@ class X509
                 if (empty($raw)) {
                     return false;
                 }
-                $raw = Base64::decode($raw);
                 // If the key is private, compute identifier from its corresponding public key.
                 $key = new RSA();
                 if (!$key->load($raw)) {
@@ -3439,7 +3434,7 @@ class X509
         if ($this->publicKey instanceof RSA) {
             // the following two return statements do the same thing. i dunno.. i just prefer the later for some reason.
             // the former is a good example of how to do fuzzing on the public key
-            //return new Element(Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey())));
+            //return new Element(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey()));
             return array(
                 'algorithm' => array('algorithm' => 'rsaEncryption'),
                 'subjectPublicKey' => $this->publicKey->getPublicKey('PKCS1')

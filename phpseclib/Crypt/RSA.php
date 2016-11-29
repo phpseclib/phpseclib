@@ -2051,7 +2051,7 @@ class RSA
             $hash;
         $hash = new Hash($hash);
         $em = $hash->hash($m);
-        $em2 = Base64::decode($decoded['digest']);
+        $em2 = $decoded['digest'];
 
         return self::_equals($em, $em2);
     }
