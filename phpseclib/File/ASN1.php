@@ -234,29 +234,7 @@ class ASN1
 
         $decoded = [self::_decode_ber($encoded)];
 
-        //self::_addEncodings($decoded[0], $encoded);
-
         // encapsulate in an array for BC with the old decodeBER
-        return $decoded;
-    }
-
-    /**
-     * Add encoded DER substrings to decoded array
-     *
-     * @param array $decoded
-     * @param string $encoded
-     * @return array
-     * @access private
-     */
-    static function _addEncodings(&$decoded, $encoded)
-    {
-        $decoded['encoded'] = substr($encoded, $decoded['start'], $decoded['length']);
-        if (!is_array($decoded['content'])) {
-            return $decoded;
-        }
-        for ($i = 0; $i < count($decoded['content']); $i++) {
-            self::addEncodings($decoded['content'][$i], $encoded);
-        }
         return $decoded;
     }
 
@@ -548,9 +526,7 @@ class ASN1
             case $mapping['type'] == self::TYPE_ANY:
                 $intype = $decoded['type'];
                 // !isset(self::ANY_MAP[$intype]) produces a fatal error on PHP 5.6
-                //if (isset($decoded['constant']) || !isset(self::ANY_MAP[$intype]) || (ord($decoded['encoded'][0]) & 0x20)) {
                 if (isset($decoded['constant']) || !array_key_exists($intype, self::ANY_MAP) || (ord(self::$encoded[$decoded['start']]) & 0x20)) {
-                    //return new Element($decoded['encoded']);
                     return new Element(substr(self::$encoded, $decoded['start'], $decoded['length']));
                 }
                 $inmap = self::ANY_MAP[$intype];
