@@ -27,21 +27,51 @@
 
 namespace phpseclib\Crypt\RSA;
 
-use ParagonIE\ConstantTime\Base64;
-use phpseclib\Crypt\DES;
-use phpseclib\Crypt\Random;
 use phpseclib\Math\BigInteger;
-use phpseclib\Common\Functions\ASN1;
+use phpseclib\Crypt\Common\PKCS8 as Progenitor;
+use phpseclib\File\ASN1;
 
 /**
- * PKCS#8 Formatted RSA Key Handler
+ * PKCS#1 Formatted RSA Key Handler
  *
  * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PKCS8 extends PKCS
+class PKCS8 extends Progenitor
 {
+    /**
+     * Break a public or private key down into its constituent components
+     *
+     * @access public
+     * @param string $key
+     * @param string $password optional
+     * @return array
+     */
+    static function load($key, $password = '')
+    {
+        $components = ['isPublicKey' => strpos($key, 'PUBLIC') !== false];
+
+        $key = parent::load($key, $password);
+        if ($key === false) {
+            return false;
+        }
+
+        $type = isset($key['privateKey']) ? 'private' : 'public';
+
+        if ($key[$type . 'KeyAlgorithm']['algorithm'] != '1.2.840.113549.1.1.1') {
+            return false;
+        }
+
+        $result = $components + PKCS1::load($key[$type . 'Key']);
+
+        if (isset($key['meta'])) {
+            $result['meta'] = $key['meta'];
+        }
+
+        return $result;
+    }
+
     /**
      * Convert a private key to the appropriate format.
      *
@@ -57,108 +87,9 @@ class PKCS8 extends PKCS
      */
     static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
     {
-        $num_primes = count($primes);
-        $raw = array(
-            'version' => $num_primes == 2 ? chr(0) : chr(1), // two-prime vs. multi
-            'modulus' => $n->toBytes(true),
-            'publicExponent' => $e->toBytes(true),
-            'privateExponent' => $d->toBytes(true),
-            'prime1' => $primes[1]->toBytes(true),
-            'prime2' => $primes[2]->toBytes(true),
-            'exponent1' => $exponents[1]->toBytes(true),
-            'exponent2' => $exponents[2]->toBytes(true),
-            'coefficient' => $coefficients[2]->toBytes(true)
-        );
-
-        $components = array();
-        foreach ($raw as $name => $value) {
-            $components[$name] = pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($value)), $value);
-        }
-
-        $RSAPrivateKey = implode('', $components);
-
-        if ($num_primes > 2) {
-            $OtherPrimeInfos = '';
-            for ($i = 3; $i <= $num_primes; $i++) {
-                // OtherPrimeInfos ::= SEQUENCE SIZE(1..MAX) OF OtherPrimeInfo
-                //
-                // OtherPrimeInfo ::= SEQUENCE {
-                //     prime             INTEGER,  -- ri
-                //     exponent          INTEGER,  -- di
-                //     coefficient       INTEGER   -- ti
-                // }
-                $OtherPrimeInfo = pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($primes[$i]->toBytes(true))), $primes[$i]->toBytes(true));
-                $OtherPrimeInfo.= pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($exponents[$i]->toBytes(true))), $exponents[$i]->toBytes(true));
-                $OtherPrimeInfo.= pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($coefficients[$i]->toBytes(true))), $coefficients[$i]->toBytes(true));
-                $OtherPrimeInfos.= pack('Ca*a*', self::ASN1_SEQUENCE, ASN1::encodeLength(strlen($OtherPrimeInfo)), $OtherPrimeInfo);
-            }
-            $RSAPrivateKey.= pack('Ca*a*', self::ASN1_SEQUENCE, ASN1::encodeLength(strlen($OtherPrimeInfos)), $OtherPrimeInfos);
-        }
-
-        $RSAPrivateKey = pack('Ca*a*', self::ASN1_SEQUENCE, ASN1::encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
-
-        $rsaOID = "\x30\x0d\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01\x05\x00"; // hex version of MA0GCSqGSIb3DQEBAQUA
-        $RSAPrivateKey = pack(
-            'Ca*a*Ca*a*',
-            self::ASN1_INTEGER,
-            "\01\00",
-            $rsaOID,
-            4,
-            ASN1::encodeLength(strlen($RSAPrivateKey)),
-            $RSAPrivateKey
-        );
-        $RSAPrivateKey = pack('Ca*a*', self::ASN1_SEQUENCE, ASN1::encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
-        if (!empty($password) || is_string($password)) {
-            $salt = Random::string(8);
-            $iterationCount = 2048;
-
-            $crypto = new DES(DES::MODE_CBC);
-            $crypto->setPassword($password, 'pbkdf1', 'md5', $salt, $iterationCount);
-            $RSAPrivateKey = $crypto->encrypt($RSAPrivateKey);
-
-            $parameters = pack(
-                'Ca*a*Ca*N',
-                self::ASN1_OCTETSTRING,
-                ASN1::encodeLength(strlen($salt)),
-                $salt,
-                self::ASN1_INTEGER,
-                ASN1::encodeLength(4),
-                $iterationCount
-            );
-            $pbeWithMD5AndDES_CBC = "\x2a\x86\x48\x86\xf7\x0d\x01\x05\x03";
-
-            $encryptionAlgorithm = pack(
-                'Ca*a*Ca*a*',
-                self::ASN1_OBJECT,
-                ASN1::encodeLength(strlen($pbeWithMD5AndDES_CBC)),
-                $pbeWithMD5AndDES_CBC,
-                self::ASN1_SEQUENCE,
-                ASN1::encodeLength(strlen($parameters)),
-                $parameters
-            );
-
-            $RSAPrivateKey = pack(
-                'Ca*a*Ca*a*',
-                self::ASN1_SEQUENCE,
-                ASN1::encodeLength(strlen($encryptionAlgorithm)),
-                $encryptionAlgorithm,
-                self::ASN1_OCTETSTRING,
-                ASN1::encodeLength(strlen($RSAPrivateKey)),
-                $RSAPrivateKey
-            );
-
-            $RSAPrivateKey = pack('Ca*a*', self::ASN1_SEQUENCE, ASN1::encodeLength(strlen($RSAPrivateKey)), $RSAPrivateKey);
-
-            $RSAPrivateKey = "-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n" .
-                 chunk_split(Base64::encode($RSAPrivateKey), 64) .
-                 '-----END ENCRYPTED PRIVATE KEY-----';
-        } else {
-            $RSAPrivateKey = "-----BEGIN PRIVATE KEY-----\r\n" .
-                 chunk_split(Base64::encode($RSAPrivateKey), 64) .
-                 '-----END PRIVATE KEY-----';
-        }
-
-        return $RSAPrivateKey;
+        $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);
+        $key = ASN1::extractBER($key);
+        return self::wrapPrivateKey($key, '1.2.840.113549.1.1.1', [], $password);
     }
 
     /**
@@ -171,43 +102,8 @@ class PKCS8 extends PKCS
      */
     static function savePublicKey(BigInteger $n, BigInteger $e)
     {
-        $modulus = $n->toBytes(true);
-        $publicExponent = $e->toBytes(true);
-
-        // from <http://tools.ietf.org/html/rfc3447#appendix-A.1.1>:
-        // RSAPublicKey ::= SEQUENCE {
-        //     modulus           INTEGER,  -- n
-        //     publicExponent    INTEGER   -- e
-        // }
-        $components = array(
-            'modulus' => pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($modulus)), $modulus),
-            'publicExponent' => pack('Ca*a*', self::ASN1_INTEGER, ASN1::encodeLength(strlen($publicExponent)), $publicExponent)
-        );
-
-        $RSAPublicKey = pack(
-            'Ca*a*a*',
-            self::ASN1_SEQUENCE,
-            ASN1::encodeLength(strlen($components['modulus']) + strlen($components['publicExponent'])),
-            $components['modulus'],
-            $components['publicExponent']
-        );
-
-        // sequence(oid(1.2.840.113549.1.1.1), null)) = rsaEncryption.
-        $rsaOID = "\x30\x0d\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01\x05\x00"; // hex version of MA0GCSqGSIb3DQEBAQUA
-        $RSAPublicKey = chr(0) . $RSAPublicKey;
-        $RSAPublicKey = chr(3) . ASN1::encodeLength(strlen($RSAPublicKey)) . $RSAPublicKey;
-
-        $RSAPublicKey = pack(
-            'Ca*a*',
-            self::ASN1_SEQUENCE,
-            ASN1::encodeLength(strlen($rsaOID . $RSAPublicKey)),
-            $rsaOID . $RSAPublicKey
-        );
-
-        $RSAPublicKey = "-----BEGIN PUBLIC KEY-----\r\n" .
-                        chunk_split(Base64::encode($RSAPublicKey), 64) .
-                        '-----END PUBLIC KEY-----';
-
-        return $RSAPublicKey;
+        $key = PKCS1::savePublicKey($n, $e);
+        $key = ASN1::extractBER($key);
+        return self::wrapPublicKey($key, '1.2.840.113549.1.1.1');
     }
 }

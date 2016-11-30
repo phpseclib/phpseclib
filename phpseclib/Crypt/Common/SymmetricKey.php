@@ -38,6 +38,7 @@ namespace phpseclib\Crypt\Common;
 
 use phpseclib\Crypt\Hash;
 use phpseclib\Common\Functions\Strings;
+use phpseclib\Math\BigInteger;
 
 /**
  * Base Class for all \phpseclib\Crypt\* cipher classes
@@ -512,7 +513,7 @@ abstract class SymmetricKey
             throw new \InvalidArgumentException('This mode does not require an IV.');
         }
 
-        if ($this->mode == self::MODE_STREAM && $this->usesIV()) {
+        if (!$this->usesIV()) {
             throw new \InvalidArgumentException('This algorithm does not use an IV.');
         }
 
@@ -622,12 +623,17 @@ abstract class SymmetricKey
     {
         $key = '';
 
+        $method = strtolower($method);
         switch ($method) {
-            default: // 'pbkdf2' or 'pbkdf1'
+            case 'pkcs12': // from https://tools.ietf.org/html/rfc7292#appendix-B.2
+            case 'pbkdf1':
+            case 'pbkdf2':
                 $func_args = func_get_args();
 
                 // Hash function
-                $hash = isset($func_args[2]) ? $func_args[2] : 'sha1';
+                $hash = isset($func_args[2]) ? strtolower($func_args[2]) : 'sha1';
+                $hashObj = new Hash();
+                $hashObj->setHash($hash);
 
                 // WPA and WPA2 use the SSID as the salt
                 $salt = isset($func_args[3]) ? $func_args[3] : $this->password_default_salt;
@@ -645,10 +651,63 @@ abstract class SymmetricKey
                 }
 
                 switch (true) {
+                    case $method == 'pkcs12':
+                        /*
+                         In this specification, however, all passwords are created from
+                         BMPStrings with a NULL terminator.  This means that each character in
+                         the original BMPString is encoded in 2 bytes in big-endian format
+                         (most-significant byte first).  There are no Unicode byte order
+                         marks.  The 2 bytes produced from the last character in the BMPString
+                         are followed by 2 additional bytes with the value 0x00.
+
+                         -- https://tools.ietf.org/html/rfc7292#appendix-B.1
+                         */
+                        $password = "\0". chunk_split($password, 1, "\0") . "\0";
+
+                        /*
+                         This standard specifies 3 different values for the ID byte mentioned
+                         above:
+
+                         1.  If ID=1, then the pseudorandom bits being produced are to be used
+                             as key material for performing encryption or decryption.
+
+                         2.  If ID=2, then the pseudorandom bits being produced are to be used
+                             as an IV (Initial Value) for encryption or decryption.
+
+                         3.  If ID=3, then the pseudorandom bits being produced are to be used
+                             as an integrity key for MACing.
+                         */
+                        // Construct a string, D (the "diversifier"), by concatenating v/8
+                        // copies of ID.
+                        $blockLength = $hashObj->getBlockLengthInBytes();
+                        $d1 = str_repeat(chr(1), $blockLength);
+                        $d2 = str_repeat(chr(2), $blockLength);
+                        $s = '';
+                        if (strlen($salt)) {
+                            while (strlen($s) < $blockLength) {
+                                $s.= $salt;
+                            }
+                        }
+                        $s = substr($s, 0, $blockLength);
+
+                        $p = '';
+                        if (strlen($password)) {
+                            while (strlen($p) < $blockLength) {
+                                $p.= $password;
+                            }
+                        }
+                        $p = substr($p, 0, $blockLength);
+
+                        $i = $s . $p;
+
+                        $this->setKey(self::_pkcs12helper($dkLen, $hashObj, $i, $d1, $count));
+                        if ($this->usesIV()) {
+                            $this->setIV(self::_pkcs12helper($this->block_size, $hashObj, $i, $d2, $count));
+                        }
+
+                        return true;
                     case $method == 'pbkdf1':
-                        $hashObj = new Hash();
-                        $hashObj->setHash($hash);
-                        if ($dkLen > $hashObj->getLength()) {
+                        if ($dkLen > $hashObj->getLengthInBytes()) {
                             throw new \LengthException('Derived key length cannot be longer than the hash length');
                         }
                         $t = $password . $salt;
@@ -658,21 +717,20 @@ abstract class SymmetricKey
                         $key = substr($t, 0, $dkLen);
 
                         $this->setKey(substr($key, 0, $dkLen >> 1));
-                        $this->setIV(substr($key, $dkLen >> 1));
+                        if ($this->usesIV()) {
+                            $this->setIV(substr($key, $dkLen >> 1));
+                        }
 
                         return true;
-                    // Determining if php[>=5.5.0]'s hash_pbkdf2() function avail- and useable
                     case !function_exists('hash_pbkdf2'):
                     case !function_exists('hash_algos'):
                     case !in_array($hash, hash_algos()):
                         $i = 1;
+                        $hashObj->setKey($password);
                         while (strlen($key) < $dkLen) {
-                            $hmac = new Hash();
-                            $hmac->setHash($hash);
-                            $hmac->setKey($password);
-                            $f = $u = $hmac->hash($salt . pack('N', $i++));
+                            $f = $u = $hashObj->hash($salt . pack('N', $i++));
                             for ($j = 2; $j <= $count; ++$j) {
-                                $u = $hmac->hash($u);
+                                $u = $hashObj->hash($u);
                                 $f^= $u;
                             }
                             $key.= $f;
@@ -682,11 +740,68 @@ abstract class SymmetricKey
                     default:
                         $key = hash_pbkdf2($hash, $password, $salt, $count, $dkLen, true);
                 }
+                break;
+            default:
+                throw new \InvalidArgumentException($method . ' is not a supported password hashing method');
         }
 
         $this->setKey($key);
 
         return true;
+    }
+
+    /**
+     * PKCS#12 KDF Helper Function
+     *
+     * As discussed here:
+     *
+     * {@link https://tools.ietf.org/html/rfc7292#appendix-B}
+     *
+     * @see self::setPassword()
+     * @access private
+     * @param int $n
+     * @param \phpseclib\Crypt\Hash $hashObj
+     * @param string $i
+     * @param string $d
+     * @param int $count
+     * @return string $a
+     */
+    static function _pkcs12helper($n, $hashObj, $i, $d, $count)
+    {
+        static $one;
+        if (!isset($one)) {
+            $one = new BigInteger(1);
+        }
+
+        $blockLength = $hashObj->getBlockLength() >> 3;
+
+        $c = ceil($n / $hashObj->getLengthInBytes());
+        $a = '';
+        for ($j = 1; $j <= $c; $j++) {
+            $ai = $d . $i;
+            for ($k = 0; $k < $count; $k++) {
+                $ai = $hashObj->hash($ai);
+            }
+            $b = '';
+            while (strlen($b) < $blockLength) {
+                $b.= $ai;
+            }
+            $b = substr($b, 0, $blockLength);
+            $b = new BigInteger($b, 256);
+            $newi = '';
+            for ($k = 0; $k < strlen($i); $k+= $blockLength) {
+                $temp = substr($i, $k, $blockLength);
+                $temp = new BigInteger($temp, 256);
+                $temp->setPrecision($blockLength << 3);
+                $temp = $temp->add($b);
+                $temp = $temp->add($one);
+                $newi.= $temp->toBytes(false);
+            }
+            $i = $newi;
+            $a.= $ai;
+        }
+
+        return substr($a, 0, $n);
     }
 
     /**

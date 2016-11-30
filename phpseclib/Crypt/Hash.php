@@ -203,6 +203,23 @@ class Hash
                 );
         }
 
+        switch ($hash) {
+            case 'md2-96':
+            case 'md5-96':
+            case 'sha1-96':
+            case 'sha224-96':
+            case 'sha256-96':
+            case 'md2':
+            case 'md5':
+            case 'sha1':
+            case 'sha224':
+            case 'sha256':
+                $this->blockSize = 512;
+                break;
+            default:
+                $this->blockSize = 1024;
+        }
+
         if ($hash == 'sha512/224' || $hash == 'sha512/256') {
             // from http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf#page=24
             $this->initial = $hash == 'sha512/256' ?
@@ -264,14 +281,47 @@ class Hash
     }
 
     /**
-     * Returns the hash length (in bytes)
+     * Returns the hash length (in bits)
      *
      * @access public
      * @return int
      */
     function getLength()
     {
+        return $this->length << 3;
+    }
+
+    /**
+     * Returns the hash length (in bytes)
+     *
+     * @access public
+     * @return int
+     */
+    function getLengthInBytes()
+    {
         return $this->length;
+    }
+
+    /**
+     * Returns the block length (in bits)
+     *
+     * @access public
+     * @return int
+     */
+    function getBlockLength()
+    {
+        return $this->blockSize;
+    }
+
+    /**
+     * Returns the block length (in bytes)
+     *
+     * @access public
+     * @return int
+     */
+    function getBlockLengthInBytes()
+    {
+        return $this->blockSize >> 3;
     }
 
     /**
