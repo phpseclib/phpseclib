@@ -46,12 +46,12 @@ class XML
             return false;
         }
 
-        $components = array(
+        $components = [
             'isPublicKey' => false,
-            'primes' => array(),
-            'exponents' => array(),
-            'coefficients' => array()
-        );
+            'primes' => [],
+            'exponents' => [],
+            'coefficients' => []
+        ];
 
         $use_errors = libxml_use_internal_errors(true);
 
@@ -60,7 +60,7 @@ class XML
             return false;
         }
         $xpath = new \DOMXPath($dom);
-        $keys = array('modulus', 'exponent', 'p', 'q', 'dp', 'dq', 'inverseq', 'd');
+        $keys = ['modulus', 'exponent', 'p', 'q', 'dp', 'dq', 'inverseq', 'd'];
         foreach ($keys as $key) {
             // $dom->getElementsByTagName($key) is case-sensitive
             $temp = $xpath->query("//*[translate(local-name(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='$key']");

@@ -100,7 +100,7 @@ class MSBLOB
                 return false;
         }
 
-        $components = array('isPublicKey' => $publickey);
+        $components = ['isPublicKey' => $publickey];
 
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa375549(v=vs.85).aspx
         switch ($algo) {
@@ -140,15 +140,15 @@ class MSBLOB
         $components['isPublicKey'] = false;
 
         // BYTE prime1[rsapubkey.bitlen/16]
-        $components['primes'] = array(1 => new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256));
+        $components['primes'] = [1 => new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256)];
         // BYTE prime2[rsapubkey.bitlen/16]
         $components['primes'][] = new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256);
         // BYTE exponent1[rsapubkey.bitlen/16]
-        $components['exponents'] = array(1 => new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256));
+        $components['exponents'] = [1 => new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256)];
         // BYTE exponent2[rsapubkey.bitlen/16]
         $components['exponents'][] = new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256);
         // BYTE coefficient[rsapubkey.bitlen/16]
-        $components['coefficients'] = array(2 => new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256));
+        $components['coefficients'] = [2 => new BigInteger(strrev(Strings::shift($key, $bitlen / 16)), 256)];
         if (isset($components['privateExponent'])) {
             $components['publicExponent'] = $components['privateExponent'];
         }

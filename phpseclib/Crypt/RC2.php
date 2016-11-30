@@ -152,7 +152,7 @@ class RC2 extends BlockCipher
      * @var array
      * @access private
      */
-    var $pitable = array(
+    var $pitable = [
         0xD9, 0x78, 0xF9, 0xC4, 0x19, 0xDD, 0xB5, 0xED,
         0x28, 0xE9, 0xFD, 0x79, 0x4A, 0xA0, 0xD8, 0x9D,
         0xC6, 0x7E, 0x37, 0x83, 0x2B, 0x76, 0x53, 0x8E,
@@ -217,7 +217,7 @@ class RC2 extends BlockCipher
         0xBB, 0x48, 0x0C, 0x5F, 0xB9, 0xB1, 0xCD, 0x2E,
         0xC5, 0xF3, 0xDB, 0x47, 0xE5, 0xA5, 0x9C, 0x77,
         0x0A, 0xA6, 0x20, 0x68, 0xFE, 0x7F, 0xC1, 0xAD
-    );
+    ];
 
     /**
      * Inverse key expansion randomization table.
@@ -226,7 +226,7 @@ class RC2 extends BlockCipher
      * @var array
      * @access private
      */
-    var $invpitable = array(
+    var $invpitable = [
         0xD1, 0xDA, 0xB9, 0x6F, 0x9C, 0xC8, 0x78, 0x66,
         0x80, 0x2C, 0xF8, 0x37, 0xEA, 0xE0, 0x62, 0xA4,
         0xCB, 0x71, 0x50, 0x27, 0x4B, 0x95, 0xD9, 0x20,
@@ -259,7 +259,7 @@ class RC2 extends BlockCipher
         0x81, 0x09, 0x82, 0x33, 0x9F, 0x07, 0x86, 0x75,
         0x38, 0x4E, 0x69, 0xF1, 0xAD, 0x23, 0x73, 0x87,
         0x70, 0x02, 0xC2, 0x1E, 0xB8, 0x0A, 0xFC, 0xE6
-    );
+    ];
 
     /**
      * Default Constructor.
@@ -458,7 +458,7 @@ class RC2 extends BlockCipher
         list($r0, $r1, $r2, $r3) = array_values(unpack('v*', $in));
         $keys = $this->keys;
         $limit = 20;
-        $actions = array($limit => 44, 44 => 64);
+        $actions = [$limit => 44, 44 => 64];
         $j = 0;
 
         for (;;) {
@@ -503,7 +503,7 @@ class RC2 extends BlockCipher
         list($r0, $r1, $r2, $r3) = array_values(unpack('v*', $in));
         $keys = $this->keys;
         $limit = 44;
-        $actions = array($limit => 20, 20 => 0);
+        $actions = [$limit => 20, 20 => 0];
         $j = 64;
 
         for (;;) {
@@ -602,7 +602,7 @@ class RC2 extends BlockCipher
                 case $gen_hi_opt_code:
                     $keys = $this->keys;
                 default:
-                    $keys = array();
+                    $keys = [];
                     foreach ($this->keys as $k => $v) {
                         $keys[$k] = '$keys[' . $k . ']';
                     }
@@ -619,7 +619,7 @@ class RC2 extends BlockCipher
 
             // Create code for encryption.
             $limit = 20;
-            $actions = array($limit => 44, 44 => 64);
+            $actions = [$limit => 44, 44 => 64];
             $j = 0;
 
             for (;;) {
@@ -657,7 +657,7 @@ class RC2 extends BlockCipher
 
             // Create code for decryption.
             $limit = 44;
-            $actions = array($limit => 20, 20 => 0);
+            $actions = [$limit => 20, 20 => 0];
             $j = 64;
 
             for (;;) {
@@ -695,11 +695,11 @@ class RC2 extends BlockCipher
 
             // Creates the inline-crypt function
             $lambda_functions[$code_hash] = $this->_createInlineCryptFunction(
-                array(
+                [
                    'init_crypt'    => $init_crypt,
                    'encrypt_block' => $encrypt_block,
                    'decrypt_block' => $decrypt_block
-                )
+                ]
             );
         }
 

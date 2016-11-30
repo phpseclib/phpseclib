@@ -363,7 +363,7 @@ class RSA
             self::$configFile = __DIR__ . '/../openssl.cnf';
 
             if (self::$fileFormats === false) {
-                self::$fileFormats = array();
+                self::$fileFormats = [];
                 foreach (glob(__DIR__ . '/RSA/*.php') as $file) {
                     $name = pathinfo($file, PATHINFO_FILENAME);
                     $type = 'phpseclib\Crypt\RSA\\' . $name;
@@ -474,11 +474,11 @@ class RSA
         // OpenSSL uses 65537 as the exponent and requires RSA keys be 384 bits minimum
 
         if (self::$engine == self::ENGINE_OPENSSL && $bits >= 384 && self::$defaultExponent == 65537) {
-            $config = array();
+            $config = [];
             if (isset(self::$configFile)) {
                 $config['config'] = self::$configFile;
             }
-            $rsa = openssl_pkey_new(array('private_key_bits' => $bits) + $config);
+            $rsa = openssl_pkey_new(['private_key_bits' => $bits] + $config);
             openssl_pkey_export($rsa, $privatekeystr, null, $config);
             $privatekey = new RSA();
             $privatekey->load($privatekeystr);
@@ -491,11 +491,11 @@ class RSA
             while (openssl_error_string() !== false) {
             }
 
-            return array(
+            return [
                 'privatekey' => $privatekey,
                 'publickey' => $publickey,
                 'partialkey' => false
-            );
+            ];
         }
 
         static $e;
@@ -512,11 +512,11 @@ class RSA
         }
 
         $n = clone self::$one;
-        $exponents = $coefficients = $primes = array();
-        $lcm = array(
+        $exponents = $coefficients = $primes = [];
+        $lcm = [
             'top' => clone self::$one,
             'bottom' => false
-        );
+        ];
 
         do {
             for ($i = 1; $i <= $num_primes; $i++) {
@@ -588,10 +588,10 @@ class RSA
         $publickey->k = $bits >> 3;
         $publickey->exponent = $e;
 
-        return array(
+        return [
             'privatekey' => $privatekey,
             'publickey'  => $publickey
-        );
+        ];
     }
 
     /**
@@ -667,9 +667,9 @@ class RSA
                 $this->publicExponent = clone $key->publicExponent;
             }
 
-            $this->primes = array();
-            $this->exponents = array();
-            $this->coefficients = array();
+            $this->primes = [];
+            $this->exponents = [];
+            $this->coefficients = [];
 
             foreach ($this->primes as $prime) {
                 $this->primes[] = clone $prime;
@@ -720,9 +720,9 @@ class RSA
             $this->coefficients = $components['coefficients'];
             $this->publicExponent = $components['publicExponent'];
         } else {
-            $this->primes = array();
-            $this->exponents = array();
-            $this->coefficients = array();
+            $this->primes = [];
+            $this->exponents = [];
+            $this->coefficients = [];
             $this->publicExponent = false;
         }
 
@@ -1244,10 +1244,10 @@ class RSA
         $num_primes = count($this->primes);
 
         if (defined('CRYPT_RSA_DISABLE_BLINDING')) {
-            $m_i = array(
+            $m_i = [
                 1 => $x->modPow($this->exponents[1], $this->primes[1]),
                 2 => $x->modPow($this->exponents[2], $this->primes[2])
-            );
+            ];
             $h = $m_i[1]->subtract($m_i[2]);
             $h = $h->multiply($this->coefficients[2]);
             list(, $h) = $h->divide($this->primes[1]);
@@ -1275,10 +1275,10 @@ class RSA
 
             $r = BigInteger::randomRange(self::$one, $smallest->subtract(self::$one));
 
-            $m_i = array(
+            $m_i = [
                 1 => $this->_blind($x, $r, 1),
                 2 => $this->_blind($x, $r, 2)
-            );
+            ];
             $h = $m_i[1]->subtract($m_i[2]);
             $h = $h->multiply($this->coefficients[2]);
             list(, $h) = $h->divide($this->primes[1]);

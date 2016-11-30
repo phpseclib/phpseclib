@@ -73,7 +73,7 @@ class Twofish extends BlockCipher
      * @var array
      * @access private
      */
-    var $q0 = array(
+    var $q0 = [
         0xA9, 0x67, 0xB3, 0xE8, 0x04, 0xFD, 0xA3, 0x76,
         0x9A, 0x92, 0x80, 0x78, 0xE4, 0xDD, 0xD1, 0x38,
         0x0D, 0xC6, 0x35, 0x98, 0x18, 0xF7, 0xEC, 0x6C,
@@ -106,7 +106,7 @@ class Twofish extends BlockCipher
         0xC8, 0xA8, 0x2B, 0x40, 0xDC, 0xFE, 0x32, 0xA4,
         0xCA, 0x10, 0x21, 0xF0, 0xD3, 0x5D, 0x0F, 0x00,
         0x6F, 0x9D, 0x36, 0x42, 0x4A, 0x5E, 0xC1, 0xE0
-    );
+    ];
 
     /**
      * Q-Table
@@ -114,7 +114,7 @@ class Twofish extends BlockCipher
      * @var array
      * @access private
      */
-    var $q1 = array(
+    var $q1 = [
         0x75, 0xF3, 0xC6, 0xF4, 0xDB, 0x7B, 0xFB, 0xC8,
         0x4A, 0xD3, 0xE6, 0x6B, 0x45, 0x7D, 0xE8, 0x4B,
         0xD6, 0x32, 0xD8, 0xFD, 0x37, 0x71, 0xF1, 0xE1,
@@ -147,7 +147,7 @@ class Twofish extends BlockCipher
         0x12, 0xA2, 0x0D, 0x52, 0xBB, 0x02, 0x2F, 0xA9,
         0xD7, 0x61, 0x1E, 0xB4, 0x50, 0x04, 0xF6, 0xC2,
         0x16, 0x25, 0x86, 0x56, 0x55, 0x09, 0xBE, 0x91
-    );
+    ];
 
     /**
      * M-Table
@@ -155,7 +155,7 @@ class Twofish extends BlockCipher
      * @var array
      * @access private
      */
-    var $m0 = array(
+    var $m0 = [
         0xBCBC3275, 0xECEC21F3, 0x202043C6, 0xB3B3C9F4, 0xDADA03DB, 0x02028B7B, 0xE2E22BFB, 0x9E9EFAC8,
         0xC9C9EC4A, 0xD4D409D3, 0x18186BE6, 0x1E1E9F6B, 0x98980E45, 0xB2B2387D, 0xA6A6D2E8, 0x2626B74B,
         0x3C3C57D6, 0x93938A32, 0x8282EED8, 0x525298FD, 0x7B7BD437, 0xBBBB3771, 0x5B5B97F1, 0x474783E1,
@@ -188,7 +188,7 @@ class Twofish extends BlockCipher
         0xABABA212, 0x6F6F3EA2, 0xE6E6540D, 0xDBDBF252, 0x92927BBB, 0xB7B7B602, 0x6969CA2F, 0x3939D9A9,
         0xD3D30CD7, 0xA7A72361, 0xA2A2AD1E, 0xC3C399B4, 0x6C6C4450, 0x07070504, 0x04047FF6, 0x272746C2,
         0xACACA716, 0xD0D07625, 0x50501386, 0xDCDCF756, 0x84841A55, 0xE1E15109, 0x7A7A25BE, 0x1313EF91
-    );
+    ];
 
     /**
      * M-Table
@@ -196,7 +196,7 @@ class Twofish extends BlockCipher
      * @var array
      * @access private
      */
-    var $m1 = array(
+    var $m1 = [
         0xA9D93939, 0x67901717, 0xB3719C9C, 0xE8D2A6A6, 0x04050707, 0xFD985252, 0xA3658080, 0x76DFE4E4,
         0x9A084545, 0x92024B4B, 0x80A0E0E0, 0x78665A5A, 0xE4DDAFAF, 0xDDB06A6A, 0xD1BF6363, 0x38362A2A,
         0x0D54E6E6, 0xC6432020, 0x3562CCCC, 0x98BEF2F2, 0x181E1212, 0xF724EBEB, 0xECD7A1A1, 0x6C774141,
@@ -229,7 +229,7 @@ class Twofish extends BlockCipher
         0xC8FA9E9E, 0xA882D6D6, 0x2BCF6E6E, 0x40507070, 0xDCEB8585, 0xFE750A0A, 0x328A9393, 0xA48DDFDF,
         0xCA4C2929, 0x10141C1C, 0x2173D7D7, 0xF0CCB4B4, 0xD309D4D4, 0x5D108A8A, 0x0FE25151, 0x00000000,
         0x6F9A1919, 0x9DE01A1A, 0x368F9494, 0x42E6C7C7, 0x4AECC9C9, 0x5EFDD2D2, 0xC1AB7F7F, 0xE0D8A8A8
-    );
+    ];
 
     /**
      * M-Table
@@ -237,7 +237,7 @@ class Twofish extends BlockCipher
      * @var array
      * @access private
      */
-    var $m2 = array(
+    var $m2 = [
         0xBC75BC32, 0xECF3EC21, 0x20C62043, 0xB3F4B3C9, 0xDADBDA03, 0x027B028B, 0xE2FBE22B, 0x9EC89EFA,
         0xC94AC9EC, 0xD4D3D409, 0x18E6186B, 0x1E6B1E9F, 0x9845980E, 0xB27DB238, 0xA6E8A6D2, 0x264B26B7,
         0x3CD63C57, 0x9332938A, 0x82D882EE, 0x52FD5298, 0x7B377BD4, 0xBB71BB37, 0x5BF15B97, 0x47E14783,
@@ -270,7 +270,7 @@ class Twofish extends BlockCipher
         0xAB12ABA2, 0x6FA26F3E, 0xE60DE654, 0xDB52DBF2, 0x92BB927B, 0xB702B7B6, 0x692F69CA, 0x39A939D9,
         0xD3D7D30C, 0xA761A723, 0xA21EA2AD, 0xC3B4C399, 0x6C506C44, 0x07040705, 0x04F6047F, 0x27C22746,
         0xAC16ACA7, 0xD025D076, 0x50865013, 0xDC56DCF7, 0x8455841A, 0xE109E151, 0x7ABE7A25, 0x139113EF
-    );
+    ];
 
     /**
      * M-Table
@@ -278,7 +278,7 @@ class Twofish extends BlockCipher
      * @var array
      * @access private
      */
-    var $m3 = array(
+    var $m3 = [
         0xD939A9D9, 0x90176790, 0x719CB371, 0xD2A6E8D2, 0x05070405, 0x9852FD98, 0x6580A365, 0xDFE476DF,
         0x08459A08, 0x024B9202, 0xA0E080A0, 0x665A7866, 0xDDAFE4DD, 0xB06ADDB0, 0xBF63D1BF, 0x362A3836,
         0x54E60D54, 0x4320C643, 0x62CC3562, 0xBEF298BE, 0x1E12181E, 0x24EBF724, 0xD7A1ECD7, 0x77416C77,
@@ -311,7 +311,7 @@ class Twofish extends BlockCipher
         0xFA9EC8FA, 0x82D6A882, 0xCF6E2BCF, 0x50704050, 0xEB85DCEB, 0x750AFE75, 0x8A93328A, 0x8DDFA48D,
         0x4C29CA4C, 0x141C1014, 0x73D72173, 0xCCB4F0CC, 0x09D4D309, 0x108A5D10, 0xE2510FE2, 0x00000000,
         0x9A196F9A, 0xE01A9DE0, 0x8F94368F, 0xE6C742E6, 0xECC94AEC, 0xFDD25EFD, 0xAB7FC1AB, 0xD8A8E0D8
-    );
+    ];
 
     /**
      * The Key Schedule Array
@@ -319,7 +319,7 @@ class Twofish extends BlockCipher
      * @var array
      * @access private
      */
-    var $K = array();
+    var $K = [];
 
     /**
      * The Key depended S-Table 0
@@ -327,7 +327,7 @@ class Twofish extends BlockCipher
      * @var array
      * @access private
      */
-    var $S0 = array();
+    var $S0 = [];
 
     /**
      * The Key depended S-Table 1
@@ -335,7 +335,7 @@ class Twofish extends BlockCipher
      * @var array
      * @access private
      */
-    var $S1 = array();
+    var $S1 = [];
 
     /**
      * The Key depended S-Table 2
@@ -343,7 +343,7 @@ class Twofish extends BlockCipher
      * @var array
      * @access private
      */
-    var $S2 = array();
+    var $S2 = [];
 
     /**
      * The Key depended S-Table 3
@@ -351,7 +351,7 @@ class Twofish extends BlockCipher
      * @var array
      * @access private
      */
-    var $S3 = array();
+    var $S3 = [];
 
     /**
      * Holds the last used key
@@ -444,7 +444,7 @@ class Twofish extends BlockCipher
             // already expanded
             return;
         }
-        $this->kl = array('key' => $this->key);
+        $this->kl = ['key' => $this->key];
 
         /* Key expanding and generating the key-depended s-boxes */
         $le_longs = unpack('V*', $this->key);
@@ -456,7 +456,7 @@ class Twofish extends BlockCipher
         $q0 = $this->q0;
         $q1 = $this->q1;
 
-        $K = $S0 = $S1 = $S2 = $S3 = array();
+        $K = $S0 = $S1 = $S2 = $S3 = [];
 
         switch (strlen($this->key)) {
             case 16:
@@ -580,11 +580,11 @@ class Twofish extends BlockCipher
             $B^= ($u << 24) | ($u << 8);
         }
 
-        return array(
+        return [
             0xff & $B >> 24,
             0xff & $B >> 16,
             0xff & $B >>  8,
-            0xff & $B);
+            0xff & $B];
     }
 
     /**
@@ -736,7 +736,7 @@ class Twofish extends BlockCipher
                     ';
                     break;
                 default:
-                    $K   = array();
+                    $K   = [];
                     for ($i = 0; $i < 40; ++$i) {
                         $K[] = '$K_' . $i;
                     }
@@ -834,13 +834,13 @@ class Twofish extends BlockCipher
             ';
 
             $lambda_functions[$code_hash] = $this->_createInlineCryptFunction(
-                array(
+                [
                    'init_crypt'    => $init_crypt,
                    'init_encrypt'  => '',
                    'init_decrypt'  => '',
                    'encrypt_block' => $encrypt_block,
                    'decrypt_block' => $decrypt_block
-                )
+                ]
             );
         }
         $this->inline_crypt = $lambda_functions[$code_hash];

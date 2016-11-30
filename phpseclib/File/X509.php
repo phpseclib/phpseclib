@@ -530,8 +530,8 @@ class X509
                 }
         }
 
-        $filters = array();
-        $type_utf8_string = array('type' => ASN1::TYPE_UTF8_STRING);
+        $filters = [];
+        $type_utf8_string = ['type' => ASN1::TYPE_UTF8_STRING];
         $filters['tbsCertificate']['signature']['parameters'] = $type_utf8_string;
         $filters['tbsCertificate']['signature']['issuer']['rdnSequence']['value'] = $type_utf8_string;
         $filters['tbsCertificate']['issuer']['rdnSequence']['value'] = $type_utf8_string;
@@ -548,7 +548,7 @@ class X509
            characters.
          */
         $filters['policyQualifiers']['qualifier']
-            = array('type' => ASN1::TYPE_IA5_STRING);
+            = ['type' => ASN1::TYPE_IA5_STRING];
 
         ASN1::setFilters($filters);
 
@@ -588,7 +588,7 @@ class X509
                    corresponding to the extension type identified by extnID */
                 $map = $this->_getMapping($id);
                 if (!is_bool($map)) {
-                    $mapped = ASN1::asn1map($decoded[0], $map, array('iPAddress' => array($this, '_decodeIP')));
+                    $mapped = ASN1::asn1map($decoded[0], $map, ['iPAddress' => [$this, '_decodeIP']]);
                     $value = $mapped === false ? $decoded[0] : $mapped;
 
                     if ($id == 'id-ce-certificatePolicies') {
@@ -671,7 +671,7 @@ class X509
                         unset($extensions[$i]);
                     }
                 } else {
-                    $value = ASN1::encodeDER($value, $map, array('iPAddress' => array($this, '_encodeIP')));
+                    $value = ASN1::encodeDER($value, $map, ['iPAddress' => [$this, '_encodeIP']]);
                 }
             }
         }
@@ -1006,7 +1006,7 @@ class X509
 
         if ($names = $this->getExtension('id-ce-subjectAltName')) {
             foreach ($names as $key => $value) {
-                $value = str_replace(array('.', '*'), array('\.', '[^.]*'), $value);
+                $value = str_replace(['.', '*'], ['\.', '[^.]*'], $value);
                 switch ($key) {
                     case 'dNSName':
                         /* From RFC2818 "HTTP over TLS":
@@ -1035,7 +1035,7 @@ class X509
         }
 
         if ($value = $this->getDNProp('id-at-commonName')) {
-            $value = str_replace(array('.', '*'), array('\.', '[^.]*'), $value[0]);
+            $value = str_replace(['.', '*'], ['\.', '[^.]*'], $value[0]);
             return preg_match('#^' . $value . '$#', $components['host']);
         }
 
@@ -1401,7 +1401,7 @@ class X509
     function setDNProp($propName, $propValue, $type = 'utf8String')
     {
         if (empty($this->dn)) {
-            $this->dn = array('rdnSequence' => array());
+            $this->dn = ['rdnSequence' => []];
         }
 
         if (($propName = $this->_translateDNProp($propName)) === false) {
@@ -1410,14 +1410,14 @@ class X509
 
         foreach ((array) $propValue as $v) {
             if (!is_array($v) && isset($type)) {
-                $v = array($type => $v);
+                $v = [$type => $v];
             }
-            $this->dn['rdnSequence'][] = array(
-                array(
+            $this->dn['rdnSequence'][] = [
+                [
                     'type' => $propName,
                     'value'=> $v
-                )
-            );
+                ]
+            ];
         }
 
         return true;
@@ -1473,12 +1473,12 @@ class X509
             return false;
         }
 
-        $filters = array();
-        $filters['value'] = array('type' => ASN1::TYPE_UTF8_STRING);
+        $filters = [];
+        $filters['value'] = ['type' => ASN1::TYPE_UTF8_STRING];
         ASN1::setFilters($filters);
         $this->_mapOutDNs($dn, 'rdnSequence');
         $dn = $dn['rdnSequence'];
-        $result = array();
+        $result = [];
         for ($i = 0; $i < count($dn); $i++) {
             if ($dn[$i][0]['type'] == $propName) {
                 $v = $dn[$i][0]['value'];
@@ -1573,8 +1573,8 @@ class X509
             case self::DN_ARRAY:
                 return $dn;
             case self::DN_ASN1:
-                $filters = array();
-                $filters['rdnSequence']['value'] = array('type' => ASN1::TYPE_UTF8_STRING);
+                $filters = [];
+                $filters['rdnSequence']['value'] = ['type' => ASN1::TYPE_UTF8_STRING];
                 ASN1::setFilters($filters);
                 $this->_mapOutDNs($dn, 'rdnSequence');
                 return ASN1::encodeDER($dn, Maps\Name::MAP);
@@ -1582,8 +1582,8 @@ class X509
                 //  No SEQUENCE around RDNs and all string values normalized as
                 // trimmed lowercase UTF-8 with all spacing as one blank.
                 // constructed RDNs will not be canonicalized
-                $filters = array();
-                $filters['value'] = array('type' => ASN1::TYPE_UTF8_STRING);
+                $filters = [];
+                $filters['value'] = ['type' => ASN1::TYPE_UTF8_STRING];
                 ASN1::setFilters($filters);
                 $result = '';
                 $this->_mapOutDNs($dn, 'rdnSequence');
@@ -1619,9 +1619,9 @@ class X509
         $start = true;
         $output = '';
 
-        $result = array();
-        $filters = array();
-        $filters['rdnSequence']['value'] = array('type' => ASN1::TYPE_UTF8_STRING);
+        $result = [];
+        $filters = [];
+        $filters['rdnSequence']['value'] = ['type' => ASN1::TYPE_UTF8_STRING];
         ASN1::setFilters($filters);
         $this->_mapOutDNs($dn, 'rdnSequence');
 
@@ -1688,7 +1688,7 @@ class X509
             }
             $output.= $desc . '=' . $value;
             $result[$desc] = isset($result[$desc]) ?
-                array_merge((array) $dn[$prop], array($value)) :
+                array_merge((array) $dn[$prop], [$value]) :
                 $value;
             $start = false;
         }
@@ -1795,7 +1795,7 @@ class X509
      */
     function getChain()
     {
-        $chain = array($this->currentCert);
+        $chain = [$this->currentCert];
 
         if (!is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
             return false;
@@ -1888,7 +1888,7 @@ class X509
         }
 
         if (isset($this->currentCert) && is_array($this->currentCert)) {
-            foreach (array('tbsCertificate/subjectPublicKeyInfo', 'certificationRequestInfo/subjectPKInfo') as $path) {
+            foreach (['tbsCertificate/subjectPublicKeyInfo', 'certificationRequestInfo/subjectPKInfo'] as $path) {
                 $keyinfo = $this->_subArray($this->currentCert, $path);
                 if (!empty($keyinfo)) {
                     break;
@@ -2021,9 +2021,9 @@ class X509
                 }
         }
 
-        $filters = array();
+        $filters = [];
         $filters['certificationRequestInfo']['subject']['rdnSequence']['value']
-            = array('type' => ASN1::TYPE_UTF8_STRING);
+            = ['type' => ASN1::TYPE_UTF8_STRING];
 
         ASN1::setFilters($filters);
 
@@ -2232,22 +2232,22 @@ class X509
             return false;
         }
 
-        $filters = array();
+        $filters = [];
         $filters['tbsCertList']['issuer']['rdnSequence']['value']
-            = array('type' => ASN1::TYPE_UTF8_STRING);
+            = ['type' => ASN1::TYPE_UTF8_STRING];
         $filters['tbsCertList']['signature']['parameters']
-            = array('type' => ASN1::TYPE_UTF8_STRING);
+            = ['type' => ASN1::TYPE_UTF8_STRING];
         $filters['signatureAlgorithm']['parameters']
-            = array('type' => ASN1::TYPE_UTF8_STRING);
+            = ['type' => ASN1::TYPE_UTF8_STRING];
 
         if (empty($crl['tbsCertList']['signature']['parameters'])) {
             $filters['tbsCertList']['signature']['parameters']
-                = array('type' => ASN1::TYPE_NULL);
+                = ['type' => ASN1::TYPE_NULL];
         }
 
         if (empty($crl['signatureAlgorithm']['parameters'])) {
             $filters['signatureAlgorithm']['parameters']
-                = array('type' => ASN1::TYPE_NULL);
+                = ['type' => ASN1::TYPE_NULL];
         }
 
         ASN1::setFilters($filters);
@@ -2288,9 +2288,9 @@ class X509
     {
         $year = @gmdate("Y", @strtotime($date)); // the same way ASN1.php parses this
         if ($year < 2050) {
-            return array('utcTime' => $date);
+            return ['utcTime' => $date];
         } else {
-            return array('generalTime' => $date);
+            return ['generalTime' => $date];
         }
     }
 
@@ -2364,23 +2364,23 @@ class X509
                 $this->serialNumber :
                 new BigInteger(Random::string(20) & ("\x7F" . str_repeat("\xFF", 19)), 256);
 
-            $this->currentCert = array(
+            $this->currentCert = [
                 'tbsCertificate' =>
                     array(
                         'version' => 'v3',
                         'serialNumber' => $serialNumber, // $this->setserialNumber()
                         'signature' => array('algorithm' => $signatureAlgorithm),
                         'issuer' => false, // this is going to be overwritten later
-                        'validity' => array(
+                        'validity' => [
                             'notBefore' => $this->_timeField($startDate), // $this->setStartDate()
                             'notAfter' => $this->_timeField($endDate)   // $this->setEndDate()
-                        ),
+                        ],
                         'subject' => $subject->dn,
                         'subjectPublicKeyInfo' => $subjectPublicKey
                     ),
-                    'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                    'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
                     'signature'          => false // this is going to be overwritten later
-            );
+            ];
 
             // Copy extensions from CSR.
             $csrexts = $subject->getAttribute('pkcs-9-at-extensionRequest', 0);
@@ -2393,14 +2393,14 @@ class X509
         $this->currentCert['tbsCertificate']['issuer'] = $issuer->dn;
 
         if (isset($issuer->currentKeyIdentifier)) {
-            $this->setExtension('id-ce-authorityKeyIdentifier', array(
+            $this->setExtension('id-ce-authorityKeyIdentifier', [
                     //'authorityCertIssuer' => array(
                     //    array(
                     //        'directoryName' => $issuer->dn
                     //    )
                     //),
                     'keyIdentifier' => $issuer->currentKeyIdentifier
-                ));
+                ]);
             //$extensions = &$this->currentCert['tbsCertificate']['extensions'];
             //if (isset($issuer->serialNumber)) {
             //    $extensions[count($extensions) - 1]['authorityCertSerialNumber'] = $issuer->serialNumber;
@@ -2412,16 +2412,16 @@ class X509
             $this->setExtension('id-ce-subjectKeyIdentifier', $subject->currentKeyIdentifier);
         }
 
-        $altName = array();
+        $altName = [];
 
         if (isset($subject->domains) && count($subject->domains) > 1) {
-            $altName = array_map(array('X509', '_dnsName'), $subject->domains);
+            $altName = array_map(['X509', '_dnsName'], $subject->domains);
         }
 
         if (isset($subject->ipAddresses) && count($subject->ipAddresses)) {
             // should an IP address appear as the CN if no domain name is specified? idk
             //$ips = count($subject->domains) ? $subject->ipAddresses : array_slice($subject->ipAddresses, 1);
-            $ipAddresses = array();
+            $ipAddresses = [];
             foreach ($subject->ipAddresses as $ipAddress) {
                 $encoded = $subject->_ipAddress($ipAddress);
                 if ($encoded !== false) {
@@ -2440,22 +2440,22 @@ class X509
         if ($this->caFlag) {
             $keyUsage = $this->getExtension('id-ce-keyUsage');
             if (!$keyUsage) {
-                $keyUsage = array();
+                $keyUsage = [];
             }
 
             $this->setExtension(
                 'id-ce-keyUsage',
-                array_values(array_unique(array_merge($keyUsage, array('cRLSign', 'keyCertSign'))))
+                array_values(array_unique(array_merge($keyUsage, ['cRLSign', 'keyCertSign'])))
             );
 
             $basicConstraints = $this->getExtension('id-ce-basicConstraints');
             if (!$basicConstraints) {
-                $basicConstraints = array();
+                $basicConstraints = [];
             }
 
             $this->setExtension(
                 'id-ce-basicConstraints',
-                array_unique(array_merge(array('cA' => true), $basicConstraints)),
+                array_unique(array_merge(['cA' => true], $basicConstraints)),
                 true
             );
 
@@ -2510,16 +2510,16 @@ class X509
             }
             $this->currentCert['certificationRequestInfo']['subjectPKInfo'] = $publicKey;
         } else {
-            $this->currentCert = array(
+            $this->currentCert = [
                 'certificationRequestInfo' =>
-                    array(
+                    [
                         'version' => 'v1',
                         'subject' => $this->dn,
                         'subjectPKInfo' => $publicKey
-                    ),
-                    'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                    ],
+                    'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
                     'signature'          => false // this is going to be overwritten later
-            );
+            ];
         }
 
         // resync $this->signatureSubject
@@ -2571,9 +2571,9 @@ class X509
                 $this->currentCert['publicKeyAndChallenge']['challenge'] = $this->challenge & str_repeat("\x7F", strlen($this->challenge));
             }
         } else {
-            $this->currentCert = array(
+            $this->currentCert = [
                 'publicKeyAndChallenge' =>
-                    array(
+                    [
                         'spki' => $publicKey,
                         // quoting <https://developer.mozilla.org/en-US/docs/Web/HTML/Element/keygen>,
                         // "A challenge string that is submitted along with the public key. Defaults to an empty string if not specified."
@@ -2581,10 +2581,10 @@ class X509
                         // we could alternatively do this instead if we ignored the specs:
                         // Random::string(8) & str_repeat("\x7F", 8)
                         'challenge' => !empty($this->challenge) ? $this->challenge : ''
-                    ),
-                    'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                    ],
+                    'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
                     'signature'          => false // this is going to be overwritten later
-            );
+            ];
         }
 
         // resync $this->signatureSubject
@@ -2627,17 +2627,17 @@ class X509
             $this->currentCert['tbsCertList']['signature']['algorithm'] = $signatureAlgorithm;
             $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
         } else {
-            $this->currentCert = array(
+            $this->currentCert = [
                 'tbsCertList' =>
-                    array(
+                    [
                         'version' => 'v2',
-                        'signature' => array('algorithm' => $signatureAlgorithm),
+                        'signature' => ['algorithm' => $signatureAlgorithm],
                         'issuer' => false, // this is going to be overwritten later
                         'thisUpdate' => $this->_timeField($thisUpdate) // $this->setStartDate()
-                    ),
-                    'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
+                    ],
+                    'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
                     'signature'          => false // this is going to be overwritten later
-            );
+            ];
         }
 
         $tbsCertList = &$this->currentCert['tbsCertList'];
@@ -2690,14 +2690,14 @@ class X509
             }
 
             if (isset($issuer->currentKeyIdentifier)) {
-                $this->setExtension('id-ce-authorityKeyIdentifier', array(
+                $this->setExtension('id-ce-authorityKeyIdentifier', [
                         //'authorityCertIssuer' => array(
-                        //    array(
+                        //    ]
                         //        'directoryName' => $issuer->dn
-                        //    )
+                        //    ]
                         //),
                         'keyIdentifier' => $issuer->currentKeyIdentifier
-                    ));
+                    ]);
                 //$extensions = &$tbsCertList['crlExtensions'];
                 //if (isset($issuer->serialNumber)) {
                 //    $extensions[count($extensions) - 1]['authorityCertSerialNumber'] = $issuer->serialNumber;
@@ -2881,7 +2881,7 @@ class X509
                     return $false;
                 }
 
-                $root[$i] = array();
+                $root[$i] = [];
             }
 
             $root = &$root[$i];
@@ -2917,7 +2917,7 @@ class X509
                     return $false;
                 }
 
-                $root[$i] = array();
+                $root[$i] = [];
             }
 
             $root = &$root[$i];
@@ -2964,7 +2964,7 @@ class X509
                     }
                     if ($create) {
                         $key = count($attributes);
-                        $attributes[] = array('type' => 'pkcs-9-at-extensionRequest', 'value' => array());
+                        $attributes[] = ['type' => 'pkcs-9-at-extensionRequest', 'value' => []];
                         $path = "$pth/$key/value/0";
                     }
                 }
@@ -3048,7 +3048,7 @@ class X509
     function _getExtensions($cert = null, $path = null)
     {
         $exts = $this->_extensions($cert, $path);
-        $extensions = array();
+        $extensions = [];
 
         if (is_array($exts)) {
             foreach ($exts as $extension) {
@@ -3078,7 +3078,7 @@ class X509
             return false;
         }
 
-        $newext = array('extnId'  => $id, 'critical' => $critical, 'extnValue' => $value);
+        $newext = ['extnId'  => $id, 'critical' => $critical, 'extnValue' => $value];
 
         foreach ($extensions as $key => $value) {
             if ($value['extnId'] == $id) {
@@ -3255,7 +3255,7 @@ class X509
         }
 
         $attributes = $this->_subArray($csr, 'certificationRequestInfo/attributes');
-        $attrs = array();
+        $attrs = [];
 
         if (is_array($attributes)) {
             foreach ($attributes as $attribute) {
@@ -3315,7 +3315,7 @@ class X509
                 $attributes[$last]['value'][] = $value;
                 break;
             default:
-                $attributes[] = array('type' => $id, 'value' => $disposition == self::ATTR_ALL ? $value: array($value));
+                $attributes[] = ['type' => $id, 'value' => $disposition == self::ATTR_ALL ? $value: [$value]];
                 break;
         }
 
@@ -3378,7 +3378,7 @@ class X509
                 if (empty($decoded)) {
                     return false;
                 }
-                $raw = ASN1::asn1map($decoded[0], array('type' => ASN1::TYPE_BIT_STRING));
+                $raw = ASN1::asn1map($decoded[0], ['type' => ASN1::TYPE_BIT_STRING]);
                 if (empty($raw)) {
                     return false;
                 }
@@ -3435,10 +3435,10 @@ class X509
             // the following two return statements do the same thing. i dunno.. i just prefer the later for some reason.
             // the former is a good example of how to do fuzzing on the public key
             //return new Element(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey()));
-            return array(
+            return [
                 'algorithm' => array('algorithm' => 'rsaEncryption'),
                 'subjectPublicKey' => $this->publicKey->getPublicKey('PKCS1')
-            );
+            ];
         }
 
         return false;
@@ -3483,7 +3483,7 @@ class X509
      */
     function _dnsName($domain)
     {
-        return array('dNSName' => $domain);
+        return ['dNSName' => $domain];
     }
 
     /**
@@ -3497,7 +3497,7 @@ class X509
      */
     function _iPAddress($address)
     {
-        return array('iPAddress' => $address);
+        return ['iPAddress' => $address];
     }
 
     /**
@@ -3524,8 +3524,8 @@ class X509
         }
 
         $i = count($rclist);
-        $rclist[] = array('userCertificate' => $serial,
-                          'revocationDate'  => $this->_timeField(@date('D, d M Y H:i:s O')));
+        $rclist[] = ['userCertificate' => $serial,
+                          'revocationDate'  => $this->_timeField(@date('D, d M Y H:i:s O'))];
         return $i;
     }
 
@@ -3611,7 +3611,7 @@ class X509
             return false;
         }
 
-        $result = array();
+        $result = [];
 
         if (is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
             foreach ($rclist as $rc) {

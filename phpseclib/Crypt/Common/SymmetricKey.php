@@ -1806,11 +1806,11 @@ abstract class SymmetricKey
     {
         $this->engine = null;
 
-        $candidateEngines = array(
+        $candidateEngines = [
             $this->preferredEngine,
             self::ENGINE_OPENSSL,
             self::ENGINE_MCRYPT
-        );
+        ];
         foreach ($candidateEngines as $engine) {
             if ($this->isValidEngine($engine)) {
                 $this->engine = $engine;
@@ -1935,14 +1935,14 @@ abstract class SymmetricKey
         $this->enchanged = $this->dechanged = true;
 
         if (!isset($this->enmcrypt)) {
-            static $mcrypt_modes = array(
+            static $mcrypt_modes = [
                 self::MODE_CTR    => 'ctr',
                 self::MODE_ECB    => MCRYPT_MODE_ECB,
                 self::MODE_CBC    => MCRYPT_MODE_CBC,
                 self::MODE_CFB    => 'ncfb',
                 self::MODE_OFB    => MCRYPT_MODE_NOFB,
                 self::MODE_STREAM => MCRYPT_MODE_STREAM,
-            );
+            ];
 
             $this->demcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
             $this->enmcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
@@ -2033,9 +2033,9 @@ abstract class SymmetricKey
      */
     function _clearBuffers()
     {
-        $this->enbuffer = $this->debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true);
+        $this->enbuffer = $this->debuffer = ['ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true];
 
-        if ($this->iv === false && !in_array($this->mode, array(self::MODE_STREAM, self::MODE_ECB))) {
+        if ($this->iv === false && !in_array($this->mode, [self::MODE_STREAM, self::MODE_ECB])) {
             throw new \UnexpectedValueException('No IV has been defined');
         }
 
@@ -2262,13 +2262,13 @@ abstract class SymmetricKey
      *
      *    Structure of:
      *    <code>
-     *    $cipher_code = array(
+     *    $cipher_code = [
      *        'init_crypt'    => (string) '', // optional
      *        'init_encrypt'  => (string) '', // optional
      *        'init_decrypt'  => (string) '', // optional
      *        'encrypt_block' => (string) '', // required
      *        'decrypt_block' => (string) ''  // required
-     *    );
+     *    ];
      *    </code>
      *
      * @see self::_setupInlineCrypt()
@@ -2647,7 +2647,7 @@ abstract class SymmetricKey
      */
     function &_getLambdaFunctions()
     {
-        static $functions = array();
+        static $functions = [];
         return $functions;
     }
 

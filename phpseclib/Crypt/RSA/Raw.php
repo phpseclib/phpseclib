@@ -59,7 +59,7 @@ class Raw
                 }
             }
         }
-        $components = array('isPublicKey' => true);
+        $components = ['isPublicKey' => true];
         switch (true) {
             case isset($key['e']):
                 $components['publicExponent'] = $key['e'];
@@ -99,6 +99,6 @@ class Raw
      */
     static function savePublicKey(BigInteger $n, BigInteger $e)
     {
-        return array('e' => clone $e, 'n' => clone $n);
+        return ['e' => clone $e, 'n' => clone $n];
     }
 }

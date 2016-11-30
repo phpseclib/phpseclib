@@ -46,7 +46,7 @@ class OpenSSH
      */
     static function setComment($comment)
     {
-        self::$comment = str_replace(array("\r", "\n"), '', $comment);
+        self::$comment = str_replace(["\r", "\n"], '', $comment);
     }
 
     /**
@@ -93,12 +93,12 @@ class OpenSSH
         }
         $modulus = new BigInteger(Strings::shift($key, $length), -256);
 
-        return array(
+        return [
             'isPublicKey' => true,
             'modulus' => $modulus,
             'publicExponent' => $publicExponent,
             'comment' => $comment
-        );
+        ];
     }
 
     /**

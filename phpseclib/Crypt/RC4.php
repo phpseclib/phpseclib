@@ -292,12 +292,12 @@ class RC4 extends StreamCipher
             $keyStream[$j] = $temp;
         }
 
-        $this->stream = array();
-        $this->stream[self::DECRYPT] = $this->stream[self::ENCRYPT] = array(
+        $this->stream = [];
+        $this->stream[self::DECRYPT] = $this->stream[self::ENCRYPT] = [
             0, // index $i
             0, // index $j
             $keyStream
-        );
+        ];
     }
 
     /**

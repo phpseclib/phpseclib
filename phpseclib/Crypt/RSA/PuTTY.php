@@ -47,7 +47,7 @@ class PuTTY
      */
     static function setComment($comment)
     {
-        self::$comment = str_replace(array("\r", "\n"), '', $comment);
+        self::$comment = str_replace(["\r", "\n"], '', $comment);
     }
 
     /**
@@ -102,12 +102,12 @@ class PuTTY
             if (!preg_match('#Comment: "(.+)"#', $key, $matches)) {
                 return false;
             }
-            $components['comment'] = str_replace(array('\\\\', '\"'), array('\\', '"'), $matches[1]);
+            $components['comment'] = str_replace(['\\\\', '\"'], ['\\', '"'], $matches[1]);
 
             return $components;
         }
 
-        $components = array('isPublicKey' => false);
+        $components = ['isPublicKey' => false];
         $key = preg_split('#\r\n|\r|\n#', $key);
         $type = trim(preg_replace('#PuTTY-User-Key-File-2: (.+)#', '$1', $key[0]));
         if ($type != 'ssh-rsa') {
@@ -149,7 +149,7 @@ class PuTTY
         if (strlen($private) < $length) {
             return false;
         }
-        $components['primes'] = array(1 => new BigInteger(Strings::shift($private, $length), -256));
+        $components['primes'] = [1 => new BigInteger(Strings::shift($private, $length), -256)];
         extract(unpack('Nlength', Strings::shift($private, 4)));
         if (strlen($private) < $length) {
             return false;
@@ -157,7 +157,7 @@ class PuTTY
         $components['primes'][] = new BigInteger(Strings::shift($private, $length), -256);
 
         $temp = $components['primes'][1]->subtract($one);
-        $components['exponents'] = array(1 => $components['publicExponent']->modInverse($temp));
+        $components['exponents'] = [1 => $components['publicExponent']->modInverse($temp)];
         $temp = $components['primes'][2]->subtract($one);
         $components['exponents'][] = $components['publicExponent']->modInverse($temp);
 
@@ -165,7 +165,7 @@ class PuTTY
         if (strlen($private) < $length) {
             return false;
         }
-        $components['coefficients'] = array(2 => new BigInteger(Strings::shift($private, $length), -256));
+        $components['coefficients'] = [2 => new BigInteger(Strings::shift($private, $length), -256)];
 
         return $components;
     }
@@ -189,7 +189,7 @@ class PuTTY
             return false;
         }
 
-        $raw = array(
+        $raw = [
             'modulus' => $n->toBytes(true),
             'publicExponent' => $e->toBytes(true),
             'privateExponent' => $d->toBytes(true),
@@ -198,7 +198,7 @@ class PuTTY
             'exponent1' => $exponents[1]->toBytes(true),
             'exponent2' => $exponents[2]->toBytes(true),
             'coefficient' => $coefficients[2]->toBytes(true)
-        );
+        ];
 
         $key = "PuTTY-User-Key-File-2: ssh-rsa\r\nEncryption: ";
         $encryption = (!empty($password) || is_string($password)) ? 'aes256-cbc' : 'none';
@@ -286,7 +286,7 @@ class PuTTY
             $n
         );
         $key = "---- BEGIN SSH2 PUBLIC KEY ----\r\n" .
-               'Comment: "' . str_replace(array('\\', '"'), array('\\\\', '\"'), self::$comment) . "\"\r\n" .
+               'Comment: "' . str_replace(['\\', '"'], ['\\\\', '\"'], self::$comment) . "\"\r\n" .
                chunk_split(Base64::encode($key), 64) .
                '---- END SSH2 PUBLIC KEY ----';
 

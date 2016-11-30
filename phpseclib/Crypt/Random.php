@@ -208,7 +208,7 @@ abstract class Random
         if (isset($arr['__phpseclib_marker'])) {
             return '';
         }
-        $safearr = array();
+        $safearr = [];
         $arr['__phpseclib_marker'] = true;
         foreach (array_keys($arr) as $key) {
             // do not recurse on the '__phpseclib_marker' key itself, for smaller memory usage
