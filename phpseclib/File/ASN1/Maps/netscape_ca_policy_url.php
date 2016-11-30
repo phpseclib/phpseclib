@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class netscape_ca_policy_url
+abstract class netscape_ca_policy_url
 {
     const MAP = ['type' => ASN1::TYPE_IA5_STRING];
 }

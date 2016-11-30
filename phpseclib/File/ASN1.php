@@ -34,7 +34,7 @@ use phpseclib\Math\BigInteger;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class ASN1
+abstract class ASN1
 {
     /**#@+
      * Tag Classes

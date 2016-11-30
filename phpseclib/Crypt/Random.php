@@ -33,7 +33,7 @@ use phpseclib\Crypt\Common\BlockCipher;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Random
+abstract class Random
 {
     /**
      * Generate a random string.

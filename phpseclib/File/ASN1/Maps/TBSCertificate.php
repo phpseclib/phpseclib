@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class TBSCertificate
+abstract class TBSCertificate
 {
     // assert($TBSCertificate['children']['signature'] == $Certificate['children']['signatureAlgorithm'])
     const MAP = [

@@ -75,9 +75,8 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
                '4P3wep6uNMLnLzXJmUaAMaopjE+MOcai/t6T9Vg4pERF5Waqwg5ibAbVGK19HuS4LiKiaY3JsyYBuNkEDwiqM7i1Ekw3V+' .
                '+zoEIxqgXjGgPdrWkzU/H6rnXiqMtiZZqUXwWY0zkCmy';
 
-        $asn1 = new ASN1();
-        $decoded = $asn1->decodeBER(base64_decode($str));
-        $result = $asn1->asn1map($decoded[0], $AS_REP);
+        $decoded = ASN1::decodeBER(base64_decode($str));
+        $result = ASN1::asn1map($decoded[0], $AS_REP);
 
         $this->assertInternalType('array', $result);
     }
@@ -227,9 +226,8 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
                '4P3wep6uNMLnLzXJmUaAMaopjE+MOcai/t6T9Vg4pERF5Waqwg5ibAbVGK19HuS4LiKiaY3JsyYBuNkEDwiqM7i1Ekw3V+' .
                '+zoEIxqgXjGgPdrWkzU/H6rnXiqMtiZZqUXwWY0zkCmy';
 
-        $asn1 = new ASN1();
-        $decoded = $asn1->decodeBER(base64_decode($str));
-        $result = $asn1->asn1map($decoded[0], $AS_REP);
+        $decoded = ASN1::decodeBER(base64_decode($str));
+        $result = ASN1::asn1map($decoded[0], $AS_REP);
 
         $this->assertInternalType('array', $result);
     }
@@ -239,8 +237,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
      */
     public function testIndefiniteLength()
     {
-        $asn1 = new ASN1();
-        $decoded = $asn1->decodeBER(file_get_contents(dirname(__FILE__) . '/ASN1/FE.pdf.p7m'));
+        $decoded = ASN1::decodeBER(file_get_contents(dirname(__FILE__) . '/ASN1/FE.pdf.p7m'));
         $this->assertCount(5, $decoded[0]['content'][1]['content'][0]['content']); // older versions would have returned 3
     }
 
@@ -264,8 +261,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
                'AAOBgQAhrNWuyjSJWsKrUtKyNGadeqvu5nzVfsJcKLt0AMkQH0IT/GmKHiSgAgDp' .
                'ulvKGQSy068Bsn5fFNum21K5mvMSf3yinDtvmX3qUA12IxL/92ZzKbeVCq3Yi7Le' .
                'IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==';
-        $asn1 = new ASN1();
-        $decoded = $asn1->decodeBER(base64_decode($str));
+        $decoded = ASN1::decodeBER(base64_decode($str));
         $this->assertCount(3, $decoded[0]['content']);
     }
 
@@ -274,8 +270,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
      */
     public function testContextSpecificNonConstructed()
     {
-        $asn1 = new ASN1();
-        $decoded = $asn1->decodeBER(base64_decode('MBaAFJtUo7c00HsI5EPZ4bkICfkOY2Pv'));
+        $decoded = ASN1::decodeBER(base64_decode('MBaAFJtUo7c00HsI5EPZ4bkICfkOY2Pv'));
         $this->assertInternalType('string', $decoded[0]['content'][0]['content']);
     }
 
@@ -284,8 +279,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
      */
     public function testEmptyContextTag()
     {
-        $asn1 = new ASN1();
-        $decoded = $asn1->decodeBER("\xa0\x00");
+        $decoded = ASN1::decodeBER("\xa0\x00");
         $this->assertInternalType('array', $decoded);
         $this->assertCount(0, $decoded[0]['content']);
     }
@@ -295,9 +289,8 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
      */
     public function testInfiniteLoop()
     {
-        $asn1 = new ASN1();
         $data = base64_decode('MD6gJQYKKwYBBAGCNxQCA6AXDBVvZmZpY2VAY2VydGRpZ2l0YWwucm+BFW9mZmljZUBjZXJ0ZGlnaXRhbC5ybw==');
-        $asn1->decodeBER($data);
+        ASN1::decodeBER($data);
     }
 
     public function testMaps()

@@ -27,7 +27,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PublicKeyInfo
+abstract class PublicKeyInfo
 {
     const MAP = [
         'type'     => ASN1::TYPE_SEQUENCE,

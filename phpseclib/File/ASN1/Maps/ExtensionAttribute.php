@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class ExtensionAttribute
+abstract class ExtensionAttribute
 {
     const MAP = [
         'type'     => ASN1::TYPE_SEQUENCE,

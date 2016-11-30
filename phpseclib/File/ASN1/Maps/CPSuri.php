@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class CPSuri
+abstract class CPSuri
 {
     const MAP = ['type' => ASN1::TYPE_IA5_STRING];
 }
