@@ -109,7 +109,7 @@ class RC4 extends StreamCipher
      * @var string
      * @access private
      */
-    var $key = "\0";
+    var $key;
 
     /**
      * The Key Stream for decryption and encryption

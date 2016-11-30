@@ -1462,7 +1462,7 @@ class X509
         $asn1 = new ASN1();
 
         if ($mode != self::FORMAT_DER) {
-            $newcert = $this->_extractBER($cert);
+            $newcert = ASN1::extractBER($cert);
             if ($mode == self::FORMAT_PEM && $cert == $newcert) {
                 return false;
             }
@@ -2974,7 +2974,7 @@ class X509
         $asn1 = new ASN1();
 
         if ($mode != self::FORMAT_DER) {
-            $newcsr = $this->_extractBER($csr);
+            $newcsr = ASN1::extractBER($csr);
             if ($mode == self::FORMAT_PEM && $csr == $newcsr) {
                 return false;
             }
@@ -3216,7 +3216,7 @@ class X509
         $asn1 = new ASN1();
 
         if ($mode != self::FORMAT_DER) {
-            $newcrl = $this->_extractBER($crl);
+            $newcrl = ASN1::extractBER($crl);
             if ($mode == self::FORMAT_PEM && $crl == $newcrl) {
                 return false;
             }
@@ -3847,7 +3847,7 @@ class X509
         if (strtolower($date) == 'lifetime') {
             $temp = '99991231235959Z';
             $asn1 = new ASN1();
-            $temp = chr(ASN1::TYPE_GENERALIZED_TIME) . $asn1->_encodeLength(strlen($temp)) . $temp;
+            $temp = chr(ASN1::TYPE_GENERALIZED_TIME) . Functions::encodeLength(strlen($temp)) . $temp;
             $this->endDate = new Element($temp);
         } else {
             $this->endDate = @date('D, d M Y H:i:s O', @strtotime($date));
@@ -4465,7 +4465,7 @@ class X509
         }
 
         // If in PEM format, convert to binary.
-        $key = $this->_extractBER($key);
+        $key = ASN1::extractBER($key);
 
         // Now we have the key string: compute its sha-1 sum.
         $hash = new Hash('sha1');
@@ -4768,33 +4768,6 @@ class X509
         }
 
         return false;
-    }
-
-    /**
-     * Extract raw BER from Base64 encoding
-     *
-     * @access private
-     * @param string $str
-     * @return string
-     */
-    function _extractBER($str)
-    {
-        /* X.509 certs are assumed to be base64 encoded but sometimes they'll have additional things in them
-         * above and beyond the ceritificate.
-         * ie. some may have the following preceding the -----BEGIN CERTIFICATE----- line:
-         *
-         * Bag Attributes
-         *     localKeyID: 01 00 00 00
-         * subject=/O=organization/OU=org unit/CN=common name
-         * issuer=/O=organization/CN=common name
-         */
-        $temp = preg_replace('#.*?^-+[^-]+-+[\r\n ]*$#ms', '', $str, 1);
-        // remove the -----BEGIN CERTIFICATE----- and -----END CERTIFICATE----- stuff
-        $temp = preg_replace('#-+[^-]+-+#', '', $temp);
-        // remove new lines
-        $temp = str_replace(array("\r", "\n", ' '), '', $temp);
-        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? Base64::decode($temp) : false;
-        return $temp != false ? $temp : $str;
     }
 
     /**

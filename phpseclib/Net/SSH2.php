@@ -1514,7 +1514,7 @@ class SSH2
 
             -- http://tools.ietf.org/html/rfc4419#section-6.2 */
             $one = new BigInteger(1);
-            $keyLength = min($kexHash->getLength(), max($encryptKeyLength, $decryptKeyLength));
+            $keyLength = min($kexHash->getLengthInBytes(), max($encryptKeyLength, $decryptKeyLength));
             $max = $one->bitwise_leftShift(16 * $keyLength); // 2 * 8 * $keyLength
             $max = $max->subtract($one);
 
@@ -2930,9 +2930,6 @@ class SSH2
 
         if ($this->decrypt !== false) {
             $raw = $this->decrypt->decrypt($raw);
-        }
-        if ($raw === false) {
-            throw new \RuntimeException('Unable to decrypt content');
         }
 
         extract(unpack('Npacket_length/Cpadding_length', Strings::shift($raw, 5)));
