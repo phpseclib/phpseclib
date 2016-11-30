@@ -335,6 +335,9 @@ class Net_SCP
                     $response = $this->ssh->_get_binary_packet();
                     switch ($response[NET_SSH1_RESPONSE_TYPE]) {
                         case NET_SSH1_SMSG_STDOUT_DATA:
+                            if (strlen($response[NET_SSH1_RESPONSE_DATA]) < 4) {
+                                return false;
+                            }
                             extract(unpack('Nlength', $response[NET_SSH1_RESPONSE_DATA]));
                             return $this->ssh->_string_shift($response[NET_SSH1_RESPONSE_DATA], $length);
                         case NET_SSH1_SMSG_STDERR_DATA:
