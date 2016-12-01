@@ -21,7 +21,7 @@ namespace phpseclib\Common\Functions;
  * @package Functions\Strings
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class Strings
+abstract class Strings
 {
     /**
      * String Shift
