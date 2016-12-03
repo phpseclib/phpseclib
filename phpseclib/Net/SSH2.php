@@ -1630,8 +1630,8 @@ class SSH2
             if ($this->crypto_engine) {
                 $this->encrypt->setEngine($this->crypto_engine);
             }
-            if ($this->encrypt->block_size) {
-                $this->encrypt_block_size = $this->encrypt->block_size;
+            if ($this->encrypt->getBlockLengthInBytes()) {
+                $this->encrypt_block_size = $this->encrypt->getBlockLengthInBytes();
             }
             $this->encrypt->enableContinuousBuffer();
             $this->encrypt->disablePadding();
@@ -1656,8 +1656,8 @@ class SSH2
             if ($this->crypto_engine) {
                 $this->decrypt->setEngine($this->crypto_engine);
             }
-            if ($this->decrypt->block_size) {
-                $this->decrypt_block_size = $this->decrypt->block_size;
+            if ($this->decrypt->getBlockLengthInBytes()) {
+                $this->decrypt_block_size = $this->decrypt->getBlockLengthInBytes();
             }
             $this->decrypt->enableContinuousBuffer();
             $this->decrypt->disablePadding();
