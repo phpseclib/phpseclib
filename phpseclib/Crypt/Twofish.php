@@ -707,142 +707,111 @@ class Twofish extends BlockCipher
      */
     protected function setupInlineCrypt()
     {
-        $lambda_functions =& self::getLambdaFunctions();
-
-        // Max. 10 Ultra-Hi-optimized inline-crypt functions. After that, we'll (still) create very fast code, but not the ultimate fast one.
-        // (Currently, for Crypt_Twofish, one generated $lambda_function cost on php5.5@32bit ~140kb unfreeable mem and ~240kb on php5.5@64bit)
-        $gen_hi_opt_code = (bool)(count($lambda_functions) < 10);
-
-        // Generation of a unique hash for our generated code
-        $code_hash = "Crypt_Twofish, {$this->mode}";
-        if ($gen_hi_opt_code) {
-            $code_hash = str_pad($code_hash, 32) . $this->hashInlineCryptFunction($this->key);
-        }
-
-        if (!isset($lambda_functions[$code_hash])) {
-            switch (true) {
-                case $gen_hi_opt_code:
-                    $K = $this->K;
-                    $init_crypt = '
-                        static $S0, $S1, $S2, $S3;
-                        if (!$S0) {
-                            for ($i = 0; $i < 256; ++$i) {
-                                $S0[] = (int)$this->S0[$i];
-                                $S1[] = (int)$this->S1[$i];
-                                $S2[] = (int)$this->S2[$i];
-                                $S3[] = (int)$this->S3[$i];
-                            }
-                        }
-                    ';
-                    break;
-                default:
-                    $K   = [];
-                    for ($i = 0; $i < 40; ++$i) {
-                        $K[] = '$K_' . $i;
-                    }
-                    $init_crypt = '
-                        $S0 = $this->S0;
-                        $S1 = $this->S1;
-                        $S2 = $this->S2;
-                        $S3 = $this->S3;
-                        list(' . implode(',', $K) . ') = $this->K;
-                    ';
+        $K = $this->K;
+        $init_crypt = '
+            static $S0, $S1, $S2, $S3;
+            if (!$S0) {
+                for ($i = 0; $i < 256; ++$i) {
+                    $S0[] = (int)$this->S0[$i];
+                    $S1[] = (int)$this->S1[$i];
+                    $S2[] = (int)$this->S2[$i];
+                    $S3[] = (int)$this->S3[$i];
+                }
             }
+        ';
 
-            // Generating encrypt code:
-            $encrypt_block = '
-                $in = unpack("V4", $in);
-                $R0 = '.$K[0].' ^ $in[1];
-                $R1 = '.$K[1].' ^ $in[2];
-                $R2 = '.$K[2].' ^ $in[3];
-                $R3 = '.$K[3].' ^ $in[4];
-            ';
-            for ($ki = 7, $i = 0; $i < 8; ++$i) {
-                $encrypt_block.= '
-                    $t0 = $S0[ $R0        & 0xff] ^
-                          $S1[($R0 >>  8) & 0xff] ^
-                          $S2[($R0 >> 16) & 0xff] ^
-                          $S3[($R0 >> 24) & 0xff];
-                    $t1 = $S0[($R1 >> 24) & 0xff] ^
-                          $S1[ $R1        & 0xff] ^
-                          $S2[($R1 >>  8) & 0xff] ^
-                          $S3[($R1 >> 16) & 0xff];
-                    $R2^= ($t0 + $t1 + '.$K[++$ki].');
-                    $R2 = ($R2 >> 1 & 0x7fffffff) | ($R2 << 31);
-                    $R3 = ((($R3 >> 31) & 1) | ($R3 << 1)) ^ ($t0 + ($t1 << 1) + '.$K[++$ki].');
-
-                    $t0 = $S0[ $R2        & 0xff] ^
-                          $S1[($R2 >>  8) & 0xff] ^
-                          $S2[($R2 >> 16) & 0xff] ^
-                          $S3[($R2 >> 24) & 0xff];
-                    $t1 = $S0[($R3 >> 24) & 0xff] ^
-                          $S1[ $R3        & 0xff] ^
-                          $S2[($R3 >>  8) & 0xff] ^
-                          $S3[($R3 >> 16) & 0xff];
-                    $R0^= ($t0 + $t1 + '.$K[++$ki].');
-                    $R0 = ($R0 >> 1 & 0x7fffffff) | ($R0 << 31);
-                    $R1 = ((($R1 >> 31) & 1) | ($R1 << 1)) ^ ($t0 + ($t1 << 1) + '.$K[++$ki].');
-                ';
-            }
+        // Generating encrypt code:
+        $encrypt_block = '
+            $in = unpack("V4", $in);
+            $R0 = '.$K[0].' ^ $in[1];
+            $R1 = '.$K[1].' ^ $in[2];
+            $R2 = '.$K[2].' ^ $in[3];
+            $R3 = '.$K[3].' ^ $in[4];
+        ';
+        for ($ki = 7, $i = 0; $i < 8; ++$i) {
             $encrypt_block.= '
-                $in = pack("V4", '.$K[4].' ^ $R2,
-                                 '.$K[5].' ^ $R3,
-                                 '.$K[6].' ^ $R0,
-                                 '.$K[7].' ^ $R1);
-            ';
+                $t0 = $S0[ $R0        & 0xff] ^
+                      $S1[($R0 >>  8) & 0xff] ^
+                      $S2[($R0 >> 16) & 0xff] ^
+                      $S3[($R0 >> 24) & 0xff];
+                $t1 = $S0[($R1 >> 24) & 0xff] ^
+                      $S1[ $R1        & 0xff] ^
+                      $S2[($R1 >>  8) & 0xff] ^
+                      $S3[($R1 >> 16) & 0xff];
+                $R2^= ($t0 + $t1 + '.$K[++$ki].');
+                $R2 = ($R2 >> 1 & 0x7fffffff) | ($R2 << 31);
+                $R3 = ((($R3 >> 31) & 1) | ($R3 << 1)) ^ ($t0 + ($t1 << 1) + '.$K[++$ki].');
 
-            // Generating decrypt code:
-            $decrypt_block = '
-                $in = unpack("V4", $in);
-                $R0 = '.$K[4].' ^ $in[1];
-                $R1 = '.$K[5].' ^ $in[2];
-                $R2 = '.$K[6].' ^ $in[3];
-                $R3 = '.$K[7].' ^ $in[4];
+                $t0 = $S0[ $R2        & 0xff] ^
+                      $S1[($R2 >>  8) & 0xff] ^
+                      $S2[($R2 >> 16) & 0xff] ^
+                      $S3[($R2 >> 24) & 0xff];
+                $t1 = $S0[($R3 >> 24) & 0xff] ^
+                      $S1[ $R3        & 0xff] ^
+                      $S2[($R3 >>  8) & 0xff] ^
+                      $S3[($R3 >> 16) & 0xff];
+                $R0^= ($t0 + $t1 + '.$K[++$ki].');
+                $R0 = ($R0 >> 1 & 0x7fffffff) | ($R0 << 31);
+                $R1 = ((($R1 >> 31) & 1) | ($R1 << 1)) ^ ($t0 + ($t1 << 1) + '.$K[++$ki].');
             ';
-            for ($ki = 40, $i = 0; $i < 8; ++$i) {
-                $decrypt_block.= '
-                    $t0 = $S0[$R0       & 0xff] ^
-                          $S1[$R0 >>  8 & 0xff] ^
-                          $S2[$R0 >> 16 & 0xff] ^
-                          $S3[$R0 >> 24 & 0xff];
-                    $t1 = $S0[$R1 >> 24 & 0xff] ^
-                          $S1[$R1       & 0xff] ^
-                          $S2[$R1 >>  8 & 0xff] ^
-                          $S3[$R1 >> 16 & 0xff];
-                    $R3^= $t0 + ($t1 << 1) + '.$K[--$ki].';
-                    $R3 = $R3 >> 1 & 0x7fffffff | $R3 << 31;
-                    $R2 = ($R2 >> 31 & 0x1 | $R2 << 1) ^ ($t0 + $t1 + '.$K[--$ki].');
-
-                    $t0 = $S0[$R2       & 0xff] ^
-                          $S1[$R2 >>  8 & 0xff] ^
-                          $S2[$R2 >> 16 & 0xff] ^
-                          $S3[$R2 >> 24 & 0xff];
-                    $t1 = $S0[$R3 >> 24 & 0xff] ^
-                          $S1[$R3       & 0xff] ^
-                          $S2[$R3 >>  8 & 0xff] ^
-                          $S3[$R3 >> 16 & 0xff];
-                    $R1^= $t0 + ($t1 << 1) + '.$K[--$ki].';
-                    $R1 = $R1 >> 1 & 0x7fffffff | $R1 << 31;
-                    $R0 = ($R0 >> 31 & 0x1 | $R0 << 1) ^ ($t0 + $t1 + '.$K[--$ki].');
-                ';
-            }
-            $decrypt_block.= '
-                $in = pack("V4", '.$K[0].' ^ $R2,
-                                 '.$K[1].' ^ $R3,
-                                 '.$K[2].' ^ $R0,
-                                 '.$K[3].' ^ $R1);
-            ';
-
-            $lambda_functions[$code_hash] = $this->createInlineCryptFunction(
-                [
-                   'init_crypt'    => $init_crypt,
-                   'init_encrypt'  => '',
-                   'init_decrypt'  => '',
-                   'encrypt_block' => $encrypt_block,
-                   'decrypt_block' => $decrypt_block
-                ]
-            );
         }
-        $this->inline_crypt = \Closure::bind($lambda_functions[$code_hash], $this, $this->getClassContext());
+        $encrypt_block.= '
+            $in = pack("V4", '.$K[4].' ^ $R2,
+                             '.$K[5].' ^ $R3,
+                             '.$K[6].' ^ $R0,
+                             '.$K[7].' ^ $R1);
+        ';
+
+        // Generating decrypt code:
+        $decrypt_block = '
+            $in = unpack("V4", $in);
+            $R0 = '.$K[4].' ^ $in[1];
+            $R1 = '.$K[5].' ^ $in[2];
+            $R2 = '.$K[6].' ^ $in[3];
+            $R3 = '.$K[7].' ^ $in[4];
+        ';
+        for ($ki = 40, $i = 0; $i < 8; ++$i) {
+            $decrypt_block.= '
+                $t0 = $S0[$R0       & 0xff] ^
+                      $S1[$R0 >>  8 & 0xff] ^
+                      $S2[$R0 >> 16 & 0xff] ^
+                      $S3[$R0 >> 24 & 0xff];
+                $t1 = $S0[$R1 >> 24 & 0xff] ^
+                      $S1[$R1       & 0xff] ^
+                      $S2[$R1 >>  8 & 0xff] ^
+                      $S3[$R1 >> 16 & 0xff];
+                $R3^= $t0 + ($t1 << 1) + '.$K[--$ki].';
+                $R3 = $R3 >> 1 & 0x7fffffff | $R3 << 31;
+                $R2 = ($R2 >> 31 & 0x1 | $R2 << 1) ^ ($t0 + $t1 + '.$K[--$ki].');
+
+                $t0 = $S0[$R2       & 0xff] ^
+                      $S1[$R2 >>  8 & 0xff] ^
+                      $S2[$R2 >> 16 & 0xff] ^
+                      $S3[$R2 >> 24 & 0xff];
+                $t1 = $S0[$R3 >> 24 & 0xff] ^
+                      $S1[$R3       & 0xff] ^
+                      $S2[$R3 >>  8 & 0xff] ^
+                      $S3[$R3 >> 16 & 0xff];
+                $R1^= $t0 + ($t1 << 1) + '.$K[--$ki].';
+                $R1 = $R1 >> 1 & 0x7fffffff | $R1 << 31;
+                $R0 = ($R0 >> 31 & 0x1 | $R0 << 1) ^ ($t0 + $t1 + '.$K[--$ki].');
+            ';
+        }
+        $decrypt_block.= '
+            $in = pack("V4", '.$K[0].' ^ $R2,
+                             '.$K[1].' ^ $R3,
+                             '.$K[2].' ^ $R0,
+                             '.$K[3].' ^ $R1);
+        ';
+
+        $this->inline_crypt = $this->createInlineCryptFunction(
+            [
+               'init_crypt'    => $init_crypt,
+               'init_encrypt'  => '',
+               'init_decrypt'  => '',
+               'encrypt_block' => $encrypt_block,
+               'decrypt_block' => $decrypt_block
+            ]
+        );
     }
 }

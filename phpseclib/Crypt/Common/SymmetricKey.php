@@ -92,15 +92,6 @@ abstract class SymmetricKey
     const MODE_STREAM = 5;
     /**#@-*/
 
-    /**
-     * Whirlpool available flag
-     *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::_hashInlineCryptFunction()
-     * @var bool
-     * @access private
-     */
-    private static $WHIRLPOOL_AVAILABLE;
-
     /**#@+
      * @access private
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
@@ -110,13 +101,17 @@ abstract class SymmetricKey
      */
     const ENGINE_INTERNAL = 1;
     /**
-     * Base value for the mcrypt implementation $engine switch
+     * Base value for the eval() implementation $engine switch
      */
-    const ENGINE_MCRYPT = 2;
+    const ENGINE_EVAL = 2;
     /**
      * Base value for the mcrypt implementation $engine switch
      */
-    const ENGINE_OPENSSL = 3;
+    const ENGINE_MCRYPT = 3;
+    /**
+     * Base value for the mcrypt implementation $engine switch
+     */
+    const ENGINE_OPENSSL = 4;
     /**#@-*/
 
     /**
@@ -480,11 +475,6 @@ abstract class SymmetricKey
         }
 
         $this->mode = $mode;
-
-        // Determining whether inline crypting can be used by the cipher
-        if ($this->use_inline_crypt !== false) {
-            $this->use_inline_crypt = true;
-        }
     }
 
     /**
@@ -982,7 +972,7 @@ abstract class SymmetricKey
             $this->setup();
             $this->changed = false;
         }
-        if ($this->use_inline_crypt) {
+        if ($this->engine === self::ENGINE_EVAL) {
             $inline = $this->inline_crypt;
             return $inline('encrypt', $plaintext);
         }
@@ -1266,7 +1256,7 @@ abstract class SymmetricKey
             $this->setup();
             $this->changed = false;
         }
-        if ($this->use_inline_crypt) {
+        if ($this->engine === self::ENGINE_EVAL) {
             $inline = $this->inline_crypt;
             return $inline('decrypt', $ciphertext);
         }
@@ -1696,9 +1686,7 @@ abstract class SymmetricKey
                 }
                 $this->openssl_emulate_ctr = false;
                 $result = $this->cipher_name_openssl &&
-                          extension_loaded('openssl') &&
-                          // PHP 5.3.0 - 5.3.2 did not let you set IV's
-                          version_compare(PHP_VERSION, '5.3.3', '>=');
+                          extension_loaded('openssl');
                 if (!$result) {
                     return false;
                 }
@@ -1721,6 +1709,8 @@ abstract class SymmetricKey
                 return $this->cipher_name_mcrypt &&
                        extension_loaded('mcrypt') &&
                        in_array($this->cipher_name_mcrypt, @mcrypt_list_algorithms());
+            case self::ENGINE_EVAL:
+                return method_exists($this, 'setupInlineCrypt');
             case self::ENGINE_INTERNAL:
                 return true;
         }
@@ -1737,7 +1727,9 @@ abstract class SymmetricKey
      *
      * - \phpseclib\Crypt\Common\SymmetricKey::ENGINE_MCRYPT   [fast]
      *
-     * - \phpseclib\Crypt\Common\SymmetricKey::ENGINE_INTERNAL [slow]
+     * - \phpseclib\Crypt\Common\SymmetricKey::ENGINE_EVAL     [slow]
+     *
+     * - \phpseclib\Crypt\Common\SymmetricKey::ENGINE_INTERNAL [slowest]
      *
      * If the preferred crypt engine is not available the fastest available one will be used
      *
@@ -1751,6 +1743,7 @@ abstract class SymmetricKey
             //case self::ENGINE_OPENSSL;
             case self::ENGINE_MCRYPT:
             case self::ENGINE_INTERNAL:
+            case self::ENGINE_EVAL:
                 $this->preferredEngine = $engine;
                 break;
             default:
@@ -1784,7 +1777,8 @@ abstract class SymmetricKey
         $candidateEngines = [
             $this->preferredEngine,
             self::ENGINE_OPENSSL,
-            self::ENGINE_MCRYPT
+            self::ENGINE_MCRYPT,
+            self::ENGINE_EVAL
         ];
         foreach ($candidateEngines as $engine) {
             if ($this->isValidEngine($engine)) {
@@ -1876,7 +1870,7 @@ abstract class SymmetricKey
         $this->clearBuffers();
         $this->setupKey();
 
-        if ($this->use_inline_crypt) {
+        if ($this->engine === self::ENGINE_EVAL) {
             $this->setupInlineCrypt();
         }
     }
@@ -2064,9 +2058,7 @@ abstract class SymmetricKey
      *
      *     _setupInlineCrypt() would be called only if:
      *
-     *     - $engine == self::ENGINE_INTERNAL and
-     *
-     *     - $use_inline_crypt === true
+     *     - $this->engine === self::ENGINE_EVAL
      *
      *     - each time on _setup(), after(!) _setupKey()
      *
@@ -2114,16 +2106,7 @@ abstract class SymmetricKey
      * @access private
      * @internal If a Crypt_* class providing inline crypting it must extend _setupInlineCrypt()
      */
-    protected function setupInlineCrypt()
-    {
-        // If, for any reason, an extending \phpseclib\Crypt\Common\SymmetricKey() \phpseclib\Crypt\* class
-        // not using inline crypting then it must be ensured that: $this->use_inline_crypt = false
-        // ie in the class var declaration of $use_inline_crypt in general for the \phpseclib\Crypt\* class,
-        // in the constructor at object instance-time
-        // or, if it's runtime-specific, at runtime
-
-        $this->use_inline_crypt = false;
-    }
+    //protected function setupInlineCrypt();
 
     /**
      * Creates the performance-optimized function for en/decrypt()
@@ -2586,63 +2569,7 @@ abstract class SymmetricKey
 
         eval('$func = function ($_action, $_text) { ' . $init_crypt . 'if ($_action == "encrypt") { ' . $encrypt . ' } else { ' . $decrypt . ' }};');
 
-        return $func;
-    }
-
-    /**
-     * Holds the lambda_functions table (classwide)
-     *
-     * Each name of the lambda function, created from
-     * _setupInlineCrypt() && _createInlineCryptFunction()
-     * is stored, classwide (!), here for reusing.
-     *
-     * The string-based index of $function is a classwide
-     * unique value representing, at least, the $mode of
-     * operation (or more... depends of the optimizing level)
-     * for which $mode the lambda function was created.
-     *
-     * @access private
-     * @return array &$functions
-     */
-    protected function &getLambdaFunctions()
-    {
-        static $functions = [];
-        return $functions;
-    }
-
-    /**
-     * Generates a digest from $bytes
-     *
-     * @see self::setupInlineCrypt()
-     * @access private
-     * @param $bytes
-     * @return string
-     */
-    protected function hashInlineCryptFunction($bytes)
-    {
-        if (!isset(self::$WHIRLPOOL_AVAILABLE)) {
-            self::$WHIRLPOOL_AVAILABLE = extension_loaded('hash') && in_array('whirlpool', hash_algos());
-        }
-
-        $result = '';
-        $hash = $bytes;
-
-        switch (true) {
-            case self::$WHIRLPOOL_AVAILABLE:
-                foreach (str_split($bytes, 64) as $t) {
-                    $hash = hash('whirlpool', $hash, true);
-                    $result .= $t ^ $hash;
-                }
-                return $result . hash('whirlpool', $hash, true);
-            default:
-                $len = strlen($bytes);
-                for ($i = 0; $i < $len; $i+=20) {
-                    $t = substr($bytes, $i, 20);
-                    $hash = sha1($hash, true);
-                    $result .= $t ^ $hash;
-                }
-                return $result . sha1($hash, true);
-        }
+        return \Closure::bind($func, $this, $this->getClassContext());
     }
 
     /**

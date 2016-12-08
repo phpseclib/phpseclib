@@ -478,113 +478,82 @@ class Blowfish extends BlockCipher
      */
     protected function setupInlineCrypt()
     {
-        $lambda_functions =& self::getLambdaFunctions();
-
-        // We create max. 10 hi-optimized code for memory reason. Means: For each $key one ultra fast inline-crypt function.
-        // (Currently, for Blowfish, one generated $lambda_function cost on php5.5@32bit ~100kb unfreeable mem and ~180kb on php5.5@64bit)
-        // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one.
-        $gen_hi_opt_code = (bool)(count($lambda_functions) < 10);
-
-        // Generation of a unique hash for our generated code
-        $code_hash = "Crypt_Blowfish, {$this->mode}";
-        if ($gen_hi_opt_code) {
-            $code_hash = str_pad($code_hash, 32) . $this->hashInlineCryptFunction($this->key);
-        }
-
-        if (!isset($lambda_functions[$code_hash])) {
-            switch (true) {
-                case $gen_hi_opt_code:
-                    $p = $this->bctx['p'];
-                    $init_crypt = '
-                        static $sb_0, $sb_1, $sb_2, $sb_3;
-                        if (!$sb_0) {
-                            $sb_0 = $this->bctx["sb"][0];
-                            $sb_1 = $this->bctx["sb"][1];
-                            $sb_2 = $this->bctx["sb"][2];
-                            $sb_3 = $this->bctx["sb"][3];
-                        }
-                    ';
-                    break;
-                default:
-                    $p   = [];
-                    for ($i = 0; $i < 18; ++$i) {
-                        $p[] = '$p_' . $i;
-                    }
-                    $init_crypt = '
-                        list($sb_0, $sb_1, $sb_2, $sb_3) = $this->bctx["sb"];
-                        list(' . implode(',', $p) . ') = $this->bctx["p"];
-
-                    ';
+        $p = $this->bctx['p'];
+        $init_crypt = '
+            static $sb_0, $sb_1, $sb_2, $sb_3;
+            if (!$sb_0) {
+                $sb_0 = $this->bctx["sb"][0];
+                $sb_1 = $this->bctx["sb"][1];
+                $sb_2 = $this->bctx["sb"][2];
+                $sb_3 = $this->bctx["sb"][3];
             }
+        ';
 
-            // Generating encrypt code:
-            $encrypt_block = '
-                $in = unpack("N*", $in);
-                $l = $in[1];
-                $r = $in[2];
-            ';
-            for ($i = 0; $i < 16; $i+= 2) {
-                $encrypt_block.= '
-                    $l^= ' . $p[$i] . ';
-                    $r^= ($sb_0[$l >> 24 & 0xff]  +
-                          $sb_1[$l >> 16 & 0xff]  ^
-                          $sb_2[$l >>  8 & 0xff]) +
-                          $sb_3[$l       & 0xff];
-
-                    $r^= ' . $p[$i + 1] . ';
-                    $l^= ($sb_0[$r >> 24 & 0xff]  +
-                          $sb_1[$r >> 16 & 0xff]  ^
-                          $sb_2[$r >>  8 & 0xff]) +
-                          $sb_3[$r       & 0xff];
-                ';
-            }
+        // Generating encrypt code:
+        $encrypt_block = '
+            $in = unpack("N*", $in);
+            $l = $in[1];
+            $r = $in[2];
+        ';
+        for ($i = 0; $i < 16; $i+= 2) {
             $encrypt_block.= '
-                $in = pack("N*",
-                    $r ^ ' . $p[17] . ',
-                    $l ^ ' . $p[16] . '
-                );
+                $l^= ' . $p[$i] . ';
+                $r^= ($sb_0[$l >> 24 & 0xff]  +
+                      $sb_1[$l >> 16 & 0xff]  ^
+                      $sb_2[$l >>  8 & 0xff]) +
+                      $sb_3[$l       & 0xff];
+
+                $r^= ' . $p[$i + 1] . ';
+                $l^= ($sb_0[$r >> 24 & 0xff]  +
+                      $sb_1[$r >> 16 & 0xff]  ^
+                      $sb_2[$r >>  8 & 0xff]) +
+                      $sb_3[$r       & 0xff];
             ';
-
-            // Generating decrypt code:
-            $decrypt_block = '
-                $in = unpack("N*", $in);
-                $l = $in[1];
-                $r = $in[2];
-            ';
-
-            for ($i = 17; $i > 2; $i-= 2) {
-                $decrypt_block.= '
-                    $l^= ' . $p[$i] . ';
-                    $r^= ($sb_0[$l >> 24 & 0xff]  +
-                          $sb_1[$l >> 16 & 0xff]  ^
-                          $sb_2[$l >>  8 & 0xff]) +
-                          $sb_3[$l       & 0xff];
-
-                    $r^= ' . $p[$i - 1] . ';
-                    $l^= ($sb_0[$r >> 24 & 0xff]  +
-                          $sb_1[$r >> 16 & 0xff]  ^
-                          $sb_2[$r >>  8 & 0xff]) +
-                          $sb_3[$r       & 0xff];
-                ';
-            }
-
-            $decrypt_block.= '
-                $in = pack("N*",
-                    $r ^ ' . $p[0] . ',
-                    $l ^ ' . $p[1] . '
-                );
-            ';
-
-            $lambda_functions[$code_hash] = $this->createInlineCryptFunction(
-                [
-                   'init_crypt'    => $init_crypt,
-                   'init_encrypt'  => '',
-                   'init_decrypt'  => '',
-                   'encrypt_block' => $encrypt_block,
-                   'decrypt_block' => $decrypt_block
-                ]
-            );
         }
-        $this->inline_crypt = \Closure::bind($lambda_functions[$code_hash], $this, $this->getClassContext());
+        $encrypt_block.= '
+            $in = pack("N*",
+                $r ^ ' . $p[17] . ',
+                $l ^ ' . $p[16] . '
+            );
+        ';
+         // Generating decrypt code:
+        $decrypt_block = '
+            $in = unpack("N*", $in);
+            $l = $in[1];
+            $r = $in[2];
+        ';
+
+        for ($i = 17; $i > 2; $i-= 2) {
+            $decrypt_block.= '
+                $l^= ' . $p[$i] . ';
+                $r^= ($sb_0[$l >> 24 & 0xff]  +
+                      $sb_1[$l >> 16 & 0xff]  ^
+                      $sb_2[$l >>  8 & 0xff]) +
+                      $sb_3[$l       & 0xff];
+
+                $r^= ' . $p[$i - 1] . ';
+                $l^= ($sb_0[$r >> 24 & 0xff]  +
+                      $sb_1[$r >> 16 & 0xff]  ^
+                      $sb_2[$r >>  8 & 0xff]) +
+                      $sb_3[$r       & 0xff];
+            ';
+        }
+
+        $decrypt_block.= '
+            $in = pack("N*",
+                $r ^ ' . $p[0] . ',
+                $l ^ ' . $p[1] . '
+            );
+        ';
+
+        $this->inline_crypt = $this->createInlineCryptFunction(
+            [
+               'init_crypt'    => $init_crypt,
+               'init_encrypt'  => '',
+               'init_decrypt'  => '',
+               'encrypt_block' => $encrypt_block,
+               'decrypt_block' => $decrypt_block
+            ]
+        );
     }
 }

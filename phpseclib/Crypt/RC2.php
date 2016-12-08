@@ -578,132 +578,103 @@ class RC2 extends BlockCipher
      */
     protected function setupInlineCrypt()
     {
-        $lambda_functions =& self::getLambdaFunctions();
+        // Init code for both, encrypt and decrypt.
+        $init_crypt = '$keys = $this->keys;';
 
-        // The first 10 generated $lambda_functions will use the $keys hardcoded as integers
-        // for the mixing rounds, for better inline crypt performance [~20% faster].
-        // But for memory reason we have to limit those ultra-optimized $lambda_functions to an amount of 10.
-        // (Currently, for Crypt_RC2, one generated $lambda_function cost on php5.5@32bit ~60kb unfreeable mem and ~100kb on php5.5@64bit)
-        $gen_hi_opt_code = (bool)(count($lambda_functions) < 10);
+        $keys = $this->keys;
 
-        // Generation of a unique hash for our generated code
-        $code_hash = "Crypt_RC2, {$this->mode}";
-        if ($gen_hi_opt_code) {
-            $code_hash = str_pad($code_hash, 32) . $this->hashInlineCryptFunction($this->key);
-        }
+        // $in is the current 8 bytes block which has to be en/decrypt
+        $encrypt_block = $decrypt_block = '
+            $in = unpack("v4", $in);
+            $r0 = $in[1];
+            $r1 = $in[2];
+            $r2 = $in[3];
+            $r3 = $in[4];
+        ';
 
-        // Is there a re-usable $lambda_functions in there?
-        // If not, we have to create it.
-        if (!isset($lambda_functions[$code_hash])) {
-            // Init code for both, encrypt and decrypt.
-            $init_crypt = '$keys = $this->keys;';
+        // Create code for encryption.
+        $limit = 20;
+        $actions = [$limit => 44, 44 => 64];
+        $j = 0;
 
-            switch (true) {
-                case $gen_hi_opt_code:
-                    $keys = $this->keys;
-                default:
-                    $keys = [];
-                    foreach ($this->keys as $k => $v) {
-                        $keys[$k] = '$keys[' . $k . ']';
-                    }
-            }
+        for (;;) {
+            // Mixing round.
+            $encrypt_block .= '
+                $r0 = (($r0 + ' . $keys[$j++] . ' +
+                       ((($r1 ^ $r2) & $r3) ^ $r1)) & 0xFFFF) << 1;
+                $r0 |= $r0 >> 16;
+                $r1 = (($r1 + ' . $keys[$j++] . ' +
+                       ((($r2 ^ $r3) & $r0) ^ $r2)) & 0xFFFF) << 2;
+                $r1 |= $r1 >> 16;
+                $r2 = (($r2 + ' . $keys[$j++] . ' +
+                       ((($r3 ^ $r0) & $r1) ^ $r3)) & 0xFFFF) << 3;
+                $r2 |= $r2 >> 16;
+                $r3 = (($r3 + ' . $keys[$j++] . ' +
+                       ((($r0 ^ $r1) & $r2) ^ $r0)) & 0xFFFF) << 5;
+                $r3 |= $r3 >> 16;';
 
-            // $in is the current 8 bytes block which has to be en/decrypt
-            $encrypt_block = $decrypt_block = '
-                $in = unpack("v4", $in);
-                $r0 = $in[1];
-                $r1 = $in[2];
-                $r2 = $in[3];
-                $r3 = $in[4];
-            ';
+            if ($j === $limit) {
+                if ($limit === 64) {
+                    break;
+                }
 
-            // Create code for encryption.
-            $limit = 20;
-            $actions = [$limit => 44, 44 => 64];
-            $j = 0;
-
-            for (;;) {
-                // Mixing round.
+                // Mashing round.
                 $encrypt_block .= '
-                    $r0 = (($r0 + ' . $keys[$j++] . ' +
-                           ((($r1 ^ $r2) & $r3) ^ $r1)) & 0xFFFF) << 1;
-                    $r0 |= $r0 >> 16;
-                    $r1 = (($r1 + ' . $keys[$j++] . ' +
-                           ((($r2 ^ $r3) & $r0) ^ $r2)) & 0xFFFF) << 2;
-                    $r1 |= $r1 >> 16;
-                    $r2 = (($r2 + ' . $keys[$j++] . ' +
-                           ((($r3 ^ $r0) & $r1) ^ $r3)) & 0xFFFF) << 3;
-                    $r2 |= $r2 >> 16;
-                    $r3 = (($r3 + ' . $keys[$j++] . ' +
-                           ((($r0 ^ $r1) & $r2) ^ $r0)) & 0xFFFF) << 5;
-                    $r3 |= $r3 >> 16;';
-
-                if ($j === $limit) {
-                    if ($limit === 64) {
-                        break;
-                    }
-
-                    // Mashing round.
-                    $encrypt_block .= '
-                        $r0 += $keys[$r3 & 0x3F];
-                        $r1 += $keys[$r0 & 0x3F];
-                        $r2 += $keys[$r1 & 0x3F];
-                        $r3 += $keys[$r2 & 0x3F];';
-                    $limit = $actions[$limit];
-                }
+                    $r0 += $keys[$r3 & 0x3F];
+                    $r1 += $keys[$r0 & 0x3F];
+                    $r2 += $keys[$r1 & 0x3F];
+                    $r3 += $keys[$r2 & 0x3F];';
+                $limit = $actions[$limit];
             }
+         }
 
-            $encrypt_block .= '$in = pack("v4", $r0, $r1, $r2, $r3);';
+        $encrypt_block .= '$in = pack("v4", $r0, $r1, $r2, $r3);';
 
-            // Create code for decryption.
-            $limit = 44;
-            $actions = [$limit => 20, 20 => 0];
-            $j = 64;
+        // Create code for decryption.
+        $limit = 44;
+        $actions = [$limit => 20, 20 => 0];
+        $j = 64;
 
-            for (;;) {
-                // R-mixing round.
+        for (;;) {
+            // R-mixing round.
+            $decrypt_block .= '
+                $r3 = ($r3 | ($r3 << 16)) >> 5;
+                $r3 = ($r3 - ' . $keys[--$j] . ' -
+                       ((($r0 ^ $r1) & $r2) ^ $r0)) & 0xFFFF;
+                $r2 = ($r2 | ($r2 << 16)) >> 3;
+                $r2 = ($r2 - ' . $keys[--$j] . ' -
+                       ((($r3 ^ $r0) & $r1) ^ $r3)) & 0xFFFF;
+                $r1 = ($r1 | ($r1 << 16)) >> 2;
+                $r1 = ($r1 - ' . $keys[--$j] . ' -
+                       ((($r2 ^ $r3) & $r0) ^ $r2)) & 0xFFFF;
+                $r0 = ($r0 | ($r0 << 16)) >> 1;
+                $r0 = ($r0 - ' . $keys[--$j] . ' -
+                       ((($r1 ^ $r2) & $r3) ^ $r1)) & 0xFFFF;';
+
+            if ($j === $limit) {
+                if ($limit === 0) {
+                    break;
+                }
+
+                // R-mashing round.
                 $decrypt_block .= '
-                    $r3 = ($r3 | ($r3 << 16)) >> 5;
-                    $r3 = ($r3 - ' . $keys[--$j] . ' -
-                           ((($r0 ^ $r1) & $r2) ^ $r0)) & 0xFFFF;
-                    $r2 = ($r2 | ($r2 << 16)) >> 3;
-                    $r2 = ($r2 - ' . $keys[--$j] . ' -
-                           ((($r3 ^ $r0) & $r1) ^ $r3)) & 0xFFFF;
-                    $r1 = ($r1 | ($r1 << 16)) >> 2;
-                    $r1 = ($r1 - ' . $keys[--$j] . ' -
-                           ((($r2 ^ $r3) & $r0) ^ $r2)) & 0xFFFF;
-                    $r0 = ($r0 | ($r0 << 16)) >> 1;
-                    $r0 = ($r0 - ' . $keys[--$j] . ' -
-                           ((($r1 ^ $r2) & $r3) ^ $r1)) & 0xFFFF;';
-
-                if ($j === $limit) {
-                    if ($limit === 0) {
-                        break;
-                    }
-
-                    // R-mashing round.
-                    $decrypt_block .= '
-                        $r3 = ($r3 - $keys[$r2 & 0x3F]) & 0xFFFF;
-                        $r2 = ($r2 - $keys[$r1 & 0x3F]) & 0xFFFF;
-                        $r1 = ($r1 - $keys[$r0 & 0x3F]) & 0xFFFF;
-                        $r0 = ($r0 - $keys[$r3 & 0x3F]) & 0xFFFF;';
-                    $limit = $actions[$limit];
-                }
+                    $r3 = ($r3 - $keys[$r2 & 0x3F]) & 0xFFFF;
+                    $r2 = ($r2 - $keys[$r1 & 0x3F]) & 0xFFFF;
+                    $r1 = ($r1 - $keys[$r0 & 0x3F]) & 0xFFFF;
+                    $r0 = ($r0 - $keys[$r3 & 0x3F]) & 0xFFFF;';
+                $limit = $actions[$limit];
             }
-
-            $decrypt_block .= '$in = pack("v4", $r0, $r1, $r2, $r3);';
-
-            // Creates the inline-crypt function
-            $lambda_functions[$code_hash] = $this->createInlineCryptFunction(
-                [
-                   'init_crypt'    => $init_crypt,
-                   'encrypt_block' => $encrypt_block,
-                   'decrypt_block' => $decrypt_block
-                ]
-            );
         }
 
-        // Set the inline-crypt function as callback in: $this->inline_crypt
-        $this->inline_crypt = \Closure::bind($lambda_functions[$code_hash], $this, $this->getClassContext());
+        $decrypt_block .= '$in = pack("v4", $r0, $r1, $r2, $r3);';
+
+        // Creates the inline-crypt function
+        $this->inline_crypt = $this->createInlineCryptFunction(
+            [
+               'init_crypt'    => $init_crypt,
+               'encrypt_block' => $encrypt_block,
+               'decrypt_block' => $decrypt_block
+            ]
+        );
     }
 }
