@@ -82,16 +82,6 @@ class Rijndael extends BlockCipher
     protected $cipher_name_mcrypt = 'rijndael-128';
 
     /**
-     * The default salt used by setPassword()
-     *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::password_default_salt
-     * @see \phpseclib\Crypt\Common\SymmetricKey::setPassword()
-     * @var string
-     * @access private
-     */
-    protected $password_default_salt = 'phpseclib';
-
-    /**
      * The Key Schedule
      *
      * @see self::setup()

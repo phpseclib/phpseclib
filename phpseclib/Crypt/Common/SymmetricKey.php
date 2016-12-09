@@ -382,7 +382,7 @@ abstract class SymmetricKey
      * @var string
      * @access private
      */
-    protected $password_default_salt = 'phpseclib/salt';
+    private $password_default_salt = 'phpseclib/salt';
 
     /**
      * The name of the performance-optimized callback function
@@ -1898,7 +1898,7 @@ abstract class SymmetricKey
      * @access private
      * @internal Could, but not must, extend by the child Crypt_* class
      */
-    protected function setupMcrypt()
+    private function setupMcrypt()
     {
         $this->clearBuffers();
         $this->enchanged = $this->dechanged = true;

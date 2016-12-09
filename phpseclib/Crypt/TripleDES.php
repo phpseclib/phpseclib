@@ -69,16 +69,6 @@ class TripleDES extends DES
     protected $key_length = 24;
 
     /**
-     * The default salt used by setPassword()
-     *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::password_default_salt
-     * @see \phpseclib\Crypt\Common\SymmetricKey::setPassword()
-     * @var string
-     * @access private
-     */
-    protected $password_default_salt = 'phpseclib';
-
-    /**
      * The mcrypt specific name of the cipher
      *
      * @see \phpseclib\Crypt\DES::cipher_name_mcrypt

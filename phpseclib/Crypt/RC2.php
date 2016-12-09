@@ -535,21 +535,6 @@ class RC2 extends BlockCipher
     }
 
     /**
-     * Setup the \phpseclib\Crypt\Common\SymmetricKey::ENGINE_MCRYPT $engine
-     *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::setupMcrypt()
-     * @access private
-     */
-    protected function setupMcrypt()
-    {
-        if (!isset($this->key)) {
-            $this->setKey('');
-        }
-
-        parent::setupMcrypt();
-    }
-
-    /**
      * Creates the key schedule
      *
      * @see \phpseclib\Crypt\Common\SymmetricKey::setupKey()
