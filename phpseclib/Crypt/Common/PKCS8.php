@@ -55,7 +55,7 @@ class PKCS8 extends PKCS
      * @var string
      * @access private
      */
-    static $defaultEncryptionAlgorithm = 'id-PBES2';
+    private static $defaultEncryptionAlgorithm = 'id-PBES2';
 
     /**
      * Default encryption scheme
@@ -65,7 +65,7 @@ class PKCS8 extends PKCS
      * @var string
      * @access private
      */
-    static $defaultEncryptionScheme = 'aes128-CBC-PAD';
+    private static $defaultEncryptionScheme = 'aes128-CBC-PAD';
 
     /**
      * Default PRF
@@ -75,7 +75,7 @@ class PKCS8 extends PKCS
      * @var string
      * @access private
      */
-    static $defaultPRF = 'id-hmacWithSHA256';
+    private static $defaultPRF = 'id-hmacWithSHA256';
 
     /**
      * Default Iteration Count
@@ -83,7 +83,7 @@ class PKCS8 extends PKCS
      * @var int
      * @access private
      */
-    static $defaultIterationCount = 2048;
+    private static $defaultIterationCount = 2048;
 
     /**
      * OIDs loaded
@@ -91,7 +91,7 @@ class PKCS8 extends PKCS
      * @var bool
      * @access private
      */
-    static $oidsLoaded = false;
+    private static $oidsLoaded = false;
 
     /**
      * Sets the default encryption algorithm
@@ -99,7 +99,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param string $algo
      */
-    static function setEncryptionAlgorithm($algo)
+    public static function setEncryptionAlgorithm($algo)
     {
         self::$defaultEncryptionAlgorithm = $algo;
     }
@@ -110,7 +110,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param string $algo
      */
-    static function setEncryptionScheme($algo)
+    public static function setEncryptionScheme($algo)
     {
         self::$defaultEncryptionScheme = $algo;
     }
@@ -121,7 +121,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param int $count
      */
-    static function setIterationCount($count)
+    public static function setIterationCount($count)
     {
         self::$defaultIterationCount = $count;
     }
@@ -132,7 +132,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param string $algo
      */
-    static function setPRF($algo)
+    public static function setPRF($algo)
     {
         self::$defaultPRF = $algo;
     }
@@ -143,7 +143,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param string $algo
      */
-    static function getPBES1EncryptionObject($algo)
+    public static function getPBES1EncryptionObject($algo)
     {
         $algo = preg_match('#^pbeWith(?:MD2|MD5|SHA1|SHA)And(.*?)-CBC$#', $algo, $matches) ?
             $matches[1] :
@@ -192,7 +192,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param string $algo
      */
-    static function getPBES1Hash($algo)
+    public static function getPBES1Hash($algo)
     {
         if (preg_match('#^pbeWith(MD2|MD5|SHA1|SHA)And.*?-CBC$#', $algo, $matches)) {
             return $matches[1] == 'SHA' ? 'sha1' : $matches[1];
@@ -207,7 +207,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param string $algo
      */
-    static function getPBES1KDF($algo)
+    public static function getPBES1KDF($algo)
     {
         switch ($algo) {
             case 'pbeWithMD2AndDES-CBC':
@@ -228,7 +228,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param string $algo
      */
-    static function getPBES2EncryptionObject($algo)
+    public static function getPBES2EncryptionObject($algo)
     {
         switch ($algo) {
             case 'desCBC':
@@ -262,7 +262,7 @@ class PKCS8 extends PKCS
      *
      * @access private
      */
-    static function _initialize_static_variables()
+    public static function _initialize_static_variables()
     {
         if (!self::$oidsLoaded) {
             // from https://tools.ietf.org/html/rfc2898
@@ -318,7 +318,7 @@ class PKCS8 extends PKCS
      * @param string $password optional
      * @return array
      */
-    static function load($key, $password = '')
+    public static function load($key, $password = '')
     {
         self::_initialize_static_variables();
 
@@ -482,7 +482,7 @@ class PKCS8 extends PKCS
      * @param string $password
      * @return string
      */
-    static function wrapPrivateKey($key, $algorithm, $attr, $password)
+    public static function wrapPrivateKey($key, $algorithm, $attr, $password)
     {
         self::_initialize_static_variables();
 
@@ -577,7 +577,7 @@ class PKCS8 extends PKCS
      * @param string $key
      * @return string
      */
-    static function wrapPublicKey($key, $algorithm)
+    public static function wrapPublicKey($key, $algorithm)
     {
         self::_initialize_static_variables();
 

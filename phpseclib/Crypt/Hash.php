@@ -52,7 +52,7 @@ class Hash
      * @var int
      * @access private
      */
-    var $hashParam;
+    private $hashParam;
 
     /**
      * Byte-length of hash output (Internal HMAC)
@@ -61,7 +61,7 @@ class Hash
      * @var int
      * @access private
      */
-    var $length;
+    private $length;
 
     /**
      * Hash Algorithm
@@ -70,7 +70,7 @@ class Hash
      * @var string
      * @access private
      */
-    var $hash;
+    private $hash;
 
     /**
      * Key
@@ -79,7 +79,7 @@ class Hash
      * @var string
      * @access private
      */
-    var $key = false;
+    private $key = false;
 
     /**
      * Initial Hash
@@ -90,7 +90,7 @@ class Hash
      * @var array
      * @access private
      */
-    var $initial = false;
+    private $initial = false;
 
     /**
      * Outer XOR (Internal HMAC)
@@ -101,7 +101,7 @@ class Hash
      * @var string
      * @access private
      */
-    var $opad;
+    private $opad;
 
     /**
      * Inner XOR (Internal HMAC)
@@ -112,7 +112,7 @@ class Hash
      * @var string
      * @access private
      */
-    var $ipad;
+    private $ipad;
 
     /**
      * Default Constructor.
@@ -120,7 +120,7 @@ class Hash
      * @param string $hash
      * @access public
      */
-    function __construct($hash = 'sha256')
+    public function __construct($hash = 'sha256')
     {
         $this->setHash($hash);
 
@@ -136,7 +136,7 @@ class Hash
      * @access public
      * @param string $key
      */
-    function setKey($key = false)
+    public function setKey($key = false)
     {
         $this->key = $key;
     }
@@ -149,7 +149,7 @@ class Hash
      * @access public
      * @return string
      */
-    function getHash()
+    public function getHash()
     {
         return $this->hashParam;
     }
@@ -160,7 +160,7 @@ class Hash
      * @access public
      * @param string $hash
      */
-    function setHash($hash)
+    public function setHash($hash)
     {
         $this->hashParam = $hash = strtolower($hash);
         switch ($hash) {
@@ -247,7 +247,7 @@ class Hash
      * @param string $text
      * @return string
      */
-    function hash($text)
+    public function hash($text)
     {
         switch ($this->hash) {
             case 'sha512/224':
@@ -286,7 +286,7 @@ class Hash
      * @access public
      * @return int
      */
-    function getLength()
+    public function getLength()
     {
         return $this->length << 3;
     }
@@ -297,7 +297,7 @@ class Hash
      * @access public
      * @return int
      */
-    function getLengthInBytes()
+    public function getLengthInBytes()
     {
         return $this->length;
     }
@@ -308,7 +308,7 @@ class Hash
      * @access public
      * @return int
      */
-    function getBlockLength()
+    public function getBlockLength()
     {
         return $this->blockSize;
     }
@@ -319,7 +319,7 @@ class Hash
      * @access public
      * @return int
      */
-    function getBlockLengthInBytes()
+    public function getBlockLengthInBytes()
     {
         return $this->blockSize >> 3;
     }
@@ -330,7 +330,7 @@ class Hash
      * @access private
      * @param string $m
      */
-    static function _sha512($m, $hash)
+    private static function _sha512($m, $hash)
     {
         static $k;
 

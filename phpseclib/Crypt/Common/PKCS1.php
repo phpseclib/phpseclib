@@ -40,7 +40,7 @@ abstract class PKCS1 extends PKCS
      * @var string
      * @access private
      */
-    static $defaultEncryptionAlgorithm = 'AES-128-CBC';
+    private static $defaultEncryptionAlgorithm = 'AES-128-CBC';
 
     /**
      * Sets the default encryption algorithm
@@ -48,7 +48,7 @@ abstract class PKCS1 extends PKCS
      * @access public
      * @param string $algo
      */
-    static function setEncryptionAlgorithm($algo)
+    public static function setEncryptionAlgorithm($algo)
     {
         self::$defaultEncryptionAlgorithm = $algo;
     }
@@ -61,7 +61,7 @@ abstract class PKCS1 extends PKCS
      * @return int
      * @throws \UnexpectedValueException if the block cipher mode is unsupported
      */
-    static function getEncryptionMode($mode)
+    public static function getEncryptionMode($mode)
     {
         switch ($mode) {
             case 'CBC':
@@ -86,7 +86,7 @@ abstract class PKCS1 extends PKCS
      * @return string
      * @throws \UnexpectedValueException if the encryption algorithm is unsupported
      */
-    static function getEncryptionObject($algo)
+    public static function getEncryptionObject($algo)
     {
         $modes = '(CBC|ECB|CFB|OFB|CTR)';
         switch (true) {
@@ -112,7 +112,7 @@ abstract class PKCS1 extends PKCS
      * @param int $length
      * @return string
      */
-    static function generateSymmetricKey($password, $iv, $length)
+    public static function generateSymmetricKey($password, $iv, $length)
     {
         $symkey = '';
         $iv = substr($iv, 0, 8);
@@ -130,7 +130,7 @@ abstract class PKCS1 extends PKCS
      * @param string $password optional
      * @return array
      */
-    static function load($key, $password)
+    public static function load($key, $password)
     {
         if (!is_string($key)) {
             return false;
@@ -186,7 +186,7 @@ abstract class PKCS1 extends PKCS
      * @param string $password
      * @return string
      */
-    static function wrapPrivateKey($key, $type, $password)
+    public static function wrapPrivateKey($key, $type, $password)
     {
         if (empty($password) || !is_string($password)) {
             return "-----BEGIN $type PRIVATE KEY-----\r\n" .
@@ -215,7 +215,7 @@ abstract class PKCS1 extends PKCS
      * @param string $type
      * @return string
      */
-    static function wrapPublicKey($key, $type)
+    public static function wrapPublicKey($key, $type)
     {
         return "-----BEGIN $type PUBLIC KEY-----\r\n" .
                chunk_split(Base64::encode($key), 64) .

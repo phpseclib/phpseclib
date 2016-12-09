@@ -46,7 +46,7 @@ abstract class Random
      * @throws \RuntimeException if a symmetric cipher is needed but not loaded
      * @return string
      */
-    static function string($length)
+    public static function string($length)
     {
         try {
             return \random_bytes($length);
@@ -196,7 +196,7 @@ abstract class Random
      * @param mixed $arr
      * @access public
      */
-    static function safe_serialize(&$arr)
+    private static function safe_serialize(&$arr)
     {
         if (is_object($arr)) {
             return '';
