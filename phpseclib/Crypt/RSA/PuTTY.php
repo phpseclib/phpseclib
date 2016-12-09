@@ -29,7 +29,7 @@ use phpseclib\Common\Functions\Strings;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PuTTY
+abstract class PuTTY
 {
     /**
      * Default comment
@@ -37,7 +37,7 @@ class PuTTY
      * @var string
      * @access private
      */
-    static $comment = 'phpseclib-generated-key';
+    private static $comment = 'phpseclib-generated-key';
 
     /**
      * Sets the default comment
@@ -45,7 +45,7 @@ class PuTTY
      * @access public
      * @param string $comment
      */
-    static function setComment($comment)
+    public static function setComment($comment)
     {
         self::$comment = str_replace(["\r", "\n"], '', $comment);
     }
@@ -59,7 +59,7 @@ class PuTTY
      * @param int $length
      * @return string
      */
-    static function generateSymmetricKey($password, $length)
+    public static function generateSymmetricKey($password, $length)
     {
         $symkey = '';
         $sequence = 0;
@@ -78,7 +78,7 @@ class PuTTY
      * @param string $password optional
      * @return array
      */
-    static function load($key, $password = '')
+    public static function load($key, $password = '')
     {
         if (!is_string($key)) {
             return false;
@@ -183,7 +183,7 @@ class PuTTY
      * @param string $password optional
      * @return string
      */
-    static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
     {
         if (count($primes) != 2) {
             return false;
@@ -271,7 +271,7 @@ class PuTTY
      * @param \phpseclib\Math\BigInteger $e
      * @return string
      */
-    static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e)
     {
         $n = $n->toBytes(true);
         $e = $e->toBytes(true);

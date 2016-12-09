@@ -28,7 +28,7 @@ use phpseclib\Common\Functions\Strings;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class OpenSSH
+abstract class OpenSSH
 {
     /**
      * Default comment
@@ -36,7 +36,7 @@ class OpenSSH
      * @var string
      * @access private
      */
-    static $comment = 'phpseclib-generated-key';
+    private static $comment = 'phpseclib-generated-key';
 
     /**
      * Sets the default comment
@@ -44,7 +44,7 @@ class OpenSSH
      * @access public
      * @param string $comment
      */
-    static function setComment($comment)
+    public static function setComment($comment)
     {
         self::$comment = str_replace(["\r", "\n"], '', $comment);
     }
@@ -57,7 +57,7 @@ class OpenSSH
      * @param string $password optional
      * @return array
      */
-    static function load($key, $password = '')
+    public static function load($key, $password = '')
     {
         if (!is_string($key)) {
             return false;
@@ -109,7 +109,7 @@ class OpenSSH
      * @param \phpseclib\Math\BigInteger $e
      * @return string
      */
-    static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e)
     {
         $publicExponent = $e->toBytes(true);
         $modulus = $n->toBytes(true);

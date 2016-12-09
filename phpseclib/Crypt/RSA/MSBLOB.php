@@ -30,7 +30,7 @@ use phpseclib\Common\Functions\Strings;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class MSBLOB
+abstract class MSBLOB
 {
     /**#@+
      * @access private
@@ -73,7 +73,7 @@ class MSBLOB
      * @param string $password optional
      * @return array
      */
-    static function load($key, $password = '')
+    public static function load($key, $password = '')
     {
         if (!is_string($key)) {
             return false;
@@ -171,7 +171,7 @@ class MSBLOB
      * @param string $password optional
      * @return string
      */
-    static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
     {
         $n = strrev($n->toBytes());
         $e = str_pad(strrev($e->toBytes()), 4, "\0");
@@ -196,7 +196,7 @@ class MSBLOB
      * @param \phpseclib\Math\BigInteger $e
      * @return string
      */
-    static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e)
     {
         $n = strrev($n->toBytes());
         $e = str_pad(strrev($e->toBytes()), 4, "\0");

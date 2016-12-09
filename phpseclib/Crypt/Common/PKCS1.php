@@ -61,7 +61,7 @@ abstract class PKCS1 extends PKCS
      * @return int
      * @throws \UnexpectedValueException if the block cipher mode is unsupported
      */
-    public static function getEncryptionMode($mode)
+    private static function getEncryptionMode($mode)
     {
         switch ($mode) {
             case 'CBC':
@@ -86,7 +86,7 @@ abstract class PKCS1 extends PKCS
      * @return string
      * @throws \UnexpectedValueException if the encryption algorithm is unsupported
      */
-    public static function getEncryptionObject($algo)
+    private static function getEncryptionObject($algo)
     {
         $modes = '(CBC|ECB|CFB|OFB|CTR)';
         switch (true) {
@@ -112,7 +112,7 @@ abstract class PKCS1 extends PKCS
      * @param int $length
      * @return string
      */
-    public static function generateSymmetricKey($password, $iv, $length)
+    private static function generateSymmetricKey($password, $iv, $length)
     {
         $symkey = '';
         $iv = substr($iv, 0, 8);
@@ -130,7 +130,7 @@ abstract class PKCS1 extends PKCS
      * @param string $password optional
      * @return array
      */
-    public static function load($key, $password)
+    protected static function load($key, $password)
     {
         if (!is_string($key)) {
             return false;
@@ -186,7 +186,7 @@ abstract class PKCS1 extends PKCS
      * @param string $password
      * @return string
      */
-    public static function wrapPrivateKey($key, $type, $password)
+    protected static function wrapPrivateKey($key, $type, $password)
     {
         if (empty($password) || !is_string($password)) {
             return "-----BEGIN $type PRIVATE KEY-----\r\n" .
@@ -215,7 +215,7 @@ abstract class PKCS1 extends PKCS
      * @param string $type
      * @return string
      */
-    public static function wrapPublicKey($key, $type)
+    protected static function wrapPublicKey($key, $type)
     {
         return "-----BEGIN $type PUBLIC KEY-----\r\n" .
                chunk_split(Base64::encode($key), 64) .

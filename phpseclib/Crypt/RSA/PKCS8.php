@@ -38,7 +38,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PKCS8 extends Progenitor
+abstract class PKCS8 extends Progenitor
 {
     /**
      * Break a public or private key down into its constituent components
@@ -48,7 +48,7 @@ class PKCS8 extends Progenitor
      * @param string $password optional
      * @return array
      */
-    static function load($key, $password = '')
+    public static function load($key, $password = '')
     {
         $components = ['isPublicKey' => strpos($key, 'PUBLIC') !== false];
 
@@ -85,7 +85,7 @@ class PKCS8 extends Progenitor
      * @param string $password optional
      * @return string
      */
-    static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
     {
         $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);
         $key = ASN1::extractBER($key);
@@ -100,7 +100,7 @@ class PKCS8 extends Progenitor
      * @param \phpseclib\Math\BigInteger $e
      * @return string
      */
-    static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e)
     {
         $key = PKCS1::savePublicKey($n, $e);
         $key = ASN1::extractBER($key);

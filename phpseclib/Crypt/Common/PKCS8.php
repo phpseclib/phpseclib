@@ -47,7 +47,7 @@ use phpseclib\Exception\UnsupportedAlgorithmException;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PKCS8 extends PKCS
+abstract class PKCS8 extends PKCS
 {
     /**
      * Default encryption algorithm
@@ -143,7 +143,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param string $algo
      */
-    public static function getPBES1EncryptionObject($algo)
+    private static function getPBES1EncryptionObject($algo)
     {
         $algo = preg_match('#^pbeWith(?:MD2|MD5|SHA1|SHA)And(.*?)-CBC$#', $algo, $matches) ?
             $matches[1] :
@@ -192,7 +192,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param string $algo
      */
-    public static function getPBES1Hash($algo)
+    private static function getPBES1Hash($algo)
     {
         if (preg_match('#^pbeWith(MD2|MD5|SHA1|SHA)And.*?-CBC$#', $algo, $matches)) {
             return $matches[1] == 'SHA' ? 'sha1' : $matches[1];
@@ -207,7 +207,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param string $algo
      */
-    public static function getPBES1KDF($algo)
+    private static function getPBES1KDF($algo)
     {
         switch ($algo) {
             case 'pbeWithMD2AndDES-CBC':
@@ -228,7 +228,7 @@ class PKCS8 extends PKCS
      * @access public
      * @param string $algo
      */
-    public static function getPBES2EncryptionObject($algo)
+    private static function getPBES2EncryptionObject($algo)
     {
         switch ($algo) {
             case 'desCBC':
@@ -262,7 +262,7 @@ class PKCS8 extends PKCS
      *
      * @access private
      */
-    public static function _initialize_static_variables()
+    private static function initialize_static_variables()
     {
         if (!self::$oidsLoaded) {
             // from https://tools.ietf.org/html/rfc2898
@@ -318,9 +318,9 @@ class PKCS8 extends PKCS
      * @param string $password optional
      * @return array
      */
-    public static function load($key, $password = '')
+    protected static function load($key, $password = '')
     {
-        self::_initialize_static_variables();
+        self::initialize_static_variables();
 
         if (!is_string($key)) {
             return false;
@@ -482,9 +482,9 @@ class PKCS8 extends PKCS
      * @param string $password
      * @return string
      */
-    public static function wrapPrivateKey($key, $algorithm, $attr, $password)
+    protected static function wrapPrivateKey($key, $algorithm, $attr, $password)
     {
-        self::_initialize_static_variables();
+        self::initialize_static_variables();
 
         $key = [
             'version' => 'v1',
@@ -577,9 +577,9 @@ class PKCS8 extends PKCS
      * @param string $key
      * @return string
      */
-    public static function wrapPublicKey($key, $algorithm)
+    protected static function wrapPublicKey($key, $algorithm)
     {
-        self::_initialize_static_variables();
+        self::initialize_static_variables();
 
         $key = [
             'publicKeyAlgorithm' => [

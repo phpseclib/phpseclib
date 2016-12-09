@@ -36,7 +36,7 @@ use phpseclib\File\ASN1\Maps;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PKCS1 extends Progenitor
+abstract class PKCS1 extends Progenitor
 {
     /**
      * Break a public or private key down into its constituent components
@@ -46,7 +46,7 @@ class PKCS1 extends Progenitor
      * @param string $password optional
      * @return array
      */
-    static function load($key, $password = '')
+    public static function load($key, $password = '')
     {
         if (!is_string($key)) {
             return false;
@@ -102,7 +102,7 @@ class PKCS1 extends Progenitor
      * @param string $password optional
      * @return string
      */
-    static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
     {
         $num_primes = count($primes);
         $key = [
@@ -137,7 +137,7 @@ class PKCS1 extends Progenitor
      * @param \phpseclib\Math\BigInteger $e
      * @return string
      */
-    static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e)
     {
         $key = [
             'modulus' => $n,

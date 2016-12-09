@@ -30,7 +30,7 @@ use phpseclib\Math\BigInteger;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class XML
+abstract class XML
 {
     /**
      * Break a public or private key down into its constituent components
@@ -40,7 +40,7 @@ class XML
      * @param string $password optional
      * @return array
      */
-    static function load($key, $password = '')
+    public static function load($key, $password = '')
     {
         if (!is_string($key)) {
             return false;
@@ -113,7 +113,7 @@ class XML
      * @param string $password optional
      * @return string
      */
-    static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
     {
         if (count($primes) != 2) {
             return false;
@@ -138,7 +138,7 @@ class XML
      * @param \phpseclib\Math\BigInteger $e
      * @return string
      */
-    static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e)
     {
         return "<RSAKeyValue>\r\n" .
                '  <Modulus>' . Base64::encode($n->toBytes()) . "</Modulus>\r\n" .
