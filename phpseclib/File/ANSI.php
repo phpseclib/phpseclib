@@ -35,7 +35,7 @@ class ANSI
      * @var int
      * @access private
      */
-    var $max_x;
+    private $max_x;
 
     /**
      * Max Height
@@ -43,7 +43,7 @@ class ANSI
      * @var int
      * @access private
      */
-    var $max_y;
+    private $max_y;
 
     /**
      * Max History
@@ -51,7 +51,7 @@ class ANSI
      * @var int
      * @access private
      */
-    var $max_history;
+    private $max_history;
 
     /**
      * History
@@ -59,7 +59,7 @@ class ANSI
      * @var array
      * @access private
      */
-    var $history;
+    private $history;
 
     /**
      * History Attributes
@@ -67,7 +67,7 @@ class ANSI
      * @var array
      * @access private
      */
-    var $history_attrs;
+    private $history_attrs;
 
     /**
      * Current Column
@@ -75,7 +75,7 @@ class ANSI
      * @var int
      * @access private
      */
-    var $x;
+    private $x;
 
     /**
      * Current Row
@@ -83,7 +83,7 @@ class ANSI
      * @var int
      * @access private
      */
-    var $y;
+    private $y;
 
     /**
      * Old Column
@@ -91,7 +91,7 @@ class ANSI
      * @var int
      * @access private
      */
-    var $old_x;
+    private $old_x;
 
     /**
      * Old Row
@@ -99,7 +99,7 @@ class ANSI
      * @var int
      * @access private
      */
-    var $old_y;
+    private $old_y;
 
     /**
      * An empty attribute cell
@@ -107,7 +107,7 @@ class ANSI
      * @var object
      * @access private
      */
-    var $base_attr_cell;
+    private $base_attr_cell;
 
     /**
      * The current attribute cell
@@ -115,7 +115,7 @@ class ANSI
      * @var object
      * @access private
      */
-    var $attr_cell;
+    private $attr_cell;
 
     /**
      * An empty attribute row
@@ -123,7 +123,7 @@ class ANSI
      * @var array
      * @access private
      */
-    var $attr_row;
+    private $attr_row;
 
     /**
      * The current screen text
@@ -131,7 +131,7 @@ class ANSI
      * @var array
      * @access private
      */
-    var $screen;
+    private $screen;
 
     /**
      * The current screen attributes
@@ -139,7 +139,7 @@ class ANSI
      * @var array
      * @access private
      */
-    var $attrs;
+    private $attrs;
 
     /**
      * Current ANSI code
@@ -147,7 +147,7 @@ class ANSI
      * @var string
      * @access private
      */
-    var $ansi;
+    private $ansi;
 
     /**
      * Tokenization
@@ -155,7 +155,7 @@ class ANSI
      * @var array
      * @access private
      */
-    var $tokenization;
+    private $tokenization;
 
     /**
      * Default Constructor.
@@ -163,7 +163,7 @@ class ANSI
      * @return \phpseclib\File\ANSI
      * @access public
      */
-    function __construct()
+    public function __construct()
     {
         $attr_cell = new \stdClass();
         $attr_cell->bold = false;
@@ -188,7 +188,7 @@ class ANSI
      * @param int $y
      * @access public
      */
-    function setDimensions($x, $y)
+    public function setDimensions($x, $y)
     {
         $this->max_x = $x - 1;
         $this->max_y = $y - 1;
@@ -207,7 +207,7 @@ class ANSI
      * @param int $y
      * @access public
      */
-    function setHistory($history)
+    public function setHistory($history)
     {
         $this->max_history = $history;
     }
@@ -218,7 +218,7 @@ class ANSI
      * @param string $source
      * @access public
      */
-    function loadString($source)
+    public function loadString($source)
     {
         $this->setDimensions($this->max_x + 1, $this->max_y + 1);
         $this->appendString($source);
@@ -230,7 +230,7 @@ class ANSI
      * @param string $source
      * @access public
      */
-    function appendString($source)
+    public function appendString($source)
     {
         $this->tokenization = [''];
         for ($i = 0; $i < strlen($source); $i++) {
@@ -283,7 +283,7 @@ class ANSI
                     case "\x1B(B": // set united states g0 character set
                         break;
                     case "\x1BE": // Move to next line
-                        $this->_newLine();
+                        $this->newLine();
                         $this->x = 0;
                         break;
                     default:
@@ -379,7 +379,7 @@ class ANSI
                     $this->x = 0;
                     break;
                 case "\n":
-                    $this->_newLine();
+                    $this->newLine();
                     break;
                 case "\x08": // backspace
                     if ($this->x) {
@@ -431,7 +431,7 @@ class ANSI
      *
      * @access private
      */
-    function _newLine()
+    private function newLine()
     {
         //if ($this->y < $this->max_y) {
         //    $this->y++;
@@ -460,7 +460,7 @@ class ANSI
      * @access private
      * @return string
      */
-    function _processCoordinate($last_attr, $cur_attr, $char)
+    private function processCoordinate($last_attr, $cur_attr, $char)
     {
         $output = '';
 
@@ -517,21 +517,21 @@ class ANSI
      * @access private
      * @return string
      */
-    function _getScreen()
+    private function getScreenHelper()
     {
         $output = '';
         $last_attr = $this->base_attr_cell;
         for ($i = 0; $i <= $this->max_y; $i++) {
             for ($j = 0; $j <= $this->max_x; $j++) {
                 $cur_attr = $this->attrs[$i][$j];
-                $output.= $this->_processCoordinate($last_attr, $cur_attr, isset($this->screen[$i][$j]) ? $this->screen[$i][$j] : '');
+                $output.= $this->processCoordinate($last_attr, $cur_attr, isset($this->screen[$i][$j]) ? $this->screen[$i][$j] : '');
                 $last_attr = $this->attrs[$i][$j];
             }
             $output.= "\r\n";
         }
         $output = substr($output, 0, -2);
         // close any remaining open tags
-        $output.= $this->_processCoordinate($last_attr, $this->base_attr_cell, '');
+        $output.= $this->processCoordinate($last_attr, $this->base_attr_cell, '');
         return rtrim($output);
     }
 
@@ -541,9 +541,9 @@ class ANSI
      * @access public
      * @return string
      */
-    function getScreen()
+    public function getScreen()
     {
-        return '<pre width="' . ($this->max_x + 1) . '" style="color: white; background: black">' . $this->_getScreen() . '</pre>';
+        return '<pre width="' . ($this->max_x + 1) . '" style="color: white; background: black">' . $this->getScreenHelper() . '</pre>';
     }
 
     /**
@@ -552,21 +552,21 @@ class ANSI
      * @access public
      * @return string
      */
-    function getHistory()
+    public function getHistory()
     {
         $scrollback = '';
         $last_attr = $this->base_attr_cell;
         for ($i = 0; $i < count($this->history); $i++) {
             for ($j = 0; $j <= $this->max_x + 1; $j++) {
                 $cur_attr = $this->history_attrs[$i][$j];
-                $scrollback.= $this->_processCoordinate($last_attr, $cur_attr, isset($this->history[$i][$j]) ? $this->history[$i][$j] : '');
+                $scrollback.= $this->processCoordinate($last_attr, $cur_attr, isset($this->history[$i][$j]) ? $this->history[$i][$j] : '');
                 $last_attr = $this->history_attrs[$i][$j];
             }
             $scrollback.= "\r\n";
         }
         $base_attr_cell = $this->base_attr_cell;
         $this->base_attr_cell = $last_attr;
-        $scrollback.= $this->_getScreen();
+        $scrollback.= $this->getScreen();
         $this->base_attr_cell = $base_attr_cell;
 
         return '<pre width="' . ($this->max_x + 1) . '" style="color: white; background: black">' . $scrollback . '</span></pre>';

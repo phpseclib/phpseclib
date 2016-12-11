@@ -33,7 +33,7 @@ class Element
      * @var string
      * @access private
      */
-    var $element;
+    public $element;
 
     /**
      * Constructor
@@ -42,7 +42,7 @@ class Element
      * @return \phpseclib\File\ASN1\Element
      * @access public
      */
-    function __construct($encoded)
+    public function __construct($encoded)
     {
         $this->element = $encoded;
     }
