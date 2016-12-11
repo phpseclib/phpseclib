@@ -53,7 +53,7 @@ namespace phpseclib\Math;
 use ParagonIE\ConstantTime\Base64;
 use ParagonIE\ConstantTime\Hex;
 use phpseclib\Crypt\Random;
-use phpseclib\Common\Functions\ASN1;
+use phpseclib\File\ASN1;
 
 /**
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256

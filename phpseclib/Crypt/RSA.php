@@ -49,6 +49,7 @@ use ParagonIE\ConstantTime\Base64;
 use phpseclib\File\ASN1;
 use phpseclib\Math\BigInteger;
 use phpseclib\Common\Functions\Strings;
+use phpseclib\File\ASN1\Maps\DigestInfo;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
@@ -2012,48 +2013,30 @@ class RSA
             return false;
         }
 
-        $asn1 = new ASN1();
-        $decoded = $asn1->decodeBER($em);
+        $decoded = ASN1::decodeBER($em);
         if (!is_array($decoded) || empty($decoded[0]) || strlen($em) > $decoded[0]['length']) {
             return false;
         }
 
-        $AlgorithmIdentifier = array(
-            'type'     => ASN1::TYPE_SEQUENCE,
-            'children' => array(
-                'algorithm'  => array('type' => ASN1::TYPE_OBJECT_IDENTIFIER),
-                'parameters' => array(
-                                    'type'     => ASN1::TYPE_ANY,
-                                    'optional' => true
-                                )
-            )
-        );
+        static $oids;
+        if (!isset($oids)) {
+            $oids = [
+                '1.2.840.113549.2.2' => 'md2',
+                '1.2.840.113549.2.4' => 'md4', // from PKCS1 v1.5
+                '1.2.840.113549.2.5' => 'md5',
+                '1.3.14.3.2.26' => 'id-sha1',
+                '2.16.840.1.101.3.4.2.1' => 'id-sha256',
+                '2.16.840.1.101.3.4.2.2' => 'id-sha384',
+                '2.16.840.1.101.3.4.2.3' => 'id-sha512',
+                // from PKCS1 v2.2
+                '2.16.840.1.101.3.4.2.4' => 'id-sha224',
+                '2.16.840.1.101.3.4.2.5' => 'id-sha512/224',
+                '2.16.840.1.101.3.4.2.6' => 'id-sha512/256',
+            ];
+            ASN1::loadOIDs($oids);
+        }
 
-        $DigestInfo = array(
-            'type'     => ASN1::TYPE_SEQUENCE,
-            'children' => array(
-                'digestAlgorithm' => $AlgorithmIdentifier,
-                'digest' => array('type' => ASN1::TYPE_OCTET_STRING)
-            )
-        );
-
-        $oids = array(
-            '1.2.840.113549.2.2' => 'md2',
-            '1.2.840.113549.2.4' => 'md4', // from PKCS1 v1.5
-            '1.2.840.113549.2.5' => 'md5',
-            '1.3.14.3.2.26' => 'sha1',
-            '2.16.840.1.101.3.4.2.1' => 'sha256',
-            '2.16.840.1.101.3.4.2.2' => 'sha384',
-            '2.16.840.1.101.3.4.2.3' => 'sha512',
-            // from PKCS1 v2.2
-            '2.16.840.1.101.3.4.2.4' => 'sha224',
-            '2.16.840.1.101.3.4.2.5' => 'sha512/224',
-            '2.16.840.1.101.3.4.2.6' => 'sha512/256',
-        );
-
-        $asn1->loadOIDs($oids);
-
-        $decoded = $asn1->asn1map($decoded[0], $DigestInfo);
+        $decoded = ASN1::asn1map($decoded[0], DigestInfo::MAP);
         if (!isset($decoded) || $decoded === false) {
             return false;
         }
@@ -2062,9 +2045,13 @@ class RSA
             return false;
         }
 
-        $hash = new Hash($decoded['digestAlgorithm']['algorithm']);
+        $hash = $decoded['digestAlgorithm']['algorithm'];
+        $hash = substr($hash, 0, 3) == 'id-' ?
+            substr($hash, 3) :
+            $hash;
+        $hash = new Hash($hash);
         $em = $hash->hash($m);
-        $em2 = Base64::decode($decoded['digest']);
+        $em2 = $decoded['digest'];
 
         return self::_equals($em, $em2);
     }

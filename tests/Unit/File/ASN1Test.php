@@ -299,4 +299,16 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $data = base64_decode('MD6gJQYKKwYBBAGCNxQCA6AXDBVvZmZpY2VAY2VydGRpZ2l0YWwucm+BFW9mZmljZUBjZXJ0ZGlnaXRhbC5ybw==');
         $asn1->decodeBER($data);
     }
+
+    public function testMaps()
+    {
+        $files = scandir('phpseclib/File/ASN1/Maps');
+        foreach ($files as $file) {
+            if ($file == '.' || $file == '..') {
+                continue;
+            }
+
+            constant('phpseclib\\File\\ASN1\\Maps\\' . basename($file, '.php') . '::MAP');
+        }
+    }
 }
