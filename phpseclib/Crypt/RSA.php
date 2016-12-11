@@ -422,16 +422,58 @@ class RSA
     }
 
     /**
-     * Sets the engine
-     *
-     * Only used in the constructor. Valid values are RSA::ENGINE_OPENSSL and RSA::ENGINE_INTERNAL
+     * Tests engine validity
      *
      * @access public
      * @param int $val
      */
-    public static function setEngine($val)
+    public static function isValidEngine($val)
     {
-        self::$engine = $val;
+        switch ($val) {
+            case self::ENGINE_OPENSSL:
+                return extension_loaded('openssl') && file_exists(self::$configFile);
+            case self::ENGINE_INTERNAL:
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Sets the engine
+     *
+     * Only used in RSA::createKey. Valid values are RSA::ENGINE_OPENSSL and RSA::ENGINE_INTERNAL
+     *
+     * @access public
+     * @param int $val
+     */
+    public static function setPreferredEngine($val)
+    {
+        self::$engine = null;
+        $candidateEngines = [
+            $val,
+            self::ENGINE_OPENSSL
+        ];
+        foreach ($candidateEngines as $engine) {
+            if (self::isValidEngine($engine)) {
+                self::$engine = $engine;
+                break;
+            }
+        }
+        if (!isset(self::$engine)) {
+            self::$engine = self::ENGINE_INTERNAL;
+        }
+    }
+
+    /**
+     * Returns the engine
+     *
+     * @access public
+     * @return int
+     */
+    public static function getEngine($val)
+    {
+        return self::$engine;
     }
 
     /**
@@ -453,19 +495,7 @@ class RSA
         self::initialize_static_variables();
 
         if (!isset(self::$engine)) {
-            switch (true) {
-                // Math/BigInteger's openssl requirements are a little less stringent than Crypt/RSA's. in particular,
-                // Math/BigInteger doesn't require an openssl.cfg file whereas Crypt/RSA does. so if Math/BigInteger
-                // can't use OpenSSL it can be pretty trivially assumed, then, that Crypt/RSA can't either.
-                case defined('MATH_BIGINTEGER_OPENSSL_DISABLE'):
-                    self::$engine = self::ENGINE_INTERNAL;
-                    break;
-                case extension_loaded('openssl') && file_exists(self::$configFile):
-                    self::$engine = self::ENGINE_OPENSSL;
-                    break;
-                default:
-                    self::$engine = self::ENGINE_INTERNAL;
-            }
+            self::setPreferredEngine(self::ENGINE_OPENSSL);
         }
 
         // OpenSSL uses 65537 as the exponent and requires RSA keys be 384 bits minimum
