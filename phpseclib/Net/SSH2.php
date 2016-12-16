@@ -2512,7 +2512,7 @@ class SSH2
         $this->is_timeout = false;
         $this->stdErrorLog = '';
 
-        if (!($this->bitmap & self::MASK_LOGIN)) {
+        if ( ! $this->isAuthenticated() ) {
             return false;
         }
 
