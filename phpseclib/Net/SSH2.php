@@ -2497,7 +2497,7 @@ class SSH2
         $this->is_timeout = false;
         $this->stdErrorLog = '';
 
-        if (!($this->bitmap & self::MASK_LOGIN)) {
+        if (!$this->isAuthenticated()) {
             return false;
         }
 
@@ -2795,7 +2795,7 @@ class SSH2
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;
 
-        if (!($this->bitmap & self::MASK_LOGIN)) {
+        if (!$this->isAuthenticated()) {
             user_error('Operation disallowed prior to login()');
             return false;
         }
@@ -2837,7 +2837,7 @@ class SSH2
      */
     function write($cmd)
     {
-        if (!($this->bitmap & self::MASK_LOGIN)) {
+        if (!$this->isAuthenticated()) {
             user_error('Operation disallowed prior to login()');
             return false;
         }
@@ -3147,7 +3147,7 @@ class SSH2
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
-        if (($this->bitmap & self::MASK_CONNECTED) && !($this->bitmap & self::MASK_LOGIN) && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
+        if (($this->bitmap & self::MASK_CONNECTED) && !$this->isAuthenticated() && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             $this->_string_shift($payload, 1);
             if (strlen($payload) < 4) {
                 return false;
@@ -3158,7 +3158,7 @@ class SSH2
         }
 
         // only called when we've already logged in
-        if (($this->bitmap & self::MASK_CONNECTED) && ($this->bitmap & self::MASK_LOGIN)) {
+        if (($this->bitmap & self::MASK_CONNECTED) && $this->isAuthenticated()) {
             switch (ord($payload[0])) {
                 case NET_SSH2_MSG_GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
                     if (strlen($payload) < 4) {
