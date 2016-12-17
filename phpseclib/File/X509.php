@@ -1939,6 +1939,9 @@ class File_X509
             // "SET Secure Electronic Transaction Specification"
             // http://www.maithean.com/docs/set_bk3.pdf
             case '2.23.42.7.0': // id-set-hashedRootKey
+            // "Certificate Transparency"
+            // https://tools.ietf.org/html/rfc6962
+            case '1.3.6.1.4.1.11129.2.4.2':
                 return true;
 
             // CSR attributes
