@@ -34,8 +34,8 @@ AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 * Long term support (LTS) release
 * PHP4 compatible
 * Composer compatible (PSR-0 autoloading)
-* Install via Composer: `composer require phpseclib/phpseclib ~1.0`
-* PEAR Channel <img src="http://phpseclib.sourceforge.net/pear-icon.png" alt="PEAR Channel" width="16" height="16">: [phpseclib.sourceforge.net](http://phpseclib.sourceforge.net/pear.htm)
+* Install using Composer: `composer require phpseclib/phpseclib ~1.0`
+' Install using PEAR: See [phpseclib PEAR Channel Documentation](http://phpseclib.sourceforge.net/pear.htm)
 * [Download 1.0.5 as ZIP](http://sourceforge.net/projects/phpseclib/files/phpseclib1.0.5.zip/download)
 
 ## Support
