@@ -30,17 +30,12 @@ Need Support?
 
 Dependencies are managed via Composer.
 
-1. Download the [`composer.phar`](https://getcomposer.org/composer.phar) executable as per the
-   [Composer Download Instructions](https://getcomposer.org/download/), e.g. by running
-
-    ``` sh
-    curl -sS https://getcomposer.org/installer | php
-    ```
+1. Install Composer (see [Composer Download Instructions](https://getcomposer.org/download/))
 
 2. Install Dependencies
 
     ``` sh
-    php composer.phar install
+    composer install
     ```
 
 ## Contributing
