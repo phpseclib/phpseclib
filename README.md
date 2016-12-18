@@ -26,35 +26,29 @@ Need Support?
 * [Create a Support Ticket on GitHub](https://github.com/phpseclib/phpseclib/issues/new)
 * [Browse the Support Forum](http://www.frostjedi.com/phpbb/viewforum.php?f=46) (no longer in use)
 
-## Installing Development Dependencies
+## Contributing
 
-Dependencies are managed via Composer.
+1. Fork the Project
 
-1. Install Composer (see [Composer Download Instructions](https://getcomposer.org/download/))
+2. Ensure you have Composer installed (see [Composer Download Instructions](https://getcomposer.org/download/))
 
-2. Install Dependencies
+3. Install Development Dependencies
 
     ``` sh
     composer install
     ```
 
-## Contributing
+4. Create a Feature Branch
 
-1. Fork the Project
-
-2. Install Development Dependencies
-
-3. Create a Feature Branch
-
-4. (Recommended) Run the Test Suite
+5. (Recommended) Run the Test Suite
 
     ``` sh
     vendor/bin/phpunit
     ```
-5. (Recommended) Check whether your code conforms to our Coding Standards by running
+6. (Recommended) Check whether your code conforms to our Coding Standards by running
 
     ``` sh
     vendor/bin/phing -f build/build.xml sniff
     ```
 
-6. Send us a Pull Request
+7. Send us a Pull Request
