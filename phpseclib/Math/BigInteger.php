@@ -3867,4 +3867,17 @@ class BigInteger
     {
         return strlen($this->toBytes());
     }
+
+    /**
+     * Tests BigInteger to see if it is between two integers, inclusive
+     *
+     * @param \phpseclib\Math\BigInteger $min
+     * @param \phpseclib\Math\BigInteger $max
+     * @access public
+     * @return boolean
+     */
+    function between(BigInteger $min, BigInteger $max)
+    {
+        return $this->compare($min) >= 0 && $this->compare($max) <= 0;
+    }
 }

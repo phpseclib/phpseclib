@@ -25,10 +25,10 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\RSA;
+namespace phpseclib\Crypt\RSA\Keys;
 
 use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\Common\PKCS8 as Progenitor;
+use phpseclib\Crypt\Common\Keys\PKCS8 as Progenitor;
 use phpseclib\File\ASN1;
 
 /**
@@ -41,6 +41,30 @@ use phpseclib\File\ASN1;
 abstract class PKCS8 extends Progenitor
 {
     /**
+     * OID Name
+     *
+     * @var string
+     * @access private
+     */
+    const OID_NAME = 'rsaEncryption';
+
+    /**
+     * OID Value
+     *
+     * @var string
+     * @access private
+     */
+    const OID_VALUE = '1.2.840.113549.1.1.1';
+
+    /**
+     * Child OIDs loaded
+     *
+     * @var bool
+     * @access private
+     */
+    protected static $childOIDsLoaded = false;
+
+    /**
      * Break a public or private key down into its constituent components
      *
      * @access public
@@ -50,6 +74,10 @@ abstract class PKCS8 extends Progenitor
      */
     public static function load($key, $password = '')
     {
+        if (!is_string($key)) {
+            return false;
+        }
+
         $components = ['isPublicKey' => strpos($key, 'PUBLIC') !== false];
 
         $key = parent::load($key, $password);
@@ -58,10 +86,6 @@ abstract class PKCS8 extends Progenitor
         }
 
         $type = isset($key['privateKey']) ? 'private' : 'public';
-
-        if ($key[$type . 'KeyAlgorithm']['algorithm'] != '1.2.840.113549.1.1.1') {
-            return false;
-        }
 
         $result = $components + PKCS1::load($key[$type . 'Key']);
 
@@ -89,7 +113,7 @@ abstract class PKCS8 extends Progenitor
     {
         $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);
         $key = ASN1::extractBER($key);
-        return self::wrapPrivateKey($key, '1.2.840.113549.1.1.1', [], $password);
+        return self::wrapPrivateKey($key, [], null, $password);
     }
 
     /**
@@ -104,6 +128,6 @@ abstract class PKCS8 extends Progenitor
     {
         $key = PKCS1::savePublicKey($n, $e);
         $key = ASN1::extractBER($key);
-        return self::wrapPublicKey($key, '1.2.840.113549.1.1.1');
+        return self::wrapPublicKey($key, null);
     }
 }

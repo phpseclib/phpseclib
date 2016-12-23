@@ -6,9 +6,9 @@
  */
 
 use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\RSA\PKCS1;
-use phpseclib\Crypt\RSA\PKCS8;
-use phpseclib\Crypt\RSA\PuTTY;
+use phpseclib\Crypt\RSA\Keys\PKCS1;
+use phpseclib\Crypt\RSA\Keys\PKCS8;
+use phpseclib\Crypt\RSA\Keys\PuTTY;
 use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase

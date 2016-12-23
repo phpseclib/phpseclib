@@ -22,10 +22,10 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\RSA;
+namespace phpseclib\Crypt\RSA\Keys;
 
 use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\Common\PKCS1 as Progenitor;
+use phpseclib\Crypt\Common\Keys\PKCS1 as Progenitor;
 use phpseclib\File\ASN1;
 use phpseclib\File\ASN1\Maps;
 
