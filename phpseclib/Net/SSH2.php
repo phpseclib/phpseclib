@@ -2516,6 +2516,11 @@ class SSH2
             return false;
         }
 
+        if ($this->in_request_pty_exec) {
+            user_error('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
+            return false;
+        }
+
         // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
         // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but,
         // honestly, if you're transferring more than 2GB, you probably shouldn't be using phpseclib, anyway.
@@ -3313,6 +3318,10 @@ class SSH2
      */
     function disablePTY()
     {
+        if ($this->in_request_pty_exec) {
+            $this->_close_channel(self::CHANNEL_EXEC);
+            $this->in_request_pty_exec = false;
+        }
         $this->request_pty = false;
     }
 
