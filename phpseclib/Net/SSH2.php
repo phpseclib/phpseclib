@@ -3312,7 +3312,7 @@ class SSH2
     function disablePTY()
     {
         if ($this->in_request_pty_exec) {
-            $this->_close_channel(NET_SSH2_CHANNEL_EXEC);
+            $this->_close_channel(self::CHANNEL_EXEC);
             $this->in_request_pty_exec = false;
         }
         $this->request_pty = false;
