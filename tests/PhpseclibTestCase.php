@@ -101,4 +101,12 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
             }
         }
     }
+
+    protected static function getVar($obj, $var)
+    {
+        $reflection = new ReflectionClass(get_class($obj));
+        $prop = $reflection->getProperty($var);
+        $prop->setAccessible(true);
+        return $prop->getValue($obj);
+    }
 }
