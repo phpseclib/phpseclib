@@ -42,7 +42,7 @@ class Identity
      * @access private
      * @see self::getPublicKey()
      */
-    var $key;
+    private $key;
 
     /**
      * Key Blob
@@ -51,7 +51,7 @@ class Identity
      * @access private
      * @see self::sign()
      */
-    var $key_blob;
+    private $key_blob;
 
     /**
      * Socket Resource
@@ -60,7 +60,7 @@ class Identity
      * @access private
      * @see self::sign()
      */
-    var $fsock;
+    private $fsock;
 
     /**
      * Default Constructor.
@@ -69,7 +69,7 @@ class Identity
      * @return \phpseclib\System\SSH\Agent\Identity
      * @access private
      */
-    function __construct($fsock)
+    public function __construct($fsock)
     {
         $this->fsock = $fsock;
     }
@@ -82,7 +82,7 @@ class Identity
      * @param \phpseclib\Crypt\RSA $key
      * @access private
      */
-    function setPublicKey($key)
+    public function setPublicKey($key)
     {
         $this->key = $key;
         $this->key->setPublicKey();
@@ -97,7 +97,7 @@ class Identity
      * @param string $key_blob
      * @access private
      */
-    function setPublicKeyBlob($key_blob)
+    public function setPublicKeyBlob($key_blob)
     {
         $this->key_blob = $key_blob;
     }
@@ -111,7 +111,7 @@ class Identity
      * @return mixed
      * @access public
      */
-    function getPublicKey($type = 'PKCS8')
+    public function getPublicKey($type = 'PKCS8')
     {
         return $this->key->getPublicKey($type);
     }
@@ -125,7 +125,7 @@ class Identity
      * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @access public
      */
-    function setHash($hash = 'sha1')
+    public function setHash($hash = 'sha1')
     {
         if ($hash != 'sha1') {
             throw new UnsupportedAlgorithmException('ssh-agent can only be used with the sha1 hash');
@@ -144,7 +144,7 @@ class Identity
      * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @access public
      */
-    function sign($message, $padding = RSA::PADDING_PKCS1)
+    public function sign($message, $padding = RSA::PADDING_PKCS1)
     {
         if ($padding != RSA::PADDING_PKCS1 && $padding != RSA::PADDING_RELAXED_PKCS1) {
             throw new UnsupportedAlgorithmException('ssh-agent can only create PKCS1 signatures');

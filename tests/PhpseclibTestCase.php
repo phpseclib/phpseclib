@@ -109,4 +109,12 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
         $prop->setAccessible(true);
         return $prop->getValue($obj);
     }
+
+    public static function callFunc($obj, $func, $params = array())
+    {
+        $reflection = new ReflectionClass(get_class($obj));
+        $method = $reflection->getMethod($func);
+        $method->setAccessible(true);
+        return $method->invokeArgs($obj, $params);
+    }
 }
