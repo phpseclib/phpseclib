@@ -279,7 +279,7 @@ class Agent
      * @param Net_SSH2 $ssh
      * @access private
      */
-    public function on_channel_open($ssh)
+    private function on_channel_open($ssh)
     {
         if ($this->forward_status == self::FORWARD_REQUEST) {
             $this->request_forwarding($ssh);

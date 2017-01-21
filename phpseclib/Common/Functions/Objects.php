@@ -29,7 +29,7 @@ abstract class Objects
      * @param Object $obj
      * @param string $var
      * @return mixed
-     * @access private
+     * @access public
      */
     public static function getVar($obj, $var)
     {
@@ -46,7 +46,7 @@ abstract class Objects
      * @param string $var
      * @param mixed $val
      * @return mixed
-     * @access private
+     * @access public
      */
     public static function setVar($obj, $var, $val)
     {
@@ -63,7 +63,7 @@ abstract class Objects
      * @param string $func
      * @param array $params
      * @return mixed
-     * @access private
+     * @access public
      */
     public static function callFunc($obj, $func, $params = array())
     {
