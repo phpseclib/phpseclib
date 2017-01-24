@@ -390,7 +390,7 @@ class Crypt_Blowfish extends Crypt_Base
     function isValidEngine($engine)
     {
         if ($engine == CRYPT_ENGINE_OPENSSL) {
-            if ($this->key_length != 16) {
+            if ($this->key_length < 16) {
                 return false;
             }
             $this->cipher_name_openssl_ecb = 'bf-ecb';

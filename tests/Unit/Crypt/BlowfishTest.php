@@ -6,6 +6,7 @@
  */
 
 require_once 'Crypt/Blowfish.php';
+require_once 'Crypt/Random.php';
 
 class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
 {
@@ -82,5 +83,48 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
         $result = $bf->encrypt($plaintext);
         $plaintext = bin2hex($plaintext);
         $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engineName engine");
+    }
+
+    public function testKeySizes()
+    {
+        $objects = $engines = array();
+        $temp = new Crypt_Blowfish(CRYPT_MODE_CTR);
+        $temp->setPreferredEngine(CRYPT_ENGINE_INTERNAL);
+        $objects[] = $temp;
+        $engines[] = 'internal';
+
+        if ($temp->isValidEngine(CRYPT_ENGINE_MCRYPT)) {
+            $temp = new Crypt_Blowfish(CRYPT_MODE_CTR);
+            $temp->setPreferredEngine(CRYPT_ENGINE_MCRYPT);
+            $objects[] = $temp;
+            $engines[] = 'mcrypt';
+        }
+
+        if ($temp->isValidEngine(CRYPT_ENGINE_OPENSSL)) {
+            $temp = new Crypt_Blowfish(CRYPT_MODE_CTR);
+            $temp->setPreferredEngine(CRYPT_ENGINE_OPENSSL);
+            $objects[] = $temp;
+            $engines[] = 'OpenSSL';
+        }
+
+        if (count($objects) < 2) {
+            self::markTestSkipped('Unable to initialize two or more engines');
+        }
+
+        for ($i = 0; $i < count($objects); $i++) {
+            $objects[$i]->setIV(str_repeat('x', $objects[$i]->getBlockLength() >> 3));
+        }
+
+        $plaintext = str_repeat('.', 100);
+
+        for ($keyLen = 4; $keyLen <= 56; $keyLen++) {
+            $key = crypt_random_string($keyLen);
+            $objects[0]->setKey($key);
+            $ref = $objects[0]->encrypt($plaintext);
+            for ($i = 1; $i < count($objects); $i++) {
+                $objects[$i]->setKey($key);
+                $this->assertEquals($ref, $objects[$i]->encrypt($plaintext), "Failed asserting that {$engines[$i]} yields the same output as the internal engine with a key size of $keyLen");
+            }
+        }
     }
 }
