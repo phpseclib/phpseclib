@@ -209,4 +209,43 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
         $result = $rc4->encrypt(str_repeat("\0", $offset + 16));
         $this->assertEquals(bin2hex(substr($result, -16)), $expected, "Failed asserting that key $key yielded expected output at offset $offset in $engineName engine");
     }
+
+    public function testKeySizes()
+    {
+        $objects = $engines = array();
+        $temp = new RC4(Base::MODE_CTR);
+        $temp->setPreferredEngine(Base::ENGINE_INTERNAL);
+        $objects[] = $temp;
+        $engines[] = 'internal';
+
+        if ($temp->isValidEngine(Base::ENGINE_MCRYPT)) {
+            $temp = new RC4(Base::MODE_CTR);
+            $temp->setPreferredEngine(Base::ENGINE_MCRYPT);
+            $objects[] = $temp;
+            $engines[] = 'mcrypt';
+        }
+
+        if ($temp->isValidEngine(Base::ENGINE_OPENSSL)) {
+            $temp = new RC4(Base::MODE_CTR);
+            $temp->setPreferredEngine(Base::ENGINE_OPENSSL);
+            $objects[] = $temp;
+            $engines[] = 'OpenSSL';
+        }
+
+        if (count($objects) < 2) {
+            self::markTestSkipped('Unable to initialize two or more engines');
+        }
+
+        $plaintext = str_repeat('.', 100);
+
+        for ($keyLen = 5; $keyLen <= 256; $keyLen++) {
+            $key = crypt_random_string($keyLen);
+            $objects[0]->setKey($key);
+            $ref = $objects[0]->encrypt($plaintext);
+            for ($i = 1; $i < count($objects); $i++) {
+                $objects[$i]->setKey($key);
+                $this->assertEquals($ref, $objects[$i]->encrypt($plaintext), "Failed asserting that {$engines[$i]} yields the same output as the internal engine with a key size of $keyLen");
+            }
+        }
+    }
 }
