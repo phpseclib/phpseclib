@@ -7,6 +7,7 @@
 
 use phpseclib\Crypt\Base;
 use phpseclib\Crypt\RC4;
+use phpseclib\Crypt\Random;
 
 class Unit_Crypt_RC4Test extends PhpseclibTestCase
 {
@@ -239,7 +240,7 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
         $plaintext = str_repeat('.', 100);
 
         for ($keyLen = 5; $keyLen <= 256; $keyLen++) {
-            $key = crypt_random_string($keyLen);
+            $key = Random::string($keyLen);
             $objects[0]->setKey($key);
             $ref = $objects[0]->encrypt($plaintext);
             for ($i = 1; $i < count($objects); $i++) {
