@@ -214,21 +214,21 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
     public function testKeySizes()
     {
         $objects = $engines = array();
-        $temp = new RC4(Base::MODE_CTR);
-        $temp->setPreferredEngine(Base::ENGINE_INTERNAL);
+        $temp = new RC4(RC4::MODE_CTR);
+        $temp->setPreferredEngine(RC4::ENGINE_INTERNAL);
         $objects[] = $temp;
         $engines[] = 'internal';
 
-        if ($temp->isValidEngine(Base::ENGINE_MCRYPT)) {
-            $temp = new RC4(Base::MODE_CTR);
-            $temp->setPreferredEngine(Base::ENGINE_MCRYPT);
+        if ($temp->isValidEngine(RC4::ENGINE_MCRYPT)) {
+            $temp = new RC4(RC4::MODE_CTR);
+            $temp->setPreferredEngine(RC4::ENGINE_MCRYPT);
             $objects[] = $temp;
             $engines[] = 'mcrypt';
         }
 
-        if ($temp->isValidEngine(Base::ENGINE_OPENSSL)) {
-            $temp = new RC4(Base::MODE_CTR);
-            $temp->setPreferredEngine(Base::ENGINE_OPENSSL);
+        if ($temp->isValidEngine(RC4::ENGINE_OPENSSL)) {
+            $temp = new RC4(RC4::MODE_CTR);
+            $temp->setPreferredEngine(RC4::ENGINE_OPENSSL);
             $objects[] = $temp;
             $engines[] = 'OpenSSL';
         }

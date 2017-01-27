@@ -90,21 +90,21 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
     public function testKeySizes()
     {
         $objects = $engines = array();
-        $temp = new Blowfish(Base::MODE_CTR);
-        $temp->setPreferredEngine(Base::ENGINE_INTERNAL);
+        $temp = new Blowfish(Blowfish::MODE_CTR);
+        $temp->setPreferredEngine(Blowfish::ENGINE_INTERNAL);
         $objects[] = $temp;
         $engines[] = 'internal';
 
-        if ($temp->isValidEngine(Base::ENGINE_MCRYPT)) {
-            $temp = new Blowfish(Base::MODE_CTR);
-            $temp->setPreferredEngine(Base::ENGINE_MCRYPT);
+        if ($temp->isValidEngine(Blowfish::ENGINE_MCRYPT)) {
+            $temp = new Blowfish(Blowfish::MODE_CTR);
+            $temp->setPreferredEngine(Blowfish::ENGINE_MCRYPT);
             $objects[] = $temp;
             $engines[] = 'mcrypt';
         }
 
-        if ($temp->isValidEngine(Base::ENGINE_OPENSSL)) {
-            $temp = new Blowfish(Base::MODE_CTR);
-            $temp->setPreferredEngine(Base::ENGINE_OPENSSL);
+        if ($temp->isValidEngine(Blowfish::ENGINE_OPENSSL)) {
+            $temp = new Blowfish(Blowfish::MODE_CTR);
+            $temp->setPreferredEngine(Blowfish::ENGINE_OPENSSL);
             $objects[] = $temp;
             $engines[] = 'OpenSSL';
         }
