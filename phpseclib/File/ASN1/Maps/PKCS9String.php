@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PKCS9String 
+abstract class PKCS9String 
 {
     const MAP = [
         'type'     => ASN1::TYPE_CHOICE,

@@ -26,7 +26,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class RC2CBCParameter
+abstract class RC2CBCParameter
 {
     const MAP = [
         'type'     => ASN1::TYPE_SEQUENCE,

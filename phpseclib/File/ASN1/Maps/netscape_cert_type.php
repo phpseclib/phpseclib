@@ -26,7 +26,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class netscape_cert_type
+abstract class netscape_cert_type
 {
     const MAP = [
         'type'    => ASN1::TYPE_BIT_STRING,

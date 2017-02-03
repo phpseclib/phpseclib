@@ -45,7 +45,7 @@ class Stream
      * @var object
      * @access private
      */
-    var $sftp;
+    private $sftp;
 
     /**
      * Path
@@ -53,7 +53,7 @@ class Stream
      * @var string
      * @access private
      */
-    var $path;
+    private $path;
 
     /**
      * Mode
@@ -61,7 +61,7 @@ class Stream
      * @var string
      * @access private
      */
-    var $mode;
+    private $mode;
 
     /**
      * Position
@@ -69,7 +69,7 @@ class Stream
      * @var int
      * @access private
      */
-    var $pos;
+    private $pos;
 
     /**
      * Size
@@ -77,7 +77,7 @@ class Stream
      * @var int
      * @access private
      */
-    var $size;
+    private $size;
 
     /**
      * Directory entries
@@ -85,7 +85,7 @@ class Stream
      * @var array
      * @access private
      */
-    var $entries;
+    private $entries;
 
     /**
      * EOF flag
@@ -93,7 +93,7 @@ class Stream
      * @var bool
      * @access private
      */
-    var $eof;
+    private $eof;
 
     /**
      * Context resource
@@ -103,7 +103,7 @@ class Stream
      * @var resource
      * @access public
      */
-    var $context;
+    public $context;
 
     /**
      * Notification callback function
@@ -111,7 +111,7 @@ class Stream
      * @var callable
      * @access public
      */
-    var $notification;
+    private $notification;
 
     /**
      * Registers this class as a URL wrapper.
@@ -120,7 +120,7 @@ class Stream
      * @return bool True on success, false otherwise.
      * @access public
      */
-    static function register($protocol = 'sftp')
+    public static function register($protocol = 'sftp')
     {
         if (in_array($protocol, stream_get_wrappers(), true)) {
             return false;
@@ -133,7 +133,7 @@ class Stream
      *
      * @access public
      */
-    function __construct()
+    public function __construct()
     {
         if (defined('NET_SFTP_STREAM_LOGGING')) {
             echo "__construct()\r\n";
@@ -152,10 +152,10 @@ class Stream
      * @return string
      * @access private
      */
-    function _parse_path($path)
+    private function parse_path($path)
     {
         $orig = $path;
-        extract(parse_url($path) + array('port' => 22));
+        extract(parse_url($path) + ['port' => 22]);
         if (isset($query)) {
             $path.= '?' . $query;
         } elseif (preg_match('/(\?|\?#)$/', $orig)) {
@@ -257,9 +257,9 @@ class Stream
      * @return bool
      * @access public
      */
-    function _stream_open($path, $mode, $options, &$opened_path)
+    private function _stream_open($path, $mode, $options, &$opened_path)
     {
-        $path = $this->_parse_path($path);
+        $path = $this->parse_path($path);
 
         if ($path === false) {
             return false;
@@ -299,7 +299,7 @@ class Stream
      * @return mixed
      * @access public
      */
-    function _stream_read($count)
+    private function _stream_read($count)
     {
         switch ($this->mode) {
             case 'w':
@@ -341,7 +341,7 @@ class Stream
      * @return mixed
      * @access public
      */
-    function _stream_write($data)
+    private function _stream_write($data)
     {
         switch ($this->mode) {
             case 'r':
@@ -375,7 +375,7 @@ class Stream
      * @return int
      * @access public
      */
-    function _stream_tell()
+    private function _stream_tell()
     {
         return $this->pos;
     }
@@ -393,7 +393,7 @@ class Stream
      * @return bool
      * @access public
      */
-    function _stream_eof()
+    private function _stream_eof()
     {
         return $this->eof;
     }
@@ -406,7 +406,7 @@ class Stream
      * @return bool
      * @access public
      */
-    function _stream_seek($offset, $whence)
+    private function _stream_seek($offset, $whence)
     {
         switch ($whence) {
             case SEEK_SET:
@@ -435,9 +435,9 @@ class Stream
      * @return bool
      * @access public
      */
-    function _stream_metadata($path, $option, $var)
+    private function _stream_metadata($path, $option, $var)
     {
-        $path = $this->_parse_path($path);
+        $path = $this->parse_path($path);
         if ($path === false) {
             return false;
         }
@@ -467,7 +467,7 @@ class Stream
      * @return resource
      * @access public
      */
-    function _stream_cast($cast_as)
+    private function _stream_cast($cast_as)
     {
         return $this->sftp->fsock;
     }
@@ -479,7 +479,7 @@ class Stream
      * @return bool
      * @access public
      */
-    function _stream_lock($operation)
+    private function _stream_lock($operation)
     {
         return false;
     }
@@ -496,7 +496,7 @@ class Stream
      * @return bool
      * @access public
      */
-    function _rename($path_from, $path_to)
+    private function _rename($path_from, $path_to)
     {
         $path1 = parse_url($path_from);
         $path2 = parse_url($path_to);
@@ -505,7 +505,7 @@ class Stream
             return false;
         }
 
-        $path_from = $this->_parse_path($path_from);
+        $path_from = $this->parse_path($path_from);
         $path_to = parse_url($path_to);
         if ($path_from === false) {
             return false;
@@ -548,9 +548,9 @@ class Stream
      * @return bool
      * @access public
      */
-    function _dir_opendir($path, $options)
+    private function _dir_opendir($path, $options)
     {
-        $path = $this->_parse_path($path);
+        $path = $this->parse_path($path);
         if ($path === false) {
             return false;
         }
@@ -565,7 +565,7 @@ class Stream
      * @return mixed
      * @access public
      */
-    function _dir_readdir()
+    private function _dir_readdir()
     {
         if (isset($this->entries[$this->pos])) {
             return $this->entries[$this->pos++];
@@ -579,7 +579,7 @@ class Stream
      * @return bool
      * @access public
      */
-    function _dir_rewinddir()
+    private function _dir_rewinddir()
     {
         $this->pos = 0;
         return true;
@@ -591,7 +591,7 @@ class Stream
      * @return bool
      * @access public
      */
-    function _dir_closedir()
+    private function _dir_closedir()
     {
         return true;
     }
@@ -607,9 +607,9 @@ class Stream
      * @return bool
      * @access public
      */
-    function _mkdir($path, $mode, $options)
+    private function _mkdir($path, $mode, $options)
     {
-        $path = $this->_parse_path($path);
+        $path = $this->parse_path($path);
         if ($path === false) {
             return false;
         }
@@ -631,9 +631,9 @@ class Stream
      * @return bool
      * @access public
      */
-    function _rmdir($path, $options)
+    private function _rmdir($path, $options)
     {
-        $path = $this->_parse_path($path);
+        $path = $this->parse_path($path);
         if ($path === false) {
             return false;
         }
@@ -649,7 +649,7 @@ class Stream
      * @return bool
      * @access public
      */
-    function _stream_flush()
+    private function _stream_flush()
     {
         return true;
     }
@@ -660,7 +660,7 @@ class Stream
      * @return mixed
      * @access public
      */
-    function _stream_stat()
+    private function _stream_stat()
     {
         $results = $this->sftp->stat($this->path);
         if ($results === false) {
@@ -676,9 +676,9 @@ class Stream
      * @return bool
      * @access public
      */
-    function _unlink($path)
+    private function _unlink($path)
     {
-        $path = $this->_parse_path($path);
+        $path = $this->parse_path($path);
         if ($path === false) {
             return false;
         }
@@ -698,9 +698,9 @@ class Stream
      * @return mixed
      * @access public
      */
-    function _url_stat($path, $flags)
+    private function _url_stat($path, $flags)
     {
-        $path = $this->_parse_path($path);
+        $path = $this->parse_path($path);
         if ($path === false) {
             return false;
         }
@@ -720,7 +720,7 @@ class Stream
      * @return bool
      * @access public
      */
-    function _stream_truncate($new_size)
+    private function _stream_truncate($new_size)
     {
         if (!$this->sftp->truncate($this->path, $new_size)) {
             return false;
@@ -744,7 +744,7 @@ class Stream
      * @return bool
      * @access public
      */
-    function _stream_set_option($option, $arg1, $arg2)
+    private function _stream_set_option($option, $arg1, $arg2)
     {
         return false;
     }
@@ -754,7 +754,7 @@ class Stream
      *
      * @access public
      */
-    function _stream_close()
+    private function _stream_close()
     {
     }
 
@@ -773,7 +773,7 @@ class Stream
      * @return mixed
      * @access public
      */
-    function __call($name, $arguments)
+    public function __call($name, $arguments)
     {
         if (defined('NET_SFTP_STREAM_LOGGING')) {
             echo $name . '(';
@@ -790,6 +790,6 @@ class Stream
         if (!method_exists($this, $name)) {
             return false;
         }
-        return call_user_func_array(array($this, $name), $arguments);
+        return call_user_func_array([$this, $name], $arguments);
     }
 }

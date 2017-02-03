@@ -32,13 +32,13 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
     {
         $ssh = $this->createSSHMock();
 
-        $result = $ssh->_format_log($message_log, $message_number_log);
+        $result = self::callFunc($ssh, 'format_log', array($message_log, $message_number_log));
         $this->assertEquals($expected, $result);
     }
 
     public function testGenerateIdentifier()
     {
-        $identifier = $this->createSSHMock()->_generate_identifier();
+        $identifier = self::callFunc($this->createSSHMock(), 'generate_identifier');
         $this->assertStringStartsWith('SSH-2.0-phpseclib_2.0', $identifier);
 
         if (extension_loaded('libsodium')) {

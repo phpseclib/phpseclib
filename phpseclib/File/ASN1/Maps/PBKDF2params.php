@@ -26,7 +26,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PBKDF2params
+abstract class PBKDF2params
 {
     const MAP = [
         'type'     => ASN1::TYPE_SEQUENCE,

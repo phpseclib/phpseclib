@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class OtherPrimeInfos
+abstract class OtherPrimeInfos
 {
     // version must be multi if otherPrimeInfos present
     const MAP = [

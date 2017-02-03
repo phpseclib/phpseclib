@@ -38,7 +38,7 @@ class Unit_Crypt_RSA_CreateKeyTest extends PhpseclibTestCase
 
     public function testMultiPrime()
     {
-        RSA::setEngine(RSA::ENGINE_INTERNAL);
+        RSA::setPreferredEngine(RSA::ENGINE_INTERNAL);
         RSA::setSmallestPrime(256);
         extract(RSA::createKey(1024));
         $this->assertInstanceOf('\phpseclib\Crypt\RSA', $privatekey);
@@ -61,5 +61,7 @@ class Unit_Crypt_RSA_CreateKeyTest extends PhpseclibTestCase
         $signature = $rsa->sign('zzz');
         $rsa->load($rsa->getPublicKey());
         $this->assertTrue($rsa->verify('zzz', $signature));
+
+        RSA::setPreferredEngine(RSA::ENGINE_OPENSSL);
     }
 }

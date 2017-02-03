@@ -15,6 +15,7 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
     {
         $engines = array(
             BlockCipher::ENGINE_INTERNAL => 'internal',
+            BlockCipher::ENGINE_EVAL => 'eval',
             BlockCipher::ENGINE_MCRYPT => 'mcrypt',
             BlockCipher::ENGINE_OPENSSL => 'OpenSSL',
         );

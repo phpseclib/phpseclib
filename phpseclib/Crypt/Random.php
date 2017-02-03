@@ -33,7 +33,7 @@ use phpseclib\Crypt\Common\BlockCipher;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Random
+abstract class Random
 {
     /**
      * Generate a random string.
@@ -46,7 +46,7 @@ class Random
      * @throws \RuntimeException if a symmetric cipher is needed but not loaded
      * @return string
      */
-    static function string($length)
+    public static function string($length)
     {
         try {
             return \random_bytes($length);
@@ -196,7 +196,7 @@ class Random
      * @param mixed $arr
      * @access public
      */
-    static function safe_serialize(&$arr)
+    private static function safe_serialize(&$arr)
     {
         if (is_object($arr)) {
             return '';
@@ -208,7 +208,7 @@ class Random
         if (isset($arr['__phpseclib_marker'])) {
             return '';
         }
-        $safearr = array();
+        $safearr = [];
         $arr['__phpseclib_marker'] = true;
         foreach (array_keys($arr) as $key) {
             // do not recurse on the '__phpseclib_marker' key itself, for smaller memory usage

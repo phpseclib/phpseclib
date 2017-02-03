@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class TBSCertList
+abstract class TBSCertList
 {
     const MAP = [
         'type'     => ASN1::TYPE_SEQUENCE,

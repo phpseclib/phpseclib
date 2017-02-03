@@ -34,7 +34,7 @@ use phpseclib\Math\BigInteger;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Raw
+abstract class Raw
 {
     /**
      * Break a public or private key down into its constituent components
@@ -44,7 +44,7 @@ class Raw
      * @param string $password optional
      * @return array
      */
-    static function load($key, $password = '')
+    public static function load($key, $password = '')
     {
         if (!is_array($key)) {
             return false;
@@ -59,7 +59,7 @@ class Raw
                 }
             }
         }
-        $components = array('isPublicKey' => true);
+        $components = ['isPublicKey' => true];
         switch (true) {
             case isset($key['e']):
                 $components['publicExponent'] = $key['e'];
@@ -97,8 +97,8 @@ class Raw
      * @param \phpseclib\Math\BigInteger $e
      * @return string
      */
-    static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e)
     {
-        return array('e' => clone $e, 'n' => clone $n);
+        return ['e' => clone $e, 'n' => clone $n];
     }
 }

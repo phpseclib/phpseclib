@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class netscape_comment
+abstract class netscape_comment
 {
     const MAP = ['type' => ASN1::TYPE_IA5_STRING];
 }

@@ -34,7 +34,7 @@ use phpseclib\Math\BigInteger;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class ASN1
+abstract class ASN1
 {
     /**#@+
      * Tag Classes
@@ -109,7 +109,7 @@ class ASN1
      * @access private
      * @link http://en.wikipedia.org/wiki/Object_identifier
      */
-    static $oids = [];
+    private static $oids = [];
 
     /**
      * ASN.1 object identifier reverse mapping
@@ -117,7 +117,7 @@ class ASN1
      * @var array
      * @access private
      */
-    static $reverseOIDs = [];
+    private static $reverseOIDs = [];
 
     /**
      * Default date format
@@ -126,7 +126,7 @@ class ASN1
      * @access private
      * @link http://php.net/class.datetime
      */
-    static $format = 'D, d M Y H:i:s O';
+    private static $format = 'D, d M Y H:i:s O';
 
     /**
      * Filters
@@ -135,9 +135,9 @@ class ASN1
      *
      * @var array
      * @access private
-     * @see self::_encode_der()
+     * @see self::encode_der()
      */
-    static $filters;
+    private static $filters;
 
     /**
      * Current Location of most recent ASN.1 encode process
@@ -146,9 +146,9 @@ class ASN1
      *
      * @var array
      * @access private
-     * @see self::_encode_der()
+     * @see self::encode_der()
      */
-    static $location;
+    private static $location;
 
     /**
      * DER Encoded String
@@ -159,7 +159,7 @@ class ASN1
      * @access private
      * @see self::decodeDER()
      */
-    static $encoded;
+    private static $encoded;
 
     /**
      * Type mapping table for the ANY type.
@@ -224,7 +224,7 @@ class ASN1
      * @return array
      * @access public
      */
-    static function decodeBER($encoded)
+    public static function decodeBER($encoded)
     {
         if ($encoded instanceof Element) {
             $encoded = $encoded->element;
@@ -232,7 +232,7 @@ class ASN1
 
         self::$encoded = $encoded;
 
-        $decoded = [self::_decode_ber($encoded)];
+        $decoded = [self::decode_ber($encoded)];
 
         // encapsulate in an array for BC with the old decodeBER
         return $decoded;
@@ -251,7 +251,7 @@ class ASN1
      * @return array
      * @access private
      */
-    static function _decode_ber($encoded, $start = 0, $encoded_pos = 0)
+    private static function decode_ber($encoded, $start = 0, $encoded_pos = 0)
     {
         $current = ['start' => $start];
 
@@ -328,7 +328,7 @@ class ASN1
                 $newcontent = [];
                 $remainingLength = $length;
                 while ($remainingLength > 0) {
-                    $temp = self::_decode_ber($content, $start, $content_pos);
+                    $temp = self::decode_ber($content, $start, $content_pos);
                     $length = $temp['length'];
                     // end-of-content octets - see paragraph 8.1.5
                     if (substr($content, $content_pos + $length, 2) == "\0\0") {
@@ -379,7 +379,7 @@ class ASN1
                 if (!$constructed) {
                     $current['content'] = substr($content, $content_pos);
                 } else {
-                    $temp = self::_decode_ber($content, $start, $content_pos);
+                    $temp = self::decode_ber($content, $start, $content_pos);
                     $length-= (strlen($content) - $content_pos);
                     $last = count($temp) - 1;
                     for ($i = 0; $i < $last; $i++) {
@@ -403,7 +403,7 @@ class ASN1
                     $current['content'] = '';
                     $length = 0;
                     while (substr($content, $content_pos, 2) != "\0\0") {
-                        $temp = self::_decode_ber($content, $length + $start, $content_pos);
+                        $temp = self::decode_ber($content, $length + $start, $content_pos);
                         $content_pos += $temp['length'];
                         // all subtags should be octet strings
                         //if ($temp['type'] != self::TYPE_OCTET_STRING) {
@@ -435,7 +435,7 @@ class ASN1
                         $length = $offset + 2; // +2 for the EOC
                         break 2;
                     }
-                    $temp = self::_decode_ber($content, $start + $offset, $content_pos);
+                    $temp = self::decode_ber($content, $start + $offset, $content_pos);
                     $content_pos += $temp['length'];
                     $current['content'][] = $temp;
                     $offset+= $temp['length'];
@@ -493,7 +493,7 @@ class ASN1
                 break;
             case self::TYPE_UTC_TIME:
             case self::TYPE_GENERALIZED_TIME:
-                $current['content'] = self::_decodeTime(substr($content, $content_pos), $tag);
+                $current['content'] = self::decodeTime(substr($content, $content_pos), $tag);
             default:
         }
 
@@ -516,7 +516,7 @@ class ASN1
      * @return array
      * @access public
      */
-    static function asn1map($decoded, $mapping, $special = [])
+    public static function asn1map($decoded, $mapping, $special = [])
     {
         if (isset($mapping['explicit']) && is_array($decoded['content'])) {
             $decoded = $decoded['content'][0];
@@ -736,7 +736,7 @@ class ASN1
             case self::TYPE_UTC_TIME:
             case self::TYPE_GENERALIZED_TIME:
                 if (isset($mapping['implicit'])) {
-                    $decoded['content'] = self::_decodeTime($decoded['content'], $decoded['type']);
+                    $decoded['content'] = self::decodeTime($decoded['content'], $decoded['type']);
                 }
                 return @date(self::$format, $decoded['content']);
             case self::TYPE_BIT_STRING:
@@ -816,10 +816,10 @@ class ASN1
      * @return string
      * @access public
      */
-    static function encodeDER($source, $mapping, $special = [])
+    public static function encodeDER($source, $mapping, $special = [])
     {
         self::$location = [];
-        return self::_encode_der($source, $mapping, null, $special);
+        return self::encode_der($source, $mapping, null, $special);
     }
 
     /**
@@ -832,7 +832,7 @@ class ASN1
      * @throws \RuntimeException if the input has an error in it
      * @access private
      */
-    static function _encode_der($source, $mapping, $idx = null, $special = [])
+    private static function encode_der($source, $mapping, $idx = null, $special = [])
     {
         if ($source instanceof Element) {
             return $source->element;
@@ -863,7 +863,7 @@ class ASN1
                     $child = $mapping['children'];
 
                     foreach ($source as $content) {
-                        $temp = self::_encode_der($content, $child, null, $special);
+                        $temp = self::encode_der($content, $child, null, $special);
                         if ($temp === false) {
                             return false;
                         }
@@ -890,7 +890,7 @@ class ASN1
                         continue;
                     }
 
-                    $temp = self::_encode_der($source[$key], $child, $key, $special);
+                    $temp = self::encode_der($source[$key], $child, $key, $special);
                     if ($temp === false) {
                         return false;
                     }
@@ -931,7 +931,7 @@ class ASN1
                         continue;
                     }
 
-                    $temp = self::_encode_der($source[$key], $child, $key, $special);
+                    $temp = self::encode_der($source[$key], $child, $key, $special);
                     if ($temp === false) {
                         return false;
                     }
@@ -1063,19 +1063,19 @@ class ASN1
 
                 switch (true) {
                     case !isset($source):
-                        return self::_encode_der(null, ['type' => self::TYPE_NULL] + $mapping, null, $special);
+                        return self::encode_der(null, ['type' => self::TYPE_NULL] + $mapping, null, $special);
                     case is_int($source):
                     case $source instanceof BigInteger:
-                        return self::_encode_der($source, ['type' => self::TYPE_INTEGER] + $mapping, null, $special);
+                        return self::encode_der($source, ['type' => self::TYPE_INTEGER] + $mapping, null, $special);
                     case is_float($source):
-                        return self::_encode_der($source, ['type' => self::TYPE_REAL] + $mapping, null, $special);
+                        return self::encode_der($source, ['type' => self::TYPE_REAL] + $mapping, null, $special);
                     case is_bool($source):
-                        return self::_encode_der($source, ['type' => self::TYPE_BOOLEAN] + $mapping, null, $special);
+                        return self::encode_der($source, ['type' => self::TYPE_BOOLEAN] + $mapping, null, $special);
                     case is_array($source) && count($source) == 1:
                         $typename = implode('', array_keys($source));
                         $outtype = array_search($typename, self::ANY_MAP, true);
                         if ($outtype !== false) {
-                            return self::_encode_der($source[$typename], ['type' => $outtype] + $mapping, null, $special);
+                            return self::encode_der($source[$typename], ['type' => $outtype] + $mapping, null, $special);
                         }
                 }
 
@@ -1090,7 +1090,7 @@ class ASN1
                 if ($filters === false) {
                     throw new \RuntimeException('No filters defined for ' . implode('/', $loc));
                 }
-                return self::_encode_der($source, $filters + $mapping, null, $special);
+                return self::encode_der($source, $filters + $mapping, null, $special);
             case self::TYPE_NULL:
                 $value = '';
                 break;
@@ -1140,7 +1140,7 @@ class ASN1
      * @param int $tag
      * @return string
      */
-    static function _decodeTime($content, $tag)
+    private static function decodeTime($content, $tag)
     {
         /* UTCTime:
            http://tools.ietf.org/html/rfc5280#section-4.1.2.5.1
@@ -1187,7 +1187,7 @@ class ASN1
      * @access public
      * @param string $format
      */
-    static function setTimeFormat($format)
+    public static function setTimeFormat($format)
     {
         self::$format = $format;
     }
@@ -1201,7 +1201,7 @@ class ASN1
      * @access public
      * @param array $oids
      */
-    static function loadOIDs($oids)
+    public static function loadOIDs($oids)
     {
         self::$oids+= $oids;
         self::$reverseOIDs = array_flip(self::$oids);
@@ -1216,7 +1216,7 @@ class ASN1
      * @access public
      * @param array $filters
      */
-    static function setFilters($filters)
+    public static function setFilters($filters)
     {
         self::$filters = $filters;
     }
@@ -1233,7 +1233,7 @@ class ASN1
      * @return string
      * @access public
      */
-    static function convert($in, $from = self::TYPE_UTF8_STRING, $to = self::TYPE_UTF8_STRING)
+    public static function convert($in, $from = self::TYPE_UTF8_STRING, $to = self::TYPE_UTF8_STRING)
     {
         // isset(self::STRING_TYPE_SIZE[$from] returns a fatal error on PHP 5.6
         if (!array_key_exists($from, self::STRING_TYPE_SIZE) || !array_key_exists($to, self::STRING_TYPE_SIZE)) {
@@ -1328,7 +1328,7 @@ class ASN1
      * @param string $str
      * @return string
      */
-    static function extractBER($str)
+    public static function extractBER($str)
     {
         /* X.509 certs are assumed to be base64 encoded but sometimes they'll have additional things in them
          * above and beyond the ceritificate.
@@ -1358,7 +1358,7 @@ class ASN1
      * @param string $string
      * @return int
      */
-    static function decodeLength(&$string)
+    public static function decodeLength(&$string)
     {
         $length = ord(Strings::shift($string));
         if ($length & 0x80) { // definite length, long form
@@ -1379,7 +1379,7 @@ class ASN1
      * @param int $length
      * @return string
      */
-    static function encodeLength($length)
+    public static function encodeLength($length)
     {
         if ($length <= 0x7F) {
             return chr($length);

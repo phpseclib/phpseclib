@@ -52,7 +52,7 @@ class Hash
      * @var int
      * @access private
      */
-    var $hashParam;
+    private $hashParam;
 
     /**
      * Byte-length of hash output (Internal HMAC)
@@ -61,7 +61,7 @@ class Hash
      * @var int
      * @access private
      */
-    var $length;
+    private $length;
 
     /**
      * Hash Algorithm
@@ -70,7 +70,7 @@ class Hash
      * @var string
      * @access private
      */
-    var $hash;
+    private $hash;
 
     /**
      * Key
@@ -79,7 +79,7 @@ class Hash
      * @var string
      * @access private
      */
-    var $key = false;
+    private $key = false;
 
     /**
      * Initial Hash
@@ -90,7 +90,7 @@ class Hash
      * @var array
      * @access private
      */
-    var $initial = false;
+    private $initial = false;
 
     /**
      * Outer XOR (Internal HMAC)
@@ -101,7 +101,7 @@ class Hash
      * @var string
      * @access private
      */
-    var $opad;
+    private $opad;
 
     /**
      * Inner XOR (Internal HMAC)
@@ -112,7 +112,7 @@ class Hash
      * @var string
      * @access private
      */
-    var $ipad;
+    private $ipad;
 
     /**
      * Default Constructor.
@@ -120,7 +120,7 @@ class Hash
      * @param string $hash
      * @access public
      */
-    function __construct($hash = 'sha256')
+    public function __construct($hash = 'sha256')
     {
         $this->setHash($hash);
 
@@ -136,7 +136,7 @@ class Hash
      * @access public
      * @param string $key
      */
-    function setKey($key = false)
+    public function setKey($key = false)
     {
         $this->key = $key;
     }
@@ -149,7 +149,7 @@ class Hash
      * @access public
      * @return string
      */
-    function getHash()
+    public function getHash()
     {
         return $this->hashParam;
     }
@@ -160,7 +160,7 @@ class Hash
      * @access public
      * @param string $hash
      */
-    function setHash($hash)
+    public function setHash($hash)
     {
         $this->hashParam = $hash = strtolower($hash);
         switch ($hash) {
@@ -223,14 +223,14 @@ class Hash
         if ($hash == 'sha512/224' || $hash == 'sha512/256') {
             // from http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf#page=24
             $this->initial = $hash == 'sha512/256' ?
-                array(
+                [
                     '22312194FC2BF72C', '9F555FA3C84C64C2', '2393B86B6F53B151', '963877195940EABD',
                     '96283EE2A88EFFE3', 'BE5E1E2553863992', '2B0199FC2C85B8AA', '0EB72DDC81C52CA2'
-                ) :
-                array(
+                ] :
+                [
                     '8C3D37C819544DA2', '73E1996689DCD4D6', '1DFAB7AE32FF9C82', '679DD514582F9FCF',
                     '0F6D2B697BD44DA8', '77E36F7304C48942', '3F9D85A86A1D36C8', '1112E6AD91D692A1'
-                );
+                ];
             for ($i = 0; $i < 8; $i++) {
                 $this->initial[$i] = new BigInteger($this->initial[$i], 16);
                 $this->initial[$i]->setPrecision(64);
@@ -247,7 +247,7 @@ class Hash
      * @param string $text
      * @return string
      */
-    function hash($text)
+    public function hash($text)
     {
         switch ($this->hash) {
             case 'sha512/224':
@@ -286,7 +286,7 @@ class Hash
      * @access public
      * @return int
      */
-    function getLength()
+    public function getLength()
     {
         return $this->length << 3;
     }
@@ -297,7 +297,7 @@ class Hash
      * @access public
      * @return int
      */
-    function getLengthInBytes()
+    public function getLengthInBytes()
     {
         return $this->length;
     }
@@ -308,7 +308,7 @@ class Hash
      * @access public
      * @return int
      */
-    function getBlockLength()
+    public function getBlockLength()
     {
         return $this->blockSize;
     }
@@ -319,7 +319,7 @@ class Hash
      * @access public
      * @return int
      */
-    function getBlockLengthInBytes()
+    public function getBlockLengthInBytes()
     {
         return $this->blockSize >> 3;
     }
@@ -330,14 +330,14 @@ class Hash
      * @access private
      * @param string $m
      */
-    static function _sha512($m, $hash)
+    private static function _sha512($m, $hash)
     {
         static $k;
 
         if (!isset($k)) {
             // Initialize table of round constants
             // (first 64 bits of the fractional parts of the cube roots of the first 80 primes 2..409)
-            $k = array(
+            $k = [
                 '428a2f98d728ae22', '7137449123ef65cd', 'b5c0fbcfec4d3b2f', 'e9b5dba58189dbbc',
                 '3956c25bf348b538', '59f111f1b605d019', '923f82a4af194f9b', 'ab1c5ed5da6d8118',
                 'd807aa98a3030242', '12835b0145706fbe', '243185be4ee4b28c', '550c7dc3d5ffb4e2',
@@ -358,7 +358,7 @@ class Hash
                 '06f067aa72176fba', '0a637dc5a2c898a6', '113f9804bef90dae', '1b710b35131c471b',
                 '28db77f523047d84', '32caab7b40c72493', '3c9ebe0a15c9bebc', '431d67c49c100d4c',
                 '4cc5d4becb3e42b6', '597f299cfc657e2a', '5fcb6fab3ad6faec', '6c44198c4a475817'
-            );
+            ];
 
             for ($i = 0; $i < 80; $i++) {
                 $k[$i] = new BigInteger($k[$i], 16);
@@ -376,7 +376,7 @@ class Hash
         // Process the message in successive 1024-bit chunks
         $chunks = str_split($m, 128);
         foreach ($chunks as $chunk) {
-            $w = array();
+            $w = [];
             for ($i = 0; $i < 16; $i++) {
                 $temp = new BigInteger(Strings::shift($chunk, 8), 256);
                 $temp->setPrecision(64);
@@ -385,18 +385,18 @@ class Hash
 
             // Extend the sixteen 32-bit words into eighty 32-bit words
             for ($i = 16; $i < 80; $i++) {
-                $temp = array(
+                $temp = [
                           $w[$i - 15]->bitwise_rightRotate(1),
                           $w[$i - 15]->bitwise_rightRotate(8),
                           $w[$i - 15]->bitwise_rightShift(7)
-                );
+                ];
                 $s0 = $temp[0]->bitwise_xor($temp[1]);
                 $s0 = $s0->bitwise_xor($temp[2]);
-                $temp = array(
+                $temp = [
                           $w[$i - 2]->bitwise_rightRotate(19),
                           $w[$i - 2]->bitwise_rightRotate(61),
                           $w[$i - 2]->bitwise_rightShift(6)
-                );
+                ];
                 $s1 = $temp[0]->bitwise_xor($temp[1]);
                 $s1 = $s1->bitwise_xor($temp[2]);
                 $w[$i] = clone $w[$i - 16];
@@ -417,33 +417,33 @@ class Hash
 
             // Main loop
             for ($i = 0; $i < 80; $i++) {
-                $temp = array(
+                $temp = [
                     $a->bitwise_rightRotate(28),
                     $a->bitwise_rightRotate(34),
                     $a->bitwise_rightRotate(39)
-                );
+                ];
                 $s0 = $temp[0]->bitwise_xor($temp[1]);
                 $s0 = $s0->bitwise_xor($temp[2]);
-                $temp = array(
+                $temp = [
                     $a->bitwise_and($b),
                     $a->bitwise_and($c),
                     $b->bitwise_and($c)
-                );
+                ];
                 $maj = $temp[0]->bitwise_xor($temp[1]);
                 $maj = $maj->bitwise_xor($temp[2]);
                 $t2 = $s0->add($maj);
 
-                $temp = array(
+                $temp = [
                     $e->bitwise_rightRotate(14),
                     $e->bitwise_rightRotate(18),
                     $e->bitwise_rightRotate(41)
-                );
+                ];
                 $s1 = $temp[0]->bitwise_xor($temp[1]);
                 $s1 = $s1->bitwise_xor($temp[2]);
-                $temp = array(
+                $temp = [
                     $e->bitwise_and($f),
                     $g->bitwise_and($e->bitwise_not())
-                );
+                ];
                 $ch = $temp[0]->bitwise_xor($temp[1]);
                 $t1 = $h->add($s1);
                 $t1 = $t1->add($ch);
@@ -461,7 +461,7 @@ class Hash
             }
 
             // Add this chunk's hash to result so far
-            $hash = array(
+            $hash = [
                 $hash[0]->add($a),
                 $hash[1]->add($b),
                 $hash[2]->add($c),
@@ -470,7 +470,7 @@ class Hash
                 $hash[5]->add($f),
                 $hash[6]->add($g),
                 $hash[7]->add($h)
-            );
+            ];
         }
 
         // Produce the final hash value (big-endian)

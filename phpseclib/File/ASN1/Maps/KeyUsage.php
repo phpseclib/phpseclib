@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class KeyUsage
+abstract class KeyUsage
 {
     const MAP = [
         'type'    => ASN1::TYPE_BIT_STRING,

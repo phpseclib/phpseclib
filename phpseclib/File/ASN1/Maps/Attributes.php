@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Attributes
+abstract class Attributes
 {
     const MAP = [
         'type'     => ASN1::TYPE_SET,

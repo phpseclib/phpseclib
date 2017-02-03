@@ -30,7 +30,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class RelativeDistinguishedName
+abstract class RelativeDistinguishedName
 {
     const MAP = [
         'type'     => ASN1::TYPE_SET,

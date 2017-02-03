@@ -21,7 +21,7 @@ namespace phpseclib\Common\Functions;
  * @package Functions\Strings
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class Strings
+abstract class Strings
 {
     /**
      * String Shift
@@ -33,10 +33,27 @@ class Strings
      * @access public
      * @return string
      */
-    static function shift(&$string, $index = 1)
+    public static function shift(&$string, $index = 1)
     {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
+        return $substr;
+    }
+
+    /**
+     * String Pop
+     *
+     * Inspired by array_pop
+     *
+     * @param string $string
+     * @param int $index
+     * @access public
+     * @return string
+     */
+    public static function pop(&$string, $index = 1)
+    {
+        $substr = substr($string, -$index);
+        $string = substr($string, 0, -$index);
         return $substr;
     }
 }

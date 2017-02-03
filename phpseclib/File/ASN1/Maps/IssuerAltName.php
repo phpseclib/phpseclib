@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class IssuerAltName
+abstract class IssuerAltName
 {
     const MAP = GeneralNames::MAP;
 }

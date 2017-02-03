@@ -24,7 +24,7 @@ use phpseclib\File\ASN1;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PrivateKey
+abstract class PrivateKey
 {
     const MAP = ['type' => ASN1::TYPE_OCTET_STRING];
 }

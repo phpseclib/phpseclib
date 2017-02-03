@@ -44,14 +44,14 @@ abstract class PKCS
      * @access private
      * @param int
      */
-    static $format = self::MODE_ANY;
+    protected static $format = self::MODE_ANY;
 
     /**
      * Require base64-encoded PEM's be supplied
      *
      * @access public
      */
-    static function requirePEM()
+    public static function requirePEM()
     {
         self::$format = self::MODE_PEM;
     }
@@ -61,7 +61,7 @@ abstract class PKCS
      *
      * @access public
      */
-    static function requireDER()
+    public static function requireDER()
     {
         self::$format = self::MODE_DER;
     }
@@ -73,7 +73,7 @@ abstract class PKCS
      *
      * @access public
      */
-    static function requireAny()
+    public static function requireAny()
     {
         self::$format = self::MODE_ANY;
     }
