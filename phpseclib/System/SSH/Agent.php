@@ -37,6 +37,7 @@ use ParagonIE\ConstantTime\Base64;
 use phpseclib\Crypt\RSA;
 use phpseclib\Exception\BadConfigurationException;
 use phpseclib\System\SSH\Agent\Identity;
+use phpseclib\Common\Functions\Objects;
 
 /**
  * Pure-PHP ssh-agent client identity factory
@@ -88,30 +89,43 @@ class Agent
      * @var resource
      * @access private
      */
-    var $fsock;
+    private $fsock;
 
     /**
      * Agent forwarding status
      *
+     * @var int
      * @access private
      */
-    var $forward_status = self::FORWARD_NONE;
+    private $forward_status = self::FORWARD_NONE;
 
     /**
      * Buffer for accumulating forwarded authentication
      * agent data arriving on SSH data channel destined
      * for agent unix socket
      *
+     * @var string
      * @access private
      */
-    var $socket_buffer = '';
+    private $socket_buffer = '';
 
     /**
      * Tracking the number of bytes we are expecting
      * to arrive for the agent socket on the SSH data
      * channel
+     *
+     * @var int
+     * @access private
      */
-    var $expected_bytes = 0;
+    private $expected_bytes = 0;
+
+    /**
+     * The current request channel
+     *
+     * @var int
+     * @access private
+     */
+    private $request_channel;
 
     /**
      * Default Constructor
@@ -121,7 +135,7 @@ class Agent
      * @throws \RuntimeException on connection errors
      * @access public
      */
-    function __construct()
+    public function __construct()
     {
         switch (true) {
             case isset($_SERVER['SSH_AUTH_SOCK']):
@@ -150,7 +164,7 @@ class Agent
      * @throws \RuntimeException on receipt of unexpected packets
      * @access public
      */
-    function requestIdentities()
+    public function requestIdentities()
     {
         if (!$this->fsock) {
             return [];
@@ -209,7 +223,7 @@ class Agent
      * @return bool
      * @access public
      */
-    function startSSHForwarding($ssh)
+    public function startSSHForwarding($ssh)
     {
         if ($this->forward_status == self::FORWARD_NONE) {
             $this->forward_status = self::FORWARD_REQUEST;
@@ -223,34 +237,33 @@ class Agent
      * @return bool
      * @access private
      */
-    function _request_forwarding($ssh)
+    private function request_forwarding($ssh)
     {
-        $request_channel = $ssh->_get_open_channel();
-        if ($request_channel === false) {
+        $this->request_channel = Objects::callFunc($ssh, 'get_open_channel');
+        if ($this->request_channel === false) {
             return false;
         }
 
         $packet = pack(
             'CNNa*C',
             NET_SSH2_MSG_CHANNEL_REQUEST,
-            $ssh->server_channels[$request_channel],
+            Objects::getVar($ssh, 'server_channels')[$this->request_channel],
             strlen('auth-agent-req@openssh.com'),
             'auth-agent-req@openssh.com',
             1
         );
 
-        $ssh->channel_status[$request_channel] = NET_SSH2_MSG_CHANNEL_REQUEST;
-
-        if (!$ssh->_send_binary_packet($packet)) {
+        $this->update_channel_status($ssh, NET_SSH2_MSG_CHANNEL_REQUEST);
+        if (!Objects::callFunc($ssh, 'send_binary_packet', [$packet])) {
             return false;
         }
 
-        $response = $ssh->_get_channel_packet($request_channel);
+        $response = Objects::callFunc($ssh, 'get_channel_packet', [$this->request_channel]);
         if ($response === false) {
             return false;
         }
 
-        $ssh->channel_status[$request_channel] = NET_SSH2_MSG_CHANNEL_OPEN;
+        $this->update_channel_status($ssh, NET_SSH2_MSG_CHANNEL_OPEN);
         $this->forward_status = self::FORWARD_ACTIVE;
 
         return true;
@@ -266,10 +279,10 @@ class Agent
      * @param Net_SSH2 $ssh
      * @access private
      */
-    function _on_channel_open($ssh)
+    private function on_channel_open($ssh)
     {
         if ($this->forward_status == self::FORWARD_REQUEST) {
-            $this->_request_forwarding($ssh);
+            $this->request_forwarding($ssh);
         }
     }
 
@@ -281,7 +294,7 @@ class Agent
      * @throws \RuntimeException on connection errors
      * @access private
      */
-    function _forward_data($data)
+    private function forward_data($data)
     {
         if ($this->expected_bytes > 0) {
             $this->socket_buffer.= $data;
@@ -309,5 +322,19 @@ class Agent
         $agent_reply_data = current(unpack('a*', $agent_reply_data));
 
         return pack('Na*', $agent_reply_bytes, $agent_reply_data);
+    }
+
+    /**
+     * Forward data to SSH Agent and return data reply
+     *
+     * @param \phpseclib\Net\SSH2 $ssh
+     * @param integer $status
+     * @access private
+     */
+    private function update_channel_status($ssh, $status)
+    {
+        $temp = Objects::getVar($ssh, 'channel_status');
+        $temp[$this->request_channel] = $status;
+        Objects::setVar($ssh, 'channel_status', $temp);
     }
 }
