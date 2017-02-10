@@ -39,6 +39,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             BlockCipher::MODE_CTR,
             BlockCipher::MODE_OFB,
             BlockCipher::MODE_CFB,
+            BlockCipher::MODE_IGE,
         );
         $plaintexts = array(
             '',
@@ -61,6 +62,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         foreach ($modes as $mode) {
             foreach ($plaintexts as $plaintext) {
                 foreach ($ivs as $iv) {
+                    if ($mode === BlockCipher::MODE_IGE) $iv .= strrev($iv);
                     foreach ($keys as $key) {
                         $result[] = array($mode, $plaintext, $iv, $key);
                     }
@@ -139,6 +141,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             BlockCipher::MODE_CTR,
             BlockCipher::MODE_OFB,
             BlockCipher::MODE_CFB,
+            BlockCipher::MODE_IGE,
         );
 
         $combos = array(
@@ -176,7 +179,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
      */
     public function testContinuousBufferBattery($op, $mode, $test)
     {
-        $iv = str_repeat('x', 16);
+        $iv = str_repeat('x', 16*($mode === BlockCipher::MODE_IGE ? 2 : 1));
         $key = str_repeat('a', 16);
 
         $aes = new AES($mode);
@@ -227,7 +230,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             return;
         }
 
-        $iv = str_repeat('x', 16);
+        $iv = str_repeat('x', 16*($mode === BlockCipher::MODE_IGE ? 2 : 1));
         $key = str_repeat('a', 16);
 
         $aes = new AES($mode);
