@@ -136,6 +136,14 @@ abstract class SymmetricKey
     protected $block_size = 16;
 
     /**
+     * The IV Length of the block cipher
+     *
+     * @var int
+     * @access private
+     */
+    protected $iv_size = 16;
+
+    /**
      * The Key
      *
      * @see self::setKey()
@@ -470,11 +478,12 @@ abstract class SymmetricKey
             case self::MODE_CBC:
                 $this->paddable = true;
                 break;
+            case self::MODE_IGE:
+                $this->iv_size = $this->block_size*2;
             case self::MODE_CTR:
             case self::MODE_CFB:
             case self::MODE_OFB:
             case self::MODE_STREAM:
-            case self::MODE_IGE:
                 $this->paddable = false;
                 break;
             default:
@@ -505,8 +514,8 @@ abstract class SymmetricKey
             throw new \InvalidArgumentException('This algorithm does not use an IV.');
         }
 
-        if (strlen($iv) != $this->block_size*($this->mode === self::MODE_IGE ? 2 : 1)) {
-            throw new \LengthException('Received initialization vector of size ' . strlen($iv) . ', but size ' . $this->block_size*($this->mode === self::MODE_IGE ? 2 : 1). ' is required');
+        if (strlen($iv) != $this->iv_size) {
+            throw new \LengthException('Received initialization vector of size ' . strlen($iv) . ', but size ' . $this->iv_size. ' is required');
         }
 
 
