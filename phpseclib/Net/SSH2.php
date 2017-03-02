@@ -3984,8 +3984,8 @@ class Net_SSH2
                 return $this->message_number_log;
                 break;
             case NET_SSH2_LOG_COMPLEX:
-                return $this->_format_log($this->message_log, $this->message_number_log);
-                break;
+                $log = $this->_format_log($this->message_log, $this->message_number_log);
+                return PHP_SAPI == 'cli' ? $log : '<pre>' . $log . '</pre>';
             default:
                 return false;
         }
