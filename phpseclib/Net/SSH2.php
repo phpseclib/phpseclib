@@ -3879,7 +3879,6 @@ class SSH2
         switch (NET_SSH2_LOGGING) {
             case self::LOG_SIMPLE:
                 return $this->message_number_log;
-                break;
             case self::LOG_COMPLEX:
                 $log = $this->_format_log($this->message_log, $this->message_number_log);
                 return PHP_SAPI == 'cli' ? $log : '<pre>' . $log . '</pre>';
