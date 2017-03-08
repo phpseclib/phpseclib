@@ -453,4 +453,22 @@ Mj93S
 
         runkit_constant_remove('FILE_X509_IGNORE_TYPE');
     }
+
+    // fixed by #1104
+    public function testMultipleDomainNames()
+    {
+        extract(RSA::createKey(512));
+
+        $subject = new X509();
+        $subject->setDomain('example.com', 'example.net');
+
+        $subject->setPublicKey($publickey);
+
+        $issuer = new X509();
+        $issuer->setPrivateKey($privatekey);
+        $issuer->setDN($subject->getDN());
+
+        $x509 = new X509();
+        $x509->sign($issuer, $subject);
+    }
 }
