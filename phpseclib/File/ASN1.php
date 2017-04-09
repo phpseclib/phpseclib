@@ -1138,7 +1138,7 @@ class ASN1
            http://www.obj-sys.com/asn1tutorial/node14.html */
 
         $pattern = $tag == self::TYPE_UTC_TIME ?
-            '#(..)(..)(..)(..)(..)(..)(.*)#' :
+            '#^(..)(..)(..)(..)(..)(..)?(.*)$#' :
             '#(....)(..)(..)(..)(..)(..).*([Z+-].*)$#';
 
         preg_match($pattern, $content, $matches);
@@ -1163,7 +1163,7 @@ class ASN1
             $timezone = 0;
         }
 
-        return @$mktime($hour, $minute, $second, $month, $day, $year) + $timezone;
+        return @$mktime((int)$hour, (int)$minute, (int)$second, (int)$month, (int)$day, (int)$year) + $timezone;
     }
 
     /**
