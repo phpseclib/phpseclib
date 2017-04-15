@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RSAPublicKey
+ * DSAPublicKey
  *
  * PHP version 5
  *
@@ -18,19 +18,13 @@ namespace phpseclib\File\ASN1\Maps;
 use phpseclib\File\ASN1;
 
 /**
- * RSAPublicKey
+ * DSAPublicKey
  *
  * @package ASN1
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-abstract class RSAPublicKey
+abstract class DSAPublicKey
 {
-    const MAP = [
-        'type' => ASN1::TYPE_SEQUENCE,
-        'children' => [
-            'modulus' =>         ['type' => ASN1::TYPE_INTEGER],
-            'publicExponent' =>  ['type' => ASN1::TYPE_INTEGER]
-        ]
-    ];
+    const MAP = ['type' => ASN1::TYPE_INTEGER];
 }

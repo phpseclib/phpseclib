@@ -17,7 +17,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\RSA;
+namespace phpseclib\Crypt\RSA\Keys;
 
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\Math\BigInteger;
@@ -173,6 +173,10 @@ abstract class MSBLOB
      */
     public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
     {
+        if (count($primes) != 2) {
+            throw new \InvalidArgumentException('MSBLOB does not support multi-prime RSA keys');
+        }
+
         $n = strrev($n->toBytes());
         $e = str_pad(strrev($e->toBytes()), 4, "\0");
         $key = pack('aavV', chr(self::PRIVATEKEYBLOB), chr(2), 0, self::CALG_RSA_KEYX);

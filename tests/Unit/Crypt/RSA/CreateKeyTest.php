@@ -7,7 +7,7 @@
  */
 
 use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\RSA\PKCS1;
+use phpseclib\Crypt\RSA\Keys\PKCS1;
 
 class Unit_Crypt_RSA_CreateKeyTest extends PhpseclibTestCase
 {
