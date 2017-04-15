@@ -26,6 +26,7 @@ namespace phpseclib\Crypt;
 
 use phpseclib\Crypt\Common\BlockCipher;
 
+if (!function_exists('crypt_random_string')) {
 /**
  * Pure-PHP Random Number Generator
  *
@@ -219,4 +220,5 @@ abstract class Random
         unset($arr['__phpseclib_marker']);
         return serialize($safearr);
     }
+}
 }
