@@ -25,6 +25,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
                     $engine = 'mcrypt';
             }
             self::markTestSkipped('Unable to initialize ' . $engine . ' engine');
+return false;
         }
     }
 
@@ -274,7 +275,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
-        $this->_checkEngine($aes);
+        if (!$this->_checkEngine($aes)) return;
 
         $result = bin2hex($aes->encrypt(pack('H*', 'f34481ec3cc627bacd5dc3fb08f273e6')));
         $this->assertSame($result, '0336763e966d92595a567cc9ce537f5e');
@@ -301,7 +302,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
-        $this->_checkEngine($aes);
+        if (!$this->_checkEngine($aes)) return;
 
         $result = bin2hex($aes->encrypt(pack('H*', '1b077a6af4b7f98229de786d7516b639')));
         $this->assertSame($result, '275cfc0413d8ccb70513c3859b1d0f72');
@@ -326,7 +327,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->disablePadding();
 
         $aes->setPreferredEngine($this->engine);
-        $this->_checkEngine($aes);
+        if (!$this->_checkEngine($aes)) return;
 
         $result = bin2hex($aes->encrypt(pack('H*', '014730f80ac625fe84f026c60bfd547d')));
         $this->assertSame($result, '5c9d844ed46f9885085e5d6a4f94c7d7');
