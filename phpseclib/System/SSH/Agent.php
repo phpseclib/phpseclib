@@ -338,3 +338,4 @@ class Agent
         Objects::setVar($ssh, 'channel_status', $temp);
     }
 }
+
