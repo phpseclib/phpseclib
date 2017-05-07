@@ -1973,7 +1973,14 @@ class Net_SFTP extends Net_SSH2
                 break;
             case is_resource($data):
                 $mode = $mode & ~NET_SFTP_LOCAL_FILE;
-                $fp = $data;
+                $info = stream_get_meta_data($data);
+                if ($info['wrapper_type'] == 'PHP' && $info['stream_type'] == 'Input') {
+                    $fp = fopen('php://memory', 'w+');
+                    stream_copy_to_stream($data, $fp);
+                    rewind($fp);
+                } else {
+                    $fp = $data;
+                }
                 break;
             case $mode & NET_SFTP_LOCAL_FILE:
                 if (!is_file($data)) {
