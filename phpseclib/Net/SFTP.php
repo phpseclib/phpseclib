@@ -1916,7 +1916,14 @@ class SFTP extends SSH2
                 break;
             case is_resource($data):
                 $mode = $mode & ~self::SOURCE_LOCAL_FILE;
-                $fp = $data;
+                $info = stream_get_meta_data($data);
+                if ($info['wrapper_type'] == 'PHP' && $info['stream_type'] == 'Input') {
+                    $fp = fopen('php://memory', 'w+');
+                    stream_copy_to_stream($data, $fp);
+                    rewind($fp);
+                } else {
+                    $fp = $data;
+                }
                 break;
             case $mode & self::SOURCE_LOCAL_FILE:
                 if (!is_file($data)) {
