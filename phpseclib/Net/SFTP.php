@@ -2315,6 +2315,8 @@ class SFTP extends SSH2
                 }
                 $this->remove_from_stat_cache($temp);
 
+                $this->_remove_from_stat_cache($temp);
+
                 $i++;
 
                 if ($i >= NET_SFTP_QUEUE_SIZE) {
@@ -2330,6 +2332,8 @@ class SFTP extends SSH2
             return false;
         }
         $this->remove_from_stat_cache($path);
+
+        $this->_remove_from_stat_cache($path);
 
         $i++;
 
