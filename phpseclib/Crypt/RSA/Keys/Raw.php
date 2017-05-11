@@ -23,7 +23,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\RSA;
+namespace phpseclib\Crypt\RSA\Keys;
 
 use phpseclib\Math\BigInteger;
 

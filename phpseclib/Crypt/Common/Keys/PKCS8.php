@@ -25,7 +25,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\Common;
+namespace phpseclib\Crypt\Common\Keys;
 
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\Crypt\DES;
@@ -264,6 +264,10 @@ abstract class PKCS8 extends PKCS
      */
     private static function initialize_static_variables()
     {
+        if (!static::$childOIDsLoaded) {
+            ASN1::loadOIDs([static::OID_VALUE => static::OID_NAME]);
+            static::$childOIDsLoaded = true;
+        }
         if (!self::$oidsLoaded) {
             // from https://tools.ietf.org/html/rfc2898
             ASN1::loadOIDs([
@@ -307,6 +311,7 @@ abstract class PKCS8 extends PKCS
                 '2.16.840.1.101.3.4.1.22'=> 'aes192-CBC-PAD',
                 '2.16.840.1.101.3.4.1.42'=> 'aes256-CBC-PAD'
             ]);
+            self::$oidsLoaded = true;
         }
     }
 
@@ -453,7 +458,9 @@ abstract class PKCS8 extends PKCS
 
         $private = ASN1::asn1map($decoded[0], Maps\PrivateKeyInfo::MAP);
         if (is_array($private)) {
-            return $private + $meta;
+            return $private['privateKeyAlgorithm']['algorithm'] == static::OID_NAME ?
+                $private + $meta :
+                false;
         }
 
         // EncryptedPrivateKeyInfo and PublicKeyInfo have largely identical "signatures". the only difference
@@ -462,7 +469,7 @@ abstract class PKCS8 extends PKCS
         // bit strings wanting a non-zero amount of bits trimmed are not supported
         $public = ASN1::asn1map($decoded[0], Maps\PublicKeyInfo::MAP);
         if (is_array($public)) {
-            if ($public['publicKey'][0] != "\0") {
+            if ($public['publicKey'][0] != "\0" || $public['publicKeyAlgorithm']['algorithm'] != static::OID_NAME) {
                 return false;
             }
             $public['publicKey'] = substr($public['publicKey'], 1);
@@ -476,19 +483,22 @@ abstract class PKCS8 extends PKCS
      * Wrap a private key appropriately
      *
      * @access public
-     * @param string $algorithm
      * @param string $key
      * @param string $attr
+     * @param mixed $params
      * @param string $password
      * @return string
      */
-    protected static function wrapPrivateKey($key, $algorithm, $attr, $password)
+    protected static function wrapPrivateKey($key, $attr, $params, $password)
     {
         self::initialize_static_variables();
 
         $key = [
             'version' => 'v1',
-            'privateKeyAlgorithm' => ['algorithm' => $algorithm], // parameters are not currently supported
+            'privateKeyAlgorithm' => [
+                'algorithm' => static::OID_NAME,
+                'parameters' => $params
+             ],
             'privateKey' => $key
         ];
         if (!empty($attr)) {
@@ -575,16 +585,17 @@ abstract class PKCS8 extends PKCS
      *
      * @access public
      * @param string $key
+     * @param mixed $params
      * @return string
      */
-    protected static function wrapPublicKey($key, $algorithm)
+    protected static function wrapPublicKey($key, $params)
     {
         self::initialize_static_variables();
 
         $key = [
             'publicKeyAlgorithm' => [
-                'algorithm' => $algorithm,
-                'parameters' => null // parameters are not currently supported
+                'algorithm' => static::OID_NAME,
+                'parameters' => $params
             ],
             'publicKey' => "\0" . $key
         ];

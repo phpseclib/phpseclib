@@ -453,4 +453,64 @@ Mj93S
 
         runkit_constant_remove('FILE_X509_IGNORE_TYPE');
     }
+
+    // fixed by #1104
+    public function testMultipleDomainNames()
+    {
+        extract(RSA::createKey(512));
+
+        $subject = new X509();
+        $subject->setDomain('example.com', 'example.net');
+
+        $subject->setPublicKey($publickey);
+
+        $issuer = new X509();
+        $issuer->setPrivateKey($privatekey);
+        $issuer->setDN($subject->getDN());
+
+        $x509 = new X509();
+        $x509->sign($issuer, $subject);
+    }
+
+    public function testUtcTimeWithoutSeconds()
+    {
+        $test = '-----BEGIN CERTIFICATE-----
+MIIGFDCCBPygAwIBAgIDKCHVMA0GCSqGSIb3DQEBBQUAMIHcMQswCQYDVQQGEwJVUzEQMA4GA1UE
+CBMHQXJpem9uYTETMBEGA1UEBxMKU2NvdHRzZGFsZTElMCMGA1UEChMcU3RhcmZpZWxkIFRlY2hu
+b2xvZ2llcywgSW5jLjE5MDcGA1UECxMwaHR0cDovL2NlcnRpZmljYXRlcy5zdGFyZmllbGR0ZWNo
+LmNvbS9yZXBvc2l0b3J5MTEwLwYDVQQDEyhTdGFyZmllbGQgU2VjdXJlIENlcnRpZmljYXRpb24g
+QXV0aG9yaXR5MREwDwYDVQQFEwgxMDY4ODQzNTAcFwsxNDAxMDcwMDAwWhcNMTYwNDAxMDcwMDAw
+WjCB6zETMBEGCysGAQQBgjc8AgEDEwJVUzEYMBYGCysGAQQBgjc8AgECEwdBcml6b25hMR0wGwYD
+VQQPExRQcml2YXRlIE9yZ2FuaXphdGlvbjEUMBIGA1UEBRMLUi0xNzI0NzQxLTYxCzAJBgNVBAYT
+AlVTMRAwDgYDVQQIEwdBcml6b25hMRMwEQYDVQQHEwpTY290dHNkYWxlMSQwIgYDVQQKExtTdGFy
+ZmllbGQgVGVjaG5vbG9naWVzLCBMTEMxKzApBgNVBAMTInZhbGlkLnNmaS5jYXRlc3Quc3RhcmZp
+ZWxkdGVjaC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCt1LHQOza9tkKxwGL+
+/yKi/Fe5HM0sjvcM4ic1XVrvpewa4P/04IzGSjIGO3CXaSArxQMSzsTt2dcO9tSJ1Zk8c9NZXM8e
+Vqx92iTMEf9OQcubWpzWmrPc3TAFhbVnfEmCptsXEgtxbAIbntrNeDk/hBPdl4DYFYRdm3ZTk4JM
+If/quDZe5Oti53J0UsxWXSSoqKyPNdb671Q+OTQfSDj7kVF4+Ri3FIeAV16d2UnpBW1bgNqA5yIT
+RskHE4bX98HDNHUTHioHpgA+fXfejWkGB/0FQN4HbZcysYHhf1L5cWBtz9w5J00YmjM5fzWvTc3U
+UF9ou7m7JE4aqEbNOWb9AgMBAAGjggHOMIIByjAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIF
+oDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwLQYDVR0RBCYwJIIidmFsaWQuc2ZpLmNh
+dGVzdC5zdGFyZmllbGR0ZWNoLmNvbTAdBgNVHQ4EFgQUcO+QEqZcHphPW9szww9ty+1AGmQwHwYD
+VR0jBBgwFoAUSUtSJ9EbvPKhIWpie1FCeorX1VYwOAYDVR0fBDEwLzAtoCugKYYnaHR0cDovL2Ny
+bC5zdGFyZmllbGR0ZWNoLmNvbS9zZnMzLTAuY3JsMIGNBggrBgEFBQcBAQSBgDB+MCoGCCsGAQUF
+BzABhh5odHRwOi8vb2NzcC5zdGFyZmllbGR0ZWNoLmNvbS8wUAYIKwYBBQUHMAKGRGh0dHA6Ly9j
+ZXJ0aWZpY2F0ZXMuc3RhcmZpZWxkdGVjaC5jb20vcmVwb3NpdG9yeS9zZl9pbnRlcm1lZGlhdGUu
+Y3J0MFIGA1UdIARLMEkwRwYLYIZIAYb9bgEHFwMwODA2BggrBgEFBQcCARYqaHR0cDovL2NlcnRz
+LnN0YXJmaWVsZHRlY2guY29tL3JlcG9zaXRvcnkvMA0GCSqGSIb3DQEBBQUAA4IBAQAViYkLUjQk
+xWRmZl4DutL0/9/wJSURcJ1qunLP+TImJFp0A9RE/MNKZOmQoAEoH6hMg7FL4etkvTcnruTdcx+3
+mvqYiECUiUEx6pkx3dmkYgZACEuk2nfyJ0MkV/zwzqmI8aV+kunpOQv93aePZbrBgaAzkE8jDlEx
+td7c4pE7JF40jxmvDwjZHwpyNDULreGtFBij7JcWJCfihM3uetqrao0kOoeih1PQyJXtz2RldhFY
+s6Jdk3ILYv+84t5UMO+aS9nVBXIcbgaGjIMZjHDgR/tE9FKFB66k8UTDzAwwEs38VV24zx6hlOzT
+F7xAUxmPUnNb2teatMf2Rmj0fs+d
+-----END CERTIFICATE-----
+';
+
+        $x509 = new X509();
+
+        $cert = $x509->loadX509($test);
+
+        $this->assertEquals($cert['tbsCertificate']['validity']['notBefore']['utcTime'], 'Tue, 07 Jan 2014 00:00:00 +0000');
+        $this->assertEquals($cert['tbsCertificate']['validity']['notAfter']['utcTime'], 'Fri, 01 Apr 2016 07:00:00 +0000');
+    }
 }

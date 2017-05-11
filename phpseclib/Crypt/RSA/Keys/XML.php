@@ -18,7 +18,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\RSA;
+namespace phpseclib\Crypt\RSA\Keys;
 
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\Math\BigInteger;
@@ -116,7 +116,7 @@ abstract class XML
     public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
     {
         if (count($primes) != 2) {
-            return false;
+            throw new \InvalidArgumentException('XML does not support multi-prime RSA keys');
         }
         return "<RSAKeyValue>\r\n" .
                '  <Modulus>' . Base64::encode($n->toBytes()) . "</Modulus>\r\n" .

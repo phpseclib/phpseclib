@@ -13,7 +13,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\Common;
+namespace phpseclib\Crypt\Common\Keys;
 
 use ParagonIE\ConstantTime\Base64;
 use ParagonIE\ConstantTime\Hex;
@@ -106,7 +106,7 @@ abstract class PKCS1 extends PKCS
     /**
      * Generate a symmetric key for PKCS#1 keys
      *
-     * @access public
+     * @access private
      * @param string $password
      * @param string $iv
      * @param int $length
