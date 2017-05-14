@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.5 - 2017-05-07
+
+- SSH2: don't use timeout value of 0 for fsockopen (#775)
+- SSH2: make it so disabling PTY closes exec() channel if it's open (#1009)
+- SSH2: include `<pre>` tags in getLog result when SAPI isn't CLI
+- SFTP: don't assume current directory when $path parameter for delete is null (#1059)
+- SFTP: fix put() with php://input as source (#1119)
+- ASN1: fix UTCTime parsing (#1110)
+- X509: ignore certificate transparency extension (#1073)
+- Crypt: OpenSSL apparently supports variable size keys (#1085)
+
 ## 2.0.4 - 2016-10-03
 
 - fix E_DEPRECATED errors on PHP 7.1 (#1041)
@@ -49,6 +60,17 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.6 - 2017-05-07
+
+- SSH2: don't use timeout value of 0 for fsockopen (#775)
+- SSH2: make it so disabling PTY closes exec() channel if it's open (#1009)
+- SSH2: include `<pre>` tags in getLog result when SAPI isn't CLI
+- SFTP: don't assume current directory when $path parameter for delete is null (#1059)
+- SFTP: fix put() with php://input as source (#1119)
+- ASN1: fix UTCTime parsing (#1110)
+- X509: ignore certificate transparency extension (#1073)
+- Crypt: OpenSSL apparently supports variable size keys (#1085)
 
 ## 1.0.5 - 2016-10-22
 
