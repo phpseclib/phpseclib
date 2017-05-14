@@ -390,6 +390,9 @@ class Crypt_Blowfish extends Crypt_Base
     function isValidEngine($engine)
     {
         if ($engine == CRYPT_ENGINE_OPENSSL) {
+            if (version_compare(PHP_VERSION, '5.3.7') < 0 && $this->key_length != 16) {
+                return false;
+            }
             if ($this->key_length < 16) {
                 return false;
             }
