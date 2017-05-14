@@ -3466,7 +3466,7 @@ class X509
 
         $altName = array();
 
-        if (isset($subject->domains) && count($subject->domains) > 1) {
+        if (isset($subject->domains) && count($subject->domains)) {
             $altName = array_map(array('\phpseclib\File\X509', '_dnsName'), $subject->domains);
         }
 
