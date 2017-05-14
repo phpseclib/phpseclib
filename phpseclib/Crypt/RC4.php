@@ -145,7 +145,23 @@ class RC4 extends StreamCipher
     public function isValidEngine($engine)
     {
         if ($engine == self::ENGINE_OPENSSL) {
-            $this->cipher_name_openssl = 'rc4-40';
+            if (version_compare(PHP_VERSION, '5.3.7') >= 0) {
+                $this->cipher_name_openssl = 'rc4-40';
+            } else {
+                switch (strlen($this->key)) {
+                    case 5:
+                        $this->cipher_name_openssl = 'rc4-40';
+                        break;
+                    case 8:
+                        $this->cipher_name_openssl = 'rc4-64';
+                        break;
+                    case 16:
+                        $this->cipher_name_openssl = 'rc4';
+                        break;
+                    default:
+                        return false;
+                }
+            }
         }
 
         return parent::isValidEngine($engine);
