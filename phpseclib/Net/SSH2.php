@@ -1286,6 +1286,7 @@ class SSH2
 
         $mac_algorithms = [
             // from <http://www.ietf.org/rfc/rfc6668.txt>:
+            'hmac-sha2-512',// OPTIONAL        HMAC-SHA512 (digest length = key length = 64)
             'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
 
             'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
@@ -1768,6 +1769,10 @@ class SSH2
                 $this->hmac_create = new Hash('sha256');
                 $createKeyLength = 32;
                 break;
+            case 'hmac-sha2-512':
+                $this->hmac_create = new Crypt_Hash('sha512');
+                $createKeyLength = 64;
+                break;
             case 'hmac-sha1':
                 $this->hmac_create = new Hash('sha1');
                 $createKeyLength = 20;
@@ -1798,6 +1803,11 @@ class SSH2
                 $this->hmac_check = new Hash('sha256');
                 $checkKeyLength = 32;
                 $this->hmac_size = 32;
+                break;
+            case 'hmac-sha2-512':
+                $this->hmac_check = new Crypt_Hash('sha512');
+                $checkKeyLength = 64;
+                $this->hmac_size = 64;
                 break;
             case 'hmac-sha1':
                 $this->hmac_check = new Hash('sha1');
