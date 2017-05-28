@@ -3320,7 +3320,7 @@ class SSH2
     public function disablePTY()
     {
         if ($this->in_request_pty_exec) {
-            $this->_close_channel(self::CHANNEL_EXEC);
+            $this->close_channel(self::CHANNEL_EXEC);
             $this->in_request_pty_exec = false;
         }
         $this->request_pty = false;
@@ -3874,7 +3874,7 @@ class SSH2
             case self::LOG_SIMPLE:
                 return $this->message_number_log;
             case self::LOG_COMPLEX:
-                $log = $this->_format_log($this->message_log, $this->message_number_log);
+                $log = $this->format_log($this->message_log, $this->message_number_log);
                 return PHP_SAPI == 'cli' ? $log : '<pre>' . $log . '</pre>';
             default:
                 return false;
