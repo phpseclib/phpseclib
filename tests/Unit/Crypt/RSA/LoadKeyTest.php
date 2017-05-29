@@ -404,7 +404,7 @@ AAIBAAIBAAIBAAIBAA==
 
     public function testGoodBad()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new RSA();
 
         $key = '-----BEGIN RSA PUBLIC KEY-----
 MIIBCgKCAQEA61BjmfXGEvWmegnBGSuS+rU9soUg2FnODva32D1AqhwdziwHINFa
