@@ -935,9 +935,9 @@ gPiUWOPatVkt7+Bs3h5Ramxh7XjBOXeulmCpGSynXNcpZ/06+vofGi/2MlpQZNhH
 Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
 -----END RSA PUBLIC KEY-----';
 
-        $this->assertTrue($rsa->loadKey($key));
+        $this->assertTrue($rsa->load($key));
         $this->assertInternalType('string', $rsa->getPublicKey());
-        $this->assertFalse($rsa->loadKey('zzz'));
+        $this->assertFalse($rsa->load('zzz'));
         $this->assertFalse($rsa->getPublicKey());
     }
 }
