@@ -184,6 +184,7 @@ class Agent
         $identities = [];
         $keyCount = current(unpack('N', fread($this->fsock, 4)));
         for ($i = 0; $i < $keyCount; $i++) {
+            $key_comment = '';
             $length = current(unpack('N', fread($this->fsock, 4)));
             $key_blob = fread($this->fsock, $length);
             $key_str = 'ssh-rsa ' . Base64::encode($key_blob);
