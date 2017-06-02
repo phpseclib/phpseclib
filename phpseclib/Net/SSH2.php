@@ -1289,14 +1289,27 @@ class Net_SSH2
             //'zlib' // OPTIONAL        ZLIB (LZ77) compression
         );
 
+        $removeItemsFromArray = function ($main, $itemsToRemove) {
+            return array_values(array_diff($main, $itemsToRemove));
+        };
+
         // some SSH servers have buggy implementations of some of the above algorithms
+        $problematicAlgorithms = array('hmac-sha1-96', 'hmac-md5-96');
         switch ($this->server_identifier) {
             case 'SSH-2.0-SSHD':
-                $mac_algorithms = array_values(array_diff(
+                $mac_algorithms = $removeItemsFromArray(
                     $mac_algorithms,
-                    array('hmac-sha1-96', 'hmac-md5-96')
-                ));
+                    $problematicAlgorithms
+                );
+                break;
+            case strpos($this->server_identifier, 'SSH-2.0-DLINK') !== false:
+                $mac_algorithms = $removeItemsFromArray(
+                    $mac_algorithms,
+                    $problematicAlgorithms
+                );
+                break;
         }
+
 
         static $str_kex_algorithms, $str_server_host_key_algorithms,
                $encryption_algorithms_server_to_client, $mac_algorithms_server_to_client, $compression_algorithms_server_to_client,
