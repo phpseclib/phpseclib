@@ -1290,8 +1290,9 @@ class Net_SSH2
         );
 
         // some SSH servers have buggy implementations of some of the above algorithms
-        switch ($this->server_identifier) {
-            case 'SSH-2.0-SSHD':
+        switch (true) {
+            case $this->server_identifier == 'SSH-2.0-SSHD':
+            case substr($this->server_identifier, 0, 13) == 'SSH-2.0-DLINK':
                 $mac_algorithms = array_values(array_diff(
                     $mac_algorithms,
                     array('hmac-sha1-96', 'hmac-md5-96')
