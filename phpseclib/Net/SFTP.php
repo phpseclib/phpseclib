@@ -68,25 +68,29 @@ class SFTP extends SSH2
     /**
      * Reads data from a local file.
      */
-    const SOURCE_LOCAL_FILE = 1;
+    const SOURCE_LOCAL_FILE = 0x1;
     /**
      * Reads data from a string.
      */
     // this value isn't really used anymore but i'm keeping it reserved for historical reasons
-    const SOURCE_STRING = 2;
+    const SOURCE_STRING = 0x2;
+    /**
+     * Resumes an upload
+     */
+    const RESUME = 0x4;
+    /**
+     * Append a local file to an already existing remote file
+     */
+    const RESUME_START = 0x8;
     /**
      * Reads data from callback:
      * function callback($length) returns string to proceed, null for EOF
      */
-    const SOURCE_CALLBACK = 16;
+    const SOURCE_CALLBACK = 0x10;
     /**
-     * Resumes an upload
+     * Skip canonicalizing the remote path
      */
-    const RESUME = 4;
-    /**
-     * Append a local file to an already existing remote file
-     */
-    const RESUME_START = 8;
+    const NO_REALPATH = 0x20;
     /**#@-*/
 
     /**
@@ -1819,8 +1823,9 @@ class SFTP extends SSH2
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
      * care of that, yourself.
      *
-     * $mode can take an additional two parameters - self::RESUME and self::RESUME_START. These are bitwise AND'd with
-     * $mode. So if you want to resume upload of a 300mb file on the local file system you'd set $mode to the following:
+     * $mode can take three additional parameters - self::RESUME, self::RESUME_START and self::NO_REALPATH. These are
+     * bitwise AND'd with $mode. So if you want to resume upload of a 300mb file on the local file system you'd set
+     * $mode to the following:
      *
      * self::SOURCE_LOCAL_FILE | self::RESUME
      *
@@ -1835,6 +1840,9 @@ class SFTP extends SSH2
      * middle of one.
      *
      * Setting $local_start to > 0 or $mode | self::RESUME_START doesn't do anything unless $mode | self::SOURCE_LOCAL_FILE.
+     *
+     * Passing self::NO_REALPATH skips canonicalization of the remote path; $remote_file will be passed verbatim to the
+     * remote host.
      *
      * @param string $remote_file
      * @param string|resource $data
@@ -1855,9 +1863,11 @@ class SFTP extends SSH2
             return false;
         }
 
-        $remote_file = $this->realpath($remote_file);
-        if ($remote_file === false) {
-            return false;
+        if (!($mode & self::NO_REALPATH)) {
+            $remote_file = $this->realpath($remote_file);
+            if ($remote_file === false) {
+                return false;
+            }
         }
 
         $this->remove_from_stat_cache($remote_file);
