@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.7 - 2017-06-05
+
+- Crypt: fix OpenSSL engine on <= PHP 5.3.6 (#1122)
+- Random: suppress possible E_DEPRECATED errors
+- RSA: reset variables if bad key was loaded
+
 ## 1.0.6 - 2017-05-07
 
 - SSH2: don't use timeout value of 0 for fsockopen (#775)
