@@ -158,7 +158,7 @@ class Crypt_Hash
                 case extension_loaded('hash'):
                     define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_HASH);
                     break;
-                case extension_loaded('mhash'):
+                case function_exists('mhash'):
                     define('CRYPT_HASH_MODE', CRYPT_HASH_MODE_MHASH);
                     break;
                 default:
