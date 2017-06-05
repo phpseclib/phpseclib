@@ -2163,9 +2163,11 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
-        $remote_file = $this->_realpath($remote_file);
-        if ($remote_file === false) {
-            return false;
+        if (!($mode & NET_SFTP_NO_REALPATH)) {
+            $remote_file = $this->_realpath($remote_file);
+            if ($remote_file === false) {
+                return false;
+            }
         }
 
         $packet = pack('Na*N2', strlen($remote_file), $remote_file, NET_SFTP_OPEN_READ, 0);
