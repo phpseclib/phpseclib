@@ -241,6 +241,20 @@ class SFTP extends SSH2
     private $sortOptions = [];
 
     /**
+     * Canonicalization Flag
+     *
+     * Determines whether or not paths should be canonicalized before being
+     * passed on to the remote server.
+     *
+     * @see self::enablePathCanonicalization()
+     * @see self::disablePathCanonicalization()
+     * @see self::realpath()
+     * @var bool
+     * @access private
+     */
+    private $canonicalize_paths = true;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SFTP server
@@ -580,6 +594,26 @@ class SFTP extends SSH2
     }
 
     /**
+     * Enable path canonicalization
+     *
+     * @access public
+     */
+    public function enablePathCanonicalization()
+    {
+        $this->canonicalize_paths = true;
+    }
+
+    /**
+     * Enable path canonicalization
+     *
+     * @access public
+     */
+    public function disablePathCanonicalization()
+    {
+        $this->canonicalize_paths = false;
+    }
+
+    /**
      * Returns the current directory name
      *
      * @return mixed
@@ -622,7 +656,10 @@ class SFTP extends SSH2
      * SFTP doesn't provide a mechanism by which the current working directory can be changed, so we'll emulate it.  Returns
      * the absolute (canonicalized) path.
      *
+     * If canonicalize_paths has been disabled using disablePathCanonicalization(), $path is returned as-is.
+     *
      * @see self::chdir()
+     * @see self::disablePathCanonicalization()
      * @param string $path
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return mixed
@@ -630,6 +667,10 @@ class SFTP extends SSH2
      */
     public function realpath($path)
     {
+        if (!$this->canonicalize_paths) {
+            return $path;
+        }
+
         if ($this->pwd === false) {
             // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.9
             if (!$this->send_sftp_packet(NET_SFTP_REALPATH, pack('Na*', strlen($path), $path))) {
