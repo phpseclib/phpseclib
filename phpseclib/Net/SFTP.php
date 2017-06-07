@@ -162,7 +162,7 @@ class SFTP extends SSH2
      * Current working directory
      *
      * @var string
-     * @see self::_realpath()
+     * @see self::realpath()
      * @see self::chdir()
      * @access private
      */
@@ -1282,7 +1282,7 @@ class SFTP extends SSH2
     /**
      * Returns general information about a file or symbolic link
      *
-     * Determines information without calling \phpseclib\Net\SFTP::_realpath().
+     * Determines information without calling \phpseclib\Net\SFTP::realpath().
      * The second parameter can be either NET_SFTP_STAT or NET_SFTP_LSTAT.
      *
      * @param string $filename
@@ -1444,7 +1444,7 @@ class SFTP extends SSH2
             return true;
         }
 
-        $filename = $this->realPath($filename);
+        $filename = $this->realpath($filename);
         // rather than return what the permissions *should* be, we'll return what they actually are.  this will also
         // tell us if the file actually exists.
         // incidentally, SFTPv4+ adds an additional 32-bit integer field - flags - to the following:
