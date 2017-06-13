@@ -122,6 +122,10 @@ define('NET_SSH2_LOG_REALTIME', 3);
  * Dumps the content real-time to a file
  */
 define('NET_SSH2_LOG_REALTIME_FILE', 4);
+/**
+ * Make sure that the log never gets larger than this
+ */
+define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
 /**#@-*/
 
 /**#@+
@@ -137,9 +141,9 @@ define('NET_SSH2_READ_SIMPLE',  1);
  */
 define('NET_SSH2_READ_REGEX', 2);
 /**
- * Make sure that the log never gets larger than this
+ * Returns when a string matching the regular expression $expect is found
  */
-define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
+define('NET_SSH2_READ_NEXT', 3);
 /**#@-*/
 
 /**
@@ -2913,6 +2917,10 @@ class Net_SSH2
         }
 
         $channel = $this->_get_interactive_channel();
+
+        if ($mode == NET_SSH2_READ_NEXT) {
+            return $this->_get_channel_packet($channel);
+        }
 
         $match = $expect;
         while (true) {
