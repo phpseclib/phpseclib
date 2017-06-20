@@ -1357,8 +1357,8 @@ class DES extends Base
                         $k[self::ENCRYPT][$i] = '$ke[' . $i . ']';
                         $k[self::DECRYPT][$i] = '$kd[' . $i . ']';
                     }
-                    $init_encrypt = '$ke = $self->keys[self::ENCRYPT];';
-                    $init_decrypt = '$kd = $self->keys[self::DECRYPT];';
+                    $init_encrypt = '$ke = $self->keys[$self::ENCRYPT];';
+                    $init_decrypt = '$kd = $self->keys[$self::DECRYPT];';
                     break;
             }
 

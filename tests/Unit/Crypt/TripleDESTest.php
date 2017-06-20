@@ -186,4 +186,15 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
             $this->assertEquals($result, $expected, "Failed asserting inner chainin worked correctly in $engineName engine");
         }
     }
+
+    // test special case lambda function error
+    public function testCorrectSelfUseInLambda()
+    {
+        $td = new TripleDES( TripleDES::MODE_ECB );
+        $td->setPreferredEngine( TripleDES::ENGINE_INTERNAL );
+        for ( $i = 0; $i < 20; $i++ ) {
+            $td->setKey( str_repeat( 'a', 20 ) . pack( 'V', mt_rand() ) );
+            $td->encrypt( str_repeat( 'a', 32 ) );
+        }
+    }
 }
