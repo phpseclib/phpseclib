@@ -126,6 +126,10 @@ class SSH2
      * Dumps the content real-time to a file
      */
     const LOG_REALTIME_FILE = 4;
+    /**
+     * Make sure that the log never gets larger than this
+     */
+    const LOG_MAX_SIZE = 1048576; // 1024 * 1024
     /**#@-*/
 
     /**#@+
@@ -141,9 +145,9 @@ class SSH2
      */
     const READ_REGEX = 2;
     /**
-     * Make sure that the log never gets larger than this
+     * Returns when a string matching the regular expression $expect is found
      */
-    const LOG_MAX_SIZE = 1048576; // 1024 * 1024
+    const READ_NEXT = 3;
     /**#@-*/
 
     /**
@@ -2812,6 +2816,10 @@ class SSH2
         }
 
         $channel = $this->_get_interactive_channel();
+
+        if ($mode == self::READ_NEXT) {
+            return $this->_get_channel_packet($channel);
+        }
 
         $match = $expect;
         while (true) {
