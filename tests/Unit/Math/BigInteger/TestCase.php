@@ -7,17 +7,6 @@
 
 abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 {
-    public static function setUpBeforeClass()
-    {
-        parent::setUpBeforeClass();
-        self::reRequireFile('Math/BigInteger.php');
-    }
-
-    public function getInstance($x = 0, $base = 10)
-    {
-        return new \phpseclib\Math\BigInteger($x, $base);
-    }
-
     public function testConstructorBase2()
     {
         // 2**65 = 36893488147419103232
@@ -273,7 +262,8 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $min = $this->getInstance(0);
         $max = $this->getInstance('18446744073709551616');
 
-        $rand1 = \phpseclib\Math\BigInteger::randomRange($min, $max);
+        $class = static::getStaticClass();
+        $rand1 = $class::randomRange($min, $max);
         // technically $rand1 can equal $min but with the $min and $max we've
         // chosen it's just not that likely
         $this->assertTrue($rand1->compare($min) > 0);
@@ -285,14 +275,6 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
      */
     public function testDiffieHellmanKeyAgreement()
     {
-        if (getenv('TRAVIS') && PHP_VERSION === '5.3.3'
-            && MATH_BIGINTEGER_MODE === \phpseclib\Math\BigInteger::MODE_INTERNAL
-        ) {
-            $this->markTestIncomplete(
-                'This test hangs on PHP 5.3.3 using internal mode.'
-            );
-        }
-
         // "Oakley Group 14" 2048-bit modular exponentiation group as used in
         // SSH2 diffie-hellman-group14-sha1
         $prime = $this->getInstance(
@@ -313,10 +295,11 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 
         /*
         Code for generation of $alicePrivate and $bobPrivate.
+        $class = static::getStaticClass();
         $one = $this->getInstance(1);
         $max = $one->bitwise_leftShift(512)->subtract($one);
-        $alicePrivate = \phpseclib\Math\BigInteger::randomRange($one, $max);
-        $bobPrivate = \phpseclib\Math\BigInteger::randomRange($one, $max);
+        $alicePrivate = $static::randomRange($one, $max);
+        $bobPrivate = $static::randomRange($one, $max);
         var_dump($alicePrivate->toHex(), $bobPrivate->toHex());
         */
 
@@ -382,19 +365,18 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
     }
     public function testRoot()
     {
-        $bigInteger = new \phpseclib\Math\BigInteger('64000000'); // (20^2)^3
-        $three = new \phpseclib\Math\BigInteger('3');
+        $bigInteger = $this->getInstance('64000000'); // (20^2)^3
         $bigInteger = $bigInteger->root();
         $this->assertSame('8000', (string) $bigInteger);
-        $bigInteger = $bigInteger->root($three);
+        $bigInteger = $bigInteger->root(3);
         $this->assertSame('20', (string) $bigInteger);
     }
 
     public function testPow()
     {
-        $bigInteger = new \phpseclib\Math\BigInteger('20');
-        $two = new \phpseclib\Math\BigInteger('2');
-        $three = new \phpseclib\Math\BigInteger('3');
+        $bigInteger = $this->getInstance('20');
+        $two = $this->getInstance('2');
+        $three = $this->getInstance('3');
         $bigInteger = $bigInteger->pow($two);
         $this->assertSame('400', (string) $bigInteger);
         $bigInteger = $bigInteger->pow($three);
@@ -403,17 +385,19 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 
     public function testMax()
     {
-        $min = new \phpseclib\Math\BigInteger('20');
-        $max = new \phpseclib\Math\BigInteger('20000');
-        $this->assertSame((string) $max, (string) \phpseclib\Math\BigInteger::max($min, $max));
-        $this->assertSame((string) $max, (string) \phpseclib\Math\BigInteger::max($max, $min));
+        $class = static::getStaticClass();
+        $min = $this->getInstance('20');
+        $max = $this->getInstance('20000');
+        $this->assertSame((string) $max, (string) $class::max($min, $max));
+        $this->assertSame((string) $max, (string) $class::max($max, $min));
     }
 
     public function testMin()
     {
-        $min = new \phpseclib\Math\BigInteger('20');
-        $max = new \phpseclib\Math\BigInteger('20000');
-        $this->assertSame((string) $min, (string) \phpseclib\Math\BigInteger::min($min, $max));
-        $this->assertSame((string) $min, (string) \phpseclib\Math\BigInteger::min($max, $min));
+        $class = static::getStaticClass();
+        $min = $this->getInstance('20');
+        $max = $this->getInstance('20000');
+        $this->assertSame((string) $min, (string) $class::min($min, $max));
+        $this->assertSame((string) $min, (string) $class::min($max, $min));
     }
 }
