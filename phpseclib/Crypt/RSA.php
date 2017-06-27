@@ -250,6 +250,14 @@ class RSA extends AsymmetricKey
     private static $smallestPrime = 4096;
 
     /**
+     * Enable Blinding?
+     *
+     * @var bool
+     * @access private
+     */
+    private static $enableBlinding = true;
+
+    /**
      * The constructor
      *
      * If you want to make use of the openssl extension, you'll need to set the mode manually, yourself.  The reason
@@ -885,7 +893,7 @@ class RSA extends AsymmetricKey
 
         $num_primes = count($this->primes);
 
-        if (defined('CRYPT_RSA_DISABLE_BLINDING')) {
+        if (!static::$enableBlinding) {
             $m_i = [
                 1 => $x->modPow($this->exponents[1], $this->primes[1]),
                 2 => $x->modPow($this->exponents[2], $this->primes[2])
@@ -941,6 +949,26 @@ class RSA extends AsymmetricKey
         }
 
         return $m;
+    }
+
+    /**
+     * Enable RSA Blinding
+     *
+     * @access public
+     */
+    public static function enableBlinding()
+    {
+        static::$enableBlinding = true;
+    }
+
+    /**
+     * Disable RSA Blinding
+     *
+     * @access public
+     */
+    public static function disableBlinding()
+    {
+        static::$enableBlinding = false;
     }
 
     /**
