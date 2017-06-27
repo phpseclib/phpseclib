@@ -86,7 +86,7 @@ class Hash
      *
      * Used only for sha512/*
      *
-     * @see self::_sha512()
+     * @see self::sha512()
      * @var array
      * @access private
      */
@@ -252,8 +252,13 @@ class Hash
         switch ($this->hash) {
             case 'sha512/224':
             case 'sha512/256':
+                // PHP 7.1.0 introduced sha512/224 and sha512/256 support:
+                // http://php.net/ChangeLog-7.php#7.1.0
+                if (version_compare(PHP_VERSION, '7.1.0') >= 0) {
+                    break;
+                }
                 if (empty($this->key) || !is_string($this->key)) {
-                    return substr(self::_sha512($text, $this->initial), 0, $this->length);
+                    return substr(self::sha512($text, $this->initial), 0, $this->length);
                 }
                 /* "Applications that use keys longer than B bytes will first hash the key using H and then use the
                     resultant L byte string as the actual key to HMAC."
@@ -264,10 +269,10 @@ class Hash
                 $key    = str_pad($this->key, 128, chr(0));       // step 1
                 $temp   = $this->ipad ^ $this->key;               // step 2
                 $temp  .= $text;                                  // step 3
-                $temp   = self::_sha512($temp, $this->initial);   // step 4
+                $temp   = self::sha512($temp, $this->initial);   // step 4
                 $output = $this->opad ^ $this->key;               // step 5
                 $output.= $temp;                                  // step 6
-                $output = self::_sha512($output, $this->initial); // step 7
+                $output = self::sha512($output, $this->initial); // step 7
 
                 return substr($output, 0, $this->length);
         }
@@ -330,7 +335,7 @@ class Hash
      * @access private
      * @param string $m
      */
-    private static function _sha512($m, $hash)
+    private static function sha512($m, $hash)
     {
         static $k;
 
