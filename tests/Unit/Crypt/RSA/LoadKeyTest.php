@@ -940,4 +940,24 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
         $this->assertFalse($rsa->load('zzz'));
         $this->assertFalse($rsa->getPublicKey());
     }
+
+    public function testXMLDeclaration()
+    {
+        $rsa = new RSA();
+
+        $key = '<?xml version="1.0" encoding="utf-8"?>
+<RSAKeyValue>
+  <Modulus>AKoYq6Q7UN7vOFmPr4fSq2NORXHBMKm8p7h4JnQU+quLRxvYll9cn8OBhIXq9SnCYkbzBVBkqN4ZyMM4vlSWy66wWdwLNYFDtEo1RJ6yZBExIaRVvX/eP6yRnpS1b7m7T2Uc2yPq1DnWzVI+sIGR51s1/ROnQZswkPJHh71PThln</Modulus>
+  <Exponent>AQAB</Exponent>
+  <P>AN4DDp+IhBca6QEjh4xlm3iexzLajXYrJid6vdWmh4T42nar5nem8Ax39o3ND9b1Zoj41F9zFQmuZ8/AgabreKU=</P>
+  <Q>AMQi+R0G9m0K+AcqK3DFpv4RD9jGc0Tle98heNYT7EQvZuuiq4XjvRz0ybqN//bOafrKhsTpRS9DQ7eEpKLI4Bs=</Q>
+  <DP>FklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5kX6zk7S0ljKtt2jny2+00VsBerQ==</DP>
+  <DQ>AJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2eplU9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhM=</DQ>
+  <InverseQ>EaiK5KhKNp9SFXuLVwQalvzyHk0FhnNZcZnfuwnlCxb6wnKg117fEfy91eHNTt5PzYPpf+xzD1FnP7/qsIninQ==</InverseQ>
+  <D>Fijko56+qGyN8M0RVyaRAXz++xTqHBLh3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxE=</D>
+</RSAKeyValue>';
+
+        $this->assertTrue($rsa->load($key));
+        $this->assertInternalType('string', $rsa->getPublicKey());
+    }
 }
