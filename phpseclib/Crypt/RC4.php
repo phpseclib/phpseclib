@@ -129,7 +129,7 @@ class RC4 extends StreamCipher
      */
     public function __construct()
     {
-        parent::__construct(self::MODE_STREAM);
+        parent::__construct('stream');
     }
 
     /**

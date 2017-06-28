@@ -92,6 +92,21 @@ abstract class SymmetricKey
     const MODE_STREAM = 5;
     /**#@-*/
 
+    /**
+     * Mode Map
+     *
+     * @access private
+     * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
+     */
+    const MODE_MAP = [
+        'ctr' => self::MODE_CTR,
+        'ecb' => self::MODE_ECB,
+        'cbc' => self::MODE_CBC,
+        'cfb' => self::MODE_CFB,
+        'ofb' => self::MODE_OFB,
+        'stream' => self::MODE_STREAM
+    ];
+
     /**#@+
      * @access private
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
@@ -113,6 +128,19 @@ abstract class SymmetricKey
      */
     const ENGINE_OPENSSL = 4;
     /**#@-*/
+
+    /**
+     * Engine Reverse Map
+     *
+     * @access private
+     * @see \phpseclib\Crypt\Common\SymmetricKey::getEngine()
+     */
+    const ENGINE_MAP = [
+        self::ENGINE_INTERNAL => 'PHP',
+        self::ENGINE_EVAL     => 'Eval',
+        self::ENGINE_MCRYPT   => 'mcrypt',
+        self::ENGINE_OPENSSL  => 'OpenSSL'
+    ];
 
     /**
      * The Encryption Mode
@@ -319,6 +347,7 @@ abstract class SymmetricKey
      * Currently available $engines are:
      * - self::ENGINE_OPENSSL  (very fast, php-extension: openssl, extension_loaded('openssl') required)
      * - self::ENGINE_MCRYPT   (fast, php-extension: mcrypt, extension_loaded('mcrypt') required)
+     * - self::ENGINE_EVAL     (medium, pure php-engine, no php-extension required)
      * - self::ENGINE_INTERNAL (slower, pure php-engine, no php-extension required)
      *
      * @see self::setEngine()
@@ -442,15 +471,15 @@ abstract class SymmetricKey
      *
      * $mode could be:
      *
-     * - self::MODE_ECB
+     * - ecb
      *
-     * - self::MODE_CBC
+     * - cbc
      *
-     * - self::MODE_CTR
+     * - ctr
      *
-     * - self::MODE_CFB
+     * - cfb
      *
-     * - self::MODE_OFB
+     * - ofb
      *
      * @param int $mode
      * @access public
@@ -458,6 +487,15 @@ abstract class SymmetricKey
      */
     public function __construct($mode)
     {
+        $mode = strtolower($mode);
+        // necessary because of 5.6 compatability; we can't do isset(self::MODE_MAP[$mode]) in 5.6
+        $map = self::MODE_MAP;
+        if (!isset($map[$mode])) {
+            throw new \InvalidArgumentException('No valid mode has been specified');
+        }
+
+        $mode = self::MODE_MAP[$mode];
+
         // $mode dependent settings
         switch ($mode) {
             case self::MODE_ECB:
@@ -1723,13 +1761,13 @@ abstract class SymmetricKey
      *
      * Currently, $engine could be:
      *
-     * - \phpseclib\Crypt\Common\SymmetricKey::ENGINE_OPENSSL  [very fast]
+     * - OpenSSL  [very fast]
      *
-     * - \phpseclib\Crypt\Common\SymmetricKey::ENGINE_MCRYPT   [fast]
+     * - mcrypt   [fast]
      *
-     * - \phpseclib\Crypt\Common\SymmetricKey::ENGINE_EVAL     [slow]
+     * - Eval     [slow]
      *
-     * - \phpseclib\Crypt\Common\SymmetricKey::ENGINE_INTERNAL [slowest]
+     * - PHP      [slowest]
      *
      * If the preferred crypt engine is not available the fastest available one will be used
      *
@@ -1739,16 +1777,13 @@ abstract class SymmetricKey
      */
     public function setPreferredEngine($engine)
     {
-        switch ($engine) {
-            //case self::ENGINE_OPENSSL;
-            case self::ENGINE_MCRYPT:
-            case self::ENGINE_INTERNAL:
-            case self::ENGINE_EVAL:
-                $this->preferredEngine = $engine;
-                break;
-            default:
-                $this->preferredEngine = self::ENGINE_OPENSSL;
+        static $reverseMap;
+        if (!isset($reverseMap)) {
+            $reverseMap = array_map('strtolower', self::ENGINE_MAP);
+            $reverseMap = array_flip($reverseMap);
         }
+        $engine = strtolower($engine);
+        $this->preferredEngine = isset($reverseMap[$engine]) ? $reverseMap[$engine] : self::ENGINE_OPENSSL;
 
         $this->setEngine();
     }
@@ -1761,7 +1796,7 @@ abstract class SymmetricKey
      */
     public function getEngine()
     {
-        return $this->engine;
+        return self::ENGINE_MAP[$this->engine];
     }
 
     /**

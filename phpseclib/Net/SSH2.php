@@ -50,7 +50,6 @@
 namespace phpseclib\Net;
 
 use ParagonIE\ConstantTime\Base64;
-use phpseclib\Crypt\Common\BlockCipher;
 use phpseclib\Crypt\Blowfish;
 use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\Random;
@@ -993,7 +992,7 @@ class SSH2
      * Set Crypto Engine Mode
      *
      * Possible $engine values:
-     * CRYPT_MODE_INTERNAL, CRYPT_MODE_MCRYPT
+     * OpenSSL, mcrypt, Eval, PHP
      *
      * @param int $engine
      * @access private
@@ -1698,7 +1697,7 @@ class SSH2
         $this->encrypt = $this->encryption_algorithm_to_crypt_instance($encrypt);
         if ($this->encrypt) {
             if ($this->crypto_engine) {
-                $this->encrypt->setEngine($this->crypto_engine);
+                $this->encrypt->setPreferredEngine($this->crypto_engine);
             }
             if ($this->encrypt->getBlockLengthInBytes()) {
                 $this->encrypt_block_size = $this->encrypt->getBlockLengthInBytes();
@@ -1724,7 +1723,7 @@ class SSH2
         $this->decrypt = $this->encryption_algorithm_to_crypt_instance($decrypt);
         if ($this->decrypt) {
             if ($this->crypto_engine) {
-                $this->decrypt->setEngine($this->crypto_engine);
+                $this->decrypt->setPreferredEngine($this->crypto_engine);
             }
             if ($this->decrypt->getBlockLengthInBytes()) {
                 $this->decrypt_block_size = $this->decrypt->getBlockLengthInBytes();
@@ -1905,30 +1904,30 @@ class SSH2
     {
         switch ($algorithm) {
             case '3des-cbc':
-                return new TripleDES(BlockCipher::MODE_CBC);
+                return new TripleDES('cbc');
             case '3des-ctr':
-                return new TripleDES(BlockCipher::MODE_CTR);
+                return new TripleDES('ctr');
             case 'aes256-cbc':
             case 'aes192-cbc':
             case 'aes128-cbc':
-                return new Rijndael(BlockCipher::MODE_CBC);
+                return new Rijndael('cbc');
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
-                return new Rijndael(BlockCipher::MODE_CTR);
+                return new Rijndael('ctr');
             case 'blowfish-cbc':
-                return new Blowfish(BlockCipher::MODE_CBC);
+                return new Blowfish('cbc');
             case 'blowfish-ctr':
-                return new Blowfish(BlockCipher::MODE_CTR);
+                return new Blowfish('ctr');
             case 'twofish128-cbc':
             case 'twofish192-cbc':
             case 'twofish256-cbc':
             case 'twofish-cbc':
-                return new Twofish(BlockCipher::MODE_CBC);
+                return new Twofish('cbc');
             case 'twofish128-ctr':
             case 'twofish192-ctr':
             case 'twofish256-ctr':
-                return new Twofish(BlockCipher::MODE_CTR);
+                return new Twofish('ctr');
             case 'arcfour':
             case 'arcfour128':
             case 'arcfour256':

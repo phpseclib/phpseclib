@@ -5,16 +5,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Common\BlockCipher;
 use phpseclib\Crypt\TripleDES;
 
 class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 {
     var $engines = array(
-        BlockCipher::ENGINE_INTERNAL => 'internal',
-        BlockCipher::ENGINE_EVAL => 'eval',
-        BlockCipher::ENGINE_MCRYPT => 'mcrypt',
-        BlockCipher::ENGINE_OPENSSL => 'OpenSSL',
+        'PHP',
+        'Eval',
+        'mcrypt',
+        'OpenSSL',
     );
 
     public function engineVectors()
@@ -91,9 +90,9 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 
         $result = array();
 
-        foreach ($this->engines as $engine => $engineName) {
+        foreach ($this->engines as $engine) {
             foreach ($tests as $test) {
-                $result[] = array($engine, $engineName, $test[0], $test[1], $test[2]);
+                $result[] = array($engine, $test[0], $test[1], $test[2]);
             }
         }
 
@@ -103,11 +102,11 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
     /**
      * @dataProvider engineVectors
      */
-    public function testVectors($engine, $engineName, $key, $plaintext, $expected)
+    public function testVectors($engine, $key, $plaintext, $expected)
     {
-        $des = new TripleDES(TripleDES::MODE_CBC);
+        $des = new TripleDES('cbc');
         if (!$des->isValidEngine($engine)) {
-            self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
+            self::markTestSkipped("Unable to initialize $engine engine");
         }
         $des->setPreferredEngine($engine);
         $des->setKey($key);
@@ -115,15 +114,16 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         $des->disablePadding();
         $result = $des->encrypt($plaintext);
         $plaintext = bin2hex($plaintext);
-        $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engineName engine");
+        $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engine engine");
     }
 
     public function engineIVVectors()
     {
         $engines = array(
-            BlockCipher::ENGINE_INTERNAL => 'internal',
-            BlockCipher::ENGINE_MCRYPT => 'mcrypt',
-            BlockCipher::ENGINE_OPENSSL => 'OpenSSL',
+            'PHP',
+            'Eval',
+            'mcrypt',
+            'OpenSSL',
         );
 
         // tests from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf
@@ -143,9 +143,9 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 
         $result = array();
 
-        foreach ($engines as $engine => $engineName) {
+        foreach ($engines as $engine) {
             foreach ($tests as $test) {
-                $result[] = array($engine, $engineName, $test[0], $test[1], $test[2], $test[3]);
+                $result[] = array($engine, $test[0], $test[1], $test[2], $test[3]);
             }
         }
 
@@ -155,11 +155,11 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
     /**
      * @dataProvider engineIVVectors
      */
-    public function testVectorsWithIV($engine, $engineName, $key, $iv, $plaintext, $expected)
+    public function testVectorsWithIV($engine, $key, $iv, $plaintext, $expected)
     {
-        $des = new TripleDES(TripleDES::MODE_CBC);
+        $des = new TripleDES('cbc');
         if (!$des->isValidEngine($engine)) {
-            self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
+            self::markTestSkipped("Unable to initialize $engine engine");
         }
         $des->setPreferredEngine($engine);
         $des->setKey($key);
@@ -167,7 +167,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         $des->disablePadding();
         $result = $des->encrypt($plaintext);
         $plaintext = bin2hex($plaintext);
-        $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engineName engine");
+        $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engin engine");
     }
 
     public function testInnerChaining()
@@ -176,25 +176,25 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         //           e089b6d84708c6bc80be6c2da82bd19a79ffe11f02933ac1
         $expected = 'e089b6d84708c6bc6f04c8971121603d7be2861efae0f3f5';
 
-        $des = new TripleDES(TripleDES::MODE_3CBC);
+        $des = new TripleDES('3cbc');
         $des->setKey('abcdefghijklmnopqrstuvwx');
         $des->setIV(str_repeat("\0", $des->getBlockLength() >> 3));
 
-        foreach ($this->engines as $engine => $engineName) {
+        foreach ($this->engines as $engine) {
             $des->setPreferredEngine($engine);
             if (!$des->isValidEngine($engine)) {
-                self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
+                self::markTestSkipped("Unable to initialize $engine engine");
             }
             $result = bin2hex($des->encrypt(str_repeat('a', 16)));
-            $this->assertEquals($result, $expected, "Failed asserting inner chainin worked correctly in $engineName engine");
+            $this->assertEquals($result, $expected, "Failed asserting inner chainin worked correctly in $engine engine");
         }
     }
 
     // test special case lambda function error
     public function testCorrectSelfUseInLambda()
     {
-        $td = new TripleDES( TripleDES::MODE_ECB );
-        $td->setPreferredEngine( TripleDES::ENGINE_INTERNAL );
+        $td = new TripleDES('ecb');
+        $td->setPreferredEngine('Eval');
         for ( $i = 0; $i < 20; $i++ ) {
             $td->setKey( str_repeat( 'a', 20 ) . pack( 'V', mt_rand() ) );
             $td->encrypt( str_repeat( 'a', 32 ) );

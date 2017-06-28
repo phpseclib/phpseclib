@@ -24,8 +24,6 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Crypt\Common\BlockCipher;
-
 /**
  * Pure-PHP Random Number Generator
  *
@@ -141,19 +139,19 @@ abstract class Random
             // http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Designs_based_on_cryptographic_primitives
             switch (true) {
                 case class_exists('\phpseclib\Crypt\AES'):
-                    $crypto = new AES(BlockCipher::MODE_CTR);
+                    $crypto = new AES('ctr');
                     break;
                 case class_exists('\phpseclib\Crypt\Twofish'):
-                    $crypto = new Twofish(BlockCipher::MODE_CTR);
+                    $crypto = new Twofish('ctr');
                     break;
                 case class_exists('\phpseclib\Crypt\Blowfish'):
-                    $crypto = new Blowfish(BlockCipher::MODE_CTR);
+                    $crypto = new Blowfish('ctr');
                     break;
                 case class_exists('\phpseclib\Crypt\TripleDES'):
-                    $crypto = new TripleDES(BlockCipher::MODE_CTR);
+                    $crypto = new TripleDES('ctr');
                     break;
                 case class_exists('\phpseclib\Crypt\DES'):
-                    $crypto = new DES(BlockCipher::MODE_CTR);
+                    $crypto = new DES('ctr');
                     break;
                 case class_exists('\phpseclib\Crypt\RC4'):
                     $crypto = new RC4();
