@@ -161,7 +161,7 @@ class DES extends BlockCipher
      * @var array
      * @access private
      */
-    private $shuffle = [
+    protected $shuffle = [
         "\x00\x00\x00\x00\x00\x00\x00\x00", "\x00\x00\x00\x00\x00\x00\x00\xFF",
         "\x00\x00\x00\x00\x00\x00\xFF\x00", "\x00\x00\x00\x00\x00\x00\xFF\xFF",
         "\x00\x00\x00\x00\x00\xFF\x00\x00", "\x00\x00\x00\x00\x00\xFF\x00\xFF",
@@ -300,7 +300,7 @@ class DES extends BlockCipher
      * @var array
      * @access private
      */
-    private $ipmap = [
+    protected $ipmap = [
         0x00, 0x10, 0x01, 0x11, 0x20, 0x30, 0x21, 0x31,
         0x02, 0x12, 0x03, 0x13, 0x22, 0x32, 0x23, 0x33,
         0x40, 0x50, 0x41, 0x51, 0x60, 0x70, 0x61, 0x71,
@@ -342,7 +342,7 @@ class DES extends BlockCipher
      * @var array
      * @access private
      */
-    private $invipmap = [
+    protected $invipmap = [
         0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0,
         0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0,
         0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8,
@@ -386,7 +386,7 @@ class DES extends BlockCipher
      * @var array
      * @access private
      */
-    private $sbox1 = [
+    protected $sbox1 = [
         0x00808200, 0x00000000, 0x00008000, 0x00808202,
         0x00808002, 0x00008202, 0x00000002, 0x00008000,
         0x00000200, 0x00808200, 0x00808202, 0x00000200,
@@ -411,7 +411,7 @@ class DES extends BlockCipher
      * @var array
      * @access private
      */
-    private $sbox2 = [
+    protected $sbox2 = [
         0x40084010, 0x40004000, 0x00004000, 0x00084010,
         0x00080000, 0x00000010, 0x40080010, 0x40004010,
         0x40000010, 0x40084010, 0x40084000, 0x40000000,
@@ -436,7 +436,7 @@ class DES extends BlockCipher
      * @var array
      * @access private
      */
-    private $sbox3 = [
+    protected $sbox3 = [
         0x00000104, 0x04010100, 0x00000000, 0x04010004,
         0x04000100, 0x00000000, 0x00010104, 0x04000100,
         0x00010004, 0x04000004, 0x04000004, 0x00010000,
@@ -461,7 +461,7 @@ class DES extends BlockCipher
      * @var array
      * @access private
      */
-    private $sbox4 = [
+    protected $sbox4 = [
         0x80401000, 0x80001040, 0x80001040, 0x00000040,
         0x00401040, 0x80400040, 0x80400000, 0x80001000,
         0x00000000, 0x00401000, 0x00401000, 0x80401040,
@@ -486,7 +486,7 @@ class DES extends BlockCipher
      * @var array
      * @access private
      */
-    private $sbox5 = [
+    protected $sbox5 = [
         0x00000080, 0x01040080, 0x01040000, 0x21000080,
         0x00040000, 0x00000080, 0x20000000, 0x01040000,
         0x20040080, 0x00040000, 0x01000080, 0x20040080,
@@ -511,7 +511,7 @@ class DES extends BlockCipher
      * @var array
      * @access private
      */
-    private $sbox6 = [
+    protected $sbox6 = [
         0x10000008, 0x10200000, 0x00002000, 0x10202008,
         0x10200000, 0x00000008, 0x10202008, 0x00200000,
         0x10002000, 0x00202008, 0x00200000, 0x10000008,
@@ -536,7 +536,7 @@ class DES extends BlockCipher
      * @var array
      * @access private
      */
-    private $sbox7 = [
+    protected $sbox7 = [
         0x00100000, 0x02100001, 0x02000401, 0x00000000,
         0x00000400, 0x02000401, 0x00100401, 0x02100400,
         0x02100401, 0x00100000, 0x00000000, 0x02000001,
@@ -561,7 +561,7 @@ class DES extends BlockCipher
      * @var array
      * @access private
      */
-    private $sbox8 = [
+    protected $sbox8 = [
         0x08000820, 0x00000800, 0x00020000, 0x08020820,
         0x08000000, 0x08000820, 0x00000020, 0x08000000,
         0x00020020, 0x08020000, 0x08020820, 0x00020800,

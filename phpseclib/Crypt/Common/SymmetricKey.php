@@ -2604,17 +2604,6 @@ abstract class SymmetricKey
 
         eval('$func = function ($_action, $_text) { ' . $init_crypt . 'if ($_action == "encrypt") { ' . $encrypt . ' } else { ' . $decrypt . ' }};');
 
-        return \Closure::bind($func, $this, $this->getClassContext());
-    }
-
-    /**
-     * Returns the class that defines the private methods
-     *
-     * @access private
-     * @return string
-     */
-    protected function getClassContext()
-    {
-        return get_called_class();
+        return \Closure::bind($func, $this, static::class);
     }
 }

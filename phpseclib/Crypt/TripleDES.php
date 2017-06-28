@@ -450,15 +450,4 @@ class TripleDES extends DES
 
         return parent::setPreferredEngine($engine);
     }
-
-    /**
-     * Returns the class that defines the private methods
-     *
-     * @access private
-     * @return string
-     */
-    protected function getClassContext()
-    {
-        return 'phpseclib\Crypt\DES';
-    }
 }

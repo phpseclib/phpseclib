@@ -120,15 +120,4 @@ class AES extends Rijndael
 
         parent::setKey($key);
     }
-
-    /**
-     * Returns the class that defines the private methods
-     *
-     * @access private
-     * @return string
-     */
-    protected function getClassContext()
-    {
-        return 'phpseclib\Crypt\Rijndael';
-    }
 }

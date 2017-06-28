@@ -629,7 +629,7 @@ class Rijndael extends BlockCipher
      * @access private
      * @return array &$tables
      */
-    private function &getTables()
+    protected function &getTables()
     {
         static $tables;
         if (empty($tables)) {
