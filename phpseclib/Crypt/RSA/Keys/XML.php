@@ -6,7 +6,9 @@
  * More info:
  *
  * http://www.w3.org/TR/xmldsig-core/#sec-RSAKeyValue
+ * http://www.w3.org/TR/xkms2/#XKMS_2_0_Paragraph_269
  * http://en.wikipedia.org/wiki/XML_Signature
+ * http://en.wikipedia.org/wiki/XKMS
  *
  * PHP version 5
  *
@@ -121,7 +123,7 @@ abstract class XML
         if (count($primes) != 2) {
             throw new \InvalidArgumentException('XML does not support multi-prime RSA keys');
         }
-        return "<RSAKeyValue>\r\n" .
+        return "<RSAKeyPair>\r\n" .
                '  <Modulus>' . Base64::encode($n->toBytes()) . "</Modulus>\r\n" .
                '  <Exponent>' . Base64::encode($e->toBytes()) . "</Exponent>\r\n" .
                '  <P>' . Base64::encode($primes[1]->toBytes()) . "</P>\r\n" .
@@ -130,7 +132,7 @@ abstract class XML
                '  <DQ>' . Base64::encode($exponents[2]->toBytes()) . "</DQ>\r\n" .
                '  <InverseQ>' . Base64::encode($coefficients[2]->toBytes()) . "</InverseQ>\r\n" .
                '  <D>' . Base64::encode($d->toBytes()) . "</D>\r\n" .
-               '</RSAKeyValue>';
+               '</RSAKeyPair>';
     }
 
     /**
