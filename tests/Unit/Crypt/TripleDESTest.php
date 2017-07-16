@@ -195,9 +195,9 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
     {
         $td = new TripleDES('ecb');
         $td->setPreferredEngine('Eval');
-        for ( $i = 0; $i < 20; $i++ ) {
-            $td->setKey( str_repeat( 'a', 20 ) . pack( 'V', mt_rand() ) );
-            $td->encrypt( str_repeat( 'a', 32 ) );
+        for ($i = 0; $i < 20; $i++) {
+            $td->setKey(str_repeat('a', 20) . pack('V', mt_rand()));
+            $td->encrypt(str_repeat('a', 32));
         }
     }
 }
