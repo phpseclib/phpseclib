@@ -258,6 +258,7 @@ class TripleDES extends DES
         switch (strlen($key)) {
             case 16:
                 $key.= substr($key, 0, 8);
+                break;
             case 24:
                 break;
             default:
@@ -438,7 +439,6 @@ class TripleDES extends DES
      * @see \phpseclib\Crypt\Common\SymmetricKey::setPreferredEngine()
      * @param int $engine
      * @access public
-     * @return int
      */
     public function setPreferredEngine($engine)
     {
@@ -448,6 +448,6 @@ class TripleDES extends DES
             $this->des[2]->setPreferredEngine($engine);
         }
 
-        return parent::setPreferredEngine($engine);
+        parent::setPreferredEngine($engine);
     }
 }
