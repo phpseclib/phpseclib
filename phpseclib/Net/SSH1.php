@@ -914,7 +914,7 @@ class SSH1
     /**
      * Returns the output of an interactive shell when there's a match for $expect
      *
-     * $expect can take the form of a string literal or, if $mode == self::READ__REGEX,
+     * $expect can take the form of a string literal or, if $mode == self::READ_REGEX,
      * a regular expression.
      *
      * @see self::write()
