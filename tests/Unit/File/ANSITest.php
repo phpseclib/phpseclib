@@ -28,4 +28,20 @@ class Unit_File_ANSITest extends PhpseclibTestCase
 
         $this->assertSame($ansi->getScreen(), $expected);
     }
+
+    public function testCaseJ()
+    {
+        $str = "\x1B[H"; // Move cursor to upper left corner
+        $str.= "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        $str.= "\x1B[H"; // Move cursor to upper left corner
+        $str.= "\x1B[J"; // Clear screen from cursor down
+
+        $ansi = new ANSI();
+        $ansi->appendString($str);
+
+        $expected = '<pre width="80" style="color: white; background: black">';
+        $expected.= '</pre>';
+
+        $this->assertSame($ansi->getScreen(), $expected);
+    }
 }
