@@ -18,7 +18,6 @@
 namespace phpseclib\Crypt\Common\Signature;
 
 use phpseclib\Math\BigInteger;
-use phpseclib\Common\Functions\Strings;
 
 /**
  * Raw Signature Handler
@@ -33,7 +32,7 @@ abstract class Raw
      * Loads a signature
      *
      * @access public
-     * @param array $key
+     * @param array $sig
      * @return array
      */
     public static function load($sig)
@@ -47,8 +46,8 @@ abstract class Raw
         }
 
         return [
-            'r' => $key['r'],
-            's' => $key['s']
+            'r' => $sig['r'],
+            's' => $sig['s']
         ];
     }
 

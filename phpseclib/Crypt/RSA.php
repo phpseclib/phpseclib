@@ -201,6 +201,15 @@ class RSA extends AsymmetricKey
      */
     private $sLen;
 
+
+    /**
+     * Comment
+     *
+     * @var string
+     * @access private
+     */
+    private $comment;
+
     /**
      * Hash function for the Mask Generation Function
      *

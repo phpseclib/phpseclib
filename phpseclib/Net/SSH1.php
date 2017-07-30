@@ -547,7 +547,7 @@ class SSH1
     {
         $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
         if (!$this->fsock) {
-            throw new \RuntimeException(rtrim("Cannot connect to $host. Error $errno. $errstr"));
+            throw new \RuntimeException(rtrim("Cannot connect to $this->host. Error $errno. $errstr"));
         }
 
         $this->server_identification = $init_line = fgets($this->fsock, 255);
@@ -924,7 +924,7 @@ class SSH1
      * @throws \RuntimeException on connection error
      * @access public
      */
-    public function read($expect, $mode = self::READ__SIMPLE)
+    public function read($expect, $mode = self::READ_SIMPLE)
     {
         if (!($this->bitmap & self::MASK_LOGIN)) {
             throw new \RuntimeException('Operation disallowed prior to login()');
@@ -936,7 +936,7 @@ class SSH1
 
         $match = $expect;
         while (true) {
-            if ($mode == self::READ__REGEX) {
+            if ($mode == self::READ_REGEX) {
                 preg_match($expect, $this->interactiveBuffer, $matches);
                 $match = isset($matches[0]) ? $matches[0] : '';
             }

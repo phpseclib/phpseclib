@@ -33,8 +33,8 @@ abstract class SSH2
      * Loads a signature
      *
      * @access public
-     * @param array $key
-     * @return array
+     * @param array $sig
+     * @return mixed
      */
     public static function load($sig)
     {
@@ -67,9 +67,9 @@ abstract class SSH2
      */
     public static function save(BigInteger $r, BigInteger $s)
     {
-        if ($r->getLength() != 160 || $s->getLength != 160) {
+        if ($r->getLength() != 160 || $s->getLength() != 160) {
             return false;
         }
-        return Strings::pack('ss', $r, $s);
+        return Strings::packSSH2('ss', $r, $s);
     }
 }
