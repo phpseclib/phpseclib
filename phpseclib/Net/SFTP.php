@@ -187,7 +187,7 @@ class SFTP extends SSH2
      *
      * @see self::getSFTPErrors()
      * @see self::getLastSFTPError()
-     * @var string
+     * @var array
      * @access private
      */
     var $sftp_errors = array();
@@ -3055,7 +3055,7 @@ class SFTP extends SSH2
     /**
      * Returns all errors
      *
-     * @return string
+     * @return array
      * @access public
      */
     function getSFTPErrors()
