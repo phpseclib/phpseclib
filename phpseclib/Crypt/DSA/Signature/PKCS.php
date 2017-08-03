@@ -36,7 +36,7 @@ abstract class PKCS
      *
      * @access public
      * @param array $key
-     * @return array
+     * @return array|bool
      */
     public static function load($sig)
     {
