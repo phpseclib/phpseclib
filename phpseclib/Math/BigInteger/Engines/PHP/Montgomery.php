@@ -46,7 +46,7 @@ abstract class Montgomery extends Base
      * @param \phpseclib\Math\BigInteger\Engine $e
      * @param \phpseclib\Math\BigInteger\Engine $n
      * @param string $class
-     * @return \phpseclib\Math\BigInteger\Engine
+     * @return \phpseclib\Math\BigInteger\Engine|Engine
      */
     protected static function slidingWindow(Engine $x, Engine $e, Engine $n, $class)
     {
