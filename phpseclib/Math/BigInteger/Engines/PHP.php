@@ -1314,7 +1314,7 @@ abstract class PHP extends Engine
     protected function powHelper(PHP $n)
     {
         if ($n->compare(static::$zero) == 0) {
-            return new self(1);
+            return new static(1);
         } // n^0 = 1
 
 
