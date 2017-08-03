@@ -396,7 +396,7 @@ abstract class Engine implements \Serializable
     /**
      * Logical Not
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return Engine|string
      */
     public function bitwise_not()
     {
@@ -465,7 +465,7 @@ abstract class Engine implements \Serializable
      * Instead of the top x bits being dropped they're appended to the shifted bit string.
      *
      * @param int $shift
-     * @return \phpseclib\Math\BigInteger\Engine\Engines
+     * @return \phpseclib\Math\BigInteger\Engines\Engine
      */
     public function bitwise_leftRotate($shift)
     {
@@ -563,7 +563,7 @@ abstract class Engine implements \Serializable
     /**
      * Performs some pre-processing for powMod
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return bool|Engine
      */
     protected function powModOuter(Engine $e, Engine $n)
     {
@@ -591,11 +591,11 @@ abstract class Engine implements \Serializable
      * however, this function performs a modular reduction after every multiplication and squaring operation.
      * As such, this function has the same preconditions that the reductions being used do.
      *
-     * @param \phpseclib\Math\BigInteger\Engine $x
-     * @param \phpseclib\Math\BigInteger\Engine $e
-     * @param \phpseclib\Math\BigInteger\Engine $n
+     * @param \phpseclib\Math\BigInteger\Engines\Engine $x
+     * @param \phpseclib\Math\BigInteger\Engines\Engine $e
+     * @param \phpseclib\Math\BigInteger\Engines\Engine $n
      * @param string $class
-     * @return \phpseclib\Math\BigInteger\Engine
+     * @return \phpseclib\Math\BigInteger\Engines\Engine
      */
     protected static function slidingWindow(Engine $x, Engine $e, Engine $n, $class)
     {
@@ -691,7 +691,7 @@ abstract class Engine implements \Serializable
     /**
      * Performs some pre-processing for randomRangePrime
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return bool|Engine
      */
     protected static function randomRangePrimeOuter(Engine $min, Engine $max)
     {
@@ -781,7 +781,7 @@ abstract class Engine implements \Serializable
     /**
      * Performs some post-processing for randomRangePrime
      *
-     * @return \phpseclib\Math\BigInteger\Engine
+     * @return bool|Engine
      */
     protected static function randomRangePrimeInner(Engine $x, Engine $min, Engine $max)
     {

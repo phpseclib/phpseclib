@@ -64,7 +64,7 @@ abstract class OpenSSH
      * @access public
      * @param string $key
      * @param string $type
-     * @return array
+     * @return array|bool
      */
     public static function load($key, $type)
     {

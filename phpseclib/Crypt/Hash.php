@@ -134,7 +134,7 @@ class Hash
      * Keys can be of any length.
      *
      * @access public
-     * @param string $key
+     * @param string|bool $key
      */
     public function setKey($key = false)
     {

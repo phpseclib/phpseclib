@@ -60,7 +60,7 @@ abstract class Base extends BCMath
      * @param string $class
      * @return \phpseclib\Math\BigInteger\Engines\BCMath
      */
-    protected static function powModHelper(BCMath $x, BCMath $e, BCMath $n, $class)
+    public static function powModHelper(BCMath $x, BCMath $e, BCMath $n, $class)
     {
         if (empty($e->value)) {
             $temp = new $class();
