@@ -871,6 +871,49 @@ class SSH2
     var $agent;
 
     /**
+     * Contains all possible algorithms
+     *
+     * @see self::_key_exchange()
+     * @var array
+     * @access private
+     */
+    var $encryption_algorithms = array(
+        // from <http://tools.ietf.org/html/rfc4345#section-4>:
+        'arcfour256',
+        'arcfour128',
+
+        //'arcfour',      // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
+
+        // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
+        'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
+        'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
+        'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
+
+        'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
+        'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
+        'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
+
+        'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
+        'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
+        'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
+
+        'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
+        'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
+        'twofish256-cbc',
+        'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
+        //                   (this is being retained for historical reasons)
+
+        'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
+
+        'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
+
+        '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
+
+        '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
+        //'none'         // OPTIONAL          no encryption; NOT RECOMMENDED
+    );
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1197,41 +1240,7 @@ class SSH2
             'ssh-dss'  // REQUIRED     sign   Raw DSS Key
         );
 
-        $encryption_algorithms = array(
-            // from <http://tools.ietf.org/html/rfc4345#section-4>:
-            'arcfour256',
-            'arcfour128',
-
-            //'arcfour',      // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
-
-            // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
-            'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
-            'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
-            'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
-
-            'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
-            'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
-            'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
-
-            'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
-            'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
-            'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
-
-            'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
-            'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
-            'twofish256-cbc',
-            'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
-                              //                   (this is being retained for historical reasons)
-
-            'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
-
-            'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
-
-            '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
-
-            '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
-                //'none'         // OPTIONAL          no encryption; NOT RECOMMENDED
-        );
+        $encryption_algorithms = $this->getEncryptionAlgorithms();
 
         if (extension_loaded('openssl') && !extension_loaded('mcrypt')) {
             // OpenSSL does not support arcfour256 in any capacity and arcfour128 / arcfour support is limited to
@@ -4402,5 +4411,27 @@ class SSH2
     {
         $this->windowColumns = $columns;
         $this->windowRows = $rows;
+    }
+
+    /**
+     * Sets the default encryption algorithms
+     *
+     * @access public
+     * @param array $encryption_algorithms
+     */
+    function setEncryptionAlgorithms(array $encryption_algorithms)
+    {
+        $this->encryption_algorithms = $encryption_algorithms;
+    }
+
+    /**
+     * Returns default encryption algorithms
+     *
+     * @access public
+     * @return array
+     */
+    function getEncryptionAlgorithms()
+    {
+        return $this->encryption_algorithms;
     }
 }
