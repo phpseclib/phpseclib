@@ -109,7 +109,7 @@ class DSA extends AsymmetricKey
      * @access public
      * @param int $L
      * @param int $N
-     * @return \phpseclib\Crypt\DSA
+     * @return \phpseclib\Crypt\DSA|bool
      */
     static function createParameters($L = 2048, $N = 224)
     {
@@ -183,7 +183,7 @@ class DSA extends AsymmetricKey
      *  - 'publickey':  The public key.
      *
      * @access public
-     * @return \phpseclib\Crypt\DSA
+     * @return array|DSA
      */
     static function createKey()
     {
