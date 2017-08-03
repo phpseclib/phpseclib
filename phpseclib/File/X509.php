@@ -3122,7 +3122,7 @@ class X509
      * @access public
      * @return mixed
      */
-    public function getExtension($id, $cert = null, $path)
+    public function getExtension($id, $cert = null, $path=null)
     {
         return $this->getExtensionHelper($id, $cert, $path);
     }
