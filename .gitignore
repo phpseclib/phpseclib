@@ -1,2 +1,4 @@
 /vendor
 /composer.phar
+/.idea/
+/.gitignore
