@@ -572,7 +572,7 @@ class X509
      * Map extension values from octet string to extension-specific internal
      *   format.
      *
-     * @param array ref $root
+     * @param &array $root
      * @param string $path
      * @access private
      */
@@ -618,7 +618,7 @@ class X509
      * Map extension values from extension-specific internal format to
      *   octet string.
      *
-     * @param array ref $root
+     * @param &array Ref $root
      * @param string $path
      * @access private
      */
@@ -682,7 +682,7 @@ class X509
      * Map attribute values from ANY type to attribute-specific internal
      *   format.
      *
-     * @param array ref $root
+     * @param &array Ref $root
      * @param string $path
      * @access private
      */
@@ -722,7 +722,7 @@ class X509
      * Map attribute values from attribute-specific internal format to
      *   ANY type.
      *
-     * @param array ref $root
+     * @param &array $root Ref
      * @param string $path
      * @access private
      */
@@ -764,7 +764,7 @@ class X509
      * Map DN values from ANY type to DN-specific internal
      *   format.
      *
-     * @param array ref $root
+     * @param &array $root
      * @param string $path
      * @access private
      */
@@ -793,7 +793,7 @@ class X509
      * Map DN values from DN-specific internal format to
      *   ANY type.
      *
-     * @param array ref $root
+     * @param &array $root
      * @param string $path
      * @access private
      */
@@ -1053,6 +1053,7 @@ class X509
      *
      * @param int $date optional
      * @access public
+     * @return boolean
      */
     public function validateDate($date = null)
     {
@@ -2051,7 +2052,7 @@ class X509
      *
      * https://developer.mozilla.org/en-US/docs/HTML/Element/keygen
      *
-     * @param string $csr
+     * @param string $spkac
      * @access public
      * @return mixed
      */
@@ -2119,7 +2120,7 @@ class X509
     /**
      * Save a SPKAC CSR request
      *
-     * @param array $csr
+     * @param array $spkac
      * @param int $format optional
      * @access public
      * @return string
@@ -2808,7 +2809,7 @@ class X509
      * Set Serial Number
      *
      * @param string $serial
-     * @param $base optional
+     * @param $base integer Optional
      * @access public
      */
     public function setSerialNumber($serial, $base = -256)

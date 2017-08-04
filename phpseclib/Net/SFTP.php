@@ -3084,7 +3084,7 @@ class SFTP extends SSH2
      *
      * @param int $reason
      * @return bool
-     * @access private
+     * @access protected
      */
     protected function disconnect_helper($reason)
     {

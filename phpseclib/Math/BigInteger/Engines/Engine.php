@@ -59,7 +59,7 @@ abstract class Engine implements \Serializable
     /**
      * Default constructor
      *
-     * @param $x base-10 number or base-$base number if $base set.
+     * @param $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @return \phpseclib\Math\BigInteger\Engines\Engine
      */

@@ -868,7 +868,7 @@ class SSH2
     /**
      * A System_SSH_Agent for use in the SSH2 Agent Forwarding scenario
      *
-     * @var System_SSH_Agent
+     * @var \phpseclib\System\Ssh\Agent
      * @access private
      */
     private $agent;
@@ -3827,7 +3827,7 @@ class SSH2
      *
      * @param int $reason
      * @return bool
-     * @access private
+     * @access protected
      */
     protected function disconnect_helper($reason)
     {
@@ -3848,7 +3848,7 @@ class SSH2
      * If any of the constants that would be defined already exists, none of the constants will be defined.
      *
      * @param array $array
-     * @access private
+     * @access protected
      */
     protected function define_array()
     {

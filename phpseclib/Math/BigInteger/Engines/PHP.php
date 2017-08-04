@@ -74,7 +74,7 @@ abstract class PHP extends Engine
     /**
      * Default constructor
      *
-     * @param $x base-10 number or base-$base number if $base set.
+     * @param $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @see parent::__construct()
      * @return \phpseclib\Math\BigInteger\Engines\PHP
@@ -524,7 +524,7 @@ abstract class PHP extends Engine
      * same.  If the remainder would be negative, the "common residue" is equal to the sum of the remainder
      * and the divisor (basically, the "common residue" is the first positive modulo).
      *
-     * @param \phpseclib\Math\BigInteger\PHP $y
+     * @param \phpseclib\Math\BigInteger\engines\PHP $y
      * @return array
      * @internal This function is based off of {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=9 HAC 14.20}.
      */

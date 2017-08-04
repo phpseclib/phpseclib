@@ -294,7 +294,7 @@ class PHP64 extends PHP
      * BigInteger::randomRange($min, $max)
      * BigInteger::randomRange($max, $min)
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine\PHP64
+     * @return \phpseclib\Math\BigInteger\Engines\PHP64
      */
     public static function randomRange(PHP64 $min, PHP64 $max)
     {

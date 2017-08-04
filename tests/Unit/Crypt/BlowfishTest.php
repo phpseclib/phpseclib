@@ -77,7 +77,15 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
         $bf = new Blowfish('cbc');
         $bf->setKey($key);
         $bf->setIV(str_repeat("\0", $bf->getBlockLength() >> 3));
-        if (!$bf->isValidEngine($engine)) {
+
+        $engines = array(
+            'PHP'=>\phpseclib\Crypt\Common\SymmetricKey::ENGINE_INTERNAL,
+            'Eval'=>\phpseclib\Crypt\Common\SymmetricKey::ENGINE_EVAL,
+            'mcrypt'=>\phpseclib\Crypt\Common\SymmetricKey::ENGINE_MCRYPT,
+            'OpenSSL'=>\phpseclib\Crypt\Common\SymmetricKey::ENGINE_OPENSSL,
+        );
+
+        if (!$bf->isValidEngine($engines[$engine])) {
             self::markTestSkipped("Unable to initialize $engine engine");
         }
         $bf->setPreferredEngine($engine);
