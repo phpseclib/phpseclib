@@ -181,6 +181,7 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         $issuer->setDN($subject->getDN());
 
         $x509 = new X509();
+        $x509->setEndDate('lifetime');
 
         $result = $x509->sign($issuer, $subject);
         $cert = $x509->saveX509($result);
