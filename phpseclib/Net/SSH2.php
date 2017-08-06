@@ -4236,7 +4236,7 @@ class SSH2
                     case $r->compare($q) >= 0:
                     case $s->equals($zero):
                     case $s->compare($q) >= 0:
-                        $this->disconnectHepler(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                        $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
                         throw new \RuntimeException('Invalid signature');
                 }
 
