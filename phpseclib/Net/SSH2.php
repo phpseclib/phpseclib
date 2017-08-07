@@ -150,6 +150,47 @@ class SSH2
     const READ_NEXT = 3;
     /**#@-*/
 
+    /**#@+
+     * @access public
+     * @see \phpseclib\Net\SSH2::setEncryptionAlgorithms()
+     */
+    const SUPPORTED_ENCRYPTION_ALGORITHMS = array(
+        // from <http://tools.ietf.org/html/rfc4345#section-4>:
+        'arcfour256',
+        'arcfour128',
+
+        'arcfour',      // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
+
+        // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
+        'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
+        'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
+        'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
+
+        'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
+        'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
+        'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
+
+        'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
+        'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
+        'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
+
+        'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
+        'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
+        'twofish256-cbc',
+        'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
+        //                   (this is being retained for historical reasons)
+
+        'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
+
+        'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
+
+        '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
+
+        '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
+        'none'         // OPTIONAL          no encryption; NOT RECOMMENDED
+    );
+    /**#@-*/
+
     /**
      * The SSH identifier
      *
@@ -4419,8 +4460,16 @@ class SSH2
      * @access public
      * @param array $encryption_algorithms
      */
-    function setEncryptionAlgorithms(array $encryption_algorithms)
+    function setEncryptionAlgorithms($encryption_algorithms)
     {
+        $unsupportedEncryptionAlgorithms = array_diff($encryption_algorithms, $this->encryption_algorithms);
+        if (count($unsupportedEncryptionAlgorithms) > 0) {
+            user_error(sprintf(
+                'Encryption algorithms are not supported: %s',
+                implode(',', $unsupportedEncryptionAlgorithms)
+            ));
+            return;
+        }
         $this->encryption_algorithms = $encryption_algorithms;
     }
 

@@ -159,6 +159,16 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
         );
     }
 
+    public function testUnsupportedEncryptionAlgorithms()
+    {
+        $this->setExpectedException('PHPUnit_Framework_Error_Notice', 'Encryption algorithms are not supported: unsupported-algorithm');
+        $ssh = $this->createSSHMock();
+        $ssh->setEncryptionAlgorithms(array(
+            'aes128-ctr',
+            'unsupported-algorithm'
+        ));
+    }
+
     /**
      * @return \phpseclib\Net\SSH2
      */
