@@ -876,6 +876,22 @@ class Net_SSH2
     var $agent;
 
     /**
+     * Send the identification string first?
+     *
+     * @var bool
+     * @access private
+     */
+    var $send_id_string_first = true;
+
+    /**
+     * Send the key exchange initiation packet first?
+     *
+     * @var bool
+     * @access private
+     */
+    var $send_kex_first = true;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1017,11 +1033,67 @@ class Net_SSH2
      * CRYPT_MODE_INTERNAL, CRYPT_MODE_MCRYPT
      *
      * @param int $engine
-     * @access private
+     * @access public
      */
     function setCryptoEngine($engine)
     {
         $this->crypto_engine = $engine;
+    }
+
+    /**
+     * Send Identification String First
+     *
+     * https://tools.ietf.org/html/rfc4253#section-4.2 says "when the connection has been established,
+     * both sides MUST send an identification string". It does not say which side sends it first. In
+     * theory it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
+     *
+     * @access public
+     */
+    function sendIdentificationStringFirst()
+    {
+        $this->send_id_string_first = true;
+    }
+
+    /**
+     * Send Identification String Last
+     *
+     * https://tools.ietf.org/html/rfc4253#section-4.2 says "when the connection has been established,
+     * both sides MUST send an identification string". It does not say which side sends it first. In
+     * theory it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
+     *
+     * @access public
+     */
+    function sendIdentificationStringLast()
+    {
+        $this->send_id_string_first = false;
+    }
+
+    /**
+     * Send SSH_MSG_KEXINIT First
+     *
+     * https://tools.ietf.org/html/rfc4253#section-7.1 says "key exchange begins by each sending
+     * sending the [SSH_MSG_KEXINIT] packet". It does not say which side sends it first. In theory
+     * it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
+     *
+     * @access public
+     */
+    function sendKEXINITFirst()
+    {
+        $this->send_kex_first = true;
+    }
+
+    /**
+     * Send SSH_MSG_KEXINIT Last
+     *
+     * https://tools.ietf.org/html/rfc4253#section-7.1 says "key exchange begins by each sending
+     * sending the [SSH_MSG_KEXINIT] packet". It does not say which side sends it first. In theory
+     * it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
+     *
+     * @access public
+     */
+    function sendKEXINITLast()
+    {
+        $this->send_kex_first = false;
     }
 
     /**
@@ -1065,7 +1137,9 @@ class Net_SSH2
 
         $this->identifier = $this->_generate_identifier();
 
-        fputs($this->fsock, $this->identifier . "\r\n");
+        if ($this->send_id_string_first) {
+            fputs($this->fsock, $this->identifier . "\r\n");
+        }
 
         /* According to the SSH2 specs,
 
@@ -1125,18 +1199,28 @@ class Net_SSH2
             return false;
         }
 
-        $response = $this->_get_binary_packet();
-        if ($response === false) {
-            user_error('Connection closed by server');
-            return false;
+        if (!$this->send_id_string_first) {
+            fputs($this->fsock, $this->identifier . "\r\n");
         }
 
-        if (!strlen($response) || ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
-            user_error('Expected SSH_MSG_KEXINIT');
-            return false;
+        if (!$this->send_kex_first) {
+            $response = $this->_get_binary_packet();
+            if ($response === false) {
+                user_error('Connection closed by server');
+                return false;
+            }
+
+            if (!strlen($response) || ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
+                user_error('Expected SSH_MSG_KEXINIT');
+                return false;
+            }
+
+            if (!$this->_key_exchange($response)) {
+                return false;
+            }
         }
 
-        if (!$this->_key_exchange($response)) {
+        if ($this->send_kex_first && !$this->_key_exchange()) {
             return false;
         }
 
@@ -1180,10 +1264,10 @@ class Net_SSH2
     /**
      * Key Exchange
      *
-     * @param string $kexinit_payload_server
+     * @param string $kexinit_payload_server optional
      * @access private
      */
-    function _key_exchange($kexinit_payload_server)
+    function _key_exchange($kexinit_payload_server = false)
     {
         static $kex_algorithms = array(
             'diffie-hellman-group1-sha1', // REQUIRED
@@ -1317,6 +1401,51 @@ class Net_SSH2
 
         $client_cookie = crypt_random_string(16);
 
+        $kexinit_payload_client = pack(
+            'Ca*Na*Na*Na*Na*Na*Na*Na*Na*Na*Na*CN',
+            NET_SSH2_MSG_KEXINIT,
+            $client_cookie,
+            strlen($str_kex_algorithms),
+            $str_kex_algorithms,
+            strlen($str_server_host_key_algorithms),
+            $str_server_host_key_algorithms,
+            strlen($encryption_algorithms_client_to_server),
+            $encryption_algorithms_client_to_server,
+            strlen($encryption_algorithms_server_to_client),
+            $encryption_algorithms_server_to_client,
+            strlen($mac_algorithms_client_to_server),
+            $mac_algorithms_client_to_server,
+            strlen($mac_algorithms_server_to_client),
+            $mac_algorithms_server_to_client,
+            strlen($compression_algorithms_client_to_server),
+            $compression_algorithms_client_to_server,
+            strlen($compression_algorithms_server_to_client),
+            $compression_algorithms_server_to_client,
+            0,
+            '',
+            0,
+            '',
+            0,
+            0
+        );
+
+        if ($this->send_kex_first) {
+            if (!$this->_send_binary_packet($kexinit_payload_client)) {
+                return false;
+            }
+
+            $kexinit_payload_server = $this->_get_binary_packet();
+            if ($kexinit_payload_server === false) {
+                user_error('Connection closed by server');
+                return false;
+            }
+
+            if (!strlen($kexinit_payload_server) || ord($kexinit_payload_server[0]) != NET_SSH2_MSG_KEXINIT) {
+                user_error('Expected SSH_MSG_KEXINIT');
+                return false;
+            }
+        }
+
         $response = $kexinit_payload_server;
         $this->_string_shift($response, 1); // skip past the message number (it should be SSH_MSG_KEXINIT)
         $server_cookie = $this->_string_shift($response, 16);
@@ -1387,39 +1516,9 @@ class Net_SSH2
         extract(unpack('Cfirst_kex_packet_follows', $this->_string_shift($response, 1)));
         $first_kex_packet_follows = $first_kex_packet_follows != 0;
 
-        // the sending of SSH2_MSG_KEXINIT could go in one of two places.  this is the second place.
-        $kexinit_payload_client = pack(
-            'Ca*Na*Na*Na*Na*Na*Na*Na*Na*Na*Na*CN',
-            NET_SSH2_MSG_KEXINIT,
-            $client_cookie,
-            strlen($str_kex_algorithms),
-            $str_kex_algorithms,
-            strlen($str_server_host_key_algorithms),
-            $str_server_host_key_algorithms,
-            strlen($encryption_algorithms_client_to_server),
-            $encryption_algorithms_client_to_server,
-            strlen($encryption_algorithms_server_to_client),
-            $encryption_algorithms_server_to_client,
-            strlen($mac_algorithms_client_to_server),
-            $mac_algorithms_client_to_server,
-            strlen($mac_algorithms_server_to_client),
-            $mac_algorithms_server_to_client,
-            strlen($compression_algorithms_client_to_server),
-            $compression_algorithms_client_to_server,
-            strlen($compression_algorithms_server_to_client),
-            $compression_algorithms_server_to_client,
-            0,
-            '',
-            0,
-            '',
-            0,
-            0
-        );
-
-        if (!$this->_send_binary_packet($kexinit_payload_client)) {
+        if (!$this->send_kex_first && !$this->_send_binary_packet($kexinit_payload_client)) {
             return false;
         }
-        // here ends the second place.
 
         // we need to decide upon the symmetric encryption algorithms before we do the diffie-hellman key exchange
         // we don't initialize any crypto-objects, yet - we do that, later. for now, we need the lengths to make the
