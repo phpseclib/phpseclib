@@ -2988,7 +2988,7 @@ class SSH2
 
 //            $message_number = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
 
-            $messageText=(SSH2_MSG::valueExists(ord($payload[0])))?SSH2_MSG::name(ord($payload[0])):'UNKNOWN (' . ord($payload[0]) . ')';
+            $messageText=SSH2_MSG::valueExists(ord($payload[0]))?SSH2_MSG::name(ord($payload[0])):'UNKNOWN (' . ord($payload[0]) . ')';
 
             $messageText = '<- ' . $messageText .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
