@@ -7,17 +7,20 @@
 
 use phpseclib\Crypt\RC4;
 use phpseclib\Crypt\Random;
+use phpseclib\Crypt\Common\SymmetricKey;
 
 class Unit_Crypt_RC4Test extends PhpseclibTestCase
 {
+    private $engines=array(
+        'PHP'=>SymmetricKey::ENGINE_INTERNAL,
+        'Eval'=>SymmetricKey::ENGINE_EVAL,
+        'mcrypt'=>SymmetricKey::ENGINE_MCRYPT,
+        'OpenSSL'=>SymmetricKey::ENGINE_OPENSSL,
+    );
+
+
     public function engineVectors()
     {
-        $engines = array(
-            'PHP',
-            'Eval',
-            'mcrypt',
-            'OpenSSL',
-        );
         // tests from https://tools.ietf.org/html/rfc6229
         $tests = array(
             array(
@@ -185,10 +188,10 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
 
         $result = array();
 
-        foreach ($engines as $engine) {
+        foreach ($this->engines as $engineName =>$engine) {
             foreach ($tests as $test) {
                 foreach ($test['output'] as $output) {
-                    $result[] = array($engine, $test['key'], $output['offset'], $output['result']);
+                    $result[] = array($engineName, $test['key'], $output['offset'], $output['result']);
                 }
             }
         }
@@ -199,16 +202,16 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
     /**
      * @dataProvider engineVectors
      */
-    public function testVectors($engine, $key, $offset, $expected)
+    public function testVectors($engineName, $key, $offset, $expected)
     {
         $rc4 = new RC4();
-        $rc4->setPreferredEngine($engine);
+        $rc4->setPreferredEngine($engineName);
         $rc4->setKey($key);
-        if ($rc4->getEngine() != $engine) {
-            self::markTestSkipped('Unable to initialize ' . $engine . ' engine for ' . (strlen($key) * 8) . '-bit key');
+        if (strtolower($rc4->getEngine()) != strtolower($engineName)) {
+            self::markTestSkipped('Unable to initialize ' . $engineName . ' engine for ' . (strlen($key) * 8) . '-bit key<'.$rc4->getEngine().'>');
         }
         $result = $rc4->encrypt(str_repeat("\0", $offset + 16));
-        $this->assertEquals(bin2hex(substr($result, -16)), $expected, "Failed asserting that key $key yielded expected output at offset $offset in $engine engine");
+        $this->assertEquals(bin2hex(substr($result, -16)), $expected, "Failed asserting that key $key yielded expected output at offset $offset in $engineName engine");
     }
 
     public function testKeySizes()
