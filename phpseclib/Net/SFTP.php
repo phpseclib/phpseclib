@@ -414,7 +414,7 @@ class SFTP extends SSH2
 
         $packet = pack(
             'CNa*N3',
-            SSH2_MSG::CHANNEL_OPEN,
+            SSH_MSG::CHANNEL_OPEN,
             strlen('session'),
             'session',
             self::CHANNEL,
@@ -426,7 +426,7 @@ class SFTP extends SSH2
             return false;
         }
 
-        $this->channel_status[self::CHANNEL] = SSH2_MSG::CHANNEL_OPEN;
+        $this->channel_status[self::CHANNEL] = SSH_MSG::CHANNEL_OPEN;
 
         $response = $this->get_channel_packet(self::CHANNEL);
         if ($response === false) {
@@ -435,7 +435,7 @@ class SFTP extends SSH2
 
         $packet = pack(
             'CNNa*CNa*',
-            SSH2_MSG::CHANNEL_REQUEST,
+            SSH_MSG::CHANNEL_REQUEST,
             $this->server_channels[self::CHANNEL],
             strlen('subsystem'),
             'subsystem',
@@ -447,7 +447,7 @@ class SFTP extends SSH2
             return false;
         }
 
-        $this->channel_status[self::CHANNEL] = SSH2_MSG::CHANNEL_REQUEST;
+        $this->channel_status[self::CHANNEL] = SSH_MSG::CHANNEL_REQUEST;
 
         $response = $this->get_channel_packet(self::CHANNEL);
         if ($response === false) {
@@ -459,7 +459,7 @@ class SFTP extends SSH2
             // is redundant
             $packet = pack(
                 'CNNa*CNa*',
-                SSH2_MSG::CHANNEL_REQUEST,
+                SSH_MSG::CHANNEL_REQUEST,
                 $this->server_channels[self::CHANNEL],
                 strlen('exec'),
                 'exec',
@@ -471,7 +471,7 @@ class SFTP extends SSH2
                 return false;
             }
 
-            $this->channel_status[self::CHANNEL] = SSH2_MSG::CHANNEL_REQUEST;
+            $this->channel_status[self::CHANNEL] = SSH_MSG::CHANNEL_REQUEST;
 
             $response = $this->get_channel_packet(self::CHANNEL);
             if ($response === false) {
@@ -479,7 +479,7 @@ class SFTP extends SSH2
             }
         }
 
-        $this->channel_status[self::CHANNEL] = SSH2_MSG::CHANNEL_DATA;
+        $this->channel_status[self::CHANNEL] = SSH_MSG::CHANNEL_DATA;
 
         if (!$this->send_sftp_packet(NET_SFTP_INIT, "\0\0\0\3")) {
             return false;

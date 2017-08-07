@@ -4,7 +4,7 @@ namespace phpseclib\Net;
 
 use phpseclib\Common\Enum;
 
-class SSH2_MSG extends Enum
+class SSH_MSG extends Enum
 {
     const DISCONNECT = 1;
     const IGNORE = 2;

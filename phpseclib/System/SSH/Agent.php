@@ -36,7 +36,7 @@ namespace phpseclib\System\SSH;
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\Crypt\RSA;
 use phpseclib\Exception\BadConfigurationException;
-use phpseclib\Net\SSH2_MSG;
+use phpseclib\Net\SSH_MSG;
 use phpseclib\System\SSH\Agent\Identity;
 use phpseclib\Common\Functions\Objects;
 
@@ -247,14 +247,14 @@ class Agent
 
         $packet = pack(
             'CNNa*C',
-            SSH2_MSG::CHANNEL_REQUEST,
+            SSH_MSG::CHANNEL_REQUEST,
             Objects::getVar($ssh, 'server_channels')[$this->request_channel],
             strlen('auth-agent-req@openssh.com'),
             'auth-agent-req@openssh.com',
             1
         );
 
-        $this->update_channel_status($ssh, SSH2_MSG::CHANNEL_REQUEST);
+        $this->update_channel_status($ssh, SSH_MSG::CHANNEL_REQUEST);
         if (!Objects::callFunc($ssh, 'send_binary_packet', [$packet])) {
             return false;
         }
@@ -264,7 +264,7 @@ class Agent
             return false;
         }
 
-        $this->update_channel_status($ssh,  SSH2_MSG::CHANNEL_OPEN);
+        $this->update_channel_status($ssh,  SSH_MSG::CHANNEL_OPEN);
         $this->forward_status = self::FORWARD_ACTIVE;
 
         return true;
