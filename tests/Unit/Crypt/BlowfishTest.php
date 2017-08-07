@@ -7,18 +7,19 @@
 
 use phpseclib\Crypt\Blowfish;
 use phpseclib\Crypt\Random;
+use phpseclib\Crypt\Common\SymmetricKey;
 
 class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
 {
+    private $engines=array(
+        'PHP'=>SymmetricKey::ENGINE_INTERNAL,
+        'Eval'=>SymmetricKey::ENGINE_EVAL,
+        'mcrypt'=>SymmetricKey::ENGINE_MCRYPT,
+        'OpenSSL'=>SymmetricKey::ENGINE_OPENSSL,
+    );
+
     public function engineVectors()
     {
-        $engines = array(
-            'PHP',
-            'Eval',
-            'mcrypt',
-            'OpenSSL',
-        );
-
         // tests from https://www.schneier.com/code/vectors.txt
         $tests = array(
             // key, plaintext, ciphertext
@@ -60,9 +61,9 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
 
         $result = array();
 
-        foreach ($engines as $engine) {
+        foreach ($this->engines as $engineName=>$engine) {
             foreach ($tests as $test) {
-                $result[] = array($engine, $test[0], $test[1], $test[2]);
+                $result[] = array($engineName, $test[0], $test[1], $test[2]);
             }
         }
 
@@ -78,14 +79,7 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
         $bf->setKey($key);
         $bf->setIV(str_repeat("\0", $bf->getBlockLength() >> 3));
 
-        $engines = array(
-            'PHP'=>\phpseclib\Crypt\Common\SymmetricKey::ENGINE_INTERNAL,
-            'Eval'=>\phpseclib\Crypt\Common\SymmetricKey::ENGINE_EVAL,
-            'mcrypt'=>\phpseclib\Crypt\Common\SymmetricKey::ENGINE_MCRYPT,
-            'OpenSSL'=>\phpseclib\Crypt\Common\SymmetricKey::ENGINE_OPENSSL,
-        );
-
-        if (!$bf->isValidEngine($engines[$engine])) {
+        if (!$bf->isValidEngine($this->engines[$engine])) {
             self::markTestSkipped("Unable to initialize $engine engine");
         }
         $bf->setPreferredEngine($engine);
@@ -103,14 +97,14 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
         $objects[] = $temp;
         $engines[] = 'internal';
 
-        if ($temp->isValidEngine('mcrypt')) {
+        if ($temp->isValidEngine($this->engines['mcrypt'])) {
             $temp = new Blowfish('ctr');
-            $temp->setPreferredEngine('mcrypt');
+            $temp->setPreferredEngine($this->engines['mcrypt']);
             $objects[] = $temp;
             $engines[] = 'mcrypt';
         }
 
-        if ($temp->isValidEngine('OpenSSL')) {
+        if ($temp->isValidEngine($this->engines['OpenSSL'])) {
             $temp = new Blowfish('ctr');
             $temp->setPreferredEngine('OpenSSL');
             $objects[] = $temp;

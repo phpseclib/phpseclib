@@ -6,14 +6,16 @@
  */
 
 use phpseclib\Crypt\TripleDES;
+use phpseclib\Crypt\Common\SymmetricKey;
 
 class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 {
-    var $engines = array(
-        'PHP',
-        'Eval',
-        'mcrypt',
-        'OpenSSL',
+
+    private $engines=array(
+        'PHP'=>SymmetricKey::ENGINE_INTERNAL,
+        'Eval'=>SymmetricKey::ENGINE_EVAL,
+        'mcrypt'=>SymmetricKey::ENGINE_MCRYPT,
+        'OpenSSL'=>SymmetricKey::ENGINE_OPENSSL,
     );
 
     public function engineVectors()
@@ -90,9 +92,9 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 
         $result = array();
 
-        foreach ($this->engines as $engine) {
+        foreach ($this->engines as $engineName => $engine) {
             foreach ($tests as $test) {
-                $result[] = array($engine, $test[0], $test[1], $test[2]);
+                $result[] = array($engineName, $test[0], $test[1], $test[2]);
             }
         }
 
@@ -105,7 +107,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
     public function testVectors($engine, $key, $plaintext, $expected)
     {
         $des = new TripleDES('cbc');
-        if (!$des->isValidEngine($engine)) {
+        if (!$des->isValidEngine($this->engines[$engine])) {
             self::markTestSkipped("Unable to initialize $engine engine");
         }
         $des->setPreferredEngine($engine);
@@ -119,13 +121,6 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 
     public function engineIVVectors()
     {
-        $engines = array(
-            'PHP',
-            'Eval',
-            'mcrypt',
-            'OpenSSL',
-        );
-
         // tests from http://csrc.nist.gov/groups/STM/cavp/documents/des/DESMMT.pdf
         $tests = array(
             // key, iv, plaintext, ciphertext
@@ -143,9 +138,9 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 
         $result = array();
 
-        foreach ($engines as $engine) {
+        foreach ($this->engines as $engineName => $engine) {
             foreach ($tests as $test) {
-                $result[] = array($engine, $test[0], $test[1], $test[2], $test[3]);
+                $result[] = array($engineName, $test[0], $test[1], $test[2], $test[3]);
             }
         }
 
@@ -158,7 +153,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
     public function testVectorsWithIV($engine, $key, $iv, $plaintext, $expected)
     {
         $des = new TripleDES('cbc');
-        if (!$des->isValidEngine($engine)) {
+        if (!$des->isValidEngine($this->engines[$engine])) {
             self::markTestSkipped("Unable to initialize $engine engine");
         }
         $des->setPreferredEngine($engine);
@@ -167,7 +162,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         $des->disablePadding();
         $result = $des->encrypt($plaintext);
         $plaintext = bin2hex($plaintext);
-        $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engin engine");
+        $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engine engine");
     }
 
     public function testInnerChaining()
@@ -180,13 +175,13 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         $des->setKey('abcdefghijklmnopqrstuvwx');
         $des->setIV(str_repeat("\0", $des->getBlockLength() >> 3));
 
-        foreach ($this->engines as $engine) {
-            $des->setPreferredEngine($engine);
+        foreach ($this->engines as $engineName => $engine) {
+            $des->setPreferredEngine($engineName);
             if (!$des->isValidEngine($engine)) {
-                self::markTestSkipped("Unable to initialize $engine engine");
+                self::markTestSkipped("Unable to initialize $engineName engine");
             }
             $result = bin2hex($des->encrypt(str_repeat('a', 16)));
-            $this->assertEquals($result, $expected, "Failed asserting inner chainin worked correctly in $engine engine");
+            $this->assertEquals($result, $expected, "Failed asserting inner chainin worked correctly in $engineName engine");
         }
     }
 
