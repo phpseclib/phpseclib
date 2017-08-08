@@ -167,7 +167,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         $des->disablePadding();
         $result = $des->encrypt($plaintext);
         $plaintext = bin2hex($plaintext);
-        $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engin engine");
+        $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engine engine");
     }
 
     public function testInnerChaining()
