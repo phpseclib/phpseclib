@@ -150,6 +150,61 @@ class SSH2
     const READ_NEXT = 3;
     /**#@-*/
 
+    /**#@+
+     * @access public
+     * @see \phpseclib\Net\SSH2::setKexAlgorithms()
+     */
+    static $SUPPORTED_KEX_ALGORITHMS = array(
+        // Elliptic Curve Diffie-Hellman Key Agreement (ECDH) using
+        // Curve25519. See doc/curve25519-sha256@libssh.org.txt in the
+        // libssh repository for more information.
+        'curve25519-sha256@libssh.org',
+
+        // Diffie-Hellman Key Agreement (DH) using integer modulo prime
+        // groups.
+        'diffie-hellman-group1-sha1', // REQUIRED
+        'diffie-hellman-group14-sha1', // REQUIRED
+        'diffie-hellman-group-exchange-sha1', // RFC 4419
+        'diffie-hellman-group-exchange-sha256', // RFC 4419
+    );
+    /**#@-*/
+
+    /**#@+
+     * @access public
+     * @see \phpseclib\Net\SSH2::setServerHostKeyAlgorithms()
+     */
+    static $SUPPORTED_SERVER_HOST_KEY_ALGORITHMS = array(
+        'ssh-rsa', // RECOMMENDED  sign   Raw RSA Key
+        'ssh-dss'  // REQUIRED     sign   Raw DSS Key
+    );
+    /**#@-*/
+
+    /**#@+
+     * @access public
+     * @see \phpseclib\Net\SSH2::setMACAlgorithms()
+     */
+    static $SUPPORTED_MAC_ALGORITHMS = array(
+        // from <http://www.ietf.org/rfc/rfc6668.txt>:
+        'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
+
+        'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
+        'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
+        'hmac-md5-96',  // OPTIONAL        first 96 bits of HMAC-MD5 (digest length = 12, key length = 16)
+        'hmac-md5',     // OPTIONAL        HMAC-MD5 (digest length = key length = 16)
+        'none'          // OPTIONAL        no MAC; NOT RECOMMENDED
+    );
+    /**#@-*/
+
+    /**#@+
+     * @access public
+     * @see \phpseclib\Net\SSH2::setCompressionAlgorithms()
+     */
+    static $SUPPORTED_COMPRESSION_ALGORITHMS = array(
+        'none',   // REQUIRED        no compression
+        'zlib' // OPTIONAL        ZLIB (LZ77) compression
+    );
+    /**#@-*/
+
     /**
      * The SSH identifier
      *
@@ -203,7 +258,19 @@ class SSH2
      * @var array|false
      * @access private
      */
-    var $kex_algorithms = false;
+    var $kex_algorithms = array(
+        // Elliptic Curve Diffie-Hellman Key Agreement (ECDH) using
+        // Curve25519. See doc/curve25519-sha256@libssh.org.txt in the
+        // libssh repository for more information.
+        'curve25519-sha256@libssh.org',
+
+        // Diffie-Hellman Key Agreement (DH) using integer modulo prime
+        // groups.
+        'diffie-hellman-group1-sha1', // REQUIRED
+        'diffie-hellman-group14-sha1', // REQUIRED
+        'diffie-hellman-group-exchange-sha1', // RFC 4419
+        'diffie-hellman-group-exchange-sha256', // RFC 4419
+    );
 
     /**
      * Minimum Diffie-Hellman Group Bit Size in RFC 4419 Key Exchange Methods
@@ -239,7 +306,10 @@ class SSH2
      * @var array|false
      * @access private
      */
-    var $server_host_key_algorithms = false;
+    var $server_host_key_algorithms = array(
+        'ssh-rsa', // RECOMMENDED  sign   Raw RSA Key
+        'ssh-dss'  // REQUIRED     sign   Raw DSS Key
+    );
 
     /**
      * Encryption Algorithms: Client to Server
@@ -260,6 +330,24 @@ class SSH2
     var $encryption_algorithms_server_to_client = false;
 
     /**
+     * MAC Algorithms
+     *
+     * @see self::getMACAlgorithms()
+     * @var array|false
+     * @access private
+     */
+    var $mac_algorithms = array(
+        // from <http://www.ietf.org/rfc/rfc6668.txt>:
+        'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
+
+        'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
+        'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
+        'hmac-md5-96',  // OPTIONAL        first 96 bits of HMAC-MD5 (digest length = 12, key length = 16)
+        'hmac-md5',     // OPTIONAL        HMAC-MD5 (digest length = key length = 16)
+        //'none'          // OPTIONAL        no MAC; NOT RECOMMENDED
+    );
+
+    /**
      * MAC Algorithms: Client to Server
      *
      * @see self::getMACAlgorithmsClient2Server()
@@ -276,6 +364,18 @@ class SSH2
      * @access private
      */
     var $mac_algorithms_server_to_client = false;
+
+    /**
+     * Compression Algorithms
+     *
+     * @see self::getCompressionAlgorithms()
+     * @var array
+     * @access private
+     */
+    var $compression_algorithms = array(
+        'none'   // REQUIRED        no compression
+        //'zlib' // OPTIONAL        ZLIB (LZ77) compression
+    );
 
     /**
      * Compression Algorithms: Client to Server
@@ -1172,19 +1272,7 @@ class SSH2
      */
     function _key_exchange($kexinit_payload_server)
     {
-        $kex_algorithms = array(
-            // Elliptic Curve Diffie-Hellman Key Agreement (ECDH) using
-            // Curve25519. See doc/curve25519-sha256@libssh.org.txt in the
-            // libssh repository for more information.
-            'curve25519-sha256@libssh.org',
-
-            // Diffie-Hellman Key Agreement (DH) using integer modulo prime
-            // groups.
-            'diffie-hellman-group1-sha1', // REQUIRED
-            'diffie-hellman-group14-sha1', // REQUIRED
-            'diffie-hellman-group-exchange-sha1', // RFC 4419
-            'diffie-hellman-group-exchange-sha256', // RFC 4419
-        );
+        $kex_algorithms = $this->kex_algorithms;
         if (!function_exists('\\Sodium\\library_version_major')) {
             $kex_algorithms = array_diff(
                 $kex_algorithms,
@@ -1192,10 +1280,7 @@ class SSH2
             );
         }
 
-        $server_host_key_algorithms = array(
-            'ssh-rsa', // RECOMMENDED  sign   Raw RSA Key
-            'ssh-dss'  // REQUIRED     sign   Raw DSS Key
-        );
+        $server_host_key_algorithms = $this->server_host_key_algorithms;
 
         $encryption_algorithms = array(
             // from <http://tools.ietf.org/html/rfc4345#section-4>:
@@ -1274,21 +1359,9 @@ class SSH2
         }
         $encryption_algorithms = array_values($encryption_algorithms);
 
-        $mac_algorithms = array(
-            // from <http://www.ietf.org/rfc/rfc6668.txt>:
-            'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
+        $mac_algorithms = $this->getMACAlgorithms();
 
-            'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
-            'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
-            'hmac-md5-96',  // OPTIONAL        first 96 bits of HMAC-MD5 (digest length = 12, key length = 16)
-            'hmac-md5',     // OPTIONAL        HMAC-MD5 (digest length = key length = 16)
-            //'none'          // OPTIONAL        no MAC; NOT RECOMMENDED
-        );
-
-        $compression_algorithms = array(
-            'none'   // REQUIRED        no compression
-            //'zlib' // OPTIONAL        ZLIB (LZ77) compression
-        );
+        $compression_algorithms = $this->getCompressionAlgorithms();
 
         // some SSH servers have buggy implementations of some of the above algorithms
         switch (true) {
@@ -4402,5 +4475,103 @@ class SSH2
     {
         $this->windowColumns = $columns;
         $this->windowRows = $rows;
+    }
+
+    /**
+     * Sets the default kex algorithms
+     *
+     * @access public
+     * @param array $kex_algorithms
+     */
+    function setKexAlgorithms($kex_algorithms)
+    {
+        $unsupportedKexAlgorithms = array_diff($kex_algorithms, self::$SUPPORTED_KEX_ALGORITHMS);
+        if (count($unsupportedKexAlgorithms) > 0) {
+            user_error(sprintf(
+                'Kex algorithms not supported: %s',
+                implode(', ', $unsupportedKexAlgorithms)
+            ));
+            return;
+        }
+        $this->kex_algorithms = $kex_algorithms;
+    }
+
+    /**
+     * Sets the default server host key algorithms
+     *
+     * @access public
+     * @param array $kex_algorithms
+     */
+    function setServerHostKeyAlgorithms($server_host_key_algorithms)
+    {
+        $unsupportedServerHostKeyAlgorithms = array_diff($server_host_key_algorithms, self::$SUPPORTED_SERVER_HOST_KEY_ALGORITHMS);
+        if (count($unsupportedServerHostKeyAlgorithms) > 0) {
+            user_error(sprintf(
+                'Server host key algorithms not supported: %s',
+                implode(', ', $unsupportedServerHostKeyAlgorithms)
+            ));
+            return;
+        }
+        $this->server_host_key_algorithms = $server_host_key_algorithms;
+    }
+
+    /**
+     * Sets the default MAC algorithms
+     *
+     * @access public
+     * @param array $mac_algorithms
+     */
+    function setMACAlgorithms($mac_algorithms)
+    {
+        $unsupportedMACAlgorithms = array_diff($mac_algorithms, self::$SUPPORTED_MAC_ALGORITHMS);
+        if (count($unsupportedMACAlgorithms) > 0) {
+            user_error(sprintf(
+                'MAC algorithms not supported: %s',
+                implode(', ', $unsupportedMACAlgorithms)
+            ));
+            return;
+        }
+        $this->mac_algorithms = $mac_algorithms;
+    }
+
+    /**
+     * Return a list of the MAC algorithms.
+     *
+     * @return array
+     * @access public
+     */
+    function getMACAlgorithms()
+    {
+        return $this->mac_algorithms;
+    }
+
+    /**
+     * Sets the default compression algorithms
+     *
+     * @access public
+     * @param array $compression_algorithms
+     */
+    function setCompressionAlgorithms($compression_algorithms)
+    {
+        $unsupportedCompressionAlgorithms = array_diff($compression_algorithms, self::$SUPPORTED_COMPRESSION_ALGORITHMS);
+        if (count($unsupportedCompressionAlgorithms) > 0) {
+            user_error(sprintf(
+                'Compression algorithms not supported: %s',
+                implode(', ', $unsupportedCompressionAlgorithms)
+            ));
+            return;
+        }
+        $this->compression_algorithms = $compression_algorithms;
+    }
+
+    /**
+     * Returns default compression algorithms
+     *
+     * @access public
+     * @return array
+     */
+    function getCompressionAlgorithms()
+    {
+        return $this->compression_algorithms;
     }
 }

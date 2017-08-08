@@ -110,6 +110,170 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
         $this->assertFalse($ssh->isQuietModeEnabled());
     }
 
+    public function testDefaultKexAlgorithms()
+    {
+        $ssh = $this->createSSHMock();
+
+        $this->assertSame(
+            array (
+                'curve25519-sha256@libssh.org',
+                'diffie-hellman-group1-sha1',
+                'diffie-hellman-group14-sha1',
+                'diffie-hellman-group-exchange-sha1',
+                'diffie-hellman-group-exchange-sha256',
+            ),
+            $ssh->kex_algorithms
+        );
+    }
+
+    public function testOverwrittenKexAlgorithms()
+    {
+        $ssh = $this->createSSHMock();
+        $ssh->setKexAlgorithms(array(
+            'curve25519-sha256@libssh.org',
+            'diffie-hellman-group1-sha1',
+            'diffie-hellman-group14-sha1',
+        ));
+
+        $this->assertSame(
+            array (
+                'curve25519-sha256@libssh.org',
+                'diffie-hellman-group1-sha1',
+                'diffie-hellman-group14-sha1',
+            ),
+            $ssh->kex_algorithms
+        );
+    }
+
+    public function testUnsupportedKexAlgorithms()
+    {
+        $this->setExpectedException('PHPUnit_Framework_Error_Notice', 'Kex algorithms not supported: unsupported-algorithm');
+        $ssh = $this->createSSHMock();
+        $ssh->setKexAlgorithms(array(
+            'curve25519-sha256@libssh.org',
+            'unsupported-algorithm'
+        ));
+    }
+
+    public function testDefaultServerHostKeyAlgorithms()
+    {
+        $ssh = $this->createSSHMock();
+
+        $this->assertSame(
+            array (
+                'ssh-rsa',
+                'ssh-dss'
+            ),
+            $ssh->server_host_key_algorithms
+        );
+    }
+
+    public function testOverwrittenServerHostKeyAlgorithms()
+    {
+        $ssh = $this->createSSHMock();
+        $ssh->setServerHostKeyAlgorithms(array(
+            'ssh-rsa'
+        ));
+
+        $this->assertSame(
+            array (
+                'ssh-rsa'
+            ),
+            $ssh->server_host_key_algorithms
+        );
+    }
+
+    public function testUnsupportedServerHostKeyAlgorithms()
+    {
+        $this->setExpectedException('PHPUnit_Framework_Error_Notice', 'Server host key algorithms not supported: unsupported-algorithm');
+        $ssh = $this->createSSHMock();
+        $ssh->setServerHostKeyAlgorithms(array(
+            'ssh-rsa',
+            'unsupported-algorithm'
+        ));
+    }
+
+    public function testDefaultMACAlgorithms()
+    {
+        $ssh = $this->createSSHMock();
+
+        $this->assertSame(
+            array (
+                'hmac-sha2-256',
+                'hmac-sha1-96',
+                'hmac-sha1',
+                'hmac-md5-96',
+                'hmac-md5',
+            ),
+            $ssh->getMACAlgorithms()
+        );
+    }
+
+    public function testOverwrittenMACAlgorithms()
+    {
+        $ssh = $this->createSSHMock();
+        $ssh->setMACAlgorithms(array(
+            'hmac-sha2-256',
+            'hmac-sha1-96',
+            'hmac-sha1'
+        ));
+
+        $this->assertSame(
+            array (
+                'hmac-sha2-256',
+                'hmac-sha1-96',
+                'hmac-sha1'
+            ),
+            $ssh->mac_algorithms
+        );
+    }
+
+    public function testUnsupportedMACAlgorithms()
+    {
+        $this->setExpectedException('PHPUnit_Framework_Error_Notice', 'MAC algorithms not supported: unsupported-algorithm');
+        $ssh = $this->createSSHMock();
+        $ssh->setMACAlgorithms(array(
+            'hmac-sha2-256',
+            'unsupported-algorithm'
+        ));
+    }
+
+    public function testDefaultCompressionAlgorithms()
+    {
+        $ssh = $this->createSSHMock();
+
+        $this->assertSame(
+            array (
+                'none'
+            ),
+            $ssh->getCompressionAlgorithms()
+        );
+    }
+
+    public function testOverwrittenCompressionAlgorithms()
+    {
+        $ssh = $this->createSSHMock();
+        $ssh->setCompressionAlgorithms(array(
+            'zlib'
+        ));
+
+        $this->assertSame(
+            array (
+                'zlib'
+            ),
+            $ssh->getCompressionAlgorithms()
+        );
+    }
+
+    public function testUnsupportedCompressionAlgorithms()
+    {
+        $this->setExpectedException('PHPUnit_Framework_Error_Notice', 'Compression algorithms not supported: unsupported-algorithm');
+        $ssh = $this->createSSHMock();
+        $ssh->setCompressionAlgorithms(array(
+            'unsupported-algorithm'
+        ));
+    }
+
     /**
      * @return \phpseclib\Net\SSH2
      */
