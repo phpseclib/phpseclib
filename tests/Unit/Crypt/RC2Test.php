@@ -6,14 +6,15 @@
  */
 
 use phpseclib\Crypt\RC2;
+use phpseclib\Crypt\Common\SymmetricKey;
 
 class Unit_Crypt_RC2Test extends PhpseclibTestCase
 {
-    var $engines = array(
-        'PHP',
-        'Eval',
-        'mcrypt',
-        'OpenSSL',
+    private $engines=array(
+        'PHP'=>SymmetricKey::ENGINE_INTERNAL,
+        'Eval'=>SymmetricKey::ENGINE_EVAL,
+        'mcrypt'=>SymmetricKey::ENGINE_MCRYPT,
+        'OpenSSL'=>SymmetricKey::ENGINE_OPENSSL,
     );
 
     public function engineVectors()
@@ -33,9 +34,9 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
 
         $result = array();
 
-        foreach ($this->engines as $engine) {
+        foreach ($this->engines as $engineName => $engine ) {
             foreach ($tests as $test) {
-                $result[] = array($engine, $test[0], $test[1], $test[2], $test[3]);
+                $result[] = array($engineName, $test[0], $test[1], $test[2], $test[3]);
             }
         }
 
@@ -108,22 +109,22 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
     /**
      * @dataProvider engineVectors
      */
-    public function testVectors($engine, $key, $keyLen, $plaintext, $ciphertext)
+    public function testVectors($engineName, $key, $keyLen, $plaintext, $ciphertext)
     {
         $rc2 = new RC2('cbc');
         $rc2->disablePadding();
         $rc2->setKeyLength($keyLen);
         $rc2->setKey(pack('H*', $key)); // could also do $rc2->setKey(pack('H*', $key), $keyLen)
         $rc2->setIV(str_repeat("\0", $rc2->getBlockLength() >> 3));
-        if (!$rc2->isValidEngine($engine)) {
-            self::markTestSkipped("Unable to initialize $engine engine");
+        if (!$rc2->isValidEngine($this->engines[$engineName])) {
+            self::markTestSkipped("Unable to initialize $engineName engine");
         }
-        $rc2->setPreferredEngine($engine);
+        $rc2->setPreferredEngine($engineName);
 
         $result = bin2hex($rc2->encrypt(pack('H*', $plaintext)));
-        $this->assertEquals($result, $ciphertext, "Failed asserting that $plaintext yielded expected output in $engine engine");
+        $this->assertEquals($result, $ciphertext, "Failed asserting that $plaintext yielded expected output in $engineName engine");
 
         $result = bin2hex($rc2->decrypt(pack('H*', $ciphertext)));
-        $this->assertEquals($result, $plaintext, "Failed asserting that decrypted result yielded $plaintext as a result in $engine engine");
+        $this->assertEquals($result, $plaintext, "Failed asserting that decrypted result yielded $plaintext as a result in $engineName engine");
     }
 }
