@@ -77,7 +77,7 @@ abstract class PuTTY
      * @param string $publicHandler
      * @param string $type
      * @param string $password
-     * @return array
+     * @return array|bool
      */
     protected static function load($key, $password)
     {

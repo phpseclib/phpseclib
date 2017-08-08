@@ -26,6 +26,7 @@ namespace phpseclib\File;
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * Pure-PHP ASN.1 Parser
@@ -248,7 +249,7 @@ abstract class ASN1
      * @param string $encoded
      * @param int $start
      * @param int $encoded_pos
-     * @return array
+     * @return array|bool
      * @access private
      */
     private static function decode_ber($encoded, $start = 0, $encoded_pos = 0)
@@ -513,7 +514,7 @@ abstract class ASN1
      * @param array $decoded
      * @param array $mapping
      * @param array $special
-     * @return array
+     * @return array|bool|Element
      * @access public
      */
     public static function asn1map($decoded, $mapping, $special = [])
@@ -826,7 +827,7 @@ abstract class ASN1
      * ASN.1 Encode (Helper function)
      *
      * @param string $source
-     * @param string $mapping
+     * @param array $mapping
      * @param int $idx
      * @return string
      * @throws \RuntimeException if the input has an error in it

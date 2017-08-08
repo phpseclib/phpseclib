@@ -42,7 +42,7 @@ abstract class Raw
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array
+     * @return array|bool
      */
     public static function load($key, $password = '')
     {
@@ -95,7 +95,7 @@ abstract class Raw
      * @access public
      * @param \phpseclib\Math\BigInteger $n
      * @param \phpseclib\Math\BigInteger $e
-     * @return string
+     * @return array
      */
     public static function savePublicKey(BigInteger $n, BigInteger $e)
     {

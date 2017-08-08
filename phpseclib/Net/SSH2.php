@@ -652,7 +652,7 @@ class SSH2
      * @see self::_get_channel_packet()
      * @access private
      */
-    private $curTimeout;
+    protected $curTimeout;
 
     /**
      * Real-time log file pointer
@@ -906,7 +906,7 @@ class SSH2
      * @param int $port
      * @param int $timeout
      * @see self::login()
-     * @return \phpseclib\Net\SSH2
+     * @return SSH2|void
      * @access public
      */
     public function __construct($host, $port = 22, $timeout = 10)
@@ -3926,7 +3926,7 @@ class SSH2
      * @return bool
      * @access private
      */
-    private function disconnect_helper($reason)
+    protected function disconnect_helper($reason)
     {
         if ($this->bitmap & self::MASK_CONNECTED) {
             $data = pack('CNNa*Na*', NET_SSH2_MSG_DISCONNECT, $reason, 0, '', 0, '');

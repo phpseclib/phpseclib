@@ -80,7 +80,7 @@ abstract class Base extends PHP
      * @param string $class
      * @return \phpseclib\Math\BigInteger\Engines\PHP
      */
-    protected static function powModHelper(PHP $x, PHP $e, PHP $n, $class)
+    public static function powModHelper(PHP $x, PHP $e, PHP $n, $class)
     {
         if (empty($e->value)) {
             $temp = new $class();
