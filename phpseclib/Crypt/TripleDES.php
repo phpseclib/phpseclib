@@ -178,10 +178,10 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
-     * @access public
+     * @access protected
      * @return bool
      */
-    public function isValidEngine($engine)
+    protected function isValidEngineHelper($engine)
     {
         if ($engine == self::ENGINE_OPENSSL) {
             $this->cipher_name_openssl_ecb = 'des-ede3';
@@ -189,7 +189,7 @@ class TripleDES extends DES
             $this->cipher_name_openssl = $mode == 'ecb' ? 'des-ede3' : 'des-ede3-' . $mode;
         }
 
-        return parent::isValidEngine($engine);
+        return parent::isValidEngineHelper($engine);
     }
 
     /**

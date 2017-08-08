@@ -26,6 +26,7 @@ namespace phpseclib\File;
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * Pure-PHP ASN.1 Parser
@@ -248,7 +249,7 @@ abstract class ASN1
      * @param string $encoded
      * @param int $start
      * @param int $encoded_pos
-     * @return array
+     * @return array|bool
      * @access private
      */
     private static function decode_ber($encoded, $start = 0, $encoded_pos = 0)
@@ -513,7 +514,7 @@ abstract class ASN1
      * @param array $decoded
      * @param array $mapping
      * @param array $special
-     * @return array
+     * @return array|bool|Element
      * @access public
      */
     public static function asn1map($decoded, $mapping, $special = [])
@@ -826,7 +827,7 @@ abstract class ASN1
      * ASN.1 Encode (Helper function)
      *
      * @param string $source
-     * @param string $mapping
+     * @param array $mapping
      * @param int $idx
      * @return string
      * @throws \RuntimeException if the input has an error in it
@@ -1346,27 +1347,6 @@ abstract class ASN1
         $temp = str_replace(["\r", "\n", ' '], '', $temp);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? Base64::decode($temp) : false;
         return $temp != false ? $temp : $str;
-    }
-
-    /**
-     * DER-decode the length
-     *
-     * DER supports lengths up to (2**8)**127, however, we'll only support lengths up to (2**8)**4.  See
-     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
-     *
-     * @access public
-     * @param string $string
-     * @return int
-     */
-    public static function decodeLength(&$string)
-    {
-        $length = ord(Strings::shift($string));
-        if ($length & 0x80) { // definite length, long form
-            $length&= 0x7F;
-            $temp = Strings::shift($string, $length);
-            list(, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
-        }
-        return $length;
     }
 
     /**

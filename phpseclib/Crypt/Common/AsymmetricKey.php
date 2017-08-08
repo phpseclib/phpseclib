@@ -299,7 +299,7 @@ abstract class AsymmetricKey
      * @access private
      * @param string $key
      * @param string $type
-     * @return array
+     * @return array|bool
      */
     protected function load($key, $type)
     {
@@ -339,7 +339,7 @@ abstract class AsymmetricKey
      * @access private
      * @param string $key
      * @param string $type
-     * @return array
+     * @return array|bool
      */
     protected function setPublicKey($key, $type)
     {

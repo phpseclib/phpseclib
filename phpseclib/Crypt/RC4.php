@@ -139,10 +139,10 @@ class RC4 extends StreamCipher
      *
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
-     * @access public
+     * @access protected
      * @return bool
      */
-    public function isValidEngine($engine)
+    protected function isValidEngineHelper($engine)
     {
         if ($engine == self::ENGINE_OPENSSL) {
             if (version_compare(PHP_VERSION, '5.3.7') >= 0) {
@@ -164,7 +164,7 @@ class RC4 extends StreamCipher
             }
         }
 
-        return parent::isValidEngine($engine);
+        return parent::isValidEngineHelper($engine);
     }
 
     /**

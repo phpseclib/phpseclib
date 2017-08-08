@@ -603,10 +603,10 @@ class DES extends BlockCipher
      *
      * @see \phpseclib\Crypt\Common\SymmetricKey::isValidEngine()
      * @param int $engine
-     * @access public
+     * @access protected
      * @return bool
      */
-    public function isValidEngine($engine)
+    protected function isValidEngineHelper($engine)
     {
         if ($this->key_length_max == 8) {
             if ($engine == self::ENGINE_OPENSSL) {
@@ -615,7 +615,7 @@ class DES extends BlockCipher
             }
         }
 
-        return parent::isValidEngine($engine);
+        return parent::isValidEngineHelper($engine);
     }
 
     /**

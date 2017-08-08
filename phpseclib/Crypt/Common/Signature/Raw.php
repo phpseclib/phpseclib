@@ -33,7 +33,7 @@ abstract class Raw
      *
      * @access public
      * @param array $sig
-     * @return array
+     * @return array|bool
      */
     public static function load($sig)
     {

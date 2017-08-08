@@ -546,7 +546,7 @@ class GMP extends Engine
      *
      * Returns the nth root of a positive biginteger, where n defaults to 2
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine\GMP
+     * @return \phpseclib\Math\BigInteger\Engines\GMP
      */
     protected function rootInner($n)
     {

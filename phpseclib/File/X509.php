@@ -36,6 +36,7 @@ use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
 use phpseclib\File\ASN1\Maps;
 
+
 /**
  * Pure-PHP X.509 Parser
  *
@@ -1564,7 +1565,7 @@ class X509
      * @param mixed $format optional
      * @param array $dn optional
      * @access public
-     * @return bool
+     * @return array|bool
      */
     public function getDN($format = self::DN_ARRAY, $dn = null)
     {
@@ -2796,7 +2797,7 @@ class X509
         */
         if (strtolower($date) == 'lifetime') {
             $temp = '99991231235959Z';
-            $temp = chr(ASN1::TYPE_GENERALIZED_TIME) . Functions::encodeLength(strlen($temp)) . $temp;
+            $temp = chr(ASN1::TYPE_GENERALIZED_TIME) . ASN1::encodeLength(strlen($temp)) . $temp;
             $this->endDate = new Element($temp);
         } else {
             $this->endDate = @date('D, d M Y H:i:s O', @strtotime($date));
@@ -3117,24 +3118,26 @@ class X509
      *
      * @param string $id
      * @param array $cert optional
+     * @param string $path
      * @access public
      * @return mixed
      */
-    public function getExtension($id, $cert = null)
+    public function getExtension($id, $cert = null, $path=null)
     {
-        return $this->getExtensionHelper($id, $cert);
+        return $this->getExtensionHelper($id, $cert, $path);
     }
 
     /**
      * Returns a list of all extensions in use in certificate, CSR or CRL
      *
      * @param array $cert optional
+     * @param string $path optional
      * @access public
      * @return array
      */
-    public function getExtensions($cert = null)
+    public function getExtensions($cert = null, $path = null)
     {
-        return $this->getExtensionsHelper($cert);
+        return $this->getExtensionsHelper($cert, $path);
     }
 
     /**
@@ -3430,7 +3433,7 @@ class X509
      * Format a public key as appropriate
      *
      * @access private
-     * @return array
+     * @return array|bool
      */
     private function formatSubjectPublicKey()
     {
@@ -3602,7 +3605,7 @@ class X509
      *
      * @param array $crl optional
      * @access public
-     * @return array
+     * @return array|bool
      */
     public function listRevoked($crl = null)
     {
@@ -3676,7 +3679,7 @@ class X509
      * @param string $serial
      * @param array $crl optional
      * @access public
-     * @return array
+     * @return array|bool
      */
     public function getRevokedCertificateExtensions($serial, $crl = null)
     {
@@ -3686,7 +3689,7 @@ class X509
 
         if (is_array($rclist = $this->subArray($crl, 'tbsCertList/revokedCertificates'))) {
             if (($i = $this->revokedCertificate($rclist, $serial)) !== false) {
-                return $this->getExtensionsHelper($crl, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
+                return $this->getExtensions($crl, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
             }
         }
 
