@@ -154,7 +154,7 @@ class SSH2
      * @access public
      * @see \phpseclib\Net\SSH2::setEncryptionAlgorithms()
      */
-    const SUPPORTED_ENCRYPTION_ALGORITHMS = array(
+    static $SUPPORTED_ENCRYPTION_ALGORITHMS = array(
         // from <http://tools.ietf.org/html/rfc4345#section-4>:
         'arcfour256',
         'arcfour128',
@@ -4561,7 +4561,7 @@ class SSH2
      */
     function setEncryptionAlgorithms($encryption_algorithms)
     {
-        $unsupportedEncryptionAlgorithms = array_diff($encryption_algorithms, $this->encryption_algorithms);
+        $unsupportedEncryptionAlgorithms = array_diff($encryption_algorithms, self::$SUPPORTED_ENCRYPTION_ALGORITHMS);
         if (count($unsupportedEncryptionAlgorithms) > 0) {
             user_error(sprintf(
                 'Encryption algorithms are not supported: %s',
