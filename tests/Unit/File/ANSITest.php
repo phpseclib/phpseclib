@@ -37,7 +37,7 @@ class Unit_File_ANSITest extends PhpseclibTestCase
         }
         $str.= str_repeat('z', 100);
 
-        $ansi = new File_ANSI();
+        $ansi = new ANSI();
         $ansi->appendString($str);
 
         $screen = $ansi->getScreen();
