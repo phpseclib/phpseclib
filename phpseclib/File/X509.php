@@ -3132,12 +3132,13 @@ class X509
      * Returns a list of all extensions in use in certificate, CSR or CRL
      *
      * @param array $cert optional
+     * @param string $path optional
      * @access public
      * @return array
      */
-    public function getExtensions($cert = null)
+    public function getExtensions($cert = null, $path = null)
     {
-        return $this->getExtensionsHelper($cert);
+        return $this->getExtensionsHelper($cert, $path);
     }
 
     /**
@@ -3689,7 +3690,7 @@ class X509
 
         if (is_array($rclist = $this->subArray($crl, 'tbsCertList/revokedCertificates'))) {
             if (($i = $this->revokedCertificate($rclist, $serial)) !== false) {
-                return $this->getExtensionsHelper($crl, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
+                return $this->getExtensions($crl, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
             }
         }
 
