@@ -44,4 +44,22 @@ class Unit_File_ANSITest extends PhpseclibTestCase
 
         $this->assertSame($ansi->getScreen(), $expected);
     }
+
+    public function testLineOverflow()
+    {
+        $str = '';
+        foreach (range('a', 'y') as $char) {
+            $str.= "$char\r\n";
+        }
+        $str.= str_repeat('z', 100);
+
+        $ansi = new ANSI();
+        $ansi->appendString($str);
+
+        $screen = $ansi->getScreen();
+
+        $lines = explode("\r\n", $screen);
+        $this->assertSame(24, count($lines));
+        $this->assertSame(str_repeat('z', 80), $lines[22]);
+    }
 }
