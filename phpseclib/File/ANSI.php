@@ -419,7 +419,7 @@ class ANSI
 
                     if ($this->x > $this->max_x) {
                         $this->x = 0;
-                        $this->y++;
+                        $this->_newLine();
                     } else {
                         $this->x++;
                     }
