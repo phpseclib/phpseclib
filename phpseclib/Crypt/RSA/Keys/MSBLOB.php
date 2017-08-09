@@ -71,7 +71,7 @@ abstract class MSBLOB
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array
+     * @return array|bool
      */
     public static function load($key, $password = '')
     {

@@ -215,20 +215,20 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
     {
         $objects = $engines = array();
         $temp = new RC4(RC4::MODE_CTR);
-        $temp->setPreferredEngine(RC4::ENGINE_INTERNAL);
+        $temp->setPreferredEngine('internal');
         $objects[] = $temp;
         $engines[] = 'internal';
 
-        if ($temp->isValidEngine(RC4::ENGINE_MCRYPT)) {
+        if ($temp->isValidEngine('mcrypt')) {
             $temp = new RC4(RC4::MODE_CTR);
-            $temp->setPreferredEngine(RC4::ENGINE_MCRYPT);
+            $temp->setPreferredEngine('mcrypt');
             $objects[] = $temp;
             $engines[] = 'mcrypt';
         }
 
-        if ($temp->isValidEngine(RC4::ENGINE_OPENSSL)) {
+        if ($temp->isValidEngine('openssl')) {
             $temp = new RC4(RC4::MODE_CTR);
-            $temp->setPreferredEngine(RC4::ENGINE_OPENSSL);
+            $temp->setPreferredEngine('openssl');
             $objects[] = $temp;
             $engines[] = 'OpenSSL';
         }

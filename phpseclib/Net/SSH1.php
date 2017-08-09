@@ -1079,7 +1079,7 @@ class SSH1
      * http://www.securiteam.com/securitynews/5LP042K3FY.html
      *
      * @see self::_send_binary_packet()
-     * @return array
+     * @return array|bool
      * @access private
      */
     private function get_binary_packet()

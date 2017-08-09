@@ -1712,10 +1712,10 @@ abstract class SymmetricKey
      *
      * @see self::__construct()
      * @param int $engine
-     * @access public
+     * @access private
      * @return bool
      */
-    public function isValidEngine($engine)
+    protected function isValidEngineHelper($engine)
     {
         switch ($engine) {
             case self::ENGINE_OPENSSL:
@@ -1754,6 +1754,29 @@ abstract class SymmetricKey
         }
 
         return false;
+    }
+
+    /**
+     * Test for engine validity
+     *
+     * @see self::__construct()
+     * @param string $engine
+     * @access public
+     * @return bool
+     */
+    public function isValidEngine($engine)
+    {
+        static $reverseMap;
+        if (!isset($reverseMap)) {
+            $reverseMap = array_map('strtolower', self::ENGINE_MAP);
+            $reverseMap = array_flip($reverseMap);
+        }
+        $engine = strtolower($engine);
+        if (!isset($reverseMap[$engine])) {
+            return false;
+        }
+
+        return $this->isValidEngineHelper($reverseMap[$engine]);
     }
 
     /**
@@ -1816,7 +1839,7 @@ abstract class SymmetricKey
             self::ENGINE_EVAL
         ];
         foreach ($candidateEngines as $engine) {
-            if ($this->isValidEngine($engine)) {
+            if ($this->isValidEngineHelper($engine)) {
                 $this->engine = $engine;
                 break;
             }

@@ -122,7 +122,7 @@ abstract class PKCS1 extends PKCS
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array
+     * @return array|bool
      */
     protected static function load($key, $password)
     {

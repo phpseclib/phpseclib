@@ -3024,7 +3024,7 @@ class SFTP extends SSH2
      * Returns a string if NET_SFTP_LOGGING == self::LOG_COMPLEX, an array if NET_SFTP_LOGGING == self::LOG_SIMPLE and false if !defined('NET_SFTP_LOGGING')
      *
      * @access public
-     * @return string or Array
+     * @return array|string
      */
     public function getSFTPLog()
     {
@@ -3086,7 +3086,7 @@ class SFTP extends SSH2
      * @return bool
      * @access private
      */
-    private function disconnect_helper($reason)
+    protected function disconnect_helper($reason)
     {
         $this->pwd = false;
         parent::disconnect_helper($reason);
