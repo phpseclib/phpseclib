@@ -9,7 +9,7 @@ abstract class Enum
     protected static function init()
     {
         if (self::$constants==null) {
-            $reflect = new \ReflectionClass(get_called_class());
+            $reflect = new \ReflectionClass(static::class);
 
             self::$constants = $reflect->getConstants();
         }
