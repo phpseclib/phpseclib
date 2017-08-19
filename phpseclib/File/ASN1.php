@@ -554,7 +554,9 @@ class File_ASN1
                 break;
             case FILE_ASN1_TYPE_UTC_TIME:
             case FILE_ASN1_TYPE_GENERALIZED_TIME:
-                $current['content'] = $this->_decodeTime(substr($content, $content_pos), $tag);
+                $current['content'] = class_exists('DateTime') ?
+                    $this->_decodeDateTime(substr($content, $content_pos), $tag) :
+                    $this->_decodeUnixTime(substr($content, $content_pos), $tag);
             default:
         }
 
@@ -788,10 +790,20 @@ class File_ASN1
                 return isset($this->oids[$decoded['content']]) ? $this->oids[$decoded['content']] : $decoded['content'];
             case FILE_ASN1_TYPE_UTC_TIME:
             case FILE_ASN1_TYPE_GENERALIZED_TIME:
-                if (isset($mapping['implicit'])) {
-                    $decoded['content'] = $this->_decodeTime($decoded['content'], $decoded['type']);
+                if (class_exists('DateTime')) {
+                    if (isset($mapping['implicit'])) {
+                        $decoded['content'] = $this->_decodeDateTime($decoded['content'], $decoded['type']);
+                    }
+                    if (!$decoded['content']) {
+                        return false;
+                    }
+                    return $decoded['content']->format($this->format);
+                } else {
+                    if (isset($mapping['implicit'])) {
+                        $decoded['content'] = $this->_decodeUnixTime($decoded['content'], $decoded['type']);
+                    }
+                    return @date($this->format, $decoded['content']);
                 }
-                return @date($this->format, $decoded['content']);
             case FILE_ASN1_TYPE_BIT_STRING:
                 if (isset($mapping['mapping'])) {
                     $offset = ord($decoded['content'][0]);
@@ -1040,7 +1052,12 @@ class File_ASN1
             case FILE_ASN1_TYPE_GENERALIZED_TIME:
                 $format = $mapping['type'] == FILE_ASN1_TYPE_UTC_TIME ? 'y' : 'Y';
                 $format.= 'mdHis';
-                $value = @gmdate($format, strtotime($source)) . 'Z';
+                if (!class_exists('DateTime')) {
+                    $value = @gmdate($format, strtotime($source)) . 'Z';
+                } else {
+                    $date = new DateTime($source, new DateTimeZone('GMT'));
+                    $value = $date->format($format) . 'Z';
+                }
                 break;
             case FILE_ASN1_TYPE_BIT_STRING:
                 if (isset($mapping['mapping'])) {
@@ -1202,7 +1219,7 @@ class File_ASN1
     }
 
     /**
-     * BER-decode the time
+     * BER-decode the time (using UNIX time)
      *
      * Called by _decode_ber() and in the case of implicit tags asn1map().
      *
@@ -1211,7 +1228,7 @@ class File_ASN1
      * @param int $tag
      * @return string
      */
-    function _decodeTime($content, $tag)
+    function _decodeUnixTime($content, $tag)
     {
         /* UTCTime:
            http://tools.ietf.org/html/rfc5280#section-4.1.2.5.1
@@ -1248,6 +1265,55 @@ class File_ASN1
         }
 
         return @$mktime((int)$hour, (int)$minute, (int)$second, (int)$month, (int)$day, (int)$year) + $timezone;
+    }
+
+
+    /**
+     * BER-decode the time (using DateTime)
+     *
+     * Called by _decode_ber() and in the case of implicit tags asn1map().
+     *
+     * @access private
+     * @param string $content
+     * @param int $tag
+     * @return string
+     */
+    function _decodeDateTime($content, $tag)
+    {
+        /* UTCTime:
+           http://tools.ietf.org/html/rfc5280#section-4.1.2.5.1
+           http://www.obj-sys.com/asn1tutorial/node15.html
+
+           GeneralizedTime:
+           http://tools.ietf.org/html/rfc5280#section-4.1.2.5.2
+           http://www.obj-sys.com/asn1tutorial/node14.html */
+
+        $format = 'YmdHis';
+
+        if ($tag == FILE_ASN1_TYPE_UTC_TIME) {
+            // https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=28 says "the seconds
+            // element shall always be present" but none-the-less I've seen X509 certs where it isn't and if the
+            // browsers parse it phpseclib ought to too
+            if (preg_match('#^(\d{10})(Z|[+-]\d{4})$#', $content, $matches)) {
+                $content = $matches[1] . '00' . $matches[2];
+            }
+            $prefix = substr($content, 0, 2) >= 50 ? '19' : '20';
+            $content = $prefix . $content;
+        } elseif (strpos($content, '.') !== false) {
+            $format.= '.u';
+        }
+
+        if ($content[strlen($content) - 1] == 'Z') {
+            $content = substr($content, 0, -1) . '+0000';
+        }
+
+        if (strpos($content, '-') !== false || strpos($content, '+') !== false) {
+            $format.= 'O';
+        }
+
+        // error supression isn't necessary as of PHP 7.0:
+        // http://php.net/manual/en/migration70.other-changes.php
+        return @DateTime::createFromFormat($format, $content);
     }
 
     /**
