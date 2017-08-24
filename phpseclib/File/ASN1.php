@@ -25,6 +25,8 @@ namespace phpseclib\File;
 
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
+use DateTime;
+use DateTimeZone;
 
 /**
  * Pure-PHP ASN.1 Parser
@@ -707,7 +709,7 @@ class ASN1
                 if (isset($mapping['implicit'])) {
                     $decoded['content'] = $this->_decodeTime($decoded['content'], $decoded['type']);
                 }
-                return @date($this->format, $decoded['content']);
+                return $decoded['content'] ? $decoded['content']->format($this->format) : false;
             case self::TYPE_BIT_STRING:
                 if (isset($mapping['mapping'])) {
                     $offset = ord($decoded['content'][0]);
@@ -956,7 +958,8 @@ class ASN1
             case self::TYPE_GENERALIZED_TIME:
                 $format = $mapping['type'] == self::TYPE_UTC_TIME ? 'y' : 'Y';
                 $format.= 'mdHis';
-                $value = @gmdate($format, strtotime($source)) . 'Z';
+                $date = new DateTime($source, new DateTimeZone('GMT'));
+                $value = $date->format($format) . 'Z';
                 break;
             case self::TYPE_BIT_STRING:
                 if (isset($mapping['mapping'])) {
@@ -1137,33 +1140,32 @@ class ASN1
            http://tools.ietf.org/html/rfc5280#section-4.1.2.5.2
            http://www.obj-sys.com/asn1tutorial/node14.html */
 
-        $pattern = $tag == self::TYPE_UTC_TIME ?
-            '#^(..)(..)(..)(..)(..)(..)?(.*)$#' :
-            '#(....)(..)(..)(..)(..)(..).*([Z+-].*)$#';
-
-        preg_match($pattern, $content, $matches);
-
-        list(, $year, $month, $day, $hour, $minute, $second, $timezone) = $matches;
+        $format = 'YmdHis';
 
         if ($tag == self::TYPE_UTC_TIME) {
-            $year = $year >= 50 ? "19$year" : "20$year";
-        }
-
-        if ($timezone == 'Z') {
-            $mktime = 'gmmktime';
-            $timezone = 0;
-        } elseif (preg_match('#([+-])(\d\d)(\d\d)#', $timezone, $matches)) {
-            $mktime = 'gmmktime';
-            $timezone = 60 * $matches[3] + 3600 * $matches[2];
-            if ($matches[1] == '-') {
-                $timezone = -$timezone;
+            // https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=28 says "the seconds
+            // element shall always be present" but none-the-less I've seen X509 certs where it isn't and if the
+            // browsers parse it phpseclib ought to too
+            if (preg_match('#^(\d{10})(Z|[+-]\d{4})$#', $content, $matches)) {
+                $content = $matches[1] . '00' . $matches[2];
             }
-        } else {
-            $mktime = 'mktime';
-            $timezone = 0;
+            $prefix = substr($content, 0, 2) >= 50 ? '19' : '20';
+            $content = $prefix . $content;
+        } elseif (strpos($content, '.') !== false) {
+            $format.= '.u';
         }
 
-        return @$mktime((int)$hour, (int)$minute, (int)$second, (int)$month, (int)$day, (int)$year) + $timezone;
+        if ($content[strlen($content) - 1] == 'Z') {
+            $content = substr($content, 0, -1) . '+0000';
+        }
+
+        if (strpos($content, '-') !== false || strpos($content, '+') !== false) {
+            $format.= 'O';
+        }
+
+        // error supression isn't necessary as of PHP 7.0:
+        // http://php.net/manual/en/migration70.other-changes.php
+        return @DateTime::createFromFormat($format, $content);
     }
 
     /**
