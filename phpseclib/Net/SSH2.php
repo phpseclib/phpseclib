@@ -1190,8 +1190,8 @@ class SSH2
             $this->errors[] = utf8_decode($data);
         }
 
-        if ($matches[3] != '1.99' && $matches[3] != '2.0') {
-            throw new \RuntimeException("Cannot connect to SSH $matches[1] servers");
+        if (version_compare($matches[3], '1.99', '<')) {
+            throw new \RuntimeException("Cannot connect to SSH $matches[3] servers");
         }
 
         if (!$this->send_id_string_first) {
