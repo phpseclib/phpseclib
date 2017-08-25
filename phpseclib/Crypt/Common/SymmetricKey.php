@@ -466,6 +466,15 @@ abstract class SymmetricKey
      */
     protected $explicit_key_length = false;
 
+    
+    /**
+     * use for add predefine padding string?
+     *
+     * @see self::setCustomPaddingString()
+     * @var string
+     * @access protected
+     */
+    protected $custom_padding_str = null;
     /**
      * Default Constructor.
      *
@@ -2006,17 +2015,17 @@ abstract class SymmetricKey
     protected function pad($text)
     {
         $length = strlen($text);
-
+        if ($length % $this->block_size == 0) {
+            return $text;
+        }
         if (!$this->padding) {
-            if ($length % $this->block_size == 0) {
-                return $text;
-            } else {
-                throw new \LengthException("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size}). Try enabling padding.");
-            }
+            throw new \LengthException("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size}). Try enabling padding.");
         }
 
         $pad = $this->block_size - ($length % $this->block_size);
-
+        if ($this->custom_padding_str != null){
+            return str_pad($text, $length + $pad, $this->custom_padding_str);
+        }
         return str_pad($text, $length + $pad, chr($pad));
     }
 
@@ -2628,5 +2637,9 @@ abstract class SymmetricKey
         eval('$func = function ($_action, $_text) { ' . $init_crypt . 'if ($_action == "encrypt") { ' . $encrypt . ' } else { ' . $decrypt . ' }};');
 
         return \Closure::bind($func, $this, static::class);
+    }
+    
+    public function setCustomPaddingString($str){
+        $this->custom_padding_str = $str;
     }
 }
