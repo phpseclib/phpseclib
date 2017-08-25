@@ -1177,7 +1177,7 @@ class SSH2
             $this->errors[] = utf8_decode($data);
         }
 
-        if ($matches[3] != '1.99' && $matches[3] != '2.0') {
+        if (version_compare($matches[3], '1.99', '<')) {
             user_error("Cannot connect to SSH $matches[3] servers");
             return false;
         }
