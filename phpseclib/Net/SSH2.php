@@ -1194,7 +1194,7 @@ class Net_SSH2
             $this->errors[] = utf8_decode($extra);
         }
 
-        if ($matches[1] != '1.99' && $matches[1] != '2.0') {
+        if (version_compare($matches[1], '1.99', '<')) {
             user_error("Cannot connect to SSH $matches[1] servers");
             return false;
         }
