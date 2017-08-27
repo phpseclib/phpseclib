@@ -892,6 +892,31 @@ class Net_SSH2
     var $send_kex_first = true;
 
     /**
+     * Some versions of OpenSSH incorrectly calculate the key size
+     *
+     * @var bool
+     * @access private
+     */
+    var $bad_key_size_fix = false;
+
+    /**
+     * The selected decryption algorithm
+     *
+     * @var string
+     * @access private
+     */
+    var $decrypt_algorithm = '';
+
+
+    /**
+     * Should we try to re-connect to re-establish keys?
+     *
+     * @var bool
+     * @access private
+     */
+    var $retry_connect = false;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1929,6 +1954,8 @@ class Net_SSH2
                 //$this->decrypt = new Crypt_Null();
         }
 
+        $this->decrypt_algorithm = $decrypt;
+
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
 
         if ($this->encrypt) {
@@ -2087,6 +2114,10 @@ class Net_SSH2
      */
     function _encryption_algorithm_to_key_size($algorithm)
     {
+        if ($this->bad_key_size_fix && $this->_bad_algorithm_candidate($algorithm)) {
+            return 16;
+        }
+
         switch ($algorithm) {
             case 'none':
                 return 0;
@@ -2115,6 +2146,27 @@ class Net_SSH2
                 return 32;
         }
         return null;
+    }
+
+    /**
+     * Tests whether or not proposed algorithm has a potential for issues
+     *
+     * @link https://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/ssh2-aesctr-openssh.html
+     * @link https://bugzilla.mindrot.org/show_bug.cgi?id=1291
+     * @param string $algorithm Name of the encryption algorithm
+     * @return bool
+     * @access private
+     */
+    function _bad_algorithm_candidate($algorithm)
+    {
+        switch ($algorithm) {
+            case 'arcfour256':
+            case 'aes192-ctr':
+            case 'aes256-ctr':
+                return true;
+        }
+
+        return false;
     }
 
     /**
@@ -2196,6 +2248,13 @@ class Net_SSH2
 
             $response = $this->_get_binary_packet();
             if ($response === false) {
+                if ($this->retry_connect) {
+                    $this->retry_connect = false;
+                    if (!$this->_connect()) {
+                        return false;
+                    }
+                    return $this->_login_helper($username, $password);
+                }
                 user_error('Connection closed by server');
                 return false;
             }
@@ -3220,6 +3279,24 @@ class Net_SSH2
     }
 
     /**
+     * Resets a connection for re-use
+     *
+     * @param int $reason
+     * @access private
+     */
+    function _reset_connection($reason)
+    {
+        $this->_disconnect($reason);
+        $this->decrypt = $this->encrypt = false;
+        $this->decrypt_block_size = $this->encrypt_block_size = 8;
+        $this->hmac_check = $this->hmac_create = false;
+        $this->hmac_size = false;
+        $this->session_id = false;
+        $this->retry_connect = true;
+        $this->get_seq_no = $this->send_seq_no = 0;
+    }
+
+    /**
      * Gets Binary Packets
      *
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
@@ -3262,6 +3339,11 @@ class Net_SSH2
         // "implementations SHOULD check that the packet length is reasonable"
         // PuTTY uses 0x9000 as the actual max packet size and so to shall we
         if ($remaining_length < -$this->decrypt_block_size || $remaining_length > 0x9000 || $remaining_length % $this->decrypt_block_size != 0) {
+            if (!$this->bad_key_size_fix && $this->_bad_algorithm_candidate($this->decrypt_algorithm) && !($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+                $this->bad_key_size_fix = true;
+                $this->_reset_connection(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                return false;
+            }
             user_error('Invalid size');
             return false;
         }
