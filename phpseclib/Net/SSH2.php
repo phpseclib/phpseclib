@@ -902,7 +902,6 @@ class SSH2
      */
     var $decrypt_algorithm = '';
 
-
     /**
      * Should we try to re-connect to re-establish keys?
      *
