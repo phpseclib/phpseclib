@@ -2115,7 +2115,7 @@ class File_X509
 
         if (!isset($date)) {
             $date = class_exists('DateTime') ?
-                new DateTime($date, new DateTimeZone(date_default_timezone_get())) :
+                new DateTime($date, new DateTimeZone(@date_default_timezone_get())) :
                 time();
         }
 
@@ -3909,7 +3909,7 @@ class File_X509
     {
         if (class_exists('DateTime')) {
             $date = new DateTime($date);
-            $this->startDate = $date->format('D, d M Y H:i:s O');
+            $this->startDate = $date->format('D, d M Y H:i:s O', new DateTimeZone(@date_default_timezone_get()));
         } else {
             $this->startDate = @date('D, d M Y H:i:s O', @strtotime($date));
         }
@@ -3937,7 +3937,7 @@ class File_X509
             $this->endDate = new File_ASN1_Element($temp);
         } else {
             if (class_exists('DateTime')) {
-                $date = new DateTime($date);
+                $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
                 $this->endDate = $date->format('D, d M Y H:i:s O');
             } else {
                 $this->endDate = @date('D, d M Y H:i:s O', @strtotime($date));
