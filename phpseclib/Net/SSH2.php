@@ -3886,7 +3886,7 @@ class SSH2
                 @flush();
                 @ob_flush();
                 break;
-            // basically the same thing as self::LOG_REALTIME with the caveat that NET_SFTP_LOG_REALTIME_FILENAME
+            // basically the same thing as self::LOG_REALTIME with the caveat that NET_SSH2_LOG_REALTIME_FILENAME
             // needs to be defined and that the resultant log file will be capped out at self::LOG_MAX_SIZE.
             // the earliest part of the log file is denoted by the first <<< START >>> and is not going to necessarily
             // at the beginning of the file
