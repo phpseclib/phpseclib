@@ -96,10 +96,10 @@ define('NET_SSH2_MASK_WINDOW_ADJUST', 0x00000020);
  * @see self::_get_channel_packet()
  * @access private
  */
-define('NET_SSH2_CHANNEL_EXEC',      0); // PuTTy uses 0x100
-define('NET_SSH2_CHANNEL_SHELL',     1);
-define('NET_SSH2_CHANNEL_SUBSYSTEM', 2);
-define('NET_SSH2_CHANNEL_AGENT_FORWARD', 3);
+define('NET_SSH2_CHANNEL_EXEC',      1); // PuTTy uses 0x100
+define('NET_SSH2_CHANNEL_SHELL',     2);
+define('NET_SSH2_CHANNEL_SUBSYSTEM', 3);
+define('NET_SSH2_CHANNEL_AGENT_FORWARD', 4);
 /**#@-*/
 
 /**#@+
@@ -915,6 +915,14 @@ class Net_SSH2
      * @access private
      */
     var $retry_connect = false;
+
+    /**
+     * Binary Packet Buffer
+     *
+     * @var string|false
+     * @access private
+     */
+    var $binary_packet_buffer = false;
 
     /**
      * Default Constructor.
@@ -2822,7 +2830,7 @@ class Net_SSH2
                 return false;
             }
 
-            $response = $this->_get_binary_packet();
+            $response = $this->_get_binary_packet(true);
             if ($response === false) {
                 user_error('Connection closed by server');
                 return false;
@@ -3305,7 +3313,7 @@ class Net_SSH2
      * @return string
      * @access private
      */
-    function _get_binary_packet()
+    function _get_binary_packet($filter_channel_packets = false)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             user_error('Connection closed prematurely');
@@ -3359,6 +3367,7 @@ class Net_SSH2
             $buffer.= $temp;
             $remaining_length-= strlen($temp);
         }
+
         $stop = strtok(microtime(), ' ') + strtok('');
         if (strlen($buffer)) {
             $raw.= $this->decrypt !== false ? $this->decrypt->decrypt($buffer) : $buffer;
@@ -3394,7 +3403,7 @@ class Net_SSH2
             $this->last_packet = $current;
         }
 
-        return $this->_filter($payload);
+        return $this->_filter($payload, $filter_channel_packets);
     }
 
     /**
@@ -3406,7 +3415,7 @@ class Net_SSH2
      * @return string
      * @access private
      */
-    function _filter($payload)
+    function _filter($payload, $filter_channel_packets)
     {
         switch (ord($payload[0])) {
             case NET_SSH2_MSG_DISCONNECT:
@@ -3456,6 +3465,17 @@ class Net_SSH2
         // only called when we've already logged in
         if (($this->bitmap & NET_SSH2_MASK_CONNECTED) && $this->isAuthenticated()) {
             switch (ord($payload[0])) {
+                case NET_SSH2_MSG_CHANNEL_DATA:
+                case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
+                case NET_SSH2_MSG_CHANNEL_REQUEST:
+                case NET_SSH2_MSG_CHANNEL_CLOSE:
+                case NET_SSH2_MSG_CHANNEL_EOF:
+                    if ($filter_channel_packets) {
+                        $this->binary_packet_buffer = $payload;
+                        $this->_get_channel_packet(true);
+                        $payload = $this->_get_binary_packet(true);
+                    }
+                    break;
                 case NET_SSH2_MSG_GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
                     if (strlen($payload) < 4) {
                         return false;
@@ -3640,32 +3660,38 @@ class Net_SSH2
         }
 
         while (true) {
-            if ($this->curTimeout) {
-                if ($this->curTimeout < 0) {
-                    $this->is_timeout = true;
-                    return true;
+            if ($this->binary_packet_buffer !== false) {
+                $response = $this->binary_packet_buffer;
+                $this->binary_packet_buffer = false;
+            } else {
+                if ($this->curTimeout) {
+                    if ($this->curTimeout < 0) {
+                        $this->is_timeout = true;
+                        return true;
+                    }
+
+                    $read = array($this->fsock);
+                    $write = $except = null;
+
+                    $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+                    $sec = floor($this->curTimeout);
+                    $usec = 1000000 * ($this->curTimeout - $sec);
+                    // on windows this returns a "Warning: Invalid CRT parameters detected" error
+                    if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
+                        $this->is_timeout = true;
+                        return true;
+                    }
+                    $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+                    $this->curTimeout-= $elapsed;
                 }
 
-                $read = array($this->fsock);
-                $write = $except = null;
-
-                $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
-                $sec = floor($this->curTimeout);
-                $usec = 1000000 * ($this->curTimeout - $sec);
-                // on windows this returns a "Warning: Invalid CRT parameters detected" error
-                if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
-                    $this->is_timeout = true;
-                    return true;
+                $response = $this->_get_binary_packet();
+                if ($response === false) {
+                    user_error('Connection closed by server');
+                    return false;
                 }
-                $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
-                $this->curTimeout-= $elapsed;
             }
 
-            $response = $this->_get_binary_packet();
-            if ($response === false) {
-                user_error('Connection closed by server');
-                return false;
-            }
             if ($client_channel == -1 && $response === true) {
                 return true;
             }
