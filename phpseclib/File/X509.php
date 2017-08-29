@@ -1062,7 +1062,7 @@ class X509
         }
 
         if (!isset($date)) {
-            $date = new DateTime($date, new DateTimeZone(date_default_timezone_get()));
+            $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
         }
 
         $notBefore = $this->currentCert['tbsCertificate']['validity']['notBefore'];
@@ -2792,7 +2792,7 @@ class X509
             $date = new DateTime($date);
         }
 
-        $this->startDate = $date->format('D, d M Y H:i:s O');
+        $this->startDate = $date->format('D, d M Y H:i:s O', new DateTimeZone(@date_default_timezone_get()));
     }
 
     /**
@@ -2819,7 +2819,7 @@ class X509
                 $date = new DateTime($date);
             }
 
-            $this->endDate = $date->format('D, d M Y H:i:s O');
+            $this->endDate = $date->format('D, d M Y H:i:s O', new DateTimeZone(@date_default_timezone_get()));
         }
     }
 
