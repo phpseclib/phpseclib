@@ -16,7 +16,7 @@ env:
 before_install: true
 
 install:
-  - wget http://ftp.gnu.org/gnu/parallel/parallel-20120522.tar.bz2
+  - wget http://ftp.gnu.org/gnu/parallel/parallel-20170822.tar.bz2
   - tar -xvjf parallel*
   - cd parallel*
   - ./configure
