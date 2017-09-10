@@ -8,6 +8,7 @@ AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 
 * [Browse Git](https://github.com/phpseclib/phpseclib)
 * [Code Coverage Report](https://coverage.phpseclib.org/2.0/latest/)
+* Support phpseclib development by [![Becoming a patron](https://img.shields.io/badge/become-patron-brightgreen.svg)](https://www.patreon.com/phpseclib)
 
 ## Documentation
 
