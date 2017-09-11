@@ -103,10 +103,10 @@ class SSH2
      * @see \phpseclib\Net\SSH2::_get_channel_packet()
      * @access private
     */
-    const CHANNEL_EXEC          = 0; // PuTTy uses 0x100
-    const CHANNEL_SHELL         = 1;
-    const CHANNEL_SUBSYSTEM     = 2;
-    const CHANNEL_AGENT_FORWARD = 3;
+    const CHANNEL_EXEC          = 1; // PuTTy uses 0x100
+    const CHANNEL_SHELL         = 2;
+    const CHANNEL_SUBSYSTEM     = 3;
+    const CHANNEL_AGENT_FORWARD = 4;
     /**#@-*/
 
     /**#@+
@@ -898,6 +898,38 @@ class SSH2
     private $send_kex_first = true;
 
     /**
+     * Some versions of OpenSSH incorrectly calculate the key size
+     *
+     * @var bool
+     * @access private
+     */
+    private $bad_key_size_fix = false;
+
+    /**
+     * The selected decryption algorithm
+     *
+     * @var string
+     * @access private
+     */
+    private $decrypt_algorithm = '';
+
+    /**
+     * Should we try to re-connect to re-establish keys?
+     *
+     * @var bool
+     * @access private
+     */
+    private $retry_connect = false;
+
+    /**
+     * Binary Packet Buffer
+     *
+     * @var string|false
+     * @access private
+     */
+    private $binary_packet_buffer = false;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1027,7 +1059,7 @@ class SSH2
      *
      * @access public
      */
-    function sendIdentificationStringFirst()
+    public function sendIdentificationStringFirst()
     {
         $this->send_id_string_first = true;
     }
@@ -1041,7 +1073,7 @@ class SSH2
      *
      * @access public
      */
-    function sendIdentificationStringLast()
+    public function sendIdentificationStringLast()
     {
         $this->send_id_string_first = false;
     }
@@ -1055,7 +1087,7 @@ class SSH2
      *
      * @access public
      */
-    function sendKEXINITFirst()
+    public function sendKEXINITFirst()
     {
         $this->send_kex_first = true;
     }
@@ -1069,7 +1101,7 @@ class SSH2
      *
      * @access public
      */
-    function sendKEXINITLast()
+    public function sendKEXINITLast()
     {
         $this->send_kex_first = false;
     }
@@ -1190,8 +1222,8 @@ class SSH2
             $this->errors[] = utf8_decode($data);
         }
 
-        if ($matches[3] != '1.99' && $matches[3] != '2.0') {
-            throw new \RuntimeException("Cannot connect to SSH $matches[1] servers");
+        if (version_compare($matches[3], '1.99', '<')) {
+            throw new \RuntimeException("Cannot connect to SSH $matches[3] servers");
         }
 
         if (!$this->send_id_string_first) {
@@ -1789,6 +1821,8 @@ class SSH2
             throw new \UnexpectedValueException('Expected SSH_MSG_NEWKEYS');
         }
 
+        $this->decrypt_algorithm = $decrypt;
+
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
 
         $this->encrypt = $this->encryption_algorithm_to_crypt_instance($encrypt);
@@ -1959,6 +1993,10 @@ class SSH2
      */
     private function encryption_algorithm_to_key_size($algorithm)
     {
+        if ($this->bad_key_size_fix && $this->bad_algorithm_candidate($algorithm)) {
+            return 16;
+        }
+
         switch ($algorithm) {
             case 'none':
                 return 0;
@@ -2031,6 +2069,27 @@ class SSH2
                 return new RC4();
         }
         return null;
+    }
+
+    /*
+     * Tests whether or not proposed algorithm has a potential for issues
+     *
+     * @link https://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/ssh2-aesctr-openssh.html
+     * @link https://bugzilla.mindrot.org/show_bug.cgi?id=1291
+     * @param string $algorithm Name of the encryption algorithm
+     * @return bool
+     * @access private
+     */
+    private function bad_algorithm_candidate($algorithm)
+    {
+        switch ($algorithm) {
+            case 'arcfour256':
+            case 'aes192-ctr':
+            case 'aes256-ctr':
+                return true;
+        }
+
+        return false;
     }
 
     /**
@@ -2114,6 +2173,13 @@ class SSH2
 
             $response = $this->get_binary_packet();
             if ($response === false) {
+                if ($this->retry_connect) {
+                    $this->retry_connect = false;
+                    if (!$this->connect()) {
+                        return false;
+                    }
+                    return $this->login_helper($username, $password);
+                }
                 throw new \RuntimeException('Connection closed by server');
             }
 
@@ -2676,7 +2742,7 @@ class SSH2
                 return false;
             }
 
-            $response = $this->get_binary_packet();
+            $response = $this->get_binary_packet(true);
             if ($response === false) {
                 throw new \RuntimeException('Connection closed by server');
             }
@@ -3131,6 +3197,24 @@ class SSH2
     }
 
     /**
+     * Resets a connection for re-use
+     *
+     * @param int $reason
+     * @access private
+     */
+    private function reset_connection($reason)
+    {
+        $this->disconnect_helper($reason);
+        $this->decrypt = $this->encrypt = false;
+        $this->decrypt_block_size = $this->encrypt_block_size = 8;
+        $this->hmac_check = $this->hmac_create = false;
+        $this->hmac_size = false;
+        $this->session_id = false;
+        $this->retry_connect = true;
+        $this->get_seq_no = $this->send_seq_no = 0;
+    }
+
+    /**
      * Gets Binary Packets
      *
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
@@ -3140,7 +3224,7 @@ class SSH2
      * @throws \RuntimeException on connection errors
      * @access private
      */
-    private function get_binary_packet()
+    private function get_binary_packet($filter_channel_packets = false)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             $this->bitmap = 0;
@@ -3169,6 +3253,11 @@ class SSH2
         // "implementations SHOULD check that the packet length is reasonable"
         // PuTTY uses 0x9000 as the actual max packet size and so to shall we
         if ($remaining_length < -$this->decrypt_block_size || $remaining_length > 0x9000 || $remaining_length % $this->decrypt_block_size != 0) {
+            if (!$this->bad_key_size_fix && $this->bad_algorithm_candidate($this->decrypt_algorithm) && !($this->bitmap & SSH2::MASK_LOGIN)) {
+                $this->bad_key_size_fix = true;
+                $this->reset_connection(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                return false;
+            }
             throw new \RuntimeException('Invalid size');
         }
 
@@ -3182,6 +3271,7 @@ class SSH2
             $buffer.= $temp;
             $remaining_length-= strlen($temp);
         }
+
         $stop = microtime(true);
         if (strlen($buffer)) {
             $raw.= $this->decrypt !== false ? $this->decrypt->decrypt($buffer) : $buffer;
@@ -3215,7 +3305,7 @@ class SSH2
             $this->last_packet = $current;
         }
 
-        return $this->filter($payload);
+        return $this->filter($payload, $filter_channel_packets);
     }
 
     /**
@@ -3227,7 +3317,7 @@ class SSH2
      * @return string
      * @access private
      */
-    private function filter($payload)
+    private function filter($payload, $filter_channel_packets)
     {
         switch (ord($payload[0])) {
             case NET_SSH2_MSG_DISCONNECT:
@@ -3277,6 +3367,17 @@ class SSH2
         // only called when we've already logged in
         if (($this->bitmap & self::MASK_CONNECTED) && $this->isAuthenticated()) {
             switch (ord($payload[0])) {
+                case NET_SSH2_MSG_CHANNEL_DATA:
+                case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
+                case NET_SSH2_MSG_CHANNEL_REQUEST:
+                case NET_SSH2_MSG_CHANNEL_CLOSE:
+                case NET_SSH2_MSG_CHANNEL_EOF:
+                    if ($filter_channel_packets) {
+                        $this->binary_packet_buffer = $payload;
+                        $this->get_channel_packet(true);
+                        $payload = $this->get_binary_packet(true);
+                    }
+                    break;
                 case NET_SSH2_MSG_GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
                     if (strlen($payload) < 4) {
                         return false;
@@ -3461,31 +3562,37 @@ class SSH2
         }
 
         while (true) {
-            if ($this->curTimeout) {
-                if ($this->curTimeout < 0) {
-                    $this->is_timeout = true;
-                    return true;
+            if ($this->binary_packet_buffer !== false) {
+                $response = $this->binary_packet_buffer;
+                $this->binary_packet_buffer = false;
+            } else {
+                if ($this->curTimeout) {
+                    if ($this->curTimeout < 0) {
+                        $this->is_timeout = true;
+                        return true;
+                    }
+
+                    $read = [$this->fsock];
+                    $write = $except = null;
+
+                    $start = microtime(true);
+                    $sec = floor($this->curTimeout);
+                    $usec = 1000000 * ($this->curTimeout - $sec);
+                    // on windows this returns a "Warning: Invalid CRT parameters detected" error
+                    if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
+                        $this->is_timeout = true;
+                        return true;
+                    }
+                    $elapsed = microtime(true) - $start;
+                    $this->curTimeout-= $elapsed;
                 }
 
-                $read = [$this->fsock];
-                $write = $except = null;
-
-                $start = microtime(true);
-                $sec = floor($this->curTimeout);
-                $usec = 1000000 * ($this->curTimeout - $sec);
-                // on windows this returns a "Warning: Invalid CRT parameters detected" error
-                if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
-                    $this->is_timeout = true;
-                    return true;
+                $response = $this->get_binary_packet();
+                if ($response === false) {
+                    throw new \RuntimeException('Connection closed by server');
                 }
-                $elapsed = microtime(true) - $start;
-                $this->curTimeout-= $elapsed;
             }
 
-            $response = $this->get_binary_packet();
-            if ($response === false) {
-                throw new \RuntimeException('Connection closed by server');
-            }
             if ($client_channel == -1 && $response === true) {
                 return true;
             }
@@ -3805,7 +3912,7 @@ class SSH2
                 @flush();
                 @ob_flush();
                 break;
-            // basically the same thing as self::LOG_REALTIME with the caveat that NET_SFTP_LOG_REALTIME_FILENAME
+            // basically the same thing as self::LOG_REALTIME with the caveat that NET_SSH2_LOG_REALTIME_FILENAME
             // needs to be defined and that the resultant log file will be capped out at self::LOG_MAX_SIZE.
             // the earliest part of the log file is denoted by the first <<< START >>> and is not going to necessarily
             // at the beginning of the file
