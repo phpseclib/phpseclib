@@ -2793,7 +2793,8 @@ class X509
             $date = new DateTime($date);
         }
 
-        $this->startDate = $date->format('D, d M Y H:i:s O', new DateTimeZone(@date_default_timezone_get()));
+        $date->setTimezone(new DateTimeZone(@date_default_timezone_get()));
+        $this->startDate = $date->format('D, d M Y H:i:s O');
     }
 
     /**
@@ -2820,7 +2821,8 @@ class X509
                 $date = new DateTime($date);
             }
 
-            $this->endDate = $date->format('D, d M Y H:i:s O', new DateTimeZone(@date_default_timezone_get()));
+            $date->setTimezone(new DateTimeZone(@date_default_timezone_get()));
+            $this->endDate = $date->format('D, d M Y H:i:s O');
         }
     }
 
