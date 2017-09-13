@@ -1257,7 +1257,7 @@ class SSH2
         $identifier = 'SSH-2.0-phpseclib_2.0';
 
         $ext = array();
-        if (extension_loaded('libsodium')) {
+        if (function_exists('\\Sodium\\library_version_major')) {
             $ext[] = 'libsodium';
         }
 

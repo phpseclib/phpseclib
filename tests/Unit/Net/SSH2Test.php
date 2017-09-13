@@ -41,7 +41,7 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
         $identifier = $this->createSSHMock()->_generate_identifier();
         $this->assertStringStartsWith('SSH-2.0-phpseclib_2.0', $identifier);
 
-        if (extension_loaded('libsodium')) {
+        if (function_exists('\\Sodium\\library_version_major')) {
             $this->assertContains('libsodium', $identifier);
         }
 
