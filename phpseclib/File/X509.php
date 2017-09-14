@@ -2288,7 +2288,7 @@ class X509
      *
      * @param string $date in format date('D, d M Y H:i:s O')
      * @access private
-     * @return array
+     * @return array|Element
      */
     private function timeField($date)
     {
@@ -3432,7 +3432,7 @@ class X509
                 }
                 return false;
             default: // Should be a key object (i.e.: \phpseclib\Crypt\RSA).
-                $key = $key->getPublicKey('PKCS1');
+                $key = $key->getPublicKey();
                 break;
         }
 
