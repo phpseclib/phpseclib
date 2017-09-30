@@ -3908,8 +3908,8 @@ class File_X509
     function setStartDate($date)
     {
         if (class_exists('DateTime')) {
-            $date = new DateTime($date);
-            $this->startDate = $date->format('D, d M Y H:i:s O', new DateTimeZone(@date_default_timezone_get()));
+            $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
+            $this->startDate = $date->format('D, d M Y H:i:s O');
         } else {
             $this->startDate = @date('D, d M Y H:i:s O', @strtotime($date));
         }
