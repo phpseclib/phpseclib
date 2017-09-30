@@ -301,7 +301,7 @@ abstract class AsymmetricKey
      * @param string $type
      * @return array|bool
      */
-    protected function load($key, $type)
+    public function load($key, $type)
     {
         $components = false;
         if ($type === false) {
@@ -341,7 +341,7 @@ abstract class AsymmetricKey
      * @param string $type
      * @return array|bool
      */
-    protected function setPublicKey($key, $type)
+    public function setPublicKey($key, $type)
     {
         $components = false;
         if ($type === false) {
