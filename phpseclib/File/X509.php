@@ -3836,10 +3836,10 @@ class X509
     function setStartDate($date)
     {
         if (!is_object($date) || !is_a($date, 'DateTime')) {
-            $date = new DateTime($date);
+            $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
         }
 
-        $this->startDate = $date->format('D, d M Y H:i:s O', new DateTimeZone(@date_default_timezone_get()));
+        $this->startDate = $date->format('D, d M Y H:i:s O');
     }
 
     /**
@@ -3864,10 +3864,10 @@ class X509
             $this->endDate = new Element($temp);
         } else {
             if (!is_object($date) || !is_a($date, 'DateTime')) {
-                $date = new DateTime($date);
+                $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
             }
 
-            $this->endDate = $date->format('D, d M Y H:i:s O', new DateTimeZone(@date_default_timezone_get()));
+            $this->endDate = $date->format('D, d M Y H:i:s O');
         }
     }
 
