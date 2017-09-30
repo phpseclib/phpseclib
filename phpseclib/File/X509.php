@@ -573,7 +573,7 @@ class X509
      * Map extension values from octet string to extension-specific internal
      *   format.
      *
-     * @param array ref $root
+     * @param &array $root
      * @param string $path
      * @access private
      */
@@ -619,7 +619,7 @@ class X509
      * Map extension values from extension-specific internal format to
      *   octet string.
      *
-     * @param array ref $root
+     * @param &array Ref $root
      * @param string $path
      * @access private
      */
@@ -683,7 +683,7 @@ class X509
      * Map attribute values from ANY type to attribute-specific internal
      *   format.
      *
-     * @param array ref $root
+     * @param &array Ref $root
      * @param string $path
      * @access private
      */
@@ -723,7 +723,7 @@ class X509
      * Map attribute values from attribute-specific internal format to
      *   ANY type.
      *
-     * @param array ref $root
+     * @param &array $root Ref
      * @param string $path
      * @access private
      */
@@ -765,7 +765,7 @@ class X509
      * Map DN values from ANY type to DN-specific internal
      *   format.
      *
-     * @param array ref $root
+     * @param &array $root
      * @param string $path
      * @access private
      */
@@ -794,7 +794,7 @@ class X509
      * Map DN values from DN-specific internal format to
      *   ANY type.
      *
-     * @param array ref $root
+     * @param &array $root
      * @param string $path
      * @access private
      */
@@ -1054,6 +1054,7 @@ class X509
      *
      * @param int $date optional
      * @access public
+     * @return boolean
      */
     public function validateDate($date = null)
     {
@@ -2052,7 +2053,7 @@ class X509
      *
      * https://developer.mozilla.org/en-US/docs/HTML/Element/keygen
      *
-     * @param string $csr
+     * @param string $spkac
      * @access public
      * @return mixed
      */
@@ -2120,7 +2121,7 @@ class X509
     /**
      * Save a SPKAC CSR request
      *
-     * @param array $csr
+     * @param array $spkac
      * @param int $format optional
      * @access public
      * @return string
@@ -2287,7 +2288,7 @@ class X509
      *
      * @param string $date in format date('D, d M Y H:i:s O')
      * @access private
-     * @return array
+     * @return array|Element
      */
     private function timeField($date)
     {
@@ -2792,7 +2793,8 @@ class X509
             $date = new DateTime($date);
         }
 
-        $this->startDate = $date->format('D, d M Y H:i:s O', new DateTimeZone(@date_default_timezone_get()));
+        $date->setTimezone(new DateTimeZone(@date_default_timezone_get()));
+        $this->startDate = $date->format('D, d M Y H:i:s O');
     }
 
     /**
@@ -2819,7 +2821,8 @@ class X509
                 $date = new DateTime($date);
             }
 
-            $this->endDate = $date->format('D, d M Y H:i:s O', new DateTimeZone(@date_default_timezone_get()));
+            $date->setTimezone(new DateTimeZone(@date_default_timezone_get()));
+            $this->endDate = $date->format('D, d M Y H:i:s O');
         }
     }
 
@@ -2827,7 +2830,7 @@ class X509
      * Set Serial Number
      *
      * @param string $serial
-     * @param $base optional
+     * @param $base integer Optional
      * @access public
      */
     public function setSerialNumber($serial, $base = -256)
@@ -3429,7 +3432,7 @@ class X509
                 }
                 return false;
             default: // Should be a key object (i.e.: \phpseclib\Crypt\RSA).
-                $key = $key->getPublicKey('PKCS1');
+                $key = $key->getPublicKey();
                 break;
         }
 

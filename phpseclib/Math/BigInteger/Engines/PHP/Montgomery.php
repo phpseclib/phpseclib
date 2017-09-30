@@ -42,11 +42,11 @@ abstract class Montgomery extends Base
     /**
      * Performs modular exponentiation.
      *
-     * @param \phpseclib\Math\BigInteger\Engine $x
-     * @param \phpseclib\Math\BigInteger\Engine $e
-     * @param \phpseclib\Math\BigInteger\Engine $n
+     * @param \phpseclib\Math\BigInteger\Engines\Engine $x
+     * @param \phpseclib\Math\BigInteger\Engines\Engine $e
+     * @param \phpseclib\Math\BigInteger\Engines\Engine $n
      * @param string $class
-     * @return \phpseclib\Math\BigInteger\Engine|Engine
+     * @return \phpseclib\Math\BigInteger\Engines\Engine
      */
     protected static function slidingWindow(Engine $x, Engine $e, Engine $n, $class)
     {

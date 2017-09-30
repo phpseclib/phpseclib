@@ -102,7 +102,7 @@ class GMP extends Engine
     /**
      * Default constructor
      *
-     * @param $x base-10 number or base-$base number if $base set.
+     * @param $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @see parent::__construct()
      * @return \phpseclib\Math\BigInteger\Engines\GMP
@@ -511,7 +511,7 @@ class GMP extends Engine
      * BigInteger::randomRange($min, $max)
      * BigInteger::randomRange($max, $min)
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine\GMP
+     * @return \phpseclib\Math\BigInteger\Engines\GMP
      */
     public static function randomRange(GMP $min, GMP $max)
     {

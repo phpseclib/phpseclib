@@ -29,7 +29,7 @@ class Unit_Crypt_TwofishTest extends PhpseclibTestCase
             $key = pack('H*', '00000000000000000000000000000000');
             $tf->setKey($key);
             if (!$tf->isValidEngine($engine)) {
-                self::markTestSkipped('Unable to initialize $engine engine');
+                self::markTestSkipped("Unable to initialize $engine engine");
             }
 
             $plaintext = pack('H*', '00000000000000000000000000000000');
