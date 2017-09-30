@@ -1584,7 +1584,7 @@ abstract class SymmetricKey
      *
      * May need to be overwritten by classes extending this one in some cases
      *
-     * @return int
+     * @return string
      * @access private
      */
     protected function openssl_translate_mode()
