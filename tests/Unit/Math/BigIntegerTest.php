@@ -55,6 +55,7 @@ ENGINE
 	/**
 	 * BigInteger should choose another engine if one is not valid
 	 * @dataProvider         provideBadConfigurationException
+	 * @preserveGlobalState  disabled
 	 * @runInSeparateProcess mocks must not disturb other tests
 	 */
 	public function testBadConfigurationException($expectedClass, ...$engines) {
