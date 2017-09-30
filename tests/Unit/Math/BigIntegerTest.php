@@ -1,4 +1,5 @@
 <?php
+
 use phpseclib\Math\BigInteger;
 use phpseclib\Math\BigInteger\Engines\BCMath;
 use phpseclib\Math\BigInteger\Engines\GMP;
@@ -57,14 +58,16 @@ ENGINE
 	 * @dataProvider         provideBadConfigurationException
 	 * @preserveGlobalState  disabled
 	 * @runInSeparateProcess mocks must not disturb other tests
+	 * @param string  $expectedEngineClass
+	 * @param array[] ...$engines
 	 */
-	public function testBadConfigurationException($expectedClass, ...$engines) {
+	public function testBadConfigurationException($expectedEngineClass, array ...$engines) {
 		foreach ($engines as $engine) {
 			static::mockEngine($engine[0], $engine[1]);
 		}
 
 		$bigint = new BigInteger();
 
-		static::assertSame($expectedClass, $bigint->toString());
+		static::assertSame($expectedEngineClass, $bigint->toString());
 	}
 }
