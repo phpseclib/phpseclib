@@ -137,8 +137,7 @@ class BigInteger implements \Serializable
                 try {
                     self::setEngine($engine[0], isset($engine[1]) ? $engine[1] : []);
                     break;
-                } catch (\InvalidArgumentException $e) {
-                } catch (BadConfigurationException $e) {
+                } catch (\Exception $e) {
                 }
             }
         }
