@@ -220,7 +220,7 @@ class Agent
      * Signal that agent forwarding should
      * be requested when a channel is opened
      *
-     * @param Net_SSH2 $ssh
+     * @param \phpseclib\Net\SSH2 $ssh
      * @return bool
      * @access public
      */
@@ -234,7 +234,7 @@ class Agent
     /**
      * Request agent forwarding of remote server
      *
-     * @param Net_SSH2 $ssh
+     * @param \phpseclib\Net\SSH2 $ssh
      * @return bool
      * @access private
      */
@@ -277,7 +277,7 @@ class Agent
      * open to give the SSH Agent an opportunity
      * to take further action. i.e. request agent forwarding
      *
-     * @param Net_SSH2 $ssh
+     * @param \phpseclib\Net\SSH2 $ssh
      * @access private
      */
     private function on_channel_open($ssh)
@@ -291,7 +291,7 @@ class Agent
      * Forward data to SSH Agent and return data reply
      *
      * @param string $data
-     * @return data from SSH Agent
+     * @return string Data from SSH Agent
      * @throws \RuntimeException on connection errors
      * @access private
      */

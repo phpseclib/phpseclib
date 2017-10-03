@@ -35,7 +35,8 @@ use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
 use phpseclib\File\ASN1\Maps;
-
+use DateTime;
+use DateTimeZone;
 
 /**
  * Pure-PHP X.509 Parser
@@ -572,7 +573,7 @@ class X509
      * Map extension values from octet string to extension-specific internal
      *   format.
      *
-     * @param array ref $root
+     * @param &array $root
      * @param string $path
      * @access private
      */
@@ -618,7 +619,7 @@ class X509
      * Map extension values from extension-specific internal format to
      *   octet string.
      *
-     * @param array ref $root
+     * @param &array Ref $root
      * @param string $path
      * @access private
      */
@@ -682,7 +683,7 @@ class X509
      * Map attribute values from ANY type to attribute-specific internal
      *   format.
      *
-     * @param array ref $root
+     * @param &array Ref $root
      * @param string $path
      * @access private
      */
@@ -722,7 +723,7 @@ class X509
      * Map attribute values from attribute-specific internal format to
      *   ANY type.
      *
-     * @param array ref $root
+     * @param &array $root Ref
      * @param string $path
      * @access private
      */
@@ -764,7 +765,7 @@ class X509
      * Map DN values from ANY type to DN-specific internal
      *   format.
      *
-     * @param array ref $root
+     * @param &array $root
      * @param string $path
      * @access private
      */
@@ -793,7 +794,7 @@ class X509
      * Map DN values from DN-specific internal format to
      *   ANY type.
      *
-     * @param array ref $root
+     * @param &array $root
      * @param string $path
      * @access private
      */
@@ -1053,6 +1054,7 @@ class X509
      *
      * @param int $date optional
      * @access public
+     * @return boolean
      */
     public function validateDate($date = null)
     {
@@ -1061,7 +1063,7 @@ class X509
         }
 
         if (!isset($date)) {
-            $date = time();
+            $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
         }
 
         $notBefore = $this->currentCert['tbsCertificate']['validity']['notBefore'];
@@ -1071,8 +1073,8 @@ class X509
         $notAfter = isset($notAfter['generalTime']) ? $notAfter['generalTime'] : $notAfter['utcTime'];
 
         switch (true) {
-            case $date < @strtotime($notBefore):
-            case $date > @strtotime($notAfter):
+            case $date < new DateTime($notBefore, new DateTimeZone(@date_default_timezone_get())):
+            case $date > new DateTime($notAfter, new DateTimeZone(@date_default_timezone_get())):
                 return false;
         }
 
@@ -2051,7 +2053,7 @@ class X509
      *
      * https://developer.mozilla.org/en-US/docs/HTML/Element/keygen
      *
-     * @param string $csr
+     * @param string $spkac
      * @access public
      * @return mixed
      */
@@ -2119,7 +2121,7 @@ class X509
     /**
      * Save a SPKAC CSR request
      *
-     * @param array $csr
+     * @param array $spkac
      * @param int $format optional
      * @access public
      * @return string
@@ -2286,11 +2288,15 @@ class X509
      *
      * @param string $date in format date('D, d M Y H:i:s O')
      * @access private
-     * @return array
+     * @return array|Element
      */
     private function timeField($date)
     {
-        $year = @gmdate("Y", @strtotime($date)); // the same way ASN1.php parses this
+        if ($date instanceof Element) {
+            return $date;
+        }
+        $dateObj = new DateTime($date, new DateTimeZone('GMT'));
+        $year = $dateObj->format('Y'); // the same way ASN1.php parses this
         if ($year < 2050) {
             return ['utcTime' => $date];
         } else {
@@ -2355,8 +2361,12 @@ class X509
                 return false;
             }
 
-            $startDate = !empty($this->startDate) ? $this->startDate : @date('D, d M Y H:i:s O');
-            $endDate = !empty($this->endDate) ? $this->endDate : @date('D, d M Y H:i:s O', strtotime('+1 year'));
+            $startDate = new DateTime('now', new DateTimeZone(@date_default_timezone_get()));
+            $startDate = !empty($this->startDate) ? $this->startDate : $startDate->format('D, d M Y H:i:s O');
+
+            $endDate = new DateTime('+1 year', new DateTimeZone(@date_default_timezone_get()));
+            $endDate = !empty($this->endDate) ? $this->endDate : $endDate->format('D, d M Y H:i:s O');
+
             /* "The serial number MUST be a positive integer"
                "Conforming CAs MUST NOT use serialNumber values longer than 20 octets."
                 -- https://tools.ietf.org/html/rfc5280#section-4.1.2.2
@@ -2624,7 +2634,9 @@ class X509
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
-        $thisUpdate = !empty($this->startDate) ? $this->startDate : @date('D, d M Y H:i:s O');
+
+        $thisUpdate = new DateTime('now', new DateTimeZone(@date_default_timezone_get()));
+        $thisUpdate = !empty($this->startDate) ? $this->startDate : $thisUpdate->format('D, d M Y H:i:s O');
 
         if (isset($crl->currentCert) && is_array($crl->currentCert) && isset($crl->currentCert['tbsCertList'])) {
             $this->currentCert = $crl->currentCert;
@@ -2777,7 +2789,11 @@ class X509
      */
     public function setStartDate($date)
     {
-        $this->startDate = @date('D, d M Y H:i:s O', @strtotime($date));
+        if (!is_object($date) || !is_a($date, 'DateTime')) {
+            $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
+        }
+
+        $this->startDate = $date->format('D, d M Y H:i:s O');
     }
 
     /**
@@ -2800,7 +2816,11 @@ class X509
             $temp = chr(ASN1::TYPE_GENERALIZED_TIME) . ASN1::encodeLength(strlen($temp)) . $temp;
             $this->endDate = new Element($temp);
         } else {
-            $this->endDate = @date('D, d M Y H:i:s O', @strtotime($date));
+            if (!is_object($date) || !is_a($date, 'DateTime')) {
+                $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
+            }
+
+            $this->endDate = $date->format('D, d M Y H:i:s O');
         }
     }
 
@@ -2808,7 +2828,7 @@ class X509
      * Set Serial Number
      *
      * @param string $serial
-     * @param $base optional
+     * @param $base integer Optional
      * @access public
      */
     public function setSerialNumber($serial, $base = -256)
@@ -3410,7 +3430,7 @@ class X509
                 }
                 return false;
             default: // Should be a key object (i.e.: \phpseclib\Crypt\RSA).
-                $key = $key->getPublicKey('PKCS1');
+                $key = $key->getPublicKey();
                 break;
         }
 
@@ -3530,8 +3550,9 @@ class X509
         }
 
         $i = count($rclist);
+        $revocationDate = new DateTime('now', new DateTimeZone(@date_default_timezone_get()));
         $rclist[] = ['userCertificate' => $serial,
-                          'revocationDate'  => $this->timeField(@date('D, d M Y H:i:s O'))];
+                          'revocationDate'  => $this->timeField($revocationDate->format('D, d M Y H:i:s O'))];
         return $i;
     }
 

@@ -294,7 +294,7 @@ class PHP32 extends PHP
      * BigInteger::randomRange($min, $max)
      * BigInteger::randomRange($max, $min)
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine\PHP32
+     * @return \phpseclib\Math\BigInteger\Engines\PHP32
      */
     public static function randomRange(PHP32 $min, PHP32 $max)
     {

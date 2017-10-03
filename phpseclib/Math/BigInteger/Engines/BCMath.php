@@ -100,7 +100,7 @@ class BCMath extends Engine
     /**
      * Default constructor
      *
-     * @param $x base-10 number or base-$base number if $base set.
+     * @param $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @see parent::__construct()
      * @return \phpseclib\Math\BigInteger\Engines\BCMath
@@ -549,7 +549,7 @@ class BCMath extends Engine
      * BigInteger::randomRange($min, $max)
      * BigInteger::randomRange($max, $min)
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine\BCMath
+     * @return \phpseclib\Math\BigInteger\Engines\BCMath
      */
     public static function randomRange(BCMath $min, BCMath $max)
     {

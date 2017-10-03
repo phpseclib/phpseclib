@@ -77,6 +77,7 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
         $bf = new Blowfish('cbc');
         $bf->setKey($key);
         $bf->setIV(str_repeat("\0", $bf->getBlockLength() >> 3));
+
         if (!$bf->isValidEngine($engine)) {
             self::markTestSkipped("Unable to initialize $engine engine");
         }
