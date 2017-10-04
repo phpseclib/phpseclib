@@ -526,8 +526,8 @@ class Crypt_Base
         $this->_setEngine();
 
         // Determining whether inline crypting can be used by the cipher
-        if ($this->use_inline_crypt !== false && function_exists('create_function')) {
-            $this->use_inline_crypt = true;
+        if ($this->use_inline_crypt !== false) {
+            $this->use_inline_crypt = version_compare(PHP_VERSION, '5.3.0') || function_exists('create_function');
         }
     }
 
@@ -2550,6 +2550,11 @@ class Crypt_Base
         }
 
         // Create the $inline function and return its name as string. Ready to run!
+        if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+            eval('$func = function ($_action, &$self, $_text) { ' . $init_crypt . 'if ($_action == "encrypt") { ' . $encrypt . ' } else { ' . $decrypt . ' } };');
+            return $func;
+        }
+
         return create_function('$_action, &$self, $_text', $init_crypt . 'if ($_action == "encrypt") { ' . $encrypt . ' } else { ' . $decrypt . ' }');
     }
 
