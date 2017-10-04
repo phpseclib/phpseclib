@@ -2561,6 +2561,52 @@ abstract class SymmetricKey
                     return $_plaintext;
                     ';
                 break;
+            case self::MODE_CFB8:
+                $encrypt = $init_encrypt . '
+                    $_ciphertext = "";
+                    $_len = strlen($_text);
+                    $_iv = $this->encryptIV;
+
+                    for ($_i = 0; $_i < $_len; ++$_i) {
+                        $in = $_iv;
+                        '.$encrypt_block.'
+                        $_ciphertext .= ($_c = $_text[$_i] ^ $in);
+                        $_iv = substr($_iv, 1, '.$block_size.' - 1) . $_c;
+                    }
+
+                    if ($this->continuousBuffer) {
+                        if ($_len >= '.$block_size.') {
+                            $this->encryptIV = substr($_ciphertext, -'.$block_size.');
+                        } else {
+                            $this->encryptIV = substr($this->encryptIV, $_len - '.$block_size.') . substr($_ciphertext, -$_len);
+                        }
+                    }
+
+                    return $_ciphertext;
+                    ';
+                $decrypt = $init_encrypt . '
+                    $_plaintext = "";
+                    $_len = strlen($_text);
+                    $_iv = $this->decryptIV;
+
+                    for ($_i = 0; $_i < $_len; ++$_i) {
+                        $in = $_iv;
+                        '.$encrypt_block.'
+                        $_plaintext .= $_text[$_i] ^ $in;
+                        $_iv = substr($_iv, 1, '.$block_size.' - 1) . $_text[$_i];
+                    }
+
+                    if ($this->continuousBuffer) {
+                        if ($_len >= '.$block_size.') {
+                            $this->decryptIV = substr($_text, -'.$block_size.');
+                        } else {
+                            $this->decryptIV = substr($this->decryptIV, $_len - '.$block_size.') . substr($_text, -$_len);
+                        }
+                    }
+
+                    return $_plaintext;
+                    ';
+                break;
             case self::MODE_OFB:
                 $encrypt = $init_encrypt . '
                     $_ciphertext = "";
