@@ -81,6 +81,10 @@ abstract class SymmetricKey
      */
     const MODE_CFB = 3;
     /**
+     * Encrypt / decrypt using the Cipher Feedback mode (8bit)
+     */
+    const MODE_CFB8 = 38;
+    /**
      * Encrypt / decrypt using the Output Feedback mode.
      *
      * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
@@ -99,11 +103,12 @@ abstract class SymmetricKey
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
      */
     const MODE_MAP = [
-        'ctr' => self::MODE_CTR,
-        'ecb' => self::MODE_ECB,
-        'cbc' => self::MODE_CBC,
-        'cfb' => self::MODE_CFB,
-        'ofb' => self::MODE_OFB,
+        'ctr'    => self::MODE_CTR,
+        'ecb'    => self::MODE_ECB,
+        'cbc'    => self::MODE_CBC,
+        'cfb'    => self::MODE_CFB,
+        'cfb8'   => self::MODE_CFB8,
+        'ofb'    => self::MODE_OFB,
         'stream' => self::MODE_STREAM
     ];
 
@@ -504,6 +509,7 @@ abstract class SymmetricKey
                 break;
             case self::MODE_CTR:
             case self::MODE_CFB:
+            case self::MODE_CFB8:
             case self::MODE_OFB:
             case self::MODE_STREAM:
                 $this->paddable = false;
@@ -926,6 +932,16 @@ abstract class SymmetricKey
                     }
 
                     return $ciphertext;
+                case self::MODE_CFB8:
+                    $ciphertext = openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $this->encryptIV);
+                    if ($this->continuousBuffer) {
+                            if (($len = strlen($ciphertext)) >= $this->block_size) {
+                                    $this->encryptIV = substr($ciphertext, -$this->block_size);
+                            } else {
+                                    $this->encryptIV = substr($this->encryptIV, $len - $this->block_size) . substr($ciphertext, -$len);
+                            }
+                    }
+                    return $ciphertext;
                 case self::MODE_OFB:
                     return $this->openssl_ofb_process($plaintext, $this->encryptIV, $this->enbuffer);
             }
@@ -1105,6 +1121,24 @@ abstract class SymmetricKey
                     $pos = $len;
                 }
                 break;
+            case self::MODE_CFB8:
+                $ciphertext = '';
+                $len = strlen($plaintext);
+                $iv = $this->encryptIV;
+
+                for ($i=0; $i < $len; ++$i) {
+                    $ciphertext .= ($c = $plaintext[$i] ^ $this->encryptBlock($iv));
+                    $iv = substr($iv, 1, $this->block_size - 1) . $c;
+                }
+
+                if ($this->continuousBuffer) {
+                    if ($len >= $this->block_size) {
+                        $this->encryptIV = substr($ciphertext, -$this->block_size);
+                    } else {
+                        $this->encryptIV = substr($this->encryptIV, $len - $this->block_size) . substr($ciphertext, -$len);
+                    }
+                }
+                break;
             case self::MODE_OFB:
                 $xor = $this->encryptIV;
                 if (strlen($buffer['xor'])) {
@@ -1223,6 +1257,16 @@ abstract class SymmetricKey
                     } elseif ($len) {
                         $plaintext.= openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv);
                         $iv = substr($ciphertext, -$this->block_size);
+                    }
+                    break;
+                case self::MODE_CFB8:
+                    $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $this->decryptIV);
+                    if ($this->continuousBuffer) {
+                        if (($len = strlen($ciphertext)) >= $this->block_size) {
+                            $this->decryptIV = substr($ciphertext, -$this->block_size);
+                        } else {
+                            $this->decryptIV = substr($this->decryptIV, $len - $this->block_size) . substr($ciphertext, -$len);
+                        }
                     }
                     break;
                 case self::MODE_OFB:
@@ -1386,6 +1430,24 @@ abstract class SymmetricKey
                     $plaintext.= $iv ^ substr($ciphertext, $i);
                     $iv = substr_replace($iv, substr($ciphertext, $i), 0, $len);
                     $pos = $len;
+                }
+                break;
+            case self::MODE_CFB8:
+                $plaintext = '';
+                $len = strlen($ciphertext);
+                $iv = $this->decryptIV;
+
+                for ($i=0; $i < $len; ++$i) {
+                    $plaintext .= $ciphertext[$i] ^ $this->encryptBlock($iv);
+                    $iv = substr($iv, 1, $this->block_size - 1) . $ciphertext[$i];
+                }
+
+                if ($this->continuousBuffer) {
+                    if ($len >= $this->block_size) {
+                        $this->decryptIV = substr($ciphertext, -$this->block_size);
+                    } else {
+                        $this->decryptIV = substr($this->decryptIV, $len - $this->block_size) . substr($ciphertext, -$len);
+                    }
                 }
                 break;
             case self::MODE_OFB:
@@ -1598,6 +1660,8 @@ abstract class SymmetricKey
                 return 'ctr';
             case self::MODE_CFB:
                 return 'cfb';
+            case self::MODE_CFB8:
+                return 'cfb8';
             case self::MODE_OFB:
                 return 'ofb';
         }
@@ -1967,6 +2031,7 @@ abstract class SymmetricKey
                 self::MODE_ECB    => MCRYPT_MODE_ECB,
                 self::MODE_CBC    => MCRYPT_MODE_CBC,
                 self::MODE_CFB    => 'ncfb',
+                self::MODE_CFB8   => MCRYPT_MODE_CFB,
                 self::MODE_OFB    => MCRYPT_MODE_NOFB,
                 self::MODE_STREAM => MCRYPT_MODE_STREAM,
             ];
