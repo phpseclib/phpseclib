@@ -141,7 +141,7 @@ class Crypt_RC4 extends Crypt_Base
      * @var string
      * @access private
      */
-    var $key = "\0";
+    var $key;
 
     /**
      * The Key Stream for decryption and encryption
