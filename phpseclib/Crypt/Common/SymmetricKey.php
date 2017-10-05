@@ -108,6 +108,7 @@ abstract class SymmetricKey
         'cbc' => self::MODE_CBC,
         'cfb' => self::MODE_CFB,
         'ofb' => self::MODE_OFB,
+        'ige' => self::MODE_IGE,
         'stream' => self::MODE_STREAM
     ];
 

@@ -28,10 +28,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     public function continuousBufferCombos()
     {
         $modes = array(
-            BlockCipher::MODE_CTR,
-            BlockCipher::MODE_OFB,
-            BlockCipher::MODE_CFB,
-            BlockCipher::MODE_IGE,
+            'ctr',
+            'ofb',
+            'cfb',
+            'ige',
         );
         $plaintexts = array(
             '',
@@ -54,7 +54,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         foreach ($modes as $mode) {
             foreach ($plaintexts as $plaintext) {
                 foreach ($ivs as $iv) {
-                    if ($mode === BlockCipher::MODE_IGE) $iv .= strrev($iv);
+                    if ($mode === 'ige') $iv .= strrev($iv);
                     foreach ($keys as $key) {
                         $result[] = array($mode, $plaintext, $iv, $key);
                     }
@@ -130,16 +130,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     public function continuousBufferBatteryCombos()
     {
         $modes = array(
-<<<<<<< HEAD
-            BlockCipher::MODE_CTR,
-            BlockCipher::MODE_OFB,
-            BlockCipher::MODE_CFB,
-            BlockCipher::MODE_IGE,
-=======
             'ctr',
             'ofb',
             'cfb',
->>>>>>> ce92283c1050d3b6bbda587ac1908a73e3d606a1
+            'ige',
         );
 
         $combos = array(
@@ -177,7 +171,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
      */
     public function testContinuousBufferBattery($op, $mode, $test)
     {
-        $iv = str_repeat('x', 16*($mode === BlockCipher::MODE_IGE ? 2 : 1));
+        $iv = str_repeat('x', 16*($mode === 'ige' ? 2 : 1));
         $key = str_repeat('a', 16);
 
         $aes = new AES($mode);
@@ -228,7 +222,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             return;
         }
 
-        $iv = str_repeat('x', 16*($mode === BlockCipher::MODE_IGE ? 2 : 1));
+        $iv = str_repeat('x', 16*($mode === 'ige' ? 2 : 1));
         $key = str_repeat('a', 16);
 
         $aes = new AES($mode);
