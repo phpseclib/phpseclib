@@ -2945,7 +2945,7 @@ class Math_BigInteger
         // (will always result in a smaller number.  ie. ~1 isn't 1111 1110 - it's 0)
         $temp = $this->toBytes();
         if ($temp == '') {
-            return '';
+            return $this->_normalize(new Math_BigInteger());
         }
         $pre_msb = decbin(ord($temp[0]));
         $temp = ~$temp;
