@@ -527,7 +527,7 @@ class Crypt_Base
 
         // Determining whether inline crypting can be used by the cipher
         if ($this->use_inline_crypt !== false) {
-            $this->use_inline_crypt = version_compare(PHP_VERSION, '5.3.0') || function_exists('create_function');
+            $this->use_inline_crypt = version_compare(PHP_VERSION, '5.3.0') >= 0 || function_exists('create_function');
         }
     }
 
