@@ -114,6 +114,8 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
             ->method('callbackMethod')
             ->will($this->returnValue(true));
         $ssh->exec('pwd', array($callbackObject, 'callbackMethod'));
+
+        return $ssh;
     }
 
     public function testGetServerPublicHostKey()
@@ -134,5 +136,37 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
             $ssh->login($username, $password),
             'SSH2 login using an open socket failed.'
         );
+    }
+
+    /**
+     * @depends testExecWithMethodCallback
+     * @group github1009
+     */
+    public function testDisablePTY($ssh)
+    {
+        $ssh->enablePTY();
+        $ssh->exec('ls -latr');
+        $ssh->disablePTY();
+        $ssh->exec('pwd');
+
+        return $ssh;
+    }
+
+    /**
+     * @depends testDisablePTY
+     * @group github1167
+     */
+    public function testChannelDataAfterOpen($ssh)
+    {
+        $ssh->write("ping 127.0.0.1\n");
+
+        $ssh->enablePTY();
+        $ssh->exec('bash');
+
+        $ssh->write("ls -latr\n");
+
+        $ssh->setTimeout(1);
+
+        $ssh->read();
     }
 }

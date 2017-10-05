@@ -162,7 +162,7 @@ class SFTP extends SSH2
      * Current working directory
      *
      * @var string
-     * @see self::_realpath()
+     * @see self::realpath()
      * @see self::chdir()
      * @access private
      */
@@ -191,7 +191,7 @@ class SFTP extends SSH2
      *
      * @see self::getSFTPErrors()
      * @see self::getLastSFTPError()
-     * @var string
+     * @var array
      * @access private
      */
     private $sftp_errors = [];
@@ -239,6 +239,20 @@ class SFTP extends SSH2
      * @access private
      */
     private $sortOptions = [];
+
+    /**
+     * Canonicalization Flag
+     *
+     * Determines whether or not paths should be canonicalized before being
+     * passed on to the remote server.
+     *
+     * @see self::enablePathCanonicalization()
+     * @see self::disablePathCanonicalization()
+     * @see self::realpath()
+     * @var bool
+     * @access private
+     */
+    private $canonicalize_paths = true;
 
     /**
      * Default Constructor.
@@ -580,6 +594,26 @@ class SFTP extends SSH2
     }
 
     /**
+     * Enable path canonicalization
+     *
+     * @access public
+     */
+    public function enablePathCanonicalization()
+    {
+        $this->canonicalize_paths = true;
+    }
+
+    /**
+     * Enable path canonicalization
+     *
+     * @access public
+     */
+    public function disablePathCanonicalization()
+    {
+        $this->canonicalize_paths = false;
+    }
+
+    /**
      * Returns the current directory name
      *
      * @return mixed
@@ -622,7 +656,10 @@ class SFTP extends SSH2
      * SFTP doesn't provide a mechanism by which the current working directory can be changed, so we'll emulate it.  Returns
      * the absolute (canonicalized) path.
      *
+     * If canonicalize_paths has been disabled using disablePathCanonicalization(), $path is returned as-is.
+     *
      * @see self::chdir()
+     * @see self::disablePathCanonicalization()
      * @param string $path
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return mixed
@@ -630,6 +667,10 @@ class SFTP extends SSH2
      */
     public function realpath($path)
     {
+        if (!$this->canonicalize_paths) {
+            return $path;
+        }
+
         if ($this->pwd === false) {
             // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.9
             if (!$this->send_sftp_packet(NET_SFTP_REALPATH, pack('Na*', strlen($path), $path))) {
@@ -1282,7 +1323,7 @@ class SFTP extends SSH2
     /**
      * Returns general information about a file or symbolic link
      *
-     * Determines information without calling \phpseclib\Net\SFTP::_realpath().
+     * Determines information without calling \phpseclib\Net\SFTP::realpath().
      * The second parameter can be either NET_SFTP_STAT or NET_SFTP_LSTAT.
      *
      * @param string $filename
@@ -1444,7 +1485,7 @@ class SFTP extends SSH2
             return true;
         }
 
-        $filename = $this->realPath($filename);
+        $filename = $this->realpath($filename);
         // rather than return what the permissions *should* be, we'll return what they actually are.  this will also
         // tell us if the file actually exists.
         // incidentally, SFTPv4+ adds an additional 32-bit integer field - flags - to the following:
@@ -1928,7 +1969,7 @@ class SFTP extends SSH2
 
         if (isset($fp)) {
             $stat = fstat($fp);
-            $size = $stat['size'];
+            $size = !empty($stat) ? $stat['size'] : 0;
 
             if ($local_start >= 0) {
                 fseek($fp, $local_start);
@@ -2983,7 +3024,7 @@ class SFTP extends SSH2
      * Returns a string if NET_SFTP_LOGGING == self::LOG_COMPLEX, an array if NET_SFTP_LOGGING == self::LOG_SIMPLE and false if !defined('NET_SFTP_LOGGING')
      *
      * @access public
-     * @return string or Array
+     * @return array|string
      */
     public function getSFTPLog()
     {
@@ -3004,7 +3045,7 @@ class SFTP extends SSH2
     /**
      * Returns all errors
      *
-     * @return string
+     * @return array
      * @access public
      */
     public function getSFTPErrors()
@@ -3043,9 +3084,9 @@ class SFTP extends SSH2
      *
      * @param int $reason
      * @return bool
-     * @access private
+     * @access protected
      */
-    private function disconnect_helper($reason)
+    protected function disconnect_helper($reason)
     {
         $this->pwd = false;
         parent::disconnect_helper($reason);

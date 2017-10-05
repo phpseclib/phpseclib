@@ -5,7 +5,6 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Common\BlockCipher;
 use phpseclib\Crypt\Blowfish;
 use phpseclib\Crypt\Random;
 
@@ -14,10 +13,10 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
     public function engineVectors()
     {
         $engines = array(
-            BlockCipher::ENGINE_INTERNAL => 'internal',
-            BlockCipher::ENGINE_EVAL => 'eval',
-            BlockCipher::ENGINE_MCRYPT => 'mcrypt',
-            BlockCipher::ENGINE_OPENSSL => 'OpenSSL',
+            'PHP',
+            'Eval',
+            'mcrypt',
+            'OpenSSL',
         );
 
         // tests from https://www.schneier.com/code/vectors.txt
@@ -61,9 +60,9 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
 
         $result = array();
 
-        foreach ($engines as $engine => $engineName) {
+        foreach ($engines as $engine) {
             foreach ($tests as $test) {
-                $result[] = array($engine, $engineName, $test[0], $test[1], $test[2]);
+                $result[] = array($engine, $test[0], $test[1], $test[2]);
             }
         }
 
@@ -73,39 +72,40 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
     /**
      * @dataProvider engineVectors
      */
-    public function testVectors($engine, $engineName, $key, $plaintext, $expected)
+    public function testVectors($engine, $key, $plaintext, $expected)
     {
-        $bf = new Blowfish(Blowfish::MODE_CBC);
+        $bf = new Blowfish('cbc');
         $bf->setKey($key);
         $bf->setIV(str_repeat("\0", $bf->getBlockLength() >> 3));
+
         if (!$bf->isValidEngine($engine)) {
-            self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
+            self::markTestSkipped("Unable to initialize $engine engine");
         }
         $bf->setPreferredEngine($engine);
         $bf->disablePadding();
         $result = $bf->encrypt($plaintext);
         $plaintext = bin2hex($plaintext);
-        $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engineName engine");
+        $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engine engine");
     }
 
     public function testKeySizes()
     {
         $objects = $engines = array();
-        $temp = new Blowfish(Blowfish::MODE_CTR);
-        $temp->setPreferredEngine(Blowfish::ENGINE_INTERNAL);
+        $temp = new Blowfish('ctr');
+        $temp->setPreferredEngine('PHP');
         $objects[] = $temp;
         $engines[] = 'internal';
 
-        if ($temp->isValidEngine(Blowfish::ENGINE_MCRYPT)) {
-            $temp = new Blowfish(Blowfish::MODE_CTR);
-            $temp->setPreferredEngine(Blowfish::ENGINE_MCRYPT);
+        if ($temp->isValidEngine('mcrypt')) {
+            $temp = new Blowfish('ctr');
+            $temp->setPreferredEngine('mcrypt');
             $objects[] = $temp;
             $engines[] = 'mcrypt';
         }
 
-        if ($temp->isValidEngine(Blowfish::ENGINE_OPENSSL)) {
-            $temp = new Blowfish(Blowfish::MODE_CTR);
-            $temp->setPreferredEngine(Blowfish::ENGINE_OPENSSL);
+        if ($temp->isValidEngine('OpenSSL')) {
+            $temp = new Blowfish('ctr');
+            $temp->setPreferredEngine('OpenSSL');
             $objects[] = $temp;
             $engines[] = 'OpenSSL';
         }

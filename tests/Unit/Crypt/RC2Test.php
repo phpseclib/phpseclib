@@ -5,16 +5,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Common\BlockCipher;
 use phpseclib\Crypt\RC2;
 
 class Unit_Crypt_RC2Test extends PhpseclibTestCase
 {
     var $engines = array(
-        BlockCipher::ENGINE_INTERNAL => 'internal',
-        BlockCipher::ENGINE_EVAL => 'eval',
-        BlockCipher::ENGINE_MCRYPT => 'mcrypt',
-        BlockCipher::ENGINE_OPENSSL => 'OpenSSL',
+        'PHP',
+        'Eval',
+        'mcrypt',
+        'OpenSSL',
     );
 
     public function engineVectors()
@@ -34,9 +33,9 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
 
         $result = array();
 
-        foreach ($this->engines as $engine => $engineName) {
+        foreach ($this->engines as $engine) {
             foreach ($tests as $test) {
-                $result[] = array($engine, $engineName, $test[0], $test[1], $test[2], $test[3]);
+                $result[] = array($engine, $test[0], $test[1], $test[2], $test[3]);
             }
         }
 
@@ -46,7 +45,7 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
     // this test is just confirming RC2's key expansion
     public function testEncryptPadding()
     {
-        $rc2 = new RC2(BlockCipher::MODE_ECB);
+        $rc2 = new RC2('ecb');
 
         // unlike Crypt_AES / Crypt_Rijndael, when you tell Crypt_RC2 that the key length is 128-bits the key isn't null padded to that length.
         // instead, RC2 key expansion is used to extend it out to that length. this isn't done for AES / Rijndael since that doesn't define any
@@ -83,22 +82,22 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
 
         $rc2->setKey(str_repeat('d', 16), 128);
 
-        $rc2->setPreferredEngine(BlockCipher::ENGINE_INTERNAL);
+        $rc2->setPreferredEngine('PHP');
         $internal = $rc2->encrypt('d');
 
         $result = pack('H*', 'e3b36057f4821346');
         $this->assertEquals($result, $internal, 'Failed asserting that the internal engine produced the correct result');
 
-        $rc2->setPreferredEngine(BlockCipher::ENGINE_MCRYPT);
-        if ($rc2->getEngine() == BlockCipher::ENGINE_MCRYPT) {
+        $rc2->setPreferredEngine('mcrypt');
+        if ($rc2->getEngine() == 'mcrypt') {
             $mcrypt = $rc2->encrypt('d');
             $this->assertEquals($result, $mcrypt, 'Failed asserting that the mcrypt engine produced the correct result');
         } else {
             self::markTestSkipped('Unable to initialize mcrypt engine');
         }
 
-        $rc2->setPreferredEngine(BlockCipher::ENGINE_OPENSSL);
-        if ($rc2->getEngine() == BlockCipher::ENGINE_OPENSSL) {
+        $rc2->setPreferredEngine('OpenSSL');
+        if ($rc2->getEngine() == 'OpenSSL') {
             $openssl = $rc2->encrypt('d');
             $this->assertEquals($result, $openssl,  'Failed asserting that the OpenSSL engine produced the correct result');
         } else {
@@ -109,22 +108,22 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
     /**
      * @dataProvider engineVectors
      */
-    public function testVectors($engine, $engineName, $key, $keyLen, $plaintext, $ciphertext)
+    public function testVectors($engine, $key, $keyLen, $plaintext, $ciphertext)
     {
-        $rc2 = new RC2(RC2::MODE_CBC);
+        $rc2 = new RC2('cbc');
         $rc2->disablePadding();
         $rc2->setKeyLength($keyLen);
         $rc2->setKey(pack('H*', $key)); // could also do $rc2->setKey(pack('H*', $key), $keyLen)
         $rc2->setIV(str_repeat("\0", $rc2->getBlockLength() >> 3));
         if (!$rc2->isValidEngine($engine)) {
-            self::markTestSkipped('Unable to initialize ' . $engineName . ' engine');
+            self::markTestSkipped("Unable to initialize $engine engine");
         }
         $rc2->setPreferredEngine($engine);
 
         $result = bin2hex($rc2->encrypt(pack('H*', $plaintext)));
-        $this->assertEquals($result, $ciphertext, "Failed asserting that $plaintext yielded expected output in $engineName engine");
+        $this->assertEquals($result, $ciphertext, "Failed asserting that $plaintext yielded expected output in $engine engine");
 
         $result = bin2hex($rc2->decrypt(pack('H*', $ciphertext)));
-        $this->assertEquals($result, $plaintext, "Failed asserting that decrypted result yielded $plaintext as a result in $engineName engine");
+        $this->assertEquals($result, $plaintext, "Failed asserting that decrypted result yielded $plaintext as a result in $engine engine");
     }
 }

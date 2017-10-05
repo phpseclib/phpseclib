@@ -17,10 +17,8 @@ namespace phpseclib\Crypt\Common\Keys;
 
 use ParagonIE\ConstantTime\Base64;
 use ParagonIE\ConstantTime\Hex;
-use phpseclib\Crypt\Common\BlockCipher;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\AES;
-use phpseclib\Crypt\Base;
 use phpseclib\Crypt\DES;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\File\ASN1;
@@ -65,15 +63,11 @@ abstract class PKCS1 extends PKCS
     {
         switch ($mode) {
             case 'CBC':
-                return BlockCipher::MODE_CBC;
             case 'ECB':
-                return BlockCipher::MODE_ECB;
             case 'CFB':
-                return BlockCipher::MODE_CFB;
             case 'OFB':
-                return BlockCipher::MODE_OFB;
             case 'CTR':
-                return BlockCipher::MODE_CTR;
+                return $mode;
         }
         throw new \UnexpectedValueException('Unsupported block cipher mode of operation');
     }
@@ -128,7 +122,7 @@ abstract class PKCS1 extends PKCS
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array
+     * @return array|bool
      */
     protected static function load($key, $password)
     {

@@ -77,7 +77,7 @@ abstract class PuTTY
      * @param string $publicHandler
      * @param string $type
      * @param string $password
-     * @return array
+     * @return array|bool
      */
     protected static function load($key, $password)
     {
@@ -131,7 +131,7 @@ abstract class PuTTY
         switch ($encryption) {
             case 'aes256-cbc':
                 $symkey = self::generateSymmetricKey($password, 32);
-                $crypto = new AES(AES::MODE_CBC);
+                $crypto = new AES('cbc');
         }
 
         $hashkey = 'putty-private-key-file-mac-key';
@@ -190,7 +190,7 @@ abstract class PuTTY
         } else {
             $private.= Random::string(16 - (strlen($private) & 15));
             $source.= Strings::packSSH2('s', $private);
-            $crypto = new AES(AES::MODE_CBC);
+            $crypto = new AES('cbc');
 
             $crypto->setKey(self::generateSymmetricKey($password, 32));
             $crypto->setIV(str_repeat("\0", $crypto->getBlockLength() >> 3));

@@ -45,7 +45,6 @@ abstract class Objects
      * @param Object $obj
      * @param string $var
      * @param mixed $val
-     * @return mixed
      * @access public
      */
     public static function setVar($obj, $var, $val)
@@ -53,7 +52,7 @@ abstract class Objects
         $reflection = new \ReflectionClass(get_class($obj));
         $prop = $reflection->getProperty($var);
         $prop->setAccessible(true);
-        return $prop->setValue($obj, $val);
+        $prop->setValue($obj, $val);
     }
 
     /**

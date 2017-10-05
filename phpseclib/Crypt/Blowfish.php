@@ -327,12 +327,15 @@ class Blowfish extends BlockCipher
      *
      * @see \phpseclib\Crypt\Common\SymmetricKey::isValidEngine()
      * @param int $engine
-     * @access public
+     * @access protected
      * @return bool
      */
-    public function isValidEngine($engine)
+    protected function isValidEngineHelper($engine)
     {
         if ($engine == self::ENGINE_OPENSSL) {
+            if (version_compare(PHP_VERSION, '5.3.7') < 0 && $this->key_length != 16) {
+                return false;
+            }
             if ($this->key_length < 16) {
                 return false;
             }
@@ -340,7 +343,7 @@ class Blowfish extends BlockCipher
             $this->cipher_name_openssl = 'bf-' . $this->openssl_translate_mode();
         }
 
-        return parent::isValidEngine($engine);
+        return parent::isValidEngineHelper($engine);
     }
 
     /**

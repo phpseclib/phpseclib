@@ -122,17 +122,19 @@ class TripleDES extends DES
      *
      * $mode could be:
      *
-     * - \phpseclib\Crypt\Common\BlockCipher::MODE_ECB
+     * - ecb
      *
-     * - \phpseclib\Crypt\Common\BlockCipher::MODE_CBC
+     * - cbc
      *
-     * - \phpseclib\Crypt\Common\BlockCipher::MODE_CTR
+     * - ctr
      *
-     * - \phpseclib\Crypt\Common\BlockCipher::MODE_CFB
+     * - cfb
      *
-     * - \phpseclib\Crypt\Common\BlockCipher::MODE_OFB
+     * - ofb
      *
-     * - \phpseclib\Crypt\TripleDES::MODE_3CB
+     * - 3cbc
+     *
+     * - cbc3 (same as cbc)
      *
      * @see \phpseclib\Crypt\DES::__construct()
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
@@ -141,18 +143,19 @@ class TripleDES extends DES
      */
     public function __construct($mode)
     {
-        switch ($mode) {
+        switch (strtolower($mode)) {
             // In case of self::MODE_3CBC, we init as CRYPT_DES_MODE_CBC
             // and additional flag us internally as 3CBC
-            case self::MODE_3CBC:
-                parent::__construct(self::MODE_CBC);
+            case '3cbc':
+                $mode = self::MODE_3CBC;
+                parent::__construct('cbc');
                 $this->mode_3cbc = true;
 
                 // This three $des'es will do the 3CBC work (if $key > 64bits)
                 $this->des = [
-                    new DES(self::MODE_CBC),
-                    new DES(self::MODE_CBC),
-                    new DES(self::MODE_CBC),
+                    new DES('cbc'),
+                    new DES('cbc'),
+                    new DES('cbc'),
                 ];
 
                 // we're going to be doing the padding, ourselves, so disable it in the \phpseclib\Crypt\DES objects
@@ -160,6 +163,8 @@ class TripleDES extends DES
                 $this->des[1]->disablePadding();
                 $this->des[2]->disablePadding();
                 break;
+            case 'cbc3':
+                $mode = 'cbc';
             // If not 3CBC, we init as usual
             default:
                 parent::__construct($mode);
@@ -173,10 +178,10 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
-     * @access public
+     * @access protected
      * @return bool
      */
-    public function isValidEngine($engine)
+    protected function isValidEngineHelper($engine)
     {
         if ($engine == self::ENGINE_OPENSSL) {
             $this->cipher_name_openssl_ecb = 'des-ede3';
@@ -184,7 +189,7 @@ class TripleDES extends DES
             $this->cipher_name_openssl = $mode == 'ecb' ? 'des-ede3' : 'des-ede3-' . $mode;
         }
 
-        return parent::isValidEngine($engine);
+        return parent::isValidEngineHelper($engine);
     }
 
     /**
@@ -253,6 +258,7 @@ class TripleDES extends DES
         switch (strlen($key)) {
             case 16:
                 $key.= substr($key, 0, 8);
+                break;
             case 24:
                 break;
             default:
@@ -433,7 +439,6 @@ class TripleDES extends DES
      * @see \phpseclib\Crypt\Common\SymmetricKey::setPreferredEngine()
      * @param int $engine
      * @access public
-     * @return int
      */
     public function setPreferredEngine($engine)
     {
@@ -443,17 +448,6 @@ class TripleDES extends DES
             $this->des[2]->setPreferredEngine($engine);
         }
 
-        return parent::setPreferredEngine($engine);
-    }
-
-    /**
-     * Returns the class that defines the private methods
-     *
-     * @access private
-     * @return string
-     */
-    protected function getClassContext()
-    {
-        return 'phpseclib\Crypt\DES';
+        parent::setPreferredEngine($engine);
     }
 }

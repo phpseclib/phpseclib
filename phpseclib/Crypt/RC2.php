@@ -284,10 +284,10 @@ class RC2 extends BlockCipher
      *
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
-     * @access public
+     * @access protected
      * @return bool
      */
-    public function isValidEngine($engine)
+    protected function isValidEngineHelper($engine)
     {
         switch ($engine) {
             case self::ENGINE_OPENSSL:
@@ -298,7 +298,7 @@ class RC2 extends BlockCipher
                 $this->cipher_name_openssl = 'rc2-' . $this->openssl_translate_mode();
         }
 
-        return parent::isValidEngine($engine);
+        return parent::isValidEngineHelper($engine);
     }
 
     /**

@@ -547,7 +547,7 @@ class SSH1
     {
         $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->connectionTimeout);
         if (!$this->fsock) {
-            throw new \RuntimeException(rtrim("Cannot connect to $host. Error $errno. $errstr"));
+            throw new \RuntimeException(rtrim("Cannot connect to $this->host. Error $errno. $errstr"));
         }
 
         $this->server_identification = $init_line = fgets($this->fsock, 255);
@@ -681,7 +681,7 @@ class SSH1
             //    $this->crypto = new \phpseclib\Crypt\Null();
             //    break;
             case self::CIPHER_DES:
-                $this->crypto = new DES(DES::MODE_CBC);
+                $this->crypto = new DES('cbc');
                 $this->crypto->disablePadding();
                 $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0,  8));
@@ -689,7 +689,7 @@ class SSH1
                 $this->crypto->setIV(str_repeat("\0", 8));
                 break;
             case self::CIPHER_3DES:
-                $this->crypto = new TripleDES(TripleDES::MODE_3CBC);
+                $this->crypto = new TripleDES('3cbc');
                 $this->crypto->disablePadding();
                 $this->crypto->enableContinuousBuffer();
                 $this->crypto->setKey(substr($session_key, 0, 24));
@@ -914,7 +914,7 @@ class SSH1
     /**
      * Returns the output of an interactive shell when there's a match for $expect
      *
-     * $expect can take the form of a string literal or, if $mode == self::READ__REGEX,
+     * $expect can take the form of a string literal or, if $mode == self::READ_REGEX,
      * a regular expression.
      *
      * @see self::write()
@@ -924,7 +924,7 @@ class SSH1
      * @throws \RuntimeException on connection error
      * @access public
      */
-    public function read($expect, $mode = self::READ__SIMPLE)
+    public function read($expect, $mode = self::READ_SIMPLE)
     {
         if (!($this->bitmap & self::MASK_LOGIN)) {
             throw new \RuntimeException('Operation disallowed prior to login()');
@@ -936,7 +936,7 @@ class SSH1
 
         $match = $expect;
         while (true) {
-            if ($mode == self::READ__REGEX) {
+            if ($mode == self::READ_REGEX) {
                 preg_match($expect, $this->interactiveBuffer, $matches);
                 $match = isset($matches[0]) ? $matches[0] : '';
             }
@@ -1079,7 +1079,7 @@ class SSH1
      * http://www.securiteam.com/securitynews/5LP042K3FY.html
      *
      * @see self::_send_binary_packet()
-     * @return array
+     * @return array|bool
      * @access private
      */
     private function get_binary_packet()

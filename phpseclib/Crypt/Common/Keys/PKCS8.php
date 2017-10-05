@@ -33,7 +33,6 @@ use phpseclib\Crypt\RC2;
 use phpseclib\Crypt\RC4;
 use phpseclib\Crypt\AES;
 use phpseclib\Crypt\TripleDES;
-use phpseclib\Crypt\Common\BlockCipher;
 use phpseclib\Crypt\Random;
 use phpseclib\Math\BigInteger;
 use phpseclib\File\ASN1;
@@ -151,24 +150,24 @@ abstract class PKCS8 extends PKCS
 
         switch ($algo) {
             case 'DES':
-                $cipher = new DES(BlockCipher::MODE_CBC);
+                $cipher = new DES('cbc');
                 break;
             case 'RC2':
-                $cipher = new RC2(BlockCipher::MODE_CBC);
+                $cipher = new RC2('cbc');
                 break;
             case '3-KeyTripleDES':
-                $cipher = new TripleDES(BlockCipher::MODE_CBC);
+                $cipher = new TripleDES('cbc');
                 break;
             case '2-KeyTripleDES':
-                $cipher = new TripleDES(BlockCipher::MODE_CBC);
+                $cipher = new TripleDES('cbc');
                 $cipher->setKeyLength(128);
                 break;
             case '128BitRC2':
-                $cipher = new RC2(BlockCipher::MODE_CBC);
+                $cipher = new RC2('cbc');
                 $cipher->setKeyLength(128);
                 break;
             case '40BitRC2':
-                $cipher = new RC2(BlockCipher::MODE_CBC);
+                $cipher = new RC2('cbc');
                 $cipher->setKeyLength(40);
                 break;
             case '128BitRC4':
@@ -232,13 +231,13 @@ abstract class PKCS8 extends PKCS
     {
         switch ($algo) {
             case 'desCBC':
-                $cipher = new TripleDES(BlockCipher::MODE_CBC);
+                $cipher = new TripleDES('cbc');
                 break;
             case 'des-EDE3-CBC':
-                $cipher = new TripleDES(BlockCipher::MODE_CBC);
+                $cipher = new TripleDES('cbc');
                 break;
             case 'rc2CBC':
-                $cipher = new RC2(BlockCipher::MODE_CBC);
+                $cipher = new RC2('cbc');
                 // in theory this can be changed
                 $cipher->setKeyLength(128);
                 break;
@@ -247,7 +246,7 @@ abstract class PKCS8 extends PKCS
             case 'aes128-CBC-PAD':
             case 'aes192-CBC-PAD':
             case 'aes256-CBC-PAD':
-                $cipher = new AES(BlockCipher::MODE_CBC);
+                $cipher = new AES('cbc');
                 $cipher->setKeyLength(substr($algo, 3, 3));
                 break;
             default:
@@ -321,7 +320,7 @@ abstract class PKCS8 extends PKCS
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array
+     * @return array|bool
      */
     protected static function load($key, $password = '')
     {

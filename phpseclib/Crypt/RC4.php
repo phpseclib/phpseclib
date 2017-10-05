@@ -129,7 +129,7 @@ class RC4 extends StreamCipher
      */
     public function __construct()
     {
-        parent::__construct(self::MODE_STREAM);
+        parent::__construct('stream');
     }
 
     /**
@@ -139,16 +139,32 @@ class RC4 extends StreamCipher
      *
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
-     * @access public
+     * @access protected
      * @return bool
      */
-    public function isValidEngine($engine)
+    protected function isValidEngineHelper($engine)
     {
         if ($engine == self::ENGINE_OPENSSL) {
-            $this->cipher_name_openssl = 'rc4-40';
+            if (version_compare(PHP_VERSION, '5.3.7') >= 0) {
+                $this->cipher_name_openssl = 'rc4-40';
+            } else {
+                switch (strlen($this->key)) {
+                    case 5:
+                        $this->cipher_name_openssl = 'rc4-40';
+                        break;
+                    case 8:
+                        $this->cipher_name_openssl = 'rc4-64';
+                        break;
+                    case 16:
+                        $this->cipher_name_openssl = 'rc4';
+                        break;
+                    default:
+                        return false;
+                }
+            }
         }
 
-        return parent::isValidEngine($engine);
+        return parent::isValidEngineHelper($engine);
     }
 
     /**

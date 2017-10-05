@@ -273,10 +273,10 @@ class Rijndael extends BlockCipher
      *
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
-     * @access public
+     * @access protected
      * @return bool
      */
-    public function isValidEngine($engine)
+    protected function isValidEngineHelper($engine)
     {
         switch ($engine) {
             case self::ENGINE_OPENSSL:
@@ -294,7 +294,7 @@ class Rijndael extends BlockCipher
                 }
         }
 
-        return parent::isValidEngine($engine);
+        return parent::isValidEngineHelper($engine);
     }
 
     /**
@@ -629,7 +629,7 @@ class Rijndael extends BlockCipher
      * @access private
      * @return array &$tables
      */
-    private function &getTables()
+    protected function &getTables()
     {
         static $tables;
         if (empty($tables)) {

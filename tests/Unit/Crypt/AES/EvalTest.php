@@ -11,6 +11,6 @@ class Unit_Crypt_AES_EvalTest extends Unit_Crypt_AES_TestCase
 {
     protected function setUp()
     {
-        $this->engine = BlockCipher::ENGINE_EVAL;
+        $this->engine = 'Eval';
     }
 }

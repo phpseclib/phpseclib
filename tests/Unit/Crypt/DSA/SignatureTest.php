@@ -95,6 +95,14 @@ kBniZHdFBAZBTE14YJUBkw==
 
         $this->assertTrue($dsa->verify($message, $signature1, 'PKCS'));
         $this->assertTrue($dsa->verify($message, $signature2, 'PKCS'));
+
+        $signature = $dsa->sign($message, 'SSH2');
+
+        $pubKey = $dsa->getPublicKey();
+
+        $dsa = new DSA();
+        $dsa->load($pubKey);
+        $this->assertTrue($dsa->verify($message, $signature, 'SSH2'));
     }
 
     public function testSSHSignature()

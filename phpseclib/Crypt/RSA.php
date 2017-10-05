@@ -201,6 +201,15 @@ class RSA extends AsymmetricKey
      */
     private $sLen;
 
+
+    /**
+     * Comment
+     *
+     * @var string
+     * @access private
+     */
+    private $comment;
+
     /**
      * Hash function for the Mask Generation Function
      *
@@ -248,6 +257,14 @@ class RSA extends AsymmetricKey
      * @access private
      */
     private static $smallestPrime = 4096;
+
+    /**
+     * Enable Blinding?
+     *
+     * @var bool
+     * @access private
+     */
+    private static $enableBlinding = true;
 
     /**
      * The constructor
@@ -490,6 +507,15 @@ class RSA extends AsymmetricKey
 
         $components = parent::load($key, $type);
         if ($components === false) {
+            $this->comment = null;
+            $this->modulus = null;
+            $this->k = null;
+            $this->exponent = null;
+            $this->primes = null;
+            $this->exponents = null;
+            $this->coefficients = null;
+            $this->publicExponent = null;
+
             return false;
         }
 
@@ -876,7 +902,7 @@ class RSA extends AsymmetricKey
 
         $num_primes = count($this->primes);
 
-        if (defined('CRYPT_RSA_DISABLE_BLINDING')) {
+        if (!static::$enableBlinding) {
             $m_i = [
                 1 => $x->modPow($this->exponents[1], $this->primes[1]),
                 2 => $x->modPow($this->exponents[2], $this->primes[2])
@@ -932,6 +958,26 @@ class RSA extends AsymmetricKey
         }
 
         return $m;
+    }
+
+    /**
+     * Enable RSA Blinding
+     *
+     * @access public
+     */
+    public static function enableBlinding()
+    {
+        static::$enableBlinding = true;
+    }
+
+    /**
+     * Disable RSA Blinding
+     *
+     * @access public
+     */
+    public static function disableBlinding()
+    {
+        static::$enableBlinding = false;
     }
 
     /**

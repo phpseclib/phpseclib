@@ -11,6 +11,6 @@ class Unit_Crypt_AES_McryptTest extends Unit_Crypt_AES_TestCase
 {
     protected function setUp()
     {
-        $this->engine = BlockCipher::ENGINE_MCRYPT;
+        $this->engine = 'mcrypt';
     }
 }

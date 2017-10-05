@@ -5,7 +5,6 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Common\StreamCipher;
 use phpseclib\Crypt\RC4;
 use phpseclib\Crypt\Random;
 
@@ -14,9 +13,10 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
     public function engineVectors()
     {
         $engines = array(
-            StreamCipher::ENGINE_INTERNAL => 'internal',
-            StreamCipher::ENGINE_MCRYPT => 'mcrypt',
-            StreamCipher::ENGINE_OPENSSL => 'OpenSSL',
+            'PHP',
+            'Eval',
+            'mcrypt',
+            'OpenSSL',
         );
         // tests from https://tools.ietf.org/html/rfc6229
         $tests = array(
@@ -185,10 +185,10 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
 
         $result = array();
 
-        foreach ($engines as $engine => $engineName) {
+        foreach ($engines as $engine) {
             foreach ($tests as $test) {
                 foreach ($test['output'] as $output) {
-                    $result[] = array($engine, $engineName, $test['key'], $output['offset'], $output['result']);
+                    $result[] = array($engine, $test['key'], $output['offset'], $output['result']);
                 }
             }
         }
@@ -199,36 +199,36 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
     /**
      * @dataProvider engineVectors
      */
-    public function testVectors($engine, $engineName, $key, $offset, $expected)
+    public function testVectors($engine, $key, $offset, $expected)
     {
         $rc4 = new RC4();
         $rc4->setPreferredEngine($engine);
         $rc4->setKey($key);
         if ($rc4->getEngine() != $engine) {
-            self::markTestSkipped('Unable to initialize ' . $engineName . ' engine for ' . (strlen($key) * 8) . '-bit key');
+            self::markTestSkipped('Unable to initialize ' . $engine . ' engine for ' . (strlen($key) * 8) . '-bit key');
         }
         $result = $rc4->encrypt(str_repeat("\0", $offset + 16));
-        $this->assertEquals(bin2hex(substr($result, -16)), $expected, "Failed asserting that key $key yielded expected output at offset $offset in $engineName engine");
+        $this->assertEquals(bin2hex(substr($result, -16)), $expected, "Failed asserting that key $key yielded expected output at offset $offset in $engine engine");
     }
 
     public function testKeySizes()
     {
         $objects = $engines = array();
         $temp = new RC4(RC4::MODE_CTR);
-        $temp->setPreferredEngine(RC4::ENGINE_INTERNAL);
+        $temp->setPreferredEngine('internal');
         $objects[] = $temp;
         $engines[] = 'internal';
 
-        if ($temp->isValidEngine(RC4::ENGINE_MCRYPT)) {
+        if ($temp->isValidEngine('mcrypt')) {
             $temp = new RC4(RC4::MODE_CTR);
-            $temp->setPreferredEngine(RC4::ENGINE_MCRYPT);
+            $temp->setPreferredEngine('mcrypt');
             $objects[] = $temp;
             $engines[] = 'mcrypt';
         }
 
-        if ($temp->isValidEngine(RC4::ENGINE_OPENSSL)) {
+        if ($temp->isValidEngine('openssl')) {
             $temp = new RC4(RC4::MODE_CTR);
-            $temp->setPreferredEngine(RC4::ENGINE_OPENSSL);
+            $temp->setPreferredEngine('openssl');
             $objects[] = $temp;
             $engines[] = 'OpenSSL';
         }

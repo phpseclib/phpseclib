@@ -26,6 +26,9 @@ namespace phpseclib\File;
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\Strings;
+use DateTime;
+use DateTimeZone;
 
 /**
  * Pure-PHP ASN.1 Parser
@@ -248,7 +251,7 @@ abstract class ASN1
      * @param string $encoded
      * @param int $start
      * @param int $encoded_pos
-     * @return array
+     * @return array|bool
      * @access private
      */
     private static function decode_ber($encoded, $start = 0, $encoded_pos = 0)
@@ -513,7 +516,7 @@ abstract class ASN1
      * @param array $decoded
      * @param array $mapping
      * @param array $special
-     * @return array
+     * @return array|bool|Element
      * @access public
      */
     public static function asn1map($decoded, $mapping, $special = [])
@@ -738,7 +741,7 @@ abstract class ASN1
                 if (isset($mapping['implicit'])) {
                     $decoded['content'] = self::decodeTime($decoded['content'], $decoded['type']);
                 }
-                return @date(self::$format, $decoded['content']);
+                return $decoded['content'] ? $decoded['content']->format(self::$format) : false;
             case self::TYPE_BIT_STRING:
                 if (isset($mapping['mapping'])) {
                     $offset = ord($decoded['content'][0]);
@@ -826,7 +829,7 @@ abstract class ASN1
      * ASN.1 Encode (Helper function)
      *
      * @param string $source
-     * @param string $mapping
+     * @param array $mapping
      * @param int $idx
      * @return string
      * @throws \RuntimeException if the input has an error in it
@@ -988,7 +991,8 @@ abstract class ASN1
             case self::TYPE_GENERALIZED_TIME:
                 $format = $mapping['type'] == self::TYPE_UTC_TIME ? 'y' : 'Y';
                 $format.= 'mdHis';
-                $value = @gmdate($format, strtotime($source)) . 'Z';
+                $date = new DateTime($source, new DateTimeZone('GMT'));
+                $value = $date->format($format) . 'Z';
                 break;
             case self::TYPE_BIT_STRING:
                 if (isset($mapping['mapping'])) {
@@ -1150,33 +1154,32 @@ abstract class ASN1
            http://tools.ietf.org/html/rfc5280#section-4.1.2.5.2
            http://www.obj-sys.com/asn1tutorial/node14.html */
 
-        $pattern = $tag == self::TYPE_UTC_TIME ?
-            '#^(..)(..)(..)(..)(..)(..)?(.*)$#' :
-            '#(....)(..)(..)(..)(..)(..).*([Z+-].*)$#';
-
-        preg_match($pattern, $content, $matches);
-
-        list(, $year, $month, $day, $hour, $minute, $second, $timezone) = $matches;
+        $format = 'YmdHis';
 
         if ($tag == self::TYPE_UTC_TIME) {
-            $year = $year >= 50 ? "19$year" : "20$year";
-        }
-
-        if ($timezone == 'Z') {
-            $mktime = 'gmmktime';
-            $timezone = 0;
-        } elseif (preg_match('#([+-])(\d\d)(\d\d)#', $timezone, $matches)) {
-            $mktime = 'gmmktime';
-            $timezone = 60 * $matches[3] + 3600 * $matches[2];
-            if ($matches[1] == '-') {
-                $timezone = -$timezone;
+            // https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=28 says "the seconds
+            // element shall always be present" but none-the-less I've seen X509 certs where it isn't and if the
+            // browsers parse it phpseclib ought to too
+            if (preg_match('#^(\d{10})(Z|[+-]\d{4})$#', $content, $matches)) {
+                $content = $matches[1] . '00' . $matches[2];
             }
-        } else {
-            $mktime = 'mktime';
-            $timezone = 0;
+            $prefix = substr($content, 0, 2) >= 50 ? '19' : '20';
+            $content = $prefix . $content;
+        } elseif (strpos($content, '.') !== false) {
+            $format.= '.u';
         }
 
-        return @$mktime((int)$hour, (int)$minute, (int)$second, (int)$month, (int)$day, (int)$year) + $timezone;
+        if ($content[strlen($content) - 1] == 'Z') {
+            $content = substr($content, 0, -1) . '+0000';
+        }
+
+        if (strpos($content, '-') !== false || strpos($content, '+') !== false) {
+            $format.= 'O';
+        }
+
+        // error supression isn't necessary as of PHP 7.0:
+        // http://php.net/manual/en/migration70.other-changes.php
+        return @DateTime::createFromFormat($format, $content);
     }
 
     /**
@@ -1346,27 +1349,6 @@ abstract class ASN1
         $temp = str_replace(["\r", "\n", ' '], '', $temp);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? Base64::decode($temp) : false;
         return $temp != false ? $temp : $str;
-    }
-
-    /**
-     * DER-decode the length
-     *
-     * DER supports lengths up to (2**8)**127, however, we'll only support lengths up to (2**8)**4.  See
-     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
-     *
-     * @access public
-     * @param string $string
-     * @return int
-     */
-    public static function decodeLength(&$string)
-    {
-        $length = ord(Strings::shift($string));
-        if ($length & 0x80) { // definite length, long form
-            $length&= 0x7F;
-            $temp = Strings::shift($string, $length);
-            list(, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
-        }
-        return $length;
     }
 
     /**
