@@ -70,6 +70,13 @@ abstract class PHP extends Engine
      * @access protected
      */
     const ENGINE_DIR = 'PHP';
+    
+    /**
+     * Primes > 2 and < 1000
+     *
+     * @var array
+     */
+    protected static $primes;
 
     /**
      * Default constructor
