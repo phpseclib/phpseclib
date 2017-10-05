@@ -2423,7 +2423,7 @@ class RSA
         $db = $maskedDB ^ $dbMask;
         $lHash2 = substr($db, 0, $this->hLen);
         $m = substr($db, $this->hLen);
-        if ($lHash != $lHash2) {
+        if (!$this->_equals($lHash, $lHash2)) {
             user_error('Decryption error');
             return false;
         }
