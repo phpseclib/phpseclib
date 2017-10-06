@@ -141,7 +141,6 @@ class BigInteger implements \Serializable
                 }
             }
         }
-
         if ($x instanceof self::$mainEngine) {
             $this->value = clone $x;
         } elseif ($x instanceof BigInteger\Engines\Engine) {
