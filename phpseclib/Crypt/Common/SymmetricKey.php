@@ -486,7 +486,7 @@ abstract class SymmetricKey
      *
      * - ofb
      *
-     * @param int $mode
+     * @param string $mode
      * @access public
      * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
@@ -1859,7 +1859,7 @@ abstract class SymmetricKey
      * If the preferred crypt engine is not available the fastest available one will be used
      *
      * @see self::__construct()
-     * @param int $engine
+     * @param string $engine
      * @access public
      */
     public function setPreferredEngine($engine)
