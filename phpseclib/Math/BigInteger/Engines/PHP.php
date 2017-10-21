@@ -1272,7 +1272,7 @@ abstract class PHP extends Engine
         }
 
         $value = $this->value;
-        foreach (self::$primes as $prime) {
+        foreach (static::$primes as $prime) {
             list(, $r) = self::divide_digit($value, $prime);
             if (!$r) {
                 return count($value) == 1 && $value[0] == $prime;
