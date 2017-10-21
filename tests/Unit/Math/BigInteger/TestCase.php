@@ -400,4 +400,11 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $this->assertSame((string) $min, (string) $class::min($min, $max));
         $this->assertSame((string) $min, (string) $class::min($max, $min));
     }
+
+    public function testRandomPrime()
+    {
+        $class = static::getStaticClass();
+        $prime = $class::randomPrime(128);
+        $this->assertSame(128, $prime->getLength());
+    }
 }
