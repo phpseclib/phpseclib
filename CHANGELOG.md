@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.0.8 - 2017-10-22
+
+- SSH2:
+  - add new READ_NEXT mode (#1140)
+  - add sendIdentificationStringFirst()
+  - add sendKEXINITFirst()
+  - add sendIdentificationStringLast()
+  - add sendKEXINITLast() (#1162)
+  - assume any SSH server >= 1.99 supports SSH2 (#1170)
+  - workaround for bad arcfour256 implementations (#1171)
+  - don't choke when getting response from diff channel in exec() (#1167)
+- SFTP:
+  - add enablePathCanonicalization()
+  - add disablePathCanonicalization() (#1137)
+  - fix put() with remote file stream resource (#1177)
+- ANSI: misc fixes (#1150, #1161)
+- X509: use DateTime instead of unix time (#1166)
+- Ciphers: use eval() instead of create_function() for >= 5.3
+
 ## 1.0.7 - 2017-06-05
 
 - Crypt: fix OpenSSL engine on <= PHP 5.3.6 (#1122)
@@ -72,11 +91,11 @@
 - rewritten vt100 terminal emulator (File_ANSI) ([#689](https://github.com/phpseclib/phpseclib/pull/689))
 - agent-forwarding support (System_SSH_Agent) ([#592](https://github.com/phpseclib/phpseclib/pull/592))
 - Net_SSH2 improvements
- - diffie-hellman-group-exchange-sha1/sha256 support ([#714](https://github.com/phpseclib/phpseclib/pull/714))
- - window size handling updates ([#717](https://github.com/phpseclib/phpseclib/pull/717))
+  - diffie-hellman-group-exchange-sha1/sha256 support ([#714](https://github.com/phpseclib/phpseclib/pull/714))
+  - window size handling updates ([#717](https://github.com/phpseclib/phpseclib/pull/717))
 - Net_SFTP improvements
- - add callback support to put() ([#655](https://github.com/phpseclib/phpseclib/pull/655))
- - stat cache fixes ([#743](https://github.com/phpseclib/phpseclib/issues/743), [#730](https://github.com/phpseclib/phpseclib/issues/730), [#709](https://github.com/phpseclib/phpseclib/issues/709), [#726](https://github.com/phpseclib/phpseclib/issues/726))
+  - add callback support to put() ([#655](https://github.com/phpseclib/phpseclib/pull/655))
+  - stat cache fixes ([#743](https://github.com/phpseclib/phpseclib/issues/743), [#730](https://github.com/phpseclib/phpseclib/issues/730), [#709](https://github.com/phpseclib/phpseclib/issues/709), [#726](https://github.com/phpseclib/phpseclib/issues/726))
 - add "none" encryption mode to Crypt_RSA ([#692](https://github.com/phpseclib/phpseclib/pull/692))
 - misc ASN.1 / X.509 parsing fixes ([#721](https://github.com/phpseclib/phpseclib/pull/721), [#627](https://github.com/phpseclib/phpseclib/pull/627))
 - use a random serial number for new X509 certs ([#740](https://github.com/phpseclib/phpseclib/pull/740))
@@ -121,21 +140,21 @@
 ## 0.3.5 - 2013-07-11
 
 - numerous SFTP changes:
- - chown
- - chgrp
- - truncate
- - improved file type detection
- - put() can write to te middle of a file
- - mkdir accepts the same parameters that PHP's mkdir does
- - the ability to upload/download 2GB files
+  - chown
+  - chgrp
+  - truncate
+  - improved file type detection
+  - put() can write to the middle of a file
+  - mkdir accepts the same parameters that PHP's mkdir does
+  - the ability to upload/download 2GB files
 - across-the-board speedups for the various encryption algorithms
 - multi-factor authentication support for Net_SSH2
 - a $callback parameter for Net_SSH2::exec
 - new classes:
- - Net_SFTP_StreamWrapper
- - Net_SCP
- - Crypt_Twofish
- - Crypt_Blowfish
+  - Net_SFTP_StreamWrapper
+  - Net_SCP
+  - Crypt_Twofish
+  - Crypt_Blowfish
 
 ## 0.3.1 - 2012-11-20
 
@@ -165,7 +184,7 @@
 - Net_SSH2 now has limited keyboard_interactive authentication support
 - support was added for PuTTY formatted RSA private keys and XML formatted RSA private keys
 - Crypt_RSA::loadKey() will now try all key types automatically
-= add support for AES-128-CBC and DES-EDE3-CFB encrypted RSA private keys
+- add support for AES-128-CBC and DES-EDE3-CFB encrypted RSA private keys
 - add Net_SFTP::stat(), Net_SFTP::lstat() and Net_SFTP::rawlist()
 - logging was added to Net_SSH1
 - the license was changed to the less restrictive MIT license
