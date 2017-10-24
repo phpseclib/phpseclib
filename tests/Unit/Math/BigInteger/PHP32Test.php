@@ -34,4 +34,9 @@ class Unit_Math_BigInteger_PHP32Test extends Unit_Math_BigInteger_TestCase
     {
         return 'phpseclib\Math\BigInteger\Engines\PHP32';
     }
+
+    public function testRandomPrime()
+    {
+        self::markTestSkipped('32-bit primality testing slows things down too much');
+    }
 }
