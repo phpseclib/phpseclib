@@ -186,7 +186,8 @@ class GMP extends Engine
     /**
      * Adds two BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $y
+     * @return GMP
      */
     public function add(GMP $y)
     {
@@ -199,7 +200,8 @@ class GMP extends Engine
     /**
      * Subtracts two BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $y
+     * @return GMP
      */
     public function subtract(GMP $y)
     {
@@ -212,7 +214,8 @@ class GMP extends Engine
     /**
      * Multiplies two BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $x
+     * @return GMP
      */
     public function multiply(GMP $x)
     {
@@ -230,7 +233,8 @@ class GMP extends Engine
      * same.  If the remainder would be negative, the "common residue" is equal to the sum of the remainder
      * and the divisor (basically, the "common residue" is the first positive modulo).
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $y
+     * @return GMP
      */
     public function divide(GMP $y)
     {
@@ -258,6 +262,7 @@ class GMP extends Engine
      *
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
+     * @param GMP $y
      * @return int < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
      * @see self::equals()
@@ -273,6 +278,7 @@ class GMP extends Engine
      *
      * If you need to see if one number is greater than or less than another number, use BigInteger::compare()
      *
+     * @param GMP $x
      * @return bool
      */
     public function equals(GMP $x)
@@ -285,7 +291,8 @@ class GMP extends Engine
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP|false
+     * @param GMP $n
+     * @return false|GMP
      */
     public function modInverse(GMP $n)
     {
@@ -322,7 +329,8 @@ class GMP extends Engine
      *
      * Say you have 693 and 609.  The GCD is 21.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $n
+     * @return GMP
      */
     public function gcd(GMP $n)
     {
@@ -347,7 +355,8 @@ class GMP extends Engine
     /**
      * Logical And
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $x
+     * @return GMP
      */
     public function bitwise_and(GMP $x)
     {
@@ -360,7 +369,8 @@ class GMP extends Engine
     /**
      * Logical Or
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $x
+     * @return GMP
      */
     public function bitwise_or(GMP $x)
     {
@@ -373,7 +383,8 @@ class GMP extends Engine
     /**
      * Logical Exclusive Or
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $x
+     * @return GMP
      */
     public function bitwise_xor(GMP $x)
     {
@@ -421,7 +432,9 @@ class GMP extends Engine
     /**
      * Performs modular exponentiation.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $e
+     * @param GMP $n
+     * @return GMP
      */
     public function modPow(GMP $e, GMP $n)
     {
@@ -433,7 +446,9 @@ class GMP extends Engine
      *
      * Alias for modPow().
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $e
+     * @param GMP $n
+     * @return GMP
      */
     public function powMod(GMP $e, GMP $n)
     {
@@ -443,7 +458,9 @@ class GMP extends Engine
     /**
      * Performs modular exponentiation.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $e
+     * @param GMP $n
+     * @return GMP
      */
     protected function powModInner(GMP $e, GMP $n)
     {
@@ -456,7 +473,8 @@ class GMP extends Engine
      *
      * Removes leading zeros and truncates (if necessary) to maintain the appropriate precision
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $result
+     * @return GMP
      */
     protected function normalize(GMP $result)
     {
@@ -473,7 +491,10 @@ class GMP extends Engine
     /**
      * Performs some post-processing for randomRangePrime
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param Engine $x
+     * @param Engine $min
+     * @param Engine $max
+     * @return GMP
      */
     protected static function randomRangePrimeInner(Engine $x, Engine $min, Engine $max)
     {
@@ -495,7 +516,9 @@ class GMP extends Engine
      *
      * If there's not a prime within the given range, false will be returned.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP|false
+     * @param GMP $min
+     * @param GMP $max
+     * @return false|GMP
      */
     public static function randomRangePrime(GMP $min, GMP $max)
     {
@@ -511,7 +534,9 @@ class GMP extends Engine
      * BigInteger::randomRange($min, $max)
      * BigInteger::randomRange($max, $min)
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $min
+     * @param GMP $max
+     * @return GMP
      */
     public static function randomRange(GMP $min, GMP $max)
     {
@@ -546,7 +571,8 @@ class GMP extends Engine
      *
      * Returns the nth root of a positive biginteger, where n defaults to 2
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param int $n
+     * @return GMP
      */
     protected function rootInner($n)
     {
@@ -558,7 +584,8 @@ class GMP extends Engine
     /**
      * Performs exponentiation.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $n
+     * @return GMP
      */
     public function pow(GMP $n)
     {
@@ -571,7 +598,8 @@ class GMP extends Engine
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP[] $nums
+     * @return GMP
      */
     public static function min(GMP ...$nums)
     {
@@ -581,7 +609,8 @@ class GMP extends Engine
     /**
      * Return the maximum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP[] $nums
+     * @return GMP
      */
     public static function max(GMP ...$nums)
     {
@@ -591,7 +620,9 @@ class GMP extends Engine
     /**
      * Tests BigInteger to see if it is between two integers, inclusive
      *
-     * @return boolean
+     * @param GMP $min
+     * @param GMP $max
+     * @return bool
      */
     public function between(GMP $min, GMP $max)
     {

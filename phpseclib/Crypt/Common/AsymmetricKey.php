@@ -180,6 +180,7 @@ abstract class AsymmetricKey
     /**
      * Tests engine validity
      *
+     * @returns boolean
      * @access public
      * @param int $val
      */
@@ -254,8 +255,8 @@ abstract class AsymmetricKey
     /**
      * Load Plugins
      *
-     * @params $format
      * @access private
+     * @param $format
      */
     private static function loadPlugins($format)
     {
@@ -539,7 +540,7 @@ abstract class AsymmetricKey
      * @see self::createKey()
      * @see self::load()
      * @access public
-     * @param string $password
+     * @param string|boolean $password
      */
     public function setPassword($password = false)
     {

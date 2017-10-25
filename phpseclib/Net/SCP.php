@@ -104,7 +104,6 @@ class SCP
      * Connects to an SSH server
      *
      * @param \phpseclib\Net\SSH1|\phpseclib\Net\SSH2 $ssh
-     * @return \phpseclib\Net\SCP
      * @access public
      */
     public function __construct($ssh)
@@ -212,7 +211,7 @@ class SCP
      * operation
      *
      * @param string $remote_file
-     * @param string $local_file
+     * @param string|boolean $local_file
      * @return mixed
      * @access public
      */

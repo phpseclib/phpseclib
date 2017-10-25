@@ -626,7 +626,6 @@ class Stream
      * $options. What does 8 correspond to?
      *
      * @param string $path
-     * @param int $mode
      * @param int $options
      * @return bool
      * @access public

@@ -204,8 +204,7 @@ class RC4 extends StreamCipher
      * Keys can be between 1 and 256 bytes long.
      *
      * @access public
-     * @param int $length
-     * @throws \LengthException if the key length is invalid
+     * @param string $key
      */
     public function setKey($key)
     {
@@ -256,7 +255,7 @@ class RC4 extends StreamCipher
 
     /**
      * Encrypts a block
-     *
+     * @return null
      * @access private
      * @param string $in
      */
@@ -267,7 +266,7 @@ class RC4 extends StreamCipher
 
     /**
      * Decrypts a block
-     *
+     * @return null
      * @access private
      * @param string $in
      */

@@ -141,6 +141,7 @@ abstract class PHP extends Engine
     /**
      * Pads strings so that unpack may be used on them
      *
+     * @param $str
      * @return string
      */
     protected function pad($str)
@@ -673,6 +674,7 @@ abstract class PHP extends Engine
      *
      * abc / x = a00 / x + b0 / x + c / x
      *
+     * @param array $dividend
      * @param int $divisor
      * @return array
      */
@@ -732,7 +734,8 @@ abstract class PHP extends Engine
      *
      * Removes leading zeros and truncates (if necessary) to maintain the appropriate precision
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @param $result
+     * @return PHP
      */
     protected function normalize($result)
     {
@@ -802,7 +805,8 @@ abstract class PHP extends Engine
      * combination is returned is dependent upon which mode is in use.  See
      * {@link http://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity Bezout's identity - Wikipedia} for more information.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @param PHP $n
+     * @return PHP[]
      * @internal Calculates the GCD using the binary xGCD algorithim described in
      *    {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=19 HAC 14.61}.  As the text above 14.61 notes,
      *    the more traditional algorithim requires "relatively costly multiple-precision divisions".
@@ -886,7 +890,8 @@ abstract class PHP extends Engine
     /**
      * Logical And
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @param PHP $x
+     * @return PHP
      */
     protected function bitwiseAndHelper(PHP $x)
     {
@@ -906,7 +911,8 @@ abstract class PHP extends Engine
     /**
      * Logical Or
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @param PHP $x
+     * @return PHP
      */
     protected function bitwiseOrHelper(PHP $x)
     {
@@ -925,7 +931,8 @@ abstract class PHP extends Engine
     /**
      * Logical Exlusive Or
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @param PHP $x
+     * @return PHP
      */
     protected function bitwiseXorHelper(PHP $x)
     {
@@ -946,7 +953,8 @@ abstract class PHP extends Engine
      *
      * Removes leading zeros
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @param array $value
+     * @return PHP
      */
     protected static function trim(array $value)
     {
@@ -1144,7 +1152,9 @@ abstract class PHP extends Engine
     /**
      * Performs modular exponentiation.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @param PHP $e
+     * @param PHP $n
+     * @return PHP
      */
     protected function powModInner(PHP $e, PHP $n)
     {
@@ -1159,6 +1169,7 @@ abstract class PHP extends Engine
     /**
      * Performs squaring
      *
+     * @param array $x
      * @return array
      */
     protected static function square(array $x)
@@ -1175,6 +1186,7 @@ abstract class PHP extends Engine
      * {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=7 HAC 14.2.4} /
      * {@link http://math.libtomcrypt.com/files/tommath.pdf#page=141 MPM 5.3} for more information.
      *
+     * @param array $value
      * @return array
      */
     protected static function baseSquare(array $value)
@@ -1212,6 +1224,7 @@ abstract class PHP extends Engine
      * See {@link http://en.wikipedia.org/wiki/Karatsuba_algorithm Karatsuba algorithm} and
      * {@link http://math.libtomcrypt.com/files/tommath.pdf#page=151 MPM 5.3.4}.
      *
+     * @param array $value
      * @return array
      */
     protected static function karatsubaSquare(array $value)
@@ -1288,6 +1301,7 @@ abstract class PHP extends Engine
      * ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
      *
      * @see self::isPrime()
+     * @param $r
      * @return int
      */
     protected static function scan1divide($r)
@@ -1309,7 +1323,8 @@ abstract class PHP extends Engine
     /**
      * Performs exponentiation.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @param PHP $n
+     * @return PHP
      */
     protected function powHelper(PHP $n)
     {

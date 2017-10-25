@@ -234,7 +234,7 @@ class SSH1
     /**
      * The Socket Object
      *
-     * @var object
+     * @var resource
      * @access private
      */
     private $fsock;
@@ -812,8 +812,8 @@ class SSH1
      * @see self::interactiveRead()
      * @see self::interactiveWrite()
      * @param string $cmd
+     * @param bool $block
      * @return mixed
-     * @throws \RuntimeException on error sending command
      * @access public
      */
     public function exec($cmd, $block = true)
@@ -1558,7 +1558,8 @@ class SSH1
      *
      * Makes sure that only the last 1MB worth of packets will be logged
      *
-     * @param string $data
+     * @param $protocol_flags
+     * @param $message
      * @access private
      */
     private function append_log($protocol_flags, $message)

@@ -90,9 +90,6 @@ abstract class PuTTY extends Progenitor
      * @param \phpseclib\Math\BigInteger $g
      * @param \phpseclib\Math\BigInteger $y
      * @param \phpseclib\Math\BigInteger $x
-     * @param array $primes
-     * @param array $exponents
-     * @param array $coefficients
      * @param string $password optional
      * @return string
      */

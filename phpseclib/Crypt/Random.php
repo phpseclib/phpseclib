@@ -190,7 +190,7 @@ abstract class Random
      * Safely serialize variables
      *
      * If a class has a private __sleep() it'll emit a warning
-     *
+     * @return mixed
      * @param mixed $arr
      * @access public
      */

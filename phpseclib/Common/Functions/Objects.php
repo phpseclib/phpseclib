@@ -26,7 +26,7 @@ abstract class Objects
     /**
      * Accesses a private variable from an object
      *
-     * @param Object $obj
+     * @param object $obj
      * @param string $var
      * @return mixed
      * @access public
@@ -42,7 +42,7 @@ abstract class Objects
     /**
      * Sets the value of a private variable in an object
      *
-     * @param Object $obj
+     * @param object $obj
      * @param string $var
      * @param mixed $val
      * @access public
@@ -58,7 +58,7 @@ abstract class Objects
     /**
      * Accesses a private method from an object
      *
-     * @param Object $obj
+     * @param object $obj
      * @param string $func
      * @param array $params
      * @return mixed
