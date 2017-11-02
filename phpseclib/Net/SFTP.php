@@ -487,7 +487,8 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != NET_SFTP_VERSION) {
-            throw new \UnexpectedValueException('Expected SSH_FXP_VERSION');
+            throw new \UnexpectedValueException('Expected NET_SFTP_VERSION. '
+                                              . 'Got packet type: ' . $this->packet_type);
         }
 
         if (strlen($response) < 4) {
@@ -693,7 +694,8 @@ class SFTP extends SSH2
                     $this->logError($response);
                     return false;
                 default:
-                    throw new \UnexpectedValueException('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
+                    throw new \UnexpectedValueException('Expected NET_SFTP_NAME or NET_SFTP_STATUS. '
+                                                      . 'Got packet type: ' . $this->packet_type);
             }
         }
 
@@ -769,7 +771,8 @@ class SFTP extends SSH2
                 $this->logError($response);
                 return false;
             default:
-                throw new \UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
+                throw new \UnexpectedValueException('Expected NET_SFTP_HANDLE or NET_SFTP_STATUS' .
+                                                    'Got packet type: ' . $this->packet_type);
         }
 
         if (!$this->close_handle($handle)) {
@@ -903,7 +906,8 @@ class SFTP extends SSH2
                 $this->logError($response);
                 return false;
             default:
-                throw new \UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
+                throw new \UnexpectedValueException('Expected NET_SFTP_HANDLE or NET_SFTP_STATUS. '
+                                                  . 'Got packet type: ' . $this->packet_type);
         }
 
         $this->update_stat_cache($dir, []);
@@ -969,7 +973,8 @@ class SFTP extends SSH2
                     }
                     break 2;
                 default:
-                    throw new \UnexpectedValueException('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
+                    throw new \UnexpectedValueException('Expected NET_SFTP_NAME or NET_SFTP_STATUS. '
+                                                      . 'Got packet type: ' . $this->packet_type);
             }
         }
 
@@ -1349,7 +1354,8 @@ class SFTP extends SSH2
                 return false;
         }
 
-        throw new \UnexpectedValueException('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS');
+        throw new \UnexpectedValueException('Expected NET_SFTP_ATTRS or NET_SFTP_STATUS. '
+                                          . 'Got packet type: ' . $this->packet_type);
     }
 
     /**
@@ -1412,7 +1418,8 @@ class SFTP extends SSH2
                 $this->logError($response);
                 break;
             default:
-                throw new \UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
+                throw new \UnexpectedValueException('Expected NET_SFTP_HANDLE or NET_SFTP_STATUS. '
+                                                  . 'Got packet type: ' . $this->packet_type);
         }
 
         return $this->setstat($filename, $attr, false);
@@ -1504,7 +1511,8 @@ class SFTP extends SSH2
                 return false;
         }
 
-        throw new \UnexpectedValueException('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS');
+        throw new \UnexpectedValueException('Expected NET_SFTP_ATTRS or NET_SFTP_STATUS. '
+                                          . 'Got packet type: ' . $this->packet_type);
     }
 
     /**
@@ -1552,7 +1560,8 @@ class SFTP extends SSH2
         */
         $response = $this->get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
+            throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
+                                              . 'Got packet type: ' . $this->packet_type);
         }
 
         if (strlen($response) < 4) {
@@ -1667,7 +1676,8 @@ class SFTP extends SSH2
                 $this->logError($response);
                 return false;
             default:
-                throw new \UnexpectedValueException('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
+                throw new \UnexpectedValueException('Expected NET_SFTP_NAME or NET_SFTP_STATUS. '
+                                                  . 'Got packet type: ' . $this->packet_type);
         }
 
         if (strlen($response) < 4) {
@@ -1713,7 +1723,8 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
+            throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
+                                              . 'Got packet type: ' . $this->packet_type);
         }
 
         if (strlen($response) < 4) {
@@ -1780,7 +1791,8 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
+            throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
+                                              . 'Got packet type: ' . $this->packet_type);
         }
 
         if (strlen($response) < 4) {
@@ -1820,7 +1832,8 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
+            throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
+                                              . 'Got packet type: ' . $this->packet_type);
         }
 
         if (strlen($response) < 4) {
@@ -1933,7 +1946,8 @@ class SFTP extends SSH2
                 $this->logError($response);
                 return false;
             default:
-                throw new \UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
+                throw new \UnexpectedValueException('Expected NET_SFTP_HANDLE or NET_SFTP_STATUS. '
+                                                  . 'Got packet type: ' . $this->packet_type);
         }
 
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
@@ -2056,7 +2070,8 @@ class SFTP extends SSH2
         while ($i--) {
             $response = $this->get_sftp_packet();
             if ($this->packet_type != NET_SFTP_STATUS) {
-                throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
+                throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
+                                                  . 'Got packet type: ' . $this->packet_type);
             }
 
             if (strlen($response) < 4) {
@@ -2090,7 +2105,8 @@ class SFTP extends SSH2
         //  -- http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.1.3
         $response = $this->get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
+            throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
+                                              . 'Got packet type: ' . $this->packet_type);
         }
 
         if (strlen($response) < 4) {
@@ -2147,7 +2163,8 @@ class SFTP extends SSH2
                 $this->logError($response);
                 return false;
             default:
-                throw new \UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
+                throw new \UnexpectedValueException('Expected NET_SFTP_HANDLE or NET_SFTP_STATUS. '
+                                                  . 'Got packet type: ' . $this->packet_type);
         }
 
         if (is_resource($local_file)) {
@@ -2225,7 +2242,8 @@ class SFTP extends SSH2
                         if ($fclose_check) {
                             fclose($fp);
                         }
-                        throw new \UnexpectedValueException('Expected SSH_FXP_DATA or SSH_FXP_STATUS');
+                        throw new \UnexpectedValueException('Expected NET_SFTP_DATA or NET_SFTP_STATUS. '
+                                                          . 'Got packet type: ' . $this->packet_type);
                 }
                 $response = null;
             }
@@ -2291,7 +2309,8 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
+            throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
+                                              . 'Got packet type: ' . $this->packet_type);
         }
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
@@ -2719,7 +2738,8 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            throw new \UnexpectedValueException('Expected SSH_FXP_STATUS');
+            throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
+                                              . 'Got packet type: ' . $this->packet_type);
         }
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
