@@ -14,6 +14,7 @@ class Unit_Math_BigInteger_PHP32Test extends Unit_Math_BigInteger_TestCase
         if (version_compare(PHP_VERSION, '7.0.0') < 0) {
             self::markTestSkipped('32-bit integers slow things down too much on PHP 5.6');
         }
+
         PHP32::setModExpEngine('DefaultEngine');
     }
 
@@ -33,10 +34,5 @@ class Unit_Math_BigInteger_PHP32Test extends Unit_Math_BigInteger_TestCase
     public static function getStaticClass()
     {
         return 'phpseclib\Math\BigInteger\Engines\PHP32';
-    }
-
-    public function testRandomPrime()
-    {
-        self::markTestSkipped('32-bit primality testing slows things down too much');
     }
 }
