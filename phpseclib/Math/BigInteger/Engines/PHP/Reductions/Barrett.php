@@ -185,7 +185,7 @@ abstract class Barrett extends Base
         // m.length + 1
         $result = array_slice($x, 0, $n_length + 1);
         // m.length + 1
-        $temp = self::multiplyLower($temp, false, $n, false, $n_length + 1);
+        $temp = self::multiplyLower($temp, false, $n, false, $n_length + 1, $class);
         // $temp == array_slice($class::regularMultiply($temp, false, $n, false)->value, 0, $n_length + 1)
 
         if (self::compareHelper($result, false, $temp[self::VALUE], $temp[self::SIGN]) < 0) {
