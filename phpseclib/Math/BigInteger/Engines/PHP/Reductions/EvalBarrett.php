@@ -80,14 +80,25 @@ abstract class EvalBarrett extends Base
 
         $lhs = new $class();
         $lhs_value = &$lhs->value;
+
         $lhs_value = self::array_repeat(0, $m_length + ($m_length >> 1));
         $lhs_value[] = 1;
         $rhs = new $class();
 
         list($u, $m1) = $lhs->divide($m);
 
+        if ($class::BASE != 26) {
+            $u = $u->value;
+        } else {
+            $lhs_value = self::array_repeat(0, 2 * $m_length);
+            $lhs_value[] = 1;
+            $rhs = new $class();
+
+            list($u) = $lhs->divide($m);
+            $u = $u->value;
+        }
+
         $m = $m->value;
-        $u = $u->value;
         $m1 = $m1->value;
 
         $cutoff = count($m) + (count($m) >> 1);
@@ -110,12 +121,13 @@ abstract class EvalBarrett extends Base
         $code.= self::generateInlineMultiply('msd', $m1, 'temp', $class);
         $code.= self::generateInlineAdd('lsd', 'temp', 'n', $class);
 
-        $code.= '
-            $temp = array_slice($n, ' . (count($m) - 1) . ');';
+        $code.= '$temp = array_slice($n, ' . (count($m) - 1) . ');';
         $code.= self::generateInlineMultiply('temp', $u, 'temp2', $class);
         $code.= self::generateInlineTrim('temp2');
-        $code.= '
-            $temp = array_slice($temp2, ' . ((count($m) >> 1) + 1) . ');';
+
+        $code.= $class::BASE == 26 ?
+            '$temp = array_slice($temp2, ' . (count($m) + 1) . ');' :
+            '$temp = array_slice($temp2, ' . ((count($m) >> 1) + 1) . ');';
         $code.= self::generateInlineMultiply('temp', $m, 'temp2', $class);
         $code.= self::generateInlineTrim('temp2');
 
