@@ -131,6 +131,11 @@ abstract class EvalBarrett extends Base
         $code.= self::generateInlineMultiply('temp', $m, 'temp2', $class);
         $code.= self::generateInlineTrim('temp2');
 
+        if ($class::BASE == 26) {
+            $code.= '$n = array_slice($n, 0, ' . (count($m) + 1) . ');
+                     $temp2 = array_slice($temp2, 0, ' . (count($m) + 1) . ');';
+        }
+
         $code.= self::generateInlineSubtract2('n', 'temp2', 'temp', $class);
 
         $subcode = self::generateInlineSubtract1('temp', $m, 'temp2', $class);
