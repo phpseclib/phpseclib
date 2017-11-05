@@ -1926,8 +1926,9 @@ class X509
      * Load a Certificate Signing Request
      *
      * @param string $csr
-     * @access public
+     * @param int $mode
      * @return mixed
+     * @access public
      */
     public function loadCSR($csr, $mode = self::FORMAT_AUTO_DETECT)
     {
@@ -2164,8 +2165,9 @@ class X509
      * Load a Certificate Revocation List
      *
      * @param string $crl
-     * @access public
+     * @param int $mode
      * @return mixed
+     * @access public
      */
     public function loadCRL($crl, $mode = self::FORMAT_AUTO_DETECT)
     {
@@ -2498,6 +2500,7 @@ class X509
      * Sign a CSR
      *
      * @access public
+     * @param string $signatureAlgorithm
      * @return mixed
      */
     public function signCSR($signatureAlgorithm = 'sha1WithRSAEncryption')
@@ -2556,6 +2559,7 @@ class X509
      * Sign a SPKAC
      *
      * @access public
+     * @param string $signatureAlgorithm
      * @return mixed
      */
     public function signSPKAC($signatureAlgorithm = 'sha1WithRSAEncryption')
@@ -2754,7 +2758,6 @@ class X509
      * X.509 certificate signing helper function.
      *
      * @param object $key
-     * @param \phpseclib\File\X509 $subject
      * @param string $signatureAlgorithm
      * @access public
      * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
@@ -3299,7 +3302,7 @@ class X509
      *
      * @param string $id
      * @param mixed $value
-     * @param bool $disposition optional
+     * @param int $disposition optional
      * @access public
      * @return bool
      */

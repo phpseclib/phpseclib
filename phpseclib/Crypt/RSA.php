@@ -320,9 +320,10 @@ class RSA extends AsymmetricKey
      *  - 'privatekey': The private key.
      *  - 'publickey':  The public key.
      *
+     * @return array
      * @access public
      * @param int $bits
-     * @param array $p
+     *
      */
     public static function createKey($bits = 2048)
     {
@@ -455,9 +456,10 @@ class RSA extends AsymmetricKey
      *
      * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
      *
+     * @return boolean
      * @access public
      * @param string $key
-     * @param int $type optional
+     * @param int|boolean $type optional
      */
     public function load($key, $type = false)
     {
@@ -652,8 +654,8 @@ class RSA extends AsymmetricKey
      *
      * @see self::getPublicKey()
      * @access public
-     * @param string $key optional
-     * @param int $type optional
+     * @param string|boolean $key optional
+     * @param int|boolean $type optional
      * @return bool
      */
     public function setPublicKey($key = false, $type = false)
@@ -696,8 +698,8 @@ class RSA extends AsymmetricKey
      *
      * @see self::getPublicKey()
      * @access public
-     * @param string $key optional
-     * @param int $type optional
+     * @param string|boolean $key optional
+     * @param int|boolean $type optional
      * @return bool
      */
     public function setPrivateKey($key = false, $type = false)
@@ -836,7 +838,8 @@ class RSA extends AsymmetricKey
      *    of the hash function Hash) and 0.
      *
      * @access public
-     * @param int $format
+     * @param $sLen
+     * @internal param int $format
      */
     public function setSaltLength($sLen)
     {
@@ -1079,7 +1082,7 @@ class RSA extends AsymmetricKey
      *
      * @access private
      * @param string $mgfSeed
-     * @param int $mgfLen
+     * @param int $maskLen
      * @return string
      */
     private function mgf1($mgfSeed, $maskLen)
@@ -1345,6 +1348,7 @@ class RSA extends AsymmetricKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.1.1 RFC3447#section-9.1.1}.
      *
+     * @returns string
      * @access private
      * @param string $m
      * @throws \RuntimeException on encoding error
@@ -1740,7 +1744,7 @@ class RSA extends AsymmetricKey
      *
      * @see self::encrypt()
      * @access public
-     * @param string $plaintext
+     * @param string $ciphertext
      * @param int $padding optional
      * @return bool|string
      */

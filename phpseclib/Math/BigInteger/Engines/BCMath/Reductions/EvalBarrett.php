@@ -53,7 +53,7 @@ abstract class EvalBarrett extends Base
     /**
      * Generate Custom Reduction
      *
-     * @param array $m
+     * @param BCMath $m
      * @param string $class
      * @return callable|void
      */

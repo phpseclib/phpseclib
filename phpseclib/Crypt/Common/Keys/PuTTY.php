@@ -74,8 +74,6 @@ abstract class PuTTY
      *
      * @access public
      * @param string $key
-     * @param string $publicHandler
-     * @param string $type
      * @param string $password
      * @return array|bool
      */

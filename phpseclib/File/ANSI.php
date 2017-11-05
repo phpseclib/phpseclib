@@ -203,8 +203,7 @@ class ANSI
     /**
      * Set the number of lines that should be logged past the terminal height
      *
-     * @param int $x
-     * @param int $y
+     * @param $history
      * @access public
      */
     public function setHistory($history)
@@ -461,6 +460,9 @@ class ANSI
      * Returns the current coordinate without preformating
      *
      * @access private
+     * @param $last_attr
+     * @param $cur_attr
+     * @param $char
      * @return string
      */
     private function processCoordinate($last_attr, $cur_attr, $char)

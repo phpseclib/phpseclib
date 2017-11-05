@@ -106,7 +106,8 @@ class PHP32 extends PHP
     /**
      * Adds two BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32 $y
+     * @return PHP32
      */
     public function add(PHP32 $y)
     {
@@ -118,7 +119,8 @@ class PHP32 extends PHP
     /**
      * Subtracts two BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32 $y
+     * @return PHP32
      */
     public function subtract(PHP32 $y)
     {
@@ -130,7 +132,8 @@ class PHP32 extends PHP
     /**
      * Multiplies two BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32 $y
+     * @return PHP32
      */
     public function multiply(PHP32 $y)
     {
@@ -147,7 +150,8 @@ class PHP32 extends PHP
      * same.  If the remainder would be negative, the "common residue" is equal to the sum of the remainder
      * and the divisor (basically, the "common residue" is the first positive modulo).
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32 $y
+     * @return PHP32
      */
     public function divide(PHP32 $y)
     {
@@ -158,6 +162,8 @@ class PHP32 extends PHP
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
+     * @param PHP32 $n
+     * @return false|Engine
      */
     public function modInverse(PHP32 $n)
     {
@@ -168,6 +174,8 @@ class PHP32 extends PHP
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
+     * @param PHP32 $n
+     * @return PHP[]
      */
     public function extendedGCD(PHP32 $n)
     {
@@ -179,7 +187,8 @@ class PHP32 extends PHP
      *
      * Say you have 693 and 609.  The GCD is 21.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32 $n
+     * @return PHP32
      */
     public function gcd(PHP32 $n)
     {
@@ -190,7 +199,8 @@ class PHP32 extends PHP
     /**
      * Logical And
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32 $x
+     * @return PHP32
      */
     public function bitwise_and(PHP32 $x)
     {
@@ -200,7 +210,8 @@ class PHP32 extends PHP
     /**
      * Logical Or
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32 $x
+     * @return PHP32
      */
     public function bitwise_or(PHP32 $x)
     {
@@ -210,7 +221,8 @@ class PHP32 extends PHP
     /**
      * Logical Exlusive Or
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32 $x
+     * @return PHP32
      */
     public function bitwise_xor(PHP32 $x)
     {
@@ -229,6 +241,7 @@ class PHP32 extends PHP
      *
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
+     * @param PHP32 $y
      * @return int < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
      * @see self::equals()
@@ -244,6 +257,7 @@ class PHP32 extends PHP
      *
      * If you need to see if one number is greater than or less than another number, use BigInteger::compare()
      *
+     * @param PHP32 $x
      * @return bool
      */
     public function equals(PHP32 $x)
@@ -254,7 +268,9 @@ class PHP32 extends PHP
     /**
      * Performs modular exponentiation.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32 $e
+     * @param PHP32 $n
+     * @return PHP32
      */
     public function modPow(PHP32 $e, PHP32 $n)
     {
@@ -266,7 +282,9 @@ class PHP32 extends PHP
      *
      * Alias for modPow().
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32 $e
+     * @param PHP32 $n
+     * @return PHP32
      */
     public function powMod(PHP32 $e, PHP32 $n)
     {
@@ -278,7 +296,9 @@ class PHP32 extends PHP
      *
      * If there's not a prime within the given range, false will be returned.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32|false
+     * @param PHP32 $min
+     * @param PHP32 $max
+     * @return false|PHP32
      */
     public static function randomRangePrime(PHP32 $min, PHP32 $max)
     {
@@ -294,7 +314,9 @@ class PHP32 extends PHP
      * BigInteger::randomRange($min, $max)
      * BigInteger::randomRange($max, $min)
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32 $min
+     * @param PHP32 $max
+     * @return PHP32
      */
     public static function randomRange(PHP32 $min, PHP32 $max)
     {
@@ -304,7 +326,8 @@ class PHP32 extends PHP
     /**
      * Performs exponentiation.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP32 $n
+     * @return PHP64
      */
     public function pow(PHP32 $n)
     {
@@ -314,7 +337,8 @@ class PHP32 extends PHP
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32[] $nums
+     * @return PHP32
      */
     public static function min(PHP32 ...$nums)
     {
@@ -324,7 +348,8 @@ class PHP32 extends PHP
     /**
      * Return the maximum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP32
+     * @param PHP32[] $nums
+     * @return PHP32
      */
     public static function max(PHP32 ...$nums)
     {
@@ -334,7 +359,9 @@ class PHP32 extends PHP
     /**
      * Tests BigInteger to see if it is between two integers, inclusive
      *
-     * @return boolean
+     * @param PHP32 $min
+     * @param PHP32 $max
+     * @return bool
      */
     public function between(PHP32 $min, PHP32 $max)
     {
