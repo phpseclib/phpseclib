@@ -553,7 +553,7 @@ Oe2K7+R2Cf6p8bYmm3OABuYkvO8D+u8gIdIO5cP+ic+SDOGVNJaT949YPes/S99R
 C47x9g==
 -----END CERTIFICATE-----';
 
-        $x509 = new File_X509();
+        $x509 = new X509();
 
         $cert = $x509->loadX509($test);
 
