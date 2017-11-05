@@ -484,7 +484,7 @@ class GMP extends Engine
         }
 
         if ($min->value != $x->value) {
-            $x = new self($x - 1);
+            $x = new self($x->value - 1);
         }
 
         return self::randomRangePrime($min, $x);
