@@ -102,7 +102,7 @@ class GMP extends Engine
     /**
      * Default constructor
      *
-     * @param $x integer Base-10 number or base-$base number if $base set.
+     * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @see parent::__construct()
      * @return \phpseclib\Math\BigInteger\Engines\GMP

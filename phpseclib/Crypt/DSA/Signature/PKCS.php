@@ -35,7 +35,7 @@ abstract class PKCS
      * Loads a signature
      *
      * @access public
-     * @param $sig
+     * @param string $sig
      * @return array|bool
      */
     public static function load($sig)

@@ -456,10 +456,10 @@ class RSA extends AsymmetricKey
      *
      * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
      *
-     * @return boolean
+     * @return bool
      * @access public
      * @param string $key
-     * @param int|boolean $type optional
+     * @param int|bool $type optional
      */
     public function load($key, $type = false)
     {
@@ -654,8 +654,8 @@ class RSA extends AsymmetricKey
      *
      * @see self::getPublicKey()
      * @access public
-     * @param string|boolean $key optional
-     * @param int|boolean $type optional
+     * @param string|bool $key optional
+     * @param int|bool $type optional
      * @return bool
      */
     public function setPublicKey($key = false, $type = false)
@@ -698,8 +698,8 @@ class RSA extends AsymmetricKey
      *
      * @see self::getPublicKey()
      * @access public
-     * @param string|boolean $key optional
-     * @param int|boolean $type optional
+     * @param string|bool $key optional
+     * @param int|bool $type optional
      * @return bool
      */
     public function setPrivateKey($key = false, $type = false)
@@ -838,8 +838,7 @@ class RSA extends AsymmetricKey
      *    of the hash function Hash) and 0.
      *
      * @access public
-     * @param $sLen
-     * @internal param int $format
+     * @param int $sLen
      */
     public function setSaltLength($sLen)
     {
@@ -1348,7 +1347,7 @@ class RSA extends AsymmetricKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.1.1 RFC3447#section-9.1.1}.
      *
-     * @returns string
+     * @return string
      * @access private
      * @param string $m
      * @throws \RuntimeException on encoding error

@@ -74,7 +74,7 @@ abstract class PHP extends Engine
     /**
      * Default constructor
      *
-     * @param $x integer Base-10 number or base-$base number if $base set.
+     * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @see parent::__construct()
      * @return \phpseclib\Math\BigInteger\Engines\PHP
@@ -141,7 +141,7 @@ abstract class PHP extends Engine
     /**
      * Pads strings so that unpack may be used on them
      *
-     * @param $str
+     * @param string $str
      * @return string
      */
     protected function pad($str)
@@ -734,10 +734,10 @@ abstract class PHP extends Engine
      *
      * Removes leading zeros and truncates (if necessary) to maintain the appropriate precision
      *
-     * @param $result
+     * @param PHP $result
      * @return PHP
      */
-    protected function normalize($result)
+    protected function normalize(PHP $result)
     {
         $result->precision = $this->precision;
         $result->bitmask = $this->bitmask;
@@ -1301,10 +1301,10 @@ abstract class PHP extends Engine
      * ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
      *
      * @see self::isPrime()
-     * @param $r
+     * @param PHP $r
      * @return int
      */
-    protected static function scan1divide($r)
+    protected static function scan1divide(PHP $r)
     {
         $r_value = &$r->value;
         for ($i = 0, $r_length = count($r_value); $i < $r_length; ++$i) {

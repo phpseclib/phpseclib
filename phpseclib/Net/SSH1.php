@@ -1558,8 +1558,8 @@ class SSH1
      *
      * Makes sure that only the last 1MB worth of packets will be logged
      *
-     * @param $protocol_flags
-     * @param $message
+     * @param string $protocol_flags
+     * @param string $message
      * @access private
      */
     private function append_log($protocol_flags, $message)

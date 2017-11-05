@@ -180,7 +180,7 @@ abstract class AsymmetricKey
     /**
      * Tests engine validity
      *
-     * @returns boolean
+     * @return boolean
      * @access public
      * @param int $val
      */

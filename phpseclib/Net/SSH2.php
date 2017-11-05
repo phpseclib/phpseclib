@@ -1292,8 +1292,8 @@ class SSH2
 
     /**
      * Key Exchange
-     * @return boolean
-     * @param string|boolean $kexinit_payload_server optional
+     * @return bool
+     * @param string|bool $kexinit_payload_server optional
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @throws \RuntimeException on other errors
      * @throws \phpseclib\Exception\NoSupportedAlgorithmsException when none of the algorithms phpseclib has loaded are compatible
@@ -3314,8 +3314,8 @@ class SSH2
      * Because some binary packets need to be ignored...
      *
      * @see self::_get_binary_packet()
-     * @param $payload
-     * @param $filter_channel_packets
+     * @param string $payload
+     * @param bool $filter_channel_packets
      * @return string
      * @access private
      */
@@ -3552,8 +3552,8 @@ class SSH2
      *
      * Returns the data as a string if it's available and false if not.
      *
-     * @param $client_channel
-     * @param boolean $skip_extended
+     * @param int $client_channel
+     * @param bool $skip_extended
      * @return mixed
      * @throws \RuntimeException on connection error
      * @access private
@@ -3874,8 +3874,8 @@ class SSH2
      *
      * Makes sure that only the last 1MB worth of packets will be logged
      *
-     * @param $message_number
-     * @param $message
+     * @param string $message_number
+     * @param string $message
      * @access private
      */
     private function append_log($message_number, $message)

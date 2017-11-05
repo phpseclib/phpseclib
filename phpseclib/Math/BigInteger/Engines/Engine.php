@@ -59,7 +59,7 @@ abstract class Engine implements \Serializable
     /**
      * Default constructor
      *
-     * @param $x integer Base-10 number or base-$base number if $base set.
+     * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      */
     public function __construct($x, $base)
@@ -381,7 +381,7 @@ abstract class Engine implements \Serializable
 
     /**
      * Set Bitmask
-     * @returns Engine
+     * @return Engine
      * @param int $bits
      * @see self::setPrecision()
      */
@@ -906,7 +906,7 @@ abstract class Engine implements \Serializable
      * $t parameter is distributability.  BigInteger::randomPrime() can be distributed across multiple pageloads
      * on a website instead of just one.
      *
-     * @param int|boolean $t
+     * @param int|bool $t
      * @return bool
      */
     public function isPrime($t = false)

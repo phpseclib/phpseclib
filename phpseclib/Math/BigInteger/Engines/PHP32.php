@@ -163,7 +163,7 @@ class PHP32 extends PHP
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      * @param PHP32 $n
-     * @return false|Engine
+     * @return false|PHP32
      */
     public function modInverse(PHP32 $n)
     {
@@ -175,7 +175,7 @@ class PHP32 extends PHP
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      * @param PHP32 $n
-     * @return PHP[]
+     * @return PHP32[]
      */
     public function extendedGCD(PHP32 $n)
     {
@@ -327,7 +327,7 @@ class PHP32 extends PHP
      * Performs exponentiation.
      *
      * @param PHP32 $n
-     * @return PHP64
+     * @return PHP32
      */
     public function pow(PHP32 $n)
     {

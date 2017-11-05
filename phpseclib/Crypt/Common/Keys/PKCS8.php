@@ -28,7 +28,6 @@
 namespace phpseclib\Crypt\Common\Keys;
 
 use ParagonIE\ConstantTime\Base64;
-use phpseclib\Crypt\Common\SymmetricKey;
 use phpseclib\Crypt\DES;
 use phpseclib\Crypt\RC2;
 use phpseclib\Crypt\RC4;
@@ -139,7 +138,7 @@ abstract class PKCS8 extends PKCS
 
     /**
      * Returns a SymmetricKey object based on a PBES1 $algo
-     * @returns SymmetricKey
+     * @return \phpseclib\Crypt\Common\SymmetricKey
      * @access public
      * @param string $algo
      */
@@ -189,7 +188,7 @@ abstract class PKCS8 extends PKCS
     /**
      * Returns a hash based on a PBES1 $algo
      *
-     * @returns string
+     * @return string
      * @access public
      * @param string $algo
      */
@@ -205,7 +204,7 @@ abstract class PKCS8 extends PKCS
     /**
      * Returns a KDF baesd on a PBES1 $algo
      *
-     * @returns string
+     * @return string
      * @access public
      * @param string $algo
      */
@@ -227,7 +226,7 @@ abstract class PKCS8 extends PKCS
     /**
      * Returns a SymmetricKey object baesd on a PBES2 $algo
      *
-     * @returns SymmetricKey
+     * @return SymmetricKey
      * @access public
      * @param string $algo
      */

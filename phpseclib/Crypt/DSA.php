@@ -213,10 +213,10 @@ class DSA extends AsymmetricKey
      * Loads a public or private key
      *
      * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
-     * @return boolean
+     * @return bool
      * @access public
      * @param string $key
-     * @param int|boolean $type optional
+     * @param int|bool $type optional
      */
     public function load($key, $type = false)
     {
@@ -460,7 +460,7 @@ class DSA extends AsymmetricKey
      * @see self::verify()
      * @access public
      * @param string $message
-     * @param $signature
+     * @param string $signature
      * @param string $format optional
      * @return mixed
      */

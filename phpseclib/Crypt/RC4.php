@@ -255,7 +255,7 @@ class RC4 extends StreamCipher
 
     /**
      * Encrypts a block
-     * @return null
+     *
      * @access private
      * @param string $in
      */
@@ -266,7 +266,7 @@ class RC4 extends StreamCipher
 
     /**
      * Decrypts a block
-     * @return null
+     *
      * @access private
      * @param string $in
      */

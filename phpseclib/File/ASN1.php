@@ -1387,7 +1387,7 @@ abstract class ASN1
      * getOID('zzz') == 'zzz'
      *
      * @access public
-     * @param $name
+     * @param string $name
      * @return string
      */
     static function getOID($name)

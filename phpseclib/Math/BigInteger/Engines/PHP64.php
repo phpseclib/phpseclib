@@ -163,7 +163,7 @@ class PHP64 extends PHP
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      * @param PHP64 $n
-     * @return false|Engine
+     * @return false|PHP64
      */
     public function modInverse(PHP64 $n)
     {
@@ -175,7 +175,7 @@ class PHP64 extends PHP
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      * @param PHP64 $n
-     * @return PHP[]
+     * @return PHP64[]
      */
     public function extendedGCD(PHP64 $n)
     {

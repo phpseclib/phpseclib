@@ -1180,7 +1180,7 @@ class SFTP extends SSH2
      *
      * Mainly used by file_exists
      *
-     * @param $path
+     * @param string $path
      * @return mixed
      * @access private
      */
@@ -1770,7 +1770,7 @@ class SFTP extends SSH2
      * Helper function for directory creation
      *
      * @param string $dir
-     * @param $attr
+     * @param string $attr
      * @return bool
      * @access private
      */
@@ -2117,7 +2117,7 @@ class SFTP extends SSH2
      * $offset and $length can be used to download files in chunks.
      *
      * @param string $remote_file
-     * @param string|boolean|resource $local_file
+     * @param string|bool|resource $local_file
      * @param int $offset
      * @param int $length
      * @throws \UnexpectedValueException on receipt of unexpected packets
@@ -2668,7 +2668,7 @@ class SFTP extends SSH2
      *
      * @param string $path
      * @param string $prop
-     * @param $type
+     * @param string $type
      * @return mixed
      * @access private
      */

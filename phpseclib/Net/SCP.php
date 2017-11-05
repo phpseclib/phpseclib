@@ -211,7 +211,7 @@ class SCP
      * operation
      *
      * @param string $remote_file
-     * @param string|boolean $local_file
+     * @param string|bool $local_file
      * @return mixed
      * @access public
      */

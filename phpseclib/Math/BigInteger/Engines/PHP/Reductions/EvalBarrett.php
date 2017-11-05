@@ -461,7 +461,7 @@ abstract class EvalBarrett extends Base
      * If you do echo floatval(pow(2, 52)) you'll get 4.6116860184274E+18. It /can/ be displayed without a loss of
      * precision but displayed in this way there will be precision loss, hence the need for this method.
      *
-     * @param $num
+     * @param int|float $num
      * @return string
      */
     private static function float2string($num)

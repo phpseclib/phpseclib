@@ -333,7 +333,7 @@ class Hash
      * Pure-PHP implementation of SHA512
      * @access private
      * @param string $m
-     * @param $hash
+     * @param array $hash
      * @return string
      */
     private static function sha512($m, $hash)

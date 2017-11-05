@@ -100,7 +100,7 @@ class BCMath extends Engine
     /**
      * Default constructor
      *
-     * @param $x integer Base-10 number or base-$base number if $base set.
+     * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @see parent::__construct()
      * @return \phpseclib\Math\BigInteger\Engines\BCMath
@@ -274,7 +274,7 @@ class BCMath extends Engine
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      *
-     * @returns Engine|boolean
+     * @return false|BCMath
      * @param \phpseclib\Math\BigInteger\Engines\BCMath $n
      */
     public function modInverse(BCMath $n)
@@ -627,10 +627,10 @@ class BCMath extends Engine
      * ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
      *
      * @see self::isPrime()
-     * @param $r
+     * @param BCMath $r
      * @return int
      */
-    protected static function scan1divide($r)
+    protected static function scan1divide(BCMath $r)
     {
         $r_value = &$r->value;
         $s = 0;
@@ -694,7 +694,7 @@ class BCMath extends Engine
     /**
      * Set Bitmask
      *
-     * @returns Engine
+     * @return Engine
      * @param int $bits
      * @see self::setPrecision()
      */
