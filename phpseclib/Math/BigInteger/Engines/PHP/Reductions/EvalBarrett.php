@@ -270,8 +270,8 @@ abstract class EvalBarrett extends Base
             $_' . $y . ' = array_pad($' . $y . ', $length, 0);
             $carry = 0;
             for ($i = 0, $j = 1; $j < $length; $i+=2, $j+=2) {
-                $sum = $' . $result . '[$j] * ' . $class::BASE_FULL . ' + $' . $result . '[$i] +
-                           $_' . $y . '[$j] * ' . $class::BASE_FULL . ' + $_' . $y . '[$i] +
+                $sum = ($' . $result . '[$j] + $_' . $y . '[$j]) * ' . $class::BASE_FULL . '
+                           + $' . $result . '[$i] + $_' . $y . '[$i] +
                            $carry;
                 $carry = $sum >= ' . self::float2string($class::MAX_DIGIT2) . ';
                 $sum = $carry ? $sum - ' . self::float2string($class::MAX_DIGIT2) . ' : $sum;';
@@ -316,8 +316,8 @@ abstract class EvalBarrett extends Base
             $carry = 0;
             $size = count($' . $unknown . ');
             for ($i = 0, $j = 1; $j < $size; $i+= 2, $j+= 2) {
-                $sum = $' . $known . '[$j] * ' . $class::BASE_FULL . ' + $' . $known . '[$i]
-                    - $' . $unknown . '[$j] * ' . $class::BASE_FULL . ' - $' . $unknown . '[$i]
+                $sum = ($' . $known . '[$j] - $' . $unknown . '[$j]) * ' . $class::BASE_FULL . ' + $' . $known . '[$i]
+                    - $' . $unknown . '[$i]
                     - $carry;
                 $carry = $sum < 0;
                 if ($carry) {
