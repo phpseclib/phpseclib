@@ -137,7 +137,7 @@ class GMP extends Engine
         switch (abs($base)) {
             case 256:
                 $sign = $this->is_negative ? '-' : '';
-                $this->value = gmp_init($sign . '0x' . Hex::encode($this->value));
+                $this->value = gmp_import($this->value);
                 break;
             case 16:
                 $temp = $this->is_negative ? '-0x' . $this->value : '0x' . $this->value;
@@ -174,9 +174,7 @@ class GMP extends Engine
             return $this->precision > 0 ? str_repeat(chr(0), ($this->precision + 1) >> 3) : '';
         }
 
-        $temp = gmp_strval(gmp_abs($this->value), 16);
-        $temp = (strlen($temp) & 1) ? '0' . $temp : $temp;
-        $temp = Hex::decode($temp);
+        $temp = gmp_export($this->value);
 
         return $this->precision > 0 ?
             substr(str_pad($temp, $this->precision >> 3, chr(0), STR_PAD_LEFT), -($this->precision >> 3)) :

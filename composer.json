@@ -53,7 +53,7 @@
     "require": {
         "paragonie/constant_time_encoding": "^1",
         "paragonie/random_compat": "^1.4|^2.0",
-        "php": ">=5.6"
+        "php": ">=5.6.1"
     },
     "require-dev": {
         "phing/phing": "~2.7",
