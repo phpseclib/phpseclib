@@ -188,14 +188,11 @@ abstract class EvalBarrett extends Base
             return 'return [];';
         }
 
-        $label = 'label_' . uniqid();
-
         $regular = '
             $length = count($' . $input . ');
             if (!$length) {
                 $' . $output . ' = [];
-                goto ' . $label . ';
-            }
+            }else{
             $' . $output . ' = array_fill(0, $length + ' . count($arr) . ', 0);
             $carry = 0;';
 
@@ -243,9 +240,7 @@ abstract class EvalBarrett extends Base
 
         $regular.= '$' . $output. '[++$k] = $carry; $carry = 0;';
 
-        $regular.= '}';
-
-        $regular.= $label . ':';
+        $regular.= '}}';
 
         //if (count($arr) < 2 * self::KARATSUBA_CUTOFF) {
         //}
