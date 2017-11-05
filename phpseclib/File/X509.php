@@ -2062,30 +2062,32 @@ class File_X509
         }
 
         if ($names = $this->getExtension('id-ce-subjectAltName')) {
-            foreach ($names as $key => $value) {
-                $value = str_replace(array('.', '*'), array('\.', '[^.]*'), $value);
-                switch ($key) {
-                    case 'dNSName':
-                        /* From RFC2818 "HTTP over TLS":
+            foreach ($names as $name) {
+                foreach ($name as $key => $value) {
+                    $value = str_replace(array('.', '*'), array('\.', '[^.]*'), $value);
+                    switch ($key) {
+                        case 'dNSName':
+                            /* From RFC2818 "HTTP over TLS":
 
-                           If a subjectAltName extension of type dNSName is present, that MUST
-                           be used as the identity. Otherwise, the (most specific) Common Name
-                           field in the Subject field of the certificate MUST be used. Although
-                           the use of the Common Name is existing practice, it is deprecated and
-                           Certification Authorities are encouraged to use the dNSName instead. */
-                        if (preg_match('#^' . $value . '$#', $components['host'])) {
-                            return true;
-                        }
-                        break;
-                    case 'iPAddress':
-                        /* From RFC2818 "HTTP over TLS":
+                               If a subjectAltName extension of type dNSName is present, that MUST
+                               be used as the identity. Otherwise, the (most specific) Common Name
+                               field in the Subject field of the certificate MUST be used. Although
+                               the use of the Common Name is existing practice, it is deprecated and
+                               Certification Authorities are encouraged to use the dNSName instead. */
+                            if (preg_match('#^' . $value . '$#', $components['host'])) {
+                                return true;
+                            }
+                            break;
+                        case 'iPAddress':
+                            /* From RFC2818 "HTTP over TLS":
 
-                           In some cases, the URI is specified as an IP address rather than a
-                           hostname. In this case, the iPAddress subjectAltName must be present
-                           in the certificate and must exactly match the IP in the URI. */
-                        if (preg_match('#(?:\d{1-3}\.){4}#', $components['host'] . '.') && preg_match('#^' . $value . '$#', $components['host'])) {
-                            return true;
-                        }
+                               In some cases, the URI is specified as an IP address rather than a
+                               hostname. In this case, the iPAddress subjectAltName must be present
+                               in the certificate and must exactly match the IP in the URI. */
+                            if (preg_match('#(?:\d{1-3}\.){4}#', $components['host'] . '.') && preg_match('#^' . $value . '$#', $components['host'])) {
+                                return true;
+                            }
+                    }
                 }
             }
             return false;
