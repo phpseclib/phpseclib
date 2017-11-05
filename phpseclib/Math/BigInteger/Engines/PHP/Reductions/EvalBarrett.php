@@ -131,10 +131,12 @@ abstract class EvalBarrett extends Base
         $code.= self::generateInlineMultiply('temp', $m, 'temp2', $class);
         $code.= self::generateInlineTrim('temp2');
 
+        /*
         if ($class::BASE == 26) {
             $code.= '$n = array_slice($n, 0, ' . (count($m) + 1) . ');
                      $temp2 = array_slice($temp2, 0, ' . (count($m) + 1) . ');';
         }
+        */
 
         $code.= self::generateInlineSubtract2('n', 'temp2', 'temp', $class);
 
@@ -264,7 +266,7 @@ abstract class EvalBarrett extends Base
     {
         $code = '
             $length = max(count($' . $x . '), count($' . $y . '));
-            $' . $result . ' = array_pad($' . $x . ', $length, 0);
+            $' . $result . ' = array_pad($' . $x . ', $length + 1, 0);
             $_' . $y . ' = array_pad($' . $y . ', $length, 0);
             $carry = 0;
             for ($i = 0, $j = 1; $j < $length; $i+=2, $j+=2) {
@@ -282,11 +284,14 @@ abstract class EvalBarrett extends Base
             }
             if ($j == $length) {
                 $sum = $' . $result . '[$i] + $_' . $y . '[$i] + $carry;
-                $carry = $sum >= ' . self::float2string($class::MAX_DIGIT2) . ';
-                $' . $result . '[$i] = $carry ? $sum - ' . self::float2string($class::MAX_DIGIT2) . ' : $sum;
+                $carry = $sum >= ' . self::float2string($class::BASE_FULL) . ';
+                $' . $result . '[$i] = $carry ? $sum - ' . self::float2string($class::BASE_FULL) . ' : $sum;
             }
             if ($carry) {
-                $' . $result . '[] = $carry;
+                for (; $' . $result . '[$i] == ' . $class::MAX_DIGIT . '; ++$i) {
+                    $' . $result . '[$i] = 0;
+                }
+                ++$' . $result . '[$i];
             }';
             $code.= self::generateInlineTrim($result);
 
@@ -341,7 +346,7 @@ abstract class EvalBarrett extends Base
             }
 
             if ($carry) {
-                for (; !$' . $result . '; ++$i) {
+                for (; !$' . $result . '[$i]; ++$i) {
                     $' . $result . '[$i] = ' . $class::MAX_DIGIT . ';
                 }
                 --$' . $result . '[$i];
