@@ -3332,7 +3332,7 @@ class SSH2
                 $this->bitmap = 0;
                 return false;
             case NET_SSH2_MSG_IGNORE:
-                $payload = $this->get_binary_packet();
+                $payload = $this->get_binary_packet($skip_channel_filter);
                 break;
             case NET_SSH2_MSG_DEBUG:
                 Strings::shift($payload, 2);
@@ -3341,7 +3341,7 @@ class SSH2
                 }
                 extract(unpack('Nlength', Strings::shift($payload, 4)));
                 $this->errors[] = 'SSH_MSG_DEBUG: ' . utf8_decode(Strings::shift($payload, $length));
-                $payload = $this->get_binary_packet();
+                $payload = $this->get_binary_packet($skip_channel_filter);
                 break;
             case NET_SSH2_MSG_UNIMPLEMENTED:
                 return false;
@@ -3351,7 +3351,7 @@ class SSH2
                         $this->bitmap = 0;
                         return false;
                     }
-                    $payload = $this->get_binary_packet();
+                    $payload = $this->get_binary_packet($skip_channel_filter);
                 }
         }
 
