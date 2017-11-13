@@ -3641,7 +3641,7 @@ class SSH2
                     if (strlen($response) < 8) {
                         return false;
                     }
-                    extract(unpack('Ndata_type_code/Nlength', $this->_string_shift($response, 8)));
+                    extract(unpack('Ndata_type_code/Nlength', Strings::shift($response, 8)));
                     $data = Strings::shift($response, $length);
                     $this->stdErrorLog.= $data;
                     if ($skip_extended || $this->quiet_mode) {
