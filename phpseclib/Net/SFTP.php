@@ -398,15 +398,14 @@ class SFTP extends SSH2
      * Login
      *
      * @param string $username
-     * @param string $password
+     * @param $args[] string password
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return bool
      * @access public
      */
-    public function login($username)
+    public function login($username, ...$args)
     {
-        $args = func_get_args();
-        if (!call_user_func_array([&$this, 'sublogin'], $args)) {
+        if (!$this->sublogin($username, ...$args)) {
             return false;
         }
 
@@ -1071,12 +1070,12 @@ class SFTP extends SSH2
      * $sftp->setListOrder();
      *    Don't do any sort of sorting
      *
+     * @param $args[]
      * @access public
      */
-    public function setListOrder()
+    public function setListOrder(...$args)
     {
         $this->sortOptions = [];
-        $args = func_get_args();
         if (empty($args)) {
             return;
         }

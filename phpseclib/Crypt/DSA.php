@@ -182,14 +182,14 @@ class DSA extends AsymmetricKey
      *  - 'privatekey': The private key.
      *  - 'publickey':  The public key.
      *
+     * @param $args[]
      * @access public
      * @return array|DSA
      */
-    static function createKey()
+    static function createKey(...$args)
     {
         self::initialize_static_variables();
 
-        $args = func_get_args();
         if (count($args) == 2 && is_int($args[0]) && is_int($args[1])) {
             $private = self::createParameters($args[0], $args[1]);
         } else if (count($args) == 1 && $args[0] instanceof DSA) {
