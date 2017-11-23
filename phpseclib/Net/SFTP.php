@@ -478,7 +478,7 @@ class Net_SFTP extends Net_SSH2
 
         $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_OPEN;
 
-        $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+        $response = $this->_get_channel_packet(NET_SFTP_CHANNEL, true);
         if ($response === false) {
             return false;
         }
@@ -499,7 +499,7 @@ class Net_SFTP extends Net_SSH2
 
         $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
-        $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+        $response = $this->_get_channel_packet(NET_SFTP_CHANNEL, true);
         if ($response === false) {
             // from PuTTY's psftp.exe
             $command = "test -x /usr/lib/sftp-server && exec /usr/lib/sftp-server\n" .
@@ -523,7 +523,7 @@ class Net_SFTP extends Net_SSH2
 
             $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
-            $response = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+            $response = $this->_get_channel_packet(NET_SFTP_CHANNEL, true);
             if ($response === false) {
                 return false;
             }
@@ -3027,7 +3027,7 @@ class Net_SFTP extends Net_SSH2
 
         // SFTP packet length
         while (strlen($this->packet_buffer) < 4) {
-            $temp = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+            $temp = $this->_get_channel_packet(NET_SFTP_CHANNEL, true);
             if (is_bool($temp)) {
                 $this->packet_type = false;
                 $this->packet_buffer = '';
@@ -3044,7 +3044,7 @@ class Net_SFTP extends Net_SSH2
 
         // SFTP packet type and data payload
         while ($tempLength > 0) {
-            $temp = $this->_get_channel_packet(NET_SFTP_CHANNEL);
+            $temp = $this->_get_channel_packet(NET_SFTP_CHANNEL, true);
             if (is_bool($temp)) {
                 $this->packet_type = false;
                 $this->packet_buffer = '';
