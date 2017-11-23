@@ -1315,7 +1315,7 @@ abstract class PHP extends Engine
                 break;
             }
         }
-        $s = static::BASE * $i + $j - 1;
+        $s = static::BASE * $i + $j;
         $r->rshift($s);
         return $s;
     }
