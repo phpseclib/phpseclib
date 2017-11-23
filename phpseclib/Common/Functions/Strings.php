@@ -165,13 +165,12 @@ abstract class Strings
     /**
      * Create SSH2-style string
      *
-     * @param mixed $input..
+     * @param $elements[]
      * @access public
      * @return mixed
      */
-    public static function packSSH2()
+    public static function packSSH2(...$elements)
     {
-        $elements = func_get_args();
         $format = $elements[0];
         array_shift($elements);
         if (strlen($format) != count($elements)) {

@@ -2098,29 +2098,26 @@ class SSH2
      * The $password parameter can be a plaintext password, a \phpseclib\Crypt\RSA object or an array
      *
      * @param string $username
-     * @param mixed $password
-     * @param mixed $...
+     * @param $args[] param mixed $password
      * @return bool
      * @see self::_login()
      * @access public
      */
-    public function login($username)
+    public function login($username, ...$args)
     {
-        $args = func_get_args();
-        return call_user_func_array([&$this, 'sublogin'], $args);
+        return $this->sublogin($username, ...$args);
     }
 
     /**
      * Login Helper
      *
      * @param string $username
-     * @param mixed $password
-     * @param mixed $...
+     * @param $args[] param mixed $password
      * @return bool
      * @see self::_login_helper()
      * @access private
      */
-    protected function sublogin($username)
+    protected function sublogin($username, ...$args)
     {
         if (!($this->bitmap & self::MASK_CONSTRUCTOR)) {
             if (!$this->connect()) {
@@ -2128,7 +2125,6 @@ class SSH2
             }
         }
 
-        $args = array_slice(func_get_args(), 1);
         if (empty($args)) {
             return $this->login_helper($username);
         }
@@ -2375,15 +2371,13 @@ class SSH2
     /**
      * Handle the keyboard-interactive requests / responses.
      *
-     * @param string $responses...
+     * @param $responses[]
      * @return bool
      * @throws \RuntimeException on connection error
      * @access private
      */
-    private function keyboard_interactive_process()
+    private function keyboard_interactive_process(...$responses)
     {
-        $responses = func_get_args();
-
         if (strlen($this->last_interactive_response)) {
             $response = $this->last_interactive_response;
         } else {
@@ -4058,12 +4052,11 @@ class SSH2
      * named constants from it, using the value as the name of the constant and the index as the value of the constant.
      * If any of the constants that would be defined already exists, none of the constants will be defined.
      *
-     * @param array $array
+     * @param $args[]
      * @access protected
      */
-    protected function define_array()
+    protected function define_array(...$args)
     {
-        $args = func_get_args();
         foreach ($args as $arg) {
             foreach ($arg as $key => $value) {
                 if (!defined($value)) {
