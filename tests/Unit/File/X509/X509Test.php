@@ -551,4 +551,72 @@ C47x9g==
 
         $this->assertTrue($x509->validateURL('https://www.google.com'));
     }
+
+    public function testValidateSignatureWithoutKeyIdentifier()
+    {
+        $x509 = new X509();
+        $x509->loadX509('-----BEGIN CERTIFICATE-----
+MIICqzCCAhSgAwIBAgICApowDQYJKoZIhvcNAQEFBQAwWjELMAkGA1UEBhMCVUsx
+DzANBgNVBAgTBkxvbmRvbjEPMA0GA1UEBxMGTG9uZG9uMQwwCgYDVQQKEwNNUFMx
+DDAKBgNVBAsTA0RldjENMAsGA1UEAxMEdGVzdDAeFw0xNzExMjIxNzExMzNaFw0x
+ODExMjIxNzExMzNaMGIxCzAJBgNVBAYTAlVLMQ8wDQYDVQQIEwZMb25kb24xDzAN
+BgNVBAcTBkxvbmRvbjEMMAoGA1UEChMDTVBTMRAwDgYDVQQLEwdEZXYvZGV4MREw
+DwYDVQQDEwh0ZXN0L2RleDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAtN6P
++rnvxrUbPjXkhMJQAcSjY5jJYkORHl8HST15JMW4CES9YAPdBUSw/72VGyaRuCtM
+XbLaVi1V2sJ0M+RT6E8fVW3VC9AkmXy0p543/VQ4lo2KhxCWhMPKRwwr8p+qYzdA
+yqcfsgSdlWLKF5dJMBXuYFceLBJtBPsxf7WgHPMCAwEAAaN4MHYwdAYDVR0jBG0w
+a6FepFwwWjELMAkGA1UEBhMCVUsxDzANBgNVBAgTBkxvbmRvbjEPMA0GA1UEBxMG
+TG9uZG9uMQwwCgYDVQQKEwNNUFMxDDAKBgNVBAsTA0RldjENMAsGA1UEAxMEdGVz
+dIIJAM5lrL8g3XHCMA0GCSqGSIb3DQEBBQUAA4GBAIfx5da9WFARiCCN/UoYxFYM
+vpKaAC07nolew7HJEPFzErvG+ifzBhEMbKRmjeLsd3QCdwSSkGxJWI7lYpWk2uIs
+mrVqd/bzOdmCxwBqiCDufhA19MkkT+NHMYf7Vs4LsmDEd0wTZLuwGFAiLXQ8MhvT
+u/S1irrxb9RsF7U4rRcH
+-----END CERTIFICATE-----');
+
+        $authorityKeyIdentifier = $x509->getExtension('id-ce-authorityKeyIdentifier');
+        $this->assertNotNull($authorityKeyIdentifier);
+        $this->assertFalse(isset($authorityKeyIdentifier['keyIdentifier']));
+
+        $x509->loadCA('-----BEGIN TRUSTED CERTIFICATE-----
+MIICKzCCAZQCCQDOZay/IN1xwjANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJV
+SzEPMA0GA1UECBMGTG9uZG9uMQ8wDQYDVQQHEwZMb25kb24xDDAKBgNVBAoTA01Q
+UzEMMAoGA1UECxMDRGV2MQ0wCwYDVQQDEwR0ZXN0MB4XDTE3MTEyMjE2MDkxN1oX
+DTE4MTEyMjE2MDkxN1owWjELMAkGA1UEBhMCVUsxDzANBgNVBAgTBkxvbmRvbjEP
+MA0GA1UEBxMGTG9uZG9uMQwwCgYDVQQKEwNNUFMxDDAKBgNVBAsTA0RldjENMAsG
+A1UEAxMEdGVzdDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxG9feI+WZzAH
+EtfDF5HtA3BAZYZos6s6YyBffkiZTiTtijjBCEQah1YwbYPZjiVht0Vv/od6RN2J
+cSRqXWfiFvcYYr9p/JhEstlGax5Q7UzYpTYs6ycrVsBU1Cla1Vtm44c8so5TpzoH
+KsqYeHlfE2qeRbNS6ZtpXnAl3OrRbhsCAwEAATANBgkqhkiG9w0BAQUFAAOBgQAV
+zBCpOSgfpLeQ0uYIDawV4PqRx+hnA2zMnk4X5lUl8u66K5vu1sa1YBviiLO5ii+V
+3/l/+fPlW3HuAejYtEsc/UMdKYH3ko0uu8/YDJafphCo6cFRE5G3OM8qIhLnjQui
+iCYM7S8EAV08g7chfek5TgpK90yPJ+Fj4yC6Y4DNrw==
+-----END TRUSTED CERTIFICATE-----');
+
+        $this->assertTrue($x509->validateSignature());
+    }
+
+    public function testValidateSignatureSelfSignedWithoutKeyIdentifier()
+    {
+        $x509 = new X509();
+        $x509->loadX509('-----BEGIN TRUSTED CERTIFICATE-----
+MIICKzCCAZQCCQDOZay/IN1xwjANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJV
+SzEPMA0GA1UECBMGTG9uZG9uMQ8wDQYDVQQHEwZMb25kb24xDDAKBgNVBAoTA01Q
+UzEMMAoGA1UECxMDRGV2MQ0wCwYDVQQDEwR0ZXN0MB4XDTE3MTEyMjE2MDkxN1oX
+DTE4MTEyMjE2MDkxN1owWjELMAkGA1UEBhMCVUsxDzANBgNVBAgTBkxvbmRvbjEP
+MA0GA1UEBxMGTG9uZG9uMQwwCgYDVQQKEwNNUFMxDDAKBgNVBAsTA0RldjENMAsG
+A1UEAxMEdGVzdDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxG9feI+WZzAH
+EtfDF5HtA3BAZYZos6s6YyBffkiZTiTtijjBCEQah1YwbYPZjiVht0Vv/od6RN2J
+cSRqXWfiFvcYYr9p/JhEstlGax5Q7UzYpTYs6ycrVsBU1Cla1Vtm44c8so5TpzoH
+KsqYeHlfE2qeRbNS6ZtpXnAl3OrRbhsCAwEAATANBgkqhkiG9w0BAQUFAAOBgQAV
+zBCpOSgfpLeQ0uYIDawV4PqRx+hnA2zMnk4X5lUl8u66K5vu1sa1YBviiLO5ii+V
+3/l/+fPlW3HuAejYtEsc/UMdKYH3ko0uu8/YDJafphCo6cFRE5G3OM8qIhLnjQui
+iCYM7S8EAV08g7chfek5TgpK90yPJ+Fj4yC6Y4DNrw==
+-----END TRUSTED CERTIFICATE-----');
+
+        $authorityKeyIdentifier = $x509->getExtension('id-ce-authorityKeyIdentifier');
+        $this->assertNotNull($authorityKeyIdentifier);
+        $this->assertFalse(isset($authorityKeyIdentifier['keyIdentifier']));
+
+        $this->assertTrue($x509->validateSignature(false));
+    }
 }
