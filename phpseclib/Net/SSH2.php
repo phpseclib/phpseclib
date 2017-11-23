@@ -3637,7 +3637,7 @@ class SSH2
                     $data = $this->_string_shift($response, $length);
                     $this->stdErrorLog.= $data;
                     if ($skip_extended || $this->quiet_mode) {
-                        break;
+                        continue;
                     }
                     if ($client_channel == $channel && $this->channel_status[$channel] == NET_SSH2_MSG_CHANNEL_DATA) {
                         return $data;
