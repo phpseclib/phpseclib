@@ -1359,12 +1359,11 @@ class SSH1
      * named constants from it, using the value as the name of the constant and the index as the value of the constant.
      * If any of the constants that would be defined already exists, none of the constants will be defined.
      *
-     * @param array $array
+     * @param $args[]
      * @access private
      */
-    private function define_array()
+    private function define_array(...$args)
     {
-        $args = func_get_args();
         foreach ($args as $arg) {
             foreach ($arg as $key => $value) {
                 if (!defined($value)) {

@@ -3483,12 +3483,13 @@ class X509
     /**
      * Set the domain name's which the cert is to be valid for
      *
+     * @param $domains[]
      * @access public
      * @return array
      */
-    public function setDomain()
+    public function setDomain(...$domains)
     {
-        $this->domains = func_get_args();
+        $this->domains = $domains;
         $this->removeDNProp('id-at-commonName');
         $this->setDNProp('id-at-commonName', $this->domains[0]);
     }
@@ -3497,11 +3498,11 @@ class X509
      * Set the IP Addresses's which the cert is to be valid for
      *
      * @access public
-     * @param string $ipAddress optional
+     * @param $ipAddresses[] optional
      */
-    public function setIPAddress()
+    public function setIPAddress(...$ipAddresses)
     {
-        $this->ipAddresses = func_get_args();
+        $this->ipAddresses = $ipAddresses;
         /*
         if (!isset($this->domains)) {
             $this->removeDNProp('id-at-commonName');

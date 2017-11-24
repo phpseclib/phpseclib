@@ -398,15 +398,14 @@ class SFTP extends SSH2
      * Login
      *
      * @param string $username
-     * @param string $password
+     * @param $args[] string password
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return bool
      * @access public
      */
-    public function login($username)
+    public function login($username, ...$args)
     {
-        $args = func_get_args();
-        if (!call_user_func_array([&$this, 'sublogin'], $args)) {
+        if (!$this->sublogin($username, ...$args)) {
             return false;
         }
 
@@ -428,7 +427,7 @@ class SFTP extends SSH2
 
         $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_OPEN;
 
-        $response = $this->get_channel_packet(self::CHANNEL);
+        $response = $this->get_channel_packet(self::CHANNEL, true);
         if ($response === false) {
             return false;
         }
@@ -449,7 +448,7 @@ class SFTP extends SSH2
 
         $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
-        $response = $this->get_channel_packet(self::CHANNEL);
+        $response = $this->get_channel_packet(self::CHANNEL, true);
         if ($response === false) {
             // from PuTTY's psftp.exe
             $command = "test -x /usr/lib/sftp-server && exec /usr/lib/sftp-server\n" .
@@ -473,7 +472,7 @@ class SFTP extends SSH2
 
             $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
-            $response = $this->get_channel_packet(self::CHANNEL);
+            $response = $this->get_channel_packet(self::CHANNEL, true);
             if ($response === false) {
                 return false;
             }
@@ -1071,12 +1070,12 @@ class SFTP extends SSH2
      * $sftp->setListOrder();
      *    Don't do any sort of sorting
      *
+     * @param $args[]
      * @access public
      */
-    public function setListOrder()
+    public function setListOrder(...$args)
     {
         $this->sortOptions = [];
-        $args = func_get_args();
         if (empty($args)) {
             return;
         }
@@ -2983,7 +2982,7 @@ class SFTP extends SSH2
 
         // SFTP packet length
         while (strlen($this->packet_buffer) < 4) {
-            $temp = $this->get_channel_packet(self::CHANNEL);
+            $temp = $this->get_channel_packet(self::CHANNEL, true);
             if (is_bool($temp)) {
                 $this->packet_type = false;
                 $this->packet_buffer = '';
@@ -3000,7 +2999,7 @@ class SFTP extends SSH2
 
         // SFTP packet type and data payload
         while ($tempLength > 0) {
-            $temp = $this->get_channel_packet(self::CHANNEL);
+            $temp = $this->get_channel_packet(self::CHANNEL, true);
             if (is_bool($temp)) {
                 $this->packet_type = false;
                 $this->packet_buffer = '';
