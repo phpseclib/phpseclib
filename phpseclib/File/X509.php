@@ -2384,10 +2384,10 @@ class X509
 
             $this->currentCert = [
                 'tbsCertificate' =>
-                    array(
+                    [
                         'version' => 'v3',
                         'serialNumber' => $serialNumber, // $this->setserialNumber()
-                        'signature' => array('algorithm' => $signatureAlgorithm),
+                        'signature' => ['algorithm' => $signatureAlgorithm],
                         'issuer' => false, // this is going to be overwritten later
                         'validity' => [
                             'notBefore' => $this->timeField($startDate), // $this->setStartDate()
@@ -2395,7 +2395,7 @@ class X509
                         ],
                         'subject' => $subject->dn,
                         'subjectPublicKeyInfo' => $subjectPublicKey
-                    ),
+                    ],
                     'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
                     'signature'          => false // this is going to be overwritten later
             ];
@@ -3467,7 +3467,7 @@ class X509
             // the former is a good example of how to do fuzzing on the public key
             //return new Element(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey()));
             return [
-                'algorithm' => array('algorithm' => 'rsaEncryption'),
+                'algorithm' => ['algorithm' => 'rsaEncryption'],
                 'subjectPublicKey' => $this->publicKey->getPublicKey('PKCS1')
             ];
         }

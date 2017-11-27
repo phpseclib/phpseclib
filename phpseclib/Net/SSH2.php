@@ -3645,7 +3645,7 @@ class SSH2
                         return $data;
                     }
                     if (!isset($this->channel_buffers[$channel])) {
-                        $this->channel_buffers[$channel] = array();
+                        $this->channel_buffers[$channel] = [];
                     }
                     $this->channel_buffers[$channel][] = $data;
 

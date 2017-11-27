@@ -76,7 +76,7 @@ p0GbMJDyR4e9T04ZZwIDAQAB
         $e = new BigInteger(base64_decode('158753FF2AF4D1E5BBAB574D5AE6B54D'), 256);
 
         $rsa = new RSA();
-        $rsa->load(array('n' => $n, 'e' => $e));
+        $rsa->load(['n' => $n, 'e' => $e]);
         $rsa->encrypt($plaintext);
     }
 

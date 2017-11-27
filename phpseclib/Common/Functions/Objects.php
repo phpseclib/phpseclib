@@ -64,7 +64,7 @@ abstract class Objects
      * @return mixed
      * @access public
      */
-    public static function callFunc($obj, $func, $params = array())
+    public static function callFunc($obj, $func, $params = [])
     {
         $reflection = new \ReflectionClass(get_class($obj));
         $method = $reflection->getMethod($func);

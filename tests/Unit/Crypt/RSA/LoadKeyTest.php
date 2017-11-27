@@ -61,7 +61,7 @@ X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl
 U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
 -----END RSA PRIVATE KEY-----';
-        $key = str_replace(array("\r", "\n", "\r\n"), ' ', $key);
+        $key = str_replace(["\r", "\n", "\r\n"], ' ', $key);
 
         $this->assertTrue($rsa->load($key));
         $this->assertInternalType('string', $rsa->getPrivateKey());
@@ -400,13 +400,13 @@ Private-MAC: 03e2cb74e1d67652fbad063d2ed0478f31bdf256
     {
         $rsa = new RSA();
 
-        $key = array(
+        $key = [
             'e' => new BigInteger('10001', 16),
             'n' => new BigInteger('aa18aba43b50deef38598faf87d2ab634e4571c130a9bca7b878267414faab8b471bd8965f5c9fc3' .
                               '818485eaf529c26246f3055064a8de19c8c338be5496cbaeb059dc0b358143b44a35449eb2641131' .
                               '21a455bd7fde3fac919e94b56fb9bb4f651cdb23ead439d6cd523eb08191e75b35fd13a7419b3090' .
                               'f24787bd4f4e1967', 16)
-        );
+        ];
         $this->assertTrue($rsa->load($key));
         $rsa->setPublicKeyFormat('raw');
         $this->assertEmpty("$rsa");

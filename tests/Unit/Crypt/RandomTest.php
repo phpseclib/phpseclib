@@ -11,11 +11,11 @@ class Unit_Crypt_RandomTest extends PhpseclibTestCase
 {
     public function stringLengthData()
     {
-        return array_map(array($this, 'wrap'), array(
+        return array_map([$this, 'wrap'], [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 17, 19, 20, 23, 29, 31, 37,
             41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 111, 128, 1000,
             1024, 10000, 12345, 100000, 123456
-        ));
+        ]);
     }
 
     /** @dataProvider stringLengthData */
@@ -34,7 +34,7 @@ class Unit_Crypt_RandomTest extends PhpseclibTestCase
      */
     public function testStringUniqueness()
     {
-        $values = array();
+        $values = [];
         for ($i = 0; $i < 10000; ++$i) {
             $rand = Random::string(16);
             $this->assertSame(16, strlen($rand));
@@ -50,6 +50,6 @@ class Unit_Crypt_RandomTest extends PhpseclibTestCase
     protected function wrap($x)
     {
         // array() is not a function, but $this->wrap() is.
-        return array($x);
+        return [$x];
     }
 }

@@ -7,7 +7,7 @@
 
 abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
 {
-    protected $tempFilesToUnlinkOnTearDown = array();
+    protected $tempFilesToUnlinkOnTearDown = [];
 
     public function tearDown()
     {
@@ -110,7 +110,7 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
         return $prop->getValue($obj);
     }
 
-    public static function callFunc($obj, $func, $params = array())
+    public static function callFunc($obj, $func, $params = [])
     {
         $reflection = new ReflectionClass(get_class($obj));
         $method = $reflection->getMethod($func);

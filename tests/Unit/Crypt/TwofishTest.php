@@ -11,12 +11,12 @@ class Unit_Crypt_TwofishTest extends PhpseclibTestCase
 {
     public function testVectors()
     {
-        $engines = array(
+        $engines = [
             'PHP',
             'Eval',
             'mcrypt',
             'OpenSSL',
-        );
+        ];
 
         foreach ($engines as $engine) {
             $tf = new Twofish('cbc');
