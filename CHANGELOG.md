@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.9 - 2017-11-29
+
+- SSH2: fix issue with key re-exchange
+- SSH2: updates to dealing with extraneous channel packets
+- X509: URL validation didn't work (#1203)
+
 ## 1.0.8 - 2017-10-22
 
 - SSH2:
