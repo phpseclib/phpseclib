@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.9 - 2017-11-29
+
+- 2.0.8 tag was done off of master branch - not 2.0 branch
+
 ## 2.0.8 - 2017-11-29
 
 - SSH2: fix issue with key re-exchange
@@ -68,7 +72,7 @@
 - Random: fix issues with serialize() (#932)
 - RC2: fix issue with decrypting
 - RC4: fix issue with key not being truncated correctly
-- SFTP: nlist() on a non-existant directory resulted in error
+- SFTP: nlist() on a non-existent directory resulted in error
 - SFTP: add is_writable, is_writeable, is_readable
 - X509: add IPv6 support for subjectaltname extension (#936)
 
