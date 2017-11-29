@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.9 - 2017-11-29
+
+- 2.0.8 tag was done off of master branch - not 2.0 branch
+
 ## 2.0.8 - 2017-11-29
 
 - SSH2: fix issue with key re-exchange
