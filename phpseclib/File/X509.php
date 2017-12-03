@@ -2765,7 +2765,11 @@ class File_X509
                     $value = array_pop($value); // Always strip data type.
                 }
             } elseif (is_object($value) && strtolower(get_class($value)) == 'file_asn1_element') {
-                $callback = create_function('$x', 'return "\x" . bin2hex($x[0]);');
+                // @codingStandardsIgnoreStart
+                $callback = version_compare(PHP_VERSION, '5.3.0') >= 0 ?
+                    function ($x) { return "\x" . bin2hex($x[0]); } :
+                    create_function('$x', 'return "\x" . bin2hex($x[0]);');
+                // @codingStandardsIgnoreEnd
                 $value = strtoupper(preg_replace_callback('#[^\x20-\x7E]#', $callback, $value->element));
             }
             $output.= $desc . '=' . $value;
