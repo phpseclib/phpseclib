@@ -67,6 +67,10 @@ if (!function_exists('crypt_random_string')) {
      */
     function crypt_random_string($length)
     {
+        if (!$length) {
+            return '';
+        }
+
         if (CRYPT_RANDOM_IS_WINDOWS) {
             // method 1. prior to PHP 5.3, mcrypt_create_iv() would call rand() on windows
             if (extension_loaded('mcrypt') && version_compare(PHP_VERSION, '5.3.0', '>=')) {
