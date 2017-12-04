@@ -46,6 +46,10 @@ abstract class Random
      */
     public static function string($length)
     {
+        if (!$length) {
+            return '';
+        }
+
         try {
             return \random_bytes($length);
         } catch (\Exception $e) {
