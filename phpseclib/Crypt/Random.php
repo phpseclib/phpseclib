@@ -196,7 +196,6 @@ abstract class Random
      * If a class has a private __sleep() it'll emit a warning
      * @return mixed
      * @param mixed $arr
-     * @access public
      */
     private static function safe_serialize(&$arr)
     {
