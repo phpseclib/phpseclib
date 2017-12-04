@@ -307,6 +307,9 @@ class SCP
                                 return false;
                             }
                             extract(unpack('Nlength', $response[SSH1::RESPONSE_DATA]));
+                            /**
+                             * @var integer $length
+                             */
                             return Strings::shift($response[SSH1::RESPONSE_DATA], $length);
                         case NET_SSH1_SMSG_STDERR_DATA:
                             break;

@@ -18,6 +18,7 @@ namespace phpseclib\Math\BigInteger\Engines;
 use ParagonIE\ConstantTime\Hex;
 use phpseclib\Exception\BadConfigurationException;
 use phpseclib\Crypt\Random;
+use phpseclib\Math\BigInteger;
 
 /**
  * Base Engine.
@@ -276,6 +277,10 @@ abstract class Engine implements \Serializable
         }
 
         extract($this->extendedGCD($n));
+        /**
+         * @var BigInteger $gcd
+         * @var BigInteger $x
+         */
 
         if (!$gcd->equals(static::$one)) {
             return false;
@@ -517,7 +522,7 @@ abstract class Engine implements \Serializable
      * Returns the smallest and largest n-bit number
      *
      * @param int $bits
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return \phpseclib\Math\BigInteger\Engines\Engine[]
      */
     public static function minMaxBits($bits)
     {
@@ -670,6 +675,10 @@ abstract class Engine implements \Serializable
     public static function random($size)
     {
         extract(static::minMaxBits($size));
+        /**
+         * @var BigInteger $min
+         * @var BigInteger $max
+         */
         return static::randomRange($min, $max);
     }
 
@@ -684,6 +693,10 @@ abstract class Engine implements \Serializable
     public static function randomPrime($size)
     {
         extract(static::minMaxBits($size));
+        /**
+         * @var BigInteger $min
+         * @var BigInteger $max
+         */
         return static::randomRangePrime($min, $max);
     }
 

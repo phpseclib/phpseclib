@@ -383,6 +383,9 @@ class RSA extends AsymmetricKey
                     $primes[$i] = BigInteger::randomPrime($regSize);
                 } else {
                     extract(BigInteger::minMaxBits($bits));
+                    /** @var BigInteger $min
+                     *  @var BigInteger $max
+                     */
                     list($min) = $min->divide($n);
                     $min = $min->add(self::$one);
                     list($max) = $max->divide($n);

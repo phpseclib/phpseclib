@@ -192,7 +192,7 @@ class PHP64 extends PHP
      */
     public function gcd(PHP64 $n)
     {
-        extract($this->extendedGCD($n));
+        $gcd=$this->extendedGCD($n)['gcd'];
         return $gcd;
     }
 
