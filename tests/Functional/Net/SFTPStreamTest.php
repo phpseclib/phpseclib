@@ -18,9 +18,9 @@ class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
 
     public function testFopenFcloseCreatesFile()
     {
-        $context = stream_context_create(array(
-            'sftp' => array('session' => $this->sftp),
-        ));
+        $context = stream_context_create([
+            'sftp' => ['session' => $this->sftp],
+        ]);
         $fp = fopen($this->buildUrl('fooo.txt'), 'wb', false, $context);
         $this->assertTrue(is_resource($fp));
         fclose($fp);
@@ -32,9 +32,9 @@ class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
      */
     public function testFilenameWithHash()
     {
-        $context = stream_context_create(array(
-            'sftp' => array('session' => $this->sftp),
-        ));
+        $context = stream_context_create([
+            'sftp' => ['session' => $this->sftp],
+        ]);
         $fp = fopen($this->buildUrl('te#st.txt'), 'wb', false, $context);
         fputs($fp, 'zzzz');
         fclose($fp);
@@ -52,7 +52,7 @@ class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
         $session = $this->sftp;
         $dirs = scandir("sftp://$session/");
         $this->assertCount($originalConnectionsCount, \phpseclib\Net\SSH2::getConnections());
-        $this->assertEquals(array('.', '..'), array_slice($dirs, 0, 2));
+        $this->assertEquals(['.', '..'], array_slice($dirs, 0, 2));
     }
 
     protected function buildUrl($suffix)

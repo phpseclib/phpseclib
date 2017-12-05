@@ -243,7 +243,7 @@ abstract class PHP extends Engine
         if ($x_negative != $y_negative) {
             if ($x_value == $y_value) {
                 return [
-                    self::VALUE => array(),
+                    self::VALUE => [],
                     self::SIGN => false
                 ];
             }

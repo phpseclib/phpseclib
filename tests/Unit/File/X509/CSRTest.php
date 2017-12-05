@@ -115,7 +115,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
 -----END RSA PRIVATE KEY-----');
         $x509->setPrivateKey($rsa);
-        $x509->setDN(array('cn' => 'website.com'));
+        $x509->setDN(['cn' => 'website.com']);
         $x509->saveCSR($x509->signCSR('sha256WithRSAEncryption'), X509::FORMAT_DER);
     }
 }

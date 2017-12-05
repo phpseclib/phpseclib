@@ -63,12 +63,12 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
         // TODO: Address https://github.com/phpseclib/phpseclib/issues/146
         $this->assertContains(
             strlen($content),
-            array(self::$exampleDataLength, self::$exampleDataLength + 1),
+            [self::$exampleDataLength, self::$exampleDataLength + 1],
             'Failed asserting that string length matches expected length.'
         );
         $this->assertContains(
             $content,
-            array(self::$exampleData, self::$exampleData . "\0"),
+            [self::$exampleData, self::$exampleData . "\0"],
             'Failed asserting that string content matches expected content.'
         );
         return $scp;
@@ -88,12 +88,12 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
         // TODO: Address https://github.com/phpseclib/phpseclib/issues/146
         $this->assertContains(
             filesize($localFilename),
-            array(self::$exampleDataLength, self::$exampleDataLength + 1),
+            [self::$exampleDataLength, self::$exampleDataLength + 1],
             'Failed asserting that filesize matches expected data size.'
         );
         $this->assertContains(
             file_get_contents($localFilename),
-            array(self::$exampleData, self::$exampleData . "\0"),
+            [self::$exampleData, self::$exampleData . "\0"],
             'Failed asserting that file content matches expected content.'
         );
     }

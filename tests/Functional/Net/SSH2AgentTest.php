@@ -31,7 +31,7 @@ class Functional_Net_SSH2AgentTest extends PhpseclibFunctionalTestCase
             'SSH2 login using Agent failed.'
         );
 
-        return array('ssh' => $ssh, 'ssh-agent' => $agent);
+        return ['ssh' => $ssh, 'ssh-agent' => $agent];
     }
 
     /**
