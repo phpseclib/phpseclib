@@ -42,8 +42,9 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
     public function testConstructor($ssh)
     {
         $scp = new SCP($ssh);
-        $this->assertTrue(
-            is_object($scp),
+        $this->assertInternalType(
+            'object',
+            $scp,
             'Could not construct \phpseclib\Net\SCP object.'
         );
         return $scp;

@@ -29,8 +29,9 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
 
-        $this->assertTrue(
-            is_object($sftp),
+        $this->assertInternalType(
+            'object',
+            $sftp,
             'Could not construct NET_SFTP object.'
         );
 
