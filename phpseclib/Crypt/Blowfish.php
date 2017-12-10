@@ -550,7 +550,7 @@ class Crypt_Blowfish extends Crypt_Base
         // on 32-bit linux systems with PHP < 5.3 float to integer conversion is bad
         switch (true) {
             case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
-            case version_compare(PHP_VERSION, '5.3.0') >= 0:
+            case version_compare(PHP_VERSION, '5.3.0') >= 0 && (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
             case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
                 $safeint = '%s';
                 break;
@@ -663,10 +663,13 @@ class Crypt_Blowfish extends Crypt_Base
      */
     function safe_intval($x)
     {
-        // PHP 5.3, per http://php.net/releases/5_3_0.php, introduced "more consistent float rounding"
-        // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
-        if (is_int($x) || version_compare(PHP_VERSION, '5.3.0') >= 0 || (PHP_OS & "\xDF\xDF\xDF") === 'WIN') {
-            return $x;
+        switch (true) {
+            case is_int($x):
+            // PHP 5.3, per http://php.net/releases/5_3_0.php, introduced "more consistent float rounding"
+            case version_compare(PHP_VERSION, '5.3.0') >= 0 && (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
+            // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
+            case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
+                return $x;
         }
         return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
             ((fmod(floor($x / 0x80000000), 2) & 1) << 31);
