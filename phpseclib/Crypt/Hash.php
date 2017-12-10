@@ -802,7 +802,12 @@ class Hash
             $result+= $argument < 0 ? ($argument & 0x7FFFFFFF) + 0x80000000 : $argument;
         }
 
-        return fmod($result, $mod);
+        if ((php_uname('m') & "\xDF\xDF\xDF") != 'ARM') {
+            return fmod($result, $mod);
+        }
+
+        return (fmod($result, 0x80000000) & 0x7FFFFFFF) |
+            ((fmod(floor($result / 0x80000000), 2) & 1) << 31);
     }
 
     /**
