@@ -2201,7 +2201,7 @@ class File_X509
                                     case !is_array($authorityKey):
                                     case !$subjectKeyID:
                                     case isset($authorityKey['keyIdentifier']) && $authorityKey['keyIdentifier'] === $subjectKeyID:
-                                        if (is_array($authorityKey) && isset($authorityKey['authorityCertSerialNumber']) && $authorityKey['authorityCertSerialNumber'] != $ca['tbsCertificate']['serialNumber']) {
+                                        if (is_array($authorityKey) && isset($authorityKey['authorityCertSerialNumber']) && !$authorityKey['authorityCertSerialNumber']->equals($ca['tbsCertificate']['serialNumber'])) {
                                             break 2; // serial mismatch - check other ca
                                         }
                                         $signingCert = $ca; // working cert
@@ -2251,7 +2251,7 @@ class File_X509
                                     case !is_array($authorityKey):
                                     case !$subjectKeyID:
                                     case isset($authorityKey['keyIdentifier']) && $authorityKey['keyIdentifier'] === $subjectKeyID:
-                                        if (is_array($authorityKey) && isset($authorityKey['authorityCertSerialNumber']) && $authorityKey['authorityCertSerialNumber'] != $ca['tbsCertificate']['serialNumber']) {
+                                        if (is_array($authorityKey) && isset($authorityKey['authorityCertSerialNumber']) && !$authorityKey['authorityCertSerialNumber']->equals($ca['tbsCertificate']['serialNumber'])) {
                                             break 2; // serial mismatch - check other ca
                                         }
                                         $signingCert = $ca; // working cert
