@@ -5,9 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-include(__DIR__ . '/PHPUnit_Framework_TestCase.php');
-
-abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
+abstract class PhpseclibTestCase extends PHPUnit\Framework\TestCase
 {
     protected $tempFilesToUnlinkOnTearDown = array();
 
