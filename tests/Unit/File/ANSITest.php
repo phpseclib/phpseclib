@@ -59,7 +59,7 @@ class Unit_File_ANSITest extends PhpseclibTestCase
         $screen = $ansi->getScreen();
 
         $lines = explode("\r\n", $screen);
-        $this->assertSame(24, count($lines));
+        $this->assertCount(24, $lines);
         $this->assertSame(str_repeat('z', 80), $lines[22]);
     }
 }

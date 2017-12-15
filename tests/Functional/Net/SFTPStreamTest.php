@@ -22,7 +22,7 @@ class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
             'sftp' => ['session' => $this->sftp],
         ]);
         $fp = fopen($this->buildUrl('fooo.txt'), 'wb', false, $context);
-        $this->assertTrue(is_resource($fp));
+        $this->assertInternalType('resource', $fp);
         fclose($fp);
         $this->assertSame(0, $this->sftp->size('fooo.txt'));
     }
@@ -39,7 +39,7 @@ class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
         fputs($fp, 'zzzz');
         fclose($fp);
 
-        $this->assertTrue(in_array('te#st.txt', $this->sftp->nlist()));
+        $this->assertContains('te#st.txt', $this->sftp->nlist());
     }
 
     /**
