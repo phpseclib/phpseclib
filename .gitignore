@@ -2,3 +2,4 @@
 /composer.phar
 /.idea/
 .gitignore
+composer.lock
