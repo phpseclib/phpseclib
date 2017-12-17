@@ -424,12 +424,12 @@ class Blowfish extends BlockCipher
 
         for ($i = 0; $i < 16; $i+= 2) {
             $l^= $p[$i];
-            $r^= $this->safe_intval(($this->safe_intval($sb_0[$l >> 24 & 0xff]  + $sb_1[$l >> 16 & 0xff]) ^
+            $r^= self::safe_intval((self::safe_intval($sb_0[$l >> 24 & 0xff]  + $sb_1[$l >> 16 & 0xff]) ^
                   $sb_2[$l >>  8 & 0xff]) +
                   $sb_3[$l       & 0xff]);
 
             $r^= $p[$i + 1];
-            $l^= $this->safe_intval(($this->safe_intval($sb_0[$r >> 24 & 0xff]  + $sb_1[$r >> 16 & 0xff]) ^
+            $l^= self::safe_intval((self::safe_intval($sb_0[$r >> 24 & 0xff]  + $sb_1[$r >> 16 & 0xff]) ^
                   $sb_2[$r >>  8 & 0xff]) +
                   $sb_3[$r       & 0xff]);
         }
@@ -457,12 +457,12 @@ class Blowfish extends BlockCipher
 
         for ($i = 17; $i > 2; $i-= 2) {
             $l^= $p[$i];
-            $r^= $this->safe_intval(($this->safe_intval($sb_0[$l >> 24 & 0xff] + $sb_1[$l >> 16 & 0xff]) ^
+            $r^= self::safe_intval((self::safe_intval($sb_0[$l >> 24 & 0xff] + $sb_1[$l >> 16 & 0xff]) ^
                   $sb_2[$l >>  8 & 0xff]) +
                   $sb_3[$l       & 0xff]);
 
             $r^= $p[$i - 1];
-            $l^= $this->safe_intval(($this->safe_intval($sb_0[$r >> 24 & 0xff] + $sb_1[$r >> 16 & 0xff]) ^
+            $l^= self::safe_intval((self::safe_intval($sb_0[$r >> 24 & 0xff] + $sb_1[$r >> 16 & 0xff]) ^
                   $sb_2[$r >>  8 & 0xff]) +
                   $sb_3[$r       & 0xff]);
         }
@@ -488,15 +488,7 @@ class Blowfish extends BlockCipher
             }
         ';
 
-        switch (true) {
-            case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
-            case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
-                $safeint = '%s';
-                break;
-            default:
-                $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
-                $safeint.= '((fmod(floor($temp / 0x80000000), 2) & 1) << 31))';
-        }
+        $safeint = self::safe_intval_inline();
 
         // Generating encrypt code:
         $encrypt_block = '
@@ -560,25 +552,5 @@ class Blowfish extends BlockCipher
                'decrypt_block' => $decrypt_block
             ]
         );
-    }
-
-    /**
-     * Convert float to int
-     *
-     * On ARM CPUs converting floats to ints doesn't always work
-     *
-     * @access private
-     * @param string $x
-     * @return int
-     */
-    function safe_intval($x)
-    {
-        switch (true) {
-            case is_int($x):
-            case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
-                return $x;
-        }
-        return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
-            ((fmod(floor($x / 0x80000000), 2) & 1) << 31);
     }
 }
