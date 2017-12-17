@@ -2613,4 +2613,48 @@ class Crypt_Base
                 return $result . pack('H*', sha1($hash));
         }
     }
+
+    /**
+     * Convert float to int
+     *
+     * On 32-bit Linux installs running PHP < 5.3 converting floats to ints doesn't always work
+     *
+     * @access private
+     * @param string $x
+     * @return int
+     */
+    function safe_intval($x)
+    {
+        switch (true) {
+            case is_int($x):
+            // PHP 5.3, per http://php.net/releases/5_3_0.php, introduced "more consistent float rounding"
+            case version_compare(PHP_VERSION, '5.3.0') >= 0 && (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
+            // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
+            case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
+                return $x;
+        }
+        return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
+            ((fmod(floor($x / 0x80000000), 2) & 1) << 31);
+    }
+
+    /**
+     * eval()'able string for in-line float to int
+     *
+     * @access private
+     * @return string
+     */
+    function safe_intval_inline()
+    {
+        // on 32-bit linux systems with PHP < 5.3 float to integer conversion is bad
+        switch (true) {
+            case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
+            case version_compare(PHP_VERSION, '5.3.0') >= 0 && (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
+            case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
+                return '%s';
+                break;
+            default:
+                $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
+                return $safeint . '((fmod(floor($temp / 0x80000000), 2) & 1) << 31))';
+        }
+    }
 }
