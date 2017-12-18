@@ -179,7 +179,7 @@ class Stream
 
         if ($host[0] == '$') {
             $host = substr($host, 1);
-            global $$host;
+            global ${$host};
             if (($$host instanceof SFTP) === false) {
                 return false;
             }
