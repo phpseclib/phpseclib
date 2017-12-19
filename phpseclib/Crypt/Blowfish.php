@@ -294,7 +294,7 @@ class Blowfish extends Base
     function setKeyLength($length)
     {
         if ($length < 32) {
-            $this->key_length = 7;
+            $this->key_length = 4;
         } elseif ($length > 448) {
             $this->key_length = 56;
         } else {

@@ -296,7 +296,7 @@ class RC2 extends Base
     function setKeyLength($length)
     {
         if ($length < 8) {
-            $this->default_key_length = 8;
+            $this->default_key_length = 1;
         } elseif ($length > 1024) {
             $this->default_key_length = 128;
         } else {
