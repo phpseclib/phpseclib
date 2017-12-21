@@ -192,9 +192,7 @@ class PHP32 extends PHP
      */
     public function gcd(PHP32 $n)
     {
-        $gcd = $this->extendedGCD($n)['gcd'];
-
-        return $gcd;
+        return $this->extendedGCD($n)['gcd'];
     }
 
     /**

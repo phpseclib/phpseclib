@@ -2304,9 +2304,8 @@ class SSH2
                     return false;
                 }
                 extract(unpack('Nlength', Strings::shift($response, 4)));
-                /**
-                 * @var integer $length
-                 */
+                /** @var integer $length */
+
                 $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . utf8_decode(Strings::shift($response, $length));
 
                 return $this->disconnect_helper(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
@@ -2317,18 +2316,15 @@ class SSH2
                     return false;
                 }
                 extract(unpack('Nlength', Strings::shift($response, 4)));
-                /**
-                 * @var integer $length
-                 */
+                /** @var integer $length */
 
                 $auth_methods = explode(',', Strings::shift($response, $length));
                 if (!strlen($response)) {
                     return false;
                 }
                 extract(unpack('Cpartial_success', Strings::shift($response, 1)));
-                /**
-                 * @var integer $partial_success
-                 */
+                /** @var integer $partial_success */
+
                 $partial_success = $partial_success != 0;
 
                 if (!$partial_success && in_array('keyboard-interactive', $auth_methods)) {
@@ -2411,27 +2407,21 @@ class SSH2
                     return false;
                 }
                 extract(unpack('Nlength', Strings::shift($response, 4)));
-                /**
-                 * @var integer $length
-                 */
+                /** @var integer $length */
 
                 Strings::shift($response, $length); // name; may be empty
                 if (strlen($response) < 4) {
                     return false;
                 }
                 extract(unpack('Nlength', Strings::shift($response, 4)));
-                /**
-                 * @var integer $length
-                 */
+                /** @var integer $length */
 
                 Strings::shift($response, $length); // instruction; may be empty
                 if (strlen($response) < 4) {
                     return false;
                 }
                 extract(unpack('Nlength', Strings::shift($response, 4)));
-                /**
-                 * @var integer $length
-                 */
+                /** @var integer $length */
 
                 Strings::shift($response, $length); // language tag; may be empty
                 if (strlen($response) < 4) {
@@ -2439,6 +2429,7 @@ class SSH2
                 }
                 extract(unpack('Nnum_prompts', Strings::shift($response, 4)));
                 /** @var integer $num_prompts */
+
                 for ($i = 0; $i < count($responses); $i++) {
                     if (is_array($responses[$i])) {
                         foreach ($responses[$i] as $key => $value) {
@@ -2455,9 +2446,7 @@ class SSH2
                             return false;
                         }
                         extract(unpack('Nlength', Strings::shift($response, 4)));
-                        /**
-                         * @var integer $length
-                         */
+                        /** @var integer $length */
 
                         // prompt - ie. "Password: "; must not be empty
                         $prompt = Strings::shift($response, $length);
@@ -2615,9 +2604,7 @@ class SSH2
                     return false;
                 }
                 extract(unpack('Nlength', Strings::shift($response, 4)));
-                /**
-                 * @var integer $length
-                 */
+                /** @var integer $length */
 
                 $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . Strings::shift($response, $length);
 
@@ -3378,9 +3365,7 @@ class SSH2
                     return false;
                 }
                 extract(unpack('Nlength', Strings::shift($payload, 4)));
-                /**
-                 * @var integer $length
-                 */
+                /** @var integer $length */
 
                 $this->errors[] = 'SSH_MSG_DEBUG: ' . utf8_decode(Strings::shift($payload, $length));
                 $payload = $this->get_binary_packet($skip_channel_filter);
@@ -3404,9 +3389,8 @@ class SSH2
                 return false;
             }
             extract(unpack('Nlength', Strings::shift($payload, 4)));
-            /**
-             * @var integer $length
-             */
+            /** @var integer $length */
+
             $this->banner_message = utf8_decode(Strings::shift($payload, $length));
             $payload = $this->get_binary_packet();
         }
@@ -3430,9 +3414,8 @@ class SSH2
                         return false;
                     }
                     extract(unpack('Nlength', Strings::shift($payload, 4)));
-                    /**
-                     * @var integer $length
-                     */
+                    /** @var integer $length */
+
                     $this->errors[] = 'SSH_MSG_GLOBAL_REQUEST: ' . Strings::shift($payload, $length);
 
                     if (!$this->send_binary_packet(pack('C', NET_SSH2_MSG_REQUEST_FAILURE))) {
@@ -3447,15 +3430,15 @@ class SSH2
                         return false;
                     }
                     extract(unpack('Nlength', Strings::shift($payload, 4)));
-                    /**
-                     * @var integer $length
-                     */
+                    /** @var integer $length */
+
                     $data = Strings::shift($payload, $length);
                     if (strlen($payload) < 4) {
                         return false;
                     }
                     extract(unpack('Nserver_channel', Strings::shift($payload, 4)));
                     /** @var integer $server_channel */
+
                     switch ($data) {
                         case 'auth-agent':
                         case 'auth-agent@openssh.com':
@@ -3671,9 +3654,7 @@ class SSH2
             }
             if ($type == NET_SSH2_MSG_CHANNEL_OPEN) {
                 extract(unpack('Nlength', Strings::shift($response, 4)));
-                /**
-                 * @var integer $length
-                 */
+                /** @var integer $length */
             } else {
                 extract(unpack('Nchannel', Strings::shift($response, 4)));
                 /** @var integer $channel */
@@ -3791,9 +3772,7 @@ class SSH2
                         return false;
                     }
                     extract(unpack('Nlength', Strings::shift($response, 4)));
-                    /**
-                     * @var integer $length
-                     */
+                    /** @var integer $length */
 
                     $data = Strings::shift($response, $length);
 
@@ -3818,9 +3797,8 @@ class SSH2
                         return false;
                     }
                     extract(unpack('Nlength', Strings::shift($response, 4)));
-                    /**
-                     * @var integer $length
-                     */
+                    /** @var integer $length */
+
                     $value = Strings::shift($response, $length);
                     switch ($value) {
                         case 'exit-signal':
@@ -3829,18 +3807,16 @@ class SSH2
                                 return false;
                             }
                             extract(unpack('Nlength', Strings::shift($response, 4)));
-                            /**
-                             * @var integer $length
-                             */
+                            /** @var integer $length */
+
                             $this->errors[] = 'SSH_MSG_CHANNEL_REQUEST (exit-signal): ' . Strings::shift($response, $length);
                             if (strlen($response) < 4) {
                                 return false;
                             }
                             Strings::shift($response, 1);
                             extract(unpack('Nlength', Strings::shift($response, 4)));
-                            /**
-                             * @var integer $length
-                             */
+                            /** @var integer $length */
+
                             if ($length) {
                                 $this->errors[count($this->errors)].= "\r\n" . Strings::shift($response, $length);
                             }
@@ -4475,9 +4451,8 @@ class SSH2
             return false;
         }
         extract(unpack('Nlength', Strings::shift($server_public_host_key, 4)));
-        /**
-         * @var integer $length
-         */
+        /** @var integer $length */
+
         Strings::shift($server_public_host_key, $length);
 
         if ($this->signature_validated) {

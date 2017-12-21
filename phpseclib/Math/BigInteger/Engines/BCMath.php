@@ -341,9 +341,7 @@ class BCMath extends Engine
     public function gcd(BCMath $n)
     {
         extract($this->extendedGCD($n));
-        /**
-         * @var BCMath $gcd
-         */
+        /** @var BCMath $gcd */
         return $gcd;
     }
 
