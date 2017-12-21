@@ -76,6 +76,10 @@ abstract class PuTTY extends Progenitor
         }
         list($x) = $result;
 
+        if (isset($components['comment'])) {
+            $comment = $components['comment'];
+        }
+
         return compact('p', 'q', 'g', 'y', 'x', 'comment');
     }
 

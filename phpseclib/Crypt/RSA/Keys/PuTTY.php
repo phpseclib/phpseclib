@@ -84,6 +84,10 @@ abstract class PuTTY extends Progenitor
         $temp = $primes[2]->subtract($one);
         $exponents[] = $publicExponent->modInverse($temp);
 
+        if (isset($components['comment'])) {
+            $comment = $components['comment'];
+        }
+
         return compact('publicExponent', 'modulus', 'privateExponent', 'primes', 'coefficients', 'exponents', 'comment', 'isPublicKey');
     }
 
