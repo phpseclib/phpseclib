@@ -614,6 +614,7 @@ class SSH1
             return false;
         }
         extract(unpack('Nsupported_ciphers_mask', Strings::shift($response[self::RESPONSE_DATA], 4)));
+        /** @var integer $supported_ciphers_mask */
 
         foreach ($this->supported_ciphers as $mask => $name) {
             if (($supported_ciphers_mask & (1 << $mask)) == 0) {
@@ -626,6 +627,8 @@ class SSH1
             return false;
         }
         extract(unpack('Nsupported_authentications_mask', Strings::shift($response[self::RESPONSE_DATA], 4)));
+        /** @var integer $supported_authentications_mask */
+
         foreach ($this->supported_authentications as $mask => $name) {
             if (($supported_authentications_mask & (1 << $mask)) == 0) {
                 unset($this->supported_authentications[$mask]);

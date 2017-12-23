@@ -117,6 +117,7 @@ abstract class PuTTY
         $source = Strings::packSSH2('ssss', static::TYPE, $encryption, $components['comment'], $public);
 
         extract(unpack('Nlength', Strings::shift($public, 4)));
+        /** @var integer $length */
         if (Strings::shift($public, $length) != static::TYPE) {
             return false;
         }

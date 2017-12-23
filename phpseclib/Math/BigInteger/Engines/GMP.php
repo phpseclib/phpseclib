@@ -309,7 +309,7 @@ class GMP extends Engine
      * {@link http://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity Bezout's identity - Wikipedia} for more information.
      *
      * @param \phpseclib\Math\BigInteger\Engines\GMP $n
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @return \phpseclib\Math\BigInteger\Engines\GMP[]
      */
     public function extendedGCD(GMP $n)
     {
