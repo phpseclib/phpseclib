@@ -299,12 +299,17 @@ class BigInteger implements \Serializable
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
-     * @return array
+     * @return BigInteger[]
      * @param BigInteger $n
      */
     public function extendedGCD(BigInteger $n)
     {
         extract($this->value->extendedGCD($n->value));
+        /**
+         * @var BigInteger $gcd
+         * @var BigInteger $x
+         * @var BigInteger $y
+         */
         return [
             'gcd' => new static($gcd),
             'x' => new static($x),
@@ -561,12 +566,15 @@ class BigInteger implements \Serializable
      * Returns the smallest and largest n-bit number
      *
      * @param int $bits
-     * @return array
+     * @return BigInteger[]
      */
     public static function minMaxBits($bits)
     {
         $class = self::$mainEngine;
         extract($class::minMaxBits($bits));
+        /** @var BigInteger $min
+         *  @var BigInteger $max
+         */
         return [
             'min' => new static($min),
             'max' => new static($max)
