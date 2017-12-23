@@ -1608,14 +1608,12 @@ class SSH2
 
                 $response = $this->get_binary_packet();
                 if ($response === false) {
-                    user_error('Connection closed by server');
-                    return false;
+                    throw new \RuntimeException('Connection closed by server');
                 }
                 extract(unpack('Ctype', Strings::shift($response, 1)));
                 /** @var integer $type */
                 if ($type != NET_SSH2_MSG_KEXDH_GEX_GROUP) {
-                    user_error('Expected SSH_MSG_KEX_DH_GEX_GROUP');
-                    return false;
+                    throw new \RuntimeException('Expected SSH_MSG_KEX_DH_GEX_GROUP');
                 }
 
                 if (strlen($response) < 4) {
@@ -1751,7 +1749,7 @@ class SSH2
 
         if ($kex_algorithm === 'curve25519-sha256@libssh.org') {
             if (strlen($fBytes) !== 32) {
-                user_error('Received curve25519 public key of invalid length.');
+                throw new \RuntimeException('Received curve25519 public key of invalid length.');
                 return false;
             }
             $key = new BigInteger(\Sodium\crypto_scalarmult($x, $fBytes), 256);
@@ -2701,8 +2699,7 @@ class SSH2
         }
 
         if ($this->in_request_pty_exec) {
-            user_error('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
-            return false;
+            throw new \RuntimeException('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
         }
 
         // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
