@@ -3670,35 +3670,89 @@ class SSH2
                     $this->window_size_server_to_client[$channel]+= $this->window_size;
                 }
 
-                if ($type == NET_SSH2_MSG_CHANNEL_EXTENDED_DATA) {
-                    /*
-                    if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
-                        $this->_send_channel_packet($client_channel, chr(0));
-                    }
-                    */
-                    // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR
-                    if (strlen($response) < 8) {
-                        return false;
-                    }
-                    extract(unpack('Ndata_type_code/Nlength', Strings::shift($response, 8)));
-                    /**
-                     * @var integer $data_type_code
-                     * @var integer $length
-                     */
-                    $data = Strings::shift($response, $length);
-                    $this->stdErrorLog.= $data;
-                    if ($skip_extended || $this->quiet_mode) {
-                        continue;
-                    }
-                    if ($client_channel == $channel && $this->channel_status[$channel] == NET_SSH2_MSG_CHANNEL_DATA) {
-                        return $data;
-                    }
-                    if (!isset($this->channel_buffers[$channel])) {
-                        $this->channel_buffers[$channel] = [];
-                    }
-                    $this->channel_buffers[$channel][] = $data;
+                switch ($type) {
+                    case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
+                        /*
+                        if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
+                            $this->_send_channel_packet($client_channel, chr(0));
+                        }
+                        */
+                        // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR
+                        if (strlen($response) < 8) {
+                            return false;
+                        }
+                        extract(unpack('Ndata_type_code/Nlength', Strings::shift($response, 8)));
+                        $data = Strings::shift($response, $length);
+                        $this->stdErrorLog.= $data;
+                        if ($skip_extended || $this->quiet_mode) {
+                            continue 2;
+                        }
+                        if ($client_channel == $channel && $this->channel_status[$channel] == NET_SSH2_MSG_CHANNEL_DATA) {
+                            return $data;
+                        }
+                        if (!isset($this->channel_buffers[$channel])) {
+                            $this->channel_buffers[$channel] = array();
+                        }
+                        $this->channel_buffers[$channel][] = $data;
 
-                    continue;
+                        continue 2;
+                    case NET_SSH2_MSG_CHANNEL_REQUEST:
+                        if ($this->channel_status[$channel] == NET_SSH2_MSG_CHANNEL_CLOSE) {
+                            continue 2;
+                        }
+                        if (strlen($response) < 4) {
+                            return false;
+                        }
+                        extract(unpack('Nlength', Strings::shift($response, 4)));
+                        $value = Strings::shift($response, $length);
+                        switch ($value) {
+                            case 'exit-signal':
+                                Strings::shift($response, 1);
+                                if (strlen($response) < 4) {
+                                    return false;
+                                }
+                                extract(unpack('Nlength', Strings::shift($response, 4)));
+                                /** @var integer $length */
+
+                                $this->errors[] = 'SSH_MSG_CHANNEL_REQUEST (exit-signal): ' . Strings::shift($response, $length);
+                                $this->_string_shift($response, 1);
+                                if (strlen($response) < 4) {
+                                    return false;
+                                }
+                                extract(unpack('Nlength', Strings::shift($response, 4)));
+                                /** @var integer $length */
+
+                                if ($length) {
+                                    $this->errors[count($this->errors)].= "\r\n" . Strings::shift($response, $length);
+                                }
+
+                                $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$client_channel]));
+                                $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
+
+                                $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_EOF;
+
+                                continue 3;
+                            case 'exit-status':
+                                if (strlen($response) < 5) {
+                                    return false;
+                                }
+                                extract(unpack('Cfalse/Nexit_status', Strings::shift($response, 5)));
+                                /**
+                                 * @var integer $false
+                                 * @var integer $exit_status
+                                 */
+
+                                $this->exit_status = $exit_status;
+
+                                // "The client MAY ignore these messages."
+                                // -- http://tools.ietf.org/html/rfc4254#section-6.10
+
+                                continue 3;
+                            default:
+                                // "Some systems may not implement signals, in which case they SHOULD ignore this message."
+                                //  -- http://tools.ietf.org/html/rfc4254#section-6.9
+                                continue 3;
+                        }
                 }
 
                 switch ($this->channel_status[$channel]) {
@@ -3788,63 +3842,6 @@ class SSH2
                         $this->channel_buffers[$channel] = [];
                     }
                     $this->channel_buffers[$channel][] = $data;
-                    break;
-                case NET_SSH2_MSG_CHANNEL_REQUEST:
-                    if (strlen($response) < 4) {
-                        return false;
-                    }
-                    extract(unpack('Nlength', Strings::shift($response, 4)));
-                    /** @var integer $length */
-
-                    $value = Strings::shift($response, $length);
-                    switch ($value) {
-                        case 'exit-signal':
-                            Strings::shift($response, 1);
-                            if (strlen($response) < 4) {
-                                return false;
-                            }
-                            extract(unpack('Nlength', Strings::shift($response, 4)));
-                            /** @var integer $length */
-
-                            $this->errors[] = 'SSH_MSG_CHANNEL_REQUEST (exit-signal): ' . Strings::shift($response, $length);
-                            if (strlen($response) < 4) {
-                                return false;
-                            }
-                            Strings::shift($response, 1);
-                            extract(unpack('Nlength', Strings::shift($response, 4)));
-                            /** @var integer $length */
-
-                            if ($length) {
-                                $this->errors[count($this->errors)].= "\r\n" . Strings::shift($response, $length);
-                            }
-
-                            $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$client_channel]));
-                            $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
-
-                            $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_EOF;
-
-                            break;
-                        case 'exit-status':
-                            if (strlen($response) < 5) {
-                                return false;
-                            }
-                            extract(unpack('Cfalse/Nexit_status', Strings::shift($response, 5)));
-                            /**
-                             * @var integer $false
-                             * @var integer $exit_status
-                             */
-
-                            $this->exit_status = $exit_status;
-
-                            // "The client MAY ignore these messages."
-                            // -- http://tools.ietf.org/html/rfc4254#section-6.10
-
-                            break;
-                        default:
-                            // "Some systems may not implement signals, in which case they SHOULD ignore this message."
-                            //  -- http://tools.ietf.org/html/rfc4254#section-6.9
-                            break;
-                    }
                     break;
                 case NET_SSH2_MSG_CHANNEL_CLOSE:
                     $this->curTimeout = 0;
