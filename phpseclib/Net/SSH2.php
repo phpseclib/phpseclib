@@ -62,7 +62,6 @@ use phpseclib\Math\BigInteger; // Used to do Diffie-Hellman key exchange and DSA
 use phpseclib\System\SSH\Agent;
 use phpseclib\Exception\NoSupportedAlgorithmsException;
 use phpseclib\Common\Functions\Strings;
-use phpseclib\Common\Functions\Objects;
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -165,9 +164,9 @@ class SSH2
      * The Socket Object
      *
      * @var object
-     * @access private
+     * @access public
      */
-    private $fsock;
+    public $fsock;
 
     /**
      * Execution Bitmap
@@ -176,9 +175,9 @@ class SSH2
      * if a requisite function has been successfully executed.  If not, an error should be thrown.
      *
      * @var int
-     * @access private
+     * @access public
      */
-    protected $bitmap = 0;
+    public $bitmap = 0;
 
     /**
      * Error information
@@ -504,9 +503,9 @@ class SSH2
      * @see self::_get_channel_packet()
      * @see self::exec()
      * @var array
-     * @access private
+     * @access public
      */
-    protected $server_channels = [];
+    public $server_channels = [];
 
     /**
      * Channel Buffers
@@ -528,9 +527,9 @@ class SSH2
      *
      * @see self::_get_channel_packet()
      * @var array
-     * @access private
+     * @access public
      */
-    protected $channel_status = [];
+    public $channel_status = [];
 
     /**
      * Packet Size
@@ -539,9 +538,9 @@ class SSH2
      *
      * @see self::_send_channel_packet()
      * @var array
-     * @access private
+     * @access public
      */
-    private $packet_size_client_to_server = [];
+    public $packet_size_client_to_server = [];
 
     /**
      * Message Number Log
@@ -1750,7 +1749,6 @@ class SSH2
         if ($kex_algorithm === 'curve25519-sha256@libssh.org') {
             if (strlen($fBytes) !== 32) {
                 throw new \RuntimeException('Received curve25519 public key of invalid length.');
-                return false;
             }
             $key = new BigInteger(\Sodium\crypto_scalarmult($x, $fBytes), 256);
             \Sodium\memzero($x);
@@ -2967,7 +2965,7 @@ class SSH2
      * @return int
      * @access public
      */
-    private function get_open_channel()
+    public function get_open_channel()
     {
         $channel = self::CHANNEL_EXEC;
         do {
@@ -3233,11 +3231,11 @@ class SSH2
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
      * @see self::_send_binary_packet()
-     * @param bool $filter_channel_packets
+     * @param bool $skip_channel_filter
      * @return string
-     * @access private
+     * @access public
      */
-    private function get_binary_packet($skip_channel_filter = false)
+    public function get_binary_packet($skip_channel_filter = false)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             $this->bitmap = 0;
@@ -3593,9 +3591,9 @@ class SSH2
      * @param bool $skip_extended
      * @return mixed
      * @throws \RuntimeException on connection error
-     * @access private
+     * @access public
      */
-    protected function get_channel_packet($client_channel, $skip_extended = false)
+    public function get_channel_packet($client_channel, $skip_extended = false)
     {
         if (!empty($this->channel_buffers[$client_channel])) {
             return array_shift($this->channel_buffers[$client_channel]);
@@ -3828,7 +3826,7 @@ class SSH2
                     $data = Strings::shift($response, $length);
 
                     if ($channel == self::CHANNEL_AGENT_FORWARD) {
-                        $agent_response = Objects::callFunc($this->agent, 'forward_data', [$data]);
+                        $agent_response = $this->agent->forward_data($data);
                         if (!is_bool($agent_response)) {
                             $this->send_channel_packet($channel, $agent_response);
                         }
@@ -3875,9 +3873,9 @@ class SSH2
      * @param string $logged
      * @see self::_get_binary_packet()
      * @return bool
-     * @access private
+     * @access public
      */
-    protected function send_binary_packet($data, $logged = null)
+    public function send_binary_packet($data, $logged = null)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             $this->bitmap = 0;
@@ -4011,9 +4009,9 @@ class SSH2
      * @param int $client_channel
      * @param string $data
      * @return bool
-     * @access private
+     * @access public
      */
-    protected function send_channel_packet($client_channel, $data)
+    public function send_channel_packet($client_channel, $data)
     {
         while (strlen($data)) {
             if (!$this->window_size_client_to_server[$client_channel]) {
@@ -4058,10 +4056,9 @@ class SSH2
      *
      * @param int $client_channel
      * @param bool $want_reply
-     * @return bool
-     * @access private
+     * @access public
      */
-    private function close_channel($client_channel, $want_reply = false)
+    public function close_channel($client_channel, $want_reply = false)
     {
         // see http://tools.ietf.org/html/rfc4254#section-5.3
 
@@ -4213,7 +4210,7 @@ class SSH2
     private function on_channel_open()
     {
         if (isset($this->agent)) {
-            Objects::callFunc($this->agent, 'on_channel_open', [$this]);
+            $this->agent->on_channel_open($this);
         }
     }
 
