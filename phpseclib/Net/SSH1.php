@@ -235,9 +235,9 @@ class SSH1
      * The Socket Object
      *
      * @var resource
-     * @access private
+     * @access public
      */
-    private $fsock;
+    public $fsock;
 
     /**
      * The cryptography object
@@ -254,9 +254,9 @@ class SSH1
      * if a requisite function has been successfully executed.  If not, an error should be thrown.
      *
      * @var int
-     * @access private
+     * @access public
      */
-    private $bitmap = 0;
+    public $bitmap = 0;
 
     /**
      * The Server Key Public Exponent
@@ -1083,9 +1083,9 @@ class SSH1
      *
      * @see self::_send_binary_packet()
      * @return array|bool
-     * @access private
+     * @access public
      */
-    private function get_binary_packet()
+    public function get_binary_packet()
     {
         if (feof($this->fsock)) {
             //user_error('connection closed prematurely');
@@ -1167,9 +1167,9 @@ class SSH1
      * @see self::_get_binary_packet()
      * @param string $data
      * @return bool
-     * @access private
+     * @access public
      */
-    private function send_binary_packet($data)
+    public function send_binary_packet($data)
     {
         if (feof($this->fsock)) {
             //user_error('connection closed prematurely');

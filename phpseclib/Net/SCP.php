@@ -34,7 +34,6 @@ namespace phpseclib\Net;
 
 use phpseclib\Exception\FileNotFoundException;
 use phpseclib\Common\Functions\Strings;
-use phpseclib\Common\Functions\Objects;
 
 /**
  * Pure-PHP implementations of SCP.
@@ -158,7 +157,7 @@ class SCP
         }
 
         if ($this->mode == self::MODE_SSH2) {
-            $this->packet_size = Objects::getVar($this->ssh, 'packet_size_client_to_server')[SSH2::CHANNEL_EXEC] - 4;
+            $this->packet_size = $this->ssh->packet_size_client_to_server[SSH2::CHANNEL_EXEC] - 4;
         }
 
         $remote_file = basename($remote_file);
@@ -275,11 +274,11 @@ class SCP
     {
         switch ($this->mode) {
             case self::MODE_SSH2:
-                Objects::callFunc($this->ssh, 'send_channel_packet', [SSH2::CHANNEL_EXEC, $data]);
+                $this->ssh->send_channel_packet(SSH2::CHANNEL_EXEC, $data);
                 break;
             case self::MODE_SSH1:
                 $data = pack('CNa*', NET_SSH1_CMSG_STDIN_DATA, strlen($data), $data);
-                Objects::callFunc($this->ssh, 'send_binary_packet', [$data]);
+                $this->ssh->send_binary_packet($data);
         }
     }
 
@@ -294,13 +293,13 @@ class SCP
     {
         switch ($this->mode) {
             case self::MODE_SSH2:
-                return Objects::callFunc($this->ssh, 'get_channel_packet', [SSH2::CHANNEL_EXEC, true]);
+                return $this->ssh->get_channel_packet(SSH2::CHANNEL_EXEC, true);
             case self::MODE_SSH1:
-                if (!Objects::getVar($this->ssh, 'bitmap')) {
+                if (!$this->ssh->bitmap) {
                     return false;
                 }
                 while (true) {
-                    $response = Objects::getFunc($this->ssh, 'get_binary_packet');
+                    $response = $this->ssh->get_binary_packet();
                     switch ($response[SSH1::RESPONSE_TYPE]) {
                         case NET_SSH1_SMSG_STDOUT_DATA:
                             if (strlen($response[SSH1::RESPONSE_DATA]) < 4) {
@@ -313,9 +312,9 @@ class SCP
                         case NET_SSH1_SMSG_STDERR_DATA:
                             break;
                         case NET_SSH1_SMSG_EXITSTATUS:
-                            Objects::callFunc($this->ssh, 'send_binary_packet', [chr(NET_SSH1_CMSG_EXIT_CONFIRMATION)]);
-                            fclose(Objects::getVar($this->ssh, 'fsock'));
-                            Objects::setVar($this->ssh, 'bitmap', 0);
+                            $this->ssh->send_binary_packet(chr(NET_SSH1_CMSG_EXIT_CONFIRMATION));
+                            fclose($this->ssh->fsock);
+                            $this->ssh->bitmap = 0;
                             return false;
                         default:
                             throw new \UnexpectedValueException('Unknown packet received');
@@ -333,10 +332,10 @@ class SCP
     {
         switch ($this->mode) {
             case self::MODE_SSH2:
-                Objects::callFunc($this->ssh, 'close_channel', [SSH2::CHANNEL_EXEC, true]);
+                $this->ssh->close_channel(SSH2::CHANNEL_EXEC, true);
                 break;
             case self::MODE_SSH1:
-                Objects::callFunc($this->ssh, 'disconnect');
+                $this->ssh->disconnect();
         }
     }
 }
