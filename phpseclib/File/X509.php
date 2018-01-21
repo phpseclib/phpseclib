@@ -1465,6 +1465,10 @@ class X509
         }
 
         $dn = array_values($dn);
+        // fix for https://bugs.php.net/75433 affecting PHP 7.2
+        if (!isset($dn[0])) {
+            $dn = array_splice($dn, 0, 0);
+        }
     }
 
     /**
@@ -3044,6 +3048,10 @@ class X509
         }
 
         $extensions = array_values($extensions);
+        // fix for https://bugs.php.net/75433 affecting PHP 7.2
+        if (!isset($extensions[0])) {
+            $extensions = array_splice($extensions, 0, 0);
+        }
         return $result;
     }
 
