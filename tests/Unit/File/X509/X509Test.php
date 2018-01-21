@@ -586,7 +586,7 @@ keSg3sfr4VWT545guJlTe+6vvelxbPFIXCXnyVLoePBYZtEe8FQhIBxd3EQHsxuJ
 iSoMCxKCa8r5P1DrxKaJAkBBP87OdahRq0CBQjTFg0wmPs66PoTXA4hZvSxV77CO
 tMPj6Pas7Muejogm6JkmxXC/uT6Tzfknd0B3XSmtDzGL
 -----END RSA PRIVATE KEY-----';
-        $cakey = new Crypt_RSA();
+        $cakey = new RSA();
         $cakey->loadKey($pemcakey);
         $pemca = '-----BEGIN CERTIFICATE-----
 MIICADCCAWmgAwIBAgIUJXQulcz5xkTam8UGC/yn6iVaiWwwDQYJKoZIhvcNAQEF
@@ -601,12 +601,12 @@ A4GBAHkSnlJnlkwDEUcENKWFZpfNgZu9HUvEuLDVOnhvsdd2MDr8EbVbgMHYNWnV
 +ZOS/dqbuCd9Vd27JsBC2YHklaq9/V5zMbrEBiMLo5P5WL9qrz0qbmK/aruP+VX7
 cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
 -----END CERTIFICATE-----';
-        $ca = new File_X509();
+        $ca = new X509();
         $ca->loadX509($pemca);
         $ca->setPrivateKey($cakey);
 
         // Read the old certificate.
-        $oldcert = new File_X509();
+        $oldcert = new X509();
         $oldcert->loadCA($pemca);
         $oldcert->loadX509('-----BEGIN CERTIFICATE-----
 MIIB+TCCAWKgAwIBAgIUW+D7X27oKXHaD6WqFjelccV+D4YwDQYJKoZIhvcNAQEF
@@ -624,7 +624,7 @@ Fqfy+n5VpXOdrjic4yZ52yS5sUaq05s6ZZvnmdU=
         $this->assertTrue($oldcert->validateSignature());
 
         // Set new dates and serial number.
-        $newcert = new File_X509();
+        $newcert = new X509();
         $newcert->setStartDate('-1 day');
         $newcert->setEndDate('+2 years');
         //$newcert->setSerialNumber('1234', 10);
