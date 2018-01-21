@@ -564,4 +564,77 @@ HI8pYRZmT7tKW3HxlZLJGGVo5CgBawdiWngK5v+LwWiNRTqxJA==
 
         $this->assertTrue($x509->validateSignature(false));
     }
+
+    /**
+     * @group github1243
+     */
+    public function testExtensionRemoval()
+    {
+        // Load the CA and its private key.
+        $pemcakey = '-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQCpKtNFBdtRd8eFcq7L7RxvkeeUFcc4QDY6rLDJUpPGp1qL9L7p
+l+rK0L66TGSs+wZTM4awDP2d75HZG2/9LOX5Xy4oAb7aS2PiLDQmVa81t1sA42bs
+3UBxak9w4jcj623gesDG6dN1sFpqVq9/Z4JOnPJu1PXzwcuj3t7J5QLFSwIDAQAB
+AoGBAI8/vHeOZhGupD3Uxz/YIWQ44Sj86B4yAbnd0jYovwpRXNN3BNM52ZC1A00u
+s3Hnf4uk7kDWP00mORLnsQVqp7IKMznTHyvBJ/uA5vipXc0fmpmmPLjy6Sh071Co
+0iTYFUDu3dlPi6UEgQ6ZjgXmHdeTRA/YuH/70sqKjLjkYRbBAkEA3oRoMdJjJAm4
++XY3+1Ulc2qTHkecsTOON0Reta9THws4ibtKIP89aBUthz1XGLm9mUtWu49kQXht
+o1FtFLhLtQJBAMKfUurb075FQIRl6KsRJilCWVJSplf0szvKWm40uDXYmFlj7D7J
+bEdbVBWdfBi9SNzZrLAThjfxwdBsr+DjbP8CQQCeft+cxUfazpYUErHTcxXG/R2n
+jsi8q4VcNnXjoetqDFsMN/yYPlYmAhe44edc9EhpnXE9DekSfU5S61fwT0mVAkAm
+keSg3sfr4VWT545guJlTe+6vvelxbPFIXCXnyVLoePBYZtEe8FQhIBxd3EQHsxuJ
+iSoMCxKCa8r5P1DrxKaJAkBBP87OdahRq0CBQjTFg0wmPs66PoTXA4hZvSxV77CO
+tMPj6Pas7Muejogm6JkmxXC/uT6Tzfknd0B3XSmtDzGL
+-----END RSA PRIVATE KEY-----';
+        $cakey = new Crypt_RSA();
+        $cakey->loadKey($pemcakey);
+        $pemca = '-----BEGIN CERTIFICATE-----
+MIICADCCAWmgAwIBAgIUJXQulcz5xkTam8UGC/yn6iVaiWwwDQYJKoZIhvcNAQEF
+BQAwHDEaMBgGA1UECgwRcGhwc2VjbGliIGRlbW8gQ0EwHhcNMTgwMTIxMTc0NzM0
+WhcNMTkwMTIxMTc0NzM0WjAcMRowGAYDVQQKDBFwaHBzZWNsaWIgZGVtbyBDQTCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqSrTRQXbUXfHhXKuy+0cb5HnlBXH
+OEA2OqywyVKTxqdai/S+6ZfqytC+ukxkrPsGUzOGsAz9ne+R2Rtv/Szl+V8uKAG+
+2ktj4iw0JlWvNbdbAONm7N1AcWpPcOI3I+tt4HrAxunTdbBaalavf2eCTpzybtT1
+88HLo97eyeUCxUsCAwEAAaM/MD0wCwYDVR0PBAQDAgEGMA8GA1UdEwEB/wQFMAMB
+Af8wHQYDVR0OBBYEFCS1BJ12nN8ObQWE4OgOOSH9DxTRMA0GCSqGSIb3DQEBBQUA
+A4GBAHkSnlJnlkwDEUcENKWFZpfNgZu9HUvEuLDVOnhvsdd2MDr8EbVbgMHYNWnV
++ZOS/dqbuCd9Vd27JsBC2YHklaq9/V5zMbrEBiMLo5P5WL9qrz0qbmK/aruP+VX7
+cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
+-----END CERTIFICATE-----';
+        $ca = new File_X509();
+        $ca->loadX509($pemca);
+        $ca->setPrivateKey($cakey);
+
+        // Read the old certificate.
+        $oldcert = new File_X509();
+        $oldcert->loadCA($pemca);
+        $oldcert->loadX509('-----BEGIN CERTIFICATE-----
+MIIB+TCCAWKgAwIBAgIUW+D7X27oKXHaD6WqFjelccV+D4YwDQYJKoZIhvcNAQEF
+BQAwHDEaMBgGA1UECgwRcGhwc2VjbGliIGRlbW8gQ0EwHhcNMTgwMTIxMTc0NzM0
+WhcNMTkwMTIxMTc0NzM0WjA3MRwwGgYDVQQKDBNwaHBzZWNsaWIgZGVtbyBjZXJ0
+MRcwFQYDVQQDDA53d3cuZ29vZ2xlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAw
+gYkCgYEAqnB0IyO+O6RcZdZooFaMKY/ggeNPXW/EaLXdciHEnzxgbsVb1I5m5pwy
+nZIf6RCHUsfOYdhTX/xQE8JOSkbDEYtKmrySxu+JpmR3qZPhL+4rJUJKCdI+9YbM
+z1wiqQeHhVUTPiEvgdAzkzPXcrkLmpb1KV7VhKoQ4Z3swmJX528CAwEAAaMdMBsw
+GQYDVR0RBBIwEIIOd3d3Lmdvb2dsZS5jb20wDQYJKoZIhvcNAQEFBQADgYEAV5W5
+G9eY1SJiwIHMcd5Eo41w+bN69EqOJhTY28LQc/m9i+Fuc1J6nkwDMKCtEeEUyhjl
+bEbVUszdgPQWON7Y2nS5OCb2BevxW8Xdf6gnf/PRRYmlZJgygwf0KpgSm5CxxsZW
+Fqfy+n5VpXOdrjic4yZ52yS5sUaq05s6ZZvnmdU=
+-----END CERTIFICATE-----');
+        $this->assertTrue($oldcert->validateSignature());
+
+        // Set new dates and serial number.
+        $newcert = new File_X509();
+        $newcert->setStartDate('-1 day');
+        $newcert->setEndDate('+2 years');
+        //$newcert->setSerialNumber('1234', 10);
+
+        $oldcert->setDomain('www.google.com');
+
+        // Produce the new certificate by signing the old one.
+        $crt = $newcert->loadX509($newcert->saveX509($newcert->sign($ca, $oldcert)));
+
+        // Output new certificate.
+        $newcert->saveX509($crt);
+    }
 }
