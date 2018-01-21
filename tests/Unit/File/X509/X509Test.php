@@ -579,7 +579,7 @@ iSoMCxKCa8r5P1DrxKaJAkBBP87OdahRq0CBQjTFg0wmPs66PoTXA4hZvSxV77CO
 tMPj6Pas7Muejogm6JkmxXC/uT6Tzfknd0B3XSmtDzGL
 -----END RSA PRIVATE KEY-----';
         $cakey = new RSA();
-        $cakey->loadKey($pemcakey);
+        $cakey->load($pemcakey);
         $pemca = '-----BEGIN CERTIFICATE-----
 MIICADCCAWmgAwIBAgIUJXQulcz5xkTam8UGC/yn6iVaiWwwDQYJKoZIhvcNAQEF
 BQAwHDEaMBgGA1UECgwRcGhwc2VjbGliIGRlbW8gQ0EwHhcNMTgwMTIxMTc0NzM0
