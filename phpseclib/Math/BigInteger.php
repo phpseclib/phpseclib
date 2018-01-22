@@ -2905,7 +2905,7 @@ class Math_BigInteger
         switch (MATH_BIGINTEGER_MODE) {
             case MATH_BIGINTEGER_MODE_GMP:
                 $temp = new Math_BigInteger();
-                $temp->value = gmp_xor($this->value, $x->value);
+                $temp->value = gmp_xor(gmp_abs($this->value), gmp_abs($x->value));
 
                 return $this->_normalize($temp);
             case MATH_BIGINTEGER_MODE_BCMATH:
@@ -2922,6 +2922,7 @@ class Math_BigInteger
 
         $length = max(count($this->value), count($x->value));
         $result = $this->copy();
+        $result->is_negative = false;
         $result->value = array_pad($result->value, $length, 0);
         $x->value = array_pad($x->value, $length, 0);
 
