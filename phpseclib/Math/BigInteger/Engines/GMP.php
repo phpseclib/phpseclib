@@ -387,7 +387,7 @@ class GMP extends Engine
     public function bitwise_xor(GMP $x)
     {
         $temp = new self();
-        $temp->value = $this->value ^ $x->value;
+        $temp->value = gmp_abs($this->value) ^ gmp_abs($x->value);
 
         return $this->normalize($temp);
     }

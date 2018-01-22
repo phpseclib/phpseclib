@@ -938,6 +938,7 @@ abstract class PHP extends Engine
     {
         $length = max(count($this->value), count($x->value));
         $result = clone $this;
+        $result->is_negative = false;
         $result->value = array_pad($result->value, $length, 0);
         $x->value = array_pad($x->value, $length, 0);
 
