@@ -518,7 +518,7 @@ class X509
                 switch ($algorithm) {
                     case 'rsaEncryption':
                         $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']
-                            = Base64::encode("\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
+                            = "\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']));
                         /* "[For RSA keys] the parameters field MUST have ASN.1 type NULL for this algorithm identifier."
                            -- https://tools.ietf.org/html/rfc3279#section-2.3.1
 
@@ -1235,6 +1235,8 @@ class X509
             case 'rsaEncryption':
                 $rsa = new RSA();
                 $rsa->load($publicKey);
+//zzzzz
+                $rsa->setPublicKey();
 
                 switch ($signatureAlgorithm) {
                     case 'md2WithRSAEncryption':
@@ -2036,7 +2038,7 @@ class X509
                 switch ($algorithm) {
                     case 'rsaEncryption':
                         $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']
-                            = Base64::encode("\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])));
+                            = "\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']));
                         $csr['certificationRequestInfo']['subjectPKInfo']['algorithm']['parameters'] = null;
                         $csr['signatureAlgorithm']['parameters'] = null;
                         $csr['certificationRequestInfo']['signature']['parameters'] = null;
@@ -2122,7 +2124,6 @@ class X509
             case 'rsaEncryption':
                 $this->publicKey = new RSA();
                 $this->publicKey->load($key);
-                $this->publicKey->setPublicKey();
                 break;
             default:
                 $this->publicKey = null;
@@ -2157,7 +2158,7 @@ class X509
                 switch ($algorithm) {
                     case 'rsaEncryption':
                         $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']
-                            = Base64::encode("\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey'])));
+                            = "\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']));
                 }
         }
 
