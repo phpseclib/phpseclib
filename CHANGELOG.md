@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.10 - 2018-02-08
+
+- BigInteger: fix issue with bitwise_xor (#1245)
+- Crypt: some of the minimum lengths were off
+- SFTP: update stat cache accordingly when file becomes a directory (#1235)
+- SFTP: fix issue with extended attributes on 64-bit PHP installs (#1248)
+- SSH2: more channel handling updates (#1200)
+- X509: use anonymous functions in PHP >= 5.3.0
+- X509: revise logic for validateLogic (#1213)
+- X509: fix 7.2 error when extensions were removed and new ones added (#1243)
+- fix float to int conversions on ARM CPU's (#1220)
+
 ## 1.0.9 - 2017-11-29
 
 - SSH2: fix issue with key re-exchange
