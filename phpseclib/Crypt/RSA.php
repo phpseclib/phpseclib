@@ -52,6 +52,8 @@ use phpseclib\Common\Functions\Strings;
 use phpseclib\File\ASN1\Maps\DigestInfo;
 use phpseclib\Crypt\Common\AsymmetricKey;
 use phpseclib\Exception\UnsupportedAlgorithmException;
+use phpseclib\Exception\UnsupportedOperationException;
+use phpseclib\Exception\NoKeyLoadedException;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
@@ -201,7 +203,6 @@ class RSA extends AsymmetricKey
      */
     private $sLen;
 
-
     /**
      * Comment
      *
@@ -242,6 +243,14 @@ class RSA extends AsymmetricKey
      * @access private
      */
     private static $defaultExponent = 65537;
+
+    /**
+     * Is the loaded key a public key?
+     *
+     * @var bool
+     * @access private
+     */
+    private $isPublic = false;
 
     /**
      * Smallest Prime
@@ -320,9 +329,10 @@ class RSA extends AsymmetricKey
      *  - 'privatekey': The private key.
      *  - 'publickey':  The public key.
      *
+     * @return array
      * @access public
      * @param int $bits
-     * @param array $p
+     *
      */
     public static function createKey($bits = 2048)
     {
@@ -382,6 +392,9 @@ class RSA extends AsymmetricKey
                     $primes[$i] = BigInteger::randomPrime($regSize);
                 } else {
                     extract(BigInteger::minMaxBits($bits));
+                    /** @var BigInteger $min
+                     *  @var BigInteger $max
+                     */
                     list($min) = $min->divide($n);
                     $min = $min->add(self::$one);
                     list($max) = $max->divide($n);
@@ -446,6 +459,7 @@ class RSA extends AsymmetricKey
         $publickey->k = $bits >> 3;
         $publickey->exponent = $e;
         $publickey->publicExponent = $e;
+        $publickey->isPublic = true;
 
         return compact('privatekey', 'publickey');
     }
@@ -455,9 +469,10 @@ class RSA extends AsymmetricKey
      *
      * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
      *
+     * @return bool
      * @access public
      * @param string $key
-     * @param int $type optional
+     * @param int|bool $type optional
      */
     public function load($key, $type = false)
     {
@@ -470,6 +485,7 @@ class RSA extends AsymmetricKey
             $this->sLen = $key->sLen;
             $this->mgfHLen = $key->mgfHLen;
             $this->password = $key->password;
+            $this->isPublic = $key->isPublic;
 
             if (is_object($key->hash)) {
                 $this->hash = new Hash($key->hash->getHash());
@@ -519,6 +535,7 @@ class RSA extends AsymmetricKey
             return false;
         }
 
+        $this->isPublic = false;
         $this->modulus = $components['modulus'];
         $this->k = $this->modulus->getLengthInBytes();
         $this->exponent = isset($components['privateExponent']) ? $components['privateExponent'] : $components['publicExponent'];
@@ -652,8 +669,8 @@ class RSA extends AsymmetricKey
      *
      * @see self::getPublicKey()
      * @access public
-     * @param string $key optional
-     * @param int $type optional
+     * @param string|bool $key optional
+     * @param int|bool $type optional
      * @return bool
      */
     public function setPublicKey($key = false, $type = false)
@@ -664,6 +681,7 @@ class RSA extends AsymmetricKey
         }
 
         if ($key === false && !empty($this->modulus)) {
+            $this->isPublic = true;
             $this->publicExponent = $this->exponent;
             return true;
         }
@@ -676,12 +694,25 @@ class RSA extends AsymmetricKey
         if (empty($this->modulus) || !$this->modulus->equals($components['modulus'])) {
             $this->modulus = $components['modulus'];
             $this->exponent = $this->publicExponent = $components['publicExponent'];
+            $this->isPublic = true;
             return true;
         }
 
         $this->publicExponent = $components['publicExponent'];
 
         return true;
+    }
+
+    /**
+     * Does the key self-identify as being a public key or not?
+     *
+     * @see self::isPublicKey()
+     * @access public
+     * @return bool
+     */
+    public function isPublicKey()
+    {
+        return $this->isPublic();
     }
 
     /**
@@ -696,8 +727,8 @@ class RSA extends AsymmetricKey
      *
      * @see self::getPublicKey()
      * @access public
-     * @param string $key optional
-     * @param int $type optional
+     * @param string|bool $key optional
+     * @param int|bool $type optional
      * @return bool
      */
     public function setPrivateKey($key = false, $type = false)
@@ -836,7 +867,7 @@ class RSA extends AsymmetricKey
      *    of the hash function Hash) and 0.
      *
      * @access public
-     * @param int $format
+     * @param int $sLen
      */
     public function setSaltLength($sLen)
     {
@@ -1079,7 +1110,7 @@ class RSA extends AsymmetricKey
      *
      * @access private
      * @param string $mgfSeed
-     * @param int $mgfLen
+     * @param int $maskLen
      * @return string
      */
     private function mgf1($mgfSeed, $maskLen)
@@ -1345,6 +1376,7 @@ class RSA extends AsymmetricKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.1.1 RFC3447#section-9.1.1}.
      *
+     * @return string
      * @access private
      * @param string $m
      * @throws \RuntimeException on encoding error
@@ -1723,6 +1755,14 @@ class RSA extends AsymmetricKey
      */
     public function encrypt($plaintext, $padding = self::PADDING_OAEP)
     {
+        if (empty($this->modulus) || empty($this->exponent)) {
+            throw new NoKeyLoadedException('No key has been loaded');
+        }
+
+        if (!$this->isPublic) {
+            throw new UnsupportedOperationException('phpseclib does not allow the use of private keys to encrypt data');
+        }
+
         switch ($padding) {
             case self::PADDING_NONE:
                 return $this->raw_encrypt($plaintext);
@@ -1740,12 +1780,20 @@ class RSA extends AsymmetricKey
      *
      * @see self::encrypt()
      * @access public
-     * @param string $plaintext
+     * @param string $ciphertext
      * @param int $padding optional
      * @return bool|string
      */
     public function decrypt($ciphertext, $padding = self::PADDING_OAEP)
     {
+        if (empty($this->modulus) || empty($this->exponent)) {
+            throw new NoKeyLoadedException('No key has been loaded');
+        }
+
+        if ($this->isPublic) {
+            throw new UnsupportedOperationException('phpseclib does not allow the use of public keys to decrypt data');
+        }
+
         switch ($padding) {
             case self::PADDING_NONE:
                 return $this->raw_encrypt($ciphertext);
@@ -1769,7 +1817,11 @@ class RSA extends AsymmetricKey
     public function sign($message, $padding = self::PADDING_PSS)
     {
         if (empty($this->modulus) || empty($this->exponent)) {
-            return false;
+            throw new NoKeyLoadedException('No key has been loaded');
+        }
+
+        if ($this->isPublic) {
+            throw new UnsupportedOperationException('phpseclib does not allow the use of public keys to sign data');
         }
 
         switch ($padding) {
@@ -1795,7 +1847,11 @@ class RSA extends AsymmetricKey
     public function verify($message, $signature, $padding = self::PADDING_PSS)
     {
         if (empty($this->modulus) || empty($this->exponent)) {
-            return false;
+            throw new NoKeyLoadedException('No key has been loaded');
+        }
+
+        if (!$this->isPublic) {
+            throw new UnsupportedOperationException('phpseclib does not allow the use of private keys to verify data');
         }
 
         switch ($padding) {

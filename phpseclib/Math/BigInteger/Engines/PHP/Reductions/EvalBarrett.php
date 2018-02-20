@@ -80,14 +80,25 @@ abstract class EvalBarrett extends Base
 
         $lhs = new $class();
         $lhs_value = &$lhs->value;
+
         $lhs_value = self::array_repeat(0, $m_length + ($m_length >> 1));
         $lhs_value[] = 1;
         $rhs = new $class();
 
         list($u, $m1) = $lhs->divide($m);
 
+        if ($class::BASE != 26) {
+            $u = $u->value;
+        } else {
+            $lhs_value = self::array_repeat(0, 2 * $m_length);
+            $lhs_value[] = 1;
+            $rhs = new $class();
+
+            list($u) = $lhs->divide($m);
+            $u = $u->value;
+        }
+
         $m = $m->value;
-        $u = $u->value;
         $m1 = $m1->value;
 
         $cutoff = count($m) + (count($m) >> 1);
@@ -110,14 +121,22 @@ abstract class EvalBarrett extends Base
         $code.= self::generateInlineMultiply('msd', $m1, 'temp', $class);
         $code.= self::generateInlineAdd('lsd', 'temp', 'n', $class);
 
-        $code.= '
-            $temp = array_slice($n, ' . (count($m) - 1) . ');';
+        $code.= '$temp = array_slice($n, ' . (count($m) - 1) . ');';
         $code.= self::generateInlineMultiply('temp', $u, 'temp2', $class);
         $code.= self::generateInlineTrim('temp2');
-        $code.= '
-            $temp = array_slice($temp2, ' . ((count($m) >> 1) + 1) . ');';
+
+        $code.= $class::BASE == 26 ?
+            '$temp = array_slice($temp2, ' . (count($m) + 1) . ');' :
+            '$temp = array_slice($temp2, ' . ((count($m) >> 1) + 1) . ');';
         $code.= self::generateInlineMultiply('temp', $m, 'temp2', $class);
         $code.= self::generateInlineTrim('temp2');
+
+        /*
+        if ($class::BASE == 26) {
+            $code.= '$n = array_slice($n, 0, ' . (count($m) + 1) . ');
+                     $temp2 = array_slice($temp2, 0, ' . (count($m) + 1) . ');';
+        }
+        */
 
         $code.= self::generateInlineSubtract2('n', 'temp2', 'temp', $class);
 
@@ -169,14 +188,11 @@ abstract class EvalBarrett extends Base
             return 'return [];';
         }
 
-        $label = 'label_' . uniqid();
-
         $regular = '
             $length = count($' . $input . ');
             if (!$length) {
                 $' . $output . ' = [];
-                goto ' . $label . ';
-            }
+            }else{
             $' . $output . ' = array_fill(0, $length + ' . count($arr) . ', 0);
             $carry = 0;';
 
@@ -224,9 +240,7 @@ abstract class EvalBarrett extends Base
 
         $regular.= '$' . $output. '[++$k] = $carry; $carry = 0;';
 
-        $regular.= '}';
-
-        $regular.= $label . ':';
+        $regular.= '}}';
 
         //if (count($arr) < 2 * self::KARATSUBA_CUTOFF) {
         //}
@@ -247,12 +261,12 @@ abstract class EvalBarrett extends Base
     {
         $code = '
             $length = max(count($' . $x . '), count($' . $y . '));
-            $' . $result . ' = array_pad($' . $x . ', $length, 0);
+            $' . $result . ' = array_pad($' . $x . ', $length + 1, 0);
             $_' . $y . ' = array_pad($' . $y . ', $length, 0);
             $carry = 0;
             for ($i = 0, $j = 1; $j < $length; $i+=2, $j+=2) {
-                $sum = $' . $result . '[$j] * ' . $class::BASE_FULL . ' + $' . $result . '[$i] +
-                           $_' . $y . '[$j] * ' . $class::BASE_FULL . ' + $_' . $y . '[$i] +
+                $sum = ($' . $result . '[$j] + $_' . $y . '[$j]) * ' . $class::BASE_FULL . '
+                           + $' . $result . '[$i] + $_' . $y . '[$i] +
                            $carry;
                 $carry = $sum >= ' . self::float2string($class::MAX_DIGIT2) . ';
                 $sum = $carry ? $sum - ' . self::float2string($class::MAX_DIGIT2) . ' : $sum;';
@@ -265,11 +279,14 @@ abstract class EvalBarrett extends Base
             }
             if ($j == $length) {
                 $sum = $' . $result . '[$i] + $_' . $y . '[$i] + $carry;
-                $carry = $sum >= ' . self::float2string($class::MAX_DIGIT2) . ';
-                $' . $result . '[$i] = $carry ? $sum - ' . self::float2string($class::MAX_DIGIT2) . ' : $sum;
+                $carry = $sum >= ' . self::float2string($class::BASE_FULL) . ';
+                $' . $result . '[$i] = $carry ? $sum - ' . self::float2string($class::BASE_FULL) . ' : $sum;
             }
             if ($carry) {
-                $' . $result . '[] = $carry;
+                for (; $' . $result . '[$i] == ' . $class::MAX_DIGIT . '; ++$i) {
+                    $' . $result . '[$i] = 0;
+                }
+                ++$' . $result . '[$i];
             }';
             $code.= self::generateInlineTrim($result);
 
@@ -294,8 +311,8 @@ abstract class EvalBarrett extends Base
             $carry = 0;
             $size = count($' . $unknown . ');
             for ($i = 0, $j = 1; $j < $size; $i+= 2, $j+= 2) {
-                $sum = $' . $known . '[$j] * ' . $class::BASE_FULL . ' + $' . $known . '[$i]
-                    - $' . $unknown . '[$j] * ' . $class::BASE_FULL . ' - $' . $unknown . '[$i]
+                $sum = ($' . $known . '[$j] - $' . $unknown . '[$j]) * ' . $class::BASE_FULL . ' + $' . $known . '[$i]
+                    - $' . $unknown . '[$i]
                     - $carry;
                 $carry = $sum < 0;
                 if ($carry) {
@@ -324,7 +341,7 @@ abstract class EvalBarrett extends Base
             }
 
             if ($carry) {
-                for (; !$' . $result . '; ++$i) {
+                for (; !$' . $result . '[$i]; ++$i) {
                     $' . $result . '[$i] = ' . $class::MAX_DIGIT . ';
                 }
                 --$' . $result . '[$i];
@@ -444,10 +461,7 @@ abstract class EvalBarrett extends Base
      * If you do echo floatval(pow(2, 52)) you'll get 4.6116860184274E+18. It /can/ be displayed without a loss of
      * precision but displayed in this way there will be precision loss, hence the need for this method.
      *
-     * @param string $x
-     * @param string $y
-     * @param string $result
-     * @param string $class
+     * @param int|float $num
      * @return string
      */
     private static function float2string($num)

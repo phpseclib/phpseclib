@@ -299,14 +299,14 @@ f/1y2XuLNhBNHMAyTqpYPX8Yvav1c+Z50OMaSXHAnTa20zv8UtiHbaAhwlifCelU
 Mj93S
 -----END CERTIFICATE-----');
         $x509->loadX509($x509->saveX509($decoded));
-        $expected = array(
-            array(
-                array('utf8String' => "Al. Marsza\xC5\x82ka Pi\xC5\x82sudskiego 52/54"),
-                array('utf8String' => '81-382 Gdynia'),
-                array('utf8String' => 'Polska'),
-                array('utf8String' => 'pomorskie')
-            )
-        );
+        $expected = [
+            [
+                ['utf8String' => "Al. Marsza\xC5\x82ka Pi\xC5\x82sudskiego 52/54"],
+                ['utf8String' => '81-382 Gdynia'],
+                ['utf8String' => 'Polska'],
+                ['utf8String' => 'pomorskie']
+            ]
+        ];
         $this->assertEquals($x509->getDNProp('id-at-postalAddress'), $expected);
 
         $expected = "C=PL, O=Urz\xC4\x85d Miasta Gdyni/serialNumber=PESEL: 61060603118, CN=Jerzy Przeworski/postalAddress=" . '0F\X0C"AL. MARSZA\XC5\X82KA PI\XC5\X82SUDSKIEGO 52/54\X0C\X0D81-382 GDYNIA\X0C\X06POLSKA\X0C\X09POMORSKIE/givenName=Jerzy, SN=Przeworski';
@@ -380,81 +380,6 @@ Mj93S
         $this->assertFalse($x509->validateSignature());
     }
 
-    public function testLooseComparison()
-    {
-        if (!extension_loaded('runkit')) {
-            return false;
-        }
-
-        define('FILE_X509_IGNORE_TYPE', true);
-
-        $x509 = new X509();
-        $x509->loadCA('-----BEGIN CERTIFICATE-----
-MIIEbDCCA1SgAwIBAgIUJguKOMpJm/yRMDlMOW04NV0YPXowDQYJKoZIhvcNAQEF
-BQAwYTELMAkGA1UEBhMCUEwxNzA1BgNVBAoTLkNaaUMgQ2VudHJhc3QgU0EgdyBp
-bWllbml1IE1pbmlzdHJhIEdvc3BvZGFya2kxGTAXBgNVBAMTEENaaUMgQ2VudHJh
-c3QgU0EwHhcNMDkwNDI5MTE1MzIxWhcNMTMxMjEzMjM1OTU5WjBzMQswCQYDVQQG
-EwJQTDEoMCYGA1UEChMfS3Jham93YSBJemJhIFJvemxpY3plbmlvd2EgUy5BLjEk
-MCIGA1UEAxMbQ09QRSBTWkFGSVIgLSBLd2FsaWZpa293YW55MRQwEgYDVQQFEwtO
-ciB3cGlzdTogNjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIjNy3EL
-oK0uKTqAJokiP8VIxER/0OfwhY4DBhJGW38W6Pfema8iUs4net0NgoIeDpMQ8IHj
-FDSKkSaRkyL5f7PgvqBwzKe0HD1Duf9G/Lr2lu/J4QUMF3rqKaMRipXKkkEoKrub
-Qe41/mPiPXeClNswNQUEyInqWpfWNncU8AIs2GKIFTfSNqK4PgWOY1kG9MYfoNVr
-74dhejv7yHexEw9eAIcM1fIkEEq0vWIOjRtBXBAuWtUyD8iSeBs4nIN+614pHIjv
-ncHxG7xTDbmOAVZFgGZ8Hk5CUseAtTpazQNdU66XRUuCj4km01L4wsfZ1X8tfYQA
-6msMRYj+F7hLtoECAwEAAaOCAQgwggEEMA8GA1UdEwEB/wQFMAMBAf8wgY4GA1Ud
-IwSBhjCBg4AU2a7r85Cp1iJNW0Ca1LR6VG3996ShZaRjMGExCzAJBgNVBAYTAlBM
-MTcwNQYDVQQKEy5DWmlDIENlbnRyYXN0IFNBIHcgaW1pZW5pdSBNaW5pc3RyYSBH
-b3Nwb2RhcmtpMRkwFwYDVQQDExBDWmlDIENlbnRyYXN0IFNBggQ9/0sQMDEGA1Ud
-IAEB/wQnMCUwIwYEVR0gADAbMBkGCCsGAQUFBwIBFg13d3cubmNjZXJ0LnBsMA4G
-A1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQU3TGldJXipN4oGS3ZYmnBDMFs8gIwDQYJ
-KoZIhvcNAQEFBQADggEBAJrkn3XycfimT5C6D+lYvQNB4/X44KZRhxhnplMOdr/V
-3O13oJA/G2SkVaRZS1Rqy01vC9H3YSFfYnjFXJTOXldzodwszHEcGLHF/3JazHI9
-BTpP1F4oFyd0Un/wkp1usGU4e1riU5RAlSp8YcMX3q+nOqyCh0JsxnP7LjauHkE3
-KZ1RuBDZYbsYOwkAKjHax8srKugdWtq4sMNcqpxGFUah/4uLQn6hD4jeRpP4VGDv
-HZDmxaIoJdmCxfn9XeIS5PcZR+mHHkUOIhYLnfdUp/T3Yxxo+XrrTckC6AjtsL5/
-OA0vBLngVqqeuzVf0tUhcrCwPKQo5rKoakbApeXrows=
------END CERTIFICATE-----');
-
-        $x509->loadX509('-----BEGIN CERTIFICATE-----
-MIIFzzCCBLegAwIBAgIDAfdlMA0GCSqGSIb3DQEBBQUAMHMxCzAJBgNVBAYTAlBM
-MSgwJgYDVQQKDB9LcmFqb3dhIEl6YmEgUm96bGljemVuaW93YSBTLkEuMSQwIgYD
-VQQDDBtDT1BFIFNaQUZJUiAtIEt3YWxpZmlrb3dhbnkxFDASBgNVBAUTC05yIHdw
-aXN1OiA2MB4XDTExMTEwOTA2MDAwMFoXDTEzMTEwOTA2MDAwMFowgdkxCzAJBgNV
-BAYTAlBMMRwwGgYDVQQKDBNVcnrEhWQgTWlhc3RhIEdkeW5pMRswGQYDVQQFExJQ
-RVNFTDogNjEwNjA2MDMxMTgxGTAXBgNVBAMMEEplcnp5IFByemV3b3Jza2kxTzBN
-BgNVBBAwRgwiQWwuIE1hcnN6YcWCa2EgUGnFgnN1ZHNraWVnbyA1Mi81NAwNODEt
-MzgyIEdkeW5pYQwGUG9sc2thDAlwb21vcnNraWUxDjAMBgNVBCoMBUplcnp5MRMw
-EQYDVQQEDApQcnpld29yc2tpMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCM
-m5vjGqHPthJCMqKpqssSISRos0PYDTcEQzyyurfX67EJWKtZj6HNwuDMEGJ02iBN
-ZfjUl7r8dIi28bSKhNlsfycXZKYRcIjp0+r5RqtR2auo9GQ6veKb61DEAGIqaR+u
-LLcJVTHCu0w9oXLGbRlGth5eNoj03CxXVAH2IfhbNwIDAQABo4IChzCCAoMwDAYD
-VR0TAQH/BAIwADCCAUgGA1UdIAEB/wSCATwwggE4MIIBNAYJKoRoAYb3IwEBMIIB
-JTCB3QYIKwYBBQUHAgIwgdAMgc1EZWtsYXJhY2phIHRhIGplc3Qgb8Wbd2lhZGN6
-ZW5pZW0gd3lkYXdjeSwgxbxlIHRlbiBjZXJ0eWZpa2F0IHpvc3RhxYIgd3lkYW55
-IGpha28gY2VydHlmaWthdCBrd2FsaWZpa293YW55IHpnb2RuaWUgeiB3eW1hZ2Fu
-aWFtaSB1c3Rhd3kgbyBwb2RwaXNpZSBlbGVrdHJvbmljem55bSBvcmF6IHRvd2Fy
-enlzesSFY3ltaSBqZWogcm96cG9yesSFZHplbmlhbWkuMEMGCCsGAQUFBwIBFjdo
-dHRwOi8vd3d3Lmtpci5jb20ucGwvY2VydHlmaWthY2phX2tsdWN6eS9wb2xpdHlr
-YS5odG1sMAkGA1UdCQQCMAAwIQYDVR0RBBowGIEWai5wcnpld29yc2tpQGdkeW5p
-YS5wbDAOBgNVHQ8BAf8EBAMCBkAwgZ4GA1UdIwSBljCBk4AU3TGldJXipN4oGS3Z
-YmnBDMFs8gKhd6R1MHMxCzAJBgNVBAYTAlBMMSgwJgYDVQQKDB9LcmFqb3dhIEl6
-YmEgUm96bGljemVuaW93YSBTLkEuMSQwIgYDVQQDDBtDT1BFIFNaQUZJUiAtIEt3
-YWxpZmlrb3dhbnkxFDASBgNVBAUTC05yIHdwaXN1OiA2ggJb9jBIBgNVHR8EQTA/
-MD2gO6A5hjdodHRwOi8vd3d3Lmtpci5jb20ucGwvY2VydHlmaWthY2phX2tsdWN6
-eS9DUkxfT1pLMzIuY3JsMA0GCSqGSIb3DQEBBQUAA4IBAQBYPIqnAreyeql7/opJ
-jcar/qWZy9ruhB2q0lZFsJOhwgMnbQXzp/4vv93YJqcHGAXdHP6EO8FQX47mjo2Z
-KQmi+cIHJHLONdX/3Im+M17V0iNAh7Z1lOSfTRT+iiwe/F8phcEaD5q2RmvYusR7
-zXZq/cLL0If0hXoPZ/EHQxjN8pxzxiUx6bJAgturnIMEfRNesxwghdr1dkUjOhGL
-f3kHVzgM6j3VAM7oFmMUb5y5s96Bzl10DodWitjOEH0vvnIcsppSxH1C1dCAi0o9
-f/1y2XuLNhBNHMAyTqpYPX8Yvav1c+Z50OMaSXHAnTa20zv8UtiHbaAhwlifCelU
-Mj93S
------END CERTIFICATE-----');
-        $this->assertTrue($x509->validateSignature());
-
-        runkit_constant_remove('FILE_X509_IGNORE_TYPE');
-    }
-
     // fixed by #1104
     public function testMultipleDomainNames()
     {
@@ -513,5 +438,195 @@ F7xAUxmPUnNb2teatMf2Rmj0fs+d
 
         $this->assertEquals($cert['tbsCertificate']['validity']['notBefore']['utcTime'], 'Tue, 07 Jan 2014 00:00:00 +0000');
         $this->assertEquals($cert['tbsCertificate']['validity']['notAfter']['utcTime'], 'Fri, 01 Apr 2016 07:00:00 +0000');
+    }
+
+    public function testValidateURL()
+    {
+        $test = '-----BEGIN CERTIFICATE-----
+MIIEgDCCA2igAwIBAgIIPUwrl6kGL2QwDQYJKoZIhvcNAQELBQAwSTELMAkGA1UE
+BhMCVVMxEzARBgNVBAoTCkdvb2dsZSBJbmMxJTAjBgNVBAMTHEdvb2dsZSBJbnRl
+cm5ldCBBdXRob3JpdHkgRzIwHhcNMTcxMDI0MDkwMjMxWhcNMTcxMjI5MDAwMDAw
+WjBoMQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwN
+TW91bnRhaW4gVmlldzETMBEGA1UECgwKR29vZ2xlIEluYzEXMBUGA1UEAwwOd3d3
+Lmdvb2dsZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDwFKTU
+FgOf1beWoPUuJu8kbwmPBEAPIl933guV6XV54V0rtcc61DZplOzJO4uEyzcGxVqE
+A9hKr0CAM/6jBQGZrKm5u6SyqXMPo3qEH2AxsbTx2eIeRIiAt3bDTq2eCilxyM/m
+qOvEWAlXPPBFs2B7OBth0xuaSW8+XkNx5ZHIJrNqvh/6INbMVMRzRdQkxz72fiWn
+fgtPAC4tBywmzUYTiboJW7poYqIZIxEZCKN0NdzKNOzKpIS1MByByQZECYDCsLVi
+gkAuBdo4tT1QNU6KIqKvV716PhQU/ynQA/o7uzjgxO2p/KwaZyD/pihdfLv62qLg
+jDBJMU9AfUCWxPmpAgMBAAGjggFLMIIBRzAdBgNVHSUEFjAUBggrBgEFBQcDAQYI
+KwYBBQUHAwIwGQYDVR0RBBIwEIIOd3d3Lmdvb2dsZS5jb20waAYIKwYBBQUHAQEE
+XDBaMCsGCCsGAQUFBzAChh9odHRwOi8vcGtpLmdvb2dsZS5jb20vR0lBRzIuY3J0
+MCsGCCsGAQUFBzABhh9odHRwOi8vY2xpZW50czEuZ29vZ2xlLmNvbS9vY3NwMB0G
+A1UdDgQWBBQAl7IbLVzwRb/SsW5jI3gdi7YCqjAMBgNVHRMBAf8EAjAAMB8GA1Ud
+IwQYMBaAFErdBhYbvPZotXb1gba7Yhq6WoEvMCEGA1UdIAQaMBgwDAYKKwYBBAHW
+eQIFATAIBgZngQwBAgIwMAYDVR0fBCkwJzAloCOgIYYfaHR0cDovL3BraS5nb29n
+bGUuY29tL0dJQUcyLmNybDANBgkqhkiG9w0BAQsFAAOCAQEAYJ+3TXE7etCjkLEE
+/CN1BKGQVkYoCshZS3FkX8vUBP2orgvu9VGiLN9lb8+LMO+uNMVf+PLNsTP3lQ0q
+oFzpU8xsv/87L7UcJoCge2ZR4kANgjmJ12TG7dCcPpbH2qu7Y8wnWubik5U68gsI
+Qopg3hKg24p645o4exwsd/lOrsqh3vPorwZwU2Ekd2wKdxBID3puQA1jvWOBUcJI
+Oe2K7+R2Cf6p8bYmm3OABuYkvO8D+u8gIdIO5cP+ic+SDOGVNJaT949YPes/S99R
+9NQRFKcjEPl1UYh5bpPTKYzS7cTcDYG6xvbtG/XKEsK5U9UggzY6PCOPDDYpF+rq
+C47x9g==
+-----END CERTIFICATE-----';
+
+        $x509 = new X509();
+
+        $cert = $x509->loadX509($test);
+
+        $this->assertTrue($x509->validateURL('https://www.google.com'));
+    }
+
+    public function testValidateSignatureWithoutKeyIdentifier()
+    {
+        $x509 = new X509();
+        $x509->loadX509('-----BEGIN CERTIFICATE-----
+MIIDATCCAmqgAwIBAgICApowDQYJKoZIhvcNAQEFBQAwdzELMAkGA1UEBhMCVUsx
+DzANBgNVBAgMBkxvbmRvbjEPMA0GA1UEBwwGTG9uZG9uMQwwCgYDVQQKDANNUFMx
+DDAKBgNVBAsMA0RldjENMAsGA1UEAwwEdGVzdDEbMBkGCSqGSIb3DQEJARYMZGVr
+aUBtcHMuY29tMB4XDTE3MTEyNDE4MzE0MFoXDTE4MTEyNDE4MzE0MFowYTELMAkG
+A1UEBhMCVUsxDzANBgNVBAgMBkxvbmRvbjEPMA0GA1UEBwwGTG9uZG9uMQwwCgYD
+VQQKDANNUFMxETAPBgNVBAsMCERldi90ZXN0MQ8wDQYDVQQDDAZ0ZXN0MDEwgZ8w
+DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAJ6+ydLXtjwbKhUBIodrm9Zq5yhhfMUM
+IDhpcEZ2PAWWUiwKZOo9eyXGAv4LnpvDcX5GzThqI1g3/rcPjgBMOB8bcuQA6RE0
+I9Jcf3YHbg/ednp7Q2X/zqUW+QUd01VfG8OJiRvO/4WKJTdQMU7/DKAv5WScIa4c
+0b11X4iiLUVvAgMBAAGjgbEwga4wgZMGA1UdIwSBizCBiKF7pHkwdzELMAkGA1UE
+BhMCVUsxDzANBgNVBAgMBkxvbmRvbjEPMA0GA1UEBwwGTG9uZG9uMQwwCgYDVQQK
+DANNUFMxDDAKBgNVBAsMA0RldjENMAsGA1UEAwwEdGVzdDEbMBkGCSqGSIb3DQEJ
+ARYMZGVraUBtcHMuY29tggkA+Fj4n7pGuRMwCQYDVR0TBAIwADALBgNVHQ8EBAMC
+BPAwDQYJKoZIhvcNAQEFBQADgYEAK0s83KbLM0OSj93/aly7UZHKGY3R/XhBNcsQ
+3fcxzX6VX8naJpqfK9kM5Ry9IBnqu6LwCnk18kqt6V6PSjqQ3gj9S3x8znTMdus1
+xraMNBOqRrn9quWCGEQt/iBrXHZ8zCdb4a+Eb5Jhz6/qK00KVufxw67fhuvhsjjv
+nnA8of4=
+-----END CERTIFICATE-----');
+
+        $authorityKeyIdentifier = $x509->getExtension('id-ce-authorityKeyIdentifier');
+        $this->assertNotNull($authorityKeyIdentifier);
+        $this->assertFalse(isset($authorityKeyIdentifier['keyIdentifier']));
+
+        $x509->loadCA('-----BEGIN CERTIFICATE-----
+MIIDITCCAoqgAwIBAgIJAPhY+J+6RrkTMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNV
+BAYTAlVLMQ8wDQYDVQQIDAZMb25kb24xDzANBgNVBAcMBkxvbmRvbjEMMAoGA1UE
+CgwDTVBTMQwwCgYDVQQLDANEZXYxDTALBgNVBAMMBHRlc3QxGzAZBgkqhkiG9w0B
+CQEWDGRla2lAbXBzLmNvbTAeFw0xNzExMjQxODI3NDlaFw0xODExMjQxODI3NDla
+MHcxCzAJBgNVBAYTAlVLMQ8wDQYDVQQIDAZMb25kb24xDzANBgNVBAcMBkxvbmRv
+bjEMMAoGA1UECgwDTVBTMQwwCgYDVQQLDANEZXYxDTALBgNVBAMMBHRlc3QxGzAZ
+BgkqhkiG9w0BCQEWDGRla2lAbXBzLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAw
+gYkCgYEA022CwduFLxKCwwKp2WTTpBu1vhcVywOAW0rNIfuSa7XsYyX5rCSScE4d
+YW8hUgWbZSoJMk1s1omZarmwMAIeknpigZSKWUhEJF3IVnc1tW3mGaSAEvKg6r4g
+unKttJV2aDW8w3Ew2qzP0G8sJwMX7y49XQumG5IgpuVXkiydTwsCAwEAAaOBtDCB
+sTCBkwYDVR0jBIGLMIGIoXukeTB3MQswCQYDVQQGEwJVSzEPMA0GA1UECAwGTG9u
+ZG9uMQ8wDQYDVQQHDAZMb25kb24xDDAKBgNVBAoMA01QUzEMMAoGA1UECwwDRGV2
+MQ0wCwYDVQQDDAR0ZXN0MRswGQYJKoZIhvcNAQkBFgxkZWtpQG1wcy5jb22CCQD4
+WPifuka5EzAMBgNVHRMEBTADAQH/MAsGA1UdDwQEAwIE8DANBgkqhkiG9w0BAQUF
+AAOBgQBNhIESJpRiYBPDdIsdfOyuclzmN+5KHXicAXN4WXFiYgVQhML44Vb7Macb
+X5ZBGsa3olRvoKrhg8ian7NyfRviAk0iO8EAAFCeeYHPN6bbloGfUcuf72P8576w
+HI8pYRZmT7tKW3HxlZLJGGVo5CgBawdiWngK5v+LwWiNRTqxJA==
+-----END CERTIFICATE-----');
+
+        $this->assertTrue($x509->validateSignature());
+    }
+
+    public function testValidateSignatureSelfSignedWithoutKeyIdentifier()
+    {
+        $x509 = new X509();
+        $x509->loadX509('-----BEGIN CERTIFICATE-----
+MIIDITCCAoqgAwIBAgIJAPhY+J+6RrkTMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNV
+BAYTAlVLMQ8wDQYDVQQIDAZMb25kb24xDzANBgNVBAcMBkxvbmRvbjEMMAoGA1UE
+CgwDTVBTMQwwCgYDVQQLDANEZXYxDTALBgNVBAMMBHRlc3QxGzAZBgkqhkiG9w0B
+CQEWDGRla2lAbXBzLmNvbTAeFw0xNzExMjQxODI3NDlaFw0xODExMjQxODI3NDla
+MHcxCzAJBgNVBAYTAlVLMQ8wDQYDVQQIDAZMb25kb24xDzANBgNVBAcMBkxvbmRv
+bjEMMAoGA1UECgwDTVBTMQwwCgYDVQQLDANEZXYxDTALBgNVBAMMBHRlc3QxGzAZ
+BgkqhkiG9w0BCQEWDGRla2lAbXBzLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAw
+gYkCgYEA022CwduFLxKCwwKp2WTTpBu1vhcVywOAW0rNIfuSa7XsYyX5rCSScE4d
+YW8hUgWbZSoJMk1s1omZarmwMAIeknpigZSKWUhEJF3IVnc1tW3mGaSAEvKg6r4g
+unKttJV2aDW8w3Ew2qzP0G8sJwMX7y49XQumG5IgpuVXkiydTwsCAwEAAaOBtDCB
+sTCBkwYDVR0jBIGLMIGIoXukeTB3MQswCQYDVQQGEwJVSzEPMA0GA1UECAwGTG9u
+ZG9uMQ8wDQYDVQQHDAZMb25kb24xDDAKBgNVBAoMA01QUzEMMAoGA1UECwwDRGV2
+MQ0wCwYDVQQDDAR0ZXN0MRswGQYJKoZIhvcNAQkBFgxkZWtpQG1wcy5jb22CCQD4
+WPifuka5EzAMBgNVHRMEBTADAQH/MAsGA1UdDwQEAwIE8DANBgkqhkiG9w0BAQUF
+AAOBgQBNhIESJpRiYBPDdIsdfOyuclzmN+5KHXicAXN4WXFiYgVQhML44Vb7Macb
+X5ZBGsa3olRvoKrhg8ian7NyfRviAk0iO8EAAFCeeYHPN6bbloGfUcuf72P8576w
+HI8pYRZmT7tKW3HxlZLJGGVo5CgBawdiWngK5v+LwWiNRTqxJA==
+-----END CERTIFICATE-----');
+
+        $authorityKeyIdentifier = $x509->getExtension('id-ce-authorityKeyIdentifier');
+        $this->assertNotNull($authorityKeyIdentifier);
+        $this->assertFalse(isset($authorityKeyIdentifier['keyIdentifier']));
+
+        $this->assertTrue($x509->validateSignature(false));
+    }
+
+    /**
+     * @group github1243
+     */
+    public function testExtensionRemoval()
+    {
+        // Load the CA and its private key.
+        $pemcakey = '-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQCpKtNFBdtRd8eFcq7L7RxvkeeUFcc4QDY6rLDJUpPGp1qL9L7p
+l+rK0L66TGSs+wZTM4awDP2d75HZG2/9LOX5Xy4oAb7aS2PiLDQmVa81t1sA42bs
+3UBxak9w4jcj623gesDG6dN1sFpqVq9/Z4JOnPJu1PXzwcuj3t7J5QLFSwIDAQAB
+AoGBAI8/vHeOZhGupD3Uxz/YIWQ44Sj86B4yAbnd0jYovwpRXNN3BNM52ZC1A00u
+s3Hnf4uk7kDWP00mORLnsQVqp7IKMznTHyvBJ/uA5vipXc0fmpmmPLjy6Sh071Co
+0iTYFUDu3dlPi6UEgQ6ZjgXmHdeTRA/YuH/70sqKjLjkYRbBAkEA3oRoMdJjJAm4
++XY3+1Ulc2qTHkecsTOON0Reta9THws4ibtKIP89aBUthz1XGLm9mUtWu49kQXht
+o1FtFLhLtQJBAMKfUurb075FQIRl6KsRJilCWVJSplf0szvKWm40uDXYmFlj7D7J
+bEdbVBWdfBi9SNzZrLAThjfxwdBsr+DjbP8CQQCeft+cxUfazpYUErHTcxXG/R2n
+jsi8q4VcNnXjoetqDFsMN/yYPlYmAhe44edc9EhpnXE9DekSfU5S61fwT0mVAkAm
+keSg3sfr4VWT545guJlTe+6vvelxbPFIXCXnyVLoePBYZtEe8FQhIBxd3EQHsxuJ
+iSoMCxKCa8r5P1DrxKaJAkBBP87OdahRq0CBQjTFg0wmPs66PoTXA4hZvSxV77CO
+tMPj6Pas7Muejogm6JkmxXC/uT6Tzfknd0B3XSmtDzGL
+-----END RSA PRIVATE KEY-----';
+        $cakey = new RSA();
+        $cakey->load($pemcakey);
+        $pemca = '-----BEGIN CERTIFICATE-----
+MIICADCCAWmgAwIBAgIUJXQulcz5xkTam8UGC/yn6iVaiWwwDQYJKoZIhvcNAQEF
+BQAwHDEaMBgGA1UECgwRcGhwc2VjbGliIGRlbW8gQ0EwHhcNMTgwMTIxMTc0NzM0
+WhcNMTkwMTIxMTc0NzM0WjAcMRowGAYDVQQKDBFwaHBzZWNsaWIgZGVtbyBDQTCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqSrTRQXbUXfHhXKuy+0cb5HnlBXH
+OEA2OqywyVKTxqdai/S+6ZfqytC+ukxkrPsGUzOGsAz9ne+R2Rtv/Szl+V8uKAG+
+2ktj4iw0JlWvNbdbAONm7N1AcWpPcOI3I+tt4HrAxunTdbBaalavf2eCTpzybtT1
+88HLo97eyeUCxUsCAwEAAaM/MD0wCwYDVR0PBAQDAgEGMA8GA1UdEwEB/wQFMAMB
+Af8wHQYDVR0OBBYEFCS1BJ12nN8ObQWE4OgOOSH9DxTRMA0GCSqGSIb3DQEBBQUA
+A4GBAHkSnlJnlkwDEUcENKWFZpfNgZu9HUvEuLDVOnhvsdd2MDr8EbVbgMHYNWnV
++ZOS/dqbuCd9Vd27JsBC2YHklaq9/V5zMbrEBiMLo5P5WL9qrz0qbmK/aruP+VX7
+cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
+-----END CERTIFICATE-----';
+        $ca = new X509();
+        $ca->loadX509($pemca);
+        $ca->setPrivateKey($cakey);
+
+        // Read the old certificate.
+        $oldcert = new X509();
+        $oldcert->loadCA($pemca);
+        $oldcert->loadX509('-----BEGIN CERTIFICATE-----
+MIIB+TCCAWKgAwIBAgIUW+D7X27oKXHaD6WqFjelccV+D4YwDQYJKoZIhvcNAQEF
+BQAwHDEaMBgGA1UECgwRcGhwc2VjbGliIGRlbW8gQ0EwHhcNMTgwMTIxMTc0NzM0
+WhcNMTkwMTIxMTc0NzM0WjA3MRwwGgYDVQQKDBNwaHBzZWNsaWIgZGVtbyBjZXJ0
+MRcwFQYDVQQDDA53d3cuZ29vZ2xlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAw
+gYkCgYEAqnB0IyO+O6RcZdZooFaMKY/ggeNPXW/EaLXdciHEnzxgbsVb1I5m5pwy
+nZIf6RCHUsfOYdhTX/xQE8JOSkbDEYtKmrySxu+JpmR3qZPhL+4rJUJKCdI+9YbM
+z1wiqQeHhVUTPiEvgdAzkzPXcrkLmpb1KV7VhKoQ4Z3swmJX528CAwEAAaMdMBsw
+GQYDVR0RBBIwEIIOd3d3Lmdvb2dsZS5jb20wDQYJKoZIhvcNAQEFBQADgYEAV5W5
+G9eY1SJiwIHMcd5Eo41w+bN69EqOJhTY28LQc/m9i+Fuc1J6nkwDMKCtEeEUyhjl
+bEbVUszdgPQWON7Y2nS5OCb2BevxW8Xdf6gnf/PRRYmlZJgygwf0KpgSm5CxxsZW
+Fqfy+n5VpXOdrjic4yZ52yS5sUaq05s6ZZvnmdU=
+-----END CERTIFICATE-----');
+        $this->assertTrue($oldcert->validateSignature());
+
+        // Set new dates and serial number.
+        $newcert = new X509();
+        $newcert->setStartDate('-1 day');
+        $newcert->setEndDate('+2 years');
+        //$newcert->setSerialNumber('1234', 10);
+
+        $oldcert->setDomain('www.google.com');
+
+        // Produce the new certificate by signing the old one.
+        $crt = $newcert->loadX509($newcert->saveX509($newcert->sign($ca, $oldcert)));
+
+        // Output new certificate.
+        $newcert->saveX509($crt);
     }
 }

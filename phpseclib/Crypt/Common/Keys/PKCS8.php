@@ -138,7 +138,7 @@ abstract class PKCS8 extends PKCS
 
     /**
      * Returns a SymmetricKey object based on a PBES1 $algo
-     *
+     * @return \phpseclib\Crypt\Common\SymmetricKey
      * @access public
      * @param string $algo
      */
@@ -188,6 +188,7 @@ abstract class PKCS8 extends PKCS
     /**
      * Returns a hash based on a PBES1 $algo
      *
+     * @return string
      * @access public
      * @param string $algo
      */
@@ -203,6 +204,7 @@ abstract class PKCS8 extends PKCS
     /**
      * Returns a KDF baesd on a PBES1 $algo
      *
+     * @return string
      * @access public
      * @param string $algo
      */
@@ -224,6 +226,7 @@ abstract class PKCS8 extends PKCS
     /**
      * Returns a SymmetricKey object baesd on a PBES2 $algo
      *
+     * @return SymmetricKey
      * @access public
      * @param string $algo
      */

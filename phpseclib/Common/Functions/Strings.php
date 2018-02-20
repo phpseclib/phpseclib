@@ -103,10 +103,10 @@ abstract class Strings
      *
      * uint64 is not supported.
      *
-     * @param string $string
-     * @param int $index
-     * @access public
+     * @param string $format
+     * @param $data
      * @return mixed
+     * @access public
      */
     public static function unpackSSH2($format, $data)
     {
@@ -165,13 +165,12 @@ abstract class Strings
     /**
      * Create SSH2-style string
      *
-     * @param mixed $input..
+     * @param $elements[]
      * @access public
      * @return mixed
      */
-    public static function packSSH2()
+    public static function packSSH2(...$elements)
     {
-        $elements = func_get_args();
         $format = $elements[0];
         array_shift($elements);
         if (strlen($format) != count($elements)) {

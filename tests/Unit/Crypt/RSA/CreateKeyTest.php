@@ -21,7 +21,7 @@ class Unit_Crypt_RSA_CreateKeyTest extends PhpseclibTestCase
         $this->assertSame($privatekey->getLength(), 768);
         $this->assertSame($publickey->getLength(), 768);
 
-        return array($publickey, $privatekey);
+        return [$publickey, $privatekey];
     }
 
     /**

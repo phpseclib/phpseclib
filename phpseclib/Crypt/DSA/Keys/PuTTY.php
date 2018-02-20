@@ -63,20 +63,22 @@ abstract class PuTTY extends Progenitor
         if ($components === false || !isset($components['private'])) {
             return $components;
         }
-        extract($components);
-        unset($components['public'], $components['private']);
 
-        $result = Strings::unpackSSH2('iiii', $public);
+        $result = Strings::unpackSSH2('iiii', $components['public']);
         if ($result === false) {
             return false;
         }
         list($p, $q, $g, $y) = $result;
 
-        $result = Strings::unpackSSH2('i', $private);
+        $result = Strings::unpackSSH2('i', $components['private']);
         if ($result === false) {
             return false;
         }
         list($x) = $result;
+
+        if (isset($components['comment'])) {
+            $comment = $components['comment'];
+        }
 
         return compact('p', 'q', 'g', 'y', 'x', 'comment');
     }
@@ -90,9 +92,6 @@ abstract class PuTTY extends Progenitor
      * @param \phpseclib\Math\BigInteger $g
      * @param \phpseclib\Math\BigInteger $y
      * @param \phpseclib\Math\BigInteger $x
-     * @param array $primes
-     * @param array $exponents
-     * @param array $coefficients
      * @param string $password optional
      * @return string
      */

@@ -107,7 +107,7 @@ class Identity
      *
      * Wrapper for $this->key->getPublicKey()
      *
-     * @param int $type optional
+     * @param string $type optional
      * @return mixed
      * @access public
      */

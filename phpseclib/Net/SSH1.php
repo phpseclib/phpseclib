@@ -234,7 +234,7 @@ class SSH1
     /**
      * The Socket Object
      *
-     * @var object
+     * @var resource
      * @access private
      */
     private $fsock;
@@ -614,6 +614,7 @@ class SSH1
             return false;
         }
         extract(unpack('Nsupported_ciphers_mask', Strings::shift($response[self::RESPONSE_DATA], 4)));
+        /** @var integer $supported_ciphers_mask */
 
         foreach ($this->supported_ciphers as $mask => $name) {
             if (($supported_ciphers_mask & (1 << $mask)) == 0) {
@@ -626,6 +627,8 @@ class SSH1
             return false;
         }
         extract(unpack('Nsupported_authentications_mask', Strings::shift($response[self::RESPONSE_DATA], 4)));
+        /** @var integer $supported_authentications_mask */
+
         foreach ($this->supported_authentications as $mask => $name) {
             if (($supported_authentications_mask & (1 << $mask)) == 0) {
                 unset($this->supported_authentications[$mask]);
@@ -812,8 +815,8 @@ class SSH1
      * @see self::interactiveRead()
      * @see self::interactiveWrite()
      * @param string $cmd
+     * @param bool $block
      * @return mixed
-     * @throws \RuntimeException on error sending command
      * @access public
      */
     public function exec($cmd, $block = true)
@@ -1359,12 +1362,11 @@ class SSH1
      * named constants from it, using the value as the name of the constant and the index as the value of the constant.
      * If any of the constants that would be defined already exists, none of the constants will be defined.
      *
-     * @param array $array
+     * @param $args[]
      * @access private
      */
-    private function define_array()
+    private function define_array(...$args)
     {
-        $args = func_get_args();
         foreach ($args as $arg) {
             foreach ($arg as $key => $value) {
                 if (!defined($value)) {
@@ -1558,7 +1560,8 @@ class SSH1
      *
      * Makes sure that only the last 1MB worth of packets will be logged
      *
-     * @param string $data
+     * @param string $protocol_flags
+     * @param string $message
      * @access private
      */
     private function append_log($protocol_flags, $message)

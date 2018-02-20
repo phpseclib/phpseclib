@@ -344,7 +344,7 @@ class RC2 extends BlockCipher
      * @see \phpseclib\Crypt\Common\SymmetricKey::setKey()
      * @access public
      * @param string $key
-     * @param int $t1 optional Effective key length in bits.
+     * @param int|boolean $t1 optional Effective key length in bits.
      * @throws \LengthException if the key length isn't supported
      */
     public function setKey($key, $t1 = false)

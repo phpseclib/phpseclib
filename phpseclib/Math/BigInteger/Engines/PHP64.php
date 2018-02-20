@@ -106,7 +106,8 @@ class PHP64 extends PHP
     /**
      * Adds two BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $y
+     * @return PHP64
      */
     public function add(PHP64 $y)
     {
@@ -118,7 +119,8 @@ class PHP64 extends PHP
     /**
      * Subtracts two BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $y
+     * @return PHP64
      */
     public function subtract(PHP64 $y)
     {
@@ -130,7 +132,8 @@ class PHP64 extends PHP
     /**
      * Multiplies two BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $y
+     * @return PHP64
      */
     public function multiply(PHP64 $y)
     {
@@ -147,7 +150,8 @@ class PHP64 extends PHP
      * same.  If the remainder would be negative, the "common residue" is equal to the sum of the remainder
      * and the divisor (basically, the "common residue" is the first positive modulo).
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $y
+     * @return PHP64
      */
     public function divide(PHP64 $y)
     {
@@ -158,6 +162,8 @@ class PHP64 extends PHP
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
+     * @param PHP64 $n
+     * @return false|PHP64
      */
     public function modInverse(PHP64 $n)
     {
@@ -168,6 +174,8 @@ class PHP64 extends PHP
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
+     * @param PHP64 $n
+     * @return PHP64[]
      */
     public function extendedGCD(PHP64 $n)
     {
@@ -179,18 +187,19 @@ class PHP64 extends PHP
      *
      * Say you have 693 and 609.  The GCD is 21.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $n
+     * @return PHP64
      */
     public function gcd(PHP64 $n)
     {
-        extract($this->extendedGCD($n));
-        return $gcd;
+        return $this->extendedGCD($n)['gcd'];
     }
 
     /**
      * Logical And
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $x
+     * @return PHP64
      */
     public function bitwise_and(PHP64 $x)
     {
@@ -200,7 +209,8 @@ class PHP64 extends PHP
     /**
      * Logical Or
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $x
+     * @return PHP64
      */
     public function bitwise_or(PHP64 $x)
     {
@@ -210,7 +220,8 @@ class PHP64 extends PHP
     /**
      * Logical Exlusive Or
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $x
+     * @return PHP64
      */
     public function bitwise_xor(PHP64 $x)
     {
@@ -229,6 +240,7 @@ class PHP64 extends PHP
      *
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
+     * @param PHP64 $y
      * @return int < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
      * @see self::equals()
@@ -244,6 +256,7 @@ class PHP64 extends PHP
      *
      * If you need to see if one number is greater than or less than another number, use BigInteger::compare()
      *
+     * @param PHP64 $x
      * @return bool
      */
     public function equals(PHP64 $x)
@@ -254,7 +267,9 @@ class PHP64 extends PHP
     /**
      * Performs modular exponentiation.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $e
+     * @param PHP64 $n
+     * @return PHP64
      */
     public function modPow(PHP64 $e, PHP64 $n)
     {
@@ -266,7 +281,9 @@ class PHP64 extends PHP
      *
      * Alias for modPow().
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $e
+     * @param PHP64 $n
+     * @return PHP64
      */
     public function powMod(PHP64 $e, PHP64 $n)
     {
@@ -278,7 +295,9 @@ class PHP64 extends PHP
      *
      * If there's not a prime within the given range, false will be returned.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64|false
+     * @param PHP64 $min
+     * @param PHP64 $max
+     * @return false|PHP64
      */
     public static function randomRangePrime(PHP64 $min, PHP64 $max)
     {
@@ -294,7 +313,9 @@ class PHP64 extends PHP
      * BigInteger::randomRange($min, $max)
      * BigInteger::randomRange($max, $min)
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $min
+     * @param PHP64 $max
+     * @return PHP64
      */
     public static function randomRange(PHP64 $min, PHP64 $max)
     {
@@ -304,7 +325,8 @@ class PHP64 extends PHP
     /**
      * Performs exponentiation.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64 $n
+     * @return PHP64
      */
     public function pow(PHP64 $n)
     {
@@ -314,7 +336,8 @@ class PHP64 extends PHP
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64[] $nums
+     * @return PHP64
      */
     public static function min(PHP64 ...$nums)
     {
@@ -324,7 +347,8 @@ class PHP64 extends PHP
     /**
      * Return the maximum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP64
+     * @param PHP64[] $nums
+     * @return PHP64
      */
     public static function max(PHP64 ...$nums)
     {
@@ -334,7 +358,9 @@ class PHP64 extends PHP
     /**
      * Tests BigInteger to see if it is between two integers, inclusive
      *
-     * @return boolean
+     * @param PHP64 $min
+     * @param PHP64 $max
+     * @return bool
      */
     public function between(PHP64 $min, PHP64 $max)
     {

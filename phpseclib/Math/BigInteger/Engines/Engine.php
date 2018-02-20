@@ -18,6 +18,7 @@ namespace phpseclib\Math\BigInteger\Engines;
 use ParagonIE\ConstantTime\Hex;
 use phpseclib\Exception\BadConfigurationException;
 use phpseclib\Crypt\Random;
+use phpseclib\Math\BigInteger;
 
 /**
  * Base Engine.
@@ -59,9 +60,8 @@ abstract class Engine implements \Serializable
     /**
      * Default constructor
      *
-     * @param $x integer Base-10 number or base-$base number if $base set.
+     * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
      */
     public function __construct($x, $base)
     {
@@ -194,8 +194,6 @@ abstract class Engine implements \Serializable
      *
      * Negative numbers are saved as positive numbers, unless $twos_compliment is set to true, at which point, they're
      * saved as two's compliment.
-     *
-     * @param bool $twos_compliment
      * @return string
      */
     protected function toBytesHelper()
@@ -279,6 +277,10 @@ abstract class Engine implements \Serializable
         }
 
         extract($this->extendedGCD($n));
+        /**
+         * @var BigInteger $gcd
+         * @var BigInteger $x
+         */
 
         if (!$gcd->equals(static::$one)) {
             return false;
@@ -384,7 +386,7 @@ abstract class Engine implements \Serializable
 
     /**
      * Set Bitmask
-     *
+     * @return Engine
      * @param int $bits
      * @see self::setPrecision()
      */
@@ -520,7 +522,7 @@ abstract class Engine implements \Serializable
      * Returns the smallest and largest n-bit number
      *
      * @param int $bits
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return \phpseclib\Math\BigInteger\Engines\Engine[]
      */
     public static function minMaxBits($bits)
     {
@@ -563,6 +565,8 @@ abstract class Engine implements \Serializable
     /**
      * Performs some pre-processing for powMod
      *
+     * @param Engine $e
+     * @param Engine $n
      * @return bool|Engine
      */
     protected function powModOuter(Engine $e, Engine $n)
@@ -671,6 +675,10 @@ abstract class Engine implements \Serializable
     public static function random($size)
     {
         extract(static::minMaxBits($size));
+        /**
+         * @var BigInteger $min
+         * @var BigInteger $max
+         */
         return static::randomRange($min, $max);
     }
 
@@ -685,12 +693,18 @@ abstract class Engine implements \Serializable
     public static function randomPrime($size)
     {
         extract(static::minMaxBits($size));
+        /**
+         * @var BigInteger $min
+         * @var BigInteger $max
+         */
         return static::randomRangePrime($min, $max);
     }
 
     /**
      * Performs some pre-processing for randomRangePrime
      *
+     * @param Engine $min
+     * @param Engine $max
      * @return bool|Engine
      */
     protected static function randomRangePrimeOuter(Engine $min, Engine $max)
@@ -720,7 +734,9 @@ abstract class Engine implements \Serializable
      * BigInteger::randomRange($min, $max)
      * BigInteger::randomRange($max, $min)
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @param Engine $min
+     * @param Engine $max
+     * @return Engine
      */
     protected static function randomRangeHelper(Engine $min, Engine $max)
     {
@@ -781,6 +797,9 @@ abstract class Engine implements \Serializable
     /**
      * Performs some post-processing for randomRangePrime
      *
+     * @param Engine $x
+     * @param Engine $min
+     * @param Engine $max
      * @return bool|Engine
      */
     protected static function randomRangePrimeInner(Engine $x, Engine $min, Engine $max)
@@ -900,7 +919,7 @@ abstract class Engine implements \Serializable
      * $t parameter is distributability.  BigInteger::randomPrime() can be distributed across multiple pageloads
      * on a website instead of just one.
      *
-     * @param int $t
+     * @param int|bool $t
      * @return bool
      */
     public function isPrime($t = false)
@@ -996,7 +1015,8 @@ abstract class Engine implements \Serializable
     /**
      * Calculates the nth root of a biginteger.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @param int $n
+     * @return Engine
      */
     public function root($n = 2)
     {
@@ -1006,7 +1026,8 @@ abstract class Engine implements \Serializable
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @param array $nums
+     * @return Engine
      */
     protected static function minHelper(array $nums)
     {
@@ -1023,7 +1044,8 @@ abstract class Engine implements \Serializable
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @param array $nums
+     * @return Engine
      */
     protected static function maxHelper(array $nums)
     {

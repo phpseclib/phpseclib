@@ -182,14 +182,14 @@ class DSA extends AsymmetricKey
      *  - 'privatekey': The private key.
      *  - 'publickey':  The public key.
      *
+     * @param $args[]
      * @access public
      * @return array|DSA
      */
-    static function createKey()
+    static function createKey(...$args)
     {
         self::initialize_static_variables();
 
-        $args = func_get_args();
         if (count($args) == 2 && is_int($args[0]) && is_int($args[1])) {
             $private = self::createParameters($args[0], $args[1]);
         } else if (count($args) == 1 && $args[0] instanceof DSA) {
@@ -213,10 +213,10 @@ class DSA extends AsymmetricKey
      * Loads a public or private key
      *
      * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
-     *
+     * @return bool
      * @access public
      * @param string $key
-     * @param int $type optional
+     * @param int|bool $type optional
      */
     public function load($key, $type = false)
     {
@@ -460,6 +460,7 @@ class DSA extends AsymmetricKey
      * @see self::verify()
      * @access public
      * @param string $message
+     * @param string $signature
      * @param string $format optional
      * @return mixed
      */

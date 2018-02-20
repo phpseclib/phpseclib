@@ -14,6 +14,7 @@ class Unit_Math_BigInteger_PHP32Test extends Unit_Math_BigInteger_TestCase
         if (version_compare(PHP_VERSION, '7.0.0') < 0) {
             self::markTestSkipped('32-bit integers slow things down too much on PHP 5.6');
         }
+
         PHP32::setModExpEngine('DefaultEngine');
     }
 

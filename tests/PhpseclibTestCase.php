@@ -5,9 +5,9 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
+abstract class PhpseclibTestCase extends PHPUnit\Framework\TestCase
 {
-    protected $tempFilesToUnlinkOnTearDown = array();
+    protected $tempFilesToUnlinkOnTearDown = [];
 
     public function tearDown()
     {
@@ -110,7 +110,7 @@ abstract class PhpseclibTestCase extends PHPUnit_Framework_TestCase
         return $prop->getValue($obj);
     }
 
-    public static function callFunc($obj, $func, $params = array())
+    public static function callFunc($obj, $func, $params = [])
     {
         $reflection = new ReflectionClass(get_class($obj));
         $method = $reflection->getMethod($func);

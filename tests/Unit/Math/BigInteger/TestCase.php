@@ -198,6 +198,18 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $z = $this->getInstance('BC98BC98BC98BC98BC98BC98', 16);
 
         $this->assertSame($z->toHex(), $x->bitwise_XOR($y)->toHex());
+
+        // @group github1245
+
+        $a = $this->getInstance(1);
+        $b = $this->getInstance(-2);
+        $c = $a->bitwise_xor($b);
+        $this->assertSame("$c", '3');
+
+        $a = $this->getInstance('-6725760161961546982');
+        $b = $this->getInstance(51);
+        $c = $a->bitwise_xor($b);
+        $this->assertSame("$c", '6725760161961546965');
     }
 
     public function testBitwiseNOT()
@@ -399,5 +411,12 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $max = $this->getInstance('20000');
         $this->assertSame((string) $min, (string) $class::min($min, $max));
         $this->assertSame((string) $min, (string) $class::min($max, $min));
+    }
+
+    public function testRandomPrime()
+    {
+        $class = static::getStaticClass();
+        $prime = $class::randomPrime(128);
+        $this->assertSame(128, $prime->getLength());
     }
 }

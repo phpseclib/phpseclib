@@ -292,6 +292,7 @@ abstract class ASN1
             $current+= ['headerlength' => $length + 2];
             $start+= $length;
             extract(unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4)));
+            /** @var integer $length */
         } else {
             $current+= ['headerlength' => 2];
         }
@@ -814,8 +815,8 @@ abstract class ASN1
      * "Special" mappings can be applied via $special.
      *
      * @param string $source
-     * @param string $mapping
-     * @param int $idx
+     * @param array $mapping
+     * @param array $special
      * @return string
      * @access public
      */
@@ -831,8 +832,8 @@ abstract class ASN1
      * @param string $source
      * @param array $mapping
      * @param int $idx
+     * @param array $special
      * @return string
-     * @throws \RuntimeException if the input has an error in it
      * @access private
      */
     private static function encode_der($source, $mapping, $idx = null, $special = [])
@@ -1387,6 +1388,7 @@ abstract class ASN1
      * getOID('zzz') == 'zzz'
      *
      * @access public
+     * @param string $name
      * @return string
      */
     static function getOID($name)

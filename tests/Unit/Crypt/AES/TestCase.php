@@ -27,36 +27,37 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
      */
     public function continuousBufferCombos()
     {
-        $modes = array(
+        $modes = [
             'ctr',
             'ofb',
             'cfb',
+            'cfb8'
             'ige',
-        );
-        $plaintexts = array(
+        ];
+        $plaintexts = [
             '',
             '12345678901234567', // https://github.com/phpseclib/phpseclib/issues/39
             "\xDE\xAD\xBE\xAF",
             ':-):-):-):-):-):-)', // https://github.com/phpseclib/phpseclib/pull/43
-        );
-        $ivs = array(
+        ];
+        $ivs = [
             str_repeat("\0", 16),
             str_pad('test123', 16, "\0"),
-        );
-        $keys = array(
+        ];
+        $keys = [
             str_repeat("\0", 16),
             str_pad(':-8', 16, "\0"), // https://github.com/phpseclib/phpseclib/pull/43
             str_pad('FOOBARZ', 16, "\0"),
-        );
+        ];
 
-        $result = array();
+        $result = [];
 
         foreach ($modes as $mode) {
             foreach ($plaintexts as $plaintext) {
                 foreach ($ivs as $iv) {
                     if ($mode === 'ige') $iv .= strrev($iv);
                     foreach ($keys as $key) {
-                        $result[] = array($mode, $plaintext, $iv, $key);
+                        $result[] = [$mode, $plaintext, $iv, $key];
                     }
                 }
             }
@@ -129,36 +130,37 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
      */
     public function continuousBufferBatteryCombos()
     {
-        $modes = array(
+        $modes = [
             'ctr',
             'ofb',
             'cfb',
             'ige',
-        );
+            'cfb8',
+        ];
 
-        $combos = array(
-            array(16),
-            array(17),
-            array(1, 16),
-            array(3, 6, 7), // (3 to test the openssl_encrypt call and the buffer creation, 6 to test the exclusive use of the buffer and 7 to test the buffer's exhaustion and recreation)
-            array(15, 4), // (15 to test openssl_encrypt call and buffer creation and 4 to test something that spans multpile bloc
-            array(3, 6, 10, 16), // this is why the strlen check in the buffer-only code was needed
-            array(16, 16), // two full size blocks
-            array(3, 6, 7, 16), // partial block + full size block
-            array(16, 3, 6, 7),
+        $combos = [
+            [16],
+            [17],
+            [1, 16],
+            [3, 6, 7], // (3 to test the openssl_encrypt call and the buffer creation, 6 to test the exclusive use of the buffer and 7 to test the buffer's exhaustion and recreation)
+            [15, 4], // (15 to test openssl_encrypt call and buffer creation and 4 to test something that spans multpile bloc
+            [3, 6, 10, 16], // this is why the strlen check in the buffer-only code was needed
+            [16, 16], // two full size blocks
+            [3, 6, 7, 16], // partial block + full size block
+            [16, 3, 6, 7],
             // a few others just for fun
-            array(32,32),
-            array(31,31),
-            array(17,17),
-            array(99, 99)
-        );
+            [32,32],
+            [31,31],
+            [17,17],
+            [99, 99]
+        ];
 
-        $result = array();
+        $result = [];
 
         foreach ($modes as $mode) {
             foreach ($combos as $combo) {
-                foreach (array('encrypt', 'decrypt') as $op) {
-                    $result[] = array($op, $mode, $combo);
+                foreach (['encrypt', 'decrypt'] as $op) {
+                    $result[] = [$op, $mode, $combo];
                 }
             }
         }

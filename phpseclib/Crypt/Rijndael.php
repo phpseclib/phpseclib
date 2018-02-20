@@ -604,6 +604,7 @@ class Rijndael extends BlockCipher
     /**
      * Performs S-Box substitutions
      *
+     * @return array
      * @access private
      * @param int $word
      */

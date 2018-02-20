@@ -29,8 +29,9 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
 
-        $this->assertTrue(
-            is_object($sftp),
+        $this->assertInternalType(
+            'object',
+            $sftp,
             'Could not construct NET_SFTP object.'
         );
 
@@ -127,7 +128,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testStatOnDir($sftp)
     {
         $this->assertNotSame(
-            array(),
+            [],
             $sftp->stat('.'),
             'Failed asserting that the cwd has a non-empty stat.'
         );
@@ -177,7 +178,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         self::$buffer = self::$exampleData;
         $this->assertTrue(
-            $sftp->put('file1.txt', array(__CLASS__, 'callback'), $sftp::SOURCE_CALLBACK),
+            $sftp->put('file1.txt', [__CLASS__, 'callback'], $sftp::SOURCE_CALLBACK),
             'Failed asserting that example data could be successfully put().'
         );
 
@@ -325,7 +326,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $sftp->setListOrder('filename', SORT_DESC);
 
         $list = $sftp->nlist();
-        $expected = array('.', '..', 'temp', 'file3.txt', 'file2.txt', 'file1.txt');
+        $expected = ['.', '..', 'temp', 'file3.txt', 'file2.txt', 'file1.txt'];
 
         $this->assertSame(
             $list,
@@ -336,7 +337,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $sftp->setListOrder('filename', SORT_ASC);
 
         $list = $sftp->nlist();
-        $expected = array('.', '..', 'temp', 'file1.txt', 'file2.txt', 'file3.txt');
+        $expected = ['.', '..', 'temp', 'file1.txt', 'file2.txt', 'file3.txt'];
 
         $this->assertSame(
             $list,

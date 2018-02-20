@@ -81,6 +81,10 @@ abstract class SymmetricKey
      */
     const MODE_CFB = 3;
     /**
+     * Encrypt / decrypt using the Cipher Feedback mode (8bit)
+     */
+    const MODE_CFB8 = 38;
+    /**
      * Encrypt / decrypt using the Output Feedback mode.
      *
      * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
@@ -103,11 +107,12 @@ abstract class SymmetricKey
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
      */
     const MODE_MAP = [
-        'ctr' => self::MODE_CTR,
-        'ecb' => self::MODE_ECB,
-        'cbc' => self::MODE_CBC,
-        'cfb' => self::MODE_CFB,
-        'ofb' => self::MODE_OFB,
+        'ctr'    => self::MODE_CTR,
+        'ecb'    => self::MODE_ECB,
+        'cbc'    => self::MODE_CBC,
+        'cfb'    => self::MODE_CFB,
+        'cfb8'   => self::MODE_CFB8,
+        'ofb'    => self::MODE_OFB,
         'ige' => self::MODE_IGE,
         'stream' => self::MODE_STREAM
     ];
@@ -494,9 +499,9 @@ abstract class SymmetricKey
      *
      * - ofb
      *
-     * - self::MODE_IGE
+     * - ige
      *
-     * @param int $mode
+     * @param string $mode
      * @access public
      * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
@@ -521,6 +526,7 @@ abstract class SymmetricKey
                 $this->iv_size = $this->block_size*2;
             case self::MODE_CTR:
             case self::MODE_CFB:
+            case self::MODE_CFB8:
             case self::MODE_OFB:
             case self::MODE_STREAM:
                 $this->paddable = false;
@@ -663,12 +669,13 @@ abstract class SymmetricKey
      * @see Crypt/Hash.php
      * @param string $password
      * @param string $method
+     * @param $func_args[]
      * @throws \LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
      * @return bool
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
      */
-    public function setPassword($password, $method = 'pbkdf2')
+    public function setPassword($password, $method = 'pbkdf2', ...$func_args)
     {
         $key = '';
 
@@ -677,23 +684,21 @@ abstract class SymmetricKey
             case 'pkcs12': // from https://tools.ietf.org/html/rfc7292#appendix-B.2
             case 'pbkdf1':
             case 'pbkdf2':
-                $func_args = func_get_args();
-
                 // Hash function
-                $hash = isset($func_args[2]) ? strtolower($func_args[2]) : 'sha1';
+                $hash = isset($func_args[0]) ? strtolower($func_args[0]) : 'sha1';
                 $hashObj = new Hash();
                 $hashObj->setHash($hash);
 
                 // WPA and WPA2 use the SSID as the salt
-                $salt = isset($func_args[3]) ? $func_args[3] : $this->password_default_salt;
+                $salt = isset($func_args[1]) ? $func_args[1] : $this->password_default_salt;
 
                 // RFC2898#section-4.2 uses 1,000 iterations by default
                 // WPA and WPA2 use 4,096.
-                $count = isset($func_args[4]) ? $func_args[4] : 1000;
+                $count = isset($func_args[2]) ? $func_args[2] : 1000;
 
                 // Keylength
-                if (isset($func_args[5])) {
-                    $dkLen = $func_args[5];
+                if (isset($func_args[3])) {
+                    $dkLen = $func_args[3];
                 } else {
                     $key_length = $this->explicit_key_length !== false ? $this->explicit_key_length : $this->key_length;
                     $dkLen = $method == 'pbkdf1' ? 2 * $key_length : $key_length;
@@ -960,6 +965,16 @@ abstract class SymmetricKey
                     }
 
                     return $ciphertext;
+                case self::MODE_CFB8:
+                    $ciphertext = openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $this->encryptIV);
+                    if ($this->continuousBuffer) {
+                        if (($len = strlen($ciphertext)) >= $this->block_size) {
+                            $this->encryptIV = substr($ciphertext, -$this->block_size);
+                        } else {
+                            $this->encryptIV = substr($this->encryptIV, $len - $this->block_size) . substr($ciphertext, -$len);
+                        }
+                    }
+                    return $ciphertext;
                 case self::MODE_OFB:
                     return $this->openssl_ofb_process($plaintext, $this->encryptIV, $this->enbuffer);
             }
@@ -1168,6 +1183,24 @@ abstract class SymmetricKey
                     $pos = $len;
                 }
                 break;
+            case self::MODE_CFB8:
+                $ciphertext = '';
+                $len = strlen($plaintext);
+                $iv = $this->encryptIV;
+
+                for ($i = 0; $i < $len; ++$i) {
+                    $ciphertext .= ($c = $plaintext[$i] ^ $this->encryptBlock($iv));
+                    $iv = substr($iv, 1) . $c;
+                }
+
+                if ($this->continuousBuffer) {
+                    if ($len >= $block_size) {
+                        $this->encryptIV = substr($ciphertext, -$block_size);
+                    } else {
+                        $this->encryptIV = substr($this->encryptIV, $len - $block_size) . substr($ciphertext, -$len);
+                    }
+                }
+                break;
             case self::MODE_OFB:
                 $xor = $this->encryptIV;
                 if (strlen($buffer['xor'])) {
@@ -1303,6 +1336,16 @@ abstract class SymmetricKey
                     } elseif ($len) {
                         $plaintext.= openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv);
                         $iv = substr($ciphertext, -$this->block_size);
+                    }
+                    break;
+                case self::MODE_CFB8:
+                    $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $this->decryptIV);
+                    if ($this->continuousBuffer) {
+                        if (($len = strlen($ciphertext)) >= $this->block_size) {
+                            $this->decryptIV = substr($ciphertext, -$this->block_size);
+                        } else {
+                            $this->decryptIV = substr($this->decryptIV, $len - $this->block_size) . substr($ciphertext, -$len);
+                        }
                     }
                     break;
                 case self::MODE_OFB:
@@ -1496,6 +1539,24 @@ abstract class SymmetricKey
                     $plaintext.= $iv ^ substr($ciphertext, $i);
                     $iv = substr_replace($iv, substr($ciphertext, $i), 0, $len);
                     $pos = $len;
+                }
+                break;
+            case self::MODE_CFB8:
+                $plaintext = '';
+                $len = strlen($ciphertext);
+                $iv = $this->decryptIV;
+
+                for ($i = 0; $i < $len; ++$i) {
+                    $plaintext .= $ciphertext[$i] ^ $this->encryptBlock($iv);
+                    $iv = substr($iv, 1) . $ciphertext[$i];
+                }
+
+                if ($this->continuousBuffer) {
+                    if ($len >= $block_size) {
+                        $this->decryptIV = substr($ciphertext, -$block_size);
+                    } else {
+                        $this->decryptIV = substr($this->decryptIV, $len - $block_size) . substr($ciphertext, -$len);
+                    }
                 }
                 break;
             case self::MODE_OFB:
@@ -1709,6 +1770,8 @@ abstract class SymmetricKey
                 return 'ctr';
             case self::MODE_CFB:
                 return 'cfb';
+            case self::MODE_CFB8:
+                return 'cfb8';
             case self::MODE_OFB:
                 return 'ofb';
         }
@@ -1906,7 +1969,7 @@ abstract class SymmetricKey
      * If the preferred crypt engine is not available the fastest available one will be used
      *
      * @see self::__construct()
-     * @param int $engine
+     * @param string $engine
      * @access public
      */
     public function setPreferredEngine($engine)
@@ -2079,6 +2142,7 @@ abstract class SymmetricKey
                 self::MODE_ECB    => MCRYPT_MODE_ECB,
                 self::MODE_CBC    => MCRYPT_MODE_CBC,
                 self::MODE_CFB    => 'ncfb',
+                self::MODE_CFB8   => MCRYPT_MODE_CFB,
                 self::MODE_OFB    => MCRYPT_MODE_NOFB,
                 self::MODE_STREAM => MCRYPT_MODE_STREAM,
             ];
@@ -2608,6 +2672,52 @@ abstract class SymmetricKey
                     return $_plaintext;
                     ';
                 break;
+            case self::MODE_CFB8:
+                $encrypt = $init_encrypt . '
+                    $_ciphertext = "";
+                    $_len = strlen($_text);
+                    $_iv = $this->encryptIV;
+
+                    for ($_i = 0; $_i < $_len; ++$_i) {
+                        $in = $_iv;
+                        '.$encrypt_block.'
+                        $_ciphertext .= ($_c = $_text[$_i] ^ $in);
+                        $_iv = substr($_iv, 1) . $_c;
+                    }
+
+                    if ($this->continuousBuffer) {
+                        if ($_len >= '.$block_size.') {
+                            $this->encryptIV = substr($_ciphertext, -'.$block_size.');
+                        } else {
+                            $this->encryptIV = substr($this->encryptIV, $_len - '.$block_size.') . substr($_ciphertext, -$_len);
+                        }
+                    }
+
+                    return $_ciphertext;
+                    ';
+                $decrypt = $init_encrypt . '
+                    $_plaintext = "";
+                    $_len = strlen($_text);
+                    $_iv = $this->decryptIV;
+
+                    for ($_i = 0; $_i < $_len; ++$_i) {
+                        $in = $_iv;
+                        '.$encrypt_block.'
+                        $_plaintext .= $_text[$_i] ^ $in;
+                        $_iv = substr($_iv, 1) . $_text[$_i];
+                    }
+
+                    if ($this->continuousBuffer) {
+                        if ($_len >= '.$block_size.') {
+                            $this->decryptIV = substr($_text, -'.$block_size.');
+                        } else {
+                            $this->decryptIV = substr($this->decryptIV, $_len - '.$block_size.') . substr($_text, -$_len);
+                        }
+                    }
+
+                    return $_plaintext;
+                    ';
+                break;
             case self::MODE_OFB:
                 $encrypt = $init_encrypt . '
                     $_ciphertext = "";
@@ -2786,5 +2896,45 @@ abstract class SymmetricKey
         eval('$func = function ($_action, $_text) { ' . $init_crypt . 'if ($_action == "encrypt") { ' . $encrypt . ' } else { ' . $decrypt . ' }};');
 
         return \Closure::bind($func, $this, static::class);
+    }
+
+    /**
+     * Convert float to int
+     *
+     * On ARM CPUs converting floats to ints doesn't always work
+     *
+     * @access private
+     * @param string $x
+     * @return int
+     */
+    protected static function safe_intval($x)
+    {
+        switch (true) {
+            case is_int($x):
+            // PHP 5.3, per http://php.net/releases/5_3_0.php, introduced "more consistent float rounding"
+            case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
+                return $x;
+        }
+        return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
+            ((fmod(floor($x / 0x80000000), 2) & 1) << 31);
+    }
+
+    /**
+     * eval()'able string for in-line float to int
+     *
+     * @access private
+     * @return string
+     */
+    protected static function safe_intval_inline()
+    {
+        switch (true) {
+            case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
+            case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
+                return '%s';
+                break;
+            default:
+                $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
+                return $safeint . '((fmod(floor($temp / 0x80000000), 2) & 1) << 31))';
+        }
     }
 }

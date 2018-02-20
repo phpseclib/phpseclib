@@ -9,33 +9,33 @@ use phpseclib\Crypt\RC2;
 
 class Unit_Crypt_RC2Test extends PhpseclibTestCase
 {
-    var $engines = array(
+    var $engines = [
         'PHP',
         'Eval',
         'mcrypt',
         'OpenSSL',
-    );
+    ];
 
     public function engineVectors()
     {
         // tests from https://tools.ietf.org/html/rfc2268#page-8
-        $tests = array(
+        $tests = [
             // key, effective key length, plaintext, ciphertext
-            array('0000000000000000', 63, '0000000000000000', 'ebb773f993278eff'),
-            array('ffffffffffffffff', 64, 'ffffffffffffffff', '278b27e42e2f0d49'),
-            array('3000000000000000', 64, '1000000000000001', '30649edf9be7d2c2'),
-            array('88', 64, '0000000000000000', '61a8a244adacccf0'),
-            array('88bca90e90875a', 64, '0000000000000000', '6ccf4308974c267f'),
-            array('88bca90e90875a7f0f79c384627bafb2', 64, '0000000000000000', '1a807d272bbe5db1'),
-            array('88bca90e90875a7f0f79c384627bafb2', 128, '0000000000000000', '2269552ab0f85ca6'),
-            array('88bca90e90875a7f0f79c384627bafb216f80a6f85920584c42fceb0be255daf1e', 129, '0000000000000000', '5b78d3a43dfff1f1')
-        );
+            ['0000000000000000', 63, '0000000000000000', 'ebb773f993278eff'],
+            ['ffffffffffffffff', 64, 'ffffffffffffffff', '278b27e42e2f0d49'],
+            ['3000000000000000', 64, '1000000000000001', '30649edf9be7d2c2'],
+            ['88', 64, '0000000000000000', '61a8a244adacccf0'],
+            ['88bca90e90875a', 64, '0000000000000000', '6ccf4308974c267f'],
+            ['88bca90e90875a7f0f79c384627bafb2', 64, '0000000000000000', '1a807d272bbe5db1'],
+            ['88bca90e90875a7f0f79c384627bafb2', 128, '0000000000000000', '2269552ab0f85ca6'],
+            ['88bca90e90875a7f0f79c384627bafb216f80a6f85920584c42fceb0be255daf1e', 129, '0000000000000000', '5b78d3a43dfff1f1']
+        ];
 
-        $result = array();
+        $result = [];
 
         foreach ($this->engines as $engine) {
             foreach ($tests as $test) {
-                $result[] = array($engine, $test[0], $test[1], $test[2], $test[3]);
+                $result[] = [$engine, $test[0], $test[1], $test[2], $test[3]];
             }
         }
 

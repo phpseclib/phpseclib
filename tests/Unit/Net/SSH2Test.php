@@ -10,19 +10,19 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
 {
     public function formatLogDataProvider()
     {
-        return array(
-            array(
-                array('hello world'),
-                array('<--'),
+        return [
+            [
+                ['hello world'],
+                ['<--'],
                 "<--\r\n00000000  68:65:6c:6c:6f:20:77:6f:72:6c:64                 hello world\r\n\r\n"
-            ),
-            array(
-                array('hello', 'world'),
-                array('<--', '<--'),
+            ],
+            [
+                ['hello', 'world'],
+                ['<--', '<--'],
                 "<--\r\n00000000  68:65:6c:6c:6f                                   hello\r\n\r\n" .
                 "<--\r\n00000000  77:6f:72:6c:64                                   world\r\n\r\n"
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -32,7 +32,7 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
     {
         $ssh = $this->createSSHMock();
 
-        $result = self::callFunc($ssh, 'format_log', array($message_log, $message_number_log));
+        $result = self::callFunc($ssh, 'format_log', [$message_log, $message_number_log]);
         $this->assertEquals($expected, $result);
     }
 
@@ -129,7 +129,7 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
     {
         return $this->getMockBuilder('phpseclib\Net\SSH2')
             ->disableOriginalConstructor()
-            ->setMethods(array('__destruct'))
+            ->setMethods(['__destruct'])
             ->getMock();
     }
 }

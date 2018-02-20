@@ -46,6 +46,10 @@ abstract class Random
      */
     public static function string($length)
     {
+        if (!$length) {
+            return '';
+        }
+
         try {
             return \random_bytes($length);
         } catch (\Exception $e) {
@@ -190,9 +194,8 @@ abstract class Random
      * Safely serialize variables
      *
      * If a class has a private __sleep() it'll emit a warning
-     *
+     * @return mixed
      * @param mixed $arr
-     * @access public
      */
     private static function safe_serialize(&$arr)
     {

@@ -29,7 +29,10 @@ abstract class DefaultEngine extends GMP
     /**
      * Performs modular exponentiation.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @param GMP $x
+     * @param GMP $e
+     * @param GMP $n
+     * @return GMP
      */
     protected static function powModHelper(GMP $x, GMP $e, GMP $n)
     {

@@ -103,6 +103,7 @@ abstract class OpenSSH
      * Returns the comment for the key
      *
      * @access public
+     * @param string $key
      * @return mixed
      */
     public static function getComment($key)

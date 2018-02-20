@@ -26,7 +26,7 @@ abstract class Objects
     /**
      * Accesses a private variable from an object
      *
-     * @param Object $obj
+     * @param object $obj
      * @param string $var
      * @return mixed
      * @access public
@@ -42,7 +42,7 @@ abstract class Objects
     /**
      * Sets the value of a private variable in an object
      *
-     * @param Object $obj
+     * @param object $obj
      * @param string $var
      * @param mixed $val
      * @access public
@@ -58,13 +58,13 @@ abstract class Objects
     /**
      * Accesses a private method from an object
      *
-     * @param Object $obj
+     * @param object $obj
      * @param string $func
      * @param array $params
      * @return mixed
      * @access public
      */
-    public static function callFunc($obj, $func, $params = array())
+    public static function callFunc($obj, $func, $params = [])
     {
         $reflection = new \ReflectionClass(get_class($obj));
         $method = $reflection->getMethod($func);
