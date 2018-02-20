@@ -31,7 +31,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             'ctr',
             'ofb',
             'cfb',
-            'cfb8'
+            'cfb8',
             'ige',
         ];
         $plaintexts = [
