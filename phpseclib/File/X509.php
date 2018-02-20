@@ -1235,8 +1235,6 @@ class X509
             case 'rsaEncryption':
                 $rsa = new RSA();
                 $rsa->load($publicKey);
-//zzzzz
-                $rsa->setPublicKey();
 
                 switch ($signatureAlgorithm) {
                     case 'md2WithRSAEncryption':
