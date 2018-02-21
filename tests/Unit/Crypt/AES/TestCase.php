@@ -392,4 +392,19 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $expected = pack('H*', '6572617574689e1be8d2d8d43c594cf3');
         $this->assertSame($plaintext, $expected);
     }
+
+    public function testECBDecrypt()
+    {
+        $aes = new AES('ecb');
+        $aes->setPreferredEngine($this->engine);
+        $aes->setKey(str_repeat('x', 16));
+
+        $this->_checkEngine($aes);
+
+        $plaintext = str_repeat('a', 16);
+
+        $actual = $aes->decrypt($aes->encrypt($plaintext));
+
+        $this->assertEquals($plaintext, $actual);
+    }
 }
