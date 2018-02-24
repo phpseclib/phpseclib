@@ -262,8 +262,11 @@ abstract class AsymmetricKey
     {
         if (!isset(self::$plugins[static::ALGORITHM][$format])) {
             self::$plugins[static::ALGORITHM][$format] = [];
-            foreach (glob(__DIR__ . '/../' . static::ALGORITHM . '/' . $format . '/*.php') as $file) {
-                $name = pathinfo($file, PATHINFO_FILENAME);
+            foreach (new \DirectoryIterator(__DIR__ . '/../' . static::ALGORITHM . '/' . $format . '/') as $file) {
+                if ($file->getExtension() != 'php') {
+                    continue;
+                }
+                $name = $file->getBasename('.php');
                 $type = 'phpseclib\Crypt\\' . static::ALGORITHM . '\\' . $format . '\\' . $name;
                 self::$plugins[static::ALGORITHM][$format][strtolower($name)] = $type;
                 self::$origPlugins[static::ALGORITHM][$format][] = $name;
