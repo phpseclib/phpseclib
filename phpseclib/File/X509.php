@@ -319,7 +319,7 @@ class X509
      * @var bool
      * @access private
      */
-    var $disable_url_fetch = false;
+    static $disable_url_fetch = false;
 
     /**
      * Default Constructor.
@@ -2129,7 +2129,7 @@ class X509
      */
     static function _fetchURL($url)
     {
-        if ($this->disable_url_fetch) {
+        if (self::$disable_url_fetch) {
             return false;
         }
 
@@ -2446,9 +2446,9 @@ class X509
      *
      * @access public
      */
-    function disableURLFetch()
+    static function disableURLFetch()
     {
-        $this->disable_url_fetch = true;
+        self::$disable_url_fetch = true;
     }
 
     /**
@@ -2456,9 +2456,9 @@ class X509
      *
      * @access public
      */
-    function enableURLFetch()
+    static function enableURLFetch()
     {
-        $this->disable_url_fetch = false;
+        self::$disable_url_fetch = false;
     }
 
     /**
