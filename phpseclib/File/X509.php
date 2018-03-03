@@ -249,7 +249,7 @@ class X509
      * @var int
      * @access private
      */
-    static $recur_limit = 5;
+    private static $recur_limit = 5;
 
     /**
      * URL fetch flag
@@ -257,7 +257,7 @@ class X509
      * @var bool
      * @access private
      */
-    static $disable_url_fetch = false;
+    private static $disable_url_fetch = false;
 
     /**
      * Default Constructor.
@@ -1106,7 +1106,7 @@ class X509
      * @access private
      * @return bool|string
      */
-    static function _fetchURL($url)
+    private static function fetchURL($url)
     {
         if (self::$disable_url_fetch) {
             return false;
@@ -1158,7 +1158,7 @@ class X509
      * @access private
      * @return bool
      */
-    function _testForIntermediate($caonly, $count)
+    private function testForIntermediate($caonly, $count)
     {
         $opts = $this->getExtension('id-pe-authorityInfoAccess');
         if (!is_array($opts)) {
@@ -1180,7 +1180,7 @@ class X509
             return false;
         }
 
-        $cert = static::_fetchURL($url);
+        $cert = static::fetchURL($url);
         if (!is_string($cert)) {
             return false;
         }
@@ -1200,7 +1200,7 @@ class X509
             return false;
         }
 
-        if (!$parent->_validateSignatureCountable($caonly, ++$count)) {
+        if (!$parent->validateSignatureCountable($caonly, ++$count)) {
             return false;
         }
 
@@ -1227,7 +1227,7 @@ class X509
      */
     public function validateSignature($caonly = true)
     {
-        return $this->_validateSignatureCountable($caonly, 0);
+        return $this->validateSignatureCountable($caonly, 0);
     }
 
     /**
@@ -1240,7 +1240,7 @@ class X509
      * @access private
      * @return mixed
      */
-    function _validateSignatureCountable($caonly, $count)
+    private function validateSignatureCountable($caonly, $count)
     {
         if (!is_array($this->currentCert) || !isset($this->signatureSubject)) {
             return null;
@@ -1295,10 +1295,10 @@ class X509
                         }
                     }
                     if (count($this->CAs) == $i && $caonly) {
-                        return $this->_testForIntermediate($caonly, $count) && $this->validateSignature($caonly);
+                        return $this->testForIntermediate($caonly, $count) && $this->validateSignature($caonly);
                     }
                 } elseif (!isset($signingCert) || $caonly) {
-                    return $this->_testForIntermediate($caonly, $count) && $this->validateSignature($caonly);
+                    return $this->testForIntermediate($caonly, $count) && $this->validateSignature($caonly);
                 }
                 return $this->validateSignatureHelper(
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
