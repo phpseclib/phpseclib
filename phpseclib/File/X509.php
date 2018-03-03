@@ -311,7 +311,7 @@ class X509
      * @var int
      * @access private
      */
-    var $recur_limit = 5;
+    static $recur_limit = 5;
 
     /**
      * Default Constructor.
@@ -2119,7 +2119,7 @@ class X509
      * @access private
      * @return bool|string
      */
-    function _fetchURL($url)
+    static function _fetchURL($url)
     {
         $parts = parse_url($url);
         $data = '';
@@ -2189,7 +2189,7 @@ class X509
             return false;
         }
 
-        $cert = $this->_fetchURL($url);
+        $cert = static::_fetchURL($url);
         if (!is_string($cert)) {
             return false;
         }
@@ -2255,7 +2255,7 @@ class X509
             return null;
         }
 
-        if ($count == $this->recur_limit) {
+        if ($count == self::$recur_limit) {
             return false;
         }
 
@@ -2424,9 +2424,9 @@ class X509
      * @param int $count
      * @access public
      */
-    function setRecurLimit($count)
+    static function setRecurLimit($count)
     {
-        $this->recur_limit = $count;
+        self::$recur_limit = $count;
     }
 
     /**

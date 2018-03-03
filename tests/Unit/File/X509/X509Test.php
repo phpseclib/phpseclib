@@ -640,7 +640,7 @@ Fqfy+n5VpXOdrjic4yZ52yS5sUaq05s6ZZvnmdU=
 
     public function testAuthorityInfoAccess()
     {
-        $x509 = new File_X509();
+        $x509 = new X509();
         $x509->loadCA('-----BEGIN CERTIFICATE-----
 MIIDrzCCApegAwIBAgIQCDvgVpBCRrGhdWrJWZHHSjANBgkqhkiG9w0BAQUFADBh
 MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3
@@ -703,10 +703,10 @@ lV66p3Ui7pFABGc/Lv7nOyANXfLugBO8MyzydGA4NRGiS2MbGpswPCg154pWausU
 M0qaEPsM2o3CSTfxSJQQIyEe+izV3UQqYSyWkNqCCFPN
 -----END CERTIFICATE-----');
 
-        $x509->setRecurLimit(0);
+        X509::setRecurLimit(0);
         $this->assertFalse($x509->validateSignature());
 
-        $x509->setRecurLimit(5);
+        X509::setRecurLimit(5);
         $this->assertTrue($x509->validateSignature());
     }
 }
