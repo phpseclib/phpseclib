@@ -929,7 +929,7 @@ abstract class PHP extends Engine
     }
 
     /**
-     * Logical Exlusive Or
+     * Logical Exclusive Or
      *
      * @param PHP $x
      * @return PHP

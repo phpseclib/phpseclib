@@ -77,7 +77,7 @@ abstract class Base extends BCMath
     }
 
     /**
-     * Modular reduction preperation
+     * Modular reduction preparation
      *
      * @param string $x
      * @param string $n

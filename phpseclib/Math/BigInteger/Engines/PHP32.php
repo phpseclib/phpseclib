@@ -218,7 +218,7 @@ class PHP32 extends PHP
     }
 
     /**
-     * Logical Exlusive Or
+     * Logical Exclusive Or
      *
      * @param PHP32 $x
      * @return PHP32

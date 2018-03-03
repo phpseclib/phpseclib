@@ -522,7 +522,7 @@ class X509
                         /* "[For RSA keys] the parameters field MUST have ASN.1 type NULL for this algorithm identifier."
                            -- https://tools.ietf.org/html/rfc3279#section-2.3.1
 
-                           given that and the fact that RSA keys appear ot be the only key type for which the parameters field can be blank,
+                           given that and the fact that RSA keys appear to be the only key type for which the parameters field can be blank,
                            it seems like perhaps the ASN.1 description ought not say the parameters field is OPTIONAL, but whatever.
                          */
                         $cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = null;
