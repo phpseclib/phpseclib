@@ -244,6 +244,14 @@ class X509
     private static $oidsLoaded = false;
 
     /**
+     * Recursion Limit
+     *
+     * @var int
+     * @access private
+     */
+    static $recur_limit = 5;
+
+    /**
      * Default Constructor.
      *
      * @return \phpseclib\File\X509
@@ -1084,6 +1092,113 @@ class X509
     }
 
     /**
+     * Fetches a URL
+     *
+     * @param string $url
+     * @access private
+     * @return bool|string
+     */
+    static function _fetchURL($url)
+    {
+        $parts = parse_url($url);
+        $data = '';
+        switch ($parts['scheme']) {
+            case 'http':
+                $fsock = @fsockopen($parts['host'], isset($parts['port']) ? $parts['port'] : 80);
+                if (!$fsock) {
+                    return false;
+                }
+                fputs($fsock, "GET $parts[path] HTTP/1.0\r\n");
+                fputs($fsock, "Host: $parts[host]\r\n\r\n");
+                $line = fgets($fsock, 1024);
+                if (strlen($line) < 3) {
+                    return false;
+                }
+                preg_match('#HTTP/1.\d (\d{3})#', $line, $temp);
+                if ($temp[1] != '200') {
+                    return false;
+                }
+
+                // skip the rest of the headers in the http response
+                while (!feof($fsock) && fgets($fsock, 1024) != "\r\n") {
+                }
+
+                while (!feof($fsock)) {
+                    $data.= fread($fsock, 1024);
+                }
+
+                break;
+            //case 'ftp':
+            //case 'ldap':
+            //default:
+        }
+
+        return $data;
+    }
+
+    /**
+     * Validates an intermediate cert as identified via authority info access extension
+     *
+     * See https://tools.ietf.org/html/rfc4325 for more info
+     *
+     * @param bool $caonly
+     * @param int $count
+     * @access private
+     * @return bool
+     */
+    function _testForIntermediate($caonly, $count)
+    {
+        $opts = $this->getExtension('id-pe-authorityInfoAccess');
+        if (!is_array($opts)) {
+            return false;
+        }
+        foreach ($opts as $opt) {
+            if ($opt['accessMethod'] == 'id-ad-caIssuers') {
+                // accessLocation is a GeneralName. GeneralName fields support stuff like email addresses, IP addresses, LDAP,
+                // etc, but we're only supporting URI's. URI's and LDAP are the only thing https://tools.ietf.org/html/rfc4325
+                // discusses
+                if (isset($opt['accessLocation']['uniformResourceIdentifier'])) {
+                    $url = $opt['accessLocation']['uniformResourceIdentifier'];
+                    break;
+                }
+            }
+        }
+
+        if (!isset($url)) {
+            return false;
+        }
+
+        $cert = static::_fetchURL($url);
+        if (!is_string($cert)) {
+            return false;
+        }
+
+        $parent = new static();
+        $parent->CAs = $this->CAs;
+        /*
+         "Conforming applications that support HTTP or FTP for accessing
+          certificates MUST be able to accept .cer files and SHOULD be able
+          to accept .p7c files." -- https://tools.ietf.org/html/rfc4325
+
+         A .p7c file is 'a "certs-only" CMS message as specified in RFC 2797"
+
+         These are currently unsupported
+        */
+        if (!is_array($parent->loadX509($cert))) {
+            return false;
+        }
+
+        if (!$parent->_validateSignatureCountable($caonly, ++$count)) {
+            return false;
+        }
+
+        $this->CAs[] = $parent->currentCert;
+        //$this->loadCA($cert);
+
+        return true;
+    }
+
+    /**
      * Validate a signature
      *
      * Works on X.509 certs, CSR's and CRL's.
@@ -1100,8 +1215,27 @@ class X509
      */
     public function validateSignature($caonly = true)
     {
+        return $this->_validateSignatureCountable($caonly, 0);
+    }
+
+    /**
+     * Validate a signature
+     *
+     * Performs said validation whilst keeping track of how many times validation method is called
+     *
+     * @param bool $caonly
+     * @param int $count
+     * @access private
+     * @return mixed
+     */
+    function _validateSignatureCountable($caonly, $count)
+    {
         if (!is_array($this->currentCert) || !isset($this->signatureSubject)) {
             return null;
+        }
+
+        if ($count == self::$recur_limit) {
+            return false;
         }
 
         /* TODO:
@@ -1149,10 +1283,10 @@ class X509
                         }
                     }
                     if (count($this->CAs) == $i && $caonly) {
-                        return false;
+                        return $this->_testForIntermediate($caonly, $count) && $this->validateSignature($caonly);
                     }
                 } elseif (!isset($signingCert) || $caonly) {
-                    return false;
+                    return $this->_testForIntermediate($caonly, $count) && $this->validateSignature($caonly);
                 }
                 return $this->validateSignatureHelper(
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
@@ -1258,6 +1392,21 @@ class X509
         }
 
         return true;
+    }
+
+    /**
+     * Sets the recursion limit
+     *
+     * When validating a signature it may be necessary to download intermediate certs from URI's.
+     * An intermediate cert that linked to itself would result in an infinite loop so to prevent
+     * that we set a recursion limit. A negative number means that there is no recursion limit.
+     *
+     * @param int $count
+     * @access public
+     */
+    static function setRecurLimit($count)
+    {
+        self::$recur_limit = $count;
     }
 
     /**
