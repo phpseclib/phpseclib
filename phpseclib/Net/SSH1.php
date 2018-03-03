@@ -1336,7 +1336,7 @@ class SSH1
         // to be encrypted in the least significant bytes, the last byte of the
         // data in the least significant byte.
 
-        // Presumably the part of PKCS#1 they're refering to is "Section 7.2.1 Encryption Operation",
+        // Presumably the part of PKCS#1 they're referring to is "Section 7.2.1 Encryption Operation",
         // under "7.2 RSAES-PKCS1-v1.5" and "7 Encryption schemes" of the following URL:
         // ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-1/pkcs-1v2-1.pdf
         $modulus = $key[1]->toBytes();

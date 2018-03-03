@@ -419,7 +419,7 @@ abstract class EvalBarrett extends Base
     /**
      * Inline Comparison
      *
-     * If $uknown >= $known then loop
+     * If $unknown >= $known then loop
      *
      * @param array $known
      * @param string $unknown

@@ -104,7 +104,7 @@ abstract class Base extends PHP
     }
 
     /**
-     * Modular reduction preperation
+     * Modular reduction preparation
      *
      * @param array $x
      * @param array $n

@@ -218,7 +218,7 @@ class PHP64 extends PHP
     }
 
     /**
-     * Logical Exlusive Or
+     * Logical Exclusive Or
      *
      * @param PHP64 $x
      * @return PHP64
