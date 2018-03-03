@@ -314,6 +314,14 @@ class X509
     static $recur_limit = 5;
 
     /**
+     * URL fetch flag
+     *
+     * @var bool
+     * @access private
+     */
+    var $disable_url_fetch = false;
+
+    /**
      * Default Constructor.
      *
      * @return \phpseclib\File\X509
@@ -2121,6 +2129,10 @@ class X509
      */
     static function _fetchURL($url)
     {
+        if ($this->disable_url_fetch) {
+            return false;
+        }
+
         $parts = parse_url($url);
         $data = '';
         switch ($parts['scheme']) {
@@ -2427,6 +2439,26 @@ class X509
     static function setRecurLimit($count)
     {
         self::$recur_limit = $count;
+    }
+
+    /**
+     * Prevents URIs from being automatically retrieved
+     *
+     * @access public
+     */
+    function disableURLFetch()
+    {
+        $this->disable_url_fetch = true;
+    }
+
+    /**
+     * Allows URIs to be automatically retrieved
+     *
+     * @access public
+     */
+    function enableURLFetch()
+    {
+        $this->disable_url_fetch = false;
     }
 
     /**
