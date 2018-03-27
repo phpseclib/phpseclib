@@ -374,7 +374,7 @@ class SFTP extends SSH2
             3 => 'NET_SFTP_TYPE_SYMLINK',
             4 => 'NET_SFTP_TYPE_SPECIAL',
             5 => 'NET_SFTP_TYPE_UNKNOWN',
-            // the followin types were first defined for use in SFTPv5+
+            // the following types were first defined for use in SFTPv5+
             // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-05#section-5.2
             6 => 'NET_SFTP_TYPE_SOCKET',
             7 => 'NET_SFTP_TYPE_CHAR_DEVICE',

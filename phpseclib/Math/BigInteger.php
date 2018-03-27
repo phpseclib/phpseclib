@@ -500,7 +500,7 @@ class BigInteger implements \Serializable
     }
 
     /**
-     * Logical Exlusive Or
+     * Logical Exclusive Or
      *
      * @param BigInteger $x
      * @return BigInteger
