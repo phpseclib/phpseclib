@@ -39,6 +39,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             Base::MODE_CTR,
             Base::MODE_OFB,
             Base::MODE_CFB,
+            Base::MODE_CFB8,
         );
         $plaintexts = array(
             '',
@@ -136,6 +137,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             Base::MODE_CTR,
             Base::MODE_OFB,
             Base::MODE_CFB,
+            Base::MODE_CFB8,
         );
 
         $combos = array(
