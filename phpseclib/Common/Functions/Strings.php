@@ -107,6 +107,7 @@ abstract class Strings
      * @param $data
      * @return mixed
      * @access public
+     * @throws \InvalidArgumentException
      */
     public static function unpackSSH2($format, $data)
     {
@@ -165,9 +166,10 @@ abstract class Strings
     /**
      * Create SSH2-style string
      *
-     * @param $elements[]
+     * @param $elements []
      * @access public
      * @return mixed
+     * @throws \InvalidArgumentException
      */
     public static function packSSH2(...$elements)
     {
