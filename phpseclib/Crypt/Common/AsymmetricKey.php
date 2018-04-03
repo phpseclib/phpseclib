@@ -247,7 +247,7 @@ abstract class AsymmetricKey
         }
 
         self::loadPlugins('Keys');
-        if (static::ALGORITHM != 'RSA') {
+        if (static::ALGORITHM !== 'RSA') {
             self::loadPlugins('Signature');
         }
     }
@@ -263,7 +263,7 @@ abstract class AsymmetricKey
         if (!isset(self::$plugins[static::ALGORITHM][$format])) {
             self::$plugins[static::ALGORITHM][$format] = [];
             foreach (new \DirectoryIterator(__DIR__ . '/../' . static::ALGORITHM . '/' . $format . '/') as $file) {
-                if ($file->getExtension() != 'php') {
+                if ($file->getExtension() !== 'php') {
                     continue;
                 }
                 $name = $file->getBasename('.php');
