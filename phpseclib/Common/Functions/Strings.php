@@ -80,7 +80,7 @@ abstract class Strings
         }
 
         $result = 0;
-        for ($i = 0; $i < strlen($x); $i++) {
+        for ($i = 0, $iMax = strlen($x); $i < $iMax; $i++) {
             $result |= ord($x[$i]) ^ ord($y[$i]);
         }
 
@@ -111,7 +111,7 @@ abstract class Strings
     public static function unpackSSH2($format, $data)
     {
         $result = [];
-        for ($i = 0; $i < strlen($format); $i++) {
+        for ($i = 0, $iMax = strlen($format); $i < $iMax; $i++) {
             switch ($format[$i]) {
                 case 'C':
                 case 'b':
@@ -177,7 +177,7 @@ abstract class Strings
             throw new \InvalidArgumentException('There must be as many arguments as there are characters in the $format string');
         }
         $result = '';
-        for ($i = 0; $i < strlen($format); $i++) {
+        for ($i = 0, $iMax = strlen($format); $i < $iMax; $i++) {
             $element = $elements[$i];
             switch ($format[$i]) {
                 case 'C':
