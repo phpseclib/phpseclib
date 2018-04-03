@@ -30,6 +30,7 @@ abstract class Objects
      * @param string $var
      * @return mixed
      * @access public
+     * @throws \ReflectionException
      */
     public static function getVar($obj, $var)
     {
@@ -46,6 +47,7 @@ abstract class Objects
      * @param string $var
      * @param mixed $val
      * @access public
+     * @throws \ReflectionException
      */
     public static function setVar($obj, $var, $val)
     {
@@ -63,8 +65,9 @@ abstract class Objects
      * @param array $params
      * @return mixed
      * @access public
+     * @throws \ReflectionException
      */
-    public static function callFunc($obj, $func, $params = [])
+    public static function callFunc($obj, $func, array $params = [])
     {
         $reflection = new \ReflectionClass(get_class($obj));
         $method = $reflection->getMethod($func);
