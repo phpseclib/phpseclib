@@ -75,7 +75,7 @@ abstract class Strings
      */
     public static function equals($x, $y)
     {
-        if (strlen($x) != strlen($y)) {
+        if (strlen($x) !== strlen($y)) {
             return false;
         }
 
@@ -136,7 +136,7 @@ abstract class Strings
                     $result[] = ord(self::shift($data));
                     continue 2;
                 case 'b':
-                    $result[] = ord(self::shift($data)) != 0;
+                    $result[] = ord(self::shift($data)) !== 0;
                     continue 2;
                 case 'N':
                     list(, $temp) = unpack('N', self::shift($data, 4));
@@ -175,7 +175,7 @@ abstract class Strings
     {
         $format = $elements[0];
         array_shift($elements);
-        if (strlen($format) != count($elements)) {
+        if (strlen($format) !== count($elements)) {
             throw new \InvalidArgumentException('There must be as many arguments as there are characters in the $format string');
         }
         $result = '';
