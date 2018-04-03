@@ -682,11 +682,11 @@ abstract class SymmetricKey
                     $dkLen = $func_args[3];
                 } else {
                     $key_length = $this->explicit_key_length !== false ? $this->explicit_key_length : $this->key_length;
-                    $dkLen = $method == 'pbkdf1' ? 2 * $key_length : $key_length;
+                    $dkLen = $method === 'pbkdf1' ? 2 * $key_length : $key_length;
                 }
 
                 switch (true) {
-                    case $method == 'pkcs12':
+                    case $method === 'pkcs12':
                         /*
                          In this specification, however, all passwords are created from
                          BMPStrings with a NULL terminator.  This means that each character in
@@ -741,7 +741,7 @@ abstract class SymmetricKey
                         }
 
                         return true;
-                    case $method == 'pbkdf1':
+                    case $method === 'pbkdf1':
                         if ($dkLen > $hashObj->getLengthInBytes()) {
                             throw new \LengthException('Derived key length cannot be longer than the hash length');
                         }
@@ -2754,7 +2754,7 @@ abstract class SymmetricKey
         switch (true) {
             case is_int($x):
             // PHP 5.3, per http://php.net/releases/5_3_0.php, introduced "more consistent float rounding"
-            case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
+            case (php_uname('m') & "\xDF\xDF\xDF") !== 'ARM':
                 return $x;
         }
         return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
@@ -2771,7 +2771,7 @@ abstract class SymmetricKey
     {
         switch (true) {
             case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
-            case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
+            case (php_uname('m') & "\xDF\xDF\xDF") !== 'ARM':
                 return '%s';
                 break;
             default:
