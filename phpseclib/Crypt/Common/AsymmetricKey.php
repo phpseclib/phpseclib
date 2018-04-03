@@ -403,6 +403,7 @@ abstract class AsymmetricKey
      * @param string $fullname
      * @access public
      * @return bool
+     * @throws \ReflectionException
      */
     public static function addFileFormat($fullname)
     {
@@ -523,6 +524,7 @@ abstract class AsymmetricKey
      * @see self::load()
      * @access public
      * @return mixed
+     * @throws \ReflectionException
      */
     public function getLoadedFormat()
     {
