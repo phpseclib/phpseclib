@@ -108,6 +108,10 @@ abstract class PHP extends Engine
                 while (strlen($x)) {
                     $this->value[] = self::bytes2int(self::base256_rshift($x, static::BASE));
                 }
+
+                if ($this->value == [0]) {
+                    $this->value = [];
+                }
                 break;
             case 16:
                 $x = (strlen($this->value) & 1) ? '0' . $this->value : $this->value;
