@@ -419,4 +419,14 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $prime = $class::randomPrime(128);
         $this->assertSame(128, $prime->getLength());
     }
+
+    /**
+     * @group github1260
+     */
+    public function testZeros()
+    {
+        $a = $this->getInstance();
+        $b = $this->getInstance('00', 16);
+        $this->assertTrue($a->equals($b));
+    }
 }
