@@ -98,7 +98,7 @@ class Stream
     /**
      * Context resource
      *
-     * Technically this needs to be publically accessible so PHP can set it directly
+     * Technically this needs to be publicly accessible so PHP can set it directly
      *
      * @var resource
      * @access public

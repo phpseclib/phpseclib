@@ -493,7 +493,7 @@ abstract class SymmetricKey
     public function __construct($mode)
     {
         $mode = strtolower($mode);
-        // necessary because of 5.6 compatability; we can't do isset(self::MODE_MAP[$mode]) in 5.6
+        // necessary because of 5.6 compatibility; we can't do isset(self::MODE_MAP[$mode]) in 5.6
         $map = self::MODE_MAP;
         if (!isset($map[$mode])) {
             throw new \InvalidArgumentException('No valid mode has been specified');
@@ -1504,7 +1504,7 @@ abstract class SymmetricKey
      * PHP's OpenSSL bindings do not operate in continuous mode so we'll wrap around it. Since the keystream
      * for CTR is the same for both encrypting and decrypting this function is re-used by both SymmetricKey::encrypt()
      * and SymmetricKey::decrypt(). Also, OpenSSL doesn't implement CTR for all of it's symmetric ciphers so this
-     * function will emulate CTR with ECB when necesary.
+     * function will emulate CTR with ECB when necessary.
      *
      * @see self::encrypt()
      * @see self::decrypt()
@@ -2187,7 +2187,7 @@ abstract class SymmetricKey
      *
      *     This ensures that _setupInlineCrypt() has always a
      *     full ready2go initializated internal cipher $engine state
-     *     where, for example, the keys allready expanded,
+     *     where, for example, the keys already expanded,
      *     keys/block_size calculated and such.
      *
      *     It is, each time if called, the responsibility of _setupInlineCrypt():

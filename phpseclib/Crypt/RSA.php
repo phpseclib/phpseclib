@@ -613,7 +613,7 @@ class RSA extends AsymmetricKey
     /**
      * Returns a minimalistic private key
      *
-     * Returns the private key without the prime number constituants.  Structurally identical to a public key that
+     * Returns the private key without the prime number constituents.  Structurally identical to a public key that
      * hasn't been set as the public key
      *
      * @see self::getPrivateKey()

@@ -399,7 +399,7 @@ class BCMath extends Engine
     }
 
     /**
-     * Logical Exlusive Or
+     * Logical Exclusive Or
      *
      * @param BCMath $x
      * @return BCMath

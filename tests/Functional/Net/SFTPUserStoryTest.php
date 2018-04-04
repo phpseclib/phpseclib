@@ -608,7 +608,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $this->assertInternalType(
             'array',
             $sftp->stat(self::$scratchDir),
-            'Failed asserting that stat on an existant empty directory returns an array'
+            'Failed asserting that stat on an existent empty directory returns an array'
         );
         $this->assertTrue(
             $sftp->delete(self::$scratchDir),
