@@ -8,7 +8,7 @@
 - SFTP: fix issue with extended attributes on 64-bit PHP installs (#1248)
 - SSH2: more channel handling updates (#1200)
 - X509: use anonymous functions in PHP >= 5.3.0
-- X509: revise logic for validateLogic (#1213)
+- X509: revise logic for validateSignature (#1213)
 - X509: fix 7.2 error when extensions were removed and new ones added (#1243)
 - fix float to int conversions on ARM CPU's (#1220)
 
