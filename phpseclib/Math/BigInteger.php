@@ -539,7 +539,7 @@ class BigInteger
             $temp = $comparison < 0 ? $this->add(new static(1)) : $this->copy();
             $bytes = $temp->toBytes();
 
-            if (empty($bytes)) { // eg. if the number we're trying to convert is -1
+            if (!strlen($bytes)) { // eg. if the number we're trying to convert is -1
                 $bytes = chr(0);
             }
 

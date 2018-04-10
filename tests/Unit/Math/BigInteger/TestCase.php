@@ -394,4 +394,13 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $n = $this->getInstance(2);
         $x->powMod($e, $n);
     }
+
+    /**
+     * @group github1264
+     */
+    public function test48ToHex()
+    {
+        $temp = $this->getInstance(48);
+        $this->assertSame($temp->toHex(true), '30');
+    }
 }
