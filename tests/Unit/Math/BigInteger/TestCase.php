@@ -375,6 +375,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $n = $this->getInstance(2);
         $x->powMod($e, $n);
     }
+
     public function testRoot()
     {
         $bigInteger = $this->getInstance('64000000'); // (20^2)^3
@@ -428,5 +429,14 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $a = $this->getInstance();
         $b = $this->getInstance('00', 16);
         $this->assertTrue($a->equals($b));
+    }
+
+    /**
+     * @group github1264
+     */
+    public function test48ToHex()
+    {
+        $temp = $this->getInstance(48);
+        $this->assertSame($temp->toHex(true), '30');
     }
 }
