@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.11 - 2018-04-15
+
+- X509: auto download intermediate certs
+- BigInteger: fix for (new BigInteger(48))->toString(true)) (#1264)
+- ASN1: class is never set as key in _decode_ber
+- check if phpinfo() is available before using (#1256)
+- backport CFB8 support from master to 2.0 (#1257)
+
 ## 2.0.10 - 2018-02-08
 
 - BigInteger: fix issue with bitwise_xor (#1245)
@@ -107,6 +115,12 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.11 - 2018-04-15
+
+- X509: auto download intermediate certs
+- BigInteger: fix for (new BigInteger(48))->toString(true)) (#1264)
+- ASN1: class is never set as key in _decode_ber
 
 ## 1.0.10 - 2018-02-08
 
