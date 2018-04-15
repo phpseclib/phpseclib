@@ -299,4 +299,36 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $data = base64_decode('MD6gJQYKKwYBBAGCNxQCA6AXDBVvZmZpY2VAY2VydGRpZ2l0YWwucm+BFW9mZmljZUBjZXJ0ZGlnaXRhbC5ybw==');
         $asn1->decodeBER($data);
     }
+
+    public function testApplicationTag()
+    {
+        $map = array(
+            'type'     => ASN1::TYPE_SEQUENCE,
+            'children' => array(
+                // technically, default implies optional, but we'll define it as being optional, none-the-less, just to
+                // reenforce that fact
+                'version'             => array(
+                    // if class isn't present it's assumed to be ASN1::CLASS_UNIVERSAL or
+                    // (if constant is present) ASN1::CLASS_CONTEXT_SPECIFIC
+                    'class'    => ASN1::CLASS_APPLICATION,
+                    'cast'     => 2,
+                    'optional' => true,
+                    'explicit' => true,
+                    'default'  => 'v1',
+                    'type'     => ASN1::TYPE_INTEGER,
+                    'mapping' => array('v1', 'v2', 'v3')
+                )
+            )
+        );
+
+        $data = array('version' => 'v3');
+
+        $asn1 = new ASN1();
+        $str = $asn1->encodeDER($data, $map);
+
+        $decoded = $asn1->decodeBER($str);
+        $arr = $asn1->asn1map($decoded[0], $map);
+
+        $this->assertSame($data, $arr);
+    }
 }
