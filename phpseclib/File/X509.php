@@ -2579,7 +2579,7 @@ class X509
                 'tbsCertificate' =>
                     [
                         'version' => 'v3',
-                        'serialNumber' => $serialNumber, // $this->setserialNumber()
+                        'serialNumber' => $serialNumber, // $this->setSerialNumber()
                         'signature' => ['algorithm' => $signatureAlgorithm],
                         'issuer' => false, // this is going to be overwritten later
                         'validity' => [
