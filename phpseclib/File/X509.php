@@ -3698,7 +3698,7 @@ class File_X509
                 'tbsCertificate' =>
                     array(
                         'version' => 'v3',
-                        'serialNumber' => $serialNumber, // $this->setserialNumber()
+                        'serialNumber' => $serialNumber, // $this->setSerialNumber()
                         'signature' => array('algorithm' => $signatureAlgorithm),
                         'issuer' => false, // this is going to be overwritten later
                         'validity' => array(
