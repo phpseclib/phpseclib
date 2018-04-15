@@ -666,7 +666,7 @@ class File_ASN1
                             $childClass = $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
                             $constant = null;
                             if (isset($temp['constant'])) {
-                                $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                                $tempClass = $temp['type'];
                             }
                             if (isset($child['class'])) {
                                 $childClass = $child['class'];
@@ -729,7 +729,7 @@ class File_ASN1
                     $temp = $decoded['content'][$i];
                     $tempClass = FILE_ASN1_CLASS_UNIVERSAL;
                     if (isset($temp['constant'])) {
-                        $tempClass = isset($temp['class']) ? $temp['class'] : FILE_ASN1_CLASS_CONTEXT_SPECIFIC;
+                        $tempClass = $temp['type'];
                     }
 
                     foreach ($mapping['children'] as $key => $child) {
