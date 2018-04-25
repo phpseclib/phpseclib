@@ -1020,9 +1020,9 @@ class RSA
      * @access private
      * @see self::_convertPublicKey()
      * @see self::_convertPrivateKey()
-     * @param string $key
+     * @param string|array $key
      * @param int $type
-     * @return array
+     * @return array|bool
      */
     function _parseKey($key, $type)
     {
@@ -1505,8 +1505,9 @@ class RSA
      * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
      *
      * @access public
-     * @param string $key
-     * @param int $type optional
+     * @param string|RSA|array $key
+     * @param bool $type optional
+     * @return bool
      */
     function loadKey($key, $type = false)
     {
