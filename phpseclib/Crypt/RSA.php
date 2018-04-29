@@ -471,7 +471,7 @@ class RSA extends AsymmetricKey
      *
      * @return bool
      * @access public
-     * @param string $key
+     * @param string|RSA|array $key
      * @param int|bool $type optional
      */
     public function load($key, $type = false)
