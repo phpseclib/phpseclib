@@ -1138,11 +1138,12 @@ class SSH2
             }
             $elapsed = microtime(true) - $start;
 
-            $this->curTimeout-= $elapsed;
-
-            if ($this->curTimeout <= 0) {
-                $this->is_timeout = true;
-                return false;
+            if ($this->curTimeout) {
+                $this->curTimeout-= $elapsed;
+                if ($this->curTimeout < 0) {
+                    $this->is_timeout = true;
+                    return false;
+                }
             }
         }
 
@@ -3636,10 +3637,6 @@ class SSH2
             if ($client_channel == -1 && $response === true) {
                 return true;
             }
-            if (!strlen($response)) {
-                return '';
-            }
-
             if (!strlen($response)) {
                 return false;
             }
