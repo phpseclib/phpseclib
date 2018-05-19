@@ -1159,11 +1159,12 @@ class Net_SSH2
             }
             $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
 
-            $this->curTimeout-= $elapsed;
-
-            if ($this->curTimeout <= 0) {
-                $this->is_timeout = true;
-                return false;
+            if ($this->curTimeout) {
+                $this->curTimeout-= $elapsed;
+                if ($this->curTimeout < 0) {
+                    $this->is_timeout = true;
+                    return false;
+                }
             }
         }
 
@@ -3695,10 +3696,6 @@ class Net_SSH2
             if ($client_channel == -1 && $response === true) {
                 return true;
             }
-            if (!strlen($response)) {
-                return '';
-            }
-
             if (!strlen($response)) {
                 return false;
             }
