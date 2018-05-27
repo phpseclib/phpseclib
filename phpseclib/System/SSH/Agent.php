@@ -203,6 +203,18 @@ class System_SSH_Agent_Identity
     }
 
     /**
+     * Set Hash
+     *
+     * ssh-agent doesn't support using hashes for RSA other than SHA1
+     *
+     * @param string $hash
+     * @access public
+     */
+    function setHash($hash)
+    {
+    }
+
+    /**
      * Create a signature
      *
      * See "2.6.2 Protocol 2 private key signature request"
@@ -330,12 +342,14 @@ class System_SSH_Agent
         $packet = pack('NC', 1, SYSTEM_SSH_AGENTC_REQUEST_IDENTITIES);
         if (strlen($packet) != fputs($this->fsock, $packet)) {
             user_error('Connection closed while requesting identities');
+            return array();
         }
 
         $length = current(unpack('N', fread($this->fsock, 4)));
         $type = ord(fread($this->fsock, 1));
         if ($type != SYSTEM_SSH_AGENT_IDENTITIES_ANSWER) {
             user_error('Unable to request identities');
+            return array();
         }
 
         $identities = array();
