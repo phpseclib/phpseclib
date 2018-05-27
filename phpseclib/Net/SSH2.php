@@ -924,6 +924,14 @@ class Net_SSH2
     var $binary_packet_buffer = false;
 
     /**
+     * Preferred Signature Format
+     *
+     * @var string|false
+     * @access private
+     */
+    var $preferred_signature_format = false;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1310,6 +1318,8 @@ class Net_SSH2
         );
 
         static $server_host_key_algorithms = array(
+            'rsa-sha2-256', // RFC 8332
+            'rsa-sha2-512', // RFC 8332
             'ssh-rsa', // RECOMMENDED  sign   Raw RSA Key
             'ssh-dss'  // REQUIRED     sign   Raw DSS Key
         );
@@ -1777,7 +1787,18 @@ class Net_SSH2
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
 
-        if ($public_key_format != $server_host_key_algorithm || $this->signature_format != $server_host_key_algorithm) {
+        switch ($server_host_key_algorithm) {
+            case 'ssh-dss':
+                $expected_key_format = 'ssh-dss';
+                break;
+            //case 'rsa-sha2-256':
+            //case 'rsa-sha2-512':
+            //case 'ssh-rsa':
+            default:
+                $expected_key_format = 'ssh-rsa';
+        }
+
+        if ($public_key_format != $expected_key_format || $this->signature_format != $server_host_key_algorithm) {
             user_error('Server Host Key Algorithm Mismatch');
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
@@ -2696,8 +2717,23 @@ class Net_SSH2
 
         $packet = $part1 . chr(1) . $part2;
         $privatekey->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+        switch ($this->signature_format) {
+            case 'rsa-sha2-512':
+                $hash = 'sha512';
+                $type = 'rsa-sha2-512';
+                break;
+            case 'rsa-sha2-256':
+                $hash = 'sha256';
+                $type = 'rsa-sha2-256';
+                break;
+            //case 'ssh-rsa':
+            default:
+                $hash = 'sha1';
+                $type = 'ssh-rsa';
+        }
+        $privatekey->setHash($hash);
         $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet));
-        $signature = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($signature), $signature);
+        $signature = pack('Na*Na*', strlen($type), $type, strlen($signature), $signature);
         $packet.= pack('Na*', strlen($signature), $signature);
 
         if (!$this->_send_binary_packet($packet)) {
@@ -4580,6 +4616,8 @@ class Net_SSH2
 
                 break;
             case 'ssh-rsa':
+            case 'rsa-sha2-256':
+            case 'rsa-sha2-512':
                 if (strlen($server_public_host_key) < 4) {
                     return false;
                 }
@@ -4606,6 +4644,18 @@ class Net_SSH2
                 }
 
                 $rsa = new Crypt_RSA();
+                switch ($this->signature_format) {
+                    case 'rsa-sha2-512':
+                        $hash = 'sha512';
+                        break;
+                    case 'rsa-sha2-256':
+                        $hash = 'sha256';
+                        break;
+                    //case 'ssh-rsa':
+                    default:
+                        $hash = 'sha1';
+                }
+                $rsa->setHash($hash);
                 $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
                 $rsa->loadKey(array('e' => $e, 'n' => $n), CRYPT_RSA_PUBLIC_FORMAT_RAW);
                 if (!$rsa->verify($this->exchange_hash, $signature)) {
@@ -4634,7 +4684,30 @@ class Net_SSH2
                 $s = $s->modPow($e, $n);
                 $s = $s->toBytes();
 
-                $h = pack('N4H*', 0x00302130, 0x0906052B, 0x0E03021A, 0x05000414, sha1($this->exchange_hash));
+                switch ($this->signature_format) {
+                    case 'rsa-sha2-512':
+                        $hash = 'sha512';
+                        break;
+                    case 'rsa-sha2-256':
+                        $hash = 'sha256';
+                        break;
+                    //case 'ssh-rsa':
+                    default:
+                        $hash = 'sha1';
+                }
+                $hashObj = new Crypt_Hash($hash);
+                switch ($this->signature_format) {
+                    case 'rsa-sha2-512':
+                        $h = pack('N5a*', 0x00305130, 0x0D060960, 0x86480165, 0x03040203, 0x05000440, $hashObj->hash($this->exchange_hash));
+                        break;
+                    case 'rsa-sha2-256':
+                        $h = pack('N5a*', 0x00303130, 0x0D060960, 0x86480165, 0x03040201, 0x05000420, $hashObj->hash($this->exchange_hash));
+                        break;
+                    //case 'ssh-rsa':
+                    default:
+                        $hash = 'sha1';
+                        $h = pack('N4a*', 0x00302130, 0x0906052B, 0x0E03021A, 0x05000414, $hashObj->hash($this->exchange_hash));
+                }
                 $h = chr(0x01) . str_repeat(chr(0xFF), $nLength - 2 - strlen($h)) . $h;
 
                 if ($s != $h) {
