@@ -133,6 +133,18 @@ class Identity
     }
 
     /**
+     * Set Hash
+     *
+     * ssh-agent doesn't support using hashes for RSA other than SHA1
+     *
+     * @param string $hash
+     * @access public
+     */
+    function setHash($hash)
+    {
+    }
+
+    /**
      * Create a signature
      *
      * See "2.6.2 Protocol 2 private key signature request"

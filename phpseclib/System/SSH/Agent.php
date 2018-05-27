@@ -323,6 +323,7 @@ class Agent
 
         return pack('Na*', $agent_reply_bytes, $agent_reply_data);
     }
+<<<<<<< HEAD
 
     /**
      * Forward data to SSH Agent and return data reply
@@ -338,3 +339,6 @@ class Agent
         Objects::setVar($ssh, 'channel_status', $temp);
     }
 }
+=======
+}
+>>>>>>> 2.0
