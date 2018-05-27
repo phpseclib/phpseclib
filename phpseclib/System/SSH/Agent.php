@@ -155,12 +155,14 @@ class Agent
         $packet = pack('NC', 1, self::SSH_AGENTC_REQUEST_IDENTITIES);
         if (strlen($packet) != fputs($this->fsock, $packet)) {
             user_error('Connection closed while requesting identities');
+            return array();
         }
 
         $length = current(unpack('N', fread($this->fsock, 4)));
         $type = ord(fread($this->fsock, 1));
         if ($type != self::SSH_AGENT_IDENTITIES_ANSWER) {
             user_error('Unable to request identities');
+            return array();
         }
 
         $identities = array();
