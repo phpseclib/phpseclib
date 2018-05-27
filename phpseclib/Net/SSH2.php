@@ -4589,7 +4589,7 @@ class SSH2
                     default:
                         $hash = 'sha1';
                 }
-                $hashObj = new Crypt_Hash($hash);
+                $hashObj = new Hash($hash);
                 switch ($this->signature_format) {
                     case 'rsa-sha2-512':
                         $h = pack('N5a*', 0x00305130, 0x0D060960, 0x86480165, 0x03040203, 0x05000440, $hashObj->hash($this->exchange_hash));
