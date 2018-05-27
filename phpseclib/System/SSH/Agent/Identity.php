@@ -122,7 +122,6 @@ class Identity
      * ssh-agent only supports signatures with sha1 hashes but to maintain BC with RSA.php this function exists
      *
      * @param string $hash optional
-     * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @access public
      */
     public function setHash($hash = 'sha1')
@@ -130,18 +129,6 @@ class Identity
         if ($hash != 'sha1') {
             throw new UnsupportedAlgorithmException('ssh-agent can only be used with the sha1 hash');
         }
-    }
-
-    /**
-     * Set Hash
-     *
-     * ssh-agent doesn't support using hashes for RSA other than SHA1
-     *
-     * @param string $hash
-     * @access public
-     */
-    function setHash($hash)
-    {
     }
 
     /**

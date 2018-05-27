@@ -60,6 +60,7 @@ use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\Twofish;
 use phpseclib\Math\BigInteger; // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
 use phpseclib\System\SSH\Agent;
+use phpseclib\System\SSH\Agent\Identity as AgentIdentity;
 use phpseclib\Exception\NoSupportedAlgorithmsException;
 use phpseclib\Common\Functions\Strings;
 use phpseclib\Common\Functions\Objects;
@@ -2642,19 +2643,24 @@ class SSH2
         }
 
         $packet = $part1 . chr(1) . $part2;
-        switch ($this->signature_format) {
-            case 'rsa-sha2-512':
-                $hash = 'sha512';
-                $type = 'rsa-sha2-512';
-                break;
-            case 'rsa-sha2-256':
-                $hash = 'sha256';
-                $type = 'rsa-sha2-256';
-                break;
-            //case 'ssh-rsa':
-            default:
-                $hash = 'sha1';
-                $type = 'ssh-rsa';
+        if ($privatekey instanceof AgentIdentity) {
+            $hash = 'sha1';
+            $type = 'ssh-rsa';
+        } else {
+            switch ($this->signature_format) {
+                case 'rsa-sha2-512':
+                    $hash = 'sha512';
+                    $type = 'rsa-sha2-512';
+                    break;
+                case 'rsa-sha2-256':
+                    $hash = 'sha256';
+                    $type = 'rsa-sha2-256';
+                    break;
+                //case 'ssh-rsa':
+                default:
+                    $hash = 'sha1';
+                    $type = 'ssh-rsa';
+            }
         }
         $privatekey->setHash($hash);
         $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet), RSA::PADDING_PKCS1);
