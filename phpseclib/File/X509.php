@@ -2122,7 +2122,7 @@ class File_X509
      *
      * If $date isn't defined it is assumed to be the current date.
      *
-     * @param int $date optional
+     * @param \DateTime|int|string $date optional
      * @access public
      */
     function validateDate($date = null)
@@ -2133,7 +2133,7 @@ class File_X509
 
         if (!isset($date)) {
             $date = class_exists('DateTime') ?
-                new DateTime($date, new DateTimeZone(@date_default_timezone_get())) :
+                new DateTime(null, new DateTimeZone(@date_default_timezone_get())) :
                 time();
         }
 
@@ -2143,12 +2143,18 @@ class File_X509
         $notAfter = $this->currentCert['tbsCertificate']['validity']['notAfter'];
         $notAfter = isset($notAfter['generalTime']) ? $notAfter['generalTime'] : $notAfter['utcTime'];
 
-        if (class_exists('DateTime')) {
-            $notBefore = new DateTime($notBefore, new DateTimeZone(@date_default_timezone_get()));
-            $notAfter = new DateTime($notAfter, new DateTimeZone(@date_default_timezone_get()));
-        } else {
-            $notBefore = @strtotime($notBefore);
-            $notAfter = @strtotime($notAfter);
+        switch (true) {
+            case is_string($date) && class_exists('DateTime'):
+                $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
+            case is_object($date) && strtolower(get_class($date)) == 'datetime':
+                $notBefore = new DateTime($notBefore, new DateTimeZone(@date_default_timezone_get()));
+                $notAfter = new DateTime($notAfter, new DateTimeZone(@date_default_timezone_get()));
+                break;
+            case is_string($date):
+                $date = @strtotime($date);
+            default:
+                $notBefore = @strtotime($notBefore);
+                $notAfter = @strtotime($notAfter);
         }
 
         switch (true) {
