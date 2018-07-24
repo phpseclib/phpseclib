@@ -3030,7 +3030,7 @@ class SSH2
      * @see self::write()
      * @param string $expect
      * @param int $mode
-     * @return string
+     * @return string|bool|null
      * @throws \RuntimeException on connection error
      * @access public
      */
