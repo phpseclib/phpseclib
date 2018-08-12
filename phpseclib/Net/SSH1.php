@@ -923,7 +923,7 @@ class SSH1
      * @see self::write()
      * @param string $expect
      * @param int $mode
-     * @return bool
+     * @return string
      * @throws \RuntimeException on connection error
      * @access public
      */
