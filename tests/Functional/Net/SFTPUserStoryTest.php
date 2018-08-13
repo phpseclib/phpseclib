@@ -734,7 +734,6 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
      */
     public function testRawlistDisabledStatCache($sftp)
     {
-        $this->assertTrue($sftp->chdir('unittests'));
         $this->assertTrue($sftp->mkdir(self::$scratchDir));
         $this->assertTrue($sftp->chdir(self::$scratchDir));
         $this->assertTrue($sftp->put('text.txt', 'zzzzz'));
