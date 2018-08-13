@@ -722,5 +722,32 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $sftp->exec('ping google.com -c 5');
         sleep(5);
         $sftp->nlist();
+
+        return $sftp;
+    }
+
+    /**
+     * @depends testExecNlist
+     */
+    public function testRawlistDisabledStatCache($sftp)
+    {
+        $this->assertTrue($sftp->chdir('unittests'));
+        $this->assertTrue($sftp->mkdir(self::$scratchDir));
+        $this->assertTrue($sftp->chdir(self::$scratchDir));
+        $this->assertTrue($sftp->put('text.txt', 'zzzzz'));
+        $this->assertTrue($sftp->mkdir('subdir'));
+        $this->assertTrue($sftp->chdir('subdir'));
+        $this->assertTrue($sftp->put('leaf.txt', 'yyyyy'));
+        $this->assertTrue($sftp->chdir('../../'));
+
+        $list_cache_enabled = $sftp->rawlist('.', true);
+
+        $sftp->clearStatCache();
+
+        $sftp->disableStatCache();
+
+        $list_cache_disabled = $sftp->rawlist('.', true);
+
+        $this->assertEquals($list_cache_enabled, $list_cache_disabled, 'The files should be the same regardless of stat cache', 0.0, 10, true);
     }
 }
