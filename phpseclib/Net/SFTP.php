@@ -924,7 +924,7 @@ class Net_SFTP extends Net_SSH2
                 if ($this->use_stat_cache) {
                     $is_directory = is_array($this->_query_stat_cache($this->_realpath($dir . '/' . $key)));
                 } else {
-                    $stat = $this->stat($dir . '/' . $key);
+                    $stat = $this->lstat($dir . '/' . $key);
                     $is_directory = $stat && $stat['type'] === NET_SFTP_TYPE_DIRECTORY;
                 }
             }
