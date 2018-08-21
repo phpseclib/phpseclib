@@ -1229,7 +1229,7 @@ class SSH2
 
         $this->server_identifier = trim($temp, "\r\n");
         if (strlen($extra)) {
-            $this->errors[] = utf8_decode($data);
+            $this->errors[] = $data;
         }
 
         if (version_compare($matches[3], '1.99', '<')) {
@@ -2327,7 +2327,7 @@ class SSH2
                 extract(unpack('Nlength', Strings::shift($response, 4)));
                 /** @var integer $length */
 
-                $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . utf8_decode(Strings::shift($response, $length));
+                $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . Strings::shift($response, $length);
 
                 return $this->disconnect_helper(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_FAILURE:
@@ -3392,7 +3392,7 @@ class SSH2
                  * @var integer $length
                  */
 
-                $this->errors[] = 'SSH_MSG_DISCONNECT: ' . $this->disconnect_reasons[$reason_code] . "\r\n" . utf8_decode(Strings::shift($payload, $length));
+                $this->errors[] = 'SSH_MSG_DISCONNECT: ' . $this->disconnect_reasons[$reason_code] . "\r\n" . Strings::shift($payload, $length);
                 $this->bitmap = 0;
                 return false;
             case NET_SSH2_MSG_IGNORE:
@@ -3406,7 +3406,7 @@ class SSH2
                 extract(unpack('Nlength', Strings::shift($payload, 4)));
                 /** @var integer $length */
 
-                $this->errors[] = 'SSH_MSG_DEBUG: ' . utf8_decode(Strings::shift($payload, $length));
+                $this->errors[] = 'SSH_MSG_DEBUG: ' . Strings::shift($payload, $length);
                 $payload = $this->get_binary_packet($skip_channel_filter);
                 break;
             case NET_SSH2_MSG_UNIMPLEMENTED:
@@ -3430,7 +3430,7 @@ class SSH2
             extract(unpack('Nlength', Strings::shift($payload, 4)));
             /** @var integer $length */
 
-            $this->banner_message = utf8_decode(Strings::shift($payload, $length));
+            $this->banner_message = Strings::shift($payload, $length);
             $payload = $this->get_binary_packet();
         }
 
