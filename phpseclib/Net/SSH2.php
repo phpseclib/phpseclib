@@ -1989,7 +1989,7 @@ class Net_SSH2
 
         if ($this->encrypt) {
             if ($this->crypto_engine) {
-                $this->encrypt->setEngine($this->crypto_engine);
+                $this->encrypt->setPreferredEngine($this->crypto_engine);
             }
             $this->encrypt->enableContinuousBuffer();
             $this->encrypt->disablePadding();
@@ -2009,7 +2009,7 @@ class Net_SSH2
 
         if ($this->decrypt) {
             if ($this->crypto_engine) {
-                $this->decrypt->setEngine($this->crypto_engine);
+                $this->decrypt->setPreferredEngine($this->crypto_engine);
             }
             $this->decrypt->enableContinuousBuffer();
             $this->decrypt->disablePadding();
