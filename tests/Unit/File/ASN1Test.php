@@ -338,7 +338,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     public function testInvalidCertificate()
     {
         $data = 'a' . base64_decode('MD6gJQYKKwYBBAGCNxQCA6AXDBVvZmZpY2VAY2VydGRpZ2l0YWwucm+BFW9mZmljZUBjZXJ0ZGlnaXRhbC5ybw==');
-        $asn1 = new File_ASN1();
+        $asn1 = new ASN1();
         $asn1->decodeBER($data);
     }
 }
