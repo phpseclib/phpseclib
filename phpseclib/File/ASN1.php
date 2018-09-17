@@ -308,6 +308,9 @@ class ASN1
                 $remainingLength = $length;
                 while ($remainingLength > 0) {
                     $temp = $this->_decode_ber($content, $start, $content_pos);
+                    if ($temp === false) {
+                        break;
+                    }
                     $length = $temp['length'];
                     // end-of-content octets - see paragraph 8.1.5
                     if (substr($content, $content_pos + $length, 2) == "\0\0") {
@@ -359,6 +362,9 @@ class ASN1
                     $current['content'] = substr($content, $content_pos);
                 } else {
                     $temp = $this->_decode_ber($content, $start, $content_pos);
+                    if ($temp === false) {
+                        return false;
+                    }
                     $length-= (strlen($content) - $content_pos);
                     $last = count($temp) - 1;
                     for ($i = 0; $i < $last; $i++) {
@@ -383,6 +389,9 @@ class ASN1
                     $length = 0;
                     while (substr($content, $content_pos, 2) != "\0\0") {
                         $temp = $this->_decode_ber($content, $length + $start, $content_pos);
+                        if ($temp === false) {
+                            return false;
+                        }
                         $content_pos += $temp['length'];
                         // all subtags should be octet strings
                         //if ($temp['type'] != self::TYPE_OCTET_STRING) {
@@ -415,6 +424,9 @@ class ASN1
                         break 2;
                     }
                     $temp = $this->_decode_ber($content, $start + $offset, $content_pos);
+                    if ($temp === false) {
+                        return false;
+                    }
                     $content_pos += $temp['length'];
                     $current['content'][] = $temp;
                     $offset+= $temp['length'];
