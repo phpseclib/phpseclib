@@ -100,8 +100,8 @@ class SSH2
      *     open request, and 'sender channel' is the channel number allocated by
      *     the other side.
      *
-     * @see \phpseclib\Net\SSH2::_send_channel_packet()
-     * @see \phpseclib\Net\SSH2::_get_channel_packet()
+     * @see \phpseclib\Net\SSH2::send_channel_packet()
+     * @see \phpseclib\Net\SSH2::get_channel_packet()
      * @access private
     */
     const CHANNEL_EXEC          = 1; // PuTTy uses 0x100
@@ -502,7 +502,7 @@ class SSH2
      *
      * Maps client channels to server channels
      *
-     * @see self::_get_channel_packet()
+     * @see self::get_channel_packet()
      * @see self::exec()
      * @var array
      * @access private
@@ -515,7 +515,7 @@ class SSH2
      * If a client requests a packet from one channel but receives two packets from another those packets should
      * be placed in a buffer
      *
-     * @see self::_get_channel_packet()
+     * @see self::get_channel_packet()
      * @see self::exec()
      * @var array
      * @access private
@@ -527,7 +527,7 @@ class SSH2
      *
      * Contains the type of the last sent message
      *
-     * @see self::_get_channel_packet()
+     * @see self::get_channel_packet()
      * @var array
      * @access private
      */
@@ -538,7 +538,7 @@ class SSH2
      *
      * Maximum packet size indexed by channel
      *
-     * @see self::_send_channel_packet()
+     * @see self::send_channel_packet()
      * @var array
      * @access private
      */
@@ -568,7 +568,7 @@ class SSH2
      * Bytes the other party can send before it must wait for the window to be adjusted (0x7FFFFFFF = 2GB)
      *
      * @var int
-     * @see self::_send_channel_packet()
+     * @see self::send_channel_packet()
      * @see self::exec()
      * @access private
      */
@@ -579,7 +579,7 @@ class SSH2
      *
      * Window size indexed by channel
      *
-     * @see self::_send_channel_packet()
+     * @see self::send_channel_packet()
      * @var array
      * @access private
      */
@@ -590,7 +590,7 @@ class SSH2
      *
      * Window size indexed by channel
      *
-     * @see self::_get_channel_packet()
+     * @see self::get_channel_packet()
      * @var array
      * @access private
      */
@@ -650,7 +650,7 @@ class SSH2
     /**
      * Current Timeout
      *
-     * @see self::_get_channel_packet()
+     * @see self::get_channel_packet()
      * @access private
      */
     protected $curTimeout;
@@ -2743,7 +2743,7 @@ class SSH2
     /**
      * Execute Command
      *
-     * If $callback is set to false then \phpseclib\Net\SSH2::_get_channel_packet(self::CHANNEL_EXEC) will need to be called manually.
+     * If $callback is set to false then \phpseclib\Net\SSH2::get_channel_packet(self::CHANNEL_EXEC) will need to be called manually.
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
      * @param string $command
@@ -3074,7 +3074,7 @@ class SSH2
         $channel = $this->get_interactive_channel();
 
         if ($mode == self::READ_NEXT) {
-            return $this->_get_channel_packet($channel);
+            return $this->get_channel_packet($channel);
         }
 
         $match = $expect;
@@ -3794,7 +3794,7 @@ class SSH2
                     case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
                         /*
                         if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
-                            $this->_send_channel_packet($client_channel, chr(0));
+                            $this->send_channel_packet($client_channel, chr(0));
                         }
                         */
                         // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR

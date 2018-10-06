@@ -420,7 +420,7 @@ class SSH1
     /**
      * Current Timeout
      *
-     * @see self::_get_channel_packet()
+     * @see self::get_channel_packet()
      * @access private
      */
     private $curTimeout;

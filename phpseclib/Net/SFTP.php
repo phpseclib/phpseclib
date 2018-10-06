@@ -55,8 +55,8 @@ class SFTP extends SSH2
      *
      * \phpseclib\Net\SSH2::exec() uses 0 and \phpseclib\Net\SSH2::read() / \phpseclib\Net\SSH2::write() use 1.
      *
-     * @see \phpseclib\Net\SSH2::_send_channel_packet()
-     * @see \phpseclib\Net\SSH2::_get_channel_packet()
+     * @see \phpseclib\Net\SSH2::send_channel_packet()
+     * @see \phpseclib\Net\SSH2::get_channel_packet()
      * @access private
      */
     const CHANNEL = 0x100;
@@ -2985,7 +2985,7 @@ class SFTP extends SSH2
      * @param int $type
      * @param string $data
      * @see self::_get_sftp_packet()
-     * @see self::_send_channel_packet()
+     * @see self::send_channel_packet()
      * @return bool
      * @access private
      */
