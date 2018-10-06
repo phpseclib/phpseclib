@@ -1217,6 +1217,7 @@ class SSH2
         }
 
         if (feof($this->fsock)) {
+            $this->bitmap = 0;
             throw new \RuntimeException('Connection closed by server');
         }
 
@@ -1243,6 +1244,7 @@ class SSH2
         if (!$this->send_kex_first) {
             $response = $this->get_binary_packet();
             if ($response === false) {
+                $this->bitmap = 0;
                 throw new \RuntimeException('Connection closed by server');
             }
 
@@ -1484,6 +1486,7 @@ class SSH2
 
             $kexinit_payload_server = $this->get_binary_packet();
             if ($kexinit_payload_server === false) {
+                $this->bitmap = 0;
                 throw new \RuntimeException('Connection closed by server');
             }
 
@@ -1620,6 +1623,7 @@ class SSH2
 
                 $response = $this->get_binary_packet();
                 if ($response === false) {
+                    $this->bitmap = 0;
                     throw new \RuntimeException('Connection closed by server');
                 }
                 extract(unpack('Ctype', Strings::shift($response, 1)));
@@ -1713,11 +1717,13 @@ class SSH2
         $data = pack('CNa*', $clientKexInitMessage, strlen($eBytes), $eBytes);
 
         if (!$this->send_binary_packet($data)) {
+            $this->bitmap = 0;
             throw new \RuntimeException('Connection closed by server');
         }
 
         $response = $this->get_binary_packet();
         if ($response === false) {
+            $this->bitmap = 0;
             throw new \RuntimeException('Connection closed by server');
         }
         if (!strlen($response)) {
@@ -1833,6 +1839,7 @@ class SSH2
         $response = $this->get_binary_packet();
 
         if ($response === false) {
+            $this->bitmap = 0;
             throw new \RuntimeException('Connection closed by server');
         }
 
@@ -2200,6 +2207,7 @@ class SSH2
                     }
                     return $this->login_helper($username, $password);
                 }
+                $this->bitmap = 0;
                 throw new \RuntimeException('Connection closed by server');
             }
 
@@ -2250,6 +2258,7 @@ class SSH2
 
             $response = $this->get_binary_packet();
             if ($response === false) {
+                $this->bitmap = 0;
                 throw new \RuntimeException('Connection closed by server');
             }
 
@@ -2307,6 +2316,7 @@ class SSH2
 
         $response = $this->get_binary_packet();
         if ($response === false) {
+            $this->bitmap = 0;
             throw new \RuntimeException('Connection closed by server');
         }
 
@@ -2413,6 +2423,7 @@ class SSH2
         } else {
             $orig = $response = $this->get_binary_packet();
             if ($response === false) {
+                $this->bitmap = 0;
                 throw new \RuntimeException('Connection closed by server');
             }
         }
@@ -2610,6 +2621,7 @@ class SSH2
 
         $response = $this->get_binary_packet();
         if ($response === false) {
+            $this->bitmap = 0;
             throw new \RuntimeException('Connection closed by server');
         }
 
@@ -2673,6 +2685,7 @@ class SSH2
 
         $response = $this->get_binary_packet();
         if ($response === false) {
+            $this->bitmap = 0;
             throw new \RuntimeException('Connection closed by server');
         }
 
@@ -2799,6 +2812,7 @@ class SSH2
 
             $response = $this->get_binary_packet();
             if ($response === false) {
+                $this->bitmap = 0;
                 throw new \RuntimeException('Connection closed by server');
             }
 
@@ -2939,6 +2953,7 @@ class SSH2
 
         $response = $this->get_binary_packet();
         if ($response === false) {
+            $this->bitmap = 0;
             throw new \RuntimeException('Connection closed by server');
         }
 
@@ -3671,6 +3686,7 @@ class SSH2
 
                 $response = $this->get_binary_packet(true);
                 if ($response === false) {
+                    $this->bitmap = 0;
                     throw new \RuntimeException('Connection closed by server');
                 }
             }
