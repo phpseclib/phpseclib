@@ -3300,19 +3300,18 @@ class SSH2
             $packet_size
         );
 
-        if (!@$this->send_binary_packet($packet)) {
+        try {
+            $this->send_binary_packet($packet);
+
+            $this->channel_status[NET_SSH2_CHANNEL_KEEP_ALIVE] = NET_SSH2_MSG_CHANNEL_OPEN;
+
+            $response = $this->get_channel_packet(NET_SSH2_CHANNEL_KEEP_ALIVE);
+        } catch (\RuntimeException $e) {
             return $this->reconnect();
         }
 
-        $this->channel_status[NET_SSH2_CHANNEL_KEEP_ALIVE] = NET_SSH2_MSG_CHANNEL_OPEN;
-
-        $response = @$this->get_channel_packet(NET_SSH2_CHANNEL_KEEP_ALIVE);
-        if ($response !== false) {
-            $this->close_channel(NET_SSH2_CHANNEL_KEEP_ALIVE);
-            return true;
-        }
-
-        return $this->reconnect();
+        $this->close_channel(NET_SSH2_CHANNEL_KEEP_ALIVE);
+        return true;
     }
 
     /**
