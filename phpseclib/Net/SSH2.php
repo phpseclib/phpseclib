@@ -927,6 +927,14 @@ class SSH2
     var $preferred_signature_format = false;
 
     /**
+     * Authentication Credentials
+     *
+     * @var array
+     * @access private
+     */
+    var $auth = array();
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -2124,6 +2132,7 @@ class SSH2
     function login($username)
     {
         $args = func_get_args();
+        $this->auth[] = $args;
         return call_user_func_array(array(&$this, '_login'), $args);
     }
 
@@ -3234,6 +3243,66 @@ class SSH2
     function isAuthenticated()
     {
         return (bool) ($this->bitmap & self::MASK_LOGIN);
+    }
+
+    /**
+     * Pings a server connection, or tries to reconnect if the connection has gone down
+     *
+     * Inspired by http://php.net/manual/en/mysqli.ping.php
+     *
+     * @return bool
+     * @access public
+     */
+    function ping()
+    {
+        if (!$this->isAuthenticated()) {
+            return false;
+        }
+
+        $this->window_size_server_to_client[NET_SSH2_CHANNEL_KEEP_ALIVE] = $this->window_size;
+        $packet_size = 0x4000;
+        $packet = pack(
+            'CNa*N3',
+            NET_SSH2_MSG_CHANNEL_OPEN,
+            strlen('session'),
+            'session',
+            NET_SSH2_CHANNEL_KEEP_ALIVE,
+            $this->window_size_server_to_client[NET_SSH2_CHANNEL_KEEP_ALIVE],
+            $packet_size
+        );
+
+        if (!@$this->_send_binary_packet($packet)) {
+            return $this->_reconnect();
+        }
+
+        $this->channel_status[NET_SSH2_CHANNEL_KEEP_ALIVE] = NET_SSH2_MSG_CHANNEL_OPEN;
+
+        $response = @$this->_get_channel_packet(NET_SSH2_CHANNEL_KEEP_ALIVE);
+        if ($response !== false) {
+            $this->_close_channel(NET_SSH2_CHANNEL_KEEP_ALIVE);
+            return true;
+        }
+
+        return $this->_reconnect();
+    }
+
+    /**
+     * In situ reconnect method
+     *
+     * @return boolean
+     * @access private
+     */
+    function _reconnect()
+    {
+        $this->_reset_connection(NET_SSH2_DISCONNECT_CONNECTION_LOST);
+        $this->retry_connect = true;
+        if (!$this->_connect()) {
+            return false;
+        }
+        foreach ($this->auth as $auth) {
+            $result = call_user_func_array(array(&$this, 'parent::login'), $auth);
+        }
+        return $result;
     }
 
     /**
