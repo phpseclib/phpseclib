@@ -1202,6 +1202,7 @@ class SSH2
         }
 
         if (feof($this->fsock)) {
+            $this->bitmap = 0;
             user_error('Connection closed by server');
             return false;
         }
@@ -1230,6 +1231,7 @@ class SSH2
         if (!$this->send_kex_first) {
             $response = $this->_get_binary_packet();
             if ($response === false) {
+                $this->bitmap = 0;
                 user_error('Connection closed by server');
                 return false;
             }
@@ -1470,6 +1472,7 @@ class SSH2
 
             $kexinit_payload_server = $this->_get_binary_packet();
             if ($kexinit_payload_server === false) {
+                $this->bitmap = 0;
                 user_error('Connection closed by server');
                 return false;
             }
@@ -1606,6 +1609,7 @@ class SSH2
 
                 $response = $this->_get_binary_packet();
                 if ($response === false) {
+                    $this->bitmap = 0;
                     user_error('Connection closed by server');
                     return false;
                 }
@@ -1698,12 +1702,14 @@ class SSH2
         $data = pack('CNa*', $clientKexInitMessage, strlen($eBytes), $eBytes);
 
         if (!$this->_send_binary_packet($data)) {
+            $this->bitmap = 0;
             user_error('Connection closed by server');
             return false;
         }
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
+            $this->bitmap = 0;
             user_error('Connection closed by server');
             return false;
         }
@@ -1821,6 +1827,7 @@ class SSH2
         $response = $this->_get_binary_packet();
 
         if ($response === false) {
+            $this->bitmap = 0;
             user_error('Connection closed by server');
             return false;
         }
@@ -2188,6 +2195,7 @@ class SSH2
                     }
                     return $this->_login_helper($username, $password);
                 }
+                $this->bitmap = 0;
                 user_error('Connection closed by server');
                 return false;
             }
@@ -2240,6 +2248,7 @@ class SSH2
 
             $response = $this->_get_binary_packet();
             if ($response === false) {
+                $this->bitmap = 0;
                 user_error('Connection closed by server');
                 return false;
             }
@@ -2298,6 +2307,7 @@ class SSH2
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
+            $this->bitmap = 0;
             user_error('Connection closed by server');
             return false;
         }
@@ -2398,6 +2408,7 @@ class SSH2
         } else {
             $orig = $response = $this->_get_binary_packet();
             if ($response === false) {
+                $this->bitmap = 0;
                 user_error('Connection closed by server');
                 return false;
             }
@@ -2586,6 +2597,7 @@ class SSH2
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
+            $this->bitmap = 0;
             user_error('Connection closed by server');
             return false;
         }
@@ -2642,6 +2654,7 @@ class SSH2
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
+            $this->bitmap = 0;
             user_error('Connection closed by server');
             return false;
         }
@@ -2768,6 +2781,7 @@ class SSH2
 
             $response = $this->_get_binary_packet();
             if ($response === false) {
+                $this->bitmap = 0;
                 user_error('Connection closed by server');
                 return false;
             }
@@ -2907,6 +2921,7 @@ class SSH2
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
+            $this->bitmap = 0;
             user_error('Connection closed by server');
             return false;
         }
@@ -3621,6 +3636,7 @@ class SSH2
 
                 $response = $this->_get_binary_packet(true);
                 if ($response === false) {
+                    $this->bitmap = 0;
                     user_error('Connection closed by server');
                     return false;
                 }
