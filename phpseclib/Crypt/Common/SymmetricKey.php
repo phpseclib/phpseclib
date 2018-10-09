@@ -2735,6 +2735,9 @@ abstract class SymmetricKey
                 break;
         }
 
+        // Before discrediting this, please read the following:
+        // @see https://github.com/phpseclib/phpseclib/issues/1293
+        // @see https://github.com/phpseclib/phpseclib/pull/1143
         eval('$func = function ($_action, $_text) { ' . $init_crypt . 'if ($_action == "encrypt") { ' . $encrypt . ' } else { ' . $decrypt . ' }};');
 
         return \Closure::bind($func, $this, static::class);
