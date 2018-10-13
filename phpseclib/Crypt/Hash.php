@@ -302,19 +302,23 @@ class Hash
         }
 
         if (in_array(substr($hash, 0, 5), ['sha3-', 'shake'])) {
-            //preg_match('#(\d+)$#', $hash, $matches);
-            //$this->parameters['capacity'] = 2 * $matches[1]; // 1600 - $this->blockSize
-            //$this->parameters['rate'] = 1600 - $this->parameters['capacity']; // == $this->blockSize
-            if (!$this->paddingType) {
-                $this->paddingType = self::PADDING_SHA3;
+            // PHP 7.1.0 introduced support for "SHA3 fixed mode algorithms":
+            // http://php.net/ChangeLog-7.php#7.1.0
+            if (version_compare(PHP_VERSION, '7.1.0') < 0 || substr($hash, 0,5) == 'shake') {
+                //preg_match('#(\d+)$#', $hash, $matches);
+                //$this->parameters['capacity'] = 2 * $matches[1]; // 1600 - $this->blockSize
+                //$this->parameters['rate'] = 1600 - $this->parameters['capacity']; // == $this->blockSize
+                if (!$this->paddingType) {
+                    $this->paddingType = self::PADDING_SHA3;
+                }
+                $this->parameters = [
+                    'capacity' => 1600 - $this->blockSize,
+                    'rate' => $this->blockSize,
+                    'length' => $this->length,
+                    'padding' => $this->paddingType
+                ];
+                $hash = ['phpseclib\Crypt\Hash', PHP_INT_SIZE == 8 ? 'sha3_64' : 'sha3_32'];
             }
-            $this->parameters = [
-                'capacity' => 1600 - $this->blockSize,
-                'rate' => $this->blockSize,
-                'length' => $this->length,
-                'padding' => $this->paddingType
-            ];
-            $hash = ['phpseclib\Crypt\Hash', PHP_INT_SIZE == 8 ? 'sha3_64' : 'sha3_32'];
         }
 
         if ($hash == 'sha512/224' || $hash == 'sha512/256') {
