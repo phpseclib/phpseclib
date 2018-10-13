@@ -649,10 +649,10 @@ abstract class Base
                     case !function_exists('hash_algos'):
                     case !in_array($hash, hash_algos()):
                         $i = 1;
+                        $hmac = new Hash();
+                        $hmac->setHash($hash);
+                        $hmac->setKey($password);
                         while (strlen($key) < $dkLen) {
-                            $hmac = new Hash();
-                            $hmac->setHash($hash);
-                            $hmac->setKey($password);
                             $f = $u = $hmac->hash($salt . pack('N', $i++));
                             for ($j = 2; $j <= $count; ++$j) {
                                 $u = $hmac->hash($u);
