@@ -661,7 +661,7 @@ class Crypt_Base
                 $count = isset($func_args[4]) ? $func_args[4] : 1000;
 
                 // Keylength
-                if (isset($func_args[5])) {
+                if (isset($func_args[5]) && $func_args[5] > 0) {
                     $dkLen = $func_args[5];
                 } else {
                     $dkLen = $method == 'pbkdf1' ? 2 * $this->key_length : $this->key_length;
