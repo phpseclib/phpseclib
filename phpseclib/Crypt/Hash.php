@@ -153,6 +153,31 @@ class Hash
     public function setKey($key = false)
     {
         $this->key = $key;
+        $this->computeKey();
+    }
+
+    /**
+     * Pre-compute the key used by the HMAC
+     *
+     * Quoting http://tools.ietf.org/html/rfc2104#section-2, "Applications that use keys longer than B bytes
+     * will first hash the key using H and then use the resultant L byte string as the actual key to HMAC."
+     *
+     * As documented in https://www.reddit.com/r/PHP/comments/9nct2l/symfonypolyfill_hash_pbkdf2_correct_fix_for/
+     * when doing an HMAC multiple times it's faster to compute the hash once instead of computing it during
+     * every call
+     *
+     * @access private
+     */
+    private function computeKey()
+    {
+        if (strlen($this->key) <= $this->getBlockLengthInBytes()) {
+            $this->computedKey = $this->key;
+            return;
+        }
+
+        $this->computedKey = is_array($this->hash) ?
+            call_user_func($this->hash, $this->key) :
+            hash($this->hash, $this->key, true);
     }
 
     /**
@@ -228,12 +253,14 @@ class Hash
         }
 
         switch ($hash) {
+            case 'md2':
             case 'md2-96':
+                $this->blockSize = 128;
+                break;
             case 'md5-96':
             case 'sha1-96':
             case 'sha224-96':
             case 'sha256-96':
-            case 'md2':
             case 'md5':
             case 'sha1':
             case 'sha224':
@@ -308,6 +335,8 @@ class Hash
         }
 
         $this->hash = $hash;
+
+        $this->computeKey();
     }
 
     /**
@@ -326,17 +355,7 @@ class Hash
 
             // SHA3 HMACs are discussed at https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf#page=30
 
-            /* "Applications that use keys longer than B bytes will first hash the key using H and then use the
-                resultant L byte string as the actual key to HMAC."
-
-            $b = $this->blockSize >> 3;
-
-                -- http://tools.ietf.org/html/rfc2104#section-2 */
-            $key = strlen($this->key) > $b ?
-                substr(call_user_func($this->hash, $this->key, ...array_values($this->parameters)), 0, $this->length) :
-                $this->key;
-
-            $key    = str_pad($key, $b, chr(0));
+            $key    = str_pad($this->computedKey, $b, chr(0));
             $temp   = $this->ipad ^ $key;
             $temp  .= $text;
             $temp   = substr(call_user_func($this->hash, $temp, ...array_values($this->parameters)), 0, $this->length);
@@ -348,7 +367,7 @@ class Hash
         }
 
         $output = !empty($this->key) || is_string($this->key) ?
-            hash_hmac($this->hash, $text, $this->key, true) :
+            hash_hmac($this->hash, $text, $this->computedKey, true) :
             hash($this->hash, $text, true);
 
         return strlen($output) > $this->length
