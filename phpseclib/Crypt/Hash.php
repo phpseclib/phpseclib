@@ -110,6 +110,15 @@ class Hash
     private $parameters = [];
 
     /**
+     * Computed Key
+     *
+     * @see self::_computeKey()
+     * @var string
+     * @access private
+     */
+    private $computedKey = false;
+
+    /**
      * Outer XOR (Internal HMAC)
      *
      * Used only for sha512/*
@@ -170,6 +179,11 @@ class Hash
      */
     private function computeKey()
     {
+        if ($this->key === false) {
+            $this->computedKey = false;
+            return;
+        }
+
         if (strlen($this->key) <= $this->getBlockLengthInBytes()) {
             $this->computedKey = $this->key;
             return;
