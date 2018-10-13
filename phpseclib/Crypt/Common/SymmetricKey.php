@@ -679,6 +679,9 @@ abstract class SymmetricKey
 
                 // Keylength
                 if (isset($func_args[3])) {
+                    if ($func_args[3] <= 0) {
+                        throw new \LengthException('Derived key length cannot be longer 0 or less');
+                    }
                     $dkLen = $func_args[3];
                 } else {
                     $key_length = $this->explicit_key_length !== false ? $this->explicit_key_length : $this->key_length;
