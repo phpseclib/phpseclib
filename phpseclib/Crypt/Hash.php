@@ -192,6 +192,38 @@ class Crypt_Hash
     function setKey($key = false)
     {
         $this->key = $key;
+        $this->_computeKey();
+    }
+
+    /**
+     * Pre-compute the key used by the HMAC
+     *
+     * Quoting http://tools.ietf.org/html/rfc2104#section-2, "Applications that use keys longer than B bytes
+     * will first hash the key using H and then use the resultant L byte string as the actual key to HMAC."
+     *
+     * As documented in https://www.reddit.com/r/PHP/comments/9nct2l/symfonypolyfill_hash_pbkdf2_correct_fix_for/
+     * when doing an HMAC multiple times it's faster to compute the hash once instead of computing it during
+     * every call
+     *
+     * @access private
+     */
+    function _computeKey()
+    {
+        if (strlen($this->key) <= $this->b) {
+            $this->computedKey = $this->key;
+            return;
+        }
+
+        switch ($mode) {
+            case CRYPT_HASH_MODE_MHASH:
+                $this->computedKey = mhash($this->hash, $this->key);
+                break;
+            case CRYPT_HASH_MODE_HASH:
+                $this->computedKey = hash($this->hash, $this->key, true);
+                break;
+            case CRYPT_HASH_MODE_INTERNAL:
+                $this->computedKey = call_user_func($this->hash, $this->key);
+        }
     }
 
     /**
@@ -242,6 +274,25 @@ class Crypt_Hash
         }
 
         switch ($hash) {
+            case 'md2-96':
+            case 'md2':
+                $this->b = 16;
+            case 'md5-96':
+            case 'sha1-96':
+            case 'sha224-96':
+            case 'sha256-96':
+            case 'md2':
+            case 'md5':
+            case 'sha1':
+            case 'sha224':
+            case 'sha256':
+                $this->b = 64;
+                break;
+            default:
+                $this->b = 128;
+        }
+
+        switch ($hash) {
             case 'md2':
                 $mode = CRYPT_HASH_MODE == CRYPT_HASH_MODE_HASH && in_array('md2', hash_algos()) ?
                     CRYPT_HASH_MODE_HASH : CRYPT_HASH_MODE_INTERNAL;
@@ -267,6 +318,7 @@ class Crypt_Hash
                     default:
                         $this->hash = MHASH_SHA1;
                 }
+                $this->_computeKey();
                 return;
             case CRYPT_HASH_MODE_HASH:
                 switch ($hash) {
@@ -283,35 +335,33 @@ class Crypt_Hash
                     default:
                         $this->hash = 'sha1';
                 }
+                $this->_computeKey();
                 return;
         }
 
         switch ($hash) {
             case 'md2':
-                $this->b = 16;
                 $this->hash = array($this, '_md2');
                 break;
             case 'md5':
-                $this->b = 64;
                 $this->hash = array($this, '_md5');
                 break;
             case 'sha256':
-                $this->b = 64;
                 $this->hash = array($this, '_sha256');
                 break;
             case 'sha384':
             case 'sha512':
-                $this->b = 128;
                 $this->hash = array($this, '_sha512');
                 break;
             case 'sha1':
             default:
-                $this->b = 64;
                 $this->hash = array($this, '_sha1');
         }
 
         $this->ipad = str_repeat(chr(0x36), $this->b);
         $this->opad = str_repeat(chr(0x5C), $this->b);
+
+        $this->_computeKey();
     }
 
     /**
@@ -328,25 +378,19 @@ class Crypt_Hash
         if (!empty($this->key) || is_string($this->key)) {
             switch ($mode) {
                 case CRYPT_HASH_MODE_MHASH:
-                    $output = mhash($this->hash, $text, $this->key);
+                    $output = mhash($this->hash, $text, $this->computedKey);
                     break;
                 case CRYPT_HASH_MODE_HASH:
-                    $output = hash_hmac($this->hash, $text, $this->key, true);
+                    $output = hash_hmac($this->hash, $text, $this->computedKey, true);
                     break;
                 case CRYPT_HASH_MODE_INTERNAL:
-                    /* "Applications that use keys longer than B bytes will first hash the key using H and then use the
-                        resultant L byte string as the actual key to HMAC."
-
-                        -- http://tools.ietf.org/html/rfc2104#section-2 */
-                    $key = strlen($this->key) > $this->b ? call_user_func($this->hash, $this->key) : $this->key;
-
-                    $key    = str_pad($key, $this->b, chr(0));      // step 1
-                    $temp   = $this->ipad ^ $key;                   // step 2
-                    $temp  .= $text;                                // step 3
-                    $temp   = call_user_func($this->hash, $temp);   // step 4
-                    $output = $this->opad ^ $key;                   // step 5
-                    $output.= $temp;                                // step 6
-                    $output = call_user_func($this->hash, $output); // step 7
+                    $key    = str_pad($this->computedKey, $this->b, chr(0)); // step 1
+                    $temp   = $this->ipad ^ $key;                            // step 2
+                    $temp  .= $text;                                         // step 3
+                    $temp   = call_user_func($this->hash, $temp);            // step 4
+                    $output = $this->opad ^ $key;                            // step 5
+                    $output.= $temp;                                         // step 6
+                    $output = call_user_func($this->hash, $output);          // step 7
             }
         } else {
             switch ($mode) {
