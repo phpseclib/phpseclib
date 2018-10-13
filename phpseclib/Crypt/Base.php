@@ -696,10 +696,10 @@ class Crypt_Base
                             include_once 'Crypt/Hash.php';
                         }
                         $i = 1;
+                        $hmac = new Crypt_Hash();
+                        $hmac->setHash($hash);
+                        $hmac->setKey($password);
                         while (strlen($key) < $dkLen) {
-                            $hmac = new Crypt_Hash();
-                            $hmac->setHash($hash);
-                            $hmac->setKey($password);
                             $f = $u = $hmac->hash($salt . pack('N', $i++));
                             for ($j = 2; $j <= $count; ++$j) {
                                 $u = $hmac->hash($u);
