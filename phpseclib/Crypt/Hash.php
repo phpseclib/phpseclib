@@ -127,6 +127,15 @@ class Crypt_Hash
     var $key = false;
 
     /**
+     * Computed Key
+     *
+     * @see self::_computeKey()
+     * @var string
+     * @access private
+     */
+    var $computedKey = false;
+
+    /**
      * Outer XOR (Internal HMAC)
      *
      * @see self::setKey()
@@ -209,6 +218,11 @@ class Crypt_Hash
      */
     function _computeKey()
     {
+        if ($this->key === false) {
+            $this->computedKey = false;
+            return;
+        }
+
         if (strlen($this->key) <= $this->b) {
             $this->computedKey = $this->key;
             return;
