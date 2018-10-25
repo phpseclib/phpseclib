@@ -208,7 +208,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
 -----END RSA PUBLIC KEY-----';
 
         $this->assertTrue($rsa->load($key));
-        $this->assertInternalType('string', $rsa->getPublicKey());
+        $this->assertInstanceOf(RSA::class, $rsa->getPublicKey());
         $this->assertFalse($rsa->getPrivateKey());
     }
 
@@ -227,7 +227,7 @@ ZQIDAQAB
 -----END PUBLIC KEY-----';
 
         $this->assertTrue($rsa->load($key));
-        $this->assertInternalType('string', $rsa->getPublicKey());
+        $this->assertInstanceOf(RSA::class, $rsa->getPublicKey());
         $this->assertFalse($rsa->getPrivateKey());
     }
 
@@ -241,7 +241,7 @@ ZQIDAQAB
                'phpseclib-generated-key';
 
         $this->assertTrue($rsa->load($key));
-        $this->assertInternalType('string', $rsa->getPublicKey());
+        $this->assertInstanceOf(RSA::class, $rsa->getPublicKey());
         $this->assertFalse($rsa->getPrivateKey());
     }
 
@@ -936,7 +936,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
 -----END RSA PUBLIC KEY-----';
 
         $this->assertTrue($rsa->load($key));
-        $this->assertInternalType('string', $rsa->getPublicKey());
+        $this->assertInstanceOf(RSA::class, $rsa->getPublicKey());
         $this->assertFalse($rsa->load('zzz'));
         $this->assertFalse($rsa->getPublicKey());
     }
@@ -958,6 +958,6 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
 </RSAKeyValue>';
 
         $this->assertTrue($rsa->load($key));
-        $this->assertInternalType('string', $rsa->getPublicKey());
+        $this->assertInstanceOf(RSA::class, $rsa->getPublicKey());
     }
 }

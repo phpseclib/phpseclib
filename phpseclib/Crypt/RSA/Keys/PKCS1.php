@@ -44,24 +44,21 @@ abstract class PKCS1 extends Progenitor
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
         if (!is_string($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $components = ['isPublicKey' => strpos($key, 'PUBLIC') !== false];
 
         $key = parent::load($key, $password);
-        if ($key === false) {
-            return false;
-        }
 
         $decoded = ASN1::decodeBER($key);
         if (empty($decoded)) {
-            return false;
+            throw new \RuntimeException('Unable to decode BER');
         }
 
         $key = ASN1::asn1map($decoded[0], Maps\RSAPrivateKey::MAP);
@@ -86,7 +83,11 @@ abstract class PKCS1 extends Progenitor
 
         $key = ASN1::asn1map($decoded[0], Maps\RSAPublicKey::MAP);
 
-        return is_array($key) ? $components + $key : false;
+        if (!is_array($key)) {
+            throw new \RuntimeException('Unable to perform ASN1 mapping');
+        }
+
+        return $components + $key;
     }
 
     /**

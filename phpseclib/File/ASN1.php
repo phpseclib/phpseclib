@@ -819,6 +819,27 @@ abstract class ASN1
     }
 
     /**
+     * DER-decode the length
+     *
+     * DER supports lengths up to (2**8)**127, however, we'll only support lengths up to (2**8)**4.  See
+     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 paragraph 8.1.3} for more information.
+     *
+     * @access public
+     * @param string $string
+     * @return int
+     */
+    public static function decodeLength(&$string)
+    {
+        $length = ord(Strings::shift($string));
+        if ($length & 0x80) { // definite length, long form
+            $length&= 0x7F;
+            $temp = Strings::shift($string, $length);
+            list(, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
+        }
+        return $length;
+    }
+
+    /**
      * ASN.1 Encode
      *
      * DER-encodes an ASN.1 semantic mapping ($mapping).  Some libraries would probably call this function
@@ -1219,8 +1240,8 @@ abstract class ASN1
      */
     public static function loadOIDs($oids)
     {
-        self::$oids+= $oids;
-        self::$reverseOIDs = array_flip(self::$oids);
+        self::$reverseOIDs+= $oids;
+        self::$oids = array_flip(self::$reverseOIDs);
     }
 
     /**

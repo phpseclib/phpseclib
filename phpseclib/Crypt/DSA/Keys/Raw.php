@@ -34,12 +34,12 @@ abstract class Raw
      * @access public
      * @param array $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
         if (!is_array($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a array - not a ' . gettype($key));
         }
 
         switch (true) {
@@ -50,7 +50,7 @@ abstract class Raw
             case !isset($key['x']) && !isset($key['y']):
             case isset($key['x']) && !$key['x'] instanceof BigInteger:
             case isset($key['y']) && !$key['y'] instanceof BigInteger:
-                return false;
+                throw new \UnexpectedValueException('Key appears to be malformed');
         }
 
         $options = ['p' => 1, 'q' => 1, 'g' => 1, 'x' => 1, 'y' => 1];

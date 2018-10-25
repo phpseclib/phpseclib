@@ -70,20 +70,17 @@ abstract class PKCS8 extends Progenitor
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
         if (!is_string($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $components = ['isPublicKey' => strpos($key, 'PUBLIC') !== false];
 
         $key = parent::load($key, $password);
-        if ($key === false) {
-            return false;
-        }
 
         $type = isset($key['privateKey']) ? 'private' : 'public';
 

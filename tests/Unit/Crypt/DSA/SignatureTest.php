@@ -28,7 +28,7 @@ pQFV8eVJfk91ERQ4Dn6ePLUv2dRIt4a0S0qHqadgzyoFyqkmmUi1kNLyixtRqh+m
 2gXx0t63HEpZDbEPppdpnlppZquVQh7TyrKSXW9MTzUkQjFI9UY7kZeKAhQXiJgI
 kBniZHdFBAZBTE14YJUBkw==
 -----END DSA PRIVATE KEY-----');
-        $signature = $dsa->sign($message, 'PKCS');
+        $signature = $dsa->sign($message, 'ASN1');
 
         $dsa->load('-----BEGIN PUBLIC KEY-----
 MIIBuDCCASwGByqGSM44BAEwggEfAoGBAOwYAcAzXpuw+XCXuNp5zhAzKdhrRguI
@@ -43,8 +43,8 @@ zyoFyqkmmUi1kNLyixtRqh+m2gXx0t63HEpZDbEPppdpnlppZquVQh7TyrKSXW9M
 TzUkQjFI9UY7kZeK
 -----END PUBLIC KEY-----');
 
-        $this->assertTrue($dsa->verify($message, $signature, 'PKCS'));
-        $this->assertFalse($dsa->verify('foozbar', $signature, 'PKCS'));
+        $this->assertTrue($dsa->verify($message, $signature, 'ASN1'));
+        $this->assertFalse($dsa->verify('foozbar', $signature, 'ASN1'));
 
         // openssl dgst -dss1 -sign dsa_priv.pem foo.txt > sigfile.bin
         $signature = '302c021456d7e7da10d1538a6cd45dcb2b0ce15c28bac03402147e973a4de1e92e8a87ed5218c797952a3f854df5';
@@ -52,8 +52,8 @@ TzUkQjFI9UY7kZeK
 
         $dsa->setHash('sha1');
 
-        $this->assertTrue($dsa->verify("foobar\n", $signature, 'PKCS'));
-        $this->assertFalse($dsa->verify('foozbar', $signature, 'PKCS'));
+        $this->assertTrue($dsa->verify("foobar\n", $signature, 'ASN1'));
+        $this->assertFalse($dsa->verify('foozbar', $signature, 'ASN1'));
 
         // openssl dgst -sha256 -sign dsa_priv.pem foo.txt > sigfile.bin
         $signature = '302e021500b131ec2682c4c0be13e6558ba3d64929ebc0ac420215009946300a03561cef50c0a51d0cd0a2c835e798fc';
@@ -61,8 +61,8 @@ TzUkQjFI9UY7kZeK
 
         $dsa->setHash('sha256');
 
-        $this->assertTrue($dsa->verify('abcdefghijklmnopqrstuvwxyz', $signature, 'PKCS'));
-        $this->assertFalse($dsa->verify('zzzz', $signature, 'PKCS'));
+        $this->assertTrue($dsa->verify('abcdefghijklmnopqrstuvwxyz', $signature, 'ASN1'));
+        $this->assertFalse($dsa->verify('zzzz', $signature, 'ASN1'));
     }
 
     public function testRandomSignature()
@@ -83,8 +83,8 @@ pQFV8eVJfk91ERQ4Dn6ePLUv2dRIt4a0S0qHqadgzyoFyqkmmUi1kNLyixtRqh+m
 2gXx0t63HEpZDbEPppdpnlppZquVQh7TyrKSXW9MTzUkQjFI9UY7kZeKAhQXiJgI
 kBniZHdFBAZBTE14YJUBkw==
 -----END DSA PRIVATE KEY-----');
-        $signature1 = $dsa->sign($message, 'PKCS');
-        $signature2 = $dsa->sign($message, 'PKCS');
+        $signature1 = $dsa->sign($message, 'ASN1');
+        $signature2 = $dsa->sign($message, 'ASN1');
 
         // phpseclib's DSA implementation uses a CSPRNG to generate the k parameter.
         // used correctly this should result in different signatures every time.
@@ -93,8 +93,8 @@ kBniZHdFBAZBTE14YJUBkw==
         // unit test would need to be updated
         $this->assertNotEquals($signature1, $signature2);
 
-        $this->assertTrue($dsa->verify($message, $signature1, 'PKCS'));
-        $this->assertTrue($dsa->verify($message, $signature2, 'PKCS'));
+        $this->assertTrue($dsa->verify($message, $signature1, 'ASN1'));
+        $this->assertTrue($dsa->verify($message, $signature2, 'ASN1'));
 
         $signature = $dsa->sign($message, 'SSH2');
 

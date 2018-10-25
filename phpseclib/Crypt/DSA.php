@@ -34,7 +34,8 @@ use ParagonIE\ConstantTime\Base64;
 use phpseclib\File\ASN1;
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Common\AsymmetricKey;
-use phpseclib\Common\Functions\Strings;
+use phpseclib\Math\PrimeField;
+use phpseclib\Crypt\ECDSA\Signature\ASN1 as ASN1Signature;
 
 /**
  * Pure-PHP FIPS 186-4 compliant implementation of DSA.
@@ -96,14 +97,6 @@ class DSA extends AsymmetricKey
     private $y;
 
     /**
-     * Parameters Format
-     *
-     * @var string
-     * @access private
-     */
-    private $parametersFormat = 'PKCS1';
-
-    /**
      * Create DSA parameters
      *
      * @access public
@@ -111,9 +104,13 @@ class DSA extends AsymmetricKey
      * @param int $N
      * @return \phpseclib\Crypt\DSA|bool
      */
-    static function createParameters($L = 2048, $N = 224)
+    public static function createParameters($L = 2048, $N = 224)
     {
         self::initialize_static_variables();
+
+        if (!isset(self::$engines['PHP'])) {
+            self::useBestEngine();
+        }
 
         switch (true) {
             case $N == 160:
@@ -186,9 +183,13 @@ class DSA extends AsymmetricKey
      * @access public
      * @return array|DSA
      */
-    static function createKey(...$args)
+    public static function createKey(...$args)
     {
         self::initialize_static_variables();
+
+        if (!isset(self::$engines['PHP'])) {
+            self::useBestEngine();
+        }
 
         if (count($args) == 2 && is_int($args[0]) && is_int($args[1])) {
             $private = self::createParameters($args[0], $args[1]);
@@ -220,6 +221,12 @@ class DSA extends AsymmetricKey
      */
     public function load($key, $type = false)
     {
+        self::initialize_static_variables();
+
+        if (!isset(self::$engines['PHP'])) {
+            self::useBestEngine();
+        }
+
         if ($key instanceof DSA) {
             $this->privateKeyFormat = $key->privateKeyFormat;
             $this->publicKeyFormat = $key->publicKeyFormat;
@@ -236,6 +243,13 @@ class DSA extends AsymmetricKey
 
         $components = parent::load($key, $type);
         if ($components === false) {
+            $this->format = null;
+            $this->p = null;
+            $this->q = null;
+            $this->g = null;
+            $this->x = null;
+            $this->y = null;
+
             return false;
         }
 
@@ -252,9 +266,7 @@ class DSA extends AsymmetricKey
             $this->g = $components['g'];
         }
 
-        if (isset($components['x'])) {
-            $this->x = $components['x'];
-        }
+        $this->x = isset($components['x']) ? $components['x'] : null;
 
         if (isset($components['y'])) {
             $this->y = $components['y'];
@@ -279,27 +291,6 @@ class DSA extends AsymmetricKey
         return isset($this->p) ?
             ['L' => $this->p->getLength(), 'N' => $this->q->getLength()] :
             ['L' => 0, 'N' => 0];
-    }
-
-    /**
-     * __toString() magic method
-     *
-     * @access public
-     * @return string
-     */
-    public function __toString()
-    {
-        $key = parent::__toString();
-        if (!empty($key)) {
-            return $key;
-        }
-
-        try {
-            $key = $this->getParameters($this->parametersFormat);
-            return is_string($key) ? $key : '';
-        } catch (\Exception $e) {
-            return '';
-        }
     }
 
     /**
@@ -332,6 +323,28 @@ class DSA extends AsymmetricKey
     }
 
     /**
+     * Is the key a private key?
+     *
+     * @access public
+     * @return bool
+     */
+    public function isPrivateKey()
+    {
+        return isset($this->x);
+    }
+
+    /**
+     * Is the key a public key?
+     *
+     * @access public
+     * @return bool
+     */
+    public function isPublicKey()
+    {
+        return isset($this->p);
+    }
+
+    /**
      * Returns the public key
      *
      * If you do "openssl rsa -in private.rsa -pubout -outform PEM" you get a PKCS8 formatted key
@@ -354,8 +367,14 @@ class DSA extends AsymmetricKey
      * @param string $type optional
      * @return mixed
      */
-    public function getPublicKey($type = 'PKCS8')
+    public function getPublicKey($type = null)
     {
+        $returnObj = false;
+        if ($type === null) {
+            $returnObj = true;
+            $type = 'PKCS8';
+        }
+
         $type = self::validatePlugin('Keys', $type, 'savePublicKey');
         if ($type === false) {
             return false;
@@ -368,7 +387,15 @@ class DSA extends AsymmetricKey
             $this->y = $this->g->powMod($this->x, $this->p);
         }
 
-        return $type::savePublicKey($this->p, $this->q, $this->g, $this->y);
+        $key = $type::savePublicKey($this->p, $this->q, $this->g, $this->y);
+        if (!$returnObj) {
+            return $key;
+        }
+
+        $public = clone $this;
+        $public->load($key, 'PKCS8');
+
+        return $public;
     }
 
     /**
@@ -398,6 +425,20 @@ class DSA extends AsymmetricKey
     }
 
     /**
+     * Returns the current engine being used
+     *
+     * @see self::useInternalEngine()
+     * @see self::useBestEngine()
+     * @access public
+     * @return string
+     */
+    public function getEngine()
+    {
+        return self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods()) ?
+            'OpenSSL' : 'PHP';
+    }
+
+    /**
      * Create a signature
      *
      * @see self::verify()
@@ -406,8 +447,9 @@ class DSA extends AsymmetricKey
      * @param string $format optional
      * @return mixed
      */
-    function sign($message, $format = 'Raw')
+    public function sign($message, $format = 'ASN1')
     {
+        $shortFormat = $format;
         $format = self::validatePlugin('Signature', $format);
         if ($format === false) {
             return false;
@@ -417,6 +459,24 @@ class DSA extends AsymmetricKey
             return false;
         }
 
+        if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
+            $signature = '';
+            $result = openssl_sign($message, $signature, $this->getPrivateKey(), $this->hash->getHash());
+
+            if ($result) {
+                if ($shortFormat == 'ASN1') {
+                    return $signature;
+                }
+
+                extract(ASN1Signature::load($signature));
+
+                return $format::save($r, $s);
+            }
+        }
+
+        $h = $this->hash->hash($message);
+        $h = $this->bits2int($h);
+
         while (true) {
             $k = BigInteger::randomRange(self::$one, $this->q->subtract(self::$one));
             $r = $this->g->powMod($k, $this->p);
@@ -425,8 +485,6 @@ class DSA extends AsymmetricKey
                 continue;
             }
             $kinv = $k->modInverse($this->q);
-            $h = $this->hash->hash($message);
-            $h = $this->bits2int($h);
             $temp = $h->add($this->x->multiply($r));
             $temp = $kinv->multiply($temp);
             list(, $s) = $temp->divide($this->q);
@@ -464,7 +522,7 @@ class DSA extends AsymmetricKey
      * @param string $format optional
      * @return mixed
      */
-    function verify($message, $signature, $format = 'Raw')
+    public function verify($message, $signature, $format = 'ASN1')
     {
         $format = self::validatePlugin('Signature', $format);
         if ($format === false) {
@@ -479,6 +537,16 @@ class DSA extends AsymmetricKey
 
         if (empty($this->y) || empty($this->p)) {
             return false;
+        }
+
+        if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
+            $sig = $format != 'ASN1' ? ASN1Signature::save($r, $s) : $signature;
+
+            $result = openssl_verify($message, $sig, $this->getPublicKey(), $this->hash->getHash());
+
+            if ($result != -1) {
+                return (bool) $result;
+            }
         }
 
         $q_1 = $this->q->subtract(self::$one);
@@ -496,6 +564,6 @@ class DSA extends AsymmetricKey
         list(, $v) = $v1->multiply($v2)->divide($this->p);
         list(, $v) = $v->divide($this->q);
 
-        return Strings::equals($v->toBytes(), $r->toBytes());
+        return $v->equals($r);
     }
 }

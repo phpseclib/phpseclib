@@ -353,7 +353,7 @@ class BCMath extends Engine
     public function abs()
     {
         $temp = new static();
-        $temp->value = bccomp($this->value, '0', 0) < 0 ?
+        $temp->value = strlen($this->value) && $this->value[0] == '-' ?
             substr($this->value, 1) :
             $this->value;
 
@@ -537,6 +537,8 @@ class BCMath extends Engine
      */
     protected function normalize(BCMath $result)
     {
+        unset($result->reduce);
+
         $result->precision = $this->precision;
         $result->bitmask = $this->bitmask;
 
@@ -588,7 +590,7 @@ class BCMath extends Engine
      */
     protected function make_odd()
     {
-        if ($this->value[strlen($this->value) - 1] % 2 == 0) {
+        if (!$this->isOdd()) {
             $this->value = bcadd($this->value, '1');
         }
     }
@@ -631,7 +633,7 @@ class BCMath extends Engine
      * @param BCMath $r
      * @return int
      */
-    protected static function scan1divide(BCMath $r)
+    public static function scan1divide(BCMath $r)
     {
         $r_value = &$r->value;
         $s = 0;
@@ -703,5 +705,61 @@ class BCMath extends Engine
     {
         $temp = parent::setBitmask($bits);
         return $temp->add(static::$one);
+    }
+
+    /**
+     * Is Odd?
+     *
+     * @return boolean
+     */
+    public function isOdd()
+    {
+        return $this->value[strlen($this->value) - 1] % 2 == 1;
+    }
+
+    /**
+     * Tests if a bit is set
+     *
+     * @return boolean
+     */
+    public function testBit($x)
+    {
+        return bccomp(
+            bcmod($this->value, bcpow('2', $x + 1, 0), 0),
+            bcpow('2', $x, 0),
+            0
+        ) >= 0;
+    }
+
+    /**
+     * Is Negative?
+     *
+     * @return boolean
+     */
+    public function isNegative()
+    {
+        return strlen($this->value) && $this->value[0] == '-';
+    }
+
+    /**
+     * Negate
+     *
+     * Given $k, returns -$k
+     *
+     * @return BCMath
+     */
+    public function negate()
+    {
+        $temp = clone $this;
+
+        if (!strlen($temp->value)) {
+            return $temp;
+        }
+
+        $temp->value = $temp->value[0] == '-' ?
+            substr($this->value, 1) :
+            '-' . $this->value;
+
+        return $temp;
     }
 }
