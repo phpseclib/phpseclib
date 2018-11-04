@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.12 - 2018-11-04
+
+- SSH2: fixes relating to delayed global requests (#1271)
+- SSH2: setEngine -> setPreferredEngine (#1294)
+- SSH2: reset $this->bitmap when the connection fails (#1298)
+- SSH2: add ping() method (#1298)
+- SSH2: add support for rsa-sha2-256 / rsa-sha2-512 (RFC8332)
+- SFTP: make rawlist give same result regardless of stat cache (#1287)
+- Hash: save hashed keys for re-use
+
 ## 2.0.11 - 2018-04-15
 
 - X509: auto download intermediate certs
@@ -115,6 +125,16 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.12 - 2018-11-04
+
+- SSH2: fixes relating to delayed global requests (#1271)
+- SSH2: setEngine -> setPreferredEngine (#1294)
+- SSH2: reset $this->bitmap when the connection fails (#1298)
+- SSH2: add ping() method (#1298)
+- SSH2: add support for rsa-sha2-256 / rsa-sha2-512 (RFC8332)
+- SFTP: make rawlist give same result regardless of stat cache (#1287)
+- Hash: save hashed keys for re-use
 
 ## 1.0.11 - 2018-04-15
 
