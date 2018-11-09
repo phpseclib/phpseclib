@@ -4039,8 +4039,8 @@ class Net_SSH2
     function _send_binary_packet($data, $logged = null)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
-            user_error('Connection closed prematurely');
             $this->bitmap = 0;
+            user_error('Connection closed prematurely');
             return false;
         }
 
