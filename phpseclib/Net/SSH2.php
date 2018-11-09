@@ -3335,8 +3335,8 @@ class SSH2
     function _get_binary_packet($skip_channel_filter = false)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
-            user_error('Connection closed prematurely');
             $this->bitmap = 0;
+            user_error('Connection closed prematurely');
             return false;
         }
 
@@ -3379,8 +3379,8 @@ class SSH2
         while ($remaining_length > 0) {
             $temp = stream_get_contents($this->fsock, $remaining_length);
             if ($temp === false || feof($this->fsock)) {
-                user_error('Error reading from socket');
                 $this->bitmap = 0;
+                user_error('Error reading from socket');
                 return false;
             }
             $buffer.= $temp;
@@ -3398,8 +3398,8 @@ class SSH2
         if ($this->hmac_check !== false) {
             $hmac = stream_get_contents($this->fsock, $this->hmac_size);
             if ($hmac === false || strlen($hmac) != $this->hmac_size) {
-                user_error('Error reading socket');
                 $this->bitmap = 0;
+                user_error('Error reading socket');
                 return false;
             } elseif ($hmac != $this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding))) {
                 user_error('Invalid HMAC');
@@ -3936,8 +3936,8 @@ class SSH2
     function _send_binary_packet($data, $logged = null)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
-            user_error('Connection closed prematurely');
             $this->bitmap = 0;
+            user_error('Connection closed prematurely');
             return false;
         }
 
