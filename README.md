@@ -24,6 +24,7 @@ AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 
 ### 2.0
 
+* Long term support (LTS) release
 * Modernized version of 1.0
 * Minimum PHP version: 5.3.3
 * PSR-4 autoloading with namespace rooted at `\phpseclib`
