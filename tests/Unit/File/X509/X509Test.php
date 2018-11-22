@@ -712,7 +712,7 @@ M0qaEPsM2o3CSTfxSJQQIyEe+izV3UQqYSyWkNqCCFPN
 
     public function testValidateDate()
     {
-        $x509 = new File_X509();
+        $x509 = new X509();
         $x509->loadX509('-----BEGIN CERTIFICATE-----
 MIIDITCCAoqgAwIBAgIQT52W2WawmStUwpV8tBV9TTANBgkqhkiG9w0BAQUFADBM
 MQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkg
