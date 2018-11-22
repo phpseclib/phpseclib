@@ -1090,17 +1090,16 @@ class X509
         $notAfter = $this->currentCert['tbsCertificate']['validity']['notAfter'];
         $notAfter = isset($notAfter['generalTime']) ? $notAfter['generalTime'] : $notAfter['utcTime'];
 
-        switch (true) {
-            case is_string($date):
-                $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
-            default:
-                $notBefore = new DateTime($notBefore, new DateTimeZone(@date_default_timezone_get()));
-                $notAfter = new DateTime($notAfter, new DateTimeZone(@date_default_timezone_get()));
+        if (is_string($date)) {
+            $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
         }
 
+        $notBefore = new DateTime($notBefore, new DateTimeZone(@date_default_timezone_get()));
+        $notAfter = new DateTime($notAfter, new DateTimeZone(@date_default_timezone_get()));
+
         switch (true) {
-            case $date < new DateTime($notBefore, new DateTimeZone(@date_default_timezone_get())):
-            case $date > new DateTime($notAfter, new DateTimeZone(@date_default_timezone_get())):
+            case $date < $notBefore:
+            case $date > $notAfter:
                 return false;
         }
 
