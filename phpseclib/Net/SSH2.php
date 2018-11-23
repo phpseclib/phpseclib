@@ -2570,9 +2570,7 @@ class SSH2
         $this->agent = $agent;
         $keys = $agent->requestIdentities();
         foreach ($keys as $key) {
-echo "so far\n";
             if ($this->privatekey_login($username, $key)) {
-echo "so good!?\n";
                 return true;
             }
         }
