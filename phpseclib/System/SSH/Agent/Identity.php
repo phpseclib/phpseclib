@@ -19,6 +19,7 @@ namespace phpseclib\System\SSH\Agent;
 use phpseclib\Crypt\RSA;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\System\SSH\Agent;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * Pure-PHP ssh-agent client identity object
@@ -35,6 +36,17 @@ use phpseclib\System\SSH\Agent;
  */
 class Identity
 {
+    /**@+
+     * Signature Flags
+     *
+     * See https://tools.ietf.org/html/draft-miller-ssh-agent-00#section-5.3
+     *
+     * @access private
+     */
+    const SSH_AGENT_RSA2_256 = 2;
+    const SSH_AGENT_RSA2_512 = 4;
+    /**#@-*/
+
     /**
      * Key Object
      *
@@ -61,6 +73,16 @@ class Identity
      * @see self::sign()
      */
     private $fsock;
+
+    /**
+     * Signature flags
+     *
+     * @var int
+     * @access private
+     * @see self::sign()
+     * @see self::setHash()
+     */
+    var $flags = 0;
 
     /**
      * Default Constructor.
@@ -124,10 +146,20 @@ class Identity
      * @param string $hash optional
      * @access public
      */
-    public function setHash($hash = 'sha1')
+    public function setHash($hash)
     {
-        if ($hash != 'sha1') {
-            throw new UnsupportedAlgorithmException('ssh-agent can only be used with the sha1 hash');
+        $this->flags = 0;
+        switch ($hash) {
+            case 'sha1':
+                break;
+            case 'sha256':
+                $this->flags = self::SSH_AGENT_RSA2_256;
+                break;
+            case 'sha512':
+                $this->flags = self::SSH_AGENT_RSA2_512;
+                break;
+            default:
+                throw new UnsupportedAlgorithmException('The only supported hashes for RSA are sha1, sha256 and sha512');
         }
     }
 
@@ -150,7 +182,7 @@ class Identity
         }
 
         // the last parameter (currently 0) is for flags and ssh-agent only defines one flag (for ssh-dss): SSH_AGENT_OLD_SIGNATURE
-        $packet = pack('CNa*Na*N', Agent::SSH_AGENTC_SIGN_REQUEST, strlen($this->key_blob), $this->key_blob, strlen($message), $message, 0);
+        $packet = pack('CNa*Na*N', Agent::SSH_AGENTC_SIGN_REQUEST, strlen($this->key_blob), $this->key_blob, strlen($message), $message, $this->flags);
         $packet = pack('Na*', strlen($packet), $packet);
         if (strlen($packet) != fputs($this->fsock, $packet)) {
             throw new \RuntimeException('Connection closed during signing');
@@ -163,8 +195,17 @@ class Identity
         }
 
         $signature_blob = fread($this->fsock, $length - 1);
-        // the only other signature format defined - ssh-dss - is the same length as ssh-rsa
-        // the + 12 is for the other various SSH added length fields
-        return substr($signature_blob, strlen('ssh-rsa') + 12);
+        $length = current(unpack('N', Strings::shift($signature_blob, 4)));
+        if ($length != strlen($signature_blob)) {
+            throw new \RuntimeException('Malformed signature blob');
+        }
+        $length = current(unpack('N', Strings::shift($signature_blob, 4)));
+        if ($length > strlen($signature_blob) + 4) {
+            throw new \RuntimeException('Malformed signature blob');
+        }
+        $type = Strings::shift($signature_blob, $length);
+        Strings::shift($signature_blob, 4);
+
+        return $signature_blob;
     }
 }

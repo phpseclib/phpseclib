@@ -2570,7 +2570,9 @@ class SSH2
         $this->agent = $agent;
         $keys = $agent->requestIdentities();
         foreach ($keys as $key) {
+echo "so far\n";
             if ($this->privatekey_login($username, $key)) {
+echo "so good!?\n";
                 return true;
             }
         }
@@ -2664,24 +2666,19 @@ class SSH2
         }
 
         $packet = $part1 . chr(1) . $part2;
-        if ($privatekey instanceof AgentIdentity) {
-            $hash = 'sha1';
-            $type = 'ssh-rsa';
-        } else {
-            switch ($this->signature_format) {
-                case 'rsa-sha2-512':
-                    $hash = 'sha512';
-                    $type = 'rsa-sha2-512';
-                    break;
-                case 'rsa-sha2-256':
-                    $hash = 'sha256';
-                    $type = 'rsa-sha2-256';
-                    break;
-                //case 'ssh-rsa':
-                default:
-                    $hash = 'sha1';
-                    $type = 'ssh-rsa';
-            }
+        switch ($this->signature_format) {
+            case 'rsa-sha2-512':
+                $hash = 'sha512';
+                $type = 'rsa-sha2-512';
+                break;
+            case 'rsa-sha2-256':
+                $hash = 'sha256';
+                $type = 'rsa-sha2-256';
+                break;
+            //case 'ssh-rsa':
+            default:
+                $hash = 'sha1';
+                $type = 'ssh-rsa';
         }
         $privatekey->setHash($hash);
         $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet), RSA::PADDING_PKCS1);
