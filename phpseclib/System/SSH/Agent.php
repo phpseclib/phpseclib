@@ -64,7 +64,7 @@ define('SYSTEM_SSH_AGENT_FAILURE', 5);
 define('SYSTEM_SSH_AGENTC_SIGN_REQUEST', 13);
 // the SSH1 response is SSH_AGENT_RSA_RESPONSE (4)
 define('SYSTEM_SSH_AGENT_SIGN_RESPONSE', 14);
-
+/**#@-*/
 
 /**@+
  * Agent forwarding status
@@ -77,7 +77,17 @@ define('SYSTEM_SSH_AGENT_FORWARD_NONE', 0);
 define('SYSTEM_SSH_AGENT_FORWARD_REQUEST', 1);
 // forwarding has been request and is active
 define('SYSTEM_SSH_AGENT_FORWARD_ACTIVE', 2);
+/**#@-*/
 
+/**@+
+ * Signature Flags
+ *
+ * See https://tools.ietf.org/html/draft-miller-ssh-agent-00#section-5.3
+ *
+ * @access private
+ */
+define('SYSTEM_SSH_AGENT_RSA2_256', 2);
+define('SYSTEM_SSH_AGENT_RSA2_512', 4);
 /**#@-*/
 
 /**
@@ -122,6 +132,16 @@ class System_SSH_Agent_Identity
      * @see self::sign()
      */
     var $fsock;
+
+    /**
+     * Signature flags
+     *
+     * @var int
+     * @access private
+     * @see self::sign()
+     * @see self::setHash()
+     */
+    var $flags = 0;
 
     /**
      * Default Constructor.
@@ -212,6 +232,19 @@ class System_SSH_Agent_Identity
      */
     function setHash($hash)
     {
+        $this->flags = 0;
+        switch ($hash) {
+            case 'sha1':
+                break;
+            case 'sha256':
+                $this->flags = SYSTEM_SSH_AGENT_RSA2_256;
+                break;
+            case 'sha512':
+                $this->flags = SYSTEM_SSH_AGENT_RSA2_512;
+                break;
+            default:
+                user_error('The only supported hashes for RSA are sha1, sha256 and sha512');
+        }
     }
 
     /**
@@ -226,7 +259,7 @@ class System_SSH_Agent_Identity
     function sign($message)
     {
         // the last parameter (currently 0) is for flags and ssh-agent only defines one flag (for ssh-dss): SSH_AGENT_OLD_SIGNATURE
-        $packet = pack('CNa*Na*N', SYSTEM_SSH_AGENTC_SIGN_REQUEST, strlen($this->key_blob), $this->key_blob, strlen($message), $message, 0);
+        $packet = pack('CNa*Na*N', SYSTEM_SSH_AGENTC_SIGN_REQUEST, strlen($this->key_blob), $this->key_blob, strlen($message), $message, $this->flags);
         $packet = pack('Na*', strlen($packet), $packet);
         if (strlen($packet) != fputs($this->fsock, $packet)) {
             user_error('Connection closed during signing');
@@ -239,9 +272,35 @@ class System_SSH_Agent_Identity
         }
 
         $signature_blob = fread($this->fsock, $length - 1);
-        // the only other signature format defined - ssh-dss - is the same length as ssh-rsa
-        // the + 12 is for the other various SSH added length fields
-        return substr($signature_blob, strlen('ssh-rsa') + 12);
+        $length = current(unpack('N', $this->_string_shift($signature_blob, 4)));
+        if ($length != strlen($signature_blob)) {
+            user_error('Malformed signature blob');
+        }
+        $length = current(unpack('N', $this->_string_shift($signature_blob, 4)));
+        if ($length > strlen($signature_blob) + 4) {
+            user_error('Malformed signature blob');
+        }
+        $type = $this->_string_shift($signature_blob, $length);
+        $this->_string_shift($signature_blob, 4);
+
+        return $signature_blob;
+    }
+
+    /**
+     * String Shift
+     *
+     * Inspired by array_shift
+     *
+     * @param string $string
+     * @param int $index
+     * @return string
+     * @access private
+     */
+    function _string_shift(&$string, $index = 1)
+    {
+        $substr = substr($string, 0, $index);
+        $string = substr($string, $index);
+        return $substr;
     }
 }
 
