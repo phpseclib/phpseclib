@@ -508,4 +508,42 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $this->assertSame($expected, bin2hex($sig = $privateKey->sign($message)));
         $this->assertTrue($publicKey->verify($message, $sig));
     }
+
+    public function testRandomSignature()
+    {
+        $message = 'hello, world!';
+        $private = new ECDSA();
+        $private->load('PuTTY-User-Key-File-2: ecdsa-sha2-nistp256
+Encryption: none
+Comment: ecdsa-key-20181105
+Public-Lines: 3
+AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBJEXCsWA8s18
+m25MJlVE1urbXPYFi4q8oMbb2H0kE2f5WPxizsKXRmb1J68paXQizryL9fC4FTqI
+CJ1+UnaPfk0=
+Private-Lines: 1
+AAAAIQDwaPlajbXY1SxhuwsUqN1CEZ5g4adsbmJsKm+ZbUVm4g==
+Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
+        $public = $private->getPublicKey();
+
+        $signature1 = $private->sign($message, 'ASN1');
+        $signature2 = $private->sign($message, 'ASN1');
+        // phpseclib's ECDSA implementation uses a CSPRNG to generate the k parameter.
+        // used correctly this should result in different signatures every time.
+        // RFC6979 describes a deterministic ECDSA scheme wherein two signatures for the same
+        // plaintext would yield the same value so if that were to be switched to then this
+        // unit test would need to be updated
+        $this->assertNotEquals($signature1, $signature2);
+
+        $this->assertTrue($public->verify($message, $signature1, 'ASN1'));
+        $this->assertTrue($public->verify($message, $signature2, 'ASN1'));
+
+        $signature1 = $private->sign($message, 'SSH2');
+        $signature2 = $private->sign($message, 'SSH2');
+        $this->assertNotEquals($signature1, $signature2);
+        $this->assertTrue($public->verify($message, $signature1, 'SSH2'));
+        $this->assertTrue($public->verify($message, $signature2, 'SSH2'));
+
+        $signature = $private->sign($message, 'Raw');
+        $this->assertTrue($public->verify($message, $signature, 'Raw'));
+    }
 }
