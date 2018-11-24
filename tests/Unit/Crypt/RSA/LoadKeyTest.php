@@ -9,10 +9,17 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\RSA\Keys\PKCS1;
 use phpseclib\Crypt\RSA\Keys\PKCS8;
 use phpseclib\Crypt\RSA\Keys\PuTTY;
+use phpseclib\Crypt\RSA\Keys\OpenSSH;
 use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 {
+    public static function setUpBeforeClass()
+    {
+        PuTTY::setComment('phpseclib-generated-key');
+        OpenSSH::setComment('phpseclib-generated-key');
+    }
+
     public function testBadKey()
     {
         $rsa = new RSA();
@@ -393,6 +400,7 @@ Private-MAC: 03e2cb74e1d67652fbad063d2ed0478f31bdf256
         $rsa->setPrivateKeyFormat('PuTTY');
         $key2 = (string) $rsa;
 
+        OpenSSH::setComment('ecdsa-key-20181105');
         $this->assertSame($key, $key2);
     }
 

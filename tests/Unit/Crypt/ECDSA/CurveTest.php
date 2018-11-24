@@ -9,6 +9,7 @@
 use phpseclib\Crypt\ECDSA;
 use phpseclib\File\ASN1;
 use phpseclib\Crypt\ECDSA\Curves\Ed448;
+use phpseclib\Math\BigInteger;
 
 class Ed448PublicKey
 {
@@ -106,6 +107,7 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
      * Verify the correctness of the point addition / doubling / multiplication algorithms
      *
      * @dataProvider curves
+     * @requires PHP 7.0
      */
     public function testKeyGeneration($name)
     {
@@ -145,6 +147,7 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
      * Sign with internal engine, verify with best engine
      *
      * @dataProvider curves
+     * @requires PHP 7.0
      */
     public function testInternalSign($name)
     {
@@ -175,6 +178,7 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
      * Sign with best engine, verify with internal engine
      *
      * @dataProvider curves
+     * @requires PHP 7.0
      */
     public function testInternalVerify($name)
     {
