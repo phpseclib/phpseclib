@@ -37,6 +37,7 @@ use phpseclib\File\ASN1;
 use phpseclib\File\ASN1\Maps\ECParameters;
 use phpseclib\Crypt\ECDSA\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib\Crypt\ECDSA\Curves\Ed25519;
+use phpseclib\Crypt\ECDSA\Curves\Ed448;
 use phpseclib\Crypt\ECDSA\Keys\PKCS1;
 use phpseclib\Crypt\ECDSA\Keys\PKCS8;
 use phpseclib\Crypt\ECDSA\Signature\ASN1 as ASN1Signature;
@@ -198,18 +199,26 @@ class ECDSA extends AsymmetricKey
             $this->QA = $key->QA;
             $this->curve = $key->curve;
             $this->parametersFormat = $key->parametersFormat;
+            $this->hash = $key->hash;
+
+            parent::load($key, false);
 
             return true;
         }
 
         $components = parent::load($key, $type);
         if ($components === false) {
-            $this->format = null;
-            $this->dA = null;
-            $this->QA = null;
-            $this->curve = null;
-
+            $this->clearKey();
             return false;
+        }
+
+        if ($components['curve'] instanceof Ed25519 && $this->hashManuallySet && $this->hash->getHash() != 'sha512') {
+            $this->clearKey();
+            throw new \RuntimeException('Ed25519 only supports sha512 as a hash');
+        }
+        if ($components['curve'] instanceof Ed448 && $this->hashManuallySet && $this->hash->getHash() != 'shake256-912') {
+            $this->clearKey();
+            throw new \RuntimeException('Ed448 only supports shake256 with a length of 114 bytes');
         }
 
         $this->curve = $components['curve'];
@@ -217,6 +226,19 @@ class ECDSA extends AsymmetricKey
         $this->dA = isset($components['dA']) ? $components['dA'] : null;
 
         return true;
+    }
+
+    /**
+     * Removes a key
+     *
+     * @access private
+     */
+    private function clearKey()
+    {
+        $this->format = null;
+        $this->dA = null;
+        $this->QA = null;
+        $this->curve = null;
     }
 
     /**
@@ -437,6 +459,24 @@ class ECDSA extends AsymmetricKey
             throw new \RuntimeException('The context is supposed to be, at most, 255 bytes long');
         }
         $this->context = $context;
+    }
+
+    /**
+     * Determines which hashing function should be used
+     *
+     * @access public
+     * @param string $hash
+     */
+    public function setHash($hash)
+    {
+        if ($this->curve instanceof Ed25519 && $this->hash != 'sha512') {
+            throw new \RuntimeException('Ed25519 only supports sha512 as a hash');
+        }
+        if ($this->curve instanceof Ed448 && $this->hash != 'shake256-912') {
+            throw new \RuntimeException('Ed448 only supports shake256 with a length of 114 bytes');
+        }
+
+        parent::setHash($hash);
     }
 
     /**

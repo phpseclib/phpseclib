@@ -152,6 +152,14 @@ abstract class AsymmetricKey
     private $hmac;
 
     /**
+     * Hash manually set?
+     *
+     * @var bool
+     * @access private
+     */
+    protected $hashManuallySet = false;
+
+    /**
      * Available Engines
      *
      * @var boolean[]
@@ -284,6 +292,12 @@ abstract class AsymmetricKey
      */
     protected function load($key, $type)
     {
+        if ($key instanceof self) {
+            $this->hmac = $key->hmac;
+
+            return;
+        }
+
         $components = false;
         if ($type === false) {
             foreach (self::$plugins[static::ALGORITHM]['Keys'] as $format) {
@@ -594,6 +608,8 @@ abstract class AsymmetricKey
     {
         $this->hash = new Hash($hash);
         $this->hmac = new Hash($hash);
+
+        $this->hashManuallySet = true;
     }
 
     /**
