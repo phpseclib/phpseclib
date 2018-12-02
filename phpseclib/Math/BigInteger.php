@@ -114,16 +114,9 @@ class BigInteger implements \Serializable
     }
 
     /**
-     * Converts base-2, base-10, base-16, and binary strings (base-256) to BigIntegers.
-     *
-     * If the second parameter - $base - is negative, then it will be assumed that the number's are encoded using
-     * two's compliment.  The sole exception to this is -10, which is treated the same as 10 is.
-     *
-     * @param $x integer|BigInteger\Engines\Engine Base-10 number or base-$base number if $base set.
-     * @param int $base
-     * @return BigInteger
+     * Initialize static variables
      */
-    public function __construct($x = 0, $base = 10)
+    private static function initialize_static_variables()
     {
         if (!isset(self::$mainEngine)) {
             $engines = [
@@ -140,6 +133,21 @@ class BigInteger implements \Serializable
                 }
             }
         }
+    }
+
+    /**
+     * Converts base-2, base-10, base-16, and binary strings (base-256) to BigIntegers.
+     *
+     * If the second parameter - $base - is negative, then it will be assumed that the number's are encoded using
+     * two's compliment.  The sole exception to this is -10, which is treated the same as 10 is.
+     *
+     * @param $x integer|BigInteger\Engines\Engine Base-10 number or base-$base number if $base set.
+     * @param int $base
+     * @return BigInteger
+     */
+    public function __construct($x = 0, $base = 10)
+    {
+        self::initialize_static_variables();
 
         if ($x instanceof self::$mainEngine) {
             $this->value = clone $x;
@@ -569,6 +577,8 @@ class BigInteger implements \Serializable
      */
     public static function minMaxBits($bits)
     {
+        self::initialize_static_variables();
+
         $class = self::$mainEngine;
         extract($class::minMaxBits($bits));
         /** @var BigInteger $min
@@ -610,6 +620,8 @@ class BigInteger implements \Serializable
      */
     public static function random($size)
     {
+        self::initialize_static_variables();
+
         $class = self::$mainEngine;
         return new static($class::random($size));
     }
@@ -624,6 +636,8 @@ class BigInteger implements \Serializable
      */
     public static function randomPrime($size)
     {
+        self::initialize_static_variables();
+
         $class = self::$mainEngine;
         return new static($class::randomPrime($size));
     }
