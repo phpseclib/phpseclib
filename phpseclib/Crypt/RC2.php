@@ -152,7 +152,7 @@ class RC2 extends BlockCipher
      * @var array
      * @access private
      */
-    private $pitable = [
+    private static $pitable = [
         0xD9, 0x78, 0xF9, 0xC4, 0x19, 0xDD, 0xB5, 0xED,
         0x28, 0xE9, 0xFD, 0x79, 0x4A, 0xA0, 0xD8, 0x9D,
         0xC6, 0x7E, 0x37, 0x83, 0x2B, 0x76, 0x53, 0x8E,
@@ -226,7 +226,7 @@ class RC2 extends BlockCipher
      * @var array
      * @access private
      */
-    private $invpitable = [
+    private static $invpitable = [
         0xD1, 0xDA, 0xB9, 0x6F, 0x9C, 0xC8, 0x78, 0x66,
         0x80, 0x2C, 0xF8, 0x37, 0xEA, 0xE0, 0x62, 0xA4,
         0xCB, 0x71, 0x50, 0x27, 0x4B, 0x95, 0xD9, 0x20,
@@ -378,7 +378,7 @@ class RC2 extends BlockCipher
         $tm = 0xFF >> (8 * $t8 - $t1);
 
         // Expand key.
-        $pitable = $this->pitable;
+        $pitable = self::$pitable;
         for ($i = $t; $i < 128; $i++) {
             $l[$i] = $pitable[$l[$i - 1] + $l[$i - $t]];
         }
@@ -389,7 +389,7 @@ class RC2 extends BlockCipher
         }
 
         // Prepare the key for mcrypt.
-        $l[0] = $this->invpitable[$l[0]];
+        $l[0] = self::$invpitable[$l[0]];
         array_unshift($l, 'C*');
 
         $this->key = call_user_func_array('pack', $l);
@@ -549,7 +549,7 @@ class RC2 extends BlockCipher
         // Key has already been expanded in \phpseclib\Crypt\RC2::setKey():
         // Only the first value must be altered.
         $l = unpack('Ca/Cb/v*', $this->key);
-        array_unshift($l, $this->pitable[$l['a']] | ($l['b'] << 8));
+        array_unshift($l, self::$pitable[$l['a']] | ($l['b'] << 8));
         unset($l['a']);
         unset($l['b']);
         $this->keys = $l;
