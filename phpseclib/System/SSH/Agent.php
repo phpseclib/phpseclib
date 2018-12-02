@@ -352,18 +352,20 @@ class System_SSH_Agent
      * @return System_SSH_Agent
      * @access public
      */
-    function __construct()
+    function __construct($address = null)
     {
-        switch (true) {
-            case isset($_SERVER['SSH_AUTH_SOCK']):
-                $address = $_SERVER['SSH_AUTH_SOCK'];
-                break;
-            case isset($_ENV['SSH_AUTH_SOCK']):
-                $address = $_ENV['SSH_AUTH_SOCK'];
-                break;
-            default:
-                user_error('SSH_AUTH_SOCK not found');
-                return false;
+        if (!$address) {
+            switch (true) {
+                case isset($_SERVER['SSH_AUTH_SOCK']):
+                    $address = $_SERVER['SSH_AUTH_SOCK'];
+                    break;
+                case isset($_ENV['SSH_AUTH_SOCK']):
+                    $address = $_ENV['SSH_AUTH_SOCK'];
+                    break;
+                default:
+                    user_error('SSH_AUTH_SOCK not found');
+                    return false;
+            }
         }
 
         $this->fsock = fsockopen('unix://' . $address, 0, $errno, $errstr);
@@ -378,9 +380,9 @@ class System_SSH_Agent
      * @see self::__construct()
      * @access public
      */
-    function System_SSH_Agent()
+    function System_SSH_Agent($address = null)
     {
-        $this->__construct();
+        $this->__construct($address);
     }
 
     /**
