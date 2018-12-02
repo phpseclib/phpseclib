@@ -33,6 +33,8 @@ namespace phpseclib\Crypt;
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Common\AsymmetricKey;
 use phpseclib\Exception\UnsupportedCurveException;
+use phpseclib\Exception\UnsupportedOperationException;
+use phpseclib\Exception\NoKeyLoadedException;
 use phpseclib\File\ASN1;
 use phpseclib\File\ASN1\Maps\ECParameters;
 use phpseclib\Crypt\ECDSA\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
@@ -491,7 +493,10 @@ class ECDSA extends AsymmetricKey
     public function sign($message, $format = 'ASN1')
     {
         if (!isset($this->dA)) {
-            return false;
+            if (!isset($this->QA)) {
+                throw new NoKeyLoadedException('No key has been loaded');
+            }
+            throw new UnsupportedOperationException('A public key cannot be used to sign data');
         }
 
         $dA = $this->dA->toBigInteger();
@@ -630,7 +635,10 @@ class ECDSA extends AsymmetricKey
     public function verify($message, $signature, $format = 'ASN1')
     {
         if (!isset($this->QA)) {
-            return false;
+            if (!isset($this->dA)) {
+                throw new NoKeyLoadedException('No key has been loaded');
+            }
+            throw new UnsupportedOperationException('A private key cannot be used to verify data');
         }
 
         $order = $this->curve->getOrder();

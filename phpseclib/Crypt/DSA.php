@@ -36,6 +36,8 @@ use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Common\AsymmetricKey;
 use phpseclib\Math\PrimeField;
 use phpseclib\Crypt\ECDSA\Signature\ASN1 as ASN1Signature;
+use phpseclib\Exception\UnsupportedOperationException;
+use phpseclib\Exception\NoKeyLoadedException;
 
 /**
  * Pure-PHP FIPS 186-4 compliant implementation of DSA.
@@ -455,8 +457,15 @@ class DSA extends AsymmetricKey
             return false;
         }
 
-        if (empty($this->x) || empty($this->p)) {
-            return false;
+        if (empty($this->x)) {
+            if (empty($this->y)) {
+                throw new NoKeyLoadedException('No key has been loaded');
+            }
+            throw new UnsupportedOperationException('A public key cannot be used to sign data');
+        }
+
+        if (empty($this->p)) {
+            throw new \RuntimeException('DSA Prime P is not set');
         }
 
         if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
@@ -535,8 +544,15 @@ class DSA extends AsymmetricKey
         }
         extract($params);
 
-        if (empty($this->y) || empty($this->p)) {
-            return false;
+        if (empty($this->y)) {
+            if (empty($this->x)) {
+                throw new NoKeyLoadedException('No key has been loaded');
+            }
+            throw new UnsupportedOperationException('A private key cannot be used to sign data');
+        }
+
+        if (empty($this->p)) {
+            throw new \RuntimeException('DSA Prime P is not set');
         }
 
         if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
