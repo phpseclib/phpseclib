@@ -114,6 +114,18 @@ class BigInteger implements \Serializable
     }
 
     /**
+     * Returns the engine type
+     *
+     * @return string[]
+     */
+    public static function getEngine()
+    {
+        self::initialize_static_variables();
+
+        return self::$engines;
+    }
+
+    /**
      * Initialize static variables
      */
     private static function initialize_static_variables()
