@@ -43,7 +43,7 @@ use phpseclib\System\SSH\Agent\Identity;
  *
  * @package SSH\Agent
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  internal
+ * @access  public
  */
 class Agent
 {
