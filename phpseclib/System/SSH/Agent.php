@@ -135,17 +135,19 @@ class Agent
      * @throws \RuntimeException on connection errors
      * @access public
      */
-    public function __construct()
+    public function __construct($address = null)
     {
-        switch (true) {
-            case isset($_SERVER['SSH_AUTH_SOCK']):
-                $address = $_SERVER['SSH_AUTH_SOCK'];
-                break;
-            case isset($_ENV['SSH_AUTH_SOCK']):
-                $address = $_ENV['SSH_AUTH_SOCK'];
-                break;
-            default:
-                throw new BadConfigurationException('SSH_AUTH_SOCK not found');
+        if (!$address) {
+            switch (true) {
+                case isset($_SERVER['SSH_AUTH_SOCK']):
+                    $address = $_SERVER['SSH_AUTH_SOCK'];
+                    break;
+                case isset($_ENV['SSH_AUTH_SOCK']):
+                    $address = $_ENV['SSH_AUTH_SOCK'];
+                    break;
+                default:
+                    throw new BadConfigurationException('SSH_AUTH_SOCK not found');
+            }
         }
 
         $this->fsock = fsockopen('unix://' . $address, 0, $errno, $errstr);
