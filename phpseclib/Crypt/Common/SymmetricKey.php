@@ -2133,6 +2133,10 @@ abstract class SymmetricKey
             throw new \UnexpectedValueException('No IV has been defined');
         }
 
+        if ($this->key === false) {
+            throw new \UnexpectedValueException('No key has been defined');
+        }
+
         $this->encryptIV = $this->decryptIV = $this->iv;
     }
 
