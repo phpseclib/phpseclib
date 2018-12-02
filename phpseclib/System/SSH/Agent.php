@@ -46,7 +46,7 @@ use phpseclib\Common\Functions\Objects;
  *
  * @package SSH\Agent
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  internal
+ * @access  public
  */
 class Agent
 {
