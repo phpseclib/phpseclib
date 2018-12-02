@@ -311,7 +311,7 @@ class System_SSH_Agent_Identity
  *
  * @package System_SSH_Agent
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  internal
+ * @access  public
  */
 class System_SSH_Agent
 {
