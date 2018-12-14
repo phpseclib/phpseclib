@@ -75,12 +75,12 @@ abstract class Strings
      */
     public static function equals($x, $y)
     {
-        if (strlen($x) != strlen($y)) {
+        if (strlen($x) !== strlen($y)) {
             return false;
         }
 
         $result = 0;
-        for ($i = 0; $i < strlen($x); $i++) {
+        for ($i = 0, $iMax = strlen($x); $i < $iMax; $i++) {
             $result |= ord($x[$i]) ^ ord($y[$i]);
         }
 
@@ -107,11 +107,12 @@ abstract class Strings
      * @param $data
      * @return mixed
      * @access public
+     * @throws \InvalidArgumentException
      */
     public static function unpackSSH2($format, $data)
     {
         $result = [];
-        for ($i = 0; $i < strlen($format); $i++) {
+        for ($i = 0, $iMax = strlen($format); $i < $iMax; $i++) {
             switch ($format[$i]) {
                 case 'C':
                 case 'b':
@@ -135,7 +136,7 @@ abstract class Strings
                     $result[] = ord(self::shift($data));
                     continue 2;
                 case 'b':
-                    $result[] = ord(self::shift($data)) != 0;
+                    $result[] = ord(self::shift($data)) !== 0;
                     continue 2;
                 case 'N':
                     list(, $temp) = unpack('N', self::shift($data, 4));
@@ -165,19 +166,20 @@ abstract class Strings
     /**
      * Create SSH2-style string
      *
-     * @param $elements[]
+     * @param $elements []
      * @access public
      * @return mixed
+     * @throws \InvalidArgumentException
      */
     public static function packSSH2(...$elements)
     {
         $format = $elements[0];
         array_shift($elements);
-        if (strlen($format) != count($elements)) {
+        if (strlen($format) !== count($elements)) {
             throw new \InvalidArgumentException('There must be as many arguments as there are characters in the $format string');
         }
         $result = '';
-        for ($i = 0; $i < strlen($format); $i++) {
+        for ($i = 0, $iMax = strlen($format); $i < $iMax; $i++) {
             $element = $elements[$i];
             switch ($format[$i]) {
                 case 'C':
