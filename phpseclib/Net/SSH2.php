@@ -3724,7 +3724,12 @@ class SSH2
                 $response = $this->binary_packet_buffer;
                 $this->binary_packet_buffer = false;
             } else {
-                if ($this->curTimeout) {
+                $read = array($this->fsock);
+                $write = $except = null;
+
+                if (!$this->curTimeout) {
+                    @stream_select($read, $write, $except, null);
+                } else {
                     if ($this->curTimeout < 0) {
                         $this->is_timeout = true;
                         return true;
