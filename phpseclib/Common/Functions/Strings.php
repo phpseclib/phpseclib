@@ -16,6 +16,7 @@
 namespace phpseclib\Common\Functions;
 
 use phpseclib\Math\BigInteger;
+use phpseclib\Math\Common\FiniteField;
 
 /**
  * Common String Functions
@@ -106,9 +107,8 @@ abstract class Strings
      * @param string $format
      * @param $data
      * @return mixed
-     * @access public
      */
-    public static function unpackSSH2($format, $data)
+    public static function unpackSSH2($format, &$data)
     {
         $result = [];
         for ($i = 0; $i < strlen($format); $i++) {
@@ -205,8 +205,8 @@ abstract class Strings
                     $result.= pack('Na*', strlen($element), $element);
                     break;
                 case 'i':
-                    if (!$element instanceof BigInteger) {
-                        throw new \InvalidArgumentException('A phpseclib\Math\BigInteger object was expected.');
+                    if (!$element instanceof BigInteger && !$element instanceof FiniteField\Integer) {
+                        throw new \InvalidArgumentException('A phpseclib\Math\BigInteger or phpseclib\Math\Common\FiniteField\Integer object was expected.');
                     }
                     $element = $element->toBytes(true);
                     $result.= pack('Na*', strlen($element), $element);
@@ -223,5 +223,96 @@ abstract class Strings
             }
         }
         return $result;
+    }
+
+    /**
+     * Convert binary data into bits
+     *
+     * bin2hex / hex2bin refer to base-256 encoded data as binary, whilst
+     * decbin / bindec refer to base-2 encoded data as binary. For the purposes
+     * of this function, bin refers to base-256 encoded data whilst bits refers
+     * to base-2 encoded data
+     *
+     * @access public
+     * @param string $x
+     * @return string
+     */
+    public static function bits2bin($x)
+    {
+        /*
+        // the pure-PHP approach is faster than the GMP approach
+        if (function_exists('gmp_export')) {
+             return strlen($x) ? gmp_export(gmp_init($x, 2)) : gmp_init(0);
+        }
+        */
+
+        if (preg_match('#[^01]#', $x)) {
+            throw new \RuntimeException('The only valid characters are 0 and 1');
+        }
+
+        if (!defined('PHP_INT_MIN')) {
+            define('PHP_INT_MIN', ~PHP_INT_MAX);
+        }
+
+        $length = strlen($x);
+        if (!$length) {
+            return '';
+        }
+        $block_size = PHP_INT_SIZE << 3;
+        $pad = $block_size - ($length % $block_size);
+        if ($pad != $block_size) {
+            $x = str_repeat('0', $pad) . $x;
+        }
+
+        $parts = str_split($x, $block_size);
+        $str = '';
+        foreach ($parts as $part) {
+            $xor = $part[0] == '1' ? PHP_INT_MIN : 0;
+            $part[0] = '0';
+            $str.= pack(
+                PHP_INT_SIZE == 4 ? 'N' : 'J',
+                $xor ^ eval('return 0b' . $part . ';')
+            );
+        }
+        return ltrim($str, "\0");
+    }
+
+    /**
+     * Convert bits to binary data
+     *
+     * @access public
+     * @param string $x
+     * @return string
+     */
+    public static function bin2bits($x)
+    {
+        /*
+        // the pure-PHP approach is slower than the GMP approach BUT
+        // i want to the pure-PHP version to be easily unit tested as well
+        if (function_exists('gmp_import')) {
+            return gmp_strval(gmp_import($x), 2);
+        }
+        */
+
+        $len = strlen($x);
+        $mod = $len % PHP_INT_SIZE;
+        if ($mod) {
+            $x = str_pad($x, $len + PHP_INT_SIZE - $mod, "\0", STR_PAD_LEFT);
+        }
+
+        $bits = '';
+        if (PHP_INT_SIZE == 4) {
+            $digits = unpack('N*', $x);
+            foreach ($digits as $digit) {
+                $bits.= sprintf('%032b', $digit);
+            }
+        } else {
+            $digits = unpack('J*', $x);
+            foreach ($digits as $digit) {
+                $bits.= sprintf('%064b', $digit);
+            }
+        }
+
+        return ltrim($bits, '0');
     }
 }

@@ -37,18 +37,15 @@ abstract class OpenSSH extends Progenitor
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
         $key = parent::load($key, 'ssh-rsa');
-        if ($key === false) {
-            return false;
-        }
 
         $result = Strings::unpackSSH2('ii', $key);
         if ($result === false) {
-            return false;
+            throw new \UnexpectedValueException('Key appears to be malformed');
         }
         list($publicExponent, $modulus) = $result;
 

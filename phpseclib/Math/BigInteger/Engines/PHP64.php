@@ -93,6 +93,60 @@ class PHP64 extends PHP
     protected static $two;
 
     /**
+     * Initialize a PHP64 BigInteger Engine instance
+     *
+     * @param int $base
+     * @see parent::initialize()
+     */
+    protected function initialize($base)
+    {
+        if ($base != 256 && $base != -256) {
+            return parent::initialize($base);
+        }
+
+        $val = $this->value;
+        $this->value = [];
+        $vals = &$this->value;
+        $i = strlen($val);
+        if (!$i) {
+            return;
+        }
+
+        while (true) {
+            $i-= 4;
+            if ($i < 0) {
+                if ($i == -4) {
+                    break;
+                }
+                $val = substr($val, 0, 4 + $i);
+                $val = str_pad($val, 4, "\0", STR_PAD_LEFT);
+                if ($val == "\0\0\0\0") {
+                    break;
+                }
+                $i = 0;
+            }
+            list(, $digit) = unpack('N', substr($val, $i, 4));
+            $step = count($vals) & 7;
+            if (!$step) {
+                $digit&= static::MAX_DIGIT;
+                $i++;
+            } else {
+                $shift = 8 - $step;
+                $digit>>= $shift;
+                $shift = 32 - $shift;
+                $digit&= (1 << $shift) - 1;
+                $temp = $i > 0 ? ord($val[$i - 1]) : 0;
+                $digit|= ($temp << $shift) & 0x7F000000;
+            }
+            $vals[] = $digit;
+        }
+        while (end($vals) === 0) {
+            array_pop($vals);
+        }
+        reset($vals);
+    }
+
+    /**
      * Test for engine validity
      *
      * @see parent::__construct()

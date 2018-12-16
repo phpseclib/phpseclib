@@ -19,6 +19,7 @@ use ParagonIE\ConstantTime\Hex;
 use phpseclib\Exception\BadConfigurationException;
 use phpseclib\Crypt\Random;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * Base Engine.
@@ -56,6 +57,13 @@ abstract class Engine implements \Serializable
      * @see static::setPrecision()
      */
     protected $bitmask = false;
+
+    /**
+     * Recurring Modulo Function
+     *
+     * @var callable
+     */
+    protected $reduce;
 
     /**
      * Default constructor
@@ -137,6 +145,9 @@ abstract class Engine implements \Serializable
                 // (?<=^|-)0*: find any 0's that are preceded by the start of the string or by a - (ie. octals)
                 // [^-0-9].*: find any non-numeric characters and then any characters that follow that
                 $this->value = preg_replace('#(?<!^)(?:-).*|(?<=^|-)0*|[^-0-9].*#', '', $x);
+                if (!strlen($this->value)) {
+                    $this->value = '0';
+                }
                 static::initialize($base);
                 break;
             case -2:
@@ -147,22 +158,12 @@ abstract class Engine implements \Serializable
                 }
 
                 $x = preg_replace('#^([01]*).*#', '$1', $x);
-                $x = str_pad($x, strlen($x) + (3 * strlen($x)) % 4, 0, STR_PAD_LEFT);
 
-                $str = '0x';
-                while (strlen($x)) {
-                    $part = substr($x, 0, 4);
-                    $str.= dechex(bindec($part));
-                    $x = substr($x, 4);
-                }
-
-                if ($this->is_negative) {
-                    $str = '-' . $str;
-                }
-
-                $temp = new static($str, 8 * $base); // ie. either -16 or +16
+                $temp = new static(Strings::bits2bin($x), 128 * $base); // ie. either -16 or +16
                 $this->value = $temp->value;
-                $this->is_negative = $temp->is_negative;
+                if ($temp->is_negative) {
+                    $this->is_negative = true;
+                }
 
                 break;
             default:
@@ -239,14 +240,9 @@ abstract class Engine implements \Serializable
      */
     public function toBits($twos_compliment = false)
     {
-        $hex = $this->toHex($twos_compliment);
-        $bits = '';
-        for ($i = strlen($hex) - 8, $start = strlen($hex) & 7; $i >= $start; $i-=8) {
-            $bits = str_pad(decbin(hexdec(substr($hex, $i, 8))), 32, '0', STR_PAD_LEFT) . $bits;
-        }
-        if ($start) { // hexdec('') == 0
-            $bits = str_pad(decbin(hexdec(substr($hex, 0, $start))), 8, '0', STR_PAD_LEFT) . $bits;
-        }
+        $hex = $this->toBytes($twos_compliment);
+        $bits = Strings::bin2bits($hex);
+
         $result = $this->precision > 0 ? substr($bits, -$this->precision) : ltrim($bits, '0');
 
         if ($twos_compliment && $this->compare(new static()) > 0 && $this->precision <= 0) {
@@ -1057,5 +1053,107 @@ abstract class Engine implements \Serializable
             $max = $max->compare($nums[$i]) < 0 ? $nums[$i] : $max;
         }
         return $max;
+    }
+
+    /**
+     * Create Recurring Modulo Function
+     *
+     * Sometimes it may be desirable to do repeated modulos with the same number outside of
+     * modular exponentiation
+     *
+     * @return callable
+     */
+    public function createRecurringModuloFunction()
+    {
+        $class = static::class;
+
+        $fqengine = !method_exists(static::$modexpEngine, 'reduce') ?
+            '\\phpseclib\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\DefaultEngine' :
+            static::$modexpEngine;
+        if (method_exists($fqengine, 'generateCustomReduction')) {
+            $func = $fqengine::generateCustomReduction($this, static::class);
+            $this->reduce = eval('return function(' . static::class . ' $x) use ($func, $class) {
+                $r = new $class();
+                $r->value = $func($x->value);
+                return $r;
+            };');
+            return clone $this->reduce;
+        }
+        $n = $this->value;
+        $this->reduce = eval('return function(' . static::class . ' $x) use ($n, $fqengine, $class) {
+            $r = new $class();
+            $r->value = $fqengine::reduce($x->value, $n, $class);
+            return $r;
+        };');
+        return clone $this->reduce;
+    }
+
+    /**
+     * Calculates the greatest common divisor and Bezout's identity.
+     *
+     * @param Engine $n
+     * @return Engine
+     */
+    protected function extendedGCDHelper(Engine $n, Engine $stop = null)
+    {
+        $u = clone $this;
+        $v = clone $n;
+
+        $one = new static(1);
+        $zero = new static();
+
+        $a = clone $one;
+        $b = clone $zero;
+        $c = clone $zero;
+        $d = clone $one;
+
+        while (!$v->equals($zero)) {
+            list($q) = $u->divide($v);
+
+            $temp = $u;
+            $u = $v;
+            $v = $temp->subtract($v->multiply($q));
+
+            $temp = $a;
+            $a = $c;
+            $c = $temp->subtract($a->multiply($q));
+
+            $temp = $b;
+            $b = $d;
+            $d = $temp->subtract($b->multiply($q));
+        }
+
+        return [
+            'gcd'=> $u,
+            'x' => $a,
+            'y' => $b
+        ];
+    }
+
+    /**
+     * Bitwise Split
+     *
+     * Splits BigInteger's into chunks of $split bits
+     *
+     * @param int $split
+     * @return \phpseclib\Math\BigInteger\Engine[]
+     */
+    public function bitwise_split($split)
+    {
+        if ($split < 1) {
+            throw new \RuntimeException('Offset must be greater than 1');
+        }
+
+        $mask = static::$one->bitwise_leftShift($split)->subtract(static::$one);
+
+        $num = clone $this;
+
+        $vals = [];
+        while (!$num->equals(static::$zero)) {
+            $vals[] = $num->bitwise_and($mask);
+            $num = $num->bitwise_rightShift($split);
+        }
+
+        return array_reverse($vals);
     }
 }

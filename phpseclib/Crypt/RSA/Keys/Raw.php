@@ -42,12 +42,12 @@ abstract class Raw
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
         if (!is_array($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a array - not a ' . gettype($key));
         }
         if (isset($key['isPublicKey']) && isset($key['modulus'])) {
             if (isset($key['privateExponent']) || isset($key['publicExponent'])) {
@@ -86,7 +86,11 @@ abstract class Raw
             case isset($key[1]):
                 $components['modulus'] = $key[1];
         }
-        return isset($components['modulus']) && isset($components['publicExponent']) ? $components : false;
+        if (isset($components['modulus']) && isset($components['publicExponent'])) {
+            return $components;
+        }
+
+        throw new \UnexpectedValueException('Modulus / exponent not present');
     }
 
     /**

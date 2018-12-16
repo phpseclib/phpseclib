@@ -60,6 +60,11 @@ abstract class EvalBarrett extends Base
      */
     protected static function generateCustomReduction(PHP $m, $class)
     {
+        if (isset($n->reduce)) {
+            self::$custom_reduction = $n->reduce;
+            return $n->reduce;
+        }
+
         $m_length = count($m->value);
 
         if ($m_length < 5) {
@@ -75,7 +80,7 @@ abstract class EvalBarrett extends Base
             eval('$func = function ($x) { ' . $code . '};');
             self::$custom_reduction = $func;
             //self::$custom_reduction = \Closure::bind($func, $m, $class);
-            return;
+            return $func;
         }
 
         $lhs = new $class();
@@ -150,6 +155,8 @@ abstract class EvalBarrett extends Base
         eval('$func = function ($n) { ' . $code . '};');
 
         self::$custom_reduction = $func;
+
+        return $func;
 
         //self::$custom_reduction = \Closure::bind($func, $m, $class);
     }

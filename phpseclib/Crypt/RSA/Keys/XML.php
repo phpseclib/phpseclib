@@ -40,12 +40,12 @@ abstract class XML
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
         if (!is_string($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $components = [
@@ -62,7 +62,7 @@ abstract class XML
             $key = '<xml>' . $key . '</xml>';
         }
         if (!$dom->loadXML($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key does not appear to contain XML');
         }
         $xpath = new \DOMXPath($dom);
         $keys = ['modulus', 'exponent', 'p', 'q', 'dp', 'dq', 'inverseq', 'd'];
@@ -102,7 +102,11 @@ abstract class XML
 
         libxml_use_internal_errors($use_errors);
 
-        return isset($components['modulus']) && isset($components['publicExponent']) ? $components : false;
+        if (isset($components['modulus']) && isset($components['publicExponent'])) {
+            return $components;
+        }
+
+        throw new \UnexpectedValueException('Modulus / exponent not present');
     }
 
     /**

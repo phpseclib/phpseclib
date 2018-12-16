@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PKCS Signature Handler
+ * ASN1 Signature Handler
  *
  * PHP version 5
  *
@@ -19,17 +19,17 @@
 namespace phpseclib\Crypt\DSA\Signature;
 
 use phpseclib\Math\BigInteger;
-use phpseclib\File\ASN1;
+use phpseclib\File\ASN1 as Encoder;
 use phpseclib\File\ASN1\Maps;
 
 /**
- * PKCS Signature Handler
+ * ASN1 Signature Handler
  *
  * @package Common
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-abstract class PKCS
+abstract class ASN1
 {
     /**
      * Loads a signature
@@ -44,11 +44,11 @@ abstract class PKCS
             return false;
         }
 
-        $decoded = ASN1::decodeBER($sig);
+        $decoded = Encoder::decodeBER($sig);
         if (empty($decoded)) {
             return false;
         }
-        $components = ASN1::asn1map($decoded[0], Maps\DssSigValue::MAP);
+        $components = Encoder::asn1map($decoded[0], Maps\DssSigValue::MAP);
 
         return $components;
     }

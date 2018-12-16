@@ -746,4 +746,92 @@ class BigInteger implements \Serializable
     {
         $this->value = clone $this->value;
     }
+
+    /**
+     * Is Odd?
+     *
+     * @return boolean
+     */
+    public function isOdd()
+    {
+        return $this->value->isOdd();
+    }
+
+    /**
+     * Tests if a bit is set
+     *
+     * @param int $x
+     * @return boolean
+     */
+    public function testBit($x)
+    {
+        return $this->value->testBit($x);
+    }
+
+    /**
+     * Is Negative?
+     *
+     * @return boolean
+     */
+    public function isNegative()
+    {
+        return $this->value->isNegative();
+    }
+
+    /**
+     * Negate
+     *
+     * Given $k, returns -$k
+     *
+     * @return BigInteger
+     */
+    public function negate()
+    {
+        return new static($this->value->negate());
+    }
+
+    /**
+     * Scan for 1 and right shift by that amount
+     *
+     * ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
+     *
+     * @param BigInteger $r
+     * @return int
+     */
+    public static function scan1divide(BigInteger $r)
+    {
+        $class = self::$mainEngine;
+        return $class::scan1divide($r->value);
+    }
+
+    /**
+     * Create Recurring Modulo Function
+     *
+     * Sometimes it may be desirable to do repeated modulos with the same number outside of
+     * modular exponentiation
+     *
+     * @return callable
+     */
+    public function createRecurringModuloFunction()
+    {
+        $func = $this->value->createRecurringModuloFunction();
+        return function(BigInteger $x) use ($func) {
+            return new static($func($x->value));
+        };
+    }
+
+    /**
+     * Bitwise Split
+     *
+     * Splits BigInteger's into chunks of $split bits
+     *
+     * @param int $split
+     * @return \phpseclib\Math\BigInteger[]
+     */
+    public function bitwise_split($split)
+    {
+        return array_map(function($val) {
+            return new static($val);
+        }, $this->value->bitwise_split($split));
+    }
 }

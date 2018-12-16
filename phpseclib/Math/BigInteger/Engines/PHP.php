@@ -19,7 +19,7 @@ use ParagonIE\ConstantTime\Hex;
 use phpseclib\Exception\BadConfigurationException;
 
 /**
- * pure-PHP Engine.
+ * Pure-PHP Engine.
  *
  * @package PHP
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -101,18 +101,6 @@ abstract class PHP extends Engine
     protected function initialize($base)
     {
         switch (abs($base)) {
-            case 256:
-                $x = $this->value;
-                $this->value = [];
-
-                while (strlen($x)) {
-                    $this->value[] = self::bytes2int(self::base256_rshift($x, static::BASE));
-                }
-
-                if ($this->value == [0]) {
-                    $this->value = [];
-                }
-                break;
             case 16:
                 $x = (strlen($this->value) & 1) ? '0' . $this->value : $this->value;
                 $temp = new static(Hex::decode($x), 256);
@@ -205,12 +193,9 @@ abstract class PHP extends Engine
         if (!count($this->value)) {
             return $this->precision > 0 ? str_repeat(chr(0), ($this->precision + 1) >> 3) : '';
         }
-        $result = self::int2bytes($this->value[count($this->value) - 1]);
 
-        for ($i = count($this->value) - 2; $i >= 0; --$i) {
-            self::base256_lshift($result, static::BASE);
-            $result = $result | str_pad(self::int2bytes($this->value[$i]), strlen($result), chr(0), STR_PAD_LEFT);
-        }
+        $result = $this->bitwise_small_split(8);
+        $result = implode('', array_map('chr', $result));
 
         return $this->precision > 0 ?
             str_pad(substr($result, -(($this->precision + 7) >> 3)), ($this->precision + 7) >> 3, chr(0), STR_PAD_LEFT) :
@@ -405,7 +390,7 @@ abstract class PHP extends Engine
     {
         //if ( $x_value == $y_value ) {
         //    return [
-        //        self::VALUE => $this->_square($x_value),
+        //        self::VALUE => self::square($x_value),
         //        self::SIGN => $x_sign != $y_value
         //    ];
         //}
@@ -743,6 +728,8 @@ abstract class PHP extends Engine
      */
     protected function normalize(PHP $result)
     {
+        unset($result->reduce);
+
         $result->precision = $this->precision;
         $result->bitmask = $this->bitmask;
 
@@ -752,7 +739,7 @@ abstract class PHP extends Engine
             return $result;
         }
 
-        $value = $this->trim($value);
+        $value = static::trim($value);
 
         if (!empty($result->bitmask->value)) {
             $length = min(count($value), count($result->bitmask->value));
@@ -799,83 +786,6 @@ abstract class PHP extends Engine
         }
 
         return 0;
-    }
-
-    /**
-     * Calculates the greatest common divisor and Bezout's identity.
-     *
-     * Say you have 693 and 609.  The GCD is 21.  Bezout's identity states that there exist integers x and y such that
-     * 693*x + 609*y == 21.  In point of fact, there are actually an infinite number of x and y combinations and which
-     * combination is returned is dependent upon which mode is in use.  See
-     * {@link http://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity Bezout's identity - Wikipedia} for more information.
-     *
-     * @param PHP $n
-     * @return PHP[]
-     * @internal Calculates the GCD using the binary xGCD algorithim described in
-     *    {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=19 HAC 14.61}.  As the text above 14.61 notes,
-     *    the more traditional algorithim requires "relatively costly multiple-precision divisions".
-     */
-    protected function extendedGCDHelper(PHP $n)
-    {
-        $y = clone $n;
-        $x = clone $this;
-        $g = new static();
-        $g->value = [1];
-
-        while (!(($x->value[0] & 1)|| ($y->value[0] & 1))) {
-            $x->rshift(1);
-            $y->rshift(1);
-            $g->lshift(1);
-        }
-
-        $u = clone $x;
-        $v = clone $y;
-
-        $a = new static();
-        $b = new static();
-        $c = new static();
-        $d = new static();
-
-        $a->value = $d->value = $g->value = [1];
-        $b->value = $c->value = [];
-
-        while (!empty($u->value)) {
-            while (!($u->value[0] & 1)) {
-                $u->rshift(1);
-                if ((!empty($a->value) && ($a->value[0] & 1)) || (!empty($b->value) && ($b->value[0] & 1))) {
-                    $a = $a->add($y);
-                    $b = $b->subtract($x);
-                }
-                $a->rshift(1);
-                $b->rshift(1);
-            }
-
-            while (!($v->value[0] & 1)) {
-                $v->rshift(1);
-                if ((!empty($d->value) && ($d->value[0] & 1)) || (!empty($c->value) && ($c->value[0] & 1))) {
-                    $c = $c->add($y);
-                    $d = $d->subtract($x);
-                }
-                $c->rshift(1);
-                $d->rshift(1);
-            }
-
-            if ($u->compare($v) >= 0) {
-                $u = $u->subtract($v);
-                $a = $a->subtract($c);
-                $b = $b->subtract($d);
-            } else {
-                $v = $v->subtract($u);
-                $c = $c->subtract($a);
-                $d = $d->subtract($b);
-            }
-        }
-
-        return [
-            'gcd' => $this->normalize($g->multiply($v)),
-            'x'   => $this->normalize($c),
-            'y'   => $this->normalize($d)
-        ];
     }
 
     /**
@@ -976,46 +886,6 @@ abstract class PHP extends Engine
     /**
      * Logical Right Shift
      *
-     * Shifts binary strings $shift bits, essentially dividing by 2**$shift and returning the remainder.
-     *
-     * @param $x String
-     * @param $shift Integer
-     * @return string
-     */
-    private static function base256_rshift(&$x, $shift)
-    {
-        if ($shift == 0) {
-            $x = ltrim($x, chr(0));
-            return '';
-        }
-
-        $num_bytes = $shift >> 3; // eg. floor($shift/8)
-        $shift &= 7; // eg. $shift % 8
-
-        $remainder = '';
-        if ($num_bytes) {
-            $start = $num_bytes > strlen($x) ? -strlen($x) : -$num_bytes;
-            $remainder = substr($x, $start);
-            $x = substr($x, 0, -$num_bytes);
-        }
-
-        $carry = 0;
-        $carry_shift = 8 - $shift;
-        for ($i = 0; $i < strlen($x); ++$i) {
-            $temp = (ord($x[$i]) >> $shift) | $carry;
-            $carry = (ord($x[$i]) << $carry_shift) & 0xFF;
-            $x[$i] = chr($temp);
-        }
-        $x = ltrim($x, chr(0));
-
-        $remainder = chr($carry >> $carry_shift) . $remainder;
-
-        return ltrim($remainder, chr(0));
-    }
-
-    /**
-     * Logical Right Shift
-     *
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
      * @param int $shift
@@ -1061,18 +931,6 @@ abstract class PHP extends Engine
     private static function int2bytes($x)
     {
         return ltrim(pack('N', $x), chr(0));
-    }
-
-    /**
-     * Converts bytes to 32-bit integers
-     *
-     * @param string $x
-     * @return int
-     */
-    private static function bytes2int($x)
-    {
-        $temp = unpack('Nint', str_pad($x, 4, chr(0), STR_PAD_LEFT));
-        return $temp['int'];
     }
 
     /**
@@ -1151,7 +1009,7 @@ abstract class PHP extends Engine
             $this->value[$i] = $temp;
         }
 
-        $this->value = $this->trim($this->value);
+        $this->value = static::trim($this->value);
     }
 
     /**
@@ -1309,7 +1167,7 @@ abstract class PHP extends Engine
      * @param PHP $r
      * @return int
      */
-    protected static function scan1divide(PHP $r)
+    public static function scan1divide(PHP $r)
     {
         $r_value = &$r->value;
         for ($i = 0, $r_length = count($r_value); $i < $r_length; ++$i) {
@@ -1337,7 +1195,6 @@ abstract class PHP extends Engine
             return new static(1);
         } // n^0 = 1
 
-
         $temp = clone $this;
         while (!$n->equals(static::$one)) {
             $temp = $temp->multiply($this);
@@ -1345,5 +1202,173 @@ abstract class PHP extends Engine
         }
 
         return $temp;
+    }
+
+    /**
+     * Is Odd?
+     *
+     * @return boolean
+     */
+    public function isOdd()
+    {
+        return (bool) ($this->value[0] & 1);
+    }
+
+    /**
+     * Tests if a bit is set
+     *
+     * @return boolean
+     */
+    public function testBit($x)
+    {
+        $digit = floor($x / static::BASE);
+        $bit = $x % static::BASE;
+
+        if (!isset($this->value[$digit])) {
+            return false;
+        }
+
+        return (bool) ($this->value[$digit] & (1 << $bit));
+    }
+
+    /**
+     * Is Negative?
+     *
+     * @return boolean
+     */
+    public function isNegative()
+    {
+        return $this->is_negative;
+    }
+
+    /**
+     * Negate
+     *
+     * Given $k, returns -$k
+     *
+     * @return BigInteger
+     */
+    public function negate()
+    {
+        $temp = clone $this;
+        $temp->is_negative = !$temp->is_negative;
+
+        return $temp;
+    }
+
+    /**
+     * Bitwise Split
+     *
+     * Splits BigInteger's into chunks of $split bits
+     *
+     * @param int $split
+     * @return \phpseclib\Math\BigInteger\Engines\PHP[]
+     */
+    public function bitwise_split($split)
+    {
+        if ($split < 1) {
+            throw new \RuntimeException('Offset must be greater than 1');
+        }
+
+        $width = (int) ($split / static::BASE);
+        if (!$width) {
+            $arr = $this->bitwise_small_split($split);
+            return array_map(function ($digit) {
+                $temp = new static();
+                $temp->value = $digit != 0 ? [$digit] : [];
+                return $temp;
+            }, $arr);
+        }
+
+        $vals = [];
+        $val = $this->value;
+
+        $i = $overflow = 0;
+        $len = count($val);
+        while ($i < $len) {
+            $digit = [];
+            if (!$overflow) {
+                $digit = array_slice($val, $i, $width);
+                $i+= $width;
+                $overflow = $split % static::BASE;
+                if ($overflow) {
+                    $mask = (1 << $overflow) - 1;
+                    $temp = isset($val[$i]) ? $val[$i] : 0;
+                    $digit[] = $temp & $mask;
+                }
+            } else {
+                $remaining = static::BASE - $overflow;
+                $tempsplit = $split - $remaining;
+                $tempwidth = (int) ($tempsplit / static::BASE + 1);
+                $digit = array_slice($val, $i, $tempwidth);
+                $i+= $tempwidth;
+                $tempoverflow = $tempsplit % static::BASE;
+                if ($tempoverflow) {
+                    $tempmask = (1 << $tempoverflow) - 1;
+                    $temp = isset($val[$i]) ? $val[$i] : 0;
+                    $digit[] = $temp & $tempmask;
+                }
+                $newbits = 0;
+                for ($j = count($digit) - 1; $j >= 0; $j--) {
+                    $temp = $digit[$j] & $mask;
+                    $digit[$j] = ($digit[$j] >> $overflow) | ($newbits << $remaining);
+                    $newbits = $temp;
+                }
+                $overflow = $tempoverflow;
+                $mask = $tempmask;
+            }
+            $temp = new static();
+            $temp->value = static::trim($digit);
+            $vals[] = $temp;
+        }
+
+        return array_reverse($vals);
+    }
+
+    /**
+     * Bitwise Split where $split < static::BASE
+     *
+     * @param int $split
+     * @return \phpseclib\Math\BigInteger\Engines\PHP[]
+     */
+    private function bitwise_small_split($split)
+    {
+        $vals = [];
+        $val = $this->value;
+
+        $mask = (1 << $split) - 1;
+
+        $i = $overflow = 0;
+        $len = count($val);
+        $val[] = 0;
+        $remaining = static::BASE;
+        while ($i != $len) {
+            $digit = $val[$i] & $mask;
+            $val[$i]>>= $split;
+            if (!$overflow) {
+                $remaining-= $split;
+                $overflow = $split <= $remaining ? 0 : $split - $remaining;
+
+                if (!$remaining) {
+                    $i++;
+                    $remaining = static::BASE;
+                    $overflow = 0;
+                }
+            } else if (++$i != $len) {
+                $tempmask = (1 << $overflow) - 1;
+                $digit|= ($val[$i] & $tempmask) << $remaining;
+                $val[$i]>>= $overflow;
+                $remaining = static::BASE - $overflow;
+                $overflow = $split <= $remaining ? 0 : $split - $remaining;
+            }
+
+            $vals[] = $digit;
+        }
+
+        while ($vals[count($vals) - 1] == 0) {
+            unset($vals[count($vals) - 1]);
+        }
+
+        return array_reverse($vals);
     }
 }

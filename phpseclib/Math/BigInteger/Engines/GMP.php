@@ -159,6 +159,32 @@ class GMP extends Engine
     }
 
     /**
+     * Converts a BigInteger to a bit string (eg. base-2).
+     *
+     * Negative numbers are saved as positive numbers, unless $twos_compliment is set to true, at which point, they're
+     * saved as two's compliment.
+     *
+     * @param bool $twos_compliment
+     * @return string
+     */
+    public function toBits($twos_compliment = false)
+    {
+        $hex = $this->toHex($twos_compliment);
+
+        $bits = gmp_strval(gmp_init($hex, 16), 2);
+
+        if ($this->precision > 0) {
+            $bits = substr($bits, -$this->precision);
+        }
+
+        if ($twos_compliment && $this->compare(new static()) > 0 && $this->precision <= 0) {
+            return '0' . $bits;
+        }
+
+        return $bits;
+    }
+
+    /**
      * Converts a BigInteger to a byte string (eg. base-256).
      *
      * @param bool $twos_compliment
@@ -476,6 +502,8 @@ class GMP extends Engine
      */
     protected function normalize(GMP $result)
     {
+        unset($result->reduce);
+
         $result->precision = $this->precision;
         $result->bitmask = $this->bitmask;
 
@@ -625,5 +653,82 @@ class GMP extends Engine
     public function between(GMP $min, GMP $max)
     {
         return $this->compare($min) >= 0 && $this->compare($max) <= 0;
+    }
+
+    /**
+     * Create Recurring Modulo Function
+     *
+     * Sometimes it may be desirable to do repeated modulos with the same number outside of
+     * modular exponentiation
+     *
+     * @return callable
+     */
+    public function createRecurringModuloFunction()
+    {
+        $temp = $this->value;
+        $this->reduce = function(GMP $x) use ($temp) {
+            return new GMP($x->value % $temp);
+        };
+        return $this->reduce;
+    }
+
+    /**
+     * Scan for 1 and right shift by that amount
+     *
+     * ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
+     *
+     * @param GMP $r
+     * @return int
+     */
+    public static function scan1divide(GMP $r)
+    {
+        $s = gmp_scan1($r->value, 0);
+        $r->value >>= $s;
+        return $s;
+    }
+
+    /**
+     * Is Odd?
+     *
+     * @return boolean
+     */
+    public function isOdd()
+    {
+        return gmp_testbit($this->value, 0);
+    }
+
+    /**
+     * Tests if a bit is set
+     *
+     * @return boolean
+     */
+    public function testBit($x)
+    {
+        return gmp_testbit($this->value, $x);
+    }
+
+    /**
+     * Is Negative?
+     *
+     * @return boolean
+     */
+    public function isNegative()
+    {
+        return gmp_sign($this->value) == -1;
+    }
+
+    /**
+     * Negate
+     *
+     * Given $k, returns -$k
+     *
+     * @return GMP
+     */
+    public function negate()
+    {
+        $temp = clone $this;
+        $temp->value = -$this->value;
+
+        return $temp;
     }
 }
