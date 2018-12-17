@@ -64,12 +64,12 @@ abstract class OpenSSH
      * @access public
      * @param string $key
      * @param string $type
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $type)
     {
         if (!is_string($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $parts = explode(' ', $key, 3);
@@ -79,21 +79,20 @@ abstract class OpenSSH
             $comment = isset($parts[1]) ? $parts[1] : false;
         } else {
             if ($parts[0] != $type) {
-                return false;
+                throw new \UnexpectedValueException('Expected a ' . $type . ' key - got a ' . $parts[0] . ' key');
             }
             $key = Base64::decode($parts[1]);
             $comment = isset($parts[2]) ? $parts[2] : false;
         }
         if ($key === false) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
-        if (substr($key, 0, 11) != "\0\0\0\7$type") {
-            return false;
+        if (Strings::shift($key, strlen($type) + 4) != "\0\0\0" . chr(strlen($type)) . $type) {
+            throw new \UnexpectedValueException('Key appears to be malformed');
         }
-        Strings::shift($key, 11);
         if (strlen($key) <= 4) {
-            return false;
+            throw new \UnexpectedValueException('Key appears to be malformed');
         }
 
         return $key;

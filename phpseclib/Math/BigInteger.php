@@ -114,16 +114,21 @@ class BigInteger implements \Serializable
     }
 
     /**
-     * Converts base-2, base-10, base-16, and binary strings (base-256) to BigIntegers.
+     * Returns the engine type
      *
-     * If the second parameter - $base - is negative, then it will be assumed that the number's are encoded using
-     * two's compliment.  The sole exception to this is -10, which is treated the same as 10 is.
-     *
-     * @param $x integer|BigInteger\Engines\Engine Base-10 number or base-$base number if $base set.
-     * @param int $base
-     * @return BigInteger
+     * @return string[]
      */
-    public function __construct($x = 0, $base = 10)
+    public static function getEngine()
+    {
+        self::initialize_static_variables();
+
+        return self::$engines;
+    }
+
+    /**
+     * Initialize static variables
+     */
+    private static function initialize_static_variables()
     {
         if (!isset(self::$mainEngine)) {
             $engines = [
@@ -140,6 +145,21 @@ class BigInteger implements \Serializable
                 }
             }
         }
+    }
+
+    /**
+     * Converts base-2, base-10, base-16, and binary strings (base-256) to BigIntegers.
+     *
+     * If the second parameter - $base - is negative, then it will be assumed that the number's are encoded using
+     * two's compliment.  The sole exception to this is -10, which is treated the same as 10 is.
+     *
+     * @param $x integer|BigInteger\Engines\Engine Base-10 number or base-$base number if $base set.
+     * @param int $base
+     * @return BigInteger
+     */
+    public function __construct($x = 0, $base = 10)
+    {
+        self::initialize_static_variables();
 
         if ($x instanceof self::$mainEngine) {
             $this->value = clone $x;
@@ -569,6 +589,8 @@ class BigInteger implements \Serializable
      */
     public static function minMaxBits($bits)
     {
+        self::initialize_static_variables();
+
         $class = self::$mainEngine;
         extract($class::minMaxBits($bits));
         /** @var BigInteger $min
@@ -610,6 +632,8 @@ class BigInteger implements \Serializable
      */
     public static function random($size)
     {
+        self::initialize_static_variables();
+
         $class = self::$mainEngine;
         return new static($class::random($size));
     }
@@ -624,6 +648,8 @@ class BigInteger implements \Serializable
      */
     public static function randomPrime($size)
     {
+        self::initialize_static_variables();
+
         $class = self::$mainEngine;
         return new static($class::randomPrime($size));
     }
@@ -745,5 +771,93 @@ class BigInteger implements \Serializable
     public function __clone()
     {
         $this->value = clone $this->value;
+    }
+
+    /**
+     * Is Odd?
+     *
+     * @return boolean
+     */
+    public function isOdd()
+    {
+        return $this->value->isOdd();
+    }
+
+    /**
+     * Tests if a bit is set
+     *
+     * @param int $x
+     * @return boolean
+     */
+    public function testBit($x)
+    {
+        return $this->value->testBit($x);
+    }
+
+    /**
+     * Is Negative?
+     *
+     * @return boolean
+     */
+    public function isNegative()
+    {
+        return $this->value->isNegative();
+    }
+
+    /**
+     * Negate
+     *
+     * Given $k, returns -$k
+     *
+     * @return BigInteger
+     */
+    public function negate()
+    {
+        return new static($this->value->negate());
+    }
+
+    /**
+     * Scan for 1 and right shift by that amount
+     *
+     * ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
+     *
+     * @param BigInteger $r
+     * @return int
+     */
+    public static function scan1divide(BigInteger $r)
+    {
+        $class = self::$mainEngine;
+        return $class::scan1divide($r->value);
+    }
+
+    /**
+     * Create Recurring Modulo Function
+     *
+     * Sometimes it may be desirable to do repeated modulos with the same number outside of
+     * modular exponentiation
+     *
+     * @return callable
+     */
+    public function createRecurringModuloFunction()
+    {
+        $func = $this->value->createRecurringModuloFunction();
+        return function(BigInteger $x) use ($func) {
+            return new static($func($x->value));
+        };
+    }
+
+    /**
+     * Bitwise Split
+     *
+     * Splits BigInteger's into chunks of $split bits
+     *
+     * @param int $split
+     * @return \phpseclib\Math\BigInteger[]
+     */
+    public function bitwise_split($split)
+    {
+        return array_map(function($val) {
+            return new static($val);
+        }, $this->value->bitwise_split($split));
     }
 }

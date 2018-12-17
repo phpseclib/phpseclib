@@ -9,10 +9,17 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\RSA\Keys\PKCS1;
 use phpseclib\Crypt\RSA\Keys\PKCS8;
 use phpseclib\Crypt\RSA\Keys\PuTTY;
+use phpseclib\Crypt\RSA\Keys\OpenSSH;
 use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 {
+    public static function setUpBeforeClass()
+    {
+        PuTTY::setComment('phpseclib-generated-key');
+        OpenSSH::setComment('phpseclib-generated-key');
+    }
+
     public function testBadKey()
     {
         $rsa = new RSA();
@@ -208,7 +215,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
 -----END RSA PUBLIC KEY-----';
 
         $this->assertTrue($rsa->load($key));
-        $this->assertInternalType('string', $rsa->getPublicKey());
+        $this->assertInstanceOf(RSA::class, $rsa->getPublicKey());
         $this->assertFalse($rsa->getPrivateKey());
     }
 
@@ -227,7 +234,7 @@ ZQIDAQAB
 -----END PUBLIC KEY-----';
 
         $this->assertTrue($rsa->load($key));
-        $this->assertInternalType('string', $rsa->getPublicKey());
+        $this->assertInstanceOf(RSA::class, $rsa->getPublicKey());
         $this->assertFalse($rsa->getPrivateKey());
     }
 
@@ -241,7 +248,7 @@ ZQIDAQAB
                'phpseclib-generated-key';
 
         $this->assertTrue($rsa->load($key));
-        $this->assertInternalType('string', $rsa->getPublicKey());
+        $this->assertInstanceOf(RSA::class, $rsa->getPublicKey());
         $this->assertFalse($rsa->getPrivateKey());
     }
 
@@ -393,6 +400,7 @@ Private-MAC: 03e2cb74e1d67652fbad063d2ed0478f31bdf256
         $rsa->setPrivateKeyFormat('PuTTY');
         $key2 = (string) $rsa;
 
+        OpenSSH::setComment('ecdsa-key-20181105');
         $this->assertSame($key, $key2);
     }
 
@@ -936,7 +944,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
 -----END RSA PUBLIC KEY-----';
 
         $this->assertTrue($rsa->load($key));
-        $this->assertInternalType('string', $rsa->getPublicKey());
+        $this->assertInstanceOf(RSA::class, $rsa->getPublicKey());
         $this->assertFalse($rsa->load('zzz'));
         $this->assertFalse($rsa->getPublicKey());
     }
@@ -958,6 +966,6 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
 </RSAKeyValue>';
 
         $this->assertTrue($rsa->load($key));
-        $this->assertInternalType('string', $rsa->getPublicKey());
+        $this->assertInstanceOf(RSA::class, $rsa->getPublicKey());
     }
 }

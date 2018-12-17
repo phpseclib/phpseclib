@@ -68,11 +68,6 @@ abstract class Base extends BCMath
             return $x->normalize($temp);
         }
 
-        if ($e->value == '1') {
-            $temp = bcdiv($x, $n);
-            return $x->normalize($temp);
-        }
-
         return $x->normalize(static::slidingWindow($x, $e, $n, $class));
     }
 

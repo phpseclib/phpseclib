@@ -158,7 +158,7 @@ Syea3pSvWdBpVhWzOX4A7qbxs+bhWAQWAhQiF7sFfCtZ7oOgCb2aJ9ySC9sTug==
         $this->assertTrue($dsa->load($key));
         $this->assertInternalType('string', "$dsa");
         $this->assertSame("$dsa", $dsa->getPrivateKey());
-        $this->assertInternalType('string', $dsa->getPublicKey());
+        $this->assertInstanceOf(DSA::class, $dsa->getPublicKey());
         $this->assertInternalType('string', $dsa->getParameters());
     }
 

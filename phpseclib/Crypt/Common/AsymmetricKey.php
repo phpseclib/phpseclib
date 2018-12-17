@@ -18,6 +18,8 @@ namespace phpseclib\Crypt\Common;
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Hash;
 use ParagonIE\ConstantTime\Base64;
+use phpseclib\Exception\UnsupportedOperationException;
+use phpseclib\Exception\FileNotFoundException;
 
 /**
  * Base Class for all stream cipher classes
@@ -42,16 +44,6 @@ abstract class AsymmetricKey
      * @access private
      */
     protected static $one;
-
-    /**
-     * Engine
-     *
-     * This is only used for key generation. Valid values are RSA::ENGINE_INTERNAL and RSA::ENGINE_OPENSSL
-     *
-     * @var int
-     * @access private
-     */
-    protected static $engine = NULL;
 
     /**
      * OpenSSL configuration file name.
@@ -133,6 +125,17 @@ abstract class AsymmetricKey
     protected $publicKeyFormat = 'PKCS8';
 
     /**
+     * Parameters Format
+     *
+     * No setParametersFormat method exists because PKCS1 is the only format that supports
+     * parameters in both DSA and ECDSA (RSA doesn't have an analog)
+     *
+     * @var string
+     * @access private
+     */
+    protected $parametersFormat = 'PKCS1';
+
+    /**
      * Hash function
      *
      * @var \phpseclib\Crypt\Hash
@@ -148,21 +151,21 @@ abstract class AsymmetricKey
      */
     private $hmac;
 
-    /**#@+
-     * @access private
-     * @see self::__construct()
-     */
     /**
-     * To use the pure-PHP implementation
-     */
-    const ENGINE_INTERNAL = 1;
-    /**
-     * To use the OpenSSL library
+     * Hash manually set?
      *
-     * (if enabled; otherwise, the internal implementation will be used)
+     * @var bool
+     * @access private
      */
-    const ENGINE_OPENSSL = 2;
-    /**#@-*/
+    protected $hashManuallySet = false;
+
+    /**
+     * Available Engines
+     *
+     * @var boolean[]
+     * @access private
+     */
+    protected static $engines = [];
 
     /**
      * The constructor
@@ -180,57 +183,35 @@ abstract class AsymmetricKey
     /**
      * Tests engine validity
      *
-     * @return boolean
      * @access public
      * @param int $val
      */
-    public static function isValidEngine($val)
+    public static function useBestEngine()
     {
-        switch ($val) {
-            case self::ENGINE_OPENSSL:
-                return extension_loaded('openssl') && file_exists(self::$configFile);
-            case self::ENGINE_INTERNAL:
-                return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Sets the engine
-     *
-     * Only used in RSA::createKey. Valid values are RSA::ENGINE_OPENSSL and RSA::ENGINE_INTERNAL
-     *
-     * @access public
-     * @param int $val
-     */
-    public static function setPreferredEngine($val)
-    {
-        static::$engine = null;
-        $candidateEngines = [
-            $val,
-            self::ENGINE_OPENSSL
+        static::$engines = [
+            'PHP' => true,
+            'OpenSSL' => extension_loaded('openssl') && file_exists(self::$configFile),
+            // this test can be satisfied by either of the following:
+            // http://php.net/manual/en/book.sodium.php
+            // https://github.com/paragonie/sodium_compat
+            'libsodium' => function_exists('sodium_crypto_sign_keypair')
         ];
-        foreach ($candidateEngines as $engine) {
-            if (static::isValidEngine($engine)) {
-                static::$engine = $engine;
-                break;
-            }
-        }
-        if (!isset(static::$engine)) {
-            static::$engine = self::ENGINE_INTERNAL;
-        }
+
+        return static::$engines;
     }
 
     /**
-     * Returns the engine
+     * Flag to use internal engine only (useful for unit testing)
      *
      * @access public
-     * @return int
      */
-    public static function getEngine()
+    public static function useInternalEngine()
     {
-        return self::$engine;
+        static::$engines = [
+            'PHP' => true,
+            'OpenSSL' => false,
+            'libsodium' => false
+        ];
     }
 
     /**
@@ -243,7 +224,7 @@ abstract class AsymmetricKey
         if (!isset(self::$zero)) {
             self::$zero= new BigInteger(0);
             self::$one = new BigInteger(1);
-            self::$configFile = __DIR__ . '/../openssl.cnf';
+            self::$configFile = __DIR__ . '/../../openssl.cnf';
         }
 
         self::loadPlugins('Keys');
@@ -268,6 +249,10 @@ abstract class AsymmetricKey
                 }
                 $name = $file->getBasename('.php');
                 $type = 'phpseclib\Crypt\\' . static::ALGORITHM . '\\' . $format . '\\' . $name;
+                $reflect = new \ReflectionClass($type);
+                if ($reflect->isTrait()) {
+                    continue;
+                }
                 self::$plugins[static::ALGORITHM][$format][strtolower($name)] = $type;
                 self::$origPlugins[static::ALGORITHM][$format][] = $name;
             }
@@ -305,8 +290,14 @@ abstract class AsymmetricKey
      * @param string $type
      * @return array|bool
      */
-    public function load($key, $type)
+    protected function load($key, $type)
     {
+        if ($key instanceof self) {
+            $this->hmac = $key->hmac;
+
+            return;
+        }
+
         $components = false;
         if ($type === false) {
             foreach (self::$plugins[static::ALGORITHM]['Keys'] as $format) {
@@ -343,9 +334,9 @@ abstract class AsymmetricKey
      * @access private
      * @param string $key
      * @param string $type
-     * @return array|bool
+     * @return array
      */
-    public function setPublicKey($key, $type)
+    protected function setPublicKey($key, $type)
     {
         $components = false;
         if ($type === false) {
@@ -409,7 +400,7 @@ abstract class AsymmetricKey
         self::initialize_static_variables();
 
         if (class_exists($fullname)) {
-            $meta = new \ReflectionClass($path);
+            $meta = new \ReflectionClass($fullname);
             $shortname = $meta->getShortName();
             self::$plugins[static::ALGORITHM]['Keys'][strtolower($shortname)] = $fullname;
             self::$origPlugins[static::ALGORITHM]['Keys'][] = $shortname;
@@ -471,6 +462,15 @@ abstract class AsymmetricKey
                 return $key;
             }
             $key = $this->getPublicKey($this->publicKeyFormat);
+            if (is_string($key)) {
+                return $key;
+            }
+
+            if (!method_exists($this, 'getParameters')) {
+                return '';
+            }
+
+            $key = $this->getParameters($this->parametersFormat);
             return is_string($key) ? $key : '';
         } catch (\Exception $e) {
             return '';
@@ -499,6 +499,16 @@ abstract class AsymmetricKey
      */
     public function setPrivateKeyFormat($format)
     {
+        $type = self::validatePlugin('Keys', $format);
+        if ($type === false) {
+            throw new FileNotFoundException('Plugin not found');
+        }
+
+        $type = self::validatePlugin('Keys', $format, 'savePrivateKey');
+        if ($type === false) {
+            throw new UnsupportedOperationException('Plugin does not support private keys');
+        }
+
         $this->privateKeyFormat = $format;
     }
 
@@ -511,7 +521,45 @@ abstract class AsymmetricKey
      */
     public function setPublicKeyFormat($format)
     {
+        $type = self::validatePlugin('Keys', $format);
+        if ($type === false) {
+            throw new FileNotFoundException('Plugin not found');
+        }
+
+        $type = self::validatePlugin('Keys', $format, 'savePublicKey');
+        if ($type === false) {
+            throw new UnsupportedOperationException('Plugin does not support public keys');
+        }
+
         $this->publicKeyFormat = $format;
+    }
+
+    /**
+     * Determines the key format
+     *
+     * Sets both the public key and private key formats to the specified format if those formats support
+     * the key type
+     *
+     * @see self::__toString()
+     * @access public
+     * @param string $format
+     */
+    public function setKeyFormat($format)
+    {
+        $type = self::validatePlugin('Keys', $format);
+        if ($type === false) {
+            throw new FileNotFoundException('Plugin not found');
+        }
+
+        try {
+            $this->setPrivateKeyFormat($format);
+        } catch (\Exception $e) {
+        }
+
+        try {
+            $this->setPublicKeyFormat($format);
+        } catch (\Exception $e) {
+        }
     }
 
     /**
@@ -560,6 +608,8 @@ abstract class AsymmetricKey
     {
         $this->hash = new Hash($hash);
         $this->hmac = new Hash($hash);
+
+        $this->hashManuallySet = true;
     }
 
     /**

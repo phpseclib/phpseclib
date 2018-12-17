@@ -407,4 +407,16 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $this->assertEquals($plaintext, $actual);
     }
+
+    /**
+     * @expectedException \UnexpectedValueException
+     */
+    public function testNoKey()
+    {
+        $aes = new AES('cbc');
+        $aes->setPreferredEngine($this->engine);
+        $aes->setIV(str_repeat('x', 16));
+
+        $aes->encrypt(str_repeat('a', 16));
+    }
 }

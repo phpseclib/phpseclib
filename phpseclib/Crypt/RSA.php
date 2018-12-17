@@ -45,7 +45,6 @@
 
 namespace phpseclib\Crypt;
 
-use ParagonIE\ConstantTime\Base64;
 use phpseclib\File\ASN1;
 use phpseclib\Math\BigInteger;
 use phpseclib\Common\Functions\Strings;
@@ -204,14 +203,6 @@ class RSA extends AsymmetricKey
     private $sLen;
 
     /**
-     * Comment
-     *
-     * @var string
-     * @access private
-     */
-    private $comment;
-
-    /**
      * Hash function for the Mask Generation Function
      *
      * @var \phpseclib\Crypt\Hash
@@ -332,39 +323,10 @@ class RSA extends AsymmetricKey
      * @return array
      * @access public
      * @param int $bits
-     *
      */
     public static function createKey($bits = 2048)
     {
         self::initialize_static_variables();
-
-        if (!isset(self::$engine)) {
-            self::setPreferredEngine(self::ENGINE_OPENSSL);
-        }
-
-        // OpenSSL uses 65537 as the exponent and requires RSA keys be 384 bits minimum
-
-        if (self::$engine == self::ENGINE_OPENSSL && $bits >= 384 && self::$defaultExponent == 65537) {
-            $config = [];
-            if (isset(self::$configFile)) {
-                $config['config'] = self::$configFile;
-            }
-            $rsa = openssl_pkey_new(['private_key_bits' => $bits] + $config);
-            openssl_pkey_export($rsa, $privatekeystr, null, $config);
-            $privatekey = new RSA();
-            $privatekey->load($privatekeystr);
-
-            $publickeyarr = openssl_pkey_get_details($rsa);
-            $publickey = new RSA();
-            $publickey->load($publickeyarr['key']);
-            $publickey->setPublicKey();
-
-            // clear the buffer of error strings stemming from a minimalistic openssl.cnf
-            while (openssl_error_string() !== false) {
-            }
-
-            return compact('privatekey', 'publickey');
-        }
 
         static $e;
         if (!isset($e)) {
@@ -488,7 +450,8 @@ class RSA extends AsymmetricKey
             $this->isPublic = $key->isPublic;
 
             if (is_object($key->hash)) {
-                $this->hash = new Hash($key->hash->getHash());
+                $this->hashName = $key->hash->getHash();
+                $this->hash = new Hash($this->hashName);
             }
             if (is_object($key->mgfHash)) {
                 $this->mgfHash = new Hash($key->mgfHash->getHash());
@@ -531,6 +494,7 @@ class RSA extends AsymmetricKey
             $this->exponents = null;
             $this->coefficients = null;
             $this->publicExponent = null;
+            $this->isPublic = false;
 
             return false;
         }
@@ -653,6 +617,19 @@ class RSA extends AsymmetricKey
     }
 
     /**
+     * Returns the current engine being used
+     *
+     * @see self::useInternalEngine()
+     * @see self::useBestEngine()
+     * @access public
+     * @return string
+     */
+    public function getEngine()
+    {
+        return 'PHP';
+    }
+
+    /**
      * Defines the public key
      *
      * Some private key formats define the public exponent and some don't.  Those that don't define it are problematic when
@@ -704,15 +681,25 @@ class RSA extends AsymmetricKey
     }
 
     /**
-     * Does the key self-identify as being a public key or not?
+     * Is the key a public key?
      *
-     * @see self::isPublicKey()
      * @access public
      * @return bool
      */
     public function isPublicKey()
     {
-        return $this->isPublic();
+        return $this->isPublic;
+    }
+
+    /**
+     * Is the key a private key?
+     *
+     * @access public
+     * @return bool
+     */
+    public function isPrivateKey()
+    {
+        return !$this->isPublic && isset($this->modulus);
     }
 
     /**
@@ -735,6 +722,7 @@ class RSA extends AsymmetricKey
     {
         if ($key === false && !empty($this->publicExponent)) {
             $this->publicExponent = false;
+            $this->isPublic = false;
             return true;
         }
 
@@ -743,6 +731,7 @@ class RSA extends AsymmetricKey
             return false;
         }
         $rsa->publicExponent = false;
+        $rsa->isPublic = false;
 
         // don't overwrite the old key if the new key is invalid
         $this->load($rsa);
@@ -761,8 +750,14 @@ class RSA extends AsymmetricKey
      * @param string $type optional
      * @return mixed
      */
-    public function getPublicKey($type = 'PKCS8')
+    public function getPublicKey($type = null)
     {
+        $returnObj = false;
+        if ($type === null) {
+            $returnObj = true;
+            $type = 'PKCS8';
+        }
+
         $type = self::validatePlugin('Keys', $type, 'savePublicKey');
         if ($type === false) {
             return false;
@@ -772,7 +767,15 @@ class RSA extends AsymmetricKey
             return false;
         }
 
-        return $type::savePublicKey($this->modulus, $this->publicExponent);
+        $key = $type::savePublicKey($this->modulus, $this->publicExponent);
+        if (!$returnObj) {
+            return $key;
+        }
+
+        $public = clone $this;
+        $public->load($key, 'PKCS8');
+
+        return $public;
     }
 
     /**
@@ -1704,17 +1707,17 @@ class RSA extends AsymmetricKey
         static $oids;
         if (!isset($oids)) {
             $oids = [
-                '1.2.840.113549.2.2' => 'md2',
-                '1.2.840.113549.2.4' => 'md4', // from PKCS1 v1.5
-                '1.2.840.113549.2.5' => 'md5',
-                '1.3.14.3.2.26' => 'id-sha1',
-                '2.16.840.1.101.3.4.2.1' => 'id-sha256',
-                '2.16.840.1.101.3.4.2.2' => 'id-sha384',
-                '2.16.840.1.101.3.4.2.3' => 'id-sha512',
+                'md2' => '1.2.840.113549.2.2',
+                'md4' => '1.2.840.113549.2.4', // from PKCS1 v1.5
+                'md5' => '1.2.840.113549.2.5',
+                'id-sha1' => '1.3.14.3.2.26',
+                'id-sha256' => '2.16.840.1.101.3.4.2.1',
+                'id-sha384' => '2.16.840.1.101.3.4.2.2',
+                'id-sha512' => '2.16.840.1.101.3.4.2.3',
                 // from PKCS1 v2.2
-                '2.16.840.1.101.3.4.2.4' => 'id-sha224',
-                '2.16.840.1.101.3.4.2.5' => 'id-sha512/224',
-                '2.16.840.1.101.3.4.2.6' => 'id-sha512/256',
+                'id-sha224' => '2.16.840.1.101.3.4.2.4',
+                'id-sha512/224' => '2.16.840.1.101.3.4.2.5',
+                'id-sha512/256' => '2.16.840.1.101.3.4.2.6',
             ];
             ASN1::loadOIDs($oids);
         }
@@ -1724,7 +1727,7 @@ class RSA extends AsymmetricKey
             return false;
         }
 
-        if (!in_array($decoded['digestAlgorithm']['algorithm'], $oids)) {
+        if (!isset($oids[$decoded['digestAlgorithm']['algorithm']])) {
             return false;
         }
 

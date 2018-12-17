@@ -44,10 +44,10 @@ abstract class PuTTY extends Progenitor
     /**
      * Algorithm Identifier
      *
-     * @var string
+     * @var array
      * @access private
      */
-    const TYPE = 'ssh-dss';
+    protected static $types = ['ssh-dss'];
 
     /**
      * Break a public or private key down into its constituent components
@@ -55,30 +55,28 @@ abstract class PuTTY extends Progenitor
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
         $components = parent::load($key, $password);
-        if ($components === false || !isset($components['private'])) {
+        if (!isset($components['private'])) {
             return $components;
         }
+        extract($components);
+        unset($components['public'], $components['private']);
 
-        $result = Strings::unpackSSH2('iiii', $components['public']);
+        $result = Strings::unpackSSH2('iiii', $public);
         if ($result === false) {
-            return false;
+            throw new \UnexpectedValueException('Key appears to be malformed');
         }
         list($p, $q, $g, $y) = $result;
 
-        $result = Strings::unpackSSH2('i', $components['private']);
+        $result = Strings::unpackSSH2('i', $private);
         if ($result === false) {
-            return false;
+            throw new \UnexpectedValueException('Key appears to be malformed');
         }
         list($x) = $result;
-
-        if (isset($components['comment'])) {
-            $comment = $components['comment'];
-        }
 
         return compact('p', 'q', 'g', 'y', 'x', 'comment');
     }
@@ -95,7 +93,7 @@ abstract class PuTTY extends Progenitor
      * @param string $password optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '')
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = false)
     {
         if ($q->getLength() != 160) {
             throw new \InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');
@@ -104,7 +102,7 @@ abstract class PuTTY extends Progenitor
         $public = Strings::packSSH2('iiii', $p, $q, $g, $y);
         $private = Strings::packSSH2('i', $x);
 
-        return self::wrapPrivateKey($public, $private, $password);
+        return self::wrapPrivateKey($public, $private, 'ssh-dsa', $password);
     }
 
     /**
@@ -123,6 +121,6 @@ abstract class PuTTY extends Progenitor
             throw new \InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');
         }
 
-        return self::wrapPublicKey(Strings::packSSH2('iiii', $p, $q, $g, $y));
+        return self::wrapPublicKey(Strings::packSSH2('iiii', $p, $q, $g, $y), 'ssh-dsa');
     }
 }
