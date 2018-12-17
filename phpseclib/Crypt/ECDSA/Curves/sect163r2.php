@@ -26,7 +26,7 @@ class sect163r2 extends Binary
         $this->setCoefficients(
             '000000000000000000000000000000000000000001',
             '020A601907B8C953CA1481EB10512F78744A3205FD'
-        );
+        );
         $this->setBasePoint(
             '03F0EBA16286A2D57EA0991168D4994637E8343E36',
             '00D51FBC6C71A0094FA2CDD545B11C5C0C797324F1'
