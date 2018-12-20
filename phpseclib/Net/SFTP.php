@@ -2255,7 +2255,7 @@ class SFTP extends SSH2
                 break;
             }
 
-            $errorPacket = false;
+            $error_packet = false;
             while ($i > 0) {
                 $i--;
                 
@@ -2275,7 +2275,7 @@ class SFTP extends SSH2
                     case NET_SFTP_STATUS:
                         $this->logError($response);
                         // maybe check for SSH_FX_OK and not set the error flag
-                        $errorPacket = true;
+                        $error_packet = true;
                         break;
                     default:
                         if ($fclose_check) {
@@ -2287,8 +2287,8 @@ class SFTP extends SSH2
                 $response = null;
             }
 
-            // if there was an errorPacket stop reading
-            if ($errorPacket) {
+            // if there was an error_packet stop reading
+            if ($error_packet) {
                 break;
             }
         }
