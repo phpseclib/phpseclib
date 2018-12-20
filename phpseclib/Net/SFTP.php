@@ -2255,16 +2255,11 @@ class SFTP extends SSH2
                 break;
             }
 
-            $clear_responses = false;
+            $errorPacket = false;
             while ($i > 0) {
                 $i--;
-
-                if ($clear_responses) {
-                    $this->get_sftp_packet();
-                    continue;
-                } else {
-                    $response = $this->get_sftp_packet();
-                }
+                
+                $response = $this->get_sftp_packet();
 
                 switch ($this->packet_type) {
                     case NET_SFTP_DATA:
@@ -2278,9 +2273,9 @@ class SFTP extends SSH2
                         $temp = null;
                         break;
                     case NET_SFTP_STATUS:
-                        // could, in theory, return false if !strlen($content) but we'll hold off for the time being
                         $this->logError($response);
-                        $clear_responses = true; // don't break out of the loop yet, so we can read the remaining responses
+                        // maybe check for SSH_FX_OK and not set the error flag
+                        $errorPacket = true;
                         break;
                     default:
                         if ($fclose_check) {
@@ -2292,7 +2287,8 @@ class SFTP extends SSH2
                 $response = null;
             }
 
-            if ($clear_responses) {
+            // if there was an errorPacket stop reading
+            if ($errorPacket) {
                 break;
             }
         }
