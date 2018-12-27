@@ -315,4 +315,64 @@ abstract class Strings
 
         return ltrim($bits, '0');
     }
+
+    /**
+     * Switch Endianness Bit Order
+     *
+     * @access public
+     * @param string $x
+     * @return string
+     */
+    public static function switchEndianness($x)
+    {
+        $r = '';
+        // from http://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith32Bits
+        for ($i = strlen($x) - 1; $i >= 0; $i--) {
+            $b = ord($x[$i]);
+            $p1 = ($b * 0x0802) & 0x22110;
+            $p2 = ($b * 0x8020) & 0x88440;
+            $r.= chr(
+                (($p1 | $p2) * 0x10101) >> 16
+            );
+        }
+        return $r;
+    }
+
+    /**
+     * Increment the current string
+     *
+     * @param string $var
+     * @return string
+     * @access public
+     */
+    public static function increment_str(&$var)
+    {
+        for ($i = 4; $i <= strlen($var); $i+= 4) {
+            $temp = substr($var, -$i, 4);
+            switch ($temp) {
+                case "\xFF\xFF\xFF\xFF":
+                    $var = substr_replace($var, "\x00\x00\x00\x00", -$i, 4);
+                    break;
+                case "\x7F\xFF\xFF\xFF":
+                    $var = substr_replace($var, "\x80\x00\x00\x00", -$i, 4);
+                    return $var;
+                default:
+                    $temp = unpack('Nnum', $temp);
+                    $var = substr_replace($var, pack('N', $temp['num'] + 1), -$i, 4);
+                    return $var;
+            }
+        }
+
+        $remainder = strlen($var) % 4;
+
+        if ($remainder == 0) {
+            return $var;
+        }
+
+        $temp = unpack('Nnum', str_pad(substr($var, 0, $remainder), 4, "\0", STR_PAD_LEFT));
+        $temp = substr(pack('N', $temp['num'] + 1), -$remainder);
+        $var = substr_replace($var, $temp, 0, $remainder);
+
+        return $var;
+    }
 }
