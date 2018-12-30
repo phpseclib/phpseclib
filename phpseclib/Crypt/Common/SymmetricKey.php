@@ -925,8 +925,6 @@ abstract class SymmetricKey
                         }
 
                         return true;
-                    case !function_exists('hash_pbkdf2'):
-                    case !function_exists('hash_algos'):
                     case !in_array($hash, hash_algos()):
                         $i = 1;
                         $hashObj->setKey($password);
