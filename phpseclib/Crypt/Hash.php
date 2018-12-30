@@ -467,7 +467,7 @@ class Hash
      * Pure-PHP 32-bit implementation of SHA3
      *
      * Whereas BigInteger.php's 32-bit engine works on PHP 64-bit this 32-bit implementation
-     * of SHA3 will *not* work on PHP 64-bit. This is because of because this implementation
+     * of SHA3 will *not* work on PHP 64-bit. This is because this implementation
      * employees bitwise NOTs and bitwise left shifts. And the round constants only work
      * on 32-bit PHP. eg. dechex(-2147483648) returns 80000000 on 32-bit PHP and
      * FFFFFFFF80000000 on 64-bit PHP. Sure, we could do bitwise ANDs but that would slow
