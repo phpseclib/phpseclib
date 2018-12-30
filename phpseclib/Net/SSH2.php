@@ -2059,7 +2059,7 @@ class SSH2
      */
     private function encryption_algorithm_to_key_size($algorithm)
     {
-        if ($this->bad_key_size_fix && $this->bad_algorithm_candidate($algorithm)) {
+        if ($this->bad_key_size_fix && self::bad_algorithm_candidate($algorithm)) {
             return 16;
         }
 
@@ -2151,7 +2151,7 @@ class SSH2
      * @return bool
      * @access private
      */
-    private function bad_algorithm_candidate($algorithm)
+    private static function bad_algorithm_candidate($algorithm)
     {
         switch ($algorithm) {
             case 'arcfour256':
@@ -3445,7 +3445,7 @@ class SSH2
         // PuTTY uses 0x9000 as the actual max packet size and so to shall we
         // don't do this when GCM mode is used since GCM mode doesn't encrypt the length
         if ($remaining_length < -$this->decrypt_block_size || $remaining_length > 0x9000 || $remaining_length % $this->decrypt_block_size != 0) {
-            if (!$this->bad_key_size_fix && $this->bad_algorithm_candidate($this->decrypt ? $this->decrypt->name : '') && !($this->bitmap & SSH2::MASK_LOGIN)) {
+            if (!$this->bad_key_size_fix && self::bad_algorithm_candidate($this->decrypt ? $this->decrypt->name : '') && !($this->bitmap & SSH2::MASK_LOGIN)) {
                 $this->bad_key_size_fix = true;
                 $this->reset_connection(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
                 return false;
