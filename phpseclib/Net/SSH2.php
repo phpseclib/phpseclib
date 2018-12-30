@@ -55,6 +55,7 @@ use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\RC4;
 use phpseclib\Crypt\Rijndael;
+use phpseclib\Crypt\AES;
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\Twofish;
@@ -907,14 +908,6 @@ class SSH2
     private $bad_key_size_fix = false;
 
     /**
-     * The selected decryption algorithm
-     *
-     * @var string
-     * @access private
-     */
-    private $decrypt_algorithm = '';
-
-    /**
      * Should we try to re-connect to re-establish keys?
      *
      * @var bool
@@ -1355,6 +1348,10 @@ class SSH2
 
             //'arcfour',      // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
 
+            // from <https://tools.ietf.org/html/rfc5647>:
+            'aes128-gcm@openssh.com',
+            'aes256-gcm@openssh.com',
+
             // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
             'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
             'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
@@ -1381,7 +1378,7 @@ class SSH2
             '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
 
             '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
-                //'none'         // OPTIONAL          no encryption; NOT RECOMMENDED
+             //'none'           // OPTIONAL          no encryption; NOT RECOMMENDED
         ];
 
         if (extension_loaded('openssl') && !extension_loaded('mcrypt')) {
@@ -1456,7 +1453,6 @@ class SSH2
         $encryption_algorithms_server_to_client = $encryption_algorithms_client_to_server = implode(',', $encryption_algorithms);
         $mac_algorithms_server_to_client = $mac_algorithms_client_to_server = implode(',', $mac_algorithms);
         $compression_algorithms_server_to_client = $compression_algorithms_client_to_server = implode(',', $compression_algorithms);
-
         $client_cookie = Random::string(16);
 
         $kexinit_payload_client = pack(
@@ -1673,20 +1669,20 @@ class SSH2
                     // http://tools.ietf.org/html/rfc2412, appendex E
                     case 'diffie-hellman-group1-sha1':
                         $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
-                                '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
-                                '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
-                                'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF';
+                                 '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
+                                 '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
+                                 'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF';
                         break;
                     // see http://tools.ietf.org/html/rfc3526#section-3
                     case 'diffie-hellman-group14-sha1':
                         $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
-                                '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
-                                '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
-                                'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF05' .
-                                '98DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB' .
-                                '9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' .
-                                'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF695581718' .
-                                '3995497CEA956AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF';
+                                 '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
+                                 '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
+                                 'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF05' .
+                                 '98DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB' .
+                                 '9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' .
+                                 'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF695581718' .
+                                 '3995497CEA956AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF';
                         break;
                 }
                 // For both diffie-hellman-group1-sha1 and diffie-hellman-group14-sha1
@@ -1860,8 +1856,6 @@ class SSH2
             throw new \UnexpectedValueException('Expected SSH_MSG_NEWKEYS');
         }
 
-        $this->decrypt_algorithm = $decrypt;
-
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
 
         $this->encrypt = $this->encryption_algorithm_to_crypt_instance($encrypt);
@@ -1872,7 +1866,6 @@ class SSH2
             if ($this->encrypt->getBlockLengthInBytes()) {
                 $this->encrypt_block_size = $this->encrypt->getBlockLengthInBytes();
             }
-            $this->encrypt->enableContinuousBuffer();
             $this->encrypt->disablePadding();
 
             if ($this->encrypt->usesIV()) {
@@ -1883,11 +1876,22 @@ class SSH2
                 $this->encrypt->setIV(substr($iv, 0, $this->encrypt_block_size));
             }
 
+            // currently, only AES GCM uses a nonce and per RFC5647,
+            // "SSH AES-GCM requires a 12-octet Initial IV"
+            if (!$this->encrypt->usesNonce()) {
+                $this->encrypt->enableContinuousBuffer();
+            } else {
+                $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
+                $this->encrypt->fixed = substr($nonce, 0, 4);
+                $this->encrypt->invocation_counter = substr($nonce, 4, 8);
+            }
+
             $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'C' . $this->session_id);
             while ($encryptKeyLength > strlen($key)) {
                 $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
             }
             $this->encrypt->setKey(substr($key, 0, $encryptKeyLength));
+            $this->encrypt->name = $encrypt;
         }
 
         $this->decrypt = $this->encryption_algorithm_to_crypt_instance($decrypt);
@@ -1898,7 +1902,6 @@ class SSH2
             if ($this->decrypt->getBlockLengthInBytes()) {
                 $this->decrypt_block_size = $this->decrypt->getBlockLengthInBytes();
             }
-            $this->decrypt->enableContinuousBuffer();
             $this->decrypt->disablePadding();
 
             if ($this->decrypt->usesIV()) {
@@ -1909,11 +1912,21 @@ class SSH2
                 $this->decrypt->setIV(substr($iv, 0, $this->decrypt_block_size));
             }
 
+            if (!$this->decrypt->usesNonce()) {
+                $this->decrypt->enableContinuousBuffer();
+            } else {
+                // see https://tools.ietf.org/html/rfc5647#section-7.1
+                $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
+                $this->decrypt->fixed = substr($nonce, 0, 4);
+                $this->decrypt->invocation_counter = substr($nonce, 4, 8);
+            }
+
             $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'D' . $this->session_id);
             while ($decryptKeyLength > strlen($key)) {
                 $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
             }
             $this->decrypt->setKey(substr($key, 0, $decryptKeyLength));
+            $this->decrypt->name = $decrypt;
         }
 
         /* The "arcfour128" algorithm is the RC4 cipher, as described in
@@ -1934,6 +1947,10 @@ class SSH2
         if ($mac_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible client to server message authentication algorithms found');
+        }
+
+        if ($this->encrypt->usesNonce()) {
+            $mac_algorithm = 'none';
         }
 
         $createKeyLength = 0; // ie. $mac_algorithm == 'none'
@@ -1959,10 +1976,23 @@ class SSH2
                 $createKeyLength = 16;
         }
 
+        if ($this->hmac_create) {
+            $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'E' . $this->session_id);
+            while ($createKeyLength > strlen($key)) {
+                $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
+            }
+            $this->hmac_create->setKey(substr($key, 0, $createKeyLength));
+            $this->hmac_create->name = $mac_algorithm;
+        }
+
         $mac_algorithm = $this->array_intersect_first($mac_algorithms, $this->mac_algorithms_server_to_client);
         if ($mac_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client message authentication algorithms found');
+        }
+
+        if ($this->decrypt->usesNonce()) {
+            $mac_algorithm = 'none';
         }
 
         $checkKeyLength = 0;
@@ -1994,17 +2024,14 @@ class SSH2
                 $this->hmac_size = 12;
         }
 
-        $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'E' . $this->session_id);
-        while ($createKeyLength > strlen($key)) {
-            $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
+        if ($this->hmac_check) {
+            $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'F' . $this->session_id);
+            while ($checkKeyLength > strlen($key)) {
+                $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
+            }
+            $this->hmac_check->setKey(substr($key, 0, $checkKeyLength));
+            $this->hmac_check->name = $mac_algorithm;
         }
-        $this->hmac_create->setKey(substr($key, 0, $createKeyLength));
-
-        $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'F' . $this->session_id);
-        while ($checkKeyLength > strlen($key)) {
-            $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
-        }
-        $this->hmac_check->setKey(substr($key, 0, $checkKeyLength));
 
         $compression_algorithm = $this->array_intersect_first($compression_algorithms, $this->compression_algorithms_server_to_client);
         if ($compression_algorithm === false) {
@@ -2039,6 +2066,7 @@ class SSH2
         switch ($algorithm) {
             case 'none':
                 return 0;
+            case 'aes128-gcm@openssh.com':
             case 'aes128-cbc':
             case 'aes128-ctr':
             case 'arcfour':
@@ -2055,6 +2083,7 @@ class SSH2
             case 'twofish192-cbc':
             case 'twofish192-ctr':
                 return 24;
+            case 'aes256-gcm@openssh.com':
             case 'aes256-cbc':
             case 'aes256-ctr':
             case 'arcfour256':
@@ -2106,6 +2135,9 @@ class SSH2
             case 'arcfour128':
             case 'arcfour256':
                 return new RC4();
+            case 'aes128-gcm@openssh.com':
+            case 'aes256-gcm@openssh.com':
+                return new AES('gcm');
         }
         return null;
     }
@@ -3370,7 +3402,29 @@ class SSH2
         }
 
         if ($this->decrypt !== false) {
-            $raw = $this->decrypt->decrypt($raw);
+            // only aes128-gcm@openssh.com and aes256-gcm@openssh.com use nonces
+            if (!$this->decrypt->usesNonce()) {
+                $raw = $this->decrypt->decrypt($raw);
+            } else {
+                $this->decrypt->setNonce(
+                    $this->decrypt->fixed .
+                    $this->decrypt->invocation_counter
+                );
+                Strings::increment_str($this->decrypt->invocation_counter);
+                $this->decrypt->setAAD($temp = Strings::shift($raw, 4));
+                extract(unpack('Npacket_length', $temp));
+                /**
+                 * @var integer $packet_length
+                 */
+
+                $raw.= $this->read_remaining_bytes($packet_length - $this->decrypt_block_size + 4);
+                $stop = microtime(true);
+                $tag = stream_get_contents($this->fsock, $this->decrypt_block_size);
+                $this->decrypt->setTag($tag);
+                $raw = $this->decrypt->decrypt($raw);
+                $raw = $temp . $raw;
+                $remaining_length = 0;
+            }
         }
 
         if (strlen($raw) < 5) {
@@ -3382,13 +3436,16 @@ class SSH2
          * @var integer $padding_length
          */
 
-        $remaining_length = $packet_length + 4 - $this->decrypt_block_size;
+        if (!isset($remaining_length)) {
+            $remaining_length = $packet_length + 4 - $this->decrypt_block_size;
+        }
 
         // quoting <http://tools.ietf.org/html/rfc4253#section-6.1>,
         // "implementations SHOULD check that the packet length is reasonable"
         // PuTTY uses 0x9000 as the actual max packet size and so to shall we
+        // don't do this when GCM mode is used since GCM mode doesn't encrypt the length
         if ($remaining_length < -$this->decrypt_block_size || $remaining_length > 0x9000 || $remaining_length % $this->decrypt_block_size != 0) {
-            if (!$this->bad_key_size_fix && $this->bad_algorithm_candidate($this->decrypt_algorithm) && !($this->bitmap & SSH2::MASK_LOGIN)) {
+            if (!$this->bad_key_size_fix && $this->bad_algorithm_candidate($this->decrypt ? $this->decrypt->name : '') && !($this->bitmap & SSH2::MASK_LOGIN)) {
                 $this->bad_key_size_fix = true;
                 $this->reset_connection(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
                 return false;
@@ -3396,18 +3453,11 @@ class SSH2
             throw new \RuntimeException('Invalid size');
         }
 
-        $buffer = '';
-        while ($remaining_length > 0) {
-            $temp = stream_get_contents($this->fsock, $remaining_length);
-            if ($temp === false || feof($this->fsock)) {
-                $this->bitmap = 0;
-                throw new \RuntimeException('Error reading from socket');
-            }
-            $buffer.= $temp;
-            $remaining_length-= strlen($temp);
-        }
+        $buffer = $this->read_remaining_bytes($remaining_length);
 
-        $stop = microtime(true);
+        if (!isset($stop)) {
+            $stop = microtime(true);
+        }
         if (strlen($buffer)) {
             $raw.= $this->decrypt !== false ? $this->decrypt->decrypt($buffer) : $buffer;
         }
@@ -3441,6 +3491,30 @@ class SSH2
         }
 
         return $this->filter($payload, $skip_channel_filter);
+    }
+
+    /**
+     * Read Remaining Bytes
+     *
+     * @see self::get_binary_packet()
+     * @param int $remaining_length
+     * @return string
+     * @access private
+     */
+    private function read_remaining_bytes($remaining_length)
+    {
+        $buffer = '';
+        while ($remaining_length > 0) {
+            $temp = stream_get_contents($this->fsock, $remaining_length);
+            if ($temp === false || feof($this->fsock)) {
+                $this->bitmap = 0;
+                throw new \RuntimeException('Error reading from socket');
+            }
+            $buffer.= $temp;
+            $remaining_length-= strlen($temp);
+        }
+
+        return $buffer;
     }
 
     /**
@@ -4012,10 +4086,17 @@ class SSH2
 
         // 4 (packet length) + 1 (padding length) + 4 (minimal padding amount) == 9
         $packet_length = strlen($data) + 9;
+        if ($this->encrypt !== false && $this->encrypt->usesNonce()) {
+            $packet_length-= 4;
+        }
         // round up to the nearest $this->encrypt_block_size
         $packet_length+= (($this->encrypt_block_size - 1) * $packet_length) % $this->encrypt_block_size;
         // subtracting strlen($data) is obvious - subtracting 5 is necessary because of packet_length and padding_length
         $padding_length = $packet_length - strlen($data) - 5;
+        if ($this->encrypt !== false && $this->encrypt->usesNonce()) {
+            $padding_length+= 4;
+            $packet_length+= 4;
+        }
         $padding = Random::string($padding_length);
 
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself
@@ -4025,10 +4106,20 @@ class SSH2
         $this->send_seq_no++;
 
         if ($this->encrypt !== false) {
-            $packet = $this->encrypt->encrypt($packet);
+            if (!$this->encrypt->usesNonce()) {
+                $packet = $this->encrypt->encrypt($packet);
+            } else {
+                $this->encrypt->setNonce(
+                    $this->encrypt->fixed .
+                    $this->encrypt->invocation_counter
+                );
+                Strings::increment_str($this->encrypt->invocation_counter);
+                $this->encrypt->setAAD($temp = substr($packet, 0, 4));
+                $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
+            }
         }
 
-        $packet.= $hmac;
+        $packet.= $this->encrypt !== false && $this->encrypt->usesNonce() ? $this->encrypt->getTag() : $hmac;
 
         $start = microtime(true);
         $result = strlen($packet) == fputs($this->fsock, $packet);

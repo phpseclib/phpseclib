@@ -59,6 +59,9 @@ class BinaryField extends FiniteField
         $mStart = 2 * $m - 2;
         $t = ceil($m / 8);
         $finalMask = chr((1 << ($m % 8)) - 1);
+        if ($finalMask == "\0") {
+            $finalMask = "\xFF";
+        }
         $bitLen = $mStart + 1;
         $pad = ceil($bitLen / 8);
         $h = $bitLen & 7;

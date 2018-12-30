@@ -163,10 +163,6 @@ class Integer extends Base
      */
     private static function polynomialDivide($x, $y)
     {
-        if (strcmp($x, str_pad($y, strlen($x), "\0", STR_PAD_LEFT)) < 0) {
-            return ['', ltrim($x, "\0")];
-        }
-
         // in wikipedia's description of the algorithm, lc() is the leading coefficient. over a binary field that's
         // always going to be 1.
 
