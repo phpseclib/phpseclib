@@ -584,10 +584,6 @@ abstract class SymmetricKey
      */
     public function __construct($mode)
     {
-        if (!isset(self::$gcmField)) {
-            self::initialize_static_variables();
-        }
-
         $mode = strtolower($mode);
         // necessary because of 5.6 compatibility; we can't do isset(self::MODE_MAP[$mode]) in 5.6
         $map = self::MODE_MAP;
@@ -614,6 +610,9 @@ abstract class SymmetricKey
                 if ($this->block_size != 16) {
                     throw new \InvalidArgumentException('GCM is only valid for block ciphers with a block size of 128 bits');
                 }
+                if (!isset(self::$gcmField)) {
+                    self::$gcmField = new BinaryField(128, 7, 2, 1, 0);
+                }
                 $this->paddable = false;
                 break;
             default:
@@ -621,16 +620,6 @@ abstract class SymmetricKey
         }
 
         $this->mode = $mode;
-    }
-
-    /**
-     * Initialize static variables
-     *
-     * @access private
-     */
-    private static function initialize_static_variables()
-    {
-        self::$gcmField = new BinaryField(128, 7, 2, 1, 0);
     }
 
     /**
