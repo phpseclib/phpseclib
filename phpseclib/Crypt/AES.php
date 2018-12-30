@@ -247,7 +247,7 @@ class AES extends Rijndael
     private function checkForChanges()
     {
         if ($this->changed) {
-            $this->clearBuffers();
+            $this->setup();
             $this->changed = false;
         }
     }

@@ -1031,12 +1031,12 @@ abstract class SymmetricKey
             $plaintext = $this->pad($plaintext);
         }
 
-        if ($this->mode == self::MODE_GCM) {
-            if ($this->changed) {
-                $this->genericSetup();
-                $this->changed = false;
-            }
+        if ($this->changed) {
+            $this->setup();
+            $this->changed = false;
+        }
 
+        if ($this->mode == self::MODE_GCM) {
             $oldIV = $this->iv;
             Strings::increment_str($this->iv);
             $cipher = new static('ctr');
@@ -1056,10 +1056,6 @@ abstract class SymmetricKey
         }
 
         if ($this->engine === self::ENGINE_OPENSSL) {
-            if ($this->changed) {
-                $this->clearBuffers();
-                $this->changed = false;
-            }
             switch ($this->mode) {
                 case self::MODE_STREAM:
                     return openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
@@ -1137,10 +1133,6 @@ abstract class SymmetricKey
         }
 
         if ($this->engine === self::ENGINE_MCRYPT) {
-            if ($this->changed) {
-                $this->setupMcrypt();
-                $this->changed = false;
-            }
             if ($this->enchanged) {
                 @mcrypt_generic_init($this->enmcrypt, $this->key, $this->getIV($this->encryptIV));
                 $this->enchanged = false;
@@ -1211,10 +1203,6 @@ abstract class SymmetricKey
             return $ciphertext;
         }
 
-        if ($this->changed) {
-            $this->setup();
-            $this->changed = false;
-        }
         if ($this->engine === self::ENGINE_EVAL) {
             $inline = $this->inline_crypt;
             return $inline('encrypt', $plaintext);
@@ -1381,11 +1369,12 @@ abstract class SymmetricKey
             throw new \LengthException('The ciphertext length (' . strlen($ciphertext) . ') needs to be a multiple of the block size (' . $this->block_size . ')');
         }
 
+        if ($this->changed) {
+            $this->setup();
+            $this->changed = false;
+        }
+
         if ($this->mode == self::MODE_GCM) {
-            if ($this->changed) {
-                $this->genericSetup();
-                $this->changed = false;
-            }
             if ($this->oldtag === false) {
                 throw new \UnexpectedValueException('Authentication Tag has not been set');
             }
@@ -1414,10 +1403,6 @@ abstract class SymmetricKey
         }
 
         if ($this->engine === self::ENGINE_OPENSSL) {
-            if ($this->changed) {
-                $this->clearBuffers();
-                $this->changed = false;
-            }
             switch ($this->mode) {
                 case self::MODE_STREAM:
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
@@ -1499,10 +1484,6 @@ abstract class SymmetricKey
 
         if ($this->engine === self::ENGINE_MCRYPT) {
             $block_size = $this->block_size;
-            if ($this->changed) {
-                $this->setupMcrypt();
-                $this->changed = false;
-            }
             if ($this->dechanged) {
                 @mcrypt_generic_init($this->demcrypt, $this->key, $this->getIV($this->decryptIV));
                 $this->dechanged = false;
@@ -1555,10 +1536,6 @@ abstract class SymmetricKey
             return $this->paddable ? $this->unpad($plaintext) : $plaintext;
         }
 
-        if ($this->changed) {
-            $this->setup();
-            $this->changed = false;
-        }
         if ($this->engine === self::ENGINE_EVAL) {
             $inline = $this->inline_crypt;
             return $inline('decrypt', $ciphertext);
@@ -2275,86 +2252,68 @@ abstract class SymmetricKey
      */
     protected function setup()
     {
-        $this->clearBuffers();
-        $this->setupKey();
+        $this->enbuffer = $this->debuffer = ['ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true];
+        //$this->newtag = $this->oldtag = false;
 
-        if ($this->engine === self::ENGINE_EVAL) {
-            $this->setupInlineCrypt();
+        if ($this->mode == self::MODE_GCM) {
+            if ($this->nonce === false) {
+                throw new \UnexpectedValueException('No nonce has been defined');
+            }
+            if (!in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_GCM])) {
+                $this->setupGCM();
+            }
+        } else {
+            $this->iv = $this->origIV;
         }
-    }
 
-    /**
-     * Calls the appropriate setup method
-     *
-     * @access private
-     */
-    protected function genericSetup()
-    {
+        if ($this->iv === false && !in_array($this->mode, [self::MODE_STREAM, self::MODE_ECB])) {
+            if ($this->mode != self::MODE_GCM || !in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_GCM])) {
+                throw new \UnexpectedValueException('No IV has been defined');
+            }
+        }
+
+        if ($this->key === false) {
+            throw new \UnexpectedValueException('No key has been defined');
+        }
+
+        $this->encryptIV = $this->decryptIV = $this->iv;
+
         switch ($this->engine) {
             case self::ENGINE_MCRYPT:
-                $this->setupMcrypt();
+                $this->enchanged = $this->dechanged = true;
+
+                if (!isset($this->enmcrypt)) {
+                    static $mcrypt_modes = [
+                        self::MODE_CTR    => 'ctr',
+                        self::MODE_ECB    => MCRYPT_MODE_ECB,
+                        self::MODE_CBC    => MCRYPT_MODE_CBC,
+                        self::MODE_CFB    => 'ncfb',
+                        self::MODE_CFB8   => MCRYPT_MODE_CFB,
+                        self::MODE_OFB    => MCRYPT_MODE_NOFB,
+                        self::MODE_STREAM => MCRYPT_MODE_STREAM,
+                    ];
+
+                    $this->demcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
+                    $this->enmcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
+
+                    // we need the $ecb mcrypt resource (only) in MODE_CFB with enableContinuousBuffer()
+                    // to workaround mcrypt's broken ncfb implementation in buffered mode
+                    // see: {@link http://phpseclib.sourceforge.net/cfb-demo.phps}
+                    if ($this->mode == self::MODE_CFB) {
+                        $this->ecb = @mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_ECB, '');
+                    }
+                } // else should mcrypt_generic_deinit be called?
+
+                if ($this->mode == self::MODE_CFB) {
+                    @mcrypt_generic_init($this->ecb, $this->key, str_repeat("\0", $this->block_size));
+                }
+                break;
+            case self::ENGINE_INTERNAL:
+                $this->setupKey();
                 break;
             case self::ENGINE_EVAL:
-            case self::ENGINE_INTERNAL:
-                $this->setup();
-                break;
-            default:
-                $this->clearBuffers();
-        }
-    }
-
-    /**
-     * Setup the self::ENGINE_MCRYPT $engine
-     *
-     * (re)init, if necessary, the (ext)mcrypt resources and flush all $buffers
-     * Used (only) if $engine = self::ENGINE_MCRYPT
-     *
-     * _setupMcrypt() will be called each time if $changed === true
-     * typically this happens when using one or more of following public methods:
-     *
-     * - setKey()
-     *
-     * - setIV()
-     *
-     * - disableContinuousBuffer()
-     *
-     * - First run of encrypt() / decrypt()
-     *
-     * @see self::setKey()
-     * @see self::setIV()
-     * @see self::disableContinuousBuffer()
-     * @access private
-     * @internal Could, but not must, extend by the child Crypt_* class
-     */
-    private function setupMcrypt()
-    {
-        $this->clearBuffers();
-        $this->enchanged = $this->dechanged = true;
-
-        if (!isset($this->enmcrypt)) {
-            static $mcrypt_modes = [
-                self::MODE_CTR    => 'ctr',
-                self::MODE_ECB    => MCRYPT_MODE_ECB,
-                self::MODE_CBC    => MCRYPT_MODE_CBC,
-                self::MODE_CFB    => 'ncfb',
-                self::MODE_CFB8   => MCRYPT_MODE_CFB,
-                self::MODE_OFB    => MCRYPT_MODE_NOFB,
-                self::MODE_STREAM => MCRYPT_MODE_STREAM,
-            ];
-
-            $this->demcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
-            $this->enmcrypt = @mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
-
-            // we need the $ecb mcrypt resource (only) in MODE_CFB with enableContinuousBuffer()
-            // to workaround mcrypt's broken ncfb implementation in buffered mode
-            // see: {@link http://phpseclib.sourceforge.net/cfb-demo.phps}
-            if ($this->mode == self::MODE_CFB) {
-                $this->ecb = @mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_ECB, '');
-            }
-        } // else should mcrypt_generic_deinit be called?
-
-        if ($this->mode == self::MODE_CFB) {
-            @mcrypt_generic_init($this->ecb, $this->key, str_repeat("\0", $this->block_size));
+                $this->setupKey();
+                $this->setupInlineCrypt();
         }
     }
 
@@ -2416,46 +2375,6 @@ abstract class SymmetricKey
         }
 
         return substr($text, 0, -$length);
-    }
-
-    /**
-     * Clears internal buffers
-     *
-     * Clearing/resetting the internal buffers is done everytime
-     * after disableContinuousBuffer() or on cipher $engine (re)init
-     * ie after setKey() or setIV()
-     *
-     * @access private
-     * @internal Could, but not must, extend by the child Crypt_* class
-     * @throws \UnexpectedValueException when an IV is required but not defined
-     */
-    public function clearBuffers()
-    {
-        $this->enbuffer = $this->debuffer = ['ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true];
-        //$this->newtag = $this->oldtag = false;
-
-        if ($this->mode == self::MODE_GCM) {
-            if ($this->nonce === false) {
-                throw new \UnexpectedValueException('No nonce has been defined');
-            }
-            if (!in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_GCM])) {
-                $this->setupGCM();
-            }
-        } else {
-            $this->iv = $this->origIV;
-        }
-
-        if ($this->iv === false && !in_array($this->mode, [self::MODE_STREAM, self::MODE_ECB])) {
-            if ($this->mode != self::MODE_GCM || !in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_GCM])) {
-                throw new \UnexpectedValueException('No IV has been defined');
-            }
-        }
-
-        if ($this->key === false) {
-            throw new \UnexpectedValueException('No key has been defined');
-        }
-
-        $this->encryptIV = $this->decryptIV = $this->iv;
     }
 
     /**
