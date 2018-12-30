@@ -56,6 +56,8 @@ namespace phpseclib\Crypt;
 
 use phpseclib\Crypt\Common\BlockCipher;
 
+use phpseclib\Common\Functions\Strings;
+
 /**
  * Pure-PHP implementation of Rijndael.
  *
@@ -279,6 +281,22 @@ class Rijndael extends BlockCipher
     protected function isValidEngineHelper($engine)
     {
         switch ($engine) {
+            case self::ENGINE_LIBSODIUM:
+                return function_exists('sodium_crypto_aead_aes256gcm_is_available') &&
+                       sodium_crypto_aead_aes256gcm_is_available() &&
+                       $this->mode == self::MODE_GCM &&
+                       $this->key_length == 32 &&
+                       $this->nonce && strlen($this->nonce) == 12 &&
+                       $this->block_size == 16;
+            case self::ENGINE_OPENSSL_GCM:
+                if (!extension_loaded('openssl')) {
+                    return false;
+                }
+                $methods = openssl_get_cipher_methods();
+                return $this->mode == self::MODE_GCM &&
+                       version_compare(PHP_VERSION, '7.1.0', '>=') &&
+                       in_array('aes-' . $this->getKeyLength() . '-gcm', $methods) &&
+                       $this->block_size == 16;
             case self::ENGINE_OPENSSL:
                 if ($this->block_size != 16) {
                     return false;
@@ -912,5 +930,87 @@ class Rijndael extends BlockCipher
                'decrypt_block' => $decrypt_block
             ]
         );
+    }
+
+    /**
+     * Encrypts a message.
+     *
+     * @see self::decrypt()
+     * @see parent::encrypt()
+     * @access public
+     * @param string $plaintext
+     * @return string
+     */
+    public function encrypt($plaintext)
+    {
+        $this->setup();
+
+        switch ($this->engine) {
+            case self::ENGINE_LIBSODIUM:
+                $this->newtag = sodium_crypto_aead_aes256gcm_encrypt($plaintext, $this->aad, $this->nonce, $this->key);
+                return Strings::shift($this->newtag, strlen($plaintext));
+            case self::ENGINE_OPENSSL_GCM:
+                return openssl_encrypt(
+                    $plaintext,
+                    'aes-' . $this->getKeyLength() . '-gcm',
+                    $this->key,
+                    OPENSSL_RAW_DATA,
+                    $this->nonce,
+                    $this->newtag,
+                    $this->aad
+                );
+        }
+
+        return parent::encrypt($plaintext);
+    }
+
+    /**
+     * Decrypts a message.
+     *
+     * @see self::encrypt()
+     * @see parent::decrypt()
+     * @access public
+     * @param string $ciphertext
+     * @return string
+     */
+    public function decrypt($ciphertext)
+    {
+        $this->setup();
+
+        switch ($this->engine) {
+            case self::ENGINE_LIBSODIUM:
+                if ($this->oldtag === false) {
+                    throw new \UnexpectedValueException('Authentication Tag has not been set');
+                }
+                if (strlen($this->oldtag) != 16) {
+                    break;
+                }
+                $plaintext = sodium_crypto_aead_aes256gcm_decrypt($ciphertext . $this->oldtag, $this->aad, $this->nonce, $this->key);
+                if ($plaintext === false) {
+                    $this->oldtag = false;
+                    throw new \UnexpectedValueException('Error decrypting ciphertext with libsodium');
+                }
+                return $plaintext;
+            case self::ENGINE_OPENSSL_GCM:
+                if ($this->oldtag === false) {
+                    throw new \UnexpectedValueException('Authentication Tag has not been set');
+                }
+                $plaintext = openssl_decrypt(
+                    $ciphertext,
+                    'aes-' . $this->getKeyLength() . '-gcm',
+                    $this->key,
+                    OPENSSL_RAW_DATA,
+                    $this->nonce,
+                    $this->oldtag,
+                    $this->aad
+                );
+                if ($plaintext === false) {
+                    $this->oldtag = false;
+                    throw new \UnexpectedValueException('Error decrypting ciphertext with OpenSSL');
+                }
+                return $plaintext;
+        }
+
+        return parent::decrypt($ciphertext);
     }
 }

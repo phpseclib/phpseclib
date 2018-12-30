@@ -1031,10 +1031,7 @@ abstract class SymmetricKey
             $plaintext = $this->pad($plaintext);
         }
 
-        if ($this->changed) {
-            $this->setup();
-            $this->changed = false;
-        }
+        $this->setup();
 
         if ($this->mode == self::MODE_GCM) {
             $oldIV = $this->iv;
@@ -1369,10 +1366,7 @@ abstract class SymmetricKey
             throw new \LengthException('The ciphertext length (' . strlen($ciphertext) . ') needs to be a multiple of the block size (' . $this->block_size . ')');
         }
 
-        if ($this->changed) {
-            $this->setup();
-            $this->changed = false;
-        }
+        $this->setup();
 
         if ($this->mode == self::MODE_GCM) {
             if ($this->oldtag === false) {
@@ -2252,6 +2246,12 @@ abstract class SymmetricKey
      */
     protected function setup()
     {
+        if (!$this->changed) {
+            return;
+        }
+
+        $this->changed = false;
+
         $this->enbuffer = $this->debuffer = ['ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true];
         //$this->newtag = $this->oldtag = false;
 

@@ -49,8 +49,6 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Common\Functions\Strings;
-
 /**
  * Pure-PHP implementation of AES.
  *
@@ -60,38 +58,6 @@ use phpseclib\Common\Functions\Strings;
  */
 class AES extends Rijndael
 {
-    /**
-     * Test for engine validity
-     *
-     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Common\SymmetricKey::isValidEngine()
-     *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
-     * @param int $engine
-     * @access protected
-     * @return bool
-     */
-    protected function isValidEngineHelper($engine)
-    {
-        switch ($engine) {
-            case self::ENGINE_LIBSODIUM:
-                return function_exists('sodium_crypto_aead_aes256gcm_is_available') &&
-                       sodium_crypto_aead_aes256gcm_is_available() &&
-                       $this->mode == self::MODE_GCM &&
-                       $this->key_length == 32 &&
-                       $this->nonce && strlen($this->nonce) == 12;
-            case self::ENGINE_OPENSSL_GCM:
-                if (!extension_loaded('openssl')) {
-                    return false;
-                }
-                $methods = openssl_get_cipher_methods();
-                return $this->mode == self::MODE_GCM &&
-                       version_compare(PHP_VERSION, '7.1.0', '>=') &&
-                       in_array('aes-' . $this->getKeyLength() . '-gcm', $methods);
-        }
-
-        return parent::isValidEngineHelper($engine);
-    }
-
     /**
      * Dummy function
      *
@@ -153,102 +119,5 @@ class AES extends Rijndael
         }
 
         parent::setKey($key);
-    }
-
-    /**
-     * Encrypts a message.
-     *
-     * @see self::decrypt()
-     * @see parent::encrypt()
-     * @access public
-     * @param string $plaintext
-     * @return string
-     */
-    public function encrypt($plaintext)
-    {
-        switch ($this->engine) {
-            case self::ENGINE_LIBSODIUM:
-                $this->checkForChanges();
-                $this->newtag = sodium_crypto_aead_aes256gcm_encrypt($plaintext, $this->aad, $this->nonce, $this->key);
-                return Strings::shift($this->newtag, strlen($plaintext));
-            case self::ENGINE_OPENSSL_GCM:
-                $this->checkForChanges();
-                return openssl_encrypt(
-                    $plaintext,
-                    'aes-' . $this->getKeyLength() . '-gcm',
-                    $this->key,
-                    OPENSSL_RAW_DATA,
-                    $this->nonce,
-                    $this->newtag,
-                    $this->aad
-                );
-        }
-
-        return parent::encrypt($plaintext);
-    }
-
-    /**
-     * Decrypts a message.
-     *
-     * @see self::encrypt()
-     * @see parent::decrypt()
-     * @access public
-     * @param string $ciphertext
-     * @return string
-     */
-    public function decrypt($ciphertext)
-    {
-        switch ($this->engine) {
-            case self::ENGINE_LIBSODIUM:
-                $this->checkForChanges();
-                if ($this->oldtag === false) {
-                    throw new \UnexpectedValueException('Authentication Tag has not been set');
-                }
-                if (strlen($this->oldtag) != 16) {
-                    break;
-                }
-                $plaintext = sodium_crypto_aead_aes256gcm_decrypt($ciphertext . $this->oldtag, $this->aad, $this->nonce, $this->key);
-                if ($plaintext === false) {
-                    $this->oldtag = false;
-                    throw new \UnexpectedValueException('Error decrypting ciphertext with libsodium');
-                }
-                return $plaintext;
-            case self::ENGINE_OPENSSL_GCM:
-                $this->checkForChanges();
-                if ($this->oldtag === false) {
-                    throw new \UnexpectedValueException('Authentication Tag has not been set');
-                }
-                $plaintext = openssl_decrypt(
-                    $ciphertext,
-                    'aes-' . $this->getKeyLength() . '-gcm',
-                    $this->key,
-                    OPENSSL_RAW_DATA,
-                    $this->nonce,
-                    $this->oldtag,
-                    $this->aad
-                );
-                if ($plaintext === false) {
-                    $this->oldtag = false;
-                    throw new \UnexpectedValueException('Error decrypting ciphertext with OpenSSL');
-                }
-                return $plaintext;
-        }
-
-        return parent::decrypt($ciphertext);
-    }
-
-    /**
-     * Check For Changes
-     *
-     * @see self::encrypt()
-     * @see self::decrypt()
-     * @access private
-     */
-    private function checkForChanges()
-    {
-        if ($this->changed) {
-            $this->setup();
-            $this->changed = false;
-        }
     }
 }
