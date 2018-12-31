@@ -3401,7 +3401,7 @@ class SSH2
             return '';
         }
 
-        if ($this->decrypt !== false) {
+        if ($this->decrypt) {
             // only aes128-gcm@openssh.com and aes256-gcm@openssh.com use nonces
             if (!$this->decrypt->usesNonce()) {
                 $raw = $this->decrypt->decrypt($raw);
@@ -3459,13 +3459,13 @@ class SSH2
             $stop = microtime(true);
         }
         if (strlen($buffer)) {
-            $raw.= $this->decrypt !== false ? $this->decrypt->decrypt($buffer) : $buffer;
+            $raw.= $this->decrypt ? $this->decrypt->decrypt($buffer) : $buffer;
         }
 
         $payload = Strings::shift($raw, $packet_length - $padding_length - 1);
         $padding = Strings::shift($raw, $padding_length); // should leave $raw empty
 
-        if ($this->hmac_check !== false) {
+        if ($this->hmac_check) {
             $hmac = stream_get_contents($this->fsock, $this->hmac_size);
             if ($hmac === false || strlen($hmac) != $this->hmac_size) {
                 $this->bitmap = 0;
@@ -4086,14 +4086,14 @@ class SSH2
 
         // 4 (packet length) + 1 (padding length) + 4 (minimal padding amount) == 9
         $packet_length = strlen($data) + 9;
-        if ($this->encrypt !== false && $this->encrypt->usesNonce()) {
+        if ($this->encrypt && $this->encrypt->usesNonce()) {
             $packet_length-= 4;
         }
         // round up to the nearest $this->encrypt_block_size
         $packet_length+= (($this->encrypt_block_size - 1) * $packet_length) % $this->encrypt_block_size;
         // subtracting strlen($data) is obvious - subtracting 5 is necessary because of packet_length and padding_length
         $padding_length = $packet_length - strlen($data) - 5;
-        if ($this->encrypt !== false && $this->encrypt->usesNonce()) {
+        if ($this->encrypt && $this->encrypt->usesNonce()) {
             $padding_length+= 4;
             $packet_length+= 4;
         }
@@ -4102,10 +4102,10 @@ class SSH2
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself
         $packet = pack('NCa*', $packet_length - 4, $padding_length, $data . $padding);
 
-        $hmac = $this->hmac_create !== false ? $this->hmac_create->hash(pack('Na*', $this->send_seq_no, $packet)) : '';
+        $hmac = $this->hmac_create ? $this->hmac_create->hash(pack('Na*', $this->send_seq_no, $packet)) : '';
         $this->send_seq_no++;
 
-        if ($this->encrypt !== false) {
+        if ($this->encrypt) {
             if (!$this->encrypt->usesNonce()) {
                 $packet = $this->encrypt->encrypt($packet);
             } else {
@@ -4119,7 +4119,7 @@ class SSH2
             }
         }
 
-        $packet.= $this->encrypt !== false && $this->encrypt->usesNonce() ? $this->encrypt->getTag() : $hmac;
+        $packet.= $this->encrypt && $this->encrypt->usesNonce() ? $this->encrypt->getTag() : $hmac;
 
         $start = microtime(true);
         $result = strlen($packet) == fputs($this->fsock, $packet);
