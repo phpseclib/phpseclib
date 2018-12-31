@@ -38,6 +38,7 @@ use phpseclib\Math\PrimeField;
 use phpseclib\Crypt\ECDSA\Signature\ASN1 as ASN1Signature;
 use phpseclib\Exception\UnsupportedOperationException;
 use phpseclib\Exception\NoKeyLoadedException;
+use phpseclib\Exception\InsufficientSetupException;
 
 /**
  * Pure-PHP FIPS 186-4 compliant implementation of DSA.
@@ -200,7 +201,7 @@ class DSA extends AsymmetricKey
         } else if (!count($args)) {
             $private = self::createParameters();
         } else {
-            throw new \InvalidArgumentException('Valid parameters are either two integers (L and N), a single DSA object or no parameters at all.');
+            throw new InsufficientSetupException('Valid parameters are either two integers (L and N), a single DSA object or no parameters at all.');
         }
 
         $private->x = BigInteger::randomRange(self::$one, $private->q->subtract(self::$one));
@@ -465,7 +466,7 @@ class DSA extends AsymmetricKey
         }
 
         if (empty($this->p)) {
-            throw new \RuntimeException('DSA Prime P is not set');
+            throw new InsufficientSetupException('DSA Prime P is not set');
         }
 
         if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
@@ -552,7 +553,7 @@ class DSA extends AsymmetricKey
         }
 
         if (empty($this->p)) {
-            throw new \RuntimeException('DSA Prime P is not set');
+            throw new InsufficientSetupException('DSA Prime P is not set');
         }
 
         if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {

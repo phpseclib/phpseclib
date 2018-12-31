@@ -67,7 +67,7 @@ p0GbMJDyR4e9T04ZZwIDAQAB
     }
 
     /**
-     * @expectedException \OutOfBoundsException
+     * @expectedException \LengthException
      */
     public function testSmallModulo()
     {

@@ -1633,7 +1633,7 @@ class SSH2
                 extract(unpack('Ctype', Strings::shift($response, 1)));
                 /** @var integer $type */
                 if ($type != NET_SSH2_MSG_KEXDH_GEX_GROUP) {
-                    throw new \RuntimeException('Expected SSH_MSG_KEX_DH_GEX_GROUP');
+                    throw new \UnexpectedValueException('Expected SSH_MSG_KEX_DH_GEX_GROUP');
                 }
 
                 if (strlen($response) < 4) {

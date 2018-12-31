@@ -40,6 +40,11 @@ use phpseclib\Crypt\Hash;
 use phpseclib\Common\Functions\Strings;
 use phpseclib\Math\BigInteger;
 use phpseclib\Math\BinaryField;
+use phpseclib\Exception\BadDecryptionException;
+use phpseclib\Exception\BadModeException;
+use phpseclib\Exception\InconsistentSetupException;
+use phpseclib\Exception\InsufficientSetupException;
+use phpseclib\Exception\UnsupportedAlgorithmException;
 
 /**
  * Base Class for all \phpseclib\Crypt\* cipher classes
@@ -580,7 +585,7 @@ abstract class SymmetricKey
      *
      * @param string $mode
      * @access public
-     * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
+     * @throws BadModeException if an invalid / unsupported mode is provided
      */
     public function __construct($mode)
     {
@@ -588,7 +593,7 @@ abstract class SymmetricKey
         // necessary because of 5.6 compatibility; we can't do isset(self::MODE_MAP[$mode]) in 5.6
         $map = self::MODE_MAP;
         if (!isset($map[$mode])) {
-            throw new \InvalidArgumentException('No valid mode has been specified');
+            throw new BadModeException('No valid mode has been specified');
         }
 
         $mode = self::MODE_MAP[$mode];
@@ -608,7 +613,7 @@ abstract class SymmetricKey
                 break;
             case self::MODE_GCM:
                 if ($this->block_size != 16) {
-                    throw new \InvalidArgumentException('GCM is only valid for block ciphers with a block size of 128 bits');
+                    throw new BadModeException('GCM is only valid for block ciphers with a block size of 128 bits');
                 }
                 if (!isset(self::$gcmField)) {
                     self::$gcmField = new BinaryField(128, 7, 2, 1, 0);
@@ -616,7 +621,7 @@ abstract class SymmetricKey
                 $this->paddable = false;
                 break;
             default:
-                throw new \InvalidArgumentException('No valid mode has been specified');
+                throw new BadModeException('No valid mode has been specified');
         }
 
         $this->mode = $mode;
@@ -630,21 +635,21 @@ abstract class SymmetricKey
      * @access public
      * @param string $iv
      * @throws \LengthException if the IV length isn't equal to the block size
-     * @throws \InvalidArgumentException if an IV is provided when one shouldn't be
+     * @throws \BadMethodCallException if an IV is provided when one shouldn't be
      * @internal Can be overwritten by a sub class, but does not have to be
      */
     public function setIV($iv)
     {
         if ($this->mode == self::MODE_ECB) {
-            throw new \InvalidArgumentException('This mode does not require an IV.');
+            throw new \BadMethodCallException('This mode does not require an IV.');
         }
 
         if ($this->mode == self::MODE_GCM) {
-            throw new \InvalidArgumentException('Use setNonce instead');
+            throw new \BadMethodCallException('Use setNonce instead');
         }
 
         if (!$this->usesIV()) {
-            throw new \InvalidArgumentException('This algorithm does not use an IV.');
+            throw new \BadMethodCallExceptionn('This algorithm does not use an IV.');
         }
 
         if (strlen($iv) != $this->block_size) {
@@ -667,7 +672,7 @@ abstract class SymmetricKey
     public function setNonce($nonce)
     {
         if ($this->mode != self::MODE_GCM) {
-            throw new \RuntimeException('Nonces are only used in GCM mode.');
+            throw new \BadMethodCallException('Nonces are only used in GCM mode.');
         }
 
         $this->nonce = $nonce;
@@ -762,7 +767,7 @@ abstract class SymmetricKey
 
         if (is_string($this->key) && strlen($this->key) != $this->explicit_key_length) {
             $this->key = false;
-            throw new \LengthException('Key has already been set and is not ' .$this->explicit_key_length . ' bytes long');
+            throw new InconsistentSetupException('Key has already been set and is not ' .$this->explicit_key_length . ' bytes long');
         }
     }
 
@@ -783,7 +788,7 @@ abstract class SymmetricKey
     public function setKey($key)
     {
         if ($this->explicit_key_length !== false && strlen($key) != $this->explicit_key_length) {
-            throw new \LengthException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');
+            throw new InconsistentSetupException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');
         }
 
         $this->key = $key;
@@ -932,7 +937,7 @@ abstract class SymmetricKey
                 }
                 break;
             default:
-                throw new \InvalidArgumentException($method . ' is not a supported password hashing method');
+                throw new UnsupportedAlgorithmException($method . ' is not a supported password hashing method');
         }
 
         $this->setKey($key);
@@ -1359,7 +1364,7 @@ abstract class SymmetricKey
 
         if ($this->mode == self::MODE_GCM) {
             if ($this->oldtag === false) {
-                throw new \UnexpectedValueException('Authentication Tag has not been set');
+                throw new InsufficientSetupException('Authentication Tag has not been set');
             }
 
             $oldIV = $this->iv;
@@ -1379,7 +1384,7 @@ abstract class SymmetricKey
             $newtag = $cipher->encrypt($s);
             if ($this->oldtag != substr($newtag, 0, strlen($newtag))) {
                 $this->oldtag = false;
-                throw new \UnexpectedValueException('Derived authentication tag and supplied authentication tag do not match');
+                throw new BadDecryptionException('Derived authentication tag and supplied authentication tag do not match');
             }
             $this->oldtag = false;
             return $plaintext;
@@ -1679,7 +1684,7 @@ abstract class SymmetricKey
     public function getTag($length = 16)
     {
         if ($this->mode != self::MODE_GCM) {
-            throw new \RuntimeException('Only GCM mode utilizes authentication tags');
+            throw new \BadMethodCallException('Only GCM mode utilizes authentication tags');
         }
 
         // the tag is basically a single encrypted block of a 128-bit cipher. it can't be greater than 16
@@ -1710,7 +1715,7 @@ abstract class SymmetricKey
     public function setTag($tag)
     {
         if ($this->mode != self::MODE_GCM) {
-            throw new \RuntimeException('Only GCM mode utilizes authentication tags');
+            throw new \BadMethodCallException('Only GCM mode utilizes authentication tags');
         }
 
         $length = strlen($tag);
@@ -1981,7 +1986,7 @@ abstract class SymmetricKey
         }
 
         if ($this->mode == self::MODE_GCM) {
-            throw new \RuntimeException('This mode does not run in continuous mode');
+            throw new \BadMethodCallException('This mode does not run in continuous mode');
         }
 
         $this->continuousBuffer = true;
@@ -2246,7 +2251,7 @@ abstract class SymmetricKey
 
         if ($this->mode == self::MODE_GCM) {
             if ($this->nonce === false) {
-                throw new \UnexpectedValueException('No nonce has been defined');
+                throw new InsufficientSetupException('No nonce has been defined');
             }
             if (!in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_GCM])) {
                 $this->setupGCM();
@@ -2257,12 +2262,12 @@ abstract class SymmetricKey
 
         if ($this->iv === false && !in_array($this->mode, [self::MODE_STREAM, self::MODE_ECB])) {
             if ($this->mode != self::MODE_GCM || !in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_GCM])) {
-                throw new \UnexpectedValueException('No IV has been defined');
+                throw new InsufficientSetupException('No IV has been defined');
             }
         }
 
         if ($this->key === false) {
-            throw new \UnexpectedValueException('No key has been defined');
+            throw new InsufficientSetupException('No key has been defined');
         }
 
         $this->encryptIV = $this->decryptIV = $this->iv;
@@ -2360,7 +2365,7 @@ abstract class SymmetricKey
         $length = ord($text[strlen($text) - 1]);
 
         if (!$length || $length > $this->block_size) {
-            throw new \LengthException("The ciphertext has an invalid padding length ($length) compared to the block size ({$this->block_size})");
+            throw new BadDecryptionException("The ciphertext has an invalid padding length ($length) compared to the block size ({$this->block_size})");
         }
 
         return substr($text, 0, -$length);

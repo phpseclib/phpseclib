@@ -36,6 +36,7 @@
 namespace phpseclib\Crypt;
 
 use phpseclib\Crypt\Common\BlockCipher;
+use phpseclib\Exception\BadModeException;
 
 /**
  * Pure-PHP implementation of RC2.
@@ -271,7 +272,7 @@ class RC2 extends BlockCipher
     public function __construct($mode)
     {
         if ($mode == self::MODE_STREAM) {
-            throw new \InvalidArgumentException('Block ciphers cannot be ran in stream mode');
+            throw new BadModeException('Block ciphers cannot be ran in stream mode');
         }
 
         parent::__construct($mode);

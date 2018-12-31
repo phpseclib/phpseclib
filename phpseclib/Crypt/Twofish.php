@@ -38,6 +38,7 @@
 namespace phpseclib\Crypt;
 
 use phpseclib\Crypt\Common\BlockCipher;
+use phpseclib\Exception\BadModeException;
 
 /**
  * Pure-PHP implementation of Twofish.
@@ -375,12 +376,12 @@ class Twofish extends BlockCipher
      *
      * @param int $mode
      * @access public
-     * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
+     * @throws BadModeException if an invalid / unsupported mode is provided
      */
     public function __construct($mode)
     {
         if ($mode == self::MODE_STREAM) {
-            throw new \InvalidArgumentException('Block ciphers cannot be ran in stream mode');
+            throw new BadModeException('Block ciphers cannot be ran in stream mode');
         }
 
         parent::__construct($mode);

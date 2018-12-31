@@ -348,7 +348,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-     * @expectedException \LengthException
+     * @expectedException \phpseclib\Exception\InconsistentSetupException
      */
     public function testSetKeyLengthWithLargerKey()
     {
@@ -363,7 +363,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-     * @expectedException \LengthException
+     * @expectedException \phpseclib\Exception\InconsistentSetupException
      */
     public function testSetKeyLengthWithSmallerKey()
     {
@@ -409,7 +409,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-     * @expectedException \UnexpectedValueException
+     * @expectedException \phpseclib\Exception\InsufficientSetupException
      */
     public function testNoKey()
     {

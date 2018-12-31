@@ -1139,7 +1139,7 @@ class RSA extends AsymmetricKey
      * @access private
      * @param string $m
      * @param string $l
-     * @throws \OutOfBoundsException if strlen($m) > $this->k - 2 * $this->hLen - 2
+     * @throws \LengthException if strlen($m) > $this->k - 2 * $this->hLen - 2
      * @return string
      */
     private function rsaes_oaep_encrypt($m, $l = '')
@@ -1152,7 +1152,7 @@ class RSA extends AsymmetricKey
         // be output.
 
         if ($mLen > $this->k - 2 * $this->hLen - 2) {
-            throw new \OutOfBoundsException('Message too long');
+            throw new \LengthException('Message too long');
         }
 
         // EME-OAEP encoding
@@ -1257,12 +1257,12 @@ class RSA extends AsymmetricKey
      * @access private
      * @param string $m
      * @return bool|string
-     * @throws \OutOfBoundsException if strlen($m) > $this->k
+     * @throws \LengthException if strlen($m) > $this->k
      */
     private function raw_encrypt($m)
     {
         if (strlen($m) > $this->k) {
-            throw new \OutOfBoundsException('Message too long');
+            throw new \LengthException('Message too long');
         }
 
         $temp = $this->os2ip($m);
@@ -1278,7 +1278,7 @@ class RSA extends AsymmetricKey
      * @access private
      * @param string $m
      * @param bool $pkcs15_compat optional
-     * @throws \OutOfBoundsException if strlen($m) > $this->k - 11
+     * @throws \LengthException if strlen($m) > $this->k - 11
      * @return bool|string
      */
     private function rsaes_pkcs1_v1_5_encrypt($m, $pkcs15_compat = false)
@@ -1288,7 +1288,7 @@ class RSA extends AsymmetricKey
         // Length checking
 
         if ($mLen > $this->k - 11) {
-            throw new \OutOfBoundsException('Message too long');
+            throw new \LengthException('Message too long');
         }
 
         // EME-PKCS1-v1_5 encoding

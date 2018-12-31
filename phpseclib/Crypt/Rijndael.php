@@ -57,6 +57,9 @@ namespace phpseclib\Crypt;
 use phpseclib\Crypt\Common\BlockCipher;
 
 use phpseclib\Common\Functions\Strings;
+use phpseclib\Exception\BadModeException;
+use phpseclib\Exception\InsufficientSetupException;
+use phpseclib\Exception\BadDecryptionException;
 
 /**
  * Pure-PHP implementation of Rijndael.
@@ -172,7 +175,7 @@ class Rijndael extends BlockCipher
     public function __construct($mode)
     {
         if ($mode == self::MODE_STREAM) {
-            throw new \InvalidArgumentException('Block ciphers cannot be ran in stream mode');
+            throw new BadModeException('Block ciphers cannot be ran in stream mode');
         }
 
         parent::__construct($mode);
@@ -980,7 +983,7 @@ class Rijndael extends BlockCipher
         switch ($this->engine) {
             case self::ENGINE_LIBSODIUM:
                 if ($this->oldtag === false) {
-                    throw new \UnexpectedValueException('Authentication Tag has not been set');
+                    throw new InsufficientSetupException('Authentication Tag has not been set');
                 }
                 if (strlen($this->oldtag) != 16) {
                     break;
@@ -988,12 +991,12 @@ class Rijndael extends BlockCipher
                 $plaintext = sodium_crypto_aead_aes256gcm_decrypt($ciphertext . $this->oldtag, $this->aad, $this->nonce, $this->key);
                 if ($plaintext === false) {
                     $this->oldtag = false;
-                    throw new \UnexpectedValueException('Error decrypting ciphertext with libsodium');
+                    throw new BadDecryptionException('Error decrypting ciphertext with libsodium');
                 }
                 return $plaintext;
             case self::ENGINE_OPENSSL_GCM:
                 if ($this->oldtag === false) {
-                    throw new \UnexpectedValueException('Authentication Tag has not been set');
+                    throw new InsufficientSetupException('Authentication Tag has not been set');
                 }
                 $plaintext = openssl_decrypt(
                     $ciphertext,
@@ -1006,7 +1009,7 @@ class Rijndael extends BlockCipher
                 );
                 if ($plaintext === false) {
                     $this->oldtag = false;
-                    throw new \UnexpectedValueException('Error decrypting ciphertext with OpenSSL');
+                    throw new BadDecryptionException('Error decrypting ciphertext with OpenSSL');
                 }
                 return $plaintext;
         }

@@ -34,7 +34,9 @@ use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Common\AsymmetricKey;
 use phpseclib\Exception\UnsupportedCurveException;
 use phpseclib\Exception\UnsupportedOperationException;
+use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\Exception\NoKeyLoadedException;
+use phpseclib\Exception\InsufficientSetupException;
 use phpseclib\File\ASN1;
 use phpseclib\File\ASN1\Maps\ECParameters;
 use phpseclib\Crypt\ECDSA\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
@@ -216,11 +218,11 @@ class ECDSA extends AsymmetricKey
 
         if ($components['curve'] instanceof Ed25519 && $this->hashManuallySet && $this->hash->getHash() != 'sha512') {
             $this->clearKey();
-            throw new \RuntimeException('Ed25519 only supports sha512 as a hash');
+            throw new UnsupportedAlgorithmException('Ed25519 only supports sha512 as a hash');
         }
         if ($components['curve'] instanceof Ed448 && $this->hashManuallySet && $this->hash->getHash() != 'shake256-912') {
             $this->clearKey();
-            throw new \RuntimeException('Ed448 only supports shake256 with a length of 114 bytes');
+            throw new UnsupportedAlgorithmException('Ed448 only supports shake256 with a length of 114 bytes');
         }
 
         $this->curve = $components['curve'];
@@ -426,7 +428,7 @@ class ECDSA extends AsymmetricKey
     public function getEngine()
     {
         if (!isset($this->curve)) {
-            throw new \RuntimeException('getEngine should not be called until after a key has been loaded');
+            throw new InsufficientSetupException('getEngine should not be called until after a key has been loaded');
         }
 
         if ($this->curve instanceof TwistedEdwardsCurve) {
@@ -455,10 +457,10 @@ class ECDSA extends AsymmetricKey
             return;
         }
         if (!is_string($context)) {
-            throw new \RuntimeException('setContext expects a string');
+            throw new \InvalidArgumentException('setContext expects a string');
         }
         if (strlen($context) > 255) {
-            throw new \RuntimeException('The context is supposed to be, at most, 255 bytes long');
+            throw new \LengthException('The context is supposed to be, at most, 255 bytes long');
         }
         $this->context = $context;
     }
@@ -472,10 +474,10 @@ class ECDSA extends AsymmetricKey
     public function setHash($hash)
     {
         if ($this->curve instanceof Ed25519 && $this->hash != 'sha512') {
-            throw new \RuntimeException('Ed25519 only supports sha512 as a hash');
+            throw new UnsupportedAlgorithmException('Ed25519 only supports sha512 as a hash');
         }
         if ($this->curve instanceof Ed448 && $this->hash != 'shake256-912') {
-            throw new \RuntimeException('Ed448 only supports shake256 with a length of 114 bytes');
+            throw new UnsupportedAlgorithmException('Ed448 only supports shake256 with a length of 114 bytes');
         }
 
         parent::setHash($hash);
