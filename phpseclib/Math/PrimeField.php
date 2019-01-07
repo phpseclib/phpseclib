@@ -61,8 +61,6 @@ class PrimeField extends FiniteField
 
     /**
      * Use a custom defined modular reduction function
-     *
-     * @return object
      */
     public function setReduction(callable $func)
     {
