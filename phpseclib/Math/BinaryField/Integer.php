@@ -8,7 +8,8 @@
  * These 1's or 0's represent the coefficients of the x**n, where n is the
  * location of the given bit. When you add numbers over a binary finite field
  * the result should have a coefficient of 1 or 0 as well. Hence addition
- * and subtraction become the same operation as XOR, etc.
+ * and subtraction become the same operation as XOR.
+ * eg. 1 + 1 + 1 == 3 % 2 == 1 or 0 - 1 == -1 % 2 == 1
  *
  * PHP version 5 and 7
  *
@@ -186,12 +187,12 @@ class Integer extends Base
     }
 
     /**
-     * Perform polynomial multiplation
+     * Perform polynomial multiplation in the traditional way
      *
-     * @return string[]
+     * @return string
      * @link https://en.wikipedia.org/wiki/Finite_field_arithmetic#Multiplication
      */
-    private static function polynomialMultiply($x, $y)
+    private static function regularPolynomialMultiply($x, $y)
     {
         $precomputed = [ltrim($x, "\0")];
         $x = strrev(BinaryField::base256ToBase2($x));
@@ -223,6 +224,128 @@ class Integer extends Base
     }
 
     /**
+     * Perform polynomial multiplation
+     *
+     * Uses karatsuba multiplication to reduce x-bit multiplications to a series of 32-bit multiplications
+     *
+     * @return string
+     * @link https://en.wikipedia.org/wiki/Karatsuba_algorithm
+     */
+    private static function polynomialMultiply($x, $y)
+    {
+        if (strlen($x) == strlen($y)) {
+            $length = strlen($x);
+        } else {
+            $length = max(strlen($x), strlen($y));
+            $x = str_pad($x, $length, "\0", STR_PAD_LEFT);
+            $y = str_pad($y, $length, "\0", STR_PAD_LEFT);
+        }
+
+        switch (true) {
+            case PHP_INT_SIZE == 8 && $length <= 4:
+                return $length != 4 ?
+                    self::subMultiply(str_pad($x, 4, "\0", STR_PAD_LEFT), str_pad($y, 4, "\0", STR_PAD_LEFT)) :
+                    self::subMultiply($x, $y);
+            case PHP_INT_SIZE == 4 || $length > 32:
+                return self::regularPolynomialMultiply($x, $y);
+        }
+
+        $m = $length >> 1;
+
+        $x1 = substr($x, 0, -$m);
+        $x0 = substr($x, -$m);
+        $y1 = substr($y, 0, -$m);
+        $y0 = substr($y, -$m);
+
+        $z2 = self::polynomialMultiply($x1, $y1);
+        $z0 = self::polynomialMultiply($x0, $y0);
+        $z1 = self::polynomialMultiply(
+            self::subAdd2($x1, $x0),
+            self::subAdd2($y1, $y0)
+        );
+
+        $z1 = self::subAdd3($z1, $z2, $z0);
+
+        $xy = self::subAdd3(
+            $z2 . str_repeat("\0", 2 * $m),
+            $z1 . str_repeat("\0", $m),
+            $z0
+        );
+
+        return ltrim($xy, "\0");
+    }
+
+    /**
+     * Perform polynomial multiplication on 2x 32-bit numbers, returning
+     * a 64-bit number
+     *
+     * @param string $x
+     * @param string $y
+     * @return string
+     * @link https://www.bearssl.org/constanttime.html#ghash-for-gcm
+     */
+    private static function subMultiply($x, $y)
+    {
+        $x = unpack('N', $x)[1];
+        $y = unpack('N', $y)[1];
+
+        $x0 = $x & 0x11111111;
+        $x1 = $x & 0x22222222;
+        $x2 = $x & 0x44444444;
+        $x3 = $x & 0x88888888;
+
+        $y0 = $y & 0x11111111;
+        $y1 = $y & 0x22222222;
+        $y2 = $y & 0x44444444;
+        $y3 = $y & 0x88888888;
+
+        $z0 = ($x0 * $y0) ^ ($x1 * $y3) ^ ($x2 * $y2) ^ ($x3 * $y1);
+        $z1 = ($x0 * $y1) ^ ($x1 * $y0) ^ ($x2 * $y3) ^ ($x3 * $y2);
+        $z2 = ($x0 * $y2) ^ ($x1 * $y1) ^ ($x2 * $y0) ^ ($x3 * $y3);
+        $z3 = ($x0 * $y3) ^ ($x1 * $y2) ^ ($x2 * $y1) ^ ($x3 * $y0);
+
+        $z0&= 0x1111111111111111;
+        $z1&= 0x2222222222222222;
+        $z2&= 0x4444444444444444;
+        $z3&= -8608480567731124088; // 0x8888888888888888 gets interpreted as a float
+
+        $z = $z0 | $z1 | $z2 | $z3;
+
+        return pack('J', $z);
+    }
+
+    /**
+     * Adds two numbers
+     *
+     * @param string $x
+     * @param string $y
+     * @return string
+     */
+    private static function subAdd2($x, $y)
+    {
+        $length = max(strlen($x), strlen($y));
+        $x = str_pad($x, $length, "\0", STR_PAD_LEFT);
+        $y = str_pad($y, $length, "\0", STR_PAD_LEFT);
+        return $x ^ $y;
+    }
+
+    /**
+     * Adds three numbers
+     *
+     * @param string $x
+     * @param string $y
+     * @return string
+     */
+    private static function subAdd3($x, $y, $z)
+    {
+        $length = max(strlen($x), strlen($y), strlen($z));
+        $x = str_pad($x, $length, "\0", STR_PAD_LEFT);
+        $y = str_pad($y, $length, "\0", STR_PAD_LEFT);
+        $z = str_pad($z, $length, "\0", STR_PAD_LEFT);
+        return $x ^ $y ^ $z;
+    }
+
+    /**
      * Adds two BinaryFieldIntegers.
      *
      * @return static
@@ -238,6 +361,7 @@ class Integer extends Base
 
         return new static($this->instanceID, $x ^ $y);
     }
+
 
     /**
      * Subtracts two BinaryFieldIntegers.
@@ -285,13 +409,14 @@ class Integer extends Base
             // row n-2 and the product of the quotient and the auxiliary in row
             // n-1
             $temp = static::polynomialMultiply($aux1, $q);
-            $aux = str_pad($aux0, strlen($temp), "\0", STR_PAD_LEFT) ^ $temp;
+            $aux = str_pad($aux0, strlen($temp), "\0", STR_PAD_LEFT) ^
+                   str_pad($temp, strlen($aux0), "\0", STR_PAD_LEFT);
             $aux0 = $aux1;
             $aux1 = $aux;
         }
 
         $temp = new static($this->instanceID);
-        $temp->value = $aux1;
+        $temp->value = ltrim($aux1, "\0");
         return $temp;
     }
 
