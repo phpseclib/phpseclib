@@ -444,7 +444,7 @@ class Integer extends Base
     {
         $x = str_pad($this->value, strlen(static::$modulo[$this->instanceID]), "\0", STR_PAD_LEFT);
 
-        return new static($x ^ static::$modulo[$this->instanceID]);
+        return new static($this->instanceID, $x ^ static::$modulo[$this->instanceID]);
     }
 
     /**
