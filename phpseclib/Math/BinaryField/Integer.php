@@ -362,7 +362,6 @@ class Integer extends Base
         return new static($this->instanceID, $x ^ $y);
     }
 
-
     /**
      * Subtracts two BinaryFieldIntegers.
      *
