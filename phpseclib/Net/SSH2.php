@@ -2643,6 +2643,21 @@ class SSH2
             $publickey['n']
         );
 
+        switch ($this->signature_format) {
+            case 'rsa-sha2-512':
+                $hash = 'sha512';
+                $signatureType = 'rsa-sha2-512';
+                break;
+            case 'rsa-sha2-256':
+                $hash = 'sha256';
+                $signatureType = 'rsa-sha2-256';
+                break;
+            //case 'ssh-rsa':
+            default:
+                $hash = 'sha1';
+                $signatureType = 'ssh-rsa';
+        }
+
         $part1 = pack(
             'CNa*Na*Na*',
             NET_SSH2_MSG_USERAUTH_REQUEST,
@@ -2653,7 +2668,7 @@ class SSH2
             strlen('publickey'),
             'publickey'
         );
-        $part2 = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($publickey), $publickey);
+        $part2 = pack('Na*Na*', strlen($signatureType), $signatureType, strlen($publickey), $publickey);
 
         $packet = $part1 . chr(0) . $part2;
         if (!$this->send_binary_packet($packet)) {
@@ -2696,23 +2711,9 @@ class SSH2
         }
 
         $packet = $part1 . chr(1) . $part2;
-        switch ($this->signature_format) {
-            case 'rsa-sha2-512':
-                $hash = 'sha512';
-                $type = 'rsa-sha2-512';
-                break;
-            case 'rsa-sha2-256':
-                $hash = 'sha256';
-                $type = 'rsa-sha2-256';
-                break;
-            //case 'ssh-rsa':
-            default:
-                $hash = 'sha1';
-                $type = 'ssh-rsa';
-        }
         $privatekey->setHash($hash);
         $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet), RSA::PADDING_PKCS1);
-        $signature = pack('Na*Na*', strlen($type), $type, strlen($signature), $signature);
+        $signature = pack('Na*Na*', strlen($signatureType), $signatureType, strlen($signature), $signature);
         $packet.= pack('Na*', strlen($signature), $signature);
 
         if (!$this->send_binary_packet($packet)) {
