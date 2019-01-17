@@ -1827,8 +1827,13 @@ class SSH2
         }
 
         if ($public_key_format != $expected_key_format || $this->signature_format != $server_host_key_algorithm) {
-            $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-            throw new \RuntimeException('Server Host Key Algorithm Mismatch');
+            switch (true) {
+                case $this->signature_format == $server_host_key_algorithm:
+                case $server_host_key_algorithm != 'rsa-sha2-256' && $server_host_key_algorithm != 'rsa-sha2-512':
+                case $this->signature_format != 'ssh-rsa':
+                    $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                    throw new \RuntimeException('Server Host Key Algorithm Mismatch');
+            }
         }
 
         $packet = pack(
