@@ -96,11 +96,11 @@ define('NET_SSH2_MASK_WINDOW_ADJUST', 0x00000020);
  * @see self::_get_channel_packet()
  * @access private
  */
-define('NET_SSH2_CHANNEL_EXEC',      1); // PuTTy uses 0x100
-define('NET_SSH2_CHANNEL_SHELL',     2);
-define('NET_SSH2_CHANNEL_SUBSYSTEM', 3);
+define('NET_SSH2_CHANNEL_EXEC',          1); // PuTTy uses 0x100
+define('NET_SSH2_CHANNEL_SHELL',         2);
+define('NET_SSH2_CHANNEL_SUBSYSTEM',     3);
 define('NET_SSH2_CHANNEL_AGENT_FORWARD', 4);
-define('NET_SSH2_CHANNEL_KEEP_ALIVE',5);
+define('NET_SSH2_CHANNEL_KEEP_ALIVE',    5);
 /**#@-*/
 
 /**#@+
