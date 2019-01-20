@@ -104,6 +104,7 @@ class SSH2
     const CHANNEL_SHELL         = 2;
     const CHANNEL_SUBSYSTEM     = 3;
     const CHANNEL_AGENT_FORWARD = 4;
+    const CHANNEL_KEEP_ALIVE    = 5;
     /**#@-*/
 
     /**#@+
@@ -3265,15 +3266,15 @@ class SSH2
             return false;
         }
 
-        $this->window_size_server_to_client[NET_SSH2_CHANNEL_KEEP_ALIVE] = $this->window_size;
+        $this->window_size_server_to_client[self::CHANNEL_KEEP_ALIVE] = $this->window_size;
         $packet_size = 0x4000;
         $packet = pack(
             'CNa*N3',
             NET_SSH2_MSG_CHANNEL_OPEN,
             strlen('session'),
             'session',
-            NET_SSH2_CHANNEL_KEEP_ALIVE,
-            $this->window_size_server_to_client[NET_SSH2_CHANNEL_KEEP_ALIVE],
+            self::CHANNEL_KEEP_ALIVE,
+            $this->window_size_server_to_client[self::CHANNEL_KEEP_ALIVE],
             $packet_size
         );
 
@@ -3281,11 +3282,11 @@ class SSH2
             return $this->_reconnect();
         }
 
-        $this->channel_status[NET_SSH2_CHANNEL_KEEP_ALIVE] = NET_SSH2_MSG_CHANNEL_OPEN;
+        $this->channel_status[self::CHANNEL_KEEP_ALIVE] = NET_SSH2_MSG_CHANNEL_OPEN;
 
-        $response = @$this->_get_channel_packet(NET_SSH2_CHANNEL_KEEP_ALIVE);
+        $response = @$this->_get_channel_packet(self::CHANNEL_KEEP_ALIVE);
         if ($response !== false) {
-            $this->_close_channel(NET_SSH2_CHANNEL_KEEP_ALIVE);
+            $this->_close_channel(self::CHANNEL_KEEP_ALIVE);
             return true;
         }
 
