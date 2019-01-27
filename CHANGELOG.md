@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.14 - 2019-01-27
+
+- SSH2: ssh-rsa is sometimes incorrectly used instead of rsa-sha2-256 (#1331)
+- SSH2: more strictly adhere to RFC8332 for rsa-sha2-256/512 (#1332)
+
+## 1.0.13 - 2018-12-16
+
+- SSH2: fix order of user_error() / bitmap reset (#1314)
+- SSH2: setTimeout(0) didn't work as intended (#1116)
+- Agent: add support for rsa-sha2-256 / rsa-sha2-512 (#1319)
+- Agent: add parameter to constructor (#1319)
+
 ## 1.0.12 - 2018-11-04
 
 - SSH2: fixes relating to delayed global requests (#1271)
