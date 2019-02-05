@@ -906,6 +906,9 @@ class X509
             // "Certificate Transparency"
             // https://tools.ietf.org/html/rfc6962
             case '1.3.6.1.4.1.11129.2.4.2':
+            // "Qualified Certificate statements"
+            // https://tools.ietf.org/html/draft-ietf-pkix-qc-03
+            case '1.3.6.1.5.5.7.1.3':
                 return true;
 
             // CSR attributes
