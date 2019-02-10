@@ -754,7 +754,7 @@ class Crypt_Base
                 case CRYPT_MODE_STREAM:
                     return openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, $this->openssl_options);
                 case CRYPT_MODE_ECB:
-                    $result = openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, $this->openssl_options);
+                    $result = @openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, $this->openssl_options);
                     return !defined('OPENSSL_RAW_DATA') ? substr($result, 0, -$this->block_size) : $result;
                 case CRYPT_MODE_CBC:
                     $result = openssl_encrypt($plaintext, $this->cipher_name_openssl, $this->key, $this->openssl_options, $this->encryptIV);
@@ -1059,14 +1059,14 @@ class Crypt_Base
                     break;
                 case CRYPT_MODE_ECB:
                     if (!defined('OPENSSL_RAW_DATA')) {
-                        $ciphertext.= openssl_encrypt('', $this->cipher_name_openssl_ecb, $this->key, true);
+                        $ciphertext.= @openssl_encrypt('', $this->cipher_name_openssl_ecb, $this->key, true);
                     }
                     $plaintext = openssl_decrypt($ciphertext, $this->cipher_name_openssl, $this->key, $this->openssl_options);
                     break;
                 case CRYPT_MODE_CBC:
                     if (!defined('OPENSSL_RAW_DATA')) {
                         $padding = str_repeat(chr($this->block_size), $this->block_size) ^ substr($ciphertext, -$this->block_size);
-                        $ciphertext.= substr(openssl_encrypt($padding, $this->cipher_name_openssl_ecb, $this->key, true), 0, $this->block_size);
+                        $ciphertext.= substr(@openssl_encrypt($padding, $this->cipher_name_openssl_ecb, $this->key, true), 0, $this->block_size);
                         $offset = 2 * $this->block_size;
                     } else {
                         $offset = $this->block_size;
@@ -1349,7 +1349,7 @@ class Crypt_Base
                 for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                     $block = substr($plaintext, $i, $block_size);
                     if (strlen($block) > strlen($buffer['ciphertext'])) {
-                        $result = openssl_encrypt($xor, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
+                        $result = @openssl_encrypt($xor, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
                         $result = !defined('OPENSSL_RAW_DATA') ? substr($result, 0, -$this->block_size) : $result;
                         $buffer['ciphertext'].= $result;
                     }
@@ -1360,7 +1360,7 @@ class Crypt_Base
             } else {
                 for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                     $block = substr($plaintext, $i, $block_size);
-                    $otp = openssl_encrypt($xor, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
+                    $otp = @openssl_encrypt($xor, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
                     $otp = !defined('OPENSSL_RAW_DATA') ? substr($otp, 0, -$this->block_size) : $otp;
                     $this->_increment_str($xor);
                     $ciphertext.= $block ^ $otp;
@@ -1404,7 +1404,7 @@ class Crypt_Base
         }
         if ($this->continuousBuffer) {
             if (!defined('OPENSSL_RAW_DATA')) {
-                $encryptIV.= openssl_encrypt('', $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
+                $encryptIV.= @openssl_encrypt('', $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
             }
             $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, $this->openssl_options);
             if ($overflow) {
