@@ -1506,7 +1506,7 @@ class RSA
      *
      * @access public
      * @param string|RSA|array $key
-     * @param bool $type optional
+     * @param bool|int $type optional
      * @return bool
      */
     function loadKey($key, $type = false)
