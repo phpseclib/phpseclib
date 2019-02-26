@@ -1333,13 +1333,13 @@ class RSA
                 xml_set_character_data_handler($xml, '_data_handler');
                 // add <xml></xml> to account for "dangling" tags like <BitStrength>...</BitStrength> that are sometimes added
                 if (!xml_parse($xml, '<xml>' . $key . '</xml>')) {
-					xml_parser_free($xml);
-					unset($xml);
+                    xml_parser_free($xml);
+                    unset($xml);
                     return false;
                 }
 
-				xml_parser_free($xml);
-				unset($xml);
+                xml_parser_free($xml);
+                unset($xml);
 
                 return isset($this->components['modulus']) && isset($this->components['publicExponent']) ? $this->components : false;
             // from PuTTY's SSHPUBK.C
