@@ -150,11 +150,11 @@ class Net_SFTP extends Net_SSH2
      * The request ID exists in the off chance that a packet is sent out-of-order.  Of course, this library doesn't support
      * concurrent actions, so it's somewhat academic, here.
      *
-     * @var int
+     * @var boolean
      * @see self::_send_sftp_packet()
      * @access private
      */
-    var $request_id = false;
+    var $use_request_id = false;
 
     /**
      * The Packet Type
@@ -290,6 +290,15 @@ class Net_SFTP extends Net_SSH2
      * @access private
      */
     var $canonicalize_paths = true;
+
+    /**
+     * Request Buffers
+     *
+     * @see self::_get_sftp_packet()
+     * @var array
+     * @access private
+     */
+    var $requestBuffer = array();
 
     /**
      * Default Constructor.
@@ -574,7 +583,7 @@ class Net_SFTP extends Net_SSH2
         }
         */
 
-        $this->request_id = 1;
+        $this->use_request_id = true;
 
         /*
          A Note on SFTPv4/5/6 support:
@@ -2256,7 +2265,7 @@ class Net_SFTP extends Net_SSH2
                 $packet_size = $length > 0 ? min($this->max_sftp_packet, $length - $read) : $this->max_sftp_packet;
 
                 $packet = pack('Na*N3', strlen($handle), $handle, $tempoffset / 4294967296, $tempoffset, $packet_size);
-                if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet)) {
+                if (!$this->_send_sftp_packet(NET_SFTP_READ, $packet, $i)) {
                     if ($fclose_check) {
                         fclose($fp);
                     }
@@ -2271,15 +2280,17 @@ class Net_SFTP extends Net_SSH2
                 break;
             }
 
+            $packets_sent = $i - 1;
+
             $clear_responses = false;
             while ($i > 0) {
                 $i--;
 
                 if ($clear_responses) {
-                    $this->_get_sftp_packet();
+                    $this->_get_sftp_packet($packets_sent - $i);
                     continue;
                 } else {
-                    $response = $this->_get_sftp_packet();
+                    $response = $this->_get_sftp_packet($packets_sent - $i);
                 }
 
                 switch ($this->packet_type) {
@@ -2988,10 +2999,10 @@ class Net_SFTP extends Net_SSH2
      * @return bool
      * @access private
      */
-    function _send_sftp_packet($type, $data)
+    function _send_sftp_packet($type, $data, $request_id = 1)
     {
-        $packet = $this->request_id !== false ?
-            pack('NCNa*', strlen($data) + 5, $type, $this->request_id, $data) :
+        $packet = $this->use_request_id ?
+            pack('NCNa*', strlen($data) + 5, $type, $request_id, $data) :
             pack('NCa*', strlen($data) + 1, $type, $data);
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
@@ -3029,8 +3040,15 @@ class Net_SFTP extends Net_SSH2
      * @return string
      * @access private
      */
-    function _get_sftp_packet()
+    function _get_sftp_packet($request_id = null)
     {
+        if (isset($request_id) && isset($this->requestBuffer[$request_id])) {
+            $this->packet_type = $this->requestBuffer[$request_id]['packet_type'];
+            $temp = $this->requestBuffer[$request_id]['packet'];
+            unset($this->requestBuffer[$request_id]);
+            return $temp;
+        }
+
         $this->curTimeout = false;
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
@@ -3068,8 +3086,8 @@ class Net_SFTP extends Net_SSH2
 
         $this->packet_type = ord($this->_string_shift($this->packet_buffer));
 
-        if ($this->request_id !== false) {
-            $this->_string_shift($this->packet_buffer, 4); // remove the request id
+        if ($this->use_request_id) {
+            extract(unpack('Npacket_id', $this->_string_shift($this->packet_buffer, 4))); // remove the request id
             $length-= 5; // account for the request id and the packet type
         } else {
             $length-= 1; // account for the packet type
@@ -3090,6 +3108,14 @@ class Net_SFTP extends Net_SSH2
                     $this->packet_log[] = $packet;
                 }
             }
+        }
+
+        if (isset($request_id) && $this->use_request_id && $packet_id != $request_id) {
+            $this->requestBuffer[$packet_id] = array(
+                'packet_type' => $this->packet_type,
+                'packet' => $packet
+            );
+            return $this->_get_sftp_packet($request_id);
         }
 
         return $packet;
