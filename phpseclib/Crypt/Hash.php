@@ -203,13 +203,13 @@ class Hash
         }
 
         switch ($mode) {
-            case CRYPT_HASH_MODE_MHASH:
+            case self::MODE_MHASH:
                 $this->computedKey = mhash($this->hash, $this->key);
                 break;
-            case CRYPT_HASH_MODE_HASH:
+            case self::MODE_HASH:
                 $this->computedKey = hash($this->hash, $this->key, true);
                 break;
-            case CRYPT_HASH_MODE_INTERNAL:
+            case self::MODE_INTERNAL:
                 $this->computedKey = call_user_func($this->hash, $this->key);
         }
     }
@@ -306,7 +306,7 @@ class Hash
                     default:
                         $this->hash = MHASH_SHA1;
                 }
-                $this->_computeKey(CRYPT_HASH_MODE_MHASH);
+                $this->_computeKey(self::MODE_MHASH);
                 return;
             case self::MODE_HASH:
                 switch ($hash) {
@@ -323,7 +323,7 @@ class Hash
                     default:
                         $this->hash = 'sha1';
                 }
-                $this->_computeKey(CRYPT_HASH_MODE_HASH);
+                $this->_computeKey(self::MODE_HASH);
                 return;
         }
 
@@ -349,7 +349,7 @@ class Hash
         $this->ipad = str_repeat(chr(0x36), $this->b);
         $this->opad = str_repeat(chr(0x5C), $this->b);
 
-        $this->_computeKey(CRYPT_HASH_MODE_INTERNAL);
+        $this->_computeKey(self::MODE_INTERNAL);
     }
 
     /**
