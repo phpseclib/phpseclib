@@ -2221,12 +2221,13 @@ class RSA
             return false;
         }
 
-        $result = 0;
+        $result = "\0";
+        $x^= $y;
         for ($i = 0; $i < strlen($x); $i++) {
-            $result |= ord($x[$i]) ^ ord($y[$i]);
+            $result|= $x[$i];
         }
 
-        return $result == 0;
+        return $result === "\0";
     }
 
     /**
@@ -2433,19 +2434,26 @@ class RSA
         $db = $maskedDB ^ $dbMask;
         $lHash2 = substr($db, 0, $this->hLen);
         $m = substr($db, $this->hLen);
-        if (!$this->_equals($lHash, $lHash2)) {
-            user_error('Decryption error');
-            return false;
+        $hashesMatch = $this->_equals($lHash, $lHash2);
+        $leadingZeros = 1;
+        $patternMatch = 0;
+        $offset = 0;
+        for ($i = 0; $i < strlen($m); $i++) {
+            $patternMatch|= $leadingZeros & ($m[$i] === "\1");
+            $leadingZeros&= $m[$i] === "\0";
+            $offset+= $patternMatch ? 0 : 1;
         }
-        $m = ltrim($m, chr(0));
-        if (ord($m[0]) != 1) {
+
+        // we do & instead of && to avoid https://en.wikipedia.org/wiki/Short-circuit_evaluation
+        // to protect against timing attacks
+        if (!$hashesMatch & !$patternMatch) {
             user_error('Decryption error');
             return false;
         }
 
         // Output the message M
 
-        return substr($m, 1);
+        return substr($m, $offset + 1);
     }
 
     /**
