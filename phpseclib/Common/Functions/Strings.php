@@ -80,12 +80,13 @@ abstract class Strings
             return false;
         }
 
-        $result = 0;
+        $result = "\0";
+        $x^= $y;
         for ($i = 0; $i < strlen($x); $i++) {
-            $result |= ord($x[$i]) ^ ord($y[$i]);
+            $result|= $x[$i];
         }
 
-        return $result == 0;
+        return $result === "\0";
     }
 
     /**

@@ -434,8 +434,7 @@ class RSA extends AsymmetricKey
      * @return bool
      * @access public
      * @param string|RSA|array $key
-     * @param bool|int $type optional
-     * @return bool
+     * @param int|bool $type optional
      */
     public function load($key, $type = false)
     {
@@ -1237,17 +1236,25 @@ class RSA extends AsymmetricKey
         $db = $maskedDB ^ $dbMask;
         $lHash2 = substr($db, 0, $this->hLen);
         $m = substr($db, $this->hLen);
-        if (!Strings::equals($lHash, $lHash2)) {
-            return false;
+        $hashesMatch = Strings::equals($lHash, $lHash2);
+        $leadingZeros = 1;
+        $patternMatch = 0;
+        $offset = 0;
+        for ($i = 0; $i < strlen($m); $i++) {
+            $patternMatch|= $leadingZeros & ($m[$i] === "\1");
+            $leadingZeros&= $m[$i] === "\0";
+            $offset+= $patternMatch ? 0 : 1;
         }
-        $m = ltrim($m, chr(0));
-        if (ord($m[0]) != 1) {
+
+        // we do & instead of && to avoid https://en.wikipedia.org/wiki/Short-circuit_evaluation
+        // to protect against timing attacks
+        if (!$hashesMatch & !$patternMatch) {
             return false;
         }
 
         // Output the message M
 
-        return substr($m, 1);
+        return substr($m, $offset + 1);
     }
 
     /**
