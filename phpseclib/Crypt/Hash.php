@@ -190,7 +190,7 @@ class Hash
      *
      * @access private
      */
-    function _computeKey()
+    function _computeKey($mode)
     {
         if ($this->key === false) {
             $this->computedKey = false;
@@ -306,7 +306,7 @@ class Hash
                     default:
                         $this->hash = MHASH_SHA1;
                 }
-                $this->_computeKey();
+                $this->_computeKey(CRYPT_HASH_MODE_MHASH);
                 return;
             case self::MODE_HASH:
                 switch ($hash) {
@@ -323,7 +323,7 @@ class Hash
                     default:
                         $this->hash = 'sha1';
                 }
-                $this->_computeKey();
+                $this->_computeKey(CRYPT_HASH_MODE_HASH);
                 return;
         }
 
@@ -349,7 +349,7 @@ class Hash
         $this->ipad = str_repeat(chr(0x36), $this->b);
         $this->opad = str_repeat(chr(0x5C), $this->b);
 
-        $this->_computeKey();
+        $this->_computeKey(CRYPT_HASH_MODE_INTERNAL);
     }
 
     /**
