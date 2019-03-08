@@ -434,12 +434,8 @@ class RSA extends AsymmetricKey
      * @return bool
      * @access public
      * @param string|RSA|array $key
-<<<<<<< HEAD
-     * @param int|bool $type optional
-=======
      * @param bool|int $type optional
      * @return bool
->>>>>>> 2.0
      */
     public function load($key, $type = false)
     {
