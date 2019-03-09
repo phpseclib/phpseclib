@@ -154,6 +154,15 @@ class Crypt_Hash
     var $ipad;
 
     /**
+     * Engine
+     *
+     * @see self::setHash()
+     * @var string
+     * @access private
+     */
+    var $engine;
+
+    /**
      * Default Constructor.
      *
      * @param string $hash
@@ -228,7 +237,7 @@ class Crypt_Hash
             return;
         }
 
-        switch ($mode) {
+        switch ($this->engine) {
             case CRYPT_HASH_MODE_MHASH:
                 $this->computedKey = mhash($this->hash, $this->key);
                 break;
@@ -308,18 +317,18 @@ class Crypt_Hash
 
         switch ($hash) {
             case 'md2':
-                $mode = CRYPT_HASH_MODE == CRYPT_HASH_MODE_HASH && in_array('md2', hash_algos()) ?
+                $this->engine = CRYPT_HASH_MODE == CRYPT_HASH_MODE_HASH && in_array('md2', hash_algos()) ?
                     CRYPT_HASH_MODE_HASH : CRYPT_HASH_MODE_INTERNAL;
                 break;
             case 'sha384':
             case 'sha512':
-                $mode = CRYPT_HASH_MODE == CRYPT_HASH_MODE_MHASH ? CRYPT_HASH_MODE_INTERNAL : CRYPT_HASH_MODE;
+                $this->engine = CRYPT_HASH_MODE == CRYPT_HASH_MODE_MHASH ? CRYPT_HASH_MODE_INTERNAL : CRYPT_HASH_MODE;
                 break;
             default:
-                $mode = CRYPT_HASH_MODE;
+                $this->engine = CRYPT_HASH_MODE;
         }
 
-        switch ($mode) {
+        switch ($this->engine) {
             case CRYPT_HASH_MODE_MHASH:
                 switch ($hash) {
                     case 'md5':
@@ -387,10 +396,8 @@ class Crypt_Hash
      */
     function hash($text)
     {
-        $mode = is_array($this->hash) ? CRYPT_HASH_MODE_INTERNAL : CRYPT_HASH_MODE;
-
         if (!empty($this->key) || is_string($this->key)) {
-            switch ($mode) {
+            switch ($this->engine) {
                 case CRYPT_HASH_MODE_MHASH:
                     $output = mhash($this->hash, $text, $this->computedKey);
                     break;
@@ -407,7 +414,7 @@ class Crypt_Hash
                     $output = call_user_func($this->hash, $output);          // step 7
             }
         } else {
-            switch ($mode) {
+            switch ($this->engine) {
                 case CRYPT_HASH_MODE_MHASH:
                     $output = mhash($this->hash, $text);
                     break;
