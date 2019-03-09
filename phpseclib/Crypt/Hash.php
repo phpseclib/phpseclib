@@ -140,6 +140,15 @@ class Hash
     var $ipad;
 
     /**
+     * Engine
+     *
+     * @see self::setHash()
+     * @var string
+     * @access private
+     */
+    var $engine;
+
+    /**
      * Default Constructor.
      *
      * @param string $hash
@@ -190,7 +199,7 @@ class Hash
      *
      * @access private
      */
-    function _computeKey($mode)
+    function _computeKey()
     {
         if ($this->key === false) {
             $this->computedKey = false;
@@ -202,7 +211,7 @@ class Hash
             return;
         }
 
-        switch ($mode) {
+        switch ($this->engine) {
             case self::MODE_MHASH:
                 $this->computedKey = mhash($this->hash, $this->key);
                 break;
@@ -282,18 +291,18 @@ class Hash
 
         switch ($hash) {
             case 'md2':
-                $mode = CRYPT_HASH_MODE == self::MODE_HASH && in_array('md2', hash_algos()) ?
+                $this->engine = CRYPT_HASH_MODE == self::MODE_HASH && in_array('md2', hash_algos()) ?
                     self::MODE_HASH : self::MODE_INTERNAL;
                 break;
             case 'sha384':
             case 'sha512':
-                $mode = CRYPT_HASH_MODE == self::MODE_MHASH ? self::MODE_INTERNAL : CRYPT_HASH_MODE;
+                $this->engine = CRYPT_HASH_MODE == self::MODE_MHASH ? self::MODE_INTERNAL : CRYPT_HASH_MODE;
                 break;
             default:
-                $mode = CRYPT_HASH_MODE;
+                $this->engine = CRYPT_HASH_MODE;
         }
 
-        switch ($mode) {
+        switch ($this->engine) {
             case self::MODE_MHASH:
                 switch ($hash) {
                     case 'md5':
@@ -361,10 +370,8 @@ class Hash
      */
     function hash($text)
     {
-        $mode = is_array($this->hash) ? self::MODE_INTERNAL : CRYPT_HASH_MODE;
-
         if (!empty($this->key) || is_string($this->key)) {
-            switch ($mode) {
+            switch ($this->engine) {
                 case self::MODE_MHASH:
                     $output = mhash($this->hash, $text, $this->computedKey);
                     break;
@@ -381,7 +388,7 @@ class Hash
                     $output = call_user_func($this->hash, $output);          // step 7
             }
         } else {
-            switch ($mode) {
+            switch ($this->engine) {
                 case self::MODE_MHASH:
                     $output = mhash($this->hash, $text);
                     break;
