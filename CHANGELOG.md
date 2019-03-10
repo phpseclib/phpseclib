@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.15 - 2019-03-10
+
+- SFTP: make it so get() can correctly handle out of order responses (#1343)
+- Crypt: avoid bogus IV errors in ECB mode with OpenSSL (#1087)
+- RSA: protect against possible timing attack during OAEP decryption
+- RSA: fix possible memory leak with XML keys (#1346)
+- Hash: fix issues with the mode
+- SCP: issue error if remote_file is empty in put() call (#1335)
+- X509: whitelist OID 1.3.6.1.4.1.11129.2.4.2 (#1341)
+
+
 ## 1.0.14 - 2019-01-27
 
 - SSH2: ssh-rsa is sometimes incorrectly used instead of rsa-sha2-256 (#1331)
