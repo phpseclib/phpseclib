@@ -2930,7 +2930,7 @@ class X509
             }
             $output.= $desc . '=' . $value;
             $result[$desc] = isset($result[$desc]) ?
-                array_merge((array) $dn[$prop], array($value)) :
+                array_merge((array) $result[$desc], array($value)) :
                 $value;
             $start = false;
         }
