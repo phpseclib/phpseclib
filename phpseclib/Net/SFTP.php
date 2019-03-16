@@ -837,9 +837,7 @@ class SFTP extends SSH2
         $result = [];
         foreach ($files as $value) {
             if ($value == '.' || $value == '..') {
-                if ($relativeDir == '') {
-                    $result[] = $value;
-                }
+                $result[] = $relativeDir . $value;
                 continue;
             }
             if (is_array($this->query_stat_cache($this->realpath($dir . '/' . $value)))) {
