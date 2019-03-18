@@ -40,6 +40,7 @@ use phpseclib\Crypt\Hash;
 use phpseclib\Common\Functions\Strings;
 use phpseclib\Math\BigInteger;
 use phpseclib\Math\BinaryField;
+use phpseclib\Math\PrimeField;
 use phpseclib\Exception\BadDecryptionException;
 use phpseclib\Exception\BadModeException;
 use phpseclib\Exception\InconsistentSetupException;
@@ -533,12 +534,42 @@ abstract class SymmetricKey
     /**
      * GCM Binary Field
      *
-     * @see self::initialize_static_variables()
+     * @see self::__construct()
      * @see self::ghash()
      * @var BinaryField
      * @access private
      */
     private static $gcmField;
+
+    /**
+     * Poly1305 Prime Field
+     *
+     * @see self::enablePoly1305()
+     * @see self::poly1305()
+     * @var PrimeField
+     * @access private
+     */
+    private static $poly1305Field;
+
+    /**
+     * Poly1305 Key
+     *
+     * @see self::setPoly1305Key()
+     * @see self::poly1305()
+     * @var string
+     * @access private
+     */
+    protected $poly1305Key;
+
+    /**
+     * Poly1305 Flag
+     *
+     * @see self::setPoly1305Key()
+     * @see self::enablePoly1305()
+     * @var boolean
+     * @access private
+     */
+    protected $usePoly1305 = false;
 
     /**
      * The Original Initialization Vector
@@ -649,7 +680,7 @@ abstract class SymmetricKey
         }
 
         if (!$this->usesIV()) {
-            throw new \BadMethodCallExceptionn('This algorithm does not use an IV.');
+            throw new \BadMethodCallException('This algorithm does not use an IV.');
         }
 
         if (strlen($iv) != $this->block_size) {
@@ -661,13 +692,60 @@ abstract class SymmetricKey
     }
 
     /**
+     * Enables Poly1305 mode.
+     *
+     * Once enabled Poly1305 cannot be disabled.
+     *
+     * @access public
+     * @throws \BadMethodCallException if Poly1305 is enabled whilst in GCM mode
+     */
+    public function enablePoly1305()
+    {
+        if ($this->mode == self::MODE_GCM) {
+            throw new \BadMethodCallException('Poly1305 cannot be used in GCM mode');
+        }
+
+        $this->usePoly1305 = true;
+    }
+
+    /**
+     * Enables Poly1305 mode.
+     *
+     * Once enabled Poly1305 cannot be disabled. If $key is not passed then an attempt to call createPoly1305Key
+     * will be made.
+     *
+     * @access public
+     * @param string $key optional
+     * @throws \LengthException if the key isn't long enough
+     * @throws \BadMethodCallException if Poly1305 is enabled whilst in GCM mode
+     */
+    public function setPoly1305Key($key = null)
+    {
+        if ($this->mode == self::MODE_GCM) {
+            throw new \BadMethodCallException('Poly1305 cannot be used in GCM mode');
+        }
+
+        if (!is_string($key) || strlen($key) != 32) {
+            throw new \LengthException('The Poly1305 key must be 32 bytes long (256 bits)');
+        }
+
+        if (!isset(self::$poly1305Field)) {
+            // 2^130-5
+            self::$poly1305Field = new PrimeField(new BigInteger('3fffffffffffffffffffffffffffffffb', 16));
+        }
+
+        $this->poly1305Key = $key;
+        $this->usePoly1305 = true;
+    }
+
+    /**
      * Sets the nonce.
      *
      * setNonce() is only required when gcm is used
      *
      * @access public
      * @param string $nonce
-     * @throws \RuntimeException if an IV is provided when one shouldn't be
+     * @throws \BadMethodCallException if an nonce is provided when one shouldn't be
      */
     public function setNonce($nonce)
     {
@@ -683,16 +761,16 @@ abstract class SymmetricKey
     /**
      * Sets additional authenticated data
      *
-     * setAAD() is only used by gcm
+     * setAAD() is only used by gcm or in poly1305 mode
      *
      * @access public
      * @param string $aad
-     * @throws \RuntimeException if mode isn't GCM
+     * @throws \BadMethodCallException if mode isn't GCM or if poly1305 isn't being utilized
      */
     public function setAAD($aad)
     {
-        if ($this->mode != self::MODE_GCM) {
-            throw new \RuntimeException('Additional authenticated data is only utilized in GCM mode');
+        if ($this->mode != self::MODE_GCM && !$this->usePoly1305) {
+            throw new \BadMethodCallException('Additional authenticated data is only utilized in GCM mode or with Poly1305');
         }
 
         $this->aad = $aad;
@@ -1046,6 +1124,15 @@ abstract class SymmetricKey
             return $ciphertext;
         }
 
+        if (isset($this->poly1305Key)) {
+            $cipher = clone $this;
+            unset($cipher->poly1305Key);
+            $this->usePoly1305 = false;
+            $ciphertext = $cipher->encrypt($plaintext);
+            $this->newtag = $this->poly1305($ciphertext);
+            return $ciphertext;
+        }
+
         if ($this->engine === self::ENGINE_OPENSSL) {
             switch ($this->mode) {
                 case self::MODE_STREAM:
@@ -1362,27 +1449,35 @@ abstract class SymmetricKey
 
         $this->setup();
 
-        if ($this->mode == self::MODE_GCM) {
+        if ($this->mode == self::MODE_GCM || isset($this->poly1305Key)) {
             if ($this->oldtag === false) {
                 throw new InsufficientSetupException('Authentication Tag has not been set');
             }
 
-            $oldIV = $this->iv;
-            Strings::increment_str($this->iv);
-            $cipher = new static('ctr');
-            $cipher->setKey($this->key);
-            $cipher->setIV($this->iv);
-            $plaintext = $cipher->decrypt($ciphertext);
+            if (isset($this->poly1305Key)) {
+                $newtag = $this->poly1305($ciphertext);
+            } else {
+                $oldIV = $this->iv;
+                Strings::increment_str($this->iv);
+                $cipher = new static('ctr');
+                $cipher->setKey($this->key);
+                $cipher->setIV($this->iv);
+                $plaintext = $cipher->decrypt($ciphertext);
 
-            $s = $this->ghash(
-                self::nullPad128($this->aad) .
-                self::nullPad128($ciphertext) .
-                self::len64($this->aad) .
-                self::len64($ciphertext)
-            );
-            $cipher->encryptIV = $this->iv = $this->encryptIV = $this->decryptIV = $oldIV;
-            $newtag = $cipher->encrypt($s);
+                $s = $this->ghash(
+                    self::nullPad128($this->aad) .
+                    self::nullPad128($ciphertext) .
+                    self::len64($this->aad) .
+                    self::len64($ciphertext)
+                );
+                $cipher->encryptIV = $this->iv = $this->encryptIV = $this->decryptIV = $oldIV;
+                $newtag = $cipher->encrypt($s);
+            }
             if ($this->oldtag != substr($newtag, 0, strlen($newtag))) {
+                $cipher = clone $this;
+                unset($cipher->poly1305Key);
+                $this->usePoly1305 = false;
+                $plaintext = $cipher->decrypt($ciphertext);
                 $this->oldtag = false;
                 throw new BadDecryptionException('Derived authentication tag and supplied authentication tag do not match');
             }
@@ -1672,7 +1767,7 @@ abstract class SymmetricKey
     /**
      * Get the authentication tag
      *
-     * Only used in GCM mode
+     * Only used in GCM or Poly1305 mode
      *
      * @see self::encrypt()
      * @param int $length optional
@@ -1683,13 +1778,17 @@ abstract class SymmetricKey
      */
     public function getTag($length = 16)
     {
-        if ($this->mode != self::MODE_GCM) {
-            throw new \BadMethodCallException('Only GCM mode utilizes authentication tags');
+        if ($this->mode != self::MODE_GCM && !$this->usePoly1305) {
+            throw new \BadMethodCallException('Authentication tags are only utilized in GCM mode or with Poly1305');
         }
 
-        // the tag is basically a single encrypted block of a 128-bit cipher. it can't be greater than 16
-        // bytes because that's bigger than a block is. if it were 0 you might as well be doing CTR and
-        // less than 4 provides minimal security that could be trivially easily brute forced.
+        if ($this->newtag === false) {
+            throw new \BadMethodCallException('A tag can only be returned after a round of encryption has been performed');
+        }
+
+        // the tag is 128-bits. it can't be greater than 16 bytes because that's bigger than the tag is. if it
+        // were 0 you might as well be doing CTR and less than 4 provides minimal security that could be trivially
+        // easily brute forced.
         // see https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf#page=36
         // for more info
         if ($length < 4 || $length > 16) {
@@ -1714,8 +1813,12 @@ abstract class SymmetricKey
      */
     public function setTag($tag)
     {
-        if ($this->mode != self::MODE_GCM) {
-            throw new \BadMethodCallException('Only GCM mode utilizes authentication tags');
+        if ($this->usePoly1305 && !isset($this->poly1305Key) && method_exists($this, 'createPoly1305Key')) {
+            $this->createPoly1305Key();
+        }
+
+        if ($this->mode != self::MODE_GCM && !$this->usePoly1305) {
+            throw new \BadMethodCallException('Authentication tags are only utilized in GCM mode or with Poly1305');
         }
 
         $length = strlen($tag);
@@ -2030,9 +2133,6 @@ abstract class SymmetricKey
     {
         switch ($engine) {
             case self::ENGINE_OPENSSL:
-                if ($this->mode == self::MODE_STREAM && $this->continuousBuffer) {
-                    return false;
-                }
                 $this->openssl_emulate_ctr = false;
                 $result = $this->cipher_name_openssl &&
                           extension_loaded('openssl');
@@ -2146,13 +2246,19 @@ abstract class SymmetricKey
         $this->engine = null;
 
         $candidateEngines = [
-            $this->preferredEngine,
             self::ENGINE_LIBSODIUM,
             self::ENGINE_OPENSSL_GCM,
             self::ENGINE_OPENSSL,
             self::ENGINE_MCRYPT,
             self::ENGINE_EVAL
         ];
+        if (isset($this->preferredEngine)) {
+            $temp = [$this->preferredEngine];
+            $candidateEngines = array_merge(
+                $temp,
+                array_diff($candidateEngines, $temp)
+            );
+        }
         foreach ($candidateEngines as $engine) {
             if ($this->isValidEngineHelper($engine)) {
                 $this->engine = $engine;
@@ -2246,14 +2352,18 @@ abstract class SymmetricKey
 
         $this->changed = false;
 
+        if ($this->usePoly1305 && !isset($this->poly1305Key) && method_exists($this, 'createPoly1305Key')) {
+            $this->createPoly1305Key();
+        }
+
         $this->enbuffer = $this->debuffer = ['ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true];
         //$this->newtag = $this->oldtag = false;
 
-        if ($this->mode == self::MODE_GCM) {
+        if ($this->usesNonce()) {
             if ($this->nonce === false) {
                 throw new InsufficientSetupException('No nonce has been defined');
             }
-            if (!in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_GCM])) {
+            if ($this->mode == self::MODE_GCM && !in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_GCM])) {
                 $this->setupGCM();
             }
         } else {
@@ -3078,9 +3188,45 @@ abstract class SymmetricKey
      * @param string $str
      * @return string
      */
-    private static function nullPad128($str)
+    protected static function nullPad128($str)
     {
         $len = strlen($str);
         return $str . str_repeat("\0", 16 * ceil($len / 16) - $len);
+    }
+
+    /**
+     * Calculates Poly1305 MAC
+     *
+     * On my system ChaCha20, with libsodium, takes 0.5s. With this custom Poly1305 implementation
+     * it takes 1.2s.
+     *
+     * @see self::decrypt()
+     * @see self::encrypt()
+     * @access private
+     * @param string $text
+     * @return string
+     */
+    protected function poly1305($text)
+    {
+        $s = $this->poly1305Key; // strlen($this->poly1305Key) == 32
+        $r = Strings::shift($s, 16);
+        $r = strrev($r);
+        $r&= "\x0f\xff\xff\xfc\x0f\xff\xff\xfc\x0f\xff\xff\xfc\x0f\xff\xff\xff";
+        $s = strrev($s);
+
+        $r = self::$poly1305Field->newInteger(new BigInteger($r, 256));
+        $s = self::$poly1305Field->newInteger(new BigInteger($s, 256));
+        $a = self::$poly1305Field->newInteger(new BigInteger());
+
+        $blocks = str_split($text, 16);
+        foreach ($blocks as $block) {
+            $n = strrev($block . chr(1));
+            $n = self::$poly1305Field->newInteger(new BigInteger($n, 256));
+            $a = $a->add($n);
+            $a = $a->multiply($r);
+        }
+        $r = $a->toBigInteger()->add($s->toBigInteger());
+        $mask = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF";
+        return strrev($r->toBytes()) & $mask;
     }
 }

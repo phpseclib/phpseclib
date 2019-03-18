@@ -59,6 +59,7 @@ use phpseclib\Crypt\AES;
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\Twofish;
+use phpseclib\Crypt\ChaCha20;
 use phpseclib\Math\BigInteger; // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
 use phpseclib\System\SSH\Agent;
 use phpseclib\System\SSH\Agent\Identity as AgentIdentity;
@@ -356,6 +357,15 @@ class SSH2
     private $decrypt = false;
 
     /**
+     * Server to Client Length Encryption Object
+     *
+     * @see self::_get_binary_packet()
+     * @var object
+     * @access private
+     */
+    private $lengthDecrypt = false;
+
+    /**
      * Client to Server Encryption Object
      *
      * @see self::_send_binary_packet()
@@ -363,6 +373,15 @@ class SSH2
      * @access private
      */
     private $encrypt = false;
+
+    /**
+     * Client to Server Length Encryption Object
+     *
+     * @see self::_send_binary_packet()
+     * @var object
+     * @access private
+     */
+    private $lengthEncrypt = false;
 
     /**
      * Client to Server HMAC Object
@@ -938,7 +957,7 @@ class SSH2
      * @var array
      * @access private
      */
-    var $auth = array();
+    var $auth = [];
 
     /**
      * Default Constructor.
@@ -1349,14 +1368,24 @@ class SSH2
 
             //'arcfour',      // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
 
-            // from <https://tools.ietf.org/html/rfc5647>:
-            'aes128-gcm@openssh.com',
-            'aes256-gcm@openssh.com',
-
             // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
             'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
             'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
             'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
+
+            // from <https://git.io/fhxOl>:
+            // one of the big benefits of chacha20-poly1305 is speed. the problem is...
+            // libsodium doesn't generate the poly1305 keys in the way ssh does and openssl's PHP bindings don't even
+            // seem to support poly1305 currently. so even if libsodium or openssl are being used for the chacha20
+            // part, pure-PHP has to be used for the poly1305 part and that's gonna cause a big slow down.
+            // speed-wise it winds up being faster to use AES (when openssl or mcrypt are available) and some HMAC
+            // (which is always gonna be super fast to compute thanks to the hash extension, which
+            // "is bundled and compiled into PHP by default")
+            'chacha20-poly1305@openssh.com',
+
+            // from <https://tools.ietf.org/html/rfc5647>:
+            'aes128-gcm@openssh.com',
+            'aes256-gcm@openssh.com',
 
             'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
             'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
@@ -1882,19 +1911,27 @@ class SSH2
                 $this->encrypt->setIV(substr($iv, 0, $this->encrypt_block_size));
             }
 
-            // currently, only AES GCM uses a nonce and per RFC5647,
-            // "SSH AES-GCM requires a 12-octet Initial IV"
-            if (!$this->encrypt->usesNonce()) {
-                $this->encrypt->enableContinuousBuffer();
-            } else {
-                $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
-                $this->encrypt->fixed = substr($nonce, 0, 4);
-                $this->encrypt->invocation_counter = substr($nonce, 4, 8);
+            switch ($encrypt) {
+                case 'aes128-gcm@openssh.com':
+                case 'aes256-gcm@openssh.com':
+                    $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
+                    $this->encrypt->fixed = substr($nonce, 0, 4);
+                    $this->encrypt->invocation_counter = substr($nonce, 4, 8);
+                case 'chacha20-poly1305@openssh.com':
+                    break;
+                default:
+                    $this->encrypt->enableContinuousBuffer();
             }
 
             $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'C' . $this->session_id);
             while ($encryptKeyLength > strlen($key)) {
                 $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
+            }
+            switch ($encrypt) {
+                case 'chacha20-poly1305@openssh.com':
+                    $encryptKeyLength = 32;
+                    $this->lengthEncrypt = $this->encryption_algorithm_to_crypt_instance($encrypt);
+                    $this->lengthEncrypt->setKey(substr($key, 32, 32));
             }
             $this->encrypt->setKey(substr($key, 0, $encryptKeyLength));
             $this->encrypt->name = $encrypt;
@@ -1918,18 +1955,28 @@ class SSH2
                 $this->decrypt->setIV(substr($iv, 0, $this->decrypt_block_size));
             }
 
-            if (!$this->decrypt->usesNonce()) {
-                $this->decrypt->enableContinuousBuffer();
-            } else {
-                // see https://tools.ietf.org/html/rfc5647#section-7.1
-                $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
-                $this->decrypt->fixed = substr($nonce, 0, 4);
-                $this->decrypt->invocation_counter = substr($nonce, 4, 8);
+            switch ($encrypt) {
+                case 'aes128-gcm@openssh.com':
+                case 'aes256-gcm@openssh.com':
+                    // see https://tools.ietf.org/html/rfc5647#section-7.1
+                    $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
+                    $this->decrypt->fixed = substr($nonce, 0, 4);
+                    $this->decrypt->invocation_counter = substr($nonce, 4, 8);
+                case 'chacha20-poly1305@openssh.com':
+                    break;
+                default:
+                    $this->decrypt->enableContinuousBuffer();
             }
 
             $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'D' . $this->session_id);
             while ($decryptKeyLength > strlen($key)) {
                 $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
+            }
+            switch ($decrypt) {
+                case 'chacha20-poly1305@openssh.com':
+                    $decryptKeyLength = 32;
+                    $this->lengthDecrypt = $this->encryption_algorithm_to_crypt_instance($decrypt);
+                    $this->lengthDecrypt->setKey(substr($key, 32, 32));
             }
             $this->decrypt->setKey(substr($key, 0, $decryptKeyLength));
             $this->decrypt->name = $decrypt;
@@ -2097,6 +2144,8 @@ class SSH2
             case 'twofish256-cbc':
             case 'twofish256-ctr':
                 return 32;
+            case 'chacha20-poly1305@openssh.com':
+                return 64;
         }
         return null;
     }
@@ -2144,6 +2193,8 @@ class SSH2
             case 'aes128-gcm@openssh.com':
             case 'aes256-gcm@openssh.com':
                 return new AES('gcm');
+            case 'chacha20-poly1305@openssh.com':
+                return new ChaCha20();
         }
         return null;
     }
@@ -3409,28 +3460,59 @@ class SSH2
         }
 
         if ($this->decrypt) {
-            // only aes128-gcm@openssh.com and aes256-gcm@openssh.com use nonces
-            if (!$this->decrypt->usesNonce()) {
-                $raw = $this->decrypt->decrypt($raw);
-            } else {
-                $this->decrypt->setNonce(
-                    $this->decrypt->fixed .
-                    $this->decrypt->invocation_counter
-                );
-                Strings::increment_str($this->decrypt->invocation_counter);
-                $this->decrypt->setAAD($temp = Strings::shift($raw, 4));
-                extract(unpack('Npacket_length', $temp));
-                /**
-                 * @var integer $packet_length
-                 */
+            switch ($this->decrypt->name) {
+                case 'aes128-gcm@openssh.com':
+                case 'aes256-gcm@openssh.com':
+                    $this->decrypt->setNonce(
+                        $this->decrypt->fixed .
+                        $this->decrypt->invocation_counter
+                    );
+                    Strings::increment_str($this->decrypt->invocation_counter);
+                    $this->decrypt->setAAD($temp = Strings::shift($raw, 4));
+                    extract(unpack('Npacket_length', $temp));
+                    /**
+                     * @var integer $packet_length
+                     */
 
-                $raw.= $this->read_remaining_bytes($packet_length - $this->decrypt_block_size + 4);
-                $stop = microtime(true);
-                $tag = stream_get_contents($this->fsock, $this->decrypt_block_size);
-                $this->decrypt->setTag($tag);
-                $raw = $this->decrypt->decrypt($raw);
-                $raw = $temp . $raw;
-                $remaining_length = 0;
+                    $raw.= $this->read_remaining_bytes($packet_length - $this->decrypt_block_size + 4);
+                    $stop = microtime(true);
+                    $tag = stream_get_contents($this->fsock, $this->decrypt_block_size);
+                    $this->decrypt->setTag($tag);
+                    $raw = $this->decrypt->decrypt($raw);
+                    $raw = $temp . $raw;
+                    $remaining_length = 0;
+                    break;
+                case 'chacha20-poly1305@openssh.com':
+                    $nonce = pack('N2', 0, $this->get_seq_no);
+
+                    $this->lengthDecrypt->setNonce($nonce);
+                    $temp = $this->lengthDecrypt->decrypt($aad = Strings::shift($raw, 4));
+                    extract(unpack('Npacket_length', $temp));
+                    /**
+                     * @var integer $packet_length
+                     */
+
+                    $raw.= $this->read_remaining_bytes($packet_length - $this->decrypt_block_size + 4);
+                    $stop = microtime(true);
+                    $tag = stream_get_contents($this->fsock, 16);
+
+                    $this->decrypt->setNonce($nonce);
+                    $this->decrypt->setCounter(0);
+                    // this is the same approach that's implemented in Salsa20::createPoly1305Key()
+                    // but we don't want to use the same AEAD construction that RFC8439 describes
+                    // for ChaCha20-Poly1305 so we won't rely on it (see Salsa20::poly1305())
+                    $this->decrypt->setPoly1305Key(
+                        $this->decrypt->encrypt(str_repeat("\0", 32))
+                    );
+                    $this->decrypt->setAAD($aad);
+                    $this->decrypt->setCounter(1);
+                    $this->decrypt->setTag($tag);
+                    $raw = $this->decrypt->decrypt($raw);
+                    $raw = $temp . $raw;
+                    $remaining_length = 0;
+                    break;
+                default:
+                    $raw = $this->decrypt->decrypt($raw);
             }
         }
 
@@ -3445,19 +3527,6 @@ class SSH2
 
         if (!isset($remaining_length)) {
             $remaining_length = $packet_length + 4 - $this->decrypt_block_size;
-        }
-
-        // quoting <http://tools.ietf.org/html/rfc4253#section-6.1>,
-        // "implementations SHOULD check that the packet length is reasonable"
-        // PuTTY uses 0x9000 as the actual max packet size and so to shall we
-        // don't do this when GCM mode is used since GCM mode doesn't encrypt the length
-        if ($remaining_length < -$this->decrypt_block_size || $remaining_length > 0x9000 || $remaining_length % $this->decrypt_block_size != 0) {
-            if (!$this->bad_key_size_fix && self::bad_algorithm_candidate($this->decrypt ? $this->decrypt->name : '') && !($this->bitmap & SSH2::MASK_LOGIN)) {
-                $this->bad_key_size_fix = true;
-                $this->reset_connection(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-                return false;
-            }
-            throw new \RuntimeException('Invalid size');
         }
 
         $buffer = $this->read_remaining_bytes($remaining_length);
@@ -3510,6 +3579,38 @@ class SSH2
      */
     private function read_remaining_bytes($remaining_length)
     {
+        if (!$remaining_length) {
+            return '';
+        }
+
+        $adjustLength = false;
+        if ($this->decrypt) {
+            switch ($this->decrypt->name) {
+                case 'aes128-gcm@openssh.com':
+                case 'aes256-gcm@openssh.com':
+                case 'chacha20-poly1305@openssh.com':
+                    $remaining_length+= $this->decrypt_block_size - 4;
+                    $adjustLength = true;
+            }
+        }
+
+        // quoting <http://tools.ietf.org/html/rfc4253#section-6.1>,
+        // "implementations SHOULD check that the packet length is reasonable"
+        // PuTTY uses 0x9000 as the actual max packet size and so to shall we
+        // don't do this when GCM mode is used since GCM mode doesn't encrypt the length
+        if ($remaining_length < -$this->decrypt_block_size || $remaining_length > 0x9000 || $remaining_length % $this->decrypt_block_size != 0) {
+            if (!$this->bad_key_size_fix && self::bad_algorithm_candidate($this->decrypt ? $this->decrypt->name : '') && !($this->bitmap & SSH2::MASK_LOGIN)) {
+                $this->bad_key_size_fix = true;
+                $this->reset_connection(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                return false;
+            }
+            throw new \RuntimeException('Invalid size');
+        }
+
+        if ($adjustLength) {
+            $remaining_length-= $this->decrypt_block_size - 4;
+        }
+
         $buffer = '';
         while ($remaining_length > 0) {
             $temp = stream_get_contents($this->fsock, $remaining_length);
@@ -4113,16 +4214,38 @@ class SSH2
         $this->send_seq_no++;
 
         if ($this->encrypt) {
-            if (!$this->encrypt->usesNonce()) {
-                $packet = $this->encrypt->encrypt($packet);
-            } else {
-                $this->encrypt->setNonce(
-                    $this->encrypt->fixed .
-                    $this->encrypt->invocation_counter
-                );
-                Strings::increment_str($this->encrypt->invocation_counter);
-                $this->encrypt->setAAD($temp = substr($packet, 0, 4));
-                $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
+            switch ($this->encrypt->name) {
+                case 'aes128-gcm@openssh.com':
+                case 'aes256-gcm@openssh.com':
+                    $this->encrypt->setNonce(
+                        $this->encrypt->fixed .
+                        $this->encrypt->invocation_counter
+                    );
+                    Strings::increment_str($this->encrypt->invocation_counter);
+                    $this->encrypt->setAAD($temp = substr($packet, 0, 4));
+                    $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
+                    break;
+                case 'chacha20-poly1305@openssh.com':
+                    $nonce = pack('N2', 0, $this->send_seq_no - 1);
+
+                    $this->encrypt->setNonce($nonce);
+                    $this->lengthEncrypt->setNonce($nonce);
+
+                    $length = $this->lengthEncrypt->encrypt(substr($packet, 0, 4));
+
+                    $this->encrypt->setCounter(0);
+                    // this is the same approach that's implemented in Salsa20::createPoly1305Key()
+                    // but we don't want to use the same AEAD construction that RFC8439 describes
+                    // for ChaCha20-Poly1305 so we won't rely on it (see Salsa20::poly1305())
+                    $this->encrypt->setPoly1305Key(
+                        $this->encrypt->encrypt(str_repeat("\0", 32))
+                    );
+                    $this->encrypt->setAAD($length);
+                    $this->encrypt->setCounter(1);
+                    $packet = $length . $this->encrypt->encrypt(substr($packet, 4));
+                    break;
+                default:
+                    $packet = $this->encrypt->encrypt($packet);
             }
         }
 
