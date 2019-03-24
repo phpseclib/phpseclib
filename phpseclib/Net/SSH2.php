@@ -4120,7 +4120,7 @@ class SSH2
                     $this->encrypt->invocation_counter
                 );
                 Strings::increment_str($this->encrypt->invocation_counter);
-                $this->encrypt->setAAD($temp = substr($packet, 0, 4));
+                $this->encrypt->setAAD($temp = ($packet & "\xFF\xFF\xFF\xFF"));
                 $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
             }
         }
