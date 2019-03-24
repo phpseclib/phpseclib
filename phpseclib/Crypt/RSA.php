@@ -1236,7 +1236,7 @@ class RSA extends AsymmetricKey
         $db = $maskedDB ^ $dbMask;
         $lHash2 = substr($db, 0, $this->hLen);
         $m = substr($db, $this->hLen);
-        $hashesMatch = Strings::equals($lHash, $lHash2);
+        $hashesMatch = hash_equals($lHash, $lHash2);
         $leadingZeros = 1;
         $patternMatch = 0;
         $offset = 0;
@@ -1463,7 +1463,7 @@ class RSA extends AsymmetricKey
         $salt = substr($db, $temp + 1); // should be $sLen long
         $m2 = "\0\0\0\0\0\0\0\0" . $mHash . $salt;
         $h2 = $this->hash->hash($m2);
-        return Strings::equals($h, $h2);
+        return hash_equals($h, $h2);
     }
 
     /**
@@ -1657,7 +1657,7 @@ class RSA extends AsymmetricKey
         }
 
         // Compare
-        return Strings::equals($em, $em2);
+        return hash_equals($em, $em2);
     }
 
     /**
@@ -1747,7 +1747,7 @@ class RSA extends AsymmetricKey
         $em = $hash->hash($m);
         $em2 = $decoded['digest'];
 
-        return Strings::equals($em, $em2);
+        return hash_equals($em, $em2);
     }
 
     /**
