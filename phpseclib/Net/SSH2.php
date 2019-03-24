@@ -3361,7 +3361,7 @@ class SSH2
             return false;
         }
         foreach ($this->auth as $auth) {
-            $result = call_user_func_array(array(&$this, 'login'), $auth);
+            $result = $this->login(...$auth);
         }
         return $result;
     }
@@ -3805,7 +3805,7 @@ class SSH2
                 $response = $this->binary_packet_buffer;
                 $this->binary_packet_buffer = false;
             } else {
-                $read = array($this->fsock);
+                $read = [$this->fsock];
                 $write = $except = null;
 
                 if (!$this->curTimeout) {
@@ -3892,7 +3892,7 @@ class SSH2
                             return $data;
                         }
                         if (!isset($this->channel_buffers[$channel])) {
-                            $this->channel_buffers[$channel] = array();
+                            $this->channel_buffers[$channel] = [];
                         }
                         $this->channel_buffers[$channel][] = $data;
 
