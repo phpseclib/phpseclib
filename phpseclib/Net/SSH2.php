@@ -3361,7 +3361,7 @@ class SSH2
             return false;
         }
         foreach ($this->auth as $auth) {
-            $result = call_user_func_array(array(&$this, 'parent::login'), $auth);
+            $result = call_user_func_array(array(&$this, 'login'), $auth);
         }
         return $result;
     }
