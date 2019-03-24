@@ -94,15 +94,6 @@ class RC4 extends StreamCipher
     protected $cipher_name_mcrypt = 'arcfour';
 
     /**
-     * Holds whether performance-optimized $inline_crypt() can/should be used.
-     *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::inline_crypt
-     * @var mixed
-     * @access private
-     */
-    protected $use_inline_crypt = false; // currently not available
-
-    /**
      * The Key
      *
      * @see self::setKey()
