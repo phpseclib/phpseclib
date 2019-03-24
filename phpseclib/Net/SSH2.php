@@ -55,7 +55,6 @@ use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\RC4;
 use phpseclib\Crypt\Rijndael;
-use phpseclib\Crypt\AES;
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\Twofish;
@@ -2143,7 +2142,7 @@ class SSH2
                 return new RC4();
             case 'aes128-gcm@openssh.com':
             case 'aes256-gcm@openssh.com':
-                return new AES('gcm');
+                return new Rijndael('gcm');
         }
         return null;
     }
