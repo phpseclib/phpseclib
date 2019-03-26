@@ -155,7 +155,7 @@ abstract class PuTTY
         $hmac = trim(preg_replace('#Private-MAC: (.+)#', '$1', $key[$publicLength + $privateLength + 5]));
         $hmac = Hex::decode($hmac);
 
-        if (!Strings::equals($hash->hash($source), $hmac)) {
+        if (!hash_equals($hash->hash($source), $hmac)) {
             throw new \UnexpectedValueException('MAC validation error');
         }
 

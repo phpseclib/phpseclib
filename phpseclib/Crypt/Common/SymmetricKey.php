@@ -453,22 +453,10 @@ abstract class SymmetricKey
      * @see self::encrypt()
      * @see self::decrypt()
      * @see self::setupInlineCrypt()
-     * @see self::$use_inline_crypt
      * @var Callback
      * @access private
      */
     protected $inline_crypt;
-
-    /**
-     * Holds whether performance-optimized $inline_crypt() can/should be used.
-     *
-     * @see self::encrypt()
-     * @see self::decrypt()
-     * @see self::inline_crypt
-     * @var mixed
-     * @access private
-     */
-    protected $use_inline_crypt;
 
     /**
      * If OpenSSL can be used in ECB but not in CTR we can emulate CTR

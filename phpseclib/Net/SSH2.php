@@ -55,7 +55,6 @@ use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\RC4;
 use phpseclib\Crypt\Rijndael;
-use phpseclib\Crypt\AES;
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\Twofish;
@@ -2192,7 +2191,7 @@ class SSH2
                 return new RC4();
             case 'aes128-gcm@openssh.com':
             case 'aes256-gcm@openssh.com':
-                return new AES('gcm');
+                return new Rijndael('gcm');
             case 'chacha20-poly1305@openssh.com':
                 return new ChaCha20();
         }
@@ -3412,7 +3411,7 @@ class SSH2
             return false;
         }
         foreach ($this->auth as $auth) {
-            $result = call_user_func_array(array(&$this, 'parent::login'), $auth);
+            $result = $this->login(...$auth);
         }
         return $result;
     }
@@ -3906,7 +3905,7 @@ class SSH2
                 $response = $this->binary_packet_buffer;
                 $this->binary_packet_buffer = false;
             } else {
-                $read = array($this->fsock);
+                $read = [$this->fsock];
                 $write = $except = null;
 
                 if (!$this->curTimeout) {
@@ -3993,7 +3992,7 @@ class SSH2
                             return $data;
                         }
                         if (!isset($this->channel_buffers[$channel])) {
-                            $this->channel_buffers[$channel] = array();
+                            $this->channel_buffers[$channel] = [];
                         }
                         $this->channel_buffers[$channel][] = $data;
 
@@ -4222,7 +4221,7 @@ class SSH2
                         $this->encrypt->invocation_counter
                     );
                     Strings::increment_str($this->encrypt->invocation_counter);
-                    $this->encrypt->setAAD($temp = substr($packet, 0, 4));
+                    $this->encrypt->setAAD($temp = ($packet & "\xFF\xFF\xFF\xFF"));
                     $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
                     break;
                 case 'chacha20-poly1305@openssh.com':
@@ -4231,7 +4230,7 @@ class SSH2
                     $this->encrypt->setNonce($nonce);
                     $this->lengthEncrypt->setNonce($nonce);
 
-                    $length = $this->lengthEncrypt->encrypt(substr($packet, 0, 4));
+                    $length = $this->lengthEncrypt->encrypt($packet & "\xFF\xFF\xFF\xFF");
 
                     $this->encrypt->setCounter(0);
                     // this is the same approach that's implemented in Salsa20::createPoly1305Key()
