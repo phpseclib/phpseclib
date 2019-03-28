@@ -212,6 +212,15 @@ class SSH2
     private $kex_algorithms = false;
 
     /**
+     * Key Exchange Algorithm
+     *
+     * @see self::getMethodsNegotiated()
+     * @var string|false
+     * @access private
+     */
+    private $kex_algorithm = false;
+
+    /**
      * Minimum Diffie-Hellman Group Bit Size in RFC 4419 Key Exchange Methods
      *
      * @see self::_key_exchange()
@@ -1622,8 +1631,8 @@ class SSH2
         }
 
         // through diffie-hellman key exchange a symmetric key is obtained
-        $kex_algorithm = $this->array_intersect_first($kex_algorithms, $this->kex_algorithms);
-        if ($kex_algorithm === false) {
+        $this->kex_algorithm = $this->array_intersect_first($kex_algorithms, $this->kex_algorithms);
+        if ($this->kex_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible key exchange algorithms found');
         }
@@ -1631,14 +1640,14 @@ class SSH2
         // Only relevant in diffie-hellman-group-exchange-sha{1,256}, otherwise empty.
         $exchange_hash_rfc4419 = '';
 
-        if ($kex_algorithm === 'curve25519-sha256@libssh.org') {
+        if ($this->kex_algorithm === 'curve25519-sha256@libssh.org') {
             $x = Random::string(32);
             $eBytes = \Sodium\crypto_box_publickey_from_secretkey($x);
             $clientKexInitMessage = NET_SSH2_MSG_KEX_ECDH_INIT;
             $serverKexReplyMessage = NET_SSH2_MSG_KEX_ECDH_REPLY;
             $kexHash = new Hash('sha256');
         } else {
-            if (strpos($kex_algorithm, 'diffie-hellman-group-exchange') === 0) {
+            if (strpos($this->kex_algorithm, 'diffie-hellman-group-exchange') === 0) {
                 $dh_group_sizes_packed = pack(
                     'NNN',
                     $this->kex_dh_group_size_min,
@@ -1693,7 +1702,7 @@ class SSH2
                 $clientKexInitMessage = NET_SSH2_MSG_KEXDH_GEX_INIT;
                 $serverKexReplyMessage = NET_SSH2_MSG_KEXDH_GEX_REPLY;
             } else {
-                switch ($kex_algorithm) {
+                switch ($this->kex_algorithm) {
                     // see http://tools.ietf.org/html/rfc2409#section-6.2 and
                     // http://tools.ietf.org/html/rfc2412, appendex E
                     case 'diffie-hellman-group1-sha1':
@@ -1722,7 +1731,7 @@ class SSH2
                 $serverKexReplyMessage = NET_SSH2_MSG_KEXDH_REPLY;
             }
 
-            switch ($kex_algorithm) {
+            switch ($this->kex_algorithm) {
                 case 'diffie-hellman-group-exchange-sha256':
                     $kexHash = new Hash('sha256');
                     break;
@@ -1798,7 +1807,7 @@ class SSH2
         $temp = unpack('Nlength', Strings::shift($this->signature, 4));
         $this->signature_format = Strings::shift($this->signature, $temp['length']);
 
-        if ($kex_algorithm === 'curve25519-sha256@libssh.org') {
+        if ($this->kex_algorithm === 'curve25519-sha256@libssh.org') {
             if (strlen($fBytes) !== 32) {
                 throw new \RuntimeException('Received curve25519 public key of invalid length.');
                 return false;
@@ -4743,6 +4752,34 @@ class SSH2
         $this->connect();
 
         return $this->languages_client_to_server;
+    }
+
+    /**
+     * Return list of negotiated methods
+     *
+     * Uses the same format as https://www.php.net/ssh2-methods-negotiated
+     *
+     * @return array
+     * @access public
+     */
+    public function getMethodsNegotiated()
+    {
+        $this->connect();
+
+        return [
+            'kex' => $this->kex_algorithm,
+            'hostkey' => $this->signature_format,
+            'client_to_server' => [
+                'crypt' => $this->encrypt->name,
+                'mac' => $this->hmac_create->name,
+                'comp' => 'none',
+            ],
+            'server_to_client' => [
+                'crypt' => $this->decrypt->name,
+                'mac' => $this->hmac_check->name,
+                'comp' => 'none',
+            ]
+        ];
     }
 
     /**
