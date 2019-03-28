@@ -136,6 +136,9 @@ class RC4 extends StreamCipher
     protected function isValidEngineHelper($engine)
     {
         if ($engine == self::ENGINE_OPENSSL) {
+            if ($this->continuousBuffer) {
+                return false;
+            }
             if (version_compare(PHP_VERSION, '5.3.7') >= 0) {
                 $this->cipher_name_openssl = 'rc4-40';
             } else {
