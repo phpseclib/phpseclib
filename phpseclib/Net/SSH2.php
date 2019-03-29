@@ -63,6 +63,7 @@ use phpseclib\Math\BigInteger; // Used to do Diffie-Hellman key exchange and DSA
 use phpseclib\System\SSH\Agent;
 use phpseclib\System\SSH\Agent\Identity as AgentIdentity;
 use phpseclib\Exception\NoSupportedAlgorithmsException;
+use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\Common\Functions\Strings;
 use phpseclib\Common\Functions\Objects;
 
@@ -327,6 +328,15 @@ class SSH2
      * @access private
      */
     private $languages_client_to_server = false;
+
+    /**
+     * Preferred Algorithms
+     *
+     * @see self::setPreferredAlgorithms()
+     * @var array
+     * @access private
+     */
+    private $preferred = [];
 
     /**
      * Block Size for Server to Client Encryption
@@ -1342,27 +1352,59 @@ class SSH2
      */
     private function key_exchange($kexinit_payload_server = false)
     {
-        $kex_algorithms = SSH2::getSupportedKEXAlgorithms();
-        $server_host_key_algorithms = SSH2::getSupportedHostKeyAlgorithms();
-        $encryption_algorithms = SSH2::getSupportedEncryptionAlgorithms();
-        $mac_algorithms = SSH2::getSupportedMACAlgorithms();
-        $compression_algorithms = SSH2::getSupportedCompressionAlgorithms();
+        $preferred = $this->preferred;
+
+        $kex_algorithms = isset($preferred['kex']) ?
+            $preferred['kex'] :
+            SSH2::getSupportedKEXAlgorithms();
+        $server_host_key_algorithms = isset($preferred['hostkey']) ?
+            $preferred['hostkey'] :
+            SSH2::getSupportedHostKeyAlgorithms();
+        $s2c_encryption_algorithms = isset($preferred['server_to_client']['crypt']) ?
+            $preferred['server_to_client']['crypt'] :
+            SSH2::getSupportedEncryptionAlgorithms();
+        $c2s_encryption_algorithms = isset($preferred['client_to_server']['crypt']) ?
+            $preferred['client_to_server']['crypt'] :
+            SSH2::getSupportedEncryptionAlgorithms();
+        $s2c_mac_algorithms = isset($preferred['server_to_client']['mac']) ?
+            $preferred['server_to_client']['mac'] :
+            SSH2::getSupportedMACAlgorithms();
+        $c2s_mac_algorithms = isset($preferred['client_to_server']['mac']) ?
+            $preferred['client_to_server']['mac'] :
+            SSH2::getSupportedMACAlgorithms();
+        $s2c_compression_algorithms = isset($preferred['server_to_client']['comp']) ?
+            $preferred['server_to_client']['comp'] :
+            SSH2::getSupportedCompressionAlgorithms();
+        $c2s_compression_algorithms = isset($preferred['client_to_server']['comp']) ?
+            $preferred['client_to_server']['comp'] :
+            SSH2::getSupportedCompressionAlgorithms();
 
         // some SSH servers have buggy implementations of some of the above algorithms
         switch (true) {
             case $this->server_identifier == 'SSH-2.0-SSHD':
             case substr($this->server_identifier, 0, 13) == 'SSH-2.0-DLINK':
-                $mac_algorithms = array_values(array_diff(
-                    $mac_algorithms,
-                    ['hmac-sha1-96', 'hmac-md5-96']
-                ));
+                if (!isset($preferred['server_to_client']['mac'])) {
+                    $s2c_mac_algorithms = array_values(array_diff(
+                        $s2c_mac_algorithms,
+                        ['hmac-sha1-96', 'hmac-md5-96']
+                    ));
+                }
+                if (!isset($preferred['client_to_server']['mac'])) {
+                    $c2s_mac_algorithms = array_values(array_diff(
+                        $c2s_mac_algorithms,
+                        ['hmac-sha1-96', 'hmac-md5-96']
+                    ));
+                }
         }
 
         $str_kex_algorithms = implode(',', $kex_algorithms);
         $str_server_host_key_algorithms = implode(',', $server_host_key_algorithms);
-        $encryption_algorithms_server_to_client = $encryption_algorithms_client_to_server = implode(',', $encryption_algorithms);
-        $mac_algorithms_server_to_client = $mac_algorithms_client_to_server = implode(',', $mac_algorithms);
-        $compression_algorithms_server_to_client = $compression_algorithms_client_to_server = implode(',', $compression_algorithms);
+        $encryption_algorithms_server_to_client = implode(',', $s2c_encryption_algorithms);
+        $encryption_algorithms_client_to_server = implode(',', $c2s_encryption_algorithms);
+        $mac_algorithms_server_to_client = implode(',', $s2c_mac_algorithms);
+        $mac_algorithms_client_to_server = implode(',', $c2s_mac_algorithms);
+        $compression_algorithms_server_to_client = implode(',', $s2c_compression_algorithms);
+        $compression_algorithms_client_to_server = implode(',', $c2s_compression_algorithms);
         $client_cookie = Random::string(16);
 
         $kexinit_payload_client = pack(
@@ -1432,6 +1474,7 @@ class SSH2
         $this->encryption_algorithms_client_to_server = explode(',', Strings::shift($response, $temp['length']));
 
         if (strlen($response) < 4) {
+
             return false;
         }
         $temp = unpack('Nlength', Strings::shift($response, 4));
@@ -1488,14 +1531,14 @@ class SSH2
 
         // we don't initialize any crypto-objects, yet - we do that, later. for now, we need the lengths to make the
         // diffie-hellman key exchange as fast as possible
-        $decrypt = $this->array_intersect_first($encryption_algorithms, $this->encryption_algorithms_server_to_client);
+        $decrypt = $this->array_intersect_first($s2c_encryption_algorithms, $this->encryption_algorithms_server_to_client);
         $decryptKeyLength = $this->encryption_algorithm_to_key_size($decrypt);
         if ($decryptKeyLength === null) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client encryption algorithms found');
         }
 
-        $encrypt = $this->array_intersect_first($encryption_algorithms, $this->encryption_algorithms_client_to_server);
+        $encrypt = $this->array_intersect_first($c2s_encryption_algorithms, $this->encryption_algorithms_client_to_server);
         $encryptKeyLength = $this->encryption_algorithm_to_key_size($encrypt);
         if ($encryptKeyLength === null) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
@@ -1678,7 +1721,6 @@ class SSH2
         }
         $temp = unpack('Nlength', Strings::shift($this->signature, 4));
         $this->signature_format = Strings::shift($this->signature, $temp['length']);
-
         if ($this->kex_algorithm === 'curve25519-sha256@libssh.org') {
             if (strlen($fBytes) !== 32) {
                 throw new \RuntimeException('Received curve25519 public key of invalid length.');
@@ -1835,7 +1877,7 @@ class SSH2
                 $this->decrypt->setIV(substr($iv, 0, $this->decrypt_block_size));
             }
 
-            switch ($encrypt) {
+            switch ($decrypt) {
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
                     // see https://tools.ietf.org/html/rfc5647#section-7.1
@@ -1876,7 +1918,7 @@ class SSH2
             $this->decrypt->decrypt(str_repeat("\0", 1536));
         }
 
-        $mac_algorithm = $this->array_intersect_first($mac_algorithms, $this->mac_algorithms_client_to_server);
+        $mac_algorithm = $this->array_intersect_first($c2s_mac_algorithms, $this->mac_algorithms_client_to_server);
         if ($mac_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible client to server message authentication algorithms found');
@@ -1920,7 +1962,7 @@ class SSH2
             $this->hmac_create->name = $mac_algorithm;
         }
 
-        $mac_algorithm = $this->array_intersect_first($mac_algorithms, $this->mac_algorithms_server_to_client);
+        $mac_algorithm = $this->array_intersect_first($s2c_mac_algorithms, $this->mac_algorithms_server_to_client);
         if ($mac_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client message authentication algorithms found');
@@ -1970,14 +2012,14 @@ class SSH2
             $this->hmac_check->name = $mac_algorithm;
         }
 
-        $compression_algorithm = $this->array_intersect_first($compression_algorithms, $this->compression_algorithms_server_to_client);
+        $compression_algorithm = $this->array_intersect_first($s2c_compression_algorithms, $this->compression_algorithms_server_to_client);
         if ($compression_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client compression algorithms found');
         }
         $this->decompress = $compression_algorithm == 'zlib';
 
-        $compression_algorithm = $this->array_intersect_first($compression_algorithms, $this->compression_algorithms_client_to_server);
+        $compression_algorithm = $this->array_intersect_first($c2s_compression_algorithms, $this->compression_algorithms_client_to_server);
         if ($compression_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible client to server compression algorithms found');
@@ -4501,133 +4543,31 @@ class SSH2
     }
 
     /**
-     * Return a list of the key exchange algorithms the server supports.
+     * Returns a list of algorithms the server supports
      *
      * @return array
      * @access public
      */
-    public function getKexAlgorithms()
+    public function getServerAlgorithms()
     {
         $this->connect();
 
-        return $this->kex_algorithms;
-    }
-
-    /**
-     * Return a list of the host key (public key) algorithms the server supports.
-     *
-     * @return array
-     * @access public
-     */
-    public function getServerHostKeyAlgorithms()
-    {
-        $this->connect();
-
-        return $this->server_host_key_algorithms;
-    }
-
-    /**
-     * Return a list of the (symmetric key) encryption algorithms the server supports, when receiving stuff from the client.
-     *
-     * @return array
-     * @access public
-     */
-    public function getEncryptionAlgorithmsClient2Server()
-    {
-        $this->connect();
-
-        return $this->encryption_algorithms_client_to_server;
-    }
-
-    /**
-     * Return a list of the (symmetric key) encryption algorithms the server supports, when sending stuff to the client.
-     *
-     * @return array
-     * @access public
-     */
-    public function getEncryptionAlgorithmsServer2Client()
-    {
-        $this->connect();
-
-        return $this->encryption_algorithms_server_to_client;
-    }
-
-    /**
-     * Return a list of the MAC algorithms the server supports, when receiving stuff from the client.
-     *
-     * @return array
-     * @access public
-     */
-    public function getMACAlgorithmsClient2Server()
-    {
-        $this->connect();
-
-        return $this->mac_algorithms_client_to_server;
-    }
-
-    /**
-     * Return a list of the MAC algorithms the server supports, when sending stuff to the client.
-     *
-     * @return array
-     * @access public
-     */
-    public function getMACAlgorithmsServer2Client()
-    {
-        $this->connect();
-
-        return $this->mac_algorithms_server_to_client;
-    }
-
-    /**
-     * Return a list of the compression algorithms the server supports, when receiving stuff from the client.
-     *
-     * @return array
-     * @access public
-     */
-    public function getCompressionAlgorithmsClient2Server()
-    {
-        $this->connect();
-
-        return $this->compression_algorithms_client_to_server;
-    }
-
-    /**
-     * Return a list of the compression algorithms the server supports, when sending stuff to the client.
-     *
-     * @return array
-     * @access public
-     */
-    public function getCompressionAlgorithmsServer2Client()
-    {
-        $this->connect();
-
-        return $this->compression_algorithms_server_to_client;
-    }
-
-    /**
-     * Return a list of the languages the server supports, when sending stuff to the client.
-     *
-     * @return array
-     * @access public
-     */
-    public function getLanguagesServer2Client()
-    {
-        $this->connect();
-
-        return $this->languages_server_to_client;
-    }
-
-    /**
-     * Return a list of the languages the server supports, when receiving stuff from the client.
-     *
-     * @return array
-     * @access public
-     */
-    public function getLanguagesClient2Server()
-    {
-        $this->connect();
-
-        return $this->languages_client_to_server;
+        return [
+            'kex' => $this->kex_algorithms,
+            'hostkey' => $this->server_host_key_algorithms,
+            'client_to_server' => [
+                'crypt' => $this->encryption_algorithms_client_to_server,
+                'mac' => $this->mac_algorithms_client_to_server,
+                'comp' => $this->compression_algorithms_client_to_server,
+                'lang' => $this->languages_client_to_server
+            ],
+            'server_to_client' => [
+                'crypt' => $this->encryption_algorithms_server_to_client,
+                'mac' => $this->mac_algorithms_server_to_client,
+                'comp' => $this->compression_algorithms_server_to_client,
+                'lang' => $this->languages_server_to_client
+            ]
+        ];
     }
 
     /**
@@ -4816,14 +4756,14 @@ class SSH2
     }
 
     /**
-     * Return list of negotiated methods
+     * Return list of negotiated algorithms
      *
      * Uses the same format as https://www.php.net/ssh2-methods-negotiated
      *
      * @return array
      * @access public
      */
-    public function getMethodsNegotiated()
+    public function getAlgorithmsNegotiated()
     {
         $this->connect();
 
@@ -4841,6 +4781,91 @@ class SSH2
                 'comp' => 'none',
             ]
         ];
+    }
+
+    /**
+     * Accepts an associative array with up to four parameters as described at
+     * <https://www.php.net/manual/en/function.ssh2-connect.php>
+     *
+     * @param array $methods
+     * @access public
+     */
+    public function setPreferredAlgorithms(array $methods)
+    {
+        $preferred = $methods;
+
+        if (isset($preferred['kex'])) {
+            $preferred['kex'] = array_intersect(
+                $preferred['kex'],
+                static::getSupportedKEXAlgorithms()
+            );
+        }
+
+        if (isset($preferred['hostkey'])) {
+            $preferred['hostkey'] = array_intersect(
+                $preferred['hostkey'],
+                static::getSupportedHostKeyAlgorithms()
+            );
+        }
+
+        $keys = ['client_to_server', 'server_to_client'];
+        foreach ($keys as $key) {
+            if (isset($preferred[$key])) {
+                $a = &$preferred[$key];
+                if (isset($a['crypt'])) {
+                    $a['crypt'] = array_intersect(
+                        $a['crypt'],
+                        static::getSupportedEncryptionAlgorithms()
+                    );
+                }
+                if (isset($a['comp'])) {
+                    $a['comp'] = array_intersect(
+                        $a['comp'],
+                        static::getSupportedCompressionAlgorithms()
+                    );
+                }
+                if (isset($a['mac'])) {
+                    $a['mac'] = array_intersect(
+                        $a['mac'],
+                        static::getSupportedMACAlgorithms()
+                    );
+                }
+            }
+        }
+
+        $keys = [
+            'kex',
+            'hostkey',
+            'client_to_server/crypt',
+            'client_to_server/comp',
+            'client_to_server/mac',
+            'server_to_client/crypt',
+            'server_to_client/comp',
+            'server_to_client/mac',
+        ];
+        foreach ($keys as $key) {
+            $p = $preferred;
+            $m = $methods;
+
+            $subkeys = explode('/', $key);
+            foreach ($subkeys as $subkey) {
+                if (!isset($p[$subkey])) {
+                    continue 2;
+                }
+                $p = $p[$subkey];
+                $m = $m[$subkey];
+            }
+
+            if (count($p) != count($m)) {
+                $diff = array_diff($m, $p);
+                $msg = count($diff) == 1 ?
+                    ' is not a supported algorithm' :
+                    ' are not supported algorithms';
+                throw new UnsupportedAlgorithmException(implode(', ', $diff) . $msg);
+            }
+        }
+
+        $this->preferred = $preferred;
     }
 
     /**
