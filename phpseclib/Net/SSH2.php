@@ -1342,139 +1342,11 @@ class SSH2
      */
     private function key_exchange($kexinit_payload_server = false)
     {
-        $kex_algorithms = [
-            // Elliptic Curve Diffie-Hellman Key Agreement (ECDH) using
-            // Curve25519. See doc/curve25519-sha256@libssh.org.txt in the
-            // libssh repository for more information.
-            'curve25519-sha256@libssh.org',
-
-            // Diffie-Hellman Key Agreement (DH) using integer modulo prime
-            // groups.
-            'diffie-hellman-group1-sha1', // REQUIRED
-            'diffie-hellman-group14-sha1', // REQUIRED
-            'diffie-hellman-group-exchange-sha1', // RFC 4419
-            'diffie-hellman-group-exchange-sha256', // RFC 4419
-        ];
-        if (!function_exists('\\Sodium\\library_version_major')) {
-            $kex_algorithms = array_diff(
-                $kex_algorithms,
-                ['curve25519-sha256@libssh.org']
-            );
-        }
-
-        $server_host_key_algorithms = [
-            'rsa-sha2-256', // RFC 8332
-            'rsa-sha2-512', // RFC 8332
-            'ssh-rsa', // RECOMMENDED  sign   Raw RSA Key
-            'ssh-dss'  // REQUIRED     sign   Raw DSS Key
-        ];
-
-        $encryption_algorithms = [
-            // from <http://tools.ietf.org/html/rfc4345#section-4>:
-            'arcfour256',
-            'arcfour128',
-
-            //'arcfour',      // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
-
-            // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
-            'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
-            'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
-            'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
-
-            // from <https://git.io/fhxOl>:
-            // one of the big benefits of chacha20-poly1305 is speed. the problem is...
-            // libsodium doesn't generate the poly1305 keys in the way ssh does and openssl's PHP bindings don't even
-            // seem to support poly1305 currently. so even if libsodium or openssl are being used for the chacha20
-            // part, pure-PHP has to be used for the poly1305 part and that's gonna cause a big slow down.
-            // speed-wise it winds up being faster to use AES (when openssl or mcrypt are available) and some HMAC
-            // (which is always gonna be super fast to compute thanks to the hash extension, which
-            // "is bundled and compiled into PHP by default")
-            'chacha20-poly1305@openssh.com',
-
-            // from <https://tools.ietf.org/html/rfc5647>:
-            'aes128-gcm@openssh.com',
-            'aes256-gcm@openssh.com',
-
-            'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
-            'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
-            'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
-
-            'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
-            'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
-            'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
-
-            'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
-            'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
-            'twofish256-cbc',
-            'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
-                              //                   (this is being retained for historical reasons)
-
-            'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
-
-            'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
-
-            '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
-
-            '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
-             //'none'           // OPTIONAL          no encryption; NOT RECOMMENDED
-        ];
-
-        if (extension_loaded('openssl') && !extension_loaded('mcrypt')) {
-            // OpenSSL does not support arcfour256 in any capacity and arcfour128 / arcfour support is limited to
-            // instances that do not use continuous buffers
-            $encryption_algorithms = array_diff(
-                $encryption_algorithms,
-                ['arcfour256', 'arcfour128', 'arcfour']
-            );
-        }
-
-        if (class_exists('\phpseclib\Crypt\RC4') === false) {
-            $encryption_algorithms = array_diff(
-                $encryption_algorithms,
-                ['arcfour256', 'arcfour128', 'arcfour']
-            );
-        }
-        if (class_exists('\phpseclib\Crypt\Rijndael') === false) {
-            $encryption_algorithms = array_diff(
-                $encryption_algorithms,
-                ['aes128-ctr', 'aes192-ctr', 'aes256-ctr', 'aes128-cbc', 'aes192-cbc', 'aes256-cbc']
-            );
-        }
-        if (class_exists('\phpseclib\Crypt\Twofish') === false) {
-            $encryption_algorithms = array_diff(
-                $encryption_algorithms,
-                ['twofish128-ctr', 'twofish192-ctr', 'twofish256-ctr', 'twofish128-cbc', 'twofish192-cbc', 'twofish256-cbc', 'twofish-cbc']
-            );
-        }
-        if (class_exists('\phpseclib\Crypt\Blowfish') === false) {
-            $encryption_algorithms = array_diff(
-                $encryption_algorithms,
-                ['blowfish-ctr', 'blowfish-cbc']
-            );
-        }
-        if (class_exists('\phpseclib\Crypt\TripleDES') === false) {
-            $encryption_algorithms = array_diff(
-                $encryption_algorithms,
-                ['3des-ctr', '3des-cbc']
-            );
-        }
-        $encryption_algorithms = array_values($encryption_algorithms);
-
-        $mac_algorithms = [
-            // from <http://www.ietf.org/rfc/rfc6668.txt>:
-            'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
-
-            'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
-            'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
-            'hmac-md5-96',  // OPTIONAL        first 96 bits of HMAC-MD5 (digest length = 12, key length = 16)
-            'hmac-md5',     // OPTIONAL        HMAC-MD5 (digest length = key length = 16)
-            //'none'          // OPTIONAL        no MAC; NOT RECOMMENDED
-        ];
-
-        $compression_algorithms = [
-            'none'   // REQUIRED        no compression
-            //'zlib' // OPTIONAL        ZLIB (LZ77) compression
-        ];
+        $kex_algorithms = SSH2::getSupportedKEXAlgorithms();
+        $server_host_key_algorithms = SSH2::getSupportedHostKeyAlgorithms();
+        $encryption_algorithms = SSH2::getSupportedEncryptionAlgorithms();
+        $mac_algorithms = SSH2::getSupportedMACAlgorithms();
+        $compression_algorithms = SSH2::getSupportedCompressionAlgorithms();
 
         // some SSH servers have buggy implementations of some of the above algorithms
         switch (true) {
@@ -1901,7 +1773,7 @@ class SSH2
 
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
 
-        $this->encrypt = $this->encryption_algorithm_to_crypt_instance($encrypt);
+        $this->encrypt = self::encryption_algorithm_to_crypt_instance($encrypt);
         if ($this->encrypt) {
             if ($this->crypto_engine) {
                 $this->encrypt->setPreferredEngine($this->crypto_engine);
@@ -1938,14 +1810,14 @@ class SSH2
             switch ($encrypt) {
                 case 'chacha20-poly1305@openssh.com':
                     $encryptKeyLength = 32;
-                    $this->lengthEncrypt = $this->encryption_algorithm_to_crypt_instance($encrypt);
+                    $this->lengthEncrypt = self::encryption_algorithm_to_crypt_instance($encrypt);
                     $this->lengthEncrypt->setKey(substr($key, 32, 32));
             }
             $this->encrypt->setKey(substr($key, 0, $encryptKeyLength));
             $this->encrypt->name = $encrypt;
         }
 
-        $this->decrypt = $this->encryption_algorithm_to_crypt_instance($decrypt);
+        $this->decrypt = self::encryption_algorithm_to_crypt_instance($decrypt);
         if ($this->decrypt) {
             if ($this->crypto_engine) {
                 $this->decrypt->setPreferredEngine($this->crypto_engine);
@@ -1983,7 +1855,7 @@ class SSH2
             switch ($decrypt) {
                 case 'chacha20-poly1305@openssh.com':
                     $decryptKeyLength = 32;
-                    $this->lengthDecrypt = $this->encryption_algorithm_to_crypt_instance($decrypt);
+                    $this->lengthDecrypt = self::encryption_algorithm_to_crypt_instance($decrypt);
                     $this->lengthDecrypt->setKey(substr($key, 32, 32));
             }
             $this->decrypt->setKey(substr($key, 0, $decryptKeyLength));
@@ -2011,6 +1883,8 @@ class SSH2
         }
 
         if ($this->encrypt->usesNonce()) {
+            $this->hmac_create = new \stdClass;
+            $this->hmac_create->name = $mac_algorithm;
             $mac_algorithm = 'none';
         }
 
@@ -2037,7 +1911,7 @@ class SSH2
                 $createKeyLength = 16;
         }
 
-        if ($this->hmac_create) {
+        if ($this->hmac_create instanceof Hash) {
             $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'E' . $this->session_id);
             while ($createKeyLength > strlen($key)) {
                 $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
@@ -2053,6 +1927,8 @@ class SSH2
         }
 
         if ($this->decrypt->usesNonce()) {
+            $this->hmac_check = new \stdClass;
+            $this->hmac_check->name = $mac_algorithm;
             $mac_algorithm = 'none';
         }
 
@@ -2085,7 +1961,7 @@ class SSH2
                 $this->hmac_size = 12;
         }
 
-        if ($this->hmac_check) {
+        if ($this->hmac_check instanceof Hash) {
             $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'F' . $this->session_id);
             while ($checkKeyLength > strlen($key)) {
                 $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
@@ -2166,7 +2042,7 @@ class SSH2
      * @return mixed Instance of \phpseclib\Crypt\Base or null for unknown
      * @access private
      */
-    private function encryption_algorithm_to_crypt_instance($algorithm)
+    private static function encryption_algorithm_to_crypt_instance($algorithm)
     {
         switch ($algorithm) {
             case '3des-cbc':
@@ -3549,7 +3425,7 @@ class SSH2
         $payload = Strings::shift($raw, $packet_length - $padding_length - 1);
         $padding = Strings::shift($raw, $padding_length); // should leave $raw empty
 
-        if ($this->hmac_check) {
+        if ($this->hmac_check instanceof Hash) {
             $hmac = stream_get_contents($this->fsock, $this->hmac_size);
             if ($hmac === false || strlen($hmac) != $this->hmac_size) {
                 $this->bitmap = 0;
@@ -4218,7 +4094,7 @@ class SSH2
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself
         $packet = pack('NCa*', $packet_length - 4, $padding_length, $data . $padding);
 
-        $hmac = $this->hmac_create ? $this->hmac_create->hash(pack('Na*', $this->send_seq_no, $packet)) : '';
+        $hmac = $this->hmac_create instanceof Hash ? $this->hmac_create->hash(pack('Na*', $this->send_seq_no, $packet)) : '';
         $this->send_seq_no++;
 
         if ($this->encrypt) {
@@ -4752,6 +4628,191 @@ class SSH2
         $this->connect();
 
         return $this->languages_client_to_server;
+    }
+
+    /**
+     * Returns a list of KEX algorithms that phpseclib supports
+     *
+     * @return array
+     * @access public
+     */
+    public static function getSupportedKEXAlgorithms()
+    {
+        $kex_algorithms = [
+            // Elliptic Curve Diffie-Hellman Key Agreement (ECDH) using
+            // Curve25519. See doc/curve25519-sha256@libssh.org.txt in the
+            // libssh repository for more information.
+            'curve25519-sha256@libssh.org',
+
+            // Diffie-Hellman Key Agreement (DH) using integer modulo prime
+            // groups.
+            'diffie-hellman-group1-sha1', // REQUIRED
+            'diffie-hellman-group14-sha1', // REQUIRED
+            'diffie-hellman-group-exchange-sha1', // RFC 4419
+            'diffie-hellman-group-exchange-sha256', // RFC 4419
+        ];
+
+        if (!function_exists('\\Sodium\\library_version_major')) {
+            $kex_algorithms = array_diff(
+                $kex_algorithms,
+                ['curve25519-sha256@libssh.org']
+            );
+        }
+
+        return $kex_algorithms;
+    }
+
+    /**
+     * Returns a list of host key algorithms that phpseclib supports
+     *
+     * @return array
+     * @access public
+     */
+    public static function getSupportedHostKeyAlgorithms()
+    {
+        return [
+            'rsa-sha2-256', // RFC 8332
+            'rsa-sha2-512', // RFC 8332
+            'ssh-rsa', // RECOMMENDED  sign   Raw RSA Key
+            'ssh-dss'  // REQUIRED     sign   Raw DSS Key
+        ];
+    }
+
+    /**
+     * Returns a list of symmetric key algorithms that phpseclib supports
+     *
+     * @return array
+     * @access public
+     */
+    public static function getSupportedEncryptionAlgorithms()
+    {
+        $algos = [
+            // from <https://tools.ietf.org/html/rfc5647>:
+            'aes128-gcm@openssh.com',
+            'aes256-gcm@openssh.com',
+
+            // from <http://tools.ietf.org/html/rfc4345#section-4>:
+            'arcfour256',
+            'arcfour128',
+
+            //'arcfour',      // OPTIONAL          the ARCFOUR stream cipher with a 128-bit key
+
+            // CTR modes from <http://tools.ietf.org/html/rfc4344#section-4>:
+            'aes128-ctr',     // RECOMMENDED       AES (Rijndael) in SDCTR mode, with 128-bit key
+            'aes192-ctr',     // RECOMMENDED       AES with 192-bit key
+            'aes256-ctr',     // RECOMMENDED       AES with 256-bit key
+
+            // from <https://git.io/fhxOl>:
+            // one of the big benefits of chacha20-poly1305 is speed. the problem is...
+            // libsodium doesn't generate the poly1305 keys in the way ssh does and openssl's PHP bindings don't even
+            // seem to support poly1305 currently. so even if libsodium or openssl are being used for the chacha20
+            // part, pure-PHP has to be used for the poly1305 part and that's gonna cause a big slow down.
+            // speed-wise it winds up being faster to use AES (when openssl or mcrypt are available) and some HMAC
+            // (which is always gonna be super fast to compute thanks to the hash extension, which
+            // "is bundled and compiled into PHP by default")
+            'chacha20-poly1305@openssh.com',
+
+            'twofish128-ctr', // OPTIONAL          Twofish in SDCTR mode, with 128-bit key
+            'twofish192-ctr', // OPTIONAL          Twofish with 192-bit key
+            'twofish256-ctr', // OPTIONAL          Twofish with 256-bit key
+
+            'aes128-cbc',     // RECOMMENDED       AES with a 128-bit key
+            'aes192-cbc',     // OPTIONAL          AES with a 192-bit key
+            'aes256-cbc',     // OPTIONAL          AES in CBC mode, with a 256-bit key
+
+            'twofish128-cbc', // OPTIONAL          Twofish with a 128-bit key
+            'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
+            'twofish256-cbc',
+            'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
+                              //                   (this is being retained for historical reasons)
+
+            'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
+
+            'blowfish-cbc',   // OPTIONAL          Blowfish in CBC mode
+
+            '3des-ctr',       // RECOMMENDED       Three-key 3DES in SDCTR mode
+
+            '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
+
+             //'none'           // OPTIONAL          no encryption; NOT RECOMMENDED
+        ];
+
+        $engines = [
+            'libsodium',
+            'OpenSSL (GCM)',
+            'OpenSSL',
+            'mcrypt',
+            'Eval',
+            'PHP'
+        ];
+
+        $ciphers = [];
+        foreach ($engines as $engine) {
+            foreach ($algos as $algo) {
+                $obj = self::encryption_algorithm_to_crypt_instance($algo);
+                if ($obj instanceof Rijndael ) {
+                    $obj->setKeyLength(preg_replace('#[^\d]#', '', $algo));
+                }
+                switch ($algo) {
+                    case 'chacha20-poly1305@openssh.com':
+                    case 'arcfour128':
+                    case 'arcfour256':
+                        if ($engine == 'Eval') {
+                            $algos = array_diff($algos, [$algo]);
+                            $ciphers[] = $algo;
+                        } else {
+                            continue 2;
+                        }
+                        break;
+                    case 'aes128-gcm@openssh.com':
+                    case 'aes256-gcm@openssh.com':
+                        if ($engine == 'OpenSSL') {
+                            continue 2;
+                        }
+                        $obj->setNonce('dummydummydu');
+                }
+                if ($obj->isValidEngine($engine)) {
+                    $algos = array_diff($algos, [$algo]);
+                    $ciphers[] = $algo;
+                }
+            }
+        }
+
+        return $ciphers;
+    }
+
+    /**
+     * Returns a list of MAC algorithms that phpseclib supports
+     *
+     * @return array
+     * @access public
+     */
+    public static function getSupportedMACAlgorithms()
+    {
+        return [
+            // from <http://www.ietf.org/rfc/rfc6668.txt>:
+            'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
+
+            'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
+            'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
+            'hmac-md5-96',  // OPTIONAL        first 96 bits of HMAC-MD5 (digest length = 12, key length = 16)
+            'hmac-md5',     // OPTIONAL        HMAC-MD5 (digest length = key length = 16)
+            //'none'          // OPTIONAL        no MAC; NOT RECOMMENDED
+        ];
+    }
+
+    /**
+     * Returns a list of compression algorithms that phpseclib supports
+     *
+     * @return array
+     * @access public
+     */
+    public static function getSupportedCompressionAlgorithms()
+    {
+        return [
+            'none'   // REQUIRED        no compression
+            //'zlib' // OPTIONAL        ZLIB (LZ77) compression
+        ];
     }
 
     /**
