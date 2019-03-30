@@ -473,10 +473,10 @@ class ECDSA extends AsymmetricKey
      */
     public function setHash($hash)
     {
-        if ($this->curve instanceof Ed25519 && $this->hash != 'sha512') {
+        if ($this->curve instanceof Ed25519 && $hash != 'sha512') {
             throw new UnsupportedAlgorithmException('Ed25519 only supports sha512 as a hash');
         }
-        if ($this->curve instanceof Ed448 && $this->hash != 'shake256-912') {
+        if ($this->curve instanceof Ed448 && $hash != 'shake256-912') {
             throw new UnsupportedAlgorithmException('Ed448 only supports shake256 with a length of 114 bytes');
         }
 

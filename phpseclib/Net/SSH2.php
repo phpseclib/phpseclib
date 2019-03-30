@@ -56,6 +56,8 @@ use phpseclib\Crypt\Random;
 use phpseclib\Crypt\RC4;
 use phpseclib\Crypt\Rijndael;
 use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\DSA;
+use phpseclib\Crypt\ECDSA;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\Twofish;
 use phpseclib\Crypt\ChaCha20;
@@ -1719,8 +1721,8 @@ class SSH2
         if (strlen($this->signature) < 4) {
             return false;
         }
-        $temp = unpack('Nlength', Strings::shift($this->signature, 4));
-        $this->signature_format = Strings::shift($this->signature, $temp['length']);
+        $temp = unpack('Nlength', substr($this->signature, 0, 4));
+        $this->signature_format = substr($this->signature, 4, $temp['length']);
         if ($this->kex_algorithm === 'curve25519-sha256@libssh.org') {
             if (strlen($fBytes) !== 32) {
                 throw new \RuntimeException('Received curve25519 public key of invalid length.');
@@ -1768,16 +1770,14 @@ class SSH2
         }
 
         switch ($server_host_key_algorithm) {
-            case 'ssh-dss':
-                $expected_key_format = 'ssh-dss';
-                break;
-            //case 'rsa-sha2-256':
-            //case 'rsa-sha2-512':
+            case 'rsa-sha2-256':
+            case 'rsa-sha2-512':
             //case 'ssh-rsa':
-            default:
                 $expected_key_format = 'ssh-rsa';
+                break;
+            default:
+                $expected_key_format = $server_host_key_algorithm;
         }
-
         if ($public_key_format != $expected_key_format || $this->signature_format != $server_host_key_algorithm) {
             switch (true) {
                 case $this->signature_format == $server_host_key_algorithm:
@@ -4611,6 +4611,8 @@ class SSH2
     public static function getSupportedHostKeyAlgorithms()
     {
         return [
+            'ssh-ed25519', // https://tools.ietf.org/html/draft-ietf-curdle-ssh-ed25519-02
+            'ecdsa-sha2-nistp256', // RFC 5656
             'rsa-sha2-256', // RFC 8332
             'rsa-sha2-512', // RFC 8332
             'ssh-rsa', // RECOMMENDED  sign   Raw RSA Key
@@ -4902,15 +4904,7 @@ class SSH2
         }
 
         $signature = $this->signature;
-        $server_public_host_key = $this->server_public_host_key;
-
-        if (strlen($server_public_host_key) < 4) {
-            return false;
-        }
-        extract(unpack('Nlength', Strings::shift($server_public_host_key, 4)));
-        /** @var integer $length */
-
-        Strings::shift($server_public_host_key, $length);
+        $server_public_host_key = base64_encode($this->server_public_host_key);
 
         if ($this->signature_validated) {
             return $this->bitmap ?
@@ -4921,101 +4915,42 @@ class SSH2
         $this->signature_validated = true;
 
         switch ($this->signature_format) {
-            case 'ssh-dss':
-                $zero = new BigInteger();
-
-                if (strlen($server_public_host_key) < 4) {
-                    return false;
+            case 'ssh-ed25519':
+            case 'ecdsa-sha2-nistp256':
+                $ec = new ECDSA();
+                $ec->load($server_public_host_key, 'OpenSSH');
+                switch ($this->signature_format) {
+                    case 'ssh-ed25519':
+                        //$ec->setHash('sha512');
+                        Strings::shift($signature, 4 + strlen('ssh-ed25519') + 4);
+                        break;
+                    case 'ecdsa-sha2-nistp256':
+                        $ec->setHash('sha256');
                 }
-                $temp = unpack('Nlength', Strings::shift($server_public_host_key, 4));
-                $p = new BigInteger(Strings::shift($server_public_host_key, $temp['length']), -256);
-
-                if (strlen($server_public_host_key) < 4) {
-                    return false;
-                }
-                $temp = unpack('Nlength', Strings::shift($server_public_host_key, 4));
-                $q = new BigInteger(Strings::shift($server_public_host_key, $temp['length']), -256);
-
-                if (strlen($server_public_host_key) < 4) {
-                    return false;
-                }
-                $temp = unpack('Nlength', Strings::shift($server_public_host_key, 4));
-                $g = new BigInteger(Strings::shift($server_public_host_key, $temp['length']), -256);
-
-                if (strlen($server_public_host_key) < 4) {
-                    return false;
-                }
-                $temp = unpack('Nlength', Strings::shift($server_public_host_key, 4));
-                $y = new BigInteger(Strings::shift($server_public_host_key, $temp['length']), -256);
-
-                /* The value for 'dss_signature_blob' is encoded as a string containing
-                   r, followed by s (which are 160-bit integers, without lengths or
-                   padding, unsigned, and in network byte order). */
-                $temp = unpack('Nlength', Strings::shift($signature, 4));
-                if ($temp['length'] != 40) {
-                    $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-                    throw new \RuntimeException('Invalid signature');
-                }
-
-                $r = new BigInteger(Strings::shift($signature, 20), 256);
-                $s = new BigInteger(Strings::shift($signature, 20), 256);
-
-                switch (true) {
-                    case $r->equals($zero):
-                    case $r->compare($q) >= 0:
-                    case $s->equals($zero):
-                    case $s->compare($q) >= 0:
-                        $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-                        throw new \RuntimeException('Invalid signature');
-                }
-
-                $w = $s->modInverse($q);
-
-                $u1 = $w->multiply(new BigInteger(sha1($this->exchange_hash), 16));
-                list(, $u1) = $u1->divide($q);
-
-                $u2 = $w->multiply($r);
-                list(, $u2) = $u2->divide($q);
-
-                $g = $g->modPow($u1, $p);
-                $y = $y->modPow($u2, $p);
-
-                $v = $g->multiply($y);
-                list(, $v) = $v->divide($p);
-                list(, $v) = $v->divide($q);
-
-                if (!$v->equals($r)) {
-                    //user_error('Bad server signature');
+                if (!$ec->verify($this->exchange_hash, $signature, 'SSH2')) {
                     return $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                }
-
+                };
+                break;
+            case 'ssh-dss':
+                $dsa = new DSA();
+                $dsa->load($server_public_host_key, 'OpenSSH');
+                $dsa->setHash('sha1');
+                if (!$dsa->verify($this->exchange_hash, $signature, 'SSH2')) {
+                    return $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
+                };
                 break;
             case 'ssh-rsa':
             case 'rsa-sha2-256':
             case 'rsa-sha2-512':
-                if (strlen($server_public_host_key) < 4) {
+                if (strlen($signature) < 15) {
                     return false;
                 }
-                $temp = unpack('Nlength', Strings::shift($server_public_host_key, 4));
-                $e = new BigInteger(Strings::shift($server_public_host_key, $temp['length']), -256);
-
-                if (strlen($server_public_host_key) < 4) {
-                    return false;
-                }
-                $temp = unpack('Nlength', Strings::shift($server_public_host_key, 4));
-                $rawN = Strings::shift($server_public_host_key, $temp['length']);
-                $n = new BigInteger($rawN, -256);
-                $nLength = strlen(ltrim($rawN, "\0"));
-
-                /*
-                if (strlen($signature) < 4) {
-                    return false;
-                }
+                Strings::shift($signature, 11);
                 $temp = unpack('Nlength', Strings::shift($signature, 4));
                 $signature = Strings::shift($signature, $temp['length']);
 
                 $rsa = new RSA();
-                $rsa->load(['e' => $e, 'n' => $n], 'raw');
+                $rsa->load($server_public_host_key, 'OpenSSH');
                 switch ($this->signature_format) {
                     case 'rsa-sha2-512':
                         $hash = 'sha512';
@@ -5029,59 +4964,6 @@ class SSH2
                 }
                 $rsa->setHash($hash);
                 if (!$rsa->verify($this->exchange_hash, $signature, RSA::PADDING_PKCS1)) {
-                    //user_error('Bad server signature');
-                    return $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                }
-                */
-
-                if (strlen($signature) < 4) {
-                    return false;
-                }
-                $temp = unpack('Nlength', Strings::shift($signature, 4));
-                $s = new BigInteger(Strings::shift($signature, $temp['length']), 256);
-
-                // validate an RSA signature per "8.2 RSASSA-PKCS1-v1_5", "5.2.2 RSAVP1", and "9.1 EMSA-PSS" in the
-                // following URL:
-                // ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-1/pkcs-1v2-1.pdf
-
-                // also, see SSHRSA.c (rsa2_verifysig) in PuTTy's source.
-
-                if ($s->compare(new BigInteger()) < 0 || $s->compare($n->subtract(new BigInteger(1))) > 0) {
-                    $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-                    throw new \RuntimeException('Invalid signature');
-                }
-
-                $s = $s->modPow($e, $n);
-                $s = $s->toBytes();
-
-                switch ($this->signature_format) {
-                    case 'rsa-sha2-512':
-                        $hash = 'sha512';
-                        break;
-                    case 'rsa-sha2-256':
-                        $hash = 'sha256';
-                        break;
-                    //case 'ssh-rsa':
-                    default:
-                        $hash = 'sha1';
-                }
-                $hashObj = new Hash($hash);
-                switch ($this->signature_format) {
-                    case 'rsa-sha2-512':
-                        $h = pack('N5a*', 0x00305130, 0x0D060960, 0x86480165, 0x03040203, 0x05000440, $hashObj->hash($this->exchange_hash));
-                        break;
-                    case 'rsa-sha2-256':
-                        $h = pack('N5a*', 0x00303130, 0x0D060960, 0x86480165, 0x03040201, 0x05000420, $hashObj->hash($this->exchange_hash));
-                        break;
-                    //case 'ssh-rsa':
-                    default:
-                        $hash = 'sha1';
-                        $h = pack('N4a*', 0x00302130, 0x0906052B, 0x0E03021A, 0x05000414, $hashObj->hash($this->exchange_hash));
-                }
-                $h = chr(0x01) . str_repeat(chr(0xFF), $nLength - 2 - strlen($h)) . $h;
-
-                if ($s != $h) {
-                    //user_error('Bad server signature');
                     return $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
                 }
                 break;

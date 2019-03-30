@@ -57,11 +57,14 @@ abstract class SSH2
                 return false;
         }
 
-        $length = ceil(substr($type, 16) / 8);
+        $result = Strings::unpackSSH2('ii', $blob);
+        if ($result === false) {
+            return false;
+        }
 
         return [
-            'r' => new BigInteger(substr($blob, 0, $length), 256),
-            's' => new BigInteger(substr($blob, $length), 256)
+            'r' => $result[0],
+            's' => $result[1]
         ];
     }
 
@@ -85,11 +88,8 @@ abstract class SSH2
                 return false;
         }
 
-        $length = ceil(substr($curve, 5) / 8);
+        $blob = Strings::packSSH2('ii', $r, $s);
 
-        return Strings::packSSH2('ss', 'ecdsa-sha2-' . $curve,
-            str_pad($r->toBytes(), $length, "\0", STR_PAD_LEFT) .
-            str_pad($s->toBytes(), $length, "\0", STR_PAD_LEFT)
-        );
+        return Strings::packSSH2('ss', 'ecdsa-sha2-' . $curve, $blob);
     }
 }
