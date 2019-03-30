@@ -430,9 +430,7 @@ class SFTP extends SSH2
             0x4000
         );
 
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_OPEN;
 
@@ -451,9 +449,7 @@ class SFTP extends SSH2
             strlen('sftp'),
             'sftp'
         );
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
@@ -475,9 +471,7 @@ class SFTP extends SSH2
                 strlen($command),
                 $command
             );
-            if (!$this->send_binary_packet($packet)) {
-                return false;
-            }
+            $this->send_binary_packet($packet);
 
             $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_REQUEST;
 

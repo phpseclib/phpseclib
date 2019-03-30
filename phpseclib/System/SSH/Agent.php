@@ -256,9 +256,7 @@ class Agent
         );
 
         $this->update_channel_status($ssh, NET_SSH2_MSG_CHANNEL_REQUEST);
-        if (!Objects::callFunc($ssh, 'send_binary_packet', [$packet])) {
-            return false;
-        }
+        Objects::callFunc($ssh, 'send_binary_packet', [$packet]);
 
         $response = Objects::callFunc($ssh, 'get_channel_packet', [$this->request_channel]);
         if ($response === false) {

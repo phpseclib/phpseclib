@@ -1438,9 +1438,7 @@ class SSH2
         );
 
         if ($this->send_kex_first) {
-            if (!$this->send_binary_packet($kexinit_payload_client)) {
-                return false;
-            }
+            $this->send_binary_packet($kexinit_payload_client);
 
             $kexinit_payload_server = $this->get_binary_packet();
             if ($kexinit_payload_server === false) {
@@ -1525,8 +1523,8 @@ class SSH2
         /** @var integer $first_kex_packet_follows */
         $first_kex_packet_follows = $first_kex_packet_follows != 0;
 
-        if (!$this->send_kex_first && !$this->send_binary_packet($kexinit_payload_client)) {
-            return false;
+        if (!$this->send_kex_first) {
+            $this->send_binary_packet($kexinit_payload_client);
         }
 
         // we need to decide upon the symmetric encryption algorithms before we do the diffie-hellman key exchange
@@ -1576,9 +1574,7 @@ class SSH2
                     NET_SSH2_MSG_KEXDH_GEX_REQUEST,
                     $dh_group_sizes_packed
                 );
-                if (!$this->send_binary_packet($packet)) {
-                    return false;
-                }
+                $this->send_binary_packet($packet);
 
                 $response = $this->get_binary_packet();
                 if ($response === false) {
@@ -1675,10 +1671,7 @@ class SSH2
         }
         $data = pack('CNa*', $clientKexInitMessage, strlen($eBytes), $eBytes);
 
-        if (!$this->send_binary_packet($data)) {
-            $this->bitmap = 0;
-            throw new \RuntimeException('Connection closed by server');
-        }
+        $this->send_binary_packet($data);
 
         $response = $this->get_binary_packet();
         if ($response === false) {
@@ -1793,9 +1786,7 @@ class SSH2
             NET_SSH2_MSG_NEWKEYS
         );
 
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $response = $this->get_binary_packet();
 
@@ -2218,9 +2209,7 @@ class SSH2
                 'ssh-userauth'
             );
 
-            if (!$this->send_binary_packet($packet)) {
-                return false;
-            }
+            $this->send_binary_packet($packet);
 
             $response = $this->get_binary_packet();
             if ($response === false) {
@@ -2276,9 +2265,7 @@ class SSH2
                 'none'
             );
 
-            if (!$this->send_binary_packet($packet)) {
-                return false;
-            }
+            $this->send_binary_packet($packet);
 
             $response = $this->get_binary_packet();
             if ($response === false) {
@@ -2334,9 +2321,7 @@ class SSH2
             );
         }
 
-        if (!$this->send_binary_packet($packet, $logged)) {
-            return false;
-        }
+        $this->send_binary_packet($packet, $logged);
 
         $response = $this->get_binary_packet();
         if ($response === false) {
@@ -2425,9 +2410,7 @@ class SSH2
             ''
         );
 
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         return $this->keyboard_interactive_process($password);
     }
@@ -2543,9 +2526,7 @@ class SSH2
                     $logged.= pack('Na*', strlen('dummy-answer'), 'dummy-answer');
                 }
 
-                if (!$this->send_binary_packet($packet, $logged)) {
-                    return false;
-                }
+                $this->send_binary_packet($packet, $logged);
 
                 if (defined('NET_SSH2_LOGGING') && NET_SSH2_LOGGING == self::LOG_COMPLEX) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
@@ -2654,9 +2635,7 @@ class SSH2
         $part2 = pack('Na*Na*', strlen($signatureType), $signatureType, strlen($publickey), $publickey);
 
         $packet = $part1 . chr(0) . $part2;
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $response = $this->get_binary_packet();
         if ($response === false) {
@@ -2699,9 +2678,7 @@ class SSH2
         $signature = pack('Na*Na*', strlen($signatureType), $signatureType, strlen($signature), $signature);
         $packet.= pack('Na*', strlen($signature), $signature);
 
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $response = $this->get_binary_packet();
         if ($response === false) {
@@ -2796,9 +2773,7 @@ class SSH2
             $packet_size
         );
 
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $this->channel_status[self::CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_OPEN;
 
@@ -2826,9 +2801,7 @@ class SSH2
                 $terminal_modes
             );
 
-            if (!$this->send_binary_packet($packet)) {
-                return false;
-            }
+            $this->send_binary_packet($packet);
 
             $response = $this->get_binary_packet();
             if ($response === false) {
@@ -2871,9 +2844,7 @@ class SSH2
             strlen($command),
             $command
         );
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $this->channel_status[self::CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
@@ -2938,9 +2909,7 @@ class SSH2
             $packet_size
         );
 
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $this->channel_status[self::CHANNEL_SHELL] = NET_SSH2_MSG_CHANNEL_OPEN;
 
@@ -2967,9 +2936,7 @@ class SSH2
             $terminal_modes
         );
 
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $response = $this->get_binary_packet();
         if ($response === false) {
@@ -3000,9 +2967,7 @@ class SSH2
             'shell',
             1
         );
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $this->channel_status[self::CHANNEL_SHELL] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
@@ -3158,9 +3123,7 @@ class SSH2
             0x4000
         );
 
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $this->channel_status[self::CHANNEL_SUBSYSTEM] = NET_SSH2_MSG_CHANNEL_OPEN;
 
@@ -3179,9 +3142,7 @@ class SSH2
             strlen($subsystem),
             $subsystem
         );
-        if (!$this->send_binary_packet($packet)) {
-            return false;
-        }
+        $this->send_binary_packet($packet);
 
         $this->channel_status[self::CHANNEL_SUBSYSTEM] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
@@ -3641,7 +3602,9 @@ class SSH2
 
                     $this->errors[] = 'SSH_MSG_GLOBAL_REQUEST: ' . Strings::shift($payload, $length);
 
-                    if (!$this->send_binary_packet(pack('C', NET_SSH2_MSG_REQUEST_FAILURE))) {
+                    try {
+                        $this->send_binary_packet(pack('C', NET_SSH2_MSG_REQUEST_FAILURE));
+                    } catch (\RuntimeException $e) {
                         return $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
                     }
 
@@ -3693,9 +3656,7 @@ class SSH2
 
                                 $this->server_channels[$new_channel] = $server_channel;
                                 $this->channel_status[$new_channel] = NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION;
-                                if (!$this->send_binary_packet($packet)) {
-                                    return false;
-                                }
+                                $this->send_binary_packet($packet);
                             }
                             break;
                         default:
@@ -3710,7 +3671,9 @@ class SSH2
                                 ''
                             );
 
-                            if (!$this->send_binary_packet($packet)) {
+                            try {
+                                $this->send_binary_packet($packet);
+                            } catch (\RuntimeException $e) {
                                 return $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
                             }
                     }
@@ -3892,9 +3855,7 @@ class SSH2
                 // resize the window, if appropriate
                 if ($this->window_size_server_to_client[$channel] < 0) {
                     $packet = pack('CNN', NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST, $this->server_channels[$channel], $this->window_size);
-                    if (!$this->send_binary_packet($packet)) {
-                        return false;
-                    }
+                    $this->send_binary_packet($packet);
                     $this->window_size_server_to_client[$channel]+= $this->window_size;
                 }
 
@@ -4178,7 +4139,7 @@ class SSH2
         $packet.= $this->encrypt && $this->encrypt->usesNonce() ? $this->encrypt->getTag() : $hmac;
 
         $start = microtime(true);
-        $result = strlen($packet) == fputs($this->fsock, $packet);
+        $sent = fputs($this->fsock, $packet);
         $stop = microtime(true);
 
         if (defined('NET_SSH2_LOGGING')) {
@@ -4190,7 +4151,10 @@ class SSH2
             $this->last_packet = $current;
         }
 
-        return $result;
+        if (strlen($packet) != $sent) {
+            $this->bitmap = 0;
+            throw new \RuntimeException("Only $sent of " . strlen($packet) . " bytes were sent");
+        }
     }
 
     /**
@@ -4308,9 +4272,7 @@ class SSH2
                 $temp
             );
             $this->window_size_client_to_server[$client_channel]-= strlen($temp);
-            if (!$this->send_binary_packet($packet)) {
-                return false;
-            }
+            $this->send_binary_packet($packet);
         }
 
         return true;
