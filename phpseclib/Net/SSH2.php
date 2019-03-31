@@ -67,7 +67,6 @@ use phpseclib\System\SSH\Agent\Identity as AgentIdentity;
 use phpseclib\Exception\NoSupportedAlgorithmsException;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\Common\Functions\Strings;
-use phpseclib\Common\Functions\Objects;
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -3022,6 +3021,42 @@ class SSH2
     }
 
     /**
+     * Request agent forwarding of remote server
+     *
+     * @return bool
+     * @access public
+     */
+    public function requestAgentForwarding()
+    {
+        $request_channel = $this->get_open_channel();
+        if ($request_channel === false) {
+            return false;
+        }
+
+        $packet = pack(
+            'CNNa*C',
+            NET_SSH2_MSG_CHANNEL_REQUEST,
+            $this->server_channels[$request_channel],
+            strlen('auth-agent-req@openssh.com'),
+            'auth-agent-req@openssh.com',
+            1
+        );
+
+        $this->channel_status[$request_channel] = NET_SSH2_MSG_CHANNEL_REQUEST;
+
+        $this->send_binary_packet($packet);
+
+        $response = $this->get_channel_packet($request_channel);
+        if ($response === false) {
+            return false;
+        }
+
+        $this->channel_status[$request_channel] = NET_SSH2_MSG_CHANNEL_OPEN;
+
+        return true;
+    }
+
+    /**
      * Returns the output of an interactive shell
      *
      * Returns when there's a match for $expect, which can take the form of a string literal or,
@@ -4017,7 +4052,7 @@ class SSH2
                     $data = Strings::shift($response, $length);
 
                     if ($channel == self::CHANNEL_AGENT_FORWARD) {
-                        $agent_response = Objects::callFunc($this->agent, 'forward_data', [$data]);
+                        $agent_response = $this->agent->forwardData($data);
                         if (!is_bool($agent_response)) {
                             $this->send_channel_packet($channel, $agent_response);
                         }
@@ -4442,7 +4477,7 @@ class SSH2
     private function on_channel_open()
     {
         if (isset($this->agent)) {
-            Objects::callFunc($this->agent, 'on_channel_open', [$this]);
+            $this->agent->registerChannelOpen($this);
         }
     }
 
