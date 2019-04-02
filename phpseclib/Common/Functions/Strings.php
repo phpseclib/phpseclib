@@ -72,7 +72,7 @@ abstract class Strings
      * N = uint32
      * s = string
      * i = mpint
-     * l = name-list
+     * L = name-list
      *
      * uint64 is not supported.
      *
@@ -82,21 +82,22 @@ abstract class Strings
      */
     public static function unpackSSH2($format, &$data)
     {
+        $format = self::formatPack($format);
         $result = [];
         for ($i = 0; $i < strlen($format); $i++) {
             switch ($format[$i]) {
                 case 'C':
                 case 'b':
                     if (!strlen($data)) {
-                        return false;
+                        throw new \LengthException('At least one byte needs to be present for successful C / b decodes');
                     }
                     break;
                 case 'N':
                 case 'i':
                 case 's':
-                case 'l':
+                case 'L':
                     if (strlen($data) < 4) {
-                        return false;
+                        throw new \LengthException('At least four byte needs to be present for successful N / i / s / L decodes');
                     }
                     break;
                 default:
@@ -116,7 +117,7 @@ abstract class Strings
             }
             list(, $length) = unpack('N', self::shift($data, 4));
             if (strlen($data) < $length) {
-                return false;
+                throw new \LengthException("$length bytes needed; " . strlen($data) . ' bytes available');
             }
             $temp = self::shift($data, $length);
             switch ($format[$i]) {
@@ -126,7 +127,7 @@ abstract class Strings
                 case 's':
                     $result[] = $temp;
                     break;
-                case 'l':
+                case 'L':
                     $result[] = explode(',', $temp);
             }
         }
@@ -143,7 +144,7 @@ abstract class Strings
      */
     public static function packSSH2(...$elements)
     {
-        $format = $elements[0];
+        $format = self::formatPack($elements[0]);
         array_shift($elements);
         if (strlen($format) != count($elements)) {
             throw new \InvalidArgumentException('There must be as many arguments as there are characters in the $format string');
@@ -183,7 +184,7 @@ abstract class Strings
                     $element = $element->toBytes(true);
                     $result.= pack('Na*', strlen($element), $element);
                     break;
-                case 'l':
+                case 'L':
                     if (!is_array($element)) {
                         throw new \InvalidArgumentException('An array was expected.');
                     }
@@ -195,6 +196,27 @@ abstract class Strings
             }
         }
         return $result;
+    }
+
+    /**
+     * Expand a pack string
+     *
+     * Converts C5 to CCCCC, for example.
+     *
+     * @access private
+     * @param string $format
+     * @return string
+     */
+    private static function formatPack($format)
+    {
+        $parts = preg_split('#(\d+)#', $format, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $format = '';
+        for ($i = 1; $i < count($parts); $i+=2) {
+            $format.= substr($parts[$i - 1], 0, -1) . str_repeat(substr($parts[$i - 1], -1), $parts[$i]);
+        }
+        $format.= $parts[$i - 1];
+
+        return $format;
     }
 
     /**

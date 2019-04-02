@@ -1398,42 +1398,23 @@ class SSH2
                 }
         }
 
-        $str_kex_algorithms = implode(',', $kex_algorithms);
-        $str_server_host_key_algorithms = implode(',', $server_host_key_algorithms);
-        $encryption_algorithms_server_to_client = implode(',', $s2c_encryption_algorithms);
-        $encryption_algorithms_client_to_server = implode(',', $c2s_encryption_algorithms);
-        $mac_algorithms_server_to_client = implode(',', $s2c_mac_algorithms);
-        $mac_algorithms_client_to_server = implode(',', $c2s_mac_algorithms);
-        $compression_algorithms_server_to_client = implode(',', $s2c_compression_algorithms);
-        $compression_algorithms_client_to_server = implode(',', $c2s_compression_algorithms);
         $client_cookie = Random::string(16);
 
-        $kexinit_payload_client = pack(
-            'Ca*Na*Na*Na*Na*Na*Na*Na*Na*Na*Na*CN',
-            NET_SSH2_MSG_KEXINIT,
-            $client_cookie,
-            strlen($str_kex_algorithms),
-            $str_kex_algorithms,
-            strlen($str_server_host_key_algorithms),
-            $str_server_host_key_algorithms,
-            strlen($encryption_algorithms_client_to_server),
-            $encryption_algorithms_client_to_server,
-            strlen($encryption_algorithms_server_to_client),
-            $encryption_algorithms_server_to_client,
-            strlen($mac_algorithms_client_to_server),
-            $mac_algorithms_client_to_server,
-            strlen($mac_algorithms_server_to_client),
-            $mac_algorithms_server_to_client,
-            strlen($compression_algorithms_client_to_server),
-            $compression_algorithms_client_to_server,
-            strlen($compression_algorithms_server_to_client),
-            $compression_algorithms_server_to_client,
-            0,
-            '',
-            0,
-            '',
-            0,
-            0
+        $kexinit_payload_client = pack('Ca*', NET_SSH2_MSG_KEXINIT, $client_cookie);
+        $kexinit_payload_client.= Strings::packSSH2(
+            'L10bN',
+            $kex_algorithms,
+            $server_host_key_algorithms,
+            $c2s_encryption_algorithms,
+            $s2c_encryption_algorithms,
+            $c2s_mac_algorithms,
+            $s2c_mac_algorithms,
+            $c2s_compression_algorithms,
+            $s2c_compression_algorithms,
+            [], // language, client to server
+            [], // language, server to client
+            false, // first_kex_packet_follows
+            0 // reserved for future extension
         );
 
         if ($this->send_kex_first) {
@@ -1454,73 +1435,19 @@ class SSH2
         Strings::shift($response, 1); // skip past the message number (it should be SSH_MSG_KEXINIT)
         $server_cookie = Strings::shift($response, 16);
 
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->kex_algorithms = explode(',', Strings::shift($response, $temp['length']));
-
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->server_host_key_algorithms = explode(',', Strings::shift($response, $temp['length']));
-
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->encryption_algorithms_client_to_server = explode(',', Strings::shift($response, $temp['length']));
-
-        if (strlen($response) < 4) {
-
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->encryption_algorithms_server_to_client = explode(',', Strings::shift($response, $temp['length']));
-
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->mac_algorithms_client_to_server = explode(',', Strings::shift($response, $temp['length']));
-
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->mac_algorithms_server_to_client = explode(',', Strings::shift($response, $temp['length']));
-
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->compression_algorithms_client_to_server = explode(',', Strings::shift($response, $temp['length']));
-
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->compression_algorithms_server_to_client = explode(',', Strings::shift($response, $temp['length']));
-
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->languages_client_to_server = explode(',', Strings::shift($response, $temp['length']));
-
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->languages_server_to_client = explode(',', Strings::shift($response, $temp['length']));
-
-        if (!strlen($response)) {
-            return false;
-        }
-        extract(unpack('Cfirst_kex_packet_follows', Strings::shift($response, 1)));
-        /** @var integer $first_kex_packet_follows */
-        $first_kex_packet_follows = $first_kex_packet_follows != 0;
+        list(
+            $this->kex_algorithms,
+            $this->server_host_key_algorithms,
+            $this->encryption_algorithms_client_to_server,
+            $this->encryption_algorithms_server_to_client,
+            $this->mac_algorithms_client_to_server,
+            $this->mac_algorithms_server_to_client,
+            $this->compression_algorithms_client_to_server,
+            $this->compression_algorithms_server_to_client,
+            $this->languages_client_to_server,
+            $this->languages_server_to_client,
+            $first_kex_packet_follows
+        ) = Strings::unpackSSH2('L10C', $response);
 
         if (!$this->send_kex_first) {
             $this->send_binary_packet($kexinit_payload_client);
@@ -1580,34 +1507,17 @@ class SSH2
                     $this->bitmap = 0;
                     throw new \RuntimeException('Connection closed by server');
                 }
-                extract(unpack('Ctype', Strings::shift($response, 1)));
-                /** @var integer $type */
+
+                list($type, $primeBytes, $gBytes) = unpack('Css', $response);
                 if ($type != NET_SSH2_MSG_KEXDH_GEX_GROUP) {
                     throw new \UnexpectedValueException('Expected SSH_MSG_KEX_DH_GEX_GROUP');
                 }
-
-                if (strlen($response) < 4) {
-                    return false;
-                }
-                extract(unpack('NprimeLength', Strings::shift($response, 4)));
-                /** @var integer $primeLength*/
-                $primeBytes = Strings::shift($response, $primeLength);
                 $prime = new BigInteger($primeBytes, -256);
-
-                if (strlen($response) < 4) {
-                    return false;
-                }
-                extract(unpack('NgLength', Strings::shift($response, 4)));
-                /** @var integer $gLength */
-                $gBytes = Strings::shift($response, $gLength);
                 $g = new BigInteger($gBytes, -256);
 
-                $exchange_hash_rfc4419 = pack(
-                    'a*Na*Na*',
-                    $dh_group_sizes_packed,
-                    $primeLength,
+                $exchange_hash_rfc4419 = $dh_group_sizes_packed . Strings::packSSH2(
+                    'ss',
                     $primeBytes,
-                    $gLength,
                     $gBytes
                 );
 
@@ -1668,6 +1578,7 @@ class SSH2
 
             $eBytes = $e->toBytes(true);
         }
+
         $data = pack('CNa*', $clientKexInitMessage, strlen($eBytes), $eBytes);
 
         $this->send_binary_packet($data);
@@ -1680,35 +1591,20 @@ class SSH2
         if (!strlen($response)) {
             return false;
         }
-        extract(unpack('Ctype', Strings::shift($response, 1)));
-        /** @var integer $type */
+
+        list(
+            $type,
+            $server_public_host_key,
+            $fBytes,
+            $this->signature
+        ) = Strings::unpackSSH2('Csss', $response);
+
         if ($type != $serverKexReplyMessage) {
             throw new \UnexpectedValueException('Expected SSH_MSG_KEXDH_REPLY');
         }
 
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->server_public_host_key = $server_public_host_key = Strings::shift($response, $temp['length']);
-
-        if (strlen($server_public_host_key) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($server_public_host_key, 4));
-        $public_key_format = Strings::shift($server_public_host_key, $temp['length']);
-
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $fBytes = Strings::shift($response, $temp['length']);
-
-        if (strlen($response) < 4) {
-            return false;
-        }
-        $temp = unpack('Nlength', Strings::shift($response, 4));
-        $this->signature = Strings::shift($response, $temp['length']);
+        $this->server_public_host_key = $server_public_host_key;
+        list($public_key_format) = Strings::unpackSSH2('s', $server_public_host_key);
 
         if (strlen($this->signature) < 4) {
             return false;
@@ -1728,24 +1624,17 @@ class SSH2
         }
         $keyBytes = $key->toBytes(true);
 
-        $this->exchange_hash = pack(
-            'Na*Na*Na*Na*Na*a*Na*Na*Na*',
-            strlen($this->identifier),
+        $this->exchange_hash = Strings::packSSH2('s5',
             $this->identifier,
-            strlen($this->server_identifier),
             $this->server_identifier,
-            strlen($kexinit_payload_client),
             $kexinit_payload_client,
-            strlen($kexinit_payload_server),
             $kexinit_payload_server,
-            strlen($this->server_public_host_key),
-            $this->server_public_host_key,
-            $exchange_hash_rfc4419,
-            strlen($eBytes),
+            $this->server_public_host_key
+        );
+        $this->exchange_hash.= $exchange_hash_rfc4419;
+        $this->exchange_hash.= Strings::packSSH2('s3',
             $eBytes,
-            strlen($fBytes),
             $fBytes,
-            strlen($keyBytes),
             $keyBytes
         );
 
@@ -1780,11 +1669,7 @@ class SSH2
             }
         }
 
-        $packet = pack(
-            'C',
-            NET_SSH2_MSG_NEWKEYS
-        );
-
+        $packet = pack('C', NET_SSH2_MSG_NEWKEYS);
         $this->send_binary_packet($packet);
 
         $response = $this->get_binary_packet();
@@ -1794,11 +1679,7 @@ class SSH2
             throw new \RuntimeException('Connection closed by server');
         }
 
-        if (!strlen($response)) {
-            return false;
-        }
-        extract(unpack('Ctype', Strings::shift($response, 1)));
-        /** @var integer $type */
+        list($type) = Strings::unpackSSH2('C', $response);
         if ($type != NET_SSH2_MSG_NEWKEYS) {
             throw new \UnexpectedValueException('Expected SSH_MSG_NEWKEYS');
         }
@@ -2201,13 +2082,7 @@ class SSH2
         }
 
         if (!($this->bitmap & self::MASK_LOGIN_REQ)) {
-            $packet = pack(
-                'CNa*',
-                NET_SSH2_MSG_SERVICE_REQUEST,
-                strlen('ssh-userauth'),
-                'ssh-userauth'
-            );
-
+            $packet = Strings::packSSH2('Cs', NET_SSH2_MSG_SERVICE_REQUEST, 'ssh-userauth');
             $this->send_binary_packet($packet);
 
             $response = $this->get_binary_packet();
@@ -2223,12 +2098,8 @@ class SSH2
                 throw new \RuntimeException('Connection closed by server');
             }
 
-            if (strlen($response) < 4) {
-                return false;
-            }
-            extract(unpack('Ctype', Strings::shift($response, 1)));
-            /** @var integer $type */
-            if ($type != NET_SSH2_MSG_SERVICE_ACCEPT) {
+            list($type, $service) = Strings::unpackSSH2('Cs', $response);
+            if ($type != NET_SSH2_MSG_SERVICE_ACCEPT || $service != 'ssh-userauth') {
                 throw new \UnexpectedValueException('Expected SSH_MSG_SERVICE_ACCEPT');
             }
             $this->bitmap |= self::MASK_LOGIN_REQ;
@@ -2253,15 +2124,12 @@ class SSH2
         }
 
         if (!isset($password)) {
-            $packet = pack(
-                'CNa*Na*Na*',
-                NET_SSH2_MSG_USERAUTH_REQUEST,
-                strlen($username),
-                $username,
-                strlen('ssh-connection'),
-                'ssh-connection',
-                strlen('none'),
-                'none'
+           $packet = Strings::packSSH2(
+               'Cs3',
+               NET_SSH2_MSG_USERAUTH_REQUEST,
+               $username,
+               'ssh-connection',
+               'none'
             );
 
             $this->send_binary_packet($packet);
@@ -2272,11 +2140,7 @@ class SSH2
                 throw new \RuntimeException('Connection closed by server');
             }
 
-            if (!strlen($response)) {
-                return false;
-            }
-            extract(unpack('Ctype', Strings::shift($response, 1)));
-            /** @var integer $type */
+            list($type) = Strings::unpackSSH2('C', $response);
             switch ($type) {
                 case NET_SSH2_MSG_USERAUTH_SUCCESS:
                     $this->bitmap |= self::MASK_LOGIN;
@@ -2287,17 +2151,13 @@ class SSH2
             }
         }
 
-        $packet = pack(
-            'CNa*Na*Na*CNa*',
+        $packet = Strings::packSSH2(
+            'Cs3bs',
             NET_SSH2_MSG_USERAUTH_REQUEST,
-            strlen($username),
             $username,
-            strlen('ssh-connection'),
             'ssh-connection',
-            strlen('password'),
             'password',
-            0,
-            strlen($password),
+            false,
             $password
         );
 
@@ -2305,17 +2165,13 @@ class SSH2
         if (!defined('NET_SSH2_LOGGING')) {
             $logged = null;
         } else {
-            $logged = pack(
-                'CNa*Na*Na*CNa*',
+            $logged = Strings::packSSH2(
+                'Cs3bs',
                 NET_SSH2_MSG_USERAUTH_REQUEST,
-                strlen('username'),
-                'username',
-                strlen('ssh-connection'),
+                $username,
                 'ssh-connection',
-                strlen('password'),
                 'password',
-                0,
-                strlen('password'),
+                false,
                 'password'
             );
         }
@@ -2328,44 +2184,21 @@ class SSH2
             throw new \RuntimeException('Connection closed by server');
         }
 
-        if (!strlen($response)) {
-            return false;
-        }
-        extract(unpack('Ctype', Strings::shift($response, 1)));
-        /** @var integer $type */
+        list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
                 if (defined('NET_SSH2_LOGGING')) {
                     $this->message_number_log[count($this->message_number_log) - 1] = 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ';
                 }
 
-                if (strlen($response) < 4) {
-                    return false;
-                }
-                extract(unpack('Nlength', Strings::shift($response, 4)));
-                /** @var integer $length */
-
-                $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . Strings::shift($response, $length);
+                list($message) = Strings::unpackSSH2('s', $response);
+                $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . $message;
 
                 return $this->disconnect_helper(NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER);
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 // can we use keyboard-interactive authentication?  if not then either the login is bad or the server employees
                 // multi-factor authentication
-                if (strlen($response) < 4) {
-                    return false;
-                }
-                extract(unpack('Nlength', Strings::shift($response, 4)));
-                /** @var integer $length */
-
-                $auth_methods = explode(',', Strings::shift($response, $length));
-                if (!strlen($response)) {
-                    return false;
-                }
-                extract(unpack('Cpartial_success', Strings::shift($response, 1)));
-                /** @var integer $partial_success */
-
-                $partial_success = $partial_success != 0;
-
+                list($auth_methods, $partial_success) = Strings::unpackSSH2('Lb', $response);
                 if (!$partial_success && in_array('keyboard-interactive', $auth_methods)) {
                     if ($this->keyboard_interactive_login($username, $password)) {
                         $this->bitmap |= self::MASK_LOGIN;
@@ -2394,21 +2227,15 @@ class SSH2
      */
     private function keyboard_interactive_login($username, $password)
     {
-        $packet = pack(
-            'CNa*Na*Na*Na*Na*',
+        $packet = Strings::packSSH2(
+            'Cs5',
             NET_SSH2_MSG_USERAUTH_REQUEST,
-            strlen($username),
             $username,
-            strlen('ssh-connection'),
             'ssh-connection',
-            strlen('keyboard-interactive'),
             'keyboard-interactive',
-            0,
-            '',
-            0,
-            ''
+            '', // language tag
+            '' // submethods
         );
-
         $this->send_binary_packet($packet);
 
         return $this->keyboard_interactive_process($password);
@@ -2434,39 +2261,15 @@ class SSH2
             }
         }
 
-        if (!strlen($response)) {
-            return false;
-        }
-        extract(unpack('Ctype', Strings::shift($response, 1)));
-        /** @var integer $type */
+        list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_INFO_REQUEST:
-                if (strlen($response) < 4) {
-                    return false;
-                }
-                extract(unpack('Nlength', Strings::shift($response, 4)));
-                /** @var integer $length */
-
-                Strings::shift($response, $length); // name; may be empty
-                if (strlen($response) < 4) {
-                    return false;
-                }
-                extract(unpack('Nlength', Strings::shift($response, 4)));
-                /** @var integer $length */
-
-                Strings::shift($response, $length); // instruction; may be empty
-                if (strlen($response) < 4) {
-                    return false;
-                }
-                extract(unpack('Nlength', Strings::shift($response, 4)));
-                /** @var integer $length */
-
-                Strings::shift($response, $length); // language tag; may be empty
-                if (strlen($response) < 4) {
-                    return false;
-                }
-                extract(unpack('Nnum_prompts', Strings::shift($response, 4)));
-                /** @var integer $num_prompts */
+                list(
+                    , // name; may be empty
+                    , // instruction; may be empty
+                    , // language tag; may be empty
+                    $num_prompts
+                ) = Strings::unpackSSH2('s3N', $response);
 
                 for ($i = 0; $i < count($responses); $i++) {
                     if (is_array($responses[$i])) {
@@ -2480,15 +2283,10 @@ class SSH2
 
                 if (isset($this->keyboard_requests_responses)) {
                     for ($i = 0; $i < $num_prompts; $i++) {
-                        if (strlen($response) < 4) {
-                            return false;
-                        }
-                        extract(unpack('Nlength', Strings::shift($response, 4)));
-                        /** @var integer $length */
-
-                        // prompt - ie. "Password: "; must not be empty
-                        $prompt = Strings::shift($response, $length);
-                        //$echo = Strings::shift($response) != chr(0);
+                        list(
+                            $prompt, // prompt - ie. "Password: "; must not be empty
+                            // echo
+                        ) = Strings::unpackSSH2('sC', $response);
                         foreach ($this->keyboard_requests_responses as $key => $value) {
                             if (substr($prompt, 0, strlen($key)) == $key) {
                                 $responses[] = $value;
@@ -2501,7 +2299,7 @@ class SSH2
                 // see http://tools.ietf.org/html/rfc4256#section-3.2
                 if (strlen($this->last_interactive_response)) {
                     $this->last_interactive_response = '';
-                } elseif (defined('NET_SSH2_LOGGING')) {
+                } elseif (defined('NET_SSH2_LOGGING')  && NET_SSH2_LOGGING == self::LOG_COMPLEX) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
                         'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
@@ -2521,8 +2319,8 @@ class SSH2
                 // see http://tools.ietf.org/html/rfc4256#section-3.4
                 $packet = $logged = pack('CN', NET_SSH2_MSG_USERAUTH_INFO_RESPONSE, count($responses));
                 for ($i = 0; $i < count($responses); $i++) {
-                    $packet.= pack('Na*', strlen($responses[$i]), $responses[$i]);
-                    $logged.= pack('Na*', strlen('dummy-answer'), 'dummy-answer');
+                    $packet.= Strings::packSSH2('s', $responses[$i]);
+                    $logged.= Strings::packSSH2('s', 'dummy-answer');
                 }
 
                 $this->send_binary_packet($packet, $logged);
@@ -2592,17 +2390,10 @@ class SSH2
             return false;
         }
 
-        $publickey = [
-            'e' => $publickey['e']->toBytes(true),
-            'n' => $publickey['n']->toBytes(true)
-        ];
-        $publickey = pack(
-            'Na*Na*Na*',
-            strlen('ssh-rsa'),
+        $publickey = Strings::packSSH2(
+            'sii',
             'ssh-rsa',
-            strlen($publickey['e']),
             $publickey['e'],
-            strlen($publickey['n']),
             $publickey['n']
         );
 
@@ -2621,17 +2412,14 @@ class SSH2
                 $signatureType = 'ssh-rsa';
         }
 
-        $part1 = pack(
-            'CNa*Na*Na*',
+        $part1 = Strings::packSSH2(
+            'Csss',
             NET_SSH2_MSG_USERAUTH_REQUEST,
-            strlen($username),
             $username,
-            strlen('ssh-connection'),
             'ssh-connection',
-            strlen('publickey'),
             'publickey'
         );
-        $part2 = pack('Na*Na*', strlen($signatureType), $signatureType, strlen($publickey), $publickey);
+        $part2 = Strings::packSSH2('ss', $signatureType, $publickey);
 
         $packet = $part1 . chr(0) . $part2;
         $this->send_binary_packet($packet);
@@ -2642,21 +2430,11 @@ class SSH2
             throw new \RuntimeException('Connection closed by server');
         }
 
-        if (!strlen($response)) {
-            return false;
-        }
-        extract(unpack('Ctype', Strings::shift($response, 1)));
-        /** @var integer $type */
-
+        list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
-                if (strlen($response) < 4) {
-                    return false;
-                }
-                extract(unpack('Nlength', Strings::shift($response, 4)));
-                /** @var integer $length */
-
-                $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . Strings::shift($response, $length);
+                list($message) = Strings::unpackSSH2('s', $response);
+                $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . $message;
 
                 return false;
             case NET_SSH2_MSG_USERAUTH_PK_OK:
@@ -2673,9 +2451,9 @@ class SSH2
 
         $packet = $part1 . chr(1) . $part2;
         $privatekey->setHash($hash);
-        $signature = $privatekey->sign(pack('Na*a*', strlen($this->session_id), $this->session_id, $packet), RSA::PADDING_PKCS1);
-        $signature = pack('Na*Na*', strlen($signatureType), $signatureType, strlen($signature), $signature);
-        $packet.= pack('Na*', strlen($signature), $signature);
+        $signature = $privatekey->sign(Strings::packSSH2('s', $this->session_id) . $packet, RSA::PADDING_PKCS1);
+        $signature = Strings::packSSH2('ss', $signatureType, $signature);
+        $packet.= Strings::packSSH2('s', $signature);
 
         $this->send_binary_packet($packet);
 
@@ -2685,12 +2463,7 @@ class SSH2
             throw new \RuntimeException('Connection closed by server');
         }
 
-        if (!strlen($response)) {
-            return false;
-        }
-        extract(unpack('Ctype', Strings::shift($response, 1)));
-        /** @var integer $type */
-
+        list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 // either the login is bad or the server employs multi-factor authentication
@@ -2762,16 +2535,14 @@ class SSH2
         // uses 0x4000, that's what will be used here, as well.
         $packet_size = 0x4000;
 
-        $packet = pack(
-            'CNa*N3',
+        $packet = Strings::packSSH2(
+            'CsN3',
             NET_SSH2_MSG_CHANNEL_OPEN,
-            strlen('session'),
             'session',
             self::CHANNEL_EXEC,
             $this->window_size_server_to_client[self::CHANNEL_EXEC],
             $packet_size
         );
-
         $this->send_binary_packet($packet);
 
         $this->channel_status[self::CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_OPEN;
@@ -2783,20 +2554,17 @@ class SSH2
 
         if ($this->request_pty === true) {
             $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
-            $packet = pack(
-                'CNNa*CNa*N5a*',
+            $packet = Strings::packSSH2(
+                'CNsCsN4s',
                 NET_SSH2_MSG_CHANNEL_REQUEST,
                 $this->server_channels[self::CHANNEL_EXEC],
-                strlen('pty-req'),
                 'pty-req',
                 1,
-                strlen('vt100'),
                 'vt100',
                 $this->windowColumns,
                 $this->windowRows,
                 0,
                 0,
-                strlen($terminal_modes),
                 $terminal_modes
             );
 
@@ -2808,11 +2576,7 @@ class SSH2
                 throw new \RuntimeException('Connection closed by server');
             }
 
-            if (!strlen($response)) {
-                return false;
-            }
-            list(, $type) = unpack('C', Strings::shift($response, 1));
-
+            list($type) = Strings::unpackSSH2('C', $response);
             switch ($type) {
                 case NET_SSH2_MSG_CHANNEL_SUCCESS:
                     break;
@@ -2833,14 +2597,12 @@ class SSH2
         // although, in theory, the size of SSH_MSG_CHANNEL_REQUEST could exceed the maximum packet size established by
         // SSH_MSG_CHANNEL_OPEN_CONFIRMATION, RFC4254#section-5.1 states that the "maximum packet size" refers to the
         // "maximum size of an individual data packet". ie. SSH_MSG_CHANNEL_DATA.  RFC4254#section-5.2 corroborates.
-        $packet = pack(
-            'CNNa*CNa*',
+        $packet = Strings::packSSH2(
+            'CNsCs',
             NET_SSH2_MSG_CHANNEL_REQUEST,
             $this->server_channels[self::CHANNEL_EXEC],
-            strlen('exec'),
             'exec',
             1,
-            strlen($command),
             $command
         );
         $this->send_binary_packet($packet);
@@ -2898,10 +2660,9 @@ class SSH2
         $this->window_size_server_to_client[self::CHANNEL_SHELL] = $this->window_size;
         $packet_size = 0x4000;
 
-        $packet = pack(
-            'CNa*N3',
+        $packet = Strings::packSSH2(
+            'CsN3',
             NET_SSH2_MSG_CHANNEL_OPEN,
-            strlen('session'),
             'session',
             self::CHANNEL_SHELL,
             $this->window_size_server_to_client[self::CHANNEL_SHELL],
@@ -2918,20 +2679,17 @@ class SSH2
         }
 
         $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
-        $packet = pack(
-            'CNNa*CNa*N5a*',
+        $packet = Strings::packSSH2(
+            'CNsCsN4s',
             NET_SSH2_MSG_CHANNEL_REQUEST,
             $this->server_channels[self::CHANNEL_SHELL],
-            strlen('pty-req'),
             'pty-req',
             1,
-            strlen('vt100'),
             'vt100',
             $this->windowColumns,
             $this->windowRows,
             0,
             0,
-            strlen($terminal_modes),
             $terminal_modes
         );
 
@@ -2943,10 +2701,7 @@ class SSH2
             throw new \RuntimeException('Connection closed by server');
         }
 
-        if (!strlen($response)) {
-            return false;
-        }
-        list(, $type) = unpack('C', Strings::shift($response, 1));
+        list($type) = Strings::unpackSSH2('C', $response);
 
         switch ($type) {
             case NET_SSH2_MSG_CHANNEL_SUCCESS:
@@ -2958,13 +2713,12 @@ class SSH2
                 throw new \UnexpectedValueException('Unable to request pseudo-terminal');
         }
 
-        $packet = pack(
-            'CNNa*C',
+        $packet = Strings::packSSH2(
+            'CNsb',
             NET_SSH2_MSG_CHANNEL_REQUEST,
             $this->server_channels[self::CHANNEL_SHELL],
-            strlen('shell'),
             'shell',
-            1
+            true // want reply
         );
         $this->send_binary_packet($packet);
 
@@ -3033,11 +2787,10 @@ class SSH2
             return false;
         }
 
-        $packet = pack(
-            'CNNa*C',
+        $packet = Strings::packSSH2(
+            'CNsC',
             NET_SSH2_MSG_CHANNEL_REQUEST,
             $this->server_channels[$request_channel],
-            strlen('auth-agent-req@openssh.com'),
             'auth-agent-req@openssh.com',
             1
         );
@@ -3148,10 +2901,9 @@ class SSH2
     {
         $this->window_size_server_to_client[self::CHANNEL_SUBSYSTEM] = $this->window_size;
 
-        $packet = pack(
-            'CNa*N3',
+        $packet = Strings::packSSH2(
+            'CsN3',
             NET_SSH2_MSG_CHANNEL_OPEN,
-            strlen('session'),
             'session',
             self::CHANNEL_SUBSYSTEM,
             $this->window_size,
@@ -3167,14 +2919,12 @@ class SSH2
             return false;
         }
 
-        $packet = pack(
-            'CNNa*CNa*',
+        $packet = Strings::packSSH2(
+            'CNsCs',
             NET_SSH2_MSG_CHANNEL_REQUEST,
             $this->server_channels[self::CHANNEL_SUBSYSTEM],
-            strlen('subsystem'),
             'subsystem',
             1,
-            strlen($subsystem),
             $subsystem
         );
         $this->send_binary_packet($packet);
@@ -3297,10 +3047,9 @@ class SSH2
 
         $this->window_size_server_to_client[self::CHANNEL_KEEP_ALIVE] = $this->window_size;
         $packet_size = 0x4000;
-        $packet = pack(
-            'CNa*N3',
+        $packet = Strings::packSSH2(
+            'CsN3',
             NET_SSH2_MSG_CHANNEL_OPEN,
-            strlen('session'),
             'session',
             self::CHANNEL_KEEP_ALIVE,
             $this->window_size_server_to_client[self::CHANNEL_KEEP_ALIVE],
@@ -3563,30 +3312,17 @@ class SSH2
         switch (ord($payload[0])) {
             case NET_SSH2_MSG_DISCONNECT:
                 Strings::shift($payload, 1);
-                if (strlen($payload) < 8) {
-                    return false;
-                }
-                extract(unpack('Nreason_code/Nlength', Strings::shift($payload, 8)));
-                /**
-                 * @var integer $reason_code
-                 * @var integer $length
-                 */
-
-                $this->errors[] = 'SSH_MSG_DISCONNECT: ' . $this->disconnect_reasons[$reason_code] . "\r\n" . Strings::shift($payload, $length);
+                list($reason_code, $message) = Strings::unpackSSH2('Ns', $payload);
+                $this->errors[] = 'SSH_MSG_DISCONNECT: ' . $this->disconnect_reasons[$reason_code] . "\r\n$message";
                 $this->bitmap = 0;
                 return false;
             case NET_SSH2_MSG_IGNORE:
                 $payload = $this->get_binary_packet($skip_channel_filter);
                 break;
             case NET_SSH2_MSG_DEBUG:
-                Strings::shift($payload, 2);
-                if (strlen($payload) < 4) {
-                    return false;
-                }
-                extract(unpack('Nlength', Strings::shift($payload, 4)));
-                /** @var integer $length */
-
-                $this->errors[] = 'SSH_MSG_DEBUG: ' . Strings::shift($payload, $length);
+                Strings::shift($payload, 2); // second byte is "always_display"
+                list($message) = Strings::unpackSSH2('s', $payload);
+                $this->errors[] = "SSH_MSG_DEBUG: $message";
                 $payload = $this->get_binary_packet($skip_channel_filter);
                 break;
             case NET_SSH2_MSG_UNIMPLEMENTED:
@@ -3604,13 +3340,7 @@ class SSH2
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
         if (($this->bitmap & self::MASK_CONNECTED) && !$this->isAuthenticated() && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             Strings::shift($payload, 1);
-            if (strlen($payload) < 4) {
-                return false;
-            }
-            extract(unpack('Nlength', Strings::shift($payload, 4)));
-            /** @var integer $length */
-
-            $this->banner_message = Strings::shift($payload, $length);
+            list($this->banner_message) = Strings::unpackSSH2('s', $response);
             $payload = $this->get_binary_packet();
         }
 
@@ -3629,13 +3359,9 @@ class SSH2
                     }
                     break;
                 case NET_SSH2_MSG_GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
-                    if (strlen($payload) < 4) {
-                        return false;
-                    }
-                    extract(unpack('Nlength', Strings::shift($payload, 4)));
-                    /** @var integer $length */
-
-                    $this->errors[] = 'SSH_MSG_GLOBAL_REQUEST: ' . Strings::shift($payload, $length);
+                    Strings::shift($payload, 1);
+                    list($request_name) = Strings::unpackSSH2('s', $payload);
+                    $this->errors[] = "SSH_MSG_GLOBAL_REQUEST: $request_name";
 
                     try {
                         $this->send_binary_packet(pack('C', NET_SSH2_MSG_REQUEST_FAILURE));
@@ -3647,32 +3373,17 @@ class SSH2
                     break;
                 case NET_SSH2_MSG_CHANNEL_OPEN: // see http://tools.ietf.org/html/rfc4254#section-5.1
                     Strings::shift($payload, 1);
-                    if (strlen($payload) < 4) {
-                        return false;
-                    }
-                    extract(unpack('Nlength', Strings::shift($payload, 4)));
-                    /** @var integer $length */
-
-                    $data = Strings::shift($payload, $length);
-                    if (strlen($payload) < 4) {
-                        return false;
-                    }
-                    extract(unpack('Nserver_channel', Strings::shift($payload, 4)));
-                    /** @var integer $server_channel */
-
+                    list($data, $server_channel) = Strings::unpackSSH2('sN', $payload);
                     switch ($data) {
                         case 'auth-agent':
                         case 'auth-agent@openssh.com':
                             if (isset($this->agent)) {
                                 $new_channel = self::CHANNEL_AGENT_FORWARD;
 
-                                if (strlen($payload) < 8) {
-                                    return false;
-                                }
-                                extract(unpack('Nremote_window_size', Strings::shift($payload, 4)));
-                                /** @var integer $remote_window_size */
-                                extract(unpack('Nremote_maximum_packet_size', Strings::shift($payload, 4)));
-                                /** @var integer $remote_maximum_packet_size*/
+                                list(
+                                    $remote_window_size,
+                                    $remote_maximum_packet_size
+                                ) = Strings::unpackSSH2('NN', $payload);
 
                                 $this->packet_size_client_to_server[$new_channel] = $remote_window_size;
                                 $this->window_size_server_to_client[$new_channel] = $remote_maximum_packet_size;
@@ -3695,15 +3406,13 @@ class SSH2
                             }
                             break;
                         default:
-                            $packet = pack(
-                                'CN3a*Na*',
-                                NET_SSH2_MSG_REQUEST_FAILURE,
+                            $packet = Strings::packSSH2(
+                                'CN2ss',
+                                NET_SSH2_MSG_CHANNEL_OPEN_FAILURE,
                                 $server_channel,
                                 NET_SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED,
-                                0,
-                                '',
-                                0,
-                                ''
+                                '', // description
+                                '' // language tag
                             );
 
                             try {
@@ -3717,13 +3426,7 @@ class SSH2
                     break;
                 case NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST:
                     Strings::shift($payload, 1);
-                    if (strlen($payload) < 8) {
-                        return false;
-                    }
-                    extract(unpack('Nchannel', Strings::shift($payload, 4)));
-                    /** @var integer $channel */
-                    extract(unpack('Nwindow_size', Strings::shift($payload, 4)));
-                    /** @var integer $window_size */
+                    list($channel, $window_size) = Strings::unpackSSH2('NN', $payload);
 
                     $this->window_size_client_to_server[$channel]+= $window_size;
 
@@ -3866,22 +3569,7 @@ class SSH2
             if ($client_channel == -1 && $response === true) {
                 return true;
             }
-            if (!strlen($response)) {
-                return false;
-            }
-            extract(unpack('Ctype', Strings::shift($response, 1)));
-            /** @var integer $type */
-
-            if (strlen($response) < 4) {
-                return false;
-            }
-            if ($type == NET_SSH2_MSG_CHANNEL_OPEN) {
-                extract(unpack('Nlength', Strings::shift($response, 4)));
-                /** @var integer $length */
-            } else {
-                extract(unpack('Nchannel', Strings::shift($response, 4)));
-                /** @var integer $channel */
-            }
+            list($type, $channel) = Strings::unpackSSH2('CN', $response);
 
             // will not be setup yet on incoming channel open request
             if (isset($channel) && isset($this->channel_status[$channel]) && isset($this->window_size_server_to_client[$channel])) {
@@ -3902,11 +3590,7 @@ class SSH2
                         }
                         */
                         // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR
-                        if (strlen($response) < 8) {
-                            return false;
-                        }
-                        extract(unpack('Ndata_type_code/Nlength', Strings::shift($response, 8)));
-                        $data = Strings::shift($response, $length);
+                        list($data_type_code, $data) = Strings::unpackSSH2('Ns', $response);
                         $this->stdErrorLog.= $data;
                         if ($skip_extended || $this->quiet_mode) {
                             continue 2;
@@ -3924,30 +3608,19 @@ class SSH2
                         if ($this->channel_status[$channel] == NET_SSH2_MSG_CHANNEL_CLOSE) {
                             continue 2;
                         }
-                        if (strlen($response) < 4) {
-                            return false;
-                        }
-                        extract(unpack('Nlength', Strings::shift($response, 4)));
-                        $value = Strings::shift($response, $length);
+                        list($value) = Strings::unpackSSH2('s', $response);
                         switch ($value) {
                             case 'exit-signal':
-                                Strings::shift($response, 1);
-                                if (strlen($response) < 4) {
-                                    return false;
-                                }
-                                extract(unpack('Nlength', Strings::shift($response, 4)));
-                                /** @var integer $length */
+                                list(
+                                    , // FALSE
+                                    $signal_name,
+                                    , // core dumped
+                                    $error_message
+                                ) = Strings::unpackSSH2('bsbs', $response);
 
-                                $this->errors[] = 'SSH_MSG_CHANNEL_REQUEST (exit-signal): ' . Strings::shift($response, $length);
-                                $this->_string_shift($response, 1);
-                                if (strlen($response) < 4) {
-                                    return false;
-                                }
-                                extract(unpack('Nlength', Strings::shift($response, 4)));
-                                /** @var integer $length */
-
-                                if ($length) {
-                                    $this->errors[count($this->errors)].= "\r\n" . Strings::shift($response, $length);
+                                $this->errors[] = "SSH_MSG_CHANNEL_REQUEST (exit-signal): $signal_name";
+                                if (strlen($error_message)) {
+                                    $this->errors[count($this->errors) - 1].= "\r\n$error_message";
                                 }
 
                                 $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$client_channel]));
@@ -3957,16 +3630,7 @@ class SSH2
 
                                 continue 3;
                             case 'exit-status':
-                                if (strlen($response) < 5) {
-                                    return false;
-                                }
-                                extract(unpack('Cfalse/Nexit_status', Strings::shift($response, 5)));
-                                /**
-                                 * @var integer $false
-                                 * @var integer $exit_status
-                                 */
-
-                                $this->exit_status = $exit_status;
+                                list(, $this->exit_status) = Strings::unpackSSH2('CN', $response);
 
                                 // "The client MAY ignore these messages."
                                 // -- http://tools.ietf.org/html/rfc4254#section-6.10
@@ -3983,29 +3647,17 @@ class SSH2
                     case NET_SSH2_MSG_CHANNEL_OPEN:
                         switch ($type) {
                             case NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION:
-                                if (strlen($response) < 4) {
-                                    return false;
-                                }
-                                extract(unpack('Nserver_channel', Strings::shift($response, 4)));
-                                /** @var integer $server_channel */
-                                $this->server_channels[$channel] = $server_channel;
-                                if (strlen($response) < 4) {
-                                    return false;
-                                }
-                                extract(unpack('Nwindow_size', Strings::shift($response, 4)));
-                                /** @var integer $window_size */
+                                list(
+                                    $this->server_channels[$channel],
+                                    $window_size,
+                                    $this->packet_size_client_to_server[$channel]
+                                ) = Strings::unpackSSH2('NNN', $response);
 
                                 if ($window_size < 0) {
                                     $window_size&= 0x7FFFFFFF;
                                     $window_size+= 0x80000000;
                                 }
                                 $this->window_size_client_to_server[$channel] = $window_size;
-                                if (strlen($response) < 4) {
-                                     return false;
-                                }
-                                $temp = unpack('Npacket_size_client_to_server', Strings::shift($response, 4));
-
-                                $this->packet_size_client_to_server[$channel] = $temp['packet_size_client_to_server'];
                                 $result = $client_channel == $channel ? true : $this->get_channel_packet($client_channel, $skip_extended);
                                 $this->on_channel_open();
                                 return $result;
@@ -4043,13 +3695,7 @@ class SSH2
                         $this->send_channel_packet($channel, chr(0));
                     }
                     */
-                    if (strlen($response) < 4) {
-                        return false;
-                    }
-                    extract(unpack('Nlength', Strings::shift($response, 4)));
-                    /** @var integer $length */
-
-                    $data = Strings::shift($response, $length);
+                    list($data) = Strings::unpackSSH2('s', $response);
 
                     if ($channel == self::CHANNEL_AGENT_FORWARD) {
                         $agent_response = $this->agent->forwardData($data);
@@ -4299,11 +3945,10 @@ class SSH2
             );
 
             $temp = Strings::shift($data, $max_size);
-            $packet = pack(
-                'CN2a*',
+            $packet = Strings::packSSH2(
+                'CNs',
                 NET_SSH2_MSG_CHANNEL_DATA,
                 $this->server_channels[$client_channel],
-                strlen($temp),
                 $temp
             );
             $this->window_size_client_to_server[$client_channel]-= strlen($temp);
@@ -4361,7 +4006,7 @@ class SSH2
     protected function disconnect_helper($reason)
     {
         if ($this->bitmap & self::MASK_CONNECTED) {
-            $data = pack('CNNa*Na*', NET_SSH2_MSG_DISCONNECT, $reason, 0, '', 0, '');
+            $data = Strings::packSSH2('CNss', NET_SSH2_MSG_DISCONNECT, $reason, '', '');
             $this->send_binary_packet($data);
             $this->bitmap = 0;
             fclose($this->fsock);
