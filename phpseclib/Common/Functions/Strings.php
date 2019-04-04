@@ -166,6 +166,9 @@ abstract class Strings
                     $result.= $element ? "\1" : "\0";
                     break;
                 case 'N':
+                    if (is_float($element)) {
+                        $element = (int) $element;
+                    }
                     if (!is_int($element)) {
                         throw new \InvalidArgumentException('An integer was expected.');
                     }
