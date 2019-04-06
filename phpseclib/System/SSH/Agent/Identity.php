@@ -182,29 +182,27 @@ class Identity
         }
 
         // the last parameter (currently 0) is for flags and ssh-agent only defines one flag (for ssh-dss): SSH_AGENT_OLD_SIGNATURE
-        $packet = pack('CNa*Na*N', Agent::SSH_AGENTC_SIGN_REQUEST, strlen($this->key_blob), $this->key_blob, strlen($message), $message, $this->flags);
-        $packet = pack('Na*', strlen($packet), $packet);
+        $packet = Strings::packSSH2(
+            'CssN',
+            Agent::SSH_AGENTC_SIGN_REQUEST,
+            $this->key_blob,
+            $message,
+            $this->flags
+        );
+        $packet = Strings::packSSH2('s', $packet);
         if (strlen($packet) != fputs($this->fsock, $packet)) {
             throw new \RuntimeException('Connection closed during signing');
         }
 
         $length = current(unpack('N', fread($this->fsock, 4)));
-        $type = ord(fread($this->fsock, 1));
+        $packet = fread($this->fsock, $length);
+
+        list($type, $signature_blob) = Strings::unpackSSH2('Cs', $packet);
         if ($type != Agent::SSH_AGENT_SIGN_RESPONSE) {
             throw new \RuntimeException('Unable to retrieve signature');
         }
 
-        $signature_blob = fread($this->fsock, $length - 1);
-        $length = current(unpack('N', Strings::shift($signature_blob, 4)));
-        if ($length != strlen($signature_blob)) {
-            throw new \RuntimeException('Malformed signature blob');
-        }
-        $length = current(unpack('N', Strings::shift($signature_blob, 4)));
-        if ($length > strlen($signature_blob) + 4) {
-            throw new \RuntimeException('Malformed signature blob');
-        }
-        $type = Strings::shift($signature_blob, $length);
-        Strings::shift($signature_blob, 4);
+        list($type, $signature_blob) = Strings::unpackSSH2('ss', $signature_blob);
 
         return $signature_blob;
     }

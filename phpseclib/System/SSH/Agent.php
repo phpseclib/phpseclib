@@ -37,6 +37,7 @@ use ParagonIE\ConstantTime\Base64;
 use phpseclib\Crypt\RSA;
 use phpseclib\Exception\BadConfigurationException;
 use phpseclib\System\SSH\Agent\Identity;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * Pure-PHP ssh-agent client identity factory
@@ -177,23 +178,25 @@ class Agent
         }
 
         $length = current(unpack('N', fread($this->fsock, 4)));
-        $type = ord(fread($this->fsock, 1));
+        $packet = fread($this->fsock, $length);
+        if (strlen($packet) != $length) {
+            throw new \LengthException("Expected $length bytes; got " . strlen($packet));
+        }
+
+        list($type, $keyCount) = Strings::unpackSSH2('CN', $packet);
         if ($type != self::SSH_AGENT_IDENTITIES_ANSWER) {
             throw new \RuntimeException('Unable to request identities');
         }
 
         $identities = [];
-        $keyCount = current(unpack('N', fread($this->fsock, 4)));
         for ($i = 0; $i < $keyCount; $i++) {
-            $length = current(unpack('N', fread($this->fsock, 4)));
-            $key_blob = fread($this->fsock, $length);
-            $key_str = 'ssh-rsa ' . Base64::encode($key_blob);
-            $length = current(unpack('N', fread($this->fsock, 4)));
-            if ($length) {
-                $key_str.= ' ' . fread($this->fsock, $length);
+            list($key_blob, $comment) = Strings::unpackSSH2('ss', $packet);
+            $key_str = 'ssh-rsa ' . base64_encode($key_blob);
+            if (strlen($comment)) {
+                $key_str.= " $comment";
             }
-            $length = current(unpack('N', substr($key_blob, 0, 4)));
-            $key_type = substr($key_blob, 4, $length);
+            $temp = $key_blob;
+            list($key_type) = Strings::unpackSSH2('s', $temp);
             switch ($key_type) {
                 case 'ssh-rsa':
                     $key = new RSA();
