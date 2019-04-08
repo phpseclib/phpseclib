@@ -232,7 +232,7 @@ class BigInteger implements \Serializable
      */
     function toBits($twos_compliment = false)
     {
-        return $this->value->toBits();
+        return $this->value->toBits($twos_compliment);
     }
 
     /**
