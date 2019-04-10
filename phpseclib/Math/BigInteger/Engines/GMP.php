@@ -136,8 +136,10 @@ class GMP extends Engine
     {
         switch (abs($base)) {
             case 256:
-                $sign = $this->is_negative ? '-' : '';
                 $this->value = gmp_import($this->value);
+                if ($this->is_negative) {
+                    $this->value = -$this->value;
+                }
                 break;
             case 16:
                 $temp = $this->is_negative ? '-0x' . $this->value : '0x' . $this->value;
