@@ -368,15 +368,7 @@ class BCMath extends Engine
      */
     public function bitwise_and(BCMath $x)
     {
-        $left = $this->toBytes();
-        $right = $x->toBytes();
-
-        $length = max(strlen($left), strlen($right));
-
-        $left = str_pad($left, $length, chr(0), STR_PAD_LEFT);
-        $right = str_pad($right, $length, chr(0), STR_PAD_LEFT);
-
-        return $this->normalize(new static($left & $right, 256));
+        return $this->bitwiseAndHelper($x);
     }
 
     /**
@@ -387,15 +379,7 @@ class BCMath extends Engine
      */
     public function bitwise_or(BCMath $x)
     {
-        $left = $this->toBytes();
-        $right = $x->toBytes();
-
-        $length = max(strlen($left), strlen($right));
-
-        $left = str_pad($left, $length, chr(0), STR_PAD_LEFT);
-        $right = str_pad($right, $length, chr(0), STR_PAD_LEFT);
-
-        return $this->normalize(new static($left | $right, 256));
+        return $this->bitwiseXorHelper($x);
     }
 
     /**
@@ -406,15 +390,7 @@ class BCMath extends Engine
      */
     public function bitwise_xor(BCMath $x)
     {
-        $left = $this->toBytes();
-        $right = $x->toBytes();
-
-        $length = max(strlen($left), strlen($right));
-
-        $left = str_pad($left, $length, chr(0), STR_PAD_LEFT);
-        $right = str_pad($right, $length, chr(0), STR_PAD_LEFT);
-
-        return $this->normalize(new static($left ^ $right, 256));
+        return $this->bitwiseXorHelper($x);
     }
 
     /**

@@ -1156,4 +1156,61 @@ abstract class Engine implements \Serializable
 
         return array_reverse($vals);
     }
+
+    /**
+     * Logical And
+     *
+     * @param Engine $x
+     * @return Engine
+     */
+    protected function bitwiseAndHelper(Engine $x)
+    {
+        $left = $this->toBytes(true);
+        $right = $x->toBytes(true);
+
+        $length = max(strlen($left), strlen($right));
+
+        $left = str_pad($left, $length, chr(0), STR_PAD_LEFT);
+        $right = str_pad($right, $length, chr(0), STR_PAD_LEFT);
+
+        return $this->normalize(new static($left & $right, -256));
+    }
+
+    /**
+     * Logical Or
+     *
+     * @param Engine $x
+     * @return Engine
+     */
+    protected function bitwiseOrHelper(Engine $x)
+    {
+        $left = $this->toBytes(true);
+        $right = $x->toBytes(true);
+
+        $length = max(strlen($left), strlen($right));
+
+        $left = str_pad($left, $length, chr(0), STR_PAD_LEFT);
+        $right = str_pad($right, $length, chr(0), STR_PAD_LEFT);
+
+        return $this->normalize(new static($left | $right, -256));
+    }
+
+    /**
+     * Logical Exclusive Or
+     *
+     * @param Engine $x
+     * @return Engine
+     */
+    protected function bitwiseXorHelper(Engine $x)
+    {
+        $left = $this->toBytes(true);
+        $right = $x->toBytes(true);
+
+        $length = max(strlen($left), strlen($right));
+
+
+        $left = str_pad($left, $length, chr(0), STR_PAD_LEFT);
+        $right = str_pad($right, $length, chr(0), STR_PAD_LEFT);
+        return $this->normalize(new static($left ^ $right, -256));
+    }
 }

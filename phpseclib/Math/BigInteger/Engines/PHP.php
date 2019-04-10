@@ -802,68 +802,6 @@ abstract class PHP extends Engine
     }
 
     /**
-     * Logical And
-     *
-     * @param PHP $x
-     * @return PHP
-     */
-    protected function bitwiseAndHelper(PHP $x)
-    {
-        $result = clone $this;
-
-        $length = min(count($x->value), count($this->value));
-
-        $result->value = array_slice($result->value, 0, $length);
-
-        for ($i = 0; $i < $length; ++$i) {
-            $result->value[$i]&= $x->value[$i];
-        }
-
-        return $this->normalize($result);
-    }
-
-    /**
-     * Logical Or
-     *
-     * @param PHP $x
-     * @return PHP
-     */
-    protected function bitwiseOrHelper(PHP $x)
-    {
-        $length = max(count($this->value), count($x->value));
-        $result = clone $this;
-        $result->value = array_pad($result->value, $length, 0);
-        $x->value = array_pad($x->value, $length, 0);
-
-        for ($i = 0; $i < $length; ++$i) {
-            $result->value[$i]|= $x->value[$i];
-        }
-
-        return $this->normalize($result);
-    }
-
-    /**
-     * Logical Exclusive Or
-     *
-     * @param PHP $x
-     * @return PHP
-     */
-    protected function bitwiseXorHelper(PHP $x)
-    {
-        $length = max(count($this->value), count($x->value));
-        $result = clone $this;
-        $result->is_negative = false;
-        $result->value = array_pad($result->value, $length, 0);
-        $x->value = array_pad($x->value, $length, 0);
-
-        for ($i = 0; $i < $length; ++$i) {
-            $result->value[$i]^= $x->value[$i];
-        }
-
-        return $this->normalize($result);
-    }
-
-    /**
      * Trim
      *
      * Removes leading zeros
