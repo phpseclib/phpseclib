@@ -26,6 +26,11 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $this->assertSame('18446744073709551616',    (string) $this->getInstance('0x10000000000000000', 16));
     }
 
+    public function testConstructorBase256()
+    {
+        $this->assertSame('-128',                        (string) $this->getInstance("\x80", -256));
+    }
+
     public function testToBytes()
     {
         $this->assertSame(chr(65), $this->getInstance('65')->toBytes());
@@ -44,6 +49,8 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
     public function testToBits()
     {
         $this->assertSame('1000001', $this->getInstance('65')->toBits());
+        $this->assertSame('10', $this->getInstance('-2')->toBits());
+        $this->assertSame('11111110', $this->getInstance('-2')->toBits(true));
     }
 
     public function testAdd()
@@ -189,6 +196,17 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $z = $this->getInstance('FFFFFFFFFFFFFFFFFFFFFFF', 16);
 
         $this->assertSame($z->toHex(), $x->bitwise_OR($y)->toHex());
+
+        $x = -0xFFFF;
+        $y = 2;
+        $z = $x ^ $y;
+
+        $x = $this->getInstance($x);
+        $y = $this->getInstance($y);
+        $z = $this->getInstance($z);
+
+        $this->assertSame($z->toString(), $x->bitwise_OR($y)->toString());
+        $this->assertSame($z->toString(), $y->bitwise_OR($x)->toString());
     }
 
     public function testBitwiseXOR()
@@ -204,12 +222,12 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $a = $this->getInstance(1);
         $b = $this->getInstance(-2);
         $c = $a->bitwise_xor($b);
-        $this->assertSame("$c", '3');
+        $this->assertSame("$c", '-1');
 
         $a = $this->getInstance('-6725760161961546982');
         $b = $this->getInstance(51);
         $c = $a->bitwise_xor($b);
-        $this->assertSame("$c", '6725760161961546965');
+        $this->assertSame("$c", '-6725760161961546967');
     }
 
     public function testBitwiseNOT()
