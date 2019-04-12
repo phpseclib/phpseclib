@@ -142,7 +142,10 @@ define('NET_SSH2_READ_SIMPLE',  1);
  */
 define('NET_SSH2_READ_REGEX', 2);
 /**
- * Returns when a string matching the regular expression $expect is found
+ * Returns whenever a data packet is received.
+ *
+ * Some data packets may only contain a single character so it may be necessary
+ * to call read() multiple times when using this option
  */
 define('NET_SSH2_READ_NEXT', 3);
 /**#@-*/
