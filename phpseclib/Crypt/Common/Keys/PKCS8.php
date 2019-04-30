@@ -477,6 +477,12 @@ abstract class PKCS8 extends PKCS
                     throw new UnsupportedAlgorithmException('Only ' . static::OID_NAME . ' keys are supported; this is a ' . $private['privateKeyAlgorithm']['algorithm'] . ' key');
                 }
             }
+            if (isset($private['publicKey'])) {
+                if ($private['publicKey'][0] != "\0") {
+                    throw new \UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($val));
+                }
+                $private['publicKey'] = substr($private['publicKey'], 1);
+            }
             return $private + $meta;
         }
 
@@ -488,7 +494,7 @@ abstract class PKCS8 extends PKCS
 
         if (is_array($public)) {
             if ($public['publicKey'][0] != "\0") {
-                throw new \UnexpectedValueException('The first byte of the public key should be null - not ' . Hex::encode($val));
+                throw new \UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($val));
             }
             if (is_array(static::OID_NAME)) {
                 if (!in_array($public['publicKeyAlgorithm']['algorithm'], static::OID_NAME)) {

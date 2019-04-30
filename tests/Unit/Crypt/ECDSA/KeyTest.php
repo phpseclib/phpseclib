@@ -238,7 +238,7 @@ MCowBQYDK2VwAyEAGb9ECWmEzf6FQbrBZ9w7lshQhqowtrbLDFw4rXAxZuE=
         // https://security.stackexchange.com/q/110330/15922 elaborates on
         // why phpseclib is encoding the NULL as opposed to omitting it.
         $expected = '-----BEGIN PUBLIC KEY-----
-MCwwBwYDK2VwBQADIQC/RAlphM3+hUG6wWfcO5bIUIaqMLa2ywxcOK1wMWZhgA==
+MCwwBwYDK2VwBQADIQAZv0QJaYTN/oVBusFn3DuWyFCGqjC2tssMXDitcDFm4Q==
 -----END PUBLIC KEY-----';
         $this->assertSame($expected, $key->getPublicKey('PKCS8'));
     }
@@ -457,6 +457,16 @@ pomV7r6gmoMYteGVABfgAAAAD3ZhZ3JhbnRAdmFncmFudAECAwQFBg==
         $actual = $dom->C14N();
 
         $this->assertSame($expected, $actual);
+    }
+
+    public function testToPublicKey()
+    {
+        $key = new ECDSA;
+        $key->load('-----BEGIN PRIVATE KEY-----
+MFICAQEwBwYDK2VwBQAEIgQgS5tTLrcNRaml4g5CgGeMvptuXuSrcrFbl+zVSxHD
+H76BIDXmiVv2hLjr5MhZENlKIuz0ak1hUO8MdZ2vgY/nGcUV
+-----END PRIVATE KEY-----');
+        $this->assertInternalType('string', (string) $key->getPublicKey());
     }
 
     public static function assertSame($expected, $actual, $message = '')

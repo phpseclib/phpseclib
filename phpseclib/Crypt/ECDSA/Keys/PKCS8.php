@@ -153,7 +153,7 @@ abstract class PKCS8 extends Progenitor
                 $components['curve'] = $key['publicKeyAlgorithm']['algorithm'] == 'id-Ed25519' ? new Ed25519() : new Ed448();
             }
 
-            $components['QA'] = self::extractPoint(substr($key['publicKey'], 1), $components['curve']);
+            $components['QA'] = self::extractPoint($key['publicKey'], $components['curve']);
         }
 
         if (isset($key['privateKey']) && !isset($components['QA'])) {
