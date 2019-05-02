@@ -341,4 +341,26 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $asn1 = new ASN1();
         $asn1->decodeBER($data);
     }
+
+    /**
+     * @group github1367
+     */
+    public function testOIDs()
+    {
+        // from the example in 8.19.5 in the following:
+        // https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=22
+        $orig = pack('H*', '813403');
+        $asn1 = new ASN1();
+        $new = $asn1->_decodeOID($orig);
+        $this->assertSame('2.100.3', $new);
+        $this->assertSame($orig, $asn1->_encodeOID($new));
+
+        // UUID OID from the following:
+        // https://healthcaresecprivacy.blogspot.com/2011/02/creating-and-using-unique-id-uuid-oid.html
+        $orig = '2.25.329800735698586629295641978511506172918';
+        $asn1 = new ASN1();
+        $new = $asn1->_encodeOID($orig);
+        $this->assertSame(pack('H*', '6983f09da7ebcfdee0c7a1a7b2c0948cc8f9d776'), $new);
+        $this->assertSame($orig, $asn1->_decodeOID($new));
+    }
 }
