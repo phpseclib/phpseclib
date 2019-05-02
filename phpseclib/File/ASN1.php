@@ -458,24 +458,7 @@ abstract class ASN1
                 }
                 break;
             case self::TYPE_OBJECT_IDENTIFIER:
-                $temp = ord($content[$content_pos++]);
-                $current['content'] = sprintf('%d.%d', floor($temp / 40), $temp % 40);
-                $valuen = 0;
-                // process septets
-                $content_len = strlen($content);
-                while ($content_pos < $content_len) {
-                    $temp = ord($content[$content_pos++]);
-                    $valuen <<= 7;
-                    $valuen |= $temp & 0x7F;
-                    if (~$temp & 0x80) {
-                        $current['content'].= ".$valuen";
-                        $valuen = 0;
-                    }
-                }
-                // the eighth bit of the last byte should not be 1
-                //if ($temp >> 7) {
-                //    return false;
-                //}
+                $current['content'] = self::decodeOID(substr($content, $content_pos));
                 break;
             /* Each character string type shall be encoded as if it had been declared:
                [UNIVERSAL x] IMPLICIT OCTET STRING
@@ -1068,30 +1051,7 @@ abstract class ASN1
                 $value = $source;
                 break;
             case self::TYPE_OBJECT_IDENTIFIER:
-                if (!preg_match('#(?:\d+\.)+#', $source)) {
-                    $oid = isset(self::$reverseOIDs[$source]) ? self::$reverseOIDs[$source] : false;
-                } else {
-                    $oid = $source;
-                }
-                if ($oid === false) {
-                    throw new \RuntimeException('Invalid OID');
-                }
-                $value = '';
-                $parts = explode('.', $oid);
-                $value = chr(40 * $parts[0] + $parts[1]);
-                for ($i = 2; $i < count($parts); $i++) {
-                    $temp = '';
-                    if (!$parts[$i]) {
-                        $temp = "\0";
-                    } else {
-                        while ($parts[$i]) {
-                            $temp = chr(0x80 | ($parts[$i] & 0x7F)) . $temp;
-                            $parts[$i] >>= 7;
-                        }
-                        $temp[strlen($temp) - 1] = $temp[strlen($temp) - 1] & chr(0x7F);
-                    }
-                    $value.= $temp;
-                }
+                $value = self::encodeOID($source);
                 break;
             case self::TYPE_ANY:
                 $loc = self::$location;
@@ -1166,6 +1126,112 @@ abstract class ASN1
         }
 
         return chr($tag) . self::encodeLength(strlen($value)) . $value;
+    }
+
+    /**
+     * BER-decode the OID
+     *
+     * Called by _decode_ber()
+     *
+     * @access public
+     * @param string $content
+     * @return string
+     */
+    public static function decodeOID($content)
+    {
+        static $eighty;
+        if (!$eighty) {
+            $eighty = new BigInteger(80);
+        }
+
+        $oid = array();
+        $pos = 0;
+        $len = strlen($content);
+        $n = new BigInteger();
+        while ($pos < $len) {
+            $temp = ord($content[$pos++]);
+            $n = $n->bitwise_leftShift(7);
+            $n = $n->bitwise_or(new BigInteger($temp & 0x7F));
+            if (~$temp & 0x80) {
+                $oid[] = $n;
+                $n = new BigInteger();
+            }
+        }
+        $part1 = array_shift($oid);
+        $first = floor(ord($content[0]) / 40);
+        /*
+          "This packing of the first two object identifier components recognizes that only three values are allocated from the root
+           node, and at most 39 subsequent values from nodes reached by X = 0 and X = 1."
+
+          -- https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=22
+        */
+        if ($first <= 2) { // ie. 0 <= ord($content[0]) < 120 (0x78)
+            array_unshift($oid, ord($content[0]) % 40);
+            array_unshift($oid, $first);
+        } else {
+            array_unshift($oid, $part1->subtract($eighty));
+            array_unshift($oid, 2);
+        }
+
+        return implode('.', $oid);
+    }
+
+    /**
+     * DER-encode the OID
+     *
+     * Called by _encode_der()
+     *
+     * @access public
+     * @param string $content
+     * @return string
+     */
+    public static function encodeOID($source)
+    {
+        static $mask, $zero, $forty;
+        if (!$mask) {
+            $mask = new BigInteger(0x7F);
+            $zero = new BigInteger();
+            $forty = new BigInteger(40);
+        }
+
+        if (!preg_match('#(?:\d+\.)+#', $source)) {
+            $oid = isset(self::$reverseOIDs[$source]) ? self::$reverseOIDs[$source] : false;
+        } else {
+            $oid = $source;
+        }
+        if ($oid === false) {
+            throw new \RuntimeException('Invalid OID');
+        }
+
+        $parts = explode('.', $oid);
+        $part1 = array_shift($parts);
+        $part2 = array_shift($parts);
+
+        $first = new BigInteger($part1);
+        $first = $first->multiply($forty);
+        $first = $first->add(new BigInteger($part2));
+
+        array_unshift($parts, $first->toString());
+
+        $value = '';
+        foreach ($parts as $part) {
+            if (!$part) {
+                $temp = "\0";
+            } else {
+                $temp = '';
+                $part = new BigInteger($part);
+                while (!$part->equals($zero)) {
+                    $submask = $part->bitwise_and($mask);
+                    $submask->setPrecision(8);
+                    $temp = (chr(0x80) | $submask->toBytes()) . $temp;
+                    $part = $part->bitwise_rightShift(7);
+                }
+                $temp[strlen($temp) - 1] = $temp[strlen($temp) - 1] & chr(0x7F);
+            }
+            $value.= $temp;
+        }
+
+        return $value;
     }
 
     /**
