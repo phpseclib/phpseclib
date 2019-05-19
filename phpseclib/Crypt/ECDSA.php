@@ -10,13 +10,14 @@
  * <?php
  * include 'vendor/autoload.php';
  *
- * extract(\phpseclib\Crypt\ECDSA::createKey());
+ * $private = \phpseclib\Crypt\ECDSA::createKey('secp256k1');
+ * $public = $private->getPublicKey();
  *
  * $plaintext = 'terrafrost';
  *
- * $signature = $privatekey->sign($plaintext, 'ASN1');
+ * $signature = $private->sign($plaintext);
  *
- * echo $publickey->verify($plaintext, $signature) ? 'verified' : 'unverified';
+ * echo $public->verify($plaintext, $signature) ? 'verified' : 'unverified';
  * ?>
  * </code>
  *
@@ -30,21 +31,18 @@
 
 namespace phpseclib\Crypt;
 
-use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Common\AsymmetricKey;
-use phpseclib\Exception\UnsupportedCurveException;
-use phpseclib\Exception\UnsupportedOperationException;
-use phpseclib\Exception\UnsupportedAlgorithmException;
-use phpseclib\Exception\NoKeyLoadedException;
-use phpseclib\Exception\InsufficientSetupException;
-use phpseclib\File\ASN1;
-use phpseclib\File\ASN1\Maps\ECParameters;
+use phpseclib\Crypt\ECDSA\PrivateKey;
+use phpseclib\Crypt\ECDSA\PublicKey;
+use phpseclib\Crypt\ECDSA\Parameters;
 use phpseclib\Crypt\ECDSA\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib\Crypt\ECDSA\Curves\Ed25519;
 use phpseclib\Crypt\ECDSA\Curves\Ed448;
 use phpseclib\Crypt\ECDSA\Keys\PKCS1;
-use phpseclib\Crypt\ECDSA\Keys\PKCS8;
-use phpseclib\Crypt\ECDSA\Signature\ASN1 as ASN1Signature;
+use phpseclib\File\ASN1\Maps\ECParameters;
+use phpseclib\File\ASN1;
+use phpseclib\Exception\UnsupportedCurveException;
+use phpseclib\Exception\UnsupportedAlgorithmException;
 
 /**
  * Pure-PHP implementation of ECDSA.
@@ -53,7 +51,7 @@ use phpseclib\Crypt\ECDSA\Signature\ASN1 as ASN1Signature;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class ECDSA extends AsymmetricKey
+abstract class ECDSA extends AsymmetricKey
 {
     /**
      * Algorithm Name
@@ -64,29 +62,34 @@ class ECDSA extends AsymmetricKey
     const ALGORITHM = 'ECDSA';
 
     /**
-     * Private Key dA
-     *
-     * sign() converts this to a BigInteger so one might wonder why this is a FiniteFieldInteger instead of
-     * a BigInteger. That's because a FiniteFieldInteger, when converted to a byte string, is null padded by
-     * a certain amount whereas a BigInteger isn't.
-     *
-     * @var object
-     */
-    private $dA;
-
-    /**
      * Public Key QA
      *
      * @var object[]
      */
-    private $QA;
+    protected $QA;
 
     /**
      * Curve
      *
      * @var \phpseclib\Crypt\ECDSA\BaseCurves\Base
      */
-    private $curve;
+    protected $curve;
+
+    /**
+     * Signature Format
+     *
+     * @var string
+     * @access private
+     */
+    protected $format;
+
+    /**
+     * Signature Format (Short)
+     *
+     * @var string
+     * @access private
+     */
+    protected $shortFormat;
 
     /**
      * Curve Name
@@ -96,44 +99,18 @@ class ECDSA extends AsymmetricKey
     private $curveName;
 
     /**
-     * Curve Order
+     * Context
      *
-     * Used for deterministic ECDSA
-     *
-     * @var \phpseclib\Math\BigInteger
+     * @var string
      */
-    protected $q;
-
-    /**
-     * Alias for the private key
-     *
-     * Used for deterministic ECDSA. AsymmetricKey expects $x. I don't like x because
-     * with x you have x * the base point yielding an (x, y)-coordinate that is the
-     * public key. But the x is different depending on which side of the equal sign
-     * you're on. It's less ambiguous if you do dA * base point = (x, y)-coordinate.
-     *
-     * @var \phpseclib\Math\BigInteger
-     */
-    protected $x;
-
-    /**
-     * Alias for the private key
-     *
-     * Used for deterministic ECDSA. AsymmetricKey expects $x. I don't like x because
-     * with x you have x * the base point yielding an (x, y)-coordinate that is the
-     * public key. But the x is different depending on which side of the equal sign
-     * you're on. It's less ambiguous if you do dA * base point = (x, y)-coordinate.
-     *
-     * @var \phpseclib\Math\BigInteger
-     */
-    private $context;
+    protected $context;
 
     /**
      * Create public / private key pair.
      *
      * @access public
      * @param string $curve
-     * @return \phpseclib\Crypt\ECDSA[]
+     * @return \phpseclib\Crypt\ECDSA\PrivateKey
      */
     public static function createKey($curve)
     {
@@ -143,51 +120,62 @@ class ECDSA extends AsymmetricKey
             self::useBestEngine();
         }
 
-        if (self::$engines['libsodium'] && $curve == 'Ed25519' && function_exists('sodium_crypto_sign_keypair')) {
+        $curve = strtolower($curve);
+        if (self::$engines['libsodium'] && $curve == 'ed25519' && function_exists('sodium_crypto_sign_keypair')) {
             $kp = sodium_crypto_sign_keypair();
 
-            $privatekey = new static();
-            $privatekey->load(sodium_crypto_sign_secretkey($kp));
+            $privatekey = ECDSA::load(sodium_crypto_sign_secretkey($kp), 'libsodium');
+            //$publickey = ECDSA::load(sodium_crypto_sign_publickey($kp), 'libsodium');
 
-            $publickey = new static();
-            $publickey->load(sodium_crypto_sign_publickey($kp));
+            $privatekey->curveName = 'Ed25519';
+            //$publickey->curveName = $curve;
 
-            $publickey->curveName = $privatekey->curveName = $curve;
-
-            return compact('privatekey', 'publickey');
+            return $privatekey;
         }
 
-        $privatekey = new static();
+        $privatekey = new PrivateKey;
 
         $curveName = $curve;
         $curve = '\phpseclib\Crypt\ECDSA\Curves\\' . $curve;
         if (!class_exists($curve)) {
-            throw new UnsupportedCurveException('Named Curve of ' . $curve . ' is not supported');
+            throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported');
         }
+
+        $reflect = new \ReflectionClass($curve);
+        $curveName = $reflect->isFinal() ?
+            $reflect->getParentClass()->getShortName() :
+            $reflect->getShortName();
+
         $curve = new $curve();
         $privatekey->dA = $dA = $curve->createRandomMultiplier();
         $privatekey->QA = $curve->multiplyPoint($curve->getBasePoint(), $dA);
         $privatekey->curve = $curve;
 
-        $publickey = clone $privatekey;
-        unset($publickey->dA);
-        unset($publickey->x);
+        //$publickey = clone $privatekey;
+        //unset($publickey->dA);
+        //unset($publickey->x);
 
-        $publickey->curveName = $privatekey->curveName = $curveName;
+        $privatekey->curveName = $curveName;
+        //$publickey->curveName = $curveName;
 
-        return compact('privatekey', 'publickey');
+        if ($privatekey->curve instanceof TwistedEdwardsCurve) {
+            return $privatekey->withHash($curve::HASH);
+        }
+
+        return $privatekey;
     }
 
     /**
      * Loads a public or private key
      *
      * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
-     *
+     * @return bool
      * @access public
      * @param string $key
-     * @param int $type optional
+     * @param string $type optional
+     * @param string $password optional
      */
-    public function load($key, $type = false)
+    public static function load($key, $type = false, $password = false)
     {
         self::initialize_static_variables();
 
@@ -195,54 +183,42 @@ class ECDSA extends AsymmetricKey
             self::useBestEngine();
         }
 
-        if ($key instanceof ECDSA) {
-            $this->privateKeyFormat = $key->privateKeyFormat;
-            $this->publicKeyFormat = $key->publicKeyFormat;
-            $this->format = $key->format;
-            $this->dA = isset($key->dA) ? $key->dA : null;
-            $this->QA = $key->QA;
-            $this->curve = $key->curve;
-            $this->parametersFormat = $key->parametersFormat;
-            $this->hash = $key->hash;
+        $components = parent::load($key, $type, $password);
 
-            parent::load($key, false);
-
-            return true;
+        if (!isset($components['dA']) && !isset($components['QA'])) {
+            $new = new Parameters;
+            $new->curve = $components['curve'];
+            return $new;
         }
 
-        $components = parent::load($key, $type);
-        if ($components === false) {
-            $this->clearKey();
-            return false;
+        $new = isset($components['dA']) ?
+            new PrivateKey :
+            new PublicKey;
+        $new->curve = $components['curve'];
+        $new->QA = $components['QA'];
+
+        if (isset($components['dA'])) {
+            $new->dA = $components['dA'];
         }
 
-        if ($components['curve'] instanceof Ed25519 && $this->hashManuallySet && $this->hash->getHash() != 'sha512') {
-            $this->clearKey();
-            throw new UnsupportedAlgorithmException('Ed25519 only supports sha512 as a hash');
-        }
-        if ($components['curve'] instanceof Ed448 && $this->hashManuallySet && $this->hash->getHash() != 'shake256-912') {
-            $this->clearKey();
-            throw new UnsupportedAlgorithmException('Ed448 only supports shake256 with a length of 114 bytes');
+        if ($new->curve instanceof TwistedEdwardsCurve) {
+            return $new->withHash($components['curve']::HASH);
         }
 
-        $this->curve = $components['curve'];
-        $this->QA = $components['QA'];
-        $this->dA = isset($components['dA']) ? $components['dA'] : null;
-
-        return true;
+        return $new;
     }
 
     /**
-     * Removes a key
+     * Constructor
      *
-     * @access private
+     * PublicKey and PrivateKey objects can only be created from abstract RSA class
      */
-    private function clearKey()
+    protected function __construct()
     {
-        $this->format = null;
-        $this->dA = null;
-        $this->QA = null;
-        $this->curve = null;
+        $this->format = self::validatePlugin('Signature', 'ASN1');
+        $this->shortFormat = 'ASN1';
+
+        parent::__construct();
     }
 
     /**
@@ -306,115 +282,7 @@ class ECDSA extends AsymmetricKey
      */
     public function getLength()
     {
-        if (!isset($this->QA)) {
-            return 0;
-        }
-
         return $this->curve->getLength();
-    }
-
-    /**
-     * Is the key a private key?
-     *
-     * @access public
-     * @return bool
-     */
-    public function isPrivateKey()
-    {
-        return isset($this->dA);
-    }
-
-    /**
-     * Is the key a public key?
-     *
-     * @access public
-     * @return bool
-     */
-    public function isPublicKey()
-    {
-        return isset($this->QA);
-    }
-
-    /**
-     * Returns the private key
-     *
-     * @see self::getPublicKey()
-     * @access public
-     * @param string $type optional
-     * @return mixed
-     */
-    public function getPrivateKey($type = 'PKCS8')
-    {
-        $type = self::validatePlugin('Keys', $type, 'savePrivateKey');
-        if ($type === false) {
-            return false;
-        }
-
-        if (!isset($this->dA)) {
-            return false;
-        }
-
-        return $type::savePrivateKey($this->dA, $this->curve, $this->QA, $this->password);
-    }
-
-    /**
-     * Returns the public key
-     *
-     * @see self::getPrivateKey()
-     * @access public
-     * @param string $type optional
-     * @return mixed
-     */
-    public function getPublicKey($type = null)
-    {
-        $returnObj = false;
-        if ($type === null) {
-            $returnObj = true;
-            $type = 'PKCS8';
-        }
-        $type = self::validatePlugin('Keys', $type, 'savePublicKey');
-        if ($type === false) {
-            return false;
-        }
-
-        if (!isset($this->QA)) {
-            return false;
-        }
-
-        $key = $type::savePublicKey($this->curve, $this->QA);
-        if ($returnObj) {
-            $public = clone $this;
-            $public->load($key, 'PKCS8');
-
-            return $public;
-        }
-        return $key;
-    }
-
-    /**
-     * Returns the parameters
-     *
-     * A public / private key is only returned if the currently loaded "key" contains an x or y
-     * value.
-     *
-     * @see self::getPublicKey()
-     * @see self::getPrivateKey()
-     * @access public
-     * @param string $type optional
-     * @return mixed
-     */
-    public function getParameters($type = 'PKCS1')
-    {
-        $type = self::validatePlugin('Keys', $type, 'saveParameters');
-        if ($type === false) {
-            return false;
-        }
-
-        if (!isset($this->curve) || $this->curve instanceof TwistedEdwardsCurve) {
-            return false;
-        }
-
-        return $type::saveParameters($this->curve);
     }
 
     /**
@@ -427,10 +295,6 @@ class ECDSA extends AsymmetricKey
      */
     public function getEngine()
     {
-        if (!isset($this->curve)) {
-            throw new InsufficientSetupException('getEngine should not be called until after a key has been loaded');
-        }
-
         if ($this->curve instanceof TwistedEdwardsCurve) {
             return $this->curve instanceof Ed25519 && self::$engines['libsodium'] && !isset($this->context) ?
                 'libsodium' : 'PHP';
@@ -438,6 +302,41 @@ class ECDSA extends AsymmetricKey
 
         return self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods()) ?
             'OpenSSL' : 'PHP';
+    }
+
+    /**
+     * Returns the parameters
+     *
+     * @see self::getPublicKey()
+     * @access public
+     * @param string $type optional
+     * @return mixed
+     */
+    public function getParameters($type = 'PKCS1')
+    {
+        $type = self::validatePlugin('Keys', $type, 'saveParameters');
+
+        $key = $type::saveParameters($this->curve);
+
+        return ECDSA::load($key, 'PKCS1')
+            ->withHash($this->hash->getHash())
+            ->withSignatureFormat($this->shortFormat);
+    }
+
+    /**
+     * Determines the signature padding mode
+     *
+     * Valid values are: ASN1, SSH2, Raw
+     *
+     * @access public
+     * @param string $padding
+     */
+    public function withSignatureFormat($format)
+    {
+        $new = clone $this;
+        $new->shortFormat = $format;
+        $new->format = self::validatePlugin('Signature', $format);
+        return $new;
     }
 
     /**
@@ -450,11 +349,16 @@ class ECDSA extends AsymmetricKey
      * @access public
      * @param string $context optional
      */
-    public function setContext($context = null)
+    public function withContext($context = null)
     {
+        if (!$this->curve instanceof TwistedEdwardsCurve) {
+            throw new UnsupportedCurveException('Only Ed25519 and Ed448 support contexts');
+        }
+
+        $new = clone $this;
         if (!isset($context)) {
-            $this->context = null;
-            return;
+            $new->context = null;
+            return $new;
         }
         if (!is_string($context)) {
             throw new \InvalidArgumentException('setContext expects a string');
@@ -462,7 +366,8 @@ class ECDSA extends AsymmetricKey
         if (strlen($context) > 255) {
             throw new \LengthException('The context is supposed to be, at most, 255 bytes long');
         }
-        $this->context = $context;
+        $new->context = $context;
+        return $new;
     }
 
     /**
@@ -471,7 +376,7 @@ class ECDSA extends AsymmetricKey
      * @access public
      * @param string $hash
      */
-    public function setHash($hash)
+    public function withHash($hash)
     {
         if ($this->curve instanceof Ed25519 && $hash != 'sha512') {
             throw new UnsupportedAlgorithmException('Ed25519 only supports sha512 as a hash');
@@ -480,279 +385,6 @@ class ECDSA extends AsymmetricKey
             throw new UnsupportedAlgorithmException('Ed448 only supports shake256 with a length of 114 bytes');
         }
 
-        parent::setHash($hash);
-    }
-
-    /**
-     * Create a signature
-     *
-     * @see self::verify()
-     * @access public
-     * @param string $message
-     * @param string $format optional
-     * @return mixed
-     */
-    public function sign($message, $format = 'ASN1')
-    {
-        if (!isset($this->dA)) {
-            if (!isset($this->QA)) {
-                throw new NoKeyLoadedException('No key has been loaded');
-            }
-            throw new UnsupportedOperationException('A public key cannot be used to sign data');
-        }
-
-        $dA = $this->dA->toBigInteger();
-
-        $order = $this->curve->getOrder();
-
-        if ($this->curve instanceof TwistedEdwardsCurve) {
-            if ($this->curve instanceof Ed25519 && self::$engines['libsodium'] && !isset($this->context)) {
-                return sodium_crypto_sign_detached($message, $this->getPrivateKey('libsodium'));
-            }
-
-            // contexts (Ed25519ctx) are supported but prehashing (Ed25519ph) is not.
-            // quoting https://tools.ietf.org/html/rfc8032#section-8.5 ,
-            // "The Ed25519ph and Ed448ph variants ... SHOULD NOT be used"
-            $A = $this->curve->encodePoint($this->QA);
-            $curve = $this->curve;
-            $hash = new Hash($curve::HASH);
-
-            $secret = substr($hash->hash($this->dA->secret), $curve::SIZE);
-
-            if ($curve instanceof Ed25519) {
-                $dom = !isset($this->context) ? '' :
-                    'SigEd25519 no Ed25519 collisions' . "\0" . chr(strlen($this->context)) . $this->context;
-            } else {
-                $context = isset($this->context) ? $this->context : '';
-                $dom = 'SigEd448' . "\0" . chr(strlen($context)) . $context;
-            }
-            // SHA-512(dom2(F, C) || prefix || PH(M))
-            $r = $hash->hash($dom . $secret . $message);
-            $r = strrev($r);
-            $r = new BigInteger($r, 256);
-            list(, $r) = $r->divide($order);
-            $R = $curve->multiplyPoint($curve->getBasePoint(), $curve->convertInteger($r));
-            $R = $curve->encodePoint($R);
-            $k = $hash->hash($dom . $R . $A . $message);
-            $k = strrev($k);
-            $k = new BigInteger($k, 256);
-            list(, $k) = $k->divide($order);
-            $S = $k->multiply($dA)->add($r);
-            list(, $S) = $S->divide($order);
-            $S = str_pad(strrev($S->toBytes()), $curve::SIZE, "\0");
-            return $R . $S;
-        }
-
-        $shortFormat = $format;
-        $format = self::validatePlugin('Signature', $format);
-        if ($format === false) {
-            return false;
-        }
-
-        if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
-            $namedCurves = PKCS8::isUsingNamedCurves();
-
-            // use specified curves to avoid issues with OpenSSL possibly not supporting a given named curve;
-            // doing this may mean some curve-specific optimizations can't be used but idk if OpenSSL even
-            // has curve-specific optimizations
-            PKCS8::useSpecifiedCurve();
-
-            $signature = '';
-            // altho PHP's OpenSSL bindings only supported ECDSA key creation in PHP 7.1 they've long
-            // supported signing / verification
-            $result = openssl_sign($message, $signature, $this->getPrivateKey(), $this->hash->getHash());
-
-            if ($namedCurves) {
-                PKCS8::useNamedCurve();
-            }
-
-            if ($result) {
-                if ($shortFormat == 'ASN1') {
-                    return $signature;
-                }
-
-                extract(ASN1Signature::load($signature));
-
-                return $shortFormat == 'SSH2' ? $format::save($r, $s, $this->getCurve()) : $format::save($r, $s);
-            }
-        }
-
-        $e = $this->hash->hash($message);
-        $e = new BigInteger($e, 256);
-
-        $Ln = $this->hash->getLength() - $order->getLength();
-        $z = $Ln > 0 ? $e->bitwise_rightShift($Ln) : $e;
-
-        while (true) {
-            $k = BigInteger::randomRange(self::$one, $order->subtract(self::$one));
-            list($x, $y) = $this->curve->multiplyPoint($this->curve->getBasePoint(), $this->curve->convertInteger($k));
-            $x = $x->toBigInteger();
-            list(, $r) = $x->divide($order);
-            if ($r->equals(self::$zero)) {
-                continue;
-            }
-            $kinv = $k->modInverse($order);
-            $temp = $z->add($dA->multiply($r));
-            $temp = $kinv->multiply($temp);
-            list(, $s) = $temp->divide($order);
-            if (!$s->equals(self::$zero)) {
-                break;
-            }
-        }
-
-        // the following is an RFC6979 compliant implementation of deterministic ECDSA
-        // it's unused because it's mainly intended for use when a good CSPRNG isn't
-        // available. if phpseclib's CSPRNG isn't good then even key generation is
-        // suspect
-        /*
-        // if this were actually being used it'd probably be better if this lived in load() and createKey()
-        $this->q = $this->curve->getOrder();
-        $dA = $this->dA->toBigInteger();
-        $this->x = $dA;
-
-        $h1 = $this->hash->hash($message);
-        $k = $this->computek($h1);
-        list($x, $y) = $this->curve->multiplyPoint($this->curve->getBasePoint(), $this->curve->convertInteger($k));
-        $x = $x->toBigInteger();
-        list(, $r) = $x->divide($this->q);
-        $kinv = $k->modInverse($this->q);
-        $h1 = $this->bits2int($h1);
-        $temp = $h1->add($dA->multiply($r));
-        $temp = $kinv->multiply($temp);
-        list(, $s) = $temp->divide($this->q);
-        */
-
-        return $shortFormat == 'SSH2' ? $format::save($r, $s, $this->getCurve()) : $format::save($r, $s);
-    }
-
-    /**
-     * Verify a signature
-     *
-     * @see self::verify()
-     * @access public
-     * @param string $message
-     * @param string $format optional
-     * @return mixed
-     */
-    public function verify($message, $signature, $format = 'ASN1')
-    {
-        if (!isset($this->QA)) {
-            if (!isset($this->dA)) {
-                throw new NoKeyLoadedException('No key has been loaded');
-            }
-            throw new UnsupportedOperationException('A private key cannot be used to verify data');
-        }
-
-        $order = $this->curve->getOrder();
-
-        if ($this->curve instanceof TwistedEdwardsCurve) {
-            if ($this->curve instanceof Ed25519 && self::$engines['libsodium'] && !isset($this->context)) {
-                return sodium_crypto_sign_verify_detached($signature, $message, $this->getPublicKey('libsodium'));
-            }
-
-            $curve = $this->curve;
-            if (strlen($signature) != 2 * $curve::SIZE) {
-                return false;
-            }
-
-            $R = substr($signature, 0, $curve::SIZE);
-            $S = substr($signature, $curve::SIZE);
-
-            try {
-                $R = PKCS1::extractPoint($R, $curve);
-                $R = $this->curve->convertToInternal($R);
-            } catch (\Exception $e) {
-                return false;
-            }
-
-            $S = strrev($S);
-            $S = new BigInteger($S, 256);
-
-            if ($S->compare($order) >= 0) {
-                return false;
-            }
-
-            $A = $curve->encodePoint($this->QA);
-
-            if ($curve instanceof Ed25519) {
-                $dom2 = !isset($this->context) ? '' :
-                    'SigEd25519 no Ed25519 collisions' . "\0" . chr(strlen($this->context)) . $this->context;
-            } else {
-                $context = isset($this->context) ? $this->context : '';
-                $dom2 = 'SigEd448' . "\0" . chr(strlen($context)) . $context;
-            }
-
-            $hash = new Hash($curve::HASH);
-            $k = $hash->hash($dom2 . substr($signature, 0, $curve::SIZE) . $A . $message);
-            $k = strrev($k);
-            $k = new BigInteger($k, 256);
-            list(, $k) = $k->divide($order);
-
-            $qa = $curve->convertToInternal($this->QA);
-
-            $lhs = $curve->multiplyPoint($curve->getBasePoint(), $curve->convertInteger($S));
-            $rhs = $curve->multiplyPoint($qa, $curve->convertInteger($k));
-            $rhs = $curve->addPoint($rhs, $R);
-            $rhs = $curve->convertToAffine($rhs);
-
-            return $lhs[0]->equals($rhs[0]) && $lhs[1]->equals($rhs[1]);
-        }
-
-        $format = self::validatePlugin('Signature', $format);
-        if ($format === false) {
-            return false;
-        }
-
-        $params = $format::load($signature);
-        if ($params === false || count($params) != 2) {
-            return false;
-        }
-        extract($params);
-
-        if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
-            $namedCurves = PKCS8::isUsingNamedCurves();
-
-            PKCS8::useSpecifiedCurve();
-
-            $sig = $format != 'ASN1' ? ASN1Signature::save($r, $s) : $signature;
-
-            $result = openssl_verify($message, $sig, $this->getPublicKey(), $this->hash->getHash());
-
-            if ($namedCurves) {
-                PKCS8::useNamedCurve();
-            }
-
-            if ($result != -1) {
-                return (bool) $result;
-            }
-        }
-
-        $n_1 = $order->subtract(self::$one);
-        if (!$r->between(self::$one, $n_1) || !$s->between(self::$one, $n_1)) {
-            return false;
-        }
-
-        $e = $this->hash->hash($message);
-        $e = new BigInteger($e, 256);
-
-        $Ln = $this->hash->getLength() - $order->getLength();
-        $z = $Ln > 0 ? $e->bitwise_rightShift($Ln) : $e;
-
-        $w = $s->modInverse($order);
-        list(, $u1) = $z->multiply($w)->divide($order);
-        list(, $u2) = $r->multiply($w)->divide($order);
-
-        $u1 = $this->curve->convertInteger($u1);
-        $u2 = $this->curve->convertInteger($u2);
-
-        list($x1, $y1) = $this->curve->multiplyAddPoints(
-            [$this->curve->getBasePoint(), $this->QA],
-            [$u1, $u2]
-        );
-
-        $x1 = $x1->toBigInteger();
-        list(, $x1) = $x1->divide($order);
-
-        return $x1->equals($r);
+        return parent::withHash($hash);
     }
 }

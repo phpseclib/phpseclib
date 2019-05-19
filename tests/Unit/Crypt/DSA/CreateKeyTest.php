@@ -7,6 +7,9 @@
  */
 
 use phpseclib\Crypt\DSA;
+use phpseclib\Crypt\DSA\Parameters;
+use phpseclib\Crypt\DSA\PublicKey;
+use phpseclib\Crypt\DSA\PrivateKey;
 
 /**
  * @requires PHP 7.0
@@ -16,14 +19,17 @@ class Unit_Crypt_DSA_CreateKeyTest extends PhpseclibTestCase
     public function testCreateParameters()
     {
         $dsa = DSA::createParameters();
-        $this->assertInstanceOf('\phpseclib\Crypt\DSA', $dsa);
+        $this->assertInstanceOf(Parameters::class, $dsa);
         $this->assertRegexp('#BEGIN DSA PARAMETERS#', "$dsa");
 
-        $dsa = DSA::createParameters(100, 100);
-        $this->assertFalse($dsa);
+        try {
+            $dsa = DSA::createParameters(100, 100);
+        } catch (Exception $e) {
+            $this->assertInstanceOf(Exception::class, $e);
+        }
 
         $dsa = DSA::createParameters(512, 160);
-        $this->assertInstanceOf('\phpseclib\Crypt\DSA', $dsa);
+        $this->assertInstanceOf(Parameters::class, $dsa);
         $this->assertRegexp('#BEGIN DSA PARAMETERS#', "$dsa");
 
         return $dsa;
@@ -34,17 +40,17 @@ class Unit_Crypt_DSA_CreateKeyTest extends PhpseclibTestCase
      */
     public function testCreateKey($params)
     {
-        extract(DSA::createKey());
-        $this->assertInstanceOf('\phpseclib\Crypt\DSA', $privatekey);
-        $this->assertInstanceOf('\phpseclib\Crypt\DSA', $publickey);
+        $privatekey = DSA::createKey();
+        $this->assertInstanceOf(PrivateKey::class, $privatekey);
+        $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
 
-        extract(DSA::createKey($params));
-        $this->assertInstanceOf('\phpseclib\Crypt\DSA', $privatekey);
-        $this->assertInstanceOf('\phpseclib\Crypt\DSA', $publickey);
+        $privatekey = DSA::createKey($params);
+        $this->assertInstanceOf(PrivateKey::class, $privatekey);
+        $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
 
-        extract(DSA::createKey(512, 160));
-        $this->assertInstanceOf('\phpseclib\Crypt\DSA', $privatekey);
-        $this->assertInstanceOf('\phpseclib\Crypt\DSA', $publickey);
+        $privatekey = DSA::createKey(512, 160);
+        $this->assertInstanceOf(PrivateKey::class, $privatekey);
+        $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
     }
 }
 

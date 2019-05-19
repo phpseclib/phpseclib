@@ -102,7 +102,16 @@ abstract class XML
 
         libxml_use_internal_errors($use_errors);
 
+        foreach ($components as $key => $value) {
+            if (is_array($value) && !count($value)) {
+                unset($components[$key]);
+            }
+        }
+
         if (isset($components['modulus']) && isset($components['publicExponent'])) {
+            if (count($components) == 3) {
+                $components['isPublicKey'] = true;
+            }
             return $components;
         }
 

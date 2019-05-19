@@ -20,6 +20,8 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\System\SSH\Agent;
 use phpseclib\Common\Functions\Strings;
+use phpseclib\Crypt\Common\PrivateKey;
+
 
 /**
  * Pure-PHP ssh-agent client identity object
@@ -34,7 +36,7 @@ use phpseclib\Common\Functions\Strings;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  internal
  */
-class Identity
+class Identity implements PrivateKey
 {
     /**@+
      * Signature Flags
@@ -107,7 +109,6 @@ class Identity
     public function setPublicKey($key)
     {
         $this->key = $key;
-        $this->key->setPublicKey();
     }
 
     /**
@@ -135,32 +136,48 @@ class Identity
      */
     public function getPublicKey($type = 'PKCS8')
     {
-        return $this->key->getPublicKey($type);
+        return $this->key;
     }
 
     /**
      * Sets the hash
      *
-     * ssh-agent only supports signatures with sha1 hashes but to maintain BC with RSA.php this function exists
-     *
-     * @param string $hash optional
+     * @param string $hash
      * @access public
      */
-    public function setHash($hash)
+    public function withHash($hash)
     {
-        $this->flags = 0;
+        $new = clone $this;
+        $new->flags = 0;
         switch ($hash) {
             case 'sha1':
                 break;
             case 'sha256':
-                $this->flags = self::SSH_AGENT_RSA2_256;
+                $new->flags = self::SSH_AGENT_RSA2_256;
                 break;
             case 'sha512':
-                $this->flags = self::SSH_AGENT_RSA2_512;
+                $new->flags = self::SSH_AGENT_RSA2_512;
                 break;
             default:
                 throw new UnsupportedAlgorithmException('The only supported hashes for RSA are sha1, sha256 and sha512');
         }
+        return $new;
+    }
+
+    /**
+     * Sets the padding
+     *
+     * Only PKCS1 padding is supported
+     *
+     * @param string $padding
+     * @access public
+     */
+    public function withPadding($padding = RSA::SIGNATURE_PKCS1)
+    {
+        if ($padding != RSA::SIGNATURE_PKCS1 && $padding != RSA::SIGNATURE_RELAXED_PKCS1) {
+            throw new UnsupportedAlgorithmException('ssh-agent can only create PKCS1 signatures');
+        }
+        return $this;
     }
 
     /**
@@ -175,12 +192,8 @@ class Identity
      * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @access public
      */
-    public function sign($message, $padding = RSA::PADDING_PKCS1)
+    public function sign($message)
     {
-        if ($padding != RSA::PADDING_PKCS1 && $padding != RSA::PADDING_RELAXED_PKCS1) {
-            throw new UnsupportedAlgorithmException('ssh-agent can only create PKCS1 signatures');
-        }
-
         // the last parameter (currently 0) is for flags and ssh-agent only defines one flag (for ssh-dss): SSH_AGENT_OLD_SIGNATURE
         $packet = Strings::packSSH2(
             'CssN',
@@ -205,5 +218,27 @@ class Identity
         list($type, $signature_blob) = Strings::unpackSSH2('ss', $signature_blob);
 
         return $signature_blob;
+    }
+
+    /**
+     * Returns the private key
+     *
+     * @param string $type
+     * @return string
+     */
+    public function toString($type)
+    {
+        throw new \RuntimeException('ssh-agent does not provide a mechanism to get the private key');
+    }
+
+    /**
+     * Sets the password
+     *
+     * @access public
+     * @param string|boolean $password
+     */
+    public function withPassword($password = false)
+    {
+        throw new \RuntimeException('ssh-agent does not provide a mechanism to get the private key');
     }
 }

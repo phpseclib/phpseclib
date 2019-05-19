@@ -24,7 +24,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $key = new \phpseclib\Crypt\RSA();
+ *    \phpseclib\Crypt\PublicKeyLoader::load('...');
  *    //$key->setPassword('whatever');
  *    $key->load(file_get_contents('privatekey'));
  *
@@ -49,12 +49,12 @@
 
 namespace phpseclib\Net;
 
-use ParagonIE\ConstantTime\Base64;
 use phpseclib\Crypt\Blowfish;
 use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\RC4;
 use phpseclib\Crypt\Rijndael;
+use phpseclib\Crypt\Common\PrivateKey;
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\DSA;
 use phpseclib\Crypt\ECDSA;
@@ -66,6 +66,7 @@ use phpseclib\System\SSH\Agent;
 use phpseclib\System\SSH\Agent\Identity as AgentIdentity;
 use phpseclib\Exception\NoSupportedAlgorithmsException;
 use phpseclib\Exception\UnsupportedAlgorithmException;
+use phpseclib\Exception\UnsupportedCurveException;
 use phpseclib\Common\Functions\Strings;
 
 /**
@@ -2112,9 +2113,11 @@ class SSH2
             return !is_string($password) && !is_array($password) ? false : $this->keyboard_interactive_process($password);
         }
 
-        if ($password instanceof RSA) {
+        if ($password instanceof PrivateKey) {
             return $this->privatekey_login($username, $password);
-        } elseif ($password instanceof Agent) {
+        }
+
+        if ($password instanceof Agent) {
             return $this->ssh_agent_login($username, $password);
         }
 
@@ -2124,6 +2127,10 @@ class SSH2
                 return true;
             }
             return false;
+        }
+
+        if (!is_string($password)) {
+            throw new \UnexpectedValueException('$password needs to either be an instance of \phpseclib\Crypt\Common\PrivateKey, \System\SSH\Agent, an array or a string');
         }
 
         if (!isset($password)) {
@@ -2361,7 +2368,7 @@ class SSH2
      * @return bool
      * @access private
      */
-    private function ssh_agent_login($username, $agent)
+    private function ssh_agent_login($username, Agent $agent)
     {
         $this->agent = $agent;
         $keys = $agent->requestIdentities();
@@ -2378,42 +2385,69 @@ class SSH2
      * Login with an RSA private key
      *
      * @param string $username
-     * @param \phpseclib\Crypt\RSA $password
+     * @param \phpseclib\Crypt\Common\PrivateKey $privatekey
      * @return bool
      * @throws \RuntimeException on connection error
      * @access private
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.
      */
-    private function privatekey_login($username, $privatekey)
+    private function privatekey_login($username, PrivateKey $privatekey)
     {
-        // see http://tools.ietf.org/html/rfc4253#page-15
-        $publickey = $privatekey->getPublicKey('Raw');
-        if ($publickey === false) {
-            return false;
+        $publickey = $privatekey->getPublicKey();
+
+        if ($publickey instanceof RSA) {
+            $privatekey = $privatekey->withPadding(RSA::SIGNATURE_PKCS1);
+            switch ($this->signature_format) {
+                case 'rsa-sha2-512':
+                    $hash = 'sha512';
+                    $signatureType = 'rsa-sha2-512';
+                    break;
+                case 'rsa-sha2-256':
+                    $hash = 'sha256';
+                    $signatureType = 'rsa-sha2-256';
+                    break;
+                //case 'ssh-rsa':
+                default:
+                    $hash = 'sha1';
+                    $signatureType = 'ssh-rsa';
+            }
+        } else if ($publickey instanceof ECDSA) {
+            $privatekey = $privatekey->withSignatureFormat('SSH2');
+            $curveName = $privatekey->getCurve();
+            switch ($curveName) {
+                case 'Ed25519':
+                    $hash = 'sha512';
+                    $signatureType = 'ssh-ed25519';
+                    break;
+                case 'secp256r1': // nistp256
+                    $hash = 'sha256';
+                    $signatureType = 'ecdsa-sha2-nistp256';
+                    break;
+                case 'secp384r1': // nistp384
+                    $hash = 'sha384';
+                    $signatureType = 'ecdsa-sha2-nistp384';
+                    break;
+                case 'secp521r1': // nistp521
+                    $hash = 'sha512';
+                    $signatureType = 'ecdsa-sha2-nistp521';
+                    break;
+                default:
+                    if (is_array($curveName)) {
+                        throw new UnsupportedCurveException('Specified Curves are not supported by SSH2');
+                    }
+                    throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported by phpseclib\'s SSH2 implementation');
+            }
+        } else if ($publickey instanceof DSA) {
+            $privatekey = $privatekey->withSignatureFormat('SSH2');
+            $hash = 'sha1';
+            $signatureType = 'ssh-dss';
+        } else {
+            throw new UnsupportedAlgorithmException('Please use either an RSA key, an ECDSA one or a DSA key');
         }
 
-        $publickey = Strings::packSSH2(
-            'sii',
-            'ssh-rsa',
-            $publickey['e'],
-            $publickey['n']
-        );
-
-        switch ($this->signature_format) {
-            case 'rsa-sha2-512':
-                $hash = 'sha512';
-                $signatureType = 'rsa-sha2-512';
-                break;
-            case 'rsa-sha2-256':
-                $hash = 'sha256';
-                $signatureType = 'rsa-sha2-256';
-                break;
-            //case 'ssh-rsa':
-            default:
-                $hash = 'sha1';
-                $signatureType = 'ssh-rsa';
-        }
+        $publickeyStr = $publickey->toString('OpenSSH');
+        $publickeyStr = base64_decode(preg_replace('#(^.*? )|( .*?)$#', '', $publickeyStr));
 
         $part1 = Strings::packSSH2(
             'Csss',
@@ -2422,7 +2456,7 @@ class SSH2
             'ssh-connection',
             'publickey'
         );
-        $part2 = Strings::packSSH2('ss', $signatureType, $publickey);
+        $part2 = Strings::packSSH2('ss', $signatureType, $publickeyStr);
 
         $packet = $part1 . chr(0) . $part2;
         $this->send_binary_packet($packet);
@@ -2438,7 +2472,6 @@ class SSH2
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 list($message) = Strings::unpackSSH2('s', $response);
                 $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . $message;
-
                 return false;
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
@@ -2453,9 +2486,11 @@ class SSH2
         }
 
         $packet = $part1 . chr(1) . $part2;
-        $privatekey->setHash($hash);
-        $signature = $privatekey->sign(Strings::packSSH2('s', $this->session_id) . $packet, RSA::PADDING_PKCS1);
-        $signature = Strings::packSSH2('ss', $signatureType, $signature);
+        $privatekey = $privatekey->withHash($hash);
+        $signature = $privatekey->sign(Strings::packSSH2('s', $this->session_id) . $packet);
+        if ($publickey instanceof RSA) {
+            $signature = Strings::packSSH2('ss', $signatureType, $signature);
+        }
         $packet.= Strings::packSSH2('s', $signature);
 
         $this->send_binary_packet($packet);
@@ -4258,6 +4293,8 @@ class SSH2
         return [
             'ssh-ed25519', // https://tools.ietf.org/html/draft-ietf-curdle-ssh-ed25519-02
             'ecdsa-sha2-nistp256', // RFC 5656
+            'ecdsa-sha2-nistp384', // RFC 5656
+            'ecdsa-sha2-nistp521', // RFC 5656
             'rsa-sha2-256', // RFC 8332
             'rsa-sha2-512', // RFC 8332
             'ssh-rsa', // RECOMMENDED  sign   Raw RSA Key
@@ -4553,7 +4590,7 @@ class SSH2
 
         if ($this->signature_validated) {
             return $this->bitmap ?
-                $this->signature_format . ' ' . Base64::encode($this->server_public_host_key) :
+                $this->signature_format . ' ' . $server_public_host_key :
                 false;
         }
 
@@ -4562,27 +4599,30 @@ class SSH2
         switch ($this->signature_format) {
             case 'ssh-ed25519':
             case 'ecdsa-sha2-nistp256':
-                $ec = new ECDSA();
-                $ec->load($server_public_host_key, 'OpenSSH');
+            case 'ecdsa-sha2-nistp384':
+            case 'ecdsa-sha2-nistp521':
+                $key = ECDSA::load($server_public_host_key, 'OpenSSH')
+                    ->withSignatureFormat('SSH2');
                 switch ($this->signature_format) {
                     case 'ssh-ed25519':
-                        //$ec->setHash('sha512');
                         Strings::shift($signature, 4 + strlen('ssh-ed25519') + 4);
+                        $hash = 'sha512';
                         break;
                     case 'ecdsa-sha2-nistp256':
-                        $ec->setHash('sha256');
+                        $hash = 'sha256';
+                        break;
+                    case 'ecdsa-sha2-nistp384':
+                        $hash = 'sha384';
+                        break;
+                    case 'ecdsa-sha2-nistp521':
+                        $hash = 'sha512';
                 }
-                if (!$ec->verify($this->exchange_hash, $signature, 'SSH2')) {
-                    return $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                };
+                $key = $key->withHash($hash);
                 break;
             case 'ssh-dss':
-                $dsa = new DSA();
-                $dsa->load($server_public_host_key, 'OpenSSH');
-                $dsa->setHash('sha1');
-                if (!$dsa->verify($this->exchange_hash, $signature, 'SSH2')) {
-                    return $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                };
+                $key = DSA::load($server_public_host_key, 'OpenSSH')
+                    ->withSignatureFormat('SSH2')
+                    ->withHash('sha1');
                 break;
             case 'ssh-rsa':
             case 'rsa-sha2-256':
@@ -4594,8 +4634,8 @@ class SSH2
                 $temp = unpack('Nlength', Strings::shift($signature, 4));
                 $signature = Strings::shift($signature, $temp['length']);
 
-                $rsa = new RSA();
-                $rsa->load($server_public_host_key, 'OpenSSH');
+                $key = RSA::load($server_public_host_key, 'OpenSSH')
+                    ->withPadding(RSA::SIGNATURE_PKCS1);
                 switch ($this->signature_format) {
                     case 'rsa-sha2-512':
                         $hash = 'sha512';
@@ -4607,17 +4647,18 @@ class SSH2
                     default:
                         $hash = 'sha1';
                 }
-                $rsa->setHash($hash);
-                if (!$rsa->verify($this->exchange_hash, $signature, RSA::PADDING_PKCS1)) {
-                    return $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                }
+                $key = $key->withHash($hash);
                 break;
             default:
                 $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
                 throw new NoSupportedAlgorithmsException('Unsupported signature format');
         }
 
-        return $this->signature_format . ' ' . Base64::encode($this->server_public_host_key);
+        if (!$key->verify($this->exchange_hash, $signature)) {
+            return $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
+        };
+
+        return $this->signature_format . ' ' . $server_public_host_key;
     }
 
     /**

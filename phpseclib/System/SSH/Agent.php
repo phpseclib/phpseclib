@@ -38,6 +38,7 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Exception\BadConfigurationException;
 use phpseclib\System\SSH\Agent\Identity;
 use phpseclib\Common\Functions\Strings;
+use phpseclib\Crypt\PublicKeyLoader;
 
 /**
  * Pure-PHP ssh-agent client identity factory
@@ -198,9 +199,8 @@ class Agent
             $temp = $key_blob;
             list($key_type) = Strings::unpackSSH2('s', $temp);
             switch ($key_type) {
-                case 'ssh-rsa':
-                    $key = new RSA();
-                    $key->load($key_str);
+	    case 'ssh-rsa':
+		    $key = PublicKeyLoader::load(base64_encode($key_blob));
                     break;
                 case 'ssh-dss':
                     // not currently supported

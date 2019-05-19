@@ -8,14 +8,17 @@
 
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\RSA\Keys\PKCS1;
+use phpseclib\Crypt\RSA\PrivateKey;
+use phpseclib\Crypt\RSA\PublicKey;
 
 class Unit_Crypt_RSA_CreateKeyTest extends PhpseclibTestCase
 {
     public function testCreateKey()
     {
-        extract(RSA::createKey(768));
-        $this->assertInstanceOf('\phpseclib\Crypt\RSA', $privatekey);
-        $this->assertInstanceOf('\phpseclib\Crypt\RSA', $publickey);
+        $privatekey = RSA::createKey(768);
+        $publickey = $privatekey->getPublicKey();
+        $this->assertInstanceOf(PrivateKey::class, $privatekey);
+        $this->assertInstanceOf(PublicKey::class, $publickey);
         $this->assertNotEmpty("$privatekey");
         $this->assertNotEmpty("$publickey");
         $this->assertSame($privatekey->getLength(), 768);
@@ -40,15 +43,15 @@ class Unit_Crypt_RSA_CreateKeyTest extends PhpseclibTestCase
     {
         RSA::useInternalEngine();
         RSA::setSmallestPrime(256);
-        extract(RSA::createKey(1024));
-        $this->assertInstanceOf('\phpseclib\Crypt\RSA', $privatekey);
-        $this->assertInstanceOf('\phpseclib\Crypt\RSA', $publickey);
-        $privatekey->setPrivateKeyFormat('PKCS1');
-        $this->assertNotEmpty("$privatekey");
-        $this->assertNotEmpty("$publickey");
+        $privatekey = RSA::createKey(1024);
+        $publickey = $privatekey->getPublicKey();
+        $this->assertInstanceOf(PrivateKey::class, $privatekey);
+        $this->assertInstanceOf(PublicKey::class, $publickey);
+        $this->assertNotEmpty($privatekey->toString('PKCS1'));
+        $this->assertNotEmpty($publickey->toString('PKCS1'));
         $this->assertSame($privatekey->getLength(), 1024);
         $this->assertSame($publickey->getLength(), 1024);
-        $r = PKCS1::load("$privatekey");
+        $r = PKCS1::load($privatekey->toString('PKCS1'));
         $this->assertCount(4, $r['primes']);
         // the last prime number could be slightly over. eg. 99 * 99 == 9801 but 10 * 10 = 100. the more numbers you're
         // multiplying the less certain you are to have each of them multiply to an n-bit number
@@ -56,10 +59,9 @@ class Unit_Crypt_RSA_CreateKeyTest extends PhpseclibTestCase
             $this->assertSame($prime->getLength(), 256);
         }
 
-        $rsa = new RSA();
-        $rsa->load($privatekey->getPrivateKey());
+        $rsa = RSA::load($privatekey->toString('PKCS1'));
         $signature = $rsa->sign('zzz');
-        $rsa->load($rsa->getPublicKey());
+        $rsa = RSA::load($rsa->getPublicKey()->toString('PKCS1'));
         $this->assertTrue($rsa->verify('zzz', $signature));
 
         RSA::useBestEngine();

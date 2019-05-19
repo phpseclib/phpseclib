@@ -10,6 +10,7 @@ use phpseclib\Crypt\ECDSA;
 use phpseclib\File\ASN1;
 use phpseclib\Crypt\ECDSA\Curves\Ed448;
 use phpseclib\Math\BigInteger;
+use phpseclib\Crypt\PublicKeyLoader;
 
 class Ed448PublicKey
 {
@@ -167,7 +168,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $plaintext = 'zzz';
 
         ECDSA::useInternalEngine();
-        extract(ECDSA::createKey($name));
+        $privatekey = ECDSA::createKey($name);
+        $publickey = $privatekey->getPublicKey();
         $sig = $privatekey->sign($plaintext);
 
         ECDSA::useBestEngine();
@@ -189,7 +191,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $plaintext = 'zzz';
 
         ECDSA::useBestEngine();
-        extract(ECDSA::createKey($name));
+        $privatekey = ECDSA::createKey($name);
+        $publickey = $privatekey->getPublicKey();
         $sig = $privatekey->sign($plaintext);
 
         ECDSA::useInternalEngine();
@@ -207,11 +210,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '6c82a562cb808d10d632be89c8513ebf6c929f34ddfa8c9f63c9960ef6e348a3528c8a3fcc2f044e39a3fc5b94492f8f032e7549a20098f95b');
         $public = pack('H*', '5fd7449b59b461fd2ce787ec616ad46a1da1342485a70e1f8a0ea75d80e96778edf124769b46c7061bd6783df1e50f6cd1fa1abeafe8256180');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private);
+        $publicKey = PublicKeyLoader::load($public);
 
         $expected = '533a37f6bbe457251f023c0d88f976ae2dfb504a843e34d2074fd823d41a591f2b233f034f628281f2fd7a22ddd47d7828c59bd0a21bfd3980' .
                     'ff0d2028d4b18a9df63e006c5d1c2d345b925d8dc00b4104852db99ac5c7cdda8530a113a0f4dbb61149f05a7363268c71d95808ff2e652600';
@@ -221,19 +221,16 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', 'c4eab05d357007c632f3dbb48489924d552b08fe0c353a0d4a1f00acda2c463afbea67c5e8d2877c5e3bc397a659949ef8021e954e0a12274e');
         $public = pack('H*', '43ba28f430cdff456ae531545f7ecd0ac834a55d9358c0372bfa0c6c6798c0866aea01eb00742802b8438ea4cb82169c235160627b4c3a9480');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private);
+        $publicKey = PublicKeyLoader::load($public);
 
         $expected = '26b8f91727bd62897af15e41eb43c377efb9c610d48f2335cb0bd0087810f4352541b143c4b981b7e18f62de8ccdf633fc1bf037ab7cd77980' .
                     '5e0dbcc0aae1cbcee1afb2e027df36bc04dcecbf154336c19f0af7e0a6472905e799f1953d2a0ff3348ab21aa4adafd1d234441cf807c03a00';
         $this->assertSame($expected, bin2hex($sig = $privateKey->sign("\x03")));
         $this->assertTrue($publicKey->verify("\x03", $sig));
 
-        $publicKey->setContext(pack('H*', '666f6f'));
-        $privateKey->setContext(pack('H*', '666f6f'));
+        $publicKey = $publicKey->withContext(pack('H*', '666f6f'));
+        $privateKey = $privateKey->withContext(pack('H*', '666f6f'));
 
         $expected = 'd4f8f6131770dd46f40867d6fd5d5055de43541f8c5e35abbcd001b32a89f7d2151f7647f11d8ca2ae279fb842d607217fce6e042f6815ea00' .
                     '0c85741de5c8da1144a6a1aba7f96de42505d7a7298524fda538fccbbb754f578c1cad10d54d0d5428407e85dcbc98a49155c13764e66c3c00';
@@ -243,11 +240,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '258cdd4ada32ed9c9ff54e63756ae582fb8fab2ac721f2c8e676a72768513d939f63dddb55609133f29adf86ec9929dccb52c1c5fd2ff7e21b');
         $public = pack('H*', '3ba16da0c6f2cc1f30187740756f5e798d6bc5fc015d7c63cc9510ee3fd44adc24d8e968b6e46e6f94d19b945361726bd75e149ef09817f580');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private);
+        $publicKey = PublicKeyLoader::load($public);
 
         $message = pack('H*', '64a65f3cdedcdd66811e2915');
 
@@ -259,11 +253,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '7ef4e84544236752fbb56b8f31a23a10e42814f5f55ca037cdcc11c64c9a3b2949c1bb60700314611732a6c2fea98eebc0266a11a93970100e');
         $public = pack('H*', 'b3da079b0aa493a5772029f0467baebee5a8112d9d3a22532361da294f7bb3815c5dc59e176b4d9f381ca0938e13c6c07b174be65dfa578e80');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private);
+        $publicKey = PublicKeyLoader::load($public);
 
         $message = pack('H*', '64a65f3cdedcdd66811e2915e7');
 
@@ -275,11 +266,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', 'd65df341ad13e008567688baedda8e9dcdc17dc024974ea5b4227b6530e339bff21f99e68ca6968f3cca6dfe0fb9f4fab4fa135d5542ea3f01');
         $public = pack('H*', 'df9705f58edbab802c7f8363cfe5560ab1c6132c20a9f1dd163483a26f8ac53a39d6808bf4a1dfbd261b099bb03b3fb50906cb28bd8a081f00');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private);
+        $publicKey = PublicKeyLoader::load($public);
 
         $message = 'bd0f6a3747cd561bdddf4640a332461a4a30a12a434cd0bf40d766d9c6d458e5512204a30c17d1f50b5079631f64eb3112182da3005835461113718d1a5ef944';
         $message = pack('H*', $message);
@@ -292,11 +280,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '2ec5fe3c17045abdb136a5e6a913e32ab75ae68b53d2fc149b77e504132d37569b7e766ba74a19bd6162343a21c8590aa9cebca9014c636df5');
         $public = pack('H*', '79756f014dcfe2079f5dd9e718be4171e2ef2486a08f25186f6bff43a9936b9bfe12402b08ae65798a3d81e22e9ec80e7690862ef3d4ed3a00');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private);
+        $publicKey = PublicKeyLoader::load($public);
 
         $message = '15777532b0bdd0d1389f636c5f6b9ba734c90af572877e2d272dd078aa1e567cfa80e12928bb542330e8409f3174504107ecd5efac61ae7504dabe2a602ede89e5cca6257a7c77e27a702b3ae39fc769fc54f2395ae6a1178cab4738e543072fc1c177fe71e92e25bf03e4ecb72f47b64d0465aaea4c7fad372536c8ba516a60' .
                    '39c3c2a39f0e4d832be432dfa9a706a6e5c7e19f397964ca4258002f7c0541b590316dbc5622b6b2a6fe7a4abffd96105eca76ea7b98816af0748c10df048ce012d901015a51f189f3888145c03650aa23ce894c3bd889e030d565071c59f409a9981b51878fd6fc110624dcbcde0bf7a69ccce38fabdf86f3bef6044819de11';
@@ -310,11 +295,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '872d093780f5d3730df7c212664b37b8a0f24f56810daa8382cd4fa3f77634ec44dc54f1c2ed9bea86fafb7632d8be199ea165f5ad55dd9ce8');
         $public = pack('H*', 'a81b2e8a70a5ac94ffdbcc9badfc3feb0801f258578bb114ad44ece1ec0e799da08effb81c5d685c0c56f64eecaef8cdf11cc38737838cf400');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private);
+        $publicKey = PublicKeyLoader::load($public);
 
         $message = '6ddf802e1aae4986935f7f981ba3f0351d6273c0a0c22c9c0e8339168e675412a3debfaf435ed651558007db4384b650fcc07e3b586a27a4f7a00ac8a6fec2cd86ae4bf1570c41e6a40c931db27b2faa15a8cedd52cff7362c4e6e23daec0fbc3a79b6806e316efcc7b68119bf46bc76a26067a53f296dafdbdc11c77f7777e9' .
                    '72660cf4b6a9b369a6665f02e0cc9b6edfad136b4fabe723d2813db3136cfde9b6d044322fee2947952e031b73ab5c603349b307bdc27bc6cb8b8bbd7bd323219b8033a581b59eadebb09b3c4f3d2277d4f0343624acc817804728b25ab797172b4c5c21a22f9c7839d64300232eb66e53f31c723fa37fe387c7d3e50bdf9813' .
@@ -342,12 +324,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60');
         $public = pack('H*', 'd75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a');
 
-        $privateKey = new ECDSA();
-        // libsodium format
-        $privateKey->load($private . $public);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private . $public); // libsodium format
+        $publicKey = PublicKeyLoader::load($public);
 
         $expected = 'e5564300c360ac729086e2cc806e828a84877f1eb8e5d974d873e06522490155' .
                     '5fb8821590a33bacc61e39701cf9b46bd25bf5f0595bbe24655141438e7a100b';
@@ -357,11 +335,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb');
         $public = pack('H*', '3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private . $public);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private . $public);
+        $publicKey = PublicKeyLoader::load($public);
 
         $expected = '92a009a9f0d4cab8720e820b5f642540a2b27b5416503f8fb3762223ebdb69da' .
                     '085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00';
@@ -371,11 +346,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', 'c5aa8df43f9f837bedb7442f31dcb7b166d38535076f094b85ce3a2e0b4458f7');
         $public = pack('H*', 'fc51cd8e6218a1a38da47ed00230f0580816ed13ba3303ac5deb911548908025');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private . $public);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private . $public); // libsodium format
+        $publicKey = PublicKeyLoader::load($public);
 
         $expected = '6291d657deec24024827e69c3abe01a30ce548a284743a445e3680d7db5ac3ac' .
                     '18ff9b538d16f290ae67f760984dc6594a7c15e9716ed28dc027beceea1ec40a';
@@ -385,11 +357,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', 'f5e5767cf153319517630f226876b86c8160cc583bc013744c6bf255f5cc0ee5');
         $public = pack('H*', '278117fc144c72340f67d0f2316e8386ceffbf2b2428c9c51fef7c597f1d426e');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private . $public);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private . $public); // libsodium format
+        $publicKey = PublicKeyLoader::load($public);
 
         $message = '08b8b2b733424243760fe426a4b54908632110a66c2f6591eabd3345e3e4eb98' .
                    'fa6e264bf09efe12ee50f8f54e9f77b1e355f6c50544e23fb1433ddf73be84d8' .
@@ -433,11 +402,8 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42');
         $public = pack('H*', 'ec172b93ad5e563bf4932c70e1245034c35467ef2efd4d64ebf819683467e2bf');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private . $public);
-
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
+        $privateKey = PublicKeyLoader::load($private . $public);
+        $publicKey = PublicKeyLoader::load($public);
 
         $message = 'ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a' .
                    '2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f';
@@ -451,14 +417,11 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '0305334e381af78f141cb666f6199f57bc3495335a256a95bd2a55bf546663f6');
         $public = pack('H*', 'dfc9425e4f968f7f0c29f0259cf5f9aed6851c2bb4ad8bfb860cfee0ab248292');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private . $public);
+        $privateKey = PublicKeyLoader::load($private . $public);
+        $publicKey = PublicKeyLoader::load($public);
 
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
-
-        $privateKey->setContext("\x62\x61\x72");
-        $publicKey->setContext("\x62\x61\x72");
+        $privateKey = $privateKey->withContext("\x62\x61\x72");
+        $publicKey = $publicKey->withContext("\x62\x61\x72");
 
         $message = 'f726936d19c800494e3fdaff20b276a8';
         $message = pack('H*', $message);
@@ -471,14 +434,11 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '0305334e381af78f141cb666f6199f57bc3495335a256a95bd2a55bf546663f6');
         $public = pack('H*', 'dfc9425e4f968f7f0c29f0259cf5f9aed6851c2bb4ad8bfb860cfee0ab248292');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private . $public);
+        $privateKey = PublicKeyLoader::load($private . $public);
+        $publicKey = PublicKeyLoader::load($public);
 
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
-
-        $privateKey->setContext("\x66\x6f\x6f");
-        $publicKey->setContext("\x66\x6f\x6f");
+        $privateKey = $privateKey->withContext("\x66\x6f\x6f");
+        $publicKey = $publicKey->withContext("\x66\x6f\x6f");
 
         $message = '508e9e6882b979fea900f62adceaca35';
         $message = pack('H*', $message);
@@ -491,14 +451,11 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
         $private = pack('H*', 'ab9c2853ce297ddab85c993b3ae14bcad39b2c682beabc27d6d4eb20711d6560');
         $public = pack('H*', '0f1d1274943b91415889152e893d80e93275a1fc0b65fd71b4b0dda10ad7d772');
 
-        $privateKey = new ECDSA();
-        $privateKey->load($private . $public);
+        $privateKey = PublicKeyLoader::load($private . $public);
+        $publicKey = PublicKeyLoader::load($public);
 
-        $publicKey = new ECDSA();
-        $publicKey->load($public);
-
-        $privateKey->setContext("\x66\x6f\x6f");
-        $publicKey->setContext("\x66\x6f\x6f");
+        $privateKey = $privateKey->withContext("\x66\x6f\x6f");
+        $publicKey = $publicKey->withContext("\x66\x6f\x6f");
 
         $message = 'f726936d19c800494e3fdaff20b276a8';
         $message = pack('H*', $message);
@@ -512,8 +469,7 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
     public function testRandomSignature()
     {
         $message = 'hello, world!';
-        $private = new ECDSA();
-        $private->load('PuTTY-User-Key-File-2: ecdsa-sha2-nistp256
+        $private = PublicKeyLoader::load('PuTTY-User-Key-File-2: ecdsa-sha2-nistp256
 Encryption: none
 Comment: ecdsa-key-20181105
 Public-Lines: 3

@@ -479,7 +479,7 @@ abstract class PKCS8 extends PKCS
             }
             if (isset($private['publicKey'])) {
                 if ($private['publicKey'][0] != "\0") {
-                    throw new \UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($val));
+                    throw new \UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($private['publicKey'][0]));
                 }
                 $private['publicKey'] = substr($private['publicKey'], 1);
             }
@@ -494,7 +494,7 @@ abstract class PKCS8 extends PKCS
 
         if (is_array($public)) {
             if ($public['publicKey'][0] != "\0") {
-                throw new \UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($val));
+                throw new \UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($public['publicKey'][0]));
             }
             if (is_array(static::OID_NAME)) {
                 if (!in_array($public['publicKeyAlgorithm']['algorithm'], static::OID_NAME)) {

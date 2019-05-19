@@ -9,6 +9,7 @@ use phpseclib\File\ASN1;
 use phpseclib\File\ASN1\Element;
 use phpseclib\File\X509;
 use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\PublicKeyLoader;
 
 class Unit_File_X509_X509Test extends PhpseclibTestCase
 {
@@ -133,7 +134,7 @@ ulvKGQSy068Bsn5fFNum21K5mvMSf3yinDtvmX3qUA12IxL/92ZzKbeVCq3Yi7Le
 IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
 -----END CERTIFICATE-----');
 
-        $value = $this->_encodeOID('1.2.3.4');
+        $value = ASN1::encodeOID('1.2.3.4');
         $ext = chr(ASN1::TYPE_OBJECT_IDENTIFIER) . ASN1::encodeLength(strlen($value)) . $value;
         $value = 'zzzzzzzzz';
         $ext.= chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength(strlen($value)) . $value;
@@ -151,8 +152,7 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
      */
     public function testSaveNullRSAParam()
     {
-        $privKey = new RSA();
-        $privKey->load('-----BEGIN RSA PRIVATE KEY-----
+        $privKey = PublicKeyLoader::load('-----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDMswfEpAgnUDWA74zZw5XcPsWh1ly1Vk99tsqwoFDkLF7jvXy1
 dDLHYfuquvfxCgcp8k/4fQhx4ubR8bbGgEq9B05YRnViK0R0iBB5Ui4IaxWYYhKE
 8xqAEH2fL+/7nsqqNFKkEN9KeFwc7WbMY49U2adlMrpBdRjk1DqIEW3QTwIDAQAB
@@ -168,9 +168,7 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
 4vca9v/F2hGVJuHIMJ8mguwYlNYzh2NqoIDJTtgOkBmt
 -----END RSA PRIVATE KEY-----');
 
-        $pubKey = new RSA();
-        $pubKey->load($privKey->getPublicKey());
-        $pubKey->setPublicKey();
+        $pubKey = $privKey->getPublicKey();
 
         $subject = new X509();
         $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
@@ -192,37 +190,12 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         $this->assertArrayHasKey('parameters', $cert['tbsCertificate']['signature']);
     }
 
-    private function _encodeOID($oid)
-    {
-        if ($oid === false) {
-            user_error('Invalid OID');
-            return false;
-        }
-        $value = '';
-        $parts = explode('.', $oid);
-        $value = chr(40 * $parts[0] + $parts[1]);
-        for ($i = 2; $i < count($parts); $i++) {
-            $temp = '';
-            if (!$parts[$i]) {
-                $temp = "\0";
-            } else {
-                while ($parts[$i]) {
-                    $temp = chr(0x80 | ($parts[$i] & 0x7F)) . $temp;
-                    $parts[$i] >>= 7;
-                }
-                $temp[strlen($temp) - 1] = $temp[strlen($temp) - 1] & chr(0x7F);
-            }
-            $value.= $temp;
-        }
-        return $value;
-    }
-
     public function testGetOID()
     {
         // load the OIDs
         new X509();
-        $this->assertEquals(ASN1::getOID('2.16.840.1.101.3.4.2.1'), '2.16.840.1.101.3.4.2.1');
-        $this->assertEquals(ASN1::getOID('id-sha256'), '2.16.840.1.101.3.4.2.1');
+        $this->assertEquals(ASN1::getOID('1.2.840.113549.1.1.5'), '1.2.840.113549.1.1.5');
+        $this->assertEquals(ASN1::getOID('sha1WithRSAEncryption'), '1.2.840.113549.1.1.5');
         $this->assertEquals(ASN1::getOID('zzz'), 'zzz');
     }
 
@@ -383,7 +356,8 @@ Mj93S
     // fixed by #1104
     public function testMultipleDomainNames()
     {
-        extract(RSA::createKey(512));
+        $privatekey = RSA::createKey(512);
+        $publickey = $privatekey->getPublicKey();
 
         $subject = new X509();
         $subject->setDomain('example.com', 'example.net');
@@ -578,8 +552,7 @@ keSg3sfr4VWT545guJlTe+6vvelxbPFIXCXnyVLoePBYZtEe8FQhIBxd3EQHsxuJ
 iSoMCxKCa8r5P1DrxKaJAkBBP87OdahRq0CBQjTFg0wmPs66PoTXA4hZvSxV77CO
 tMPj6Pas7Muejogm6JkmxXC/uT6Tzfknd0B3XSmtDzGL
 -----END RSA PRIVATE KEY-----';
-        $cakey = new RSA();
-        $cakey->load($pemcakey);
+        $cakey = PublicKeyLoader::load($pemcakey);
         $pemca = '-----BEGIN CERTIFICATE-----
 MIICADCCAWmgAwIBAgIUJXQulcz5xkTam8UGC/yn6iVaiWwwDQYJKoZIhvcNAQEF
 BQAwHDEaMBgGA1UECgwRcGhwc2VjbGliIGRlbW8gQ0EwHhcNMTgwMTIxMTc0NzM0
