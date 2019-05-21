@@ -192,6 +192,11 @@ abstract class OpenSSH extends Progenitor
     {
         if ($curve instanceof Ed25519) {
             $key = Strings::packSSH2('ss', 'ssh-ed25519', $curve->encodePoint($publicKey));
+
+            if (self::$binary) {
+                return $key;
+            }
+
             $key = 'ssh-ed25519 ' . Base64::encode($key) . ' ' . self::$comment;
             return $key;
         }

@@ -68,6 +68,7 @@ use phpseclib\Exception\NoSupportedAlgorithmsException;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\Exception\UnsupportedCurveException;
 use phpseclib\Common\Functions\Strings;
+use phpseclib\Crypt\Common\Keys\OpenSSH;
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -2446,8 +2447,10 @@ class SSH2
             throw new UnsupportedAlgorithmException('Please use either an RSA key, an ECDSA one or a DSA key');
         }
 
+        $status = OpenSSH::getBinaryOutput();
+        OpenSSH::setBinaryOutput(true);
         $publickeyStr = $publickey->toString('OpenSSH');
-        $publickeyStr = base64_decode(preg_replace('#(^.*? )|( .*?)$#', '', $publickeyStr));
+        OpenSSH::setBinaryOutput($status);
 
         $part1 = Strings::packSSH2(
             'Csss',
