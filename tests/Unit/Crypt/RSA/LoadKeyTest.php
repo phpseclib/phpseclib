@@ -233,6 +233,22 @@ ZQIDAQAB
         $this->assertInstanceOf(PublicKey::class, $rsa);
     }
 
+    public function testPubPrivateKey()
+    {
+        $key = '-----BEGIN RSA PUBLIC KEY-----
+MIIBCgKCAQEA61BjmfXGEvWmegnBGSuS+rU9soUg2FnODva32D1AqhwdziwHINFa
+D1MVlcrYG6XRKfkcxnaXGfFDWHLEvNBSEVCgJjtHAGZIm5GL/KA86KDp/CwDFMSw
+luowcXwDwoyinmeOY9eKyh6aY72xJh7noLBBq1N0bWi1e2i+83txOCg4yV2oVXhB
+o8pYEJ8LT3el6Smxol3C1oFMVdwPgc0vTl25XucMcG/ALE/KNY6pqC2AQ6R2ERlV
+gPiUWOPatVkt7+Bs3h5Ramxh7XjBOXeulmCpGSynXNcpZ/06+vofGi/2MlpQZNhH
+Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
+-----END RSA PUBLIC KEY-----';
+
+        $rsa = PublicKeyLoader::load($key)->asPrivateKey();
+        $this->assertInstanceOf(PrivateKey::class, $rsa);
+        $this->assertInternalType('string', $rsa->sign('zzz'));
+    }
+
     public function testSSHPubKey()
     {
         $key = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4e' .

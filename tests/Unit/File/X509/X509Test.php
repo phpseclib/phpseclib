@@ -701,4 +701,160 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
         $this->assertFalse($x509->validateDate('Nov 22, 2018'));
         $this->assertTrue($x509->validateDate('Nov 22, 2012'));
     }
+
+    public function testDSALoad()
+    {
+        // openssl dsaparam -out params.pem 3072
+        // openssl gendsa -out key.pem params.pem
+        // openssl req -new -key key.pem -out req.pem
+        // openssl x509 -req -in req.pem -signkey key.pem -out certificate.cer
+
+        $x509 = new X509();
+        $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
+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
+-----END CERTIFICATE-----');
+
+        $this->assertSame('id-dsa-with-sha256', $r['tbsCertificate']['signature']['algorithm']);
+        $this->assertSame('id-dsa', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
+        $this->assertSame('id-dsa-with-sha256', $r['signatureAlgorithm']['algorithm']);
+
+        $this->assertTrue($x509->validateSignature(false));
+    }
+
+    public function testECDSALoad()
+    {
+        // openssl req -x509 -nodes -days 3650 -newkey ec:<(openssl ecparam -name prime256v1) -keyout ecdsakey.pem -out ecdsacert.pem
+
+        $x509 = new X509();
+        $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
+MIIB0zCCAXqgAwIBAgIJAIUvi6ecHYnoMAoGCCqGSM49BAMCMEUxCzAJBgNVBAYT
+AkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRn
+aXRzIFB0eSBMdGQwHhcNMTkwNTIxMDIxOTMyWhcNMjkwNTE4MDIxOTMyWjBFMQsw
+CQYDVQQGEwJBVTETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJu
+ZXQgV2lkZ2l0cyBQdHkgTHRkMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXYOR
+ZYFctekS6LIey8va5CLkQCWZw8JMIRPyWkABB6tjx5xJr8MgYiXB0nS15HC82JYN
+fR6NAT6lSnbpcfBgJKNTMFEwHQYDVR0OBBYEFEReRoJtjUXYus7iJWM/T1J7YxVH
+MB8GA1UdIwQYMBaAFEReRoJtjUXYus7iJWM/T1J7YxVHMA8GA1UdEwEB/wQFMAMB
+Af8wCgYIKoZIzj0EAwIDRwAwRAIgIBo2fgqfVsbKczXodiXamRIv1vmqgo3pIGzV
+f11dQP8CIDoB2AbvB3Yk/iGduWpw+3FwNAZ1y/rTqQK6+XgZCt6K
+-----END CERTIFICATE-----');
+
+        $this->assertSame('ecdsa-with-SHA256', $r['tbsCertificate']['signature']['algorithm']);
+        $this->assertSame('id-ecPublicKey', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
+        $this->assertSame('ecdsa-with-SHA256', $r['signatureAlgorithm']['algorithm']);
+
+        $this->assertTrue($x509->validateSignature(false));
+    }
+
+    public function testDSASave()
+    {
+        $private = '-----BEGIN DSA PRIVATE KEY-----
+MIIE1QIBAAKCAYEAwuma6tTTvSg9HUXseAquivUpXyEvyKmIf0XU/EOn4Y6EryoF
+UhPfnnF23qJxBIfBDdk+5DPObjYUpm8sEe1T5Ro/BYY62OMa3tVcZrCXWRW53BnR
+27uDO+1xJzKefT0OGxoLdcSIPLr0JWs9tRyTT9PIjOOvRzNuVHDrOdoyhgZb9SWQ
+oX6/zpybHbTQBJZrC5bTRCGJEP1y+g3bdODFko1pyGL/ajVMJDlQhE1QFHpnnSrd
+xcwgzOZJeX/xMqKLrnnNZ11r5q55x/8aiaMlSlrD/tAzMLCBgfXytl2M7ZWhxSGl
+uSK1rIWuNshrEuZRMsXTzQZ/B5cBQZwxhvoz72Fh7LnETI8u1ZyYPSW8XCU6EgdK
+dwqIOxhAtCpHIFGxJDnAira7dmIvl/sl5v+sEXmSe3tSGYD9Adhk9SJ0kUR+Bueb
+9dO3Qj5iTD06WS/DH6HAf7nnY7GjAizTld4zB0NQDnQeGUu3Mst9T4eLUtOFf8Hd
+jvSLRntSOSJLwgEbAiEA3sPLEULOwP+cxcLkYotWOZABO7zBITR8G0kJM+UIAl0C
+ggGAJtn2ZMuJWYfA+/N/YiLn4HgByb85RHQ+862DtCnUDQgbc9LJCRvE3JLGPE3i
+QFP/fDa+uguK5GFdzq16eEJac+9kkFs7xfJ8j+RyhPGMcLfddZca5SQIoEeU66ma
+10RVwVOQLcth0RxaBNntvwIpp4eQO8meaCSTPo4Jc7yvlM8BiOHkcJMmQt6flE8o
+kv3jbp80BklpfPtnHJ2Ky6TvKZiNPHI+lvUCRXTpr+IQVq9LOsqL0pJDG9WhJeKP
+Xxub1JbNc9l5qLo0d3RlSnCpHR5O3vzgWakPzrZgVZxqHNtU5tjv4kFf2/0fiRNw
+7ueimEorYGIsNqCipkxKRbyhI4vgNTQXwrxSQeO26ItfDjRsT2Pa7I+oH1QInirK
+BerReRNke4JJ9K8bIDXrJahtk5XSzOKjX/iXoSmY8pinLWdnZ2T28SCbh5fFm6Fm
+WbI9OILqs8bMQeseRznpIrwqfySzLxR2+yDOvz5SmQ3esFC+AesR8me41OY8ZBsv
+IG6TAoIBgBxS7Ghb6ujqFFln6AlFL2OrpUrB9q8NZH84o+ygP39Kf/FdJ7CRs4dR
+L7L0FdruimK6Vsm55rPJDSCaDZD45p2deG6mFmdpVAtiDPqOWMm6zGXjU4HhNA70
+oVOGQ7HkIlRWvbkYPA3zqT7Ibqe8gFaIkqobCEwQudcoqDlK+5vnO1IYt5zwuy6o
+eCN9rixaWjRLPm65SKzc+4l9+XAZWThoKlFL3wVmuZ/3EeYX0G8FAR7nYEFwSTrG
+QTCAmTMVgYi9TxDLqGMeM6Nkp2R90dadRBqt6MJ/lZ3jOzgUw4dF9ofIumUJ0Up9
+sWDPEB96Ng69ZPWbXNo6799zo1mN2GaxQHfyn6VWjNf649eBg5Q3aNHjOSz9wi9a
+fjs3u44AnBdGdZzlKVXXobtpt4Nwq9elof+9iwdjKqki6A9h0NWS1w9zjZ21n3Yq
+69J/XQl0UYYykGSWz65DbFuYoWPMpfSxEnxDZL5O3nxBCQDlPRxEjKwG/TdKxIJA
+uhPlgkgknwIgdDqqKIAF60ouiynsbU53ERS0TwpjeFiYGA48SwYW3Nk=
+-----END DSA PRIVATE KEY-----';
+        $private = PublicKeyLoader::load($private);
+        $public = $private->getPublicKey();
+
+        $subject = new X509();
+        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $subject->setPublicKey($public);
+
+        $issuer = new X509();
+        $issuer->setPrivateKey($private);
+        $issuer->setDN($subject->getDN());
+
+        $x509 = new X509();
+
+        $result = $x509->sign($issuer, $subject, 'id-dsa-with-sha256');
+        $result = $x509->saveX509($result);
+
+        $this->assertInternalType('string', $result);
+
+        $r = $x509->loadX509($result);
+        $this->assertArrayHasKey('tbsCertificate', $r);
+    }
+
+    public function testECDSASave()
+    {
+        $private = '-----BEGIN PRIVATE KEY-----
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgQ0o1byJQbAcuklBt
+MENv2e0W3cE6gRmETxEvTBAxRTShRANCAARdg5FlgVy16RLosh7Ly9rkIuRAJZnD
+wkwhE/JaQAEHq2PHnEmvwyBiJcHSdLXkcLzYlg19Ho0BPqVKdulx8GAk
+-----END PRIVATE KEY-----';
+        $private = PublicKeyLoader::load($private);
+        $public = $private->getPublicKey();
+
+        $subject = new X509();
+        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $subject->setPublicKey($public);
+
+        $issuer = new X509();
+        $issuer->setPrivateKey($private);
+        $issuer->setDN($subject->getDN());
+
+        $x509 = new X509();
+
+        $result = $x509->sign($issuer, $subject, 'ecdsa-with-SHA256');
+        $result = $x509->saveX509($result);
+
+        $this->assertInternalType('string', $result);
+
+        $r = $x509->loadX509($result);
+        $this->assertArrayHasKey('tbsCertificate', $r);
+    }
 }
