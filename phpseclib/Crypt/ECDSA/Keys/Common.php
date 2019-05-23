@@ -70,6 +70,29 @@ trait Common
             // brainpool*r* curves are regular prime finite field curves
             // brainpool*t* curves are twisted versions of the brainpool*r* curves
             self::$curveOIDs = [
+                'prime192v1' => '1.2.840.10045.3.1.1', // J.5.1, example 1 (aka secp192r1)
+                'prime192v2' => '1.2.840.10045.3.1.2', // J.5.1, example 2
+                'prime192v3' => '1.2.840.10045.3.1.3', // J.5.1, example 3
+                'prime239v1' => '1.2.840.10045.3.1.4', // J.5.2, example 1
+                'prime239v2' => '1.2.840.10045.3.1.5', // J.5.2, example 2
+                'prime239v3' => '1.2.840.10045.3.1.6', // J.5.2, example 3
+                'prime256v1' => '1.2.840.10045.3.1.7', // J.5.3, example 1 (aka secp256r1)
+
+                // https://tools.ietf.org/html/rfc5656#section-10
+                'nistp256' => '1.2.840.10045.3.1.7', // aka secp256r1
+                'nistp384' => '1.3.132.0.34', // aka secp384r1
+                'nistp521' => '1.3.132.0.35', // aka secp521r1
+
+                'nistk163' => '1.3.132.0.1', // aka sect163k1
+                'nistp192' => '1.2.840.10045.3.1.1', // aka secp192r1
+                'nistp224' => '1.3.132.0.33', // aka secp224r1
+                'nistk233' => '1.3.132.0.26', // aka sect233k1
+                'nistb233' => '1.3.132.0.27', // aka sect233r1
+                'nistk283' => '1.3.132.0.16', // aka sect283k1
+                'nistk409' => '1.3.132.0.36', // aka sect409k1
+                'nistb409' => '1.3.132.0.37', // aka sect409r1
+                'nistt571' => '1.3.132.0.38', // aka sect571k1
+
                 // from https://tools.ietf.org/html/rfc5915
                 'secp192r1' => '1.2.840.10045.3.1.1', // aka prime192v1
                 'sect163k1' => '1.3.132.0.1',
@@ -130,29 +153,6 @@ trait Common
                 'c2pnb368w1' => '1.2.840.10045.3.0.19', // J.4.9, example 1
                 'c2tnb431r1' => '1.2.840.10045.3.0.20', // J.4.10, example 1
                 */
-
-                'prime192v1' => '1.2.840.10045.3.1.1', // J.5.1, example 1 (aka secp192r1)
-                'prime192v2' => '1.2.840.10045.3.1.2', // J.5.1, example 2
-                'prime192v3' => '1.2.840.10045.3.1.3', // J.5.1, example 3
-                'prime239v1' => '1.2.840.10045.3.1.4', // J.5.2, example 1
-                'prime239v2' => '1.2.840.10045.3.1.5', // J.5.2, example 2
-                'prime239v3' => '1.2.840.10045.3.1.6', // J.5.2, example 3
-                'prime256v1' => '1.2.840.10045.3.1.7', // J.5.3, example 1 (aka secp256r1)
-
-                // https://tools.ietf.org/html/rfc5656#section-10
-                'nistp256' => '1.2.840.10045.3.1.7', // aka secp256r1
-                'nistp384' => '1.3.132.0.34', // aka secp384r1
-                'nistp521' => '1.3.132.0.35', // aka secp521r1
-
-                'nistk163' => '1.3.132.0.1', // aka sect163k1
-                'nistp192' => '1.2.840.10045.3.1.1', // aka secp192r1
-                'nistp224' => '1.3.132.0.33', // aka secp224r1
-                'nistk233' => '1.3.132.0.26', // aka sect233k1
-                'nistb233' => '1.3.132.0.27', // aka sect233r1
-                'nistk283' => '1.3.132.0.16', // aka sect283k1
-                'nistk409' => '1.3.132.0.36', // aka sect409k1
-                'nistb409' => '1.3.132.0.37', // aka sect409r1
-                'nistt571' => '1.3.132.0.38', // aka sect571k1
 
                 // http://www.ecc-brainpool.org/download/Domain-parameters.pdf
                 // https://tools.ietf.org/html/rfc5639
@@ -350,6 +350,10 @@ trait Common
         $reflect = new \ReflectionClass($curve);
         $name = $reflect->getShortName();
         if (isset(self::$curveOIDs[$name]) && self::$useNamedCurves) {
+            if ($reflect->isFinal()) {
+                $reflect = $reflect->getParentClass();
+                $name = $reflect->getShortName();
+            }
             return $returnArray ?
                 ['namedCurve' => $name] :
                 ASN1::encodeDER(['namedCurve' => $name], Maps\ECParameters::MAP);

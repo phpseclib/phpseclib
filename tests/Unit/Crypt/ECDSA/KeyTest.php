@@ -276,13 +276,13 @@ Private-Lines: 1
 AAAAIQDwaPlajbXY1SxhuwsUqN1CEZ5g4adsbmJsKm+ZbUVm4g==
 Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef
 ');
-        $this->assertSame('nistp256', $key->getCurve());
+        $this->assertSame('secp256r1', $key->getCurve());
 
         PuTTY::setComment('ecdsa-key-20181105');
         $this->assertSame($expected, $key->toString('PuTTY'));
 
         $key = PublicKeyLoader::load($expected = 'ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBJEXCsWA8s18m25MJlVE1urbXPYFi4q8oMbb2H0kE2f5WPxizsKXRmb1J68paXQizryL9fC4FTqICJ1+UnaPfk0= ecdsa-key-20181105');
-        $this->assertSame('nistp256', $key->getCurve());
+        $this->assertSame('secp256r1', $key->getCurve());
 
         OpenSSH::setComment('ecdsa-key-20181105');
         $this->assertSame($expected, $key->toString('OpenSSH'));
@@ -302,13 +302,13 @@ AAAAMQCEMkGMDg6N7bUqdvLXe0YmY4qBSi8hmAuMvU38RDoVFVmV+R4RYmMueyrX
 be9Oyus=
 Private-MAC: 97a990a3d5f6b8f268d4be9c4ab9ebfd8fa79849
 ');
-        $this->assertSame('nistp384', $key->getCurve());
+        $this->assertSame('secp384r1', $key->getCurve());
 
         PuTTY::setComment('ecdsa-key-20181105');
         $this->assertSame($expected, $key->toString('PuTTY'));
 
         $key = PublicKeyLoader::load($expected = 'ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBOI53wHG3CdcAJZq5PXWZAEAxxsNVFQlQgOX9toWEOgqQF5LbK2nWLKRvaHMzocUXaTYZDccSS0ATZFPT3j1Er1LU9cu4PHpyS07v262jdzkxIvKCPcAeISuV80MC7rHog== ecdsa-key-20181105');
-        $this->assertSame('nistp384', $key->getCurve());
+        $this->assertSame('secp384r1', $key->getCurve());
 
         OpenSSH::setComment('ecdsa-key-20181105');
         $this->assertSame($expected, $key->toString('OpenSSH'));
@@ -330,13 +330,13 @@ AAAAQgHJl8/dIArolFymdzhagXCfd2l8UF3CQXWGVGDQ0R04nnntlyztYiVdRXXK
 r84NnzS7dJcAsR9YaUOZ69NRKNiUAQ==
 Private-MAC: 6d49ce289b85549a43d74422dd8bb3ba8798c72c
 ');
-        $this->assertSame('nistp521', $key->getCurve());
+        $this->assertSame('secp521r1', $key->getCurve());
 
         PuTTY::setComment('ecdsa-key-20181105');
         $this->assertSame($expected, $key->toString('PuTTY'));
 
         $key = PublicKeyLoader::load($expected = 'ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAF1Eg0MjaJwooFj6HCNh4RWbvmQRY+sdczJyBdT3EaTc/6IUcCfW7w7rAeRp2CDdE9RlAVD8IuLqW7DJH06Xeov8wBO5G6jUqXu0rlHsOSiC6VcCxBJuWVNB1IorHnS7PX0f6HdLlIEme73P77drqpn5YY0XLtP6hFrF7H5XfCxpNyaJA== ecdsa-key-20181105');
-        $this->assertSame('nistp521', $key->getCurve());
+        $this->assertSame('secp521r1', $key->getCurve());
 
         OpenSSH::setComment('ecdsa-key-20181105');
         $this->assertSame($expected, $key->toString('OpenSSH'));
@@ -418,7 +418,7 @@ pomV7r6gmoMYteGVABfgAAAAD3ZhZ3JhbnRAdmFncmFudAECAwQFBg==
   <Y Value="102403352136827775240910267217779508359028642524881540878079119895764161434936" />
 </PublicKey>
 </ECDSAKeyValue>');
-        $this->assertSame('nistp256', $key->getCurve());
+        $this->assertSame('secp256r1', $key->getCurve());
 
         XML::enableRFC4050Syntax();
 

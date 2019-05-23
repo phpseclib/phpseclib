@@ -17,6 +17,8 @@
 namespace phpseclib\System\SSH\Agent;
 
 use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\DSA;
+use phpseclib\Crypt\ECDSA;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\System\SSH\Agent;
 use phpseclib\Common\Functions\Strings;
@@ -84,7 +86,20 @@ class Identity implements PrivateKey
      * @see self::sign()
      * @see self::setHash()
      */
-    var $flags = 0;
+    private $flags = 0;
+
+    /**
+     * Curve Aliases
+     *
+     * @var array
+     * @access private
+     */
+    private static $curveAliases = [
+        'secp256r1' => 'nistp256',
+        'secp384r1' => 'nistp384',
+        'secp521r1' => 'nistp521',
+        'Ed25519' => 'Ed25519'
+    ];
 
     /**
      * Default Constructor.
@@ -103,12 +118,20 @@ class Identity implements PrivateKey
      *
      * Called by \phpseclib\System\SSH\Agent::requestIdentities()
      *
-     * @param \phpseclib\Crypt\RSA $key
+     * @param \phpseclib\Crypt\Common\PublicKey $key
      * @access private
      */
-    public function setPublicKey($key)
+    public function withPublicKey($key)
     {
-        $this->key = $key;
+        if ($key instanceof ECDSA) {
+            if (is_array($key->getCurve()) || !isset(self::$curveAliases[$key->getCurve()])) {
+                throw new UnsupportedAlgorithmException('The only supported curves are nistp256, nistp384, nistp512 and Ed25519');
+            }
+        }
+
+        $new = clone $this;
+        $new->key = $key;
+        return $new;
     }
 
     /**
@@ -120,9 +143,11 @@ class Identity implements PrivateKey
      * @param string $key_blob
      * @access private
      */
-    public function setPublicKeyBlob($key_blob)
+    public function withPublicKeyBlob($key_blob)
     {
-        $this->key_blob = $key_blob;
+        $new = clone $this;
+        $new->key_blob = $key_blob;
+        return $new;
     }
 
     /**
@@ -148,18 +173,45 @@ class Identity implements PrivateKey
     public function withHash($hash)
     {
         $new = clone $this;
-        $new->flags = 0;
-        switch ($hash) {
-            case 'sha1':
-                break;
-            case 'sha256':
-                $new->flags = self::SSH_AGENT_RSA2_256;
-                break;
-            case 'sha512':
-                $new->flags = self::SSH_AGENT_RSA2_512;
-                break;
-            default:
-                throw new UnsupportedAlgorithmException('The only supported hashes for RSA are sha1, sha256 and sha512');
+
+        $hash = strtolower($hash);
+
+        if ($this->key instanceof RSA) {
+            $new->flags = 0;
+            switch ($hash) {
+                case 'sha1':
+                    break;
+                case 'sha256':
+                    $new->flags = self::SSH_AGENT_RSA2_256;
+                    break;
+                case 'sha512':
+                    $new->flags = self::SSH_AGENT_RSA2_512;
+                    break;
+                default:
+                    throw new UnsupportedAlgorithmException('The only supported hashes for RSA are sha1, sha256 and sha512');
+            }
+        }
+        if ($this->key instanceof ECDSA) {
+            switch ($this->key->getCurve()) {
+                case 'secp256r1':
+                    $expectedHash = 'sha256';
+                    break;
+                case 'secp384r1':
+                    $expectedHash = 'sha384';
+                    break;
+                //case 'secp521r1':
+                //case 'Ed25519':
+                default:
+                    $expectedHash = 'sha512';
+            }
+            if ($hash != $expectedHash) {
+                throw new UnsupportedAlgorithmException('The only supported hash for ' . self::$curveAliases[$key->getCurve()] . ' is ' . $expectedHash);
+            }
+        }
+        if ($this->key instanceof DSA) {
+            if ($hash != 'sha1') {
+                throw new UnsupportedAlgorithmException('The only supported hash for DSA is sha1');
+            }
         }
         return $new;
     }
@@ -172,12 +224,52 @@ class Identity implements PrivateKey
      * @param string $padding
      * @access public
      */
-    public function withPadding($padding = RSA::SIGNATURE_PKCS1)
+    public function withPadding($padding)
     {
+        if (!$this->key instanceof RSA) {
+            throw new UnsupportedAlgorithmException('Only RSA keys support padding');
+        }
         if ($padding != RSA::SIGNATURE_PKCS1 && $padding != RSA::SIGNATURE_RELAXED_PKCS1) {
             throw new UnsupportedAlgorithmException('ssh-agent can only create PKCS1 signatures');
         }
         return $this;
+    }
+
+    /**
+     * Determines the signature padding mode
+     *
+     * Valid values are: ASN1, SSH2, Raw
+     *
+     * @access public
+     * @param string $padding
+     */
+    public function withSignatureFormat($format)
+    {
+        if ($this->key instanceof RSA) {
+            throw new UnsupportedAlgorithmException('Only DSA and ECDSA keys support signature format setting');
+        }
+        if ($format != 'SSH2') {
+            throw new UnsupportedAlgorithmException('ssh-agent can only create SSH2-formatted signatures');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns the curve
+     *
+     * Returns a string if it's a named curve, an array if not
+     *
+     * @access public
+     * @return string|array
+     */
+    public function getCurve()
+    {
+        if (!$this->key instanceof ECDSA) {
+            throw new UnsupportedAlgorithmException('Only ECDSA keys have curves');
+        }
+
+        return $this->key->getCurve();
     }
 
     /**
@@ -213,6 +305,10 @@ class Identity implements PrivateKey
         list($type, $signature_blob) = Strings::unpackSSH2('Cs', $packet);
         if ($type != Agent::SSH_AGENT_SIGN_RESPONSE) {
             throw new \RuntimeException('Unable to retrieve signature');
+        }
+
+        if (!$this->key instanceof RSA) {
+            return $signature_blob;
         }
 
         list($type, $signature_blob) = Strings::unpackSSH2('ss', $signature_blob);

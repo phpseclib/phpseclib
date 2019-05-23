@@ -33,7 +33,6 @@
 
 namespace phpseclib\System\SSH;
 
-use ParagonIE\ConstantTime\Base64;
 use phpseclib\Crypt\RSA;
 use phpseclib\Exception\BadConfigurationException;
 use phpseclib\System\SSH\Agent\Identity;
@@ -192,25 +191,22 @@ class Agent
         $identities = [];
         for ($i = 0; $i < $keyCount; $i++) {
             list($key_blob, $comment) = Strings::unpackSSH2('ss', $packet);
-            $key_str = 'ssh-rsa ' . base64_encode($key_blob);
-            if (strlen($comment)) {
-                $key_str.= " $comment";
-            }
             $temp = $key_blob;
             list($key_type) = Strings::unpackSSH2('s', $temp);
             switch ($key_type) {
-	    case 'ssh-rsa':
-		    $key = PublicKeyLoader::load(base64_encode($key_blob));
-                    break;
+                case 'ssh-rsa':
                 case 'ssh-dss':
-                    // not currently supported
-                    break;
+                case 'ssh-ed25519':
+                case 'ecdsa-sha2-nistp256':
+                case 'ecdsa-sha2-nistp384':
+                case 'ecdsa-sha2-nistp521':
+		    $key = PublicKeyLoader::load($key_type . ' ' . base64_encode($key_blob));
             }
             // resources are passed by reference by default
             if (isset($key)) {
-                $identity = new Identity($this->fsock);
-                $identity->setPublicKey($key);
-                $identity->setPublicKeyBlob($key_blob);
+                $identity = (new Identity($this->fsock))
+                    ->withPublicKey($key)
+                    ->withPublicKeyBlob($key_blob);
                 $identities[] = $identity;
                 unset($key);
             }

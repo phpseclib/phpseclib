@@ -80,9 +80,14 @@ abstract class SSH2
     public static function save(BigInteger $r, BigInteger $s, $curve)
     {
         switch ($curve) {
-            case 'nistp256':
-            case 'nistp384':
-            case 'nistp521':
+            case 'secp256r1':
+                $curve = 'nistp256';
+                break;
+            case 'secp384r1':
+                $curve = 'nistp384';
+                break;
+            case 'secp521r1':
+                $curve = 'nistp521';
                 break;
             default:
                 return false;
