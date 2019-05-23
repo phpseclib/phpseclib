@@ -249,7 +249,7 @@ class Identity implements PrivateKey
             throw new UnsupportedAlgorithmException('Only DSA and ECDSA keys support signature format setting');
         }
         if ($format != 'SSH2') {
-            throw new UnsupportedAlgorithmException('ssh-agent can only create SSH2-formatted signatures');
+            throw new UnsupportedAlgorithmException('Only SSH2-formatted signatures are currently supported');
         }
 
         return $this;
