@@ -178,6 +178,9 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         // c < d
         $this->assertLessThan(0, $c->compare($d));
         $this->assertGreaterThan(0, $d->compare($c));
+
+        $this->assertSame(-1, $this->getInstance(-999)->compare($this->getInstance(370)));
+        $this->assertSame(1, $this->getInstance(999)->compare($this->getInstance(-700)));
     }
 
     public function testBitwiseAND()
