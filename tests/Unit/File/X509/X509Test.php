@@ -736,4 +736,23 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
         $this->assertFalse($x509->validateDate('Nov 22, 2018'));
         $this->assertTrue($x509->validateDate('Nov 22, 2012'));
     }
+
+    public function testLongTagOnBadCert()
+    {
+        // the problem with this cert is that it'd cause an infinite loop
+        $x509 = new File_X509();
+        $r = @$x509->loadX509('-----BEGIN CERTIFICATE-----
+MIIBjDCCATGgAwIBAgIJAJSiNCIEEiyyMAoGCCqGSM49BAMCMA0xCzAJBgNVBAMM
+AkNBMB4XDTE5MDUwOTAzMTUzMFoXDTE5MDYwODAzMTUzMFowDTELMAkGA1UEAwwC
+Q0FNRmt3RXdZSEtvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUU4K0R0TDM0Syt0
+RzZGR3o2QXJ2QzlySnlmN1Y5N09wY3ZWeG1IbjRXQStXc0E2L0dxLzZ1cUFBdG5Y
+RDZOQUxsRVVSVFZCcmlvNjB4L0xZN1ZoTmx0UT09o1kwVzAgBgNVHQ4BAf8EFgQU
+25GbjmtucxjEGkWrB2R6AB6/yrkwIgYDVR0jAQH/BBgwFoAU25GbjmtucxjEGkWr
+B2R6AB6/yrkwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNJADBGAiEA6ZB6
++KlUM1ZXFrxtDxLWqp51myWDulWjnK6cl7b5AVgCIQCRdthTn8JlN5bRSnJ6qiCk
+A9bhRA0cVk7bAEU2c44CYg==
+-----END CERTIFICATE-----');
+
+        $this->assertFalse($r);
+    }
 }
