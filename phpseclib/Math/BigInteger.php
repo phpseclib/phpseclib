@@ -441,7 +441,7 @@ class Math_BigInteger
                 // (?<=^|-)0*: find any 0's that are preceded by the start of the string or by a - (ie. octals)
                 // [^-0-9].*: find any non-numeric characters and then any characters that follow that
                 $x = preg_replace('#(?<!^)(?:-).*|(?<=^|-)0*|[^-0-9].*#', '', $x);
-                if (!strlen($x)) {
+                if (!strlen($x) || $x == '-') {
                     $x = '0';
                 }
 
