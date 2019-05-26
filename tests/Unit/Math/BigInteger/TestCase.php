@@ -411,5 +411,8 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
     {
         $temp = $this->getInstance('00');
         $this->assertSame($temp->toString(), '0');
+
+        $temp = $this->getInstance('-0');
+        $this->assertSame($temp->toString(), '0');
     }
 }
