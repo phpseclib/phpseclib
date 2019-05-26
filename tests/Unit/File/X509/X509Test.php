@@ -740,7 +740,7 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
     public function testLongTagOnBadCert()
     {
         // the problem with this cert is that it'd cause an infinite loop
-        $x509 = new File_X509();
+        $x509 = new X509();
         $r = @$x509->loadX509('-----BEGIN CERTIFICATE-----
 MIIBjDCCATGgAwIBAgIJAJSiNCIEEiyyMAoGCCqGSM49BAMCMA0xCzAJBgNVBAMM
 AkNBMB4XDTE5MDUwOTAzMTUzMFoXDTE5MDYwODAzMTUzMFowDTELMAkGA1UEAwwC
