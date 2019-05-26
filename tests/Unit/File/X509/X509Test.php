@@ -673,10 +673,11 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
         $this->assertTrue($x509->validateDate('Nov 22, 2012'));
     }
 
-    public function testLongTag()
+    public function testLongTagOnBadCert()
     {
+        // the problem with this cert is that it'd cause an infinite loop
         $x509 = new File_X509();
-        $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $r = @$x509->loadX509('-----BEGIN CERTIFICATE-----
 MIIBjDCCATGgAwIBAgIJAJSiNCIEEiyyMAoGCCqGSM49BAMCMA0xCzAJBgNVBAMM
 AkNBMB4XDTE5MDUwOTAzMTUzMFoXDTE5MDYwODAzMTUzMFowDTELMAkGA1UEAwwC
 Q0FNRmt3RXdZSEtvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUU4K0R0TDM0Syt0
@@ -688,6 +689,6 @@ B2R6AB6/yrkwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNJADBGAiEA6ZB6
 A9bhRA0cVk7bAEU2c44CYg==
 -----END CERTIFICATE-----');
 
-        $this->assertInternalType('array', $r);
+        $this->assertFalse($r);
     }
 }
