@@ -460,4 +460,10 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $temp = $this->getInstance(48);
         $this->assertSame($temp->toHex(true), '30');
     }
+
+    public function testZeroBase10()
+    {
+        $temp = $this->getInstance('00');
+        $this->assertSame($temp->toString(), '0');
+    }
 }
