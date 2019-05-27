@@ -856,6 +856,7 @@ wkwhE/JaQAEHq2PHnEmvwyBiJcHSdLXkcLzYlg19Ho0BPqVKdulx8GAk
 
         $r = $x509->loadX509($result);
         $this->assertArrayHasKey('tbsCertificate', $r);
+    }
 
     public function testLongTagOnBadCert()
     {
