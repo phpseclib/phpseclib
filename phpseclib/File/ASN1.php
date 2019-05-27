@@ -268,9 +268,10 @@ abstract class ASN1
             $tag = 0;
             // process septets (since the eighth bit is ignored, it's not an octet)
             do {
-                $loop = ord($encoded[0]) >> 7;
+                $temp = ord($encoded[$encoded_pos++]);
+                $loop = $temp >> 7;
                 $tag <<= 7;
-                $tag |= ord($encoded[$encoded_pos++]) & 0x7F;
+                $tag |= $temp & 0x7F;
                 $start++;
             } while ($loop);
         }

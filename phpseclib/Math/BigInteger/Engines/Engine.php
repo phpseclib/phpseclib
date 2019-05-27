@@ -145,7 +145,7 @@ abstract class Engine implements \Serializable
                 // (?<=^|-)0*: find any 0's that are preceded by the start of the string or by a - (ie. octals)
                 // [^-0-9].*: find any non-numeric characters and then any characters that follow that
                 $this->value = preg_replace('#(?<!^)(?:-).*|(?<=^|-)0*|[^-0-9].*#', '', $x);
-                if (!strlen($this->value)) {
+                if (!strlen($this->value) || $this->value == '-') {
                     $this->value = '0';
                 }
                 static::initialize($base);

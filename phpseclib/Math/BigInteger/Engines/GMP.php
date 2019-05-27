@@ -296,7 +296,14 @@ class GMP extends Engine
      */
     public function compare(GMP $y)
     {
-        return gmp_cmp($this->value, $y->value);
+        $r = gmp_cmp($this->value, $y->value);
+        if ($r < -1) {
+            $r = -1;
+        }
+        if ($r > 1) {
+            $r = 1;
+        }
+        return $r;
     }
 
     /**

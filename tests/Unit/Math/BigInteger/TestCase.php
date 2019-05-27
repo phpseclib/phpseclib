@@ -178,6 +178,9 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         // c < d
         $this->assertLessThan(0, $c->compare($d));
         $this->assertGreaterThan(0, $d->compare($c));
+
+        $this->assertSame(-1, $this->getInstance(-999)->compare($this->getInstance(370)));
+        $this->assertSame(1, $this->getInstance(999)->compare($this->getInstance(-700)));
     }
 
     public function testBitwiseAND()
@@ -456,5 +459,14 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
     {
         $temp = $this->getInstance(48);
         $this->assertSame($temp->toHex(true), '30');
+    }
+
+    public function testZeroBase10()
+    {
+        $temp = $this->getInstance('00');
+        $this->assertSame($temp->toString(), '0');
+
+        $temp = $this->getInstance('-0');
+        $this->assertSame($temp->toString(), '0');
     }
 }
