@@ -2895,7 +2895,9 @@ class SFTP extends SSH2
             return $temp;
         }
 
-        $this->curTimeout = false;
+        // in SSH2.php the timeout is cumulative per function call. eg. exec() will
+        // timeout after 10s. but for SFTP.php it's cumulative per packet
+        $this->curTimeout = $this->timeout;
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
 
@@ -2917,6 +2919,13 @@ class SFTP extends SSH2
 
         $tempLength = $length;
         $tempLength-= strlen($this->packet_buffer);
+
+
+        // 256 * 1024 is what SFTP_MAX_MSG_LENGTH is set to in OpenSSH's sftp-common.h
+        if ($tempLength > 256 * 1024) {
+            user_error('Invalid SFTP packet size');
+            return false;
+        }
 
         // SFTP packet type and data payload
         while ($tempLength > 0) {
