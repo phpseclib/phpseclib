@@ -690,7 +690,7 @@ class SSH2
      * @see self::setTimeout()
      * @access private
      */
-    private $timeout;
+    protected $timeout;
 
     /**
      * Current Timeout
