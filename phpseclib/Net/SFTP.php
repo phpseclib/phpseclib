@@ -2851,9 +2851,9 @@ class SFTP extends SSH2
             pack('NCNa*', strlen($data) + 5, $type, $request_id, $data) :
             pack('NCa*',  strlen($data) + 1, $type, $data);
 
-        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+        $start = microtime(true);
         $result = $this->send_channel_packet(self::CHANNEL, $packet);
-        $stop = strtok(microtime(), ' ') + strtok('');
+        $stop = microtime(true);
 
         if (defined('NET_SFTP_LOGGING')) {
             $packet_type = '-> ' . $this->packet_types[$type] .
@@ -2899,7 +2899,7 @@ class SFTP extends SSH2
         // timeout after 10s. but for SFTP.php it's cumulative per packet
         $this->curTimeout = $this->timeout;
 
-        $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+        $start = microtime(true);
 
         // SFTP packet length
         while (strlen($this->packet_buffer) < 4) {
@@ -2939,7 +2939,7 @@ class SFTP extends SSH2
             $tempLength-= strlen($temp);
         }
 
-        $stop = strtok(microtime(), ' ') + strtok('');
+        $stop = microtime(true);
 
         $this->packet_type = ord(Strings::shift($this->packet_buffer));
 
