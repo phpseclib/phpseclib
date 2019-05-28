@@ -2468,8 +2468,8 @@ class SFTP extends SSH2
             case NET_SFTP_STATUS: // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
                 return false;
             default:
-                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
-                return false;
+                throw new \UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS. '
+                                                  . 'Got packet type: ' . $this->packet_type);
         }
     }
 
@@ -2923,8 +2923,7 @@ class SFTP extends SSH2
 
         // 256 * 1024 is what SFTP_MAX_MSG_LENGTH is set to in OpenSSH's sftp-common.h
         if ($tempLength > 256 * 1024) {
-            user_error('Invalid SFTP packet size');
-            return false;
+            throw new \RuntimeException('Invalid Size');
         }
 
         // SFTP packet type and data payload
