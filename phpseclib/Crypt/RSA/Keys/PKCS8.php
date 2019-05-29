@@ -32,7 +32,7 @@ use phpseclib\Crypt\Common\Keys\PKCS8 as Progenitor;
 use phpseclib\File\ASN1;
 
 /**
- * PKCS#1 Formatted RSA Key Handler
+ * PKCS#8 Formatted RSA Key Handler
  *
  * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
