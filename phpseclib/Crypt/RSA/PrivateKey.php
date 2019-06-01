@@ -514,9 +514,10 @@ class PrivateKey extends RSA implements Common\PrivateKey
      * Returns the private key
      *
      * @param string $type
+     * @param array $options optional
      * @return string
      */
-    public function toString($type)
+    public function toString($type, $options = [])
     {
         $type = self::validatePlugin(
             'Keys',
@@ -528,10 +529,10 @@ class PrivateKey extends RSA implements Common\PrivateKey
             return $type::savePublicKey($this->modulus, $this->exponent);
         }
 
-        return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password);
+        return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password, $options);
 
         /*
-        $key = $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password);
+        $key = $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password, $options);
         if ($key !== false || count($this->primes) == 2) {
             return $key;
         }
@@ -555,7 +556,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
             $exponents[$i] = $this->modulus->modInverse($temp);
         }
 
-        return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $primes, $exponents, $coefficients, $this->password);
+        return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $primes, $exponents, $coefficients, $this->password, $options);
         */
     }
 }

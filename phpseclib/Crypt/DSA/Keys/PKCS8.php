@@ -127,9 +127,10 @@ abstract class PKCS8 extends Progenitor
      * @param \phpseclib\Math\BigInteger $x
      * @param \phpseclib\Math\BigInteger $y
      * @param string $password optional
+     * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '')
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '', $options = [])
     {
         $params = [
             'p' => $p,
@@ -139,7 +140,7 @@ abstract class PKCS8 extends Progenitor
         $params = ASN1::encodeDER($params, Maps\DSAParams::MAP);
         $params = new ASN1\Element($params);
         $key = ASN1::encodeDER($x, Maps\DSAPublicKey::MAP);
-        return self::wrapPrivateKey($key, [], $params, $password);
+        return self::wrapPrivateKey($key, [], $params, $password, $options);
     }
 
     /**
@@ -150,9 +151,10 @@ abstract class PKCS8 extends Progenitor
      * @param \phpseclib\Math\BigInteger $q
      * @param \phpseclib\Math\BigInteger $g
      * @param \phpseclib\Math\BigInteger $y
+     * @param array $options optional
      * @return string
      */
-    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y)
+    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, $options = [])
     {
         $params = [
             'p' => $p,

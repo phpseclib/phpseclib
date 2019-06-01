@@ -91,9 +91,10 @@ abstract class PuTTY extends Progenitor
      * @param \phpseclib\Math\BigInteger $y
      * @param \phpseclib\Math\BigInteger $x
      * @param string $password optional
+     * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = false)
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = false, $options = [])
     {
         if ($q->getLength() != 160) {
             throw new \InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');
@@ -102,7 +103,7 @@ abstract class PuTTY extends Progenitor
         $public = Strings::packSSH2('iiii', $p, $q, $g, $y);
         $private = Strings::packSSH2('i', $x);
 
-        return self::wrapPrivateKey($public, $private, 'ssh-dsa', $password);
+        return self::wrapPrivateKey($public, $private, 'ssh-dsa', $password, $options);
     }
 
     /**

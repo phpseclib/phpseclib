@@ -465,13 +465,14 @@ class PublicKey extends RSA implements Common\PublicKey
      * function won't return it since this library, for the most part, doesn't distinguish between public and private keys.
      *
      * @param string $type
+     * @param array $options optional
      * @return mixed
      */
-    public function toString($type)
+    public function toString($type, $options = [])
     {
         $type = self::validatePlugin('Keys', $type, 'savePublicKey');
 
-        return $type::savePublicKey($this->modulus, $this->publicExponent);
+        return $type::savePublicKey($this->modulus, $this->publicExponent, $options);
     }
 
     /**

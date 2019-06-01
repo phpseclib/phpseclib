@@ -144,9 +144,10 @@ class PrivateKey extends DSA implements Common\PrivateKey
      * Returns the private key
      *
      * @param string $type
+     * @param array $options optional
      * @return string
      */
-    public function toString($type)
+    public function toString($type, $options = [])
     {
         $type = self::validatePlugin('Keys', $type, 'savePrivateKey');
 
@@ -154,6 +155,6 @@ class PrivateKey extends DSA implements Common\PrivateKey
             $this->y = $this->g->powMod($this->x, $this->p);
         }
 
-        return $type::savePrivateKey($this->p, $this->q, $this->g, $this->y, $this->x, $this->password);
+        return $type::savePrivateKey($this->p, $this->q, $this->g, $this->y, $this->x, $this->password, $options);
     }
 }

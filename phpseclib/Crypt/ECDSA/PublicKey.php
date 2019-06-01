@@ -159,12 +159,13 @@ class PublicKey extends ECDSA implements Common\PublicKey
      * Returns the public key
      *
      * @param string $type
+     * @param array $options optional
      * @return string
      */
-    public function toString($type)
+    public function toString($type, $options = [])
     {
         $type = self::validatePlugin('Keys', $type, 'savePublicKey');
 
-        return $type::savePublicKey($this->curve, $this->QA);
+        return $type::savePublicKey($this->curve, $this->QA, $options);
     }
 }

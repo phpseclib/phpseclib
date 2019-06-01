@@ -25,15 +25,16 @@ use phpseclib\Crypt\DSA;
 class Parameters extends DSA
 {
     /**
-     * Returns the public key
+     * Returns the parameters
      *
      * @param string $type
+     * @param array $options optional
      * @return string
      */
-    public function toString($type = 'PKCS1')
+    public function toString($type = 'PKCS1', $options = [])
     {
         $type = self::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 
-        return $type::saveParameters($this->p, $this->q, $this->g);
+        return $type::saveParameters($this->p, $this->q, $this->g, $options);
     }
 }

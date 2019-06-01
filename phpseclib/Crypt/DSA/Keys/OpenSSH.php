@@ -62,9 +62,10 @@ abstract class OpenSSH extends Progenitor
      * @param \phpseclib\Math\BigInteger $q
      * @param \phpseclib\Math\BigInteger $g
      * @param \phpseclib\Math\BigInteger $y
+     * @param array $options optional
      * @return string
      */
-    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y)
+    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, $options = [])
     {
         if ($q->getLength() != 160) {
             throw new \InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');
@@ -78,11 +79,12 @@ abstract class OpenSSH extends Progenitor
         // mpint     y
         $DSAPublicKey = Strings::packSSH2('siiii', 'ssh-dss', $p, $q, $g, $y);
 
-        if (self::$binary) {
+        if (isset($options['binary']) ? $options['binary'] : self::$binary) {
             return $DSAPublicKey;
         }
 
-        $DSAPublicKey = 'ssh-dss ' . Base64::encode($DSAPublicKey) . ' ' . self::$comment;
+        $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
+        $DSAPublicKey = 'ssh-dss ' . Base64::encode($DSAPublicKey) . ' ' . $comment;
 
         return $DSAPublicKey;
     }

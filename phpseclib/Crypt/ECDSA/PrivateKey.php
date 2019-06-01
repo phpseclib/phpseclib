@@ -182,13 +182,14 @@ class PrivateKey extends ECDSA implements Common\PrivateKey
      * Returns the private key
      *
      * @param string $type
+     * @param array $options optional
      * @return string
      */
-    public function toString($type)
+    public function toString($type, $options = [])
     {
         $type = self::validatePlugin('Keys', $type, 'savePrivateKey');
 
-        return $type::savePrivateKey($this->dA, $this->curve, $this->QA, $this->password);
+        return $type::savePrivateKey($this->dA, $this->curve, $this->QA, $this->password, $options);
     }
 
     /**
