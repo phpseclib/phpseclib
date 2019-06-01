@@ -25,15 +25,16 @@ use phpseclib\Crypt\ECDSA;
 class Parameters extends ECDSA
 {
     /**
-     * Returns the public key
+     * Returns the parameters
      *
      * @param string $type
+     * @param array $options optional
      * @return string
      */
-    public function toString($type = 'PKCS1')
+    public function toString($type = 'PKCS1', $options = [])
     {
         $type = self::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 
-        return $type::saveParameters($this->curve);
+        return $type::saveParameters($this->curve, $options);
     }
 }

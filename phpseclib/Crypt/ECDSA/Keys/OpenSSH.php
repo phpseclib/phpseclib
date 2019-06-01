@@ -186,10 +186,13 @@ abstract class OpenSSH extends Progenitor
      * @access public
      * @param \phpseclib\Crypt\ECDSA\BaseCurves\Base $curve
      * @param \phpseclib\Math\Common\FiniteField\Integer[] $publicKey
+     * @param array $options optional
      * @return string
      */
-    public static function savePublicKey(BaseCurve $curve, array $publicKey)
+    public static function savePublicKey(BaseCurve $curve, array $publicKey, $options = [])
     {
+        $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
+
         if ($curve instanceof Ed25519) {
             $key = Strings::packSSH2('ss', 'ssh-ed25519', $curve->encodePoint($publicKey));
 
@@ -197,7 +200,7 @@ abstract class OpenSSH extends Progenitor
                 return $key;
             }
 
-            $key = 'ssh-ed25519 ' . Base64::encode($key) . ' ' . self::$comment;
+            $key = 'ssh-ed25519 ' . Base64::encode($key) . ' ' . $comment;
             return $key;
         }
 
@@ -226,11 +229,11 @@ abstract class OpenSSH extends Progenitor
         $points = "\4" . $publicKey[0]->toBytes() . $publicKey[1]->toBytes();
         $key = Strings::packSSH2('sss', 'ecdsa-sha2-' . $alias, $alias, $points);
 
-        if (self::$binary) {
+        if (isset($options['binary']) ? $options['binary'] : self::$binary) {
             return $key;
         }
 
-        $key = 'ecdsa-sha2-' . $alias . ' ' . Base64::encode($key) . ' ' . self::$comment;
+        $key = 'ecdsa-sha2-' . $alias . ' ' . Base64::encode($key) . ' ' . $comment;
 
         return $key;
     }

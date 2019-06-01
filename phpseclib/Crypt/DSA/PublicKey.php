@@ -80,12 +80,13 @@ class PublicKey extends DSA implements Common\PublicKey
      * Returns the public key
      *
      * @param string $type
+     * @param array $options optional
      * @return string
      */
-    public function toString($type)
+    public function toString($type, $options = [])
     {
         $type = self::validatePlugin('Keys', $type, 'savePublicKey');
 
-        return $type::savePublicKey($this->p, $this->q, $this->g, $this->y);
+        return $type::savePublicKey($this->p, $this->q, $this->g, $this->y, $options);
     }
 }

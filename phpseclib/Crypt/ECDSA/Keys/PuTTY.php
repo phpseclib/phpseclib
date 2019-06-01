@@ -96,9 +96,10 @@ abstract class PuTTY extends Progenitor
      * @param \phpseclib\Crypt\ECDSA\BaseCurves\Base $curve
      * @param \phpseclib\Math\Common\FiniteField\Integer[] $publicKey
      * @param string $password optional
+     * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(Integer $privateKey, BaseCurve $curve, array $publicKey, $password = false)
+    public static function savePrivateKey(Integer $privateKey, BaseCurve $curve, array $publicKey, $password = false, $options = [])
     {
         self::initialize_static_variables();
 
@@ -121,7 +122,7 @@ abstract class PuTTY extends Progenitor
             Strings::packSSH2('s', $privateKey->secret) :
             Strings::packSSH2('s', $private);
 
-        return self::wrapPrivateKey($public, $private, $name, $password);
+        return self::wrapPrivateKey($public, $private, $name, $password, $options);
     }
 
     /**

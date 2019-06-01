@@ -172,9 +172,10 @@ abstract class PuTTY
      * @param string $private
      * @param string $type
      * @param string $password
+     * @param array $options optional
      * @return string
      */
-    protected static function wrapPrivateKey($public, $private, $type, $password)
+    protected static function wrapPrivateKey($public, $private, $type, $password, $options = [])
     {
         $key = "PuTTY-User-Key-File-2: " . $type . "\r\nEncryption: ";
         $encryption = (!empty($password) || is_string($password)) ? 'aes256-cbc' : 'none';
@@ -183,7 +184,8 @@ abstract class PuTTY
 
         $public = Strings::packSSH2('s', $type) . $public;
 
-        $source = Strings::packSSH2('ssss', $type, $encryption, self::$comment, $public);
+        $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
+        $source = Strings::packSSH2('ssss', $type, $encryption, $comment, $public);
 
         $public = Base64::encode($public);
         $key.= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";

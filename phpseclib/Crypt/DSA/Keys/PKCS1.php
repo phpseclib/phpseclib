@@ -113,9 +113,10 @@ abstract class PKCS1 extends Progenitor
      * @param \phpseclib\Math\BigInteger $x
      * @param \phpseclib\Math\BigInteger $y
      * @param string $password optional
+     * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '')
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '', $options = [])
     {
         $key = [
             'version' => 0,
@@ -128,7 +129,7 @@ abstract class PKCS1 extends Progenitor
 
         $key = ASN1::encodeDER($key, Maps\DSAPrivateKey::MAP);
 
-        return self::wrapPrivateKey($key, 'DSA', $password);
+        return self::wrapPrivateKey($key, 'DSA', $password, $options);
     }
 
     /**

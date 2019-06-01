@@ -40,17 +40,14 @@ trait Fingerprint
      */
     public function getFingerprint($algorithm = 'md5')
     {
-        $type = self::validatePlugin('Keys', 'OpenSSH', 'getBinaryOutput');
+        $type = self::validatePlugin('Keys', 'OpenSSH', 'savePublicKey');
         if ($type === false) {
             return false;
         }
-        $status = $type::getBinaryOutput();
-        $type::setBinaryOutput(true);
-        $key = $this->toString('OpenSSH');
+        $key = $this->toString('OpenSSH', ['binary' => true]);
         if ($key === false) {
             return false;
         }
-        $type::setBinaryOutput($status);
         switch ($algorithm) {
             case 'sha256':
                 $hash = new Hash('sha256');

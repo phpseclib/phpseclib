@@ -32,7 +32,7 @@ use phpseclib\Crypt\Common\Keys\PKCS8 as Progenitor;
 use phpseclib\File\ASN1;
 
 /**
- * PKCS#1 Formatted RSA Key Handler
+ * PKCS#8 Formatted RSA Key Handler
  *
  * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -104,13 +104,14 @@ abstract class PKCS8 extends Progenitor
      * @param array $exponents
      * @param array $coefficients
      * @param string $password optional
+     * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '', $options = [])
     {
         $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);
         $key = ASN1::extractBER($key);
-        return self::wrapPrivateKey($key, [], null, $password);
+        return self::wrapPrivateKey($key, [], null, $password, $options);
     }
 
     /**
@@ -119,9 +120,10 @@ abstract class PKCS8 extends Progenitor
      * @access public
      * @param \phpseclib\Math\BigInteger $n
      * @param \phpseclib\Math\BigInteger $e
+     * @param array $options optional
      * @return string
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e, $options = [])
     {
         $key = PKCS1::savePublicKey($n, $e);
         $key = ASN1::extractBER($key);

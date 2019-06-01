@@ -63,17 +63,19 @@ abstract class OpenSSH extends Progenitor
      * @access public
      * @param \phpseclib\Math\BigInteger $n
      * @param \phpseclib\Math\BigInteger $e
+     * @param array $options optional
      * @return string
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e, $options = [])
     {
         $RSAPublicKey = Strings::packSSH2('sii', 'ssh-rsa', $e, $n);
 
-        if (self::$binary) {
+        if (isset($options['binary']) ? $options['binary'] : self::$binary) {
             return $RSAPublicKey;
         }
 
-        $RSAPublicKey = 'ssh-rsa ' . Base64::encode($RSAPublicKey) . ' ' . self::$comment;
+        $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
+        $RSAPublicKey = 'ssh-rsa ' . Base64::encode($RSAPublicKey) . ' ' . $comment;
 
         return $RSAPublicKey;
     }

@@ -642,9 +642,13 @@ abstract class ASN1
                             case ASN1::TYPE_INTEGER:
                                 $map[$key] = new BigInteger($child['default']);
                                 break;
+                            //case self::TYPE_OBJECT_IDENTIFIER:
+                            //    if (!isset(self::$reverseOIDs[$name])) {
+                            //        return null;
+                            //    }
                             //case ASN1::TYPE_BOOLEAN:
                             default:
-                                $map[$key] = $child['type'];
+                                $map[$key] = $child['default'];
                         }
                     } elseif (!isset($child['optional'])) {
                         return null; // Syntax error.
@@ -1491,7 +1495,7 @@ abstract class ASN1
      * @param string $name
      * @return string
      */
-    static function getOID($name)
+    public static function getOID($name)
     {
         return isset(self::$reverseOIDs[$name]) ? self::$reverseOIDs[$name] : $name;
     }

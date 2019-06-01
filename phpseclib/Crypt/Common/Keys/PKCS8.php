@@ -526,9 +526,10 @@ abstract class PKCS8 extends PKCS
      * @param string $password
      * @param string $oid optional
      * @param string $publicKey optional
+     * @param array $options optional
      * @return string
      */
-    protected static function wrapPrivateKey($key, $attr, $params, $password, $oid = null, $publicKey = '')
+    protected static function wrapPrivateKey($key, $attr, $params, $password, $oid = null, $publicKey = '', $options = [])
     {
         self::initialize_static_variables();
 
@@ -550,18 +551,22 @@ abstract class PKCS8 extends PKCS
         $key = ASN1::encodeDER($key, Maps\OneAsymmetricKey::MAP);
         if (!empty($password) && is_string($password)) {
             $salt = Random::string(8);
-            $iterationCount = self::$defaultIterationCount;
 
-            if (self::$defaultEncryptionAlgorithm == 'id-PBES2') {
-                $crypto = self::getPBES2EncryptionObject(self::$defaultEncryptionScheme);
-                $hash = str_replace('-', '/', substr(self::$defaultPRF, 11));
+            $iterationCount = isset($options['iterationCount']) ? $options['iterationCount'] : self::$defaultIterationCount;
+            $encryptionAlgorithm = isset($options['encryptionAlgorithm']) ? $options['encryptionAlgorithm'] : self::$defaultEncryptionAlgorithm;
+            $encryptionScheme = isset($options['encryptionScheme']) ? $options['encryptionScheme'] : self::$defaultEncryptionScheme;
+            $prf = isset($options['PRF']) ? $options['PRF'] : self::$defaultPRF;
+
+            if ($encryptionAlgorithm == 'id-PBES2') {
+                $crypto = self::getPBES2EncryptionObject($encryptionScheme);
+                $hash = str_replace('-', '/', substr($prf, 11));
                 $kdf = 'pbkdf2';
                 $iv = Random::string($crypto->getBlockLength() >> 3);
 
                 $PBKDF2params = [
                     'salt' => $salt,
                     'iterationCount' => $iterationCount,
-                    'prf' => ['algorithm' => self::$defaultPRF, 'parameters' => null]
+                    'prf' => ['algorithm' => $prf, 'parameters' => null]
                 ];
                 $PBKDF2params = ASN1::encodeDER($PBKDF2params, Maps\PBKDF2params::MAP);
 
@@ -582,7 +587,7 @@ abstract class PKCS8 extends PKCS
                         'parameters' => new ASN1\Element($PBKDF2params)
                     ],
                     'encryptionScheme' => [
-                        'algorithm' => self::$defaultEncryptionScheme,
+                        'algorithm' => $encryptionScheme,
                         'parameters' => $params
                     ]
                 ];
@@ -590,9 +595,9 @@ abstract class PKCS8 extends PKCS
 
                 $crypto->setIV($iv);
             } else {
-                $crypto = self::getPBES1EncryptionObject(self::$defaultEncryptionAlgorithm);
-                $hash = self::getPBES1Hash(self::$defaultEncryptionAlgorithm);
-                $kdf = self::getPBES1KDF(self::$defaultEncryptionAlgorithm);
+                $crypto = self::getPBES1EncryptionObject($encryptionAlgorithm);
+                $hash = self::getPBES1Hash($encryptionAlgorithm);
+                $kdf = self::getPBES1KDF($encryptionAlgorithm);
 
                 $params = [
                     'salt' => $salt,
@@ -605,7 +610,7 @@ abstract class PKCS8 extends PKCS
 
             $key = [
                 'encryptionAlgorithm' => [
-                    'algorithm' => self::$defaultEncryptionAlgorithm,
+                    'algorithm' => $encryptionAlgorithm,
                     'parameters' => new ASN1\Element($params)
                 ],
                 'encryptedData' => $key

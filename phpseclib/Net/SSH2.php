@@ -2447,10 +2447,7 @@ class SSH2
             throw new UnsupportedAlgorithmException('Please use either an RSA key, an ECDSA one or a DSA key');
         }
 
-        $status = OpenSSH::getBinaryOutput();
-        OpenSSH::setBinaryOutput(true);
-        $publickeyStr = $publickey->toString('OpenSSH');
-        OpenSSH::setBinaryOutput($status);
+        $publickeyStr = $publickey->toString('OpenSSH', ['binary' => true]);
 
         $part1 = Strings::packSSH2(
             'Csss',

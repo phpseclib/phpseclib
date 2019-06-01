@@ -179,9 +179,10 @@ abstract class PKCS1 extends PKCS
      * @param string $key
      * @param string $type
      * @param string $password
+     * @param array $options optional
      * @return string
      */
-    protected static function wrapPrivateKey($key, $type, $password)
+    protected static function wrapPrivateKey($key, $type, $password, $options = [])
     {
         if (empty($password) || !is_string($password)) {
             return "-----BEGIN $type PRIVATE KEY-----\r\n" .
@@ -189,14 +190,16 @@ abstract class PKCS1 extends PKCS
                    "-----END $type PRIVATE KEY-----";
         }
 
-        $cipher = self::getEncryptionObject(self::$defaultEncryptionAlgorithm);
+        $encryptionAlgorithm = isset($options['encryptionAlgorithm']) ? $options['encryptionAlgorithm'] : self::$defaultEncryptionAlgorithm;
+
+        $cipher = self::getEncryptionObject($encryptionAlgorithm);
         $iv = Random::string($cipher->getBlockLength() >> 3);
         $cipher->setKey(self::generateSymmetricKey($password, $iv, $cipher->getKeyLength() >> 3));
         $cipher->setIV($iv);
         $iv = strtoupper(Hex::encode($iv));
         return "-----BEGIN $type PRIVATE KEY-----\r\n" .
                "Proc-Type: 4,ENCRYPTED\r\n" .
-               "DEK-Info: " . self::$defaultEncryptionAlgorithm . ",$iv\r\n" .
+               "DEK-Info: " . $encryptionAlgorithm. ",$iv\r\n" .
                "\r\n" .
                chunk_split(Base64::encode($cipher->encrypt($key)), 64) .
                "-----END $type PRIVATE KEY-----";

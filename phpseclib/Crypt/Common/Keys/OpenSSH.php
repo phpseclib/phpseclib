@@ -125,15 +125,4 @@ abstract class OpenSSH
     {
         self::$binary = $enabled;
     }
-
-    /**
-     * Returns the current binary output value
-     *
-     * @access public
-     * @return bool
-     */
-    public static function getBinaryOutput()
-    {
-        return (bool) self::$binary;
-    }
 }

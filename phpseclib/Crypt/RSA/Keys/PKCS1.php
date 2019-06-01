@@ -101,9 +101,10 @@ abstract class PKCS1 extends Progenitor
      * @param array $exponents
      * @param array $coefficients
      * @param string $password optional
+     * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '', $options = [])
     {
         $num_primes = count($primes);
         $key = [
@@ -127,7 +128,7 @@ abstract class PKCS1 extends Progenitor
 
         $key = ASN1::encodeDER($key, Maps\RSAPrivateKey::MAP);
 
-        return self::wrapPrivateKey($key, 'RSA', $password);
+        return self::wrapPrivateKey($key, 'RSA', $password, $options);
     }
 
     /**

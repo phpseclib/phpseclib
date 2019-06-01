@@ -878,4 +878,41 @@ OFLPBrLe4Hw=
         $this->assertInstanceOf(PrivateKey::class, $rsa);
         $this->assertInstanceOf(PublicKey::class, $rsa->getPublicKey());
     }
+
+    public function testPSS()
+    {
+        $key = '-----BEGIN PRIVATE KEY-----
+MIIE7QIBADA9BgkqhkiG9w0BAQowMKANMAsGCWCGSAFlAwQCAaEaMBgGCSqGSIb3
+DQEBCDALBglghkgBZQMEAgOiAwIBBQSCBKcwggSjAgEAAoIBAQD6L3Z2XUPH7vRU
+1Xl5aLpW2jH/uhqOitRV2/1QAEQk6VasI2TjJefP6SmL+te71gE4PVTMpm0LoluR
+IzvQYgeLwDFUzLsn2r/H3lKlS/K0KL890aNPSNuHwKVYQsBd2OuSQQZ04xM1E0VN
+xELcW4Vc63FTyGzR4okQ2MGHQfxP/FoNNfaIxjyb7ly9feGNR3pIRcL2CEMfyZkq
+rEE3SxNoGTHMTbIhMGchWTrX1V+VykSgy9+KmD0AD8SwP3nFH3BNLeoLDhkU2L6L
+p9XYijx3RAvPeYRlMAyOpylRxXM5Z1oBmzaClDVE8mtJkMPpZshGbVwxbzrph8VA
+FBf3FzYFAgMBAAECggEAMu3Igq3Xp3KIQGC4erOMAzQlq3YaA9xU/ylqNofnV1A8
+uYv29Jp5xwQi1gD5O56D3wv1IDfcyNqDI1d1zKS3/oXgRO/sRV+tXKVwU3/TZ0NI
+MvBi+zfMoKThw8bK3A/VXI9qHg8/kLVcjUkfhzYGPvUau8B4Dn28AzbspnkTQMCq
+FpuC41a8UzOX7rvEKPTLp87fwI1u48ycDKVK0ZKjJMQQl3SbYaVIKZa4ctav/9wC
+e5LAnap55S0L13FdUHbGJKzUqIk61NgCr8Wo16AYCOULzTTNVE24jl2Dc1H+sk61
+b1FC/TxW9iWZx9givR1VgjG5fULbxwA/Mve7SYtfIQKBgQD+a/y8pxIPgBXb90Z4
+poCqRsgJVPmu6sQ8STb0WibtyD/IKECooGOpI16A/884kNyXkfcIwK6txnnPYbmv
+KlNHgSUnhEeavrHfeUmyyrQaTAs3I0iuL4stOSRHHPDD72PRSkPky6NMErX4F4Vv
+Y6jkFhwsNJetxf2qInJn5WZ6LQKBgQD7vL+KE0HHLZ3DVaP7pRMOx9FvkhrtmqLZ
+fSuMUweKqnAFHnkEPZFuyFRMoPL3cHaVLPkGmX8vK/GL/QECKPeDyE/jEFzGQV+L
+n4PeraS1jzu77uYzWcuKdabFQN939iZ2gV5MUB7Jt4zfURf26fH1UHku7rs/Mik3
+jLfE9elKOQKBgDzhFi8GQ1oWKiTifKhuHyefnEovXTev0ZkjY9UApYQMgMaiayZu
+iqp0Xi68B5ffggl60gP0J1hJv+gR2F7D3/2iN4PHMWMj8mgpG6t+ua35OE3PUZrs
+oX8Gx1mE4U/hPp9cB/b9i2uupoBhEHrg/A7oA4HIa+sXD2XgrEOULvtZAoGBAJ73
+RRkDKhGGG87jAMeDKXK2+elzoO+UK+wdX+ef8u48zLpe0Nq9ql4DwUAWjvd0HF39
+ZVAmlCsMm97jqMRdbFfaoZ/okD1dwOEhnRt8GbvRNE5sARBCTwcjXmnHmpZdaVKC
+RTL5kUeeUiYfRnvUpcdcxvm9JZ81pNOAV/fXtjb5AoGAUVm4enVSfvPupBsjydU4
+EHvU0Y0I2IH1FrnVF8TI/9Kpdu2W5bJN5XShb7j2CICIKTr7wVwn/a7VXscQKIVb
+XCy8+Rnt/jddXFeFEu9zHWyJX9W4fGIkyE4zfRPmTkVK4S599SUQkHdgClzAOMZU
+IBgv3a3Lyb+IQtT75LE1yjE=
+-----END PRIVATE KEY-----';
+
+        $rsa = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $rsa);
+        $this->assertInstanceOf(PublicKey::class, $rsa->getPublicKey());
+    }
 }
