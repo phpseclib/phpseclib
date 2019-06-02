@@ -175,7 +175,7 @@ abstract class PuTTY
      * @param array $options optional
      * @return string
      */
-    protected static function wrapPrivateKey($public, $private, $type, $password, $options = [])
+    protected static function wrapPrivateKey($public, $private, $type, $password, array $options = [])
     {
         $key = "PuTTY-User-Key-File-2: " . $type . "\r\nEncryption: ";
         $encryption = (!empty($password) || is_string($password)) ? 'aes256-cbc' : 'none';

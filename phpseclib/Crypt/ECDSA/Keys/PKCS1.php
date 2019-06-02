@@ -118,7 +118,7 @@ abstract class PKCS1 extends Progenitor
      * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(Integer $privateKey, BaseCurve $curve, array $publicKey, $password = '', $options = [])
+    public static function savePrivateKey(Integer $privateKey, BaseCurve $curve, array $publicKey, $password = '', array $options = [])
     {
         self::initialize_static_variables();
 

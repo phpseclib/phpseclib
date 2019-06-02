@@ -189,7 +189,7 @@ abstract class OpenSSH extends Progenitor
      * @param array $options optional
      * @return string
      */
-    public static function savePublicKey(BaseCurve $curve, array $publicKey, $options = [])
+    public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = [])
     {
         $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
 

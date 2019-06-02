@@ -469,7 +469,7 @@ class PublicKey extends RSA implements Common\PublicKey
      * @param array $options optional
      * @return mixed
      */
-    public function toString($type, $options = [])
+    public function toString($type, array $options = [])
     {
         $type = self::validatePlugin('Keys', $type, 'savePublicKey');
 

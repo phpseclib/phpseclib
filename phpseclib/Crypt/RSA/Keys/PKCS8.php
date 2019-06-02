@@ -107,7 +107,7 @@ abstract class PKCS8 extends Progenitor
      * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '', $options = [])
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = '', array $options = [])
     {
         $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);
         $key = ASN1::extractBER($key);
@@ -123,7 +123,7 @@ abstract class PKCS8 extends Progenitor
      * @param array $options optional
      * @return string
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e, $options = [])
+    public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = [])
     {
         $key = PKCS1::savePublicKey($n, $e);
         $key = ASN1::extractBER($key);

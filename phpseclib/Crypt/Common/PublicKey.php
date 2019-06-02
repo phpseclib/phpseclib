@@ -24,6 +24,6 @@ interface PublicKey
 {
     public function verify($message, $signature);
     //public function encrypt($plaintext);
-    public function toString($type);
+    public function toString($type, array $options = []);
     public function getFingerprint($algorithm);
 }

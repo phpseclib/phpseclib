@@ -66,7 +66,7 @@ abstract class OpenSSH extends Progenitor
      * @param array $options optional
      * @return string
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e, $options = [])
+    public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = [])
     {
         $RSAPublicKey = Strings::packSSH2('sii', 'ssh-rsa', $e, $n);
 

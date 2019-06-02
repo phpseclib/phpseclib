@@ -31,7 +31,7 @@ class Parameters extends DSA
      * @param array $options optional
      * @return string
      */
-    public function toString($type = 'PKCS1', $options = [])
+    public function toString($type = 'PKCS1', array $options = [])
     {
         $type = self::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 

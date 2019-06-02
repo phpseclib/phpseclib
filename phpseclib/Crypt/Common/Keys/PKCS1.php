@@ -182,7 +182,7 @@ abstract class PKCS1 extends PKCS
      * @param array $options optional
      * @return string
      */
-    protected static function wrapPrivateKey($key, $type, $password, $options = [])
+    protected static function wrapPrivateKey($key, $type, $password, array $options = [])
     {
         if (empty($password) || !is_string($password)) {
             return "-----BEGIN $type PRIVATE KEY-----\r\n" .

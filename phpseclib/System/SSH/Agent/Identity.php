@@ -320,9 +320,10 @@ class Identity implements PrivateKey
      * Returns the private key
      *
      * @param string $type
+     * @param array $options optional
      * @return string
      */
-    public function toString($type)
+    public function toString($type, array $options = [])
     {
         throw new \RuntimeException('ssh-agent does not provide a mechanism to get the private key');
     }

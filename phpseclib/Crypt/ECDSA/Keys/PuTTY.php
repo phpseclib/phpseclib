@@ -99,7 +99,7 @@ abstract class PuTTY extends Progenitor
      * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(Integer $privateKey, BaseCurve $curve, array $publicKey, $password = false, $options = [])
+    public static function savePrivateKey(Integer $privateKey, BaseCurve $curve, array $publicKey, $password = false, array $options = [])
     {
         self::initialize_static_variables();
 
