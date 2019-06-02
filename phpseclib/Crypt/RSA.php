@@ -53,6 +53,7 @@ use phpseclib\Crypt\RSA\PublicKey;
 use phpseclib\Math\BigInteger;
 use phpseclib\Exceptions\UnsupportedAlgorithmException;
 use phpseclib\Exceptions\InconsistentSetupException;
+use phpseclib\Crypt\RSA\Keys\PSS;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
@@ -405,14 +406,26 @@ abstract class RSA extends AsymmetricKey
 
         if ($components['isPublicKey']) {
             $key->exponent = $key->publicExponent;
-            return $key;
+        } else {
+            $key->privateExponent = $components['privateExponent'];
+            $key->exponent = $key->privateExponent;
+            $key->primes = $components['primes'];
+            $key->exponents = $components['exponents'];
+            $key->coefficients = $components['coefficients'];
         }
 
-        $key->privateExponent = $components['privateExponent'];
-        $key->exponent = $key->privateExponent;
-        $key->primes = $components['primes'];
-        $key->exponents = $components['exponents'];
-        $key->coefficients = $components['coefficients'];
+        if ($components['format'] == PSS::class) {
+            $key = $key->withPadding(self::SIGNATURE_PSS);
+            if (isset($components['hash'])) {
+                $key = $key->withHash($components['hash']);
+            }
+            if (isset($components['MGFHash'])) {
+                $key = $key->withMGFHash($components['MGFHash']);
+            }
+            if (isset($components['saltLength'])) {
+                $key = $key->withSaltLength($components['saltLength']);
+            }
+        }
 
         return $key;
     }

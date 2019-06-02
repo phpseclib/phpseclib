@@ -22,6 +22,7 @@ use phpseclib\Exceptions\NoKeyLoadedException;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\Common;
 use phpseclib\File\ASN1\Maps\DigestInfo;
+use phpseclib\Crypt\RSA\Keys\PSS;
 
 /**
  * Raw RSA Key Handler
@@ -471,6 +472,18 @@ class PublicKey extends RSA implements Common\PublicKey
     public function toString($type, $options = [])
     {
         $type = self::validatePlugin('Keys', $type, 'savePublicKey');
+
+        if ($type == PSS::class) {
+            if ($this->signaturePadding == self::SIGNATURE_PSS) {
+                $options+= [
+                    'hash' => $this->hash->getHash(),
+                    'MGFHash' => $this->mgfHash->getHash(),
+                    'saltLength' => $this->sLen
+                ];
+            } else {
+                throw new UnsupportedFormatException('The PSS format can only be used when the signature method has been explicitly set to PSS');
+            }
+        }
 
         return $type::savePublicKey($this->modulus, $this->publicExponent, $options);
     }

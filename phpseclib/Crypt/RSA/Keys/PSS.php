@@ -9,11 +9,11 @@
  *
  * Processes keys with the following headers:
  *
+ * -----BEGIN ENCRYPTED PRIVATE KEY-----
+ * -----BEGIN PRIVATE KEY-----
  * -----BEGIN PUBLIC KEY-----
  *
- * Analogous to ssh-keygen's pkcs8 format (as specified by -m). Although PKCS8
- * is specific to private keys it's basically creating a DER-encoded wrapper
- * for keys. This just extends that same concept to public keys (much like ssh-keygen)
+ * Analogous to "openssl genpkey -algorithm rsa-pss".
  *
  * @category  Crypt
  * @package   RSA
@@ -28,6 +28,7 @@ namespace phpseclib\Crypt\RSA\Keys;
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Common\Keys\PKCS8 as Progenitor;
 use phpseclib\File\ASN1;
+use phpseclib\File\ASN1\Maps;
 
 /**
  * PKCS#8 Formatted RSA-PSS Key Handler
@@ -122,18 +123,22 @@ abstract class PSS extends Progenitor
         if ($decoded === false) {
             throw new \UnexpectedValueException('Unable to decode parameters');
         }
-        $params = ASN1::asn1map($decoded[0], ASN1\Maps\RSASSA_PSS_params::MAP);
+        $params = ASN1::asn1map($decoded[0], Maps\RSASSA_PSS_params::MAP);
         if (isset($params['maskGenAlgorithm']['parameters'])) {
             $decoded = ASN1::decodeBER($params['maskGenAlgorithm']['parameters']);
             if ($decoded === false) {
                 throw new \UnexpectedValueException('Unable to decode parameters');
             }
-            $params['maskGenAlgorithm']['parameters'] = ASN1::asn1map($decoded[0], ASN1\Maps\HashAlgorithm::MAP);
+            $params['maskGenAlgorithm']['parameters'] = ASN1::asn1map($decoded[0], Maps\HashAlgorithm::MAP);
         } else {
             $params['maskGenAlgorithm'] = [
                 'algorithm' => 'id-mgf1',
                 'parameters' => ['algorithm' => 'id-sha1']
             ];
+        }
+
+        if (!isset($params['hashAlgorithm']['algorithm'])) {
+            $params['hashAlgorithm']['algorithm'] = 'id-sha1';
         }
 
         $result['hash'] = str_replace('id-', '', $params['hashAlgorithm']['algorithm']);
@@ -145,5 +150,91 @@ abstract class PSS extends Progenitor
         }
 
         return $result;
+    }
+
+    /**
+     * Convert a private key to the appropriate format.
+     *
+     * @access public
+     * @param \phpseclib\Math\BigInteger $n
+     * @param \phpseclib\Math\BigInteger $e
+     * @param \phpseclib\Math\BigInteger $d
+     * @param array $primes
+     * @param array $exponents
+     * @param array $coefficients
+     * @param string $password optional
+     * @param array $options optional
+     * @return string
+     */
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '', $options = [])
+    {
+        self::initialize_static_variables();
+
+        $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);
+        $key = ASN1::extractBER($key);
+        $params = self::savePSSParams($options);
+        return self::wrapPrivateKey($key, [], $params, $password, $options);
+    }
+
+    /**
+     * Convert a public key to the appropriate format
+     *
+     * @access public
+     * @param \phpseclib\Math\BigInteger $n
+     * @param \phpseclib\Math\BigInteger $e
+     * @param array $options optional
+     * @return string
+     */
+    public static function savePublicKey(BigInteger $n, BigInteger $e, $options = [])
+    {
+        $key = PKCS1::savePublicKey($n, $e);
+        $key = ASN1::extractBER($key);
+        $params = self::savePSSParams($options);
+        return self::wrapPublicKey($key, $params);
+    }
+
+    /**
+     * Encodes PSS parameters
+     *
+     * @access public
+     * @param array $options
+     * @return string
+     */
+    private static function savePSSParams($options)
+    {
+        /*
+         The trailerField field is an integer.  It provides
+         compatibility with IEEE Std 1363a-2004 [P1363A].  The value
+         MUST be 1, which represents the trailer field with hexadecimal
+         value 0xBC.  Other trailer fields, including the trailer field
+         composed of HashID concatenated with 0xCC that is specified in
+         IEEE Std 1363a, are not supported.  Implementations that
+         perform signature generation MUST omit the trailerField field,
+         indicating that the default trailer field value was used.
+         Implementations that perform signature validation MUST
+         recognize both a present trailerField field with value 1 and an
+         absent trailerField field.
+
+         source: https://tools.ietf.org/html/rfc4055#page-9
+        */
+        $params = [
+            'trailerField' => new BigInteger(1)
+        ];
+        if (isset($options['hash'])) {
+            $params['hashAlgorithm']['algorithm'] = 'id-' . $options['hash'];
+        }
+        if (isset($options['MGFHash'])) {
+            $temp = ['algorithm' => 'id-' . $options['MGFHash']];
+            $temp = ASN1::encodeDER($temp, Maps\HashAlgorithm::MAP);
+            $params['maskGenAlgorithm'] = [
+                'algorithm' => 'id-mgf1',
+                'parameters' => new ASN1\Element($temp)
+            ];
+        }
+        if (isset($options['saltLength'])) {
+            $params['saltLength'] = new BigInteger($options['saltLength']);
+        }
+
+        return new ASN1\Element(ASN1::encodeDER($params, Maps\RSASSA_PSS_params::MAP));
     }
 }

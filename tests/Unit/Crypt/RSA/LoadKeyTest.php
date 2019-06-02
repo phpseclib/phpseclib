@@ -13,6 +13,7 @@ use phpseclib\Crypt\RSA\Keys\PKCS1;
 use phpseclib\Crypt\RSA\Keys\PKCS8;
 use phpseclib\Crypt\RSA\Keys\PuTTY;
 use phpseclib\Crypt\RSA\Keys\OpenSSH;
+use phpseclib\Crypt\RSA\Keys\PSS;
 use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
@@ -914,5 +915,14 @@ IBgv3a3Lyb+IQtT75LE1yjE=
         $rsa = PublicKeyLoader::load($key);
         $this->assertInstanceOf(PrivateKey::class, $rsa);
         $this->assertInstanceOf(PublicKey::class, $rsa->getPublicKey());
+
+        $r = PSS::load($key);
+
+        $key = $rsa->toString('PSS');
+        $r2 = PSS::load($key);
+
+        $this->assertSame($r['hash'],       $r2['hash']);
+        $this->assertSame($r['MGFHash'],    $r2['MGFHash']);
+        $this->assertSame($r['saltLength'], $r2['saltLength']);
     }
 }

@@ -22,6 +22,7 @@ use phpseclib\Exceptions\NoKeyLoadedException;
 use phpseclib\Exception\UnsupportedFormatException;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\Common;
+use phpseclib\Crypt\RSA\Keys\PSS;
 
 /**
  * Raw RSA Key Handler
@@ -524,9 +525,21 @@ class PrivateKey extends RSA implements Common\PrivateKey
             $type,
             empty($this->primes) ? 'savePublicKey' : 'savePrivateKey'
         );
+
+        if ($type == PSS::class) {
+            if ($this->signaturePadding == self::SIGNATURE_PSS) {
+                $options+= [
+                    'hash' => $this->hash->getHash(),
+                    'MGFHash' => $this->mgfHash->getHash(),
+                    'saltLength' => $this->sLen
+                ];
+            } else {
+                throw new UnsupportedFormatException('The PSS format can only be used when the signature method has been explicitly set to PSS');
+            }
+        }
  
         if (empty($this->primes)) {
-            return $type::savePublicKey($this->modulus, $this->exponent);
+            return $type::savePublicKey($this->modulus, $this->exponent, $options);
         }
 
         return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password, $options);
