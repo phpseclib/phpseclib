@@ -2082,11 +2082,12 @@ class SFTP extends SSH2
      * @param string|bool|resource $local_file
      * @param int $offset
      * @param int $length
+     * @param callable|null $progressCallback
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return mixed
      * @access public
      */
-    public function get($remote_file, $local_file = false, $offset = 0, $length = -1)
+    public function get($remote_file, $local_file = false, $offset = 0, $length = -1, $progressCallback = null)
     {
         if (!($this->bitmap & SSH2::MASK_LOGIN)) {
             return false;
@@ -2152,6 +2153,9 @@ class SFTP extends SSH2
                 }
                 $packet = null;
                 $read+= $packet_size;
+                if (is_callable($progressCallback)) {
+                    call_user_func($progressCallback, $read);
+                }
                 $i++;
             }
 
