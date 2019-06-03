@@ -169,9 +169,10 @@ abstract class PKCS8 extends Progenitor
      * @access public
      * @param \phpseclib\Crypt\ECDSA\BaseCurves\Base $curve
      * @param \phpseclib\Math\Common\FiniteField\Integer[] $publicKey
+     * @param array $optiona optional
      * @return string
      */
-    public static function savePublicKey(BaseCurve $curve, array $publicKey)
+    public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = [])
     {
         self::initialize_static_variables();
 
@@ -183,7 +184,7 @@ abstract class PKCS8 extends Progenitor
             );
         }
 
-        $params = new ASN1\Element(self::encodeParameters($curve));
+        $params = new ASN1\Element(self::encodeParameters($curve, false, $options));
 
         $key = "\4" . $publicKey[0]->toBytes() . $publicKey[1]->toBytes();
 
@@ -218,7 +219,7 @@ abstract class PKCS8 extends Progenitor
 
         $publicKey = "\4" . $publicKey[0]->toBytes() . $publicKey[1]->toBytes();
 
-        $params = new ASN1\Element(self::encodeParameters($curve));
+        $params = new ASN1\Element(self::encodeParameters($curve, false, $options));
 
         $key = [
             'version' => 'ecPrivkeyVer1',
@@ -229,6 +230,6 @@ abstract class PKCS8 extends Progenitor
 
         $key = ASN1::encodeDER($key, Maps\ECPrivateKey::MAP);
 
-        return self::wrapPrivateKey($key, [], $params, $password, 'id-ecPublicKey', $options);
+        return self::wrapPrivateKey($key, [], $params, $password, 'id-ecPublicKey', '', $options);
     }
 }

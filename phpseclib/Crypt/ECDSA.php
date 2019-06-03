@@ -261,20 +261,12 @@ abstract class ECDSA extends AsymmetricKey
             return $this->curveName;
         }
 
-        $namedCurves = PKCS1::isUsingNamedCurves();
-        PKCS1::useNamedCurve();
-
-        $params = $this->getParameters();
+        $params = $this->getParameters()->toString('PKCS8', ['namedCurve' => true]);
         $decoded = ASN1::extractBER($params);
         $decoded = ASN1::decodeBER($decoded);
         $decoded = ASN1::asn1map($decoded[0], ECParameters::MAP);
         if (isset($decoded['namedCurve'])) {
             $this->curveName = $decoded['namedCurve'];
-
-            if (!$namedCurves) {
-                PKCS1::useSpecifiedCurve();
-            }
-
             return $decoded['namedCurve'];
         }
 

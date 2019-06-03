@@ -109,17 +109,9 @@ class PublicKey extends ECDSA implements Common\PublicKey
         extract($params);
 
         if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
-            $namedCurves = PKCS8::isUsingNamedCurves();
-
-            PKCS8::useSpecifiedCurve();
-
             $sig = $format != 'ASN1' ? ASN1Signature::save($r, $s) : $signature;
 
-            $result = openssl_verify($message, $sig, $this->toString('PKCS8'), $this->hash->getHash());
-
-            if ($namedCurves) {
-                PKCS8::useNamedCurve();
-            }
+            $result = openssl_verify($message, $sig, $this->toString('PKCS8', ['namedCurve' => false]), $this->hash->getHash());
 
             if ($result != -1) {
                 return (bool) $result;

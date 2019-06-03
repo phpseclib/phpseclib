@@ -342,23 +342,26 @@ trait Common
      *
      * @todo Maybe at some point this could be moved to __toString() for each of the curves?
      * @param \phpseclib\Crypt\ECDSA\BaseCurves\Base $curve
-     * @param bool $returnArray
+     * @param bool $returnArray optional
+     * @param array $options optional
      * @return string|false
      */
-    private static function encodeParameters(BaseCurve $curve, $returnArray = false)
+    private static function encodeParameters(BaseCurve $curve, $returnArray = false, array $options = [])
     {
+        $useNamedCurves = isset($options['namedCurve']) ? $options['namedCurve'] : self::$useNamedCurves;
+
         $reflect = new \ReflectionClass($curve);
         $name = $reflect->getShortName();
-        if (isset(self::$curveOIDs[$name]) && self::$useNamedCurves) {
-            if ($reflect->isFinal()) {
-                $reflect = $reflect->getParentClass();
-                $name = $reflect->getShortName();
+        if ($useNamedCurves) {
+            if (isset(self::$curveOIDs[$name])) {
+                if ($reflect->isFinal()) {
+                    $reflect = $reflect->getParentClass();
+                    $name = $reflect->getShortName();
+                }
+                return $returnArray ?
+                    ['namedCurve' => $name] :
+                    ASN1::encodeDER(['namedCurve' => $name], Maps\ECParameters::MAP);
             }
-            return $returnArray ?
-                ['namedCurve' => $name] :
-                ASN1::encodeDER(['namedCurve' => $name], Maps\ECParameters::MAP);
-        }
-        if (self::$useNamedCurves) {
             foreach (new \DirectoryIterator(__DIR__ . '/../Curves/') as $file) {
                 if ($file->getExtension() != 'php') {
                     continue;
@@ -548,15 +551,5 @@ trait Common
     public static function useNamedCurve()
     {
         self::$useNamedCurves = true;
-    }
-
-    /**
-     * Returns true if named curves are being used by default
-     *
-     * If a named curve is not being used by default than specified curves are being utilized
-     */
-    public static function isUsingNamedCurves()
-    {
-        return self::$useNamedCurves;
     }
 }

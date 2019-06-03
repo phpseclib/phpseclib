@@ -365,9 +365,10 @@ abstract class XML
      *
      * @param \phpseclib\Crypt\ECDSA\BaseCurves\Base $curve
      * @param \phpseclib\Math\Common\FiniteField\Integer[] $publicKey
+     * @param array $options optional
      * @return string
      */
-    public static function savePublicKey(BaseCurve $curve, array $publicKey)
+    public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = [])
     {
         self::initialize_static_variables();
 
@@ -384,7 +385,7 @@ abstract class XML
 
         if (self::$rfc4050) {
             return '<' . $pre . 'ECDSAKeyValue xmlns' . $post . '="http://www.w3.org/2001/04/xmldsig-more#">' . "\r\n" .
-                   self::encodeXMLParameters($curve, $pre) . "\r\n" .
+                   self::encodeXMLParameters($curve, $pre, $options) . "\r\n" .
                    '<' . $pre . 'PublicKey>' . "\r\n" .
                    '<' . $pre . 'X Value="' . $publicKey[0] . '" />' . "\r\n" .
                    '<' . $pre . 'Y Value="' . $publicKey[1] . '" />' . "\r\n" .
@@ -395,7 +396,7 @@ abstract class XML
         $publicKey = "\4" . $publicKey[0]->toBytes() . $publicKey[1]->toBytes();
 
         return '<' . $pre . 'ECKeyValue xmlns' . $post . '="http://www.w3.org/2009/xmldsig11#">' . "\r\n" .
-               self::encodeXMLParameters($curve, $pre) . "\r\n" .
+               self::encodeXMLParameters($curve, $pre, $options) . "\r\n" .
                '<' . $pre . 'PublicKey>' . Base64::encode($publicKey) . '</' . $pre . 'PublicKey>' . "\r\n" .
                '</' . $pre . 'ECKeyValue>';
     }
@@ -405,11 +406,12 @@ abstract class XML
      *
      * @param \phpseclib\Crypt\ECDSA\BaseCurves\Base $curve
      * @param string $pre
+     * @param array $options optional
      * @return string|false
      */
-    private static function encodeXMLParameters(BaseCurve $curve, $pre)
+    private static function encodeXMLParameters(BaseCurve $curve, $pre, array $options = [])
     {
-        $result = self::encodeParameters($curve, true);
+        $result = self::encodeParameters($curve, true, $options);
 
         if (isset($result['namedCurve'])) {
             $namedCurve = '<' . $pre . 'NamedCurve URI="urn:oid:' . self::$curveOIDs[$result['namedCurve']] . '" />';

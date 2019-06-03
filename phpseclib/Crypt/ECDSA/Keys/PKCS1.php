@@ -92,7 +92,7 @@ abstract class PKCS1 extends Progenitor
      * @access public
      * @return string
      */
-    public static function saveParameters(BaseCurve $curve)
+    public static function saveParameters(BaseCurve $curve, array $options = [])
     {
         self::initialize_static_variables();
 
@@ -100,7 +100,7 @@ abstract class PKCS1 extends Progenitor
             throw new UnsupportedCurveException('TwistedEdwards Curves are not supported');
         }
 
-        $key = self::encodeParameters($curve);
+        $key = self::encodeParameters($curve, false, $options);
 
         return "-----BEGIN EC PARAMETERS-----\r\n" .
                chunk_split(Base64::encode($key), 64) .
