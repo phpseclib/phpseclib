@@ -451,7 +451,8 @@ class PublicKey extends RSA implements Common\PublicKey
                 return $this->raw_encrypt($plaintext);
             case self::ENCRYPTION_PKCS15_COMPAT:
             case self::ENCRYPTION_PKCS1:
-                return $this->rsaes_pkcs1_v1_5_encrypt($plaintext, $padding == self::ENCRYPTION_PKCS15_COMPAT);
+                $pkcs15_compat = $this->encryptionPadding & self::ENCRYPTION_PKCS15_COMPAT;
+                return $this->rsaes_pkcs1_v1_5_encrypt($plaintext, $pkcs15_compat);
             //case self::ENCRYPTION_OAEP:
             default:
                 return $this->rsaes_oaep_encrypt($plaintext);
