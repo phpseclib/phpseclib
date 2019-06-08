@@ -27,7 +27,7 @@ use phpseclib\Crypt\Common\Keys\PuTTY as Progenitor;
 /**
  * PuTTY Formatted DSA Key Handler
  *
- * @package RSA
+ * @package DSA
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
@@ -66,17 +66,8 @@ abstract class PuTTY extends Progenitor
         extract($components);
         unset($components['public'], $components['private']);
 
-        $result = Strings::unpackSSH2('iiii', $public);
-        if ($result === false) {
-            throw new \UnexpectedValueException('Key appears to be malformed');
-        }
-        list($p, $q, $g, $y) = $result;
-
-        $result = Strings::unpackSSH2('i', $private);
-        if ($result === false) {
-            throw new \UnexpectedValueException('Key appears to be malformed');
-        }
-        list($x) = $result;
+        list($p, $q, $g, $y) = Strings::unpackSSH2('iiii', $public);
+        list($x) = Strings::unpackSSH2('i', $private);
 
         return compact('p', 'q', 'g', 'y', 'x', 'comment');
     }

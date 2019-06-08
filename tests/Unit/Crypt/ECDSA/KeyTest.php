@@ -12,6 +12,7 @@ use phpseclib\Crypt\ECDSA\Keys\PuTTY;
 use phpseclib\Crypt\ECDSA\Keys\OpenSSH;
 use phpseclib\Crypt\ECDSA\Keys\XML;
 use phpseclib\Crypt\PublicKeyLoader;
+use phpseclib\Crypt\ECDSA\PrivateKey;
 
 class Unit_Crypt_ECDSA_LoadKeyTest extends PhpseclibTestCase
 {
@@ -440,5 +441,49 @@ pomV7r6gmoMYteGVABfgAAAAD3ZhZ3JhbnRAdmFncmFudAECAwQFBg==
         $expected = str_replace("\r\n", "\n", $expected);
         $actual = str_replace("\r\n", "\n", $actual);
         return parent::assertSame($expected, $actual, $message);
+    }
+
+    public function testOpenSSHPrivateECDSA()
+    {
+        $key = '-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAaAAAABNlY2RzYS
+1zaGEyLW5pc3RwMjU2AAAACG5pc3RwMjU2AAAAQQTk2tbDiyQPzljR+LLIsMzJiwqkfHkG
+StUt3kO00FKMoYv3RJfP6mqdE3E3pPcT5cBg4yB+KzYsYDxwuBc03oQcAAAAqCTU2l0k1N
+pdAAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOTa1sOLJA/OWNH4
+ssiwzMmLCqR8eQZK1S3eQ7TQUoyhi/dEl8/qap0TcTek9xPlwGDjIH4rNixgPHC4FzTehB
+wAAAAgZ8mK8+EsQ46susQn4mwMNmpvTaKX9Q9KDvOrzotP2qgAAAAMcm9vdEB2YWdyYW50
+AQIDBA==
+-----END OPENSSH PRIVATE KEY-----';
+
+        $key = PublicKeyLoader::load($key);
+
+        $key2 = PublicKeyLoader::load($key->toString('OpenSSH'));
+        $this->assertInstanceOf(PrivateKey::class, $key2);
+
+        $sig = $key->sign('zzz');
+
+        $key = 'ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOTa1sOLJA/OWNH4ssiwzMmLCqR8eQZK1S3eQ7TQUoyhi/dEl8/qap0TcTek9xPlwGDjIH4rNixgPHC4FzTehBw= root@vagrant';
+        $key = PublicKeyLoader::load($key);
+
+        $this->assertTrue($key->verify('zzz', $sig));
+    }
+
+    public function testOpenSSHPrivateEd25519()
+    {
+        $key = '-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACChhCZwqkIh43AfURPOgbyYeZRCKvd4jFcyAK4xmiqxQwAAAJDqGgwS6hoM
+EgAAAAtzc2gtZWQyNTUxOQAAACChhCZwqkIh43AfURPOgbyYeZRCKvd4jFcyAK4xmiqxQw
+AAAEDzL/Yl1Vr/5MxhIIEkVKXBMEIumVG8gUjT9i2PTGSehqGEJnCqQiHjcB9RE86BvJh5
+lEIq93iMVzIArjGaKrFDAAAADHJvb3RAdmFncmFudAE=
+-----END OPENSSH PRIVATE KEY-----';
+
+        $key = PublicKeyLoader::load($key);
+        $sig = $key->sign('zzz');
+
+        $key = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKGEJnCqQiHjcB9RE86BvJh5lEIq93iMVzIArjGaKrFD root@vagrant';
+        $key = PublicKeyLoader::load($key);
+
+        $this->assertTrue($key->verify('zzz', $sig));
     }
 }

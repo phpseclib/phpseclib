@@ -925,4 +925,58 @@ IBgv3a3Lyb+IQtT75LE1yjE=
         $this->assertSame($r['MGFHash'],    $r2['MGFHash']);
         $this->assertSame($r['saltLength'], $r2['saltLength']);
     }
+
+    public function testOpenSSHPrivate()
+    {
+        $key = '-----BEGIN OPENSSH PRIVATE KEY-----
+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
+-----END OPENSSH PRIVATE KEY-----';
+
+        $key = PublicKeyLoader::load($key);
+
+        $key2 = PublicKeyLoader::load($key->toString('OpenSSH'));
+        $this->assertInstanceOf(PrivateKey::class, $key2);
+
+        $sig = $key->sign('zzz');
+
+        $key = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDS8/TfgDLaowESNlVxYcLOSEPS1SAeBTIu5S2s8oRlTTrBD9ZyGSJBdsPR2ADGVmhD9lHQ3dbhjSpkIqC4msZ+2yPLJyIpyOY9BdW+V4sUfQUO5BOO8koyIThDSkJYdpsP2SWUtZU5gn+LAFqcGlSfj90BBoYWMtCNEsgBFMjo1kYDGYhoFv5wjyxz6rMHRZ9swYzT7wA7nJ5pmdEm10YCH0AcM4dP5Xqu5t1hWyhgEgd2UCfNy/4RJSFBhgk7Jb+rah3ovwgXn5ZU9CLPyc17fOeNFyT5P8pJjpfx9L9XJ+ZAOOSZIxSTePe4HrWo3NR1E2ZMqBNOsx8ljlsz6MNxShwfk6leFg40nh2k/VAOoWB7j5loKfkzPz0GOGQlR44xaVoHwqq/PsHOKUKYP6q/hOiyxOpxkgayB0QgbsdK32VWzPSZ523/r35iaS6GKRJ9nREAA74lRnmBdMbAWbQEWklY0vEl46yADpZCZRAZEretjXCDYsw0ri7RXKj8u8s= root@vagrant';
+        $key = PublicKeyLoader::load($key);
+
+        $this->assertTrue($key->verify('zzz', $sig));
+    }
 }

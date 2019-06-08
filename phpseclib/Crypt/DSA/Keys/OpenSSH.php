@@ -32,6 +32,13 @@ use phpseclib\Crypt\Common\Keys\OpenSSH as Progenitor;
 abstract class OpenSSH extends Progenitor
 {
     /**
+     * Supported Key Types
+     *
+     * @var array
+     */
+    protected static $types = ['ssh-dss'];
+
+    /**
      * Break a public or private key down into its constituent components
      *
      * @access public
@@ -41,15 +48,22 @@ abstract class OpenSSH extends Progenitor
      */
     public static function load($key, $password = '')
     {
-        $key = parent::load($key, 'ssh-dss');
+        $parsed = parent::load($key, 'ssh-dss');
 
-        $result = Strings::unpackSSH2('iiii', $key);
-        if ($result === false) {
-            throw new \UnexpectedValueException('Key appears to be malformed');
+        if (isset($parsed['paddedKey'])) {
+            list($type) = Strings::unpackSSH2('s', $parsed['paddedKey']);
+            if ($type != $parsed['type']) {
+                throw new \RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
+            }
+
+            list($p, $q, $g, $y, $x, $comment) = Strings::unpackSSH2('i5s', $parsed['paddedKey']);
+
+            return compact('p', 'q', 'g', 'y', 'x', 'comment');
         }
-        list($p, $q, $g, $y) = $result;
 
-        $comment = parent::getComment($key);
+        list($p, $q, $g, $y) = Strings::unpackSSH2('iiii', $parsed['publicKey']);
+
+        $comment = $parsed['comment'];
 
         return compact('p', 'q', 'g', 'y', 'comment');
     }
@@ -84,8 +98,29 @@ abstract class OpenSSH extends Progenitor
         }
 
         $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
-        $DSAPublicKey = 'ssh-dss ' . Base64::encode($DSAPublicKey) . ' ' . $comment;
+        $DSAPublicKey = 'ssh-dss ' . base64_encode($DSAPublicKey) . ' ' . $comment;
 
         return $DSAPublicKey;
+    }
+
+    /**
+     * Convert a private key to the appropriate format.
+     *
+     * @access public
+     * @param \phpseclib\Math\BigInteger $p
+     * @param \phpseclib\Math\BigInteger $q
+     * @param \phpseclib\Math\BigInteger $g
+     * @param \phpseclib\Math\BigInteger $x
+     * @param \phpseclib\Math\BigInteger $y
+     * @param string $password optional
+     * @param array $options optional
+     * @return string
+     */
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '', array $options = [])
+    {
+        $publicKey = self::savePublicKey($p, $q, $g, $y, ['binary' => true]);
+        $privateKey = Strings::packSSH2('si5', 'ssh-dss', $p, $q, $g, $y, $x);
+
+        return self::wrapPrivateKey($publicKey, $privateKey, $options);
     }
 }
