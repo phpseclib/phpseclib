@@ -48,7 +48,7 @@ abstract class OpenSSH extends Progenitor
      */
     public static function load($key, $password = '')
     {
-        $parsed = parent::load($key, 'ssh-dss');
+        $parsed = parent::load($key, $password);
 
         if (isset($parsed['paddedKey'])) {
             list($type) = Strings::unpackSSH2('s', $parsed['paddedKey']);
