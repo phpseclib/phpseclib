@@ -846,7 +846,7 @@ class RSA
                     strlen($raw['prime2']),
                     $raw['prime2']
                 );
-                $checkint = crypt_random_string(4);
+                $checkint = Random::string(4);
                 $paddedKey = pack(
                     'a*Na*',
                     $checkint . $checkint . $privateKey,
@@ -1469,7 +1469,7 @@ class RSA
                 $components['coefficients'] = array(2 => new BigInteger($this->_string_shift($private, $length), -256));
 
                 return $components;
-            case CRYPT_RSA_PRIVATE_FORMAT_OPENSSH:
+            case self::PRIVATE_FORMAT_OPENSSH:
                 $components = array();
                 $decoded = $this->_extractBER($key);
                 $magic = $this->_string_shift($decoded, 15);
@@ -1523,7 +1523,7 @@ class RSA
                     if (strlen($paddedKey) < $length) {
                         return false;
                     }
-                    $value = new Math_BigInteger($this->_string_shift($paddedKey, $length), -256);
+                    $value = new BigInteger($this->_string_shift($paddedKey, $length), -256);
                 }
 
                 extract(unpack('Nlength', $this->_string_shift($paddedKey, 4)));
