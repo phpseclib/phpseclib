@@ -897,6 +897,7 @@ class Net_SFTP extends Net_SSH2
             }
             if (is_array($this->_query_stat_cache($this->_realpath($dir . '/' . $value)))) {
                 $temp = $this->_nlist_helper($dir . '/' . $value, true, $relativeDir . $value . '/');
+                $temp = is_array($temp) ? $temp : array();
                 $result = array_merge($result, $temp);
             } else {
                 $result[] = $relativeDir . $value;
