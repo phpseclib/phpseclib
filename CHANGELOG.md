@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.16 - 2019-06-13
+
+- BigInteger: new BigInteger('-0') caused issues with GMP
+- BigInteger: new BigInteger('00') caused issues with GMP
+- BigInteger: GMP engine didn't always return 1 or -1
+- ASN1: revamp how OIDs are handled (#1367)
+- ASN1: correctly handle long tags
+- SSH2: fix issue with reconnecting via ping() (#1353)
+- SSH2: close channel when a timeout occurs (#1378)
+- SFTP: improve handling of malformed packets (#1371)
+- RSA: add support for OpenSSH private keys (#1372)
+- RSA: use hash_equals if available
+
 ## 1.0.15 - 2019-03-10
 
 - SFTP: make it so get() can correctly handle out of order responses (#1343)
@@ -9,7 +22,6 @@
 - Hash: fix issues with the mode
 - SCP: issue error if remote_file is empty in put() call (#1335)
 - X509: whitelist OID 1.3.6.1.4.1.11129.2.4.2 (#1341)
-
 
 ## 1.0.14 - 2019-01-27
 
