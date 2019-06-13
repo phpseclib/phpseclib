@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.0.18 - 2019-06-13
+
+- SSH2: close channel when a timeout occurs (#1378)
+- SFTP: improve handling of malformed packets (#1371)
+- RSA: add support for OpenSSH private keys (#1372)
+
+## 2.0.17 - 2019-05-26
+
+- BigInteger: new BigInteger('-0') caused issues with GMP
+
+## 2.0.16 - 2019-05-26
+
+- BigInteger: new BigInteger('00') caused issues with GMP
+- BigInteger: GMP engine didn't always return 1 or -1
+- ASN1: revamp how OIDs are handled (#1367)
+- ASN1: correctly handle long tags
+- SSH2: fix issue with reconnecting via ping() (#1353)
+- RSA: use hash_equals if available
+
 ## 2.0.15 - 2019-03-10
 
 - SFTP: make it so get() can correctly handle out of order responses (#1343)
@@ -149,6 +168,19 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.16 - 2019-06-13
+
+- BigInteger: new BigInteger('-0') caused issues with GMP
+- BigInteger: new BigInteger('00') caused issues with GMP
+- BigInteger: GMP engine didn't always return 1 or -1
+- ASN1: revamp how OIDs are handled (#1367)
+- ASN1: correctly handle long tags
+- SSH2: fix issue with reconnecting via ping() (#1353)
+- SSH2: close channel when a timeout occurs (#1378)
+- SFTP: improve handling of malformed packets (#1371)
+- RSA: add support for OpenSSH private keys (#1372)
+- RSA: use hash_equals if available
 
 ## 1.0.15 - 2019-03-10
 
