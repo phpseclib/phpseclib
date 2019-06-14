@@ -69,47 +69,45 @@ abstract class PKCS8 extends Progenitor
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
         if (!is_string($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $isPublic = strpos($key, 'PUBLIC') !== false;
 
         $key = parent::load($key, $password);
-        if ($key === false) {
-            return false;
-        }
 
         $type = isset($key['privateKey']) ? 'privateKey' : 'publicKey';
 
         switch (true) {
             case !$isPublic && $type == 'publicKey':
+                throw new \UnexpectedValueException('Human readable string claims non-public key but DER encoded string claims public key');
             case $isPublic && $type == 'privateKey':
-                return false;
+                throw new \UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
         }
 
         $decoded = ASN1::decodeBER($key[$type . 'Algorithm']['parameters']->element);
         if (empty($decoded)) {
-            return false;
+            throw new \RuntimeException('Unable to decode BER of parameters');
         }
         $components = ASN1::asn1map($decoded[0], Maps\DSAParams::MAP);
         if (!is_array($components)) {
-            return false;
+            throw new \RuntimeException('Unable to perform ASN1 mapping on parameters');
         }
 
         $decoded = ASN1::decodeBER($key[$type]);
         if (empty($decoded)) {
-            return false;
+            throw new \RuntimeException('Unable to decode BER');
         }
 
         $var = $type == 'privateKey' ? 'x' : 'y';
         $components[$var] = ASN1::asn1map($decoded[0], Maps\DSAPublicKey::MAP);
         if (!$components[$var] instanceof BigInteger) {
-            return false;
+            throw new \RuntimeException('Unable to perform ASN1 mapping');
         }
 
         if (isset($key['meta'])) {
@@ -129,9 +127,10 @@ abstract class PKCS8 extends Progenitor
      * @param \phpseclib\Math\BigInteger $x
      * @param \phpseclib\Math\BigInteger $y
      * @param string $password optional
+     * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '')
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '', array $options = [])
     {
         $params = [
             'p' => $p,
@@ -141,7 +140,7 @@ abstract class PKCS8 extends Progenitor
         $params = ASN1::encodeDER($params, Maps\DSAParams::MAP);
         $params = new ASN1\Element($params);
         $key = ASN1::encodeDER($x, Maps\DSAPublicKey::MAP);
-        return self::wrapPrivateKey($key, [], $params, $password);
+        return self::wrapPrivateKey($key, [], $params, $password, $options);
     }
 
     /**
@@ -152,9 +151,10 @@ abstract class PKCS8 extends Progenitor
      * @param \phpseclib\Math\BigInteger $q
      * @param \phpseclib\Math\BigInteger $g
      * @param \phpseclib\Math\BigInteger $y
+     * @param array $options optional
      * @return string
      */
-    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y)
+    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, array $options = [])
     {
         $params = [
             'p' => $p,

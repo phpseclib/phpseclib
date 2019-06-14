@@ -26,6 +26,11 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $this->assertSame('18446744073709551616',    (string) $this->getInstance('0x10000000000000000', 16));
     }
 
+    public function testConstructorBase256()
+    {
+        $this->assertSame('-128',                        (string) $this->getInstance("\x80", -256));
+    }
+
     public function testToBytes()
     {
         $this->assertSame(chr(65), $this->getInstance('65')->toBytes());
@@ -44,6 +49,8 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
     public function testToBits()
     {
         $this->assertSame('1000001', $this->getInstance('65')->toBits());
+        $this->assertSame('10', $this->getInstance('-2')->toBits());
+        $this->assertSame('11111110', $this->getInstance('-2')->toBits(true));
     }
 
     public function testAdd()
@@ -171,6 +178,9 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         // c < d
         $this->assertLessThan(0, $c->compare($d));
         $this->assertGreaterThan(0, $d->compare($c));
+
+        $this->assertSame(-1, $this->getInstance(-999)->compare($this->getInstance(370)));
+        $this->assertSame(1, $this->getInstance(999)->compare($this->getInstance(-700)));
     }
 
     public function testBitwiseAND()
@@ -189,6 +199,17 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $z = $this->getInstance('FFFFFFFFFFFFFFFFFFFFFFF', 16);
 
         $this->assertSame($z->toHex(), $x->bitwise_OR($y)->toHex());
+
+        $x = -0xFFFF;
+        $y = 2;
+        $z = $x ^ $y;
+
+        $x = $this->getInstance($x);
+        $y = $this->getInstance($y);
+        $z = $this->getInstance($z);
+
+        $this->assertSame($z->toString(), $x->bitwise_OR($y)->toString());
+        $this->assertSame($z->toString(), $y->bitwise_OR($x)->toString());
     }
 
     public function testBitwiseXOR()
@@ -204,12 +225,12 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $a = $this->getInstance(1);
         $b = $this->getInstance(-2);
         $c = $a->bitwise_xor($b);
-        $this->assertSame("$c", '3');
+        $this->assertSame("$c", '-1');
 
         $a = $this->getInstance('-6725760161961546982');
         $b = $this->getInstance(51);
         $c = $a->bitwise_xor($b);
-        $this->assertSame("$c", '6725760161961546965');
+        $this->assertSame("$c", '-6725760161961546967');
     }
 
     public function testBitwiseNOT()
@@ -375,6 +396,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $n = $this->getInstance(2);
         $x->powMod($e, $n);
     }
+
     public function testRoot()
     {
         $bigInteger = $this->getInstance('64000000'); // (20^2)^3
@@ -418,5 +440,33 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $class = static::getStaticClass();
         $prime = $class::randomPrime(128);
         $this->assertSame(128, $prime->getLength());
+    }
+
+    /**
+     * @group github1260
+     */
+    public function testZeros()
+    {
+        $a = $this->getInstance();
+        $b = $this->getInstance('00', 16);
+        $this->assertTrue($a->equals($b));
+    }
+
+    /**
+     * @group github1264
+     */
+    public function test48ToHex()
+    {
+        $temp = $this->getInstance(48);
+        $this->assertSame($temp->toHex(true), '30');
+    }
+
+    public function testZeroBase10()
+    {
+        $temp = $this->getInstance('00');
+        $this->assertSame($temp->toString(), '0');
+
+        $temp = $this->getInstance('-0');
+        $this->assertSame($temp->toString(), '0');
     }
 }

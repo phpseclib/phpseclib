@@ -32,27 +32,38 @@ use phpseclib\Crypt\Common\Keys\OpenSSH as Progenitor;
 abstract class OpenSSH extends Progenitor
 {
     /**
+     * Supported Key Types
+     *
+     * @var array
+     */
+    protected static $types = ['ssh-dss'];
+
+    /**
      * Break a public or private key down into its constituent components
      *
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
-        $key = parent::load($key, 'ssh-dss');
-        if ($key === false) {
-            return false;
+        $parsed = parent::load($key, $password);
+
+        if (isset($parsed['paddedKey'])) {
+            list($type) = Strings::unpackSSH2('s', $parsed['paddedKey']);
+            if ($type != $parsed['type']) {
+                throw new \RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
+            }
+
+            list($p, $q, $g, $y, $x, $comment) = Strings::unpackSSH2('i5s', $parsed['paddedKey']);
+
+            return compact('p', 'q', 'g', 'y', 'x', 'comment');
         }
 
-        $result = Strings::unpackSSH2('iiii', $key);
-        if ($result === false) {
-            return false;
-        }
-        list($p, $q, $g, $y) = $result;
+        list($p, $q, $g, $y) = Strings::unpackSSH2('iiii', $parsed['publicKey']);
 
-        $comment = parent::getComment($key);
+        $comment = $parsed['comment'];
 
         return compact('p', 'q', 'g', 'y', 'comment');
     }
@@ -65,9 +76,10 @@ abstract class OpenSSH extends Progenitor
      * @param \phpseclib\Math\BigInteger $q
      * @param \phpseclib\Math\BigInteger $g
      * @param \phpseclib\Math\BigInteger $y
+     * @param array $options optional
      * @return string
      */
-    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y)
+    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, array $options = [])
     {
         if ($q->getLength() != 160) {
             throw new \InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');
@@ -81,12 +93,34 @@ abstract class OpenSSH extends Progenitor
         // mpint     y
         $DSAPublicKey = Strings::packSSH2('siiii', 'ssh-dss', $p, $q, $g, $y);
 
-        if (self::$binary) {
+        if (isset($options['binary']) ? $options['binary'] : self::$binary) {
             return $DSAPublicKey;
         }
 
-        $DSAPublicKey = 'ssh-dss ' . Base64::encode($DSAPublicKey) . ' ' . self::$comment;
+        $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
+        $DSAPublicKey = 'ssh-dss ' . base64_encode($DSAPublicKey) . ' ' . $comment;
 
         return $DSAPublicKey;
+    }
+
+    /**
+     * Convert a private key to the appropriate format.
+     *
+     * @access public
+     * @param \phpseclib\Math\BigInteger $p
+     * @param \phpseclib\Math\BigInteger $q
+     * @param \phpseclib\Math\BigInteger $g
+     * @param \phpseclib\Math\BigInteger $x
+     * @param \phpseclib\Math\BigInteger $y
+     * @param string $password optional
+     * @param array $options optional
+     * @return string
+     */
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '', array $options = [])
+    {
+        $publicKey = self::savePublicKey($p, $q, $g, $y, ['binary' => true]);
+        $privateKey = Strings::packSSH2('si5', 'ssh-dss', $p, $q, $g, $y, $x);
+
+        return self::wrapPrivateKey($publicKey, $privateKey, $options);
     }
 }

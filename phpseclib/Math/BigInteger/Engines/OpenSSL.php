@@ -16,6 +16,7 @@
 namespace phpseclib\Math\BigInteger\Engines;
 
 use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\RSA\Keys\PKCS8;
 use phpseclib\Math\BigInteger;
 
 /**
@@ -51,11 +52,11 @@ abstract class OpenSSL
             throw new \OutOfRangeException('Only modulo between 31 and 16384 bits are accepted');
         }
 
-        $rsa = new RSA();
-        $rsa->load([
-            'e' => new BigInteger($e),
-            'n' => new BigInteger($n)
-        ]);
+        $key = PKCS8::savePublicKey(
+            new BigInteger($n),
+            new BigInteger($e)
+        );
+        $rsa = RSA::load($key);
         //$rsa->setPublicKeyFormat('PKCS1');
 
         $plaintext = str_pad($x->toBytes(), strlen($n->toBytes(true)) - 1, "\0", STR_PAD_LEFT);

@@ -184,7 +184,7 @@ class TripleDES extends DES
     protected function isValidEngineHelper($engine)
     {
         if ($engine == self::ENGINE_OPENSSL) {
-            $this->cipher_name_openssl_ecb = 'des-ede3';
+            self::$cipher_name_openssl_ecb = 'des-ede3';
             $mode = $this->openssl_translate_mode();
             $this->cipher_name_openssl = $mode == 'ecb' ? 'des-ede3' : 'des-ede3-' . $mode;
         }

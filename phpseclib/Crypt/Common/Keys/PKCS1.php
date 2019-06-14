@@ -22,6 +22,7 @@ use phpseclib\Crypt\AES;
 use phpseclib\Crypt\DES;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\File\ASN1;
+use phpseclib\Exception\UnsupportedAlgorithmException;
 
 /**
  * PKCS1 Formatted Key Handler
@@ -93,7 +94,7 @@ abstract class PKCS1 extends PKCS
             case preg_match("#^DES-$modes$#", $algo, $matches):
                 return new DES(self::getEncryptionMode($matches[1]));
             default:
-                throw new \UnexpectedValueException('Unsupported encryption algorithmn');
+                throw new UnsupportedAlgorithmException($algo . ' is not a supported algorithm');
         }
     }
 
@@ -122,12 +123,12 @@ abstract class PKCS1 extends PKCS
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     protected static function load($key, $password)
     {
         if (!is_string($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is
@@ -163,7 +164,7 @@ abstract class PKCS1 extends PKCS
                 if ($decoded !== false) {
                     $key = $decoded;
                 } elseif (self::$format == self::MODE_PEM) {
-                    return false;
+                    throw new \UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
                 }
             }
         }
@@ -178,9 +179,10 @@ abstract class PKCS1 extends PKCS
      * @param string $key
      * @param string $type
      * @param string $password
+     * @param array $options optional
      * @return string
      */
-    protected static function wrapPrivateKey($key, $type, $password)
+    protected static function wrapPrivateKey($key, $type, $password, array $options = [])
     {
         if (empty($password) || !is_string($password)) {
             return "-----BEGIN $type PRIVATE KEY-----\r\n" .
@@ -188,14 +190,16 @@ abstract class PKCS1 extends PKCS
                    "-----END $type PRIVATE KEY-----";
         }
 
-        $cipher = self::getEncryptionObject(self::$defaultEncryptionAlgorithm);
+        $encryptionAlgorithm = isset($options['encryptionAlgorithm']) ? $options['encryptionAlgorithm'] : self::$defaultEncryptionAlgorithm;
+
+        $cipher = self::getEncryptionObject($encryptionAlgorithm);
         $iv = Random::string($cipher->getBlockLength() >> 3);
         $cipher->setKey(self::generateSymmetricKey($password, $iv, $cipher->getKeyLength() >> 3));
         $cipher->setIV($iv);
         $iv = strtoupper(Hex::encode($iv));
         return "-----BEGIN $type PRIVATE KEY-----\r\n" .
                "Proc-Type: 4,ENCRYPTED\r\n" .
-               "DEK-Info: " . self::$defaultEncryptionAlgorithm . ",$iv\r\n" .
+               "DEK-Info: " . $encryptionAlgorithm. ",$iv\r\n" .
                "\r\n" .
                chunk_split(Base64::encode($cipher->encrypt($key)), 64) .
                "-----END $type PRIVATE KEY-----";

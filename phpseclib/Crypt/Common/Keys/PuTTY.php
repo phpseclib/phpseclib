@@ -21,6 +21,7 @@ use phpseclib\Crypt\AES;
 use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\Random;
 use phpseclib\Common\Functions\Strings;
+use phpseclib\Exception\UnsupportedAlgorithmException;
 
 /**
  * PuTTY Formatted Key Handler
@@ -75,26 +76,26 @@ abstract class PuTTY
      * @access public
      * @param string $key
      * @param string $password
-     * @return array|bool
+     * @return array
      */
     protected static function load($key, $password)
     {
         if (!is_string($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
-        if (strpos($key, 'BEGIN SSH2 PUBLIC KEY')) {
+        if (strpos($key, 'BEGIN SSH2 PUBLIC KEY') !== false) {
             $data = preg_split('#[\r\n]+#', $key);
             $data = array_splice($data, 2, -1);
             $data = implode('', $data);
 
             $components = call_user_func([static::PUBLIC_HANDLER, 'load'], $data);
             if ($components === false) {
-                return false;
+                throw new \UnexpectedValueException('Unable to decode public key');
             }
 
             if (!preg_match('#Comment: "(.+)"#', $key, $matches)) {
-                return false;
+                throw new \UnexpectedValueException('Key is missing a comment');
             }
             $components['comment'] = str_replace(['\\\\', '\"'], ['\\', '"'], $matches[1]);
 
@@ -105,8 +106,12 @@ abstract class PuTTY
 
         $key = preg_split('#\r\n|\r|\n#', trim($key));
         $type = trim(preg_replace('#PuTTY-User-Key-File-2: (.+)#', '$1', $key[0]));
-        if ($type != static::TYPE) {
-            return false;
+        $components['type'] = $type;
+        if (!in_array($type, static::$types)) {
+            $error = count(static::$types) == 1 ?
+                'Only ' . static::$types[0] . ' keys are supported. ' :
+                '';
+            throw new UnsupportedAlgorithmException($error . 'This is an unsupported ' . $type . ' key');
         }
         $encryption = trim(preg_replace('#Encryption: (.+)#', '$1', $key[1]));
         $components['comment'] = trim(preg_replace('#Comment: (.+)#', '$1', $key[2]));
@@ -114,12 +119,12 @@ abstract class PuTTY
         $publicLength = trim(preg_replace('#Public-Lines: (\d+)#', '$1', $key[3]));
         $public = Base64::decode(implode('', array_map('trim', array_slice($key, 4, $publicLength))));
 
-        $source = Strings::packSSH2('ssss', static::TYPE, $encryption, $components['comment'], $public);
+        $source = Strings::packSSH2('ssss', $type, $encryption, $components['comment'], $public);
 
         extract(unpack('Nlength', Strings::shift($public, 4)));
-        /** @var integer $length */
-        if (Strings::shift($public, $length) != static::TYPE) {
-            return false;
+        $newtype = Strings::shift($public, $length);
+        if ($newtype != $type) {
+            throw new \RuntimeException('The binary type does not match the human readable type field');
         }
 
         $components['public'] = $public;
@@ -150,7 +155,7 @@ abstract class PuTTY
         $hmac = trim(preg_replace('#Private-MAC: (.+)#', '$1', $key[$publicLength + $privateLength + 5]));
         $hmac = Hex::decode($hmac);
 
-        if (!Strings::equals($hash->hash($source), $hmac)) {
+        if (!hash_equals($hash->hash($source), $hmac)) {
             throw new \UnexpectedValueException('MAC validation error');
         }
 
@@ -165,19 +170,22 @@ abstract class PuTTY
      * @access private
      * @param string $public
      * @param string $private
+     * @param string $type
      * @param string $password
+     * @param array $options optional
      * @return string
      */
-    protected static function wrapPrivateKey($public, $private, $password)
+    protected static function wrapPrivateKey($public, $private, $type, $password, array $options = [])
     {
-        $key = "PuTTY-User-Key-File-2: " . static::TYPE . "\r\nEncryption: ";
+        $key = "PuTTY-User-Key-File-2: " . $type . "\r\nEncryption: ";
         $encryption = (!empty($password) || is_string($password)) ? 'aes256-cbc' : 'none';
         $key.= $encryption;
         $key.= "\r\nComment: " . self::$comment . "\r\n";
 
-        $public = Strings::packSSH2('s', static::TYPE) . $public;
+        $public = Strings::packSSH2('s', $type) . $public;
 
-        $source = Strings::packSSH2('ssss', static::TYPE, $encryption, self::$comment, $public);
+        $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
+        $source = Strings::packSSH2('ssss', $type, $encryption, $comment, $public);
 
         $public = Base64::encode($public);
         $key.= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";
@@ -215,11 +223,12 @@ abstract class PuTTY
      *
      * @access private
      * @param string $key
+     * @param string $type
      * @return string
      */
-    protected static function wrapPublicKey($key)
+    protected static function wrapPublicKey($key, $type)
     {
-        $key = pack('Na*a*', strlen(static::TYPE), static::TYPE, $key);
+        $key = pack('Na*a*', strlen($type), $type, $key);
         $key = "---- BEGIN SSH2 PUBLIC KEY ----\r\n" .
                'Comment: "' . str_replace(['\\', '"'], ['\\\\', '\"'], self::$comment) . "\"\r\n" .
                chunk_split(Base64::encode($key), 64) .

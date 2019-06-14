@@ -10,13 +10,14 @@
  * <?php
  * include 'vendor/autoload.php';
  *
- * extract(\phpseclib\Crypt\DSA::createKey());
+ * $private = \phpseclib\Crypt\DSA::createKey();
+ * $public = $private->getPublicKey();
  *
  * $plaintext = 'terrafrost';
  *
- * $signature = $privatekey->sign($plaintext, 'ASN1');
+ * $signature = $private->sign($plaintext);
  *
- * echo $publickey->verify($plaintext, $signature) ? 'verified' : 'unverified';
+ * echo $public->verify($plaintext, $signature) ? 'verified' : 'unverified';
  * ?>
  * </code>
  *
@@ -30,11 +31,12 @@
 
 namespace phpseclib\Crypt;
 
-use ParagonIE\ConstantTime\Base64;
-use phpseclib\File\ASN1;
-use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Common\AsymmetricKey;
-use phpseclib\Common\Functions\Strings;
+use phpseclib\Crypt\DSA\PrivateKey;
+use phpseclib\Crypt\DSA\PublicKey;
+use phpseclib\Crypt\DSA\Parameters;
+use phpseclib\Math\BigInteger;
+use phpseclib\Exception\InsufficientSetupException;
 
 /**
  * Pure-PHP FIPS 186-4 compliant implementation of DSA.
@@ -43,7 +45,7 @@ use phpseclib\Common\Functions\Strings;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class DSA extends AsymmetricKey
+abstract class DSA extends AsymmetricKey
 {
     /**
      * Algorithm Name
@@ -59,7 +61,7 @@ class DSA extends AsymmetricKey
      * @var \phpseclib\Math\BigInteger
      * @access private
      */
-    private $p;
+    protected $p;
 
     /**
      * DSA Group Order q
@@ -77,15 +79,7 @@ class DSA extends AsymmetricKey
      * @var \phpseclib\Math\BigInteger
      * @access private
      */
-    private $g;
-
-    /**
-     * DSA secret exponent x
-     *
-     * @var \phpseclib\Math\BigInteger
-     * @access private
-     */
-    protected $x;
+    protected $g;
 
     /**
      * DSA public key value y
@@ -93,15 +87,23 @@ class DSA extends AsymmetricKey
      * @var \phpseclib\Math\BigInteger
      * @access private
      */
-    private $y;
+    protected $y;
 
     /**
-     * Parameters Format
+     * Signature Format
      *
      * @var string
      * @access private
      */
-    private $parametersFormat = 'PKCS1';
+    protected $format;
+
+    /**
+     * Signature Format (Short)
+     *
+     * @var string
+     * @access private
+     */
+    protected $shortFormat;
 
     /**
      * Create DSA parameters
@@ -111,9 +113,13 @@ class DSA extends AsymmetricKey
      * @param int $N
      * @return \phpseclib\Crypt\DSA|bool
      */
-    static function createParameters($L = 2048, $N = 224)
+    public static function createParameters($L = 2048, $N = 224)
     {
         self::initialize_static_variables();
+
+        if (!isset(self::$engines['PHP'])) {
+            self::useBestEngine();
+        }
 
         switch (true) {
             case $N == 160:
@@ -133,7 +139,7 @@ class DSA extends AsymmetricKey
             case $L == 3072 && $N == 256:
                 break;
             default:
-                return false;
+                throw new \InvalidArgumentException('Invalid values for N and L');
         }
 
         $two = new BigInteger(2);
@@ -163,7 +169,7 @@ class DSA extends AsymmetricKey
             $h = $h->add(self::$one);
         }
 
-        $dsa = new DSA();
+        $dsa = new Parameters;
         $dsa->p = $p;
         $dsa->q = $q;
         $dsa->g = $g;
@@ -174,39 +180,47 @@ class DSA extends AsymmetricKey
     /**
      * Create public / private key pair.
      *
-     * This method is a bit polymorphic. It can take a DSA object (eg. pre-loaded with parameters),
-     * L / N as two distinct parameters or no parameters (at which point L and N will be generated
-     * with this method)
+     * This method is a bit polymorphic. It can take a DSA/Parameters object, L / N as two distinct parameters or
+     * no parameters (at which point L and N will be generated with this method)
      *
-     * Returns an array with the following two elements:
-     *  - 'privatekey': The private key.
-     *  - 'publickey':  The public key.
+     * Returns the private key, from which the publickey can be extracted
      *
      * @param $args[]
      * @access public
-     * @return array|DSA
+     * @return DSA\PrivateKey
      */
-    static function createKey(...$args)
+    public static function createKey(...$args)
     {
         self::initialize_static_variables();
 
-        if (count($args) == 2 && is_int($args[0]) && is_int($args[1])) {
-            $private = self::createParameters($args[0], $args[1]);
-        } else if (count($args) == 1 && $args[0] instanceof DSA) {
-            $private = clone $args[0];
-        } else if (!count($args)) {
-            $private = self::createParameters();
-        } else {
-            throw new \InvalidArgumentException('Valid parameters are either two integers (L and N), a single DSA object or no parameters at all.');
+        if (!isset(self::$engines['PHP'])) {
+            self::useBestEngine();
         }
+
+        if (count($args) == 2 && is_int($args[0]) && is_int($args[1])) {
+            $params = self::createParameters($args[0], $args[1]);
+        } else if (count($args) == 1 && $args[0] instanceof Parameters) {
+            $params = $args[0];
+        } else if (!count($args)) {
+            $params = self::createParameters();
+        } else {
+            throw new InsufficientSetupException('Valid parameters are either two integers (L and N), a single DSA object or no parameters at all.');
+        }
+
+        $private = new PrivateKey;
+        $private->p = $params->p;
+        $private->q = $params->q;
+        $private->g = $params->g;
 
         $private->x = BigInteger::randomRange(self::$one, $private->q->subtract(self::$one));
         $private->y = $private->g->powMod($private->x, $private->p);
 
-        $public = clone $private;
-        unset($public->x);
+        //$public = clone $private;
+        //unset($public->x);
 
-        return ['privatekey' => $private, 'publickey' => $public];
+        return $private
+            ->withHash($params->hash->getHash())
+            ->withSignatureFormat($params->shortFormat);
     }
 
     /**
@@ -216,54 +230,49 @@ class DSA extends AsymmetricKey
      * @return bool
      * @access public
      * @param string $key
-     * @param int|bool $type optional
+     * @param string $type optional
+     * @param string $password optional
      */
-    public function load($key, $type = false)
+    public static function load($key, $type = false, $password = false)
     {
-        if ($key instanceof DSA) {
-            $this->privateKeyFormat = $key->privateKeyFormat;
-            $this->publicKeyFormat = $key->publicKeyFormat;
-            $this->format = $key->format;
-            $this->p = $key->p;
-            $this->q = $key->q;
-            $this->g = $key->g;
-            $this->x = $key->x;
-            $this->y = $key->y;
-            $this->parametersFormat = $key->parametersFormat;
+        self::initialize_static_variables();
 
-            return true;
+        if (!isset(self::$engines['PHP'])) {
+            self::useBestEngine();
         }
 
-        $components = parent::load($key, $type);
-        if ($components === false) {
-            return false;
+        $components = parent::load($key, $type, $password);
+        if (!isset($components['x']) && !isset($components['y'])) {
+            $new = new Parameters;
+        } else if (isset($components['x'])) {
+            $new = new PrivateKey;
+            $new->x = $components['x'];
+        } else {
+            $new = new PublicKey;
         }
 
-        if (isset($components['p'])) {
-            switch (true) {
-                case isset($this->p) && !$this->p->equals($components['p']):
-                case isset($this->q) && !$this->q->equals($components['q']):
-                case isset($this->g) && !$this->g->equals($components['g']):
-                    $this->x = $this->y = null;
-            }
-
-            $this->p = $components['p'];
-            $this->q = $components['q'];
-            $this->g = $components['g'];
-        }
-
-        if (isset($components['x'])) {
-            $this->x = $components['x'];
-        }
+        $new->p = $components['p'];
+        $new->q = $components['q'];
+        $new->g = $components['g'];
 
         if (isset($components['y'])) {
-            $this->y = $components['y'];
+            $new->y = $components['y'];
         }
-        //} else if (isset($components['x'])) {
-        //    $this->y = $this->g->powMod($this->x, $this->p);
-        //}
 
-        return true;
+        return $new;
+    }
+
+    /**
+     * Constructor
+     *
+     * PublicKey and PrivateKey objects can only be created from abstract RSA class
+     */
+    protected function __construct()
+    {
+        $this->format = self::validatePlugin('Signature', 'ASN1');
+        $this->shortFormat = 'ASN1';
+
+        parent::__construct();
     }
 
     /**
@@ -276,99 +285,21 @@ class DSA extends AsymmetricKey
      */
     public function getLength()
     {
-        return isset($this->p) ?
-            ['L' => $this->p->getLength(), 'N' => $this->q->getLength()] :
-            ['L' => 0, 'N' => 0];
+        return ['L' => $this->p->getLength(), 'N' => $this->q->getLength()];
     }
 
     /**
-     * __toString() magic method
+     * Returns the current engine being used
      *
+     * @see self::useInternalEngine()
+     * @see self::useBestEngine()
      * @access public
      * @return string
      */
-    public function __toString()
+    public function getEngine()
     {
-        $key = parent::__toString();
-        if (!empty($key)) {
-            return $key;
-        }
-
-        try {
-            $key = $this->getParameters($this->parametersFormat);
-            return is_string($key) ? $key : '';
-        } catch (\Exception $e) {
-            return '';
-        }
-    }
-
-    /**
-     * Returns the private key
-     *
-     * PKCS1 DSA private keys contain x and y. PKCS8 DSA private keys just contain x
-     * but y can be derived from x.
-     *
-     * @see self::getPublicKey()
-     * @access public
-     * @param string $type optional
-     * @return mixed
-     */
-    public function getPrivateKey($type = 'PKCS8')
-    {
-        $type = self::validatePlugin('Keys', $type, 'savePrivateKey');
-        if ($type === false) {
-            return false;
-        }
-
-        if (!isset($this->x)) {
-            return false;
-        }
-
-        if (!isset($this->y)) {
-            $this->y = $this->g->powMod($this->x, $this->p);
-        }
-
-        return $type::savePrivateKey($this->p, $this->q, $this->g, $this->y, $this->x, $this->password);
-    }
-
-    /**
-     * Returns the public key
-     *
-     * If you do "openssl rsa -in private.rsa -pubout -outform PEM" you get a PKCS8 formatted key
-     * that contains a publicKeyAlgorithm AlgorithmIdentifier and a publicKey BIT STRING.
-     * An AlgorithmIdentifier contains an OID and a parameters field. With RSA public keys this
-     * parameters field is NULL. With DSA PKCS8 public keys it is not - it contains the p, q and g
-     * variables. The publicKey BIT STRING contains, simply, the y variable. This can be verified
-     * by getting a DSA PKCS8 public key:
-     *
-     * "openssl dsa -in private.dsa -pubout -outform PEM"
-     *
-     * ie. just swap out rsa with dsa in the rsa command above.
-     *
-     * A PKCS1 public key corresponds to the publicKey portion of the PKCS8 key. In the case of RSA
-     * the publicKey portion /is/ the key. In the case of DSA it is not. You cannot verify a signature
-     * without the parameters and the PKCS1 DSA public key format does not include the parameters.
-     *
-     * @see self::getPrivateKey()
-     * @access public
-     * @param string $type optional
-     * @return mixed
-     */
-    public function getPublicKey($type = 'PKCS8')
-    {
-        $type = self::validatePlugin('Keys', $type, 'savePublicKey');
-        if ($type === false) {
-            return false;
-        }
-
-        if (!isset($this->y)) {
-            if (!isset($this->x) || !isset($this->p)) {
-                return false;
-            }
-            $this->y = $this->g->powMod($this->x, $this->p);
-        }
-
-        return $type::savePublicKey($this->p, $this->q, $this->g, $this->y);
+        return self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods()) ?
+            'OpenSSL' : 'PHP';
     }
 
     /**
@@ -378,124 +309,33 @@ class DSA extends AsymmetricKey
      * value.
      *
      * @see self::getPublicKey()
-     * @see self::getPrivateKey()
      * @access public
      * @param string $type optional
      * @return mixed
      */
-    public function getParameters($type = 'PKCS1')
+    public function getParameters()
     {
-        $type = self::validatePlugin('Keys', $type, 'saveParameters');
-        if ($type === false) {
-            return false;
-        }
+        $type = self::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 
-        if (!isset($this->p) || !isset($this->q) || !isset($this->g)) {
-            return false;
-        }
-
-        return $type::saveParameters($this->p, $this->q, $this->g);
+        $key = $type::saveParameters($this->p, $this->q, $this->g);
+        return DSA::load($key, 'PKCS1')
+            ->withHash($this->hash->getHash())
+            ->withSignatureFormat($this->shortFormat);
     }
 
     /**
-     * Create a signature
+     * Determines the signature padding mode
      *
-     * @see self::verify()
-     * @access public
-     * @param string $message
-     * @param string $format optional
-     * @return mixed
-     */
-    function sign($message, $format = 'Raw')
-    {
-        $format = self::validatePlugin('Signature', $format);
-        if ($format === false) {
-            return false;
-        }
-
-        if (empty($this->x) || empty($this->p)) {
-            return false;
-        }
-
-        while (true) {
-            $k = BigInteger::randomRange(self::$one, $this->q->subtract(self::$one));
-            $r = $this->g->powMod($k, $this->p);
-            list(, $r) = $r->divide($this->q);
-            if ($r->equals(self::$zero)) {
-                continue;
-            }
-            $kinv = $k->modInverse($this->q);
-            $h = $this->hash->hash($message);
-            $h = $this->bits2int($h);
-            $temp = $h->add($this->x->multiply($r));
-            $temp = $kinv->multiply($temp);
-            list(, $s) = $temp->divide($this->q);
-            if (!$s->equals(self::$zero)) {
-                break;
-            }
-        }
-
-        // the following is an RFC6979 compliant implementation of deterministic DSA
-        // it's unused because it's mainly intended for use when a good CSPRNG isn't
-        // available. if phpseclib's CSPRNG isn't good then even key generation is
-        // suspect
-        /*
-        $h1 = $this->hash->hash($message);
-        $k = $this->computek($h1);
-        $r = $this->g->powMod($k, $this->p);
-        list(, $r) = $r->divide($this->q);
-        $kinv = $k->modInverse($this->q);
-        $h1 = $this->bits2int($h1);
-        $temp = $h1->add($this->x->multiply($r));
-        $temp = $kinv->multiply($temp);
-        list(, $s) = $temp->divide($this->q);
-        */
-
-        return $format::save($r, $s);
-    }
-
-    /**
-     * Verify a signature
+     * Valid values are: ASN1, SSH2, Raw
      *
-     * @see self::verify()
      * @access public
-     * @param string $message
-     * @param string $signature
-     * @param string $format optional
-     * @return mixed
+     * @param string $padding
      */
-    function verify($message, $signature, $format = 'Raw')
+    public function withSignatureFormat($format)
     {
-        $format = self::validatePlugin('Signature', $format);
-        if ($format === false) {
-            return false;
-        }
-
-        $params = $format::load($signature);
-        if ($params === false || count($params) != 2) {
-            return false;
-        }
-        extract($params);
-
-        if (empty($this->y) || empty($this->p)) {
-            return false;
-        }
-
-        $q_1 = $this->q->subtract(self::$one);
-        if (!$r->between(self::$one, $q_1) || !$s->between(self::$one, $q_1)) {
-            return false;
-        }
-
-        $w = $s->modInverse($this->q);
-        $h = $this->hash->hash($message);
-        $h = $this->bits2int($h);
-        list(, $u1) = $h->multiply($w)->divide($this->q);
-        list(, $u2) = $r->multiply($w)->divide($this->q);
-        $v1 = $this->g->powMod($u1, $this->p);
-        $v2 = $this->y->powMod($u2, $this->p);
-        list(, $v) = $v1->multiply($v2)->divide($this->p);
-        list(, $v) = $v->divide($this->q);
-
-        return Strings::equals($v->toBytes(), $r->toBytes());
+        $new = clone $this;
+        $new->shortFormat = $format;
+        $new->format = self::validatePlugin('Signature', $format);
+        return $new;
     }
 }

@@ -118,6 +118,32 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq',
                 '75388B16512776CC5DBA5DA1FD890150B0C6455CB4F58B1952522525'
             ],
+            // from https://www.di-mgt.com.au/sha_testvectors.html#KECCAK-KAT
+            [
+                'sha3-224',
+                'abc',
+                'e642824c3f8cf24ad09234ee7d3c766fc9a3a5168d0c94ad73b46fdf'
+            ],
+            [
+                'sha3-256',
+                'abc',
+                '3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532'
+            ],
+            [
+                'sha3-384',
+                'abc',
+                'ec01498288516fc926459f58e2c6ad8df9b473cb0fc08c2596da7cf0e49be4b298d88cea927ac7f539f1edf228376d25'
+            ],
+            [
+                'sha3-512',
+                'abc',
+                'b751850b1a57168a5693cd924b6b096e08f621827444f70d884f5d0240d2712e10e116e9192af3c91a7ec57647e3934057340b4cf408d5a56592f8274eec53f0'
+            ],
+            [
+                'shake256-912', // this is what Ed448 uses
+                str_repeat('a', 135), // one character shy of the block size (136)
+                '55b991ece1e567b6e7c2c714444dd201cd51f4f3832d08e1d26bebc63e07a3d7ddeed4a5aa6df7a15f89f2050566f75d9cf1a4dea4ed1f578df0985d5706d49e877d9a913dcdbc26a4c4e807ec72dc10438df95873e24660e39cd49aa4e5df286cb5ba60eaad91ff134754c21cd736681a8f'
+            ]
         ];
     }
 
@@ -335,6 +361,9 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
      */
     public function testHash96($hash, $message, $result)
     {
+        if (preg_match('#^sha3-\d+#', $hash) || preg_match('#^shake(?:128|256)-\d+#', $hash)) {
+            self::markTestSkipped($hash . '-96 not supported');
+        }
         $this->assertHashesTo($hash . '-96', $message, substr($result, 0, 24));
     }
 

@@ -351,7 +351,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-     * @expectedException \LengthException
+     * @expectedException \phpseclib\Exception\InconsistentSetupException
      */
     public function testSetKeyLengthWithLargerKey()
     {
@@ -366,7 +366,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-     * @expectedException \LengthException
+     * @expectedException \phpseclib\Exception\InconsistentSetupException
      */
     public function testSetKeyLengthWithSmallerKey()
     {
@@ -394,5 +394,32 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $plaintext = $aes->decrypt(pack('H*', '0457bdb4a6712986688349a29eb82535'));
         $expected = pack('H*', '6572617574689e1be8d2d8d43c594cf3');
         $this->assertSame($plaintext, $expected);
+    }
+
+    public function testECBDecrypt()
+    {
+        $aes = new AES('ecb');
+        $aes->setPreferredEngine($this->engine);
+        $aes->setKey(str_repeat('x', 16));
+
+        $this->_checkEngine($aes);
+
+        $plaintext = str_repeat('a', 16);
+
+        $actual = $aes->decrypt($aes->encrypt($plaintext));
+
+        $this->assertEquals($plaintext, $actual);
+    }
+
+    /**
+     * @expectedException \phpseclib\Exception\InsufficientSetupException
+     */
+    public function testNoKey()
+    {
+        $aes = new AES('cbc');
+        $aes->setPreferredEngine($this->engine);
+        $aes->setIV(str_repeat('x', 16));
+
+        $aes->encrypt(str_repeat('a', 16));
     }
 }

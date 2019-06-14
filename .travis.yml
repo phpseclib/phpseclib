@@ -5,6 +5,8 @@ php:
   - 7.0
   - 7.1
   - 7.2
+  - 7.3
+  - nightly
 
 env:
   global:
@@ -13,6 +15,10 @@ env:
     - secure: "jtQTZKQBnzUlp/jz7NlM6470ZDnLGVAs53sgvIm4tcYqf9TWSXSXjIYvFsrS\nKPR2eyZaAevYysUkIGRFTUXTlG6tC36YngMp9+6FPxASl8mnGXsTbKcm613B\n59vD3242pgIgqhhmgFQ0c8gbvnE8PuF2aS4/hluP3r+AxhWN56E="
 
 before_install: true
+
+matrix:
+  allow_failures:
+    - php: nightly
 
 install:
   - wget http://ftp.gnu.org/gnu/parallel/parallel-20170822.tar.bz2

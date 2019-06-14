@@ -45,6 +45,26 @@ use phpseclib\Common\Functions\Strings;
  */
 class Hash
 {
+    /**#@+
+     * Padding Types
+     *
+     * @access private
+     */
+    //const PADDING_KECCAK = 1;
+    const PADDING_SHA3 = 2;
+    const PADDING_SHAKE = 3;
+    /**#@-*/
+
+    /**
+     * Padding Type
+     *
+     * Only used by SHA3
+     *
+     * @var int
+     * @access private
+     */
+    private $paddingType = 0;
+
     /**
      * Hash Parameter
      *
@@ -82,15 +102,21 @@ class Hash
     private $key = false;
 
     /**
-     * Initial Hash
+     * Hash Parameters
      *
-     * Used only for sha512/*
-     *
-     * @see self::sha512()
      * @var array
      * @access private
      */
-    private $initial = false;
+    private $parameters = [];
+
+    /**
+     * Computed Key
+     *
+     * @see self::_computeKey()
+     * @var string
+     * @access private
+     */
+    private $computedKey = false;
 
     /**
      * Outer XOR (Internal HMAC)
@@ -123,9 +149,6 @@ class Hash
     public function __construct($hash = 'sha256')
     {
         $this->setHash($hash);
-
-        $this->ipad = str_repeat(chr(0x36), 128);
-        $this->opad = str_repeat(chr(0x5C), 128);
     }
 
     /**
@@ -134,11 +157,41 @@ class Hash
      * Keys can be of any length.
      *
      * @access public
-     * @param string|bool $key
+     * @param string $key
      */
     public function setKey($key = false)
     {
         $this->key = $key;
+        $this->computeKey();
+    }
+
+    /**
+     * Pre-compute the key used by the HMAC
+     *
+     * Quoting http://tools.ietf.org/html/rfc2104#section-2, "Applications that use keys longer than B bytes
+     * will first hash the key using H and then use the resultant L byte string as the actual key to HMAC."
+     *
+     * As documented in https://www.reddit.com/r/PHP/comments/9nct2l/symfonypolyfill_hash_pbkdf2_correct_fix_for/
+     * when doing an HMAC multiple times it's faster to compute the hash once instead of computing it during
+     * every call
+     *
+     * @access private
+     */
+    private function computeKey()
+    {
+        if ($this->key === false) {
+            $this->computedKey = false;
+            return;
+        }
+
+        if (strlen($this->key) <= $this->getBlockLengthInBytes()) {
+            $this->computedKey = $this->key;
+            return;
+        }
+
+        $this->computedKey = is_array($this->hash) ?
+            call_user_func($this->hash, $this->key) :
+            hash($this->hash, $this->key, true);
     }
 
     /**
@@ -185,59 +238,123 @@ class Hash
                 break;
             case 'sha224':
             case 'sha512/224':
+            case 'sha3-224':
                 $this->length = 28;
                 break;
             case 'sha256':
             case 'sha512/256':
+            case 'sha3-256':
                 $this->length = 32;
                 break;
             case 'sha384':
+            case 'sha3-384':
                 $this->length = 48;
                 break;
             case 'sha512':
+            case 'sha3-512':
                 $this->length = 64;
                 break;
             default:
-                throw new UnsupportedAlgorithmException(
-                    "$hash is not a supported algorithm"
-                );
+                if (preg_match('#^(shake(?:128|256))-(\d+)$#', $hash, $matches)) {
+                    $this->paddingType = self::PADDING_SHAKE;
+                    $hash = $matches[1];
+                    $this->length = $matches[2] >> 3;
+                } else {
+                    throw new UnsupportedAlgorithmException(
+                        "$hash is not a supported algorithm"
+                    );
+                }
         }
 
         switch ($hash) {
+            case 'md2':
             case 'md2-96':
+                $this->blockSize = 128;
+                break;
             case 'md5-96':
             case 'sha1-96':
             case 'sha224-96':
             case 'sha256-96':
-            case 'md2':
             case 'md5':
             case 'sha1':
             case 'sha224':
             case 'sha256':
                 $this->blockSize = 512;
                 break;
+            case 'sha3-224':
+                $this->blockSize = 1152; // 1600 - 2*224
+                break;
+            case 'sha3-256':
+            case 'shake256':
+                $this->blockSize = 1088; // 1600 - 2*256
+                break;
+            case 'sha3-384':
+                $this->blockSize = 832; // 1600 - 2*384
+                break;
+            case 'sha3-512':
+                $this->blockSize = 576; // 1600 - 2*512
+                break;
+            case 'shake128':
+                $this->blockSize = 1344; // 1600 - 2*128
+                break;
             default:
                 $this->blockSize = 1024;
         }
 
-        if ($hash == 'sha512/224' || $hash == 'sha512/256') {
-            // from http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf#page=24
-            $this->initial = $hash == 'sha512/256' ?
-                [
-                    '22312194FC2BF72C', '9F555FA3C84C64C2', '2393B86B6F53B151', '963877195940EABD',
-                    '96283EE2A88EFFE3', 'BE5E1E2553863992', '2B0199FC2C85B8AA', '0EB72DDC81C52CA2'
-                ] :
-                [
-                    '8C3D37C819544DA2', '73E1996689DCD4D6', '1DFAB7AE32FF9C82', '679DD514582F9FCF',
-                    '0F6D2B697BD44DA8', '77E36F7304C48942', '3F9D85A86A1D36C8', '1112E6AD91D692A1'
+        if (in_array(substr($hash, 0, 5), ['sha3-', 'shake'])) {
+            // PHP 7.1.0 introduced support for "SHA3 fixed mode algorithms":
+            // http://php.net/ChangeLog-7.php#7.1.0
+            if (version_compare(PHP_VERSION, '7.1.0') < 0 || substr($hash, 0,5) == 'shake') {
+                //preg_match('#(\d+)$#', $hash, $matches);
+                //$this->parameters['capacity'] = 2 * $matches[1]; // 1600 - $this->blockSize
+                //$this->parameters['rate'] = 1600 - $this->parameters['capacity']; // == $this->blockSize
+                if (!$this->paddingType) {
+                    $this->paddingType = self::PADDING_SHA3;
+                }
+                $this->parameters = [
+                    'capacity' => 1600 - $this->blockSize,
+                    'rate' => $this->blockSize,
+                    'length' => $this->length,
+                    'padding' => $this->paddingType
                 ];
-            for ($i = 0; $i < 8; $i++) {
-                $this->initial[$i] = new BigInteger($this->initial[$i], 16);
-                $this->initial[$i]->setPrecision(64);
+                $hash = ['phpseclib\Crypt\Hash', PHP_INT_SIZE == 8 ? 'sha3_64' : 'sha3_32'];
             }
         }
 
+        if ($hash == 'sha512/224' || $hash == 'sha512/256') {
+            // PHP 7.1.0 introduced sha512/224 and sha512/256 support:
+            // http://php.net/ChangeLog-7.php#7.1.0
+            if (version_compare(PHP_VERSION, '7.1.0') < 0) {
+                // from http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf#page=24
+                $initial = $hash == 'sha512/256' ?
+                    [
+                        '22312194FC2BF72C', '9F555FA3C84C64C2', '2393B86B6F53B151', '963877195940EABD',
+                        '96283EE2A88EFFE3', 'BE5E1E2553863992', '2B0199FC2C85B8AA', '0EB72DDC81C52CA2'
+                    ] :
+                    [
+                        '8C3D37C819544DA2', '73E1996689DCD4D6', '1DFAB7AE32FF9C82', '679DD514582F9FCF',
+                        '0F6D2B697BD44DA8', '77E36F7304C48942', '3F9D85A86A1D36C8', '1112E6AD91D692A1'
+                    ];
+                for ($i = 0; $i < 8; $i++) {
+                    $initial[$i] = new BigInteger($initial[$i], 16);
+                    $initial[$i]->setPrecision(64);
+                }
+
+                $this->parameters = compact('initial');
+
+                $hash = ['phpseclib\Crypt\Hash', 'sha512'];
+            }
+        }
+
+        if (is_array($hash)) {
+            $b = $this->blockSize >> 3;
+            $this->ipad = str_repeat(chr(0x36), $b);
+            $this->opad = str_repeat(chr(0x5C), $b);
+        }
+
         $this->hash = $hash;
+
+        $this->computeKey();
     }
 
     /**
@@ -249,35 +366,26 @@ class Hash
      */
     public function hash($text)
     {
-        switch ($this->hash) {
-            case 'sha512/224':
-            case 'sha512/256':
-                // PHP 7.1.0 introduced sha512/224 and sha512/256 support:
-                // http://php.net/ChangeLog-7.php#7.1.0
-                if (version_compare(PHP_VERSION, '7.1.0') >= 0) {
-                    break;
-                }
-                if (empty($this->key) || !is_string($this->key)) {
-                    return substr(self::sha512($text, $this->initial), 0, $this->length);
-                }
-                /* "Applications that use keys longer than B bytes will first hash the key using H and then use the
-                    resultant L byte string as the actual key to HMAC."
+        if (is_array($this->hash)) {
+            if (empty($this->key) || !is_string($this->key)) {
+                return substr(call_user_func($this->hash, $text, ...array_values($this->parameters)), 0, $this->length);
+            }
 
-                    -- http://tools.ietf.org/html/rfc2104#section-2 */
-                $key = strlen($this->key) > $this->b ? self::_sha512($this->key, $this->initial) : $this->key;
+            // SHA3 HMACs are discussed at https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf#page=30
 
-                $key    = str_pad($this->key, 128, chr(0));       // step 1
-                $temp   = $this->ipad ^ $this->key;               // step 2
-                $temp  .= $text;                                  // step 3
-                $temp   = self::sha512($temp, $this->initial);   // step 4
-                $output = $this->opad ^ $this->key;               // step 5
-                $output.= $temp;                                  // step 6
-                $output = self::sha512($output, $this->initial); // step 7
+            $key    = str_pad($this->computedKey, $b, chr(0));
+            $temp   = $this->ipad ^ $key;
+            $temp  .= $text;
+            $temp   = substr(call_user_func($this->hash, $temp, ...array_values($this->parameters)), 0, $this->length);
+            $output = $this->opad ^ $key;
+            $output.= $temp;
+            $output = call_user_func($this->hash, $output, ...array_values($this->parameters));
 
-                return substr($output, 0, $this->length);
+            return substr($output, 0, $this->length);
         }
+
         $output = !empty($this->key) || is_string($this->key) ?
-            hash_hmac($this->hash, $text, $this->key, true) :
+            hash_hmac($this->hash, $text, $this->computedKey, true) :
             hash($this->hash, $text, true);
 
         return strlen($output) > $this->length
@@ -330,7 +438,403 @@ class Hash
     }
 
     /**
+     * Pads SHA3 based on the mode
+     *
+     * @access private
+     * @param int $padLength
+     * @param int $padType
+     * @return string
+     */
+    private static function sha3_pad($padLength, $padType)
+    {
+        switch ($padType) {
+            //case self::PADDING_KECCAK:
+            //    $temp = chr(0x06) . str_repeat("\0", $padLength - 1);
+            //    $temp[$padLength - 1] = $temp[$padLength - 1] | chr(0x80);
+            //    return $temp
+            case self::PADDING_SHAKE:
+                $temp = chr(0x1F) . str_repeat("\0", $padLength - 1);
+                $temp[$padLength - 1] = $temp[$padLength - 1] | chr(0x80);
+                return $temp;
+            //case self::PADDING_SHA3:
+            default:
+                // from https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf#page=36
+                return $padLength == 1 ? chr(0x86) : chr(0x06) . str_repeat("\0", $padLength - 2) . chr(0x80);
+        }
+    }
+
+    /**
+     * Pure-PHP 32-bit implementation of SHA3
+     *
+     * Whereas BigInteger.php's 32-bit engine works on PHP 64-bit this 32-bit implementation
+     * of SHA3 will *not* work on PHP 64-bit. This is because this implementation
+     * employees bitwise NOTs and bitwise left shifts. And the round constants only work
+     * on 32-bit PHP. eg. dechex(-2147483648) returns 80000000 on 32-bit PHP and
+     * FFFFFFFF80000000 on 64-bit PHP. Sure, we could do bitwise ANDs but that would slow
+     * things down.
+     *
+     * SHA512 requires BigInteger to simulate 64-bit unsigned integers because SHA2 employees
+     * addition whereas SHA3 just employees bitwise operators. PHP64 only supports signed
+     * 64-bit integers, which complicates addition, whereas that limitation isn't an issue
+     * for SHA3.
+     *
+     * In https://ws680.nist.gov/publication/get_pdf.cfm?pub_id=919061#page=16 KECCAK[C] is
+     * defined as "the KECCAK instance with KECCAK-f[1600] as the underlying permutation and
+     * capacity c". This is relevant because, altho the KECCAK standard defines a mode
+     * (KECCAK-f[800]) designed for 32-bit machines that mode is incompatible with SHA3
+     *
+     * @access private
+     * @param string $p
+     * @param int $c
+     * @param int $r
+     * @param int $d
+     * @param int $padType
+     */
+    private static function sha3_32($p, $c, $r, $d, $padType)
+    {
+        $block_size = $r >> 3;
+        $padLength = $block_size - (strlen($p) % $block_size);
+        $num_ints = $block_size >> 2;
+
+        $p.= static::sha3_pad($padLength, $padType);
+
+        $n = strlen($p) / $r; // number of blocks
+
+        $s = [
+            [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
+            [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
+            [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
+            [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
+            [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+        ];
+
+        $p = str_split($p, $block_size);
+
+        foreach ($p as $pi) {
+            $pi = unpack('V*', $pi);
+            $x = $y = 0;
+            for ($i = 1; $i <= $num_ints; $i+=2) {
+                $s[$x][$y][0]^= $pi[$i + 1];
+                $s[$x][$y][1]^= $pi[$i];
+                if (++$y == 5) {
+                    $y = 0;
+                    $x++;
+                }
+            }
+            static::processSHA3Block32($s);
+        }
+
+        $z = '';
+        $i = $j = 0;
+        while (strlen($z) < $d) {
+            $z.= pack('V2', $s[$i][$j][1], $s[$i][$j++][0]);
+            if ($j == 5) {
+                $j = 0;
+                $i++;
+                if ($i == 5) {
+                    $i = 0;
+                    static::processSHA3Block32($s);
+                }
+            }
+        }
+
+        return $z;
+    }
+
+    /**
+     * 32-bit block processing method for SHA3
+     *
+     * @access private
+     * @param array $s
+     */
+    private static function processSHA3Block32(&$s)
+    {
+        static $rotationOffsets = [
+            [ 0,  1, 62, 28, 27],
+            [36, 44,  6, 55, 20],
+            [ 3, 10, 43, 25, 39],
+            [41, 45, 15, 21,  8],
+            [18,  2, 61, 56, 14]
+        ];
+
+        // the standards give these constants in hexadecimal notation. it's tempting to want to use
+        // that same notation, here, however, we can't, because 0x80000000, on PHP32, is a positive
+        // float - not the negative int that we need to be in PHP32. so we use -2147483648 instead
+        static $roundConstants = [
+            [0, 1],
+            [0, 32898],
+            [-2147483648, 32906],
+            [-2147483648, -2147450880],
+            [0, 32907],
+            [0, -2147483647],
+            [-2147483648, -2147450751],
+            [-2147483648, 32777],
+            [0, 138],
+            [0, 136],
+            [0, -2147450871],
+            [0, -2147483638],
+            [0, -2147450741],
+            [-2147483648, 139],
+            [-2147483648, 32905],
+            [-2147483648, 32771],
+            [-2147483648, 32770],
+            [-2147483648, 128],
+            [0, 32778],
+            [-2147483648, -2147483638],
+            [-2147483648, -2147450751],
+            [-2147483648, 32896],
+            [0, -2147483647],
+            [-2147483648, -2147450872]
+        ];
+
+        for ($round = 0; $round < 24; $round++) {
+            // theta step
+            $parity = $rotated = [];
+            for ($i = 0; $i < 5; $i++) {
+                $parity[] = [
+                    $s[0][$i][0] ^ $s[1][$i][0] ^ $s[2][$i][0] ^ $s[3][$i][0] ^ $s[4][$i][0],
+                    $s[0][$i][1] ^ $s[1][$i][1] ^ $s[2][$i][1] ^ $s[3][$i][1] ^ $s[4][$i][1]
+                ];
+                $rotated[] = static::rotateLeft32($parity[$i], 1);
+            }
+
+            $temp = [
+                [$parity[4][0] ^ $rotated[1][0], $parity[4][1] ^ $rotated[1][1]],
+                [$parity[0][0] ^ $rotated[2][0], $parity[0][1] ^ $rotated[2][1]],
+                [$parity[1][0] ^ $rotated[3][0], $parity[1][1] ^ $rotated[3][1]],
+                [$parity[2][0] ^ $rotated[4][0], $parity[2][1] ^ $rotated[4][1]],
+                [$parity[3][0] ^ $rotated[0][0], $parity[3][1] ^ $rotated[0][1]]
+            ];
+            for ($i = 0; $i < 5; $i++) {
+                for ($j = 0; $j < 5; $j++) {
+                    $s[$i][$j][0]^= $temp[$j][0];
+                    $s[$i][$j][1]^= $temp[$j][1];
+                }
+            }
+
+            $st = $s;
+
+            // rho and pi steps
+            for ($i = 0; $i < 5; $i++) {
+                for ($j = 0; $j < 5; $j++) {
+                    $st[(2 * $i + 3 * $j) % 5][$j] = static::rotateLeft32($s[$j][$i], $rotationOffsets[$j][$i]);
+                }
+            }
+
+            // chi step
+            for ($i = 0; $i < 5; $i++) {
+                $s[$i][0] = [
+                    $st[$i][0][0] ^ (~$st[$i][1][0] & $st[$i][2][0]),
+                    $st[$i][0][1] ^ (~$st[$i][1][1] & $st[$i][2][1])
+                ];
+                $s[$i][1] = [
+                    $st[$i][1][0] ^ (~$st[$i][2][0] & $st[$i][3][0]),
+                    $st[$i][1][1] ^ (~$st[$i][2][1] & $st[$i][3][1])
+                ];
+                $s[$i][2] = [
+                    $st[$i][2][0] ^ (~$st[$i][3][0] & $st[$i][4][0]),
+                    $st[$i][2][1] ^ (~$st[$i][3][1] & $st[$i][4][1])
+                ];
+                $s[$i][3] = [
+                    $st[$i][3][0] ^ (~$st[$i][4][0] & $st[$i][0][0]),
+                    $st[$i][3][1] ^ (~$st[$i][4][1] & $st[$i][0][1])
+                ];
+                $s[$i][4] = [
+                    $st[$i][4][0] ^ (~$st[$i][0][0] & $st[$i][1][0]),
+                    $st[$i][4][1] ^ (~$st[$i][0][1] & $st[$i][1][1])
+                ];
+            }
+
+            // iota step
+            $s[0][0][0]^= $roundConstants[$round][0];
+            $s[0][0][1]^= $roundConstants[$round][1];
+        }
+    }
+
+    /**
+     * Rotate 32-bit int
+     *
+     * @access private
+     * @param array $x
+     * @param int $shift
+     */
+    private static function rotateLeft32($x, $shift)
+    {
+        if ($shift < 32) {
+            list($hi, $lo) = $x;
+        } else {
+            $shift-= 32;
+            list($lo, $hi) = $x;
+        }
+
+        return [
+            ($hi << $shift) | (($lo >> (32 - $shift)) & (1 << $shift) - 1),
+            ($lo << $shift) | (($hi >> (32 - $shift)) & (1 << $shift) - 1)
+        ];
+    }
+
+    /**
+     * Pure-PHP 64-bit implementation of SHA3
+     *
+     * @access private
+     * @param string $p
+     * @param int $c
+     * @param int $r
+     * @param int $d
+     * @param int $padType
+     */
+    private static function sha3_64($p, $c, $r, $d, $padType)
+    {
+        $block_size = $r >> 3;
+        $padLength = $block_size - (strlen($p) % $block_size);
+        $num_ints = $block_size >> 2;
+
+        $p.= static::sha3_pad($padLength, $padType);
+
+        $n = strlen($p) / $r; // number of blocks
+
+        $s = [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0]
+        ];
+
+        $p = str_split($p, $block_size);
+
+        foreach ($p as $pi) {
+            $pi = unpack('P*', $pi);
+            $x = $y = 0;
+            foreach ($pi as $subpi) {
+                $s[$x][$y++]^= $subpi;
+                if ($y == 5) {
+                    $y = 0;
+                    $x++;
+                }
+            }
+            static::processSHA3Block64($s);
+        }
+
+        $z = '';
+        $i = $j = 0;
+        while (strlen($z) < $d) {
+            $z.= pack('P', $s[$i][$j++]);
+            if ($j == 5) {
+                $j = 0;
+                $i++;
+                if ($i == 5) {
+                    $i = 0;
+                    static::processSHA3Block64($s);
+                }
+            }
+        }
+
+        return $z;
+    }
+
+    /**
+     * 64-bit block processing method for SHA3
+     *
+     * @access private
+     * @param array $s
+     */
+    private static function processSHA3Block64(&$s)
+    {
+        static $rotationOffsets = [
+            [ 0,  1, 62, 28, 27],
+            [36, 44,  6, 55, 20],
+            [ 3, 10, 43, 25, 39],
+            [41, 45, 15, 21,  8],
+            [18,  2, 61, 56, 14]
+        ];
+
+        static $roundConstants = [
+            1,
+            32898,
+            -9223372036854742902,
+            -9223372034707259392,
+            32907,
+            2147483649,
+            -9223372034707259263,
+            -9223372036854743031,
+            138,
+            136,
+            2147516425,
+            2147483658,
+            2147516555,
+            -9223372036854775669,
+            -9223372036854742903,
+            -9223372036854743037,
+            -9223372036854743038,
+            -9223372036854775680,
+            32778,
+            -9223372034707292150,
+            -9223372034707259263,
+            -9223372036854742912,
+            2147483649,
+            -9223372034707259384
+        ];
+
+        for ($round = 0; $round < 24; $round++) {
+            // theta step
+            $parity = [];
+            for ($i = 0; $i < 5; $i++) {
+                $parity[] = $s[0][$i] ^ $s[1][$i] ^ $s[2][$i] ^ $s[3][$i] ^ $s[4][$i];
+            }
+            $temp = [
+                $parity[4] ^ static::rotateLeft64($parity[1], 1),
+                $parity[0] ^ static::rotateLeft64($parity[2], 1),
+                $parity[1] ^ static::rotateLeft64($parity[3], 1),
+                $parity[2] ^ static::rotateLeft64($parity[4], 1),
+                $parity[3] ^ static::rotateLeft64($parity[0], 1)
+            ];
+            for ($i = 0; $i < 5; $i++) {
+                for ($j = 0; $j < 5; $j++) {
+                    $s[$i][$j]^= $temp[$j];
+                }
+            }
+
+            $st = $s;
+
+            // rho and pi steps
+            for ($i = 0; $i < 5; $i++) {
+                for ($j = 0; $j < 5; $j++) {
+                    $st[(2 * $i + 3 * $j) % 5][$j] = static::rotateLeft64($s[$j][$i], $rotationOffsets[$j][$i]);
+                }
+            }
+
+            // chi step
+            for ($i = 0; $i < 5; $i++) {
+                $s[$i] = [
+                    $st[$i][0] ^ (~$st[$i][1] & $st[$i][2]),
+                    $st[$i][1] ^ (~$st[$i][2] & $st[$i][3]),
+                    $st[$i][2] ^ (~$st[$i][3] & $st[$i][4]),
+                    $st[$i][3] ^ (~$st[$i][4] & $st[$i][0]),
+                    $st[$i][4] ^ (~$st[$i][0] & $st[$i][1])
+                ];
+            }
+
+            // iota step
+            $s[0][0]^= $roundConstants[$round];
+        }
+    }
+
+    /**
+     * Rotate 64-bit int
+     *
+     * @access private
+     * @param int $x
+     * @param int $shift
+     */
+    private static function rotateLeft64($x, $shift)
+    {
+        return ($x << $shift) | (($x >> (64 - $shift)) & ((1 << $shift) - 1));
+    }
+
+    /**
      * Pure-PHP implementation of SHA512
+     *
      * @access private
      * @param string $m
      * @param array $hash

@@ -31,6 +31,10 @@ use ParagonIE\ConstantTime\Hex;
 use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\DSA;
+use phpseclib\Crypt\ECDSA;
+use phpseclib\Crypt\Common\PublicKey;
+use phpseclib\Crypt\Common\PrivateKey;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\File\ASN1\Element;
 use phpseclib\Math\BigInteger;
@@ -244,6 +248,22 @@ class X509
     private static $oidsLoaded = false;
 
     /**
+     * Recursion Limit
+     *
+     * @var int
+     * @access private
+     */
+    private static $recur_limit = 5;
+
+    /**
+     * URL fetch flag
+     *
+     * @var bool
+     * @access private
+     */
+    private static $disable_url_fetch = false;
+
+    /**
      * Default Constructor.
      *
      * @return \phpseclib\File\X509
@@ -257,168 +277,134 @@ class X509
         if (!self::$oidsLoaded) {
             // OIDs from RFC5280 and those RFCs mentioned in RFC5280#section-4.1.1.2
             ASN1::loadOIDs([
-                '1.3.6.1.5.5.7' => 'id-pkix',
-                '1.3.6.1.5.5.7.1' => 'id-pe',
-                '1.3.6.1.5.5.7.2' => 'id-qt',
-                '1.3.6.1.5.5.7.3' => 'id-kp',
-                '1.3.6.1.5.5.7.48' => 'id-ad',
-                '1.3.6.1.5.5.7.2.1' => 'id-qt-cps',
-                '1.3.6.1.5.5.7.2.2' => 'id-qt-unotice',
-                '1.3.6.1.5.5.7.48.1' =>'id-ad-ocsp',
-                '1.3.6.1.5.5.7.48.2' => 'id-ad-caIssuers',
-                '1.3.6.1.5.5.7.48.3' => 'id-ad-timeStamping',
-                '1.3.6.1.5.5.7.48.5' => 'id-ad-caRepository',
-                '2.5.4' => 'id-at',
-                '2.5.4.41' => 'id-at-name',
-                '2.5.4.4' => 'id-at-surname',
-                '2.5.4.42' => 'id-at-givenName',
-                '2.5.4.43' => 'id-at-initials',
-                '2.5.4.44' => 'id-at-generationQualifier',
-                '2.5.4.3' => 'id-at-commonName',
-                '2.5.4.7' => 'id-at-localityName',
-                '2.5.4.8' => 'id-at-stateOrProvinceName',
-                '2.5.4.10' => 'id-at-organizationName',
-                '2.5.4.11' => 'id-at-organizationalUnitName',
-                '2.5.4.12' => 'id-at-title',
-                '2.5.4.13' => 'id-at-description',
-                '2.5.4.46' => 'id-at-dnQualifier',
-                '2.5.4.6' => 'id-at-countryName',
-                '2.5.4.5' => 'id-at-serialNumber',
-                '2.5.4.65' => 'id-at-pseudonym',
-                '2.5.4.17' => 'id-at-postalCode',
-                '2.5.4.9' => 'id-at-streetAddress',
-                '2.5.4.45' => 'id-at-uniqueIdentifier',
-                '2.5.4.72' => 'id-at-role',
-                '2.5.4.16' => 'id-at-postalAddress',
+                //'id-pkix' => '1.3.6.1.5.5.7',
+                //'id-pe' => '1.3.6.1.5.5.7.1',
+                //'id-qt' => '1.3.6.1.5.5.7.2',
+                //'id-kp' => '1.3.6.1.5.5.7.3',
+                //'id-ad' => '1.3.6.1.5.5.7.48',
+                'id-qt-cps' => '1.3.6.1.5.5.7.2.1',
+                'id-qt-unotice' => '1.3.6.1.5.5.7.2.2',
+                'id-ad-ocsp' =>'1.3.6.1.5.5.7.48.1',
+                'id-ad-caIssuers' => '1.3.6.1.5.5.7.48.2',
+                'id-ad-timeStamping' => '1.3.6.1.5.5.7.48.3',
+                'id-ad-caRepository' => '1.3.6.1.5.5.7.48.5',
+                //'id-at' => '2.5.4',
+                'id-at-name' => '2.5.4.41',
+                'id-at-surname' => '2.5.4.4',
+                'id-at-givenName' => '2.5.4.42',
+                'id-at-initials' => '2.5.4.43',
+                'id-at-generationQualifier' => '2.5.4.44',
+                'id-at-commonName' => '2.5.4.3',
+                'id-at-localityName' => '2.5.4.7',
+                'id-at-stateOrProvinceName' => '2.5.4.8',
+                'id-at-organizationName' => '2.5.4.10',
+                'id-at-organizationalUnitName' => '2.5.4.11',
+                'id-at-title' => '2.5.4.12',
+                'id-at-description' => '2.5.4.13',
+                'id-at-dnQualifier' => '2.5.4.46',
+                'id-at-countryName' => '2.5.4.6',
+                'id-at-serialNumber' => '2.5.4.5',
+                'id-at-pseudonym' => '2.5.4.65',
+                'id-at-postalCode' => '2.5.4.17',
+                'id-at-streetAddress' => '2.5.4.9',
+                'id-at-uniqueIdentifier' => '2.5.4.45',
+                'id-at-role' => '2.5.4.72',
+                'id-at-postalAddress' => '2.5.4.16',
 
-                '0.9.2342.19200300.100.1.25' => 'id-domainComponent',
-                '1.2.840.113549.1.9' => 'pkcs-9',
-                '1.2.840.113549.1.9.1' => 'pkcs-9-at-emailAddress',
-                '2.5.29' => 'id-ce',
-                '2.5.29.35' => 'id-ce-authorityKeyIdentifier',
-                '2.5.29.14' => 'id-ce-subjectKeyIdentifier',
-                '2.5.29.15' => 'id-ce-keyUsage',
-                '2.5.29.16' => 'id-ce-privateKeyUsagePeriod',
-                '2.5.29.32' => 'id-ce-certificatePolicies',
-                '2.5.29.32.0' => 'anyPolicy',
+                //'id-domainComponent' => '0.9.2342.19200300.100.1.25',
+                //'pkcs-9' => '1.2.840.113549.1.9',
+                'pkcs-9-at-emailAddress' => '1.2.840.113549.1.9.1',
+                //'id-ce' => '2.5.29',
+                'id-ce-authorityKeyIdentifier' => '2.5.29.35',
+                'id-ce-subjectKeyIdentifier' => '2.5.29.14',
+                'id-ce-keyUsage' => '2.5.29.15',
+                'id-ce-privateKeyUsagePeriod' => '2.5.29.16',
+                'id-ce-certificatePolicies' => '2.5.29.32',
+                //'anyPolicy' => '2.5.29.32.0',
 
-                '2.5.29.33' => 'id-ce-policyMappings',
-                '2.5.29.17' => 'id-ce-subjectAltName',
-                '2.5.29.18' => 'id-ce-issuerAltName',
-                '2.5.29.9' => 'id-ce-subjectDirectoryAttributes',
-                '2.5.29.19' => 'id-ce-basicConstraints',
-                '2.5.29.30' => 'id-ce-nameConstraints',
-                '2.5.29.36' => 'id-ce-policyConstraints',
-                '2.5.29.31' => 'id-ce-cRLDistributionPoints',
-                '2.5.29.37' => 'id-ce-extKeyUsage',
-                '2.5.29.37.0' => 'anyExtendedKeyUsage',
-                '1.3.6.1.5.5.7.3.1' => 'id-kp-serverAuth',
-                '1.3.6.1.5.5.7.3.2' => 'id-kp-clientAuth',
-                '1.3.6.1.5.5.7.3.3' => 'id-kp-codeSigning',
-                '1.3.6.1.5.5.7.3.4' => 'id-kp-emailProtection',
-                '1.3.6.1.5.5.7.3.8' => 'id-kp-timeStamping',
-                '1.3.6.1.5.5.7.3.9' => 'id-kp-OCSPSigning',
-                '2.5.29.54' => 'id-ce-inhibitAnyPolicy',
-                '2.5.29.46' => 'id-ce-freshestCRL',
-                '1.3.6.1.5.5.7.1.1' => 'id-pe-authorityInfoAccess',
-                '1.3.6.1.5.5.7.1.11' => 'id-pe-subjectInfoAccess',
-                '2.5.29.20' => 'id-ce-cRLNumber',
-                '2.5.29.28' => 'id-ce-issuingDistributionPoint',
-                '2.5.29.27' => 'id-ce-deltaCRLIndicator',
-                '2.5.29.21' => 'id-ce-cRLReasons',
-                '2.5.29.29' => 'id-ce-certificateIssuer',
-                '2.5.29.23' => 'id-ce-holdInstructionCode',
-                '1.2.840.10040.2' => 'holdInstruction',
-                '1.2.840.10040.2.1' => 'id-holdinstruction-none',
-                '1.2.840.10040.2.2' => 'id-holdinstruction-callissuer',
-                '1.2.840.10040.2.3' => 'id-holdinstruction-reject',
-                '2.5.29.24' => 'id-ce-invalidityDate',
+                'id-ce-policyMappings' => '2.5.29.33',
 
-                '1.2.840.113549.2.2' => 'md2',
-                '1.2.840.113549.2.5' => 'md5',
-                '1.3.14.3.2.26' => 'id-sha1',
-                '1.2.840.10040.4.1' => 'id-dsa',
-                '1.2.840.10040.4.3' => 'id-dsa-with-sha1',
-                '1.2.840.113549.1.1' => 'pkcs-1',
-                '1.2.840.113549.1.1.1' => 'rsaEncryption',
-                '1.2.840.113549.1.1.2' => 'md2WithRSAEncryption',
-                '1.2.840.113549.1.1.4' => 'md5WithRSAEncryption',
-                '1.2.840.113549.1.1.5' => 'sha1WithRSAEncryption',
-                '1.2.840.10046.2.1' => 'dhpublicnumber',
-                '2.16.840.1.101.2.1.1.22' => 'id-keyExchangeAlgorithm',
-                '1.2.840.10045' => 'ansi-X9-62',
-                '1.2.840.10045.4' => 'id-ecSigType',
-                '1.2.840.10045.4.1' => 'ecdsa-with-SHA1',
-                '1.2.840.10045.1' => 'id-fieldType',
-                '1.2.840.10045.1.1' => 'prime-field',
-                '1.2.840.10045.1.2' => 'characteristic-two-field',
-                '1.2.840.10045.1.2.3' => 'id-characteristic-two-basis',
-                '1.2.840.10045.1.2.3.1' => 'gnBasis',
-                '1.2.840.10045.1.2.3.2' => 'tpBasis',
-                '1.2.840.10045.1.2.3.3' => 'ppBasis',
-                '1.2.840.10045.2' => 'id-publicKeyType',
-                '1.2.840.10045.2.1' => 'id-ecPublicKey',
-                '1.2.840.10045.3' => 'ellipticCurve',
-                '1.2.840.10045.3.0' => 'c-TwoCurve',
-                '1.2.840.10045.3.0.1' => 'c2pnb163v1',
-                '1.2.840.10045.3.0.2' => 'c2pnb163v2',
-                '1.2.840.10045.3.0.3' => 'c2pnb163v3',
-                '1.2.840.10045.3.0.4' => 'c2pnb176w1',
-                '1.2.840.10045.3.0.5' => 'c2pnb191v1',
-                '1.2.840.10045.3.0.6' => 'c2pnb191v2',
-                '1.2.840.10045.3.0.7' => 'c2pnb191v3',
-                '1.2.840.10045.3.0.8' => 'c2pnb191v4',
-                '1.2.840.10045.3.0.9' => 'c2pnb191v5',
-                '1.2.840.10045.3.0.10' => 'c2pnb208w1',
-                '1.2.840.10045.3.0.11' => 'c2pnb239v1',
-                '1.2.840.10045.3.0.12' => 'c2pnb239v2',
-                '1.2.840.10045.3.0.13' => 'c2pnb239v3',
-                '1.2.840.10045.3.0.14' => 'c2pnb239v4',
-                '1.2.840.10045.3.0.15' => 'c2pnb239v5',
-                '1.2.840.10045.3.0.16' => 'c2pnb272w1',
-                '1.2.840.10045.3.0.17' => 'c2pnb304w1',
-                '1.2.840.10045.3.0.18' => 'c2pnb359v1',
-                '1.2.840.10045.3.0.19' => 'c2pnb368w1',
-                '1.2.840.10045.3.0.20' => 'c2pnb431r1',
-                '1.2.840.10045.3.1' => 'primeCurve',
-                '1.2.840.10045.3.1.1' => 'prime192v1',
-                '1.2.840.10045.3.1.2' => 'prime192v2',
-                '1.2.840.10045.3.1.3' => 'prime192v3',
-                '1.2.840.10045.3.1.4' => 'prime239v1',
-                '1.2.840.10045.3.1.5' => 'prime239v2',
-                '1.2.840.10045.3.1.6' => 'prime239v3',
-                '1.2.840.10045.3.1.7' => 'prime256v1',
-                '1.2.840.113549.1.1.7' => 'id-RSAES-OAEP',
-                '1.2.840.113549.1.1.9' => 'id-pSpecified',
-                '1.2.840.113549.1.1.10' => 'id-RSASSA-PSS',
-                '1.2.840.113549.1.1.8' => 'id-mgf1',
-                '1.2.840.113549.1.1.14' => 'sha224WithRSAEncryption',
-                '1.2.840.113549.1.1.11' => 'sha256WithRSAEncryption',
-                '1.2.840.113549.1.1.12' => 'sha384WithRSAEncryption',
-                '1.2.840.113549.1.1.13' => 'sha512WithRSAEncryption',
-                '2.16.840.1.101.3.4.2.4' => 'id-sha224',
-                '2.16.840.1.101.3.4.2.1' => 'id-sha256',
-                '2.16.840.1.101.3.4.2.2' => 'id-sha384',
-                '2.16.840.1.101.3.4.2.3' => 'id-sha512',
-                '1.2.643.2.2.4' => 'id-GostR3411-94-with-GostR3410-94',
-                '1.2.643.2.2.3' => 'id-GostR3411-94-with-GostR3410-2001',
-                '1.2.643.2.2.20' => 'id-GostR3410-2001',
-                '1.2.643.2.2.19' => 'id-GostR3410-94',
+                'id-ce-subjectAltName' => '2.5.29.17',
+                'id-ce-issuerAltName' => '2.5.29.18',
+                'id-ce-subjectDirectoryAttributes' => '2.5.29.9',
+                'id-ce-basicConstraints' => '2.5.29.19',
+                'id-ce-nameConstraints' => '2.5.29.30',
+                'id-ce-policyConstraints' => '2.5.29.36',
+                'id-ce-cRLDistributionPoints' => '2.5.29.31',
+                'id-ce-extKeyUsage' => '2.5.29.37',
+                //'anyExtendedKeyUsage' => '2.5.29.37.0',
+                'id-kp-serverAuth' => '1.3.6.1.5.5.7.3.1',
+                'id-kp-clientAuth' => '1.3.6.1.5.5.7.3.2',
+                'id-kp-codeSigning' => '1.3.6.1.5.5.7.3.3',
+                'id-kp-emailProtection' => '1.3.6.1.5.5.7.3.4',
+                'id-kp-timeStamping' => '1.3.6.1.5.5.7.3.8',
+                'id-kp-OCSPSigning' => '1.3.6.1.5.5.7.3.9',
+                'id-ce-inhibitAnyPolicy' => '2.5.29.54',
+                'id-ce-freshestCRL' => '2.5.29.46',
+                'id-pe-authorityInfoAccess' => '1.3.6.1.5.5.7.1.1',
+                'id-pe-subjectInfoAccess' => '1.3.6.1.5.5.7.1.11',
+                'id-ce-cRLNumber' => '2.5.29.20',
+                'id-ce-issuingDistributionPoint' => '2.5.29.28',
+                'id-ce-deltaCRLIndicator' => '2.5.29.27',
+                'id-ce-cRLReasons' => '2.5.29.21',
+                'id-ce-certificateIssuer' => '2.5.29.29',
+                'id-ce-holdInstructionCode' => '2.5.29.23',
+                //'holdInstruction' => '1.2.840.10040.2',
+                'id-holdinstruction-none' => '1.2.840.10040.2.1',
+                'id-holdinstruction-callissuer' => '1.2.840.10040.2.2',
+                'id-holdinstruction-reject' => '1.2.840.10040.2.3',
+                'id-ce-invalidityDate' => '2.5.29.24',
+
+                'rsaEncryption' => '1.2.840.113549.1.1.1',
+                'md2WithRSAEncryption' => '1.2.840.113549.1.1.2',
+                'md5WithRSAEncryption' => '1.2.840.113549.1.1.4',
+                'sha1WithRSAEncryption' => '1.2.840.113549.1.1.5',
+                'sha224WithRSAEncryption' => '1.2.840.113549.1.1.14',
+                'sha256WithRSAEncryption' => '1.2.840.113549.1.1.11',
+                'sha384WithRSAEncryption' => '1.2.840.113549.1.1.12',
+                'sha512WithRSAEncryption' => '1.2.840.113549.1.1.13',
+
+                'id-ecPublicKey' => '1.2.840.10045.2.1',
+                'ecdsa-with-SHA1' => '1.2.840.10045.4.1',
+                // from https://tools.ietf.org/html/rfc5758#section-3.2
+                'ecdsa-with-SHA224' => '1.2.840.10045.4.3.1',
+                'ecdsa-with-SHA256' => '1.2.840.10045.4.3.2',
+                'ecdsa-with-SHA384' => '1.2.840.10045.4.3.3',
+                'ecdsa-with-SHA512' => '1.2.840.10045.4.3.4',
+
+                'id-dsa' => '1.2.840.10040.4.1',
+                'id-dsa-with-sha1' => '1.2.840.10040.4.3',
+                // from https://tools.ietf.org/html/rfc5758#section-3.1
+                'id-dsa-with-sha224' => '2.16.840.1.101.3.4.3.1',
+                'id-dsa-with-sha256' => '2.16.840.1.101.3.4.3.2',
+
+                // from https://tools.ietf.org/html/rfc8410:
+                'id-Ed25519' => '1.3.101.112',
+                'id-Ed448' => '1.3.101.113',
+
+                //'id-sha224' => '2.16.840.1.101.3.4.2.4',
+                //'id-sha256' => '2.16.840.1.101.3.4.2.1',
+                //'id-sha384' => '2.16.840.1.101.3.4.2.2',
+                //'id-sha512' => '2.16.840.1.101.3.4.2.3',
+                //'id-GostR3411-94-with-GostR3410-94' => '1.2.643.2.2.4',
+                //'id-GostR3411-94-with-GostR3410-2001' => '1.2.643.2.2.3',
+                //'id-GostR3410-2001' => '1.2.643.2.2.20',
+                //'id-GostR3410-94' => '1.2.643.2.2.19',
                 // Netscape Object Identifiers from "Netscape Certificate Extensions"
-                '2.16.840.1.113730' => 'netscape',
-                '2.16.840.1.113730.1' => 'netscape-cert-extension',
-                '2.16.840.1.113730.1.1' => 'netscape-cert-type',
-                '2.16.840.1.113730.1.13' => 'netscape-comment',
-                '2.16.840.1.113730.1.8' => 'netscape-ca-policy-url',
+                'netscape' => '2.16.840.1.113730',
+                'netscape-cert-extension' => '2.16.840.1.113730.1',
+                'netscape-cert-type' => '2.16.840.1.113730.1.1',
+                'netscape-comment' => '2.16.840.1.113730.1.13',
+                'netscape-ca-policy-url' => '2.16.840.1.113730.1.8',
                 // the following are X.509 extensions not supported by phpseclib
-                '1.3.6.1.5.5.7.1.12' => 'id-pe-logotype',
-                '1.2.840.113533.7.65.0' => 'entrustVersInfo',
-                '2.16.840.1.113733.1.6.9' => 'verisignPrivate',
+                'id-pe-logotype' => '1.3.6.1.5.5.7.1.12',
+                'entrustVersInfo' => '1.2.840.113533.7.65.0',
+                'verisignPrivate' => '2.16.840.1.113733.1.6.9',
                 // for Certificate Signing Requests
                 // see http://tools.ietf.org/html/rfc2985
-                '1.2.840.113549.1.9.2' => 'pkcs-9-at-unstructuredName', // PKCS #9 unstructured name
-                '1.2.840.113549.1.9.7' => 'pkcs-9-at-challengePassword', // Challenge password for certificate revocations
-                '1.2.840.113549.1.9.14' => 'pkcs-9-at-extensionRequest' // Certificate extension request
+                'pkcs-9-at-unstructuredName' => '1.2.840.113549.1.9.2', // PKCS #9 unstructured name
+                'pkcs-9-at-challengePassword' => '1.2.840.113549.1.9.7', // Challenge password for certificate revocations
+                'pkcs-9-at-extensionRequest' => '1.2.840.113549.1.9.14' // Certificate extension request
             ]);
         }
     }
@@ -483,8 +469,12 @@ class X509
         $this->mapInDNs($x509, 'tbsCertificate/issuer/rdnSequence');
         $this->mapInDNs($x509, 'tbsCertificate/subject/rdnSequence');
 
-        $key = &$x509['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'];
-        $key = $this->reformatKey($x509['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'], $key);
+        $key = $x509['tbsCertificate']['subjectPublicKeyInfo'];
+        $key = ASN1::encodeDER($key, Maps\SubjectPublicKeyInfo::MAP);
+        $x509['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'] =
+            "-----BEGIN PUBLIC KEY-----\r\n" .
+            chunk_split(base64_encode($key), 64) .
+            "-----END PUBLIC KEY-----";
 
         $this->currentCert = $x509;
         $this->dn = $x509['tbsCertificate']['subject'];
@@ -515,21 +505,14 @@ class X509
             case is_object($cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']):
                 break;
             default:
-                switch ($algorithm) {
-                    case 'rsaEncryption':
-                        $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']
-                            = "\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']));
-                        /* "[For RSA keys] the parameters field MUST have ASN.1 type NULL for this algorithm identifier."
-                           -- https://tools.ietf.org/html/rfc3279#section-2.3.1
+                $cert['tbsCertificate']['subjectPublicKeyInfo'] = new Element(
+                    base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']))
+                );
+        }
 
-                           given that and the fact that RSA keys appear ot be the only key type for which the parameters field can be blank,
-                           it seems like perhaps the ASN.1 description ought not say the parameters field is OPTIONAL, but whatever.
-                         */
-                        $cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = null;
-                        // https://tools.ietf.org/html/rfc3279#section-2.2.1
-                        $cert['signatureAlgorithm']['parameters'] = null;
-                        $cert['tbsCertificate']['signature']['parameters'] = null;
-                }
+        if ($algorithm == 'rsaEncryption') {
+            $cert['signatureAlgorithm']['parameters'] = null;
+            $cert['tbsCertificate']['signature']['parameters'] = null;
         }
 
         $filters = [];
@@ -890,6 +873,9 @@ class X509
             // "Certificate Transparency"
             // https://tools.ietf.org/html/rfc6962
             case '1.3.6.1.4.1.11129.2.4.2':
+            // "Qualified Certificate statements"
+            // https://tools.ietf.org/html/rfc3739#section-3.2.6
+            case '1.3.6.1.5.5.7.1.3':
                 return true;
 
             // CSR attributes
@@ -1054,7 +1040,7 @@ class X509
      *
      * If $date isn't defined it is assumed to be the current date.
      *
-     * @param int $date optional
+     * @param \DateTime|string $date optional
      * @access public
      * @return boolean
      */
@@ -1065,7 +1051,7 @@ class X509
         }
 
         if (!isset($date)) {
-            $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
+            $date = new DateTime(null, new DateTimeZone(@date_default_timezone_get()));
         }
 
         $notBefore = $this->currentCert['tbsCertificate']['validity']['notBefore'];
@@ -1074,11 +1060,129 @@ class X509
         $notAfter = $this->currentCert['tbsCertificate']['validity']['notAfter'];
         $notAfter = isset($notAfter['generalTime']) ? $notAfter['generalTime'] : $notAfter['utcTime'];
 
+        if (is_string($date)) {
+            $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
+        }
+
+        $notBefore = new DateTime($notBefore, new DateTimeZone(@date_default_timezone_get()));
+        $notAfter = new DateTime($notAfter, new DateTimeZone(@date_default_timezone_get()));
+
         switch (true) {
-            case $date < new DateTime($notBefore, new DateTimeZone(@date_default_timezone_get())):
-            case $date > new DateTime($notAfter, new DateTimeZone(@date_default_timezone_get())):
+            case $date < $notBefore:
+            case $date > $notAfter:
                 return false;
         }
+
+        return true;
+    }
+
+    /**
+     * Fetches a URL
+     *
+     * @param string $url
+     * @access private
+     * @return bool|string
+     */
+    private static function fetchURL($url)
+    {
+        if (self::$disable_url_fetch) {
+            return false;
+        }
+
+        $parts = parse_url($url);
+        $data = '';
+        switch ($parts['scheme']) {
+            case 'http':
+                $fsock = @fsockopen($parts['host'], isset($parts['port']) ? $parts['port'] : 80);
+                if (!$fsock) {
+                    return false;
+                }
+                fputs($fsock, "GET $parts[path] HTTP/1.0\r\n");
+                fputs($fsock, "Host: $parts[host]\r\n\r\n");
+                $line = fgets($fsock, 1024);
+                if (strlen($line) < 3) {
+                    return false;
+                }
+                preg_match('#HTTP/1.\d (\d{3})#', $line, $temp);
+                if ($temp[1] != '200') {
+                    return false;
+                }
+
+                // skip the rest of the headers in the http response
+                while (!feof($fsock) && fgets($fsock, 1024) != "\r\n") {
+                }
+
+                while (!feof($fsock)) {
+                    $data.= fread($fsock, 1024);
+                }
+
+                break;
+            //case 'ftp':
+            //case 'ldap':
+            //default:
+        }
+
+        return $data;
+    }
+
+    /**
+     * Validates an intermediate cert as identified via authority info access extension
+     *
+     * See https://tools.ietf.org/html/rfc4325 for more info
+     *
+     * @param bool $caonly
+     * @param int $count
+     * @access private
+     * @return bool
+     */
+    private function testForIntermediate($caonly, $count)
+    {
+        $opts = $this->getExtension('id-pe-authorityInfoAccess');
+        if (!is_array($opts)) {
+            return false;
+        }
+        foreach ($opts as $opt) {
+            if ($opt['accessMethod'] == 'id-ad-caIssuers') {
+                // accessLocation is a GeneralName. GeneralName fields support stuff like email addresses, IP addresses, LDAP,
+                // etc, but we're only supporting URI's. URI's and LDAP are the only thing https://tools.ietf.org/html/rfc4325
+                // discusses
+                if (isset($opt['accessLocation']['uniformResourceIdentifier'])) {
+                    $url = $opt['accessLocation']['uniformResourceIdentifier'];
+                    break;
+                }
+            }
+        }
+
+        if (!isset($url)) {
+            return false;
+        }
+
+        $cert = static::fetchURL($url);
+        if (!is_string($cert)) {
+            return false;
+        }
+
+        $parent = new static();
+        $parent->CAs = $this->CAs;
+        /*
+         "Conforming applications that support HTTP or FTP for accessing
+          certificates MUST be able to accept .cer files and SHOULD be able
+          to accept .p7c files." -- https://tools.ietf.org/html/rfc4325
+
+         A .p7c file is 'a "certs-only" CMS message as specified in RFC 2797"
+
+         These are currently unsupported
+        */
+        if (!is_array($parent->loadX509($cert))) {
+            return false;
+        }
+
+        if (!$parent->validateSignatureCountable($caonly, ++$count)) {
+            return false;
+        }
+
+        $this->CAs[] = $parent->currentCert;
+        //$this->loadCA($cert);
 
         return true;
     }
@@ -1100,8 +1204,27 @@ class X509
      */
     public function validateSignature($caonly = true)
     {
+        return $this->validateSignatureCountable($caonly, 0);
+    }
+
+    /**
+     * Validate a signature
+     *
+     * Performs said validation whilst keeping track of how many times validation method is called
+     *
+     * @param bool $caonly
+     * @param int $count
+     * @access private
+     * @return mixed
+     */
+    private function validateSignatureCountable($caonly, $count)
+    {
         if (!is_array($this->currentCert) || !isset($this->signatureSubject)) {
             return null;
+        }
+
+        if ($count == self::$recur_limit) {
+            return false;
         }
 
         /* TODO:
@@ -1149,10 +1272,10 @@ class X509
                         }
                     }
                     if (count($this->CAs) == $i && $caonly) {
-                        return false;
+                        return $this->testForIntermediate($caonly, $count) && $this->validateSignature($caonly);
                     }
                 } elseif (!isset($signingCert) || $caonly) {
-                    return false;
+                    return $this->testForIntermediate($caonly, $count) && $this->validateSignature($caonly);
                 }
                 return $this->validateSignatureHelper(
                     $signingCert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm'],
@@ -1233,11 +1356,7 @@ class X509
     {
         switch ($publicKeyAlgorithm) {
             case 'rsaEncryption':
-                $rsa = new RSA();
-                $rsa->load($publicKey);
-//zzzzz
-                $rsa->setPublicKey();
-
+                $key = RSA::load($publicKey, 'PKCS8');
                 switch ($signatureAlgorithm) {
                     case 'md2WithRSAEncryption':
                     case 'md5WithRSAEncryption':
@@ -1246,10 +1365,41 @@ class X509
                     case 'sha256WithRSAEncryption':
                     case 'sha384WithRSAEncryption':
                     case 'sha512WithRSAEncryption':
-                        $rsa->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
-                        if (!@$rsa->verify($signatureSubject, $signature, RSA::PADDING_PKCS1)) {
-                            return false;
-                        }
+                        $key = $key
+                            ->withHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm))
+                            ->withPadding(RSA::SIGNATURE_PKCS1);
+                        break;
+                    default:
+                        throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+                }
+                break;
+            case 'id-Ed25519':
+            case 'id-Ed448':
+                $key = ECDSA::load($publicKey, 'PKCS8');
+                break;
+            case 'id-ecPublicKey':
+                $key = ECDSA::load($publicKey, 'PKCS8');
+                switch ($signatureAlgorithm) {
+                    case 'ecdsa-with-SHA1':
+                    case 'ecdsa-with-SHA224':
+                    case 'ecdsa-with-SHA256':
+                    case 'ecdsa-with-SHA384':
+                    case 'ecdsa-with-SHA512':
+                        $key = $key
+                            ->withHash(preg_replace('#^ecdsa-with-#', '', strtolower($signatureAlgorithm)));
+                        break;
+                    default:
+                        throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+                }
+                break;
+            case 'id-dsa':
+                $key = DSA::load($publicKey, 'PKCS8');
+                switch ($signatureAlgorithm) {
+                    case 'id-dsa-with-sha1':
+                    case 'id-dsa-with-sha224':
+                    case 'id-dsa-with-sha256':
+                        $key = $key
+                            ->withHash(preg_replace('#^id-dsa-with-#', '', strtolower($signatureAlgorithm)));
                         break;
                     default:
                         throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
@@ -1259,33 +1409,42 @@ class X509
                 throw new UnsupportedAlgorithmException('Public key algorithm unsupported');
         }
 
-        return true;
+        return $key->verify($signatureSubject, $signature);
     }
 
     /**
-     * Reformat public keys
+     * Sets the recursion limit
      *
-     * Reformats a public key to a format supported by phpseclib (if applicable)
+     * When validating a signature it may be necessary to download intermediate certs from URI's.
+     * An intermediate cert that linked to itself would result in an infinite loop so to prevent
+     * that we set a recursion limit. A negative number means that there is no recursion limit.
      *
-     * @param string $algorithm
-     * @param string $key
-     * @access private
-     * @return string
+     * @param int $count
+     * @access public
      */
-    private function reformatKey($algorithm, $key)
+    static function setRecurLimit($count)
     {
-        switch ($algorithm) {
-            case 'rsaEncryption':
-                return
-                    "-----BEGIN RSA PUBLIC KEY-----\r\n" .
-                    // subjectPublicKey is stored as a bit string in X.509 certs.  the first byte of a bit string represents how many bits
-                    // in the last byte should be ignored.  the following only supports non-zero stuff but as none of the X.509 certs Firefox
-                    // uses as a cert authority actually use a non-zero bit I think it's safe to assume that none do.
-                    chunk_split(Base64::encode(substr($key, 1)), 64) .
-                    '-----END RSA PUBLIC KEY-----';
-            default:
-                return $key;
-        }
+        self::$recur_limit = $count;
+    }
+
+    /**
+     * Prevents URIs from being automatically retrieved
+     *
+     * @access public
+     */
+    static function disableURLFetch()
+    {
+        self::$disable_url_fetch = true;
+    }
+
+    /**
+     * Allows URIs to be automatically retrieved
+     *
+     * @access public
+     */
+    static function enableURLFetch()
+    {
+        self::$disable_url_fetch = false;
     }
 
     /**
@@ -1711,7 +1870,7 @@ class X509
             }
             $output.= $desc . '=' . $value;
             $result[$desc] = isset($result[$desc]) ?
-                array_merge((array) $dn[$prop], [$value]) :
+                array_merge((array) $result[$desc], [$value]) :
                 $value;
             $start = false;
         }
@@ -1864,9 +2023,8 @@ class X509
      * @access public
      * @return bool
      */
-    public function setPublicKey($key)
+    public function setPublicKey(PublicKey $key)
     {
-        $key->setPublicKey();
         $this->publicKey = $key;
     }
 
@@ -1878,7 +2036,7 @@ class X509
      * @param object $key
      * @access public
      */
-    public function setPrivateKey($key)
+    public function setPrivateKey(PrivateKey $key)
     {
         $this->privateKey = $key;
     }
@@ -1926,15 +2084,16 @@ class X509
 
         switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                $publicKey = new RSA();
-                $publicKey->load($key);
-                $publicKey->setPublicKey();
-                break;
-            default:
-                return false;
+                return RSA::load($key, 'PKCS8');
+            case 'id-ecPublicKey':
+            case 'id-Ed25519':
+            case 'id-Ed448':
+                return ECDSA::load($key, 'PKCS8');
+            case 'id-dsa':
+                return DSA::load($key, 'PKCS8');
         }
 
-        return $publicKey;
+        return false;
     }
 
     /**
@@ -1996,19 +2155,15 @@ class X509
 
         $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
-        $algorithm = &$csr['certificationRequestInfo']['subjectPKInfo']['algorithm']['algorithm'];
-        $key = &$csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'];
-        $key = $this->reformatKey($algorithm, $key);
+        $key = $csr['certificationRequestInfo']['subjectPKInfo'];
+        $key = ASN1::encodeDER($key, Maps\SubjectPublicKeyInfo::MAP);
+        $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'] =
+            "-----BEGIN PUBLIC KEY-----\r\n" .
+            chunk_split(base64_encode($key), 64) .
+            "-----END PUBLIC KEY-----";
 
-        switch ($algorithm) {
-            case 'rsaEncryption':
-                $this->publicKey = new RSA();
-                $this->publicKey->load($key);
-                $this->publicKey->setPublicKey();
-                break;
-            default:
-                $this->publicKey = null;
-        }
+        $this->publicKey = null;
+        $this->publicKey = $this->getPublicKey();
 
         $this->currentKeyIdentifier = null;
         $this->currentCert = $csr;
@@ -2035,14 +2190,9 @@ class X509
             case is_object($csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']):
                 break;
             default:
-                switch ($algorithm) {
-                    case 'rsaEncryption':
-                        $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']
-                            = "\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']));
-                        $csr['certificationRequestInfo']['subjectPKInfo']['algorithm']['parameters'] = null;
-                        $csr['signatureAlgorithm']['parameters'] = null;
-                        $csr['certificationRequestInfo']['signature']['parameters'] = null;
-                }
+                $csr['certificationRequestInfo']['subjectPKInfo'] = new Element(
+                    base64_decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']))
+                );
         }
 
         $filters = [];
@@ -2116,18 +2266,15 @@ class X509
 
         $this->signatureSubject = substr($orig, $decoded[0]['content'][0]['start'], $decoded[0]['content'][0]['length']);
 
-        $algorithm = &$spkac['publicKeyAndChallenge']['spki']['algorithm']['algorithm'];
-        $key = &$spkac['publicKeyAndChallenge']['spki']['subjectPublicKey'];
-        $key = $this->reformatKey($algorithm, $key);
+        $key = $spkac['publicKeyAndChallenge']['spki'];
+        $key = ASN1::encodeDER($key, Maps\SubjectPublicKeyInfo::MAP);
+        $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey'] =
+            "-----BEGIN PUBLIC KEY-----\r\n" .
+            chunk_split(base64_encode($key), 64) .
+            "-----END PUBLIC KEY-----";
 
-        switch ($algorithm) {
-            case 'rsaEncryption':
-                $this->publicKey = new RSA();
-                $this->publicKey->load($key);
-                break;
-            default:
-                $this->publicKey = null;
-        }
+        $this->publicKey = null;
+        $this->publicKey = $this->getPublicKey();
 
         $this->currentKeyIdentifier = null;
         $this->currentCert = $spkac;
@@ -2155,11 +2302,9 @@ class X509
             case is_object($spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']):
                 break;
             default:
-                switch ($algorithm) {
-                    case 'rsaEncryption':
-                        $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']
-                            = "\0" . Base64::decode(preg_replace('#-.+-|[\r\n]#', '', $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']));
-                }
+                $spkac['publicKeyAndChallenge']['spki'] = new Element(
+                    base64_decode(preg_replace('#-.+-|[\r\n]#', '', $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']))
+                );
         }
 
         $spkac = ASN1::encodeDER($spkac, Maps\SignedPublicKeyAndChallenge::MAP);
@@ -2346,7 +2491,7 @@ class X509
         }
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
-        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: null;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
 
         if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
             $this->currentCert = $subject->currentCert;
@@ -2400,7 +2545,7 @@ class X509
                 'tbsCertificate' =>
                     [
                         'version' => 'v3',
-                        'serialNumber' => $serialNumber, // $this->setserialNumber()
+                        'serialNumber' => $serialNumber, // $this->setSerialNumber()
                         'signature' => ['algorithm' => $signatureAlgorithm],
                         'issuer' => false, // this is going to be overwritten later
                         'validity' => [
@@ -2524,17 +2669,12 @@ class X509
         }
 
         $origPublicKey = $this->publicKey;
-        $class = get_class($this->privateKey);
-        $this->publicKey = new $class();
-        $this->publicKey->load($this->privateKey->getPublicKey());
-        $this->publicKey->setPublicKey();
-        if (!($publicKey = $this->formatSubjectPublicKey())) {
-            return false;
-        }
+        $this->publicKey = $this->privateKey->getPublicKey();
+        $publicKey = $this->formatSubjectPublicKey();
         $this->publicKey = $origPublicKey;
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
-        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: null;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
 
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['certificationRequestInfo'])) {
             $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
@@ -2583,18 +2723,12 @@ class X509
         }
 
         $origPublicKey = $this->publicKey;
-        $class = get_class($this->privateKey);
-        $this->publicKey = new $class();
-        $this->publicKey->load($this->privateKey->getPublicKey());
-        $this->publicKey->setPublicKey();
+        $this->publicKey = $this->privateKey->getPublicKey();
         $publicKey = $this->formatSubjectPublicKey();
-        if (!$publicKey) {
-            return false;
-        }
         $this->publicKey = $origPublicKey;
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
-        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject: null;
+        $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
 
         // re-signing a SPKAC seems silly but since everything else supports re-signing why not?
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['publicKeyAndChallenge'])) {
@@ -2777,7 +2911,7 @@ class X509
      * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @return mixed
      */
-    private function signHelper($key, $signatureAlgorithm)
+    private function signHelper(PrivateKey $key, $signatureAlgorithm)
     {
         if ($key instanceof RSA) {
             switch ($signatureAlgorithm) {
@@ -2788,9 +2922,52 @@ class X509
                 case 'sha256WithRSAEncryption':
                 case 'sha384WithRSAEncryption':
                 case 'sha512WithRSAEncryption':
-                    $key->setHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm));
+                    $key = $key
+                        ->withHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm))
+                        ->withPadding(RSA::SIGNATURE_PKCS1);
+                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
+                    return $this->currentCert;
+                default:
+                    throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+            }
+        }
 
-                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject, RSA::PADDING_PKCS1);
+        if ($key instanceof DSA) {
+            switch ($signatureAlgorithm) {
+                case 'id-dsa-with-sha1':
+                case 'id-dsa-with-sha224':
+                case 'id-dsa-with-sha256':
+                    $key = $key
+                        ->withHash(preg_replace('#^id-dsa-with-#', '', strtolower($signatureAlgorithm)));
+                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
+                    return $this->currentCert;
+                default:
+                    throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+            }
+        }
+
+        if ($key instanceof ECDSA) {
+            switch ($signatureAlgorithm) {
+                case 'id-Ed25519':
+                    if ($key->getCurve() !== 'Ed25519') {
+                        throw new UnsupportedAlgorithmException('Loaded ECDSA does not use the Ed25519 key and yet that is the signature algorithm that has been chosen');
+                    }
+                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
+                    return $this->currentCert;
+                case 'id-Ed448':
+                    if ($key->getCurve() !== 'Ed448') {
+                        throw new UnsupportedAlgorithmException('Loaded ECDSA does not use the Ed448 key and yet that is the signature algorithm that has been chosen');
+                    }
+                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
+                    return $this->currentCert;
+                case 'ecdsa-with-SHA1':
+                case 'ecdsa-with-SHA224':
+                case 'ecdsa-with-SHA256':
+                case 'ecdsa-with-SHA384':
+                case 'ecdsa-with-SHA512':
+                    $key = $key
+                        ->withHash(preg_replace('#^ecdsa-with-#', '', strtolower($signatureAlgorithm)));
+                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
                     return $this->currentCert;
                 default:
                     throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
@@ -3480,17 +3657,14 @@ class X509
      */
     private function formatSubjectPublicKey()
     {
-        if ($this->publicKey instanceof RSA) {
-            // the following two return statements do the same thing. i dunno.. i just prefer the later for some reason.
-            // the former is a good example of how to do fuzzing on the public key
-            //return new Element(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->getPublicKey()));
-            return [
-                'algorithm' => ['algorithm' => 'rsaEncryption'],
-                'subjectPublicKey' => $this->publicKey->getPublicKey('PKCS1')
-            ];
-        }
+        $publicKey = base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey));
 
-        return false;
+        $decoded = ASN1::decodeBER($publicKey);
+        $mapped = ASN1::asn1map($decoded[0], Maps\SubjectPublicKeyInfo::MAP);
+
+        $mapped['subjectPublicKey'] = (string) $this->publicKey;
+
+        return $mapped;
     }
 
     /**

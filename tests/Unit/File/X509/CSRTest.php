@@ -7,6 +7,7 @@
 
 use phpseclib\File\X509;
 use phpseclib\Crypt\RSA;
+use phpseclib\Crypt\PublicKeyLoader;
 
 class Unit_File_X509_CSRTest extends PhpseclibTestCase
 {
@@ -98,10 +99,9 @@ draiRBZruwMPwPIP
     // on PHP 7.1, with older versions of phpseclib, this would produce a "A non-numeric value encountered" warning
     public function testNewCSR()
     {
-        $rsa = new RSA();
         $x509 = new X509();
 
-        $rsa->load('-----BEGIN RSA PRIVATE KEY-----
+        $rsa = PublicKeyLoader::load('-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
 wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5
 1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh

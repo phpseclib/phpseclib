@@ -5,7 +5,10 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\DSA;
+use phpseclib\Crypt\PublicKeyLoader;
+use phpseclib\Crypt\DSA\PrivateKey;
+use phpseclib\Crypt\DSA\PublicKey;
+use phpseclib\Crypt\DSA\Parameters;
 use phpseclib\Crypt\DSA\Keys\PKCS1;
 use phpseclib\Crypt\DSA\Keys\PKCS8;
 use phpseclib\Crypt\DSA\Keys\PuTTY;
@@ -13,18 +16,17 @@ use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_DSA_LoadKeyTest extends PhpseclibTestCase
 {
+    /**
+     * @expectedException \phpseclib\Exception\NoKeyLoadedException
+     */
     public function testBadKey()
     {
-        $dsa = new DSA();
-
         $key = 'zzzzzzzzzzzzzz';
-
-        $this->assertFalse($dsa->load($key));
+        PublicKeyLoader::load($key);
     }
+
     public function testPuTTYKey()
     {
-        $dsa = new DSA();
-
         $key = 'PuTTY-User-Key-File-2: ssh-dss
 Encryption: none
 Comment: dsa-key-20161223
@@ -52,23 +54,19 @@ AAAAFFMy7BG9rPXwzqZzIY/lqsHEILNf
 Private-MAC: 62b92ddd8b341b9414d640c24ba6ae929a78e039
 ';
 
-        $dsa->setPrivateKeyFormat('PuTTY');
-        $dsa->setPublicKeyFormat('PuTTY');
+        $dsa = PublicKeyLoader::load($key);
 
-        $this->assertTrue($dsa->load($key));
+        $this->assertInstanceOf(PrivateKey::class, $dsa);
         $this->assertInternalType('string', "$dsa");
-        $this->assertSame("$dsa", $dsa->getPrivateKey('PuTTY'));
-        $this->assertInternalType('string', $dsa->getPublicKey('PuTTY'));
-        $this->assertInternalType('string', $dsa->getParameters());
+        $this->assertInternalType('string', $dsa->getPublicKey()->toString('PuTTY'));
+        $this->assertInternalType('string', $dsa->getParameters()->toString('PuTTY'));
 
-        $dsa->setPassword('password');
+        $dsa = $dsa->withPassword('password');
         $this->assertGreaterThan(0, strlen("$dsa"));
     }
 
     public function testPKCS1Key()
     {
-        $dsa = new DSA();
-
         $key = '-----BEGIN DSA PRIVATE KEY-----
 MIIDPQIBAAKCAQEAiwfUDxLuCgQSd5boP/MleHXPKllGUqXDu81onvJeL2+pSQqd
 NJcr2VHj+djLhJVNxUCljSwRTZFIOuJ0tPLjRl4w8Csf6zFHuUJJnYC42r2xDG7p
@@ -90,20 +88,16 @@ yVFGWdP2B4Gyj85IXCm3r+JNVoV5tVX9IUBTXnUor7YfWNncwWn56Lc+RQIUUzLs
 Eb2s9fDOpnMhj+WqwcQgs18=
 -----END DSA PRIVATE KEY-----';
 
-        $dsa->setPrivateKeyFormat('PKCS1');
-        $dsa->setPublicKeyFormat('PKCS1');
+        $dsa = PublicKeyLoader::load($key);
 
-        $this->assertTrue($dsa->load($key));
+        $this->assertInstanceOf(PrivateKey::class, $dsa);
         $this->assertInternalType('string', "$dsa");
-        $this->assertSame("$dsa", $dsa->getPrivateKey('PKCS1'));
-        $this->assertInternalType('string', $dsa->getPublicKey('PKCS1'));
-        $this->assertInternalType('string', $dsa->getParameters());
+        $this->assertInternalType('string', $dsa->getPublicKey()->toString('PKCS1'));
+        $this->assertInternalType('string', (string) $dsa->getParameters());
     }
 
     public function testParameters()
     {
-        $dsa = new DSA();
-
         $key = '-----BEGIN DSA PARAMETERS-----
 MIIBHgKBgQDandMycPZNOEwDXpIDSdFODWOQVO5tlnt38wK0X33TJh4wQdqOSiVF
 I+g+X8reP43ag3TEHu5bstrk6Znm7y1htTTvXQVTEwp6X3YHXbJG4Faul3g08Vud
@@ -114,16 +108,15 @@ L1cwyXx0KMaaampd34MzOIHbC44SHY+cE3aVVUsnmt6Ur1nQaVYVszl+AO6m8bPm
 4Vg=
 -----END DSA PARAMETERS-----';
         $key = str_replace(["\n", "\r"], '', $key);
+        $dsa = PublicKeyLoader::load($key);
 
-        $this->assertTrue($dsa->load($key));
+        $this->assertInstanceOf(Parameters::class, $dsa);
         $this->assertSame($key, str_replace(["\n", "\r"], '', "$dsa"));
-        $this->assertSame($key, str_replace(["\n", "\r"], '', $dsa->getParameters()));
+        $this->assertSame($key, str_replace(["\n", "\r"], '', (string) $dsa->getParameters()));
     }
 
     public function testPKCS8Public()
     {
-        $dsa = new DSA();
-
         $key = '-----BEGIN PUBLIC KEY-----
 MIIBtjCCASsGByqGSM44BAEwggEeAoGBANqd0zJw9k04TANekgNJ0U4NY5BU7m2W
 e3fzArRffdMmHjBB2o5KJUUj6D5fyt4/jdqDdMQe7luy2uTpmebvLWG1NO9dBVMT
@@ -137,14 +130,14 @@ ZpmyOpXM/0opRMIRdmqVW4ardBFNokmlqngwcbaptfRnk9W2cQtx0lmKy6X/vnis
 3AElwP86TYgBhw==
 -----END PUBLIC KEY-----';
 
-        $this->assertTrue($dsa->load($key));
+        $dsa = PublicKeyLoader::load($key);
+
+        $this->assertInstanceOf(PublicKey::class, $dsa);
         $this->assertInternalType('string', "$dsa");
     }
 
     public function testPKCS8Private()
     {
-        $dsa = new DSA();
-
         $key = '-----BEGIN PRIVATE KEY-----
 MIIBSgIBADCCASsGByqGSM44BAEwggEeAoGBANqd0zJw9k04TANekgNJ0U4NY5BU
 7m2We3fzArRffdMmHjBB2o5KJUUj6D5fyt4/jdqDdMQe7luy2uTpmebvLWG1NO9d
@@ -155,20 +148,19 @@ rgPJisERm7NDMd6J9o7qUG8NI18vVzDJfHQoxppqal3fgzM4gdsLjhIdj5wTdpVV
 Syea3pSvWdBpVhWzOX4A7qbxs+bhWAQWAhQiF7sFfCtZ7oOgCb2aJ9ySC9sTug==
 -----END PRIVATE KEY-----';
 
-        $this->assertTrue($dsa->load($key));
+        $dsa = PublicKeyLoader::load($key);
+
+        $this->assertInstanceOf(PrivateKey::class, $dsa);
         $this->assertInternalType('string', "$dsa");
-        $this->assertSame("$dsa", $dsa->getPrivateKey());
-        $this->assertInternalType('string', $dsa->getPublicKey());
-        $this->assertInternalType('string', $dsa->getParameters());
+        $this->assertInstanceOf(PublicKey::class, $dsa->getPublicKey());
+        $this->assertInstanceOf(Parameters::class, $dsa->getParameters());
     }
 
     /**
-     * @expectedException \UnexpectedValueException
+     * @expectedException \phpseclib\Exception\NoKeyLoadedException
      */
     public function testPuTTYBadMAC()
     {
-        $dsa = new DSA();
-
         $key = 'PuTTY-User-Key-File-2: ssh-dss
 Encryption: none
 Comment: dsa-key-20161223
@@ -196,14 +188,11 @@ AAAAFFMy7BG9rPXwzqZzIY/lqsHEILNf
 Private-MAC: aaaaaadd8b341b9414d640c24ba6ae929a78e039
 ';
 
-        $this->assertFalse($dsa->load($key));
-        $dsa->load($key, 'PuTTY');
+        PublicKeyLoader::load($key);
     }
 
     public function testXML()
     {
-        $dsa = new DSA();
-
         $key = '-----BEGIN PUBLIC KEY-----
 MIIBtjCCASsGByqGSM44BAEwggEeAoGBANqd0zJw9k04TANekgNJ0U4NY5BU7m2W
 e3fzArRffdMmHjBB2o5KJUUj6D5fyt4/jdqDdMQe7luy2uTpmebvLWG1NO9dBVMT
@@ -217,17 +206,53 @@ ZpmyOpXM/0opRMIRdmqVW4ardBFNokmlqngwcbaptfRnk9W2cQtx0lmKy6X/vnis
 3AElwP86TYgBhw==
 -----END PUBLIC KEY-----';
 
-        $dsa->load($key);
-        $xml = $dsa->getPublicKey('XML');
+        $dsa = PublicKeyLoader::load($key);
+        $xml = $dsa->toString('XML');
         $this->assertContains('DSAKeyValue', $xml);
 
-        $dsa = new DSA();
-        $dsa->load($xml);
-        $pkcs8 = $dsa->getPublicKey('PKCS8');
+        $dsa = PublicKeyLoader::load($xml);
+        $pkcs8 = $dsa->toString('PKCS8');
 
         $this->assertSame(
             strtolower(preg_replace('#\s#', '', $pkcs8)),
             strtolower(preg_replace('#\s#', '', $key))
         );
+    }
+
+    public function testOpenSSHPrivate()
+    {
+        $key = '-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABswAAAAdzc2gtZH
+NzAAAAgQDpE1/71V6uuaeEqbaAzoEsA1kdJBZh9In3/VlCXwvlJ6zz8KSzbQxrC45sO7y9
+fMwD5QyWEphVeIXO/NSfcZhK/SD/D+N1Zx52Ku2KEFTb3dAhfNGe9yhsrAVI5WyE4lS2qe
+e5fLNnh138hYAdN7ENRoUAQ3I6Hk9HAIn+ltHMmQAAABUA95iPdxHL3ikkmZd1X5WhQFTI
++9sAAACBAMcn1PdWdUmE8D4KP6g0rq4KAElZc904mYX+bHQNMXONm4BrsScn3/iOf370Ea
+iUgkomo+CSP2H8S3pLBNbiQW7AzS9TGT782FlG/bXf8kSMFb7IzAuFmQMeouLZo40AwHEv
+7PpdzrXs6GRQ0vwJlNoqoUAUi9MMhexDzpGMbNjqAAAAgQCU1JuJZDzpk+cBgEdRTRGx6m
+JZkP9vHP7ctUhgKZcAPSyd8keN8gQCpvmZuK1ADtd/+pXBxbQBAPb1+p8wAgqDU4m8+LFf
+2igKtb8mf8qp/ghxV08/Tzf5WfcDWPxOesdlN48qLbSmUgsO7gq/1vodebMSHcduV4JTq8
+ix5Ey87QAAAeiOLNHLjizRywAAAAdzc2gtZHNzAAAAgQDpE1/71V6uuaeEqbaAzoEsA1kd
+JBZh9In3/VlCXwvlJ6zz8KSzbQxrC45sO7y9fMwD5QyWEphVeIXO/NSfcZhK/SD/D+N1Zx
+52Ku2KEFTb3dAhfNGe9yhsrAVI5WyE4lS2qee5fLNnh138hYAdN7ENRoUAQ3I6Hk9HAIn+
+ltHMmQAAABUA95iPdxHL3ikkmZd1X5WhQFTI+9sAAACBAMcn1PdWdUmE8D4KP6g0rq4KAE
+lZc904mYX+bHQNMXONm4BrsScn3/iOf370EaiUgkomo+CSP2H8S3pLBNbiQW7AzS9TGT78
+2FlG/bXf8kSMFb7IzAuFmQMeouLZo40AwHEv7PpdzrXs6GRQ0vwJlNoqoUAUi9MMhexDzp
+GMbNjqAAAAgQCU1JuJZDzpk+cBgEdRTRGx6mJZkP9vHP7ctUhgKZcAPSyd8keN8gQCpvmZ
+uK1ADtd/+pXBxbQBAPb1+p8wAgqDU4m8+LFf2igKtb8mf8qp/ghxV08/Tzf5WfcDWPxOes
+dlN48qLbSmUgsO7gq/1vodebMSHcduV4JTq8ix5Ey87QAAABQhHEzWiduF4V0DestSnJ3q
+9GNNTQAAAAxyb290QHZhZ3JhbnQBAgMEBQ==
+-----END OPENSSH PRIVATE KEY-----';
+
+        $key = PublicKeyLoader::load($key);
+
+        $key2 = PublicKeyLoader::load($key->toString('OpenSSH'));
+        $this->assertInstanceOf(PrivateKey::class, $key2);
+
+        $sig = $key->sign('zzz');
+
+        $key = 'ssh-dss AAAAB3NzaC1kc3MAAACBAOkTX/vVXq65p4SptoDOgSwDWR0kFmH0iff9WUJfC+UnrPPwpLNtDGsLjmw7vL18zAPlDJYSmFV4hc781J9xmEr9IP8P43VnHnYq7YoQVNvd0CF80Z73KGysBUjlbITiVLap57l8s2eHXfyFgB03sQ1GhQBDcjoeT0cAif6W0cyZAAAAFQD3mI93EcveKSSZl3VflaFAVMj72wAAAIEAxyfU91Z1SYTwPgo/qDSurgoASVlz3TiZhf5sdA0xc42bgGuxJyff+I5/fvQRqJSCSiaj4JI/YfxLeksE1uJBbsDNL1MZPvzYWUb9td/yRIwVvsjMC4WZAx6i4tmjjQDAcS/s+l3OtezoZFDS/AmU2iqhQBSL0wyF7EPOkYxs2OoAAACBAJTUm4lkPOmT5wGAR1FNEbHqYlmQ/28c/ty1SGAplwA9LJ3yR43yBAKm+Zm4rUAO13/6lcHFtAEA9vX6nzACCoNTibz4sV/aKAq1vyZ/yqn+CHFXTz9PN/lZ9wNY/E56x2U3jyottKZSCw7uCr/W+h15sxIdx25XglOryLHkTLzt root@vagrant';
+        $key = PublicKeyLoader::load($key);
+
+        $this->assertTrue($key->verify('zzz', $sig));
     }
 }

@@ -40,12 +40,12 @@ abstract class XML
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
         if (!is_string($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $components = [
@@ -62,7 +62,7 @@ abstract class XML
             $key = '<xml>' . $key . '</xml>';
         }
         if (!$dom->loadXML($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key does not appear to contain XML');
         }
         $xpath = new \DOMXPath($dom);
         $keys = ['modulus', 'exponent', 'p', 'q', 'dp', 'dq', 'inverseq', 'd'];
@@ -102,7 +102,20 @@ abstract class XML
 
         libxml_use_internal_errors($use_errors);
 
-        return isset($components['modulus']) && isset($components['publicExponent']) ? $components : false;
+        foreach ($components as $key => $value) {
+            if (is_array($value) && !count($value)) {
+                unset($components[$key]);
+            }
+        }
+
+        if (isset($components['modulus']) && isset($components['publicExponent'])) {
+            if (count($components) == 3) {
+                $components['isPublicKey'] = true;
+            }
+            return $components;
+        }
+
+        throw new \UnexpectedValueException('Modulus / exponent not present');
     }
 
     /**
@@ -118,7 +131,7 @@ abstract class XML
      * @param string $password optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = '')
     {
         if (count($primes) != 2) {
             throw new \InvalidArgumentException('XML does not support multi-prime RSA keys');

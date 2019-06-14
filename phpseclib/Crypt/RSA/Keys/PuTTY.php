@@ -39,10 +39,10 @@ abstract class PuTTY extends Progenitor
     /**
      * Algorithm Identifier
      *
-     * @var string
+     * @var array
      * @access private
      */
-    const TYPE = 'ssh-rsa';
+    protected static $types = ['ssh-rsa'];
 
     /**
      * Break a public or private key down into its constituent components
@@ -50,7 +50,7 @@ abstract class PuTTY extends Progenitor
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
@@ -60,21 +60,23 @@ abstract class PuTTY extends Progenitor
         }
 
         $components = parent::load($key, $password);
-        if ($components === false || !isset($components['private'])) {
+        if (!isset($components['private'])) {
             return $components;
         }
+        extract($components);
+        unset($components['public'], $components['private']);
 
         $isPublicKey = false;
 
-        $result = Strings::unpackSSH2('ii', $components['public']);
+        $result = Strings::unpackSSH2('ii', $public);
         if ($result === false) {
-            return false;
+            throw new \UnexpectedValueException('Key appears to be malformed');
         }
         list($publicExponent, $modulus) = $result;
 
-        $result = Strings::unpackSSH2('iiii', $components['private']);
+        $result = Strings::unpackSSH2('iiii', $private);
         if ($result === false) {
-            return false;
+            throw new \UnexpectedValueException('Key appears to be malformed');
         }
         $primes = $coefficients = [];
         list($privateExponent, $primes[1], $primes[2], $coefficients[2]) = $result;
@@ -83,10 +85,6 @@ abstract class PuTTY extends Progenitor
         $exponents = [1 => $publicExponent->modInverse($temp)];
         $temp = $primes[2]->subtract($one);
         $exponents[] = $publicExponent->modInverse($temp);
-
-        if (isset($components['comment'])) {
-            $comment = $components['comment'];
-        }
 
         return compact('publicExponent', 'modulus', 'privateExponent', 'primes', 'coefficients', 'exponents', 'comment', 'isPublicKey');
     }
@@ -102,9 +100,10 @@ abstract class PuTTY extends Progenitor
      * @param array $exponents
      * @param array $coefficients
      * @param string $password optional
+     * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, $primes, $exponents, $coefficients, $password = '')
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = '', array $options = [])
     {
         if (count($primes) != 2) {
             throw new \InvalidArgumentException('PuTTY does not support multi-prime RSA keys');
@@ -113,7 +112,7 @@ abstract class PuTTY extends Progenitor
         $public =  Strings::packSSH2('ii', $e, $n);
         $private = Strings::packSSH2('iiii', $d, $primes[1], $primes[2], $coefficients[2]);
 
-        return self::wrapPrivateKey($public, $private, $password);
+        return self::wrapPrivateKey($public, $private, 'ssh-rsa', $password, $options);
     }
 
     /**
@@ -126,6 +125,6 @@ abstract class PuTTY extends Progenitor
      */
     public static function savePublicKey(BigInteger $n, BigInteger $e)
     {
-        return self::wrapPublicKey(Strings::packSSH2($e, $n));
+        return self::wrapPublicKey(Strings::packSSH2($e, $n), 'ssh-rsa');
     }
 }

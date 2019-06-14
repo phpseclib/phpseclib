@@ -138,6 +138,7 @@ abstract class PKCS8 extends PKCS
 
     /**
      * Returns a SymmetricKey object based on a PBES1 $algo
+     *
      * @return \phpseclib\Crypt\Common\SymmetricKey
      * @access public
      * @param string $algo
@@ -267,51 +268,54 @@ abstract class PKCS8 extends PKCS
     private static function initialize_static_variables()
     {
         if (!static::$childOIDsLoaded) {
-            ASN1::loadOIDs([static::OID_VALUE => static::OID_NAME]);
+            ASN1::loadOIDs(is_array(static::OID_NAME) ?
+                array_combine(static::OID_NAME, static::OID_VALUE) :
+                [static::OID_NAME => static::OID_VALUE]
+            );
             static::$childOIDsLoaded = true;
         }
         if (!self::$oidsLoaded) {
             // from https://tools.ietf.org/html/rfc2898
             ASN1::loadOIDs([
-                // PBES1 encryption schemes
-                '1.2.840.113549.1.5.1' => 'pbeWithMD2AndDES-CBC',
-                '1.2.840.113549.1.5.4' => 'pbeWithMD2AndRC2-CBC',
-                '1.2.840.113549.1.5.3' => 'pbeWithMD5AndDES-CBC',
-                '1.2.840.113549.1.5.6' => 'pbeWithMD5AndRC2-CBC',
-                '1.2.840.113549.1.5.10'=> 'pbeWithSHA1AndDES-CBC',
-                '1.2.840.113549.1.5.11'=> 'pbeWithSHA1AndRC2-CBC',
+               // PBES1 encryption schemes
+               'pbeWithMD2AndDES-CBC' => '1.2.840.113549.1.5.1',
+               'pbeWithMD2AndRC2-CBC' => '1.2.840.113549.1.5.4',
+               'pbeWithMD5AndDES-CBC' => '1.2.840.113549.1.5.3',
+               'pbeWithMD5AndRC2-CBC' => '1.2.840.113549.1.5.6',
+               'pbeWithSHA1AndDES-CBC'=> '1.2.840.113549.1.5.10',
+               'pbeWithSHA1AndRC2-CBC'=> '1.2.840.113549.1.5.11',
 
-                // from PKCS#12:
-                // https://tools.ietf.org/html/rfc7292
-                '1.2.840.113549.1.12.1.1' => 'pbeWithSHAAnd128BitRC4',
-                '1.2.840.113549.1.12.1.2' => 'pbeWithSHAAnd40BitRC4',
-                '1.2.840.113549.1.12.1.3' => 'pbeWithSHAAnd3-KeyTripleDES-CBC',
-                '1.2.840.113549.1.12.1.4' => 'pbeWithSHAAnd2-KeyTripleDES-CBC',
-                '1.2.840.113549.1.12.1.5' => 'pbeWithSHAAnd128BitRC2-CBC',
-                '1.2.840.113549.1.12.1.6' => 'pbeWithSHAAnd40BitRC2-CBC',
+               // from PKCS#12:
+               // https://tools.ietf.org/html/rfc7292
+               'pbeWithSHAAnd128BitRC4' => '1.2.840.113549.1.12.1.1',
+               'pbeWithSHAAnd40BitRC4' => '1.2.840.113549.1.12.1.2',
+               'pbeWithSHAAnd3-KeyTripleDES-CBC' => '1.2.840.113549.1.12.1.3',
+               'pbeWithSHAAnd2-KeyTripleDES-CBC' => '1.2.840.113549.1.12.1.4',
+               'pbeWithSHAAnd128BitRC2-CBC' => '1.2.840.113549.1.12.1.5',
+               'pbeWithSHAAnd40BitRC2-CBC' => '1.2.840.113549.1.12.1.6',
 
-                '1.2.840.113549.1.5.12' => 'id-PBKDF2',
-                '1.2.840.113549.1.5.13' => 'id-PBES2',
-                '1.2.840.113549.1.5.14' => 'id-PBMAC1',
+               'id-PBKDF2' => '1.2.840.113549.1.5.12',
+               'id-PBES2' => '1.2.840.113549.1.5.13',
+               'id-PBMAC1' => '1.2.840.113549.1.5.14',
 
-                // from PKCS#5 v2.1:
-                // http://www.rsa.com/rsalabs/pkcs/files/h11302-wp-pkcs5v2-1-password-based-cryptography-standard.pdf
-                '1.2.840.113549.2.7' => 'id-hmacWithSHA1',
-                '1.2.840.113549.2.8' => 'id-hmacWithSHA224',
-                '1.2.840.113549.2.9' => 'id-hmacWithSHA256',
-                '1.2.840.113549.2.10'=> 'id-hmacWithSHA384',
-                '1.2.840.113549.2.11'=> 'id-hmacWithSHA512',
-                '1.2.840.113549.2.12'=> 'id-hmacWithSHA512-224',
-                '1.2.840.113549.2.13'=> 'id-hmacWithSHA512-256',
+               // from PKCS#5 v2.1:
+               // http://www.rsa.com/rsalabs/pkcs/files/h11302-wp-pkcs5v2-1-password-based-cryptography-standard.pdf
+               'id-hmacWithSHA1' => '1.2.840.113549.2.7',
+               'id-hmacWithSHA224' => '1.2.840.113549.2.8',
+               'id-hmacWithSHA256' => '1.2.840.113549.2.9',
+               'id-hmacWithSHA384'=> '1.2.840.113549.2.10',
+               'id-hmacWithSHA512'=> '1.2.840.113549.2.11',
+               'id-hmacWithSHA512-224'=> '1.2.840.113549.2.12',
+               'id-hmacWithSHA512-256'=> '1.2.840.113549.2.13',
 
-                '1.3.14.3.2.7'       => 'desCBC',
-                '1.2.840.113549.3.7' => 'des-EDE3-CBC',
-                '1.2.840.113549.3.2' => 'rc2CBC',
-                '1.2.840.113549.3.9' => 'rc5-CBC-PAD',
+               'desCBC'       => '1.3.14.3.2.7',
+               'des-EDE3-CBC' => '1.2.840.113549.3.7',
+               'rc2CBC' => '1.2.840.113549.3.2',
+               'rc5-CBC-PAD' => '1.2.840.113549.3.9',
 
-                '2.16.840.1.101.3.4.1.2' => 'aes128-CBC-PAD',
-                '2.16.840.1.101.3.4.1.22'=> 'aes192-CBC-PAD',
-                '2.16.840.1.101.3.4.1.42'=> 'aes256-CBC-PAD'
+               'aes128-CBC-PAD' => '2.16.840.1.101.3.4.1.2',
+               'aes192-CBC-PAD'=> '2.16.840.1.101.3.4.1.22',
+               'aes256-CBC-PAD'=> '2.16.840.1.101.3.4.1.42'
             ]);
             self::$oidsLoaded = true;
         }
@@ -323,14 +327,14 @@ abstract class PKCS8 extends PKCS
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     protected static function load($key, $password = '')
     {
         self::initialize_static_variables();
 
         if (!is_string($key)) {
-            return false;
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         if (self::$format != self::MODE_DER) {
@@ -338,13 +342,13 @@ abstract class PKCS8 extends PKCS
             if ($decoded !== false) {
                 $key = $decoded;
             } elseif (self::$format == self::MODE_PEM) {
-                return false;
+                throw new \UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
             }
         }
 
         $decoded = ASN1::decodeBER($key);
         if (empty($decoded)) {
-            return false;
+            throw new \RuntimeException('Unable to decode BER');
         }
 
         $meta = [];
@@ -379,7 +383,7 @@ abstract class PKCS8 extends PKCS
                     $key = $cipher->decrypt($decrypted['encryptedData']);
                     $decoded = ASN1::decodeBER($key);
                     if (empty($decoded)) {
-                        return false;
+                        throw new \RuntimeException('Unable to decode BER 2');
                     }
 
                     break;
@@ -442,7 +446,7 @@ abstract class PKCS8 extends PKCS
                             $key = $cipher->decrypt($decrypted['encryptedData']);
                             $decoded = ASN1::decodeBER($key);
                             if (empty($decoded)) {
-                                return false;
+                                throw new \RuntimeException('Unable to decode BER 3');
                             }
                             break;
                         default:
@@ -458,11 +462,28 @@ abstract class PKCS8 extends PKCS
             }
         }
 
-        $private = ASN1::asn1map($decoded[0], Maps\PrivateKeyInfo::MAP);
+        $private = ASN1::asn1map($decoded[0], Maps\OneAsymmetricKey::MAP);
         if (is_array($private)) {
-            return $private['privateKeyAlgorithm']['algorithm'] == static::OID_NAME ?
-                $private + $meta :
-                false;
+            if (isset($private['privateKeyAlgorithm']['parameters']) && !$private['privateKeyAlgorithm']['parameters'] instanceof ASN1\Element && isset($decoded[0]['content'][1]['content'][1])) {
+                $temp = $decoded[0]['content'][1]['content'][1];
+                $private['privateKeyAlgorithm']['parameters'] = new ASN1\Element(substr($key, $temp['start'], $temp['length']));
+            }
+            if (is_array(static::OID_NAME)) {
+                if (!in_array($private['privateKeyAlgorithm']['algorithm'], static::OID_NAME)) {
+                    throw new UnsupportedAlgorithmException($private['privateKeyAlgorithm']['algorithm'] . ' is not a supported key type');
+                }
+            } else {
+                if ($private['privateKeyAlgorithm']['algorithm'] != static::OID_NAME) {
+                    throw new UnsupportedAlgorithmException('Only ' . static::OID_NAME . ' keys are supported; this is a ' . $private['privateKeyAlgorithm']['algorithm'] . ' key');
+                }
+            }
+            if (isset($private['publicKey'])) {
+                if ($private['publicKey'][0] != "\0") {
+                    throw new \UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($private['publicKey'][0]));
+                }
+                $private['publicKey'] = substr($private['publicKey'], 1);
+            }
+            return $private + $meta;
         }
 
         // EncryptedPrivateKeyInfo and PublicKeyInfo have largely identical "signatures". the only difference
@@ -470,9 +491,23 @@ abstract class PKCS8 extends PKCS
         // string represents the number of bits in the last byte that are to be ignored but, currently,
         // bit strings wanting a non-zero amount of bits trimmed are not supported
         $public = ASN1::asn1map($decoded[0], Maps\PublicKeyInfo::MAP);
+
         if (is_array($public)) {
-            if ($public['publicKey'][0] != "\0" || $public['publicKeyAlgorithm']['algorithm'] != static::OID_NAME) {
-                return false;
+            if ($public['publicKey'][0] != "\0") {
+                throw new \UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($public['publicKey'][0]));
+            }
+            if (is_array(static::OID_NAME)) {
+                if (!in_array($public['publicKeyAlgorithm']['algorithm'], static::OID_NAME)) {
+                    throw new UnsupportedAlgorithmException($private['publicKeyAlgorithm']['algorithm'] . ' is not a supported key type');
+                }
+            } else {
+                if ($public['publicKeyAlgorithm']['algorithm'] != static::OID_NAME) {
+                    throw new UnsupportedAlgorithmException('Only ' . static::OID_NAME . ' keys are supported; this is a ' . $private['publicKeyAlgorithm']['algorithm'] . ' key');
+                }
+            }
+            if (isset($public['publicKeyAlgorithm']['parameters']) && !$public['publicKeyAlgorithm']['parameters'] instanceof ASN1\Element && isset($decoded[0]['content'][0]['content'][1])) {
+                $temp = $decoded[0]['content'][0]['content'][1];
+                $public['publicKeyAlgorithm']['parameters'] = new ASN1\Element(substr($key, $temp['start'], $temp['length']));
             }
             $public['publicKey'] = substr($public['publicKey'], 1);
             return $public;
@@ -489,16 +524,19 @@ abstract class PKCS8 extends PKCS
      * @param string $attr
      * @param mixed $params
      * @param string $password
+     * @param string $oid optional
+     * @param string $publicKey optional
+     * @param array $options optional
      * @return string
      */
-    protected static function wrapPrivateKey($key, $attr, $params, $password)
+    protected static function wrapPrivateKey($key, $attr, $params, $password, $oid = null, $publicKey = '', array $options = [])
     {
         self::initialize_static_variables();
 
         $key = [
             'version' => 'v1',
             'privateKeyAlgorithm' => [
-                'algorithm' => static::OID_NAME,
+                'algorithm' => is_string(static::OID_NAME) ? static::OID_NAME : $oid,
                 'parameters' => $params
              ],
             'privateKey' => $key
@@ -506,21 +544,29 @@ abstract class PKCS8 extends PKCS
         if (!empty($attr)) {
             $key['attributes'] = $attr;
         }
-        $key = ASN1::encodeDER($key, Maps\PrivateKeyInfo::MAP);
+        if (!empty($publicKey)) {
+            $key['version'] = 'v2';
+            $key['publicKey'] = $publicKey;
+        }
+        $key = ASN1::encodeDER($key, Maps\OneAsymmetricKey::MAP);
         if (!empty($password) && is_string($password)) {
             $salt = Random::string(8);
-            $iterationCount = self::$defaultIterationCount;
 
-            if (self::$defaultEncryptionAlgorithm == 'id-PBES2') {
-                $crypto = self::getPBES2EncryptionObject(self::$defaultEncryptionScheme);
-                $hash = str_replace('-', '/', substr(self::$defaultPRF, 11));
+            $iterationCount = isset($options['iterationCount']) ? $options['iterationCount'] : self::$defaultIterationCount;
+            $encryptionAlgorithm = isset($options['encryptionAlgorithm']) ? $options['encryptionAlgorithm'] : self::$defaultEncryptionAlgorithm;
+            $encryptionScheme = isset($options['encryptionScheme']) ? $options['encryptionScheme'] : self::$defaultEncryptionScheme;
+            $prf = isset($options['PRF']) ? $options['PRF'] : self::$defaultPRF;
+
+            if ($encryptionAlgorithm == 'id-PBES2') {
+                $crypto = self::getPBES2EncryptionObject($encryptionScheme);
+                $hash = str_replace('-', '/', substr($prf, 11));
                 $kdf = 'pbkdf2';
                 $iv = Random::string($crypto->getBlockLength() >> 3);
 
                 $PBKDF2params = [
                     'salt' => $salt,
                     'iterationCount' => $iterationCount,
-                    'prf' => ['algorithm' => self::$defaultPRF, 'parameters' => null]
+                    'prf' => ['algorithm' => $prf, 'parameters' => null]
                 ];
                 $PBKDF2params = ASN1::encodeDER($PBKDF2params, Maps\PBKDF2params::MAP);
 
@@ -541,7 +587,7 @@ abstract class PKCS8 extends PKCS
                         'parameters' => new ASN1\Element($PBKDF2params)
                     ],
                     'encryptionScheme' => [
-                        'algorithm' => self::$defaultEncryptionScheme,
+                        'algorithm' => $encryptionScheme,
                         'parameters' => $params
                     ]
                 ];
@@ -549,9 +595,9 @@ abstract class PKCS8 extends PKCS
 
                 $crypto->setIV($iv);
             } else {
-                $crypto = self::getPBES1EncryptionObject(self::$defaultEncryptionAlgorithm);
-                $hash = self::getPBES1Hash(self::$defaultEncryptionAlgorithm);
-                $kdf = self::getPBES1KDF(self::$defaultEncryptionAlgorithm);
+                $crypto = self::getPBES1EncryptionObject($encryptionAlgorithm);
+                $hash = self::getPBES1Hash($encryptionAlgorithm);
+                $kdf = self::getPBES1KDF($encryptionAlgorithm);
 
                 $params = [
                     'salt' => $salt,
@@ -564,7 +610,7 @@ abstract class PKCS8 extends PKCS
 
             $key = [
                 'encryptionAlgorithm' => [
-                    'algorithm' => self::$defaultEncryptionAlgorithm,
+                    'algorithm' => $encryptionAlgorithm,
                     'parameters' => new ASN1\Element($params)
                 ],
                 'encryptedData' => $key
@@ -590,13 +636,13 @@ abstract class PKCS8 extends PKCS
      * @param mixed $params
      * @return string
      */
-    protected static function wrapPublicKey($key, $params)
+    protected static function wrapPublicKey($key, $params, $oid = null)
     {
         self::initialize_static_variables();
 
         $key = [
             'publicKeyAlgorithm' => [
-                'algorithm' => static::OID_NAME,
+                'algorithm' => is_string(static::OID_NAME) ? static::OID_NAME : $oid,
                 'parameters' => $params
             ],
             'publicKey' => "\0" . $key

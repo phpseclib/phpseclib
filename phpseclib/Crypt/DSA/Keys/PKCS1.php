@@ -15,6 +15,10 @@
  *
  * Analogous to ssh-keygen's pem format (as specified by -m)
  *
+ * Also, technically, PKCS1 decribes RSA but I am not aware of a formal specification for DSA.
+ * The DSA private key format seems to have been adapted from the RSA private key format so
+ * we're just re-using that as the name.
+ *
  * @category  Crypt
  * @package   DSA
  * @author    Jim Wigginton <terrafrost@php.net>
@@ -32,7 +36,7 @@ use phpseclib\File\ASN1\Maps;
 use ParagonIE\ConstantTime\Base64;
 
 /**
- * PKCS#1 Formatted RSA Key Handler
+ * PKCS#1 Formatted DSA Key Handler
  *
  * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -46,22 +50,15 @@ abstract class PKCS1 extends Progenitor
      * @access public
      * @param string $key
      * @param string $password optional
-     * @return array|bool
+     * @return array
      */
     public static function load($key, $password = '')
     {
-        if (!is_string($key)) {
-            return false;
-        }
-
         $key = parent::load($key, $password);
-        if ($key === false) {
-            return false;
-        }
 
         $decoded = ASN1::decodeBER($key);
         if (empty($decoded)) {
-            return false;
+            throw new \RuntimeException('Unable to decode BER');
         }
 
         $key = ASN1::asn1map($decoded[0], Maps\DSAParams::MAP);
@@ -75,7 +72,11 @@ abstract class PKCS1 extends Progenitor
         }
 
         $key = ASN1::asn1map($decoded[0], Maps\DSAPublicKey::MAP);
-        return is_array($key) ? $key : false;
+        if (is_array($key)) {
+            return $key;
+        }
+
+        throw new \RuntimeException('Unable to perform ASN1 mapping');
     }
 
     /**
@@ -112,9 +113,10 @@ abstract class PKCS1 extends Progenitor
      * @param \phpseclib\Math\BigInteger $x
      * @param \phpseclib\Math\BigInteger $y
      * @param string $password optional
+     * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '')
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '', array $options = [])
     {
         $key = [
             'version' => 0,
@@ -127,7 +129,7 @@ abstract class PKCS1 extends Progenitor
 
         $key = ASN1::encodeDER($key, Maps\DSAPrivateKey::MAP);
 
-        return self::wrapPrivateKey($key, 'DSA', $password);
+        return self::wrapPrivateKey($key, 'DSA', $password, $options);
     }
 
     /**

@@ -25,7 +25,6 @@
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2017 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link      http://pear.php.net/package/Math_BigInteger
  */
 
 namespace phpseclib\Math;
@@ -82,7 +81,7 @@ class BigInteger implements \Serializable
     {
         self::$engines = [];
 
-        $fqmain = 'phpseclib\\Math\\BigInteger\\Engines\\' . $main;
+        $fqmain = 'phpseclib\\Math\\BigInteger\\Engines\\'.$main;
         if (!class_exists($fqmain) || !method_exists($fqmain, 'isValidEngine')) {
             throw new \InvalidArgumentException("$main is not a valid engine");
         }
@@ -115,6 +114,40 @@ class BigInteger implements \Serializable
     }
 
     /**
+     * Returns the engine type
+     *
+     * @return string[]
+     */
+    public static function getEngine()
+    {
+        self::initialize_static_variables();
+
+        return self::$engines;
+    }
+
+    /**
+     * Initialize static variables
+     */
+    private static function initialize_static_variables()
+    {
+        if (!isset(self::$mainEngine)) {
+            $engines = [
+                ['GMP'],
+                ['PHP64', ['OpenSSL']],
+                ['BCMath', ['OpenSSL']],
+                ['PHP32', ['OpenSSL']],
+            ];
+            foreach ($engines as $engine) {
+                try {
+                    self::setEngine($engine[0], isset($engine[1]) ? $engine[1] : []);
+                    break;
+                } catch (\Exception $e) {
+                }
+            }
+        }
+    }
+
+    /**
      * Converts base-2, base-10, base-16, and binary strings (base-256) to BigIntegers.
      *
      * If the second parameter - $base - is negative, then it will be assumed that the number's are encoded using
@@ -126,21 +159,8 @@ class BigInteger implements \Serializable
      */
     public function __construct($x = 0, $base = 10)
     {
-        if (!isset(self::$mainEngine)) {
-            $engines = [
-                ['GMP'],
-                ['PHP64', ['OpenSSL']],
-                ['BCMath', ['OpenSSL']],
-                ['PHP32', ['OpenSSL']]
-            ];
-            foreach ($engines as $engine) {
-                try {
-                    self::setEngine($engine[0], isset($engine[1]) ? $engine[1] : []);
-                    break;
-                } catch (\Exception $e) {
-                }
-            }
-        }
+        self::initialize_static_variables();
+
         if ($x instanceof self::$mainEngine) {
             $this->value = clone $x;
         } elseif ($x instanceof BigInteger\Engines\Engine) {
@@ -210,9 +230,9 @@ class BigInteger implements \Serializable
      * @param bool $twos_compliment
      * @return string
      */
-    function toBits($twos_compliment = false)
+    public function toBits($twos_compliment = false)
     {
-        return $this->value->toBits();
+        return $this->value->toBits($twos_compliment);
     }
 
     /**
@@ -232,7 +252,7 @@ class BigInteger implements \Serializable
      * @param BigInteger $y
      * @return BigInteger
      */
-    function subtract(BigInteger $y)
+    public function subtract(BigInteger $y)
     {
         return new static($this->value->subtract($y->value));
     }
@@ -278,7 +298,7 @@ class BigInteger implements \Serializable
         list($q, $r) = $this->value->divide($y->value);
         return [
             new static($q),
-            new static($r)
+            new static($r),
         ];
     }
 
@@ -312,7 +332,7 @@ class BigInteger implements \Serializable
         return [
             'gcd' => new static($gcd),
             'x' => new static($x),
-            'y' => new static($y)
+            'y' => new static($y),
         ];
     }
 
@@ -337,7 +357,7 @@ class BigInteger implements \Serializable
      */
     public function abs()
     {
-         return new static($this->value->abs());
+        return new static($this->value->abs());
     }
 
     /**
@@ -499,7 +519,7 @@ class BigInteger implements \Serializable
     }
 
     /**
-     * Logical Exlusive Or
+     * Logical Exclusive Or
      *
      * @param BigInteger $x
      * @return BigInteger
@@ -569,6 +589,8 @@ class BigInteger implements \Serializable
      */
     public static function minMaxBits($bits)
     {
+        self::initialize_static_variables();
+
         $class = self::$mainEngine;
         extract($class::minMaxBits($bits));
         /** @var BigInteger $min
@@ -576,7 +598,7 @@ class BigInteger implements \Serializable
          */
         return [
             'min' => new static($min),
-            'max' => new static($max)
+            'max' => new static($max),
         ];
     }
 
@@ -610,6 +632,8 @@ class BigInteger implements \Serializable
      */
     public static function random($size)
     {
+        self::initialize_static_variables();
+
         $class = self::$mainEngine;
         return new static($class::random($size));
     }
@@ -624,6 +648,8 @@ class BigInteger implements \Serializable
      */
     public static function randomPrime($size)
     {
+        self::initialize_static_variables();
+
         $class = self::$mainEngine;
         return new static($class::randomPrime($size));
     }
@@ -707,10 +733,10 @@ class BigInteger implements \Serializable
      * @param BigInteger[] $nums
      * @return BigInteger
      */
-    public static function min(BigInteger ...$nums)
+    public static function min(BigInteger...$nums)
     {
         $class = self::$mainEngine;
-        $nums = array_map(function($num) { return $num->value; }, $nums);
+        $nums = array_map(function ($num) {return $num->value;}, $nums);
         return new static($class::min(...$nums));
     }
 
@@ -720,10 +746,10 @@ class BigInteger implements \Serializable
      * @param BigInteger[] $nums
      * @return BigInteger
      */
-    public static function max(BigInteger ...$nums)
+    public static function max(BigInteger...$nums)
     {
         $class = self::$mainEngine;
-        $nums = array_map(function($num) { return $num->value; }, $nums);
+        $nums = array_map(function ($num) {return $num->value;}, $nums);
         return new static($class::max(...$nums));
     }
 
@@ -745,5 +771,93 @@ class BigInteger implements \Serializable
     public function __clone()
     {
         $this->value = clone $this->value;
+    }
+
+    /**
+     * Is Odd?
+     *
+     * @return boolean
+     */
+    public function isOdd()
+    {
+        return $this->value->isOdd();
+    }
+
+    /**
+     * Tests if a bit is set
+     *
+     * @param int $x
+     * @return boolean
+     */
+    public function testBit($x)
+    {
+        return $this->value->testBit($x);
+    }
+
+    /**
+     * Is Negative?
+     *
+     * @return boolean
+     */
+    public function isNegative()
+    {
+        return $this->value->isNegative();
+    }
+
+    /**
+     * Negate
+     *
+     * Given $k, returns -$k
+     *
+     * @return BigInteger
+     */
+    public function negate()
+    {
+        return new static($this->value->negate());
+    }
+
+    /**
+     * Scan for 1 and right shift by that amount
+     *
+     * ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
+     *
+     * @param BigInteger $r
+     * @return int
+     */
+    public static function scan1divide(BigInteger $r)
+    {
+        $class = self::$mainEngine;
+        return $class::scan1divide($r->value);
+    }
+
+    /**
+     * Create Recurring Modulo Function
+     *
+     * Sometimes it may be desirable to do repeated modulos with the same number outside of
+     * modular exponentiation
+     *
+     * @return callable
+     */
+    public function createRecurringModuloFunction()
+    {
+        $func = $this->value->createRecurringModuloFunction();
+        return function (BigInteger $x) use ($func) {
+            return new static($func($x->value));
+        };
+    }
+
+    /**
+     * Bitwise Split
+     *
+     * Splits BigInteger's into chunks of $split bits
+     *
+     * @param int $split
+     * @return \phpseclib\Math\BigInteger[]
+     */
+    public function bitwise_split($split)
+    {
+        return array_map(function ($val) {
+            return new static($val);
+        }, $this->value->bitwise_split($split));
     }
 }
