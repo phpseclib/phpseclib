@@ -16,10 +16,10 @@
 namespace phpseclib\Math\BigInteger\Engines;
 
 use ParagonIE\ConstantTime\Hex;
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Crypt\Random;
 use phpseclib\Exception\BadConfigurationException;
+use phpseclib\Crypt\Random;
 use phpseclib\Math\BigInteger;
+use phpseclib\Common\Functions\Strings;
 
 /**
  * Base Engine.
@@ -75,17 +75,17 @@ abstract class Engine implements \Serializable
     {
         if (!isset(static::$primes)) {
             static::$primes = [
-                3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59,
-                61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137,
-                139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227,
-                229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313,
-                317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419,
-                421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509,
-                521, 523, 541, 547, 557, 563, 569, 571, 577, 587, 593, 599, 601, 607, 613, 617,
-                619, 631, 641, 643, 647, 653, 659, 661, 673, 677, 683, 691, 701, 709, 719, 727,
-                733, 739, 743, 751, 757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829,
-                839, 853, 857, 859, 863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947,
-                953, 967, 971, 977, 983, 991, 997,
+                3,    5,    7,    11,   13,   17,   19,   23,   29,   31,   37,   41,   43,   47,   53,   59,
+                61,   67,   71,   73,   79,   83,   89,   97,   101,  103,  107,  109,  113,  127,  131,  137,
+                139,  149,  151,  157,  163,  167,  173,  179,  181,  191,  193,  197,  199,  211,  223,  227,
+                229,  233,  239,  241,  251,  257,  263,  269,  271,  277,  281,  283,  293,  307,  311,  313,
+                317,  331,  337,  347,  349,  353,  359,  367,  373,  379,  383,  389,  397,  401,  409,  419,
+                421,  431,  433,  439,  443,  449,  457,  461,  463,  467,  479,  487,  491,  499,  503,  509,
+                521,  523,  541,  547,  557,  563,  569,  571,  577,  587,  593,  599,  601,  607,  613,  617,
+                619,  631,  641,  643,  647,  653,  659,  661,  673,  677,  683,  691,  701,  709,  719,  727,
+                733,  739,  743,  751,  757,  761,  769,  773,  787,  797,  809,  811,  821,  823,  827,  829,
+                839,  853,  857,  859,  863,  877,  881,  883,  887,  907,  911,  919,  929,  937,  941,  947,
+                953,  967,  971,  977,  983,  991,  997
             ];
             static::$zero = new static(0);
             static::$one = new static(1);
@@ -100,7 +100,7 @@ abstract class Engine implements \Serializable
 
         switch ($base) {
             case -256:
-            case 256:
+            case  256:
                 if ($base == -256 && (ord($x[0]) & 0x80)) {
                     $this->value = ~$x;
                     $this->is_negative = true;
@@ -117,7 +117,7 @@ abstract class Engine implements \Serializable
                 }
                 break;
             case -16:
-            case 16:
+            case  16:
                 if ($base > 0 && $x[0] == '-') {
                     $this->is_negative = true;
                     $x = substr($x, 1);
@@ -140,7 +140,7 @@ abstract class Engine implements \Serializable
                 }
                 break;
             case -10:
-            case 10:
+            case  10:
                 // (?<!^)(?:-).*: find any -'s that aren't at the beginning and then any characters that follow that
                 // (?<=^|-)0*: find any 0's that are preceded by the start of the string or by a - (ie. octals)
                 // [^-0-9].*: find any non-numeric characters and then any characters that follow that
@@ -151,7 +151,7 @@ abstract class Engine implements \Serializable
                 static::initialize($base);
                 break;
             case -2:
-            case 2:
+            case  2:
                 if ($base > 0 && $x[0] == '-') {
                     $this->is_negative = true;
                     $x = substr($x, 1);
@@ -180,7 +180,7 @@ abstract class Engine implements \Serializable
      */
     public static function setModExpEngine($engine)
     {
-        $fqengine = '\\phpseclib\\Math\\BigInteger\\Engines\\'.static::ENGINE_DIR.'\\'.$engine;
+        $fqengine = '\\phpseclib\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\' . $engine;
         if (!class_exists($fqengine) || !method_exists($fqengine, 'isValidEngine')) {
             throw new \InvalidArgumentException("$engine is not a valid engine");
         }
@@ -212,7 +212,7 @@ abstract class Engine implements \Serializable
         }
 
         if (ord($bytes[0]) & 0x80) {
-            $bytes = chr(0).$bytes;
+            $bytes = chr(0) . $bytes;
         }
 
         return $comparison < 0 ? ~$bytes : $bytes;
@@ -246,7 +246,7 @@ abstract class Engine implements \Serializable
         $result = $this->precision > 0 ? substr($bits, -$this->precision) : ltrim($bits, '0');
 
         if ($twos_compliment && $this->compare(new static()) > 0 && $this->precision <= 0) {
-            return '0'.$result;
+            return '0' . $result;
         }
 
         return $result;
@@ -340,8 +340,8 @@ abstract class Engine implements \Serializable
     public function __debugInfo()
     {
         return [
-            'value' => '0x'.$this->toHex(true),
-            'engine' => basename(static::class),
+            'value' => '0x' . $this->toHex(true),
+            'engine' => basename(static::class)
         ];
     }
 
@@ -388,7 +388,7 @@ abstract class Engine implements \Serializable
      */
     protected static function setBitmask($bits)
     {
-        return new static(chr((1 << ($bits & 0x7)) - 1).str_repeat(chr(0xFF), $bits >> 3), 256);
+        return new static(chr((1 << ($bits & 0x7)) - 1) . str_repeat(chr(0xFF), $bits >> 3), 256);
     }
 
     /**
@@ -420,7 +420,7 @@ abstract class Engine implements \Serializable
         }
 
         // generate as many leading 1's as we need to.
-        $leading_ones = chr((1 << ($new_bits & 0x7)) - 1).str_repeat(chr(0xFF), $new_bits >> 3);
+        $leading_ones = chr((1 << ($new_bits & 0x7)) - 1) . str_repeat(chr(0xFF), $new_bits >> 3);
 
         self::base256_lshift($leading_ones, $current_bits);
 
@@ -454,7 +454,7 @@ abstract class Engine implements \Serializable
             $carry = $temp >> 8;
         }
         $carry = ($carry != 0) ? chr($carry) : '';
-        $x = $carry.$x.str_repeat(chr(0), $num_bytes);
+        $x = $carry . $x . str_repeat(chr(0), $num_bytes);
     }
 
     /**
@@ -482,13 +482,13 @@ abstract class Engine implements \Serializable
             for ($i = 0; $temp >> $i; ++$i) {
             }
             $precision = 8 * strlen($bits) - 8 + $i;
-            $mask = chr((1 << ($precision & 0x7)) - 1).str_repeat(chr(0xFF), $precision >> 3);
+            $mask = chr((1 << ($precision & 0x7)) - 1) . str_repeat(chr(0xFF), $precision >> 3);
         }
 
         if ($shift < 0) {
-            $shift += $precision;
+            $shift+= $precision;
         }
-        $shift %= $precision;
+        $shift%= $precision;
 
         if (!$shift) {
             return clone $this;
@@ -527,14 +527,14 @@ abstract class Engine implements \Serializable
         $max = str_repeat(chr(0xFF), $bytes);
         $msb = $bits & 7;
         if ($msb) {
-            $min = chr(1 << ($msb - 1)).$min;
-            $max = chr((1 << $msb) - 1).$max;
+            $min = chr(1 << ($msb - 1)) . $min;
+            $max = chr((1 << $msb) - 1) . $max;
         } else {
             $min[0] = chr(0x80);
         }
         return [
             'min' => new static($min, 256),
-            'max' => new static($max, 256),
+            'max' => new static($max, 256)
         ];
     }
 
@@ -756,21 +756,21 @@ abstract class Engine implements \Serializable
         $size = strlen(ltrim($max->toBytes(), chr(0)));
 
         /*
-        doing $random % $max doesn't work because some numbers will be more likely to occur than others.
-        eg. if $max is 140 and $random's max is 255 then that'd mean both $random = 5 and $random = 145
-        would produce 5 whereas the only value of random that could produce 139 would be 139. ie.
-        not all numbers would be equally likely. some would be more likely than others.
+            doing $random % $max doesn't work because some numbers will be more likely to occur than others.
+            eg. if $max is 140 and $random's max is 255 then that'd mean both $random = 5 and $random = 145
+            would produce 5 whereas the only value of random that could produce 139 would be 139. ie.
+            not all numbers would be equally likely. some would be more likely than others.
 
-        creating a whole new random number until you find one that is within the range doesn't work
-        because, for sufficiently small ranges, the likelihood that you'd get a number within that range
-        would be pretty small. eg. with $random's max being 255 and if your $max being 1 the probability
-        would be pretty high that $random would be greater than $max.
+            creating a whole new random number until you find one that is within the range doesn't work
+            because, for sufficiently small ranges, the likelihood that you'd get a number within that range
+            would be pretty small. eg. with $random's max being 255 and if your $max being 1 the probability
+            would be pretty high that $random would be greater than $max.
 
-        phpseclib works around this using the technique described here:
+            phpseclib works around this using the technique described here:
 
-        http://crypto.stackexchange.com/questions/5708/creating-a-small-number-from-a-cryptographically-secure-random-string
-         */
-        $random_max = new static(chr(1).str_repeat("\0", $size), 256);
+            http://crypto.stackexchange.com/questions/5708/creating-a-small-number-from-a-cryptographically-secure-random-string
+        */
+        $random_max = new static(chr(1) . str_repeat("\0", $size), 256);
         $random = new static(Random::string($size), 256);
 
         list($max_multiple) = $random_max->divide($max);
@@ -848,18 +848,18 @@ abstract class Engine implements \Serializable
 
         // see HAC 4.49 "Note (controlling the error probability)"
         // @codingStandardsIgnoreStart
-        if ($length >= 163) {$t = 2;} // floor(1300 / 8)
-        else if ($length >= 106) {$t = 3;} // floor( 850 / 8)
-        else if ($length >= 81) {$t = 4;} // floor( 650 / 8)
-        else if ($length >= 68) {$t = 5;} // floor( 550 / 8)
-        else if ($length >= 56) {$t = 6;} // floor( 450 / 8)
-        else if ($length >= 50) {$t = 7;} // floor( 400 / 8)
-        else if ($length >= 43) {$t = 8;} // floor( 350 / 8)
-        else if ($length >= 37) {$t = 9;} // floor( 300 / 8)
-        else if ($length >= 31) {$t = 12;} // floor( 250 / 8)
-        else if ($length >= 25) {$t = 15;} // floor( 200 / 8)
-        else if ($length >= 18) {$t = 18;} // floor( 150 / 8)
-        else { $t = 27;}
+             if ($length >= 163) { $t =  2; } // floor(1300 / 8)
+        else if ($length >= 106) { $t =  3; } // floor( 850 / 8)
+        else if ($length >= 81 ) { $t =  4; } // floor( 650 / 8)
+        else if ($length >= 68 ) { $t =  5; } // floor( 550 / 8)
+        else if ($length >= 56 ) { $t =  6; } // floor( 450 / 8)
+        else if ($length >= 50 ) { $t =  7; } // floor( 400 / 8)
+        else if ($length >= 43 ) { $t =  8; } // floor( 350 / 8)
+        else if ($length >= 37 ) { $t =  9; } // floor( 300 / 8)
+        else if ($length >= 31 ) { $t = 12; } // floor( 250 / 8)
+        else if ($length >= 25 ) { $t = 15; } // floor( 200 / 8)
+        else if ($length >= 18 ) { $t = 18; } // floor( 150 / 8)
+        else                     { $t = 27; }
         // @codingStandardsIgnoreEnd
 
         return $t;
@@ -880,7 +880,7 @@ abstract class Engine implements \Serializable
             return false;
         }
 
-        $n = clone $this;
+        $n   = clone $this;
         $n_1 = $n->subtract(static::$one);
         $n_2 = $n->subtract(static::$two);
 
@@ -1068,11 +1068,11 @@ abstract class Engine implements \Serializable
         $class = static::class;
 
         $fqengine = !method_exists(static::$modexpEngine, 'reduce') ?
-        '\\phpseclib\\Math\\BigInteger\\Engines\\'.static::ENGINE_DIR.'\\DefaultEngine' :
-        static::$modexpEngine;
+            '\\phpseclib\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\DefaultEngine' :
+            static::$modexpEngine;
         if (method_exists($fqengine, 'generateCustomReduction')) {
             $func = $fqengine::generateCustomReduction($this, static::class);
-            $this->reduce = eval('return function('.static::class.' $x) use ($func, $class) {
+            $this->reduce = eval('return function(' . static::class . ' $x) use ($func, $class) {
                 $r = new $class();
                 $r->value = $func($x->value);
                 return $r;
@@ -1080,7 +1080,7 @@ abstract class Engine implements \Serializable
             return clone $this->reduce;
         }
         $n = $this->value;
-        $this->reduce = eval('return function('.static::class.' $x) use ($n, $fqengine, $class) {
+        $this->reduce = eval('return function(' . static::class . ' $x) use ($n, $fqengine, $class) {
             $r = new $class();
             $r->value = $fqengine::reduce($x->value, $n, $class);
             return $r;
@@ -1124,9 +1124,9 @@ abstract class Engine implements \Serializable
         }
 
         return [
-            'gcd' => $u,
+            'gcd'=> $u,
             'x' => $a,
-            'y' => $b,
+            'y' => $b
         ];
     }
 
@@ -1207,6 +1207,7 @@ abstract class Engine implements \Serializable
         $right = $x->toBytes(true);
 
         $length = max(strlen($left), strlen($right));
+
 
         $left = str_pad($left, $length, chr(0), STR_PAD_LEFT);
         $right = str_pad($right, $length, chr(0), STR_PAD_LEFT);

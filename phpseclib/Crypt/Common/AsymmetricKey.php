@@ -15,12 +15,13 @@
 
 namespace phpseclib\Crypt\Common;
 
-use phpseclib\Crypt\DSA;
+use phpseclib\Exception\UnsupportedFormatException;
+use phpseclib\Exception\NoKeyLoadedException;
+use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\RSA;
-use phpseclib\Exception\NoKeyLoadedException;
-use phpseclib\Exception\UnsupportedFormatException;
-use phpseclib\Math\BigInteger;
+use phpseclib\Crypt\DSA;
+use phpseclib\Crypt\ECDSA;
 
 /**
  * Base Class for all stream cipher classes
@@ -139,7 +140,7 @@ abstract class AsymmetricKey
     protected static function initialize_static_variables()
     {
         if (!isset(self::$zero)) {
-            self::$zero = new BigInteger(0);
+            self::$zero= new BigInteger(0);
             self::$one = new BigInteger(1);
         }
 
@@ -199,7 +200,7 @@ abstract class AsymmetricKey
      * @param string $method optional
      * @return mixed
      */
-    protected static function validatePlugin($format, $type, $method = null)
+    protected static function validatePlugin($format, $type, $method = NULL)
     {
         $type = strtolower($type);
         if (!isset(self::$plugins[static::ALGORITHM][$format][$type])) {
@@ -223,12 +224,12 @@ abstract class AsymmetricKey
     {
         if (!isset(self::$plugins[static::ALGORITHM][$format])) {
             self::$plugins[static::ALGORITHM][$format] = [];
-            foreach (new \DirectoryIterator(__DIR__.'/../'.static::ALGORITHM.'/'.$format.'/') as $file) {
+            foreach (new \DirectoryIterator(__DIR__ . '/../' . static::ALGORITHM . '/' . $format . '/') as $file) {
                 if ($file->getExtension() != 'php') {
                     continue;
                 }
                 $name = $file->getBasename('.php');
-                $type = 'phpseclib\Crypt\\'.static::ALGORITHM.'\\'.$format.'\\'.$name;
+                $type = 'phpseclib\Crypt\\' . static::ALGORITHM . '\\' . $format . '\\' . $name;
                 $reflect = new \ReflectionClass($type);
                 if ($reflect->isTrait()) {
                     continue;
@@ -309,7 +310,7 @@ abstract class AsymmetricKey
             // this test can be satisfied by either of the following:
             // http://php.net/manual/en/book.sodium.php
             // https://github.com/paragonie/sodium_compat
-            'libsodium' => function_exists('sodium_crypto_sign_keypair'),
+            'libsodium' => function_exists('sodium_crypto_sign_keypair')
         ];
 
         return static::$engines;
@@ -325,7 +326,7 @@ abstract class AsymmetricKey
         static::$engines = [
             'PHP' => true,
             'OpenSSL' => false,
-            'libsodium' => false,
+            'libsodium' => false
         ];
     }
 
@@ -373,10 +374,10 @@ abstract class AsymmetricKey
         $h1 = $this->bits2octets($h1);
 
         $this->hmac->setKey($k);
-        $k = $this->hmac->hash($v."\0".$x.$h1);
+        $k = $this->hmac->hash($v . "\0" . $x . $h1);
         $this->hmac->setKey($k);
         $v = $this->hmac->hash($v);
-        $k = $this->hmac->hash($v."\1".$x.$h1);
+        $k = $this->hmac->hash($v . "\1" . $x . $h1);
         $this->hmac->setKey($k);
         $v = $this->hmac->hash($v);
 
@@ -386,14 +387,14 @@ abstract class AsymmetricKey
             $t = '';
             while (strlen($t) < $qlen) {
                 $v = $this->hmac->hash($v);
-                $t = $t.$v;
+                $t = $t . $v;
             }
             $k = $this->bits2int($t);
 
             if (!$k->equals(self::$zero) && $k->compare($this->q) < 0) {
                 break;
             }
-            $k = $this->hmac->hash($v."\0");
+            $k = $this->hmac->hash($v . "\0");
             $this->hmac->setKey($k);
             $v = $this->hmac->hash($v);
         }
@@ -451,7 +452,7 @@ abstract class AsymmetricKey
         $z1 = $this->bits2int($in);
         $z2 = $z1->subtract($this->q);
         return $z2->compare(self::$zero) < 0 ?
-        $this->int2octets($z1) :
-        $this->int2octets($z2);
+            $this->int2octets($z1) :
+            $this->int2octets($z2);
     }
 }

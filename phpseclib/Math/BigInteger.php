@@ -81,7 +81,7 @@ class BigInteger implements \Serializable
     {
         self::$engines = [];
 
-        $fqmain = 'phpseclib\\Math\\BigInteger\\Engines\\'.$main;
+        $fqmain = 'phpseclib\\Math\\BigInteger\\Engines\\' . $main;
         if (!class_exists($fqmain) || !method_exists($fqmain, 'isValidEngine')) {
             throw new \InvalidArgumentException("$main is not a valid engine");
         }
@@ -135,7 +135,7 @@ class BigInteger implements \Serializable
                 ['GMP'],
                 ['PHP64', ['OpenSSL']],
                 ['BCMath', ['OpenSSL']],
-                ['PHP32', ['OpenSSL']],
+                ['PHP32', ['OpenSSL']]
             ];
             foreach ($engines as $engine) {
                 try {
@@ -230,7 +230,7 @@ class BigInteger implements \Serializable
      * @param bool $twos_compliment
      * @return string
      */
-    public function toBits($twos_compliment = false)
+    function toBits($twos_compliment = false)
     {
         return $this->value->toBits($twos_compliment);
     }
@@ -252,7 +252,7 @@ class BigInteger implements \Serializable
      * @param BigInteger $y
      * @return BigInteger
      */
-    public function subtract(BigInteger $y)
+    function subtract(BigInteger $y)
     {
         return new static($this->value->subtract($y->value));
     }
@@ -298,7 +298,7 @@ class BigInteger implements \Serializable
         list($q, $r) = $this->value->divide($y->value);
         return [
             new static($q),
-            new static($r),
+            new static($r)
         ];
     }
 
@@ -332,7 +332,7 @@ class BigInteger implements \Serializable
         return [
             'gcd' => new static($gcd),
             'x' => new static($x),
-            'y' => new static($y),
+            'y' => new static($y)
         ];
     }
 
@@ -357,7 +357,7 @@ class BigInteger implements \Serializable
      */
     public function abs()
     {
-        return new static($this->value->abs());
+         return new static($this->value->abs());
     }
 
     /**
@@ -598,7 +598,7 @@ class BigInteger implements \Serializable
          */
         return [
             'min' => new static($min),
-            'max' => new static($max),
+            'max' => new static($max)
         ];
     }
 
@@ -733,10 +733,10 @@ class BigInteger implements \Serializable
      * @param BigInteger[] $nums
      * @return BigInteger
      */
-    public static function min(BigInteger...$nums)
+    public static function min(BigInteger ...$nums)
     {
         $class = self::$mainEngine;
-        $nums = array_map(function ($num) {return $num->value;}, $nums);
+        $nums = array_map(function($num) { return $num->value; }, $nums);
         return new static($class::min(...$nums));
     }
 
@@ -746,10 +746,10 @@ class BigInteger implements \Serializable
      * @param BigInteger[] $nums
      * @return BigInteger
      */
-    public static function max(BigInteger...$nums)
+    public static function max(BigInteger ...$nums)
     {
         $class = self::$mainEngine;
-        $nums = array_map(function ($num) {return $num->value;}, $nums);
+        $nums = array_map(function($num) { return $num->value; }, $nums);
         return new static($class::max(...$nums));
     }
 
@@ -841,7 +841,7 @@ class BigInteger implements \Serializable
     public function createRecurringModuloFunction()
     {
         $func = $this->value->createRecurringModuloFunction();
-        return function (BigInteger $x) use ($func) {
+        return function(BigInteger $x) use ($func) {
             return new static($func($x->value));
         };
     }
@@ -856,7 +856,7 @@ class BigInteger implements \Serializable
      */
     public function bitwise_split($split)
     {
-        return array_map(function ($val) {
+        return array_map(function($val) {
             return new static($val);
         }, $this->value->bitwise_split($split));
     }
