@@ -194,12 +194,12 @@ abstract class SymmetricKey
     protected $block_size = 16;
 
     /**
-     * The IV Length of the block cipher
+     * The IV length multiplier of the block cipher
      *
      * @var int
      * @access private
      */
-    protected $iv_size = 16;
+    protected $iv_length_multiplier = 1;
 
     /**
      * The Key
@@ -639,7 +639,7 @@ abstract class SymmetricKey
                 $this->paddable = true;
                 break;
             case self::MODE_IGE:
-                $this->iv_size = $this->block_size*2;
+                $this->iv_length_multiplier = 2;
             case self::MODE_CTR:
             case self::MODE_CFB:
             case self::MODE_CFB8:
@@ -688,8 +688,8 @@ abstract class SymmetricKey
             throw new \BadMethodCallException('This algorithm does not use an IV.');
         }
 
-        if (strlen($iv) != $this->iv_size) {
-            throw new \LengthException('Received initialization vector of size ' . strlen($iv) . ', but size ' . $this->iv_size. ' is required');
+        if (strlen($iv) != $this->block_size * $this->iv_length_multiplier) {
+            throw new \LengthException('Received initialization vector of size ' . strlen($iv) . ', but size ' . ($this->block_size * $this->iv_length_multiplier). ' is required');
         }
 
         $this->iv = $this->origIV = $iv;
@@ -2486,7 +2486,7 @@ abstract class SymmetricKey
 
                 if (!isset($this->enmcrypt)) {
                     static $mcrypt_modes = [
-                        self::MODE_IGE    => 'ige',
+                        self::MODE_IGE    => MCRYPT_MODE_ECB,
                         self::MODE_CTR    => 'ctr',
                         self::MODE_ECB    => MCRYPT_MODE_ECB,
                         self::MODE_CBC    => MCRYPT_MODE_CBC,
