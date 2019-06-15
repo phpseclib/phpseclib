@@ -382,6 +382,8 @@ class X509
                 'id-Ed25519' => '1.3.101.112',
                 'id-Ed448' => '1.3.101.113',
 
+                'id-RSASSA-PSS' => '1.2.840.113549.1.1.10',
+
                 //'id-sha224' => '2.16.840.1.101.3.4.2.4',
                 //'id-sha256' => '2.16.840.1.101.3.4.2.1',
                 //'id-sha384' => '2.16.840.1.101.3.4.2.2',
@@ -1355,6 +1357,9 @@ class X509
     private function validateSignatureHelper($publicKeyAlgorithm, $publicKey, $signatureAlgorithm, $signature, $signatureSubject)
     {
         switch ($publicKeyAlgorithm) {
+            case 'id-RSASSA-PSS':
+                $key = RSA::load($publicKey, 'PSS');
+                break;
             case 'rsaEncryption':
                 $key = RSA::load($publicKey, 'PKCS8');
                 switch ($signatureAlgorithm) {
@@ -2915,6 +2920,9 @@ class X509
     {
         if ($key instanceof RSA) {
             switch ($signatureAlgorithm) {
+                case 'id-RSASSA-PSS':
+                    $key = $key->withPadding(RSA::SIGNATURE_PSS);
+                    break;
                 case 'md2WithRSAEncryption':
                 case 'md5WithRSAEncryption':
                 case 'sha1WithRSAEncryption':
@@ -2925,11 +2933,12 @@ class X509
                     $key = $key
                         ->withHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm))
                         ->withPadding(RSA::SIGNATURE_PKCS1);
-                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
-                    return $this->currentCert;
+                    break;
                 default:
                     throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
             }
+            $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
+            return $this->currentCert;
         }
 
         if ($key instanceof DSA) {

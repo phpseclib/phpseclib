@@ -777,6 +777,41 @@ f11dQP8CIDoB2AbvB3Yk/iGduWpw+3FwNAZ1y/rTqQK6+XgZCt6K
         $this->assertTrue($x509->validateSignature(false));
     }
 
+    public function testPSSLoad()
+    {
+        // openssl genpkey -algorithm rsa-pss -pkeyopt rsa_keygen_bits:2048 -pkeyopt rsa_keygen_pubexp:65537 -pkeyopt rsa_pss_keygen_md:sha256 -pkeyopt rsa_pss_keygen_mgf1_md:sha512 -pkeyopt rsa_pss_keygen_saltlen:5 -out CA.priKey
+        // openssl req -x509 -new -key CA.priKey -subj "/CN=CA" -sha256 -pkeyopt rsa_pss_keygen_md:sha256 -pkeyopt rsa_pss_keygen_mgf1_md:sha512 -pkeyopt rsa_pss_keygen_saltlen:5 -out CA.cer
+
+        $x509 = new X509();
+        $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
+MIIDizCCAkOgAwIBAgIUZe4gqXJqqyKvQDBxcbAuPdttxTQwPQYJKoZIhvcNAQEK
+MDCgDTALBglghkgBZQMEAgGhGjAYBgkqhkiG9w0BAQgwCwYJYIZIAWUDBAIDogMC
+AQUwDTELMAkGA1UEAwwCQ0EwHhcNMTkwNTA5MDI0MTI0WhcNMTkwNjA4MDI0MTI0
+WjANMQswCQYDVQQDDAJDQTCCAVIwPQYJKoZIhvcNAQEKMDCgDTALBglghkgBZQME
+AgGhGjAYBgkqhkiG9w0BAQgwCwYJYIZIAWUDBAIDogMCAQUDggEPADCCAQoCggEB
+AOB5e+yI4nAfiDdhignByF9Hw9BOjCeRk++9m5iSKaZdkzFLPtR3uMw+x+B9xChq
+kro/jG1ierEP8YISEDe6wXIRmuSunC1/wqy8oX0xfo23jE7gdSpjk+9cF1cVABPh
+ehwcGmzuXeOv/M4iQr41MK8hdqAVJRIA8O7kZuQxpEbLBKsQc9u0eEFrNVf5jYGj
+7vsCpW/XmZYaNWQaOK5Psd0rxVaz2CYYG2RiXq2wQiHrFtwOVJAhuHXlOmr4ZjuR
+NJLNnHjqkIaRv+JU2VCwPHcbIK4vO7EL7PKVa6g5WY33SzF3aqE7hCk6JeZ4KSSh
+i5dq4bRiGpGp1BzrU/t/XTkCAwEAAaNTMFEwHQYDVR0OBBYEFOWZWROhub/avDzR
+hDc5biqHzkrYMB8GA1UdIwQYMBaAFOWZWROhub/avDzRhDc5biqHzkrYMA8GA1Ud
+EwEB/wQFMAMBAf8wPQYJKoZIhvcNAQEKMDCgDTALBglghkgBZQMEAgGhGjAYBgkq
+hkiG9w0BAQgwCwYJYIZIAWUDBAIDogMCAQUDggEBANAoXtrOunHHlrEWNhj8xvwB
+pMa3N66PO3wQ/nax73s+xCF57haXjh8mBkDy6DsvctHSyV8RgXQUXaprDLtNA+F3
+JIgUNfP4znO98cdQ3tkANvtWA5YuyhyNq9xDzH6LsLB6cZfqPrvFGuvhCmGT9qCk
+OKmHrFklewl1sfwIQzK+hHeimaUSrb6SIYYenbvH5XI9vjbA/jojlvIc1mz7Pzmr
+9idg8ckxvQ5K3Y01UNBg2vOSaInp+G7N7XlEMERssq6ALMaPm4GrXUlO0cs/mQXd
+edu9tyNNr2vvZjshoY5y58+hVIjee/Pzxa7GX0LDEmK8FdFBxWeNx0g/TsZj6GE=
+-----END CERTIFICATE-----');
+
+        $this->assertSame('id-RSASSA-PSS', $r['tbsCertificate']['signature']['algorithm']);
+        $this->assertSame('id-RSASSA-PSS', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
+        $this->assertSame('id-RSASSA-PSS', $r['signatureAlgorithm']['algorithm']);
+
+        $this->assertTrue($x509->validateSignature(false));
+    }
+
     public function testDSASave()
     {
         $private = '-----BEGIN DSA PRIVATE KEY-----
@@ -850,6 +885,43 @@ wkwhE/JaQAEHq2PHnEmvwyBiJcHSdLXkcLzYlg19Ho0BPqVKdulx8GAk
         $x509 = new X509();
 
         $result = $x509->sign($issuer, $subject, 'ecdsa-with-SHA256');
+        $result = $x509->saveX509($result);
+
+        $this->assertInternalType('string', $result);
+
+        $r = $x509->loadX509($result);
+        $this->assertArrayHasKey('tbsCertificate', $r);
+    }
+
+    public function testPSSSave()
+    {
+        $private = '-----BEGIN RSA PRIVATE KEY-----
+MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
+wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5
+1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh
+3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2
+pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX
+GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il
+AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF
+L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k
+X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl
+U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
+37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
+-----END RSA PRIVATE KEY-----';
+        $private = PublicKeyLoader::load($private);
+        $public = $private->getPublicKey();
+
+        $subject = new X509();
+        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $subject->setPublicKey($public);
+
+        $issuer = new X509();
+        $issuer->setPrivateKey($private);
+        $issuer->setDN($subject->getDN());
+
+        $x509 = new X509();
+
+        $result = $x509->sign($issuer, $subject, 'id-RSASSA-PSS');
         $result = $x509->saveX509($result);
 
         $this->assertInternalType('string', $result);
