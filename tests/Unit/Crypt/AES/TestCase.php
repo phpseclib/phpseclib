@@ -6,7 +6,6 @@
  */
 
 use phpseclib\Crypt\AES;
-use phpseclib\Crypt\Common\BlockCipher;
 use phpseclib\Crypt\Rijndael;
 
 abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
@@ -16,7 +15,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     private function _checkEngine($aes)
     {
         if ($aes->getEngine() != $this->engine) {
-            self::markTestSkipped('Unable to initialize ' . $this->engine . ' engine');
+            self::markTestSkipped('Unable to initialize '.$this->engine.' engine');
         }
     }
 
@@ -55,7 +54,9 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         foreach ($modes as $mode) {
             foreach ($plaintexts as $plaintext) {
                 foreach ($ivs as $iv) {
-                    if ($mode === 'ige') $iv .= strrev($iv);
+                    if ($mode === 'ige') {
+                        $iv .= strrev($iv);
+                    }
                     foreach ($keys as $key) {
                         $result[] = [$mode, $plaintext, $iv, $key];
                     }
@@ -81,7 +82,17 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
         $actual = '';
         for ($i = 0, $strlen = strlen($plaintext); $i < $strlen; ++$i) {
-            $actual .= $aes->decrypt($aes->encrypt($plaintext[$i]));
+            if ($mode === 'ige') {
+                $temp = str_pad($plaintext[$i], $aes->getBlockLengthInBytes(), "\0");
+            } else {
+                $temp = $plaintext[$i];
+            }
+
+            $res = $aes->decrypt($aes->encrypt($temp));
+            if ($mode === 'ige') {
+                $res = $res[0];
+            }
+            $actual .= $res;
         }
 
         $this->assertEquals($plaintext, $actual);
@@ -134,7 +145,6 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             'ctr',
             'ofb',
             'cfb',
-            'ige',
             'cfb8',
         ];
 
@@ -149,10 +159,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             [3, 6, 7, 16], // partial block + full size block
             [16, 3, 6, 7],
             // a few others just for fun
-            [32,32],
-            [31,31],
-            [17,17],
-            [99, 99]
+            [32, 32],
+            [31, 31],
+            [17, 17],
+            [99, 99],
         ];
 
         $result = [];
@@ -173,7 +183,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
      */
     public function testContinuousBufferBattery($op, $mode, $test)
     {
-        $iv = str_repeat('x', 16*($mode === 'ige' ? 2 : 1));
+        $iv = str_repeat('x', 16 * ($mode === 'ige' ? 2 : 1));
         $key = str_repeat('a', 16);
 
         $aes = new AES($mode);
@@ -187,7 +197,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $result = '';
         foreach ($test as $len) {
             $temp = str_repeat('d', $len);
-            $str.= $temp;
+            $str .= $temp;
         }
 
         $c1 = $aes->$op($str);
@@ -205,7 +215,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         foreach ($test as $len) {
             $temp = str_repeat('d', $len);
             $output = $aes->$op($temp);
-            $result.= $output;
+            $result .= $output;
         }
 
         $c2 = $result;
@@ -224,7 +234,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             return;
         }
 
-        $iv = str_repeat('x', 16*($mode === 'ige' ? 2 : 1));
+        $iv = str_repeat('x', 16 * ($mode === 'ige' ? 2 : 1));
         $key = str_repeat('a', 16);
 
         $aes = new AES($mode);
@@ -238,7 +248,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $result = '';
         foreach ($test as $len) {
             $temp = str_repeat('d', $len);
-            $str.= $temp;
+            $str .= $temp;
         }
 
         $c1 = $aes->$op($str);
@@ -253,7 +263,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         foreach ($test as $len) {
             $temp = str_repeat('d', $len);
             $output = $aes->$op($temp);
-            $result.= $output;
+            $result .= $output;
         }
 
         $c2 = $result;
@@ -318,7 +328,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     {
         $aes = new AES('cbc');
 
-        $aes->setKey(pack('H*', '00000000000000000000000000000000' . '00000000000000000000000000000000'));
+        $aes->setKey(pack('H*', '00000000000000000000000000000000'.'00000000000000000000000000000000'));
         $aes->setIV(pack('H*', '00000000000000000000000000000000'));
         $aes->disablePadding();
 
