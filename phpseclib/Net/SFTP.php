@@ -800,6 +800,7 @@ class SFTP extends SSH2
             }
             if (is_array($this->query_stat_cache($this->realpath($dir . '/' . $value)))) {
                 $temp = $this->nlist_helper($dir . '/' . $value, true, $relativeDir . $value . '/');
+                $temp = is_array($temp) ? $temp : [];
                 $result = array_merge($result, $temp);
             } else {
                 $result[] = $relativeDir . $value;
