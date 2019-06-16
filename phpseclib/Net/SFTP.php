@@ -2205,10 +2205,11 @@ class Net_SFTP extends Net_SSH2
      * @param string $local_file
      * @param int $offset
      * @param int $length
+     * @param callable|null $progressCallback
      * @return mixed
      * @access public
      */
-    function get($remote_file, $local_file = false, $offset = 0, $length = -1)
+    function get($remote_file, $local_file = false, $offset = 0, $length = -1, $progressCallback = null)
     {
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
@@ -2274,6 +2275,9 @@ class Net_SFTP extends Net_SSH2
                 }
                 $packet = null;
                 $read+= $packet_size;
+                if (is_callable($progressCallback)) {
+                    call_user_func($progressCallback, $read);
+                }
                 $i++;
             }
 
