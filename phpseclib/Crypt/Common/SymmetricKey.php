@@ -1513,7 +1513,7 @@ abstract class SymmetricKey
                     }
                     break;
                 case self::MODE_IGE:
-                    $plaintext = $this->openssl_ige_process($ciphertext, $this->decryptIV, false);
+                    $plaintext = $this->handleIGE($ciphertext, $this->decryptIV, false);
                     break;
                 case self::MODE_CTR:
                     $plaintext = $this->openssl_ctr_process($ciphertext, $this->decryptIV, $this->debuffer);
@@ -2237,6 +2237,8 @@ abstract class SymmetricKey
                 // that don't we'll emulate it
                 if ($this->mode === self::MODE_CTR && in_array(static::$cipher_name_openssl_ecb, $methods)) {
                     $this->openssl_emulate_ctr = true;
+                    return true;
+                } else if ($this->mode === self::MODE_IGE) {
                     return true;
                 }
                 return false;
