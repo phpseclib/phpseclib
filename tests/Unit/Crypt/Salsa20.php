@@ -154,7 +154,7 @@ class Unit_Crypt_Salsa20Test extends PhpseclibTestCase
         if ($cipher->getEngine() != $engine) {
             self::markTestSkipped('Unable to initialize ' . $engine . ' engine for ' . (strlen($key) * 8) . '-bit key');
         }
-        $result = $cipher->encrypt(str_repeat("\0", 64);
+        $result = $cipher->encrypt(str_repeat("\0", 64));
         $this->assertEquals(bin2hex($result), $expected, "Failed asserting that key $key / $iv yielded expected output in $engine engine");
     }
 }

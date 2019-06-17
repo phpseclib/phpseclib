@@ -208,9 +208,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $aes->setKey($key);
         $aes->setIV($iv);
 
-        if (!$this->_checkEngine($aes)) {
-            return;
-        }
+        $this->_checkEngine($aes);
 
         foreach ($test as $len) {
             $temp = str_repeat('d', $len);
