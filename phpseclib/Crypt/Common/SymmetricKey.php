@@ -1138,6 +1138,14 @@ abstract class SymmetricKey
             return $ciphertext;
         }
 
+        if ($this->engine === self::ENGINE_EVAL) {
+            $inline = $this->inline_crypt;
+            return $inline('encrypt', $plaintext);
+        }
+        if ($this->mode === self::MODE_IGE) {
+            return $this->handleIGE($plaintext, $this->encryptIV, true);
+        }
+
         if ($this->engine === self::ENGINE_OPENSSL) {
             switch ($this->mode) {
                 case self::MODE_STREAM:
@@ -1152,8 +1160,6 @@ abstract class SymmetricKey
                     return $result;
                 case self::MODE_CTR:
                     return $this->openssl_ctr_process($plaintext, $this->encryptIV, $this->enbuffer);
-                case self::MODE_IGE:
-                    return $this->handleIGE($plaintext, $this->encryptIV, true);
                 case self::MODE_CFB:
                     // cfb loosely routines inspired by openssl's:
                     // {@link http://cvs.openssl.org/fileview?f=openssl/crypto/modes/cfb128.c&v=1.3.2.2.2.1}
@@ -1222,10 +1228,6 @@ abstract class SymmetricKey
                 @mcrypt_generic_init($this->enmcrypt, $this->key, $this->getIV($this->encryptIV));
                 $this->enchanged = false;
             }
-
-            if ($this->mode === self::MODE_IGE) {
-                return $this->handleIGE($plaintext, $this->encryptIV, true);
-            }
             // re: {@link http://phpseclib.sourceforge.net/cfb-demo.phps}
             // using mcrypt's default handing of CFB the above would output two different things.  using phpseclib's
             // rewritten CFB implementation the above outputs the same thing twice.
@@ -1290,11 +1292,6 @@ abstract class SymmetricKey
             return $ciphertext;
         }
 
-        if ($this->engine === self::ENGINE_EVAL) {
-            $inline = $this->inline_crypt;
-            return $inline('encrypt', $plaintext);
-        }
-
         $buffer = &$this->enbuffer;
         $block_size = $this->block_size;
         $ciphertext = '';
@@ -1315,9 +1312,6 @@ abstract class SymmetricKey
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                 }
-                break;
-            case self::MODE_IGE:
-                $ciphertext = $this->handleIGE($plaintext, $this->encryptIV, true);
                 break;
             case self::MODE_CTR:
                 $xor = $this->encryptIV;
@@ -1497,6 +1491,15 @@ abstract class SymmetricKey
             return $plaintext;
         }
 
+        if ($this->engine === self::ENGINE_EVAL) {
+            $inline = $this->inline_crypt;
+            return $inline('decrypt', $ciphertext);
+        }
+
+        if ($this->mode === self::MODE_IGE) {
+            return $this->handleIGE($ciphertext, $this->decryptIV, false);
+        }
+
         if ($this->engine === self::ENGINE_OPENSSL) {
             switch ($this->mode) {
                 case self::MODE_STREAM:
@@ -1511,9 +1514,6 @@ abstract class SymmetricKey
                     if ($this->continuousBuffer) {
                         $this->decryptIV = substr($ciphertext, -$offset, $this->block_size);
                     }
-                    break;
-                case self::MODE_IGE:
-                    $plaintext = $this->handleIGE($ciphertext, $this->decryptIV, false);
                     break;
                 case self::MODE_CTR:
                     $plaintext = $this->openssl_ctr_process($ciphertext, $this->decryptIV, $this->debuffer);
@@ -1587,9 +1587,6 @@ abstract class SymmetricKey
                 @mcrypt_generic_init($this->demcrypt, $this->key, $this->getIV($this->decryptIV));
                 $this->dechanged = false;
             }
-            if ($this->mode === self::MODE_IGE) {
-                return $this->handleIGE($ciphertext, $this->decryptIV, false);
-            }
 
             if ($this->mode == self::MODE_CFB && $this->continuousBuffer) {
                 $iv = &$this->decryptIV;
@@ -1638,11 +1635,6 @@ abstract class SymmetricKey
             return $this->paddable ? $this->unpad($plaintext) : $plaintext;
         }
 
-        if ($this->engine === self::ENGINE_EVAL) {
-            $inline = $this->inline_crypt;
-            return $inline('decrypt', $ciphertext);
-        }
-
         $block_size = $this->block_size;
 
         $buffer = &$this->debuffer;
@@ -1663,9 +1655,6 @@ abstract class SymmetricKey
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                 }
-                break;
-            case self::MODE_IGE:
-                $plaintext = $this->handleIGE($ciphertext, $this->decryptIV, false);
                 break;
             case self::MODE_CTR:
                 $xor = $this->decryptIV;
@@ -1901,8 +1890,16 @@ abstract class SymmetricKey
                     break;
                 case self::ENGINE_MCRYPT:
                     if ($encrypt) {
+                        if ($this->enchanged) {
+                            @mcrypt_generic_init($this->enmcrypt, $this->key, $this->getIV($this->encryptIV));
+                            $this->enchanged = false;
+                        }
                         $outdata = @mcrypt_generic($this->enmcrypt, $outdata);
                     } else {
+                        if ($this->dechanged) {
+                            @mcrypt_generic_init($this->demcrypt, $this->key, $this->getIV($this->decryptIV));
+                            $this->dechanged = false;
+                        }
                         $outdata = @mdecrypt_generic($this->demcrypt, $outdata);
                     }
                     break;
