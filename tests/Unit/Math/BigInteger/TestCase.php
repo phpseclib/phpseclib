@@ -103,6 +103,22 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 
         $this->assertSame('95627922070', (string) $q);
         $this->assertSame('10688759725', (string) $r);
+
+        $x = $this->getInstance('3369993333393829974333376885877453834204643052817571560137951281152');
+        $y = $this->getInstance('4294967296');
+
+        list($q, $r) = $x->divide($y);
+
+        $this->assertSame('784637716923335095479473677900958302012794430558004314112', (string) $q);
+        $this->assertSame('0', (string) $r);
+
+        $x = $this->getInstance('3369993333393829974333376885877453834204643052817571560137951281153');
+        $y = $this->getInstance('4294967296');
+
+        list($q, $r) = $x->divide($y);
+
+        $this->assertSame('784637716923335095479473677900958302012794430558004314112', (string) $q);
+        $this->assertSame('1', (string) $r);
     }
 
     public function testModPow()
