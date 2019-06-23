@@ -1586,7 +1586,7 @@ class Math_BigInteger
             $temp_value = array($quotient_value[$q_index]);
             $temp = $temp->multiply($y);
             $temp_value = &$temp->value;
-            if ($temp_value !== []) {
+            if (!count($temp_value)) {
                 $temp_value = array_merge($adjust, $temp_value);
             }
 
