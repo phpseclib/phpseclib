@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.20 - 2019-06-23
+
+- BigInteger: lower PHP req back down to PHP 5.3.3 (#1382)
+
+## 2.0.19 - 2019-06-19
+
+- BigInteger: fix issues with divide method in pure-PHP mode
+
 ## 2.0.18 - 2019-06-13
 
 - SSH2: close channel when a timeout occurs (#1378)
