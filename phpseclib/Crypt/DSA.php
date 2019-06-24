@@ -338,4 +338,14 @@ abstract class DSA extends AsymmetricKey
         $new->format = self::validatePlugin('Signature', $format);
         return $new;
     }
+
+    /**
+     * Returns the signature format currently being used
+     *
+     * @access public
+     */
+    public function getSignatureFormat()
+    {
+       return $this->shortFormat;
+    }
 }

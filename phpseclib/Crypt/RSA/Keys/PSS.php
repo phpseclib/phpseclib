@@ -187,6 +187,8 @@ abstract class PSS extends Progenitor
      */
     public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = [])
     {
+        self::initialize_static_variables();
+
         $key = PKCS1::savePublicKey($n, $e);
         $key = ASN1::extractBER($key);
         $params = self::savePSSParams($options);

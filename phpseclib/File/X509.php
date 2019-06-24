@@ -2485,7 +2485,7 @@ class X509
      * @access public
      * @return mixed
      */
-    public function sign($issuer, $subject, $signatureAlgorithm = 'sha256WithRSAEncryption')
+    public function sign($issuer, $subject)
     {
         if (!is_object($issuer->privateKey) || empty($issuer->dn)) {
             return false;
@@ -2497,6 +2497,7 @@ class X509
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
+        $signatureAlgorithm = self::identifySignatureAlgorithm($issuer->privateKey);
 
         if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
             $this->currentCert = $subject->currentCert;
@@ -2651,7 +2652,8 @@ class X509
         $tbsCertificate = $this->currentCert['tbsCertificate'];
         $this->loadX509($this->saveX509($this->currentCert));
 
-        $result = $this->signHelper($issuer->privateKey, $signatureAlgorithm);
+        $result = $this->currentCert;
+        $this->currentCert['signature'] = $result['signature'] = "\0" . $issuer->privateKey->sign($this->signatureSubject);
         $result['tbsCertificate'] = $tbsCertificate;
 
         $this->currentCert = $currentCert;
@@ -2667,7 +2669,7 @@ class X509
      * @param string $signatureAlgorithm
      * @return mixed
      */
-    public function signCSR($signatureAlgorithm = 'sha1WithRSAEncryption')
+    public function signCSR()
     {
         if (!is_object($this->privateKey) || empty($this->dn)) {
             return false;
@@ -2680,6 +2682,7 @@ class X509
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
+        $signatureAlgorithm = self::identifySignatureAlgorithm($this->privateKey);
 
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['certificationRequestInfo'])) {
             $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
@@ -2705,7 +2708,8 @@ class X509
         $certificationRequestInfo = $this->currentCert['certificationRequestInfo'];
         $this->loadCSR($this->saveCSR($this->currentCert));
 
-        $result = $this->signHelper($this->privateKey, $signatureAlgorithm);
+        $result = $this->currentCert;
+        $this->currentCert['signature'] = $result['signature'] = "\0" . $this->privateKey->sign($this->signatureSubject);
         $result['certificationRequestInfo'] = $certificationRequestInfo;
 
         $this->currentCert = $currentCert;
@@ -2721,7 +2725,7 @@ class X509
      * @param string $signatureAlgorithm
      * @return mixed
      */
-    public function signSPKAC($signatureAlgorithm = 'sha1WithRSAEncryption')
+    public function signSPKAC()
     {
         if (!is_object($this->privateKey)) {
             return false;
@@ -2734,6 +2738,7 @@ class X509
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
+        $signatureAlgorithm = self::identifySignatureAlgorithm($this->privateKey);
 
         // re-signing a SPKAC seems silly but since everything else supports re-signing why not?
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['publicKeyAndChallenge'])) {
@@ -2765,7 +2770,8 @@ class X509
         $publicKeyAndChallenge = $this->currentCert['publicKeyAndChallenge'];
         $this->loadSPKAC($this->saveSPKAC($this->currentCert));
 
-        $result = $this->signHelper($this->privateKey, $signatureAlgorithm);
+        $result = $this->currentCert;
+        $this->currentCert['signature'] = $result['signature'] = "\0" . $this->privateKey->sign($this->signatureSubject);
         $result['publicKeyAndChallenge'] = $publicKeyAndChallenge;
 
         $this->currentCert = $currentCert;
@@ -2785,7 +2791,7 @@ class X509
      * @access public
      * @return mixed
      */
-    public function signCRL($issuer, $crl, $signatureAlgorithm = 'sha1WithRSAEncryption')
+    public function signCRL($issuer, $crl)
     {
         if (!is_object($issuer->privateKey) || empty($issuer->dn)) {
             return false;
@@ -2793,6 +2799,7 @@ class X509
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
+        $signatureAlgorithm = self::identifySignatureAlgorithm($issuer->privateKey);
 
         $thisUpdate = new DateTime('now', new DateTimeZone(@date_default_timezone_get()));
         $thisUpdate = !empty($this->startDate) ? $this->startDate : $thisUpdate->format('D, d M Y H:i:s O');
@@ -2898,7 +2905,8 @@ class X509
         $tbsCertList = $this->currentCert['tbsCertList'];
         $this->loadCRL($this->saveCRL($this->currentCert));
 
-        $result = $this->signHelper($issuer->privateKey, $signatureAlgorithm);
+        $result = $this->currentCert;
+        $this->currentCert['signature'] = $result['signature'] = "\0" . $issuer->privateKey->sign($this->signatureSubject);
         $result['tbsCertList'] = $tbsCertList;
 
         $this->currentCert = $currentCert;
@@ -2908,82 +2916,60 @@ class X509
     }
 
     /**
-     * X.509 certificate signing helper function.
+     * Identify signature algorithm from key settings
      *
      * @param object $key
-     * @param string $signatureAlgorithm
-     * @access public
+     * @access private
      * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
-     * @return mixed
+     * @return string
      */
-    private function signHelper(PrivateKey $key, $signatureAlgorithm)
+    private static function identifySignatureAlgorithm(PrivateKey $key)
     {
         if ($key instanceof RSA) {
-            switch ($signatureAlgorithm) {
-                case 'id-RSASSA-PSS':
-                    $key = $key->withPadding(RSA::SIGNATURE_PSS);
-                    break;
-                case 'md2WithRSAEncryption':
-                case 'md5WithRSAEncryption':
-                case 'sha1WithRSAEncryption':
-                case 'sha224WithRSAEncryption':
-                case 'sha256WithRSAEncryption':
-                case 'sha384WithRSAEncryption':
-                case 'sha512WithRSAEncryption':
-                    $key = $key
-                        ->withHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm))
-                        ->withPadding(RSA::SIGNATURE_PKCS1);
-                    break;
-                default:
-                    throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+            if ($key->getPadding() | RSA::SIGNATURE_PSS) {
+                return 'id-RSASSA-PSS';
             }
-            $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
-            return $this->currentCert;
+            switch ($key->getHash()) {
+                case 'md2':
+                case 'md5':
+                case 'sha1':
+                case 'sha224':
+                case 'sha256':
+                case 'sha384':
+                case 'sha512':
+                    return $key->getHash() . 'WithRSAEncryption';
+            }
+            throw new UnsupportedAlgorithmException('The only supported hash algorithms for RSA are: md2, md5, sha1, sha224, sha256, sha384, sha512');
         }
 
         if ($key instanceof DSA) {
-            switch ($signatureAlgorithm) {
-                case 'id-dsa-with-sha1':
-                case 'id-dsa-with-sha224':
-                case 'id-dsa-with-sha256':
-                    $key = $key
-                        ->withHash(preg_replace('#^id-dsa-with-#', '', strtolower($signatureAlgorithm)));
-                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
-                    return $this->currentCert;
-                default:
-                    throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+            switch ($key->getHash()) {
+                case 'sha1':
+                case 'sha224':
+                case 'sha256':
+                    return 'id-dsa-with-' . $key->getHash();
             }
+            throw new UnsupportedAlgorithmException('The only supported hash algorithms for DSA are: sha1, sha224, sha256');
         }
 
         if ($key instanceof ECDSA) {
-            switch ($signatureAlgorithm) {
-                case 'id-Ed25519':
-                    if ($key->getCurve() !== 'Ed25519') {
-                        throw new UnsupportedAlgorithmException('Loaded ECDSA does not use the Ed25519 key and yet that is the signature algorithm that has been chosen');
-                    }
-                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
-                    return $this->currentCert;
-                case 'id-Ed448':
-                    if ($key->getCurve() !== 'Ed448') {
-                        throw new UnsupportedAlgorithmException('Loaded ECDSA does not use the Ed448 key and yet that is the signature algorithm that has been chosen');
-                    }
-                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
-                    return $this->currentCert;
-                case 'ecdsa-with-SHA1':
-                case 'ecdsa-with-SHA224':
-                case 'ecdsa-with-SHA256':
-                case 'ecdsa-with-SHA384':
-                case 'ecdsa-with-SHA512':
-                    $key = $key
-                        ->withHash(preg_replace('#^ecdsa-with-#', '', strtolower($signatureAlgorithm)));
-                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
-                    return $this->currentCert;
-                default:
-                    throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+            switch ($key->getCurve()) {
+                case 'Ed25519':
+                case 'Ed448':
+                    return 'id-' . $key->getCurve();
             }
+            switch ($key->getHash()) {
+                case 'sha1':
+                case 'sha224':
+                case 'sha256':
+                case 'sha384':
+                case 'sha512':
+                    return 'ecdsa-with-' . strtoupper($key->getHash());
+            }
+            throw new UnsupportedAlgorithmException('The only supported hash algorithms for ECDSA are: sha1, sha224, sha256, sha384, sha512');
         }
 
-        throw new UnsupportedAlgorithmException('Unsupported public key algorithm');
+        throw new UnsupportedAlgorithmException('The only supported public key classes are: RSA, DSA, ECDSA');
     }
 
     /**
@@ -3666,12 +3652,16 @@ class X509
      */
     private function formatSubjectPublicKey()
     {
-        $publicKey = base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey));
+        $format = $this->publicKey instanceof RSA && ($this->publicKey->getPadding() & RSA::SIGNATURE_PSS) ?
+            'PSS' :
+            'PKCS8';
+
+        $publicKey = base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->toString($format)));
 
         $decoded = ASN1::decodeBER($publicKey);
         $mapped = ASN1::asn1map($decoded[0], Maps\SubjectPublicKeyInfo::MAP);
 
-        $mapped['subjectPublicKey'] = (string) $this->publicKey;
+        $mapped['subjectPublicKey'] = $this->publicKey->toString($format);
 
         return $mapped;
     }

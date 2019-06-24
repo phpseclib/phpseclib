@@ -353,6 +353,16 @@ abstract class ECDSA extends AsymmetricKey
     }
 
     /**
+     * Returns the signature format currently being used
+     *
+     * @access public
+     */
+    public function getSignatureFormat()
+    {
+       return $this->shortFormat;
+    }
+
+    /**
      * Sets the context
      *
      * Used by Ed25519 / Ed448.
@@ -381,6 +391,16 @@ abstract class ECDSA extends AsymmetricKey
         }
         $new->context = $context;
         return $new;
+    }
+
+    /**
+     * Returns the signature format currently being used
+     *
+     * @access public
+     */
+    public function getContext()
+    {
+       return $this->context;
     }
 
     /**

@@ -113,9 +113,11 @@ L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k
 X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl
 U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
------END RSA PRIVATE KEY-----');
+-----END RSA PRIVATE KEY-----')
+            ->withPadding(RSA::SIGNATURE_PKCS1)
+            ->withHash('sha1');
         $x509->setPrivateKey($rsa);
         $x509->setDN(['cn' => 'website.com']);
-        $x509->saveCSR($x509->signCSR('sha256WithRSAEncryption'), X509::FORMAT_DER);
+        $x509->saveCSR($x509->signCSR(), X509::FORMAT_DER);
     }
 }

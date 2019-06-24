@@ -357,6 +357,16 @@ abstract class AsymmetricKey
     }
 
     /**
+     * Returns the hash algorithm currently being used
+     *
+     * @access public
+     */
+    public function getHash()
+    {
+       return $this->hash->getHash();
+    }
+
+    /**
      * Compute the pseudorandom k for signature generation,
      * using the process specified for deterministic DSA.
      *

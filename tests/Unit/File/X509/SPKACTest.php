@@ -46,7 +46,9 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 
     public function testSaveSPKAC()
     {
-        $privatekey = RSA::createKey();
+        $privatekey = RSA::createKey(512)
+            ->withPadding(RSA::SIGNATURE_PKCS1)
+            ->withHash('sha1');
 
         $x509 = new X509();
         $x509->setPrivateKey($privatekey);
