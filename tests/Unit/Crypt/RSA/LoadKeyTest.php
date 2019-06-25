@@ -9,11 +9,11 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\PublicKeyLoader;
 use phpseclib\Crypt\RSA\PrivateKey;
 use phpseclib\Crypt\RSA\PublicKey;
-use phpseclib\Crypt\RSA\Keys\PKCS1;
-use phpseclib\Crypt\RSA\Keys\PKCS8;
-use phpseclib\Crypt\RSA\Keys\PuTTY;
-use phpseclib\Crypt\RSA\Keys\OpenSSH;
-use phpseclib\Crypt\RSA\Keys\PSS;
+use phpseclib\Crypt\RSA\Formats\Keys\PKCS1;
+use phpseclib\Crypt\RSA\Formats\Keys\PKCS8;
+use phpseclib\Crypt\RSA\Formats\Keys\PuTTY;
+use phpseclib\Crypt\RSA\Formats\Keys\OpenSSH;
+use phpseclib\Crypt\RSA\Formats\Keys\PSS;
 use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase

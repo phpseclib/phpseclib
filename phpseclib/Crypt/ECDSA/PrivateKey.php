@@ -14,12 +14,12 @@
 namespace phpseclib\Crypt\ECDSA;
 
 use phpseclib\Crypt\ECDSA;
-use phpseclib\Crypt\ECDSA\Signature\ASN1 as ASN1Signature;
+use phpseclib\Crypt\ECDSA\Formats\Signature\ASN1 as ASN1Signature;
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\ECDSA\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\ECDSA\Curves\Ed25519;
-use phpseclib\Crypt\ECDSA\Keys\PKCS8;
+use phpseclib\Crypt\ECDSA\Formats\Keys\PKCS8;
 use phpseclib\Crypt\Common;
 
 /**

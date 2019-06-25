@@ -7,7 +7,7 @@
  */
 
 use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\RSA\Keys\PKCS1;
+use phpseclib\Crypt\RSA\Formats\Keys\PKCS1;
 use phpseclib\Crypt\RSA\PrivateKey;
 use phpseclib\Crypt\RSA\PublicKey;
 

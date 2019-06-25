@@ -23,7 +23,7 @@ use phpseclib\Exception\UnsupportedFormatException;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\Common;
 use phpseclib\File\ASN1\Maps\DigestInfo;
-use phpseclib\Crypt\RSA\Keys\PSS;
+use phpseclib\Crypt\RSA\Formats\Keys\PSS;
 
 /**
  * Raw RSA Key Handler

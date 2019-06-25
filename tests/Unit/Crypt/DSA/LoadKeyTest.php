@@ -9,9 +9,9 @@ use phpseclib\Crypt\PublicKeyLoader;
 use phpseclib\Crypt\DSA\PrivateKey;
 use phpseclib\Crypt\DSA\PublicKey;
 use phpseclib\Crypt\DSA\Parameters;
-use phpseclib\Crypt\DSA\Keys\PKCS1;
-use phpseclib\Crypt\DSA\Keys\PKCS8;
-use phpseclib\Crypt\DSA\Keys\PuTTY;
+use phpseclib\Crypt\DSA\Formats\Keys\PKCS1;
+use phpseclib\Crypt\DSA\Formats\Keys\PKCS8;
+use phpseclib\Crypt\DSA\Formats\Keys\PuTTY;
 use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_DSA_LoadKeyTest extends PhpseclibTestCase

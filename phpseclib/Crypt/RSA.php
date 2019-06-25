@@ -53,7 +53,7 @@ use phpseclib\Crypt\RSA\PublicKey;
 use phpseclib\Math\BigInteger;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\Exception\InconsistentSetupException;
-use phpseclib\Crypt\RSA\Keys\PSS;
+use phpseclib\Crypt\RSA\Formats\Keys\PSS;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.

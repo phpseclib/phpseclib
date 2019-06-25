@@ -6,11 +6,11 @@
  */
 
 use phpseclib\Crypt\ECDSA;
-use phpseclib\Crypt\ECDSA\Keys\PKCS1;
-use phpseclib\Crypt\ECDSA\Keys\PKCS8;
-use phpseclib\Crypt\ECDSA\Keys\PuTTY;
-use phpseclib\Crypt\ECDSA\Keys\OpenSSH;
-use phpseclib\Crypt\ECDSA\Keys\XML;
+use phpseclib\Crypt\ECDSA\Formats\Keys\PKCS1;
+use phpseclib\Crypt\ECDSA\Formats\Keys\PKCS8;
+use phpseclib\Crypt\ECDSA\Formats\Keys\PuTTY;
+use phpseclib\Crypt\ECDSA\Formats\Keys\OpenSSH;
+use phpseclib\Crypt\ECDSA\Formats\Keys\XML;
 use phpseclib\Crypt\PublicKeyLoader;
 use phpseclib\Crypt\ECDSA\PrivateKey;
 

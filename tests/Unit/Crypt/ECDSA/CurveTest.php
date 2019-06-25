@@ -14,7 +14,7 @@ use phpseclib\Crypt\PublicKeyLoader;
 
 class Ed448PublicKey
 {
-    use phpseclib\Crypt\ECDSA\Keys\Common;
+    use phpseclib\Crypt\ECDSA\Formats\Keys\Common;
 
     public static function load($key, $password = '')
     {
@@ -74,7 +74,7 @@ class Unit_Crypt_ECDSA_CurveTest extends PhpseclibTestCase
 
     public function curvesWithOIDs()
     {
-        $class = new ReflectionClass('phpseclib\Crypt\ECDSA\Keys\PKCS8');
+        $class = new ReflectionClass('phpseclib\Crypt\ECDSA\Formats\Keys\PKCS8');
 
         $initialize = $class->getMethod('initialize_static_variables');
         $initialize->setAccessible(true);

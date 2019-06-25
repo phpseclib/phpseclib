@@ -16,7 +16,7 @@
 namespace phpseclib\Math\BigInteger\Engines;
 
 use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\RSA\Keys\PKCS8;
+use phpseclib\Crypt\RSA\Formats\Keys\PKCS8;
 use phpseclib\Math\BigInteger;
 
 /**

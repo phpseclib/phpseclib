@@ -22,7 +22,7 @@ use phpseclib\Exceptions\NoKeyLoadedException;
 use phpseclib\Exception\UnsupportedFormatException;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\Common;
-use phpseclib\Crypt\RSA\Keys\PSS;
+use phpseclib\Crypt\RSA\Formats\Keys\PSS;
 
 /**
  * Raw RSA Key Handler

@@ -38,7 +38,7 @@ use phpseclib\Crypt\ECDSA\Parameters;
 use phpseclib\Crypt\ECDSA\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib\Crypt\ECDSA\Curves\Ed25519;
 use phpseclib\Crypt\ECDSA\Curves\Ed448;
-use phpseclib\Crypt\ECDSA\Keys\PKCS1;
+use phpseclib\Crypt\ECDSA\Formats\Keys\PKCS1;
 use phpseclib\File\ASN1\Maps\ECParameters;
 use phpseclib\File\ASN1;
 use phpseclib\Exception\UnsupportedCurveException;

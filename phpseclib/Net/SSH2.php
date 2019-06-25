@@ -68,7 +68,6 @@ use phpseclib\Exception\NoSupportedAlgorithmsException;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\Exception\UnsupportedCurveException;
 use phpseclib\Common\Functions\Strings;
-use phpseclib\Crypt\Common\Keys\OpenSSH;
 
 /**
  * Pure-PHP implementation of SSHv2.

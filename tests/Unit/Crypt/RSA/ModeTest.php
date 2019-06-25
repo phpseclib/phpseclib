@@ -8,7 +8,7 @@
 use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\PublicKeyLoader;
-use phpseclib\Crypt\RSA\Keys\PKCS8;
+use phpseclib\Crypt\RSA\Formats\Keys\PKCS8;
 
 class Unit_Crypt_RSA_ModeTest extends PhpseclibTestCase
 {
