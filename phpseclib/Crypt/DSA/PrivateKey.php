@@ -27,7 +27,7 @@ use phpseclib\Crypt\Common;
  */
 class PrivateKey extends DSA implements Common\PrivateKey
 {
-    use Common\PasswordProtected;
+    use Common\Traits\PasswordProtected;
 
     /**
      * DSA secret exponent x

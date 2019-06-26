@@ -26,7 +26,7 @@ use phpseclib\Crypt\Common;
  */
 class PublicKey extends DSA implements Common\PublicKey
 {
-    use Common\Fingerprint;
+    use Common\Traits\Fingerprint;
 
     /**
      * Verify a signature

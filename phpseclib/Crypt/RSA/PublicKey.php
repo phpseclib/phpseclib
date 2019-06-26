@@ -34,7 +34,7 @@ use phpseclib\Crypt\RSA\Formats\Keys\PSS;
  */
 class PublicKey extends RSA implements Common\PublicKey
 {
-    use Common\Fingerprint;
+    use Common\Traits\Fingerprint;
 
     /**
      * Exponentiate

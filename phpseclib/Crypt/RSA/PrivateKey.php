@@ -33,7 +33,7 @@ use phpseclib\Crypt\RSA\Formats\Keys\PSS;
  */
 class PrivateKey extends RSA implements Common\PrivateKey
 {
-    use Common\PasswordProtected;
+    use Common\Traits\PasswordProtected;
 
     /**
      * Primes for Chinese Remainder Theorem (ie. p and q)

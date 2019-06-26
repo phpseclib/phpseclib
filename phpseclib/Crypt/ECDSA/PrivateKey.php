@@ -31,7 +31,7 @@ use phpseclib\Crypt\Common;
  */
 class PrivateKey extends ECDSA implements Common\PrivateKey
 {
-    use Common\PasswordProtected;
+    use Common\Traits\PasswordProtected;
 
     /**
      * Private Key dA
