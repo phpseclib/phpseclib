@@ -225,6 +225,14 @@ abstract class RSA extends AsymmetricKey
     private static $defaultExponent = 65537;
 
     /**
+     * Enable Blinding?
+     *
+     * @var bool
+     * @access private
+     */
+    protected static $enableBlinding = true;
+
+    /**
      * Smallest Prime
      *
      * Per <http://cseweb.ucsd.edu/~hovav/dist/survey.pdf#page=5>, this number ought not result in primes smaller

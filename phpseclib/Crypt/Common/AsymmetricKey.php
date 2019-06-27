@@ -72,14 +72,6 @@ abstract class AsymmetricKey
     private $hmac;
 
     /**
-     * Enable Blinding?
-     *
-     * @var bool
-     * @access private
-     */
-    protected static $enableBlinding = true;
-
-    /**
      * Supported plugins (lower case)
      *
      * @see self::initialize_static_variables()
