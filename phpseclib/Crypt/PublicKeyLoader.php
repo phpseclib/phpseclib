@@ -39,26 +39,16 @@ abstract class PublicKeyLoader
     public static function load($key, $password = false)
     {
         try {
-            $new = EC::load($key, $password);
-        } catch (\Exception $e) {}
+            return EC::load($key, $password);
+        } catch (NoKeyLoadedException $e) {}
 
-        if (!isset($new)) {
-            try {
-                $new = RSA::load($key, $password);
-            } catch (\Exception $e) {}
-        }
+        try {
+            return RSA::load($key, $password);
+        } catch (NoKeyLoadedException $e) {}
 
-        if (!isset($new)) {
-            try {
-                $new = DSA::load($key, $password);
-            } catch (\Exception $e) {}
-        }
-
-        if (isset($new)) {
-            return $new instanceof PrivateKey ?
-                $new->withPassword($password) :
-                $new;
-        }
+        try {
+            return DSA::load($key, $password);
+        } catch (NoKeyLoadedException $e) {}
 
         try {
             $x509 = new X509();

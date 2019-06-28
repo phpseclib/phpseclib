@@ -171,7 +171,10 @@ abstract class AsymmetricKey
 
         $components['format'] = $format;
 
-        return static::onLoad($components);
+        $new = static::onLoad($components);
+        return $new instanceof PrivateKey ?
+            $new->withPassword($password) :
+            $new;
     }
 
     /**
@@ -199,7 +202,10 @@ abstract class AsymmetricKey
 
         $components['format'] = $format;
 
-        return static::onLoad($components);
+        $new = static::onLoad($components);
+        return $new instanceof PrivateKey ?
+            $new->withPassword($password) :
+            $new;
     }
 
     /**
