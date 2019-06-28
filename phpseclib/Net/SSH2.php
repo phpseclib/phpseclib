@@ -57,7 +57,7 @@ use phpseclib\Crypt\Rijndael;
 use phpseclib\Crypt\Common\PrivateKey;
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\ECDSA;
+use phpseclib\Crypt\EC;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\Twofish;
 use phpseclib\Crypt\ChaCha20;
@@ -2412,7 +2412,7 @@ class SSH2
                     $hash = 'sha1';
                     $signatureType = 'ssh-rsa';
             }
-        } else if ($publickey instanceof ECDSA) {
+        } else if ($publickey instanceof EC) {
             $privatekey = $privatekey->withSignatureFormat('SSH2');
             $curveName = $privatekey->getCurve();
             switch ($curveName) {
@@ -2443,7 +2443,7 @@ class SSH2
             $hash = 'sha1';
             $signatureType = 'ssh-dss';
         } else {
-            throw new UnsupportedAlgorithmException('Please use either an RSA key, an ECDSA one or a DSA key');
+            throw new UnsupportedAlgorithmException('Please use either an RSA key, an EC one or a DSA key');
         }
 
         $publickeyStr = $publickey->toString('OpenSSH', ['binary' => true]);
@@ -4601,7 +4601,7 @@ class SSH2
             case 'ecdsa-sha2-nistp256':
             case 'ecdsa-sha2-nistp384':
             case 'ecdsa-sha2-nistp521':
-                $key = ECDSA::load($server_public_host_key, 'OpenSSH')
+                $key = EC::load($server_public_host_key, 'OpenSSH')
                     ->withSignatureFormat('SSH2');
                 switch ($this->signature_format) {
                     case 'ssh-ed25519':

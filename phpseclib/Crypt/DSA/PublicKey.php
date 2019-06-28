@@ -14,7 +14,7 @@
 namespace phpseclib\Crypt\DSA;
 
 use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\ECDSA\Formats\Signature\ASN1 as ASN1Signature;
+use phpseclib\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
 use phpseclib\Crypt\Common;
 
 /**

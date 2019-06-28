@@ -32,7 +32,7 @@ use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\ECDSA;
+use phpseclib\Crypt\EC;
 use phpseclib\Crypt\Common\PublicKey;
 use phpseclib\Crypt\Common\PrivateKey;
 use phpseclib\Exception\UnsupportedAlgorithmException;
@@ -1380,10 +1380,10 @@ class X509
                 break;
             case 'id-Ed25519':
             case 'id-Ed448':
-                $key = ECDSA::load($publicKey, 'PKCS8');
+                $key = EC::load($publicKey, 'PKCS8');
                 break;
             case 'id-ecPublicKey':
-                $key = ECDSA::load($publicKey, 'PKCS8');
+                $key = EC::load($publicKey, 'PKCS8');
                 switch ($signatureAlgorithm) {
                     case 'ecdsa-with-SHA1':
                     case 'ecdsa-with-SHA224':
@@ -2093,7 +2093,7 @@ class X509
             case 'id-ecPublicKey':
             case 'id-Ed25519':
             case 'id-Ed448':
-                return ECDSA::load($key, 'PKCS8');
+                return EC::load($key, 'PKCS8');
             case 'id-dsa':
                 return DSA::load($key, 'PKCS8');
         }
@@ -2952,7 +2952,7 @@ class X509
             throw new UnsupportedAlgorithmException('The only supported hash algorithms for DSA are: sha1, sha224, sha256');
         }
 
-        if ($key instanceof ECDSA) {
+        if ($key instanceof EC) {
             switch ($key->getCurve()) {
                 case 'Ed25519':
                 case 'Ed448':
@@ -2966,10 +2966,10 @@ class X509
                 case 'sha512':
                     return 'ecdsa-with-' . strtoupper($key->getHash());
             }
-            throw new UnsupportedAlgorithmException('The only supported hash algorithms for ECDSA are: sha1, sha224, sha256, sha384, sha512');
+            throw new UnsupportedAlgorithmException('The only supported hash algorithms for EC are: sha1, sha224, sha256, sha384, sha512');
         }
 
-        throw new UnsupportedAlgorithmException('The only supported public key classes are: RSA, DSA, ECDSA');
+        throw new UnsupportedAlgorithmException('The only supported public key classes are: RSA, DSA, EC');
     }
 
     /**

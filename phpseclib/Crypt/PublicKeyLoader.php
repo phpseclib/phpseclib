@@ -39,7 +39,7 @@ abstract class PublicKeyLoader
     public static function load($key, $password = false)
     {
         try {
-            $new = ECDSA::load($key, false, $password);
+            $new = EC::load($key, false, $password);
         } catch (\Exception $e) {}
 
         if (!isset($new)) {

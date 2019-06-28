@@ -6,7 +6,7 @@
  * PHP version 5
  *
  * Handles signatures in the format described in
- * https://tools.ietf.org/html/rfc3279#section-2.2.2
+ * https://tools.ietf.org/html/rfc3279#section-2.2.3
  *
  * @category  Crypt
  * @package   Common
@@ -16,11 +16,11 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\DSA\Formats\Signature;
+namespace phpseclib\Crypt\EC\Formats\Signature;
 
 use phpseclib\Math\BigInteger;
 use phpseclib\File\ASN1 as Encoder;
-use phpseclib\File\ASN1\Maps;
+use phpseclib\File\ASN1\Maps\EcdsaSigValue;
 
 /**
  * ASN1 Signature Handler
@@ -35,8 +35,8 @@ abstract class ASN1
      * Loads a signature
      *
      * @access public
-     * @param string $sig
-     * @return array|bool
+     * @param array $key
+     * @return array
      */
     public static function load($sig)
     {
@@ -48,7 +48,7 @@ abstract class ASN1
         if (empty($decoded)) {
             return false;
         }
-        $components = Encoder::asn1map($decoded[0], Maps\DssSigValue::MAP);
+        $components = Encoder::asn1map($decoded[0], EcdsaSigValue::MAP);
 
         return $components;
     }
@@ -63,6 +63,6 @@ abstract class ASN1
      */
     public static function save(BigInteger $r, BigInteger $s)
     {
-        return Encoder::encodeDER(compact('r', 's'), Maps\DssSigValue::MAP);
+        return Encoder::encodeDER(compact('r', 's'), EcdsaSigValue::MAP);
     }
 }
