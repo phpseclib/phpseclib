@@ -196,7 +196,7 @@ class PrivateKey extends EC implements Common\PrivateKey
         $type = self::validatePlugin('Keys', 'PKCS8', 'savePublicKey');
 
         $key = $type::savePublicKey($this->curve, $this->QA);
-        $key = EC::load($key, 'PKCS8')
+        $key = EC::loadFormat('PKCS8', $key)
             ->withHash($this->hash->getHash())
             ->withSignatureFormat($this->shortFormat);
         if ($this->curve instanceof TwistedEdwardsCurve) {
