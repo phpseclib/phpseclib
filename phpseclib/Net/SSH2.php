@@ -4601,7 +4601,7 @@ class SSH2
             case 'ecdsa-sha2-nistp256':
             case 'ecdsa-sha2-nistp384':
             case 'ecdsa-sha2-nistp521':
-                $key = EC::load($server_public_host_key, 'OpenSSH')
+                $key = EC::loadFormat('OpenSSH', $server_public_host_key)
                     ->withSignatureFormat('SSH2');
                 switch ($this->signature_format) {
                     case 'ssh-ed25519':
@@ -4620,7 +4620,7 @@ class SSH2
                 $key = $key->withHash($hash);
                 break;
             case 'ssh-dss':
-                $key = DSA::load($server_public_host_key, 'OpenSSH')
+                $key = DSA::loadFormat('OpenSSH', $server_public_host_key)
                     ->withSignatureFormat('SSH2')
                     ->withHash('sha1');
                 break;
@@ -4634,7 +4634,7 @@ class SSH2
                 $temp = unpack('Nlength', Strings::shift($signature, 4));
                 $signature = Strings::shift($signature, $temp['length']);
 
-                $key = RSA::load($server_public_host_key, 'OpenSSH')
+                $key = RSA::loadFormat('OpenSSH', $server_public_host_key)
                     ->withPadding(RSA::SIGNATURE_PKCS1);
                 switch ($this->signature_format) {
                     case 'rsa-sha2-512':

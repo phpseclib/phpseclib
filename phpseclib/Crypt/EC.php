@@ -187,24 +187,17 @@ abstract class EC extends AsymmetricKey
     }
 
     /**
-     * Loads a public or private key
+     * OnLoad Handler
      *
-     * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
      * @return bool
-     * @access public
-     * @param string $key
-     * @param string $type optional
-     * @param string $password optional
+     * @access protected
+     * @param array $components
      */
-    public static function load($key, $type = false, $password = false)
+    protected static function onLoad($components)
     {
-        self::initialize_static_variables();
-
         if (!isset(self::$engines['PHP'])) {
             self::useBestEngine();
         }
-
-        $components = parent::load($key, $type, $password);
 
         if (!isset($components['dA']) && !isset($components['QA'])) {
             $new = new Parameters;

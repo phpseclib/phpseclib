@@ -146,31 +146,22 @@ abstract class AsymmetricKey
      * Load the key
      *
      * @param string $key
-     * @param string $type
-     * @param string $password
-     * @return array|bool
+     * @param string $password optional
+     * @return AsymmetricKey
      */
-    protected static function load($key, $type, $password)
+    public static function load($key, $password = false)
     {
         self::initialize_static_variables();
 
         $components = false;
-        if ($type === false) {
-            foreach (self::$plugins[static::ALGORITHM]['Keys'] as $format) {
-                try {
-                    $components = $format::load($key, $password);
-                } catch (\Exception $e) {
-                    $components = false;
-                }
-                if ($components !== false) {
-                    break;
-                }
-            }
-        } else {
-            $format = strtolower($type);
-            if (isset(self::$plugins[static::ALGORITHM]['Keys'][$format])) {
-                $format = self::$plugins[static::ALGORITHM]['Keys'][$format];
+        foreach (self::$plugins[static::ALGORITHM]['Keys'] as $format) {
+            try {
                 $components = $format::load($key, $password);
+            } catch (\Exception $e) {
+                $components = false;
+            }
+            if ($components !== false) {
+                break;
             }
         }
 
@@ -180,7 +171,35 @@ abstract class AsymmetricKey
 
         $components['format'] = $format;
 
-        return $components;
+        return static::onLoad($components);
+    }
+
+    /**
+     * Load the key, assuming a specific format
+     *
+     * @param string $key
+     * @param string $type
+     * @param string $password optional
+     * @return AsymmetricKey
+     */
+    public static function loadFormat($type, $key, $password = false)
+    {
+        self::initialize_static_variables();
+
+        $components = false;
+        $format = strtolower($type);
+        if (isset(self::$plugins[static::ALGORITHM]['Keys'][$format])) {
+            $format = self::$plugins[static::ALGORITHM]['Keys'][$format];
+            $components = $format::load($key, $password);
+        }
+
+        if ($components === false) {
+            throw new NoKeyLoadedException('Unable to read key');
+        }
+
+        $components['format'] = $format;
+
+        return static::onLoad($components);
     }
 
     /**

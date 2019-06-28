@@ -39,18 +39,18 @@ abstract class PublicKeyLoader
     public static function load($key, $password = false)
     {
         try {
-            $new = EC::load($key, false, $password);
+            $new = EC::load($key, $password);
         } catch (\Exception $e) {}
 
         if (!isset($new)) {
             try {
-                $new = RSA::load($key, false, $password);
+                $new = RSA::load($key, $password);
             } catch (\Exception $e) {}
         }
 
         if (!isset($new)) {
             try {
-                $new = DSA::load($key, false, $password);
+                $new = DSA::load($key, $password);
             } catch (\Exception $e) {}
         }
 
