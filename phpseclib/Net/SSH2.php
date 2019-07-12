@@ -3712,7 +3712,7 @@ class SSH2
                     // on windows this returns a "Warning: Invalid CRT parameters detected" error
                     if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
                         $this->is_timeout = true;
-                        if ($client_channel == NET_SSH2_CHANNEL_EXEC && !$this->request_pty) {
+                        if ($client_channel == self::CHANNEL_EXEC && !$this->request_pty) {
                             $this->_close_channel($client_channel);
                         }
                         return true;
@@ -3762,7 +3762,7 @@ class SSH2
                 switch ($type) {
                     case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
                         /*
-                        if ($client_channel == NET_SSH2_CHANNEL_EXEC) {
+                        if ($client_channel == self::CHANNEL_EXEC) {
                             $this->_send_channel_packet($client_channel, chr(0));
                         }
                         */
