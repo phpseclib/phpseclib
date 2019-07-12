@@ -3590,7 +3590,9 @@ class SSH2
                     // on windows this returns a "Warning: Invalid CRT parameters detected" error
                     if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
                         $this->is_timeout = true;
-                        $this->close_channel($client_channel);
+                        if ($client_channel == NET_SSH2_CHANNEL_EXEC && !$this->request_pty) {
+                            $this->close_channel($client_channel);
+                        }
                         return true;
                     }
                     $elapsed = microtime(true) - $start;
