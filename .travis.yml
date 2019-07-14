@@ -20,6 +20,7 @@ before_install: true
 matrix:
   allow_failures:
     - php: nightly
+    - 7.4snapshot
 
 install:
   - wget http://ftp.gnu.org/gnu/parallel/parallel-20170822.tar.bz2
