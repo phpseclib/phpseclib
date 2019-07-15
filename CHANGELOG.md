@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.21 - 2019-07-14
+
+- SSH2: only auto close the channel for exec() timeouts (#1384)
+
 ## 2.0.20 - 2019-06-23
 
 - BigInteger: lower PHP req back down to PHP 5.3.3 (#1382)
