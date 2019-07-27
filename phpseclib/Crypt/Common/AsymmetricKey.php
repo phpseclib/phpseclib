@@ -81,13 +81,13 @@ abstract class AsymmetricKey
     private static $plugins = [];
 
     /**
-     * Supported plugins (original case)
+     * Invisible plugins
      *
      * @see self::initialize_static_variables()
      * @var array
      * @access private
      */
-    private static $origPlugins = [];
+    private static $invisiblePlugins = [];
 
     /**
      * Supported signature formats (lower case)
@@ -137,7 +137,7 @@ abstract class AsymmetricKey
         }
 
         self::loadPlugins('Keys');
-        if (static::ALGORITHM != 'RSA') {
+        if (static::ALGORITHM != 'RSA' && static::ALGORITHM != 'DH') {
             self::loadPlugins('Signature');
         }
     }
@@ -155,6 +155,9 @@ abstract class AsymmetricKey
 
         $components = false;
         foreach (self::$plugins[static::ALGORITHM]['Keys'] as $format) {
+            if (isset(self::$invisiblePlugins[static::ALGORITHM]) && in_array($format, self::$invisiblePlugins[static::ALGORITHM])) {
+                continue;
+            }
             try {
                 $components = $format::load($key, $password);
             } catch (\Exception $e) {
@@ -252,7 +255,9 @@ abstract class AsymmetricKey
                     continue;
                 }
                 self::$plugins[static::ALGORITHM][$format][strtolower($name)] = $type;
-                self::$origPlugins[static::ALGORITHM][$format][] = $name;
+                if ($reflect->hasConstant('IS_INVISIBLE')) {
+                    self::$invisiblePlugins[static::ALGORITHM][] = $type;
+                }
             }
         }
     }
@@ -289,7 +294,9 @@ abstract class AsymmetricKey
             $meta = new \ReflectionClass($fullname);
             $shortname = $meta->getShortName();
             self::$plugins[static::ALGORITHM]['Keys'][strtolower($shortname)] = $fullname;
-            self::$origPlugins[static::ALGORITHM]['Keys'][] = $shortname;
+            if ($meta->hasConstant('IS_INVISIBLE')) {
+                self::$invisiblePlugins[static::ALGORITHM] = strtolower($name);
+            }
         }
     }
 

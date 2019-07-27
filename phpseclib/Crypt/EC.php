@@ -36,13 +36,17 @@ use phpseclib\Crypt\EC\PrivateKey;
 use phpseclib\Crypt\EC\PublicKey;
 use phpseclib\Crypt\EC\Parameters;
 use phpseclib\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
+use phpseclib\Crypt\EC\Curves\Curve25519;
 use phpseclib\Crypt\EC\Curves\Ed25519;
 use phpseclib\Crypt\EC\Curves\Ed448;
 use phpseclib\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib\File\ASN1\Maps\ECParameters;
 use phpseclib\File\ASN1;
+use phpseclib\Math\BigInteger;
 use phpseclib\Exception\UnsupportedCurveException;
 use phpseclib\Exception\UnsupportedAlgorithmException;
+use phpseclib\Exception\UnsupportedOperationException;
 
 /**
  * Pure-PHP implementation of EC.
@@ -157,9 +161,13 @@ abstract class EC extends AsymmetricKey
         $privatekey = new PrivateKey;
 
         $curveName = $curve;
-        $curve = '\phpseclib\Crypt\EC\Curves\\' . $curve;
+        $curve = '\phpseclib\Crypt\EC\Curves\\' . $curveName;
         if (!class_exists($curve)) {
-            throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported');
+            $curveName = ucfirst($curveName);
+            $curve = '\phpseclib\Crypt\EC\Curves\\' . $curveName;
+            if (!class_exists($curve)) {
+                throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported');
+            }
         }
 
         $reflect = new \ReflectionClass($curve);
@@ -169,7 +177,14 @@ abstract class EC extends AsymmetricKey
 
         $curve = new $curve();
         $privatekey->dA = $dA = $curve->createRandomMultiplier();
-        $privatekey->QA = $curve->multiplyPoint($curve->getBasePoint(), $dA);
+        if ($curve instanceof Curve25519 && self::$engines['libsodium']) {
+            //$r = pack('H*', '0900000000000000000000000000000000000000000000000000000000000000');
+            //$QA = sodium_crypto_scalarmult($dA->toBytes(), $r);
+            $QA = sodium_crypto_box_publickey_from_secretkey($dA->toBytes());
+            $privatekey->QA = [$curve->convertInteger(new BigInteger(strrev($QA), 256))];
+        } else {
+            $privatekey->QA = $curve->multiplyPoint($curve->getBasePoint(), $dA);
+        }
         $privatekey->curve = $curve;
 
         //$publickey = clone $privatekey;
@@ -311,6 +326,24 @@ abstract class EC extends AsymmetricKey
     }
 
     /**
+     * Returns the public key coordinates as a string
+     *
+     * Used by ECDH
+     *
+     * @return string
+     */
+    public function getEncodedCoordinates()
+    {
+        if ($this->curve instanceof MontgomeryCurve) {
+            return strrev($this->QA[0]->toBytes(true));
+        }
+        if ($this->curve instanceof TwistedEdwardsCurve) {
+            return $this->curve->encodePoint($this->QA);
+        }
+        return "\4" . $this->QA[0]->toBytes(true) . $this->QA[1]->toBytes(true);
+    }
+
+    /**
      * Returns the parameters
      *
      * @see self::getPublicKey()
@@ -339,6 +372,10 @@ abstract class EC extends AsymmetricKey
      */
     public function withSignatureFormat($format)
     {
+        if ($this->curve instanceof MontgomeryCurve) {
+            throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
+        }
+
         $new = clone $this;
         $new->shortFormat = $format;
         $new->format = self::validatePlugin('Signature', $format);
@@ -404,6 +441,9 @@ abstract class EC extends AsymmetricKey
      */
     public function withHash($hash)
     {
+        if ($this->curve instanceof MontgomeryCurve) {
+            throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
+        }
         if ($this->curve instanceof Ed25519 && $hash != 'sha512') {
             throw new UnsupportedAlgorithmException('Ed25519 only supports sha512 as a hash');
         }
@@ -412,5 +452,19 @@ abstract class EC extends AsymmetricKey
         }
 
         return parent::withHash($hash);
+    }
+
+    /**
+     * __toString() magic method
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        if ($this->curve instanceof MontgomeryCurve) {
+            return '';
+        }
+
+        return parent::__toString();
     }
 }

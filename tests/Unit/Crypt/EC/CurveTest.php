@@ -47,6 +47,9 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
                 continue;
             }
             $testName = $file->getBasename('.php');
+            if ($testName == 'Curve25519' || $testName == 'Curve448') {
+                continue;
+            }
             $class = 'phpseclib\Crypt\EC\Curves\\' . $testName;
             $reflect = new \ReflectionClass($class);
             if ($reflect->isFinal()) {
@@ -66,6 +69,9 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
                 continue;
             }
             $testName = $file->getBasename('.php');
+            if ($testName == 'Curve25519' || $testName == 'Curve448') {
+                continue;
+            }
             $curves[] = [$testName];
         }
 

@@ -31,9 +31,11 @@ use phpseclib\File\ASN1;
 use phpseclib\File\ASN1\Maps;
 use phpseclib\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib\Math\Common\FiniteField\Integer;
 use phpseclib\Crypt\EC\Curves\Ed25519;
 use phpseclib\Crypt\EC\Curves\Ed448;
+use phpseclib\Exception\UnsupportedCurveException;
 
 /**
  * PKCS#8 Formatted EC Key Handler
@@ -176,6 +178,10 @@ abstract class PKCS8 extends Progenitor
     {
         self::initialize_static_variables();
 
+        if ($curve instanceof MontgomeryCurve) {
+            throw new UnsupportedCurveException('Montgomery Curves are not supported');
+        }
+
         if ($curve instanceof TwistedEdwardsCurve) {
             return self::wrapPublicKey(
                 $curve->encodePoint($publicKey),
@@ -205,6 +211,10 @@ abstract class PKCS8 extends Progenitor
     public static function savePrivateKey(Integer $privateKey, BaseCurve $curve, array $publicKey, $password = '', array $options = [])
     {
         self::initialize_static_variables();
+
+        if ($curve instanceof MontgomeryCurve) {
+            throw new UnsupportedCurveException('Montgomery Curves are not supported');
+        }
 
         if ($curve instanceof TwistedEdwardsCurve) {
             return self::wrapPrivateKey(

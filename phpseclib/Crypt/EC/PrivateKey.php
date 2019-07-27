@@ -17,10 +17,13 @@ use phpseclib\Crypt\EC;
 use phpseclib\Crypt\EC\Formats\Signature\ASN1 as ASN1Signature;
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\EC\Curves\Ed25519;
-use phpseclib\Crypt\EC\Formats\Keys\PKCS8;
+use phpseclib\Crypt\EC\Curves\Curve25519;
+use phpseclib\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib\Crypt\Common;
+use phpseclib\Exception\UnsupportedOperationException;
 
 /**
  * EC Private Key
@@ -45,6 +48,39 @@ class PrivateKey extends EC implements Common\PrivateKey
     protected $dA;
 
     /**
+     * Multiplies an encoded point by the private key
+     *
+     * Used by ECDH
+     *
+     * @param string $coordinates
+     * @return string
+     */
+    public function multiply($coordinates)
+    {
+        if ($this->curve instanceof MontgomeryCurve) {
+            if ($this->curve instanceof Curve25519 && self::$engines['libsodium']) {
+                return sodium_crypto_scalarmult($this->dA->toBytes(), $coordinates);
+            }
+
+            $point = [$this->curve->convertInteger(new BigInteger(strrev($coordinates), 256))];
+            $point = $this->curve->multiplyPoint($point, $this->dA);
+            return strrev($point[0]->toBytes(true));
+        }
+        if (!$this->curve instanceof TwistedEdwardsCurve) {
+            $coordinates = "\0$coordinates";
+        }
+        $point = PKCS1::extractPoint($coordinates, $this->curve);
+        $point = $this->curve->multiplyPoint($point, $this->dA);
+        if ($this->curve instanceof TwistedEdwardsCurve) {
+            return $this->curve->encodePoint($point);
+        }
+        if (empty($point)) {
+            throw new \RuntimeException('The infinity point is invalid');
+        }
+        return "\4" . $point[0]->toBytes(true) . $point[1]->toBytes(true);
+    }
+
+    /**
      * Create a signature
      *
      * @see self::verify()
@@ -54,6 +90,10 @@ class PrivateKey extends EC implements Common\PrivateKey
      */
     public function sign($message)
     {
+        if ($this->curve instanceof MontgomeryCurve) {
+            throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
+        }
+
         $dA = $this->dA->toBigInteger();
 
         $order = $this->curve->getOrder();
@@ -193,10 +233,21 @@ class PrivateKey extends EC implements Common\PrivateKey
      */
     public function getPublicKey()
     {
-        $type = self::validatePlugin('Keys', 'PKCS8', 'savePublicKey');
+        $format = 'PKCS8';
+        if ($this->curve instanceof MontgomeryCurve) {
+            $format = $this->curve instanceof Curve25519 ?
+                'Curve25519Public' :
+                'Curve448Public';
+        }
+
+        $type = self::validatePlugin('Keys', $format, 'savePublicKey');
 
         $key = $type::savePublicKey($this->curve, $this->QA);
-        $key = EC::loadFormat('PKCS8', $key)
+        $key = EC::loadFormat($format, $key);
+        if ($this->curve instanceof MontgomeryCurve) {
+            return $key;
+        }
+        $key = $key
             ->withHash($this->hash->getHash())
             ->withSignatureFormat($this->shortFormat);
         if ($this->curve instanceof TwistedEdwardsCurve) {

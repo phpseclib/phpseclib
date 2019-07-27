@@ -25,6 +25,7 @@ use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib\Crypt\EC\BaseCurves\Prime as PrimeCurve;
 use phpseclib\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib\Exception\UnsupportedCurveException;
 
 /**
@@ -372,8 +373,8 @@ abstract class XML
     {
         self::initialize_static_variables();
 
-        if ($curve instanceof TwistedEdwardsCurve) {
-            throw new UnsupportedCurveException('TwistedEdwards Curves are not supported');
+        if ($curve instanceof TwistedEdwardsCurve || $curve instanceof MontgomeryCurve) {
+            throw new UnsupportedCurveException('TwistedEdwards and Montgomery Curves are not supported');
         }
 
         if (empty(static::$namespace)) {

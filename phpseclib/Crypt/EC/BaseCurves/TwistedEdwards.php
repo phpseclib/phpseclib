@@ -216,21 +216,4 @@ class TwistedEdwards extends Base
 
         return $lhs->equals($rhs);
     }
-
-    /**
-     * Tests whether or not the x / y values satisfy the equation
-     *
-     * @return boolean
-     */
-    public function get(array $p)
-    {
-        list($x, $y) = $p;
-        $x2 = $x->multiply($x);
-        $y2 = $y->multiply($y);
-
-        $lhs = $this->a->multiply($x2)->add($y2);
-        $rhs = $this->d->multiply($x2)->multiply($y2)->add($this->one);
-
-        return $lhs->equals($rhs);
-    }
 }

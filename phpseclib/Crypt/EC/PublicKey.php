@@ -18,10 +18,11 @@ use phpseclib\Crypt\Hash;
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\EC\Formats\Signature\ASN1 as ASN1Signature;
 use phpseclib\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib\Crypt\EC\Curves\Ed25519;
 use phpseclib\Crypt\EC\Formats\Keys\PKCS1;
-use phpseclib\Crypt\EC\Formats\Keys\PKCS8;
 use phpseclib\Crypt\Common;
+use phpseclib\Exception\UnsupportedOperationException;
 
 /**
  * EC Public Key
@@ -45,6 +46,10 @@ class PublicKey extends EC implements Common\PublicKey
      */
     public function verify($message, $signature)
     {
+        if ($this->curve instanceof MontgomeryCurve) {
+            throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
+        }
+
         $order = $this->curve->getOrder();
 
         if ($this->curve instanceof TwistedEdwardsCurve) {

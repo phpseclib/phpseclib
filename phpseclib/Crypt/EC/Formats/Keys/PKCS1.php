@@ -35,6 +35,7 @@ use phpseclib\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib\Math\BigInteger;
 use ParagonIE\ConstantTime\Base64;
 use phpseclib\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib\Exception\UnsupportedCurveException;
 
 /**
@@ -96,8 +97,8 @@ abstract class PKCS1 extends Progenitor
     {
         self::initialize_static_variables();
 
-        if ($curve instanceof TwistedEdwardsCurve) {
-            throw new UnsupportedCurveException('TwistedEdwards Curves are not supported');
+        if ($curve instanceof TwistedEdwardsCurve || $curve instanceof MontgomeryCurve) {
+            throw new UnsupportedCurveException('TwistedEdwards and Montgomery Curves are not supported');
         }
 
         $key = self::encodeParameters($curve, false, $options);
@@ -122,7 +123,7 @@ abstract class PKCS1 extends Progenitor
     {
         self::initialize_static_variables();
 
-        if ($curve instanceof TwistedEdwardsCurve) {
+        if ($curve instanceof TwistedEdwardsCurve  || $curve instanceof MontgomeryCurve) {
             throw new UnsupportedCurveException('TwistedEdwards Curves are not supported');
         }
 
