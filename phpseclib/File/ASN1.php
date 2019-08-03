@@ -947,7 +947,7 @@ class File_ASN1
                     if ($mapping['type'] == FILE_ASN1_TYPE_SET) {
                         sort($value);
                     }
-                    $value = implode($value, '');
+                    $value = implode('', $value);
                     break;
                 }
 
