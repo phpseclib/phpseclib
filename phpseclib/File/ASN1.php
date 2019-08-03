@@ -909,7 +909,7 @@ abstract class ASN1
                     if ($mapping['type'] == self::TYPE_SET) {
                         sort($value);
                     }
-                    $value = implode($value, '');
+                    $value = implode('', $value);
                     break;
                 }
 
