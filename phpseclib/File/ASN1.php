@@ -702,7 +702,14 @@ class ASN1
                 return isset($this->oids[$decoded['content']]) ? $this->oids[$decoded['content']] : $decoded['content'];
             case self::TYPE_UTC_TIME:
             case self::TYPE_GENERALIZED_TIME:
-                if (isset($mapping['implicit'])) {
+                // for explicitly tagged optional stuff
+                if (is_array($decoded['content'])) {
+                    $decoded['content'] = $decoded['content'][0]['content'];
+                }
+                // for implicitly tagged optional stuff
+                // in theory, doing isset($mapping['implicit']) would work but malformed certs do exist
+                // in the wild that OpenSSL decodes without issue so we'll support them as well
+                if (!is_object($decoded['content'])) {
                     $decoded['content'] = $this->_decodeTime($decoded['content'], $decoded['type']);
                 }
                 return $decoded['content'] ? $decoded['content']->format($this->format) : false;
