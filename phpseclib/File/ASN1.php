@@ -787,7 +787,14 @@ class File_ASN1
             case FILE_ASN1_TYPE_UTC_TIME:
             case FILE_ASN1_TYPE_GENERALIZED_TIME:
                 if (class_exists('DateTime')) {
-                    if (isset($mapping['implicit'])) {
+                    // for explicitly tagged optional stuff
+                    if (is_array($decoded['content'])) {
+                        $decoded['content'] = $decoded['content'][0]['content'];
+                    }
+                    // for implicitly tagged optional stuff
+                    // in theory, doing isset($mapping['implicit']) would work but malformed certs do exist
+                    // in the wild that OpenSSL decodes without issue so we'll support them as well
+                    if (!is_object($decoded['content'])) {
                         $decoded['content'] = $this->_decodeDateTime($decoded['content'], $decoded['type']);
                     }
                     if (!$decoded['content']) {
@@ -795,7 +802,10 @@ class File_ASN1
                     }
                     return $decoded['content']->format($this->format);
                 } else {
-                    if (isset($mapping['implicit'])) {
+                    if (is_array($decoded['content'])) {
+                        $decoded['content'] = $decoded['content'][0]['content'];
+                    }
+                    if (!is_int($decoded['content'])) {
                         $decoded['content'] = $this->_decodeUnixTime($decoded['content'], $decoded['type']);
                     }
                     return @date($this->format, $decoded['content']);

@@ -363,4 +363,33 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $this->assertSame(pack('H*', '6983f09da7ebcfdee0c7a1a7b2c0948cc8f9d776'), $new);
         $this->assertSame($orig, $asn1->_decodeOID($new));
     }
+
+    /**
+     * @group github1388
+     */
+    public function testExplicitImplicitDate()
+    {
+        $map = [
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'children' => [
+                'notBefore' => [
+                                             'constant' => 0,
+                                             'optional' => true,
+                                             'implicit' => true,
+                                             'type' => FILE_ASN1_TYPE_GENERALIZED_TIME],
+                'notAfter'  => [
+                                             'constant' => 1,
+                                             'optional' => true,
+                                             'implicit' => true,
+                                             'type' => FILE_ASN1_TYPE_GENERALIZED_TIME]
+            ]
+        ];
+
+        $asn1 = new File_ASN1();
+        $a = pack('H*', '3026a011180f32303137303432313039303535305aa111180f32303138303432313230353935395a');
+        $a = $asn1->decodeBER($a);
+        $a = $asn1->asn1map($a[0], $map);
+
+        $this->assertInternalType('array', $a);
+    }
 }

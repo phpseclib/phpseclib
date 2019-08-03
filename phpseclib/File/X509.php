@@ -982,6 +982,13 @@ class File_X509
             'children' => $AccessDescription
         );
 
+        $this->SubjectInfoAccessSyntax = array(
+            'type'     => FILE_ASN1_TYPE_SEQUENCE,
+            'min'      => 1,
+            'max'      => -1,
+            'children' => $AccessDescription
+        );
+
         $this->SubjectAltName = $GeneralNames;
 
         $this->PrivateKeyUsagePeriod = array(
@@ -1922,6 +1929,8 @@ class File_X509
                 return $this->ExtKeyUsageSyntax;
             case 'id-pe-authorityInfoAccess':
                 return $this->AuthorityInfoAccessSyntax;
+            case 'id-pe-subjectInfoAccess':
+                return $this->SubjectInfoAccessSyntax;
             case 'id-ce-subjectAltName':
                 return $this->SubjectAltName;
             case 'id-ce-subjectDirectoryAttributes':
