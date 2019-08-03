@@ -860,7 +860,7 @@ class Math_BigInteger
             $opts[] = 'OpenSSL';
         }
         if (!empty($opts)) {
-            $engine.= ' (' . implode($opts, ', ') . ')';
+            $engine.= ' (' . implode('.', $opts) . ')';
         }
         return array(
             'value' => '0x' . $this->toHex(true),
