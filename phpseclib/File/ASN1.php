@@ -739,7 +739,14 @@ abstract class ASN1
                 return isset(self::$oids[$decoded['content']]) ? self::$oids[$decoded['content']] : $decoded['content'];
             case self::TYPE_UTC_TIME:
             case self::TYPE_GENERALIZED_TIME:
-                if (isset($mapping['implicit'])) {
+                // for explicitly tagged optional stuff
+                if (is_array($decoded['content'])) {
+                    $decoded['content'] = $decoded['content'][0]['content'];
+                }
+                // for implicitly tagged optional stuff
+                // in theory, doing isset($mapping['implicit']) would work but malformed certs do exist
+                // in the wild that OpenSSL decodes without issue so we'll support them as well
+                if (!is_object($decoded['content'])) {
                     $decoded['content'] = self::decodeTime($decoded['content'], $decoded['type']);
                 }
                 return $decoded['content'] ? $decoded['content']->format(self::$format) : false;
@@ -902,7 +909,7 @@ abstract class ASN1
                     if ($mapping['type'] == self::TYPE_SET) {
                         sort($value);
                     }
-                    $value = implode($value, '');
+                    $value = implode('', $value);
                     break;
                 }
 

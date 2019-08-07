@@ -243,7 +243,7 @@ abstract class SymmetricKey
      * @var array
      * @access private
      */
-    private $enbuffer;
+    protected $enbuffer;
 
     /**
      * Decryption buffer for CTR, OFB and CFB modes
@@ -253,7 +253,7 @@ abstract class SymmetricKey
      * @var array
      * @access private
      */
-    private $debuffer;
+    protected $debuffer;
 
     /**
      * mcrypt resource for encryption

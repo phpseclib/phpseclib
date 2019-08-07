@@ -575,7 +575,10 @@ class X509
                    corresponding to the extension type identified by extnID */
                 $map = $this->getMapping($id);
                 if (!is_bool($map)) {
-                    $mapped = ASN1::asn1map($decoded[0], $map, ['iPAddress' => [$this, 'decodeIP']]);
+                    $decoder = $id == 'id-ce-nameConstraints' ?
+                        [$this, 'decodeNameConstraintIP'] :
+                        [$this, 'decodeIP'];
+                    $mapped = ASN1::asn1map($decoded[0], $map, ['iPAddress' => $decoder]);
                     $value = $mapped === false ? $decoded[0] : $mapped;
 
                     if ($id == 'id-ce-certificatePolicies') {
@@ -1467,17 +1470,36 @@ class X509
     }
 
     /**
+     * Decodes an IP address in a name constraints extension
+     *
+     * Takes in a base64 encoded "blob" and returns a human readable IP address / mask
+     *
+     * @param string $ip
+     * @access private
+     * @return array
+     */
+    public function decodeNameConstraintIP($ip)
+    {
+        $size = strlen($ip) >> 1;
+        $mask = substr($ip, $size);
+        $ip = substr($ip, 0, $size);
+        return [inet_ntop($ip), inet_ntop($mask)];
+    }
+
+    /**
      * Encodes an IP address
      *
      * Takes a human readable IP address into a base64-encoded "blob"
      *
-     * @param string $ip
+     * @param string|array $ip
      * @access private
      * @return string
      */
     public function encodeIP($ip)
     {
-        return inet_pton($ip);
+        return is_string($ip) ?
+            inet_pton($ip) :
+            inet_pton($ip[0]) . inet_pton($ip[1]);
     }
 
     /**
