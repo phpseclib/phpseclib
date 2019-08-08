@@ -576,8 +576,8 @@ class X509
                 $map = $this->getMapping($id);
                 if (!is_bool($map)) {
                     $decoder = $id == 'id-ce-nameConstraints' ?
-                        [$this, 'decodeNameConstraintIP'] :
-                        [$this, 'decodeIP'];
+                        [static::class, 'decodeNameConstraintIP'] :
+                        [static::class, 'decodeIP'];
                     $mapped = ASN1::asn1map($decoded[0], $map, ['iPAddress' => $decoder]);
                     $value = $mapped === false ? $decoded[0] : $mapped;
 
@@ -661,7 +661,7 @@ class X509
                         unset($extensions[$i]);
                     }
                 } else {
-                    $value = ASN1::encodeDER($value, $map, ['iPAddress' => [$this, 'encodeIP']]);
+                    $value = ASN1::encodeDER($value, $map, ['iPAddress' => [static::class, 'encodeIP']]);
                 }
             }
         }
@@ -1430,7 +1430,7 @@ class X509
      * @param int $count
      * @access public
      */
-    static function setRecurLimit($count)
+    public static function setRecurLimit($count)
     {
         self::$recur_limit = $count;
     }
@@ -1440,7 +1440,7 @@ class X509
      *
      * @access public
      */
-    static function disableURLFetch()
+    public static function disableURLFetch()
     {
         self::$disable_url_fetch = true;
     }
@@ -1450,7 +1450,7 @@ class X509
      *
      * @access public
      */
-    static function enableURLFetch()
+    public static function enableURLFetch()
     {
         self::$disable_url_fetch = false;
     }
@@ -1464,7 +1464,7 @@ class X509
      * @access private
      * @return string
      */
-    public function decodeIP($ip)
+    public static function decodeIP($ip)
     {
         return inet_ntop($ip);
     }
@@ -1478,7 +1478,7 @@ class X509
      * @access private
      * @return array
      */
-    public function decodeNameConstraintIP($ip)
+    public static function decodeNameConstraintIP($ip)
     {
         $size = strlen($ip) >> 1;
         $mask = substr($ip, $size);
@@ -1495,7 +1495,7 @@ class X509
      * @access private
      * @return string
      */
-    public function encodeIP($ip)
+    public static function encodeIP($ip)
     {
         return is_string($ip) ?
             inet_pton($ip) :
