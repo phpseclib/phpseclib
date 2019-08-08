@@ -30,6 +30,7 @@ use phpseclib\Math\Common\FiniteField\Integer;
 use phpseclib\Common\Functions\Strings;
 use phpseclib\Math\PrimeField;
 use phpseclib\Math\BigInteger;
+use phpseclib\Crypt\EC\Curves\Curve25519;
 use phpseclib\Math\PrimeField\Integer as PrimeInteger;
 
 /**
@@ -202,7 +203,8 @@ class Montgomery extends Base
         $temp = $da->subtract($cb);
         $z5 = $x1->multiply($temp->multiply($temp));
         $x4 = $aa->multiply($bb);
-        $z4 = $e->multiply($bb->add($this->a24->multiply($e)));
+        $temp = static::class == Curve25519::class ? $bb : $aa;
+        $z4 = $e->multiply($temp->add($this->a24->multiply($e)));
 
         return [
             [$x4, $z4],

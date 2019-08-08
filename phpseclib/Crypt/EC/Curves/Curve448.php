@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Curve25519
+ * Curve448
  *
  * PHP version 5 and 7
  *
@@ -19,24 +19,31 @@ use phpseclib\Math\Common\FiniteField\Integer;
 use phpseclib\Crypt\EC\BaseCurves\Montgomery;
 use phpseclib\Math\BigInteger;
 
-class Curve25519 extends Montgomery
+class Curve448 extends Montgomery
 {
     public function __construct()
     {
-        // 2^255 - 19
-        $this->setModulo(new BigInteger('7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED', 16));
-        $this->a24 = $this->factory->newInteger(new BigInteger('121666'));
-        $this->p = [$this->factory->newInteger(new BigInteger(9))];
-        // 2^252 + 0x14def9dea2f79cd65812631a5cf5d3ed
-        $this->setOrder(new BigInteger('1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED', 16));
+        // 2^448 - 2^224 - 1
+        $this->setModulo(new BigInteger(
+            'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE' .
+            'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', 16));
+        $this->a24 = $this->factory->newInteger(new BigInteger('39081'));
+        $this->p = [$this->factory->newInteger(new BigInteger(5))];
+        // 2^446 - 0x8335dc163bb124b65129c96fde933d8d723a70aadc873d6d54a7bb0d
+        $this->setOrder(new BigInteger(
+            '3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF' .
+            '7CCA23E9C44EDB49AED63690216CC2728DC58F552378C292AB5844F3', 16));
 
         /*
         $this->setCoefficients(
-            new BigInteger('486662'), // a
+            new BigInteger('156326'), // a
         );
         $this->setBasePoint(
-            new BigInteger(9),
-            new BigInteger('14781619447589544791020593568409986887264606134616475288964881837755586237401')
+            new BigInteger(5),
+            new BigInteger(
+                '355293926785568175264127502063783334808976399387714271831880898' .
+                '435169088786967410002932673765864550910142774147268105838985595290' .
+                '606362')
         );
         */
     }
@@ -54,10 +61,10 @@ class Curve25519 extends Montgomery
         //return [$this->factory->newInteger(new BigInteger($r, 256))];
 
         $d = $d->toBytes();
-        $d&= "\xF8" . str_repeat("\xFF", 30) . "\x7F";
+        $d[0] = $d[0] & "\xFC";
         $d = strrev($d);
-        $d|= "\x40";
-        $d = $this->factory->newInteger(new BigInteger($d, -256));
+        $d|= "\x80";
+        $d = $this->factory->newInteger(new BigInteger($d, 256));
 
         return parent::multiplyPoint($p, $d);
     }

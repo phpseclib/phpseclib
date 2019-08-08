@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Curve25519 Private Key Handler
+ * Montgomery Private Key Handler
  *
  * "Naked" Curve25519 private keys can pretty much be any sequence of random 32x bytes so unless
  * we have a "hidden" key handler pretty much every 32 byte string will be loaded as a curve25519
@@ -23,17 +23,19 @@
 namespace phpseclib\Crypt\EC\Formats\Keys;
 
 use phpseclib\Crypt\EC\Curves\Curve25519;
+use phpseclib\Crypt\EC\Curves\Curve448;
+use phpseclib\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib\Math\Common\FiniteField\Integer;
 use phpseclib\Math\BigInteger;
 
 /**
- * Curve25519 Private Key Handler
+ * Montgomery Curve Private Key Handler
  *
  * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-abstract class Curve25519Private
+abstract class MontgomeryPrivate
 {
     /**
      * Is invisible flag
@@ -52,10 +54,19 @@ abstract class Curve25519Private
      */
     public static function load($key, $password = '')
     {
-        $curve = new Curve25519();
+        switch (strlen($key)) {
+            case 32:
+                $curve = new Curve25519;
+                break;
+            case 56:
+                $curve = new Curve448;
+                break;
+            default:
+                throw new \LengthException('The only supported lengths are 32 and 56');
+        }
 
         $components = ['curve' => $curve];
-        $components['dA'] = $components['curve']->convertInteger(new BigInteger($key, -256));
+        $components['dA'] = $components['curve']->convertInteger(new BigInteger($key, 256));
         // note that EC::getEncodedCoordinates does some additional "magic" (it does strrev on the result)
         $components['QA'] = $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
 
@@ -66,13 +77,13 @@ abstract class Curve25519Private
      * Convert an EC public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib\Crypt\EC\Curves\Curve25519 $curve
+     * @param \phpseclib\Crypt\EC\Curves\MontgomeryCurve $curve
      * @param \phpseclib\Math\Common\FiniteField\Integer[] $publicKey
      * @return string
      */
-    public static function savePublicKey(Curve25519 $curve, array $publicKey)
+    public static function savePublicKey(MontgomeryCurve $curve, array $publicKey)
     {
-        return strrev($publicKey[0]->toBytes(true));
+        return strrev($publicKey[0]->toBytes());
     }
 
     /**
@@ -80,13 +91,13 @@ abstract class Curve25519Private
      *
      * @access public
      * @param \phpseclib\Math\Common\FiniteField\Integer $privateKey
-     * @param \phpseclib\Crypt\EC\Curves\Curve25519 $curve
+     * @param \phpseclib\Crypt\EC\Curves\Montgomery $curve
      * @param \phpseclib\Math\Common\FiniteField\Integer[] $publicKey
      * @param string $password optional
      * @return string
      */
-    public static function savePrivateKey(Integer $privateKey, Curve25519 $curve, array $publicKey, $password = '')
+    public static function savePrivateKey(Integer $privateKey, MontgomeryCurve $curve, array $publicKey, $password = '')
     {
-        return $privateKey->toBytes(true);
+        return $privateKey->toBytes();
     }
 }

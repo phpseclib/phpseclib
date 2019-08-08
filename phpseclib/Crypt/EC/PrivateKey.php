@@ -235,9 +235,7 @@ class PrivateKey extends EC implements Common\PrivateKey
     {
         $format = 'PKCS8';
         if ($this->curve instanceof MontgomeryCurve) {
-            $format = $this->curve instanceof Curve25519 ?
-                'Curve25519Public' :
-                'Curve448Public';
+            $format = 'MontgomeryPublic';
         }
 
         $type = self::validatePlugin('Keys', $format, 'savePublicKey');

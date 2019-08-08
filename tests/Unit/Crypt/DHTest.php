@@ -153,11 +153,11 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         $aes->setIV(substr($key, 16, 16));
 
         $encrypted =
-            $ourEphemeralPublic->toString('Curve25519Public') .
+            $ourEphemeralPublic->toString('MontgomeryPublic') .
             $aes->encrypt($plaintext);
 
         $theirPublic = substr($encrypted, 0, 32);
-        $theirPublic = EC::loadFormat('Curve25519Public', $theirPublic);
+        $theirPublic = EC::loadFormat('MontgomeryPublic', $theirPublic);
 
         $ourPrivate = $theirPrivate;
 
@@ -205,23 +205,60 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
     {
         // utilizing test vector from https://tools.ietf.org/html/rfc7748#section-6.1
 
-        $alicePrivate = EC::loadFormat('Curve25519Private', pack('H*', '77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a'));
-        $bobPrivate = EC::loadFormat('Curve25519Private', pack('H*', '5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb'));
+        $alicePrivate = EC::loadFormat('MontgomeryPrivate', pack('H*', '77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a'));
+        $bobPrivate = EC::loadFormat('MontgomeryPrivate', pack('H*', '5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb'));
 
         $alicePublic = $alicePrivate->getPublicKey();
         $bobPublic = $bobPrivate->getPublicKey();
 
         $this->assertSame(
             '8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a',
-            bin2hex($alicePublic->toString('Curve25519Public'))
+            bin2hex($alicePublic->toString('MontgomeryPublic'))
         );
 
         $this->assertSame(
             'de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f',
-            bin2hex($bobPublic->toString('Curve25519Public'))
+            bin2hex($bobPublic->toString('MontgomeryPublic'))
         );
 
         $expected = pack('H*', '4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742');
+
+        $this->assertSame($expected, DH::computeSecret($alicePrivate, $bobPublic));
+        $this->assertSame($expected, DH::computeSecret($bobPrivate, $alicePublic));
+    }
+
+    public function testCurve448()
+    {
+        // utilizing test vector from https://tools.ietf.org/html/rfc7748#section-6.2
+
+        $alicePrivate = EC::loadFormat('MontgomeryPrivate', pack('H*',
+            '9a8f4925d1519f5775cf46b04b5800d4ee9ee8bae8bc5565d498c28d' .
+            'd9c9baf574a9419744897391006382a6f127ab1d9ac2d8c0a598726b'
+        ));
+        $bobPrivate = EC::loadFormat('MontgomeryPrivate', pack('H*',
+            '1c306a7ac2a0e2e0990b294470cba339e6453772b075811d8fad0d1d' .
+            '6927c120bb5ee8972b0d3e21374c9c921b09d1b0366f10b65173992d'
+        ));
+
+        $alicePublic = $alicePrivate->getPublicKey();
+        $bobPublic = $bobPrivate->getPublicKey();
+
+        $this->assertSame(
+            '9b08f7cc31b7e3e67d22d5aea121074a273bd2b83de09c63faa73d2c' .
+            '22c5d9bbc836647241d953d40c5b12da88120d53177f80e532c41fa0',
+            bin2hex($alicePublic->toString('MontgomeryPublic'))
+        );
+
+        $this->assertSame(
+            '3eb7a829b0cd20f5bcfc0b599b6feccf6da4627107bdb0d4f345b430' .
+            '27d8b972fc3e34fb4232a13ca706dcb57aec3dae07bdc1c67bf33609',
+            bin2hex($bobPublic->toString('MontgomeryPublic'))
+        );
+
+        $expected = pack('H*',
+            '07fff4181ac6cc95ec1c16a94a0f74d12da232ce40a77552281d282b' .
+            'b60c0b56fd2464c335543936521c24403085d59a449a5037514a879d'
+        );
 
         $this->assertSame($expected, DH::computeSecret($alicePrivate, $bobPublic));
         $this->assertSame($expected, DH::computeSecret($bobPrivate, $alicePublic));
