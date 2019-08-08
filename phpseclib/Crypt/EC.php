@@ -264,6 +264,11 @@ abstract class EC extends AsymmetricKey
             return $this->curveName;
         }
 
+        if ($this->curve instanceof MontgomeryCurve) {
+            $this->curveName = $this->curve instanceof Curve25519 ? 'Curve25519' : 'Curve448';
+            return $this->curveName;
+        }
+
         if ($this->curve instanceof TwistedEdwardsCurve) {
             $this->curveName = $this->curve instanceof Ed25519 ? 'Ed25519' : 'Ed448';
             return $this->curveName;
