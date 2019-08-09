@@ -330,8 +330,8 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60');
         $public = pack('H*', 'd75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a');
 
-        $privateKey = PublicKeyLoader::load($private . $public); // libsodium format
-        $publicKey = PublicKeyLoader::load($public);
+        $privateKey = EC::loadFormat('libsodium', $private . $public); // libsodium format
+        $publicKey = EC::loadFormat('libsodium', $public);
 
         $expected = 'e5564300c360ac729086e2cc806e828a84877f1eb8e5d974d873e06522490155' .
                     '5fb8821590a33bacc61e39701cf9b46bd25bf5f0595bbe24655141438e7a100b';
@@ -341,8 +341,8 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb');
         $public = pack('H*', '3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c');
 
-        $privateKey = PublicKeyLoader::load($private . $public);
-        $publicKey = PublicKeyLoader::load($public);
+        $privateKey = EC::loadFormat('libsodium', $private . $public);
+        $publicKey = EC::loadFormat('libsodium', $public);
 
         $expected = '92a009a9f0d4cab8720e820b5f642540a2b27b5416503f8fb3762223ebdb69da' .
                     '085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00';
@@ -352,8 +352,8 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
         $private = pack('H*', 'c5aa8df43f9f837bedb7442f31dcb7b166d38535076f094b85ce3a2e0b4458f7');
         $public = pack('H*', 'fc51cd8e6218a1a38da47ed00230f0580816ed13ba3303ac5deb911548908025');
 
-        $privateKey = PublicKeyLoader::load($private . $public); // libsodium format
-        $publicKey = PublicKeyLoader::load($public);
+        $privateKey = EC::loadFormat('libsodium', $private . $public); // libsodium format
+        $publicKey = EC::loadFormat('libsodium', $public);
 
         $expected = '6291d657deec24024827e69c3abe01a30ce548a284743a445e3680d7db5ac3ac' .
                     '18ff9b538d16f290ae67f760984dc6594a7c15e9716ed28dc027beceea1ec40a';
@@ -363,8 +363,8 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
         $private = pack('H*', 'f5e5767cf153319517630f226876b86c8160cc583bc013744c6bf255f5cc0ee5');
         $public = pack('H*', '278117fc144c72340f67d0f2316e8386ceffbf2b2428c9c51fef7c597f1d426e');
 
-        $privateKey = PublicKeyLoader::load($private . $public); // libsodium format
-        $publicKey = PublicKeyLoader::load($public);
+        $privateKey = EC::loadFormat('libsodium', $private . $public); // libsodium format
+        $publicKey = EC::loadFormat('libsodium', $public);
 
         $message = '08b8b2b733424243760fe426a4b54908632110a66c2f6591eabd3345e3e4eb98' .
                    'fa6e264bf09efe12ee50f8f54e9f77b1e355f6c50544e23fb1433ddf73be84d8' .
@@ -408,8 +408,8 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42');
         $public = pack('H*', 'ec172b93ad5e563bf4932c70e1245034c35467ef2efd4d64ebf819683467e2bf');
 
-        $privateKey = PublicKeyLoader::load($private . $public);
-        $publicKey = PublicKeyLoader::load($public);
+        $privateKey = EC::loadFormat('libsodium', $private . $public);
+        $publicKey = EC::loadFormat('libsodium', $public);
 
         $message = 'ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a' .
                    '2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f';
@@ -423,8 +423,8 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '0305334e381af78f141cb666f6199f57bc3495335a256a95bd2a55bf546663f6');
         $public = pack('H*', 'dfc9425e4f968f7f0c29f0259cf5f9aed6851c2bb4ad8bfb860cfee0ab248292');
 
-        $privateKey = PublicKeyLoader::load($private . $public);
-        $publicKey = PublicKeyLoader::load($public);
+        $privateKey = EC::loadFormat('libsodium', $private . $public);
+        $publicKey = EC::loadFormat('libsodium', $public);
 
         $privateKey = $privateKey->withContext("\x62\x61\x72");
         $publicKey = $publicKey->withContext("\x62\x61\x72");
@@ -440,8 +440,8 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
         $private = pack('H*', '0305334e381af78f141cb666f6199f57bc3495335a256a95bd2a55bf546663f6');
         $public = pack('H*', 'dfc9425e4f968f7f0c29f0259cf5f9aed6851c2bb4ad8bfb860cfee0ab248292');
 
-        $privateKey = PublicKeyLoader::load($private . $public);
-        $publicKey = PublicKeyLoader::load($public);
+        $privateKey = EC::loadFormat('libsodium', $private . $public);
+        $publicKey = EC::loadFormat('libsodium', $public);
 
         $privateKey = $privateKey->withContext("\x66\x6f\x6f");
         $publicKey = $publicKey->withContext("\x66\x6f\x6f");
@@ -457,8 +457,8 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
         $private = pack('H*', 'ab9c2853ce297ddab85c993b3ae14bcad39b2c682beabc27d6d4eb20711d6560');
         $public = pack('H*', '0f1d1274943b91415889152e893d80e93275a1fc0b65fd71b4b0dda10ad7d772');
 
-        $privateKey = PublicKeyLoader::load($private . $public);
-        $publicKey = PublicKeyLoader::load($public);
+        $privateKey = EC::loadFormat('libsodium', $private . $public);
+        $publicKey = EC::loadFormat('libsodium', $public);
 
         $privateKey = $privateKey->withContext("\x66\x6f\x6f");
         $publicKey = $publicKey->withContext("\x66\x6f\x6f");

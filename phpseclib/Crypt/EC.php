@@ -149,8 +149,8 @@ abstract class EC extends AsymmetricKey
         if (self::$engines['libsodium'] && $curve == 'ed25519' && function_exists('sodium_crypto_sign_keypair')) {
             $kp = sodium_crypto_sign_keypair();
 
-            $privatekey = EC::load(sodium_crypto_sign_secretkey($kp), 'libsodium');
-            //$publickey = EC::load(sodium_crypto_sign_publickey($kp), 'libsodium');
+            $privatekey = EC::loadFormat('libsodium', sodium_crypto_sign_secretkey($kp));
+            //$publickey = EC::loadFormat('libsodium', sodium_crypto_sign_publickey($kp));
 
             $privatekey->curveName = 'Ed25519';
             //$publickey->curveName = $curve;

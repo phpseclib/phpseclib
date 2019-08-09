@@ -34,6 +34,13 @@ abstract class libsodium
     use Common;
 
     /**
+     * Is invisible flag
+     *
+     * @access private
+     */
+    const IS_INVISIBLE = true;
+
+    /**
      * Break a public or private key down into its constituent components
      *
      * @access public
