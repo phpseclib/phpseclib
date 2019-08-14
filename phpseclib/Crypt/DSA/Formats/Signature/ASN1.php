@@ -63,6 +63,6 @@ abstract class ASN1
      */
     public static function save(BigInteger $r, BigInteger $s)
     {
-        return ASN1::encodeDER(compact('r', 's'), Maps\DssSigValue::MAP);
+        return Encoder::encodeDER(compact('r', 's'), Maps\DssSigValue::MAP);
     }
 }

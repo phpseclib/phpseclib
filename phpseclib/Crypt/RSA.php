@@ -387,22 +387,14 @@ abstract class RSA extends AsymmetricKey
     }
 
     /**
-     * Loads a public or private key
-     *
-     * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
+     * OnLoad Handler
      *
      * @return bool
-     * @access public
-     * @param string $key
-     * @param string $type optional
-     * @param string $password optional
+     * @access protected
+     * @param array $components
      */
-    public static function load($key, $type = false, $password = false)
+    protected static function onLoad($components)
     {
-        self::initialize_static_variables();
-
-        $components = parent::load($key, $type, $password);
-
         $key = $components['isPublicKey'] ?
             new PublicKey :
             new PrivateKey;

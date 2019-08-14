@@ -503,7 +503,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
         }
 
         $key = $type::savePublicKey($this->modulus, $this->publicExponent);
-        return RSA::load($key, 'PKCS8')
+        return RSA::loadFormat('PKCS8', $key)
             ->withHash($this->hash->getHash())
             ->withMGFHash($this->mgfHash->getHash())
             ->withSaltLength($this->sLen)

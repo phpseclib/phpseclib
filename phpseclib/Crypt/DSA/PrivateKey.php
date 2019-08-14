@@ -14,7 +14,7 @@
 namespace phpseclib\Crypt\DSA;
 
 use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\ECDSA\Formats\Signature\ASN1 as ASN1Signature;
+use phpseclib\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
 use phpseclib\Math\BigInteger;
 use phpseclib\Crypt\Common;
 
@@ -70,7 +70,7 @@ class PrivateKey extends DSA implements Common\PrivateKey
 
         $key = $type::savePublicKey($this->p, $this->q, $this->g, $this->y);
 
-        return DSA::load($key, 'PKCS8')
+        return DSA::loadFormat('PKCS8', $key)
             ->withHash($this->hash->getHash())
             ->withSignatureFormat($this->shortFormat);
     }

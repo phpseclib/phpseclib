@@ -32,7 +32,7 @@ use phpseclib\Crypt\Hash;
 use phpseclib\Crypt\Random;
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\ECDSA;
+use phpseclib\Crypt\EC;
 use phpseclib\Crypt\Common\PublicKey;
 use phpseclib\Crypt\Common\PrivateKey;
 use phpseclib\Exception\UnsupportedAlgorithmException;
@@ -1361,10 +1361,10 @@ class X509
     {
         switch ($publicKeyAlgorithm) {
             case 'id-RSASSA-PSS':
-                $key = RSA::load($publicKey, 'PSS');
+                $key = RSA::loadFormat('PSS', $publicKey);
                 break;
             case 'rsaEncryption':
-                $key = RSA::load($publicKey, 'PKCS8');
+                $key = RSA::loadFormat('PKCS8', $publicKey);
                 switch ($signatureAlgorithm) {
                     case 'md2WithRSAEncryption':
                     case 'md5WithRSAEncryption':
@@ -1383,10 +1383,10 @@ class X509
                 break;
             case 'id-Ed25519':
             case 'id-Ed448':
-                $key = ECDSA::load($publicKey, 'PKCS8');
+                $key = EC::loadFormat('PKCS8', $publicKey);
                 break;
             case 'id-ecPublicKey':
-                $key = ECDSA::load($publicKey, 'PKCS8');
+                $key = EC::loadFormat('PKCS8', $publicKey);
                 switch ($signatureAlgorithm) {
                     case 'ecdsa-with-SHA1':
                     case 'ecdsa-with-SHA224':
@@ -1401,7 +1401,7 @@ class X509
                 }
                 break;
             case 'id-dsa':
-                $key = DSA::load($publicKey, 'PKCS8');
+                $key = DSA::loadFormat('PKCS8', $publicKey);
                 switch ($signatureAlgorithm) {
                     case 'id-dsa-with-sha1':
                     case 'id-dsa-with-sha224':
@@ -2111,13 +2111,13 @@ class X509
 
         switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                return RSA::load($key, 'PKCS8');
+                return RSA::loadFormat('PKCS8', $key);
             case 'id-ecPublicKey':
             case 'id-Ed25519':
             case 'id-Ed448':
-                return ECDSA::load($key, 'PKCS8');
+                return EC::loadFormat('PKCS8', $key);
             case 'id-dsa':
-                return DSA::load($key, 'PKCS8');
+                return DSA::loadFormat('PKCS8', $key);
         }
 
         return false;
@@ -2974,7 +2974,7 @@ class X509
             throw new UnsupportedAlgorithmException('The only supported hash algorithms for DSA are: sha1, sha224, sha256');
         }
 
-        if ($key instanceof ECDSA) {
+        if ($key instanceof EC) {
             switch ($key->getCurve()) {
                 case 'Ed25519':
                 case 'Ed448':
@@ -2988,10 +2988,10 @@ class X509
                 case 'sha512':
                     return 'ecdsa-with-' . strtoupper($key->getHash());
             }
-            throw new UnsupportedAlgorithmException('The only supported hash algorithms for ECDSA are: sha1, sha224, sha256, sha384, sha512');
+            throw new UnsupportedAlgorithmException('The only supported hash algorithms for EC are: sha1, sha224, sha256, sha384, sha512');
         }
 
-        throw new UnsupportedAlgorithmException('The only supported public key classes are: RSA, DSA, ECDSA');
+        throw new UnsupportedAlgorithmException('The only supported public key classes are: RSA, DSA, EC');
     }
 
     /**

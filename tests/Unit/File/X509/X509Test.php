@@ -759,7 +759,7 @@ pMAUPdvLhVjjTvw4ypYrNMc4Z3z5n3bfCVzIQL5Z
         $this->assertTrue($x509->validateSignature(false));
     }
 
-    public function testECDSALoad()
+    public function testECLoad()
     {
         // openssl req -x509 -nodes -days 3650 -newkey ec:<(openssl ecparam -name prime256v1) -keyout ecdsakey.pem -out ecdsacert.pem
 
@@ -873,7 +873,7 @@ uhPlgkgknwIgdDqqKIAF60ouiynsbU53ERS0TwpjeFiYGA48SwYW3Nk=
         $this->assertSame('id-dsa-with-sha256', $r['signatureAlgorithm']['algorithm']);
     }
 
-    public function testECDSASave()
+    public function testECSave()
     {
         $private = '-----BEGIN PRIVATE KEY-----
 MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgQ0o1byJQbAcuklBt

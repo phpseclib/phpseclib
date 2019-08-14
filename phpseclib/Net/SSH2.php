@@ -57,7 +57,8 @@ use phpseclib\Crypt\Rijndael;
 use phpseclib\Crypt\Common\PrivateKey;
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\ECDSA;
+use phpseclib\Crypt\EC;
+use phpseclib\Crypt\DH;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\Twofish;
 use phpseclib\Crypt\ChaCha20;
@@ -1323,7 +1324,7 @@ class SSH2
         $identifier = 'SSH-2.0-phpseclib_2.0';
 
         $ext = [];
-        if (function_exists('\\Sodium\\library_version_major')) {
+        if (extension_loaded('sodium')) {
             $ext[] = 'libsodium';
         }
 
@@ -1348,6 +1349,7 @@ class SSH2
 
     /**
      * Key Exchange
+     *
      * @return bool
      * @param string|bool $kexinit_payload_server optional
      * @throws \UnexpectedValueException on receipt of unexpected packets
@@ -1485,12 +1487,14 @@ class SSH2
         // Only relevant in diffie-hellman-group-exchange-sha{1,256}, otherwise empty.
         $exchange_hash_rfc4419 = '';
 
-        if ($this->kex_algorithm === 'curve25519-sha256@libssh.org') {
-            $x = Random::string(32);
-            $eBytes = \Sodium\crypto_box_publickey_from_secretkey($x);
+        if (strpos($this->kex_algorithm, 'curve25519-sha256') === 0 || strpos($this->kex_algorithm, 'ecdh-sha2-nistp') === 0) {
+            $curve = strpos($this->kex_algorithm, 'curve25519-sha256') === 0 ?
+                'Curve25519' :
+                substr($this->kex_algorithm, 10);
+            $ourPrivate = EC::createKey($curve);
+            $ourPublicBytes = $ourPrivate->getPublicKey()->getEncodedCoordinates();
             $clientKexInitMessage = NET_SSH2_MSG_KEX_ECDH_INIT;
             $serverKexReplyMessage = NET_SSH2_MSG_KEX_ECDH_REPLY;
-            $kexHash = new Hash('sha256');
         } else {
             if (strpos($this->kex_algorithm, 'diffie-hellman-group-exchange') === 0) {
                 $dh_group_sizes_packed = pack(
@@ -1512,7 +1516,7 @@ class SSH2
                     throw new \RuntimeException('Connection closed by server');
                 }
 
-                list($type, $primeBytes, $gBytes) = unpack('Css', $response);
+                list($type, $primeBytes, $gBytes) = Strings::unpackSSH2('Css', $response);
                 if ($type != NET_SSH2_MSG_KEXDH_GEX_GROUP) {
                     throw new \UnexpectedValueException('Expected SSH_MSG_KEX_DH_GEX_GROUP');
                 }
@@ -1525,65 +1529,43 @@ class SSH2
                     $gBytes
                 );
 
+                $params = DH::createParameters($prime, $g);
                 $clientKexInitMessage = NET_SSH2_MSG_KEXDH_GEX_INIT;
                 $serverKexReplyMessage = NET_SSH2_MSG_KEXDH_GEX_REPLY;
             } else {
-                switch ($this->kex_algorithm) {
-                    // see http://tools.ietf.org/html/rfc2409#section-6.2 and
-                    // http://tools.ietf.org/html/rfc2412, appendex E
-                    case 'diffie-hellman-group1-sha1':
-                        $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
-                                 '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
-                                 '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
-                                 'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF';
-                        break;
-                    // see http://tools.ietf.org/html/rfc3526#section-3
-                    case 'diffie-hellman-group14-sha1':
-                        $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
-                                 '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
-                                 '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
-                                 'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF05' .
-                                 '98DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB' .
-                                 '9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' .
-                                 'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF695581718' .
-                                 '3995497CEA956AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF';
-                        break;
-                }
-                // For both diffie-hellman-group1-sha1 and diffie-hellman-group14-sha1
-                // the generator field element is 2 (decimal) and the hash function is sha1.
-                $g = new BigInteger(2);
-                $prime = new BigInteger($prime, 16);
+                $params = DH::createParameters($this->kex_algorithm);
                 $clientKexInitMessage = NET_SSH2_MSG_KEXDH_INIT;
                 $serverKexReplyMessage = NET_SSH2_MSG_KEXDH_REPLY;
             }
 
-            switch ($this->kex_algorithm) {
-                case 'diffie-hellman-group-exchange-sha256':
-                    $kexHash = new Hash('sha256');
-                    break;
-                default:
-                    $kexHash = new Hash('sha1');
-            }
-
-            /* To increase the speed of the key exchange, both client and server may
-            reduce the size of their private exponents.  It should be at least
-            twice as long as the key material that is generated from the shared
-            secret.  For more details, see the paper by van Oorschot and Wiener
-            [VAN-OORSCHOT].
-
-            -- http://tools.ietf.org/html/rfc4419#section-6.2 */
-            $one = new BigInteger(1);
-            $keyLength = min($kexHash->getLengthInBytes(), max($encryptKeyLength, $decryptKeyLength));
-            $max = $one->bitwise_leftShift(16 * $keyLength); // 2 * 8 * $keyLength
-            $max = $max->subtract($one);
-
-            $x = BigInteger::randomRange($one, $max);
-            $e = $g->modPow($x, $prime);
-
-            $eBytes = $e->toBytes(true);
+            $ourPrivate = DH::createKey($params, 16 * $keyLength); // 2 * 8 * $keyLength
+            $ourPublic = $ourPrivate->getPublicKey()->toBigInteger();
+            $ourPublicBytes = $ourPublic->toBytes(true);
         }
 
-        $data = pack('CNa*', $clientKexInitMessage, strlen($eBytes), $eBytes);
+        switch ($this->kex_algorithm) {
+            case 'diffie-hellman-group15-sha512':
+            case 'diffie-hellman-group16-sha512':
+            case 'diffie-hellman-group17-sha512':
+            case 'diffie-hellman-group18-sha512':
+            case 'ecdh-sha2-nistp521':
+                $kexHash = new Hash('sha512');
+                break;
+            case 'ecdh-sha2-nistp384':
+                $kexHash = new Hash('sha384');
+                break;
+            case 'diffie-hellman-group-exchange-sha256':
+            case 'diffie-hellman-group14-sha256':
+            case 'ecdh-sha2-nistp256':
+            case 'curve25519-sha256@libssh.org':
+            case 'curve25519-sha256':
+                $kexHash = new Hash('sha256');
+                break;
+            default:
+                $kexHash = new Hash('sha1');
+        }
+
+        $data = pack('CNa*', $clientKexInitMessage, strlen($ourPublicBytes), $ourPublicBytes);
 
         $this->send_binary_packet($data);
 
@@ -1599,7 +1581,7 @@ class SSH2
         list(
             $type,
             $server_public_host_key,
-            $fBytes,
+            $theirPublicBytes,
             $this->signature
         ) = Strings::unpackSSH2('Csss', $response);
 
@@ -1615,18 +1597,10 @@ class SSH2
         }
         $temp = unpack('Nlength', substr($this->signature, 0, 4));
         $this->signature_format = substr($this->signature, 4, $temp['length']);
-        if ($this->kex_algorithm === 'curve25519-sha256@libssh.org') {
-            if (strlen($fBytes) !== 32) {
-                throw new \RuntimeException('Received curve25519 public key of invalid length.');
-                return false;
-            }
-            $key = new BigInteger(\Sodium\crypto_scalarmult($x, $fBytes), 256);
-            \Sodium\memzero($x);
-        } else {
-            $f = new BigInteger($fBytes, -256);
-            $key = $f->modPow($x, $prime);
+        $keyBytes = DH::computeSecret($ourPrivate, $theirPublicBytes);
+        if (($keyBytes[0] & "\x80") === "\x80") {
+            $keyBytes = "\0$keyBytes";
         }
-        $keyBytes = $key->toBytes(true);
 
         $this->exchange_hash = Strings::packSSH2('s5',
             $this->identifier,
@@ -1637,8 +1611,8 @@ class SSH2
         );
         $this->exchange_hash.= $exchange_hash_rfc4419;
         $this->exchange_hash.= Strings::packSSH2('s3',
-            $eBytes,
-            $fBytes,
+            $ourPublicBytes,
+            $theirPublicBytes,
             $keyBytes
         );
 
@@ -2412,7 +2386,7 @@ class SSH2
                     $hash = 'sha1';
                     $signatureType = 'ssh-rsa';
             }
-        } else if ($publickey instanceof ECDSA) {
+        } else if ($publickey instanceof EC) {
             $privatekey = $privatekey->withSignatureFormat('SSH2');
             $curveName = $privatekey->getCurve();
             switch ($curveName) {
@@ -2443,7 +2417,7 @@ class SSH2
             $hash = 'sha1';
             $signatureType = 'ssh-dss';
         } else {
-            throw new UnsupportedAlgorithmException('Please use either an RSA key, an ECDSA one or a DSA key');
+            throw new UnsupportedAlgorithmException('Please use either an RSA key, an EC one or a DSA key');
         }
 
         $publickeyStr = $publickey->toString('OpenSSH', ['binary' => true]);
@@ -3377,7 +3351,7 @@ class SSH2
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
         if (($this->bitmap & self::MASK_CONNECTED) && !$this->isAuthenticated() && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             Strings::shift($payload, 1);
-            list($this->banner_message) = Strings::unpackSSH2('s', $response);
+            list($this->banner_message) = Strings::unpackSSH2('s', $payload);
             $payload = $this->get_binary_packet();
         }
 
@@ -4264,22 +4238,27 @@ class SSH2
             // Elliptic Curve Diffie-Hellman Key Agreement (ECDH) using
             // Curve25519. See doc/curve25519-sha256@libssh.org.txt in the
             // libssh repository for more information.
+            'curve25519-sha256',
             'curve25519-sha256@libssh.org',
+
+            'ecdh-sha2-nistp256', // RFC 5656
+            'ecdh-sha2-nistp384', // RFC 5656
+            'ecdh-sha2-nistp521', // RFC 5656
+
+            'diffie-hellman-group-exchange-sha256',// RFC 4419
+            'diffie-hellman-group-exchange-sha1',  // RFC 4419
 
             // Diffie-Hellman Key Agreement (DH) using integer modulo prime
             // groups.
-            'diffie-hellman-group1-sha1', // REQUIRED
+            'diffie-hellman-group14-sha256',
             'diffie-hellman-group14-sha1', // REQUIRED
-            'diffie-hellman-group-exchange-sha1', // RFC 4419
-            'diffie-hellman-group-exchange-sha256', // RFC 4419
-        ];
+            'diffie-hellman-group15-sha512',
+            'diffie-hellman-group16-sha512',
+            'diffie-hellman-group17-sha512',
+            'diffie-hellman-group18-sha512',
 
-        if (!function_exists('\\Sodium\\library_version_major')) {
-            $kex_algorithms = array_diff(
-                $kex_algorithms,
-                ['curve25519-sha256@libssh.org']
-            );
-        }
+            'diffie-hellman-group1-sha1', // REQUIRED
+        ];
 
         return $kex_algorithms;
     }
@@ -4603,7 +4582,7 @@ class SSH2
             case 'ecdsa-sha2-nistp256':
             case 'ecdsa-sha2-nistp384':
             case 'ecdsa-sha2-nistp521':
-                $key = ECDSA::load($server_public_host_key, 'OpenSSH')
+                $key = EC::loadFormat('OpenSSH', $server_public_host_key)
                     ->withSignatureFormat('SSH2');
                 switch ($this->signature_format) {
                     case 'ssh-ed25519':
@@ -4622,7 +4601,7 @@ class SSH2
                 $key = $key->withHash($hash);
                 break;
             case 'ssh-dss':
-                $key = DSA::load($server_public_host_key, 'OpenSSH')
+                $key = DSA::loadFormat('OpenSSH', $server_public_host_key)
                     ->withSignatureFormat('SSH2')
                     ->withHash('sha1');
                 break;
@@ -4636,7 +4615,7 @@ class SSH2
                 $temp = unpack('Nlength', Strings::shift($signature, 4));
                 $signature = Strings::shift($signature, $temp['length']);
 
-                $key = RSA::load($server_public_host_key, 'OpenSSH')
+                $key = RSA::loadFormat('OpenSSH', $server_public_host_key)
                     ->withPadding(RSA::SIGNATURE_PKCS1);
                 switch ($this->signature_format) {
                     case 'rsa-sha2-512':
