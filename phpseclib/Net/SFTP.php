@@ -2752,7 +2752,7 @@ class SFTP extends SSH2
                     list($attr['atime'], $attr['mtime']) = Strings::unpackSSH2('NN', $response);
                     break;
                 case NET_SFTP_ATTR_EXTENDED: // 0x80000000
-                    list($count) = Strings::unpack('N', $response);
+                    list($count) = Strings::unpackSSH2('N', $response);
                     for ($i = 0; $i < $count; $i++) {
                         list($key, $value) = Strings::unpackSSH2('ss', $response);
                         $attr[$key] = $value;
