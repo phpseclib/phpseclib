@@ -602,20 +602,22 @@ abstract class SymmetricKey
      *
      * - gcm
      *
-     * @param string $mode
+     * @param string|int $mode
      * @access public
      * @throws BadModeException if an invalid / unsupported mode is provided
      */
     public function __construct($mode)
     {
-        $mode = strtolower($mode);
-        // necessary because of 5.6 compatibility; we can't do isset(self::MODE_MAP[$mode]) in 5.6
-        $map = self::MODE_MAP;
-        if (!isset($map[$mode])) {
-            throw new BadModeException('No valid mode has been specified');
-        }
+        if (!is_int($mode) || !in_array($mode, self::MODE_MAP, true)) {
+            $mode = strtolower($mode);
+            // necessary because of 5.6 compatibility; we can't do isset(self::MODE_MAP[$mode]) in 5.6
+            $map = self::MODE_MAP;
+            if (!isset($map[$mode])) {
+                throw new BadModeException('No valid mode has been specified');
+            }
 
-        $mode = self::MODE_MAP[$mode];
+            $mode = self::MODE_MAP[$mode];
+        }
 
         // $mode dependent settings
         switch ($mode) {

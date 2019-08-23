@@ -265,17 +265,17 @@ class RC2 extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @param int $mode
+     * @param int|string $mode
      * @access public
      * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
     public function __construct($mode)
     {
+        parent::__construct($mode);
+
         if ($mode == self::MODE_STREAM) {
             throw new BadModeException('Block ciphers cannot be ran in stream mode');
         }
-
-        parent::__construct($mode);
     }
 
     /**

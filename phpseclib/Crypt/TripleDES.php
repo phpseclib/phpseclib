@@ -138,7 +138,7 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\DES::__construct()
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
-     * @param int $mode
+     * @param int|string $mode
      * @access public
      */
     public function __construct($mode)
