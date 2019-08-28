@@ -138,7 +138,7 @@ class TripleDES extends DES
      *
      * @see \phpseclib\Crypt\DES::__construct()
      * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
-     * @param int|string $mode
+     * @param string $mode
      * @access public
      */
     public function __construct($mode)
@@ -147,7 +147,6 @@ class TripleDES extends DES
             // In case of self::MODE_3CBC, we init as CRYPT_DES_MODE_CBC
             // and additional flag us internally as 3CBC
             case '3cbc':
-                $mode = self::MODE_3CBC;
                 parent::__construct('cbc');
                 $this->mode_3cbc = true;
 
@@ -168,6 +167,10 @@ class TripleDES extends DES
             // If not 3CBC, we init as usual
             default:
                 parent::__construct($mode);
+
+                if ($this->mode == self::MODE_STREAM) {
+                    throw new BadModeException('Block ciphers cannot be ran in stream mode');
+                }
         }
     }
 

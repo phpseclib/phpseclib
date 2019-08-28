@@ -168,7 +168,7 @@ class Rijndael extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @param int|string $mode
+     * @param string $mode
      * @access public
      * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
@@ -176,7 +176,7 @@ class Rijndael extends BlockCipher
     {
         parent::__construct($mode);
 
-        if ($mode == self::MODE_STREAM) {
+        if ($this->mode == self::MODE_STREAM) {
             throw new BadModeException('Block ciphers cannot be ran in stream mode');
         }
     }
