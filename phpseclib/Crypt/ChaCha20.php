@@ -186,7 +186,7 @@ class ChaCha20 extends Salsa20
      *
      * @param string $nonce
      */
-     public function setNonce($nonce)
+    public function setNonce($nonce)
     {
         if (!is_string($nonce)) {
             throw new \UnexpectedValueException('The nonce should be a string');
@@ -238,7 +238,7 @@ class ChaCha20 extends Salsa20
 
         $this->enbuffer = $this->debuffer = ['ciphertext' => '', 'counter' => $this->counter];
 
-        $this->changed = false;
+        $this->changed = $this->nonIVChanged = false;
 
         if ($this->nonce === false) {
             throw new InsufficientSetupException('No nonce has been defined');

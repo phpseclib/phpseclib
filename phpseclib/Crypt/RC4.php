@@ -310,7 +310,6 @@ class RC4 extends StreamCipher
     {
         if ($this->changed) {
             $this->setup();
-            $this->changed = false;
         }
 
         $stream = &$this->stream[$mode];

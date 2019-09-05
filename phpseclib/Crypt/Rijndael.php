@@ -267,7 +267,7 @@ class Rijndael extends BlockCipher
 
         $this->Nb = $length >> 5;
         $this->block_size = $length >> 3;
-        $this->changed = true;
+        $this->changed = $this->nonIVChanged = true;
         $this->setEngine();
     }
 

@@ -395,7 +395,7 @@ class RC2 extends BlockCipher
 
         $this->key = call_user_func_array('pack', $l);
         $this->key_length = strlen($this->key);
-        $this->changed = true;
+        $this->changed = $this->nonIVChanged = true;
         $this->setEngine();
     }
 

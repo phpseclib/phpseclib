@@ -271,7 +271,7 @@ class TripleDES extends DES
         // copied from self::setKey()
         $this->key = $key;
         $this->key_length = strlen($key);
-        $this->changed = true;
+        $this->changed = $this->nonIVChanged = true;
         $this->setEngine();
 
         if ($this->mode_3cbc) {

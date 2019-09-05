@@ -225,7 +225,7 @@ class Salsa20 extends StreamCipher
 
         $this->enbuffer = $this->debuffer = ['ciphertext' => '', 'counter' => $this->counter];
 
-        $this->changed = false;
+        $this->changed = $this->nonIVChanged = false;
 
         if ($this->nonce === false) {
             throw new InsufficientSetupException('No nonce has been defined');

@@ -352,6 +352,15 @@ abstract class SymmetricKey
     protected $changed = true;
 
     /**
+     * Does Eval engie need to be (re)initialized?
+     *
+     * @see self::setup()
+     * @var bool
+     * @access private
+     */
+    protected $nonIVChanged = true;
+
+    /**
      * Padding status
      *
      * @see self::enablePadding()
@@ -742,7 +751,6 @@ abstract class SymmetricKey
         }
 
         $this->nonce = $nonce;
-        $this->changed = true;
         $this->setEngine();
     }
 
@@ -859,7 +867,6 @@ abstract class SymmetricKey
 
         $this->key = $key;
         $this->key_length = strlen($key);
-        $this->changed = true;
         $this->setEngine();
     }
 
@@ -2104,7 +2111,6 @@ abstract class SymmetricKey
         }
 
         $this->continuousBuffer = false;
-        $this->changed = true;
 
         $this->setEngine();
     }
@@ -2271,7 +2277,7 @@ abstract class SymmetricKey
             }
         }
 
-        $this->changed = true;
+        $this->changed = $this->nonIVChanged = true;
     }
 
     /**
@@ -2404,9 +2410,13 @@ abstract class SymmetricKey
                 $this->setupKey();
                 break;
             case self::ENGINE_EVAL:
-                $this->setupKey();
-                $this->setupInlineCrypt();
+                if ($this->nonIVChanged) {
+                    $this->setupKey();
+                    $this->setupInlineCrypt();
+                }
         }
+
+        $this->nonIVChanged = false;
     }
 
     /**
