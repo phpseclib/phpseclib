@@ -24,9 +24,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    \phpseclib\Crypt\PublicKeyLoader::load('...');
- *    //$key->setPassword('whatever');
- *    $key->load(file_get_contents('privatekey'));
+ *    $key = \phpseclib\Crypt\PublicKeyLoader::load('...', '(optional) password');
  *
  *    $ssh = new \phpseclib\Net\SSH2('www.domain.tld');
  *    if (!$ssh->login('username', $key)) {
