@@ -4560,22 +4560,22 @@ class SSH2
         );
 
         $engines = array(
-            CRYPT_ENGINE_OPENSSL,
-            CRYPT_ENGINE_MCRYPT,
-            CRYPT_ENGINE_INTERNAL
+            Base::ENGINE_OPENSSL,
+            Base::ENGINE_MCRYPT,
+            Base::ENGINE_INTERNAL
         );
 
         $ciphers = array();
         foreach ($engines as $engine) {
             foreach ($algos as $algo) {
                 $obj = $this->_encryption_algorithm_to_crypt_instance($algo);
-                if (strtolower(get_class($obj)) == 'crypt_rijndael') {
+                if ($obj instanceof Rijndael) {
                     $obj->setKeyLength(preg_replace('#[^\d]#', '', $algo));
                 }
                 switch ($algo) {
                     case 'arcfour128':
                     case 'arcfour256':
-                        if ($engine == CRYPT_ENGINE_INTERNAL) {
+                        if ($engine == Base::ENGINE_INTERNAL) {
                             $algos = array_diff($algos, array($algo));
                             $ciphers[] = $algo;
                         } else {
