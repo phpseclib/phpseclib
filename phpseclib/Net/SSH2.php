@@ -1290,7 +1290,7 @@ class SSH2
         $identifier = 'SSH-2.0-phpseclib_2.0';
 
         $ext = array();
-        if (function_exists('\\Sodium\\library_version_major')) {
+        if (function_exists('sodium_crypto_box_publickey_from_secretkey')) {
             $ext[] = 'libsodium';
         }
 
@@ -1526,7 +1526,7 @@ class SSH2
 
         if ($kex_algorithm === 'curve25519-sha256@libssh.org') {
             $x = Random::string(32);
-            $eBytes = \Sodium\crypto_box_publickey_from_secretkey($x);
+            $eBytes = sodium_crypto_box_publickey_from_secretkey($x);
             $clientKexInitMessage = NET_SSH2_MSG_KEX_ECDH_INIT;
             $serverKexReplyMessage = NET_SSH2_MSG_KEX_ECDH_REPLY;
             $kexHash = new Hash('sha256');
@@ -1698,8 +1698,8 @@ class SSH2
                 user_error('Received curve25519 public key of invalid length.');
                 return false;
             }
-            $key = new BigInteger(\Sodium\crypto_scalarmult($x, $fBytes), 256);
-            \Sodium\memzero($x);
+            $key = new BigInteger(sodium_crypto_scalarmult($x, $fBytes), 256);
+            sodium_memzero($x);
         } else {
             $f = new BigInteger($fBytes, -256);
             $key = $f->modPow($x, $prime);
@@ -4488,7 +4488,7 @@ class SSH2
             'diffie-hellman-group1-sha1', // REQUIRED
         );
 
-        if (!function_exists('\\Sodium\\library_version_major')) {
+        if (!function_exists('sodium_crypto_box_publickey_from_secretkey')) {
             $kex_algorithms = array_diff(
                 $kex_algorithms,
                 array('curve25519-sha256@libssh.org')
