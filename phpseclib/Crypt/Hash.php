@@ -582,6 +582,7 @@ class Hash
         //
         $length = strlen($m[$i]);
         $pad = 32 - ($length % 32);
+        $pad%= 32;
         $m[$i] = str_pad($m[$i], $length + $pad, "\0"); // zeropad
         $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
 
@@ -688,6 +689,7 @@ class Hash
             $m_2 = substr($m, 0x20000) . "\x80";
             $length = strlen($m_2);
             $pad = 16 - ($length % 16);
+            $pad%= 16;
             $m_2 = str_pad($m_2, $length + $pad, "\0"); // zeropad
             $y = self::poly(64, self::$maxwordrange64, $k64, $m_1);
             $y = str_pad($y, 16, "\0", STR_PAD_LEFT);

@@ -1781,6 +1781,18 @@ class SSH2
 
         $createKeyLength = 0; // ie. $mac_algorithm == 'none'
         switch ($mac_algorithm) {
+            case 'umac-64@openssh.com':
+                $this->hmac_create = new Hash('umac-64');
+                $createKeyLength = 16;
+                break;
+            case 'umac-128@openssh.com':
+                $this->hmac_create = new Hash('umac-128');
+                $createKeyLength = 16;
+                break;
+            case 'hmac-sha2-512':
+                $this->hmac_create = new Hash('sha512');
+                $createKeyLength = 64;
+                break;
             case 'hmac-sha2-256':
                 $this->hmac_create = new Hash('sha256');
                 $createKeyLength = 32;
@@ -1826,6 +1838,21 @@ class SSH2
         $checkKeyLength = 0;
         $this->hmac_size = 0;
         switch ($mac_algorithm) {
+            case 'umac-64@openssh.com':
+                $this->hmac_check = new Hash('umac-64');
+                $checkKeyLength = 16;
+                $this->hmac_size = 8;
+                break;
+            case 'umac-128@openssh.com':
+                $this->hmac_check = new Hash('umac-128');
+                $checkKeyLength = 16;
+                $this->hmac_size = 16;
+                break;
+            case 'hmac-sha2-512':
+                $this->hmac_check = new Hash('sha512');
+                $checkKeyLength = 64;
+                $this->hmac_size = 64;
+                break;
             case 'hmac-sha2-256':
                 $this->hmac_check = new Hash('sha256');
                 $checkKeyLength = 32;
@@ -3228,8 +3255,18 @@ class SSH2
             if ($hmac === false || strlen($hmac) != $this->hmac_size) {
                 $this->bitmap = 0;
                 throw new \RuntimeException('Error reading socket');
-            } elseif ($hmac != $this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding))) {
-                throw new \RuntimeException('Invalid HMAC');
+            }
+
+            $reconstructed = pack('NCa*', $packet_length, $padding_length, $payload . $padding);
+            if (($this->hmac_check->getHash() & "\xFF\xFF\xFF\xFF") == 'umac') {
+                $this->hmac_check->setNonce("\0\0\0\0" . pack('N', $this->get_seq_no));
+                if ($hmac != $this->hmac_check->hash($reconstructed)) {
+                    throw new \RuntimeException('Invalid UMAC');
+                }
+            } else {
+                if ($hmac != $this->hmac_check->hash(pack('Na*', $this->get_seq_no, $reconstructed))) {
+                    throw new \RuntimeException('Invalid HMAC');
+                }
             }
         }
 
@@ -3792,7 +3829,16 @@ class SSH2
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself
         $packet = pack('NCa*', $packet_length - 4, $padding_length, $data . $padding);
 
-        $hmac = $this->hmac_create instanceof Hash ? $this->hmac_create->hash(pack('Na*', $this->send_seq_no, $packet)) : '';
+        if (!$this->hmac_create instanceof Hash) {
+            $hmac = '';
+        } else {
+            if (($this->hmac_create->getHash() & "\xFF\xFF\xFF\xFF") == 'umac') {
+                $this->hmac_create->setNonce("\0\0\0\0" . pack('N', $this->send_seq_no));
+                $hmac = $this->hmac_create->hash($packet);
+            } else {
+                $hmac = $this->hmac_create->hash(pack('Na*', $this->send_seq_no, $packet));
+            }
+        }
         $this->send_seq_no++;
 
         if ($this->encrypt) {
@@ -4396,7 +4442,12 @@ class SSH2
     {
         return [
             // from <http://www.ietf.org/rfc/rfc6668.txt>:
+            'hmac-sha2-512',// OPTIONAL        HMAC-SHA512 (digest length = key length = 64)
             'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
+
+            // from <https://tools.ietf.org/html/draft-miller-secsh-umac-01>:
+            'umac-64@openssh.com',
+            'umac-128@openssh.com',
 
             'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
             'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
