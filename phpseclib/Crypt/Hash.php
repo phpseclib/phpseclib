@@ -582,8 +582,8 @@ class Hash
         //
         $length = strlen($m[$i]);
         $pad = 32 - ($length % 32);
-        $pad%= 32;
-        $m[$i] = str_pad($m[$i], $length + $pad, "\0"); // zeropad
+        $pad = max(32, $length + $pad % 32);
+        $m[$i] = str_pad($m[$i], $pad, "\0"); // zeropad
         $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
 
         $y.= static::nh($k, $m[$i], new BigInteger($length * 8));
