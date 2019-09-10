@@ -3206,6 +3206,9 @@ class SSH2
     function ping()
     {
         if (!$this->isAuthenticated()) {
+            if (!empty($this->auth)) {
+                return $this->_reconnect();
+            }
             return false;
         }
 
@@ -4113,10 +4116,12 @@ class SSH2
         if ($this->bitmap & self::MASK_CONNECTED) {
             $data = pack('CNNa*Na*', NET_SSH2_MSG_DISCONNECT, $reason, 0, '', 0, '');
             $this->_send_binary_packet($data);
-            $this->bitmap = 0;
-            fclose($this->fsock);
-            return false;
         }
+
+        $this->bitmap = 0;
+        fclose($this->fsock);
+
+        return false;
     }
 
     /**
