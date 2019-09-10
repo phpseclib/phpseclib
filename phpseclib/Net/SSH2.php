@@ -1238,7 +1238,6 @@ class Net_SSH2
                 $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
                 $this->curTimeout-= $elapsed;
             }
-
             $temp.= fgets($this->fsock, 255);
         }
 
@@ -3243,6 +3242,9 @@ class Net_SSH2
     function ping()
     {
         if (!$this->isAuthenticated()) {
+            if (!empty($this->auth)) {
+                return $this->_reconnect();
+            }
             return false;
         }
 
@@ -4152,10 +4154,12 @@ class Net_SSH2
         if ($this->bitmap & NET_SSH2_MASK_CONNECTED) {
             $data = pack('CNNa*Na*', NET_SSH2_MSG_DISCONNECT, $reason, 0, '', 0, '');
             $this->_send_binary_packet($data);
-            $this->bitmap = 0;
-            fclose($this->fsock);
-            return false;
         }
+
+        $this->bitmap = 0;
+        fclose($this->fsock);
+
+        return false;
     }
 
     /**

@@ -465,6 +465,7 @@ class Net_SFTP extends Net_SSH2
     function login($username)
     {
         $args = func_get_args();
+        $this->auth[] = $args;
         if (!call_user_func_array(array(&$this, '_login'), $args)) {
             return false;
         }
@@ -3030,6 +3031,20 @@ class Net_SFTP extends Net_SSH2
         }
 
         return $result;
+    }
+
+    /**
+     * Resets a connection for re-use
+     *
+     * @param int $reason
+     * @access private
+     */
+    function _reset_connection($reason)
+    {
+        parent::_reset_connection($reason);
+        $this->use_request_id = false;
+        $this->pwd = false;
+        $this->requestBuffer = array();
     }
 
     /**
