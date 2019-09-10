@@ -3051,6 +3051,9 @@ class SSH2
     public function ping()
     {
         if (!$this->isAuthenticated()) {
+            if (!empty($this->auth)) {
+                return $this->reconnect();
+            }
             return false;
         }
 
@@ -3103,7 +3106,7 @@ class SSH2
      * @param int $reason
      * @access private
      */
-    private function reset_connection($reason)
+    protected function reset_connection($reason)
     {
         $this->disconnect_helper($reason);
         $this->decrypt = $this->encrypt = false;
@@ -4020,10 +4023,12 @@ class SSH2
         if ($this->bitmap & self::MASK_CONNECTED) {
             $data = Strings::packSSH2('CNss', NET_SSH2_MSG_DISCONNECT, $reason, '', '');
             $this->send_binary_packet($data);
-            $this->bitmap = 0;
-            fclose($this->fsock);
-            return false;
         }
+
+        $this->bitmap = 0;
+        fclose($this->fsock);
+
+        return false;
     }
 
     /**

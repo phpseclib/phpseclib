@@ -414,6 +414,7 @@ class SFTP extends SSH2
      */
     public function login($username, ...$args)
     {
+        $this->auth[] = $args;
         if (!$this->sublogin($username, ...$args)) {
             return false;
         }
@@ -2876,6 +2877,20 @@ class SFTP extends SSH2
         }
 
         return $result;
+    }
+
+    /**
+     * Resets a connection for re-use
+     *
+     * @param int $reason
+     * @access private
+     */
+    protected function reset_connection($reason)
+    {
+        parent::reset_connection($reason);
+        $this->use_request_id = false;
+        $this->pwd = false;
+        $this->requestBuffer = [];
     }
 
     /**
