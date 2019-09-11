@@ -66,6 +66,9 @@ use phpseclib\System\SSH\Agent\Identity as AgentIdentity;
 use phpseclib\Exception\NoSupportedAlgorithmsException;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\Exception\UnsupportedCurveException;
+use phpseclib\Exception\ConnectionClosedException;
+use phpseclib\Exception\UnableToConectException;
+use phpseclib\Exception\InsufficientSetupException;
 use phpseclib\Common\Functions\Strings;
 
 /**
@@ -1186,7 +1189,7 @@ class SSH2
             $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout == 0 ? 100000 : $this->curTimeout);
             if (!$this->fsock) {
                 $host = $this->host . ':' . $this->port;
-                throw new \RuntimeException(rtrim("Cannot connect to $host. Error $errno. $errstr"));
+                throw new UnableToConectException(rtrim("Cannot connect to $host. Error $errno. $errstr"));
             }
             $elapsed = microtime(true) - $start;
 
@@ -1261,7 +1264,7 @@ class SSH2
 
         if (feof($this->fsock)) {
             $this->bitmap = 0;
-            throw new \RuntimeException('Connection closed by server');
+            throw new ConnectionClosedException('Connection closed by server');
         }
 
         $extra = $matches[1];
@@ -1277,7 +1280,7 @@ class SSH2
         }
 
         if (version_compare($matches[3], '1.99', '<')) {
-            throw new \RuntimeException("Cannot connect to SSH $matches[3] servers");
+            throw new UnableToConectException("Cannot connect to SSH $matches[3] servers");
         }
 
         if (!$this->send_id_string_first) {
@@ -1288,7 +1291,7 @@ class SSH2
             $response = $this->get_binary_packet();
             if ($response === false) {
                 $this->bitmap = 0;
-                throw new \RuntimeException('Connection closed by server');
+                throw new ConnectionClosedException('Connection closed by server');
             }
 
             if (!strlen($response) || ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
@@ -1427,7 +1430,7 @@ class SSH2
             $kexinit_payload_server = $this->get_binary_packet();
             if ($kexinit_payload_server === false) {
                 $this->bitmap = 0;
-                throw new \RuntimeException('Connection closed by server');
+                throw new ConnectionClosedException('Connection closed by server');
             }
 
             if (!strlen($kexinit_payload_server) || ord($kexinit_payload_server[0]) != NET_SSH2_MSG_KEXINIT) {
@@ -1511,7 +1514,7 @@ class SSH2
                 $response = $this->get_binary_packet();
                 if ($response === false) {
                     $this->bitmap = 0;
-                    throw new \RuntimeException('Connection closed by server');
+                    throw new ConnectionClosedException('Connection closed by server');
                 }
 
                 list($type, $primeBytes, $gBytes) = Strings::unpackSSH2('Css', $response);
@@ -1570,7 +1573,7 @@ class SSH2
         $response = $this->get_binary_packet();
         if ($response === false) {
             $this->bitmap = 0;
-            throw new \RuntimeException('Connection closed by server');
+            throw new ConnectionClosedException('Connection closed by server');
         }
         if (!strlen($response)) {
             return false;
@@ -1652,7 +1655,7 @@ class SSH2
 
         if ($response === false) {
             $this->bitmap = 0;
-            throw new \RuntimeException('Connection closed by server');
+            throw new ConnectionClosedException('Connection closed by server');
         }
 
         list($type) = Strings::unpackSSH2('C', $response);
@@ -2071,7 +2074,7 @@ class SSH2
                     return $this->login_helper($username, $password);
                 }
                 $this->bitmap = 0;
-                throw new \RuntimeException('Connection closed by server');
+                throw new ConnectionClosedException('Connection closed by server');
             }
 
             list($type, $service) = Strings::unpackSSH2('Cs', $response);
@@ -2115,7 +2118,7 @@ class SSH2
             $response = $this->get_binary_packet();
             if ($response === false) {
                 $this->bitmap = 0;
-                throw new \RuntimeException('Connection closed by server');
+                throw new ConnectionClosedException('Connection closed by server');
             }
 
             list($type) = Strings::unpackSSH2('C', $response);
@@ -2163,7 +2166,7 @@ class SSH2
         $response = $this->get_binary_packet();
         if ($response === false) {
             $this->bitmap = 0;
-            throw new \RuntimeException('Connection closed by server');
+            throw new ConnectionClosedException('Connection closed by server');
         }
 
         list($type) = Strings::unpackSSH2('C', $response);
@@ -2239,7 +2242,7 @@ class SSH2
             $orig = $response = $this->get_binary_packet();
             if ($response === false) {
                 $this->bitmap = 0;
-                throw new \RuntimeException('Connection closed by server');
+                throw new ConnectionClosedException('Connection closed by server');
             }
         }
 
@@ -2435,7 +2438,7 @@ class SSH2
         $response = $this->get_binary_packet();
         if ($response === false) {
             $this->bitmap = 0;
-            throw new \RuntimeException('Connection closed by server');
+            throw new ConnectionClosedException('Connection closed by server');
         }
 
         list($type) = Strings::unpackSSH2('C', $response);
@@ -2469,7 +2472,7 @@ class SSH2
         $response = $this->get_binary_packet();
         if ($response === false) {
             $this->bitmap = 0;
-            throw new \RuntimeException('Connection closed by server');
+            throw new ConnectionClosedException('Connection closed by server');
         }
 
         list($type) = Strings::unpackSSH2('C', $response);
@@ -2582,7 +2585,7 @@ class SSH2
             $response = $this->get_binary_packet();
             if ($response === false) {
                 $this->bitmap = 0;
-                throw new \RuntimeException('Connection closed by server');
+                throw new ConnectionClosedException('Connection closed by server');
             }
 
             list($type) = Strings::unpackSSH2('C', $response);
@@ -2707,7 +2710,7 @@ class SSH2
         $response = $this->get_binary_packet();
         if ($response === false) {
             $this->bitmap = 0;
-            throw new \RuntimeException('Connection closed by server');
+            throw new ConnectionClosedException('Connection closed by server');
         }
 
         list($type) = Strings::unpackSSH2('C', $response);
@@ -2837,7 +2840,7 @@ class SSH2
         $this->is_timeout = false;
 
         if (!$this->isAuthenticated()) {
-            throw new \RuntimeException('Operation disallowed prior to login()');
+            throw new InsufficientSetupException('Operation disallowed prior to login()');
         }
 
         if (!($this->bitmap & self::MASK_SHELL) && !$this->initShell()) {
@@ -2882,7 +2885,7 @@ class SSH2
     public function write($cmd)
     {
         if (!$this->isAuthenticated()) {
-            throw new \RuntimeException('Operation disallowed prior to login()');
+            throw new InsufficientSetupException('Operation disallowed prior to login()');
         }
 
         if (!($this->bitmap & self::MASK_SHELL) && !$this->initShell()) {
@@ -3132,7 +3135,7 @@ class SSH2
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             $this->bitmap = 0;
-            throw new \RuntimeException('Connection closed prematurely');
+            throw new ConnectionClosedException('Connection closed prematurely');
         }
 
         $start = microtime(true);
@@ -3577,7 +3580,7 @@ class SSH2
                 $response = $this->get_binary_packet(true);
                 if ($response === false) {
                     $this->bitmap = 0;
-                    throw new \RuntimeException('Connection closed by server');
+                    throw new ConnectionClosedException('Connection closed by server');
                 }
             }
 
@@ -3766,7 +3769,7 @@ class SSH2
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             $this->bitmap = 0;
-            throw new \RuntimeException('Connection closed prematurely');
+            throw new ConnectionClosedException('Connection closed prematurely');
         }
 
         //if ($this->compress) {
