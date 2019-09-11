@@ -1773,50 +1773,13 @@ class SSH2
             throw new NoSupportedAlgorithmsException('No compatible client to server message authentication algorithms found');
         }
 
-        if ($this->encrypt->usesNonce()) {
+        if (!$this->encrypt->usesNonce()) {
+            list($this->hmac_create, $createKeyLegth) = self::mac_algorithm_to_hash_instance($mac_algorithm);
+        } else {
             $this->hmac_create = new \stdClass;
             $this->hmac_create->name = $mac_algorithm;
-            $mac_algorithm = 'none';
-        }
-
-        $createKeyLength = 0; // ie. $mac_algorithm == 'none'
-        switch ($mac_algorithm) {
-            case 'umac-64@openssh.com':
-            case 'umac-64-etm@openssh.com':
-                $this->hmac_create = new Hash('umac-64');
-                $createKeyLength = 16;
-                break;
-            case 'umac-128@openssh.com':
-            case 'umac-128-etm@openssh.com':
-                $this->hmac_create = new Hash('umac-128');
-                $createKeyLength = 16;
-                break;
-            case 'hmac-sha2-512':
-            case 'hmac-sha2-512-etm@openssh.com':
-                $this->hmac_create = new Hash('sha512');
-                $createKeyLength = 64;
-                break;
-            case 'hmac-sha2-256':
-            case 'hmac-sha2-256-etm@openssh.com':
-                $this->hmac_create = new Hash('sha256');
-                $createKeyLength = 32;
-                break;
-            case 'hmac-sha1':
-            case 'hmac-sha1-etm@openssh.com':
-                $this->hmac_create = new Hash('sha1');
-                $createKeyLength = 20;
-                break;
-            case 'hmac-sha1-96':
-                $this->hmac_create = new Hash('sha1-96');
-                $createKeyLength = 20;
-                break;
-            case 'hmac-md5':
-                $this->hmac_create = new Hash('md5');
-                $createKeyLength = 16;
-                break;
-            case 'hmac-md5-96':
-                $this->hmac_create = new Hash('md5-96');
-                $createKeyLength = 16;
+            //$mac_algorithm = 'none';
+            $createKeyLength = 0;
         }
 
         if ($this->hmac_create instanceof Hash) {
@@ -1835,59 +1798,15 @@ class SSH2
             throw new NoSupportedAlgorithmsException('No compatible server to client message authentication algorithms found');
         }
 
-        if ($this->decrypt->usesNonce()) {
+        if (!$this->decrypt->usesNonce()) {
+            list($this->hmac_check, $checkKeyLegth) = self::mac_algorithm_to_hash_instance($mac_algorithm);
+            $this->hmac_size = $this->getLengthInBytes();
+        } else {
             $this->hmac_check = new \stdClass;
             $this->hmac_check->name = $mac_algorithm;
-            $mac_algorithm = 'none';
-        }
-
-        $checkKeyLength = 0;
-        $this->hmac_size = 0;
-        switch ($mac_algorithm) {
-            case 'umac-64@openssh.com':
-            case 'umac-64-etm@openssh.com':
-                $this->hmac_check = new Hash('umac-64');
-                $checkKeyLength = 16;
-                $this->hmac_size = 8;
-                break;
-            case 'umac-128@openssh.com':
-            case 'umac-128-etm@openssh.com':
-                $this->hmac_check = new Hash('umac-128');
-                $checkKeyLength = 16;
-                $this->hmac_size = 16;
-                break;
-            case 'hmac-sha2-512':
-            case 'hmac-sha2-512-etm@openssh.com':
-                $this->hmac_check = new Hash('sha512');
-                $checkKeyLength = 64;
-                $this->hmac_size = 64;
-                break;
-            case 'hmac-sha2-256':
-            case 'hmac-sha2-256-etm@openssh.com':
-                $this->hmac_check = new Hash('sha256');
-                $checkKeyLength = 32;
-                $this->hmac_size = 32;
-                break;
-            case 'hmac-sha1':
-            case 'hmac-sha1-etm@openssh.com':
-                $this->hmac_check = new Hash('sha1');
-                $checkKeyLength = 20;
-                $this->hmac_size = 20;
-                break;
-            case 'hmac-sha1-96':
-                $this->hmac_check = new Hash('sha1-96');
-                $checkKeyLength = 20;
-                $this->hmac_size = 12;
-                break;
-            case 'hmac-md5':
-                $this->hmac_check = new Hash('md5');
-                $checkKeyLength = 16;
-                $this->hmac_size = 16;
-                break;
-            case 'hmac-md5-96':
-                $this->hmac_check = new Hash('md5-96');
-                $checkKeyLength = 16;
-                $this->hmac_size = 12;
+            //$mac_algorithm = 'none';
+            $checkKeyLength = 0;
+            $this->hmac_size = 0;
         }
 
         if ($this->hmac_check instanceof Hash) {
@@ -1966,10 +1885,10 @@ class SSH2
 
     /**
      * Maps an encryption algorithm name to an instance of a subclass of
-     * \phpseclib\Crypt\Base.
+     * \phpseclib\Crypt\Common\SymmetricKey.
      *
      * @param string $algorithm Name of the encryption algorithm
-     * @return mixed Instance of \phpseclib\Crypt\Base or null for unknown
+     * @return mixed Instance of \phpseclib\Crypt\Common\SymmetricKey or null for unknown
      * @access private
      */
     private static function encryption_algorithm_to_crypt_instance($algorithm)
@@ -2011,6 +1930,41 @@ class SSH2
                 return new ChaCha20();
         }
         return null;
+    }
+
+    /**
+     * Maps an encryption algorithm name to an instance of a subclass of
+     * \phpseclib\Crypt\Hash.
+     *
+     * @param string $algorithm Name of the encryption algorithm
+     * @return mixed Instance of \phpseclib\Crypt\Hash or null for unknown
+     * @access private
+     */
+    private static function mac_algorithm_to_hash_instance($algorithm)
+    {
+        switch ($algorithm) {
+            case 'umac-64@openssh.com':
+            case 'umac-64-etm@openssh.com':
+                return [new Hash('umac-64'), 16];
+            case 'umac-128@openssh.com':
+            case 'umac-128-etm@openssh.com':
+                return [new Hash('umac-128'), 16];
+            case 'hmac-sha2-512':
+            case 'hmac-sha2-512-etm@openssh.com':
+                return [new Hash('sha512'), 64];
+            case 'hmac-sha2-256':
+            case 'hmac-sha2-256-etm@openssh.com':
+                return [new Hash('sha256'), 32];
+            case 'hmac-sha1':
+            case 'hmac-sha1-etm@openssh.com':
+                return [new Hash('sha1'), 20];
+            case 'hmac-sha1-96':
+                return [new Hash('sha1-96'), 20];
+            case 'hmac-md5':
+                return [new Hash('md5'), 16];
+            case 'hmac-md5-96':
+                return [new Hash('md5-96'), 16];
+        }
     }
 
     /*
