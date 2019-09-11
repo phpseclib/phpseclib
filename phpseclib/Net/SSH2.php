@@ -2101,10 +2101,6 @@ class SSH2
             return false;
         }
 
-        if (!is_string($password)) {
-            throw new \UnexpectedValueException('$password needs to either be an instance of \phpseclib\Crypt\Common\PrivateKey, \System\SSH\Agent, an array or a string');
-        }
-
         if (!isset($password)) {
            $packet = Strings::packSSH2(
                'Cs3',
@@ -2131,6 +2127,10 @@ class SSH2
                 default:
                     return false;
             }
+        }
+
+        if (!is_string($password)) {
+            throw new \UnexpectedValueException('$password needs to either be an instance of \phpseclib\Crypt\Common\PrivateKey, \System\SSH\Agent, an array or a string');
         }
 
         $packet = Strings::packSSH2(
