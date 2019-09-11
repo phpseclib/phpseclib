@@ -1800,7 +1800,7 @@ class SSH2
 
         if (!$this->decrypt->usesNonce()) {
             list($this->hmac_check, $checkKeyLength) = self::mac_algorithm_to_hash_instance($mac_algorithm);
-            $this->hmac_size = $this->getLengthInBytes();
+            $this->hmac_size = $this->hmac_check->getLengthInBytes();
         } else {
             $this->hmac_check = new \stdClass;
             $this->hmac_check->name = $mac_algorithm;
@@ -3823,8 +3823,6 @@ class SSH2
             }
         }
 
-        $this->send_seq_no++;
-
         if ($this->encrypt) {
             switch ($this->encrypt->name) {
                 case 'aes128-gcm@openssh.com':
@@ -3838,7 +3836,7 @@ class SSH2
                     $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
                     break;
                 case 'chacha20-poly1305@openssh.com':
-                    $nonce = pack('N2', 0, $this->send_seq_no - 1);
+                    $nonce = pack('N2', 0, $this->send_seq_no);
 
                     $this->encrypt->setNonce($nonce);
                     $this->lengthEncrypt->setNonce($nonce);
@@ -3865,12 +3863,14 @@ class SSH2
 
         if ($this->hmac_create instanceof Hash && $this->hmac_create->etm) {
             if (($this->hmac_create->getHash() & "\xFF\xFF\xFF\xFF") == 'umac') {
-                $this->hmac_create->setNonce("\0\0\0\0" . pack('N', $this->send_seq_no - 1));
+                $this->hmac_create->setNonce("\0\0\0\0" . pack('N', $this->send_seq_no));
                 $hmac = $this->hmac_create->hash($packet);
             } else {
-                $hmac = $this->hmac_create->hash(pack('Na*', $this->send_seq_no - 1, $packet));
+                $hmac = $this->hmac_create->hash(pack('Na*', $this->send_seq_no, $packet));
             }
         }
+
+        $this->send_seq_no++;
 
         $packet.= $this->encrypt && $this->encrypt->usesNonce() ? $this->encrypt->getTag() : $hmac;
 
