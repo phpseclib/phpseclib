@@ -971,7 +971,7 @@ class SSH2
      * @var string|false
      * @access private
      */
-    var $preferred_signature_format = false;
+    protected $preferred_signature_format = false;
 
     /**
      * Authentication Credentials
@@ -979,7 +979,7 @@ class SSH2
      * @var array
      * @access private
      */
-    var $auth = [];
+    protected $auth = [];
 
     /**
      * Default Constructor.
