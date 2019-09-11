@@ -1463,14 +1463,14 @@ class SSH2
 
         // we don't initialize any crypto-objects, yet - we do that, later. for now, we need the lengths to make the
         // diffie-hellman key exchange as fast as possible
-        $decrypt = $this->array_intersect_first($s2c_encryption_algorithms, $this->encryption_algorithms_server_to_client);
+        $decrypt = self::array_intersect_first($s2c_encryption_algorithms, $this->encryption_algorithms_server_to_client);
         $decryptKeyLength = $this->encryption_algorithm_to_key_size($decrypt);
         if ($decryptKeyLength === null) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client encryption algorithms found');
         }
 
-        $encrypt = $this->array_intersect_first($c2s_encryption_algorithms, $this->encryption_algorithms_client_to_server);
+        $encrypt = self::array_intersect_first($c2s_encryption_algorithms, $this->encryption_algorithms_client_to_server);
         $encryptKeyLength = $this->encryption_algorithm_to_key_size($encrypt);
         if ($encryptKeyLength === null) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
@@ -1478,7 +1478,7 @@ class SSH2
         }
 
         // through diffie-hellman key exchange a symmetric key is obtained
-        $this->kex_algorithm = $this->array_intersect_first($kex_algorithms, $this->kex_algorithms);
+        $this->kex_algorithm = self::array_intersect_first($kex_algorithms, $this->kex_algorithms);
         if ($this->kex_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible key exchange algorithms found');
@@ -1622,7 +1622,7 @@ class SSH2
             $this->session_id = $this->exchange_hash;
         }
 
-        $server_host_key_algorithm = $this->array_intersect_first($server_host_key_algorithms, $this->server_host_key_algorithms);
+        $server_host_key_algorithm = self::array_intersect_first($server_host_key_algorithms, $this->server_host_key_algorithms);
         if ($server_host_key_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server host key algorithms found');
@@ -1767,7 +1767,7 @@ class SSH2
             $this->decrypt->decrypt(str_repeat("\0", 1536));
         }
 
-        $mac_algorithm = $this->array_intersect_first($c2s_mac_algorithms, $this->mac_algorithms_client_to_server);
+        $mac_algorithm = self::array_intersect_first($c2s_mac_algorithms, $this->mac_algorithms_client_to_server);
         if ($mac_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible client to server message authentication algorithms found');
@@ -1792,7 +1792,7 @@ class SSH2
             $this->hmac_create->etm = preg_match('#-etm@openssh\.com$#', $mac_algorithm);
         }
 
-        $mac_algorithm = $this->array_intersect_first($s2c_mac_algorithms, $this->mac_algorithms_server_to_client);
+        $mac_algorithm = self::array_intersect_first($s2c_mac_algorithms, $this->mac_algorithms_server_to_client);
         if ($mac_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client message authentication algorithms found');
@@ -1819,14 +1819,14 @@ class SSH2
             $this->hmac_check->etm = preg_match('#-etm@openssh\.com$#', $mac_algorithm);
         }
 
-        $compression_algorithm = $this->array_intersect_first($s2c_compression_algorithms, $this->compression_algorithms_server_to_client);
+        $compression_algorithm = self::array_intersect_first($s2c_compression_algorithms, $this->compression_algorithms_server_to_client);
         if ($compression_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client compression algorithms found');
         }
         $this->decompress = $compression_algorithm == 'zlib';
 
-        $compression_algorithm = $this->array_intersect_first($c2s_compression_algorithms, $this->compression_algorithms_client_to_server);
+        $compression_algorithm = self::array_intersect_first($c2s_compression_algorithms, $this->compression_algorithms_client_to_server);
         if ($compression_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible client to server compression algorithms found');
@@ -4190,7 +4190,7 @@ class SSH2
      * @return mixed False if intersection is empty, else intersected value.
      * @access private
      */
-    private function array_intersect_first($array1, $array2)
+    private static function array_intersect_first($array1, $array2)
     {
         foreach ($array1 as $value) {
             if (in_array($value, $array2)) {
