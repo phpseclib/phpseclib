@@ -1774,7 +1774,7 @@ class SSH2
         }
 
         if (!$this->encrypt->usesNonce()) {
-            list($this->hmac_create, $createKeyLegth) = self::mac_algorithm_to_hash_instance($mac_algorithm);
+            list($this->hmac_create, $createKeyLength) = self::mac_algorithm_to_hash_instance($mac_algorithm);
         } else {
             $this->hmac_create = new \stdClass;
             $this->hmac_create->name = $mac_algorithm;
@@ -1799,7 +1799,7 @@ class SSH2
         }
 
         if (!$this->decrypt->usesNonce()) {
-            list($this->hmac_check, $checkKeyLegth) = self::mac_algorithm_to_hash_instance($mac_algorithm);
+            list($this->hmac_check, $checkKeyLength) = self::mac_algorithm_to_hash_instance($mac_algorithm);
             $this->hmac_size = $this->getLengthInBytes();
         } else {
             $this->hmac_check = new \stdClass;
