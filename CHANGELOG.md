@@ -190,6 +190,20 @@
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
 
+## 1.0.17 - 2019-09-15
+
+- SSH2: backport setPreferredAlgorithms() / getAlgorithmsNegotiated (#1156)
+- SSH2 / SFTP: fix issues with ping() (#1402)
+- SSH2: only auto close the channel for exec() timeouts (#1384)
+- SSH2 / SFTP: fix issues with ping() (#1402)
+- SFTP: add progress callback to get() (#1375)
+- SFTP: fix array_merge(): Argument #1 is not an array error (#1379)
+- X509: IPs in nameconstraints extension include netmask (#1387)
+- X509: fix issue with explicit time tags whose maps expect implicit (#1388)
+- BigInteger: fix issues with divide method
+- BigInteger: fix bug with toBytes() with fixed precision negative numbers
+- fix PHP 7.4 deprecations
+
 ## 1.0.16 - 2019-06-13
 
 - BigInteger: new BigInteger('-0') caused issues with GMP
