@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.22 - 2019-09-15
+
+- SSH2: backport setPreferredAlgorithms() / getAlgorithmsNegotiated (#1156)
+- SSH2 / SFTP: fix issues with ping() (#1402)
+- X509: IPs in nameconstraints extension include netmask (#1387)
+- X509: fix issue with explicit time tags whose maps expect implicit (#1388)
+- BigInteger: fix bug with toBytes() with fixed precision negative numbers
+- fix PHP 7.4 deprecations
+
 ## 2.0.21 - 2019-07-14
 
 - SSH2: only auto close the channel for exec() timeouts (#1384)
