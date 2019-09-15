@@ -517,7 +517,14 @@ class GMP extends Engine
         $result->bitmask = $this->bitmask;
 
         if ($result->bitmask !== false) {
+            $flip = $result->value < 0;
+            if ($flip) {
+                $result->value = -$result->value;
+            }
             $result->value = $result->value & $result->bitmask->value;
+            if ($flip) {
+                $result->value = -$result->value;
+            }
         }
 
         return $result;

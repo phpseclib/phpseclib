@@ -157,6 +157,7 @@ abstract class PHP extends Engine
         }
 
         $temp = clone $this;
+        $temp->bitmask = false;
         $temp->is_negative = false;
 
         $divisor = new static();
