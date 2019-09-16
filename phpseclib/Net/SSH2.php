@@ -4157,7 +4157,9 @@ class Net_SSH2
         }
 
         $this->bitmap = 0;
-        fclose($this->fsock);
+        if (is_resource($this->fsock) && get_resource_type($this->fsock) == 'stream') {
+            fclose($this->fsock);
+        }
 
         return false;
     }
