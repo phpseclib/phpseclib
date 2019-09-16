@@ -35,7 +35,10 @@ namespace phpseclib\Crypt;
 
 use phpseclib\Math\BigInteger;
 use phpseclib\Exception\UnsupportedAlgorithmException;
+use phpseclib\Exception\InsufficientSetupException;
 use phpseclib\Common\Functions\Strings;
+use phpseclib\Crypt\AES;
+use phpseclib\Math\PrimeField;
 
 /**
  * @package Hash
@@ -102,6 +105,15 @@ class Hash
     private $key = false;
 
     /**
+     * Nonce
+     *
+     * @see self::setNonce()
+     * @var string
+     * @access private
+     */
+    private $nonce = false;
+
+    /**
      * Hash Parameters
      *
      * @var array
@@ -141,6 +153,51 @@ class Hash
     private $ipad;
 
     /**
+     * Recompute AES Key
+     *
+     * Used only for umac
+     *
+     * @see self::hash()
+     * @var boolean
+     * @access private
+     */
+    private $recomputeAESKey;
+
+    /**
+     * umac cipher object
+     *
+     * @see self::hash()
+     * @var \phpseclib\Crypt\AES
+     * @access private
+     */
+    private $c;
+
+    /**
+     * umac pad
+     *
+     * @see self::hash()
+     * @var string
+     * @access private
+     */
+    private $pad;
+
+    /**#@+
+     * UMAC variables
+     *
+     * @var PrimeField
+     */
+    private static $factory36;
+    private static $factory64;
+    private static $factory128;
+    private static $offset64;
+    private static $offset128;
+    private static $marker64;
+    private static $marker128;
+    private static $maxwordrange64;
+    private static $maxwordrange128;
+    /**#@-*/
+
+    /**
      * Default Constructor.
      *
      * @param string $hash
@@ -163,6 +220,28 @@ class Hash
     {
         $this->key = $key;
         $this->computeKey();
+        $this->recomputeAESKey = true;
+    }
+
+    /**
+     * Sets the nonce for UMACs
+     *
+     * Keys can be of any length.
+     *
+     * @access public
+     * @param string $nonce
+     */
+    public function setNonce($nonce = false)
+    {
+        switch (true) {
+            case !is_string($nonce):
+            case strlen($nonce) > 0 && strlen($nonce) <= 16:
+                $this->recomputeAESKey = true;
+                $this->nonce = $nonce;
+                return;
+        }
+
+        throw new \LengthException('The nonce length must be between 1 and 16 bytes, inclusive');
     }
 
     /**
@@ -217,6 +296,14 @@ class Hash
     {
         $this->hashParam = $hash = strtolower($hash);
         switch ($hash) {
+            case 'umac-32':
+            case 'umac-64':
+            case 'umac-96':
+            case 'umac-128':
+                $this->blockSize = 128;
+                $this->length = abs(substr($hash, -3)) >> 3;
+                $this->hash = 'umac';
+                return;
             case 'md2-96':
             case 'md5-96':
             case 'sha1-96':
@@ -358,7 +445,339 @@ class Hash
     }
 
     /**
-     * Compute the HMAC.
+     * KDF: Key-Derivation Function
+     *
+     * The key-derivation function generates pseudorandom bits used to key the hash functions.
+     *
+     * @param int $index a non-negative integer less than 2^64
+     * @param int $numbytes a non-negative integer less than 2^64
+     * @return string string of length numbytes bytes
+     */
+    private function kdf($index, $numbytes)
+    {
+        $this->c->setIV(pack('N4', 0, $index, 0, 1));
+
+        return $this->c->encrypt(str_repeat("\0", $numbytes));
+    }
+
+    /**
+     * PDF Algorithm
+     *
+     * @return string string of length taglen bytes.
+     */
+    private function pdf()
+    {
+        $k = $this->key;
+        $nonce = $this->nonce;
+        $taglen = $this->length;
+
+        //
+        // Extract and zero low bit(s) of Nonce if needed
+        //
+        if ($taglen <= 8) {
+            $last = strlen($nonce) - 1;
+            $mask = $taglen == 4 ? "\3" : "\1";
+            $index = $nonce[$last] & $mask;
+            $nonce[$last] = $nonce[$last] ^ $index;
+        }
+
+        //
+        // Make Nonce BLOCKLEN bytes by appending zeroes if needed
+        //
+        $nonce = str_pad($nonce, 16, "\0");
+
+        //
+        // Generate subkey, encipher and extract indexed substring
+        //
+        $kp = $this->kdf(0, 16);
+        $c = new AES('ctr');
+        $c->disablePadding();
+        $c->setKey($kp);
+        $c->setIV($nonce);
+        $t = $c->encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
+
+        // we could use ord() but per https://paragonie.com/blog/2016/06/constant-time-encoding-boring-cryptography-rfc-4648-and-you
+        // unpack() doesn't leak timing info
+        return $taglen <= 8 ?
+            substr($t, unpack('C', $index)[1] * $taglen, $taglen) :
+            substr($t, 0, $taglen);
+    }
+
+    /**
+     * UHASH Algorithm
+     *
+     * @param string $m string of length less than 2^67 bits.
+     * @param int $taglen the integer 4, 8, 12 or 16.
+     * @return string string of length taglen bytes.
+     */
+    private function uhash($m, $taglen)
+    {
+        //
+        // One internal iteration per 4 bytes of output
+        //
+        $iters = $taglen >> 2;
+
+        //
+        // Define total key needed for all iterations using KDF.
+        // L1Key reuses most key material between iterations.
+        //
+        //$L1Key  = $this->kdf(1, 1024 + ($iters - 1) * 16);
+        $L1Key  = $this->kdf(1, (1024 + ($iters - 1)) * 16);
+        $L2Key  = $this->kdf(2, $iters * 24);
+        $L3Key1 = $this->kdf(3, $iters * 64);
+        $L3Key2 = $this->kdf(4, $iters * 4);
+
+        //
+        // For each iteration, extract key and do three-layer hash.
+        // If bytelength(M) <= 1024, then skip L2-HASH.
+        //
+        $y = '';
+        for ($i = 0; $i < $iters; $i++) {
+            $L1Key_i  = substr($L1Key,  $i * 16, 1024);
+            $L2Key_i  = substr($L2Key,  $i * 24, 24);
+            $L3Key1_i = substr($L3Key1, $i * 64, 64);
+            $L3Key2_i = substr($L3Key2, $i * 4, 4);
+
+            $a = self::L1Hash($L1Key_i, $m);
+            $b = strlen($m) <= 1024 ? "\0\0\0\0\0\0\0\0$a" : self::L2Hash($L2Key_i, $a);
+            $c = self::L3Hash($L3Key1_i, $L3Key2_i, $b);
+            $y.= $c;
+        }
+
+        return $y;
+    }
+
+    /**
+     * L1-HASH Algorithm
+     *
+     * The first-layer hash breaks the message into 1024-byte chunks and
+     * hashes each with a function called NH.  Concatenating the results
+     * forms a string, which is up to 128 times shorter than the original.
+     *
+     * @param string $k string of length 1024 bytes.
+     * @param string $m string of length less than 2^67 bits.
+     * @return string string of length (8 * ceil(bitlength(M)/8192)) bytes.
+     */
+    private static function L1Hash($k, $m)
+    {
+        //
+        // Break M into 1024 byte chunks (final chunk may be shorter)
+        //
+        $m = str_split($m, 1024);
+
+        //
+        // For each chunk, except the last: endian-adjust, NH hash
+        // and add bit-length.  Use results to build Y.
+        //
+        $length = new BigInteger(1024 * 8);
+        $y = '';
+        for ($i = 0; $i < count($m) - 1; $i++) {
+            $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
+            $y.= static::nh($k, $m[$i], $length);
+        }
+
+        //
+        // For the last chunk: pad to 32-byte boundary, endian-adjust,
+        // NH hash and add bit-length.  Concatenate the result to Y.
+        //
+        $length = strlen($m[$i]);
+        $pad = 32 - ($length % 32);
+        $pad = max(32, $length + $pad % 32);
+        $m[$i] = str_pad($m[$i], $pad, "\0"); // zeropad
+        $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
+
+        $y.= static::nh($k, $m[$i], new BigInteger($length * 8));
+
+        return $y;
+    }
+
+    /**
+     * NH Algorithm
+     *
+     * @param string $k string of length 1024 bytes.
+     * @param string $m string with length divisible by 32 bytes.
+     * @return string string of length 8 bytes.
+     */
+    private static function nh($k, $m, $length)
+    {
+        $toUInt32 = function($x) {
+            $x = new BigInteger($x, 256);
+            $x->setPrecision(32);
+            return $x;
+        };
+
+        //
+        // Break M and K into 4-byte chunks
+        //
+        //$t = strlen($m) >> 2;
+        $m = str_split($m, 4);
+        $t = count($m);
+        $k = str_split($k, 4);
+        $k = array_pad(array_slice($k, 0, $t), $t, 0);
+
+        $m = array_map($toUInt32, $m);
+        $k = array_map($toUInt32, $k);
+
+        //
+        // Perform NH hash on the chunks, pairing words for multiplication
+        // which are 4 apart to accommodate vector-parallelism.
+        //
+        $y = new BigInteger;
+        $y->setPrecision(64);
+        $i = 0;
+        while ($i < $t) {
+            $temp = $m[$i]->add($k[$i]);
+            $temp->setPrecision(64);
+            $temp = $temp->multiply($m[$i + 4]->add($k[$i + 4]));
+            $y = $y->add($temp);
+
+            $temp = $m[$i + 1]->add($k[$i + 1]);
+            $temp->setPrecision(64);
+            $temp = $temp->multiply($m[$i + 5]->add($k[$i + 5]));
+            $y = $y->add($temp);
+
+            $temp = $m[$i + 2]->add($k[$i + 2]);
+            $temp->setPrecision(64);
+            $temp = $temp->multiply($m[$i + 6]->add($k[$i + 6]));
+            $y = $y->add($temp);
+
+            $temp = $m[$i + 3]->add($k[$i + 3]);
+            $temp->setPrecision(64);
+            $temp = $temp->multiply($m[$i + 7]->add($k[$i + 7]));
+            $y = $y->add($temp);
+
+            $i+= 8;
+        }
+
+        return $y->add($length)->toBytes();
+    }
+
+    /**
+     * L2-HASH: Second-Layer Hash
+     *
+     * The second-layer rehashes the L1-HASH output using a polynomial hash
+     * called POLY.  If the L1-HASH output is long, then POLY is called once
+     * on a prefix of the L1-HASH output and called using different settings
+     * on the remainder.  (This two-step hashing of the L1-HASH output is
+     * needed only if the message length is greater than 16 megabytes.)
+     * Careful implementation of POLY is necessary to avoid a possible
+     * timing attack (see Section 6.6 for more information).
+     *
+     * @param string $k string of length 24 bytes.
+     * @param string $m string of length less than 2^64 bytes.
+     * @return string string of length 16 bytes.
+     */
+    private static function L2Hash($k, $m)
+    {
+        //
+        //  Extract keys and restrict to special key-sets
+        //
+        $k64 = $k & "\x01\xFF\xFF\xFF\x01\xFF\xFF\xFF";
+        $k64 = new BigInteger($k64, 256);
+        $k128 = substr($k, 8) & "\x01\xFF\xFF\xFF\x01\xFF\xFF\xFF\x01\xFF\xFF\xFF\x01\xFF\xFF\xFF";
+        $k128 = new BigInteger($k128, 256);
+
+        //
+        // If M is no more than 2^17 bytes, hash under 64-bit prime,
+        // otherwise, hash first 2^17 bytes under 64-bit prime and
+        // remainder under 128-bit prime.
+        //
+        if (strlen($m) <= 0x20000) { // 2^14 64-bit words
+            $y = self::poly(64, self::$maxwordrange64, $k64, $m);
+        } else {
+            $m_1 = substr($m, 0, 0x20000); // 1 << 17
+            $m_2 = substr($m, 0x20000) . "\x80";
+            $length = strlen($m_2);
+            $pad = 16 - ($length % 16);
+            $pad%= 16;
+            $m_2 = str_pad($m_2, $length + $pad, "\0"); // zeropad
+            $y = self::poly(64, self::$maxwordrange64, $k64, $m_1);
+            $y = str_pad($y, 16, "\0", STR_PAD_LEFT);
+            $y = self::poly(128, self::$maxwordrange128, $k128, $y . $m_2);
+        }
+
+        return str_pad($y, 16, "\0", STR_PAD_LEFT);
+    }
+
+    /**
+     * POLY Algorithm
+     *
+     * @param int $wordbits the integer 64 or 128.
+     * @param BigInteger $maxwordrange positive integer less than 2^wordbits.
+     * @param BigInteger $k integer in the range 0 ... prime(wordbits) - 1.
+     * @param string $m string with length divisible by (wordbits / 8) bytes.
+     * @return integer in the range 0 ... prime(wordbits) - 1.
+     */
+    private static function poly($wordbits, $maxwordrange, $k, $m)
+    {
+        //
+        // Define constants used for fixing out-of-range words
+        //
+        $wordbytes = $wordbits >> 3;
+        if ($wordbits == 128) {
+            $factory = self::$factory128;
+            $offset = self::$offset128;
+            $marker = self::$marker128;
+        } else {
+            $factory = self::$factory64;
+            $offset = self::$offset64;
+            $marker = self::$marker64;
+        }
+
+        $k = $factory->newInteger($k);
+
+        //
+        // Break M into chunks of length wordbytes bytes
+        //
+        $m_i = str_split($m, $wordbytes);
+
+        //
+        // Each input word m is compared with maxwordrange.  If not smaller
+        // then 'marker' and (m - offset), both in range, are hashed.
+        //
+        $y = $factory->newInteger(new BigInteger(1));
+        foreach ($m_i as $m) {
+            $m = $factory->newInteger(new BigInteger($m, 256));
+            if ($m->compare($maxwordrange) >= 0) {
+                $y = $k->multiply($y)->add($marker);
+                $y = $k->multiply($y)->add($m->subtract($offset));
+            } else {
+                $y = $k->multiply($y)->add($m);
+            }
+        }
+
+        return $y->toBytes();
+    }
+
+    /**
+     * L3-HASH: Third-Layer Hash
+     *
+     * The output from L2-HASH is 16 bytes long.  This final hash function
+     * hashes the 16-byte string to a fixed length of 4 bytes.
+     *
+     * @param string $k1 string of length 64 bytes.
+     * @param string $k2 string of length 4 bytes.
+     * @param string $m string of length 16 bytes.
+     * @return string string of length 4 bytes.
+     */
+    private static function L3Hash($k1, $k2, $m)
+    {
+        $factory = self::$factory36;
+
+        $y = $factory->newInteger(new BigInteger());
+        for ($i = 0; $i < 8; $i++) {
+            $m_i = $factory->newInteger(new BigInteger(substr($m, 2 * $i, 2), 256));
+            $k_i = $factory->newInteger(new BigInteger(substr($k1, 8 * $i, 8), 256));
+            $y = $y->add($m_i->multiply($k_i));
+        }
+        $y = str_pad(substr($y->toBytes(), -4), 4, "\0", STR_PAD_LEFT);
+        $y = $y ^ $k2;
+
+        return $y;
+    }
+
+    /**
+     * Compute the Hash / HMAC / UMAC.
      *
      * @access public
      * @param string $text
@@ -366,6 +785,58 @@ class Hash
      */
     public function hash($text)
     {
+        if ($this->hash == 'umac') {
+            if ($this->recomputeAESKey) {
+                if (!is_string($this->nonce)) {
+                    throw new InsufficientSetupException('No nonce has been set');
+                }
+                if (!is_string($this->key)) {
+                    throw new InsufficientSetupException('No key has been set');
+                }
+                if (strlen($this->key) != 16) {
+                    throw new \LengthException('Key must be 16 bytes long');
+                }
+
+                if (!isset(self::$maxwordrange64)) {
+                    $one = new BigInteger(1);
+
+                    $prime36 = new BigInteger("\x00\x00\x00\x0F\xFF\xFF\xFF\xFB", 256);
+                    self::$factory36 = new PrimeField($prime36);
+
+                    $prime64 = new BigInteger("\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xC5", 256);
+                    self::$factory64 = new PrimeField($prime64);
+
+                    $prime128 = new BigInteger("\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x61", 256);
+                    self::$factory128 = new PrimeField($prime128);
+
+                    self::$offset64 = new BigInteger("\1\0\0\0\0\0\0\0\0", 256);
+                    self::$offset64 = self::$factory64->newInteger(self::$offset64->subtract($prime64));
+                    self::$offset128 = new BigInteger("\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 256);
+                    self::$offset128 = self::$factory128->newInteger(self::$offset128->subtract($prime128));
+
+                    self::$marker64 = self::$factory64->newInteger($prime64->subtract($one));
+                    self::$marker128 = self::$factory128->newInteger($prime128->subtract($one));
+
+                    $maxwordrange64 = $one->bitwise_leftShift(64)->subtract($one->bitwise_leftShift(32));
+                    self::$maxwordrange64 = self::$factory64->newInteger($maxwordrange64);
+
+                    $maxwordrange128 = $one->bitwise_leftShift(128)->subtract($one->bitwise_leftShift(96));
+                    self::$maxwordrange128 = self::$factory128->newInteger($maxwordrange128);
+                }
+
+                $this->c = new AES('ctr');
+                $this->c->disablePadding();
+                $this->c->setKey($this->key);
+
+                $this->pad = $this->pdf();
+
+                $this->recomputeAESKey = false;
+            }
+
+            $hashedmessage = $this->uhash($text, $this->length);
+            return $hashedmessage ^ $this->pad;
+        }
+
         if (is_array($this->hash)) {
             if (empty($this->key) || !is_string($this->key)) {
                 return substr(call_user_func($this->hash, $text, ...array_values($this->parameters)), 0, $this->length);

@@ -1464,14 +1464,14 @@ class SSH2
 
         // we don't initialize any crypto-objects, yet - we do that, later. for now, we need the lengths to make the
         // diffie-hellman key exchange as fast as possible
-        $decrypt = $this->array_intersect_first($s2c_encryption_algorithms, $this->encryption_algorithms_server_to_client);
+        $decrypt = self::array_intersect_first($s2c_encryption_algorithms, $this->encryption_algorithms_server_to_client);
         $decryptKeyLength = $this->encryption_algorithm_to_key_size($decrypt);
         if ($decryptKeyLength === null) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client encryption algorithms found');
         }
 
-        $encrypt = $this->array_intersect_first($c2s_encryption_algorithms, $this->encryption_algorithms_client_to_server);
+        $encrypt = self::array_intersect_first($c2s_encryption_algorithms, $this->encryption_algorithms_client_to_server);
         $encryptKeyLength = $this->encryption_algorithm_to_key_size($encrypt);
         if ($encryptKeyLength === null) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
@@ -1479,7 +1479,7 @@ class SSH2
         }
 
         // through diffie-hellman key exchange a symmetric key is obtained
-        $this->kex_algorithm = $this->array_intersect_first($kex_algorithms, $this->kex_algorithms);
+        $this->kex_algorithm = self::array_intersect_first($kex_algorithms, $this->kex_algorithms);
         if ($this->kex_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible key exchange algorithms found');
@@ -1623,7 +1623,7 @@ class SSH2
             $this->session_id = $this->exchange_hash;
         }
 
-        $server_host_key_algorithm = $this->array_intersect_first($server_host_key_algorithms, $this->server_host_key_algorithms);
+        $server_host_key_algorithm = self::array_intersect_first($server_host_key_algorithms, $this->server_host_key_algorithms);
         if ($server_host_key_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server host key algorithms found');
@@ -1768,39 +1768,19 @@ class SSH2
             $this->decrypt->decrypt(str_repeat("\0", 1536));
         }
 
-        $mac_algorithm = $this->array_intersect_first($c2s_mac_algorithms, $this->mac_algorithms_client_to_server);
+        $mac_algorithm = self::array_intersect_first($c2s_mac_algorithms, $this->mac_algorithms_client_to_server);
         if ($mac_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible client to server message authentication algorithms found');
         }
 
-        if ($this->encrypt->usesNonce()) {
+        if (!$this->encrypt->usesNonce()) {
+            list($this->hmac_create, $createKeyLength) = self::mac_algorithm_to_hash_instance($mac_algorithm);
+        } else {
             $this->hmac_create = new \stdClass;
             $this->hmac_create->name = $mac_algorithm;
-            $mac_algorithm = 'none';
-        }
-
-        $createKeyLength = 0; // ie. $mac_algorithm == 'none'
-        switch ($mac_algorithm) {
-            case 'hmac-sha2-256':
-                $this->hmac_create = new Hash('sha256');
-                $createKeyLength = 32;
-                break;
-            case 'hmac-sha1':
-                $this->hmac_create = new Hash('sha1');
-                $createKeyLength = 20;
-                break;
-            case 'hmac-sha1-96':
-                $this->hmac_create = new Hash('sha1-96');
-                $createKeyLength = 20;
-                break;
-            case 'hmac-md5':
-                $this->hmac_create = new Hash('md5');
-                $createKeyLength = 16;
-                break;
-            case 'hmac-md5-96':
-                $this->hmac_create = new Hash('md5-96');
-                $createKeyLength = 16;
+            //$mac_algorithm = 'none';
+            $createKeyLength = 0;
         }
 
         if ($this->hmac_create instanceof Hash) {
@@ -1810,47 +1790,24 @@ class SSH2
             }
             $this->hmac_create->setKey(substr($key, 0, $createKeyLength));
             $this->hmac_create->name = $mac_algorithm;
+            $this->hmac_create->etm = preg_match('#-etm@openssh\.com$#', $mac_algorithm);
         }
 
-        $mac_algorithm = $this->array_intersect_first($s2c_mac_algorithms, $this->mac_algorithms_server_to_client);
+        $mac_algorithm = self::array_intersect_first($s2c_mac_algorithms, $this->mac_algorithms_server_to_client);
         if ($mac_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client message authentication algorithms found');
         }
 
-        if ($this->decrypt->usesNonce()) {
+        if (!$this->decrypt->usesNonce()) {
+            list($this->hmac_check, $checkKeyLength) = self::mac_algorithm_to_hash_instance($mac_algorithm);
+            $this->hmac_size = $this->hmac_check->getLengthInBytes();
+        } else {
             $this->hmac_check = new \stdClass;
             $this->hmac_check->name = $mac_algorithm;
-            $mac_algorithm = 'none';
-        }
-
-        $checkKeyLength = 0;
-        $this->hmac_size = 0;
-        switch ($mac_algorithm) {
-            case 'hmac-sha2-256':
-                $this->hmac_check = new Hash('sha256');
-                $checkKeyLength = 32;
-                $this->hmac_size = 32;
-                break;
-            case 'hmac-sha1':
-                $this->hmac_check = new Hash('sha1');
-                $checkKeyLength = 20;
-                $this->hmac_size = 20;
-                break;
-            case 'hmac-sha1-96':
-                $this->hmac_check = new Hash('sha1-96');
-                $checkKeyLength = 20;
-                $this->hmac_size = 12;
-                break;
-            case 'hmac-md5':
-                $this->hmac_check = new Hash('md5');
-                $checkKeyLength = 16;
-                $this->hmac_size = 16;
-                break;
-            case 'hmac-md5-96':
-                $this->hmac_check = new Hash('md5-96');
-                $checkKeyLength = 16;
-                $this->hmac_size = 12;
+            //$mac_algorithm = 'none';
+            $checkKeyLength = 0;
+            $this->hmac_size = 0;
         }
 
         if ($this->hmac_check instanceof Hash) {
@@ -1860,16 +1817,17 @@ class SSH2
             }
             $this->hmac_check->setKey(substr($key, 0, $checkKeyLength));
             $this->hmac_check->name = $mac_algorithm;
+            $this->hmac_check->etm = preg_match('#-etm@openssh\.com$#', $mac_algorithm);
         }
 
-        $compression_algorithm = $this->array_intersect_first($s2c_compression_algorithms, $this->compression_algorithms_server_to_client);
+        $compression_algorithm = self::array_intersect_first($s2c_compression_algorithms, $this->compression_algorithms_server_to_client);
         if ($compression_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client compression algorithms found');
         }
         $this->decompress = $compression_algorithm == 'zlib';
 
-        $compression_algorithm = $this->array_intersect_first($c2s_compression_algorithms, $this->compression_algorithms_client_to_server);
+        $compression_algorithm = self::array_intersect_first($c2s_compression_algorithms, $this->compression_algorithms_client_to_server);
         if ($compression_algorithm === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible client to server compression algorithms found');
@@ -1928,10 +1886,10 @@ class SSH2
 
     /**
      * Maps an encryption algorithm name to an instance of a subclass of
-     * \phpseclib\Crypt\Base.
+     * \phpseclib\Crypt\Common\SymmetricKey.
      *
      * @param string $algorithm Name of the encryption algorithm
-     * @return mixed Instance of \phpseclib\Crypt\Base or null for unknown
+     * @return mixed Instance of \phpseclib\Crypt\Common\SymmetricKey or null for unknown
      * @access private
      */
     private static function encryption_algorithm_to_crypt_instance($algorithm)
@@ -1973,6 +1931,41 @@ class SSH2
                 return new ChaCha20();
         }
         return null;
+    }
+
+    /**
+     * Maps an encryption algorithm name to an instance of a subclass of
+     * \phpseclib\Crypt\Hash.
+     *
+     * @param string $algorithm Name of the encryption algorithm
+     * @return mixed Instance of \phpseclib\Crypt\Hash or null for unknown
+     * @access private
+     */
+    private static function mac_algorithm_to_hash_instance($algorithm)
+    {
+        switch ($algorithm) {
+            case 'umac-64@openssh.com':
+            case 'umac-64-etm@openssh.com':
+                return [new Hash('umac-64'), 16];
+            case 'umac-128@openssh.com':
+            case 'umac-128-etm@openssh.com':
+                return [new Hash('umac-128'), 16];
+            case 'hmac-sha2-512':
+            case 'hmac-sha2-512-etm@openssh.com':
+                return [new Hash('sha512'), 64];
+            case 'hmac-sha2-256':
+            case 'hmac-sha2-256-etm@openssh.com':
+                return [new Hash('sha256'), 32];
+            case 'hmac-sha1':
+            case 'hmac-sha1-etm@openssh.com':
+                return [new Hash('sha1'), 20];
+            case 'hmac-sha1-96':
+                return [new Hash('sha1-96'), 20];
+            case 'hmac-md5':
+                return [new Hash('md5'), 16];
+            case 'hmac-md5-96':
+                return [new Hash('md5-96'), 16];
+        }
     }
 
     /*
@@ -3198,7 +3191,19 @@ class SSH2
                     $remaining_length = 0;
                     break;
                 default:
-                    $raw = $this->decrypt->decrypt($raw);
+                    if (!$this->hmac_check instanceof Hash || !$this->hmac_check->etm) {
+                        $raw = $this->decrypt->decrypt($raw);
+                        break;
+                    }
+                    extract(unpack('Npacket_length', $temp = Strings::shift($raw, 4)));
+                    /**
+                     * @var integer $packet_length
+                     */
+                    $raw.= $this->read_remaining_bytes($packet_length - $this->decrypt_block_size + 4);
+                    $stop = microtime(true);
+                    $encrypted = $temp . $raw;
+                    $raw = $temp . $this->decrypt->decrypt($raw);
+                    $remaining_length = 0;
             }
         }
 
@@ -3232,8 +3237,20 @@ class SSH2
             if ($hmac === false || strlen($hmac) != $this->hmac_size) {
                 $this->bitmap = 0;
                 throw new \RuntimeException('Error reading socket');
-            } elseif ($hmac != $this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding))) {
-                throw new \RuntimeException('Invalid HMAC');
+            }
+
+            $reconstructed = !$this->hmac_check->etm ?
+                pack('NCa*', $packet_length, $padding_length, $payload . $padding) :
+                $encrypted;
+            if (($this->hmac_check->getHash() & "\xFF\xFF\xFF\xFF") == 'umac') {
+                $this->hmac_check->setNonce("\0\0\0\0" . pack('N', $this->get_seq_no));
+                if ($hmac != $this->hmac_check->hash($reconstructed)) {
+                    throw new \RuntimeException('Invalid UMAC');
+                }
+            } else {
+                if ($hmac != $this->hmac_check->hash(pack('Na*', $this->get_seq_no, $reconstructed))) {
+                    throw new \RuntimeException('Invalid HMAC');
+                }
             }
         }
 
@@ -3271,10 +3288,11 @@ class SSH2
 
         $adjustLength = false;
         if ($this->decrypt) {
-            switch ($this->decrypt->name) {
-                case 'aes128-gcm@openssh.com':
-                case 'aes256-gcm@openssh.com':
-                case 'chacha20-poly1305@openssh.com':
+            switch (true) {
+                case $this->decrypt->name == 'aes128-gcm@openssh.com':
+                case $this->decrypt->name == 'aes256-gcm@openssh.com':
+                case $this->decrypt->name == 'chacha20-poly1305@openssh.com':
+                case $this->hmac_check instanceof Hash && $this->hmac_check->etm:
                     $remaining_length+= $this->decrypt_block_size - 4;
                     $adjustLength = true;
             }
@@ -3787,17 +3805,27 @@ class SSH2
         $packet_length+= (($this->encrypt_block_size - 1) * $packet_length) % $this->encrypt_block_size;
         // subtracting strlen($data) is obvious - subtracting 5 is necessary because of packet_length and padding_length
         $padding_length = $packet_length - strlen($data) - 5;
-        if ($this->encrypt && $this->encrypt->usesNonce()) {
-            $padding_length+= 4;
-            $packet_length+= 4;
+        switch (true) {
+            case $this->encrypt && $this->encrypt->usesNonce():
+            case $this->hmac_create instanceof Hash && $this->hmac_create->etm:
+                $padding_length+= 4;
+                $packet_length+= 4;
         }
+
         $padding = Random::string($padding_length);
 
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself
         $packet = pack('NCa*', $packet_length - 4, $padding_length, $data . $padding);
 
-        $hmac = $this->hmac_create instanceof Hash ? $this->hmac_create->hash(pack('Na*', $this->send_seq_no, $packet)) : '';
-        $this->send_seq_no++;
+        $hmac = '';
+        if ($this->hmac_create instanceof Hash && !$this->hmac_create->etm) {
+            if (($this->hmac_create->getHash() & "\xFF\xFF\xFF\xFF") == 'umac') {
+                $this->hmac_create->setNonce("\0\0\0\0" . pack('N', $this->send_seq_no));
+                $hmac = $this->hmac_create->hash($packet);
+            } else {
+                $hmac = $this->hmac_create->hash(pack('Na*', $this->send_seq_no, $packet));
+            }
+        }
 
         if ($this->encrypt) {
             switch ($this->encrypt->name) {
@@ -3812,7 +3840,7 @@ class SSH2
                     $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
                     break;
                 case 'chacha20-poly1305@openssh.com':
-                    $nonce = pack('N2', 0, $this->send_seq_no - 1);
+                    $nonce = pack('N2', 0, $this->send_seq_no);
 
                     $this->encrypt->setNonce($nonce);
                     $this->lengthEncrypt->setNonce($nonce);
@@ -3831,9 +3859,22 @@ class SSH2
                     $packet = $length . $this->encrypt->encrypt(substr($packet, 4));
                     break;
                 default:
-                    $packet = $this->encrypt->encrypt($packet);
+                    $packet = $this->hmac_create instanceof Hash && $this->hmac_create->etm ?
+                        ($packet & "\xFF\xFF\xFF\xFF") . $this->encrypt->encrypt(substr($packet, 4)) :
+                        $this->encrypt->encrypt($packet);
             }
         }
+
+        if ($this->hmac_create instanceof Hash && $this->hmac_create->etm) {
+            if (($this->hmac_create->getHash() & "\xFF\xFF\xFF\xFF") == 'umac') {
+                $this->hmac_create->setNonce("\0\0\0\0" . pack('N', $this->send_seq_no));
+                $hmac = $this->hmac_create->hash($packet);
+            } else {
+                $hmac = $this->hmac_create->hash(pack('Na*', $this->send_seq_no, $packet));
+            }
+        }
+
+        $this->send_seq_no++;
 
         $packet.= $this->encrypt && $this->encrypt->usesNonce() ? $this->encrypt->getTag() : $hmac;
 
@@ -4155,7 +4196,7 @@ class SSH2
      * @return mixed False if intersection is empty, else intersected value.
      * @access private
      */
-    private function array_intersect_first($array1, $array2)
+    private static function array_intersect_first($array1, $array2)
     {
         foreach ($array1 as $value) {
             if (in_array($value, $array2)) {
@@ -4401,8 +4442,19 @@ class SSH2
     public static function getSupportedMACAlgorithms()
     {
         return [
+            'hmac-sha2-256-etm@openssh.com',
+            'hmac-sha2-512-etm@openssh.com',
+            'umac-64-etm@openssh.com',
+            'umac-128-etm@openssh.com',
+            'hmac-sha1-etm@openssh.com',
+
             // from <http://www.ietf.org/rfc/rfc6668.txt>:
             'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
+            'hmac-sha2-512',// OPTIONAL        HMAC-SHA512 (digest length = key length = 64)
+
+            // from <https://tools.ietf.org/html/draft-miller-secsh-umac-01>:
+            'umac-64@openssh.com',
+            'umac-128@openssh.com',
 
             'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
             'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
