@@ -369,21 +369,21 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
      */
     public function testExplicitImplicitDate()
     {
-        $map = [
+        $map = array(
             'type'     => FILE_ASN1_TYPE_SEQUENCE,
-            'children' => [
-                'notBefore' => [
+            'children' => array(
+                'notBefore' => array(
                                              'constant' => 0,
                                              'optional' => true,
                                              'implicit' => true,
-                                             'type' => FILE_ASN1_TYPE_GENERALIZED_TIME],
-                'notAfter'  => [
+                                             'type' => FILE_ASN1_TYPE_GENERALIZED_TIME),
+                'notAfter'  => array(
                                              'constant' => 1,
                                              'optional' => true,
                                              'implicit' => true,
-                                             'type' => FILE_ASN1_TYPE_GENERALIZED_TIME]
-            ]
-        ];
+                                             'type' => FILE_ASN1_TYPE_GENERALIZED_TIME)
+            )
+        );
 
         $asn1 = new File_ASN1();
         $a = pack('H*', '3026a011180f32303137303432313039303535305aa111180f32303138303432313230353935395a');
