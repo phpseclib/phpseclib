@@ -3154,7 +3154,10 @@ class SSH2
      */
     function disconnect()
     {
-        $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+        if($this->isConnected()){
+            $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+        }
+       
         if (isset($this->realtime_log_file) && is_resource($this->realtime_log_file)) {
             fclose($this->realtime_log_file);
         }
