@@ -3154,10 +3154,8 @@ class SSH2
      */
     function disconnect()
     {
-        if($this->isConnected()){
-            $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
-        }
-       
+        $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);       
+        
         if (isset($this->realtime_log_file) && is_resource($this->realtime_log_file)) {
             fclose($this->realtime_log_file);
         }
@@ -4122,7 +4120,10 @@ class SSH2
         }
 
         $this->bitmap = 0;
-        fclose($this->fsock);
+
+        if (is_resource($this->fsock) && get_resource_type($this->fsock) == 'stream') {
+            fclose($this->fsock);
+        }
 
         return false;
     }
