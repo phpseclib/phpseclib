@@ -4119,7 +4119,10 @@ class SSH2
         }
 
         $this->bitmap = 0;
-        fclose($this->fsock);
+
+        if (is_resource($this->fsock)) {
+          fclose($this->fsock);
+        }
 
         return false;
     }
