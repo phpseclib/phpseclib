@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.23 - 2019-09-16
+
+- SSH2: fix regression for connecting to servers with bad hostnames (#1405)
+
 ## 2.0.22 - 2019-09-15
 
 - SSH2: backport setPreferredAlgorithms() / getAlgorithmsNegotiated (#1156)
