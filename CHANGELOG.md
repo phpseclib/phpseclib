@@ -194,6 +194,10 @@
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
 
+## 1.0.18 - 2019-09-16
+
+- SSH2: fix regression for connecting to servers with bad hostnames (#1405)
+
 ## 1.0.17 - 2019-09-15
 
 - SSH2: backport setPreferredAlgorithms() / getAlgorithmsNegotiated (#1156)
