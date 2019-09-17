@@ -67,7 +67,7 @@ use phpseclib\Exception\NoSupportedAlgorithmsException;
 use phpseclib\Exception\UnsupportedAlgorithmException;
 use phpseclib\Exception\UnsupportedCurveException;
 use phpseclib\Exception\ConnectionClosedException;
-use phpseclib\Exception\UnableToConectException;
+use phpseclib\Exception\UnableToConnectException;
 use phpseclib\Exception\InsufficientSetupException;
 use phpseclib\Common\Functions\Strings;
 
@@ -1189,7 +1189,7 @@ class SSH2
             $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout == 0 ? 100000 : $this->curTimeout);
             if (!$this->fsock) {
                 $host = $this->host . ':' . $this->port;
-                throw new UnableToConectException(rtrim("Cannot connect to $host. Error $errno. $errstr"));
+                throw new UnableToConnectException(rtrim("Cannot connect to $host. Error $errno. $errstr"));
             }
             $elapsed = microtime(true) - $start;
 
@@ -1280,7 +1280,7 @@ class SSH2
         }
 
         if (version_compare($matches[3], '1.99', '<')) {
-            throw new UnableToConectException("Cannot connect to SSH $matches[3] servers");
+            throw new UnableToConnectException("Cannot connect to SSH $matches[3] servers");
         }
 
         if (!$this->send_id_string_first) {
