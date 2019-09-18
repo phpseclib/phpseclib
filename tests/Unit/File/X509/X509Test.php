@@ -1001,6 +1001,6 @@ ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
 -----END CERTIFICATE-----');
         $r = $x509->saveX509($r);
         $r = $x509->loadX509($r);
-        $this->assertSame($r['tbsCertificate']['extensions'][5]['extnValue']['excludedSubtrees'][1]['base']['iPAddress'], ['0.0.0.0', '0.0.0.0']);
+        $this->assertSame($r['tbsCertificate']['extensions'][5]['extnValue']['excludedSubtrees'][1]['base']['iPAddress'], array('0.0.0.0', '0.0.0.0'));
     }
 }

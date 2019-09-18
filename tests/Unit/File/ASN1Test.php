@@ -370,21 +370,21 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
      */
     public function testExplicitImplicitDate()
     {
-        $map = [
+        $map = array(
             'type'     => ASN1::TYPE_SEQUENCE,
-            'children' => [
-                'notBefore' => [
+            'children' => array(
+                'notBefore' => array(
                                              'constant' => 0,
                                              'optional' => true,
                                              'implicit' => true,
-                                             'type' => ASN1::TYPE_GENERALIZED_TIME],
-                'notAfter'  => [
+                                             'type' => ASN1::TYPE_GENERALIZED_TIME),
+                'notAfter'  => array(
                                              'constant' => 1,
                                              'optional' => true,
                                              'implicit' => true,
-                                             'type' => ASN1::TYPE_GENERALIZED_TIME]
-            ]
-        ];
+                                             'type' => ASN1::TYPE_GENERALIZED_TIME)
+            )
+        );
 
         $a = pack('H*', '3026a011180f32303137303432313039303535305aa111180f32303138303432313230353935395a');
         $a = ASN1::decodeBER($a);
