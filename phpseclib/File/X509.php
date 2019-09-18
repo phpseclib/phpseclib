@@ -2580,7 +2580,7 @@ class File_X509
     {
         $ip = base64_decode($ip);
         list(, $ip, $mask) = unpack('N2', $ip);
-        return [long2ip($ip), long2ip($mask)];
+        return array(long2ip($ip), long2ip($mask));
     }
 
     /**
