@@ -1603,12 +1603,12 @@ class Crypt_RSA
                     &$components['primes'][2]
                 );
 
-                foreach ($values as &$value) {
+                for ($i = 0; $i < count($values); $i++) {
                     extract(unpack('Nlength', $this->_string_shift($paddedKey, 4)));
                     if (strlen($paddedKey) < $length) {
                         return false;
                     }
-                    $value = new Math_BigInteger($this->_string_shift($paddedKey, $length), -256);
+                    $values[$i] = new Math_BigInteger($this->_string_shift($paddedKey, $length), -256);
                 }
 
                 extract(unpack('Nlength', $this->_string_shift($paddedKey, 4)));
