@@ -4450,7 +4450,7 @@ class SSH2
      * @return array
      * @access public
      */
-    public function getServerAlgorithms()
+    function getServerAlgorithms()
     {
         $this->_connect();
 
