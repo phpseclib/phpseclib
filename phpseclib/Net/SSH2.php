@@ -4253,7 +4253,7 @@ class SSH2
      * @return array
      * @access public
      */
-    function getServerAlgorithms()
+    public function getServerAlgorithms()
     {
         $this->connect();
 
