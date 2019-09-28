@@ -4411,10 +4411,7 @@ class SSH2
                     case 'chacha20-poly1305@openssh.com':
                     case 'arcfour128':
                     case 'arcfour256':
-                        if ($engine == 'Eval') {
-                            $algos = array_diff($algos, [$algo]);
-                            $ciphers[] = $algo;
-                        } else {
+                        if ($engine != 'Eval') {
                             continue 2;
                         }
                         break;
