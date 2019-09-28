@@ -2009,13 +2009,11 @@ class Net_SSH2
                     include_once 'Crypt/TripleDES.php';
                 }
                 return new Crypt_TripleDES();
-                break;
             case '3des-ctr':
                 if (!class_exists('Crypt_TripleDES')) {
                     include_once 'Crypt/TripleDES.php';
                 }
                 return new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
-                break;
             case 'aes256-cbc':
             case 'aes192-cbc':
             case 'aes128-cbc':
@@ -2023,7 +2021,6 @@ class Net_SSH2
                     include_once 'Crypt/Rijndael.php';
                 }
                 return new Crypt_Rijndael();
-                break;
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
@@ -2031,20 +2028,16 @@ class Net_SSH2
                     include_once 'Crypt/Rijndael.php';
                 }
                 return new Crypt_Rijndael(CRYPT_RIJNDAEL_MODE_CTR);
-                $this->encrypt_block_size = 16; // eg. 128 / 8
-                break;
             case 'blowfish-cbc':
                 if (!class_exists('Crypt_Blowfish')) {
                     include_once 'Crypt/Blowfish.php';
                 }
                 return new Crypt_Blowfish();
-                break;
             case 'blowfish-ctr':
                 if (!class_exists('Crypt_Blowfish')) {
                     include_once 'Crypt/Blowfish.php';
                 }
                 return new Crypt_Blowfish(CRYPT_BLOWFISH_MODE_CTR);
-                break;
             case 'twofish128-cbc':
             case 'twofish192-cbc':
             case 'twofish256-cbc':
@@ -2053,7 +2046,6 @@ class Net_SSH2
                     include_once 'Crypt/Twofish.php';
                 }
                 return new Crypt_Twofish();
-                break;
             case 'twofish128-ctr':
             case 'twofish192-ctr':
             case 'twofish256-ctr':
@@ -2061,7 +2053,6 @@ class Net_SSH2
                     include_once 'Crypt/Twofish.php';
                 }
                 return new Crypt_Twofish(CRYPT_TWOFISH_MODE_CTR);
-                break;
             case 'arcfour':
             case 'arcfour128':
             case 'arcfour256':
@@ -2069,7 +2060,6 @@ class Net_SSH2
                     include_once 'Crypt/RC4.php';
                 }
                 return new Crypt_RC4();
-                break;
             case 'none':
                 //return new Crypt_Null();
         }
