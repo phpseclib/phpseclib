@@ -4582,10 +4582,7 @@ class SSH2
                 switch ($algo) {
                     case 'arcfour128':
                     case 'arcfour256':
-                        if ($engine == Base::ENGINE_INTERNAL) {
-                            $algos = array_diff($algos, array($algo));
-                            $ciphers[] = $algo;
-                        } else {
+                        if ($engine != Base::ENGINE_INTERNAL) {
                             continue 2;
                         }
                 }
