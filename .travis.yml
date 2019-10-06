@@ -9,12 +9,6 @@ php:
   - 7.4snapshot
   - nightly
 
-env:
-  global:
-    # Defines CODE_COVERAGE_PASSPHRASE which is the passphrase for unlocking
-    # the travis/code_coverage_id_rsa RSA private key.
-    - secure: "jtQTZKQBnzUlp/jz7NlM6470ZDnLGVAs53sgvIm4tcYqf9TWSXSXjIYvFsrS\nKPR2eyZaAevYysUkIGRFTUXTlG6tC36YngMp9+6FPxASl8mnGXsTbKcm613B\n59vD3242pgIgqhhmgFQ0c8gbvnE8PuF2aS4/hluP3r+AxhWN56E="
-
 before_install: true
 
 matrix:
@@ -38,6 +32,3 @@ install:
 script:
   - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then vendor/bin/phing -f build/build.xml sniff; fi"
   - travis/run-phpunit.sh
-
-after_success:
-  - sh -c "if $TRAVIS_SECURE_ENV_VARS; then travis/upload-code-coverage-html.sh; fi"

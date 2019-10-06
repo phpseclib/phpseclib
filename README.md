@@ -15,7 +15,6 @@ arithmetic library, fully PKCS#1 (v2.1) compliant RSA, DES, 3DES, RC4, Rijndael,
 AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 
 * [Browse Git](https://github.com/phpseclib/phpseclib)
-* [Code Coverage Report](https://coverage.phpseclib.org/master/latest/)
 
 ## Documentation
 
