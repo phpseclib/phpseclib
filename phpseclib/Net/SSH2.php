@@ -1485,7 +1485,30 @@ class SSH2
             throw new NoSupportedAlgorithmsException('No compatible key exchange algorithms found');
         }
 
+        switch ($this->kex_algorithm) {
+            case 'diffie-hellman-group15-sha512':
+            case 'diffie-hellman-group16-sha512':
+            case 'diffie-hellman-group17-sha512':
+            case 'diffie-hellman-group18-sha512':
+            case 'ecdh-sha2-nistp521':
+                $kexHash = new Hash('sha512');
+                break;
+            case 'ecdh-sha2-nistp384':
+                $kexHash = new Hash('sha384');
+                break;
+            case 'diffie-hellman-group-exchange-sha256':
+            case 'diffie-hellman-group14-sha256':
+            case 'ecdh-sha2-nistp256':
+            case 'curve25519-sha256@libssh.org':
+            case 'curve25519-sha256':
+                $kexHash = new Hash('sha256');
+                break;
+            default:
+                $kexHash = new Hash('sha1');
+        }
+
         // Only relevant in diffie-hellman-group-exchange-sha{1,256}, otherwise empty.
+
         $exchange_hash_rfc4419 = '';
 
         if (strpos($this->kex_algorithm, 'curve25519-sha256') === 0 || strpos($this->kex_algorithm, 'ecdh-sha2-nistp') === 0) {
@@ -1539,31 +1562,11 @@ class SSH2
                 $serverKexReplyMessage = NET_SSH2_MSG_KEXDH_REPLY;
             }
 
+            $keyLength = min($kexHash->getLengthInBytes(), max($encryptKeyLength, $decryptKeyLength));
+
             $ourPrivate = DH::createKey($params, 16 * $keyLength); // 2 * 8 * $keyLength
             $ourPublic = $ourPrivate->getPublicKey()->toBigInteger();
             $ourPublicBytes = $ourPublic->toBytes(true);
-        }
-
-        switch ($this->kex_algorithm) {
-            case 'diffie-hellman-group15-sha512':
-            case 'diffie-hellman-group16-sha512':
-            case 'diffie-hellman-group17-sha512':
-            case 'diffie-hellman-group18-sha512':
-            case 'ecdh-sha2-nistp521':
-                $kexHash = new Hash('sha512');
-                break;
-            case 'ecdh-sha2-nistp384':
-                $kexHash = new Hash('sha384');
-                break;
-            case 'diffie-hellman-group-exchange-sha256':
-            case 'diffie-hellman-group14-sha256':
-            case 'ecdh-sha2-nistp256':
-            case 'curve25519-sha256@libssh.org':
-            case 'curve25519-sha256':
-                $kexHash = new Hash('sha256');
-                break;
-            default:
-                $kexHash = new Hash('sha1');
         }
 
         $data = pack('CNa*', $clientKexInitMessage, strlen($ourPublicBytes), $ourPublicBytes);
