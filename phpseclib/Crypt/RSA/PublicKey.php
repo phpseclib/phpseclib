@@ -212,7 +212,7 @@ class PublicKey extends RSA implements Common\PublicKey
         // if $m is larger than two million terrabytes and you're using sha1, PKCS#1 suggests a "Label too long" error
         // be output.
 
-        $emLen = ($emBits + 1) >> 3; // ie. ceil($emBits / 8);
+        $emLen = ($emBits + 7)>>3; // ie. ceil($emBits / 8);
         $sLen = $this->sLen !== null ? $this->sLen : $this->hLen;
 
         $mHash = $this->hash->hash($m);
@@ -263,11 +263,11 @@ class PublicKey extends RSA implements Common\PublicKey
 
         // RSA verification
 
-        $modBits = 8 * $this->k;
+        $modBits = strlen($this->modulus->toBits());
 
         $s2 = $this->os2ip($s);
         $m2 = $this->rsavp1($s2);
-        $em = $this->i2osp($m2, $modBits >> 3);
+        $em = $this->i2osp($m2, $this->k);
         if ($em === false) {
             return false;
         }
