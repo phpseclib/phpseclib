@@ -2846,7 +2846,7 @@ class Crypt_RSA
         // if $m is larger than two million terrabytes and you're using sha1, PKCS#1 suggests a "Label too long" error
         // be output.
 
-        $emLen = ($emBits + 1) >> 3; // ie. ceil($emBits / 8);
+        $emLen = ($emBits + 7) >> 3; // ie. ceil($emBits / 8);
         $sLen = $this->sLen !== null ? $this->sLen : $this->hLen;
 
         $mHash = $this->hash->hash($m);
@@ -2924,7 +2924,7 @@ class Crypt_RSA
 
         // RSA verification
 
-        $modBits = 8 * $this->k;
+        $modBits = strlen($this->modulus->toBits());
 
         $s2 = $this->_os2ip($s);
         $m2 = $this->_rsavp1($s2);
@@ -2932,7 +2932,7 @@ class Crypt_RSA
             user_error('Invalid signature');
             return false;
         }
-        $em = $this->_i2osp($m2, $modBits >> 3);
+        $em = $this->_i2osp($m2, $this->k);
         if ($em === false) {
             user_error('Invalid signature');
             return false;
