@@ -105,7 +105,7 @@ MF0wDQYJKoZIhvcNAQEBBQADTAAwSQJCAmdYuOvii3I6ya3q/zSeZFoJprgF9fIq
 k12yS6pCS3c+1wZ9cYFVtgfpSL4XpylLe9EnRT2GRVYCqUkR4AUeTuvnAgMBAAE=
 -----END PUBLIC KEY-----';
 
-        $rsa = new Crypt_RSA();
+        $rsa = new RSA();
         $rsa->loadKey($pub);
         $rsa->setHash('sha256');
         $rsa->setSaltLength(32);
