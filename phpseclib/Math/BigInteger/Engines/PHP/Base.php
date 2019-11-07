@@ -13,9 +13,9 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
-namespace phpseclib\Math\BigInteger\Engines\PHP;
+namespace phpseclib3\Math\BigInteger\Engines\PHP;
 
-use phpseclib\Math\BigInteger\Engines\PHP;
+use phpseclib3\Math\BigInteger\Engines\PHP;
 
 /**
  * PHP Modular Exponentiation Engine
@@ -74,11 +74,11 @@ abstract class Base extends PHP
      * the other, a power of two - and recombine them, later.  This is the method that this modPow function uses.
      * {@link http://islab.oregonstate.edu/papers/j34monex.pdf Montgomery Reduction with Even Modulus} elaborates.
      *
-     * @param \phpseclib\Math\BigInteger\Engines\PHP $x
-     * @param \phpseclib\Math\BigInteger\Engines\PHP $e
-     * @param \phpseclib\Math\BigInteger\Engines\PHP $n
+     * @param \phpseclib3\Math\BigInteger\Engines\PHP $x
+     * @param \phpseclib3\Math\BigInteger\Engines\PHP $e
+     * @param \phpseclib3\Math\BigInteger\Engines\PHP $n
      * @param string $class
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @return \phpseclib3\Math\BigInteger\Engines\PHP
      */
     protected static function powModHelper(PHP $x, PHP $e, PHP $n, $class)
     {

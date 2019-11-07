@@ -17,10 +17,10 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\EC\Formats\Keys;
+namespace phpseclib3\Crypt\EC\Formats\Keys;
 
-use phpseclib\Crypt\EC\Curves\Ed25519;
-use phpseclib\Math\Common\FiniteField\Integer;
+use phpseclib3\Crypt\EC\Curves\Ed25519;
+use phpseclib3\Math\Common\FiniteField\Integer;
 
 /**
  * libsodium Key Handler
@@ -86,8 +86,8 @@ abstract class libsodium
      * Convert an EC public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib\Crypt\EC\Curves\Ed25519 $curve
-     * @param \phpseclib\Math\Common\FiniteField\Integer[] $publicKey
+     * @param \phpseclib3\Crypt\EC\Curves\Ed25519 $curve
+     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @return string
      */
     public static function savePublicKey(Ed25519 $curve, array $publicKey)
@@ -99,9 +99,9 @@ abstract class libsodium
      * Convert a private key to the appropriate format.
      *
      * @access public
-     * @param \phpseclib\Math\Common\FiniteField\Integer $privateKey
-     * @param \phpseclib\Crypt\EC\Curves\Ed25519 $curve
-     * @param \phpseclib\Math\Common\FiniteField\Integer[] $publicKey
+     * @param \phpseclib3\Math\Common\FiniteField\Integer $privateKey
+     * @param \phpseclib3\Crypt\EC\Curves\Ed25519 $curve
+     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @param string $password optional
      * @return string
      */

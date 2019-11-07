@@ -13,7 +13,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\Common\Formats\Keys;
+namespace phpseclib3\Crypt\Common\Formats\Keys;
 
 /**
  * PKCS1 Formatted Key Handler

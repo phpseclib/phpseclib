@@ -13,9 +13,9 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\File\ASN1\Maps;
+namespace phpseclib3\File\ASN1\Maps;
 
-use phpseclib\File\ASN1;
+use phpseclib3\File\ASN1;
 
 /**
  * EDIPartyName
@@ -34,7 +34,7 @@ abstract class EDIPartyName
                                 'optional' => true,
                                 'implicit' => true
                             ] + DirectoryString::MAP,
-             // partyName is technically required but \phpseclib\File\ASN1 doesn't currently support non-optional constants and
+             // partyName is technically required but \phpseclib3\File\ASN1 doesn't currently support non-optional constants and
              // setting it to optional gets the job done in any event.
              'partyName'    => [
                                 'constant' => 1,

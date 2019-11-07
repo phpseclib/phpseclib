@@ -13,7 +13,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Exception;
+namespace phpseclib3\Exception;
 
 /**
  * InsufficientSetupException

@@ -10,9 +10,9 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $agent = new \phpseclib\System\SSH\Agent();
+ *    $agent = new \phpseclib3\System\SSH\Agent();
  *
- *    $ssh = new \phpseclib\Net\SSH2('www.domain.tld');
+ *    $ssh = new \phpseclib3\Net\SSH2('www.domain.tld');
  *    if (!$ssh->login('username', $agent)) {
  *        exit('Login Failed');
  *    }
@@ -31,18 +31,18 @@
  * @internal  See http://api.libssh.org/rfc/PROTOCOL.agent
  */
 
-namespace phpseclib\System\SSH;
+namespace phpseclib3\System\SSH;
 
-use phpseclib\Crypt\RSA;
-use phpseclib\Exception\BadConfigurationException;
-use phpseclib\System\SSH\Agent\Identity;
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Crypt\PublicKeyLoader;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Exception\BadConfigurationException;
+use phpseclib3\System\SSH\Agent\Identity;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\PublicKeyLoader;
 
 /**
  * Pure-PHP ssh-agent client identity factory
  *
- * requestIdentities() method pumps out \phpseclib\System\SSH\Agent\Identity objects
+ * requestIdentities() method pumps out \phpseclib3\System\SSH\Agent\Identity objects
  *
  * @package SSH\Agent
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -130,8 +130,8 @@ class Agent
     /**
      * Default Constructor
      *
-     * @return \phpseclib\System\SSH\Agent
-     * @throws \phpseclib\Exception\BadConfigurationException if SSH_AUTH_SOCK cannot be found
+     * @return \phpseclib3\System\SSH\Agent
+     * @throws \phpseclib3\Exception\BadConfigurationException if SSH_AUTH_SOCK cannot be found
      * @throws \RuntimeException on connection errors
      * @access public
      */
@@ -160,7 +160,7 @@ class Agent
      * Request Identities
      *
      * See "2.5.2 Requesting a list of protocol 2 keys"
-     * Returns an array containing zero or more \phpseclib\System\SSH\Agent\Identity objects
+     * Returns an array containing zero or more \phpseclib3\System\SSH\Agent\Identity objects
      *
      * @return array
      * @throws \RuntimeException on receipt of unexpected packets
@@ -219,7 +219,7 @@ class Agent
      * Signal that agent forwarding should
      * be requested when a channel is opened
      *
-     * @param \phpseclib\Net\SSH2 $ssh
+     * @param \phpseclib3\Net\SSH2 $ssh
      * @return bool
      * @access public
      */
@@ -233,7 +233,7 @@ class Agent
     /**
      * Request agent forwarding of remote server
      *
-     * @param \phpseclib\Net\SSH2 $ssh
+     * @param \phpseclib3\Net\SSH2 $ssh
      * @return bool
      * @access private
      */
@@ -255,7 +255,7 @@ class Agent
      * open to give the SSH Agent an opportunity
      * to take further action. i.e. request agent forwarding
      *
-     * @param \phpseclib\Net\SSH2 $ssh
+     * @param \phpseclib3\Net\SSH2 $ssh
      * @access private
      */
     public function registerChannelOpen($ssh)

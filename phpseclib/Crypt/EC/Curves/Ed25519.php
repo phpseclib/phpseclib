@@ -12,12 +12,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace phpseclib\Crypt\EC\Curves;
+namespace phpseclib3\Crypt\EC\Curves;
 
-use phpseclib\Crypt\EC\BaseCurves\TwistedEdwards;
-use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\Hash;
-use phpseclib\Crypt\Random;
+use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Crypt\Hash;
+use phpseclib3\Crypt\Random;
 
 class Ed25519 extends TwistedEdwards
 {
@@ -158,7 +158,7 @@ class Ed25519 extends TwistedEdwards
      * Used by the various key handlers
      *
      * @param string $str
-     * @return \phpseclib\Math\PrimeField\Integer
+     * @return \phpseclib3\Math\PrimeField\Integer
      */
     public function extractSecret($str)
     {
@@ -208,7 +208,7 @@ class Ed25519 extends TwistedEdwards
     /**
      * Creates a random scalar multiplier
      *
-     * @return \phpseclib\Math\PrimeField\Integer
+     * @return \phpseclib3\Math\PrimeField\Integer
      */
     public function createRandomMultiplier()
     {
@@ -223,7 +223,7 @@ class Ed25519 extends TwistedEdwards
      * A point (x,y) is represented in extended homogeneous coordinates (X, Y, Z, T),
      * with x = X/Z, y = Y/Z, x * y = T/Z.
      *
-     * @return \phpseclib\Math\PrimeField\Integer[]
+     * @return \phpseclib3\Math\PrimeField\Integer[]
      */
     public function convertToInternal(array $p)
     {

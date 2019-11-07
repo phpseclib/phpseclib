@@ -10,7 +10,7 @@
  * <?php
  * include 'vendor/autoload.php';
  *
- * $ourPrivate = \phpseclib\Crypt\DH::createKey();
+ * $ourPrivate = \phpseclib3\Crypt\DH::createKey();
  * $secret = DH::computeSecret($ourPrivate, $theirPublic);
  *
  * ?>
@@ -24,15 +24,15 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib3\Crypt;
 
-use phpseclib\Exception\NoKeyLoadedException;
-use phpseclib\Exception\UnsupportedOperationException;
-use phpseclib\Crypt\Common\AsymmetricKey;
-use phpseclib\Crypt\DH\PrivateKey;
-use phpseclib\Crypt\DH\PublicKey;
-use phpseclib\Crypt\DH\Parameters;
-use phpseclib\Math\BigInteger;
+use phpseclib3\Exception\NoKeyLoadedException;
+use phpseclib3\Exception\UnsupportedOperationException;
+use phpseclib3\Crypt\Common\AsymmetricKey;
+use phpseclib3\Crypt\DH\PrivateKey;
+use phpseclib3\Crypt\DH\PublicKey;
+use phpseclib3\Crypt\DH\Parameters;
+use phpseclib3\Math\BigInteger;
 
 /**
  * Pure-PHP (EC)DH implementation
@@ -54,7 +54,7 @@ abstract class DH extends AsymmetricKey
     /**
      * DH prime
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $prime;
@@ -64,7 +64,7 @@ abstract class DH extends AsymmetricKey
      *
      * Prime divisor of p-1
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $base;
@@ -78,7 +78,7 @@ abstract class DH extends AsymmetricKey
      *  - a string (eg. diffie-hellman-group14-sha1)
      *
      * @access public
-     * @return \phpseclib\Crypt\DH|bool
+     * @return \phpseclib3\Crypt\DH|bool
      */
     public static function createParameters(...$args)
     {

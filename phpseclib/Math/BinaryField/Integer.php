@@ -20,11 +20,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace phpseclib\Math\BinaryField;
+namespace phpseclib3\Math\BinaryField;
 
-use phpseclib\Math\Common\FiniteField\Integer as Base;
-use phpseclib\Math\BigInteger;
-use phpseclib\Math\BinaryField;
+use phpseclib3\Math\Common\FiniteField\Integer as Base;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\BinaryField;
 use ParagonIE\ConstantTime\Hex;
 
 /**

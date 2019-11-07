@@ -11,12 +11,12 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\DSA;
+namespace phpseclib3\Crypt\DSA;
 
-use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
-use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\Common;
+use phpseclib3\Crypt\DSA;
+use phpseclib3\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Crypt\Common;
 
 /**
  * DSA Private Key
@@ -32,7 +32,7 @@ class PrivateKey extends DSA implements Common\PrivateKey
     /**
      * DSA secret exponent x
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $x;

@@ -5,16 +5,16 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\PublicKeyLoader;
-use phpseclib\Crypt\RSA\PrivateKey;
-use phpseclib\Crypt\RSA\PublicKey;
-use phpseclib\Crypt\RSA\Formats\Keys\PKCS1;
-use phpseclib\Crypt\RSA\Formats\Keys\PKCS8;
-use phpseclib\Crypt\RSA\Formats\Keys\PuTTY;
-use phpseclib\Crypt\RSA\Formats\Keys\OpenSSH;
-use phpseclib\Crypt\RSA\Formats\Keys\PSS;
-use phpseclib\Math\BigInteger;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Crypt\RSA\PrivateKey;
+use phpseclib3\Crypt\RSA\PublicKey;
+use phpseclib3\Crypt\RSA\Formats\Keys\PKCS1;
+use phpseclib3\Crypt\RSA\Formats\Keys\PKCS8;
+use phpseclib3\Crypt\RSA\Formats\Keys\PuTTY;
+use phpseclib3\Crypt\RSA\Formats\Keys\OpenSSH;
+use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
+use phpseclib3\Math\BigInteger;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 {
@@ -25,7 +25,7 @@ class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
     }
 
     /**
-     * @expectedException \phpseclib\Exception\NoKeyLoadedException
+     * @expectedException \phpseclib3\Exception\NoKeyLoadedException
      */
     public function testBadKey()
     {

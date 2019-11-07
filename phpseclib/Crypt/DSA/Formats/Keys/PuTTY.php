@@ -18,11 +18,11 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\DSA\Formats\Keys;
+namespace phpseclib3\Crypt\DSA\Formats\Keys;
 
-use phpseclib\Math\BigInteger;
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
 
 /**
  * PuTTY Formatted DSA Key Handler
@@ -39,7 +39,7 @@ abstract class PuTTY extends Progenitor
      * @var string
      * @access private
      */
-    const PUBLIC_HANDLER = 'phpseclib\Crypt\DSA\Formats\Keys\OpenSSH';
+    const PUBLIC_HANDLER = 'phpseclib3\Crypt\DSA\Formats\Keys\OpenSSH';
 
     /**
      * Algorithm Identifier
@@ -76,11 +76,11 @@ abstract class PuTTY extends Progenitor
      * Convert a private key to the appropriate format.
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $p
-     * @param \phpseclib\Math\BigInteger $q
-     * @param \phpseclib\Math\BigInteger $g
-     * @param \phpseclib\Math\BigInteger $y
-     * @param \phpseclib\Math\BigInteger $x
+     * @param \phpseclib3\Math\BigInteger $p
+     * @param \phpseclib3\Math\BigInteger $q
+     * @param \phpseclib3\Math\BigInteger $g
+     * @param \phpseclib3\Math\BigInteger $y
+     * @param \phpseclib3\Math\BigInteger $x
      * @param string $password optional
      * @param array $options optional
      * @return string
@@ -101,10 +101,10 @@ abstract class PuTTY extends Progenitor
      * Convert a public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $p
-     * @param \phpseclib\Math\BigInteger $q
-     * @param \phpseclib\Math\BigInteger $g
-     * @param \phpseclib\Math\BigInteger $y
+     * @param \phpseclib3\Math\BigInteger $p
+     * @param \phpseclib3\Math\BigInteger $q
+     * @param \phpseclib3\Math\BigInteger $g
+     * @param \phpseclib3\Math\BigInteger $y
      * @return string
      */
     public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y)

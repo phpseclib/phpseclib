@@ -15,12 +15,12 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\RSA\Formats\Keys;
+namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
 use ParagonIE\ConstantTime\Base64;
-use phpseclib\Math\BigInteger;
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Crypt\Common\Formats\Keys\OpenSSH as Progenitor;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\Common\Formats\Keys\OpenSSH as Progenitor;
 
 /**
  * OpenSSH Formatted RSA Key Handler
@@ -97,8 +97,8 @@ abstract class OpenSSH extends Progenitor
      * Convert a public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $n
-     * @param \phpseclib\Math\BigInteger $e
+     * @param \phpseclib3\Math\BigInteger $n
+     * @param \phpseclib3\Math\BigInteger $e
      * @param array $options optional
      * @return string
      */
@@ -120,9 +120,9 @@ abstract class OpenSSH extends Progenitor
      * Convert a private key to the appropriate format.
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $n
-     * @param \phpseclib\Math\BigInteger $e
-     * @param \phpseclib\Math\BigInteger $d
+     * @param \phpseclib3\Math\BigInteger $n
+     * @param \phpseclib3\Math\BigInteger $e
+     * @param \phpseclib3\Math\BigInteger $d
      * @param array $primes
      * @param array $exponents
      * @param array $coefficients

@@ -6,7 +6,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Net\SFTP;
+use phpseclib3\Net\SFTP;
 
 /**
  * This class provides each test method with a new and empty $this->scratchDir.

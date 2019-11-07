@@ -20,13 +20,13 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\EC\Formats\Keys;
+namespace phpseclib3\Crypt\EC\Formats\Keys;
 
-use phpseclib\Crypt\EC\Curves\Curve25519;
-use phpseclib\Crypt\EC\Curves\Curve448;
-use phpseclib\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
-use phpseclib\Math\Common\FiniteField\Integer;
-use phpseclib\Math\BigInteger;
+use phpseclib3\Crypt\EC\Curves\Curve25519;
+use phpseclib3\Crypt\EC\Curves\Curve448;
+use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
+use phpseclib3\Math\Common\FiniteField\Integer;
+use phpseclib3\Math\BigInteger;
 
 /**
  * Montgomery Curve Private Key Handler
@@ -77,8 +77,8 @@ abstract class MontgomeryPrivate
      * Convert an EC public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib\Crypt\EC\Curves\MontgomeryCurve $curve
-     * @param \phpseclib\Math\Common\FiniteField\Integer[] $publicKey
+     * @param \phpseclib3\Crypt\EC\Curves\MontgomeryCurve $curve
+     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @return string
      */
     public static function savePublicKey(MontgomeryCurve $curve, array $publicKey)
@@ -90,9 +90,9 @@ abstract class MontgomeryPrivate
      * Convert a private key to the appropriate format.
      *
      * @access public
-     * @param \phpseclib\Math\Common\FiniteField\Integer $privateKey
-     * @param \phpseclib\Crypt\EC\Curves\Montgomery $curve
-     * @param \phpseclib\Math\Common\FiniteField\Integer[] $publicKey
+     * @param \phpseclib3\Math\Common\FiniteField\Integer $privateKey
+     * @param \phpseclib3\Crypt\EC\Curves\Montgomery $curve
+     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @param string $password optional
      * @return string
      */

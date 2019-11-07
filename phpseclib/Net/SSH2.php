@@ -10,7 +10,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $ssh = new \phpseclib\Net\SSH2('www.domain.tld');
+ *    $ssh = new \phpseclib3\Net\SSH2('www.domain.tld');
  *    if (!$ssh->login('username', 'password')) {
  *        exit('Login Failed');
  *    }
@@ -24,9 +24,9 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $key = \phpseclib\Crypt\PublicKeyLoader::load('...', '(optional) password');
+ *    $key = \phpseclib3\Crypt\PublicKeyLoader::load('...', '(optional) password');
  *
- *    $ssh = new \phpseclib\Net\SSH2('www.domain.tld');
+ *    $ssh = new \phpseclib3\Net\SSH2('www.domain.tld');
  *    if (!$ssh->login('username', $key)) {
  *        exit('Login Failed');
  *    }
@@ -45,31 +45,31 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Net;
+namespace phpseclib3\Net;
 
-use phpseclib\Crypt\Blowfish;
-use phpseclib\Crypt\Hash;
-use phpseclib\Crypt\Random;
-use phpseclib\Crypt\RC4;
-use phpseclib\Crypt\Rijndael;
-use phpseclib\Crypt\Common\PrivateKey;
-use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\EC;
-use phpseclib\Crypt\DH;
-use phpseclib\Crypt\TripleDES;
-use phpseclib\Crypt\Twofish;
-use phpseclib\Crypt\ChaCha20;
-use phpseclib\Math\BigInteger; // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
-use phpseclib\System\SSH\Agent;
-use phpseclib\System\SSH\Agent\Identity as AgentIdentity;
-use phpseclib\Exception\NoSupportedAlgorithmsException;
-use phpseclib\Exception\UnsupportedAlgorithmException;
-use phpseclib\Exception\UnsupportedCurveException;
-use phpseclib\Exception\ConnectionClosedException;
-use phpseclib\Exception\UnableToConnectException;
-use phpseclib\Exception\InsufficientSetupException;
-use phpseclib\Common\Functions\Strings;
+use phpseclib3\Crypt\Blowfish;
+use phpseclib3\Crypt\Hash;
+use phpseclib3\Crypt\Random;
+use phpseclib3\Crypt\RC4;
+use phpseclib3\Crypt\Rijndael;
+use phpseclib3\Crypt\Common\PrivateKey;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\DSA;
+use phpseclib3\Crypt\EC;
+use phpseclib3\Crypt\DH;
+use phpseclib3\Crypt\TripleDES;
+use phpseclib3\Crypt\Twofish;
+use phpseclib3\Crypt\ChaCha20;
+use phpseclib3\Math\BigInteger; // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
+use phpseclib3\System\SSH\Agent;
+use phpseclib3\System\SSH\Agent\Identity as AgentIdentity;
+use phpseclib3\Exception\NoSupportedAlgorithmsException;
+use phpseclib3\Exception\UnsupportedAlgorithmException;
+use phpseclib3\Exception\UnsupportedCurveException;
+use phpseclib3\Exception\ConnectionClosedException;
+use phpseclib3\Exception\UnableToConnectException;
+use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Common\Functions\Strings;
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -83,7 +83,7 @@ class SSH2
     /**#@+
      * Execution Bitmap Masks
      *
-     * @see \phpseclib\Net\SSH2::bitmap
+     * @see \phpseclib3\Net\SSH2::bitmap
      * @access private
      */
     const MASK_CONSTRUCTOR   = 0x00000001;
@@ -106,8 +106,8 @@ class SSH2
      *     open request, and 'sender channel' is the channel number allocated by
      *     the other side.
      *
-     * @see \phpseclib\Net\SSH2::send_channel_packet()
-     * @see \phpseclib\Net\SSH2::get_channel_packet()
+     * @see \phpseclib3\Net\SSH2::send_channel_packet()
+     * @see \phpseclib3\Net\SSH2::get_channel_packet()
      * @access private
     */
     const CHANNEL_EXEC          = 1; // PuTTy uses 0x100
@@ -119,7 +119,7 @@ class SSH2
 
     /**#@+
      * @access public
-     * @see \phpseclib\Net\SSH2::getLog()
+     * @see \phpseclib3\Net\SSH2::getLog()
     */
     /**
      * Returns the message numbers
@@ -145,7 +145,7 @@ class SSH2
 
     /**#@+
      * @access public
-     * @see \phpseclib\Net\SSH2::read()
+     * @see \phpseclib3\Net\SSH2::read()
     */
     /**
      * Returns when a string matching $expect exactly is found
@@ -929,7 +929,7 @@ class SSH2
     /**
      * A System_SSH_Agent for use in the SSH2 Agent Forwarding scenario
      *
-     * @var \phpseclib\System\Ssh\Agent
+     * @var \phpseclib3\System\Ssh\Agent
      * @access private
      */
     private $agent;
@@ -1369,7 +1369,7 @@ class SSH2
      * @param string|bool $kexinit_payload_server optional
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @throws \RuntimeException on other errors
-     * @throws \phpseclib\Exception\NoSupportedAlgorithmsException when none of the algorithms phpseclib has loaded are compatible
+     * @throws \phpseclib3\Exception\NoSupportedAlgorithmsException when none of the algorithms phpseclib has loaded are compatible
      * @access private
      */
     private function key_exchange($kexinit_payload_server = false)
@@ -1903,10 +1903,10 @@ class SSH2
 
     /**
      * Maps an encryption algorithm name to an instance of a subclass of
-     * \phpseclib\Crypt\Common\SymmetricKey.
+     * \phpseclib3\Crypt\Common\SymmetricKey.
      *
      * @param string $algorithm Name of the encryption algorithm
-     * @return mixed Instance of \phpseclib\Crypt\Common\SymmetricKey or null for unknown
+     * @return mixed Instance of \phpseclib3\Crypt\Common\SymmetricKey or null for unknown
      * @access private
      */
     private static function encryption_algorithm_to_crypt_instance($algorithm)
@@ -1952,10 +1952,10 @@ class SSH2
 
     /**
      * Maps an encryption algorithm name to an instance of a subclass of
-     * \phpseclib\Crypt\Hash.
+     * \phpseclib3\Crypt\Hash.
      *
      * @param string $algorithm Name of the encryption algorithm
-     * @return mixed Instance of \phpseclib\Crypt\Hash or null for unknown
+     * @return mixed Instance of \phpseclib3\Crypt\Hash or null for unknown
      * @access private
      */
     private static function mac_algorithm_to_hash_instance($algorithm)
@@ -2009,7 +2009,7 @@ class SSH2
     /**
      * Login
      *
-     * The $password parameter can be a plaintext password, a \phpseclib\Crypt\RSA object or an array
+     * The $password parameter can be a plaintext password, a \phpseclib3\Crypt\RSA object or an array
      *
      * @param string $username
      * @param $args[] param mixed $password
@@ -2143,7 +2143,7 @@ class SSH2
         }
 
         if (!is_string($password)) {
-            throw new \UnexpectedValueException('$password needs to either be an instance of \phpseclib\Crypt\Common\PrivateKey, \System\SSH\Agent, an array or a string');
+            throw new \UnexpectedValueException('$password needs to either be an instance of \phpseclib3\Crypt\Common\PrivateKey, \System\SSH\Agent, an array or a string');
         }
 
         $packet = Strings::packSSH2(
@@ -2349,7 +2349,7 @@ class SSH2
      * Login with an ssh-agent provided key
      *
      * @param string $username
-     * @param \phpseclib\System\SSH\Agent $agent
+     * @param \phpseclib3\System\SSH\Agent $agent
      * @return bool
      * @access private
      */
@@ -2370,7 +2370,7 @@ class SSH2
      * Login with an RSA private key
      *
      * @param string $username
-     * @param \phpseclib\Crypt\Common\PrivateKey $privatekey
+     * @param \phpseclib3\Crypt\Common\PrivateKey $privatekey
      * @return bool
      * @throws \RuntimeException on connection error
      * @access private
@@ -2421,7 +2421,7 @@ class SSH2
                     if (is_array($curveName)) {
                         throw new UnsupportedCurveException('Specified Curves are not supported by SSH2');
                     }
-                    throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported by phpseclib\'s SSH2 implementation');
+                    throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported by phpseclib3\'s SSH2 implementation');
             }
         } else if ($publickey instanceof DSA) {
             $privatekey = $privatekey->withSignatureFormat('SSH2');
@@ -2525,7 +2525,7 @@ class SSH2
     /**
      * Execute Command
      *
-     * If $callback is set to false then \phpseclib\Net\SSH2::get_channel_packet(self::CHANNEL_EXEC) will need to be called manually.
+     * If $callback is set to false then \phpseclib3\Net\SSH2::get_channel_packet(self::CHANNEL_EXEC) will need to be called manually.
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
      * @param string $command
@@ -2611,7 +2611,7 @@ class SSH2
         }
 
         // sending a pty-req SSH_MSG_CHANNEL_REQUEST message is unnecessary and, in fact, in most cases, slows things
-        // down.  the one place where it might be desirable is if you're doing something like \phpseclib\Net\SSH2::exec('ping localhost &').
+        // down.  the one place where it might be desirable is if you're doing something like \phpseclib3\Net\SSH2::exec('ping localhost &').
         // with a pty-req SSH_MSG_CHANNEL_REQUEST, exec() will return immediately and the ping process will then
         // then immediately terminate.  without such a request exec() will loop indefinitely.  the ping process won't end but
         // neither will your script.
@@ -4039,7 +4039,7 @@ class SSH2
     /**
      * Closes and flushes a channel
      *
-     * \phpseclib\Net\SSH2 doesn't properly close most channels.  For exec() channels are normally closed by the server
+     * \phpseclib3\Net\SSH2 doesn't properly close most channels.  For exec() channels are normally closed by the server
      * and for SFTP channels are presumably closed when the client disconnects.  This functions is intended
      * for SCP more than anything.
      *
@@ -4631,7 +4631,7 @@ class SSH2
      *
      * @return mixed
      * @throws \RuntimeException on badly formatted keys
-     * @throws \phpseclib\Exception\NoSupportedAlgorithmsException when the key isn't in a supported format
+     * @throws \phpseclib3\Exception\NoSupportedAlgorithmsException when the key isn't in a supported format
      * @access public
      */
     public function getServerPublicHostKey()
