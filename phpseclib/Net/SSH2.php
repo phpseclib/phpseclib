@@ -1713,7 +1713,14 @@ class SSH2
                 return false;
             }
             $key = new BigInteger(sodium_crypto_scalarmult($x, $fBytes), 256);
-            sodium_memzero($x);
+            // sodium_compat doesn't emulate sodium_memzero
+            // also, with v1 of libsodium API the extension identifies itself as
+            // libsodium whereas v2 of the libsodium API (what PHP 7.2+ includes)
+            // identifies itself as sodium. sodium_compat uses the v1 API to
+            // emulate the v2 API if it's the v1 API that's available
+            if (extension_loaded('sodium') || extension_loaded('libsodium')) {
+                sodium_memzero($x);
+            }
         } else {
             $f = new BigInteger($fBytes, -256);
             $key = $f->modPow($x, $prime);
