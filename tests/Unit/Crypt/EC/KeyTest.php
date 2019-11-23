@@ -480,10 +480,12 @@ lEIq93iMVzIArjGaKrFDAAAADHJvb3RAdmFncmFudAE=
 
         $key = PublicKeyLoader::load($key);
         $sig = $key->sign('zzz');
+        $sig2 = $key->withSignatureFormat('SSH2')->sign('zzz');
 
         $key = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKGEJnCqQiHjcB9RE86BvJh5lEIq93iMVzIArjGaKrFD root@vagrant';
         $key = PublicKeyLoader::load($key);
 
         $this->assertTrue($key->verify('zzz', $sig));
+        $this->assertTrue($key->withSignatureFormat('SSH2')->verify('zzz', $sig2));
     }
 }
