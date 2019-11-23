@@ -24,6 +24,7 @@ use phpseclib3\Crypt\EC\Curves\Curve25519;
 use phpseclib3\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib3\Crypt\Common;
 use phpseclib3\Exception\UnsupportedOperationException;
+use phpseclib3\Common\Functions\Strings;
 
 /**
  * EC Private Key
@@ -98,9 +99,16 @@ class PrivateKey extends EC implements Common\PrivateKey
 
         $order = $this->curve->getOrder();
 
+        $shortFormat = $this->shortFormat;
+        $format = $this->format;
+        if ($format === false) {
+            return false;
+        }
+
         if ($this->curve instanceof TwistedEdwardsCurve) {
             if ($this->curve instanceof Ed25519 && self::$engines['libsodium'] && !isset($this->context)) {
-                return sodium_crypto_sign_detached($message, $this->toString('libsodium'));
+                $result = sodium_crypto_sign_detached($message, $this->toString('libsodium'));
+                return $shortFormat == 'SSH2' ? Strings::packSSH2('ss', 'ssh-' . strtolower($this->getCurve()), $result) : $result;
             }
 
             // contexts (Ed25519ctx) are supported but prehashing (Ed25519ph) is not.
@@ -133,13 +141,7 @@ class PrivateKey extends EC implements Common\PrivateKey
             $S = $k->multiply($dA)->add($r);
             list(, $S) = $S->divide($order);
             $S = str_pad(strrev($S->toBytes()), $curve::SIZE, "\0");
-            return $R . $S;
-        }
-
-        $shortFormat = $this->shortFormat;
-        $format = $this->format;
-        if ($format === false) {
-            return false;
+            return $shortFormat == 'SSH2' ? Strings::packSSH2('ss', 'ssh-' . strtolower($this->getCurve()), $R . $S) : $R . $S;
         }
 
         if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {

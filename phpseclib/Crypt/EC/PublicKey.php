@@ -23,6 +23,7 @@ use phpseclib3\Crypt\EC\Curves\Ed25519;
 use phpseclib3\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib3\Crypt\Common;
 use phpseclib3\Exception\UnsupportedOperationException;
+use phpseclib3\Common\Functions\Strings;
 
 /**
  * EC Public Key
@@ -50,9 +51,19 @@ class PublicKey extends EC implements Common\PublicKey
             throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
         }
 
+        $shortFormat = $this->shortFormat;
+        $format = $this->format;
+        if ($format === false) {
+            return false;
+        }
+
         $order = $this->curve->getOrder();
 
         if ($this->curve instanceof TwistedEdwardsCurve) {
+            if ($shortFormat == 'SSH2') {
+                list(, $signature) = Strings::unpackSSH2('ss', $signature);
+            }
+
             if ($this->curve instanceof Ed25519 && self::$engines['libsodium'] && !isset($this->context)) {
                 return sodium_crypto_sign_verify_detached($signature, $message, $this->toString('libsodium'));
             }
@@ -104,8 +115,6 @@ class PublicKey extends EC implements Common\PublicKey
 
             return $lhs[0]->equals($rhs[0]) && $lhs[1]->equals($rhs[1]);
         }
-
-        $format = $this->format;
 
         $params = $format::load($signature);
         if ($params === false || count($params) != 2) {
