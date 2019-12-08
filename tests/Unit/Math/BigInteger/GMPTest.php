@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use \phpseclib\Math\BigInteger\Engines\GMP;
+use \phpseclib3\Math\BigInteger\Engines\GMP;
 
 class Unit_Math_BigInteger_GMPTest extends Unit_Math_BigInteger_TestCase
 {
@@ -24,6 +24,6 @@ class Unit_Math_BigInteger_GMPTest extends Unit_Math_BigInteger_TestCase
 
     public static function getStaticClass()
     {
-        return 'phpseclib\Math\BigInteger\Engines\GMP';
+        return 'phpseclib3\Math\BigInteger\Engines\GMP';
     }
 }

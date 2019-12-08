@@ -6,15 +6,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\EC;
-use phpseclib\File\ASN1;
-use phpseclib\Crypt\EC\Curves\Ed448;
-use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\PublicKeyLoader;
+use phpseclib3\Crypt\EC;
+use phpseclib3\File\ASN1;
+use phpseclib3\Crypt\EC\Curves\Ed448;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Crypt\PublicKeyLoader;
 
 class Ed448PublicKey
 {
-    use phpseclib\Crypt\EC\Formats\Keys\Common;
+    use phpseclib3\Crypt\EC\Formats\Keys\Common;
 
     public static function load($key, $password = '')
     {
@@ -50,7 +50,7 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
             if ($testName == 'Curve25519' || $testName == 'Curve448') {
                 continue;
             }
-            $class = 'phpseclib\Crypt\EC\Curves\\' . $testName;
+            $class = 'phpseclib3\Crypt\EC\Curves\\' . $testName;
             $reflect = new \ReflectionClass($class);
             if ($reflect->isFinal()) {
                 continue;
@@ -80,7 +80,7 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
 
     public function curvesWithOIDs()
     {
-        $class = new ReflectionClass('phpseclib\Crypt\EC\Formats\Keys\PKCS8');
+        $class = new ReflectionClass('phpseclib3\Crypt\EC\Formats\Keys\PKCS8');
 
         $initialize = $class->getMethod('initialize_static_variables');
         $initialize->setAccessible(true);
@@ -105,7 +105,7 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
      */
     public function testBasePoint($name)
     {
-        $class = 'phpseclib\Crypt\EC\Curves\\' . $name;
+        $class = 'phpseclib3\Crypt\EC\Curves\\' . $name;
         $curve = new $class;
         $this->assertTrue($curve->verifyPoint($curve->getBasePoint()), "Failed to verify basepoint of curve $name");
     }
@@ -118,7 +118,7 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
      */
     public function testKeyGeneration($name)
     {
-        $class = 'phpseclib\Crypt\EC\Curves\\' . $name;
+        $class = 'phpseclib3\Crypt\EC\Curves\\' . $name;
         $curve = new $class;
         $dA = $curve->createRandomMultiplier();
         $QA = $curve->multiplyPoint($curve->getBasePoint(), $dA);

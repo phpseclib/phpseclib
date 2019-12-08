@@ -11,8 +11,8 @@
  * Here's an example of how to use this library:
  * <code>
  * <?php
- *    $a = new \phpseclib\Math\BigInteger(2);
- *    $b = new \phpseclib\Math\BigInteger(3);
+ *    $a = new \phpseclib3\Math\BigInteger(2);
+ *    $b = new \phpseclib3\Math\BigInteger(3);
  *
  *    $c = $a->add($b);
  *
@@ -27,9 +27,9 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace phpseclib\Math;
+namespace phpseclib3\Math;
 
-use phpseclib\Exception\BadConfigurationException;
+use phpseclib3\Exception\BadConfigurationException;
 
 /**
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
@@ -81,7 +81,7 @@ class BigInteger implements \Serializable
     {
         self::$engines = [];
 
-        $fqmain = 'phpseclib\\Math\\BigInteger\\Engines\\' . $main;
+        $fqmain = 'phpseclib3\\Math\\BigInteger\\Engines\\' . $main;
         if (!class_exists($fqmain) || !method_exists($fqmain, 'isValidEngine')) {
             throw new \InvalidArgumentException("$main is not a valid engine");
         }
@@ -279,8 +279,8 @@ class BigInteger implements \Serializable
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new \phpseclib\Math\BigInteger('10');
-     *    $b = new \phpseclib\Math\BigInteger('20');
+     *    $a = new \phpseclib3\Math\BigInteger('10');
+     *    $b = new \phpseclib3\Math\BigInteger('20');
      *
      *    list($quotient, $remainder) = $a->divide($b);
      *
@@ -852,7 +852,7 @@ class BigInteger implements \Serializable
      * Splits BigInteger's into chunks of $split bits
      *
      * @param int $split
-     * @return \phpseclib\Math\BigInteger[]
+     * @return \phpseclib3\Math\BigInteger[]
      */
     public function bitwise_split($split)
     {

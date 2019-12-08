@@ -23,12 +23,12 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\RSA\Formats\Keys;
+namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
-use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
-use phpseclib\File\ASN1;
-use phpseclib\File\ASN1\Maps;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
+use phpseclib3\File\ASN1;
+use phpseclib3\File\ASN1\Maps;
 
 /**
  * PKCS#8 Formatted RSA-PSS Key Handler
@@ -156,9 +156,9 @@ abstract class PSS extends Progenitor
      * Convert a private key to the appropriate format.
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $n
-     * @param \phpseclib\Math\BigInteger $e
-     * @param \phpseclib\Math\BigInteger $d
+     * @param \phpseclib3\Math\BigInteger $n
+     * @param \phpseclib3\Math\BigInteger $e
+     * @param \phpseclib3\Math\BigInteger $d
      * @param array $primes
      * @param array $exponents
      * @param array $coefficients
@@ -180,8 +180,8 @@ abstract class PSS extends Progenitor
      * Convert a public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $n
-     * @param \phpseclib\Math\BigInteger $e
+     * @param \phpseclib3\Math\BigInteger $n
+     * @param \phpseclib3\Math\BigInteger $e
      * @param array $options optional
      * @return string
      */

@@ -13,9 +13,9 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\File\ASN1\Maps;
+namespace phpseclib3\File\ASN1\Maps;
 
-use phpseclib\File\ASN1;
+use phpseclib3\File\ASN1;
 
 /**
  * AdministrationDomainName
@@ -28,8 +28,8 @@ abstract class AdministrationDomainName
 {
     const MAP = [
         'type'     => ASN1::TYPE_CHOICE,
-        // if class isn't present it's assumed to be \phpseclib\File\ASN1::CLASS_UNIVERSAL or
-        // (if constant is present) \phpseclib\File\ASN1::CLASS_CONTEXT_SPECIFIC
+        // if class isn't present it's assumed to be \phpseclib3\File\ASN1::CLASS_UNIVERSAL or
+        // (if constant is present) \phpseclib3\File\ASN1::CLASS_CONTEXT_SPECIFIC
         'class'    => ASN1::CLASS_APPLICATION,
         'cast'     => 2,
         'children' => [

@@ -13,11 +13,11 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\RSA\Formats\Keys;
+namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
-use phpseclib\Math\BigInteger;
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
 
 /**
  * PuTTY Formatted RSA Key Handler
@@ -34,7 +34,7 @@ abstract class PuTTY extends Progenitor
      * @var string
      * @access private
      */
-    const PUBLIC_HANDLER = 'phpseclib\Crypt\RSA\Formats\Keys\OpenSSH';
+    const PUBLIC_HANDLER = 'phpseclib3\Crypt\RSA\Formats\Keys\OpenSSH';
 
     /**
      * Algorithm Identifier
@@ -93,9 +93,9 @@ abstract class PuTTY extends Progenitor
      * Convert a private key to the appropriate format.
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $n
-     * @param \phpseclib\Math\BigInteger $e
-     * @param \phpseclib\Math\BigInteger $d
+     * @param \phpseclib3\Math\BigInteger $n
+     * @param \phpseclib3\Math\BigInteger $e
+     * @param \phpseclib3\Math\BigInteger $d
      * @param array $primes
      * @param array $exponents
      * @param array $coefficients
@@ -119,8 +119,8 @@ abstract class PuTTY extends Progenitor
      * Convert a public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $n
-     * @param \phpseclib\Math\BigInteger $e
+     * @param \phpseclib3\Math\BigInteger $n
+     * @param \phpseclib3\Math\BigInteger $e
      * @return string
      */
     public static function savePublicKey(BigInteger $n, BigInteger $e)

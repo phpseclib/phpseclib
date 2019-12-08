@@ -14,7 +14,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\Common;
+namespace phpseclib3\Crypt\Common;
 
 /**
  * Base Class for all block cipher classes

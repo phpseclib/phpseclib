@@ -14,12 +14,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace phpseclib\Math;
+namespace phpseclib3\Math;
 
 use ParagonIE\ConstantTime\Hex;
-use phpseclib\Math\Common\FiniteField;
-use phpseclib\Math\BinaryField\Integer;
-use phpseclib\Common\Functions\Strings;
+use phpseclib3\Math\Common\FiniteField;
+use phpseclib3\Math\BinaryField\Integer;
+use phpseclib3\Common\Functions\Strings;
 
 /**
  * Binary Finite Fields

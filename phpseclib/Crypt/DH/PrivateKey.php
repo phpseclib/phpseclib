@@ -11,10 +11,10 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\DH;
+namespace phpseclib3\Crypt\DH;
 
-use phpseclib\Crypt\DH;
-use phpseclib\Crypt\Common;
+use phpseclib3\Crypt\DH;
+use phpseclib3\Crypt\Common;
 
 /**
  * DH Private Key
@@ -30,7 +30,7 @@ class PrivateKey extends DH
     /**
      * Private Key
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $privateKey;
@@ -38,7 +38,7 @@ class PrivateKey extends DH
     /**
      * Public Key
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $publicKey;

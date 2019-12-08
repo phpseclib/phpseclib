@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use \phpseclib\Math\BigInteger\Engines\BCMath;
+use \phpseclib3\Math\BigInteger\Engines\BCMath;
 
 class Unit_Math_BigInteger_BCMathTest extends Unit_Math_BigInteger_TestCase
 {
@@ -24,6 +24,6 @@ class Unit_Math_BigInteger_BCMathTest extends Unit_Math_BigInteger_TestCase
 
     public static function getStaticClass()
     {
-        return 'phpseclib\Math\BigInteger\Engines\BCMath';
+        return 'phpseclib3\Math\BigInteger\Engines\BCMath';
     }
 }

@@ -16,7 +16,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $twofish = new \phpseclib\Crypt\Twofish();
+ *    $twofish = new \phpseclib3\Crypt\Twofish();
  *
  *    $twofish->setKey('12345678901234567890123456789012');
  *
@@ -35,10 +35,10 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib3\Crypt;
 
-use phpseclib\Crypt\Common\BlockCipher;
-use phpseclib\Exception\BadModeException;
+use phpseclib3\Crypt\Common\BlockCipher;
+use phpseclib3\Exception\BadModeException;
 
 /**
  * Pure-PHP implementation of Twofish.
@@ -53,7 +53,7 @@ class Twofish extends BlockCipher
     /**
      * The mcrypt specific name of the cipher
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::cipher_name_mcrypt
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
      * @var string
      * @access private
      */
@@ -62,7 +62,7 @@ class Twofish extends BlockCipher
     /**
      * Optimizing value while CFB-encrypting
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::cfb_init_len
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::cfb_init_len
      * @var int
      * @access private
      */
@@ -436,7 +436,7 @@ class Twofish extends BlockCipher
     /**
      * Setup the key (expansion)
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::_setupKey()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupKey()
      * @access private
      */
     protected function setupKey()
@@ -709,7 +709,7 @@ class Twofish extends BlockCipher
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::_setupInlineCrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupInlineCrypt()
      * @access private
      */
     protected function setupInlineCrypt()

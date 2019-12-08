@@ -10,7 +10,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    echo bin2hex(\phpseclib\Crypt\Random::string(8));
+ *    echo bin2hex(\phpseclib3\Crypt\Random::string(8));
  * ?>
  * </code>
  *
@@ -22,7 +22,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib3\Crypt;
 
 /**
  * Pure-PHP Random Number Generator
@@ -142,22 +142,22 @@ abstract class Random
             //
             // http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Designs_based_on_cryptographic_primitives
             switch (true) {
-                case class_exists('\phpseclib\Crypt\AES'):
+                case class_exists('\phpseclib3\Crypt\AES'):
                     $crypto = new AES('ctr');
                     break;
-                case class_exists('\phpseclib\Crypt\Twofish'):
+                case class_exists('\phpseclib3\Crypt\Twofish'):
                     $crypto = new Twofish('ctr');
                     break;
-                case class_exists('\phpseclib\Crypt\Blowfish'):
+                case class_exists('\phpseclib3\Crypt\Blowfish'):
                     $crypto = new Blowfish('ctr');
                     break;
-                case class_exists('\phpseclib\Crypt\TripleDES'):
+                case class_exists('\phpseclib3\Crypt\TripleDES'):
                     $crypto = new TripleDES('ctr');
                     break;
-                case class_exists('\phpseclib\Crypt\DES'):
+                case class_exists('\phpseclib3\Crypt\DES'):
                     $crypto = new DES('ctr');
                     break;
-                case class_exists('\phpseclib\Crypt\RC4'):
+                case class_exists('\phpseclib3\Crypt\RC4'):
                     $crypto = new RC4();
                     break;
                 default:

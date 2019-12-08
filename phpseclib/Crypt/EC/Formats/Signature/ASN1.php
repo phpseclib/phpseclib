@@ -16,11 +16,11 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\EC\Formats\Signature;
+namespace phpseclib3\Crypt\EC\Formats\Signature;
 
-use phpseclib\Math\BigInteger;
-use phpseclib\File\ASN1 as Encoder;
-use phpseclib\File\ASN1\Maps\EcdsaSigValue;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\File\ASN1 as Encoder;
+use phpseclib3\File\ASN1\Maps\EcdsaSigValue;
 
 /**
  * ASN1 Signature Handler
@@ -57,8 +57,8 @@ abstract class ASN1
      * Returns a signature in the appropriate format
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $r
-     * @param \phpseclib\Math\BigInteger $s
+     * @param \phpseclib3\Math\BigInteger $r
+     * @param \phpseclib3\Math\BigInteger $s
      * @return string
      */
     public static function save(BigInteger $r, BigInteger $s)

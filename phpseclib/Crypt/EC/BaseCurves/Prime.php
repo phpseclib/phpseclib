@@ -21,13 +21,13 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
-namespace phpseclib\Crypt\EC\BaseCurves;
+namespace phpseclib3\Crypt\EC\BaseCurves;
 
-use phpseclib\Math\Common\FiniteField\Integer;
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Math\PrimeField;
-use phpseclib\Math\BigInteger;
-use phpseclib\Math\PrimeField\Integer as PrimeInteger;
+use phpseclib3\Math\Common\FiniteField\Integer;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Math\PrimeField;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\PrimeField\Integer as PrimeInteger;
 
 /**
  * Curves over y^2 = x^3 + a*x + b
@@ -41,7 +41,7 @@ class Prime extends Base
     /**
      * Prime Field Integer factory
      *
-     * @var \phpseclib\Math\PrimeFields
+     * @var \phpseclib3\Math\PrimeFields
      */
     protected $factory;
 
@@ -475,7 +475,7 @@ class Prime extends Base
     /**
      * Returns the modulo
      *
-     * @return \phpseclib\Math\BigInteger
+     * @return \phpseclib3\Math\BigInteger
      */
     public function getModulo()
     {
@@ -485,7 +485,7 @@ class Prime extends Base
     /**
      * Returns the a coefficient
      *
-     * @return \phpseclib\Math\PrimeField\Integer
+     * @return \phpseclib3\Math\PrimeField\Integer
      */
     public function getA()
     {
@@ -495,7 +495,7 @@ class Prime extends Base
     /**
      * Returns the a coefficient
      *
-     * @return \phpseclib\Math\PrimeField\Integer
+     * @return \phpseclib3\Math\PrimeField\Integer
      */
     public function getB()
     {
@@ -740,7 +740,7 @@ class Prime extends Base
      * To convert a Jacobian Coordinate to an Affine Point
      * you do (x / z^2, y / z^3)
      *
-     * @return \phpseclib\Math\PrimeField\Integer[]
+     * @return \phpseclib3\Math\PrimeField\Integer[]
      */
     public function convertToAffine(array $p)
     {
@@ -759,7 +759,7 @@ class Prime extends Base
     /**
      * Converts an affine point to a jacobian coordinate
      *
-     * @return \phpseclib\Math\PrimeField\Integer[]
+     * @return \phpseclib3\Math\PrimeField\Integer[]
      */
     public function convertToInternal(array $p)
     {

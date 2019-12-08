@@ -15,11 +15,11 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
-namespace phpseclib\Crypt\EC\Curves;
+namespace phpseclib3\Crypt\EC\Curves;
 
-//use phpseclib\Crypt\EC\BaseCurves\Prime;
-use phpseclib\Crypt\EC\BaseCurves\KoblitzPrime;
-use phpseclib\Math\BigInteger;
+//use phpseclib3\Crypt\EC\BaseCurves\Prime;
+use phpseclib3\Crypt\EC\BaseCurves\KoblitzPrime;
+use phpseclib3\Math\BigInteger;
 
 //class secp256k1 extends Prime
 class secp256k1 extends KoblitzPrime

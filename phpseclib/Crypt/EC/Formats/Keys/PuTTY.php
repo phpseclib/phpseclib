@@ -13,15 +13,15 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\EC\Formats\Keys;
+namespace phpseclib3\Crypt\EC\Formats\Keys;
 
 use ParagonIE\ConstantTime\Base64;
-use phpseclib\Math\BigInteger;
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
-use phpseclib\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib\Math\Common\FiniteField\Integer;
-use phpseclib\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
+use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
+use phpseclib3\Math\Common\FiniteField\Integer;
+use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 
 /**
  * PuTTY Formatted EC Key Handler
@@ -40,7 +40,7 @@ abstract class PuTTY extends Progenitor
      * @var string
      * @access private
      */
-    const PUBLIC_HANDLER = 'phpseclib\Crypt\EC\Formats\Keys\OpenSSH';
+    const PUBLIC_HANDLER = 'phpseclib3\Crypt\EC\Formats\Keys\OpenSSH';
 
     /**
      * Supported Key Types
@@ -92,9 +92,9 @@ abstract class PuTTY extends Progenitor
      * Convert a private key to the appropriate format.
      *
      * @access public
-     * @param \phpseclib\Math\Common\FiniteField\Integer $privateKey
-     * @param \phpseclib\Crypt\EC\BaseCurves\Base $curve
-     * @param \phpseclib\Math\Common\FiniteField\Integer[] $publicKey
+     * @param \phpseclib3\Math\Common\FiniteField\Integer $privateKey
+     * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
+     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @param string $password optional
      * @param array $options optional
      * @return string
@@ -129,8 +129,8 @@ abstract class PuTTY extends Progenitor
      * Convert an EC public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib\Crypt\EC\BaseCurves\Base $curve
-     * @param \phpseclib\Math\Common\FiniteField[] $publicKey
+     * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
+     * @param \phpseclib3\Math\Common\FiniteField[] $publicKey
      * @return string
      */
     public static function savePublicKey(BaseCurve $curve, array $publicKey)

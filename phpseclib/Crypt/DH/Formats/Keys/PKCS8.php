@@ -19,12 +19,12 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\DH\Formats\Keys;
+namespace phpseclib3\Crypt\DH\Formats\Keys;
 
-use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
-use phpseclib\File\ASN1;
-use phpseclib\File\ASN1\Maps;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
+use phpseclib3\File\ASN1;
+use phpseclib3\File\ASN1\Maps;
 
 /**
  * PKCS#8 Formatted DH Key Handler
@@ -112,10 +112,10 @@ abstract class PKCS8 extends Progenitor
      * Convert a private key to the appropriate format.
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $prime
-     * @param \phpseclib\Math\BigInteger $base
-     * @param \phpseclib\Math\BigInteger $privateKey
-     * @param \phpseclib\Math\BigInteger $publicKey
+     * @param \phpseclib3\Math\BigInteger $prime
+     * @param \phpseclib3\Math\BigInteger $base
+     * @param \phpseclib3\Math\BigInteger $privateKey
+     * @param \phpseclib3\Math\BigInteger $publicKey
      * @param string $password optional
      * @param array $options optional
      * @return string
@@ -136,9 +136,9 @@ abstract class PKCS8 extends Progenitor
      * Convert a public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $prime
-     * @param \phpseclib\Math\BigInteger $base
-     * @param \phpseclib\Math\BigInteger $publicKey
+     * @param \phpseclib3\Math\BigInteger $prime
+     * @param \phpseclib3\Math\BigInteger $base
+     * @param \phpseclib3\Math\BigInteger $publicKey
      * @param array $options optional
      * @return string
      */
