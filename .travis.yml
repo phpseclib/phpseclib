@@ -1,12 +1,14 @@
 language: php
 
+dist: xenial
+
 php:
   - 5.6
   - 7.0
   - 7.1
   - 7.2
   - 7.3
-  - 7.4snapshot
+  - 7.4
   - nightly
 
 before_install: true
@@ -14,7 +16,6 @@ before_install: true
 matrix:
   allow_failures:
     - php: nightly
-    - php: 7.4snapshot
 
 install:
   - wget http://ftp.gnu.org/gnu/parallel/parallel-20170822.tar.bz2
