@@ -15,13 +15,13 @@ matrix:
     - php: 7.0
       dist: xenial
     - php: 7.1
-      dist: bionic
+      dist: xenial
     - php: 7.2
-      dist: bionic
+      dist: xenial
     - php: 7.3
-      dist: bionic
+      dist: xenial
     - php: 7.4
-      dist: bionic
+      dist: xenial
 
 before_install: true
 
