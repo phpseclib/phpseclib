@@ -16,7 +16,7 @@
  * it'll be null-padded to 192-bits and 192 bits will be the key length until {@link self::setKey() setKey()}
  * is called, again, at which point, it'll be recalculated.
  *
- * Since \phpseclib\Crypt\AES extends \phpseclib\Crypt\Rijndael, some functions are available to be called that, in the context of AES, don't
+ * Since \phpseclib3\Crypt\AES extends \phpseclib3\Crypt\Rijndael, some functions are available to be called that, in the context of AES, don't
  * make a whole lot of sense.  {@link self::setBlockLength() setBlockLength()}, for instance.  Calling that function,
  * however possible, won't do anything (AES has a fixed block length whereas Rijndael has a variable one).
  *
@@ -25,7 +25,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $aes = new \phpseclib\Crypt\AES();
+ *    $aes = new \phpseclib3\Crypt\AES();
  *
  *    $aes->setKey('abcdefghijklmnop');
  *
@@ -47,7 +47,7 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib3\Crypt;
 
 /**
  * Pure-PHP implementation of AES.
@@ -61,9 +61,9 @@ class AES extends Rijndael
     /**
      * Dummy function
      *
-     * Since \phpseclib\Crypt\AES extends \phpseclib\Crypt\Rijndael, this function is, technically, available, but it doesn't do anything.
+     * Since \phpseclib3\Crypt\AES extends \phpseclib3\Crypt\Rijndael, this function is, technically, available, but it doesn't do anything.
      *
-     * @see \phpseclib\Crypt\Rijndael::setBlockLength()
+     * @see \phpseclib3\Crypt\Rijndael::setBlockLength()
      * @access public
      * @param int $length
      * @throws \BadMethodCallException anytime it's called
@@ -78,7 +78,7 @@ class AES extends Rijndael
      *
      * Valid key lengths are 128, 192, and 256.  Set the link to bool(false) to disable a fixed key length
      *
-     * @see \phpseclib\Crypt\Rijndael:setKeyLength()
+     * @see \phpseclib3\Crypt\Rijndael:setKeyLength()
      * @access public
      * @param int $length
      * @throws \LengthException if the key length isn't supported
@@ -101,7 +101,7 @@ class AES extends Rijndael
      *
      * Rijndael supports five different key lengths, AES only supports three.
      *
-     * @see \phpseclib\Crypt\Rijndael:setKey()
+     * @see \phpseclib3\Crypt\Rijndael:setKey()
      * @see setKeyLength()
      * @access public
      * @param string $key

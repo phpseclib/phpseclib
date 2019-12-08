@@ -13,19 +13,19 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\EC\Formats\Keys;
+namespace phpseclib3\Crypt\EC\Formats\Keys;
 
 use ParagonIE\ConstantTime\Hex;
-use phpseclib\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib\Crypt\EC\BaseCurves\Prime as PrimeCurve;
-use phpseclib\Crypt\EC\BaseCurves\Binary as BinaryCurve;
-use phpseclib\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Math\BigInteger;
-use phpseclib\Math\PrimeField;
-use phpseclib\File\ASN1;
-use phpseclib\File\ASN1\Maps;
-use phpseclib\Exception\UnsupportedCurveException;
+use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
+use phpseclib3\Crypt\EC\BaseCurves\Prime as PrimeCurve;
+use phpseclib3\Crypt\EC\BaseCurves\Binary as BinaryCurve;
+use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\PrimeField;
+use phpseclib3\File\ASN1;
+use phpseclib3\File\ASN1\Maps;
+use phpseclib3\Exception\UnsupportedCurveException;
 
 /**
  * Generic EC Key Parsing Helper functions
@@ -189,7 +189,7 @@ trait Common
      * If the key contains an implicit curve phpseclib needs the curve
      * to be explicitly provided
      *
-     * @param \phpseclib\Crypt\EC\BaseCurves\Base $curve
+     * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      */
     public static function setImplicitCurve(BaseCurve $curve)
     {
@@ -197,11 +197,11 @@ trait Common
     }
 
     /**
-     * Returns an instance of \phpseclib\Crypt\EC\BaseCurves\Base based
+     * Returns an instance of \phpseclib3\Crypt\EC\BaseCurves\Base based
      * on the curve parameters
      *
      * @param array $params
-     * @return \phpseclib\Crypt\EC\BaseCurves\Base|false
+     * @return \phpseclib3\Crypt\EC\BaseCurves\Base|false
      */
     protected static function loadCurveByParam(array $params)
     {
@@ -209,7 +209,7 @@ trait Common
             throw new \RuntimeException('No parameters are present');
         }
         if (isset($params['namedCurve'])) {
-            $curve = '\phpseclib\Crypt\EC\Curves\\' . $params['namedCurve'];
+            $curve = '\phpseclib3\Crypt\EC\Curves\\' . $params['namedCurve'];
             if (!class_exists($curve)) {
                 throw new UnsupportedCurveException('Named Curve of ' . $params['namedCurve'] . ' is not supported');
             }
@@ -275,7 +275,7 @@ trait Common
      * Supports both compressed and uncompressed points
      *
      * @param string $str
-     * @param \phpseclib\Crypt\EC\BaseCurves\Base $curve
+     * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      * @return object[]
      */
     public static function extractPoint($str, BaseCurve $curve)
@@ -341,7 +341,7 @@ trait Common
      * Encode Parameters
      *
      * @todo Maybe at some point this could be moved to __toString() for each of the curves?
-     * @param \phpseclib\Crypt\EC\BaseCurves\Base $curve
+     * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      * @param bool $returnArray optional
      * @param array $options optional
      * @return string|false
@@ -367,7 +367,7 @@ trait Common
                     continue;
                 }
                 $testName = $file->getBasename('.php');
-                $class = 'phpseclib\Crypt\EC\Curves\\' . $testName;
+                $class = 'phpseclib3\Crypt\EC\Curves\\' . $testName;
                 $reflect = new \ReflectionClass($class);
                 if ($reflect->isFinal()) {
                     continue;

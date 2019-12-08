@@ -15,10 +15,10 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\DSA\Formats\Signature;
+namespace phpseclib3\Crypt\DSA\Formats\Signature;
 
-use phpseclib\Math\BigInteger;
-use phpseclib\Common\Functions\Strings;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Common\Functions\Strings;
 
 /**
  * SSH2 Signature Handler
@@ -61,8 +61,8 @@ abstract class SSH2
      * Returns a signature in the appropriate format
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $r
-     * @param \phpseclib\Math\BigInteger $s
+     * @param \phpseclib3\Math\BigInteger $r
+     * @param \phpseclib3\Math\BigInteger $s
      * @return string
      */
     public static function save(BigInteger $r, BigInteger $s)

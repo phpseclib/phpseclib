@@ -5,7 +5,7 @@
  *
  * PHP version 5
  *
- * An array containing two \phpseclib\Math\BigInteger objects.
+ * An array containing two \phpseclib3\Math\BigInteger objects.
  *
  * The exponent can be indexed with any of the following:
  *
@@ -23,9 +23,9 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\RSA\Formats\Keys;
+namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
-use phpseclib\Math\BigInteger;
+use phpseclib3\Math\BigInteger;
 
 /**
  * Raw RSA Key Handler
@@ -97,8 +97,8 @@ abstract class Raw
      * Convert a public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib\Math\BigInteger $n
-     * @param \phpseclib\Math\BigInteger $e
+     * @param \phpseclib3\Math\BigInteger $n
+     * @param \phpseclib3\Math\BigInteger $e
      * @return array
      */
     public static function savePublicKey(BigInteger $n, BigInteger $e)

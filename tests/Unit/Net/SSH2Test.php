@@ -112,22 +112,22 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
 
     public function testGetConnectionByResourceId()
     {
-        $ssh = new \phpseclib\Net\SSH2('localhost');
-        $this->assertSame($ssh, \phpseclib\Net\SSH2::getConnectionByResourceId($ssh->getResourceId()));
+        $ssh = new \phpseclib3\Net\SSH2('localhost');
+        $this->assertSame($ssh, \phpseclib3\Net\SSH2::getConnectionByResourceId($ssh->getResourceId()));
     }
 
     public function testGetResourceId()
     {
-        $ssh = new \phpseclib\Net\SSH2('localhost');
+        $ssh = new \phpseclib3\Net\SSH2('localhost');
         $this->assertSame('{' . spl_object_hash($ssh) . '}', $ssh->getResourceId());
     }
 
     /**
-     * @return \phpseclib\Net\SSH2
+     * @return \phpseclib3\Net\SSH2
      */
     protected function createSSHMock()
     {
-        return $this->getMockBuilder('phpseclib\Net\SSH2')
+        return $this->getMockBuilder('phpseclib3\Net\SSH2')
             ->disableOriginalConstructor()
             ->setMethods(['__destruct'])
             ->getMock();

@@ -5,9 +5,9 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\AES;
-use phpseclib\Crypt\Common\BlockCipher;
-use phpseclib\Crypt\Rijndael;
+use phpseclib3\Crypt\AES;
+use phpseclib3\Crypt\Common\BlockCipher;
+use phpseclib3\Crypt\Rijndael;
 
 abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 {
@@ -348,7 +348,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-     * @expectedException \phpseclib\Exception\InconsistentSetupException
+     * @expectedException \phpseclib3\Exception\InconsistentSetupException
      */
     public function testSetKeyLengthWithLargerKey()
     {
@@ -363,7 +363,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-     * @expectedException \phpseclib\Exception\InconsistentSetupException
+     * @expectedException \phpseclib3\Exception\InconsistentSetupException
      */
     public function testSetKeyLengthWithSmallerKey()
     {
@@ -409,7 +409,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     }
 
     /**
-     * @expectedException \phpseclib\Exception\InsufficientSetupException
+     * @expectedException \phpseclib3\Exception\InsufficientSetupException
      */
     public function testNoKey()
     {

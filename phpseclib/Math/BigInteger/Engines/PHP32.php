@@ -13,7 +13,7 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
-namespace phpseclib\Math\BigInteger\Engines;
+namespace phpseclib3\Math\BigInteger\Engines;
 
 use ParagonIE\ConstantTime\Hex;
 
@@ -74,21 +74,21 @@ class PHP32 extends PHP
     /**
      * BigInteger(0)
      *
-     * @var \phpseclib\Math\BigInteger\Engines\PHP32
+     * @var \phpseclib3\Math\BigInteger\Engines\PHP32
      */
     protected static $zero;
 
     /**
      * BigInteger(1)
      *
-     * @var \phpseclib\Math\BigInteger\Engines\PHP32
+     * @var \phpseclib3\Math\BigInteger\Engines\PHP32
      */
     protected static $one;
 
     /**
      * BigInteger(2)
      *
-     * @var \phpseclib\Math\BigInteger\Engines\PHP32
+     * @var \phpseclib3\Math\BigInteger\Engines\PHP32
      */
     protected static $two;
 

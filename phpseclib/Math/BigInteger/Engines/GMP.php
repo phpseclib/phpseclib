@@ -13,10 +13,10 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
-namespace phpseclib\Math\BigInteger\Engines;
+namespace phpseclib3\Math\BigInteger\Engines;
 
 use ParagonIE\ConstantTime\Hex;
-use phpseclib\Exception\BadConfigurationException;
+use phpseclib3\Exception\BadConfigurationException;
 
 /**
  * GMP Engine.
@@ -61,21 +61,21 @@ class GMP extends Engine
     /**
      * BigInteger(0)
      *
-     * @var \phpseclib\Math\BigInteger\Engines\GMP
+     * @var \phpseclib3\Math\BigInteger\Engines\GMP
      */
     protected static $zero;
 
     /**
      * BigInteger(1)
      *
-     * @var \phpseclib\Math\BigInteger\Engines\GMP
+     * @var \phpseclib3\Math\BigInteger\Engines\GMP
      */
     protected static $one;
 
     /**
      * BigInteger(2)
      *
-     * @var \phpseclib\Math\BigInteger\Engines\GMP
+     * @var \phpseclib3\Math\BigInteger\Engines\GMP
      */
     protected static $two;
 
@@ -105,7 +105,7 @@ class GMP extends Engine
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @see parent::__construct()
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @return \phpseclib3\Math\BigInteger\Engines\GMP
      */
     public function __construct($x = 0, $base = 10)
     {
@@ -343,8 +343,8 @@ class GMP extends Engine
      * combination is returned is dependent upon which mode is in use.  See
      * {@link http://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity Bezout's identity - Wikipedia} for more information.
      *
-     * @param \phpseclib\Math\BigInteger\Engines\GMP $n
-     * @return \phpseclib\Math\BigInteger\Engines\GMP[]
+     * @param \phpseclib3\Math\BigInteger\Engines\GMP $n
+     * @return \phpseclib3\Math\BigInteger\Engines\GMP[]
      */
     public function extendedGCD(GMP $n)
     {
@@ -374,7 +374,7 @@ class GMP extends Engine
     /**
      * Absolute value.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @return \phpseclib3\Math\BigInteger\Engines\GMP
      * @access public
      */
     public function abs()
@@ -433,7 +433,7 @@ class GMP extends Engine
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @return \phpseclib3\Math\BigInteger\Engines\GMP
      */
     public function bitwise_rightShift($shift)
     {
@@ -452,7 +452,7 @@ class GMP extends Engine
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib\Math\BigInteger\Engines\GMP
+     * @return \phpseclib3\Math\BigInteger\Engines\GMP
      */
     public function bitwise_leftShift($shift)
     {

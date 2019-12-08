@@ -13,7 +13,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $hash = new \phpseclib\Crypt\Hash('sha512');
+ *    $hash = new \phpseclib3\Crypt\Hash('sha512');
  *
  *    $hash->setKey('abcdefg');
  *
@@ -31,14 +31,14 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib3\Crypt;
 
-use phpseclib\Math\BigInteger;
-use phpseclib\Exception\UnsupportedAlgorithmException;
-use phpseclib\Exception\InsufficientSetupException;
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Crypt\AES;
-use phpseclib\Math\PrimeField;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Exception\UnsupportedAlgorithmException;
+use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\AES;
+use phpseclib3\Math\PrimeField;
 
 /**
  * @package Hash
@@ -167,7 +167,7 @@ class Hash
      * umac cipher object
      *
      * @see self::hash()
-     * @var \phpseclib\Crypt\AES
+     * @var \phpseclib3\Crypt\AES
      * @access private
      */
     private $c;
@@ -404,7 +404,7 @@ class Hash
                     'length' => $this->length,
                     'padding' => $this->paddingType
                 ];
-                $hash = ['phpseclib\Crypt\Hash', PHP_INT_SIZE == 8 ? 'sha3_64' : 'sha3_32'];
+                $hash = ['phpseclib3\Crypt\Hash', PHP_INT_SIZE == 8 ? 'sha3_64' : 'sha3_32'];
             }
         }
 
@@ -429,7 +429,7 @@ class Hash
 
                 $this->parameters = compact('initial');
 
-                $hash = ['phpseclib\Crypt\Hash', 'sha512'];
+                $hash = ['phpseclib3\Crypt\Hash', 'sha512'];
             }
         }
 
@@ -1455,7 +1455,7 @@ class Hash
         }
 
         // Produce the final hash value (big-endian)
-        // (\phpseclib\Crypt\Hash::hash() trims the output for hashes but not for HMACs.  as such, we trim the output here)
+        // (\phpseclib3\Crypt\Hash::hash() trims the output for hashes but not for HMACs.  as such, we trim the output here)
         $temp = $hash[0]->toBytes() . $hash[1]->toBytes() . $hash[2]->toBytes() . $hash[3]->toBytes() .
                 $hash[4]->toBytes() . $hash[5]->toBytes() . $hash[6]->toBytes() . $hash[7]->toBytes();
 

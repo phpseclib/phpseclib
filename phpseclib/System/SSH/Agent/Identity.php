@@ -14,22 +14,22 @@
  * @internal  See http://api.libssh.org/rfc/PROTOCOL.agent
  */
 
-namespace phpseclib\System\SSH\Agent;
+namespace phpseclib3\System\SSH\Agent;
 
-use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\ECDSA;
-use phpseclib\Exception\UnsupportedAlgorithmException;
-use phpseclib\System\SSH\Agent;
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Crypt\Common\PrivateKey;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\DSA;
+use phpseclib3\Crypt\ECDSA;
+use phpseclib3\Exception\UnsupportedAlgorithmException;
+use phpseclib3\System\SSH\Agent;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\Common\PrivateKey;
 
 
 /**
  * Pure-PHP ssh-agent client identity object
  *
- * Instantiation should only be performed by \phpseclib\System\SSH\Agent class.
- * This could be thought of as implementing an interface that phpseclib\Crypt\RSA
+ * Instantiation should only be performed by \phpseclib3\System\SSH\Agent class.
+ * This could be thought of as implementing an interface that phpseclib3\Crypt\RSA
  * implements. ie. maybe a Net_SSH_Auth_PublicKey interface or something.
  * The methods in this interface would be getPublicKey and sign since those are the
  * methods phpseclib looks for to perform public key authentication.
@@ -54,7 +54,7 @@ class Identity implements PrivateKey
     /**
      * Key Object
      *
-     * @var \phpseclib\Crypt\RSA
+     * @var \phpseclib3\Crypt\RSA
      * @access private
      * @see self::getPublicKey()
      */
@@ -105,7 +105,7 @@ class Identity implements PrivateKey
      * Default Constructor.
      *
      * @param resource $fsock
-     * @return \phpseclib\System\SSH\Agent\Identity
+     * @return \phpseclib3\System\SSH\Agent\Identity
      * @access private
      */
     public function __construct($fsock)
@@ -116,9 +116,9 @@ class Identity implements PrivateKey
     /**
      * Set Public Key
      *
-     * Called by \phpseclib\System\SSH\Agent::requestIdentities()
+     * Called by \phpseclib3\System\SSH\Agent::requestIdentities()
      *
-     * @param \phpseclib\Crypt\Common\PublicKey $key
+     * @param \phpseclib3\Crypt\Common\PublicKey $key
      * @access private
      */
     public function withPublicKey($key)
@@ -137,7 +137,7 @@ class Identity implements PrivateKey
     /**
      * Set Public Key
      *
-     * Called by \phpseclib\System\SSH\Agent::requestIdentities(). The key blob could be extracted from $this->key
+     * Called by \phpseclib3\System\SSH\Agent::requestIdentities(). The key blob could be extracted from $this->key
      * but this saves a small amount of computation.
      *
      * @param string $key_blob
@@ -281,7 +281,7 @@ class Identity implements PrivateKey
      * @param int $padding optional
      * @return string
      * @throws \RuntimeException on connection errors
-     * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
+     * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @access public
      */
     public function sign($message)

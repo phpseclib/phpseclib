@@ -5,11 +5,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\File\ASN1;
-use phpseclib\File\ASN1\Element;
-use phpseclib\File\X509;
-use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\PublicKeyLoader;
+use phpseclib3\File\ASN1;
+use phpseclib3\File\ASN1\Element;
+use phpseclib3\File\X509;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\PublicKeyLoader;
 
 class Unit_File_X509_X509Test extends PhpseclibTestCase
 {

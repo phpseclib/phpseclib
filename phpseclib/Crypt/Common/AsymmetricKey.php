@@ -13,15 +13,15 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\Common;
+namespace phpseclib3\Crypt\Common;
 
-use phpseclib\Exception\UnsupportedFormatException;
-use phpseclib\Exception\NoKeyLoadedException;
-use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\Hash;
-use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\ECDSA;
+use phpseclib3\Exception\UnsupportedFormatException;
+use phpseclib3\Exception\NoKeyLoadedException;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Crypt\Hash;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\DSA;
+use phpseclib3\Crypt\ECDSA;
 
 /**
  * Base Class for all stream cipher classes
@@ -34,7 +34,7 @@ abstract class AsymmetricKey
     /**
      * Precomputed Zero
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected static $zero;
@@ -42,7 +42,7 @@ abstract class AsymmetricKey
     /**
      * Precomputed One
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected static $one;
@@ -58,7 +58,7 @@ abstract class AsymmetricKey
     /**
      * Hash function
      *
-     * @var \phpseclib\Crypt\Hash
+     * @var \phpseclib3\Crypt\Hash
      * @access private
      */
     protected $hash;
@@ -66,7 +66,7 @@ abstract class AsymmetricKey
     /**
      * HMAC function
      *
-     * @var \phpseclib\Crypt\Hash
+     * @var \phpseclib3\Crypt\Hash
      * @access private
      */
     private $hmac;
@@ -249,7 +249,7 @@ abstract class AsymmetricKey
                     continue;
                 }
                 $name = $file->getBasename('.php');
-                $type = 'phpseclib\Crypt\\' . static::ALGORITHM . '\\Formats\\' . $format . '\\' . $name;
+                $type = 'phpseclib3\Crypt\\' . static::ALGORITHM . '\\Formats\\' . $format . '\\' . $name;
                 $reflect = new \ReflectionClass($type);
                 if ($reflect->isTrait()) {
                     continue;
@@ -440,7 +440,7 @@ abstract class AsymmetricKey
      * Integer to Octet String
      *
      * @access private
-     * @param \phpseclib\Math\BigInteger $v
+     * @param \phpseclib3\Math\BigInteger $v
      * @return string
      */
     private function int2octets($v)
@@ -461,7 +461,7 @@ abstract class AsymmetricKey
      *
      * @access private
      * @param string $in
-     * @return \phpseclib\Math\BigInteger
+     * @return \phpseclib3\Math\BigInteger
      */
     protected function bits2int($in)
     {

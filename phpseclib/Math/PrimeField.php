@@ -15,10 +15,10 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
-namespace phpseclib\Math;
+namespace phpseclib3\Math;
 
-use phpseclib\Math\Common\FiniteField;
-use phpseclib\Math\PrimeField\Integer;
+use phpseclib3\Math\Common\FiniteField;
+use phpseclib3\Math\PrimeField\Integer;
 
 /**
  * Prime Finite Fields

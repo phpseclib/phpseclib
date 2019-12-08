@@ -30,7 +30,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $rijndael = new \phpseclib\Crypt\Rijndael();
+ *    $rijndael = new \phpseclib3\Crypt\Rijndael();
  *
  *    $rijndael->setKey('abcdefghijklmnop');
  *
@@ -52,14 +52,14 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib3\Crypt;
 
-use phpseclib\Crypt\Common\BlockCipher;
+use phpseclib3\Crypt\Common\BlockCipher;
 
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Exception\BadModeException;
-use phpseclib\Exception\InsufficientSetupException;
-use phpseclib\Exception\BadDecryptionException;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Exception\BadModeException;
+use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\BadDecryptionException;
 
 /**
  * Pure-PHP implementation of Rijndael.
@@ -74,12 +74,12 @@ class Rijndael extends BlockCipher
      * The mcrypt specific name of the cipher
      *
      * Mcrypt is useable for 128/192/256-bit $block_size/$key_length. For 160/224 not.
-     * \phpseclib\Crypt\Rijndael determines automatically whether mcrypt is useable
+     * \phpseclib3\Crypt\Rijndael determines automatically whether mcrypt is useable
      * or not for the current $block_size/$key_length.
      * In case of, $cipher_name_mcrypt will be set dynamically at run time accordingly.
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::cipher_name_mcrypt
-     * @see \phpseclib\Crypt\Common\SymmetricKey::engine
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::engine
      * @see self::isValidEngine()
      * @var string
      * @access private
@@ -274,9 +274,9 @@ class Rijndael extends BlockCipher
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Common\SymmetricKey::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
      * @access protected
      * @return bool
@@ -490,7 +490,7 @@ class Rijndael extends BlockCipher
     /**
      * Setup the key (expansion)
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::setupKey()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::setupKey()
      * @access private
      */
     protected function setupKey()
@@ -796,7 +796,7 @@ class Rijndael extends BlockCipher
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::setupInlineCrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::setupInlineCrypt()
      * @access private
      */
     protected function setupInlineCrypt()
