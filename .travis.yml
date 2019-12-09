@@ -5,7 +5,7 @@ matrix:
     - php: 5.3
       dist: precise
     - php: 5.4
-      dist: precise
+      dist: trusty
     - php: 5.5.9
       dist: trusty
     - php: 5.5
@@ -20,7 +20,7 @@ matrix:
       dist: xenial
     - php: 7.3
       dist: xenial
-    - php: 7.4snapshot
+    - php: 7.4
       dist: xenial
 
 before_install: true
