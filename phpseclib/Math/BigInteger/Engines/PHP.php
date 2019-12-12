@@ -13,10 +13,10 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
-namespace phpseclib\Math\BigInteger\Engines;
+namespace phpseclib3\Math\BigInteger\Engines;
 
 use ParagonIE\ConstantTime\Hex;
-use phpseclib\Exception\BadConfigurationException;
+use phpseclib3\Exception\BadConfigurationException;
 
 /**
  * Pure-PHP Engine.
@@ -77,7 +77,7 @@ abstract class PHP extends Engine
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @see parent::__construct()
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @return \phpseclib3\Math\BigInteger\Engines\PHP
      */
     public function __construct($x = 0, $base = 10)
     {
@@ -157,6 +157,7 @@ abstract class PHP extends Engine
         }
 
         $temp = clone $this;
+        $temp->bitmask = false;
         $temp->is_negative = false;
 
         $divisor = new static();
@@ -514,7 +515,7 @@ abstract class PHP extends Engine
      * same.  If the remainder would be negative, the "common residue" is equal to the sum of the remainder
      * and the divisor (basically, the "common residue" is the first positive modulo).
      *
-     * @param \phpseclib\Math\BigInteger\engines\PHP $y
+     * @param \phpseclib3\Math\BigInteger\engines\PHP $y
      * @return array
      * @internal This function is based off of {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=9 HAC 14.20}.
      */
@@ -630,7 +631,9 @@ abstract class PHP extends Engine
             $temp_value = [$quotient_value[$q_index]];
             $temp = $temp->multiply($y);
             $temp_value = &$temp->value;
-            $temp_value = array_merge($adjust, $temp_value);
+            if (count($temp_value)) {
+                $temp_value = array_merge($adjust, $temp_value);
+            }
 
             $x = $x->subtract($temp);
 
@@ -707,7 +710,7 @@ abstract class PHP extends Engine
      * Convert an array / boolean to a PHP BigInteger object
      *
      * @param array $arr
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @return \phpseclib3\Math\BigInteger\Engines\PHP
      */
     protected function convertToObj(array $arr)
     {
@@ -736,6 +739,7 @@ abstract class PHP extends Engine
         $value = &$result->value;
 
         if (!count($value)) {
+            $result->is_negative = false;
             return $result;
         }
 
@@ -791,7 +795,7 @@ abstract class PHP extends Engine
     /**
      * Absolute value.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @return \phpseclib3\Math\BigInteger\Engines\PHP
      */
     public function abs()
     {
@@ -827,7 +831,7 @@ abstract class PHP extends Engine
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @return \phpseclib3\Math\BigInteger\Engines\PHP
      */
     public function bitwise_rightShift($shift)
     {
@@ -847,7 +851,7 @@ abstract class PHP extends Engine
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib\Math\BigInteger\Engines\PHP
+     * @return \phpseclib3\Math\BigInteger\Engines\PHP
      */
     public function bitwise_leftShift($shift)
     {
@@ -1200,7 +1204,7 @@ abstract class PHP extends Engine
      * Splits BigInteger's into chunks of $split bits
      *
      * @param int $split
-     * @return \phpseclib\Math\BigInteger\Engines\PHP[]
+     * @return \phpseclib3\Math\BigInteger\Engines\PHP[]
      */
     public function bitwise_split($split)
     {
@@ -1267,7 +1271,7 @@ abstract class PHP extends Engine
      * Bitwise Split where $split < static::BASE
      *
      * @param int $split
-     * @return \phpseclib\Math\BigInteger\Engines\PHP[]
+     * @return \phpseclib3\Math\BigInteger\Engines\PHP[]
      */
     private function bitwise_small_split($split)
     {

@@ -10,7 +10,7 @@
  * <?php
  * include 'vendor/autoload.php';
  *
- * $private = \phpseclib\Crypt\RSA::createKey();
+ * $private = \phpseclib3\Crypt\RSA::createKey();
  * $public = $private->getPublicKey();
  *
  * $plaintext = 'terrafrost';
@@ -26,7 +26,7 @@
  * <?php
  * include 'vendor/autoload.php';
  *
- * $private = \phpseclib\Crypt\RSA::createKey();
+ * $private = \phpseclib3\Crypt\RSA::createKey();
  * $public = $private->getPublicKey();
  *
  * $plaintext = 'terrafrost';
@@ -45,15 +45,15 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib3\Crypt;
 
-use phpseclib\Crypt\Common\AsymmetricKey;
-use phpseclib\Crypt\RSA\PrivateKey;
-use phpseclib\Crypt\RSA\PublicKey;
-use phpseclib\Math\BigInteger;
-use phpseclib\Exceptions\UnsupportedAlgorithmException;
-use phpseclib\Exceptions\InconsistentSetupException;
-use phpseclib\Crypt\RSA\Keys\PSS;
+use phpseclib3\Crypt\Common\AsymmetricKey;
+use phpseclib3\Crypt\RSA\PrivateKey;
+use phpseclib3\Crypt\RSA\PublicKey;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Exception\UnsupportedAlgorithmException;
+use phpseclib3\Exception\InconsistentSetupException;
+use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
@@ -178,7 +178,7 @@ abstract class RSA extends AsymmetricKey
     /**
      * Hash function for the Mask Generation Function
      *
-     * @var \phpseclib\Crypt\Hash
+     * @var \phpseclib3\Crypt\Hash
      * @access private
      */
     protected $mgfHash;
@@ -194,7 +194,7 @@ abstract class RSA extends AsymmetricKey
     /**
      * Modulus (ie. n)
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $modulus;
@@ -202,7 +202,7 @@ abstract class RSA extends AsymmetricKey
     /**
      * Modulus length
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $k;
@@ -210,7 +210,7 @@ abstract class RSA extends AsymmetricKey
     /**
      * Exponent (ie. e or d)
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $exponent;
@@ -223,6 +223,14 @@ abstract class RSA extends AsymmetricKey
      * @access private
      */
     private static $defaultExponent = 65537;
+
+    /**
+     * Enable Blinding?
+     *
+     * @var bool
+     * @access private
+     */
+    protected static $enableBlinding = true;
 
     /**
      * Smallest Prime
@@ -379,22 +387,14 @@ abstract class RSA extends AsymmetricKey
     }
 
     /**
-     * Loads a public or private key
-     *
-     * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
+     * OnLoad Handler
      *
      * @return bool
-     * @access public
-     * @param string $key
-     * @param string $type optional
-     * @param string $password optional
+     * @access protected
+     * @param array $components
      */
-    public static function load($key, $type = false, $password = false)
+    protected static function onLoad($components)
     {
-        self::initialize_static_variables();
-
-        $components = parent::load($key, $type, $password);
-
         $key = $components['isPublicKey'] ?
             new PublicKey :
             new PrivateKey;
@@ -415,7 +415,14 @@ abstract class RSA extends AsymmetricKey
         }
 
         if ($components['format'] == PSS::class) {
-            $key = $key->withPadding(self::SIGNATURE_PSS);
+            // in the X509 world RSA keys are assumed to use PKCS1 padding by default. only if the key is
+            // explicitly a PSS key is the use of PSS assumed. phpseclib does not work like this. phpseclib
+            // uses PSS padding by default. it assumes the more secure method by default and altho it provides
+            // for the less secure PKCS1 method you have to go out of your way to use it. this is consistent
+            // with the latest trends in crypto. libsodium (NaCl) is actually a little more extreme in that
+            // not only does it defaults to the most secure methods - it doesn't even let you choose less
+            // secure methods
+            //$key = $key->withPadding(self::SIGNATURE_PSS);
             if (isset($components['hash'])) {
                 $key = $key->withHash($components['hash']);
             }
@@ -450,7 +457,7 @@ abstract class RSA extends AsymmetricKey
      * See {@link http://tools.ietf.org/html/rfc3447#section-4.1 RFC3447#section-4.1}.
      *
      * @access private
-     * @param bool|\phpseclib\Math\BigInteger $x
+     * @param bool|\phpseclib3\Math\BigInteger $x
      * @param int $xLen
      * @return bool|string
      */
@@ -473,7 +480,7 @@ abstract class RSA extends AsymmetricKey
      *
      * @access private
      * @param string $x
-     * @return \phpseclib\Math\BigInteger
+     * @return \phpseclib3\Math\BigInteger
      */
     protected function os2ip($x)
     {
@@ -589,7 +596,7 @@ abstract class RSA extends AsymmetricKey
     {
         $new = clone $this;
 
-        // \phpseclib\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
+        // \phpseclib3\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
         switch (strtolower($hash)) {
             case 'md2':
             case 'md5':
@@ -625,7 +632,7 @@ abstract class RSA extends AsymmetricKey
     {
         $new = clone $this;
 
-        // \phpseclib\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
+        // \phpseclib3\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
         switch (strtolower($hash)) {
             case 'md2':
             case 'md5':
@@ -649,6 +656,16 @@ abstract class RSA extends AsymmetricKey
     }
 
     /**
+     * Returns the MGF hash algorithm currently being used
+     *
+     * @access public
+     */
+    public function getHash()
+    {
+       return $this->mgfHash->getHash();
+    }
+
+    /**
      * Determines the salt length
      *
      * Used by RSA::PADDING_PSS
@@ -666,6 +683,16 @@ abstract class RSA extends AsymmetricKey
         $new = clone $this;
         $new->sLen = $sLen;
         return $new;
+    }
+
+    /**
+     * Returns the salt length currently being used
+     *
+     * @access public
+     */
+    public function getSaltLength()
+    {
+       return $this->sLen;
     }
 
     /**
@@ -688,6 +715,16 @@ abstract class RSA extends AsymmetricKey
         $new = clone $this;
         $new->label = $label;
         return $new;
+    }
+
+    /**
+     * Returns the label currently being used
+     *
+     * @access public
+     */
+    public function getLabel()
+    {
+       return $this->label;
     }
 
     /**
@@ -741,6 +778,16 @@ abstract class RSA extends AsymmetricKey
         $new->encryptionPadding = $encryptionPadding;
         $new->signaturePadding = $signaturePadding;
         return $new;
+    }
+
+    /**
+     * Returns the padding currently being used
+     *
+     * @access public
+     */
+    public function getPadding()
+    {
+       return $this->signaturePadding | $this->encryptionPadding;
     }
 
     /**

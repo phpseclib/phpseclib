@@ -10,7 +10,7 @@
  * <?php
  * include 'vendor/autoload.php';
  *
- * $private = \phpseclib\Crypt\DSA::createKey();
+ * $private = \phpseclib3\Crypt\DSA::createKey();
  * $public = $private->getPublicKey();
  *
  * $plaintext = 'terrafrost';
@@ -29,14 +29,14 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib3\Crypt;
 
-use phpseclib\Crypt\Common\AsymmetricKey;
-use phpseclib\Crypt\DSA\PrivateKey;
-use phpseclib\Crypt\DSA\PublicKey;
-use phpseclib\Crypt\DSA\Parameters;
-use phpseclib\Math\BigInteger;
-use phpseclib\Exception\InsufficientSetupException;
+use phpseclib3\Crypt\Common\AsymmetricKey;
+use phpseclib3\Crypt\DSA\PrivateKey;
+use phpseclib3\Crypt\DSA\PublicKey;
+use phpseclib3\Crypt\DSA\Parameters;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Exception\InsufficientSetupException;
 
 /**
  * Pure-PHP FIPS 186-4 compliant implementation of DSA.
@@ -58,7 +58,7 @@ abstract class DSA extends AsymmetricKey
     /**
      * DSA Prime P
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $p;
@@ -68,7 +68,7 @@ abstract class DSA extends AsymmetricKey
      *
      * Prime divisor of p-1
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $q;
@@ -76,7 +76,7 @@ abstract class DSA extends AsymmetricKey
     /**
      * DSA Group Generator G
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $g;
@@ -84,7 +84,7 @@ abstract class DSA extends AsymmetricKey
     /**
      * DSA public key value y
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected $y;
@@ -111,7 +111,7 @@ abstract class DSA extends AsymmetricKey
      * @access public
      * @param int $L
      * @param int $N
-     * @return \phpseclib\Crypt\DSA|bool
+     * @return \phpseclib3\Crypt\DSA|bool
      */
     public static function createParameters($L = 2048, $N = 224)
     {
@@ -224,24 +224,18 @@ abstract class DSA extends AsymmetricKey
     }
 
     /**
-     * Loads a public or private key
+     * OnLoad Handler
      *
-     * Returns true on success and false on failure (ie. an incorrect password was provided or the key was malformed)
      * @return bool
-     * @access public
-     * @param string $key
-     * @param string $type optional
-     * @param string $password optional
+     * @access protected
+     * @param array $components
      */
-    public static function load($key, $type = false, $password = false)
+    protected static function onLoad($components)
     {
-        self::initialize_static_variables();
-
         if (!isset(self::$engines['PHP'])) {
             self::useBestEngine();
         }
 
-        $components = parent::load($key, $type, $password);
         if (!isset($components['x']) && !isset($components['y'])) {
             $new = new Parameters;
         } else if (isset($components['x'])) {
@@ -337,5 +331,15 @@ abstract class DSA extends AsymmetricKey
         $new->shortFormat = $format;
         $new->format = self::validatePlugin('Signature', $format);
         return $new;
+    }
+
+    /**
+     * Returns the signature format currently being used
+     *
+     * @access public
+     */
+    public function getSignatureFormat()
+    {
+       return $this->shortFormat;
     }
 }

@@ -24,21 +24,21 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\File;
+namespace phpseclib3\File;
 
 use ParagonIE\ConstantTime\Base64;
 use ParagonIE\ConstantTime\Hex;
-use phpseclib\Crypt\Hash;
-use phpseclib\Crypt\Random;
-use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\ECDSA;
-use phpseclib\Crypt\Common\PublicKey;
-use phpseclib\Crypt\Common\PrivateKey;
-use phpseclib\Exception\UnsupportedAlgorithmException;
-use phpseclib\File\ASN1\Element;
-use phpseclib\Math\BigInteger;
-use phpseclib\File\ASN1\Maps;
+use phpseclib3\Crypt\Hash;
+use phpseclib3\Crypt\Random;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\DSA;
+use phpseclib3\Crypt\EC;
+use phpseclib3\Crypt\Common\PublicKey;
+use phpseclib3\Crypt\Common\PrivateKey;
+use phpseclib3\Exception\UnsupportedAlgorithmException;
+use phpseclib3\File\ASN1\Element;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\File\ASN1\Maps;
 use DateTime;
 use DateTimeZone;
 
@@ -62,7 +62,7 @@ class X509
 
     /**#@+
      * @access public
-     * @see \phpseclib\File\X509::getDN()
+     * @see \phpseclib3\File\X509::getDN()
     */
     /**
      * Return internal array representation
@@ -92,9 +92,9 @@ class X509
 
     /**#@+
      * @access public
-     * @see \phpseclib\File\X509::saveX509()
-     * @see \phpseclib\File\X509::saveCSR()
-     * @see \phpseclib\File\X509::saveCRL()
+     * @see \phpseclib3\File\X509::saveX509()
+     * @see \phpseclib3\File\X509::saveCSR()
+     * @see \phpseclib3\File\X509::saveCRL()
     */
     /**
      * Save as PEM
@@ -180,7 +180,7 @@ class X509
     /**
      * The signature subject
      *
-     * There's no guarantee \phpseclib\File\X509 is going to re-encode an X.509 cert in the same way it was originally
+     * There's no guarantee \phpseclib3\File\X509 is going to re-encode an X.509 cert in the same way it was originally
      * encoded so we take save the portion of the original cert that the signature would have made for.
      *
      * @var string
@@ -266,7 +266,7 @@ class X509
     /**
      * Default Constructor.
      *
-     * @return \phpseclib\File\X509
+     * @return \phpseclib3\File\X509
      * @access public
      */
     public function __construct()
@@ -381,6 +381,8 @@ class X509
                 // from https://tools.ietf.org/html/rfc8410:
                 'id-Ed25519' => '1.3.101.112',
                 'id-Ed448' => '1.3.101.113',
+
+                'id-RSASSA-PSS' => '1.2.840.113549.1.1.10',
 
                 //'id-sha224' => '2.16.840.1.101.3.4.2.4',
                 //'id-sha256' => '2.16.840.1.101.3.4.2.1',
@@ -528,8 +530,8 @@ class X509
         $filters['distributionPoint']['fullName']['directoryName']['rdnSequence']['value'] = $type_utf8_string;
         $filters['directoryName']['rdnSequence']['value'] = $type_utf8_string;
 
-        /* in the case of policyQualifiers/qualifier, the type has to be \phpseclib\File\ASN1::TYPE_IA5_STRING.
-           \phpseclib\File\ASN1::TYPE_PRINTABLE_STRING will cause OpenSSL's X.509 parser to spit out random
+        /* in the case of policyQualifiers/qualifier, the type has to be \phpseclib3\File\ASN1::TYPE_IA5_STRING.
+           \phpseclib3\File\ASN1::TYPE_PRINTABLE_STRING will cause OpenSSL's X.509 parser to spit out random
            characters.
          */
         $filters['policyQualifiers']['qualifier']
@@ -573,7 +575,10 @@ class X509
                    corresponding to the extension type identified by extnID */
                 $map = $this->getMapping($id);
                 if (!is_bool($map)) {
-                    $mapped = ASN1::asn1map($decoded[0], $map, ['iPAddress' => [$this, 'decodeIP']]);
+                    $decoder = $id == 'id-ce-nameConstraints' ?
+                        [static::class, 'decodeNameConstraintIP'] :
+                        [static::class, 'decodeIP'];
+                    $mapped = ASN1::asn1map($decoded[0], $map, ['iPAddress' => $decoder]);
                     $value = $mapped === false ? $decoded[0] : $mapped;
 
                     if ($id == 'id-ce-certificatePolicies') {
@@ -631,8 +636,8 @@ class X509
                                 $map = $this->getMapping($subid);
                                 $subvalue = &$value[$j]['policyQualifiers'][$k]['qualifier'];
                                 if ($map !== false) {
-                                    // by default \phpseclib\File\ASN1 will try to render qualifier as a \phpseclib\File\ASN1::TYPE_IA5_STRING since it's
-                                    // actual type is \phpseclib\File\ASN1::TYPE_ANY
+                                    // by default \phpseclib3\File\ASN1 will try to render qualifier as a \phpseclib3\File\ASN1::TYPE_IA5_STRING since it's
+                                    // actual type is \phpseclib3\File\ASN1::TYPE_ANY
                                     $subvalue = new Element(ASN1::encodeDER($subvalue, $map));
                                 }
                             }
@@ -656,7 +661,7 @@ class X509
                         unset($extensions[$i]);
                     }
                 } else {
-                    $value = ASN1::encodeDER($value, $map, ['iPAddress' => [$this, 'encodeIP']]);
+                    $value = ASN1::encodeDER($value, $map, ['iPAddress' => [static::class, 'encodeIP']]);
                 }
             }
         }
@@ -813,7 +818,7 @@ class X509
      */
     private function getMapping($extnId)
     {
-        if (!is_string($extnId)) { // eg. if it's a \phpseclib\File\ASN1\Element object
+        if (!is_string($extnId)) { // eg. if it's a \phpseclib3\File\ASN1\Element object
             return true;
         }
 
@@ -1349,14 +1354,17 @@ class X509
      * @param string $signature
      * @param string $signatureSubject
      * @access private
-     * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
+     * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @return bool
      */
     private function validateSignatureHelper($publicKeyAlgorithm, $publicKey, $signatureAlgorithm, $signature, $signatureSubject)
     {
         switch ($publicKeyAlgorithm) {
+            case 'id-RSASSA-PSS':
+                $key = RSA::loadFormat('PSS', $publicKey);
+                break;
             case 'rsaEncryption':
-                $key = RSA::load($publicKey, 'PKCS8');
+                $key = RSA::loadFormat('PKCS8', $publicKey);
                 switch ($signatureAlgorithm) {
                     case 'md2WithRSAEncryption':
                     case 'md5WithRSAEncryption':
@@ -1375,10 +1383,10 @@ class X509
                 break;
             case 'id-Ed25519':
             case 'id-Ed448':
-                $key = ECDSA::load($publicKey, 'PKCS8');
+                $key = EC::loadFormat('PKCS8', $publicKey);
                 break;
             case 'id-ecPublicKey':
-                $key = ECDSA::load($publicKey, 'PKCS8');
+                $key = EC::loadFormat('PKCS8', $publicKey);
                 switch ($signatureAlgorithm) {
                     case 'ecdsa-with-SHA1':
                     case 'ecdsa-with-SHA224':
@@ -1393,7 +1401,7 @@ class X509
                 }
                 break;
             case 'id-dsa':
-                $key = DSA::load($publicKey, 'PKCS8');
+                $key = DSA::loadFormat('PKCS8', $publicKey);
                 switch ($signatureAlgorithm) {
                     case 'id-dsa-with-sha1':
                     case 'id-dsa-with-sha224':
@@ -1422,7 +1430,7 @@ class X509
      * @param int $count
      * @access public
      */
-    static function setRecurLimit($count)
+    public static function setRecurLimit($count)
     {
         self::$recur_limit = $count;
     }
@@ -1432,7 +1440,7 @@ class X509
      *
      * @access public
      */
-    static function disableURLFetch()
+    public static function disableURLFetch()
     {
         self::$disable_url_fetch = true;
     }
@@ -1442,7 +1450,7 @@ class X509
      *
      * @access public
      */
-    static function enableURLFetch()
+    public static function enableURLFetch()
     {
         self::$disable_url_fetch = false;
     }
@@ -1456,9 +1464,26 @@ class X509
      * @access private
      * @return string
      */
-    public function decodeIP($ip)
+    public static function decodeIP($ip)
     {
         return inet_ntop($ip);
+    }
+
+    /**
+     * Decodes an IP address in a name constraints extension
+     *
+     * Takes in a base64 encoded "blob" and returns a human readable IP address / mask
+     *
+     * @param string $ip
+     * @access private
+     * @return array
+     */
+    public static function decodeNameConstraintIP($ip)
+    {
+        $size = strlen($ip) >> 1;
+        $mask = substr($ip, $size);
+        $ip = substr($ip, 0, $size);
+        return [inet_ntop($ip), inet_ntop($mask)];
     }
 
     /**
@@ -1466,13 +1491,15 @@ class X509
      *
      * Takes a human readable IP address into a base64-encoded "blob"
      *
-     * @param string $ip
+     * @param string|array $ip
      * @access private
      * @return string
      */
-    public function encodeIP($ip)
+    public static function encodeIP($ip)
     {
-        return inet_pton($ip);
+        return is_string($ip) ?
+            inet_pton($ip) :
+            inet_pton($ip[0]) . inet_pton($ip[1]);
     }
 
     /**
@@ -2017,7 +2044,7 @@ class X509
     /**
      * Set public key
      *
-     * Key needs to be a \phpseclib\Crypt\RSA object
+     * Key needs to be a \phpseclib3\Crypt\RSA object
      *
      * @param object $key
      * @access public
@@ -2031,7 +2058,7 @@ class X509
     /**
      * Set private key
      *
-     * Key needs to be a \phpseclib\Crypt\RSA object
+     * Key needs to be a \phpseclib3\Crypt\RSA object
      *
      * @param object $key
      * @access public
@@ -2057,7 +2084,7 @@ class X509
     /**
      * Gets the public key
      *
-     * Returns a \phpseclib\Crypt\RSA object or a false.
+     * Returns a \phpseclib3\Crypt\RSA object or a false.
      *
      * @access public
      * @return mixed
@@ -2084,13 +2111,13 @@ class X509
 
         switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                return RSA::load($key, 'PKCS8');
+                return RSA::loadFormat('PKCS8', $key);
             case 'id-ecPublicKey':
             case 'id-Ed25519':
             case 'id-Ed448':
-                return ECDSA::load($key, 'PKCS8');
+                return EC::loadFormat('PKCS8', $key);
             case 'id-dsa':
-                return DSA::load($key, 'PKCS8');
+                return DSA::loadFormat('PKCS8', $key);
         }
 
         return false;
@@ -2474,13 +2501,13 @@ class X509
      * $subject can be either an existing X.509 cert (if you want to resign it),
      * a CSR or something with the DN and public key explicitly set.
      *
-     * @param \phpseclib\File\X509 $issuer
-     * @param \phpseclib\File\X509 $subject
+     * @param \phpseclib3\File\X509 $issuer
+     * @param \phpseclib3\File\X509 $subject
      * @param string $signatureAlgorithm optional
      * @access public
      * @return mixed
      */
-    public function sign($issuer, $subject, $signatureAlgorithm = 'sha256WithRSAEncryption')
+    public function sign($issuer, $subject)
     {
         if (!is_object($issuer->privateKey) || empty($issuer->dn)) {
             return false;
@@ -2492,6 +2519,7 @@ class X509
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
+        $signatureAlgorithm = self::identifySignatureAlgorithm($issuer->privateKey);
 
         if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
             $this->currentCert = $subject->currentCert;
@@ -2592,7 +2620,7 @@ class X509
         $altName = [];
 
         if (isset($subject->domains) && count($subject->domains)) {
-            $altName = array_map(['\phpseclib\File\X509', 'dnsName'], $subject->domains);
+            $altName = array_map(['\phpseclib3\File\X509', 'dnsName'], $subject->domains);
         }
 
         if (isset($subject->ipAddresses) && count($subject->ipAddresses)) {
@@ -2642,11 +2670,12 @@ class X509
         }
 
         // resync $this->signatureSubject
-        // save $tbsCertificate in case there are any \phpseclib\File\ASN1\Element objects in it
+        // save $tbsCertificate in case there are any \phpseclib3\File\ASN1\Element objects in it
         $tbsCertificate = $this->currentCert['tbsCertificate'];
         $this->loadX509($this->saveX509($this->currentCert));
 
-        $result = $this->signHelper($issuer->privateKey, $signatureAlgorithm);
+        $result = $this->currentCert;
+        $this->currentCert['signature'] = $result['signature'] = "\0" . $issuer->privateKey->sign($this->signatureSubject);
         $result['tbsCertificate'] = $tbsCertificate;
 
         $this->currentCert = $currentCert;
@@ -2662,7 +2691,7 @@ class X509
      * @param string $signatureAlgorithm
      * @return mixed
      */
-    public function signCSR($signatureAlgorithm = 'sha1WithRSAEncryption')
+    public function signCSR()
     {
         if (!is_object($this->privateKey) || empty($this->dn)) {
             return false;
@@ -2675,6 +2704,7 @@ class X509
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
+        $signatureAlgorithm = self::identifySignatureAlgorithm($this->privateKey);
 
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['certificationRequestInfo'])) {
             $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
@@ -2696,11 +2726,12 @@ class X509
         }
 
         // resync $this->signatureSubject
-        // save $certificationRequestInfo in case there are any \phpseclib\File\ASN1\Element objects in it
+        // save $certificationRequestInfo in case there are any \phpseclib3\File\ASN1\Element objects in it
         $certificationRequestInfo = $this->currentCert['certificationRequestInfo'];
         $this->loadCSR($this->saveCSR($this->currentCert));
 
-        $result = $this->signHelper($this->privateKey, $signatureAlgorithm);
+        $result = $this->currentCert;
+        $this->currentCert['signature'] = $result['signature'] = "\0" . $this->privateKey->sign($this->signatureSubject);
         $result['certificationRequestInfo'] = $certificationRequestInfo;
 
         $this->currentCert = $currentCert;
@@ -2716,7 +2747,7 @@ class X509
      * @param string $signatureAlgorithm
      * @return mixed
      */
-    public function signSPKAC($signatureAlgorithm = 'sha1WithRSAEncryption')
+    public function signSPKAC()
     {
         if (!is_object($this->privateKey)) {
             return false;
@@ -2729,6 +2760,7 @@ class X509
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
+        $signatureAlgorithm = self::identifySignatureAlgorithm($this->privateKey);
 
         // re-signing a SPKAC seems silly but since everything else supports re-signing why not?
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['publicKeyAndChallenge'])) {
@@ -2756,11 +2788,12 @@ class X509
         }
 
         // resync $this->signatureSubject
-        // save $publicKeyAndChallenge in case there are any \phpseclib\File\ASN1\Element objects in it
+        // save $publicKeyAndChallenge in case there are any \phpseclib3\File\ASN1\Element objects in it
         $publicKeyAndChallenge = $this->currentCert['publicKeyAndChallenge'];
         $this->loadSPKAC($this->saveSPKAC($this->currentCert));
 
-        $result = $this->signHelper($this->privateKey, $signatureAlgorithm);
+        $result = $this->currentCert;
+        $this->currentCert['signature'] = $result['signature'] = "\0" . $this->privateKey->sign($this->signatureSubject);
         $result['publicKeyAndChallenge'] = $publicKeyAndChallenge;
 
         $this->currentCert = $currentCert;
@@ -2774,13 +2807,13 @@ class X509
      *
      * $issuer's private key needs to be loaded.
      *
-     * @param \phpseclib\File\X509 $issuer
-     * @param \phpseclib\File\X509 $crl
+     * @param \phpseclib3\File\X509 $issuer
+     * @param \phpseclib3\File\X509 $crl
      * @param string $signatureAlgorithm optional
      * @access public
      * @return mixed
      */
-    public function signCRL($issuer, $crl, $signatureAlgorithm = 'sha1WithRSAEncryption')
+    public function signCRL($issuer, $crl)
     {
         if (!is_object($issuer->privateKey) || empty($issuer->dn)) {
             return false;
@@ -2788,6 +2821,7 @@ class X509
 
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
+        $signatureAlgorithm = self::identifySignatureAlgorithm($issuer->privateKey);
 
         $thisUpdate = new DateTime('now', new DateTimeZone(@date_default_timezone_get()));
         $thisUpdate = !empty($this->startDate) ? $this->startDate : $thisUpdate->format('D, d M Y H:i:s O');
@@ -2889,11 +2923,12 @@ class X509
         unset($tbsCertList);
 
         // resync $this->signatureSubject
-        // save $tbsCertList in case there are any \phpseclib\File\ASN1\Element objects in it
+        // save $tbsCertList in case there are any \phpseclib3\File\ASN1\Element objects in it
         $tbsCertList = $this->currentCert['tbsCertList'];
         $this->loadCRL($this->saveCRL($this->currentCert));
 
-        $result = $this->signHelper($issuer->privateKey, $signatureAlgorithm);
+        $result = $this->currentCert;
+        $this->currentCert['signature'] = $result['signature'] = "\0" . $issuer->privateKey->sign($this->signatureSubject);
         $result['tbsCertList'] = $tbsCertList;
 
         $this->currentCert = $currentCert;
@@ -2903,78 +2938,60 @@ class X509
     }
 
     /**
-     * X.509 certificate signing helper function.
+     * Identify signature algorithm from key settings
      *
      * @param object $key
-     * @param string $signatureAlgorithm
-     * @access public
-     * @throws \phpseclib\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
-     * @return mixed
+     * @access private
+     * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
+     * @return string
      */
-    private function signHelper(PrivateKey $key, $signatureAlgorithm)
+    private static function identifySignatureAlgorithm(PrivateKey $key)
     {
         if ($key instanceof RSA) {
-            switch ($signatureAlgorithm) {
-                case 'md2WithRSAEncryption':
-                case 'md5WithRSAEncryption':
-                case 'sha1WithRSAEncryption':
-                case 'sha224WithRSAEncryption':
-                case 'sha256WithRSAEncryption':
-                case 'sha384WithRSAEncryption':
-                case 'sha512WithRSAEncryption':
-                    $key = $key
-                        ->withHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm))
-                        ->withPadding(RSA::SIGNATURE_PKCS1);
-                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
-                    return $this->currentCert;
-                default:
-                    throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+            if ($key->getPadding() | RSA::SIGNATURE_PSS) {
+                return 'id-RSASSA-PSS';
             }
+            switch ($key->getHash()) {
+                case 'md2':
+                case 'md5':
+                case 'sha1':
+                case 'sha224':
+                case 'sha256':
+                case 'sha384':
+                case 'sha512':
+                    return $key->getHash() . 'WithRSAEncryption';
+            }
+            throw new UnsupportedAlgorithmException('The only supported hash algorithms for RSA are: md2, md5, sha1, sha224, sha256, sha384, sha512');
         }
 
         if ($key instanceof DSA) {
-            switch ($signatureAlgorithm) {
-                case 'id-dsa-with-sha1':
-                case 'id-dsa-with-sha224':
-                case 'id-dsa-with-sha256':
-                    $key = $key
-                        ->withHash(preg_replace('#^id-dsa-with-#', '', strtolower($signatureAlgorithm)));
-                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
-                    return $this->currentCert;
-                default:
-                    throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+            switch ($key->getHash()) {
+                case 'sha1':
+                case 'sha224':
+                case 'sha256':
+                    return 'id-dsa-with-' . $key->getHash();
             }
+            throw new UnsupportedAlgorithmException('The only supported hash algorithms for DSA are: sha1, sha224, sha256');
         }
 
-        if ($key instanceof ECDSA) {
-            switch ($signatureAlgorithm) {
-                case 'id-Ed25519':
-                    if ($key->getCurve() !== 'Ed25519') {
-                        throw new UnsupportedAlgorithmException('Loaded ECDSA does not use the Ed25519 key and yet that is the signature algorithm that has been chosen');
-                    }
-                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
-                    return $this->currentCert;
-                case 'id-Ed448':
-                    if ($key->getCurve() !== 'Ed448') {
-                        throw new UnsupportedAlgorithmException('Loaded ECDSA does not use the Ed448 key and yet that is the signature algorithm that has been chosen');
-                    }
-                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
-                    return $this->currentCert;
-                case 'ecdsa-with-SHA1':
-                case 'ecdsa-with-SHA224':
-                case 'ecdsa-with-SHA256':
-                case 'ecdsa-with-SHA384':
-                case 'ecdsa-with-SHA512':
-                    $key = $key
-                        ->withHash(preg_replace('#^ecdsa-with-#', '', strtolower($signatureAlgorithm)));
-                    $this->currentCert['signature'] = "\0" . $key->sign($this->signatureSubject);
-                    return $this->currentCert;
-                default:
-                    throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+        if ($key instanceof EC) {
+            switch ($key->getCurve()) {
+                case 'Ed25519':
+                case 'Ed448':
+                    return 'id-' . $key->getCurve();
             }
+            switch ($key->getHash()) {
+                case 'sha1':
+                case 'sha224':
+                case 'sha256':
+                case 'sha384':
+                case 'sha512':
+                    return 'ecdsa-with-' . strtoupper($key->getHash());
+            }
+            throw new UnsupportedAlgorithmException('The only supported hash algorithms for EC are: sha1, sha224, sha256, sha384, sha512');
         }
 
-        throw new UnsupportedAlgorithmException('Unsupported public key algorithm');
+        throw new UnsupportedAlgorithmException('The only supported public key classes are: RSA, DSA, EC');
     }
 
     /**
@@ -3573,9 +3590,9 @@ class X509
      * recommended methods (4.2.1.2 RFC 3280).
      * Highly polymorphic: try to accept all possible forms of key:
      * - Key object
-     * - \phpseclib\File\X509 object with public or private key defined
+     * - \phpseclib3\File\X509 object with public or private key defined
      * - Certificate or CSR array
-     * - \phpseclib\File\ASN1\Element object
+     * - \phpseclib3\File\ASN1\Element object
      * - PEM or DER string
      *
      * @param mixed $key optional
@@ -3629,7 +3646,7 @@ class X509
                     return $this->computeKeyIdentifier($key->currentCert, $method);
                 }
                 return false;
-            default: // Should be a key object (i.e.: \phpseclib\Crypt\RSA).
+            default: // Should be a key object (i.e.: \phpseclib3\Crypt\RSA).
                 $key = $key->getPublicKey();
                 break;
         }
@@ -3657,12 +3674,16 @@ class X509
      */
     private function formatSubjectPublicKey()
     {
-        $publicKey = base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey));
+        $format = $this->publicKey instanceof RSA && ($this->publicKey->getPadding() & RSA::SIGNATURE_PSS) ?
+            'PSS' :
+            'PKCS8';
+
+        $publicKey = base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->toString($format)));
 
         $decoded = ASN1::decodeBER($publicKey);
         $mapped = ASN1::asn1map($decoded[0], Maps\SubjectPublicKeyInfo::MAP);
 
-        $mapped['subjectPublicKey'] = (string) $this->publicKey;
+        $mapped['subjectPublicKey'] = $this->publicKey->toString($format);
 
         return $mapped;
     }

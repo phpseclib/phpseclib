@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Salsa20;
+use phpseclib3\Crypt\Salsa20;
 
 class Unit_Crypt_Salsa20Test extends PhpseclibTestCase
 {

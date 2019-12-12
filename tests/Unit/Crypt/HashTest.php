@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Hash;
+use phpseclib3\Crypt\Hash;
 
 class Unit_Crypt_HashTest extends PhpseclibTestCase
 {
@@ -374,7 +374,7 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
     }
 
     /**
-     * @expectedException \phpseclib\Exception\UnsupportedAlgorithmException
+     * @expectedException \phpseclib3\Exception\UnsupportedAlgorithmException
      */
     public function testConstructorArgumentInvalid()
     {
@@ -382,7 +382,7 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
     }
 
     /**
-     * @expectedException \phpseclib\Exception\UnsupportedAlgorithmException
+     * @expectedException \phpseclib3\Exception\UnsupportedAlgorithmException
      */
     public function testSetHashInvalid()
     {
@@ -418,5 +418,50 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
             ['sha384', 48],
             ['sha512', 64],
         ];
+    }
+
+    public function UMACs()
+    {
+        return [
+            ['', 'umac-32', '113145FB', "umac-32 and message of <empty>"],
+            ['', 'umac-64', '6E155FAD26900BE1', "umac-64 and message of <empty>"],
+            ['', 'umac-96', '32FEDB100C79AD58F07FF764', "umac-96 and message of <empty>"],
+            ['aaa', 'umac-32', '3B91D102', "umac-32 and message of 'a' * 3"],
+            ['aaa', 'umac-64', '44B5CB542F220104', "umac-64 and message of 'a' * 3"],
+            ['aaa', 'umac-96', '185E4FE905CBA7BD85E4C2DC', "umac-96 and message of 'a' * 3"],
+            [str_repeat('a', 1 << 10), 'umac-32', '599B350B', "umac-32 and message of 'a' * 2^10"],
+            [str_repeat('a', 1 << 10), 'umac-64', '26BF2F5D60118BD9', "umac-64 and message of 'a' * 2^10"],
+            [str_repeat('a', 1 << 10), 'umac-96', '7A54ABE04AF82D60FB298C3C', "umac-96 and message of 'a' * 2^10"],
+            [str_repeat('a', 1 << 15), 'umac-32', '58DCF532', "umac-32 and message of 'a' * 2^15"],
+            [str_repeat('a', 1 << 15), 'umac-64', '27F8EF643B0D118D', "umac-64 and message of 'a' * 2^15"],
+            [str_repeat('a', 1 << 15), 'umac-96', '7B136BD911E4B734286EF2BE', "umac-96 and message of 'a' * 2^15"],
+            //[str_repeat('a', 1 << 20), 'umac-32', 'DB6364D1', "umac-32 and message of 'a' * 2^20"],
+            //[str_repeat('a', 1 << 20), 'umac-64', 'A4477E87E9F55853', "umac-64 and message of 'a' * 2^20"],
+            //[str_repeat('a', 1 << 20), 'umac-96', 'F8ACFA3AC31CFEEA047F7B11', "umac-96 and message of 'a' * 2^20"],
+            //[str_repeat('a', 1 << 25), 'umac-32', '5109A660', "umac-32 and message of 'a' * 2^25"],
+            //[str_repeat('a', 1 << 25), 'umac-64', '2E2DBC36860A0A5F', "umac-64 and message of 'a' * 2^25"],
+            //[str_repeat('a', 1 << 25), 'umac-96', '72C6388BACE3ACE6FBF062D9', "umac-96 and message of 'a' * 2^25"],
+            ['abc', 'umac-32', 'ABF3A3A0', "umac-32 and message of 'abc' * 1"],
+            ['abc', 'umac-64', 'D4D7B9F6BD4FBFCF', "umac-64 and message of 'abc' * 1"],
+            ['abc', 'umac-96', '883C3D4B97A61976FFCF2323', "umac-96 and message of 'abc' * 1"],
+            [str_repeat('abc', 500), 'umac-32', 'ABEB3C8B', "umac-32 and message of 'abc' * 500"],
+            [str_repeat('abc', 500), 'umac-64', 'D4CF26DDEFD5C01A', "umac-64 and message of 'abc' * 500"],
+            [str_repeat('abc', 500), 'umac-96', '8824A260C53C66A36C9260A6', "umac-96 and message of 'abc' * 500"],
+
+        ];
+    }
+
+    /**
+     * @dataProvider UMACs
+     */
+    public function testUMACs($message, $algo, $tag, $error)
+    {
+        $k = 'abcdefghijklmnop'; // A 16-byte UMAC key
+        $n = 'bcdefghi'; // An 8-byte nonce
+
+        $hash = new Hash($algo);
+        $hash->setNonce($n);
+        $hash->setKey($k);
+        $this->assertSame($hash->hash($message), pack('H*', $tag), $error);
     }
 }

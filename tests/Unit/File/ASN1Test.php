@@ -5,12 +5,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\File\ASN1;
+use phpseclib3\File\ASN1;
 
 class Unit_File_ASN1Test extends PhpseclibTestCase
 {
     /**
-     * on older versions of \phpseclib\File\ASN1 this would yield a PHP Warning
+     * on older versions of \phpseclib3\File\ASN1 this would yield a PHP Warning
      * @group github275
      */
     public function testAnyString()
@@ -82,7 +82,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     }
 
     /**
-     * on older versions of \phpseclib\File\ASN1 this would produce a null instead of an array
+     * on older versions of \phpseclib3\File\ASN1 this would produce a null instead of an array
      * @group github275
      */
     public function testIncorrectString()
@@ -121,7 +121,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
                     'min' => 0,
                     'max' => -1,
                     'type' => ASN1::TYPE_SEQUENCE,
-                    'children' => ['type' => ASN1::TYPE_IA5_STRING] // should be \phpseclib\File\ASN1::TYPE_GENERAL_STRING
+                    'children' => ['type' => ASN1::TYPE_IA5_STRING] // should be \phpseclib3\File\ASN1::TYPE_GENERAL_STRING
                 ]
             ]
         ];
@@ -301,7 +301,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
                 continue;
             }
 
-            constant('phpseclib\\File\\ASN1\\Maps\\' . basename($file, '.php') . '::MAP');
+            constant('phpseclib3\\File\\ASN1\\Maps\\' . basename($file, '.php') . '::MAP');
         }
     }
 
@@ -363,5 +363,33 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $new = ASN1::encodeOID($orig);
         $this->assertSame(pack('H*', '6983f09da7ebcfdee0c7a1a7b2c0948cc8f9d776'), $new);
         $this->assertSame($orig, ASN1::decodeOID($new));
+    }
+
+    /**
+     * @group github1388
+     */
+    public function testExplicitImplicitDate()
+    {
+        $map = array(
+            'type'     => ASN1::TYPE_SEQUENCE,
+            'children' => array(
+                'notBefore' => array(
+                                             'constant' => 0,
+                                             'optional' => true,
+                                             'implicit' => true,
+                                             'type' => ASN1::TYPE_GENERALIZED_TIME),
+                'notAfter'  => array(
+                                             'constant' => 1,
+                                             'optional' => true,
+                                             'implicit' => true,
+                                             'type' => ASN1::TYPE_GENERALIZED_TIME)
+            )
+        );
+
+        $a = pack('H*', '3026a011180f32303137303432313039303535305aa111180f32303138303432313230353935395a');
+        $a = ASN1::decodeBER($a);
+        $a = ASN1::asn1map($a[0], $map);
+
+        $this->assertInternalType('array', $a);
     }
 }

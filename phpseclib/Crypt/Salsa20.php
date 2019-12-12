@@ -13,12 +13,12 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib3\Crypt;
 
-use phpseclib\Crypt\Common\StreamCipher;
-use phpseclib\Exception\InsufficientSetupException;
-use phpseclib\Exception\BadDecryptionException;
-use phpseclib\Common\Functions\Strings;
+use phpseclib3\Crypt\Common\StreamCipher;
+use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\BadDecryptionException;
+use phpseclib3\Common\Functions\Strings;
 
 /**
  * Pure-PHP implementation of Salsa20.
@@ -62,7 +62,7 @@ class Salsa20 extends StreamCipher
 
     /**#@+
      * @access private
-     * @see \phpseclib\Crypt\Salsa20::crypt()
+     * @see \phpseclib3\Crypt\Salsa20::crypt()
     */
     const ENCRYPT = 0;
     const DECRYPT = 1;
@@ -99,8 +99,8 @@ class Salsa20 extends StreamCipher
     /**
      * Default Constructor.
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
-     * @return \phpseclib\Crypt\Salsa20
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @return \phpseclib3\Crypt\Salsa20
      */
     public function __construct()
     {
@@ -225,7 +225,7 @@ class Salsa20 extends StreamCipher
 
         $this->enbuffer = $this->debuffer = ['ciphertext' => '', 'counter' => $this->counter];
 
-        $this->changed = false;
+        $this->changed = $this->nonIVChanged = false;
 
         if ($this->nonce === false) {
             throw new InsufficientSetupException('No nonce has been defined');
@@ -269,7 +269,7 @@ class Salsa20 extends StreamCipher
     /**
      * Encrypts a message.
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::decrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
      * @see self::crypt()
      * @param string $plaintext
      * @return string $ciphertext
@@ -289,7 +289,7 @@ class Salsa20 extends StreamCipher
      * $this->decrypt($this->encrypt($plaintext)) == $this->encrypt($this->encrypt($plaintext)).
      * At least if the continuous buffer is disabled.
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::encrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
      * @see self::crypt()
      * @param string $ciphertext
      * @return string $plaintext

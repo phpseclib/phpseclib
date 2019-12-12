@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.0.23 - 2019-09-16
+
+- SSH2: fix regression for connecting to servers with bad hostnames (#1405)
+
+## 2.0.22 - 2019-09-15
+
+- SSH2: backport setPreferredAlgorithms() / getAlgorithmsNegotiated (#1156)
+- SSH2 / SFTP: fix issues with ping() (#1402)
+- X509: IPs in nameconstraints extension include netmask (#1387)
+- X509: fix issue with explicit time tags whose maps expect implicit (#1388)
+- BigInteger: fix bug with toBytes() with fixed precision negative numbers
+- fix PHP 7.4 deprecations
+
+## 2.0.21 - 2019-07-14
+
+- SSH2: only auto close the channel for exec() timeouts (#1384)
+
+## 2.0.20 - 2019-06-23
+
+- BigInteger: lower PHP req back down to PHP 5.3.3 (#1382)
+
+## 2.0.19 - 2019-06-19
+
+- BigInteger: fix issues with divide method in pure-PHP mode
+
 ## 2.0.18 - 2019-06-13
 
 - SSH2: close channel when a timeout occurs (#1378)
@@ -168,6 +193,24 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.18 - 2019-09-16
+
+- SSH2: fix regression for connecting to servers with bad hostnames (#1405)
+
+## 1.0.17 - 2019-09-15
+
+- SSH2: backport setPreferredAlgorithms() / getAlgorithmsNegotiated (#1156)
+- SSH2 / SFTP: fix issues with ping() (#1402)
+- SSH2: only auto close the channel for exec() timeouts (#1384)
+- SSH2 / SFTP: fix issues with ping() (#1402)
+- SFTP: add progress callback to get() (#1375)
+- SFTP: fix array_merge(): Argument #1 is not an array error (#1379)
+- X509: IPs in nameconstraints extension include netmask (#1387)
+- X509: fix issue with explicit time tags whose maps expect implicit (#1388)
+- BigInteger: fix issues with divide method
+- BigInteger: fix bug with toBytes() with fixed precision negative numbers
+- fix PHP 7.4 deprecations
 
 ## 1.0.16 - 2019-06-13
 

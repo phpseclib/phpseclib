@@ -20,7 +20,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $rc4 = new \phpseclib\Crypt\RC4();
+ *    $rc4 = new \phpseclib3\Crypt\RC4();
  *
  *    $rc4->setKey('abcdefgh');
  *
@@ -42,9 +42,9 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib3\Crypt;
 
-use phpseclib\Crypt\Common\StreamCipher;
+use phpseclib3\Crypt\Common\StreamCipher;
 
 /**
  * Pure-PHP implementation of RC4.
@@ -57,7 +57,7 @@ class RC4 extends StreamCipher
 {
     /**#@+
      * @access private
-     * @see \phpseclib\Crypt\RC4::_crypt()
+     * @see \phpseclib3\Crypt\RC4::_crypt()
     */
     const ENCRYPT = 0;
     const DECRYPT = 1;
@@ -69,7 +69,7 @@ class RC4 extends StreamCipher
      * RC4 is a stream cipher
      * so we the block_size to 0
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::block_size
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::block_size
      * @var int
      * @access private
      */
@@ -78,7 +78,7 @@ class RC4 extends StreamCipher
     /**
      * Key Length (in bytes)
      *
-     * @see \phpseclib\Crypt\RC4::setKeyLength()
+     * @see \phpseclib3\Crypt\RC4::setKeyLength()
      * @var int
      * @access private
      */
@@ -87,7 +87,7 @@ class RC4 extends StreamCipher
     /**
      * The mcrypt specific name of the cipher
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::cipher_name_mcrypt
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
      * @var string
      * @access private
      */
@@ -114,8 +114,8 @@ class RC4 extends StreamCipher
     /**
      * Default Constructor.
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
-     * @return \phpseclib\Crypt\RC4
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @return \phpseclib3\Crypt\RC4
      * @access public
      */
     public function __construct()
@@ -126,9 +126,9 @@ class RC4 extends StreamCipher
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Common\SymmetricKey::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
      * @access protected
      * @return bool
@@ -213,7 +213,7 @@ class RC4 extends StreamCipher
     /**
      * Encrypts a message.
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::decrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
      * @see self::crypt()
      * @access public
      * @param string $plaintext
@@ -233,7 +233,7 @@ class RC4 extends StreamCipher
      * $this->decrypt($this->encrypt($plaintext)) == $this->encrypt($this->encrypt($plaintext)).
      * At least if the continuous buffer is disabled.
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::encrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
      * @see self::crypt()
      * @access public
      * @param string $ciphertext
@@ -272,7 +272,7 @@ class RC4 extends StreamCipher
     /**
      * Setup the key (expansion)
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::_setupKey()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupKey()
      * @access private
      */
     protected function setupKey()
@@ -310,7 +310,6 @@ class RC4 extends StreamCipher
     {
         if ($this->changed) {
             $this->setup();
-            $this->changed = false;
         }
 
         $stream = &$this->stream[$mode];

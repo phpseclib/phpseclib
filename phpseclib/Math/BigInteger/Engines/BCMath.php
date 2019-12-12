@@ -13,10 +13,10 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
-namespace phpseclib\Math\BigInteger\Engines;
+namespace phpseclib3\Math\BigInteger\Engines;
 
 use ParagonIE\ConstantTime\Hex;
-use phpseclib\Exception\BadConfigurationException;
+use phpseclib3\Exception\BadConfigurationException;
 
 /**
  * BCMath Engine.
@@ -61,21 +61,21 @@ class BCMath extends Engine
     /**
      * BigInteger(0)
      *
-     * @var \phpseclib\Math\BigInteger\Engines\BCMath
+     * @var \phpseclib3\Math\BigInteger\Engines\BCMath
      */
     protected static $zero;
 
     /**
      * BigInteger(1)
      *
-     * @var \phpseclib\Math\BigInteger\Engines\BCMath
+     * @var \phpseclib3\Math\BigInteger\Engines\BCMath
      */
     protected static $one;
 
     /**
      * BigInteger(2)
      *
-     * @var \phpseclib\Math\BigInteger\Engines\BCMath
+     * @var \phpseclib3\Math\BigInteger\Engines\BCMath
      */
     protected static $two;
 
@@ -103,7 +103,7 @@ class BCMath extends Engine
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @see parent::__construct()
-     * @return \phpseclib\Math\BigInteger\Engines\BCMath
+     * @return \phpseclib3\Math\BigInteger\Engines\BCMath
      */
     public function __construct($x = 0, $base = 10)
     {
@@ -275,7 +275,7 @@ class BCMath extends Engine
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      *
      * @return false|BCMath
-     * @param \phpseclib\Math\BigInteger\Engines\BCMath $n
+     * @param \phpseclib3\Math\BigInteger\Engines\BCMath $n
      */
     public function modInverse(BCMath $n)
     {
@@ -348,7 +348,7 @@ class BCMath extends Engine
     /**
      * Absolute value.
      *
-     * @return \phpseclib\Math\BigInteger\Engines\BCMath
+     * @return \phpseclib3\Math\BigInteger\Engines\BCMath
      */
     public function abs()
     {
@@ -399,7 +399,7 @@ class BCMath extends Engine
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib\Math\BigInteger\Engines\BCMath
+     * @return \phpseclib3\Math\BigInteger\Engines\BCMath
      */
     public function bitwise_rightShift($shift)
     {
@@ -415,7 +415,7 @@ class BCMath extends Engine
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib\Math\BigInteger\Engines\BCMath
+     * @return \phpseclib3\Math\BigInteger\Engines\BCMath
      */
     public function bitwise_leftShift($shift)
     {

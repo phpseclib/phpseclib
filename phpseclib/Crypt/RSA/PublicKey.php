@@ -11,18 +11,19 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\RSA;
+namespace phpseclib3\Crypt\RSA;
 
-use phpseclib\Crypt\RSA;
-use phpseclib\Math\BigInteger;
-use phpseclib\File\ASN1;
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Crypt\Hash;
-use phpseclib\Exceptions\NoKeyLoadedException;
-use phpseclib\Crypt\Random;
-use phpseclib\Crypt\Common;
-use phpseclib\File\ASN1\Maps\DigestInfo;
-use phpseclib\Crypt\RSA\Keys\PSS;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\File\ASN1;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\Hash;
+use phpseclib3\Exception\NoKeyLoadedException;
+use phpseclib3\Exception\UnsupportedFormatException;
+use phpseclib3\Crypt\Random;
+use phpseclib3\Crypt\Common;
+use phpseclib3\File\ASN1\Maps\DigestInfo;
+use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
 
 /**
  * Raw RSA Key Handler
@@ -33,13 +34,13 @@ use phpseclib\Crypt\RSA\Keys\PSS;
  */
 class PublicKey extends RSA implements Common\PublicKey
 {
-    use Common\Fingerprint;
+    use Common\Traits\Fingerprint;
 
     /**
      * Exponentiate
      *
-     * @param \phpseclib\Math\BigInteger $x
-     * @return \phpseclib\Math\BigInteger
+     * @param \phpseclib3\Math\BigInteger $x
+     * @return \phpseclib3\Math\BigInteger
      */
     private function exponentiate(BigInteger $x)
     {
@@ -52,8 +53,8 @@ class PublicKey extends RSA implements Common\PublicKey
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.2.2 RFC3447#section-5.2.2}.
      *
      * @access private
-     * @param \phpseclib\Math\BigInteger $s
-     * @return bool|\phpseclib\Math\BigInteger
+     * @param \phpseclib3\Math\BigInteger $s
+     * @return bool|\phpseclib3\Math\BigInteger
      */
     private function rsavp1($s)
     {
@@ -211,7 +212,7 @@ class PublicKey extends RSA implements Common\PublicKey
         // if $m is larger than two million terrabytes and you're using sha1, PKCS#1 suggests a "Label too long" error
         // be output.
 
-        $emLen = ($emBits + 1) >> 3; // ie. ceil($emBits / 8);
+        $emLen = ($emBits + 7) >> 3; // ie. ceil($emBits / 8);
         $sLen = $this->sLen !== null ? $this->sLen : $this->hLen;
 
         $mHash = $this->hash->hash($m);
@@ -262,11 +263,11 @@ class PublicKey extends RSA implements Common\PublicKey
 
         // RSA verification
 
-        $modBits = 8 * $this->k;
+        $modBits = strlen($this->modulus->toBits());
 
         $s2 = $this->os2ip($s);
         $m2 = $this->rsavp1($s2);
-        $em = $this->i2osp($m2, $modBits >> 3);
+        $em = $this->i2osp($m2, $this->k);
         if ($em === false) {
             return false;
         }
@@ -399,8 +400,8 @@ class PublicKey extends RSA implements Common\PublicKey
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.1.1 RFC3447#section-5.1.1}.
      *
      * @access private
-     * @param \phpseclib\Math\BigInteger $m
-     * @return bool|\phpseclib\Math\BigInteger
+     * @param \phpseclib3\Math\BigInteger $m
+     * @return bool|\phpseclib3\Math\BigInteger
      */
     private function rsaep($m)
     {

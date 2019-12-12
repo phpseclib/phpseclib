@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib\Crypt\Common\BlockCipher;
+use phpseclib3\Crypt\Common\BlockCipher;
 
 class Unit_Crypt_AES_InternalTest extends Unit_Crypt_AES_TestCase
 {

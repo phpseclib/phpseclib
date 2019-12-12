@@ -16,7 +16,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $sftp = new \phpseclib\Net\SFTP('www.domain.tld');
+ *    $sftp = new \phpseclib3\Net\SFTP('www.domain.tld');
  *    if (!$sftp->login('username', 'password')) {
  *        exit('Login Failed');
  *    }
@@ -35,11 +35,11 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Net;
+namespace phpseclib3\Net;
 
 use ParagonIE\ConstantTime\Hex;
-use phpseclib\Exception\FileNotFoundException;
-use phpseclib\Common\Functions\Strings;
+use phpseclib3\Exception\FileNotFoundException;
+use phpseclib3\Common\Functions\Strings;
 
 /**
  * Pure-PHP implementations of SFTP.
@@ -53,17 +53,17 @@ class SFTP extends SSH2
     /**
      * SFTP channel constant
      *
-     * \phpseclib\Net\SSH2::exec() uses 0 and \phpseclib\Net\SSH2::read() / \phpseclib\Net\SSH2::write() use 1.
+     * \phpseclib3\Net\SSH2::exec() uses 0 and \phpseclib3\Net\SSH2::read() / \phpseclib3\Net\SSH2::write() use 1.
      *
-     * @see \phpseclib\Net\SSH2::send_channel_packet()
-     * @see \phpseclib\Net\SSH2::get_channel_packet()
+     * @see \phpseclib3\Net\SSH2::send_channel_packet()
+     * @see \phpseclib3\Net\SSH2::get_channel_packet()
      * @access private
      */
     const CHANNEL = 0x100;
 
     /**#@+
      * @access public
-     * @see \phpseclib\Net\SFTP::put()
+     * @see \phpseclib3\Net\SFTP::put()
     */
     /**
      * Reads data from a local file.
@@ -271,7 +271,7 @@ class SFTP extends SSH2
      * @param string $host
      * @param int $port
      * @param int $timeout
-     * @return \phpseclib\Net\SFTP
+     * @return \phpseclib3\Net\SFTP
      * @access public
      */
     public function __construct($host, $port = 22, $timeout = 10)
@@ -352,7 +352,7 @@ class SFTP extends SSH2
             31 => 'NET_SFTP_STATUS_NO_MATCHING_BYTE_RANGE_LOCK'
         ];
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-7.1
-        // the order, in this case, matters quite a lot - see \phpseclib\Net\SFTP::_parseAttributes() to understand why
+        // the order, in this case, matters quite a lot - see \phpseclib3\Net\SFTP::_parseAttributes() to understand why
         $this->attributes = [
             0x00000001 => 'NET_SFTP_ATTR_SIZE',
             0x00000002 => 'NET_SFTP_ATTR_UIDGID', // defined in SFTPv3, removed in SFTPv4+
@@ -376,7 +376,7 @@ class SFTP extends SSH2
             0x00000020 => 'NET_SFTP_OPEN_EXCL'
         ];
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-5.2
-        // see \phpseclib\Net\SFTP::_parseLongname() for an explanation
+        // see \phpseclib3\Net\SFTP::_parseLongname() for an explanation
         $this->file_types = [
             1 => 'NET_SFTP_TYPE_REGULAR',
             2 => 'NET_SFTP_TYPE_DIRECTORY',
@@ -414,6 +414,7 @@ class SFTP extends SSH2
      */
     public function login($username, ...$args)
     {
+        $this->auth[] = array_merge([$username], $args);
         if (!$this->sublogin($username, ...$args)) {
             return false;
         }
@@ -530,7 +531,7 @@ class SFTP extends SSH2
          So what do you do if you have a client whose initial SSH_FXP_INIT packet says it implements v3 and
          a server whose initial SSH_FXP_VERSION reply says it implements v4 and only v4?  If it only implements
          v4, the "versions" extension is likely not going to have been sent so version re-negotiation as discussed
-         in draft-ietf-secsh-filexfer-13 would be quite impossible.  As such, what \phpseclib\Net\SFTP would do is close the
+         in draft-ietf-secsh-filexfer-13 would be quite impossible.  As such, what \phpseclib3\Net\SFTP would do is close the
          channel and reopen it with a new and updated SSH_FXP_INIT packet.
         */
         switch ($this->version) {
@@ -738,7 +739,7 @@ class SFTP extends SSH2
             return false;
         }
 
-        // see \phpseclib\Net\SFTP::nlist() for a more thorough explanation of the following
+        // see \phpseclib3\Net\SFTP::nlist() for a more thorough explanation of the following
         $response = $this->get_sftp_packet();
         switch ($this->packet_type) {
             case NET_SFTP_HANDLE:
@@ -800,6 +801,7 @@ class SFTP extends SSH2
             }
             if (is_array($this->query_stat_cache($this->realpath($dir . '/' . $value)))) {
                 $temp = $this->nlist_helper($dir . '/' . $value, true, $relativeDir . $value . '/');
+                $temp = is_array($temp) ? $temp : [];
                 $result = array_merge($result, $temp);
             } else {
                 $result[] = $relativeDir . $value;
@@ -1298,7 +1300,7 @@ class SFTP extends SSH2
     /**
      * Returns general information about a file or symbolic link
      *
-     * Determines information without calling \phpseclib\Net\SFTP::realpath().
+     * Determines information without calling \phpseclib3\Net\SFTP::realpath().
      * The second parameter can be either NET_SFTP_STAT or NET_SFTP_LSTAT.
      *
      * @param string $filename
@@ -1812,8 +1814,8 @@ class SFTP extends SSH2
     /**
      * Uploads a file to the SFTP server.
      *
-     * By default, \phpseclib\Net\SFTP::put() does not read from the local filesystem.  $data is dumped directly into $remote_file.
-     * So, for example, if you set $data to 'filename.ext' and then do \phpseclib\Net\SFTP::get(), you will get a file, twelve bytes
+     * By default, \phpseclib3\Net\SFTP::put() does not read from the local filesystem.  $data is dumped directly into $remote_file.
+     * So, for example, if you set $data to 'filename.ext' and then do \phpseclib3\Net\SFTP::get(), you will get a file, twelve bytes
      * long, containing 'filename.ext' as its contents.
      *
      * Setting $mode to self::SOURCE_LOCAL_FILE will change the above behavior.  With self::SOURCE_LOCAL_FILE, $remote_file will
@@ -1852,10 +1854,10 @@ class SFTP extends SSH2
      * @param callable|null $progressCallback
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @throws \BadFunctionCallException if you're uploading via a callback and the callback function is invalid
-     * @throws \phpseclib\Exception\FileNotFoundException if you're uploading via a file and the file doesn't exist
+     * @throws \phpseclib3\Exception\FileNotFoundException if you're uploading via a file and the file doesn't exist
      * @return bool
      * @access public
-     * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - \phpseclib\Net\SFTP::setMode().
+     * @internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - \phpseclib3\Net\SFTP::setMode().
      */
     public function put($remote_file, $data, $mode = self::SOURCE_STRING, $start = -1, $local_start = -1, $progressCallback = null)
     {
@@ -2082,11 +2084,12 @@ class SFTP extends SSH2
      * @param string|bool|resource $local_file
      * @param int $offset
      * @param int $length
+     * @param callable|null $progressCallback
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return mixed
      * @access public
      */
-    public function get($remote_file, $local_file = false, $offset = 0, $length = -1)
+    public function get($remote_file, $local_file = false, $offset = 0, $length = -1, $progressCallback = null)
     {
         if (!($this->bitmap & SSH2::MASK_LOGIN)) {
             return false;
@@ -2152,6 +2155,9 @@ class SFTP extends SSH2
                 }
                 $packet = null;
                 $read+= $packet_size;
+                if (is_callable($progressCallback)) {
+                    call_user_func($progressCallback, $read);
+                }
                 $i++;
             }
 
@@ -2747,7 +2753,7 @@ class SFTP extends SSH2
                     list($attr['atime'], $attr['mtime']) = Strings::unpackSSH2('NN', $response);
                     break;
                 case NET_SFTP_ATTR_EXTENDED: // 0x80000000
-                    list($count) = Strings::unpack('N', $response);
+                    list($count) = Strings::unpackSSH2('N', $response);
                     for ($i = 0; $i < $count; $i++) {
                         list($key, $value) = Strings::unpackSSH2('ss', $response);
                         $attr[$key] = $value;
@@ -2871,6 +2877,20 @@ class SFTP extends SSH2
         }
 
         return $result;
+    }
+
+    /**
+     * Resets a connection for re-use
+     *
+     * @param int $reason
+     * @access private
+     */
+    protected function reset_connection($reason)
+    {
+        parent::reset_connection($reason);
+        $this->use_request_id = false;
+        $this->pwd = false;
+        $this->requestBuffer = [];
     }
 
     /**

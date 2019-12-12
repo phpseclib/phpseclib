@@ -2,12 +2,19 @@
 
 [![Build Status](https://travis-ci.org/phpseclib/phpseclib.svg?branch=master)](https://travis-ci.org/phpseclib/phpseclib)
 
+## Supporting phpseclib
+
+- [Become a backer or sponsor on Patreon](https://www.patreon.com/phpseclib)
+- [One-time donation via PayPal or crypto-currencies](http://sourceforge.net/donate/index.php?group_id=198487)
+- [Subscribe to Tidelift](https://tidelift.com/subscription/pkg/packagist-phpseclib-phpseclib?utm_source=packagist-phpseclib-phpseclib&utm_medium=referral&utm_campaign=readme)
+
+## Introduction
+
 MIT-licensed pure-PHP implementations of an arbitrary-precision integer
 arithmetic library, fully PKCS#1 (v2.1) compliant RSA, DES, 3DES, RC4, Rijndael,
 AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 
 * [Browse Git](https://github.com/phpseclib/phpseclib)
-* [Code Coverage Report](https://coverage.phpseclib.org/master/latest/)
 
 ## Documentation
 
@@ -37,7 +44,11 @@ AES, Blowfish, Twofish, SSH-1, SSH-2, SFTP, and X.509
 * Composer compatible (PSR-0 autoloading)
 * Install using Composer: `composer require phpseclib/phpseclib:~1.0`
 * Install using PEAR: See [phpseclib PEAR Channel Documentation](http://phpseclib.sourceforge.net/pear.htm)
-* [Download 1.0.16 as ZIP](http://sourceforge.net/projects/phpseclib/files/phpseclib1.0.16.zip/download)
+* [Download 1.0.18 as ZIP](http://sourceforge.net/projects/phpseclib/files/phpseclib1.0.18.zip/download)
+
+## Security contact information
+
+To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security). Tidelift will coordinate the fix and disclosure.
 
 ## Support
 

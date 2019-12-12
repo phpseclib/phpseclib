@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Base Class for all \phpseclib\Crypt\* cipher classes
+ * Base Class for all \phpseclib3\Crypt\* cipher classes
  *
  * PHP version 5
  *
  * Internally for phpseclib developers:
  *  If you plan to add a new cipher class, please note following rules:
  *
- *  - The new \phpseclib\Crypt\* cipher class should extend \phpseclib\Crypt\Common\SymmetricKey
+ *  - The new \phpseclib3\Crypt\* cipher class should extend \phpseclib3\Crypt\Common\SymmetricKey
  *
  *  - Following methods are then required to be overridden/overloaded:
  *
@@ -20,7 +20,7 @@
  *
  *  - All other methods are optional to be overridden/overloaded
  *
- *  - Look at the source code of the current ciphers how they extend \phpseclib\Crypt\Common\SymmetricKey
+ *  - Look at the source code of the current ciphers how they extend \phpseclib3\Crypt\Common\SymmetricKey
  *    and take one of them as a start up for the new cipher class.
  *
  *  - Please read all the other comments/notes/hints here also for each class var/method
@@ -34,21 +34,21 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\Common;
+namespace phpseclib3\Crypt\Common;
 
-use phpseclib\Common\Functions\Strings;
-use phpseclib\Crypt\Hash;
-use phpseclib\Exception\BadDecryptionException;
-use phpseclib\Exception\BadModeException;
-use phpseclib\Exception\InconsistentSetupException;
-use phpseclib\Exception\InsufficientSetupException;
-use phpseclib\Exception\UnsupportedAlgorithmException;
-use phpseclib\Math\BigInteger;
-use phpseclib\Math\BinaryField;
-use phpseclib\Math\PrimeField;
+use phpseclib3\Crypt\Hash;
+use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\BinaryField;
+use phpseclib3\Math\PrimeField;
+use phpseclib3\Exception\BadDecryptionException;
+use phpseclib3\Exception\BadModeException;
+use phpseclib3\Exception\InconsistentSetupException;
+use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\UnsupportedAlgorithmException;
 
 /**
- * Base Class for all \phpseclib\Crypt\* cipher classes
+ * Base Class for all \phpseclib3\Crypt\* cipher classes
  *
  * @package Base
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -58,8 +58,8 @@ abstract class SymmetricKey
 {
     /**#@+
      * @access public
-     * @see \phpseclib\Crypt\Common\SymmetricKey::encrypt()
-     * @see \phpseclib\Crypt\Common\SymmetricKey::decrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
      */
     /**
      * Encrypt / decrypt using the Counter mode.
@@ -117,7 +117,7 @@ abstract class SymmetricKey
      * Mode Map
      *
      * @access private
-     * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      */
     const MODE_MAP = [
         'ctr' => self::MODE_CTR,
@@ -133,7 +133,7 @@ abstract class SymmetricKey
 
     /**#@+
      * @access private
-     * @see \phpseclib\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      */
     /**
      * Base value for the internal implementation $engine switch
@@ -165,7 +165,7 @@ abstract class SymmetricKey
      * Engine Reverse Map
      *
      * @access private
-     * @see \phpseclib\Crypt\Common\SymmetricKey::getEngine()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::getEngine()
      */
     const ENGINE_MAP = [
         self::ENGINE_INTERNAL => 'PHP',
@@ -256,7 +256,7 @@ abstract class SymmetricKey
      * @var array
      * @access private
      */
-    private $enbuffer;
+    protected $enbuffer;
 
     /**
      * Decryption buffer for CTR, OFB and CFB modes
@@ -266,7 +266,7 @@ abstract class SymmetricKey
      * @var array
      * @access private
      */
-    private $debuffer;
+    protected $debuffer;
 
     /**
      * mcrypt resource for encryption
@@ -295,8 +295,8 @@ abstract class SymmetricKey
     /**
      * Does the enmcrypt resource need to be (re)initialized?
      *
-     * @see \phpseclib\Crypt\Twofish::setKey()
-     * @see \phpseclib\Crypt\Twofish::setIV()
+     * @see \phpseclib3\Crypt\Twofish::setKey()
+     * @see \phpseclib3\Crypt\Twofish::setIV()
      * @var bool
      * @access private
      */
@@ -305,8 +305,8 @@ abstract class SymmetricKey
     /**
      * Does the demcrypt resource need to be (re)initialized?
      *
-     * @see \phpseclib\Crypt\Twofish::setKey()
-     * @see \phpseclib\Crypt\Twofish::setIV()
+     * @see \phpseclib3\Crypt\Twofish::setKey()
+     * @see \phpseclib3\Crypt\Twofish::setIV()
      * @var bool
      * @access private
      */
@@ -363,6 +363,15 @@ abstract class SymmetricKey
      * @access private
      */
     protected $changed = true;
+
+    /**
+     * Does Eval engie need to be (re)initialized?
+     *
+     * @see self::setup()
+     * @var bool
+     * @access private
+     */
+    protected $nonIVChanged = true;
 
     /**
      * Padding status
@@ -759,7 +768,6 @@ abstract class SymmetricKey
         }
 
         $this->nonce = $nonce;
-        $this->changed = true;
         $this->setEngine();
     }
 
@@ -876,7 +884,6 @@ abstract class SymmetricKey
 
         $this->key = $key;
         $this->key_length = strlen($key);
-        $this->changed = true;
         $this->setEngine();
     }
 
@@ -1038,7 +1045,7 @@ abstract class SymmetricKey
      * @see self::setPassword()
      * @access private
      * @param int $n
-     * @param \phpseclib\Crypt\Hash $hashObj
+     * @param \phpseclib3\Crypt\Hash $hashObj
      * @param string $i
      * @param string $d
      * @param int $count
@@ -2158,7 +2165,7 @@ abstract class SymmetricKey
      * outputs.  The reason is due to the fact that the initialization vector's change after every encryption /
      * decryption round when the continuous buffer is enabled.  When it's disabled, they remain constant.
      *
-     * Put another way, when the continuous buffer is enabled, the state of the \phpseclib\Crypt\*() object changes after each
+     * Put another way, when the continuous buffer is enabled, the state of the \phpseclib3\Crypt\*() object changes after each
      * encryption / decryption round, whereas otherwise, it'd remain constant.  For this reason, it's recommended that
      * continuous buffers not be used.  They do offer better security and are, in fact, sometimes required (SSH uses them),
      * however, they are also less intuitive and more likely to cause you problems.
@@ -2201,7 +2208,6 @@ abstract class SymmetricKey
         }
 
         $this->continuousBuffer = false;
-        $this->changed = true;
 
         $this->setEngine();
     }
@@ -2368,13 +2374,13 @@ abstract class SymmetricKey
             }
         }
 
-        $this->changed = true;
+        $this->changed = $this->nonIVChanged = true;
     }
 
     /**
      * Encrypts a block
      *
-     * Note: Must be extended by the child \phpseclib\Crypt\* class
+     * Note: Must be extended by the child \phpseclib3\Crypt\* class
      *
      * @access private
      * @param string $in
@@ -2385,7 +2391,7 @@ abstract class SymmetricKey
     /**
      * Decrypts a block
      *
-     * Note: Must be extended by the child \phpseclib\Crypt\* class
+     * Note: Must be extended by the child \phpseclib3\Crypt\* class
      *
      * @access private
      * @param string $in
@@ -2398,7 +2404,7 @@ abstract class SymmetricKey
      *
      * Only used if $engine == self::ENGINE_INTERNAL
      *
-     * Note: Must extend by the child \phpseclib\Crypt\* class
+     * Note: Must extend by the child \phpseclib3\Crypt\* class
      *
      * @see self::setup()
      * @access private
@@ -2506,9 +2512,13 @@ abstract class SymmetricKey
                 $this->setupKey();
                 break;
             case self::ENGINE_EVAL:
-                $this->setupKey();
-                $this->setupInlineCrypt();
+                if ($this->nonIVChanged) {
+                    $this->setupKey();
+                    $this->setupInlineCrypt();
+                }
         }
+
+        $this->nonIVChanged = false;
     }
 
     /**
@@ -2614,7 +2624,7 @@ abstract class SymmetricKey
      *       - short (as good as possible)
      *
      * Note: - _setupInlineCrypt() is using _createInlineCryptFunction() to create the full callback function code.
-     *       - In case of using inline crypting, _setupInlineCrypt() must extend by the child \phpseclib\Crypt\* class.
+     *       - In case of using inline crypting, _setupInlineCrypt() must extend by the child \phpseclib3\Crypt\* class.
      *       - The following variable names are reserved:
      *         - $_*  (all variable names prefixed with an underscore)
      *         - $self (object reference to it self. Do not use $this, but $self instead)
@@ -2721,7 +2731,7 @@ abstract class SymmetricKey
      *    +----------------------------------------------------------------------------------------------+
      *    </code>
      *
-     *    See also the \phpseclib\Crypt\*::_setupInlineCrypt()'s for
+     *    See also the \phpseclib3\Crypt\*::_setupInlineCrypt()'s for
      *    productive inline $cipher_code's how they works.
      *
      *    Structure of:
@@ -2798,10 +2808,10 @@ abstract class SymmetricKey
                             if (strlen($_block) > strlen($_buffer["ciphertext"])) {
                                 $in = $_xor;
                                 '.$encrypt_block.'
-                                \phpseclib\Common\Functions\Strings::increment_str($_xor);
+                                \phpseclib3\Common\Functions\Strings::increment_str($_xor);
                                 $_buffer["ciphertext"].= $in;
                             }
-                            $_key = \phpseclib\Common\Functions\Strings::shift($_buffer["ciphertext"], '.$block_size.');
+                            $_key = \phpseclib3\Common\Functions\Strings::shift($_buffer["ciphertext"], '.$block_size.');
                             $_ciphertext.= $_block ^ $_key;
                         }
                     } else {
@@ -2809,7 +2819,7 @@ abstract class SymmetricKey
                             $_block = substr($_text, $_i, '.$block_size.');
                             $in = $_xor;
                             '.$encrypt_block.'
-                            \phpseclib\Common\Functions\Strings::increment_str($_xor);
+                            \phpseclib3\Common\Functions\Strings::increment_str($_xor);
                             $_key = $in;
                             $_ciphertext.= $_block ^ $_key;
                         }
@@ -2836,10 +2846,10 @@ abstract class SymmetricKey
                             if (strlen($_block) > strlen($_buffer["ciphertext"])) {
                                 $in = $_xor;
                                 '.$encrypt_block.'
-                                \phpseclib\Common\Functions\Strings::increment_str($_xor);
+                                \phpseclib3\Common\Functions\Strings::increment_str($_xor);
                                 $_buffer["ciphertext"].= $in;
                             }
-                            $_key = \phpseclib\Common\Functions\Strings::shift($_buffer["ciphertext"], '.$block_size.');
+                            $_key = \phpseclib3\Common\Functions\Strings::shift($_buffer["ciphertext"], '.$block_size.');
                             $_plaintext.= $_block ^ $_key;
                         }
                     } else {
@@ -2847,7 +2857,7 @@ abstract class SymmetricKey
                             $_block = substr($_text, $_i, '.$block_size.');
                             $in = $_xor;
                             '.$encrypt_block.'
-                            \phpseclib\Common\Functions\Strings::increment_str($_xor);
+                            \phpseclib3\Common\Functions\Strings::increment_str($_xor);
                             $_key = $in;
                             $_plaintext.= $_block ^ $_key;
                         }
@@ -3023,7 +3033,7 @@ abstract class SymmetricKey
                                 $_xor = $in;
                                 $_buffer["xor"].= $_xor;
                             }
-                            $_key = \phpseclib\Common\Functions\Strings::shift($_buffer["xor"], '.$block_size.');
+                            $_key = \phpseclib3\Common\Functions\Strings::shift($_buffer["xor"], '.$block_size.');
                             $_ciphertext.= $_block ^ $_key;
                         }
                     } else {
@@ -3059,7 +3069,7 @@ abstract class SymmetricKey
                                 $_xor = $in;
                                 $_buffer["xor"].= $_xor;
                             }
-                            $_key = \phpseclib\Common\Functions\Strings::shift($_buffer["xor"], '.$block_size.');
+                            $_key = \phpseclib3\Common\Functions\Strings::shift($_buffer["xor"], '.$block_size.');
                             $_plaintext.= $_block ^ $_key;
                         }
                     } else {

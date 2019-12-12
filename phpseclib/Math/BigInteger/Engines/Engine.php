@@ -13,13 +13,13 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
-namespace phpseclib\Math\BigInteger\Engines;
+namespace phpseclib3\Math\BigInteger\Engines;
 
 use ParagonIE\ConstantTime\Hex;
-use phpseclib\Exception\BadConfigurationException;
-use phpseclib\Crypt\Random;
-use phpseclib\Math\BigInteger;
-use phpseclib\Common\Functions\Strings;
+use phpseclib3\Exception\BadConfigurationException;
+use phpseclib3\Crypt\Random;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Common\Functions\Strings;
 
 /**
  * Base Engine.
@@ -180,7 +180,7 @@ abstract class Engine implements \Serializable
      */
     public static function setModExpEngine($engine)
     {
-        $fqengine = '\\phpseclib\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\' . $engine;
+        $fqengine = '\\phpseclib3\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\' . $engine;
         if (!class_exists($fqengine) || !method_exists($fqengine, 'isValidEngine')) {
             throw new \InvalidArgumentException("$engine is not a valid engine");
         }
@@ -257,8 +257,8 @@ abstract class Engine implements \Serializable
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      *
-     * @param \phpseclib\Math\BigInteger\Engines\Engine $n
-     * @return \phpseclib\Math\BigInteger\Engines\Engine|false
+     * @param \phpseclib3\Math\BigInteger\Engines\Engine $n
+     * @return \phpseclib3\Math\BigInteger\Engines\Engine|false
      * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=21 HAC 14.64} for more information.
      */
     protected function modInverseHelper(Engine $n)
@@ -463,7 +463,7 @@ abstract class Engine implements \Serializable
      * Instead of the top x bits being dropped they're appended to the shifted bit string.
      *
      * @param int $shift
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return \phpseclib3\Math\BigInteger\Engines\Engine
      */
     public function bitwise_leftRotate($shift)
     {
@@ -507,7 +507,7 @@ abstract class Engine implements \Serializable
      * Instead of the bottom x bits being dropped they're prepended to the shifted bit string.
      *
      * @param int $shift
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return \phpseclib3\Math\BigInteger\Engines\Engine
      */
     public function bitwise_rightRotate($shift)
     {
@@ -518,7 +518,7 @@ abstract class Engine implements \Serializable
      * Returns the smallest and largest n-bit number
      *
      * @param int $bits
-     * @return \phpseclib\Math\BigInteger\Engines\Engine[]
+     * @return \phpseclib3\Math\BigInteger\Engines\Engine[]
      */
     public static function minMaxBits($bits)
     {
@@ -591,11 +591,11 @@ abstract class Engine implements \Serializable
      * however, this function performs a modular reduction after every multiplication and squaring operation.
      * As such, this function has the same preconditions that the reductions being used do.
      *
-     * @param \phpseclib\Math\BigInteger\Engines\Engine $x
-     * @param \phpseclib\Math\BigInteger\Engines\Engine $e
-     * @param \phpseclib\Math\BigInteger\Engines\Engine $n
+     * @param \phpseclib3\Math\BigInteger\Engines\Engine $x
+     * @param \phpseclib3\Math\BigInteger\Engines\Engine $e
+     * @param \phpseclib3\Math\BigInteger\Engines\Engine $n
      * @param string $class
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return \phpseclib3\Math\BigInteger\Engines\Engine
      */
     protected static function slidingWindow(Engine $x, Engine $e, Engine $n, $class)
     {
@@ -666,7 +666,7 @@ abstract class Engine implements \Serializable
      * Bit length is equal to $size
      *
      * @param int $size
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return \phpseclib3\Math\BigInteger\Engines\Engine
      */
     public static function random($size)
     {
@@ -684,7 +684,7 @@ abstract class Engine implements \Serializable
      * Bit length is equal to $size
      *
      * @param int $size
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return \phpseclib3\Math\BigInteger\Engines\Engine
      */
     public static function randomPrime($size)
     {
@@ -930,7 +930,7 @@ abstract class Engine implements \Serializable
      * Performs a few preliminary checks on root
      *
      * @param int $n
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return \phpseclib3\Math\BigInteger\Engines\Engine
      */
     protected function rootHelper($n)
     {
@@ -953,7 +953,7 @@ abstract class Engine implements \Serializable
      * Returns the nth root of a positive biginteger, where n defaults to 2
      *
      * @param int $n
-     * @return \phpseclib\Math\BigInteger\Engines\Engine
+     * @return \phpseclib3\Math\BigInteger\Engines\Engine
      * @internal This function is based off of {@link http://mathforum.org/library/drmath/view/52605.html this page} and {@link http://stackoverflow.com/questions/11242920/calculating-nth-root-with-bcmath-in-php this stackoverflow question}.
      */
     protected function rootInner($n)
@@ -1068,7 +1068,7 @@ abstract class Engine implements \Serializable
         $class = static::class;
 
         $fqengine = !method_exists(static::$modexpEngine, 'reduce') ?
-            '\\phpseclib\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\DefaultEngine' :
+            '\\phpseclib3\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\DefaultEngine' :
             static::$modexpEngine;
         if (method_exists($fqengine, 'generateCustomReduction')) {
             $func = $fqengine::generateCustomReduction($this, static::class);
@@ -1136,7 +1136,7 @@ abstract class Engine implements \Serializable
      * Splits BigInteger's into chunks of $split bits
      *
      * @param int $split
-     * @return \phpseclib\Math\BigInteger\Engine[]
+     * @return \phpseclib3\Math\BigInteger\Engine[]
      */
     public function bitwise_split($split)
     {

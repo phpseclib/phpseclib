@@ -13,15 +13,15 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\Common;
+namespace phpseclib3\Crypt\Common;
 
-use phpseclib\Exception\UnsupportedFormatException;
-use phpseclib\Exception\NoKeyLoadedException;
-use phpseclib\Math\BigInteger;
-use phpseclib\Crypt\Hash;
-use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\ECDSA;
+use phpseclib3\Exception\UnsupportedFormatException;
+use phpseclib3\Exception\NoKeyLoadedException;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\Crypt\Hash;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\DSA;
+use phpseclib3\Crypt\ECDSA;
 
 /**
  * Base Class for all stream cipher classes
@@ -34,7 +34,7 @@ abstract class AsymmetricKey
     /**
      * Precomputed Zero
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected static $zero;
@@ -42,7 +42,7 @@ abstract class AsymmetricKey
     /**
      * Precomputed One
      *
-     * @var \phpseclib\Math\BigInteger
+     * @var \phpseclib3\Math\BigInteger
      * @access private
      */
     protected static $one;
@@ -58,7 +58,7 @@ abstract class AsymmetricKey
     /**
      * Hash function
      *
-     * @var \phpseclib\Crypt\Hash
+     * @var \phpseclib3\Crypt\Hash
      * @access private
      */
     protected $hash;
@@ -66,18 +66,10 @@ abstract class AsymmetricKey
     /**
      * HMAC function
      *
-     * @var \phpseclib\Crypt\Hash
+     * @var \phpseclib3\Crypt\Hash
      * @access private
      */
     private $hmac;
-
-    /**
-     * Enable Blinding?
-     *
-     * @var bool
-     * @access private
-     */
-    protected static $enableBlinding = true;
 
     /**
      * Supported plugins (lower case)
@@ -89,13 +81,13 @@ abstract class AsymmetricKey
     private static $plugins = [];
 
     /**
-     * Supported plugins (original case)
+     * Invisible plugins
      *
      * @see self::initialize_static_variables()
      * @var array
      * @access private
      */
-    private static $origPlugins = [];
+    private static $invisiblePlugins = [];
 
     /**
      * Supported signature formats (lower case)
@@ -145,7 +137,7 @@ abstract class AsymmetricKey
         }
 
         self::loadPlugins('Keys');
-        if (static::ALGORITHM != 'RSA') {
+        if (static::ALGORITHM != 'RSA' && static::ALGORITHM != 'DH') {
             self::loadPlugins('Signature');
         }
     }
@@ -154,31 +146,25 @@ abstract class AsymmetricKey
      * Load the key
      *
      * @param string $key
-     * @param string $type
-     * @param string $password
-     * @return array|bool
+     * @param string $password optional
+     * @return AsymmetricKey
      */
-    protected static function load($key, $type, $password)
+    public static function load($key, $password = false)
     {
         self::initialize_static_variables();
 
         $components = false;
-        if ($type === false) {
-            foreach (self::$plugins[static::ALGORITHM]['Keys'] as $format) {
-                try {
-                    $components = $format::load($key, $password);
-                } catch (\Exception $e) {
-                    $components = false;
-                }
-                if ($components !== false) {
-                    break;
-                }
+        foreach (self::$plugins[static::ALGORITHM]['Keys'] as $format) {
+            if (isset(self::$invisiblePlugins[static::ALGORITHM]) && in_array($format, self::$invisiblePlugins[static::ALGORITHM])) {
+                continue;
             }
-        } else {
-            $format = strtolower($type);
-            if (isset(self::$plugins[static::ALGORITHM]['Keys'][$format])) {
-                $format = self::$plugins[static::ALGORITHM]['Keys'][$format];
+            try {
                 $components = $format::load($key, $password);
+            } catch (\Exception $e) {
+                $components = false;
+            }
+            if ($components !== false) {
+                break;
             }
         }
 
@@ -188,7 +174,41 @@ abstract class AsymmetricKey
 
         $components['format'] = $format;
 
-        return $components;
+        $new = static::onLoad($components);
+        return $new instanceof PrivateKey ?
+            $new->withPassword($password) :
+            $new;
+    }
+
+    /**
+     * Load the key, assuming a specific format
+     *
+     * @param string $key
+     * @param string $type
+     * @param string $password optional
+     * @return AsymmetricKey
+     */
+    public static function loadFormat($type, $key, $password = false)
+    {
+        self::initialize_static_variables();
+
+        $components = false;
+        $format = strtolower($type);
+        if (isset(self::$plugins[static::ALGORITHM]['Keys'][$format])) {
+            $format = self::$plugins[static::ALGORITHM]['Keys'][$format];
+            $components = $format::load($key, $password);
+        }
+
+        if ($components === false) {
+            throw new NoKeyLoadedException('Unable to read key');
+        }
+
+        $components['format'] = $format;
+
+        $new = static::onLoad($components);
+        return $new instanceof PrivateKey ?
+            $new->withPassword($password) :
+            $new;
     }
 
     /**
@@ -224,18 +244,20 @@ abstract class AsymmetricKey
     {
         if (!isset(self::$plugins[static::ALGORITHM][$format])) {
             self::$plugins[static::ALGORITHM][$format] = [];
-            foreach (new \DirectoryIterator(__DIR__ . '/../' . static::ALGORITHM . '/' . $format . '/') as $file) {
+            foreach (new \DirectoryIterator(__DIR__ . '/../' . static::ALGORITHM . '/Formats/' . $format . '/') as $file) {
                 if ($file->getExtension() != 'php') {
                     continue;
                 }
                 $name = $file->getBasename('.php');
-                $type = 'phpseclib\Crypt\\' . static::ALGORITHM . '\\' . $format . '\\' . $name;
+                $type = 'phpseclib3\Crypt\\' . static::ALGORITHM . '\\Formats\\' . $format . '\\' . $name;
                 $reflect = new \ReflectionClass($type);
                 if ($reflect->isTrait()) {
                     continue;
                 }
                 self::$plugins[static::ALGORITHM][$format][strtolower($name)] = $type;
-                self::$origPlugins[static::ALGORITHM][$format][] = $name;
+                if ($reflect->hasConstant('IS_INVISIBLE')) {
+                    self::$invisiblePlugins[static::ALGORITHM][] = $type;
+                }
             }
         }
     }
@@ -272,7 +294,9 @@ abstract class AsymmetricKey
             $meta = new \ReflectionClass($fullname);
             $shortname = $meta->getShortName();
             self::$plugins[static::ALGORITHM]['Keys'][strtolower($shortname)] = $fullname;
-            self::$origPlugins[static::ALGORITHM]['Keys'][] = $shortname;
+            if ($meta->hasConstant('IS_INVISIBLE')) {
+                self::$invisiblePlugins[static::ALGORITHM] = strtolower($name);
+            }
         }
     }
 
@@ -357,6 +381,16 @@ abstract class AsymmetricKey
     }
 
     /**
+     * Returns the hash algorithm currently being used
+     *
+     * @access public
+     */
+    public function getHash()
+    {
+       return $this->hash->getHash();
+    }
+
+    /**
      * Compute the pseudorandom k for signature generation,
      * using the process specified for deterministic DSA.
      *
@@ -406,7 +440,7 @@ abstract class AsymmetricKey
      * Integer to Octet String
      *
      * @access private
-     * @param \phpseclib\Math\BigInteger $v
+     * @param \phpseclib3\Math\BigInteger $v
      * @return string
      */
     private function int2octets($v)
@@ -427,7 +461,7 @@ abstract class AsymmetricKey
      *
      * @access private
      * @param string $in
-     * @return \phpseclib\Math\BigInteger
+     * @return \phpseclib3\Math\BigInteger
      */
     protected function bits2int($in)
     {

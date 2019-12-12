@@ -16,7 +16,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $blowfish = new \phpseclib\Crypt\Blowfish();
+ *    $blowfish = new \phpseclib3\Crypt\Blowfish();
  *
  *    $blowfish->setKey('12345678901234567890123456789012');
  *
@@ -35,9 +35,9 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt;
+namespace phpseclib3\Crypt;
 
-use phpseclib\Crypt\Common\BlockCipher;
+use phpseclib3\Crypt\Common\BlockCipher;
 
 /**
  * Pure-PHP implementation of Blowfish.
@@ -52,7 +52,7 @@ class Blowfish extends BlockCipher
     /**
      * Block Length of the cipher
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::block_size
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::block_size
      * @var int
      * @access private
      */
@@ -61,7 +61,7 @@ class Blowfish extends BlockCipher
     /**
      * The mcrypt specific name of the cipher
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::cipher_name_mcrypt
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
      * @var string
      * @access private
      */
@@ -70,7 +70,7 @@ class Blowfish extends BlockCipher
     /**
      * Optimizing value while CFB-encrypting
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::cfb_init_len
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::cfb_init_len
      * @var int
      * @access private
      */
@@ -275,7 +275,7 @@ class Blowfish extends BlockCipher
     /**
      * The Key Length (in bytes)
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::setKeyLength()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::setKeyLength()
      * @var int
      * @access private
      * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
@@ -288,17 +288,17 @@ class Blowfish extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @param int $mode
+     * @param string $mode
      * @access public
      * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
     public function __construct($mode)
     {
-        if ($mode == self::MODE_STREAM) {
+        parent::__construct($mode);
+
+        if ($this->mode == self::MODE_STREAM) {
             throw new \InvalidArgumentException('Block ciphers cannot be ran in stream mode');
         }
-
-        parent::__construct($mode);
     }
 
     /**
@@ -323,9 +323,9 @@ class Blowfish extends BlockCipher
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib\Crypt\Common\SymmetricKey::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::isValidEngine()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      * @param int $engine
      * @access protected
      * @return bool
@@ -349,7 +349,7 @@ class Blowfish extends BlockCipher
     /**
      * Setup the key (expansion)
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::_setupKey()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupKey()
      * @access private
      */
     protected function setupKey()
@@ -472,7 +472,7 @@ class Blowfish extends BlockCipher
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see \phpseclib\Crypt\Common\SymmetricKey::_setupInlineCrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupInlineCrypt()
      * @access private
      */
     protected function setupInlineCrypt()

@@ -11,11 +11,11 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
-namespace phpseclib\Crypt\DSA;
+namespace phpseclib3\Crypt\DSA;
 
-use phpseclib\Crypt\DSA;
-use phpseclib\Crypt\ECDSA\Signature\ASN1 as ASN1Signature;
-use phpseclib\Crypt\Common;
+use phpseclib3\Crypt\DSA;
+use phpseclib3\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
+use phpseclib3\Crypt\Common;
 
 /**
  * DSA Public Key
@@ -26,7 +26,7 @@ use phpseclib\Crypt\Common;
  */
 class PublicKey extends DSA implements Common\PublicKey
 {
-    use Common\Fingerprint;
+    use Common\Traits\Fingerprint;
 
     /**
      * Verify a signature
