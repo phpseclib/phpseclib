@@ -262,6 +262,11 @@ MFICAQEwBwYDK2VwBQAEIgQg1O5y2/kTWErVttjx92n4rTr+fCjL8dT74Jeoj0R1
 WEKBIBm/RAlphM3+hUG6wWfcO5bIUIaqMLa2ywxcOK1wMWbh
 -----END PRIVATE KEY-----';
         $this->assertSame($expected, $key->toString('PKCS8'));
+
+        $expected = EC::createKey('Ed25519')->toString('PKCS8');
+        $key = PublicKeyLoader::load($expected);
+        $this->assertSame('Ed25519', $key->getCurve());
+        $this->assertSame('Ed25519', $key->getPublicKey()->getCurve());
     }
 
     public function testPuTTYnistp256()
