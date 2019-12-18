@@ -258,8 +258,8 @@ Z9w7lshQhqowtrbLDFw4rXAxZuE=
         // unstructuredName attribute with a value of "Curdle Chairs"
         // that the following key does not have
         $expected = '-----BEGIN PRIVATE KEY-----
-MFICAQEwBwYDK2VwBQAEIgQg1O5y2/kTWErVttjx92n4rTr+fCjL8dT74Jeoj0R1
-WEKBIBm/RAlphM3+hUG6wWfcO5bIUIaqMLa2ywxcOK1wMWbh
+MFMCAQEwBwYDK2VwBQAEIgQg1O5y2/kTWErVttjx92n4rTr+fCjL8dT74Jeoj0R1
+WEKBIQAZv0QJaYTN/oVBusFn3DuWyFCGqjC2tssMXDitcDFm4Q==
 -----END PRIVATE KEY-----';
         $this->assertSame($expected, $key->toString('PKCS8'));
 
