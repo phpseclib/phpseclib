@@ -1591,13 +1591,6 @@ class SFTP extends SSH2
                 }
 
                 $i++;
-
-                if ($i >= NET_SFTP_QUEUE_SIZE) {
-                    if (!$this->read_put_responses($i)) {
-                        return false;
-                    }
-                    $i = 0;
-                }
             }
         }
 
@@ -1607,11 +1600,8 @@ class SFTP extends SSH2
 
         $i++;
 
-        if ($i >= NET_SFTP_QUEUE_SIZE) {
-            if (!$this->read_put_responses($i)) {
-                return false;
-            }
-            $i = 0;
+        if (!$this->read_put_responses($i)) {
+            return false;
         }
 
         return true;
@@ -1973,7 +1963,7 @@ class SFTP extends SSH2
 
             $subtemp = $offset + $sent;
             $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, strlen($temp), $temp);
-            if (!$this->send_sftp_packet(NET_SFTP_WRITE, $packet)) {
+            if (!$this->send_sftp_packet(NET_SFTP_WRITE, $packet, $i)) {
                 if ($mode & self::SOURCE_LOCAL_FILE) {
                     fclose($fp);
                 }
@@ -1985,14 +1975,6 @@ class SFTP extends SSH2
             }
 
             $i++;
-
-            if ($i == NET_SFTP_QUEUE_SIZE) {
-                if (!$this->read_put_responses($i)) {
-                    $i = 0;
-                    break;
-                }
-                $i = 0;
-            }
         }
 
         if (!$this->read_put_responses($i)) {
@@ -2276,10 +2258,8 @@ class SFTP extends SSH2
             if (!$recursive) {
                 return false;
             }
-            $i = 0;
-            $result = $this->delete_recursive($path, $i);
-            $this->read_put_responses($i);
-            return $result;
+
+            return $this->delete_recursive($path);
         }
 
         $this->remove_from_stat_cache($path);
@@ -2297,11 +2277,8 @@ class SFTP extends SSH2
      * @return bool
      * @access private
      */
-    private function delete_recursive($path, &$i)
+    private function delete_recursive($path)
     {
-        if (!$this->read_put_responses($i)) {
-            return false;
-        }
         $i = 0;
         $entries = $this->readlist($path, true);
 
@@ -2329,13 +2306,6 @@ class SFTP extends SSH2
                 $this->remove_from_stat_cache($temp);
 
                 $i++;
-
-                if ($i >= NET_SFTP_QUEUE_SIZE) {
-                    if (!$this->read_put_responses($i)) {
-                        return false;
-                    }
-                    $i = 0;
-                }
             }
         }
 
@@ -2346,11 +2316,8 @@ class SFTP extends SSH2
 
         $i++;
 
-        if ($i >= NET_SFTP_QUEUE_SIZE) {
-            if (!$this->read_put_responses($i)) {
-                return false;
-            }
-            $i = 0;
+        if (!$this->read_put_responses($i)) {
+            return false;
         }
 
         return true;
