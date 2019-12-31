@@ -152,7 +152,7 @@ class Stream
      * @return string
      * @access private
      */
-    private function parse_path($path)
+    protected function parse_path($path)
     {
         $orig = $path;
         extract(parse_url($path) + ['port' => 22]);

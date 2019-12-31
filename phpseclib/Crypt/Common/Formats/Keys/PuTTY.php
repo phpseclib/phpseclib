@@ -78,7 +78,7 @@ abstract class PuTTY
      * @param string $password
      * @return array
      */
-    protected static function load($key, $password)
+    public static function load($key, $password)
     {
         if (!is_string($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
