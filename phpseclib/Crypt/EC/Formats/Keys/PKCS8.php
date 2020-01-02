@@ -106,6 +106,9 @@ abstract class PKCS8 extends Progenitor
 
         $decoded = ASN1::decodeBER($key[$type . 'Algorithm']['parameters']->element);
         $params = ASN1::asn1map($decoded[0], Maps\ECParameters::MAP);
+        if (!$params) {
+            throw new \RuntimeException('Unable to decode the parameters using Maps\ECParameters');
+        }
 
         $components = [];
         $components['curve'] = self::loadCurveByParam($params);
