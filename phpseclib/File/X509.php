@@ -2948,7 +2948,7 @@ class X509
     private static function identifySignatureAlgorithm(PrivateKey $key)
     {
         if ($key instanceof RSA) {
-            if ($key->getPadding() | RSA::SIGNATURE_PSS) {
+            if ($key->getPadding() & RSA::SIGNATURE_PSS) {
                 return 'id-RSASSA-PSS';
             }
             switch ($key->getHash()) {
