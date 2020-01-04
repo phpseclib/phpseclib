@@ -37,6 +37,14 @@
  * ?>
  * </code>
  *
+ * One thing to consider when using this: so phpseclib uses PSS mode by default.
+ * Technically, id-RSASSA-PSS has a different key format than rsaEncryption. So
+ * should phpseclib save to the id-RSASSA-PSS format by default or the
+ * rsaEncryption format? For stand-alone keys I figure rsaEncryption is better
+ * because SSH doesn't use PSS and idk how many SSH servers would be able to
+ * decode an id-RSASSA-PSS key. For X.509 certificates the id-RSASSA-PSS
+ * format is used by default (unless you change it up to use PKCS1 instead)
+ *
  * @category  Crypt
  * @package   RSA
  * @author    Jim Wigginton <terrafrost@php.net>
@@ -660,7 +668,7 @@ abstract class RSA extends AsymmetricKey
      *
      * @access public
      */
-    public function getHash()
+    public function getMGFHash()
     {
        return $this->mgfHash->getHash();
     }

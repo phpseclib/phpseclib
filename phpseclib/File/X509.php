@@ -39,6 +39,7 @@ use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\File\ASN1\Element;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\File\ASN1\Maps;
+use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
 use DateTime;
 use DateTimeZone;
 
@@ -2520,11 +2521,21 @@ class X509
         $currentCert = isset($this->currentCert) ? $this->currentCert : null;
         $signatureSubject = isset($this->signatureSubject) ? $this->signatureSubject : null;
         $signatureAlgorithm = self::identifySignatureAlgorithm($issuer->privateKey);
+        if ($signatureAlgorithm != 'id-RSASSA-PSS') {
+            $signatureAlgorithm = ['algorithm' => $signatureAlgorithm];
+        } else {
+            $r = PSS::load($issuer->privateKey->toString('PSS'));
+            $signatureAlgorithm = [
+                'algorithm' => 'id-RSASSA-PSS',
+                'parameters' => PSS::savePSSParams($r)
+            ];
+        }
 
         if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
             $this->currentCert = $subject->currentCert;
-            $this->currentCert['tbsCertificate']['signature']['algorithm'] = $signatureAlgorithm;
-            $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
+            $this->currentCert['tbsCertificate']['signature'] = $signatureAlgorithm;
+            $this->currentCert['signatureAlgorithm'] = $signatureAlgorithm;
+
 
             if (!empty($this->startDate)) {
                 $this->currentCert['tbsCertificate']['validity']['notBefore'] = $this->timeField($this->startDate);
@@ -2574,7 +2585,7 @@ class X509
                     [
                         'version' => 'v3',
                         'serialNumber' => $serialNumber, // $this->setSerialNumber()
-                        'signature' => ['algorithm' => $signatureAlgorithm],
+                        'signature' => $signatureAlgorithm,
                         'issuer' => false, // this is going to be overwritten later
                         'validity' => [
                             'notBefore' => $this->timeField($startDate), // $this->setStartDate()
@@ -2583,7 +2594,7 @@ class X509
                         'subject' => $subject->dn,
                         'subjectPublicKeyInfo' => $subjectPublicKey
                     ],
-                    'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
+                    'signatureAlgorithm' => $signatureAlgorithm,
                     'signature'          => false // this is going to be overwritten later
             ];
 

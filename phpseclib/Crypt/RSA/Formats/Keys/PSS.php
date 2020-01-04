@@ -202,7 +202,7 @@ abstract class PSS extends Progenitor
      * @param array $options
      * @return string
      */
-    private static function savePSSParams(array $options)
+    public static function savePSSParams(array $options)
     {
         /*
          The trailerField field is an integer.  It provides

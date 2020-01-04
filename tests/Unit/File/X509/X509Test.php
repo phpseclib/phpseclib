@@ -939,8 +939,52 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
         $r = $x509->loadX509($result);
         $this->assertSame('id-RSASSA-PSS', $r['tbsCertificate']['signature']['algorithm']);
+        $this->assertArrayHasKey('parameters', $r['tbsCertificate']['signature']);
         $this->assertSame('id-RSASSA-PSS', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
+        $this->assertArrayHasKey('parameters', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']);
         $this->assertSame('id-RSASSA-PSS', $r['signatureAlgorithm']['algorithm']);
+        $this->assertArrayHasKey('parameters', $r['signatureAlgorithm']);
+    }
+
+    public function testPKCS1Save()
+    {
+        $private = '-----BEGIN RSA PRIVATE KEY-----
+MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
+wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5
+1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh
+3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2
+pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX
+GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il
+AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF
+L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k
+X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl
+U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
+37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
+-----END RSA PRIVATE KEY-----';
+        $private = PublicKeyLoader::load($private)
+            ->withPadding(RSA::SIGNATURE_PKCS1)
+            ->withHash('sha256');
+        $public = $private->getPublicKey();
+
+        $subject = new X509();
+        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $subject->setPublicKey($public);
+
+        $issuer = new X509();
+        $issuer->setPrivateKey($private);
+        $issuer->setDN($subject->getDN());
+
+        $x509 = new X509();
+
+        $result = $x509->sign($issuer, $subject);
+        $result = $x509->saveX509($result);
+
+        $this->assertInternalType('string', $result);
+
+        $r = $x509->loadX509($result);
+        $this->assertSame('sha256WithRSAEncryption', $r['tbsCertificate']['signature']['algorithm']);
+        $this->assertSame('rsaEncryption', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
+        $this->assertSame('sha256WithRSAEncryption', $r['signatureAlgorithm']['algorithm']);
     }
 
     public function testLongTagOnBadCert()
