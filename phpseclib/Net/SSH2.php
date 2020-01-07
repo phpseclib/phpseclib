@@ -1616,7 +1616,9 @@ class SSH2
         $temp = unpack('Nlength', substr($this->signature, 0, 4));
         $this->signature_format = substr($this->signature, 4, $temp['length']);
         $keyBytes = DH::computeSecret($ourPrivate, $theirPublicBytes);
-        if (($keyBytes[0] & "\x80") === "\x80") {
+        if (($keyBytes & "\xFF\x80") === "\x00\x00") {
+            $keyBytes = substr($keyBytes, 1);
+        } elseif (($keyBytes[0] & "\x80") === "\x80") {
             $keyBytes = "\0$keyBytes";
         }
 
