@@ -1245,7 +1245,7 @@ class SSH2
                     $usec = 1000000 * ($this->curTimeout - $sec);
                     // on windows this returns a "Warning: Invalid CRT parameters detected" error
                     // the !count() is done as a workaround for <https://bugs.php.net/42682>
-                    if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
+                    if (stream_select($read, $write, $except, $sec, $usec) === false && !count($read)) {
                         $this->is_timeout = true;
                         return false;
                     }
