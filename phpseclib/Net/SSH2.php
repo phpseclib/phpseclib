@@ -3586,7 +3586,7 @@ class SSH2
                 $write = $except = null;
 
                 if (!$this->curTimeout) {
-                    @stream_select($read, $write, $except, null);
+                    stream_select($read, $write, $except, null);
                 } else {
                     if ($this->curTimeout < 0) {
                         $this->is_timeout = true;
@@ -3599,8 +3599,7 @@ class SSH2
                     $start = microtime(true);
                     $sec = floor($this->curTimeout);
                     $usec = 1000000 * ($this->curTimeout - $sec);
-                    // on windows this returns a "Warning: Invalid CRT parameters detected" error
-                    if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
+                    if (!stream_select($read, $write, $except, $sec, $usec)) {
                         $this->is_timeout = true;
                         if ($client_channel == self::CHANNEL_EXEC && !$this->request_pty) {
                             $this->close_channel($client_channel);
