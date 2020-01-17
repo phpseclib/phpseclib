@@ -1541,8 +1541,8 @@ class SSH2
         if ($kex_algorithm === 'curve25519-sha256@libssh.org') {
             $x = Random::string(32);
             $eBytes = sodium_crypto_box_publickey_from_secretkey($x);
-            $clientKexInitMessage = NET_SSH2_MSG_KEX_ECDH_INIT;
-            $serverKexReplyMessage = NET_SSH2_MSG_KEX_ECDH_REPLY;
+            $clientKexInitMessage = 'NET_SSH2_MSG_KEX_ECDH_INIT';
+            $serverKexReplyMessage = 'NET_SSH2_MSG_KEX_ECDH_REPLY';
             $kexHash = new Hash('sha256');
         } else {
             if (strpos($kex_algorithm, 'diffie-hellman-group-exchange') === 0) {
@@ -1596,8 +1596,8 @@ class SSH2
                     $gBytes
                 );
 
-                $clientKexInitMessage = NET_SSH2_MSG_KEXDH_GEX_INIT;
-                $serverKexReplyMessage = NET_SSH2_MSG_KEXDH_GEX_REPLY;
+                $clientKexInitMessage = 'NET_SSH2_MSG_KEXDH_GEX_INIT';
+                $serverKexReplyMessage = 'NET_SSH2_MSG_KEXDH_GEX_REPLY';
             } else {
                 switch ($kex_algorithm) {
                     // see http://tools.ietf.org/html/rfc2409#section-6.2 and
@@ -1624,8 +1624,8 @@ class SSH2
                 // the generator field element is 2 (decimal) and the hash function is sha1.
                 $g = new BigInteger(2);
                 $prime = new BigInteger($prime, 16);
-                $clientKexInitMessage = NET_SSH2_MSG_KEXDH_INIT;
-                $serverKexReplyMessage = NET_SSH2_MSG_KEXDH_REPLY;
+                $clientKexInitMessage = 'NET_SSH2_MSG_KEXDH_INIT';
+                $serverKexReplyMessage = 'NET_SSH2_MSG_KEXDH_REPLY';
             }
 
             switch ($kex_algorithm) {
@@ -1653,12 +1653,19 @@ class SSH2
 
             $eBytes = $e->toBytes(true);
         }
-        $data = pack('CNa*', $clientKexInitMessage, strlen($eBytes), $eBytes);
+        $data = pack('CNa*', constant($clientKexInitMessage), strlen($eBytes), $eBytes);
 
         if (!$this->_send_binary_packet($data)) {
             $this->bitmap = 0;
             user_error('Connection closed by server');
             return false;
+        }
+        switch ($clientKexInitMessage) {
+            case 'NET_SSH2_MSG_KEX_ECDH_INIT':
+                $this->_updateLogHistory('NET_SSH2_MSG_KEXDH_INIT', 'NET_SSH2_MSG_KEX_ECDH_INIT');
+                break;
+            case 'NET_SSH2_MSG_KEXDH_GEX_INIT':
+                $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_KEXDH_GEX_INIT');
         }
 
         $response = $this->_get_binary_packet();
@@ -1672,9 +1679,16 @@ class SSH2
         }
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
-        if ($type != $serverKexReplyMessage) {
-            user_error('Expected SSH_MSG_KEXDH_REPLY');
+        if ($type != constant($serverKexReplyMessage)) {
+            user_error("Expected $serverKexReplyMessage");
             return false;
+        }
+        switch ($serverKexReplyMessage) {
+            case 'NET_SSH2_MSG_KEX_ECDH_REPLY':
+                $this->_updateLogHistory('NET_SSH2_MSG_KEXDH_REPLY', 'NET_SSH2_MSG_KEX_ECDH_REPLY');
+                break;
+            case 'NET_SSH2_MSG_KEXDH_GEX_REPLY':
+                $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_KEXDH_GEX_REPLY');
         }
 
         if (strlen($response) < 4) {
@@ -2298,9 +2312,7 @@ class SSH2
 
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
-                if (defined('NET_SSH2_LOGGING')) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ';
-                }
+                $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ');
                 if (strlen($response) < 4) {
                     return false;
                 }
@@ -2451,12 +2463,8 @@ class SSH2
                 // see http://tools.ietf.org/html/rfc4256#section-3.2
                 if (strlen($this->last_interactive_response)) {
                     $this->last_interactive_response = '';
-                } elseif (defined('NET_SSH2_LOGGING')) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
-                        'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
-                        $this->message_number_log[count($this->message_number_log) - 1]
-                    );
+                } else {
+                    $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_INFO_REQUEST');
                 }
 
                 if (!count($responses) && $num_prompts) {
@@ -2479,13 +2487,7 @@ class SSH2
                     return false;
                 }
 
-                if (defined('NET_SSH2_LOGGING') && NET_SSH2_LOGGING == self::LOG_COMPLEX) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
-                        'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE',
-                        $this->message_number_log[count($this->message_number_log) - 1]
-                    );
-                }
+                $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE');
 
                 /*
                    After receiving the response, the server MUST send either an
@@ -2612,13 +2614,7 @@ class SSH2
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
-                if (defined('NET_SSH2_LOGGING') && NET_SSH2_LOGGING == self::LOG_COMPLEX) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
-                        'UNKNOWN',
-                        'NET_SSH2_MSG_USERAUTH_PK_OK',
-                        $this->message_number_log[count($this->message_number_log) - 1]
-                    );
-                }
+                $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_PK_OK');
         }
 
         $packet = $part1 . chr(1) . $part2;
@@ -5059,5 +5055,23 @@ class SSH2
     {
         $this->windowColumns = $columns;
         $this->windowRows = $rows;
+    }
+
+    /**
+     * Update packet types in log history
+     *
+     * @param string $old
+     * @param string $new
+     * @access private
+     */
+    function _updateLogHistory($old, $new)
+    {
+        if (defined('NET_SSH2_LOGGING') && NET_SSH2_LOGGING == self::LOG_COMPLEX) {
+            $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
+                $old,
+                $new,
+                $this->message_number_log[count($this->message_number_log) - 1]
+            );
+        }
     }
 }
