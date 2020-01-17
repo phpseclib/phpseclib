@@ -4829,6 +4829,7 @@ class SSH2
         return self::$connections;
     }
 
+    /*
      * Update packet types in log history
      *
      * @param string $old
