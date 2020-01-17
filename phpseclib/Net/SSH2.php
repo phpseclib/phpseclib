@@ -1243,9 +1243,7 @@ class SSH2
                     $start = microtime(true);
                     $sec = floor($this->curTimeout);
                     $usec = 1000000 * ($this->curTimeout - $sec);
-                    // on windows this returns a "Warning: Invalid CRT parameters detected" error
-                    // the !count() is done as a workaround for <https://bugs.php.net/42682>
-                    if (stream_select($read, $write, $except, $sec, $usec) === false && !count($read)) {
+                    if (stream_select($read, $write, $except, $sec, $usec) === false) {
                         $this->is_timeout = true;
                         return false;
                     }
