@@ -1560,6 +1560,7 @@ class SSH2
                 if (!$this->_send_binary_packet($packet)) {
                     return false;
                 }
+                $this->_updateLogHistory('UNKNOWN (34)', 'NET_SSH2_MSG_KEXDH_GEX_REQUEST');
 
                 $response = $this->_get_binary_packet();
                 if ($response === false) {
@@ -1572,6 +1573,7 @@ class SSH2
                     user_error('Expected SSH_MSG_KEX_DH_GEX_GROUP');
                     return false;
                 }
+                $this->_updateLogHistory('NET_SSH2_MSG_KEXDH_REPLY', 'NET_SSH2_MSG_KEXDH_GEX_GROUP');
 
                 if (strlen($response) < 4) {
                     return false;
@@ -1665,7 +1667,7 @@ class SSH2
                 $this->_updateLogHistory('NET_SSH2_MSG_KEXDH_INIT', 'NET_SSH2_MSG_KEX_ECDH_INIT');
                 break;
             case 'NET_SSH2_MSG_KEXDH_GEX_INIT':
-                $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_KEXDH_GEX_INIT');
+                $this->_updateLogHistory('UNKNOWN (32)', 'NET_SSH2_MSG_KEXDH_GEX_INIT');
         }
 
         $response = $this->_get_binary_packet();
@@ -1688,7 +1690,7 @@ class SSH2
                 $this->_updateLogHistory('NET_SSH2_MSG_KEXDH_REPLY', 'NET_SSH2_MSG_KEX_ECDH_REPLY');
                 break;
             case 'NET_SSH2_MSG_KEXDH_GEX_REPLY':
-                $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_KEXDH_GEX_REPLY');
+                $this->_updateLogHistory('UNKNOWN (33)', 'NET_SSH2_MSG_KEXDH_GEX_REPLY');
         }
 
         if (strlen($response) < 4) {
@@ -2312,7 +2314,7 @@ class SSH2
 
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
-                $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ');
+                $this->_updateLogHistory('UNKNOWN (60)', 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ');
                 if (strlen($response) < 4) {
                     return false;
                 }
@@ -2464,7 +2466,7 @@ class SSH2
                 if (strlen($this->last_interactive_response)) {
                     $this->last_interactive_response = '';
                 } else {
-                    $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_INFO_REQUEST');
+                    $this->_updateLogHistory('UNKNOWN (60)', 'NET_SSH2_MSG_USERAUTH_INFO_REQUEST');
                 }
 
                 if (!count($responses) && $num_prompts) {
@@ -2487,7 +2489,7 @@ class SSH2
                     return false;
                 }
 
-                $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE');
+                $this->_updateLogHistory('UNKNOWN (61)', 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE');
 
                 /*
                    After receiving the response, the server MUST send either an
@@ -2614,7 +2616,7 @@ class SSH2
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
-                $this->_updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_PK_OK');
+                $this->_updateLogHistory('UNKNOWN (60)', 'NET_SSH2_MSG_USERAUTH_PK_OK');
         }
 
         $packet = $part1 . chr(1) . $part2;
