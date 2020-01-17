@@ -1547,6 +1547,7 @@ class SSH2
                     $dh_group_sizes_packed
                 );
                 $this->send_binary_packet($packet);
+                $this->updateLogHistory('UNKNOWN (34)', 'NET_SSH2_MSG_KEXDH_GEX_REQUEST');
 
                 $response = $this->get_binary_packet();
                 if ($response === false) {
@@ -1558,6 +1559,7 @@ class SSH2
                 if ($type != NET_SSH2_MSG_KEXDH_GEX_GROUP) {
                     throw new \UnexpectedValueException('Expected SSH_MSG_KEX_DH_GEX_GROUP');
                 }
+                $this->updateLogHistory('NET_SSH2_MSG_KEXDH_REPLY', 'NET_SSH2_MSG_KEXDH_GEX_GROUP');
                 $prime = new BigInteger($primeBytes, -256);
                 $g = new BigInteger($gBytes, -256);
 
@@ -1592,7 +1594,7 @@ class SSH2
                 $this->updateLogHistory('NET_SSH2_MSG_KEXDH_INIT', 'NET_SSH2_MSG_KEX_ECDH_INIT');
                 break;
             case 'NET_SSH2_MSG_KEXDH_GEX_INIT':
-                $this->updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_KEXDH_GEX_INIT');
+                $this->updateLogHistory('UNKNOWN (32)', 'NET_SSH2_MSG_KEXDH_GEX_INIT');
         }
 
         $response = $this->get_binary_packet();
@@ -1613,6 +1615,13 @@ class SSH2
 
         if ($type != constant($serverKexReplyMessage)) {
             throw new \UnexpectedValueException("Expected $serverKexReplyMessage");
+        }
+        switch ($serverKexReplyMessage) {
+            case 'NET_SSH2_MSG_KEX_ECDH_REPLY':
+                $this->updateLogHistory('NET_SSH2_MSG_KEXDH_REPLY', 'NET_SSH2_MSG_KEX_ECDH_REPLY');
+                break;
+            case 'NET_SSH2_MSG_KEXDH_GEX_REPLY':
+                $this->updateLogHistory('UNKNOWN (33)', 'NET_SSH2_MSG_KEXDH_GEX_REPLY');
         }
 
         $this->server_public_host_key = $server_public_host_key;
@@ -2192,7 +2201,7 @@ class SSH2
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
-                $this->updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ');
+                $this->updateLogHistory('UNKNOWN (60)', 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ');
 
                 list($message) = Strings::unpackSSH2('s', $response);
                 $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . $message;
@@ -2303,7 +2312,7 @@ class SSH2
                 if (strlen($this->last_interactive_response)) {
                     $this->last_interactive_response = '';
                 } else {
-                    $this->updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_INFO_REQUEST');
+                    $this->updateLogHistory('UNKNOWN (60)', 'NET_SSH2_MSG_USERAUTH_INFO_REQUEST');
                 }
 
                 if (!count($responses) && $num_prompts) {
@@ -2324,7 +2333,7 @@ class SSH2
 
                 $this->send_binary_packet($packet, $logged);
 
-                $this->updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE');
+                $this->updateLogHistory('UNKNOWN (61)', 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE');
 
                 /*
                    After receiving the response, the server MUST send either an
@@ -2458,7 +2467,7 @@ class SSH2
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
-                $this->updateLogHistory('UNKNOWN', 'NET_SSH2_MSG_USERAUTH_PK_OK');
+                $this->updateLogHistory('UNKNOWN (60)', 'NET_SSH2_MSG_USERAUTH_PK_OK');
         }
 
         $packet = $part1 . chr(1) . $part2;
