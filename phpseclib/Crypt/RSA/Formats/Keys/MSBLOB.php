@@ -200,7 +200,7 @@ abstract class MSBLOB
         $key.= strrev($primes[2]->toBytes());
         $key.= strrev($exponents[1]->toBytes());
         $key.= strrev($exponents[2]->toBytes());
-        $key.= strrev($coefficients[1]->toBytes());
+        $key.= strrev($coefficients[2]->toBytes());
         $key.= strrev($d->toBytes());
 
         return Base64::encode($key);
