@@ -440,6 +440,7 @@ Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
         $plaintext = 'zzz';
 
         $privKey = PublicKeyLoader::load($key);
+        $this->assertSame($key, $privKey->toString('MSBLOB'));
         $this->assertInstanceOf(PrivateKey::class, $privKey);
         $this->assertSame($privKey->getLoadedFormat(), 'MSBLOB');
         $this->assertGreaterThanOrEqual(1, strlen("$privKey"));
