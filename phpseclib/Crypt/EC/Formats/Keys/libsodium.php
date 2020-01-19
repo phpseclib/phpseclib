@@ -21,6 +21,7 @@ namespace phpseclib3\Crypt\EC\Formats\Keys;
 
 use phpseclib3\Crypt\EC\Curves\Ed25519;
 use phpseclib3\Math\Common\FiniteField\Integer;
+use phpseclib3\Exception\UnsupportedFormatException;
 
 /**
  * libsodium Key Handler
@@ -112,6 +113,9 @@ abstract class libsodium
         }
         if (strlen($privateKey->secret) != 32) {
             throw new \RuntimeException('Private Key secret is not of the correct length');
+        }
+        if (!empty($password) && is_string($password)) {
+            throw new UnsupportedFormatException('libsodium private keys do not support encryption');
         }
         return $privateKey->secret . $curve->encodePoint($publicKey);
     }

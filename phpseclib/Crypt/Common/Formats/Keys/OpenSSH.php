@@ -202,7 +202,7 @@ abstract class OpenSSH
      */
     protected static function wrapPrivateKey($publicKey, $privateKey, $password, $options)
     {
-        if (!empty($password) || is_string($password)) {
+        if (!empty($password) && is_string($password)) {
             throw new UnsupportedFormatException('Encrypted OpenSSH private keys are not supported');
         }
 

@@ -27,6 +27,7 @@ use phpseclib3\Crypt\EC\Curves\Curve448;
 use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib3\Math\Common\FiniteField\Integer;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Exception\UnsupportedFormatException;
 
 /**
  * Montgomery Curve Private Key Handler
@@ -98,6 +99,10 @@ abstract class MontgomeryPrivate
      */
     public static function savePrivateKey(Integer $privateKey, MontgomeryCurve $curve, array $publicKey, $password = '')
     {
+        if (!empty($password) && is_string($password)) {
+            throw new UnsupportedFormatException('MontgomeryPrivate private keys do not support encryption');
+        }
+
         return $privateKey->toBytes();
     }
 }

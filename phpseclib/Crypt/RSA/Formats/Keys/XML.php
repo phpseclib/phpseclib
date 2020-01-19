@@ -24,6 +24,7 @@ namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
 use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Exception\UnsupportedFormatException;
 
 /**
  * XML Formatted RSA Key Handler
@@ -136,6 +137,11 @@ abstract class XML
         if (count($primes) != 2) {
             throw new \InvalidArgumentException('XML does not support multi-prime RSA keys');
         }
+
+        if (!empty($password) && is_string($password)) {
+            throw new UnsupportedFormatException('XML private keys do not support encryption');
+        }
+
         return "<RSAKeyPair>\r\n" .
                '  <Modulus>' . Base64::encode($n->toBytes()) . "</Modulus>\r\n" .
                '  <Exponent>' . Base64::encode($e->toBytes()) . "</Exponent>\r\n" .
