@@ -980,4 +980,18 @@ Vyaqr/WTPzxdXJAAAADHJvb3RAdmFncmFudAECAwQFBg==
 
         $this->assertTrue($key->verify('zzz', $sig));
     }
+
+    public function testPuTTYPublic()
+    {
+        $orig = '---- BEGIN SSH2 PUBLIC KEY ----
+Comment: "phpseclib-generated-key"
+AAAAB3NzaC1yc2EAAAADAQABAAAAQQCo9+BpMRYQ/dL3DS2CyJxRF+j6ctbT3/Qp
+84+KeFhnii7NT7fELilKUSnxS30WAvQCCo2yU1orfgqr41mM70MB
+---- END SSH2 PUBLIC KEY ----';
+
+        $orig = preg_replace('#(?<!\r)\n#', "\r\n", $orig);
+        $key = PublicKeyLoader::load($orig);
+
+        $this->assertSame($orig, $key->toString('PuTTY'));
+    }
 }

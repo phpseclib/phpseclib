@@ -125,6 +125,6 @@ abstract class PuTTY extends Progenitor
      */
     public static function savePublicKey(BigInteger $n, BigInteger $e)
     {
-        return self::wrapPublicKey(Strings::packSSH2($e, $n), 'ssh-rsa');
+        return self::wrapPublicKey(Strings::packSSH2('ii', $e, $n), 'ssh-rsa');
     }
 }
