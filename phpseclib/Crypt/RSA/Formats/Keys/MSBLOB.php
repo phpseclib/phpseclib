@@ -22,6 +22,7 @@ namespace phpseclib3\Crypt\RSA\Formats\Keys;
 use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Exception\UnsupportedFormatException;
 
 /**
  * Microsoft BLOB Formatted RSA Key Handler
@@ -189,6 +190,10 @@ abstract class MSBLOB
     {
         if (count($primes) != 2) {
             throw new \InvalidArgumentException('MSBLOB does not support multi-prime RSA keys');
+        }
+
+        if (!empty($password) && is_string($password)) {
+            throw new UnsupportedFormatException('MSBLOB private keys do not support encryption');
         }
 
         $n = strrev($n->toBytes());
