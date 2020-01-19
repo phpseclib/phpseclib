@@ -186,7 +186,7 @@ abstract class OpenSSH
     private static function checkType($candidate)
     {
         if (!in_array($candidate, static::$types)) {
-            throw new \RuntimeException('The key type is not equal to: ' . implode(',', static::$types));
+            throw new \RuntimeException("The key type ($candidate) is not equal to: " . implode(',', static::$types));
         }
     }
 

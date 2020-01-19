@@ -993,5 +993,26 @@ AAAAB3NzaC1yc2EAAAADAQABAAAAQQCo9+BpMRYQ/dL3DS2CyJxRF+j6ctbT3/Qp
         $key = PublicKeyLoader::load($orig);
 
         $this->assertSame($orig, $key->toString('PuTTY'));
+
+        $key = '---- BEGIN SSH2 PUBLIC KEY ----
+Subject: me
+Comment: 1024-bit rsa, created by me@example.com Mon Jan 15 \
+08:31:24 2001
+AAAAB3NzaC1yc2EAAAABJQAAAIEAiPWx6WM4lhHNedGfBpPJNPpZ7yKu+dnn1SJejgt4
+596k6YjzGGphH2TUxwKzxcKDKKezwkpfnxPkSMkuEspGRt/aZZ9wa++Oi7Qkr8prgHc4
+soW6NUlfDzpvZK2H5E7eQaSeP3SAwGmQKUFHCddNaP0L+hM7zhFNzjFvpaMgJw0=
+---- END SSH2 PUBLIC KEY ----';
+        $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
+
+        $key = '---- BEGIN SSH2 PUBLIC KEY ----
+Comment: "1024-bit RSA, converted from OpenSSH by me@example.com"
+x-command: /home/me/bin/lock-in-guest.sh
+AAAAB3NzaC1yc2EAAAABIwAAAIEA1on8gxCGJJWSRT4uOrR13mUaUk0hRf4RzxSZ1zRb
+YYFw8pfGesIFoEuVth4HKyF8k1y4mRUnYHP1XNMNMJl1JcEArC2asV8sHf6zSPVffozZ
+5TT4SfsUu/iKy9lUcCfXzwre4WWZSXXcPff+EHtWshahu3WzBdnGxm5Xoi89zcE=
+---- END SSH2 PUBLIC KEY ----';
+        $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
     }
 }

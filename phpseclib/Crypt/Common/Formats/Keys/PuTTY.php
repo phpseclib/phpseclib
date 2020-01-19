@@ -85,19 +85,42 @@ abstract class PuTTY
         }
 
         if (strpos($key, 'BEGIN SSH2 PUBLIC KEY') !== false) {
-            $data = preg_split('#[\r\n]+#', $key);
-            $data = array_splice($data, 2, -1);
-            $data = implode('', $data);
+            $lines = preg_split('#[\r\n]+#', $key);
+            switch (true) {
+                case $lines[0] != '---- BEGIN SSH2 PUBLIC KEY ----':
+                    throw new \UnexpectedValueException('Key doesn\'t start with ---- BEGIN SSH2 PUBLIC KEY ----');
+                case $lines[count($lines) - 1] != '---- END SSH2 PUBLIC KEY ----':
+                    throw new \UnexpectedValueException('Key doesn\'t end with ---- END SSH2 PUBLIC KEY ----');
+            }
+            $lines = array_splice($lines, 1, -1);
+            $lines = array_map(function ($line) {
+                return rtrim($line, "\r\n");
+            }, $lines);
+            $data = $current = '';
+            $values = [];
+            $in_value = false;
+            foreach ($lines as $line) {
+                switch (true) {
+                    case preg_match('#^(.*?): (.*)#', $line, $match):
+                        $in_value = $line[strlen($line) - 1] == '\\';
+                        $current = strtolower($match[1]);
+                        $values[$current] = $in_value ? substr($match[2], 0, -1) : $match[2];
+                        break;
+                    case $in_value:
+                        $in_value = $line[strlen($line) - 1] == '\\';
+                        $values[$current].= $in_value ? substr($line, 0, -1) : $line;
+                        break;
+                    default:
+                        $data.= $line;
+                }
+            }
 
             $components = call_user_func([static::PUBLIC_HANDLER, 'load'], $data);
             if ($components === false) {
                 throw new \UnexpectedValueException('Unable to decode public key');
             }
-
-            if (!preg_match('#Comment: "(.+)"#', $key, $matches)) {
-                throw new \UnexpectedValueException('Key is missing a comment');
-            }
-            $components['comment'] = str_replace(['\\\\', '\"'], ['\\', '"'], $matches[1]);
+            $components+= $values;
+            $components['comment'] = str_replace(['\\\\', '\"'], ['\\', '"'], $values['comment']);
 
             return $components;
         }
