@@ -4660,7 +4660,6 @@ class SSH2
                     ->withSignatureFormat('SSH2');
                 switch ($this->signature_format) {
                     case 'ssh-ed25519':
-                        Strings::shift($signature, 4 + strlen('ssh-ed25519') + 4);
                         $hash = 'sha512';
                         break;
                     case 'ecdsa-sha2-nistp256':
