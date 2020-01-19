@@ -20,6 +20,7 @@ namespace phpseclib3\Crypt\Common\Formats\Keys;
 use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Random;
+use phpseclib3\Exception\UnsupportedFormatException;
 
 /**
  * OpenSSH Formatted RSA Key Handler
@@ -195,10 +196,16 @@ abstract class OpenSSH
      * @access public
      * @param string $publicKey
      * @param string $privateKey
+     * @param string $password
+     * @param array $options
      * @return string
      */
-    protected static function wrapPrivateKey($publicKey, $privateKey, $options)
+    protected static function wrapPrivateKey($publicKey, $privateKey, $password, $options)
     {
+        if (!empty($password) || is_string($password)) {
+            throw new UnsupportedFormatException('Encrypted OpenSSH private keys are not supported');
+        }
+
         list(, $checkint) = unpack('N', Random::string(4));
 
         $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
