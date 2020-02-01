@@ -263,22 +263,35 @@ class System_SSH_Agent_Identity
         $packet = pack('Na*', strlen($packet), $packet);
         if (strlen($packet) != fputs($this->fsock, $packet)) {
             user_error('Connection closed during signing');
+            return false;
         }
 
-        $length = current(unpack('N', fread($this->fsock, 4)));
+        $temp = fread($this->fsock, 4);
+        if (strlen($temp) != 4) {
+            user_error('Connection closed during signing');
+            return false;
+        }
+        $length = current(unpack('N', $temp));
         $type = ord(fread($this->fsock, 1));
         if ($type != SYSTEM_SSH_AGENT_SIGN_RESPONSE) {
             user_error('Unable to retreive signature');
+            return false;
         }
 
         $signature_blob = fread($this->fsock, $length - 1);
+        if (strlen($signature_blob) != $length - 1) {
+            user_error('Connection closed during signing');
+            return false;
+        }
         $length = current(unpack('N', $this->_string_shift($signature_blob, 4)));
         if ($length != strlen($signature_blob)) {
             user_error('Malformed signature blob');
+            return false;
         }
         $length = current(unpack('N', $this->_string_shift($signature_blob, 4)));
         if ($length > strlen($signature_blob) + 4) {
             user_error('Malformed signature blob');
+            return false;
         }
         $type = $this->_string_shift($signature_blob, $length);
         $this->_string_shift($signature_blob, 4);
@@ -406,7 +419,12 @@ class System_SSH_Agent
             return array();
         }
 
-        $length = current(unpack('N', fread($this->fsock, 4)));
+        $temp = fread($this->fsock, 4);
+        if (strlen($temp) != 4) {
+            user_error('Connection closed while requesting identities');
+            return array();
+        }
+        $length = current(unpack('N', $temp));
         $type = ord(fread($this->fsock, 1));
         if ($type != SYSTEM_SSH_AGENT_IDENTITIES_ANSWER) {
             user_error('Unable to request identities');
@@ -414,14 +432,38 @@ class System_SSH_Agent
         }
 
         $identities = array();
-        $keyCount = current(unpack('N', fread($this->fsock, 4)));
+        $temp = fread($this->fsock, 4);
+        if (strlen($temp) != 4) {
+            user_error('Connection closed while requesting identities');
+            return array();
+        }
+        $keyCount = current(unpack('N', $temp));
         for ($i = 0; $i < $keyCount; $i++) {
-            $length = current(unpack('N', fread($this->fsock, 4)));
+            $temp = fread($this->fsock, 4);
+            if (strlen($temp) != 4) {
+                user_error('Connection closed while requesting identities');
+                return array();
+            }
+            $length = current(unpack('N', $temp));
             $key_blob = fread($this->fsock, $length);
+            if (strlen($key_blob) != $length) {
+                user_error('Connection closed while requesting identities');
+                return array();
+            }
             $key_str = 'ssh-rsa ' . base64_encode($key_blob);
-            $length = current(unpack('N', fread($this->fsock, 4)));
+            $temp = fread($this->fsock, 4);
+            if (strlen($temp) != 4) {
+                user_error('Connection closed while requesting identities');
+                return array();
+            }
+            $length = current(unpack('N', $temp));
             if ($length) {
-                $key_str.= ' ' . fread($this->fsock, $length);
+                $temp = fread($this->fsock, $length);
+                if (strlen($temp) != $length) {
+                    user_error('Connection closed while requesting identities');
+                    return array();
+                }
+                $key_str.= ' ' . $temp;
             }
             $length = current(unpack('N', substr($key_blob, 0, 4)));
             $key_type = substr($key_blob, 4, $length);
@@ -546,14 +588,24 @@ class System_SSH_Agent
 
         if (strlen($this->socket_buffer) != fwrite($this->fsock, $this->socket_buffer)) {
             user_error('Connection closed attempting to forward data to SSH agent');
+            return false;
         }
 
         $this->socket_buffer = '';
         $this->expected_bytes = 0;
 
-        $agent_reply_bytes = current(unpack('N', fread($this->fsock, 4)));
+        $temp = fread($this->fsock, 4);
+        if (strlen($temp) != 4) {
+            user_error('Connection closed while reading data response');
+            return false;
+        }
+        $agent_reply_bytes = current(unpack('N', $temp));
 
         $agent_reply_data = fread($this->fsock, $agent_reply_bytes);
+        if (strlen($agent_reply_data) != $agent_reply_bytes) {
+            user_error('Connection closed while reading data response');
+            return false;
+        }
         $agent_reply_data = current(unpack('a*', $agent_reply_data));
 
         return pack('Na*', $agent_reply_bytes, $agent_reply_data);

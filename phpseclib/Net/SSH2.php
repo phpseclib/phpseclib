@@ -1252,7 +1252,11 @@ class Net_SSH2
                 $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
                 $this->curTimeout-= $elapsed;
             }
-            $temp.= fgets($this->fsock, 255);
+            $subtemp = fgets($this->fsock, 255);
+            if ($subtemp === '' || $subtemp === false) {
+                return false;
+            }
+            $temp.= $subtemp;
         }
 
         if (feof($this->fsock)) {
