@@ -24,7 +24,6 @@ use phpseclib3\System\SSH\Agent;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\PrivateKey;
 
-
 /**
  * Pure-PHP ssh-agent client identity object
  *
@@ -40,6 +39,8 @@ use phpseclib3\Crypt\Common\PrivateKey;
  */
 class Identity implements PrivateKey
 {
+    use \phpseclib3\System\SSH\Common\Traits\ReadBytes;
+
     /**@+
      * Signature Flags
      *
@@ -299,8 +300,8 @@ class Identity implements PrivateKey
             throw new \RuntimeException('Connection closed during signing');
         }
 
-        $length = current(unpack('N', fread($this->fsock, 4)));
-        $packet = fread($this->fsock, $length);
+        $length = current(unpack('N', $this->readBytes(4)));
+        $packet = $this->readBytes($length);
 
         list($type, $signature_blob) = Strings::unpackSSH2('Cs', $packet);
         if ($type != Agent::SSH_AGENT_SIGN_RESPONSE) {
