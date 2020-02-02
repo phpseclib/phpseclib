@@ -2179,7 +2179,11 @@ class X509
                 }
 
                 while (!feof($fsock)) {
-                    $data.= fread($fsock, 1024);
+                    $temp = fread($fsock, 1024);
+                    if ($temp === false) {
+                        return false;
+                    }
+                    $data.= $temp;
                 }
 
                 break;

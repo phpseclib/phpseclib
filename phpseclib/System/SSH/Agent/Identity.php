@@ -188,15 +188,26 @@ class Identity
         $packet = pack('Na*', strlen($packet), $packet);
         if (strlen($packet) != fputs($this->fsock, $packet)) {
             user_error('Connection closed during signing');
+            return false;
         }
 
-        $length = current(unpack('N', fread($this->fsock, 4)));
+        $temp = fread($this->fsock, 4);
+        if (strlen($temp) != 4) {
+            user_error('Connection closed during signing');
+            return false;
+        }
+        $length = current(unpack('N', $temp));
         $type = ord(fread($this->fsock, 1));
         if ($type != Agent::SSH_AGENT_SIGN_RESPONSE) {
             user_error('Unable to retrieve signature');
+            return false;
         }
 
         $signature_blob = fread($this->fsock, $length - 1);
+        if (strlen($signature_blob) != $length - 1) {
+            user_error('Connection closed during signing');
+            return false;
+        }
         $length = current(unpack('N', $this->_string_shift($signature_blob, 4)));
         if ($length != strlen($signature_blob)) {
             user_error('Malformed signature blob');

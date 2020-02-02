@@ -1124,6 +1124,9 @@ class SSH1
 
         while ($length > 0) {
             $temp = fread($this->fsock, $length);
+            if (stlren($temp) != $length) {
+                return false;
+            }
             $raw.= $temp;
             $length-= strlen($temp);
         }
