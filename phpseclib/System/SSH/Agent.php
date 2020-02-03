@@ -50,6 +50,8 @@ use phpseclib3\Crypt\PublicKeyLoader;
  */
 class Agent
 {
+    use Common\Traits\ReadBytes;
+
     /**#@+
      * Message numbers
      *
@@ -177,11 +179,8 @@ class Agent
             throw new \RuntimeException('Connection closed while requesting identities');
         }
 
-        $length = current(unpack('N', fread($this->fsock, 4)));
-        $packet = fread($this->fsock, $length);
-        if (strlen($packet) != $length) {
-            throw new \LengthException("Expected $length bytes; got " . strlen($packet));
-        }
+        $length = current(unpack('N', $this->readBytes(4)));
+        $packet = $this->readBytes($length);
 
         list($type, $keyCount) = Strings::unpackSSH2('CN', $packet);
         if ($type != self::SSH_AGENT_IDENTITIES_ANSWER) {
@@ -295,9 +294,9 @@ class Agent
         $this->socket_buffer = '';
         $this->expected_bytes = 0;
 
-        $agent_reply_bytes = current(unpack('N', fread($this->fsock, 4)));
+        $agent_reply_bytes = current(unpack('N', $this->readBytes(4)));
 
-        $agent_reply_data = fread($this->fsock, $agent_reply_bytes);
+        $agent_reply_data = $this->readBytes($agent_reply_bytes);
         $agent_reply_data = current(unpack('a*', $agent_reply_data));
 
         return pack('Na*', $agent_reply_bytes, $agent_reply_data);

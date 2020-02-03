@@ -18,12 +18,11 @@ namespace phpseclib3\System\SSH\Agent;
 
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\DSA;
-use phpseclib3\Crypt\ECDSA;
+use phpseclib3\Crypt\EC;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\System\SSH\Agent;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\PrivateKey;
-
 
 /**
  * Pure-PHP ssh-agent client identity object
@@ -40,6 +39,8 @@ use phpseclib3\Crypt\Common\PrivateKey;
  */
 class Identity implements PrivateKey
 {
+    use \phpseclib3\System\SSH\Common\Traits\ReadBytes;
+
     /**@+
      * Signature Flags
      *
@@ -191,7 +192,7 @@ class Identity implements PrivateKey
                     throw new UnsupportedAlgorithmException('The only supported hashes for RSA are sha1, sha256 and sha512');
             }
         }
-        if ($this->key instanceof ECDSA) {
+        if ($this->key instanceof EC) {
             switch ($this->key->getCurve()) {
                 case 'secp256r1':
                     $expectedHash = 'sha256';
@@ -246,7 +247,7 @@ class Identity implements PrivateKey
     public function withSignatureFormat($format)
     {
         if ($this->key instanceof RSA) {
-            throw new UnsupportedAlgorithmException('Only DSA and ECDSA keys support signature format setting');
+            throw new UnsupportedAlgorithmException('Only DSA and EC keys support signature format setting');
         }
         if ($format != 'SSH2') {
             throw new UnsupportedAlgorithmException('Only SSH2-formatted signatures are currently supported');
@@ -265,8 +266,8 @@ class Identity implements PrivateKey
      */
     public function getCurve()
     {
-        if (!$this->key instanceof ECDSA) {
-            throw new UnsupportedAlgorithmException('Only ECDSA keys have curves');
+        if (!$this->key instanceof EC) {
+            throw new UnsupportedAlgorithmException('Only EC keys have curves');
         }
 
         return $this->key->getCurve();
@@ -299,8 +300,8 @@ class Identity implements PrivateKey
             throw new \RuntimeException('Connection closed during signing');
         }
 
-        $length = current(unpack('N', fread($this->fsock, 4)));
-        $packet = fread($this->fsock, $length);
+        $length = current(unpack('N', $this->readBytes(4)));
+        $packet = $this->readBytes($length);
 
         list($type, $signature_blob) = Strings::unpackSSH2('Cs', $packet);
         if ($type != Agent::SSH_AGENT_SIGN_RESPONSE) {

@@ -1255,6 +1255,9 @@ class SSH2
                 if (strlen($temp) == 255) {
                     continue;
                 }
+                if ($temp === false) {
+                    return false;
+                }
 
                 $line.= "$temp\n";
 
