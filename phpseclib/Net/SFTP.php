@@ -2954,7 +2954,7 @@ class SFTP extends SSH2
                 'packet_type' => $this->packet_type,
                 'packet' => $packet
             );
-            return $this->_get_sftp_packet($request_id);
+            return $this->get_sftp_packet($request_id);
         }
 
         return $packet;
