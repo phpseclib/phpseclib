@@ -1012,7 +1012,6 @@ class SFTP extends SSH2
                         return $order === SORT_DESC ? -$result : $result;
                     }
                     break;
-                case 'permissions':
                 case 'mode':
                     $a[$sort]&= 07777;
                     $b[$sort]&= 07777;
@@ -1477,7 +1476,7 @@ class SFTP extends SSH2
         switch ($this->packet_type) {
             case NET_SFTP_ATTRS:
                 $attrs = $this->parseAttributes($response);
-                return $attrs['permissions'];
+                return $attrs['mode'];
             case NET_SFTP_STATUS:
                 $this->logError($response);
                 return false;
@@ -2493,7 +2492,7 @@ class SFTP extends SSH2
      */
     public function fileperms($path)
     {
-        return $this->get_stat_cache_prop($path, 'permissions');
+        return $this->get_stat_cache_prop($path, 'mode');
     }
 
     /**
@@ -2684,7 +2683,7 @@ class SFTP extends SSH2
      * @return array
      * @access private
      */
-    private function parseAttributes(&$response)
+    protected function parseAttributes(&$response)
     {
         $attr = [];
         list($flags) = Strings::unpackSSH2('N', $response);
@@ -2707,11 +2706,8 @@ class SFTP extends SSH2
                     list($attr['uid'], $attr['gid']) = Strings::unpackSSH2('NN', $response);
                     break;
                 case NET_SFTP_ATTR_PERMISSIONS: // 0x00000004
-                    list($attr['permissions']) = Strings::unpackSSH2('N', $response);
-                    // mode == permissions; permissions was the original array key and is retained for bc purposes.
-                    // mode was added because that's the more industry standard terminology
-                    $attr+= ['mode' => $attr['permissions']];
-                    $fileType = $this->parseMode($attr['permissions']);
+                    list($attr['mode']) = Strings::unpackSSH2('N', $response);
+                    $fileType = $this->parseMode($attr['mode']);
                     if ($fileType !== false) {
                         $attr+= ['type' => $fileType];
                     }
