@@ -238,7 +238,7 @@ class SFTP extends SSH2
      * @var array
      * @access private
      */
-    private $sortOptions = [];
+    protected $sortOptions = [];
 
     /**
      * Canonicalization Flag
