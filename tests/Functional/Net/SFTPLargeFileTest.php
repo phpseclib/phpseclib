@@ -36,7 +36,7 @@ class Functional_Net_SFTPLargeFileTest extends Functional_Net_SFTPTestCase
 
         $this->assertSame(
             128 * 1024 * 1024,
-            $this->sftp->size($filename),
+            $this->sftp->filesize($filename),
             'Failed asserting that uploaded local file has the expected length.'
         );
     }
