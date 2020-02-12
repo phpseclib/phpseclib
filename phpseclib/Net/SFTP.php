@@ -1061,28 +1061,6 @@ class SFTP extends SSH2
     }
 
     /**
-     * Returns the file size, in bytes, or false, on failure
-     *
-     * Files larger than 4GB will show up as being exactly 4GB.
-     *
-     * @param string $filename
-     * @return mixed
-     * @access public
-     */
-    public function size($filename)
-    {
-        if (!($this->bitmap & SSH2::MASK_LOGIN)) {
-            return false;
-        }
-
-        $result = $this->stat($filename);
-        if ($result === false) {
-            return false;
-        }
-        return isset($result['size']) ? $result['size'] : -1;
-    }
-
-    /**
      * Save files / directories to cache
      *
      * @param string $path

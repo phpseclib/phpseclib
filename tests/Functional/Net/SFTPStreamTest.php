@@ -24,7 +24,7 @@ class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
         $fp = fopen($this->buildUrl('fooo.txt'), 'wb', false, $context);
         $this->assertInternalType('resource', $fp);
         fclose($fp);
-        $this->assertSame(0, $this->sftp->size('fooo.txt'));
+        $this->assertSame(0, $this->sftp->filesize('fooo.txt'));
     }
 
     /**

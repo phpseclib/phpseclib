@@ -266,7 +266,7 @@ class Stream
         }
         $this->path = $path;
 
-        $this->size = $this->sftp->size($path);
+        $this->size = $this->sftp->filesize($path);
         $this->mode = preg_replace('#[bt]$#', '', $mode);
         $this->eof = false;
 

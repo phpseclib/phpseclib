@@ -148,7 +148,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
         $this->assertSame(
             self::$exampleDataLength,
-            $sftp->size('file1.txt'),
+            $sftp->filesize('file1.txt'),
             'Failed asserting that put example data has the expected length'
         );
 
@@ -184,7 +184,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
         $this->assertSame(
             self::$exampleDataLength,
-            $sftp->size('file1.txt'),
+            $sftp->filesize('file1.txt'),
             'Failed asserting that put example data has the expected length'
         );
 
@@ -232,7 +232,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
         $this->assertSame(
             1024 * 1024,
-            $sftp->size('file3.txt'),
+            $sftp->filesize('file3.txt'),
             'Failed asserting that truncate()\'d file has the expected length'
         );
 
@@ -352,7 +352,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $last_size = 0x7FFFFFFF;
         foreach ($files as $file) {
             if ($sftp->is_file($file)) {
-                $cur_size = $sftp->size($file);
+                $cur_size = $sftp->filesize($file);
                 $this->assertLessThanOrEqual(
                     $last_size,
                     $cur_size,
@@ -547,7 +547,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $filename = 'file-large-from-truncate-4112MiB.txt';
         $this->assertTrue($sftp->touch($filename));
         $this->assertTrue($sftp->truncate($filename, $filesize));
-        $this->assertSame($filesize, $sftp->size($filename));
+        $this->assertSame($filesize, $sftp->filesize($filename));
 
         return $sftp;
     }
