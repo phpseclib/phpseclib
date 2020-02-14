@@ -114,6 +114,14 @@ class Stream
     private $notification;
 
     /**
+     * Buffer of data being read
+     *
+     * @var string
+     * @access public
+     */
+    private $buffer = '';
+
+    /**
      * Registers this class as a URL wrapper.
      *
      * @param string $protocol The wrapper name to be registered.
@@ -315,15 +323,24 @@ class Stream
         //    return false;
         //}
 
-        $result = $this->sftp->get($this->path, false, $this->pos, $count);
-        if (isset($this->notification) && is_callable($this->notification)) {
-            if ($result === false) {
-                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $this->sftp->getLastSFTPError(), NET_SFTP_OPEN, 0, 0);
-                return 0;
+        if (strlen($this->buffer) < $count) {
+            // read 80k chunks from sftp even though php will only request 8k chunk
+            // this allows us to minimize the overhead of making sftp requests
+            $chunk = $this->sftp->get($this->path, false, $this->pos, 81920);
+            if (isset($this->notification) && is_callable($this->notification)) {
+                if ($chunk === false) {
+                    call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $this->sftp->getLastSFTPError(), NET_SFTP_OPEN, 0, 0);
+                    return 0;
+                }
+                // seems that PHP calls stream_read in 8k chunks
+                call_user_func($this->notification, STREAM_NOTIFY_PROGRESS, STREAM_NOTIFY_SEVERITY_INFO, '', 0, strlen($chunk), $this->size);
             }
-            // seems that PHP calls stream_read in 8k chunks
-            call_user_func($this->notification, STREAM_NOTIFY_PROGRESS, STREAM_NOTIFY_SEVERITY_INFO, '', 0, strlen($result), $this->size);
+
+            $this->buffer .= $chunk;
         }
+
+        $result = substr($this->buffer, 0, $count);
+        $this->buffer = substr($this->buffer, $count);
 
         if (empty($result)) { // ie. false or empty string
             $this->eof = true;
