@@ -17,7 +17,7 @@
 
 namespace phpseclib3\Net\SFTP;
 
-use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Net\SFTP;
 use phpseclib3\Net\SSH2;
 
@@ -204,7 +204,7 @@ class Stream
             if (isset($context[$scheme]['password'])) {
                 $pass = $context[$scheme]['password'];
             }
-            if (isset($context[$scheme]['privkey']) && $context[$scheme]['privkey'] instanceof RSA) {
+            if (isset($context[$scheme]['privkey']) && $context[$scheme]['privkey'] instanceof PrivateKey) {
                 $pass = $context[$scheme]['privkey'];
             }
 
