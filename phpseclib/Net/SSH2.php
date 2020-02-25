@@ -2398,7 +2398,12 @@ class SSH2
 
         if ($publickey instanceof RSA) {
             $privatekey = $privatekey->withPadding(RSA::SIGNATURE_PKCS1);
-            switch ($this->signature_format) {
+            $algos = ['rsa-sha2-256', 'rsa-sha2-512', 'ssh-rsa'];
+            if (isset($this->preferred['hostkey'])) {
+                $algos = array_intersect($this->preferred['hostkey'] , $algos);
+            }
+            $algo = self::array_intersect_first($algos, $this->server_host_key_algorithms);
+            switch ($algo) {
                 case 'rsa-sha2-512':
                     $hash = 'sha512';
                     $signatureType = 'rsa-sha2-512';
