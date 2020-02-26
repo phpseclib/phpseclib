@@ -438,6 +438,9 @@ class Net_SFTP extends Net_SSH2
         if (!defined('NET_SFTP_QUEUE_SIZE')) {
             define('NET_SFTP_QUEUE_SIZE', 32);
         }
+        if (!defined('NET_SFTP_UPLOAD_QUEUE_SIZE')) {
+            define('NET_SFTP_UPLOAD_QUEUE_SIZE', 1024);
+        }
     }
 
     /**
@@ -2075,7 +2078,7 @@ class Net_SFTP extends Net_SSH2
         $sftp_packet_size = 4096; // PuTTY uses 4096
         // make the SFTP packet be exactly 4096 bytes by including the bytes in the NET_SFTP_WRITE packets "header"
         $sftp_packet_size-= strlen($handle) + 25;
-        $i = 0;
+        $i = $j = 0;
         while ($dataCallback || ($size === 0 || $sent < $size)) {
             if ($dataCallback) {
                 $temp = call_user_func($dataCallback, $sftp_packet_size);
@@ -2091,7 +2094,7 @@ class Net_SFTP extends Net_SSH2
 
             $subtemp = $offset + $sent;
             $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, strlen($temp), $temp);
-            if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet)) {
+            if (!$this->_send_sftp_packet(NET_SFTP_WRITE, $packet, $j)) {
                 if ($mode & NET_SFTP_LOCAL_FILE) {
                     fclose($fp);
                 }
@@ -2103,8 +2106,9 @@ class Net_SFTP extends Net_SSH2
             }
 
             $i++;
+            $j++;
 
-            if ($i == NET_SFTP_QUEUE_SIZE) {
+            if ($i == NET_SFTP_UPLOAD_QUEUE_SIZE) {
                 if (!$this->_read_put_responses($i)) {
                     $i = 0;
                     break;
