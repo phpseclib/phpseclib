@@ -238,7 +238,7 @@ class SFTP extends SSH2
      * @var array
      * @access private
      */
-    private $sortOptions = [];
+    protected $sortOptions = [];
 
     /**
      * Canonicalization Flag
@@ -400,6 +400,9 @@ class SFTP extends SSH2
 
         if (!defined('NET_SFTP_QUEUE_SIZE')) {
             define('NET_SFTP_QUEUE_SIZE', 32);
+        }
+        if (!defined('NET_SFTP_UPLOAD_QUEUE_SIZE')) {
+            define('NET_SFTP_UPLOAD_QUEUE_SIZE', 1024);
         }
     }
 
@@ -1061,28 +1064,6 @@ class SFTP extends SSH2
     }
 
     /**
-     * Returns the file size, in bytes, or false, on failure
-     *
-     * Files larger than 4GB will show up as being exactly 4GB.
-     *
-     * @param string $filename
-     * @return mixed
-     * @access public
-     */
-    public function size($filename)
-    {
-        if (!($this->bitmap & SSH2::MASK_LOGIN)) {
-            return false;
-        }
-
-        $result = $this->stat($filename);
-        if ($result === false) {
-            return false;
-        }
-        return isset($result['size']) ? $result['size'] : -1;
-    }
-
-    /**
      * Save files / directories to cache
      *
      * @param string $path
@@ -1590,6 +1571,13 @@ class SFTP extends SSH2
                 }
 
                 $i++;
+
+                if ($i >= NET_SFTP_QUEUE_SIZE) {
+                    if (!$this->read_put_responses($i)) {
+                        return false;
+                    }
+                    $i = 0;
+                }
             }
         }
 
@@ -1599,8 +1587,11 @@ class SFTP extends SSH2
 
         $i++;
 
-        if (!$this->read_put_responses($i)) {
-            return false;
+        if ($i >= NET_SFTP_QUEUE_SIZE) {
+            if (!$this->read_put_responses($i)) {
+                return false;
+            }
+            $i = 0;
         }
 
         return true;
@@ -1946,7 +1937,7 @@ class SFTP extends SSH2
         $sftp_packet_size = 4096; // PuTTY uses 4096
         // make the SFTP packet be exactly 4096 bytes by including the bytes in the NET_SFTP_WRITE packets "header"
         $sftp_packet_size-= strlen($handle) + 25;
-        $i = 0;
+        $i = $j = 0;
         while ($dataCallback || ($size === 0 || $sent < $size)) {
             if ($dataCallback) {
                 $temp = call_user_func($dataCallback, $sftp_packet_size);
@@ -1962,7 +1953,7 @@ class SFTP extends SSH2
 
             $subtemp = $offset + $sent;
             $packet = pack('Na*N3a*', strlen($handle), $handle, $subtemp / 4294967296, $subtemp, strlen($temp), $temp);
-            if (!$this->send_sftp_packet(NET_SFTP_WRITE, $packet, $i)) {
+            if (!$this->send_sftp_packet(NET_SFTP_WRITE, $packet, $j)) {
                 if ($mode & self::SOURCE_LOCAL_FILE) {
                     fclose($fp);
                 }
@@ -1974,6 +1965,14 @@ class SFTP extends SSH2
             }
 
             $i++;
+            $j++;
+            if ($i == NET_SFTP_UPLOAD_QUEUE_SIZE) {
+                if (!$this->read_put_responses($i)) {
+                    $i = 0;
+                    break;
+                }
+                $i = 0;
+            }
         }
 
         if (!$this->read_put_responses($i)) {
@@ -2258,7 +2257,10 @@ class SFTP extends SSH2
                 return false;
             }
 
-            return $this->delete_recursive($path);
+            $i = 0;
+            $result = $this->delete_recursive($path, $i);
+            $this->read_put_responses($i);
+            return $result;
         }
 
         $this->remove_from_stat_cache($path);
@@ -2276,8 +2278,11 @@ class SFTP extends SSH2
      * @return bool
      * @access private
      */
-    private function delete_recursive($path)
+    private function delete_recursive($path, &$i)
     {
+        if (!$this->read_put_responses($i)) {
+            return false;
+        }
         $i = 0;
         $entries = $this->readlist($path, true);
 
@@ -2305,6 +2310,13 @@ class SFTP extends SSH2
                 $this->remove_from_stat_cache($temp);
 
                 $i++;
+
+                if ($i >= NET_SFTP_QUEUE_SIZE) {
+                    if (!$this->read_put_responses($i)) {
+                        return false;
+                    }
+                    $i = 0;
+                }
             }
         }
 
@@ -2315,8 +2327,11 @@ class SFTP extends SSH2
 
         $i++;
 
-        if (!$this->read_put_responses($i)) {
-            return false;
+        if ($i >= NET_SFTP_QUEUE_SIZE) {
+            if (!$this->read_put_responses($i)) {
+                return false;
+            }
+            $i = 0;
         }
 
         return true;

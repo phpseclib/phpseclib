@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.24 - 2020-02-22
+
+- X509: fix PHP 5.3 compatability issue
+- SSH2: arcfour128 / arcfour256 were being included twice
+- SSH2: make window resizing behave more consistently with PuTTY (#1421)
+- SSH2: sodium_compat doesn't support memzero (#1432)
+- SSH2: logging enhancements
+- SFTP: don't buffer up download requests (PuTTY doesn't) (#1425)
+- RSA: make PSS verification work for key length that aren't a power of 2 (#1423)
+
 ## 2.0.23 - 2019-09-16
 
 - SSH2: fix regression for connecting to servers with bad hostnames (#1405)
