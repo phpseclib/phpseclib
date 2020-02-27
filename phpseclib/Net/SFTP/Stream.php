@@ -114,6 +114,8 @@ class Stream
      */
     private $notification;
 
+    private $readAheadLength = 81920;
+
     /**
      * Buffer of data being read
      *
@@ -215,6 +217,9 @@ class Stream
             }
             if (isset($context[$scheme]['privkey']) && $context[$scheme]['privkey'] instanceof RSA) {
                 $pass = $context[$scheme]['privkey'];
+            }
+            if (isset($context[$scheme]['readahead_length'])) {
+                $this->readAheadLength = $context[$scheme]['readahead_length'];
             }
 
             if (!isset($user) || !isset($pass)) {
@@ -325,9 +330,9 @@ class Stream
         //}
 
         if (strlen($this->buffer) < $count) {
-            // read 80k chunks from sftp even though php will only request 8k chunk
+            // read 80k chunks (configurable by the readahead_length context option) from sftp even though php will only request 8k chunk
             // this allows us to minimize the overhead of making sftp requests
-            $chunk = $this->sftp->get($this->path, false, $this->pos, 81920);
+            $chunk = $this->sftp->get($this->path, false, $this->pos, $this->readAheadLength);
             if (isset($this->notification) && is_callable($this->notification)) {
                 if ($chunk === false) {
                     call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $this->sftp->getLastSFTPError(), NET_SFTP_OPEN, 0, 0);
