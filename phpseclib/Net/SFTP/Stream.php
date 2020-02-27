@@ -17,6 +17,7 @@
 
 namespace phpseclib3\Net\SFTP;
 
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Net\SFTP;
 use phpseclib3\Net\SSH2;
@@ -339,8 +340,7 @@ class Stream
             $this->buffer .= $chunk;
         }
 
-        $result = substr($this->buffer, 0, $count);
-        $this->buffer = substr($this->buffer, $count);
+        $result = Strings::shift($this->buffer, $count);
 
         if (empty($result)) { // ie. false or empty string
             $this->eof = true;
@@ -360,6 +360,9 @@ class Stream
      */
     private function _stream_write($data)
     {
+        // invalidate any readahead buffer on write
+        $this->buffer = '';
+
         switch ($this->mode) {
             case 'r':
                 return false;
@@ -425,6 +428,9 @@ class Stream
      */
     private function _stream_seek($offset, $whence)
     {
+        // invalidate any readahead buffer on seek
+        $this->buffer = '';
+
         switch ($whence) {
             case SEEK_SET:
                 if ($offset >= $this->size || $offset < 0) {
@@ -738,6 +744,9 @@ class Stream
      */
     private function _stream_truncate($new_size)
     {
+        // invalidate any readahead buffer on truncate
+        $this->buffer = '';
+
         if (!$this->sftp->truncate($this->path, $new_size)) {
             return false;
         }
