@@ -1047,4 +1047,18 @@ ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
         $r = $x509->loadX509($r);
         $this->assertSame($r['tbsCertificate']['extensions'][5]['extnValue']['excludedSubtrees'][1]['base']['iPAddress'], array('0.0.0.0', '0.0.0.0'));
     }
+
+    /**
+     * @group github1456
+     */
+    public function testRandomString()
+    {
+        $a = 'da7e705569d4196cd49cf3b3d92cd435ca34ccbe';
+        $a = pack('H*', $a);
+
+        $x509 = new X509();
+        $r = $x509->loadX509($a);
+
+        $this->assertFalse($r);
+    }
 }

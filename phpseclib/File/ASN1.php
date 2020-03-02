@@ -518,6 +518,10 @@ abstract class ASN1
      */
     public static function asn1map($decoded, $mapping, $special = [])
     {
+        if (!is_array($decoded)) {
+            return false;
+        }
+
         if (isset($mapping['explicit']) && is_array($decoded['content'])) {
             $decoded = $decoded['content'][0];
         }
