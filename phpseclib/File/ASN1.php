@@ -577,6 +577,10 @@ class File_ASN1
      */
     function asn1map($decoded, $mapping, $special = array())
     {
+        if (!is_array($decoded)) {
+            return false;
+        }
+
         if (isset($mapping['explicit']) && is_array($decoded['content'])) {
             $decoded = $decoded['content'][0];
         }
