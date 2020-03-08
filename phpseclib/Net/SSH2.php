@@ -2132,6 +2132,15 @@ class Net_SSH2
     {
         $args = func_get_args();
         $this->auth[] = $args;
+
+        // try logging with 'none' as an authentication method first since that's what
+        // PuTTY does
+        if ($this->_login($username)) {
+            return true;
+        }
+        if (count($args) == 1) {
+            return false;
+        }
         return call_user_func_array(array(&$this, '_login'), $args);
     }
 
