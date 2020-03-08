@@ -2046,6 +2046,15 @@ class SSH2
     public function login($username, ...$args)
     {
         $this->auth[] = array_merge([$username], $args);
+
+        // try logging with 'none' as an authentication method first since that's what
+        // PuTTY does
+        if ($this->sublogin($username)) {
+            return true;
+        }
+        if (!count($args)) {
+            return false;
+        }
         return $this->sublogin($username, ...$args);
     }
 
