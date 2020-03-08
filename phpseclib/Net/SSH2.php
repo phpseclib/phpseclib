@@ -1339,7 +1339,7 @@ class SSH2
      */
     private function generate_identifier()
     {
-        $identifier = 'SSH-2.0-phpseclib_2.0';
+        $identifier = 'SSH-2.0-phpseclib_3.0';
 
         $ext = [];
         if (extension_loaded('sodium')) {
