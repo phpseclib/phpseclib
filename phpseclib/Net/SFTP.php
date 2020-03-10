@@ -417,8 +417,7 @@ class SFTP extends SSH2
      */
     public function login($username, ...$args)
     {
-        $this->auth[] = array_merge([$username], $args);
-        if (!$this->sublogin($username, ...$args)) {
+        if (!parent::login(...func_get_args())) {
             return false;
         }
 
