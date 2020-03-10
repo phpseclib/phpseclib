@@ -412,9 +412,7 @@ class SFTP extends SSH2
      */
     function login($username)
     {
-        $args = func_get_args();
-        $this->auth[] = $args;
-        if (!call_user_func_array(array(&$this, '_login'), $args)) {
+        if (!call_user_func_array(array(&$this, 'parent::login'), func_get_args())) {
             return false;
         }
 
