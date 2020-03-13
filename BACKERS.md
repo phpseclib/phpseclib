@@ -5,4 +5,4 @@ phpseclib ongoing development is made possible by [Tidelift](https://tidelift.co
 ## Backers
 
 - Zane Hooper
-- Jan Slabon
+- [Setasign](https://www.setasign.com/)
