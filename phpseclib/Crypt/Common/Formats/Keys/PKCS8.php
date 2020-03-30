@@ -513,7 +513,7 @@ abstract class PKCS8 extends PKCS
             return $public;
         }
 
-        return false;
+        throw new \RuntimeException('Unable to parse using either OneAsymmetricKey or PublicKeyInfo ASN1 maps');
     }
 
     /**

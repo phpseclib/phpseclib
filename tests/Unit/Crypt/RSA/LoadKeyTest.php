@@ -1033,4 +1033,16 @@ v/Ow5T0q5gIJAiEAyS4RaI9YG8EWx/2w0T67ZUVAw8eOMB6BIUg0Xcu+3okCIBOs
         $key = PublicKeyLoader::load($key);
         $key->withPassword('demo')->toString('XML');
     }
+
+    public function testPublicAsPrivatePKCS1()
+    {
+        $key = '-----BEGIN RSA PRIVATE KEY-----
+MIGJAoGBANOV2sOh8KgK9ENJMCzkIQ+UogWU7GP4JMpGxT6aEoxE3O5zUo2D1asv
+RrnqAxlf1zz+1dnRDU8EYbt+DJMLJ5pBeDbBuQzzV690+f7eporcZombSN2JoPAM
+n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
+-----END RSA PRIVATE KEY-----';
+        $key = PublicKeyLoader::load($key);
+        $result = $key->toString('PKCS1');
+        $this->assertInternalType('string', $result);
+    }
 }
