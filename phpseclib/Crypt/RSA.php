@@ -412,7 +412,7 @@ abstract class RSA extends AsymmetricKey
         $key->publicExponent = $components['publicExponent'];
         $key->k = $key->modulus->getLengthInBytes();
 
-        if ($components['isPublicKey']) {
+        if ($components['isPublicKey'] || !isset($components['privateExponent'])) {
             $key->exponent = $key->publicExponent;
         } else {
             $key->privateExponent = $components['privateExponent'];
