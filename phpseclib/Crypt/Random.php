@@ -106,7 +106,7 @@ if (!function_exists('crypt_random_string')) {
             }
             if ($fp !== true && $fp !== false) { // surprisingly faster than !is_bool() or is_resource()
                 $temp = fread($fp, $length);
-                if (strlen($temp) != $length) {
+                if (strlen($temp) == $length) {
                     return $temp;
                 }
             }
