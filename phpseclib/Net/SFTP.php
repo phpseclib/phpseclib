@@ -412,7 +412,11 @@ class SFTP extends SSH2
      */
     function login($username)
     {
-        if (!call_user_func_array(array(&$this, 'parent::login'), func_get_args())) {
+        $args = func_get_args();
+        $callback = version_compare(PHP_VERSION, '5.3.0') < 0 :
+            array(&$this, 'parent::login') :
+            'parent::login';
+        if (!call_user_func_array($callback, $args)) {
             return false;
         }
 
