@@ -442,7 +442,7 @@ abstract class PKCS8 extends PKCS
                             if (isset($keyLength)) {
                                 $params[] = (int) $keyLength->toString();
                             }
-                            call_user_func_array([$cipher, 'setPassword'], $params);
+                            $cipher->setPassword(...$params);
                             $key = $cipher->decrypt($decrypted['encryptedData']);
                             $decoded = ASN1::decodeBER($key);
                             if (empty($decoded)) {

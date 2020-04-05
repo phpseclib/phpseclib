@@ -553,7 +553,7 @@ abstract class ASN1
                     }
                     if (isset($value)) {
                         if (isset($special[$key])) {
-                            $value = call_user_func($special[$key], $value);
+                            $value = $special[$key]($value);
                         }
                         return [$key => $value];
                     }
@@ -637,7 +637,7 @@ abstract class ASN1
                     if ($maymatch) {
                         // Got the match: use it.
                         if (isset($special[$key])) {
-                            $candidate = call_user_func($special[$key], $candidate);
+                            $candidate = $special[$key]($candidate);
                         }
                         $map[$key] = $candidate;
                         $i++;
@@ -722,7 +722,7 @@ abstract class ASN1
 
                         // Got the match: use it.
                         if (isset($special[$key])) {
-                            $candidate = call_user_func($special[$key], $candidate);
+                            $candidate = $special[$key]($candidate);
                         }
                         $map[$key] = $candidate;
                         break;
@@ -881,7 +881,7 @@ abstract class ASN1
 
         if (isset($idx)) {
             if (isset($special[$idx])) {
-                $source = call_user_func($special[$idx], $source);
+                $source = $special[$idx]($source);
             }
             self::$location[] = $idx;
         }

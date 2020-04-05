@@ -93,7 +93,7 @@ class Hash
      * @var string
      * @access private
      */
-    private $hash;
+    private $algo;
 
     /**
      * Key
@@ -268,9 +268,9 @@ class Hash
             return;
         }
 
-        $this->computedKey = is_array($this->hash) ?
-            call_user_func($this->hash, $this->key) :
-            hash($this->hash, $this->key, true);
+        $this->computedKey = is_array($this->algo) ?
+            call_user_func($this->algo, $this->key) :
+            hash($this->algo, $this->key, true);
     }
 
     /**
@@ -302,7 +302,7 @@ class Hash
             case 'umac-128':
                 $this->blockSize = 128;
                 $this->length = abs(substr($hash, -3)) >> 3;
-                $this->hash = 'umac';
+                $this->algo = 'umac';
                 return;
             case 'md2-96':
             case 'md5-96':
@@ -439,7 +439,7 @@ class Hash
             $this->opad = str_repeat(chr(0x5C), $b);
         }
 
-        $this->hash = $hash;
+        $this->algo = $hash;
 
         $this->computeKey();
     }
@@ -785,7 +785,8 @@ class Hash
      */
     public function hash($text)
     {
-        if ($this->hash == 'umac') {
+        $algo = $this->algo;
+        if ($algo == 'umac') {
             if ($this->recomputeAESKey) {
                 if (!is_string($this->nonce)) {
                     throw new InsufficientSetupException('No nonce has been set');
@@ -837,9 +838,9 @@ class Hash
             return $hashedmessage ^ $this->pad;
         }
 
-        if (is_array($this->hash)) {
+        if (is_array($algo)) {
             if (empty($this->key) || !is_string($this->key)) {
-                return substr(call_user_func($this->hash, $text, ...array_values($this->parameters)), 0, $this->length);
+                return substr($algo($text, ...array_values($this->parameters)), 0, $this->length);
             }
 
             // SHA3 HMACs are discussed at https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf#page=30
@@ -847,17 +848,17 @@ class Hash
             $key    = str_pad($this->computedKey, $b, chr(0));
             $temp   = $this->ipad ^ $key;
             $temp  .= $text;
-            $temp   = substr(call_user_func($this->hash, $temp, ...array_values($this->parameters)), 0, $this->length);
+            $temp   = substr($algo($temp, ...array_values($this->parameters)), 0, $this->length);
             $output = $this->opad ^ $key;
             $output.= $temp;
-            $output = call_user_func($this->hash, $output, ...array_values($this->parameters));
+            $output = $algo($output, ...array_values($this->parameters));
 
             return substr($output, 0, $this->length);
         }
 
         $output = !empty($this->key) || is_string($this->key) ?
-            hash_hmac($this->hash, $text, $this->computedKey, true) :
-            hash($this->hash, $text, true);
+            hash_hmac($algo, $text, $this->computedKey, true) :
+            hash($algo, $text, true);
 
         return strlen($output) > $this->length
             ? substr($output, 0, $this->length)
