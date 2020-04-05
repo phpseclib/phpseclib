@@ -1941,7 +1941,7 @@ class SFTP extends SSH2
         $i = $j = 0;
         while ($dataCallback || ($size === 0 || $sent < $size)) {
             if ($dataCallback) {
-                $temp = call_user_func($dataCallback, $sftp_packet_size);
+                $temp = $dataCallback($sftp_packet_size);
                 if (is_null($temp)) {
                     break;
                 }
@@ -1962,7 +1962,7 @@ class SFTP extends SSH2
             }
             $sent+= strlen($temp);
             if (is_callable($progressCallback)) {
-                call_user_func($progressCallback, $sent);
+                $progressCallback($sent);
             }
 
             $i++;
@@ -2137,7 +2137,7 @@ class SFTP extends SSH2
                 $packet = null;
                 $read+= $packet_size;
                 if (is_callable($progressCallback)) {
-                    call_user_func($progressCallback, $read);
+                    $progressCallback($read);
                 }
                 $i++;
             }

@@ -2675,7 +2675,7 @@ class SSH2
                     return false;
                 default:
                     if (is_callable($callback)) {
-                        if (call_user_func($callback, $temp) === true) {
+                        if ($callback($temp) === true) {
                             $this->close_channel(self::CHANNEL_EXEC);
                             return true;
                         }
