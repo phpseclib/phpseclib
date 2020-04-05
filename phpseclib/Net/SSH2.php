@@ -4190,7 +4190,9 @@ class SSH2
                     $output.= str_pad(dechex($j), 7, '0', STR_PAD_LEFT) . '0  ';
                 }
                 $fragment = Strings::shift($current_log, $this->log_short_width);
-                $hex = substr(preg_replace_callback('#.#s', [$this, 'format_log_helper'], $fragment), strlen($this->log_boundary));
+                $hex = substr(preg_replace_callback('#.#s', function ($matches) {
+                    return $this->log_boundary . str_pad(dechex(ord($matches[0])), 2, '0', STR_PAD_LEFT);
+                }, $fragment), strlen($this->log_boundary));
                 // replace non ASCII printable characters with dots
                 // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
                 // also replace < with a . since < messes up the output on web browsers
