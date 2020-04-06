@@ -40,7 +40,7 @@ class PublicKey extends DSA implements Common\PublicKey
      */
     public function verify($message, $signature)
     {
-        $format = $this->format;
+        $format = $this->sigFormat;
 
         $params = $format::load($signature);
         if ($params === false || count($params) != 2) {
