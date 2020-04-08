@@ -206,6 +206,7 @@ abstract class AsymmetricKey
         $components['format'] = $format;
 
         $new = static::onLoad($components);
+        $new->format = $format;
         return $new instanceof PrivateKey ?
             $new->withPassword($password) :
             $new;
