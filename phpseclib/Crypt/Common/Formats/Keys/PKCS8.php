@@ -37,6 +37,7 @@ use phpseclib3\Crypt\Random;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 
 /**
@@ -333,7 +334,7 @@ abstract class PKCS8 extends PKCS
     {
         self::initialize_static_variables();
 
-        if (!is_string($key)) {
+        if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 

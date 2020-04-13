@@ -70,7 +70,7 @@ abstract class OpenSSH
      */
     public static function load($key, $password = '')
     {
-        if (!is_string($key)) {
+        if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 

@@ -36,6 +36,7 @@ use phpseclib3\Math\Common\FiniteField\Integer;
 use phpseclib3\Crypt\EC\Curves\Ed25519;
 use phpseclib3\Crypt\EC\Curves\Ed448;
 use phpseclib3\Exception\UnsupportedCurveException;
+use phpseclib3\Common\Functions\Strings;
 
 /**
  * PKCS#8 Formatted EC Key Handler
@@ -81,7 +82,7 @@ abstract class PKCS8 extends Progenitor
         // one that's called
         self::initialize_static_variables();
 
-        if (!is_string($key)) {
+        if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 

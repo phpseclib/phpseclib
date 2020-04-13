@@ -23,6 +23,7 @@ namespace phpseclib3\Crypt\DSA\Formats\Keys;
 
 use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Common\Functions\Strings;
 
 /**
  * XML Formatted DSA Key Handler
@@ -43,7 +44,7 @@ abstract class XML
      */
     public static function load($key, $password = '')
     {
-        if (!is_string($key)) {
+        if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
