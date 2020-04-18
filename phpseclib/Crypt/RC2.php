@@ -393,7 +393,7 @@ class RC2 extends BlockCipher
         $l[0] = self::$invpitable[$l[0]];
         array_unshift($l, 'C*');
 
-        $this->key = call_user_func_array('pack', $l);
+        $this->key = pack(...$l);
         $this->key_length = strlen($this->key);
         $this->changed = $this->nonIVChanged = true;
         $this->setEngine();

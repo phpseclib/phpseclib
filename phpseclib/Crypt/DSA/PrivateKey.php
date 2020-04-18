@@ -85,7 +85,7 @@ class PrivateKey extends DSA implements Common\PrivateKey
      */
     public function sign($message)
     {
-        $format = $this->format;
+        $format = $this->sigFormat;
 
         if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
             $signature = '';

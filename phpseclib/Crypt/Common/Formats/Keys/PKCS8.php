@@ -37,6 +37,7 @@ use phpseclib3\Crypt\Random;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 
 /**
@@ -331,25 +332,7 @@ abstract class PKCS8 extends PKCS
      */
     protected static function load($key, $password = '')
     {
-        self::initialize_static_variables();
-
-        if (!is_string($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
-        }
-
-        if (self::$format != self::MODE_DER) {
-            $decoded = ASN1::extractBER($key);
-            if ($decoded !== false) {
-                $key = $decoded;
-            } elseif (self::$format == self::MODE_PEM) {
-                throw new \UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
-            }
-        }
-
-        $decoded = ASN1::decodeBER($key);
-        if (empty($decoded)) {
-            throw new \RuntimeException('Unable to decode BER');
-        }
+        $decoded = self::preParse($key);
 
         $meta = [];
 
@@ -442,7 +425,7 @@ abstract class PKCS8 extends PKCS
                             if (isset($keyLength)) {
                                 $params[] = (int) $keyLength->toString();
                             }
-                            call_user_func_array([$cipher, 'setPassword'], $params);
+                            $cipher->setPassword(...$params);
                             $key = $cipher->decrypt($decrypted['encryptedData']);
                             $decoded = ASN1::decodeBER($key);
                             if (empty($decoded)) {
@@ -653,5 +636,66 @@ abstract class PKCS8 extends PKCS
         return "-----BEGIN PUBLIC KEY-----\r\n" .
                chunk_split(Base64::encode($key), 64) .
                "-----END PUBLIC KEY-----";
+    }
+
+    /**
+     * Perform some preliminary parsing of the key
+     *
+     * @param string $key
+     * @return array
+     */
+    private static function preParse(&$key)
+    {
+        self::initialize_static_variables();
+
+        if (!Strings::is_stringable($key)) {
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        }
+
+        if (self::$format != self::MODE_DER) {
+            $decoded = ASN1::extractBER($key);
+            if ($decoded !== false) {
+                $key = $decoded;
+            } elseif (self::$format == self::MODE_PEM) {
+                throw new \UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
+            }
+        }
+
+        $decoded = ASN1::decodeBER($key);
+        if (empty($decoded)) {
+            throw new \RuntimeException('Unable to decode BER');
+        }
+
+        return $decoded;
+    }
+
+    /**
+     * Returns the encryption parameters used by the key
+     *
+     * @param string $key
+     * @return array
+     */
+    public static function extractEncryptionAlgorithm($key)
+    {
+        $decoded = self::preParse($key);
+
+        $r = ASN1::asn1map($decoded[0], ASN1\Maps\EncryptedPrivateKeyInfo::MAP);
+        if (!is_array($r)) {
+            throw new \RuntimeException('Unable to parse using EncryptedPrivateKeyInfo map');
+        }
+
+        if ($r['encryptionAlgorithm']['algorithm'] == 'id-PBES2') {
+            $decoded = ASN1::decodeBER($r['encryptionAlgorithm']['parameters']->element);
+            $r['encryptionAlgorithm']['parameters'] = ASN1::asn1map($decoded[0], ASN1\Maps\PBES2params::MAP);
+
+            $kdf = &$r['encryptionAlgorithm']['parameters']['keyDerivationFunc'];
+            switch ($kdf['algorithm']) {
+                case 'id-PBKDF2':
+                    $decoded = ASN1::decodeBER($kdf['parameters']->element);
+                    $kdf['parameters'] = ASN1::asn1map($decoded[0], Maps\PBKDF2params::MAP);
+            }
+        }
+
+        return $r['encryptionAlgorithm'];
     }
 }

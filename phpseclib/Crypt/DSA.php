@@ -95,7 +95,7 @@ abstract class DSA extends AsymmetricKey
      * @var string
      * @access private
      */
-    protected $format;
+    protected $sigFormat;
 
     /**
      * Signature Format (Short)
@@ -263,7 +263,7 @@ abstract class DSA extends AsymmetricKey
      */
     protected function __construct()
     {
-        $this->format = self::validatePlugin('Signature', 'ASN1');
+        $this->sigFormat = self::validatePlugin('Signature', 'ASN1');
         $this->shortFormat = 'ASN1';
 
         parent::__construct();
@@ -329,7 +329,7 @@ abstract class DSA extends AsymmetricKey
     {
         $new = clone $this;
         $new->shortFormat = $format;
-        $new->format = self::validatePlugin('Signature', $format);
+        $new->sigFormat = self::validatePlugin('Signature', $format);
         return $new;
     }
 

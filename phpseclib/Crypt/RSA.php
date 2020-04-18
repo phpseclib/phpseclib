@@ -407,7 +407,6 @@ abstract class RSA extends AsymmetricKey
             new PublicKey :
             new PrivateKey;
 
-        $key->format = $components['format'];
         $key->modulus = $components['modulus'];
         $key->publicExponent = $components['publicExponent'];
         $key->k = $key->modulus->getLengthInBytes();

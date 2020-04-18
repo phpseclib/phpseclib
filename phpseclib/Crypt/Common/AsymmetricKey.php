@@ -24,7 +24,7 @@ use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\ECDSA;
 
 /**
- * Base Class for all stream cipher classes
+ * Base Class for all asymmetric cipher classes
  *
  * @package AsymmetricKey
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -173,8 +173,8 @@ abstract class AsymmetricKey
         }
 
         $components['format'] = $format;
-
         $new = static::onLoad($components);
+        $new->format = $format;
         return $new instanceof PrivateKey ?
             $new->withPassword($password) :
             $new;
@@ -206,6 +206,7 @@ abstract class AsymmetricKey
         $components['format'] = $format;
 
         $new = static::onLoad($components);
+        $new->format = $format;
         return $new instanceof PrivateKey ?
             $new->withPassword($password) :
             $new;
@@ -304,7 +305,7 @@ abstract class AsymmetricKey
      * Returns the format of the loaded key.
      *
      * If the key that was loaded wasn't in a valid or if the key was auto-generated
-     * with RSA::createKey() then this will return false.
+     * with RSA::createKey() then this will throw an exception.
      *
      * @see self::load()
      * @access public
@@ -312,8 +313,8 @@ abstract class AsymmetricKey
      */
     public function getLoadedFormat()
     {
-        if ($this->format === false) {
-            return false;
+        if (empty($this->format)) {
+            throw new NoKeyLoadedException('This key was created with createKey - it was not loaded with load. Therefore there is no "loaded format"');
         }
 
         $meta = new \ReflectionClass($this->format);

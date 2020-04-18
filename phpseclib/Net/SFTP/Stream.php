@@ -789,6 +789,6 @@ class Stream
         if (!method_exists($this, $name)) {
             return false;
         }
-        return call_user_func_array([$this, $name], $arguments);
+        return $this->$name(...$arguments);
     }
 }
