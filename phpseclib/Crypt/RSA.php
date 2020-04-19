@@ -109,12 +109,6 @@ abstract class RSA extends AsymmetricKey
      * stuff, if you're trying to diagnose why an encrypted message isn't decrypting, etc.
      */
     const ENCRYPTION_NONE = 4;
-    /**
-     * Use PKCS#1 padding with PKCS1 v1.5 compatibility
-     *
-     * A PKCS1 v2.1 encrypted message may not successfully decrypt with a PKCS1 v1.5 implementation (such as OpenSSL).
-     */
-    const ENCRYPTION_PKCS15_COMPAT = 8;
     /**#@-*/
 
     /**#@+
@@ -747,8 +741,7 @@ abstract class RSA extends AsymmetricKey
         $masks = [
             self::ENCRYPTION_OAEP,
             self::ENCRYPTION_PKCS1,
-            self::ENCRYPTION_NONE,
-            self::ENCRYPTION_PKCS15_COMPAT
+            self::ENCRYPTION_NONE
         ];
         $numSelected = 0;
         $selected = 0;
