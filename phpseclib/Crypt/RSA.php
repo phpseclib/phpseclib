@@ -669,7 +669,7 @@ abstract class RSA extends AsymmetricKey
      */
     public function getMGFHash()
     {
-       return $this->mgfHash->getHash();
+       return clone $this->mgfHash;
     }
 
     /**

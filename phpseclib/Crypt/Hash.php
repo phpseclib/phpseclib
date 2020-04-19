@@ -1462,4 +1462,12 @@ class Hash
 
         return $temp;
     }
+
+    /**
+     *  __toString() magic method
+     */
+    public function __toString()
+    {
+        return $this->getHash();
+    }
 }

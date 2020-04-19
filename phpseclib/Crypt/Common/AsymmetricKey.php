@@ -388,7 +388,7 @@ abstract class AsymmetricKey
      */
     public function getHash()
     {
-       return $this->hash->getHash();
+       return clone $this->hash;
     }
 
     /**
