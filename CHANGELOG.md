@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.26 - 2020-03-22
+
+- SFTP: another attempt at speeding up uploads (#1455)
+- SSH2: try logging in with none as an auth method first (#1454)
+- ASN1: fix for malformed ASN1 strings (#1456)
+
+## 2.0.25 - 2020-02-25
+
+- SFTP: re-add buffering (#1455)
+
 ## 2.0.24 - 2020-02-22
 
 - X509: fix PHP 5.3 compatability issue

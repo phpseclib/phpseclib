@@ -22,6 +22,7 @@ use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\DES;
 use phpseclib3\Crypt\TripleDES;
 use phpseclib3\File\ASN1;
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 
 /**
@@ -127,7 +128,7 @@ abstract class PKCS1 extends PKCS
      */
     protected static function load($key, $password)
     {
-        if (!is_string($key)) {
+        if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 

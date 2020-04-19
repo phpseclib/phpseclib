@@ -100,7 +100,7 @@ class PrivateKey extends EC implements Common\PrivateKey
         $order = $this->curve->getOrder();
 
         $shortFormat = $this->shortFormat;
-        $format = $this->format;
+        $format = $this->sigFormat;
         if ($format === false) {
             return false;
         }

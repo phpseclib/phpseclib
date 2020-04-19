@@ -175,7 +175,7 @@ abstract class Strings
                     $result.= pack('N', $element);
                     break;
                 case 's':
-                    if (!is_string($element)) {
+                    if (!self::is_stringable($element)) {
                         throw new \InvalidArgumentException('A string was expected.');
                     }
                     $result.= pack('Na*', strlen($element), $element);
@@ -371,5 +371,17 @@ abstract class Strings
         $var = substr_replace($var, $temp, 0, $remainder);
 
         return $var;
+    }
+
+    /**
+     * Find whether the type of a variable is string (or could be converted to one)
+     *
+     * @param string|object $var
+     * @return boolean
+     * @access public
+     */
+    public static function is_stringable($var)
+    {
+        return is_string($var) || (is_object($var) && method_exists($var, '__toString'));
     }
 }

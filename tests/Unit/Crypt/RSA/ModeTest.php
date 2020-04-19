@@ -170,17 +170,17 @@ HERE;
             ->withSaltLength(5)
             ->withMGFHash('sha512');
 
-        $this->assertSame('sha1', $rsa->getHash());
+        $this->assertEquals('sha1', $rsa->getHash());
         $this->assertSame(5, $rsa->getSaltLength());
-        $this->assertSame('sha512', $rsa->getMGFHash());
+        $this->assertEquals('sha512', $rsa->getMGFHash());
 
         $rsa = $rsa
             ->withHash('sha512')
             ->withSaltLength(6)
             ->withMGFHash('sha1');
 
-        $this->assertSame('sha512', $rsa->getHash());
+        $this->assertEquals('sha512', $rsa->getHash());
         $this->assertSame(6, $rsa->getSaltLength());
-        $this->assertSame('sha1', $rsa->getMGFHash());
+        $this->assertEquals('sha1', $rsa->getMGFHash());
     }
 }

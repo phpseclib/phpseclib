@@ -26,6 +26,7 @@ use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib3\Crypt\EC\BaseCurves\Prime as PrimeCurve;
 use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\UnsupportedCurveException;
 
 /**
@@ -65,7 +66,7 @@ abstract class XML
     {
         self::initialize_static_variables();
 
-        if (!is_string($key)) {
+        if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 

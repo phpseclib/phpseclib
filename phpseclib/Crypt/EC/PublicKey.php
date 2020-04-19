@@ -52,7 +52,7 @@ class PublicKey extends EC implements Common\PublicKey
         }
 
         $shortFormat = $this->shortFormat;
-        $format = $this->format;
+        $format = $this->sigFormat;
         if ($format === false) {
             return false;
         }
