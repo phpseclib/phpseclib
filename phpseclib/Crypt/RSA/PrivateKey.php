@@ -324,17 +324,6 @@ class PrivateKey extends RSA implements Common\PrivateKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.2.2 RFC3447#section-7.2.2}.
      *
-     * For compatibility purposes, this function departs slightly from the description given in RFC3447.
-     * The reason being that RFC2313#section-8.1 (PKCS#1 v1.5) states that ciphertext's encrypted by the
-     * private key should have the second byte set to either 0 or 1 and that ciphertext's encrypted by the
-     * public key should have the second byte set to 2.  In RFC3447 (PKCS#1 v2.1), the second byte is supposed
-     * to be 2 regardless of which key is used.  For compatibility purposes, we'll just check to make sure the
-     * second byte is 2 or less.  If it is, we'll accept the decrypted string as valid.
-     *
-     * As a consequence of this, a private key encrypted ciphertext produced with \phpseclib3\Crypt\RSA may not decrypt
-     * with a strictly PKCS#1 v1.5 compliant RSA implementation.  Public key encrypted ciphertext's should but
-     * not private key encrypted ciphertext's.
-     *
      * @access private
      * @param string $c
      * @return bool|string

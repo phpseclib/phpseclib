@@ -329,12 +329,6 @@ class PublicKey extends RSA implements Common\PublicKey
             $ps.= $temp;
         }
         $type = 2;
-        // see the comments of _rsaes_pkcs1_v1_5_decrypt() to understand why this is being done
-        if ($pkcs15_compat && (!isset($this->publicExponent) || $this->exponent !== $this->publicExponent)) {
-            $type = 1;
-            // "The padding string PS shall consist of k-3-||D|| octets. ... for block type 01, they shall have value FF"
-            $ps = str_repeat("\xFF", $psLen);
-        }
         $em = chr(0) . chr($type) . $ps . chr(0) . $m;
 
         // RSA encryption
@@ -450,10 +444,8 @@ class PublicKey extends RSA implements Common\PublicKey
         switch ($this->encryptionPadding) {
             case self::ENCRYPTION_NONE:
                 return $this->raw_encrypt($plaintext);
-            case self::ENCRYPTION_PKCS15_COMPAT:
             case self::ENCRYPTION_PKCS1:
-                $pkcs15_compat = $this->encryptionPadding & self::ENCRYPTION_PKCS15_COMPAT;
-                return $this->rsaes_pkcs1_v1_5_encrypt($plaintext, $pkcs15_compat);
+                return $this->rsaes_pkcs1_v1_5_encrypt($plaintext);
             //case self::ENCRYPTION_OAEP:
             default:
                 return $this->rsaes_oaep_encrypt($plaintext);
