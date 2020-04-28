@@ -3019,7 +3019,7 @@ class Net_SSH2
      * @see self::write()
      * @param string $expect
      * @param int $mode
-     * @return string
+     * @return string|bool
      * @access public
      */
     function read($expect = '', $mode = NET_SSH2_READ_SIMPLE)
