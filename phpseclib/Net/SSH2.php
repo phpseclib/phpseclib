@@ -3004,7 +3004,7 @@ class SSH2
      * @see self::write()
      * @param string $expect
      * @param int $mode
-     * @return string
+     * @return string|bool
      * @access public
      */
     function read($expect = '', $mode = self::READ_SIMPLE)
