@@ -679,7 +679,7 @@ class SFTP extends SSH2
             }
         }
 
-        if ($path[0] != '/') {
+        if (!strlen($path) || $path[0] != '/') {
             $path = $this->pwd . '/' . $path;
         }
 
