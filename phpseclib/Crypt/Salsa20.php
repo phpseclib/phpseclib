@@ -108,16 +108,6 @@ class Salsa20 extends StreamCipher
     }
 
     /**
-     * Salsa20 does not use an IV
-     *
-     * @return bool
-     */
-    public function usesIV()
-    {
-        return false;
-    }
-
-    /**
      * Salsa20 uses a nonce
      *
      * @return bool

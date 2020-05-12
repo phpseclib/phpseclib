@@ -162,17 +162,6 @@ class RC4 extends StreamCipher
     }
 
     /**
-     * RC4 does not use an IV
-     *
-     * @access public
-     * @return bool
-     */
-    public function usesIV()
-    {
-        return false;
-    }
-
-    /**
      * Sets the key length
      *
      * Keys can be between 1 and 256 bytes long.

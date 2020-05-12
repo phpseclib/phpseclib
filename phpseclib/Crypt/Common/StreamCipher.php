@@ -24,4 +24,14 @@ namespace phpseclib3\Crypt\Common;
  */
 abstract class StreamCipher extends SymmetricKey
 {
+    /**
+     * Stream ciphers not use an IV
+     *
+     * @access public
+     * @return bool
+     */
+    public function usesIV()
+    {
+        return false;
+    }
 }
