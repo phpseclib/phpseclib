@@ -15,7 +15,6 @@
 
 namespace phpseclib3\Crypt;
 
-use phpseclib3\Crypt\Common\StreamCipher;
 use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Exception\BadDecryptionException;
 
