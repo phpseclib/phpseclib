@@ -4207,20 +4207,6 @@ class SSH2
     }
 
     /**
-     * Helper function for _format_log
-     *
-     * For use with preg_replace_callback()
-     *
-     * @param array $matches
-     * @access private
-     * @return string
-     */
-    private function format_log_helper($matches)
-    {
-        return $this->log_boundary . str_pad(dechex(ord($matches[0])), 2, '0', STR_PAD_LEFT);
-    }
-
-    /**
      * Helper function for agent->on_channel_open()
      *
      * Used when channels are created to inform agent
