@@ -64,18 +64,6 @@ class RC4 extends StreamCipher
     /**#@-*/
 
     /**
-     * Block Length of the cipher
-     *
-     * RC4 is a stream cipher
-     * so we the block_size to 0
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::block_size
-     * @var int
-     * @access private
-     */
-    protected $block_size = 0;
-
-    /**
      * Key Length (in bytes)
      *
      * @see \phpseclib3\Crypt\RC4::setKeyLength()
@@ -110,18 +98,6 @@ class RC4 extends StreamCipher
      * @access private
      */
     private $stream;
-
-    /**
-     * Default Constructor.
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
-     * @return \phpseclib3\Crypt\RC4
-     * @access public
-     */
-    public function __construct()
-    {
-        parent::__construct('stream');
-    }
 
     /**
      * Test for engine validity

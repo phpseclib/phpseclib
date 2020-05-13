@@ -50,16 +50,6 @@ class Salsa20 extends StreamCipher
      */
     protected $key_length = 32; // = 256 bits
 
-    /**
-     * Block Length of the cipher
-     *
-     * Salsa20 is a stream cipher
-     * so we the block_size to 0
-     *
-     * @var int
-     */
-    protected $block_size = 0;
-
     /**#@+
      * @access private
      * @see \phpseclib3\Crypt\Salsa20::crypt()
@@ -95,17 +85,6 @@ class Salsa20 extends StreamCipher
      * @var boolean
      */
     protected $usingGeneratedPoly1305Key = false;
-
-    /**
-     * Default Constructor.
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
-     * @return \phpseclib3\Crypt\Salsa20
-     */
-    public function __construct()
-    {
-        parent::__construct('stream');
-    }
 
     /**
      * Salsa20 uses a nonce
