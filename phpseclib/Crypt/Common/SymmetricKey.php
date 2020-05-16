@@ -780,7 +780,7 @@ abstract class SymmetricKey
      */
     public function usesIV()
     {
-        return $this->mode != self::MODE_GCM;
+        return $this->mode != self::MODE_GCM && $this->mode != self::MODE_ECB;
     }
 
     /**
