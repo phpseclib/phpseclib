@@ -3117,7 +3117,6 @@ abstract class SymmetricKey
         if (strlen($this->nonce) == 12) {
             $this->iv = $this->nonce . "\0\0\0\1";
         } else {
-            $s = 16 * ceil(strlen($this->nonce) / 16) - strlen($this->nonce);
             $this->iv = $this->ghash(
                 self::nullPad128($this->nonce) . str_repeat("\0", 8) . self::len64($this->nonce)
             );
