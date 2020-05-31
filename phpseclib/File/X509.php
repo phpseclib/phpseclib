@@ -2194,11 +2194,11 @@ class X509
             chunk_split(base64_encode($key), 64) .
             "-----END PUBLIC KEY-----";
 
-        $this->publicKey = null;
-        $this->publicKey = $this->getPublicKey();
-
         $this->currentKeyIdentifier = null;
         $this->currentCert = $csr;
+
+        $this->publicKey = null;
+        $this->publicKey = $this->getPublicKey();
 
         return $csr;
     }
@@ -2305,11 +2305,11 @@ class X509
             chunk_split(base64_encode($key), 64) .
             "-----END PUBLIC KEY-----";
 
-        $this->publicKey = null;
-        $this->publicKey = $this->getPublicKey();
-
         $this->currentKeyIdentifier = null;
         $this->currentCert = $spkac;
+
+        $this->publicKey = null;
+        $this->publicKey = $this->getPublicKey();
 
         return $spkac;
     }
