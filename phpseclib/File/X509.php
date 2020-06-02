@@ -2101,7 +2101,12 @@ class X509
         }
 
         if (isset($this->currentCert) && is_array($this->currentCert)) {
-            foreach (['tbsCertificate/subjectPublicKeyInfo', 'certificationRequestInfo/subjectPKInfo'] as $path) {
+            $paths = [
+                'tbsCertificate/subjectPublicKeyInfo',
+                'certificationRequestInfo/subjectPKInfo',
+                'publicKeyAndChallenge/spki'
+            ];
+            foreach ($paths as $path) {
                 $keyinfo = $this->subArray($this->currentCert, $path);
                 if (!empty($keyinfo)) {
                     break;
