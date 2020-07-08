@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.27 - 2020-07-08
+
+- SFTP: realpath('') produced an error (#1474)
+- SFTP: if /path/to/file is a file then /path/to/file/whatever errors (#1475)
+- SFTP: speed up uploads (by changing SFTP upload packet size from 4KB to 32KB)
+- ANSI: fix "Number of elements can't be negative" error
+
 ## 2.0.26 - 2020-03-22
 
 - SFTP: another attempt at speeding up uploads (#1455)
