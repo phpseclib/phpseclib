@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.19 - 2020-07-07
+
+- SSH2: arcfour128 / arcfour256 were being included twice
+- SSH2: make window resizing behave more consistently with PuTTY (#1421)
+- SSH2: logging enhancements
+- SSH2: try logging in with none as an auth method first (#1454)
+- SFTP: change the mode with a SETSTAT instead of MKDIR (#1463)
+- SFTP: make it so extending SFTP class doesn't cause a segfault (#1465)
+- SFTP: realpath('') produced an error (#1474)
+- SFTP: if /path/to/file is a file then /path/to/file/whatever errors (#1475)
+- RSA: make PSS verification work for key length that aren't a power of 2 (#1423)
+- ASN1: fix for malformed ASN1 strings (#1456)
+- ANSI: fix "Number of elements can't be negative" error
+
 ## 1.0.18 - 2019-09-16
 
 - SSH2: fix regression for connecting to servers with bad hostnames (#1405)
