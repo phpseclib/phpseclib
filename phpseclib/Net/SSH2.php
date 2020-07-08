@@ -3873,7 +3873,6 @@ class SSH2
             switch ($this->encrypt->name) {
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
-$startEncrypt = microtime(true);
                     $this->encrypt->setNonce(
                         $this->encrypt->fixed .
                         $this->encrypt->invocation_counter
@@ -3881,7 +3880,6 @@ $startEncrypt = microtime(true);
                     Strings::increment_str($this->encrypt->invocation_counter);
                     $this->encrypt->setAAD($temp = ($packet & "\xFF\xFF\xFF\xFF"));
                     $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
-$encryptTime = microtime(true) - $startEncrypt;
                     break;
                 case 'chacha20-poly1305@openssh.com':
                     $nonce = pack('N2', 0, $this->send_seq_no);
@@ -3930,7 +3928,7 @@ $encryptTime = microtime(true) - $startEncrypt;
             $current = microtime(true);
             $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
             $message_number = '-> ' . $message_number .
-                              ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's, encrypt time: ' . round($encryptTime, 4) . ')';
+                              ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
             $this->append_log($message_number, isset($logged) ? $logged : $data);
             $this->last_packet = $current;
         }
