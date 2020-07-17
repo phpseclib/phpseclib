@@ -1458,17 +1458,10 @@ abstract class ASN1
          * subject=/O=organization/OU=org unit/CN=common name
          * issuer=/O=organization/CN=common name
          */
-        
-        /**
-         * Valid Base64 valid format did not pass validation 
-         * in 10 cases out of 131,000. All signatures that did not pass regular expressions were more than 1 megabyte. One to two megabytes
-         * I can provide this data, please contact me by telegram, please @alex_dirty. My name is Alexander Khakimov and I want to help you make your library better
-         * I commented out a regex that did not correctly validate base64
-         * I am passing base64 pkcs7 format to it to allow further decode of ASN1.
-         */
-        
-        //$temp = preg_replace('#.*?^-+[^-]+-+[\r\n ]*$#ms', '', $str, 1);
-        
+      
+        $temp = strlen($str) <= ini_get('pcre.backtrack_limit') ?
+            preg_replace('#.*?^-+[^-]+-+[\r\n ]*$#ms', '', $str, 1) :
+            $str;
         // remove the -----BEGIN CERTIFICATE----- and -----END CERTIFICATE----- stuff
         $temp = preg_replace('#-+[^-]+-+#', '', $str);
         // remove new lines
