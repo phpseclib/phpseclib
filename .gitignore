@@ -3,3 +3,4 @@
 /.idea/
 .gitignore
 composer.lock
+.tags*
