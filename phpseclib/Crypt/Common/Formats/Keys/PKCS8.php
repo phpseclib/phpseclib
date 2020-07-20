@@ -481,7 +481,7 @@ abstract class PKCS8 extends PKCS
             }
             if (is_array(static::OID_NAME)) {
                 if (!in_array($public['publicKeyAlgorithm']['algorithm'], static::OID_NAME)) {
-                    throw new UnsupportedAlgorithmException($private['publicKeyAlgorithm']['algorithm'] . ' is not a supported key type');
+                    throw new UnsupportedAlgorithmException($public['publicKeyAlgorithm']['algorithm'] . ' is not a supported key type');
                 }
             } else {
                 if ($public['publicKeyAlgorithm']['algorithm'] != static::OID_NAME) {
