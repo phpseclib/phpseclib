@@ -12,7 +12,11 @@ class SFTPWrongServerTest extends TestCase
             (new SFTP('dummy-server'))->login('username', 'password');
             static::fail('The connection to the non-existent server must not succeed.');
         } catch (UnableToConnectException $e) {
-            static::assertSame('Cannot connect to dummy-server:22. Error 0. php_network_getaddresses: getaddrinfo failed: Name or service not known', $e->getMessage());
+            // getaddrinfo message seems not to return stable text
+            static::assertSame(
+              'Cannot connect to dummy-server:22. Error 0. php_network_getaddresses: getaddrinfo failed:',
+              substr($e->getMessage(),0,89)
+            );
         }
     }
 }
