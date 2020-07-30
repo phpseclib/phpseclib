@@ -1624,6 +1624,8 @@ class Crypt_RSA
 
                 return $components;
         }
+
+        return false;
     }
 
     /**
