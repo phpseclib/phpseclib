@@ -264,6 +264,16 @@ class SFTP extends SSH2
     var $requestBuffer = array();
 
     /**
+     * Preserve timestamps on file downloads / uploads
+     *
+     * @see self::get()
+     * @see self::put()
+     * @var bool
+     * @access private
+     */
+    var $preserveTime = false;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SFTP server
@@ -1991,6 +2001,11 @@ class SFTP extends SSH2
         }
 
         if ($mode & self::SOURCE_LOCAL_FILE) {
+            if ($this->preserveTime) {
+                $stat = fstat($fp);
+                $this->touch($remote_file, $stat['mtime'], $stat['atime']);
+            }
+
             fclose($fp);
         }
 
@@ -2206,6 +2221,11 @@ class SFTP extends SSH2
 
         if ($fclose_check) {
             fclose($fp);
+
+            if ($this->preserveTime) {
+                $stat = $this->stat($remote_file);
+                touch($local_file, $stat['mtime'], $stat['atime']);
+            }
         }
 
         if (!$this->close_handle($handle)) {
@@ -3054,5 +3074,25 @@ class SFTP extends SSH2
     {
         $this->pwd = false;
         parent::disconnect_helper($reason);
+    }
+
+    /**
+     * Enable Date Preservation
+     *
+     * @access public
+     */
+    function enableDatePreservation()
+    {
+        $this->preserveTime = true;
+    }
+
+    /**
+     * Disable Date Preservation
+     *
+     * @access public
+     */
+    function disableDatePreservation()
+    {
+        $this->preserveTime = false;
     }
 }
