@@ -4610,11 +4610,15 @@ class Net_SSH2
              //'none'           // OPTIONAL          no encryption; NOT RECOMMENDED
         );
 
-        $engines = array(
-            CRYPT_ENGINE_OPENSSL,
-            CRYPT_ENGINE_MCRYPT,
-            CRYPT_ENGINE_INTERNAL
-        );
+        if ($this->crypto_engine) {
+            $engines = array($this->crypto_engine);
+        } else {
+            $engines = array(
+                CRYPT_ENGINE_OPENSSL,
+                CRYPT_ENGINE_MCRYPT,
+                CRYPT_ENGINE_INTERNAL
+            );
+        }
 
         $ciphers = array();
         foreach ($engines as $engine) {
