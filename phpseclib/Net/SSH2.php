@@ -4605,11 +4605,15 @@ class SSH2
              //'none'           // OPTIONAL          no encryption; NOT RECOMMENDED
         );
 
-        $engines = array(
-            Base::ENGINE_OPENSSL,
-            Base::ENGINE_MCRYPT,
-            Base::ENGINE_INTERNAL
-        );
+        if ($this->crypto_engine) {
+            $engines = array($this->crypto_engine);
+        } else {
+            $engines = array(
+                Base::ENGINE_OPENSSL,
+                Base::ENGINE_MCRYPT,
+                Base::ENGINE_INTERNAL
+            );
+        }
 
         $ciphers = array();
         foreach ($engines as $engine) {
