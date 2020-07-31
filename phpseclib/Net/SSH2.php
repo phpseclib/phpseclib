@@ -2125,11 +2125,13 @@ class SSH2
 
         // try logging with 'none' as an authentication method first since that's what
         // PuTTY does
-        if ($this->_login($username)) {
-            return true;
-        }
-        if (count($args) == 1) {
-            return false;
+        if (substr($this->server_identifier, 0, 13) != 'SSH-2.0-CoreFTP') {
+            if ($this->_login($username)) {
+                return true;
+            }
+            if (count($args) == 1) {
+                return false;
+            }
         }
         return call_user_func_array(array(&$this, '_login'), $args);
     }
