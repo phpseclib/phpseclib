@@ -924,7 +924,7 @@ class SSH2
      * @var int
      * @access private
      */
-    private $crypto_engine = false;
+    private static $crypto_engine = false;
 
     /**
      * A System_SSH_Agent for use in the SSH2 Agent Forwarding scenario
@@ -1114,9 +1114,9 @@ class SSH2
      * @param int $engine
      * @access public
      */
-    public function setCryptoEngine($engine)
+    public static function setCryptoEngine($engine)
     {
-        $this->crypto_engine = $engine;
+        self::$crypto_engine = $engine;
     }
 
     /**
@@ -1710,8 +1710,8 @@ class SSH2
 
         $this->encrypt = self::encryption_algorithm_to_crypt_instance($encrypt);
         if ($this->encrypt) {
-            if ($this->crypto_engine) {
-                $this->encrypt->setPreferredEngine($this->crypto_engine);
+            if (self::$crypto_engine) {
+                $this->encrypt->setPreferredEngine(self::$crypto_engine);
             }
             if ($this->encrypt->getBlockLengthInBytes()) {
                 $this->encrypt_block_size = $this->encrypt->getBlockLengthInBytes();
@@ -1754,8 +1754,8 @@ class SSH2
 
         $this->decrypt = self::encryption_algorithm_to_crypt_instance($decrypt);
         if ($this->decrypt) {
-            if ($this->crypto_engine) {
-                $this->decrypt->setPreferredEngine($this->crypto_engine);
+            if (self::$crypto_engine) {
+                $this->decrypt->setPreferredEngine(self::$crypto_engine);
             }
             if ($this->decrypt->getBlockLengthInBytes()) {
                 $this->decrypt_block_size = $this->decrypt->getBlockLengthInBytes();
@@ -4430,16 +4430,21 @@ class SSH2
              //'none'           // OPTIONAL          no encryption; NOT RECOMMENDED
         ];
 
-        $engines = [
-            'libsodium',
-            'OpenSSL (GCM)',
-            'OpenSSL',
-            'mcrypt',
-            'Eval',
-            'PHP'
-        ];
+        if (self::$crypto_engine) {
+            $engines = [self::$crypto_engine];
+        } else {
+            $engines = [
+                'libsodium',
+                'OpenSSL (GCM)',
+                'OpenSSL',
+                'mcrypt',
+                'Eval',
+                'PHP'
+            	];
+        }
 
         $ciphers = [];
+
         foreach ($engines as $engine) {
             foreach ($algos as $algo) {
                 $obj = self::encryption_algorithm_to_crypt_instance($algo);
