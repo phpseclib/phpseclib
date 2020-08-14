@@ -2084,16 +2084,16 @@ class SFTP extends SSH2
             return false;
         }
 
-		if ($mode & self::SOURCE_LOCAL_FILE) {
-			if ($this->preserveTime) {
-				$stat = fstat($fp);
-				$this->touch($remote_file, $stat['mtime'], $stat['atime']);
-			}
-		}
+	if ($mode & self::SOURCE_LOCAL_FILE) {
+	    if ($this->preserveTime) {
+		$stat = fstat($fp);
+		$this->touch($remote_file, $stat['mtime'], $stat['atime']);
+	    }
+	}
 		
         if(is_resource($fp)) {
-        	fclose($fp);
-		}
+	     fclose($fp);
+	}
 
         return $this->_close_handle($handle);
     }
