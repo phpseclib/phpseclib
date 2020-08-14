@@ -2091,7 +2091,7 @@ class SFTP extends SSH2
 	    }
 	}
 		
-        if(is_resource($fp)) {
+        if(isset($fp) && is_resource($fp)) {
 	     fclose($fp);
 	}
 
