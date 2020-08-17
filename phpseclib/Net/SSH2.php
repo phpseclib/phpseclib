@@ -3923,7 +3923,7 @@ class SSH2
         $packet.= $this->encrypt && $this->encrypt->usesNonce() ? $this->encrypt->getTag() : $hmac;
 
         $start = microtime(true);
-        $sent = fputs($this->fsock, $packet);
+        $sent = @fputs($this->fsock, $packet);
         $stop = microtime(true);
 
         if (defined('NET_SSH2_LOGGING')) {
