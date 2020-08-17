@@ -3964,7 +3964,7 @@ class SSH2
         $packet.= $hmac;
 
         $start = microtime(true);
-        $result = strlen($packet) == fputs($this->fsock, $packet);
+        $result = strlen($packet) == @fputs($this->fsock, $packet);
         $stop = microtime(true);
 
         if (defined('NET_SSH2_LOGGING')) {
