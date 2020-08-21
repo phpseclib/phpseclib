@@ -4,7 +4,7 @@
          default="all"
 >
 
-  <target name="all" depends="sniff,api" />
+  <target name="all" depends="sniff" />
 
   <!-- Code Sniffer -->
   <target name="sniff" depends="sniff-php-code,sniff-php-tests" />
