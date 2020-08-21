@@ -471,7 +471,6 @@ class Net_SFTP extends Net_SSH2
      * Login
      *
      * @param string $username
-     * @param string $password
      * @return bool
      * @access public
      */
@@ -1286,7 +1285,7 @@ class Net_SFTP extends Net_SSH2
      *
      * Mainly used by file_exists
      *
-     * @param string $dir
+     * @param string $path
      * @return mixed
      * @access private
      */
@@ -1841,6 +1840,8 @@ class Net_SFTP extends Net_SSH2
      * Creates a directory.
      *
      * @param string $dir
+     * @param int $mode
+     * @param bool $recursive
      * @return bool
      * @access public
      */
@@ -1873,6 +1874,7 @@ class Net_SFTP extends Net_SSH2
      * Helper function for directory creation
      *
      * @param string $dir
+     * @param int $mode
      * @return bool
      * @access private
      */
@@ -2796,6 +2798,7 @@ class Net_SFTP extends Net_SSH2
      *
      * @param string $path
      * @param string $prop
+     * @param mixed $type
      * @return mixed
      * @access private
      */
@@ -3036,6 +3039,7 @@ class Net_SFTP extends Net_SSH2
      *
      * @param int $type
      * @param string $data
+     * @param int $request_id
      * @see self::_get_sftp_packet()
      * @see Net_SSH2::_send_channel_packet()
      * @return bool

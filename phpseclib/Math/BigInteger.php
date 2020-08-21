@@ -237,7 +237,7 @@ class Math_BigInteger
      * ?>
      * </code>
      *
-     * @param $x base-10 number or base-$base number if $base set.
+     * @param int|string|resource $x base-10 number or base-$base number if $base set.
      * @param int $base
      * @return Math_BigInteger
      * @access public
@@ -2021,7 +2021,7 @@ class Math_BigInteger
      *
      * @see self::_slidingWindow()
      * @access private
-     * @param Math_BigInteger
+     * @param Math_BigInteger $n
      * @return Math_BigInteger
      */
     function _mod2($n)
@@ -3136,7 +3136,7 @@ class Math_BigInteger
      *
      * Byte length is equal to $length. Uses crypt_random if it's loaded and mt_rand if it's not.
      *
-     * @param int $length
+     * @param int $size
      * @return Math_BigInteger
      * @access private
      */
@@ -3603,7 +3603,7 @@ class Math_BigInteger
      *
      * Removes leading zeros and truncates (if necessary) to maintain the appropriate precision
      *
-     * @param Math_BigInteger
+     * @param Math_BigInteger $result
      * @return Math_BigInteger
      * @see self::_trim()
      * @access private
@@ -3680,8 +3680,8 @@ class Math_BigInteger
     /**
      * Array Repeat
      *
-     * @param $input Array
-     * @param $multiplier mixed
+     * @param array $input
+     * @param mixed $multiplier
      * @return array
      * @access private
      */
@@ -3695,8 +3695,8 @@ class Math_BigInteger
      *
      * Shifts binary strings $shift bits, essentially multiplying by 2**$shift.
      *
-     * @param $x String
-     * @param $shift Integer
+     * @param string $x (by reference)
+     * @param int $shift
      * @return string
      * @access private
      */
@@ -3724,8 +3724,8 @@ class Math_BigInteger
      *
      * Shifts binary strings $shift bits, essentially dividing by 2**$shift and returning the remainder.
      *
-     * @param $x String
-     * @param $shift Integer
+     * @param string $x (by referenc)
+     * @param int $shift
      * @return string
      * @access private
      */

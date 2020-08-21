@@ -140,7 +140,7 @@ class File_ASN1_Element
      * PHP4 compatible Default Constructor.
      *
      * @see self::__construct()
-     * @param int $mode
+     * @param string $encoded
      * @access public
      */
     function File_ASN1_Element($encoded)
@@ -887,7 +887,7 @@ class File_ASN1
      *
      * @param string $source
      * @param string $mapping
-     * @param int $idx
+     * @param array $special
      * @return string
      * @access public
      */
@@ -903,6 +903,7 @@ class File_ASN1
      * @param string $source
      * @param string $mapping
      * @param int $idx
+     * @param array $special
      * @return string
      * @access private
      */
@@ -1262,7 +1263,7 @@ class File_ASN1
      * Called by _encode_der()
      *
      * @access private
-     * @param string $content
+     * @param string $source
      * @return string
      */
     function _encodeOID($source)

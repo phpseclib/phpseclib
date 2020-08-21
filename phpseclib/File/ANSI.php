@@ -230,8 +230,7 @@ class File_ANSI
     /**
      * Set the number of lines that should be logged past the terminal height
      *
-     * @param int $x
-     * @param int $y
+     * @param int $history
      * @access public
      */
     function setHistory($history)

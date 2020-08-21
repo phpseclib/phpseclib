@@ -191,7 +191,7 @@ class Crypt_Hash
      * PHP4 compatible Default Constructor.
      *
      * @see self::__construct()
-     * @param int $mode
+     * @param string $hash
      * @access public
      */
     function Crypt_Hash($hash = 'sha1')
@@ -879,7 +879,6 @@ class Crypt_Hash
      * _sha256() adds multiple unsigned 32-bit integers.  Since PHP doesn't support unsigned integers and since the
      * possibility of overflow exists, care has to be taken.  Math_BigInteger() could be used but this should be faster.
      *
-     * @param int $...
      * @return int
      * @see self::_sha256()
      * @access private
