@@ -2006,7 +2006,9 @@ class SFTP extends SSH2
                 $this->touch($remote_file, $stat['mtime'], $stat['atime']);
             }
 
-            fclose($fp);
+            if (isset($fp) && is_resource($fp)) {
+                fclose($fp);
+            }
         }
 
         return $this->close_handle($handle);
