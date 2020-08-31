@@ -4,7 +4,7 @@
          default="all"
 >
 
-  <target name="all" depends="sniff,api" />
+  <target name="all" depends="sniff" />
 
   <!-- Code Sniffer -->
   <target name="sniff" depends="sniff-php-code,sniff-php-tests" />
@@ -22,11 +22,4 @@
         tests/"
       dir=".." checkreturn="true" passthru="true" />
   </target>
-
-  <!-- API Generation -->
-  <target name="api">
-    <exec command="vendor/bin/sami.php update build/sami.conf.php"
-      dir=".." passthru="true" />
-  </target>
-
 </project>
