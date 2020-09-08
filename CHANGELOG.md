@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.29 - 2020-09-07
+
+- SFTP: add enableDatePreservation() / disableDatePreservation() (#1496)
+- SFTP: uploads on low speed networks could get in infinite loop (#1507)
+- SSH2: when building algo list look at if crypto engine is set (#1500)
+- X509: really looong base64 encoded strings broke extractBER() (#1486)
+
 ## 2.0.28 - 2020-07-08
 
 - SFTP: realpath('') produced an error (#1474)
