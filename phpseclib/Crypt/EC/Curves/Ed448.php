@@ -54,7 +54,7 @@ class Ed448 extends TwistedEdwards
      *
      * Used by EC\Keys\Common.php
      *
-     * @param BigInteger $x
+     * @param BigInteger $y
      * @param boolean $sign
      * @return object[]
      */
@@ -127,7 +127,7 @@ class Ed448 extends TwistedEdwards
     /**
      * Encode a point as a string
      *
-     * @param string $str
+     * @param array $point
      * @return string
      */
     public function encodePoint($point)

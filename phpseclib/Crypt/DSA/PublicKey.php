@@ -35,7 +35,6 @@ class PublicKey extends DSA implements Common\PublicKey
      * @access public
      * @param string $message
      * @param string $signature
-     * @param string $format optional
      * @return mixed
      */
     public function verify($message, $signature)

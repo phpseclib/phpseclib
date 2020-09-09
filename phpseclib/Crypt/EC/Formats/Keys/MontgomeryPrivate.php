@@ -78,7 +78,7 @@ abstract class MontgomeryPrivate
      * Convert an EC public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib3\Crypt\EC\Curves\MontgomeryCurve $curve
+     * @param \phpseclib3\Crypt\EC\BaseCurves\Montgomery $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @return string
      */
@@ -92,7 +92,7 @@ abstract class MontgomeryPrivate
      *
      * @access public
      * @param \phpseclib3\Math\Common\FiniteField\Integer $privateKey
-     * @param \phpseclib3\Crypt\EC\Curves\Montgomery $curve
+     * @param \phpseclib3\Crypt\EC\BaseCurves\Montgomery $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @param string $password optional
      * @return string

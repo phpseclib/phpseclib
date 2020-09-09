@@ -882,7 +882,7 @@ abstract class SymmetricKey
      * @see Crypt/Hash.php
      * @param string $password
      * @param string $method
-     * @param $func_args[]
+     * @param string[] ...$func_args
      * @throws \LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
      * @return bool
      * @access public

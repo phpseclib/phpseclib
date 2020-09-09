@@ -175,7 +175,7 @@ abstract class PKCS8 extends Progenitor
      * @access public
      * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
-     * @param array $optiona optional
+     * @param array $options optional
      * @return string
      */
     public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = [])

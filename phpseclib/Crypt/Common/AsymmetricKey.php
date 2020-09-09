@@ -239,7 +239,7 @@ abstract class AsymmetricKey
      * Load Plugins
      *
      * @access private
-     * @param $format
+     * @param string $format
      */
     private static function loadPlugins($format)
     {
@@ -325,7 +325,6 @@ abstract class AsymmetricKey
      * Tests engine validity
      *
      * @access public
-     * @param int $val
      */
     public static function useBestEngine()
     {

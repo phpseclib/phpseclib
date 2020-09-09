@@ -2038,7 +2038,7 @@ class SSH2
      * The $password parameter can be a plaintext password, a \phpseclib3\Crypt\RSA object or an array
      *
      * @param string $username
-     * @param $args[] param mixed $password
+     * @param string[] ...$args
      * @return bool
      * @see self::_login()
      * @access public
@@ -2064,7 +2064,7 @@ class SSH2
      * Login Helper
      *
      * @param string $username
-     * @param $args[] param mixed $password
+     * @param string[] ...$args
      * @return bool
      * @see self::_login_helper()
      * @access private
@@ -2275,7 +2275,7 @@ class SSH2
     /**
      * Handle the keyboard-interactive requests / responses.
      *
-     * @param $responses[]
+     * @param mixed[] ...$responses
      * @return bool
      * @throws \RuntimeException on connection error
      * @access private
@@ -3161,7 +3161,7 @@ class SSH2
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
      * @see self::_send_binary_packet()
-     * @param bool $filter_channel_packets
+     * @param bool $skip_channel_filter
      * @return string
      * @access private
      */
@@ -3379,7 +3379,7 @@ class SSH2
      *
      * @see self::_get_binary_packet()
      * @param string $payload
-     * @param bool $filter_channel_packets
+     * @param bool $skip_channel_filter
      * @return string
      * @access private
      */
@@ -4135,7 +4135,7 @@ class SSH2
      * named constants from it, using the value as the name of the constant and the index as the value of the constant.
      * If any of the constants that would be defined already exists, none of the constants will be defined.
      *
-     * @param $args[]
+     * @param mixed[] ...$args
      * @access protected
      */
     protected function define_array(...$args)

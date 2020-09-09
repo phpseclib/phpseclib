@@ -185,7 +185,7 @@ abstract class DSA extends AsymmetricKey
      *
      * Returns the private key, from which the publickey can be extracted
      *
-     * @param $args[]
+     * @param int[] ...$args
      * @access public
      * @return DSA\PrivateKey
      */
@@ -304,7 +304,6 @@ abstract class DSA extends AsymmetricKey
      *
      * @see self::getPublicKey()
      * @access public
-     * @param string $type optional
      * @return mixed
      */
     public function getParameters()
@@ -323,7 +322,7 @@ abstract class DSA extends AsymmetricKey
      * Valid values are: ASN1, SSH2, Raw
      *
      * @access public
-     * @param string $padding
+     * @param string $format
      */
     public function withSignatureFormat($format)
     {

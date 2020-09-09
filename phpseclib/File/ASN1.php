@@ -1198,7 +1198,7 @@ abstract class ASN1
      * Called by _encode_der()
      *
      * @access public
-     * @param string $content
+     * @param string $source
      * @return string
      */
     public static function encodeOID($source)

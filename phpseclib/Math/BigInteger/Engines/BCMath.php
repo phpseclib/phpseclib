@@ -438,7 +438,7 @@ class BCMath extends Engine
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
      * @param BCMath $y
-     * @return int < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
+     * @return int in case < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @see self::equals()
      * @internal Could return $this->subtract($x), but that's not as fast as what we do do.
      */
@@ -639,7 +639,7 @@ class BCMath extends Engine
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @param BCMath[] $nums
+     * @param BCMath ...$nums
      * @return BCMath
      */
     public static function min(BCMath ...$nums)
@@ -650,7 +650,7 @@ class BCMath extends Engine
     /**
      * Return the maximum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @param BCMath[] $nums
+     * @param BCMath ...$nums
      * @return BCMath
      */
     public static function max(BCMath ...$nums)

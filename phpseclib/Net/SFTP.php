@@ -420,7 +420,7 @@ class SFTP extends SSH2
      * Login
      *
      * @param string $username
-     * @param $args[] string password
+     * @param string[] ...$args
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return bool
      * @access public
@@ -1054,7 +1054,7 @@ class SFTP extends SSH2
      * $sftp->setListOrder();
      *    Don't do any sort of sorting
      *
-     * @param $args[]
+     * @param string[] ...$args
      * @access public
      */
     public function setListOrder(...$args)
@@ -1733,7 +1733,7 @@ class SFTP extends SSH2
      * Helper function for directory creation
      *
      * @param string $dir
-     * @param string $attr
+     * @param int $mode
      * @return bool
      * @access private
      */
@@ -2853,6 +2853,7 @@ class SFTP extends SSH2
      *
      * @param int $type
      * @param string $data
+     * @param int $request_id
      * @see self::_get_sftp_packet()
      * @see self::send_channel_packet()
      * @return bool

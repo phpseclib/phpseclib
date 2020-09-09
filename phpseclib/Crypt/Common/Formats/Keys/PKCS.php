@@ -42,7 +42,7 @@ abstract class PKCS
      * Is the key a base-64 encoded PEM, DER or should it be auto-detected?
      *
      * @access private
-     * @param int
+     * @var int
      */
     protected static $format = self::MODE_ANY;
 
