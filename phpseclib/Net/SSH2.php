@@ -2112,8 +2112,6 @@ class SSH2
      * The $password parameter can be a plaintext password, a \phpseclib\Crypt\RSA object or an array
      *
      * @param string $username
-     * @param mixed $password
-     * @param mixed $...
      * @return bool
      * @see self::_login()
      * @access public
@@ -2140,8 +2138,6 @@ class SSH2
      * Login Helper
      *
      * @param string $username
-     * @param mixed $password
-     * @param mixed $...
      * @return bool
      * @see self::_login_helper()
      * @access private
@@ -2402,7 +2398,6 @@ class SSH2
     /**
      * Handle the keyboard-interactive requests / responses.
      *
-     * @param string $responses...
      * @return bool
      * @access private
      */
@@ -2547,7 +2542,7 @@ class SSH2
      * Login with an RSA private key
      *
      * @param string $username
-     * @param \phpseclib\Crypt\RSA $password
+     * @param \phpseclib\Crypt\RSA $privatekey
      * @return bool
      * @access private
      * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
@@ -3653,8 +3648,9 @@ class SSH2
      *
      * Returns the data as a string if it's available and false if not.
      *
-     * @param $client_channel
-     * @return mixed
+     * @param int $client_channel
+     * @param bool $skip_extended
+     * @return mixed|bool
      * @access private
      */
     function _get_channel_packet($client_channel, $skip_extended = false)
@@ -3984,7 +3980,8 @@ class SSH2
      *
      * Makes sure that only the last 1MB worth of packets will be logged
      *
-     * @param string $data
+     * @param string $message_number
+     * @param string $message
      * @access private
      */
     function _append_log($message_number, $message)
@@ -4189,7 +4186,6 @@ class SSH2
      * named constants from it, using the value as the name of the constant and the index as the value of the constant.
      * If any of the constants that would be defined already exists, none of the constants will be defined.
      *
-     * @param array $array
      * @access private
      */
     function _define_array()
