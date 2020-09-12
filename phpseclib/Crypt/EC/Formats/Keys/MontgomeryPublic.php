@@ -68,7 +68,7 @@ abstract class MontgomeryPublic
      * Convert an EC public key to the appropriate format
      *
      * @access public
-     * @param \phpseclib3\Crypt\EC\Curves\Montgomery $curve
+     * @param \phpseclib3\Crypt\EC\BaseCurves\Montgomery $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @return string
      */

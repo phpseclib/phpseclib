@@ -35,7 +35,7 @@ abstract class ASN1
      * Loads a signature
      *
      * @access public
-     * @param array $key
+     * @param string $sig
      * @return array
      */
     public static function load($sig)

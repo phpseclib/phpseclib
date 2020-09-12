@@ -461,7 +461,6 @@ class PrivateKey extends RSA implements Common\PrivateKey
      * @see self::encrypt()
      * @access public
      * @param string $ciphertext
-     * @param int $padding optional
      * @return bool|string
      */
     public function decrypt($ciphertext)
@@ -481,7 +480,6 @@ class PrivateKey extends RSA implements Common\PrivateKey
      * Returns the public key
      *
      * @access public
-     * @param string $type optional
      * @return mixed
      */
     public function getPublicKey()
@@ -526,7 +524,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
                 throw new UnsupportedFormatException('The PSS format can only be used when the signature method has been explicitly set to PSS');
             }
         }
- 
+
         if (empty($this->primes)) {
             return $type::savePublicKey($this->modulus, $this->exponent, $options);
         }

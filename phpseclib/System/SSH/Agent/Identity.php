@@ -242,7 +242,7 @@ class Identity implements PrivateKey
      * Valid values are: ASN1, SSH2, Raw
      *
      * @access public
-     * @param string $padding
+     * @param string $format
      */
     public function withSignatureFormat($format)
     {
@@ -279,7 +279,6 @@ class Identity implements PrivateKey
      * See "2.6.2 Protocol 2 private key signature request"
      *
      * @param string $message
-     * @param int $padding optional
      * @return string
      * @throws \RuntimeException on connection errors
      * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported

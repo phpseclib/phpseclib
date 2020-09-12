@@ -57,7 +57,6 @@ class PrivateKey extends DSA implements Common\PrivateKey
      *
      * @see self::getPrivateKey()
      * @access public
-     * @param string $type optional
      * @return mixed
      */
     public function getPublicKey()

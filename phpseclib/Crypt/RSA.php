@@ -734,7 +734,7 @@ abstract class RSA extends AsymmetricKey
      * Example: $key->withPadding(RSA::ENCRYPTION_PKCS1 | RSA::SIGNATURE_PKCS1);
      *
      * @access public
-     * @param string $label
+     * @param int $padding
      */
     public function withPadding($padding)
     {

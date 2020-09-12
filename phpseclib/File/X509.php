@@ -559,7 +559,7 @@ class X509
      * Map extension values from octet string to extension-specific internal
      *   format.
      *
-     * @param &array $root
+     * @param array $root (by reference)
      * @param string $path
      * @access private
      */
@@ -608,7 +608,7 @@ class X509
      * Map extension values from extension-specific internal format to
      *   octet string.
      *
-     * @param &array Ref $root
+     * @param array $root (by reference)
      * @param string $path
      * @access private
      */
@@ -672,7 +672,7 @@ class X509
      * Map attribute values from ANY type to attribute-specific internal
      *   format.
      *
-     * @param &array Ref $root
+     * @param array $root (by reference)
      * @param string $path
      * @access private
      */
@@ -712,7 +712,7 @@ class X509
      * Map attribute values from attribute-specific internal format to
      *   ANY type.
      *
-     * @param &array $root Ref
+     * @param array $root (by reference)
      * @param string $path
      * @access private
      */
@@ -754,7 +754,7 @@ class X509
      * Map DN values from ANY type to DN-specific internal
      *   format.
      *
-     * @param &array $root
+     * @param array $root (by reference)
      * @param string $path
      * @access private
      */
@@ -783,7 +783,7 @@ class X509
      * Map DN values from DN-specific internal format to
      *   ANY type.
      *
-     * @param &array $root
+     * @param array $root (by reference)
      * @param string $path
      * @access private
      */
@@ -2051,7 +2051,7 @@ class X509
      *
      * Key needs to be a \phpseclib3\Crypt\RSA object
      *
-     * @param object $key
+     * @param PublicKey $key
      * @access public
      * @return bool
      */
@@ -2065,7 +2065,7 @@ class X509
      *
      * Key needs to be a \phpseclib3\Crypt\RSA object
      *
-     * @param object $key
+     * @param PrivateKey $key
      * @access public
      */
     public function setPrivateKey(PrivateKey $key)
@@ -2513,7 +2513,6 @@ class X509
      *
      * @param \phpseclib3\File\X509 $issuer
      * @param \phpseclib3\File\X509 $subject
-     * @param string $signatureAlgorithm optional
      * @access public
      * @return mixed
      */
@@ -2708,7 +2707,6 @@ class X509
      * Sign a CSR
      *
      * @access public
-     * @param string $signatureAlgorithm
      * @return mixed
      */
     public function signCSR()
@@ -2764,7 +2762,6 @@ class X509
      * Sign a SPKAC
      *
      * @access public
-     * @param string $signatureAlgorithm
      * @return mixed
      */
     public function signSPKAC()
@@ -2829,7 +2826,6 @@ class X509
      *
      * @param \phpseclib3\File\X509 $issuer
      * @param \phpseclib3\File\X509 $crl
-     * @param string $signatureAlgorithm optional
      * @access public
      * @return mixed
      */
@@ -2960,7 +2956,7 @@ class X509
     /**
      * Identify signature algorithm from key settings
      *
-     * @param object $key
+     * @param PrivateKey $key
      * @access private
      * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @return string
@@ -3061,7 +3057,7 @@ class X509
      * Set Serial Number
      *
      * @param string $serial
-     * @param $base integer Optional
+     * @param int $base optional
      * @access public
      */
     public function setSerialNumber($serial, $base = -256)
@@ -3711,7 +3707,7 @@ class X509
     /**
      * Set the domain name's which the cert is to be valid for
      *
-     * @param $domains[]
+     * @param mixed[] ...$domains
      * @access public
      * @return array
      */
@@ -3726,7 +3722,7 @@ class X509
      * Set the IP Addresses's which the cert is to be valid for
      *
      * @access public
-     * @param $ipAddresses[] optional
+     * @param mixed[] ...$ipAddresses
      */
     public function setIPAddress(...$ipAddresses)
     {

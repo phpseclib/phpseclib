@@ -291,7 +291,7 @@ class PHP32 extends PHP
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
      * @param PHP32 $y
-     * @return int < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
+     * @return int in case < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
      * @see self::equals()
      * @internal Could return $this->subtract($x), but that's not as fast as what we do do.
@@ -386,7 +386,7 @@ class PHP32 extends PHP
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @param PHP32[] $nums
+     * @param PHP32 ...$nums
      * @return PHP32
      */
     public static function min(PHP32 ...$nums)
@@ -397,7 +397,7 @@ class PHP32 extends PHP
     /**
      * Return the maximum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @param PHP32[] $nums
+     * @param PHP32 ...$nums
      * @return PHP32
      */
     public static function max(PHP32 ...$nums)

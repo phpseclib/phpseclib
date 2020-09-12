@@ -434,8 +434,8 @@ abstract class Engine implements \Serializable
      *
      * Shifts binary strings $shift bits, essentially multiplying by 2**$shift.
      *
-     * @param $x String
-     * @param $shift Integer
+     * @param string $x
+     * @param int $shift
      * @return string
      */
     protected static function base256_lshift(&$x, $shift)

@@ -65,7 +65,7 @@ abstract class OpenSSH
      *
      * @access public
      * @param string $key
-     * @param string $type
+     * @param string $password
      * @return array
      */
     public static function load($key, $password = '')

@@ -27,8 +27,7 @@ trait ReadBytes
     /**
      * Read data
      *
-     * @param string $data
-     * @return string Data from SSH Agent
+     * @param int $length
      * @throws \RuntimeException on connection errors
      * @access public
      */

@@ -77,7 +77,7 @@ abstract class Strings
      * uint64 is not supported.
      *
      * @param string $format
-     * @param $data
+     * @param string $data
      * @return mixed
      */
     public static function unpackSSH2($format, &$data)
@@ -138,7 +138,7 @@ abstract class Strings
     /**
      * Create SSH2-style string
      *
-     * @param $elements[]
+     * @param string[] ...$elements
      * @access public
      * @return mixed
      */

@@ -475,7 +475,7 @@ class Salsa20 extends StreamCipher
      * @see self::decrypt()
      * @see self::encrypt()
      * @access private
-     * @param string $text
+     * @param string $ciphertext
      * @return string
      */
     protected function poly1305($ciphertext)

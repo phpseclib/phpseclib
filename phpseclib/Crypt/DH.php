@@ -388,7 +388,6 @@ abstract class DH extends AsymmetricKey
      *
      * @see self::getPublicKey()
      * @access public
-     * @param string $type optional
      * @return mixed
      */
     public function getParameters()

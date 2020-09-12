@@ -153,7 +153,7 @@ class BigInteger implements \Serializable
      * If the second parameter - $base - is negative, then it will be assumed that the number's are encoded using
      * two's compliment.  The sole exception to this is -10, which is treated the same as 10 is.
      *
-     * @param $x integer|BigInteger\Engines\Engine Base-10 number or base-$base number if $base set.
+     * @param int|BigInteger\Engines\Engine $x Base-10 number or base-$base number if $base set.
      * @param int $base
      * @return BigInteger
      */
@@ -463,7 +463,7 @@ class BigInteger implements \Serializable
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
      * @param BigInteger $y
-     * @return int < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
+     * @return int in case < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
      * @see self::equals()
      * @internal Could return $this->subtract($x), but that's not as fast as what we do do.
@@ -730,7 +730,7 @@ class BigInteger implements \Serializable
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @param BigInteger[] $nums
+     * @param BigInteger ...$nums
      * @return BigInteger
      */
     public static function min(BigInteger ...$nums)
@@ -743,7 +743,7 @@ class BigInteger implements \Serializable
     /**
      * Return the maximum BigInteger between an arbitrary number of BigIntegers.
      *
-     * @param BigInteger[] $nums
+     * @param BigInteger ...$nums
      * @return BigInteger
      */
     public static function max(BigInteger ...$nums)

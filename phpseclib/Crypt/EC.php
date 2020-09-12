@@ -373,7 +373,7 @@ abstract class EC extends AsymmetricKey
      * Valid values are: ASN1, SSH2, Raw
      *
      * @access public
-     * @param string $padding
+     * @param string $format
      */
     public function withSignatureFormat($format)
     {
