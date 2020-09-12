@@ -1092,6 +1092,7 @@ abstract class Engine implements \Serializable
      * Calculates the greatest common divisor and Bezout's identity.
      *
      * @param Engine $n
+     * @param Engine $stop (optional)
      * @return Engine
      */
     protected function extendedGCDHelper(Engine $n, Engine $stop = null)
