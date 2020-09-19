@@ -16,6 +16,20 @@ use phpseclib3\Crypt\EC\PrivateKey;
 
 class Unit_Crypt_EC_LoadKeyTest extends PhpseclibTestCase
 {
+    public function testBinaryPKCS1PrivateParameters()
+    {
+        $key = PublicKeyLoader::load('-----BEGIN EC PARAMETERS-----
+BgUrgQQAIg==
+-----END EC PARAMETERS-----
+-----BEGIN EC PRIVATE KEY-----
+MIGkAgEBBDBPoZHEeuf9UjjhevAbGxWwsmmWw34vkxJwtZ0AknmSUAHo0OAowJSQ
+Stf/0U65RhWgBwYFK4EEACKhZANiAASVZJGIs6m/TZhbFoTwBtpvU1JcyixD2YI3
+5YnoIx/6Q1oqJg1vrrmUoXaeEpaO6JH8RgItTl9lYMdmOk5309WJka6tI1QAAK3+
+Jq9z4moG4whp3JsuiBQG9wnaHVrQPA4=
+-----END EC PRIVATE KEY-----');
+        $this->assertSame('secp384r1', $key->getCurve());
+    }
+
     // openssl ecparam -name secp256k1 -genkey -noout -out secp256k1.pem
     public function testPKCS1PrivateKey()
     {

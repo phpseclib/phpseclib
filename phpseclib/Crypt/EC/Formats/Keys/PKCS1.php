@@ -61,6 +61,56 @@ abstract class PKCS1 extends Progenitor
     {
         self::initialize_static_variables();
 
+        if (strpos($key, 'BEGIN EC PARAMETERS') && strpos($key, 'BEGIN EC PRIVATE KEY')) {
+            $components = [];
+
+            preg_match('#-*BEGIN EC PRIVATE KEY-*[^-]*-*END EC PRIVATE KEY-*#s', $key, $matches);
+            $decoded = parent::load($matches[0], $password);
+            $decoded = ASN1::decodeBER($decoded);
+            if (empty($decoded)) {
+                throw new \RuntimeException('Unable to decode BER');
+            }
+
+            $ecPrivate = ASN1::asn1map($decoded[0], Maps\ECPrivateKey::MAP);
+            if (!is_array($ecPrivate)) {
+                throw new \RuntimeException('Unable to perform ASN1 mapping');
+            }
+
+            if (isset($ecPrivate['parameters'])) {
+                $components['curve'] = self::loadCurveByParam($ecPrivate['parameters']);
+            }
+
+            preg_match('#-*BEGIN EC PARAMETERS-*[^-]*-*END EC PARAMETERS-*#s', $key, $matches);
+            $decoded = parent::load($matches[0], '');
+            $decoded = ASN1::decodeBER($decoded);
+            if (empty($decoded)) {
+                throw new \RuntimeException('Unable to decode BER');
+            }
+            $ecParams = ASN1::asn1map($decoded[0], Maps\ECParameters::MAP);
+            if (!is_array($ecParams)) {
+                throw new \RuntimeException('Unable to perform ASN1 mapping');
+            }
+            $ecParams = self::loadCurveByParam($ecParams);
+
+            // comparing $ecParams and $components['curve'] directly won't work because they'll have different Math\Common\FiniteField classes
+            // even if the modulo is the same
+            if (isset($components['curve']) && self::encodeParameters($ecParams, false, []) != self::encodeParameters($components['curve'], false, [])) {
+                throw new \RuntimeException('EC PARAMETERS does not correspond to EC PRIVATE KEY');
+            }
+
+            if (!isset($components['curve'])) {
+                $components['curve'] = $ecParams;
+            }
+
+            $temp = new BigInteger($ecPrivate['privateKey'], 256);
+            $components['dA'] = $components['curve']->convertInteger($temp);
+            $components['QA'] = isset($ecPrivate['publicKey']) ?
+                self::extractPoint($ecPrivate['publicKey'], $components['curve']) :
+                $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
+
+            return $components;
+        }
+
         $key = parent::load($key, $password);
 
         $decoded = ASN1::decodeBER($key);
@@ -77,12 +127,17 @@ abstract class PKCS1 extends Progenitor
         if (!is_array($key)) {
             throw new \RuntimeException('Unable to perform ASN1 mapping');
         }
+        if (!isset($key['parameters'])) {
+            throw new \RuntimeException('Key cannot be loaded without parameters');
+        }
 
         $components = [];
         $components['curve'] = self::loadCurveByParam($key['parameters']);
         $temp = new BigInteger($key['privateKey'], 256);
         $components['dA'] = $components['curve']->convertInteger($temp);
-        $components['QA'] = self::extractPoint($key['publicKey'], $components['curve']);
+        $components['QA'] = isset($ecPrivate['publicKey']) ?
+            self::extractPoint($ecPrivate['publicKey'], $components['curve']) :
+            $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
 
         return $components;
     }
