@@ -688,6 +688,14 @@ class SSH2
     var $curTimeout;
 
     /**
+     * Keep Alive Interval
+     *
+     * @see self::setKeepAlive()
+     * @access private
+     */
+    var $keepAlive;
+
+    /**
      * Real-time log file pointer
      *
      * @see self::_append_log()
@@ -2678,6 +2686,19 @@ class SSH2
     }
 
     /**
+     * Set Keep Alive
+     *
+     * Sends an SSH2_MSG_IGNORE message every x seconds, if x is a positive non-zero number.
+     *
+     * @param mixed $timeout
+     * @access public
+     */
+    function setKeepAlive($interval)
+    {
+        $this->keepAlive = $interval;
+    }
+
+    /**
      * Get the output from stdError
      *
      * @access public
@@ -3667,8 +3688,15 @@ class SSH2
                 $read = array($this->fsock);
                 $write = $except = null;
 
-                if (!$this->curTimeout) {
-                    @stream_select($read, $write, $except, null);
+                if ($this->curTimeout <= 0) {
+                    if ($this->keepAlive <= 0) {
+                        @stream_select($read, $write, $except, null);
+                    } else {
+                        if (!@stream_select($read, $write, $except, $this->keepAlive) && !count($read)) {
+                            $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_IGNORE, 0));
+                            continue;
+                        }
+                    }
                 } else {
                     if ($this->curTimeout < 0) {
                         $this->is_timeout = true;
@@ -3679,8 +3707,20 @@ class SSH2
                     $write = $except = null;
 
                     $start = microtime(true);
+                    if ($this->keepAlive > 0 && $this->keepAlive < $this->curTimeout) {
+                        if (!@stream_select($read, $write, $except, $this->keepAlive) && !count($read)) {
+                            $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_IGNORE, 0));
+                            $elapsed = microtime(true) - $start;
+                            $this->curTimeout-= $elapsed;
+                            continue;
+                        }
+                        $elapsed = microtime(true) - $start;
+                        $this->curTimeout-= $elapsed;
+                    }
+
                     $sec = floor($this->curTimeout);
                     $usec = 1000000 * ($this->curTimeout - $sec);
+
                     // on windows this returns a "Warning: Invalid CRT parameters detected" error
                     if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
                         $this->is_timeout = true;
