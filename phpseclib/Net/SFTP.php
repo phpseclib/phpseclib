@@ -2309,9 +2309,6 @@ class Net_SFTP extends Net_SSH2
                 }
                 $packet = null;
                 $read+= $packet_size;
-                if (is_callable($progressCallback)) {
-                    call_user_func($progressCallback, $read);
-                }
                 $i++;
             }
 
@@ -2340,6 +2337,9 @@ class Net_SFTP extends Net_SSH2
                             $content.= $temp;
                         } else {
                             fputs($fp, $temp);
+                        }
+                        if (is_callable($progressCallback)) {
+                            call_user_func($progressCallback, $offset);
                         }
                         $temp = null;
                         break;
