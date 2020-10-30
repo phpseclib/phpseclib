@@ -921,7 +921,7 @@ oD5EoULMFSVUHX8gtyd463GgOQtBDwf3aZ4Xe6eDrhdfI/4IW098kVcg+qFO841L
 qzFkAKWjJj4KjfrbZX4C0Spfxw==
 -----END CERTIFICATE-----';
 
-        $x509 = new File_X509();
+        $x509 = new X509();
         $r = $x509->loadX509($a);
 
         $this->assertFalse($r);
