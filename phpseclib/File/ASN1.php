@@ -1461,10 +1461,10 @@ abstract class ASN1
         $temp = strlen($str) <= ini_get('pcre.backtrack_limit') ?
             preg_replace('#.*?^-+[^-]+-+[\r\n ]*$#ms', '', $str, 1) :
             $str;
-        // remove the -----BEGIN CERTIFICATE----- and -----END CERTIFICATE----- stuff
-        $temp = preg_replace('#-+[^-]+-+#', '', $temp);
         // remove new lines
         $temp = str_replace(["\r", "\n", ' '], '', $temp);
+        // remove the -----BEGIN CERTIFICATE----- and -----END CERTIFICATE----- stuff
+        $temp = preg_replace('#^-+[^-]+-+|-+[^-]+-+$#', '', $temp);
         $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? Base64::decode($temp) : false;
         return $temp != false ? $temp : $str;
     }
