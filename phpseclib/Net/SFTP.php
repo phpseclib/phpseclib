@@ -2248,9 +2248,6 @@ class SFTP extends SSH2
                 }
                 $packet = null;
                 $read+= $packet_size;
-                if (is_callable($progressCallback)) {
-                    call_user_func($progressCallback, $read);
-                }
                 $i++;
             }
 
@@ -2279,6 +2276,9 @@ class SFTP extends SSH2
                             $content.= $temp;
                         } else {
                             fputs($fp, $temp);
+                        }
+                        if (is_callable($progressCallback)) {
+                            call_user_func($progressCallback, $offset);
                         }
                         $temp = null;
                         break;
