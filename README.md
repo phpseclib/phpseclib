@@ -1,6 +1,6 @@
 # phpseclib - PHP Secure Communications Library
 
-[![Build Status](https://travis-ci.org/phpseclib/phpseclib.svg?branch=master)](https://travis-ci.org/phpseclib/phpseclib)
+[![Build Status](https://travis-ci.com/phpseclib/phpseclib.svg?branch=3.0)](https://travis-ci.com/phpseclib/phpseclib)
 
 ## Supporting phpseclib
 
