@@ -289,7 +289,22 @@ class ChaCha20 extends Salsa20
     /**
      * The doubleround function
      *
-     * @param int $x0...$x16
+     * @param int $x0 (by reference)
+     * @param int $x1 (by reference)
+     * @param int $x2 (by reference)
+     * @param int $x3 (by reference)
+     * @param int $x4 (by reference)
+     * @param int $x5 (by reference)
+     * @param int $x6 (by reference)
+     * @param int $x7 (by reference)
+     * @param int $x8 (by reference)
+     * @param int $x9 (by reference)
+     * @param int $x10 (by reference)
+     * @param int $x11 (by reference)
+     * @param int $x12 (by reference)
+     * @param int $x13 (by reference)
+     * @param int $x14 (by reference)
+     * @param int $x15 (by reference)
      */
     protected static function doubleRound(&$x0, &$x1, &$x2, &$x3, &$x4, &$x5, &$x6, &$x7, &$x8, &$x9, &$x10, &$x11, &$x12, &$x13, &$x14, &$x15)
     {
