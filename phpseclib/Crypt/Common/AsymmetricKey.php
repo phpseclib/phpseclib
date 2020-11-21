@@ -183,8 +183,8 @@ abstract class AsymmetricKey
     /**
      * Load the key, assuming a specific format
      *
-     * @param string $key
      * @param string $type
+     * @param string $key
      * @param string $password optional
      * @return AsymmetricKey
      */

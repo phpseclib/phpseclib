@@ -617,6 +617,7 @@ abstract class PKCS8 extends PKCS
      * @access public
      * @param string $key
      * @param mixed $params
+     * @param string $oid
      * @return string
      */
     protected static function wrapPublicKey($key, $params, $oid = null)
