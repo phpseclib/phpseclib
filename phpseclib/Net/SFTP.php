@@ -2217,7 +2217,7 @@ class SFTP extends SSH2
             $res_offset = $stat['size'];
         } else {
             $res_offset = 0;
-            if ($local_file !== false) {
+            if ($local_file !== false && !is_callable($local_file) ) {
                 $fp = fopen($local_file, 'wb');
                 if (!$fp) {
                     return false;
@@ -2227,7 +2227,7 @@ class SFTP extends SSH2
             }
         }
 
-        $fclose_check = $local_file !== false && !is_resource($local_file);
+        $fclose_check = $local_file !== false && !is_callable($local_file) && !is_resource($local_file);
 
         $start = $offset;
         $read = 0;
@@ -2274,6 +2274,8 @@ class SFTP extends SSH2
                         $offset+= strlen($temp);
                         if ($local_file === false) {
                             $content.= $temp;
+                        } elseif (is_callable($local_file)) {
+													$local_file($temp);
                         } else {
                             fputs($fp, $temp);
                         }
