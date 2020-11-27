@@ -2278,7 +2278,7 @@ class Net_SFTP extends Net_SSH2
             $res_offset = $stat['size'];
         } else {
             $res_offset = 0;
-            if ($local_file !== false && !is_callable($local_file) ) {
+            if ($local_file !== false && !is_callable($local_file)) {
                 $fp = fopen($local_file, 'wb');
                 if (!$fp) {
                     return false;
@@ -2336,7 +2336,7 @@ class Net_SFTP extends Net_SSH2
                         if ($local_file === false) {
                             $content.= $temp;
                         } elseif (is_callable($local_file)) {
-													$local_file($temp);
+                            $local_file($temp);
                         } else {
                             fputs($fp, $temp);
                         }
