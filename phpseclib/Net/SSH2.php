@@ -1552,6 +1552,39 @@ class Net_SSH2
             user_error('No compatible key exchange algorithms found');
             return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
         }
+
+        $server_host_key_algorithm = $this->_array_intersect_first($server_host_key_algorithms, $this->server_host_key_algorithms);
+        if ($server_host_key_algorithm === false) {
+            user_error('No compatible server host key algorithms found');
+            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+        }
+
+        $mac_algorithm_out = $this->_array_intersect_first($c2s_mac_algorithms, $this->mac_algorithms_client_to_server);
+        if ($mac_algorithm_out === false) {
+            user_error('No compatible client to server message authentication algorithms found');
+            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+        }
+
+        $mac_algorithm_in = $this->_array_intersect_first($s2c_mac_algorithms, $this->mac_algorithms_server_to_client);
+        if ($mac_algorithm_in === false) {
+            user_error('No compatible server to client message authentication algorithms found');
+            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+        }
+
+        $compression_algorithm_out = $this->_array_intersect_first($c2s_compression_algorithms, $this->compression_algorithms_client_to_server);
+        if ($compression_algorithm_out === false) {
+            user_error('No compatible client to server compression algorithms found');
+            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+        }
+        //$this->decompress = $compression_algorithm_out == 'zlib';
+
+        $compression_algorithm_in = $this->_array_intersect_first($s2c_compression_algorithms, $this->compression_algorithms_client_to_server);
+        if ($compression_algorithm_in === false) {
+            user_error('No compatible server to client compression algorithms found');
+            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+        }
+        //$this->compress = $compression_algorithm_in == 'zlib';
+
         if (strpos($kex_algorithm, 'diffie-hellman-group-exchange') === 0) {
             $dh_group_sizes_packed = pack(
                 'NNN',
@@ -1759,12 +1792,6 @@ class Net_SSH2
             $this->session_id = $this->exchange_hash;
         }
 
-        $server_host_key_algorithm = $this->_array_intersect_first($server_host_key_algorithms, $this->server_host_key_algorithms);
-        if ($server_host_key_algorithm === false) {
-            user_error('No compatible server host key algorithms found');
-            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-        }
-
         switch ($server_host_key_algorithm) {
             case 'ssh-dss':
                 $expected_key_format = 'ssh-dss';
@@ -1884,14 +1911,8 @@ class Net_SSH2
             $this->decrypt->decrypt(str_repeat("\0", 1536));
         }
 
-        $mac_algorithm = $this->_array_intersect_first($c2s_mac_algorithms, $this->mac_algorithms_client_to_server);
-        if ($mac_algorithm === false) {
-            user_error('No compatible client to server message authentication algorithms found');
-            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-        }
-
         $createKeyLength = 0; // ie. $mac_algorithm == 'none'
-        switch ($mac_algorithm) {
+        switch ($mac_algorithm_out) {
             case 'hmac-sha2-256':
                 $this->hmac_create = new Crypt_Hash('sha256');
                 $createKeyLength = 32;
@@ -1912,17 +1933,11 @@ class Net_SSH2
                 $this->hmac_create = new Crypt_Hash('md5-96');
                 $createKeyLength = 16;
         }
-        $this->hmac_create->name = $mac_algorithm;
-
-        $mac_algorithm = $this->_array_intersect_first($s2c_mac_algorithms, $this->mac_algorithms_server_to_client);
-        if ($mac_algorithm === false) {
-            user_error('No compatible server to client message authentication algorithms found');
-            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-        }
+        $this->hmac_create->name = $mac_algorithm_out;
 
         $checkKeyLength = 0;
         $this->hmac_size = 0;
-        switch ($mac_algorithm) {
+        switch ($mac_algorithm_in) {
             case 'hmac-sha2-256':
                 $this->hmac_check = new Crypt_Hash('sha256');
                 $checkKeyLength = 32;
@@ -1948,7 +1963,7 @@ class Net_SSH2
                 $checkKeyLength = 16;
                 $this->hmac_size = 12;
         }
-        $this->hmac_check->name = $mac_algorithm;
+        $this->hmac_check->name = $mac_algorithm_in;
 
         $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'E' . $this->session_id);
         while ($createKeyLength > strlen($key)) {
@@ -1961,20 +1976,6 @@ class Net_SSH2
             $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
         }
         $this->hmac_check->setKey(substr($key, 0, $checkKeyLength));
-
-        $compression_algorithm = $this->_array_intersect_first($c2s_compression_algorithms, $this->compression_algorithms_client_to_server);
-        if ($compression_algorithm === false) {
-            user_error('No compatible client to server compression algorithms found');
-            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-        }
-        //$this->decompress = $compression_algorithm == 'zlib';
-
-        $compression_algorithm = $this->_array_intersect_first($s2c_compression_algorithms, $this->compression_algorithms_client_to_server);
-        if ($compression_algorithm === false) {
-            user_error('No compatible server to client compression algorithms found');
-            return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-        }
-        //$this->compress = $compression_algorithm == 'zlib';
 
         return true;
     }
