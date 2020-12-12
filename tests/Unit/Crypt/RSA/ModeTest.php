@@ -116,3 +116,7 @@ k12yS6pCS3c+1wZ9cYFVtgfpSL4XpylLe9EnRT2GRVYCqUkR4AUeTuvnAgMBAAE=
         $this->assertTrue($rsa->verify($payload, $sig));
     }
 }
+
+class ModeTest extends Unit_Crypt_RSA_ModeTest
+{
+}

@@ -18,3 +18,7 @@ class Unit_Math_BigInteger_GMPTest extends Unit_Math_BigInteger_TestCase
         self::ensureConstant('MATH_BIGINTEGER_MODE', \phpseclib\Math\BigInteger::MODE_GMP);
     }
 }
+
+class GMPTest extends Unit_Math_BigInteger_GMPTest
+{
+}

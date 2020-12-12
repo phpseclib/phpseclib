@@ -198,3 +198,7 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         }
     }
 }
+
+class TripleDESTest extends Unit_Crypt_TripleDESTest
+{
+}

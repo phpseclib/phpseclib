@@ -39,3 +39,7 @@ class Unit_Net_SSH1Test extends PhpseclibTestCase
         $this->assertEquals($expected, $result);
     }
 }
+
+class SSH1Test extends Unit_Net_SSH1Test
+{
+}

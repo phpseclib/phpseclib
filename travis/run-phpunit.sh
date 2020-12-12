@@ -20,6 +20,17 @@ then
   PHPUNIT_ARGS="$PHPUNIT_ARGS -d zend.enable_gc=0"
 fi
 
+if [ `php -r "echo (int) version_compare(PHP_VERSION, '7.3', '>=');"` = "1" ]
+then
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/n setUpBeforeClass()/n setUpBeforeClass(): void/g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/n setUp()/n setUp(): void/g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/n tearDown()/n tearDown(): void/g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertIsArray([^)]*)\)/\1: void/g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertIsString([^)]*)\)/\1: void/g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertStringContainsString([^)]*)\)/\1: void/g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertStringNotContainsString([^)]*)\)/\1: void/g'
+fi
+
 if [ "$TRAVIS_PHP_VERSION" = 'hhvm' -o `php -r "echo (int) version_compare(PHP_VERSION, '7.0', '>=');"` = "1" ]
 then
   find tests -type f -name "*Test.php" | \

@@ -72,3 +72,7 @@ class Unit_Crypt_TwofishTest extends PhpseclibTestCase
         }
     }
 }
+
+class TwofishTest extends Unit_Crypt_TwofishTest
+{
+}

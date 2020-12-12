@@ -22,13 +22,15 @@ matrix:
       dist: xenial
     - php: 7.4
       dist: xenial
+    - php: 8.0
+      dist: bionic
 
 before_install: true
 
 install:
   - wget http://ftp.gnu.org/gnu/parallel/parallel-20170822.tar.bz2
   - tar -xvjf parallel*
-  - cd parallel*
+  - cd parallel-20170822
   - ./configure
   - make
   - sudo make install

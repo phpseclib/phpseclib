@@ -101,4 +101,48 @@ abstract class PhpseclibTestCase extends PHPUnit\Framework\TestCase
             }
         }
     }
+
+    // assertIsArray was not introduced until PHPUnit 8
+    public static function assertIsArray($actual, $message = '')
+    {
+        if (method_exists('\PHPUnit\Framework\TestCase', 'assertIsArray')) {
+            parent::assertIsArray($actual, $message);
+            return;
+        }
+
+        parent::assertInternalType('array', $actual, $message);
+    }
+
+    // assertIsString was not introduced until PHPUnit 8
+    public static function assertIsString($actual, $message = '')
+    {
+        if (method_exists('\PHPUnit\Framework\TestCase', 'assertIsString')) {
+            parent::assertIsString($actual, $message);
+            return;
+        }
+
+        parent::assertInternalType('string', $actual, $message);
+    }
+
+    // assertContains is deprecated for strings in PHPUnit 8
+    public static function assertStringContainsString($needle, $haystack, $message = '')
+    {
+        if (method_exists('\PHPUnit\Framework\TestCase', 'assertStringContainsString')) {
+            parent::assertStringContainsString($needle, $haystack, $message);
+            return;
+        }
+
+        parent::assertContains($needle, $haystack, $message);
+    }
+
+    // assertNotContains is deprecated for strings in PHPUnit 8
+    public static function assertStringNotContainsString($needle, $haystack, $message = '')
+    {
+        if (method_exists('\PHPUnit\Framework\TestCase', 'assertStringContainsString')) {
+            parent::assertStringNotContainsString($needle, $haystack, $message);
+            return;
+        }
+
+        parent::assertNotContains($needle, $haystack, $message);
+    }
 }

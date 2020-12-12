@@ -76,3 +76,7 @@ class Unit_Crypt_DESTest extends PhpseclibTestCase
         }
     }
 }
+
+class DESTest extends Unit_Crypt_DESTest
+{
+}
