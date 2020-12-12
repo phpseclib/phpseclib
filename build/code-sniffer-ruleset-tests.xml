@@ -11,6 +11,7 @@
        using underscore. -->
   <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace" />
   <exclude name="Squiz.Classes.ValidClassName.NotCamelCaps" />
+  <exclude name="PSR1.Classes.ClassDeclaration.MultipleClasses" />
  </rule>
 
 </ruleset>

@@ -35,7 +35,7 @@ class SHA256_96Test extends SHA256Test
 {
     public function getInstance()
     {
-        return new Crypt_Hash('sha256-96');
+        return new Hash('sha256-96');
     }
 
     /**

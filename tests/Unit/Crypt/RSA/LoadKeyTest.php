@@ -184,13 +184,8 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
         $this->assertTrue($rsa->loadKey($key));
 
-<<<<<<< HEAD
         $key = $rsa->getPrivateKey(RSA::PRIVATE_FORMAT_PKCS8);
-        $this->assertInternalType('string', $key);
-=======
-        $key = $rsa->getPrivateKey(CRYPT_RSA_PRIVATE_FORMAT_PKCS8);
         $this->assertIsString($key);
->>>>>>> 1.0
 
         $this->assertTrue($rsa->loadKey($key));
     }

@@ -35,7 +35,7 @@ class SHA512_96Test extends SHA512Test
 {
     public function getInstance()
     {
-        return new Crypt_Hash('sha512-96');
+        return new Hash('sha512-96');
     }
 
     /**
