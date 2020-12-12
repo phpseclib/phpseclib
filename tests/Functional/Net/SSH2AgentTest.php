@@ -50,3 +50,7 @@ class Functional_Net_SSH2AgentTest extends PhpseclibFunctionalTestCase
         return $args;
     }
 }
+
+class SSH2AgentTest extends Functional_Net_SSH2AgentTest
+{
+}

@@ -402,7 +402,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
     {
         $num = $this->getInstance(50);
         $str = print_r($num, true);
-        $this->assertContains('[value] => 0x32', $str);
+        $this->assertStringContainsString('[value] => 0x32', $str);
         return $str;
     }
 

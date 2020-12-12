@@ -6,7 +6,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Unit_Net_SSH2Test extends PhpseclibTestCase
+class Unit_Net_SSH2UnitTest extends PhpseclibTestCase
 {
     public function formatLogDataProvider()
     {
@@ -42,25 +42,25 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
         $this->assertStringStartsWith('SSH-2.0-phpseclib_1.0', $identifier);
 
         if (extension_loaded('openssl')) {
-            $this->assertContains('openssl', $identifier);
-            $this->assertNotContains('mcrypt', $identifier);
+            $this->assertStringContainsString('openssl', $identifier);
+            $this->assertStringNotContainsString('mcrypt', $identifier);
         } elseif (extension_loaded('mcrypt')) {
-            $this->assertNotContains('openssl', $identifier);
-            $this->assertContains('mcrypt', $identifier);
+            $this->assertStringNotContainsString('openssl', $identifier);
+            $this->assertStringContainsString('mcrypt', $identifier);
         } else {
-            $this->assertNotContains('openssl', $identifier);
-            $this->assertNotContains('mcrypt', $identifier);
+            $this->assertStringNotContainsString('openssl', $identifier);
+            $this->assertStringNotContainsString('mcrypt', $identifier);
         }
 
         if (extension_loaded('gmp')) {
-            $this->assertContains('gmp', $identifier);
-            $this->assertNotContains('bcmath', $identifier);
+            $this->assertStringContainsString('gmp', $identifier);
+            $this->assertStringNotContainsString('bcmath', $identifier);
         } elseif (extension_loaded('bcmath')) {
-            $this->assertNotContains('gmp', $identifier);
-            $this->assertContains('bcmath', $identifier);
+            $this->assertStringNotContainsString('gmp', $identifier);
+            $this->assertStringContainsString('bcmath', $identifier);
         } else {
-            $this->assertNotContains('gmp', $identifier);
-            $this->assertNotContains('bcmath', $identifier);
+            $this->assertStringNotContainsString('gmp', $identifier);
+            $this->assertStringNotContainsString('bcmath', $identifier);
         }
     }
 
@@ -116,4 +116,8 @@ class Unit_Net_SSH2Test extends PhpseclibTestCase
             ->setMethods(array('__destruct'))
             ->getMock();
     }
+}
+
+class SSH2UnitTest extends Unit_Net_SSH2UnitTest
+{
 }

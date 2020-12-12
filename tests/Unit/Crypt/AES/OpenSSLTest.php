@@ -12,3 +12,7 @@ class Unit_Crypt_AES_OpenSSLTest extends Unit_Crypt_AES_TestCase
         $this->engine = CRYPT_ENGINE_OPENSSL;
     }
 }
+
+class OpenSSLTest extends Unit_Crypt_AES_OpenSSLTest
+{
+}

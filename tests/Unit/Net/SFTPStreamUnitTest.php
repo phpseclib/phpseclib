@@ -7,7 +7,7 @@
 
 require_once 'Net/SFTP/Stream.php';
 
-class Unit_Net_SFTPStreamTest extends PhpseclibTestCase
+class Unit_Net_SFTPStreamUnitTest extends PhpseclibTestCase
 {
     protected $protocol = 'sftptest';
 
@@ -30,4 +30,8 @@ class Unit_Net_SFTPStreamTest extends PhpseclibTestCase
         Net_SFTP_Stream::register($this->protocol);
         $this->assertContains($this->protocol, stream_get_wrappers());
     }
+}
+
+class SFTPStreamUnitTest extends Unit_Net_SFTPStreamUnitTest
+{
 }

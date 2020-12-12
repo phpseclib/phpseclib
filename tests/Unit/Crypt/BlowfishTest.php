@@ -128,3 +128,7 @@ class Unit_Crypt_BlowfishTest extends PhpseclibTestCase
         }
     }
 }
+
+class BlowfishTest extends Unit_Crypt_BlowfishTest
+{
+}

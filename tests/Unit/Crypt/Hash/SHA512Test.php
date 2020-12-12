@@ -77,3 +77,7 @@ class Unit_Crypt_Hash_SHA512Test extends Unit_Crypt_Hash_TestCase
         );
     }
 }
+
+class SHA512Test extends Unit_Crypt_Hash_SHA512Test
+{
+}
