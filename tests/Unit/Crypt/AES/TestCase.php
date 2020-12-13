@@ -8,6 +8,8 @@
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Common\BlockCipher;
 use phpseclib3\Crypt\Rijndael;
+use phpseclib3\Exception\InconsistentSetupException;
+use phpseclib3\Exception\InsufficientSetupException;
 
 abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 {
@@ -105,10 +107,11 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
 
     /**
      * @group github451
-     * @expectedException \LengthException
      */
     public function testKeyPaddingAES()
     {
+        $this->expectException('LengthException');
+
         // same as the above - just with a different ciphertext
 
         $aes = new AES('cbc');
@@ -347,11 +350,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $this->assertSame($aes->getKeyLength(), 192);
     }
 
-    /**
-     * @expectedException \phpseclib3\Exception\InconsistentSetupException
-     */
     public function testSetKeyLengthWithLargerKey()
     {
+        $this->expectException(InconsistentSetupException::class);
+
         $aes = new AES('cbc');
         $aes->setKeyLength(128);
         $aes->setKey(str_repeat('a', 24));
@@ -362,11 +364,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $this->assertSame($aes->getKeyLength(), 128);
     }
 
-    /**
-     * @expectedException \phpseclib3\Exception\InconsistentSetupException
-     */
     public function testSetKeyLengthWithSmallerKey()
     {
+        $this->expectException(InconsistentSetupException::class);
+
         $aes = new AES('cbc');
         $aes->setKeyLength(256);
         $aes->setKey(str_repeat('a', 16));
@@ -408,11 +409,10 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $this->assertEquals($plaintext, $actual);
     }
 
-    /**
-     * @expectedException \phpseclib3\Exception\InsufficientSetupException
-     */
     public function testNoKey()
     {
+        $this->expectException(InsufficientSetupException::class);
+
         $aes = new AES('cbc');
         $aes->setPreferredEngine($this->engine);
         $aes->setIV(str_repeat('x', 16));

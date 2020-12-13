@@ -67,11 +67,10 @@ p0GbMJDyR4e9T04ZZwIDAQAB
         $this->assertTrue($rsa->verify('zzzz', $sig));
     }
 
-    /**
-     * @expectedException \LengthException
-     */
     public function testSmallModulo()
     {
+        $this->expectException('LengthException');
+
         $plaintext = 'x';
 
         $key = PKCS8::savePublicKey(

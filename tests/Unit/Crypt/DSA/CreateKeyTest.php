@@ -53,4 +53,3 @@ class Unit_Crypt_DSA_CreateKeyTest extends PhpseclibTestCase
         $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
     }
 }
-

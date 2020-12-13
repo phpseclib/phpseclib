@@ -78,7 +78,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $decoded = ASN1::decodeBER(base64_decode($str));
         $result = ASN1::asn1map($decoded[0], $AS_REP);
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
     }
 
     /**
@@ -229,7 +229,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $decoded = ASN1::decodeBER(base64_decode($str));
         $result = ASN1::asn1map($decoded[0], $AS_REP);
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
     }
 
     /**
@@ -271,7 +271,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     public function testContextSpecificNonConstructed()
     {
         $decoded = ASN1::decodeBER(base64_decode('MBaAFJtUo7c00HsI5EPZ4bkICfkOY2Pv'));
-        $this->assertInternalType('string', $decoded[0]['content'][0]['content']);
+        $this->assertIsString($decoded[0]['content'][0]['content']);
     }
 
     /**
@@ -280,7 +280,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     public function testEmptyContextTag()
     {
         $decoded = ASN1::decodeBER("\xa0\x00");
-        $this->assertInternalType('array', $decoded);
+        $this->assertIsArray($decoded);
         $this->assertCount(0, $decoded[0]['content']);
     }
 
@@ -390,6 +390,6 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $a = ASN1::decodeBER($a);
         $a = ASN1::asn1map($a[0], $map);
 
-        $this->assertInternalType('array', $a);
+        $this->assertIsArray($a);
     }
 }

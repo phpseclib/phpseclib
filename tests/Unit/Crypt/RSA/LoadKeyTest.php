@@ -15,6 +15,8 @@ use phpseclib3\Crypt\RSA\Formats\Keys\PuTTY;
 use phpseclib3\Crypt\RSA\Formats\Keys\OpenSSH;
 use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Exception\UnsupportedFormatException;
+use phpseclib3\Exception\NoKeyLoadedException;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 {
@@ -24,11 +26,10 @@ class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
         OpenSSH::setComment('phpseclib-generated-key');
     }
 
-    /**
-     * @expectedException \phpseclib3\Exception\NoKeyLoadedException
-     */
     public function testBadKey()
     {
+        $this->expectException(NoKeyLoadedException::class);
+
         $key = 'zzzzzzzzzzzzzz';
         PublicKeyLoader::load($key);
     }
@@ -52,7 +53,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertInternalType('string', "$rsa");
+        $this->assertIsString("$rsa");
     }
 
     public function testPKCS1SpacesKey()
@@ -75,7 +76,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertInternalType('string', "$rsa");
+        $this->assertIsString("$rsa");
     }
 
     public function testPKCS1NoHeaderKey()
@@ -95,7 +96,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertInternalType('string', "$rsa");
+        $this->assertIsString("$rsa");
     }
 
     public function testPKCS1NoWhitespaceNoHeaderKey()
@@ -115,7 +116,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertInternalType('string', "$rsa");
+        $this->assertIsString("$rsa");
     }
 
     public function testRawPKCS1Key()
@@ -136,7 +137,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertInternalType('string', "$rsa");
+        $this->assertIsString("$rsa");
     }
 
     public function testLoadPKCS8PrivateKey()
@@ -174,7 +175,7 @@ xryZaRDVmtMuf/OZBQ==
         $rsa = PublicKeyLoader::load($key, 'password');
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertInternalType('string', "$rsa");
+        $this->assertIsString("$rsa");
     }
 
     public function testSavePKCS8PrivateKey()
@@ -247,7 +248,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
 
         $rsa = PublicKeyLoader::load($key)->asPrivateKey();
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertInternalType('string', $rsa->sign('zzz'));
+        $this->assertIsString($rsa->sign('zzz'));
     }
 
     public function testSSHPubKey()
@@ -1016,11 +1017,10 @@ YYFw8pfGesIFoEuVth4HKyF8k1y4mRUnYHP1XNMNMJl1JcEArC2asV8sHf6zSPVffozZ
         $this->assertInstanceOf(PublicKey::class, $key);
     }
 
-    /**
-     * @expectedException \phpseclib3\Exception\UnsupportedFormatException
-     */
     public function testSavePasswordXML()
     {
+        $this->expectException(UnsupportedFormatException::class);
+
         $key = '-----BEGIN RSA PRIVATE KEY-----
 MIIBOgIBAAJBAKj34GkxFhD90vcNLYLInFEX6Ppy1tPf9Cnzj4p4WGeKLs1Pt8Qu
 KUpRKfFLfRYC9AIKjbJTWit+CqvjWYzvQwECAwEAAQJAIJLixBy2qpFoS4DSmoEm
@@ -1043,6 +1043,6 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
 -----END RSA PRIVATE KEY-----';
         $key = PublicKeyLoader::load($key);
         $result = $key->toString('PKCS1');
-        $this->assertInternalType('string', $result);
+        $this->assertIsString($result);
     }
 }
