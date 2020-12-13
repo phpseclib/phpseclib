@@ -172,7 +172,3 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
         $ssh->read();
     }
 }
-
-class SSH2Test extends Functional_Net_SSH2Test
-{
-}

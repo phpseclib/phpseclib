@@ -250,7 +250,3 @@ class Unit_Crypt_RC4Test extends PhpseclibTestCase
         }
     }
 }
-
-class RC4Test extends Unit_Crypt_RC4Test
-{
-}

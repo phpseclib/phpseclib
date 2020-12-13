@@ -47,7 +47,3 @@ class Unit_Crypt_Hash_MD5Test extends Unit_Crypt_Hash_TestCase
         );
     }
 }
-
-class MD5Test extends Unit_Crypt_Hash_MD5Test
-{
-}

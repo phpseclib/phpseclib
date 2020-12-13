@@ -119,7 +119,3 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $x509->saveCSR($x509->signCSR('sha256WithRSAEncryption'), X509::FORMAT_DER);
     }
 }
-
-class CSRTest extends Unit_File_X509_CSRTest
-{
-}
