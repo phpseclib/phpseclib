@@ -63,3 +63,7 @@ class Unit_File_ANSITest extends PhpseclibTestCase
         $this->assertSame(str_repeat('z', 80), $lines[22]);
     }
 }
+
+class ANSITest extends Unit_File_ANSITest
+{
+}

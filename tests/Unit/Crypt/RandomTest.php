@@ -53,3 +53,7 @@ class Unit_Crypt_RandomTest extends PhpseclibTestCase
         return [$x];
     }
 }
+
+class RandomTest extends Unit_Crypt_RandomTest
+{
+}

@@ -14,8 +14,7 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
     {
         $ssh = new SSH2($this->getEnv('SSH_HOSTNAME'));
 
-        $this->assertInternalType(
-            'object',
+        $this->assertIsObject
             $ssh,
             'Could not construct NET_SSH2 object.'
         );
@@ -125,7 +124,7 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
     {
         $ssh = new SSH2($this->getEnv('SSH_HOSTNAME'));
 
-        $this->assertInternalType('string', $ssh->getServerPublicHostKey());
+        $this->assertIsString($ssh->getServerPublicHostKey());
     }
 
     public function testOpenSocketConnect()
@@ -172,4 +171,8 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
 
         $ssh->read();
     }
+}
+
+class SSH2Test extends Functional_Net_SSH2Test
+{
 }

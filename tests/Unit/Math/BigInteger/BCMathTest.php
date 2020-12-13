@@ -27,3 +27,7 @@ class Unit_Math_BigInteger_BCMathTest extends Unit_Math_BigInteger_TestCase
         return 'phpseclib3\Math\BigInteger\Engines\BCMath';
     }
 }
+
+class BCMathTest extends Unit_Math_BigInteger_BCMathTest
+{
+}

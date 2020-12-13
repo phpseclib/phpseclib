@@ -71,3 +71,7 @@ ENGINE
 		static::assertSame($expectedEngineClass, $bigint->toString());
 	}
 }
+
+class BigIntegerTest extends Unit_Math_BigIntegerTest
+{
+}

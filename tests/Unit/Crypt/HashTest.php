@@ -465,3 +465,7 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
         $this->assertSame($hash->hash($message), pack('H*', $tag), $error);
     }
 }
+
+class HashTest extends Unit_Crypt_HashTest
+{
+}

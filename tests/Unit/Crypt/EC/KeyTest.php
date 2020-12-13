@@ -14,7 +14,7 @@ use phpseclib3\Crypt\EC\Formats\Keys\XML;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\EC\PrivateKey;
 
-class Unit_Crypt_EC_LoadKeyTest extends PhpseclibTestCase
+class Unit_Crypt_EC_KeyTest extends PhpseclibTestCase
 {
     public function testBinaryPKCS1PrivateParameters()
     {
@@ -507,4 +507,8 @@ lEIq93iMVzIArjGaKrFDAAAADHJvb3RAdmFncmFudAE=
         $this->assertTrue($key->verify('zzz', $sig));
         $this->assertTrue($key->withSignatureFormat('SSH2')->verify('zzz', $sig2));
     }
+}
+
+class KeyTest extends Unit_Crypt_EC_KeyTest
+{
 }

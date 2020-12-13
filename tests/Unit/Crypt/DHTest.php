@@ -30,7 +30,7 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
     public function testParametersWithInteger()
     {
         $a = DH::createParameters(512);
-        $this->assertInternalType('string', "$a");
+        $this->assertIsString("$a");
     }
 
     public function testParametersWithBigIntegers()
@@ -55,8 +55,8 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
     {
         $param = DH::createParameters('diffie-hellman-group1-sha1');
         $key = DH::createKey($param);
-        $this->assertInternalType('string', "$key");
-        $this->assertInternalType('string', (string) $key->getPublicKey());
+        $this->assertIsString("$key");
+        $this->assertIsString((string) $key->getPublicKey());
     }
 
     public function testLoadPrivate()
@@ -119,7 +119,7 @@ i2REGZNPWmF3SRPrtq/4urrDRU0F2eQks7qnTkrauPK1/UvE1gwbqWrWgBko+6L+
 Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
 /gTm
 -----END PUBLIC KEY-----');
-        $this->assertInternalType('string', DH::computeSecret($ourPriv, $theirPub));
+        $this->assertIsString(DH::computeSecret($ourPriv, $theirPub));
     }
 
     public function testComputeSecret()
@@ -130,7 +130,7 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         foreach ($curves as $curve) {
             $ourPriv = EC::createKey($curve);
             $theirPub = EC::createKey($curve)->getPublicKey();
-            $this->assertInternalType('string', DH::computeSecret($ourPriv, $theirPub));
+            $this->assertIsString(DH::computeSecret($ourPriv, $theirPub));
         }
     }
 
@@ -263,4 +263,8 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         $this->assertSame($expected, DH::computeSecret($alicePrivate, $bobPublic));
         $this->assertSame($expected, DH::computeSecret($bobPrivate, $alicePublic));
     }
+}
+
+class DHTest extends Unit_Crypt_DHTest
+{
 }

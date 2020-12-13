@@ -20,3 +20,7 @@ class Unit_Math_BigInteger_PHP64OpenSSLTest extends Unit_Math_BigInteger_PHP64Te
         }
     }
 }
+
+class PHP64OpenSSLTest extends Unit_Math_BigInteger_PHP64OpenSSLTest
+{
+}

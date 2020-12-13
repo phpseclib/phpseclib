@@ -28,11 +28,11 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 
         $spkac = $x509->loadSPKAC($test);
 
-        $this->assertInternalType('array', $spkac);
+        $this->assertIsArray($spkac);
 
         $spkac = $x509->loadSPKAC('SPKAC=' . $test);
 
-        $this->assertInternalType('array', $spkac);
+        $this->assertIsArray($spkac);
 
         $this->assertTrue(
             $x509->validateSignature(),
@@ -41,7 +41,7 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 
         $pubKey = $x509->getPublicKey();
 
-        $this->assertInternalType('string', "$pubKey");
+        $this->assertIsString("$pubKey");
     }
 
     public function testSaveSPKAC()
@@ -55,17 +55,17 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
         $x509->setChallenge('...');
 
         $spkac = $x509->signSPKAC();
-        $this->assertInternalType('array', $spkac);
+        $this->assertIsArray($spkac);
 
-        $this->assertInternalType('string', $x509->saveSPKAC($spkac));
+        $this->assertIsString($x509->saveSPKAC($spkac));
 
         $x509 = new X509();
         $x509->setPrivateKey($privatekey);
 
         $spkac = $x509->signSPKAC();
-        $this->assertInternalType('array', $spkac);
+        $this->assertIsArray($spkac);
 
-        $this->assertInternalType('string', $x509->saveSPKAC($spkac));
+        $this->assertIsString($x509->saveSPKAC($spkac));
     }
 
     public function testBadSignatureSPKAC()
@@ -95,4 +95,8 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
             'Failed asserting that the signature is invalid'
         );
     }
+}
+
+class SPKACTest extends Unit_File_X509_SPKACTest
+{
 }

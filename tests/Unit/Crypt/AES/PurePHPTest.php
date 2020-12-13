@@ -7,10 +7,14 @@
 
 use phpseclib3\Crypt\Common\BlockCipher;
 
-class Unit_Crypt_AES_InternalTest extends Unit_Crypt_AES_TestCase
+class Unit_Crypt_AES_PurePHPTest extends Unit_Crypt_AES_TestCase
 {
     protected function setUp()
     {
         $this->engine = 'PHP';
     }
+}
+
+class PurePHPTest extends Unit_Crypt_AES_PurePHPTest
+{
 }

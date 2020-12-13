@@ -59,7 +59,7 @@ k6m17mi63YW/+iPCGOWZ2qXmY5HPEyyF2L4L4IDryFJ+8xLyw3pH9/yp5aHZDtp6
 
         $cert = $x509->loadX509($test);
 
-        $this->assertInternalType('array', $cert['tbsCertificate']['extensions'][3]['extnValue']);
+        $this->assertIsArray($cert['tbsCertificate']['extensions'][3]['extnValue']);
     }
 
     public function testLoadUnsupportedExtension()
@@ -865,7 +865,7 @@ uhPlgkgknwIgdDqqKIAF60ouiynsbU53ERS0TwpjeFiYGA48SwYW3Nk=
         $result = $x509->sign($issuer, $subject);
         $result = $x509->saveX509($result);
 
-        $this->assertInternalType('string', $result);
+        $this->assertIsString($result);
 
         $r = $x509->loadX509($result);
         $this->assertSame('id-dsa-with-sha256', $r['tbsCertificate']['signature']['algorithm']);
@@ -896,7 +896,7 @@ wkwhE/JaQAEHq2PHnEmvwyBiJcHSdLXkcLzYlg19Ho0BPqVKdulx8GAk
         $result = $x509->sign($issuer, $subject);
         $result = $x509->saveX509($result);
 
-        $this->assertInternalType('string', $result);
+        $this->assertIsString($result);
 
         $r = $x509->loadX509($result);
         $this->assertSame('ecdsa-with-SHA256', $r['tbsCertificate']['signature']['algorithm']);
@@ -935,7 +935,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $result = $x509->sign($issuer, $subject);
         $result = $x509->saveX509($result);
 
-        $this->assertInternalType('string', $result);
+        $this->assertIsString($result);
 
         $r = $x509->loadX509($result);
         $this->assertSame('id-RSASSA-PSS', $r['tbsCertificate']['signature']['algorithm']);
@@ -979,7 +979,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $result = $x509->sign($issuer, $subject);
         $result = $x509->saveX509($result);
 
-        $this->assertInternalType('string', $result);
+        $this->assertIsString($result);
 
         $r = $x509->loadX509($result);
         $this->assertSame('sha256WithRSAEncryption', $r['tbsCertificate']['signature']['algorithm']);
@@ -1169,4 +1169,8 @@ mDaPrsUl15evEah6amsBfpQiWRbKpDLKs1kF
 
         $this->assertFalse($r);
     }
+}
+
+class X509Test extends Unit_File_X509_X509Test
+{
 }

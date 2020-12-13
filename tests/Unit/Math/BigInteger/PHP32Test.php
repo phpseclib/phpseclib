@@ -36,3 +36,7 @@ class Unit_Math_BigInteger_PHP32Test extends Unit_Math_BigInteger_TestCase
         return 'phpseclib3\Math\BigInteger\Engines\PHP32';
     }
 }
+
+class PHP32Test extends Unit_Math_BigInteger_PHP32Test
+{
+}

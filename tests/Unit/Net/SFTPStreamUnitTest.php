@@ -7,7 +7,7 @@
 
 use phpseclib3\Net\SFTP\Stream;
 
-class Unit_Net_SFTPStreamTest extends PhpseclibTestCase
+class Unit_Net_SFTPStreamUnitTest extends PhpseclibTestCase
 {
     public function testRegisterWithoutArgument()
     {
@@ -23,4 +23,8 @@ class Unit_Net_SFTPStreamTest extends PhpseclibTestCase
         $this->assertContains($protocol, stream_get_wrappers());
         $this->assertTrue(stream_wrapper_unregister($protocol));
     }
+}
+
+class SFTPStreamUnitTest extends Unit_Net_SFTPStreamUnitTest
+{
 }

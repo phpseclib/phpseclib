@@ -54,3 +54,6 @@ class Unit_Crypt_DSA_CreateKeyTest extends PhpseclibTestCase
     }
 }
 
+class CreateKeyTest extends Unit_Crypt_DSA_CreateKeyTest
+{
+}

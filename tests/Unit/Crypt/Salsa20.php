@@ -158,3 +158,7 @@ class Unit_Crypt_Salsa20Test extends PhpseclibTestCase
         $this->assertEquals(bin2hex($result), $expected, "Failed asserting that key $key / $iv yielded expected output in $engine engine");
     }
 }
+
+class Salsa20Test extends Unit_Crypt_Salsa20Test
+{
+}

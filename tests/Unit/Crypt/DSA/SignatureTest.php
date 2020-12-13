@@ -122,3 +122,7 @@ kBniZHdFBAZBTE14YJUBkw==
         $this->assertTrue($dsa->verify($message, $signature));
     }
 }
+
+class SignatureTest extends Unit_Crypt_DSA_SignatureTest
+{
+}
