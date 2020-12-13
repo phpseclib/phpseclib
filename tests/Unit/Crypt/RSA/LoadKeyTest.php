@@ -574,7 +574,6 @@ mKVKf5kPx2aR2W2KAcgw3TJIu1QX7N+l3kFrf9Owtz1a
 -----END ENCRYPTED PRIVATE KEY-----';
         $pass = 'asdf';
 
-<<<<<<< HEAD
         $this->pkcs8tester($key, $pass);
     }
 

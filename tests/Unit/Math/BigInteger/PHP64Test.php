@@ -36,6 +36,6 @@ class Unit_Math_BigInteger_PHP64Test extends Unit_Math_BigInteger_TestCase
     }
 }
 
-classs PHP64Test extends Unit_Math_BigInteger_PHP64Test
+class PHP64Test extends Unit_Math_BigInteger_PHP64Test
 {
 }

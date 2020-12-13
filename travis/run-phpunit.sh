@@ -27,6 +27,8 @@ then
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/n tearDown()/n tearDown(): void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertIsArray([^)]*)\)/\1: void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertIsString([^)]*)\)/\1: void/g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertIsResource([^)]*)\)/\1: void/g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertIsObject([^)]*)\)/\1: void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertStringContainsString([^)]*)\)/\1: void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertStringNotContainsString([^)]*)\)/\1: void/g'
 fi
