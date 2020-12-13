@@ -468,4 +468,19 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
 
 class HashTest extends Unit_Crypt_HashTest
 {
+    /**
+     * @expectedException \phpseclib3\Exception\UnsupportedAlgorithmException
+     */
+    public function testConstructorArgumentInvalid()
+    {
+        parent::testConstructorArgumentInvalid();
+    }
+
+    /**
+     * @expectedException \phpseclib3\Exception\UnsupportedAlgorithmException
+     */
+    public function testSetHashInvalid()
+    {
+        parent::testSetHashInvalid();
+    }
 }

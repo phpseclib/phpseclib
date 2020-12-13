@@ -25,6 +25,7 @@ then
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/n setUpBeforeClass()/n setUpBeforeClass(): void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/n setUp()/n setUp(): void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/n tearDown()/n tearDown(): void/g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/n assertSame()/n assertSame(): void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertIsArray([^)]*)\)/\1: void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertIsString([^)]*)\)/\1: void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertIsResource([^)]*)\)/\1: void/g'

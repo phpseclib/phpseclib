@@ -42,7 +42,7 @@ class Unit_Net_SSH2UnitTest extends PhpseclibTestCase
         $this->assertStringStartsWith('SSH-2.0-phpseclib_3.0', $identifier);
 
         if (function_exists('sodium_crypto_sign_keypair')) {
-            $this->assertContains('libsodium', $identifier);
+            $this->assertStringContainsString('libsodium', $identifier);
         }
 
         if (extension_loaded('openssl')) {
