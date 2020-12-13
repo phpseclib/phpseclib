@@ -133,7 +133,3 @@ class Unit_Net_SSH2UnitTest extends PhpseclibTestCase
             ->getMock();
     }
 }
-
-class SSH2UnitTest extends Unit_Net_SSH2UnitTest
-{
-}

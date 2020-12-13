@@ -264,7 +264,3 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         $this->assertSame($expected, DH::computeSecret($bobPrivate, $alicePublic));
     }
 }
-
-class DHTest extends Unit_Crypt_DHTest
-{
-}

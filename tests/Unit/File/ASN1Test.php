@@ -393,7 +393,3 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $this->assertIsArray($a);
     }
 }
-
-class ASN1Test extends Unit_File_ASN1Test
-{
-}

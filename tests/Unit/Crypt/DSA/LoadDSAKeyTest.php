@@ -256,22 +256,3 @@ dlN48qLbSmUgsO7gq/1vodebMSHcduV4JTq8ix5Ey87QAAABQhHEzWiduF4V0DestSnJ3q
         $this->assertTrue($key->verify('zzz', $sig));
     }
 }
-
-class LoadDSAKeyTest extends Unit_Crypt_DSA_LoadDSAKeyTest
-{
-    /**
-     * @expectedException \phpseclib3\Exception\NoKeyLoadedException
-     */
-    public function testBadKey()
-    {
-        parent::testBadKey();
-    }
-
-    /**
-     * @expectedException \phpseclib3\Exception\NoKeyLoadedException
-     */
-    public function testPuTTYBadMAC()
-    {
-        parent::testPuTTYBadMac();
-    }
-}

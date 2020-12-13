@@ -508,7 +508,3 @@ lEIq93iMVzIArjGaKrFDAAAADHJvb3RAdmFncmFudAE=
         $this->assertTrue($key->withSignatureFormat('SSH2')->verify('zzz', $sig2));
     }
 }
-
-class KeyTest extends Unit_Crypt_EC_KeyTest
-{
-}

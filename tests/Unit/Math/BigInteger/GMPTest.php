@@ -27,7 +27,3 @@ class Unit_Math_BigInteger_GMPTest extends Unit_Math_BigInteger_TestCase
         return 'phpseclib3\Math\BigInteger\Engines\GMP';
     }
 }
-
-class GMPTest extends Unit_Math_BigInteger_GMPTest
-{
-}

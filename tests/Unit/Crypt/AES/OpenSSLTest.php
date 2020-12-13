@@ -14,7 +14,3 @@ class Unit_Crypt_AES_OpenSSLTest extends Unit_Crypt_AES_TestCase
         $this->engine = 'OpenSSL';
     }
 }
-
-class OpenSSLTest extends Unit_Crypt_AES_OpenSSLTest
-{
-}

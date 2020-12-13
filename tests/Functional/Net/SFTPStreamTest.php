@@ -64,7 +64,3 @@ class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
         );
     }
 }
-
-class SFTPStreamTest extends Functional_Net_SFTPStreamTest
-{
-}

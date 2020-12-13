@@ -35,7 +35,3 @@ class Unit_Math_BigInteger_PHP64Test extends Unit_Math_BigInteger_TestCase
         return 'phpseclib3\Math\BigInteger\Engines\PHP64';
     }
 }
-
-class PHP64Test extends Unit_Math_BigInteger_PHP64Test
-{
-}

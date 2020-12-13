@@ -127,7 +127,3 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
         $this->assertEquals($result, $plaintext, "Failed asserting that decrypted result yielded $plaintext as a result in $engine engine");
     }
 }
-
-class RC2Test extends Unit_Crypt_RC2Test
-{
-}

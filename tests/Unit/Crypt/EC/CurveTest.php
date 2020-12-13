@@ -509,7 +509,3 @@ Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
         $this->assertTrue($public->verify($message, $signature, 'Raw'));
     }
 }
-
-class CurveTest extends Unit_Crypt_EC_CurveTest
-{
-}

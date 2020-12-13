@@ -14,7 +14,3 @@ class Unit_Crypt_AES_PurePHPTest extends Unit_Crypt_AES_TestCase
         $this->engine = 'PHP';
     }
 }
-
-class PurePHPTest extends Unit_Crypt_AES_PurePHPTest
-{
-}

@@ -1046,22 +1046,3 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
         $this->assertIsString($result);
     }
 }
-
-class LoadKeyTest extends Unit_Crypt_RSA_LoadKeyTest
-{
-    /**
-     * @expectedException \phpseclib3\Exception\NoKeyLoadedException
-     */
-    public function testBadKey()
-    {
-        parent::testBadKey();
-    }
-
-    /**
-     * @expectedException \phpseclib3\Exception\UnsupportedFormatException
-     */
-    public function testSavePasswordXML()
-    {
-        parent::testSavePasswordXML();
-    }
-}

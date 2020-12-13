@@ -184,14 +184,3 @@ HERE;
         $this->assertEquals('sha1', $rsa->getMGFHash());
     }
 }
-
-class ModeTest extends Unit_Crypt_RSA_ModeTest
-{
-    /**
-     * @expectedException \LengthException
-     */
-    public function testSmallModulo()
-    {
-        parent::testSmallModulo();
-    }
-}

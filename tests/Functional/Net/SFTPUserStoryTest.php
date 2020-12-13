@@ -748,7 +748,3 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $this->assertEquals($list_cache_enabled, $list_cache_disabled, 'The files should be the same regardless of stat cache', 0.0, 10, true);
     }
 }
-
-class SFTPUserStoryTest extends Functional_Net_SFTPUserStoryTest
-{
-}

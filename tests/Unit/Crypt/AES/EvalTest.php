@@ -14,7 +14,3 @@ class Unit_Crypt_AES_EvalTest extends Unit_Crypt_AES_TestCase
         $this->engine = 'Eval';
     }
 }
-
-class EvalTest extends Unit_Crypt_AES_EvalTest
-{
-}

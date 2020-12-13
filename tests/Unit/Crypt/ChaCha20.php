@@ -216,7 +216,3 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
         }
     }
 }
-
-class ChaCha20Test extends Unit_Crypt_ChaCha20Test
-{
-}

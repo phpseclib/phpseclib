@@ -96,7 +96,3 @@ class Unit_File_X509_SPKACTest extends PhpseclibTestCase
         );
     }
 }
-
-class SPKACTest extends Unit_File_X509_SPKACTest
-{
-}

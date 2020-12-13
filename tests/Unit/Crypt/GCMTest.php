@@ -235,7 +235,3 @@ class Unit_Crypt_GCMTest extends PhpseclibTestCase
         $this->assertEquals($plaintext, $aes->decrypt($ciphertext));
     }
 }
-
-class GCMTest extends Unit_Crypt_GCMTest
-{
-}

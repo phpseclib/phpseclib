@@ -19,7 +19,3 @@ class Unit_Math_BigInteger_DefaultTest extends Unit_Math_BigInteger_TestCase
         return 'phpseclib3\Math\BigInteger';
     }
 }
-
-class DefaultTest extends Unit_Math_BigInteger_DefaultTest
-{
-}
