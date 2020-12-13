@@ -13,14 +13,14 @@ use phpseclib3\Crypt\DSA\Formats\Keys\PKCS1;
 use phpseclib3\Crypt\DSA\Formats\Keys\PKCS8;
 use phpseclib3\Crypt\DSA\Formats\Keys\PuTTY;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Exception\NoKeyLoadedException;
 
 class Unit_Crypt_DSA_LoadDSAKeyTest extends PhpseclibTestCase
 {
-    /**
-     * @expectedException \phpseclib3\Exception\NoKeyLoadedException
-     */
     public function testBadKey()
     {
+        $this->expectException(NoKeyLoadedException::class);
+
         $key = 'zzzzzzzzzzzzzz';
         PublicKeyLoader::load($key);
     }
@@ -156,11 +156,10 @@ Syea3pSvWdBpVhWzOX4A7qbxs+bhWAQWAhQiF7sFfCtZ7oOgCb2aJ9ySC9sTug==
         $this->assertInstanceOf(Parameters::class, $dsa->getParameters());
     }
 
-    /**
-     * @expectedException \phpseclib3\Exception\NoKeyLoadedException
-     */
     public function testPuTTYBadMAC()
     {
+        $this->expectException(NoKeyLoadedException::class);
+
         $key = 'PuTTY-User-Key-File-2: ssh-dss
 Encryption: none
 Comment: dsa-key-20161223

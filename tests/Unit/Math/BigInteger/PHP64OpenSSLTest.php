@@ -7,16 +7,36 @@
 
 use \phpseclib3\Math\BigInteger\Engines\PHP64;
 
-class Unit_Math_BigInteger_PHP64OpenSSLTest extends Unit_Math_BigInteger_PHP64Test
+class Unit_Math_BigInteger_PHP64OpenSSLTest extends Unit_Math_BigInteger_TestCase
 {
     public static function setUpBeforeClass()
     {
-        parent::setUpBeforeClass();
+        if (!PHP64::isValidEngine()) {
+            self::markTestSkipped('64-bit integers are not available.');
+        }
 
         try {
             PHP64::setModExpEngine('OpenSSL');
         } catch (BadConfigurationException $e) {
             self::markTestSkipped('openssl_public_encrypt() function is not available.');
         }
+    }
+
+    public function getInstance($x = 0, $base = 10)
+    {
+        return new PHP64($x, $base);
+    }
+
+    public function testInternalRepresentation()
+    {
+        $x = new PHP64('FFFFFFFFFFFFFFFFC90FDA', 16);
+        $y = new PHP64("$x");
+
+        $this->assertSame(self::getVar($x, 'value'), self::getVar($y, 'value'));
+    }
+
+    public static function getStaticClass()
+    {
+        return 'phpseclib3\Math\BigInteger\Engines\PHP64';
     }
 }

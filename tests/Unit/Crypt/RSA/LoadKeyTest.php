@@ -15,6 +15,8 @@ use phpseclib3\Crypt\RSA\Formats\Keys\PuTTY;
 use phpseclib3\Crypt\RSA\Formats\Keys\OpenSSH;
 use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Exception\UnsupportedFormatException;
+use phpseclib3\Exception\NoKeyLoadedException;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 {
@@ -24,11 +26,10 @@ class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
         OpenSSH::setComment('phpseclib-generated-key');
     }
 
-    /**
-     * @expectedException \phpseclib3\Exception\NoKeyLoadedException
-     */
     public function testBadKey()
     {
+        $this->expectException(NoKeyLoadedException::class);
+
         $key = 'zzzzzzzzzzzzzz';
         PublicKeyLoader::load($key);
     }
@@ -1016,11 +1017,10 @@ YYFw8pfGesIFoEuVth4HKyF8k1y4mRUnYHP1XNMNMJl1JcEArC2asV8sHf6zSPVffozZ
         $this->assertInstanceOf(PublicKey::class, $key);
     }
 
-    /**
-     * @expectedException \phpseclib3\Exception\UnsupportedFormatException
-     */
     public function testSavePasswordXML()
     {
+        $this->expectException(UnsupportedFormatException::class);
+
         $key = '-----BEGIN RSA PRIVATE KEY-----
 MIIBOgIBAAJBAKj34GkxFhD90vcNLYLInFEX6Ppy1tPf9Cnzj4p4WGeKLs1Pt8Qu
 KUpRKfFLfRYC9AIKjbJTWit+CqvjWYzvQwECAwEAAQJAIJLixBy2qpFoS4DSmoEm
