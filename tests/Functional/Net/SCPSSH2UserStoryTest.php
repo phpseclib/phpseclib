@@ -86,7 +86,3 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
         );
     }
 }
-
-class SCPSSH2UserStoryTest extends Functional_Net_SCPSSH2UserStoryTest
-{
-}

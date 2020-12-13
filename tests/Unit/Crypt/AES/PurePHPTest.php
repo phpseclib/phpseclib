@@ -12,7 +12,3 @@ class Unit_Crypt_AES_PurePHPTest extends Unit_Crypt_AES_TestCase
         $this->engine = CRYPT_ENGINE_INTERNAL;
     }
 }
-
-class PurePHPTest extends Unit_Crypt_AES_PurePHPTest
-{
-}

@@ -18,7 +18,3 @@ class Unit_Math_BigInteger_BCMathTest extends Unit_Math_BigInteger_TestCase
         self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_BCMATH);
     }
 }
-
-class BCMathTest extends Unit_Math_BigInteger_BCMathTest
-{
-}

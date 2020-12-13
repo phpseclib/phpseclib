@@ -77,7 +77,3 @@ class Unit_Crypt_Hash_SHA256Test extends Unit_Crypt_Hash_TestCase
         );
     }
 }
-
-class SHA256Test extends Unit_Crypt_Hash_SHA256Test
-{
-}

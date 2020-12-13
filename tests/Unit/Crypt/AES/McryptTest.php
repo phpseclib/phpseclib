@@ -12,7 +12,3 @@ class Unit_Crypt_AES_McryptTest extends Unit_Crypt_AES_TestCase
         $this->engine = CRYPT_ENGINE_MCRYPT;
     }
 }
-
-class McryptTest extends Unit_Crypt_AES_McryptTest
-{
-}

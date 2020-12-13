@@ -41,7 +41,3 @@ class Functional_Net_SFTPLargeFileTest extends Functional_Net_SFTPTestCase
         );
     }
 }
-
-class SFTPLargeFileTest extends Functional_Net_SFTPLargeFileTest
-{
-}

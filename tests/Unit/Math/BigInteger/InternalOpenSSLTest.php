@@ -18,7 +18,3 @@ class Unit_Math_BigInteger_InternalOpenSSLTest extends Unit_Math_BigInteger_Test
         self::ensureConstant('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_INTERNAL);
     }
 }
-
-class InternalOpenSSLTest extends Unit_Math_BigInteger_InternalOpenSSLTest
-{
-}

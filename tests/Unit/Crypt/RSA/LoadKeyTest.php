@@ -478,7 +478,3 @@ Vyaqr/WTPzxdXJAAAADHJvb3RAdmFncmFudAECAwQFBg==
         $this->assertTrue($rsa->verify('zzz', $sig));
     }
 }
-
-class LoadKeyTest extends Unit_Crypt_RSA_LoadKeyTest
-{
-}

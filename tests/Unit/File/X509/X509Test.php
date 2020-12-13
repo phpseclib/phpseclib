@@ -856,7 +856,3 @@ mDaPrsUl15evEah6amsBfpQiWRbKpDLKs1kF
         $this->assertFalse($r);
     }
 }
-
-class X509Test extends Unit_File_X509_X509Test
-{
-}

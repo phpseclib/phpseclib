@@ -29,6 +29,12 @@ then
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertIsString([^)]*)\)/\1: void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertStringContainsString([^)]*)\)/\1: void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/\(n assertStringNotContainsString([^)]*)\)/\1: void/g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/^class Unit_Crypt_\(AES\|Hash\|RSA\)_/class /g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/^class Unit_File_\(X509\)_/class /g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/^class Unit_Math_\(BigInteger\)_/class /g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/^class Unit_\(Crypt\|File\|Math\|Net\)_/class /g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/^class Functional_Net_/class /g'
+    find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/extends Unit_Crypt_Hash_\(SHA512Test\|SHA256Test\)/extends \1/g'
 fi
 
 if [ "$TRAVIS_PHP_VERSION" = 'hhvm' -o `php -r "echo (int) version_compare(PHP_VERSION, '7.0', '>=');"` = "1" ]

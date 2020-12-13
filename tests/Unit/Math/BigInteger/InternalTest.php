@@ -22,7 +22,3 @@ class Unit_Math_BigInteger_InternalTest extends Unit_Math_BigInteger_TestCase
         $this->assertSame($x->value, $y->value);
     }
 }
-
-class InternalTest extends Unit_Math_BigInteger_InternalTest
-{
-}

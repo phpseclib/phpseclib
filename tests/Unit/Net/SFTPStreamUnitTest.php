@@ -31,7 +31,3 @@ class Unit_Net_SFTPStreamUnitTest extends PhpseclibTestCase
         $this->assertContains($this->protocol, stream_get_wrappers());
     }
 }
-
-class SFTPStreamUnitTest extends Unit_Net_SFTPStreamUnitTest
-{
-}

@@ -30,27 +30,3 @@ class Unit_Crypt_Hash_SHA512_96Test extends Unit_Crypt_Hash_SHA512Test
         parent::testHMAC($key, $message, substr($longResult, 0, 24));
     }
 }
-
-class SHA512_96Test extends SHA512Test
-{
-    public function getInstance()
-    {
-        return new Crypt_Hash('sha512-96');
-    }
-
-    /**
-     * @dataProvider hashData()
-     */
-    public function testHash($message, $longResult)
-    {
-        parent::testHash($message, substr($longResult, 0, 24));
-    }
-
-    /**
-     * @dataProvider hmacData()
-     */
-    public function testHMAC($key, $message, $longResult)
-    {
-        parent::testHMAC($key, $message, substr($longResult, 0, 24));
-    }
-}
