@@ -3358,16 +3358,16 @@ class SSH2
                 $read = array($this->fsock);
                 $write = $except = null;
 
-                $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
+                $start = microtime(true);
 
                 if ($this->keepAlive > 0 && $this->keepAlive < $this->curTimeout) {
                     if (!@stream_select($read, $write, $except, $this->keepAlive) && !count($read)) {
                         $this->_send_binary_packet(pack('CN', NET_SSH2_MSG_IGNORE, 0));
-                        $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+                        $elapsed = microtime(true) - $start;
                         $this->curTimeout-= $elapsed;
                         return $this->_get_binary_packet(true);
                     }
-                    $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+                    $elapsed = microtime(true) - $start;
                     $this->curTimeout-= $elapsed;
                 }
 
@@ -3382,7 +3382,7 @@ class SSH2
                     }
                     return true;
                 }
-                $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
+                $elapsed = microtime(true) - $start;
                 $this->curTimeout-= $elapsed;
             }
         }
