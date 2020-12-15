@@ -14,7 +14,7 @@ use phpseclib3\Crypt\EC\Formats\Keys\XML;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\EC\PrivateKey;
 
-class Unit_Crypt_EC_LoadKeyTest extends PhpseclibTestCase
+class Unit_Crypt_EC_KeyTest extends PhpseclibTestCase
 {
     public function testBinaryPKCS1PrivateParameters()
     {
@@ -27,7 +27,7 @@ Stf/0U65RhWgBwYFK4EEACKhZANiAASVZJGIs6m/TZhbFoTwBtpvU1JcyixD2YI3
 5YnoIx/6Q1oqJg1vrrmUoXaeEpaO6JH8RgItTl9lYMdmOk5309WJka6tI1QAAK3+
 Jq9z4moG4whp3JsuiBQG9wnaHVrQPA4=
 -----END EC PRIVATE KEY-----');
-        $this->assertSame('secp384r1', $key->getCurve());
+        $this->assertSameNL('secp384r1', $key->getCurve());
     }
 
     // openssl ecparam -name secp256k1 -genkey -noout -out secp256k1.pem
@@ -38,9 +38,9 @@ MHQCAQEEIEzUawcXqUsQhaEQ51JLeOIY0ddzlO2nNgwDk32ETqwkoAcGBSuBBAAK
 oUQDQgAEFuVcVb9iCUhg2cknHPE+BouHGhQ39ORjMaMI3T4RfRxr6dj5HAXdEqVZ
 1W94KMe30ndmTndcJ8BPeT1Dd15FdQ==
 -----END EC PRIVATE KEY-----');
-        $this->assertSame('secp256k1', $key->getCurve());
+        $this->assertSameNL('secp256k1', $key->getCurve());
         //PKCS1::useNamedCurve();
-        $this->assertSame($expected, $key->toString('PKCS1'));
+        $this->assertSameNL($expected, $key->toString('PKCS1'));
     }
 
     // openssl ecparam -name secp256k1 -genkey -noout -out secp256k1.pem -param_enc explicit
@@ -54,7 +54,7 @@ o8RlXaT7/A4RCKj9F7RIpoVUGZxH0I/7ENS4AiEA/////////////////////rqu
 3OavSKA7v9JejNA2QUECAQGhRANCAASCTRhjXqmdbqphSdxNkfTNAOmDW5cZ5fnZ
 ys0Tk4pUv/XdiMZtVCGTNsotGeFbT5X64JkP/BFi3PVqjwy2VhOc
 -----END EC PRIVATE KEY-----');
-        $this->assertSame('secp256k1', $key->getCurve());
+        $this->assertSameNL('secp256k1', $key->getCurve());
 
         // this key and the above key have a few small differences.
         // in both keys the coefficient's are 0 and 7. in the above
@@ -75,7 +75,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAABwRBBHm+Zn753LusVaBilc6HCwcCm/zbLc4o
 E5w=
 -----END EC PRIVATE KEY-----';
         PKCS1::useSpecifiedCurve();
-        $this->assertSame($expected, $key->toString('PKCS1'));
+        $this->assertSameNL($expected, $key->toString('PKCS1'));
     }
 
     // openssl ecparam -name secp256k1 -genkey -noout -out secp256k1.pem
@@ -87,8 +87,8 @@ MIGEAgEAMBAGByqGSM49AgEGBSuBBAAKBG0wawIBAQQgAYCXwnhqMT6fCIKIkQ0w
 cac7QqHrn4TCQMF9a+im74WhRANCAATwCjyGuP8xQbvVjznqazL36oeAnD32I+X2
 +wscW3OmyTDpk41HaWYPh+j+BoufsSkCwf8dBRGEQbCieZbbZogy
 -----END PRIVATE KEY-----');
-        $this->assertSame('secp256k1', $key->getCurve());
-        $this->assertSame($expected, $key->toString('PKCS8'));
+        $this->assertSameNL('secp256k1', $key->getCurve());
+        $this->assertSameNL($expected, $key->toString('PKCS8'));
     }
 
     // openssl ecparam -name secp256k1 -genkey -noout -out secp256k1.pem -param_enc explicit
@@ -104,7 +104,7 @@ IKFfw3vfd5pqA5SZOTFtpr7hdJoKP/rmTPMCggkAOA35oUQDQgAEnX66+UCzUW3T
 /fkLGIIfZjJm5bIMwAV85LpDom2hI441JRx+/W4WqtGuW+B/LABS6ZHp+qzepThC
 HsjS3Q9Pew==
 -----END PRIVATE KEY-----');
-        $this->assertSame('secp256k1', $key->getCurve());
+        $this->assertSameNL('secp256k1', $key->getCurve());
 
         // see testPKCS1PrivateKeySpecifiedCurve for an explanation
         // of how this key and the above key differ
@@ -119,7 +119,7 @@ AASdfrr5QLNRbdP9+QsYgh9mMmblsgzABXzkukOibaEjjjUlHH79bhaq0a5b4H8s
 AFLpken6rN6lOEIeyNLdD097
 -----END PRIVATE KEY-----';
         PKCS8::useSpecifiedCurve();
-        $this->assertSame($expected, $key->toString('PKCS8'));
+        $this->assertSameNL($expected, $key->toString('PKCS8'));
     }
 
     // openssl ecparam -name sect113r1 -genkey -noout -out sect113r1.pem
@@ -129,10 +129,10 @@ AFLpken6rN6lOEIeyNLdD097
 MEECAQEEDwBZdP4eSzKk/uQa6jdtfKAHBgUrgQQABKEiAyAABAHqCoNb++mK5qvE
 c4rCzQEuI19czqvXpEPcAWSXew==
 -----END EC PRIVATE KEY-----');
-        $this->assertSame('sect113r1', $key->getCurve());
+        $this->assertSameNL('sect113r1', $key->getCurve());
 
         PKCS1::useNamedCurve();
-        $this->assertSame($expected, $key->toString('PKCS1'));
+        $this->assertSameNL($expected, $key->toString('PKCS1'));
     }
 
     // openssl ecparam -name sect113r1 -genkey -noout -out sect113r1.pem -param_enc explicit
@@ -145,7 +145,7 @@ AxUAEOcjqxTWluZ2h1YVF1b+v4/LSakEHwQAnXNhbzX0qxQH1zViwQ8ApSgwJ3lY
 7oTRMV7TGIYCDwEAAAAAAAAA2czsijnlbwIBAqEiAyAABAFC7c50y7uw+iuHeMCt
 WwCpKNBUcVeiHme609Dv/g==
 -----END EC PRIVATE KEY-----');
-        $this->assertSame('sect113r1', $key->getCurve());
+        $this->assertSameNL('sect113r1', $key->getCurve());
 
         // this key and the above key have a few small differences.
         // the above key has the (optional) seed for the verifiably
@@ -159,7 +159,7 @@ BACdc2FvNfSrFAfXNWLBDwClKDAneVjuhNExXtMYhgIPAQAAAAAAAADZzOyKOeVv
 oSIDIAAEAULtznTLu7D6K4d4wK1bAKko0FRxV6IeZ7rT0O/+
 -----END EC PRIVATE KEY-----';
         PKCS1::useSpecifiedCurve();
-        $this->assertSame($expected, $key->toString('PKCS1'));
+        $this->assertSameNL($expected, $key->toString('PKCS1'));
     }
 
     // openssl ecparam -name sect113r1 -genkey -noout -out sect113r1.pem
@@ -171,10 +171,10 @@ oSIDIAAEAULtznTLu7D6K4d4wK1bAKko0FRxV6IeZ7rT0O/+
 MFECAQAwEAYHKoZIzj0CAQYFK4EEAAQEOjA4AgEBBA8A5OuqAY8HYoFOaz9mE6mh
 IgMgAAQASF3rOTPXvH0QdRBvsrMBdLMf27yd8AWABrZTxvI=
 -----END PRIVATE KEY-----');
-        $this->assertSame('sect113r1', $key->getCurve());
+        $this->assertSameNL('sect113r1', $key->getCurve());
 
         PKCS8::useNamedCurve();
-        $this->assertSame($expected, $key->toString('PKCS8'));
+        $this->assertSameNL($expected, $key->toString('PKCS8'));
     }
 
     // openssl ecparam -name sect113r1 -genkey -noout -out sect113r1.pem -param_enc explicit
@@ -188,7 +188,7 @@ AgMCAgEJMDcEDjCIJQym58f+ZJzoWCD3BA7ovuTT4iYHRBiL4OnHIwMVABDnI6sU
 Ag8BAAAAAAAAANnM7Io55W8CAQIEOjA4AgEBBA8AXtfDMRsRTx8snPbWHquhIgMg
 AAQA9xdWGJ6vV23+vkdq0C8BLJVg5E3amMyf/5keGa4=
 -----END PRIVATE KEY-----');
-        $this->assertSame('sect113r1', $key->getCurve());
+        $this->assertSameNL('sect113r1', $key->getCurve());
 
         // see testBinaryPKCS1PrivateKeySpecifiedCurve() for an
         // explanation of the differences between the above key
@@ -201,7 +201,7 @@ BA8AXtfDMRsRTx8snPbWHquhIgMgAAQA9xdWGJ6vV23+vkdq0C8BLJVg5E3amMyf
 /5keGa4=
 -----END PRIVATE KEY-----';
         PKCS8::useSpecifiedCurve();
-        $this->assertSame($expected, $key->toString('PKCS8'));
+        $this->assertSameNL($expected, $key->toString('PKCS8'));
     }
 
     // openssl ecparam -name sect131r1 -genkey -noout -out sect131r1.pem -param_enc explicit
@@ -215,7 +215,7 @@ AhfAVhCIS2O5xscpFnj500EDFQBNaW5naHVhUXWYW9OtutohtDqX4gQjBACBuvkf
 35gzxA+cGBNDY4OZB4xufqOMAB9zyBNLG0754VACEQQAAAAAAAAAAjEjlTqUZLVN
 AgECoSYDJAAEBEIolGjo5lnsYqNagqYPOaEGOglkllDO2aWPtB6n+x/WXw==
 -----END EC PRIVATE KEY-----');
-        $this->assertSame('sect131r1', $key->getCurve());
+        $this->assertSameNL('sect131r1', $key->getCurve());
 
         // see testBinaryPKCS1PrivateKeySpecifiedCurve() for an
         // explanation of the differences between the above key
@@ -228,7 +228,7 @@ SxtO+eFQAhEEAAAAAAAAAAIxI5U6lGS1TaEmAyQABARCKJRo6OZZ7GKjWoKmDzmh
 BjoJZJZQztmlj7Qep/sf1l8=
 -----END EC PRIVATE KEY-----';
         PKCS1::useSpecifiedCurve();
-        $this->assertSame($expected, $key->toString('PKCS1'));
+        $this->assertSameNL($expected, $key->toString('PKCS1'));
     }
 
     // from https://tools.ietf.org/html/draft-ietf-curdle-pkix-07#section-10.1
@@ -237,7 +237,7 @@ BjoJZJZQztmlj7Qep/sf1l8=
         $key = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
 MCowBQYDK2VwAyEAGb9ECWmEzf6FQbrBZ9w7lshQhqowtrbLDFw4rXAxZuE=
 -----END PUBLIC KEY-----');
-        $this->assertSame('Ed25519', $key->getCurve());
+        $this->assertSameNL('Ed25519', $key->getCurve());
 
         // in the above key AlgorithmIdentifier has a single "child". in the
         // following key it has two. The second one is ("optional") NULL.
@@ -246,7 +246,7 @@ MCowBQYDK2VwAyEAGb9ECWmEzf6FQbrBZ9w7lshQhqowtrbLDFw4rXAxZuE=
         $expected = '-----BEGIN PUBLIC KEY-----
 MCwwBwYDK2VwBQADIQAZv0QJaYTN/oVBusFn3DuWyFCGqjC2tssMXDitcDFm4Q==
 -----END PUBLIC KEY-----';
-        $this->assertSame($expected, $key->toString('PKCS8'));
+        $this->assertSameNL($expected, $key->toString('PKCS8'));
     }
 
     // from https://tools.ietf.org/html/draft-ietf-curdle-pkix-07#section-10.3
@@ -256,8 +256,8 @@ MCwwBwYDK2VwBQADIQAZv0QJaYTN/oVBusFn3DuWyFCGqjC2tssMXDitcDFm4Q==
         $key = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEINTuctv5E1hK1bbY8fdp+K06/nwoy/HU++CXqI9EdVhC
 -----END PRIVATE KEY-----');
-        $this->assertSame('Ed25519', $key->getCurve());
-        $this->assertSame('Ed25519', $key->getPublicKey()->getCurve());
+        $this->assertSameNL('Ed25519', $key->getCurve());
+        $this->assertSameNL('Ed25519', $key->getPublicKey()->getCurve());
 
         // with public key
         $key = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
@@ -265,8 +265,8 @@ MHICAQEwBQYDK2VwBCIEINTuctv5E1hK1bbY8fdp+K06/nwoy/HU++CXqI9EdVhC
 oB8wHQYKKoZIhvcNAQkJFDEPDA1DdXJkbGUgQ2hhaXJzgSEAGb9ECWmEzf6FQbrB
 Z9w7lshQhqowtrbLDFw4rXAxZuE=
 -----END PRIVATE KEY-----');
-        $this->assertSame('Ed25519', $key->getCurve());
-        $this->assertSame('Ed25519', $key->getPublicKey()->getCurve());
+        $this->assertSameNL('Ed25519', $key->getCurve());
+        $this->assertSameNL('Ed25519', $key->getPublicKey()->getCurve());
 
         // the above key not only omits NULL - it also includes a
         // unstructuredName attribute with a value of "Curdle Chairs"
@@ -275,12 +275,12 @@ Z9w7lshQhqowtrbLDFw4rXAxZuE=
 MFMCAQEwBwYDK2VwBQAEIgQg1O5y2/kTWErVttjx92n4rTr+fCjL8dT74Jeoj0R1
 WEKBIQAZv0QJaYTN/oVBusFn3DuWyFCGqjC2tssMXDitcDFm4Q==
 -----END PRIVATE KEY-----';
-        $this->assertSame($expected, $key->toString('PKCS8'));
+        $this->assertSameNL($expected, $key->toString('PKCS8'));
 
         $expected = EC::createKey('Ed25519')->toString('PKCS8');
         $key = PublicKeyLoader::load($expected);
-        $this->assertSame('Ed25519', $key->getCurve());
-        $this->assertSame('Ed25519', $key->getPublicKey()->getCurve());
+        $this->assertSameNL('Ed25519', $key->getCurve());
+        $this->assertSameNL('Ed25519', $key->getPublicKey()->getCurve());
     }
 
     public function testPuTTYnistp256()
@@ -296,16 +296,16 @@ Private-Lines: 1
 AAAAIQDwaPlajbXY1SxhuwsUqN1CEZ5g4adsbmJsKm+ZbUVm4g==
 Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef
 ');
-        $this->assertSame('secp256r1', $key->getCurve());
+        $this->assertSameNL('secp256r1', $key->getCurve());
 
         PuTTY::setComment('ecdsa-key-20181105');
-        $this->assertSame($expected, $key->toString('PuTTY'));
+        $this->assertSameNL($expected, $key->toString('PuTTY'));
 
         $key = PublicKeyLoader::load($expected = 'ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBJEXCsWA8s18m25MJlVE1urbXPYFi4q8oMbb2H0kE2f5WPxizsKXRmb1J68paXQizryL9fC4FTqICJ1+UnaPfk0= ecdsa-key-20181105');
-        $this->assertSame('secp256r1', $key->getCurve());
+        $this->assertSameNL('secp256r1', $key->getCurve());
 
         OpenSSH::setComment('ecdsa-key-20181105');
-        $this->assertSame($expected, $key->toString('OpenSSH'));
+        $this->assertSameNL($expected, $key->toString('OpenSSH'));
     }
 
     public function testPuTTYnistp384()
@@ -322,16 +322,16 @@ AAAAMQCEMkGMDg6N7bUqdvLXe0YmY4qBSi8hmAuMvU38RDoVFVmV+R4RYmMueyrX
 be9Oyus=
 Private-MAC: 97a990a3d5f6b8f268d4be9c4ab9ebfd8fa79849
 ');
-        $this->assertSame('secp384r1', $key->getCurve());
+        $this->assertSameNL('secp384r1', $key->getCurve());
 
         PuTTY::setComment('ecdsa-key-20181105');
-        $this->assertSame($expected, $key->toString('PuTTY'));
+        $this->assertSameNL($expected, $key->toString('PuTTY'));
 
         $key = PublicKeyLoader::load($expected = 'ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBOI53wHG3CdcAJZq5PXWZAEAxxsNVFQlQgOX9toWEOgqQF5LbK2nWLKRvaHMzocUXaTYZDccSS0ATZFPT3j1Er1LU9cu4PHpyS07v262jdzkxIvKCPcAeISuV80MC7rHog== ecdsa-key-20181105');
-        $this->assertSame('secp384r1', $key->getCurve());
+        $this->assertSameNL('secp384r1', $key->getCurve());
 
         OpenSSH::setComment('ecdsa-key-20181105');
-        $this->assertSame($expected, $key->toString('OpenSSH'));
+        $this->assertSameNL($expected, $key->toString('OpenSSH'));
 
     }
 
@@ -350,16 +350,16 @@ AAAAQgHJl8/dIArolFymdzhagXCfd2l8UF3CQXWGVGDQ0R04nnntlyztYiVdRXXK
 r84NnzS7dJcAsR9YaUOZ69NRKNiUAQ==
 Private-MAC: 6d49ce289b85549a43d74422dd8bb3ba8798c72c
 ');
-        $this->assertSame('secp521r1', $key->getCurve());
+        $this->assertSameNL('secp521r1', $key->getCurve());
 
         PuTTY::setComment('ecdsa-key-20181105');
-        $this->assertSame($expected, $key->toString('PuTTY'));
+        $this->assertSameNL($expected, $key->toString('PuTTY'));
 
         $key = PublicKeyLoader::load($expected = 'ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAF1Eg0MjaJwooFj6HCNh4RWbvmQRY+sdczJyBdT3EaTc/6IUcCfW7w7rAeRp2CDdE9RlAVD8IuLqW7DJH06Xeov8wBO5G6jUqXu0rlHsOSiC6VcCxBJuWVNB1IorHnS7PX0f6HdLlIEme73P77drqpn5YY0XLtP6hFrF7H5XfCxpNyaJA== ecdsa-key-20181105');
-        $this->assertSame('secp521r1', $key->getCurve());
+        $this->assertSameNL('secp521r1', $key->getCurve());
 
         OpenSSH::setComment('ecdsa-key-20181105');
-        $this->assertSame($expected, $key->toString('OpenSSH'));
+        $this->assertSameNL($expected, $key->toString('OpenSSH'));
     }
 
     public function testPuTTYed25519()
@@ -374,16 +374,16 @@ Private-Lines: 1
 AAAAIAHu1uI7dxFzo/SleEI2CekXKmgqlXwOgvfaRWxiX4Jd
 Private-MAC: 8a06821a1c8b8b40fc40f876e543c4ea3fb81bb9
 ');
-        $this->assertSame('Ed25519', $key->getCurve());
+        $this->assertSameNL('Ed25519', $key->getCurve());
 
         PuTTY::setComment('ed25519-key-20181105');
-        $this->assertSame($expected, $key->toString('PuTTY'));
+        $this->assertSameNL($expected, $key->toString('PuTTY'));
 
         $key = PublicKeyLoader::load($expected = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC6I6RyYAqtBcWXws9EDqGbhFtc5rKG4NMn/G7temQtu ed25519-key-20181105');
-        $this->assertSame('Ed25519', $key->getCurve());
+        $this->assertSameNL('Ed25519', $key->getCurve());
 
         OpenSSH::setComment('ed25519-key-20181105');
-        $this->assertSame($expected, $key->toString('OpenSSH'));
+        $this->assertSameNL($expected, $key->toString('OpenSSH'));
     }
 
     public function testlibsodium()
@@ -395,12 +395,12 @@ Private-MAC: 8a06821a1c8b8b40fc40f876e543c4ea3fb81bb9
         $kp = sodium_crypto_sign_keypair();
 
         $key = EC::loadFormat('libsodium', $expected = sodium_crypto_sign_secretkey($kp));
-        $this->assertSame('Ed25519', $key->getCurve());
-        $this->assertSame($expected, $key->toString('libsodium'));
+        $this->assertSameNL('Ed25519', $key->getCurve());
+        $this->assertSameNL($expected, $key->toString('libsodium'));
 
         $key = EC::loadFormat('libsodium', $expected = sodium_crypto_sign_publickey($kp));
-        $this->assertSame('Ed25519', $key->getCurve());
-        $this->assertSame($expected, $key->toString('libsodium'));
+        $this->assertSameNL('Ed25519', $key->getCurve());
+        $this->assertSameNL($expected, $key->toString('libsodium'));
     }
 
     // ssh-keygen -t ed25519
@@ -413,7 +413,7 @@ eQAAAAtzc2gtZWQyNTUxOQAAACCpm7dS1/WDTW+uuhp2+aFLPKaJle6+oJqDGLXhlQAX4A
 AAAEDltCTSbrr42IS4hhkS6ly0W2XItRQwxjLT+03bIyA+V6mbt1LX9YNNb666Gnb5oUs8
 pomV7r6gmoMYteGVABfgAAAAD3ZhZ3JhbnRAdmFncmFudAECAwQFBg==
 -----END OPENSSH PRIVATE KEY-----');
-        $this->assertSame('Ed25519', $key->getCurve());
+        $this->assertSameNL('Ed25519', $key->getCurve());
 
         // testing this key is a little difficult because of this format's
         // two back to back checkint fields. both fields correspond to the
@@ -423,7 +423,7 @@ pomV7r6gmoMYteGVABfgAAAAD3ZhZ3JhbnRAdmFncmFudAECAwQFBg==
         // none-the-less, because of the randomized component we can't easily
         // see if the key string is equal to another known string
         $key2 = PublicKeyLoader::load($key->toString('OpenSSH'));
-        $this->assertSame('Ed25519', $key2->getCurve());
+        $this->assertSameNL('Ed25519', $key2->getCurve());
     }
 
     // from https://www.w3.org/TR/xmldsig-core/#sec-RFC4050Compat
@@ -438,7 +438,7 @@ pomV7r6gmoMYteGVABfgAAAAD3ZhZ3JhbnRAdmFncmFudAECAwQFBg==
   <Y Value="102403352136827775240910267217779508359028642524881540878079119895764161434936" />
 </PublicKey>
 </ECDSAKeyValue>');
-        $this->assertSame('secp256r1', $key->getCurve());
+        $this->assertSameNL('secp256r1', $key->getCurve());
 
         XML::enableRFC4050Syntax();
 
@@ -452,14 +452,14 @@ pomV7r6gmoMYteGVABfgAAAAD3ZhZ3JhbnRAdmFncmFudAECAwQFBg==
         $dom->loadXML($key->toString('XML'));
         $actual = $dom->C14N();
 
-        $this->assertSame($expected, $actual);
+        $this->assertSameNL($expected, $actual);
     }
 
-    public static function assertSame($expected, $actual, $message = '')
+    public function assertSameNL($expected, $actual, $message = '')
     {
         $expected = str_replace("\r\n", "\n", $expected);
         $actual = str_replace("\r\n", "\n", $actual);
-        return parent::assertSame($expected, $actual, $message);
+        $this->assertSame($expected, $actual, $message);
     }
 
     public function testOpenSSHPrivateEC()

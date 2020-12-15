@@ -7,7 +7,7 @@
 
 use phpseclib3\Net\SFTP\Stream;
 
-class Unit_Net_SFTPStreamTest extends PhpseclibTestCase
+class Unit_Net_SFTPStreamUnitTest extends PhpseclibTestCase
 {
     public function testRegisterWithoutArgument()
     {

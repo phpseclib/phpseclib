@@ -34,7 +34,7 @@ class Unit_Crypt_RSA_CreateKeyTest extends PhpseclibTestCase
     {
         list($publickey, $privatekey) = $args;
         $ciphertext = $publickey->encrypt('zzz');
-        $this->assertInternalType('string', $ciphertext);
+        $this->assertIsString($ciphertext);
         $plaintext = $privatekey->decrypt($ciphertext);
         $this->assertSame($plaintext, 'zzz');
     }

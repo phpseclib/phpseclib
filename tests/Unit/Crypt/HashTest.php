@@ -6,6 +6,7 @@
  */
 
 use phpseclib3\Crypt\Hash;
+use phpseclib3\Exception\UnsupportedAlgorithmException;
 
 class Unit_Crypt_HashTest extends PhpseclibTestCase
 {
@@ -373,19 +374,17 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
         $this->assertSame($hash->getHash(), 'sha256');
     }
 
-    /**
-     * @expectedException \phpseclib3\Exception\UnsupportedAlgorithmException
-     */
     public function testConstructorArgumentInvalid()
     {
+        $this->expectException(UnsupportedAlgorithmException::class);
+
         new Hash('abcdefghijklmnopqrst');
     }
 
-    /**
-     * @expectedException \phpseclib3\Exception\UnsupportedAlgorithmException
-     */
     public function testSetHashInvalid()
     {
+        $this->expectException(UnsupportedAlgorithmException::class);
+
         $hash = new Hash('md5');
         $hash->setHash('abcdefghijklmnopqrst-96');
     }

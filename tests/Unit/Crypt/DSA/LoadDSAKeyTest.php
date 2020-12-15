@@ -13,14 +13,14 @@ use phpseclib3\Crypt\DSA\Formats\Keys\PKCS1;
 use phpseclib3\Crypt\DSA\Formats\Keys\PKCS8;
 use phpseclib3\Crypt\DSA\Formats\Keys\PuTTY;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Exception\NoKeyLoadedException;
 
-class Unit_Crypt_DSA_LoadKeyTest extends PhpseclibTestCase
+class Unit_Crypt_DSA_LoadDSAKeyTest extends PhpseclibTestCase
 {
-    /**
-     * @expectedException \phpseclib3\Exception\NoKeyLoadedException
-     */
     public function testBadKey()
     {
+        $this->expectException(NoKeyLoadedException::class);
+
         $key = 'zzzzzzzzzzzzzz';
         PublicKeyLoader::load($key);
     }
@@ -57,9 +57,9 @@ Private-MAC: 62b92ddd8b341b9414d640c24ba6ae929a78e039
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
-        $this->assertInternalType('string', "$dsa");
-        $this->assertInternalType('string', $dsa->getPublicKey()->toString('PuTTY'));
-        $this->assertInternalType('string', $dsa->getParameters()->toString('PuTTY'));
+        $this->assertIsString("$dsa");
+        $this->assertIsString($dsa->getPublicKey()->toString('PuTTY'));
+        $this->assertIsString($dsa->getParameters()->toString('PuTTY'));
 
         $dsa = $dsa->withPassword('password');
         $this->assertGreaterThan(0, strlen("$dsa"));
@@ -91,9 +91,9 @@ Eb2s9fDOpnMhj+WqwcQgs18=
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
-        $this->assertInternalType('string', "$dsa");
-        $this->assertInternalType('string', $dsa->getPublicKey()->toString('PKCS1'));
-        $this->assertInternalType('string', (string) $dsa->getParameters());
+        $this->assertIsString("$dsa");
+        $this->assertIsString($dsa->getPublicKey()->toString('PKCS1'));
+        $this->assertIsString((string) $dsa->getParameters());
     }
 
     public function testParameters()
@@ -133,7 +133,7 @@ ZpmyOpXM/0opRMIRdmqVW4ardBFNokmlqngwcbaptfRnk9W2cQtx0lmKy6X/vnis
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PublicKey::class, $dsa);
-        $this->assertInternalType('string', "$dsa");
+        $this->assertIsString("$dsa");
     }
 
     public function testPKCS8Private()
@@ -151,16 +151,15 @@ Syea3pSvWdBpVhWzOX4A7qbxs+bhWAQWAhQiF7sFfCtZ7oOgCb2aJ9ySC9sTug==
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
-        $this->assertInternalType('string', "$dsa");
+        $this->assertIsString("$dsa");
         $this->assertInstanceOf(PublicKey::class, $dsa->getPublicKey());
         $this->assertInstanceOf(Parameters::class, $dsa->getParameters());
     }
 
-    /**
-     * @expectedException \phpseclib3\Exception\NoKeyLoadedException
-     */
     public function testPuTTYBadMAC()
     {
+        $this->expectException(NoKeyLoadedException::class);
+
         $key = 'PuTTY-User-Key-File-2: ssh-dss
 Encryption: none
 Comment: dsa-key-20161223
@@ -208,7 +207,7 @@ ZpmyOpXM/0opRMIRdmqVW4ardBFNokmlqngwcbaptfRnk9W2cQtx0lmKy6X/vnis
 
         $dsa = PublicKeyLoader::load($key);
         $xml = $dsa->toString('XML');
-        $this->assertContains('DSAKeyValue', $xml);
+        $this->assertStringContainsString('DSAKeyValue', $xml);
 
         $dsa = PublicKeyLoader::load($xml);
         $pkcs8 = $dsa->toString('PKCS8');

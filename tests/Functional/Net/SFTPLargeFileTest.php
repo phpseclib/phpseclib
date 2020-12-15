@@ -16,6 +16,7 @@ class Functional_Net_SFTPLargeFileTest extends Functional_Net_SFTPTestCase
         if (!extension_loaded('mcrypt') && !extension_loaded('openssl')) {
             self::markTestSkipped('This test depends on mcrypt or openssl for performance.');
         }
+        self::ensureConstant('CRYPT_HASH_MODE', 3);
         parent::setUpBeforeClass();
     }
 
