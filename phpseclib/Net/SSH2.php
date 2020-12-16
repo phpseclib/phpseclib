@@ -3744,8 +3744,11 @@ class SSH2
                 $this->binary_packet_buffer = false;
             } else {
                 $response = $this->_get_binary_packet(true);
-                if ($response === true && $this->is_timeout && $client_channel == self::CHANNEL_EXEC && !$this->request_pty) {
-                    $this->_close_channel($client_channel);
+                if ($response === true && $this->is_timeout) {
+                    if ($client_channel == self::CHANNEL_EXEC && !$this->request_pty) {
+                        $this->_close_channel($client_channel);
+                    }
+                    return true;
                 }
                 if ($response === false) {
                     $this->bitmap = 0;
