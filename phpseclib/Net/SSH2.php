@@ -3689,8 +3689,11 @@ class SSH2
                 $this->binary_packet_buffer = false;
             } else {
                 $response = $this->get_binary_packet(true);
-                if ($response === true && $this->is_timeout && $client_channel == self::CHANNEL_EXEC && !$this->request_pty) {
-                    $this->close_channel($client_channel);
+                if ($response === true && $this->is_timeout)
+                    if ($client_channel == self::CHANNEL_EXEC && !$this->request_pty) {
+                        $this->close_channel($client_channel);
+                    }
+                    return true;
                 }
                 if ($response === false) {
                     $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
