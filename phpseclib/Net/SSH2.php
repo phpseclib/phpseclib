@@ -3761,7 +3761,7 @@ class Net_SSH2
                 $this->binary_packet_buffer = false;
             } else {
                 $response = $this->_get_binary_packet(true);
-                if ($response === true && $this->is_timeout)) {
+                if ($response === true && $this->is_timeout) {
                     if ($client_channel == NET_SSH2_CHANNEL_EXEC && !$this->request_pty) {
                         $this->_close_channel($client_channel);
                     }
