@@ -485,7 +485,7 @@ abstract class PKCS8 extends PKCS
                 }
             } else {
                 if ($public['publicKeyAlgorithm']['algorithm'] != static::OID_NAME) {
-                    throw new UnsupportedAlgorithmException('Only ' . static::OID_NAME . ' keys are supported; this is a ' . $private['publicKeyAlgorithm']['algorithm'] . ' key');
+                    throw new UnsupportedAlgorithmException('Only ' . static::OID_NAME . ' keys are supported; this is a ' . $public['publicKeyAlgorithm']['algorithm'] . ' key');
                 }
             }
             if (isset($public['publicKeyAlgorithm']['parameters']) && !$public['publicKeyAlgorithm']['parameters'] instanceof ASN1\Element && isset($decoded[0]['content'][0]['content'][1])) {
