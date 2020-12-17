@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.30 - 2020-12-16
+
+- X509: don't attempt to parse multi-cert PEMs (#1542)
+- SFTP: add stream to get method (#1546)
+- SFTP: progress callback should report actual downloaded bytes (#1543)
+- SSH2: end connection faster for algorithm mismatch
+- SSH2: add setKeepAlive() method (#1529)
+- ANSI: fix PHP8 compatibility issues
+
 ## 2.0.29 - 2020-09-07
 
 - SFTP: add enableDatePreservation() / disableDatePreservation() (#1496)
