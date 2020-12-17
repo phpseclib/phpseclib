@@ -1,5 +1,24 @@
 # Changelog
 
+## 3.0.0 - 2020-12-16
+
+- drop SSH1 and SCP support
+- add support for the following crypto algorithms:
+  - Ed25519 / Ed449 / Curve25519 / Curve449
+  - ECDSA / ECDH (66 curves)
+  - DSA / DH
+  - GCM / Poly1305
+  - Salsa20 / ChaCha20
+
+## 2.0.30 - 2020-12-16
+
+- X509: don't attempt to parse multi-cert PEMs (#1542)
+- SFTP: add stream to get method (#1546)
+- SFTP: progress callback should report actual downloaded bytes (#1543)
+- SSH2: end connection faster for algorithm mismatch
+- SSH2: add setKeepAlive() method (#1529)
+- ANSI: fix PHP8 compatibility issues
+
 ## 2.0.29 - 2020-09-07
 
 - SFTP: add enableDatePreservation() / disableDatePreservation() (#1496)
