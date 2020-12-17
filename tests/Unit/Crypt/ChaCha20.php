@@ -25,8 +25,8 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
         $expected = str_replace(' ', '', $expected);
         $expected = pack('H*', $expected);
 
-        $engines = ['PHP', OpenSSL', 'libsodium'];
-        for ($engines as $engine) {
+        $engines = ['PHP', 'OpenSSL', 'libsodium'];
+        foreach ($engines as $engine) {
             $c = new ChaCha20();
             $c->setKey($key);
             $c->setNonce($nonce);
@@ -63,8 +63,8 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
         $expected = str_replace(' ', '', $expected);
         $expected = pack('H*', $expected);
 
-        $engines = ['PHP', OpenSSL', 'libsodium'];
-        for ($engines as $engine) {
+        $engines = ['PHP', 'OpenSSL', 'libsodium'];
+        foreach ($engines as $engine) {
             $c = new ChaCha20();
             $c->setKey($key);
             $c->setNonce($nonce);
@@ -119,8 +119,8 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
         $expected = str_replace(' ', '', $expected);
         $expected = pack('H*', $expected);
 
-        $engines = ['PHP', OpenSSL', 'libsodium'];
-        for ($engines as $engine) {
+        $engines = ['PHP', 'OpenSSL', 'libsodium'];
+        foreach ($engines as $engine) {
             $c = new ChaCha20();
             $c->setKey($key);
             $c->setNonce($nonce);
@@ -163,8 +163,8 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
         $tag = str_replace(' ', '', $tag);
         $tag = pack('H*', $tag);
 
-        $engines = ['PHP', OpenSSL', 'libsodium'];
-        for ($engines as $engine) {
+        $engines = ['PHP', 'OpenSSL', 'libsodium'];
+        foreach ($engines as $engine) {
             $c = new ChaCha20();
             $c->enablePoly1305();
             $c->setKey($key);
@@ -189,8 +189,8 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
 
         $plaintext = str_repeat("\0", array_sum($partitions));
 
-        $engines = ['PHP', OpenSSL', 'libsodium'];
-        for ($engines as $engine) {
+        $engines = ['PHP', 'OpenSSL', 'libsodium'];
+        foreach ($engines as $engine) {
             $c = new ChaCha20();
             $c->setKey($key);
             $c->setNonce($nonce);
