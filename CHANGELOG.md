@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.0 - 2020-12-16
+
+- drop SSH1 and SCP support
+- add support for the following crypto algorithms:
+  - Ed25519 / Ed449 / Curve25519 / Curve449
+  - ECDSA / ECDH (66 curves)
+  - DSA / DH
+  - GCM / Poly1305
+  - Salsa20 / ChaCha20
+
 ## 2.0.30 - 2020-12-16
 
 - X509: don't attempt to parse multi-cert PEMs (#1542)
