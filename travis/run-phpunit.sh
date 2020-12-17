@@ -20,7 +20,7 @@ then
   PHPUNIT_ARGS="$PHPUNIT_ARGS -d zend.enable_gc=0"
 fi
 
-if [ `php -r "echo (int) version_compare(PHP_VERSION, '7.3', '>=');"` = "1" ]
+if $PHPUNIT --atleast-version 9
 then
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/n setUpBeforeClass()/n setUpBeforeClass(): void/g'
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/n setUp()/n setUp(): void/g'
