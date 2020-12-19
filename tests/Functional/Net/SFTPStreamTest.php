@@ -55,6 +55,20 @@ class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
         $this->assertEquals(['.', '..'], array_slice($dirs, 0, 2));
     }
 
+    /**
+     * @group github1552
+     */
+    public function testStreamSelect()
+    {
+        $context = stream_context_create([
+            'sftp' => ['session' => $this->sftp],
+        ]);
+        $fp = fopen($this->buildUrl('fooo.txt'), 'wb', false, $context);
+        $read = [$fp];
+        $write = $except = null;
+        stream_select($read, $write, $except, 0);
+    }
+
     protected function buildUrl($suffix)
     {
         return sprintf(
