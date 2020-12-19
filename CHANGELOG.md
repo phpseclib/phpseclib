@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.1 - 2020-12-19
+
+- PKCS8: fix E_WARNING (#1551)
+- SSH2/Stream: stream_select needs to be able to access $fsock (#1552)
+- SFTP: resuming uploads didn't work (#1553)
+
 ## 3.0.0 - 2020-12-16
 
 - drop SSH1 and SCP support
