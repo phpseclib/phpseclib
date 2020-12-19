@@ -167,6 +167,23 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
             'Failed asserting that get() returns expected example data.'
         );
 
+        $this->assertTrue(
+            $sftp->put('file1.txt', 'xxx', SFTP::RESUME),
+            'Failed asserting that an upload could be successfully resumed'
+        );
+
+        $this->assertSame(
+            self::$exampleDataLength + 3,
+            $sftp->filesize('file1.txt'),
+            'Failed asserting that put example data has the expected length'
+        );
+
+        $this->assertSame(
+            self::$exampleData . 'zzz',
+            $sftp->get('file1.txt'),
+            'Failed asserting that get() returns expected example data.'
+        );
+
         return $sftp;
     }
 
