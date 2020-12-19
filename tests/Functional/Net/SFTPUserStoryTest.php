@@ -179,7 +179,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         );
 
         $this->assertSame(
-            self::$exampleData . 'zzz',
+            self::$exampleData . 'xxx',
             $sftp->get('file1.txt'),
             'Failed asserting that get() returns expected example data.'
         );
