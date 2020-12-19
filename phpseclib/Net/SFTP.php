@@ -1867,8 +1867,6 @@ class SFTP extends SSH2
             return false;
         }
 
-        $this->remove_from_stat_cache($remote_file);
-
         $flags = NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE;
         // according to the SFTP specs, NET_SFTP_OPEN_APPEND should "force all writes to append data at the end of the file."
         // in practice, it doesn't seem to do that.
@@ -1884,6 +1882,8 @@ class SFTP extends SSH2
             $offset = 0;
             $flags|= NET_SFTP_OPEN_TRUNCATE;
         }
+
+        $this->remove_from_stat_cache($remote_file);
 
         $packet = Strings::packSSH2('sNN', $remote_file, $flags, 0);
         if (!$this->send_sftp_packet(NET_SFTP_OPEN, $packet)) {
