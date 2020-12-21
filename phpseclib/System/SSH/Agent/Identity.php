@@ -50,7 +50,6 @@ class Identity implements PrivateKey
      */
     const SSH_AGENT_RSA2_256 = 2;
     const SSH_AGENT_RSA2_512 = 4;
-    /**#@-*/
 
     /**
      * Key Object
