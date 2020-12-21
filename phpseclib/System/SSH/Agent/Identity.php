@@ -41,7 +41,7 @@ class Identity implements PrivateKey
 {
     use \phpseclib3\System\SSH\Common\Traits\ReadBytes;
 
-    /**@+
+    /**
      * Signature Flags
      *
      * See https://tools.ietf.org/html/draft-miller-ssh-agent-00#section-5.3
