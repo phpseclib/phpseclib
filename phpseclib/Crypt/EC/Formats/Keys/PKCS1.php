@@ -61,7 +61,7 @@ abstract class PKCS1 extends Progenitor
     {
         self::initialize_static_variables();
 
-        if (strpos($key, 'BEGIN EC PARAMETERS') && strpos($key, 'BEGIN EC PRIVATE KEY')) {
+        if (is_string($key) && strpos($key, 'BEGIN EC PARAMETERS') && strpos($key, 'BEGIN EC PRIVATE KEY')) {
             $components = [];
 
             preg_match('#-*BEGIN EC PRIVATE KEY-*[^-]*-*END EC PRIVATE KEY-*#s', $key, $matches);
