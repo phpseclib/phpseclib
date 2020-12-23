@@ -1251,7 +1251,7 @@ class SSH2
                     $start = microtime(true);
                     $sec = floor($this->curTimeout);
                     $usec = 1000000 * ($this->curTimeout - $sec);
-                    if (stream_select($read, $write, $except, $sec, $usec) === false) {
+                    if (@stream_select($read, $write, $except, $sec, $usec) === false) {
                         $this->is_timeout = true;
                         return false;
                     }
@@ -3194,9 +3194,9 @@ class SSH2
 
             if ($this->curTimeout <= 0) {
                 if ($this->keepAlive <= 0) {
-                    stream_select($read, $write, $except, null);
+                    @stream_select($read, $write, $except, null);
                 } else {
-                    if (!stream_select($read, $write, $except, $this->keepAlive)) {
+                    if (!@stream_select($read, $write, $except, $this->keepAlive)) {
                         $this->send_binary_packet(pack('CN', NET_SSH2_MSG_IGNORE, 0));
                         return $this->get_binary_packet(true);
                     }
@@ -3213,7 +3213,7 @@ class SSH2
                 $start = microtime(true);
 
                 if ($this->keepAlive > 0 && $this->keepAlive < $this->curTimeout) {
-                    if (!stream_select($read, $write, $except, $this->keepAlive)) {
+                    if (!@stream_select($read, $write, $except, $this->keepAlive)) {
                         $this->send_binary_packet(pack('CN', NET_SSH2_MSG_IGNORE, 0));
                         $elapsed = microtime(true) - $start;
                         $this->curTimeout-= $elapsed;
@@ -3226,8 +3226,8 @@ class SSH2
                 $sec = floor($this->curTimeout);
                 $usec = 1000000 * ($this->curTimeout - $sec);
 
-                // on windows this returns a "Warning: Invalid CRT parameters detected" error
-                if (!stream_select($read, $write, $except, $sec, $usec)) {
+                // this can return a "stream_select(): unable to select [4]: Interrupted system call" error
+                if (!@stream_select($read, $write, $except, $sec, $usec)) {
                     $this->is_timeout = true;
                     return true;
                 }
