@@ -34,6 +34,17 @@ class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
         PublicKeyLoader::load($key);
     }
 
+    public function testLoadModulusAndExponent()
+    {
+        $rsa = PublicKeyLoader::load([
+            'e' => new BigInteger('123', 16),
+            'n' => new BigInteger('123', 16)
+        ]);
+
+        $this->assertInstanceOf(PublicKey::class, $rsa);
+        $this->assertIsString("$rsa");
+    }
+
     public function testPKCS1Key()
     {
         $key = '-----BEGIN RSA PRIVATE KEY-----
