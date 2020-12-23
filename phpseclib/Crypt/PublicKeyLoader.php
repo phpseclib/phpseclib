@@ -33,7 +33,7 @@ abstract class PublicKeyLoader
      *
      * @return AsymmetricKey
      * @access public
-     * @param string $key
+     * @param string|array $key
      * @param string $password optional
      */
     public static function load($key, $password = false)
