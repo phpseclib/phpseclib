@@ -37,6 +37,7 @@ use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib3\Exception\UnsupportedCurveException;
+use phpseclib3\Common\Functions\Strings;
 
 /**
  * "PKCS1" (RFC5915) Formatted EC Key Handler
@@ -60,6 +61,10 @@ abstract class PKCS1 extends Progenitor
     public static function load($key, $password = '')
     {
         self::initialize_static_variables();
+
+        if (!Strings::is_stringable($key)) {
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        }
 
         if (strpos($key, 'BEGIN EC PARAMETERS') && strpos($key, 'BEGIN EC PRIVATE KEY')) {
             $components = [];
