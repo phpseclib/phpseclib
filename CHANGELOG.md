@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.2 - 2020-12-24
+
+- EC/PKCS1: throw exception when trying to load non-strings (#1559)
+- X509: make date methods accept DateTimeInterface instead of DateTime (#1562)
+- SSH2: suppress errors on stream_select calls (#1560)
+
 ## 3.0.1 - 2020-12-19
 
 - PKCS8: fix E_WARNING (#1551)
