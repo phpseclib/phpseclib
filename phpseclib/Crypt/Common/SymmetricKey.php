@@ -660,11 +660,12 @@ abstract class SymmetricKey
      *
      * setIV() is not required when ecb or gcm modes are being used.
      *
+     * {@internal Can be overwritten by a sub class, but does not have to be}
+     *
      * @access public
      * @param string $iv
      * @throws \LengthException if the IV length isn't equal to the block size
      * @throws \BadMethodCallException if an IV is provided when one shouldn't be
-     * @internal Can be overwritten by a sub class, but does not have to be
      */
     public function setIV($iv)
     {
@@ -855,9 +856,10 @@ abstract class SymmetricKey
      *
      * If the key is not explicitly set, it'll be assumed to be all null bytes.
      *
+     * {@internal Could, but not must, extend by the child Crypt_* class}
+     *
      * @access public
      * @param string $key
-     * @internal Could, but not must, extend by the child Crypt_* class
      */
     public function setKey($key)
     {
@@ -879,6 +881,8 @@ abstract class SymmetricKey
      *
      *         Where $hash (default = sha1) currently supports the following hashes: see: Crypt/Hash.php
      *
+     * {@internal Could, but not must, extend by the child Crypt_* class}
+     *
      * @see Crypt/Hash.php
      * @param string $password
      * @param string $method
@@ -886,7 +890,6 @@ abstract class SymmetricKey
      * @throws \LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
      * @return bool
      * @access public
-     * @internal Could, but not must, extend by the child Crypt_* class
      */
     public function setPassword($password, $method = 'pbkdf2', ...$func_args)
     {
@@ -1086,11 +1089,12 @@ abstract class SymmetricKey
      * strlen($plaintext) will still need to be a multiple of the block size, however, arbitrary values can be added to make it that
      * length.
      *
+     * {@internal Could, but not must, extend by the child Crypt_* class}
+     *
      * @see self::decrypt()
      * @access public
      * @param string $plaintext
      * @return string $ciphertext
-     * @internal Could, but not must, extend by the child Crypt_* class
      */
     public function encrypt($plaintext)
     {
@@ -1429,12 +1433,13 @@ abstract class SymmetricKey
      * If strlen($ciphertext) is not a multiple of the block size, null bytes will be added to the end of the string until
      * it is.
      *
+     * {@internal Could, but not must, extend by the child Crypt_* class}
+     *
      * @see self::encrypt()
      * @access public
      * @param string $ciphertext
      * @return string $plaintext
      * @throws \LengthException if we're inside a block cipher and the ciphertext length is not a multiple of the block size
-     * @internal Could, but not must, extend by the child Crypt_* class
      */
     public function decrypt($ciphertext)
     {
@@ -2073,9 +2078,10 @@ abstract class SymmetricKey
      * continuous buffers not be used.  They do offer better security and are, in fact, sometimes required (SSH uses them),
      * however, they are also less intuitive and more likely to cause you problems.
      *
+     * {@internal Could, but not must, extend by the child Crypt_* class}
+     *
      * @see self::disableContinuousBuffer()
      * @access public
-     * @internal Could, but not must, extend by the child Crypt_* class
      */
     public function enableContinuousBuffer()
     {
@@ -2097,9 +2103,10 @@ abstract class SymmetricKey
      *
      * The default behavior.
      *
+     * {@internal Could, but not must, extend by the child Crypt_* class}
+     *
      * @see self::enableContinuousBuffer()
      * @access public
-     * @internal Could, but not must, extend by the child Crypt_* class
      */
     public function disableContinuousBuffer()
     {
@@ -2331,12 +2338,14 @@ abstract class SymmetricKey
      *
      * - First run of encrypt() / decrypt() with no init-settings
      *
+     * {@internal setup() is always called before en/decryption.}
+     *
+     * {@internal Could, but not must, extend by the child Crypt_* class}
+     *
      * @see self::setKey()
      * @see self::setIV()
      * @see self::disableContinuousBuffer()
      * @access private
-     * @internal setup() is always called before en/decryption.
-     * @internal Could, but not must, extend by the child Crypt_* class
      */
     protected function setup()
     {
@@ -2529,13 +2538,13 @@ abstract class SymmetricKey
      *         - $in (the content of $in has to en/decrypt by the generated code)
      *       - The callback function should not use the 'return' statement, but en/decrypt'ing the content of $in only
      *
+     * {@internal If a Crypt_* class providing inline crypting it must extend _setupInlineCrypt()}
      *
      * @see self::setup()
      * @see self::createInlineCryptFunction()
      * @see self::encrypt()
      * @see self::decrypt()
      * @access private
-     * @internal If a Crypt_* class providing inline crypting it must extend _setupInlineCrypt()
      */
     //protected function setupInlineCrypt();
 
