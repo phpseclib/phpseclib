@@ -61,33 +61,43 @@ class SFTP extends SSH2
      */
     const CHANNEL = 0x100;
 
-    /**#@+
-     * @access public
-     * @see \phpseclib3\Net\SFTP::put()
-    */
     /**
      * Reads data from a local file.
+     *
+     * @access public
+     * @see \phpseclib3\Net\SFTP::put()
      */
     const SOURCE_LOCAL_FILE = 1;
     /**
      * Reads data from a string.
+     *
+     * @access public
+     * @see \phpseclib3\Net\SFTP::put()
      */
     // this value isn't really used anymore but i'm keeping it reserved for historical reasons
     const SOURCE_STRING = 2;
     /**
      * Reads data from callback:
      * function callback($length) returns string to proceed, null for EOF
+     *
+     * @access public
+     * @see \phpseclib3\Net\SFTP::put()
      */
     const SOURCE_CALLBACK = 16;
     /**
      * Resumes an upload
+     *
+     * @access public
+     * @see \phpseclib3\Net\SFTP::put()
      */
     const RESUME = 4;
     /**
      * Append a local file to an already existing remote file
+     *
+     * @access public
+     * @see \phpseclib3\Net\SFTP::put()
      */
     const RESUME_START = 8;
-    /**#@-*/
 
     /**
      * Packet Types

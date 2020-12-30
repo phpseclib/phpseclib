@@ -80,21 +80,15 @@ use phpseclib3\Common\Functions\Strings;
  */
 class SSH2
 {
-    /**#@+
-     * Execution Bitmap Masks
-     *
-     * @see \phpseclib3\Net\SSH2::bitmap
-     * @access private
-     */
+    // Execution Bitmap Masks
     const MASK_CONSTRUCTOR   = 0x00000001;
     const MASK_CONNECTED     = 0x00000002;
     const MASK_LOGIN_REQ     = 0x00000004;
     const MASK_LOGIN         = 0x00000008;
     const MASK_SHELL         = 0x00000010;
     const MASK_WINDOW_ADJUST = 0x00000020;
-    /**#@-*/
 
-    /**#@+
+    /*
      * Channel constants
      *
      * RFC4254 refers not to client and server channels but rather to sender and recipient channels.  we don't refer
@@ -109,50 +103,61 @@ class SSH2
      * @see \phpseclib3\Net\SSH2::send_channel_packet()
      * @see \phpseclib3\Net\SSH2::get_channel_packet()
      * @access private
-    */
+     */
     const CHANNEL_EXEC          = 1; // PuTTy uses 0x100
     const CHANNEL_SHELL         = 2;
     const CHANNEL_SUBSYSTEM     = 3;
     const CHANNEL_AGENT_FORWARD = 4;
     const CHANNEL_KEEP_ALIVE    = 5;
-    /**#@-*/
 
-    /**#@+
-     * @access public
-     * @see \phpseclib3\Net\SSH2::getLog()
-    */
     /**
      * Returns the message numbers
+     *
+     * @access public
+     * @see \phpseclib3\Net\SSH2::getLog()
      */
     const LOG_SIMPLE = 1;
     /**
      * Returns the message content
+     *
+     * @access public
+     * @see \phpseclib3\Net\SSH2::getLog()
      */
     const LOG_COMPLEX = 2;
     /**
      * Outputs the content real-time
+     *
+     * @access public
+     * @see \phpseclib3\Net\SSH2::getLog()
      */
     const LOG_REALTIME = 3;
     /**
      * Dumps the content real-time to a file
+     *
+     * @access public
+     * @see \phpseclib3\Net\SSH2::getLog()
      */
     const LOG_REALTIME_FILE = 4;
     /**
      * Make sure that the log never gets larger than this
+     *
+     * @access public
+     * @see \phpseclib3\Net\SSH2::getLog()
      */
     const LOG_MAX_SIZE = 1048576; // 1024 * 1024
-    /**#@-*/
 
-    /**#@+
-     * @access public
-     * @see \phpseclib3\Net\SSH2::read()
-    */
     /**
      * Returns when a string matching $expect exactly is found
+     *
+     * @access public
+     * @see \phpseclib3\Net\SSH2::read()
      */
     const READ_SIMPLE = 1;
     /**
      * Returns when a string matching the regular expression $expect is found
+     *
+     * @access public
+     * @see \phpseclib3\Net\SSH2::read()
      */
     const READ_REGEX = 2;
     /**
@@ -160,9 +165,11 @@ class SSH2
      *
      * Some data packets may only contain a single character so it may be necessary
      * to call read() multiple times when using this option
+     *
+     * @access public
+     * @see \phpseclib3\Net\SSH2::read()
      */
     const READ_NEXT = 3;
-    /**#@-*/
 
     /**
      * The SSH identifier

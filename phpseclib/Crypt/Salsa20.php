@@ -50,13 +50,17 @@ class Salsa20 extends StreamCipher
      */
     protected $key_length = 32; // = 256 bits
 
-    /**#@+
+    /**
      * @access private
      * @see \phpseclib3\Crypt\Salsa20::crypt()
-    */
+     */
     const ENCRYPT = 0;
+
+    /**
+     * @access private
+     * @see \phpseclib3\Crypt\Salsa20::crypt()
+     */
     const DECRYPT = 1;
-    /**#@-*/
 
     /**
      * Encryption buffer for continuous mode

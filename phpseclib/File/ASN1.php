@@ -39,24 +39,15 @@ use DateTimeZone;
  */
 abstract class ASN1
 {
-    /**#@+
-     * Tag Classes
-     *
-     * @access private
-     * @link http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=12
-     */
+    // Tag Classes
+    // http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=12
     const CLASS_UNIVERSAL        = 0;
     const CLASS_APPLICATION      = 1;
     const CLASS_CONTEXT_SPECIFIC = 2;
     const CLASS_PRIVATE          = 3;
-    /**#@-*/
 
-    /**#@+
-     * Tag Classes
-     *
-     * @access private
-     * @link http://www.obj-sys.com/asn1tutorial/node124.html
-    */
+    // Tag Classes
+    // http://www.obj-sys.com/asn1tutorial/node124.html
     const TYPE_BOOLEAN           = 1;
     const TYPE_INTEGER           = 2;
     const TYPE_BIT_STRING        = 3;
@@ -72,13 +63,9 @@ abstract class ASN1
     //const TYPE_RELATIVE_OID      = 13;
     const TYPE_SEQUENCE          = 16; // SEQUENCE OF
     const TYPE_SET               = 17; // SET OF
-    /**#@-*/
-    /**#@+
-     * More Tag Classes
-     *
-     * @access private
-     * @link http://www.obj-sys.com/asn1tutorial/node10.html
-    */
+
+    // More Tag Classes
+    // http://www.obj-sys.com/asn1tutorial/node10.html
     const TYPE_NUMERIC_STRING   = 18;
     const TYPE_PRINTABLE_STRING = 19;
     const TYPE_TELETEX_STRING   = 20; // T61String
@@ -92,18 +79,11 @@ abstract class ASN1
     const TYPE_UNIVERSAL_STRING = 28;
     //const TYPE_CHARACTER_STRING = 29;
     const TYPE_BMP_STRING       = 30;
-    /**#@-*/
 
-    /**#@+
-     * Tag Aliases
-     *
-     * These tags are kinda place holders for other tags.
-     *
-     * @access private
-    */
+    // Tag Aliases
+    // These tags are kinda place holders for other tags.
     const TYPE_CHOICE = -1;
     const TYPE_ANY    = -2;
-    /**#@-*/
 
     /**
      * ASN.1 object identifiers

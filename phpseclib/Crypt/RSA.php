@@ -80,11 +80,6 @@ abstract class RSA extends AsymmetricKey
      */
     const ALGORITHM = 'RSA';
 
-    /**#@+
-     * @access public
-     * @see self::encrypt()
-     * @see self::decrypt()
-     */
     /**
      * Use {@link http://en.wikipedia.org/wiki/Optimal_Asymmetric_Encryption_Padding Optimal Asymmetric Encryption Padding}
      * (OAEP) for encryption / decryption.
@@ -93,6 +88,9 @@ abstract class RSA extends AsymmetricKey
      *
      * @see self::setHash()
      * @see self::setMGFHash()
+     * @access public
+     * @see self::encrypt()
+     * @see self::decrypt()
      */
     const ENCRYPTION_OAEP = 1;
     /**
@@ -100,6 +98,10 @@ abstract class RSA extends AsymmetricKey
      *
      * Although self::PADDING_OAEP / self::PADDING_PSS  offers more security, including PKCS#1 padding is necessary for purposes of backwards
      * compatibility with protocols (like SSH-1) written before OAEP's introduction.
+     *
+     * @access public
+     * @see self::encrypt()
+     * @see self::decrypt()
      */
     const ENCRYPTION_PKCS1 = 2;
     /**
@@ -107,16 +109,13 @@ abstract class RSA extends AsymmetricKey
      *
      * Although this method is not recommended it can none-the-less sometimes be useful if you're trying to decrypt some legacy
      * stuff, if you're trying to diagnose why an encrypted message isn't decrypting, etc.
+     *
+     * @access public
+     * @see self::encrypt()
+     * @see self::decrypt()
      */
     const ENCRYPTION_NONE = 4;
-    /**#@-*/
 
-    /**#@+
-     * @access public
-     * @see self::sign()
-     * @see self::verify()
-     * @see self::setHash()
-     */
     /**
      * Use the Probabilistic Signature Scheme for signing
      *
@@ -125,17 +124,30 @@ abstract class RSA extends AsymmetricKey
      * @see self::setSaltLength()
      * @see self::setMGFHash()
      * @see self::setHash()
+     * @see self::sign()
+     * @see self::verify()
+     * @see self::setHash()
+     * @access public
      */
     const SIGNATURE_PSS = 16;
     /**
      * Use a relaxed version of PKCS#1 padding for signature verification
+     *
+     * @see self::sign()
+     * @see self::verify()
+     * @see self::setHash()
+     * @access public
      */
     const SIGNATURE_RELAXED_PKCS1 = 32;
     /**
      * Use PKCS#1 padding for signature verification
+     *
+     * @see self::sign()
+     * @see self::verify()
+     * @see self::setHash()
+     * @access public
      */
     const SIGNATURE_PKCS1 = 64;
-    /**#@-*/
 
     /**
      * Encryption padding mode

@@ -48,15 +48,26 @@ use phpseclib3\Math\PrimeField;
  */
 class Hash
 {
-    /**#@+
+    /**
      * Padding Types
      *
      * @access private
      */
     //const PADDING_KECCAK = 1;
+
+    /**
+     * Padding Types
+     *
+     * @access private
+     */
     const PADDING_SHA3 = 2;
+
+    /**
+     * Padding Types
+     *
+     * @access private
+     */
     const PADDING_SHAKE = 3;
-    /**#@-*/
 
     /**
      * Padding Type

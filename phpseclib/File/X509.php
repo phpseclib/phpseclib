@@ -62,54 +62,76 @@ class X509
      */
     const VALIDATE_SIGNATURE_BY_CA = 1;
 
-    /**#@+
-     * @access public
-     * @see \phpseclib3\File\X509::getDN()
-    */
     /**
      * Return internal array representation
+     *
+     * @access public
+     * @see \phpseclib3\File\X509::getDN()
      */
     const DN_ARRAY = 0;
     /**
      * Return string
+     *
+     * @access public
+     * @see \phpseclib3\File\X509::getDN()
      */
     const DN_STRING = 1;
     /**
      * Return ASN.1 name string
+     *
+     * @access public
+     * @see \phpseclib3\File\X509::getDN()
      */
     const DN_ASN1 = 2;
     /**
      * Return OpenSSL compatible array
+     *
+     * @access public
+     * @see \phpseclib3\File\X509::getDN()
      */
     const DN_OPENSSL = 3;
     /**
      * Return canonical ASN.1 RDNs string
+     *
+     * @access public
+     * @see \phpseclib3\File\X509::getDN()
      */
     const DN_CANON = 4;
     /**
      * Return name hash for file indexing
+     *
+     * @access public
+     * @see \phpseclib3\File\X509::getDN()
      */
     const DN_HASH = 5;
-    /**#@-*/
 
-    /**#@+
-     * @access public
-     * @see \phpseclib3\File\X509::saveX509()
-     * @see \phpseclib3\File\X509::saveCSR()
-     * @see \phpseclib3\File\X509::saveCRL()
-    */
     /**
      * Save as PEM
      *
      * ie. a base64-encoded PEM with a header and a footer
+     *
+     * @access public
+     * @see \phpseclib3\File\X509::saveX509()
+     * @see \phpseclib3\File\X509::saveCSR()
+     * @see \phpseclib3\File\X509::saveCRL()
      */
     const FORMAT_PEM = 0;
     /**
      * Save as DER
+     *
+     * @access public
+     * @see \phpseclib3\File\X509::saveX509()
+     * @see \phpseclib3\File\X509::saveCSR()
+     * @see \phpseclib3\File\X509::saveCRL()
      */
     const FORMAT_DER = 1;
     /**
      * Save as a SPKAC
+     *
+     * @access public
+     * @see \phpseclib3\File\X509::saveX509()
+     * @see \phpseclib3\File\X509::saveCSR()
+     * @see \phpseclib3\File\X509::saveCRL()
      *
      * Only works on CSRs. Not currently supported.
      */
@@ -118,9 +140,13 @@ class X509
      * Auto-detect the format
      *
      * Used only by the load*() functions
+     *
+     * @access public
+     * @see \phpseclib3\File\X509::saveX509()
+     * @see \phpseclib3\File\X509::saveCSR()
+     * @see \phpseclib3\File\X509::saveCRL()
      */
     const FORMAT_AUTO_DETECT = 3;
-    /**#@-*/
 
     /**
      * Attribute value disposition.
