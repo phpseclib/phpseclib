@@ -33,38 +33,48 @@ use phpseclib3\Exception\UnsupportedFormatException;
  */
 abstract class MSBLOB
 {
-    /**#@+
-     * @access private
-     */
     /**
      * Public/Private Key Pair
+     *
+     * @access private
      */
     const PRIVATEKEYBLOB = 0x7;
     /**
      * Public Key
+     *
+     * @access private
      */
     const PUBLICKEYBLOB = 0x6;
     /**
      * Public Key
+     *
+     * @access private
      */
     const PUBLICKEYBLOBEX = 0xA;
     /**
      * RSA public key exchange algorithm
+     *
+     * @access private
      */
     const CALG_RSA_KEYX = 0x0000A400;
     /**
      * RSA public key exchange algorithm
+     *
+     * @access private
      */
     const CALG_RSA_SIGN = 0x00002400;
     /**
      * Public Key
+     *
+     * @access private
      */
     const RSA1 = 0x31415352;
     /**
      * Private Key
+     *
+     * @access private
      */
     const RSA2 = 0x32415352;
-    /**#@-*/
 
     /**
      * Break a public or private key down into its constituent components

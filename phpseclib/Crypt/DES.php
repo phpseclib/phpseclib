@@ -54,20 +54,22 @@ use phpseclib3\Exception\BadModeException;
  */
 class DES extends BlockCipher
 {
-    /**#@+
+    /**
+     * Contains $keys[self::ENCRYPT]
+     *
      * @access private
      * @see \phpseclib3\Crypt\DES::setupKey()
      * @see \phpseclib3\Crypt\DES::processBlock()
      */
-    /**
-     * Contains $keys[self::ENCRYPT]
-     */
     const ENCRYPT = 0;
     /**
      * Contains $keys[self::DECRYPT]
+     *
+     * @access private
+     * @see \phpseclib3\Crypt\DES::setupKey()
+     * @see \phpseclib3\Crypt\DES::processBlock()
      */
     const DECRYPT = 1;
-    /**#@-*/
 
     /**
      * Block Length of the cipher

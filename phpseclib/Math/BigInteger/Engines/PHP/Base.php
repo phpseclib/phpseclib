@@ -26,20 +26,20 @@ use phpseclib3\Math\BigInteger\Engines\PHP;
  */
 abstract class Base extends PHP
 {
-    /**#@+
-     * @access private
-    */
     /**
      * Cache constants
      *
      * $cache[self::VARIABLE] tells us whether or not the cached data is still valid.
+     *
+     * @access private
      */
     const VARIABLE = 0;
     /**
      * $cache[self::DATA] contains the cached data.
+     *
+     * @access private
      */
     const DATA = 1;
-    /**#@-*/
 
     /**
      * Test for engine validity

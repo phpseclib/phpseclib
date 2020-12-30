@@ -28,9 +28,7 @@ use ParagonIE\ConstantTime\Hex;
  */
 class PHP32 extends PHP
 {
-    /**#@+
-     * Constants used by PHP.php
-     */
+    // Constants used by PHP.php
     const BASE = 26;
     const BASE_FULL = 0x4000000;
     const MAX_DIGIT = 0x3FFFFFF;

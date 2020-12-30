@@ -55,13 +55,17 @@ use phpseclib3\Crypt\Common\StreamCipher;
  */
 class RC4 extends StreamCipher
 {
-    /**#@+
+    /**
      * @access private
      * @see \phpseclib3\Crypt\RC4::_crypt()
-    */
+     */
     const ENCRYPT = 0;
+
+    /**
+     * @access private
+     * @see \phpseclib3\Crypt\RC4::_crypt()
+     */
     const DECRYPT = 1;
-    /**#@-*/
 
     /**
      * Key Length (in bytes)
