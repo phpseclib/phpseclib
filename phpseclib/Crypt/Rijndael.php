@@ -107,26 +107,28 @@ class Rijndael extends BlockCipher
     /**
      * The Block Length divided by 32
      *
+     * {@internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4.  Exists in conjunction with $block_size
+     *    because the encryption / decryption / key schedule creation requires this number and not $block_size.  We could
+     *    derive this from $block_size or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
+     *    of that, we'll just precompute it once.}
+     *
      * @see self::setBlockLength()
      * @var int
      * @access private
-     * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4.  Exists in conjunction with $block_size
-     *    because the encryption / decryption / key schedule creation requires this number and not $block_size.  We could
-     *    derive this from $block_size or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
-     *    of that, we'll just precompute it once.
      */
     private $Nb = 4;
 
     /**
      * The Key Length (in bytes)
      *
+     * {@internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
+     *    because the encryption / decryption / key schedule creation requires this number and not $key_length.  We could
+     *    derive this from $key_length or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
+     *    of that, we'll just precompute it once.}
+     *
      * @see self::setKeyLength()
      * @var int
      * @access private
-     * @internal The max value is 256 / 8 = 32, the min value is 128 / 8 = 16.  Exists in conjunction with $Nk
-     *    because the encryption / decryption / key schedule creation requires this number and not $key_length.  We could
-     *    derive this from $key_length or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
-     *    of that, we'll just precompute it once.
      */
     protected $key_length = 16;
 
@@ -143,9 +145,10 @@ class Rijndael extends BlockCipher
     /**
      * The Number of Rounds
      *
+     * {@internal The max value is 14, the min value is 10.}
+     *
      * @var int
      * @access private
-     * @internal The max value is 14, the min value is 10.
      */
     private $Nr;
 

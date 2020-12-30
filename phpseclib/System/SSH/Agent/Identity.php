@@ -3,6 +3,8 @@
 /**
  * Pure-PHP ssh-agent client.
  *
+ * {@internal See http://api.libssh.org/rfc/PROTOCOL.agent}
+ *
  * PHP version 5
  *
  * @category  System
@@ -11,7 +13,6 @@
  * @copyright 2009 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
- * @internal  See http://api.libssh.org/rfc/PROTOCOL.agent
  */
 
 namespace phpseclib3\System\SSH\Agent;

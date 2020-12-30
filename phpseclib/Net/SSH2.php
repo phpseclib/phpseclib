@@ -2100,14 +2100,15 @@ class SSH2
     /**
      * Login Helper
      *
+     * {@internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
+     *           by sending dummy SSH_MSG_IGNORE messages.}
+     *
      * @param string $username
      * @param string $password
      * @return bool
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @throws \RuntimeException on other errors
      * @access private
-     * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
-     *           by sending dummy SSH_MSG_IGNORE messages.
      */
     private function login_helper($username, $password = null)
     {
@@ -2403,13 +2404,14 @@ class SSH2
     /**
      * Login with an RSA private key
      *
+     * {@internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
+     *           by sending dummy SSH_MSG_IGNORE messages.}
+     *
      * @param string $username
      * @param \phpseclib3\Crypt\Common\PrivateKey $privatekey
      * @return bool
      * @throws \RuntimeException on connection error
      * @access private
-     * @internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
-     *           by sending dummy SSH_MSG_IGNORE messages.
      */
     private function privatekey_login($username, PrivateKey $privatekey)
     {

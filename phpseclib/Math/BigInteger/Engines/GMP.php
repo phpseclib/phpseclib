@@ -288,11 +288,12 @@ class GMP extends Engine
      *
      * Note how the same comparison operator is used.  If you want to test for equality, use $x->equals($y).
      *
+     * {@internal Could return $this->subtract($x), but that's not as fast as what we do do.}
+     *
      * @param GMP $y
      * @return int in case < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @access public
      * @see self::equals()
-     * @internal Could return $this->subtract($x), but that's not as fast as what we do do.
      */
     public function compare(GMP $y)
     {

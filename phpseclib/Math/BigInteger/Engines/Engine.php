@@ -257,9 +257,10 @@ abstract class Engine implements \Serializable
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      *
+     * {@internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=21 HAC 14.64} for more information.}
+     *
      * @param \phpseclib3\Math\BigInteger\Engines\Engine $n
      * @return \phpseclib3\Math\BigInteger\Engines\Engine|false
-     * @internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=21 HAC 14.64} for more information.
      */
     protected function modInverseHelper(Engine $n)
     {
@@ -952,9 +953,10 @@ abstract class Engine implements \Serializable
      *
      * Returns the nth root of a positive biginteger, where n defaults to 2
      *
+     * {@internal This function is based off of {@link http://mathforum.org/library/drmath/view/52605.html this page} and {@link http://stackoverflow.com/questions/11242920/calculating-nth-root-with-bcmath-in-php this stackoverflow question}.}
+     *
      * @param int $n
      * @return \phpseclib3\Math\BigInteger\Engines\Engine
-     * @internal This function is based off of {@link http://mathforum.org/library/drmath/view/52605.html this page} and {@link http://stackoverflow.com/questions/11242920/calculating-nth-root-with-bcmath-in-php this stackoverflow question}.
      */
     protected function rootInner($n)
     {
