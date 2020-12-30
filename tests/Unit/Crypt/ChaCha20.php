@@ -25,7 +25,7 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
         $expected = str_replace(' ', '', $expected);
         $expected = pack('H*', $expected);
 
-        $engines = ['PHP', OpenSSL', 'libsodium'];
+        $engines = ['PHP', 'OpenSSL', 'libsodium'];
         for ($engines as $engine) {
             $c = new ChaCha20();
             $c->setKey($key);
