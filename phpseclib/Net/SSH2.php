@@ -2552,7 +2552,7 @@ class SSH2
      *
      * Sends an SSH2_MSG_IGNORE message every x seconds, if x is a positive non-zero number.
      *
-     * @param mixed $timeout
+     * @param int $interval
      * @access public
      */
     function setKeepAlive($interval)
