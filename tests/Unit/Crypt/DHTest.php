@@ -19,11 +19,11 @@ class Unit_Crypt_DHTest extends PhpseclibTestCase
     {
         $a = DH::createParameters('diffie-hellman-group1-sha1');
         $a = str_replace("\r\n", "\n", trim($a));
-        $b = '-----BEGIN DH PARAMETERS-----
+        $b = str_replace("\r\n", "\n", '-----BEGIN DH PARAMETERS-----
 MIGHAoGBAP//////////yQ/aoiFowjTExmKLgNwc0SkCTgiKZ8x0Agu+pjsTmyJR
 Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
 /1y29Aa37e44a/taiZ+lrp8kEXxLH+ZJKGZR7OZTgf//////////AgEC
------END DH PARAMETERS-----';
+-----END DH PARAMETERS-----');
         $this->assertSame($b, "$a");
     }
 
@@ -43,11 +43,11 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
         $base = new BigInteger(2);
         $a = DH::createParameters($prime, $base);
         $a = str_replace("\r\n", "\n", trim($a));
-        $b = '-----BEGIN DH PARAMETERS-----
+        $b = str_replace("\r\n", "\n", '-----BEGIN DH PARAMETERS-----
 MIGHAoGBAP//////////yQ/aoiFowjTExmKLgNwc0SkCTgiKZ8x0Agu+pjsTmyJR
 Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
 /1y29Aa37e44a/taiZ+lrp8kEXxLH+ZJKGZR7OZTgf//////////AgEC
------END DH PARAMETERS-----';
+-----END DH PARAMETERS-----');
         $this->assertSame($b, "$a");
     }
 
