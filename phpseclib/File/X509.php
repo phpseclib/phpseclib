@@ -42,6 +42,7 @@ use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\File\ASN1\Element;
 use phpseclib3\File\ASN1\Maps;
+use phpseclib3\File\Traits\Extensions;
 use phpseclib3\Math\BigInteger;
 
 /**
@@ -53,6 +54,8 @@ use phpseclib3\Math\BigInteger;
  */
 class X509
 {
+    use Extensions;
+
     /**
      * Flag to only accept signatures signed by certificate authorities
      *
@@ -558,6 +561,10 @@ class X509
         $filters['distributionPoint']['fullName']['directoryName']['rdnSequence']['value'] = $type_utf8_string;
         $filters['directoryName']['rdnSequence']['value'] = $type_utf8_string;
 
+        foreach (self::$extensions as $extension) {
+            $filters['tbsCertificate']['extensions'][] = $extension;
+        }
+
         /* in the case of policyQualifiers/qualifier, the type has to be \phpseclib3\File\ASN1::TYPE_IA5_STRING.
            \phpseclib3\File\ASN1::TYPE_PRINTABLE_STRING will cause OpenSSL's X.509 parser to spit out random
            characters.
@@ -641,6 +648,13 @@ class X509
      */
     private function mapOutExtensions(&$root, $path)
     {
+        foreach ($this->extensionValues as $id => $value) {
+            $root['tbsCertificate']['extensions'][] = [
+                'extnId' => $id,
+                'extnValue' => $value,
+            ];
+        }
+
         $extensions = &$this->subArray($root, $path);
 
         if (is_array($extensions)) {
@@ -848,6 +862,10 @@ class X509
     {
         if (!is_string($extnId)) { // eg. if it's a \phpseclib3\File\ASN1\Element object
             return true;
+        }
+
+        if (isset(self::$extensions[$extnId])) {
+            return self::$extensions[$extnId];
         }
 
         switch ($extnId) {
