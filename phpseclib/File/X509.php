@@ -3061,7 +3061,7 @@ class X509
 
           -- http://tools.ietf.org/html/rfc5280#section-4.1.2.5
         */
-        if (strtolower($date) == 'lifetime') {
+        if (is_string($date) && strtolower($date) === 'lifetime') {
             $temp = '99991231235959Z';
             $temp = chr(ASN1::TYPE_GENERALIZED_TIME) . ASN1::encodeLength(strlen($temp)) . $temp;
             $this->endDate = new Element($temp);
