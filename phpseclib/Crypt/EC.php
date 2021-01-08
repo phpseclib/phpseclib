@@ -161,13 +161,15 @@ abstract class EC extends AsymmetricKey
         $privatekey = new PrivateKey;
 
         $curveName = $curve;
-        $curve = '\phpseclib3\Crypt\EC\Curves\\' . $curveName;
-        if (!class_exists($curve)) {
+        if (preg_match('#(?:^curve|^ed)\d+$#', $curveName)) {
             $curveName = ucfirst($curveName);
-            $curve = '\phpseclib3\Crypt\EC\Curves\\' . $curveName;
-            if (!class_exists($curve)) {
-                throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported');
-            }
+        } elseif (substr($curveName, 0, 10) == 'brainpoolp') {
+            $curveName = 'brainpoolP' . substr($curveName, 10);
+        }
+        $curve = '\phpseclib3\Crypt\EC\Curves\\' . $curveName;
+
+        if (!class_exists($curve)) {
+            throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported');
         }
 
         $reflect = new \ReflectionClass($curve);
