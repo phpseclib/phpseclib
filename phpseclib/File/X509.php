@@ -5054,9 +5054,12 @@ class X509
          * subject=/O=organization/OU=org unit/CN=common name
          * issuer=/O=organization/CN=common name
          */
-        $temp = strlen($str) <= ini_get('pcre.backtrack_limit') ?
-            preg_replace('#.*?^-+[^-]+-+[\r\n ]*$#ms', '', $str, 1) :
-            $str;
+        if (strlen($str) > ini_get('pcre.backtrack_limit')) {
+            $temp = $str;
+        } else {
+            $temp = preg_replace('#.*?^-+[^-]+-+[\r\n ]*$#ms', '', $str, 1);
+            $temp = preg_replace('#-+END.*[\r\n ]*.*#ms', '', $str, 1);
+        }
         // remove new lines
         $temp = str_replace(array("\r", "\n", ' '), '', $temp);
         // remove the -----BEGIN CERTIFICATE----- and -----END CERTIFICATE----- stuff
