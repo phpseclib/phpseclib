@@ -1174,6 +1174,6 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
         $x509 = new X509();
         $r = $x509->loadX509($a);
 
-        $this->assertFalse($r);
+        $this->assertIsArray($r);
     }
 }
