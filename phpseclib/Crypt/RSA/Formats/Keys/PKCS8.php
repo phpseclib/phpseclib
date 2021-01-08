@@ -79,11 +79,27 @@ abstract class PKCS8 extends Progenitor
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
-        $components = ['isPublicKey' => strpos($key, 'PUBLIC') !== false];
+        if (strpos($key, 'PUBLIC') !== false) {
+            $components = ['isPublicKey' => true];
+        } elseif (strpos($key, 'PRIVATE') !== false) {
+            $components = ['isPublicKey' => false];
+        } else {
+            $components = [];
+        }
 
         $key = parent::load($key, $password);
 
-        $type = isset($key['privateKey']) ? 'private' : 'public';
+        if (isset($key['privateKey'])) {
+            if (!isset($components['isPublicKey'])) {
+                $components['isPublicKey'] = false;
+            }
+            $type = 'private';
+        } else {
+            if (!isset($components['isPublicKey'])) {
+                $components['isPublicKey'] = true;
+            }
+            $type = 'public';
+        }
 
         $result = $components + PKCS1::load($key[$type . 'Key']);
 

@@ -53,7 +53,13 @@ abstract class PKCS1 extends Progenitor
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
-        $components = ['isPublicKey' => strpos($key, 'PUBLIC') !== false];
+        if (strpos($key, 'PUBLIC') !== false) {
+            $components = ['isPublicKey' => true];
+        } elseif (strpos($key, 'PRIVATE') !== false) {
+            $components = ['isPublicKey' => false];
+        } else {
+            $components = [];
+        }
 
         $key = parent::load($key, $password);
 
@@ -79,6 +85,9 @@ abstract class PKCS1 extends Progenitor
                     $components['coefficients'][] = $primeInfo['coefficient'];
                 }
             }
+            if (!isset($components['isPublicKey'])) {
+                $components['isPublicKey'] = false;
+            }
             return $components;
         }
 
@@ -86,6 +95,10 @@ abstract class PKCS1 extends Progenitor
 
         if (!is_array($key)) {
             throw new \RuntimeException('Unable to perform ASN1 mapping');
+        }
+
+        if (!isset($components['isPublicKey'])) {
+            $components['isPublicKey'] = true;
         }
 
         return $components + $key;
