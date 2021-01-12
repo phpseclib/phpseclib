@@ -826,7 +826,7 @@ abstract class ASN1
      *
      * "Special" mappings can be applied via $special.
      *
-     * @param string $source
+     * @param Element|string|array $source
      * @param array $mapping
      * @param array $special
      * @return string
@@ -841,7 +841,7 @@ abstract class ASN1
     /**
      * ASN.1 Encode (Helper function)
      *
-     * @param string $source
+     * @param Element|string|array $source
      * @param array $mapping
      * @param int $idx
      * @param array $special
