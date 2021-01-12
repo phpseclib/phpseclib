@@ -15,8 +15,8 @@
 
 namespace phpseclib3\Crypt;
 
+use phpseclib3\Crypt\Common\AsymmetricKey;
 use phpseclib3\Exception\NoKeyLoadedException;
-use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\File\X509;
 
 /**
