@@ -2636,7 +2636,7 @@ class SSH2
                 $this->_updateLogHistory('UNKNOWN (60)', 'NET_SSH2_MSG_USERAUTH_PK_OK');
                 break;
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
-                $this->bitmap |= NET_SSH2_MASK_LOGIN;
+                $this->bitmap |= self::MASK_LOGIN;
                 return true;
             default:
                 user_error('Unexpected response to publickey authentication pt 1');
