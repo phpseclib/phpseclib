@@ -2509,6 +2509,13 @@ class SSH2
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
                 $this->updateLogHistory('UNKNOWN (60)', 'NET_SSH2_MSG_USERAUTH_PK_OK');
+                break;
+            case NET_SSH2_MSG_USERAUTH_SUCCESS:
+                $this->bitmap |= self::MASK_LOGIN;
+                return true;
+            default:
+                $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
+                throw new ConnectionClosedException('Unexpected response to publickey authentication pt 1');
         }
 
         $packet = $part1 . chr(1) . $part2;
@@ -2537,7 +2544,8 @@ class SSH2
                 return true;
         }
 
-        return false;
+        $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
+        throw new ConnectionClosedException('Unexpected response to publickey authentication pt 2');
     }
 
     /**
