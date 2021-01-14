@@ -87,6 +87,9 @@ class PublicKey extends RSA implements Common\PublicKey
 
         $s = $this->os2ip($s);
         $m2 = $this->rsavp1($s);
+        if ($m2 === false) {
+            return false;
+        }
         $em = $this->i2osp($m2, $this->k);
         if ($em === false) {
             return false;
@@ -400,7 +403,7 @@ class PublicKey extends RSA implements Common\PublicKey
     private function rsaep($m)
     {
         if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
-            return false;
+            throw new \OutOfRangeException('Message representative out of range');
         }
         return $this->exponentiate($m);
     }
