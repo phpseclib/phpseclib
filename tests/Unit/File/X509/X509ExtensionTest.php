@@ -21,12 +21,7 @@ class Unit_File_X509_X509ExtensionTest extends PhpseclibTestCase
         ];
         $customExtensionName = 'cust';
         $customExtensionNumber = '2.16.840.1.101.3.4.2.99';
-
-        ASN1::loadOIDs([
-            $customExtensionName => $customExtensionNumber,
-        ]);
-
-        X509::registerExtension($customExtensionName, [
+        $customExtensionMapping = [
             'type' => ASN1::TYPE_SEQUENCE,
             'children' => [
                 'toggle' => ['type' => ASN1::TYPE_BOOLEAN],
@@ -39,7 +34,13 @@ class Unit_File_X509_X509ExtensionTest extends PhpseclibTestCase
                     'children' => ['type' => ASN1::TYPE_OCTET_STRING],
                 ],
             ],
+        ];
+
+        ASN1::loadOIDs([
+            $customExtensionName => $customExtensionNumber,
         ]);
+
+        X509::registerExtension($customExtensionName, $customExtensionMapping);
 
         $privateKey = RSA::createKey();
 
@@ -79,5 +80,38 @@ class Unit_File_X509_X509ExtensionTest extends PhpseclibTestCase
         $this->assertSame('3', (string) $customExtensionDecodedData['num']);
         $this->assertSame('Johnny', $customExtensionDecodedData['name']);
         $this->assertSame(['foo', 'bar'], $customExtensionDecodedData['list']);
+        $this->assertSame($customExtensionMapping, X509::getRegisteredExtension($customExtensionName));
+    }
+
+    public function testCustomExtensionRegisterTwiceTheSame()
+    {
+        $customExtensionMapping = [
+            'type' => ASN1::TYPE_SEQUENCE,
+            'children' => [
+                'toggle' => ['type' => ASN1::TYPE_BOOLEAN],
+                'num' => ['type' => ASN1::TYPE_INTEGER],
+                'name' => ['type' => ASN1::TYPE_OCTET_STRING],
+                'list' => [
+                    'type' => ASN1::TYPE_SEQUENCE,
+                    'min' => 0,
+                    'max' => -1,
+                    'children' => ['type' => ASN1::TYPE_OCTET_STRING],
+                ],
+            ],
+        ];
+
+        X509::registerExtension('foo', $customExtensionMapping);
+        X509::registerExtension('foo', $customExtensionMapping);
+
+        $this->assertSame($customExtensionMapping, X509::getRegisteredExtension('foo'));
+    }
+
+    public function testCustomExtensionRegisterConflict()
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Extension bar has already been defined with a different mapping.');
+
+        X509::registerExtension('bar', ['type' => ASN1::TYPE_OCTET_STRING]);
+        X509::registerExtension('bar', ['type' => ASN1::TYPE_ANY]);
     }
 }

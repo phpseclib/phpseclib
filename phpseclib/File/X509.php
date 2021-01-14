@@ -54,8 +54,6 @@ use phpseclib3\Math\BigInteger;
  */
 class X509
 {
-    use Extensions;
-
     /**
      * Flag to only accept signatures signed by certificate authorities
      *
@@ -271,6 +269,12 @@ class X509
     private $challenge;
 
     /**
+     * @var array
+     * @access private
+     */
+    private $extensionValues = [];
+
+    /**
      * OIDs loaded
      *
      * @var bool
@@ -293,6 +297,12 @@ class X509
      * @access private
      */
     private static $disable_url_fetch = false;
+
+    /**
+     * @var array
+     * @access private
+     */
+    private static $extensions = [];
 
     /**
      * Default Constructor.
@@ -4013,5 +4023,45 @@ class X509
         }
 
         return false;
+    }
+
+    /**
+     * Register the mapping for a custom/unsupported extension.
+     *
+     * @param string $id
+     * @param array $mapping
+     */
+    public static function registerExtension($id, array $mapping)
+    {
+        if (isset(self::$extensions[$id]) && self::$extensions[$id] !== $mapping) {
+            throw new \RuntimeException(
+                'Extension ' . $id . ' has already been defined with a different mapping.'
+            );
+        }
+
+        self::$extensions[$id] = $mapping;
+    }
+
+    /**
+     * Register the mapping for a custom/unsupported extension.
+     *
+     * @param string $id
+     *
+     * @return array|null
+     */
+    public static function getRegisteredExtension($id)
+    {
+        return isset(self::$extensions[$id]) ? self::$extensions[$id] : null;
+    }
+
+    /**
+     * Register the mapping for a custom/unsupported extension.
+     *
+     * @param string $id
+     * @param mixed $value
+     */
+    public function setExtensionValue($id, $value)
+    {
+        $this->extensionValues[$id] = $value;
     }
 }
