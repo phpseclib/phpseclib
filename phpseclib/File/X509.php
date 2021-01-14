@@ -42,7 +42,6 @@ use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\File\ASN1\Element;
 use phpseclib3\File\ASN1\Maps;
-use phpseclib3\File\Traits\Extensions;
 use phpseclib3\Math\BigInteger;
 
 /**
