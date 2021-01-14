@@ -481,7 +481,7 @@ abstract class RSA extends AsymmetricKey
         }
         $x = $x->toBytes();
         if (strlen($x) > $xLen) {
-            return false;
+            throw new \OutOfRangeException('Resultant string length out of range');
         }
         return str_pad($x, $xLen, chr(0), STR_PAD_LEFT);
     }

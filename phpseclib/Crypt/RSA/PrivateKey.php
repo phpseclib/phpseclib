@@ -79,7 +79,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
     private function rsadp($c)
     {
         if ($c->compare(self::$zero) < 0 || $c->compare($this->modulus) > 0) {
-            return false;
+            throw new \OutOfRangeException('Ciphertext representative out of range');
         }
         return $this->exponentiate($c);
     }
@@ -96,7 +96,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
     private function rsasp1($m)
     {
         if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
-            return false;
+            throw new \OutOfRangeException('Signature representative out of range');
         }
         return $this->exponentiate($m);
     }
@@ -224,7 +224,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
 
         $mHash = $this->hash->hash($m);
         if ($emLen < $this->hLen + $sLen + 2) {
-            return false;
+            throw new \LengthException('RSA modulus too short');
         }
 
         $salt = Random::string($sLen);
@@ -333,7 +333,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
         // Length checking
 
         if (strlen($c) != $this->k) { // or if k < 11
-            return false;
+            throw new \LengthException('Ciphertext representative too long');
         }
 
         // RSA decryption
@@ -341,21 +341,18 @@ class PrivateKey extends RSA implements Common\PrivateKey
         $c = $this->os2ip($c);
         $m = $this->rsadp($c);
         $em = $this->i2osp($m, $this->k);
-        if ($em === false) {
-            return false;
-        }
 
         // EME-PKCS1-v1_5 decoding
 
         if (ord($em[0]) != 0 || ord($em[1]) > 2) {
-            return false;
+            throw new \RuntimeException('Decryption error');
         }
 
         $ps = substr($em, 2, strpos($em, chr(0), 2) - 2);
         $m = substr($em, strlen($ps) + 3);
 
         if (strlen($ps) < 8) {
-            return false;
+            throw new \RuntimeException('Decryption error');
         }
 
         // Output M
@@ -389,7 +386,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
         // be output.
 
         if (strlen($c) != $this->k || $this->k < 2 * $this->hLen + 2) {
-            return false;
+            throw new \LengthException('Ciphertext representative too long');
         }
 
         // RSA decryption
@@ -397,9 +394,6 @@ class PrivateKey extends RSA implements Common\PrivateKey
         $c = $this->os2ip($c);
         $m = $this->rsadp($c);
         $em = $this->i2osp($m, $this->k);
-        if ($em === false) {
-            return false;
-        }
 
         // EME-OAEP decoding
 
@@ -426,7 +420,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
         // we do & instead of && to avoid https://en.wikipedia.org/wiki/Short-circuit_evaluation
         // to protect against timing attacks
         if (!$hashesMatch & !$patternMatch) {
-            return false;
+            throw new \RuntimeException('Decryption error');
         }
 
         // Output the message M
@@ -447,7 +441,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
     private function raw_encrypt($m)
     {
         if (strlen($m) > $this->k) {
-            throw new \LengthException('Message too long');
+            throw new \LengthException('Ciphertext representative too long');
         }
 
         $temp = $this->os2ip($m);
@@ -486,7 +480,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
     {
         $type = self::validatePlugin('Keys', 'PKCS8', 'savePublicKey');
         if (empty($this->modulus) || empty($this->publicExponent)) {
-            return false;
+            throw new \RuntimeException('Public key components not found');
         }
 
         $key = $type::savePublicKey($this->modulus, $this->publicExponent);
