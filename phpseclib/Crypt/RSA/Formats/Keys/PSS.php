@@ -120,11 +120,16 @@ abstract class PSS extends Progenitor
 
         $result = $components + PKCS1::load($key[$type . 'Key']);
 
-        $decoded = ASN1::decodeBER($key[$type . 'KeyAlgorithm']['parameters']);
-        if ($decoded === false) {
-            throw new \UnexpectedValueException('Unable to decode parameters');
+        if (isset($key[$type . 'KeyAlgorithm']['parameters'])) {
+            $decoded = ASN1::decodeBER($key[$type . 'KeyAlgorithm']['parameters']);
+            if ($decoded === false) {
+                throw new \UnexpectedValueException('Unable to decode parameters');
+            }
+            $params = ASN1::asn1map($decoded[0], Maps\RSASSA_PSS_params::MAP);
+        } else {
+            $params = [];
         }
-        $params = ASN1::asn1map($decoded[0], Maps\RSASSA_PSS_params::MAP);
+
         if (isset($params['maskGenAlgorithm']['parameters'])) {
             $decoded = ASN1::decodeBER($params['maskGenAlgorithm']['parameters']);
             if ($decoded === false) {
@@ -144,7 +149,11 @@ abstract class PSS extends Progenitor
 
         $result['hash'] = str_replace('id-', '', $params['hashAlgorithm']['algorithm']);
         $result['MGFHash'] = str_replace('id-', '', $params['maskGenAlgorithm']['parameters']['algorithm']);
-        $result['saltLength'] = (int) $params['saltLength']->toString();
+        if (isset($params['saltLength'])) {
+            $result['saltLength'] = (int) $params['saltLength']->toString();
+        } else {
+            $result['saltLength'] = 20;
+        }
 
         if (isset($key['meta'])) {
             $result['meta'] = $key['meta'];
