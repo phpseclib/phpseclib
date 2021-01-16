@@ -512,7 +512,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
                 $options+= [
                     'hash' => $this->hash->getHash(),
                     'MGFHash' => $this->mgfHash->getHash(),
-                    'saltLength' => $this->sLen
+                    'saltLength' => $this->getSaltLength()
                 ];
             } else {
                 throw new UnsupportedFormatException('The PSS format can only be used when the signature method has been explicitly set to PSS');
