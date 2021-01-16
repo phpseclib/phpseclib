@@ -227,6 +227,64 @@ ZQIDAQAB
         $this->assertFalse($rsa->getPrivateKey());
     }
 
+    public function testPubKeyPssWithoutParams()
+    {
+        $rsa = new Crypt_RSA();
+
+        // extracted from a SubjectPublicKeyInfo of a CSR created by OpenSSL
+        $key = '-----BEGIN PUBLIC KEY-----
+MIIBIDALBgkqhkiG9w0BAQoDggEPADCCAQoCggEBANHPPf5tjTmEHtQvzi6+rItj
+G3OUvh6Nihc9bXSu0xNFjl/9TdyIXstRUG/Lh07isHgZFEfXn4pmm/iZIQh09ACg
+TjEau8rpcLB0BS9dDgTh8hvgkbdxWR2UPxk34bFcdgIplckslAfB4+/ebL+ObvUa
+W3sZosTq3D6/qh0fujGZg/EKLJcNCHI27XMiAT5yWztSjHWwQm7LBwJ5uKlFLEDC
+Z/+LIV/vPEIMfE6lA/+OnLKwVFB540eXQPuWar1ARHXN8PpiCqJHanddYMA5l/Cw
+5R7kJ+CBoHzaPePXjB9V1bfzEBzBHb2ddiSjum+qtLWuH0Q7B8gPX9EjxIwuCzMC
+AwEAAQ==
+-----END PUBLIC KEY-----';
+
+        $this->assertTrue($rsa->loadKey($key));
+        $this->assertIsString($rsa->getPublicKey());
+        $this->assertFalse($rsa->getPrivateKey());
+    }
+
+    public function testPrivateKeyPssWithoutParams()
+    {
+        $rsa = new Crypt_RSA();
+
+        $key = '-----BEGIN PRIVATE KEY-----
+MIIEugIBADALBgkqhkiG9w0BAQoEggSmMIIEogIBAAKCAQEA0c89/m2NOYQe1C/O
+Lr6si2Mbc5S+Ho2KFz1tdK7TE0WOX/1N3Ihey1FQb8uHTuKweBkUR9efimab+Jkh
+CHT0AKBOMRq7yulwsHQFL10OBOHyG+CRt3FZHZQ/GTfhsVx2AimVySyUB8Hj795s
+v45u9RpbexmixOrcPr+qHR+6MZmD8Qoslw0IcjbtcyIBPnJbO1KMdbBCbssHAnm4
+qUUsQMJn/4shX+88Qgx8TqUD/46csrBUUHnjR5dA+5ZqvUBEdc3w+mIKokdqd11g
+wDmX8LDlHuQn4IGgfNo949eMH1XVt/MQHMEdvZ12JKO6b6q0ta4fRDsHyA9f0SPE
+jC4LMwIDAQABAoIBAFPuTMWAO7Obh92oNhn7CvlDr1KgWSHNy0UavLOl0ChwddEu
+erxTDWDWaZAfYkSLaL7SgYtv1ZG/FHvxfgZtCsNJXZ5FLISyt/LOpthYqGgJnxnJ
+z2EMBfNQP6Gt+ipCa67XxeTRYXJs/OsTFnvW1cpVPe1TxwpxTaQIdlvqOkjmgCci
+TRzH+Acj8unWDHAJpQkCOvmi+25sE0BMQYWnsfMSzm63Yk3SeZLIJKqoUdZhYMZU
+6FK2DMDNR4TZps7s50MFlZfUUJfzgb4Hb4miiKzLPhf4q7rxS4VzrvUQ/81ySCwi
+1LaSw5HoH1YMDT6rwcHMwHhzhu8X2CKlNIrri8ECgYEA7aiZAxmlY28LWcXHqqhZ
+Yky76vLy/mbs0TfAVK2pSqyFhaGZe5daAJSIrVcZEEgAwR6/ZLITTWBuGdsHw6vF
+GtSvkElLhopmQEs73kKqeBFLhpTqYXYVW0txi3jdWElie8fZa/Oa/sFLEeNsibQu
+fbVWWGakf9458FDuR0i2k+ECgYEA4gBu2u6xkJzqOzOjBg5tNhxmzcPyt4Ds3ryA
+e+C5hVCotd1EX6HZRPYjLEys0yUhiXDAn7ViEdtiXt9RYfpK+OKLGeTZ7pMCyZW+
+Yhc0i2XYqWSKUH3iNonp8B0JSkfEQBY2KlA7b5YZQZkr/Ml/WtoKeicHLBcdVxqa
+t7krQZMCgYBMU7GQxVPQs4E5u8N8k8ThRTO1KYHRIs08BGPIzl1oli/r0xKwFtPZ
+C9s5kJeEGxvi6jUd6fM5DpdNxoKf3TLYgyY/eMrA0wIz8/WuVErbdPKErp733izN
+vVUiLhcom6j9iBnUCdDlsL6jaB8burqTtQGeMpjyWDTTcaqVSk0ZAQKBgCqc1EoZ
+eYd/3rZc7R8mNzddsZCYorow5/izaDJzU+esJrNrzgmOFc5n7ofayTdip+knRlqW
+s7AUQn8K8mhb7ijxZjLysJjIRV1HC8epAnJKOMjvuRimM7H+3Qo2H1tPHtTKm1nt
+GNfYYFi7Dc0zHP0/YXxYwYRxs0mKLaP4mQxbAoGARHngPhGC0yM5KqxNrkHPVjLq
+CHQy+e9GTPXtDLC3D7HAYyyzKqy4mdBDzMeLqA3a+iT2PXjn4w5zOEW8GAcRYRtG
+3EyvclPmWtmCpU5xqD8ieFtQhMeW/XzJHjTXlcncz0PCkGVoQiuRvXWNAukNPg0D
+BocC2CO6SNi4Qjr3NlM=
+-----END PRIVATE KEY-----';
+
+        $this->assertTrue($rsa->loadKey($key));
+        $this->assertIsString($rsa->getPublicKey());
+        $this->assertIsString($rsa->getPrivateKey());
+    }
+
     public function testSSHPubKey()
     {
         $rsa = new RSA();
