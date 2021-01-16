@@ -247,7 +247,7 @@ ZQIDAQAB
     }
 
 
-    public function testPubKeyDssWithoutParams()
+    public function testPubKeyPssWithoutParams()
     {
         // extracted from a SubjectPublicKeyInfo of a CSR created by OpenSSL
         $key = '-----BEGIN PUBLIC KEY-----
@@ -267,7 +267,7 @@ AwEAAQ==
         $this->assertIsString("$rsa");
     }
 
-    public function testPrivateKeyDssWithoutParams()
+    public function testPrivateKeyPssWithoutParams()
     {
         $key = '-----BEGIN PRIVATE KEY-----
 MIIEugIBADALBgkqhkiG9w0BAQoEggSmMIIEogIBAAKCAQEA0c89/m2NOYQe1C/O
