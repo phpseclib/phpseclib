@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.0.3 - 2021-01-16
+
+- X509: passing DateTime objects to setEndDate produced errors (#1578)
+- X509: always parse the first cert of a bundle (#1568)
+- X509: streamline the management of custom extensions (#1573)
+- EC: fix case sensitivity errors when using Symfony autoloader (#1570)
+- RSA: improve identification of public / private PKCS1 / PKCS8 keys (#1579)
+- RSA: add support for PSS keys that don't have parameters present (#1583)
+- RSA: tweaks to how the salt length works
+- RSA: throw exceptions instead of returning false
+- SSH2: behave like putty with broken publickey auth (#1572)
+
 ## 3.0.2 - 2020-12-24
 
 - EC/PKCS1: throw exception when trying to load non-strings (#1559)
