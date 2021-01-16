@@ -227,7 +227,7 @@ ZQIDAQAB
         $this->assertFalse($rsa->getPrivateKey());
     }
 
-    public function testPubKeyDssWithoutParams()
+    public function testPubKeyPssWithoutParams()
     {
         $rsa = new RSA();
 
@@ -247,7 +247,7 @@ AwEAAQ==
         $this->assertFalse($rsa->getPrivateKey());
     }
 
-    public function testPrivateKeyDssWithoutParams()
+    public function testPrivateKeyPssWithoutParams()
     {
         $rsa = new RSA();
 
