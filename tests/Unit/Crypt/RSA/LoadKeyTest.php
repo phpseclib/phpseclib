@@ -229,7 +229,7 @@ ZQIDAQAB
 
     public function testPubKeyPssWithoutParams()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new RSA();
 
         // extracted from a SubjectPublicKeyInfo of a CSR created by OpenSSL
         $key = '-----BEGIN PUBLIC KEY-----
@@ -249,7 +249,7 @@ AwEAAQ==
 
     public function testPrivateKeyPssWithoutParams()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new RSA();
 
         $key = '-----BEGIN PRIVATE KEY-----
 MIIEugIBADALBgkqhkiG9w0BAQoEggSmMIIEogIBAAKCAQEA0c89/m2NOYQe1C/O
