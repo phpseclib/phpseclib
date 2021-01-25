@@ -1139,7 +1139,7 @@ abstract class Engine implements \Serializable
      * Splits BigInteger's into chunks of $split bits
      *
      * @param int $split
-     * @return \phpseclib3\Math\BigInteger\Engine[]
+     * @return \phpseclib3\Math\BigInteger\Engines\Engine[]
      */
     public function bitwise_split($split)
     {

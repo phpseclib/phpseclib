@@ -40,7 +40,7 @@ class Binary extends Base
     /**
      * Binary Field Integer factory
      *
-     * @var \phpseclib3\Math\BinaryFields
+     * @var \phpseclib3\Math\BinaryField
      */
     protected $factory;
 
