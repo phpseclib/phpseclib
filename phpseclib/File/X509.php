@@ -43,6 +43,7 @@ use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\File\ASN1\Element;
 use phpseclib3\File\ASN1\Maps;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Crypt\PublicKeyLoader;
 
 /**
  * Pure-PHP X.509 Parser
@@ -3690,14 +3691,11 @@ class X509
                     return false;
                 }
                 // If the key is private, compute identifier from its corresponding public key.
-                $key = new RSA();
-                if (!$key->load($raw)) {
-                    return false;   // Not an unencrypted RSA key.
-                }
-                if ($key->getPrivateKey() !== false) {  // If private.
+                $key = PublicKeyLoader::load($raw);
+                if ($key instanceof PrivateKey) {  // If private.
                     return $this->computeKeyIdentifier($key, $method);
                 }
-                $key = $raw;    // Is a public key.
+                $key = $raw; // Is a public key.
                 break;
             case $key instanceof X509:
                 if (isset($key->publicKey)) {

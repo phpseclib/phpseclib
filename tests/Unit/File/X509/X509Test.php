@@ -1176,4 +1176,18 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
 
         $this->assertIsArray($r);
     }
+
+    /**
+     * @group github1586
+     */
+    public function testComputeKeyIdentifier()
+    {
+        $key = RSA::createKey(512);
+        $key = ASN1::extractBER("$key");
+        $key = ASN1::encodeDER($key, ['type' => ASN1::TYPE_BIT_STRING]);
+        $key = new Element($key);
+
+        $x509 = new X509;
+        $this->assertIsString($x509->computeKeyIdentifier($key));
+    }
 }
