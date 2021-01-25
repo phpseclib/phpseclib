@@ -119,7 +119,7 @@ class Identity implements PrivateKey
      */
     public function withPublicKey($key)
     {
-        if ($key instanceof ECDSA) {
+        if ($key instanceof EC) {
             if (is_array($key->getCurve()) || !isset(self::$curveAliases[$key->getCurve()])) {
                 throw new UnsupportedAlgorithmException('The only supported curves are nistp256, nistp384, nistp512 and Ed25519');
             }
