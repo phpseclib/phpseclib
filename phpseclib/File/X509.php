@@ -305,6 +305,18 @@ class X509
     private static $extensions = [];
 
     /**
+     * @var ?array
+     * @access private
+     */
+    private $ipAddresses = null;
+
+    /**
+     * @var ?array
+     * @access private
+     */
+    private $domains = null;
+
+    /**
      * Default Constructor.
      *
      * @return \phpseclib3\File\X509
