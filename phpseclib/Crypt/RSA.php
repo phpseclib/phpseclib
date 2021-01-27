@@ -93,6 +93,7 @@ abstract class RSA extends AsymmetricKey
      * @see self::decrypt()
      */
     const ENCRYPTION_OAEP = 1;
+
     /**
      * Use PKCS#1 padding.
      *
@@ -104,6 +105,7 @@ abstract class RSA extends AsymmetricKey
      * @see self::decrypt()
      */
     const ENCRYPTION_PKCS1 = 2;
+
     /**
      * Do not use any padding
      *
@@ -130,6 +132,7 @@ abstract class RSA extends AsymmetricKey
      * @access public
      */
     const SIGNATURE_PSS = 16;
+
     /**
      * Use a relaxed version of PKCS#1 padding for signature verification
      *
@@ -139,6 +142,7 @@ abstract class RSA extends AsymmetricKey
      * @access public
      */
     const SIGNATURE_RELAXED_PKCS1 = 32;
+
     /**
      * Use PKCS#1 padding for signature verification
      *

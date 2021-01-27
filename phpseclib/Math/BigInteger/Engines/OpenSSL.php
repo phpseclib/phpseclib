@@ -56,16 +56,14 @@ abstract class OpenSSL
             new BigInteger($n),
             new BigInteger($e)
         );
-        $rsa = RSA::load($key);
-        //$rsa->setPublicKeyFormat('PKCS1');
 
-        $plaintext = str_pad($x->toBytes(), strlen($n->toBytes(true)) - 1, "\0", STR_PAD_LEFT);
+        $plaintext = str_pad($x->toBytes(), $n->getLengthInBytes(), "\0", STR_PAD_LEFT);
 
         // this is easily prone to failure. if the modulo is a multiple of 2 or 3 or whatever it
         // won't work and you'll get a "failure: error:0906D06C:PEM routines:PEM_read_bio:no start line"
         // error. i suppose, for even numbers, we could do what PHP\Montgomery.php does, but then what
         // about odd numbers divisible by 3, by 5, etc?
-        if (!openssl_public_encrypt($plaintext, $result, "$rsa", OPENSSL_NO_PADDING)) {
+        if (!openssl_public_encrypt($plaintext, $result, $key, OPENSSL_NO_PADDING)) {
             throw new \UnexpectedValueException(openssl_error_string());
         }
 
