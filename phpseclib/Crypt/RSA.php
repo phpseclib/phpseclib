@@ -251,6 +251,14 @@ abstract class RSA extends AsymmetricKey
     protected static $enableBlinding = true;
 
     /**
+     * OpenSSL configuration file name.
+     *
+     * @see self::createKey()
+     * @var ?string
+     */
+    protected static $configFile;
+
+    /**
      * Smallest Prime
      *
      * Per <http://cseweb.ucsd.edu/~hovav/dist/survey.pdf#page=5>, this number ought not result in primes smaller
@@ -292,6 +300,19 @@ abstract class RSA extends AsymmetricKey
     }
 
     /**
+     * Sets the OpenSSL config file path
+     *
+     * Set to the empty string to use the default config file
+     *
+     * @access public
+     * @param string $val
+     */
+    public static function setOpenSSLConfigPath($val)
+    {
+        self::$configFile = $val;
+    }
+
+    /**
      * Create a private key
      *
      * The public key can be extracted from the private key
@@ -304,17 +325,39 @@ abstract class RSA extends AsymmetricKey
     {
         self::initialize_static_variables();
 
-        static $e;
-        if (!isset($e)) {
-            $e = new BigInteger(self::$defaultExponent);
-        }
-
         $regSize = $bits >> 1; // divide by two to see how many bits P and Q would be
         if ($regSize > self::$smallestPrime) {
             $num_primes = floor($bits / self::$smallestPrime);
             $regSize = self::$smallestPrime;
         } else {
             $num_primes = 2;
+        }
+
+        if ($num_primes == 2 && $bits >= 384 && self::$defaultExponent == 65537) {
+            if (!isset(self::$engines['PHP'])) {
+                self::useBestEngine();
+            }
+
+            // OpenSSL uses 65537 as the exponent and requires RSA keys be 384 bits minimum
+            if (self::$engines['OpenSSL']) {
+                $config = [];
+                if (self::$configFile) {
+                    $config['config'] = self::$configFile;
+                }
+                $rsa = openssl_pkey_new(['private_key_bits' => $bits] + $config);
+                openssl_pkey_export($rsa, $privatekeystr, null, $config);
+
+                // clear the buffer of error strings stemming from a minimalistic openssl.cnf
+                while (openssl_error_string() !== false) {
+                }
+
+                return RSA::load($privatekeystr);
+            }
+        }
+
+        static $e;
+        if (!isset($e)) {
+            $e = new BigInteger(self::$defaultExponent);
         }
 
         $n = clone self::$one;
@@ -452,6 +495,18 @@ abstract class RSA extends AsymmetricKey
         }
 
         return $key;
+    }
+
+    /**
+     * Initialize static variables
+     */
+    protected static function initialize_static_variables()
+    {
+        if (!isset(self::$configFile)) {
+            self::$configFile = dirname(__FILE__) . '/../openssl.cnf';
+        }
+
+        parent::initialize_static_variables();
     }
 
     /**
@@ -809,6 +864,11 @@ abstract class RSA extends AsymmetricKey
     /**
      * Returns the current engine being used
      *
+     * OpenSSL is only used in this class (and it's subclasses) for key generation
+     * Even then it depends on the parameters you're using. It's not used for
+     * multi-prime RSA nor is it used if the key length is outside of the range
+     * supported by OpenSSL
+     *
      * @see self::useInternalEngine()
      * @see self::useBestEngine()
      * @access public
@@ -816,7 +876,9 @@ abstract class RSA extends AsymmetricKey
      */
     public function getEngine()
     {
-        return 'PHP';
+        return self::$engines['OpenSSL'] && self::$defaultExponent == 65537 ?
+            'OpenSSL' :
+            'PHP';
     }
 
     /**
