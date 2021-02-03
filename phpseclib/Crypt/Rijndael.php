@@ -59,6 +59,7 @@ use phpseclib3\Crypt\Common\BlockCipher;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\BadModeException;
 use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\InconsistentSetupException;
 use phpseclib3\Exception\BadDecryptionException;
 
 /**
@@ -488,6 +489,45 @@ class Rijndael extends BlockCipher
         }
 
         return pack('N*', ...$temp);
+    }
+
+    /**
+     * Setup the self::ENGINE_INTERNAL $engine
+     *
+     * (re)init, if necessary, the internal cipher $engine and flush all $buffers
+     * Used (only) if $engine == self::ENGINE_INTERNAL
+     *
+     * _setup() will be called each time if $changed === true
+     * typically this happens when using one or more of following public methods:
+     *
+     * - setKey()
+     *
+     * - setIV()
+     *
+     * - disableContinuousBuffer()
+     *
+     * - First run of encrypt() / decrypt() with no init-settings
+     *
+     * {@internal setup() is always called before en/decryption.}
+     *
+     * {@internal Could, but not must, extend by the child Crypt_* class}
+     *
+     * @see self::setKey()
+     * @see self::setIV()
+     * @see self::disableContinuousBuffer()
+     * @access private
+     */
+    protected function setup()
+    {
+        if (!$this->changed) {
+            return;
+        }
+
+        parent::setup();
+
+        if (is_string($this->iv) && strlen($this->iv) != $this->block_size) {
+            throw new InconsistentSetupException('The IV length (' . strlen($this->iv) . ') does not match the block size (' . $this->block_size . ')');
+        }
     }
 
     /**
