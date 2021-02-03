@@ -237,7 +237,7 @@ abstract class SymmetricKey
      * @var string
      * @access private
      */
-    private $iv = false;
+    protected $iv = false;
 
     /**
      * A "sliding" Initialization Vector
