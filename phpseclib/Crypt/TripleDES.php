@@ -12,7 +12,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $des = new \phpseclib3\Crypt\TripleDES();
+ *    $des = new \phpseclib3\Crypt\TripleDES('ctr');
  *
  *    $des->setKey('abcdefghijklmnopqrstuvwx');
  *

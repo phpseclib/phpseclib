@@ -30,7 +30,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $rijndael = new \phpseclib3\Crypt\Rijndael();
+ *    $rijndael = new \phpseclib3\Crypt\Rijndael('ctr');
  *
  *    $rijndael->setKey('abcdefghijklmnop');
  *
