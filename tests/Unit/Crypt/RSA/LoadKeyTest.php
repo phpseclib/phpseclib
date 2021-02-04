@@ -6,6 +6,7 @@
  */
 
 use phpseclib\Crypt\RSA;
+use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
 {
@@ -437,6 +438,18 @@ Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
         $rsa->loadKey($key);
         $rsa->setPrivateKey();
         $rsa->loadKey($rsa);
+    }
+
+    public function testRaw()
+    {
+        $key = array(
+            'e' => new BigInteger('010001', 16),
+            'n' => new BigInteger('00d0991cd1dc9519de1a5a935742cb3a0f998b0c7995eab3f204f2663b81229474105bd38e2e657e1acd095d8178a1bdcb0a7631e491771ff99d8e705017cff26d6632665f9171734aa5f5d80cc0ea10ef5e8dfa2199af3b7bf69703104b8bdab5db0510b6a7cf61ec9799f25000a0994ec287b711075cfdad79b90da273172dc0fd2127181b45564c602c102d8e63929d53597f8be7ee5709885d42a5ddf8e3142432e35a61e8baeeb1a6dd23a6a74672c2a95ad974ace161813df32daaca8ce008e67d3a48c1e3ce8aa4ddfd2df644783f582c669892b91a8613f2a5c67f520845c53f09f6faa760ae0d1b0fd64953cb26f22317494d2fd5d9bc72b5f56f3ea1', 16)
+        );
+
+        $rsa = new RSA;
+        $this->assertTrue($rsa->loadKey($key));
+        $this->assertIsString("$rsa");
     }
 
     /**
