@@ -18,7 +18,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $des = new \phpseclib3\Crypt\DES();
+ *    $des = new \phpseclib3\Crypt\DES('ctr');
  *
  *    $des->setKey('abcdefgh');
  *

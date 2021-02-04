@@ -25,7 +25,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $aes = new \phpseclib3\Crypt\AES();
+ *    $aes = new \phpseclib3\Crypt\AES('ctr');
  *
  *    $aes->setKey('abcdefghijklmnop');
  *

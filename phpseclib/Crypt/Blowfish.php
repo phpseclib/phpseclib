@@ -16,7 +16,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $blowfish = new \phpseclib3\Crypt\Blowfish();
+ *    $blowfish = new \phpseclib3\Crypt\Blowfish('ctr');
  *
  *    $blowfish->setKey('12345678901234567890123456789012');
  *

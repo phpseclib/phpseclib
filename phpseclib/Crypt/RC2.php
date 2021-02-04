@@ -16,7 +16,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $rc2 = new \phpseclib3\Crypt\RC2();
+ *    $rc2 = new \phpseclib3\Crypt\RC2('ctr');
  *
  *    $rc2->setKey('abcdefgh');
  *

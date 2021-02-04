@@ -16,7 +16,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $twofish = new \phpseclib3\Crypt\Twofish();
+ *    $twofish = new \phpseclib3\Crypt\Twofish('ctr');
  *
  *    $twofish->setKey('12345678901234567890123456789012');
  *
