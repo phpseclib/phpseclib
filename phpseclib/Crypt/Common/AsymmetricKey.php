@@ -181,6 +181,55 @@ abstract class AsymmetricKey
     }
 
     /**
+     * Loads a private key
+     *
+     * @return PrivateKey
+     * @access public
+     * @param string|array $key
+     * @param string $password optional
+     */
+    public function loadPrivate($key, $password = '')
+    {
+        $key = self::load($key, $password);
+        if (!$key instanceof PrivateKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a private key');
+        }
+        return $key;
+    }
+
+    /**
+     * Loads a public key
+     *
+     * @return PublicKey
+     * @access public
+     * @param string|array $key
+     */
+    public function loadPublic($key)
+    {
+        $key = self::load($key);
+        if (!$key instanceof PublicKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a public key');
+        }
+        return $key;
+    }
+
+    /**
+     * Loads parameters
+     *
+     * @return AsymmetricKey
+     * @access public
+     * @param string|array $key
+     */
+    public function loadParameters($key)
+    {
+        $key = self::load($key);
+        if (!$key instanceof PrivateKey && !$key instanceof PublicKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a parameter');
+        }
+        return $key;
+    }
+
+    /**
      * Load the key, assuming a specific format
      *
      * @param string $type
@@ -210,6 +259,58 @@ abstract class AsymmetricKey
         return $new instanceof PrivateKey ?
             $new->withPassword($password) :
             $new;
+    }
+
+    /**
+     * Loads a private key
+     *
+     * @return PrivateKey
+     * @access public
+     * @param string $type
+     * @param string $key
+     * @param string $password optional
+     */
+    public function loadPrivateFormat($type, $key, $password = false)
+    {
+        $key = self::loadFormat($type, $key, $password);
+        if (!$key instanceof PrivateKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a private key');
+        }
+        return $key;
+    }
+
+    /**
+     * Loads a public key
+     *
+     * @return PublicKey
+     * @access public
+     * @param string $type
+     * @param string $key
+     */
+    public function loadPublicFormat($type, $key)
+    {
+        $key = self::loadFormat($type, $key);
+        if (!$key instanceof PublicKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a public key');
+        }
+        return $key;
+    }
+
+    /**
+     * Loads parameters
+     *
+     * @return AsymmetricKey
+     * @access public
+     * @param string $type
+     * @param string|array $key
+     */
+    public function loadParametersFormat($type, $key)
+    {
+        $key = self::loadFormat($type, $key);
+        if (!$key instanceof PrivateKey && !$key instanceof PublicKey) {
+            throw new NoKeyLoadedException('The key that was loaded was not a parameter');
+        }
+        return $key;
     }
 
     /**
