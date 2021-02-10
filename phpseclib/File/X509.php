@@ -2108,6 +2108,17 @@ class X509
     }
 
     /**
+     * Returns the current cert
+     *
+     * @access public
+     * @return array|bool
+     */
+    public function &getCurrentCert()
+    {
+        return $this->currentCert;
+    }
+
+    /**
      * Set public key
      *
      * Key needs to be a \phpseclib3\Crypt\RSA object
