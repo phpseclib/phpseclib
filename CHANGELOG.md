@@ -1,13 +1,18 @@
 # Changelog
 
-## 3.0.4 - 2021-02-12
+## 3.0.5 - 2021-02-12
 
 - X509: add getCurrentCert method (since $currentCert is now private) (#1602)
 - PublicKeyLoader: add loadPrivateKey() and loadPublicKey() methods (#1603)
 - Rijndael: calling setIV() after setBlockLength() can result in err (#1599)
 - RSA: use OpenSSL for generating private keys (#1596)
 - BigInteger: big speedups for when OpenSSL is used (#1596)
-- use paragonie/random_compat ^9.99.99 if appropriate (#1585)
+
+## 3.0.4 - 2021-01-25
+
+- Random: use v9.99.99 of random_compat if appropriate (#1585, #1571)
+- SSH/Agent: EC keys didn't work with agent (#1593)
+- X509: fix niche issue with computeKeyIdentifier (#1586)
 
 ## 3.0.3 - 2021-01-16
 
