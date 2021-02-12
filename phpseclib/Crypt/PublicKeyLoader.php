@@ -72,7 +72,7 @@ abstract class PublicKeyLoader
      * @param string|array $key
      * @param string $password optional
      */
-    public function loadPrivate($key, $password = false)
+    public function loadPrivateKey($key, $password = false)
     {
         $key = self::load($key, $password);
         if (!$key instanceof PrivateKey) {
@@ -88,7 +88,7 @@ abstract class PublicKeyLoader
      * @access public
      * @param string|array $key
      */
-    public function loadPublic($key)
+    public function loadPublicKey($key)
     {
         $key = self::load($key);
         if (!$key instanceof PublicKey) {
