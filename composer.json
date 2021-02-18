@@ -1,7 +1,7 @@
 {
-    "name": "phpseclib/phpseclib",
+    "name": "eset/phpseclib",
     "type": "library",
-    "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
+    "description": "We have solved problem for projects where 'mbstring.func_overload' has to be 2 not 0 .PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
     "keywords": [
         "security",
         "crypto",
