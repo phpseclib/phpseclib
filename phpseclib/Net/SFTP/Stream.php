@@ -447,7 +447,7 @@ class Stream extends SFTP
         //     and https://github.com/php/php-src/blob/master/main/php_streams.h#L592
         switch ($option) {
             case 1: // PHP_STREAM_META_TOUCH
-                return $this->sftp->touch($path, $var[0], $var[1]);
+                return $this->sftp->touch($path, $var[0] ?? null, $var[1] ?? null);
             case 2: // PHP_STREAM_OWNER_NAME
             case 3: // PHP_STREAM_GROUP_NAME
                 return false;
