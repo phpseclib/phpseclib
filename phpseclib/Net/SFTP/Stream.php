@@ -428,7 +428,7 @@ class Net_SFTP_Stream
     {
         switch ($whence) {
             case SEEK_SET:
-                if ($offset >= $this->size || $offset < 0) {
+                if ($offset < 0) {
                     return false;
                 }
                 break;
