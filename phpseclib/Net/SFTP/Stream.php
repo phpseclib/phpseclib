@@ -410,7 +410,7 @@ class Stream extends SFTP
     {
         switch ($whence) {
             case SEEK_SET:
-                if ($offset >= $this->size || $offset < 0) {
+                if ($offset < 0) {
                     return false;
                 }
                 break;
