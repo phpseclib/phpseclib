@@ -28,7 +28,7 @@ use phpseclib3\Net\SSH2;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class Stream extends SFTP
+class Stream
 {
     /**
      * SFTP instances
