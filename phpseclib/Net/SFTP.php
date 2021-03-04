@@ -430,7 +430,7 @@ class SFTP extends SSH2
      * Login
      *
      * @param string $username
-     * @param string[] ...$args
+     * @param string[]|string ...$args
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return bool
      * @access public
@@ -2096,7 +2096,7 @@ class SFTP extends SSH2
      * $offset and $length can be used to download files in chunks.
      *
      * @param string $remote_file
-     * @param string|bool|resource $local_file
+     * @param string|bool|resource|callable $local_file
      * @param int $offset
      * @param int $length
      * @param callable|null $progressCallback
