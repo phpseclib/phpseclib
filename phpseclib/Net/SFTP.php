@@ -980,7 +980,7 @@ class SFTP extends SSH2
             uasort($contents, [&$this, 'comparator']);
         }
 
-        return $raw ? $contents : array_keys($contents);
+        return $raw ? $contents : array_map('strval', array_keys($contents));
     }
 
     /**
