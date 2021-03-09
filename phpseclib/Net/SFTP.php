@@ -37,9 +37,10 @@
 
 namespace phpseclib3\Net;
 
-use ParagonIE\ConstantTime\Hex;
 use phpseclib3\Exception\FileNotFoundException;
 use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\Common\AsymmetricKey;
+use phpseclib3\System\SSH\Agent;
 
 /**
  * Pure-PHP implementations of SFTP.
@@ -430,7 +431,7 @@ class SFTP extends SSH2
      * Login
      *
      * @param string $username
-     * @param string[]|string ...$args
+     * @param string|AsymmetricKey|array[]|Agent|null ...$args
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return bool
      * @access public
