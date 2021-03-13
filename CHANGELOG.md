@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.6 - 2021-03-13
+
+- SFTP/Stream: make it so you can write past the end of a file (#1618)
+- SFTP/Stream: fix undefined index notice in stream touch() (#1615)
+- SFTP/Stream: mkdir didn't work (#1617)
+- BigInteger: fix issue with toBits on 32-bit PHP 8 installs
+- SFTP: digit only filenames were converted to integers by php (#1623)
+
 ## 3.0.5 - 2021-02-12
 
 - X509: add getCurrentCert method (since $currentCert is now private) (#1602)
