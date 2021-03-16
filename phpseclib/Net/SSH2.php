@@ -70,6 +70,7 @@ use phpseclib3\Exception\ConnectionClosedException;
 use phpseclib3\Exception\UnableToConnectException;
 use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\Common\AsymmetricKey;
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -2050,10 +2051,10 @@ class SSH2
     /**
      * Login
      *
-     * The $password parameter can be a plaintext password, a \phpseclib3\Crypt\RSA object or an array
+     * The $password parameter can be a plaintext password, a \phpseclib3\Crypt\RSA|EC|DSA object, a \phpseclib3\System\SSH\Agent object or an array
      *
      * @param string $username
-     * @param string[] ...$args
+     * @param string|AsymmetricKey|array[]|Agent|null ...$args
      * @return bool
      * @see self::_login()
      * @access public
@@ -2111,7 +2112,7 @@ class SSH2
      *           by sending dummy SSH_MSG_IGNORE messages.}
      *
      * @param string $username
-     * @param string $password
+     * @param string|AsymmetricKey|array[]|Agent|null ...$args
      * @return bool
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @throws \RuntimeException on other errors
@@ -2592,7 +2593,7 @@ class SSH2
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
      * @param string $command
-     * @param Callback $callback
+     * @param callback $callback
      * @return string
      * @throws \RuntimeException on connection error
      * @access public
