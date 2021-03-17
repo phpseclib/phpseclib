@@ -1015,6 +1015,14 @@ class SSH2
     protected $auth = [];
 
     /**
+     * Terminal
+     *
+     * @var string
+     * @access private
+     */
+    private $term = 'vt100';
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -2646,7 +2654,7 @@ class SSH2
                 $this->server_channels[self::CHANNEL_EXEC],
                 'pty-req',
                 1,
-                'vt100',
+                $this->term,
                 $this->windowColumns,
                 $this->windowRows,
                 0,
@@ -2771,7 +2779,7 @@ class SSH2
             $this->server_channels[self::CHANNEL_SHELL],
             'pty-req',
             1,
-            'vt100',
+            $this->term,
             $this->windowColumns,
             $this->windowRows,
             0,
@@ -4622,6 +4630,17 @@ class SSH2
                 'comp' => 'none',
             ]
         ];
+    }
+
+    /**
+     * Allows you to set the terminal
+     *
+     * @param string $term
+     * @access public
+     */
+    public function setTerminal($term)
+    {
+        $this->term = $term;
     }
 
     /**
