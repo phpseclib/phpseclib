@@ -2447,6 +2447,8 @@ abstract class SymmetricKey
                         self::MODE_STREAM => MCRYPT_MODE_STREAM,
                     ];
 
+                    set_error_handler(function() {});
+
                     $this->demcrypt = mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
                     $this->enmcrypt = mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
 
@@ -2456,6 +2458,8 @@ abstract class SymmetricKey
                     if ($this->mode == self::MODE_CFB) {
                         $this->ecb = mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_ECB, '');
                     }
+
+                    restore_error_handler();
                 } // else should mcrypt_generic_deinit be called?
 
                 if ($this->mode == self::MODE_CFB) {
