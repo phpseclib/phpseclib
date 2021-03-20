@@ -2436,6 +2436,8 @@ abstract class SymmetricKey
             case self::ENGINE_MCRYPT:
                 $this->enchanged = $this->dechanged = true;
 
+                set_error_handler(function() {});
+
                 if (!isset($this->enmcrypt)) {
                     static $mcrypt_modes = [
                         self::MODE_CTR    => 'ctr',
@@ -2447,8 +2449,6 @@ abstract class SymmetricKey
                         self::MODE_STREAM => MCRYPT_MODE_STREAM,
                     ];
 
-                    set_error_handler(function() {});
-
                     $this->demcrypt = mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
                     $this->enmcrypt = mcrypt_module_open($this->cipher_name_mcrypt, '', $mcrypt_modes[$this->mode], '');
 
@@ -2459,12 +2459,14 @@ abstract class SymmetricKey
                         $this->ecb = mcrypt_module_open($this->cipher_name_mcrypt, '', MCRYPT_MODE_ECB, '');
                     }
 
-                    restore_error_handler();
                 } // else should mcrypt_generic_deinit be called?
 
                 if ($this->mode == self::MODE_CFB) {
                     mcrypt_generic_init($this->ecb, $this->key, str_repeat("\0", $this->block_size));
                 }
+
+                restore_error_handler();
+
                 break;
             case self::ENGINE_INTERNAL:
                 $this->setupKey();
