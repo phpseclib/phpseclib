@@ -23,7 +23,7 @@ use phpseclib3\Crypt\Common;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PrivateKey extends DH
+class PrivateKey extends DH implements Common\PrivateKey
 {
     use Common\Traits\PasswordProtected;
 
