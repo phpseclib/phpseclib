@@ -23,7 +23,7 @@ use phpseclib3\Crypt\Common;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PublicKey extends DH
+class PublicKey extends DH implements Common\PublicKey
 {
     use Common\Traits\Fingerprint;
 
