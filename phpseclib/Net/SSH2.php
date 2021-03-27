@@ -2951,28 +2951,6 @@ class Net_SSH2
             return false;
         }
 
-        $response = $this->_get_binary_packet();
-        if ($response === false) {
-            $this->bitmap = 0;
-            user_error('Connection closed by server');
-            return false;
-        }
-
-        if (!strlen($response)) {
-            return false;
-        }
-        list(, $type) = unpack('C', $this->_string_shift($response, 1));
-
-        switch ($type) {
-            case NET_SSH2_MSG_CHANNEL_SUCCESS:
-            // if a pty can't be opened maybe commands can still be executed
-            case NET_SSH2_MSG_CHANNEL_FAILURE:
-                break;
-            default:
-                user_error('Unable to request pseudo-terminal');
-                return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
-        }
-
         $packet = pack(
             'CNNa*C',
             NET_SSH2_MSG_CHANNEL_REQUEST,
@@ -2985,7 +2963,7 @@ class Net_SSH2
             return false;
         }
 
-        $this->channel_status[NET_SSH2_CHANNEL_SHELL] = NET_SSH2_MSG_CHANNEL_REQUEST;
+        $this->channel_status[NET_SSH2_CHANNEL_SHELL] = NET_SSH2_MSG_IGNORE;
 
         $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_SHELL);
         if ($response === false) {
@@ -3923,6 +3901,16 @@ class Net_SSH2
                                 return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
                         }
                         break;
+                    case NET_SSH2_MSG_IGNORE:
+                        switch ($type) {
+                            case NET_SSH2_MSG_CHANNEL_SUCCESS:
+                                //$this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_DATA;
+                                continue 3;
+                            case NET_SSH2_MSG_CHANNEL_FAILURE:
+                                user_error('Error opening channel');
+                                return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+                        }
+                        break;
                     case NET_SSH2_MSG_CHANNEL_REQUEST:
                         switch ($type) {
                             case NET_SSH2_MSG_CHANNEL_SUCCESS:
@@ -3942,6 +3930,10 @@ class Net_SSH2
 
             switch ($type) {
                 case NET_SSH2_MSG_CHANNEL_DATA:
+                    //if ($this->channel_status[$channel] == NET_SSH2_MSG_IGNORE) {
+                    //    $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_DATA;
+                    //}
+
                     /*
                     if ($channel == NET_SSH2_CHANNEL_EXEC) {
                         // SCP requires null packets, such as this, be sent.  further, in the case of the ssh.com SSH server
