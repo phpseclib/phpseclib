@@ -2774,7 +2774,7 @@ class SSH2
 
         $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
         $packet = Strings::packSSH2(
-            'CNsCsN4s',
+            'CNsbsN4s',
             NET_SSH2_MSG_CHANNEL_REQUEST,
             $this->server_channels[self::CHANNEL_SHELL],
             'pty-req',
