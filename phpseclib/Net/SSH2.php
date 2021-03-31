@@ -2965,13 +2965,6 @@ class Net_SSH2
 
         $this->channel_status[NET_SSH2_CHANNEL_SHELL] = NET_SSH2_MSG_IGNORE;
 
-        $response = $this->_get_channel_packet(NET_SSH2_CHANNEL_SHELL);
-        if ($response === false) {
-            return false;
-        }
-
-        $this->channel_status[NET_SSH2_CHANNEL_SHELL] = NET_SSH2_MSG_CHANNEL_DATA;
-
         $this->bitmap |= NET_SSH2_MASK_SHELL;
 
         return true;
