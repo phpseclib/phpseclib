@@ -235,7 +235,7 @@ class ASN1
         $current = array('start' => $start);
 
         $type = ord($encoded[$encoded_pos++]);
-        $start++;
+        $startOffset = 1;
 
         $constructed = ($type >> 5) & 1;
 
@@ -245,12 +245,19 @@ class ASN1
             // process septets (since the eighth bit is ignored, it's not an octet)
             do {
                 $temp = ord($encoded[$encoded_pos++]);
+                $startOffset++;
                 $loop = $temp >> 7;
                 $tag <<= 7;
-                $tag |= $temp & 0x7F;
-                $start++;
+                $temp &= 0x7F;
+                // "bits 7 to 1 of the first subsequent octet shall not all be zero"
+                if ($startOffset == 2 && $temp == 0) {
+                    return false;
+                }
+                $tag |= $temp;
             } while ($loop);
         }
+
+        $start+= $startOffset;
 
         // Length, as discussed in paragraph 8.1.3 of X.690-0207.pdf#page=13
         $length = ord($encoded[$encoded_pos++]);
