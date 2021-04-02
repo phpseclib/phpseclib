@@ -435,6 +435,9 @@ class ASN1
                 break;
             case self::TYPE_OBJECT_IDENTIFIER:
                 $current['content'] = $this->_decodeOID(substr($content, $content_pos));
+                if ($current['content'] === false) {
+                    return false;
+                }
                 break;
             /* Each character string type shall be encoded as if it had been declared:
                [UNIVERSAL x] IMPLICIT OCTET STRING
@@ -1127,6 +1130,11 @@ class ASN1
         $oid = array();
         $pos = 0;
         $len = strlen($content);
+
+        if (ord($content[$len - 1]) & 0x80) {
+            return false;
+        }
+
         $n = new BigInteger();
         while ($pos < $len) {
             $temp = ord($content[$pos++]);
