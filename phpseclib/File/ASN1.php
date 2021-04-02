@@ -1140,7 +1140,7 @@ abstract class ASN1
             $eighty = new BigInteger(80);
         }
 
-        $oid = array();
+        $oid = [];
         $pos = 0;
         $len = strlen($content);
         $n = new BigInteger();
