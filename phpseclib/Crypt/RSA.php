@@ -2951,6 +2951,9 @@ class RSA
                 break;
             case 'sha512':
                 $t = pack('H*', '304f300b06096086480165030402030440');
+                break;
+            default:
+                return false;
         }
         $t.= $h;
         $tLen = strlen($t);
