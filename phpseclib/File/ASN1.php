@@ -356,13 +356,16 @@ abstract class ASN1
         switch ($tag) {
             case self::TYPE_BOOLEAN:
                 // "The contents octets shall consist of a single octet." -- paragraph 8.2.1
-                if (strlen($content) != 1) {
+                if ($constructed || strlen($content) != 1) {
                     return false;
                 }
                 $current['content'] = (bool) ord($content[$content_pos]);
                 break;
             case self::TYPE_INTEGER:
             case self::TYPE_ENUMERATED:
+                if ($constructed) {
+                    return false;
+                }
                 $current['content'] = new BigInteger(substr($content, $content_pos), -256);
                 break;
             case self::TYPE_REAL: // not currently supported
@@ -420,12 +423,15 @@ abstract class ASN1
                 break;
             case self::TYPE_NULL:
                 // "The contents octets shall not contain any octets." -- paragraph 8.8.2
-                if (strlen($content)) {
+                if ($constructed || strlen($content)) {
                     return false;
                 }
                 break;
             case self::TYPE_SEQUENCE:
             case self::TYPE_SET:
+                if (!$constructed) {
+                    return false;
+                }
                 $offset = 0;
                 $current['content'] = [];
                 $content_len = strlen($content);
@@ -446,7 +452,14 @@ abstract class ASN1
                 }
                 break;
             case self::TYPE_OBJECT_IDENTIFIER:
+<<<<<<< HEAD
                 $current['content'] = self::decodeOID(substr($content, $content_pos));
+=======
+                if ($constructed) {
+                    return false;
+                }
+                $current['content'] = $this->_decodeOID(substr($content, $content_pos));
+>>>>>>> moosa-2.0
                 if ($current['content'] === false) {
                     return false;
                 }
@@ -479,10 +492,16 @@ abstract class ASN1
             case self::TYPE_UTF8_STRING:
                 // ????
             case self::TYPE_BMP_STRING:
+                if ($constructed) {
+                    return false;
+                }
                 $current['content'] = substr($content, $content_pos);
                 break;
             case self::TYPE_UTC_TIME:
             case self::TYPE_GENERALIZED_TIME:
+                if ($constructed) {
+                    return false;
+                }
                 $current['content'] = self::decodeTime(substr($content, $content_pos), $tag);
             default:
         }
