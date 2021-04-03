@@ -188,6 +188,10 @@ class PublicKey extends RSA implements Common\PublicKey
             return false;
         }
 
+        if (isset($decoded['digestAlgorithm']['parameters']) && $decoded['digestAlgorithm']['parameters'] !== ['null' => '']) {
+            return false;
+        }
+
         $hash = $decoded['digestAlgorithm']['algorithm'];
         $hash = substr($hash, 0, 3) == 'id-' ?
             substr($hash, 3) :
