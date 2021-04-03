@@ -3119,7 +3119,7 @@ class Crypt_RSA
         $em2 = $this->_emsa_pkcs1_v1_5_encode($m, $this->k);
         $em3 = $this->_emsa_pkcs1_v1_5_encode_without_null($m, $this->k);
 
-        if ($em2 === false || $em3 === false) {
+        if ($em2 === false && $em3 === false) {
             user_error('RSA modulus too short');
             return false;
         }
