@@ -20,6 +20,7 @@ use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Exception\NoKeyLoadedException;
 use phpseclib3\Exception\UnsupportedFormatException;
+use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\Common;
 use phpseclib3\File\ASN1\Maps\DigestInfo;
@@ -103,14 +104,18 @@ class PublicKey extends RSA implements Common\PublicKey
         // too short" and stop.
         try {
             $em2 = $this->emsa_pkcs1_v1_5_encode($m, $this->k);
+            $r1 = hash_equals($em, $em2);
         } catch (\LengthException $e) {
             $exception = true;
         }
 
         try {
-            $em3 = $this->emsa_pkcs1_v1_5_encode_witout_null($m, $this->k);
+            $em3 = $this->emsa_pkcs1_v1_5_encode_without_null($m, $this->k);
+            $r2 = hash_equals($em, $em3);
         } catch (\LengthException $e) {
             $exception = true;
+        } catch (UnsupportedAlgorithmException $e) {
+            $r2 = false;
         }
 
         if ($exception) {
@@ -118,7 +123,7 @@ class PublicKey extends RSA implements Common\PublicKey
         }
 
         // Compare
-        return hash_equals($em, $em2) || hash_equals($em, $em3);
+        return $r1 || $r2;
     }
 
     /**

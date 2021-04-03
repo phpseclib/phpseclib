@@ -660,6 +660,9 @@ abstract class RSA extends AsymmetricKey
                 break;
             case 'sha512/256':
                 $t = "\x30\x2f\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x06\x04\x20";
+                break;
+            default:
+                throw new UnsupportedAlgorithmException('md2 and md5 require NULLs');
         }
         $t.= $h;
         $tLen = strlen($t);
