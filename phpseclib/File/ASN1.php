@@ -433,9 +433,9 @@ class File_ASN1
         switch ($tag) {
             case FILE_ASN1_TYPE_BOOLEAN:
                 // "The contents octets shall consist of a single octet." -- paragraph 8.2.1
-                //if (strlen($content) != 1) {
-                //    return false;
-                //}
+                if (strlen($content) != 1) {
+                    return false;
+                }
                 $current['content'] = (bool) ord($content[$content_pos]);
                 break;
             case FILE_ASN1_TYPE_INTEGER:
@@ -459,15 +459,15 @@ class File_ASN1
                     $last = count($temp) - 1;
                     for ($i = 0; $i < $last; $i++) {
                         // all subtags should be bit strings
-                        //if ($temp[$i]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
-                        //    return false;
-                        //}
+                        if ($temp[$i]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
+                            return false;
+                        }
                         $current['content'].= substr($temp[$i]['content'], 1);
                     }
                     // all subtags should be bit strings
-                    //if ($temp[$last]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
-                    //    return false;
-                    //}
+                    if ($temp[$last]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
+                        return false;
+                    }
                     $current['content'] = $temp[$last]['content'][0] . $current['content'] . substr($temp[$i]['content'], 1);
                 }
                 break;
@@ -484,9 +484,9 @@ class File_ASN1
                         }
                         $content_pos += $temp['length'];
                         // all subtags should be octet strings
-                        //if ($temp['type'] != FILE_ASN1_TYPE_OCTET_STRING) {
-                        //    return false;
-                        //}
+                        if ($temp['type'] != FILE_ASN1_TYPE_OCTET_STRING) {
+                            return false;
+                        }
                         $current['content'].= $temp['content'];
                         $length+= $temp['length'];
                     }
@@ -497,9 +497,9 @@ class File_ASN1
                 break;
             case FILE_ASN1_TYPE_NULL:
                 // "The contents octets shall not contain any octets." -- paragraph 8.8.2
-                //if (strlen($content)) {
-                //    return false;
-                //}
+                if (strlen($content)) {
+                    return false;
+                }
                 break;
             case FILE_ASN1_TYPE_SEQUENCE:
             case FILE_ASN1_TYPE_SET:
