@@ -439,4 +439,13 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
         $decoded = $asn1->decodeBER($em);
         $this->assertFalse($decoded[0]);
     }
+
+    public function testBadTagSecondOctet()
+    {
+        $asn1 = new File_ASN1();
+
+        $em = pack('H*', '3033300f1f808080060960864801650304020104207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
+        $decoded = $asn1->decodeBER($em);
+        $this->assertFalse($decoded[0]);
+    }
 }
