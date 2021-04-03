@@ -452,14 +452,10 @@ abstract class ASN1
                 }
                 break;
             case self::TYPE_OBJECT_IDENTIFIER:
-<<<<<<< HEAD
-                $current['content'] = self::decodeOID(substr($content, $content_pos));
-=======
                 if ($constructed) {
                     return false;
                 }
-                $current['content'] = $this->_decodeOID(substr($content, $content_pos));
->>>>>>> moosa-2.0
+                $current['content'] = self::decodeOID(substr($content, $content_pos));
                 if ($current['content'] === false) {
                     return false;
                 }
