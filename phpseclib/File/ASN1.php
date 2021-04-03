@@ -578,7 +578,9 @@ class File_ASN1
                 $current['content'] = class_exists('DateTime') ?
                     $this->_decodeDateTime(substr($content, $content_pos), $tag) :
                     $this->_decodeUnixTime(substr($content, $content_pos), $tag);
+                break;
             default:
+                return false;
         }
 
         $start+= $length;
