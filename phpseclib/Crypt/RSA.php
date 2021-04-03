@@ -2918,6 +2918,56 @@ class RSA
     }
 
     /**
+     * EMSA-PKCS1-V1_5-ENCODE (without NULL)
+     *
+     * Quoting https://tools.ietf.org/html/rfc8017#page-65,
+     *
+     * "The parameters field associated with id-sha1, id-sha224, id-sha256,
+     *  id-sha384, id-sha512, id-sha512/224, and id-sha512/256 should
+     *  generally be omitted, but if present, it shall have a value of type
+     *  NULL"
+     *
+     * @access private
+     * @param string $m
+     * @param int $emLen
+     * @return string
+     */
+    function _emsa_pkcs1_v1_5_encode_without_null($m, $emLen)
+    {
+        $h = $this->hash->hash($m);
+        if ($h === false) {
+            return false;
+        }
+
+        switch ($this->hashName) {
+            case 'sha1':
+                $t = pack('H*', '301f300706052b0e03021a0414');
+                break;
+            case 'sha256':
+                $t = pack('H*', '302f300b06096086480165030402010420');
+                break;
+            case 'sha384':
+                $t = pack('H*', '303f300b06096086480165030402020430');
+                break;
+            case 'sha512':
+                $t = pack('H*', '304f300b06096086480165030402030440');
+        }
+        $t.= $h;
+        $tLen = strlen($t);
+
+        if ($emLen < $tLen + 11) {
+            user_error('Intended encoded message length too short');
+            return false;
+        }
+
+        $ps = str_repeat(chr(0xFF), $emLen - $tLen - 3);
+
+        $em = "\0\1$ps\0$t";
+
+        return $em;
+    }
+
+    /**
      * RSASSA-PKCS1-V1_5-SIGN
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.2.1 RFC3447#section-8.2.1}.
@@ -2983,13 +3033,15 @@ class RSA
         // EMSA-PKCS1-v1_5 encoding
 
         $em2 = $this->_emsa_pkcs1_v1_5_encode($m, $this->k);
-        if ($em2 === false) {
+        $em3 = $this->_emsa_pkcs1_v1_5_encode_without_null($m, $this->k);
+
+        if ($em2 === false && $em3 === false) {
             user_error('RSA modulus too short');
             return false;
         }
 
         // Compare
-        return $this->_equals($em, $em2);
+        return $this->_equals($em, $em2) || $this->_equals($em, $em3);
     }
 
     /**
