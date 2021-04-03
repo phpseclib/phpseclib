@@ -97,16 +97,28 @@ class PublicKey extends RSA implements Common\PublicKey
 
         // EMSA-PKCS1-v1_5 encoding
 
+        $exception = false;
+
         // If the encoding operation outputs "intended encoded message length too short," output "RSA modulus
         // too short" and stop.
         try {
             $em2 = $this->emsa_pkcs1_v1_5_encode($m, $this->k);
         } catch (\LengthException $e) {
+            $exception = true;
+        }
+
+        try {
+            $em3 = $this->emsa_pkcs1_v1_5_encode_witout_null($m, $this->k);
+        } catch (\LengthException $e) {
+            $exception = true;
+        }
+
+        if ($exception) {
             throw new \LengthException('RSA modulus too short');
         }
 
         // Compare
-        return hash_equals($em, $em2);
+        return hash_equals($em, $em2) || hash_equals($em, $em3);
     }
 
     /**

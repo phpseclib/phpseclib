@@ -499,7 +499,9 @@ abstract class ASN1
                     return false;
                 }
                 $current['content'] = self::decodeTime(substr($content, $content_pos), $tag);
+                break;
             default:
+                return false;
         }
 
         $start+= $length;
