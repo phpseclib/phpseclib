@@ -6,6 +6,7 @@
  */
 
 use phpseclib\Crypt\RSA;
+use phpseclib\Math\BigInteger;
 
 class Unit_Crypt_RSA_ModeTest extends PhpseclibTestCase
 {
