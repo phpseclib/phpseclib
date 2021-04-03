@@ -433,13 +433,16 @@ class File_ASN1
         switch ($tag) {
             case FILE_ASN1_TYPE_BOOLEAN:
                 // "The contents octets shall consist of a single octet." -- paragraph 8.2.1
-                if (strlen($content) != 1) {
+                if ($constructed || strlen($content) != 1) {
                     return false;
                 }
                 $current['content'] = (bool) ord($content[$content_pos]);
                 break;
             case FILE_ASN1_TYPE_INTEGER:
             case FILE_ASN1_TYPE_ENUMERATED:
+                if ($constructed) {
+                    return false;
+                }
                 $current['content'] = new Math_BigInteger(substr($content, $content_pos), -256);
                 break;
             case FILE_ASN1_TYPE_REAL: // not currently supported
@@ -497,12 +500,15 @@ class File_ASN1
                 break;
             case FILE_ASN1_TYPE_NULL:
                 // "The contents octets shall not contain any octets." -- paragraph 8.8.2
-                if (strlen($content)) {
+                if ($constructed || strlen($content)) {
                     return false;
                 }
                 break;
             case FILE_ASN1_TYPE_SEQUENCE:
             case FILE_ASN1_TYPE_SET:
+                if (!$constructed) {
+                    return false;
+                }
                 $offset = 0;
                 $current['content'] = array();
                 $content_len = strlen($content);
@@ -523,6 +529,9 @@ class File_ASN1
                 }
                 break;
             case FILE_ASN1_TYPE_OBJECT_IDENTIFIER:
+                if ($constructed) {
+                    return false;
+                }
                 $current['content'] = $this->_decodeOID(substr($content, $content_pos));
                 if ($current['content'] === false) {
                     return false;
@@ -556,10 +565,16 @@ class File_ASN1
             case FILE_ASN1_TYPE_UTF8_STRING:
                 // ????
             case FILE_ASN1_TYPE_BMP_STRING:
+                if ($constructed) {
+                    return false;
+                }
                 $current['content'] = substr($content, $content_pos);
                 break;
             case FILE_ASN1_TYPE_UTC_TIME:
             case FILE_ASN1_TYPE_GENERALIZED_TIME:
+                if ($constructed) {
+                    return false;
+                }
                 $current['content'] = class_exists('DateTime') ?
                     $this->_decodeDateTime(substr($content, $content_pos), $tag) :
                     $this->_decodeUnixTime(substr($content, $content_pos), $tag);
