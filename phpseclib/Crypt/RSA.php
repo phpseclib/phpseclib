@@ -3044,7 +3044,9 @@ class RSA
         }
 
         // Compare
-        return $this->_equals($em, $em2) || $this->_equals($em, $em3);
+
+        return ($em2 !== false && $this->_equals($em, $em2)) ||
+               ($em3 !== false && $this->_equals($em, $em3));
     }
 
     /**
