@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.31 - 2021-04-06
+
+- X509: always parse the first cert of a bundle (#1568)
+- SSH2: behave like putty with broken publickey auth (#1572)
+- SSH2: don't close channel on unexpected response to channel request (#1631)
+- RSA: support keys with PSS algorithm identifier (#1584)
+- RSA: cleanup RSA PKCS#1 v1.5 signature verification (CVE-2021-30130)
+- SFTP/Stream: make it so you can write past the end of a file (#1618)
+- SFTP: fix undefined index notice in stream touch() (#1615)
+- SFTP: digit only filenames were converted to integers by php (#1623)
+- BigInteger: fix issue with toBits on 32-bit PHP 8 installs
+- Crypt: use a custom error handler for mcrypt to avoid deprecation errors
+
 ## 2.0.30 - 2020-12-16
 
 - X509: don't attempt to parse multi-cert PEMs (#1542)
