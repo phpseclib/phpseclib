@@ -317,7 +317,7 @@ class File_ASN1
         $current = array('start' => $start);
 
         $type = ord($encoded[$encoded_pos++]);
-        $start++;
+        $startOffset = 1;
 
         $constructed = ($type >> 5) & 1;
 
@@ -327,12 +327,19 @@ class File_ASN1
             // process septets (since the eighth bit is ignored, it's not an octet)
             do {
                 $temp = ord($encoded[$encoded_pos++]);
+                $startOffset++;
                 $loop = $temp >> 7;
                 $tag <<= 7;
-                $tag |= $temp & 0x7F;
-                $start++;
+                $temp &= 0x7F;
+                // "bits 7 to 1 of the first subsequent octet shall not all be zero"
+                if ($startOffset == 2 && $temp == 0) {
+                    return false;
+                }
+                $tag |= $temp;
             } while ($loop);
         }
+
+        $start+= $startOffset;
 
         // Length, as discussed in paragraph 8.1.3 of X.690-0207.pdf#page=13
         $length = ord($encoded[$encoded_pos++]);
@@ -426,13 +433,16 @@ class File_ASN1
         switch ($tag) {
             case FILE_ASN1_TYPE_BOOLEAN:
                 // "The contents octets shall consist of a single octet." -- paragraph 8.2.1
-                //if (strlen($content) != 1) {
-                //    return false;
-                //}
+                if ($constructed || strlen($content) != 1) {
+                    return false;
+                }
                 $current['content'] = (bool) ord($content[$content_pos]);
                 break;
             case FILE_ASN1_TYPE_INTEGER:
             case FILE_ASN1_TYPE_ENUMERATED:
+                if ($constructed) {
+                    return false;
+                }
                 $current['content'] = new Math_BigInteger(substr($content, $content_pos), -256);
                 break;
             case FILE_ASN1_TYPE_REAL: // not currently supported
@@ -452,15 +462,15 @@ class File_ASN1
                     $last = count($temp) - 1;
                     for ($i = 0; $i < $last; $i++) {
                         // all subtags should be bit strings
-                        //if ($temp[$i]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
-                        //    return false;
-                        //}
+                        if ($temp[$i]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
+                            return false;
+                        }
                         $current['content'].= substr($temp[$i]['content'], 1);
                     }
                     // all subtags should be bit strings
-                    //if ($temp[$last]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
-                    //    return false;
-                    //}
+                    if ($temp[$last]['type'] != FILE_ASN1_TYPE_BIT_STRING) {
+                        return false;
+                    }
                     $current['content'] = $temp[$last]['content'][0] . $current['content'] . substr($temp[$i]['content'], 1);
                 }
                 break;
@@ -477,9 +487,9 @@ class File_ASN1
                         }
                         $content_pos += $temp['length'];
                         // all subtags should be octet strings
-                        //if ($temp['type'] != FILE_ASN1_TYPE_OCTET_STRING) {
-                        //    return false;
-                        //}
+                        if ($temp['type'] != FILE_ASN1_TYPE_OCTET_STRING) {
+                            return false;
+                        }
                         $current['content'].= $temp['content'];
                         $length+= $temp['length'];
                     }
@@ -490,12 +500,15 @@ class File_ASN1
                 break;
             case FILE_ASN1_TYPE_NULL:
                 // "The contents octets shall not contain any octets." -- paragraph 8.8.2
-                //if (strlen($content)) {
-                //    return false;
-                //}
+                if ($constructed || strlen($content)) {
+                    return false;
+                }
                 break;
             case FILE_ASN1_TYPE_SEQUENCE:
             case FILE_ASN1_TYPE_SET:
+                if (!$constructed) {
+                    return false;
+                }
                 $offset = 0;
                 $current['content'] = array();
                 $content_len = strlen($content);
@@ -516,7 +529,13 @@ class File_ASN1
                 }
                 break;
             case FILE_ASN1_TYPE_OBJECT_IDENTIFIER:
+                if ($constructed) {
+                    return false;
+                }
                 $current['content'] = $this->_decodeOID(substr($content, $content_pos));
+                if ($current['content'] === false) {
+                    return false;
+                }
                 break;
             /* Each character string type shall be encoded as if it had been declared:
                [UNIVERSAL x] IMPLICIT OCTET STRING
@@ -546,14 +565,22 @@ class File_ASN1
             case FILE_ASN1_TYPE_UTF8_STRING:
                 // ????
             case FILE_ASN1_TYPE_BMP_STRING:
+                if ($constructed) {
+                    return false;
+                }
                 $current['content'] = substr($content, $content_pos);
                 break;
             case FILE_ASN1_TYPE_UTC_TIME:
             case FILE_ASN1_TYPE_GENERALIZED_TIME:
+                if ($constructed) {
+                    return false;
+                }
                 $current['content'] = class_exists('DateTime') ?
                     $this->_decodeDateTime(substr($content, $content_pos), $tag) :
                     $this->_decodeUnixTime(substr($content, $content_pos), $tag);
+                break;
             default:
+                return false;
         }
 
         $start+= $length;
@@ -1228,6 +1255,11 @@ class File_ASN1
         $oid = array();
         $pos = 0;
         $len = strlen($content);
+
+        if (ord($content[$len - 1]) & 0x80) {
+            return false;
+        }
+
         $n = new Math_BigInteger();
         while ($pos < $len) {
             $temp = ord($content[$pos++]);
