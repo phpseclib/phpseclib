@@ -351,6 +351,9 @@ abstract class AsymmetricKey
                     continue;
                 }
                 $name = $file->getBasename('.php');
+                if ($name[0] == '.') {
+                    continue;
+                }
                 $type = 'phpseclib3\Crypt\\' . static::ALGORITHM . '\\Formats\\' . $format . '\\' . $name;
                 $reflect = new \ReflectionClass($type);
                 if ($reflect->isTrait()) {
