@@ -640,7 +640,7 @@ class SSH2
      * @see self::exec()
      * @access private
      */
-    var $window_resize = 0x40000000;
+    private $window_resize = 0x40000000;
 
     /**
      * Window size, server to client
@@ -729,7 +729,7 @@ class SSH2
      * @see self::setKeepAlive()
      * @access private
      */
-    var $keepAlive;
+    private $keepAlive;
 
     /**
      * Real-time log file pointer
