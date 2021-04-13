@@ -2751,7 +2751,7 @@ class X509
 
             $this->setExtension(
                 'id-ce-basicConstraints',
-                array_unique(array_merge(['cA' => true], $basicConstraints)),
+                array_merge(['cA' => true], $basicConstraints),
                 true
             );
 
