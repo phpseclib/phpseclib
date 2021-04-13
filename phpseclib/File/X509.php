@@ -670,10 +670,11 @@ class X509
      */
     private function mapOutExtensions(&$root, $path)
     {
-        foreach ($this->extensionValues as $id => $value) {
+        foreach ($this->extensionValues as $id => [$critical, $value]) {
             $root['tbsCertificate']['extensions'][] = [
                 'extnId' => $id,
                 'extnValue' => $value,
+                'critical' => $critical,
             ];
         }
 
@@ -4079,9 +4080,10 @@ class X509
      *
      * @param string $id
      * @param mixed $value
+     * @param bool $critical
      */
-    public function setExtensionValue($id, $value)
+    public function setExtensionValue($id, $value, $critical = false)
     {
-        $this->extensionValues[$id] = $value;
+        $this->extensionValues[$id] = [$critical, $value];
     }
 }
