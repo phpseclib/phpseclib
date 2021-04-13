@@ -4520,7 +4520,7 @@ class SSH2
         foreach ($engines as $engine) {
             foreach ($algos as $algo) {
                 $obj = self::encryption_algorithm_to_crypt_instance($algo);
-                if ($obj instanceof Rijndael ) {
+                if ($obj instanceof Rijndael) {
                     $obj->setKeyLength(preg_replace('#[^\d]#', '', $algo));
                 }
                 switch ($algo) {
