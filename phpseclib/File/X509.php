@@ -673,7 +673,8 @@ class X509
         foreach ($this->extensionValues as $id => $value) {
             $root['tbsCertificate']['extensions'][] = [
                 'extnId' => $id,
-                'extnValue' => $value,
+                'extnValue' => $value[1],
+                'critical' => $value[0],
             ];
         }
 
@@ -4079,9 +4080,10 @@ class X509
      *
      * @param string $id
      * @param mixed $value
+     * @param bool $critical
      */
-    public function setExtensionValue($id, $value)
+    public function setExtensionValue($id, $value, $critical = false)
     {
-        $this->extensionValues[$id] = $value;
+        $this->extensionValues[$id] = [$critical, $value];
     }
 }
