@@ -671,11 +671,10 @@ class X509
     private function mapOutExtensions(&$root, $path)
     {
         foreach ($this->extensionValues as $id => $value) {
-            list($critical, $value) = $value;
             $root['tbsCertificate']['extensions'][] = [
                 'extnId' => $id,
-                'extnValue' => $value,
-                'critical' => $critical,
+                'extnValue' => $value[1],
+                'critical' => $value[0],
             ];
         }
 
