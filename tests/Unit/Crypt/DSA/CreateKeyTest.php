@@ -14,7 +14,7 @@ use phpseclib3\Crypt\DSA\PrivateKey;
 /**
  * @requires PHP 7.0
  */
-class Unit_Crypt_DSA_CreateKeyTest extends PhpseclibTestCase
+class Unit_Crypt_DSA_CreateKeyTestDSA extends PhpseclibTestCase
 {
     public function testCreateParameters()
     {
