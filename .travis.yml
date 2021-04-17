@@ -19,13 +19,7 @@ matrix:
     - php: nightly
 
 install:
-  - wget http://ftp.gnu.org/gnu/parallel/parallel-20170822.tar.bz2
-  - tar -xvjf parallel*
-  - cd parallel-20170822
-  - ./configure
-  - make
-  - sudo make install
-  - cd ..
+  - phpenv config-rm xdebug.ini
   - eval `ssh-agent -s`
   - travis/setup-secure-shell.sh
   - sh -c "if [ '$TRAVIS_PHP_VERSION' != 'hhvm' -a `php -r "echo (int) version_compare(PHP_VERSION, '7.0', '<');"` = "1" ]; then travis/install-php-extensions.sh; fi"

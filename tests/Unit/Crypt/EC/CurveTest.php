@@ -11,6 +11,7 @@ use phpseclib3\File\ASN1;
 use phpseclib3\Crypt\EC\Curves\Ed448;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Common\Functions\Strings;
 
 class Ed448PublicKey
 {
@@ -18,6 +19,10 @@ class Ed448PublicKey
 
     public static function load($key, $password = '')
     {
+        if (!Strings::is_stringable($key)) {
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        }
+
         $components = ['curve' => new Ed448()];
         $components['QA'] = self::extractPoint($key, $components['curve']);
 
@@ -29,6 +34,10 @@ class Ed448PrivateKey
 {
     public static function load($key, $password = '')
     {
+        if (!Strings::is_stringable($key)) {
+            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        }
+
         $components = ['curve' => new Ed448()];
         $components['dA'] = $components['curve']->extractSecret($key);
         $components['QA'] = $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
