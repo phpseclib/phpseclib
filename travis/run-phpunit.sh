@@ -37,15 +37,8 @@ then
     find tests -type f -name "*.php" -print0 | xargs -0 sed -i 's/extends Unit_Crypt_Hash_\(SHA512Test\|SHA256Test\)/extends \1/g'
 fi
 
-if [ "$TRAVIS_PHP_VERSION" = 'hhvm' -o `php -r "echo (int) version_compare(PHP_VERSION, '7.0', '>=');"` = "1" ]
-then
-  find tests -type f -name "*Test.php" | \
-    parallel --gnu --keep-order \
-      "echo '== {} =='; \"$PHPUNIT\" $PHPUNIT_ARGS {};"
-else
-  "$PHPUNIT" \
-    $PHPUNIT_ARGS \
-    --coverage-text \
-    --coverage-clover code_coverage/clover.xml \
-    --coverage-html code_coverage/
-fi
+"$PHPUNIT" \
+  $PHPUNIT_ARGS \
+  --coverage-text \
+  --coverage-clover code_coverage/clover.xml \
+  --coverage-html code_coverage/
