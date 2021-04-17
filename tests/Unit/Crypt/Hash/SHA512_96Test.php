@@ -7,10 +7,6 @@
 
 use phpseclib\Crypt\Hash;
 
-if (version_compare(PHP_VERSION, '7.0', '>=')) {
-    require 'SHA512Test.php';
-}
-
 class Unit_Crypt_Hash_SHA512_96Test extends Unit_Crypt_Hash_SHA512Test
 {
     public function getInstance()
