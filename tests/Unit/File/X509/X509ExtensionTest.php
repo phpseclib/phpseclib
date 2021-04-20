@@ -5,6 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib3\Crypt\EC;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\X509;
@@ -113,5 +114,38 @@ class Unit_File_X509_X509ExtensionTest extends PhpseclibTestCase
 
         X509::registerExtension('bar', ['type' => ASN1::TYPE_OCTET_STRING]);
         X509::registerExtension('bar', ['type' => ASN1::TYPE_ANY]);
+    }
+
+    public function testExtensionsAreInitializedIfMissing()
+    {
+        $issuerKey = EC::createKey('ed25519');
+        $subjectKey = EC::createKey('ed25519')->getPublicKey();
+
+        $subject = new X509();
+        $subject->setPublicKey($subjectKey);
+        $subject->setDN(['commonName' => 'subject']);
+
+        $issuer = new X509();
+        $issuer->setPrivateKey($issuerKey);
+        $issuer->setDN(['commonName' => 'issuer']);
+
+        $authority = new X509();
+
+        $authority->setExtensionValue('id-ce-keyUsage', ['digitalSignature']);
+
+        $cert = $authority->saveX509($authority->sign($issuer, $subject));
+
+        $loader = new X509();
+
+        $this->assertSame(
+            [
+                [
+                    'extnId' => 'id-ce-keyUsage',
+                    'critical' => false,
+                    'extnValue' => ['digitalSignature'],
+                ],
+            ],
+            $loader->loadX509($cert)['tbsCertificate']['extensions']
+        );
     }
 }
