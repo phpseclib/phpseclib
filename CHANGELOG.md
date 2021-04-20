@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.8 - 2021-04-20
+
+- AsymetrticKey: add getComment() method (#1638)
+- SymmetricKey: cipher_name_openssl_ecb shouldn't be static because of AES (#1636)
+- X509: don't filter basicConstraints on unique values (#1639)
+- X509: make it so extensions can be set as critical (#1640)
+
 ## 3.0.7 - 2021-04-06
 
 - X509: always parse the first cert of a bundle (#1568)
