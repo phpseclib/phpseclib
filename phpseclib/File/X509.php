@@ -670,7 +670,7 @@ class X509
      */
     private function mapOutExtensions(&$root, $path)
     {
-        $extensions = &$this->subArray($root, $path);
+        $extensions = &$this->subArray($root, $path, true);
 
         foreach ($this->extensionValues as $id => $data) {
             extract($data);
