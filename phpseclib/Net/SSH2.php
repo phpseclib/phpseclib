@@ -2207,7 +2207,9 @@ class SSH2
                 case NET_SSH2_MSG_USERAUTH_SUCCESS:
                     $this->bitmap |= self::MASK_LOGIN;
                     return true;
-                //case NET_SSH2_MSG_USERAUTH_FAILURE:
+                case NET_SSH2_MSG_USERAUTH_FAILURE:
+                    list($auth_methods) = Strings::unpackSSH2('L', $response);
+                    $this->auth_methods_to_continue = $auth_methods;
                 default:
                     return false;
             }
@@ -2263,6 +2265,7 @@ class SSH2
                 // can we use keyboard-interactive authentication?  if not then either the login is bad or the server employees
                 // multi-factor authentication
                 list($auth_methods, $partial_success) = Strings::unpackSSH2('Lb', $response);
+                $this->auth_methods_to_continue = $auth_methods;
                 if (!$partial_success && in_array('keyboard-interactive', $auth_methods)) {
                     if ($this->keyboard_interactive_login($username, $password)) {
                         $this->bitmap |= self::MASK_LOGIN;
@@ -2398,6 +2401,8 @@ class SSH2
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 return true;
             case NET_SSH2_MSG_USERAUTH_FAILURE:
+                list($auth_methods) = Strings::unpackSSH2('L', $response);
+                $this->auth_methods_to_continue = $auth_methods;
                 return false;
         }
 
@@ -2555,6 +2560,8 @@ class SSH2
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 // either the login is bad or the server employs multi-factor authentication
+                list($auth_methods) = Strings::unpackSSH2('L', $response);
+                $this->auth_methods_to_continue = $auth_methods;
                 return false;
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 $this->bitmap |= self::MASK_LOGIN;
