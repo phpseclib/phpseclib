@@ -2524,8 +2524,9 @@ class SSH2
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
-                list($message) = Strings::unpackSSH2('s', $response);
-                $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . $message;
+                list($auth_methods) = Strings::unpackSSH2('L', $response);
+                $this->auth_methods_to_continue = $auth_methods;
+                $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE';
                 return false;
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
