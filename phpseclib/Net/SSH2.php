@@ -2081,7 +2081,7 @@ class SSH2
 
         // try logging with 'none' as an authentication method first since that's what
         // PuTTY does
-        if (substr($this->server_identifier, 0, 13) != 'SSH-2.0-CoreFTP') {
+        if (substr($this->server_identifier, 0, 13) != 'SSH-2.0-CoreFTP' && $this->auth_methods_to_continue === null) {
             if ($this->sublogin($username)) {
                 return true;
             }
