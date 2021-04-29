@@ -1023,6 +1023,14 @@ class SSH2
     private $term = 'vt100';
 
     /**
+     * The authentication methods that may productively continue authentication.
+     * 
+     * @see https://tools.ietf.org/html/rfc4252#section-5.1
+     * @var array|null 
+     */
+    private $auth_methods_to_continue = null;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -2073,7 +2081,7 @@ class SSH2
 
         // try logging with 'none' as an authentication method first since that's what
         // PuTTY does
-        if (substr($this->server_identifier, 0, 13) != 'SSH-2.0-CoreFTP') {
+        if (substr($this->server_identifier, 0, 13) != 'SSH-2.0-CoreFTP' && $this->auth_methods_to_continue === null) {
             if ($this->sublogin($username)) {
                 return true;
             }
@@ -2199,7 +2207,9 @@ class SSH2
                 case NET_SSH2_MSG_USERAUTH_SUCCESS:
                     $this->bitmap |= self::MASK_LOGIN;
                     return true;
-                //case NET_SSH2_MSG_USERAUTH_FAILURE:
+                case NET_SSH2_MSG_USERAUTH_FAILURE:
+                    list($auth_methods) = Strings::unpackSSH2('L', $response);
+                    $this->auth_methods_to_continue = $auth_methods;
                 default:
                     return false;
             }
@@ -2255,6 +2265,7 @@ class SSH2
                 // can we use keyboard-interactive authentication?  if not then either the login is bad or the server employees
                 // multi-factor authentication
                 list($auth_methods, $partial_success) = Strings::unpackSSH2('Lb', $response);
+                $this->auth_methods_to_continue = $auth_methods;
                 if (!$partial_success && in_array('keyboard-interactive', $auth_methods)) {
                     if ($this->keyboard_interactive_login($username, $password)) {
                         $this->bitmap |= self::MASK_LOGIN;
@@ -2390,6 +2401,8 @@ class SSH2
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 return true;
             case NET_SSH2_MSG_USERAUTH_FAILURE:
+                list($auth_methods) = Strings::unpackSSH2('L', $response);
+                $this->auth_methods_to_continue = $auth_methods;
                 return false;
         }
 
@@ -2511,8 +2524,9 @@ class SSH2
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
-                list($message) = Strings::unpackSSH2('s', $response);
-                $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . $message;
+                list($auth_methods) = Strings::unpackSSH2('L', $response);
+                $this->auth_methods_to_continue = $auth_methods;
+                $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE';
                 return false;
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
@@ -2547,6 +2561,8 @@ class SSH2
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 // either the login is bad or the server employs multi-factor authentication
+                list($auth_methods) = Strings::unpackSSH2('L', $response);
+                $this->auth_methods_to_continue = $auth_methods;
                 return false;
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 $this->bitmap |= self::MASK_LOGIN;
@@ -4960,5 +4976,16 @@ class SSH2
                 $this->message_number_log[count($this->message_number_log) - 1]
             );
         }
+    }
+
+    /**
+     * Return the list of authentication methods that may productively continue authentication.
+     * 
+     * @see https://tools.ietf.org/html/rfc4252#section-5.1
+     * @return array|null
+     */
+    public function getAuthMethodsToContinue()
+    {
+        return $this->auth_methods_to_continue;
     }
 }
