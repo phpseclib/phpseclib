@@ -1023,6 +1023,14 @@ class SSH2
     private $term = 'vt100';
 
     /**
+     * The authentication methods that may productively continue authentication.
+     * 
+     * @see https://tools.ietf.org/html/rfc4252#section-5.1
+     * @var array|null 
+     */
+    private $auth_methods_to_continue = null;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -4960,5 +4968,16 @@ class SSH2
                 $this->message_number_log[count($this->message_number_log) - 1]
             );
         }
+    }
+
+    /**
+     * Return the list of authentication methods that may productively continue authentication.
+     * 
+     * @see https://tools.ietf.org/html/rfc4252#section-5.1
+     * @return array|null
+     */
+    public function getAuthMethodsToContinue()
+    {
+        return $this->auth_methods_to_continue;
     }
 }
