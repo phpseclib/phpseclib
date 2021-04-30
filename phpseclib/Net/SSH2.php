@@ -968,6 +968,14 @@ class Net_SSH2
     var $auth = array();
 
     /**
+     * The authentication methods that may productively continue authentication.
+     * 
+     * @see https://tools.ietf.org/html/rfc4252#section-5.1
+     * @var array|null 
+     */
+    private $auth_methods_to_continue = null;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -2135,11 +2143,13 @@ class Net_SSH2
 
         // try logging with 'none' as an authentication method first since that's what
         // PuTTY does
-        if ($this->_login($username)) {
-            return true;
-        }
-        if (count($args) == 1) {
-            return false;
+        if ($this->auth_methods_to_continue === null) {
+            if ($this->_login($username)) {
+                return true;
+            }
+            if (count($args) == 1) {
+                return false;
+            }
         }
         return call_user_func_array(array(&$this, '_login'), $args);
     }
@@ -2283,7 +2293,9 @@ class Net_SSH2
                 case NET_SSH2_MSG_USERAUTH_SUCCESS:
                     $this->bitmap |= NET_SSH2_MASK_LOGIN;
                     return true;
-                //case NET_SSH2_MSG_USERAUTH_FAILURE:
+                case NET_SSH2_MSG_USERAUTH_FAILURE:
+                    extract(unpack('Nmethodlistlen', $this->_string_shift($response, 4)));
+                    $this->auth_methods_to_continue = explode(',', $this->_string_shift($response, $methodlistlen));
                 default:
                     return false;
             }
@@ -2355,6 +2367,7 @@ class Net_SSH2
                 }
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $auth_methods = explode(',', $this->_string_shift($response, $length));
+                $this->auth_methods_to_continue = $auth_methods;
                 if (!strlen($response)) {
                     return false;
                 }
@@ -2528,6 +2541,8 @@ class Net_SSH2
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 return true;
             case NET_SSH2_MSG_USERAUTH_FAILURE:
+                extract(unpack('Nmethodlistlen', $this->_string_shift($response, 4)));
+                $this->auth_methods_to_continue = explode(',', $this->_string_shift($response, $methodlistlen));
                 return false;
         }
 
@@ -2636,8 +2651,9 @@ class Net_SSH2
                 if (strlen($response) < 4) {
                     return false;
                 }
-                extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE: ' . $this->_string_shift($response, $length);
+                extract(unpack('Nmethodlistlen', $this->_string_shift($response, 4)));
+                $this->auth_methods_to_continue = explode(',', $this->_string_shift($response, $methodlistlen));
+                $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE';
                 return false;
             case NET_SSH2_MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
@@ -2671,6 +2687,8 @@ class Net_SSH2
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_FAILURE:
                 // either the login is bad or the server employs multi-factor authentication
+                extract(unpack('Nmethodlistlen', $this->_string_shift($response, 4)));
+                $this->auth_methods_to_continue = explode(',', $this->_string_shift($response, $methodlistlen));
                 return false;
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 $this->bitmap |= NET_SSH2_MASK_LOGIN;
@@ -5099,5 +5117,16 @@ class Net_SSH2
                 $this->message_number_log[count($this->message_number_log) - 1]
             );
         }
+    }
+
+    /**
+     * Return the list of authentication methods that may productively continue authentication.
+     * 
+     * @see https://tools.ietf.org/html/rfc4252#section-5.1
+     * @return array|null
+     */
+    public function getAuthMethodsToContinue()
+    {
+        return $this->auth_methods_to_continue;
     }
 }
