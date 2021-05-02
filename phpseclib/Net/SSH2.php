@@ -972,9 +972,9 @@ class SSH2
 
     /**
      * The authentication methods that may productively continue authentication.
-     * 
+     *
      * @see https://tools.ietf.org/html/rfc4252#section-5.1
-     * @var array|null 
+     * @var array|null
      */
     private $auth_methods_to_continue = null;
 
@@ -5162,7 +5162,7 @@ class SSH2
 
     /**
      * Return the list of authentication methods that may productively continue authentication.
-     * 
+     *
      * @see https://tools.ietf.org/html/rfc4252#section-5.1
      * @return array|null
      */
