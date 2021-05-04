@@ -1032,6 +1032,7 @@ abstract class ASN1
                 $format = $mapping['type'] == self::TYPE_UTC_TIME ? 'y' : 'Y';
                 $format.= 'mdHis';
                 $date = new DateTime($source, new DateTimeZone('GMT'));
+                $date->setTimezone(new DateTimeZone('GMT'));
                 $value = $date->format($format) . 'Z';
                 break;
             case self::TYPE_BIT_STRING:
