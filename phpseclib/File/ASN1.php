@@ -1093,7 +1093,10 @@ class File_ASN1
                 if (!class_exists('DateTime')) {
                     $value = @gmdate($format, strtotime($source)) . 'Z';
                 } else {
+                    // if $source does _not_ include timezone information within it then assume that the timezone is GMT
                     $date = new DateTime($source, new DateTimeZone('GMT'));
+                    // if $source _does_ include timezone information within it then convert the time to GMT
+                    $date->setTimezone(new DateTimeZone('GMT'));
                     $value = $date->format($format) . 'Z';
                 }
                 break;
