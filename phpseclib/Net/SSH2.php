@@ -2657,10 +2657,7 @@ class SSH2
 
         $this->channel_status[self::CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_OPEN;
 
-        $response = $this->get_channel_packet(self::CHANNEL_EXEC);
-        if ($response === false) {
-            return false;
-        }
+        $this->get_channel_packet(self::CHANNEL_EXEC);
 
         if ($this->request_pty === true) {
             $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
@@ -2719,8 +2716,7 @@ class SSH2
 
         $this->channel_status[self::CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
-        $response = $this->get_channel_packet(self::CHANNEL_EXEC);
-        if ($response === false) {
+        if (!$this->get_channel_packet(self::CHANNEL_EXEC)) {
             return false;
         }
 
@@ -2783,10 +2779,7 @@ class SSH2
 
         $this->channel_status[self::CHANNEL_SHELL] = NET_SSH2_MSG_CHANNEL_OPEN;
 
-        $response = $this->get_channel_packet(self::CHANNEL_SHELL);
-        if ($response === false) {
-            return false;
-        }
+        $this->get_channel_packet(self::CHANNEL_SHELL);
 
         $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
         $packet = Strings::packSSH2(
@@ -2884,8 +2877,7 @@ class SSH2
 
         $this->send_binary_packet($packet);
 
-        $response = $this->get_channel_packet($request_channel);
-        if ($response === false) {
+        if (!$this->get_channel_packet($request_channel)) {
             return false;
         }
 
@@ -2937,9 +2929,9 @@ class SSH2
                 return Strings::shift($this->interactiveBuffer, $pos + strlen($match));
             }
             $response = $this->get_channel_packet($channel);
-            if (is_bool($response)) {
+            if ($response === true) {
                 $this->in_request_pty_exec = false;
-                return $response ? Strings::shift($this->interactiveBuffer, strlen($this->interactiveBuffer)) : false;
+                return Strings::shift($this->interactiveBuffer, strlen($this->interactiveBuffer));
             }
 
             $this->interactiveBuffer.= $response;
@@ -2999,10 +2991,7 @@ class SSH2
 
         $this->channel_status[self::CHANNEL_SUBSYSTEM] = NET_SSH2_MSG_CHANNEL_OPEN;
 
-        $response = $this->get_channel_packet(self::CHANNEL_SUBSYSTEM);
-        if ($response === false) {
-            return false;
-        }
+        $this->get_channel_packet(self::CHANNEL_SUBSYSTEM);
 
         $packet = Strings::packSSH2(
             'CNsCs',
@@ -3016,8 +3005,7 @@ class SSH2
 
         $this->channel_status[self::CHANNEL_SUBSYSTEM] = NET_SSH2_MSG_CHANNEL_REQUEST;
 
-        $response = $this->get_channel_packet(self::CHANNEL_SUBSYSTEM);
-        if ($response === false) {
+        if (!$this->get_channel_packet(self::CHANNEL_SUBSYSTEM)) {
             return false;
         }
 
@@ -3335,7 +3323,8 @@ class SSH2
         }
 
         if (strlen($raw) < 5) {
-            return false;
+            $this->bitmap = 0;
+            throw new \RuntimeException('Plaintext is too short');
         }
         extract(unpack('Npacket_length/Cpadding_length', Strings::shift($raw, 5)));
         /**
@@ -3686,7 +3675,16 @@ class SSH2
     /**
      * Gets channel data
      *
-     * Returns the data as a string if it's available and false if not.
+     * Returns the data as a string. bool(true) is returned if:
+     *
+     * - the server closes the channel
+     * - if the connection times out
+     * - if the channel status is CHANNEL_OPEN and the response was CHANNEL_OPEN_CONFIRMATION
+     * - if the channel status is CHANNEL_REQUEST and the response was CHANNEL_SUCCESS
+     *
+     * bool(false) is returned if:
+     *
+     * - if the channel status is CHANNEL_REQUEST and the response was CHANNEL_FAILURE
      *
      * @param int $client_channel
      * @param bool $skip_extended
