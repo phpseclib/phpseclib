@@ -270,6 +270,16 @@ class SFTP extends SSH2
     var $preserveTime = false;
 
     /**
+     * Was the last packet due to the channels being closed or not?
+     *
+     * @see self::get()
+     * @see self::get_sftp_packet()
+     * @var bool
+     * @access private
+     */
+    var $channel_close = false;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SFTP server
@@ -425,6 +435,17 @@ class SFTP extends SSH2
             return false;
         }
 
+        return $this->_init_sftp_connection();
+    }
+
+    /**
+     * (Re)initializes the SFTP channel
+     *
+     * @return bool
+     * @access private
+     */
+    function _init_sftp_connection()
+    {
         $this->window_size_server_to_client[self::CHANNEL] = $this->window_size;
 
         $packet = pack(
@@ -2293,7 +2314,13 @@ class SFTP extends SSH2
                         if ($fclose_check) {
                             fclose($fp);
                         }
-                        user_error('Expected SSH_FX_DATA or SSH_FXP_STATUS');
+                        // maybe the file was successfully transferred, maybe it wasn't
+                        if ($this->channel_close) {
+                            $this->_init_sftp_connection();
+                            return false;
+                        } else {
+                            user_error('Expected SSH_FX_DATA or SSH_FXP_STATUS');
+                        }
                 }
                 $response = null;
             }
@@ -3055,6 +3082,8 @@ class SFTP extends SSH2
      */
     function _get_sftp_packet($request_id = null)
     {
+        $this->channel_close = false;
+
         if (isset($request_id) && isset($this->requestBuffer[$request_id])) {
             $this->packet_type = $this->requestBuffer[$request_id]['packet_type'];
             $temp = $this->requestBuffer[$request_id]['packet'];
@@ -3071,7 +3100,10 @@ class SFTP extends SSH2
         // SFTP packet length
         while (strlen($this->packet_buffer) < 4) {
             $temp = $this->_get_channel_packet(self::CHANNEL, true);
-            if (is_bool($temp)) {
+            if ($temp === true) {
+                if ($this->channel_status[self::CHANNEL] === NET_SSH2_MSG_CHANNEL_CLOSE) {
+                    $this->channel_close = true;
+                }
                 $this->packet_type = false;
                 $this->packet_buffer = '';
                 return false;
