@@ -1031,7 +1031,10 @@ abstract class ASN1
             case self::TYPE_GENERALIZED_TIME:
                 $format = $mapping['type'] == self::TYPE_UTC_TIME ? 'y' : 'Y';
                 $format.= 'mdHis';
+                // if $source does _not_ include timezone information within it then assume that the timezone is GMT
                 $date = new DateTime($source, new DateTimeZone('GMT'));
+                // if $source _does_ include timezone information within it then convert the time to GMT
+                $date->setTimezone(new DateTimeZone('GMT'));
                 $value = $date->format($format) . 'Z';
                 break;
             case self::TYPE_BIT_STRING:

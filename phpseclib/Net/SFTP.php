@@ -2204,6 +2204,7 @@ class SFTP extends SSH2
                         }
                         if ($this->channel_close) {
                             $this->init_sftp_connection();
+                            return false;
                         } else {
                             throw new \UnexpectedValueException('Expected NET_SFTP_DATA or NET_SFTP_STATUS. '
                                                               . 'Got packet type: ' . $this->packet_type);
@@ -2938,7 +2939,10 @@ class SFTP extends SSH2
         // SFTP packet length
         while (strlen($this->packet_buffer) < 4) {
             $temp = $this->get_channel_packet(self::CHANNEL, true);
-            if (is_bool($temp)) {
+            if ($temp === true) {
+                if ($this->channel_status[NET_SFTP_CHANNEL] === NET_SSH2_MSG_CHANNEL_CLOSE) {
+                    $this->channel_close = true;
+                }
                 $this->packet_type = false;
                 $this->packet_buffer = '';
                 return false;
