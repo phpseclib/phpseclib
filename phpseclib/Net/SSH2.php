@@ -3335,7 +3335,7 @@ class SSH2
             $read = array($this->fsock);
             $write = $except = null;
 
-            if ($this->curTimeout <= 0) {
+            if (!$this->curTimeout) {
                 if ($this->keepAlive <= 0) {
                     @stream_select($read, $write, $except, null);
                 } else {
