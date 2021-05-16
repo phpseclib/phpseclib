@@ -1368,6 +1368,7 @@ class Net_SSH2
     function _key_exchange($kexinit_payload_server = false)
     {
         $preferred = $this->preferred;
+        $send_kex = true;
 
         $kex_algorithms = isset($preferred['kex']) ?
             $preferred['kex'] :
@@ -1451,7 +1452,7 @@ class Net_SSH2
             0
         );
 
-        if ($this->send_kex_first) {
+        if ($kexinit_payload_server === false) {
             if (!$this->_send_binary_packet($kexinit_payload_client)) {
                 return false;
             }
@@ -1467,6 +1468,8 @@ class Net_SSH2
                 user_error('Expected SSH_MSG_KEXINIT');
                 return false;
             }
+
+            $send_kex = false;
         }
 
         $response = $kexinit_payload_server;
@@ -1539,7 +1542,7 @@ class Net_SSH2
         extract(unpack('Cfirst_kex_packet_follows', $this->_string_shift($response, 1)));
         $first_kex_packet_follows = $first_kex_packet_follows != 0;
 
-        if (!$this->send_kex_first && !$this->_send_binary_packet($kexinit_payload_client)) {
+        if ($send_kex && !$this->_send_binary_packet($kexinit_payload_client)) {
             return false;
         }
 
