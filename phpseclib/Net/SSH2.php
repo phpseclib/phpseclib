@@ -1410,6 +1410,7 @@ class SSH2
     private function key_exchange($kexinit_payload_server = false)
     {
         $preferred = $this->preferred;
+        $send_kex = true;
 
         $kex_algorithms = isset($preferred['kex']) ?
             $preferred['kex'] :
@@ -1473,7 +1474,7 @@ class SSH2
             0 // reserved for future extension
         );
 
-        if ($this->send_kex_first) {
+        if ($kexinit_payload_server === false) {
             $this->send_binary_packet($kexinit_payload_client);
 
             $kexinit_payload_server = $this->get_binary_packet();
@@ -1486,6 +1487,8 @@ class SSH2
                 $this->disconnect_helper(NET_SSH2_DISCONNECT_PROTOCOL_ERROR);
                 throw new \UnexpectedValueException('Expected SSH_MSG_KEXINIT');
             }
+
+            $send_kex = false;
         }
 
         $response = $kexinit_payload_server;
@@ -1506,7 +1509,7 @@ class SSH2
             $first_kex_packet_follows
         ) = Strings::unpackSSH2('L10C', $response);
 
-        if (!$this->send_kex_first) {
+        if ($send_kex) {
             $this->send_binary_packet($kexinit_payload_client);
         }
 
