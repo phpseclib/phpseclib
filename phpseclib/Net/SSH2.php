@@ -3532,7 +3532,7 @@ class SSH2
 
         // only called when we've already logged in
         if (($this->bitmap & self::MASK_CONNECTED) && $this->isAuthenticated()) {
-            switch (ord($payload[0])) {
+            switch (ord(isset($payload[0]) ? $payload[0] : null)) {
                 case NET_SSH2_MSG_CHANNEL_REQUEST:
                     if (strlen($payload) == 31) {
                         extract(unpack('cpacket_type/Nchannel/Nlength', $payload));
