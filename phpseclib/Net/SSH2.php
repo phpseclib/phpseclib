@@ -3548,6 +3548,10 @@ class Net_SSH2
 
         // only called when we've already logged in
         if (($this->bitmap & NET_SSH2_MASK_CONNECTED) && $this->isAuthenticated()) {
+            if (is_bool($payload)) {
+                return $payload;
+            }
+
             switch (ord($payload[0])) {
                 case NET_SSH2_MSG_CHANNEL_REQUEST:
                     if (strlen($payload) == 31) {
