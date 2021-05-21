@@ -1210,7 +1210,6 @@ class SSH2
     /**
      * Connect to an SSHv2 server
      *
-     * @return bool
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @throws \RuntimeException on other errors
      * @access private
@@ -1218,7 +1217,7 @@ class SSH2
     private function connect()
     {
         if ($this->bitmap & self::MASK_CONSTRUCTOR) {
-            return false;
+            return;
         }
 
         $this->bitmap |= self::MASK_CONSTRUCTOR;
@@ -1242,8 +1241,7 @@ class SSH2
             if ($this->curTimeout) {
                 $this->curTimeout-= $elapsed;
                 if ($this->curTimeout < 0) {
-                    $this->is_timeout = true;
-                    return false;
+                    throw new \RuntimeException('Connection timed out whilst attempting to open socket connection');
                 }
             }
         }
@@ -1267,8 +1265,7 @@ class SSH2
             while (true) {
                 if ($this->curTimeout) {
                     if ($this->curTimeout < 0) {
-                        $this->is_timeout = true;
-                        return false;
+                        throw new \RuntimeException('Connection timed out whilst receiving server identification string');
                     }
                     $read = [$this->fsock];
                     $write = $except = null;
@@ -1276,19 +1273,18 @@ class SSH2
                     $sec = floor($this->curTimeout);
                     $usec = 1000000 * ($this->curTimeout - $sec);
                     if (@stream_select($read, $write, $except, $sec, $usec) === false) {
-                        $this->is_timeout = true;
-                        return false;
+                        throw new \RuntimeException('Connection timed out whilst receiving server identification string');
                     }
                     $elapsed = microtime(true) - $start;
                     $this->curTimeout-= $elapsed;
                 }
 
                 $temp = stream_get_line($this->fsock, 255, "\n");
+                if ($temp === false) {
+                    throw new \RuntimeException('Error reading from socket');
+                }
                 if (strlen($temp) == 255) {
                     continue;
-                }
-                if ($temp === false) {
-                    return false;
                 }
 
                 $line.= "$temp\n";
@@ -1337,23 +1333,17 @@ class SSH2
 
         if (!$this->send_kex_first) {
             $response = $this->get_binary_packet();
-            if ($response === false) {
-                $this->bitmap = 0;
-                throw new ConnectionClosedException('Connection closed by server');
-            }
 
             if (!strlen($response) || ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
                 $this->bitmap = 0;
                 throw new \UnexpectedValueException('Expected SSH_MSG_KEXINIT');
             }
 
-            if (!$this->key_exchange($response)) {
-                return false;
-            }
+            $this->key_exchange($response);
         }
 
-        if ($this->send_kex_first && !$this->key_exchange()) {
-            return false;
+        if ($this->send_kex_first) {
+            $this->key_exchange();
         }
 
         $this->bitmap|= self::MASK_CONNECTED;
@@ -1478,10 +1468,6 @@ class SSH2
             $this->send_binary_packet($kexinit_payload_client);
 
             $kexinit_payload_server = $this->get_binary_packet();
-            if ($kexinit_payload_server === false) {
-                $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-                throw new ConnectionClosedException('Connection closed by server');
-            }
 
             if (!strlen($kexinit_payload_server) || ord($kexinit_payload_server[0]) != NET_SSH2_MSG_KEXINIT) {
                 $this->disconnect_helper(NET_SSH2_DISCONNECT_PROTOCOL_ERROR);
@@ -1621,10 +1607,6 @@ class SSH2
                 $this->updateLogHistory('UNKNOWN (34)', 'NET_SSH2_MSG_KEXDH_GEX_REQUEST');
 
                 $response = $this->get_binary_packet();
-                if ($response === false) {
-                    $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-                    throw new ConnectionClosedException('Connection closed by server');
-                }
 
                 list($type, $primeBytes, $gBytes) = Strings::unpackSSH2('Css', $response);
                 if ($type != NET_SSH2_MSG_KEXDH_GEX_GROUP) {
@@ -1670,13 +1652,6 @@ class SSH2
         }
 
         $response = $this->get_binary_packet();
-        if ($response === false) {
-            $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-            throw new ConnectionClosedException('Connection closed by server');
-        }
-        if (!strlen($response)) {
-            return false;
-        }
 
         list(
             $type,
@@ -1699,12 +1674,12 @@ class SSH2
 
         $this->server_public_host_key = $server_public_host_key;
         list($public_key_format) = Strings::unpackSSH2('s', $server_public_host_key);
-
         if (strlen($this->signature) < 4) {
-            return false;
+            throw new \LengthException('The signature needs at least four bytes');
         }
         $temp = unpack('Nlength', substr($this->signature, 0, 4));
         $this->signature_format = substr($this->signature, 4, $temp['length']);
+
         $keyBytes = DH::computeSecret($ourPrivate, $theirPublicBytes);
         if (($keyBytes & "\xFF\x80") === "\x00\x00") {
             $keyBytes = substr($keyBytes, 1);
@@ -1747,7 +1722,7 @@ class SSH2
                 case $server_host_key_algorithm != 'rsa-sha2-256' && $server_host_key_algorithm != 'rsa-sha2-512':
                 case $this->signature_format != 'ssh-rsa':
                     $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                    throw new \RuntimeException('Server Host Key Algorithm Mismatch');
+                    throw new \RuntimeException('Server Host Key Algorithm Mismatch (' . $this->signature_format . ' vs ' . $server_host_key_algorithm . ')');
             }
         }
 
@@ -2107,9 +2082,7 @@ class SSH2
     protected function sublogin($username, ...$args)
     {
         if (!($this->bitmap & self::MASK_CONSTRUCTOR)) {
-            if (!$this->connect()) {
-                return false;
-            }
+            $this->connect();
         }
 
         if (empty($args)) {
@@ -2147,13 +2120,12 @@ class SSH2
             $packet = Strings::packSSH2('Cs', NET_SSH2_MSG_SERVICE_REQUEST, 'ssh-userauth');
             $this->send_binary_packet($packet);
 
-            $response = $this->get_binary_packet();
-            if ($response === false) {
+            try {
+                $response = $this->get_binary_packet();
+            } catch (\Exception $e) {
                 if ($this->retry_connect) {
                     $this->retry_connect = false;
-                    if (!$this->connect()) {
-                        return false;
-                    }
+                    $this->connect();
                     return $this->login_helper($username, $password);
                 }
                 $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
@@ -2200,10 +2172,6 @@ class SSH2
             $this->send_binary_packet($packet);
 
             $response = $this->get_binary_packet();
-            if ($response === false) {
-                $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-                throw new ConnectionClosedException('Connection closed by server');
-            }
 
             list($type) = Strings::unpackSSH2('C', $response);
             switch ($type) {
@@ -2250,10 +2218,6 @@ class SSH2
         $this->send_binary_packet($packet, $logged);
 
         $response = $this->get_binary_packet();
-        if ($response === false) {
-            $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-            throw new ConnectionClosedException('Connection closed by server');
-        }
 
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
@@ -2325,10 +2289,6 @@ class SSH2
             $response = $this->last_interactive_response;
         } else {
             $orig = $response = $this->get_binary_packet();
-            if ($response === false) {
-                $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-                throw new ConnectionClosedException('Connection closed by server');
-            }
         }
 
         list($type) = Strings::unpackSSH2('C', $response);
@@ -2519,10 +2479,6 @@ class SSH2
         $this->send_binary_packet($packet);
 
         $response = $this->get_binary_packet();
-        if ($response === false) {
-            $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-            throw new ConnectionClosedException('Connection closed by server');
-        }
 
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
@@ -2555,10 +2511,6 @@ class SSH2
         $this->send_binary_packet($packet);
 
         $response = $this->get_binary_packet();
-        if ($response === false) {
-            $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-            throw new ConnectionClosedException('Connection closed by server');
-        }
 
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
@@ -2681,10 +2633,6 @@ class SSH2
             $this->send_binary_packet($packet);
 
             $response = $this->get_binary_packet();
-            if ($response === false) {
-                $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-                throw new ConnectionClosedException('Connection closed by server');
-            }
 
             list($type) = Strings::unpackSSH2('C', $response);
             switch ($type) {
@@ -3157,9 +3105,7 @@ class SSH2
     {
         $this->reset_connection(NET_SSH2_DISCONNECT_CONNECTION_LOST);
         $this->retry_connect = true;
-        if (!$this->connect()) {
-            return false;
-        }
+        $this->connect();
         foreach ($this->auth as $auth) {
             $result = $this->login(...$auth);
         }
@@ -3500,8 +3446,8 @@ class SSH2
 
         // only called when we've already logged in
         if (($this->bitmap & self::MASK_CONNECTED) && $this->isAuthenticated()) {
-            if (is_bool($payload)) {
-                return $payload;
+            if ($payload === true) {
+                return true;
             }
 
             switch (ord($payload[0])) {
@@ -4766,9 +4712,7 @@ class SSH2
     public function getServerPublicHostKey()
     {
         if (!($this->bitmap & self::MASK_CONSTRUCTOR)) {
-            if (!$this->connect()) {
-                return false;
-            }
+            $this->connect();
         }
 
         $signature = $this->signature;
