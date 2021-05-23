@@ -5058,7 +5058,7 @@ class X509
             $temp = $str;
         } else {
             $temp = preg_replace('#.*?^-+[^-]+-+[\r\n ]*$#ms', '', $str, 1);
-            $temp = preg_replace('#-+END.*[\r\n ]*.*#ms', '', $str, 1);
+            $temp = preg_replace('#-+END.*[\r\n ]*.*#ms', '', $temp, 1);
         }
         // remove new lines
         $temp = str_replace(array("\r", "\n", ' '), '', $temp);
