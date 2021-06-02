@@ -1190,4 +1190,64 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
         $x509 = new X509;
         $this->assertIsString($x509->computeKeyIdentifier($key));
     }
+
+    /**
+     * @group github1665
+     */
+    public function testImplicitV1()
+    {
+        $x509 = new X509();
+        $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
+MIIDZDCCAkwCCQDIda+OHQTFSTANBgkqhkiG9w0BAQsFADB0MQswCQYDVQQGEwJE
+RTEMMAoGA1UECAwDc2RmMQ4wDAYDVQQHDAVzZ3J3ZTEOMAwGA1UECgwFZXJncmUx
+DDAKBgNVBAsMA2VyZzEMMAoGA1UEAwwDd3JnMRswGQYJKoZIhvcNAQkBFgxqYWRm
+c0BzZGYuZGUwHhcNMjEwNTI2MTIxMTQwWhcNMjIwNTI2MTIxMTQwWjB0MQswCQYD
+VQQGEwJERTEMMAoGA1UECAwDc2RmMQ4wDAYDVQQHDAVzZ3J3ZTEOMAwGA1UECgwF
+ZXJncmUxDDAKBgNVBAsMA2VyZzEMMAoGA1UEAwwDd3JnMRswGQYJKoZIhvcNAQkB
+FgxqYWRmc0BzZGYuZGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCy
+Cdw2oh1mLuMq9icQWkv1Sgt1p4RhwAeiYcqo/lm0VAf3LjPDDCccXmwFUEQJ2g8r
+UPmvazT0IaYytsPGlNCS2nA+OyY/NBySpBcksiQHEfmrW04/jsoJ2oql+BCWkGsF
+dAewCWpzvL8RZxoKYlZwBfvyDn4QFn1TsuCxnHdKvrcpvzaQcfBcJT8P39TFTlUc
+mBoa3Y/iIULlvwk3w+1LjY7gnNDqNyGaOSZpfpliTxwvIK/PJbStD0srT+voSPZW
+4Xt1oOxqmdFvTL+6H6xT/HrEfwtN/+bU1ZmY23Kcq21sczy4dvglrnPqmRUVjoL8
+qs/qT8GNZmvZxB5dLXbfAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAH5ciSY+dD+H
+CmnMHmZwyE1q3QifO/qiygNeosnth6dYI+JxR9aAJKB6vnBQl3IReeoniaSH/iaH
+DthLeo0haSb5d3P911wPmw3gut7ungnQ1X/HHroDL6UASj+x2Dux04w7Q3YNyqGT
+OObFmWs68kxLV3V0TDYNjz+nU4wVqFDKlehdoDm4Q/uq2FIRbU/qWS61sxI/s+Pg
+42cGvzZe673OZgtOIDuRo/8Ahe/Vc285nbuMRMTWIs9e5fGSW8b6gVmKhBUmIFGj
+bMgrc775Q3t4hkitEymosEiqHsj7YM6EpgHZwke+CNdybIUw+u9L3xxOl4mEeY6l
+itRo91vT68U=
+-----END CERTIFICATE-----');
+        $this->assertSame($r['tbsCertificate']['version'], 'v1');
+    }
+
+    /**
+     * @group github1657
+     */
+    public function signWithEncryptedPSS()
+    {
+        $private = PublicKeyLoader::load('-----BEGIN ENCRYPTED PRIVATE KEY-----
+MIIBvTBXBgkqhkiG9w0BBQ0wSjApBgkqhkiG9w0BBQwwHAQIpZHwLtkYRb4CAggA
+MAwGCCqGSIb3DQIJBQAwHQYJYIZIAWUDBAECBBCCGsoP7F4bd8O5I1poTn8PBIIB
+YBtM1tgqsAQgbSZT0475aHufzFuJuPWOYqiHag8OUKMeZuxVHndElipEY2V5lS9m
+wddwtWaGuYD/Swcdt0Xht8U8BF0SjSyzQ4YtRsG9CmEHYhWmQ5AqK1W3mDUApO38
+Cm5L1HrHV4YJnYmmK9jgq+iWlLFDmB8s4TA6kMPWbCENlpr1kEXz4hLwY3ylH8XW
+I65WX2jGSn61jayCwpf1HPFBPDUaS5s3f92aKjk0AE8htsDBBiCVS3Yjq4QSbhfz
+uNIZ1TooXT9Xn+EJC0yjVnlTHZMfqrcA3OmVSi4kftugjAax4Z2qDqO+onkgeJAw
+P75scMcwH0SQUdrNrejgfIzJFWzcH9xWwKhOT9s9hLx2OfPlMtDDSJVRspqwwQrF
+QwinX0cR9Hx84rSMrFndxZi52o9EOLJ7cithncoW1KOAf7lIJIUzP0oIKkskAndQ
+o2UiZsxgoMYuq02T07DOknc=
+-----END ENCRYPTED PRIVATE KEY-----', 'demo');
+
+        $subject = new X509;
+        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $subject->setPublicKey($private->getPublicKey());
+
+        $issuer = new X509;
+        $issuer->setPrivateKey($private);
+        $issuer->setDNProp('id-at-organizationName', 'phpseclib CA cert');
+
+        $x509 = new X509;
+        $x509->sign($issuer, $subject);
+    }
 }
