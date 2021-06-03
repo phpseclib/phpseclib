@@ -272,7 +272,7 @@ class SFTP extends SSH2
      * @var array
      * @access private
      */
-    private $requestBuffer = array();
+    private $requestBuffer = [];
 
     /**
      * Preserve timestamps on file downloads / uploads
@@ -3012,10 +3012,10 @@ class SFTP extends SSH2
         }
 
         if (isset($request_id) && $this->use_request_id && $packet_id != $request_id) {
-            $this->requestBuffer[$packet_id] = array(
+            $this->requestBuffer[$packet_id] = [
                 'packet_type' => $this->packet_type,
                 'packet' => $packet
-            );
+            ];
             return $this->get_sftp_packet($request_id);
         }
 
