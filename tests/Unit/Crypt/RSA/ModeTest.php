@@ -144,7 +144,7 @@ E252896950917476ECE5E8FC27D5F053D6018D91B502C4787558A002B9283DA7', 16),
      */
     public function testOAEPWithLabel()
     {
-        $publicKey = new Crypt_RSA();
+        $publicKey = new RSA();
         $publicKey->loadKey('-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCnkFHQbt801+kMnxn0VmMVljp8
 XdsbLEziLul3MwwckBDHwW6UDvYjN7vzJ/OM2RTxTbzilDcXJ37Zqz4qlDvXwSNm
@@ -152,7 +152,7 @@ gIe+3dpuuRQRrJuJP6FD8zDTkRmg3QWOIIPBTzCqOtJKgWjFwMMxfCOBFEv6Ldn5
 Ac0i9ARl0/aNTWjvGwIDAQAB
 -----END PUBLIC KEY-----');
 
-        $privateKey = new Crypt_RSA();
+        $privateKey = new RSA();
         $privateKey->loadKey('-----BEGIN PRIVATE KEY-----
 MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKeQUdBu3zTX6Qyf
 GfRWYxWWOnxd2xssTOIu6XczDByQEMfBbpQO9iM3u/Mn84zZFPFNvOKUNxcnftmr
