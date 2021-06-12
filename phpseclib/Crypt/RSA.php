@@ -2580,9 +2580,9 @@ class RSA
             $offset+= $patternMatch ? 0 : 1;
         }
 
-        // we do & instead of && to avoid https://en.wikipedia.org/wiki/Short-circuit_evaluation
+        // we do | instead of || to avoid https://en.wikipedia.org/wiki/Short-circuit_evaluation
         // to protect against timing attacks
-        if (!$hashesMatch & !$patternMatch) {
+        if (!$hashesMatch | !$patternMatch) {
             user_error('Decryption error');
             return false;
         }
