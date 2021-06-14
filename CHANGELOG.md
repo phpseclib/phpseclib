@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.32 - 2021-06-13
+
+- SSH2: add getAuthMethodsToContinue() method (#1648)
+- SSH2: timeout would occasionally infinitely loop
+- SSH2: fix PHP7.4 errors about accessing bool as string (#1656)
+- SFTP: reopen channel on channel closure (#1654)
+- X509: extra characters before cert weren't being removed (#1659)
+- ASN1: fix timezone issue when non-utc time is given (#1562)
+- RSA: OAEP decryption didn't check labels correctly (#1669)
+
 ## 2.0.31 - 2021-04-06
 
 - X509: always parse the first cert of a bundle (#1568)
