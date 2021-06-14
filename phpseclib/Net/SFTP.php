@@ -2940,7 +2940,7 @@ class SFTP extends SSH2
         while (strlen($this->packet_buffer) < 4) {
             $temp = $this->get_channel_packet(self::CHANNEL, true);
             if ($temp === true) {
-                if ($this->channel_status[NET_SFTP_CHANNEL] === NET_SSH2_MSG_CHANNEL_CLOSE) {
+                if ($this->channel_status[self::CHANNEL] === NET_SSH2_MSG_CHANNEL_CLOSE) {
                     $this->channel_close = true;
                 }
                 $this->packet_type = false;
