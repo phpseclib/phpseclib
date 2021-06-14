@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.0.9 - 2021-06-13
+
+- SSH2: add getAuthMethodsToContinue() method (#1648)
+- SSH2: timeout would occasionally infinitely loop
+- SSH2: fix PHP7.4 errors about accessing bool as string (#1656)
+- SSH2: fix issue with key re-exchange (#1644)
+- SFTP: reopen channel on channel closure (#1654)
+- X509: extra characters before cert weren't being removed (#1659)
+- X509: signing with pw protected PSS keys yielded errors (#1657)
+- ASN1: fix timezone issue when non-utc time is given (#1562)
+- ASN1: change how default values are processed for ints and enums (#1665)
+- RSA: OAEP decryption didn't check labels correctly (#1669)
+
 ## 3.0.8 - 2021-04-20
 
 - AsymetrticKey: add getComment() method (#1638)
@@ -71,6 +84,17 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.32 - 2021-06-13
+
+- SSH2: add getAuthMethodsToContinue() method (#1648)
+- SSH2: timeout would occasionally infinitely loop
+- SSH2: fix PHP7.4 errors about accessing bool as string (#1656)
+- SSH2: fix issue with key re-exchange (#1644)
+- SFTP: reopen channel on channel closure (#1654)
+- X509: extra characters before cert weren't being removed (#1659)
+- ASN1: fix timezone issue when non-utc time is given (#1562)
+- RSA: OAEP decryption didn't check labels correctly (#1669)
 
 ## 2.0.31 - 2021-04-06
 
