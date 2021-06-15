@@ -3119,7 +3119,7 @@ class SFTP extends SSH2
 
 
         // 256 * 1024 is what SFTP_MAX_MSG_LENGTH is set to in OpenSSH's sftp-common.h
-        if ($tempLength > 256 * 1024) {
+        if (!$this->use_request_id && $tempLength > 256 * 1024) {
             user_error('Invalid SFTP packet size');
             return false;
         }
