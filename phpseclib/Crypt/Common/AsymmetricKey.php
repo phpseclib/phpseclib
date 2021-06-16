@@ -280,7 +280,7 @@ abstract class AsymmetricKey
      * @param string $key
      * @param string $password optional
      */
-    public function loadPrivateKeyFormat($type, $key, $password = false)
+    public static function loadPrivateKeyFormat($type, $key, $password = false)
     {
         $key = self::loadFormat($type, $key, $password);
         if (!$key instanceof PrivateKey) {
@@ -297,7 +297,7 @@ abstract class AsymmetricKey
      * @param string $type
      * @param string $key
      */
-    public function loadPublicKeyFormat($type, $key)
+    public static function loadPublicKeyFormat($type, $key)
     {
         $key = self::loadFormat($type, $key);
         if (!$key instanceof PublicKey) {
@@ -314,7 +314,7 @@ abstract class AsymmetricKey
      * @param string $type
      * @param string|array $key
      */
-    public function loadParametersFormat($type, $key)
+    public static function loadParametersFormat($type, $key)
     {
         $key = self::loadFormat($type, $key);
         if (!$key instanceof PrivateKey && !$key instanceof PublicKey) {
