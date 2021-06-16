@@ -3092,7 +3092,7 @@ class SSH2
             return $this->reconnect();
         }
 
-        $this->close_channel(NET_SSH2_CHANNEL_KEEP_ALIVE);
+        $this->close_channel(self::CHANNEL_KEEP_ALIVE);
         return true;
     }
 
