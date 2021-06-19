@@ -3101,7 +3101,7 @@ class SFTP extends SSH2
      *
      * @access public
      */
-    function enableDatePreservation()
+    public function enableDatePreservation()
     {
         $this->preserveTime = true;
     }
@@ -3111,7 +3111,7 @@ class SFTP extends SSH2
      *
      * @access public
      */
-    function disableDatePreservation()
+    public function disableDatePreservation()
     {
         $this->preserveTime = false;
     }
