@@ -1123,7 +1123,7 @@ class SSH2
                   31 => 'NET_SSH2_MSG_KEX_ECDH_REPLY']
         );
 
-        self::$connections[$this->getResourceId()] = $this;
+        self::$connections[$this->getResourceId()] = class_exists('WeakReference') ? \WeakReference::create($this) : $this;
 
         if (is_resource($host)) {
             $this->fsock = $host;
