@@ -143,8 +143,8 @@ fUQvcGEA9FSQ8Y0nfF9vzzcCjLtOI6xJluYL9XCk8WVEBEawA2zmHWTzzuHFHHEM
 7qncJric4bulCQ0CmNiv+IUnyoLHzaef79+q+7ohi6mYYDP9dmdlj/Yd7Ndae3wt
 2qzmm8yz+tnp3rOpfrHvQLBK5C7g/qaM2jBguSsj
 -----END CERTIFICATE REQUEST-----');
-        $this->assertTrue($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1);
-        $this->assertFalse($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS);
+        $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
+        $this->assertFalse(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
     }
 
     /**
@@ -170,7 +170,7 @@ yGSdZsGMatjn2ld+Ndj3uAYlujyKlqGcAOb53bu+PswH5KXTJJquOJH84UoKraog
 +3qWznvQLPSZVSEp03EViSh82fuRxa+6B/W5ur43FERi/5sakzI1kMcvYDO/pord
 12M26xz/hpPfs5yFls/NPzW3o7PSkvFJhSrGmgg=
 -----END CERTIFICATE REQUEST-----');
-        $this->assertFalse($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1);
-        $this->assertTrue($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS);
+        $this->assertFalse(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
+        $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
     }
 }
