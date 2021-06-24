@@ -2203,8 +2203,10 @@ class X509
         $key = $keyinfo['subjectPublicKey'];
 
         switch ($keyinfo['algorithm']['algorithm']) {
+            case 'id-RSASSA-PSS':
+                return RSA::loadFormat('PSS', $key);
             case 'rsaEncryption':
-                return RSA::loadFormat('PKCS8', $key);
+                return RSA::loadFormat('PKCS8', $key)->withPadding(RSA::SIGNATURE_PKCS1);
             case 'id-ecPublicKey':
             case 'id-Ed25519':
             case 'id-Ed448':

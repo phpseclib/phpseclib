@@ -120,4 +120,57 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $x509->setDN(['cn' => 'website.com']);
         $x509->saveCSR($x509->signCSR(), X509::FORMAT_DER);
     }
+
+    /**
+     * @group github1675
+     */
+    public function testPKCS1CSR()
+    {
+        $x509 = new X509;
+        $x509->loadCSR('-----BEGIN CERTIFICATE REQUEST-----
+MIICijCCAXICAQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUx
+ITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBAJ/PFzGDOThrFNMmEFGoheGD5uOzAEBfTMLusRul
+NA6x/qYKxtsvGa6QOyNMprGuJDIXmvgF9rfXQWyvsbJyCKXFQcJFEEas5yY1XlAI
+t4dz/5ZT2oAAPvA+cAfvYzQxyyxSW4/sdLXCiHw+ixQAsLHBJ7clI7Dc6h3qYsPO
+g+BbR+5IXK9RuietJ0R4D0j+rXlYW4xA1RwvawK2pgZsTgGRrJe7Ve0gMP8BBDRI
+6wafiTS7XpjEHOvZnRVHXNNOwkvo8WmYtR68fQ84CQSp9vIQPDdmqMyGWh1PsPN/
+VxrEVu2Ag6K/JoJPJetZelbOoUjZXOVxH0vHkIGvc2Ym0IUCAwEAAaAAMA0GCSqG
+SIb3DQEBCwUAA4IBAQA2lcOk3iLmh3lvSyV8l+Sf98VSaAHJ+UkrRTdWNveKjIva
+jhPgFQkXv6zhD0Jm/EfF22whVHA4EG3bC2Gl2B4qx5uV9Dv76usTdiJHBuDCxcXj
+17ixfv7rUGTBUv28W1RiyDeJQe3ybUYy0s3erJewum6wiLDxcWyWu18lw3C7Vkjy
+fUQvcGEA9FSQ8Y0nfF9vzzcCjLtOI6xJluYL9XCk8WVEBEawA2zmHWTzzuHFHHEM
+7qncJric4bulCQ0CmNiv+IUnyoLHzaef79+q+7ohi6mYYDP9dmdlj/Yd7Ndae3wt
+2qzmm8yz+tnp3rOpfrHvQLBK5C7g/qaM2jBguSsj
+-----END CERTIFICATE REQUEST-----');
+        $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
+        $this->assertFalse(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
+    }
+
+    /**
+     * @group github1675
+     */
+    public function testPSSCSR()
+    {
+        $x509 = new X509;
+        $x509->loadCSR('-----BEGIN CERTIFICATE REQUEST-----
+MIICuTCCAXACAQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUx
+ITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDCCASAwCwYJKoZIhvcN
+AQEKA4IBDwAwggEKAoIBAQDM8Dapuz5bjff8xxmOBGxg4dZZd2/Vp6pKGvEewSHC
+HSda+SYoC44+KX4nqQanZLxTqtyOwZPmomDBOztXJk84JhcvyrXL4Vp61xrZserr
+Hivhvc8VwgaFVjFUIMZbnB2EPQiI2zN7Dc1a5Ytmz9dI/Q6LOuA698YPqWZLgeih
+CVoGBZei2F8ANeIp3I2/x0ipEWRUNliBrR2BFc5+GPaR8Y+uaFrER/D774hcFTuC
+FSmHPOhN0S+XCWPYwgU2luUoDrvW+bqC/BJRfE1BGaO5NgdQ9HKdV3zCJE1/p08b
+pX/nUhga1lEw0kr3Kb2N0AYNDXUnWiFjBNQpTmSIYzUnAgMBAAGgADA+BgkqhkiG
+9w0BAQowMaANMAsGCWCGSAFlAwQCAaEaMBgGCSqGSIb3DQEBCDALBglghkgBZQME
+AgGiBAICAN4DggEBAA2eQuuzaPVx/uUJQyyLgBbsRGRwWyAdZAQoHx9nTeDYaIiX
+Uw6Tn0OIUhg1W+H1eCLSZEaBc0PXLcpRsbf4rK+a8tpVfR1F6mI3KfRfSQALpBsq
+S64eNMpi1FpaBu4FxgA31FaXcQVDEgYNB5BK0qr+6NFDtwnOXG03kGaAMOUGT02n
+yGSdZsGMatjn2ld+Ndj3uAYlujyKlqGcAOb53bu+PswH5KXTJJquOJH84UoKraog
++3qWznvQLPSZVSEp03EViSh82fuRxa+6B/W5ur43FERi/5sakzI1kMcvYDO/pord
+12M26xz/hpPfs5yFls/NPzW3o7PSkvFJhSrGmgg=
+-----END CERTIFICATE REQUEST-----');
+        $this->assertFalse(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
+        $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
+    }
 }
