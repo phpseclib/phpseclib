@@ -1,4 +1,5 @@
 <?php
+// attributes will require a lot of work
 
 /**
  * Pure-PHP implementation of SFTP.
@@ -412,9 +413,20 @@ class Net_SFTP extends Net_SSH2
         // the order, in this case, matters quite a lot - see Net_SFTP::_parseAttributes() to understand why
         $this->attributes = array(
             0x00000001 => 'NET_SFTP_ATTR_SIZE',
-            0x00000002 => 'NET_SFTP_ATTR_UIDGID', // defined in SFTPv3, removed in SFTPv4+
+            0x00000002 => 'NET_SFTP_ATTR_UIDGID',          // defined in SFTPv3, removed in SFTPv4+
             0x00000004 => 'NET_SFTP_ATTR_PERMISSIONS',
             0x00000008 => 'NET_SFTP_ATTR_ACCESSTIME',
+            0x00000010 => 'NET_SFTP_ATTR_CREATETIME',      // SFTPv4+
+            0x00000020 => 'NET_SFTP_ATTR_MODIFYTIME',
+            0x00000040 => 'NET_SFTP_ATTR_ACL',
+            0x00000080 => 'NET_SFTP_ATTR_OWNERGROUP',
+            0x00000100 => 'NET_SFTP_ATTR_SUBSECOND_TIMES',
+            0x00000200 => 'NET_SFTP_ATTR_BITS',            // SFTPv5+
+            0x00000400 => 'NET_SFTP_ATTR_ALLOCATION_SIZE', // SFTPv6+
+            0x00000800 => 'NET_SFTP_ATTR_TEXT_HINT',
+            0x00001000 => 'NET_SFTP_ATTR_MIME_TYPE',
+            0x00002000 => 'NET_SFTP_ATTR_LINK_COUNT',
+            0x00008000 => 'NET_SFTP_ATTR_CTIME',
             // 0x80000000 will yield a floating point on 32-bit systems and converting floating points to integers
             // yields inconsistent behavior depending on how php is compiled.  so we left shift -1 (which, in
             // two's compliment, consists of all 1 bits) by 31.  on 64-bit systems this'll yield 0xFFFFFFFF80000000.
@@ -586,6 +598,8 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
+        $this->use_request_id = true;
+
         if (strlen($response) < 4) {
             return false;
         }
@@ -604,22 +618,6 @@ class Net_SFTP extends Net_SSH2
             $value = $this->_string_shift($response, $length);
             $this->extensions[$key] = $value;
         }
-
-        /*
-         SFTPv4+ defines a 'newline' extension.  SFTPv3 seems to have unofficial support for it via 'newline@vandyke.com',
-         however, I'm not sure what 'newline@vandyke.com' is supposed to do (the fact that it's unofficial means that it's
-         not in the official SFTPv3 specs) and 'newline@vandyke.com' / 'newline' are likely not drop-in substitutes for
-         one another due to the fact that 'newline' comes with a SSH_FXF_TEXT bitmask whereas it seems unlikely that
-         'newline@vandyke.com' would.
-        */
-        /*
-        if (isset($this->extensions['newline@vandyke.com'])) {
-            $this->extensions['newline'] = $this->extensions['newline@vandyke.com'];
-            unset($this->extensions['newline@vandyke.com']);
-        }
-        */
-
-        $this->use_request_id = true;
 
         /*
          A Note on SFTPv4/5/6 support:
@@ -644,12 +642,54 @@ class Net_SFTP extends Net_SSH2
          in draft-ietf-secsh-filexfer-13 would be quite impossible.  As such, what Net_SFTP would do is close the
          channel and reopen it with a new and updated SSH_FXP_INIT packet.
         */
-        switch ($this->version) {
-            case 2:
-            case 3:
-                break;
-            default:
-                return false;
+        if (isset($this->extensions['versions'])) {
+            $versions = explode(',', $this->extensions['versions']);
+            foreach ([6, 5, 4] as $ver) {
+                if (in_array($ver, $versions)) {
+                    if ($ver === $this->version) {
+                        break;
+                    }
+                    $this->version = (int) $ver;
+                    $packet = pack('Na*Na*', strlen('version-select'), 'version-select', strlen($ver), $ver);
+                    if (!$this->_send_sftp_packet(NET_SFTP_EXTENDED, $packet)) {
+                        return false;
+                    }
+                    $response = $this->_get_sftp_packet();
+                    if ($this->packet_type != NET_SFTP_STATUS) {
+                        user_error('Expected SSH_FXP_STATUS');
+                        return false;
+                    }
+
+                    if (strlen($response) < 4) {
+                        return false;
+                    }
+                    extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+                    if ($status != NET_SFTP_STATUS_OK) {
+                        $this->_logError($response, $status);
+                        return false;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        /*
+         SFTPv4+ defines a 'newline' extension.  SFTPv3 seems to have unofficial support for it via 'newline@vandyke.com',
+         however, I'm not sure what 'newline@vandyke.com' is supposed to do (the fact that it's unofficial means that it's
+         not in the official SFTPv3 specs) and 'newline@vandyke.com' / 'newline' are likely not drop-in substitutes for
+         one another due to the fact that 'newline' comes with a SSH_FXF_TEXT bitmask whereas it seems unlikely that
+         'newline@vandyke.com' would.
+        */
+        /*
+        if (isset($this->extensions['newline@vandyke.com'])) {
+            $this->extensions['newline'] = $this->extensions['newline@vandyke.com'];
+            unset($this->extensions['newline@vandyke.com']);
+        }
+        */
+
+        if ($this->version < 2 || $this->version > 6) {
+            return false;
         }
 
         $this->pwd = $this->_realpath('.');
@@ -1560,6 +1600,7 @@ class Net_SFTP extends Net_SSH2
      */
     function chown($filename, $uid, $recursive = false)
     {
+//zzzzzzzzz
         // quoting from <http://www.kernel.org/doc/man-pages/online/pages/man2/chown.2.html>,
         // "if the owner or group is specified as -1, then that ID is not changed"
         $attr = pack('N3', NET_SFTP_ATTR_UIDGID, $uid, -1);
@@ -1988,7 +2029,6 @@ class Net_SFTP extends Net_SSH2
      *
      * If $data is a resource then it'll be used as a resource instead.
      *
-     *
      * Setting $mode to NET_SFTP_CALLBACK will use $data as callback function, which gets only one parameter -- number
      * of bytes to return, and returns a string if there is some data or null if there is no more data
      *
@@ -2024,6 +2064,27 @@ class Net_SFTP extends Net_SSH2
      */
     function put($remote_file, $data, $mode = NET_SFTP_STRING, $start = -1, $local_start = -1, $progressCallback = null)
     {
+        /*
+        SFTPv4 introduces the following new mode:
+        - SSH_FXP_TEXT (renamed to SSH_FXF_TEXT_MODE in v5)
+
+        SFTPv5 introduced the following new modes:
+        - SSH_FXF_ACCESS_READ_LOCK (renamed to SSH_FXF_BLOCK_READ in v6)
+        - SSH_FXF_ACCESS_WRITE_LOCK (renamed to SSH_FXF_BLOCK_WRITE in v6)
+        - SSH_FXF_ACCESS_DELETE_LOCK (renamed to SSH_FXF_BLOCK_DELETE in v6)
+
+        SFTPv6 introduced the following new modes:
+        - SSH_FXF_BLOCK_ADVISORY
+        - SSH_FXF_NOFOLLOW
+        - SSH_FXF_DELETE_ON_CLOSE
+        - SSH_FXF_ACCESS_AUDIT_ALARM_INFO
+        - SSH_FXF_ACCESS_BACKUP
+        - SSH_FXF_BACKUP_STREAM
+        - ACCESS_OVERRIDE_OWNER
+
+        none of these are currently supported
+        */
+
         if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
         }
@@ -2904,6 +2965,31 @@ class Net_SFTP extends Net_SSH2
     }
 
     /**
+     * Parse Time
+     *
+     * See '7.7.  Times' of draft-ietf-secsh-filexfer-13 for more info.
+     *
+     * @param string $key
+     * @param int $flags
+     * @param string $response
+     * @return array
+     * @access private
+     */
+    function _parseTime($key, $flags, &$response)
+    {
+        if (strlen($response) < 8) {
+            user_error('Malformed file attributes');
+            return array();
+        }
+        $attr = array();
+        $attr[$key] = hexdec(bin2hex($this->_string_shift($response, 4)));
+        if ($flags & NET_SFTP_ATTR_SUBSECOND_TIMES) {
+            $attr+= extract(unpack('N' . $key . '_nseconds', $this->_string_shift($response, 4)));
+        }
+        return $attr;
+    }
+
+    /**
      * Parse Attributes
      *
      * See '7.  File Attributes' of draft-ietf-secsh-filexfer-13 for more info.
@@ -2923,7 +3009,7 @@ class Net_SFTP extends Net_SSH2
         // SFTPv4+ have a type field (a byte) that follows the above flag field
         foreach ($this->attributes as $key => $value) {
             switch ($flags & $key) {
-                case NET_SFTP_ATTR_SIZE: // 0x00000001
+                case NET_SFTP_ATTR_SIZE:             // 0x00000001
                     // The size attribute is defined as an unsigned 64-bit integer.
                     // The following will use floats on 32-bit platforms, if necessary.
                     // As can be seen in the BigInteger class, floats are generally
@@ -2932,14 +3018,14 @@ class Net_SFTP extends Net_SSH2
                     // of precision. Interpreted in filesize, 2^50 bytes = 1024 TiB.
                     $attr['size'] = hexdec(bin2hex($this->_string_shift($response, 8)));
                     break;
-                case NET_SFTP_ATTR_UIDGID: // 0x00000002 (SFTPv3 only)
+                case NET_SFTP_ATTR_UIDGID:           // 0x00000002 (SFTPv3 only)
                     if (strlen($response) < 8) {
                         user_error('Malformed file attributes');
                         return $attr;
                     }
                     $attr+= unpack('Nuid/Ngid', $this->_string_shift($response, 8));
                     break;
-                case NET_SFTP_ATTR_PERMISSIONS: // 0x00000004
+                case NET_SFTP_ATTR_PERMISSIONS:      // 0x00000004
                     if (strlen($response) < 4) {
                         user_error('Malformed file attributes');
                         return $attr;
@@ -2953,14 +3039,40 @@ class Net_SFTP extends Net_SSH2
                         $attr+= array('type' => $fileType);
                     }
                     break;
-                case NET_SFTP_ATTR_ACCESSTIME: // 0x00000008
+                case NET_SFTP_ATTR_ACCESSTIME:       // 0x00000008
+                    if ($this->version >= 4) {
+                        $attr+= $this->_parseTime('atime', $flags, $response);
+                        break;
+                    }
                     if (strlen($response) < 8) {
                         user_error('Malformed file attributes');
                         return $attr;
                     }
                     $attr+= unpack('Natime/Nmtime', $this->_string_shift($response, 8));
                     break;
-                case NET_SFTP_ATTR_EXTENDED: // 0x80000000
+                case NET_SFTP_ATTR_CREATETIME:       // 0x00000010 (SFTPv4+)
+                    $attr+= $this->_parseTime('createtime', $flags, $response);
+                    break;
+                case NET_SFTP_ATTR_MODIFYTIME:       // 0x00000020
+                    $attr+= $this->_parseTime('mtime', $flags, $response);
+                    break;
+                case NET_SFTP_ATTR_ACL:              // 0x00000040
+                    // see https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-04#section-5.7
+                    // currently unsupported
+                    break;
+                case NET_SFTP_ATTR_OWNERGROUP:       // 0x00000080
+                    break;
+                case NET_SFTP_ATTR_SUBSECOND_TIMES:  // 0x00000100
+                    break;
+                case NET_SFTP_ATTR_BITS:             // 0x00000200 (SFTPv5+)
+                case NET_SFTP_ATTR_ALLOCATION_SIZE:  // 0x00000400 (SFTPv6+)
+                case NET_SFTP_ATTR_TEXT_HINT:        // 0x00000800
+                case NET_SFTP_ATTR_MIME_TYPE:        // 0x00001000
+                case NET_SFTP_ATTR_LINK_COUNT:       // 0x00002000
+                case NET_SFTP_ATTR_UNTRANSLATED_NAME:// 0x00004000
+                case NET_SFTP_ATTR_CTIME:            // 0x00008000
+                    break;
+                case NET_SFTP_ATTR_EXTENDED:         // 0x80000000
                     if (strlen($response) < 4) {
                         user_error('Malformed file attributes');
                         return $attr;
@@ -3298,6 +3410,10 @@ class Net_SFTP extends Net_SSH2
      */
     function getSupportedVersions()
     {
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+            return false;
+        }
+
         $temp = array('version' => $this->version);
         if (isset($this->extensions['versions'])) {
             $temp['extensions'] = $this->extensions['versions'];
