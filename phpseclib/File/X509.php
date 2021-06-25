@@ -1652,7 +1652,6 @@ class File_X509
                 $id = $extensions[$i]['extnId'];
                 $value = &$extensions[$i]['extnValue'];
                 $value = base64_decode($value);
-                $decoded = $asn1->decodeBER($value);
                 /* [extnValue] contains the DER encoding of an ASN.1 value
                    corresponding to the extension type identified by extnID */
                 $map = $this->_getMapping($id);
@@ -1660,6 +1659,7 @@ class File_X509
                     $decoder = $id == 'id-ce-nameConstraints' ?
                         array($this, '_decodeNameConstraintIP') :
                         array($this, '_decodeIP');
+                    $decoded = $asn1->decodeBER($value);
                     $mapped = $asn1->asn1map($decoded[0], $map, array('iPAddress' => $decoder));
                     $value = $mapped === false ? $decoded[0] : $mapped;
 
