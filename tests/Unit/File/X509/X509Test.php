@@ -955,7 +955,7 @@ EbQ5UK6Zu74q0lQLp7t14zSQ2B5tclVnM7jY0RiRzpLgDCq3kpbaw6KvFzH9lfPP
 BbNA6tFZAwLoX18R6yEmzHAQ+R2Eliiaz7mgQ+M2d0ec6qQJFoO7aJsX
 -----END CERTIFICATE-----';
 
-        $x509 = new File_X509();
+        $x509 = new X509();
         $r = $x509->loadX509($a);
 
         $this->assertIsArray($r);
