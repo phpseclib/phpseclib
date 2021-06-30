@@ -3108,6 +3108,9 @@ class SFTP extends SSH2
                 $this->packet_buffer = '';
                 return false;
             }
+            if ($temp === false) {
+                throw new \RuntimeException('Packet can not be read');
+            }
             $this->packet_buffer.= $temp;
         }
         if (strlen($this->packet_buffer) < 4) {
