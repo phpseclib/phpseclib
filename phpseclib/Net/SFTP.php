@@ -3169,6 +3169,9 @@ class Net_SFTP extends Net_SSH2
                 $this->packet_buffer = '';
                 return false;
             }
+            if ($temp === false) {
+                return false;
+            }
             $this->packet_buffer.= $temp;
         }
         if (strlen($this->packet_buffer) < 4) {
