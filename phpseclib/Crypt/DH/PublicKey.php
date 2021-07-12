@@ -15,6 +15,7 @@ namespace phpseclib3\Crypt\DH;
 
 use phpseclib3\Crypt\DH;
 use phpseclib3\Crypt\Common;
+use phpseclib3\Exception\UnsupportedOperationException;
 
 /**
  * DH Public Key
@@ -23,7 +24,7 @@ use phpseclib3\Crypt\Common;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PublicKey extends DH
+class PublicKey extends DH implements Common\PublicKey
 {
     use Common\Traits\Fingerprint;
 
@@ -49,5 +50,10 @@ class PublicKey extends DH
     public function toBigInteger()
     {
         return $this->publicKey;
+    }
+
+    public function verify($message, $signature)
+    {
+        throw new UnsupportedOperationException('verify() is not supported with DH keys');
     }
 }
