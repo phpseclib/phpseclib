@@ -28,7 +28,7 @@ use phpseclib3\Common\Functions\Strings;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-abstract class Engine implements \Serializable
+abstract class Engine
 {
     /**
      * Holds the BigInteger's value
@@ -64,6 +64,15 @@ abstract class Engine implements \Serializable
      * @var callable
      */
     protected $reduce;
+
+    /**
+     * Mode independent value used for serialization.
+     *
+     * @see self::__sleep()
+     * @see self::__wakeup()
+     * @var string
+     */
+    protected $hex;
 
     /**
      * Default constructor
@@ -295,31 +304,29 @@ abstract class Engine implements \Serializable
      *
      * @return string
      */
-    public function serialize()
+    public function __sleep()
     {
-        $val = ['hex' => $this->toHex(true)];
+        $this->hex = $this->toHex(true);
+        $vars = ['hex'];
         if ($this->precision > 0) {
-            $val['precision'] = $this->precision;
+            $vars[] = 'precision';
         }
-        return serialize($val);
+        return $vars;
     }
 
     /**
      * Serialize
      *
      * Will be called, automatically, when unserialize() is called on a BigInteger object.
-     *
-     * @param string $serialized
      */
-    public function unserialize($serialized)
+    public function __wakeup()
     {
-        $r = unserialize($serialized);
-        $temp = new static($r['hex'], -16);
+        $temp = new static($this->hex, -16);
         $this->value = $temp->value;
         $this->is_negative = $temp->is_negative;
-        if (isset($r['precision'])) {
+        if ($this->precision > 0) {
             // recalculate $this->bitmask
-            $this->setPrecision($r['precision']);
+            $this->setPrecision($this->precision);
         }
     }
 
