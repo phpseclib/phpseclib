@@ -526,6 +526,8 @@ class Net_SFTP extends Net_SSH2
         $response = $this->_get_channel_packet(NET_SFTP_CHANNEL, true);
         if ($response === false) {
             return false;
+        } else if ($response === true && $this->isTimeout()) {
+            return false;
         }
 
         $packet = pack(
@@ -572,6 +574,8 @@ class Net_SFTP extends Net_SSH2
             if ($response === false) {
                 return false;
             }
+        } else if ($response === true && $this->isTimeout()) {
+            return false;
         }
 
         $this->channel_status[NET_SFTP_CHANNEL] = NET_SSH2_MSG_CHANNEL_DATA;
