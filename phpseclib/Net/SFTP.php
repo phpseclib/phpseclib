@@ -479,7 +479,10 @@ class SFTP extends SSH2
 
         $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_OPEN;
 
-        $this->get_channel_packet(self::CHANNEL, true);
+        $response = $this->get_channel_packet(self::CHANNEL, true);
+        if ($response === true && $this->isTimeout()) {
+            return false;
+        }
 
         $packet = Strings::packSSH2(
             'CNsbs',
@@ -517,6 +520,8 @@ class SFTP extends SSH2
             if ($response === false) {
                 return false;
             }
+        } else if ($response === true && $this->isTimeout()) {
+            return false;
         }
 
         $this->channel_status[self::CHANNEL] = NET_SSH2_MSG_CHANNEL_DATA;
