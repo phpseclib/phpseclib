@@ -526,7 +526,7 @@ class Net_SFTP extends Net_SSH2
         $response = $this->_get_channel_packet(NET_SFTP_CHANNEL, true);
         if ($response === false) {
             return false;
-        } else if ($response === true && $this->isTimeout()) {
+        } elseif ($response === true && $this->isTimeout()) {
             return false;
         }
 
@@ -574,7 +574,7 @@ class Net_SFTP extends Net_SSH2
             if ($response === false) {
                 return false;
             }
-        } else if ($response === true && $this->isTimeout()) {
+        } elseif ($response === true && $this->isTimeout()) {
             return false;
         }
 
