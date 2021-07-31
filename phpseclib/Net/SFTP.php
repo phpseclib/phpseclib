@@ -382,9 +382,6 @@ class Net_SFTP extends Net_SSH2
 
             101=> 'NET_SFTP_STATUS',
             102=> 'NET_SFTP_HANDLE',
-            /* the format of SSH_FXP_NAME changed between SFTPv3 and SFTPv4+:
-                   SFTPv4+: http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-9.4
-               pre-SFTPv4 : http://tools.ietf.org/html/draft-ietf-secsh-filexfer-02#section-7 */
             103=> 'NET_SFTP_DATA',
             104=> 'NET_SFTP_NAME',
             105=> 'NET_SFTP_ATTRS',
@@ -430,12 +427,12 @@ class Net_SFTP extends Net_SSH2
         $this->attributes = array(
             0x00000001 => 'NET_SFTP_ATTR_SIZE',
             0x00000002 => 'NET_SFTP_ATTR_UIDGID',          // defined in SFTPv3, removed in SFTPv4+
+            0x00000080 => 'NET_SFTP_ATTR_OWNERGROUP',      // defined in SFTPv4+
             0x00000004 => 'NET_SFTP_ATTR_PERMISSIONS',
             0x00000008 => 'NET_SFTP_ATTR_ACCESSTIME',
             0x00000010 => 'NET_SFTP_ATTR_CREATETIME',      // SFTPv4+
             0x00000020 => 'NET_SFTP_ATTR_MODIFYTIME',
             0x00000040 => 'NET_SFTP_ATTR_ACL',
-            0x00000080 => 'NET_SFTP_ATTR_OWNERGROUP',
             0x00000100 => 'NET_SFTP_ATTR_SUBSECOND_TIMES',
             0x00000200 => 'NET_SFTP_ATTR_BITS',            // SFTPv5+
             0x00000400 => 'NET_SFTP_ATTR_ALLOCATION_SIZE', // SFTPv6+
@@ -1130,9 +1127,10 @@ class Net_SFTP extends Net_SSH2
                         }
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $shortname = $this->_string_shift($response, $length);
+echo "================= $shortname\n";
                         // SFTPv4 "removed the long filename from the names structure-- it can now be
                         //         built from information available in the attrs structure."
-                        if ($this->version == 3) {
+                        if ($this->version < 4) {
                             if (strlen($response) < 4) {
                                 return false;
                             }
@@ -1140,7 +1138,8 @@ class Net_SFTP extends Net_SSH2
                             $longname = $this->_string_shift($response, $length);
                         }
                         $attributes = $this->_parseAttributes($response);
-                        if (!isset($attributes['type']) && $this->version == 3) {
+var_dump($attributes);// exit;
+                        if (!isset($attributes['type']) && $this->version < 4) {
                             $fileType = $this->_parseLongname($longname);
                             if ($fileType) {
                                 $attributes['type'] = $fileType;
@@ -3042,7 +3041,7 @@ SFTP v6 changes (from v5)
             return array();
         }
         $attr = array();
-        $attr[$key] = hexdec(bin2hex($this->_string_shift($response, 4)));
+        $attr[$key] = hexdec(bin2hex($this->_string_shift($response, 8)));
         if ($flags & NET_SFTP_ATTR_SUBSECOND_TIMES) {
             $attr+= extract(unpack('N' . $key . '_nseconds', $this->_string_shift($response, 4)));
         }
@@ -3060,16 +3059,27 @@ SFTP v6 changes (from v5)
      */
     function _parseAttributes(&$response)
     {
+        if ($this->version >= 4) {
+            $length = 5;
+            $format = 'Nflags/Ctype';
+        } else {
+            $length = 4;
+            $format = 'Nflags';
+        }
+
         $attr = array();
-        if (strlen($response) < 4) {
+        if (strlen($response) < $length) {
             user_error('Malformed file attributes');
             return array();
         }
-        extract(unpack('Nflags', $this->_string_shift($response, 4)));
-        // SFTPv4+ have a type field (a byte) that follows the above flag field
+        extract(unpack($format, $this->_string_shift($response, $length)));
+        if (isset($type)) {
+            $attr['type'] = $type;
+        }
         foreach ($this->attributes as $key => $value) {
             switch ($flags & $key) {
                 case NET_SFTP_ATTR_SIZE:             // 0x00000001
+echo "size\n";
                     // The size attribute is defined as an unsigned 64-bit integer.
                     // The following will use floats on 32-bit platforms, if necessary.
                     // As can be seen in the BigInteger class, floats are generally
@@ -3078,7 +3088,8 @@ SFTP v6 changes (from v5)
                     // of precision. Interpreted in filesize, 2^50 bytes = 1024 TiB.
                     $attr['size'] = hexdec(bin2hex($this->_string_shift($response, 8)));
                     break;
-                case NET_SFTP_ATTR_UIDGID:           // 0x00000002 (SFTPv3 only)
+                case NET_SFTP_ATTR_UIDGID:           // 0x00000002 (SFTPv3 or earlier)
+echo "uidgid\n";
                     if (strlen($response) < 8) {
                         user_error('Malformed file attributes');
                         return $attr;
@@ -3086,6 +3097,7 @@ SFTP v6 changes (from v5)
                     $attr+= unpack('Nuid/Ngid', $this->_string_shift($response, 8));
                     break;
                 case NET_SFTP_ATTR_PERMISSIONS:      // 0x00000004
+echo "perms\n";
                     if (strlen($response) < 4) {
                         user_error('Malformed file attributes');
                         return $attr;
@@ -3100,6 +3112,7 @@ SFTP v6 changes (from v5)
                     }
                     break;
                 case NET_SFTP_ATTR_ACCESSTIME:       // 0x00000008
+echo "accesstime\n";
                     if ($this->version >= 4) {
                         $attr+= $this->_parseTime('atime', $flags, $response);
                         break;
@@ -3111,16 +3124,58 @@ SFTP v6 changes (from v5)
                     $attr+= unpack('Natime/Nmtime', $this->_string_shift($response, 8));
                     break;
                 case NET_SFTP_ATTR_CREATETIME:       // 0x00000010 (SFTPv4+)
+echo "createtime\n";
                     $attr+= $this->_parseTime('createtime', $flags, $response);
                     break;
                 case NET_SFTP_ATTR_MODIFYTIME:       // 0x00000020
+echo "modifytime\n";
                     $attr+= $this->_parseTime('mtime', $flags, $response);
                     break;
                 case NET_SFTP_ATTR_ACL:              // 0x00000040
+echo "acl\n";
                     // see https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-04#section-5.7
                     // currently unsupported
+                    if (strlen($response) < 4) {
+                        user_error('Malformed file attributes');
+                        return $attr;
+                    }
+                    extract(unpack('Ncount', $this->_string_shift($response, 4)));
+                    for ($i = 0; $i < $count; $i++) {
+                        if (strlen($response) < 16) {
+                            user_error('Malformed file attributes');
+                            return $attr;
+                        }
+                        extract(unpack('Ntype/Nflag/Nmask/Nlength', $this->_string_shift($response, 16)));
+                        if (strlen($response) < $length) {
+                            user_error('Malformed file attributes');
+                            return $attr;
+                        }
+                        $this->_string_shift($response, $length); // who
+                    }
                     break;
                 case NET_SFTP_ATTR_OWNERGROUP:       // 0x00000080
+echo "ownergroup\n";
+                    if (strlen($response) < 4) {
+                        user_error('Malformed file attributes');
+                        return $attr;
+                    }
+                    extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                    if (strlen($response) < $length) {
+                        user_error('Malformed file attributes');
+                        return $attr;
+                    }
+                    $attr['owner'] = $this->_string_shift($response, $length);
+
+                    if (strlen($response) < 4) {
+                        user_error('Malformed file attributes');
+                        return $attr;
+                    }
+                    extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                    if (strlen($response) < $length) {
+                        user_error('Malformed file attributes');
+                        return $attr;
+                    }
+                    $attr['group'] = $this->_string_shift($response, $length);
                     break;
                 case NET_SFTP_ATTR_SUBSECOND_TIMES:  // 0x00000100
                     break;
