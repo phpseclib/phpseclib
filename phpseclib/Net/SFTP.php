@@ -322,6 +322,22 @@ class Net_SFTP extends Net_SSH2
     var $channel_close = false;
 
     /**
+     * Has the SFTP channel been partially negotiated?
+     *
+     * @var bool
+     * @access private
+     */
+    var $partial_init = false;
+
+    /**
+     * Has the SFTP channel been fully negotiated?
+     *
+     * @var bool
+     * @access private
+     */
+    var $full_init = false;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SFTP server
@@ -426,6 +442,7 @@ class Net_SFTP extends Net_SSH2
             0x00000800 => 'NET_SFTP_ATTR_TEXT_HINT',
             0x00001000 => 'NET_SFTP_ATTR_MIME_TYPE',
             0x00002000 => 'NET_SFTP_ATTR_LINK_COUNT',
+            0x00004000 => 'NET_SFTP_ATTR_UNTRANSLATED_NAME',
             0x00008000 => 'NET_SFTP_ATTR_CTIME',
             // 0x80000000 will yield a floating point on 32-bit systems and converting floating points to integers
             // yields inconsistent behavior depending on how php is compiled.  so we left shift -1 (which, in
@@ -490,32 +507,31 @@ class Net_SFTP extends Net_SSH2
     }
 
     /**
-     * Login
+     * Check a few things before SFTP functions are called
      *
-     * @param string $username
      * @return bool
      * @access public
      */
-    function login($username)
+    function _precheck()
     {
-        $args = func_get_args();
-        $callback = version_compare(PHP_VERSION, '5.3.0') < 0 ?
-            array(&$this, 'parent::login') :
-            'parent::login';
-        if (!call_user_func_array($callback, $args)) {
+        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
             return false;
         }
 
-        return $this->_init_sftp_connection();
+        if (!$this->full_init) {
+            return $this->_init_sftp_connection();
+        }
+
+        return true;
     }
 
     /**
-     * (Re)initializes the SFTP channel
+     * Partiailly initialize an SFTP connection
      *
      * @return bool
-     * @access private
+     * @access public
      */
-    function _init_sftp_connection()
+    function _partial_init_sftp_connection()
     {
         $this->window_size_server_to_client[NET_SFTP_CHANNEL] = $this->window_size;
 
@@ -619,6 +635,23 @@ class Net_SFTP extends Net_SSH2
             $this->extensions[$key] = $value;
         }
 
+        $this->partial_init = true;
+
+        return true;
+    }
+
+    /**
+     * (Re)initializes the SFTP channel
+     *
+     * @return bool
+     * @access private
+     */
+    function _init_sftp_connection()
+    {
+        if (!$this->partial_init && !$this->_partial_init_sftp_connection()) {
+            return false;
+        }
+
         /*
          A Note on SFTPv4/5/6 support:
          <http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-5.1> states the following:
@@ -642,9 +675,14 @@ class Net_SFTP extends Net_SSH2
          in draft-ietf-secsh-filexfer-13 would be quite impossible.  As such, what Net_SFTP would do is close the
          channel and reopen it with a new and updated SSH_FXP_INIT packet.
         */
-        if (isset($this->extensions['versions'])) {
+        if (isset($this->extensions['versions']) && (!$this->preferredVersion || $this->preferredVersion != $this->version)) {
             $versions = explode(',', $this->extensions['versions']);
-            foreach ([6, 5, 4] as $ver) {
+            $supported = [6, 5, 4];
+            if ($this->preferredVersion) {
+                $supported = array_diff($supported, [$this->preferredVersion]);
+                array_unshift($supported, $this->preferredVersion);
+            }
+            foreach ($supported as $ver) {
                 if (in_array($ver, $versions)) {
                     if ($ver === $this->version) {
                         break;
@@ -880,7 +918,7 @@ class Net_SFTP extends Net_SSH2
      */
     function chdir($dir)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -1037,7 +1075,7 @@ class Net_SFTP extends Net_SSH2
      */
     function _list($dir, $raw = true)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -1092,13 +1130,17 @@ class Net_SFTP extends Net_SSH2
                         }
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $shortname = $this->_string_shift($response, $length);
-                        if (strlen($response) < 4) {
-                            return false;
+                        // SFTPv4 "removed the long filename from the names structure-- it can now be
+                        //         built from information available in the attrs structure."
+                        if ($this->version == 3) {
+                            if (strlen($response) < 4) {
+                                return false;
+                            }
+                            extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                            $longname = $this->_string_shift($response, $length);
                         }
-                        extract(unpack('Nlength', $this->_string_shift($response, 4)));
-                        $longname = $this->_string_shift($response, $length);
                         $attributes = $this->_parseAttributes($response);
-                        if (!isset($attributes['type'])) {
+                        if (!isset($attributes['type']) && $this->version == 3) {
                             $fileType = $this->_parseLongname($longname);
                             if ($fileType) {
                                 $attributes['type'] = $fileType;
@@ -1258,7 +1300,7 @@ class Net_SFTP extends Net_SSH2
      */
     function size($filename)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -1378,7 +1420,7 @@ class Net_SFTP extends Net_SSH2
      */
     function stat($filename)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -1435,7 +1477,7 @@ class Net_SFTP extends Net_SSH2
      */
     function lstat($filename)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -1549,7 +1591,7 @@ class Net_SFTP extends Net_SSH2
      */
     function touch($filename, $time = null, $atime = null)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -1600,6 +1642,8 @@ class Net_SFTP extends Net_SSH2
      */
     function chown($filename, $uid, $recursive = false)
     {
+// from v3 to v4 they made this a string
+//"Made file attribute owner and group strings so they can actually be used on disparate systems."
 //zzzzzzzzz
         // quoting from <http://www.kernel.org/doc/man-pages/online/pages/man2/chown.2.html>,
         // "if the owner or group is specified as -1, then that ID is not changed"
@@ -1621,6 +1665,9 @@ class Net_SFTP extends Net_SSH2
      */
     function chgrp($filename, $gid, $recursive = false)
     {
+// from v3 to v4 they made this a string
+//"Made file attribute owner and group strings so they can actually be used on disparate systems."
+//zzzzzzzzz
         $attr = pack('N3', NET_SFTP_ATTR_UIDGID, -1, $gid);
 
         return $this->_setstat($filename, $attr, $recursive);
@@ -1688,7 +1735,7 @@ class Net_SFTP extends Net_SSH2
      */
     function _setstat($filename, $attr, $recursive)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -1818,7 +1865,7 @@ class Net_SFTP extends Net_SSH2
      */
     function readlink($link)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -1868,7 +1915,14 @@ class Net_SFTP extends Net_SSH2
      */
     function symlink($target, $link)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+/*
+SFTP v6 changes (from v5)
+   o  Changed the SYMLINK packet to be LINK and give it the ability to
+      create hard links.  Also change it's packet number because many
+      implementation implemented SYMLINK with the arguments reversed.
+      Hopefully the new argument names make it clear which way is which.
+*/
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -1909,7 +1963,7 @@ class Net_SFTP extends Net_SSH2
      */
     function mkdir($dir, $mode = -1, $recursive = false)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -1978,7 +2032,7 @@ class Net_SFTP extends Net_SSH2
      */
     function rmdir($dir)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -2085,7 +2139,7 @@ class Net_SFTP extends Net_SSH2
         none of these are currently supported
         */
 
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -2327,7 +2381,7 @@ class Net_SFTP extends Net_SSH2
      */
     function get($remote_file, $local_file = false, $offset = 0, $length = -1, $progressCallback = null)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -2438,6 +2492,7 @@ class Net_SFTP extends Net_SSH2
                         }
                         // maybe the file was successfully transferred, maybe it wasn't
                         if ($this->channel_close) {
+                            $this->partial_init = false;
                             $this->_init_sftp_connection();
                             return false;
                         } else {
@@ -2487,7 +2542,7 @@ class Net_SFTP extends Net_SSH2
      */
     function delete($path, $recursive = true)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -2923,7 +2978,12 @@ class Net_SFTP extends Net_SSH2
      */
     function rename($oldname, $newname)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+// in SFTP v5+
+// Add support for better control of the rename operation.
+// so we'll just need to add \0\0\0\0 after
+// by default if the destination file already exists it fails
+// but in v5+ you can pass a SSH_FXF_RENAME_OVERWRITE flag
+        if (!$this->_precheck()) {
             return false;
         }
 
@@ -3414,11 +3474,30 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
+        if (!$this->partial_init) {
+            $this->_partial_init_sftp_connection();
+        }
+
         $temp = array('version' => $this->version);
         if (isset($this->extensions['versions'])) {
             $temp['extensions'] = $this->extensions['versions'];
         }
         return $temp;
+    }
+
+    /**
+     * Set preferred version
+     *
+     * If you're preferred version isn't supported then the highest supported
+     * version of SFTP will be utilized. Set to null or false or int(0) to
+     * unset the preferred version
+     *
+     * @param int $version
+     * @access public
+     */
+    function setPreferredVersion($version)
+    {
+        $this->preferredVersion = $version;
     }
 
     /**
