@@ -1081,20 +1081,18 @@ abstract class Engine
             static::$modexpEngine;
         if (method_exists($fqengine, 'generateCustomReduction')) {
             $func = $fqengine::generateCustomReduction($this, static::class);
-            $this->reduce = eval('return function(' . static::class . ' $x) use ($func, $class) {
+            return eval('return function(' . static::class . ' $x) use ($func, $class) {
                 $r = new $class();
                 $r->value = $func($x->value);
                 return $r;
             };');
-            return clone $this->reduce;
         }
         $n = $this->value;
-        $this->reduce = eval('return function(' . static::class . ' $x) use ($n, $fqengine, $class) {
+        return eval('return function(' . static::class . ' $x) use ($n, $fqengine, $class) {
             $r = new $class();
             $r->value = $fqengine::reduce($x->value, $n, $class);
             return $r;
         };');
-        return clone $this->reduce;
     }
 
     /**
