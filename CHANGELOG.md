@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.33 - 2021-08-15
+
+- SFTP: don't check SFTP packet size after SFTP initialization (#1606)
+- SFTP: timeout during SFTP init should return false (#1684)
+- SFTP: return false if get_channel_packet returns false (#1678)
+- ASN1: return false when not enough bytes are available (#1676)
+
 ## 2.0.32 - 2021-06-13
 
 - SSH2: add getAuthMethodsToContinue() method (#1648)
