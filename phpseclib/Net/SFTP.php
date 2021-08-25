@@ -649,16 +649,6 @@ class SFTP extends SSH2
     }
 
     /**
-     * Enable arbitrary length packets
-     *
-     * @access public
-     */
-    function enableArbitraryLengthPackets()
-    {
-        $this->allow_arbitrary_length_packets = true;
-    }
-
-    /**
      * Enable path canonicalization
      *
      * @access public
@@ -666,6 +656,26 @@ class SFTP extends SSH2
     public function disablePathCanonicalization()
     {
         $this->canonicalize_paths = false;
+    }
+
+    /**
+     * Enable arbitrary length packets
+     *
+     * @access public
+     */
+    public function enableArbitraryLengthPackets()
+    {
+        $this->allow_arbitrary_length_packets = true;
+    }
+
+    /**
+     * Disable arbitrary length packets
+     *
+     * @access public
+     */
+    public function disableArbitraryLengthPackets()
+    {
+        $this->allow_arbitrary_length_packets = false;
     }
 
     /**
