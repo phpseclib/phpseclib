@@ -285,6 +285,21 @@ class SFTP extends SSH2
     private $preserveTime = false;
 
     /**
+     * Arbitrary Length Packets Flag
+     *
+     * Determines whether or not packets of any length should be allowed,
+     * in cases where the server chooses the packet length (such as
+     * directory listings). By default, packets are only allowed to be
+     * 256 * 1024 bytes (SFTP_MAX_MSG_LENGTH from OpenSSH's sftp-common.h)
+     *
+     * @see self::enableArbitraryLengthPackets()
+     * @see self::_get_sftp_packet()
+     * @var bool
+     * @access private
+     */
+    var $allow_arbitrary_length_packets = false;
+
+    /**
      * Was the last packet due to the channels being closed or not?
      *
      * @see self::get()
@@ -641,6 +656,26 @@ class SFTP extends SSH2
     public function disablePathCanonicalization()
     {
         $this->canonicalize_paths = false;
+    }
+
+    /**
+     * Enable arbitrary length packets
+     *
+     * @access public
+     */
+    public function enableArbitraryLengthPackets()
+    {
+        $this->allow_arbitrary_length_packets = true;
+    }
+
+    /**
+     * Disable arbitrary length packets
+     *
+     * @access public
+     */
+    public function disableArbitraryLengthPackets()
+    {
+        $this->allow_arbitrary_length_packets = false;
     }
 
     /**
@@ -2964,7 +2999,7 @@ class SFTP extends SSH2
         $tempLength-= strlen($this->packet_buffer);
 
         // 256 * 1024 is what SFTP_MAX_MSG_LENGTH is set to in OpenSSH's sftp-common.h
-        if (!$this->use_request_id && $tempLength > 256 * 1024) {
+        if (!$this->allow_arbitrary_length_packets && !$this->use_request_id && $tempLength > 256 * 1024) {
             throw new \RuntimeException('Invalid Size');
         }
 
