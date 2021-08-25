@@ -660,6 +660,16 @@ class SFTP extends SSH2
     }
 
     /**
+     * Enable path canonicalization
+     *
+     * @access public
+     */
+    function disablePathCanonicalization()
+    {
+        $this->canonicalize_paths = false;
+    }
+
+    /**
      * Enable arbitrary length packets
      *
      * @access public
@@ -670,13 +680,13 @@ class SFTP extends SSH2
     }
 
     /**
-     * Enable path canonicalization
+     * Disable arbitrary length packets
      *
      * @access public
      */
-    function disablePathCanonicalization()
+    function disableArbitraryLengthPackets()
     {
-        $this->canonicalize_paths = false;
+        $this->allow_arbitrary_length_packets = false;
     }
 
     /**
@@ -3151,7 +3161,7 @@ class SFTP extends SSH2
 
 
         // 256 * 1024 is what SFTP_MAX_MSG_LENGTH is set to in OpenSSH's sftp-common.h
-        if (!$this->allow_arbitrary_length_packets &&!$this->use_request_id && $tempLength > 256 * 1024) {
+        if (!$this->allow_arbitrary_length_packets && !$this->use_request_id && $tempLength > 256 * 1024) {
             user_error('Invalid SFTP packet size');
             return false;
         }
