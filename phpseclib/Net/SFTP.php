@@ -1127,7 +1127,6 @@ class Net_SFTP extends Net_SSH2
                         }
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $shortname = $this->_string_shift($response, $length);
-echo "================= $shortname\n";
                         // SFTPv4 "removed the long filename from the names structure-- it can now be
                         //         built from information available in the attrs structure."
                         if ($this->version < 4) {
@@ -1138,7 +1137,6 @@ echo "================= $shortname\n";
                             $longname = $this->_string_shift($response, $length);
                         }
                         $attributes = $this->_parseAttributes($response);
-var_dump($attributes);// exit;
                         if (!isset($attributes['type']) && $this->version < 4) {
                             $fileType = $this->_parseLongname($longname);
                             if ($fileType) {
@@ -3126,6 +3124,7 @@ SFTP v6 changes (from v5)
                     $attr+= $this->_parseTime('mtime', $flags, $response);
                     break;
                 case NET_SFTP_ATTR_ACL:              // 0x00000040
+                    // access control list
                     // see https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-04#section-5.7
                     // currently unsupported
                     if (strlen($response) < 4) {
@@ -3174,18 +3173,65 @@ SFTP v6 changes (from v5)
                 case NET_SFTP_ATTR_BITS:             // 0x00000200 (SFTPv5+)
                     // see https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-05#section-5.8
                     // currently unsupported
+                    // tells if you file is:
+                    // readonly, system, hidden, case inensitive, archive, encrypted, compressed, sparse
+                    // append only, immutable, sync
+                    if (strlen($response) < 8) {
+                        user_error('Malformed file attributes');
+                        return $attr;
+                    }
+                    extract(unpack('Nattrib-bits/Nattrib-bits-valid', $this->_string_shift($response, 8)));
+                    break;
+                case NET_SFTP_ATTR_ALLOCATION_SIZE:  // 0x00000400 (SFTPv6+)
+                    // see https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-7.4
+                    // represents the number of bytes htat the file consumes on the disk. will
+                    // usually be larger than the 'size' field
+                    $attr['allocation-size'] = hexdec(bin2hex($this->_string_shift($response, 8)));
+                    break;
+                case NET_SFTP_ATTR_TEXT_HINT:        // 0x00000800
+                    // https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-7.10
+                    // currently unsupported
+                    // tells if file is "known text", "guessed text", "known binary", "guessed binary"
+                    extract(unpack('Ctext-hint', $this->_string_shift($response)));
+                    break;
+                case NET_SFTP_ATTR_MIME_TYPE:        // 0x00001000
+                    // see https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-7.11
                     if (strlen($response) < 4) {
                         user_error('Malformed file attributes');
                         return $attr;
                     }
-                    extract(unpack('Nbits', $this->_string_shift($response, 4)));
+                    extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                    if (strlen($response) < $length) {
+                        user_error('Malformed file attributes');
+                        return $attr;
+                    }
+                    $attr['mime-type'] = $this->_string_shift($response, $length);
                     break;
-                case NET_SFTP_ATTR_ALLOCATION_SIZE:  // 0x00000400 (SFTPv6+)
-                case NET_SFTP_ATTR_TEXT_HINT:        // 0x00000800
-                case NET_SFTP_ATTR_MIME_TYPE:        // 0x00001000
                 case NET_SFTP_ATTR_LINK_COUNT:       // 0x00002000
+                    // see https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-7.12
+                    if (strlen($response) < 4) {
+                        user_error('Malformed file attributes');
+                        return $attr;
+                    }
+                    $attr+= unpack('Nlink-count', $this->_string_shift($response, 4));
+                    break;
                 case NET_SFTP_ATTR_UNTRANSLATED_NAME:// 0x00004000
+                    // see https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-7.13
+                    if (strlen($response) < 4) {
+                        user_error('Malformed file attributes');
+                        return $attr;
+                    }
+                    extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                    if (strlen($response) < $length) {
+                        user_error('Malformed file attributes');
+                        return $attr;
+                    }
+                    $attr['untranslated-name'] = $this->_string_shift($response, $length);
+                    break;
                 case NET_SFTP_ATTR_CTIME:            // 0x00008000
+                    // 'ctime' contains the last time the file attributes were changed.  The
+                    // exact meaning of this field depends on the server.
+                    $attr+= $this->_parseTime('ctime', $flags, $response);
                     break;
                 case NET_SFTP_ATTR_EXTENDED:         // 0x80000000
                     if (strlen($response) < 4) {
