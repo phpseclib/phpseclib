@@ -1629,22 +1629,47 @@ class Net_SFTP extends Net_SSH2
     /**
      * Changes file or directory owner
      *
+     * $uid should be an int for SFTPv3 and a string for SFTPv4+. Ideally the string
+     * would be of the form "user@dns_domain" but it does not need to be.
+     * `$sftp->getSupportedVersions()['version']` will return the specific version
+     * that's being used.
+     *
      * Returns true on success or false on error.
      *
      * @param string $filename
-     * @param int $uid
+     * @param int|string $uid
      * @param bool $recursive
      * @return bool
      * @access public
      */
     function chown($filename, $uid, $recursive = false)
     {
-// from v3 to v4 they made this a string
-//"Made file attribute owner and group strings so they can actually be used on disparate systems."
-//zzzzzzzzz
-        // quoting from <http://www.kernel.org/doc/man-pages/online/pages/man2/chown.2.html>,
-        // "if the owner or group is specified as -1, then that ID is not changed"
-        $attr = pack('N3', NET_SFTP_ATTR_UIDGID, $uid, -1);
+        /*
+         quoting <https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-7.5>,
+
+         "To avoid a representation that is tied to a particular underlying
+          implementation at the client or server, the use of UTF-8 strings has
+          been chosen.  The string should be of the form "user@dns_domain".
+          This will allow for a client and server that do not use the same
+          local representation the ability to translate to a common syntax that
+          can be interpreted by both.  In the case where there is no
+          translation available to the client or server, the attribute value
+          must be constructed without the "@"."
+
+         phpseclib _could_ auto append the dns_domain to $uid BUT what if it shouldn't
+         have one? phpseclib would have no way of knowing so rather than guess phpseclib
+         will just use whatever value the user provided
+       */
+
+        $attr = $this->version >= 4 ?
+            // quoting <http://www.kernel.org/doc/man-pages/online/pages/man2/chown.2.html>,
+            // "if the owner or group is specified as -1, then that ID is not changed"
+            pack('N3', NET_SFTP_ATTR_UIDGID, $uid, -1) :
+            // quoting <https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-7.5>,
+            // "If either the owner or group field is zero length, the field should be
+            //  considered absent, and no change should be made to that specific field
+            //  during a modification operation"
+            pack('NNa*Na*', NET_SFTP_ATTR_OWNERGROUP, strlen($uid), $uid, 0, '');
 
         return $this->_setstat($filename, $attr, $recursive);
     }
@@ -1652,20 +1677,24 @@ class Net_SFTP extends Net_SSH2
     /**
      * Changes file or directory group
      *
+     * $gid should be an int for SFTPv3 and a string for SFTPv4+. Ideally the string
+     * would be of the form "user@dns_domain" but it does not need to be.
+     * `$sftp->getSupportedVersions()['version']` will return the specific version
+     * that's being used.
+     *
      * Returns true on success or false on error.
      *
      * @param string $filename
-     * @param int $gid
+     * @param int|string $gid
      * @param bool $recursive
      * @return bool
      * @access public
      */
     function chgrp($filename, $gid, $recursive = false)
     {
-// from v3 to v4 they made this a string
-//"Made file attribute owner and group strings so they can actually be used on disparate systems."
-//zzzzzzzzz
-        $attr = pack('N3', NET_SFTP_ATTR_UIDGID, -1, $gid);
+        $attr = $this->version >= 4 ?
+            pack('N3', NET_SFTP_ATTR_UIDGID, $gid, -1) :
+            pack('NNa*Na*', NET_SFTP_ATTR_OWNERGROUP, 0, '', strlen($gid), $gid);
 
         return $this->_setstat($filename, $attr, $recursive);
     }
