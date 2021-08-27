@@ -674,7 +674,7 @@ class Net_SFTP extends Net_SSH2
         */
         if (isset($this->extensions['versions']) && (!$this->preferredVersion || $this->preferredVersion != $this->version)) {
             $versions = explode(',', $this->extensions['versions']);
-            $supported = [6, 5, 4];
+            $supported = array(6, 5, 4);
             if ($this->preferredVersion) {
                 $supported = array_diff($supported, [$this->preferredVersion]);
                 array_unshift($supported, $this->preferredVersion);
