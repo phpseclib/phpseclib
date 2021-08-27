@@ -1661,7 +1661,7 @@ class Net_SFTP extends Net_SSH2
          will just use whatever value the user provided
        */
 
-        $attr = $this->version >= 4 ?
+        $attr = $this->version < 4 ?
             // quoting <http://www.kernel.org/doc/man-pages/online/pages/man2/chown.2.html>,
             // "if the owner or group is specified as -1, then that ID is not changed"
             pack('N3', NET_SFTP_ATTR_UIDGID, $uid, -1) :
@@ -1692,7 +1692,7 @@ class Net_SFTP extends Net_SSH2
      */
     function chgrp($filename, $gid, $recursive = false)
     {
-        $attr = $this->version >= 4 ?
+        $attr = $this->version < 4 ?
             pack('N3', NET_SFTP_ATTR_UIDGID, $gid, -1) :
             pack('NNa*Na*', NET_SFTP_ATTR_OWNERGROUP, 0, '', strlen($gid), $gid);
 
