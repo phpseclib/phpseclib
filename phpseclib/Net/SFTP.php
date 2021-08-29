@@ -197,6 +197,15 @@ class Net_SFTP extends Net_SSH2
     var $version;
 
     /**
+     * Default Server SFTP version
+     *
+     * @var int
+     * @see self::_initChannel()
+     * @access private
+     */
+    var $defaultVersion;
+
+    /**
      * Current working directory
      *
      * @var string
@@ -609,7 +618,7 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
         extract(unpack('Nversion', $this->_string_shift($response, 4)));
-        $this->version = $version;
+        $this->defaultVersion = $version;
         while (!empty($response)) {
             if (strlen($response) < 4) {
                 return false;
@@ -664,11 +673,12 @@ class Net_SFTP extends Net_SSH2
          in draft-ietf-secsh-filexfer-13 would be quite impossible.  As such, what Net_SFTP would do is close the
          channel and reopen it with a new and updated SSH_FXP_INIT packet.
         */
+        $this->version = $this->defaultVersion;
         if (isset($this->extensions['versions']) && (!$this->preferredVersion || $this->preferredVersion != $this->version)) {
             $versions = explode(',', $this->extensions['versions']);
             $supported = array(6, 5, 4);
             if ($this->preferredVersion) {
-                $supported = array_diff($supported, [$this->preferredVersion]);
+                $supported = array_diff($supported, array($this->preferredVersion));
                 array_unshift($supported, $this->preferredVersion);
             }
             foreach ($supported as $ver) {
@@ -3624,11 +3634,26 @@ SFTP v6 changes (from v5)
             $this->_partial_init_sftp_connection();
         }
 
-        $temp = array('version' => $this->version);
+        $temp = array('version' => $this->defaultVersion);
         if (isset($this->extensions['versions'])) {
             $temp['extensions'] = $this->extensions['versions'];
         }
         return $temp;
+    }
+
+    /**
+     * Get supported SFTP versions
+     *
+     * @return array
+     * @access public
+     */
+    function getNegotiatedVersion()
+    {
+        if (!$this->_precheck()) {
+            return false;
+        }
+
+        return $this->version;
     }
 
     /**
