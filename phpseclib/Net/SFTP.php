@@ -515,7 +515,7 @@ class Net_SFTP extends Net_SSH2
     }
 
     /**
-     * Partiailly initialize an SFTP connection
+     * Partially initialize an SFTP connection
      *
      * @return bool
      * @access public
