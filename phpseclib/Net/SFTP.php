@@ -330,14 +330,6 @@ class Net_SFTP extends Net_SSH2
     var $partial_init = false;
 
     /**
-     * Has the SFTP channel been fully negotiated?
-     *
-     * @var bool
-     * @access private
-     */
-    var $full_init = false;
-
-    /**
      * Default Constructor.
      *
      * Connects to an SFTP server
@@ -515,7 +507,7 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
-        if (!$this->full_init) {
+        if ($this->pwd === false) {
             return $this->_init_sftp_connection();
         }
 
