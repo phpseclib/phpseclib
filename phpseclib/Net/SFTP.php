@@ -380,6 +380,7 @@ class Net_SFTP extends Net_SSH2
             18 => 'NET_SFTP_RENAME',
             19 => 'NET_SFTP_READLINK',
             20 => 'NET_SFTP_SYMLINK',
+            21 => 'NET_SFTP_LINK',
 
             101=> 'NET_SFTP_STATUS',
             102=> 'NET_SFTP_HANDLE',
@@ -1947,13 +1948,6 @@ class Net_SFTP extends Net_SSH2
      */
     function symlink($target, $link)
     {
-/*
-SFTP v6 changes (from v5)
-   o  Changed the SYMLINK packet to be LINK and give it the ability to
-      create hard links.  Also change it's packet number because many
-      implementation implemented SYMLINK with the arguments reversed.
-      Hopefully the new argument names make it clear which way is which.
-*/
         if (!$this->_precheck()) {
             return false;
         }
@@ -1961,8 +1955,37 @@ SFTP v6 changes (from v5)
         //$target = $this->_realpath($target);
         $link = $this->_realpath($link);
 
-        $packet = pack('Na*Na*', strlen($target), $target, strlen($link), $link);
-        if (!$this->_send_sftp_packet(NET_SFTP_SYMLINK, $packet)) {
+        /* quoting https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-09#section-12.1 :
+
+           Changed the SYMLINK packet to be LINK and give it the ability to
+           create hard links.  Also change it's packet number because many
+           implementation implemented SYMLINK with the arguments reversed.
+           Hopefully the new argument names make it clear which way is which.
+        */
+        if ($this->version == 6) {
+            $type = NET_SFTP_LINK;
+            $packet = pack('Na*Na*C', strlen($link), $link, strlen($target), $target, 1);
+        } else {
+            $type = NET_SFTP_SYMLINK;
+            /* quoting http://bxr.su/OpenBSD/usr.bin/ssh/PROTOCOL#347 :
+
+               3.1. sftp: Reversal of arguments to SSH_FXP_SYMLINK
+
+               When OpenSSH's sftp-server was implemented, the order of the arguments
+               to the SSH_FXP_SYMLINK method was inadvertently reversed. Unfortunately,
+               the reversal was not noticed until the server was widely deployed. Since
+               fixing this to follow the specification would cause incompatibility, the
+               current order was retained. For correct operation, clients should send
+               SSH_FXP_SYMLINK as follows:
+
+                   uint32      id
+                   string      targetpath
+                   string      linkpath */
+            $packet = substr($this->server_identifier, 0, 13) == 'SSH-2.0-OpenSSH' ?
+                pack('Na*Na*', strlen($target), $target, strlen($link), $link) :
+                pack('Na*Na*', strlen($link), $link, strlen($target), $target);
+        }
+        if (!$this->_send_sftp_packet($type, $packet)) {
             return false;
         }
 
@@ -3505,7 +3528,6 @@ SFTP v6 changes (from v5)
         extract(unpack('Nlength', $this->_string_shift($this->packet_buffer, 4)));
         $tempLength = $length;
         $tempLength-= strlen($this->packet_buffer);
-
 
         // 256 * 1024 is what SFTP_MAX_MSG_LENGTH is set to in OpenSSH's sftp-common.h
         if (!$this->use_request_id && $tempLength > 256 * 1024) {
