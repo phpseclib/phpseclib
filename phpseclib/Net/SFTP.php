@@ -1981,7 +1981,7 @@ class Net_SFTP extends Net_SSH2
                    uint32      id
                    string      targetpath
                    string      linkpath */
-            $packet = substr($this->server_identifier, 0, 13) == 'SSH-2.0-OpenSSH' ?
+            $packet = substr($this->server_identifier, 0, 15) == 'SSH-2.0-OpenSSH' ?
                 pack('Na*Na*', strlen($target), $target, strlen($link), $link) :
                 pack('Na*Na*', strlen($link), $link, strlen($target), $target);
         }
