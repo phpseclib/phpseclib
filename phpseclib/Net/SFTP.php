@@ -3040,7 +3040,9 @@ class Net_SFTP extends Net_SSH2
     }
 
     /**
-     * Renames a file or a directory on the SFTP server
+     * Renames a file or a directory on the SFTP server.
+     *
+     * If the file already exists this will return false
      *
      * @param string $oldname
      * @param string $newname
@@ -3053,11 +3055,6 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
-// in SFTP v5+
-// Add support for better control of the rename operation.
-// so we'll just need to add \0\0\0\0 after
-// by default if the destination file already exists it fails
-// but in v5+ you can pass a SSH_FXF_RENAME_OVERWRITE flag
         if (!$this->_precheck()) {
             return false;
         }
@@ -3070,6 +3067,18 @@ class Net_SFTP extends Net_SSH2
 
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.3
         $packet = pack('Na*Na*', strlen($oldname), $oldname, strlen($newname), $newname);
+        if ($this->version >= 5) {
+            /* quoting https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-05#section-6.5 ,
+
+               'flags' is 0 or a combination of:
+
+                   SSH_FXP_RENAME_OVERWRITE  0x00000001
+                   SSH_FXP_RENAME_ATOMIC     0x00000002
+                   SSH_FXP_RENAME_NATIVE     0x00000004
+
+               (none of these are currently supported) */
+            $packet.= "\0\0\0\0";
+        }
         if (!$this->_send_sftp_packet(NET_SFTP_RENAME, $packet)) {
             return false;
         }
