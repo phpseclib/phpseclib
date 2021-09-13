@@ -358,9 +358,6 @@ class Net_SFTP extends Net_SSH2
         $this->packet_types = array(
             1  => 'NET_SFTP_INIT',
             2  => 'NET_SFTP_VERSION',
-            /* the format of SSH_FXP_OPEN changed between SFTPv4 and SFTPv5+:
-                   SFTPv5+: http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.1.1
-               pre-SFTPv5 : http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.3 */
             3  => 'NET_SFTP_OPEN',
             4  => 'NET_SFTP_CLOSE',
             5  => 'NET_SFTP_READ',
@@ -374,9 +371,6 @@ class Net_SFTP extends Net_SSH2
             15 => 'NET_SFTP_RMDIR',
             16 => 'NET_SFTP_REALPATH',
             17 => 'NET_SFTP_STAT',
-            /* the format of SSH_FXP_RENAME changed between SFTPv4 and SFTPv5+:
-                   SFTPv5+: http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.3
-               pre-SFTPv5 : http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.5 */
             18 => 'NET_SFTP_RENAME',
             19 => 'NET_SFTP_READLINK',
             20 => 'NET_SFTP_SYMLINK',
@@ -449,16 +443,38 @@ class Net_SFTP extends Net_SSH2
             // that's not a problem, however, and 'anded' and a 32-bit number, as all the leading 1 bits are ignored.
             (-1 << 31) & 0xFFFFFFFF => 'NET_SFTP_ATTR_EXTENDED'
         );
-        // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.3
-        // the flag definitions change somewhat in SFTPv5+.  if SFTPv5+ support is added to this library, maybe name
-        // the array for that $this->open5_flags and similarly alter the constant names.
         $this->open_flags = array(
             0x00000001 => 'NET_SFTP_OPEN_READ',
             0x00000002 => 'NET_SFTP_OPEN_WRITE',
             0x00000004 => 'NET_SFTP_OPEN_APPEND',
             0x00000008 => 'NET_SFTP_OPEN_CREATE',
             0x00000010 => 'NET_SFTP_OPEN_TRUNCATE',
-            0x00000020 => 'NET_SFTP_OPEN_EXCL'
+            0x00000020 => 'NET_SFTP_OPEN_EXCL',
+            0x00000040 => 'NET_SFTP_OPEN_TEXT' // defined in SFTPv4
+        );
+        // SFTPv5+ changed the flags up:
+        // https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-8.1.1.3
+        $this->open_flags5 = array(
+            // when SSH_FXF_ACCESS_DISPOSITION is a 3 bit field that controls how the file is opened
+            0x00000000 => 'NET_SFTP_OPEN_CREATE_NEW',
+            0x00000001 => 'NET_SFTP_OPEN_CREATE_TRUNCATE',
+            0x00000002 => 'NET_SFTP_OPEN_OPEN_EXISTING',
+            0x00000003 => 'NET_SFTP_OPEN_OPEN_OR_CREATE',
+            0x00000004 => 'NET_SFTP_OPEN_TRUNCATE_EXISTING',
+            // the rest of the flags are not supported
+            0x00000008 => 'NET_SFTP_OPEN_APPEND_DATA', // "the offset field of SS_FXP_WRITE requests is ignored"
+            0x00000010 => 'NET_SFTP_OPEN_APPEND_DATA_ATOMIC',
+            0x00000020 => 'NET_SFTP_OPEN_TEXT_MODE',
+            0x00000040 => 'NET_SFTP_OPEN_BLOCK_READ',
+            0x00000080 => 'NET_SFTP_OPEN_BLOCK_WRITE',
+            0x00000100 => 'NET_SFTP_OPEN_BLOCK_DELETE',
+            0x00000200 => 'NET_SFTP_OPEN_BLOCK_ADVISORY',
+            0x00000400 => 'NET_SFTP_OPEN_NOFOLLOW',
+            0x00000800 => 'NET_SFTP_OPEN_DELETE_ON_CLOSE',
+            0x00001000 => 'NET_SFTP_OPEN_ACCESS_AUDIT_ALARM_INFO',
+            0x00002000 => 'NET_SFTP_OPEN_ACCESS_BACKUP',
+            0x00004000 => 'NET_SFTP_OPEN_BACKUP_STREAM',
+            0x00008000 => 'NET_SFTP_OPEN_OVERRIDE_OWNER',
         );
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-5.2
         // see Net_SFTP::_parseLongname() for an explanation
@@ -480,6 +496,7 @@ class Net_SFTP extends Net_SSH2
             $this->status_codes,
             $this->attributes,
             $this->open_flags,
+            $this->open_flags5,
             $this->file_types
         );
 
@@ -1611,9 +1628,12 @@ class Net_SFTP extends Net_SSH2
             $atime = $time;
         }
 
-        $flags = NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE | NET_SFTP_OPEN_EXCL;
-        $attr = pack('N3', NET_SFTP_ATTR_ACCESSTIME, $time, $atime);
-        $packet = pack('Na*Na*', strlen($filename), $filename, $flags, $attr);
+        $packet = pack('Na*', strlen($filename), $filename);
+        $packet.= $this->version >= 5 ?
+            pack('N2', 0, NET_SFTP_OPEN_OPEN_EXISTING) :
+            pack('N', NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE | NET_SFTP_OPEN_EXCL);
+        $packet.= pack('N3', NET_SFTP_ATTR_ACCESSTIME, $time, $atime);
+
         if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
             return false;
         }
@@ -2173,27 +2193,6 @@ class Net_SFTP extends Net_SSH2
      */
     function put($remote_file, $data, $mode = NET_SFTP_STRING, $start = -1, $local_start = -1, $progressCallback = null)
     {
-        /*
-        SFTPv4 introduces the following new mode:
-        - SSH_FXP_TEXT (renamed to SSH_FXF_TEXT_MODE in v5)
-
-        SFTPv5 introduced the following new modes:
-        - SSH_FXF_ACCESS_READ_LOCK (renamed to SSH_FXF_BLOCK_READ in v6)
-        - SSH_FXF_ACCESS_WRITE_LOCK (renamed to SSH_FXF_BLOCK_WRITE in v6)
-        - SSH_FXF_ACCESS_DELETE_LOCK (renamed to SSH_FXF_BLOCK_DELETE in v6)
-
-        SFTPv6 introduced the following new modes:
-        - SSH_FXF_BLOCK_ADVISORY
-        - SSH_FXF_NOFOLLOW
-        - SSH_FXF_DELETE_ON_CLOSE
-        - SSH_FXF_ACCESS_AUDIT_ALARM_INFO
-        - SSH_FXF_ACCESS_BACKUP
-        - SSH_FXF_BACKUP_STREAM
-        - ACCESS_OVERRIDE_OWNER
-
-        none of these are currently supported
-        */
-
         if (!$this->_precheck()) {
             return false;
         }
@@ -2205,10 +2204,14 @@ class Net_SFTP extends Net_SSH2
 
         $this->_remove_from_stat_cache($remote_file);
 
-        $flags = NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE;
-        // according to the SFTP specs, NET_SFTP_OPEN_APPEND should "force all writes to append data at the end of the file."
-        // in practice, it doesn't seem to do that.
-        //$flags|= ($mode & NET_SFTP_RESUME) ? NET_SFTP_OPEN_APPEND : NET_SFTP_OPEN_TRUNCATE;
+        if ($this->version >= 5) {
+            $flags = NET_SFTP_OPEN_OPEN_OR_CREATE;
+        } else {
+            $flags = NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE;
+            // according to the SFTP specs, NET_SFTP_OPEN_APPEND should "force all writes to append data at the end of the file."
+            // in practice, it doesn't seem to do that.
+            //$flags|= ($mode & NET_SFTP_RESUME) ? NET_SFTP_OPEN_APPEND : NET_SFTP_OPEN_TRUNCATE;
+        }
 
         if ($start >= 0) {
             $offset = $start;
@@ -2218,10 +2221,17 @@ class Net_SFTP extends Net_SSH2
             $offset = $size !== false ? $size : 0;
         } else {
             $offset = 0;
-            $flags|= NET_SFTP_OPEN_TRUNCATE;
+            if ($this->version >= 5) {
+                $flags = NET_SFTP_OPEN_CREATE_TRUNCATE;
+            } else {
+                $flags|= NET_SFTP_OPEN_TRUNCATE;
+            }
         }
 
-        $packet = pack('Na*N2', strlen($remote_file), $remote_file, $flags, 0);
+        $packet = pack('Na*', strlen($remote_file), $remote_file);
+        $packet.= $this->version >= 5 ?
+            pack('N3', 0, $flags, 0) :
+            pack('N2', $flags, 0);
         if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
             return false;
         }
@@ -2445,7 +2455,10 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
-        $packet = pack('Na*N2', strlen($remote_file), $remote_file, NET_SFTP_OPEN_READ, 0);
+        $packet = pack('Na*', strlen($remote_file), $remote_file);
+        $packet.= $this->version >= 5 ?
+            pack('N3', 0, NET_SFTP_OPEN_OPEN_EXISTING, 0) :
+            pack('N2', NET_SFTP_OPEN_READ, 0);
         if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
             return false;
         }
