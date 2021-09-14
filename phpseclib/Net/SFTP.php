@@ -206,6 +206,15 @@ class Net_SFTP extends Net_SSH2
     var $defaultVersion;
 
     /**
+     * Preferred SFTP version
+     *
+     * @var int
+     * @see self::_initChannel()
+     * @access private
+     */
+    var $preferredVersion = 3;
+
+    /**
      * Current working directory
      *
      * @var string
