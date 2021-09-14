@@ -1,6 +1,4 @@
 <?php
-// attributes will require a lot of work
-
 /**
  * Pure-PHP implementation of SFTP.
  *
