@@ -1635,11 +1635,13 @@ class Net_SFTP extends Net_SSH2
             $atime = $time;
         }
 
+        $attr = pack('N3', NET_SFTP_ATTR_ACCESSTIME, $time, $atime);
+
         $packet = pack('Na*', strlen($filename), $filename);
         $packet.= $this->version >= 5 ?
             pack('N2', 0, NET_SFTP_OPEN_OPEN_EXISTING) :
             pack('N', NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE | NET_SFTP_OPEN_EXCL);
-        $packet.= pack('N3', NET_SFTP_ATTR_ACCESSTIME, $time, $atime);
+        $packet.= $attr;
 
         if (!$this->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
             return false;
