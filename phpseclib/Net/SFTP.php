@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP implementation of SFTP.
  *
@@ -369,6 +370,7 @@ class Net_SFTP extends Net_SSH2
             6  => 'NET_SFTP_WRITE',
             7  => 'NET_SFTP_LSTAT',
             9  => 'NET_SFTP_SETSTAT',
+            10 => 'NET_SFTP_FSETSTAT',
             11 => 'NET_SFTP_OPENDIR',
             12 => 'NET_SFTP_READDIR',
             13 => 'NET_SFTP_REMOVE',
@@ -1633,7 +1635,15 @@ class Net_SFTP extends Net_SSH2
             $atime = $time;
         }
 
-        $attr = pack('N3', NET_SFTP_ATTR_ACCESSTIME, $time, $atime);
+        if ($this->version < 4) {
+            $attr = pack('N3', NET_SFTP_ATTR_ACCESSTIME, $atime, $time);
+        } else {
+            $attr = pack('N5',
+                NET_SFTP_ATTR_ACCESSTIME | NET_SFTP_ATTR_MODIFYTIME,
+                $atime / 4294967296, $atime,
+                $time / 4294967296, $time
+            );
+        }
 
         $packet = pack('Na*', strlen($filename), $filename);
         $packet.= $this->version >= 5 ?
@@ -1813,9 +1823,10 @@ class Net_SFTP extends Net_SSH2
             return $result;
         }
 
-        // SFTPv4+ has an additional byte field - type - that would need to be sent, as well. setting it to
-        // SSH_FILEXFER_TYPE_UNKNOWN might work. if not, we'd have to do an SSH_FXP_STAT before doing an SSH_FXP_SETSTAT.
-        if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, pack('Na*a*', strlen($filename), $filename, $attr))) {
+        $packet = $this->version >= 4 ?
+            pack('Na*a*Ca*', strlen($filename), $filename, substr($attr, 0, 4), NET_SFTP_TYPE_UNKNOWN, substr($attr, 4)) :
+            pack('Na*a*', strlen($filename), $filename, $attr);
+        if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, $packet)) {
             return false;
         }
 
@@ -1885,7 +1896,10 @@ class Net_SFTP extends Net_SSH2
                     return false;
                 }
             } else {
-                if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, pack('Na*a*', strlen($temp), $temp, $attr))) {
+                $packet = $this->version >= 4 ?
+                    pack('Na*Ca*', strlen($temp), $temp, NET_SFTP_TYPE_UNKNOWN, $attr) :
+                    pack('Na*a*', strlen($temp), $temp, $attr);
+                if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, $packet)) {
                     return false;
                 }
 
@@ -1900,7 +1914,10 @@ class Net_SFTP extends Net_SSH2
             }
         }
 
-        if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, pack('Na*a*', strlen($path), $path, $attr))) {
+        $packet = $this->version >= 4 ?
+            pack('Na*Ca*', strlen($temp), $temp, NET_SFTP_TYPE_UNKNOWN, $attr) :
+            pack('Na*a*', strlen($temp), $temp, $attr);
+        if (!$this->_send_sftp_packet(NET_SFTP_SETSTAT, $packet)) {
             return false;
         }
 
@@ -2347,6 +2364,8 @@ class Net_SFTP extends Net_SSH2
             }
         }
 
+        $result = $this->_close_handle($handle);
+
         if (!$this->_read_put_responses($i)) {
             if ($mode & NET_SFTP_LOCAL_FILE) {
                 fclose($fp);
@@ -2356,17 +2375,29 @@ class Net_SFTP extends Net_SSH2
         }
 
         if ($mode & NET_SFTP_LOCAL_FILE) {
-            if ($this->preserveTime) {
-                $stat = fstat($fp);
-                $this->touch($remote_file, $stat['mtime'], $stat['atime']);
-            }
-
             if (isset($fp) && is_resource($fp)) {
                 fclose($fp);
             }
+
+            if ($this->preserveTime) {
+                $stat = stat($data);
+                if ($this->version < 4) {
+                    $attr = pack('N3', NET_SFTP_ATTR_ACCESSTIME, $stat['atime'], $stat['mtime']);
+                } else {
+                    $attr = pack('N5',
+                        NET_SFTP_ATTR_ACCESSTIME | NET_SFTP_ATTR_MODIFYTIME,
+                        $stat['atime'] / 4294967296, $stat['atime'],
+                        $stat['mtime'] / 4294967296, $stat['mtime']
+                    );
+                }
+
+                if (!$this->_setstat($remote_file, $attr, false)) {
+                    user_error('Error setting file time');
+                }
+            }
         }
 
-        return $this->_close_handle($handle);
+        return $result;
     }
 
     /**
