@@ -4,9 +4,7 @@
  *
  * PHP versions 4 and 5
  *
- * Currently only supports SFTPv2 and v3, which, according to wikipedia.org, "is the most widely used version,
- * implemented by the popular OpenSSH SFTP server".  If you want SFTPv4/5/6 support, provide me with access
- * to an SFTPv4/5/6 server.
+ * Supports SFTPv2/3/4/5/6. Defaults to v3.
  *
  * The API for this library is modeled after the API from PHP's {@link http://php.net/book.ftp FTP extension}.
  *
