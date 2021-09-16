@@ -3106,10 +3106,6 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
-        if (!$this->_precheck()) {
-            return false;
-        }
-
         $oldname = $this->_realpath($oldname);
         $newname = $this->_realpath($newname);
         if ($oldname === false || $newname === false) {
