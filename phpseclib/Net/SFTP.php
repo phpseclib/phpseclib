@@ -666,10 +666,8 @@ class SFTP extends SSH2
                         break;
                     }
                     $this->version = (int) $ver;
-                    $packet = Strings::packSSH2('ss', 'version-select', $ver);
-                    if (!$this->send_sftp_packet(NET_SFTP_EXTENDED, $packet)) {
-                        return false;
-                    }
+                    $packet = Strings::packSSH2('ss', 'version-select', "$ver");
+                    $this->send_sftp_packet(NET_SFTP_EXTENDED, $packet);
                     $response = $this->get_sftp_packet();
                     if ($this->packet_type != NET_SFTP_STATUS) {
                         throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
@@ -699,11 +697,11 @@ class SFTP extends SSH2
             unset($this->extensions['newline@vandyke.com']);
         }
         */
-
         if ($this->version < 2 || $this->version > 6) {
             return false;
         }
 
+        $this->pwd = true;
         $this->pwd = $this->realpath('.');
 
         $this->update_stat_cache($this->pwd, []);
@@ -836,7 +834,7 @@ class SFTP extends SSH2
      */
     public function realpath($path)
     {
-        if (!$this->precheck()) {
+        if ($this->precheck() === false) {
             return false;
         }
 
@@ -844,7 +842,7 @@ class SFTP extends SSH2
             return $path;
         }
 
-        if ($this->pwd === false) {
+        if ($this->pwd === true) {
             // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.9
             $this->send_sftp_packet(NET_SFTP_REALPATH, Strings::packSSH2('s', $path));
 
@@ -1508,7 +1506,7 @@ class SFTP extends SSH2
      */
     public function truncate($filename, $new_size)
     {
-        $attr = Strings::packSSH2('Q', NET_SFTP_ATTR_SIZE, $new_size);
+        $attr = Strings::packSSH2('NQ', NET_SFTP_ATTR_SIZE, $new_size);
 
         return $this->setstat($filename, $attr, false);
     }
@@ -1613,7 +1611,7 @@ class SFTP extends SSH2
             // "If either the owner or group field is zero length, the field should be
             //  considered absent, and no change should be made to that specific field
             //  during a modification operation"
-            pack('NNa*Na*', NET_SFTP_ATTR_OWNERGROUP, strlen($uid), $uid, 0, '');
+            Strings::packSSH2('Nss', NET_SFTP_ATTR_OWNERGROUP, $uid, '');
 
         return $this->setstat($filename, $attr, $recursive);
     }
@@ -1638,7 +1636,7 @@ class SFTP extends SSH2
     {
         $attr = $this->version < 4 ?
             pack('N3', NET_SFTP_ATTR_UIDGID, $gid, -1) :
-            pack('NNa*Na*', NET_SFTP_ATTR_OWNERGROUP, 0, '', strlen($gid), $gid);
+            Strings::packSSH2('Nss', NET_SFTP_ATTR_OWNERGROUP, '', $gid);
 
         return $this->setstat($filename, $attr, $recursive);
     }
@@ -1723,7 +1721,7 @@ class SFTP extends SSH2
             return $result;
         }
 
-        $packet = Strings:packSSH2('s', $filename);
+        $packet = Strings::packSSH2('s', $filename);
         $packet.= $this->version >= 4 ?
             pack('a*Ca*', substr($attr, 0, 4), NET_SFTP_TYPE_UNKNOWN, substr($attr, 4)) :
             $attr;
@@ -1915,8 +1913,8 @@ class SFTP extends SSH2
                    string      targetpath
                    string      linkpath */
             $packet = substr($this->server_identifier, 0, 15) == 'SSH-2.0-OpenSSH' ?
-                Strings::packSSH2('SS', $target, $link) :
-                Strings::packSSH2('SS', $link, $target);
+                Strings::packSSH2('ss', $target, $link) :
+                Strings::packSSH2('ss', $link, $target);
         }
         $this->send_sftp_packet($type, $packet);
 
@@ -2133,7 +2131,7 @@ class SFTP extends SSH2
 
         $this->remove_from_stat_cache($remote_file);
 
-        $packet = Strings::packSSH2('s', $remote_filename);
+        $packet = Strings::packSSH2('s', $remote_file);
         $packet.= $this->version >= 5 ?
             pack('N3', 0, $flags, 0) :
             pack('N2', $flags, 0);
@@ -3058,7 +3056,7 @@ class SFTP extends SSH2
                 case NET_SFTP_ATTR_PERMISSIONS: // 0x00000004
                     list($attr['mode']) = Strings::unpackSSH2('N', $response);
                     $fileType = $this->parseMode($attr['mode']);
-                    if ($version < 4 && $fileType !== false) {
+                    if ($this->version < 4 && $fileType !== false) {
                         $attr+= ['type' => $fileType];
                     }
                     break;

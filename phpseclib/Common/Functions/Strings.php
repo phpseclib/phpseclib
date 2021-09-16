@@ -128,12 +128,12 @@ abstract class Strings
                     // 64-bit floats can be used to get larger numbers then 32-bit signed ints would allow
                     // for. sure, you're not gonna get the full precision of 64-bit numbers but just because
                     // you need > 32-bit precision doesn't mean you need the full 64-bit precision
-                    list(, $upper, $lower) = unpack('NN', self::shift($data, 8));
-                    $temp = $upper ? 4294967296 * $lower : 0;
-                    $temp+= $lower < 0 ? ($temp & 0x7FFFFFFFF) + 0x80000000 : $temp;
+                    extract(unpack('Nupper/Nlower', self::shift($data, 8)));
+                    $temp = $upper ? 4294967296 * $upper : 0;
+                    $temp+= $lower < 0 ? ($lower & 0x7FFFFFFFF) + 0x80000000 : $lower;
                     // $temp = hexdec(bin2hex(self::shift($data, 8)));
                     $result[] = $temp;
-                    continue;
+                    continue 2;
             }
             list(, $length) = unpack('N', self::shift($data, 4));
             if (strlen($data) < $length) {
@@ -186,7 +186,7 @@ abstract class Strings
                     $result.= $element ? "\1" : "\0";
                     break;
                 case 'Q':
-                    if (!is_int($element) || !is_float($element)) {
+                    if (!is_int($element) && !is_float($element)) {
                         throw new \InvalidArgumentException('An integer was expected.');
                     }
                     // 4294967296 == 1 << 32
