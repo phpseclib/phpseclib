@@ -216,7 +216,7 @@ class SSH2
      * @var array|false
      * @access private
      */
-    private $server_identifier = false;
+    protected $server_identifier = false;
 
     /**
      * Key Exchange Algorithms
