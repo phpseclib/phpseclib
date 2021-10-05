@@ -58,7 +58,13 @@ use phpseclib\Crypt\Rijndael;
 use phpseclib\Crypt\RSA;
 use phpseclib\Crypt\TripleDES;
 use phpseclib\Crypt\Twofish;
+use phpseclib\Exception\PhpSecLibException;
 use phpseclib\Math\BigInteger; // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
+use phpseclib\Net\Exception\InvalidPayloadException;
+use phpseclib\Net\Exception\KeyExchangeFailedException;
+use phpseclib\Net\Exception\NetException;
+use phpseclib\Net\Exception\NotImplementedException;
+use phpseclib\Net\Exception\PacketCouldNotBeSentException;
 use phpseclib\System\SSH\Agent;
 
 /**
@@ -1284,11 +1290,13 @@ class SSH2
         }
 
         if (!$this->send_kex_first) {
-            $response = $this->_get_binary_packet();
-            if ($response === false) {
+            try {
+                $response = $this->_get_binary_packet();
+            } catch (PhpSecLibException $exception) {
                 $this->bitmap = 0;
                 user_error('Connection closed by server');
-                return false;
+
+                throw $exception;
             }
 
             if (!strlen($response) || ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
@@ -1297,7 +1305,7 @@ class SSH2
             }
 
             if (!$this->_key_exchange($response)) {
-                return false;
+                throw KeyExchangeFailedException::fromPayload($response);
             }
         }
 
@@ -3385,7 +3393,7 @@ class SSH2
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             $this->bitmap = 0;
             user_error('Connection closed prematurely');
-            return false;
+            throw NetException::withMessage('Connection closed prematurely');
         }
 
         $start = microtime(true);
@@ -3400,11 +3408,11 @@ class SSH2
         }
         if ($raw === false) {
             user_error('Unable to decrypt content');
-            return false;
+            throw NetException::withMessage('Unable to decrypt content');
         }
 
         if (strlen($raw) < 5) {
-            return false;
+            throw InvalidPayloadException::payloadTooShortException($raw, 5);
         }
         extract(unpack('Npacket_length/Cpadding_length', $this->_string_shift($raw, 5)));
 
@@ -3417,10 +3425,10 @@ class SSH2
             if (!$this->bad_key_size_fix && $this->_bad_algorithm_candidate($this->decrypt->name) && !($this->bitmap & SSH2::MASK_LOGIN)) {
                 $this->bad_key_size_fix = true;
                 $this->_reset_connection(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
-                return false;
+                throw KeyExchangeFailedException::fromBadAlgorithm($this->decrypt->name);
             }
             user_error('Invalid size');
-            return false;
+            throw KeyExchangeFailedException::fromUnreasonablePacketLength();
         }
 
         $buffer = '';
@@ -3429,7 +3437,7 @@ class SSH2
             if ($temp === false || feof($this->fsock)) {
                 $this->bitmap = 0;
                 user_error('Error reading from socket');
-                return false;
+                throw NetException::withMessage('Error reading from socket');
             }
             $buffer.= $temp;
             $remaining_length-= strlen($temp);
@@ -3448,10 +3456,10 @@ class SSH2
             if ($hmac === false || strlen($hmac) != $this->hmac_size) {
                 $this->bitmap = 0;
                 user_error('Error reading socket');
-                return false;
+                throw NetException::withMessage('Error reading from socket');
             } elseif ($hmac != $this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding))) {
                 user_error('Invalid HMAC');
-                return false;
+                throw NetException::withMessage('Invalid HMAC');
             }
         }
 
@@ -3488,32 +3496,32 @@ class SSH2
             case NET_SSH2_MSG_DISCONNECT:
                 $this->_string_shift($payload, 1);
                 if (strlen($payload) < 8) {
-                    return false;
+                    throw InvalidPayloadException::payloadTooShortException($payload, 8);
                 }
                 extract(unpack('Nreason_code/Nlength', $this->_string_shift($payload, 8)));
                 $this->errors[] = 'SSH_MSG_DISCONNECT: ' . $this->disconnect_reasons[$reason_code] . "\r\n" . $this->_string_shift($payload, $length);
                 $this->bitmap = 0;
-                return false;
+                return '';
             case NET_SSH2_MSG_IGNORE:
                 $payload = $this->_get_binary_packet($skip_channel_filter);
                 break;
             case NET_SSH2_MSG_DEBUG:
                 $this->_string_shift($payload, 2);
                 if (strlen($payload) < 4) {
-                    return false;
+                    throw InvalidPayloadException::payloadTooShortException($payload, 4);
                 }
                 extract(unpack('Nlength', $this->_string_shift($payload, 4)));
                 $this->errors[] = 'SSH_MSG_DEBUG: ' . $this->_string_shift($payload, $length);
                 $payload = $this->_get_binary_packet($skip_channel_filter);
                 break;
             case NET_SSH2_MSG_UNIMPLEMENTED:
-                return false;
+                throw new NotImplementedException();
             case NET_SSH2_MSG_KEXINIT:
                 if ($this->session_id !== false) {
                     $this->send_kex_first = false;
                     if (!$this->_key_exchange($payload)) {
                         $this->bitmap = 0;
-                        return false;
+                        throw KeyExchangeFailedException::fromPayload($payload);
                     }
                     $payload = $this->_get_binary_packet($skip_channel_filter);
                 }
@@ -3523,7 +3531,7 @@ class SSH2
         if (($this->bitmap & self::MASK_CONNECTED) && !$this->isAuthenticated() && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             $this->_string_shift($payload, 1);
             if (strlen($payload) < 4) {
-                return false;
+                throw InvalidPayloadException::payloadTooShortException($payload, 4);
             }
             extract(unpack('Nlength', $this->_string_shift($payload, 4)));
             $this->banner_message = $this->_string_shift($payload, $length);
@@ -3560,7 +3568,7 @@ class SSH2
                     break;
                 case NET_SSH2_MSG_GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
                     if (strlen($payload) < 4) {
-                        return false;
+                        throw InvalidPayloadException::payloadTooShortException($payload, 4);
                     }
                     extract(unpack('Nlength', $this->_string_shift($payload, 4)));
                     $this->errors[] = 'SSH_MSG_GLOBAL_REQUEST: ' . $this->_string_shift($payload, $length);
@@ -3574,12 +3582,12 @@ class SSH2
                 case NET_SSH2_MSG_CHANNEL_OPEN: // see http://tools.ietf.org/html/rfc4254#section-5.1
                     $this->_string_shift($payload, 1);
                     if (strlen($payload) < 4) {
-                        return false;
+                        throw InvalidPayloadException::payloadTooShortException($payload, 4);
                     }
                     extract(unpack('Nlength', $this->_string_shift($payload, 4)));
                     $data = $this->_string_shift($payload, $length);
                     if (strlen($payload) < 4) {
-                        return false;
+                        throw InvalidPayloadException::payloadTooShortException($payload, 4);
                     }
                     extract(unpack('Nserver_channel', $this->_string_shift($payload, 4)));
                     switch ($data) {
@@ -3589,7 +3597,7 @@ class SSH2
                                 $new_channel = self::CHANNEL_AGENT_FORWARD;
 
                                 if (strlen($payload) < 8) {
-                                    return false;
+                                    throw InvalidPayloadException::payloadTooShortException($payload, 8);
                                 }
                                 extract(unpack('Nremote_window_size', $this->_string_shift($payload, 4)));
                                 extract(unpack('Nremote_maximum_packet_size', $this->_string_shift($payload, 4)));
@@ -3612,7 +3620,7 @@ class SSH2
                                 $this->server_channels[$new_channel] = $server_channel;
                                 $this->channel_status[$new_channel] = NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION;
                                 if (!$this->_send_binary_packet($packet)) {
-                                    return false;
+                                    throw PacketCouldNotBeSentException::fromPacket($packet);
                                 }
                             }
                             break;
@@ -3629,7 +3637,8 @@ class SSH2
                             );
 
                             if (!$this->_send_binary_packet($packet)) {
-                                return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+                                $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+                                throw PacketCouldNotBeSentException::fromPacket($packet);
                             }
                     }
                     $payload = $this->_get_binary_packet($skip_channel_filter);
@@ -3637,13 +3646,13 @@ class SSH2
                 case NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST:
                     $this->_string_shift($payload, 1);
                     if (strlen($payload) < 8) {
-                        return false;
+                        throw InvalidPayloadException::payloadTooShortException($payload, 8);
                     }
                     extract(unpack('Nchannel', $this->_string_shift($payload, 4)));
                     extract(unpack('Nwindow_size', $this->_string_shift($payload, 4)));
                     $this->window_size_client_to_server[$channel]+= $window_size;
 
-                    $payload = ($this->bitmap & self::MASK_WINDOW_ADJUST) ? true : $this->_get_binary_packet($skip_channel_filter);
+                    $payload = ($this->bitmap & self::MASK_WINDOW_ADJUST) ? '' : $this->_get_binary_packet($skip_channel_filter);
             }
         }
 
