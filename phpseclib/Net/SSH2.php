@@ -2814,26 +2814,12 @@ class SSH2
                 return false;
             }
 
-            $response = $this->_get_binary_packet();
-            if ($response === false) {
-                $this->bitmap = 0;
-                user_error('Connection closed by server');
-                return false;
+            $this->channel_status[NET_SSH2_CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_REQUEST;
+            if (!$this->_get_channel_packet(NET_SSH2_CHANNEL_EXEC)) {
+                user_error('Unable to request pseudo-terminal');
+                return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
             }
 
-            if (!strlen($response)) {
-                return false;
-            }
-            list(, $type) = unpack('C', $this->_string_shift($response, 1));
-
-            switch ($type) {
-                case NET_SSH2_MSG_CHANNEL_SUCCESS:
-                    break;
-                case NET_SSH2_MSG_CHANNEL_FAILURE:
-                default:
-                    user_error('Unable to request pseudo-terminal');
-                    return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
-            }
             $this->in_request_pty_exec = true;
         }
 
@@ -3893,10 +3879,15 @@ class SSH2
                                 $result = $client_channel == $channel ? true : $this->_get_channel_packet($client_channel, $skip_extended);
                                 $this->_on_channel_open();
                                 return $result;
-                            //case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
-                            default:
+                            case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
                                 user_error('Unable to open channel');
                                 return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+                            default:
+                                if ($client_channel == $channel) {
+                                    user_error('Unexpected response to open request');
+                                    return $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+                                }
+                                return $this->_get_channel_packet($client_channel, $skip_extended);
                         }
                         break;
                     case NET_SSH2_MSG_IGNORE:
