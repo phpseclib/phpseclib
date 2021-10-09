@@ -5182,7 +5182,7 @@ class Net_SSH2
      * @see https://tools.ietf.org/html/rfc4252#section-5.1
      * @return array|null
      */
-    public function getAuthMethodsToContinue()
+    function getAuthMethodsToContinue()
     {
         return $this->auth_methods_to_continue;
     }
