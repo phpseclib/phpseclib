@@ -2632,7 +2632,8 @@ class SSH2
 
             $this->send_binary_packet($packet);
 
-            if (!$this->get_channel_packet(NET_SSH2_CHANNEL_EXEC)) {
+            $this->channel_status[self::CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_REQUEST;
+            if (!$this->get_channel_packet(self::CHANNEL_EXEC)) {
                 $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
                 throw new \RuntimeException('Unable to request pseudo-terminal');
             }
