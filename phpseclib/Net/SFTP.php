@@ -1622,10 +1622,13 @@ class SFTP extends SSH2
         if ($this->version < 4) {
             $attr = pack('N3', NET_SFTP_ATTR_ACCESSTIME, $atime, $time);
         } else {
-            $attr = pack('N5',
+            $attr = pack(
+                'N5',
                 NET_SFTP_ATTR_ACCESSTIME | NET_SFTP_ATTR_MODIFYTIME,
-                $atime / 4294967296, $atime,
-                $time / 4294967296, $time
+                $atime / 4294967296,
+                $atime,
+                $time / 4294967296,
+                $time
             );
         }
 
@@ -2368,10 +2371,13 @@ class SFTP extends SSH2
                 if ($this->version < 4) {
                     $attr = pack('N3', NET_SFTP_ATTR_ACCESSTIME, $stat['atime'], $stat['mtime']);
                 } else {
-                    $attr = pack('N5',
+                    $attr = pack(
+                        'N5',
                         NET_SFTP_ATTR_ACCESSTIME | NET_SFTP_ATTR_MODIFYTIME,
-                        $stat['atime'] / 4294967296, $stat['atime'],
-                        $stat['mtime'] / 4294967296, $stat['mtime']
+                        $stat['atime'] / 4294967296,
+                        $stat['atime'],
+                        $stat['mtime'] / 4294967296,
+                        $stat['mtime']
                     );
                 }
 
