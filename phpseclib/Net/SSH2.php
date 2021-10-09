@@ -2632,17 +2632,11 @@ class SSH2
 
             $this->send_binary_packet($packet);
 
-            $response = $this->get_binary_packet();
-
-            list($type) = Strings::unpackSSH2('C', $response);
-            switch ($type) {
-                case NET_SSH2_MSG_CHANNEL_SUCCESS:
-                    break;
-                case NET_SSH2_MSG_CHANNEL_FAILURE:
-                default:
-                    $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
-                    throw new \RuntimeException('Unable to request pseudo-terminal');
+            if (!$this->get_channel_packet(NET_SSH2_CHANNEL_EXEC)) {
+                $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
+                throw new \RuntimeException('Unable to request pseudo-terminal');
             }
+
             $this->in_request_pty_exec = true;
         }
 
@@ -3766,10 +3760,15 @@ class SSH2
                                 $result = $client_channel == $channel ? true : $this->get_channel_packet($client_channel, $skip_extended);
                                 $this->on_channel_open();
                                 return $result;
-                            //case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
-                            default:
+                            case NET_SSH2_MSG_CHANNEL_OPEN_FAILURE:
                                 $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
                                 throw new \RuntimeException('Unable to open channel');
+                            default:
+                                if ($client_channel == $channel) {
+                                    $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
+                                    throw new \RuntimeException('Unexpected response to open request');
+                                }
+                                return $this->get_channel_packet($client_channel, $skip_extended);
                         }
                         break;
                     case NET_SSH2_MSG_IGNORE:
