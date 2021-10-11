@@ -3841,9 +3841,6 @@ class Net_SSH2
                         if ($client_channel == $channel && $this->channel_status[$channel] == NET_SSH2_MSG_CHANNEL_DATA) {
                             return $data;
                         }
-                        if (!isset($this->channel_buffers[$channel])) {
-                            $this->channel_buffers[$channel] = array();
-                        }
                         $this->channel_buffers[$channel][] = chr($type) . $data;
 
                         continue 2;
@@ -3946,9 +3943,6 @@ class Net_SSH2
                                 }
                                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                                 $data = $this->_string_shift($response, $length);
-                                if (!isset($this->channel_buffers[$channel])) {
-                                    $this->channel_buffers[$channel] = array();
-                                }
                                 $this->channel_buffers[$channel][] = chr($type) . $data;
                                 return $this->_get_channel_packet($client_channel, $skip_extended);
                             default:
@@ -3989,9 +3983,6 @@ class Net_SSH2
 
                     if ($client_channel == $channel) {
                         return $data;
-                    }
-                    if (!isset($this->channel_buffers[$channel])) {
-                        $this->channel_buffers[$channel] = array();
                     }
                     $this->channel_buffers[$channel][] = chr($type) . $data;
                     break;
