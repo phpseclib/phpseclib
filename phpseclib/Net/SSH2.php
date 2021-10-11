@@ -3756,7 +3756,7 @@ class Net_SSH2
         if (!empty($this->channel_buffers[$client_channel])) {
             switch ($this->channel_status[$client_channel]) {
                 case NET_SSH2_MSG_CHANNEL_REQUEST:
-                    foreach ($this->channel_buffers[$client_channel] as $i=>$packet) {
+                    foreach ($this->channel_buffers[$client_channel] as $i => $packet) {
                         switch (ord($packet[0])) {
                             case NET_SSH2_MSG_CHANNEL_SUCCESS:
                             case NET_SSH2_MSG_CHANNEL_FAILURE:
