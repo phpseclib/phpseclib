@@ -738,6 +738,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         sleep(5);
         $sftp->nlist();
 
+        $this->assertTrue(true);
+
         return $sftp;
     }
 
