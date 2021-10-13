@@ -149,6 +149,8 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
         $ssh->disablePTY();
         $ssh->exec('pwd');
 
+        $this->assertTrue(true);
+
         return $ssh;
     }
 
