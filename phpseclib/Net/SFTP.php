@@ -807,7 +807,7 @@ class SFTP extends SSH2
             list($status) = Strings::unpackSSH2('N', $response);
         }
 
-        list($error) = $this->status_codes[$status];
+        $error = $this->status_codes[$status];
 
         if ($this->version > 2) {
             list($message) = Strings::unpackSSH2('s', $response);
