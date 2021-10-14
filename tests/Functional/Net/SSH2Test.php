@@ -160,6 +160,20 @@ class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
      */
     public function testChannelDataAfterOpen($ssh)
     {
+        // Ubuntu's OpenSSH from 5.8 to 6.9 didn't work with multiple channels. see
+        // https://bugs.launchpad.net/ubuntu/+source/openssh/+bug/1334916 for more info.
+        // https://lists.ubuntu.com/archives/oneiric-changes/2011-July/005772.html discusses
+        // when consolekit was incorporated.
+        // https://marc.info/?l=openssh-unix-dev&m=163409903417589&w=2 discusses some of the
+        // issues with how Ubuntu incorporated consolekit
+        $pattern = '#^SSH-2\.0-OpenSSH_([\d\.]+)[^ ]* Ubuntu-.*$#';
+        $match = preg_match($pattern, $ssh->getServerIdentification(), $matches);
+        $match = $match && version_compare('5.8', $matches[1], '<=');
+        $match = $match && version_compare('6.9', $matches[1], '>=');
+        if ($match) {
+            self::markTestSkipped('Ubuntu\'s OpenSSH >= 5.8 <= 6.9 didn\'t work well with multiple channels');
+        }
+
         $ssh->write("ping 127.0.0.1\n");
 
         $ssh->enablePTY();
