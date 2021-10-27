@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.34 - 2021-10-26
+
+- SSH2: add support for zlib and zlib@openssh.com compression
+- SFTP: add support for SFTPv4/5/6
+- SFTP: add option to allow arbitrary length packets (#1691)
+- RSA: ssh-keygen -yf private.key fails if \r is present (#1698)
+
 ## 2.0.33 - 2021-08-15
 
 - SFTP: don't check SFTP packet size after SFTP initialization (#1606)
