@@ -72,6 +72,23 @@ use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\AsymmetricKey;
 
+/**#@+
+ * @access private
+ */
+/**
+ * No compression
+ */
+define('NET_SSH2_COMPRESSION_NONE',  1);
+/**
+ * zlib compression
+ */
+define('NET_SSH2_COMPRESSION_ZLIB', 2);
+/**
+ * zlib@openssh.com
+ */
+define('NET_SSH2_COMPRESSION_ZLIB_AT_OPENSSH', 3);
+/**#@-*/
+
 /**
  * Pure-PHP implementation of SSHv2.
  *
@@ -1026,9 +1043,58 @@ class SSH2
      * The authentication methods that may productively continue authentication.
      * 
      * @see https://tools.ietf.org/html/rfc4252#section-5.1
-     * @var array|null 
+     * @var array|null
+     * @access private
      */
     private $auth_methods_to_continue = null;
+
+    /**
+     * Compression method
+     *
+     * @var int
+     * @access private
+     */
+    private $compress = NET_SSH2_COMPRESSION_NONE;
+
+    /**
+     * Decompression method
+     *
+     * @var resource|object
+     * @access private
+     */
+    private $decompress = NET_SSH2_COMPRESSION_NONE;
+
+    /**
+     * Compression context
+     *
+     * @var int
+     * @access private
+     */
+    private $compress_context;
+
+    /**
+     * Decompression context
+     *
+     * @var resource|object
+     * @access private
+     */
+    private $decompress_context;
+
+    /**
+     * Regenerate Compression Context
+     *
+     * @var bool
+     * @access private
+     */
+    private $regenerate_compression_context = false;
+
+    /**
+     * Regenerate Decompression Context
+     *
+     * @var bool
+     * @access private
+     */
+    private $regenerate_decompression_context = false;
 
     /**
      * Default Constructor.
@@ -1542,19 +1608,25 @@ class SSH2
             throw new NoSupportedAlgorithmsException('No compatible server to client message authentication algorithms found');
         }
 
+        $compression_map = [
+            'none' => NET_SSH2_COMPRESSION_NONE,
+            'zlib' => NET_SSH2_COMPRESSION_ZLIB,
+            'zlib@openssh.com' => NET_SSH2_COMPRESSION_ZLIB_AT_OPENSSH
+        ];
+
         $compression_algorithm_in = self::array_intersect_first($s2c_compression_algorithms, $this->compression_algorithms_server_to_client);
         if ($compression_algorithm_in === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client compression algorithms found');
         }
-        $this->decompress = $compression_algorithm_in == 'zlib';
+        $this->decompress = $compression_map[$compression_algorithm_in];
 
         $compression_algorithm_out = self::array_intersect_first($c2s_compression_algorithms, $this->compression_algorithms_client_to_server);
         if ($compression_algorithm_out === false) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible client to server compression algorithms found');
         }
-        $this->compress = $compression_algorithm_out == 'zlib';
+        $this->compress = $compression_map[$compression_algorithm_out];
 
         switch ($this->kex_algorithm) {
             case 'diffie-hellman-group15-sha512':
@@ -1886,6 +1958,8 @@ class SSH2
             $this->hmac_check->name = $mac_algorithm_in;
             $this->hmac_check->etm = preg_match('#-etm@openssh\.com$#', $mac_algorithm_in);
         }
+
+        $this->regenerate_compression_context = $this->regenerate_decompression_context = true;
 
         return true;
     }
@@ -3198,7 +3272,7 @@ class SSH2
 
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             $this->bitmap = 0;
-            throw new ConnectionClosedException('Connection closed (by server) prematurely');
+            throw new ConnectionClosedException('Connection closed (by server) prematurely ' . $elapsed . 's');
         }
 
         $start = microtime(true);
@@ -3327,9 +3401,41 @@ class SSH2
             }
         }
 
-        //if ($this->decompress) {
-        //    $payload = gzinflate(substr($payload, 2));
-        //}
+        switch ($this->decompress) {
+            case NET_SSH2_COMPRESSION_ZLIB_AT_OPENSSH:
+                if (!$this->isAuthenticated()) {
+                    break;
+                }
+            case NET_SSH2_COMPRESSION_ZLIB:
+                if ($this->regenerate_decompression_context) {
+                    $this->regenerate_decompression_context = false;
+
+                    $cmf = ord($payload[0]);
+                    $cm = $cmf & 0x0F;
+                    if ($cm != 8) { // deflate
+                        user_error("Only CM = 8 ('deflate') is supported ($cm)");
+                    }
+                    $cinfo = ($cmf & 0xF0) >> 4;
+                    if ($cinfo > 7) {
+                        user_error("CINFO above 7 is not allowed ($cinfo)");
+                    }
+                    $windowSize = 1 << ($cinfo + 8);
+
+                    $flg = ord($payload[1]);
+                    //$fcheck = $flg && 0x0F;
+                    if ((($cmf << 8) | $flg) % 31) {
+                        user_error('fcheck failed');
+                    }
+                    $fdict = boolval($flg & 0x20);
+                    $flevel = ($flg & 0xC0) >> 6;
+
+                    $this->decompress_context = inflate_init(ZLIB_ENCODING_RAW, ['window' => $cinfo + 8]);
+                    $payload = substr($payload, 2);
+                }
+                if ($this->decompress_context) {
+                    $payload = inflate_add($this->decompress_context, $payload, ZLIB_PARTIAL_FLUSH);
+                }
+        }
 
         $this->get_seq_no++;
 
@@ -3881,11 +3987,27 @@ class SSH2
             throw new ConnectionClosedException('Connection closed prematurely');
         }
 
-        //if ($this->compress) {
-        //    // the -4 removes the checksum:
-        //    // http://php.net/function.gzcompress#57710
-        //    $data = substr(gzcompress($data), 0, -4);
-        //}
+        if (!isset($logged)) {
+            $logged = $data;
+        }
+
+        switch ($this->compress) {
+            case NET_SSH2_COMPRESSION_ZLIB_AT_OPENSSH:
+                if (!$this->isAuthenticated()) {
+                    break;
+                }
+            case NET_SSH2_COMPRESSION_ZLIB:
+                if (!$this->regenerate_compression_context) {
+                    $header = '';
+                } else {
+                    $this->regenerate_compression_context = false;
+                    $this->compress_context = deflate_init(ZLIB_ENCODING_RAW, ['window' => 15]);
+                    $header = "\x78\x9C";
+                }
+                if ($this->compress_context) {
+                    $data = $header . deflate_add($this->compress_context, $data, ZLIB_PARTIAL_FLUSH);
+                }
+        }
 
         // 4 (packet length) + 1 (padding length) + 4 (minimal padding amount) == 9
         $packet_length = strlen($data) + 9;
@@ -3975,10 +4097,10 @@ class SSH2
 
         if (defined('NET_SSH2_LOGGING')) {
             $current = microtime(true);
-            $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
+            $message_number = isset($this->message_numbers[ord($logged[0])]) ? $this->message_numbers[ord($logged[0])] : 'UNKNOWN (' . ord($logged[0]) . ')';
             $message_number = '-> ' . $message_number .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
-            $this->append_log($message_number, isset($logged) ? $logged : $data);
+            $this->append_log($message_number, $logged);
             $this->last_packet = $current;
         }
 
@@ -4562,10 +4684,12 @@ class SSH2
      */
     public static function getSupportedCompressionAlgorithms()
     {
-        return [
-            'none'   // REQUIRED        no compression
-            //'zlib' // OPTIONAL        ZLIB (LZ77) compression
-        ];
+        $algos = ['none']; // REQUIRED        no compression
+        if (function_exists('deflate_init')) {
+            $algos[] = 'zlib@openssh.com'; // https://datatracker.ietf.org/doc/html/draft-miller-secsh-compression-delayed
+            $algos[] = 'zlib';
+        }
+        return $algos;
     }
 
     /**
@@ -4580,18 +4704,24 @@ class SSH2
     {
         $this->connect();
 
+        $compression_map = [
+            NET_SSH2_COMPRESSION_NONE => 'none',
+            NET_SSH2_COMPRESSION_ZLIB => 'zlib',
+            NET_SSH2_COMPRESSION_ZLIB_AT_OPENSSH => 'zlib@openssh.com'
+        ];
+
         return [
             'kex' => $this->kex_algorithm,
             'hostkey' => $this->signature_format,
             'client_to_server' => [
                 'crypt' => $this->encrypt->name,
                 'mac' => $this->hmac_create->name,
-                'comp' => 'none',
+                'comp' => $compression_map[$this->compress],
             ],
             'server_to_client' => [
                 'crypt' => $this->decrypt->name,
                 'mac' => $this->hmac_check->name,
-                'comp' => 'none',
+                'comp' => $compression_map[$this->decompress],
             ]
         ];
     }
