@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.11 - 2021-10-26
+
+- SSH2: add support for zlib and zlib@openssh.com compression
+- SFTP: add support for SFTPv4/5/6
+- SFTP: add option to allow arbitrary length packets (#1691)
+- SFTP: errors weren't being logged (#1702)
+- RSA: ssh-keygen -yf private.key fails if \r is present (#1698)
+
 ## 3.0.10 - 2021-08-15
 
 - SFTP: don't check SFTP packet size after SFTP initialization (#1606)
@@ -94,6 +102,13 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.34 - 2021-10-26
+
+- SSH2: add support for zlib and zlib@openssh.com compression
+- SFTP: add support for SFTPv4/5/6
+- SFTP: add option to allow arbitrary length packets (#1691)
+- RSA: ssh-keygen -yf private.key fails if \r is present (#1698)
 
 ## 2.0.33 - 2021-08-15
 
