@@ -2,8 +2,6 @@ language: php
 
 matrix:
   include:
-    - php: 5.3
-      dist: precise
     - php: 5.4
       dist: trusty
     - php: 5.5.9
