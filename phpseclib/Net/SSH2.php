@@ -4314,7 +4314,7 @@ class SSH2
                 if (!defined($value)) {
                     define($value, $key);
                 } else {
-                    break 2;
+                    break;
                 }
             }
         }
