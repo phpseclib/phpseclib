@@ -3555,7 +3555,7 @@ class SSH2
                     $fdict = boolval($flg & 0x20);
                     $flevel = ($flg & 0xC0) >> 6;
 
-                    $this->decompress_context = inflate_init(ZLIB_ENCODING_RAW, ['window' => $cinfo + 8]);
+                    $this->decompress_context = inflate_init(ZLIB_ENCODING_RAW, array('window' => $cinfo + 8));
                     $payload = substr($payload, 2);
                 }
                 if ($this->decompress_context) {
