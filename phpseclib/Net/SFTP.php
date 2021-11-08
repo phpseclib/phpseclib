@@ -3697,7 +3697,7 @@ class SFTP extends SSH2
      */
     function getSupportedVersions()
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & SSH2::MASK_LOGIN)) {
             return false;
         }
 
