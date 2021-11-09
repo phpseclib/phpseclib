@@ -22,4 +22,13 @@
         tests/"
       dir=".." checkreturn="true" passthru="true" />
   </target>
+  <target name="lint">
+      <exec command="PHING_PROPERTY=${phpversion};
+                     DEFAULT_PHP_VERSION=$(php -r 'echo phpversion();');
+                     export DOCKER_PHP_VERSION=${PHING_PROPERTY:-$DEFAULT_PHP_VERSION};
+                     find ./phpseclib -type f -name '*.php' -print0
+                        | xargs -0 -n1 -P$(nproc) ./build/docker-php.sh
+                        | (! grep -v '^No syntax errors detected' )"
+      dir=".." checkreturn="true" passthru="true" />
+  </target>
 </project>

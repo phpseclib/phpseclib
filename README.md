@@ -90,5 +90,10 @@ Need Support?
     ``` sh
     vendor/bin/phing -f build/build.xml sniff
     ```
+6. (Optional) Lint the codebase with a specific PHP version to verify compatibility (requires Docker)
+
+    ``` sh
+    vendor/bin/phing -Dphpversion=5.3 -f build/build.xml lint
+    ```
 
 7. Send us a Pull Request
