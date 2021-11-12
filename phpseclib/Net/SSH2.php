@@ -3537,7 +3537,8 @@ class Net_SSH2
         $raw = fread($this->fsock, $this->decrypt_block_size);
 
         if (!strlen($raw)) {
-            return '';
+            user_error('No data received from server');
+            return false;
         }
 
         if ($this->decrypt !== false) {
