@@ -3335,7 +3335,8 @@ class SSH2
         $raw = stream_get_contents($this->fsock, $this->decrypt_block_size);
 
         if (!strlen($raw)) {
-            return '';
+            $this->bitmap = 0;
+            throw new ConnectionClosedException('No data received from server');
         }
 
         if ($this->decrypt) {
