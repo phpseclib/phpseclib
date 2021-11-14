@@ -128,8 +128,9 @@ abstract class PKCS8 extends Progenitor
 
         $temp = new BigInteger($key['privateKey'], 256);
         $components['dA'] = $components['curve']->convertInteger($temp);
-
-        $components['QA'] = self::extractPoint($key['publicKey'], $components['curve']);
+        $components['QA'] = isset($key['publicKey']) ?
+            self::extractPoint($key['publicKey'], $components['curve']) :
+            $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
 
         return $components;
     }
