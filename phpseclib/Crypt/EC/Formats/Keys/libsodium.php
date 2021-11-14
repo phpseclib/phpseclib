@@ -78,7 +78,6 @@ abstract class libsodium
         $components['QA'] = isset($public) ?
             self::extractPoint($public, $curve) :
             $curve->multiplyPoint($curve->getBasePoint(), $components['dA']);
-        
 
         return $components;
     }
