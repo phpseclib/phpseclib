@@ -517,4 +517,18 @@ Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
         $signature = $private->sign($message, 'Raw');
         $this->assertTrue($public->verify($message, $signature, 'Raw'));
     }
+
+    public function testBadRSEd25519()
+    {
+        // see https://research.nccgroup.com/2021/11/08/technical-advisory-arbitrary-signature-forgery-in-stark-bank-ecdsa-libraries/
+        $public = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
+MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE1zY+JIBlt8l+1I2f0ItA6oauDx9bFsm6
+hk6TVQ4mP3lH+96p9keQBMRAY1D5znOyPk9107PceO+3kwoat1zKzw==
+-----END PUBLIC KEY-----');
+
+        $signature = base64_decode('MAYCAQACAQA=');
+        $message = 'hello, world!';
+
+        $this->assertFalse($public->verify($message, $signature));
+    }
 }
