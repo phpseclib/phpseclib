@@ -125,11 +125,19 @@ AFLpken6rN6lOEIeyNLdD097
     // openssl ecparam -name sect113r1 -genkey -noout -out sect113r1.pem
     public function testBinaryPKCS1PrivateKey()
     {
-        $key = PublicKeyLoader::load($expected = '-----BEGIN EC PRIVATE KEY-----
+        $key = PublicKeyLoader::load('-----BEGIN EC PRIVATE KEY-----
 MEECAQEEDwBZdP4eSzKk/uQa6jdtfKAHBgUrgQQABKEiAyAABAHqCoNb++mK5qvE
 c4rCzQEuI19czqvXpEPcAWSXew==
 -----END EC PRIVATE KEY-----');
         $this->assertSameNL('sect113r1', $key->getCurve());
+
+        // the difference between this and the above key is that
+        // the privateKey part of the above key has a leading null
+        // byte whereas this one doesn't
+        $expected = '-----BEGIN EC PRIVATE KEY-----
+MEACAQEEDll0/h5LMqT+5BrqN218oAcGBSuBBAAEoSIDIAAEAeoKg1v76Yrmq8Rz
+isLNAS4jX1zOq9ekQ9wBZJd7
+-----END EC PRIVATE KEY-----';
 
         PKCS1::useNamedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS1'));
@@ -151,12 +159,14 @@ WwCpKNBUcVeiHme609Dv/g==
         // the above key has the (optional) seed for the verifiably
         // random function whereas the following key does not.
         // also, in the above key the cofactor (1; optional) is
-        // included whereas in the following key it is not
+        // included whereas in the following key it is not;
+        // finally, in the above the privateKey has a leading null
+        // byte whereas it doesn't in the following key
         $expected = '-----BEGIN EC PRIVATE KEY-----
-MIGxAgEBBA8AuSc4BeeyYTq9rbSDuL2gdzB1AgEBMBwGByqGSM49AQIwEQIBcQYJ
-KoZIzj0BAgMCAgEJMCAEDjCIJQym58f+ZJzoWCD3BA7ovuTT4iYHRBiL4OnHIwQf
-BACdc2FvNfSrFAfXNWLBDwClKDAneVjuhNExXtMYhgIPAQAAAAAAAADZzOyKOeVv
-oSIDIAAEAULtznTLu7D6K4d4wK1bAKko0FRxV6IeZ7rT0O/+
+MIGwAgEBBA65JzgF57JhOr2ttIO4vaB3MHUCAQEwHAYHKoZIzj0BAjARAgFxBgkq
+hkjOPQECAwICAQkwIAQOMIglDKbnx/5knOhYIPcEDui+5NPiJgdEGIvg6ccjBB8E
+AJ1zYW819KsUB9c1YsEPAKUoMCd5WO6E0TFe0xiGAg8BAAAAAAAAANnM7Io55W+h
+IgMgAAQBQu3OdMu7sPorh3jArVsAqSjQVHFXoh5nutPQ7/4=
 -----END EC PRIVATE KEY-----';
         PKCS1::useSpecifiedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS1'));
@@ -167,11 +177,19 @@ oSIDIAAEAULtznTLu7D6K4d4wK1bAKko0FRxV6IeZ7rT0O/+
     // sect113r1's reduction polynomial is a trinomial
     public function testBinaryPKCS8PrivateKey()
     {
-        $key = PublicKeyLoader::load($expected = '-----BEGIN PRIVATE KEY-----
+        $key = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
 MFECAQAwEAYHKoZIzj0CAQYFK4EEAAQEOjA4AgEBBA8A5OuqAY8HYoFOaz9mE6mh
 IgMgAAQASF3rOTPXvH0QdRBvsrMBdLMf27yd8AWABrZTxvI=
 -----END PRIVATE KEY-----');
         $this->assertSameNL('sect113r1', $key->getCurve());
+
+        // the difference between this and the above key is that
+        // the privateKey part of the above key has a leading null
+        // byte whereas this one doesn't
+        $expected = '-----BEGIN PRIVATE KEY-----
+MFACAQAwEAYHKoZIzj0CAQYFK4EEAAQEOTA3AgEBBA7k66oBjwdigU5rP2YTqaEi
+AyAABABIXes5M9e8fRB1EG+yswF0sx/bvJ3wBYAGtlPG8g==
+-----END PRIVATE KEY-----';
 
         PKCS8::useNamedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS8'));
@@ -194,11 +212,11 @@ AAQA9xdWGJ6vV23+vkdq0C8BLJVg5E3amMyf/5keGa4=
         // explanation of the differences between the above key
         // and the following key
         $expected = '-----BEGIN PRIVATE KEY-----
-MIHCAgEAMIGABgcqhkjOPQIBMHUCAQEwHAYHKoZIzj0BAjARAgFxBgkqhkjOPQEC
+MIHBAgEAMIGABgcqhkjOPQIBMHUCAQEwHAYHKoZIzj0BAjARAgFxBgkqhkjOPQEC
 AwICAQkwIAQOMIglDKbnx/5knOhYIPcEDui+5NPiJgdEGIvg6ccjBB8EAJ1zYW81
-9KsUB9c1YsEPAKUoMCd5WO6E0TFe0xiGAg8BAAAAAAAAANnM7Io55W8EOjA4AgEB
-BA8AXtfDMRsRTx8snPbWHquhIgMgAAQA9xdWGJ6vV23+vkdq0C8BLJVg5E3amMyf
-/5keGa4=
+9KsUB9c1YsEPAKUoMCd5WO6E0TFe0xiGAg8BAAAAAAAAANnM7Io55W8EOTA3AgEB
+BA5e18MxGxFPHyyc9tYeq6EiAyAABAD3F1YYnq9Xbf6+R2rQLwEslWDkTdqYzJ//
+mR4Zrg==
 -----END PRIVATE KEY-----';
         PKCS8::useSpecifiedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS8'));
@@ -506,5 +524,51 @@ lEIq93iMVzIArjGaKrFDAAAADHJvb3RAdmFncmFudAE=
 
         $this->assertTrue($key->verify('zzz', $sig));
         $this->assertTrue($key->withSignatureFormat('SSH2')->verify('zzz', $sig2));
+    }
+
+    /**
+     * @group github1712
+     */
+    public function testKeyTooLarge()
+    {
+        $this->expectException('RangeException');
+
+        $key = '-----BEGIN PRIVATE KEY-----
+MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////8=
+-----END PRIVATE KEY-----';
+
+        $private = EC::loadFormat('PKCS8', $key);
+    }
+
+    /**
+     * @group github1712
+     */
+    public function testLargeCurve25519Key()
+    {
+        $raw = pack('H*', '8426220e7a57dc8d685d3966e3a23600e32563ce6033e07d0c89dbb5bd296577');
+        $key = EC::loadFormat('MontgomeryPrivate', $raw);
+
+        $this->assertSameNL($raw, $key->toString('MontgomeryPrivate'));
     }
 }
