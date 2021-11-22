@@ -1126,4 +1126,25 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
         $key = PublicKeyLoader::load(hex2bin($key));
         $this->assertInstanceOf(PublicKey::class, $key);
     }
+
+    /**
+     * @group github1711
+     */
+    public function testRawPrivateKey()
+    {
+        $key = RSA::createKey(512);
+        $str1 = "$key";
+        $key = $key->toString('Raw');
+        $key = [
+            'e' => $key['e'],
+            'n' => $key['n'],
+            'd' => $key['d'],
+            'p' => $key['primes'][1],
+            'q' => $key['primes'][2]
+        ];
+        $key = PublicKeyLoader::loadPrivateKey($key);
+        $str2 = "$key";
+
+        $this->assertSame($str1, $str2);
+    }
 }
