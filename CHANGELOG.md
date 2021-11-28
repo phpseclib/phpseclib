@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.12 - 2021-11-28
+
+- SSH2: add "smart multi factor" login mode (enabled by default) (#1648)
+- SSH2: error out when no data is received from the server (#1647)
+- SFTP: don't attempt to parse unsupported attributes (#1708)
+- SFTP: getSupportedVersions() call didn't work
+- EC: error out when scalar is out of range (#1712)
+- RSA: add support for raw private keys (#1711)
+- SymmetricKey: add getMode()
+
 ## 3.0.11 - 2021-10-26
 
 - SSH2: add support for zlib and zlib@openssh.com compression
@@ -102,6 +112,14 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.35 - 2021-11-28
+
+- SSH2: add "smart multi factor" login mode (enabled by default) (#1648)
+- SSH2: error out when no data is received from the server (#1647)
+- SFTP: don't attempt to parse unsupported attributes (#1708)
+- SFTP: getSupportedVersions() call didn't work
+>>>>>>> 2.0
 
 ## 2.0.34 - 2021-10-26
 
