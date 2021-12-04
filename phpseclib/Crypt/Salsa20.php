@@ -341,7 +341,9 @@ class Salsa20 extends StreamCipher
         } else {
             $buffer = &$this->debuffer;
         }
-        if (strlen($buffer['ciphertext'])) {
+        if (!strlen($buffer['ciphertext'])) {
+            $ciphertext = '';
+        } else {
             $ciphertext = $text ^ Strings::shift($buffer['ciphertext'], strlen($text));
             $text = substr($text, strlen($ciphertext));
             if (!strlen($text)) {

@@ -133,9 +133,7 @@ class Unit_Crypt_Salsa20Test extends PhpseclibTestCase
 
         foreach ($engines as $engine) {
             foreach ($tests as $test) {
-                foreach ($test['output'] as $output) {
-                    $result[] = [$engine, $test['key'], $output['iv'], $output['result']];
-                }
+                $result[] = [$engine, $test['key'], $test['iv'], $test['result']];
             }
         }
 
@@ -147,7 +145,7 @@ class Unit_Crypt_Salsa20Test extends PhpseclibTestCase
      */
     public function testVectors($engine, $key, $iv, $expected)
     {
-        $cipher = new Salsa();
+        $cipher = new Salsa20();
         $cipher->setPreferredEngine($engine);
         $cipher->setKey(pack('H*', $key));
         $cipher->setNonce(pack('H*', $iv));
