@@ -93,11 +93,10 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
         $expected = pack('H*', $expected);
 
         $c = new ChaCha20;
+        $c->setPoly1305Key($key);
         $r = new \ReflectionClass(get_class($c));
-        $p = $r->getProperty('poly1305Key');
-        $p->setAccessible(true);
-        $p->setValue($c, $key);
-
+        // this unit test is testing Poly1305 independent of ChaCha20, which phpseclib doesn't
+        // really support, hence this hackish approach
         $m = $r->getMethod('poly1305');
         $m->setAccessible(true);
         $result = $m->invokeArgs($c, [$plaintext]);
@@ -108,7 +107,7 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
     // see https://tools.ietf.org/html/rfc8439#section-2.6.2
     public function test262()
     {
-        $key = implode('', range("\80", "\x9f"));
+        $key = implode('', range("\x80", "\x9f"));
 
         $nonce = '00 00 00 00 00 01 02 03 04 05 06 07';
         $nonce = str_replace(' ', '', $nonce);
@@ -119,25 +118,26 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
         $expected = str_replace(' ', '', $expected);
         $expected = pack('H*', $expected);
 
-        $engines = ['PHP', 'OpenSSL', 'libsodium'];
-        foreach ($engines as $engine) {
-            $c = new ChaCha20();
-            $c->setKey($key);
-            $c->setNonce($nonce);
-            //$c->setCounter(0);
-            $c->setPreferredEngine($engine);
-            if ($c->getEngine() != $engine) {
-                continue;
-            }
-            $result = $c->encrypt($plaintext);
-            $this->assertSame($expected, $result, "Failed asserting that ciphertext matches expected value with $engine engine");
-        }
+        $c = new ChaCha20();
+        $c->setKey($key);
+        $c->setNonce($nonce);
+
+        $r = new \ReflectionClass(get_class($c));
+        $m = $r->getMethod('createPoly1305Key');
+        $m->setAccessible(true);
+        $result = $m->invoke($c);
+
+        $p = $r->getProperty('poly1305Key');
+        $p->setAccessible(true);
+        $actual = $p->getValue($c);
+
+        $this->assertSame($expected, $actual, 'Failed asserting that the poly1305 key is what it ought to be');
     }
 
     // https://tools.ietf.org/html/rfc8439#section-2.8.2
     public function test282()
     {
-        $key = implode('', range("\80", "\x9f"));
+        $key = implode('', range("\x80", "\x9f"));
 
         $nonce = "\x07\0\0\0" . "\x40\x41\x42\x43\x44\x45\x46\x47";
 
@@ -160,7 +160,7 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
         $expected = pack('H*', $expected);
 
         $tag = '1a:e1:0b:59:4f:09:e2:6a:7e:90:2e:cb:d0:60:06:91';
-        $tag = str_replace(' ', '', $tag);
+        $tag = str_replace(':', '', $tag);
         $tag = pack('H*', $tag);
 
         $engines = ['PHP', 'OpenSSL', 'libsodium'];
