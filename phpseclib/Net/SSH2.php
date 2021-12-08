@@ -1205,7 +1205,7 @@ class SSH2
             return;
         }
 
-        if (is_string($host)) {
+        if (Strings::is_stringable($host)) {
             $this->host = $host;
             $this->port = $port;
             $this->timeout = $timeout;
@@ -2179,7 +2179,7 @@ class SSH2
                 case $arg instanceof PrivateKey:
                 case $arg instanceof Agent:
                 case is_array($arg):
-                case is_string($arg):
+                case Strings::is_stringable($arg):
                     break;
                 default:
                     throw new \UnexpectedValueException('$password needs to either be an instance of \phpseclib3\Crypt\Common\PrivateKey, \System\SSH\Agent, an array or a string');
@@ -2210,7 +2210,7 @@ class SSH2
                                     $hasArray = true;
                                     break;
                                 }
-                                if ($hasString || is_string($arg)) {
+                                if ($hasString || Strings::is_stringable($arg)) {
                                     $hasString = true;
                                     break;
                                 }
@@ -2290,7 +2290,7 @@ class SSH2
         }
 
         if (strlen($this->last_interactive_response)) {
-            return !is_string($password) && !is_array($password) ? false : $this->keyboard_interactive_process($password);
+            return !Strings::is_stringable($password) && !is_array($password) ? false : $this->keyboard_interactive_process($password);
         }
 
         if ($password instanceof PrivateKey) {
