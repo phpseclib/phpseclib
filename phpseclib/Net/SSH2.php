@@ -52,6 +52,7 @@ use phpseclib3\Crypt\Hash;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RC4;
 use phpseclib3\Crypt\Rijndael;
+use phpseclib3\Crypt\Common\PublicKey;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\DSA;
@@ -2171,6 +2172,20 @@ class SSH2
             return $this->login_helper($username);
         }
 
+        foreach ($args as $arg) {
+            switch (true) {
+                case $arg instanceof PublicKey:
+                    throw new \UnexpectedValueException('A PublicKey object was passed to the login method instead of a PrivateKey object');
+                case $arg instanceof PrivateKey:
+                case $arg instanceof Agent:
+                case is_array($arg):
+                case is_string($arg):
+                    break;
+                default:
+                    throw new \UnexpectedValueException('$password needs to either be an instance of \phpseclib3\Crypt\Common\PrivateKey, \System\SSH\Agent, an array or a string');
+            }
+        }
+
         while (count($args)) {
             if (!$this->auth_methods_to_continue || !$this->smartMFA) {
                 $newargs = $args;
@@ -2318,10 +2333,6 @@ class SSH2
                 default:
                     return false;
             }
-        }
-
-        if (!is_string($password)) {
-            throw new \UnexpectedValueException('$password needs to either be an instance of \phpseclib3\Crypt\Common\PrivateKey, \System\SSH\Agent, an array or a string');
         }
 
         $packet = Strings::packSSH2(
