@@ -2314,6 +2314,10 @@ class Net_SSH2
                 }
             }
 
+            if (!count($newargs)) {
+                return false;
+            }
+
             foreach ($newargs as $arg) {
                 if ($this->_login_helper($username, $arg)) {
                     return true;
