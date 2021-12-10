@@ -22,6 +22,8 @@ matrix:
       dist: xenial
     - php: 8.0
       dist: bionic
+    - php: 8.1.0
+      dist: bionic
 
 before_install: true
 
