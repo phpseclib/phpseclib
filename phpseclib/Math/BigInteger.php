@@ -257,7 +257,7 @@ class Math_BigInteger
             }
         }
 
-        if (extension_loaded('openssl') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
+        if (function_exists('phpinfo') && extension_loaded('openssl') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
             // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
             ob_start();
             @phpinfo();
