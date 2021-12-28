@@ -401,6 +401,56 @@
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
 
+## 1.0.20 - 2021-12-28
+
+SFTP:
+- speed up uploads (by changing SFTP upload packet size from 4KB to 32KB)
+- add support for SFTPv4/5/6
+- add enableDatePreservation() / disableDatePreservation() (#1496)
+- uploads on low speed networks could get in infinite loop (#1507)
+- "fix" rare resource not closed error (#1510)
+- progress callback should report actual downloaded bytes (#1543)
+- add stream to get method (#1546)
+- fix undefined index notice in stream touch() (#1615)
+- digit only filenames were converted to integers by php (#1623)
+- Stream: make it so you can write past the end of a file (#1618)
+- reopen channel on channel closure (#1654)
+- don't check SFTP packet size after SFTP initialization (#1606)
+- return false if get_channel_packet returns false (#1678)
+- timeout during SFTP init should return false (#1684)
+- add option to allow arbitrary length packets (#1691)
+
+SSH2:
+- add support for zlib and zlib@openssh.com compression
+- add "smart multi factor" login mode (enabled by default) (#1648)
+- don't try to login as none auth method for CoreFTP server (#1488)
+- when building algo list look at if crypto engine is set (#1500)
+- suppress 'broken pipe' errors (#1511)
+- add setKeepAlive() method (#1529)
+- behave like putty with broken publickey auth (#1572)
+- don't close channel on unexpected response to channel request (#1631)
+- add getAuthMethodsToContinue() method (#1648)
+- fix issue with key re-exchange (#1644)
+- fix PHP7.4 errors about accessing bool as string (#1656)
+- end connection faster for algorithm mismatch
+
+X509:
+- really looong base64 encoded strings broke extractBER() (#1486)
+- only parse the first cert of a multi-cert PEMs (#1542, #1568)
+
+ASN1:
+- fix timezone issue when non-utc time is given (#1562)
+- return false when not enough bytes are available (#1676)
+
+RSA:
+- ssh-keygen -yf private.key fails if \r is present (#1698)
+
+BigInteger:
+- fix issue with toBits on 32-bit PHP 8 installs
+
+Crypt/Base:
+- use a custom error handler for mcrypt
+
 ## 1.0.19 - 2020-07-07
 
 - SSH2: arcfour128 / arcfour256 were being included twice
