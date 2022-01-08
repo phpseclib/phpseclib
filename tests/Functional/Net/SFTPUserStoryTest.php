@@ -29,7 +29,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $this->setExpectedException('PHPUnit_Framework_Error_Notice');
 
-        $sftp = new Net_SFTP('bad host name');
+        $sftp = new SFTP('bad host name');
         $sftp->login('username', 'password');
     }
 
