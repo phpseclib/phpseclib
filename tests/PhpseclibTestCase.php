@@ -183,4 +183,24 @@ abstract class PhpseclibTestCase extends PHPUnit\Framework\TestCase
 
         parent::assertNotContains($needle, $haystack, $message);
     }
+
+    public function setExpectedException($name, $message = null, $code = null)
+    {
+        if (version_compare(PHP_VERSION, '7.0.0') < 0) {
+            parent::setExpectedException($name, $message, $code);
+            return;
+        }
+        switch ($name) {
+            case 'PHPUnit_Framework_Error_Notice':
+            case 'PHPUnit_Framework_Error_Warning':
+                $name = str_replace('_', '\\', $name);
+        }
+        $this->expectException($name);
+        if (!empty($message)) {
+            $this->expectExceptionMessage($message);
+        }
+        if (!empty($code)) {
+            $this->expectExceptionCode($code);
+        }
+    }
 }
