@@ -1635,7 +1635,7 @@ class SFTP extends SSH2
     public function chgrp($filename, $gid, $recursive = false)
     {
         $attr = $this->version < 4 ?
-            pack('N3', NET_SFTP_ATTR_UIDGID, $gid, -1) :
+            pack('N3', NET_SFTP_ATTR_UIDGID, -1, $gid) :
             Strings::packSSH2('Nss', NET_SFTP_ATTR_OWNERGROUP, '', $gid);
 
         return $this->setstat($filename, $attr, $recursive);
