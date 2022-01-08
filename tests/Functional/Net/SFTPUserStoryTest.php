@@ -25,14 +25,6 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         self::$exampleDataLength = 10000;
     }
 
-    public function testBadHostname()
-    {
-        $this->setExpectedException('PHPUnit_Framework_Error_Notice');
-
-        $sftp = new SFTP('bad host name');
-        $sftp->login('username', 'password');
-    }
-
     public function testConstructor()
     {
         $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
