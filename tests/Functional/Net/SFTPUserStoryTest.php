@@ -765,5 +765,22 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $list_cache_disabled = $sftp->rawlist('.', true);
 
         $this->assertEquals($list_cache_enabled, $list_cache_disabled, 'The files should be the same regardless of stat cache', 0.0, 10, true);
+
+        return $sftp;
+    }
+
+    /**
+     * @depends testRawlistDisabledStatCache
+     */
+    public function testChownChgrp($sftp)
+    {
+        $stat = $sftp->stat(self::$scratchDir);
+        $this->assertTrue($sftp->chown(self::$scratchDir, $stat['uid']));
+        $this->assertTrue($sftp->chgrp(self::$scratchDir, $stat['gid']));
+
+        $sftp->clearStatCache();
+        $stat2 = $sftp->stat(self::$scratchDir);
+        $this->assertSame($stat['uid'], $stat2['uid']);
+        $this->assertSame($stat['gid'], $stat2['gid']);
     }
 }
