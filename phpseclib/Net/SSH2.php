@@ -4209,7 +4209,7 @@ class Net_SSH2
                     $header = '';
                 } else {
                     $this->regenerate_compression_context = false;
-                    $this->compress_context = deflate_init(ZLIB_ENCODING_RAW, ['window' => 15]);
+                    $this->compress_context = deflate_init(ZLIB_ENCODING_RAW, array('window' => 15));
                     $header = "\x78\x9C";
                 }
                 if ($this->compress_context) {
