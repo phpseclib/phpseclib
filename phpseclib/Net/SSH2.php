@@ -2204,6 +2204,7 @@ class SSH2
                                     break;
                                 }
                             }
+                            $args = [];
                             break;
                         case 'keyboard-interactive':
                             $hasArray = $hasString = false;
