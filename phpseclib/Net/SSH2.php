@@ -48,6 +48,7 @@
 namespace phpseclib3\Net;
 
 use phpseclib3\Crypt\Blowfish;
+use phpseclib3\Crypt\Common\SymmetricKey;
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RC4;
@@ -233,7 +234,7 @@ class SSH2
      * Server Identifier
      *
      * @see self::getServerIdentification()
-     * @var array|false
+     * @var string|false
      * @access private
      */
     protected $server_identifier = false;
@@ -1044,7 +1045,7 @@ class SSH2
 
     /**
      * The authentication methods that may productively continue authentication.
-     * 
+     *
      * @see https://tools.ietf.org/html/rfc4252#section-5.1
      * @var array|null
      * @access private
@@ -1116,7 +1117,6 @@ class SSH2
      * @param int $port
      * @param int $timeout
      * @see self::login()
-     * @return SSH2|void
      * @access public
      */
     public function __construct($host, $port = 22, $timeout = 10)
@@ -2027,7 +2027,7 @@ class SSH2
      * \phpseclib3\Crypt\Common\SymmetricKey.
      *
      * @param string $algorithm Name of the encryption algorithm
-     * @return mixed Instance of \phpseclib3\Crypt\Common\SymmetricKey or null for unknown
+     * @return SymmetricKey|null
      * @access private
      */
     private static function encryption_algorithm_to_crypt_instance($algorithm)
@@ -2076,7 +2076,7 @@ class SSH2
      * \phpseclib3\Crypt\Hash.
      *
      * @param string $algorithm Name of the encryption algorithm
-     * @return mixed Instance of \phpseclib3\Crypt\Hash or null for unknown
+     * @return array{Hash, int}|null
      * @access private
      */
     private static function mac_algorithm_to_hash_instance($algorithm)
@@ -4051,7 +4051,7 @@ class SSH2
      * @param string $data
      * @param string $logged
      * @see self::_get_binary_packet()
-     * @return bool
+     * @return void
      * @access private
      */
     protected function send_binary_packet($data, $logged = null)
@@ -4313,7 +4313,7 @@ class SSH2
      *
      * @param int $client_channel
      * @param bool $want_reply
-     * @return bool
+     * @return void
      * @access private
      */
     private function close_channel($client_channel, $want_reply = false)
@@ -4350,7 +4350,7 @@ class SSH2
      * Disconnect
      *
      * @param int $reason
-     * @return bool
+     * @return false
      * @access protected
      */
     protected function disconnect_helper($reason)
@@ -4519,7 +4519,7 @@ class SSH2
     /**
      * Return the server identification.
      *
-     * @return string
+     * @return string|false
      * @access public
      */
     public function getServerIdentification()
@@ -4916,7 +4916,7 @@ class SSH2
      * Caching this the first time you connect to a server and checking the result on subsequent connections
      * is recommended.  Returns false if the server signature is not signed correctly with the public host key.
      *
-     * @return mixed
+     * @return string|false
      * @throws \RuntimeException on badly formatted keys
      * @throws \phpseclib3\Exception\NoSupportedAlgorithmsException when the key isn't in a supported format
      * @access public
@@ -5151,7 +5151,7 @@ class SSH2
 
     /**
      * Return the list of authentication methods that may productively continue authentication.
-     * 
+     *
      * @see https://tools.ietf.org/html/rfc4252#section-5.1
      * @return array|null
      */
