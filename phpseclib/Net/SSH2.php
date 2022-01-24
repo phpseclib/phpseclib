@@ -2204,7 +2204,13 @@ class SSH2
                                     break;
                                 }
                             }
-                            $args = [];
+                            if (
+                                count($this->auth_methods_to_continue) === 1 &&
+                                $this->auth_methods_to_continue[0] === 'publickey' &&
+                                count($newargs) === 0
+                            ) {
+                                return false;
+                            }
                             break;
                         case 'keyboard-interactive':
                             $hasArray = $hasString = false;
