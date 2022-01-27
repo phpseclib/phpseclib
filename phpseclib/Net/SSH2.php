@@ -4968,12 +4968,10 @@ class SSH2
             case 'ssh-rsa':
             case 'rsa-sha2-256':
             case 'rsa-sha2-512':
-                if (strlen($signature) < 15) {
-                    return false;
-                }
-                Strings::shift($signature, 11);
-                $temp = unpack('Nlength', Strings::shift($signature, 4));
-                $signature = Strings::shift($signature, $temp['length']);
+                // could be ssh-rsa, rsa-sha2-256, rsa-sha2-512
+                // we don't check here because we already checked in key_exchange
+                // some signatures have the type embedded within the message and some don't
+                Strings::unpackSSH2('s', $signature);
 
                 $key = RSA::loadFormat('OpenSSH', $server_public_host_key)
                     ->withPadding(RSA::SIGNATURE_PKCS1);
