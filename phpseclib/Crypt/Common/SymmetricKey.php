@@ -204,6 +204,13 @@ abstract class SymmetricKey
         self::ENGINE_OPENSSL_GCM => 'OpenSSL (GCM)'
     ];
 
+    /** @var string|null */
+    public $fixed;
+    /** @var string|null */
+    public $invocation_counter;
+    /** @var string|null */
+    public $name;
+
     /**
      * The Encryption Mode
      *
