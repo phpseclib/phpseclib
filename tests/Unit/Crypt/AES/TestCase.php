@@ -33,7 +33,8 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             'ctr',
             'ofb',
             'cfb',
-            'cfb8'
+            'cfb8',
+            'ofb8',
         ];
         $plaintexts = [
             '',
@@ -136,6 +137,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             'ofb',
             'cfb',
             'cfb8',
+            'ofb8',
         ];
 
         $combos = [
