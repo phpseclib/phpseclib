@@ -204,7 +204,7 @@ class SSH2
     /**
      * The Socket Object
      *
-     * @var object
+     * @var resource|closed-resource|null
      * @access private
      */
     public $fsock;
@@ -711,7 +711,7 @@ class SSH2
      * Interactive Buffer
      *
      * @see self::read()
-     * @var array
+     * @var string
      * @access private
      */
     private $interactiveBuffer = '';
@@ -756,7 +756,7 @@ class SSH2
      * Real-time log file pointer
      *
      * @see self::_append_log()
-     * @var resource
+     * @var resource|closed-resource
      * @access private
      */
     private $realtime_log_file;
@@ -798,7 +798,7 @@ class SSH2
     /**
      * Time of first network activity
      *
-     * @var int
+     * @var float
      * @access private
      */
     private $last_packet;
@@ -966,7 +966,7 @@ class SSH2
     /**
      * A System_SSH_Agent for use in the SSH2 Agent Forwarding scenario
      *
-     * @var \phpseclib3\System\Ssh\Agent
+     * @var Agent
      * @access private
      */
     private $agent;
@@ -975,7 +975,7 @@ class SSH2
      * Connection storage to replicates ssh2 extension functionality:
      * {@link http://php.net/manual/en/wrappers.ssh2.php#refsect1-wrappers.ssh2-examples}
      *
-     * @var SSH2[]
+     * @var array<string, SSH2|\WeakReference<SSH2>>
      */
     private static $connections;
 
@@ -1063,7 +1063,7 @@ class SSH2
     /**
      * Decompression method
      *
-     * @var resource|object
+     * @var int
      * @access private
      */
     private $decompress = self::NET_SSH2_COMPRESSION_NONE;
@@ -1071,7 +1071,7 @@ class SSH2
     /**
      * Compression context
      *
-     * @var int
+     * @var resource|false|null
      * @access private
      */
     private $compress_context;
@@ -1200,7 +1200,13 @@ class SSH2
                   31 => 'NET_SSH2_MSG_KEX_ECDH_REPLY']
         );
 
-        self::$connections[$this->getResourceId()] = class_exists('WeakReference') ? \WeakReference::create($this) : $this;
+        /**
+         * Typehint is required due to a bug in Psalm: https://github.com/vimeo/psalm/issues/7508
+         * @var \WeakReference<SSH2>|SSH2
+         */
+        self::$connections[$this->getResourceId()] = \class_exists('WeakReference')
+            ? \WeakReference::create($this)
+            : $this;
 
         if (is_resource($host)) {
             $this->fsock = $host;
@@ -1411,7 +1417,7 @@ class SSH2
         if (!$this->send_kex_first) {
             $response = $this->get_binary_packet();
 
-            if (!strlen($response) || ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
+            if (\is_bool($response) || !strlen($response) || ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
                 $this->bitmap = 0;
                 throw new \UnexpectedValueException('Expected SSH_MSG_KEXINIT');
             }
@@ -1546,7 +1552,11 @@ class SSH2
 
             $kexinit_payload_server = $this->get_binary_packet();
 
-            if (!strlen($kexinit_payload_server) || ord($kexinit_payload_server[0]) != NET_SSH2_MSG_KEXINIT) {
+            if (
+                \is_bool($kexinit_payload_server)
+                || !strlen($kexinit_payload_server)
+                || ord($kexinit_payload_server[0]) != NET_SSH2_MSG_KEXINIT
+            ) {
                 $this->disconnect_helper(NET_SSH2_DISCONNECT_PROTOCOL_ERROR);
                 throw new \UnexpectedValueException('Expected SSH_MSG_KEXINIT');
             }
@@ -2159,7 +2169,7 @@ class SSH2
      * Login Helper
      *
      * @param string $username
-     * @param string[] ...$args
+     * @param string ...$args
      * @return bool
      * @see self::_login_helper()
      * @access private
@@ -2402,7 +2412,7 @@ class SSH2
      * See {@link http://tools.ietf.org/html/rfc4256 RFC4256} for details.  This is not a full-featured keyboard-interactive authenticator.
      *
      * @param string $username
-     * @param string $password
+     * @param string|array $password
      * @return bool
      * @access private
      */
@@ -2425,7 +2435,7 @@ class SSH2
     /**
      * Handle the keyboard-interactive requests / responses.
      *
-     * @param mixed[] ...$responses
+     * @param string|array ...$responses
      * @return bool
      * @throws \RuntimeException on connection error
      * @access private
@@ -2719,12 +2729,12 @@ class SSH2
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
      * @param string $command
-     * @param callback $callback
-     * @return string
+     * @return string|bool
+     * @psalm-return ($callback is callable ? bool : string|bool)
      * @throws \RuntimeException on connection error
      * @access public
      */
-    public function exec($command, $callback = null)
+    public function exec($command, callable $callback = null)
     {
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;
@@ -3290,12 +3300,15 @@ class SSH2
      *
      * @see self::_send_binary_packet()
      * @param bool $skip_channel_filter
-     * @return string
+     * @return bool|string
      * @access private
      */
     private function get_binary_packet($skip_channel_filter = false)
     {
         if ($skip_channel_filter) {
+            if (!\is_resource($this->fsock)) {
+                throw new \InvalidArgumentException('fsock is not a resource.');
+            }
             $read = [$this->fsock];
             $write = $except = null;
 
@@ -3313,9 +3326,6 @@ class SSH2
                     $this->is_timeout = true;
                     return true;
                 }
-
-                $read = [$this->fsock];
-                $write = $except = null;
 
                 $start = microtime(true);
 
@@ -3590,7 +3600,7 @@ class SSH2
      * @see self::_get_binary_packet()
      * @param string $payload
      * @param bool $skip_channel_filter
-     * @return string
+     * @return string|bool
      * @access private
      */
     private function filter($payload, $skip_channel_filter)
@@ -3624,7 +3634,7 @@ class SSH2
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
-        if (($this->bitmap & self::MASK_CONNECTED) && !$this->isAuthenticated() && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
+        if (($this->bitmap & self::MASK_CONNECTED) && !$this->isAuthenticated() && !\is_bool($payload) && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             Strings::shift($payload, 1);
             list($this->banner_message) = Strings::unpackSSH2('s', $payload);
             $payload = $this->get_binary_packet();
@@ -3632,8 +3642,8 @@ class SSH2
 
         // only called when we've already logged in
         if (($this->bitmap & self::MASK_CONNECTED) && $this->isAuthenticated()) {
-            if ($payload === true) {
-                return true;
+            if (\is_bool($payload)) {
+                return $payload;
             }
 
             switch (ord($payload[0])) {
@@ -4364,7 +4374,7 @@ class SSH2
         }
 
         $this->bitmap = 0;
-        if (is_resource($this->fsock) && get_resource_type($this->fsock) == 'stream') {
+        if (is_resource($this->fsock) && get_resource_type($this->fsock) === 'stream') {
             fclose($this->fsock);
         }
 
@@ -5115,11 +5125,12 @@ class SSH2
     /**
      * Return all excising connections
      *
-     * @return SSH2[]
+     * @return array<string, SSH2>
      */
     public static function getConnections()
     {
         if (!class_exists('WeakReference')) {
+            /** @var array<string, SSH2> */
             return self::$connections;
         }
         $temp = [];

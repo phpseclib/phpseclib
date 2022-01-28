@@ -116,6 +116,18 @@ class SFTP extends SSH2
      */
     private $status_codes = [];
 
+    /** @var array<int, string> */
+    private $attributes;
+
+    /** @var array<int, string> */
+    private $open_flags;
+
+    /** @var array<int, string> */
+    private $open_flags5;
+
+    /** @var array<int, string> */
+    private $file_types;
+
     /**
      * The Request ID
      *
@@ -188,7 +200,7 @@ class SFTP extends SSH2
     /**
      * Current working directory
      *
-     * @var string
+     * @var string|bool
      * @see self::realpath()
      * @see self::chdir()
      * @access private
@@ -242,7 +254,7 @@ class SFTP extends SSH2
      *
      * @see self::__construct()
      * @see self::get()
-     * @var array
+     * @var int
      * @access private
      */
     private $max_sftp_packet;
@@ -781,7 +793,7 @@ class SFTP extends SSH2
     /**
      * Returns the current directory name
      *
-     * @return string|false
+     * @return string|bool
      * @access public
      */
     public function pwd()
@@ -1226,7 +1238,7 @@ class SFTP extends SSH2
      * $sftp->setListOrder();
      *    Don't do any sort of sorting
      *
-     * @param string[] ...$args
+     * @param string ...$args
      * @access public
      */
     public function setListOrder(...$args)
@@ -1809,7 +1821,7 @@ class SFTP extends SSH2
         $packet = Strings::packSSH2('s', $path);
         $packet.= $this->version >= 4 ?
             pack('Ca*', NET_SFTP_TYPE_UNKNOWN, $attr) :
-            $atr;
+            $attr;
         $this->send_sftp_packet(NET_SFTP_SETSTAT, $packet);
 
         $i++;
@@ -3131,7 +3143,7 @@ class SFTP extends SSH2
                     // see https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-7.4
                     // represents the number of bytes that the file consumes on the disk. will
                     // usually be larger than the 'size' field
-                    list($attr['allocation-size']) = Strings::unpack('Q', $response);
+                    list($attr['allocation-size']) = Strings::unpackSSH2('Q', $response);
                     break;
                 case NET_SFTP_ATTR_TEXT_HINT:        // 0x00000800
                     // https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-7.10
@@ -3146,7 +3158,7 @@ class SFTP extends SSH2
                     break;
                 case NET_SFTP_ATTR_LINK_COUNT:       // 0x00002000
                     // see https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-7.12
-                    list($attr['link-count']) = Strings::unpackSS2('N', $response);
+                    list($attr['link-count']) = Strings::unpackSSH2('N', $response);
                     break;
                 case NET_SFTP_ATTR_UNTRANSLATED_NAME:// 0x00004000
                     // see https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-7.13

@@ -69,6 +69,11 @@ class Hash
      */
     const PADDING_SHAKE = 3;
 
+    /** @var int|false */
+    public $etm;
+    /** @var string|false */
+    public $name;
+
     /**
      * Padding Type
      *
