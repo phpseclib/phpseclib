@@ -79,7 +79,11 @@ abstract class Base
     /**
      * Encrypt / decrypt using the Cipher Feedback mode (8bit)
      */
-    const MODE_CFB8 = 38;
+    const MODE_CFB8 = 6;
+    /**
+     * Encrypt / decrypt using the Output Feedback mode (8bit)
+     */
+    const MODE_OFB8 = 7;
     /**
      * Encrypt / decrypt using the Output Feedback mode.
      *
@@ -484,6 +488,7 @@ abstract class Base
             case self::MODE_CTR:
             case self::MODE_CFB:
             case self::MODE_CFB8:
+            case self::MODE_OFB8:
             case self::MODE_OFB:
             case self::MODE_STREAM:
                 $this->mode = $mode;
@@ -773,8 +778,25 @@ abstract class Base
                         }
                     }
                     return $ciphertext;
+                case self::MODE_OFB8:
+                    $ciphertext = '';
+                    $len = strlen($plaintext);
+                    $iv = $this->encryptIV;
+
+                    for ($i = 0; $i < $len; ++$i) {
+                        $xor = openssl_encrypt($iv, $this->cipher_name_openssl_ecb, $this->key, $this->openssl_options, $this->decryptIV);
+                        $ciphertext.= $plaintext[$i] ^ $xor;
+                        $iv = substr($iv, 1) . $xor[0];
+                    }
+
+                    if ($this->continuousBuffer) {
+                        $this->encryptIV = $iv;
+                    }
+                    break;
                 case self::MODE_OFB:
                     return $this->_openssl_ofb_process($plaintext, $this->encryptIV, $this->enbuffer);
+                case self::MODE_OFB8:
+                    // OpenSSL has built in support for cfb8 but not ofb8
             }
         }
 
@@ -959,12 +981,14 @@ abstract class Base
                 }
                 break;
             case self::MODE_CFB8:
+                // compared to regular CFB, which encrypts a block at a time,
+                // here, we're encrypting a byte at a time
                 $ciphertext = '';
                 $len = strlen($plaintext);
                 $iv = $this->encryptIV;
 
                 for ($i = 0; $i < $len; ++$i) {
-                    $ciphertext .= ($c = $plaintext[$i] ^ $this->_encryptBlock($iv));
+                    $ciphertext.= ($c = $plaintext[$i] ^ $this->_encryptBlock($iv));
                     $iv = substr($iv, 1) . $c;
                 }
 
@@ -974,6 +998,21 @@ abstract class Base
                     } else {
                         $this->encryptIV = substr($this->encryptIV, $len - $block_size) . substr($ciphertext, -$len);
                     }
+                }
+                break;
+            case self::MODE_OFB8:
+                $ciphertext = '';
+                $len = strlen($plaintext);
+                $iv = $this->encryptIV;
+
+                for ($i = 0; $i < $len; ++$i) {
+                    $xor = $this->_encryptBlock($iv);
+                    $ciphertext.= $plaintext[$i] ^ $xor;
+                    $iv = substr($iv, 1) . $xor[0];
+                }
+
+                if ($this->continuousBuffer) {
+                    $this->encryptIV = $iv;
                 }
                 break;
             case self::MODE_OFB:
@@ -1114,6 +1153,21 @@ abstract class Base
                         } else {
                             $this->decryptIV = substr($this->decryptIV, $len - $this->block_size) . substr($ciphertext, -$len);
                         }
+                    }
+                    break;
+                case self::MODE_OFB8:
+                    $plaintext = '';
+                    $len = strlen($ciphertext);
+                    $iv = $this->decryptIV;
+
+                    for ($i = 0; $i < $len; ++$i) {
+                        $xor = openssl_encrypt($iv, $this->cipher_name_openssl_ecb, $this->key, $this->openssl_options, $this->decryptIV);
+                        $plaintext.= $ciphertext[$i] ^ $xor;
+                        $iv = substr($iv, 1) . $xor[0];
+                    }
+
+                    if ($this->continuousBuffer) {
+                        $this->decryptIV = $iv;
                     }
                     break;
                 case self::MODE_OFB:
@@ -1290,7 +1344,7 @@ abstract class Base
                 $iv = $this->decryptIV;
 
                 for ($i = 0; $i < $len; ++$i) {
-                    $plaintext .= $ciphertext[$i] ^ $this->_encryptBlock($iv);
+                    $plaintext.= $ciphertext[$i] ^ $this->_encryptBlock($iv);
                     $iv = substr($iv, 1) . $ciphertext[$i];
                 }
 
@@ -1300,6 +1354,21 @@ abstract class Base
                     } else {
                         $this->decryptIV = substr($this->decryptIV, $len - $block_size) . substr($ciphertext, -$len);
                     }
+                }
+                break;
+            case self::MODE_OFB8:
+                $plaintext = '';
+                $len = strlen($ciphertext);
+                $iv = $this->decryptIV;
+
+                for ($i = 0; $i < $len; ++$i) {
+                    $xor = $this->_encryptBlock($iv);
+                    $plaintext.= $ciphertext[$i] ^ $xor;
+                    $iv = substr($iv, 1) . $xor[0];
+                }
+
+                if ($this->continuousBuffer) {
+                    $this->decryptIV = $iv;
                 }
                 break;
             case self::MODE_OFB:
@@ -1864,6 +1933,7 @@ abstract class Base
                 self::MODE_CFB    => 'ncfb',
                 self::MODE_CFB8   => MCRYPT_MODE_CFB,
                 self::MODE_OFB    => MCRYPT_MODE_NOFB,
+                self::MODE_OFB8   => MCRYPT_MODE_OFB,
                 self::MODE_STREAM => MCRYPT_MODE_STREAM,
             );
 
@@ -2446,7 +2516,7 @@ abstract class Base
                     for ($_i = 0; $_i < $_len; ++$_i) {
                         $in = $_iv;
                         '.$encrypt_block.'
-                        $_ciphertext .= ($_c = $_text[$_i] ^ $in);
+                        $_ciphertext.= ($_c = $_text[$_i] ^ $in);
                         $_iv = substr($_iv, 1) . $_c;
                     }
 
@@ -2468,7 +2538,7 @@ abstract class Base
                     for ($_i = 0; $_i < $_len; ++$_i) {
                         $in = $_iv;
                         '.$encrypt_block.'
-                        $_plaintext .= $_text[$_i] ^ $in;
+                        $_plaintext.= $_text[$_i] ^ $in;
                         $_iv = substr($_iv, 1) . $_text[$_i];
                     }
 
@@ -2478,6 +2548,44 @@ abstract class Base
                         } else {
                             $self->decryptIV = substr($self->decryptIV, $_len - '.$block_size.') . substr($_text, -$_len);
                         }
+                    }
+
+                    return $_plaintext;
+                    ';
+                break;
+            case self::MODE_OFB8:
+                $encrypt = $init_encrypt . '
+                    $_ciphertext = "";
+                    $_len = strlen($_text);
+                    $_iv = $self->encryptIV;
+
+                    for ($_i = 0; $_i < $_len; ++$_i) {
+                        $in = $_iv;
+                        '.$encrypt_block.'
+                        $_ciphertext.= $_text[$_i] ^ $in;
+                        $_iv = substr($_iv, 1) . $in[0];
+                    }
+
+                    if ($self->continuousBuffer) {
+                        $self->encryptIV = $_iv;
+                    }
+
+                    return $_ciphertext;
+                    ';
+                $decrypt = $init_encrypt . '
+                    $_plaintext = "";
+                    $_len = strlen($_text);
+                    $_iv = $self->decryptIV;
+
+                    for ($_i = 0; $_i < $_len; ++$_i) {
+                        $in = $_iv;
+                        '.$encrypt_block.'
+                        $_plaintext.= $_text[$_i] ^ $in;
+                        $_iv = substr($_iv, 1) . $in[0];
+                    }
+
+                    if ($self->continuousBuffer) {
+                        $self->decryptIV = $_iv;
                     }
 
                     return $_plaintext;
