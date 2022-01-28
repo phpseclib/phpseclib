@@ -1347,8 +1347,8 @@ class SSH2
                     $read = [$this->fsock];
                     $write = $except = null;
                     $start = microtime(true);
-                    $sec = floor($this->curTimeout);
-                    $usec = 1000000 * ($this->curTimeout - $sec);
+                    $sec = (int) floor($this->curTimeout);
+                    $usec = (int) 1000000 * ($this->curTimeout - $sec);
                     if (@stream_select($read, $write, $except, $sec, $usec) === false) {
                         throw new \RuntimeException('Connection timed out whilst receiving server identification string');
                     }
@@ -3330,8 +3330,8 @@ class SSH2
                     $this->curTimeout-= $elapsed;
                 }
 
-                $sec = floor($this->curTimeout);
-                $usec = 1000000 * ($this->curTimeout - $sec);
+                $sec = (int)floor($this->curTimeout);
+                $usec = (int)(1000000 * ($this->curTimeout - $sec));
 
                 // this can return a "stream_select(): unable to select [4]: Interrupted system call" error
                 if (!@stream_select($read, $write, $except, $sec, $usec)) {
