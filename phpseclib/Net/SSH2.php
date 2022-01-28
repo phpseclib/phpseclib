@@ -4971,7 +4971,7 @@ class SSH2
                 // could be ssh-rsa, rsa-sha2-256, rsa-sha2-512
                 // we don't check here because we already checked in key_exchange
                 // some signatures have the type embedded within the message and some don't
-                Strings::unpackSSH2('s', $signature);
+                list(, $signature) = Strings::unpackSSH2('ss', $signature);
 
                 $key = RSA::loadFormat('OpenSSH', $server_public_host_key)
                     ->withPadding(RSA::SIGNATURE_PKCS1);
@@ -4994,6 +4994,7 @@ class SSH2
         }
 
         if (!$key->verify($this->exchange_hash, $signature)) {
+exit('error');
             return $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
         };
 
