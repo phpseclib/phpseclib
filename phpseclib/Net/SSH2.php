@@ -1294,8 +1294,8 @@ class SSH2
                     $read = array($this->fsock);
                     $write = $except = null;
                     $start = microtime(true);
-                    $sec = floor($this->curTimeout);
-                    $usec = 1000000 * ($this->curTimeout - $sec);
+                    $sec = (int) floor($this->curTimeout);
+                    $usec = (int) (1000000 * ($this->curTimeout - $sec));
                     // on windows this returns a "Warning: Invalid CRT parameters detected" error
                     // the !count() is done as a workaround for <https://bugs.php.net/42682>
                     if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
@@ -1310,6 +1310,7 @@ class SSH2
                 if (strlen($temp) == 255) {
                     continue;
                 }
+
                 if ($temp === false) {
                     return false;
                 }
@@ -3503,8 +3504,8 @@ class SSH2
                     $this->curTimeout-= $elapsed;
                 }
 
-                $sec = floor($this->curTimeout);
-                $usec = 1000000 * ($this->curTimeout - $sec);
+                $sec = (int)floor($this->curTimeout);
+                $usec = (int)(1000000 * ($this->curTimeout - $sec));
 
                 // on windows this returns a "Warning: Invalid CRT parameters detected" error
                 if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
