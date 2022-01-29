@@ -15,6 +15,7 @@ namespace phpseclib3\Crypt\DH;
 
 use phpseclib3\Crypt\DH;
 use phpseclib3\Crypt\Common;
+use phpseclib3\Exception\UnsupportedOperationException;
 
 /**
  * DH Private Key
@@ -23,7 +24,7 @@ use phpseclib3\Crypt\Common;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class PrivateKey extends DH
+class PrivateKey extends DH implements Common\PrivateKey
 {
     use Common\Traits\PasswordProtected;
 
@@ -78,5 +79,10 @@ class PrivateKey extends DH
         }
 
         return $type::savePrivateKey($this->prime, $this->base, $this->privateKey, $this->publicKey, $this->password, $options);
+    }
+
+    public function sign($message)
+    {
+        throw new UnsupportedOperationException('sign() is not supported with DH keys');
     }
 }
