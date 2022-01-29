@@ -101,7 +101,7 @@ abstract class SymmetricKey
      * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
      */
-    const MODE_CFB8 = 6;
+    const MODE_CFB8 = 7;
     /**
      * Encrypt / decrypt using the Output Feedback mode (8bit)
      *
@@ -109,7 +109,7 @@ abstract class SymmetricKey
      * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
      */
-    const MODE_OFB8 = 7; 
+    const MODE_OFB8 = 8;
     /**
      * Encrypt / decrypt using the Output Feedback mode.
      *
@@ -3054,7 +3054,7 @@ abstract class SymmetricKey
                 $encrypt = $init_encrypt . '
                     $_ciphertext = "";
                     $_len = strlen($_text);
-                    $_iv = $self->encryptIV;
+                    $_iv = $this->encryptIV;
 
                     for ($_i = 0; $_i < $_len; ++$_i) {
                         $in = $_iv;
@@ -3063,8 +3063,8 @@ abstract class SymmetricKey
                         $_iv = substr($_iv, 1) . $in[0];
                     }
 
-                    if ($self->continuousBuffer) {
-                        $self->encryptIV = $_iv;
+                    if ($this->continuousBuffer) {
+                        $this->encryptIV = $_iv;
                     }
 
                     return $_ciphertext;
@@ -3072,7 +3072,7 @@ abstract class SymmetricKey
                 $decrypt = $init_encrypt . '
                     $_plaintext = "";
                     $_len = strlen($_text);
-                    $_iv = $self->decryptIV;
+                    $_iv = $this->decryptIV;
 
                     for ($_i = 0; $_i < $_len; ++$_i) {
                         $in = $_iv;
@@ -3081,8 +3081,8 @@ abstract class SymmetricKey
                         $_iv = substr($_iv, 1) . $in[0];
                     }
 
-                    if ($self->continuousBuffer) {
-                        $self->decryptIV = $_iv;
+                    if ($this->continuousBuffer) {
+                        $this->decryptIV = $_iv;
                     }
 
                     return $_plaintext;
