@@ -1348,7 +1348,7 @@ class SSH2
                     $write = $except = null;
                     $start = microtime(true);
                     $sec = (int) floor($this->curTimeout);
-                    $usec = (int) 1000000 * ($this->curTimeout - $sec);
+                    $usec = (int) (1000000 * ($this->curTimeout - $sec));
                     if (@stream_select($read, $write, $except, $sec, $usec) === false) {
                         throw new \RuntimeException('Connection timed out whilst receiving server identification string');
                     }
@@ -3330,8 +3330,8 @@ class SSH2
                     $this->curTimeout-= $elapsed;
                 }
 
-                $sec = (int)floor($this->curTimeout);
-                $usec = (int)(1000000 * ($this->curTimeout - $sec));
+                $sec = (int) floor($this->curTimeout);
+                $usec = (int) (1000000 * ($this->curTimeout - $sec));
 
                 // this can return a "stream_select(): unable to select [4]: Interrupted system call" error
                 if (!@stream_select($read, $write, $except, $sec, $usec)) {
@@ -4683,7 +4683,7 @@ class SSH2
                 'mcrypt',
                 'Eval',
                 'PHP'
-            	];
+            ];
         }
 
         $ciphers = [];
