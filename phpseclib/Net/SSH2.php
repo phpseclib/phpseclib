@@ -4994,7 +4994,6 @@ class SSH2
         }
 
         if (!$key->verify($this->exchange_hash, $signature)) {
-exit('error');
             return $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
         };
 
