@@ -158,9 +158,9 @@ abstract class Strings
     /**
      * Create SSH2-style string
      *
-     * @param string[] ...$elements
+     * @param string|int|float|array|bool ...$elements
      * @access public
-     * @return mixed
+     * @return string
      */
     public static function packSSH2(...$elements)
     {
