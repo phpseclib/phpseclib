@@ -15,8 +15,8 @@
 
 namespace phpseclib3\Crypt;
 
-use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Exception\BadDecryptionException;
+use phpseclib3\Exception\InsufficientSetupException;
 
 /**
  * Pure-PHP implementation of ChaCha20.

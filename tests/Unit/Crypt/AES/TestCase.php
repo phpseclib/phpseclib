@@ -6,7 +6,6 @@
  */
 
 use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\Common\BlockCipher;
 use phpseclib3\Crypt\Rijndael;
 use phpseclib3\Exception\InconsistentSetupException;
 use phpseclib3\Exception\InsufficientSetupException;

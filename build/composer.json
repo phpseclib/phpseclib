@@ -1,0 +1,14 @@
+{
+    "name": "phpseclib/tools",
+    "description": "",
+    "minimum-stability": "stable",
+    "license": "proprietary",
+    "authors": [{"name": "Jack Worman", "email": "jworman@healthcall.com"}],
+    "require": {
+        "php": "^8.1.0",
+        "friendsofphp/php-cs-fixer": "^3.5"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

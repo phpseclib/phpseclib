@@ -33,11 +33,10 @@
 
 namespace phpseclib3\Crypt;
 
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Exception\UnsupportedAlgorithmException;
-use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\AES;
+use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\UnsupportedAlgorithmException;
+use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\PrimeField;
 
 /**

@@ -23,12 +23,11 @@
 
 namespace phpseclib3\File;
 
+use DateTime;
 use ParagonIE\ConstantTime\Base64;
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\File\ASN1\Element;
 use phpseclib3\Math\BigInteger;
-use phpseclib3\Common\Functions\Strings;
-use DateTime;
-use DateTimeZone;
 
 /**
  * Pure-PHP ASN.1 Parser
@@ -1030,9 +1029,9 @@ abstract class ASN1
                 $format = $mapping['type'] == self::TYPE_UTC_TIME ? 'y' : 'Y';
                 $format.= 'mdHis';
                 // if $source does _not_ include timezone information within it then assume that the timezone is GMT
-                $date = new DateTime($source, new DateTimeZone('GMT'));
+                $date = new \DateTime($source, new \DateTimeZone('GMT'));
                 // if $source _does_ include timezone information within it then convert the time to GMT
-                $date->setTimezone(new DateTimeZone('GMT'));
+                $date->setTimezone(new \DateTimeZone('GMT'));
                 $value = $date->format($format) . 'Z';
                 break;
             case self::TYPE_BIT_STRING:
@@ -1308,7 +1307,7 @@ abstract class ASN1
 
         // error supression isn't necessary as of PHP 7.0:
         // http://php.net/manual/en/migration70.other-changes.php
-        return @DateTime::createFromFormat($format, $content);
+        return @\DateTime::createFromFormat($format, $content);
     }
 
     /**

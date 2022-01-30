@@ -16,16 +16,15 @@
 namespace phpseclib3\Crypt\EC\Formats\Keys;
 
 use ParagonIE\ConstantTime\Hex;
-use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib3\Crypt\EC\BaseCurves\Prime as PrimeCurve;
-use phpseclib3\Crypt\EC\BaseCurves\Binary as BinaryCurve;
-use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\PrimeField;
+use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
+use phpseclib3\Crypt\EC\BaseCurves\Binary as BinaryCurve;
+use phpseclib3\Crypt\EC\BaseCurves\Prime as PrimeCurve;
+use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib3\Exception\UnsupportedCurveException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
-use phpseclib3\Exception\UnsupportedCurveException;
+use phpseclib3\Math\BigInteger;
 
 /**
  * Generic EC Key Parsing Helper functions

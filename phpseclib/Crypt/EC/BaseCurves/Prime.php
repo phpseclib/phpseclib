@@ -23,10 +23,10 @@
 
 namespace phpseclib3\Crypt\EC\BaseCurves;
 
-use phpseclib3\Math\Common\FiniteField\Integer;
 use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Math\PrimeField;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\Common\FiniteField\Integer;
+use phpseclib3\Math\PrimeField;
 use phpseclib3\Math\PrimeField\Integer as PrimeInteger;
 
 /**

@@ -15,7 +15,6 @@
 
 namespace phpseclib3\Math\BigInteger\Engines;
 
-use ParagonIE\ConstantTime\Hex;
 
 /**
  * Pure-PHP 64-bit Engine.

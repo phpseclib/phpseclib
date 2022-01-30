@@ -8,8 +8,8 @@
 
 use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\DSA\Parameters;
-use phpseclib3\Crypt\DSA\PublicKey;
 use phpseclib3\Crypt\DSA\PrivateKey;
+use phpseclib3\Crypt\DSA\PublicKey;
 
 /**
  * @requires PHP 7.0

@@ -23,9 +23,9 @@
 namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
 use ParagonIE\ConstantTime\Base64;
-use phpseclib3\Math\BigInteger;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\UnsupportedFormatException;
+use phpseclib3\Math\BigInteger;
 
 /**
  * XML Formatted RSA Key Handler
