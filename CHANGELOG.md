@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.0.13 - 2022-01-30
+
+- SSH2: make login() return false if no valid auth methods are found (#1744)
+- SSH2: show a more helpful error message when logging in with pubkey (#1718)
+- SSH2: rsa-sha2-256 and rsa-sha2-512 sigs weren't verifying (#1743)
+- SFTP: fix chgrp() for version < 4 (#1730)
+- Crypt/Base: add OFB8 as a new mode (phpseclib/mcrypt_compat#33)
+- Crypt/Salsa20: fix PHP 5.6 error (#1717)
+- RSA & BigInteger: check phpinfo() available before using it (#1726)
+- Fixed psalm level 6 errors in phpseclib/Net/ (#1746)
+
 ## 3.0.12 - 2021-11-28
 
 - SSH2: add "smart multi factor" login mode (enabled by default) (#1648)
@@ -112,6 +123,13 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.36 - 2022-01-30
+
+- SSH2: make login() return false if no valid auth methods are found (#1744)
+- SFTP: fix chgrp() for version < 4 (#1730)
+- Crypt/Base: add OFB8 as a new mode (phpseclib/mcrypt_compat#33)
+- RSA & BigInteger: check phpinfo() available before using it (#1726)
 
 ## 2.0.35 - 2021-11-28
 
