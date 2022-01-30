@@ -411,6 +411,24 @@ class SSH2
     private $decrypt = false;
 
     /**
+     * Decryption Algorithm Name
+     *
+     * @var string|null
+     * @access private
+     */
+    private $decryptName;
+
+    /**
+     * Decryption Invocation Counter
+     *
+     * Used by GCM
+     *
+     * @var string|null
+     * @access private
+     */
+    private $decryptInvocationCounter;
+
+    /**
      * Server to Client Length Encryption Object
      *
      * @see self::_get_binary_packet()
@@ -427,6 +445,24 @@ class SSH2
      * @access private
      */
     private $encrypt = false;
+
+    /**
+     * Encryption Algorithm Name
+     *
+     * @var string|null
+     * @access private
+     */
+    private $encryptName;
+
+    /**
+     * Encryption Invocation Counter
+     *
+     * Used by GCM
+     *
+     * @var string|null
+     * @access private
+     */
+    private $encryptInvocationCounter;
 
     /**
      * Client to Server Length Encryption Object
@@ -447,6 +483,22 @@ class SSH2
     private $hmac_create = false;
 
     /**
+     * Client to Server HMAC Name
+     *
+     * @var string|false
+     * @access private
+     */
+    private $hmac_create_name;
+
+    /**
+     * Client to Server ETM
+     *
+     * @var int|false
+     * @access private
+     */
+    private $hmac_create_etm;
+
+    /**
      * Server to Client HMAC Object
      *
      * @see self::_get_binary_packet()
@@ -454,6 +506,22 @@ class SSH2
      * @access private
      */
     private $hmac_check = false;
+
+    /**
+     * Server to Client HMAC Name
+     *
+     * @var string|false
+     * @access private
+     */
+    private $hmac_check_name;
+
+    /**
+     * Server to Client ETM
+     *
+     * @var int|false
+     * @access private
+     */
+    private $hmac_check_etm;
 
     /**
      * Size of server to client HMAC
@@ -1860,7 +1928,7 @@ class SSH2
                 case 'aes256-gcm@openssh.com':
                     $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
                     $this->encrypt->fixed = substr($nonce, 0, 4);
-                    $this->encrypt->invocation_counter = substr($nonce, 4, 8);
+                    $this->encryptInvocationCounter = substr($nonce, 4, 8);
                 case 'chacha20-poly1305@openssh.com':
                     break;
                 default:
@@ -1878,7 +1946,7 @@ class SSH2
                     $this->lengthEncrypt->setKey(substr($key, 32, 32));
             }
             $this->encrypt->setKey(substr($key, 0, $encryptKeyLength));
-            $this->encrypt->name = $encrypt;
+            $this->encryptName = $encrypt;
         }
 
         $this->decrypt = self::encryption_algorithm_to_crypt_instance($decrypt);
@@ -1905,7 +1973,7 @@ class SSH2
                     // see https://tools.ietf.org/html/rfc5647#section-7.1
                     $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
                     $this->decrypt->fixed = substr($nonce, 0, 4);
-                    $this->decrypt->invocation_counter = substr($nonce, 4, 8);
+                    $this->decryptInvocationCounter = substr($nonce, 4, 8);
                 case 'chacha20-poly1305@openssh.com':
                     break;
                 default:
@@ -1923,7 +1991,7 @@ class SSH2
                     $this->lengthDecrypt->setKey(substr($key, 32, 32));
             }
             $this->decrypt->setKey(substr($key, 0, $decryptKeyLength));
-            $this->decrypt->name = $decrypt;
+            $this->decryptName = $decrypt;
         }
 
         /* The "arcfour128" algorithm is the RC4 cipher, as described in
@@ -1944,7 +2012,7 @@ class SSH2
             list($this->hmac_create, $createKeyLength) = self::mac_algorithm_to_hash_instance($mac_algorithm_out);
         } else {
             $this->hmac_create = new \stdClass;
-            $this->hmac_create->name = $mac_algorithm_out;
+            $this->hmac_create_name = $mac_algorithm_out;
             //$mac_algorithm_out = 'none';
             $createKeyLength = 0;
         }
@@ -1955,8 +2023,8 @@ class SSH2
                 $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
             }
             $this->hmac_create->setKey(substr($key, 0, $createKeyLength));
-            $this->hmac_create->name = $mac_algorithm_out;
-            $this->hmac_create->etm = preg_match('#-etm@openssh\.com$#', $mac_algorithm_out);
+            $this->hmac_create_name = $mac_algorithm_out;
+            $this->hmac_create_etm = preg_match('#-etm@openssh\.com$#', $mac_algorithm_out);
         }
 
         if (!$this->decrypt->usesNonce()) {
@@ -1964,7 +2032,7 @@ class SSH2
             $this->hmac_size = $this->hmac_check->getLengthInBytes();
         } else {
             $this->hmac_check = new \stdClass;
-            $this->hmac_check->name = $mac_algorithm_in;
+            $this->hmac_check_name = $mac_algorithm_in;
             //$mac_algorithm_in = 'none';
             $checkKeyLength = 0;
             $this->hmac_size = 0;
@@ -1976,8 +2044,8 @@ class SSH2
                 $key.= $kexHash->hash($keyBytes . $this->exchange_hash . $key);
             }
             $this->hmac_check->setKey(substr($key, 0, $checkKeyLength));
-            $this->hmac_check->name = $mac_algorithm_in;
-            $this->hmac_check->etm = preg_match('#-etm@openssh\.com$#', $mac_algorithm_in);
+            $this->hmac_check_name = $mac_algorithm_in;
+            $this->hmac_check_etm = preg_match('#-etm@openssh\.com$#', $mac_algorithm_in);
         }
 
         $this->regenerate_compression_context = $this->regenerate_decompression_context = true;
@@ -3367,14 +3435,14 @@ class SSH2
         }
 
         if ($this->decrypt) {
-            switch ($this->decrypt->name) {
+            switch ($this->decryptName) {
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
                     $this->decrypt->setNonce(
                         $this->decrypt->fixed .
-                        $this->decrypt->invocation_counter
+                        $this->decryptInvocationCounter
                     );
-                    Strings::increment_str($this->decrypt->invocation_counter);
+                    Strings::increment_str($this->decryptInvocationCounter);
                     $this->decrypt->setAAD($temp = Strings::shift($raw, 4));
                     extract(unpack('Npacket_length', $temp));
                     /**
@@ -3419,7 +3487,7 @@ class SSH2
                     $remaining_length = 0;
                     break;
                 default:
-                    if (!$this->hmac_check instanceof Hash || !$this->hmac_check->etm) {
+                    if (!$this->hmac_check instanceof Hash || !$this->hmac_check_etm) {
                         $raw = $this->decrypt->decrypt($raw);
                         break;
                     }
@@ -3468,7 +3536,7 @@ class SSH2
                 throw new \RuntimeException('Error reading socket');
             }
 
-            $reconstructed = !$this->hmac_check->etm ?
+            $reconstructed = !$this->hmac_check_etm ?
                 pack('NCa*', $packet_length, $padding_length, $payload . $padding) :
                 $encrypted;
             if (($this->hmac_check->getHash() & "\xFF\xFF\xFF\xFF") == 'umac') {
@@ -3552,10 +3620,10 @@ class SSH2
         $adjustLength = false;
         if ($this->decrypt) {
             switch (true) {
-                case $this->decrypt->name == 'aes128-gcm@openssh.com':
-                case $this->decrypt->name == 'aes256-gcm@openssh.com':
-                case $this->decrypt->name == 'chacha20-poly1305@openssh.com':
-                case $this->hmac_check instanceof Hash && $this->hmac_check->etm:
+                case $this->decryptName == 'aes128-gcm@openssh.com':
+                case $this->decryptName == 'aes256-gcm@openssh.com':
+                case $this->decryptName == 'chacha20-poly1305@openssh.com':
+                case $this->hmac_check instanceof Hash && $this->hmac_check_etm:
                     $remaining_length+= $this->decrypt_block_size - 4;
                     $adjustLength = true;
             }
@@ -3566,7 +3634,7 @@ class SSH2
         // PuTTY uses 0x9000 as the actual max packet size and so to shall we
         // don't do this when GCM mode is used since GCM mode doesn't encrypt the length
         if ($remaining_length < -$this->decrypt_block_size || $remaining_length > 0x9000 || $remaining_length % $this->decrypt_block_size != 0) {
-            if (!$this->bad_key_size_fix && self::bad_algorithm_candidate($this->decrypt ? $this->decrypt->name : '') && !($this->bitmap & SSH2::MASK_LOGIN)) {
+            if (!$this->bad_key_size_fix && self::bad_algorithm_candidate($this->decrypt ? $this->decryptName : '') && !($this->bitmap & SSH2::MASK_LOGIN)) {
                 $this->bad_key_size_fix = true;
                 $this->reset_connection(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
                 return false;
@@ -4104,7 +4172,7 @@ class SSH2
         $padding_length = $packet_length - strlen($data) - 5;
         switch (true) {
             case $this->encrypt && $this->encrypt->usesNonce():
-            case $this->hmac_create instanceof Hash && $this->hmac_create->etm:
+            case $this->hmac_create instanceof Hash && $this->hmac_create_etm:
                 $padding_length+= 4;
                 $packet_length+= 4;
         }
@@ -4115,7 +4183,7 @@ class SSH2
         $packet = pack('NCa*', $packet_length - 4, $padding_length, $data . $padding);
 
         $hmac = '';
-        if ($this->hmac_create instanceof Hash && !$this->hmac_create->etm) {
+        if ($this->hmac_create instanceof Hash && !$this->hmac_create_etm) {
             if (($this->hmac_create->getHash() & "\xFF\xFF\xFF\xFF") == 'umac') {
                 $this->hmac_create->setNonce("\0\0\0\0" . pack('N', $this->send_seq_no));
                 $hmac = $this->hmac_create->hash($packet);
@@ -4125,14 +4193,14 @@ class SSH2
         }
 
         if ($this->encrypt) {
-            switch ($this->encrypt->name) {
+            switch ($this->encryptName) {
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
                     $this->encrypt->setNonce(
                         $this->encrypt->fixed .
-                        $this->encrypt->invocation_counter
+                        $this->encryptInvocationCounter
                     );
-                    Strings::increment_str($this->encrypt->invocation_counter);
+                    Strings::increment_str($this->encryptInvocationCounter);
                     $this->encrypt->setAAD($temp = ($packet & "\xFF\xFF\xFF\xFF"));
                     $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
                     break;
@@ -4156,13 +4224,13 @@ class SSH2
                     $packet = $length . $this->encrypt->encrypt(substr($packet, 4));
                     break;
                 default:
-                    $packet = $this->hmac_create instanceof Hash && $this->hmac_create->etm ?
+                    $packet = $this->hmac_create instanceof Hash && $this->hmac_create_etm ?
                         ($packet & "\xFF\xFF\xFF\xFF") . $this->encrypt->encrypt(substr($packet, 4)) :
                         $this->encrypt->encrypt($packet);
             }
         }
 
-        if ($this->hmac_create instanceof Hash && $this->hmac_create->etm) {
+        if ($this->hmac_create instanceof Hash && $this->hmac_create_etm) {
             if (($this->hmac_create->getHash() & "\xFF\xFF\xFF\xFF") == 'umac') {
                 $this->hmac_create->setNonce("\0\0\0\0" . pack('N', $this->send_seq_no));
                 $hmac = $this->hmac_create->hash($packet);
@@ -4798,13 +4866,13 @@ class SSH2
             'kex' => $this->kex_algorithm,
             'hostkey' => $this->signature_format,
             'client_to_server' => [
-                'crypt' => $this->encrypt->name,
-                'mac' => $this->hmac_create->name,
+                'crypt' => $this->encryptName,
+                'mac' => $this->hmac_create_name,
                 'comp' => $compression_map[$this->compress],
             ],
             'server_to_client' => [
-                'crypt' => $this->decrypt->name,
-                'mac' => $this->hmac_check->name,
+                'crypt' => $this->decryptName,
+                'mac' => $this->hmac_check_name,
                 'comp' => $compression_map[$this->decompress],
             ]
         ];
