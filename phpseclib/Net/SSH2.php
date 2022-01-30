@@ -1353,8 +1353,8 @@ class SSH2
                     $read = [$this->fsock];
                     $write = $except = null;
                     $start = microtime(true);
-                    $sec = floor($this->curTimeout);
-                    $usec = 1000000 * ($this->curTimeout - $sec);
+                    $sec = (int) floor($this->curTimeout);
+                    $usec = (int) (1000000 * ($this->curTimeout - $sec));
                     if (@stream_select($read, $write, $except, $sec, $usec) === false) {
                         throw new \RuntimeException('Connection timed out whilst receiving server identification string');
                     }
@@ -3340,8 +3340,8 @@ class SSH2
                     $this->curTimeout-= $elapsed;
                 }
 
-                $sec = floor($this->curTimeout);
-                $usec = 1000000 * ($this->curTimeout - $sec);
+                $sec = (int) floor($this->curTimeout);
+                $usec = (int) (1000000 * ($this->curTimeout - $sec));
 
                 // this can return a "stream_select(): unable to select [4]: Interrupted system call" error
                 if (!@stream_select($read, $write, $except, $sec, $usec)) {
@@ -4978,12 +4978,10 @@ class SSH2
             case 'ssh-rsa':
             case 'rsa-sha2-256':
             case 'rsa-sha2-512':
-                if (strlen($signature) < 15) {
-                    return false;
-                }
-                Strings::shift($signature, 11);
-                $temp = unpack('Nlength', Strings::shift($signature, 4));
-                $signature = Strings::shift($signature, $temp['length']);
+                // could be ssh-rsa, rsa-sha2-256, rsa-sha2-512
+                // we don't check here because we already checked in key_exchange
+                // some signatures have the type embedded within the message and some don't
+                list(, $signature) = Strings::unpackSSH2('ss', $signature);
 
                 $key = RSA::loadFormat('OpenSSH', $server_public_host_key)
                     ->withPadding(RSA::SIGNATURE_PKCS1);
