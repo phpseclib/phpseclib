@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.36 - 2022-01-30
+
+- SSH2: make login() return false if no valid auth methods are found (#1744)
+- SFTP: fix chgrp() for version < 4 (#1730)
+- Crypt/Base: add OFB8 as a new mode (phpseclib/mcrypt_compat#33)
+- RSA & BigInteger: check phpinfo() available before using it (#1726)
+
 ## 2.0.35 - 2021-11-28
 
 - SSH2: add "smart multi factor" login mode (enabled by default) (#1648)
