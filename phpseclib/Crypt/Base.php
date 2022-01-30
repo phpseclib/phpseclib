@@ -779,6 +779,7 @@ abstract class Base
                     }
                     return $ciphertext;
                 case self::MODE_OFB8:
+                    // OpenSSL has built in support for cfb8 but not ofb8
                     $ciphertext = '';
                     $len = strlen($plaintext);
                     $iv = $this->encryptIV;
@@ -795,8 +796,6 @@ abstract class Base
                     break;
                 case self::MODE_OFB:
                     return $this->_openssl_ofb_process($plaintext, $this->encryptIV, $this->enbuffer);
-                case self::MODE_OFB8:
-                    // OpenSSL has built in support for cfb8 but not ofb8
             }
         }
 
