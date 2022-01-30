@@ -488,10 +488,10 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 
     public function testNegativePrecision()
     {
-        $vals = array(
+        $vals = [
             '-9223372036854775808', // eg. 8000 0000 0000 0000
             '-1'
-        );
+        ];
         foreach ($vals as $val) {
             $x = $this->getInstance($val);
             $x->setPrecision(64); // ie. 8 bytes

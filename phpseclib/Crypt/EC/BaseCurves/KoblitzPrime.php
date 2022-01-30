@@ -30,10 +30,8 @@
 
 namespace phpseclib3\Crypt\EC\BaseCurves;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Math\PrimeField;
 use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\PrimeField\Integer as PrimeInteger;
+use phpseclib3\Math\PrimeField;
 
 /**
  * Curves over y^2 = x^3 + b

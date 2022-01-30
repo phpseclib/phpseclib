@@ -1,7 +1,7 @@
 <?php
 
-use phpseclib3\Net\SFTP;
 use phpseclib3\Exception\UnableToConnectException;
+use phpseclib3\Net\SFTP;
 use PHPUnit\Framework\TestCase;
 
 class SFTPWrongServerTest extends TestCase

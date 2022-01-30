@@ -15,10 +15,9 @@
 
 namespace phpseclib3\Math\BigInteger\Engines\PHP;
 
-use phpseclib3\Math\BigInteger\Engines\PHP\Reductions\PowerOfTwo;
-use phpseclib3\Math\BigInteger\Engines\PHP;
-use phpseclib3\Math\BigInteger\Engines\PHP\Base;
 use phpseclib3\Math\BigInteger\Engines\Engine;
+use phpseclib3\Math\BigInteger\Engines\PHP;
+use phpseclib3\Math\BigInteger\Engines\PHP\Reductions\PowerOfTwo;
 
 /**
  * PHP Montgomery Modular Exponentiation Engine

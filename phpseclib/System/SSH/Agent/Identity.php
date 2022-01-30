@@ -17,13 +17,13 @@
 
 namespace phpseclib3\System\SSH\Agent;
 
-use phpseclib3\Crypt\RSA;
-use phpseclib3\Crypt\DSA;
-use phpseclib3\Crypt\EC;
-use phpseclib3\Exception\UnsupportedAlgorithmException;
-use phpseclib3\System\SSH\Agent;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\PrivateKey;
+use phpseclib3\Crypt\DSA;
+use phpseclib3\Crypt\EC;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Exception\UnsupportedAlgorithmException;
+use phpseclib3\System\SSH\Agent;
 
 /**
  * Pure-PHP ssh-agent client identity object
