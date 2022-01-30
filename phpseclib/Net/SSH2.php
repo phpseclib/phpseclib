@@ -404,7 +404,7 @@ class SSH2
      * Server to Client Encryption Object
      *
      * @see self::_get_binary_packet()
-     * @var object
+     * @var SymmetricKey|false
      * @access private
      */
     private $decrypt = false;
@@ -440,7 +440,7 @@ class SSH2
      * Client to Server Encryption Object
      *
      * @see self::_send_binary_packet()
-     * @var object
+     * @var SymmetricKey|false
      * @access private
      */
     private $encrypt = false;
@@ -3457,6 +3457,11 @@ class SSH2
                     $remaining_length = 0;
                     break;
                 case 'chacha20-poly1305@openssh.com':
+                    // This should be impossible, but we are checking anyway to narrow the type for Psalm.
+                    if (!($this->decrypt instanceof ChaCha20)) {
+                        throw new \LogicException('$this->decrypt is not a ' . ChaCha20::class);
+                    }
+
                     $nonce = pack('N2', 0, $this->get_seq_no);
 
                     $this->lengthDecrypt->setNonce($nonce);
@@ -4204,6 +4209,11 @@ class SSH2
                     $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
                     break;
                 case 'chacha20-poly1305@openssh.com':
+                    // This should be impossible, but we are checking anyway to narrow the type for Psalm.
+                    if (!($this->encrypt instanceof ChaCha20)) {
+                        throw new \LogicException('$this->encrypt is not a ' . ChaCha20::class);
+                    }
+
                     $nonce = pack('N2', 0, $this->send_seq_no);
 
                     $this->encrypt->setNonce($nonce);
@@ -5154,6 +5164,7 @@ class SSH2
      * @return string
      * @access public
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return $this->getResourceId();
