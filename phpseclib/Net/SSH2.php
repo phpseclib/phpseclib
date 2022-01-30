@@ -1204,7 +1204,7 @@ class SSH2
          * Typehint is required due to a bug in Psalm: https://github.com/vimeo/psalm/issues/7508
          * @var \WeakReference<SSH2>|SSH2
          */
-        self::$connections[$this->getResourceId()] = \class_exists('WeakReference')
+        self::$connections[$this->getResourceId()] = class_exists('WeakReference')
             ? \WeakReference::create($this)
             : $this;
 
@@ -1417,7 +1417,7 @@ class SSH2
         if (!$this->send_kex_first) {
             $response = $this->get_binary_packet();
 
-            if (\is_bool($response) || !strlen($response) || ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
+            if (is_bool($response) || !strlen($response) || ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
                 $this->bitmap = 0;
                 throw new \UnexpectedValueException('Expected SSH_MSG_KEXINIT');
             }
@@ -1553,7 +1553,7 @@ class SSH2
             $kexinit_payload_server = $this->get_binary_packet();
 
             if (
-                \is_bool($kexinit_payload_server)
+                is_bool($kexinit_payload_server)
                 || !strlen($kexinit_payload_server)
                 || ord($kexinit_payload_server[0]) != NET_SSH2_MSG_KEXINIT
             ) {
@@ -3306,7 +3306,7 @@ class SSH2
     private function get_binary_packet($skip_channel_filter = false)
     {
         if ($skip_channel_filter) {
-            if (!\is_resource($this->fsock)) {
+            if (!is_resource($this->fsock)) {
                 throw new \InvalidArgumentException('fsock is not a resource.');
             }
             $read = [$this->fsock];
@@ -3634,7 +3634,7 @@ class SSH2
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
-        if (($this->bitmap & self::MASK_CONNECTED) && !$this->isAuthenticated() && !\is_bool($payload) && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
+        if (($this->bitmap & self::MASK_CONNECTED) && !$this->isAuthenticated() && !is_bool($payload) && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             Strings::shift($payload, 1);
             list($this->banner_message) = Strings::unpackSSH2('s', $payload);
             $payload = $this->get_binary_packet();
@@ -3642,7 +3642,7 @@ class SSH2
 
         // only called when we've already logged in
         if (($this->bitmap & self::MASK_CONNECTED) && $this->isAuthenticated()) {
-            if (\is_bool($payload)) {
+            if (is_bool($payload)) {
                 return $payload;
             }
 
