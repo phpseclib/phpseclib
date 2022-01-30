@@ -9,20 +9,17 @@
     sealAllMethods="true"
 >
     <projectFiles>
-        <directory name="phpseclib/Net"/>
+        <directory name="../phpseclib/Net"/>
     </projectFiles>
-    <fileExtensions>
-        <extension name=".php"/>
-    </fileExtensions>
     <issueHandlers>
         <Trace>
             <errorLevel type="error">
-                <directory name="."/>
+                <directory name=".."/>
             </errorLevel>
         </Trace>
         <UndefinedConstant>
             <errorLevel type="suppress">
-                <directory name="phpseclib/Net"/>
+                <directory name="../phpseclib/Net"/>
             </errorLevel>
         </UndefinedConstant>
     </issueHandlers>

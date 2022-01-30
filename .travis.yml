@@ -35,4 +35,5 @@ install:
 script:
   - sh -c "if [ '$TRAVIS_PHP_VERSION' = '5.5' ]; then vendor/bin/phing -f build/build.xml sniff; fi"
   - sh -c "if [ -d build/vendor ]; then build/vendor/bin/php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run; fi"
+  - sh -c "if [ -d build/vendor ]; then build/vendor/bin/psalm --config="build/psalm.xml" --no-cache --long-progress --report-show-info=false --output-format=text; fi"
   - travis/run-phpunit.sh

@@ -1,12 +1,12 @@
 {
-    "name": "phpseclib/tools",
-    "description": "",
+    "name": "phpseclib/build",
+    "description": "A separate composer.json file to house build related dependencies.",
     "minimum-stability": "stable",
-    "license": "proprietary",
-    "authors": [{"name": "Jack Worman", "email": "jworman@healthcall.com"}],
+    "license": "MIT",
     "require": {
         "php": "^8.1.0",
-        "friendsofphp/php-cs-fixer": "^3.5"
+        "friendsofphp/php-cs-fixer": "^3.5",
+        "vimeo/psalm": "^4.19"
     },
     "config": {
         "sort-packages": true
