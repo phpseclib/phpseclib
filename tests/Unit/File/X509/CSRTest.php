@@ -119,6 +119,10 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $x509->setPrivateKey($rsa);
         $x509->setDN(['cn' => 'website.com']);
         $x509->saveCSR($x509->signCSR(), X509::FORMAT_DER);
+        self::assertSame(
+            'MIIBUTCBvQIBADAWMRQwEgYDVQQDDAt3ZWJzaXRlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqhirpDtQ3u84WY+vh9KrY05FccEwqbynuHgmdBT6q4tHG9iWX1yfw4GEher1KcJiRvMFUGSo3hnIwzi+VJbLrrBZ3As1gUO0SjVEnrJkETEhpFW9f94/rJGelLVvubtPZRzbI+rUOdbNUj6wgZHnWzX9E6dBmzCQ8keHvU9OGWcCAwEAATALBgkqhkiG9w0BAQUDgYEAMsFgm5Y7/DY+a4NFK/2VHEyEf5C9+Oe+qaZQie0djZ5wPadabV4lOEYX4RcGMtrnfgYuUt8pMIubq4JQtpnw2rpaEZPQIr0ed/GvuiQD2oyaBd7tmPDoiJzN/+DjdniF/wq3POUz/UzZ+g1IgSYaGXtmtn7XgafiE+K+PQFRvrQ=',
+            base64_encode($x509->saveCSR($x509->signCSR(), X509::FORMAT_DER))
+        );
     }
 
     /**

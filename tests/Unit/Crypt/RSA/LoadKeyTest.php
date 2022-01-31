@@ -571,7 +571,10 @@ AAIBAAIBAAIBAAIBAA==
             ->withMGFHash('md5')
             ->withPadding(RSA::SIGNATURE_PKCS1);
 
-        $rsa->sign('zzzz');
+        self::assertSame(
+            'oW0X9GlHa1qyC3Xj2gyzf5VwzLksmIB60icLdrneWA1kTW9RvkfskB4XLs8IVxYy+O8Tm/fJTIPpdNtRB7sfeQ==',
+            base64_encode($rsa->sign('zzzz'))
+        );
     }
 
     public function pkcs8tester($key, $pass)
