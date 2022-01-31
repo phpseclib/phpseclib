@@ -290,18 +290,21 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     public function testInfiniteLoop()
     {
         $data = base64_decode('MD6gJQYKKwYBBAGCNxQCA6AXDBVvZmZpY2VAY2VydGRpZ2l0YWwucm+BFW9mZmljZUBjZXJ0ZGlnaXRhbC5ybw==');
-        ASN1::decodeBER($data);
+        self::assertSame(
+            'a:1:{i:0;a:5:{s:5:"start";i:0;s:12:"headerlength";i:2;s:4:"type";i:16;s:7:"content";a:2:{i:0;a:6:{s:4:"type";i:2;s:8:"constant";i:0;s:7:"content";a:2:{i:0;a:5:{s:5:"start";i:4;s:12:"headerlength";i:2;s:4:"type";i:6;s:7:"content";s:22:"1.3.6.1.4.1.311.20.2.3";s:6:"length";i:12;}i:1;a:6:{s:4:"type";i:2;s:8:"constant";i:0;s:7:"content";a:1:{i:0;a:5:{s:5:"start";i:18;s:12:"headerlength";i:2;s:4:"type";i:12;s:7:"content";s:21:"office@certdigital.ro";s:6:"length";i:23;}}s:6:"length";i:25;s:5:"start";i:16;s:12:"headerlength";i:2;}}s:6:"length";i:39;s:5:"start";i:2;s:12:"headerlength";i:2;}i:1;a:6:{s:4:"type";i:2;s:8:"constant";i:1;s:7:"content";s:21:"office@certdigital.ro";s:6:"length";i:23;s:5:"start";i:41;s:12:"headerlength";i:2;}}s:6:"length";i:64;}}',
+            serialize(ASN1::decodeBER($data))
+        );
     }
 
     public function testMaps()
     {
         $files = scandir('phpseclib/File/ASN1/Maps');
+        self::assertNotEmpty($files);
         foreach ($files as $file) {
             if ($file == '.' || $file == '..') {
                 continue;
             }
-
-            constant('phpseclib3\\File\\ASN1\\Maps\\' . basename($file, '.php') . '::MAP');
+            self::assertTrue(defined('phpseclib3\\File\\ASN1\\Maps\\' . basename($file, '.php') . '::MAP'));
         }
     }
 
@@ -342,7 +345,10 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     public function testInvalidCertificate()
     {
         $data = 'a' . base64_decode('MD6gJQYKKwYBBAGCNxQCA6AXDBVvZmZpY2VAY2VydGRpZ2l0YWwucm+BFW9mZmljZUBjZXJ0ZGlnaXRhbC5ybw==');
-        ASN1::decodeBER($data);
+        self::assertSame(
+            'a:1:{i:0;a:6:{s:4:"type";i:1;s:8:"constant";i:1;s:7:"content";a:0:{}s:6:"length";i:2;s:5:"start";i:0;s:12:"headerlength";i:2;}}',
+            serialize(ASN1::decodeBER($data))
+        );
     }
 
     /**
