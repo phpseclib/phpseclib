@@ -190,14 +190,47 @@ class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
         }
     }
 
-    // test special case lambda function error
-    public function testCorrectSelfUseInLambda()
+    /**
+     * @dataProvider provideForCorrectSelfUseInLambda
+     * @param string $key
+     * @param string $expectedCiphertext
+     * @return void
+     */
+    public function testCorrectSelfUseInLambda($key, $expectedCiphertext)
     {
         $td = new TripleDES('ecb');
         $td->setPreferredEngine('Eval');
-        for ($i = 0; $i < 20; $i++) {
-            $td->setKey(str_repeat('a', 20) . pack('V', mt_rand()));
-            $td->encrypt(str_repeat('a', 32));
-        }
+        $td->setKey(base64_decode($key));
+        $ciphertext = $td->encrypt(str_repeat('a', 32));
+        self::assertSame($expectedCiphertext, base64_encode($ciphertext));
+    }
+
+    /**
+     * @return list<array{string, string}>
+     */
+    public function provideForCorrectSelfUseInLambda()
+    {
+        return [
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWG9l9gm', 'fDSmC5bbLdx8NKYLltst3Hw0pguW2y3cfDSmC5bbLdxmhqEOIeS2ig=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWFhiyIR', 'pRE2q3y7s6ylETarfLuzrKURNqt8u7OspRE2q3y7s6wn4E6gffbNJw=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWFKOPlL', 'lnarcjmMu+OWdqtyOYy745Z2q3I5jLvjlnarcjmMu+NYSjvKzL2Osw=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWEfGesQ', 'VxvHOxYoHAJXG8c7FigcAlcbxzsWKBwCVxvHOxYoHAKu2gQBvhV4Qw=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWGeCuBh', 'dQZuvUeEemp1Bm69R4R6anUGbr1HhHpqdQZuvUeEempfXEWLEcWTYQ=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWHrg28q', 'vWcEQuwfYZC9ZwRC7B9hkL1nBELsH2GQvWcEQuwfYZChcIWy7Jx4AQ=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWE7VTFW', '5HfiS1TkD4Lkd+JLVOQPguR34ktU5A+C5HfiS1TkD4J7OjziCG84YA=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWHu6jQV', '0XOLOVBh3HXRc4s5UGHcddFzizlQYdx10XOLOVBh3HWAfZzoan7UNA=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWHBQqVh', '5sXLCUFzKCTmxcsJQXMoJObFywlBcygk5sXLCUFzKCQx78hr/rq4ww=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWElZYAM', 'i7hwXD3f/ziLuHBcPd//OIu4cFw93/84i7hwXD3f/zjYM/eL8sCkVQ=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWGiFRwF', '2ybIPpjRyufbJsg+mNHK59smyD6Y0crn2ybIPpjRyueUX5HLPHATqQ=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWFHDjMw', 'uhLr0mWFI4i6EuvSZYUjiLoS69JlhSOIuhLr0mWFI4hrCZ9vaOlmbg=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWGqlkgm', '9gjxyj6xL6z2CPHKPrEvrPYI8co+sS+s9gjxyj6xL6z1Swr5acgeOw=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWGFxv4E', 'wr+yhvXSmo7Cv7KG9dKajsK/sob10pqOwr+yhvXSmo5fTYtM7AM0Tg=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWHIuKFR', 'Ug35w2rztYhSDfnDavO1iFIN+cNq87WIUg35w2rztYgU5XzjwaRlbw=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWEvbSIB', '7lo0S11Kp6PuWjRLXUqno+5aNEtdSqej7lo0S11Kp6OX1cTbb6FyyA=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWEgD5wO', 'QF1VxM0jlm5AXVXEzSOWbkBdVcTNI5ZuQF1VxM0jlm6qoYnfJo67NQ=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWGBNnsp', 'ZFtpJzprc+9kW2knOmtz72RbaSc6a3PvZFtpJzprc++DKOgJXprsFQ=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWGbz7Zy', '6m3d0xNg5t/qbd3TE2Dm3+pt3dMTYObf6m3d0xNg5t+ddL6I8jfWYA=='],
+            ['YWFhYWFhYWFhYWFhYWFhYWFhYWEijusc', 'R8guMW5IH1pHyC4xbkgfWkfILjFuSB9aR8guMW5IH1pDXTJwKiDKbA=='],
+        ];
     }
 }

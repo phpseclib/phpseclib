@@ -410,7 +410,7 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $e = $this->getInstance(str_repeat('1', 1794), 2);
         $x = $this->getInstance(1);
         $n = $this->getInstance(2);
-        $x->powMod($e, $n);
+        self::assertSame('1', $x->powMod($e, $n)->toString());
     }
 
     public function testRoot()

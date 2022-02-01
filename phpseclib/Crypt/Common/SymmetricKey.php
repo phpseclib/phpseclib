@@ -1378,8 +1378,8 @@ abstract class SymmetricKey
                         $block = substr($plaintext, $i, $block_size);
                         if (strlen($block) > strlen($buffer['ciphertext'])) {
                             $buffer['ciphertext'].= $this->encryptBlock($xor);
+                            Strings::increment_str($xor);
                         }
-                        Strings::increment_str($xor);
                         $key = Strings::shift($buffer['ciphertext'], $block_size);
                         $ciphertext.= $block ^ $key;
                     }
@@ -1751,8 +1751,8 @@ abstract class SymmetricKey
                         $block = substr($ciphertext, $i, $block_size);
                         if (strlen($block) > strlen($buffer['ciphertext'])) {
                             $buffer['ciphertext'].= $this->encryptBlock($xor);
+                            Strings::increment_str($xor);
                         }
-                        Strings::increment_str($xor);
                         $key = Strings::shift($buffer['ciphertext'], $block_size);
                         $plaintext.= $block ^ $key;
                     }

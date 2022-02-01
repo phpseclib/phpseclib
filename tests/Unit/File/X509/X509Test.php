@@ -375,6 +375,7 @@ Mj93S
 
         $x509 = new X509();
         $x509->sign($issuer, $subject);
+        self::assertTrue(true);
     }
 
     public function testUtcTimeWithoutSeconds()
