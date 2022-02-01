@@ -79,22 +79,21 @@ Special Thanks to our Patreon sponsors!:
 2. Ensure you have Composer installed (see [Composer Download Instructions](https://getcomposer.org/download/))
 
 3. Install Development Dependencies
-
-    ``` sh
+    ```sh
     composer install
     ```
 
 4. Create a Feature Branch
 
-5. (Recommended) Run the Test Suite
-
-    ``` sh
-    vendor/bin/phpunit
-    ```
-6. (Recommended) Check whether your code conforms to our Coding Standards by running
-
-    ``` sh
-    vendor/bin/phing -f build/build.xml sniff
-    ```
-
-7. Send us a Pull Request
+5. Run continuous integration checks:
+   ```sh
+   vendor/bin/phpunit
+   vendor/bin/phing -f build/build.xml sniff
+   
+   # The following tools are from the build specific composer.json:
+   composer install --no-interaction --working-dir=build
+   build/vendor/bin/php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run
+   build/vendor/bin/psalm --config=build/psalm.xml --no-cache --long-progress --report-show-info=false --output-format=text
+   ```
+   
+6. Send us a Pull Request
