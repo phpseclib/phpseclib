@@ -68,9 +68,10 @@ Need Support?
 
 ## Special Thanks
 
-Special Thanks to our Patreon sponsors!:
+Special Thanks to our $50+ sponsors!:
 
 - Allan Simon
+- [ChargeOver](https://chargeover.com/)
 
 ## Contributing
 
