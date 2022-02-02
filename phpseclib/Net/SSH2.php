@@ -428,6 +428,16 @@ class SSH2
     private $decryptInvocationCounter;
 
     /**
+     * Fixed Part of Nonce
+     *
+     * Used by GCM
+     *
+     * @var string|null
+     * @access private
+     */
+    private $decryptFixedPart;
+
+    /**
      * Server to Client Length Encryption Object
      *
      * @see self::_get_binary_packet()
@@ -462,6 +472,16 @@ class SSH2
      * @access private
      */
     private $encryptInvocationCounter;
+
+    /**
+     * Fixed Part of Nonce
+     *
+     * Used by GCM
+     *
+     * @var string|null
+     * @access private
+     */
+    private $encryptFixedPart;
 
     /**
      * Client to Server Length Encryption Object
@@ -1926,7 +1946,7 @@ class SSH2
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
                     $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
-                    $this->encrypt->fixed = substr($nonce, 0, 4);
+                    $this->encryptFixedPart = substr($nonce, 0, 4);
                     $this->encryptInvocationCounter = substr($nonce, 4, 8);
                 case 'chacha20-poly1305@openssh.com':
                     break;
@@ -1971,7 +1991,7 @@ class SSH2
                 case 'aes256-gcm@openssh.com':
                     // see https://tools.ietf.org/html/rfc5647#section-7.1
                     $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
-                    $this->decrypt->fixed = substr($nonce, 0, 4);
+                    $this->decryptFixedPart = substr($nonce, 0, 4);
                     $this->decryptInvocationCounter = substr($nonce, 4, 8);
                 case 'chacha20-poly1305@openssh.com':
                     break;
@@ -3438,7 +3458,7 @@ class SSH2
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
                     $this->decrypt->setNonce(
-                        $this->decrypt->fixed .
+                        $this->decryptFixedPart .
                         $this->decryptInvocationCounter
                     );
                     Strings::increment_str($this->decryptInvocationCounter);
@@ -4201,7 +4221,7 @@ class SSH2
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
                     $this->encrypt->setNonce(
-                        $this->encrypt->fixed .
+                        $this->encryptFixedPart .
                         $this->encryptInvocationCounter
                     );
                     Strings::increment_str($this->encryptInvocationCounter);
