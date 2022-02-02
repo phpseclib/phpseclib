@@ -5,8 +5,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\File\X509;
 use phpseclib3\Crypt\RSA;
+use phpseclib3\File\X509;
 
 class Unit_File_X509_SPKACTest extends PhpseclibTestCase
 {

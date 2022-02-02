@@ -6,12 +6,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\Crypt\EC;
-use phpseclib3\File\ASN1;
-use phpseclib3\Crypt\EC\Curves\Ed448;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\EC;
+use phpseclib3\Crypt\EC\Curves\Ed448;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\File\ASN1;
 
 class Ed448PublicKey
 {

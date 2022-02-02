@@ -5,11 +5,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Crypt\RSA;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Element;
 use phpseclib3\File\X509;
-use phpseclib3\Crypt\RSA;
-use phpseclib3\Crypt\PublicKeyLoader;
 
 class Unit_File_X509_X509Test extends PhpseclibTestCase
 {
@@ -1046,7 +1046,7 @@ ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
 -----END CERTIFICATE-----');
         $r = $x509->saveX509($r);
         $r = $x509->loadX509($r);
-        $this->assertSame($r['tbsCertificate']['extensions'][5]['extnValue']['excludedSubtrees'][1]['base']['iPAddress'], array('0.0.0.0', '0.0.0.0'));
+        $this->assertSame($r['tbsCertificate']['extensions'][5]['extnValue']['excludedSubtrees'][1]['base']['iPAddress'], ['0.0.0.0', '0.0.0.0']);
     }
 
     /**

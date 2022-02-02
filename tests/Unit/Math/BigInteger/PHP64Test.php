@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use \phpseclib3\Math\BigInteger\Engines\PHP64;
+use phpseclib3\Math\BigInteger\Engines\PHP64;
 
 class Unit_Math_BigInteger_PHP64Test extends Unit_Math_BigInteger_TestCase
 {

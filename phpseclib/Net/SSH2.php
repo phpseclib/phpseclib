@@ -47,32 +47,31 @@
 
 namespace phpseclib3\Net;
 
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Blowfish;
+use phpseclib3\Crypt\ChaCha20;
+use phpseclib3\Crypt\Common\AsymmetricKey;
+use phpseclib3\Crypt\Common\PrivateKey;
+use phpseclib3\Crypt\Common\PublicKey;
 use phpseclib3\Crypt\Common\SymmetricKey;
+use phpseclib3\Crypt\DH;
+use phpseclib3\Crypt\DSA;
+use phpseclib3\Crypt\EC;
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RC4;
 use phpseclib3\Crypt\Rijndael;
-use phpseclib3\Crypt\Common\PublicKey;
-use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\RSA;
-use phpseclib3\Crypt\DSA;
-use phpseclib3\Crypt\EC;
-use phpseclib3\Crypt\DH;
-use phpseclib3\Crypt\TripleDES;
+use phpseclib3\Crypt\TripleDES; // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
 use phpseclib3\Crypt\Twofish;
-use phpseclib3\Crypt\ChaCha20;
-use phpseclib3\Math\BigInteger; // Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
-use phpseclib3\System\SSH\Agent;
-use phpseclib3\System\SSH\Agent\Identity as AgentIdentity;
+use phpseclib3\Exception\ConnectionClosedException;
+use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Exception\NoSupportedAlgorithmsException;
+use phpseclib3\Exception\UnableToConnectException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Exception\UnsupportedCurveException;
-use phpseclib3\Exception\ConnectionClosedException;
-use phpseclib3\Exception\UnableToConnectException;
-use phpseclib3\Exception\InsufficientSetupException;
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\AsymmetricKey;
+use phpseclib3\Math\BigInteger;
+use phpseclib3\System\SSH\Agent;
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -405,7 +404,7 @@ class SSH2
      * Server to Client Encryption Object
      *
      * @see self::_get_binary_packet()
-     * @var object
+     * @var SymmetricKey|false
      * @access private
      */
     private $decrypt = false;
@@ -429,6 +428,16 @@ class SSH2
     private $decryptInvocationCounter;
 
     /**
+     * Fixed Part of Nonce
+     *
+     * Used by GCM
+     *
+     * @var string|null
+     * @access private
+     */
+    private $decryptFixedPart;
+
+    /**
      * Server to Client Length Encryption Object
      *
      * @see self::_get_binary_packet()
@@ -441,7 +450,7 @@ class SSH2
      * Client to Server Encryption Object
      *
      * @see self::_send_binary_packet()
-     * @var object
+     * @var SymmetricKey|false
      * @access private
      */
     private $encrypt = false;
@@ -463,6 +472,16 @@ class SSH2
      * @access private
      */
     private $encryptInvocationCounter;
+
+    /**
+     * Fixed Part of Nonce
+     *
+     * Used by GCM
+     *
+     * @var string|null
+     * @access private
+     */
+    private $encryptFixedPart;
 
     /**
      * Client to Server Length Encryption Object
@@ -1927,7 +1946,7 @@ class SSH2
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
                     $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
-                    $this->encrypt->fixed = substr($nonce, 0, 4);
+                    $this->encryptFixedPart = substr($nonce, 0, 4);
                     $this->encryptInvocationCounter = substr($nonce, 4, 8);
                 case 'chacha20-poly1305@openssh.com':
                     break;
@@ -1972,7 +1991,7 @@ class SSH2
                 case 'aes256-gcm@openssh.com':
                     // see https://tools.ietf.org/html/rfc5647#section-7.1
                     $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
-                    $this->decrypt->fixed = substr($nonce, 0, 4);
+                    $this->decryptFixedPart = substr($nonce, 0, 4);
                     $this->decryptInvocationCounter = substr($nonce, 4, 8);
                 case 'chacha20-poly1305@openssh.com':
                     break;
@@ -3439,7 +3458,7 @@ class SSH2
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
                     $this->decrypt->setNonce(
-                        $this->decrypt->fixed .
+                        $this->decryptFixedPart .
                         $this->decryptInvocationCounter
                     );
                     Strings::increment_str($this->decryptInvocationCounter);
@@ -3458,6 +3477,11 @@ class SSH2
                     $remaining_length = 0;
                     break;
                 case 'chacha20-poly1305@openssh.com':
+                    // This should be impossible, but we are checking anyway to narrow the type for Psalm.
+                    if (!($this->decrypt instanceof ChaCha20)) {
+                        throw new \LogicException('$this->decrypt is not a ' . ChaCha20::class);
+                    }
+
                     $nonce = pack('N2', 0, $this->get_seq_no);
 
                     $this->lengthDecrypt->setNonce($nonce);
@@ -4197,7 +4221,7 @@ class SSH2
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
                     $this->encrypt->setNonce(
-                        $this->encrypt->fixed .
+                        $this->encryptFixedPart .
                         $this->encryptInvocationCounter
                     );
                     Strings::increment_str($this->encryptInvocationCounter);
@@ -4205,6 +4229,11 @@ class SSH2
                     $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
                     break;
                 case 'chacha20-poly1305@openssh.com':
+                    // This should be impossible, but we are checking anyway to narrow the type for Psalm.
+                    if (!($this->encrypt instanceof ChaCha20)) {
+                        throw new \LogicException('$this->encrypt is not a ' . ChaCha20::class);
+                    }
+
                     $nonce = pack('N2', 0, $this->send_seq_no);
 
                     $this->encrypt->setNonce($nonce);
@@ -5155,6 +5184,7 @@ class SSH2
      * @return string
      * @access public
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return $this->getResourceId();

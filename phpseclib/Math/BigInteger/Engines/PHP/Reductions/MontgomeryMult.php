@@ -15,7 +15,6 @@
 
 namespace phpseclib3\Math\BigInteger\Engines\PHP\Reductions;
 
-use phpseclib3\Math\BigInteger\Engines\PHP\Base;
 
 /**
  * PHP Montgomery Modular Exponentiation Engine with interleaved multiplication

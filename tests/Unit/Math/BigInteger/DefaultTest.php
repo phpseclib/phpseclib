@@ -5,7 +5,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use \phpseclib3\Math\BigInteger;
+use phpseclib3\Math\BigInteger;
 
 class Unit_Math_BigInteger_DefaultTest extends Unit_Math_BigInteger_TestCase
 {

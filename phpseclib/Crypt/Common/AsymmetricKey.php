@@ -15,13 +15,12 @@
 
 namespace phpseclib3\Crypt\Common;
 
-use phpseclib3\Exception\UnsupportedFormatException;
-use phpseclib3\Exception\NoKeyLoadedException;
-use phpseclib3\Math\BigInteger;
+use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Crypt\RSA;
-use phpseclib3\Crypt\DSA;
-use phpseclib3\Crypt\ECDSA;
+use phpseclib3\Exception\NoKeyLoadedException;
+use phpseclib3\Exception\UnsupportedFormatException;
+use phpseclib3\Math\BigInteger;
 
 /**
  * Base Class for all asymmetric cipher classes

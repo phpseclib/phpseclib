@@ -310,12 +310,12 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
 
     public function testApplicationTag()
     {
-        $map = array(
+        $map = [
             'type'     => ASN1::TYPE_SEQUENCE,
-            'children' => array(
+            'children' => [
                 // technically, default implies optional, but we'll define it as being optional, none-the-less, just to
                 // reenforce that fact
-                'version'             => array(
+                'version'             => [
                     // if class isn't present it's assumed to be ASN1::CLASS_UNIVERSAL or
                     // (if constant is present) ASN1::CLASS_CONTEXT_SPECIFIC
                     'class'    => ASN1::CLASS_APPLICATION,
@@ -324,12 +324,12 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
                     'explicit' => true,
                     'default'  => 'v1',
                     'type'     => ASN1::TYPE_INTEGER,
-                    'mapping' => array('v1', 'v2', 'v3')
-                )
-            )
-        );
+                    'mapping' => ['v1', 'v2', 'v3']
+                ]
+            ]
+        ];
 
-        $data = array('version' => 'v3');
+        $data = ['version' => 'v3'];
 
         $str = ASN1::encodeDER($data, $map);
 
@@ -376,21 +376,21 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
      */
     public function testExplicitImplicitDate()
     {
-        $map = array(
+        $map = [
             'type'     => ASN1::TYPE_SEQUENCE,
-            'children' => array(
-                'notBefore' => array(
+            'children' => [
+                'notBefore' => [
                                              'constant' => 0,
                                              'optional' => true,
                                              'implicit' => true,
-                                             'type' => ASN1::TYPE_GENERALIZED_TIME),
-                'notAfter'  => array(
+                                             'type' => ASN1::TYPE_GENERALIZED_TIME],
+                'notAfter'  => [
                                              'constant' => 1,
                                              'optional' => true,
                                              'implicit' => true,
-                                             'type' => ASN1::TYPE_GENERALIZED_TIME)
-            )
-        );
+                                             'type' => ASN1::TYPE_GENERALIZED_TIME]
+            ]
+        ];
 
         $a = pack('H*', '3026a011180f32303137303432313039303535305aa111180f32303138303432313230353935395a');
         $a = ASN1::decodeBER($a);

@@ -15,7 +15,6 @@
 
 namespace phpseclib3\Math\BigInteger\Engines;
 
-use ParagonIE\ConstantTime\Hex;
 use phpseclib3\Exception\BadConfigurationException;
 
 /**
