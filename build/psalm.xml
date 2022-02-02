@@ -17,10 +17,5 @@
                 <directory name=".."/>
             </errorLevel>
         </Trace>
-        <UndefinedConstant>
-            <errorLevel type="suppress">
-                <directory name="../phpseclib/Net"/>
-            </errorLevel>
-        </UndefinedConstant>
     </issueHandlers>
 </psalm>

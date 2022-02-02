@@ -7,6 +7,7 @@
  */
 
 use phpseclib3\Net\SFTP;
+use phpseclib3\Net\SFTP\FileType;
 
 class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 {
@@ -654,28 +655,28 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $sftp->nlist();
 
         $stat = $sftp->stat('link.txt');
-        $this->assertSame($stat['type'], NET_SFTP_TYPE_REGULAR);
+        $this->assertSame($stat['type'], FileType::REGULAR);
         $stat = $sftp->lstat('link.txt');
-        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+        $this->assertSame($stat['type'], FileType::SYMLINK);
 
         $stat = $sftp->stat('linkdir');
-        $this->assertSame($stat['type'], NET_SFTP_TYPE_DIRECTORY);
+        $this->assertSame($stat['type'], FileType::DIRECTORY);
         $stat = $sftp->lstat('link.txt');
-        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+        $this->assertSame($stat['type'], FileType::SYMLINK);
 
         $sftp->disableStatCache();
 
         $sftp->nlist();
 
         $stat = $sftp->stat('link.txt');
-        $this->assertSame($stat['type'], NET_SFTP_TYPE_REGULAR);
+        $this->assertSame($stat['type'], FileType::REGULAR);
         $stat = $sftp->lstat('link.txt');
-        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+        $this->assertSame($stat['type'], FileType::SYMLINK);
 
         $stat = $sftp->stat('linkdir');
-        $this->assertSame($stat['type'], NET_SFTP_TYPE_DIRECTORY);
+        $this->assertSame($stat['type'], FileType::DIRECTORY);
         $stat = $sftp->lstat('link.txt');
-        $this->assertSame($stat['type'], NET_SFTP_TYPE_SYMLINK);
+        $this->assertSame($stat['type'], FileType::SYMLINK);
 
         $sftp->enableStatCache();
 
