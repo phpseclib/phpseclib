@@ -43,6 +43,7 @@ use phpseclib3\Net\SFTP\OpenFlag;
 use phpseclib3\Net\SFTP\OpenFlag5;
 use phpseclib3\Net\SFTP\PacketType;
 use phpseclib3\Net\SFTP\StatusCode;
+use phpseclib3\Net\Ssh2\MessageType as Ssh2MessageType;
 
 /**
  * Pure-PHP implementations of SFTP.
@@ -380,7 +381,7 @@ class SFTP extends SSH2
 
         $packet = Strings::packSSH2(
             'CsN3',
-            SshMsg::CHANNEL_OPEN,
+            Ssh2MessageType::CHANNEL_OPEN,
             'session',
             self::CHANNEL,
             $this->window_size,
@@ -389,7 +390,7 @@ class SFTP extends SSH2
 
         $this->send_binary_packet($packet);
 
-        $this->channel_status[self::CHANNEL] = SshMsg::CHANNEL_OPEN;
+        $this->channel_status[self::CHANNEL] = Ssh2MessageType::CHANNEL_OPEN;
 
         $response = $this->get_channel_packet(self::CHANNEL, true);
         if ($response === true && $this->isTimeout()) {
@@ -398,7 +399,7 @@ class SFTP extends SSH2
 
         $packet = Strings::packSSH2(
             'CNsbs',
-            SshMsg::CHANNEL_REQUEST,
+            Ssh2MessageType::CHANNEL_REQUEST,
             $this->server_channels[self::CHANNEL],
             'subsystem',
             true,
@@ -406,7 +407,7 @@ class SFTP extends SSH2
         );
         $this->send_binary_packet($packet);
 
-        $this->channel_status[self::CHANNEL] = SshMsg::CHANNEL_REQUEST;
+        $this->channel_status[self::CHANNEL] = Ssh2MessageType::CHANNEL_REQUEST;
 
         $response = $this->get_channel_packet(self::CHANNEL, true);
         if ($response === false) {
@@ -418,7 +419,7 @@ class SFTP extends SSH2
             // is redundant
             $packet = Strings::packSSH2(
                 'CNsCs',
-                SshMsg::CHANNEL_REQUEST,
+                Ssh2MessageType::CHANNEL_REQUEST,
                 $this->server_channels[self::CHANNEL],
                 'exec',
                 1,
@@ -426,7 +427,7 @@ class SFTP extends SSH2
             );
             $this->send_binary_packet($packet);
 
-            $this->channel_status[self::CHANNEL] = SshMsg::CHANNEL_REQUEST;
+            $this->channel_status[self::CHANNEL] = Ssh2MessageType::CHANNEL_REQUEST;
 
             $response = $this->get_channel_packet(self::CHANNEL, true);
             if ($response === false) {
@@ -436,7 +437,7 @@ class SFTP extends SSH2
             return false;
         }
 
-        $this->channel_status[self::CHANNEL] = SshMsg::CHANNEL_DATA;
+        $this->channel_status[self::CHANNEL] = Ssh2MessageType::CHANNEL_DATA;
         $this->send_sftp_packet(PacketType::INIT, "\0\0\0\3");
 
         $response = $this->get_sftp_packet();
@@ -3190,7 +3191,7 @@ class SFTP extends SSH2
         while (strlen($this->packet_buffer) < 4) {
             $temp = $this->get_channel_packet(self::CHANNEL, true);
             if ($temp === true) {
-                if ($this->channel_status[self::CHANNEL] === SshMsg::CHANNEL_CLOSE) {
+                if ($this->channel_status[self::CHANNEL] === Ssh2MessageType::CHANNEL_CLOSE) {
                     $this->channel_close = true;
                 }
                 $this->packet_type = false;

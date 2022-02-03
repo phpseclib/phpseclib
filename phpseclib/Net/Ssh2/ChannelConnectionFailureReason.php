@@ -1,11 +1,11 @@
 <?php
 
-namespace phpseclib3\Net;
+namespace phpseclib3\Net\Ssh2;
 
 /**
  * @internal
  */
-abstract class SshOpen
+abstract class ChannelConnectionFailureReason
 {
     const ADMINISTRATIVELY_PROHIBITED = 1;
     const CONNECT_FAILED = 2;

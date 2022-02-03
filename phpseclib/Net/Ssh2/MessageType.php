@@ -1,13 +1,13 @@
 <?php
 
-namespace phpseclib3\Net;
+namespace phpseclib3\Net\Ssh2;
 
 use phpseclib3\Common\ConstantUtilityTrait;
 
 /**
  * @internal
  */
-abstract class SshMsg
+abstract class MessageType
 {
     use ConstantUtilityTrait;
 

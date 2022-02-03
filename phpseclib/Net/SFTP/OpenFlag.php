@@ -3,6 +3,10 @@
 namespace phpseclib3\Net\SFTP;
 
 /**
+ * http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.3
+ * the flag definitions change somewhat in SFTPv5+.  if SFTPv5+ support is added to this library, maybe name
+ * the array for that $this->open5_flags and similarly alter the constant names.
+ *
  * @internal
  */
 abstract class OpenFlag

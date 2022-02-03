@@ -1,6 +1,6 @@
 <?php
 
-namespace phpseclib3\Net;
+namespace phpseclib3\Net\Ssh2;
 
 /**
  * @internal

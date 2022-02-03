@@ -3,6 +3,9 @@
 namespace phpseclib3\Net\SFTP;
 
 /**
+ * http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-5.2
+ * see \phpseclib3\Net\SFTP::_parseLongname() for an explanation
+ *
  * @internal
  */
 abstract class FileType

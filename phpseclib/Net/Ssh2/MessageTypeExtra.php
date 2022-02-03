@@ -1,11 +1,11 @@
 <?php
 
-namespace phpseclib3\Net;
+namespace phpseclib3\Net\Ssh2;
 
 /**
  * @internal
  */
-abstract class SshMsgCustom
+abstract class MessageTypeExtra
 {
     const KEXDH_INIT = 30;
     const KEXDH_REPLY = 31;

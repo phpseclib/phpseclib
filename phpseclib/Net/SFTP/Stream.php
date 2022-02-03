@@ -20,7 +20,7 @@ namespace phpseclib3\Net\SFTP;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Net\SFTP;
 use phpseclib3\Net\SSH2;
-use phpseclib3\Net\SshMsg;
+use phpseclib3\Net\Ssh2\MessageType as Ssh2MessageType;
 
 /**
  * SFTP Stream Wrapper
@@ -232,10 +232,10 @@ class Stream
                     call_user_func($this->notification, STREAM_NOTIFY_CONNECT, STREAM_NOTIFY_SEVERITY_INFO, '', 0, 0, 0);
                     call_user_func($this->notification, STREAM_NOTIFY_AUTH_REQUIRED, STREAM_NOTIFY_SEVERITY_INFO, '', 0, 0, 0);
                     if (!$this->sftp->login($user, $pass)) {
-                        call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_ERR, 'Login Failure', SshMsg::USERAUTH_FAILURE, 0, 0);
+                        call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_ERR, 'Login Failure', Ssh2MessageType::USERAUTH_FAILURE, 0, 0);
                         return false;
                     }
-                    call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_INFO, 'Login Success', SshMsg::USERAUTH_SUCCESS, 0, 0);
+                    call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_INFO, 'Login Success', Ssh2MessageType::USERAUTH_SUCCESS, 0, 0);
                 } else {
                     if (!$this->sftp->login($user, $pass)) {
                         return false;

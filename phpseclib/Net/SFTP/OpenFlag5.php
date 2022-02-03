@@ -3,6 +3,8 @@
 namespace phpseclib3\Net\SFTP;
 
 /**
+ * SFTPv5+ changed the flags up: https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-8.1.1.3
+ *
  * @internal
  */
 abstract class OpenFlag5
