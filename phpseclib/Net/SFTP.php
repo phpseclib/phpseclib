@@ -43,7 +43,7 @@ use phpseclib3\Net\SFTP\OpenFlag;
 use phpseclib3\Net\SFTP\OpenFlag5;
 use phpseclib3\Net\SFTP\PacketType as SftpPacketType;
 use phpseclib3\Net\SFTP\StatusCode;
-use phpseclib3\Net\Ssh2\MessageType as Ssh2MessageType;
+use phpseclib3\Net\SSH2\MessageType as Ssh2MessageType;
 
 /**
  * Pure-PHP implementations of SFTP.

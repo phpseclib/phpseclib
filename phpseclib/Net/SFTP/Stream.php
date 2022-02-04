@@ -20,7 +20,7 @@ namespace phpseclib3\Net\SFTP;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Net\SFTP;
 use phpseclib3\Net\SSH2;
-use phpseclib3\Net\Ssh2\MessageType as Ssh2MessageType;
+use phpseclib3\Net\SSH2\MessageType as Ssh2MessageType;
 
 /**
  * SFTP Stream Wrapper

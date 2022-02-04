@@ -71,11 +71,11 @@ use phpseclib3\Exception\UnableToConnectException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Exception\UnsupportedCurveException;
 use phpseclib3\Math\BigInteger;
-use phpseclib3\Net\Ssh2\ChannelConnectionFailureReason;
-use phpseclib3\Net\Ssh2\DisconnectReason;
-use phpseclib3\Net\Ssh2\MessageType;
-use phpseclib3\Net\Ssh2\MessageTypeExtra;
-use phpseclib3\Net\Ssh2\TerminalMode;
+use phpseclib3\Net\SSH2\ChannelConnectionFailureReason;
+use phpseclib3\Net\SSH2\DisconnectReason;
+use phpseclib3\Net\SSH2\MessageType;
+use phpseclib3\Net\SSH2\MessageTypeExtra;
+use phpseclib3\Net\SSH2\TerminalMode;
 use phpseclib3\System\SSH\Agent;
 
 /**
