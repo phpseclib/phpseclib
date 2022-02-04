@@ -23,6 +23,10 @@ abstract class MessageType
     const KEXINIT = 20;
     const NEWKEYS = 21;
 
+    // KEXDH_INIT and KEXDH_REPLY are not defined RFC4250 but are referenced in RFC4253
+    const KEXDH_INIT = 30;
+    const KEXDH_REPLY = 31;
+
     const USERAUTH_REQUEST = 50;
     const USERAUTH_FAILURE = 51;
     const USERAUTH_SUCCESS = 52;

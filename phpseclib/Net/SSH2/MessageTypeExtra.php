@@ -7,9 +7,6 @@ namespace phpseclib3\Net\SSH2;
  */
 abstract class MessageTypeExtra
 {
-    const KEXDH_INIT = 30;
-    const KEXDH_REPLY = 31;
-
     // RFC 4419 - diffie-hellman-group-exchange-sha{1,256}
     const KEXDH_GEX_REQUEST_OLD = 30;
     const KEXDH_GEX_GROUP = 31;

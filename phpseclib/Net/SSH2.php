@@ -1687,8 +1687,8 @@ class SSH2
                 $serverKexReplyMessage = MessageTypeExtra::KEXDH_GEX_REPLY;
             } else {
                 $params = DH::createParameters($this->kex_algorithm);
-                $clientKexInitMessage = MessageTypeExtra::KEXDH_INIT;
-                $serverKexReplyMessage = MessageTypeExtra::KEXDH_REPLY;
+                $clientKexInitMessage = MessageType::KEXDH_INIT;
+                $serverKexReplyMessage = MessageType::KEXDH_REPLY;
             }
 
             $keyLength = min($kexHash->getLengthInBytes(), max($encryptKeyLength, $decryptKeyLength));
@@ -1704,7 +1704,7 @@ class SSH2
 
         switch ($clientKexInitMessage) {
             case MessageTypeExtra::KEX_ECDH_INIT:
-                $this->updateLogHistory('UNKNOWN (30)', 'SSH_MSG_KEX_ECDH_INIT');
+                $this->updateLogHistory('SSH_MSG_KEXDH_INIT', 'SSH_MSG_KEX_ECDH_INIT');
                 break;
             case MessageTypeExtra::KEXDH_GEX_INIT:
                 $this->updateLogHistory('UNKNOWN (32)', 'SSH_MSG_KEXDH_GEX_INIT');
@@ -1725,7 +1725,7 @@ class SSH2
         }
         switch ($serverKexReplyMessage) {
             case MessageTypeExtra::KEX_ECDH_REPLY:
-                $this->updateLogHistory('UNKNOWN (31)', 'SSH_MSG_KEX_ECDH_REPLY');
+                $this->updateLogHistory('SSH_MSG_KEXDH_REPLY', 'SSH_MSG_KEX_ECDH_REPLY');
                 break;
             case MessageTypeExtra::KEXDH_GEX_REPLY:
                 $this->updateLogHistory('UNKNOWN (33)', 'SSH_MSG_KEXDH_GEX_REPLY');
