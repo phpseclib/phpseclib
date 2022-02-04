@@ -17,10 +17,10 @@ class Unit_Math_BigIntegerTest extends PhpseclibTestCase
         eval(<<<ENGINE
 namespace phpseclib3\Math\BigInteger\Engines;
 class ${className} extends \phpseclib3\Math\BigInteger\Engines\Engine {
-	public function __construct(){} 
-	public static function isValidEngine() { return ${isValid}; }
-	public static function setModExpEngine(\$engine){} 
-	public function toString() { return __CLASS__; }
+    public function __construct(){} 
+    public static function isValidEngine() { return ${isValid}; }
+    public static function setModExpEngine(\$engine){} 
+    public function toString() { return __CLASS__; }
 }
 ENGINE
         );
