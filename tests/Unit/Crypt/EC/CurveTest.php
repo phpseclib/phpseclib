@@ -190,6 +190,19 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
         $this->assertTrue($publickey->verify($plaintext, $sig));
     }
 
+    public function testCanSignWithAnEncryptedPrivateKey()
+    {
+        EC::useBestEngine();
+
+        $plaintext = 'zzz';
+
+        $privatekey = EC::createKey('Ed25519')->withPassword('foo');
+        $publickey = $privatekey->getPublicKey();
+        $sig = $privatekey->sign($plaintext);
+
+        $this->assertTrue($publickey->verify($plaintext, $sig));
+    }
+
     /**
      * Sign with best engine, verify with internal engine
      *

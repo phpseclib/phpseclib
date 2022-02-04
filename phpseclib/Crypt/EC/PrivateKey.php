@@ -106,7 +106,7 @@ class PrivateKey extends EC implements Common\PrivateKey
 
         if ($this->curve instanceof TwistedEdwardsCurve) {
             if ($this->curve instanceof Ed25519 && self::$engines['libsodium'] && !isset($this->context)) {
-                $result = sodium_crypto_sign_detached($message, $this->toString('libsodium'));
+                $result = sodium_crypto_sign_detached($message, $this->withPassword()->toString('libsodium'));
                 return $shortFormat == 'SSH2' ? Strings::packSSH2('ss', 'ssh-' . strtolower($this->getCurve()), $result) : $result;
             }
 
