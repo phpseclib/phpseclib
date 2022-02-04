@@ -30,29 +30,29 @@ abstract class TBSCertList
         'type'     => ASN1::TYPE_SEQUENCE,
         'children' => [
             'version'             => [
-                                         'type'    => ASN1::TYPE_INTEGER,
-                                         'mapping' => ['v1', 'v2', 'v3'],
-                                         'optional' => true,
-                                         'default'  => 'v2'
-                                     ],
+                'type'    => ASN1::TYPE_INTEGER,
+                'mapping' => ['v1', 'v2', 'v3'],
+                'optional' => true,
+                'default'  => 'v2'
+            ],
             'signature'           => AlgorithmIdentifier::MAP,
             'issuer'              => Name::MAP,
             'thisUpdate'          => Time::MAP,
             'nextUpdate'          => [
-                                         'optional' => true
-                                     ] + Time::MAP,
+                'optional' => true
+            ] + Time::MAP,
             'revokedCertificates' => [
-                                         'type'     => ASN1::TYPE_SEQUENCE,
-                                         'optional' => true,
-                                         'min'      => 0,
-                                         'max'      => -1,
-                                         'children' => RevokedCertificate::MAP
-                                     ],
+                'type'     => ASN1::TYPE_SEQUENCE,
+                'optional' => true,
+                'min'      => 0,
+                'max'      => -1,
+                'children' => RevokedCertificate::MAP
+            ],
             'crlExtensions'       => [
-                                         'constant' => 0,
-                                         'optional' => true,
-                                         'explicit' => true
-                                     ] + Extensions::MAP
+                'constant' => 0,
+                'optional' => true,
+                'explicit' => true
+            ] + Extensions::MAP
         ]
     ];
 }

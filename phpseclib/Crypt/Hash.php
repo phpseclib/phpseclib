@@ -1378,16 +1378,16 @@ class Hash
             // Extend the sixteen 32-bit words into eighty 32-bit words
             for ($i = 16; $i < 80; $i++) {
                 $temp = [
-                          $w[$i - 15]->bitwise_rightRotate(1),
-                          $w[$i - 15]->bitwise_rightRotate(8),
-                          $w[$i - 15]->bitwise_rightShift(7)
+                    $w[$i - 15]->bitwise_rightRotate(1),
+                    $w[$i - 15]->bitwise_rightRotate(8),
+                    $w[$i - 15]->bitwise_rightShift(7)
                 ];
                 $s0 = $temp[0]->bitwise_xor($temp[1]);
                 $s0 = $s0->bitwise_xor($temp[2]);
                 $temp = [
-                          $w[$i - 2]->bitwise_rightRotate(19),
-                          $w[$i - 2]->bitwise_rightRotate(61),
-                          $w[$i - 2]->bitwise_rightShift(6)
+                    $w[$i - 2]->bitwise_rightRotate(19),
+                    $w[$i - 2]->bitwise_rightRotate(61),
+                    $w[$i - 2]->bitwise_rightShift(6)
                 ];
                 $s1 = $temp[0]->bitwise_xor($temp[1]);
                 $s1 = $s1->bitwise_xor($temp[2]);

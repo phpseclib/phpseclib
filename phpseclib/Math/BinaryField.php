@@ -159,7 +159,7 @@ class BinaryField extends FiniteField
      * Converts a base-2 string to a base-256 string
      *
      * @param string $x
-     * @param integer $size 
+     * @param integer $size
      * @return string
      */
     public static function base2ToBase256($x, $size = null)

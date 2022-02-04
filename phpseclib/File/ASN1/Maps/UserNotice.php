@@ -30,13 +30,13 @@ abstract class UserNotice
         'type'     => ASN1::TYPE_SEQUENCE,
         'children' => [
             'noticeRef' => [
-                                       'optional' => true,
-                                       'implicit' => true
-                                   ] + NoticeReference::MAP,
+                'optional' => true,
+                'implicit' => true
+            ] + NoticeReference::MAP,
             'explicitText'  => [
-                                       'optional' => true,
-                                       'implicit' => true
-                                   ] + DisplayText::MAP
+                'optional' => true,
+                'implicit' => true
+            ] + DisplayText::MAP
         ]
     ];
 }

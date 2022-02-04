@@ -2684,8 +2684,8 @@ class X509
                         'subject' => $subject->dn,
                         'subjectPublicKeyInfo' => $subjectPublicKey
                     ],
-                    'signatureAlgorithm' => $signatureAlgorithm,
-                    'signature'          => false // this is going to be overwritten later
+                'signatureAlgorithm' => $signatureAlgorithm,
+                'signature'          => false // this is going to be overwritten later
             ];
 
             // Copy extensions from CSR.
@@ -2700,13 +2700,13 @@ class X509
 
         if (isset($issuer->currentKeyIdentifier)) {
             $this->setExtension('id-ce-authorityKeyIdentifier', [
-                    //'authorityCertIssuer' => array(
-                    //    array(
-                    //        'directoryName' => $issuer->dn
-                    //    )
-                    //),
-                    'keyIdentifier' => $issuer->currentKeyIdentifier
-                ]);
+                //'authorityCertIssuer' => array(
+                //    array(
+                //        'directoryName' => $issuer->dn
+                //    )
+                //),
+                'keyIdentifier' => $issuer->currentKeyIdentifier
+            ]);
             //$extensions = &$this->currentCert['tbsCertificate']['extensions'];
             //if (isset($issuer->serialNumber)) {
             //    $extensions[count($extensions) - 1]['authorityCertSerialNumber'] = $issuer->serialNumber;
@@ -2820,8 +2820,8 @@ class X509
                         'subject' => $this->dn,
                         'subjectPKInfo' => $publicKey
                     ],
-                    'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
-                    'signature'          => false // this is going to be overwritten later
+                'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
+                'signature'          => false // this is going to be overwritten later
             ];
         }
 
@@ -2881,8 +2881,8 @@ class X509
                         // Random::string(8) & str_repeat("\x7F", 8)
                         'challenge' => !empty($this->challenge) ? $this->challenge : ''
                     ],
-                    'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
-                    'signature'          => false // this is going to be overwritten later
+                'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
+                'signature'          => false // this is going to be overwritten later
             ];
         }
 
@@ -2937,8 +2937,8 @@ class X509
                         'issuer' => false, // this is going to be overwritten later
                         'thisUpdate' => $this->timeField($thisUpdate) // $this->setStartDate()
                     ],
-                    'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
-                    'signature'          => false // this is going to be overwritten later
+                'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
+                'signature'          => false // this is going to be overwritten later
             ];
         }
 
@@ -2993,13 +2993,13 @@ class X509
 
             if (isset($issuer->currentKeyIdentifier)) {
                 $this->setExtension('id-ce-authorityKeyIdentifier', [
-                        //'authorityCertIssuer' => array(
-                        //    ]
-                        //        'directoryName' => $issuer->dn
-                        //    ]
-                        //),
-                        'keyIdentifier' => $issuer->currentKeyIdentifier
-                    ]);
+                    //'authorityCertIssuer' => array(
+                    //    ]
+                    //        'directoryName' => $issuer->dn
+                    //    ]
+                    //),
+                    'keyIdentifier' => $issuer->currentKeyIdentifier
+                ]);
                 //$extensions = &$tbsCertList['crlExtensions'];
                 //if (isset($issuer->serialNumber)) {
                 //    $extensions[count($extensions) - 1]['authorityCertSerialNumber'] = $issuer->serialNumber;
@@ -3866,7 +3866,7 @@ class X509
         $i = count($rclist);
         $revocationDate = new \DateTimeImmutable('now', new \DateTimeZone(@date_default_timezone_get()));
         $rclist[] = ['userCertificate' => $serial,
-                          'revocationDate'  => $this->timeField($revocationDate->format('D, d M Y H:i:s O'))];
+            'revocationDate'  => $this->timeField($revocationDate->format('D, d M Y H:i:s O'))];
         return $i;
     }
 

@@ -33,7 +33,7 @@ abstract class AlgorithmIdentifier
             'parameters' => [
                 'type'     => ASN1::TYPE_ANY,
                 'optional' => true
-             ]
+            ]
         ]
     ];
 }

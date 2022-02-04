@@ -858,15 +858,15 @@ abstract class Engine
         // @codingStandardsIgnoreStart
              if ($length >= 163) { $t =  2; } // floor(1300 / 8)
         else if ($length >= 106) { $t =  3; } // floor( 850 / 8)
-        else if ($length >= 81 ) { $t =  4; } // floor( 650 / 8)
-        else if ($length >= 68 ) { $t =  5; } // floor( 550 / 8)
-        else if ($length >= 56 ) { $t =  6; } // floor( 450 / 8)
-        else if ($length >= 50 ) { $t =  7; } // floor( 400 / 8)
-        else if ($length >= 43 ) { $t =  8; } // floor( 350 / 8)
-        else if ($length >= 37 ) { $t =  9; } // floor( 300 / 8)
-        else if ($length >= 31 ) { $t = 12; } // floor( 250 / 8)
-        else if ($length >= 25 ) { $t = 15; } // floor( 200 / 8)
-        else if ($length >= 18 ) { $t = 18; } // floor( 150 / 8)
+        else if ($length >= 81) { $t =  4; } // floor( 650 / 8)
+        else if ($length >= 68) { $t =  5; } // floor( 550 / 8)
+        else if ($length >= 56) { $t =  6; } // floor( 450 / 8)
+        else if ($length >= 50) { $t =  7; } // floor( 400 / 8)
+        else if ($length >= 43) { $t =  8; } // floor( 350 / 8)
+        else if ($length >= 37) { $t =  9; } // floor( 300 / 8)
+        else if ($length >= 31) { $t = 12; } // floor( 250 / 8)
+        else if ($length >= 25) { $t = 15; } // floor( 200 / 8)
+        else if ($length >= 18) { $t = 18; } // floor( 150 / 8)
         else                     { $t = 27; }
         // @codingStandardsIgnoreEnd
 

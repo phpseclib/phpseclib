@@ -33,13 +33,13 @@ abstract class TBSCertificate
             // technically, default implies optional, but we'll define it as being optional, none-the-less, just to
             // reenforce that fact
             'version'             => [
-                                         'type'    => ASN1::TYPE_INTEGER,
-                                         'constant' => 0,
-                                         'optional' => true,
-                                         'explicit' => true,
-                                         'mapping' => ['v1', 'v2', 'v3'],
-                                         'default'  => 'v1'
-                                     ],
+                'type'    => ASN1::TYPE_INTEGER,
+                'constant' => 0,
+                'optional' => true,
+                'explicit' => true,
+                'mapping' => ['v1', 'v2', 'v3'],
+                'default'  => 'v1'
+            ],
             'serialNumber'         => CertificateSerialNumber::MAP,
             'signature'            => AlgorithmIdentifier::MAP,
             'issuer'               => Name::MAP,
@@ -48,22 +48,22 @@ abstract class TBSCertificate
             'subjectPublicKeyInfo' => SubjectPublicKeyInfo::MAP,
             // implicit means that the T in the TLV structure is to be rewritten, regardless of the type
             'issuerUniqueID'       => [
-                                           'constant' => 1,
-                                           'optional' => true,
-                                           'implicit' => true
-                                       ] + UniqueIdentifier::MAP,
+                'constant' => 1,
+                'optional' => true,
+                'implicit' => true
+            ] + UniqueIdentifier::MAP,
             'subjectUniqueID'       => [
-                                           'constant' => 2,
-                                           'optional' => true,
-                                           'implicit' => true
-                                       ] + UniqueIdentifier::MAP,
+                'constant' => 2,
+                'optional' => true,
+                'implicit' => true
+            ] + UniqueIdentifier::MAP,
             // <http://tools.ietf.org/html/rfc2459#page-74> doesn't use the EXPLICIT keyword but if
             // it's not IMPLICIT, it's EXPLICIT
             'extensions'            => [
-                                           'constant' => 3,
-                                           'optional' => true,
-                                           'explicit' => true
-                                       ] + Extensions::MAP
+                'constant' => 3,
+                'optional' => true,
+                'explicit' => true
+            ] + Extensions::MAP
         ]
     ];
 }

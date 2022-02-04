@@ -31,11 +31,11 @@ abstract class NoticeReference
         'children' => [
             'organization'  => DisplayText::MAP,
             'noticeNumbers' => [
-                                   'type'     => ASN1::TYPE_SEQUENCE,
-                                   'min'      => 1,
-                                   'max'      => 200,
-                                   'children' => ['type' => ASN1::TYPE_INTEGER]
-                               ]
+                'type'     => ASN1::TYPE_SEQUENCE,
+                'min'      => 1,
+                'max'      => 200,
+                'children' => ['type' => ASN1::TYPE_INTEGER]
+            ]
         ]
     ];
 }

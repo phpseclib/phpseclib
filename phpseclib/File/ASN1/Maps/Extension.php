@@ -37,10 +37,10 @@ abstract class Extension
         'children' => [
             'extnId'   => ['type' => ASN1::TYPE_OBJECT_IDENTIFIER],
             'critical' => [
-                              'type'     => ASN1::TYPE_BOOLEAN,
-                              'optional' => true,
-                              'default'  => false
-                          ],
+                'type'     => ASN1::TYPE_BOOLEAN,
+                'optional' => true,
+                'default'  => false
+            ],
             'extnValue' => ['type' => ASN1::TYPE_OCTET_STRING]
         ]
     ];

@@ -578,7 +578,7 @@ abstract class PHP extends Engine
             $lhs =  new static();
             $rhs =  new static();
         }
-	if (static::class != get_class($temp)) {
+    if (static::class != get_class($temp)) {
             $temp = new static();
             $lhs =  new static();
             $rhs =  new static();
@@ -886,7 +886,7 @@ abstract class PHP extends Engine
      * @return array
      */
     protected static function array_repeat($input, $multiplier)
-    { 
+    {
         return $multiplier ? array_fill(0, $multiplier, $input) : [];
     }
 

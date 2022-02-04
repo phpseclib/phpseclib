@@ -188,14 +188,14 @@ abstract class ASN1
      * @access public
      */
    const STRING_TYPE_SIZE = [
-        self::TYPE_UTF8_STRING      => 0,
-        self::TYPE_BMP_STRING       => 2,
-        self::TYPE_UNIVERSAL_STRING => 4,
-        self::TYPE_PRINTABLE_STRING => 1,
-        self::TYPE_TELETEX_STRING   => 1,
-        self::TYPE_IA5_STRING       => 1,
-        self::TYPE_VISIBLE_STRING   => 1,
-    ];
+       self::TYPE_UTF8_STRING      => 0,
+       self::TYPE_BMP_STRING       => 2,
+       self::TYPE_UNIVERSAL_STRING => 4,
+       self::TYPE_PRINTABLE_STRING => 1,
+       self::TYPE_TELETEX_STRING   => 1,
+       self::TYPE_IA5_STRING       => 1,
+       self::TYPE_VISIBLE_STRING   => 1,
+   ];
 
     /**
      * Parse BER-encoding

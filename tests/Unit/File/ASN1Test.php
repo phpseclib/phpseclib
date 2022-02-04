@@ -169,7 +169,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
                     'explicit' => true,
                     'type' => ASN1::TYPE_INTEGER],
                 'msg-type' => [
-                     'constant' => 1,
+                    'constant' => 1,
                     'optional' => true,
                     'explicit' => true,
                     'type' => ASN1::TYPE_INTEGER],
@@ -190,7 +190,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
                     'constant' => 4,
                     'optional' => true,
                     'explicit' => true] + $PrincipalName,
-                    //'type' => ASN1::TYPE_ANY),
+                //'type' => ASN1::TYPE_ANY),
                 'ticket' => [
                     'constant' => 5,
                     'optional' => true,
@@ -380,15 +380,15 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
             'type'     => ASN1::TYPE_SEQUENCE,
             'children' => [
                 'notBefore' => [
-                                             'constant' => 0,
-                                             'optional' => true,
-                                             'implicit' => true,
-                                             'type' => ASN1::TYPE_GENERALIZED_TIME],
+                    'constant' => 0,
+                    'optional' => true,
+                    'implicit' => true,
+                    'type' => ASN1::TYPE_GENERALIZED_TIME],
                 'notAfter'  => [
-                                             'constant' => 1,
-                                             'optional' => true,
-                                             'implicit' => true,
-                                             'type' => ASN1::TYPE_GENERALIZED_TIME]
+                    'constant' => 1,
+                    'optional' => true,
+                    'implicit' => true,
+                    'type' => ASN1::TYPE_GENERALIZED_TIME]
             ]
         ];
 
