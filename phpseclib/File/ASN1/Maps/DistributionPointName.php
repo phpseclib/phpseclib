@@ -30,15 +30,15 @@ abstract class DistributionPointName
         'type'     => ASN1::TYPE_CHOICE,
         'children' => [
             'fullName'                => [
-                'constant' => 0,
-                'optional' => true,
-                'implicit' => true
-            ] + GeneralNames::MAP,
+                                             'constant' => 0,
+                                             'optional' => true,
+                                             'implicit' => true
+                                   ] + GeneralNames::MAP,
             'nameRelativeToCRLIssuer' => [
-                'constant' => 1,
-                'optional' => true,
-                'implicit' => true
-            ] + RelativeDistinguishedName::MAP
+                                             'constant' => 1,
+                                             'optional' => true,
+                                             'implicit' => true
+                                   ] + RelativeDistinguishedName::MAP
         ]
     ];
 }

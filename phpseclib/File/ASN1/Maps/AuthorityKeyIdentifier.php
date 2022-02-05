@@ -30,20 +30,20 @@ abstract class AuthorityKeyIdentifier
         'type'     => ASN1::TYPE_SEQUENCE,
         'children' => [
             'keyIdentifier'             => [
-                'constant' => 0,
-                'optional' => true,
-                'implicit' => true
-            ] + KeyIdentifier::MAP,
+                                             'constant' => 0,
+                                             'optional' => true,
+                                             'implicit' => true
+                                           ] + KeyIdentifier::MAP,
             'authorityCertIssuer'       => [
-                'constant' => 1,
-                'optional' => true,
-                'implicit' => true
-            ] + GeneralNames::MAP,
+                                             'constant' => 1,
+                                             'optional' => true,
+                                             'implicit' => true
+                                           ] + GeneralNames::MAP,
             'authorityCertSerialNumber' => [
-                'constant' => 2,
-                'optional' => true,
-                'implicit' => true
-            ] + CertificateSerialNumber::MAP
+                                             'constant' => 2,
+                                             'optional' => true,
+                                             'implicit' => true
+                                           ] + CertificateSerialNumber::MAP
         ]
     ];
 }

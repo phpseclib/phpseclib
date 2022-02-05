@@ -660,9 +660,9 @@ class RC2 extends BlockCipher
         // Creates the inline-crypt function
         $this->inline_crypt = $this->createInlineCryptFunction(
             [
-                'init_crypt'    => $init_crypt,
-                'encrypt_block' => $encrypt_block,
-                'decrypt_block' => $decrypt_block
+               'init_crypt'    => $init_crypt,
+               'encrypt_block' => $encrypt_block,
+               'decrypt_block' => $decrypt_block
             ]
         );
     }

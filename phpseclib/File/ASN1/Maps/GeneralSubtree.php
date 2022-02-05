@@ -31,16 +31,16 @@ abstract class GeneralSubtree
         'children' => [
             'base'    => GeneralName::MAP,
             'minimum' => [
-                'constant' => 0,
-                'optional' => true,
-                'implicit' => true,
-                'default' => '0'
-            ] + BaseDistance::MAP,
+                             'constant' => 0,
+                             'optional' => true,
+                             'implicit' => true,
+                             'default' => '0'
+                         ] + BaseDistance::MAP,
             'maximum' => [
-                'constant' => 1,
-                'optional' => true,
-                'implicit' => true,
-            ] + BaseDistance::MAP
+                             'constant' => 1,
+                             'optional' => true,
+                             'implicit' => true,
+                         ] + BaseDistance::MAP
         ]
     ];
 }

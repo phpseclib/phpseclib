@@ -30,15 +30,15 @@ abstract class PrivateKeyUsagePeriod
         'type'     => ASN1::TYPE_SEQUENCE,
         'children' => [
             'notBefore' => [
-                'constant' => 0,
-                'optional' => true,
-                'implicit' => true,
-                'type' => ASN1::TYPE_GENERALIZED_TIME],
+                                             'constant' => 0,
+                                             'optional' => true,
+                                             'implicit' => true,
+                                             'type' => ASN1::TYPE_GENERALIZED_TIME],
             'notAfter'  => [
-                'constant' => 1,
-                'optional' => true,
-                'implicit' => true,
-                'type' => ASN1::TYPE_GENERALIZED_TIME]
+                                             'constant' => 1,
+                                             'optional' => true,
+                                             'implicit' => true,
+                                             'type' => ASN1::TYPE_GENERALIZED_TIME]
         ]
     ];
 }

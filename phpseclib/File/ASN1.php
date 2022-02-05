@@ -188,21 +188,21 @@ abstract class ASN1
      * @access public
      */
    const STRING_TYPE_SIZE = [
-       self::TYPE_UTF8_STRING      => 0,
-       self::TYPE_BMP_STRING       => 2,
-       self::TYPE_UNIVERSAL_STRING => 4,
-       self::TYPE_PRINTABLE_STRING => 1,
-       self::TYPE_TELETEX_STRING   => 1,
-       self::TYPE_IA5_STRING       => 1,
-       self::TYPE_VISIBLE_STRING   => 1,
-   ];
+        self::TYPE_UTF8_STRING      => 0,
+        self::TYPE_BMP_STRING       => 2,
+        self::TYPE_UNIVERSAL_STRING => 4,
+        self::TYPE_PRINTABLE_STRING => 1,
+        self::TYPE_TELETEX_STRING   => 1,
+        self::TYPE_IA5_STRING       => 1,
+        self::TYPE_VISIBLE_STRING   => 1,
+    ];
 
     /**
      * Parse BER-encoding
      *
      * Serves a similar purpose to openssl's asn1parse
      *
-     * @param string $encoded
+     * @param Element|string $encoded
      * @return array
      * @access public
      */
@@ -528,7 +528,7 @@ abstract class ASN1
      * @param array $decoded
      * @param array $mapping
      * @param array $special
-     * @return array|bool|Element
+     * @return array|bool|Element|string|null
      * @access public
      */
     public static function asn1map($decoded, $mapping, $special = [])
@@ -792,7 +792,6 @@ abstract class ASN1
             case self::TYPE_NULL:
                 return '';
             case self::TYPE_BOOLEAN:
-                return $decoded['content'];
             case self::TYPE_NUMERIC_STRING:
             case self::TYPE_PRINTABLE_STRING:
             case self::TYPE_TELETEX_STRING:
@@ -865,7 +864,7 @@ abstract class ASN1
     /**
      * ASN.1 Encode (Helper function)
      *
-     * @param Element|string|array $source
+     * @param Element|string|array|null $source
      * @param array $mapping
      * @param int $idx
      * @param array $special
@@ -1270,7 +1269,7 @@ abstract class ASN1
      * @access private
      * @param string $content
      * @param int $tag
-     * @return string
+     * @return \DateTime|false
      */
     private static function decodeTime($content, $tag)
     {

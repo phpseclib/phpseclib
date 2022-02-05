@@ -390,13 +390,13 @@ class Blowfish extends BlockCipher
         $data = "\0\0\0\0\0\0\0\0";
         for ($i = 0; $i < 18; $i += 2) {
             list($l, $r) = array_values(unpack('N*', $data = $this->encryptBlock($data)));
-            $this->bctx['p'][$i] = $l;
+            $this->bctx['p'][$i    ] = $l;
             $this->bctx['p'][$i + 1] = $r;
         }
         for ($i = 0; $i < 4; ++$i) {
             for ($j = 0; $j < 256; $j += 2) {
                 list($l, $r) = array_values(unpack('N*', $data = $this->encryptBlock($data)));
-                $this->bctx['sb'][$i][$j] = $l;
+                $this->bctx['sb'][$i][$j    ] = $l;
                 $this->bctx['sb'][$i][$j + 1] = $r;
             }
         }
@@ -545,11 +545,11 @@ class Blowfish extends BlockCipher
 
         $this->inline_crypt = $this->createInlineCryptFunction(
             [
-                'init_crypt'    => $init_crypt,
-                'init_encrypt'  => '',
-                'init_decrypt'  => '',
-                'encrypt_block' => $encrypt_block,
-                'decrypt_block' => $decrypt_block
+               'init_crypt'    => $init_crypt,
+               'init_encrypt'  => '',
+               'init_decrypt'  => '',
+               'encrypt_block' => $encrypt_block,
+               'decrypt_block' => $decrypt_block
             ]
         );
     }

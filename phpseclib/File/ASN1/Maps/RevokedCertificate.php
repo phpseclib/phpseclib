@@ -29,11 +29,11 @@ abstract class RevokedCertificate
     const MAP = [
         'type'     => ASN1::TYPE_SEQUENCE,
         'children' => [
-            'userCertificate'    => CertificateSerialNumber::MAP,
-            'revocationDate'     => Time::MAP,
-            'crlEntryExtensions' => [
-                'optional' => true
-            ] + Extensions::MAP
-        ]
+                          'userCertificate'    => CertificateSerialNumber::MAP,
+                          'revocationDate'     => Time::MAP,
+                          'crlEntryExtensions' => [
+                                                      'optional' => true
+                                                  ] + Extensions::MAP
+                      ]
     ];
 }

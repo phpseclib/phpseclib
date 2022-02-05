@@ -711,11 +711,11 @@ class DES extends BlockCipher
         // Do the initial IP permutation.
         $t = unpack('Nl/Nr', $block);
         list($l, $r) = [$t['l'], $t['r']];
-        $block = ($shuffleip[$r        & 0xFF] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
+        $block = ($shuffleip[ $r        & 0xFF] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
                  ($shuffleip[($r >>  8) & 0xFF] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
                  ($shuffleip[($r >> 16) & 0xFF] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
                  ($shuffleip[($r >> 24) & 0xFF] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
-                 ($shuffleip[$l        & 0xFF] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
+                 ($shuffleip[ $l        & 0xFF] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
                  ($shuffleip[($l >>  8) & 0xFF] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
                  ($shuffleip[($l >> 16) & 0xFF] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
                  ($shuffleip[($l >> 24) & 0xFF] & "\x01\x01\x01\x01\x01\x01\x01\x01");
@@ -737,7 +737,7 @@ class DES extends BlockCipher
                 $t = $sbox1[($b1 >> 24) & 0x3F] ^ $sbox2[($b2 >> 24) & 0x3F] ^
                      $sbox3[($b1 >> 16) & 0x3F] ^ $sbox4[($b2 >> 16) & 0x3F] ^
                      $sbox5[($b1 >>  8) & 0x3F] ^ $sbox6[($b2 >>  8) & 0x3F] ^
-                     $sbox7[$b1        & 0x3F] ^ $sbox8[$b2        & 0x3F] ^ $l;
+                     $sbox7[ $b1        & 0x3F] ^ $sbox8[ $b2        & 0x3F] ^ $l;
                 // end of "the Feistel (F) function"
 
                 $l = $r;
@@ -757,8 +757,8 @@ class DES extends BlockCipher
                ($shuffleinvip[($l >> 16) & 0xFF] & "\x10\x10\x10\x10\x10\x10\x10\x10") |
                ($shuffleinvip[($r >>  8) & 0xFF] & "\x08\x08\x08\x08\x08\x08\x08\x08") |
                ($shuffleinvip[($l >>  8) & 0xFF] & "\x04\x04\x04\x04\x04\x04\x04\x04") |
-               ($shuffleinvip[$r        & 0xFF] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
-               ($shuffleinvip[$l        & 0xFF] & "\x01\x01\x01\x01\x01\x01\x01\x01");
+               ($shuffleinvip[ $r        & 0xFF] & "\x02\x02\x02\x02\x02\x02\x02\x02") |
+               ($shuffleinvip[ $l        & 0xFF] & "\x01\x01\x01\x01\x01\x01\x01\x01");
     }
 
     /**
@@ -1232,16 +1232,16 @@ class DES extends BlockCipher
             // Perform the PC/1 transformation and compute C and D.
             $t = unpack('Nl/Nr', $key);
             list($l, $r) = [$t['l'], $t['r']];
-            $key = (self::$shuffle[$pc1map[$r        & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x00") |
+            $key = (self::$shuffle[$pc1map[ $r        & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x00") |
                    (self::$shuffle[$pc1map[($r >>  8) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x00") |
                    (self::$shuffle[$pc1map[($r >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x00") |
                    (self::$shuffle[$pc1map[($r >> 24) & 0xFF]] & "\x10\x10\x10\x10\x10\x10\x10\x00") |
-                   (self::$shuffle[$pc1map[$l        & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x00") |
+                   (self::$shuffle[$pc1map[ $l        & 0xFF]] & "\x08\x08\x08\x08\x08\x08\x08\x00") |
                    (self::$shuffle[$pc1map[($l >>  8) & 0xFF]] & "\x04\x04\x04\x04\x04\x04\x04\x00") |
                    (self::$shuffle[$pc1map[($l >> 16) & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x00") |
                    (self::$shuffle[$pc1map[($l >> 24) & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x00");
             $key = unpack('Nc/Nd', $key);
-            $c = ($key['c'] >> 4) & 0x0FFFFFFF;
+            $c = ( $key['c'] >> 4) & 0x0FFFFFFF;
             $d = (($key['d'] >> 4) & 0x0FFFFFF0) | ($key['c'] & 0x0F);
 
             $keys[$des_round] = [
@@ -1255,20 +1255,20 @@ class DES extends BlockCipher
                 $d = ($d | ($d >> 28)) & 0x0FFFFFFF;
 
                 // Perform the PC-2 transformation.
-                $cp = $pc2mapc1[$c >> 24] | $pc2mapc2[($c >> 16) & 0xFF] |
-                      $pc2mapc3[($c >>  8) & 0xFF] | $pc2mapc4[$c        & 0xFF];
-                $dp = $pc2mapd1[$d >> 24] | $pc2mapd2[($d >> 16) & 0xFF] |
-                      $pc2mapd3[($d >>  8) & 0xFF] | $pc2mapd4[$d        & 0xFF];
+                $cp = $pc2mapc1[ $c >> 24        ] | $pc2mapc2[($c >> 16) & 0xFF] |
+                      $pc2mapc3[($c >>  8) & 0xFF] | $pc2mapc4[ $c        & 0xFF];
+                $dp = $pc2mapd1[ $d >> 24        ] | $pc2mapd2[($d >> 16) & 0xFF] |
+                      $pc2mapd3[($d >>  8) & 0xFF] | $pc2mapd4[ $d        & 0xFF];
 
                 // Reorder: odd bytes/even bytes. Push the result in key schedule.
-                $val1 = ($cp        & 0xFF000000) | (($cp <<  8) & 0x00FF0000) |
+                $val1 = ( $cp        & 0xFF000000) | (($cp <<  8) & 0x00FF0000) |
                         (($dp >> 16) & 0x0000FF00) | (($dp >>  8) & 0x000000FF);
                 $val2 = (($cp <<  8) & 0xFF000000) | (($cp << 16) & 0x00FF0000) |
-                        (($dp >>  8) & 0x0000FF00) | ($dp        & 0x000000FF);
-                $keys[$des_round][self::ENCRYPT][] = $val1;
+                        (($dp >>  8) & 0x0000FF00) | ( $dp        & 0x000000FF);
+                $keys[$des_round][self::ENCRYPT][       ] = $val1;
                 $keys[$des_round][self::DECRYPT][$ki - 1] = $val1;
-                $keys[$des_round][self::ENCRYPT][] = $val2;
-                $keys[$des_round][self::DECRYPT][$ki] = $val2;
+                $keys[$des_round][self::ENCRYPT][       ] = $val2;
+                $keys[$des_round][self::DECRYPT][$ki    ] = $val2;
             }
         }
 
@@ -1400,11 +1400,11 @@ class DES extends BlockCipher
         // Creates the inline-crypt function
         $this->inline_crypt = $this->createInlineCryptFunction(
             [
-                'init_crypt'    => $init_crypt,
-                'init_encrypt'  => $init_encrypt,
-                'init_decrypt'  => $init_decrypt,
-                'encrypt_block' => $crypt_block[self::ENCRYPT],
-                'decrypt_block' => $crypt_block[self::DECRYPT]
+               'init_crypt'    => $init_crypt,
+               'init_encrypt'  => $init_encrypt,
+               'init_decrypt'  => $init_decrypt,
+               'encrypt_block' => $crypt_block[self::ENCRYPT],
+               'decrypt_block' => $crypt_block[self::DECRYPT]
             ]
         );
     }

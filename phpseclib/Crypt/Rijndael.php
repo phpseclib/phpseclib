@@ -969,11 +969,11 @@ class Rijndael extends BlockCipher
 
         $this->inline_crypt = $this->createInlineCryptFunction(
             [
-                'init_crypt'    => '',
-                'init_encrypt'  => $init_encrypt,
-                'init_decrypt'  => $init_decrypt,
-                'encrypt_block' => $encrypt_block,
-                'decrypt_block' => $decrypt_block
+               'init_crypt'    => '',
+               'init_encrypt'  => $init_encrypt,
+               'init_decrypt'  => $init_decrypt,
+               'encrypt_block' => $encrypt_block,
+               'decrypt_block' => $decrypt_block
             ]
         );
     }

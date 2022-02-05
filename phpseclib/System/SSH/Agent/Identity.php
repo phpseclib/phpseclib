@@ -19,6 +19,7 @@ namespace phpseclib3\System\SSH\Agent;
 
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\PrivateKey;
+use phpseclib3\Crypt\Common\PublicKey;
 use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\EC;
 use phpseclib3\Crypt\RSA;
@@ -50,7 +51,7 @@ class Identity implements PrivateKey
     /**
      * Key Object
      *
-     * @var \phpseclib3\Crypt\RSA
+     * @var PublicKey
      * @access private
      * @see self::getPublicKey()
      */
@@ -101,7 +102,6 @@ class Identity implements PrivateKey
      * Default Constructor.
      *
      * @param resource $fsock
-     * @return \phpseclib3\System\SSH\Agent\Identity
      * @access private
      */
     public function __construct($fsock)
@@ -201,7 +201,7 @@ class Identity implements PrivateKey
                     $expectedHash = 'sha512';
             }
             if ($hash != $expectedHash) {
-                throw new UnsupportedAlgorithmException('The only supported hash for ' . self::$curveAliases[$key->getCurve()] . ' is ' . $expectedHash);
+                throw new UnsupportedAlgorithmException('The only supported hash for ' . self::$curveAliases[$this->key->getCurve()] . ' is ' . $expectedHash);
             }
         }
         if ($this->key instanceof DSA) {
@@ -327,9 +327,10 @@ class Identity implements PrivateKey
      * Sets the password
      *
      * @access public
-     * @param string|boolean $password
+     * @param string|bool $string
+     * @return never
      */
-    public function withPassword($password = false)
+    public function withPassword($string = false)
     {
         throw new \RuntimeException('ssh-agent does not provide a mechanism to get the private key');
     }

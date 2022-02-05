@@ -460,13 +460,13 @@ class Salsa20 extends StreamCipher
     protected static function doubleRound(&$x0, &$x1, &$x2, &$x3, &$x4, &$x5, &$x6, &$x7, &$x8, &$x9, &$x10, &$x11, &$x12, &$x13, &$x14, &$x15)
     {
         // columnRound
-        static::quarterRound($x0,  $x4,  $x8, $x12);
-        static::quarterRound($x5,  $x9, $x13,  $x1);
+        static::quarterRound( $x0,  $x4,  $x8, $x12);
+        static::quarterRound( $x5,  $x9, $x13,  $x1);
         static::quarterRound($x10, $x14,  $x2,  $x6);
         static::quarterRound($x15,  $x3,  $x7, $x11);
         // rowRound
-        static::quarterRound($x0,  $x1,  $x2,  $x3);
-        static::quarterRound($x5,  $x6,  $x7,  $x4);
+        static::quarterRound( $x0,  $x1,  $x2,  $x3);
+        static::quarterRound( $x5,  $x6,  $x7,  $x4);
         static::quarterRound($x10, $x11,  $x8,  $x9);
         static::quarterRound($x15, $x12, $x13, $x14);
     }

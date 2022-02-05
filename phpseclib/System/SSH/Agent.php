@@ -192,7 +192,7 @@ class Agent
                 case 'ecdsa-sha2-nistp256':
                 case 'ecdsa-sha2-nistp384':
                 case 'ecdsa-sha2-nistp521':
-            $key = PublicKeyLoader::load($key_type . ' ' . base64_encode($key_blob));
+		    $key = PublicKeyLoader::load($key_type . ' ' . base64_encode($key_blob));
             }
             // resources are passed by reference by default
             if (isset($key)) {
@@ -211,11 +211,10 @@ class Agent
      * Signal that agent forwarding should
      * be requested when a channel is opened
      *
-     * @param \phpseclib3\Net\SSH2 $ssh
-     * @return bool
+     * @return void
      * @access public
      */
-    public function startSSHForwarding($ssh)
+    public function startSSHForwarding()
     {
         if ($this->forward_status == self::FORWARD_NONE) {
             $this->forward_status = self::FORWARD_REQUEST;

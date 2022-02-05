@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PKCS9String
+ * PKCS9String 
  *
  * PHP version 5
  *
@@ -18,13 +18,13 @@ namespace phpseclib3\File\ASN1\Maps;
 use phpseclib3\File\ASN1;
 
 /**
- * PKCS9String
+ * PKCS9String 
  *
  * @package ASN1
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-abstract class PKCS9String
+abstract class PKCS9String 
 {
     const MAP = [
         'type'     => ASN1::TYPE_CHOICE,

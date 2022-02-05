@@ -31,12 +31,12 @@ abstract class PolicyInformation
         'children' => [
             'policyIdentifier' => CertPolicyId::MAP,
             'policyQualifiers' => [
-                'type'     => ASN1::TYPE_SEQUENCE,
-                'min'      => 0,
-                'max'      => -1,
-                'optional' => true,
-                'children' => PolicyQualifierInfo::MAP
-            ]
+                                      'type'     => ASN1::TYPE_SEQUENCE,
+                                      'min'      => 0,
+                                      'max'      => -1,
+                                      'optional' => true,
+                                      'children' => PolicyQualifierInfo::MAP
+                                  ]
         ]
     ];
 }
