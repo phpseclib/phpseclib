@@ -128,7 +128,7 @@ class ANSI
     /**
      * The current screen text
      *
-     * @var array
+     * @var list<string>
      * @access private
      */
     private $screen;
@@ -289,13 +289,13 @@ class ANSI
                         switch (true) {
                             case preg_match('#\x1B\[(\d+)B#', $this->ansi, $match): // Move cursor down n lines
                                 $this->old_y = $this->y;
-                                $this->y+= $match[1];
+                                $this->y += (int) $match[1];
                                 break;
                             case preg_match('#\x1B\[(\d+);(\d+)H#', $this->ansi, $match): // Move cursor to screen location v,h
                                 $this->old_x = $this->x;
                                 $this->old_y = $this->y;
                                 $this->x = $match[2] - 1;
-                                $this->y = $match[1] - 1;
+                                $this->y = (int) $match[1] - 1;
                                 break;
                             case preg_match('#\x1B\[(\d+)C#', $this->ansi, $match): // Move cursor right n lines
                                 $this->old_x = $this->x;
