@@ -40,12 +40,12 @@ trait PasswordProtected
      * @see self::createKey()
      * @see self::load()
      * @access public
-     * @param string|boolean $password
+     * @param string|bool $string
      */
-    public function withPassword($password = false)
+    public function withPassword($string = false)
     {
         $new = clone $this;
-        $new->password = $password;
+        $new->password = $string;
         return $new;
     }
 }
