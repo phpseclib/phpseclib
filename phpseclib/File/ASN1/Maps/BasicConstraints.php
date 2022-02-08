@@ -27,12 +27,12 @@ use phpseclib3\File\ASN1;
 abstract class BasicConstraints
 {
     const MAP = [
-        'type'     => ASN1::TYPE_SEQUENCE,
+        'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
-            'cA'                => [
-                'type'     => ASN1::TYPE_BOOLEAN,
+            'cA' => [
+                'type' => ASN1::TYPE_BOOLEAN,
                 'optional' => true,
-                'default'  => false
+                'default' => false
             ],
             'pathLenConstraint' => [
                 'type' => ASN1::TYPE_INTEGER,

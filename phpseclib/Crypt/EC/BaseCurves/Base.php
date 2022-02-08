@@ -107,9 +107,9 @@ abstract class Base
     public function multiplyPoint(array $p, BigInteger $d)
     {
         $alreadyInternal = isset($p[2]);
-        $r = $alreadyInternal ?
-            [[], $p] :
-            [[], $this->convertToInternal($p)];
+        $r = $alreadyInternal
+            ? [[], $p]
+            : [[], $this->convertToInternal($p)];
 
         $d = $d->toBits();
         for ($i = 0; $i < strlen($d); $i++) {

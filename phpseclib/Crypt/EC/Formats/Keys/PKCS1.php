@@ -108,9 +108,9 @@ abstract class PKCS1 extends Progenitor
 
             $components['dA'] = new BigInteger($ecPrivate['privateKey'], 256);
             $components['curve']->rangeCheck($components['dA']);
-            $components['QA'] = isset($ecPrivate['publicKey']) ?
-                self::extractPoint($ecPrivate['publicKey'], $components['curve']) :
-                $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
+            $components['QA'] = isset($ecPrivate['publicKey'])
+                ? self::extractPoint($ecPrivate['publicKey'], $components['curve'])
+                : $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
 
             return $components;
         }
@@ -138,9 +138,9 @@ abstract class PKCS1 extends Progenitor
         $components = [];
         $components['curve'] = self::loadCurveByParam($key['parameters']);
         $components['dA'] = new BigInteger($key['privateKey'], 256);
-        $components['QA'] = isset($ecPrivate['publicKey']) ?
-            self::extractPoint($ecPrivate['publicKey'], $components['curve']) :
-            $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
+        $components['QA'] = isset($ecPrivate['publicKey'])
+            ? self::extractPoint($ecPrivate['publicKey'], $components['curve'])
+            : $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
 
         return $components;
     }
@@ -161,9 +161,9 @@ abstract class PKCS1 extends Progenitor
 
         $key = self::encodeParameters($curve, false, $options);
 
-        return "-----BEGIN EC PARAMETERS-----\r\n" .
-               chunk_split(Base64::encode($key), 64) .
-               "-----END EC PARAMETERS-----\r\n";
+        return "-----BEGIN EC PARAMETERS-----\r\n"
+               . chunk_split(Base64::encode($key), 64)
+               . "-----END EC PARAMETERS-----\r\n";
     }
 
     /**
@@ -181,7 +181,7 @@ abstract class PKCS1 extends Progenitor
     {
         self::initialize_static_variables();
 
-        if ($curve instanceof TwistedEdwardsCurve  || $curve instanceof MontgomeryCurve) {
+        if ($curve instanceof TwistedEdwardsCurve || $curve instanceof MontgomeryCurve) {
             throw new UnsupportedCurveException('TwistedEdwards Curves are not supported');
         }
 

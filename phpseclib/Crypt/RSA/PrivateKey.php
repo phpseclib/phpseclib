@@ -408,9 +408,9 @@ class PrivateKey extends RSA implements Common\PrivateKey
         $patternMatch = 0;
         $offset = 0;
         for ($i = 0; $i < strlen($m); $i++) {
-            $patternMatch|= $leadingZeros & ($m[$i] === "\1");
-            $leadingZeros&= $m[$i] === "\0";
-            $offset+= $patternMatch ? 0 : 1;
+            $patternMatch |= $leadingZeros & ($m[$i] === "\1");
+            $leadingZeros &= $m[$i] === "\0";
+            $offset += $patternMatch ? 0 : 1;
         }
 
         // we do | instead of || to avoid https://en.wikipedia.org/wiki/Short-circuit_evaluation
@@ -505,7 +505,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
 
         if ($type == PSS::class) {
             if ($this->signaturePadding == self::SIGNATURE_PSS) {
-                $options+= [
+                $options += [
                     'hash' => $this->hash->getHash(),
                     'MGFHash' => $this->mgfHash->getHash(),
                     'saltLength' => $this->getSaltLength()

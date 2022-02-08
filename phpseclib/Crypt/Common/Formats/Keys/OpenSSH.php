@@ -209,9 +209,9 @@ abstract class OpenSSH
         list(, $checkint) = unpack('N', Random::string(4));
 
         $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
-        $paddedKey = Strings::packSSH2('NN', $checkint, $checkint) .
-                     $privateKey .
-                     Strings::packSSH2('s', $comment);
+        $paddedKey = Strings::packSSH2('NN', $checkint, $checkint)
+                     . $privateKey
+                     . Strings::packSSH2('s', $comment);
 
         /*
            from http://tools.ietf.org/html/rfc4253#section-6 :
@@ -222,13 +222,13 @@ abstract class OpenSSH
          */
         $paddingLength = (7 * strlen($paddedKey)) % 8;
         for ($i = 1; $i <= $paddingLength; $i++) {
-            $paddedKey.= chr($i);
+            $paddedKey .= chr($i);
         }
         $key = Strings::packSSH2('sssNss', 'none', 'none', '', 1, $publicKey, $paddedKey);
         $key = "openssh-key-v1\0$key";
 
-        return "-----BEGIN OPENSSH PRIVATE KEY-----\n" .
-               chunk_split(Base64::encode($key), 70, "\n") .
-               "-----END OPENSSH PRIVATE KEY-----\n";
+        return "-----BEGIN OPENSSH PRIVATE KEY-----\n"
+               . chunk_split(Base64::encode($key), 70, "\n")
+               . "-----END OPENSSH PRIVATE KEY-----\n";
     }
 }

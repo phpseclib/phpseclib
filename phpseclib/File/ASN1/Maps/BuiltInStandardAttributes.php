@@ -27,41 +27,41 @@ use phpseclib3\File\ASN1;
 abstract class BuiltInStandardAttributes
 {
     const MAP = [
-        'type'     => ASN1::TYPE_SEQUENCE,
+        'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
-            'country-name'               => ['optional' => true] + CountryName::MAP,
+            'country-name' => ['optional' => true] + CountryName::MAP,
             'administration-domain-name' => ['optional' => true] + AdministrationDomainName::MAP,
-            'network-address'            => [
+            'network-address' => [
                 'constant' => 0,
                 'optional' => true,
                 'implicit' => true
             ] + NetworkAddress::MAP,
-            'terminal-identifier'        => [
+            'terminal-identifier' => [
                 'constant' => 1,
                 'optional' => true,
                 'implicit' => true
             ] + TerminalIdentifier::MAP,
-            'private-domain-name'        => [
+            'private-domain-name' => [
                 'constant' => 2,
                 'optional' => true,
                 'explicit' => true
             ] + PrivateDomainName::MAP,
-            'organization-name'          => [
+            'organization-name' => [
                 'constant' => 3,
                 'optional' => true,
                 'implicit' => true
             ] + OrganizationName::MAP,
-            'numeric-user-identifier'    => [
+            'numeric-user-identifier' => [
                 'constant' => 4,
                 'optional' => true,
                 'implicit' => true
             ] + NumericUserIdentifier::MAP,
-            'personal-name'              => [
+            'personal-name' => [
                 'constant' => 5,
                 'optional' => true,
                 'implicit' => true
             ] + PersonalName::MAP,
-            'organizational-unit-names'  => [
+            'organizational-unit-names' => [
                 'constant' => 6,
                 'optional' => true,
                 'implicit' => true

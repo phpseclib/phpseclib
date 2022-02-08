@@ -97,8 +97,8 @@ trait Common
                 'sect163k1' => '1.3.132.0.1',
                 'sect163r2' => '1.3.132.0.15',
                 'secp224r1' => '1.3.132.0.33',
-                'sect233k1'=> '1.3.132.0.26',
-                'sect233r1'=> '1.3.132.0.27',
+                'sect233k1' => '1.3.132.0.26',
+                'sect233r1' => '1.3.132.0.27',
                 'secp256r1' => '1.2.840.10045.3.1.7', // aka prime256v1
                 'sect283k1' => '1.3.132.0.16',
                 'sect283r1' => '1.3.132.0.17',
@@ -357,9 +357,9 @@ trait Common
                     $reflect = $reflect->getParentClass();
                     $name = $reflect->getShortName();
                 }
-                return $returnArray ?
-                    ['namedCurve' => $name] :
-                    ASN1::encodeDER(['namedCurve' => $name], Maps\ECParameters::MAP);
+                return $returnArray
+                    ? ['namedCurve' => $name]
+                    : ASN1::encodeDER(['namedCurve' => $name], Maps\ECParameters::MAP);
             }
             foreach (new \DirectoryIterator(__DIR__ . '/../../Curves/') as $file) {
                 if ($file->getExtension() != 'php') {
@@ -396,9 +396,9 @@ trait Common
                             break;
                         }
 
-                        return $returnArray ?
-                            ['namedCurve' => $testName] :
-                            ASN1::encodeDER(['namedCurve' => $testName], Maps\ECParameters::MAP);
+                        return $returnArray
+                            ? ['namedCurve' => $testName]
+                            : ASN1::encodeDER(['namedCurve' => $testName], Maps\ECParameters::MAP);
                     case 'Binary':
                         if (!$candidate instanceof BinaryCurve) {
                             break;
@@ -422,9 +422,9 @@ trait Common
                             break;
                         }
 
-                        return $returnArray ?
-                            ['namedCurve' => $testName] :
-                            ASN1::encodeDER(['namedCurve' => $testName], Maps\ECParameters::MAP);
+                        return $returnArray
+                            ? ['namedCurve' => $testName]
+                            : ASN1::encodeDER(['namedCurve' => $testName], Maps\ECParameters::MAP);
                 }
             }
         }
@@ -467,9 +467,9 @@ trait Common
                 'order' => $order
             ];
 
-            return $returnArray ?
-                ['specifiedCurve' => $data] :
-                ASN1::encodeDER(['specifiedCurve' => $data], Maps\ECParameters::MAP);
+            return $returnArray
+                ? ['specifiedCurve' => $data]
+                : ASN1::encodeDER(['specifiedCurve' => $data], Maps\ECParameters::MAP);
         }
         if ($curve instanceof BinaryCurve) {
             $modulo = $curve->getModulo();
@@ -521,9 +521,9 @@ trait Common
                 'order' => $order
             ];
 
-            return $returnArray ?
-                ['specifiedCurve' => $data] :
-                ASN1::encodeDER(['specifiedCurve' => $data], Maps\ECParameters::MAP);
+            return $returnArray
+                ? ['specifiedCurve' => $data]
+                : ASN1::encodeDER(['specifiedCurve' => $data], Maps\ECParameters::MAP);
         }
 
         throw new UnsupportedCurveException('Curve cannot be serialized');

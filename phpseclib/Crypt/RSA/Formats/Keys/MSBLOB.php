@@ -209,14 +209,14 @@ abstract class MSBLOB
         $n = strrev($n->toBytes());
         $e = str_pad(strrev($e->toBytes()), 4, "\0");
         $key = pack('aavV', chr(self::PRIVATEKEYBLOB), chr(2), 0, self::CALG_RSA_KEYX);
-        $key.= pack('VVa*', self::RSA2, 8 * strlen($n), $e);
-        $key.= $n;
-        $key.= strrev($primes[1]->toBytes());
-        $key.= strrev($primes[2]->toBytes());
-        $key.= strrev($exponents[1]->toBytes());
-        $key.= strrev($exponents[2]->toBytes());
-        $key.= strrev($coefficients[2]->toBytes());
-        $key.= strrev($d->toBytes());
+        $key .= pack('VVa*', self::RSA2, 8 * strlen($n), $e);
+        $key .= $n;
+        $key .= strrev($primes[1]->toBytes());
+        $key .= strrev($primes[2]->toBytes());
+        $key .= strrev($exponents[1]->toBytes());
+        $key .= strrev($exponents[2]->toBytes());
+        $key .= strrev($coefficients[2]->toBytes());
+        $key .= strrev($d->toBytes());
 
         return Base64::encode($key);
     }
@@ -234,8 +234,8 @@ abstract class MSBLOB
         $n = strrev($n->toBytes());
         $e = str_pad(strrev($e->toBytes()), 4, "\0");
         $key = pack('aavV', chr(self::PUBLICKEYBLOB), chr(2), 0, self::CALG_RSA_KEYX);
-        $key.= pack('VVa*', self::RSA1, 8 * strlen($n), $e);
-        $key.= $n;
+        $key .= pack('VVa*', self::RSA1, 8 * strlen($n), $e);
+        $key .= $n;
 
         return Base64::encode($key);
     }

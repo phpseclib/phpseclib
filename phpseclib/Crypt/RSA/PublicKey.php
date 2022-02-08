@@ -209,9 +209,9 @@ class PublicKey extends RSA implements Common\PublicKey
         }
 
         $hash = $decoded['digestAlgorithm']['algorithm'];
-        $hash = substr($hash, 0, 3) == 'id-' ?
-            substr($hash, 3) :
-            $hash;
+        $hash = substr($hash, 0, 3) == 'id-'
+            ? substr($hash, 3)
+            : $hash;
         $hash = new Hash($hash);
         $em = $hash->hash($m);
         $em2 = $decoded['digest'];
@@ -349,7 +349,7 @@ class PublicKey extends RSA implements Common\PublicKey
         while (strlen($ps) != $psLen) {
             $temp = Random::string($psLen - strlen($ps));
             $temp = str_replace("\x00", '', $temp);
-            $ps.= $temp;
+            $ps .= $temp;
         }
         $type = 2;
         $em = chr(0) . chr($type) . $ps . chr(0) . $m;
@@ -492,7 +492,7 @@ class PublicKey extends RSA implements Common\PublicKey
 
         if ($type == PSS::class) {
             if ($this->signaturePadding == self::SIGNATURE_PSS) {
-                $options+= [
+                $options += [
                     'hash' => $this->hash->getHash(),
                     'MGFHash' => $this->mgfHash->getHash(),
                     'saltLength' => $this->getSaltLength()

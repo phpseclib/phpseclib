@@ -12,19 +12,19 @@ class Unit_File_ANSITest extends PhpseclibTestCase
     public function testCase1()
     {
         $str = "\x1B[07m"; // turn reverse video on
-        $str.= "aaaaaaaaaaaaaaaaaa";
-        $str.= "\x1B[10D"; // move cursor left 10 lines
-        $str.= "\x1B[m"; // reset everything
-        $str.= "bbb";
+        $str .= "aaaaaaaaaaaaaaaaaa";
+        $str .= "\x1B[10D"; // move cursor left 10 lines
+        $str .= "\x1B[m"; // reset everything
+        $str .= "bbb";
 
         $ansi = new ANSI();
         $ansi->appendString($str);
 
         $expected = '<pre width="80" style="color: white; background: black">';
-        $expected.= '<span style="color: black"><span style="background: white">aaaaaaaa</span></span>';
-        $expected.= 'bbb';
-        $expected.= '<span style="color: black"><span style="background: white">aaaaaaa</span></span>';
-        $expected.= '</pre>';
+        $expected .= '<span style="color: black"><span style="background: white">aaaaaaaa</span></span>';
+        $expected .= 'bbb';
+        $expected .= '<span style="color: black"><span style="background: white">aaaaaaa</span></span>';
+        $expected .= '</pre>';
 
         $this->assertSame($ansi->getScreen(), $expected);
     }
@@ -32,15 +32,15 @@ class Unit_File_ANSITest extends PhpseclibTestCase
     public function testCaseJ()
     {
         $str = "\x1B[H"; // Move cursor to upper left corner
-        $str.= "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-        $str.= "\x1B[H"; // Move cursor to upper left corner
-        $str.= "\x1B[J"; // Clear screen from cursor down
+        $str .= "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        $str .= "\x1B[H"; // Move cursor to upper left corner
+        $str .= "\x1B[J"; // Clear screen from cursor down
 
         $ansi = new ANSI();
         $ansi->appendString($str);
 
         $expected = '<pre width="80" style="color: white; background: black">';
-        $expected.= '</pre>';
+        $expected .= '</pre>';
 
         $this->assertSame($ansi->getScreen(), $expected);
     }
@@ -49,9 +49,9 @@ class Unit_File_ANSITest extends PhpseclibTestCase
     {
         $str = '';
         foreach (range('a', 'y') as $char) {
-            $str.= "$char\r\n";
+            $str .= "$char\r\n";
         }
-        $str.= str_repeat('z', 100);
+        $str .= str_repeat('z', 100);
 
         $ansi = new ANSI();
         $ansi->appendString($str);

@@ -35,10 +35,10 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
 
     public function testParametersWithBigIntegers()
     {
-        $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
-                 '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
-                 '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
-                 'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF';
+        $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74'
+                 . '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437'
+                 . '4FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED'
+                 . 'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF';
         $prime = new BigInteger($prime, 16);
         $base = new BigInteger(2);
         $a = DH::createParameters($prime, $base);
@@ -152,9 +152,8 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         $aes->setKey(substr($key, 0, 16));
         $aes->setIV(substr($key, 16, 16));
 
-        $encrypted =
-            $ourEphemeralPublic->toString('MontgomeryPublic') .
-            $aes->encrypt($plaintext);
+        $encrypted = $ourEphemeralPublic->toString('MontgomeryPublic')
+            . $aes->encrypt($plaintext);
 
         $theirPublic = substr($encrypted, 0, 32);
         $theirPublic = EC::loadFormat('MontgomeryPublic', $theirPublic);
@@ -232,32 +231,32 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         // utilizing test vector from https://tools.ietf.org/html/rfc7748#section-6.2
 
         $alicePrivate = EC::loadFormat('MontgomeryPrivate', pack('H*',
-            '9a8f4925d1519f5775cf46b04b5800d4ee9ee8bae8bc5565d498c28d' .
-            'd9c9baf574a9419744897391006382a6f127ab1d9ac2d8c0a598726b'
+            '9a8f4925d1519f5775cf46b04b5800d4ee9ee8bae8bc5565d498c28d'
+            . 'd9c9baf574a9419744897391006382a6f127ab1d9ac2d8c0a598726b'
         ));
         $bobPrivate = EC::loadFormat('MontgomeryPrivate', pack('H*',
-            '1c306a7ac2a0e2e0990b294470cba339e6453772b075811d8fad0d1d' .
-            '6927c120bb5ee8972b0d3e21374c9c921b09d1b0366f10b65173992d'
+            '1c306a7ac2a0e2e0990b294470cba339e6453772b075811d8fad0d1d'
+            . '6927c120bb5ee8972b0d3e21374c9c921b09d1b0366f10b65173992d'
         ));
 
         $alicePublic = $alicePrivate->getPublicKey();
         $bobPublic = $bobPrivate->getPublicKey();
 
         $this->assertSame(
-            '9b08f7cc31b7e3e67d22d5aea121074a273bd2b83de09c63faa73d2c' .
-            '22c5d9bbc836647241d953d40c5b12da88120d53177f80e532c41fa0',
+            '9b08f7cc31b7e3e67d22d5aea121074a273bd2b83de09c63faa73d2c'
+            . '22c5d9bbc836647241d953d40c5b12da88120d53177f80e532c41fa0',
             bin2hex($alicePublic->toString('MontgomeryPublic'))
         );
 
         $this->assertSame(
-            '3eb7a829b0cd20f5bcfc0b599b6feccf6da4627107bdb0d4f345b430' .
-            '27d8b972fc3e34fb4232a13ca706dcb57aec3dae07bdc1c67bf33609',
+            '3eb7a829b0cd20f5bcfc0b599b6feccf6da4627107bdb0d4f345b430'
+            . '27d8b972fc3e34fb4232a13ca706dcb57aec3dae07bdc1c67bf33609',
             bin2hex($bobPublic->toString('MontgomeryPublic'))
         );
 
         $expected = pack('H*',
-            '07fff4181ac6cc95ec1c16a94a0f74d12da232ce40a77552281d282b' .
-            'b60c0b56fd2464c335543936521c24403085d59a449a5037514a879d'
+            '07fff4181ac6cc95ec1c16a94a0f74d12da232ce40a77552281d282b'
+            . 'b60c0b56fd2464c335543936521c24403085d59a449a5037514a879d'
         );
 
         $this->assertSame($expected, DH::computeSecret($alicePrivate, $bobPublic));

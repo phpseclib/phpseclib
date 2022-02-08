@@ -27,21 +27,21 @@ use phpseclib3\File\ASN1;
 abstract class PersonalName
 {
     const MAP = [
-        'type'     => ASN1::TYPE_SET,
+        'type' => ASN1::TYPE_SET,
         'children' => [
-            'surname'              => [
+            'surname' => [
                 'type' => ASN1::TYPE_PRINTABLE_STRING,
                 'constant' => 0,
                 'optional' => true,
                 'implicit' => true
             ],
-            'given-name'           => [
+            'given-name' => [
                 'type' => ASN1::TYPE_PRINTABLE_STRING,
                 'constant' => 1,
                 'optional' => true,
                 'implicit' => true
             ],
-            'initials'             => [
+            'initials' => [
                 'type' => ASN1::TYPE_PRINTABLE_STRING,
                 'constant' => 2,
                 'optional' => true,

@@ -120,11 +120,11 @@ abstract class Montgomery extends Progenitor
         $x = -$x[0];
         $result = $x & 0x3; // x**-1 mod 2**2
         $result = ($result * (2 - $x * $result)) & 0xF; // x**-1 mod 2**4
-        $result = ($result * (2 - ($x & 0xFF) * $result))  & 0xFF; // x**-1 mod 2**8
+        $result = ($result * (2 - ($x & 0xFF) * $result)) & 0xFF; // x**-1 mod 2**8
         $result = ($result * ((2 - ($x & 0xFFFF) * $result) & 0xFFFF)) & 0xFFFF; // x**-1 mod 2**16
-        $result = $class::BASE == 26 ?
-            fmod($result * (2 - fmod($x * $result, $class::BASE_FULL)), $class::BASE_FULL) : // x**-1 mod 2**26
-            ($result * (2 - ($x * $result) % $class::BASE_FULL)) % $class::BASE_FULL;
+        $result = $class::BASE == 26
+            ? fmod($result * (2 - fmod($x * $result, $class::BASE_FULL)), $class::BASE_FULL) // x**-1 mod 2**26
+            : ($result * (2 - ($x * $result) % $class::BASE_FULL)) % $class::BASE_FULL;
         return $result & $class::MAX_DIGIT;
     }
 }

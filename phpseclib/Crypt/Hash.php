@@ -278,9 +278,9 @@ class Hash
             return;
         }
 
-        $this->computedKey = is_array($this->algo) ?
-            call_user_func($this->algo, $this->key) :
-            hash($this->algo, $this->key, true);
+        $this->computedKey = is_array($this->algo)
+            ? call_user_func($this->algo, $this->key)
+            : hash($this->algo, $this->key, true);
     }
 
     /**
@@ -423,12 +423,12 @@ class Hash
             // http://php.net/ChangeLog-7.php#7.1.0
             if (version_compare(PHP_VERSION, '7.1.0') < 0) {
                 // from http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf#page=24
-                $initial = $hash == 'sha512/256' ?
-                    [
+                $initial = $hash == 'sha512/256'
+                    ? [
                         '22312194FC2BF72C', '9F555FA3C84C64C2', '2393B86B6F53B151', '963877195940EABD',
                         '96283EE2A88EFFE3', 'BE5E1E2553863992', '2B0199FC2C85B8AA', '0EB72DDC81C52CA2'
-                    ] :
-                    [
+                    ]
+                    : [
                         '8C3D37C819544DA2', '73E1996689DCD4D6', '1DFAB7AE32FF9C82', '679DD514582F9FCF',
                         '0F6D2B697BD44DA8', '77E36F7304C48942', '3F9D85A86A1D36C8', '1112E6AD91D692A1'
                     ];
@@ -508,9 +508,9 @@ class Hash
 
         // we could use ord() but per https://paragonie.com/blog/2016/06/constant-time-encoding-boring-cryptography-rfc-4648-and-you
         // unpack() doesn't leak timing info
-        return $taglen <= 8 ?
-            substr($t, unpack('C', $index)[1] * $taglen, $taglen) :
-            substr($t, 0, $taglen);
+        return $taglen <= 8
+            ? substr($t, unpack('C', $index)[1] * $taglen, $taglen)
+            : substr($t, 0, $taglen);
     }
 
     /**
@@ -532,8 +532,8 @@ class Hash
         // L1Key reuses most key material between iterations.
         //
         //$L1Key  = $this->kdf(1, 1024 + ($iters - 1) * 16);
-        $L1Key  = $this->kdf(1, (1024 + ($iters - 1)) * 16);
-        $L2Key  = $this->kdf(2, $iters * 24);
+        $L1Key = $this->kdf(1, (1024 + ($iters - 1)) * 16);
+        $L2Key = $this->kdf(2, $iters * 24);
         $L3Key1 = $this->kdf(3, $iters * 64);
         $L3Key2 = $this->kdf(4, $iters * 4);
 
@@ -543,15 +543,15 @@ class Hash
         //
         $y = '';
         for ($i = 0; $i < $iters; $i++) {
-            $L1Key_i  = substr($L1Key,  $i * 16, 1024);
-            $L2Key_i  = substr($L2Key,  $i * 24, 24);
+            $L1Key_i = substr($L1Key,  $i * 16, 1024);
+            $L2Key_i = substr($L2Key,  $i * 24, 24);
             $L3Key1_i = substr($L3Key1, $i * 64, 64);
             $L3Key2_i = substr($L3Key2, $i * 4, 4);
 
             $a = self::L1Hash($L1Key_i, $m);
             $b = strlen($m) <= 1024 ? "\0\0\0\0\0\0\0\0$a" : self::L2Hash($L2Key_i, $a);
             $c = self::L3Hash($L3Key1_i, $L3Key2_i, $b);
-            $y.= $c;
+            $y .= $c;
         }
 
         return $y;
@@ -583,7 +583,7 @@ class Hash
         $y = '';
         for ($i = 0; $i < count($m) - 1; $i++) {
             $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
-            $y.= static::nh($k, $m[$i], $length);
+            $y .= static::nh($k, $m[$i], $length);
         }
 
         //
@@ -596,7 +596,7 @@ class Hash
         $m[$i] = str_pad($m[$i], $pad, "\0"); // zeropad
         $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
 
-        $y.= static::nh($k, $m[$i], new BigInteger($length * 8));
+        $y .= static::nh($k, $m[$i], new BigInteger($length * 8));
 
         return $y;
     }
@@ -656,7 +656,7 @@ class Hash
             $temp = $temp->multiply($m[$i + 7]->add($k[$i + 7]));
             $y = $y->add($temp);
 
-            $i+= 8;
+            $i += 8;
         }
 
         return $y->add($length)->toBytes();
@@ -699,7 +699,7 @@ class Hash
             $m_2 = substr($m, 0x20000) . "\x80";
             $length = strlen($m_2);
             $pad = 16 - ($length % 16);
-            $pad%= 16;
+            $pad %= 16;
             $m_2 = str_pad($m_2, $length + $pad, "\0"); // zeropad
             $y = self::poly(64, self::$maxwordrange64, $k64, $m_1);
             $y = str_pad($y, 16, "\0", STR_PAD_LEFT);
@@ -855,20 +855,20 @@ class Hash
 
             // SHA3 HMACs are discussed at https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf#page=30
 
-            $key    = str_pad($this->computedKey, $b, chr(0));
-            $temp   = $this->ipad ^ $key;
-            $temp  .= $text;
-            $temp   = substr($algo($temp, ...array_values($this->parameters)), 0, $this->length);
+            $key = str_pad($this->computedKey, $b, chr(0));
+            $temp = $this->ipad ^ $key;
+            $temp .= $text;
+            $temp = substr($algo($temp, ...array_values($this->parameters)), 0, $this->length);
             $output = $this->opad ^ $key;
-            $output.= $temp;
+            $output .= $temp;
             $output = $algo($output, ...array_values($this->parameters));
 
             return substr($output, 0, $this->length);
         }
 
-        $output = !empty($this->key) || is_string($this->key) ?
-            hash_hmac($algo, $text, $this->computedKey, true) :
-            hash($algo, $text, true);
+        $output = !empty($this->key) || is_string($this->key)
+            ? hash_hmac($algo, $text, $this->computedKey, true)
+            : hash($algo, $text, true);
 
         return strlen($output) > $this->length
             ? substr($output, 0, $this->length)
@@ -978,7 +978,7 @@ class Hash
         $padLength = $block_size - (strlen($p) % $block_size);
         $num_ints = $block_size >> 2;
 
-        $p.= static::sha3_pad($padLength, $padType);
+        $p .= static::sha3_pad($padLength, $padType);
 
         $n = strlen($p) / $r; // number of blocks
 
@@ -995,9 +995,9 @@ class Hash
         foreach ($p as $pi) {
             $pi = unpack('V*', $pi);
             $x = $y = 0;
-            for ($i = 1; $i <= $num_ints; $i+=2) {
-                $s[$x][$y][0]^= $pi[$i + 1];
-                $s[$x][$y][1]^= $pi[$i];
+            for ($i = 1; $i <= $num_ints; $i += 2) {
+                $s[$x][$y][0] ^= $pi[$i + 1];
+                $s[$x][$y][1] ^= $pi[$i];
                 if (++$y == 5) {
                     $y = 0;
                     $x++;
@@ -1009,7 +1009,7 @@ class Hash
         $z = '';
         $i = $j = 0;
         while (strlen($z) < $d) {
-            $z.= pack('V2', $s[$i][$j][1], $s[$i][$j++][0]);
+            $z .= pack('V2', $s[$i][$j][1], $s[$i][$j++][0]);
             if ($j == 5) {
                 $j = 0;
                 $i++;
@@ -1089,8 +1089,8 @@ class Hash
             ];
             for ($i = 0; $i < 5; $i++) {
                 for ($j = 0; $j < 5; $j++) {
-                    $s[$i][$j][0]^= $temp[$j][0];
-                    $s[$i][$j][1]^= $temp[$j][1];
+                    $s[$i][$j][0] ^= $temp[$j][0];
+                    $s[$i][$j][1] ^= $temp[$j][1];
                 }
             }
 
@@ -1128,8 +1128,8 @@ class Hash
             }
 
             // iota step
-            $s[0][0][0]^= $roundConstants[$round][0];
-            $s[0][0][1]^= $roundConstants[$round][1];
+            $s[0][0][0] ^= $roundConstants[$round][0];
+            $s[0][0][1] ^= $roundConstants[$round][1];
         }
     }
 
@@ -1145,7 +1145,7 @@ class Hash
         if ($shift < 32) {
             list($hi, $lo) = $x;
         } else {
-            $shift-= 32;
+            $shift -= 32;
             list($lo, $hi) = $x;
         }
 
@@ -1171,7 +1171,7 @@ class Hash
         $padLength = $block_size - (strlen($p) % $block_size);
         $num_ints = $block_size >> 2;
 
-        $p.= static::sha3_pad($padLength, $padType);
+        $p .= static::sha3_pad($padLength, $padType);
 
         $n = strlen($p) / $r; // number of blocks
 
@@ -1189,7 +1189,7 @@ class Hash
             $pi = unpack('P*', $pi);
             $x = $y = 0;
             foreach ($pi as $subpi) {
-                $s[$x][$y++]^= $subpi;
+                $s[$x][$y++] ^= $subpi;
                 if ($y == 5) {
                     $y = 0;
                     $x++;
@@ -1201,7 +1201,7 @@ class Hash
         $z = '';
         $i = $j = 0;
         while (strlen($z) < $d) {
-            $z.= pack('P', $s[$i][$j++]);
+            $z .= pack('P', $s[$i][$j++]);
             if ($j == 5) {
                 $j = 0;
                 $i++;
@@ -1273,7 +1273,7 @@ class Hash
             ];
             for ($i = 0; $i < 5; $i++) {
                 for ($j = 0; $j < 5; $j++) {
-                    $s[$i][$j]^= $temp[$j];
+                    $s[$i][$j] ^= $temp[$j];
                 }
             }
 
@@ -1298,7 +1298,7 @@ class Hash
             }
 
             // iota step
-            $s[0][0]^= $roundConstants[$round];
+            $s[0][0] ^= $roundConstants[$round];
         }
     }
 
@@ -1360,10 +1360,10 @@ class Hash
         // Pre-processing
         $length = strlen($m);
         // to round to nearest 112 mod 128, we'll add 128 - (length + (128 - 112)) % 128
-        $m.= str_repeat(chr(0), 128 - (($length + 16) & 0x7F));
+        $m .= str_repeat(chr(0), 128 - (($length + 16) & 0x7F));
         $m[$length] = chr(0x80);
         // we don't support hashing strings 512MB long
-        $m.= pack('N4', 0, 0, 0, $length << 3);
+        $m .= pack('N4', 0, 0, 0, $length << 3);
 
         // Process the message in successive 1024-bit chunks
         $chunks = str_split($m, 128);
@@ -1467,8 +1467,8 @@ class Hash
 
         // Produce the final hash value (big-endian)
         // (\phpseclib3\Crypt\Hash::hash() trims the output for hashes but not for HMACs.  as such, we trim the output here)
-        $temp = $hash[0]->toBytes() . $hash[1]->toBytes() . $hash[2]->toBytes() . $hash[3]->toBytes() .
-                $hash[4]->toBytes() . $hash[5]->toBytes() . $hash[6]->toBytes() . $hash[7]->toBytes();
+        $temp = $hash[0]->toBytes() . $hash[1]->toBytes() . $hash[2]->toBytes() . $hash[3]->toBytes()
+                . $hash[4]->toBytes() . $hash[5]->toBytes() . $hash[6]->toBytes() . $hash[7]->toBytes();
 
         return $temp;
     }

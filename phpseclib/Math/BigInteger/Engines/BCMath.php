@@ -135,7 +135,7 @@ class BCMath extends Engine
                 $x = str_pad($this->value, $len, chr(0), STR_PAD_LEFT);
 
                 $this->value = '0';
-                for ($i = 0; $i < $len; $i+= 4) {
+                for ($i = 0; $i < $len; $i += 4) {
                     $this->value = bcmul($this->value, '4294967296', 0); // 4294967296 == 2**32
                     $this->value = bcadd($this->value, 0x1000000 * ord($x[$i]) + ((ord($x[$i + 1]) << 16) | (ord($x[$i + 2]) << 8) | ord($x[$i + 3])), 0);
                 }
@@ -196,9 +196,9 @@ class BCMath extends Engine
             $current = bcdiv($current, '16777216', 0);
         }
 
-        return $this->precision > 0 ?
-            substr(str_pad($value, $this->precision >> 3, chr(0), STR_PAD_LEFT), -($this->precision >> 3)) :
-            ltrim($value, chr(0));
+        return $this->precision > 0
+            ? substr(str_pad($value, $this->precision >> 3, chr(0), STR_PAD_LEFT), -($this->precision >> 3))
+            : ltrim($value, chr(0));
     }
 
     /**
@@ -325,8 +325,8 @@ class BCMath extends Engine
 
         return [
             'gcd' => $this->normalize(new static($u)),
-            'x'   => $this->normalize(new static($a)),
-            'y'   => $this->normalize(new static($b))
+            'x' => $this->normalize(new static($a)),
+            'y' => $this->normalize(new static($b))
         ];
     }
 
@@ -353,9 +353,9 @@ class BCMath extends Engine
     public function abs()
     {
         $temp = new static();
-        $temp->value = strlen($this->value) && $this->value[0] == '-' ?
-            substr($this->value, 1) :
-            $this->value;
+        $temp->value = strlen($this->value) && $this->value[0] == '-'
+            ? substr($this->value, 1)
+            : $this->value;
 
         return $temp;
     }
@@ -731,9 +731,9 @@ class BCMath extends Engine
             return $temp;
         }
 
-        $temp->value = $temp->value[0] == '-' ?
-            substr($this->value, 1) :
-            '-' . $this->value;
+        $temp->value = $temp->value[0] == '-'
+            ? substr($this->value, 1)
+            : '-' . $this->value;
 
         return $temp;
     }

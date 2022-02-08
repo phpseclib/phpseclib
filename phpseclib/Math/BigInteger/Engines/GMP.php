@@ -203,9 +203,9 @@ class GMP extends Engine
 
         $temp = gmp_export($this->value);
 
-        return $this->precision > 0 ?
-            substr(str_pad($temp, $this->precision >> 3, chr(0), STR_PAD_LEFT), -($this->precision >> 3)) :
-            ltrim($temp, chr(0));
+        return $this->precision > 0
+            ? substr(str_pad($temp, $this->precision >> 3, chr(0), STR_PAD_LEFT), -($this->precision >> 3))
+            : ltrim($temp, chr(0));
     }
 
     /**
@@ -352,8 +352,8 @@ class GMP extends Engine
 
         return [
             'gcd' => $this->normalize(new self($g)),
-            'x'   => $this->normalize(new self($s)),
-            'y'   => $this->normalize(new self($t))
+            'x' => $this->normalize(new self($s)),
+            'y' => $this->normalize(new self($t))
         ];
     }
 

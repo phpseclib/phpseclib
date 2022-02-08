@@ -109,7 +109,7 @@ abstract class PuTTY extends Progenitor
             throw new \InvalidArgumentException('PuTTY does not support multi-prime RSA keys');
         }
 
-        $public =  Strings::packSSH2('ii', $e, $n);
+        $public = Strings::packSSH2('ii', $e, $n);
         $private = Strings::packSSH2('iiii', $d, $primes[1], $primes[2], $coefficients[2]);
 
         return self::wrapPrivateKey($public, $private, 'ssh-rsa', $password, $options);

@@ -97,13 +97,13 @@ abstract class Random
             session_cache_limiter('');
             session_start();
 
-            $v = (isset($_SERVER) ? self::safe_serialize($_SERVER) : '') .
-                 (isset($_POST) ? self::safe_serialize($_POST) : '') .
-                 (isset($_GET) ? self::safe_serialize($_GET) : '') .
-                 (isset($_COOKIE) ? self::safe_serialize($_COOKIE) : '') .
-                 self::safe_serialize($GLOBALS) .
-                 self::safe_serialize($_SESSION) .
-                 self::safe_serialize($_OLD_SESSION);
+            $v = (isset($_SERVER) ? self::safe_serialize($_SERVER) : '')
+                 . (isset($_POST) ? self::safe_serialize($_POST) : '')
+                 . (isset($_GET) ? self::safe_serialize($_GET) : '')
+                 . (isset($_COOKIE) ? self::safe_serialize($_COOKIE) : '')
+                 . self::safe_serialize($GLOBALS)
+                 . self::safe_serialize($_SESSION)
+                 . self::safe_serialize($_OLD_SESSION);
             $v = $seed = $_SESSION['seed'] = sha1($v, true);
             if (!isset($_SESSION['count'])) {
                 $_SESSION['count'] = 0;
@@ -184,7 +184,7 @@ abstract class Random
             $i = $crypto->encrypt(microtime()); // strlen(microtime()) == 21
             $r = $crypto->encrypt($i ^ $v); // strlen($v) == 20
             $v = $crypto->encrypt($r ^ $i); // strlen($r) == 20
-            $result.= $r;
+            $result .= $r;
         }
 
         return substr($result, 0, $length);

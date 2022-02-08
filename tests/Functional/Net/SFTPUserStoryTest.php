@@ -76,14 +76,14 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
         $this->assertTrue(
             $sftp->mkdir($dirname),
-            "Failed asserting that a new scratch directory $dirname could " .
-            'be created.'
+            "Failed asserting that a new scratch directory $dirname could "
+            . 'be created.'
         );
 
         $this->assertFalse(
             $sftp->mkdir($dirname),
-            "Failed asserting that a new scratch directory $dirname could " .
-            'not be created (because it already exists).'
+            "Failed asserting that a new scratch directory $dirname could "
+            . 'not be created (because it already exists).'
         );
 
         return $sftp;
@@ -97,8 +97,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $this->assertTrue(
             $sftp->chdir(self::$scratchDir),
             sprintf(
-                'Failed asserting that working directory could be changed ' .
-                'to scratch directory %s.',
+                'Failed asserting that working directory could be changed '
+                . 'to scratch directory %s.',
                 self::$scratchDir
             )
         );
@@ -108,15 +108,15 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $this->assertStringStartsWith(
             $this->getEnv('SSH_HOME'),
             $pwd,
-            'Failed asserting that the home directory is a prefix of the ' .
-            'current working directory.'
+            'Failed asserting that the home directory is a prefix of the '
+            . 'current working directory.'
         );
 
         $this->assertStringEndsWith(
             self::$scratchDir,
             $pwd,
-            'Failed asserting that the scratch directory name is a suffix ' .
-            'of the current working directory.'
+            'Failed asserting that the scratch directory name is a suffix '
+            . 'of the current working directory.'
         );
 
         return $sftp;
@@ -336,8 +336,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $this->assertTrue(
             $sftp->mkdir('temp'),
-            "Failed asserting that a new scratch directory temp could " .
-            'be created.'
+            "Failed asserting that a new scratch directory temp could "
+            . 'be created.'
         );
 
         $sftp->setListOrder('filename', SORT_DESC);
@@ -573,8 +573,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $this->assertFalse(
             $sftp->rmdir(self::$scratchDir),
-            'Failed asserting that non-empty scratch directory could ' .
-            'not be deleted using rmdir().'
+            'Failed asserting that non-empty scratch directory could '
+            . 'not be deleted using rmdir().'
         );
 
         return $sftp;
@@ -587,8 +587,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $this->assertTrue(
             $sftp->delete(self::$scratchDir),
-            'Failed asserting that non-empty scratch directory could ' .
-            'be deleted using recursive delete().'
+            'Failed asserting that non-empty scratch directory could '
+            . 'be deleted using recursive delete().'
         );
 
         return $sftp;
@@ -601,8 +601,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $this->assertFalse(
             $sftp->rmdir(self::$scratchDir),
-            'Failed asserting that nonexistent scratch directory could ' .
-            'not be deleted using rmdir().'
+            'Failed asserting that nonexistent scratch directory could '
+            . 'not be deleted using rmdir().'
         );
 
         return $sftp;
@@ -616,8 +616,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $this->assertTrue(
             $sftp->mkdir(self::$scratchDir),
-            'Failed asserting that scratch directory could ' .
-            'be created.'
+            'Failed asserting that scratch directory could '
+            . 'be created.'
         );
         $this->assertIsArray(
             $sftp->stat(self::$scratchDir),
@@ -625,8 +625,8 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         );
         $this->assertTrue(
             $sftp->delete(self::$scratchDir),
-            'Failed asserting that empty scratch directory could ' .
-            'be deleted using recursive delete().'
+            'Failed asserting that empty scratch directory could '
+            . 'be deleted using recursive delete().'
         );
         $this->assertFalse(
             $sftp->stat(self::$scratchDir),

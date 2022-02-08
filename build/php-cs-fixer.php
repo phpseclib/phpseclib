@@ -19,6 +19,9 @@ return (new PhpCsFixer\Config())
             'ordered_imports' => ['sort_algorithm' => 'alpha', 'imports_order' => ['class', 'const', 'function']],
             'single_import_per_statement' => true,
             'single_line_after_imports' => true,
+            // Operator
+            'binary_operator_spaces' => ['default' => 'single_space'],
+            'operator_linebreak' => ['only_booleans' => false, 'position' => 'beginning'],
             // Whitespace
             'array_indentation' => true,
             'blank_line_before_statement' => ['statements' => []],

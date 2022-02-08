@@ -355,10 +355,10 @@ class Integer extends Base
         while ($d->compare(static::$zero) > 0) {
             if ($d->isOdd()) {
                 // start mods
-                $d_i[$i] = $d->testBit($w - 1) ?
-                    $d->bitwise_and($mask)->subtract($sub) :
+                $d_i[$i] = $d->testBit($w - 1)
+                    ? $d->bitwise_and($mask)->subtract($sub)
                     //$sub->subtract($d->bitwise_and($mask)) :
-                    $d->bitwise_and($mask);
+                    : $d->bitwise_and($mask);
                 // end mods
                 $d = $d->subtract($d_i[$i]);
                 $d_i[$i] = (int) $d_i[$i]->toString();

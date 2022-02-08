@@ -145,7 +145,7 @@ abstract class AsymmetricKey
     protected static function initialize_static_variables()
     {
         if (!isset(self::$zero)) {
-            self::$zero= new BigInteger(0);
+            self::$zero = new BigInteger(0);
             self::$one = new BigInteger(1);
         }
 
@@ -190,9 +190,9 @@ abstract class AsymmetricKey
         $new = static::onLoad($components);
         $new->format = $format;
         $new->comment = $comment;
-        return $new instanceof PrivateKey ?
-            $new->withPassword($password) :
-            $new;
+        return $new instanceof PrivateKey
+            ? $new->withPassword($password)
+            : $new;
     }
 
     /**
@@ -271,9 +271,9 @@ abstract class AsymmetricKey
 
         $new = static::onLoad($components);
         $new->format = $format;
-        return $new instanceof PrivateKey ?
-            $new->withPassword($password) :
-            $new;
+        return $new instanceof PrivateKey
+            ? $new->withPassword($password)
+            : $new;
     }
 
     /**
@@ -617,8 +617,8 @@ abstract class AsymmetricKey
     {
         $z1 = $this->bits2int($in);
         $z2 = $z1->subtract($this->q);
-        return $z2->compare(self::$zero) < 0 ?
-            $this->int2octets($z1) :
-            $this->int2octets($z2);
+        return $z2->compare(self::$zero) < 0
+            ? $this->int2octets($z1)
+            : $this->int2octets($z2);
     }
 }

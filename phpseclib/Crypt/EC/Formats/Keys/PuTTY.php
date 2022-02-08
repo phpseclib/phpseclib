@@ -113,13 +113,13 @@ abstract class PuTTY extends Progenitor
         if (!$curve instanceof TwistedEdwardsCurve) {
             $private = $privateKey->toBytes();
             if (!(strlen($privateKey->toBits()) & 7)) {
-                $private ="\0$private";
+                $private = "\0$private";
             }
         }
 
-        $private = $curve instanceof TwistedEdwardsCurve ?
-            Strings::packSSH2('s', $privateKey->secret) :
-            Strings::packSSH2('s', $private);
+        $private = $curve instanceof TwistedEdwardsCurve
+            ? Strings::packSSH2('s', $privateKey->secret)
+            : Strings::packSSH2('s', $private);
 
         return self::wrapPrivateKey($public, $private, $name, $password, $options);
     }

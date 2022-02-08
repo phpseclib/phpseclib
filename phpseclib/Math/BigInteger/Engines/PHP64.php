@@ -110,7 +110,7 @@ class PHP64 extends PHP
         }
 
         while (true) {
-            $i-= 4;
+            $i -= 4;
             if ($i < 0) {
                 if ($i == -4) {
                     break;
@@ -125,15 +125,15 @@ class PHP64 extends PHP
             list(, $digit) = unpack('N', substr($val, $i, 4));
             $step = count($vals) & 7;
             if (!$step) {
-                $digit&= static::MAX_DIGIT;
+                $digit &= static::MAX_DIGIT;
                 $i++;
             } else {
                 $shift = 8 - $step;
-                $digit>>= $shift;
+                $digit >>= $shift;
                 $shift = 32 - $shift;
-                $digit&= (1 << $shift) - 1;
+                $digit &= (1 << $shift) - 1;
                 $temp = $i > 0 ? ord($val[$i - 1]) : 0;
-                $digit|= ($temp << $shift) & 0x7F000000;
+                $digit |= ($temp << $shift) & 0x7F000000;
             }
             $vals[] = $digit;
         }

@@ -188,7 +188,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $result = '';
         foreach ($test as $len) {
             $temp = str_repeat('d', $len);
-            $str.= $temp;
+            $str .= $temp;
         }
 
         $c1 = $aes->$op($str);
@@ -204,7 +204,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         foreach ($test as $len) {
             $temp = str_repeat('d', $len);
             $output = $aes->$op($temp);
-            $result.= $output;
+            $result .= $output;
         }
 
         $c2 = $result;
@@ -237,7 +237,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $result = '';
         foreach ($test as $len) {
             $temp = str_repeat('d', $len);
-            $str.= $temp;
+            $str .= $temp;
         }
 
         $c1 = $aes->$op($str);
@@ -252,7 +252,7 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         foreach ($test as $len) {
             $temp = str_repeat('d', $len);
             $output = $aes->$op($temp);
-            $result.= $output;
+            $result .= $output;
         }
 
         $c2 = $result;

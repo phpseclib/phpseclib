@@ -93,8 +93,8 @@ class PublicKey extends EC implements Common\PublicKey
             $A = $curve->encodePoint($this->QA);
 
             if ($curve instanceof Ed25519) {
-                $dom2 = !isset($this->context) ? '' :
-                    'SigEd25519 no Ed25519 collisions' . "\0" . chr(strlen($this->context)) . $this->context;
+                $dom2 = !isset($this->context) ? ''
+                    : 'SigEd25519 no Ed25519 collisions' . "\0" . chr(strlen($this->context)) . $this->context;
             } else {
                 $context = isset($this->context) ? $this->context : '';
                 $dom2 = 'SigEd448' . "\0" . chr(strlen($context)) . $context;

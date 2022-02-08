@@ -91,9 +91,7 @@ abstract class PhpseclibTestCase extends PHPUnit\Framework\TestCase
         if (extension_loaded('runkit')) {
             $result = runkit_import(
                 sprintf('%s/../phpseclib/%s', __DIR__, $filename),
-                RUNKIT_IMPORT_FUNCTIONS |
-                RUNKIT_IMPORT_CLASS_METHODS |
-                RUNKIT_IMPORT_OVERRIDE
+                RUNKIT_IMPORT_FUNCTIONS | RUNKIT_IMPORT_CLASS_METHODS | RUNKIT_IMPORT_OVERRIDE
             );
 
             if (!$result) {

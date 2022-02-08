@@ -113,7 +113,7 @@ abstract class PKCS1 extends PKCS
         $symkey = '';
         $iv = substr($iv, 0, 8);
         while (strlen($symkey) < $length) {
-            $symkey.= md5($symkey . $password . $iv, true);
+            $symkey .= md5($symkey . $password . $iv, true);
         }
         return substr($symkey, 0, $length);
     }
@@ -186,9 +186,9 @@ abstract class PKCS1 extends PKCS
     protected static function wrapPrivateKey($key, $type, $password, array $options = [])
     {
         if (empty($password) || !is_string($password)) {
-            return "-----BEGIN $type PRIVATE KEY-----\r\n" .
-                   chunk_split(Base64::encode($key), 64) .
-                   "-----END $type PRIVATE KEY-----";
+            return "-----BEGIN $type PRIVATE KEY-----\r\n"
+                   . chunk_split(Base64::encode($key), 64)
+                   . "-----END $type PRIVATE KEY-----";
         }
 
         $encryptionAlgorithm = isset($options['encryptionAlgorithm']) ? $options['encryptionAlgorithm'] : self::$defaultEncryptionAlgorithm;
@@ -198,12 +198,12 @@ abstract class PKCS1 extends PKCS
         $cipher->setKey(self::generateSymmetricKey($password, $iv, $cipher->getKeyLength() >> 3));
         $cipher->setIV($iv);
         $iv = strtoupper(Hex::encode($iv));
-        return "-----BEGIN $type PRIVATE KEY-----\r\n" .
-               "Proc-Type: 4,ENCRYPTED\r\n" .
-               "DEK-Info: " . $encryptionAlgorithm. ",$iv\r\n" .
-               "\r\n" .
-               chunk_split(Base64::encode($cipher->encrypt($key)), 64) .
-               "-----END $type PRIVATE KEY-----";
+        return "-----BEGIN $type PRIVATE KEY-----\r\n"
+               . "Proc-Type: 4,ENCRYPTED\r\n"
+               . "DEK-Info: " . $encryptionAlgorithm. ",$iv\r\n"
+               . "\r\n"
+               . chunk_split(Base64::encode($cipher->encrypt($key)), 64)
+               . "-----END $type PRIVATE KEY-----";
     }
 
     /**
@@ -216,8 +216,8 @@ abstract class PKCS1 extends PKCS
      */
     protected static function wrapPublicKey($key, $type)
     {
-        return "-----BEGIN $type PUBLIC KEY-----\r\n" .
-               chunk_split(Base64::encode($key), 64) .
-               "-----END $type PUBLIC KEY-----";
+        return "-----BEGIN $type PUBLIC KEY-----\r\n"
+               . chunk_split(Base64::encode($key), 64)
+               . "-----END $type PUBLIC KEY-----";
     }
 }

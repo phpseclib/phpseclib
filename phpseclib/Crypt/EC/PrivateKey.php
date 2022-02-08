@@ -120,8 +120,8 @@ class PrivateKey extends EC implements Common\PrivateKey
             $secret = substr($hash->hash($this->dA->secret), $curve::SIZE);
 
             if ($curve instanceof Ed25519) {
-                $dom = !isset($this->context) ? '' :
-                    'SigEd25519 no Ed25519 collisions' . "\0" . chr(strlen($this->context)) . $this->context;
+                $dom = !isset($this->context) ? ''
+                    : 'SigEd25519 no Ed25519 collisions' . "\0" . chr(strlen($this->context)) . $this->context;
             } else {
                 $context = isset($this->context) ? $this->context : '';
                 $dom = 'SigEd448' . "\0" . chr(strlen($context)) . $context;

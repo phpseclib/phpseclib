@@ -60,7 +60,7 @@ abstract class Montgomery extends Base
             if ($n->value[$i]) {
                 $temp = decbin($n->value[$i]);
                 $j = strlen($temp) - strrpos($temp, '1') - 1;
-                $j+= $class::BASE * $i;
+                $j += $class::BASE * $i;
                 break;
             }
         }

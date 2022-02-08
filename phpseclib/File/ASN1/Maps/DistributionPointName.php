@@ -27,9 +27,9 @@ use phpseclib3\File\ASN1;
 abstract class DistributionPointName
 {
     const MAP = [
-        'type'     => ASN1::TYPE_CHOICE,
+        'type' => ASN1::TYPE_CHOICE,
         'children' => [
-            'fullName'                => [
+            'fullName' => [
                 'constant' => 0,
                 'optional' => true,
                 'implicit' => true

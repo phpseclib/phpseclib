@@ -260,7 +260,7 @@ class TripleDES extends DES
 
         switch (strlen($key)) {
             case 16:
-                $key.= substr($key, 0, 8);
+                $key .= substr($key, 0, 8);
                 break;
             case 24:
                 break;

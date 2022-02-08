@@ -19,8 +19,8 @@ class Unit_Net_SSH2UnitTest extends PhpseclibTestCase
             [
                 ['hello', 'world'],
                 ['<--', '<--'],
-                "<--\r\n00000000  68:65:6c:6c:6f                                   hello\r\n\r\n" .
-                "<--\r\n00000000  77:6f:72:6c:64                                   world\r\n\r\n"
+                "<--\r\n00000000  68:65:6c:6c:6f                                   hello\r\n\r\n"
+                . "<--\r\n00000000  77:6f:72:6c:64                                   world\r\n\r\n"
             ],
         ];
     }

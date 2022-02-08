@@ -529,7 +529,7 @@ class Prime extends Base
         // comb all window NAFs
 
         $max = 0;
-        for ($i = $length - 1; $i >= 1; $i-= 2) {
+        for ($i = $length - 1; $i >= 1; $i -= 2) {
             $a = $i - 1;
             $b = $i;
             if ($wndWidth[$a] != 1 || $wndWidth[$b] != 1) {
@@ -618,9 +618,9 @@ class Prime extends Base
                 if ($z == 0) {
                     continue;
                 }
-                $p = $z > 0 ?
-                    $wnd[$j][($z - 1) >> 1] :
-                    $this->negatePoint($wnd[$j][(-$z - 1) >> 1]);
+                $p = $z > 0
+                    ? $wnd[$j][($z - 1) >> 1]
+                    : $this->negatePoint($wnd[$j][(-$z - 1) >> 1]);
                 $acc = $this->addPoint($acc, $p);
             }
         }
@@ -687,12 +687,12 @@ class Prime extends Base
         while ($k1->compare(new BigInteger(-$d1)) > 0 || $k2->compare(new BigInteger(-$d2)) > 0) {
             // first phase
             $m14 = $k1->testBit(0) + 2 * $k1->testBit(1);
-            $m14+= $d1;
-            $m14&= 3;
+            $m14 += $d1;
+            $m14 &= 3;
 
             $m24 = $k2->testBit(0) + 2 * $k2->testBit(1);
-            $m24+= $d2;
-            $m24&= 3;
+            $m24 += $d2;
+            $m24 &= 3;
 
             if ($m14 == 3) {
                 $m14 = -1;
@@ -704,8 +704,8 @@ class Prime extends Base
             $u1 = 0;
             if ($m14 & 1) { // if $m14 is odd
                 $m8 = $k1->testBit(0) + 2 * $k1->testBit(1) + 4 * $k1->testBit(2);
-                $m8+= $d1;
-                $m8&= 7;
+                $m8 += $d1;
+                $m8 &= 7;
                 $u1 = ($m8 == 3 || $m8 == 5) && $m24 == 2 ? -$m14 : $m14;
             }
             $jsf[0][] = $u1;
@@ -713,8 +713,8 @@ class Prime extends Base
             $u2 = 0;
             if ($m24 & 1) { // if $m24 is odd
                 $m8 = $k2->testBit(0) + 2 * $k2->testBit(1) + 4 * $k2->testBit(2);
-                $m8+= $d2;
-                $m8&= 7;
+                $m8 += $d2;
+                $m8 &= 7;
                 $u2 = ($m8 == 3 || $m8 == 5) && $m14 == 2 ? -$m24 : $m24;
             }
             $jsf[1][] = $u2;

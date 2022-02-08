@@ -73,20 +73,20 @@ draiRBZruwMPwPIP
 
     public function testCSRDER()
     {
-        $csr = 'MIICdzCCAV8CAQEwDDEKMAgGA1UEAwwBeDCCASIwDQYJKoZIhvcNAQEBBQADggEP' .
-               'ADCCAQoCggEBALtcrFDD2AHe3x2bR00wPDsPH6FJLxr5uc1ybb+ldDB5xNVImC8P' .
-               'LU6VXDZ5z68KjSovs1q0OWJWfCjlAuGLzqO35s86LI1CFuTFdkScVHMwh8zUVFoP' .
-               'pG7/9rKaNxCgaHs4evxjxQP2+Ny7tBqPLb/KV0exm6Twocf963jC/Tyn57G5erRf' .
-               'zpFrfK7DozhxY7znumJ4FuSn0TVkD6PPwZFn9VoTjv2ZoJmacGK+0r5yNKG799F5' .
-               'K8EgDrOCfbzCZjX6GJctyn2SNPTeBuXS9piH21FGnJAryv80zG+zUqFdEyoLUGJt' .
-               '4Vy6+tDP9cW68fiwTZS1Oc1VeFdL1G/CrjkCAwEAAaAmMCQGCSqGSIb3DQEJDjEX' .
-               'MBUwEwYKKwYBBAGCqlsBCQQFMAOCAQEwDQYJKoZIhvcNAQELBQADggEBAF4XOd+1' .
-               'jkJOYRInNpHfhzSD/ktDY50gpLPuDvl4f/ZBlKrb1eDYQG5F3bnYzoZWHN4n+6Zs' .
-               'CkljXs5ZPUZ5LuVpASumoG/aHXGz8c8NC3asJ1V73ljEPAfIXwqoIUoaP9jLL+Ee' .
-               'zy/ZCi2NKWVo2D7ocnn79oblAem9ksSeQl4z3Gvhuug6MsMqn96NU/ZY/vjYzAjb' .
-               'MAvJIVRY0rbCxbFa0K+XNJtF7GLyBxyPNFWCvADhvm9C4uPmoypYg7MY6EewJInN' .
-               'xzMH7I4xDLjNu0VBa6lAxTvflp0joQHKlTYX0SDIKPbQivjZMuObPuxDtkVZ0rQl' .
-               'AjmgMowaN5otTXM=';
+        $csr = 'MIICdzCCAV8CAQEwDDEKMAgGA1UEAwwBeDCCASIwDQYJKoZIhvcNAQEBBQADggEP'
+               . 'ADCCAQoCggEBALtcrFDD2AHe3x2bR00wPDsPH6FJLxr5uc1ybb+ldDB5xNVImC8P'
+               . 'LU6VXDZ5z68KjSovs1q0OWJWfCjlAuGLzqO35s86LI1CFuTFdkScVHMwh8zUVFoP'
+               . 'pG7/9rKaNxCgaHs4evxjxQP2+Ny7tBqPLb/KV0exm6Twocf963jC/Tyn57G5erRf'
+               . 'zpFrfK7DozhxY7znumJ4FuSn0TVkD6PPwZFn9VoTjv2ZoJmacGK+0r5yNKG799F5'
+               . 'K8EgDrOCfbzCZjX6GJctyn2SNPTeBuXS9piH21FGnJAryv80zG+zUqFdEyoLUGJt'
+               . '4Vy6+tDP9cW68fiwTZS1Oc1VeFdL1G/CrjkCAwEAAaAmMCQGCSqGSIb3DQEJDjEX'
+               . 'MBUwEwYKKwYBBAGCqlsBCQQFMAOCAQEwDQYJKoZIhvcNAQELBQADggEBAF4XOd+1'
+               . 'jkJOYRInNpHfhzSD/ktDY50gpLPuDvl4f/ZBlKrb1eDYQG5F3bnYzoZWHN4n+6Zs'
+               . 'CkljXs5ZPUZ5LuVpASumoG/aHXGz8c8NC3asJ1V73ljEPAfIXwqoIUoaP9jLL+Ee'
+               . 'zy/ZCi2NKWVo2D7ocnn79oblAem9ksSeQl4z3Gvhuug6MsMqn96NU/ZY/vjYzAjb'
+               . 'MAvJIVRY0rbCxbFa0K+XNJtF7GLyBxyPNFWCvADhvm9C4uPmoypYg7MY6EewJInN'
+               . 'xzMH7I4xDLjNu0VBa6lAxTvflp0joQHKlTYX0SDIKPbQivjZMuObPuxDtkVZ0rQl'
+               . 'AjmgMowaN5otTXM=';
         $csr = base64_decode($csr);
 
         $x509 = new X509();

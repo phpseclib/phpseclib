@@ -145,9 +145,9 @@ abstract class PKCS8 extends PKCS
      */
     private static function getPBES1EncryptionObject($algo)
     {
-        $algo = preg_match('#^pbeWith(?:MD2|MD5|SHA1|SHA)And(.*?)-CBC$#', $algo, $matches) ?
-            $matches[1] :
-            substr($algo, 13); // strlen('pbeWithSHAAnd') == 13
+        $algo = preg_match('#^pbeWith(?:MD2|MD5|SHA1|SHA)And(.*?)-CBC$#', $algo, $matches)
+            ? $matches[1]
+            : substr($algo, 13); // strlen('pbeWithSHAAnd') == 13
 
         switch ($algo) {
             case 'DES':
@@ -268,9 +268,9 @@ abstract class PKCS8 extends PKCS
     private static function initialize_static_variables()
     {
         if (!static::$childOIDsLoaded) {
-            ASN1::loadOIDs(is_array(static::OID_NAME) ?
-                array_combine(static::OID_NAME, static::OID_VALUE) :
-                [static::OID_NAME => static::OID_VALUE]
+            ASN1::loadOIDs(is_array(static::OID_NAME)
+                ? array_combine(static::OID_NAME, static::OID_VALUE)
+                : [static::OID_NAME => static::OID_VALUE]
             );
             static::$childOIDsLoaded = true;
         }
@@ -282,8 +282,8 @@ abstract class PKCS8 extends PKCS
                 'pbeWithMD2AndRC2-CBC' => '1.2.840.113549.1.5.4',
                 'pbeWithMD5AndDES-CBC' => '1.2.840.113549.1.5.3',
                 'pbeWithMD5AndRC2-CBC' => '1.2.840.113549.1.5.6',
-                'pbeWithSHA1AndDES-CBC'=> '1.2.840.113549.1.5.10',
-                'pbeWithSHA1AndRC2-CBC'=> '1.2.840.113549.1.5.11',
+                'pbeWithSHA1AndDES-CBC' => '1.2.840.113549.1.5.10',
+                'pbeWithSHA1AndRC2-CBC' => '1.2.840.113549.1.5.11',
 
                 // from PKCS#12:
                 // https://tools.ietf.org/html/rfc7292
@@ -303,19 +303,19 @@ abstract class PKCS8 extends PKCS
                 'id-hmacWithSHA1' => '1.2.840.113549.2.7',
                 'id-hmacWithSHA224' => '1.2.840.113549.2.8',
                 'id-hmacWithSHA256' => '1.2.840.113549.2.9',
-                'id-hmacWithSHA384'=> '1.2.840.113549.2.10',
-                'id-hmacWithSHA512'=> '1.2.840.113549.2.11',
-                'id-hmacWithSHA512-224'=> '1.2.840.113549.2.12',
-                'id-hmacWithSHA512-256'=> '1.2.840.113549.2.13',
+                'id-hmacWithSHA384' => '1.2.840.113549.2.10',
+                'id-hmacWithSHA512' => '1.2.840.113549.2.11',
+                'id-hmacWithSHA512-224' => '1.2.840.113549.2.12',
+                'id-hmacWithSHA512-256' => '1.2.840.113549.2.13',
 
-                'desCBC'       => '1.3.14.3.2.7',
+                'desCBC' => '1.3.14.3.2.7',
                 'des-EDE3-CBC' => '1.2.840.113549.3.7',
                 'rc2CBC' => '1.2.840.113549.3.2',
                 'rc5-CBC-PAD' => '1.2.840.113549.3.9',
 
                 'aes128-CBC-PAD' => '2.16.840.1.101.3.4.1.2',
-                'aes192-CBC-PAD'=> '2.16.840.1.101.3.4.1.22',
-                'aes256-CBC-PAD'=> '2.16.840.1.101.3.4.1.42'
+                'aes192-CBC-PAD' => '2.16.840.1.101.3.4.1.22',
+                'aes256-CBC-PAD' => '2.16.840.1.101.3.4.1.42'
             ]);
             self::$oidsLoaded = true;
         }
@@ -600,14 +600,14 @@ abstract class PKCS8 extends PKCS
 
             $key = ASN1::encodeDER($key, Maps\EncryptedPrivateKeyInfo::MAP);
 
-            return "-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n" .
-                   chunk_split(Base64::encode($key), 64) .
-                   "-----END ENCRYPTED PRIVATE KEY-----";
+            return "-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n"
+                   . chunk_split(Base64::encode($key), 64)
+                   . "-----END ENCRYPTED PRIVATE KEY-----";
         }
 
-        return "-----BEGIN PRIVATE KEY-----\r\n" .
-               chunk_split(Base64::encode($key), 64) .
-               "-----END PRIVATE KEY-----";
+        return "-----BEGIN PRIVATE KEY-----\r\n"
+               . chunk_split(Base64::encode($key), 64)
+               . "-----END PRIVATE KEY-----";
     }
 
     /**
@@ -633,9 +633,9 @@ abstract class PKCS8 extends PKCS
 
         $key = ASN1::encodeDER($key, Maps\PublicKeyInfo::MAP);
 
-        return "-----BEGIN PUBLIC KEY-----\r\n" .
-               chunk_split(Base64::encode($key), 64) .
-               "-----END PUBLIC KEY-----";
+        return "-----BEGIN PUBLIC KEY-----\r\n"
+               . chunk_split(Base64::encode($key), 64)
+               . "-----END PUBLIC KEY-----";
     }
 
     /**

@@ -455,9 +455,9 @@ abstract class RSA extends AsymmetricKey
      */
     protected static function onLoad($components)
     {
-        $key = $components['isPublicKey'] ?
-            new PublicKey :
-            new PrivateKey;
+        $key = $components['isPublicKey']
+            ? new PublicKey
+            : new PrivateKey;
 
         $key->modulus = $components['modulus'];
         $key->publicExponent = $components['publicExponent'];
@@ -603,7 +603,7 @@ abstract class RSA extends AsymmetricKey
             case 'sha512/256':
                 $t = "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x06\x05\x00\x04\x20";
         }
-        $t.= $h;
+        $t .= $h;
         $tLen = strlen($t);
 
         if ($emLen < $tLen + 11) {
@@ -663,7 +663,7 @@ abstract class RSA extends AsymmetricKey
             default:
                 throw new UnsupportedAlgorithmException('md2 and md5 require NULLs');
         }
-        $t.= $h;
+        $t .= $h;
         $tLen = strlen($t);
 
         if ($emLen < $tLen + 11) {
@@ -695,7 +695,7 @@ abstract class RSA extends AsymmetricKey
         $count = ceil($maskLen / $this->mgfHLen);
         for ($i = 0; $i < $count; $i++) {
             $c = pack('N', $i);
-            $t.= $this->mgfHash->hash($mgfSeed . $c);
+            $t .= $this->mgfHash->hash($mgfSeed . $c);
         }
 
         return substr($t, 0, $maskLen);
@@ -935,9 +935,9 @@ abstract class RSA extends AsymmetricKey
      */
     public function getEngine()
     {
-        return self::$engines['OpenSSL'] && self::$defaultExponent == 65537 ?
-            'OpenSSL' :
-            'PHP';
+        return self::$engines['OpenSSL'] && self::$defaultExponent == 65537
+            ? 'OpenSSL'
+            : 'PHP';
     }
 
     /**

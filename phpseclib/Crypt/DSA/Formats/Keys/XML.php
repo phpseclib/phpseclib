@@ -123,11 +123,11 @@ abstract class XML
      */
     public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y)
     {
-        return "<DSAKeyValue>\r\n" .
-               '  <P>' . Base64::encode($p->toBytes()) . "</P>\r\n" .
-               '  <Q>' . Base64::encode($q->toBytes()) . "</Q>\r\n" .
-               '  <G>' . Base64::encode($g->toBytes()) . "</G>\r\n" .
-               '  <Y>' . Base64::encode($y->toBytes()) . "</Y>\r\n" .
-               '</DSAKeyValue>';
+        return "<DSAKeyValue>\r\n"
+               . '  <P>' . Base64::encode($p->toBytes()) . "</P>\r\n"
+               . '  <Q>' . Base64::encode($q->toBytes()) . "</Q>\r\n"
+               . '  <G>' . Base64::encode($g->toBytes()) . "</G>\r\n"
+               . '  <Y>' . Base64::encode($y->toBytes()) . "</Y>\r\n"
+               . '</DSAKeyValue>';
     }
 }

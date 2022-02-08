@@ -107,12 +107,12 @@ kBniZHdFBAZBTE14YJUBkw==
 
     public function testSSHSignature()
     {
-        $dsa = PublicKeyLoader::load('AAAAB3NzaC1kc3MAAACBAPyzZzm4oqmY12lxmHwNcfYDNyXr38M1lU6xy9I792U1YSKgX27nUW9eXdJ8Mrn63Le5rrBRfg2Niycx' .
-                   'JF2IwDpwCi7YpIv79uwT3RtA0chQDS4vx8qi8BWBzy7PZC9hmqY62+mgfj8ooga1sr+JpMh+8r4j3KjPM+wE37khkgkvAAAAFQDn' .
-                   '19pBng6TajI/vdg7GPnxsitCqQAAAIEA6Pl1Z/TVdkc+HpfkAvcg2Q+yNtnVq7+26RCbRDO3b9Ocr+tZA9u23qnO3KDYeygzaLnI' .
-                   'gpErp61Bj70iIUldhXy2LFGZFEC9XiKmt/tQxSDKiBbj3bS3wKfHrAlElgjhqxiRh+GixgSsmCj96eJFXcsxPjQU81HR+WJ0ALV1' .
-                   'UnMAAACABRdNuqqe1Y68es8TIflV71P0J7Ci2BbbqAXRwYYKc9/7DrygwaN2UIbMXyOLuojeZgQPPoM9nkzd6QZo8M9apawVKKwD' .
-                   'GAUj2of+F9WVRxhE0ohTQBzD/3HqT80pQsX+rYcxuSx1cCtdMp4oLrrfKO2J4EiWUkaoSB7SdCaj+vU=');
+        $dsa = PublicKeyLoader::load('AAAAB3NzaC1kc3MAAACBAPyzZzm4oqmY12lxmHwNcfYDNyXr38M1lU6xy9I792U1YSKgX27nUW9eXdJ8Mrn63Le5rrBRfg2Niycx'
+                   . 'JF2IwDpwCi7YpIv79uwT3RtA0chQDS4vx8qi8BWBzy7PZC9hmqY62+mgfj8ooga1sr+JpMh+8r4j3KjPM+wE37khkgkvAAAAFQDn'
+                   . '19pBng6TajI/vdg7GPnxsitCqQAAAIEA6Pl1Z/TVdkc+HpfkAvcg2Q+yNtnVq7+26RCbRDO3b9Ocr+tZA9u23qnO3KDYeygzaLnI'
+                   . 'gpErp61Bj70iIUldhXy2LFGZFEC9XiKmt/tQxSDKiBbj3bS3wKfHrAlElgjhqxiRh+GixgSsmCj96eJFXcsxPjQU81HR+WJ0ALV1'
+                   . 'UnMAAACABRdNuqqe1Y68es8TIflV71P0J7Ci2BbbqAXRwYYKc9/7DrygwaN2UIbMXyOLuojeZgQPPoM9nkzd6QZo8M9apawVKKwD'
+                   . 'GAUj2of+F9WVRxhE0ohTQBzD/3HqT80pQsX+rYcxuSx1cCtdMp4oLrrfKO2J4EiWUkaoSB7SdCaj+vU=');
         $dsa = $dsa
             ->withHash('sha1')
             ->withSignatureFormat('SSH2');

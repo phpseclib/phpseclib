@@ -110,7 +110,7 @@ class PHP32 extends PHP
         }
 
         while (true) {
-            $i-= 4;
+            $i -= 4;
             if ($i < 0) {
                 if ($i == -4) {
                     break;
@@ -125,10 +125,10 @@ class PHP32 extends PHP
             list(, $digit) = unpack('N', substr($val, $i, 4));
             $step = count($vals) & 3;
             if ($step) {
-                $digit>>= 2 * $step;
+                $digit >>= 2 * $step;
             }
             if ($step != 3) {
-                $digit&= static::MAX_DIGIT;
+                $digit &= static::MAX_DIGIT;
                 $i++;
             }
             $vals[] = $digit;

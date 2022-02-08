@@ -71,8 +71,8 @@ abstract class SSH2
             return false;
         }
         return Strings::packSSH2('ss', 'ssh-dss',
-            str_pad($r->toBytes(), 20, "\0", STR_PAD_LEFT) .
-            str_pad($s->toBytes(), 20, "\0", STR_PAD_LEFT)
+            str_pad($r->toBytes(), 20, "\0", STR_PAD_LEFT)
+            . str_pad($s->toBytes(), 20, "\0", STR_PAD_LEFT)
         );
     }
 }

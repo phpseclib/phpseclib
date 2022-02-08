@@ -98,9 +98,9 @@ abstract class PKCS1 extends Progenitor
 
         $key = ASN1::encodeDER($key, Maps\DSAParams::MAP);
 
-        return "-----BEGIN DSA PARAMETERS-----\r\n" .
-               chunk_split(Base64::encode($key), 64) .
-               "-----END DSA PARAMETERS-----\r\n";
+        return "-----BEGIN DSA PARAMETERS-----\r\n"
+               . chunk_split(Base64::encode($key), 64)
+               . "-----END DSA PARAMETERS-----\r\n";
     }
 
     /**

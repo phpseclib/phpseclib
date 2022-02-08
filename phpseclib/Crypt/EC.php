@@ -173,9 +173,9 @@ abstract class EC extends AsymmetricKey
         }
 
         $reflect = new \ReflectionClass($curve);
-        $curveName = $reflect->isFinal() ?
-            $reflect->getParentClass()->getShortName() :
-            $reflect->getShortName();
+        $curveName = $reflect->isFinal()
+            ? $reflect->getParentClass()->getShortName()
+            : $reflect->getShortName();
 
         $curve = new $curve();
         $privatekey->dA = $dA = $curve->createRandomMultiplier();
@@ -222,9 +222,9 @@ abstract class EC extends AsymmetricKey
             return $new;
         }
 
-        $new = isset($components['dA']) ?
-            new PrivateKey :
-            new PublicKey;
+        $new = isset($components['dA'])
+            ? new PrivateKey
+            : new PublicKey;
         $new->curve = $components['curve'];
         $new->QA = $components['QA'];
 
@@ -324,12 +324,12 @@ abstract class EC extends AsymmetricKey
     public function getEngine()
     {
         if ($this->curve instanceof TwistedEdwardsCurve) {
-            return $this->curve instanceof Ed25519 && self::$engines['libsodium'] && !isset($this->context) ?
-                'libsodium' : 'PHP';
+            return $this->curve instanceof Ed25519 && self::$engines['libsodium'] && !isset($this->context)
+                ? 'libsodium' : 'PHP';
         }
 
-        return self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods()) ?
-            'OpenSSL' : 'PHP';
+        return self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())
+            ? 'OpenSSL' : 'PHP';
     }
 
     /**

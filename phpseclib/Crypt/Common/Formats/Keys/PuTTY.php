@@ -65,7 +65,7 @@ abstract class PuTTY
         $sequence = 0;
         while (strlen($symkey) < $length) {
             $temp = pack('Na*', $sequence++, $password);
-            $symkey.= Hex::decode(sha1($temp));
+            $symkey .= Hex::decode(sha1($temp));
         }
         return substr($symkey, 0, $length);
     }
@@ -108,10 +108,10 @@ abstract class PuTTY
                         break;
                     case $in_value:
                         $in_value = $line[strlen($line) - 1] == '\\';
-                        $values[$current].= $in_value ? substr($line, 0, -1) : $line;
+                        $values[$current] .= $in_value ? substr($line, 0, -1) : $line;
                         break;
                     default:
-                        $data.= $line;
+                        $data .= $line;
                 }
             }
 
@@ -119,7 +119,7 @@ abstract class PuTTY
             if ($components === false) {
                 throw new \UnexpectedValueException('Unable to decode public key');
             }
-            $components+= $values;
+            $components += $values;
             $components['comment'] = str_replace(['\\\\', '\"'], ['\\', '"'], $values['comment']);
 
             return $components;
@@ -131,9 +131,9 @@ abstract class PuTTY
         $type = trim(preg_replace('#PuTTY-User-Key-File-2: (.+)#', '$1', $key[0]));
         $components['type'] = $type;
         if (!in_array($type, static::$types)) {
-            $error = count(static::$types) == 1 ?
-                'Only ' . static::$types[0] . ' keys are supported. ' :
-                '';
+            $error = count(static::$types) == 1
+                ? 'Only ' . static::$types[0] . ' keys are supported. '
+                : '';
             throw new UnsupportedAlgorithmException($error . 'This is an unsupported ' . $type . ' key');
         }
         $encryption = trim(preg_replace('#Encryption: (.+)#', '$1', $key[1]));
@@ -164,14 +164,14 @@ abstract class PuTTY
         $hashkey = 'putty-private-key-file-mac-key';
 
         if ($encryption != 'none') {
-            $hashkey.= $password;
+            $hashkey .= $password;
             $crypto->setKey($symkey);
             $crypto->setIV(str_repeat("\0", $crypto->getBlockLength() >> 3));
             $crypto->disablePadding();
             $private = $crypto->decrypt($private);
         }
 
-        $source.= Strings::packSSH2('s', $private);
+        $source .= Strings::packSSH2('s', $private);
 
         $hash = new Hash('sha1');
         $hash->setKey(sha1($hashkey, true));
@@ -203,23 +203,23 @@ abstract class PuTTY
         $encryption = (!empty($password) || is_string($password)) ? 'aes256-cbc' : 'none';
         $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
 
-        $key = "PuTTY-User-Key-File-2: " . $type . "\r\nEncryption: ";        $key.= $encryption;
-        $key.= "\r\nComment: " . $comment . "\r\n";
+        $key = "PuTTY-User-Key-File-2: " . $type . "\r\nEncryption: ";        $key .= $encryption;
+        $key .= "\r\nComment: " . $comment . "\r\n";
 
         $public = Strings::packSSH2('s', $type) . $public;
 
         $source = Strings::packSSH2('ssss', $type, $encryption, $comment, $public);
 
         $public = Base64::encode($public);
-        $key.= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";
-        $key.= chunk_split($public, 64);
+        $key .= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";
+        $key .= chunk_split($public, 64);
 
         if (empty($password) && !is_string($password)) {
-            $source.= Strings::packSSH2('s', $private);
+            $source .= Strings::packSSH2('s', $private);
             $hashkey = 'putty-private-key-file-mac-key';
         } else {
-            $private.= Random::string(16 - (strlen($private) & 15));
-            $source.= Strings::packSSH2('s', $private);
+            $private .= Random::string(16 - (strlen($private) & 15));
+            $source .= Strings::packSSH2('s', $private);
             $crypto = new AES('cbc');
 
             $crypto->setKey(self::generateSymmetricKey($password, 32));
@@ -230,11 +230,11 @@ abstract class PuTTY
         }
 
         $private = Base64::encode($private);
-        $key.= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
-        $key.= chunk_split($private, 64);
+        $key .= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
+        $key .= chunk_split($private, 64);
         $hash = new Hash('sha1');
         $hash->setKey(sha1($hashkey, true));
-        $key.= 'Private-MAC: ' . Hex::encode($hash->hash($source)) . "\r\n";
+        $key .= 'Private-MAC: ' . Hex::encode($hash->hash($source)) . "\r\n";
 
         return $key;
     }
@@ -252,10 +252,10 @@ abstract class PuTTY
     protected static function wrapPublicKey($key, $type)
     {
         $key = pack('Na*a*', strlen($type), $type, $key);
-        $key = "---- BEGIN SSH2 PUBLIC KEY ----\r\n" .
-               'Comment: "' . str_replace(['\\', '"'], ['\\\\', '\"'], self::$comment) . "\"\r\n" .
-               chunk_split(Base64::encode($key), 64) .
-               '---- END SSH2 PUBLIC KEY ----';
+        $key = "---- BEGIN SSH2 PUBLIC KEY ----\r\n"
+               . 'Comment: "' . str_replace(['\\', '"'], ['\\\\', '\"'], self::$comment) . "\"\r\n"
+               . chunk_split(Base64::encode($key), 64)
+               . '---- END SSH2 PUBLIC KEY ----';
         return $key;
     }
 }

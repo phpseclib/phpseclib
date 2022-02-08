@@ -75,9 +75,9 @@ abstract class libsodium
         if (isset($private)) {
             $components['dA'] = $curve->extractSecret($private);
         }
-        $components['QA'] = isset($public) ?
-            self::extractPoint($public, $curve) :
-            $curve->multiplyPoint($curve->getBasePoint(), $components['dA']);
+        $components['QA'] = isset($public)
+            ? self::extractPoint($public, $curve)
+            : $curve->multiplyPoint($curve->getBasePoint(), $components['dA']);
 
         return $components;
     }

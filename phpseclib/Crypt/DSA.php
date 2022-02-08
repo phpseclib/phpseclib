@@ -292,8 +292,8 @@ abstract class DSA extends AsymmetricKey
      */
     public function getEngine()
     {
-        return self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods()) ?
-            'OpenSSL' : 'PHP';
+        return self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())
+            ? 'OpenSSL' : 'PHP';
     }
 
     /**

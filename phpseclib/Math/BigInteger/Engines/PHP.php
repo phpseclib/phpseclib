@@ -198,9 +198,9 @@ abstract class PHP extends Engine
         $result = $this->bitwise_small_split(8);
         $result = implode('', array_map('chr', $result));
 
-        return $this->precision > 0 ?
-            str_pad(substr($result, -(($this->precision + 7) >> 3)), ($this->precision + 7) >> 3, chr(0), STR_PAD_LEFT) :
-            $result;
+        return $this->precision > 0
+            ? str_pad(substr($result, -(($this->precision + 7) >> 3)), ($this->precision + 7) >> 3, chr(0), STR_PAD_LEFT)
+            : $result;
     }
 
     /**
@@ -239,8 +239,8 @@ abstract class PHP extends Engine
             }
 
             $temp = self::subtractHelper($x_value, false, $y_value, false);
-            $temp[self::SIGN] = self::compareHelper($x_value, false, $y_value, false) > 0 ?
-                                          $x_negative : $y_negative;
+            $temp[self::SIGN] = self::compareHelper($x_value, false, $y_value, false) > 0
+                                          ? $x_negative : $y_negative;
 
             return $temp;
         }
@@ -256,7 +256,7 @@ abstract class PHP extends Engine
         $value[count($value)] = 0; // just in case the carry adds an extra digit
 
         $carry = 0;
-        for ($i = 0, $j = 1; $j < $size; $i+=2, $j+=2) {
+        for ($i = 0, $j = 1; $j < $size; $i += 2, $j += 2) {
             //$sum = $x_value[$j] * static::BASE_FULL + $x_value[$i] + $y_value[$j] * static::BASE_FULL + $y_value[$i] + $carry;
             $sum = ($x_value[$j] + $y_value[$j]) * static::BASE_FULL + $x_value[$i] + $y_value[$i] + $carry;
             $carry = $sum >= static::MAX_DIGIT2; // eg. floor($sum / 2**52); only possible values (in any base) are 0 and 1
@@ -346,7 +346,7 @@ abstract class PHP extends Engine
         // at this point, $x_value should be at least as big as - if not bigger than - $y_value
 
         $carry = 0;
-        for ($i = 0, $j = 1; $j < $y_size; $i+=2, $j+=2) {
+        for ($i = 0, $j = 1; $j < $y_size; $i += 2, $j += 2) {
             $sum = ($x_value[$j] - $y_value[$j]) * static::BASE_FULL + $x_value[$i] - $y_value[$i] - $carry;
 
             $carry = $sum < 0; // eg. floor($sum / 2**52); only possible values (in any base) are 0 and 1
@@ -407,9 +407,9 @@ abstract class PHP extends Engine
         }
 
         return [
-            self::VALUE => min($x_length, $y_length) < 2 * self::KARATSUBA_CUTOFF ?
-                self::trim(self::regularMultiply($x_value, $y_value)) :
-                self::trim(self::karatsuba($x_value, $y_value)),
+            self::VALUE => min($x_length, $y_length) < 2 * self::KARATSUBA_CUTOFF
+                ? self::trim(self::regularMultiply($x_value, $y_value))
+                : self::trim(self::karatsuba($x_value, $y_value)),
             self::SIGN => $x_negative != $y_negative
         ];
     }
@@ -575,16 +575,16 @@ abstract class PHP extends Engine
         static $temp, $lhs, $rhs;
         if (!isset($temp)) {
             $temp = new static();
-            $lhs =  new static();
-            $rhs =  new static();
+            $lhs = new static();
+            $rhs = new static();
         }
-    if (static::class != get_class($temp)) {
+        if (static::class != get_class($temp)) {
             $temp = new static();
-            $lhs =  new static();
-            $rhs =  new static();
+            $lhs = new static();
+            $rhs = new static();
         }
         $temp_value = &$temp->value;
-        $rhs_value =  &$rhs->value;
+        $rhs_value = &$rhs->value;
 
         // $temp = $y << ($x_max - $y_max-1) in base 2**26
         $temp_value = array_merge(self::array_repeat(0, $x_max - $y_max), $y_value);
@@ -982,9 +982,9 @@ abstract class PHP extends Engine
      */
     protected static function square(array $x)
     {
-        return count($x) < 2 * self::KARATSUBA_CUTOFF ?
-            self::trim(self::baseSquare($x)) :
-            self::trim(self::karatsubaSquare($x));
+        return count($x) < 2 * self::KARATSUBA_CUTOFF
+            ? self::trim(self::baseSquare($x))
+            : self::trim(self::karatsubaSquare($x));
     }
 
     /**
@@ -1234,7 +1234,7 @@ abstract class PHP extends Engine
             $digit = [];
             if (!$overflow) {
                 $digit = array_slice($val, $i, $width);
-                $i+= $width;
+                $i += $width;
                 $overflow = $split % static::BASE;
                 if ($overflow) {
                     $mask = (1 << $overflow) - 1;
@@ -1246,7 +1246,7 @@ abstract class PHP extends Engine
                 $tempsplit = $split - $remaining;
                 $tempwidth = (int) ($tempsplit / static::BASE + 1);
                 $digit = array_slice($val, $i, $tempwidth);
-                $i+= $tempwidth;
+                $i += $tempwidth;
                 $tempoverflow = $tempsplit % static::BASE;
                 if ($tempoverflow) {
                     $tempmask = (1 << $tempoverflow) - 1;
@@ -1289,9 +1289,9 @@ abstract class PHP extends Engine
         $remaining = static::BASE;
         while ($i != $len) {
             $digit = $val[$i] & $mask;
-            $val[$i]>>= $split;
+            $val[$i] >>= $split;
             if (!$overflow) {
-                $remaining-= $split;
+                $remaining -= $split;
                 $overflow = $split <= $remaining ? 0 : $split - $remaining;
 
                 if (!$remaining) {
@@ -1301,8 +1301,8 @@ abstract class PHP extends Engine
                 }
             } else if (++$i != $len) {
                 $tempmask = (1 << $overflow) - 1;
-                $digit|= ($val[$i] & $tempmask) << $remaining;
-                $val[$i]>>= $overflow;
+                $digit |= ($val[$i] & $tempmask) << $remaining;
+                $val[$i] >>= $overflow;
                 $remaining = static::BASE - $overflow;
                 $overflow = $split <= $remaining ? 0 : $split - $remaining;
             }

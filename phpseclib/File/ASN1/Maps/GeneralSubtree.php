@@ -27,9 +27,9 @@ use phpseclib3\File\ASN1;
 abstract class GeneralSubtree
 {
     const MAP = [
-        'type'     => ASN1::TYPE_SEQUENCE,
+        'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
-            'base'    => GeneralName::MAP,
+            'base' => GeneralName::MAP,
             'minimum' => [
                 'constant' => 0,
                 'optional' => true,

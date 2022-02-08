@@ -76,8 +76,8 @@ abstract class PKCS1 extends Progenitor
         ];
         $params = ASN1::encodeDER($params, Maps\DHParameter::MAP);
 
-        return "-----BEGIN DH PARAMETERS-----\r\n" .
-               chunk_split(base64_encode($params), 64) .
-               "-----END DH PARAMETERS-----\r\n";
+        return "-----BEGIN DH PARAMETERS-----\r\n"
+               . chunk_split(base64_encode($params), 64)
+               . "-----END DH PARAMETERS-----\r\n";
     }
 }

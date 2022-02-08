@@ -174,13 +174,11 @@ class Integer extends Base
             $s = '1' . str_repeat('0', $degr - $d);
             $s = BinaryField::base2ToBase256($s);
             $length = max(strlen($s), strlen($q));
-            $q = !isset($q) ? $s :
-                str_pad($q, $length, "\0", STR_PAD_LEFT) ^
-                str_pad($s, $length, "\0", STR_PAD_LEFT);
+            $q = !isset($q) ? $s
+                : str_pad($q, $length, "\0", STR_PAD_LEFT) ^ str_pad($s, $length, "\0", STR_PAD_LEFT);
             $s = static::polynomialMultiply($s, $y);
             $length = max(strlen($r), strlen($s));
-            $r = str_pad($r, $length, "\0", STR_PAD_LEFT) ^
-                 str_pad($s, $length, "\0", STR_PAD_LEFT);
+            $r = str_pad($r, $length, "\0", STR_PAD_LEFT) ^ str_pad($s, $length, "\0", STR_PAD_LEFT);
         }
 
         return [ltrim($q, "\0"), ltrim($r, "\0")];
@@ -216,7 +214,7 @@ class Integer extends Base
         for ($i = 0; $i < strlen($y); $i++) {
             if ($y[$i] == '1') {
                 $temp = $precomputed[$i & 7] . str_repeat("\0", $i >> 3);
-                $result^= str_pad($temp, $size, "\0", STR_PAD_LEFT);
+                $result ^= str_pad($temp, $size, "\0", STR_PAD_LEFT);
             }
         }
 
@@ -243,9 +241,9 @@ class Integer extends Base
 
         switch (true) {
             case PHP_INT_SIZE == 8 && $length <= 4:
-                return $length != 4 ?
-                    self::subMultiply(str_pad($x, 4, "\0", STR_PAD_LEFT), str_pad($y, 4, "\0", STR_PAD_LEFT)) :
-                    self::subMultiply($x, $y);
+                return $length != 4
+                    ? self::subMultiply(str_pad($x, 4, "\0", STR_PAD_LEFT), str_pad($y, 4, "\0", STR_PAD_LEFT))
+                    : self::subMultiply($x, $y);
             case PHP_INT_SIZE == 4 || $length > 32:
                 return self::regularPolynomialMultiply($x, $y);
         }
@@ -304,10 +302,10 @@ class Integer extends Base
         $z2 = ($x0 * $y2) ^ ($x1 * $y1) ^ ($x2 * $y0) ^ ($x3 * $y3);
         $z3 = ($x0 * $y3) ^ ($x1 * $y2) ^ ($x2 * $y1) ^ ($x3 * $y0);
 
-        $z0&= 0x1111111111111111;
-        $z1&= 0x2222222222222222;
-        $z2&= 0x4444444444444444;
-        $z3&= -8608480567731124088; // 0x8888888888888888 gets interpreted as a float
+        $z0 &= 0x1111111111111111;
+        $z1 &= 0x2222222222222222;
+        $z2 &= 0x4444444444444444;
+        $z3 &= -8608480567731124088; // 0x8888888888888888 gets interpreted as a float
 
         $z = $z0 | $z1 | $z2 | $z3;
 
@@ -408,8 +406,7 @@ class Integer extends Base
             // row n-2 and the product of the quotient and the auxiliary in row
             // n-1
             $temp = static::polynomialMultiply($aux1, $q);
-            $aux = str_pad($aux0, strlen($temp), "\0", STR_PAD_LEFT) ^
-                   str_pad($temp, strlen($aux0), "\0", STR_PAD_LEFT);
+            $aux = str_pad($aux0, strlen($temp), "\0", STR_PAD_LEFT) ^ str_pad($temp, strlen($aux0), "\0", STR_PAD_LEFT);
             $aux0 = $aux1;
             $aux1 = $aux;
         }
