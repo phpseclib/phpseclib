@@ -52,7 +52,7 @@ class Hash
      *
      * @access private
      */
-    //const PADDING_KECCAK = 1;
+    const PADDING_KECCAK = 1;
 
     /**
      * Padding Types
@@ -338,6 +338,8 @@ class Hash
             case 'sha3-224':
                 $this->length = 28;
                 break;
+            case 'keccak256':
+                $this->paddingType = self::PADDING_KECCAK;
             case 'sha256':
             case 'sha512/256':
             case 'sha3-256':
@@ -383,6 +385,7 @@ class Hash
                 break;
             case 'sha3-256':
             case 'shake256':
+            case 'keccak256':
                 $this->blockSize = 1088; // 1600 - 2*256
                 break;
             case 'sha3-384':
@@ -398,10 +401,10 @@ class Hash
                 $this->blockSize = 1024;
         }
 
-        if (in_array(substr($hash, 0, 5), ['sha3-', 'shake'])) {
+        if (in_array(substr($hash, 0, 5), ['sha3-', 'shake', 'kecca'])) {
             // PHP 7.1.0 introduced support for "SHA3 fixed mode algorithms":
             // http://php.net/ChangeLog-7.php#7.1.0
-            if (version_compare(PHP_VERSION, '7.1.0') < 0 || substr($hash, 0,5) == 'shake') {
+            if (version_compare(PHP_VERSION, '7.1.0') < 0 || substr($hash, 0,5) != 'sha3-') {
                 //preg_match('#(\d+)$#', $hash, $matches);
                 //$this->parameters['capacity'] = 2 * $matches[1]; // 1600 - $this->blockSize
                 //$this->parameters['rate'] = 1600 - $this->parameters['capacity']; // == $this->blockSize
@@ -930,10 +933,10 @@ class Hash
     private static function sha3_pad($padLength, $padType)
     {
         switch ($padType) {
-            //case self::PADDING_KECCAK:
-            //    $temp = chr(0x06) . str_repeat("\0", $padLength - 1);
-            //    $temp[$padLength - 1] = $temp[$padLength - 1] | chr(0x80);
-            //    return $temp
+            case self::PADDING_KECCAK:
+                $temp = chr(0x01) . str_repeat("\0", $padLength - 1);
+                $temp[$padLength - 1] = $temp[$padLength - 1] | chr(0x80);
+                return $temp;
             case self::PADDING_SHAKE:
                 $temp = chr(0x1F) . str_repeat("\0", $padLength - 1);
                 $temp[$padLength - 1] = $temp[$padLength - 1] | chr(0x80);

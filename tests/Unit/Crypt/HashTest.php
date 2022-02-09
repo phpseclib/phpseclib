@@ -144,7 +144,23 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
                 'shake256-912', // this is what Ed448 uses
                 str_repeat('a', 135), // one character shy of the block size (136)
                 '55b991ece1e567b6e7c2c714444dd201cd51f4f3832d08e1d26bebc63e07a3d7ddeed4a5aa6df7a15f89f2050566f75d9cf1a4dea4ed1f578df0985d5706d49e877d9a913dcdbc26a4c4e807ec72dc10438df95873e24660e39cd49aa4e5df286cb5ba60eaad91ff134754c21cd736681a8f'
-            ]
+            ],
+            // from https://docs.ethers.io/v5/api/utils/hashing/
+            [
+                'keccak256', // used by Ethereum
+                "\x12\x34",
+                '56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432'
+            ],
+            [
+                'keccak256',
+                '',
+                'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
+            ],
+            [
+                'keccak256',
+                'hello world',
+                '47173285a8d7341e5e972fc677286384f802f8ef42a5ec5f03bbfa254cb01fad'
+            ],
         ];
     }
 
@@ -362,7 +378,7 @@ class Unit_Crypt_HashTest extends PhpseclibTestCase
      */
     public function testHash96($hash, $message, $result)
     {
-        if (preg_match('#^sha3-\d+#', $hash) || preg_match('#^shake(?:128|256)-\d+#', $hash)) {
+        if (preg_match('#^sha3-\d+#', $hash) || preg_match('#^shake(?:128|256)-\d+#', $hash) || $hash === 'keccak256') {
             self::markTestSkipped($hash . '-96 not supported');
         }
         $this->assertHashesTo($hash . '-96', $message, substr($result, 0, 24));
