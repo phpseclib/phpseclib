@@ -2378,11 +2378,7 @@ class X509
 
         $spkac = ASN1::asn1map($decoded[0], Maps\SignedPublicKeyAndChallenge::MAP);
 
-        if (!isset($spkac) || $spkac === false) {
-            $this->currentCert = false;
-            return false;
-        }
-        if (!is_array($spkac)) {
+        if (!isset($spkac) || !is_array($spkac)) {
             $this->currentCert = false;
             return false;
         }
