@@ -3026,7 +3026,7 @@ class SFTP extends SSH2
         $attr = [];
         list($attr[$key]) = Strings::unpackSSH2('Q', $response);
         if ($flags & NET_SFTP_ATTR_SUBSECOND_TIMES) {
-            list($attr[key . '-nseconds']) = Strings::unpackSSH2('N', $response);
+            list($attr[$key . '-nseconds']) = Strings::unpackSSH2('N', $response);
         }
         return $attr;
     }
