@@ -165,7 +165,7 @@ class X509
     /**
      * Public key
      *
-     * @var string
+     * @var string|PublicKey
      * @access private
      */
     private $publicKey;
@@ -173,7 +173,7 @@ class X509
     /**
      * Private key
      *
-     * @var string
+     * @var string|PrivateKey
      * @access private
      */
     private $privateKey;
@@ -225,7 +225,7 @@ class X509
     /**
      * Certificate End Date
      *
-     * @var string
+     * @var string|Element
      * @access private
      */
     private $endDate;
@@ -1110,7 +1110,7 @@ class X509
 
         if ($value = $this->getDNProp('id-at-commonName')) {
             $value = str_replace(['.', '*'], ['\.', '[^.]*'], $value[0]);
-            return preg_match('#^' . $value . '$#', $components['host']);
+            return preg_match('#^' . $value . '$#', $components['host']) === 1;
         }
 
         return false;
@@ -1123,7 +1123,7 @@ class X509
      *
      * @param \DateTimeInterface|string $date optional
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function validateDate($date = null)
     {
@@ -1132,7 +1132,7 @@ class X509
         }
 
         if (!isset($date)) {
-            $date = new \DateTimeImmutable(null, new \DateTimeZone(@date_default_timezone_get()));
+            $date = new \DateTimeImmutable('now', new \DateTimeZone(@date_default_timezone_get()));
         }
 
         $notBefore = $this->currentCert['tbsCertificate']['validity']['notBefore'];
@@ -1844,7 +1844,7 @@ class X509
      * @param mixed $format optional
      * @param array $dn optional
      * @access public
-     * @return array|bool
+     * @return array|bool|string
      */
     public function getDN($format = self::DN_ARRAY, $dn = null)
     {
@@ -2133,7 +2133,7 @@ class X509
      *
      * @param PublicKey $key
      * @access public
-     * @return bool
+     * @return void
      */
     public function setPublicKey(PublicKey $key)
     {
@@ -2378,7 +2378,7 @@ class X509
 
         $spkac = ASN1::asn1map($decoded[0], Maps\SignedPublicKeyAndChallenge::MAP);
 
-        if (!isset($spkac) || $spkac === false) {
+        if (!isset($spkac) || !is_array($spkac)) {
             $this->currentCert = false;
             return false;
         }
@@ -3765,7 +3765,7 @@ class X509
      * Format a public key as appropriate
      *
      * @access private
-     * @return array|bool
+     * @return array|false
      */
     private function formatSubjectPublicKey()
     {
@@ -3777,6 +3777,9 @@ class X509
 
         $decoded = ASN1::decodeBER($publicKey);
         $mapped = ASN1::asn1map($decoded[0], Maps\SubjectPublicKeyInfo::MAP);
+        if (!is_array($mapped)) {
+            return false;
+        }
 
         $mapped['subjectPublicKey'] = $this->publicKey->toString($format);
 
@@ -3786,9 +3789,9 @@ class X509
     /**
      * Set the domain name's which the cert is to be valid for
      *
-     * @param mixed[] ...$domains
+     * @param mixed ...$domains
      * @access public
-     * @return array
+     * @return void
      */
     public function setDomain(...$domains)
     {
