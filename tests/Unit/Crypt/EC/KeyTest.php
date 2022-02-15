@@ -271,9 +271,11 @@ MCwwBwYDK2VwBQADIQAZv0QJaYTN/oVBusFn3DuWyFCGqjC2tssMXDitcDFm4Q==
     public function testEd25519PrivateKey()
     {
         // without public key (public key should be derived)
-        $key = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
+        $expected = '-----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEINTuctv5E1hK1bbY8fdp+K06/nwoy/HU++CXqI9EdVhC
------END PRIVATE KEY-----');
+-----END PRIVATE KEY-----';
+        $key = PublicKeyLoader::load($expected);
+        $this->assertSameNL($expected, $key->toString('PKCS8'));
         $this->assertSameNL('Ed25519', $key->getCurve());
         $this->assertSameNL('Ed25519', $key->getPublicKey()->getCurve());
 
@@ -289,14 +291,10 @@ Z9w7lshQhqowtrbLDFw4rXAxZuE=
         // the above key not only omits NULL - it also includes a
         // unstructuredName attribute with a value of "Curdle Chairs"
         // that the following key does not have
-        $expected = '-----BEGIN PRIVATE KEY-----
+        $key = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
 MFMCAQEwBwYDK2VwBQAEIgQg1O5y2/kTWErVttjx92n4rTr+fCjL8dT74Jeoj0R1
 WEKBIQAZv0QJaYTN/oVBusFn3DuWyFCGqjC2tssMXDitcDFm4Q==
------END PRIVATE KEY-----';
-        $this->assertSameNL($expected, $key->toString('PKCS8'));
-
-        $expected = EC::createKey('Ed25519')->toString('PKCS8');
-        $key = PublicKeyLoader::load($expected);
+-----END PRIVATE KEY-----');
         $this->assertSameNL('Ed25519', $key->getCurve());
         $this->assertSameNL('Ed25519', $key->getPublicKey()->getCurve());
     }

@@ -226,8 +226,7 @@ abstract class PKCS8 extends Progenitor
                 [],
                 null,
                 $password,
-                $curve instanceof Ed25519 ? 'id-Ed25519' : 'id-Ed448',
-                "\0" . $curve->encodePoint($publicKey)
+                $curve instanceof Ed25519 ? 'id-Ed25519' : 'id-Ed448'
             );
         }
 
