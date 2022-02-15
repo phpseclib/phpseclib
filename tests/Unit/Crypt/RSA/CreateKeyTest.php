@@ -8,6 +8,7 @@
 
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\RSA\Formats\Keys\PKCS1;
+use phpseclib3\Crypt\RSA\Formats\Keys\PKCS8;
 use phpseclib3\Crypt\RSA\PrivateKey;
 use phpseclib3\Crypt\RSA\PublicKey;
 
@@ -65,5 +66,14 @@ class Unit_Crypt_RSA_CreateKeyTestRSA extends PhpseclibTestCase
         $this->assertTrue($rsa->verify('zzz', $signature));
 
         RSA::useBestEngine();
+    }
+
+    public function test3DESPKCS8Encryption()
+    {
+        $key = RSA::createKey(768)
+            ->withPassword('demo')
+            ->toString('PKCS8', ['encryptionAlgorithm' => 'pbeWithSHAAnd3-KeyTripleDES-CBC']);
+        $actual = PKCS8::extractEncryptionAlgorithm($key)['algorithm'];
+        $this->assertSame($actual, 'pbeWithSHAAnd3-KeyTripleDES-CBC');
     }
 }
