@@ -35,6 +35,7 @@ use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RC2;
 use phpseclib3\Crypt\RC4;
 use phpseclib3\Crypt\TripleDES;
+use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
@@ -267,6 +268,10 @@ abstract class PKCS8 extends PKCS
      */
     private static function initialize_static_variables()
     {
+        if (!isset(static::$childOIDsLoaded)) {
+            throw new InsufficientSetupException('This class should not be called directly');
+        }
+
         if (!static::$childOIDsLoaded) {
             ASN1::loadOIDs(is_array(static::OID_NAME) ?
                 array_combine(static::OID_NAME, static::OID_VALUE) :
