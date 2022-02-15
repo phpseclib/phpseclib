@@ -523,11 +523,13 @@ abstract class PKCS8 extends PKCS
         $key = [
             'version' => 'v1',
             'privateKeyAlgorithm' => [
-                'algorithm' => is_string(static::OID_NAME) ? static::OID_NAME : $oid,
-                'parameters' => $params
+                'algorithm' => is_string(static::OID_NAME) ? static::OID_NAME : $oid
              ],
             'privateKey' => $key
         ];
+        if ($oid != 'id-Ed25519' && $oid != 'id-Ed448') {
+            $key['privateKeyAlgorithm']['parameters'] = $params;
+        }
         if (!empty($attr)) {
             $key['attributes'] = $attr;
         }
