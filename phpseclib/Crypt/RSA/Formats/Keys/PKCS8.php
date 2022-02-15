@@ -128,7 +128,7 @@ abstract class PKCS8 extends Progenitor
     {
         $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);
         $key = ASN1::extractBER($key);
-        return self::wrapPrivateKey($key, [], null, $password, $options);
+        return self::wrapPrivateKey($key, [], null, $password, null, '', $options);
     }
 
     /**
