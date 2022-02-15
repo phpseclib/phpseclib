@@ -130,7 +130,7 @@ abstract class PKCS8 extends Progenitor
         $params = ASN1::encodeDER($params, Maps\DHParameter::MAP);
         $params = new ASN1\Element($params);
         $key = ASN1::encodeDER($privateKey, ['type' => ASN1::TYPE_INTEGER]);
-        return self::wrapPrivateKey($key, [], $params, $password, $options);
+        return self::wrapPrivateKey($key, [], $params, $password, null, '', $options);
     }
 
     /**
