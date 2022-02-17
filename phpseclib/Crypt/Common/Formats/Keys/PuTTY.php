@@ -3,6 +3,8 @@
 /**
  * PuTTY Formatted Key Handler
  *
+ * See PuTTY's SSHPUBK.C and https://tartarus.org/~simon/putty-snapshots/htmldoc/AppendixC.html
+ *
  * PHP version 5
  *
  * @category  Crypt
@@ -128,8 +130,14 @@ abstract class PuTTY
         $components = [];
 
         $key = preg_split('#\r\n|\r|\n#', trim($key));
-        $type = trim(preg_replace('#PuTTY-User-Key-File-2: (.+)#', '$1', $key[0]));
-        $components['type'] = $type;
+        if (Strings::shift($key[0], strlen('PuTTY-User-Key-File-')) != 'PuTTY-User-Key-File-') {
+            return false;
+        }
+        $version = (int) Strings::shift($key[0], 3); // should be either "2: " or "3: 0" prior to int casting
+        if ($version != 2 && $version != 3) {
+            throw new \RuntimeException('Only v2 and v3 PuTTY private keys are supported');
+        }
+        $components['type'] = $type = rtrim($key[0]);
         if (!in_array($type, static::$types)) {
             $error = count(static::$types) == 1 ?
                 'Only ' . static::$types[0] . ' keys are supported. ' :
@@ -152,30 +160,82 @@ abstract class PuTTY
 
         $components['public'] = $public;
 
-        $privateLength = trim(preg_replace('#Private-Lines: (\d+)#', '$1', $key[$publicLength + 4]));
-        $private = Base64::decode(implode('', array_map('trim', array_slice($key, $publicLength + 5, $privateLength))));
-
-        switch ($encryption) {
-            case 'aes256-cbc':
-                $symkey = self::generateSymmetricKey($password, 32);
-                $crypto = new AES('cbc');
+        switch ($version) {
+            case 3:
+                $hashkey = '';
+                break;
+            case 2:
+                $hashkey = 'putty-private-key-file-mac-key';
         }
 
-        $hashkey = 'putty-private-key-file-mac-key';
+        $offset = $publicLength + 4;
+        switch ($encryption) {
+            case 'aes256-cbc':
+                $crypto = new AES('cbc');
+                switch ($version) {
+                    case 3:
+                        if (!function_exists('sodium_crypto_pwhash')) {
+                            throw new \RuntimeException('sodium_crypto_pwhash needs to exist for Argon2 password hasing');
+                        }
+                        $flavour = trim(preg_replace('#Key-Derivation: (.*)#', '$1', $key[$offset++]));
+                        switch ($flavour) {
+                            case 'Argon2i':
+                                $flavour = SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13;
+                                break;
+                            case 'Argon2id':
+                                $flavour = SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13;
+                                break;
+                             default:
+                                 throw new UnsupportedAlgorithmException('Only Argon2i and Argon2id are supported');
+                        }
+                        $memory = trim(preg_replace('#Argon2-Memory: (\d+)#', '$1', $key[$offset++]));
+                        $passes = trim(preg_replace('#Argon2-Passes: (\d+)#', '$1', $key[$offset++]));
+                        $parallelism = trim(preg_replace('#Argon2-Parallelism: (\d+)#', '$1', $key[$offset++]));
+                        $salt = pack('H*', trim(preg_replace('#Argon2-Salt: ([0-9a-f]+)#', '$1', $key[$offset++])));
+
+                        $length = 80; // keylen + ivlen + mac_keylen
+                        $temp = sodium_crypto_pwhash($length, $password, $salt, $passes, $memory << 10, $flavour);
+
+                        $symkey = substr($temp, 0, 32);
+                        $symiv = substr($temp, 32, 16);
+                        $hashkey = substr($temp, -32);
+                        break;
+                    case 2:
+                        $symkey = '';
+                        $sequence = 0;
+                        while (strlen($symkey) < 32) {
+                            $temp = pack('Na*', $sequence++, $password);
+                            $symkey.= pack('H*', sha1($temp));
+                        }
+                        $symkey = substr($symkey, 0, 32);
+                        $symiv = str_repeat("\0", $crypto->getBlockLength() >> 3);
+                        $hashkey.= $password;
+                }
+        }
+
+        switch ($version) {
+            case 3:
+                $hash = new Hash('sha256');
+                $hash->setKey($hashkey);
+                break;
+            case 2:
+                $hash = new Hash('sha1');
+                $hash->setKey(sha1($hashkey, true));
+        }
+
+        $privateLength = trim(preg_replace('#Private-Lines: (\d+)#', '$1', $key[$offset++]));
+        $private = Base64::decode(implode('', array_map('trim', array_slice($key, $offset, $privateLength))));
 
         if ($encryption != 'none') {
-            $hashkey.= $password;
             $crypto->setKey($symkey);
-            $crypto->setIV(str_repeat("\0", $crypto->getBlockLength() >> 3));
+            $crypto->setIV($symiv);
             $crypto->disablePadding();
             $private = $crypto->decrypt($private);
         }
 
         $source.= Strings::packSSH2('s', $private);
 
-        $hash = new Hash('sha1');
-        $hash->setKey(sha1($hashkey, true));
-        $hmac = trim(preg_replace('#Private-MAC: (.+)#', '$1', $key[$publicLength + $privateLength + 5]));
+        $hmac = trim(preg_replace('#Private-MAC: (.+)#', '$1', $key[$offset + $privateLength]));
         $hmac = Hex::decode($hmac);
 
         if (!hash_equals($hash->hash($source), $hmac)) {
