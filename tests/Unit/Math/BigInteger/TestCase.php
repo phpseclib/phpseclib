@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    Andreas Fischer <bantu@phpbb.com>
  * @copyright 2012 Andreas Fischer
@@ -20,15 +21,15 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
 
     public function testConstructorBase16()
     {
-        $this->assertSame('50',                        (string) $this->getInstance('0x32', 16));
-        $this->assertSame('12345678910',            (string) $this->getInstance('0x2DFDC1C3E', 16));
-        $this->assertSame('18446744073709551615',    (string) $this->getInstance('0xFFFFFFFFFFFFFFFF', 16));
-        $this->assertSame('18446744073709551616',    (string) $this->getInstance('0x10000000000000000', 16));
+        $this->assertSame('50', (string) $this->getInstance('0x32', 16));
+        $this->assertSame('12345678910', (string) $this->getInstance('0x2DFDC1C3E', 16));
+        $this->assertSame('18446744073709551615', (string) $this->getInstance('0xFFFFFFFFFFFFFFFF', 16));
+        $this->assertSame('18446744073709551616', (string) $this->getInstance('0x10000000000000000', 16));
     }
 
     public function testConstructorBase256()
     {
-        $this->assertSame('-128',                        (string) $this->getInstance("\x80", -256));
+        $this->assertSame('-128', (string) $this->getInstance("\x80", -256));
     }
 
     public function testToBytes()

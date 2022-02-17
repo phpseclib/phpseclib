@@ -32,7 +32,7 @@ abstract class PublicKeyInfo
     const MAP = [
         'type'     => ASN1::TYPE_SEQUENCE,
         'children' => [
-            'publicKeyAlgorithm'=> AlgorithmIdentifier::MAP,
+            'publicKeyAlgorithm' => AlgorithmIdentifier::MAP,
             'publicKey' => ['type' => ASN1::TYPE_BIT_STRING]
         ]
     ];

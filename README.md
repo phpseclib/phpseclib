@@ -82,6 +82,7 @@ Special Thanks to our $50+ sponsors!:
 3. Install Development Dependencies
     ```sh
     composer install
+    composer install --no-interaction --working-dir=build
     ```
 
 4. Create a Feature Branch
@@ -89,10 +90,9 @@ Special Thanks to our $50+ sponsors!:
 5. Run continuous integration checks:
    ```sh
    vendor/bin/phpunit
-   vendor/bin/phing -f build/build.xml sniff
    
-   # The following tools are from the build specific composer.json:
-   composer install --no-interaction --working-dir=build
+   # The following tools are from the build specific composer.json using the most recent PHP version:
+   build/vendor/bin/phpcs --standard=build/phpcs_ruleset.xml
    build/vendor/bin/php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run
    build/vendor/bin/psalm --config=build/psalm.xml --no-cache --long-progress --report-show-info=false --output-format=text
    ```

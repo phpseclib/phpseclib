@@ -90,8 +90,8 @@ class GMP extends Engine
     /**
      * Test for engine validity
      *
-     * @see parent::__construct()
      * @return bool
+     * @see parent::__construct()
      */
     public static function isValidEngine()
     {
@@ -103,8 +103,8 @@ class GMP extends Engine
      *
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
-     * @see parent::__construct()
      * @return \phpseclib3\Math\BigInteger\Engines\GMP
+     * @see parent::__construct()
      */
     public function __construct($x = 0, $base = 10)
     {
@@ -156,7 +156,7 @@ class GMP extends Engine
      */
     public function toString()
     {
-        return (string) $this->value;
+        return (string)$this->value;
     }
 
     /**
@@ -191,7 +191,7 @@ class GMP extends Engine
      * @param bool $twos_compliment
      * @return string
      */
-    function toBytes($twos_compliment = false)
+    public function toBytes($twos_compliment = false)
     {
         if ($twos_compliment) {
             return $this->toBytesHelper();
@@ -278,8 +278,8 @@ class GMP extends Engine
     /**
      * Compares two numbers.
      *
-     * Although one might think !$x->compare($y) means $x != $y, it, in fact, means the opposite.  The reason for this is
-     * demonstrated thusly:
+     * Although one might think !$x->compare($y) means $x != $y, it, in fact, means the opposite.  The reason for this
+     * is demonstrated thusly:
      *
      * $x  > $y: $x->compare($y)  > 0
      * $x  < $y: $x->compare($y)  < 0
@@ -352,8 +352,8 @@ class GMP extends Engine
 
         return [
             'gcd' => $this->normalize(new self($g)),
-            'x'   => $this->normalize(new self($s)),
-            'y'   => $this->normalize(new self($t))
+            'x' => $this->normalize(new self($s)),
+            'y' => $this->normalize(new self($t))
         ];
     }
 
@@ -680,7 +680,7 @@ class GMP extends Engine
     public function createRecurringModuloFunction()
     {
         $temp = $this->value;
-        return function(GMP $x) use ($temp) {
+        return function (GMP $x) use ($temp) {
             return new GMP($x->value % $temp);
         };
     }

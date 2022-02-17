@@ -404,7 +404,7 @@ class Hash
         if (in_array(substr($hash, 0, 5), ['sha3-', 'shake', 'kecca'])) {
             // PHP 7.1.0 introduced support for "SHA3 fixed mode algorithms":
             // http://php.net/ChangeLog-7.php#7.1.0
-            if (version_compare(PHP_VERSION, '7.1.0') < 0 || substr($hash, 0,5) != 'sha3-') {
+            if (version_compare(PHP_VERSION, '7.1.0') < 0 || substr($hash, 0, 5) != 'sha3-') {
                 //preg_match('#(\d+)$#', $hash, $matches);
                 //$this->parameters['capacity'] = 2 * $matches[1]; // 1600 - $this->blockSize
                 //$this->parameters['rate'] = 1600 - $this->parameters['capacity']; // == $this->blockSize
@@ -546,15 +546,15 @@ class Hash
         //
         $y = '';
         for ($i = 0; $i < $iters; $i++) {
-            $L1Key_i  = substr($L1Key,  $i * 16, 1024);
-            $L2Key_i  = substr($L2Key,  $i * 24, 24);
+            $L1Key_i  = substr($L1Key, $i * 16, 1024);
+            $L2Key_i  = substr($L2Key, $i * 24, 24);
             $L3Key1_i = substr($L3Key1, $i * 64, 64);
             $L3Key2_i = substr($L3Key2, $i * 4, 4);
 
             $a = self::L1Hash($L1Key_i, $m);
             $b = strlen($m) <= 1024 ? "\0\0\0\0\0\0\0\0$a" : self::L2Hash($L2Key_i, $a);
             $c = self::L3Hash($L3Key1_i, $L3Key2_i, $b);
-            $y.= $c;
+            $y .= $c;
         }
 
         return $y;
@@ -586,7 +586,7 @@ class Hash
         $y = '';
         for ($i = 0; $i < count($m) - 1; $i++) {
             $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
-            $y.= static::nh($k, $m[$i], $length);
+            $y .= static::nh($k, $m[$i], $length);
         }
 
         //
@@ -599,7 +599,7 @@ class Hash
         $m[$i] = str_pad($m[$i], $pad, "\0"); // zeropad
         $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
 
-        $y.= static::nh($k, $m[$i], new BigInteger($length * 8));
+        $y .= static::nh($k, $m[$i], new BigInteger($length * 8));
 
         return $y;
     }
@@ -613,7 +613,7 @@ class Hash
      */
     private static function nh($k, $m, $length)
     {
-        $toUInt32 = function($x) {
+        $toUInt32 = function ($x) {
             $x = new BigInteger($x, 256);
             $x->setPrecision(32);
             return $x;
@@ -635,7 +635,7 @@ class Hash
         // Perform NH hash on the chunks, pairing words for multiplication
         // which are 4 apart to accommodate vector-parallelism.
         //
-        $y = new BigInteger;
+        $y = new BigInteger();
         $y->setPrecision(64);
         $i = 0;
         while ($i < $t) {
@@ -659,7 +659,7 @@ class Hash
             $temp = $temp->multiply($m[$i + 7]->add($k[$i + 7]));
             $y = $y->add($temp);
 
-            $i+= 8;
+            $i += 8;
         }
 
         return $y->add($length)->toBytes();
@@ -702,7 +702,7 @@ class Hash
             $m_2 = substr($m, 0x20000) . "\x80";
             $length = strlen($m_2);
             $pad = 16 - ($length % 16);
-            $pad%= 16;
+            $pad %= 16;
             $m_2 = str_pad($m_2, $length + $pad, "\0"); // zeropad
             $y = self::poly(64, self::$maxwordrange64, $k64, $m_1);
             $y = str_pad($y, 16, "\0", STR_PAD_LEFT);
@@ -863,7 +863,7 @@ class Hash
             $temp  .= $text;
             $temp   = substr($algo($temp, ...array_values($this->parameters)), 0, $this->length);
             $output = $this->opad ^ $key;
-            $output.= $temp;
+            $output .= $temp;
             $output = $algo($output, ...array_values($this->parameters));
 
             return substr($output, 0, $this->length);
@@ -981,7 +981,7 @@ class Hash
         $padLength = $block_size - (strlen($p) % $block_size);
         $num_ints = $block_size >> 2;
 
-        $p.= static::sha3_pad($padLength, $padType);
+        $p .= static::sha3_pad($padLength, $padType);
 
         $n = strlen($p) / $r; // number of blocks
 
@@ -998,9 +998,9 @@ class Hash
         foreach ($p as $pi) {
             $pi = unpack('V*', $pi);
             $x = $y = 0;
-            for ($i = 1; $i <= $num_ints; $i+=2) {
-                $s[$x][$y][0]^= $pi[$i + 1];
-                $s[$x][$y][1]^= $pi[$i];
+            for ($i = 1; $i <= $num_ints; $i += 2) {
+                $s[$x][$y][0] ^= $pi[$i + 1];
+                $s[$x][$y][1] ^= $pi[$i];
                 if (++$y == 5) {
                     $y = 0;
                     $x++;
@@ -1012,7 +1012,7 @@ class Hash
         $z = '';
         $i = $j = 0;
         while (strlen($z) < $d) {
-            $z.= pack('V2', $s[$i][$j][1], $s[$i][$j++][0]);
+            $z .= pack('V2', $s[$i][$j][1], $s[$i][$j++][0]);
             if ($j == 5) {
                 $j = 0;
                 $i++;
@@ -1092,8 +1092,8 @@ class Hash
             ];
             for ($i = 0; $i < 5; $i++) {
                 for ($j = 0; $j < 5; $j++) {
-                    $s[$i][$j][0]^= $temp[$j][0];
-                    $s[$i][$j][1]^= $temp[$j][1];
+                    $s[$i][$j][0] ^= $temp[$j][0];
+                    $s[$i][$j][1] ^= $temp[$j][1];
                 }
             }
 
@@ -1131,8 +1131,8 @@ class Hash
             }
 
             // iota step
-            $s[0][0][0]^= $roundConstants[$round][0];
-            $s[0][0][1]^= $roundConstants[$round][1];
+            $s[0][0][0] ^= $roundConstants[$round][0];
+            $s[0][0][1] ^= $roundConstants[$round][1];
         }
     }
 
@@ -1148,7 +1148,7 @@ class Hash
         if ($shift < 32) {
             list($hi, $lo) = $x;
         } else {
-            $shift-= 32;
+            $shift -= 32;
             list($lo, $hi) = $x;
         }
 
@@ -1174,7 +1174,7 @@ class Hash
         $padLength = $block_size - (strlen($p) % $block_size);
         $num_ints = $block_size >> 2;
 
-        $p.= static::sha3_pad($padLength, $padType);
+        $p .= static::sha3_pad($padLength, $padType);
 
         $n = strlen($p) / $r; // number of blocks
 
@@ -1192,7 +1192,7 @@ class Hash
             $pi = unpack('P*', $pi);
             $x = $y = 0;
             foreach ($pi as $subpi) {
-                $s[$x][$y++]^= $subpi;
+                $s[$x][$y++] ^= $subpi;
                 if ($y == 5) {
                     $y = 0;
                     $x++;
@@ -1204,7 +1204,7 @@ class Hash
         $z = '';
         $i = $j = 0;
         while (strlen($z) < $d) {
-            $z.= pack('P', $s[$i][$j++]);
+            $z .= pack('P', $s[$i][$j++]);
             if ($j == 5) {
                 $j = 0;
                 $i++;
@@ -1276,7 +1276,7 @@ class Hash
             ];
             for ($i = 0; $i < 5; $i++) {
                 for ($j = 0; $j < 5; $j++) {
-                    $s[$i][$j]^= $temp[$j];
+                    $s[$i][$j] ^= $temp[$j];
                 }
             }
 
@@ -1301,7 +1301,7 @@ class Hash
             }
 
             // iota step
-            $s[0][0]^= $roundConstants[$round];
+            $s[0][0] ^= $roundConstants[$round];
         }
     }
 
@@ -1363,10 +1363,10 @@ class Hash
         // Pre-processing
         $length = strlen($m);
         // to round to nearest 112 mod 128, we'll add 128 - (length + (128 - 112)) % 128
-        $m.= str_repeat(chr(0), 128 - (($length + 16) & 0x7F));
+        $m .= str_repeat(chr(0), 128 - (($length + 16) & 0x7F));
         $m[$length] = chr(0x80);
         // we don't support hashing strings 512MB long
-        $m.= pack('N4', 0, 0, 0, $length << 3);
+        $m .= pack('N4', 0, 0, 0, $length << 3);
 
         // Process the message in successive 1024-bit chunks
         $chunks = str_split($m, 128);

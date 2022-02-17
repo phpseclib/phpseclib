@@ -114,7 +114,7 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
     public function testBasePoint($name)
     {
         $class = 'phpseclib3\Crypt\EC\Curves\\' . $name;
-        $curve = new $class;
+        $curve = new $class();
         $this->assertTrue($curve->verifyPoint($curve->getBasePoint()), "Failed to verify basepoint of curve $name");
     }
 
@@ -127,7 +127,7 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
     public function testKeyGeneration($name)
     {
         $class = 'phpseclib3\Crypt\EC\Curves\\' . $name;
-        $curve = new $class;
+        $curve = new $class();
         $dA = $curve->createRandomMultiplier();
         $QA = $curve->multiplyPoint($curve->getBasePoint(), $dA);
         $this->assertTrue($curve->verifyPoint($QA), "Failed to verify point multiplication on curve $name with $dA");

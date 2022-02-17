@@ -89,7 +89,7 @@ abstract class PuTTY
         $sequence = 0;
         while (strlen($symkey) < $length) {
             $temp = pack('Na*', $sequence++, $password);
-            $symkey.= Hex::decode(sha1($temp));
+            $symkey .= Hex::decode(sha1($temp));
         }
         return substr($symkey, 0, $length);
     }
@@ -170,10 +170,10 @@ abstract class PuTTY
                         break;
                     case $in_value:
                         $in_value = $line[strlen($line) - 1] == '\\';
-                        $values[$current].= $in_value ? substr($line, 0, -1) : $line;
+                        $values[$current] .= $in_value ? substr($line, 0, -1) : $line;
                         break;
                     default:
-                        $data.= $line;
+                        $data .= $line;
                 }
             }
 
@@ -246,7 +246,7 @@ abstract class PuTTY
                     case 2:
                         $symkey = self::generateV2Key($password, 32);
                         $symiv = str_repeat("\0", $crypto->getBlockLength() >> 3);
-                        $hashkey.= $password;
+                        $hashkey .= $password;
                 }
         }
 
@@ -270,7 +270,7 @@ abstract class PuTTY
             $private = $crypto->decrypt($private);
         }
 
-        $source.= Strings::packSSH2('s', $private);
+        $source .= Strings::packSSH2('s', $private);
 
         $hmac = trim(preg_replace('#Private-MAC: (.+)#', '$1', $key[$offset + $privateLength]));
         $hmac = Hex::decode($hmac);
@@ -302,19 +302,19 @@ abstract class PuTTY
         $version = isset($options['version']) ? $options['version'] : self::$version;
 
         $key = "PuTTY-User-Key-File-$version: $type\r\n";
-        $key.= "Encryption: $encryption\r\n";
-        $key.= "Comment: $comment\r\n";
+        $key .= "Encryption: $encryption\r\n";
+        $key .= "Comment: $comment\r\n";
 
         $public = Strings::packSSH2('s', $type) . $public;
 
         $source = Strings::packSSH2('ssss', $type, $encryption, $comment, $public);
 
         $public = Base64::encode($public);
-        $key.= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";
-        $key.= chunk_split($public, 64);
+        $key .= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";
+        $key .= chunk_split($public, 64);
 
         if (empty($password) && !is_string($password)) {
-            $source.= Strings::packSSH2('s', $private);
+            $source .= Strings::packSSH2('s', $private);
             switch ($version) {
                 case 3:
                     $hash = new Hash('sha256');
@@ -325,18 +325,18 @@ abstract class PuTTY
                     $hash->setKey(sha1('putty-private-key-file-mac-key', true));
             }
         } else {
-            $private.= Random::string(16 - (strlen($private) & 15));
-            $source.= Strings::packSSH2('s', $private);
+            $private .= Random::string(16 - (strlen($private) & 15));
+            $source .= Strings::packSSH2('s', $private);
             $crypto = new AES('cbc');
 
             switch ($version) {
                 case 3:
                     $salt = Random::string(16);
-                    $key.= "Key-Derivation: Argon2id\r\n";
-                    $key.= "Argon2-Memory: 8192\r\n";
-                    $key.= "Argon2-Passes: 13\r\n";
-                    $key.= "Argon2-Parallelism: 1\r\n";
-                    $key.= "Argon2-Salt: " . Hex::encode($salt) . "\r\n";
+                    $key .= "Key-Derivation: Argon2id\r\n";
+                    $key .= "Argon2-Memory: 8192\r\n";
+                    $key .= "Argon2-Passes: 13\r\n";
+                    $key .= "Argon2-Parallelism: 1\r\n";
+                    $key .= "Argon2-Salt: " . Hex::encode($salt) . "\r\n";
                     extract(self::generateV3Key($password, 'Argon2id', 8192, 13, $salt));
 
                     $hash = new Hash('sha256');
@@ -360,9 +360,9 @@ abstract class PuTTY
         }
 
         $private = Base64::encode($private);
-        $key.= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
-        $key.= chunk_split($private, 64);
-        $key.= 'Private-MAC: ' . Hex::encode($hash->hash($source)) . "\r\n";
+        $key .= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
+        $key .= chunk_split($private, 64);
+        $key .= 'Private-MAC: ' . Hex::encode($hash->hash($source)) . "\r\n";
 
         return $key;
     }

@@ -74,7 +74,7 @@ class BinaryField extends FiniteField
 
         // implements algorithm 2.40 (in section 2.3.5) in "Guide to Elliptic Curve Cryptography"
         // with W = 8
-        $reduce = function($c) use ($u, $mStart, $m, $t, $finalMask, $pad, $h) {
+        $reduce = function ($c) use ($u, $mStart, $m, $t, $finalMask, $pad, $h) {
             $c = str_pad($c, $pad, "\0", STR_PAD_LEFT);
             for ($i = $mStart; $i >= $m;) {
                 $g = $h >> 3;
@@ -159,7 +159,7 @@ class BinaryField extends FiniteField
      * Converts a base-2 string to a base-256 string
      *
      * @param string $x
-     * @param integer $size 
+     * @param integer $size
      * @return string
      */
     public static function base2ToBase256($x, $size = null)

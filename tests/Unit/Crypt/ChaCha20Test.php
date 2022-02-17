@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2014 Jim Wigginton
@@ -92,7 +93,7 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
         $expected = str_replace(':', '', $expected);
         $expected = pack('H*', $expected);
 
-        $c = new ChaCha20;
+        $c = new ChaCha20();
         $c->setPoly1305Key($key);
         $r = new \ReflectionClass(get_class($c));
         // this unit test is testing Poly1305 independent of ChaCha20, which phpseclib doesn't
@@ -209,7 +210,7 @@ class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
             $p1 = $c->encrypt($plaintext);
             $p2 = '';
             foreach ($partitions as $partition) {
-                $p2.= $c2->encrypt(str_repeat("\0", $partition));
+                $p2 .= $c2->encrypt(str_repeat("\0", $partition));
             }
 
             $this->assertSame($p1, $p2, "Failed asserting that ciphertext matches expected value with $engine engine");

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2014 Jim Wigginton
@@ -137,7 +138,7 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
         $value = ASN1::encodeOID('1.2.3.4');
         $ext = chr(ASN1::TYPE_OBJECT_IDENTIFIER) . ASN1::encodeLength(strlen($value)) . $value;
         $value = 'zzzzzzzzz';
-        $ext.= chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength(strlen($value)) . $value;
+        $ext .= chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength(strlen($value)) . $value;
         $ext = chr(ASN1::TYPE_SEQUENCE | 0x20) . ASN1::encodeLength(strlen($ext)) . $ext;
 
         $cert['tbsCertificate']['extensions'][4] = new Element($ext);
@@ -1189,7 +1190,7 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
         $key = ASN1::encodeDER($key, ['type' => ASN1::TYPE_BIT_STRING]);
         $key = new Element($key);
 
-        $x509 = new X509;
+        $x509 = new X509();
         $this->assertIsString($x509->computeKeyIdentifier($key));
     }
 
@@ -1241,15 +1242,15 @@ QwinX0cR9Hx84rSMrFndxZi52o9EOLJ7cithncoW1KOAf7lIJIUzP0oIKkskAndQ
 o2UiZsxgoMYuq02T07DOknc=
 -----END ENCRYPTED PRIVATE KEY-----', 'demo');
 
-        $subject = new X509;
+        $subject = new X509();
         $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
         $subject->setPublicKey($private->getPublicKey());
 
-        $issuer = new X509;
+        $issuer = new X509();
         $issuer->setPrivateKey($private);
         $issuer->setDNProp('id-at-organizationName', 'phpseclib CA cert');
 
-        $x509 = new X509;
+        $x509 = new X509();
         $x509->sign($issuer, $subject);
     }
 

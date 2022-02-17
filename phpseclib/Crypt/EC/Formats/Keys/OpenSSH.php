@@ -65,7 +65,7 @@ abstract class OpenSSH extends Progenitor
             if ($type != $parsed['type']) {
                 throw new \RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
             }
-            if ($type == 'ssh-ed25519' ) {
+            if ($type == 'ssh-ed25519') {
                 list(, $key, $comment) = Strings::unpackSSH2('sss', $paddedKey);
                 $key = libsodium::load($key);
                 $key['comment'] = $comment;
@@ -117,7 +117,7 @@ abstract class OpenSSH extends Progenitor
         $name = $reflect->getShortName();
 
         $oid = self::$curveOIDs[$name];
-        $aliases = array_filter(self::$curveOIDs, function($v) use ($oid) {
+        $aliases = array_filter(self::$curveOIDs, function ($v) use ($oid) {
             return $v == $oid;
         });
         $aliases = array_keys($aliases);

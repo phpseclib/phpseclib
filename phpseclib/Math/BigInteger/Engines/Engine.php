@@ -109,7 +109,7 @@ abstract class Engine
 
         switch ($base) {
             case -256:
-            case  256:
+            case 256:
                 if ($base == -256 && (ord($x[0]) & 0x80)) {
                     $this->value = ~$x;
                     $this->is_negative = true;
@@ -126,7 +126,7 @@ abstract class Engine
                 }
                 break;
             case -16:
-            case  16:
+            case 16:
                 if ($base > 0 && $x[0] == '-') {
                     $this->is_negative = true;
                     $x = substr($x, 1);
@@ -149,7 +149,7 @@ abstract class Engine
                 }
                 break;
             case -10:
-            case  10:
+            case 10:
                 // (?<!^)(?:-).*: find any -'s that aren't at the beginning and then any characters that follow that
                 // (?<=^|-)0*: find any 0's that are preceded by the start of the string or by a - (ie. octals)
                 // [^-0-9].*: find any non-numeric characters and then any characters that follow that
@@ -160,7 +160,7 @@ abstract class Engine
                 static::initialize($base);
                 break;
             case -2:
-            case  2:
+            case 2:
                 if ($base > 0 && $x[0] == '-') {
                     $this->is_negative = true;
                     $x = substr($x, 1);
@@ -494,9 +494,9 @@ abstract class Engine
         }
 
         if ($shift < 0) {
-            $shift+= $precision;
+            $shift += $precision;
         }
-        $shift%= $precision;
+        $shift %= $precision;
 
         if (!$shift) {
             return clone $this;
@@ -1132,7 +1132,7 @@ abstract class Engine
         }
 
         return [
-            'gcd'=> $u,
+            'gcd' => $u,
             'x' => $a,
             'y' => $b
         ];

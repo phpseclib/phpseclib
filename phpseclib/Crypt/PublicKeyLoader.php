@@ -42,15 +42,18 @@ abstract class PublicKeyLoader
     {
         try {
             return EC::load($key, $password);
-        } catch (NoKeyLoadedException $e) {}
+        } catch (NoKeyLoadedException $e) {
+        }
 
         try {
             return RSA::load($key, $password);
-        } catch (NoKeyLoadedException $e) {}
+        } catch (NoKeyLoadedException $e) {
+        }
 
         try {
             return DSA::load($key, $password);
-        } catch (NoKeyLoadedException $e) {}
+        } catch (NoKeyLoadedException $e) {
+        }
 
         try {
             $x509 = new X509();
@@ -59,7 +62,8 @@ abstract class PublicKeyLoader
             if ($key) {
                 return $key;
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         throw new NoKeyLoadedException('Unable to read key');
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2013 Jim Wigginton
@@ -348,7 +349,6 @@ Private-MAC: 97a990a3d5f6b8f268d4be9c4ab9ebfd8fa79849
 
         OpenSSH::setComment('ecdsa-key-20181105');
         $this->assertSameNL($expected, $key->toString('OpenSSH'));
-
     }
 
     public function testPuTTYnistp521()
