@@ -70,7 +70,7 @@ abstract class PKCS1 extends Progenitor
 
         $key = ASN1::asn1map($decoded[0], Maps\RSAPrivateKey::MAP);
         if (is_array($key)) {
-            $components+= [
+            $components += [
                 'modulus' => $key['modulus'],
                 'publicExponent' => $key['publicExponent'],
                 'privateExponent' => $key['privateExponent'],

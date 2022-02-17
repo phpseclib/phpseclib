@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    Andreas Fischer <bantu@phpbb.com>
  * @copyright 2013 Andreas Fischer

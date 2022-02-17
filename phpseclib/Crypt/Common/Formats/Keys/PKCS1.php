@@ -113,7 +113,7 @@ abstract class PKCS1 extends PKCS
         $symkey = '';
         $iv = substr($iv, 0, 8);
         while (strlen($symkey) < $length) {
-            $symkey.= md5($symkey . $password . $iv, true);
+            $symkey .= md5($symkey . $password . $iv, true);
         }
         return substr($symkey, 0, $length);
     }
@@ -200,7 +200,7 @@ abstract class PKCS1 extends PKCS
         $iv = strtoupper(Hex::encode($iv));
         return "-----BEGIN $type PRIVATE KEY-----\r\n" .
                "Proc-Type: 4,ENCRYPTED\r\n" .
-               "DEK-Info: " . $encryptionAlgorithm. ",$iv\r\n" .
+               "DEK-Info: " . $encryptionAlgorithm . ",$iv\r\n" .
                "\r\n" .
                chunk_split(Base64::encode($cipher->encrypt($key)), 64) .
                "-----END $type PRIVATE KEY-----";

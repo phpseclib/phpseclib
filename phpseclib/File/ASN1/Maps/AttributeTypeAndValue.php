@@ -30,7 +30,7 @@ abstract class AttributeTypeAndValue
         'type'     => ASN1::TYPE_SEQUENCE,
         'children' => [
             'type' => AttributeType::MAP,
-            'value'=> AttributeValue::MAP
+            'value' => AttributeValue::MAP
         ]
     ];
 }

@@ -14,8 +14,8 @@ class SFTPWrongServerTest extends TestCase
         } catch (UnableToConnectException $e) {
             // getaddrinfo message seems not to return stable text
             static::assertSame(
-              'Cannot connect to dummy-server:22. Error 0. php_network_getaddresses: getaddrinfo',
-              substr($e->getMessage(),0,81)
+                'Cannot connect to dummy-server:22. Error 0. php_network_getaddresses: getaddrinfo',
+                substr($e->getMessage(), 0, 81)
             );
         }
     }

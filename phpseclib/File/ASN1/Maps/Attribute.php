@@ -30,7 +30,7 @@ abstract class Attribute
         'type'     => ASN1::TYPE_SEQUENCE,
         'children' => [
             'type' => AttributeType::MAP,
-            'value'=> [
+            'value' => [
                   'type'     => ASN1::TYPE_SET,
                   'min'      => 1,
                   'max'      => -1,

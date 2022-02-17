@@ -139,7 +139,7 @@ class KoblitzPrime extends Prime
             ];
 
             if (isset($p['naf'])) {
-                $beta['naf'] = array_map(function($p) {
+                $beta['naf'] = array_map(function ($p) {
                     return [
                         $p[0]->multiply($this->beta),
                         $p[1],
@@ -202,7 +202,8 @@ class KoblitzPrime extends Prime
         $f = $e->multiply($e);
         $x3 = $f->subtract($this->two->multiply($d));
         $y3 = $e->multiply($d->subtract($x3))->subtract(
-              $this->eight->multiply($c));
+            $this->eight->multiply($c)
+        );
         $z3 = $this->two->multiply($y1)->multiply($z1);
         return [$x3, $y3, $z3];
     }

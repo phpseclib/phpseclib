@@ -433,7 +433,7 @@ class SFTP extends SSH2
             if ($response === false) {
                 return false;
             }
-        } else if ($response === true && $this->isTimeout()) {
+        } elseif ($response === true && $this->isTimeout()) {
             return false;
         }
 
@@ -747,7 +747,7 @@ class SFTP extends SSH2
             $dir = './';
         // suffix a slash if needed
         } elseif ($dir[strlen($dir) - 1] != '/') {
-            $dir.= '/';
+            $dir .= '/';
         }
 
         $dir = $this->realpath($dir);
@@ -1040,8 +1040,8 @@ class SFTP extends SSH2
                     }
                     break;
                 case 'mode':
-                    $a[$sort]&= 07777;
-                    $b[$sort]&= 07777;
+                    $a[$sort] &= 07777;
+                    $b[$sort] &= 07777;
                 default:
                     if ($a[$sort] === $b[$sort]) {
                         break;
@@ -1079,7 +1079,7 @@ class SFTP extends SSH2
             return;
         }
         $len = count($args) & 0x7FFFFFFE;
-        for ($i = 0; $i < $len; $i+=2) {
+        for ($i = 0; $i < $len; $i += 2) {
             $this->sortOptions[$args[$i]] = $args[$i + 1];
         }
         if (!count($this->sortOptions)) {
@@ -1222,7 +1222,7 @@ class SFTP extends SSH2
         }
         if (isset($stat['type'])) {
             if ($stat['type'] == FileType::DIRECTORY) {
-                $filename.= '/.';
+                $filename .= '/.';
             }
             $this->update_stat_cache($filename, (object) ['stat' => $stat]);
             return $stat;
@@ -1235,7 +1235,7 @@ class SFTP extends SSH2
         $this->pwd = $pwd;
 
         if ($stat['type'] == FileType::DIRECTORY) {
-            $filename.= '/.';
+            $filename .= '/.';
         }
         $this->update_stat_cache($filename, (object) ['stat' => $stat]);
 
@@ -1279,7 +1279,7 @@ class SFTP extends SSH2
         }
         if (isset($lstat['type'])) {
             if ($lstat['type'] == FileType::DIRECTORY) {
-                $filename.= '/.';
+                $filename .= '/.';
             }
             $this->update_stat_cache($filename, (object) ['lstat' => $lstat]);
             return $lstat;
@@ -1300,7 +1300,7 @@ class SFTP extends SSH2
         $this->pwd = $pwd;
 
         if ($lstat['type'] == FileType::DIRECTORY) {
-            $filename.= '/.';
+            $filename .= '/.';
         }
         $this->update_stat_cache($filename, (object) ['lstat' => $lstat]);
 
@@ -1388,10 +1388,10 @@ class SFTP extends SSH2
             Strings::packSSH2('NQ2', Attribute::ACCESSTIME | Attribute::MODIFYTIME, $atime, $time);
 
         $packet = Strings::packSSH2('s', $filename);
-        $packet.= $this->version >= 5 ?
+        $packet .= $this->version >= 5 ?
             pack('N2', 0, OpenFlag5::OPEN_EXISTING) :
             pack('N', OpenFlag::WRITE | OpenFlag::CREATE | OpenFlag::EXCL);
-        $packet.= $attr;
+        $packet .= $attr;
 
         $this->send_sftp_packet(SftpPacketType::OPEN, $packet);
 
@@ -1564,7 +1564,7 @@ class SFTP extends SSH2
         }
 
         $packet = Strings::packSSH2('s', $filename);
-        $packet.= $this->version >= 4 ?
+        $packet .= $this->version >= 4 ?
             pack('a*Ca*', substr($attr, 0, 4), FileType::UNKNOWN, substr($attr, 4)) :
             $attr;
         $this->send_sftp_packet(SftpPacketType::SETSTAT, $packet);
@@ -1633,7 +1633,7 @@ class SFTP extends SSH2
                 }
             } else {
                 $packet = Strings::packSSH2('s', $temp);
-                $packet.= $this->version >= 4 ?
+                $packet .= $this->version >= 4 ?
                     pack('Ca*', FileType::UNKNOWN, $attr) :
                     $attr;
                 $this->send_sftp_packet(SftpPacketType::SETSTAT, $packet);
@@ -1650,7 +1650,7 @@ class SFTP extends SSH2
         }
 
         $packet = Strings::packSSH2('s', $path);
-        $packet.= $this->version >= 4 ?
+        $packet .= $this->version >= 4 ?
             pack('Ca*', FileType::UNKNOWN, $attr) :
             $attr;
         $this->send_sftp_packet(SftpPacketType::SETSTAT, $packet);
@@ -1967,14 +1967,14 @@ class SFTP extends SSH2
             if ($this->version >= 5) {
                 $flags = OpenFlag5::CREATE_TRUNCATE;
             } else {
-                $flags|= OpenFlag::TRUNCATE;
+                $flags |= OpenFlag::TRUNCATE;
             }
         }
 
         $this->remove_from_stat_cache($remote_file);
 
         $packet = Strings::packSSH2('s', $remote_file);
-        $packet.= $this->version >= 5 ?
+        $packet .= $this->version >= 5 ?
             pack('N3', 0, $flags, 0) :
             pack('N2', $flags, 0);
         $this->send_sftp_packet(SftpPacketType::OPEN, $packet);
@@ -2029,7 +2029,7 @@ class SFTP extends SSH2
 
             if ($local_start >= 0) {
                 fseek($fp, $local_start);
-                $size-= $local_start;
+                $size -= $local_start;
             }
         } elseif ($dataCallback) {
             $size = 0;
@@ -2042,7 +2042,7 @@ class SFTP extends SSH2
 
         $sftp_packet_size = $this->max_sftp_packet;
         // make the SFTP packet be exactly the SFTP packet size by including the bytes in the PacketType::WRITE packets "header"
-        $sftp_packet_size-= strlen($handle) + 25;
+        $sftp_packet_size -= strlen($handle) + 25;
         $i = $j = 0;
         while ($dataCallback || ($size === 0 || $sent < $size)) {
             if ($dataCallback) {
@@ -2067,7 +2067,7 @@ class SFTP extends SSH2
                 }
                 throw $e;
             }
-            $sent+= strlen($temp);
+            $sent += strlen($temp);
             if (is_callable($progressCallback)) {
                 $progressCallback($sent);
             }
@@ -2201,7 +2201,7 @@ class SFTP extends SSH2
         }
 
         $packet = Strings::packSSH2('s', $remote_file);
-        $packet.= $this->version >= 5 ?
+        $packet .= $this->version >= 5 ?
             pack('N3', 0, OpenFlag5::OPEN_EXISTING, 0) :
             pack('N2', OpenFlag::READ, 0);
         $this->send_sftp_packet(SftpPacketType::OPEN, $packet);
@@ -2257,7 +2257,7 @@ class SFTP extends SSH2
                     throw $e;
                 }
                 $packet = null;
-                $read+= $packet_size;
+                $read += $packet_size;
                 $i++;
             }
 
@@ -2281,9 +2281,9 @@ class SFTP extends SSH2
                 switch ($this->packet_type) {
                     case SftpPacketType::DATA:
                         $temp = substr($response, 4);
-                        $offset+= strlen($temp);
+                        $offset += strlen($temp);
                         if ($local_file === false) {
-                            $content.= $temp;
+                            $content .= $temp;
                         } elseif (is_callable($local_file)) {
                             $local_file($temp);
                         } else {
@@ -2817,7 +2817,7 @@ class SFTP extends SSH2
                    SSH_FXP_RENAME_NATIVE     0x00000004
 
                (none of these are currently supported) */
-            $packet.= "\0\0\0\0";
+            $packet .= "\0\0\0\0";
         }
         $this->send_sftp_packet(SftpPacketType::RENAME, $packet);
 
@@ -2929,21 +2929,21 @@ class SFTP extends SSH2
                     list($attr['mode']) = Strings::unpackSSH2('N', $response);
                     $fileType = $this->parseMode($attr['mode']);
                     if ($this->version < 4 && $fileType !== false) {
-                        $attr+= ['type' => $fileType];
+                        $attr += ['type' => $fileType];
                     }
                     break;
                 case Attribute::ACCESSTIME: // 0x00000008
                     if ($this->version >= 4) {
-                        $attr+= $this->parseTime('atime', $flags, $response);
+                        $attr += $this->parseTime('atime', $flags, $response);
                         break;
                     }
                     list($attr['atime'], $attr['mtime']) = Strings::unpackSSH2('NN', $response);
                     break;
                 case Attribute::CREATETIME:       // 0x00000010 (SFTPv4+)
-                    $attr+= $this->parseTime('createtime', $flags, $response);
+                    $attr += $this->parseTime('createtime', $flags, $response);
                     break;
                 case Attribute::MODIFYTIME:       // 0x00000020
-                    $attr+= $this->parseTime('mtime', $flags, $response);
+                    $attr += $this->parseTime('mtime', $flags, $response);
                     break;
                 case Attribute::ACL:              // 0x00000040
                     // access control list
@@ -2998,7 +2998,7 @@ class SFTP extends SSH2
                 case Attribute::CTIME:            // 0x00008000
                     // 'ctime' contains the last time the file attributes were changed.  The
                     // exact meaning of this field depends on the server.
-                    $attr+= $this->parseTime('ctime', $flags, $response);
+                    $attr += $this->parseTime('ctime', $flags, $response);
                     break;
                 case Attribute::EXTENDED: // 0x80000000
                     list($count) = Strings::unpackSSH2('N', $response);
@@ -3108,7 +3108,7 @@ class SFTP extends SSH2
 
         $packet = $this->use_request_id ?
             pack('NCNa*', strlen($data) + 5, $type, $request_id, $data) :
-            pack('NCa*',  strlen($data) + 1, $type, $data);
+            pack('NCa*', strlen($data) + 1, $type, $data);
 
         $start = microtime(true);
         $result = $this->send_channel_packet(self::CHANNEL, $packet);
@@ -3198,7 +3198,7 @@ class SFTP extends SSH2
                 $this->packet_buffer = '';
                 return false;
             }
-            $this->packet_buffer.= $temp;
+            $this->packet_buffer .= $temp;
         }
         if (strlen($this->packet_buffer) < 4) {
             throw new \RuntimeException('Packet is too small');
@@ -3207,7 +3207,7 @@ class SFTP extends SSH2
         /** @var integer $length */
 
         $tempLength = $length;
-        $tempLength-= strlen($this->packet_buffer);
+        $tempLength -= strlen($this->packet_buffer);
 
         // 256 * 1024 is what SFTP_MAX_MSG_LENGTH is set to in OpenSSH's sftp-common.h
         if (!$this->allow_arbitrary_length_packets && !$this->use_request_id && $tempLength > 256 * 1024) {
@@ -3222,8 +3222,8 @@ class SFTP extends SSH2
                 $this->packet_buffer = '';
                 return false;
             }
-            $this->packet_buffer.= $temp;
-            $tempLength-= strlen($temp);
+            $this->packet_buffer .= $temp;
+            $tempLength -= strlen($temp);
         }
 
         $stop = microtime(true);
@@ -3232,9 +3232,9 @@ class SFTP extends SSH2
 
         if ($this->use_request_id) {
             extract(unpack('Npacket_id', Strings::shift($this->packet_buffer, 4))); // remove the request id
-            $length-= 5; // account for the request id and the packet type
+            $length -= 5; // account for the request id and the packet type
         } else {
-            $length-= 1; // account for the packet type
+            $length -= 1; // account for the packet type
         }
 
         $packet = Strings::shift($this->packet_buffer, $length);

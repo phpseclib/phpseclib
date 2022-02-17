@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2014 Jim Wigginton
@@ -130,7 +131,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
      */
     public function testPKCS1CSR()
     {
-        $x509 = new X509;
+        $x509 = new X509();
         $x509->loadCSR('-----BEGIN CERTIFICATE REQUEST-----
 MIICijCCAXICAQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUx
 ITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcN
@@ -156,7 +157,7 @@ fUQvcGEA9FSQ8Y0nfF9vzzcCjLtOI6xJluYL9XCk8WVEBEawA2zmHWTzzuHFHHEM
      */
     public function testPSSCSR()
     {
-        $x509 = new X509;
+        $x509 = new X509();
         $x509->loadCSR('-----BEGIN CERTIFICATE REQUEST-----
 MIICuTCCAXACAQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUx
 ITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDCCASAwCwYJKoZIhvcN

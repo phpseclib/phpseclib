@@ -204,7 +204,7 @@ class BigInteger
      */
     public function __toString()
     {
-        return (string) $this->value;
+        return (string)$this->value;
     }
 
     /**
@@ -248,7 +248,7 @@ class BigInteger
      * @param bool $twos_compliment
      * @return string
      */
-    function toBits($twos_compliment = false)
+    public function toBits($twos_compliment = false)
     {
         return $this->value->toBits($twos_compliment);
     }
@@ -270,7 +270,7 @@ class BigInteger
      * @param BigInteger $y
      * @return BigInteger
      */
-    function subtract(BigInteger $y)
+    public function subtract(BigInteger $y)
     {
         return new static($this->value->subtract($y->value));
     }
@@ -324,8 +324,9 @@ class BigInteger
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
-     * @return BigInteger
+     *
      * @param BigInteger $n
+     * @return BigInteger
      */
     public function modInverse(BigInteger $n)
     {
@@ -336,8 +337,9 @@ class BigInteger
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
-     * @return BigInteger[]
+     *
      * @param BigInteger $n
+     * @return BigInteger[]
      */
     public function extendedGCD(BigInteger $n)
     {
@@ -375,7 +377,7 @@ class BigInteger
      */
     public function abs()
     {
-         return new static($this->value->abs());
+        return new static($this->value->abs());
     }
 
     /**
@@ -470,8 +472,8 @@ class BigInteger
     /**
      * Compares two numbers.
      *
-     * Although one might think !$x->compare($y) means $x != $y, it, in fact, means the opposite.  The reason for this is
-     * demonstrated thusly:
+     * Although one might think !$x->compare($y) means $x != $y, it, in fact, means the opposite.  The reason for this
+     * is demonstrated thusly:
      *
      * $x  > $y: $x->compare($y)  > 0
      * $x  < $y: $x->compare($y)  < 0
@@ -612,7 +614,7 @@ class BigInteger
         $class = self::$mainEngine;
         extract($class::minMaxBits($bits));
         /** @var BigInteger $min
-         *  @var BigInteger $max
+         * @var BigInteger $max
          */
         return [
             'min' => new static($min),
@@ -754,7 +756,9 @@ class BigInteger
     public static function min(BigInteger ...$nums)
     {
         $class = self::$mainEngine;
-        $nums = array_map(function($num) { return $num->value; }, $nums);
+        $nums = array_map(function ($num) {
+            return $num->value;
+        }, $nums);
         return new static($class::min(...$nums));
     }
 
@@ -767,7 +771,9 @@ class BigInteger
     public static function max(BigInteger ...$nums)
     {
         $class = self::$mainEngine;
-        $nums = array_map(function($num) { return $num->value; }, $nums);
+        $nums = array_map(function ($num) {
+            return $num->value;
+        }, $nums);
         return new static($class::max(...$nums));
     }
 
@@ -859,7 +865,7 @@ class BigInteger
     public function createRecurringModuloFunction()
     {
         $func = $this->value->createRecurringModuloFunction();
-        return function(BigInteger $x) use ($func) {
+        return function (BigInteger $x) use ($func) {
             return new static($func($x->value));
         };
     }
@@ -874,7 +880,7 @@ class BigInteger
      */
     public function bitwise_split($split)
     {
-        return array_map(function($val) {
+        return array_map(function ($val) {
             return new static($val);
         }, $this->value->bitwise_split($split));
     }

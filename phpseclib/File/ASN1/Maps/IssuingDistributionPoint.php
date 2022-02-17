@@ -60,7 +60,7 @@ abstract class IssuingDistributionPoint
                                                 'default'  => false,
                                                 'implicit' => true
                                             ],
-            'onlyContainsAttributeCerts' =>[
+            'onlyContainsAttributeCerts' => [
                                                 'type'     => ASN1::TYPE_BOOLEAN,
                                                 'constant' => 5,
                                                 'optional' => true,

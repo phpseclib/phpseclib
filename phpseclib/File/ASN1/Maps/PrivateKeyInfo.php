@@ -33,7 +33,7 @@ abstract class PrivateKeyInfo
                 'type' => ASN1::TYPE_INTEGER,
                 'mapping' => ['v1']
             ],
-            'privateKeyAlgorithm'=> AlgorithmIdentifier::MAP,
+            'privateKeyAlgorithm' => AlgorithmIdentifier::MAP,
             'privateKey' => PrivateKey::MAP,
             'attributes' => [
                 'constant' => 0,

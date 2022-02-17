@@ -11,10 +11,10 @@ use phpseclib3\Net\SFTP\FileType;
 
 class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 {
-    static protected $scratchDir;
-    static protected $exampleData;
-    static protected $exampleDataLength;
-    static protected $buffer;
+    protected static $scratchDir;
+    protected static $exampleData;
+    protected static $exampleDataLength;
+    protected static $buffer;
 
     public static function setUpBeforeClass()
     {
@@ -136,7 +136,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    static function demoCallback($length)
+    public static function demoCallback($length)
     {
         $r = substr(self::$buffer, 0, $length);
         self::$buffer = substr(self::$buffer, $length);
@@ -487,6 +487,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
     /**
      * on older versions this would result in a fatal error
+     *
      * @depends testStatOnCWD
      * @group github402
      */
@@ -765,7 +766,14 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 
         $list_cache_disabled = $sftp->rawlist('.', true);
 
-        $this->assertEquals($list_cache_enabled, $list_cache_disabled, 'The files should be the same regardless of stat cache', 0.0, 10, true);
+        $this->assertEquals(
+            $list_cache_enabled,
+            $list_cache_disabled,
+            'The files should be the same regardless of stat cache',
+            0.0,
+            10,
+            true
+        );
 
         return $sftp;
     }

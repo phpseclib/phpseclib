@@ -70,7 +70,9 @@ abstract class SSH2
         if ($r->getLength() > 160 || $s->getLength() > 160) {
             return false;
         }
-        return Strings::packSSH2('ss', 'ssh-dss',
+        return Strings::packSSH2(
+            'ss',
+            'ssh-dss',
             str_pad($r->toBytes(), 20, "\0", STR_PAD_LEFT) .
             str_pad($s->toBytes(), 20, "\0", STR_PAD_LEFT)
         );

@@ -31,7 +31,7 @@ abstract class PBES2params
     const MAP = [
         'type'     => ASN1::TYPE_SEQUENCE,
         'children' => [
-            'keyDerivationFunc'=> AlgorithmIdentifier::MAP,
+            'keyDerivationFunc' => AlgorithmIdentifier::MAP,
             'encryptionScheme' => AlgorithmIdentifier::MAP
         ]
     ];

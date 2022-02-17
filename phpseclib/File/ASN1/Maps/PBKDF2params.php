@@ -33,8 +33,8 @@ abstract class PBKDF2params
         'children' => [
             // technically, this is a CHOICE in RFC2898 but the other "choice" is, currently, more of a placeholder
             // in the RFC
-            'salt'=> ['type' => ASN1::TYPE_OCTET_STRING],
-            'iterationCount'=> ['type' => ASN1::TYPE_INTEGER],
+            'salt' => ['type' => ASN1::TYPE_OCTET_STRING],
+            'iterationCount' => ['type' => ASN1::TYPE_INTEGER],
             'keyLength' => [
                 'type'     => ASN1::TYPE_INTEGER,
                 'optional' => true

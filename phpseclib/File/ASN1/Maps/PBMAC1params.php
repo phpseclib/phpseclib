@@ -31,8 +31,8 @@ abstract class PBMAC1params
     const MAP = [
         'type'     => ASN1::TYPE_SEQUENCE,
         'children' => [
-            'keyDerivationFunc'=> AlgorithmIdentifier::MAP,
-            'messageAuthScheme'=> AlgorithmIdentifier::MAP
+            'keyDerivationFunc' => AlgorithmIdentifier::MAP,
+            'messageAuthScheme' => AlgorithmIdentifier::MAP
         ]
     ];
 }

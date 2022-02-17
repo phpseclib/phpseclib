@@ -158,7 +158,7 @@ abstract class EC extends AsymmetricKey
             return $privatekey;
         }
 
-        $privatekey = new PrivateKey;
+        $privatekey = new PrivateKey();
 
         $curveName = $curve;
         if (preg_match('#(?:^curve|^ed)\d+$#', $curveName)) {
@@ -217,14 +217,14 @@ abstract class EC extends AsymmetricKey
         }
 
         if (!isset($components['dA']) && !isset($components['QA'])) {
-            $new = new Parameters;
+            $new = new Parameters();
             $new->curve = $components['curve'];
             return $new;
         }
 
         $new = isset($components['dA']) ?
-            new PrivateKey :
-            new PublicKey;
+            new PrivateKey() :
+            new PublicKey();
         $new->curve = $components['curve'];
         $new->QA = $components['QA'];
 
@@ -396,7 +396,7 @@ abstract class EC extends AsymmetricKey
      */
     public function getSignatureFormat()
     {
-       return $this->shortFormat;
+        return $this->shortFormat;
     }
 
     /**
@@ -437,7 +437,7 @@ abstract class EC extends AsymmetricKey
      */
     public function getContext()
     {
-       return $this->context;
+        return $this->context;
     }
 
     /**

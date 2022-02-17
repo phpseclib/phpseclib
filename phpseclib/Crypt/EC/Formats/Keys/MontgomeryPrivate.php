@@ -56,10 +56,10 @@ abstract class MontgomeryPrivate
     {
         switch (strlen($key)) {
             case 32:
-                $curve = new Curve25519;
+                $curve = new Curve25519();
                 break;
             case 56:
-                $curve = new Curve448;
+                $curve = new Curve448();
                 break;
             default:
                 throw new \LengthException('The only supported lengths are 32 and 56');
