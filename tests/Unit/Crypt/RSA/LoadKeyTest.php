@@ -549,4 +549,85 @@ Vyaqr/WTPzxdXJAAAADHJvb3RAdmFncmFudAECAwQFBg==
 
         $this->assertTrue($rsa->verify('zzz', $sig));
     }
+
+    public function testPuTTYV3NoPW()
+    {
+        $key = 'PuTTY-User-Key-File-3: ssh-rsa
+Encryption: none
+Comment: rsa-key-20220216
+Public-Lines: 6
+AAAAB3NzaC1yc2EAAAADAQABAAABAQCJ39DLYw81oZmBMeRze+Plu0p8+kJezer4
+mRpltRoqpZ0yRnyb5k0FtXrDeYL9IyCceOTsse/qks3CtVWQ2q7C2tqyezmk8mDf
+aKXqnaSG3hHZo7vJcy76J7NNB6Mz2BxF9RGvb+sylEKdWOJdgmYC6dzyvpg/0qs6
+yNPQGA5QOOzy2AstxnsujDl16I0GGsjw7ybc5844Hq4VhIQaft2Yd35UqGt5G1hs
+nIZu1cLO/F+8xs+0xEY04FvJRNAoJGlVc8oPx7slU7vF5m22AmBqrhkljbid72OR
+oXpI+4c7zc0dYZBIMoAEIJKTbliQE1WV0lYiXkS9RY3UjUyPLho9
+Private-Lines: 14
+AAABAQCI4IliEeMcpGVILOcXe2yCO1E1CCLyCc53pU/en0/t/OM18WJuR9I5k7Tf
+8XeIpeIPVbo3/mMn5zydS/c5ytDrI+kwfkN5LSPdSABIDt8zAa6I+hNJaK+/q8BG
+/gkZRDi1fxpiqGLAoQ4NNhvtJ7Lsu44d8/gkjJpvzsbx9Z/oJVK8ID10Wiiz9R7u
+WPCOJbrETGU1LaY4N0hwhbqD28xtX4ypBh+HQ9umCqOMopeqVhebMolAZ62K5V+N
+SbdN1JFk2FPQxMv3v4ApDW48AcJ1dNgO6euncaySLaQv3tnxYVjKVaf3JO0ALzoq
+zsR2uj5bJUvhSapj9uWdDJTurGzFAAAAgQDY5t/F2Ruoa5wtF/XTiIxFpb//xQ+2
+JhQOWd1fZZ+oMclqNS5E45E11TWnKthgr5NN4UB6TH4rtUETjsypD3w2PYZamTD1
+QzeoOS0xRxjKfQu08ApDV94mx9LfX6Xi2IqTW0pC+IbBx8AUnK7J7scva8TYn7Qu
+1QLSY4/tn3BBBwAAAIEAorolHJnR+w5FajTc8VeqN5E9bfc39Mr+2lQcqtARJGAM
+2jLhN3ZWGIboG3Ttqcbfuicv/WzFe+gGRA8awvMS4v2C5/knZl4Vq859KCP7JOeW
+63+5mLw5OKZOzWkguMu8+IfkUtIMv1JFuCU2eRL5elUthKlK6WFcMejuygNTrZsA
+AACARP7yi23FNxAqHcgbx5MlrLYbMSjxp5yT+1XeNVTSpM/dvDVsy+8ETi/c1870
+UfAzuIHQl2fu6NdtPBQUoqWKgBRtp46J/BoWF3Ty6klz+FAP2of4gojYvqa87H+6
+dW7G8+QXxXM704cxjbBQAApItfVw3upWPrYP9FDy7xvtYRY=
+Private-MAC: 7979eb6f604fb3e0bd191295479517f641598649167835402c6cbfde6cbf21ef';
+
+        $rsa = new RSA();
+        $this->assertTrue($rsa->loadKey($key));
+        $this->assertIsString($rsa->getPublicKey());
+        $this->assertIsString($rsa->getPrivateKey());
+    }
+
+    public function testPuTTYV3PW()
+    {
+        if (!function_exists('sodium_crypto_pwhash')) {
+            self::markTestSkipped('sodium_crypto_pwhash() function is not available.');
+        }
+
+        $key = 'PuTTY-User-Key-File-3: ssh-rsa
+Encryption: aes256-cbc
+Comment: rsa-key-20220216
+Public-Lines: 6
+AAAAB3NzaC1yc2EAAAADAQABAAABAQCJ39DLYw81oZmBMeRze+Plu0p8+kJezer4
+mRpltRoqpZ0yRnyb5k0FtXrDeYL9IyCceOTsse/qks3CtVWQ2q7C2tqyezmk8mDf
+aKXqnaSG3hHZo7vJcy76J7NNB6Mz2BxF9RGvb+sylEKdWOJdgmYC6dzyvpg/0qs6
+yNPQGA5QOOzy2AstxnsujDl16I0GGsjw7ybc5844Hq4VhIQaft2Yd35UqGt5G1hs
+nIZu1cLO/F+8xs+0xEY04FvJRNAoJGlVc8oPx7slU7vF5m22AmBqrhkljbid72OR
+oXpI+4c7zc0dYZBIMoAEIJKTbliQE1WV0lYiXkS9RY3UjUyPLho9
+Key-Derivation: Argon2id
+Argon2-Memory: 8192
+Argon2-Passes: 13
+Argon2-Parallelism: 1
+Argon2-Salt: d9bfa07d14a450a26ada4eb5d30c4dae
+Private-Lines: 14
+L3TUmo97jnxJVYIScxzPIaq19/yNQ5HDQKGSTz4vqUrQR3wXQEyhzxlN2mm5zZtT
+pst7K61P0awtjs4kHUfsKxXh/upv7ndS9u9G7cnnBfP5mjs0wAE2VaghbP4UXprH
+/MQC9Dr13Iuydv5Oih+PLpkvM3DbY5t+nrIWy/29yDLYe/QjLvy346Gz3pnLmCfb
+hbEFfjefdppa+6QZ+qU6ai/NMAM/Q5OxjRlIo1brrKJNvMrbzP7irZ4+Ao2Or/hX
+nb2ZZLY0eUotD8iFuOk2EjjqP9iakag1OHdvdy6EcPzkIObN5YeZGz9/hRDFr9Ml
+xNxdaw5c1BhqU5pm0B0HUDqW5kmYTiugUKQiGr0+1ckliUt6jsb7YImnqJIgL7PS
+vKcqNvz95u4on77gHPl2JdsXxuz6jOkDwc9jvsJCtIMJ8qhAVXGS7WaH2aF9ty7B
+4E+f2yIbsRr0RFCZoTTjTmhtYsVd7DYo0Jftya3Sh/lVO1MLo1z8em0MFJdR683N
+tRDA2lbRPOdKYaiKdyp5bAsl4fqPR1e2GR9ybalPn/XSFDRtDfdMr7hyQboBR7uC
+X3nYsh5OiXakUSr2ST41pP27s8F48590M6xWb9LGFJA+JqmAZ5rxPTxFYjkz27y9
+Yvlq6lvM+XsUREPrxhWrHya4Jyp4WtyVtJXDg626hoZBSEtcOY/mbPfwVFnoU9vz
+V8TI/YU837mUceEJlEQEbT+bFJfh0W5jzAYx2xX6uPnDkodBMK2p6QS3ZKib0NJ7
+W+jQr9TT40H0agZhtAmPKaLGxtgdpUps1CDPV+8Y/pBf28CsI2DjFaOYopZXcW9s
+vCIjXopt4wAKbXiLyb5JXzFfB7CVron48NHB7wzuwvnUoYa/4dbjeEos+1y72xoP
+Private-MAC: d26baf87446604974287b682ed9e0c00ce54e460e1cb719953a81291147b3c59
+';
+
+        $rsa = new RSA();
+        $rsa->setPassword('demo');
+        $this->assertTrue($rsa->loadKey($key));
+        $this->assertIsString($rsa->getPublicKey());
+        $this->assertIsString($rsa->getPrivateKey());
+    }
 }
