@@ -43,6 +43,14 @@ abstract class PuTTY
     private static $comment = 'phpseclib-generated-key';
 
     /**
+     * Default version
+     *
+     * @var int
+     * @access private
+     */
+    private static $version = 2;
+
+    /**
      * Sets the default comment
      *
      * @access public
@@ -54,14 +62,28 @@ abstract class PuTTY
     }
 
     /**
-     * Generate a symmetric key for PuTTY keys
+     * Sets the default version
      *
      * @access public
+     * @param int $version
+     */
+    public static function setVersion($version)
+    {
+        if ($version != 2 && $version != 3) {
+            throw new \RuntimeException('Only supported versions are 2 and 3');
+        }
+        self::$version = $version;
+    }
+
+    /**
+     * Generate a symmetric key for PuTTY v2 keys
+     *
+     * @access private
      * @param string $password
      * @param int $length
      * @return string
      */
-    private static function generateSymmetricKey($password, $length)
+    private static function generateV2Key($password, $length)
     {
         $symkey = '';
         $sequence = 0;
@@ -70,6 +92,44 @@ abstract class PuTTY
             $symkey.= Hex::decode(sha1($temp));
         }
         return substr($symkey, 0, $length);
+    }
+
+    /**
+     * Generate a symmetric key for PuTTY v3 keys
+     *
+     * @access private
+     * @param string $password
+     * @param string $flavour
+     * @param int $memory
+     * @param int $passes
+     * @param string $salt
+     * @return array
+     */
+    private static function generateV3Key($password, $flavour, $memory, $passes, $salt)
+    {
+        if (!function_exists('sodium_crypto_pwhash')) {
+            throw new \RuntimeException('sodium_crypto_pwhash needs to exist for Argon2 password hasing');
+        }
+
+        switch ($flavour) {
+            case 'Argon2i':
+                $flavour = SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13;
+                break;
+            case 'Argon2id':
+                $flavour = SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13;
+                break;
+            default:
+                 throw new UnsupportedAlgorithmException('Only Argon2i and Argon2id are supported');
+        }
+
+        $length = 80; // keylen + ivlen + mac_keylen
+        $temp = sodium_crypto_pwhash($length, $password, $salt, $passes, $memory << 10, $flavour);
+
+        $symkey = substr($temp, 0, 32);
+        $symiv = substr($temp, 32, 16);
+        $hashkey = substr($temp, -32);
+
+        return compact('symkey', 'symiv', 'hashkey');
     }
 
     /**
@@ -174,40 +234,17 @@ abstract class PuTTY
                 $crypto = new AES('cbc');
                 switch ($version) {
                     case 3:
-                        if (!function_exists('sodium_crypto_pwhash')) {
-                            throw new \RuntimeException('sodium_crypto_pwhash needs to exist for Argon2 password hasing');
-                        }
                         $flavour = trim(preg_replace('#Key-Derivation: (.*)#', '$1', $key[$offset++]));
-                        switch ($flavour) {
-                            case 'Argon2i':
-                                $flavour = SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13;
-                                break;
-                            case 'Argon2id':
-                                $flavour = SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13;
-                                break;
-                             default:
-                                 throw new UnsupportedAlgorithmException('Only Argon2i and Argon2id are supported');
-                        }
                         $memory = trim(preg_replace('#Argon2-Memory: (\d+)#', '$1', $key[$offset++]));
                         $passes = trim(preg_replace('#Argon2-Passes: (\d+)#', '$1', $key[$offset++]));
                         $parallelism = trim(preg_replace('#Argon2-Parallelism: (\d+)#', '$1', $key[$offset++]));
-                        $salt = pack('H*', trim(preg_replace('#Argon2-Salt: ([0-9a-f]+)#', '$1', $key[$offset++])));
+                        $salt = Hex::decode(trim(preg_replace('#Argon2-Salt: ([0-9a-f]+)#', '$1', $key[$offset++])));
 
-                        $length = 80; // keylen + ivlen + mac_keylen
-                        $temp = sodium_crypto_pwhash($length, $password, $salt, $passes, $memory << 10, $flavour);
+                        extract(self::generateV3Key($password, $flavour, $memory, $passes, $salt));
 
-                        $symkey = substr($temp, 0, 32);
-                        $symiv = substr($temp, 32, 16);
-                        $hashkey = substr($temp, -32);
                         break;
                     case 2:
-                        $symkey = '';
-                        $sequence = 0;
-                        while (strlen($symkey) < 32) {
-                            $temp = pack('Na*', $sequence++, $password);
-                            $symkey.= pack('H*', sha1($temp));
-                        }
-                        $symkey = substr($symkey, 0, 32);
+                        $symkey = self::generateV2Key($password, 32);
                         $symiv = str_repeat("\0", $crypto->getBlockLength() >> 3);
                         $hashkey.= $password;
                 }
@@ -262,9 +299,11 @@ abstract class PuTTY
     {
         $encryption = (!empty($password) || is_string($password)) ? 'aes256-cbc' : 'none';
         $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
+        $version = isset($options['version']) ? $options['version'] : self::$version;
 
-        $key = "PuTTY-User-Key-File-2: " . $type . "\r\nEncryption: ";        $key.= $encryption;
-        $key.= "\r\nComment: " . $comment . "\r\n";
+        $key = "PuTTY-User-Key-File-$version: $type\r\n";
+        $key.= "Encryption: $encryption\r\n";
+        $key.= "Comment: $comment\r\n";
 
         $public = Strings::packSSH2('s', $type) . $public;
 
@@ -276,24 +315,53 @@ abstract class PuTTY
 
         if (empty($password) && !is_string($password)) {
             $source.= Strings::packSSH2('s', $private);
-            $hashkey = 'putty-private-key-file-mac-key';
+            switch ($version) {
+                case 3:
+                    $hash = new Hash('sha256');
+                    $hash->setKey('');
+                    break;
+                case 2:
+                    $hash = new Hash('sha1');
+                    $hash->setKey(sha1('putty-private-key-file-mac-key', true));
+            }
         } else {
             $private.= Random::string(16 - (strlen($private) & 15));
             $source.= Strings::packSSH2('s', $private);
             $crypto = new AES('cbc');
 
-            $crypto->setKey(self::generateSymmetricKey($password, 32));
-            $crypto->setIV(str_repeat("\0", $crypto->getBlockLength() >> 3));
+            switch ($version) {
+                case 3:
+                    $salt = Random::string(16);
+                    $key.= "Key-Derivation: Argon2id\r\n";
+                    $key.= "Argon2-Memory: 8192\r\n";
+                    $key.= "Argon2-Passes: 13\r\n";
+                    $key.= "Argon2-Parallelism: 1\r\n";
+                    $key.= "Argon2-Salt: " . Hex::encode($salt) . "\r\n";
+                    extract(self::generateV3Key($password, 'Argon2id', 8192, 13, $salt));
+
+                    $hash = new Hash('sha256');
+                    $hash->setKey($hashkey);
+
+                    break;
+                case 2:
+                    $symkey = self::generateV2Key($password, 32);
+                    $symiv = str_repeat("\0", $crypto->getBlockLength() >> 3);
+                    $hashkey = 'putty-private-key-file-mac-key' . $password;
+
+                    $hash = new Hash('sha1');
+                    $hash->setKey(sha1($hashkey, true));
+            }
+
+            $crypto->setKey($symkey);
+            $crypto->setIV($symiv);
             $crypto->disablePadding();
             $private = $crypto->encrypt($private);
-            $hashkey = 'putty-private-key-file-mac-key' . $password;
+            $mac = $hash->hash($source);
         }
 
         $private = Base64::encode($private);
         $key.= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
         $key.= chunk_split($private, 64);
-        $hash = new Hash('sha1');
-        $hash->setKey(sha1($hashkey, true));
         $key.= 'Private-MAC: ' . Hex::encode($hash->hash($source)) . "\r\n";
 
         return $key;
