@@ -380,7 +380,7 @@ abstract class Strings
     {
         if (function_exists('sodium_increment')) {
             sodium_increment($var);
-            return;
+            return $var;
         }
 
         for ($i = 4; $i <= strlen($var); $i+= 4) {
