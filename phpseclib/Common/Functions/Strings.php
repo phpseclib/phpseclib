@@ -379,7 +379,9 @@ abstract class Strings
     public static function increment_str(&$var)
     {
         if (function_exists('sodium_increment')) {
+            $var = strrev($var);
             sodium_increment($var);
+            $var = strrev($var);
             return $var;
         }
 
