@@ -2007,6 +2007,11 @@ class Crypt_Base
      */
     function _increment_str(&$var)
     {
+        if (function_exists('sodium_increment')) {
+            sodium_increment($var);
+            return;
+        }
+
         for ($i = 4; $i <= strlen($var); $i+= 4) {
             $temp = substr($var, -$i, 4);
             switch ($temp) {
