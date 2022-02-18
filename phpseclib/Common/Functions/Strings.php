@@ -379,8 +379,10 @@ abstract class Strings
     public static function increment_str(&$var)
     {
         if (function_exists('sodium_increment')) {
+            $var = strrev($var);
             sodium_increment($var);
-            return;
+            $var = strrev($var);
+            return $var;
         }
 
         for ($i = 4; $i <= strlen($var); $i+= 4) {
