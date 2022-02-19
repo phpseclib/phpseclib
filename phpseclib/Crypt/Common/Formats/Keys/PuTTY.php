@@ -119,7 +119,7 @@ abstract class PuTTY
                 $flavour = SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13;
                 break;
             default:
-                 throw new UnsupportedAlgorithmException('Only Argon2i and Argon2id are supported');
+                throw new UnsupportedAlgorithmException('Only Argon2i and Argon2id are supported');
         }
 
         $length = 80; // keylen + ivlen + mac_keylen
@@ -181,7 +181,7 @@ abstract class PuTTY
             if ($components === false) {
                 throw new \UnexpectedValueException('Unable to decode public key');
             }
-            $components+= $values;
+            $components += $values;
             $components['comment'] = str_replace(['\\\\', '\"'], ['\\', '"'], $values['comment']);
 
             return $components;

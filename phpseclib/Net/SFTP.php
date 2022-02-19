@@ -381,13 +381,13 @@ class SFTP extends SSH2
             20 => 'NET_SFTP_SYMLINK',
             21 => 'NET_SFTP_LINK',
 
-            101=> 'NET_SFTP_STATUS',
-            102=> 'NET_SFTP_HANDLE',
-            103=> 'NET_SFTP_DATA',
-            104=> 'NET_SFTP_NAME',
-            105=> 'NET_SFTP_ATTRS',
+            101 => 'NET_SFTP_STATUS',
+            102 => 'NET_SFTP_HANDLE',
+            103 => 'NET_SFTP_DATA',
+            104 => 'NET_SFTP_NAME',
+            105 => 'NET_SFTP_ATTRS',
 
-            200=> 'NET_SFTP_EXTENDED'
+            200 => 'NET_SFTP_EXTENDED'
         ];
         $this->status_codes = [
             0 => 'NET_SFTP_STATUS_OK',
