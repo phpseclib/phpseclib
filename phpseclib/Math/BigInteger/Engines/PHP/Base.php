@@ -94,7 +94,7 @@ abstract class Base extends PHP
         }
 
         if ($e->value == [2]) {
-            $temp = new $class;
+            $temp = new $class();
             $temp->value = $class::square($x->value);
             list(, $temp) = $temp->divide($n);
             return $x->normalize($temp);

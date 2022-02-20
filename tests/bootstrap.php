@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bootstrapping File for phpseclib Test Suite
  *

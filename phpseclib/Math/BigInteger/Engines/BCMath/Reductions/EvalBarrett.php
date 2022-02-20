@@ -76,9 +76,9 @@ abstract class EvalBarrett extends Base
 
         $m = "'$m'";
         $u = "'$u'";
-        $m1= "'$m1'";
+        $m1 = "'$m1'";
 
-        $code.= '
+        $code .= '
             $lsd = substr($n, -' . $cutoff . ');
             $msd = substr($n, 0, -' . $cutoff . ');
 

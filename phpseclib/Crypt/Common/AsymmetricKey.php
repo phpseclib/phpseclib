@@ -145,7 +145,7 @@ abstract class AsymmetricKey
     protected static function initialize_static_variables()
     {
         if (!isset(self::$zero)) {
-            self::$zero= new BigInteger(0);
+            self::$zero = new BigInteger(0);
             self::$one = new BigInteger(1);
         }
 
@@ -337,7 +337,7 @@ abstract class AsymmetricKey
      * @param string $method optional
      * @return mixed
      */
-    protected static function validatePlugin($format, $type, $method = NULL)
+    protected static function validatePlugin($format, $type, $method = null)
     {
         $type = strtolower($type);
         if (!isset(self::$plugins[static::ALGORITHM][$format][$type])) {
@@ -519,7 +519,7 @@ abstract class AsymmetricKey
      */
     public function getHash()
     {
-       return clone $this->hash;
+        return clone $this->hash;
     }
 
     /**
@@ -581,7 +581,7 @@ abstract class AsymmetricKey
         $rolen = $this->q->getLengthInBytes();
         if (strlen($out) < $rolen) {
             return str_pad($out, $rolen, "\0", STR_PAD_LEFT);
-        } else if (strlen($out) > $rolen) {
+        } elseif (strlen($out) > $rolen) {
             return substr($out, -$rolen);
         } else {
             return $out;

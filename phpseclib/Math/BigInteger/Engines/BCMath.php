@@ -89,8 +89,8 @@ class BCMath extends Engine
     /**
      * Test for engine validity
      *
-     * @see parent::__construct()
      * @return bool
+     * @see parent::__construct()
      */
     public static function isValidEngine()
     {
@@ -102,8 +102,8 @@ class BCMath extends Engine
      *
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
-     * @see parent::__construct()
      * @return \phpseclib3\Math\BigInteger\Engines\BCMath
+     * @see parent::__construct()
      */
     public function __construct($x = 0, $base = 10)
     {
@@ -135,9 +135,15 @@ class BCMath extends Engine
                 $x = str_pad($this->value, $len, chr(0), STR_PAD_LEFT);
 
                 $this->value = '0';
-                for ($i = 0; $i < $len; $i+= 4) {
+                for ($i = 0; $i < $len; $i += 4) {
                     $this->value = bcmul($this->value, '4294967296', 0); // 4294967296 == 2**32
-                    $this->value = bcadd($this->value, 0x1000000 * ord($x[$i]) + ((ord($x[$i + 1]) << 16) | (ord($x[$i + 2]) << 8) | ord($x[$i + 3])), 0);
+                    $this->value = bcadd(
+                        $this->value,
+                        0x1000000 * ord($x[$i]) + ((ord($x[$i + 1]) << 16) | (ord(
+                            $x[$i + 2]
+                        ) << 8) | ord($x[$i + 3])),
+                        0
+                    );
                 }
 
                 if ($this->is_negative) {
@@ -153,7 +159,7 @@ class BCMath extends Engine
             case 10:
                 // explicitly casting $x to a string is necessary, here, since doing $x[0] on -1 yields different
                 // results then doing it on '-1' does (modInverse does $x[0])
-                $this->value = $this->value === '-' ? '0' : (string) $this->value;
+                $this->value = $this->value === '-' ? '0' : (string)$this->value;
         }
     }
 
@@ -177,7 +183,7 @@ class BCMath extends Engine
      * @param bool $twos_compliment
      * @return string
      */
-    function toBytes($twos_compliment = false)
+    public function toBytes($twos_compliment = false)
     {
         if ($twos_compliment) {
             return $this->toBytesHelper();
@@ -274,8 +280,8 @@ class BCMath extends Engine
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      *
-     * @return false|BCMath
      * @param \phpseclib3\Math\BigInteger\Engines\BCMath $n
+     * @return false|BCMath
      */
     public function modInverse(BCMath $n)
     {
@@ -325,8 +331,8 @@ class BCMath extends Engine
 
         return [
             'gcd' => $this->normalize(new static($u)),
-            'x'   => $this->normalize(new static($a)),
-            'y'   => $this->normalize(new static($b))
+            'x' => $this->normalize(new static($a)),
+            'y' => $this->normalize(new static($b))
         ];
     }
 
@@ -428,8 +434,8 @@ class BCMath extends Engine
     /**
      * Compares two numbers.
      *
-     * Although one might think !$x->compare($y) means $x != $y, it, in fact, means the opposite.  The reason for this is
-     * demonstrated thusly:
+     * Although one might think !$x->compare($y) means $x != $y, it, in fact, means the opposite.  The reason for this
+     * is demonstrated thusly:
      *
      * $x  > $y: $x->compare($y)  > 0
      * $x  < $y: $x->compare($y)  < 0
@@ -604,9 +610,9 @@ class BCMath extends Engine
      *
      * ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
      *
-     * @see self::isPrime()
      * @param BCMath $r
      * @return int
+     * @see self::isPrime()
      */
     public static function scan1divide(BCMath $r)
     {
@@ -672,8 +678,8 @@ class BCMath extends Engine
     /**
      * Set Bitmask
      *
-     * @return Engine
      * @param int $bits
+     * @return Engine
      * @see self::setPrecision()
      */
     protected static function setBitmask($bits)

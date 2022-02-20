@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2014 Jim Wigginton
@@ -9,7 +10,7 @@ use phpseclib3\Crypt\TripleDES;
 
 class Unit_Crypt_TripleDESTest extends PhpseclibTestCase
 {
-    var $engines = [
+    public $engines = [
         'PHP',
         'Eval',
         'mcrypt',

@@ -82,7 +82,7 @@ abstract class DH extends AsymmetricKey
      */
     public static function createParameters(...$args)
     {
-        $params = new Parameters;
+        $params = new Parameters();
         if (count($args) == 2 && $args[0] instanceof BigInteger && $args[1] instanceof BigInteger) {
             //if (!$args[0]->isPrime()) {
             //    throw new \InvalidArgumentException('The first parameter should be a prime number');
@@ -252,7 +252,7 @@ abstract class DH extends AsymmetricKey
             $max = $params->prime->subtract($one);
         }
 
-        $key = new PrivateKey;
+        $key = new PrivateKey();
         $key->prime = $params->prime;
         $key->base = $params->base;
         $key->privateKey = BigInteger::randomRange($one, $max);
@@ -324,7 +324,8 @@ abstract class DH extends AsymmetricKey
     {
         try {
             return EC::load($key, $password);
-        } catch (NoKeyLoadedException $e) {}
+        } catch (NoKeyLoadedException $e) {
+        }
 
         return parent::load($key, $password);
     }
@@ -339,11 +340,11 @@ abstract class DH extends AsymmetricKey
     protected static function onLoad($components)
     {
         if (!isset($components['privateKey']) && !isset($components['publicKey'])) {
-            $new = new Parameters;
+            $new = new Parameters();
         } else {
             $new = isset($components['privateKey']) ?
-                new PrivateKey :
-                new PublicKey;
+                new PrivateKey() :
+                new PublicKey();
         }
 
         $new->prime = $components['prime'];

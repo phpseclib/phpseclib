@@ -38,7 +38,7 @@ class Stream
      *
      * @var array
      */
-    static $instances;
+    public static $instances;
 
     /**
      * SFTP instance
@@ -158,14 +158,14 @@ class Stream
         $orig = $path;
         extract(parse_url($path) + ['port' => 22]);
         if (isset($query)) {
-            $path.= '?' . $query;
+            $path .= '?' . $query;
         } elseif (preg_match('/(\?|\?#)$/', $orig)) {
-            $path.= '?';
+            $path .= '?';
         }
         if (isset($fragment)) {
-            $path.= '#' . $fragment;
+            $path .= '#' . $fragment;
         } elseif ($orig[strlen($orig) - 1] == '#') {
-            $path.= '#';
+            $path .= '#';
         }
 
         if (!isset($host)) {
@@ -330,7 +330,7 @@ class Stream
             $this->eof = true;
             return false;
         }
-        $this->pos+= strlen($result);
+        $this->pos += strlen($result);
 
         return $result;
     }
@@ -362,7 +362,7 @@ class Stream
         if ($result === false) {
             return false;
         }
-        $this->pos+= strlen($data);
+        $this->pos += strlen($data);
         if ($this->pos > $this->size) {
             $this->size = $this->pos;
         }
@@ -416,10 +416,10 @@ class Stream
                 }
                 break;
             case SEEK_CUR:
-                $offset+= $this->pos;
+                $offset += $this->pos;
                 break;
             case SEEK_END:
-                $offset+= $this->size;
+                $offset += $this->size;
         }
 
         $this->pos = $offset;

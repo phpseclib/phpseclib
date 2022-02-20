@@ -349,7 +349,7 @@ class PublicKey extends RSA implements Common\PublicKey
         while (strlen($ps) != $psLen) {
             $temp = Random::string($psLen - strlen($ps));
             $temp = str_replace("\x00", '', $temp);
-            $ps.= $temp;
+            $ps .= $temp;
         }
         $type = 2;
         $em = chr(0) . chr($type) . $ps . chr(0) . $m;
@@ -492,7 +492,7 @@ class PublicKey extends RSA implements Common\PublicKey
 
         if ($type == PSS::class) {
             if ($this->signaturePadding == self::SIGNATURE_PSS) {
-                $options+= [
+                $options += [
                     'hash' => $this->hash->getHash(),
                     'MGFHash' => $this->mgfHash->getHash(),
                     'saltLength' => $this->getSaltLength()
@@ -512,7 +512,7 @@ class PublicKey extends RSA implements Common\PublicKey
      */
     public function asPrivateKey()
     {
-        $new = new PrivateKey;
+        $new = new PrivateKey();
         $new->exponent = $this->exponent;
         $new->modulus = $this->modulus;
         $new->k = $this->k;

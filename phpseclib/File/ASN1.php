@@ -187,7 +187,7 @@ abstract class ASN1
      * @var array
      * @access public
      */
-   const STRING_TYPE_SIZE = [
+    const STRING_TYPE_SIZE = [
         self::TYPE_UTF8_STRING      => 0,
         self::TYPE_BMP_STRING       => 2,
         self::TYPE_UNIVERSAL_STRING => 4,
@@ -266,7 +266,7 @@ abstract class ASN1
             } while ($loop);
         }
 
-        $start+= $startOffset;
+        $start += $startOffset;
 
         // Length, as discussed in paragraph 8.1.3 of X.690-0207.pdf#page=13
         if (!isset($encoded[$encoded_pos])) {
@@ -281,16 +281,16 @@ abstract class ASN1
         } elseif ($length & 0x80) { // definite length, long form
             // technically, the long form of the length can be represented by up to 126 octets (bytes), but we'll only
             // support it up to four.
-            $length&= 0x7F;
+            $length &= 0x7F;
             $temp = substr($encoded, $encoded_pos, $length);
             $encoded_pos += $length;
             // tags of indefinte length don't really have a header length; this length includes the tag
-            $current+= ['headerlength' => $length + 2];
-            $start+= $length;
+            $current += ['headerlength' => $length + 2];
+            $start += $length;
             extract(unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4)));
             /** @var integer $length */
         } else {
-            $current+= ['headerlength' => 2];
+            $current += ['headerlength' => 2];
         }
 
         if ($length > (strlen($encoded) - $encoded_pos)) {
@@ -335,13 +335,13 @@ abstract class ASN1
                     $length = $temp['length'];
                     // end-of-content octets - see paragraph 8.1.5
                     if (substr($content, $content_pos + $length, 2) == "\0\0") {
-                        $length+= 2;
-                        $start+= $length;
+                        $length += 2;
+                        $start += $length;
                         $newcontent[] = $temp;
                         break;
                     }
-                    $start+= $length;
-                    $remainingLength-= $length;
+                    $start += $length;
+                    $remainingLength -= $length;
                     $newcontent[] = $temp;
                     $content_pos += $length;
                 }
@@ -358,7 +358,7 @@ abstract class ASN1
                 ] + $current;
         }
 
-        $current+= ['type' => $tag];
+        $current += ['type' => $tag];
 
         // decode UNIVERSAL tags
         switch ($tag) {
@@ -389,14 +389,14 @@ abstract class ASN1
                     if ($temp === false) {
                         return false;
                     }
-                    $length-= (strlen($content) - $content_pos);
+                    $length -= (strlen($content) - $content_pos);
                     $last = count($temp) - 1;
                     for ($i = 0; $i < $last; $i++) {
                         // all subtags should be bit strings
                         if ($temp[$i]['type'] != self::TYPE_BIT_STRING) {
                             return false;
                         }
-                        $current['content'].= substr($temp[$i]['content'], 1);
+                        $current['content'] .= substr($temp[$i]['content'], 1);
                     }
                     // all subtags should be bit strings
                     if ($temp[$last]['type'] != self::TYPE_BIT_STRING) {
@@ -421,11 +421,11 @@ abstract class ASN1
                         if ($temp['type'] != self::TYPE_OCTET_STRING) {
                             return false;
                         }
-                        $current['content'].= $temp['content'];
-                        $length+= $temp['length'];
+                        $current['content'] .= $temp['content'];
+                        $length += $temp['length'];
                     }
                     if (substr($content, $content_pos, 2) == "\0\0") {
-                        $length+= 2; // +2 for the EOC
+                        $length += 2; // +2 for the EOC
                     }
                 }
                 break;
@@ -456,7 +456,7 @@ abstract class ASN1
                     }
                     $content_pos += $temp['length'];
                     $current['content'][] = $temp;
-                    $offset+= $temp['length'];
+                    $offset += $temp['length'];
                 }
                 break;
             case self::TYPE_OBJECT_IDENTIFIER:
@@ -512,7 +512,7 @@ abstract class ASN1
                 return false;
         }
 
-        $start+= $length;
+        $start += $length;
 
         // ie. length is the length of the full TLV encoding - it's not just the length of the value
         return $current + ['length' => $start - $current['start']];
@@ -664,7 +664,7 @@ abstract class ASN1
                 }
 
                 // Fail mapping if all input items have not been consumed.
-                return $i < $n ? null: $map;
+                return $i < $n ? null : $map;
 
             // the main diff between sets and sequences is the encapsulation of the foreach in another for loop
             case self::TYPE_SET:
@@ -834,7 +834,7 @@ abstract class ASN1
     {
         $length = ord(Strings::shift($string));
         if ($length & 0x80) { // definite length, long form
-            $length&= 0x7F;
+            $length &= 0x7F;
             $temp = Strings::shift($string, $length);
             list(, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
         }
@@ -894,7 +894,7 @@ abstract class ASN1
         switch ($tag) {
             case self::TYPE_SET:    // Children order is not important, thus process in sequence.
             case self::TYPE_SEQUENCE:
-                $tag|= 0x20; // set the constructed bit
+                $tag |= 0x20; // set the constructed bit
 
                 // ignore the min and max
                 if (isset($mapping['min']) && isset($mapping['max'])) {
@@ -906,7 +906,7 @@ abstract class ASN1
                         if ($temp === false) {
                             return false;
                         }
-                        $value[]= $temp;
+                        $value[] = $temp;
                     }
                     /* "The encodings of the component values of a set-of value shall appear in ascending order, the encodings being compared
                         as octet strings with the shorter components being padded at their trailing end with 0-octets.
@@ -959,7 +959,7 @@ abstract class ASN1
                             $temp = $subtag . substr($temp, 1);
                         }
                     }
-                    $value.= $temp;
+                    $value .= $temp;
                 }
                 break;
             case self::TYPE_CHOICE:
@@ -1026,7 +1026,7 @@ abstract class ASN1
             case self::TYPE_UTC_TIME:
             case self::TYPE_GENERALIZED_TIME:
                 $format = $mapping['type'] == self::TYPE_UTC_TIME ? 'y' : 'Y';
-                $format.= 'mdHis';
+                $format .= 'mdHis';
                 // if $source does _not_ include timezone information within it then assume that the timezone is GMT
                 $date = new \DateTime($source, new \DateTimeZone('GMT'));
                 // if $source _does_ include timezone information within it then convert the time to GMT
@@ -1060,7 +1060,7 @@ abstract class ASN1
                     $bits = implode('', array_pad($bits, $size + $offset + 1, 0));
                     $bytes = explode(' ', rtrim(chunk_split($bits, 8, ' ')));
                     foreach ($bytes as $byte) {
-                        $value.= chr(bindec($byte));
+                        $value .= chr(bindec($byte));
                     }
 
                     break;
@@ -1255,7 +1255,7 @@ abstract class ASN1
                 }
                 $temp[strlen($temp) - 1] = $temp[strlen($temp) - 1] & chr(0x7F);
             }
-            $value.= $temp;
+            $value .= $temp;
         }
 
         return $value;
@@ -1293,7 +1293,7 @@ abstract class ASN1
             $prefix = substr($content, 0, 2) >= 50 ? '19' : '20';
             $content = $prefix . $content;
         } elseif (strpos($content, '.') !== false) {
-            $format.= '.u';
+            $format .= '.u';
         }
 
         if ($content[strlen($content) - 1] == 'Z') {
@@ -1301,7 +1301,7 @@ abstract class ASN1
         }
 
         if (strpos($content, '-') !== false || strpos($content, '+') !== false) {
-            $format.= 'O';
+            $format .= 'O';
         }
 
         // error supression isn't necessary as of PHP 7.0:
@@ -1333,7 +1333,7 @@ abstract class ASN1
      */
     public static function loadOIDs($oids)
     {
-        self::$reverseOIDs+= $oids;
+        self::$reverseOIDs += $oids;
         self::$oids = array_flip(self::$reverseOIDs);
     }
 

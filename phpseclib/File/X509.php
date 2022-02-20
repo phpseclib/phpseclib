@@ -334,7 +334,7 @@ class X509
                 //'id-ad' => '1.3.6.1.5.5.7.48',
                 'id-qt-cps' => '1.3.6.1.5.5.7.2.1',
                 'id-qt-unotice' => '1.3.6.1.5.5.7.2.2',
-                'id-ad-ocsp' =>'1.3.6.1.5.5.7.48.1',
+                'id-ad-ocsp' => '1.3.6.1.5.5.7.48.1',
                 'id-ad-caIssuers' => '1.3.6.1.5.5.7.48.2',
                 'id-ad-timeStamping' => '1.3.6.1.5.5.7.48.3',
                 'id-ad-caRepository' => '1.3.6.1.5.5.7.48.5',
@@ -681,7 +681,7 @@ class X509
                     if ($value['extnId'] == $id) {
                         $extensions[$key] = $newext;
                         continue 2;
-                   }
+                    }
                 }
             }
             $extensions[] = $newext;
@@ -1148,7 +1148,7 @@ class X509
         $notBefore = new \DateTimeImmutable($notBefore, new \DateTimeZone(@date_default_timezone_get()));
         $notAfter = new \DateTimeImmutable($notAfter, new \DateTimeZone(@date_default_timezone_get()));
 
-        return $date >= $notBefore && $date<= $notAfter;
+        return $date >= $notBefore && $date <= $notAfter;
     }
 
     /**
@@ -1192,7 +1192,7 @@ class X509
                     if ($temp === false) {
                         return false;
                     }
-                    $data.= $temp;
+                    $data .= $temp;
                 }
 
                 break;
@@ -1694,7 +1694,7 @@ class X509
             $this->dn['rdnSequence'][] = [
                 [
                     'type' => $propName,
-                    'value'=> $v
+                    'value' => $v
                 ]
             ];
         }
@@ -1827,7 +1827,7 @@ class X509
 
         // handles everything else
         $results = preg_split('#((?:^|, *|/)(?:C=|O=|OU=|CN=|L=|ST=|SN=|postalCode=|streetAddress=|emailAddress=|serialNumber=|organizationalUnitName=|title=|description=|role=|x500UniqueIdentifier=|postalAddress=))#', $dn, -1, PREG_SPLIT_DELIM_CAPTURE);
-        for ($i = 1; $i < count($results); $i+=2) {
+        for ($i = 1; $i < count($results); $i += 2) {
             $prop = trim($results[$i], ', =/');
             $value = $results[$i + 1];
             if (!$this->setDNProp($prop, $value, $type)) {
@@ -1949,7 +1949,7 @@ class X509
             }
 
             if (!$start) {
-                $output.= $delim;
+                $output .= $delim;
             }
             if (is_array($value)) {
                 foreach ($value as $type => $v) {
@@ -1966,10 +1966,12 @@ class X509
                     $value = array_pop($value); // Always strip data type.
                 }
             } elseif (is_object($value) && $value instanceof Element) {
-                $callback = function($x) { return '\x' . bin2hex($x[0]); };
+                $callback = function ($x) {
+                    return '\x' . bin2hex($x[0]);
+                };
                 $value = strtoupper(preg_replace_callback('#[^\x20-\x7E]#', $callback, $value->element));
             }
-            $output.= $desc . '=' . $value;
+            $output .= $desc . '=' . $value;
             $result[$desc] = isset($result[$desc]) ?
                 array_merge((array) $result[$desc], [$value]) :
                 $value;
@@ -3457,7 +3459,7 @@ class X509
      * @access public
      * @return mixed
      */
-    public function getExtension($id, $cert = null, $path=null)
+    public function getExtension($id, $cert = null, $path = null)
     {
         return $this->getExtensionHelper($id, $cert, $path);
     }
@@ -3656,7 +3658,7 @@ class X509
                 $attributes[$last]['value'][] = $value;
                 break;
             default:
-                $attributes[] = ['type' => $id, 'value' => $disposition == self::ATTR_ALL ? $value: [$value]];
+                $attributes[] = ['type' => $id, 'value' => $disposition == self::ATTR_ALL ? $value : [$value]];
                 break;
         }
 
@@ -4004,7 +4006,7 @@ class X509
 
         if (is_array($rclist = $this->subArray($crl, 'tbsCertList/revokedCertificates'))) {
             if (($i = $this->revokedCertificate($rclist, $serial)) !== false) {
-                return $this->getExtension($id, $crl,  "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
+                return $this->getExtension($id, $crl, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
             }
         }
 

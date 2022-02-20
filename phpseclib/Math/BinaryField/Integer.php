@@ -216,7 +216,7 @@ class Integer extends Base
         for ($i = 0; $i < strlen($y); $i++) {
             if ($y[$i] == '1') {
                 $temp = $precomputed[$i & 7] . str_repeat("\0", $i >> 3);
-                $result^= str_pad($temp, $size, "\0", STR_PAD_LEFT);
+                $result ^= str_pad($temp, $size, "\0", STR_PAD_LEFT);
             }
         }
 
@@ -304,10 +304,10 @@ class Integer extends Base
         $z2 = ($x0 * $y2) ^ ($x1 * $y1) ^ ($x2 * $y0) ^ ($x3 * $y3);
         $z3 = ($x0 * $y3) ^ ($x1 * $y2) ^ ($x2 * $y1) ^ ($x3 * $y0);
 
-        $z0&= 0x1111111111111111;
-        $z1&= 0x2222222222222222;
-        $z2&= 0x4444444444444444;
-        $z3&= -8608480567731124088; // 0x8888888888888888 gets interpreted as a float
+        $z0 &= 0x1111111111111111;
+        $z1 &= 0x2222222222222222;
+        $z2 &= 0x4444444444444444;
+        $z3 &= -8608480567731124088; // 0x8888888888888888 gets interpreted as a float
 
         $z = $z0 | $z1 | $z2 | $z3;
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    Andreas Fischer <bantu@phpbb.com>
  * @copyright MMXIII Andreas Fischer
@@ -9,7 +10,7 @@ use phpseclib3\Crypt\RC2;
 
 class Unit_Crypt_RC2Test extends PhpseclibTestCase
 {
-    var $engines = [
+    public $engines = [
         'PHP',
         'Eval',
         'mcrypt',
@@ -99,7 +100,7 @@ class Unit_Crypt_RC2Test extends PhpseclibTestCase
         $rc2->setPreferredEngine('OpenSSL');
         if ($rc2->getEngine() == 'OpenSSL') {
             $openssl = $rc2->encrypt('d');
-            $this->assertEquals($result, $openssl,  'Failed asserting that the OpenSSL engine produced the correct result');
+            $this->assertEquals($result, $openssl, 'Failed asserting that the OpenSSL engine produced the correct result');
         } else {
             self::markTestSkipped('Unable to initialize OpenSSL engine');
         }
