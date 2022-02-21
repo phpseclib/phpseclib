@@ -162,7 +162,7 @@ class BinaryField extends FiniteField
      * Converts a base-2 string to a base-256 string
      *
      * @param string $x
-     * @param integer $size
+     * @param int|null $size
      * @return string
      */
     public static function base2ToBase256($x, $size = null)
@@ -196,3 +196,4 @@ class BinaryField extends FiniteField
         return Strings::bin2bits($x);
     }
 }
+

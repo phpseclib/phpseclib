@@ -7,7 +7,6 @@
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
     findUnusedPsalmSuppress="true"
     sealAllMethods="true"
-    errorBaseline="psalm_baseline.xml"
 >
     <projectFiles>
         <directory name="../phpseclib"/>
@@ -25,6 +24,21 @@
         <UndefinedConstant>
             <errorLevel type="suppress">
                 <directory name="../phpseclib/Net"/>
+            </errorLevel>
+        </UndefinedConstant>
+        <ParamNameMismatch>
+            <errorLevel type="suppress">
+                <directory name="../phpseclib/Math"/>
+            </errorLevel>
+        </ParamNameMismatch>
+        <UndefinedMethod>
+            <errorLevel type="suppress">
+                <directory name="../phpseclib/Math"/>
+            </errorLevel>
+        </UndefinedMethod>
+        <UndefinedConstant>
+            <errorLevel type="suppress">
+                <directory name="../phpseclib/Math"/>
             </errorLevel>
         </UndefinedConstant>
     </issueHandlers>
