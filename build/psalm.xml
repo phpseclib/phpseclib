@@ -9,15 +9,11 @@
     sealAllMethods="true"
 >
     <projectFiles>
-        <directory name="../phpseclib/Common"/>
-<!--        <directory name="../phpseclib/Crypt"/>-->
-        <directory name="../phpseclib/Exception"/>
-        <directory name="../phpseclib/File"/>
-<!--        <directory name="../phpseclib/Math"/>-->
-        <directory name="../phpseclib/Net"/>
-        <directory name="../phpseclib/System"/>
-        <file name="../phpseclib/bootstrap.php"/>
-<!--        <directory name="../tests"/>-->
+        <directory name="../phpseclib"/>
+        <ignoreFiles>
+            <directory name="../phpseclib/Crypt"/>
+            <directory name="../tests"/>
+        </ignoreFiles>
     </projectFiles>
     <issueHandlers>
         <Trace>
@@ -25,5 +21,21 @@
                 <directory name=".."/>
             </errorLevel>
         </Trace>
+
+        <ParamNameMismatch>
+            <errorLevel type="suppress">
+                <directory name="../phpseclib/Math"/>
+            </errorLevel>
+        </ParamNameMismatch>
+        <UndefinedMethod>
+            <errorLevel type="suppress">
+                <directory name="../phpseclib/Math"/>
+            </errorLevel>
+        </UndefinedMethod>
+        <UndefinedConstant>
+            <errorLevel type="suppress">
+                <directory name="../phpseclib/Math"/>
+            </errorLevel>
+        </UndefinedConstant>
     </issueHandlers>
 </psalm>

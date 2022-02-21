@@ -469,7 +469,7 @@ abstract class EvalBarrett extends Base
     private static function float2string($num)
     {
         if (!is_float($num)) {
-            return $num;
+            return (string) $num;
         }
 
         if ($num < 0) {

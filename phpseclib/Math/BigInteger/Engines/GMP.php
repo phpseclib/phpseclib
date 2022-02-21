@@ -44,50 +44,6 @@ class GMP extends Engine
     const ENGINE_DIR = 'GMP';
 
     /**
-     * Modular Exponentiation Engine
-     *
-     * @var string
-     */
-    protected static $modexpEngine;
-
-    /**
-     * Engine Validity Flag
-     *
-     * @var bool
-     */
-    protected static $isValidEngine;
-
-    /**
-     * BigInteger(0)
-     *
-     * @var \phpseclib3\Math\BigInteger\Engines\GMP
-     */
-    protected static $zero;
-
-    /**
-     * BigInteger(1)
-     *
-     * @var \phpseclib3\Math\BigInteger\Engines\GMP
-     */
-    protected static $one;
-
-    /**
-     * BigInteger(2)
-     *
-     * @var \phpseclib3\Math\BigInteger\Engines\GMP
-     */
-    protected static $two;
-
-    /**
-     * Primes > 2 and < 1000
-     *
-     * Unused for GMP Engine
-     *
-     * @var mixed
-     */
-    protected static $primes;
-
-    /**
      * Test for engine validity
      *
      * @see parent::__construct()
@@ -104,14 +60,13 @@ class GMP extends Engine
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @see parent::__construct()
-     * @return \phpseclib3\Math\BigInteger\Engines\GMP
      */
     public function __construct($x = 0, $base = 10)
     {
-        if (!isset(self::$isValidEngine)) {
-            self::$isValidEngine = self::isValidEngine();
+        if (!isset(static::$isValidEngine[static::class])) {
+            static::$isValidEngine[static::class] = self::isValidEngine();
         }
-        if (!self::$isValidEngine) {
+        if (!static::$isValidEngine[static::class]) {
             throw new BadConfigurationException('GMP is not setup correctly on this system');
         }
 
@@ -259,7 +214,7 @@ class GMP extends Engine
      * and the divisor (basically, the "common residue" is the first positive modulo).
      *
      * @param GMP $y
-     * @return GMP
+     * @return array{GMP, GMP}
      */
     public function divide(GMP $y)
     {
@@ -497,7 +452,7 @@ class GMP extends Engine
      */
     protected function powModInner(GMP $e, GMP $n)
     {
-        $class = self::$modexpEngine;
+        $class = static::$modexpEngine[static::class];
         return $class::powModHelper($this, $e, $n);
     }
 

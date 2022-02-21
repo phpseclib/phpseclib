@@ -45,48 +45,6 @@ class BCMath extends Engine
     const ENGINE_DIR = 'BCMath';
 
     /**
-     * Modular Exponentiation Engine
-     *
-     * @var string
-     */
-    protected static $modexpEngine;
-
-    /**
-     * Engine Validity Flag
-     *
-     * @var bool
-     */
-    protected static $isValidEngine;
-
-    /**
-     * BigInteger(0)
-     *
-     * @var \phpseclib3\Math\BigInteger\Engines\BCMath
-     */
-    protected static $zero;
-
-    /**
-     * BigInteger(1)
-     *
-     * @var \phpseclib3\Math\BigInteger\Engines\BCMath
-     */
-    protected static $one;
-
-    /**
-     * BigInteger(2)
-     *
-     * @var \phpseclib3\Math\BigInteger\Engines\BCMath
-     */
-    protected static $two;
-
-    /**
-     * Primes > 2 and < 1000
-     *
-     * @var array
-     */
-    protected static $primes;
-
-    /**
      * Test for engine validity
      *
      * @see parent::__construct()
@@ -103,14 +61,13 @@ class BCMath extends Engine
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
      * @see parent::__construct()
-     * @return \phpseclib3\Math\BigInteger\Engines\BCMath
      */
     public function __construct($x = 0, $base = 10)
     {
-        if (!isset(self::$isValidEngine)) {
-            self::$isValidEngine = self::isValidEngine();
+        if (!isset(static::$isValidEngine[static::class])) {
+            static::$isValidEngine[static::class] = self::isValidEngine();
         }
-        if (!self::$isValidEngine) {
+        if (!static::$isValidEngine[static::class]) {
             throw new BadConfigurationException('BCMath is not setup correctly on this system');
         }
 
@@ -252,7 +209,7 @@ class BCMath extends Engine
      * and the divisor (basically, the "common residue" is the first positive modulo).
      *
      * @param BCMath $y
-     * @return BCMath
+     * @return array{static, static}
      */
     public function divide(BCMath $y)
     {
@@ -291,7 +248,7 @@ class BCMath extends Engine
      * {@link http://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity Bezout's identity - Wikipedia} for more information.
      *
      * @param BCMath $n
-     * @return BCMath
+     * @return array{gcd: static, x: static, y: static}
      */
     public function extendedGCD(BCMath $n)
     {
@@ -497,7 +454,7 @@ class BCMath extends Engine
     protected function powModInner(BCMath $e, BCMath $n)
     {
         try {
-            $class = self::$modexpEngine;
+            $class = static::$modexpEngine[static::class];
             return $class::powModHelper($this, $e, $n, static::class);
         } catch (\Exception $err) {
             return BCMath\DefaultEngine::powModHelper($this, $e, $n, static::class);
@@ -589,7 +546,7 @@ class BCMath extends Engine
 
         $value = $this->value;
 
-        foreach (self::$primes as $prime) {
+        foreach (self::PRIMES as $prime) {
             $r = bcmod($this->value, $prime);
             if ($r == '0') {
                 return $this->value == $prime;
@@ -612,7 +569,7 @@ class BCMath extends Engine
     {
         $r_value = &$r->value;
         $s = 0;
-        // if $n was 1, $r would be 0 and this would be an infinite loop, hence our $this->equals(static::$one) check earlier
+        // if $n was 1, $r would be 0 and this would be an infinite loop, hence our $this->equals(static::$one[static::class]) check earlier
         while ($r_value[strlen($r_value) - 1] % 2 == 0) {
             $r_value = bcdiv($r_value, '2', 0);
             ++$s;
@@ -679,13 +636,13 @@ class BCMath extends Engine
     protected static function setBitmask($bits)
     {
         $temp = parent::setBitmask($bits);
-        return $temp->add(static::$one);
+        return $temp->add(static::$one[static::class]);
     }
 
     /**
      * Is Odd?
      *
-     * @return boolean
+     * @return bool
      */
     public function isOdd()
     {
@@ -695,7 +652,7 @@ class BCMath extends Engine
     /**
      * Tests if a bit is set
      *
-     * @return boolean
+     * @return bool
      */
     public function testBit($x)
     {
