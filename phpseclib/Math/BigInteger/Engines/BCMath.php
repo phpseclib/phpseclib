@@ -60,7 +60,6 @@ class BCMath extends Engine
      *
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
-     * @return \phpseclib3\Math\BigInteger\Engines\BCMath
      * @see parent::__construct()
      */
     public function __construct($x = 0, $base = 10)
