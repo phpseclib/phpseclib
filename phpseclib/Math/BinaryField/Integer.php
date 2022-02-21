@@ -53,7 +53,7 @@ class Integer extends Base
     /**
      * Holds the PrimeField's modulo
      *
-     * @var string[]
+     * @var array<int, string>
      */
     protected static $modulo;
 
@@ -80,6 +80,8 @@ class Integer extends Base
 
     /**
      * Set the modulo for a given instance
+     * @param int $instanceID
+     * @param string $modulo
      */
     public static function setModulo($instanceID, $modulo)
     {
@@ -450,7 +452,7 @@ class Integer extends Base
     /**
      * Returns the modulo
      *
-     * @return integer
+     * @return string
      */
     public static function getModulo($instanceID)
     {
