@@ -43,6 +43,9 @@ class BinaryField extends FiniteField
      */
     protected $instanceID;
 
+    /** @var BigInteger */
+    private $randomMax;
+
     /**
      * Default constructor
      */
@@ -113,7 +116,7 @@ class BinaryField extends FiniteField
      * Returns an instance of a dynamically generated PrimeFieldInteger class
      *
      * @param string $num
-     * @return object
+     * @return Integer
      */
     public function newInteger($num)
     {
@@ -123,7 +126,7 @@ class BinaryField extends FiniteField
     /**
      * Returns an integer on the finite field between one and the prime modulo
      *
-     * @return object
+     * @return Integer
      */
     public function randomInteger()
     {
@@ -138,7 +141,7 @@ class BinaryField extends FiniteField
     /**
      * Returns the length of the modulo in bytes
      *
-     * @return integer
+     * @return int
      */
     public function getLengthInBytes()
     {
@@ -148,7 +151,7 @@ class BinaryField extends FiniteField
     /**
      * Returns the length of the modulo in bits
      *
-     * @return integer
+     * @return int
      */
     public function getLength()
     {
