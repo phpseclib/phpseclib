@@ -237,7 +237,7 @@ class BCMath extends Engine
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      *
-     * @param \phpseclib3\Math\BigInteger\Engines\BCMath $n
+     * @param BCMath $n
      * @return false|BCMath
      */
     public function modInverse(BCMath $n)
@@ -311,7 +311,7 @@ class BCMath extends Engine
     /**
      * Absolute value.
      *
-     * @return \phpseclib3\Math\BigInteger\Engines\BCMath
+     * @return BCMath
      */
     public function abs()
     {
@@ -362,7 +362,7 @@ class BCMath extends Engine
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib3\Math\BigInteger\Engines\BCMath
+     * @return BCMath
      */
     public function bitwise_rightShift($shift)
     {
@@ -378,7 +378,7 @@ class BCMath extends Engine
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib3\Math\BigInteger\Engines\BCMath
+     * @return BCMath
      */
     public function bitwise_leftShift($shift)
     {
@@ -672,7 +672,7 @@ class BCMath extends Engine
     /**
      * Is Negative?
      *
-     * @return boolean
+     * @return bool
      */
     public function isNegative()
     {

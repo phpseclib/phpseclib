@@ -76,7 +76,7 @@ abstract class PHP extends Engine
      *
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @param int $base
-     * @return \phpseclib3\Math\BigInteger\Engines\PHP
+     * @return PHP
      * @see parent::__construct()
      */
     public function __construct($x = 0, $base = 10)
@@ -814,7 +814,7 @@ abstract class PHP extends Engine
     /**
      * Absolute value.
      *
-     * @return \phpseclib3\Math\BigInteger\Engines\PHP
+     * @return PHP
      */
     public function abs()
     {
@@ -850,7 +850,7 @@ abstract class PHP extends Engine
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib3\Math\BigInteger\Engines\PHP
+     * @return PHP
      */
     public function bitwise_rightShift($shift)
     {
@@ -870,7 +870,7 @@ abstract class PHP extends Engine
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib3\Math\BigInteger\Engines\PHP
+     * @return PHP
      */
     public function bitwise_leftShift($shift)
     {

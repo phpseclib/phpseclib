@@ -298,8 +298,8 @@ class GMP extends Engine
      * combination is returned is dependent upon which mode is in use.  See
      * {@link http://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity Bezout's identity - Wikipedia} for more information.
      *
-     * @param \phpseclib3\Math\BigInteger\Engines\GMP $n
-     * @return \phpseclib3\Math\BigInteger\Engines\GMP[]
+     * @param GMP $n
+     * @return GMP[]
      */
     public function extendedGCD(GMP $n)
     {
@@ -329,7 +329,7 @@ class GMP extends Engine
     /**
      * Absolute value.
      *
-     * @return \phpseclib3\Math\BigInteger\Engines\GMP
+     * @return GMP
      * @access public
      */
     public function abs()
@@ -388,7 +388,7 @@ class GMP extends Engine
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib3\Math\BigInteger\Engines\GMP
+     * @return GMP
      */
     public function bitwise_rightShift($shift)
     {
@@ -407,7 +407,7 @@ class GMP extends Engine
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      *
      * @param int $shift
-     * @return \phpseclib3\Math\BigInteger\Engines\GMP
+     * @return GMP
      */
     public function bitwise_leftShift($shift)
     {
@@ -658,7 +658,7 @@ class GMP extends Engine
     /**
      * Is Odd?
      *
-     * @return boolean
+     * @return bool
      */
     public function isOdd()
     {
@@ -668,7 +668,7 @@ class GMP extends Engine
     /**
      * Tests if a bit is set
      *
-     * @return boolean
+     * @return bool
      */
     public function testBit($x)
     {
@@ -678,7 +678,7 @@ class GMP extends Engine
     /**
      * Is Negative?
      *
-     * @return boolean
+     * @return bool
      */
     public function isNegative()
     {
