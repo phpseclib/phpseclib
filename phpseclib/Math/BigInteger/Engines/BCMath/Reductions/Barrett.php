@@ -61,7 +61,7 @@ abstract class Barrett extends Base
      *
      * @param string $n
      * @param string $m
-     * @return array|string
+     * @return string
      */
     protected static function reduce($n, $m)
     {

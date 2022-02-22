@@ -793,7 +793,7 @@ class BigInteger
     /**
      * Is Odd?
      *
-     * @return boolean
+     * @return bool
      */
     public function isOdd()
     {
@@ -804,7 +804,7 @@ class BigInteger
      * Tests if a bit is set
      *
      * @param int $x
-     * @return boolean
+     * @return bool
      */
     public function testBit($x)
     {
@@ -814,7 +814,7 @@ class BigInteger
     /**
      * Is Negative?
      *
-     * @return boolean
+     * @return bool
      */
     public function isNegative()
     {
@@ -869,7 +869,7 @@ class BigInteger
      * Splits BigInteger's into chunks of $split bits
      *
      * @param int $split
-     * @return \phpseclib3\Math\BigInteger[]
+     * @return BigInteger[]
      */
     public function bitwise_split($split)
     {

@@ -15,6 +15,7 @@
 
 namespace phpseclib3\Math\BigInteger\Engines\PHP\Reductions;
 
+use phpseclib3\Math\BigInteger\Engines\PHP;
 use phpseclib3\Math\BigInteger\Engines\PHP\Base;
 
 /**
@@ -46,7 +47,7 @@ abstract class Barrett extends Base
      *
      * @param array $n
      * @param array $m
-     * @param string $class
+     * @param class-string<PHP> $class
      * @return array
      */
     protected static function reduce(array $n, array $m, $class)
