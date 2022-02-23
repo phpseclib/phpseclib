@@ -6,9 +6,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Functional\Net;
+
 use phpseclib3\Net\SFTP\Stream;
 
-class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
+class SFTPStreamTest extends SFTPTestCase
 {
     public static function setUpBeforeClass()
     {

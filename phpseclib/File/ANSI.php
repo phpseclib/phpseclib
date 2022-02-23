@@ -268,6 +268,7 @@ class ANSI
                             array_shift($this->history);
                             array_shift($this->history_attrs);
                         }
+                        // fall-through
                     case "\x1B[K": // Clear screen from cursor right
                         $this->screen[$this->y] = substr($this->screen[$this->y], 0, $this->x);
 

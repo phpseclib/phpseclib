@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Crypt\RSA;
+
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\RSA\Formats\Keys\OpenSSH;
@@ -18,8 +20,9 @@ use phpseclib3\Crypt\RSA\PublicKey;
 use phpseclib3\Exception\NoKeyLoadedException;
 use phpseclib3\Exception\UnsupportedFormatException;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Tests\PhpseclibTestCase;
 
-class Unit_Crypt_RSA_LoadKeyTest extends PhpseclibTestCase
+class LoadKeyTest extends PhpseclibTestCase
 {
     public static function setUpBeforeClass()
     {

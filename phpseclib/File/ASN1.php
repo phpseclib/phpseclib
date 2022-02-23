@@ -787,6 +787,7 @@ abstract class ASN1
                     }
                     return $values;
                 }
+                // fall-through
             case self::TYPE_OCTET_STRING:
                 return $decoded['content'];
             case self::TYPE_NULL:
@@ -1065,6 +1066,7 @@ abstract class ASN1
 
                     break;
                 }
+                // fall-through
             case self::TYPE_OCTET_STRING:
                 /* The initial octet shall encode, as an unsigned binary integer with bit 1 as the least significant bit,
                    the number of unused bits in the final subsequent octet. The number shall be in the range zero to seven.
@@ -1385,8 +1387,10 @@ abstract class ASN1
                 case $insize == 4:
                     $c = ($c << 8) | ord($in[$i++]);
                     $c = ($c << 8) | ord($in[$i++]);
+                    // fall-through
                 case $insize == 2:
                     $c = ($c << 8) | ord($in[$i++]);
+                    // fall-through
                 case $insize == 1:
                     break;
                 case ($c & 0x80) == 0x00:
@@ -1415,9 +1419,11 @@ abstract class ASN1
                     $c >>= 8;
                     $v .= chr($c & 0xFF);
                     $c >>= 8;
+                    // fall-through
                 case $outsize == 2:
                     $v .= chr($c & 0xFF);
                     $c >>= 8;
+                    // fall-through
                 case $outsize == 1:
                     $v .= chr($c & 0xFF);
                     $c >>= 8;
@@ -1430,18 +1436,23 @@ abstract class ASN1
                 case $c >= 0x04000000:
                     $v .= chr(0x80 | ($c & 0x3F));
                     $c = ($c >> 6) | 0x04000000;
+                    // fall-through
                 case $c >= 0x00200000:
                     $v .= chr(0x80 | ($c & 0x3F));
                     $c = ($c >> 6) | 0x00200000;
+                    // fall-through
                 case $c >= 0x00010000:
                     $v .= chr(0x80 | ($c & 0x3F));
                     $c = ($c >> 6) | 0x00010000;
+                    // fall-through
                 case $c >= 0x00000800:
                     $v .= chr(0x80 | ($c & 0x3F));
                     $c = ($c >> 6) | 0x00000800;
+                    // fall-through
                 case $c >= 0x00000080:
                     $v .= chr(0x80 | ($c & 0x3F));
                     $c = ($c >> 6) | 0x000000C0;
+                    // fall-through
                 default:
                     $v .= chr($c);
                     break;

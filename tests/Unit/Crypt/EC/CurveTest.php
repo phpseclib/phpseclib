@@ -6,46 +6,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\Common\Functions\Strings;
+namespace phpseclib3\Tests\Unit\Crypt\EC;
+
 use phpseclib3\Crypt\EC;
 use phpseclib3\Crypt\EC\Curves\Ed448;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\File\ASN1;
+use phpseclib3\Tests\PhpseclibTestCase;
 
-class Ed448PublicKey
-{
-    use phpseclib3\Crypt\EC\Formats\Keys\Common;
-
-    public static function load($key, $password = '')
-    {
-        if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
-        }
-
-        $components = ['curve' => new Ed448()];
-        $components['QA'] = self::extractPoint($key, $components['curve']);
-
-        return $components;
-    }
-}
-
-class Ed448PrivateKey
-{
-    public static function load($key, $password = '')
-    {
-        if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
-        }
-
-        $components = ['curve' => new Ed448()];
-        $components['dA'] = $components['curve']->extractSecret($key);
-        $components['QA'] = $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
-
-        return $components;
-    }
-}
-
-class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
+class CurveTest extends PhpseclibTestCase
 {
     public function curves()
     {
@@ -88,7 +57,7 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
 
     public function curvesWithOIDs()
     {
-        $class = new ReflectionClass('phpseclib3\Crypt\EC\Formats\Keys\PKCS8');
+        $class = new \ReflectionClass('phpseclib3\Crypt\EC\Formats\Keys\PKCS8');
 
         $initialize = $class->getMethod('initialize_static_variables');
         $initialize->setAccessible(true);
@@ -231,8 +200,8 @@ class Unit_Crypt_EC_CurveTest extends PhpseclibTestCase
      */
     public function testEd448TestVectors()
     {
-        EC::addFileFormat('Ed448PublicKey');
-        EC::addFileFormat('Ed448PrivateKey');
+        EC::addFileFormat(Ed448PublicKey::class);
+        EC::addFileFormat(Ed448PrivateKey::class);
 
         $private = pack('H*', '6c82a562cb808d10d632be89c8513ebf6c929f34ddfa8c9f63c9960ef6e348a3528c8a3fcc2f044e39a3fc5b94492f8f032e7549a20098f95b');
         $public = pack('H*', '5fd7449b59b461fd2ce787ec616ad46a1da1342485a70e1f8a0ea75d80e96778edf124769b46c7061bd6783df1e50f6cd1fa1abeafe8256180');

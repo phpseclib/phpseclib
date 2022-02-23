@@ -1,12 +1,15 @@
 <?php
 
+namespace phpseclib3\Tests\Unit\Math;
+
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\BigInteger\Engines\BCMath;
 use phpseclib3\Math\BigInteger\Engines\GMP;
 use phpseclib3\Math\BigInteger\Engines\PHP32;
 use phpseclib3\Math\BigInteger\Engines\PHP64;
+use phpseclib3\Tests\PhpseclibTestCase;
 
-class Unit_Math_BigIntegerTest extends PhpseclibTestCase
+class BigIntegerTest extends PhpseclibTestCase
 {
     /**
      * @param string $className

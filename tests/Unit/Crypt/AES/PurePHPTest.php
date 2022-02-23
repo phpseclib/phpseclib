@@ -6,8 +6,9 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Crypt\AES;
 
-class Unit_Crypt_AES_PurePHPTest extends Unit_Crypt_AES_TestCase
+class PurePHPTest extends TestCase
 {
     protected function setUp()
     {

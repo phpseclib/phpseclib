@@ -6,6 +6,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests;
 
 abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
 {

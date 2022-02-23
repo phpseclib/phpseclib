@@ -718,6 +718,7 @@ class SFTP extends SSH2
             switch ($dir) {
                 case '..':
                     array_pop($new);
+                    // fall-through
                 case '.':
                     break;
                 default:
@@ -1042,6 +1043,7 @@ class SFTP extends SSH2
                 case 'mode':
                     $a[$sort] &= 07777;
                     $b[$sort] &= 07777;
+                    // fall-through
                 default:
                     if ($a[$sort] === $b[$sort]) {
                         break;

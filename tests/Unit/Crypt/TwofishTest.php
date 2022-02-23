@@ -6,9 +6,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\Crypt\Twofish;
+namespace phpseclib3\Tests\Unit\Crypt;
 
-class Unit_Crypt_TwofishTest extends PhpseclibTestCase
+use phpseclib3\Crypt\Twofish;
+use phpseclib3\Tests\PhpseclibTestCase;
+
+class TwofishTest extends PhpseclibTestCase
 {
     public function testVectors()
     {

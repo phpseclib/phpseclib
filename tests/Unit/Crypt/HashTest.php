@@ -6,10 +6,13 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Crypt;
+
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
+use phpseclib3\Tests\PhpseclibTestCase;
 
-class Unit_Crypt_HashTest extends PhpseclibTestCase
+class HashTest extends PhpseclibTestCase
 {
     protected function assertHashesTo($hash, $message, $expected)
     {

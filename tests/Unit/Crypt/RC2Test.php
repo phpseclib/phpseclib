@@ -6,9 +6,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\Crypt\RC2;
+namespace phpseclib3\Tests\Unit\Crypt;
 
-class Unit_Crypt_RC2Test extends PhpseclibTestCase
+use phpseclib3\Crypt\RC2;
+use phpseclib3\Tests\PhpseclibTestCase;
+
+class RC2Test extends PhpseclibTestCase
 {
     public $engines = [
         'PHP',
