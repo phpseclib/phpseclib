@@ -340,6 +340,7 @@ class Hash
                 break;
             case 'keccak256':
                 $this->paddingType = self::PADDING_KECCAK;
+                // fall-through
             case 'sha256':
             case 'sha512/256':
             case 'sha3-256':

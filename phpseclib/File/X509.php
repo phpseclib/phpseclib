@@ -3629,6 +3629,7 @@ class X509
         switch ($disposition) {
             case self::ATTR_REPLACE:
                 $disposition = self::ATTR_APPEND;
+                // fall-through
             case self::ATTR_ALL:
                 $this->removeAttribute($id);
                 break;

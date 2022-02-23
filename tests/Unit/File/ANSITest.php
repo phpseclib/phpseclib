@@ -6,9 +6,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\File\ANSI;
+namespace phpseclib3\Tests\Unit\File;
 
-class Unit_File_ANSITest extends PhpseclibTestCase
+use phpseclib3\File\ANSI;
+use phpseclib3\Tests\PhpseclibTestCase;
+
+class ANSITest extends PhpseclibTestCase
 {
     public function testCase1()
     {

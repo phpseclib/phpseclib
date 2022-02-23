@@ -6,9 +6,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\Net\SFTP;
+namespace phpseclib3\Tests\Functional\Net;
 
-class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
+use phpseclib3\Net\SFTP;
+use phpseclib3\Tests\PhpseclibFunctionalTestCase;
+
+class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 {
     protected static $scratchDir;
     protected static $exampleData;

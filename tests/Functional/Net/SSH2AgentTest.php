@@ -6,10 +6,13 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Functional\Net;
+
 use phpseclib3\Net\SSH2;
 use phpseclib3\System\SSH\Agent;
+use phpseclib3\Tests\PhpseclibFunctionalTestCase;
 
-class Functional_Net_SSH2AgentTest extends PhpseclibFunctionalTestCase
+class SSH2AgentTest extends PhpseclibFunctionalTestCase
 {
     public static function setUpBeforeClass()
     {

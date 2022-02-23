@@ -6,10 +6,13 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Crypt\DSA;
+
 use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Tests\PhpseclibTestCase;
 
-class Unit_Crypt_DSA_SignatureTest extends PhpseclibTestCase
+class SignatureTest extends PhpseclibTestCase
 {
     public function testPKCSSignature()
     {

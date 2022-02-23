@@ -6,12 +6,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\File\X509;
+
 use phpseclib3\Crypt\EC;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\X509;
+use phpseclib3\Tests\PhpseclibTestCase;
 
-class Unit_File_X509_X509ExtensionTest extends PhpseclibTestCase
+class X509ExtensionTest extends PhpseclibTestCase
 {
     public function testCustomExtension()
     {

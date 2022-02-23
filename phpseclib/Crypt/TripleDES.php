@@ -164,6 +164,7 @@ class TripleDES extends DES
                 break;
             case 'cbc3':
                 $mode = 'cbc';
+                // fall-through
             // If not 3CBC, we init as usual
             default:
                 parent::__construct($mode);

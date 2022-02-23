@@ -71,5 +71,10 @@
         "psr-4": {
             "phpseclib3\\": "phpseclib/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "phpseclib3\\Tests\\": "tests/"
+        }
     }
 }

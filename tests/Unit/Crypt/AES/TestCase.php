@@ -6,12 +6,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Crypt\AES;
+
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Rijndael;
 use phpseclib3\Exception\InconsistentSetupException;
 use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Tests\PhpseclibTestCase;
 
-abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
+abstract class TestCase extends PhpseclibTestCase
 {
     protected $engine;
 

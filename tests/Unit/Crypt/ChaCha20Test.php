@@ -6,9 +6,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\Crypt\ChaCha20;
+namespace phpseclib3\Tests\Unit\Crypt;
 
-class Unit_Crypt_ChaCha20Test extends PhpseclibTestCase
+use phpseclib3\Crypt\ChaCha20;
+use phpseclib3\Tests\PhpseclibTestCase;
+
+class ChaCha20Test extends PhpseclibTestCase
 {
     // see https://tools.ietf.org/html/rfc8439#section-2.3.2
     public function test232()
