@@ -6,9 +6,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\Crypt\AES;
+namespace phpseclib3\Tests\Unit\Crypt;
 
-class Unit_Crypt_GCMTest extends PhpseclibTestCase
+use phpseclib3\Crypt\AES;
+use phpseclib3\Tests\PhpseclibTestCase;
+
+class GCMTest extends PhpseclibTestCase
 {
     /**
      * Produces all combinations of test values.

@@ -1829,6 +1829,7 @@ class SSH2
                     $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
                     $this->encryptFixedPart = substr($nonce, 0, 4);
                     $this->encryptInvocationCounter = substr($nonce, 4, 8);
+                    // fall-through
                 case 'chacha20-poly1305@openssh.com':
                     break;
                 default:
@@ -1874,6 +1875,7 @@ class SSH2
                     $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
                     $this->decryptFixedPart = substr($nonce, 0, 4);
                     $this->decryptInvocationCounter = substr($nonce, 4, 8);
+                    // fall-through
                 case 'chacha20-poly1305@openssh.com':
                     break;
                 default:
@@ -2203,6 +2205,7 @@ class SSH2
                                     }
                                 }
                             }
+                            // fall-through
                         case 'password':
                             foreach ($args as $key => $arg) {
                                 $newargs[] = $arg;
@@ -2310,6 +2313,7 @@ class SSH2
                 case MessageType::USERAUTH_FAILURE:
                     list($auth_methods) = Strings::unpackSSH2('L', $response);
                     $this->auth_methods_to_continue = $auth_methods;
+                    // fall-through
                 default:
                     return false;
             }
@@ -3463,6 +3467,7 @@ class SSH2
                 if (!$this->isAuthenticated()) {
                     break;
                 }
+                // fall-through
             case self::NET_SSH2_COMPRESSION_ZLIB:
                 if ($this->regenerate_decompression_context) {
                     $this->regenerate_decompression_context = false;
@@ -4022,6 +4027,7 @@ class SSH2
                     if ($client_channel == $channel) {
                         return true;
                     }
+                    // fall-through
                 case MessageType::CHANNEL_EOF:
                     break;
                 default:
@@ -4058,6 +4064,7 @@ class SSH2
                 if (!$this->isAuthenticated()) {
                     break;
                 }
+                // fall-through
             case self::NET_SSH2_COMPRESSION_ZLIB:
                 if (!$this->regenerate_compression_context) {
                     $header = '';

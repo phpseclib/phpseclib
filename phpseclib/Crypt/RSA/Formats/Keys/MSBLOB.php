@@ -143,6 +143,7 @@ abstract class MSBLOB
         switch ($magic) {
             case self::RSA2:
                 $components['isPublicKey'] = false;
+                // fall-through
             case self::RSA1:
                 break;
             default:

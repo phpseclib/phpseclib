@@ -6,15 +6,18 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Crypt\DSA;
+
 use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\DSA\Parameters;
 use phpseclib3\Crypt\DSA\PrivateKey;
 use phpseclib3\Crypt\DSA\PublicKey;
+use phpseclib3\Tests\PhpseclibTestCase;
 
 /**
  * @requires PHP 7.0
  */
-class Unit_Crypt_DSA_CreateKeyTestDSA extends PhpseclibTestCase
+class CreateKeyTest extends PhpseclibTestCase
 {
     public function testCreateParameters()
     {
@@ -24,8 +27,8 @@ class Unit_Crypt_DSA_CreateKeyTestDSA extends PhpseclibTestCase
 
         try {
             $dsa = DSA::createParameters(100, 100);
-        } catch (Exception $e) {
-            $this->assertInstanceOf(Exception::class, $e);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(\Exception::class, $e);
         }
 
         $dsa = DSA::createParameters(512, 160);

@@ -6,12 +6,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Functional\Net;
+
 use phpseclib3\Net\SFTP;
+use phpseclib3\Tests\PhpseclibFunctionalTestCase;
 
 /**
  * This class provides each test method with a new and empty $this->scratchDir.
  */
-abstract class Functional_Net_SFTPTestCase extends PhpseclibFunctionalTestCase
+abstract class SFTPTestCase extends PhpseclibFunctionalTestCase
 {
     /**
      * @var SFTP

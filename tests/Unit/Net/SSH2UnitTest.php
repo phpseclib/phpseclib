@@ -6,7 +6,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-class Unit_Net_SSH2UnitTest extends PhpseclibTestCase
+namespace phpseclib3\Tests\Unit\Net;
+
+use phpseclib3\Tests\PhpseclibTestCase;
+
+class SSH2UnitTest extends PhpseclibTestCase
 {
     public function formatLogDataProvider()
     {

@@ -1,5 +1,7 @@
 <?php
 
+namespace phpseclib3\Tests\Functional\Net;
+
 use phpseclib3\Exception\UnableToConnectException;
 use phpseclib3\Net\SFTP;
 use PHPUnit\Framework\TestCase;

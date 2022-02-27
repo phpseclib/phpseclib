@@ -6,7 +6,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-abstract class PhpseclibTestCase extends PHPUnit\Framework\TestCase
+namespace phpseclib3\Tests;
+
+use PHPUnit\Framework\TestCase;
+
+abstract class PhpseclibTestCase extends TestCase
 {
     protected $tempFilesToUnlinkOnTearDown = [];
 
@@ -105,7 +109,7 @@ abstract class PhpseclibTestCase extends PHPUnit\Framework\TestCase
 
     protected static function getVar($obj, $var)
     {
-        $reflection = new ReflectionClass(get_class($obj));
+        $reflection = new \ReflectionClass(get_class($obj));
         $prop = $reflection->getProperty($var);
         $prop->setAccessible(true);
         return $prop->getValue($obj);
@@ -113,7 +117,7 @@ abstract class PhpseclibTestCase extends PHPUnit\Framework\TestCase
 
     public static function callFunc($obj, $func, $params = [])
     {
-        $reflection = new ReflectionClass(get_class($obj));
+        $reflection = new \ReflectionClass(get_class($obj));
         $method = $reflection->getMethod($func);
         $method->setAccessible(true);
         return $method->invokeArgs($obj, $params);

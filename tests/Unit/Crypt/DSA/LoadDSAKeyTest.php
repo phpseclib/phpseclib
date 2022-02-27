@@ -6,13 +6,16 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Crypt\DSA;
+
 use phpseclib3\Crypt\DSA\Parameters;
 use phpseclib3\Crypt\DSA\PrivateKey;
 use phpseclib3\Crypt\DSA\PublicKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Exception\NoKeyLoadedException;
+use phpseclib3\Tests\PhpseclibTestCase;
 
-class Unit_Crypt_DSA_LoadDSAKeyTest extends PhpseclibTestCase
+class LoadDSAKeyTest extends PhpseclibTestCase
 {
     public function testBadKey()
     {

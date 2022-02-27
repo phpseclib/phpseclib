@@ -6,10 +6,13 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Crypt;
+
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RC4;
+use phpseclib3\Tests\PhpseclibTestCase;
 
-class Unit_Crypt_RC4Test extends PhpseclibTestCase
+class RC4Test extends PhpseclibTestCase
 {
     public function engineVectors()
     {
