@@ -6,9 +6,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\Net\SSH2;
+namespace phpseclib3\Tests\Functional\Net;
 
-class Functional_Net_SSH2Test extends PhpseclibFunctionalTestCase
+use phpseclib3\Net\SSH2;
+use phpseclib3\Tests\PhpseclibFunctionalTestCase;
+
+class SSH2Test extends PhpseclibFunctionalTestCase
 {
     public function testConstructor()
     {

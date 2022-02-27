@@ -6,9 +6,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\Net\SFTP\Stream;
+namespace phpseclib3\Tests\Unit\Net;
 
-class Unit_Net_SFTPStreamUnitTest extends PhpseclibTestCase
+use phpseclib3\Net\SFTP\Stream;
+use phpseclib3\Tests\PhpseclibTestCase;
+
+class SFTPStreamUnitTest extends PhpseclibTestCase
 {
     public function testRegisterWithoutArgument()
     {

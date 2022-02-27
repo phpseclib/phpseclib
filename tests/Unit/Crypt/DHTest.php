@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Crypt;
+
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\DH;
 use phpseclib3\Crypt\DH\Parameters;
@@ -13,8 +15,9 @@ use phpseclib3\Crypt\DH\PrivateKey;
 use phpseclib3\Crypt\DH\PublicKey;
 use phpseclib3\Crypt\EC;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Tests\PhpseclibTestCase;
 
-class Unit_Crypt_DHTest extends PhpseclibTestCase
+class DHTest extends PhpseclibTestCase
 {
     public function testParametersWithString()
     {

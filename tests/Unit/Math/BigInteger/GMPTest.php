@@ -6,9 +6,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Math\BigInteger;
+
 use phpseclib3\Math\BigInteger\Engines\GMP;
 
-class Unit_Math_BigInteger_GMPTest extends Unit_Math_BigInteger_TestCase
+class GMPTest extends TestCase
 {
     public static function setUpBeforeClass()
     {

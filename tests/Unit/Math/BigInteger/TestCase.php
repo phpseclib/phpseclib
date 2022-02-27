@@ -6,7 +6,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
+namespace phpseclib3\Tests\Unit\Math\BigInteger;
+
+use phpseclib3\Tests\PhpseclibTestCase;
+
+abstract class TestCase extends PhpseclibTestCase
 {
     public function testConstructorBase2()
     {

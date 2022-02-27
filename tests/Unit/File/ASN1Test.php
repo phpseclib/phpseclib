@@ -6,9 +6,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\File\ASN1;
+namespace phpseclib3\Tests\Unit\File;
 
-class Unit_File_ASN1Test extends PhpseclibTestCase
+use phpseclib3\File\ASN1;
+use phpseclib3\Tests\PhpseclibTestCase;
+
+class ASN1Test extends PhpseclibTestCase
 {
     /**
      * on older versions of \phpseclib3\File\ASN1 this would yield a PHP Warning

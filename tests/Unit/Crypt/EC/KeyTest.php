@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Crypt\EC;
+
 use phpseclib3\Crypt\EC;
 use phpseclib3\Crypt\EC\Formats\Keys\OpenSSH;
 use phpseclib3\Crypt\EC\Formats\Keys\PKCS1;
@@ -14,8 +16,9 @@ use phpseclib3\Crypt\EC\Formats\Keys\PuTTY;
 use phpseclib3\Crypt\EC\Formats\Keys\XML;
 use phpseclib3\Crypt\EC\PrivateKey;
 use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Tests\PhpseclibTestCase;
 
-class Unit_Crypt_EC_KeyTest extends PhpseclibTestCase
+class KeyTest extends PhpseclibTestCase
 {
     public function testBinaryPKCS1PrivateParameters()
     {
@@ -458,7 +461,7 @@ pomV7r6gmoMYteGVABfgAAAAD3ZhZ3JhbnRAdmFncmFudAECAwQFBg==
 
         XML::enableRFC4050Syntax();
 
-        $dom = new DOMDocument();
+        $dom = new \DOMDocument();
         $dom->preserveWhiteSpace = false;
         $dom->loadXML($orig);
         $expected = $dom->C14N();

@@ -6,9 +6,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib3\Tests\Unit\Math\BigInteger;
+
 use phpseclib3\Math\BigInteger\Engines\PHP32;
 
-class Unit_Math_BigInteger_PHP32Test extends Unit_Math_BigInteger_TestCase
+class PHP32Test extends TestCase
 {
     public static function setUpBeforeClass()
     {
