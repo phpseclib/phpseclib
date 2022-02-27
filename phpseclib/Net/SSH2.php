@@ -3985,7 +3985,7 @@ class SSH2
                 }
             }
 
-            // ie. $this->channel_status[$channel] == SshMsg::CHANNEL_DATA
+            // ie. $this->channel_status[$channel] == SSHMsg::CHANNEL_DATA
 
             switch ($type) {
                 case MessageType::CHANNEL_DATA:
