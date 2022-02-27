@@ -1,6 +1,6 @@
 # phpseclib - PHP Secure Communications Library
 
-[![Build Status](https://travis-ci.com/phpseclib/phpseclib.svg?branch=master)](https://travis-ci.com/github/phpseclib/phpseclib)
+[![CI Status](https://github.com/phpseclib/phpseclib/actions/workflows/ci.yml/badge.svg?branch=master&event=push "CI Status")](https://github.com/phpseclib/phpseclib)
 
 ## Supporting phpseclib
 
@@ -82,19 +82,17 @@ Special Thanks to our $50+ sponsors!:
 3. Install Development Dependencies
     ```sh
     composer install
-    composer install --no-interaction --working-dir=build
     ```
 
 4. Create a Feature Branch
 
 5. Run continuous integration checks:
    ```sh
-   vendor/bin/phpunit
-   
-   # The following tools are from the build specific composer.json using the most recent PHP version:
-   build/vendor/bin/phpcs --standard=build/phpcs_ruleset.xml
-   build/vendor/bin/php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run
-   build/vendor/bin/psalm --config=build/psalm.xml --no-cache --long-progress --report-show-info=false --output-format=text
+   composer global require php:^8.1 squizlabs/php_codesniffer friendsofphp/php-cs-fixer vimeo/psalm
+   phpcs --standard=build/php_codesniffer.xml
+   php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run --using-cache=no
+   psalm --config=build/psalm.xml --no-cache --long-progress --report-show-info=false --output-format=text
+   vendor/bin/phpunit --verbose --configuration tests/phpunit.xml
    ```
    
 6. Send us a Pull Request
