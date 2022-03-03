@@ -7,17 +7,14 @@
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
     findUnusedPsalmSuppress="true"
     sealAllMethods="true"
+    errorBaseline="psalm_baseline.xml"
 >
     <projectFiles>
-        <directory name="../phpseclib/Common"/>
-<!--        <directory name="../phpseclib/Crypt"/>-->
-        <directory name="../phpseclib/Exception"/>
-        <directory name="../phpseclib/File"/>
-<!--        <directory name="../phpseclib/Math"/>-->
-        <directory name="../phpseclib/Net"/>
-        <directory name="../phpseclib/System"/>
-        <file name="../phpseclib/bootstrap.php"/>
-<!--        <directory name="../tests"/>-->
+        <directory name="../phpseclib"/>
+        <ignoreFiles>
+            <directory name="../phpseclib/Crypt"/>
+            <directory name="../tests"/>
+        </ignoreFiles>
     </projectFiles>
     <issueHandlers>
         <Trace>

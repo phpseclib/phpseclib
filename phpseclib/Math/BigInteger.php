@@ -30,6 +30,7 @@
 namespace phpseclib3\Math;
 
 use phpseclib3\Exception\BadConfigurationException;
+use phpseclib3\Math\BigInteger\Engines\Engine;
 
 /**
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
@@ -44,21 +45,14 @@ class BigInteger
     /**
      * Main Engine
      *
-     * @var string
+     * @var class-string<Engine>
      */
     private static $mainEngine;
 
     /**
-     * Modular Exponentiation Engine
-     *
-     * @var string
-     */
-    private static $modexpEngine;
-
-    /**
      * Selected Engines
      *
-     * @var array
+     * @var list<string>
      */
     private static $engines;
 
@@ -93,9 +87,10 @@ class BigInteger
      * Throws an exception if the type is invalid
      *
      * @param string $main
-     * @param array $modexps optional
+     * @param list<string> $modexps optional
+     * @return void
      */
-    public static function setEngine($main, $modexps = ['DefaultEngine'])
+    public static function setEngine($main, array $modexps = ['DefaultEngine'])
     {
         self::$engines = [];
 
@@ -106,6 +101,7 @@ class BigInteger
         if (!$fqmain::isValidEngine()) {
             throw new BadConfigurationException("$main is not setup correctly on this system");
         }
+        /** @var class-string<Engine> $fqmain */
         self::$mainEngine = $fqmain;
 
         if (!in_array('Default', $modexps)) {
@@ -125,8 +121,6 @@ class BigInteger
         if (!$found) {
             throw new BadConfigurationException("No valid modular exponentiation engine found for $main");
         }
-
-        self::$modexpEngine = $modexp;
 
         self::$engines = [$main, $modexp];
     }
@@ -173,7 +167,6 @@ class BigInteger
      *
      * @param string|int|BigInteger\Engines\Engine $x Base-10 number or base-$base number if $base set.
      * @param int $base
-     * @return BigInteger
      */
     public function __construct($x = 0, $base = 10)
     {
@@ -418,7 +411,7 @@ class BigInteger
      * __serialize() / __unserialize() were introduced in PHP 7.4:
      * https://wiki.php.net/rfc/custom_object_serialization
      *
-     * @return string
+     * @return array
      */
     public function __sleep()
     {
@@ -800,7 +793,7 @@ class BigInteger
     /**
      * Is Odd?
      *
-     * @return boolean
+     * @return bool
      */
     public function isOdd()
     {
@@ -811,7 +804,7 @@ class BigInteger
      * Tests if a bit is set
      *
      * @param int $x
-     * @return boolean
+     * @return bool
      */
     public function testBit($x)
     {
@@ -821,7 +814,7 @@ class BigInteger
     /**
      * Is Negative?
      *
-     * @return boolean
+     * @return bool
      */
     public function isNegative()
     {
@@ -876,7 +869,7 @@ class BigInteger
      * Splits BigInteger's into chunks of $split bits
      *
      * @param int $split
-     * @return \phpseclib3\Math\BigInteger[]
+     * @return BigInteger[]
      */
     public function bitwise_split($split)
     {
