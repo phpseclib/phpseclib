@@ -196,4 +196,3 @@ class BinaryField extends FiniteField
         return Strings::bin2bits($x);
     }
 }
-
