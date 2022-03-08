@@ -15,7 +15,7 @@ use phpseclib3\Crypt\RSA\PrivateKey;
 use phpseclib3\Crypt\RSA\PublicKey;
 use phpseclib3\Tests\PhpseclibTestCase;
 
-class CreateKeyTestRSA extends PhpseclibTestCase
+class CreateKeyTest extends PhpseclibTestCase
 {
     public function testCreateKey()
     {

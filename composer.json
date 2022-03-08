@@ -51,12 +51,12 @@
         }
     ],
     "require": {
+        "php": ">=5.6.1",
         "paragonie/constant_time_encoding": "^1|^2",
-        "paragonie/random_compat": "^1.4|^2.0|^9.99.99",
-        "php": ">=5.6.1"
+        "paragonie/random_compat": "^1.4|^2.0|^9.99.99"
     },
     "require-dev": {
-        "phpunit/phpunit": "^5.7|^6.0|^9.4"
+        "phpunit/phpunit": "*"
     },
     "suggest": {
         "ext-libsodium": "SSH2/SFTP can make use of some algorithms provided by the libsodium-php extension.",
@@ -76,5 +76,8 @@
         "psr-4": {
             "phpseclib3\\Tests\\": "tests/"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
