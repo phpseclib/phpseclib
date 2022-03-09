@@ -771,6 +771,8 @@ abstract class PHP extends Engine
             for ($i = 0; $i < $length; ++$i) {
                 $value[$i] = $value[$i] & $result->bitmask->value[$i];
             }
+
+            $value = static::trim($value);
         }
 
         return $result;
