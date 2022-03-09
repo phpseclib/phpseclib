@@ -462,7 +462,7 @@ Private-MAC: 03e2cb74e1d67652fbad063d2ed0478f31bdf256
         PKCS1::setEncryptionAlgorithm('AES-256-CBC');
         $encryptedKey = $rsa->withPassword('demo')->toString('PKCS1');
 
-        $this->assertRegExp('#AES-256-CBC#', $encryptedKey);
+        $this->assertMatchesRegularExpression('#AES-256-CBC#', $encryptedKey);
 
         $rsa = PublicKeyLoader::load($key, 'demo');
         $this->assertInstanceOf(PrivateKey::class, $rsa);

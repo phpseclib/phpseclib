@@ -131,7 +131,7 @@ abstract class TestCase extends PhpseclibTestCase
     /**
      * Produces all combinations of test values.
      *
-     * @return array
+     * @return list<array{string, string, array}>
      */
     public function continuousBufferBatteryCombos()
     {
@@ -171,6 +171,16 @@ abstract class TestCase extends PhpseclibTestCase
         }
 
         return $result;
+    }
+
+    /**
+     * @return array<array{string, string, array}>
+     */
+    public function continuousBufferBatteryCombosWithoutSingleCombos()
+    {
+        return array_filter($this->continuousBufferBatteryCombos(), function (array $continuousBufferBatteryCombo) {
+            return count($continuousBufferBatteryCombo[2]) > 1;
+        });
     }
 
     /**
@@ -219,14 +229,10 @@ abstract class TestCase extends PhpseclibTestCase
     /**
      * Pretty much the same as testContinuousBufferBattery with the caveat that continuous mode is not enabled.
      *
-     * @dataProvider continuousBufferBatteryCombos
+     * @dataProvider continuousBufferBatteryCombosWithoutSingleCombos
      */
     public function testNonContinuousBufferBattery($op, $mode, $test)
     {
-        if (count($test) == 1) {
-            self::markTestSkipped('test is 1');
-        }
-
         $iv = str_repeat('x', 16);
         $key = str_repeat('a', 16);
 

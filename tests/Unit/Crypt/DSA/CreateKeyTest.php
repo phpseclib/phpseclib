@@ -23,17 +23,17 @@ class CreateKeyTest extends PhpseclibTestCase
     {
         $dsa = DSA::createParameters();
         $this->assertInstanceOf(Parameters::class, $dsa);
-        $this->assertRegexp('#BEGIN DSA PARAMETERS#', "$dsa");
+        $this->assertMatchesRegularExpression('#BEGIN DSA PARAMETERS#', "$dsa");
 
         try {
-            $dsa = DSA::createParameters(100, 100);
+            DSA::createParameters(100, 100);
         } catch (\Exception $e) {
             $this->assertInstanceOf(\Exception::class, $e);
         }
 
         $dsa = DSA::createParameters(512, 160);
         $this->assertInstanceOf(Parameters::class, $dsa);
-        $this->assertRegexp('#BEGIN DSA PARAMETERS#', "$dsa");
+        $this->assertMatchesRegularExpression('#BEGIN DSA PARAMETERS#', "$dsa");
 
         return $dsa;
     }

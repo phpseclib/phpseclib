@@ -1,7 +1,5 @@
 /.idea/
-/build/vendor/
 /build/php-cs-fixer.cache
-/build/composer.lock
 /composer.lock
 /composer.phar
 /vendor/

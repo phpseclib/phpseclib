@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    bootstrap="bootstrap.php"
-    colors="true"
     xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+    bootstrap="../vendor/autoload.php"
+    failOnWarning="true"
+    failOnRisky="true"
+    failOnIncomplete="true"
+    failOnEmptyTestSuite="true"
 >
     <testsuites>
         <testsuite name="phpseclib Unit Test Suite">
@@ -18,4 +21,7 @@
             <directory>../phpseclib/</directory>
         </include>
     </coverage>
+    <php>
+        <ini name="date.timezone" value="UTC"/>
+    </php>
 </phpunit>
