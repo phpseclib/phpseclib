@@ -3148,11 +3148,10 @@ class SSH2
     /**
      * Inputs a command into an interactive shell.
      *
-     * @see self::read()
+     * @see SSH2::read()
      * @param string $cmd
-     * @return bool
+     * @return void
      * @throws \RuntimeException on connection error
-     * @access public
      */
     public function write($cmd)
     {
@@ -3164,7 +3163,7 @@ class SSH2
             throw new \RuntimeException('Unable to initiate an interactive shell session');
         }
 
-        return $this->send_channel_packet($this->get_interactive_channel(), $cmd);
+        $this->send_channel_packet($this->get_interactive_channel(), $cmd);
     }
 
     /**
@@ -4384,8 +4383,7 @@ class SSH2
      *
      * @param int $client_channel
      * @param string $data
-     * @return bool
-     * @access private
+     * @return void
      */
     protected function send_channel_packet($client_channel, $data)
     {
@@ -4416,8 +4414,6 @@ class SSH2
             $this->window_size_client_to_server[$client_channel] -= strlen($temp);
             $this->send_binary_packet($packet);
         }
-
-        return true;
     }
 
     /**

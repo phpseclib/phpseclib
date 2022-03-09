@@ -18,6 +18,7 @@ foreach ($files as $file) {
             '~ function assertIsString\(\$actual, \$message = \'\'\)~' => ' function assertIsString($actual, string $message = \'\'): void',
             '~ function assertStringContainsString\(\$needle, \$haystack, \$message = \'\'\)~' => ' function assertStringContainsString(string $needle, string $haystack, string $message = \'\'): void',
             '~ function assertStringNotContainsString\(\$needle, \$haystack, \$message = \'\'\)~' => ' function assertStringNotContainsString(string $needle, string $haystack, string $message = \'\'): void',
+            '~ function assertMatchesRegularExpression\(\$pattern, \$string, \$message = \'\'\)~' => ' function assertMatchesRegularExpression(string $pattern, string $string, string $message = \'\'): void',
         ];
         $updatedFileContents = preg_replace(
             array_keys($patternToReplacementMap),
