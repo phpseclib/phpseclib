@@ -390,10 +390,11 @@ abstract class Engine
      */
     public function __debugInfo()
     {
-        return [
+        $result = [
             'value' => '0x' . $this->toHex(true),
             'engine' => basename(static::class)
         ];
+        return $this->precision > 0 ? $result + ['precision' => $this->precision] : $result;
     }
 
     /**
