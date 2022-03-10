@@ -663,7 +663,7 @@ class BCMath extends Engine
     public function testBit($x)
     {
         return bccomp(
-            bcmod($this->value, bcpow('2', $x + 1, 0), 0),
+            bcmod($this->value, bcpow('2', $x + 1, 0)),
             bcpow('2', $x, 0),
             0
         ) >= 0;
