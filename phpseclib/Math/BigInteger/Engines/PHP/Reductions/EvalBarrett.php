@@ -283,6 +283,7 @@ abstract class EvalBarrett extends Base
                 $sum = $' . $result . '[$i] + $_' . $y . '[$i] + $carry;
                 $carry = $sum >= ' . self::float2string($class::BASE_FULL) . ';
                 $' . $result . '[$i] = $carry ? $sum - ' . self::float2string($class::BASE_FULL) . ' : $sum;
+                ++$i;
             }
             if ($carry) {
                 for (; $' . $result . '[$i] == ' . $class::MAX_DIGIT . '; ++$i) {
