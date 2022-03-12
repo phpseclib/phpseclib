@@ -35,4 +35,11 @@ abstract class Integer implements \JsonSerializable
     {
         return ['hex' => $this->toHex(true)];
     }
+
+    /**
+     * Converts an Integer to a hex string (eg. base-16).
+     *
+     * @return string
+     */
+    abstract public function toHex();
 }
