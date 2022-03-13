@@ -28,7 +28,7 @@ use phpseclib3\Math\BigInteger;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-abstract class Engine
+abstract class Engine implements \JsonSerializable
 {
     /* final protected */ const PRIMES = [
         3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,  47,  53,  59,
@@ -369,6 +369,20 @@ abstract class Engine
             // recalculate $this->bitmask
             $this->setPrecision($this->precision);
         }
+    }
+
+    /**
+     * JSON Serialize
+     *
+     * Will be called, automatically, when json_encode() is called on a BigInteger object.
+     */
+    public function jsonSerialize()
+    {
+        $result = ['hex' => $this->toHex(true)];
+        if ($this->precision > 0) {
+            $result['precision'] = $this->precision;
+        }
+        return $result;
     }
 
     /**

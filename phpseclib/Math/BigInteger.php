@@ -40,7 +40,7 @@ use phpseclib3\Math\BigInteger\Engines\Engine;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-class BigInteger
+class BigInteger implements \JsonSerializable
 {
     /**
      * Main Engine
@@ -436,6 +436,20 @@ class BigInteger
             // recalculate $this->bitmask
             $this->setPrecision($this->precision);
         }
+    }
+
+    /**
+     * JSON Serialize
+     *
+     * Will be called, automatically, when json_encode() is called on a BigInteger object.
+     */
+    public function jsonSerialize()
+    {
+        $result = ['hex' => $this->toHex(true)];
+        if ($this->precision > 0) {
+            $result['precision'] = $this->getPrecision();
+        }
+        return $result;
     }
 
     /**
