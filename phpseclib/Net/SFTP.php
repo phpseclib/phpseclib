@@ -3099,7 +3099,7 @@ class SFTP extends SSH2
      * @param int $request_id
      * @see self::_get_sftp_packet()
      * @see self::send_channel_packet()
-     * @return bool
+     * @return void
      * @access private
      */
     private function send_sftp_packet($type, $data, $request_id = 1)
@@ -3113,7 +3113,7 @@ class SFTP extends SSH2
             pack('NCa*', strlen($data) + 1, $type, $data);
 
         $start = microtime(true);
-        $result = $this->send_channel_packet(self::CHANNEL, $packet);
+        $this->send_channel_packet(self::CHANNEL, $packet);
         $stop = microtime(true);
 
         if (defined('NET_SFTP_LOGGING')) {
@@ -3141,8 +3141,6 @@ class SFTP extends SSH2
                 }
             }
         }
-
-        return $result;
     }
 
     /**

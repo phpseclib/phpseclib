@@ -29,6 +29,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
      * @depends testConstructor
      * @group github408
      * @group github412
+     * @param SSH2 $ssh
      */
     public function testPreLogin($ssh)
     {
@@ -62,6 +63,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
 
     /**
      * @depends testPreLogin
+     * @param SSH2 $ssh
      */
     public function testBadPassword($ssh)
     {
@@ -87,6 +89,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
 
     /**
      * @depends testBadPassword
+     * @param SSH2 $ssh
      */
     public function testPasswordLogin($ssh)
     {
@@ -108,6 +111,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     /**
      * @depends testPasswordLogin
      * @group github280
+     * @param SSH2 $ssh
      */
     public function testExecWithMethodCallback($ssh)
     {
@@ -146,6 +150,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     /**
      * @depends testExecWithMethodCallback
      * @group github1009
+     * @param SSH2 $ssh
      */
     public function testDisablePTY($ssh)
     {
@@ -162,6 +167,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     /**
      * @depends testDisablePTY
      * @group github1167
+     * @param SSH2 $ssh
      */
     public function testChannelDataAfterOpen($ssh)
     {
@@ -171,7 +177,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         // when consolekit was incorporated.
         // https://marc.info/?l=openssh-unix-dev&m=163409903417589&w=2 discusses some of the
         // issues with how Ubuntu incorporated consolekit
-        $pattern = '#^SSH-2\.0-OpenSSH_([\d\.]+)[^ ]* Ubuntu-.*$#';
+        $pattern = '#^SSH-2\.0-OpenSSH_([\d.]+)[^ ]* Ubuntu-.*$#';
         $match = preg_match($pattern, $ssh->getServerIdentification(), $matches);
         $match = $match && version_compare('5.8', $matches[1], '<=');
         $match = $match && version_compare('6.9', $matches[1], '>=');
@@ -188,6 +194,6 @@ class SSH2Test extends PhpseclibFunctionalTestCase
 
         $ssh->setTimeout(1);
 
-        $ssh->read();
+        $this->assertIsString($ssh->read());
     }
 }

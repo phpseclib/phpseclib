@@ -86,27 +86,6 @@ abstract class PhpseclibTestCase extends TestCase
         }
     }
 
-    /**
-     * @param string $filename Filename relative to library directory.
-     *
-     * @return null
-     */
-    protected static function reRequireFile($filename)
-    {
-        if (extension_loaded('runkit')) {
-            $result = runkit_import(
-                sprintf('%s/../phpseclib/%s', __DIR__, $filename),
-                RUNKIT_IMPORT_FUNCTIONS |
-                RUNKIT_IMPORT_CLASS_METHODS |
-                RUNKIT_IMPORT_OVERRIDE
-            );
-
-            if (!$result) {
-                self::markTestSkipped("Failed to reimport file $filename");
-            }
-        }
-    }
-
     protected static function getVar($obj, $var)
     {
         $reflection = new \ReflectionClass(get_class($obj));
@@ -126,7 +105,7 @@ abstract class PhpseclibTestCase extends TestCase
     // assertIsArray was not introduced until PHPUnit 8
     public static function assertIsArray($actual, $message = '')
     {
-        if (method_exists('\PHPUnit\Framework\TestCase', 'assertIsArray')) {
+        if (method_exists(parent::class, 'assertIsArray')) {
             parent::assertIsArray($actual, $message);
             return;
         }
@@ -137,7 +116,7 @@ abstract class PhpseclibTestCase extends TestCase
     // assertIsString was not introduced until PHPUnit 8
     public static function assertIsString($actual, $message = '')
     {
-        if (method_exists('\PHPUnit\Framework\TestCase', 'assertIsString')) {
+        if (method_exists(parent::class, 'assertIsString')) {
             parent::assertIsString($actual, $message);
             return;
         }
@@ -148,7 +127,7 @@ abstract class PhpseclibTestCase extends TestCase
     // assertIsResource was not introduced until PHPUnit 8
     public static function assertIsResource($actual, $message = '')
     {
-        if (method_exists('\PHPUnit\Framework\TestCase', 'assertIsResource')) {
+        if (method_exists(parent::class, 'assertIsResource')) {
             parent::assertIsResource($actual, $message);
             return;
         }
@@ -159,7 +138,7 @@ abstract class PhpseclibTestCase extends TestCase
     // assertIsObject was not introduced until PHPUnit 8
     public static function assertIsObject($actual, $message = '')
     {
-        if (method_exists('\PHPUnit\Framework\TestCase', 'assertIsObject')) {
+        if (method_exists(parent::class, 'assertIsObject')) {
             parent::assertIsObject($actual, $message);
             return;
         }
@@ -170,7 +149,7 @@ abstract class PhpseclibTestCase extends TestCase
     // assertContains is deprecated for strings in PHPUnit 8
     public static function assertStringContainsString($needle, $haystack, $message = '')
     {
-        if (method_exists('\PHPUnit\Framework\TestCase', 'assertStringContainsString')) {
+        if (method_exists(parent::class, 'assertStringContainsString')) {
             parent::assertStringContainsString($needle, $haystack, $message);
             return;
         }
@@ -181,11 +160,28 @@ abstract class PhpseclibTestCase extends TestCase
     // assertNotContains is deprecated for strings in PHPUnit 8
     public static function assertStringNotContainsString($needle, $haystack, $message = '')
     {
-        if (method_exists('\PHPUnit\Framework\TestCase', 'assertStringContainsString')) {
+        if (method_exists(parent::class, 'assertStringContainsString')) {
             parent::assertStringNotContainsString($needle, $haystack, $message);
             return;
         }
 
         parent::assertNotContains($needle, $haystack, $message);
+    }
+
+    /**
+     * assertRegExp() was deprecated in favor of assertMatchesRegularExpression().
+     *
+     * @param string $pattern
+     * @param string $string
+     * @param string $message
+     * @return void
+     */
+    public static function assertMatchesRegularExpression($pattern, $string, $message = '')
+    {
+        if (method_exists(parent::class, 'assertMatchesRegularExpression')) {
+            parent::assertMatchesRegularExpression($pattern, $string, $message);
+        } else {
+            parent::assertRegExp($pattern, $string, $message);
+        }
     }
 }
