@@ -156,7 +156,7 @@ abstract class Base
      * @var string
      * @access private
      */
-    var $iv;
+    var $iv = '';
 
     /**
      * A "sliding" Initialization Vector
