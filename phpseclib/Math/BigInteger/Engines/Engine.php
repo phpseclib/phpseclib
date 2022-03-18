@@ -376,6 +376,7 @@ abstract class Engine implements \JsonSerializable
      *
      * Will be called, automatically, when json_encode() is called on a BigInteger object.
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $result = ['hex' => $this->toHex(true)];
