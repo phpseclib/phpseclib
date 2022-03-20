@@ -935,6 +935,9 @@ abstract class RSA extends AsymmetricKey
      */
     public function getEngine()
     {
+        if (!isset(self::$engines['PHP'])) {
+            self::useBestEngine();
+        }
         return self::$engines['OpenSSL'] && self::$defaultExponent == 65537 ?
             'OpenSSL' :
             'PHP';
