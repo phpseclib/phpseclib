@@ -323,6 +323,9 @@ abstract class EC extends AsymmetricKey
      */
     public function getEngine()
     {
+        if (!isset(self::$engines['PHP'])) {
+            self::useBestEngine();
+        }
         if ($this->curve instanceof TwistedEdwardsCurve) {
             return $this->curve instanceof Ed25519 && self::$engines['libsodium'] && !isset($this->context) ?
                 'libsodium' : 'PHP';
