@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.0.14 - 2022-04-04
+
+- RSA: add support for loading PuTTY v3 keys
+- Crypt/Base: fix CTR mode with continuous buffer with non-eval PHP
+- Crypt/Base: use sodium_increment in _increment_str
+- Crypt/Base: fix deprecation notice (#1770)
+- SSH2/Agent: rm unused parameter (#1757)
+- BigInteger: add precision to __debugInfo
+- BigInteger: fix random engine issues
+- call useBestEngine() when getEngine() is called
+
 ## 3.0.13 - 2022-01-30
 
 - SSH2: make login() return false if no valid auth methods are found (#1744)
@@ -123,6 +134,14 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.37 - 2022-04-04
+
+- RSA: add support for loading PuTTY v3 keys
+- Crypt/Base: fix CTR mode with continuous buffer with non-eval PHP
+- Crypt/Base: use sodium_increment in _increment_str
+- Crypt/Base: fix deprecation notice (#1770)
+- SSH2/Agent: rm unused parameter (#1757)
 
 ## 2.0.36 - 2022-01-30
 
