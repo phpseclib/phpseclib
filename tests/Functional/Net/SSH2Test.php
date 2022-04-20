@@ -29,9 +29,8 @@ class SSH2Test extends PhpseclibFunctionalTestCase
      * @depends testConstructor
      * @group github408
      * @group github412
-     * @param SSH2 $ssh
      */
-    public function testPreLogin($ssh)
+    public function testPreLogin(SSH2 $ssh)
     {
         $this->assertFalse(
             $ssh->isConnected(),
@@ -63,9 +62,8 @@ class SSH2Test extends PhpseclibFunctionalTestCase
 
     /**
      * @depends testPreLogin
-     * @param SSH2 $ssh
      */
-    public function testBadPassword($ssh)
+    public function testBadPassword(SSH2 $ssh)
     {
         $username = $this->getEnv('SSH_USERNAME');
         $password = $this->getEnv('SSH_PASSWORD');
@@ -89,9 +87,8 @@ class SSH2Test extends PhpseclibFunctionalTestCase
 
     /**
      * @depends testBadPassword
-     * @param SSH2 $ssh
      */
-    public function testPasswordLogin($ssh)
+    public function testPasswordLogin(SSH2 $ssh)
     {
         $username = $this->getEnv('SSH_USERNAME');
         $password = $this->getEnv('SSH_PASSWORD');
@@ -111,9 +108,8 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     /**
      * @depends testPasswordLogin
      * @group github280
-     * @param SSH2 $ssh
      */
-    public function testExecWithMethodCallback($ssh)
+    public function testExecWithMethodCallback(SSH2 $ssh)
     {
         $callbackObject = $this->getMockBuilder('stdClass')
             ->setMethods(['callbackMethod'])
@@ -150,9 +146,8 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     /**
      * @depends testExecWithMethodCallback
      * @group github1009
-     * @param SSH2 $ssh
      */
-    public function testDisablePTY($ssh)
+    public function testDisablePTY(SSH2 $ssh)
     {
         $ssh->enablePTY();
         $ssh->exec('ls -latr');
@@ -167,9 +162,8 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     /**
      * @depends testDisablePTY
      * @group github1167
-     * @param SSH2 $ssh
      */
-    public function testChannelDataAfterOpen($ssh)
+    public function testChannelDataAfterOpen(SSH2 $ssh)
     {
         // Ubuntu's OpenSSH from 5.8 to 6.9 didn't work with multiple channels. see
         // https://bugs.launchpad.net/ubuntu/+source/openssh/+bug/1334916 for more info.
