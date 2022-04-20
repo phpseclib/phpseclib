@@ -28,7 +28,7 @@ use phpseclib3\Math\BigInteger;
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-abstract class Engine
+abstract class Engine implements \JsonSerializable
 {
     /* final protected */ const PRIMES = [
         3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,  47,  53,  59,
@@ -372,6 +372,20 @@ abstract class Engine
     }
 
     /**
+     * JSON Serialize
+     *
+     * Will be called, automatically, when json_encode() is called on a BigInteger object.
+     */
+    public function jsonSerialize()
+    {
+        $result = ['hex' => $this->toHex(true)];
+        if ($this->precision > 0) {
+            $result['precision'] = $this->precision;
+        }
+        return $result;
+    }
+
+    /**
      * Converts a BigInteger to a base-10 number.
      *
      * @return string
@@ -390,10 +404,11 @@ abstract class Engine
      */
     public function __debugInfo()
     {
-        return [
+        $result = [
             'value' => '0x' . $this->toHex(true),
             'engine' => basename(static::class)
         ];
+        return $this->precision > 0 ? $result + ['precision' => $this->precision] : $result;
     }
 
     /**
