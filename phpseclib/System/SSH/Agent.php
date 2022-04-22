@@ -24,8 +24,6 @@
  * ?>
  * </code>
  *
- * @category  System
- * @package   SSH\Agent
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2014 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -45,9 +43,7 @@ use phpseclib3\System\SSH\Agent\Identity;
  *
  * requestIdentities() method pumps out \phpseclib3\System\SSH\Agent\Identity objects
  *
- * @package SSH\Agent
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Agent
 {
@@ -82,7 +78,6 @@ class Agent
      * Socket Resource
      *
      * @var resource
-     * @access private
      */
     private $fsock;
 
@@ -90,7 +85,6 @@ class Agent
      * Agent forwarding status
      *
      * @var int
-     * @access private
      */
     private $forward_status = self::FORWARD_NONE;
 
@@ -100,7 +94,6 @@ class Agent
      * for agent unix socket
      *
      * @var string
-     * @access private
      */
     private $socket_buffer = '';
 
@@ -110,7 +103,6 @@ class Agent
      * channel
      *
      * @var int
-     * @access private
      */
     private $expected_bytes = 0;
 
@@ -118,7 +110,6 @@ class Agent
      * The current request channel
      *
      * @var int
-     * @access private
      */
     private $request_channel;
 
@@ -128,7 +119,6 @@ class Agent
      * @return \phpseclib3\System\SSH\Agent
      * @throws \phpseclib3\Exception\BadConfigurationException if SSH_AUTH_SOCK cannot be found
      * @throws \RuntimeException on connection errors
-     * @access public
      */
     public function __construct($address = null)
     {
@@ -159,7 +149,6 @@ class Agent
      *
      * @return array
      * @throws \RuntimeException on receipt of unexpected packets
-     * @access public
      */
     public function requestIdentities()
     {
@@ -212,7 +201,6 @@ class Agent
      * be requested when a channel is opened
      *
      * @return void
-     * @access public
      */
     public function startSSHForwarding()
     {
@@ -226,7 +214,6 @@ class Agent
      *
      * @param \phpseclib3\Net\SSH2 $ssh
      * @return bool
-     * @access private
      */
     private function request_forwarding($ssh)
     {
@@ -247,7 +234,6 @@ class Agent
      * to take further action. i.e. request agent forwarding
      *
      * @param \phpseclib3\Net\SSH2 $ssh
-     * @access private
      */
     public function registerChannelOpen($ssh)
     {
@@ -262,7 +248,6 @@ class Agent
      * @param string $data
      * @return string Data from SSH Agent
      * @throws \RuntimeException on connection errors
-     * @access public
      */
     public function forwardData($data)
     {

@@ -44,8 +44,6 @@
  * ?>
  * </code>
  *
- * @category  Crypt
- * @package   Rijndael
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2008 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -64,9 +62,7 @@ use phpseclib3\Exception\InsufficientSetupException;
 /**
  * Pure-PHP implementation of Rijndael.
  *
- * @package Rijndael
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Rijndael extends BlockCipher
 {
@@ -82,7 +78,6 @@ class Rijndael extends BlockCipher
      * @see \phpseclib3\Crypt\Common\SymmetricKey::engine
      * @see self::isValidEngine()
      * @var string
-     * @access private
      */
     protected $cipher_name_mcrypt = 'rijndael-128';
 
@@ -91,7 +86,6 @@ class Rijndael extends BlockCipher
      *
      * @see self::setup()
      * @var array
-     * @access private
      */
     private $w;
 
@@ -100,7 +94,6 @@ class Rijndael extends BlockCipher
      *
      * @see self::setup()
      * @var array
-     * @access private
      */
     private $dw;
 
@@ -114,7 +107,6 @@ class Rijndael extends BlockCipher
      *
      * @see self::setBlockLength()
      * @var int
-     * @access private
      */
     private $Nb = 4;
 
@@ -128,7 +120,6 @@ class Rijndael extends BlockCipher
      *
      * @see self::setKeyLength()
      * @var int
-     * @access private
      */
     protected $key_length = 16;
 
@@ -137,7 +128,6 @@ class Rijndael extends BlockCipher
      *
      * @see self::setKeyLength()
      * @var int
-     * @access private
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4
      */
     private $Nk = 4;
@@ -148,7 +138,6 @@ class Rijndael extends BlockCipher
      * {@internal The max value is 14, the min value is 10.}
      *
      * @var int
-     * @access private
      */
     private $Nr;
 
@@ -156,7 +145,6 @@ class Rijndael extends BlockCipher
      * Shift offsets
      *
      * @var array
-     * @access private
      */
     private $c;
 
@@ -164,7 +152,6 @@ class Rijndael extends BlockCipher
      * Holds the last used key- and block_size information
      *
      * @var array
-     * @access private
      */
     private $kl;
 
@@ -172,7 +159,6 @@ class Rijndael extends BlockCipher
      * Default Constructor.
      *
      * @param string $mode
-     * @access public
      * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
     public function __construct($mode)
@@ -200,7 +186,6 @@ class Rijndael extends BlockCipher
      *             the mcrypt php extension, even if available.
      *             This results then in slower encryption.
      *
-     * @access public
      * @throws \LengthException if the key length is invalid
      * @param int $length
      */
@@ -227,7 +212,6 @@ class Rijndael extends BlockCipher
      * Rijndael supports five different key lengths
      *
      * @see setKeyLength()
-     * @access public
      * @param string $key
      * @throws \LengthException if the key length isn't supported
      */
@@ -252,7 +236,6 @@ class Rijndael extends BlockCipher
      *
      * Valid block lengths are 128, 160, 192, 224, and 256.
      *
-     * @access public
      * @param int $length
      */
     public function setBlockLength($length)
@@ -281,7 +264,6 @@ class Rijndael extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
-     * @access protected
      * @return bool
      */
     protected function isValidEngineHelper($engine)
@@ -324,7 +306,6 @@ class Rijndael extends BlockCipher
     /**
      * Encrypts a block
      *
-     * @access private
      * @param string $in
      * @return string
      */
@@ -414,7 +395,6 @@ class Rijndael extends BlockCipher
     /**
      * Decrypts a block
      *
-     * @access private
      * @param string $in
      * @return string
      */
@@ -514,7 +494,6 @@ class Rijndael extends BlockCipher
      * @see self::setKey()
      * @see self::setIV()
      * @see self::disableContinuousBuffer()
-     * @access private
      */
     protected function setup()
     {
@@ -533,7 +512,6 @@ class Rijndael extends BlockCipher
      * Setup the key (expansion)
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setupKey()
-     * @access private
      */
     protected function setupKey()
     {
@@ -646,7 +624,6 @@ class Rijndael extends BlockCipher
      * Performs S-Box substitutions
      *
      * @return array
-     * @access private
      * @param int $word
      */
     private function subWord($word)
@@ -668,7 +645,6 @@ class Rijndael extends BlockCipher
      * @see self::encryptBlock()
      * @see self::setupInlineCrypt()
      * @see self::subWord()
-     * @access private
      * @return array &$tables
      */
     protected function &getTables()
@@ -757,7 +733,6 @@ class Rijndael extends BlockCipher
      * @see self::decryptBlock()
      * @see self::setupInlineCrypt()
      * @see self::setupKey()
-     * @access private
      * @return array &$tables
      */
     protected function &getInvTables()
@@ -839,7 +814,6 @@ class Rijndael extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setupInlineCrypt()
-     * @access private
      */
     protected function setupInlineCrypt()
     {
@@ -982,7 +956,6 @@ class Rijndael extends BlockCipher
      *
      * @see self::decrypt()
      * @see parent::encrypt()
-     * @access public
      * @param string $plaintext
      * @return string
      */
@@ -1014,7 +987,6 @@ class Rijndael extends BlockCipher
      *
      * @see self::encrypt()
      * @see parent::decrypt()
-     * @access public
      * @param string $ciphertext
      * @return string
      */

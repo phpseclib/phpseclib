@@ -7,8 +7,6 @@
  *
  * Place in $HOME/.ssh/authorized_keys
  *
- * @category  Crypt
- * @package   EC
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -27,9 +25,7 @@ use phpseclib3\Math\BigInteger;
 /**
  * OpenSSH Formatted EC Key Handler
  *
- * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class OpenSSH extends Progenitor
 {
@@ -50,7 +46,6 @@ abstract class OpenSSH extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      *
-     * @access public
      * @param string $key
      * @param string $password optional
      * @return array
@@ -139,7 +134,6 @@ abstract class OpenSSH extends Progenitor
     /**
      * Convert an EC public key to the appropriate format
      *
-     * @access public
      * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @param array $options optional
@@ -177,7 +171,6 @@ abstract class OpenSSH extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @access public
      * @param \phpseclib3\Math\BigInteger $privateKey
      * @param \phpseclib3\Crypt\EC\Curves\Ed25519 $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey

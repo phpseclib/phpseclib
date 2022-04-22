@@ -9,8 +9,6 @@
  *
  * PHP version 5
  *
- * @category  Crypt
- * @package   RSA
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -27,59 +25,49 @@ use phpseclib3\Math\BigInteger;
 /**
  * Microsoft BLOB Formatted RSA Key Handler
  *
- * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class MSBLOB
 {
     /**
      * Public/Private Key Pair
      *
-     * @access private
      */
     const PRIVATEKEYBLOB = 0x7;
     /**
      * Public Key
      *
-     * @access private
      */
     const PUBLICKEYBLOB = 0x6;
     /**
      * Public Key
      *
-     * @access private
      */
     const PUBLICKEYBLOBEX = 0xA;
     /**
      * RSA public key exchange algorithm
      *
-     * @access private
      */
     const CALG_RSA_KEYX = 0x0000A400;
     /**
      * RSA public key exchange algorithm
      *
-     * @access private
      */
     const CALG_RSA_SIGN = 0x00002400;
     /**
      * Public Key
      *
-     * @access private
      */
     const RSA1 = 0x31415352;
     /**
      * Private Key
      *
-     * @access private
      */
     const RSA2 = 0x32415352;
 
     /**
      * Break a public or private key down into its constituent components
      *
-     * @access public
      * @param string $key
      * @param string $password optional
      * @return array
@@ -187,7 +175,6 @@ abstract class MSBLOB
     /**
      * Convert a private key to the appropriate format.
      *
-     * @access public
      * @param \phpseclib3\Math\BigInteger $n
      * @param \phpseclib3\Math\BigInteger $e
      * @param \phpseclib3\Math\BigInteger $d
@@ -225,7 +212,6 @@ abstract class MSBLOB
     /**
      * Convert a public key to the appropriate format
      *
-     * @access public
      * @param \phpseclib3\Math\BigInteger $n
      * @param \phpseclib3\Math\BigInteger $e
      * @return string
