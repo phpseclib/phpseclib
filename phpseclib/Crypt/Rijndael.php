@@ -44,8 +44,6 @@
  * ?>
  * </code>
  *
- * @category  Crypt
- * @package   Rijndael
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2008 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -64,7 +62,6 @@ use phpseclib3\Exception\InsufficientSetupException;
 /**
  * Pure-PHP implementation of Rijndael.
  *
- * @package Rijndael
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class Rijndael extends BlockCipher

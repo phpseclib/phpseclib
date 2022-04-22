@@ -24,7 +24,6 @@
  * ?>
  * </code>
  *
- * @category  System
  * @package   SSH\Agent
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2014 Jim Wigginton

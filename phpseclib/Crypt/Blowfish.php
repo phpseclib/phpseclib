@@ -26,8 +26,6 @@
  * ?>
  * </code>
  *
- * @category  Crypt
- * @package   Blowfish
  * @author    Jim Wigginton <terrafrost@php.net>
  * @author    Hans-Juergen Petrich <petrich@tronic-media.com>
  * @copyright 2007 Jim Wigginton
@@ -42,7 +40,6 @@ use phpseclib3\Crypt\Common\BlockCipher;
 /**
  * Pure-PHP implementation of Blowfish.
  *
- * @package Blowfish
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  */

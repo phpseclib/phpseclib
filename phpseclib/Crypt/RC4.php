@@ -34,8 +34,6 @@
  * ?>
  * </code>
  *
- * @category  Crypt
- * @package   RC4
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2007 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -49,7 +47,6 @@ use phpseclib3\Crypt\Common\StreamCipher;
 /**
  * Pure-PHP implementation of RC4.
  *
- * @package RC4
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class RC4 extends StreamCipher

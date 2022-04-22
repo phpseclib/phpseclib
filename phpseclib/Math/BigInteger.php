@@ -20,8 +20,6 @@
  * ?>
  * </code>
  *
- * @category  Math
- * @package   BigInteger
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2017 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -36,7 +34,6 @@ use phpseclib3\Math\BigInteger\Engines\Engine;
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
  * numbers.
  *
- * @package BigInteger
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class BigInteger implements \JsonSerializable

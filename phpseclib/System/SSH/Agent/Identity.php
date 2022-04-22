@@ -7,7 +7,6 @@
  *
  * PHP version 5
  *
- * @category  System
  * @package   SSH\Agent
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2009 Jim Wigginton

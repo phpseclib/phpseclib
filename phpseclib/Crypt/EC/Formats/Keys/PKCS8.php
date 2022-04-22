@@ -15,8 +15,6 @@
  * is specific to private keys it's basically creating a DER-encoded wrapper
  * for keys. This just extends that same concept to public keys (much like ssh-keygen)
  *
- * @category  Crypt
- * @package   EC
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -40,7 +38,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * PKCS#8 Formatted EC Key Handler
  *
- * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class PKCS8 extends Progenitor

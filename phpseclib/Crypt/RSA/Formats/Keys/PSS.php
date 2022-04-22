@@ -15,8 +15,6 @@
  *
  * Analogous to "openssl genpkey -algorithm rsa-pss".
  *
- * @category  Crypt
- * @package   RSA
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -34,7 +32,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * PKCS#8 Formatted RSA-PSS Key Handler
  *
- * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class PSS extends Progenitor

@@ -37,8 +37,6 @@
  * ?>
  * </code>
  *
- * @category  Net
- * @package   SSH2
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2007 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -81,7 +79,6 @@ use phpseclib3\System\SSH\Agent;
 /**
  * Pure-PHP implementation of SSHv2.
  *
- * @package SSH2
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class SSH2

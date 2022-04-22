@@ -7,8 +7,6 @@
  *
  * Place in $HOME/.ssh/authorized_keys
  *
- * @category  Crypt
- * @package   RSA
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -24,7 +22,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * OpenSSH Formatted RSA Key Handler
  *
- * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class OpenSSH extends Progenitor

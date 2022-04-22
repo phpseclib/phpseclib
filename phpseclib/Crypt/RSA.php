@@ -45,8 +45,6 @@
  * decode an id-RSASSA-PSS key. For X.509 certificates the id-RSASSA-PSS
  * format is used by default (unless you change it up to use PKCS1 instead)
  *
- * @category  Crypt
- * @package   RSA
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2009 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -66,7 +64,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
  *
- * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class RSA extends AsymmetricKey

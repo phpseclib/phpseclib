@@ -19,8 +19,6 @@
  * The DSA private key format seems to have been adapted from the RSA private key format so
  * we're just re-using that as the name.
  *
- * @category  Crypt
- * @package   DSA
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -38,7 +36,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * PKCS#1 Formatted DSA Key Handler
  *
- * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class PKCS1 extends Progenitor

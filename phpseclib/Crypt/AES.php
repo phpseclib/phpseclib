@@ -39,8 +39,6 @@
  * ?>
  * </code>
  *
- * @category  Crypt
- * @package   AES
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2008 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -52,7 +50,6 @@ namespace phpseclib3\Crypt;
 /**
  * Pure-PHP implementation of AES.
  *
- * @package AES
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class AES extends Rijndael

@@ -11,8 +11,6 @@
  * -----BEGIN PRIVATE KEY-----
  * -----BEGIN PUBLIC KEY-----
  *
- * @category  Crypt
- * @package   DH
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -30,7 +28,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * PKCS#8 Formatted DH Key Handler
  *
- * @package DH
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class PKCS8 extends Progenitor

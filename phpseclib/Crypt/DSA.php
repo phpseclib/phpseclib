@@ -21,8 +21,6 @@
  * ?>
  * </code>
  *
- * @category  Crypt
- * @package   DSA
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2016 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -41,7 +39,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * Pure-PHP FIPS 186-4 compliant implementation of DSA.
  *
- * @package DSA
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class DSA extends AsymmetricKey

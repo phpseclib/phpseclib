@@ -7,8 +7,6 @@
  *
  * PHP version 5
  *
- * @category  Net
- * @package   SFTP
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2013 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -25,7 +23,6 @@ use phpseclib3\Net\SSH2\MessageType as SSH2MessageType;
 /**
  * SFTP Stream Wrapper
  *
- * @package SFTP
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class Stream

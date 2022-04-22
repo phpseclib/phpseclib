@@ -21,8 +21,6 @@
  * ?>
  * </code>
  *
- * @category  Crypt
- * @package   EC
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2016 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -51,7 +49,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * Pure-PHP implementation of EC.
  *
- * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class EC extends AsymmetricKey

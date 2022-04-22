@@ -25,8 +25,6 @@
  * ?>
  * </code>
  *
- * @category  Net
- * @package   SFTP
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2009 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -48,7 +46,6 @@ use phpseclib3\Net\SSH2\MessageType as SSH2MessageType;
 /**
  * Pure-PHP implementations of SFTP.
  *
- * @package SFTP
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class SFTP extends SSH2

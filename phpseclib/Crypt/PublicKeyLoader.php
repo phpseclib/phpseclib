@@ -5,8 +5,6 @@
  *
  * Returns a PublicKey or PrivateKey object.
  *
- * @category  Crypt
- * @package   PublicKeyLoader
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2009 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -24,7 +22,6 @@ use phpseclib3\File\X509;
 /**
  * PublicKeyLoader
  *
- * @package Common
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class PublicKeyLoader

@@ -32,8 +32,6 @@
  * ?>
  * </code>
  *
- * @category  Crypt
- * @package   DES
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2007 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -48,7 +46,6 @@ use phpseclib3\Exception\BadModeException;
 /**
  * Pure-PHP implementation of DES.
  *
- * @package DES
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class DES extends BlockCipher

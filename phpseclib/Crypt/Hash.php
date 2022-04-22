@@ -21,8 +21,6 @@
  * ?>
  * </code>
  *
- * @category  Crypt
- * @package   Hash
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @author    Andreas Fischer <bantu@phpbb.com>
@@ -40,7 +38,6 @@ use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\PrimeField;
 
 /**
- * @package Hash
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Andreas Fischer <bantu@phpbb.com>
  */

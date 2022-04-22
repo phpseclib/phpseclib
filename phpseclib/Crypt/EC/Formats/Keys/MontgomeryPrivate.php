@@ -12,8 +12,6 @@
  *
  * PHP version 5
  *
- * @category  Crypt
- * @package   EC
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -31,7 +29,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * Montgomery Curve Private Key Handler
  *
- * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class MontgomeryPrivate

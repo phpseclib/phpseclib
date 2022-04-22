@@ -14,8 +14,6 @@
  * ?>
  * </code>
  *
- * @category  Crypt
- * @package   Random
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2007 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -27,7 +25,6 @@ namespace phpseclib3\Crypt;
 /**
  * Pure-PHP Random Number Generator
  *
- * @package Random
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class Random

@@ -13,8 +13,6 @@
  *
  * Uses the 1988 ASN.1 syntax.
  *
- * @category  File
- * @package   ASN1
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2012 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -32,7 +30,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * Pure-PHP ASN.1 Parser
  *
- * @package ASN1
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class ASN1

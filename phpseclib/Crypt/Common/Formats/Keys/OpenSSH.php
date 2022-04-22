@@ -7,8 +7,6 @@
  *
  * Place in $HOME/.ssh/authorized_keys
  *
- * @category  Crypt
- * @package   Common
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -25,7 +23,6 @@ use phpseclib3\Exception\UnsupportedFormatException;
 /**
  * OpenSSH Formatted RSA Key Handler
  *
- * @package Common
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class OpenSSH

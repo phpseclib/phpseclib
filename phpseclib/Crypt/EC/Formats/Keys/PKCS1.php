@@ -17,8 +17,6 @@
  * use it to describe this, too. PKCS1 is easier to remember than RFC5915, after
  * all. I suppose this could also be named IETF but idk
  *
- * @category  Crypt
- * @package   EC
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -41,7 +39,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * "PKCS1" (RFC5915) Formatted EC Key Handler
  *
- * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class PKCS1 extends Progenitor

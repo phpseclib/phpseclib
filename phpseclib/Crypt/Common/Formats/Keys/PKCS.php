@@ -5,8 +5,6 @@
  *
  * PHP version 5
  *
- * @category  Crypt
- * @package   Common
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -18,7 +16,6 @@ namespace phpseclib3\Crypt\Common\Formats\Keys;
 /**
  * PKCS1 Formatted Key Handler
  *
- * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class PKCS

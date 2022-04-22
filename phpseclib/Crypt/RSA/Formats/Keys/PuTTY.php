@@ -5,8 +5,6 @@
  *
  * PHP version 5
  *
- * @category  Crypt
- * @package   RSA
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -22,7 +20,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * PuTTY Formatted RSA Key Handler
  *
- * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class PuTTY extends Progenitor

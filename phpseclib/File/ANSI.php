@@ -10,8 +10,6 @@
  * {@link http://en.wikipedia.org/wiki/Terminal_emulator terminal emulator} how to format the characters, what
  * color to display them in, etc. \phpseclib3\File\ANSI is a {@link http://en.wikipedia.org/wiki/VT100 VT100} terminal emulator.
  *
- * @category  File
- * @package   ANSI
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2012 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -23,7 +21,6 @@ namespace phpseclib3\File;
 /**
  * Pure-PHP ANSI Decoder
  *
- * @package ANSI
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class ANSI

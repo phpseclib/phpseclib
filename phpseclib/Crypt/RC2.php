@@ -26,8 +26,6 @@
  * ?>
  * </code>
  *
- * @category Crypt
- * @package  RC2
  * @author   Patrick Monnerat <pm@datasphere.ch>
  * @license  http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link     http://phpseclib.sourceforge.net
@@ -41,7 +39,6 @@ use phpseclib3\Exception\BadModeException;
 /**
  * Pure-PHP implementation of RC2.
  *
- * @package RC2
  */
 class RC2 extends BlockCipher
 {

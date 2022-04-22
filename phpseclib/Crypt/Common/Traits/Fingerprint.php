@@ -5,8 +5,6 @@
  *
  * PHP version 5
  *
- * @category  Crypt
- * @package   Common
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -20,7 +18,6 @@ use phpseclib3\Crypt\Hash;
 /**
  * Fingerprint Trait for Private Keys
  *
- * @package Common
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 trait Fingerprint

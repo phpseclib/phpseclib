@@ -3,8 +3,6 @@
 /**
  * DSA Private Key
  *
- * @category  Crypt
- * @package   DSA
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -21,7 +19,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * DSA Private Key
  *
- * @package DSA
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class PrivateKey extends DSA implements Common\PrivateKey

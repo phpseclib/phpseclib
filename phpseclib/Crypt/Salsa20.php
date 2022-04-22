@@ -5,8 +5,6 @@
  *
  * PHP version 5
  *
- * @category  Crypt
- * @package   Salsa20
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2019 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -23,7 +21,6 @@ use phpseclib3\Exception\InsufficientSetupException;
 /**
  * Pure-PHP implementation of Salsa20.
  *
- * @package Salsa20
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class Salsa20 extends StreamCipher

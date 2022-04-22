@@ -7,8 +7,6 @@
  *
  * Handles signatures as arrays
  *
- * @category  Crypt
- * @package   Common
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2016 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -22,7 +20,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * Raw Signature Handler
  *
- * @package Common
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class Raw

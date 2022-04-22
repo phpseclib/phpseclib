@@ -25,8 +25,6 @@
  *
  *  - Please read all the other comments/notes/hints here also for each class var/method
  *
- * @category  Crypt
- * @package   Base
  * @author    Jim Wigginton <terrafrost@php.net>
  * @author    Hans-Juergen Petrich <petrich@tronic-media.com>
  * @copyright 2007 Jim Wigginton
@@ -50,7 +48,6 @@ use phpseclib3\Math\PrimeField;
 /**
  * Base Class for all \phpseclib3\Crypt\* cipher classes
  *
- * @package Base
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  */

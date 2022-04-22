@@ -26,8 +26,6 @@
  * ?>
  * </code>
  *
- * @category  Crypt
- * @package   Twofish
  * @author    Jim Wigginton <terrafrost@php.net>
  * @author    Hans-Juergen Petrich <petrich@tronic-media.com>
  * @copyright 2007 Jim Wigginton
@@ -43,7 +41,6 @@ use phpseclib3\Exception\BadModeException;
 /**
  * Pure-PHP implementation of Twofish.
  *
- * @package Twofish
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
  */

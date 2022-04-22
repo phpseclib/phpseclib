@@ -8,8 +8,6 @@
  * Handles signatures in the format described in
  * https://tools.ietf.org/html/rfc3279#section-2.2.3
  *
- * @category  Crypt
- * @package   Common
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2016 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -25,7 +23,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * ASN1 Signature Handler
  *
- * @package Common
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class ASN1

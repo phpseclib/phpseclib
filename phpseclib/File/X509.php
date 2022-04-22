@@ -16,8 +16,6 @@
  * be encoded.  It can be encoded explicitly or left out all together.  This would effect the signature value and thus may invalidate the
  * the certificate all together unless the certificate is re-signed.
  *
- * @category  File
- * @package   X509
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2012 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -45,7 +43,6 @@ use phpseclib3\Math\BigInteger;
 /**
  * Pure-PHP X.509 Parser
  *
- * @package X509
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class X509

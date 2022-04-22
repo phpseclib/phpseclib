@@ -3,8 +3,6 @@
 /**
  * DSA Public Key
  *
- * @category  Crypt
- * @package   DSA
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -20,7 +18,6 @@ use phpseclib3\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
 /**
  * DSA Public Key
  *
- * @package DSA
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class PublicKey extends DSA implements Common\PublicKey
