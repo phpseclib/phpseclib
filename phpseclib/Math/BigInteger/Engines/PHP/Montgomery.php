@@ -24,7 +24,6 @@ use phpseclib3\Math\BigInteger\Engines\PHP\Reductions\PowerOfTwo;
  *
  * @package PHP
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class Montgomery extends Base
 {

@@ -22,7 +22,6 @@ use phpseclib3\Math\BigInteger\Engines\PHP;
  *
  * @package PHP
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class MontgomeryMult extends Montgomery
 {
@@ -34,7 +33,6 @@ abstract class MontgomeryMult extends Montgomery
      *
      * @see self::_prepMontgomery()
      * @see self::_montgomery()
-     * @access private
      * @param array $x
      * @param array $y
      * @param array $m

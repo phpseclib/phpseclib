@@ -36,7 +36,6 @@ use phpseclib3\Math\PrimeField\Integer as PrimeInteger;
  *
  * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Montgomery extends Base
 {

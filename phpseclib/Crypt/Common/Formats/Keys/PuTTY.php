@@ -30,7 +30,6 @@ use phpseclib3\Exception\UnsupportedAlgorithmException;
  *
  * @package Common
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class PuTTY
 {
@@ -38,7 +37,6 @@ abstract class PuTTY
      * Default comment
      *
      * @var string
-     * @access private
      */
     private static $comment = 'phpseclib-generated-key';
 
@@ -46,14 +44,12 @@ abstract class PuTTY
      * Default version
      *
      * @var int
-     * @access private
      */
     private static $version = 2;
 
     /**
      * Sets the default comment
      *
-     * @access public
      * @param string $comment
      */
     public static function setComment($comment)
@@ -64,7 +60,6 @@ abstract class PuTTY
     /**
      * Sets the default version
      *
-     * @access public
      * @param int $version
      */
     public static function setVersion($version)
@@ -78,7 +73,6 @@ abstract class PuTTY
     /**
      * Generate a symmetric key for PuTTY v2 keys
      *
-     * @access private
      * @param string $password
      * @param int $length
      * @return string
@@ -97,7 +91,6 @@ abstract class PuTTY
     /**
      * Generate a symmetric key for PuTTY v3 keys
      *
-     * @access private
      * @param string $password
      * @param string $flavour
      * @param int $memory
@@ -135,7 +128,6 @@ abstract class PuTTY
     /**
      * Break a public or private key down into its constituent components
      *
-     * @access public
      * @param string $key
      * @param string $password
      * @return array
@@ -287,7 +279,6 @@ abstract class PuTTY
     /**
      * Wrap a private key appropriately
      *
-     * @access private
      * @param string $public
      * @param string $private
      * @param string $type
@@ -372,7 +363,6 @@ abstract class PuTTY
      *
      * This is basically the format described in RFC 4716 (https://tools.ietf.org/html/rfc4716)
      *
-     * @access private
      * @param string $key
      * @param string $type
      * @return string

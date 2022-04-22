@@ -20,7 +20,6 @@ namespace phpseclib3\System\SSH\Common\Traits;
  *
  * @package SSH
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 trait ReadBytes
 {
@@ -29,7 +28,6 @@ trait ReadBytes
      *
      * @param int $length
      * @throws \RuntimeException on connection errors
-     * @access public
      */
     public function readBytes($length)
     {

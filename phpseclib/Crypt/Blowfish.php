@@ -45,7 +45,6 @@ use phpseclib3\Crypt\Common\BlockCipher;
  * @package Blowfish
  * @author  Jim Wigginton <terrafrost@php.net>
  * @author  Hans-Juergen Petrich <petrich@tronic-media.com>
- * @access  public
  */
 class Blowfish extends BlockCipher
 {
@@ -54,7 +53,6 @@ class Blowfish extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::block_size
      * @var int
-     * @access private
      */
     protected $block_size = 8;
 
@@ -63,7 +61,6 @@ class Blowfish extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
      * @var string
-     * @access private
      */
     protected $cipher_name_mcrypt = 'blowfish';
 
@@ -72,7 +69,6 @@ class Blowfish extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::cfb_init_len
      * @var int
-     * @access private
      */
     protected $cfb_init_len = 500;
 
@@ -81,7 +77,6 @@ class Blowfish extends BlockCipher
      *
      * S-Box 0
      *
-     * @access private
      * @var    array
      */
     private static $sbox0 = [
@@ -122,7 +117,6 @@ class Blowfish extends BlockCipher
     /**
      * S-Box 1
      *
-     * @access private
      * @var    array
      */
     private static $sbox1 = [
@@ -163,7 +157,6 @@ class Blowfish extends BlockCipher
     /**
      * S-Box 2
      *
-     * @access private
      * @var    array
      */
     private static $sbox2 = [
@@ -204,7 +197,6 @@ class Blowfish extends BlockCipher
     /**
      * S-Box 3
      *
-     * @access private
      * @var    array
      */
     private static $sbox3 = [
@@ -246,7 +238,6 @@ class Blowfish extends BlockCipher
      * P-Array consists of 18 32-bit subkeys
      *
      * @var array
-     * @access private
      */
     private static $parray = [
         0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822, 0x299f31d0,
@@ -260,7 +251,6 @@ class Blowfish extends BlockCipher
      * Holds the expanded key [p] and the key-depended s-boxes [sb]
      *
      * @var array
-     * @access private
      */
     private $bctx;
 
@@ -268,7 +258,6 @@ class Blowfish extends BlockCipher
      * Holds the last used key
      *
      * @var array
-     * @access private
      */
     private $kl;
 
@@ -281,7 +270,6 @@ class Blowfish extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setKeyLength()
      * @var int
-     * @access private
      */
     protected $key_length = 16;
 
@@ -289,7 +277,6 @@ class Blowfish extends BlockCipher
      * Default Constructor.
      *
      * @param string $mode
-     * @access public
      * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
     public function __construct($mode)
@@ -306,7 +293,6 @@ class Blowfish extends BlockCipher
      *
      * Key lengths can be between 32 and 448 bits.
      *
-     * @access public
      * @param int $length
      */
     public function setKeyLength($length)
@@ -327,7 +313,6 @@ class Blowfish extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      * @param int $engine
-     * @access protected
      * @return bool
      */
     protected function isValidEngineHelper($engine)
@@ -350,7 +335,6 @@ class Blowfish extends BlockCipher
      * Setup the key (expansion)
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupKey()
-     * @access private
      */
     protected function setupKey()
     {
@@ -405,7 +389,6 @@ class Blowfish extends BlockCipher
     /**
      * Encrypts a block
      *
-     * @access private
      * @param string $in
      * @return string
      */
@@ -439,7 +422,6 @@ class Blowfish extends BlockCipher
     /**
      * Decrypts a block
      *
-     * @access private
      * @param string $in
      * @return string
      */
@@ -473,7 +455,6 @@ class Blowfish extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupInlineCrypt()
-     * @access private
      */
     protected function setupInlineCrypt()
     {

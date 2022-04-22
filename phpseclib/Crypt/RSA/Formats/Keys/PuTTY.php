@@ -24,7 +24,6 @@ use phpseclib3\Math\BigInteger;
  *
  * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class PuTTY extends Progenitor
 {
@@ -32,7 +31,6 @@ abstract class PuTTY extends Progenitor
      * Public Handler
      *
      * @var string
-     * @access private
      */
     const PUBLIC_HANDLER = 'phpseclib3\Crypt\RSA\Formats\Keys\OpenSSH';
 
@@ -40,14 +38,12 @@ abstract class PuTTY extends Progenitor
      * Algorithm Identifier
      *
      * @var array
-     * @access private
      */
     protected static $types = ['ssh-rsa'];
 
     /**
      * Break a public or private key down into its constituent components
      *
-     * @access public
      * @param string $key
      * @param string $password optional
      * @return array
@@ -92,7 +88,6 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @access public
      * @param \phpseclib3\Math\BigInteger $n
      * @param \phpseclib3\Math\BigInteger $e
      * @param \phpseclib3\Math\BigInteger $d
@@ -118,7 +113,6 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert a public key to the appropriate format
      *
-     * @access public
      * @param \phpseclib3\Math\BigInteger $n
      * @param \phpseclib3\Math\BigInteger $e
      * @return string

@@ -22,7 +22,6 @@ use phpseclib3\Math\BigInteger\Engines\BCMath;
  *
  * @package BCMath
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class BuiltIn extends BCMath
 {

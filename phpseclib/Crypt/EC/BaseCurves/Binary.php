@@ -32,7 +32,6 @@ use phpseclib3\Math\BinaryField\Integer as BinaryInteger;
  *
  * @package Binary
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Binary extends Base
 {

@@ -22,7 +22,6 @@ use phpseclib3\Crypt\Hash;
  *
  * @package Common
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 trait Fingerprint
 {
@@ -33,7 +32,6 @@ trait Fingerprint
      * no public key currently loaded, false is returned.
      * Example output (md5): "c1:b1:30:29:d7:b8:de:6c:97:77:10:d7:46:41:63:87" (as specified by RFC 4716)
      *
-     * @access public
      * @param string $algorithm The hashing algorithm to be used. Valid options are 'md5' and 'sha256'. False is returned
      * for invalid values.
      * @return mixed

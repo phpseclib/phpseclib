@@ -23,7 +23,6 @@ use phpseclib3\Exception\InsufficientSetupException;
  *
  * @package ChaCha20
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class ChaCha20 extends Salsa20
 {
@@ -41,7 +40,6 @@ class ChaCha20 extends Salsa20
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
-     * @access protected
      * @return bool
      */
     protected function isValidEngineHelper($engine)

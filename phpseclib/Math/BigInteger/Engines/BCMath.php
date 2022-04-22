@@ -23,7 +23,6 @@ use phpseclib3\Exception\BadConfigurationException;
  *
  * @package BCMath
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class BCMath extends Engine
 {
@@ -32,7 +31,6 @@ class BCMath extends Engine
      *
      * @see parent::bitwise_leftRotate()
      * @see parent::bitwise_rightRotate()
-     * @access protected
      */
     const FAST_BITWISE = false;
 
@@ -40,7 +38,6 @@ class BCMath extends Engine
      * Engine Directory
      *
      * @see parent::setModExpEngine
-     * @access protected
      */
     const ENGINE_DIR = 'BCMath';
 

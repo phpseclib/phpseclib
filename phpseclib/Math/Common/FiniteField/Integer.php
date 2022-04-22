@@ -19,7 +19,6 @@ namespace phpseclib3\Math\Common\FiniteField;
  *
  * @package Math
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class Integer implements \JsonSerializable
 {

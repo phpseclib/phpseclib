@@ -37,7 +37,6 @@ use phpseclib3\Math\BigInteger;
  *
  * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class PKCS8 extends Progenitor
 {
@@ -45,7 +44,6 @@ abstract class PKCS8 extends Progenitor
      * OID Name
      *
      * @var string
-     * @access private
      */
     const OID_NAME = 'rsaEncryption';
 
@@ -53,7 +51,6 @@ abstract class PKCS8 extends Progenitor
      * OID Value
      *
      * @var string
-     * @access private
      */
     const OID_VALUE = '1.2.840.113549.1.1.1';
 
@@ -61,14 +58,12 @@ abstract class PKCS8 extends Progenitor
      * Child OIDs loaded
      *
      * @var bool
-     * @access private
      */
     protected static $childOIDsLoaded = false;
 
     /**
      * Break a public or private key down into its constituent components
      *
-     * @access public
      * @param string $key
      * @param string $password optional
      * @return array
@@ -113,7 +108,6 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @access public
      * @param \phpseclib3\Math\BigInteger $n
      * @param \phpseclib3\Math\BigInteger $e
      * @param \phpseclib3\Math\BigInteger $d
@@ -134,7 +128,6 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert a public key to the appropriate format
      *
-     * @access public
      * @param \phpseclib3\Math\BigInteger $n
      * @param \phpseclib3\Math\BigInteger $e
      * @param array $options optional

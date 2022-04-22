@@ -25,7 +25,6 @@ use phpseclib3\Math\PrimeField\Integer;
  *
  * @package Math
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class PrimeField extends FiniteField
 {

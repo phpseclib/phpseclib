@@ -23,7 +23,6 @@ namespace phpseclib3\File\ASN1;
  *
  * @package ASN1
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Element
 {
@@ -31,7 +30,6 @@ class Element
      * Raw element value
      *
      * @var string
-     * @access private
      */
     public $element;
 
@@ -40,7 +38,6 @@ class Element
      *
      * @param string $encoded
      * @return \phpseclib3\File\ASN1\Element
-     * @access public
      */
     public function __construct($encoded)
     {

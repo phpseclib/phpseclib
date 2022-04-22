@@ -23,7 +23,6 @@ use phpseclib3\Math\BigInteger\Engines\PHP\Base;
  *
  * @package PHP
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class Barrett extends Base
 {

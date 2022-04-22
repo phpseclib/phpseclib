@@ -33,7 +33,6 @@ abstract class Strings
      *
      * @param string $string
      * @param int $index
-     * @access public
      * @return string
      */
     public static function shift(&$string, $index = 1)
@@ -50,7 +49,6 @@ abstract class Strings
      *
      * @param string $string
      * @param int $index
-     * @access public
      * @return string
      */
     public static function pop(&$string, $index = 1)
@@ -160,7 +158,6 @@ abstract class Strings
      *
      * @param string $format
      * @param string|int|float|array|bool ...$elements
-     * @access public
      * @return string
      */
     public static function packSSH2($format, ...$elements)
@@ -233,7 +230,6 @@ abstract class Strings
      *
      * Converts C5 to CCCCC, for example.
      *
-     * @access private
      * @param string $format
      * @return string
      */
@@ -257,7 +253,6 @@ abstract class Strings
      * of this function, bin refers to base-256 encoded data whilst bits refers
      * to base-2 encoded data
      *
-     * @access public
      * @param string $x
      * @return string
      */
@@ -304,7 +299,6 @@ abstract class Strings
     /**
      * Convert bits to binary data
      *
-     * @access public
      * @param string $x
      * @return string
      */
@@ -343,7 +337,6 @@ abstract class Strings
     /**
      * Switch Endianness Bit Order
      *
-     * @access public
      * @param string $x
      * @return string
      */
@@ -374,7 +367,6 @@ abstract class Strings
      *
      * @param string $var
      * @return string
-     * @access public
      */
     public static function increment_str(&$var)
     {

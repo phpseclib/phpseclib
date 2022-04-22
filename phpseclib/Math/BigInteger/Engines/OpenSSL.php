@@ -23,7 +23,6 @@ use phpseclib3\Math\BigInteger;
  *
  * @package Engines
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class OpenSSL
 {

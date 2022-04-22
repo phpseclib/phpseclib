@@ -20,7 +20,6 @@ use phpseclib3\Crypt\DSA;
  *
  * @package DSA
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Parameters extends DSA
 {

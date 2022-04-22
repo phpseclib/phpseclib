@@ -32,7 +32,6 @@ use phpseclib3\Math\Common\FiniteField\Integer as Base;
  *
  * @package Math
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Integer extends Base
 {
@@ -503,7 +502,6 @@ class Integer extends Base
     /**
      *  __toString() magic method
      *
-     * @access public
      */
     public function __toString()
     {
@@ -513,7 +511,6 @@ class Integer extends Base
     /**
      *  __debugInfo() magic method
      *
-     * @access public
      */
     public function __debugInfo()
     {

@@ -25,21 +25,18 @@ use phpseclib3\Math\BigInteger;
  *
  * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class MontgomeryPublic
 {
     /**
      * Is invisible flag
      *
-     * @access private
      */
     const IS_INVISIBLE = true;
 
     /**
      * Break a public or private key down into its constituent components
      *
-     * @access public
      * @param string $key
      * @param string $password optional
      * @return array
@@ -66,7 +63,6 @@ abstract class MontgomeryPublic
     /**
      * Convert an EC public key to the appropriate format
      *
-     * @access public
      * @param \phpseclib3\Crypt\EC\BaseCurves\Montgomery $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @return string

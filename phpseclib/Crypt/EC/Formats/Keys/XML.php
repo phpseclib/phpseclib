@@ -35,7 +35,6 @@ use phpseclib3\Math\BigInteger;
  *
  * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class XML
 {
@@ -58,7 +57,6 @@ abstract class XML
     /**
      * Break a public or private key down into its constituent components
      *
-     * @access public
      * @param string $key
      * @param string $password optional
      * @return array

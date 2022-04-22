@@ -31,7 +31,6 @@ use phpseclib3\Math\BigInteger;
  *
  * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 trait Common
 {

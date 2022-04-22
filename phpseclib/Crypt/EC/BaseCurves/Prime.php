@@ -34,7 +34,6 @@ use phpseclib3\Math\PrimeField\Integer as PrimeInteger;
  *
  * @package Prime
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Prime extends Base
 {

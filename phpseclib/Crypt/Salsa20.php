@@ -25,7 +25,6 @@ use phpseclib3\Exception\InsufficientSetupException;
  *
  * @package Salsa20
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Salsa20 extends StreamCipher
 {
@@ -51,13 +50,11 @@ class Salsa20 extends StreamCipher
     protected $key_length = 32; // = 256 bits
 
     /**
-     * @access private
      * @see \phpseclib3\Crypt\Salsa20::crypt()
      */
     const ENCRYPT = 0;
 
     /**
-     * @access private
      * @see \phpseclib3\Crypt\Salsa20::crypt()
      */
     const DECRYPT = 1;
@@ -495,7 +492,6 @@ class Salsa20 extends StreamCipher
      *
      * @see self::decrypt()
      * @see self::encrypt()
-     * @access private
      * @param string $ciphertext
      * @return string
      */

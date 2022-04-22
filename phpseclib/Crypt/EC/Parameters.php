@@ -20,7 +20,6 @@ use phpseclib3\Crypt\EC;
  *
  * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Parameters extends EC
 {

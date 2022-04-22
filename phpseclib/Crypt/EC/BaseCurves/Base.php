@@ -22,7 +22,6 @@ use phpseclib3\Math\BigInteger;
  *
  * @package Prime
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class Base
 {

@@ -22,7 +22,6 @@ use phpseclib3\Crypt\Common\Formats\Signature\Raw as Progenitor;
  *
  * @package DSA
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class Raw extends Progenitor
 {

@@ -22,7 +22,6 @@ namespace phpseclib3\Math\BigInteger\Engines;
  *
  * @package PHP
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class PHP64 extends PHP
 {
@@ -251,7 +250,6 @@ class PHP64 extends PHP
      *
      * @param PHP64 $y
      * @return int in case < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
-     * @access public
      * @see self::equals()
      */
     public function compare(PHP64 $y)

@@ -26,7 +26,6 @@ use phpseclib3\Math\BigInteger;
  *
  * @package Engine
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class Engine implements \JsonSerializable
 {

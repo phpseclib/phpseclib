@@ -24,7 +24,6 @@ use phpseclib3\File\ASN1;
  *
  * @package ASN1
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class SpecifiedECDomain
 {

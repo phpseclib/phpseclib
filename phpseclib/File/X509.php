@@ -47,7 +47,6 @@ use phpseclib3\Math\BigInteger;
  *
  * @package X509
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class X509
 {
@@ -56,49 +55,42 @@ class X509
      *
      * Not really used anymore but retained all the same to suppress E_NOTICEs from old installs
      *
-     * @access public
      */
     const VALIDATE_SIGNATURE_BY_CA = 1;
 
     /**
      * Return internal array representation
      *
-     * @access public
      * @see \phpseclib3\File\X509::getDN()
      */
     const DN_ARRAY = 0;
     /**
      * Return string
      *
-     * @access public
      * @see \phpseclib3\File\X509::getDN()
      */
     const DN_STRING = 1;
     /**
      * Return ASN.1 name string
      *
-     * @access public
      * @see \phpseclib3\File\X509::getDN()
      */
     const DN_ASN1 = 2;
     /**
      * Return OpenSSL compatible array
      *
-     * @access public
      * @see \phpseclib3\File\X509::getDN()
      */
     const DN_OPENSSL = 3;
     /**
      * Return canonical ASN.1 RDNs string
      *
-     * @access public
      * @see \phpseclib3\File\X509::getDN()
      */
     const DN_CANON = 4;
     /**
      * Return name hash for file indexing
      *
-     * @access public
      * @see \phpseclib3\File\X509::getDN()
      */
     const DN_HASH = 5;
@@ -108,7 +100,6 @@ class X509
      *
      * ie. a base64-encoded PEM with a header and a footer
      *
-     * @access public
      * @see \phpseclib3\File\X509::saveX509()
      * @see \phpseclib3\File\X509::saveCSR()
      * @see \phpseclib3\File\X509::saveCRL()
@@ -117,7 +108,6 @@ class X509
     /**
      * Save as DER
      *
-     * @access public
      * @see \phpseclib3\File\X509::saveX509()
      * @see \phpseclib3\File\X509::saveCSR()
      * @see \phpseclib3\File\X509::saveCRL()
@@ -126,7 +116,6 @@ class X509
     /**
      * Save as a SPKAC
      *
-     * @access public
      * @see \phpseclib3\File\X509::saveX509()
      * @see \phpseclib3\File\X509::saveCSR()
      * @see \phpseclib3\File\X509::saveCRL()
@@ -139,7 +128,6 @@ class X509
      *
      * Used only by the load*() functions
      *
-     * @access public
      * @see \phpseclib3\File\X509::saveX509()
      * @see \phpseclib3\File\X509::saveCSR()
      * @see \phpseclib3\File\X509::saveCRL()
@@ -158,7 +146,6 @@ class X509
      * Distinguished Name
      *
      * @var array
-     * @access private
      */
     private $dn;
 
@@ -166,7 +153,6 @@ class X509
      * Public key
      *
      * @var string|PublicKey
-     * @access private
      */
     private $publicKey;
 
@@ -174,7 +160,6 @@ class X509
      * Private key
      *
      * @var string|PrivateKey
-     * @access private
      */
     private $privateKey;
 
@@ -182,7 +167,6 @@ class X509
      * Object identifiers for X.509 certificates
      *
      * @var array
-     * @access private
      * @link http://en.wikipedia.org/wiki/Object_identifier
      */
     private $oids;
@@ -191,7 +175,6 @@ class X509
      * The certificate authorities
      *
      * @var array
-     * @access private
      */
     private $CAs;
 
@@ -199,7 +182,6 @@ class X509
      * The currently loaded certificate
      *
      * @var array
-     * @access private
      */
     private $currentCert;
 
@@ -210,7 +192,6 @@ class X509
      * encoded so we take save the portion of the original cert that the signature would have made for.
      *
      * @var string
-     * @access private
      */
     private $signatureSubject;
 
@@ -218,7 +199,6 @@ class X509
      * Certificate Start Date
      *
      * @var string
-     * @access private
      */
     private $startDate;
 
@@ -226,7 +206,6 @@ class X509
      * Certificate End Date
      *
      * @var string|Element
-     * @access private
      */
     private $endDate;
 
@@ -234,7 +213,6 @@ class X509
      * Serial Number
      *
      * @var string
-     * @access private
      */
     private $serialNumber;
 
@@ -245,7 +223,6 @@ class X509
      * {@link http://tools.ietf.org/html/rfc5280#section-4.2.1.2 RFC5280#section-4.2.1.2}.
      *
      * @var string
-     * @access private
      */
     private $currentKeyIdentifier;
 
@@ -253,7 +230,6 @@ class X509
      * CA Flag
      *
      * @var bool
-     * @access private
      */
     private $caFlag = false;
 
@@ -261,13 +237,11 @@ class X509
      * SPKAC Challenge
      *
      * @var string
-     * @access private
      */
     private $challenge;
 
     /**
      * @var array
-     * @access private
      */
     private $extensionValues = [];
 
@@ -275,7 +249,6 @@ class X509
      * OIDs loaded
      *
      * @var bool
-     * @access private
      */
     private static $oidsLoaded = false;
 
@@ -283,7 +256,6 @@ class X509
      * Recursion Limit
      *
      * @var int
-     * @access private
      */
     private static $recur_limit = 5;
 
@@ -291,25 +263,21 @@ class X509
      * URL fetch flag
      *
      * @var bool
-     * @access private
      */
     private static $disable_url_fetch = false;
 
     /**
      * @var array
-     * @access private
      */
     private static $extensions = [];
 
     /**
      * @var ?array
-     * @access private
      */
     private $ipAddresses = null;
 
     /**
      * @var ?array
-     * @access private
      */
     private $domains = null;
 
@@ -317,7 +285,6 @@ class X509
      * Default Constructor.
      *
      * @return \phpseclib3\File\X509
-     * @access public
      */
     public function __construct()
     {
@@ -468,7 +435,6 @@ class X509
      *
      * @param string $cert
      * @param int $mode
-     * @access public
      * @return mixed
      */
     public function loadX509($cert, $mode = self::FORMAT_AUTO_DETECT)
@@ -542,7 +508,6 @@ class X509
      *
      * @param array $cert
      * @param int $format optional
-     * @access public
      * @return string
      */
     public function saveX509($cert, $format = self::FORMAT_PEM)
@@ -614,7 +579,6 @@ class X509
      *
      * @param array $root (by reference)
      * @param string $path
-     * @access private
      */
     private function mapInExtensions(&$root, $path)
     {
@@ -663,7 +627,6 @@ class X509
      *
      * @param array $root (by reference)
      * @param string $path
-     * @access private
      */
     private function mapOutExtensions(&$root, $path)
     {
@@ -745,7 +708,6 @@ class X509
      *
      * @param array $root (by reference)
      * @param string $path
-     * @access private
      */
     private function mapInAttributes(&$root, $path)
     {
@@ -785,7 +747,6 @@ class X509
      *
      * @param array $root (by reference)
      * @param string $path
-     * @access private
      */
     private function mapOutAttributes(&$root, $path)
     {
@@ -827,7 +788,6 @@ class X509
      *
      * @param array $root (by reference)
      * @param string $path
-     * @access private
      */
     private function mapInDNs(&$root, $path)
     {
@@ -856,7 +816,6 @@ class X509
      *
      * @param array $root (by reference)
      * @param string $path
-     * @access private
      */
     private function mapOutDNs(&$root, $path)
     {
@@ -885,7 +844,6 @@ class X509
      * Associate an extension ID to an extension mapping
      *
      * @param string $extnId
-     * @access private
      * @return mixed
      */
     private function getMapping($extnId)
@@ -995,7 +953,6 @@ class X509
      * Load an X.509 certificate as a certificate authority
      *
      * @param string $cert
-     * @access public
      * @return bool
      */
     public function loadCA($cert)
@@ -1062,7 +1019,6 @@ class X509
      * not bar.foo.a.com. f*.com matches foo.com but not bar.com.
      *
      * @param string $url
-     * @access public
      * @return bool
      */
     public function validateURL($url)
@@ -1122,7 +1078,6 @@ class X509
      * If $date isn't defined it is assumed to be the current date.
      *
      * @param \DateTimeInterface|string $date optional
-     * @access public
      * @return bool
      */
     public function validateDate($date = null)
@@ -1155,7 +1110,6 @@ class X509
      * Fetches a URL
      *
      * @param string $url
-     * @access private
      * @return bool|string
      */
     private static function fetchURL($url)
@@ -1211,7 +1165,6 @@ class X509
      *
      * @param bool $caonly
      * @param int $count
-     * @access private
      * @return bool
      */
     private function testForIntermediate($caonly, $count)
@@ -1278,7 +1231,6 @@ class X509
      * The behavior of this function is inspired by {@link http://php.net/openssl-verify openssl_verify}.
      *
      * @param bool $caonly optional
-     * @access public
      * @return mixed
      */
     public function validateSignature($caonly = true)
@@ -1293,7 +1245,6 @@ class X509
      *
      * @param bool $caonly
      * @param int $count
-     * @access private
      * @return mixed
      */
     private function validateSignatureCountable($caonly, $count)
@@ -1427,7 +1378,6 @@ class X509
      * @param string $signatureAlgorithm
      * @param string $signature
      * @param string $signatureSubject
-     * @access private
      * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @return bool
      */
@@ -1502,7 +1452,6 @@ class X509
      * that we set a recursion limit. A negative number means that there is no recursion limit.
      *
      * @param int $count
-     * @access public
      */
     public static function setRecurLimit($count)
     {
@@ -1512,7 +1461,6 @@ class X509
     /**
      * Prevents URIs from being automatically retrieved
      *
-     * @access public
      */
     public static function disableURLFetch()
     {
@@ -1522,7 +1470,6 @@ class X509
     /**
      * Allows URIs to be automatically retrieved
      *
-     * @access public
      */
     public static function enableURLFetch()
     {
@@ -1535,7 +1482,6 @@ class X509
      * Takes in a base64 encoded "blob" and returns a human readable IP address
      *
      * @param string $ip
-     * @access private
      * @return string
      */
     public static function decodeIP($ip)
@@ -1549,7 +1495,6 @@ class X509
      * Takes in a base64 encoded "blob" and returns a human readable IP address / mask
      *
      * @param string $ip
-     * @access private
      * @return array
      */
     public static function decodeNameConstraintIP($ip)
@@ -1566,7 +1511,6 @@ class X509
      * Takes a human readable IP address into a base64-encoded "blob"
      *
      * @param string|array $ip
-     * @access private
      * @return string
      */
     public static function encodeIP($ip)
@@ -1580,7 +1524,6 @@ class X509
      * "Normalizes" a Distinguished Name property
      *
      * @param string $propName
-     * @access private
      * @return mixed
      */
     private function translateDNProp($propName)
@@ -1674,7 +1617,6 @@ class X509
      * @param string $propName
      * @param mixed $propValue
      * @param string $type optional
-     * @access public
      * @return bool
      */
     public function setDNProp($propName, $propValue, $type = 'utf8String')
@@ -1706,7 +1648,6 @@ class X509
      * Remove Distinguished Name properties
      *
      * @param string $propName
-     * @access public
      */
     public function removeDNProp($propName)
     {
@@ -1740,7 +1681,6 @@ class X509
      * @param array $dn optional
      * @param bool $withType optional
      * @return mixed
-     * @access public
      */
     public function getDNProp($propName, $dn = null, $withType = false)
     {
@@ -1801,7 +1741,6 @@ class X509
      * @param mixed $dn
      * @param bool $merge optional
      * @param string $type optional
-     * @access public
      * @return bool
      */
     public function setDN($dn, $merge = false, $type = 'utf8String')
@@ -1843,7 +1782,6 @@ class X509
      *
      * @param mixed $format optional
      * @param array $dn optional
-     * @access public
      * @return array|bool|string
      */
     public function getDN($format = self::DN_ARRAY, $dn = null)
@@ -1985,7 +1923,6 @@ class X509
      * Get the Distinguished Name for a certificate/crl issuer
      *
      * @param int $format optional
-     * @access public
      * @return mixed
      */
     public function getIssuerDN($format = self::DN_ARRAY)
@@ -2007,7 +1944,6 @@ class X509
      * Alias of getDN()
      *
      * @param int $format optional
-     * @access public
      * @return mixed
      */
     public function getSubjectDN($format = self::DN_ARRAY)
@@ -2031,7 +1967,6 @@ class X509
      *
      * @param string $propName
      * @param bool $withType optional
-     * @access public
      * @return mixed
      */
     public function getIssuerDNProp($propName, $withType = false)
@@ -2053,7 +1988,6 @@ class X509
      *
      * @param string $propName
      * @param bool $withType optional
-     * @access public
      * @return mixed
      */
     public function getSubjectDNProp($propName, $withType = false)
@@ -2075,7 +2009,6 @@ class X509
     /**
      * Get the certificate chain for the current cert
      *
-     * @access public
      * @return mixed
      */
     public function getChain()
@@ -2120,7 +2053,6 @@ class X509
     /**
      * Returns the current cert
      *
-     * @access public
      * @return array|bool
      */
     public function &getCurrentCert()
@@ -2134,7 +2066,6 @@ class X509
      * Key needs to be a \phpseclib3\Crypt\RSA object
      *
      * @param PublicKey $key
-     * @access public
      * @return void
      */
     public function setPublicKey(PublicKey $key)
@@ -2148,7 +2079,6 @@ class X509
      * Key needs to be a \phpseclib3\Crypt\RSA object
      *
      * @param PrivateKey $key
-     * @access public
      */
     public function setPrivateKey(PrivateKey $key)
     {
@@ -2161,7 +2091,6 @@ class X509
      * Used for SPKAC CSR's
      *
      * @param string $challenge
-     * @access public
      */
     public function setChallenge($challenge)
     {
@@ -2173,7 +2102,6 @@ class X509
      *
      * Returns a \phpseclib3\Crypt\RSA object or a false.
      *
-     * @access public
      * @return mixed
      */
     public function getPublicKey()
@@ -2223,7 +2151,6 @@ class X509
      * @param string $csr
      * @param int $mode
      * @return mixed
-     * @access public
      */
     public function loadCSR($csr, $mode = self::FORMAT_AUTO_DETECT)
     {
@@ -2297,7 +2224,6 @@ class X509
      *
      * @param array $csr
      * @param int $format optional
-     * @access public
      * @return string
      */
     public function saveCSR($csr, $format = self::FORMAT_PEM)
@@ -2343,7 +2269,6 @@ class X509
      * https://developer.mozilla.org/en-US/docs/HTML/Element/keygen
      *
      * @param string $spkac
-     * @access public
      * @return mixed
      */
     public function loadSPKAC($spkac)
@@ -2408,7 +2333,6 @@ class X509
      *
      * @param array $spkac
      * @param int $format optional
-     * @access public
      * @return string
      */
     public function saveSPKAC($spkac, $format = self::FORMAT_PEM)
@@ -2447,7 +2371,6 @@ class X509
      * @param string $crl
      * @param int $mode
      * @return mixed
-     * @access public
      */
     public function loadCRL($crl, $mode = self::FORMAT_AUTO_DETECT)
     {
@@ -2513,7 +2436,6 @@ class X509
      *
      * @param array $crl
      * @param int $format optional
-     * @access public
      * @return string
      */
     public function saveCRL($crl, $format = self::FORMAT_PEM)
@@ -2571,7 +2493,6 @@ class X509
      * by choosing utcTime iff year of date given is before 2050 and generalTime else.
      *
      * @param string $date in format date('D, d M Y H:i:s O')
-     * @access private
      * @return array|Element
      */
     private function timeField($date)
@@ -2597,7 +2518,6 @@ class X509
      *
      * @param \phpseclib3\File\X509 $issuer
      * @param \phpseclib3\File\X509 $subject
-     * @access public
      * @return mixed
      */
     public function sign($issuer, $subject)
@@ -2790,7 +2710,6 @@ class X509
     /**
      * Sign a CSR
      *
-     * @access public
      * @return mixed
      */
     public function signCSR()
@@ -2845,7 +2764,6 @@ class X509
     /**
      * Sign a SPKAC
      *
-     * @access public
      * @return mixed
      */
     public function signSPKAC()
@@ -2910,7 +2828,6 @@ class X509
      *
      * @param \phpseclib3\File\X509 $issuer
      * @param \phpseclib3\File\X509 $crl
-     * @access public
      * @return mixed
      */
     public function signCRL($issuer, $crl)
@@ -3041,7 +2958,6 @@ class X509
      * Identify signature algorithm from key settings
      *
      * @param PrivateKey $key
-     * @access private
      * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      * @return string
      */
@@ -3098,7 +3014,6 @@ class X509
      * Set certificate start date
      *
      * @param \DateTimeInterface|string $date
-     * @access public
      */
     public function setStartDate($date)
     {
@@ -3113,7 +3028,6 @@ class X509
      * Set certificate end date
      *
      * @param \DateTimeInterface|string $date
-     * @access public
      */
     public function setEndDate($date)
     {
@@ -3142,7 +3056,6 @@ class X509
      *
      * @param string $serial
      * @param int $base optional
-     * @access public
      */
     public function setSerialNumber($serial, $base = -256)
     {
@@ -3152,7 +3065,6 @@ class X509
     /**
      * Turns the certificate into a certificate authority
      *
-     * @access public
      */
     public function makeCA()
     {
@@ -3169,7 +3081,6 @@ class X509
      * @param array $root
      * @param string $path
      * @return boolean
-     * @access private
      */
     private function isSubArrayValid($root, $path)
     {
@@ -3205,7 +3116,6 @@ class X509
      * @param array $root
      * @param string $path  absolute path with / as component separator
      * @param bool $create optional
-     * @access private
      * @return array|false
      */
     private function &subArrayUnchecked(&$root, $path, $create = false)
@@ -3233,7 +3143,6 @@ class X509
      * @param array $root
      * @param string $path  absolute path with / as component separator
      * @param bool $create optional
-     * @access private
      * @return array|false
      */
     private function &subArray(&$root, $path, $create = false)
@@ -3269,7 +3178,6 @@ class X509
      * @param array $root
      * @param string $path optional absolute path with / as component separator
      * @param bool $create optional
-     * @access private
      * @return array|false
      */
     private function &extensions(&$root, $path = null, $create = false)
@@ -3323,7 +3231,6 @@ class X509
      *
      * @param string $id
      * @param string $path optional
-     * @access private
      * @return bool
      */
     private function removeExtensionHelper($id, $path = null)
@@ -3358,7 +3265,6 @@ class X509
      * @param string $id
      * @param array $cert optional
      * @param string $path optional
-     * @access private
      * @return mixed
      */
     private function getExtensionHelper($id, $cert = null, $path = null)
@@ -3383,7 +3289,6 @@ class X509
      *
      * @param array $cert optional
      * @param string $path optional
-     * @access private
      * @return array
      */
     private function getExtensionsHelper($cert = null, $path = null)
@@ -3408,7 +3313,6 @@ class X509
      * @param bool $critical optional
      * @param bool $replace optional
      * @param string $path optional
-     * @access private
      * @return bool
      */
     private function setExtensionHelper($id, $value, $critical = false, $replace = true, $path = null)
@@ -3440,7 +3344,6 @@ class X509
      * Remove a certificate, CSR or CRL Extension
      *
      * @param string $id
-     * @access public
      * @return bool
      */
     public function removeExtension($id)
@@ -3456,7 +3359,6 @@ class X509
      * @param string $id
      * @param array $cert optional
      * @param string $path
-     * @access public
      * @return mixed
      */
     public function getExtension($id, $cert = null, $path = null)
@@ -3469,7 +3371,6 @@ class X509
      *
      * @param array $cert optional
      * @param string $path optional
-     * @access public
      * @return array
      */
     public function getExtensions($cert = null, $path = null)
@@ -3484,7 +3385,6 @@ class X509
      * @param mixed $value
      * @param bool $critical optional
      * @param bool $replace optional
-     * @access public
      * @return bool
      */
     public function setExtension($id, $value, $critical = false, $replace = true)
@@ -3497,7 +3397,6 @@ class X509
      *
      * @param string $id
      * @param int $disposition optional
-     * @access public
      * @return bool
      */
     public function removeAttribute($id, $disposition = self::ATTR_ALL)
@@ -3548,7 +3447,6 @@ class X509
      * @param string $id
      * @param int $disposition optional
      * @param array $csr optional
-     * @access public
      * @return mixed
      */
     public function getAttribute($id, $disposition = self::ATTR_ALL, $csr = null)
@@ -3588,7 +3486,6 @@ class X509
      * Returns a list of all CSR attributes in use
      *
      * @param array $csr optional
-     * @access public
      * @return array
      */
     public function getAttributes($csr = null)
@@ -3615,7 +3512,6 @@ class X509
      * @param string $id
      * @param mixed $value
      * @param int $disposition optional
-     * @access public
      * @return bool
      */
     public function setAttribute($id, $value, $disposition = self::ATTR_ALL)
@@ -3672,7 +3568,6 @@ class X509
      * This is used by the id-ce-authorityKeyIdentifier and the id-ce-subjectKeyIdentifier extensions.
      *
      * @param string $value
-     * @access public
      */
     public function setKeyIdentifier($value)
     {
@@ -3698,7 +3593,6 @@ class X509
      *
      * @param mixed $key optional
      * @param int $method optional
-     * @access public
      * @return string binary key identifier
      */
     public function computeKeyIdentifier($key = null, $method = 1)
@@ -3767,7 +3661,6 @@ class X509
     /**
      * Format a public key as appropriate
      *
-     * @access private
      * @return array|false
      */
     private function formatSubjectPublicKey()
@@ -3793,7 +3686,6 @@ class X509
      * Set the domain name's which the cert is to be valid for
      *
      * @param mixed ...$domains
-     * @access public
      * @return void
      */
     public function setDomain(...$domains)
@@ -3806,7 +3698,6 @@ class X509
     /**
      * Set the IP Addresses's which the cert is to be valid for
      *
-     * @access public
      * @param mixed[] ...$ipAddresses
      */
     public function setIPAddress(...$ipAddresses)
@@ -3823,7 +3714,6 @@ class X509
     /**
      * Helper function to build domain array
      *
-     * @access private
      * @param string $domain
      * @return array
      */
@@ -3837,7 +3727,6 @@ class X509
      *
      * (IPv6 is not currently supported)
      *
-     * @access private
      * @param string $address
      * @return array
      */
@@ -3852,7 +3741,6 @@ class X509
      * @param array $rclist
      * @param string $serial
      * @param bool $create optional
-     * @access private
      * @return int|false
      */
     private function revokedCertificate(&$rclist, $serial, $create = false)
@@ -3881,7 +3769,6 @@ class X509
      *
      * @param string $serial
      * @param string $date optional
-     * @access public
      * @return bool
      */
     public function revoke($serial, $date = null)
@@ -3907,7 +3794,6 @@ class X509
      * Unrevoke a certificate.
      *
      * @param string $serial
-     * @access public
      * @return bool
      */
     public function unrevoke($serial)
@@ -3927,7 +3813,6 @@ class X509
      * Get a revoked certificate.
      *
      * @param string $serial
-     * @access public
      * @return mixed
      */
     public function getRevoked($serial)
@@ -3945,7 +3830,6 @@ class X509
      * List revoked certificates
      *
      * @param array $crl optional
-     * @access public
      * @return array|bool
      */
     public function listRevoked($crl = null)
@@ -3974,7 +3858,6 @@ class X509
      *
      * @param string $serial
      * @param string $id
-     * @access public
      * @return bool
      */
     public function removeRevokedCertificateExtension($serial, $id)
@@ -3996,7 +3879,6 @@ class X509
      * @param string $serial
      * @param string $id
      * @param array $crl optional
-     * @access public
      * @return mixed
      */
     public function getRevokedCertificateExtension($serial, $id, $crl = null)
@@ -4019,7 +3901,6 @@ class X509
      *
      * @param string $serial
      * @param array $crl optional
-     * @access public
      * @return array|bool
      */
     public function getRevokedCertificateExtensions($serial, $crl = null)
@@ -4045,7 +3926,6 @@ class X509
      * @param mixed $value
      * @param bool $critical optional
      * @param bool $replace optional
-     * @access public
      * @return bool
      */
     public function setRevokedCertificateExtension($serial, $id, $value, $critical = false, $replace = true)

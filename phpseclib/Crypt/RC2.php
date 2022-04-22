@@ -42,7 +42,6 @@ use phpseclib3\Exception\BadModeException;
  * Pure-PHP implementation of RC2.
  *
  * @package RC2
- * @access  public
  */
 class RC2 extends BlockCipher
 {
@@ -51,7 +50,6 @@ class RC2 extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::block_size
      * @var int
-     * @access private
      */
     protected $block_size = 8;
 
@@ -61,7 +59,6 @@ class RC2 extends BlockCipher
      * @see \phpseclib3\Crypt\Common\SymmetricKey::key
      * @see self::setKey()
      * @var string
-     * @access private
      */
     protected $key;
 
@@ -73,7 +70,6 @@ class RC2 extends BlockCipher
      * @see self::encrypt()
      * @see self::decrypt()
      * @var string
-     * @access private
      */
     private $orig_key;
 
@@ -82,7 +78,6 @@ class RC2 extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::clearBuffers()
      * @var bool
-     * @access private
      */
     private $skip_key_adjustment = true;
 
@@ -91,7 +86,6 @@ class RC2 extends BlockCipher
      *
      * @see \phpseclib3\Crypt\RC2::setKeyLength()
      * @var int
-     * @access private
      */
     protected $key_length = 16; // = 128 bits
 
@@ -100,7 +94,6 @@ class RC2 extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
      * @var string
-     * @access private
      */
     protected $cipher_name_mcrypt = 'rc2';
 
@@ -109,7 +102,6 @@ class RC2 extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::cfb_init_len
      * @var int
-     * @access private
      */
     protected $cfb_init_len = 500;
 
@@ -123,7 +115,6 @@ class RC2 extends BlockCipher
      * @see self::setKeyLength()
      * @see self::setKey()
      * @var int
-     * @access private
      */
     private $default_key_length = 1024;
 
@@ -135,7 +126,6 @@ class RC2 extends BlockCipher
      * @see self::isValidEnine()
      * @see self::setKey()
      * @var int
-     * @access private
      */
     private $current_key_length;
 
@@ -144,7 +134,6 @@ class RC2 extends BlockCipher
      *
      * @see self::setupKey()
      * @var array
-     * @access private
      */
     private $keys;
 
@@ -154,7 +143,6 @@ class RC2 extends BlockCipher
      *
      * @see self::setKey()
      * @var array
-     * @access private
      */
     private static $pitable = [
         0xD9, 0x78, 0xF9, 0xC4, 0x19, 0xDD, 0xB5, 0xED,
@@ -228,7 +216,6 @@ class RC2 extends BlockCipher
      *
      * @see self::setKey()
      * @var array
-     * @access private
      */
     private static $invpitable = [
         0xD1, 0xDA, 0xB9, 0x6F, 0x9C, 0xC8, 0x78, 0x66,
@@ -269,7 +256,6 @@ class RC2 extends BlockCipher
      * Default Constructor.
      *
      * @param string $mode
-     * @access public
      * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
     public function __construct($mode)
@@ -288,7 +274,6 @@ class RC2 extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      * @param int $engine
-     * @access protected
      * @return bool
      */
     protected function isValidEngineHelper($engine)
@@ -312,7 +297,6 @@ class RC2 extends BlockCipher
      * Calling this function after setting the key has no effect until the next
      *  \phpseclib3\Crypt\RC2::setKey() call.
      *
-     * @access public
      * @param int $length in bits
      * @throws \LengthException if the key length isn't supported
      */
@@ -329,7 +313,6 @@ class RC2 extends BlockCipher
     /**
      * Returns the current key length
      *
-     * @access public
      * @return int
      */
     public function getKeyLength()
@@ -346,7 +329,6 @@ class RC2 extends BlockCipher
      * it is empty.
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
-     * @access public
      * @param string $key
      * @param int|boolean $t1 optional Effective key length in bits.
      * @throws \LengthException if the key length isn't supported
@@ -408,7 +390,6 @@ class RC2 extends BlockCipher
      * Mostly a wrapper for \phpseclib3\Crypt\Common\SymmetricKey::encrypt, with some additional OpenSSL handling code
      *
      * @see self::decrypt()
-     * @access public
      * @param string $plaintext
      * @return string $ciphertext
      */
@@ -431,7 +412,6 @@ class RC2 extends BlockCipher
      * Mostly a wrapper for \phpseclib3\Crypt\Common\SymmetricKey::decrypt, with some additional OpenSSL handling code
      *
      * @see self::encrypt()
-     * @access public
      * @param string $ciphertext
      * @return string $plaintext
      */
@@ -453,7 +433,6 @@ class RC2 extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::encryptBlock()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @access private
      * @param string $in
      * @return string
      */
@@ -498,7 +477,6 @@ class RC2 extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::decryptBlock()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
-     * @access private
      * @param string $in
      * @return string
      */
@@ -542,7 +520,6 @@ class RC2 extends BlockCipher
      * Creates the key schedule
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setupKey()
-     * @access private
      */
     protected function setupKey()
     {
@@ -563,7 +540,6 @@ class RC2 extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setupInlineCrypt()
-     * @access private
      */
     protected function setupInlineCrypt()
     {

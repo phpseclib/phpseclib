@@ -18,7 +18,6 @@ namespace phpseclib3\Crypt\Common;
  *
  * @package Common
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 interface PublicKey
 {

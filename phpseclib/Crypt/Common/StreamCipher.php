@@ -31,7 +31,6 @@ abstract class StreamCipher extends SymmetricKey
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::block_size
      * @var int
-     * @access private
      */
     protected $block_size = 0;
 
@@ -49,7 +48,6 @@ abstract class StreamCipher extends SymmetricKey
     /**
      * Stream ciphers not use an IV
      *
-     * @access public
      * @return bool
      */
     public function usesIV()

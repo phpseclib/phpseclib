@@ -38,7 +38,6 @@ use phpseclib3\Math\PrimeField;
  *
  * @package KoblitzPrime
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class KoblitzPrime extends Prime
 {

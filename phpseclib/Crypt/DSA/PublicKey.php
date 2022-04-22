@@ -22,7 +22,6 @@ use phpseclib3\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
  *
  * @package DSA
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class PublicKey extends DSA implements Common\PublicKey
 {
@@ -32,7 +31,6 @@ class PublicKey extends DSA implements Common\PublicKey
      * Verify a signature
      *
      * @see self::verify()
-     * @access public
      * @param string $message
      * @param string $signature
      * @return mixed

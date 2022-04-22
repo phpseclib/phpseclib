@@ -42,7 +42,6 @@ use phpseclib3\Math\BigInteger;
  *
  * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class PKCS8 extends Progenitor
 {
@@ -52,7 +51,6 @@ abstract class PKCS8 extends Progenitor
      * OID Name
      *
      * @var array
-     * @access private
      */
     const OID_NAME = ['id-ecPublicKey', 'id-Ed25519', 'id-Ed448'];
 
@@ -60,14 +58,12 @@ abstract class PKCS8 extends Progenitor
      * OID Value
      *
      * @var string
-     * @access private
      */
     const OID_VALUE = ['1.2.840.10045.2.1', '1.3.101.112', '1.3.101.113'];
 
     /**
      * Break a public or private key down into its constituent components
      *
-     * @access public
      * @param string $key
      * @param string $password optional
      * @return array
@@ -172,7 +168,6 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert an EC public key to the appropriate format
      *
-     * @access public
      * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @param array $options optional
@@ -204,7 +199,6 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @access public
      * @param \phpseclib3\Math\BigInteger $privateKey
      * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey

@@ -19,7 +19,6 @@ namespace phpseclib3\Math\Common;
  *
  * @package Math
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class FiniteField
 {

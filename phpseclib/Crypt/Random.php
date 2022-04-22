@@ -29,7 +29,6 @@ namespace phpseclib3\Crypt;
  *
  * @package Random
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class Random
 {

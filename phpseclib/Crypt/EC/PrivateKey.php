@@ -31,7 +31,6 @@ use phpseclib3\Math\BigInteger;
  *
  * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class PrivateKey extends EC implements Common\PrivateKey
 {
@@ -85,7 +84,6 @@ class PrivateKey extends EC implements Common\PrivateKey
      * Create a signature
      *
      * @see self::verify()
-     * @access public
      * @param string $message
      * @return mixed
      */
@@ -229,7 +227,6 @@ class PrivateKey extends EC implements Common\PrivateKey
      * Returns the public key
      *
      * @see self::getPrivateKey()
-     * @access public
      * @return mixed
      */
     public function getPublicKey()

@@ -30,7 +30,6 @@ use phpseclib3\Math\BigInteger;
  *
  * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class PublicKey extends EC implements Common\PublicKey
 {
@@ -40,7 +39,6 @@ class PublicKey extends EC implements Common\PublicKey
      * Verify a signature
      *
      * @see self::verify()
-     * @access public
      * @param string $message
      * @param string $signature
      * @return mixed

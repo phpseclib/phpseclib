@@ -23,7 +23,6 @@ use phpseclib3\Math\BigInteger\Engines\BCMath\Base;
  *
  * @package PHP
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class EvalBarrett extends Base
 {

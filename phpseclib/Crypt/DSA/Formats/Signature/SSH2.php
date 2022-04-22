@@ -25,14 +25,12 @@ use phpseclib3\Math\BigInteger;
  *
  * @package Common
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class SSH2
 {
     /**
      * Loads a signature
      *
-     * @access public
      * @param string $sig
      * @return mixed
      */
@@ -60,7 +58,6 @@ abstract class SSH2
     /**
      * Returns a signature in the appropriate format
      *
-     * @access public
      * @param \phpseclib3\Math\BigInteger $r
      * @param \phpseclib3\Math\BigInteger $s
      * @return string

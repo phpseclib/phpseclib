@@ -21,7 +21,6 @@ use phpseclib3\Crypt\DH;
  *
  * @package DH
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class PublicKey extends DH
 {

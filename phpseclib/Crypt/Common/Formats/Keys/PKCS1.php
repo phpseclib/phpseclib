@@ -30,7 +30,6 @@ use phpseclib3\File\ASN1;
  *
  * @package RSA
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class PKCS1 extends PKCS
 {
@@ -38,14 +37,12 @@ abstract class PKCS1 extends PKCS
      * Default encryption algorithm
      *
      * @var string
-     * @access private
      */
     private static $defaultEncryptionAlgorithm = 'AES-128-CBC';
 
     /**
      * Sets the default encryption algorithm
      *
-     * @access public
      * @param string $algo
      */
     public static function setEncryptionAlgorithm($algo)
@@ -56,7 +53,6 @@ abstract class PKCS1 extends PKCS
     /**
      * Returns the mode constant corresponding to the mode string
      *
-     * @access public
      * @param string $mode
      * @return int
      * @throws \UnexpectedValueException if the block cipher mode is unsupported
@@ -77,7 +73,6 @@ abstract class PKCS1 extends PKCS
     /**
      * Returns a cipher object corresponding to a string
      *
-     * @access public
      * @param string $algo
      * @return string
      * @throws \UnexpectedValueException if the encryption algorithm is unsupported
@@ -102,7 +97,6 @@ abstract class PKCS1 extends PKCS
     /**
      * Generate a symmetric key for PKCS#1 keys
      *
-     * @access private
      * @param string $password
      * @param string $iv
      * @param int $length
@@ -121,7 +115,6 @@ abstract class PKCS1 extends PKCS
     /**
      * Break a public or private key down into its constituent components
      *
-     * @access public
      * @param string $key
      * @param string $password optional
      * @return array
@@ -176,7 +169,6 @@ abstract class PKCS1 extends PKCS
     /**
      * Wrap a private key appropriately
      *
-     * @access public
      * @param string $key
      * @param string $type
      * @param string $password
@@ -209,7 +201,6 @@ abstract class PKCS1 extends PKCS
     /**
      * Wrap a public key appropriately
      *
-     * @access public
      * @param string $key
      * @param string $type
      * @return string
