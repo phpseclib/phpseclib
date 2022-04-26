@@ -257,25 +257,28 @@ class Math_BigInteger
             }
         }
 
-        if (function_exists('phpinfo') && extension_loaded('openssl') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
-            // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
-            ob_start();
-            @phpinfo();
-            $content = ob_get_contents();
-            ob_end_clean();
-
-            preg_match_all('#OpenSSL (Header|Library) Version(.*)#im', $content, $matches);
-
+        if (extension_loaded('openssl') && !defined('MATH_BIGINTEGER_OPENSSL_DISABLE') && !defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
             $versions = array();
-            if (!empty($matches[1])) {
-                for ($i = 0; $i < count($matches[1]); $i++) {
-                    $fullVersion = trim(str_replace('=>', '', strip_tags($matches[2][$i])));
 
-                    // Remove letter part in OpenSSL version
-                    if (!preg_match('/(\d+\.\d+\.\d+)/i', $fullVersion, $m)) {
-                        $versions[$matches[1][$i]] = $fullVersion;
-                    } else {
-                        $versions[$matches[1][$i]] = $m[0];
+            if (function_exists('phpinfo')) {
+                // some versions of XAMPP have mismatched versions of OpenSSL which causes it not to work
+                ob_start();
+                @phpinfo();
+                $content = ob_get_contents();
+                ob_end_clean();
+
+                preg_match_all('#OpenSSL (Header|Library) Version(.*)#im', $content, $matches);
+
+                if (!empty($matches[1])) {
+                    for ($i = 0; $i < count($matches[1]); $i++) {
+                        $fullVersion = trim(str_replace('=>', '', strip_tags($matches[2][$i])));
+
+                        // Remove letter part in OpenSSL version
+                        if (!preg_match('/(\d+\.\d+\.\d+)/i', $fullVersion, $m)) {
+                            $versions[$matches[1][$i]] = $fullVersion;
+                        } else {
+                            $versions[$matches[1][$i]] = $m[0];
+                        }
                     }
                 }
             }
