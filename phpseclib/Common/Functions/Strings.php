@@ -5,7 +5,6 @@
  *
  * PHP version 5
  *
- * @package   Functions\Strings
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2016 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -20,7 +19,6 @@ use phpseclib3\Math\Common\FiniteField;
 /**
  * Common String Functions
  *
- * @package Functions\Strings
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 abstract class Strings

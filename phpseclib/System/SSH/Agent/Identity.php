@@ -7,7 +7,6 @@
  *
  * PHP version 5
  *
- * @package   SSH\Agent
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2009 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -24,6 +23,7 @@ use phpseclib3\Crypt\EC;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\System\SSH\Agent;
+use phpseclib3\System\SSH\Common\Traits\ReadBytes;
 
 /**
  * Pure-PHP ssh-agent client identity object
@@ -34,12 +34,12 @@ use phpseclib3\System\SSH\Agent;
  * The methods in this interface would be getPublicKey and sign since those are the
  * methods phpseclib looks for to perform public key authentication.
  *
- * @package SSH\Agent
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @internal
  */
 class Identity implements PrivateKey
 {
-    use \phpseclib3\System\SSH\Common\Traits\ReadBytes;
+    use ReadBytes;
 
     // Signature Flags
     // See https://tools.ietf.org/html/draft-miller-ssh-agent-00#section-5.3

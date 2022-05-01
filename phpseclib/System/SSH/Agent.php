@@ -24,7 +24,6 @@
  * ?>
  * </code>
  *
- * @package   SSH\Agent
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2014 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -44,7 +43,6 @@ use phpseclib3\System\SSH\Agent\Identity;
  *
  * requestIdentities() method pumps out \phpseclib3\System\SSH\Agent\Identity objects
  *
- * @package SSH\Agent
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 class Agent
