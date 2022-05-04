@@ -5,8 +5,6 @@
  *
  * PHP version 5 and 7
  *
- * @category  Math
- * @package   BigInteger
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2017 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -21,9 +19,7 @@ use phpseclib3\Exception\BadConfigurationException;
 /**
  * Pure-PHP Engine.
  *
- * @package PHP
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class PHP extends Engine
 {
@@ -33,7 +29,6 @@ abstract class PHP extends Engine
      * Rather than create a thousands and thousands of new BigInteger objects in repeated function calls to add() and
      * multiply() or whatever, we'll just work directly on arrays, taking them in as parameters and returning them.
      *
-     * @access protected
      */
     /**
      * $result[self::VALUE] contains the value.
@@ -50,7 +45,6 @@ abstract class PHP extends Engine
      *
      * At what point do we switch between Karatsuba multiplication and schoolbook long multiplication?
      *
-     * @access private
      */
     const KARATSUBA_CUTOFF = 25;
 
@@ -59,7 +53,6 @@ abstract class PHP extends Engine
      *
      * @see parent::bitwise_leftRotate()
      * @see parent::bitwise_rightRotate()
-     * @access protected
      */
     const FAST_BITWISE = true;
 
@@ -67,7 +60,6 @@ abstract class PHP extends Engine
      * Engine Directory
      *
      * @see parent::setModExpEngine
-     * @access protected
      */
     const ENGINE_DIR = 'PHP';
 

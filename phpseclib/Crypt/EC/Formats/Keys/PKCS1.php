@@ -17,8 +17,6 @@
  * use it to describe this, too. PKCS1 is easier to remember than RFC5915, after
  * all. I suppose this could also be named IETF but idk
  *
- * @category  Crypt
- * @package   EC
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2015 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
@@ -41,9 +39,7 @@ use phpseclib3\Math\BigInteger;
 /**
  * "PKCS1" (RFC5915) Formatted EC Key Handler
  *
- * @package EC
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 abstract class PKCS1 extends Progenitor
 {
@@ -52,7 +48,6 @@ abstract class PKCS1 extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      *
-     * @access public
      * @param string $key
      * @param string $password optional
      * @return array
@@ -148,7 +143,6 @@ abstract class PKCS1 extends Progenitor
     /**
      * Convert EC parameters to the appropriate format
      *
-     * @access public
      * @return string
      */
     public static function saveParameters(BaseCurve $curve, array $options = [])
@@ -169,7 +163,6 @@ abstract class PKCS1 extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @access public
      * @param \phpseclib3\Math\BigInteger $privateKey
      * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
