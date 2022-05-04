@@ -2347,7 +2347,9 @@ class SSH2
         $this->send_binary_packet($packet, $logged);
 
         $response = $this->get_binary_packet();
-
+        if ($response === false) {
+            return false;
+        }
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
             case MessageTypeExtra::USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
