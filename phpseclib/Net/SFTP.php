@@ -2349,7 +2349,7 @@ class SFTP extends SSH2
         // normally $entries would have at least . and .. but it might not if the directories
         // permissions didn't allow reading
         if (empty($entries)) {
-            return false;
+            $entries = [];
         }
 
         unset($entries['.'], $entries['..']);
