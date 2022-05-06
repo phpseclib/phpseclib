@@ -47,7 +47,8 @@ class KoblitzPrime extends Prime
      *
      * Uses a efficiently computable endomorphism to achieve a slight speedup
      *
-     * Adapted from https://git.io/vxbrP
+     * Adapted from:
+     * https://github.com/indutny/elliptic/blob/725bd91/lib/elliptic/curve/short.js#L219
      *
      * @return int[]
      */

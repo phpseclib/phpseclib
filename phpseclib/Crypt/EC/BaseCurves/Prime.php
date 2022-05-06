@@ -513,7 +513,8 @@ class Prime extends Base
     /**
      * Multiply and Add Points
      *
-     * Adapted from https://git.io/vxPUH
+     * Adapted from:
+     * https://github.com/indutny/elliptic/blob/725bd91/lib/elliptic/curve/base.js#L125
      *
      * @return int[]
      */
@@ -639,7 +640,8 @@ class Prime extends Base
     /**
      * Precomputes NAF points
      *
-     * Adapted from https://git.io/vxY1f
+     * Adapted from:
+     * https://github.com/indutny/elliptic/blob/725bd91/lib/elliptic/curve/base.js#L351
      *
      * @return int[]
      */
@@ -675,7 +677,8 @@ class Prime extends Base
     /**
      * Precomputes points in Joint Sparse Form
      *
-     * Adapted from https://git.io/vxrpD
+     * Adapted from:
+     * https://github.com/indutny/elliptic/blob/725bd91/lib/elliptic/utils.js#L96
      *
      * @return int[]
      */
