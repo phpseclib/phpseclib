@@ -2115,7 +2115,7 @@ class SFTP extends SSH2
      * @param int $length
      * @param callable|null $progressCallback
      * @throws \UnexpectedValueException on receipt of unexpected packets
-     * @return string|false
+     * @return string|bool
      */
     public function get($remote_file, $local_file = false, $offset = 0, $length = -1, $progressCallback = null)
     {
