@@ -26,6 +26,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\BaseCurves;
 
 use phpseclib3\Math\BigInteger;
@@ -52,7 +54,7 @@ class KoblitzPrime extends Prime
      *
      * @return int[]
      */
-    public function multiplyAddPoints(array $points, array $scalars)
+    public function multiplyAddPoints(array $points, array $scalars): array
     {
         static $zero, $one, $two;
         if (!isset($two)) {
@@ -173,7 +175,7 @@ class KoblitzPrime extends Prime
      *
      * @return FiniteField[]
      */
-    protected function doublePointHelper(array $p)
+    protected function doublePointHelper(array $p): array
     {
         $numerator = $this->three->multiply($p[0])->multiply($p[0]);
         $denominator = $this->two->multiply($p[1]);
@@ -187,7 +189,7 @@ class KoblitzPrime extends Prime
      *
      * @return FiniteField[]
      */
-    protected function jacobianDoublePoint(array $p)
+    protected function jacobianDoublePoint(array $p): array
     {
         list($x1, $y1, $z1) = $p;
         $a = $x1->multiply($x1);
@@ -212,7 +214,7 @@ class KoblitzPrime extends Prime
      *
      * @return FiniteField[]
      */
-    protected function jacobianDoublePointMixed(array $p)
+    protected function jacobianDoublePointMixed(array $p): array
     {
         list($x1, $y1) = $p;
         $xx = $x1->multiply($x1);
@@ -231,10 +233,8 @@ class KoblitzPrime extends Prime
 
     /**
      * Tests whether or not the x / y values satisfy the equation
-     *
-     * @return boolean
      */
-    public function verifyPoint(array $p)
+    public function verifyPoint(array $p): bool
     {
         list($x, $y) = $p;
         $lhs = $y->multiply($y);
@@ -248,11 +248,9 @@ class KoblitzPrime extends Prime
      * Calculates the parameters needed from the Euclidean algorithm as discussed at
      * http://diamond.boisestate.edu/~liljanab/MATH308/GuideToECC.pdf#page=148
      *
-     * @param BigInteger $u
-     * @param BigInteger $v
      * @return BigInteger[]
      */
-    protected static function extendedGCD(BigInteger $u, BigInteger $v)
+    protected static function extendedGCD(BigInteger $u, BigInteger $v): array
     {
         $one = new BigInteger(1);
         $zero = new BigInteger();

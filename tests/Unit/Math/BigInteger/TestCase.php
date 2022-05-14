@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Math\BigInteger;
 
 use phpseclib3\Tests\PhpseclibTestCase;
@@ -380,16 +382,6 @@ abstract class TestCase extends PhpseclibTestCase
             $aliceShared->equals($bobShared),
             'Failed asserting that Alice and Bob share the same BigInteger.'
         );
-    }
-
-    /**
-     * @requires PHP 5.6
-     */
-    public function testDebugInfo()
-    {
-        $num = $this->getInstance(50);
-        $str = print_r($num, true);
-        $this->assertStringContainsString('[value] => 0x32', $str);
     }
 
     public function testPrecision()

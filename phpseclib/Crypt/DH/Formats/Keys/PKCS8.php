@@ -17,10 +17,13 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\DH\Formats\Keys;
 
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
+use phpseclib3\Crypt\DH\PrivateKey;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
 use phpseclib3\Math\BigInteger;
@@ -56,11 +59,9 @@ abstract class PKCS8 extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
      * @param string $password optional
-     * @return array
      */
-    public static function load($key, $password = '')
+    public static function load($key, $password = ''): array
     {
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -104,15 +105,9 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Math\BigInteger $prime
-     * @param \phpseclib3\Math\BigInteger $base
-     * @param \phpseclib3\Math\BigInteger $privateKey
-     * @param \phpseclib3\Math\BigInteger $publicKey
-     * @param string $password optional
-     * @param array $options optional
-     * @return string
+     * @param string|PrivateKey $password
      */
-    public static function savePrivateKey(BigInteger $prime, BigInteger $base, BigInteger $privateKey, BigInteger $publicKey, $password = '', array $options = [])
+    public static function savePrivateKey(BigInteger $prime, BigInteger $base, BigInteger $privateKey, BigInteger $publicKey, $password = '', array $options = []): string
     {
         $params = [
             'prime' => $prime,
@@ -127,13 +122,9 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert a public key to the appropriate format
      *
-     * @param \phpseclib3\Math\BigInteger $prime
-     * @param \phpseclib3\Math\BigInteger $base
-     * @param \phpseclib3\Math\BigInteger $publicKey
      * @param array $options optional
-     * @return string
      */
-    public static function savePublicKey(BigInteger $prime, BigInteger $base, BigInteger $publicKey, array $options = [])
+    public static function savePublicKey(BigInteger $prime, BigInteger $base, BigInteger $publicKey, array $options = []): string
     {
         $params = [
             'prime' => $prime,

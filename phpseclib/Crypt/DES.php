@@ -38,6 +38,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\BlockCipher;
@@ -561,10 +563,9 @@ class DES extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @param string $mode
      * @throws BadModeException if an invalid / unsupported mode is provided
      */
-    public function __construct($mode)
+    public function __construct(string $mode)
     {
         parent::__construct($mode);
 
@@ -579,10 +580,8 @@ class DES extends BlockCipher
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
-     * @param int $engine
-     * @return bool
      */
-    protected function isValidEngineHelper($engine)
+    protected function isValidEngineHelper(int $engine): bool
     {
         if ($this->key_length_max == 8) {
             if ($engine == self::ENGINE_OPENSSL) {
@@ -602,9 +601,8 @@ class DES extends BlockCipher
      * DES also requires that every eighth bit be a parity bit, however, we'll ignore that.
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
-     * @param string $key
      */
-    public function setKey($key)
+    public function setKey(string $key)
     {
         if (!($this instanceof TripleDES) && strlen($key) != 8) {
             throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of size 8 are supported');
@@ -617,13 +615,11 @@ class DES extends BlockCipher
     /**
      * Encrypts a block
      *
+     * @see self::encrypt()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::encryptBlock()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see self::encrypt()
-     * @param string $in
-     * @return string
      */
-    protected function encryptBlock($in)
+    protected function encryptBlock(string $in): string
     {
         return $this->processBlock($in, self::ENCRYPT);
     }
@@ -631,13 +627,11 @@ class DES extends BlockCipher
     /**
      * Decrypts a block
      *
+     * @see self::decrypt()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::decryptBlock()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
-     * @see self::decrypt()
-     * @param string $in
-     * @return string
      */
-    protected function decryptBlock($in)
+    protected function decryptBlock(string $in): string
     {
         return $this->processBlock($in, self::DECRYPT);
     }
@@ -649,13 +643,11 @@ class DES extends BlockCipher
      * {@link http://en.wikipedia.org/wiki/Image:Feistel.png Feistel.png} to get a general
      * idea of what this function does.
      *
-     * @see self::encryptBlock()
-     * @see self::decryptBlock()
-     * @param string $block
-     * @param int $mode
      * @return string
+     * @see self::decryptBlock()
+     * @see self::encryptBlock()
      */
-    private function processBlock($block, $mode)
+    private function processBlock(string $block, int $mode)
     {
         static $sbox1, $sbox2, $sbox3, $sbox4, $sbox5, $sbox6, $sbox7, $sbox8, $shuffleip, $shuffleinvip;
         if (!$sbox1) {

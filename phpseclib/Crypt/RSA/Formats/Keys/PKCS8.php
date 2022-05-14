@@ -23,6 +23,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
 use phpseclib3\Common\Functions\Strings;
@@ -61,11 +63,9 @@ abstract class PKCS8 extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
      * @param string $password optional
-     * @return array
      */
-    public static function load($key, $password = '')
+    public static function load($key, $password = ''): array
     {
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -105,17 +105,10 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Math\BigInteger $n
-     * @param \phpseclib3\Math\BigInteger $e
-     * @param \phpseclib3\Math\BigInteger $d
-     * @param array $primes
-     * @param array $exponents
-     * @param array $coefficients
      * @param string $password optional
      * @param array $options optional
-     * @return string
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = '', array $options = [])
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, string $password = '', array $options = []): string
     {
         $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);
         $key = ASN1::extractBER($key);
@@ -125,12 +118,9 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert a public key to the appropriate format
      *
-     * @param \phpseclib3\Math\BigInteger $n
-     * @param \phpseclib3\Math\BigInteger $e
      * @param array $options optional
-     * @return string
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = [])
+    public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
     {
         $key = PKCS1::savePublicKey($n, $e);
         $key = ASN1::extractBER($key);

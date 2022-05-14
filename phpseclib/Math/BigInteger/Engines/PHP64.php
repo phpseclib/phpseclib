@@ -11,6 +11,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Math\BigInteger\Engines;
 
 /**
@@ -44,10 +46,9 @@ class PHP64 extends PHP
     /**
      * Initialize a PHP64 BigInteger Engine instance
      *
-     * @param int $base
      * @see parent::initialize()
      */
-    protected function initialize($base)
+    protected function initialize(int $base)
     {
         if ($base != 256 && $base != -256) {
             return parent::initialize($base);
@@ -99,20 +100,16 @@ class PHP64 extends PHP
      * Test for engine validity
      *
      * @see parent::__construct()
-     * @return bool
      */
-    public static function isValidEngine()
+    public static function isValidEngine(): bool
     {
         return PHP_INT_SIZE >= 8;
     }
 
     /**
      * Adds two BigIntegers.
-     *
-     * @param PHP64 $y
-     * @return PHP64
      */
-    public function add(PHP64 $y)
+    public function add(PHP64 $y): PHP64
     {
         $temp = self::addHelper($this->value, $this->is_negative, $y->value, $y->is_negative);
 
@@ -121,11 +118,8 @@ class PHP64 extends PHP
 
     /**
      * Subtracts two BigIntegers.
-     *
-     * @param PHP64 $y
-     * @return PHP64
      */
-    public function subtract(PHP64 $y)
+    public function subtract(PHP64 $y): PHP64
     {
         $temp = self::subtractHelper($this->value, $this->is_negative, $y->value, $y->is_negative);
 
@@ -134,11 +128,8 @@ class PHP64 extends PHP
 
     /**
      * Multiplies two BigIntegers.
-     *
-     * @param PHP64 $y
-     * @return PHP64
      */
-    public function multiply(PHP64 $y)
+    public function multiply(PHP64 $y): PHP64
     {
         $temp = self::multiplyHelper($this->value, $this->is_negative, $y->value, $y->is_negative);
 
@@ -153,10 +144,9 @@ class PHP64 extends PHP
      * same.  If the remainder would be negative, the "common residue" is equal to the sum of the remainder
      * and the divisor (basically, the "common residue" is the first positive modulo).
      *
-     * @param PHP64 $y
      * @return array{PHP64, PHP64}
      */
-    public function divide(PHP64 $y)
+    public function divide(PHP64 $y): array
     {
         return $this->divideHelper($y);
     }
@@ -165,7 +155,6 @@ class PHP64 extends PHP
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
-     * @param PHP64 $n
      * @return false|PHP64
      */
     public function modInverse(PHP64 $n)
@@ -177,10 +166,9 @@ class PHP64 extends PHP
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
-     * @param PHP64 $n
      * @return PHP64[]
      */
-    public function extendedGCD(PHP64 $n)
+    public function extendedGCD(PHP64 $n): array
     {
         return $this->extendedGCDHelper($n);
     }
@@ -189,44 +177,32 @@ class PHP64 extends PHP
      * Calculates the greatest common divisor
      *
      * Say you have 693 and 609.  The GCD is 21.
-     *
-     * @param PHP64 $n
-     * @return PHP64
      */
-    public function gcd(PHP64 $n)
+    public function gcd(PHP64 $n): PHP64
     {
         return $this->extendedGCD($n)['gcd'];
     }
 
     /**
      * Logical And
-     *
-     * @param PHP64 $x
-     * @return PHP64
      */
-    public function bitwise_and(PHP64 $x)
+    public function bitwise_and(PHP64 $x): PHP64
     {
         return $this->bitwiseAndHelper($x);
     }
 
     /**
      * Logical Or
-     *
-     * @param PHP64 $x
-     * @return PHP64
      */
-    public function bitwise_or(PHP64 $x)
+    public function bitwise_or(PHP64 $x): PHP64
     {
         return $this->bitwiseOrHelper($x);
     }
 
     /**
      * Logical Exclusive Or
-     *
-     * @param PHP64 $x
-     * @return PHP64
      */
-    public function bitwise_xor(PHP64 $x)
+    public function bitwise_xor(PHP64 $x): PHP64
     {
         return $this->bitwiseXorHelper($x);
     }
@@ -245,11 +221,10 @@ class PHP64 extends PHP
      *
      * {@internal Could return $this->subtract($x), but that's not as fast as what we do do.}
      *
-     * @param PHP64 $y
      * @return int in case < 0 if $this is less than $y; > 0 if $this is greater than $y, and 0 if they are equal.
      * @see self::equals()
      */
-    public function compare(PHP64 $y)
+    public function compare(PHP64 $y): int
     {
         return parent::compareHelper($this->value, $this->is_negative, $y->value, $y->is_negative);
     }
@@ -258,23 +233,16 @@ class PHP64 extends PHP
      * Tests the equality of two numbers.
      *
      * If you need to see if one number is greater than or less than another number, use BigInteger::compare()
-     *
-     * @param PHP64 $x
-     * @return bool
      */
-    public function equals(PHP64 $x)
+    public function equals(PHP64 $x): bool
     {
         return $this->value === $x->value && $this->is_negative == $x->is_negative;
     }
 
     /**
      * Performs modular exponentiation.
-     *
-     * @param PHP64 $e
-     * @param PHP64 $n
-     * @return PHP64
      */
-    public function modPow(PHP64 $e, PHP64 $n)
+    public function modPow(PHP64 $e, PHP64 $n): PHP64
     {
         return $this->powModOuter($e, $n);
     }
@@ -284,8 +252,6 @@ class PHP64 extends PHP
      *
      * Alias for modPow().
      *
-     * @param PHP64 $e
-     * @param PHP64 $n
      * @return PHP64|false
      */
     public function powMod(PHP64 $e, PHP64 $n)
@@ -298,8 +264,6 @@ class PHP64 extends PHP
      *
      * If there's not a prime within the given range, false will be returned.
      *
-     * @param PHP64 $min
-     * @param PHP64 $max
      * @return false|PHP64
      */
     public static function randomRangePrime(PHP64 $min, PHP64 $max)
@@ -315,57 +279,40 @@ class PHP64 extends PHP
      *
      * BigInteger::randomRange($min, $max)
      * BigInteger::randomRange($max, $min)
-     *
-     * @param PHP64 $min
-     * @param PHP64 $max
-     * @return PHP64
      */
-    public static function randomRange(PHP64 $min, PHP64 $max)
+    public static function randomRange(PHP64 $min, PHP64 $max): PHP64
     {
         return self::randomRangeHelper($min, $max);
     }
 
     /**
      * Performs exponentiation.
-     *
-     * @param PHP64 $n
-     * @return PHP64
      */
-    public function pow(PHP64 $n)
+    public function pow(PHP64 $n): PHP64
     {
         return $this->powHelper($n);
     }
 
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
-     *
-     * @param PHP64 ...$nums
-     * @return PHP64
      */
-    public static function min(PHP64 ...$nums)
+    public static function min(PHP64 ...$nums): PHP64
     {
         return self::minHelper($nums);
     }
 
     /**
      * Return the maximum BigInteger between an arbitrary number of BigIntegers.
-     *
-     * @param PHP64 ...$nums
-     * @return PHP64
      */
-    public static function max(PHP64 ...$nums)
+    public static function max(PHP64 ...$nums): PHP64
     {
         return self::maxHelper($nums);
     }
 
     /**
      * Tests BigInteger to see if it is between two integers, inclusive
-     *
-     * @param PHP64 $min
-     * @param PHP64 $max
-     * @return bool
      */
-    public function between(PHP64 $min, PHP64 $max)
+    public function between(PHP64 $min, PHP64 $max): bool
     {
         return $this->compare($min) >= 0 && $this->compare($max) <= 0;
     }

@@ -1,5 +1,7 @@
 <?php
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Net\SSH2;
 
 use phpseclib3\Common\ConstantUtilityTrait;

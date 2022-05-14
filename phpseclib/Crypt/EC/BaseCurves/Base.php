@@ -11,6 +11,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\BaseCurves;
 
 use phpseclib3\Math\BigInteger;
@@ -72,20 +74,16 @@ abstract class Base
 
     /**
      * Returns the length, in bytes, of the modulo
-     *
-     * @return integer
      */
-    public function getLengthInBytes()
+    public function getLengthInBytes(): int
     {
         return $this->factory->getLengthInBytes();
     }
 
     /**
      * Returns the length, in bits, of the modulo
-     *
-     * @return integer
      */
-    public function getLength()
+    public function getLength(): int
     {
         return $this->factory->getLength();
     }
@@ -97,10 +95,8 @@ abstract class Base
      *
      * https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Montgomery_ladder
      * https://github.com/phpecc/phpecc/issues/16#issuecomment-59176772
-     *
-     * @return array
      */
-    public function multiplyPoint(array $p, BigInteger $d)
+    public function multiplyPoint(array $p, BigInteger $d): array
     {
         $alreadyInternal = isset($p[2]);
         $r = $alreadyInternal ?
@@ -119,10 +115,8 @@ abstract class Base
 
     /**
      * Creates a random scalar multiplier
-     *
-     * @return BigInteger
      */
-    public function createRandomMultiplier()
+    public function createRandomMultiplier(): BigInteger
     {
         static $one;
         if (!isset($one)) {
@@ -160,10 +154,8 @@ abstract class Base
 
     /**
      * Returns the Order
-     *
-     * @return \phpseclib3\Math\BigInteger
      */
-    public function getOrder()
+    public function getOrder(): BigInteger
     {
         return $this->order;
     }
@@ -183,7 +175,7 @@ abstract class Base
      *
      * @return object[]
      */
-    public function convertToAffine(array $p)
+    public function convertToAffine(array $p): array
     {
         return $p;
     }
@@ -193,7 +185,7 @@ abstract class Base
      *
      * @return object[]
      */
-    public function convertToInternal(array $p)
+    public function convertToInternal(array $p): array
     {
         return $p;
     }
@@ -203,7 +195,7 @@ abstract class Base
      *
      * @return object[]
      */
-    public function negatePoint(array $p)
+    public function negatePoint(array $p): array
     {
         $temp = [
             $p[0],
@@ -220,7 +212,7 @@ abstract class Base
      *
      * @return int[]
      */
-    public function multiplyAddPoints(array $points, array $scalars)
+    public function multiplyAddPoints(array $points, array $scalars): array
     {
         $p1 = $this->convertToInternal($points[0]);
         $p2 = $this->convertToInternal($points[1]);

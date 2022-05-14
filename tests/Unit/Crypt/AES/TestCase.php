@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt\AES;
 
 use phpseclib3\Crypt\AES;
@@ -27,10 +29,8 @@ abstract class TestCase extends PhpseclibTestCase
 
     /**
      * Produces all combinations of test values.
-     *
-     * @return array
      */
-    public function continuousBufferCombos()
+    public function continuousBufferCombos(): array
     {
         $modes = [
             'ctr',
@@ -133,7 +133,7 @@ abstract class TestCase extends PhpseclibTestCase
      *
      * @return list<array{string, string, array}>
      */
-    public function continuousBufferBatteryCombos()
+    public function continuousBufferBatteryCombos(): array
     {
         $modes = [
             'ctr',
@@ -176,7 +176,7 @@ abstract class TestCase extends PhpseclibTestCase
     /**
      * @return array<array{string, string, array}>
      */
-    public function continuousBufferBatteryCombosWithoutSingleCombos()
+    public function continuousBufferBatteryCombosWithoutSingleCombos(): array
     {
         return array_filter($this->continuousBufferBatteryCombos(), function (array $continuousBufferBatteryCombo) {
             return count($continuousBufferBatteryCombo[2]) > 1;

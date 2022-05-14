@@ -6,13 +6,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Net;
 
 use phpseclib3\Tests\PhpseclibTestCase;
 
 class SSH2UnitTest extends PhpseclibTestCase
 {
-    public function formatLogDataProvider()
+    public function formatLogDataProvider(): array
     {
         return [
             [
@@ -127,9 +129,8 @@ class SSH2UnitTest extends PhpseclibTestCase
     }
 
     /**
-     * @return \phpseclib3\Net\SSH2
      */
-    protected function createSSHMock()
+    protected function createSSHMock(): \phpseclib3\Net\SSH2
     {
         return $this->getMockBuilder('phpseclib3\Net\SSH2')
             ->disableOriginalConstructor()

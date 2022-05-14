@@ -9,6 +9,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\DSA;
 
 use phpseclib3\Crypt\Common;
@@ -30,9 +32,8 @@ class PublicKey extends DSA implements Common\PublicKey
      * @see self::verify()
      * @param string $message
      * @param string $signature
-     * @return mixed
      */
-    public function verify($message, $signature)
+    public function verify($message, $signature): bool
     {
         $format = $this->sigFormat;
 
@@ -73,11 +74,9 @@ class PublicKey extends DSA implements Common\PublicKey
     /**
      * Returns the public key
      *
-     * @param string $type
      * @param array $options optional
-     * @return string
      */
-    public function toString($type, array $options = [])
+    public function toString(string $type, array $options = []): string
     {
         $type = self::validatePlugin('Keys', $type, 'savePublicKey');
 

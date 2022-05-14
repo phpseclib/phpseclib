@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -30,13 +32,8 @@ abstract class PhpseclibTestCase extends TestCase
      * write $number_of_writes * $bytes_per_write times the character 'a' to the
      * temporary file. All files created using this method will be deleted from
      * the filesystem on tearDown(), i.e. after each test method was run.
-     *
-     * @param int $number_of_writes
-     * @param int $bytes_per_write
-     *
-     * @return string
      */
-    protected function createTempFile($number_of_writes = 0, $bytes_per_write = 0)
+    protected function createTempFile(int $number_of_writes = 0, int $bytes_per_write = 0): string
     {
         $filename = tempnam(sys_get_temp_dir(), 'phpseclib-test-');
         $this->assertTrue(file_exists($filename));
@@ -53,12 +50,9 @@ abstract class PhpseclibTestCase extends TestCase
     }
 
     /**
-     * @param string $constant
-     * @param mixed $expected
-     *
      * @return null
      */
-    protected static function ensureConstant($constant, $expected)
+    protected static function ensureConstant(string $constant, $expected)
     {
         if (defined($constant)) {
             $value = constant($constant);

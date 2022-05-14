@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\Hash;
@@ -42,7 +44,7 @@ class HashTest extends PhpseclibTestCase
         );
     }
 
-    public static function hashData()
+    public static function hashData(): array
     {
         return [
             ['md5', '', 'd41d8cd98f00b204e9800998ecf8427e'],
@@ -184,7 +186,7 @@ class HashTest extends PhpseclibTestCase
         $this->assertHMACsTo($hash . '-96', $key, $message, substr($result, 0, 24));
     }
 
-    public static function hmacData()
+    public static function hmacData(): array
     {
         return [
             ['md5', '', '', '74e6f7298a9c2d168935f58c001bad88'],
@@ -426,7 +428,7 @@ class HashTest extends PhpseclibTestCase
         $this->assertSame($hash->getLengthInBytes(), $length);
     }
 
-    public function lengths()
+    public function lengths(): array
     {
         return [
             // known
@@ -439,7 +441,7 @@ class HashTest extends PhpseclibTestCase
         ];
     }
 
-    public function UMACs()
+    public function UMACs(): array
     {
         return [
             ['', 'umac-32', '113145FB', "umac-32 and message of <empty>"],

@@ -17,6 +17,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\DSA\Formats\Keys;
 
 use ParagonIE\ConstantTime\Base64;
@@ -34,11 +36,9 @@ abstract class XML
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
      * @param string $password optional
-     * @return array
      */
-    public static function load($key, $password = '')
+    public static function load($key, $password = ''): array
     {
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -114,14 +114,8 @@ abstract class XML
      * Convert a public key to the appropriate format
      *
      * See https://www.w3.org/TR/xmldsig-core/#sec-DSAKeyValue
-     *
-     * @param \phpseclib3\Math\BigInteger $p
-     * @param \phpseclib3\Math\BigInteger $q
-     * @param \phpseclib3\Math\BigInteger $g
-     * @param \phpseclib3\Math\BigInteger $y
-     * @return string
      */
-    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y)
+    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y): string
     {
         return "<DSAKeyValue>\r\n" .
                '  <P>' . Base64::encode($p->toBytes()) . "</P>\r\n" .

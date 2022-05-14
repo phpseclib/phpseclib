@@ -33,6 +33,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\BlockCipher;
@@ -355,10 +357,9 @@ class Twofish extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @param string $mode
      * @throws BadModeException if an invalid / unsupported mode is provided
      */
-    public function __construct($mode)
+    public function __construct(string $mode)
     {
         parent::__construct($mode);
 
@@ -371,10 +372,8 @@ class Twofish extends BlockCipher
      * Sets the key length.
      *
      * Valid key lengths are 128, 192 or 256 bits
-     *
-     * @param int $length
      */
-    public function setKeyLength($length)
+    public function setKeyLength(int $length)
     {
         switch ($length) {
             case 128:
@@ -393,11 +392,10 @@ class Twofish extends BlockCipher
      *
      * Rijndael supports five different key lengths
      *
-     * @see setKeyLength()
-     * @param string $key
      * @throws \LengthException if the key length isn't supported
+     * @see setKeyLength()
      */
-    public function setKey($key)
+    public function setKey(string $key)
     {
         switch (strlen($key)) {
             case 16:
@@ -525,12 +523,8 @@ class Twofish extends BlockCipher
 
     /**
      * _mdsrem function using by the twofish cipher algorithm
-     *
-     * @param string $A
-     * @param string $B
-     * @return array
      */
-    private function mdsrem($A, $B)
+    private function mdsrem(string $A, string $B): array
     {
         // No gain by unrolling this loop.
         for ($i = 0; $i < 8; ++$i) {
@@ -572,11 +566,8 @@ class Twofish extends BlockCipher
 
     /**
      * Encrypts a block
-     *
-     * @param string $in
-     * @return string
      */
-    protected function encryptBlock($in)
+    protected function encryptBlock(string $in): string
     {
         $S0 = $this->S0;
         $S1 = $this->S1;
@@ -627,11 +618,8 @@ class Twofish extends BlockCipher
 
     /**
      * Decrypts a block
-     *
-     * @param string $in
-     * @return string
      */
-    protected function decryptBlock($in)
+    protected function decryptBlock(string $in): string
     {
         $S0 = $this->S0;
         $S1 = $this->S1;

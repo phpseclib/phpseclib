@@ -11,6 +11,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
 use phpseclib3\Common\Functions\Strings;
@@ -41,11 +43,9 @@ abstract class PuTTY extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
-     * @param string $password optional
-     * @return array
+     * @return array|false
      */
-    public static function load($key, $password = '')
+    public static function load($key, $password)
     {
         static $one;
         if (!isset($one)) {
@@ -85,17 +85,10 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Math\BigInteger $n
-     * @param \phpseclib3\Math\BigInteger $e
-     * @param \phpseclib3\Math\BigInteger $d
-     * @param array $primes
-     * @param array $exponents
-     * @param array $coefficients
      * @param string $password optional
      * @param array $options optional
-     * @return string
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = '', array $options = [])
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, string $password = '', array $options = []): string
     {
         if (count($primes) != 2) {
             throw new \InvalidArgumentException('PuTTY does not support multi-prime RSA keys');
@@ -109,12 +102,8 @@ abstract class PuTTY extends Progenitor
 
     /**
      * Convert a public key to the appropriate format
-     *
-     * @param \phpseclib3\Math\BigInteger $n
-     * @param \phpseclib3\Math\BigInteger $e
-     * @return string
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e): string
     {
         return self::wrapPublicKey(Strings::packSSH2('ii', $e, $n), 'ssh-rsa');
     }

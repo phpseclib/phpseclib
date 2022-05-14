@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Functional\Net;
 
 use phpseclib3\Net\SSH2;
@@ -24,7 +26,7 @@ class SSH2AgentTest extends PhpseclibFunctionalTestCase
         parent::setUpBeforeClass();
     }
 
-    public function testAgentLogin()
+    public function testAgentLogin(): array
     {
         $ssh = new SSH2($this->getEnv('SSH_HOSTNAME'));
         $agent = new Agent();

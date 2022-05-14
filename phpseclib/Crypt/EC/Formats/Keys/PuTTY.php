@@ -11,6 +11,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\Formats\Keys;
 
 use ParagonIE\ConstantTime\Base64;
@@ -51,11 +53,9 @@ abstract class PuTTY extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
-     * @param string $password optional
-     * @return array
+     * @return array|false
      */
-    public static function load($key, $password = '')
+    public static function load($key, $password)
     {
         $components = parent::load($key, $password);
         if (!isset($components['private'])) {
@@ -83,14 +83,11 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Math\BigInteger $privateKey
-     * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      * @param string $password optional
      * @param array $options optional
-     * @return string
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, $password = false, array $options = [])
+    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, $password = false, array $options = []): string
     {
         self::initialize_static_variables();
 
@@ -119,11 +116,9 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert an EC public key to the appropriate format
      *
-     * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      * @param \phpseclib3\Math\Common\FiniteField[] $publicKey
-     * @return string
      */
-    public static function savePublicKey(BaseCurve $curve, array $publicKey)
+    public static function savePublicKey(BaseCurve $curve, array $publicKey): string
     {
         $public = explode(' ', OpenSSH::savePublicKey($curve, $publicKey));
         $type = $public[0];

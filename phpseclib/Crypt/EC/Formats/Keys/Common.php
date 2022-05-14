@@ -11,6 +11,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\Formats\Keys;
 
 use ParagonIE\ConstantTime\Hex;
@@ -183,8 +185,6 @@ trait Common
      *
      * If the key contains an implicit curve phpseclib needs the curve
      * to be explicitly provided
-     *
-     * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      */
     public static function setImplicitCurve(BaseCurve $curve)
     {
@@ -195,7 +195,6 @@ trait Common
      * Returns an instance of \phpseclib3\Crypt\EC\BaseCurves\Base based
      * on the curve parameters
      *
-     * @param array $params
      * @return \phpseclib3\Crypt\EC\BaseCurves\Base|false
      */
     protected static function loadCurveByParam(array $params)
@@ -269,11 +268,9 @@ trait Common
      *
      * Supports both compressed and uncompressed points
      *
-     * @param string $str
-     * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      * @return object[]
      */
-    public static function extractPoint($str, BaseCurve $curve)
+    public static function extractPoint(string $str, BaseCurve $curve): array
     {
         if ($curve instanceof TwistedEdwardsCurve) {
             // first step of point deciding as discussed at the following URL's:
@@ -335,15 +332,14 @@ trait Common
     /**
      * Encode Parameters
      *
-     * @todo Maybe at some point this could be moved to __toString() for each of the curves?
-     * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
      * @param bool $returnArray optional
      * @param array $options optional
      * @return string|false
+     *@todo Maybe at some point this could be moved to __toString() for each of the curves?
      */
-    private static function encodeParameters(BaseCurve $curve, $returnArray = false, array $options = [])
+    private static function encodeParameters(BaseCurve $curve, bool $returnArray = false, array $options = [])
     {
-        $useNamedCurves = isset($options['namedCurve']) ? $options['namedCurve'] : self::$useNamedCurves;
+        $useNamedCurves = $options['namedCurve'] ?? self::$useNamedCurves;
 
         $reflect = new \ReflectionClass($curve);
         $name = $reflect->getShortName();

@@ -16,6 +16,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\File;
 
 /**
@@ -137,11 +139,6 @@ class ANSI
      */
     private $tokenization;
 
-    /**
-     * Default Constructor.
-     *
-     * @return \phpseclib3\File\ANSI
-     */
     public function __construct()
     {
         $attr_cell = new \stdClass();
@@ -162,11 +159,8 @@ class ANSI
      * Set terminal width and height
      *
      * Resets the screen as well
-     *
-     * @param int $x
-     * @param int $y
      */
-    public function setDimensions($x, $y)
+    public function setDimensions(int $x, int $y)
     {
         $this->max_x = $x - 1;
         $this->max_y = $y - 1;
@@ -180,20 +174,16 @@ class ANSI
 
     /**
      * Set the number of lines that should be logged past the terminal height
-     *
-     * @param int $history
      */
-    public function setHistory($history)
+    public function setHistory(int $history)
     {
         $this->max_history = $history;
     }
 
     /**
      * Load a string
-     *
-     * @param string $source
      */
-    public function loadString($source)
+    public function loadString(string $source)
     {
         $this->setDimensions($this->max_x + 1, $this->max_y + 1);
         $this->appendString($source);
@@ -201,10 +191,8 @@ class ANSI
 
     /**
      * Appdend a string
-     *
-     * @param string $source
      */
-    public function appendString($source)
+    public function appendString(string $source)
     {
         $this->tokenization = [''];
         for ($i = 0; $i < strlen($source); $i++) {
@@ -407,7 +395,6 @@ class ANSI
      * Add a new line
      *
      * Also update the $this->screen and $this->history buffers
-     *
      */
     private function newLine()
     {
@@ -434,13 +421,8 @@ class ANSI
 
     /**
      * Returns the current coordinate without preformating
-     *
-     * @param \stdClass $last_attr
-     * @param \stdClass $cur_attr
-     * @param string $char
-     * @return string
      */
-    private function processCoordinate($last_attr, $cur_attr, $char)
+    private function processCoordinate(\stdClass $last_attr, \stdClass $cur_attr, string $char): string
     {
         $output = '';
 
@@ -493,17 +475,15 @@ class ANSI
 
     /**
      * Returns the current screen without preformating
-     *
-     * @return string
      */
-    private function getScreenHelper()
+    private function getScreenHelper(): string
     {
         $output = '';
         $last_attr = $this->base_attr_cell;
         for ($i = 0; $i <= $this->max_y; $i++) {
             for ($j = 0; $j <= $this->max_x; $j++) {
                 $cur_attr = $this->attrs[$i][$j];
-                $output .= $this->processCoordinate($last_attr, $cur_attr, isset($this->screen[$i][$j]) ? $this->screen[$i][$j] : '');
+                $output .= $this->processCoordinate($last_attr, $cur_attr, $this->screen[$i][$j] ?? '');
                 $last_attr = $this->attrs[$i][$j];
             }
             $output .= "\r\n";
@@ -516,27 +496,23 @@ class ANSI
 
     /**
      * Returns the current screen
-     *
-     * @return string
      */
-    public function getScreen()
+    public function getScreen(): string
     {
         return '<pre width="' . ($this->max_x + 1) . '" style="color: white; background: black">' . $this->getScreenHelper() . '</pre>';
     }
 
     /**
      * Returns the current screen and the x previous lines
-     *
-     * @return string
      */
-    public function getHistory()
+    public function getHistory(): string
     {
         $scrollback = '';
         $last_attr = $this->base_attr_cell;
         for ($i = 0; $i < count($this->history); $i++) {
             for ($j = 0; $j <= $this->max_x + 1; $j++) {
                 $cur_attr = $this->history_attrs[$i][$j];
-                $scrollback .= $this->processCoordinate($last_attr, $cur_attr, isset($this->history[$i][$j]) ? $this->history[$i][$j] : '');
+                $scrollback .= $this->processCoordinate($last_attr, $cur_attr, $this->history[$i][$j] ?? '');
                 $last_attr = $this->history_attrs[$i][$j];
             }
             $scrollback .= "\r\n";

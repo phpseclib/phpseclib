@@ -9,6 +9,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC;
 
 use phpseclib3\Common\Functions\Strings;
@@ -48,11 +50,8 @@ class PrivateKey extends EC implements Common\PrivateKey
      * Multiplies an encoded point by the private key
      *
      * Used by ECDH
-     *
-     * @param string $coordinates
-     * @return string
      */
-    public function multiply($coordinates)
+    public function multiply(string $coordinates): string
     {
         if ($this->curve instanceof MontgomeryCurve) {
             if ($this->curve instanceof Curve25519 && self::$engines['libsodium']) {
@@ -82,7 +81,6 @@ class PrivateKey extends EC implements Common\PrivateKey
      *
      * @see self::verify()
      * @param string $message
-     * @return mixed
      */
     public function sign($message)
     {
@@ -118,7 +116,7 @@ class PrivateKey extends EC implements Common\PrivateKey
                 $dom = !isset($this->context) ? '' :
                     'SigEd25519 no Ed25519 collisions' . "\0" . chr(strlen($this->context)) . $this->context;
             } else {
-                $context = isset($this->context) ? $this->context : '';
+                $context = $this->context ?? '';
                 $dom = 'SigEd448' . "\0" . chr(strlen($context)) . $context;
             }
             // SHA-512(dom2(F, C) || prefix || PH(M))
@@ -209,11 +207,9 @@ class PrivateKey extends EC implements Common\PrivateKey
     /**
      * Returns the private key
      *
-     * @param string $type
      * @param array $options optional
-     * @return string
      */
-    public function toString($type, array $options = [])
+    public function toString(string $type, array $options = []): string
     {
         $type = self::validatePlugin('Keys', $type, 'savePrivateKey');
 
@@ -224,7 +220,6 @@ class PrivateKey extends EC implements Common\PrivateKey
      * Returns the public key
      *
      * @see self::getPrivateKey()
-     * @return mixed
      */
     public function getPublicKey()
     {

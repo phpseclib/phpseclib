@@ -19,6 +19,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\DH\Formats\Keys;
 
 use phpseclib3\Crypt\Common\Formats\Keys\PKCS1 as Progenitor;
@@ -36,11 +38,9 @@ abstract class PKCS1 extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
      * @param string $password optional
-     * @return array
      */
-    public static function load($key, $password = '')
+    public static function load($key, $password): array
     {
         $key = parent::load($key, $password);
 
@@ -59,10 +59,8 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Convert EC parameters to the appropriate format
-     *
-     * @return string
      */
-    public static function saveParameters(BigInteger $prime, BigInteger $base, array $options = [])
+    public static function saveParameters(BigInteger $prime, BigInteger $base, array $options = []): string
     {
         $params = [
             'prime' => $prime,

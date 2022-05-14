@@ -1,5 +1,7 @@
 <?php
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Net\SFTP;
 
 use phpseclib3\Common\ConstantUtilityTrait;

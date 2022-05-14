@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\AES;
@@ -22,7 +24,7 @@ class DHTest extends PhpseclibTestCase
     public function testParametersWithString()
     {
         $a = DH::createParameters('diffie-hellman-group1-sha1');
-        $a = str_replace("\r\n", "\n", trim($a));
+        $a = str_replace("\r\n", "\n", trim($a->__toString()));
         $b = str_replace("\r\n", "\n", '-----BEGIN DH PARAMETERS-----
 MIGHAoGBAP//////////yQ/aoiFowjTExmKLgNwc0SkCTgiKZ8x0Agu+pjsTmyJR
 Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
@@ -46,7 +48,7 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
         $prime = new BigInteger($prime, 16);
         $base = new BigInteger(2);
         $a = DH::createParameters($prime, $base);
-        $a = str_replace("\r\n", "\n", trim($a));
+        $a = str_replace("\r\n", "\n", trim($a->__toString()));
         $b = str_replace("\r\n", "\n", '-----BEGIN DH PARAMETERS-----
 MIGHAoGBAP//////////yQ/aoiFowjTExmKLgNwc0SkCTgiKZ8x0Agu+pjsTmyJR
 Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL

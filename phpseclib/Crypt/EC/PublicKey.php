@@ -9,6 +9,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC;
 
 use phpseclib3\Common\Functions\Strings;
@@ -38,9 +40,8 @@ class PublicKey extends EC implements Common\PublicKey
      * @see self::verify()
      * @param string $message
      * @param string $signature
-     * @return mixed
      */
-    public function verify($message, $signature)
+    public function verify($message, $signature): bool
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
@@ -91,7 +92,7 @@ class PublicKey extends EC implements Common\PublicKey
                 $dom2 = !isset($this->context) ? '' :
                     'SigEd25519 no Ed25519 collisions' . "\0" . chr(strlen($this->context)) . $this->context;
             } else {
-                $context = isset($this->context) ? $this->context : '';
+                $context = $this->context ?? '';
                 $dom2 = 'SigEd448' . "\0" . chr(strlen($context)) . $context;
             }
 
@@ -159,11 +160,9 @@ class PublicKey extends EC implements Common\PublicKey
     /**
      * Returns the public key
      *
-     * @param string $type
      * @param array $options optional
-     * @return string
      */
-    public function toString($type, array $options = [])
+    public function toString(string $type, array $options = []): string
     {
         $type = self::validatePlugin('Keys', $type, 'savePublicKey');
 

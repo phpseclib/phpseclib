@@ -11,6 +11,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\Common\Formats\Keys;
 
 use ParagonIE\ConstantTime\Base64;
@@ -39,10 +41,8 @@ abstract class PKCS1 extends PKCS
 
     /**
      * Sets the default encryption algorithm
-     *
-     * @param string $algo
      */
-    public static function setEncryptionAlgorithm($algo)
+    public static function setEncryptionAlgorithm(string $algo)
     {
         self::$defaultEncryptionAlgorithm = $algo;
     }
@@ -50,11 +50,10 @@ abstract class PKCS1 extends PKCS
     /**
      * Returns the mode constant corresponding to the mode string
      *
-     * @param string $mode
      * @return int
      * @throws \UnexpectedValueException if the block cipher mode is unsupported
      */
-    private static function getEncryptionMode($mode)
+    private static function getEncryptionMode(string $mode)
     {
         switch ($mode) {
             case 'CBC':
@@ -70,11 +69,10 @@ abstract class PKCS1 extends PKCS
     /**
      * Returns a cipher object corresponding to a string
      *
-     * @param string $algo
      * @return string
      * @throws \UnexpectedValueException if the encryption algorithm is unsupported
      */
-    private static function getEncryptionObject($algo)
+    private static function getEncryptionObject(string $algo)
     {
         $modes = '(CBC|ECB|CFB|OFB|CTR)';
         switch (true) {
@@ -93,13 +91,8 @@ abstract class PKCS1 extends PKCS
 
     /**
      * Generate a symmetric key for PKCS#1 keys
-     *
-     * @param string $password
-     * @param string $iv
-     * @param int $length
-     * @return string
      */
-    private static function generateSymmetricKey($password, $iv, $length)
+    private static function generateSymmetricKey(string $password, string $iv, int $length): string
     {
         $symkey = '';
         $iv = substr($iv, 0, 8);
@@ -112,7 +105,6 @@ abstract class PKCS1 extends PKCS
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
      * @param string $password optional
      * @return array
      */
@@ -166,13 +158,9 @@ abstract class PKCS1 extends PKCS
     /**
      * Wrap a private key appropriately
      *
-     * @param string $key
-     * @param string $type
-     * @param string $password
      * @param array $options optional
-     * @return string
      */
-    protected static function wrapPrivateKey($key, $type, $password, array $options = [])
+    protected static function wrapPrivateKey(string $key, string $type, string $password, array $options = []): string
     {
         if (empty($password) || !is_string($password)) {
             return "-----BEGIN $type PRIVATE KEY-----\r\n" .
@@ -180,7 +168,7 @@ abstract class PKCS1 extends PKCS
                    "-----END $type PRIVATE KEY-----";
         }
 
-        $encryptionAlgorithm = isset($options['encryptionAlgorithm']) ? $options['encryptionAlgorithm'] : self::$defaultEncryptionAlgorithm;
+        $encryptionAlgorithm = $options['encryptionAlgorithm'] ?? self::$defaultEncryptionAlgorithm;
 
         $cipher = self::getEncryptionObject($encryptionAlgorithm);
         $iv = Random::string($cipher->getBlockLength() >> 3);
@@ -197,12 +185,8 @@ abstract class PKCS1 extends PKCS
 
     /**
      * Wrap a public key appropriately
-     *
-     * @param string $key
-     * @param string $type
-     * @return string
      */
-    protected static function wrapPublicKey($key, $type)
+    protected static function wrapPublicKey(string $key, string $type): string
     {
         return "-----BEGIN $type PUBLIC KEY-----\r\n" .
                chunk_split(Base64::encode($key), 64) .

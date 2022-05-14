@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\RC2;
@@ -20,7 +22,7 @@ class RC2Test extends PhpseclibTestCase
         'OpenSSL',
     ];
 
-    public function engineVectors()
+    public function engineVectors(): array
     {
         // tests from https://tools.ietf.org/html/rfc2268#page-8
         $tests = [

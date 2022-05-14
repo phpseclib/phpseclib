@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\TripleDES;
@@ -20,7 +22,7 @@ class TripleDESTest extends PhpseclibTestCase
         'OpenSSL',
     ];
 
-    public function engineVectors()
+    public function engineVectors(): array
     {
         // tests from http://csrc.nist.gov/publications/nistpubs/800-20/800-20.pdf#page=273
         $tests = [
@@ -121,7 +123,7 @@ class TripleDESTest extends PhpseclibTestCase
         $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engine engine");
     }
 
-    public function engineIVVectors()
+    public function engineIVVectors(): array
     {
         $engines = [
             'PHP',
@@ -196,11 +198,9 @@ class TripleDESTest extends PhpseclibTestCase
 
     /**
      * @dataProvider provideForCorrectSelfUseInLambda
-     * @param string $key
-     * @param string $expectedCiphertext
      * @return void
      */
-    public function testCorrectSelfUseInLambda($key, $expectedCiphertext)
+    public function testCorrectSelfUseInLambda(string $key, string $expectedCiphertext)
     {
         $td = new TripleDES('ecb');
         $td->setPreferredEngine('Eval');
@@ -212,7 +212,7 @@ class TripleDESTest extends PhpseclibTestCase
     /**
      * @return list<array{string, string}>
      */
-    public function provideForCorrectSelfUseInLambda()
+    public function provideForCorrectSelfUseInLambda(): array
     {
         return [
             ['YWFhYWFhYWFhYWFhYWFhYWFhYWG9l9gm', 'fDSmC5bbLdx8NKYLltst3Hw0pguW2y3cfDSmC5bbLdxmhqEOIeS2ig=='],

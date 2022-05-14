@@ -19,11 +19,15 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\BaseCurves;
 
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\BinaryField;
 use phpseclib3\Math\BinaryField\Integer as BinaryInteger;
+use phpseclib3\Math\Common\FiniteField;
+use phpseclib3\Math\PrimeField\Integer;
 
 /**
  * Curves over y^2 + x*y = x^3 + a*x^2 + b
@@ -35,42 +39,42 @@ class Binary extends Base
     /**
      * Binary Field Integer factory
      *
-     * @var \phpseclib3\Math\BinaryField
+     * @var BinaryField
      */
     protected $factory;
 
     /**
      * Cofficient for x^1
      *
-     * @var object
+     * @var BinaryInteger
      */
     protected $a;
 
     /**
      * Cofficient for x^0
      *
-     * @var object
+     * @var BinaryInteger
      */
     protected $b;
 
     /**
      * Base Point
      *
-     * @var object
+     * @var array
      */
     protected $p;
 
     /**
      * The number one over the specified finite field
      *
-     * @var object
+     * @var BinaryInteger
      */
     protected $one;
 
     /**
      * The modulo
      *
-     * @var BigInteger
+     * @var array
      */
     protected $modulo;
 
@@ -94,11 +98,8 @@ class Binary extends Base
 
     /**
      * Set coefficients a and b
-     *
-     * @param string $a
-     * @param string $b
      */
-    public function setCoefficients($a, $b)
+    public function setCoefficients(string $a, string $b)
     {
         if (!isset($this->factory)) {
             throw new \RuntimeException('setModulo needs to be called before this method');
@@ -153,7 +154,7 @@ class Binary extends Base
      *
      * @return FiniteField[]
      */
-    public function addPoint(array $p, array $q)
+    public function addPoint(array $p, array $q): array
     {
         if (!isset($this->factory)) {
             throw new \RuntimeException('setModulo needs to be called before this method');
@@ -226,7 +227,7 @@ class Binary extends Base
      *
      * @return FiniteField[]
      */
-    public function doublePoint(array $p)
+    public function doublePoint(array $p): array
     {
         if (!isset($this->factory)) {
             throw new \RuntimeException('setModulo needs to be called before this method');
@@ -277,20 +278,16 @@ class Binary extends Base
      * "Due to patent issues the compressed option is disabled by default for binary curves
      *  and can be enabled by defining the preprocessor macro OPENSSL_EC_BIN_PT_COMP at
      *  compile time."
-     *
-     * @return array
      */
-    public function derivePoint($m)
+    public function derivePoint($m): array
     {
         throw new \RuntimeException('Point compression on binary finite field elliptic curves is not supported');
     }
 
     /**
      * Tests whether or not the x / y values satisfy the equation
-     *
-     * @return boolean
      */
-    public function verifyPoint(array $p)
+    public function verifyPoint(array $p): bool
     {
         list($x, $y) = $p;
         $lhs = $y->multiply($y);
@@ -302,12 +299,7 @@ class Binary extends Base
         return $lhs->equals($rhs);
     }
 
-    /**
-     * Returns the modulo
-     *
-     * @return \phpseclib3\Math\BigInteger
-     */
-    public function getModulo()
+    public function getModulo(): array
     {
         return $this->modulo;
     }
@@ -315,7 +307,7 @@ class Binary extends Base
     /**
      * Returns the a coefficient
      *
-     * @return \phpseclib3\Math\PrimeField\Integer
+     * @return object
      */
     public function getA()
     {
@@ -324,10 +316,8 @@ class Binary extends Base
 
     /**
      * Returns the a coefficient
-     *
-     * @return \phpseclib3\Math\PrimeField\Integer
      */
-    public function getB()
+    public function getB(): BinaryInteger
     {
         return $this->b;
     }
@@ -339,9 +329,9 @@ class Binary extends Base
      * To convert a Jacobian Coordinate to an Affine Point
      * you do (x / z^2, y / z^3)
      *
-     * @return \phpseclib3\Math\PrimeField\Integer[]
+     * @return BinaryInteger[]
      */
-    public function convertToAffine(array $p)
+    public function convertToAffine(array $p): array
     {
         if (!isset($p[2])) {
             return $p;
@@ -358,9 +348,9 @@ class Binary extends Base
     /**
      * Converts an affine point to a jacobian coordinate
      *
-     * @return \phpseclib3\Math\PrimeField\Integer[]
+     * @return BinaryInteger[]
      */
-    public function convertToInternal(array $p)
+    public function convertToInternal(array $p): array
     {
         if (isset($p[2])) {
             return $p;

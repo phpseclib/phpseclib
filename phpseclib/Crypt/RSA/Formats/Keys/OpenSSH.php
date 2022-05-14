@@ -13,6 +13,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
 use phpseclib3\Common\Functions\Strings;
@@ -36,11 +38,9 @@ abstract class OpenSSH extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
      * @param string $password optional
-     * @return array
      */
-    public static function load($key, $password = '')
+    public static function load($key, $password = ''): array
     {
         static $one;
         if (!isset($one)) {
@@ -90,20 +90,17 @@ abstract class OpenSSH extends Progenitor
     /**
      * Convert a public key to the appropriate format
      *
-     * @param \phpseclib3\Math\BigInteger $n
-     * @param \phpseclib3\Math\BigInteger $e
      * @param array $options optional
-     * @return string
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = [])
+    public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
     {
         $RSAPublicKey = Strings::packSSH2('sii', 'ssh-rsa', $e, $n);
 
-        if (isset($options['binary']) ? $options['binary'] : self::$binary) {
+        if ($options['binary'] ?? self::$binary) {
             return $RSAPublicKey;
         }
 
-        $comment = isset($options['comment']) ? $options['comment'] : self::$comment;
+        $comment = $options['comment'] ?? self::$comment;
         $RSAPublicKey = 'ssh-rsa ' . base64_encode($RSAPublicKey) . ' ' . $comment;
 
         return $RSAPublicKey;
@@ -112,17 +109,10 @@ abstract class OpenSSH extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Math\BigInteger $n
-     * @param \phpseclib3\Math\BigInteger $e
-     * @param \phpseclib3\Math\BigInteger $d
-     * @param array $primes
-     * @param array $exponents
-     * @param array $coefficients
      * @param string $password optional
      * @param array $options optional
-     * @return string
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = '', array $options = [])
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, string $password = '', array $options = []): string
     {
         $publicKey = self::savePublicKey($n, $e, ['binary' => true]);
         $privateKey = Strings::packSSH2('si6', 'ssh-rsa', $n, $e, $d, $coefficients[2], $primes[1], $primes[2]);

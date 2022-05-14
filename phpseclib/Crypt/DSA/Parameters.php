@@ -9,6 +9,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\DSA;
 
 use phpseclib3\Crypt\DSA;
@@ -23,11 +25,9 @@ class Parameters extends DSA
     /**
      * Returns the parameters
      *
-     * @param string $type
      * @param array $options optional
-     * @return string
      */
-    public function toString($type = 'PKCS1', array $options = [])
+    public function toString(string $type = 'PKCS1', array $options = []): string
     {
         $type = self::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 

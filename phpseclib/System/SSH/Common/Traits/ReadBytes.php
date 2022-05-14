@@ -11,6 +11,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\System\SSH\Common\Traits;
 
 /**
@@ -23,10 +25,9 @@ trait ReadBytes
     /**
      * Read data
      *
-     * @param int $length
      * @throws \RuntimeException on connection errors
      */
-    public function readBytes($length)
+    public function readBytes(int $length)
     {
         $temp = fread($this->fsock, $length);
         if (strlen($temp) != $length) {

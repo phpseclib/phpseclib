@@ -51,9 +51,8 @@
         }
     ],
     "require": {
-        "php": ">=5.6.1",
-        "paragonie/constant_time_encoding": "^1|^2",
-        "paragonie/random_compat": "^1.4|^2.0|^9.99.99"
+        "php": ">=7",
+        "paragonie/constant_time_encoding": "^2"
     },
     "require-dev": {
         "phpunit/phpunit": "*"

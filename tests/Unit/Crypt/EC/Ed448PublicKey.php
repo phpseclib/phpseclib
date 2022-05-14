@@ -1,5 +1,7 @@
 <?php
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt\EC;
 
 use phpseclib3\Common\Functions\Strings;
@@ -10,7 +12,7 @@ class Ed448PublicKey
 {
     use Common;
 
-    public static function load($key, $password = '')
+    public static function load($key, $password = ''): array
     {
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));

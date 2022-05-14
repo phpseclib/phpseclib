@@ -50,6 +50,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Common\Functions\Strings;
@@ -158,10 +160,9 @@ class Rijndael extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @param string $mode
      * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
-    public function __construct($mode)
+    public function __construct(string $mode)
     {
         parent::__construct($mode);
 
@@ -186,10 +187,9 @@ class Rijndael extends BlockCipher
      *             the mcrypt php extension, even if available.
      *             This results then in slower encryption.
      *
-     * @throws \LengthException if the key length is invalid
-     * @param int $length
+     *@throws \LengthException if the key length is invalid
      */
-    public function setKeyLength($length)
+    public function setKeyLength(int $length)
     {
         switch ($length) {
             case 128:
@@ -211,11 +211,10 @@ class Rijndael extends BlockCipher
      *
      * Rijndael supports five different key lengths
      *
-     * @see setKeyLength()
-     * @param string $key
      * @throws \LengthException if the key length isn't supported
+     * @see setKeyLength()
      */
-    public function setKey($key)
+    public function setKey(string $key)
     {
         switch (strlen($key)) {
             case 16:
@@ -235,10 +234,8 @@ class Rijndael extends BlockCipher
      * Sets the block length
      *
      * Valid block lengths are 128, 160, 192, 224, and 256.
-     *
-     * @param int $length
      */
-    public function setBlockLength($length)
+    public function setBlockLength(int $length)
     {
         switch ($length) {
             case 128:
@@ -263,10 +260,8 @@ class Rijndael extends BlockCipher
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
-     * @param int $engine
-     * @return bool
      */
-    protected function isValidEngineHelper($engine)
+    protected function isValidEngineHelper(int $engine): bool
     {
         switch ($engine) {
             case self::ENGINE_LIBSODIUM:
@@ -305,11 +300,8 @@ class Rijndael extends BlockCipher
 
     /**
      * Encrypts a block
-     *
-     * @param string $in
-     * @return string
      */
-    protected function encryptBlock($in)
+    protected function encryptBlock(string $in): string
     {
         static $tables;
         if (empty($tables)) {
@@ -394,11 +386,8 @@ class Rijndael extends BlockCipher
 
     /**
      * Decrypts a block
-     *
-     * @param string $in
-     * @return string
      */
-    protected function decryptBlock($in)
+    protected function decryptBlock(string $in): string
     {
         static $invtables;
         if (empty($invtables)) {
@@ -623,10 +612,9 @@ class Rijndael extends BlockCipher
     /**
      * Performs S-Box substitutions
      *
-     * @return array
-     * @param int $word
+     *@return array
      */
-    private function subWord($word)
+    private function subWord(int $word)
     {
         static $sbox;
         if (empty($sbox)) {
@@ -647,7 +635,7 @@ class Rijndael extends BlockCipher
      * @see self::subWord()
      * @return array &$tables
      */
-    protected function &getTables()
+    protected function &getTables(): array
     {
         static $tables;
         if (empty($tables)) {
@@ -735,7 +723,7 @@ class Rijndael extends BlockCipher
      * @see self::setupKey()
      * @return array &$tables
      */
-    protected function &getInvTables()
+    protected function &getInvTables(): array
     {
         static $tables;
         if (empty($tables)) {
@@ -778,7 +766,7 @@ class Rijndael extends BlockCipher
                 $dt0[] = (($dt3i << 24) & 0xFF000000) | (($dt3i >>  8) & 0x00FFFFFF);
                 $dt1[] = (($dt3i << 16) & 0xFFFF0000) | (($dt3i >> 16) & 0x0000FFFF);
                 $dt2[] = (($dt3i <<  8) & 0xFFFFFF00) | (($dt3i >> 24) & 0x000000FF);
-            };
+            }
 
             $tables = [
                 // The Precomputed inverse mixColumns tables dt0 - dt3
@@ -956,10 +944,8 @@ class Rijndael extends BlockCipher
      *
      * @see self::decrypt()
      * @see parent::encrypt()
-     * @param string $plaintext
-     * @return string
      */
-    public function encrypt($plaintext)
+    public function encrypt(string $plaintext): string
     {
         $this->setup();
 
@@ -987,10 +973,8 @@ class Rijndael extends BlockCipher
      *
      * @see self::encrypt()
      * @see parent::decrypt()
-     * @param string $ciphertext
-     * @return string
      */
-    public function decrypt($ciphertext)
+    public function decrypt(string $ciphertext): string
     {
         $this->setup();
 

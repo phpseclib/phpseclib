@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Functional\Net;
 
 use phpseclib3\Net\SFTP\Stream;
@@ -71,7 +73,7 @@ class SFTPStreamTest extends SFTPTestCase
         stream_select($read, $write, $except, 0);
     }
 
-    protected function buildUrl($suffix)
+    protected function buildUrl($suffix): string
     {
         return sprintf(
             'sftp://via-context/%s/%s',

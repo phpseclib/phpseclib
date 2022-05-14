@@ -1,5 +1,7 @@
 <?php
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Functional\Net;
 
 use phpseclib3\Exception\UnableToConnectException;

@@ -10,6 +10,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Math\Common\FiniteField;
 
 /**
@@ -28,15 +30,13 @@ abstract class Integer implements \JsonSerializable
      * serialized as well and that just sounds like too much
      */
     #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return ['hex' => $this->toHex(true)];
     }
 
     /**
      * Converts an Integer to a hex string (eg. base-16).
-     *
-     * @return string
      */
-    abstract public function toHex();
+    abstract public function toHex(): string;
 }

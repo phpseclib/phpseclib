@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt\EC;
 
 use phpseclib3\Crypt\EC;
@@ -16,7 +18,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class CurveTest extends PhpseclibTestCase
 {
-    public function curves()
+    public function curves(): array
     {
         $curves = [];
         foreach (new \DirectoryIterator(__DIR__ . '/../../../../phpseclib/Crypt/EC/Curves/') as $file) {
@@ -38,7 +40,7 @@ class CurveTest extends PhpseclibTestCase
         return $curves;
     }
 
-    public function allCurves()
+    public function allCurves(): array
     {
         $curves = [];
         foreach (new \DirectoryIterator(__DIR__ . '/../../../../phpseclib/Crypt/EC/Curves/') as $file) {
@@ -55,7 +57,7 @@ class CurveTest extends PhpseclibTestCase
         return $curves;
     }
 
-    public function curvesWithOIDs()
+    public function curvesWithOIDs(): array
     {
         $class = new \ReflectionClass('phpseclib3\Crypt\EC\Formats\Keys\PKCS8');
 

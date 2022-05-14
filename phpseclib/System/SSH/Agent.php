@@ -30,6 +30,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\System\SSH;
 
 use phpseclib3\Common\Functions\Strings;
@@ -114,9 +116,6 @@ class Agent
     private $request_channel;
 
     /**
-     * Default Constructor
-     *
-     * @return \phpseclib3\System\SSH\Agent
      * @throws \phpseclib3\Exception\BadConfigurationException if SSH_AUTH_SOCK cannot be found
      * @throws \RuntimeException on connection errors
      */
@@ -147,10 +146,9 @@ class Agent
      * See "2.5.2 Requesting a list of protocol 2 keys"
      * Returns an array containing zero or more \phpseclib3\System\SSH\Agent\Identity objects
      *
-     * @return array
      * @throws \RuntimeException on receipt of unexpected packets
      */
-    public function requestIdentities()
+    public function requestIdentities(): array
     {
         if (!$this->fsock) {
             return [];
@@ -211,11 +209,8 @@ class Agent
 
     /**
      * Request agent forwarding of remote server
-     *
-     * @param \phpseclib3\Net\SSH2 $ssh
-     * @return bool
      */
-    private function request_forwarding($ssh)
+    private function request_forwarding(\phpseclib3\Net\SSH2 $ssh): bool
     {
         if (!$ssh->requestAgentForwarding()) {
             return false;
@@ -232,10 +227,8 @@ class Agent
      * This method is called upon successful channel
      * open to give the SSH Agent an opportunity
      * to take further action. i.e. request agent forwarding
-     *
-     * @param \phpseclib3\Net\SSH2 $ssh
      */
-    public function registerChannelOpen($ssh)
+    public function registerChannelOpen(\phpseclib3\Net\SSH2 $ssh)
     {
         if ($this->forward_status == self::FORWARD_REQUEST) {
             $this->request_forwarding($ssh);
@@ -245,11 +238,10 @@ class Agent
     /**
      * Forward data to SSH Agent and return data reply
      *
-     * @param string $data
      * @return string Data from SSH Agent
      * @throws \RuntimeException on connection errors
      */
-    public function forwardData($data)
+    public function forwardData(string $data)
     {
         if ($this->expected_bytes > 0) {
             $this->socket_buffer .= $data;

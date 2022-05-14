@@ -24,6 +24,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\BaseCurves;
 
 use phpseclib3\Math\BigInteger;
@@ -152,10 +154,8 @@ class TwistedEdwards extends Base
 
     /**
      * Retrieve the base point as an array
-     *
-     * @return array
      */
-    public function getBasePoint()
+    public function getBasePoint(): array
     {
         if (!isset($this->factory)) {
             throw new \RuntimeException('setModulo needs to be called before this method');
@@ -173,7 +173,7 @@ class TwistedEdwards extends Base
      *
      * @return \phpseclib3\Math\PrimeField\Integer[]
      */
-    public function convertToAffine(array $p)
+    public function convertToAffine(array $p): array
     {
         if (!isset($p[2])) {
             return $p;
@@ -188,20 +188,16 @@ class TwistedEdwards extends Base
 
     /**
      * Returns the modulo
-     *
-     * @return \phpseclib3\Math\BigInteger
      */
-    public function getModulo()
+    public function getModulo(): BigInteger
     {
         return $this->modulo;
     }
 
     /**
      * Tests whether or not the x / y values satisfy the equation
-     *
-     * @return boolean
      */
-    public function verifyPoint(array $p)
+    public function verifyPoint(array $p): bool
     {
         list($x, $y) = $p;
         $x2 = $x->multiply($x);

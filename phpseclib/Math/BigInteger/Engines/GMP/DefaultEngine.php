@@ -11,6 +11,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+// declare(strict_types=1);
+
 namespace phpseclib3\Math\BigInteger\Engines\GMP;
 
 use phpseclib3\Math\BigInteger\Engines\GMP;
@@ -24,13 +26,8 @@ abstract class DefaultEngine extends GMP
 {
     /**
      * Performs modular exponentiation.
-     *
-     * @param GMP $x
-     * @param GMP $e
-     * @param GMP $n
-     * @return GMP
      */
-    protected static function powModHelper(GMP $x, GMP $e, GMP $n)
+    protected static function powModHelper(GMP $x, GMP $e, GMP $n): GMP
     {
         $temp = new GMP();
         $temp->value = gmp_powm($x->value, $e->value, $n->value);
