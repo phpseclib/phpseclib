@@ -20,6 +20,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 /**
@@ -36,11 +38,9 @@ abstract class Random
      * microoptimizations because this function has the potential of being called a huge number of times.
      * eg. for RSA key generation.
      *
-     * @param int $length
-     * @throws \RuntimeException if a symmetric cipher is needed but not loaded
-     * @return string
+     *@throws \RuntimeException if a symmetric cipher is needed but not loaded
      */
-    public static function string($length)
+    public static function string(int $length): string
     {
         if (!$length) {
             return '';
@@ -83,7 +83,7 @@ abstract class Random
             $old_session_id = session_id();
             $old_use_cookies = ini_get('session.use_cookies');
             $old_session_cache_limiter = session_cache_limiter();
-            $_OLD_SESSION = isset($_SESSION) ? $_SESSION : false;
+            $_OLD_SESSION = $_SESSION ?? false;
             if ($old_session_id != '') {
                 session_write_close();
             }
@@ -190,10 +190,8 @@ abstract class Random
      * Safely serialize variables
      *
      * If a class has a private __sleep() it'll emit a warning
-     * @return mixed
-     * @param mixed $arr
      */
-    private static function safe_serialize(&$arr)
+    private static function safe_serialize(&$arr): string
     {
         if (is_object($arr)) {
             return '';

@@ -18,7 +18,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
+                php-version: ['8.1']
     quality_tools:
         name: Quality Tools
         timeout-minutes: 5
@@ -42,8 +42,6 @@ jobs:
     tests:
         name: Tests
         timeout-minutes: 10
-        # Sometimes there is a segfault on PHP 5.6.
-        continue-on-error: ${{ matrix.php-version == '5.6' }}
         runs-on: ${{ matrix.os }}
         steps:
             -   name: Checkout
@@ -54,9 +52,6 @@ jobs:
                     php-version: ${{ matrix.php-version }}
             -   name: Composer Install
                 run: composer install --classmap-authoritative --no-interaction --no-cache
-            -   name: Make Tests Compatiable With New PHPUnit Versions
-                if: matrix.php-version != '5.6' && matrix.php-version != '7.0'
-                run: php tests/make_compatible_with_new_phpunit_versions.php
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
                 run: |
@@ -85,4 +80,4 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
-                php-version: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
+                php-version: ['8.1']

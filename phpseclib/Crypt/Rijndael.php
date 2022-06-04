@@ -50,6 +50,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Common\Functions\Strings;
@@ -158,10 +160,9 @@ class Rijndael extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @param string $mode
      * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
-    public function __construct($mode)
+    public function __construct(string $mode)
     {
         parent::__construct($mode);
 
@@ -186,10 +187,9 @@ class Rijndael extends BlockCipher
      *             the mcrypt php extension, even if available.
      *             This results then in slower encryption.
      *
-     * @throws \LengthException if the key length is invalid
-     * @param int $length
+     *@throws \LengthException if the key length is invalid
      */
-    public function setKeyLength($length)
+    public function setKeyLength(int $length): void
     {
         switch ($length) {
             case 128:
@@ -211,11 +211,10 @@ class Rijndael extends BlockCipher
      *
      * Rijndael supports five different key lengths
      *
-     * @see setKeyLength()
-     * @param string $key
      * @throws \LengthException if the key length isn't supported
+     *@see setKeyLength()
      */
-    public function setKey($key)
+    public function setKey(string $key): void
     {
         switch (strlen($key)) {
             case 16:
@@ -235,10 +234,8 @@ class Rijndael extends BlockCipher
      * Sets the block length
      *
      * Valid block lengths are 128, 160, 192, 224, and 256.
-     *
-     * @param int $length
      */
-    public function setBlockLength($length)
+    public function setBlockLength(int $length): void
     {
         switch ($length) {
             case 128:
@@ -262,11 +259,9 @@ class Rijndael extends BlockCipher
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
-     * @param int $engine
-     * @return bool
+     *@see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      */
-    protected function isValidEngineHelper($engine)
+    protected function isValidEngineHelper(int $engine): bool
     {
         switch ($engine) {
             case self::ENGINE_LIBSODIUM:
@@ -305,11 +300,8 @@ class Rijndael extends BlockCipher
 
     /**
      * Encrypts a block
-     *
-     * @param string $in
-     * @return string
      */
-    protected function encryptBlock($in)
+    protected function encryptBlock(string $in): string
     {
         static $tables;
         if (empty($tables)) {
@@ -394,11 +386,8 @@ class Rijndael extends BlockCipher
 
     /**
      * Decrypts a block
-     *
-     * @param string $in
-     * @return string
      */
-    protected function decryptBlock($in)
+    protected function decryptBlock(string $in): string
     {
         static $invtables;
         if (empty($invtables)) {
@@ -495,7 +484,7 @@ class Rijndael extends BlockCipher
      * @see self::setIV()
      * @see self::disableContinuousBuffer()
      */
-    protected function setup()
+    protected function setup(): void
     {
         if (!$this->changed) {
             return;
@@ -513,7 +502,7 @@ class Rijndael extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setupKey()
      */
-    protected function setupKey()
+    protected function setupKey(): void
     {
         // Each number in $rcon is equal to the previous number multiplied by two in Rijndael's finite field.
         // See http://en.wikipedia.org/wiki/Finite_field_arithmetic#Multiplicative_inverse
@@ -578,7 +567,7 @@ class Rijndael extends BlockCipher
         //        1. Apply the Key Expansion.
         //        2. Apply InvMixColumn to all Round Keys except the first and the last one."
         // also, see fips-197.pdf#page=27, "5.3.5 Equivalent Inverse Cipher"
-        list($dt0, $dt1, $dt2, $dt3) = $this->getInvTables();
+        [$dt0, $dt1, $dt2, $dt3] = $this->getInvTables();
         $temp = $this->w = $this->dw = [];
         for ($i = $row = $col = 0; $i < $length; $i++, $col++) {
             if ($col == $this->Nb) {
@@ -623,14 +612,13 @@ class Rijndael extends BlockCipher
     /**
      * Performs S-Box substitutions
      *
-     * @return array
-     * @param int $word
+     *@return array
      */
-    private function subWord($word)
+    private function subWord(int $word)
     {
         static $sbox;
         if (empty($sbox)) {
-            list(, , , , $sbox) = self::getTables();
+            [, , , , $sbox] = self::getTables();
         }
 
         return  $sbox[$word       & 0x000000FF]        |
@@ -647,7 +635,7 @@ class Rijndael extends BlockCipher
      * @see self::subWord()
      * @return array &$tables
      */
-    protected function &getTables()
+    protected function &getTables(): array
     {
         static $tables;
         if (empty($tables)) {
@@ -735,7 +723,7 @@ class Rijndael extends BlockCipher
      * @see self::setupKey()
      * @return array &$tables
      */
-    protected function &getInvTables()
+    protected function &getInvTables(): array
     {
         static $tables;
         if (empty($tables)) {
@@ -815,7 +803,7 @@ class Rijndael extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setupInlineCrypt()
      */
-    protected function setupInlineCrypt()
+    protected function setupInlineCrypt(): void
     {
         $w  = $this->w;
         $dw = $this->dw;
@@ -851,7 +839,7 @@ class Rijndael extends BlockCipher
 
         // Mainrounds: shiftRows + subWord + mixColumns + addRoundKey
         for ($round = 1; $round < $Nr; ++$round) {
-            list($s, $e) = [$e, $s];
+            [$s, $e] = [$e, $s];
             for ($i = 0; $i < $Nb; ++$i) {
                 $encrypt_block .=
                     '$' . $e . $i . ' =
@@ -908,7 +896,7 @@ class Rijndael extends BlockCipher
 
         // Mainrounds: shiftRows + subWord + mixColumns + addRoundKey
         for ($round = 1; $round < $Nr; ++$round) {
-            list($s, $e) = [$e, $s];
+            [$s, $e] = [$e, $s];
             for ($i = 0; $i < $Nb; ++$i) {
                 $decrypt_block .=
                     '$' . $e . $i . ' =
@@ -954,12 +942,10 @@ class Rijndael extends BlockCipher
     /**
      * Encrypts a message.
      *
-     * @see self::decrypt()
+     *@see self::decrypt()
      * @see parent::encrypt()
-     * @param string $plaintext
-     * @return string
      */
-    public function encrypt($plaintext)
+    public function encrypt(string $plaintext): string
     {
         $this->setup();
 
@@ -985,12 +971,10 @@ class Rijndael extends BlockCipher
     /**
      * Decrypts a message.
      *
-     * @see self::encrypt()
+     *@see self::encrypt()
      * @see parent::decrypt()
-     * @param string $ciphertext
-     * @return string
      */
-    public function decrypt($ciphertext)
+    public function decrypt(string $ciphertext): string
     {
         $this->setup();
 

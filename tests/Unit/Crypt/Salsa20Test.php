@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\Salsa20;
@@ -13,7 +15,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class Salsa20Test extends PhpseclibTestCase
 {
-    public function engineVectors()
+    public function engineVectors(): array
     {
         $engines = [
             'PHP',
@@ -147,7 +149,7 @@ class Salsa20Test extends PhpseclibTestCase
     /**
      * @dataProvider engineVectors
      */
-    public function testVectors($engine, $key, $iv, $expected)
+    public function testVectors($engine, $key, $iv, $expected): void
     {
         $cipher = new Salsa20();
         $cipher->setPreferredEngine($engine);

@@ -11,6 +11,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Exception\BadDecryptionException;
@@ -35,11 +37,9 @@ class ChaCha20 extends Salsa20
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
-     * @param int $engine
-     * @return bool
+     *@see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      */
-    protected function isValidEngineHelper($engine)
+    protected function isValidEngineHelper(int $engine): bool
     {
         switch ($engine) {
             case self::ENGINE_LIBSODIUM:
@@ -73,12 +73,11 @@ class ChaCha20 extends Salsa20
     /**
      * Encrypts a message.
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
-     * @see self::crypt()
-     * @param string $plaintext
      * @return string $ciphertext
+     *@see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * @see self::crypt()
      */
-    public function encrypt($plaintext)
+    public function encrypt(string $plaintext): string
     {
         $this->setup();
 
@@ -95,12 +94,11 @@ class ChaCha20 extends Salsa20
      * $this->decrypt($this->encrypt($plaintext)) == $this->encrypt($this->encrypt($plaintext)).
      * At least if the continuous buffer is disabled.
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see self::crypt()
-     * @param string $ciphertext
      * @return string $plaintext
+     *@see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
+     * @see self::crypt()
      */
-    public function decrypt($ciphertext)
+    public function decrypt(string $ciphertext): string
     {
         $this->setup();
 
@@ -114,11 +112,10 @@ class ChaCha20 extends Salsa20
     /**
      * Encrypts a message with libsodium
      *
-     * @see self::encrypt()
-     * @param string $plaintext
      * @return string $text
+     *@see self::encrypt()
      */
-    private function encrypt_with_libsodium($plaintext)
+    private function encrypt_with_libsodium(string $plaintext): string
     {
         $params = [$plaintext, $this->aad, $this->nonce, $this->key];
         $ciphertext = strlen($this->nonce) == 8 ?
@@ -140,11 +137,10 @@ class ChaCha20 extends Salsa20
     /**
      * Decrypts a message with libsodium
      *
-     * @see self::decrypt()
-     * @param string $ciphertext
      * @return string $text
+     *@see self::decrypt()
      */
-    private function decrypt_with_libsodium($ciphertext)
+    private function decrypt_with_libsodium(string $ciphertext): string
     {
         $params = [$ciphertext, $this->aad, $this->nonce, $this->key];
 
@@ -177,10 +173,8 @@ class ChaCha20 extends Salsa20
 
     /**
      * Sets the nonce.
-     *
-     * @param string $nonce
      */
-    public function setNonce($nonce)
+    public function setNonce(string $nonce): void
     {
         if (!is_string($nonce)) {
             throw new \UnexpectedValueException('The nonce should be a string');
@@ -224,7 +218,7 @@ class ChaCha20 extends Salsa20
      * @see self::setNonce()
      * @see self::disableContinuousBuffer()
      */
-    protected function setup()
+    protected function setup(): void
     {
         if (!$this->changed) {
             return;
@@ -267,13 +261,8 @@ class ChaCha20 extends Salsa20
 
     /**
      * The quarterround function
-     *
-     * @param int $a
-     * @param int $b
-     * @param int $c
-     * @param int $d
      */
-    protected static function quarterRound(&$a, &$b, &$c, &$d)
+    protected static function quarterRound(int &$a, int &$b, int &$c, int &$d): void
     {
         // in https://datatracker.ietf.org/doc/html/rfc7539#section-2.1 the addition,
         // xor'ing and rotation are all on the same line so i'm keeping it on the same
@@ -306,7 +295,7 @@ class ChaCha20 extends Salsa20
      * @param int $x14 (by reference)
      * @param int $x15 (by reference)
      */
-    protected static function doubleRound(&$x0, &$x1, &$x2, &$x3, &$x4, &$x5, &$x6, &$x7, &$x8, &$x9, &$x10, &$x11, &$x12, &$x13, &$x14, &$x15)
+    protected static function doubleRound(int &$x0, int &$x1, int &$x2, int &$x3, int &$x4, int &$x5, int &$x6, int &$x7, int &$x8, int &$x9, int &$x10, int &$x11, int &$x12, int &$x13, int &$x14, int &$x15): void
     {
         // columnRound
         static::quarterRound($x0, $x4, $x8, $x12);
@@ -332,12 +321,10 @@ class ChaCha20 extends Salsa20
      * For comparison purposes, RC4 takes 0.16s and AES in CTR mode with the Eval engine takes 0.48s.
      * AES in CTR mode with the PHP engine takes 1.19s. Salsa20 / ChaCha20 do not benefit as much from the Eval
      * approach due to the fact that there are a lot less variables to de-reference, fewer loops to unroll, etc
-     *
-     * @param string $x
      */
-    protected static function salsa20($x)
+    protected static function salsa20(string $x)
     {
-        list(, $x0, $x1, $x2, $x3, $x4, $x5, $x6, $x7, $x8, $x9, $x10, $x11, $x12, $x13, $x14, $x15) = unpack('V*', $x);
+        [, $x0, $x1, $x2, $x3, $x4, $x5, $x6, $x7, $x8, $x9, $x10, $x11, $x12, $x13, $x14, $x15] = unpack('V*', $x);
         $z0 = $x0;
         $z1 = $x1;
         $z2 = $x2;

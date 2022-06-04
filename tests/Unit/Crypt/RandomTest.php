@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\Random;
@@ -13,7 +15,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class RandomTest extends PhpseclibTestCase
 {
-    public function stringLengthData()
+    public function stringLengthData(): array
     {
         return array_map([$this, 'wrap'], [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 17, 19, 20, 23, 29, 31, 37,
@@ -23,7 +25,7 @@ class RandomTest extends PhpseclibTestCase
     }
 
     /** @dataProvider stringLengthData */
-    public function testStringLength($length)
+    public function testStringLength($length): void
     {
         $this->assertSame(
             $length,
@@ -36,7 +38,7 @@ class RandomTest extends PhpseclibTestCase
      * Takes a set of random values of length 128 bits and asserts all taken
      * values are unique.
      */
-    public function testStringUniqueness()
+    public function testStringUniqueness(): void
     {
         $values = [];
         for ($i = 0; $i < 10000; ++$i) {
@@ -51,7 +53,7 @@ class RandomTest extends PhpseclibTestCase
         }
     }
 
-    protected function wrap($x)
+    protected function wrap($x): array
     {
         // array() is not a function, but $this->wrap() is.
         return [$x];

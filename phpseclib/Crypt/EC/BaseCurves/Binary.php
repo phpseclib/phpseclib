@@ -19,6 +19,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\BaseCurves;
 
 use phpseclib3\Math\BigInteger;
@@ -70,7 +72,7 @@ class Binary extends Base
     /**
      * The modulo
      *
-     * @var BigInteger
+     * @var array
      */
     protected $modulo;
 
@@ -84,7 +86,7 @@ class Binary extends Base
     /**
      * Sets the modulo
      */
-    public function setModulo(...$modulo)
+    public function setModulo(...$modulo): void
     {
         $this->modulo = $modulo;
         $this->factory = new BinaryField(...$modulo);
@@ -94,11 +96,8 @@ class Binary extends Base
 
     /**
      * Set coefficients a and b
-     *
-     * @param string $a
-     * @param string $b
      */
-    public function setCoefficients($a, $b)
+    public function setCoefficients(string $a, string $b): void
     {
         if (!isset($this->factory)) {
             throw new \RuntimeException('setModulo needs to be called before this method');
@@ -113,7 +112,7 @@ class Binary extends Base
      * @param string|BinaryInteger $x
      * @param string|BinaryInteger $y
      */
-    public function setBasePoint($x, $y)
+    public function setBasePoint($x, $y): void
     {
         switch (true) {
             case !is_string($x) && !$x instanceof BinaryInteger:
@@ -153,7 +152,7 @@ class Binary extends Base
      *
      * @return FiniteField[]
      */
-    public function addPoint(array $p, array $q)
+    public function addPoint(array $p, array $q): array
     {
         if (!isset($this->factory)) {
             throw new \RuntimeException('setModulo needs to be called before this method');
@@ -179,8 +178,8 @@ class Binary extends Base
 
         // formulas from http://hyperelliptic.org/EFD/g12o/auto-shortw-jacobian.html
 
-        list($x1, $y1, $z1) = $p;
-        list($x2, $y2, $z2) = $q;
+        [$x1, $y1, $z1] = $p;
+        [$x2, $y2, $z2] = $q;
 
         $o1 = $z1->multiply($z1);
         $b = $x2->multiply($o1);
@@ -226,7 +225,7 @@ class Binary extends Base
      *
      * @return FiniteField[]
      */
-    public function doublePoint(array $p)
+    public function doublePoint(array $p): array
     {
         if (!isset($this->factory)) {
             throw new \RuntimeException('setModulo needs to be called before this method');
@@ -242,7 +241,7 @@ class Binary extends Base
 
         // formulas from http://hyperelliptic.org/EFD/g12o/auto-shortw-jacobian.html
 
-        list($x1, $y1, $z1) = $p;
+        [$x1, $y1, $z1] = $p;
 
         $a = $x1->multiply($x1);
         $b = $a->multiply($a);
@@ -277,10 +276,8 @@ class Binary extends Base
      * "Due to patent issues the compressed option is disabled by default for binary curves
      *  and can be enabled by defining the preprocessor macro OPENSSL_EC_BIN_PT_COMP at
      *  compile time."
-     *
-     * @return array
      */
-    public function derivePoint($m)
+    public function derivePoint($m): array
     {
         throw new \RuntimeException('Point compression on binary finite field elliptic curves is not supported');
     }
@@ -290,9 +287,9 @@ class Binary extends Base
      *
      * @return boolean
      */
-    public function verifyPoint(array $p)
+    public function verifyPoint(array $p): bool
     {
-        list($x, $y) = $p;
+        [$x, $y] = $p;
         $lhs = $y->multiply($y);
         $lhs = $lhs->add($x->multiply($y));
         $x2 = $x->multiply($x);
@@ -304,10 +301,8 @@ class Binary extends Base
 
     /**
      * Returns the modulo
-     *
-     * @return \phpseclib3\Math\BigInteger
      */
-    public function getModulo()
+    public function getModulo(): array
     {
         return $this->modulo;
     }
@@ -341,12 +336,12 @@ class Binary extends Base
      *
      * @return \phpseclib3\Math\PrimeField\Integer[]
      */
-    public function convertToAffine(array $p)
+    public function convertToAffine(array $p): array
     {
         if (!isset($p[2])) {
             return $p;
         }
-        list($x, $y, $z) = $p;
+        [$x, $y, $z] = $p;
         $z = $this->one->divide($z);
         $z2 = $z->multiply($z);
         return [
@@ -360,7 +355,7 @@ class Binary extends Base
      *
      * @return \phpseclib3\Math\PrimeField\Integer[]
      */
-    public function convertToInternal(array $p)
+    public function convertToInternal(array $p): array
     {
         if (isset($p[2])) {
             return $p;

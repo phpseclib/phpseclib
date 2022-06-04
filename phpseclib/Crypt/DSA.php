@@ -27,6 +27,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\AsymmetricKey;
@@ -97,11 +99,9 @@ abstract class DSA extends AsymmetricKey
     /**
      * Create DSA parameters
      *
-     * @param int $L
-     * @param int $N
      * @return \phpseclib3\Crypt\DSA|bool
      */
-    public static function createParameters($L = 2048, $N = 224)
+    public static function createParameters(int $L = 2048, int $N = 224)
     {
         self::initialize_static_variables();
 
@@ -137,12 +137,12 @@ abstract class DSA extends AsymmetricKey
 
         do {
             $x = BigInteger::random($L);
-            list(, $c) = $x->divide($divisor);
+            [, $c] = $x->divide($divisor);
             $p = $x->subtract($c->subtract(self::$one));
         } while ($p->getLength() != $L || !$p->isPrime());
 
         $p_1 = $p->subtract(self::$one);
-        list($e) = $p_1->divide($q);
+        [$e] = $p_1->divide($q);
 
         // quoting http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf#page=50 ,
         // "h could be obtained from a random number generator or from a counter that
@@ -176,7 +176,7 @@ abstract class DSA extends AsymmetricKey
      * @param int[] ...$args
      * @return DSA\PrivateKey
      */
-    public static function createKey(...$args)
+    public static function createKey(...$args): PrivateKey
     {
         self::initialize_static_variables();
 
@@ -213,10 +213,9 @@ abstract class DSA extends AsymmetricKey
     /**
      * OnLoad Handler
      *
-     * @return bool
-     * @param array $components
+     *@return bool
      */
-    protected static function onLoad($components)
+    protected static function onLoad(array $components)
     {
         if (!isset(self::$engines['PHP'])) {
             self::useBestEngine();
@@ -259,10 +258,8 @@ abstract class DSA extends AsymmetricKey
      * Returns the key size
      *
      * More specifically, this L (the length of DSA Prime P) and N (the length of DSA Group Order q)
-     *
-     * @return array
      */
-    public function getLength()
+    public function getLength(): array
     {
         return ['L' => $this->p->getLength(), 'N' => $this->q->getLength()];
     }
@@ -272,9 +269,8 @@ abstract class DSA extends AsymmetricKey
      *
      * @see self::useInternalEngine()
      * @see self::useBestEngine()
-     * @return string
      */
-    public function getEngine()
+    public function getEngine(): string
     {
         if (!isset(self::$engines['PHP'])) {
             self::useBestEngine();
@@ -290,7 +286,6 @@ abstract class DSA extends AsymmetricKey
      * value.
      *
      * @see self::getPublicKey()
-     * @return mixed
      */
     public function getParameters()
     {
@@ -306,10 +301,8 @@ abstract class DSA extends AsymmetricKey
      * Determines the signature padding mode
      *
      * Valid values are: ASN1, SSH2, Raw
-     *
-     * @param string $format
      */
-    public function withSignatureFormat($format)
+    public function withSignatureFormat(string $format): DSA
     {
         $new = clone $this;
         $new->shortFormat = $format;
@@ -319,9 +312,8 @@ abstract class DSA extends AsymmetricKey
 
     /**
      * Returns the signature format currently being used
-     *
      */
-    public function getSignatureFormat()
+    public function getSignatureFormat(): string
     {
         return $this->shortFormat;
     }

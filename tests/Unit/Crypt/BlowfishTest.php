@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\Blowfish;
@@ -14,7 +16,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class BlowfishTest extends PhpseclibTestCase
 {
-    public function engineVectors()
+    public function engineVectors(): array
     {
         $engines = [
             'PHP',
@@ -76,7 +78,7 @@ class BlowfishTest extends PhpseclibTestCase
     /**
      * @dataProvider engineVectors
      */
-    public function testVectors($engine, $key, $plaintext, $expected)
+    public function testVectors($engine, $key, $plaintext, $expected): void
     {
         $bf = new Blowfish('cbc');
         $bf->setKey($key);
@@ -92,7 +94,7 @@ class BlowfishTest extends PhpseclibTestCase
         $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engine engine");
     }
 
-    public function testKeySizes()
+    public function testKeySizes(): void
     {
         $objects = $engines = [];
         $temp = new Blowfish('ctr');

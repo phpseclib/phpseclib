@@ -11,6 +11,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Common\Functions;
 
 use phpseclib3\Math\BigInteger;
@@ -27,12 +29,8 @@ abstract class Strings
      * String Shift
      *
      * Inspired by array_shift
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
      */
-    public static function shift(&$string, $index = 1)
+    public static function shift(string &$string, int $index = 1): string
     {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
@@ -43,12 +41,8 @@ abstract class Strings
      * String Pop
      *
      * Inspired by array_pop
-     *
-     * @param string $string
-     * @param int $index
-     * @return string
      */
-    public static function pop(&$string, $index = 1)
+    public static function pop(string &$string, int $index = 1): string
     {
         $substr = substr($string, -$index);
         $string = substr($string, 0, -$index);
@@ -71,12 +65,8 @@ abstract class Strings
      * L = name-list
      *
      * uint64 is not supported.
-     *
-     * @param string $format
-     * @param string $data
-     * @return mixed
      */
-    public static function unpackSSH2($format, &$data)
+    public static function unpackSSH2(string $format, string &$data): array
     {
         $format = self::formatPack($format);
         $result = [];
@@ -113,7 +103,7 @@ abstract class Strings
                     $result[] = ord(self::shift($data)) != 0;
                     continue 2;
                 case 'N':
-                    list(, $temp) = unpack('N', self::shift($data, 4));
+                    [, $temp] = unpack('N', self::shift($data, 4));
                     $result[] = $temp;
                     continue 2;
                 case 'Q':
@@ -130,7 +120,7 @@ abstract class Strings
                     $result[] = $temp;
                     continue 2;
             }
-            list(, $length) = unpack('N', self::shift($data, 4));
+            [, $length] = unpack('N', self::shift($data, 4));
             if (strlen($data) < $length) {
                 throw new \LengthException("$length bytes needed; " . strlen($data) . ' bytes available');
             }
@@ -153,11 +143,9 @@ abstract class Strings
     /**
      * Create SSH2-style string
      *
-     * @param string $format
      * @param string|int|float|array|bool ...$elements
-     * @return string
      */
-    public static function packSSH2($format, ...$elements)
+    public static function packSSH2(string $format, ...$elements): string
     {
         $format = self::formatPack($format);
         if (strlen($format) != count($elements)) {
@@ -226,16 +214,13 @@ abstract class Strings
      * Expand a pack string
      *
      * Converts C5 to CCCCC, for example.
-     *
-     * @param string $format
-     * @return string
      */
-    private static function formatPack($format)
+    private static function formatPack(string $format): string
     {
         $parts = preg_split('#(\d+)#', $format, -1, PREG_SPLIT_DELIM_CAPTURE);
         $format = '';
         for ($i = 1; $i < count($parts); $i += 2) {
-            $format .= substr($parts[$i - 1], 0, -1) . str_repeat(substr($parts[$i - 1], -1), $parts[$i]);
+            $format .= substr($parts[$i - 1], 0, -1) . str_repeat(substr($parts[$i - 1], -1), (int) $parts[$i]);
         }
         $format .= $parts[$i - 1];
 
@@ -249,11 +234,8 @@ abstract class Strings
      * decbin / bindec refer to base-2 encoded data as binary. For the purposes
      * of this function, bin refers to base-256 encoded data whilst bits refers
      * to base-2 encoded data
-     *
-     * @param string $x
-     * @return string
      */
-    public static function bits2bin($x)
+    public static function bits2bin(string $x): string
     {
         /*
         // the pure-PHP approach is faster than the GMP approach
@@ -295,11 +277,8 @@ abstract class Strings
 
     /**
      * Convert bits to binary data
-     *
-     * @param string $x
-     * @return string
      */
-    public static function bin2bits($x, $trim = true)
+    public static function bin2bits(string $x, $trim = true): string
     {
         /*
         // the pure-PHP approach is slower than the GMP approach BUT
@@ -333,11 +312,8 @@ abstract class Strings
 
     /**
      * Switch Endianness Bit Order
-     *
-     * @param string $x
-     * @return string
      */
-    public static function switchEndianness($x)
+    public static function switchEndianness(string $x): string
     {
         $r = '';
         for ($i = strlen($x) - 1; $i >= 0; $i--) {
@@ -361,11 +337,8 @@ abstract class Strings
 
     /**
      * Increment the current string
-     *
-     * @param string $var
-     * @return string
      */
-    public static function increment_str(&$var)
+    public static function increment_str(string &$var): string
     {
         if (function_exists('sodium_increment')) {
             $var = strrev($var);
@@ -406,11 +379,9 @@ abstract class Strings
     /**
      * Find whether the type of a variable is string (or could be converted to one)
      *
-     * @param mixed $var
-     * @return bool
      * @psalm-assert-if-true string|\Stringable $var
      */
-    public static function is_stringable($var)
+    public static function is_stringable($var): bool
     {
         return is_string($var) || (is_object($var) && method_exists($var, '__toString'));
     }

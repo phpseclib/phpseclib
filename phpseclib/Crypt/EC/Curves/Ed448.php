@@ -10,6 +10,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\Curves;
 
 use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards;
@@ -56,11 +58,10 @@ class Ed448 extends TwistedEdwards
      *
      * Used by EC\Keys\Common.php
      *
-     * @param BigInteger $y
      * @param boolean $sign
      * @return object[]
      */
-    public function recoverX(BigInteger $y, $sign)
+    public function recoverX(BigInteger $y, bool $sign): array
     {
         $y = $this->factory->newInteger($y);
 
@@ -96,10 +97,9 @@ class Ed448 extends TwistedEdwards
      *
      * Used by the various key handlers
      *
-     * @param string $str
      * @return \phpseclib3\Math\PrimeField\Integer
      */
-    public function extractSecret($str)
+    public function extractSecret(string $str)
     {
         if (strlen($str) != 57) {
             throw new \LengthException('Private Key should be 57-bytes long');
@@ -127,13 +127,10 @@ class Ed448 extends TwistedEdwards
 
     /**
      * Encode a point as a string
-     *
-     * @param array $point
-     * @return string
      */
-    public function encodePoint($point)
+    public function encodePoint(array $point): string
     {
-        list($x, $y) = $point;
+        [$x, $y] = $point;
         $y = "\0" . $y->toBytes();
         if ($x->isOdd()) {
             $y[0] = $y[0] | chr(0x80);
@@ -145,10 +142,8 @@ class Ed448 extends TwistedEdwards
 
     /**
      * Creates a random scalar multiplier
-     *
-     * @return \phpseclib3\Math\PrimeField\Integer
      */
-    public function createRandomMultiplier()
+    public function createRandomMultiplier(): BigInteger
     {
         return $this->extractSecret(Random::string(57));
     }
@@ -163,7 +158,7 @@ class Ed448 extends TwistedEdwards
      *
      * @return \phpseclib3\Math\PrimeField\Integer[]
      */
-    public function convertToInternal(array $p)
+    public function convertToInternal(array $p): array
     {
         if (empty($p)) {
             return [clone $this->zero, clone $this->one, clone $this->one];
@@ -183,7 +178,7 @@ class Ed448 extends TwistedEdwards
      *
      * @return FiniteField[]
      */
-    public function doublePoint(array $p)
+    public function doublePoint(array $p): array
     {
         if (!isset($this->factory)) {
             throw new \RuntimeException('setModulo needs to be called before this method');
@@ -199,7 +194,7 @@ class Ed448 extends TwistedEdwards
 
         // from https://tools.ietf.org/html/rfc8032#page-18
 
-        list($x1, $y1, $z1) = $p;
+        [$x1, $y1, $z1] = $p;
 
         $b = $x1->add($y1);
         $b = $b->multiply($b);
@@ -221,7 +216,7 @@ class Ed448 extends TwistedEdwards
      *
      * @return FiniteField[]
      */
-    public function addPoint(array $p, array $q)
+    public function addPoint(array $p, array $q): array
     {
         if (!isset($this->factory)) {
             throw new \RuntimeException('setModulo needs to be called before this method');
@@ -247,8 +242,8 @@ class Ed448 extends TwistedEdwards
 
         // from https://tools.ietf.org/html/rfc8032#page-17
 
-        list($x1, $y1, $z1) = $p;
-        list($x2, $y2, $z2) = $q;
+        [$x1, $y1, $z1] = $p;
+        [$x2, $y2, $z2] = $q;
 
         $a = $z1->multiply($z2);
         $b = $a->multiply($a);

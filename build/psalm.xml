@@ -1,20 +1,19 @@
 <?xml version="1.0"?>
 <psalm
-    errorLevel="6"
-    resolveFromConfigFile="true"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
-    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    errorLevel="1"
+    errorBaseline="psalm_baseline.xml"
+    findUnusedCode="true"
     findUnusedPsalmSuppress="true"
     sealAllMethods="true"
-    errorBaseline="psalm_baseline.xml"
+    ensureArrayStringOffsetsExist="true"
+    ensureArrayIntOffsetsExist="true"
+    ignoreInternalFunctionNullReturn="false"
+    ignoreInternalFunctionFalseReturn="false"
 >
     <projectFiles>
         <directory name="../phpseclib"/>
-        <ignoreFiles>
-            <directory name="../phpseclib/Crypt"/>
-            <directory name="../tests"/>
-        </ignoreFiles>
+        <directory name="../tests"/>
     </projectFiles>
     <issueHandlers>
         <Trace>

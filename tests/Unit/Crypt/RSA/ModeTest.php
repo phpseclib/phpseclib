@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt\RSA;
 
 use phpseclib3\Crypt\PublicKeyLoader;
@@ -16,7 +18,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class ModeTest extends PhpseclibTestCase
 {
-    public function testEncryptionModeNone()
+    public function testEncryptionModeNone(): void
     {
         $plaintext = 'a';
 
@@ -53,7 +55,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
     /**
      * @group github768
      */
-    public function testPSSSigs()
+    public function testPSSSigs(): void
     {
         $rsa = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqGKukO1De7zhZj6+H0qtjTkVx
@@ -71,7 +73,7 @@ p0GbMJDyR4e9T04ZZwIDAQAB
         $this->assertTrue($rsa->verify('zzzz', $sig));
     }
 
-    public function testSmallModulo()
+    public function testSmallModulo(): void
     {
         $this->expectException('LengthException');
 
@@ -86,7 +88,7 @@ p0GbMJDyR4e9T04ZZwIDAQAB
         $rsa->encrypt($plaintext);
     }
 
-    public function testPKCS1LooseVerify()
+    public function testPKCS1LooseVerify(): void
     {
         $rsa = PublicKeyLoader::load('-----BEGIN RSA PUBLIC KEY-----
 MIGJAoGBAMuqkz8ij+ESAaNvgocVGmapjlrIldmhRo4h2NX4e6IXiCLTSxASQtY4
@@ -106,7 +108,7 @@ m4k72G75QXhZ+I40ZG7cjBf1/9egakR0a0X0MpeOrKCzMBLv9+mpAgMBAAE=
         $this->assertTrue($rsa->verify($message, $sig));
     }
 
-    public function testZeroLengthSalt()
+    public function testZeroLengthSalt(): void
     {
         $plaintext = 'a';
 
@@ -139,7 +141,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
     /**
      * @group github1423
      */
-    public function testPSSSigsWithNonPowerOf2Key()
+    public function testPSSSigsWithNonPowerOf2Key(): void
     {
         $pub = <<<HERE
 -----BEGIN PUBLIC KEY-----
@@ -159,7 +161,7 @@ HERE;
         $this->assertTrue($rsa->verify($payload, $sig));
     }
 
-    public function testHash()
+    public function testHash(): void
     {
         $pub = <<<HERE
 -----BEGIN PUBLIC KEY-----
@@ -187,7 +189,7 @@ HERE;
         $this->assertEquals('sha1', $rsa->getMGFHash());
     }
 
-    public function testPKCS1SigWithoutNull()
+    public function testPKCS1SigWithoutNull(): void
     {
         $rsa = PublicKeyLoader::load([
             'n' => new BigInteger(
@@ -214,7 +216,7 @@ HERE;
     /**
      * @group github1669
      */
-    public function testOAEPWithLabel()
+    public function testOAEPWithLabel(): void
     {
         $publicKey = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCnkFHQbt801+kMnxn0VmMVljp8

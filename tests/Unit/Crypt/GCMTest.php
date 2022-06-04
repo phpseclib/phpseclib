@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\AES;
@@ -15,10 +17,8 @@ class GCMTest extends PhpseclibTestCase
 {
     /**
      * Produces all combinations of test values.
-     *
-     * @return array
      */
-    public function engine128Vectors()
+    public function engine128Vectors(): array
     {
         $engines = [
             'PHP',
@@ -107,7 +107,7 @@ class GCMTest extends PhpseclibTestCase
     /**
      * @dataProvider engine128Vectors
      */
-    public function test128Vectors($engine, $key, $plaintext, $nonce, $aad, $ciphertext, $tag)
+    public function test128Vectors($engine, $key, $plaintext, $nonce, $aad, $ciphertext, $tag): void
     {
         $aes = new AES('gcm');
         $aes->setKey($key);
@@ -128,10 +128,8 @@ class GCMTest extends PhpseclibTestCase
 
     /**
      * Produces all combinations of test values.
-     *
-     * @return array
      */
-    public function engine256Vectors()
+    public function engine256Vectors(): array
     {
         $engines = [
             'PHP',
@@ -220,7 +218,7 @@ class GCMTest extends PhpseclibTestCase
     /**
      * @dataProvider engine256Vectors
      */
-    public function test256Vectors($engine, $key, $plaintext, $nonce, $aad, $ciphertext, $tag)
+    public function test256Vectors($engine, $key, $plaintext, $nonce, $aad, $ciphertext, $tag): void
     {
         $aes = new AES('gcm');
         $aes->setKey($key);

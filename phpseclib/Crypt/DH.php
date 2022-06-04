@@ -22,6 +22,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\AsymmetricKey;
@@ -69,10 +71,8 @@ abstract class DH extends AsymmetricKey
      *  - two BigInteger's (prime and base)
      *  - an integer representing the size of the prime in bits (the base is assumed to be 2)
      *  - a string (eg. diffie-hellman-group14-sha1)
-     *
-     * @return Parameters
      */
-    public static function createParameters(...$args)
+    public static function createParameters(...$args): Parameters
     {
         $params = new Parameters();
         if (count($args) == 2 && $args[0] instanceof BigInteger && $args[1] instanceof BigInteger) {
@@ -229,11 +229,10 @@ abstract class DH extends AsymmetricKey
      *
      * $length is in bits
      *
-     * @param Parameters $params
      * @param int $length optional
      * @return DH\PrivateKey
      */
-    public static function createKey(Parameters $params, $length = 0)
+    public static function createKey(Parameters $params, int $length = 0): PrivateKey
     {
         $one = new BigInteger(1);
         if ($length) {
@@ -256,7 +255,6 @@ abstract class DH extends AsymmetricKey
      *
      * @param PrivateKey|EC $private
      * @param PublicKey|BigInteger|string $public
-     * @return mixed
      */
     public static function computeSecret($private, $public)
     {
@@ -308,11 +306,10 @@ abstract class DH extends AsymmetricKey
     /**
      * Load the key
      *
-     * @param string $key
+     * @param string|array $key
      * @param string $password optional
-     * @return AsymmetricKey
      */
-    public static function load($key, $password = false)
+    public static function load($key, $password = false): AsymmetricKey
     {
         try {
             return EC::load($key, $password);
@@ -325,10 +322,9 @@ abstract class DH extends AsymmetricKey
     /**
      * OnLoad Handler
      *
-     * @return bool
-     * @param array $components
+     *@return bool
      */
-    protected static function onLoad($components)
+    protected static function onLoad(array $components)
     {
         if (!isset($components['privateKey']) && !isset($components['publicKey'])) {
             $new = new Parameters();
@@ -353,19 +349,16 @@ abstract class DH extends AsymmetricKey
 
     /**
      * Determines which hashing function should be used
-     *
-     * @param string $hash
      */
-    public function withHash($hash)
+    public function withHash(string $hash): AsymmetricKey
     {
         throw new UnsupportedOperationException('DH does not use a hash algorithm');
     }
 
     /**
      * Returns the hash algorithm currently being used
-     *
      */
-    public function getHash()
+    public function getHash(): Hash
     {
         throw new UnsupportedOperationException('DH does not use a hash algorithm');
     }
@@ -377,9 +370,8 @@ abstract class DH extends AsymmetricKey
      * value.
      *
      * @see self::getPublicKey()
-     * @return mixed
      */
-    public function getParameters()
+    public function getParameters(): AsymmetricKey
     {
         $type = self::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 

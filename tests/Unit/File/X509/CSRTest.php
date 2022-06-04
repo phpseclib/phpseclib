@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\File\X509;
 
 use phpseclib3\Crypt\PublicKeyLoader;
@@ -15,7 +17,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class CSRTest extends PhpseclibTestCase
 {
-    public function testLoadCSR()
+    public function testLoadCSR(): void
     {
         $test = '-----BEGIN CERTIFICATE REQUEST-----
 MIIBWzCBxQIBADAeMRwwGgYDVQQKDBNwaHBzZWNsaWIgZGVtbyBjZXJ0MIGdMAsG
@@ -35,7 +37,7 @@ v5RwaQHmQEzHofTzF7I+
         $this->assertIsArray($spkac);
     }
 
-    public function testCSRWithAttributes()
+    public function testCSRWithAttributes(): void
     {
         $test = '-----BEGIN NEW CERTIFICATE REQUEST-----
 MIIFGDCCAwACAQAwOjEWMBQGCgmSJomT8ixkARkWBnNlY3VyZTEgMB4GA1UEAxMX
@@ -75,7 +77,7 @@ draiRBZruwMPwPIP
         $this->assertIsArray($csr);
     }
 
-    public function testCSRDER()
+    public function testCSRDER(): void
     {
         $csr = 'MIICdzCCAV8CAQEwDDEKMAgGA1UEAwwBeDCCASIwDQYJKoZIhvcNAQEBBQADggEP' .
                'ADCCAQoCggEBALtcrFDD2AHe3x2bR00wPDsPH6FJLxr5uc1ybb+ldDB5xNVImC8P' .
@@ -101,7 +103,7 @@ draiRBZruwMPwPIP
     }
 
     // on PHP 7.1, with older versions of phpseclib, this would produce a "A non-numeric value encountered" warning
-    public function testNewCSR()
+    public function testNewCSR(): void
     {
         $x509 = new X509();
 
@@ -132,7 +134,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
     /**
      * @group github1675
      */
-    public function testPKCS1CSR()
+    public function testPKCS1CSR(): void
     {
         $x509 = new X509();
         $x509->loadCSR('-----BEGIN CERTIFICATE REQUEST-----
@@ -158,7 +160,7 @@ fUQvcGEA9FSQ8Y0nfF9vzzcCjLtOI6xJluYL9XCk8WVEBEawA2zmHWTzzuHFHHEM
     /**
      * @group github1675
      */
-    public function testPSSCSR()
+    public function testPSSCSR(): void
     {
         $x509 = new X509();
         $x509->loadCSR('-----BEGIN CERTIFICATE REQUEST-----

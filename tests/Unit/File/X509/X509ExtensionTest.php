@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\File\X509;
 
 use phpseclib3\Crypt\EC;
@@ -16,7 +18,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class X509ExtensionTest extends PhpseclibTestCase
 {
-    public function testCustomExtension()
+    public function testCustomExtension(): void
     {
         $customExtensionData = [
             'toggle' => true,
@@ -88,7 +90,7 @@ class X509ExtensionTest extends PhpseclibTestCase
         $this->assertSame($customExtensionMapping, X509::getRegisteredExtension($customExtensionName));
     }
 
-    public function testCustomExtensionRegisterTwiceTheSame()
+    public function testCustomExtensionRegisterTwiceTheSame(): void
     {
         $customExtensionMapping = [
             'type' => ASN1::TYPE_SEQUENCE,
@@ -111,7 +113,7 @@ class X509ExtensionTest extends PhpseclibTestCase
         $this->assertSame($customExtensionMapping, X509::getRegisteredExtension('foo'));
     }
 
-    public function testCustomExtensionRegisterConflict()
+    public function testCustomExtensionRegisterConflict(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Extension bar has already been defined with a different mapping.');
@@ -120,7 +122,7 @@ class X509ExtensionTest extends PhpseclibTestCase
         X509::registerExtension('bar', ['type' => ASN1::TYPE_ANY]);
     }
 
-    public function testExtensionsAreInitializedIfMissing()
+    public function testExtensionsAreInitializedIfMissing(): void
     {
         $issuerKey = EC::createKey('ed25519');
         $subjectKey = EC::createKey('ed25519')->getPublicKey();

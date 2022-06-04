@@ -11,6 +11,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Math\BigInteger\Engines\BCMath\Reductions;
 
 use phpseclib3\Math\BigInteger\Engines\BCMath\Base;
@@ -26,12 +28,10 @@ abstract class Barrett extends Base
      * Cache constants
      *
      * $cache[self::VARIABLE] tells us whether or not the cached data is still valid.
-     *
      */
     const VARIABLE = 0;
     /**
      * $cache[self::DATA] contains the cached data.
-     *
      */
     const DATA = 1;
 
@@ -52,12 +52,8 @@ abstract class Barrett extends Base
      * radix points, it only works when there are an even number of digits in the denominator.  The reason for (2) is that
      * (x >> 1) + (x >> 1) != x / 2 + x / 2.  If x is even, they're the same, but if x is odd, they're not.  See the in-line
      * comments for details.
-     *
-     * @param string $n
-     * @param string $m
-     * @return string
      */
-    protected static function reduce($n, $m)
+    protected static function reduce(string $n, string $m): string
     {
         static $cache = [
             self::VARIABLE => [],
@@ -139,12 +135,8 @@ abstract class Barrett extends Base
      *
      * For numbers with more than four digits BigInteger::_barrett() is faster.  The difference between that and this
      * is that this function does not fold the denominator into a smaller form.
-     *
-     * @param string $x
-     * @param string $n
-     * @return string
      */
-    private static function regularBarrett($x, $n)
+    private static function regularBarrett(string $x, string $n): string
     {
         static $cache = [
             self::VARIABLE => [],

@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt\AES;
 
 use phpseclib3\Crypt\AES;
@@ -18,7 +20,7 @@ abstract class TestCase extends PhpseclibTestCase
 {
     protected $engine;
 
-    private function _checkEngine($aes)
+    private function _checkEngine($aes): void
     {
         if ($aes->getEngine() != $this->engine) {
             self::markTestSkipped('Unable to initialize ' . $this->engine . ' engine');
@@ -27,10 +29,8 @@ abstract class TestCase extends PhpseclibTestCase
 
     /**
      * Produces all combinations of test values.
-     *
-     * @return array
      */
-    public function continuousBufferCombos()
+    public function continuousBufferCombos(): array
     {
         $modes = [
             'ctr',
@@ -73,7 +73,7 @@ abstract class TestCase extends PhpseclibTestCase
     /**
      * @dataProvider continuousBufferCombos
      */
-    public function testEncryptDecryptWithContinuousBuffer($mode, $plaintext, $iv, $key)
+    public function testEncryptDecryptWithContinuousBuffer($mode, $plaintext, $iv, $key): void
     {
         $aes = new AES($mode);
         $aes->setPreferredEngine($this->engine);
@@ -94,7 +94,7 @@ abstract class TestCase extends PhpseclibTestCase
     /**
      * @group github451
      */
-    public function testKeyPaddingRijndael()
+    public function testKeyPaddingRijndael(): void
     {
         // this test case is from the following URL:
         // https://web.archive.org/web/20070209120224/http://fp.gladman.plus.com/cryptography_technology/rijndael/aesdvec.zip
@@ -112,7 +112,7 @@ abstract class TestCase extends PhpseclibTestCase
     /**
      * @group github451
      */
-    public function testKeyPaddingAES()
+    public function testKeyPaddingAES(): void
     {
         $this->expectException('LengthException');
 
@@ -133,7 +133,7 @@ abstract class TestCase extends PhpseclibTestCase
      *
      * @return list<array{string, string, array}>
      */
-    public function continuousBufferBatteryCombos()
+    public function continuousBufferBatteryCombos(): array
     {
         $modes = [
             'ctr',
@@ -176,7 +176,7 @@ abstract class TestCase extends PhpseclibTestCase
     /**
      * @return array<array{string, string, array}>
      */
-    public function continuousBufferBatteryCombosWithoutSingleCombos()
+    public function continuousBufferBatteryCombosWithoutSingleCombos(): array
     {
         return array_filter($this->continuousBufferBatteryCombos(), function (array $continuousBufferBatteryCombo) {
             return count($continuousBufferBatteryCombo[2]) > 1;
@@ -186,7 +186,7 @@ abstract class TestCase extends PhpseclibTestCase
     /**
      * @dataProvider continuousBufferBatteryCombos
      */
-    public function testContinuousBufferBattery($op, $mode, $test)
+    public function testContinuousBufferBattery($op, $mode, $test): void
     {
         $iv = str_repeat('x', 16);
         $key = str_repeat('a', 16);
@@ -231,7 +231,7 @@ abstract class TestCase extends PhpseclibTestCase
      *
      * @dataProvider continuousBufferBatteryCombosWithoutSingleCombos
      */
-    public function testNonContinuousBufferBattery($op, $mode, $test)
+    public function testNonContinuousBufferBattery($op, $mode, $test): void
     {
         $iv = str_repeat('x', 16);
         $key = str_repeat('a', 16);
@@ -271,7 +271,7 @@ abstract class TestCase extends PhpseclibTestCase
     }
 
     // from http://csrc.nist.gov/groups/STM/cavp/documents/aes/AESAVS.pdf#page=16
-    public function testGFSBox128()
+    public function testGFSBox128(): void
     {
         $aes = new AES('cbc');
 
@@ -298,7 +298,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame($result, '08a4e2efec8a8e3312ca7460b9040bbf');
     }
 
-    public function testGFSBox192()
+    public function testGFSBox192(): void
     {
         $aes = new AES('cbc');
 
@@ -323,7 +323,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame($result, '067cd9d3749207791841562507fa9626');
     }
 
-    public function testGFSBox256()
+    public function testGFSBox256(): void
     {
         $aes = new AES('cbc');
 
@@ -346,20 +346,20 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame($result, '1bc704f1bce135ceb810341b216d7abe');
     }
 
-    public function testGetKeyLengthDefault()
+    public function testGetKeyLengthDefault(): void
     {
         $aes = new AES('cbc');
         $this->assertSame($aes->getKeyLength(), 128);
     }
 
-    public function testGetKeyLengthWith192BitKey()
+    public function testGetKeyLengthWith192BitKey(): void
     {
         $aes = new AES('cbc');
         $aes->setKey(str_repeat('a', 24));
         $this->assertSame($aes->getKeyLength(), 192);
     }
 
-    public function testSetKeyLengthWithLargerKey()
+    public function testSetKeyLengthWithLargerKey(): void
     {
         $this->expectException(InconsistentSetupException::class);
 
@@ -373,7 +373,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame($aes->getKeyLength(), 128);
     }
 
-    public function testSetKeyLengthWithSmallerKey()
+    public function testSetKeyLengthWithSmallerKey(): void
     {
         $this->expectException(InconsistentSetupException::class);
 
@@ -390,7 +390,7 @@ abstract class TestCase extends PhpseclibTestCase
     /**
      * @group github938
      */
-    public function testContinuousBuffer()
+    public function testContinuousBuffer(): void
     {
         $aes = new AES('cbc');
         $aes->disablePadding();
@@ -403,7 +403,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame($plaintext, $expected);
     }
 
-    public function testECBDecrypt()
+    public function testECBDecrypt(): void
     {
         $aes = new AES('ecb');
         $aes->setPreferredEngine($this->engine);
@@ -418,7 +418,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertEquals($plaintext, $actual);
     }
 
-    public function testNoKey()
+    public function testNoKey(): void
     {
         $this->expectException(InsufficientSetupException::class);
 

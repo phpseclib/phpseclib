@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace phpseclib3\Net\SFTP;
 
 /**
@@ -33,9 +35,8 @@ abstract class Attribute
     const EXTENDED = (-1 << 31) & 0xFFFFFFFF;
 
     /**
-     * @return array
      */
-    public static function getConstants()
+    public static function getConstants(): array
     {
         $reflectionClass = new \ReflectionClass(static::class);
         return $reflectionClass->getConstants();
