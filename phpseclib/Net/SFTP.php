@@ -3095,7 +3095,7 @@ class SFTP extends SSH2
                 }
                 $this->packet_type = false;
                 $this->packet_buffer = '';
-                return false;
+                return ($this->channel_close ? false : $this->get_sftp_packet($request_id));
             }
             $this->packet_buffer .= $temp;
         }
@@ -3117,9 +3117,12 @@ class SFTP extends SSH2
         while ($tempLength > 0) {
             $temp = $this->get_channel_packet(self::CHANNEL, true);
             if (is_bool($temp)) {
+                if ($this->channel_status[self::CHANNEL] === NET_SSH2_MSG_CHANNEL_CLOSE) {
+                    $this->channel_close = true;
+                }
                 $this->packet_type = false;
                 $this->packet_buffer = '';
-                return false;
+                return ($this->channel_close ? false : $this->get_sftp_packet($request_id));
             }
             $this->packet_buffer .= $temp;
             $tempLength -= strlen($temp);
