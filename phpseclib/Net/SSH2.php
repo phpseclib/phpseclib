@@ -3176,7 +3176,7 @@ class SSH2
             $this->bitmap = 0;
             $str = 'Connection closed (by server) prematurely';
             if (isset($elapsed)) {
-                $str.= ' ' . $elapsed . 's';
+                $str .= ' ' . $elapsed . 's';
             }
             throw new ConnectionClosedException($str);
         }
