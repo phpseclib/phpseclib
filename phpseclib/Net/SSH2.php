@@ -3174,7 +3174,11 @@ class SSH2
 
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             $this->bitmap = 0;
-            throw new ConnectionClosedException('Connection closed (by server) prematurely ' . $elapsed . 's');
+            $str = 'Connection closed (by server) prematurely';
+            if (isset($elapsed)) {
+                $str.= ' ' . $elapsed . 's';
+            }
+            throw new ConnectionClosedException($str);
         }
 
         $start = microtime(true);
