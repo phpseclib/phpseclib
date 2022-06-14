@@ -3618,6 +3618,9 @@ class SFTP extends SSH2
         while ($tempLength > 0) {
             $temp = $this->_get_channel_packet(self::CHANNEL, true);
             if (is_bool($temp)) {
+                if ($temp && $this->channel_status[NET_SFTP_CHANNEL] === NET_SSH2_MSG_CHANNEL_CLOSE) {
+                    $this->channel_close = true;
+                }
                 $this->packet_type = false;
                 $this->packet_buffer = '';
                 return false;
