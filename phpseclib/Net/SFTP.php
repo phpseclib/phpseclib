@@ -773,7 +773,16 @@ class Net_SFTP extends Net_SSH2
             return false;
         }
 
+        $this->pwd = true;
         $this->pwd = $this->_realpath('.');
+        if ($this->pwd === false) {
+            if (!$this->canonicalize_paths) {
+                user_error('Unable to canonicalize current working directory');
+                return false;
+            }
+            $this->canonicalize_paths = false;
+            $this->_reset_connection(NET_SSH2_DISCONNECT_CONNECTION_LOST);
+        }
 
         $this->_update_stat_cache($this->pwd, array());
 
@@ -821,7 +830,9 @@ class Net_SFTP extends Net_SSH2
     }
 
     /**
-     * Enable path canonicalization
+     * Disable path canonicalization
+     *
+     * If this is enabled then $sftp->pwd() will not return the canonicalized absolute path
      *
      * @access public
      */
@@ -927,10 +938,37 @@ class Net_SFTP extends Net_SSH2
     function _realpath($path)
     {
         if (!$this->canonicalize_paths) {
-            return $path;
+            if ($this->pwd === true) {
+                return '.';
+            }
+            if (!strlen($path) || $path[0] != '/') {
+                $path = $this->pwd . '/' . $path;
+            }
+
+            $parts = explode('/', $path);
+            $afterPWD = $beforePWD = [];
+            foreach ($parts as $part) {
+                switch ($part) {
+                    //case '': // some SFTP servers /require/ double /'s. see https://github.com/phpseclib/phpseclib/pull/1137
+                    case '.':
+                        break;
+                    case '..':
+                        if (!empty($afterPWD)) {
+                            array_pop($afterPWD);
+                        } else {
+                            $beforePWD[] = '..';
+                        }
+                        break;
+                    default:
+                        $afterPWD[] = $part;
+                }
+            }
+
+            $beforePWD = count($beforePWD) ? implode('/', $beforePWD) : '.';
+            return $beforePWD . '/' . implode('/', $afterPWD);
         }
 
-        if ($this->pwd === false) {
+        if ($this->pwd === true) {
             // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.9
             if (!$this->_send_sftp_packet(NET_SFTP_REALPATH, pack('Na*', strlen($path), $path))) {
                 return false;
@@ -952,7 +990,6 @@ class Net_SFTP extends Net_SSH2
                     $this->_logError($response);
                     return false;
                 default:
-                    user_error('Expected SSH_FXP_NAME or SSH_FXP_STATUS');
                     return false;
             }
         }
