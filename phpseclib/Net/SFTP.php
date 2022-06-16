@@ -676,7 +676,15 @@ class SFTP extends SSH2
         }
 
         $this->pwd = true;
-        $this->pwd = $this->realpath('.');
+        try {
+            $this->pwd = $this->realpath('.');
+        } catch (\UnexpectedValueException $e) {
+            if (!$this->canonicalize_paths) {
+                throw $e;
+            }
+            $this->$this->canonicalize_paths = false;
+            $this->reset_connection(NET_SSH2_DISCONNECT_CONNECTION_LOST);
+        }
 
         $this->update_stat_cache($this->pwd, []);
 
@@ -720,7 +728,9 @@ class SFTP extends SSH2
     }
 
     /**
-     * Enable path canonicalization
+     * Disable path canonicalization
+     *
+     * If this is enabled then $sftp->pwd() will not return the canonicalized absolute path
      *
      */
     public function disablePathCanonicalization()
@@ -803,7 +813,32 @@ class SFTP extends SSH2
         }
 
         if (!$this->canonicalize_paths) {
-            return $path;
+            if ($this->pwd === true) {
+                return '.';
+            }
+            if (!strlen($path) || $path[0] != '/') {
+                $path = $this->pwd . '/' . $path;
+            }
+            $parts = explode('/', $path);
+            $afterPWD = $beforePWD = [];
+            foreach ($parts as $part) {
+                switch ($part) {
+                    //case '': // some SFTP servers /require/ double /'s. see https://github.com/phpseclib/phpseclib/pull/1137
+                    case '.':
+                        break;
+                    case '..':
+                        if (!empty($afterPWD)) {
+                            array_pop($afterPWD);
+                        } else {
+                            $beforePWD[] = '..';
+                        }
+                        break;
+                    default:
+                        $afterPWD[] = $part;
+                }
+            }
+            $beforePWD = count($beforePWD) ? implode('/', $beforePWD) : '.';
+            return $beforePWD . '/' . implode('/', $afterPWD);
         }
 
         if ($this->pwd === true) {
@@ -3280,10 +3315,7 @@ class SFTP extends SSH2
         // SFTP packet type and data payload
         while ($tempLength > 0) {
             $temp = $this->get_channel_packet(self::CHANNEL, true);
-            if ($temp === true) {
-                if ($this->channel_status[self::CHANNEL] === NET_SSH2_MSG_CHANNEL_CLOSE) {
-                    $this->channel_close = true;
-                }
+            if (is_bool($temp)) {
                 $this->packet_type = false;
                 $this->packet_buffer = '';
                 return false;
