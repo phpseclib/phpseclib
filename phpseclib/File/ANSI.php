@@ -440,7 +440,7 @@ class ANSI
      * @param string $char
      * @return string
      */
-    private function processCoordinate($last_attr, $cur_attr, $char)
+    private function processCoordinate(\stdClass $last_attr, \stdClass $cur_attr, $char)
     {
         $output = '';
 

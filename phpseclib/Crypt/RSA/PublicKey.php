@@ -364,7 +364,7 @@ class PublicKey extends RSA implements Common\PublicKey
      * @throws \LengthException if strlen($m) > $this->k - 2 * $this->hLen - 2
      * @return string
      */
-    private function rsaes_oaep_encrypt($m)
+    private function rsaes_oaep_encrypt(BigInteger $m)
     {
         $mLen = strlen($m);
 

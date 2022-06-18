@@ -115,7 +115,7 @@ abstract class XML
      * @param bool $decode optional
      * @return \DOMNodeList
      */
-    private static function query($xpath, $name, $error = null, $decode = true)
+    private static function query(\DOMXPath $xpath, $name, $error = null, $decode = true)
     {
         $query = '/';
         $names = explode('/', $name);

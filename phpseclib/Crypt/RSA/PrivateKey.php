@@ -60,10 +60,9 @@ class PrivateKey extends RSA implements Common\PrivateKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.1.2 RFC3447#section-5.1.2}.
      *
-     * @param \phpseclib3\Math\BigInteger $c
      * @return bool|\phpseclib3\Math\BigInteger
      */
-    private function rsadp($c)
+    private function rsadp(BigInteger $c)
     {
         if ($c->compare(self::$zero) < 0 || $c->compare($this->modulus) > 0) {
             throw new \OutOfRangeException('Ciphertext representative out of range');
@@ -76,10 +75,9 @@ class PrivateKey extends RSA implements Common\PrivateKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.2.1 RFC3447#section-5.2.1}.
      *
-     * @param \phpseclib3\Math\BigInteger $m
      * @return bool|\phpseclib3\Math\BigInteger
      */
-    private function rsasp1($m)
+    private function rsasp1(BigInteger $m)
     {
         if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
             throw new \OutOfRangeException('Signature representative out of range');
@@ -176,7 +174,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
      * @param int $i
      * @return \phpseclib3\Math\BigInteger
      */
-    private function blind($x, $r, $i)
+    private function blind(BigInteger $x, BigInteger $r, $i)
     {
         $x = $x->multiply($r->modPow($this->publicExponent, $this->primes[$i]));
         $x = $x->modPow($this->exponents[$i], $this->primes[$i]);

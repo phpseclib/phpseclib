@@ -516,12 +516,8 @@ abstract class ASN1
      * @param array $special
      * @return array|bool|Element|string|null
      */
-    public static function asn1map($decoded, $mapping, $special = [])
+    public static function asn1map(array $decoded, $mapping, $special = [])
     {
-        if (!is_array($decoded)) {
-            return false;
-        }
-
         if (isset($mapping['explicit']) && is_array($decoded['content'])) {
             $decoded = $decoded['content'][0];
         }
@@ -854,7 +850,7 @@ abstract class ASN1
      * @param array $special
      * @return string
      */
-    private static function encode_der($source, $mapping, $idx = null, $special = [])
+    private static function encode_der($source, array $mapping, $idx = null, array $special = [])
     {
         if ($source instanceof Element) {
             return $source->element;
@@ -1310,7 +1306,7 @@ abstract class ASN1
      *
      * @param array $oids
      */
-    public static function loadOIDs($oids)
+    public static function loadOIDs(array $oids)
     {
         self::$reverseOIDs += $oids;
         self::$oids = array_flip(self::$reverseOIDs);
@@ -1324,7 +1320,7 @@ abstract class ASN1
      *
      * @param array $filters
      */
-    public static function setFilters($filters)
+    public static function setFilters(array $filters)
     {
         self::$filters = $filters;
     }

@@ -199,9 +199,8 @@ abstract class EC extends AsymmetricKey
      * OnLoad Handler
      *
      * @return bool
-     * @param array $components
      */
-    protected static function onLoad($components)
+    protected static function onLoad(array $components)
     {
         if (!isset(self::$engines['PHP'])) {
             self::useBestEngine();

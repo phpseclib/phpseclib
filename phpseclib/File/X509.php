@@ -507,7 +507,7 @@ class X509
      * @param int $format optional
      * @return string
      */
-    public function saveX509($cert, $format = self::FORMAT_PEM)
+    public function saveX509(array $cert, $format = self::FORMAT_PEM)
     {
         if (!is_array($cert) || !isset($cert['tbsCertificate'])) {
             return false;
@@ -577,7 +577,7 @@ class X509
      * @param array $root (by reference)
      * @param string $path
      */
-    private function mapInExtensions(&$root, $path)
+    private function mapInExtensions(array &$root, $path)
     {
         $extensions = &$this->subArrayUnchecked($root, $path);
 
@@ -625,7 +625,7 @@ class X509
      * @param array $root (by reference)
      * @param string $path
      */
-    private function mapOutExtensions(&$root, $path)
+    private function mapOutExtensions(array &$root, $path)
     {
         $extensions = &$this->subArray($root, $path, !empty($this->extensionValues));
 
@@ -786,7 +786,7 @@ class X509
      * @param array $root (by reference)
      * @param string $path
      */
-    private function mapInDNs(&$root, $path)
+    private function mapInDNs(array &$root, $path)
     {
         $dns = &$this->subArray($root, $path);
 
@@ -814,7 +814,7 @@ class X509
      * @param array $root (by reference)
      * @param string $path
      */
-    private function mapOutDNs(&$root, $path)
+    private function mapOutDNs(array &$root, $path)
     {
         $dns = &$this->subArray($root, $path);
 

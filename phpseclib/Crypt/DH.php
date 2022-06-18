@@ -326,9 +326,8 @@ abstract class DH extends AsymmetricKey
      * OnLoad Handler
      *
      * @return bool
-     * @param array $components
      */
-    protected static function onLoad($components)
+    protected static function onLoad(array $components)
     {
         if (!isset($components['privateKey']) && !isset($components['publicKey'])) {
             $new = new Parameters();

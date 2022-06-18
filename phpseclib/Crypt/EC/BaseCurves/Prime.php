@@ -645,7 +645,7 @@ class Prime extends Base
      *
      * @return int[]
      */
-    private function getNAFPoints($point, $wnd)
+    private function getNAFPoints(array $point, $wnd)
     {
         if (isset($point['naf'])) {
             return $point['naf'];
