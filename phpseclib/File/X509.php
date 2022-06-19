@@ -468,7 +468,7 @@ class X509
 
         $decoded = ASN1::decodeBER($cert);
 
-        if (!empty($decoded)) {
+        if ($decoded) {
             $x509 = ASN1::asn1map($decoded[0], Maps\Certificate::MAP);
         }
         if (!isset($x509) || $x509 === false) {
@@ -593,6 +593,9 @@ class X509
                         [static::class, 'decodeNameConstraintIP'] :
                         [static::class, 'decodeIP'];
                     $decoded = ASN1::decodeBER($value);
+                    if (!$decoded) {
+                        continue;
+                    }
                     $mapped = ASN1::asn1map($decoded[0], $map, ['iPAddress' => $decoder]);
                     $value = $mapped === false ? $decoded[0] : $mapped;
 
@@ -607,6 +610,9 @@ class X509
                                 $subvalue = &$value[$j]['policyQualifiers'][$k]['qualifier'];
                                 if ($map !== false) {
                                     $decoded = ASN1::decodeBER($subvalue);
+                                    if (!$decoded) {
+                                        continue;
+                                    }
                                     $mapped = ASN1::asn1map($decoded[0], $map);
                                     $subvalue = $mapped === false ? $decoded[0] : $mapped;
                                 }
@@ -722,6 +728,9 @@ class X509
                         $value = ASN1::encodeDER($values[$j], Maps\AttributeValue::MAP);
                         $decoded = ASN1::decodeBER($value);
                         if (!is_bool($map)) {
+                            if (!$decoded) {
+                                continue;
+                            }
                             $mapped = ASN1::asn1map($decoded[0], $map);
                             if ($mapped !== false) {
                                 $values[$j] = $mapped;
@@ -771,6 +780,9 @@ class X509
                         if (!is_bool($map)) {
                             $temp = ASN1::encodeDER($values[$j], $map);
                             $decoded = ASN1::decodeBER($temp);
+                            if (!$decoded) {
+                                continue;
+                            }
                             $values[$j] = ASN1::asn1map($decoded[0], Maps\AttributeValue::MAP);
                         }
                     }
@@ -799,6 +811,9 @@ class X509
                         $map = $this->getMapping($type);
                         if (!is_bool($map)) {
                             $decoded = ASN1::decodeBER($value);
+                            if (!$decoded) {
+                                continue;
+                            }
                             $value = ASN1::asn1map($decoded[0], $map);
                         }
                     }
@@ -1721,6 +1736,9 @@ class X509
                         $map = $this->getMapping($propName);
                         if (!is_bool($map)) {
                             $decoded = ASN1::decodeBER($v);
+                            if (!$decoded) {
+                                return false;
+                            }
                             $v = ASN1::asn1map($decoded[0], $map);
                         }
                     }
@@ -2182,7 +2200,7 @@ class X509
 
         $decoded = ASN1::decodeBER($csr);
 
-        if (empty($decoded)) {
+        if (!$decoded) {
             $this->currentCert = false;
             return false;
         }
@@ -2295,7 +2313,7 @@ class X509
 
         $decoded = ASN1::decodeBER($spkac);
 
-        if (empty($decoded)) {
+        if (!$decoded) {
             $this->currentCert = false;
             return false;
         }
@@ -2393,7 +2411,7 @@ class X509
 
         $decoded = ASN1::decodeBER($crl);
 
-        if (empty($decoded)) {
+        if (!$decoded) {
             $this->currentCert = false;
             return false;
         }
@@ -3610,7 +3628,7 @@ class X509
             case $key instanceof Element:
                 // Assume the element is a bitstring-packed key.
                 $decoded = ASN1::decodeBER($key->element);
-                if (empty($decoded)) {
+                if (!$decoded) {
                     return false;
                 }
                 $raw = ASN1::asn1map($decoded[0], ['type' => ASN1::TYPE_BIT_STRING]);
@@ -3669,6 +3687,9 @@ class X509
         $publicKey = base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->toString($format)));
 
         $decoded = ASN1::decodeBER($publicKey);
+        if (!$decoded) {
+            return false;
+        }
         $mapped = ASN1::asn1map($decoded[0], Maps\SubjectPublicKeyInfo::MAP);
         if (!is_array($mapped)) {
             return false;

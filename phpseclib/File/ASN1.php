@@ -191,7 +191,7 @@ abstract class ASN1
      * Serves a similar purpose to openssl's asn1parse
      *
      * @param Element|string $encoded
-     * @return array
+     * @return ?array
      */
     public static function decodeBER($encoded)
     {
@@ -201,10 +201,12 @@ abstract class ASN1
 
         self::$encoded = $encoded;
 
-        $decoded = [self::decode_ber($encoded)];
+        $decoded = self::decode_ber($encoded);
+        if ($decoded === false) {
+            return null;
+        }
 
-        // encapsulate in an array for BC with the old decodeBER
-        return $decoded;
+        return [self::decode_ber($encoded)];
     }
 
     /**
