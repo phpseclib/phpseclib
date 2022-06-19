@@ -196,7 +196,7 @@ abstract class RSA extends AsymmetricKey
     /**
      * Modulus (ie. n)
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected $modulus;
 
@@ -210,7 +210,7 @@ abstract class RSA extends AsymmetricKey
     /**
      * Exponent (ie. e or d)
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected $exponent;
 
@@ -491,15 +491,9 @@ abstract class RSA extends AsymmetricKey
      * Integer-to-Octet-String primitive
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-4.1 RFC3447#section-4.1}.
-     *
-     * @param bool|\phpseclib3\Math\BigInteger $x
-     * @return bool|string
      */
-    protected function i2osp($x, int $xLen)
+    protected function i2osp(BigInteger $x, int $xLen): string
     {
-        if ($x === false) {
-            return false;
-        }
         $x = $x->toBytes();
         if (strlen($x) > $xLen) {
             throw new \OutOfRangeException('Resultant string length out of range');

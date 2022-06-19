@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="4.23.0@f1fe6ff483bf325c803df9f510d09a03fd796f88">
   <file src="../phpseclib/Common/Functions/Strings.php">
-    <MissingParamType occurrences="2">
-      <code>$trim</code>
+    <MissingParamType occurrences="1">
       <code>$var</code>
     </MissingParamType>
     <MixedArgument occurrences="8">
@@ -4090,9 +4089,8 @@
       <code>$order</code>
       <code>$p</code>
     </MissingConstructor>
-    <MissingParamType occurrences="2">
+    <MissingParamType occurrences="1">
       <code>$m</code>
-      <code>$modulo</code>
     </MissingParamType>
     <MixedAssignment occurrences="10">
       <code>$lhs</code>
@@ -4414,9 +4412,8 @@
     <InvalidPropertyAssignmentValue occurrences="2">
       <code>new PrimeField($modulo)</code>
     </InvalidPropertyAssignmentValue>
-    <InvalidReturnStatement occurrences="4">
+    <InvalidReturnStatement occurrences="3">
       <code>$jsf</code>
-      <code>$res</code>
       <code>$this-&gt;convertToAffine($acc)</code>
       <code>$this-&gt;p</code>
     </InvalidReturnStatement>
@@ -4453,10 +4450,8 @@
       <code>$two</code>
       <code>$two</code>
     </MissingConstructor>
-    <MissingParamType occurrences="3">
+    <MissingParamType occurrences="1">
       <code>$m</code>
-      <code>$point</code>
-      <code>$wnd</code>
     </MissingParamType>
     <MixedArgument occurrences="14">
       <code>$m</code>
@@ -4464,28 +4459,24 @@
       <code>$naf[$b]</code>
       <code>$p</code>
       <code>$point</code>
-      <code>$point</code>
       <code>$points[$a]</code>
       <code>$points[$a]</code>
       <code>$points[$b]</code>
       <code>$points[$b]</code>
-      <code>$res[$i - 1]</code>
+      <code>$points[$i]</code>
+      <code>$points[0]</code>
       <code>$scalars[$a]</code>
       <code>$scalars[$b]</code>
       <code>$wnd[$j][(-$z - 1) &gt;&gt; 1]</code>
     </MixedArgument>
-    <MixedArrayAccess occurrences="3">
-      <code>$point['naf']</code>
+    <MixedArrayAccess occurrences="2">
       <code>$points[$i]['nafwidth']</code>
       <code>$points[0]['nafwidth']</code>
     </MixedArrayAccess>
-    <MixedArrayAssignment occurrences="1">
-      <code>$point['naf']</code>
-    </MixedArrayAssignment>
     <MixedArrayOffset occurrences="1">
       <code>$wnd[$j][($z - 1) &gt;&gt; 1]</code>
     </MixedArrayOffset>
-    <MixedAssignment occurrences="43">
+    <MixedAssignment occurrences="42">
       <code>$b</code>
       <code>$bn</code>
       <code>$jsf[0][]</code>
@@ -4507,7 +4498,6 @@
       <code>$m8</code>
       <code>$m8</code>
       <code>$m8</code>
-      <code>$max</code>
       <code>$naf[$a]</code>
       <code>$naf[$b]</code>
       <code>$p</code>
@@ -4540,7 +4530,7 @@
       <code>FiniteField[]</code>
       <code>FiniteField[]</code>
       <code>boolean</code>
-      <code>int[]</code>
+      <code>list&lt;array&gt;</code>
     </MixedInferredReturnType>
     <MixedMethodCall occurrences="40">
       <code>add</code>
@@ -4584,7 +4574,7 @@
       <code>testBit</code>
       <code>testBit</code>
     </MixedMethodCall>
-    <MixedOperand occurrences="25">
+    <MixedOperand occurrences="23">
       <code>$k1-&gt;testBit(0)</code>
       <code>$k1-&gt;testBit(0)</code>
       <code>$k1-&gt;testBit(1)</code>
@@ -4607,9 +4597,7 @@
       <code>$m8</code>
       <code>$u1</code>
       <code>$u2</code>
-      <code>$wnd</code>
       <code>$z</code>
-      <code>1 &lt;&lt; $wnd</code>
     </MixedOperand>
     <MixedReturnStatement occurrences="2">
       <code>$lhs-&gt;equals($rhs)</code>
@@ -4629,10 +4617,6 @@
     <NonInvariantDocblockPropertyType occurrences="1">
       <code>$factory</code>
     </NonInvariantDocblockPropertyType>
-    <PossiblyInvalidArgument occurrences="2">
-      <code>$p</code>
-      <code>$wnd[$j][(-$z - 1) &gt;&gt; 1]</code>
-    </PossiblyInvalidArgument>
     <PossiblyNullArgument occurrences="1">
       <code>$dbl</code>
     </PossiblyNullArgument>
@@ -7663,13 +7647,10 @@
     <InvalidPropertyAssignmentValue occurrences="2">
       <code>$length &gt;&gt; 3</code>
     </InvalidPropertyAssignmentValue>
-    <MissingParamType occurrences="1">
-      <code>$t1</code>
-    </MissingParamType>
     <MixedArgument occurrences="1">
       <code>$l</code>
     </MixedArgument>
-    <MixedArrayOffset occurrences="18">
+    <MixedArrayOffset occurrences="13">
       <code>$keys[$r0 &amp; 0x3F]</code>
       <code>$keys[$r0 &amp; 0x3F]</code>
       <code>$keys[$r1 &amp; 0x3F]</code>
@@ -7678,20 +7659,13 @@
       <code>$keys[$r2 &amp; 0x3F]</code>
       <code>$keys[$r3 &amp; 0x3F]</code>
       <code>$keys[$r3 &amp; 0x3F]</code>
-      <code>$l[$i + $t8]</code>
-      <code>$l[$i + 1]</code>
-      <code>$l[$i]</code>
-      <code>$l[$i]</code>
-      <code>$l[$i]</code>
       <code>$pitable[$l[$i + 1] ^ $l[$i + $t8]]</code>
       <code>$pitable[$l[$i - 1] + $l[$i - $t]]</code>
       <code>$pitable[$l[$i] &amp; $tm]</code>
       <code>self::$invpitable[$l[0]]</code>
       <code>self::$pitable[$l['a']]</code>
     </MixedArrayOffset>
-    <MixedAssignment occurrences="33">
-      <code>$i</code>
-      <code>$i</code>
+    <MixedAssignment occurrences="28">
       <code>$l[$i]</code>
       <code>$l[$i]</code>
       <code>$l[$i]</code>
@@ -7720,14 +7694,8 @@
       <code>$r3</code>
       <code>$r3</code>
       <code>$r3</code>
-      <code>$t8</code>
-      <code>$this-&gt;current_key_length</code>
-      <code>$tm</code>
     </MixedAssignment>
-    <MixedOperand occurrences="80">
-      <code>$i</code>
-      <code>$i</code>
-      <code>$i</code>
+    <MixedOperand occurrences="73">
       <code>$keys[$j++]</code>
       <code>$keys[$j++]</code>
       <code>$keys[$j++]</code>
@@ -7788,9 +7756,6 @@
       <code>$r3</code>
       <code>$r3</code>
       <code>$r3</code>
-      <code>$t1</code>
-      <code>$t8</code>
-      <code>$t8</code>
       <code>($r0 + $keys[$j++] + ((($r1 ^ $r2) &amp; $r3) ^ $r1)) &amp; 0xFFFF</code>
       <code>($r0 ^ $r1) &amp; $r2</code>
       <code>($r0 ^ $r1) &amp; $r2</code>
@@ -7803,7 +7768,6 @@
       <code>($r3 + $keys[$j++] + ((($r0 ^ $r1) &amp; $r2) ^ $r0)) &amp; 0xFFFF</code>
       <code>($r3 ^ $r0) &amp; $r1</code>
       <code>($r3 ^ $r0) &amp; $r1</code>
-      <code>8 * $t8</code>
       <code>self::$pitable[$l['a']]</code>
     </MixedOperand>
     <PossiblyFalseArgument occurrences="5">
@@ -8040,9 +8004,6 @@
       <code>modInverse</code>
       <code>subtract</code>
     </PossiblyFalseReference>
-    <PossiblyInvalidMethodCall occurrences="1">
-      <code>toBytes</code>
-    </PossiblyInvalidMethodCall>
     <PossiblyUndefinedIntArrayOffset occurrences="2">
       <code>$primes[1]</code>
       <code>$primes[2]</code>
@@ -8515,19 +8476,11 @@
       <code>!empty($password) &amp;&amp; is_string($password)</code>
       <code>is_string($password)</code>
     </RedundantCondition>
-    <TypeDoesNotContainType occurrences="1">
-      <code>Strings::is_stringable($key)</code>
-    </TypeDoesNotContainType>
     <UnusedClass occurrences="1">
       <code>XML</code>
     </UnusedClass>
   </file>
   <file src="../phpseclib/Crypt/RSA/PrivateKey.php">
-    <InvalidArrayAccess occurrences="3">
-      <code>$em[0]</code>
-      <code>$em[0]</code>
-      <code>$em[1]</code>
-    </InvalidArrayAccess>
     <InvalidOperand occurrences="3">
       <code>!$hashesMatch</code>
       <code>$m[$i] === "\0"</code>
@@ -8540,16 +8493,10 @@
     <InvalidReturnType occurrences="1">
       <code>string</code>
     </InvalidReturnType>
-    <InvalidScalarArgument occurrences="1">
-      <code>$em</code>
-    </InvalidScalarArgument>
     <MissingPropertyType occurrences="1">
       <code>$publicExponent</code>
     </MissingPropertyType>
-    <MixedArgument occurrences="30">
-      <code>$em[0]</code>
-      <code>$em[0]</code>
-      <code>$em[1]</code>
+    <MixedArgument occurrences="27">
       <code>$key</code>
       <code>$r</code>
       <code>$r-&gt;multiply($h)</code>
@@ -8610,11 +8557,12 @@
     <PossiblyFalseOperand occurrences="1">
       <code>strpos($em, chr(0), 2)</code>
     </PossiblyFalseOperand>
-    <PossiblyInvalidArgument occurrences="4">
-      <code>$em</code>
-      <code>$em</code>
-      <code>$em</code>
-      <code>$em</code>
+    <PossiblyInvalidArgument occurrences="5">
+      <code>$m</code>
+      <code>$m</code>
+      <code>$s</code>
+      <code>$s</code>
+      <code>$temp</code>
     </PossiblyInvalidArgument>
     <PossiblyUndefinedIntArrayOffset occurrences="11">
       <code>$this-&gt;coefficients[2]</code>
@@ -8649,14 +8597,12 @@
       <code>false</code>
       <code>false</code>
     </FalsableReturnStatement>
-    <InvalidReturnStatement occurrences="3">
-      <code>$c</code>
+    <InvalidReturnStatement occurrences="2">
       <code>$this-&gt;rsassa_pss_verify($message, $signature)</code>
       <code>hash_equals($h, $h2)</code>
     </InvalidReturnStatement>
-    <InvalidReturnType occurrences="3">
+    <InvalidReturnType occurrences="2">
       <code>bool</code>
-      <code>string</code>
       <code>string</code>
     </InvalidReturnType>
     <MixedArgument occurrences="3">
@@ -8685,11 +8631,13 @@
     <MixedReturnStatement occurrences="1">
       <code>$type::savePublicKey($this-&gt;modulus, $this-&gt;publicExponent, $options)</code>
     </MixedReturnStatement>
-    <PossiblyInvalidArgument occurrences="4">
-      <code>$em</code>
-      <code>$em</code>
-      <code>$em</code>
-      <code>$em</code>
+    <PossiblyInvalidArgument occurrences="6">
+      <code>$c</code>
+      <code>$c</code>
+      <code>$m2</code>
+      <code>$m2</code>
+      <code>$m2</code>
+      <code>$temp</code>
     </PossiblyInvalidArgument>
     <PossiblyInvalidArrayAccess occurrences="2">
       <code>$decoded['digest']</code>
@@ -8713,8 +8661,11 @@
       <code>PublicKey</code>
       <code>PublicKey</code>
     </PropertyNotSetInConstructor>
-    <TypeDoesNotContainType occurrences="1">
+    <TypeDoesNotContainType occurrences="4">
       <code>!is_array($decoded)</code>
+      <code>$em === false</code>
+      <code>$em === false</code>
+      <code>$em === false</code>
     </TypeDoesNotContainType>
     <UndefinedMethod occurrences="4">
       <code>$decoded</code>
@@ -9976,12 +9927,6 @@
       <code>$le_longs[7]</code>
       <code>$le_longs[8]</code>
     </PossiblyInvalidArrayAccess>
-    <PossiblyInvalidOperand occurrences="4">
-      <code>$A</code>
-      <code>$A</code>
-      <code>$B</code>
-      <code>$B</code>
-    </PossiblyInvalidOperand>
     <PossiblyUndefinedIntArrayOffset occurrences="122">
       <code>$K[0]</code>
       <code>$K[0]</code>
@@ -14893,6 +14838,9 @@
       <code>$value</code>
       <code>$value</code>
     </MixedOperand>
+    <MixedPropertyAssignment occurrences="1">
+      <code>$this-&gt;$this</code>
+    </MixedPropertyAssignment>
     <MixedPropertyFetch occurrences="2">
       <code>$result['.']-&gt;lstat</code>
       <code>$result['.']-&gt;stat</code>
@@ -14926,8 +14874,9 @@
       <code>unpack('Nlength', Strings::shift($this-&gt;packet_buffer, 4))</code>
       <code>unpack('Npacket_id', Strings::shift($this-&gt;packet_buffer, 4))</code>
     </PossiblyFalseArgument>
-    <PossiblyFalseOperand occurrences="8">
+    <PossiblyFalseOperand occurrences="9">
       <code>$attr</code>
+      <code>$this-&gt;pwd</code>
       <code>$this-&gt;pwd</code>
     </PossiblyFalseOperand>
     <PossiblyFalsePropertyAssignmentValue occurrences="2">
@@ -14968,8 +14917,9 @@
       <code>preg_replace('#^/|/(?=/)|/$#', '', $path)</code>
       <code>preg_replace('#^/|/(?=/)|/$#', '', $path)</code>
     </PossiblyNullArgument>
-    <PossiblyUndefinedIntArrayOffset occurrences="3">
+    <PossiblyUndefinedIntArrayOffset occurrences="4">
       <code>$dirs[0]</code>
+      <code>$this-&gt;channel_status[self::CHANNEL]</code>
       <code>$this-&gt;channel_status[self::CHANNEL]</code>
       <code>$this-&gt;server_channels[self::CHANNEL]</code>
     </PossiblyUndefinedIntArrayOffset>
@@ -15805,8 +15755,7 @@
     <PossiblyUndefinedStringArrayOffset occurrences="1">
       <code>$temp['length']</code>
     </PossiblyUndefinedStringArrayOffset>
-    <PossiblyUndefinedVariable occurrences="8">
-      <code>$elapsed</code>
+    <PossiblyUndefinedVariable occurrences="7">
       <code>$matches</code>
       <code>$matches</code>
       <code>$matches</code>

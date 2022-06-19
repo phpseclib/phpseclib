@@ -523,10 +523,8 @@ class Twofish extends BlockCipher
 
     /**
      * _mdsrem function using by the twofish cipher algorithm
-     * @param string|int $A
-     * @param string|int $B
      */
-    private function mdsrem($A, $B): array
+    private function mdsrem(int $A, int $B): array
     {
         // No gain by unrolling this loop.
         for ($i = 0; $i < 8; ++$i) {

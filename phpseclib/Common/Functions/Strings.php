@@ -278,7 +278,7 @@ abstract class Strings
     /**
      * Convert bits to binary data
      */
-    public static function bin2bits(string $x, $trim = true): string
+    public static function bin2bits(string $x, bool $trim = true): string
     {
         /*
         // the pure-PHP approach is slower than the GMP approach BUT

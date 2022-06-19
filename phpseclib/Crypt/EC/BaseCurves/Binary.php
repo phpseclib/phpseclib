@@ -86,7 +86,7 @@ class Binary extends Base
     /**
      * Sets the modulo
      */
-    public function setModulo(...$modulo): void
+    public function setModulo(int ...$modulo): void
     {
         $this->modulo = $modulo;
         $this->factory = new BinaryField(...$modulo);

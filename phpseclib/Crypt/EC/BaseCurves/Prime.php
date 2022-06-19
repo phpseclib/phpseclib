@@ -640,9 +640,9 @@ class Prime extends Base
      * Adapted from:
      * https://github.com/indutny/elliptic/blob/725bd91/lib/elliptic/curve/base.js#L351
      *
-     * @return int[]
+     * @return list<array>
      */
-    private function getNAFPoints($point, $wnd): array
+    private function getNAFPoints(array $point, int $wnd): array
     {
         if (isset($point['naf'])) {
             return $point['naf'];

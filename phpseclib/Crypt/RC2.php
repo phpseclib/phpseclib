@@ -324,16 +324,16 @@ class RC2 extends BlockCipher
      * @throws \LengthException if the key length isn't supported
      *@see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
      */
-    public function setKey(string $key, $t1 = false): void
+    public function setKey(string $key, ?int $t1 = null): void
     {
         $this->orig_key = $key;
 
-        if ($t1 === false) {
+        if ($t1 === null) {
             $t1 = $this->default_key_length;
         }
 
         if ($t1 < 1 || $t1 > 1024) {
-            //throw new \LengthException('Key size of ' . $t1 . ' bits is not supported by this algorithm. Only keys between 1 and 1024 bits, inclusive, are supported');
+            throw new \LengthException('Key size of ' . $t1 . ' bits is not supported by this algorithm. Only keys between 1 and 1024 bits, inclusive, are supported');
         }
 
         $this->current_key_length = $t1;
