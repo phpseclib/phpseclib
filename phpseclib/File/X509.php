@@ -3714,7 +3714,7 @@ class X509
      * @param string $domain
      * @return array
      */
-    private function dnsName($domain)
+    private static function dnsName($domain)
     {
         return ['dNSName' => $domain];
     }
