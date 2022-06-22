@@ -1064,7 +1064,7 @@ abstract class SymmetricKey
      *
      * @see self::decrypt()
      * @param string $plaintext
-     * @return string $ciphertext
+     * @return string|false $ciphertext
      */
     public function encrypt($plaintext)
     {
@@ -1443,7 +1443,7 @@ abstract class SymmetricKey
      *
      * @see self::encrypt()
      * @param string $ciphertext
-     * @return string $plaintext
+     * @return string|false $plaintext
      * @throws \LengthException if we're inside a block cipher and the ciphertext length is not a multiple of the block size
      */
     public function decrypt($ciphertext)
