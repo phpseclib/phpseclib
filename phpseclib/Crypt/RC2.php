@@ -136,7 +136,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var string
      * @access private
      */
-    var $orig_key;
+    var $orig_key = '';
 
     /**
      * Don't truncate / null pad key
