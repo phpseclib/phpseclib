@@ -407,47 +407,47 @@ class ASN1Test extends PhpseclibTestCase
     {
         $em = pack('H*', '3080305c0609608648016503040201054f8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888804207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);
-        $this->assertFalse($decoded[0]);
+        $this->assertNull($decoded);
 
         $em = pack('H*', '3080307f0609608648016503040201057288888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888804207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca90000');
         $decoded = ASN1::decodeBER($em);
-        $this->assertFalse($decoded[0]);
+        $this->assertNull($decoded);
     }
 
     public function testOIDGarbage()
     {
         $em = pack('H*', '3080305c065860864801650304020188888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888050004207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);
-        $this->assertFalse($decoded[0]);
+        $this->assertNull($decoded);
 
         $em = pack('H*', '3080307f067d608648016503040201888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888804207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);
-        $this->assertFalse($decoded[0]);
+        $this->assertNull($decoded);
     }
 
     public function testConstructedMismatch()
     {
         $em = pack('H*', '1031300d0609608648016503040201050004207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);
-        $this->assertFalse($decoded[0]);
+        $this->assertNull($decoded);
 
         $em = pack('H*', '3031100d0609608648016503040201050004207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);
-        $this->assertFalse($decoded[0]);
+        $this->assertNull($decoded);
 
         $em = pack('H*', '3031300d2609608648016503040201050004207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);
-        $this->assertFalse($decoded[0]);
+        $this->assertNull($decoded);
 
         $em = pack('H*', '3031300d06096086480165030402012d0004207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);
-        $this->assertFalse($decoded[0]);
+        $this->assertNull($decoded);
     }
 
     public function testBadTagSecondOctet()
     {
         $em = pack('H*', '3033300f1f808080060960864801650304020104207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);
-        $this->assertFalse($decoded[0]);
+        $this->assertNull($decoded);
     }
 }
