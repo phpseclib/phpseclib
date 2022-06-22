@@ -72,7 +72,7 @@ class RC2 extends Base
      * @var string
      * @access private
      */
-    var $orig_key;
+    var $orig_key = '';
 
     /**
      * Don't truncate / null pad key
