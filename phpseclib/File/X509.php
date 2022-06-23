@@ -430,7 +430,7 @@ class X509
      *
      * Returns an associative array describing the X.509 cert or a false if the cert failed to load
      *
-     * @param string $cert
+     * @param array|string $cert
      * @param int $mode
      * @return mixed
      */
@@ -1694,7 +1694,7 @@ class X509
      * @param bool $withType optional
      * @return mixed
      */
-    public function getDNProp($propName, $dn = null, $withType = false)
+    public function getDNProp($propName, array $dn = null, $withType = false)
     {
         if (!isset($dn)) {
             $dn = $this->dn;
@@ -1799,7 +1799,7 @@ class X509
      * @param array $dn optional
      * @return array|bool|string
      */
-    public function getDN($format = self::DN_ARRAY, $dn = null)
+    public function getDN($format = self::DN_ARRAY, array $dn = null)
     {
         if (!isset($dn)) {
             $dn = isset($this->currentCert['tbsCertList']) ? $this->currentCert['tbsCertList']['issuer'] : $this->dn;
@@ -2241,7 +2241,7 @@ class X509
      * @param int $format optional
      * @return string
      */
-    public function saveCSR($csr, $format = self::FORMAT_PEM)
+    public function saveCSR(array $csr, $format = self::FORMAT_PEM)
     {
         if (!is_array($csr) || !isset($csr['certificationRequestInfo'])) {
             return false;
@@ -2350,7 +2350,7 @@ class X509
      * @param int $format optional
      * @return string
      */
-    public function saveSPKAC($spkac, $format = self::FORMAT_PEM)
+    public function saveSPKAC(array $spkac, $format = self::FORMAT_PEM)
     {
         if (!is_array($spkac) || !isset($spkac['publicKeyAndChallenge'])) {
             return false;
@@ -2453,7 +2453,7 @@ class X509
      * @param int $format optional
      * @return string
      */
-    public function saveCRL($crl, $format = self::FORMAT_PEM)
+    public function saveCRL(array $crl, $format = self::FORMAT_PEM)
     {
         if (!is_array($crl) || !isset($crl['tbsCertList'])) {
             return false;
@@ -2531,11 +2531,9 @@ class X509
      * $subject can be either an existing X.509 cert (if you want to resign it),
      * a CSR or something with the DN and public key explicitly set.
      *
-     * @param \phpseclib3\File\X509 $issuer
-     * @param \phpseclib3\File\X509 $subject
      * @return mixed
      */
-    public function sign($issuer, $subject)
+    public function sign(X509 $issuer, X509 $subject)
     {
         if (!is_object($issuer->privateKey) || empty($issuer->dn)) {
             return false;
@@ -2841,11 +2839,9 @@ class X509
      *
      * $issuer's private key needs to be loaded.
      *
-     * @param \phpseclib3\File\X509 $issuer
-     * @param \phpseclib3\File\X509 $crl
      * @return mixed
      */
-    public function signCRL($issuer, $crl)
+    public function signCRL(X509 $issuer, X509 $crl)
     {
         if (!is_object($issuer->privateKey) || empty($issuer->dn)) {
             return false;
@@ -3097,7 +3093,7 @@ class X509
      * @param string $path
      * @return boolean
      */
-    private function isSubArrayValid($root, $path)
+    private function isSubArrayValid(array $root, $path)
     {
         if (!is_array($root)) {
             return false;
@@ -3133,7 +3129,7 @@ class X509
      * @param bool $create optional
      * @return array|false
      */
-    private function &subArrayUnchecked(&$root, $path, $create = false)
+    private function &subArrayUnchecked(array &$root, $path, $create = false)
     {
         $false = false;
 
@@ -3160,7 +3156,7 @@ class X509
      * @param bool $create optional
      * @return array|false
      */
-    private function &subArray(&$root, $path, $create = false)
+    private function &subArray(array &$root = null, $path, $create = false)
     {
         $false = false;
 
@@ -3195,7 +3191,7 @@ class X509
      * @param bool $create optional
      * @return array|false
      */
-    private function &extensions(&$root, $path = null, $create = false)
+    private function &extensions(array &$root = null, $path = null, $create = false)
     {
         if (!isset($root)) {
             $root = $this->currentCert;
@@ -3282,7 +3278,7 @@ class X509
      * @param string $path optional
      * @return mixed
      */
-    private function getExtensionHelper($id, $cert = null, $path = null)
+    private function getExtensionHelper($id, array $cert = null, $path = null)
     {
         $extensions = $this->extensions($cert, $path);
 
@@ -3306,7 +3302,7 @@ class X509
      * @param string $path optional
      * @return array
      */
-    private function getExtensionsHelper($cert = null, $path = null)
+    private function getExtensionsHelper(array $cert = null, $path = null)
     {
         $exts = $this->extensions($cert, $path);
         $extensions = [];
@@ -3376,7 +3372,7 @@ class X509
      * @param string $path
      * @return mixed
      */
-    public function getExtension($id, $cert = null, $path = null)
+    public function getExtension($id, array $cert = null, $path = null)
     {
         return $this->getExtensionHelper($id, $cert, $path);
     }
@@ -3388,7 +3384,7 @@ class X509
      * @param string $path optional
      * @return array
      */
-    public function getExtensions($cert = null, $path = null)
+    public function getExtensions(array $cert = null, $path = null)
     {
         return $this->getExtensionsHelper($cert, $path);
     }
@@ -3464,7 +3460,7 @@ class X509
      * @param array $csr optional
      * @return mixed
      */
-    public function getAttribute($id, $disposition = self::ATTR_ALL, $csr = null)
+    public function getAttribute($id, $disposition = self::ATTR_ALL, array $csr = null)
     {
         if (empty($csr)) {
             $csr = $this->currentCert;
@@ -3503,7 +3499,7 @@ class X509
      * @param array $csr optional
      * @return array
      */
-    public function getAttributes($csr = null)
+    public function getAttributes(array $csr = null)
     {
         if (empty($csr)) {
             $csr = $this->currentCert;
@@ -3761,7 +3757,7 @@ class X509
      * @param bool $create optional
      * @return int|false
      */
-    private function revokedCertificate(&$rclist, $serial, $create = false)
+    private function revokedCertificate(array &$rclist, $serial, $create = false)
     {
         $serial = new BigInteger($serial);
 
@@ -3850,7 +3846,7 @@ class X509
      * @param array $crl optional
      * @return array|bool
      */
-    public function listRevoked($crl = null)
+    public function listRevoked(array $crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
@@ -3899,7 +3895,7 @@ class X509
      * @param array $crl optional
      * @return mixed
      */
-    public function getRevokedCertificateExtension($serial, $id, $crl = null)
+    public function getRevokedCertificateExtension($serial, $id, array $crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
@@ -3921,7 +3917,7 @@ class X509
      * @param array $crl optional
      * @return array|bool
      */
-    public function getRevokedCertificateExtensions($serial, $crl = null)
+    public function getRevokedCertificateExtensions($serial, array $crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;

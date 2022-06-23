@@ -1150,7 +1150,7 @@ class SFTP extends SSH2
      * @param array $b
      * @return int
      */
-    private function comparator($a, $b)
+    private function comparator(array $a, array $b)
     {
         switch (true) {
             case $a['filename'] === '.' || $b['filename'] === '.':
