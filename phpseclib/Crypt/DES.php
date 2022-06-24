@@ -579,7 +579,7 @@ class DES extends BlockCipher
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      */
     protected function isValidEngineHelper(int $engine): bool
     {
@@ -600,7 +600,7 @@ class DES extends BlockCipher
      *
      * DES also requires that every eighth bit be a parity bit, however, we'll ignore that.
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
      */
     public function setKey(string $key): void
     {
@@ -615,7 +615,7 @@ class DES extends BlockCipher
     /**
      * Encrypts a block
      *
-     *@see self::encrypt()
+     * @see self::encrypt()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::encryptBlock()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
      */
@@ -627,7 +627,7 @@ class DES extends BlockCipher
     /**
      * Decrypts a block
      *
-     *@see self::decrypt()
+     * @see self::decrypt()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::decryptBlock()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
      */
@@ -644,7 +644,7 @@ class DES extends BlockCipher
      * idea of what this function does.
      *
      * @return string
-     *@see self::decryptBlock()
+     * @see self::decryptBlock()
      * @see self::encryptBlock()
      */
     private function processBlock(string $block, int $mode)

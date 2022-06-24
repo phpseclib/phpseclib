@@ -241,7 +241,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.2.1 RFC3447#section-8.2.1}.
      *
      * @return bool|string
-     *@throws \LengthException if the RSA modulus is too short
+     * @throws \LengthException if the RSA modulus is too short
      */
     private function rsassa_pkcs1_v1_5_sign(string $m)
     {
@@ -413,7 +413,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
      * Decryption
      *
      * @return bool|string
-     *@see self::encrypt()
+     * @see self::encrypt()
      */
     public function decrypt(string $ciphertext)
     {

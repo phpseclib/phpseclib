@@ -62,7 +62,7 @@ class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.2.2 RFC3447#section-8.2.2}.
      *
-     *@throws \LengthException if the RSA modulus is too short
+     * @throws \LengthException if the RSA modulus is too short
      */
     private function rsassa_pkcs1_v1_5_verify(string $m, string $s): bool
     {
@@ -305,7 +305,7 @@ class PublicKey extends RSA implements Common\PublicKey
      *
      * @param bool $pkcs15_compat optional
      * @return bool|string
-     *@throws \LengthException if strlen($m) > $this->k - 11
+     * @throws \LengthException if strlen($m) > $this->k - 11
      */
     private function rsaes_pkcs1_v1_5_encrypt(string $m, bool $pkcs15_compat = false)
     {
@@ -345,7 +345,7 @@ class PublicKey extends RSA implements Common\PublicKey
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.1.1 RFC3447#section-7.1.1} and
      * {http://en.wikipedia.org/wiki/Optimal_Asymmetric_Encryption_Padding OAES}.
      *
-     *@throws \LengthException if strlen($m) > $this->k - 2 * $this->hLen - 2
+     * @throws \LengthException if strlen($m) > $this->k - 2 * $this->hLen - 2
      */
     private function rsaes_oaep_encrypt(string $m): string
     {
@@ -426,7 +426,7 @@ class PublicKey extends RSA implements Common\PublicKey
      *
      * @return bool|string
      * @throws \LengthException if the RSA modulus is too short
-     *@see self::decrypt()
+     * @see self::decrypt()
      */
     public function encrypt(string $plaintext)
     {

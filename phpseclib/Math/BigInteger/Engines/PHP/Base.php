@@ -92,7 +92,7 @@ abstract class Base extends PHP
     /**
      * Modular reduction preparation
      *
-     *@see self::slidingWindow()
+     * @see self::slidingWindow()
      */
     protected static function prepareReduce(array $x, array $n, string $class): array
     {
@@ -102,7 +102,7 @@ abstract class Base extends PHP
     /**
      * Modular multiply
      *
-     *@see self::slidingWindow()
+     * @see self::slidingWindow()
      */
     protected static function multiplyReduce(array $x, array $y, array $n, string $class): array
     {
@@ -113,7 +113,7 @@ abstract class Base extends PHP
     /**
      * Modular square
      *
-     *@see self::slidingWindow()
+     * @see self::slidingWindow()
      */
     protected static function squareReduce(array $x, array $n, string $class): array
     {

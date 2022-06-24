@@ -356,7 +356,7 @@ abstract class AsymmetricKey
      * The plugin needs to either already be loaded or be auto-loadable.
      * Loading a plugin whose shortname overwrite an existing shortname will overwrite the old plugin.
      *
-     *@see self::load()
+     * @see self::load()
      */
     public static function addFileFormat(string $fullname): void
     {

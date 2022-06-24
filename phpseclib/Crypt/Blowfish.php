@@ -307,7 +307,7 @@ class Blowfish extends BlockCipher
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      */
     protected function isValidEngineHelper(int $engine): bool
     {

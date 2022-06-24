@@ -335,7 +335,7 @@ trait Common
      * @param bool $returnArray optional
      * @param array $options optional
      * @return string|false
-     *@todo Maybe at some point this could be moved to __toString() for each of the curves?
+     * @todo Maybe at some point this could be moved to __toString() for each of the curves?
      */
     private static function encodeParameters(BaseCurve $curve, bool $returnArray = false, array $options = [])
     {

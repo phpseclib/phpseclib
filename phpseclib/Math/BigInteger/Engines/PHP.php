@@ -649,7 +649,7 @@ abstract class PHP extends Engine
         $result = [];
 
         for ($i = count($dividend) - 1; $i >= 0; --$i) {
-            $temp = static::BASE_FULL * $carry + $dividend[$i];
+            $temp = static::BASE_FULL * $carry + (int) $dividend[$i];
             $result[$i] = self::safe_divide($temp, $divisor);
             $carry = (int)($temp - $divisor * $result[$i]);
         }
@@ -664,10 +664,8 @@ abstract class PHP extends Engine
      * if the dividend is not evenly divisible by the divisor. Since a float64 doesn't
      * have the precision of int64 this is a problem so, when int64 is being used,
      * we'll guarantee that the dividend is divisible by first subtracting the remainder.
-     *
-     * @return int
      */
-    private static function safe_divide(int $x, int $y)
+    private static function safe_divide(int $x, int $y): int
     {
         if (static::BASE === 26) {
             return (int)($x / $y);

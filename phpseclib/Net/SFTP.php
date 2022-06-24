@@ -620,7 +620,7 @@ class SFTP extends SSH2
      * If canonicalize_paths has been disabled using disablePathCanonicalization(), $path is returned as-is.
      *
      * @throws \UnexpectedValueException on receipt of unexpected packets
-     *@see self::chdir()
+     * @see self::chdir()
      * @see self::disablePathCanonicalization()
      */
     public function realpath(string $path)
@@ -706,7 +706,7 @@ class SFTP extends SSH2
     /**
      * Changes the current directory
      *
-     *@throws \UnexpectedValueException on receipt of unexpected packets
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      */
     public function chdir(string $dir): bool
     {
@@ -951,10 +951,8 @@ class SFTP extends SSH2
      * Compares two rawlist entries using parameters set by setListOrder()
      *
      * Intended for use with uasort()
-     *
-     * @return int
      */
-    private function comparator(array $a, array $b)
+    private function comparator(array $a, array $b): ?int
     {
         switch (true) {
             case $a['filename'] === '.' || $b['filename'] === '.':
@@ -1006,6 +1004,7 @@ class SFTP extends SSH2
                     return $order === SORT_ASC ? $a[$sort] - $b[$sort] : $b[$sort] - $a[$sort];
             }
         }
+        return null;
     }
 
     /**
@@ -1254,7 +1253,7 @@ class SFTP extends SSH2
      * The second parameter can be either PacketType::STAT or PacketType::LSTAT.
      *
      * @return array|false
-     *@throws \UnexpectedValueException on receipt of unexpected packets
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      */
     private function stat_helper(string $filename, int $type)
     {
@@ -1290,7 +1289,7 @@ class SFTP extends SSH2
      *
      * If the file does not exist, it will be created.
      *
-     *@throws \UnexpectedValueException on receipt of unexpected packets
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      */
     public function touch(string $filename, int $time = null, int $atime = null): bool
     {
@@ -1450,7 +1449,7 @@ class SFTP extends SSH2
     /**
      * Sets information about a file
      *
-     *@throws \UnexpectedValueException on receipt of unexpected packets
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      */
     private function setstat(string $filename, string $attr, bool $recursive): bool
     {
@@ -1613,7 +1612,7 @@ class SFTP extends SSH2
      *
      * symlink() creates a symbolic link to the existing target with the specified name link.
      *
-     *@throws \UnexpectedValueException on receipt of unexpected packets
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      */
     public function symlink(string $target, string $link): bool
     {
@@ -1729,7 +1728,7 @@ class SFTP extends SSH2
     /**
      * Removes a directory.
      *
-     *@throws \UnexpectedValueException on receipt of unexpected packets
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      */
     public function rmdir(string $dir): bool
     {
@@ -2051,7 +2050,7 @@ class SFTP extends SSH2
      *
      * @param string|bool|resource|callable $local_file
      * @return string|bool
-     *@throws \UnexpectedValueException on receipt of unexpected packets
+     * @throws \UnexpectedValueException on receipt of unexpected packets
      */
     public function get(string $remote_file, $local_file = false, int $offset = 0, int $length = -1, callable $progressCallback = null)
     {

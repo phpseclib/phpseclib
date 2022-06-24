@@ -213,7 +213,7 @@ abstract class DSA extends AsymmetricKey
     /**
      * OnLoad Handler
      *
-     *@return bool
+     * @return bool
      */
     protected static function onLoad(array $components)
     {

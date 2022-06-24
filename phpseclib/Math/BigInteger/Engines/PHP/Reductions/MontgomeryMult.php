@@ -31,7 +31,7 @@ abstract class MontgomeryMult extends Montgomery
      * {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=13 HAC 14.36}
      *
      * @param class-string<PHP> $class
-     *@see self::_prepMontgomery()
+     * @see self::_prepMontgomery()
           * @see self::_montgomery()
      */
     public static function multiplyReduce(array $x, array $y, array $m, string $class): array

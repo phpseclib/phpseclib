@@ -128,7 +128,7 @@ class TripleDES extends DES
      *
      * - cbc3 (same as cbc)
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      * @see \phpseclib3\Crypt\DES::__construct()
      */
     public function __construct(string $mode)
@@ -170,7 +170,7 @@ class TripleDES extends DES
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      */
     protected function isValidEngineHelper(int $engine): bool
     {
@@ -188,7 +188,7 @@ class TripleDES extends DES
      *
      * SetIV is not required when \phpseclib3\Crypt\Common\SymmetricKey::MODE_ECB is being used.
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::setIV()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::setIV()
      */
     public function setIV(string $iv): void
     {
@@ -207,7 +207,7 @@ class TripleDES extends DES
      *
      * If you want to use a 64-bit key use DES.php
      *
-     *@throws \LengthException if the key length is invalid
+     * @throws \LengthException if the key length is invalid
      * @see \phpseclib3\Crypt\Common\SymmetricKey:setKeyLength()
      */
     public function setKeyLength(int $length): void
@@ -230,7 +230,7 @@ class TripleDES extends DES
      *
      * DES also requires that every eighth bit be a parity bit, however, we'll ignore that.
      *
-     *@throws \LengthException if the key length is invalid
+     * @throws \LengthException if the key length is invalid
      * @see \phpseclib3\Crypt\DES::setKey()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
      */
@@ -267,7 +267,7 @@ class TripleDES extends DES
      * Encrypts a message.
      *
      * @return string $cipertext
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
      */
     public function encrypt(string $plaintext): string
     {
@@ -292,7 +292,7 @@ class TripleDES extends DES
      * Decrypts a message.
      *
      * @return string $plaintext
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
      */
     public function decrypt(string $ciphertext): string
     {
@@ -413,7 +413,7 @@ class TripleDES extends DES
     /**
      * Sets the internal crypt engine
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::setPreferredEngine()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::setPreferredEngine()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      */
     public function setPreferredEngine(string $engine): void

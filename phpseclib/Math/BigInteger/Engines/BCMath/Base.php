@@ -60,7 +60,7 @@ abstract class Base extends BCMath
     /**
      * Modular reduction preparation
      *
-     *@see self::slidingWindow()
+     * @see self::slidingWindow()
      */
     protected static function prepareReduce(string $x, string $n, string $class): string
     {
@@ -70,7 +70,7 @@ abstract class Base extends BCMath
     /**
      * Modular multiply
      *
-     *@see self::slidingWindow()
+     * @see self::slidingWindow()
      */
     protected static function multiplyReduce(string $x, string $y, string $n, string $class): string
     {
@@ -80,7 +80,7 @@ abstract class Base extends BCMath
     /**
      * Modular square
      *
-     *@see self::slidingWindow()
+     * @see self::slidingWindow()
      */
     protected static function squareReduce(string $x, string $n, string $class): string
     {

@@ -187,7 +187,7 @@ class Rijndael extends BlockCipher
      *             the mcrypt php extension, even if available.
      *             This results then in slower encryption.
      *
-     *@throws \LengthException if the key length is invalid
+     * @throws \LengthException if the key length is invalid
      */
     public function setKeyLength(int $length): void
     {
@@ -212,7 +212,7 @@ class Rijndael extends BlockCipher
      * Rijndael supports five different key lengths
      *
      * @throws \LengthException if the key length isn't supported
-     *@see setKeyLength()
+     * @see setKeyLength()
      */
     public function setKey(string $key): void
     {
@@ -259,7 +259,7 @@ class Rijndael extends BlockCipher
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      */
     protected function isValidEngineHelper(int $engine): bool
     {
@@ -612,7 +612,7 @@ class Rijndael extends BlockCipher
     /**
      * Performs S-Box substitutions
      *
-     *@return array
+     * @return array
      */
     private function subWord(int $word)
     {
@@ -942,7 +942,7 @@ class Rijndael extends BlockCipher
     /**
      * Encrypts a message.
      *
-     *@see self::decrypt()
+     * @see self::decrypt()
      * @see parent::encrypt()
      */
     public function encrypt(string $plaintext): string
@@ -971,7 +971,7 @@ class Rijndael extends BlockCipher
     /**
      * Decrypts a message.
      *
-     *@see self::encrypt()
+     * @see self::encrypt()
      * @see parent::decrypt()
      */
     public function decrypt(string $ciphertext): string

@@ -393,7 +393,7 @@ class Twofish extends BlockCipher
      * Rijndael supports five different key lengths
      *
      * @throws \LengthException if the key length isn't supported
-     *@see setKeyLength()
+     * @see setKeyLength()
      */
     public function setKey(string $key): void
     {

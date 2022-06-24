@@ -269,7 +269,7 @@ class RC2 extends BlockCipher
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      */
     protected function isValidEngineHelper(int $engine): bool
     {
@@ -322,7 +322,7 @@ class RC2 extends BlockCipher
      * it is empty.
      *
      * @throws \LengthException if the key length isn't supported
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
      */
     public function setKey(string $key, ?int $t1 = null): void
     {
@@ -381,7 +381,7 @@ class RC2 extends BlockCipher
      * Mostly a wrapper for \phpseclib3\Crypt\Common\SymmetricKey::encrypt, with some additional OpenSSL handling code
      *
      * @return string $ciphertext
-     *@see self::decrypt()
+     * @see self::decrypt()
      */
     public function encrypt(string $plaintext): string
     {
@@ -402,7 +402,7 @@ class RC2 extends BlockCipher
      * Mostly a wrapper for \phpseclib3\Crypt\Common\SymmetricKey::decrypt, with some additional OpenSSL handling code
      *
      * @return string $plaintext
-     *@see self::encrypt()
+     * @see self::encrypt()
      */
     public function decrypt(string $ciphertext): string
     {
@@ -420,7 +420,7 @@ class RC2 extends BlockCipher
     /**
      * Encrypts a block
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::encryptBlock()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::encryptBlock()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
      */
     protected function encryptBlock(string $in): string
@@ -462,7 +462,7 @@ class RC2 extends BlockCipher
     /**
      * Decrypts a block
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::decryptBlock()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::decryptBlock()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
      */
     protected function decryptBlock(string $in): string

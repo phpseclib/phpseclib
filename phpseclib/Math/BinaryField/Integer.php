@@ -155,7 +155,7 @@ class Integer extends Base
      * @return string[]
      * @link https://en.wikipedia.org/wiki/Polynomial_greatest_common_divisor#Euclidean_division
      */
-    private static function polynomialDivide($x, $y): array
+    private static function polynomialDivide(string $x, string $y): array
     {
         // in wikipedia's description of the algorithm, lc() is the leading coefficient. over a binary field that's
         // always going to be 1.
@@ -184,7 +184,7 @@ class Integer extends Base
      *
      * @link https://en.wikipedia.org/wiki/Finite_field_arithmetic#Multiplication
      */
-    private static function regularPolynomialMultiply($x, $y): string
+    private static function regularPolynomialMultiply(string $x, string $y): string
     {
         $precomputed = [ltrim($x, "\0")];
         $x = strrev(BinaryField::base256ToBase2($x));
@@ -222,7 +222,7 @@ class Integer extends Base
      *
      * @link https://en.wikipedia.org/wiki/Karatsuba_algorithm
      */
-    private static function polynomialMultiply($x, $y): string
+    private static function polynomialMultiply(string $x, string $y): string
     {
         if (strlen($x) == strlen($y)) {
             $length = strlen($x);
@@ -430,7 +430,7 @@ class Integer extends Base
     /**
      * Returns the modulo
      */
-    public static function getModulo($instanceID): string
+    public static function getModulo(int $instanceID): string
     {
         return static::$modulo[$instanceID];
     }

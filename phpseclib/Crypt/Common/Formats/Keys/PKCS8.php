@@ -122,7 +122,7 @@ abstract class PKCS8 extends PKCS
     /**
      * Returns a SymmetricKey object based on a PBES1 $algo
      *
-     *@return \phpseclib3\Crypt\Common\SymmetricKey
+     * @return \phpseclib3\Crypt\Common\SymmetricKey
      */
     private static function getPBES1EncryptionObject(string $algo)
     {

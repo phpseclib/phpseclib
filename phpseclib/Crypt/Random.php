@@ -38,7 +38,7 @@ abstract class Random
      * microoptimizations because this function has the potential of being called a huge number of times.
      * eg. for RSA key generation.
      *
-     *@throws \RuntimeException if a symmetric cipher is needed but not loaded
+     * @throws \RuntimeException if a symmetric cipher is needed but not loaded
      */
     public static function string(int $length): string
     {

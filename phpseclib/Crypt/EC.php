@@ -197,7 +197,7 @@ abstract class EC extends AsymmetricKey
     /**
      * OnLoad Handler
      *
-     *@return bool
+     * @return bool
      */
     protected static function onLoad(array $components)
     {
@@ -338,7 +338,7 @@ abstract class EC extends AsymmetricKey
      * Returns the parameters
      *
      * @param string $type optional
-     *@see self::getPublicKey()
+     * @see self::getPublicKey()
      */
     public function getParameters(string $type = 'PKCS1')
     {
@@ -382,7 +382,7 @@ abstract class EC extends AsymmetricKey
      * Used by Ed25519 / Ed448.
      *
      * @param string|null $context optional
-     *@see self::verify()
+     * @see self::verify()
           * @see self::sign()
      */
     public function withContext(string $context = null): EC

@@ -100,7 +100,7 @@ class RC4 extends StreamCipher
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
      */
     protected function isValidEngineHelper(int $engine): bool
     {
@@ -167,7 +167,7 @@ class RC4 extends StreamCipher
      * Encrypts a message.
      *
      * @return string $ciphertext
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
      * @see self::crypt()
      */
     public function encrypt(string $plaintext): string
@@ -185,7 +185,7 @@ class RC4 extends StreamCipher
      * At least if the continuous buffer is disabled.
      *
      * @return string $plaintext
-     *@see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
+     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
      * @see self::crypt()
      */
     public function decrypt(string $ciphertext): string
@@ -244,7 +244,7 @@ class RC4 extends StreamCipher
      * Encrypts or decrypts a message.
      *
      * @return string $text
-     *@see self::decrypt()
+     * @see self::decrypt()
      * @see self::encrypt()
      */
     private function crypt(string $text, int $mode): string

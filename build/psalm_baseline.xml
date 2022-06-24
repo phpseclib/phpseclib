@@ -14194,12 +14194,16 @@
       <code>self::minHelper($nums)</code>
       <code>self::randomRangeHelper($min, $max)</code>
     </LessSpecificReturnStatement>
+    <MixedArgument occurrences="1">
+      <code>$digit / 2 ** (2 * $step)</code>
+    </MixedArgument>
     <MixedAssignment occurrences="3">
       <code>$digit</code>
       <code>$digit</code>
       <code>$vals[]</code>
     </MixedAssignment>
-    <MixedOperand occurrences="2">
+    <MixedOperand occurrences="3">
+      <code>$digit</code>
       <code>$digit</code>
       <code>$digit</code>
     </MixedOperand>
@@ -14398,37 +14402,21 @@
     <InvalidFalsableReturnType occurrences="1">
       <code>string</code>
     </InvalidFalsableReturnType>
-    <MissingParamType occurrences="11">
-      <code>$instanceID</code>
+    <MissingParamType occurrences="4">
       <code>$instanceID</code>
       <code>$instanceID</code>
       <code>$num</code>
-      <code>$x</code>
-      <code>$x</code>
-      <code>$x</code>
-      <code>$y</code>
-      <code>$y</code>
-      <code>$y</code>
       <code>$z</code>
     </MissingParamType>
-    <MixedArgument occurrences="9">
+    <MixedArgument occurrences="2">
       <code>$num</code>
-      <code>$r</code>
-      <code>$r</code>
-      <code>$x</code>
-      <code>$x</code>
-      <code>$y</code>
-      <code>$y</code>
-      <code>$y</code>
       <code>$z</code>
     </MixedArgument>
-    <MixedArrayOffset occurrences="3">
-      <code>static::$modulo[$instanceID]</code>
+    <MixedArrayOffset occurrences="2">
       <code>static::$reduce[$instanceID]</code>
       <code>static::$reduce[$instanceID]</code>
     </MixedArrayOffset>
-    <MixedAssignment occurrences="22">
-      <code>$r</code>
+    <MixedAssignment occurrences="21">
       <code>$this-&gt;instanceID</code>
       <code>$this-&gt;value</code>
       <code>$x</code>
@@ -14541,9 +14529,6 @@
     </UndefinedThisPropertyAssignment>
   </file>
   <file src="../phpseclib/Math/PrimeField/Integer.php">
-    <MissingParamType occurrences="1">
-      <code>$instanceID</code>
-    </MissingParamType>
     <MixedArgument occurrences="6">
       <code>$length</code>
       <code>$one</code>
@@ -14552,10 +14537,6 @@
       <code>static::$zero[static::class]</code>
       <code>static::$zero[static::class]</code>
     </MixedArgument>
-    <MixedArrayOffset occurrences="2">
-      <code>static::$modulo[$instanceID]</code>
-      <code>static::$reduce[$instanceID]</code>
-    </MixedArrayOffset>
     <MixedAssignment occurrences="1">
       <code>$this-&gt;value</code>
     </MixedAssignment>
@@ -14599,6 +14580,9 @@
       <code>false</code>
       <code>false</code>
     </FalsableReturnStatement>
+    <InvalidArgument occurrences="1">
+      <code>[&amp;$this, 'comparator']</code>
+    </InvalidArgument>
     <InvalidFalsableReturnType occurrences="3">
       <code>array</code>
       <code>array|string</code>
@@ -14796,11 +14780,11 @@
       <code>$value</code>
     </MixedAssignment>
     <MixedInferredReturnType occurrences="8">
+      <code>?int</code>
       <code>array</code>
       <code>array|false</code>
       <code>array|false</code>
       <code>bool</code>
-      <code>int</code>
       <code>string</code>
       <code>string</code>
       <code>string|bool</code>
@@ -15024,12 +15008,14 @@
     <UnevaluatedCode occurrences="1">
       <code>break;</code>
     </UnevaluatedCode>
+    <UnusedMethod occurrences="1">
+      <code>comparator</code>
+    </UnusedMethod>
     <UnusedParam occurrences="1">
       <code>$key</code>
     </UnusedParam>
-    <UnusedReturnValue occurrences="2">
+    <UnusedReturnValue occurrences="1">
       <code>bool</code>
-      <code>int</code>
     </UnusedReturnValue>
     <UnusedVariable occurrences="13">
       <code>$attrib_bits</code>

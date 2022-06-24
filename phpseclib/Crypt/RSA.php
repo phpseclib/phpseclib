@@ -286,7 +286,7 @@ abstract class RSA extends AsymmetricKey
      *
      * The public key can be extracted from the private key
      *
-     *@return RSA
+     * @return RSA
      */
     public static function createKey(int $bits = 2048)
     {
@@ -416,7 +416,7 @@ abstract class RSA extends AsymmetricKey
     /**
      * OnLoad Handler
      *
-     *@return bool
+     * @return bool
      */
     protected static function onLoad(array $components)
     {
@@ -516,7 +516,7 @@ abstract class RSA extends AsymmetricKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.2 RFC3447#section-9.2}.
      *
-     *@throws \LengthException if the intended encoded message length is too short
+     * @throws \LengthException if the intended encoded message length is too short
      */
     protected function emsa_pkcs1_v1_5_encode(string $m, int $emLen): string
     {

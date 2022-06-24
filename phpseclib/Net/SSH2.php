@@ -2797,7 +2797,7 @@ class SSH2
      *
      * @return string|bool|null
      * @throws \RuntimeException on connection error
-     *@see self::write()
+     * @see self::write()
      */
     public function read(string $expect = '', int $mode = self::READ_SIMPLE)
     {
@@ -2842,7 +2842,7 @@ class SSH2
      * Inputs a command into an interactive shell.
      *
      * @throws \RuntimeException on connection error
-     *@see SSH2::read()
+     * @see SSH2::read()
      */
     public function write(string $cmd): void
     {
@@ -2866,7 +2866,7 @@ class SSH2
      * returns that and then that that was passed into stopSubsystem() but that'll be saved for a future date and implemented
      * if there's sufficient demand for such a feature.
      *
-          *@see self::stopSubsystem()
+          * @see self::stopSubsystem()
      */
     public function startSubsystem(string $subsystem): bool
     {
@@ -3058,7 +3058,7 @@ class SSH2
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
      * @return bool|string
-     *@see self::_send_binary_packet()
+     * @see self::_send_binary_packet()
      */
     private function get_binary_packet(bool $skip_channel_filter = false)
     {
@@ -3311,7 +3311,7 @@ class SSH2
      * Read Remaining Bytes
      *
      * @return string
-     *@see self::get_binary_packet()
+     * @see self::get_binary_packet()
      */
     private function read_remaining_bytes(int $remaining_length)
     {
@@ -3368,7 +3368,7 @@ class SSH2
      * Because some binary packets need to be ignored...
      *
      * @return string|bool
-     *@see self::_get_binary_packet()
+     * @see self::_get_binary_packet()
      */
     private function filter(string $payload, bool $skip_channel_filter)
     {

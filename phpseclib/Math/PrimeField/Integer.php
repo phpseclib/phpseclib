@@ -94,7 +94,7 @@ class Integer extends Base
     /**
      * Delete the modulo for a given instance
      */
-    public static function cleanupCache($instanceID): void
+    public static function cleanupCache(int $instanceID): void
     {
         unset(static::$modulo[$instanceID]);
         unset(static::$reduce[$instanceID]);

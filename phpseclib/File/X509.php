@@ -1340,7 +1340,7 @@ class X509
      * Returns true if the signature is verified and false if it is not correct.
      * If the algorithms are unsupposed an exception is thrown.
      *
-     *@throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
+     * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      */
     private function validateSignatureHelper(string $publicKeyAlgorithm, string $publicKey, string $signatureAlgorithm, string $signature, string $signatureSubject): bool
     {

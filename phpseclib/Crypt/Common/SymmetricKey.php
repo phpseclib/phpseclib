@@ -841,7 +841,7 @@ abstract class SymmetricKey
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
      * @param string[] ...$func_args
-     *@throws \LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
+     * @throws \LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
      * @see Crypt/Hash.php
      */
     public function setPassword(string $password, string $method = 'pbkdf2', ...$func_args): bool
@@ -982,7 +982,7 @@ abstract class SymmetricKey
      * {@link https://tools.ietf.org/html/rfc7292#appendix-B}
      *
      * @return string $a
-     *@see self::setPassword()
+     * @see self::setPassword()
      */
     private static function pkcs12helper(int $n, Hash $hashObj, string $i, string $d, int $count): string
     {
@@ -1039,7 +1039,7 @@ abstract class SymmetricKey
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
      * @return string $ciphertext
-     *@see self::decrypt()
+     * @see self::decrypt()
      */
     public function encrypt(string $plaintext): string
     {
@@ -1418,7 +1418,7 @@ abstract class SymmetricKey
      *
      * @return string $plaintext
      * @throws \LengthException if we're inside a block cipher and the ciphertext length is not a multiple of the block size
-     *@see self::encrypt()
+     * @see self::encrypt()
      */
     public function decrypt(string $ciphertext): string
     {
@@ -1787,7 +1787,7 @@ abstract class SymmetricKey
      * @return string
      * @throws \LengthException if $length isn't of a sufficient length
      * @throws \RuntimeException if GCM mode isn't being used
-     *@see self::encrypt()
+     * @see self::encrypt()
      */
     public function getTag(int $length = 16)
     {
@@ -1820,7 +1820,7 @@ abstract class SymmetricKey
      *
      * @throws \LengthException if $length isn't of a sufficient length
      * @throws \RuntimeException if GCM mode isn't being used
-     *@see self::decrypt()
+     * @see self::decrypt()
      */
     public function setTag(string $tag): void
     {
@@ -1844,7 +1844,7 @@ abstract class SymmetricKey
      *
      * mcrypt requires an IV even if ECB is used
      *
-     *@see self::encrypt()
+     * @see self::encrypt()
           * @see self::decrypt()
      */
     protected function getIV(string $iv): string
@@ -1860,7 +1860,7 @@ abstract class SymmetricKey
      * and SymmetricKey::decrypt(). Also, OpenSSL doesn't implement CTR for all of it's symmetric ciphers so this
      * function will emulate CTR with ECB when necessary.
      *
-     *@see self::encrypt()
+     * @see self::encrypt()
      * @see self::decrypt()
      */
     private function openssl_ctr_process(string $plaintext, string &$encryptIV, array &$buffer): string
@@ -1943,7 +1943,7 @@ abstract class SymmetricKey
      * for OFB is the same for both encrypting and decrypting this function is re-used by both SymmetricKey::encrypt()
      * and SymmetricKey::decrypt().
      *
-     *@see self::encrypt()
+     * @see self::encrypt()
      * @see self::decrypt()
      */
     private function openssl_ofb_process(string $plaintext, string &$encryptIV, array &$buffer): string
@@ -2117,7 +2117,7 @@ abstract class SymmetricKey
     /**
      * Test for engine validity
      *
-     *@see self::__construct()
+     * @see self::__construct()
      */
     protected function isValidEngineHelper(int $engine): bool
     {
@@ -2164,7 +2164,7 @@ abstract class SymmetricKey
     /**
      * Test for engine validity
      *
-          *@see self::__construct()
+          * @see self::__construct()
      */
     public function isValidEngine(string $engine): bool
     {
@@ -2198,7 +2198,7 @@ abstract class SymmetricKey
      *
      * If the preferred crypt engine is not available the fastest available one will be used
      *
-     *@see self::__construct()
+     * @see self::__construct()
      */
     public function setPreferredEngine(string $engine): void
     {
@@ -2424,7 +2424,7 @@ abstract class SymmetricKey
      * If padding is disabled and $text is not a multiple of the blocksize, the string will be padded regardless
      * and padding will, hence forth, be enabled.
      *
-     *@throws \LengthException if padding is disabled and the plaintext's length is not a multiple of the block size
+     * @throws \LengthException if padding is disabled and the plaintext's length is not a multiple of the block size
      * @see self::unpad()
      */
     protected function pad(string $text): string
@@ -2450,7 +2450,7 @@ abstract class SymmetricKey
      * If padding is enabled and the reported padding length is invalid the encryption key will be assumed to be wrong
      * and false will be returned.
      *
-     *@throws \LengthException if the ciphertext's length is not a multiple of the block size
+     * @throws \LengthException if the ciphertext's length is not a multiple of the block size
      * @see self::pad()
      */
     protected function unpad(string $text): string
@@ -2632,7 +2632,7 @@ abstract class SymmetricKey
      *    </code>
      *
      * @return string (the name of the created callback function)
-     *@see self::decrypt()
+     * @see self::decrypt()
      * @see self::setupInlineCrypt()
      * @see self::encrypt()
      */
@@ -3146,7 +3146,7 @@ abstract class SymmetricKey
      * See https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf#page=20
      * for more info
      *
-     *@see self::decrypt()
+     * @see self::decrypt()
           * @see self::encrypt()
      */
     private function ghash(string $x): string
@@ -3177,7 +3177,7 @@ abstract class SymmetricKey
     /**
      * Returns the bit length of a string in a packed format
      *
-     *@see self::setupGCM()
+     * @see self::setupGCM()
      * @see self::decrypt()
           * @see self::encrypt()
      */
@@ -3189,7 +3189,7 @@ abstract class SymmetricKey
     /**
      * NULL pads a string to be a multiple of 128
      *
-     *@see self::setupGCM()
+     * @see self::setupGCM()
      * @see self::decrypt()
           * @see self::encrypt()
      */
