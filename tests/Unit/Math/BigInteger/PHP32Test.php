@@ -31,7 +31,7 @@ class PHP32Test extends TestCase
         $x = new PHP32('FFFFFFFFFFFFFFFFC90FDA', 16);
         $y = new PHP32("$x");
 
-        $this->assertSame(self::getVar($x, 'value'), self::getVar($y, 'value'));
+        $this->assertEquals(self::getVar($x, 'value'), self::getVar($y, 'value'));
     }
 
     public static function getStaticClass()
