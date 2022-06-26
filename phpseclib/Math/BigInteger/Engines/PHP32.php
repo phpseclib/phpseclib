@@ -75,9 +75,12 @@ class PHP32 extends PHP
                 $i = 0;
             }
             list(, $digit) = unpack('N', substr($val, $i, 4));
+            if ($digit < 0) {
+                $digit += 0xFFFFFFFF + 1;
+            }
             $step = count($vals) & 3;
             if ($step) {
-                $digit >>= 2 * $step;
+                $digit = floor($digit / pow(2, 2 * $step));
             }
             if ($step != 3) {
                 $digit &= static::MAX_DIGIT;
