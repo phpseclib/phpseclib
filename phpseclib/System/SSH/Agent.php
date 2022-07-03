@@ -36,6 +36,7 @@ use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Exception\BadConfigurationException;
+use phpseclib3\Net\SSH2;
 use phpseclib3\System\SSH\Agent\Identity;
 
 /**
@@ -215,7 +216,7 @@ class Agent
      * @param \phpseclib3\Net\SSH2 $ssh
      * @return bool
      */
-    private function request_forwarding($ssh)
+    private function request_forwarding(SSH2 $ssh)
     {
         if (!$ssh->requestAgentForwarding()) {
             return false;
@@ -235,7 +236,7 @@ class Agent
      *
      * @param \phpseclib3\Net\SSH2 $ssh
      */
-    public function registerChannelOpen($ssh)
+    public function registerChannelOpen(SSH2 $ssh)
     {
         if ($this->forward_status == self::FORWARD_REQUEST) {
             $this->request_forwarding($ssh);

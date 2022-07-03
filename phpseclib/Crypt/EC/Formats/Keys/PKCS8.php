@@ -98,6 +98,9 @@ abstract class PKCS8 extends Progenitor
         }
 
         $decoded = ASN1::decodeBER($key[$type . 'Algorithm']['parameters']->element);
+        if (!$decoded) {
+            throw new \RuntimeException('Unable to decode BER');
+        }
         $params = ASN1::asn1map($decoded[0], Maps\ECParameters::MAP);
         if (!$params) {
             throw new \RuntimeException('Unable to decode the parameters using Maps\ECParameters');
@@ -113,6 +116,9 @@ abstract class PKCS8 extends Progenitor
         }
 
         $decoded = ASN1::decodeBER($key['privateKey']);
+        if (!$decoded) {
+            throw new \RuntimeException('Unable to decode BER');
+        }
         $key = ASN1::asn1map($decoded[0], Maps\ECPrivateKey::MAP);
         if (isset($key['parameters']) && $params != $key['parameters']) {
             throw new \RuntimeException('The PKCS8 parameter field does not match the private key parameter field');

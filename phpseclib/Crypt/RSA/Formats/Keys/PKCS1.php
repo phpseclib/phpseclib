@@ -59,7 +59,7 @@ abstract class PKCS1 extends Progenitor
         $key = parent::load($key, $password);
 
         $decoded = ASN1::decodeBER($key);
-        if (empty($decoded)) {
+        if (!$decoded) {
             throw new \RuntimeException('Unable to decode BER');
         }
 
