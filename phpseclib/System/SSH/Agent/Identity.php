@@ -108,7 +108,7 @@ class Identity implements PrivateKey
      *
      * @param \phpseclib3\Crypt\Common\PublicKey $key
      */
-    public function withPublicKey($key)
+    public function withPublicKey(PublicKey $key)
     {
         if ($key instanceof EC) {
             if (is_array($key->getCurve()) || !isset(self::$curveAliases[$key->getCurve()])) {

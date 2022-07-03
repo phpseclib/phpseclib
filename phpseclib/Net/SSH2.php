@@ -2281,7 +2281,7 @@ class SSH2
      * @return bool
      * @throws \RuntimeException on connection error
      */
-    private function keyboard_interactive_process(...$responses)
+    private function keyboard_interactive_process(array ...$responses)
     {
         if (strlen($this->last_interactive_response)) {
             $response = $this->last_interactive_response;
@@ -4246,7 +4246,7 @@ class SSH2
      * @param array $message_number_log
      * @return string
      */
-    protected function format_log($message_log, $message_number_log)
+    protected function format_log(array $message_log, array $message_number_log)
     {
         $output = '';
         for ($i = 0; $i < count($message_log); $i++) {
@@ -4297,7 +4297,7 @@ class SSH2
      * @param array $array2
      * @return mixed False if intersection is empty, else intersected value.
      */
-    private static function array_intersect_first($array1, $array2)
+    private static function array_intersect_first(array $array1, array $array2)
     {
         foreach ($array1 as $value) {
             if (in_array($value, $array2)) {

@@ -422,9 +422,8 @@ abstract class RSA extends AsymmetricKey
      * OnLoad Handler
      *
      * @return bool
-     * @param array $components
      */
-    protected static function onLoad($components)
+    protected static function onLoad(array $components)
     {
         $key = $components['isPublicKey'] ?
             new PublicKey() :
