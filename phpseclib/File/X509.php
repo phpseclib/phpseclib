@@ -2426,8 +2426,6 @@ class X509
      * $issuer's private key needs to be loaded.
      * $subject can be either an existing X.509 cert (if you want to resign it),
      * a CSR or something with the DN and public key explicitly set.
-     *
-     * @return mixed
      */
     public function sign(X509 $issuer, X509 $subject)
     {
@@ -2730,8 +2728,6 @@ class X509
      * Sign a CRL
      *
      * $issuer's private key needs to be loaded.
-     *
-     * @return mixed
      */
     public function signCRL(X509 $issuer, X509 $crl)
     {

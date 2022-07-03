@@ -230,7 +230,7 @@ class Agent
      * open to give the SSH Agent an opportunity
      * to take further action. i.e. request agent forwarding
      */
-    public function registerChannelOpen(SSH2 $ssh)
+    public function registerChannelOpen(SSH2 $ssh): void
     {
         if ($this->forward_status == self::FORWARD_REQUEST) {
             $this->request_forwarding($ssh);

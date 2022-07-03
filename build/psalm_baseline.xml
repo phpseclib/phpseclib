@@ -3326,6 +3326,10 @@
     <MixedPropertyFetch occurrences="1">
       <code>$key[$type . 'Algorithm']['parameters']-&gt;element</code>
     </MixedPropertyFetch>
+    <PossiblyNullArrayAccess occurrences="2">
+      <code>$decoded[0]</code>
+      <code>$decoded[0]</code>
+    </PossiblyNullArrayAccess>
     <PossiblyUndefinedIntArrayOffset occurrences="3">
       <code>$decoded[0]</code>
       <code>$decoded[0]</code>
@@ -3335,9 +3339,6 @@
       <code>$key[$type . 'Algorithm']</code>
       <code>$key[$type]</code>
     </PossiblyUndefinedStringArrayOffset>
-    <TypeDoesNotContainType occurrences="1">
-      <code>!is_array($decoded)</code>
-    </TypeDoesNotContainType>
     <UnusedClass occurrences="1">
       <code>PKCS8</code>
     </UnusedClass>
@@ -3906,6 +3907,12 @@
     <NullableReturnStatement occurrences="1">
       <code>$decoded</code>
     </NullableReturnStatement>
+    <PossiblyNullArgument occurrences="1">
+      <code>$decoded[0]</code>
+    </PossiblyNullArgument>
+    <PossiblyNullArrayAccess occurrences="1">
+      <code>$decoded[0]</code>
+    </PossiblyNullArrayAccess>
     <PossiblyNullPropertyAssignmentValue occurrences="1">
       <code>null</code>
     </PossiblyNullPropertyAssignmentValue>
@@ -6144,18 +6151,22 @@
       <code>$temp['k2']</code>
       <code>$temp['k3']</code>
     </PossiblyInvalidArrayOffset>
-    <PossiblyNullArgument occurrences="2">
+    <PossiblyNullArgument occurrences="4">
       <code>$m</code>
       <code>$params['parameters']</code>
+      <code>$params[0]</code>
+      <code>$temp[0]</code>
     </PossiblyNullArgument>
-    <PossiblyNullArrayAccess occurrences="7">
+    <PossiblyNullArrayAccess occurrences="9">
       <code>$params['basis']</code>
       <code>$params['m']</code>
       <code>$params['parameters']</code>
       <code>$params['parameters']</code>
+      <code>$params[0]</code>
       <code>$temp['k1']</code>
       <code>$temp['k2']</code>
       <code>$temp['k3']</code>
+      <code>$temp[0]</code>
     </PossiblyNullArrayAccess>
     <PossiblyNullReference occurrences="12">
       <code>$params</code>
@@ -8293,11 +8304,15 @@
     <PossiblyInvalidMethodCall occurrences="1">
       <code>toString</code>
     </PossiblyInvalidMethodCall>
-    <PossiblyNullArgument occurrences="2">
+    <PossiblyNullArgument occurrences="4">
+      <code>$decoded[0]</code>
+      <code>$decoded[0]</code>
       <code>$params['hashAlgorithm']['algorithm']</code>
       <code>$params['maskGenAlgorithm']['parameters']['algorithm']</code>
     </PossiblyNullArgument>
-    <PossiblyNullArrayAccess occurrences="2">
+    <PossiblyNullArrayAccess occurrences="4">
+      <code>$decoded[0]</code>
+      <code>$decoded[0]</code>
       <code>$params['hashAlgorithm']</code>
       <code>$params['maskGenAlgorithm']</code>
     </PossiblyNullArrayAccess>
@@ -8655,8 +8670,7 @@
       <code>PublicKey</code>
       <code>PublicKey</code>
     </PropertyNotSetInConstructor>
-    <TypeDoesNotContainType occurrences="4">
-      <code>!is_array($decoded)</code>
+    <TypeDoesNotContainType occurrences="3">
       <code>$em === false</code>
       <code>$em === false</code>
       <code>$em === false</code>
@@ -10211,6 +10225,9 @@
       <code>$source</code>
       <code>$source</code>
     </InvalidScalarArgument>
+    <MismatchingDocblockParamType occurrences="1">
+      <code>array|bool</code>
+    </MismatchingDocblockParamType>
     <MixedArgument occurrences="82">
       <code>$child</code>
       <code>$child</code>
@@ -10299,7 +10316,7 @@
       <code>$loc</code>
       <code>self::$location</code>
     </MixedArgumentTypeCoercion>
-    <MixedArrayAccess occurrences="61">
+    <MixedArrayAccess occurrences="60">
       <code>$child['cast']</code>
       <code>$child['cast']</code>
       <code>$child['class']</code>
@@ -10354,7 +10371,6 @@
       <code>$temp[$i]['type']</code>
       <code>$temp[$last]['content']</code>
       <code>$temp[$last]['type']</code>
-      <code>$temp['constant']</code>
       <code>$temp['constant']</code>
       <code>$temp['type']</code>
       <code>$temp['type']</code>
@@ -10574,7 +10590,8 @@
       <code>$value</code>
       <code>bindec($byte)</code>
     </PossiblyInvalidArgument>
-    <PossiblyInvalidArrayAccess occurrences="11">
+    <PossiblyInvalidArrayAccess occurrences="12">
+      <code>$decoded['content']</code>
       <code>$length</code>
       <code>$temp[$i]</code>
       <code>$temp[$i]</code>
@@ -10613,7 +10630,7 @@
       <code>$matches[1]</code>
       <code>$matches[2]</code>
     </PossiblyUndefinedIntArrayOffset>
-    <PossiblyUndefinedStringArrayOffset occurrences="50">
+    <PossiblyUndefinedStringArrayOffset occurrences="51">
       <code>$child['default']</code>
       <code>$child['type']</code>
       <code>$child['type']</code>
@@ -10663,6 +10680,7 @@
       <code>$temp['length']</code>
       <code>$temp['length']</code>
       <code>$temp['length']</code>
+      <code>$temp['type']</code>
       <code>$temp['type']</code>
     </PossiblyUndefinedStringArrayOffset>
     <PossiblyUndefinedVariable occurrences="6">
@@ -10729,10 +10747,7 @@
       <code>!isset($this-&gt;currentCert)</code>
       <code>$cert === false</code>
     </DocblockTypeContradiction>
-    <FalsableReturnStatement occurrences="10">
-      <code>false</code>
-      <code>false</code>
-      <code>false</code>
+    <FalsableReturnStatement occurrences="7">
       <code>false</code>
       <code>false</code>
       <code>false</code>
@@ -10746,10 +10761,7 @@
     <InvalidArgument occurrences="1">
       <code>$j</code>
     </InvalidArgument>
-    <InvalidFalsableReturnType occurrences="7">
-      <code>string</code>
-      <code>string</code>
-      <code>string</code>
+    <InvalidFalsableReturnType occurrences="4">
       <code>string</code>
       <code>string</code>
       <code>string</code>
@@ -11279,7 +11291,7 @@
       <code>$i</code>
       <code>int|false</code>
     </MixedReturnTypeCoercion>
-    <PossiblyFalseArgument occurrences="13">
+    <PossiblyFalseArgument occurrences="16">
       <code>$line</code>
       <code>$line</code>
       <code>$publicKey</code>
@@ -11288,6 +11300,9 @@
       <code>$rclist</code>
       <code>$rclist</code>
       <code>$results</code>
+      <code>$this-&gt;saveCSR($this-&gt;currentCert)</code>
+      <code>$this-&gt;saveSPKAC($this-&gt;currentCert)</code>
+      <code>$this-&gt;saveX509($this-&gt;currentCert)</code>
       <code>base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey']))</code>
       <code>base64_decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey']))</code>
       <code>base64_decode(preg_replace('#-.+-|[\r\n]#', '', $spkac['publicKeyAndChallenge']['spki']['subjectPublicKey']))</code>
@@ -11347,15 +11362,17 @@
     <PossiblyInvalidPropertyAssignmentValue occurrences="1">
       <code>$csr</code>
     </PossiblyInvalidPropertyAssignmentValue>
-    <PossiblyNullArgument occurrences="17">
+    <PossiblyNullArgument occurrences="19">
       <code>$cert</code>
       <code>$crl</code>
       <code>$csr</code>
+      <code>$decoded[0]['content'][0]['start']</code>
       <code>$path</code>
       <code>$spkac</code>
       <code>$temp</code>
       <code>$v</code>
       <code>$value</code>
+      <code>$values[$j]</code>
       <code>$values[$j]</code>
       <code>preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])</code>
       <code>preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])</code>
@@ -11366,7 +11383,9 @@
       <code>preg_replace('#^id-dsa-with-#', '', strtolower($signatureAlgorithm))</code>
       <code>preg_replace_callback('#[^\x20-\x7E]#', $callback, $value-&gt;element)</code>
     </PossiblyNullArgument>
-    <PossiblyNullArrayAccess occurrences="2">
+    <PossiblyNullArrayAccess occurrences="4">
+      <code>$decoded[0]</code>
+      <code>$decoded[0]['content']</code>
       <code>$spkac['publicKeyAndChallenge']</code>
       <code>$spkac['publicKeyAndChallenge']</code>
     </PossiblyNullArrayAccess>
@@ -15877,6 +15896,9 @@
     <MissingParamType occurrences="1">
       <code>$address</code>
     </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>request_forwarding</code>
+    </MissingReturnType>
     <MixedArgument occurrences="6">
       <code>$agent_reply_bytes</code>
       <code>$key</code>
@@ -15924,9 +15946,6 @@
     <UnusedProperty occurrences="1">
       <code>$request_channel</code>
     </UnusedProperty>
-    <UnusedReturnValue occurrences="1">
-      <code>bool</code>
-    </UnusedReturnValue>
     <UnusedVariable occurrences="1">
       <code>$comment</code>
     </UnusedVariable>
@@ -17668,7 +17687,16 @@
     <PossiblyFalseOperand occurrences="1">
       <code>base64_decode('MD6gJQYKKwYBBAGCNxQCA6AXDBVvZmZpY2VAY2VydGRpZ2l0YWwucm+BFW9mZmljZUBjZXJ0ZGlnaXRhbC5ybw==')</code>
     </PossiblyFalseOperand>
-    <PossiblyUndefinedIntArrayOffset occurrences="17">
+    <PossiblyNullArgument occurrences="7">
+      <code>$a[0]</code>
+      <code>$decoded[0]</code>
+      <code>$decoded[0]</code>
+      <code>$decoded[0]</code>
+      <code>$decoded[0]['content']</code>
+      <code>$decoded[0]['content']</code>
+      <code>$decoded[0]['content'][1]['content'][0]['content']</code>
+    </PossiblyNullArgument>
+    <PossiblyNullArrayAccess occurrences="8">
       <code>$a[0]</code>
       <code>$decoded[0]</code>
       <code>$decoded[0]</code>
@@ -17677,8 +17705,9 @@
       <code>$decoded[0]</code>
       <code>$decoded[0]</code>
       <code>$decoded[0]</code>
-      <code>$decoded[0]</code>
-      <code>$decoded[0]</code>
+    </PossiblyNullArrayAccess>
+    <PossiblyUndefinedIntArrayOffset occurrences="8">
+      <code>$a[0]</code>
       <code>$decoded[0]</code>
       <code>$decoded[0]</code>
       <code>$decoded[0]</code>
@@ -17732,8 +17761,9 @@
       <code>$x509-&gt;getPublicKey()-&gt;getPadding()</code>
       <code>$x509-&gt;getPublicKey()-&gt;getPadding()</code>
     </MixedOperand>
-    <PossiblyFalseArgument occurrences="1">
+    <PossiblyFalseArgument occurrences="2">
       <code>$csr</code>
+      <code>$x509-&gt;saveCSR($x509-&gt;signCSR(), X509::FORMAT_DER)</code>
     </PossiblyFalseArgument>
     <PropertyNotSetInConstructor occurrences="2">
       <code>CSRTest</code>
@@ -17770,6 +17800,9 @@
       <code>$spkac</code>
       <code>$spkac</code>
     </MixedAssignment>
+    <PossiblyFalseArgument occurrences="1">
+      <code>$x509-&gt;saveSPKAC($spkac)</code>
+    </PossiblyFalseArgument>
     <PropertyNotSetInConstructor occurrences="2">
       <code>SPKACTest</code>
       <code>SPKACTest</code>
@@ -17810,6 +17843,10 @@
       <code>$result</code>
       <code>$subjectKey</code>
     </MixedAssignment>
+    <PossiblyFalseArgument occurrences="2">
+      <code>$cert</code>
+      <code>$certificate</code>
+    </PossiblyFalseArgument>
     <PossiblyNullArrayAccess occurrences="5">
       <code>$customExtensionDecodedData['list']</code>
       <code>$customExtensionDecodedData['name']</code>
@@ -17954,8 +17991,17 @@
       <code>withHash</code>
       <code>withHash</code>
     </MixedMethodCall>
-    <PossiblyFalseArgument occurrences="1">
+    <PossiblyFalseArgument occurrences="10">
       <code>$a</code>
+      <code>$cert</code>
+      <code>$newcert-&gt;saveX509($newcert-&gt;sign($ca, $oldcert))</code>
+      <code>$r</code>
+      <code>$result</code>
+      <code>$result</code>
+      <code>$result</code>
+      <code>$result</code>
+      <code>$x509-&gt;saveX509($cert)</code>
+      <code>$x509-&gt;saveX509($decoded)</code>
     </PossiblyFalseArgument>
     <PropertyNotSetInConstructor occurrences="2">
       <code>X509Test</code>
