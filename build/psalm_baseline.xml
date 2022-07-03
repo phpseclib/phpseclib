@@ -7624,12 +7624,6 @@
     <MixedReturnStatement occurrences="1">
       <code>$key</code>
     </MixedReturnStatement>
-    <PossiblyInvalidArgument occurrences="1">
-      <code>$key</code>
-    </PossiblyInvalidArgument>
-    <PossiblyInvalidCast occurrences="1">
-      <code>$key</code>
-    </PossiblyInvalidCast>
     <PossiblyUnusedMethod occurrences="2">
       <code>loadParameters</code>
       <code>loadPublicKey</code>
@@ -10720,7 +10714,7 @@
     </UnusedClass>
   </file>
   <file src="../phpseclib/File/X509.php">
-    <DocblockTypeContradiction occurrences="12">
+    <DocblockTypeContradiction occurrences="13">
       <code>!is_array($this-&gt;currentCert)</code>
       <code>!is_array($this-&gt;currentCert)</code>
       <code>!is_array($this-&gt;currentCert)</code>
@@ -10733,6 +10727,7 @@
       <code>!isset($this-&gt;currentCert)</code>
       <code>!isset($this-&gt;currentCert)</code>
       <code>!isset($this-&gt;currentCert)</code>
+      <code>$cert === false</code>
     </DocblockTypeContradiction>
     <FalsableReturnStatement occurrences="10">
       <code>false</code>
@@ -10748,9 +10743,8 @@
     <ImplicitToStringCast occurrences="1">
       <code>new BigInteger($serial, $base)</code>
     </ImplicitToStringCast>
-    <InvalidArgument occurrences="2">
+    <InvalidArgument occurrences="1">
       <code>$j</code>
-      <code>$value</code>
     </InvalidArgument>
     <InvalidFalsableReturnType occurrences="7">
       <code>string</code>
@@ -11317,7 +11311,10 @@
       <code>false</code>
       <code>false</code>
     </PossiblyFalsePropertyAssignmentValue>
-    <PossiblyInvalidArgument occurrences="6">
+    <PossiblyInvalidArgument occurrences="9">
+      <code>$cert</code>
+      <code>$cert</code>
+      <code>$cert</code>
       <code>$crl</code>
       <code>$csr</code>
       <code>$date</code>
@@ -11332,11 +11329,12 @@
       <code>$results[$i + 1]</code>
       <code>$results[$i]</code>
     </PossiblyInvalidArrayAccess>
-    <PossiblyInvalidCast occurrences="4">
+    <PossiblyInvalidCast occurrences="5">
+      <code>$cert</code>
+      <code>$cert</code>
       <code>$date</code>
       <code>$date</code>
       <code>$dn</code>
-      <code>$value</code>
     </PossiblyInvalidCast>
     <PossiblyInvalidMethodCall occurrences="3">
       <code>__toString</code>
@@ -11346,8 +11344,7 @@
     <PossiblyInvalidOperand occurrences="1">
       <code>$key-&gt;getCurve()</code>
     </PossiblyInvalidOperand>
-    <PossiblyInvalidPropertyAssignmentValue occurrences="2">
-      <code>$cert</code>
+    <PossiblyInvalidPropertyAssignmentValue occurrences="1">
       <code>$csr</code>
     </PossiblyInvalidPropertyAssignmentValue>
     <PossiblyNullArgument occurrences="17">
@@ -11492,8 +11489,7 @@
       <code>signCRL</code>
       <code>unrevoke</code>
     </PossiblyUnusedMethod>
-    <PossiblyUnusedReturnValue occurrences="6">
-      <code>\phpseclib3\File\X509</code>
+    <PossiblyUnusedReturnValue occurrences="5">
       <code>bool</code>
       <code>bool</code>
       <code>bool</code>
@@ -11579,12 +11575,11 @@
       <code>$root</code>
       <code>$spkac</code>
     </ReferenceConstraintViolation>
-    <TypeDoesNotContainType occurrences="23">
+    <TypeDoesNotContainType occurrences="21">
       <code>!is_array($cert)</code>
       <code>!is_array($crl)</code>
       <code>!is_array($csr)</code>
       <code>!is_array($spkac)</code>
-      <code>$cert === false</code>
       <code>$crl === false</code>
       <code>$csr === false</code>
       <code>$spkac === false</code>
@@ -11597,7 +11592,6 @@
       <code>'sha256'</code>
       <code>'sha384'</code>
       <code>'sha384'</code>
-      <code>is_array($cert)</code>
       <code>is_array($crl)</code>
       <code>is_array($csr)</code>
       <code>is_array($root)</code>
@@ -14987,9 +14981,11 @@
     <PossiblyUnusedReturnValue occurrences="1">
       <code>bool</code>
     </PossiblyUnusedReturnValue>
-    <PropertyNotSetInConstructor occurrences="2">
+    <PropertyNotSetInConstructor occurrences="4">
       <code>$defaultVersion</code>
       <code>$version</code>
+      <code>SFTP</code>
+      <code>SFTP</code>
     </PropertyNotSetInConstructor>
     <RedundantCastGivenDocblockType occurrences="1">
       <code>(int) $ver</code>
@@ -15263,28 +15259,32 @@
     <InvalidNullableReturnType occurrences="1">
       <code>bool|SSH2</code>
     </InvalidNullableReturnType>
+    <InvalidPropertyAssignmentValue occurrences="5">
+      <code>$this-&gt;curTimeout -= $elapsed</code>
+      <code>$this-&gt;curTimeout -= $elapsed</code>
+      <code>$this-&gt;curTimeout -= $elapsed</code>
+      <code>$this-&gt;curTimeout -= $elapsed</code>
+      <code>$this-&gt;curTimeout -= $elapsed</code>
+    </InvalidPropertyAssignmentValue>
     <InvalidReturnType occurrences="2">
       <code>array{Hash, int}|null</code>
       <code>string</code>
     </InvalidReturnType>
-    <MissingParamType occurrences="4">
+    <MissingParamType occurrences="3">
       <code>$algorithm</code>
       <code>$host</code>
       <code>$password</code>
-      <code>$timeout</code>
     </MissingParamType>
-    <MissingPropertyType occurrences="5">
-      <code>$curTimeout</code>
+    <MissingPropertyType occurrences="3">
       <code>$keepAlive</code>
       <code>$quiet_mode</code>
       <code>$realtime_log_wrap</code>
-      <code>$timeout</code>
     </MissingPropertyType>
     <MissingReturnType occurrences="2">
       <code>connect</code>
       <code>get_channel_packet</code>
     </MissingReturnType>
-    <MixedArgument occurrences="116">
+    <MixedArgument occurrences="113">
       <code>$a['comp']</code>
       <code>$a['crypt']</code>
       <code>$a['mac']</code>
@@ -15369,9 +15369,6 @@
       <code>$this-&gt;channel_buffers[$client_channel]</code>
       <code>$this-&gt;compression_algorithms_client_to_server</code>
       <code>$this-&gt;compression_algorithms_server_to_client</code>
-      <code>$this-&gt;curTimeout</code>
-      <code>$this-&gt;curTimeout</code>
-      <code>$this-&gt;curTimeout == 0 ? 100000 : $this-&gt;curTimeout</code>
       <code>$this-&gt;encryption_algorithms_client_to_server</code>
       <code>$this-&gt;encryption_algorithms_server_to_client</code>
       <code>$this-&gt;keepAlive</code>
@@ -15531,7 +15528,7 @@
       <code>sign</code>
       <code>withHash</code>
     </MixedMethodCall>
-    <MixedOperand occurrences="36">
+    <MixedOperand occurrences="29">
       <code>$curveName</code>
       <code>$data</code>
       <code>$data</code>
@@ -15554,13 +15551,6 @@
       <code>$temp</code>
       <code>$temp</code>
       <code>$temp</code>
-      <code>$this-&gt;curTimeout</code>
-      <code>$this-&gt;curTimeout</code>
-      <code>$this-&gt;curTimeout</code>
-      <code>$this-&gt;curTimeout</code>
-      <code>$this-&gt;curTimeout</code>
-      <code>$this-&gt;curTimeout</code>
-      <code>$this-&gt;curTimeout</code>
       <code>$this-&gt;errors[count($this-&gt;errors) - 1]</code>
       <code>$this-&gt;window_size_client_to_server[$channel]</code>
       <code>$this-&gt;window_size_client_to_server[$client_channel]</code>
@@ -15675,9 +15665,11 @@
       <code>false</code>
       <code>inflate_init(ZLIB_ENCODING_RAW, ['window' =&gt; $cinfo + 8])</code>
     </PossiblyFalsePropertyAssignmentValue>
-    <PossiblyInvalidArgument occurrences="16">
+    <PossiblyInvalidArgument occurrences="18">
       <code>$args</code>
       <code>$engine</code>
+      <code>$password</code>
+      <code>$password</code>
       <code>$response</code>
       <code>$response</code>
       <code>$response</code>
@@ -15785,8 +15777,9 @@
     <PossiblyUnusedReturnValue occurrences="1">
       <code>($callback is callable ? bool : string|bool)</code>
     </PossiblyUnusedReturnValue>
-    <PropertyNotSetInConstructor occurrences="17">
+    <PropertyNotSetInConstructor occurrences="19">
       <code>$agent</code>
+      <code>$curTimeout</code>
       <code>$decompress_context</code>
       <code>$exit_status</code>
       <code>$hmac_check_etm</code>
@@ -15803,7 +15796,11 @@
       <code>$realtime_log_size</code>
       <code>$server_public_host_key</code>
       <code>$stdErrorLog</code>
+      <code>$timeout</code>
     </PropertyNotSetInConstructor>
+    <RedundantCondition occurrences="1">
+      <code>is_array($responses[$i])</code>
+    </RedundantCondition>
     <RedundantConditionGivenDocblockType occurrences="5">
       <code>$this-&gt;session_id !== false</code>
       <code>Strings::is_stringable($arg)</code>
@@ -15880,27 +15877,21 @@
     <MissingParamType occurrences="1">
       <code>$address</code>
     </MissingParamType>
-    <MixedArgument occurrences="10">
+    <MixedArgument occurrences="6">
       <code>$agent_reply_bytes</code>
-      <code>$agent_reply_data</code>
       <code>$key</code>
       <code>$key_blob</code>
       <code>$key_blob</code>
       <code>$length</code>
-      <code>$packet</code>
       <code>$temp</code>
-      <code>$this-&gt;readBytes(4)</code>
-      <code>$this-&gt;readBytes(4)</code>
     </MixedArgument>
-    <MixedAssignment occurrences="10">
+    <MixedAssignment occurrences="8">
       <code>$address</code>
       <code>$address</code>
       <code>$agent_data_bytes</code>
       <code>$agent_reply_bytes</code>
       <code>$agent_reply_data</code>
-      <code>$agent_reply_data</code>
       <code>$length</code>
-      <code>$packet</code>
       <code>$temp</code>
       <code>$this-&gt;expected_bytes</code>
     </MixedAssignment>
@@ -15941,15 +15932,12 @@
     </UnusedVariable>
   </file>
   <file src="../phpseclib/System/SSH/Agent/Identity.php">
-    <MixedArgument occurrences="4">
+    <MixedArgument occurrences="2">
       <code>$length</code>
-      <code>$packet</code>
       <code>$signature_blob</code>
-      <code>$this-&gt;readBytes(4)</code>
     </MixedArgument>
-    <MixedAssignment occurrences="2">
+    <MixedAssignment occurrences="1">
       <code>$length</code>
-      <code>$packet</code>
     </MixedAssignment>
     <MixedInferredReturnType occurrences="1">
       <code>string</code>
@@ -15980,15 +15968,6 @@
     <UnusedVariable occurrences="1">
       <code>$type</code>
     </UnusedVariable>
-  </file>
-  <file src="../phpseclib/System/SSH/Common/Traits/ReadBytes.php">
-    <MissingReturnType occurrences="1">
-      <code>readBytes</code>
-    </MissingReturnType>
-    <PossiblyFalseArgument occurrences="2">
-      <code>$temp</code>
-      <code>$temp</code>
-    </PossiblyFalseArgument>
   </file>
   <file src="../phpseclib/bootstrap.php">
     <InvalidOperand occurrences="1">

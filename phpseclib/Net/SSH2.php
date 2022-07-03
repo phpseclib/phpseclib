@@ -706,14 +706,16 @@ class SSH2
     /**
      * Timeout
      *
-     * @see self::setTimeout()
+     * @see SSH2::setTimeout()
+     * @var int
      */
     protected $timeout;
 
     /**
      * Current Timeout
      *
-     * @see self::get_channel_packet()
+     * @see SSH2::get_channel_packet()
+     * @var int
      */
     protected $curTimeout;
 
@@ -2253,10 +2255,9 @@ class SSH2
     /**
      * Handle the keyboard-interactive requests / responses.
      *
-     * @param string|array ...$responses
      * @throws \RuntimeException on connection error
      */
-    private function keyboard_interactive_process(...$responses): bool
+    private function keyboard_interactive_process(array ...$responses): bool
     {
         if (strlen($this->last_interactive_response)) {
             $response = $this->last_interactive_response;
@@ -2498,7 +2499,7 @@ class SSH2
      * $ssh->exec('ping 127.0.0.1'); on a Linux host will never return and will run indefinitely.  setTimeout() makes it so it'll timeout.
      * Setting $timeout to false or 0 will mean there is no timeout.
      */
-    public function setTimeout($timeout): void
+    public function setTimeout(int $timeout): void
     {
         $this->timeout = $this->curTimeout = $timeout;
     }

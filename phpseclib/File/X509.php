@@ -279,11 +279,6 @@ class X509
      */
     private $domains = null;
 
-    /**
-     * Default Constructor.
-     *
-     * @return \phpseclib3\File\X509
-     */
     public function __construct()
     {
         // Explicitly Tagged Module, 1988 Syntax
@@ -430,8 +425,10 @@ class X509
      * Load X.509 certificate
      *
      * Returns an associative array describing the X.509 cert or a false if the cert failed to load
+     *
+     * @param string|array $cert
      */
-    public function loadX509(string $cert, int $mode = self::FORMAT_AUTO_DETECT)
+    public function loadX509($cert, int $mode = self::FORMAT_AUTO_DETECT)
     {
         if (is_array($cert) && isset($cert['tbsCertificate'])) {
             unset($this->currentCert);
