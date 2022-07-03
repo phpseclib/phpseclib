@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Functional\Net;
 
 use phpseclib3\Exception\UnableToConnectException;
@@ -8,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class SFTPWrongServerTest extends TestCase
 {
-    public function testLoginToInvalidServer()
+    public function testLoginToInvalidServer(): void
     {
         try {
             (new SFTP('dummy-server'))->login('username', 'password');

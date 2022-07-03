@@ -11,6 +11,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\Curves;
 
 final class prime192v1 extends secp192r1

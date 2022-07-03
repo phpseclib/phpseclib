@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt\DSA;
 
 use phpseclib3\Crypt\DSA\Parameters;
@@ -17,7 +19,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class LoadDSAKeyTest extends PhpseclibTestCase
 {
-    public function testBadKey()
+    public function testBadKey(): void
     {
         $this->expectException(NoKeyLoadedException::class);
 
@@ -25,7 +27,7 @@ class LoadDSAKeyTest extends PhpseclibTestCase
         PublicKeyLoader::load($key);
     }
 
-    public function testPuTTYKey()
+    public function testPuTTYKey(): void
     {
         $key = 'PuTTY-User-Key-File-2: ssh-dss
 Encryption: none
@@ -65,7 +67,7 @@ Private-MAC: 62b92ddd8b341b9414d640c24ba6ae929a78e039
         $this->assertGreaterThan(0, strlen("$dsa"));
     }
 
-    public function testPKCS1Key()
+    public function testPKCS1Key(): void
     {
         $key = '-----BEGIN DSA PRIVATE KEY-----
 MIIDPQIBAAKCAQEAiwfUDxLuCgQSd5boP/MleHXPKllGUqXDu81onvJeL2+pSQqd
@@ -96,7 +98,7 @@ Eb2s9fDOpnMhj+WqwcQgs18=
         $this->assertIsString((string) $dsa->getParameters());
     }
 
-    public function testParameters()
+    public function testParameters(): void
     {
         $key = '-----BEGIN DSA PARAMETERS-----
 MIIBHgKBgQDandMycPZNOEwDXpIDSdFODWOQVO5tlnt38wK0X33TJh4wQdqOSiVF
@@ -115,7 +117,7 @@ L1cwyXx0KMaaampd34MzOIHbC44SHY+cE3aVVUsnmt6Ur1nQaVYVszl+AO6m8bPm
         $this->assertSame($key, str_replace(["\n", "\r"], '', (string) $dsa->getParameters()));
     }
 
-    public function testPKCS8Public()
+    public function testPKCS8Public(): void
     {
         $key = '-----BEGIN PUBLIC KEY-----
 MIIBtjCCASsGByqGSM44BAEwggEeAoGBANqd0zJw9k04TANekgNJ0U4NY5BU7m2W
@@ -136,7 +138,7 @@ ZpmyOpXM/0opRMIRdmqVW4ardBFNokmlqngwcbaptfRnk9W2cQtx0lmKy6X/vnis
         $this->assertIsString("$dsa");
     }
 
-    public function testPKCS8Private()
+    public function testPKCS8Private(): void
     {
         $key = '-----BEGIN PRIVATE KEY-----
 MIIBSgIBADCCASsGByqGSM44BAEwggEeAoGBANqd0zJw9k04TANekgNJ0U4NY5BU
@@ -156,7 +158,7 @@ Syea3pSvWdBpVhWzOX4A7qbxs+bhWAQWAhQiF7sFfCtZ7oOgCb2aJ9ySC9sTug==
         $this->assertInstanceOf(Parameters::class, $dsa->getParameters());
     }
 
-    public function testPuTTYBadMAC()
+    public function testPuTTYBadMAC(): void
     {
         $this->expectException(NoKeyLoadedException::class);
 
@@ -190,7 +192,7 @@ Private-MAC: aaaaaadd8b341b9414d640c24ba6ae929a78e039
         PublicKeyLoader::load($key);
     }
 
-    public function testXML()
+    public function testXML(): void
     {
         $key = '-----BEGIN PUBLIC KEY-----
 MIIBtjCCASsGByqGSM44BAEwggEeAoGBANqd0zJw9k04TANekgNJ0U4NY5BU7m2W
@@ -218,7 +220,7 @@ ZpmyOpXM/0opRMIRdmqVW4ardBFNokmlqngwcbaptfRnk9W2cQtx0lmKy6X/vnis
         );
     }
 
-    public function testOpenSSHPrivate()
+    public function testOpenSSHPrivate(): void
     {
         $key = '-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABswAAAAdzc2gtZH

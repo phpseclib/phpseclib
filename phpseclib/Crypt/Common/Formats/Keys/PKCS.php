@@ -11,6 +11,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\Common\Formats\Keys;
 
 /**
@@ -43,18 +45,16 @@ abstract class PKCS
 
     /**
      * Require base64-encoded PEM's be supplied
-     *
      */
-    public static function requirePEM()
+    public static function requirePEM(): void
     {
         self::$format = self::MODE_PEM;
     }
 
     /**
      * Require raw DER's be supplied
-     *
      */
-    public static function requireDER()
+    public static function requireDER(): void
     {
         self::$format = self::MODE_DER;
     }
@@ -63,9 +63,8 @@ abstract class PKCS
      * Accept any format and auto detect the format
      *
      * This is the default setting
-     *
      */
-    public static function requireAny()
+    public static function requireAny(): void
     {
         self::$format = self::MODE_ANY;
     }

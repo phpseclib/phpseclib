@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\File\X509;
 
 use phpseclib3\Crypt\PublicKeyLoader;
@@ -17,7 +19,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class X509Test extends PhpseclibTestCase
 {
-    public function testExtensionMapping()
+    public function testExtensionMapping(): void
     {
         $test = '-----BEGIN CERTIFICATE-----
 MIIG1jCCBL6gAwIBAgITUAAAAA0qg8bE6DhrLAAAAAAADTANBgkqhkiG9w0BAQsF
@@ -66,7 +68,7 @@ k6m17mi63YW/+iPCGOWZ2qXmY5HPEyyF2L4L4IDryFJ+8xLyw3pH9/yp5aHZDtp6
         $this->assertIsArray($cert['tbsCertificate']['extensions'][3]['extnValue']);
     }
 
-    public function testLoadUnsupportedExtension()
+    public function testLoadUnsupportedExtension(): void
     {
         $test = '-----BEGIN CERTIFICATE-----
 MIIG1jCCBL6gAwIBAgITUAAAAA0qg8bE6DhrLAAAAAAADTANBgkqhkiG9w0BAQsF
@@ -115,7 +117,7 @@ k6m17mi63YW/+iPCGOWZ2qXmY5HPEyyF2L4L4IDryFJ+8xLyw3pH9/yp5aHZDtp6
         $this->assertEquals(base64_decode('MDUwDgYIKoZIhvcNAwICAgCAMA4GCCqGSIb3DQMEAgIAgDAHBgUrDgMCBzAKBggqhkiG9w0DBw=='), $cert['tbsCertificate']['extensions'][8]['extnValue']);
     }
 
-    public function testSaveUnsupportedExtension()
+    public function testSaveUnsupportedExtension(): void
     {
         $x509 = new X509();
         $cert = $x509->loadX509('-----BEGIN CERTIFICATE-----
@@ -154,7 +156,7 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
     /**
      * @group github705
      */
-    public function testSaveNullRSAParam()
+    public function testSaveNullRSAParam(): void
     {
         $privKey = PublicKeyLoader::load('-----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDMswfEpAgnUDWA74zZw5XcPsWh1ly1Vk99tsqwoFDkLF7jvXy1
@@ -197,7 +199,7 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         $this->assertArrayHasKey('parameters', $cert['tbsCertificate']['signature']);
     }
 
-    public function testGetOID()
+    public function testGetOID(): void
     {
         // load the OIDs
         new X509();
@@ -206,7 +208,7 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         $this->assertEquals(ASN1::getOID('zzz'), 'zzz');
     }
 
-    public function testIPAddressSubjectAltNamesDecoding()
+    public function testIPAddressSubjectAltNamesDecoding(): void
     {
         $test = '-----BEGIN CERTIFICATE-----
 MIIEcTCCAlmgAwIBAgIBDjANBgkqhkiG9w0BAQsFADAfMR0wGwYDVQQDDBQuU2Vj
@@ -241,7 +243,7 @@ NDEuGt30Vl2de7G1glnhaceB6Q9KfH7p2gAwNP9JMTtx3PtEcA==
         $this->assertEquals($cert['tbsCertificate']['extensions'][3]['extnValue'][1]['iPAddress'], '2001:470:f309:9::3');
     }
 
-    public function testPostalAddress()
+    public function testPostalAddress(): void
     {
         $x509 = new X509();
         $decoded = $x509->loadX509('-----BEGIN CERTIFICATE-----
@@ -293,7 +295,7 @@ Mj93S
         $this->assertEquals($x509->getDN(X509::DN_STRING), $expected);
     }
 
-    public function testStrictComparison()
+    public function testStrictComparison(): void
     {
         $x509 = new X509();
         $x509->loadCA('-----BEGIN CERTIFICATE-----
@@ -361,7 +363,7 @@ Mj93S
     }
 
     // fixed by #1104
-    public function testMultipleDomainNames()
+    public function testMultipleDomainNames(): void
     {
         $privatekey = RSA::createKey(512)
             ->withPadding(RSA::SIGNATURE_PKCS1)
@@ -382,7 +384,7 @@ Mj93S
         self::assertTrue(true);
     }
 
-    public function testUtcTimeWithoutSeconds()
+    public function testUtcTimeWithoutSeconds(): void
     {
         $test = '-----BEGIN CERTIFICATE-----
 MIIGFDCCBPygAwIBAgIDKCHVMA0GCSqGSIb3DQEBBQUAMIHcMQswCQYDVQQGEwJVUzEQMA4GA1UE
@@ -424,7 +426,7 @@ F7xAUxmPUnNb2teatMf2Rmj0fs+d
         $this->assertEquals($cert['tbsCertificate']['validity']['notAfter']['utcTime'], 'Fri, 01 Apr 2016 07:00:00 +0000');
     }
 
-    public function testValidateURL()
+    public function testValidateURL(): void
     {
         $test = '-----BEGIN CERTIFICATE-----
 MIIEgDCCA2igAwIBAgIIPUwrl6kGL2QwDQYJKoZIhvcNAQELBQAwSTELMAkGA1UE
@@ -461,7 +463,7 @@ C47x9g==
         $this->assertTrue($x509->validateURL('https://www.google.com'));
     }
 
-    public function testValidateSignatureWithoutKeyIdentifier()
+    public function testValidateSignatureWithoutKeyIdentifier(): void
     {
         $x509 = new X509();
         $x509->loadX509('-----BEGIN CERTIFICATE-----
@@ -511,7 +513,7 @@ HI8pYRZmT7tKW3HxlZLJGGVo5CgBawdiWngK5v+LwWiNRTqxJA==
         $this->assertTrue($x509->validateSignature());
     }
 
-    public function testValidateSignatureSelfSignedWithoutKeyIdentifier()
+    public function testValidateSignatureSelfSignedWithoutKeyIdentifier(): void
     {
         $x509 = new X509();
         $x509->loadX509('-----BEGIN CERTIFICATE-----
@@ -544,7 +546,7 @@ HI8pYRZmT7tKW3HxlZLJGGVo5CgBawdiWngK5v+LwWiNRTqxJA==
     /**
      * @group github1243
      */
-    public function testExtensionRemoval()
+    public function testExtensionRemoval(): void
     {
         // Load the CA and its private key.
         $pemcakey = '-----BEGIN RSA PRIVATE KEY-----
@@ -615,7 +617,7 @@ Fqfy+n5VpXOdrjic4yZ52yS5sUaq05s6ZZvnmdU=
         $newcert->saveX509($crt);
     }
 
-    public function testAuthorityInfoAccess()
+    public function testAuthorityInfoAccess(): void
     {
         $x509 = new X509();
         $x509->loadCA('-----BEGIN CERTIFICATE-----
@@ -687,7 +689,7 @@ M0qaEPsM2o3CSTfxSJQQIyEe+izV3UQqYSyWkNqCCFPN
         $this->assertTrue($x509->validateSignature());
     }
 
-    public function testValidateDate()
+    public function testValidateDate(): void
     {
         $x509 = new X509();
         $x509->loadX509('-----BEGIN CERTIFICATE-----
@@ -714,7 +716,7 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
         $this->assertTrue($x509->validateDate('Nov 22, 2012'));
     }
 
-    public function testDSALoad()
+    public function testDSALoad(): void
     {
         // openssl dsaparam -out params.pem 3072
         // openssl gendsa -out key.pem params.pem
@@ -764,7 +766,7 @@ pMAUPdvLhVjjTvw4ypYrNMc4Z3z5n3bfCVzIQL5Z
         $this->assertTrue($x509->validateSignature(false));
     }
 
-    public function testECLoad()
+    public function testECLoad(): void
     {
         // openssl req -x509 -nodes -days 3650 -newkey ec:<(openssl ecparam -name prime256v1) -keyout ecdsakey.pem -out ecdsacert.pem
 
@@ -789,7 +791,7 @@ f11dQP8CIDoB2AbvB3Yk/iGduWpw+3FwNAZ1y/rTqQK6+XgZCt6K
         $this->assertTrue($x509->validateSignature(false));
     }
 
-    public function testPSSLoad()
+    public function testPSSLoad(): void
     {
         // openssl genpkey -algorithm rsa-pss -pkeyopt rsa_keygen_bits:2048 -pkeyopt rsa_keygen_pubexp:65537 -pkeyopt rsa_pss_keygen_md:sha256 -pkeyopt rsa_pss_keygen_mgf1_md:sha512 -pkeyopt rsa_pss_keygen_saltlen:5 -out CA.priKey
         // openssl req -x509 -new -key CA.priKey -subj "/CN=CA" -sha256 -pkeyopt rsa_pss_keygen_md:sha256 -pkeyopt rsa_pss_keygen_mgf1_md:sha512 -pkeyopt rsa_pss_keygen_saltlen:5 -out CA.cer
@@ -824,7 +826,7 @@ edu9tyNNr2vvZjshoY5y58+hVIjee/Pzxa7GX0LDEmK8FdFBxWeNx0g/TsZj6GE=
         $this->assertTrue($x509->validateSignature(false));
     }
 
-    public function testDSASave()
+    public function testDSASave(): void
     {
         $private = '-----BEGIN DSA PRIVATE KEY-----
 MIIE1QIBAAKCAYEAwuma6tTTvSg9HUXseAquivUpXyEvyKmIf0XU/EOn4Y6EryoF
@@ -878,7 +880,7 @@ uhPlgkgknwIgdDqqKIAF60ouiynsbU53ERS0TwpjeFiYGA48SwYW3Nk=
         $this->assertSame('id-dsa-with-sha256', $r['signatureAlgorithm']['algorithm']);
     }
 
-    public function testECSave()
+    public function testECSave(): void
     {
         $private = '-----BEGIN PRIVATE KEY-----
 MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgQ0o1byJQbAcuklBt
@@ -909,7 +911,7 @@ wkwhE/JaQAEHq2PHnEmvwyBiJcHSdLXkcLzYlg19Ho0BPqVKdulx8GAk
         $this->assertSame('ecdsa-with-SHA256', $r['signatureAlgorithm']['algorithm']);
     }
 
-    public function testPSSSave()
+    public function testPSSSave(): void
     {
         $private = '-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
@@ -951,7 +953,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $this->assertArrayHasKey('parameters', $r['signatureAlgorithm']);
     }
 
-    public function testPKCS1Save()
+    public function testPKCS1Save(): void
     {
         $private = '-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
@@ -992,7 +994,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $this->assertSame('sha256WithRSAEncryption', $r['signatureAlgorithm']['algorithm']);
     }
 
-    public function testLongTagOnBadCert()
+    public function testLongTagOnBadCert(): void
     {
         // the problem with this cert is that it'd cause an infinite loop
         $x509 = new X509();
@@ -1014,7 +1016,7 @@ A9bhRA0cVk7bAEU2c44CYg==
     /**
      * @group github1387
      */
-    public function testNameConstraintIP()
+    public function testNameConstraintIP(): void
     {
         $x509 = new X509();
         $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
@@ -1056,7 +1058,7 @@ ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
     /**
      * @group github1456
      */
-    public function testRandomString()
+    public function testRandomString(): void
     {
         $a = 'da7e705569d4196cd49cf3b3d92cd435ca34ccbe';
         $a = pack('H*', $a);
@@ -1070,7 +1072,7 @@ ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
     /**
      * @group github1542
      */
-    public function testMultiCertPEM()
+    public function testMultiCertPEM(): void
     {
         $a = '-----BEGIN CERTIFICATE-----
 MIILODCCCSCgAwIBAgIQDh0LGipJ++wxFLj8X5MXKDANBgkqhkiG9w0BAQsFADCB
@@ -1186,7 +1188,7 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
 <<<<<<< HEAD
      * @group github1586
      */
-    public function testComputeKeyIdentifier()
+    public function testComputeKeyIdentifier(): void
     {
         $key = RSA::createKey(512);
         $key = ASN1::extractBER("$key");
@@ -1200,7 +1202,7 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
     /**
      * @group github1665
      */
-    public function testImplicitV1()
+    public function testImplicitV1(): void
     {
         $x509 = new X509();
         $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
@@ -1230,7 +1232,7 @@ itRo91vT68U=
     /**
      * @group github1657
      */
-    public function signWithEncryptedPSS()
+    public function signWithEncryptedPSS(): void
     {
         $private = PublicKeyLoader::load('-----BEGIN ENCRYPTED PRIVATE KEY-----
 MIIBvTBXBgkqhkiG9w0BBQ0wSjApBgkqhkiG9w0BBQwwHAQIpZHwLtkYRb4CAggA
@@ -1260,7 +1262,7 @@ o2UiZsxgoMYuq02T07DOknc=
     /**
      * @group github1676
      */
-    public function testMalformedExt()
+    public function testMalformedExt(): void
     {
         $a = '-----BEGIN CERTIFICATE-----
 MIIDtjCCAmmgAwIBAgIUOynecffcNv1/7oqCfu98x899PhwwQgYJKoZIhvcNAQEK

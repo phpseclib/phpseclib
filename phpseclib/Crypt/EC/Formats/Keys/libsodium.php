@@ -15,6 +15,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\Formats\Keys;
 
 use phpseclib3\Crypt\EC\Curves\Ed25519;
@@ -32,18 +34,15 @@ abstract class libsodium
 
     /**
      * Is invisible flag
-     *
      */
     const IS_INVISIBLE = true;
 
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
-     * @param string $password optional
-     * @return array
+     * @param string|false $password optional
      */
-    public static function load($key, $password = '')
+    public static function load(string $key, $password = ''): array
     {
         switch (strlen($key)) {
             case 32:
@@ -79,11 +78,9 @@ abstract class libsodium
     /**
      * Convert an EC public key to the appropriate format
      *
-     * @param \phpseclib3\Crypt\EC\Curves\Ed25519 $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
-     * @return string
      */
-    public static function savePublicKey(Ed25519 $curve, array $publicKey)
+    public static function savePublicKey(Ed25519 $curve, array $publicKey): string
     {
         return $curve->encodePoint($publicKey);
     }
@@ -91,13 +88,10 @@ abstract class libsodium
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Math\BigInteger $privateKey
-     * @param \phpseclib3\Crypt\EC\Curves\Ed25519 $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
-     * @param string $password optional
-     * @return string
+     * @param string|false $password
      */
-    public static function savePrivateKey(BigInteger $privateKey, Ed25519 $curve, array $publicKey, $password = '')
+    public static function savePrivateKey(BigInteger $privateKey, Ed25519 $curve, array $publicKey, $password = ''): string
     {
         if (!isset($privateKey->secret)) {
             throw new \RuntimeException('Private Key does not have a secret set');

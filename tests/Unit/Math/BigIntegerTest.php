@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Math;
 
 use phpseclib3\Math\BigInteger;
@@ -12,24 +14,24 @@ use phpseclib3\Tests\PhpseclibTestCase;
 class BigIntegerTest extends PhpseclibTestCase
 {
     /**
-     * @param string $className
-     * @param bool   $isValid
      */
-    private static function mockEngine($className, $isValid)
+    private static function mockEngine(string $className, bool $isValid): void
     {
         eval(<<<ENGINE
+declare(strict_types=1);
+
 namespace phpseclib3\Math\BigInteger\Engines;
 class $className extends \phpseclib3\Math\BigInteger\Engines\Engine {
 	public function __construct(){} 
 	public static function isValidEngine() { return $isValid; }
-	public static function setModExpEngine(\$engine){} 
+	public static function setModExpEngine(\$engine): void {} 
 	public function toString() { return __CLASS__; }
 }
 ENGINE
         );
     }
 
-    public static function provideBadConfigurationException()
+    public static function provideBadConfigurationException(): array
     {
         return [
             [
@@ -59,13 +61,13 @@ ENGINE
 
     /**
      * BigInteger should choose another engine if one is not valid
+     *
      * @dataProvider         provideBadConfigurationException
      * @preserveGlobalState  disabled
      * @runInSeparateProcess mocks must not disturb other tests
-     * @param string  $expectedEngineClass
      * @param array[] ...$engines
      */
-    public function testBadConfigurationException($expectedEngineClass, array ...$engines)
+    public function testBadConfigurationException(string $expectedEngineClass, array ...$engines): void
     {
         foreach ($engines as $engine) {
             static::mockEngine($engine[0], $engine[1]);

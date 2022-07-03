@@ -11,6 +11,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Math\BigInteger\Engines;
 
 use ParagonIE\ConstantTime\Hex;
@@ -44,7 +46,6 @@ abstract class PHP extends Engine
      * Karatsuba Cutoff
      *
      * At what point do we switch between Karatsuba multiplication and schoolbook long multiplication?
-     *
      */
     const KARATSUBA_CUTOFF = 25;
 
@@ -67,11 +68,10 @@ abstract class PHP extends Engine
      * Default constructor
      *
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
-     * @param int $base
      * @return PHP
      * @see parent::__construct()
      */
-    public function __construct($x = 0, $base = 10)
+    public function __construct($x = 0, int $base = 10)
     {
         if (!isset(static::$isValidEngine[static::class])) {
             static::$isValidEngine[static::class] = static::isValidEngine();
@@ -87,10 +87,9 @@ abstract class PHP extends Engine
     /**
      * Initialize a PHP BigInteger Engine instance
      *
-     * @param int $base
      * @see parent::__construct()
      */
-    protected function initialize($base)
+    protected function initialize(int $base): void
     {
         switch (abs($base)) {
             case 16:
@@ -114,12 +113,12 @@ abstract class PHP extends Engine
                 $x = str_pad(
                     $x,
                     strlen($x) + ((static::MAX10LEN - 1) * strlen($x)) % static::MAX10LEN,
-                    0,
+                    '0',
                     STR_PAD_LEFT
                 );
                 while (strlen($x)) {
                     $temp = $temp->multiply($multiplier);
-                    $temp = $temp->add(new static($this->int2bytes(substr($x, 0, static::MAX10LEN)), 256));
+                    $temp = $temp->add(new static($this->int2bytes((int) substr($x, 0, static::MAX10LEN)), 256));
                     $x = substr($x, static::MAX10LEN);
                 }
 
@@ -129,11 +128,8 @@ abstract class PHP extends Engine
 
     /**
      * Pads strings so that unpack may be used on them
-     *
-     * @param string $str
-     * @return string
      */
-    protected function pad($str)
+    protected function pad(string $str): string
     {
         $length = strlen($str);
 
@@ -144,10 +140,8 @@ abstract class PHP extends Engine
 
     /**
      * Converts a BigInteger to a base-10 number.
-     *
-     * @return string
      */
-    public function toString()
+    public function toString(): string
     {
         if (!count($this->value)) {
             return '0';
@@ -161,9 +155,9 @@ abstract class PHP extends Engine
         $divisor->value = [static::MAX10];
         $result = '';
         while (count($temp->value)) {
-            list($temp, $mod) = $temp->divide($divisor);
+            [$temp, $mod] = $temp->divide($divisor);
             $result = str_pad(
-                isset($mod->value[0]) ? $mod->value[0] : '',
+                (string) $mod->value[0] ?? '',
                 static::MAX10LEN,
                 '0',
                 STR_PAD_LEFT
@@ -183,11 +177,8 @@ abstract class PHP extends Engine
 
     /**
      * Converts a BigInteger to a byte string (eg. base-256).
-     *
-     * @param bool $twos_compliment
-     * @return string
      */
-    public function toBytes($twos_compliment = false)
+    public function toBytes(bool $twos_compliment = false): string
     {
         if ($twos_compliment) {
             return $this->toBytesHelper();
@@ -212,14 +203,8 @@ abstract class PHP extends Engine
 
     /**
      * Performs addition.
-     *
-     * @param array $x_value
-     * @param bool $x_negative
-     * @param array $y_value
-     * @param bool $y_negative
-     * @return array
      */
-    protected static function addHelper(array $x_value, $x_negative, array $y_value, $y_negative)
+    protected static function addHelper(array $x_value, bool $x_negative, array $y_value, bool $y_negative): array
     {
         $x_size = count($x_value);
         $y_size = count($y_value);
@@ -297,14 +282,8 @@ abstract class PHP extends Engine
 
     /**
      * Performs subtraction.
-     *
-     * @param array $x_value
-     * @param bool $x_negative
-     * @param array $y_value
-     * @param bool $y_negative
-     * @return array
      */
-    public static function subtractHelper(array $x_value, $x_negative, array $y_value, $y_negative)
+    public static function subtractHelper(array $x_value, bool $x_negative, array $y_value, bool $y_negative): array
     {
         $x_size = count($x_value);
         $y_size = count($y_value);
@@ -387,14 +366,8 @@ abstract class PHP extends Engine
 
     /**
      * Performs multiplication.
-     *
-     * @param array $x_value
-     * @param bool $x_negative
-     * @param array $y_value
-     * @param bool $y_negative
-     * @return array
      */
-    protected static function multiplyHelper(array $x_value, $x_negative, array $y_value, $y_negative)
+    protected static function multiplyHelper(array $x_value, bool $x_negative, array $y_value, bool $y_negative): array
     {
         //if ( $x_value == $y_value ) {
         //    return [
@@ -426,12 +399,8 @@ abstract class PHP extends Engine
      *
      * See {@link http://en.wikipedia.org/wiki/Karatsuba_algorithm Karatsuba algorithm} and
      * {@link http://math.libtomcrypt.com/files/tommath.pdf#page=120 MPM 5.2.3}.
-     *
-     * @param array $x_value
-     * @param array $y_value
-     * @return array
      */
-    private static function karatsuba(array $x_value, array $y_value)
+    private static function karatsuba(array $x_value, array $y_value): array
     {
         $m = min(count($x_value) >> 1, count($y_value) >> 1);
 
@@ -466,12 +435,8 @@ abstract class PHP extends Engine
      * Performs long multiplication on two BigIntegers
      *
      * Modeled after 'multiply' in MutableBigInteger.java.
-     *
-     * @param array $x_value
-     * @param array $y_value
-     * @return array
      */
-    protected static function regularMultiply(array $x_value, array $y_value)
+    protected static function regularMultiply(array $x_value, array $y_value): array
     {
         $x_length = count($x_value);
         $y_length = count($y_value);
@@ -526,10 +491,10 @@ abstract class PHP extends Engine
      * @internal This function is based off of
      *     {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=9 HAC 14.20}.
      */
-    protected function divideHelper(PHP $y)
+    protected function divideHelper(PHP $y): array
     {
         if (count($y->value) == 1) {
-            list($q, $r) = $this->divide_digit($this->value, $y->value[0]);
+            [$q, $r] = $this->divide_digit($this->value, $y->value[0]);
             $quotient = new static();
             $remainder = new static();
             $quotient->value = $q;
@@ -606,9 +571,9 @@ abstract class PHP extends Engine
         for ($i = $x_max; $i >= $y_max + 1; --$i) {
             $x_value = &$x->value;
             $x_window = [
-                isset($x_value[$i]) ? $x_value[$i] : 0,
-                isset($x_value[$i - 1]) ? $x_value[$i - 1] : 0,
-                isset($x_value[$i - 2]) ? $x_value[$i - 2] : 0
+                $x_value[$i] ?? 0,
+                $x_value[$i - 1] ?? 0,
+                $x_value[$i - 2] ?? 0
             ];
             $y_window = [
                 $y_value[$y_max],
@@ -677,18 +642,14 @@ abstract class PHP extends Engine
      * Divides a BigInteger by a regular integer
      *
      * abc / x = a00 / x + b0 / x + c / x
-     *
-     * @param array $dividend
-     * @param int $divisor
-     * @return array
      */
-    private static function divide_digit(array $dividend, $divisor)
+    private static function divide_digit(array $dividend, int $divisor): array
     {
         $carry = 0;
         $result = [];
 
         for ($i = count($dividend) - 1; $i >= 0; --$i) {
-            $temp = static::BASE_FULL * $carry + $dividend[$i];
+            $temp = static::BASE_FULL * $carry + (int) $dividend[$i];
             $result[$i] = self::safe_divide($temp, $divisor);
             $carry = (int)($temp - $divisor * $result[$i]);
         }
@@ -703,12 +664,8 @@ abstract class PHP extends Engine
      * if the dividend is not evenly divisible by the divisor. Since a float64 doesn't
      * have the precision of int64 this is a problem so, when int64 is being used,
      * we'll guarantee that the dividend is divisible by first subtracting the remainder.
-     *
-     * @param int $x
-     * @param int $y
-     * @return int
      */
-    private static function safe_divide($x, $y)
+    private static function safe_divide(int $x, int $y): int
     {
         if (static::BASE === 26) {
             return (int)($x / $y);
@@ -722,10 +679,9 @@ abstract class PHP extends Engine
     /**
      * Convert an array / boolean to a PHP BigInteger object
      *
-     * @param array $arr
      * @return static
      */
-    protected function convertToObj(array $arr)
+    protected function convertToObj(array $arr): PHP
     {
         $result = new static();
         $result->value = $arr[self::VALUE];
@@ -739,10 +695,9 @@ abstract class PHP extends Engine
      *
      * Removes leading zeros and truncates (if necessary) to maintain the appropriate precision
      *
-     * @param PHP $result
      * @return static
      */
-    protected function normalize(PHP $result)
+    protected function normalize(PHP $result): PHP
     {
         $result->precision = $this->precision;
         $result->bitmask = $this->bitmask;
@@ -773,14 +728,9 @@ abstract class PHP extends Engine
     /**
      * Compares two numbers.
      *
-     * @param array $x_value
-     * @param bool $x_negative
-     * @param array $y_value
-     * @param bool $y_negative
-     * @return int
      * @see static::compare()
      */
-    protected static function compareHelper(array $x_value, $x_negative, array $y_value, $y_negative)
+    protected static function compareHelper(array $x_value, bool $x_negative, array $y_value, bool $y_negative): int
     {
         if ($x_negative != $y_negative) {
             return (!$x_negative && $y_negative) ? 1 : -1;
@@ -807,10 +757,8 @@ abstract class PHP extends Engine
 
     /**
      * Absolute value.
-     *
-     * @return PHP
      */
-    public function abs()
+    public function abs(): PHP
     {
         $temp = new static();
         $temp->value = $this->value;
@@ -826,7 +774,7 @@ abstract class PHP extends Engine
      * @param list<static> $value
      * @return list<static>
      */
-    protected static function trim(array $value)
+    protected static function trim(array $value): array
     {
         for ($i = count($value) - 1; $i >= 0; --$i) {
             if ($value[$i]) {
@@ -842,11 +790,8 @@ abstract class PHP extends Engine
      * Logical Right Shift
      *
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
-     *
-     * @param int $shift
-     * @return PHP
      */
-    public function bitwise_rightShift($shift)
+    public function bitwise_rightShift(int $shift): PHP
     {
         $temp = new static();
 
@@ -862,11 +807,8 @@ abstract class PHP extends Engine
      * Logical Left Shift
      *
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
-     *
-     * @param int $shift
-     * @return PHP
      */
-    public function bitwise_leftShift($shift)
+    public function bitwise_leftShift(int $shift): PHP
     {
         $temp = new static();
         // could just replace _rshift with this, but then all _lshift() calls would need to be rewritten
@@ -879,23 +821,16 @@ abstract class PHP extends Engine
 
     /**
      * Converts 32-bit integers to bytes.
-     *
-     * @param int $x
-     * @return string
      */
-    private static function int2bytes($x)
+    private static function int2bytes(int $x): string
     {
         return ltrim(pack('N', $x), chr(0));
     }
 
     /**
      * Array Repeat
-     *
-     * @param int $input
-     * @param int $multiplier
-     * @return array
      */
-    protected static function array_repeat($input, $multiplier)
+    protected static function array_repeat(int $input, int $multiplier): array
     {
         return $multiplier ? array_fill(0, $multiplier, $input) : [];
     }
@@ -904,10 +839,8 @@ abstract class PHP extends Engine
      * Logical Left Shift
      *
      * Shifts BigInteger's by $shift bits.
-     *
-     * @param int $shift
      */
-    protected function lshift($shift)
+    protected function lshift(int $shift): void
     {
         if ($shift == 0) {
             return;
@@ -938,10 +871,8 @@ abstract class PHP extends Engine
      * Logical Right Shift
      *
      * Shifts BigInteger's by $shift bits.
-     *
-     * @param int $shift
      */
-    protected function rshift($shift)
+    protected function rshift(int $shift): void
     {
         if ($shift == 0) {
             return;
@@ -969,12 +900,8 @@ abstract class PHP extends Engine
 
     /**
      * Performs modular exponentiation.
-     *
-     * @param PHP $e
-     * @param PHP $n
-     * @return PHP
      */
-    protected function powModInner(PHP $e, PHP $n)
+    protected function powModInner(PHP $e, PHP $n): PHP
     {
         try {
             $class = static::$modexpEngine[static::class];
@@ -990,7 +917,7 @@ abstract class PHP extends Engine
      * @param list<static> $x
      * @return list<static>
      */
-    protected static function square(array $x)
+    protected static function square(array $x): array
     {
         return count($x) < 2 * self::KARATSUBA_CUTOFF ?
             self::trim(self::baseSquare($x)) :
@@ -1003,11 +930,8 @@ abstract class PHP extends Engine
      * Squaring can be done faster than multiplying a number by itself can be.  See
      * {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=7 HAC 14.2.4} /
      * {@link http://math.libtomcrypt.com/files/tommath.pdf#page=141 MPM 5.3} for more information.
-     *
-     * @param array $value
-     * @return array
      */
-    protected static function baseSquare(array $value)
+    protected static function baseSquare(array $value): array
     {
         if (empty($value)) {
             return [];
@@ -1041,11 +965,8 @@ abstract class PHP extends Engine
      *
      * See {@link http://en.wikipedia.org/wiki/Karatsuba_algorithm Karatsuba algorithm} and
      * {@link http://math.libtomcrypt.com/files/tommath.pdf#page=151 MPM 5.3.4}.
-     *
-     * @param array $value
-     * @return array
      */
-    protected static function karatsubaSquare(array $value)
+    protected static function karatsubaSquare(array $value): array
     {
         $m = count($value) >> 1;
 
@@ -1080,7 +1001,7 @@ abstract class PHP extends Engine
      *
      * @see self::randomPrime()
      */
-    protected function make_odd()
+    protected function make_odd(): void
     {
         $this->value[0] |= 1;
     }
@@ -1090,7 +1011,7 @@ abstract class PHP extends Engine
      *
      * @see self::isPrime()
      */
-    protected function testSmallPrimes()
+    protected function testSmallPrimes(): bool
     {
         if ($this->value == [1]) {
             return false;
@@ -1104,7 +1025,7 @@ abstract class PHP extends Engine
 
         $value = $this->value;
         foreach (static::PRIMES as $prime) {
-            list(, $r) = self::divide_digit($value, $prime);
+            [, $r] = self::divide_digit($value, $prime);
             if (!$r) {
                 return count($value) == 1 && $value[0] == $prime;
             }
@@ -1118,7 +1039,6 @@ abstract class PHP extends Engine
      *
      * ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
      *
-     * @param PHP $r
      * @return int
      * @see self::isPrime()
      */
@@ -1140,11 +1060,8 @@ abstract class PHP extends Engine
 
     /**
      * Performs exponentiation.
-     *
-     * @param PHP $n
-     * @return PHP
      */
-    protected function powHelper(PHP $n)
+    protected function powHelper(PHP $n): PHP
     {
         if ($n->compare(static::$zero[static::class]) == 0) {
             return new static(1);
@@ -1161,20 +1078,16 @@ abstract class PHP extends Engine
 
     /**
      * Is Odd?
-     *
-     * @return bool
      */
-    public function isOdd()
+    public function isOdd(): bool
     {
         return (bool)($this->value[0] & 1);
     }
 
     /**
      * Tests if a bit is set
-     *
-     * @return bool
      */
-    public function testBit($x)
+    public function testBit($x): bool
     {
         $digit = (int) floor($x / static::BASE);
         $bit = $x % static::BASE;
@@ -1188,10 +1101,8 @@ abstract class PHP extends Engine
 
     /**
      * Is Negative?
-     *
-     * @return bool
      */
-    public function isNegative()
+    public function isNegative(): bool
     {
         return $this->is_negative;
     }
@@ -1203,7 +1114,7 @@ abstract class PHP extends Engine
      *
      * @return static
      */
-    public function negate()
+    public function negate(): PHP
     {
         $temp = clone $this;
         $temp->is_negative = !$temp->is_negative;
@@ -1216,10 +1127,9 @@ abstract class PHP extends Engine
      *
      * Splits BigInteger's into chunks of $split bits
      *
-     * @param int $split
      * @return list<static>
      */
-    public function bitwise_split($split)
+    public function bitwise_split(int $split): array
     {
         if ($split < 1) {
             throw new \RuntimeException('Offset must be greater than 1');
@@ -1248,7 +1158,7 @@ abstract class PHP extends Engine
                 $overflow = $split % static::BASE;
                 if ($overflow) {
                     $mask = (1 << $overflow) - 1;
-                    $temp = isset($val[$i]) ? $val[$i] : 0;
+                    $temp = $val[$i] ?? 0;
                     $digit[] = $temp & $mask;
                 }
             } else {
@@ -1260,7 +1170,7 @@ abstract class PHP extends Engine
                 $tempoverflow = $tempsplit % static::BASE;
                 if ($tempoverflow) {
                     $tempmask = (1 << $tempoverflow) - 1;
-                    $temp = isset($val[$i]) ? $val[$i] : 0;
+                    $temp = $val[$i] ?? 0;
                     $digit[] = $temp & $tempmask;
                 }
                 $newbits = 0;
@@ -1283,10 +1193,9 @@ abstract class PHP extends Engine
     /**
      * Bitwise Split where $split < static::BASE
      *
-     * @param int $split
      * @return list<int>
      */
-    private function bitwise_small_split($split)
+    private function bitwise_small_split(int $split): array
     {
         $vals = [];
         $val = $this->value;

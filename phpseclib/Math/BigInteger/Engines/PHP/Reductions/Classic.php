@@ -11,6 +11,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Math\BigInteger\Engines\PHP\Reductions;
 
 use phpseclib3\Math\BigInteger\Engines\PHP\Base;
@@ -24,19 +26,14 @@ abstract class Classic extends Base
 {
     /**
      * Regular Division
-     *
-     * @param array $x
-     * @param array $n
-     * @param string $class
-     * @return array
      */
-    protected static function reduce(array $x, array $n, $class)
+    protected static function reduce(array $x, array $n, string $class): array
     {
         $lhs = new $class();
         $lhs->value = $x;
         $rhs = new $class();
         $rhs->value = $n;
-        list(, $temp) = $lhs->divide($rhs);
+        [, $temp] = $lhs->divide($rhs);
         return $temp->value;
     }
 }

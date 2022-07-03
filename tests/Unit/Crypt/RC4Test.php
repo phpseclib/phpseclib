@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\Random;
@@ -14,7 +16,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class RC4Test extends PhpseclibTestCase
 {
-    public function engineVectors()
+    public function engineVectors(): array
     {
         $engines = [
             'PHP',
@@ -203,7 +205,7 @@ class RC4Test extends PhpseclibTestCase
     /**
      * @dataProvider engineVectors
      */
-    public function testVectors($engine, $key, $offset, $expected)
+    public function testVectors($engine, $key, $offset, $expected): void
     {
         $rc4 = new RC4();
         $rc4->setPreferredEngine($engine);
@@ -215,7 +217,7 @@ class RC4Test extends PhpseclibTestCase
         $this->assertEquals(bin2hex(substr($result, -16)), $expected, "Failed asserting that key $key yielded expected output at offset $offset in $engine engine");
     }
 
-    public function testKeySizes()
+    public function testKeySizes(): void
     {
         $objects = $engines = [];
         $temp = new RC4(RC4::MODE_CTR);

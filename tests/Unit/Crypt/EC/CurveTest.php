@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt\EC;
 
 use phpseclib3\Crypt\EC;
@@ -16,7 +18,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class CurveTest extends PhpseclibTestCase
 {
-    public function curves()
+    public function curves(): array
     {
         $curves = [];
         foreach (new \DirectoryIterator(__DIR__ . '/../../../../phpseclib/Crypt/EC/Curves/') as $file) {
@@ -38,7 +40,7 @@ class CurveTest extends PhpseclibTestCase
         return $curves;
     }
 
-    public function allCurves()
+    public function allCurves(): array
     {
         $curves = [];
         foreach (new \DirectoryIterator(__DIR__ . '/../../../../phpseclib/Crypt/EC/Curves/') as $file) {
@@ -55,7 +57,7 @@ class CurveTest extends PhpseclibTestCase
         return $curves;
     }
 
-    public function curvesWithOIDs()
+    public function curvesWithOIDs(): array
     {
         $class = new \ReflectionClass('phpseclib3\Crypt\EC\Formats\Keys\PKCS8');
 
@@ -80,7 +82,7 @@ class CurveTest extends PhpseclibTestCase
      *
      * @dataProvider curves
      */
-    public function testBasePoint($name)
+    public function testBasePoint($name): void
     {
         $class = 'phpseclib3\Crypt\EC\Curves\\' . $name;
         $curve = new $class();
@@ -93,7 +95,7 @@ class CurveTest extends PhpseclibTestCase
      * @dataProvider curves
      * @requires PHP 7.0
      */
-    public function testKeyGeneration($name)
+    public function testKeyGeneration($name): void
     {
         $class = 'phpseclib3\Crypt\EC\Curves\\' . $name;
         $curve = new $class();
@@ -107,7 +109,7 @@ class CurveTest extends PhpseclibTestCase
      *
      * @dataProvider curvesWithOIDs
      */
-    public function testCurveExistance($name)
+    public function testCurveExistance($name): void
     {
         $this->assertFileExists(__DIR__ . "/../../../../phpseclib/Crypt/EC/Curves/$name.php");
     }
@@ -117,7 +119,7 @@ class CurveTest extends PhpseclibTestCase
      *
      * @dataProvider allCurves
      */
-    public function testOIDExistance($name)
+    public function testOIDExistance($name): void
     {
         switch ($name) {
             case 'Ed25519':
@@ -133,7 +135,7 @@ class CurveTest extends PhpseclibTestCase
      * @dataProvider curves
      * @requires PHP 7.0
      */
-    public function testInternalSign($name)
+    public function testInternalSign($name): void
     {
         // tests utilizing dataProvider only seem to output when all the dataProvider input
         // has been exhausted. ie. when this test has been ran on every curve. on my local
@@ -159,7 +161,7 @@ class CurveTest extends PhpseclibTestCase
         $this->assertTrue($publickey->verify($plaintext, $sig));
     }
 
-    public function testCanSignWithAnEncryptedPrivateKey()
+    public function testCanSignWithAnEncryptedPrivateKey(): void
     {
         EC::useBestEngine();
 
@@ -178,7 +180,7 @@ class CurveTest extends PhpseclibTestCase
      * @dataProvider curves
      * @requires PHP 7.0
      */
-    public function testInternalVerify($name)
+    public function testInternalVerify($name): void
     {
         if (substr($name, 0, 4) == 'sect') {
             self::markTestSkipped('Binary field curves are being skipped');
@@ -198,7 +200,7 @@ class CurveTest extends PhpseclibTestCase
     /**
      * Ed448 test vectors from https://tools.ietf.org/html/rfc8032#section-7.4
      */
-    public function testEd448TestVectors()
+    public function testEd448TestVectors(): void
     {
         EC::addFileFormat(Ed448PublicKey::class);
         EC::addFileFormat(Ed448PrivateKey::class);
@@ -313,7 +315,7 @@ class CurveTest extends PhpseclibTestCase
     /**
      * Ed25519 test vectors from https://tools.ietf.org/html/rfc8032#section-7.1 (and 7.2)
      */
-    public function testEd25519TestVectors()
+    public function testEd25519TestVectors(): void
     {
         EC::useBestEngine();
 
@@ -462,7 +464,7 @@ class CurveTest extends PhpseclibTestCase
         $this->assertTrue($publicKey->verify($message, $sig));
     }
 
-    public function testRandomSignature()
+    public function testRandomSignature(): void
     {
         $message = 'hello, world!';
         $private = PublicKeyLoader::load('PuTTY-User-Key-File-2: ecdsa-sha2-nistp256
@@ -499,7 +501,7 @@ Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
         $this->assertTrue($public->verify($message, $signature, 'Raw'));
     }
 
-    public function testBadRSEd25519()
+    public function testBadRSEd25519(): void
     {
         // see https://research.nccgroup.com/2021/11/08/technical-advisory-arbitrary-signature-forgery-in-stark-bank-ecdsa-libraries/
         $public = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----

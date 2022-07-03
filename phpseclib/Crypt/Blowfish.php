@@ -33,6 +33,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\BlockCipher;
@@ -273,10 +275,9 @@ class Blowfish extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @param string $mode
      * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
      */
-    public function __construct($mode)
+    public function __construct(string $mode)
     {
         parent::__construct($mode);
 
@@ -289,10 +290,8 @@ class Blowfish extends BlockCipher
      * Sets the key length.
      *
      * Key lengths can be between 32 and 448 bits.
-     *
-     * @param int $length
      */
-    public function setKeyLength($length)
+    public function setKeyLength(int $length): void
     {
         if ($length < 32 || $length > 448) {
                 throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes between 32 and 448 bits are supported');
@@ -309,10 +308,8 @@ class Blowfish extends BlockCipher
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
-     * @param int $engine
-     * @return bool
      */
-    protected function isValidEngineHelper($engine)
+    protected function isValidEngineHelper(int $engine): bool
     {
         if ($engine == self::ENGINE_OPENSSL) {
             if (version_compare(PHP_VERSION, '5.3.7') < 0 && $this->key_length != 16) {
@@ -333,7 +330,7 @@ class Blowfish extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupKey()
      */
-    protected function setupKey()
+    protected function setupKey(): void
     {
         if (isset($this->kl['key']) && $this->key === $this->kl['key']) {
             // already expanded
@@ -370,13 +367,13 @@ class Blowfish extends BlockCipher
         // encrypt P3 and P4 with the new P1 and P2, do it with all P-array and subkeys
         $data = "\0\0\0\0\0\0\0\0";
         for ($i = 0; $i < 18; $i += 2) {
-            list($l, $r) = array_values(unpack('N*', $data = $this->encryptBlock($data)));
+            [$l, $r] = array_values(unpack('N*', $data = $this->encryptBlock($data)));
             $this->bctx['p'][$i    ] = $l;
             $this->bctx['p'][$i + 1] = $r;
         }
         for ($i = 0; $i < 4; ++$i) {
             for ($j = 0; $j < 256; $j += 2) {
-                list($l, $r) = array_values(unpack('N*', $data = $this->encryptBlock($data)));
+                [$l, $r] = array_values(unpack('N*', $data = $this->encryptBlock($data)));
                 $this->bctx['sb'][$i][$j    ] = $l;
                 $this->bctx['sb'][$i][$j + 1] = $r;
             }
@@ -385,11 +382,8 @@ class Blowfish extends BlockCipher
 
     /**
      * Encrypts a block
-     *
-     * @param string $in
-     * @return string
      */
-    protected function encryptBlock($in)
+    protected function encryptBlock(string $in): string
     {
         $p = $this->bctx['p'];
         // extract($this->bctx['sb'], EXTR_PREFIX_ALL, 'sb'); // slower
@@ -418,11 +412,8 @@ class Blowfish extends BlockCipher
 
     /**
      * Decrypts a block
-     *
-     * @param string $in
-     * @return string
      */
-    protected function decryptBlock($in)
+    protected function decryptBlock(string $in): string
     {
         $p = $this->bctx['p'];
         $sb_0 = $this->bctx['sb'][0];
@@ -453,7 +444,7 @@ class Blowfish extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupInlineCrypt()
      */
-    protected function setupInlineCrypt()
+    protected function setupInlineCrypt(): void
     {
         $p = $this->bctx['p'];
         $init_crypt = '

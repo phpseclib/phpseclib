@@ -30,6 +30,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\System\SSH;
 
 use phpseclib3\Common\Functions\Strings;
@@ -148,10 +150,9 @@ class Agent
      * See "2.5.2 Requesting a list of protocol 2 keys"
      * Returns an array containing zero or more \phpseclib3\System\SSH\Agent\Identity objects
      *
-     * @return array
      * @throws \RuntimeException on receipt of unexpected packets
      */
-    public function requestIdentities()
+    public function requestIdentities(): array
     {
         if (!$this->fsock) {
             return [];
@@ -165,16 +166,16 @@ class Agent
         $length = current(unpack('N', $this->readBytes(4)));
         $packet = $this->readBytes($length);
 
-        list($type, $keyCount) = Strings::unpackSSH2('CN', $packet);
+        [$type, $keyCount] = Strings::unpackSSH2('CN', $packet);
         if ($type != self::SSH_AGENT_IDENTITIES_ANSWER) {
             throw new \RuntimeException('Unable to request identities');
         }
 
         $identities = [];
         for ($i = 0; $i < $keyCount; $i++) {
-            list($key_blob, $comment) = Strings::unpackSSH2('ss', $packet);
+            [$key_blob, $comment] = Strings::unpackSSH2('ss', $packet);
             $temp = $key_blob;
-            list($key_type) = Strings::unpackSSH2('s', $temp);
+            [$key_type] = Strings::unpackSSH2('s', $temp);
             switch ($key_type) {
                 case 'ssh-rsa':
                 case 'ssh-dss':
@@ -200,10 +201,8 @@ class Agent
     /**
      * Signal that agent forwarding should
      * be requested when a channel is opened
-     *
-     * @return void
      */
-    public function startSSHForwarding()
+    public function startSSHForwarding(): void
     {
         if ($this->forward_status == self::FORWARD_NONE) {
             $this->forward_status = self::FORWARD_REQUEST;
@@ -212,9 +211,6 @@ class Agent
 
     /**
      * Request agent forwarding of remote server
-     *
-     * @param \phpseclib3\Net\SSH2 $ssh
-     * @return bool
      */
     private function request_forwarding(SSH2 $ssh)
     {
@@ -233,10 +229,8 @@ class Agent
      * This method is called upon successful channel
      * open to give the SSH Agent an opportunity
      * to take further action. i.e. request agent forwarding
-     *
-     * @param \phpseclib3\Net\SSH2 $ssh
      */
-    public function registerChannelOpen(SSH2 $ssh)
+    public function registerChannelOpen(SSH2 $ssh): void
     {
         if ($this->forward_status == self::FORWARD_REQUEST) {
             $this->request_forwarding($ssh);
@@ -246,11 +240,10 @@ class Agent
     /**
      * Forward data to SSH Agent and return data reply
      *
-     * @param string $data
      * @return string Data from SSH Agent
      * @throws \RuntimeException on connection errors
      */
-    public function forwardData($data)
+    public function forwardData(string $data)
     {
         if ($this->expected_bytes > 0) {
             $this->socket_buffer .= $data;

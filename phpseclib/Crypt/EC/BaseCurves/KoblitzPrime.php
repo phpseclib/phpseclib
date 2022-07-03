@@ -26,6 +26,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\BaseCurves;
 
 use phpseclib3\Math\BigInteger;
@@ -52,7 +54,7 @@ class KoblitzPrime extends Prime
      *
      * @return int[]
      */
-    public function multiplyAddPoints(array $points, array $scalars)
+    public function multiplyAddPoints(array $points, array $scalars): array
     {
         static $zero, $one, $two;
         if (!isset($two)) {
@@ -106,16 +108,16 @@ class KoblitzPrime extends Prime
             $k = $scalars[$i]->toBigInteger();
 
             // begin split
-            list($v1, $v2) = $this->basis;
+            [$v1, $v2] = $this->basis;
 
             $c1 = $v2['b']->multiply($k);
-            list($c1, $r) = $c1->divide($this->order);
+            [$c1, $r] = $c1->divide($this->order);
             if ($this->order->compare($r->multiply($two)) <= 0) {
                 $c1 = $c1->add($one);
             }
 
             $c2 = $v1['b']->negate()->multiply($k);
-            list($c2, $r) = $c2->divide($this->order);
+            [$c2, $r] = $c2->divide($this->order);
             if ($this->order->compare($r->multiply($two)) <= 0) {
                 $c2 = $c2->add($one);
             }
@@ -173,7 +175,7 @@ class KoblitzPrime extends Prime
      *
      * @return FiniteField[]
      */
-    protected function doublePointHelper(array $p)
+    protected function doublePointHelper(array $p): array
     {
         $numerator = $this->three->multiply($p[0])->multiply($p[0]);
         $denominator = $this->two->multiply($p[1]);
@@ -187,9 +189,9 @@ class KoblitzPrime extends Prime
      *
      * @return FiniteField[]
      */
-    protected function jacobianDoublePoint(array $p)
+    protected function jacobianDoublePoint(array $p): array
     {
-        list($x1, $y1, $z1) = $p;
+        [$x1, $y1, $z1] = $p;
         $a = $x1->multiply($x1);
         $b = $y1->multiply($y1);
         $c = $b->multiply($b);
@@ -212,9 +214,9 @@ class KoblitzPrime extends Prime
      *
      * @return FiniteField[]
      */
-    protected function jacobianDoublePointMixed(array $p)
+    protected function jacobianDoublePointMixed(array $p): array
     {
-        list($x1, $y1) = $p;
+        [$x1, $y1] = $p;
         $xx = $x1->multiply($x1);
         $yy = $y1->multiply($y1);
         $yyyy = $yy->multiply($yy);
@@ -234,9 +236,9 @@ class KoblitzPrime extends Prime
      *
      * @return boolean
      */
-    public function verifyPoint(array $p)
+    public function verifyPoint(array $p): bool
     {
-        list($x, $y) = $p;
+        [$x, $y] = $p;
         $lhs = $y->multiply($y);
         $temp = $x->multiply($x)->multiply($x);
         $rhs = $temp->add($this->b);
@@ -248,11 +250,9 @@ class KoblitzPrime extends Prime
      * Calculates the parameters needed from the Euclidean algorithm as discussed at
      * http://diamond.boisestate.edu/~liljanab/MATH308/GuideToECC.pdf#page=148
      *
-     * @param BigInteger $u
-     * @param BigInteger $v
      * @return BigInteger[]
      */
-    protected static function extendedGCD(BigInteger $u, BigInteger $v)
+    protected static function extendedGCD(BigInteger $u, BigInteger $v): array
     {
         $one = new BigInteger(1);
         $zero = new BigInteger();
@@ -272,7 +272,7 @@ class KoblitzPrime extends Prime
         $postGreatestIndex = 0;
 
         while (!$v->equals($zero)) {
-            list($q) = $u->divide($v);
+            [$q] = $u->divide($v);
 
             $temp = $u;
             $u = $v;

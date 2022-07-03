@@ -22,6 +22,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\BaseCurves;
 
 use phpseclib3\Crypt\EC\Curves\Curve25519;
@@ -95,7 +97,7 @@ class Montgomery extends Base
     /**
      * Sets the modulo
      */
-    public function setModulo(BigInteger $modulo)
+    public function setModulo(BigInteger $modulo): void
     {
         $this->modulo = $modulo;
         $this->factory = new PrimeField($modulo);
@@ -106,7 +108,7 @@ class Montgomery extends Base
     /**
      * Set coefficients a
      */
-    public function setCoefficients(BigInteger $a)
+    public function setCoefficients(BigInteger $a): void
     {
         if (!isset($this->factory)) {
             throw new \RuntimeException('setModulo needs to be called before this method');
@@ -124,7 +126,7 @@ class Montgomery extends Base
      * @param BigInteger|PrimeInteger $y
      * @return PrimeInteger[]
      */
-    public function setBasePoint($x, $y)
+    public function setBasePoint($x, $y): array
     {
         switch (true) {
             case !$x instanceof BigInteger && !$x instanceof PrimeInteger:
@@ -166,7 +168,7 @@ class Montgomery extends Base
      *
      * @return FiniteField[][]
      */
-    private function doubleAndAddPoint(array $p, array $q, PrimeInteger $x1)
+    private function doubleAndAddPoint(array $p, array $q, PrimeInteger $x1): array
     {
         if (!isset($this->factory)) {
             throw new \RuntimeException('setModulo needs to be called before this method');
@@ -180,8 +182,8 @@ class Montgomery extends Base
             throw new \RuntimeException('Affine coordinates need to be manually converted to XZ coordinates');
         }
 
-        list($x2, $z2) = $p;
-        list($x3, $z3) = $q;
+        [$x2, $z2] = $p;
+        [$x3, $z3] = $q;
 
         $a = $x2->add($z2);
         $aa = $a->multiply($a);
@@ -213,10 +215,8 @@ class Montgomery extends Base
      *
      * https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Montgomery_ladder
      * https://github.com/phpecc/phpecc/issues/16#issuecomment-59176772
-     *
-     * @return array
      */
-    public function multiplyPoint(array $p, BigInteger $d)
+    public function multiplyPoint(array $p, BigInteger $d): array
     {
         $p1 = [$this->one, $this->zero];
         $alreadyInternal = isset($x[1]);
@@ -228,9 +228,9 @@ class Montgomery extends Base
         for ($i = 0; $i < strlen($b); $i++) {
             $b_i = (int) $b[$i];
             if ($b_i) {
-                list($p2, $p1) = $this->doubleAndAddPoint($p2, $p1, $x);
+                [$p2, $p1] = $this->doubleAndAddPoint($p2, $p1, $x);
             } else {
-                list($p1, $p2) = $this->doubleAndAddPoint($p1, $p2, $x);
+                [$p1, $p2] = $this->doubleAndAddPoint($p1, $p2, $x);
             }
         }
 
@@ -248,7 +248,7 @@ class Montgomery extends Base
      *
      * @return \phpseclib3\Math\PrimeField\Integer[]
      */
-    public function convertToInternal(array $p)
+    public function convertToInternal(array $p): array
     {
         if (empty($p)) {
             return [clone $this->zero, clone $this->one];
@@ -268,12 +268,12 @@ class Montgomery extends Base
      *
      * @return \phpseclib3\Math\PrimeField\Integer[]
      */
-    public function convertToAffine(array $p)
+    public function convertToAffine(array $p): array
     {
         if (!isset($p[1])) {
             return $p;
         }
-        list($x, $z) = $p;
+        [$x, $z] = $p;
         return [$x->divide($z)];
     }
 }

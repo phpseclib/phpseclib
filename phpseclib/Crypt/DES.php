@@ -38,6 +38,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\BlockCipher;
@@ -561,10 +563,9 @@ class DES extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @param string $mode
      * @throws BadModeException if an invalid / unsupported mode is provided
      */
-    public function __construct($mode)
+    public function __construct(string $mode)
     {
         parent::__construct($mode);
 
@@ -579,10 +580,8 @@ class DES extends BlockCipher
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
-     * @param int $engine
-     * @return bool
      */
-    protected function isValidEngineHelper($engine)
+    protected function isValidEngineHelper(int $engine): bool
     {
         if ($this->key_length_max == 8) {
             if ($engine == self::ENGINE_OPENSSL) {
@@ -602,9 +601,8 @@ class DES extends BlockCipher
      * DES also requires that every eighth bit be a parity bit, however, we'll ignore that.
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
-     * @param string $key
      */
-    public function setKey($key)
+    public function setKey(string $key): void
     {
         if (!($this instanceof TripleDES) && strlen($key) != 8) {
             throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of size 8 are supported');
@@ -617,13 +615,11 @@ class DES extends BlockCipher
     /**
      * Encrypts a block
      *
+     * @see self::encrypt()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::encryptBlock()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see self::encrypt()
-     * @param string $in
-     * @return string
      */
-    protected function encryptBlock($in)
+    protected function encryptBlock(string $in): string
     {
         return $this->processBlock($in, self::ENCRYPT);
     }
@@ -631,13 +627,11 @@ class DES extends BlockCipher
     /**
      * Decrypts a block
      *
+     * @see self::decrypt()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::decryptBlock()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
-     * @see self::decrypt()
-     * @param string $in
-     * @return string
      */
-    protected function decryptBlock($in)
+    protected function decryptBlock(string $in): string
     {
         return $this->processBlock($in, self::DECRYPT);
     }
@@ -649,13 +643,11 @@ class DES extends BlockCipher
      * {@link http://en.wikipedia.org/wiki/Image:Feistel.png Feistel.png} to get a general
      * idea of what this function does.
      *
-     * @see self::encryptBlock()
-     * @see self::decryptBlock()
-     * @param string $block
-     * @param int $mode
      * @return string
+     * @see self::decryptBlock()
+     * @see self::encryptBlock()
      */
-    private function processBlock($block, $mode)
+    private function processBlock(string $block, int $mode)
     {
         static $sbox1, $sbox2, $sbox3, $sbox4, $sbox5, $sbox6, $sbox7, $sbox8, $shuffleip, $shuffleinvip;
         if (!$sbox1) {
@@ -679,7 +671,7 @@ class DES extends BlockCipher
 
         // Do the initial IP permutation.
         $t = unpack('Nl/Nr', $block);
-        list($l, $r) = [$t['l'], $t['r']];
+        [$l, $r] = [$t['l'], $t['r']];
         $block = ($shuffleip[ $r        & 0xFF] & "\x80\x80\x80\x80\x80\x80\x80\x80") |
                  ($shuffleip[($r >>  8) & 0xFF] & "\x40\x40\x40\x40\x40\x40\x40\x40") |
                  ($shuffleip[($r >> 16) & 0xFF] & "\x20\x20\x20\x20\x20\x20\x20\x20") |
@@ -691,7 +683,7 @@ class DES extends BlockCipher
 
         // Extract L0 and R0.
         $t = unpack('Nl/Nr', $block);
-        list($l, $r) = [$t['l'], $t['r']];
+        [$l, $r] = [$t['l'], $t['r']];
 
         for ($des_round = 0; $des_round < $this->des_rounds; ++$des_round) {
             // Perform the 16 steps.
@@ -735,7 +727,7 @@ class DES extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setupKey()
      */
-    protected function setupKey()
+    protected function setupKey(): void
     {
         if (isset($this->kl['key']) && $this->key === $this->kl['key'] && $this->des_rounds === $this->kl['des_rounds']) {
             // already expanded
@@ -1199,7 +1191,7 @@ class DES extends BlockCipher
 
             // Perform the PC/1 transformation and compute C and D.
             $t = unpack('Nl/Nr', $key);
-            list($l, $r) = [$t['l'], $t['r']];
+            [$l, $r] = [$t['l'], $t['r']];
             $key = (self::$shuffle[$pc1map[ $r        & 0xFF]] & "\x80\x80\x80\x80\x80\x80\x80\x00") |
                    (self::$shuffle[$pc1map[($r >>  8) & 0xFF]] & "\x40\x40\x40\x40\x40\x40\x40\x00") |
                    (self::$shuffle[$pc1map[($r >> 16) & 0xFF]] & "\x20\x20\x20\x20\x20\x20\x20\x00") |
@@ -1269,7 +1261,7 @@ class DES extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setupInlineCrypt()
      */
-    protected function setupInlineCrypt()
+    protected function setupInlineCrypt(): void
     {
         // Engine configuration for:
         // -  DES ($des_rounds == 1) or
@@ -1346,9 +1338,9 @@ class DES extends BlockCipher
                     // end of "the Feistel (F) function"
 
                     // swap L & R
-                    list($l, $r) = [$r, $l];
+                    [$l, $r] = [$r, $l];
                 }
-                list($l, $r) = [$r, $l];
+                [$l, $r] = [$r, $l];
             }
 
             // Perform the inverse IP permutation.

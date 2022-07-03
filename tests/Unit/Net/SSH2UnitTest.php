@@ -6,13 +6,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Net;
 
 use phpseclib3\Tests\PhpseclibTestCase;
 
 class SSH2UnitTest extends PhpseclibTestCase
 {
-    public function formatLogDataProvider()
+    public function formatLogDataProvider(): array
     {
         return [
             [
@@ -32,7 +34,7 @@ class SSH2UnitTest extends PhpseclibTestCase
     /**
      * @dataProvider formatLogDataProvider
      */
-    public function testFormatLog(array $message_log, array $message_number_log, $expected)
+    public function testFormatLog(array $message_log, array $message_number_log, $expected): void
     {
         $ssh = $this->createSSHMock();
 
@@ -40,7 +42,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testGenerateIdentifier()
+    public function testGenerateIdentifier(): void
     {
         $identifier = self::callFunc($this->createSSHMock(), 'generate_identifier');
         $this->assertStringStartsWith('SSH-2.0-phpseclib_3.0', $identifier);
@@ -72,20 +74,20 @@ class SSH2UnitTest extends PhpseclibTestCase
         }
     }
 
-    public function testGetExitStatusIfNotConnected()
+    public function testGetExitStatusIfNotConnected(): void
     {
         $ssh = $this->createSSHMock();
 
         $this->assertFalse($ssh->getExitStatus());
     }
 
-    public function testPTYIDefaultValue()
+    public function testPTYIDefaultValue(): void
     {
         $ssh = $this->createSSHMock();
         $this->assertFalse($ssh->isPTYEnabled());
     }
 
-    public function testEnablePTY()
+    public function testEnablePTY(): void
     {
         $ssh = $this->createSSHMock();
 
@@ -96,14 +98,14 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertFalse($ssh->isPTYEnabled());
     }
 
-    public function testQuietModeDefaultValue()
+    public function testQuietModeDefaultValue(): void
     {
         $ssh = $this->createSSHMock();
 
         $this->assertFalse($ssh->isQuietModeEnabled());
     }
 
-    public function testEnableQuietMode()
+    public function testEnableQuietMode(): void
     {
         $ssh = $this->createSSHMock();
 
@@ -114,22 +116,21 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertFalse($ssh->isQuietModeEnabled());
     }
 
-    public function testGetConnectionByResourceId()
+    public function testGetConnectionByResourceId(): void
     {
         $ssh = new \phpseclib3\Net\SSH2('localhost');
         $this->assertSame($ssh, \phpseclib3\Net\SSH2::getConnectionByResourceId($ssh->getResourceId()));
     }
 
-    public function testGetResourceId()
+    public function testGetResourceId(): void
     {
         $ssh = new \phpseclib3\Net\SSH2('localhost');
         $this->assertSame('{' . spl_object_hash($ssh) . '}', $ssh->getResourceId());
     }
 
     /**
-     * @return \phpseclib3\Net\SSH2
      */
-    protected function createSSHMock()
+    protected function createSSHMock(): \phpseclib3\Net\SSH2
     {
         return $this->getMockBuilder('phpseclib3\Net\SSH2')
             ->disableOriginalConstructor()

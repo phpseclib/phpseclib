@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt\RSA;
 
 use phpseclib3\Crypt\PublicKeyLoader;
@@ -24,13 +26,13 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class LoadKeyTest extends PhpseclibTestCase
 {
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         PuTTY::setComment('phpseclib-generated-key');
         OpenSSH::setComment('phpseclib-generated-key');
     }
 
-    public function testBadKey()
+    public function testBadKey(): void
     {
         $this->expectException(NoKeyLoadedException::class);
 
@@ -38,7 +40,7 @@ class LoadKeyTest extends PhpseclibTestCase
         PublicKeyLoader::load($key);
     }
 
-    public function testLoadModulusAndExponent()
+    public function testLoadModulusAndExponent(): void
     {
         $rsa = PublicKeyLoader::load([
             'e' => new BigInteger('123', 16),
@@ -49,7 +51,7 @@ class LoadKeyTest extends PhpseclibTestCase
         $this->assertIsString("$rsa");
     }
 
-    public function testPKCS1Key()
+    public function testPKCS1Key(): void
     {
         $key = '-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
@@ -71,7 +73,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $this->assertIsString("$rsa");
     }
 
-    public function testPKCS1SpacesKey()
+    public function testPKCS1SpacesKey(): void
     {
         $key = '-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
@@ -94,7 +96,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $this->assertIsString("$rsa");
     }
 
-    public function testPKCS1NoHeaderKey()
+    public function testPKCS1NoHeaderKey(): void
     {
         $key = 'MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
 wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5
@@ -114,7 +116,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $this->assertIsString("$rsa");
     }
 
-    public function testPKCS1NoWhitespaceNoHeaderKey()
+    public function testPKCS1NoWhitespaceNoHeaderKey(): void
     {
         $key = 'MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp' .
                'wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5' .
@@ -134,7 +136,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $this->assertIsString("$rsa");
     }
 
-    public function testRawPKCS1Key()
+    public function testRawPKCS1Key(): void
     {
         $key = 'MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp' .
                'wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5' .
@@ -155,7 +157,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $this->assertIsString("$rsa");
     }
 
-    public function testLoadPKCS8PrivateKey()
+    public function testLoadPKCS8PrivateKey(): void
     {
         $key = '-----BEGIN ENCRYPTED PRIVATE KEY-----
 MIIE6TAbBgkqhkiG9w0BBQMwDgQIcWWgZeQYPTcCAggABIIEyLoa5b3ktcPmy4VB
@@ -193,7 +195,7 @@ xryZaRDVmtMuf/OZBQ==
         $this->assertIsString("$rsa");
     }
 
-    public function testSavePKCS8PrivateKey()
+    public function testSavePKCS8PrivateKey(): void
     {
         $key = '-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
@@ -219,7 +221,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $this->assertInstanceOf(PrivateKey::class, $rsa);
     }
 
-    public function testPubKey1()
+    public function testPubKey1(): void
     {
         $key = '-----BEGIN RSA PUBLIC KEY-----
 MIIBCgKCAQEA61BjmfXGEvWmegnBGSuS+rU9soUg2FnODva32D1AqhwdziwHINFa
@@ -234,7 +236,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
         $this->assertInstanceOf(PublicKey::class, $rsa);
     }
 
-    public function testPubKey2()
+    public function testPubKey2(): void
     {
         $key = '-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA61BjmfXGEvWmegnBGSuS
@@ -251,7 +253,7 @@ ZQIDAQAB
     }
 
 
-    public function testPubKeyPssWithoutParams()
+    public function testPubKeyPssWithoutParams(): void
     {
         // extracted from a SubjectPublicKeyInfo of a CSR created by OpenSSL
         $key = '-----BEGIN PUBLIC KEY-----
@@ -271,7 +273,7 @@ AwEAAQ==
         $this->assertIsString("$rsa");
     }
 
-    public function testPrivateKeyPssWithoutParams()
+    public function testPrivateKeyPssWithoutParams(): void
     {
         $key = '-----BEGIN PRIVATE KEY-----
 MIIEugIBADALBgkqhkiG9w0BAQoEggSmMIIEogIBAAKCAQEA0c89/m2NOYQe1C/O
@@ -310,7 +312,7 @@ BocC2CO6SNi4Qjr3NlM=
         $this->assertIsString("$rsa");
     }
 
-    public function testPubPrivateKey()
+    public function testPubPrivateKey(): void
     {
         $key = '-----BEGIN RSA PUBLIC KEY-----
 MIIBCgKCAQEA61BjmfXGEvWmegnBGSuS+rU9soUg2FnODva32D1AqhwdziwHINFa
@@ -326,7 +328,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
         $this->assertIsString($rsa->sign('zzz'));
     }
 
-    public function testSSHPubKey()
+    public function testSSHPubKey(): void
     {
         $key = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4e' .
                'CZ0FPqri0cb2JZfXJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMS' .
@@ -337,7 +339,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
         $this->assertInstanceOf(PublicKey::class, $rsa);
     }
 
-    public function testSSHPubKeyFingerprint()
+    public function testSSHPubKeyFingerprint(): void
     {
         $key = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD9K+ebJRMN10kGanhi6kDz6EYFqZttZWZh0' .
               'YoEbIbbere9N2Yvfc7oIoCTHYowhXND9WSJaIs1E4bx0085CZnofWaqf4NbZTzAh18iZup08ec' .
@@ -352,7 +354,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
         $this->assertSame($rsa->getFingerprint('sha256'), 'N9sV2uSNZEe8TITODku0pRI27l+Zk0IY0TrRTw3ozwM');
     }
 
-    public function testSetPrivate()
+    public function testSetPrivate(): void
     {
         $key = '-----BEGIN RSA PUBLIC KEY-----
 MIIBCgKCAQEA61BjmfXGEvWmegnBGSuS+rU9soUg2FnODva32D1AqhwdziwHINFa
@@ -376,7 +378,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
      *
      * @group github468
      */
-    public function testUnsignedXML()
+    public function testUnsignedXML(): void
     {
         $key = '<RSAKeyValue>
   <Modulus>v5OxcEgxPUfa701NpxnScCmlRkbwSGBiTWobHkIWZEB+AlRTHaVoZg/D8l6YzR7VdQidG6gF+nuUMjY75dBXgY/XcyVq0Hccf1jTfgARuNuq4GGG3hnCJVi2QsOgcf9R7TeXn+p1RKIhjQoWCiEQeEBTotNbJhcabNcPGSEJw+s=</Modulus>
@@ -392,7 +394,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
     /**
      * @group github468
      */
-    public function testSignedPKCS1()
+    public function testSignedPKCS1(): void
     {
         $key = '-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC/k7FwSDE9R9rvTU2nGdJwKaVG
@@ -410,7 +412,7 @@ JWrQdxx/WNN+ABG426rgYYbeGcIlWLZCw6Bx/1HtN5ef6nVEoiGNChYKIRB4QFOi
     /**
      * @group github861
      */
-    public function testPKCS8Only()
+    public function testPKCS8Only(): void
     {
         $key = '-----BEGIN PRIVATE KEY-----
 MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAKB0yPMAbUHKqJxP
@@ -434,7 +436,7 @@ Z2sKniRCcDT1ZP4=
         $this->assertInstanceOf(PrivateKey::class, $rsa);
     }
 
-    public function testPKCS1EncryptionChange()
+    public function testPKCS1EncryptionChange(): void
     {
         $key = 'PuTTY-User-Key-File-2: ssh-rsa
 Encryption: none
@@ -473,7 +475,7 @@ Private-MAC: 03e2cb74e1d67652fbad063d2ed0478f31bdf256
         $this->assertSame($key, $key2);
     }
 
-    public function testRawComment()
+    public function testRawComment(): void
     {
         $key = 'PuTTY-User-Key-File-2: ssh-rsa
 Encryption: aes256-cbc
@@ -499,7 +501,7 @@ Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
         $this->assertEquals($raw['comment'], 'phpseclib-generated-key');
     }
 
-    public function testPrivateMSBlob()
+    public function testPrivateMSBlob(): void
     {
         $key = 'BwIAAACkAABSU0EyAAQAAAEAAQAnh6FFs6kYe/gmb9dzqsQKmtjFE9mxNAe9mEU3OwOEEfyI' .
                'wkAx0/8dwh12fuP4wzNbdZAq4mmqCE6Lo8wTNNIJVNYEhKq5chHg1+hPDgfETFgtEO54JZSg' .
@@ -530,7 +532,7 @@ Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
         $this->assertSame($privKey->decrypt($ciphertext), $plaintext);
     }
 
-    public function testNakedOpenSSHKey()
+    public function testNakedOpenSSHKey(): void
     {
         $key = 'AAAAB3NzaC1yc2EAAAABIwAAAIEA/NcGSQFZ0ZgN1EbDusV6LLwLnQjs05ljKcVVP7Z6aKIJUyhUDHE30uJa5XfwPPBsZ3L3Q7S0yycVcuuHjdauugmpn9xx+gyoYs7UiV5G5rvxNcA/Tc+MofGhAMiTmNicorNAs5mv6fRoVbkpIONRXPz6WK0kjx/X04EV42Vm9Qk=';
 
@@ -541,7 +543,7 @@ Private-MAC: 35134b7434bf828b21404099861d455e660e8740';
         $this->assertGreaterThanOrEqual(1, strlen("$rsa"));
     }
 
-    public function testPuttyPublicKey()
+    public function testPuttyPublicKey(): void
     {
         $key = '---- BEGIN SSH2 PUBLIC KEY ----
 Comment: "rsa-key-20151023"
@@ -561,7 +563,7 @@ ILaEujU=
     /**
      * @group github980
      */
-    public function testZeroComponents()
+    public function testZeroComponents(): void
     {
         $key = '-----BEGIN RSA PRIVATE KEY-----
 MIGaAgEAAkEAt5yrcHAAjhglnCEn6yecMWPeUXcMyo0+itXrLlkpcKIIyqPw546b
@@ -581,7 +583,7 @@ AAIBAAIBAAIBAAIBAA==
         );
     }
 
-    public function pkcs8tester($key, $pass)
+    public function pkcs8tester($key, $pass): void
     {
         $rsa = PublicKeyLoader::load($key, $pass);
         $r = PKCS8::load($key, $pass);
@@ -613,7 +615,7 @@ AAIBAAIBAAIBAAIBAA==
         $this->assertSame("$rsa", "$rsa2");
     }
 
-    public function testPKCS8AES256CBC()
+    public function testPKCS8AES256CBC(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v2 aes-256-cbc -v2prf hmacWithSHA256 -out enckey.pem
 
@@ -656,7 +658,7 @@ mKVKf5kPx2aR2W2KAcgw3TJIu1QX7N+l3kFrf9Owtz1a
         $this->pkcs8tester($key, $pass);
     }
 
-    public function testPKCS8RC2CBC()
+    public function testPKCS8RC2CBC(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v2 rc2 -out enckey.pem
 
@@ -699,7 +701,7 @@ khzefbnNRDL5PIJnTfM7vSQ4nUzdAxs/7YzX6GMx1DaCtBANbUVUoIE+3oKdqpGV
         $this->pkcs8tester($key, $pass);
     }
 
-    public function testPKCS83DES()
+    public function testPKCS83DES(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v1 PBE-SHA1-3DES -out enckey.pem
 
@@ -740,7 +742,7 @@ aENeUJKn2r8X3Tpz92U=
         $this->pkcs8tester($key, $pass);
     }
 
-    public function testPKCS82DES()
+    public function testPKCS82DES(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v1 PBE-SHA1-2DES -out enckey.pem
 
@@ -781,7 +783,7 @@ rcONqwmUGJOjrfhUyJA=
         $this->pkcs8tester($key, $pass);
     }
 
-    public function testPKCS8RC2()
+    public function testPKCS8RC2(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v1 PBE-SHA1-RC2-128 -out enckey.pem
 
@@ -821,7 +823,7 @@ Pu3ed6UvXDfotj3v8rE=
         $this->pkcs8tester($key, $pass);
     }
 
-    public function testPKCS8RC240()
+    public function testPKCS8RC240(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v1 PBE-SHA1-RC2-40 -out enckey.pem
 
@@ -861,7 +863,7 @@ GxyNlS3BiKQ22CLvbjc=
         $this->pkcs8tester($key, $pass);
     }
 
-    public function testPKCS8RC4()
+    public function testPKCS8RC4(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v1 PBE-SHA1-RC4-128 -out enckey.pem
 
@@ -901,7 +903,7 @@ OvndKFWbSnE=
         $this->pkcs8tester($key, $pass);
     }
 
-    public function testPKCS8RC440()
+    public function testPKCS8RC440(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v1 PBE-SHA1-RC4-40 -out enckey.pem
 
@@ -941,7 +943,7 @@ OFLPBrLe4Hw=
         $this->pkcs8tester($key, $pass);
     }
 
-    public function testXMLDeclaration()
+    public function testXMLDeclaration(): void
     {
         $key = '<?xml version="1.0" encoding="utf-8"?>
 <RSAKeyValue>
@@ -960,7 +962,7 @@ OFLPBrLe4Hw=
         $this->assertInstanceOf(PublicKey::class, $rsa->getPublicKey());
     }
 
-    public function testPSS()
+    public function testPSS(): void
     {
         $key = '-----BEGIN PRIVATE KEY-----
 MIIE7QIBADA9BgkqhkiG9w0BAQowMKANMAsGCWCGSAFlAwQCAaEaMBgGCSqGSIb3
@@ -1006,7 +1008,7 @@ IBgv3a3Lyb+IQtT75LE1yjE=
         $this->assertSame($r['saltLength'], $r2['saltLength']);
     }
 
-    public function testOpenSSHPrivate()
+    public function testOpenSSHPrivate(): void
     {
         $key = '-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
@@ -1060,7 +1062,7 @@ Vyaqr/WTPzxdXJAAAADHJvb3RAdmFncmFudAECAwQFBg==
         $this->assertTrue($key->verify('zzz', $sig));
     }
 
-    public function testPuTTYPublic()
+    public function testPuTTYPublic(): void
     {
         $orig = '---- BEGIN SSH2 PUBLIC KEY ----
 Comment: "phpseclib-generated-key"
@@ -1095,7 +1097,7 @@ YYFw8pfGesIFoEuVth4HKyF8k1y4mRUnYHP1XNMNMJl1JcEArC2asV8sHf6zSPVffozZ
         $this->assertInstanceOf(PublicKey::class, $key);
     }
 
-    public function testSavePasswordXML()
+    public function testSavePasswordXML(): void
     {
         $this->expectException(UnsupportedFormatException::class);
 
@@ -1112,7 +1114,7 @@ v/Ow5T0q5gIJAiEAyS4RaI9YG8EWx/2w0T67ZUVAw8eOMB6BIUg0Xcu+3okCIBOs
         $key->withPassword('demo')->toString('XML');
     }
 
-    public function testPublicAsPrivatePKCS1()
+    public function testPublicAsPrivatePKCS1(): void
     {
         $key = '-----BEGIN RSA PRIVATE KEY-----
 MIGJAoGBANOV2sOh8KgK9ENJMCzkIQ+UogWU7GP4JMpGxT6aEoxE3O5zUo2D1asv
@@ -1127,7 +1129,7 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
     /**
      * @group github1579
      */
-    public function testNakedPKCS1PublicKey()
+    public function testNakedPKCS1PublicKey(): void
     {
         $key = '3082020a0282020100d595c09fbc635612b3ef6a0067d74cb76fa9af62a9272400c2a896f1335b920b88a9accaffe915e38542d296c1a559a586223521da8977030888a8d076910f59489a3a4a10bf950bf2b83278810e4c3bfc027b6b6cb75736cfaabaa83de15c619b8e9f65a60f4cfeba11fb5bf5e93abff68468695948b1843e2e09504281651475f7eff1c30fcb17026f13f04109fc930e489c14a1ef80ec51be6bb73f1679d258c2db535b04f4be82790ac01b4b0e9cb68a9bb5afab4363b5f33ff143ef13d1b2a292a72881d68d765a6c1fc981da0a2644ed284607d19f39802b3967bf9308da1f6515b59a2b0a1c57c14d661a62672f3b9453f931b62c446267d912c0987b7fb4c4fe085e3573ddfd9761ec2c035fa560c6c98343e9d448667b724a919780be2fd8666115d8a75b29e6c1e216cd73a693192f551f72fdf9eac0bb5bda83b11b5159151419249915e6006e6018bc1cda20960d4f1c7df7d401afd322656b4f0810348b8d20d506b08dd8752a0a721efa750b785fb2cb40930d33dd70bd8ad83883470851bd664c648da3f102545f1c54fa803cea5ba3edb51c3b894bd8fbd48d4ed97c251b3eed1d4e636d487a711d3859946acc14f808d777bcc3c5594ac2cd7dcf278ef4e7d3badea740f757a0669f213dadf46e9ff0eeb10720af086ce29e27e0ca2a639f4f3c5825ea5e2774bb3e722ce40e7cf6e2075857797c13d2d50203010001';
         $key = PublicKeyLoader::load(hex2bin($key));
@@ -1137,11 +1139,11 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
     /**
      * @group github1711
      */
-    public function testRawPrivateKey()
+    public function testRawPrivateKey(): void
     {
         $key = RSA::createKey(512);
         $str1 = "$key";
-        $key = $key->toString('Raw');
+        $key = unserialize($key->toString('Raw'));
         $key = [
             'e' => $key['e'],
             'n' => $key['n'],
@@ -1155,7 +1157,7 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
         $this->assertSame($str1, $str2);
     }
 
-    public function testPuTTYV3NoPW()
+    public function testPuTTYV3NoPW(): void
     {
         $key = 'PuTTY-User-Key-File-3: ssh-rsa
 Encryption: none
@@ -1188,7 +1190,7 @@ Private-MAC: 7979eb6f604fb3e0bd191295479517f641598649167835402c6cbfde6cbf21ef';
         $this->assertInstanceOf(PrivateKey::class, $key);
     }
 
-    public function testPuTTYV3PW()
+    public function testPuTTYV3PW(): void
     {
         if (!function_exists('sodium_crypto_pwhash')) {
             self::markTestSkipped('sodium_crypto_pwhash() function is not available.');

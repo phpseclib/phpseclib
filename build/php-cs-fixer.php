@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return (new PhpCsFixer\Config())
     ->setFinder(PhpCsFixer\Finder::create()->in(__DIR__ . '/..'))
     ->setCacheFile(__DIR__ . '/php-cs-fixer.cache')
@@ -19,5 +21,16 @@ return (new PhpCsFixer\Config())
             'ordered_imports' => ['sort_algorithm' => 'alpha', 'imports_order' => ['class', 'const', 'function']],
             'single_import_per_statement' => true,
             'single_line_after_imports' => true,
+            // PHPDoc
+            'no_superfluous_phpdoc_tags' => true,
+            'phpdoc_trim_consecutive_blank_line_separation' => true,
+            'phpdoc_trim' => true,
+
+            // PHP 7.0
+            '@PHP70Migration' => true,
+            '@PHP70Migration:risky' => true,
+            'declare_strict_types' => false,
+            // PHP 7.1
+            'void_return' => true,
         ]
     );

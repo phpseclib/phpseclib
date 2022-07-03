@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\File;
 
 use phpseclib3\File\ASN1;
@@ -17,7 +19,7 @@ class ASN1Test extends PhpseclibTestCase
      * on older versions of \phpseclib3\File\ASN1 this would yield a PHP Warning
      * @group github275
      */
-    public function testAnyString()
+    public function testAnyString(): void
     {
         $KDC_REP = [
             'type' => ASN1::TYPE_SEQUENCE,
@@ -89,7 +91,7 @@ class ASN1Test extends PhpseclibTestCase
      * on older versions of \phpseclib3\File\ASN1 this would produce a null instead of an array
      * @group github275
      */
-    public function testIncorrectString()
+    public function testIncorrectString(): void
     {
         $PA_DATA = [
             'type' => ASN1::TYPE_SEQUENCE,
@@ -239,13 +241,13 @@ class ASN1Test extends PhpseclibTestCase
     /**
      * older versions of ASN1 didn't handle indefinite length tags very well
      */
-    public function testIndefiniteLength()
+    public function testIndefiniteLength(): void
     {
         $decoded = ASN1::decodeBER(file_get_contents(dirname(__FILE__) . '/ASN1/FE.pdf.p7m'));
         $this->assertCount(5, $decoded[0]['content'][1]['content'][0]['content']); // older versions would have returned 3
     }
 
-    public function testDefiniteLength()
+    public function testDefiniteLength(): void
     {
         // the following base64-encoded string is the X.509 cert from <http://phpseclib.sourceforge.net/x509/decoder.php>
         $str = 'MIIDITCCAoqgAwIBAgIQT52W2WawmStUwpV8tBV9TTANBgkqhkiG9w0BAQUFADBM' .
@@ -272,7 +274,7 @@ class ASN1Test extends PhpseclibTestCase
     /**
      * @group github477
      */
-    public function testContextSpecificNonConstructed()
+    public function testContextSpecificNonConstructed(): void
     {
         $decoded = ASN1::decodeBER(base64_decode('MBaAFJtUo7c00HsI5EPZ4bkICfkOY2Pv'));
         $this->assertIsString($decoded[0]['content'][0]['content']);
@@ -281,7 +283,7 @@ class ASN1Test extends PhpseclibTestCase
     /**
      * @group github602
      */
-    public function testEmptyContextTag()
+    public function testEmptyContextTag(): void
     {
         $decoded = ASN1::decodeBER("\xa0\x00");
         $this->assertIsArray($decoded);
@@ -291,7 +293,7 @@ class ASN1Test extends PhpseclibTestCase
     /**
      * @group github1027
      */
-    public function testInfiniteLoop()
+    public function testInfiniteLoop(): void
     {
         $data = base64_decode('MD6gJQYKKwYBBAGCNxQCA6AXDBVvZmZpY2VAY2VydGRpZ2l0YWwucm+BFW9mZmljZUBjZXJ0ZGlnaXRhbC5ybw==');
         self::assertSame(
@@ -300,9 +302,9 @@ class ASN1Test extends PhpseclibTestCase
         );
     }
 
-    public function testMaps()
+    public function testMaps(): void
     {
-        $files = scandir('phpseclib/File/ASN1/Maps');
+        $files = scandir(__DIR__ . '/../../../phpseclib/File/ASN1/Maps');
         self::assertNotEmpty($files);
         foreach ($files as $file) {
             if ($file == '.' || $file == '..') {
@@ -312,7 +314,7 @@ class ASN1Test extends PhpseclibTestCase
         }
     }
 
-    public function testApplicationTag()
+    public function testApplicationTag(): void
     {
         $map = [
             'type'     => ASN1::TYPE_SEQUENCE,
@@ -346,7 +348,7 @@ class ASN1Test extends PhpseclibTestCase
     /**
      * @group github1296
      */
-    public function testInvalidCertificate()
+    public function testInvalidCertificate(): void
     {
         $data = 'a' . base64_decode('MD6gJQYKKwYBBAGCNxQCA6AXDBVvZmZpY2VAY2VydGRpZ2l0YWwucm+BFW9mZmljZUBjZXJ0ZGlnaXRhbC5ybw==');
         self::assertSame(
@@ -358,7 +360,7 @@ class ASN1Test extends PhpseclibTestCase
     /**
      * @group github1367
      */
-    public function testOIDs()
+    public function testOIDs(): void
     {
         // from the example in 8.19.5 in the following:
         // https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=22
@@ -378,7 +380,7 @@ class ASN1Test extends PhpseclibTestCase
     /**
      * @group github1388
      */
-    public function testExplicitImplicitDate()
+    public function testExplicitImplicitDate(): void
     {
         $map = [
             'type'     => ASN1::TYPE_SEQUENCE,
@@ -403,7 +405,7 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertIsArray($a);
     }
 
-    public function testNullGarbage()
+    public function testNullGarbage(): void
     {
         $em = pack('H*', '3080305c0609608648016503040201054f8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888804207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);
@@ -414,7 +416,7 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertNull($decoded);
     }
 
-    public function testOIDGarbage()
+    public function testOIDGarbage(): void
     {
         $em = pack('H*', '3080305c065860864801650304020188888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888050004207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);
@@ -425,7 +427,7 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertNull($decoded);
     }
 
-    public function testConstructedMismatch()
+    public function testConstructedMismatch(): void
     {
         $em = pack('H*', '1031300d0609608648016503040201050004207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);
@@ -444,7 +446,7 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertNull($decoded);
     }
 
-    public function testBadTagSecondOctet()
+    public function testBadTagSecondOctet(): void
     {
         $em = pack('H*', '3033300f1f808080060960864801650304020104207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9');
         $decoded = ASN1::decodeBER($em);

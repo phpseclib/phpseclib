@@ -27,6 +27,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\AsymmetricKey;
@@ -125,11 +127,8 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Create public / private key pair.
-     *
-     * @param string $curve
-     * @return \phpseclib3\Crypt\EC\PrivateKey
      */
-    public static function createKey($curve)
+    public static function createKey(string $curve): PrivateKey
     {
         self::initialize_static_variables();
 
@@ -293,10 +292,8 @@ abstract class EC extends AsymmetricKey
      *  representation of the field, commonly denoted by m.  A set of
      *  elliptic curve domain parameters defines a group of order n generated
      *  by a base point P"
-     *
-     * @return int
      */
-    public function getLength()
+    public function getLength(): int
     {
         return $this->curve->getLength();
     }
@@ -306,9 +303,8 @@ abstract class EC extends AsymmetricKey
      *
      * @see self::useInternalEngine()
      * @see self::useBestEngine()
-     * @return string
      */
-    public function getEngine()
+    public function getEngine(): string
     {
         if (!isset(self::$engines['PHP'])) {
             self::useBestEngine();
@@ -326,10 +322,8 @@ abstract class EC extends AsymmetricKey
      * Returns the public key coordinates as a string
      *
      * Used by ECDH
-     *
-     * @return string
      */
-    public function getEncodedCoordinates()
+    public function getEncodedCoordinates(): string
     {
         if ($this->curve instanceof MontgomeryCurve) {
             return strrev($this->QA[0]->toBytes(true));
@@ -343,11 +337,10 @@ abstract class EC extends AsymmetricKey
     /**
      * Returns the parameters
      *
-     * @see self::getPublicKey()
      * @param string $type optional
-     * @return mixed
+     * @see self::getPublicKey()
      */
-    public function getParameters($type = 'PKCS1')
+    public function getParameters(string $type = 'PKCS1')
     {
         $type = self::validatePlugin('Keys', $type, 'saveParameters');
 
@@ -362,10 +355,8 @@ abstract class EC extends AsymmetricKey
      * Determines the signature padding mode
      *
      * Valid values are: ASN1, SSH2, Raw
-     *
-     * @param string $format
      */
-    public function withSignatureFormat($format)
+    public function withSignatureFormat(string $format): EC
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
@@ -379,9 +370,8 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Returns the signature format currently being used
-     *
      */
-    public function getSignatureFormat()
+    public function getSignatureFormat(): string
     {
         return $this->shortFormat;
     }
@@ -391,11 +381,11 @@ abstract class EC extends AsymmetricKey
      *
      * Used by Ed25519 / Ed448.
      *
-     * @see self::sign()
+     * @param string|null $context optional
      * @see self::verify()
-     * @param string $context optional
+          * @see self::sign()
      */
-    public function withContext($context = null)
+    public function withContext(string $context = null): EC
     {
         if (!$this->curve instanceof TwistedEdwardsCurve) {
             throw new UnsupportedCurveException('Only Ed25519 and Ed448 support contexts');
@@ -418,19 +408,16 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Returns the signature format currently being used
-     *
      */
-    public function getContext()
+    public function getContext(): string
     {
         return $this->context;
     }
 
     /**
      * Determines which hashing function should be used
-     *
-     * @param string $hash
      */
-    public function withHash($hash)
+    public function withHash(string $hash): AsymmetricKey
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
