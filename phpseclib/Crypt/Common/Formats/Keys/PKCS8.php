@@ -327,12 +327,15 @@ abstract class PKCS8 extends PKCS
                     $meta['meta']['algorithm'] = $algorithm;
 
                     $temp = ASN1::decodeBER($decrypted['encryptionAlgorithm']['parameters']);
+                    if (!$temp) {
+                        throw new \RuntimeException('Unable to decode BER');
+                    }
                     extract(ASN1::asn1map($temp[0], Maps\PBEParameter::MAP));
                     $iterationCount = (int) $iterationCount->toString();
                     $cipher->setPassword($password, $kdf, $hash, $salt, $iterationCount);
                     $key = $cipher->decrypt($decrypted['encryptedData']);
                     $decoded = ASN1::decodeBER($key);
-                    if (empty($decoded)) {
+                    if (!$decoded) {
                         throw new \RuntimeException('Unable to decode BER 2');
                     }
 
@@ -341,6 +344,9 @@ abstract class PKCS8 extends PKCS
                     $meta['meta']['algorithm'] = $algorithm;
 
                     $temp = ASN1::decodeBER($decrypted['encryptionAlgorithm']['parameters']);
+                    if (!$temp) {
+                        throw new \RuntimeException('Unable to decode BER');
+                    }
                     $temp = ASN1::asn1map($temp[0], Maps\PBES2params::MAP);
                     extract($temp);
 
@@ -348,6 +354,9 @@ abstract class PKCS8 extends PKCS
                     $meta['meta']['cipher'] = $encryptionScheme['algorithm'];
 
                     $temp = ASN1::decodeBER($decrypted['encryptionAlgorithm']['parameters']);
+                    if (!$temp) {
+                        throw new \RuntimeException('Unable to decode BER');
+                    }
                     $temp = ASN1::asn1map($temp[0], Maps\PBES2params::MAP);
                     extract($temp);
 
@@ -355,6 +364,9 @@ abstract class PKCS8 extends PKCS
                         $cipher->setIV($encryptionScheme['parameters']['octetString']);
                     } else {
                         $temp = ASN1::decodeBER($encryptionScheme['parameters']);
+                        if (!$temp) {
+                            throw new \RuntimeException('Unable to decode BER');
+                        }
                         extract(ASN1::asn1map($temp[0], Maps\RC2CBCParameter::MAP));
                         $effectiveKeyLength = (int) $rc2ParametersVersion->toString();
                         switch ($effectiveKeyLength) {
@@ -377,6 +389,9 @@ abstract class PKCS8 extends PKCS
                     switch ($keyDerivationFunc['algorithm']) {
                         case 'id-PBKDF2':
                             $temp = ASN1::decodeBER($keyDerivationFunc['parameters']);
+                            if (!$temp) {
+                                throw new \RuntimeException('Unable to decode BER');
+                            }
                             $prf = ['algorithm' => 'id-hmacWithSHA1'];
                             $params = ASN1::asn1map($temp[0], Maps\PBKDF2params::MAP);
                             extract($params);
@@ -395,7 +410,7 @@ abstract class PKCS8 extends PKCS
                             $cipher->setPassword(...$params);
                             $key = $cipher->decrypt($decrypted['encryptedData']);
                             $decoded = ASN1::decodeBER($key);
-                            if (empty($decoded)) {
+                            if (!$decoded) {
                                 throw new \RuntimeException('Unable to decode BER 3');
                             }
                             break;
@@ -619,7 +634,7 @@ abstract class PKCS8 extends PKCS
         }
 
         $decoded = ASN1::decodeBER($key);
-        if (empty($decoded)) {
+        if (!$decoded) {
             throw new \RuntimeException('Unable to decode BER');
         }
 
@@ -640,12 +655,18 @@ abstract class PKCS8 extends PKCS
 
         if ($r['encryptionAlgorithm']['algorithm'] == 'id-PBES2') {
             $decoded = ASN1::decodeBER($r['encryptionAlgorithm']['parameters']->element);
+            if (!$decoded) {
+                throw new \RuntimeException('Unable to decode BER');
+            }
             $r['encryptionAlgorithm']['parameters'] = ASN1::asn1map($decoded[0], ASN1\Maps\PBES2params::MAP);
 
             $kdf = &$r['encryptionAlgorithm']['parameters']['keyDerivationFunc'];
             switch ($kdf['algorithm']) {
                 case 'id-PBKDF2':
                     $decoded = ASN1::decodeBER($kdf['parameters']->element);
+                    if (!$decoded) {
+                        throw new \RuntimeException('Unable to decode BER');
+                    }
                     $kdf['parameters'] = ASN1::asn1map($decoded[0], Maps\PBKDF2params::MAP);
             }
         }

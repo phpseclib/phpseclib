@@ -384,9 +384,6 @@ abstract class TestCase extends PhpseclibTestCase
         );
     }
 
-    /**
-     * @requires PHP 5.6
-     */
     public function testDebugInfo(): void
     {
         $num = $this->getInstance(50);

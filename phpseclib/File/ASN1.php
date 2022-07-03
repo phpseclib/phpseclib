@@ -194,7 +194,7 @@ abstract class ASN1
      *
      * @param Element|string $encoded
      */
-    public static function decodeBER($encoded): array
+    public static function decodeBER($encoded): ?array
     {
         if ($encoded instanceof Element) {
             $encoded = $encoded->element;
@@ -202,10 +202,12 @@ abstract class ASN1
 
         self::$encoded = $encoded;
 
-        $decoded = [self::decode_ber($encoded)];
+        $decoded = self::decode_ber($encoded);
+        if ($decoded === false) {
+            return null;
+        }
 
-        // encapsulate in an array for BC with the old decodeBER
-        return $decoded;
+        return [self::decode_ber($encoded)];
     }
 
     /**
@@ -512,12 +514,8 @@ abstract class ASN1
      * @param array|bool $decoded
      * @return array|bool|Element|string|null
      */
-    public static function asn1map($decoded, array $mapping, array $special = [])
+    public static function asn1map(array $decoded, array $mapping, array $special = [])
     {
-        if (!is_array($decoded)) {
-            return false;
-        }
-
         if (isset($mapping['explicit']) && is_array($decoded['content'])) {
             $decoded = $decoded['content'][0];
         }

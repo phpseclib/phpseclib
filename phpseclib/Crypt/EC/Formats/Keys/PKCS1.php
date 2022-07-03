@@ -68,7 +68,7 @@ abstract class PKCS1 extends Progenitor
             preg_match('#-*BEGIN EC PRIVATE KEY-*[^-]*-*END EC PRIVATE KEY-*#s', $key, $matches);
             $decoded = parent::load($matches[0], $password);
             $decoded = ASN1::decodeBER($decoded);
-            if (empty($decoded)) {
+            if (!$decoded) {
                 throw new \RuntimeException('Unable to decode BER');
             }
 
@@ -84,7 +84,7 @@ abstract class PKCS1 extends Progenitor
             preg_match('#-*BEGIN EC PARAMETERS-*[^-]*-*END EC PARAMETERS-*#s', $key, $matches);
             $decoded = parent::load($matches[0], '');
             $decoded = ASN1::decodeBER($decoded);
-            if (empty($decoded)) {
+            if (!$decoded) {
                 throw new \RuntimeException('Unable to decode BER');
             }
             $ecParams = ASN1::asn1map($decoded[0], Maps\ECParameters::MAP);
@@ -115,7 +115,7 @@ abstract class PKCS1 extends Progenitor
         $key = parent::load($key, $password);
 
         $decoded = ASN1::decodeBER($key);
-        if (empty($decoded)) {
+        if (!$decoded) {
             throw new \RuntimeException('Unable to decode BER');
         }
 

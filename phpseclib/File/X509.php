@@ -426,7 +426,7 @@ class X509
      *
      * Returns an associative array describing the X.509 cert or a false if the cert failed to load
      *
-     * @param string|array $cert
+     * @param array|string $cert
      */
     public function loadX509($cert, int $mode = self::FORMAT_AUTO_DETECT)
     {
@@ -462,7 +462,7 @@ class X509
 
         $decoded = ASN1::decodeBER($cert);
 
-        if (!empty($decoded)) {
+        if ($decoded) {
             $x509 = ASN1::asn1map($decoded[0], Maps\Certificate::MAP);
         }
         if (!isset($x509) || $x509 === false) {
@@ -497,8 +497,7 @@ class X509
     /**
      * Save X.509 certificate
      *
-     * @param int $format optional
-     * @return string
+     * @return string|false
      */
     public function saveX509(array $cert, int $format = self::FORMAT_PEM)
     {
@@ -566,8 +565,6 @@ class X509
     /**
      * Map extension values from octet string to extension-specific internal
      *   format.
-     *
-     * @param array $root (by reference)
      */
     private function mapInExtensions(array &$root, string $path): void
     {
@@ -585,6 +582,9 @@ class X509
                         [static::class, 'decodeNameConstraintIP'] :
                         [static::class, 'decodeIP'];
                     $decoded = ASN1::decodeBER($value);
+                    if (!$decoded) {
+                        continue;
+                    }
                     $mapped = ASN1::asn1map($decoded[0], $map, ['iPAddress' => $decoder]);
                     $value = $mapped === false ? $decoded[0] : $mapped;
 
@@ -599,6 +599,9 @@ class X509
                                 $subvalue = &$value[$j]['policyQualifiers'][$k]['qualifier'];
                                 if ($map !== false) {
                                     $decoded = ASN1::decodeBER($subvalue);
+                                    if (!$decoded) {
+                                        continue;
+                                    }
                                     $mapped = ASN1::asn1map($decoded[0], $map);
                                     $subvalue = $mapped === false ? $decoded[0] : $mapped;
                                 }
@@ -613,8 +616,6 @@ class X509
     /**
      * Map extension values from extension-specific internal format to
      *   octet string.
-     *
-     * @param array $root (by reference)
      */
     private function mapOutExtensions(array &$root, string $path): void
     {
@@ -712,6 +713,9 @@ class X509
                         $value = ASN1::encodeDER($values[$j], Maps\AttributeValue::MAP);
                         $decoded = ASN1::decodeBER($value);
                         if (!is_bool($map)) {
+                            if (!$decoded) {
+                                continue;
+                            }
                             $mapped = ASN1::asn1map($decoded[0], $map);
                             if ($mapped !== false) {
                                 $values[$j] = $mapped;
@@ -760,6 +764,9 @@ class X509
                         if (!is_bool($map)) {
                             $temp = ASN1::encodeDER($values[$j], $map);
                             $decoded = ASN1::decodeBER($temp);
+                            if (!$decoded) {
+                                continue;
+                            }
                             $values[$j] = ASN1::asn1map($decoded[0], Maps\AttributeValue::MAP);
                         }
                     }
@@ -771,8 +778,6 @@ class X509
     /**
      * Map DN values from ANY type to DN-specific internal
      *   format.
-     *
-     * @param array $root (by reference)
      */
     private function mapInDNs(array &$root, string $path): void
     {
@@ -787,6 +792,9 @@ class X509
                         $map = $this->getMapping($type);
                         if (!is_bool($map)) {
                             $decoded = ASN1::decodeBER($value);
+                            if (!$decoded) {
+                                continue;
+                            }
                             $value = ASN1::asn1map($decoded[0], $map);
                         }
                     }
@@ -1615,9 +1623,6 @@ class X509
 
     /**
      * Get Distinguished Name properties
-     *
-     * @param array|null $dn optional
-     * @param bool $withType optional
      */
     public function getDNProp(string $propName, array $dn = null, bool $withType = false)
     {
@@ -1661,6 +1666,9 @@ class X509
                         $map = $this->getMapping($propName);
                         if (!is_bool($map)) {
                             $decoded = ASN1::decodeBER($v);
+                            if (!$decoded) {
+                                return false;
+                            }
                             $v = ASN1::asn1map($decoded[0], $map);
                         }
                     }
@@ -2099,7 +2107,7 @@ class X509
 
         $decoded = ASN1::decodeBER($csr);
 
-        if (empty($decoded)) {
+        if (!$decoded) {
             $this->currentCert = false;
             return false;
         }
@@ -2136,8 +2144,7 @@ class X509
     /**
      * Save CSR request
      *
-     * @param int $format optional
-     * @return string
+     * @return string|false
      */
     public function saveCSR(array $csr, int $format = self::FORMAT_PEM)
     {
@@ -2208,7 +2215,7 @@ class X509
 
         $decoded = ASN1::decodeBER($spkac);
 
-        if (empty($decoded)) {
+        if (!$decoded) {
             $this->currentCert = false;
             return false;
         }
@@ -2242,7 +2249,7 @@ class X509
      * Save a SPKAC CSR request
      *
      * @param int $format optional
-     * @return string
+     * @return string|false
      */
     public function saveSPKAC(array $spkac, int $format = self::FORMAT_PEM)
     {
@@ -2301,7 +2308,7 @@ class X509
 
         $decoded = ASN1::decodeBER($crl);
 
-        if (empty($decoded)) {
+        if (!$decoded) {
             $this->currentCert = false;
             return false;
         }
@@ -2420,8 +2427,7 @@ class X509
      * $subject can be either an existing X.509 cert (if you want to resign it),
      * a CSR or something with the DN and public key explicitly set.
      *
-     * @param \phpseclib3\File\X509 $issuer
-     * @param \phpseclib3\File\X509 $subject
+     * @return mixed
      */
     public function sign(X509 $issuer, X509 $subject)
     {
@@ -2725,8 +2731,7 @@ class X509
      *
      * $issuer's private key needs to be loaded.
      *
-     * @param \phpseclib3\File\X509 $issuer
-     * @param \phpseclib3\File\X509 $crl
+     * @return mixed
      */
     public function signCRL(X509 $issuer, X509 $crl)
     {
@@ -2971,8 +2976,6 @@ class X509
      * This is intended for use in conjunction with _subArrayUnchecked(),
      * implementing the checks included in _subArray() but without copying
      * a potentially large array by passing its reference by-value to is_array().
-     *
-     * @return boolean
      */
     private function isSubArrayValid(array $root, string $path): bool
     {
@@ -3474,7 +3477,7 @@ class X509
             case $key instanceof Element:
                 // Assume the element is a bitstring-packed key.
                 $decoded = ASN1::decodeBER($key->element);
-                if (empty($decoded)) {
+                if (!$decoded) {
                     return false;
                 }
                 $raw = ASN1::asn1map($decoded[0], ['type' => ASN1::TYPE_BIT_STRING]);
@@ -3533,6 +3536,9 @@ class X509
         $publicKey = base64_decode(preg_replace('#-.+-|[\r\n]#', '', $this->publicKey->toString($format)));
 
         $decoded = ASN1::decodeBER($publicKey);
+        if (!$decoded) {
+            return false;
+        }
         $mapped = ASN1::asn1map($decoded[0], Maps\SubjectPublicKeyInfo::MAP);
         if (!is_array($mapped)) {
             return false;
