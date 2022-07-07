@@ -53,13 +53,8 @@ class SSH2UnitTest extends PhpseclibTestCase
 
         if (extension_loaded('openssl')) {
             $this->assertStringContainsString('openssl', $identifier);
-            $this->assertStringNotContainsString('mcrypt', $identifier);
-        } elseif (extension_loaded('mcrypt')) {
-            $this->assertStringNotContainsString('openssl', $identifier);
-            $this->assertStringContainsString('mcrypt', $identifier);
         } else {
             $this->assertStringNotContainsString('openssl', $identifier);
-            $this->assertStringNotContainsString('mcrypt', $identifier);
         }
 
         if (extension_loaded('gmp')) {

@@ -39,14 +39,14 @@ abstract class PKCS8 extends Progenitor
      *
      * @var string
      */
-    const OID_NAME = 'dhKeyAgreement';
+    public const OID_NAME = 'dhKeyAgreement';
 
     /**
      * OID Value
      *
      * @var string
      */
-    const OID_VALUE = '1.2.840.113549.1.3.1';
+    public const OID_VALUE = '1.2.840.113549.1.3.1';
 
     /**
      * Child OIDs loaded

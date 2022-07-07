@@ -30,14 +30,14 @@ class GMP extends Engine
      * @see parent::bitwise_leftRotate()
      * @see parent::bitwise_rightRotate()
      */
-    const FAST_BITWISE = true;
+    public const FAST_BITWISE = true;
 
     /**
      * Engine Directory
      *
      * @see parent::setModExpEngine
      */
-    const ENGINE_DIR = 'GMP';
+    public const ENGINE_DIR = 'GMP';
 
     /**
      * Test for engine validity

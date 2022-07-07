@@ -12,15 +12,15 @@ namespace phpseclib3\Net\SFTP;
  */
 abstract class FileType
 {
-    const REGULAR = 1;
-    const DIRECTORY = 2;
-    const SYMLINK = 3;
-    const SPECIAL = 4;
-    const UNKNOWN = 5;
+    public const REGULAR = 1;
+    public const DIRECTORY = 2;
+    public const SYMLINK = 3;
+    public const SPECIAL = 4;
+    public const UNKNOWN = 5;
     // the following types were first defined for use in SFTPv5+
     // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-05#section-5.2
-    const SOCKET = 6;
-    const CHAR_DEVICE = 7;
-    const BLOCK_DEVICE = 8;
-    const FIFO = 9;
+    public const SOCKET = 6;
+    public const CHAR_DEVICE = 7;
+    public const BLOCK_DEVICE = 8;
+    public const FIFO = 9;
 }

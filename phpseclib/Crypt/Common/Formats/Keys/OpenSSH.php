@@ -90,7 +90,7 @@ abstract class OpenSSH
 
                   bcrypt is basically Blowfish with an altered key expansion. whereas Blowfish just runs the
                   key through the key expansion bcrypt interleaves the key expansion with the salt and
-                  password. this renders openssl / mcrypt unusuable. this forces us to use a pure-PHP implementation
+                  password. this renders openssl unusable. this forces us to use a pure-PHP implementation
                   of bcrypt. the problem with that is that pure-PHP is too slow to be practically useful.
 
                   in addition to encrypting a different string 64 times the OpenSSH implementation also performs bcrypt
@@ -129,7 +129,7 @@ abstract class OpenSSH
 
         if (!isset($parts[1])) {
             $key = base64_decode($parts[0]);
-            $comment = $parts[1] ?? false;
+            $comment = false;
         } else {
             $asciiType = $parts[0];
             self::checkType($parts[0]);

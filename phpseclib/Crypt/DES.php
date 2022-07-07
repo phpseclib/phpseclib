@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of DES.
  *
- * Uses mcrypt, if available, and an internal implementation, otherwise.
+ * Uses an internal implementation.
  *
  * PHP version 5
  *
@@ -58,14 +58,14 @@ class DES extends BlockCipher
      * @see \phpseclib3\Crypt\DES::setupKey()
      * @see \phpseclib3\Crypt\DES::processBlock()
      */
-    const ENCRYPT = 0;
+    public const ENCRYPT = 0;
     /**
      * Contains $keys[self::DECRYPT]
      *
      * @see \phpseclib3\Crypt\DES::setupKey()
      * @see \phpseclib3\Crypt\DES::processBlock()
      */
-    const DECRYPT = 1;
+    public const DECRYPT = 1;
 
     /**
      * Block Length of the cipher
@@ -84,14 +84,6 @@ class DES extends BlockCipher
     protected $key_length = 8;
 
     /**
-     * The mcrypt specific name of the cipher
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
-     * @var string
-     */
-    protected $cipher_name_mcrypt = 'des';
-
-    /**
      * The OpenSSL names of the cipher / modes
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::openssl_mode_names
@@ -104,14 +96,6 @@ class DES extends BlockCipher
         self::MODE_OFB => 'des-ofb'
         // self::MODE_CTR is undefined for DES
     ];
-
-    /**
-     * Optimizing value while CFB-encrypting
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cfb_init_len
-     * @var int
-     */
-    protected $cfb_init_len = 500;
 
     /**
      * Switch for DES/3DES encryption

@@ -55,27 +55,27 @@ class Agent
     // Message numbers
 
     // to request SSH1 keys you have to use SSH_AGENTC_REQUEST_RSA_IDENTITIES (1)
-    const SSH_AGENTC_REQUEST_IDENTITIES = 11;
+    public const SSH_AGENTC_REQUEST_IDENTITIES = 11;
     // this is the SSH2 response; the SSH1 response is SSH_AGENT_RSA_IDENTITIES_ANSWER (2).
-    const SSH_AGENT_IDENTITIES_ANSWER = 12;
+    public const SSH_AGENT_IDENTITIES_ANSWER = 12;
     // the SSH1 request is SSH_AGENTC_RSA_CHALLENGE (3)
-    const SSH_AGENTC_SIGN_REQUEST = 13;
+    public const SSH_AGENTC_SIGN_REQUEST = 13;
     // the SSH1 response is SSH_AGENT_RSA_RESPONSE (4)
-    const SSH_AGENT_SIGN_RESPONSE = 14;
+    public const SSH_AGENT_SIGN_RESPONSE = 14;
 
     // Agent forwarding status
 
     // no forwarding requested and not active
-    const FORWARD_NONE = 0;
+    public const FORWARD_NONE = 0;
     // request agent forwarding when opportune
-    const FORWARD_REQUEST = 1;
+    public const FORWARD_REQUEST = 1;
     // forwarding has been request and is active
-    const FORWARD_ACTIVE = 2;
+    public const FORWARD_ACTIVE = 2;
 
     /**
      * Unused
      */
-    const SSH_AGENT_FAILURE = 5;
+    public const SSH_AGENT_FAILURE = 5;
 
     /**
      * Socket Resource
@@ -108,13 +108,6 @@ class Agent
      * @var int
      */
     private $expected_bytes = 0;
-
-    /**
-     * The current request channel
-     *
-     * @var int
-     */
-    private $request_channel;
 
     /**
      * Default Constructor

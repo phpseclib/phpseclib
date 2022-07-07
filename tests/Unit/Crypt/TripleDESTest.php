@@ -18,7 +18,6 @@ class TripleDESTest extends PhpseclibTestCase
     public $engines = [
         'PHP',
         'Eval',
-        'mcrypt',
         'OpenSSL',
     ];
 
@@ -128,7 +127,6 @@ class TripleDESTest extends PhpseclibTestCase
         $engines = [
             'PHP',
             'Eval',
-            'mcrypt',
             'OpenSSL',
         ];
 

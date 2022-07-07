@@ -35,11 +35,11 @@ abstract class PHP extends Engine
     /**
      * $result[self::VALUE] contains the value.
      */
-    const VALUE = 0;
+    public const VALUE = 0;
     /**
      * $result[self::SIGN] contains the sign.
      */
-    const SIGN = 1;
+    public const SIGN = 1;
     /**#@-*/
 
     /**
@@ -47,7 +47,7 @@ abstract class PHP extends Engine
      *
      * At what point do we switch between Karatsuba multiplication and schoolbook long multiplication?
      */
-    const KARATSUBA_CUTOFF = 25;
+    public const KARATSUBA_CUTOFF = 25;
 
     /**
      * Can Bitwise operations be done fast?
@@ -55,14 +55,14 @@ abstract class PHP extends Engine
      * @see parent::bitwise_leftRotate()
      * @see parent::bitwise_rightRotate()
      */
-    const FAST_BITWISE = true;
+    public const FAST_BITWISE = true;
 
     /**
      * Engine Directory
      *
      * @see parent::setModExpEngine
      */
-    const ENGINE_DIR = 'PHP';
+    public const ENGINE_DIR = 'PHP';
 
     /**
      * Default constructor

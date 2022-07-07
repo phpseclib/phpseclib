@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of RC4.
  *
- * Uses mcrypt, if available, and an internal implementation, otherwise.
+ * Uses an internal implementation.
  *
  * PHP version 5
  *
@@ -56,12 +56,12 @@ class RC4 extends StreamCipher
     /**
      * @see \phpseclib3\Crypt\RC4::_crypt()
      */
-    const ENCRYPT = 0;
+    public const ENCRYPT = 0;
 
     /**
      * @see \phpseclib3\Crypt\RC4::_crypt()
      */
-    const DECRYPT = 1;
+    public const DECRYPT = 1;
 
     /**
      * Key Length (in bytes)
@@ -70,14 +70,6 @@ class RC4 extends StreamCipher
      * @var int
      */
     protected $key_length = 128; // = 1024 bits
-
-    /**
-     * The mcrypt specific name of the cipher
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
-     * @var string
-     */
-    protected $cipher_name_mcrypt = 'arcfour';
 
     /**
      * The Key

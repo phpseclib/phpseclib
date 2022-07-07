@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of Blowfish.
  *
- * Uses mcrypt, if available, and an internal implementation, otherwise.
+ * Uses an internal implementation.
  *
  * PHP version 5
  *
@@ -54,22 +54,6 @@ class Blowfish extends BlockCipher
      * @var int
      */
     protected $block_size = 8;
-
-    /**
-     * The mcrypt specific name of the cipher
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
-     * @var string
-     */
-    protected $cipher_name_mcrypt = 'blowfish';
-
-    /**
-     * Optimizing value while CFB-encrypting
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cfb_init_len
-     * @var int
-     */
-    protected $cfb_init_len = 500;
 
     /**
      * The fixed subkeys boxes ($sbox0 - $sbox3) with 256 entries each

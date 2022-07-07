@@ -43,14 +43,14 @@ abstract class PSS extends Progenitor
      *
      * @var string
      */
-    const OID_NAME = 'id-RSASSA-PSS';
+    public const OID_NAME = 'id-RSASSA-PSS';
 
     /**
      * OID Value
      *
      * @var string
      */
-    const OID_VALUE = '1.2.840.113549.1.1.10';
+    public const OID_VALUE = '1.2.840.113549.1.1.10';
 
     /**
      * OIDs loaded

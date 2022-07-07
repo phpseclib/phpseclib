@@ -25,20 +25,6 @@ use phpseclib3\Math\BigInteger;
 abstract class Base
 {
     /**
-     * Doubles
-     *
-     * @var object[]
-     */
-    protected $doubles;
-
-    /**
-     * NAF Points
-     *
-     * @var int[]
-     */
-    private $naf;
-
-    /**
      * The Order
      *
      * @var BigInteger

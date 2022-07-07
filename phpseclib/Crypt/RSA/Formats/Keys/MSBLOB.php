@@ -34,31 +34,31 @@ abstract class MSBLOB
     /**
      * Public/Private Key Pair
      */
-    const PRIVATEKEYBLOB = 0x7;
+    public const PRIVATEKEYBLOB = 0x7;
     /**
      * Public Key
      */
-    const PUBLICKEYBLOB = 0x6;
+    public const PUBLICKEYBLOB = 0x6;
     /**
      * Public Key
      */
-    const PUBLICKEYBLOBEX = 0xA;
+    public const PUBLICKEYBLOBEX = 0xA;
     /**
      * RSA public key exchange algorithm
      */
-    const CALG_RSA_KEYX = 0x0000A400;
+    public const CALG_RSA_KEYX = 0x0000A400;
     /**
      * RSA public key exchange algorithm
      */
-    const CALG_RSA_SIGN = 0x00002400;
+    public const CALG_RSA_SIGN = 0x00002400;
     /**
      * Public Key
      */
-    const RSA1 = 0x31415352;
+    public const RSA1 = 0x31415352;
     /**
      * Private Key
      */
-    const RSA2 = 0x32415352;
+    public const RSA2 = 0x32415352;
 
     /**
      * Break a public or private key down into its constituent components

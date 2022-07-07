@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of Rijndael.
  *
- * Uses mcrypt, if available/possible, and an internal implementation, otherwise.
+ * Uses an internal implementation.
  *
  * PHP version 5
  *
@@ -13,8 +13,8 @@
  * 136-bits it'll be null-padded to 192-bits and 192 bits will be the key length until
  * {@link self::setKey() setKey()} is called, again, at which point, it'll be recalculated.
  *
- * Not all Rijndael implementations may support 160-bits or 224-bits as the block length / key length.  mcrypt, for example,
- * does not.  AES, itself, only supports block lengths of 128 and key lengths of 128, 192, and 256.
+ * Not all Rijndael implementations may support 160-bits or 224-bits as the block length / key length. AES, itself, only
+ * supports block lengths of 128 and key lengths of 128, 192, and 256.
  * {@link http://csrc.nist.gov/archive/aes/rijndael/Rijndael-ammended.pdf#page=10 Rijndael-ammended.pdf#page=10} defines the
  * algorithm for block lengths of 192 and 256 but not for block lengths / key lengths of 160 and 224.  Indeed, 160 and 224
  * are first defined as valid key / block lengths in
@@ -68,21 +68,6 @@ use phpseclib3\Exception\InsufficientSetupException;
  */
 class Rijndael extends BlockCipher
 {
-    /**
-     * The mcrypt specific name of the cipher
-     *
-     * Mcrypt is useable for 128/192/256-bit $block_size/$key_length. For 160/224 not.
-     * \phpseclib3\Crypt\Rijndael determines automatically whether mcrypt is useable
-     * or not for the current $block_size/$key_length.
-     * In case of, $cipher_name_mcrypt will be set dynamically at run time accordingly.
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::engine
-     * @see self::isValidEngine()
-     * @var string
-     */
-    protected $cipher_name_mcrypt = 'rijndael-128';
-
     /**
      * The Key Schedule
      *
@@ -178,14 +163,10 @@ class Rijndael extends BlockCipher
      *
      * Note: phpseclib extends Rijndael (and AES) for using 160- and 224-bit keys but they are officially not defined
      *       and the most (if not all) implementations are not able using 160/224-bit keys but round/pad them up to
-     *       192/256 bits as, for example, mcrypt will do.
+     *       192/256 bits as.
      *
      *       That said, if you want be compatible with other Rijndael and AES implementations,
      *       you should not setKeyLength(160) or setKeyLength(224).
-     *
-     * Additional: In case of 160- and 224-bit keys, phpseclib will/can, for that reason, not use
-     *             the mcrypt php extension, even if available.
-     *             This results then in slower encryption.
      *
      * @throws \LengthException if the key length is invalid
      */
@@ -287,12 +268,6 @@ class Rijndael extends BlockCipher
                 $this->cipher_name_openssl_ecb = 'aes-' . ($this->key_length << 3) . '-ecb';
                 $this->cipher_name_openssl = 'aes-' . ($this->key_length << 3) . '-' . $this->openssl_translate_mode();
                 break;
-            case self::ENGINE_MCRYPT:
-                $this->cipher_name_mcrypt = 'rijndael-' . ($this->block_size << 3);
-                if ($this->key_length % 8) { // is it a 160/224-bit key?
-                    // mcrypt is not usable for them, only for 128/192/256-bit keys
-                    return false;
-                }
         }
 
         return parent::isValidEngineHelper($engine);

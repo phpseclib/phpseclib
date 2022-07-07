@@ -51,12 +51,12 @@ class Salsa20 extends StreamCipher
     /**
      * @see \phpseclib3\Crypt\Salsa20::crypt()
      */
-    const ENCRYPT = 0;
+    public const ENCRYPT = 0;
 
     /**
      * @see \phpseclib3\Crypt\Salsa20::crypt()
      */
-    const DECRYPT = 1;
+    public const DECRYPT = 1;
 
     /**
      * Encryption buffer for continuous mode

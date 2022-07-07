@@ -35,7 +35,7 @@ abstract class libsodium
     /**
      * Is invisible flag
      */
-    const IS_INVISIBLE = true;
+    public const IS_INVISIBLE = true;
 
     /**
      * Break a public or private key down into its constituent components

@@ -24,5 +24,5 @@ use phpseclib3\File\ASN1;
  */
 abstract class KeyPurposeId
 {
-    const MAP = ['type' => ASN1::TYPE_OBJECT_IDENTIFIER];
+    public const MAP = ['type' => ASN1::TYPE_OBJECT_IDENTIFIER];
 }

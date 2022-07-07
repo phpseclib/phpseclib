@@ -140,12 +140,12 @@ abstract class PuTTY
             foreach ($lines as $line) {
                 switch (true) {
                     case preg_match('#^(.*?): (.*)#', $line, $match):
-                        $in_value = $line[strlen($line) - 1] == '\\';
+                        $in_value = $line[-1] == '\\';
                         $current = strtolower($match[1]);
                         $values[$current] = $in_value ? substr($match[2], 0, -1) : $match[2];
                         break;
                     case $in_value:
-                        $in_value = $line[strlen($line) - 1] == '\\';
+                        $in_value = $line[-1] == '\\';
                         $values[$current] .= $in_value ? substr($line, 0, -1) : $line;
                         break;
                     default:

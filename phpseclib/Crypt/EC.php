@@ -60,7 +60,7 @@ abstract class EC extends AsymmetricKey
      *
      * @var string
      */
-    const ALGORITHM = 'EC';
+    public const ALGORITHM = 'EC';
 
     /**
      * Public Key QA
@@ -197,7 +197,7 @@ abstract class EC extends AsymmetricKey
     /**
      * OnLoad Handler
      *
-     * @return bool
+     * @return AsymmetricKey|Parameters|PrivateKey|PublicKey
      */
     protected static function onLoad(array $components)
     {

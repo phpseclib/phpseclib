@@ -25,15 +25,15 @@ abstract class PKCS
     /**
      * Auto-detect the format
      */
-    const MODE_ANY = 0;
+    public const MODE_ANY = 0;
     /**
      * Require base64-encoded PEM's be supplied
      */
-    const MODE_PEM = 1;
+    public const MODE_PEM = 1;
     /**
      * Require raw DER's be supplied
      */
-    const MODE_DER = 2;
+    public const MODE_DER = 2;
     /**#@-*/
 
     /**

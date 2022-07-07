@@ -21,7 +21,6 @@ class BlowfishTest extends PhpseclibTestCase
         $engines = [
             'PHP',
             'Eval',
-            'mcrypt',
             'OpenSSL',
         ];
 
@@ -101,13 +100,6 @@ class BlowfishTest extends PhpseclibTestCase
         $temp->setPreferredEngine('PHP');
         $objects[] = $temp;
         $engines[] = 'internal';
-
-        if ($temp->isValidEngine('mcrypt')) {
-            $temp = new Blowfish('ctr');
-            $temp->setPreferredEngine('mcrypt');
-            $objects[] = $temp;
-            $engines[] = 'mcrypt';
-        }
 
         if ($temp->isValidEngine('OpenSSL')) {
             $temp = new Blowfish('ctr');

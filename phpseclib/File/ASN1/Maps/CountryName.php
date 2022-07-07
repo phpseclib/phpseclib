@@ -24,7 +24,7 @@ use phpseclib3\File\ASN1;
  */
 abstract class CountryName
 {
-    const MAP = [
+    public const MAP = [
         'type' => ASN1::TYPE_CHOICE,
         // if class isn't present it's assumed to be \phpseclib3\File\ASN1::CLASS_UNIVERSAL or
         // (if constant is present) \phpseclib3\File\ASN1::CLASS_CONTEXT_SPECIFIC

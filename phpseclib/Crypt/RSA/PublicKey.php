@@ -223,7 +223,7 @@ class PublicKey extends RSA implements Common\PublicKey
             return false;
         }
 
-        if ($em[strlen($em) - 1] != chr(0xBC)) {
+        if ($em[-1] != chr(0xBC)) {
             return false;
         }
 

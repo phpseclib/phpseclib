@@ -44,14 +44,14 @@ abstract class PKCS8 extends Progenitor
      *
      * @var string
      */
-    const OID_NAME = 'rsaEncryption';
+    public const OID_NAME = 'rsaEncryption';
 
     /**
      * OID Value
      *
      * @var string
      */
-    const OID_VALUE = '1.2.840.113549.1.1.1';
+    public const OID_VALUE = '1.2.840.113549.1.1.1';
 
     /**
      * Child OIDs loaded

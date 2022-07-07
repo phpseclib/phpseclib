@@ -92,24 +92,24 @@ class SSH2
     /**
      * No compression
      */
-    const NET_SSH2_COMPRESSION_NONE = 1;
+    public const NET_SSH2_COMPRESSION_NONE = 1;
     /**
      * zlib compression
      */
-    const NET_SSH2_COMPRESSION_ZLIB = 2;
+    public const NET_SSH2_COMPRESSION_ZLIB = 2;
     /**
      * zlib@openssh.com
      */
-    const NET_SSH2_COMPRESSION_ZLIB_AT_OPENSSH = 3;
+    public const NET_SSH2_COMPRESSION_ZLIB_AT_OPENSSH = 3;
     /**#@-*/
 
     // Execution Bitmap Masks
-    const MASK_CONSTRUCTOR   = 0x00000001;
-    const MASK_CONNECTED     = 0x00000002;
-    const MASK_LOGIN_REQ     = 0x00000004;
-    const MASK_LOGIN         = 0x00000008;
-    const MASK_SHELL         = 0x00000010;
-    const MASK_WINDOW_ADJUST = 0x00000020;
+    public const MASK_CONSTRUCTOR   = 0x00000001;
+    public const MASK_CONNECTED     = 0x00000002;
+    public const MASK_LOGIN_REQ     = 0x00000004;
+    public const MASK_LOGIN         = 0x00000008;
+    public const MASK_SHELL         = 0x00000010;
+    public const MASK_WINDOW_ADJUST = 0x00000020;
 
     /*
      * Channel constants
@@ -126,55 +126,55 @@ class SSH2
      * @see \phpseclib3\Net\SSH2::send_channel_packet()
      * @see \phpseclib3\Net\SSH2::get_channel_packet()
      */
-    const CHANNEL_EXEC          = 1; // PuTTy uses 0x100
-    const CHANNEL_SHELL         = 2;
-    const CHANNEL_SUBSYSTEM     = 3;
-    const CHANNEL_AGENT_FORWARD = 4;
-    const CHANNEL_KEEP_ALIVE    = 5;
+    public const CHANNEL_EXEC          = 1; // PuTTy uses 0x100
+    public const CHANNEL_SHELL         = 2;
+    public const CHANNEL_SUBSYSTEM     = 3;
+    public const CHANNEL_AGENT_FORWARD = 4;
+    public const CHANNEL_KEEP_ALIVE    = 5;
 
     /**
      * Returns the message numbers
      *
      * @see \phpseclib3\Net\SSH2::getLog()
      */
-    const LOG_SIMPLE = 1;
+    public const LOG_SIMPLE = 1;
     /**
      * Returns the message content
      *
      * @see \phpseclib3\Net\SSH2::getLog()
      */
-    const LOG_COMPLEX = 2;
+    public const LOG_COMPLEX = 2;
     /**
      * Outputs the content real-time
      *
      * @see \phpseclib3\Net\SSH2::getLog()
      */
-    const LOG_REALTIME = 3;
+    public const LOG_REALTIME = 3;
     /**
      * Dumps the content real-time to a file
      *
      * @see \phpseclib3\Net\SSH2::getLog()
      */
-    const LOG_REALTIME_FILE = 4;
+    public const LOG_REALTIME_FILE = 4;
     /**
      * Make sure that the log never gets larger than this
      *
      * @see \phpseclib3\Net\SSH2::getLog()
      */
-    const LOG_MAX_SIZE = 1048576; // 1024 * 1024
+    public const LOG_MAX_SIZE = 1048576; // 1024 * 1024
 
     /**
      * Returns when a string matching $expect exactly is found
      *
      * @see \phpseclib3\Net\SSH2::read()
      */
-    const READ_SIMPLE = 1;
+    public const READ_SIMPLE = 1;
     /**
      * Returns when a string matching the regular expression $expect is found
      *
      * @see \phpseclib3\Net\SSH2::read()
      */
-    const READ_REGEX = 2;
+    public const READ_REGEX = 2;
     /**
      * Returns whenever a data packet is received.
      *
@@ -183,7 +183,7 @@ class SSH2
      *
      * @see \phpseclib3\Net\SSH2::read()
      */
-    const READ_NEXT = 3;
+    public const READ_NEXT = 3;
 
     /**
      * The SSH identifier
@@ -1075,7 +1075,7 @@ class SSH2
      * Set Crypto Engine Mode
      *
      * Possible $engine values:
-     * OpenSSL, mcrypt, Eval, PHP
+     * OpenSSL, Eval, PHP
      */
     public static function setCryptoEngine(int $engine): void
     {
@@ -1289,8 +1289,6 @@ class SSH2
 
         if (extension_loaded('openssl')) {
             $ext[] = 'openssl';
-        } elseif (extension_loaded('mcrypt')) {
-            $ext[] = 'mcrypt';
         }
 
         if (extension_loaded('gmp')) {
@@ -4348,7 +4346,7 @@ class SSH2
             // libsodium doesn't generate the poly1305 keys in the way ssh does and openssl's PHP bindings don't even
             // seem to support poly1305 currently. so even if libsodium or openssl are being used for the chacha20
             // part, pure-PHP has to be used for the poly1305 part and that's gonna cause a big slow down.
-            // speed-wise it winds up being faster to use AES (when openssl or mcrypt are available) and some HMAC
+            // speed-wise it winds up being faster to use AES (when openssl is available) and some HMAC
             // (which is always gonna be super fast to compute thanks to the hash extension, which
             // "is bundled and compiled into PHP by default")
             'chacha20-poly1305@openssh.com',
@@ -4385,7 +4383,6 @@ class SSH2
                 'libsodium',
                 'OpenSSL (GCM)',
                 'OpenSSL',
-                'mcrypt',
                 'Eval',
                 'PHP'
             ];

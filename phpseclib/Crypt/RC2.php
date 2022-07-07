@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of RC2.
  *
- * Uses mcrypt, if available, and an internal implementation, otherwise.
+ * Uses an internal implementation.
  *
  * PHP version 5
  *
@@ -72,36 +72,12 @@ class RC2 extends BlockCipher
     private $orig_key;
 
     /**
-     * Don't truncate / null pad key
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::clearBuffers()
-     * @var bool
-     */
-    private $skip_key_adjustment = true;
-
-    /**
      * Key Length (in bytes)
      *
      * @see \phpseclib3\Crypt\RC2::setKeyLength()
      * @var int
      */
     protected $key_length = 16; // = 128 bits
-
-    /**
-     * The mcrypt specific name of the cipher
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
-     * @var string
-     */
-    protected $cipher_name_mcrypt = 'rc2';
-
-    /**
-     * Optimizing value while CFB-encrypting
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cfb_init_len
-     * @var int
-     */
-    protected $cfb_init_len = 500;
 
     /**
      * The key length in bits.
@@ -342,12 +318,6 @@ class RC2 extends BlockCipher
         }
 
         $t = strlen($key);
-
-        // The mcrypt RC2 implementation only supports effective key length
-        // of 1024 bits. It is however possible to handle effective key
-        // lengths in range 1..1024 by expanding the key and applying
-        // inverse pitable mapping to the first byte before submitting it
-        // to mcrypt.
 
         // Key expansion.
         $l = array_values(unpack('C*', $key));

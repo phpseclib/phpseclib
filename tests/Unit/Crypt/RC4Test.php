@@ -21,7 +21,6 @@ class RC4Test extends PhpseclibTestCase
         $engines = [
             'PHP',
             'Eval',
-            'mcrypt',
             'OpenSSL',
         ];
         // tests from https://tools.ietf.org/html/rfc6229
@@ -224,13 +223,6 @@ class RC4Test extends PhpseclibTestCase
         $temp->setPreferredEngine('internal');
         $objects[] = $temp;
         $engines[] = 'internal';
-
-        if ($temp->isValidEngine('mcrypt')) {
-            $temp = new RC4(RC4::MODE_CTR);
-            $temp->setPreferredEngine('mcrypt');
-            $objects[] = $temp;
-            $engines[] = 'mcrypt';
-        }
 
         if ($temp->isValidEngine('openssl')) {
             $temp = new RC4(RC4::MODE_CTR);

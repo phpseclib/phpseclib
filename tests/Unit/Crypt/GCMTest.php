@@ -23,7 +23,6 @@ class GCMTest extends PhpseclibTestCase
         $engines = [
             'PHP',
             'Eval',
-            'mcrypt',
             'OpenSSL',
             'OpenSSL (GCM)'
         ];
@@ -134,7 +133,6 @@ class GCMTest extends PhpseclibTestCase
         $engines = [
             'PHP',
             'Eval',
-            'mcrypt',
             'OpenSSL',
             'OpenSSL (GCM)',
             'libsodium'

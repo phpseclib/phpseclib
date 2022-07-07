@@ -25,23 +25,23 @@ namespace phpseclib3\Math\BigInteger\Engines;
 class PHP32 extends PHP
 {
     // Constants used by PHP.php
-    const BASE = 26;
-    const BASE_FULL = 0x4000000;
-    const MAX_DIGIT = 0x3FFFFFF;
-    const MSB = 0x2000000;
+    public const BASE = 26;
+    public const BASE_FULL = 0x4000000;
+    public const MAX_DIGIT = 0x3FFFFFF;
+    public const MSB = 0x2000000;
 
     /**
      * MAX10 in greatest MAX10LEN satisfying
      * MAX10 = 10**MAX10LEN <= 2**BASE.
      */
-    const MAX10 = 10000000;
+    public const MAX10 = 10000000;
 
     /**
      * MAX10LEN in greatest MAX10LEN satisfying
      * MAX10 = 10**MAX10LEN <= 2**BASE.
      */
-    const MAX10LEN = 7;
-    const MAX_DIGIT2 = 4503599627370496;
+    public const MAX10LEN = 7;
+    public const MAX_DIGIT2 = 4503599627370496;
 
     /**
      * Initialize a PHP32 BigInteger Engine instance
