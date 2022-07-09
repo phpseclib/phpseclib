@@ -57,9 +57,8 @@ abstract class OpenSSH
      * $type can be either ssh-dss or ssh-rsa
      *
      * @param string|array $key
-     * @param string|false $password
      */
-    public static function load($key, $password = ''): array
+    public static function load($key, ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));

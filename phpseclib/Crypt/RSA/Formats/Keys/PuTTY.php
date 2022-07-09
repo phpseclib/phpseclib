@@ -86,11 +86,8 @@ abstract class PuTTY extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @param string|false $password optional
-     * @param array $options optional
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = '', array $options = []): string
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, ?string $password = null, array $options = []): string
     {
         if (count($primes) != 2) {
             throw new \InvalidArgumentException('PuTTY does not support multi-prime RSA keys');

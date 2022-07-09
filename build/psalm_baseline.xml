@@ -1712,11 +1712,6 @@
     <ImplicitToStringCast occurrences="1">
       <code>string</code>
     </ImplicitToStringCast>
-    <InvalidParamDefault occurrences="3">
-      <code>string</code>
-      <code>string</code>
-      <code>string</code>
-    </InvalidParamDefault>
     <MissingReturnType occurrences="1">
       <code>validatePlugin</code>
     </MissingReturnType>
@@ -1934,11 +1929,9 @@
     <MixedAssignment occurrences="1">
       <code>$encryptionAlgorithm</code>
     </MixedAssignment>
-    <PossiblyFalseArgument occurrences="1">
-      <code>$password</code>
-    </PossiblyFalseArgument>
-    <PossiblyNullArgument occurrences="1">
+    <PossiblyNullArgument occurrences="2">
       <code>$key</code>
+      <code>$password</code>
     </PossiblyNullArgument>
     <PossiblyUndefinedIntArrayOffset occurrences="6">
       <code>$matches[1]</code>
@@ -2411,10 +2404,9 @@
     <MissingParamType occurrences="1">
       <code>$message</code>
     </MissingParamType>
-    <MissingReturnType occurrences="3">
+    <MissingReturnType occurrences="2">
       <code>getPublicKey</code>
       <code>sign</code>
-      <code>withPassword</code>
     </MissingReturnType>
   </file>
   <file src="../phpseclib/Crypt/Common/PublicKey.php">
@@ -2878,11 +2870,6 @@
       <code>$key === false</code>
     </TypeDoesNotContainType>
   </file>
-  <file src="../phpseclib/Crypt/Common/Traits/PasswordProtected.php">
-    <MissingReturnType occurrences="1">
-      <code>withPassword</code>
-    </MissingReturnType>
-  </file>
   <file src="../phpseclib/Crypt/DES.php">
     <InvalidPropertyAssignmentValue occurrences="2">
       <code>8</code>
@@ -3196,9 +3183,6 @@
     <InvalidArgument occurrences="1">
       <code>$args[0]</code>
     </InvalidArgument>
-    <InvalidParamDefault occurrences="1">
-      <code>string</code>
-    </InvalidParamDefault>
     <MissingParamType occurrences="1">
       <code>$args</code>
     </MissingParamType>
@@ -3277,6 +3261,9 @@
     <MixedPropertyFetch occurrences="1">
       <code>$key[$type . 'Algorithm']['parameters']-&gt;element</code>
     </MixedPropertyFetch>
+    <PossiblyNullArgument occurrences="1">
+      <code>$password</code>
+    </PossiblyNullArgument>
     <PossiblyNullArrayAccess occurrences="2">
       <code>$decoded[0]</code>
       <code>$decoded[0]</code>
@@ -3468,6 +3455,9 @@
     <MixedOperand occurrences="1">
       <code>$comment</code>
     </MixedOperand>
+    <PossiblyNullArgument occurrences="1">
+      <code>$password</code>
+    </PossiblyNullArgument>
     <PossiblyUndefinedStringArrayOffset occurrences="4">
       <code>$parsed['comment']</code>
       <code>$parsed['publicKey']</code>
@@ -3517,6 +3507,9 @@
     <MixedPropertyFetch occurrences="1">
       <code>$key[$type . 'Algorithm']['parameters']-&gt;element</code>
     </MixedPropertyFetch>
+    <PossiblyNullArgument occurrences="1">
+      <code>$password</code>
+    </PossiblyNullArgument>
     <PossiblyUndefinedIntArrayOffset occurrences="2">
       <code>$decoded[0]</code>
       <code>$decoded[0]</code>
@@ -3544,9 +3537,6 @@
       <code>$y</code>
       <code>$y</code>
     </ImplicitToStringCast>
-    <InvalidParamDefault occurrences="1">
-      <code>string</code>
-    </InvalidParamDefault>
     <MixedArrayAccess occurrences="1">
       <code>$components['public']</code>
     </MixedArrayAccess>
@@ -3554,6 +3544,9 @@
       <code>$private</code>
       <code>$public</code>
     </NullReference>
+    <PossiblyNullArgument occurrences="1">
+      <code>$password</code>
+    </PossiblyNullArgument>
     <UnusedClass occurrences="1">
       <code>PuTTY</code>
     </UnusedClass>
@@ -6074,10 +6067,10 @@
     <PossiblyUndefinedIntArrayOffset occurrences="1">
       <code>$publicKey[0]</code>
     </PossiblyUndefinedIntArrayOffset>
-    <RedundantConditionGivenDocblockType occurrences="2">
+    <RedundantCondition occurrences="2">
       <code>!empty($password) &amp;&amp; is_string($password)</code>
       <code>is_string($password)</code>
-    </RedundantConditionGivenDocblockType>
+    </RedundantCondition>
     <UndefinedMethod occurrences="1">
       <code>toBytes</code>
     </UndefinedMethod>
@@ -6199,6 +6192,9 @@
       <code>$decoded</code>
       <code>$key</code>
     </PossiblyInvalidArgument>
+    <PossiblyNullArgument occurrences="1">
+      <code>$password</code>
+    </PossiblyNullArgument>
     <PossiblyUndefinedIntArrayOffset occurrences="7">
       <code>$decoded[0]</code>
       <code>$decoded[0]</code>
@@ -6273,8 +6269,10 @@
     <PossiblyInvalidArrayOffset occurrences="1">
       <code>$key['privateKey']</code>
     </PossiblyInvalidArrayOffset>
-    <PossiblyNullArgument occurrences="1">
+    <PossiblyNullArgument occurrences="3">
       <code>$key['privateKey']</code>
+      <code>$password</code>
+      <code>$password</code>
     </PossiblyNullArgument>
     <PossiblyNullArrayAccess occurrences="1">
       <code>$key['privateKey']</code>
@@ -6326,9 +6324,6 @@
     <InvalidArgument occurrences="1">
       <code>$publicKey</code>
     </InvalidArgument>
-    <InvalidParamDefault occurrences="1">
-      <code>string</code>
-    </InvalidParamDefault>
     <MixedArgument occurrences="7">
       <code>$components['type']</code>
       <code>$length</code>
@@ -6354,6 +6349,9 @@
       <code>$length</code>
       <code>$length</code>
     </PossiblyInvalidArrayAccess>
+    <PossiblyNullArgument occurrences="1">
+      <code>$password</code>
+    </PossiblyNullArgument>
     <PossiblyUndefinedIntArrayOffset occurrences="2">
       <code>$public[1]</code>
       <code>$public[1]</code>
@@ -6591,9 +6589,11 @@
     <PossiblyUnusedParam occurrences="1">
       <code>$password</code>
     </PossiblyUnusedParam>
-    <RedundantConditionGivenDocblockType occurrences="3">
+    <RedundantCondition occurrences="2">
       <code>!empty($password) &amp;&amp; is_string($password)</code>
       <code>is_string($password)</code>
+    </RedundantCondition>
+    <RedundantConditionGivenDocblockType occurrences="1">
       <code>isset($public)</code>
     </RedundantConditionGivenDocblockType>
   </file>
@@ -6688,7 +6688,7 @@
       <code>getPublicKey</code>
       <code>sign</code>
     </MissingReturnType>
-    <MixedArgument occurrences="10">
+    <MixedArgument occurrences="9">
       <code>$curve::HASH</code>
       <code>$curve::SIZE</code>
       <code>$curve::SIZE</code>
@@ -6698,7 +6698,6 @@
       <code>$this-&gt;curve-&gt;getBasePoint()</code>
       <code>$this-&gt;dA-&gt;secret</code>
       <code>$this-&gt;dA-&gt;toBytes()</code>
-      <code>$this-&gt;withPassword()-&gt;toString('libsodium')</code>
     </MixedArgument>
     <MixedArrayAccess occurrences="1">
       <code>$r</code>
@@ -6719,7 +6718,7 @@
       <code>string</code>
       <code>string</code>
     </MixedInferredReturnType>
-    <MixedMethodCall occurrences="16">
+    <MixedMethodCall occurrences="15">
       <code>$format::save($r, $s)</code>
       <code>$format::save($r, $s)</code>
       <code>$format::save($r, $s, $this-&gt;getCurve())</code>
@@ -6734,7 +6733,6 @@
       <code>toBytes</code>
       <code>toBytes</code>
       <code>toBytes</code>
-      <code>toString</code>
       <code>withContext</code>
     </MixedMethodCall>
     <MixedOperand occurrences="6">
@@ -7452,10 +7450,6 @@
     </UnusedVariable>
   </file>
   <file src="../phpseclib/Crypt/PublicKeyLoader.php">
-    <InvalidParamDefault occurrences="2">
-      <code>string</code>
-      <code>string</code>
-    </InvalidParamDefault>
     <MixedAssignment occurrences="1">
       <code>$key</code>
     </MixedAssignment>
@@ -7949,10 +7943,10 @@
       <code>$primes[1]</code>
       <code>$primes[2]</code>
     </PossiblyUndefinedIntArrayOffset>
-    <RedundantConditionGivenDocblockType occurrences="2">
+    <RedundantCondition occurrences="2">
       <code>!empty($password) &amp;&amp; is_string($password)</code>
       <code>is_string($password)</code>
-    </RedundantConditionGivenDocblockType>
+    </RedundantCondition>
     <TypeDoesNotContainType occurrences="1">
       <code>is_string($key)</code>
     </TypeDoesNotContainType>
@@ -7991,6 +7985,9 @@
     <MixedOperand occurrences="1">
       <code>$comment</code>
     </MixedOperand>
+    <PossiblyNullArgument occurrences="1">
+      <code>$password</code>
+    </PossiblyNullArgument>
     <PossiblyUndefinedIntArrayOffset occurrences="3">
       <code>$coefficients[2]</code>
       <code>$primes[1]</code>
@@ -8010,6 +8007,10 @@
     </PossiblyUnusedProperty>
   </file>
   <file src="../phpseclib/Crypt/RSA/Formats/Keys/PKCS1.php">
+    <MismatchingDocblockParamType occurrences="2">
+      <code>string|false</code>
+      <code>string|false</code>
+    </MismatchingDocblockParamType>
     <MixedArgument occurrences="2">
       <code>$decoded[0]</code>
       <code>$decoded[0]</code>
@@ -8030,9 +8031,15 @@
       <code>$components['primes'][]</code>
       <code>$primeInfo</code>
     </MixedAssignment>
+    <PossiblyFalseArgument occurrences="1">
+      <code>$password</code>
+    </PossiblyFalseArgument>
     <PossiblyInvalidArgument occurrences="1">
       <code>$key</code>
     </PossiblyInvalidArgument>
+    <PossiblyNullArgument occurrences="1">
+      <code>$password</code>
+    </PossiblyNullArgument>
     <PossiblyUndefinedIntArrayOffset occurrences="6">
       <code>$coefficients[2]</code>
       <code>$decoded[0]</code>
@@ -8061,6 +8068,9 @@
     <MixedAssignment occurrences="1">
       <code>$result['meta']</code>
     </MixedAssignment>
+    <PossiblyNullArgument occurrences="1">
+      <code>$password</code>
+    </PossiblyNullArgument>
     <PossiblyUnusedMethod occurrences="1">
       <code>savePrivateKey</code>
     </PossiblyUnusedMethod>
@@ -8125,11 +8135,12 @@
     <PossiblyInvalidMethodCall occurrences="1">
       <code>toString</code>
     </PossiblyInvalidMethodCall>
-    <PossiblyNullArgument occurrences="4">
+    <PossiblyNullArgument occurrences="5">
       <code>$decoded[0]</code>
       <code>$decoded[0]</code>
       <code>$params['hashAlgorithm']['algorithm']</code>
       <code>$params['maskGenAlgorithm']['parameters']['algorithm']</code>
+      <code>$password</code>
     </PossiblyNullArgument>
     <PossiblyNullArrayAccess occurrences="4">
       <code>$decoded[0]</code>
@@ -8211,6 +8222,9 @@
       <code>$private</code>
       <code>$public</code>
     </NullReference>
+    <PossiblyNullArgument occurrences="1">
+      <code>$password</code>
+    </PossiblyNullArgument>
     <PossiblyUndefinedIntArrayOffset occurrences="3">
       <code>$coefficients[2]</code>
       <code>$primes[1]</code>
@@ -8263,10 +8277,10 @@
       <code>subtract</code>
       <code>subtract</code>
     </MixedMethodCall>
-    <RedundantConditionGivenDocblockType occurrences="2">
+    <RedundantCondition occurrences="2">
       <code>!empty($password) &amp;&amp; is_string($password)</code>
       <code>is_string($password)</code>
-    </RedundantConditionGivenDocblockType>
+    </RedundantCondition>
     <UnusedClass occurrences="1">
       <code>Raw</code>
     </UnusedClass>
@@ -10616,7 +10630,7 @@
       <code>signSPKAC</code>
       <code>translateDNProp</code>
     </MissingReturnType>
-    <MixedArgument occurrences="131">
+    <MixedArgument occurrences="130">
       <code>$attribute['value']</code>
       <code>$attribute['value']</code>
       <code>$attribute['value']</code>
@@ -10667,7 +10681,6 @@
       <code>$ipAddress</code>
       <code>$ip[0]</code>
       <code>$ip[1]</code>
-      <code>$issuer-&gt;privateKey-&gt;withPassword()-&gt;toString('PSS')</code>
       <code>$key</code>
       <code>$key</code>
       <code>$key</code>
@@ -11072,14 +11085,13 @@
       <code>array|false</code>
       <code>bool</code>
     </MixedInferredReturnType>
-    <MixedMethodCall occurrences="8">
+    <MixedMethodCall occurrences="7">
       <code>__toString</code>
       <code>add</code>
       <code>equals</code>
       <code>equals</code>
       <code>getPublicKey</code>
       <code>toBytes</code>
-      <code>toString</code>
       <code>toString</code>
     </MixedMethodCall>
     <MixedOperand occurrences="5">
@@ -16577,8 +16589,7 @@
     </UnusedClass>
   </file>
   <file src="../tests/Unit/Crypt/DSA/LoadDSAKeyTest.php">
-    <MixedAssignment occurrences="2">
-      <code>$dsa</code>
+    <MixedAssignment occurrences="1">
       <code>$sig</code>
     </MixedAssignment>
     <MixedMethodCall occurrences="3">
@@ -16691,13 +16702,12 @@
       <code>$sig = $privateKey-&gt;sign('')</code>
       <code>$sig = $privateKey-&gt;sign('')</code>
     </MixedArgument>
-    <MixedAssignment occurrences="35">
+    <MixedAssignment occurrences="34">
       <code>$QA</code>
       <code>$curve</code>
       <code>$dA</code>
       <code>$oid</code>
       <code>$privateKey</code>
-      <code>$privatekey</code>
       <code>$public</code>
       <code>$publicKey</code>
       <code>$publickey</code>
@@ -16728,13 +16738,11 @@
       <code>$signature2</code>
       <code>$signature2</code>
     </MixedAssignment>
-    <MixedMethodCall occurrences="18">
+    <MixedMethodCall occurrences="16">
       <code>createRandomMultiplier</code>
       <code>getBasePoint</code>
       <code>getBasePoint</code>
-      <code>getPublicKey</code>
       <code>multiplyPoint</code>
-      <code>sign</code>
       <code>sign</code>
       <code>verify</code>
       <code>verify</code>
@@ -16850,18 +16858,16 @@
     <InvalidArgument occurrences="1">
       <code>$components['dA']</code>
     </InvalidArgument>
-    <MissingParamType occurrences="2">
+    <MissingParamType occurrences="1">
       <code>$key</code>
-      <code>$password</code>
     </MissingParamType>
     <PossiblyUnusedMethod occurrences="1">
       <code>load</code>
     </PossiblyUnusedMethod>
   </file>
   <file src="../tests/Unit/Crypt/EC/Ed448PublicKey.php">
-    <MissingParamType occurrences="2">
+    <MissingParamType occurrences="1">
       <code>$key</code>
-      <code>$password</code>
     </MissingParamType>
     <PossiblyUnusedMethod occurrences="1">
       <code>load</code>
@@ -17159,9 +17165,6 @@
     </UnusedVariable>
   </file>
   <file src="../tests/Unit/Crypt/RSA/LoadKeyTest.php">
-    <InvalidArgument occurrences="1">
-      <code>false</code>
-    </InvalidArgument>
     <InvalidCast occurrences="1">
       <code>$key</code>
     </InvalidCast>
@@ -17169,13 +17172,9 @@
       <code>$key</code>
       <code>$pass</code>
     </MissingParamType>
-    <MixedArgument occurrences="11">
-      <code>$encryptedKey</code>
+    <MixedArgument occurrences="7">
       <code>$key</code>
       <code>$key</code>
-      <code>$pass</code>
-      <code>$pass</code>
-      <code>$pass</code>
       <code>$pass</code>
       <code>$r['meta']['algorithm']</code>
       <code>$r['meta']['cipher']</code>
@@ -17196,19 +17195,15 @@
       <code>$r['meta']['cipher']</code>
       <code>$r['meta']['prf']</code>
     </MixedArrayAccess>
-    <MixedAssignment occurrences="7">
-      <code>$encryptedKey</code>
+    <MixedAssignment occurrences="5">
       <code>$key</code>
-      <code>$key2</code>
       <code>$rsa</code>
       <code>$rsa</code>
       <code>$rsa2</code>
       <code>$sig</code>
     </MixedAssignment>
-    <MixedMethodCall occurrences="5">
+    <MixedMethodCall occurrences="3">
       <code>sign</code>
-      <code>toString</code>
-      <code>toString</code>
       <code>toString</code>
       <code>withPadding</code>
     </MixedMethodCall>
@@ -17249,9 +17244,6 @@
       <code>LoadKeyTest</code>
       <code>LoadKeyTest</code>
     </PropertyNotSetInConstructor>
-    <TooManyArguments occurrences="1">
-      <code>RSA::load($key, false, 'PKCS8')</code>
-    </TooManyArguments>
     <UndefinedMethod occurrences="7">
       <code>asPrivateKey</code>
       <code>sign</code>

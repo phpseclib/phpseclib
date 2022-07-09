@@ -86,10 +86,8 @@ abstract class PuTTY extends Progenitor
      * Convert a private key to the appropriate format.
      *
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
-     * @param string $password optional
-     * @param array $options optional
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, $password = false, array $options = []): string
+    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, ?string $password = null, array $options = []): string
     {
         self::initialize_static_variables();
 

@@ -307,9 +307,8 @@ abstract class DH extends AsymmetricKey
      * Load the key
      *
      * @param string|array $key
-     * @param string $password optional
      */
-    public static function load($key, $password = false): AsymmetricKey
+    public static function load($key, ?string $password = null): AsymmetricKey
     {
         try {
             return EC::load($key, $password);

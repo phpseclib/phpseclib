@@ -49,9 +49,8 @@ abstract class OpenSSH extends Progenitor
      * Break a public or private key down into its constituent components
      *
      * @param string|array $key
-     * @param string|false $password
      */
-    public static function load($key, $password = ''): array
+    public static function load($key, ?string $password = null): array
     {
         $parsed = parent::load($key, $password);
 

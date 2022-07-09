@@ -12,7 +12,7 @@ class Ed448PublicKey
 {
     use Common;
 
-    public static function load($key, $password = ''): array
+    public static function load($key, ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));

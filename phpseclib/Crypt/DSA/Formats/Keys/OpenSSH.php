@@ -39,9 +39,8 @@ abstract class OpenSSH extends Progenitor
      * Break a public or private key down into its constituent components
      *
      * @param string|array $key
-     * @param string|false $password
      */
-    public static function load($key, $password = ''): array
+    public static function load($key, ?string $password = null): array
     {
         $parsed = parent::load($key, $password);
 
@@ -94,11 +93,8 @@ abstract class OpenSSH extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @param string|false $password
-     * @param array $options optional
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, $password = '', array $options = []): string
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, ?string $password = null, array $options = []): string
     {
         $publicKey = self::savePublicKey($p, $q, $g, $y, ['binary' => true]);
         $privateKey = Strings::packSSH2('si5', 'ssh-dss', $p, $q, $g, $y, $x);

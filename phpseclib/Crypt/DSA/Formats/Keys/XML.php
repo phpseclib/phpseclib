@@ -35,10 +35,8 @@ abstract class XML
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|false $password
      */
-    public static function load(string $key, $password = ''): array
+    public static function load(string $key, ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));

@@ -298,10 +298,9 @@ class Identity implements PrivateKey
     /**
      * Sets the password
      *
-     * @param string|bool $password
      * @return never
      */
-    public function withPassword($password = false)
+    public function withPassword(?string $password = null): PrivateKey
     {
         throw new \RuntimeException('ssh-agent does not provide a mechanism to get the private key');
     }

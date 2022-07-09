@@ -39,10 +39,8 @@ abstract class libsodium
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|false $password optional
      */
-    public static function load(string $key, $password = ''): array
+    public static function load(string $key, ?string $password = null): array
     {
         switch (strlen($key)) {
             case 32:
@@ -89,9 +87,8 @@ abstract class libsodium
      * Convert a private key to the appropriate format.
      *
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
-     * @param string|false $password
      */
-    public static function savePrivateKey(BigInteger $privateKey, Ed25519 $curve, array $publicKey, $password = ''): string
+    public static function savePrivateKey(BigInteger $privateKey, Ed25519 $curve, array $publicKey, ?string $password = null): string
     {
         if (!isset($privateKey->secret)) {
             throw new \RuntimeException('Private Key does not have a secret set');

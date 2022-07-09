@@ -26,7 +26,7 @@ interface PrivateKey
     public function toString(string $type, array $options = []): string;
 
     /**
-     * @param string|false $password
+     * @return static
      */
-    public function withPassword($password = false);
+    public function withPassword(?string $password = null): PrivateKey;
 }

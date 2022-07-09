@@ -65,9 +65,8 @@ abstract class PKCS8 extends Progenitor
      * Break a public or private key down into its constituent components
      *
      * @param string|array $key
-     * @param string|false $password
      */
-    public static function load($key, $password = ''): array
+    public static function load($key, ?string $password = null): array
     {
         // initialize_static_variables() is defined in both the trait and the parent class
         // when it's defined in two places it's the traits one that's called
@@ -201,10 +200,8 @@ abstract class PKCS8 extends Progenitor
      * Convert a private key to the appropriate format.
      *
      * @param Integer[] $publicKey
-     * @param string|false $password
-     * @param array $options optional
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, $password = '', array $options = []): string
+    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, ?string $password = null, array $options = []): string
     {
         self::initialize_static_variables();
 
