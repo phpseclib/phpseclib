@@ -290,7 +290,7 @@ abstract class RSA extends AsymmetricKey
      *
      * The public key can be extracted from the private key
      *
-     * @return RSA
+     * @return RSA\PrivateKey
      * @param int $bits
      */
     public static function createKey($bits = 2048)
