@@ -42,6 +42,10 @@ abstract class XML
      */
     public static function load($key, $password = '')
     {
+        if (!extension_loaded('dom')) {
+            return false;
+        }
+
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
