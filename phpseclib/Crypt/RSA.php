@@ -1386,8 +1386,12 @@ class RSA
                 }
             // http://www.w3.org/TR/xmldsig-core/#sec-RSAKeyValue
             // http://en.wikipedia.org/wiki/XML_Signature
-            case self::PRIVATE_FORMAT_XML:
-            case self::PUBLIC_FORMAT_XML:
+            case CRYPT_RSA_PRIVATE_FORMAT_XML:
+            case CRYPT_RSA_PUBLIC_FORMAT_XML:
+                if (!extension_loaded('xml')) {
+                    return false;
+                }
+
                 $this->components = array();
 
                 $xml = xml_parser_create('UTF-8');
