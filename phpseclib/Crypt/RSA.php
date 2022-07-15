@@ -285,10 +285,8 @@ abstract class RSA extends AsymmetricKey
      * Create a private key
      *
      * The public key can be extracted from the private key
-     *
-     * @return RSA
      */
-    public static function createKey(int $bits = 2048)
+    public static function createKey(int $bits = 2048): PrivateKey
     {
         self::initialize_static_variables();
 
