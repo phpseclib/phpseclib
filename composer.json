@@ -59,8 +59,10 @@
         "squizlabs/php_codesniffer": "~2.0"
     },
     "suggest": {
+        "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations.",
         "ext-mcrypt": "Install the Mcrypt extension in order to speed up a wide variety of cryptographic operations.",
         "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations.",
+        "ext-xml": "Install the XML extension to load XML formatted public keys.",
         "pear-pear/PHP_Compat": "Install PHP_Compat to get phpseclib working on PHP < 5.0.0."
     },
     "include-path": ["phpseclib/"],
