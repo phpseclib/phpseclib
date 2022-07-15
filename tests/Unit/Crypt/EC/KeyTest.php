@@ -256,18 +256,11 @@ BjoJZJZQztmlj7Qep/sf1l8=
     // from https://tools.ietf.org/html/draft-ietf-curdle-pkix-07#section-10.1
     public function testEd25519PublicKey()
     {
-        $key = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
-MCowBQYDK2VwAyEAGb9ECWmEzf6FQbrBZ9w7lshQhqowtrbLDFw4rXAxZuE=
------END PUBLIC KEY-----');
-        $this->assertSameNL('Ed25519', $key->getCurve());
-
-        // in the above key AlgorithmIdentifier has a single "child". in the
-        // following key it has two. The second one is ("optional") NULL.
-        // https://security.stackexchange.com/q/110330/15922 elaborates on
-        // why phpseclib is encoding the NULL as opposed to omitting it.
         $expected = '-----BEGIN PUBLIC KEY-----
-MCwwBwYDK2VwBQADIQAZv0QJaYTN/oVBusFn3DuWyFCGqjC2tssMXDitcDFm4Q==
+MCowBQYDK2VwAyEAGb9ECWmEzf6FQbrBZ9w7lshQhqowtrbLDFw4rXAxZuE=
 -----END PUBLIC KEY-----';
+        $key = PublicKeyLoader::load($expected);
+        $this->assertSameNL('Ed25519', $key->getCurve());
         $this->assertSameNL($expected, $key->toString('PKCS8'));
     }
 
