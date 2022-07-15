@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\File\X509;
 
 use phpseclib3\Crypt\RSA;
@@ -14,7 +16,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class SPKACTest extends PhpseclibTestCase
 {
-    public function testLoadSPKAC()
+    public function testLoadSPKAC(): void
     {
         $test = 'MIICQDCCASgwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQChgo9mWzQm3TSwGgpZnIc54' .
                 'TZ8gYpfAO/AI0etvyWDqnFfdNCUQsqxTdSi6/rtrJdLGBsszRGrRIc/0JqmjM+jCHGYutLeo4xwgr' .
@@ -48,7 +50,7 @@ class SPKACTest extends PhpseclibTestCase
         $this->assertIsString("$pubKey");
     }
 
-    public function testSaveSPKAC()
+    public function testSaveSPKAC(): void
     {
         $privatekey = RSA::createKey(512)
             ->withPadding(RSA::SIGNATURE_PKCS1)
@@ -72,7 +74,7 @@ class SPKACTest extends PhpseclibTestCase
         $this->assertIsString($x509->saveSPKAC($spkac));
     }
 
-    public function testBadSignatureSPKAC()
+    public function testBadSignatureSPKAC(): void
     {
         $test = 'MIICQDCCASgwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQChgo9mWzQm3TSwGgpZnIc54' .
                 'TZ8gYpfAO/AI0etvyWDqnFfdNCUQsqxTdSi6/rtrJdLGBsszRGrRIc/0JqmjM+jCHGYutLeo4xwgr' .

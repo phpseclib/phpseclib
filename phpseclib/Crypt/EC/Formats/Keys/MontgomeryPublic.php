@@ -11,6 +11,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\Formats\Keys;
 
 use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
@@ -27,18 +29,15 @@ abstract class MontgomeryPublic
 {
     /**
      * Is invisible flag
-     *
      */
     const IS_INVISIBLE = true;
 
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
-     * @param string $password optional
-     * @return array
+     * @param string|false $password
      */
-    public static function load($key, $password = '')
+    public static function load(string $key, $password = ''): array
     {
         switch (strlen($key)) {
             case 32:
@@ -60,11 +59,9 @@ abstract class MontgomeryPublic
     /**
      * Convert an EC public key to the appropriate format
      *
-     * @param \phpseclib3\Crypt\EC\BaseCurves\Montgomery $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
-     * @return string
      */
-    public static function savePublicKey(MontgomeryCurve $curve, array $publicKey)
+    public static function savePublicKey(MontgomeryCurve $curve, array $publicKey): string
     {
         return strrev($publicKey[0]->toBytes());
     }

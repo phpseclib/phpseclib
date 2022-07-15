@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt\DSA;
 
 use phpseclib3\Crypt\DSA;
@@ -14,7 +16,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class SignatureTest extends PhpseclibTestCase
 {
-    public function testPKCSSignature()
+    public function testPKCSSignature(): void
     {
         $message = 'hello, world!';
 
@@ -69,7 +71,7 @@ TzUkQjFI9UY7kZeK
         $this->assertFalse($dsa->verify('zzzz', $signature));
     }
 
-    public function testRandomSignature()
+    public function testRandomSignature(): void
     {
         $message = 'hello, world!';
 
@@ -108,7 +110,7 @@ kBniZHdFBAZBTE14YJUBkw==
         $this->assertTrue($public->verify($message, $signature));
     }
 
-    public function testSSHSignature()
+    public function testSSHSignature(): void
     {
         $dsa = PublicKeyLoader::load('AAAAB3NzaC1kc3MAAACBAPyzZzm4oqmY12lxmHwNcfYDNyXr38M1lU6xy9I792U1YSKgX27nUW9eXdJ8Mrn63Le5rrBRfg2Niycx' .
                    'JF2IwDpwCi7YpIv79uwT3RtA0chQDS4vx8qi8BWBzy7PZC9hmqY62+mgfj8ooga1sr+JpMh+8r4j3KjPM+wE37khkgkvAAAAFQDn' .

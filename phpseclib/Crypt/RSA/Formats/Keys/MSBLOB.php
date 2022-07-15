@@ -15,6 +15,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
 use ParagonIE\ConstantTime\Base64;
@@ -31,48 +33,40 @@ abstract class MSBLOB
 {
     /**
      * Public/Private Key Pair
-     *
      */
     const PRIVATEKEYBLOB = 0x7;
     /**
      * Public Key
-     *
      */
     const PUBLICKEYBLOB = 0x6;
     /**
      * Public Key
-     *
      */
     const PUBLICKEYBLOBEX = 0xA;
     /**
      * RSA public key exchange algorithm
-     *
      */
     const CALG_RSA_KEYX = 0x0000A400;
     /**
      * RSA public key exchange algorithm
-     *
      */
     const CALG_RSA_SIGN = 0x00002400;
     /**
      * Public Key
-     *
      */
     const RSA1 = 0x31415352;
     /**
      * Private Key
-     *
      */
     const RSA2 = 0x32415352;
 
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
-     * @param string $password optional
-     * @return array
+     * @param string|array $key
+     * @param string|false $password
      */
-    public static function load($key, $password = '')
+    public static function load($key, $password = ''): array
     {
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -175,16 +169,9 @@ abstract class MSBLOB
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Math\BigInteger $n
-     * @param \phpseclib3\Math\BigInteger $e
-     * @param \phpseclib3\Math\BigInteger $d
-     * @param array $primes
-     * @param array $exponents
-     * @param array $coefficients
-     * @param string $password optional
-     * @return string
+     * @param string|false $password
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = '')
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = ''): string
     {
         if (count($primes) != 2) {
             throw new \InvalidArgumentException('MSBLOB does not support multi-prime RSA keys');
@@ -211,12 +198,8 @@ abstract class MSBLOB
 
     /**
      * Convert a public key to the appropriate format
-     *
-     * @param \phpseclib3\Math\BigInteger $n
-     * @param \phpseclib3\Math\BigInteger $e
-     * @return string
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e): string
     {
         $n = strrev($n->toBytes());
         $e = str_pad(strrev($e->toBytes()), 4, "\0");

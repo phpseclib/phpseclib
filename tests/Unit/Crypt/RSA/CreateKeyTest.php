@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt\RSA;
 
 use phpseclib3\Crypt\RSA;
@@ -17,7 +19,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class CreateKeyTest extends PhpseclibTestCase
 {
-    public function testCreateKey()
+    public function testCreateKey(): array
     {
         $privatekey = RSA::createKey(768);
         $publickey = $privatekey->getPublicKey();
@@ -34,7 +36,7 @@ class CreateKeyTest extends PhpseclibTestCase
     /**
      * @depends testCreateKey
      */
-    public function testEncryptDecrypt($args)
+    public function testEncryptDecrypt($args): void
     {
         list($publickey, $privatekey) = $args;
         $ciphertext = $publickey->encrypt('zzz');
@@ -43,7 +45,7 @@ class CreateKeyTest extends PhpseclibTestCase
         $this->assertSame($plaintext, 'zzz');
     }
 
-    public function testMultiPrime()
+    public function testMultiPrime(): void
     {
         RSA::useInternalEngine();
         RSA::setSmallestPrime(256);
@@ -71,7 +73,7 @@ class CreateKeyTest extends PhpseclibTestCase
         RSA::useBestEngine();
     }
 
-    public function test3DESPKCS8Encryption()
+    public function test3DESPKCS8Encryption(): void
     {
         $key = RSA::createKey(768)
             ->withPassword('demo')

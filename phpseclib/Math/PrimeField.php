@@ -13,6 +13,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Math;
 
 use phpseclib3\Math\Common\FiniteField;
@@ -57,30 +59,24 @@ class PrimeField extends FiniteField
 
     /**
      * Use a custom defined modular reduction function
-     *
-     * @return void
      */
-    public function setReduction(\Closure $func)
+    public function setReduction(\Closure $func): void
     {
         $this->reduce = $func->bindTo($this, $this);
     }
 
     /**
      * Returns an instance of a dynamically generated PrimeFieldInteger class
-     *
-     * @return Integer
      */
-    public function newInteger(BigInteger $num)
+    public function newInteger(BigInteger $num): Integer
     {
         return new Integer($this->instanceID, $num);
     }
 
     /**
      * Returns an integer on the finite field between one and the prime modulo
-     *
-     * @return Integer
      */
-    public function randomInteger()
+    public function randomInteger(): Integer
     {
         static $one;
         if (!isset($one)) {
@@ -92,20 +88,16 @@ class PrimeField extends FiniteField
 
     /**
      * Returns the length of the modulo in bytes
-     *
-     * @return int
      */
-    public function getLengthInBytes()
+    public function getLengthInBytes(): int
     {
         return Integer::getModulo($this->instanceID)->getLengthInBytes();
     }
 
     /**
      * Returns the length of the modulo in bits
-     *
-     * @return int
      */
-    public function getLength()
+    public function getLength(): int
     {
         return Integer::getModulo($this->instanceID)->getLength();
     }

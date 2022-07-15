@@ -60,10 +60,8 @@ class Integer extends Base
 
     /**
      * Default constructor
-     *
-     * @param int $instanceID
      */
-    public function __construct($instanceID, BigInteger $num = null)
+    public function __construct(int $instanceID, BigInteger $num = null)
     {
         $this->instanceID = $instanceID;
         if (!isset($num)) {
@@ -76,22 +74,16 @@ class Integer extends Base
 
     /**
      * Set the modulo for a given instance
-     *
-     * @param int $instanceID
-     * @return void
      */
-    public static function setModulo($instanceID, BigInteger $modulo)
+    public static function setModulo(int $instanceID, BigInteger $modulo): void
     {
         static::$modulo[$instanceID] = $modulo;
     }
 
     /**
      * Set the modulo for a given instance
-     *
-     * @param int $instanceID
-     * @return void
      */
-    public static function setRecurringModuloFunction($instanceID, callable $function)
+    public static function setRecurringModuloFunction(int $instanceID, callable $function): void
     {
         static::$reduce[$instanceID] = $function;
         if (!isset(static::$zero[static::class])) {
@@ -102,7 +94,7 @@ class Integer extends Base
     /**
      * Delete the modulo for a given instance
      */
-    public static function cleanupCache($instanceID)
+    public static function cleanupCache(int $instanceID): void
     {
         unset(static::$modulo[$instanceID]);
         unset(static::$reduce[$instanceID]);
@@ -110,11 +102,8 @@ class Integer extends Base
 
     /**
      * Returns the modulo
-     *
-     * @param int $instanceID
-     * @return BigInteger
      */
-    public static function getModulo($instanceID)
+    public static function getModulo(int $instanceID): BigInteger
     {
         return static::$modulo[$instanceID];
     }
@@ -123,10 +112,8 @@ class Integer extends Base
      * Tests a parameter to see if it's of the right instance
      *
      * Throws an exception if the incorrect class is being utilized
-     *
-     * @return void
      */
-    public static function checkInstance(self $x, self $y)
+    public static function checkInstance(self $x, self $y): void
     {
         if ($x->instanceID != $y->instanceID) {
             throw new \UnexpectedValueException('The instances of the two PrimeField\Integer objects do not match');
@@ -135,10 +122,8 @@ class Integer extends Base
 
     /**
      * Tests the equality of two numbers.
-     *
-     * @return bool
      */
-    public function equals(self $x)
+    public function equals(self $x): bool
     {
         static::checkInstance($this, $x);
 
@@ -147,10 +132,8 @@ class Integer extends Base
 
     /**
      * Compares two numbers.
-     *
-     * @return int
      */
-    public function compare(self $x)
+    public function compare(self $x): int
     {
         static::checkInstance($this, $x);
 
@@ -162,7 +145,7 @@ class Integer extends Base
      *
      * @return static
      */
-    public function add(self $x)
+    public function add(self $x): Integer
     {
         static::checkInstance($this, $x);
 
@@ -180,7 +163,7 @@ class Integer extends Base
      *
      * @return static
      */
-    public function subtract(self $x)
+    public function subtract(self $x): Integer
     {
         static::checkInstance($this, $x);
 
@@ -198,7 +181,7 @@ class Integer extends Base
      *
      * @return static
      */
-    public function multiply(self $x)
+    public function multiply(self $x): Integer
     {
         static::checkInstance($this, $x);
 
@@ -210,7 +193,7 @@ class Integer extends Base
      *
      * @return static
      */
-    public function divide(self $x)
+    public function divide(self $x): Integer
     {
         static::checkInstance($this, $x);
 
@@ -223,7 +206,7 @@ class Integer extends Base
      *
      * @return static
      */
-    public function pow(BigInteger $x)
+    public function pow(BigInteger $x): Integer
     {
         $temp = new static($this->instanceID);
         $temp->value = $this->value->powMod($x, static::$modulo[$this->instanceID]);
@@ -248,7 +231,7 @@ class Integer extends Base
         $p_1 = static::$modulo[$this->instanceID]->subtract($one);
         $q = clone $p_1;
         $s = BigInteger::scan1divide($q);
-        list($pow) = $p_1->divide($two);
+        [$pow] = $p_1->divide($two);
         for ($z = $one; !$z->equals(static::$modulo[$this->instanceID]); $z = $z->add($one)) {
             $temp = $z->powMod($pow, static::$modulo[$this->instanceID]);
             if ($temp->equals($p_1)) {
@@ -259,7 +242,7 @@ class Integer extends Base
         $m = new BigInteger($s);
         $c = $z->powMod($q, static::$modulo[$this->instanceID]);
         $t = $this->value->powMod($q, static::$modulo[$this->instanceID]);
-        list($temp) = $q->add($one)->divide($two);
+        [$temp] = $q->add($one)->divide($two);
         $r = $this->value->powMod($temp, static::$modulo[$this->instanceID]);
 
         while (!$t->equals($one)) {
@@ -284,10 +267,8 @@ class Integer extends Base
 
     /**
      * Is Odd?
-     *
-     * @return bool
      */
-    public function isOdd()
+    public function isOdd(): bool
     {
         return $this->value->isOdd();
     }
@@ -300,17 +281,15 @@ class Integer extends Base
      *
      * @return static
      */
-    public function negate()
+    public function negate(): Integer
     {
         return new static($this->instanceID, static::$modulo[$this->instanceID]->subtract($this->value));
     }
 
     /**
      * Converts an Integer to a byte string (eg. base-256).
-     *
-     * @return string
      */
-    public function toBytes()
+    public function toBytes(): string
     {
         $length = static::$modulo[$this->instanceID]->getLengthInBytes();
         return str_pad($this->value->toBytes(), $length, "\0", STR_PAD_LEFT);
@@ -318,20 +297,16 @@ class Integer extends Base
 
     /**
      * Converts an Integer to a hex string (eg. base-16).
-     *
-     * @return string
      */
-    public function toHex()
+    public function toHex(): string
     {
         return Hex::encode($this->toBytes());
     }
 
     /**
      * Converts an Integer to a bit string (eg. base-2).
-     *
-     * @return string
      */
-    public function toBits()
+    public function toBits(): string
     {
         // return $this->value->toBits();
         static $length;
@@ -348,7 +323,7 @@ class Integer extends Base
      * @param int $w optional
      * @return array<int, int>
      */
-    public function getNAF($w = 1)
+    public function getNAF(int $w = 1): array
     {
         $w++;
 
@@ -386,10 +361,8 @@ class Integer extends Base
 
     /**
      * Converts an Integer to a BigInteger
-     *
-     * @return BigInteger
      */
-    public function toBigInteger()
+    public function toBigInteger(): BigInteger
     {
         return clone $this->value;
     }

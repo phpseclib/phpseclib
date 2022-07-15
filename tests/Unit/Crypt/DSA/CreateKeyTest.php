@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt\DSA;
 
 use phpseclib3\Crypt\DSA;
@@ -41,7 +43,7 @@ class CreateKeyTest extends PhpseclibTestCase
     /**
      * @depends testCreateParameters
      */
-    public function testCreateKey($params)
+    public function testCreateKey($params): void
     {
         $privatekey = DSA::createKey();
         $this->assertInstanceOf(PrivateKey::class, $privatekey);

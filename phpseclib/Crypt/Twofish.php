@@ -33,6 +33,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\BlockCipher;
@@ -355,10 +357,9 @@ class Twofish extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @param string $mode
      * @throws BadModeException if an invalid / unsupported mode is provided
      */
-    public function __construct($mode)
+    public function __construct(string $mode)
     {
         parent::__construct($mode);
 
@@ -371,10 +372,8 @@ class Twofish extends BlockCipher
      * Sets the key length.
      *
      * Valid key lengths are 128, 192 or 256 bits
-     *
-     * @param int $length
      */
-    public function setKeyLength($length)
+    public function setKeyLength(int $length): void
     {
         switch ($length) {
             case 128:
@@ -393,11 +392,10 @@ class Twofish extends BlockCipher
      *
      * Rijndael supports five different key lengths
      *
-     * @see setKeyLength()
-     * @param string $key
      * @throws \LengthException if the key length isn't supported
+     * @see setKeyLength()
      */
-    public function setKey($key)
+    public function setKey(string $key): void
     {
         switch (strlen($key)) {
             case 16:
@@ -416,7 +414,7 @@ class Twofish extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupKey()
      */
-    protected function setupKey()
+    protected function setupKey(): void
     {
         if (isset($this->kl['key']) && $this->key === $this->kl['key']) {
             // already expanded
@@ -438,8 +436,8 @@ class Twofish extends BlockCipher
 
         switch (strlen($this->key)) {
             case 16:
-                list($s7, $s6, $s5, $s4) = $this->mdsrem($le_longs[1], $le_longs[2]);
-                list($s3, $s2, $s1, $s0) = $this->mdsrem($le_longs[3], $le_longs[4]);
+                [$s7, $s6, $s5, $s4] = $this->mdsrem($le_longs[1], $le_longs[2]);
+                [$s3, $s2, $s1, $s0] = $this->mdsrem($le_longs[3], $le_longs[4]);
                 for ($i = 0, $j = 1; $i < 40; $i += 2, $j += 2) {
                     $A = $m0[$q0[$q0[$i] ^ $key[ 9]] ^ $key[1]] ^
                          $m1[$q0[$q1[$i] ^ $key[10]] ^ $key[2]] ^
@@ -463,9 +461,9 @@ class Twofish extends BlockCipher
                 }
                 break;
             case 24:
-                list($sb, $sa, $s9, $s8) = $this->mdsrem($le_longs[1], $le_longs[2]);
-                list($s7, $s6, $s5, $s4) = $this->mdsrem($le_longs[3], $le_longs[4]);
-                list($s3, $s2, $s1, $s0) = $this->mdsrem($le_longs[5], $le_longs[6]);
+                [$sb, $sa, $s9, $s8] = $this->mdsrem($le_longs[1], $le_longs[2]);
+                [$s7, $s6, $s5, $s4] = $this->mdsrem($le_longs[3], $le_longs[4]);
+                [$s3, $s2, $s1, $s0] = $this->mdsrem($le_longs[5], $le_longs[6]);
                 for ($i = 0, $j = 1; $i < 40; $i += 2, $j += 2) {
                     $A = $m0[$q0[$q0[$q1[$i] ^ $key[17]] ^ $key[ 9]] ^ $key[1]] ^
                          $m1[$q0[$q1[$q1[$i] ^ $key[18]] ^ $key[10]] ^ $key[2]] ^
@@ -489,10 +487,10 @@ class Twofish extends BlockCipher
                 }
                 break;
             default: // 32
-                list($sf, $se, $sd, $sc) = $this->mdsrem($le_longs[1], $le_longs[2]);
-                list($sb, $sa, $s9, $s8) = $this->mdsrem($le_longs[3], $le_longs[4]);
-                list($s7, $s6, $s5, $s4) = $this->mdsrem($le_longs[5], $le_longs[6]);
-                list($s3, $s2, $s1, $s0) = $this->mdsrem($le_longs[7], $le_longs[8]);
+                [$sf, $se, $sd, $sc] = $this->mdsrem($le_longs[1], $le_longs[2]);
+                [$sb, $sa, $s9, $s8] = $this->mdsrem($le_longs[3], $le_longs[4]);
+                [$s7, $s6, $s5, $s4] = $this->mdsrem($le_longs[5], $le_longs[6]);
+                [$s3, $s2, $s1, $s0] = $this->mdsrem($le_longs[7], $le_longs[8]);
                 for ($i = 0, $j = 1; $i < 40; $i += 2, $j += 2) {
                     $A = $m0[$q0[$q0[$q1[$q1[$i] ^ $key[25]] ^ $key[17]] ^ $key[ 9]] ^ $key[1]] ^
                          $m1[$q0[$q1[$q1[$q0[$i] ^ $key[26]] ^ $key[18]] ^ $key[10]] ^ $key[2]] ^
@@ -525,12 +523,8 @@ class Twofish extends BlockCipher
 
     /**
      * _mdsrem function using by the twofish cipher algorithm
-     *
-     * @param string $A
-     * @param string $B
-     * @return array
      */
-    private function mdsrem($A, $B)
+    private function mdsrem(int $A, int $B): array
     {
         // No gain by unrolling this loop.
         for ($i = 0; $i < 8; ++$i) {
@@ -572,11 +566,8 @@ class Twofish extends BlockCipher
 
     /**
      * Encrypts a block
-     *
-     * @param string $in
-     * @return string
      */
-    protected function encryptBlock($in)
+    protected function encryptBlock(string $in): string
     {
         $S0 = $this->S0;
         $S1 = $this->S1;
@@ -627,11 +618,8 @@ class Twofish extends BlockCipher
 
     /**
      * Decrypts a block
-     *
-     * @param string $in
-     * @return string
      */
-    protected function decryptBlock($in)
+    protected function decryptBlock(string $in): string
     {
         $S0 = $this->S0;
         $S1 = $this->S1;
@@ -685,7 +673,7 @@ class Twofish extends BlockCipher
      *
      * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupInlineCrypt()
      */
-    protected function setupInlineCrypt()
+    protected function setupInlineCrypt(): void
     {
         $K = $this->K;
         $init_crypt = '

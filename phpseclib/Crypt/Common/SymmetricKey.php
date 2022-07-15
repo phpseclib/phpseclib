@@ -32,6 +32,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\Common;
 
 use phpseclib3\Common\Functions\Strings;
@@ -596,10 +598,9 @@ abstract class SymmetricKey
      *
      * - gcm
      *
-     * @param string $mode
      * @throws BadModeException if an invalid / unsupported mode is provided
      */
-    public function __construct($mode)
+    public function __construct(string $mode)
     {
         $mode = strtolower($mode);
         // necessary because of 5.6 compatibility; we can't do isset(self::MODE_MAP[$mode]) in 5.6
@@ -647,11 +648,10 @@ abstract class SymmetricKey
      *
      * {@internal Can be overwritten by a sub class, but does not have to be}
      *
-     * @param string $iv
      * @throws \LengthException if the IV length isn't equal to the block size
      * @throws \BadMethodCallException if an IV is provided when one shouldn't be
      */
-    public function setIV($iv)
+    public function setIV(string $iv): void
     {
         if ($this->mode == self::MODE_ECB) {
             throw new \BadMethodCallException('This mode does not require an IV.');
@@ -680,7 +680,7 @@ abstract class SymmetricKey
      *
      * @throws \BadMethodCallException if Poly1305 is enabled whilst in GCM mode
      */
-    public function enablePoly1305()
+    public function enablePoly1305(): void
     {
         if ($this->mode == self::MODE_GCM) {
             throw new \BadMethodCallException('Poly1305 cannot be used in GCM mode');
@@ -695,11 +695,11 @@ abstract class SymmetricKey
      * Once enabled Poly1305 cannot be disabled. If $key is not passed then an attempt to call createPoly1305Key
      * will be made.
      *
-     * @param string $key optional
+     * @param string|null $key optional
      * @throws \LengthException if the key isn't long enough
      * @throws \BadMethodCallException if Poly1305 is enabled whilst in GCM mode
      */
-    public function setPoly1305Key($key = null)
+    public function setPoly1305Key(string $key = null): void
     {
         if ($this->mode == self::MODE_GCM) {
             throw new \BadMethodCallException('Poly1305 cannot be used in GCM mode');
@@ -723,10 +723,9 @@ abstract class SymmetricKey
      *
      * setNonce() is only required when gcm is used
      *
-     * @param string $nonce
      * @throws \BadMethodCallException if an nonce is provided when one shouldn't be
      */
-    public function setNonce($nonce)
+    public function setNonce(string $nonce): void
     {
         if ($this->mode != self::MODE_GCM) {
             throw new \BadMethodCallException('Nonces are only used in GCM mode.');
@@ -741,10 +740,9 @@ abstract class SymmetricKey
      *
      * setAAD() is only used by gcm or in poly1305 mode
      *
-     * @param string $aad
      * @throws \BadMethodCallException if mode isn't GCM or if poly1305 isn't being utilized
      */
-    public function setAAD($aad)
+    public function setAAD(string $aad): void
     {
         if ($this->mode != self::MODE_GCM && !$this->usePoly1305) {
             throw new \BadMethodCallException('Additional authenticated data is only utilized in GCM mode or with Poly1305');
@@ -755,50 +753,40 @@ abstract class SymmetricKey
 
     /**
      * Returns whether or not the algorithm uses an IV
-     *
-     * @return bool
      */
-    public function usesIV()
+    public function usesIV(): bool
     {
         return $this->mode != self::MODE_GCM && $this->mode != self::MODE_ECB;
     }
 
     /**
      * Returns whether or not the algorithm uses a nonce
-     *
-     * @return bool
      */
-    public function usesNonce()
+    public function usesNonce(): bool
     {
         return $this->mode == self::MODE_GCM;
     }
 
     /**
      * Returns the current key length in bits
-     *
-     * @return int
      */
-    public function getKeyLength()
+    public function getKeyLength(): int
     {
         return $this->key_length << 3;
     }
 
     /**
      * Returns the current block length in bits
-     *
-     * @return int
      */
-    public function getBlockLength()
+    public function getBlockLength(): int
     {
         return $this->block_size << 3;
     }
 
     /**
      * Returns the current block length in bytes
-     *
-     * @return int
      */
-    public function getBlockLengthInBytes()
+    public function getBlockLengthInBytes(): int
     {
         return $this->block_size;
     }
@@ -807,10 +795,8 @@ abstract class SymmetricKey
      * Sets the key length.
      *
      * Keys with explicitly set lengths need to be treated accordingly
-     *
-     * @param int $length
      */
-    public function setKeyLength($length)
+    public function setKeyLength(int $length): void
     {
         $this->explicit_key_length = $length >> 3;
 
@@ -831,10 +817,8 @@ abstract class SymmetricKey
      * If the key is not explicitly set, it'll be assumed to be all null bytes.
      *
      * {@internal Could, but not must, extend by the child Crypt_* class}
-     *
-     * @param string $key
      */
-    public function setKey($key)
+    public function setKey(string $key): void
     {
         if ($this->explicit_key_length !== false && strlen($key) != $this->explicit_key_length) {
             throw new InconsistentSetupException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');
@@ -856,14 +840,11 @@ abstract class SymmetricKey
      *
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
-     * @see Crypt/Hash.php
-     * @param string $password
-     * @param string $method
      * @param string[] ...$func_args
      * @throws \LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
-     * @return bool
+     * @see Crypt/Hash.php
      */
-    public function setPassword($password, $method = 'pbkdf2', ...$func_args)
+    public function setPassword(string $password, string $method = 'pbkdf2', ...$func_args): bool
     {
         $key = '';
 
@@ -878,11 +859,11 @@ abstract class SymmetricKey
                 $hashObj->setHash($hash);
 
                 // WPA and WPA2 use the SSID as the salt
-                $salt = isset($func_args[1]) ? $func_args[1] : $this->password_default_salt;
+                $salt = $func_args[1] ?? $this->password_default_salt;
 
                 // RFC2898#section-4.2 uses 1,000 iterations by default
                 // WPA and WPA2 use 4,096.
-                $count = isset($func_args[2]) ? $func_args[2] : 1000;
+                $count = $func_args[2] ?? 1000;
 
                 // Keylength
                 if (isset($func_args[3])) {
@@ -1000,15 +981,10 @@ abstract class SymmetricKey
      *
      * {@link https://tools.ietf.org/html/rfc7292#appendix-B}
      *
-     * @see self::setPassword()
-     * @param int $n
-     * @param \phpseclib3\Crypt\Hash $hashObj
-     * @param string $i
-     * @param string $d
-     * @param int $count
      * @return string $a
+     * @see self::setPassword()
      */
-    private static function pkcs12helper($n, $hashObj, $i, $d, $count)
+    private static function pkcs12helper(int $n, Hash $hashObj, string $i, string $d, int $count): string
     {
         static $one;
         if (!isset($one)) {
@@ -1062,11 +1038,10 @@ abstract class SymmetricKey
      *
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
-     * @see self::decrypt()
-     * @param string $plaintext
      * @return string $ciphertext
+     * @see self::decrypt()
      */
-    public function encrypt($plaintext)
+    public function encrypt(string $plaintext): string
     {
         if ($this->paddable) {
             $plaintext = $this->pad($plaintext);
@@ -1195,7 +1170,7 @@ abstract class SymmetricKey
         }
 
         if ($this->engine === self::ENGINE_MCRYPT) {
-            set_error_handler(function () {
+            set_error_handler(function (): void {
             });
             if ($this->enchanged) {
                 mcrypt_generic_init($this->enmcrypt, $this->key, $this->getIV($this->encryptIV));
@@ -1441,12 +1416,11 @@ abstract class SymmetricKey
      *
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
-     * @see self::encrypt()
-     * @param string $ciphertext
      * @return string $plaintext
      * @throws \LengthException if we're inside a block cipher and the ciphertext length is not a multiple of the block size
+     * @see self::encrypt()
      */
-    public function decrypt($ciphertext)
+    public function decrypt(string $ciphertext): string
     {
         if ($this->paddable && strlen($ciphertext) % $this->block_size) {
             throw new \LengthException('The ciphertext length (' . strlen($ciphertext) . ') needs to be a multiple of the block size (' . $this->block_size . ')');
@@ -1585,7 +1559,7 @@ abstract class SymmetricKey
         }
 
         if ($this->engine === self::ENGINE_MCRYPT) {
-            set_error_handler(function () {
+            set_error_handler(function (): void {
             });
             $block_size = $this->block_size;
             if ($this->dechanged) {
@@ -1809,13 +1783,13 @@ abstract class SymmetricKey
      *
      * Only used in GCM or Poly1305 mode
      *
-     * @see self::encrypt()
      * @param int $length optional
      * @return string
      * @throws \LengthException if $length isn't of a sufficient length
      * @throws \RuntimeException if GCM mode isn't being used
+     * @see self::encrypt()
      */
-    public function getTag($length = 16)
+    public function getTag(int $length = 16)
     {
         if ($this->mode != self::MODE_GCM && !$this->usePoly1305) {
             throw new \BadMethodCallException('Authentication tags are only utilized in GCM mode or with Poly1305');
@@ -1844,12 +1818,11 @@ abstract class SymmetricKey
      *
      * Only used in GCM mode
      *
-     * @see self::decrypt()
-     * @param string $tag
      * @throws \LengthException if $length isn't of a sufficient length
      * @throws \RuntimeException if GCM mode isn't being used
+     * @see self::decrypt()
      */
-    public function setTag($tag)
+    public function setTag(string $tag): void
     {
         if ($this->usePoly1305 && !isset($this->poly1305Key) && method_exists($this, 'createPoly1305Key')) {
             $this->createPoly1305Key();
@@ -1872,11 +1845,9 @@ abstract class SymmetricKey
      * mcrypt requires an IV even if ECB is used
      *
      * @see self::encrypt()
-     * @see self::decrypt()
-     * @param string $iv
-     * @return string
+          * @see self::decrypt()
      */
-    protected function getIV($iv)
+    protected function getIV(string $iv): string
     {
         return $this->mode == self::MODE_ECB ? str_repeat("\0", $this->block_size) : $iv;
     }
@@ -1891,12 +1862,8 @@ abstract class SymmetricKey
      *
      * @see self::encrypt()
      * @see self::decrypt()
-     * @param string $plaintext
-     * @param string $encryptIV
-     * @param array $buffer
-     * @return string
      */
-    private function openssl_ctr_process($plaintext, &$encryptIV, &$buffer)
+    private function openssl_ctr_process(string $plaintext, string &$encryptIV, array &$buffer): string
     {
         $ciphertext = '';
 
@@ -1978,12 +1945,8 @@ abstract class SymmetricKey
      *
      * @see self::encrypt()
      * @see self::decrypt()
-     * @param string $plaintext
-     * @param string $encryptIV
-     * @param array $buffer
-     * @return string
      */
-    private function openssl_ofb_process($plaintext, &$encryptIV, &$buffer)
+    private function openssl_ofb_process(string $plaintext, string &$encryptIV, array &$buffer): string
     {
         if (strlen($buffer['xor'])) {
             $ciphertext = $plaintext ^ $buffer['xor'];
@@ -2025,10 +1988,8 @@ abstract class SymmetricKey
      * phpseclib <-> OpenSSL Mode Mapper
      *
      * May need to be overwritten by classes extending this one in some cases
-     *
-     * @return string
      */
-    protected function openssl_translate_mode()
+    protected function openssl_translate_mode(): ?string
     {
         switch ($this->mode) {
             case self::MODE_ECB:
@@ -2045,6 +2006,7 @@ abstract class SymmetricKey
             case self::MODE_OFB:
                 return 'ofb';
         }
+        return null;
     }
 
     /**
@@ -2061,7 +2023,7 @@ abstract class SymmetricKey
      *
      * @see self::disablePadding()
      */
-    public function enablePadding()
+    public function enablePadding(): void
     {
         $this->padding = true;
     }
@@ -2071,7 +2033,7 @@ abstract class SymmetricKey
      *
      * @see self::enablePadding()
      */
-    public function disablePadding()
+    public function disablePadding(): void
     {
         $this->padding = false;
     }
@@ -2114,7 +2076,7 @@ abstract class SymmetricKey
      *
      * @see self::disableContinuousBuffer()
      */
-    public function enableContinuousBuffer()
+    public function enableContinuousBuffer(): void
     {
         if ($this->mode == self::MODE_ECB) {
             return;
@@ -2138,7 +2100,7 @@ abstract class SymmetricKey
      *
      * @see self::enableContinuousBuffer()
      */
-    public function disableContinuousBuffer()
+    public function disableContinuousBuffer(): void
     {
         if ($this->mode == self::MODE_ECB) {
             return;
@@ -2156,10 +2118,8 @@ abstract class SymmetricKey
      * Test for engine validity
      *
      * @see self::__construct()
-     * @param int $engine
-     * @return bool
      */
-    protected function isValidEngineHelper($engine)
+    protected function isValidEngineHelper(int $engine): bool
     {
         switch ($engine) {
             case self::ENGINE_OPENSSL:
@@ -2185,7 +2145,7 @@ abstract class SymmetricKey
                 }
                 return false;
             case self::ENGINE_MCRYPT:
-                set_error_handler(function () {
+                set_error_handler(function (): void {
                 });
                 $result = $this->cipher_name_mcrypt &&
                           extension_loaded('mcrypt') &&
@@ -2204,11 +2164,9 @@ abstract class SymmetricKey
     /**
      * Test for engine validity
      *
-     * @see self::__construct()
-     * @param string $engine
-     * @return bool
+          * @see self::__construct()
      */
-    public function isValidEngine($engine)
+    public function isValidEngine(string $engine): bool
     {
         static $reverseMap;
         if (!isset($reverseMap)) {
@@ -2241,9 +2199,8 @@ abstract class SymmetricKey
      * If the preferred crypt engine is not available the fastest available one will be used
      *
      * @see self::__construct()
-     * @param string $engine
      */
-    public function setPreferredEngine($engine)
+    public function setPreferredEngine(string $engine): void
     {
         static $reverseMap;
         if (!isset($reverseMap)) {
@@ -2251,7 +2208,7 @@ abstract class SymmetricKey
             $reverseMap = array_flip($reverseMap);
         }
         $engine = strtolower($engine);
-        $this->preferredEngine = isset($reverseMap[$engine]) ? $reverseMap[$engine] : self::ENGINE_LIBSODIUM;
+        $this->preferredEngine = $reverseMap[$engine] ?? self::ENGINE_LIBSODIUM;
 
         $this->setEngine();
     }
@@ -2261,7 +2218,7 @@ abstract class SymmetricKey
      *
      * @see self::setEngine()
      */
-    public function getEngine()
+    public function getEngine(): string
     {
         return self::ENGINE_MAP[$this->engine];
     }
@@ -2271,7 +2228,7 @@ abstract class SymmetricKey
      *
      * @see self::__construct()
      */
-    protected function setEngine()
+    protected function setEngine(): void
     {
         $this->engine = null;
 
@@ -2300,7 +2257,7 @@ abstract class SymmetricKey
         }
 
         if ($this->engine != self::ENGINE_MCRYPT && $this->enmcrypt) {
-            set_error_handler(function () {
+            set_error_handler(function (): void {
             });
             // Closing the current mcrypt resource(s). _mcryptSetup() will, if needed,
             // (re)open them with the module named in $this->cipher_name_mcrypt
@@ -2323,21 +2280,15 @@ abstract class SymmetricKey
      * Encrypts a block
      *
      * Note: Must be extended by the child \phpseclib3\Crypt\* class
-     *
-     * @param string $in
-     * @return string
      */
-    abstract protected function encryptBlock($in);
+    abstract protected function encryptBlock(string $in): string;
 
     /**
      * Decrypts a block
      *
      * Note: Must be extended by the child \phpseclib3\Crypt\* class
-     *
-     * @param string $in
-     * @return string
      */
-    abstract protected function decryptBlock($in);
+    abstract protected function decryptBlock(string $in): string;
 
     /**
      * Setup the key (expansion)
@@ -2375,7 +2326,7 @@ abstract class SymmetricKey
      * @see self::setIV()
      * @see self::disableContinuousBuffer()
      */
-    protected function setup()
+    protected function setup(): void
     {
         if (!$this->changed) {
             return;
@@ -2417,7 +2368,7 @@ abstract class SymmetricKey
             case self::ENGINE_MCRYPT:
                 $this->enchanged = $this->dechanged = true;
 
-                set_error_handler(function () {
+                set_error_handler(function (): void {
                 });
 
                 if (!isset($this->enmcrypt)) {
@@ -2473,12 +2424,10 @@ abstract class SymmetricKey
      * If padding is disabled and $text is not a multiple of the blocksize, the string will be padded regardless
      * and padding will, hence forth, be enabled.
      *
-     * @see self::unpad()
-     * @param string $text
      * @throws \LengthException if padding is disabled and the plaintext's length is not a multiple of the block size
-     * @return string
+     * @see self::unpad()
      */
-    protected function pad($text)
+    protected function pad(string $text): string
     {
         $length = strlen($text);
 
@@ -2501,12 +2450,10 @@ abstract class SymmetricKey
      * If padding is enabled and the reported padding length is invalid the encryption key will be assumed to be wrong
      * and false will be returned.
      *
-     * @see self::pad()
-     * @param string $text
      * @throws \LengthException if the ciphertext's length is not a multiple of the block size
-     * @return string
+     * @see self::pad()
      */
-    protected function unpad($text)
+    protected function unpad(string $text): string
     {
         if (!$this->padding) {
             return $text;
@@ -2684,20 +2631,19 @@ abstract class SymmetricKey
      *    ];
      *    </code>
      *
+     * @return string (the name of the created callback function)
+     * @see self::decrypt()
      * @see self::setupInlineCrypt()
      * @see self::encrypt()
-     * @see self::decrypt()
-     * @param array $cipher_code
-     * @return string (the name of the created callback function)
      */
-    protected function createInlineCryptFunction($cipher_code)
+    protected function createInlineCryptFunction(array $cipher_code): \Closure
     {
         $block_size = $this->block_size;
 
         // optional
-        $init_crypt    = isset($cipher_code['init_crypt'])    ? $cipher_code['init_crypt']    : '';
-        $init_encrypt  = isset($cipher_code['init_encrypt'])  ? $cipher_code['init_encrypt']  : '';
-        $init_decrypt  = isset($cipher_code['init_decrypt'])  ? $cipher_code['init_decrypt']  : '';
+        $init_crypt    = $cipher_code['init_crypt']    ?? '';
+        $init_encrypt  = $cipher_code['init_encrypt']  ?? '';
+        $init_decrypt  = $cipher_code['init_decrypt']  ?? '';
         // required
         $encrypt_block = $cipher_code['encrypt_block'];
         $decrypt_block = $cipher_code['decrypt_block'];
@@ -3135,10 +3081,9 @@ abstract class SymmetricKey
      *
      * On ARM CPUs converting floats to ints doesn't always work
      *
-     * @param string $x
-     * @return int
+     * @param float|int $x
      */
-    protected static function safe_intval($x)
+    protected static function safe_intval($x): int
     {
         switch (true) {
             case is_int($x):
@@ -3152,10 +3097,8 @@ abstract class SymmetricKey
 
     /**
      * eval()'able string for in-line float to int
-     *
-     * @return string
      */
-    protected static function safe_intval_inline()
+    protected static function safe_intval_inline(): string
     {
         switch (true) {
             case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
@@ -3173,9 +3116,8 @@ abstract class SymmetricKey
      *
      * See steps 1-2 of https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf#page=23
      * for more info
-     *
      */
-    private function setupGCM()
+    private function setupGCM(): void
     {
         // don't keep on re-calculating $this->h
         if (!$this->h || $this->h->key != $this->key) {
@@ -3205,11 +3147,9 @@ abstract class SymmetricKey
      * for more info
      *
      * @see self::decrypt()
-     * @see self::encrypt()
-     * @param string $x
-     * @return string
+          * @see self::encrypt()
      */
-    private function ghash($x)
+    private function ghash(string $x): string
     {
         $h = $this->h;
         $y = ["\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"];
@@ -3237,13 +3177,11 @@ abstract class SymmetricKey
     /**
      * Returns the bit length of a string in a packed format
      *
-     * @see self::decrypt()
-     * @see self::encrypt()
      * @see self::setupGCM()
-     * @param string $str
-     * @return string
+     * @see self::decrypt()
+          * @see self::encrypt()
      */
-    private static function len64($str)
+    private static function len64(string $str): string
     {
         return "\0\0\0\0" . pack('N', 8 * strlen($str));
     }
@@ -3251,16 +3189,14 @@ abstract class SymmetricKey
     /**
      * NULL pads a string to be a multiple of 128
      *
-     * @see self::decrypt()
-     * @see self::encrypt()
      * @see self::setupGCM()
-     * @param string $str
-     * @return string
+     * @see self::decrypt()
+          * @see self::encrypt()
      */
-    protected static function nullPad128($str)
+    protected static function nullPad128(string $str): string
     {
         $len = strlen($str);
-        return $str . str_repeat("\0", 16 * ceil($len / 16) - $len);
+        return $str . str_repeat("\0", 16 * ((int) ceil($len / 16)) - $len);
     }
 
     /**
@@ -3269,12 +3205,10 @@ abstract class SymmetricKey
      * On my system ChaCha20, with libsodium, takes 0.5s. With this custom Poly1305 implementation
      * it takes 1.2s.
      *
-     * @see self::decrypt()
-     * @see self::encrypt()
-     * @param string $text
-     * @return string
+     *@see self::decrypt()
+          * @see self::encrypt()
      */
-    protected function poly1305($text)
+    protected function poly1305(string $text): string
     {
         $s = $this->poly1305Key; // strlen($this->poly1305Key) == 32
         $r = Strings::shift($s, 16);
@@ -3302,10 +3236,8 @@ abstract class SymmetricKey
      * Return the mode
      *
      * You can do $obj instanceof AES or whatever to get the cipher but you can't do that to get the mode
-     *
-     * @return string
      */
-    public function getMode()
+    public function getMode(): string
     {
         return array_flip(self::MODE_MAP)[$this->mode];
     }

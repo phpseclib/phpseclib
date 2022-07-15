@@ -23,6 +23,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\EC\Formats\Keys;
 
 use ParagonIE\ConstantTime\Base64;
@@ -35,6 +37,7 @@ use phpseclib3\Exception\UnsupportedCurveException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\Common\FiniteField\Integer;
 
 /**
  * "PKCS1" (RFC5915) Formatted EC Key Handler
@@ -48,11 +51,10 @@ abstract class PKCS1 extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
-     * @param string $password optional
-     * @return array
+     * @param string|array $key
+     * @param string|false $password
      */
-    public static function load($key, $password = '')
+    public static function load($key, $password = ''): array
     {
         self::initialize_static_variables();
 
@@ -142,10 +144,8 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Convert EC parameters to the appropriate format
-     *
-     * @return string
      */
-    public static function saveParameters(BaseCurve $curve, array $options = [])
+    public static function saveParameters(BaseCurve $curve, array $options = []): string
     {
         self::initialize_static_variables();
 
@@ -163,14 +163,11 @@ abstract class PKCS1 extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Math\BigInteger $privateKey
-     * @param \phpseclib3\Crypt\EC\BaseCurves\Base $curve
-     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
-     * @param string $password optional
+     * @param Integer[] $publicKey
+     * @param string|false $password
      * @param array $options optional
-     * @return string
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, $password = '', array $options = [])
+    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, $password = '', array $options = []): string
     {
         self::initialize_static_variables();
 

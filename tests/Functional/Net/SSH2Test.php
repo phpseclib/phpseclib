@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Functional\Net;
 
 use phpseclib3\Net\SSH2;
@@ -13,7 +15,7 @@ use phpseclib3\Tests\PhpseclibFunctionalTestCase;
 
 class SSH2Test extends PhpseclibFunctionalTestCase
 {
-    public function testConstructor()
+    public function testConstructor(): SSH2
     {
         $ssh = new SSH2($this->getEnv('SSH_HOSTNAME'));
 
@@ -30,7 +32,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
      * @group github408
      * @group github412
      */
-    public function testPreLogin(SSH2 $ssh)
+    public function testPreLogin(SSH2 $ssh): SSH2
     {
         $this->assertFalse(
             $ssh->isConnected(),
@@ -63,7 +65,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     /**
      * @depends testPreLogin
      */
-    public function testBadPassword(SSH2 $ssh)
+    public function testBadPassword(SSH2 $ssh): SSH2
     {
         $username = $this->getEnv('SSH_USERNAME');
         $password = $this->getEnv('SSH_PASSWORD');
@@ -88,7 +90,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     /**
      * @depends testBadPassword
      */
-    public function testPasswordLogin(SSH2 $ssh)
+    public function testPasswordLogin(SSH2 $ssh): SSH2
     {
         $username = $this->getEnv('SSH_USERNAME');
         $password = $this->getEnv('SSH_PASSWORD');
@@ -109,7 +111,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
      * @depends testPasswordLogin
      * @group github280
      */
-    public function testExecWithMethodCallback(SSH2 $ssh)
+    public function testExecWithMethodCallback(SSH2 $ssh): SSH2
     {
         $callbackObject = $this->getMockBuilder('stdClass')
             ->setMethods(['callbackMethod'])
@@ -123,14 +125,14 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         return $ssh;
     }
 
-    public function testGetServerPublicHostKey()
+    public function testGetServerPublicHostKey(): void
     {
         $ssh = new SSH2($this->getEnv('SSH_HOSTNAME'));
 
         $this->assertIsString($ssh->getServerPublicHostKey());
     }
 
-    public function testOpenSocketConnect()
+    public function testOpenSocketConnect(): void
     {
         $fsock = fsockopen($this->getEnv('SSH_HOSTNAME'), 22);
         $ssh = new SSH2($fsock);
@@ -147,7 +149,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
      * @depends testExecWithMethodCallback
      * @group github1009
      */
-    public function testDisablePTY(SSH2 $ssh)
+    public function testDisablePTY(SSH2 $ssh): SSH2
     {
         $ssh->enablePTY();
         $ssh->exec('ls -latr');
@@ -163,7 +165,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
      * @depends testDisablePTY
      * @group github1167
      */
-    public function testChannelDataAfterOpen(SSH2 $ssh)
+    public function testChannelDataAfterOpen(SSH2 $ssh): void
     {
         // Ubuntu's OpenSSH from 5.8 to 6.9 didn't work with multiple channels. see
         // https://bugs.launchpad.net/ubuntu/+source/openssh/+bug/1334916 for more info.

@@ -6,19 +6,21 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Functional\Net;
 
 use phpseclib3\Net\SFTP\Stream;
 
 class SFTPStreamTest extends SFTPTestCase
 {
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         Stream::register();
         parent::setUpBeforeClass();
     }
 
-    public function testFopenFcloseCreatesFile()
+    public function testFopenFcloseCreatesFile(): void
     {
         $context = stream_context_create([
             'sftp' => ['session' => $this->sftp],
@@ -32,7 +34,7 @@ class SFTPStreamTest extends SFTPTestCase
     /**
      * @group github778
      */
-    public function testFilenameWithHash()
+    public function testFilenameWithHash(): void
     {
         $context = stream_context_create([
             'sftp' => ['session' => $this->sftp],
@@ -48,7 +50,7 @@ class SFTPStreamTest extends SFTPTestCase
      * Tests connection reuse functionality same as ssh2 extension:
      * {@link http://php.net/manual/en/wrappers.ssh2.php#refsect1-wrappers.ssh2-examples}
      */
-    public function testConnectionReuse()
+    public function testConnectionReuse(): void
     {
         $originalConnectionsCount = count(\phpseclib3\Net\SSH2::getConnections());
         $session = $this->sftp;
@@ -60,7 +62,7 @@ class SFTPStreamTest extends SFTPTestCase
     /**
      * @group github1552
      */
-    public function testStreamSelect()
+    public function testStreamSelect(): void
     {
         $context = stream_context_create([
             'sftp' => ['session' => $this->sftp],
@@ -71,7 +73,7 @@ class SFTPStreamTest extends SFTPTestCase
         stream_select($read, $write, $except, 0);
     }
 
-    protected function buildUrl($suffix)
+    protected function buildUrl($suffix): string
     {
         return sprintf(
             'sftp://via-context/%s/%s',

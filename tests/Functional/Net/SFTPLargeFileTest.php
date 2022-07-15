@@ -6,13 +6,15 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Functional\Net;
 
 use phpseclib3\Net\SFTP;
 
 class SFTPLargeFileTest extends SFTPTestCase
 {
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         if (!extension_loaded('mcrypt') && !extension_loaded('openssl')) {
             self::markTestSkipped('This test depends on mcrypt or openssl for performance.');
@@ -26,7 +28,7 @@ class SFTPLargeFileTest extends SFTPTestCase
      * @group github455
      * @group github457
      */
-    public function testPutSizeLocalFile()
+    public function testPutSizeLocalFile(): void
     {
         $tmp_filename = $this->createTempFile(128, 1024 * 1024);
         $filename = 'file-large-from-local.txt';

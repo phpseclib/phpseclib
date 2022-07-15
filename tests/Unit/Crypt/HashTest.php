@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\Hash;
@@ -14,7 +16,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class HashTest extends PhpseclibTestCase
 {
-    protected function assertHashesTo($hash, $message, $expected)
+    protected function assertHashesTo($hash, $message, $expected): void
     {
         $hash = new Hash($hash);
 
@@ -25,7 +27,7 @@ class HashTest extends PhpseclibTestCase
         );
     }
 
-    protected function assertHMACsTo($hash, $key, $message, $expected)
+    protected function assertHMACsTo($hash, $key, $message, $expected): void
     {
         $hash = new Hash($hash);
         $hash->setKey($key);
@@ -42,7 +44,7 @@ class HashTest extends PhpseclibTestCase
         );
     }
 
-    public static function hashData()
+    public static function hashData(): array
     {
         return [
             ['md5', '', 'd41d8cd98f00b204e9800998ecf8427e'],
@@ -171,7 +173,7 @@ class HashTest extends PhpseclibTestCase
     /**
      * @dataProvider hmacData()
      */
-    public function testHMAC($hash, $key, $message, $result)
+    public function testHMAC($hash, $key, $message, $result): void
     {
         $this->assertHMACsTo($hash, $key, $message, $result);
     }
@@ -179,12 +181,12 @@ class HashTest extends PhpseclibTestCase
     /**
      * @dataProvider hmacData()
      */
-    public function testHMAC96($hash, $key, $message, $result)
+    public function testHMAC96($hash, $key, $message, $result): void
     {
         $this->assertHMACsTo($hash . '-96', $key, $message, substr($result, 0, 24));
     }
 
-    public static function hmacData()
+    public static function hmacData(): array
     {
         return [
             ['md5', '', '', '74e6f7298a9c2d168935f58c001bad88'],
@@ -372,7 +374,7 @@ class HashTest extends PhpseclibTestCase
     /**
      * @dataProvider hashData()
      */
-    public function testHash($hash, $message, $result)
+    public function testHash($hash, $message, $result): void
     {
         $this->assertHashesTo($hash, $message, $result);
     }
@@ -380,7 +382,7 @@ class HashTest extends PhpseclibTestCase
     /**
      * @dataProvider hashData()
      */
-    public function testHash96($hash, $message, $result)
+    public function testHash96($hash, $message, $result): void
     {
         if (preg_match('#^sha3-\d+#', $hash) || preg_match('#^shake(?:128|256)-\d+#', $hash) || $hash === 'keccak256') {
             self::markTestSkipped($hash . '-96 not supported');
@@ -388,20 +390,20 @@ class HashTest extends PhpseclibTestCase
         $this->assertHashesTo($hash . '-96', $message, substr($result, 0, 24));
     }
 
-    public function testConstructorDefault()
+    public function testConstructorDefault(): void
     {
         $hash = new Hash();
         $this->assertSame($hash->getHash(), 'sha256');
     }
 
-    public function testConstructorArgumentInvalid()
+    public function testConstructorArgumentInvalid(): void
     {
         $this->expectException(UnsupportedAlgorithmException::class);
 
         new Hash('abcdefghijklmnopqrst');
     }
 
-    public function testSetHashInvalid()
+    public function testSetHashInvalid(): void
     {
         $this->expectException(UnsupportedAlgorithmException::class);
 
@@ -409,7 +411,7 @@ class HashTest extends PhpseclibTestCase
         $hash->setHash('abcdefghijklmnopqrst-96');
     }
 
-    public function testSetHashValid()
+    public function testSetHashValid(): void
     {
         $hash = new Hash('md5');
         $this->assertSame($hash->getHash(), 'md5');
@@ -420,13 +422,13 @@ class HashTest extends PhpseclibTestCase
     /**
      * @dataProvider lengths
      */
-    public function testGetLengthKnown($algorithm, $length)
+    public function testGetLengthKnown($algorithm, $length): void
     {
         $hash = new Hash($algorithm);
         $this->assertSame($hash->getLengthInBytes(), $length);
     }
 
-    public function lengths()
+    public function lengths(): array
     {
         return [
             // known
@@ -439,7 +441,7 @@ class HashTest extends PhpseclibTestCase
         ];
     }
 
-    public function UMACs()
+    public function UMACs(): array
     {
         return [
             ['', 'umac-32', '113145FB', "umac-32 and message of <empty>"],
@@ -473,7 +475,7 @@ class HashTest extends PhpseclibTestCase
     /**
      * @dataProvider UMACs
      */
-    public function testUMACs($message, $algo, $tag, $error)
+    public function testUMACs($message, $algo, $tag, $error): void
     {
         $k = 'abcdefghijklmnop'; // A 16-byte UMAC key
         $n = 'bcdefghi'; // An 8-byte nonce

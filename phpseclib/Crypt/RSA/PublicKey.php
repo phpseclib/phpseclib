@@ -9,6 +9,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\RSA;
 
 use phpseclib3\Common\Functions\Strings;
@@ -34,11 +36,8 @@ class PublicKey extends RSA implements Common\PublicKey
 
     /**
      * Exponentiate
-     *
-     * @param \phpseclib3\Math\BigInteger $x
-     * @return \phpseclib3\Math\BigInteger
      */
-    private function exponentiate(BigInteger $x)
+    private function exponentiate(BigInteger $x): BigInteger
     {
         return $x->modPow($this->exponent, $this->modulus);
     }
@@ -48,10 +47,9 @@ class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.2.2 RFC3447#section-5.2.2}.
      *
-     * @param \phpseclib3\Math\BigInteger $s
      * @return bool|\phpseclib3\Math\BigInteger
      */
-    private function rsavp1($s)
+    private function rsavp1(BigInteger $s)
     {
         if ($s->compare(self::$zero) < 0 || $s->compare($this->modulus) > 0) {
             return false;
@@ -64,12 +62,9 @@ class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.2.2 RFC3447#section-8.2.2}.
      *
-     * @param string $m
-     * @param string $s
      * @throws \LengthException if the RSA modulus is too short
-     * @return bool
      */
-    private function rsassa_pkcs1_v1_5_verify($m, $s)
+    private function rsassa_pkcs1_v1_5_verify(string $m, string $s): bool
     {
         // Length checking
 
@@ -131,12 +126,8 @@ class PublicKey extends RSA implements Common\PublicKey
      * is valid with respect to the specification given in [PKCS1 v2.0+]". so if you do
      * $rsa->getLastPadding() and get RSA::PADDING_RELAXED_PKCS1 back instead of
      * RSA::PADDING_PKCS1... that means BER encoding was used.
-     *
-     * @param string $m
-     * @param string $s
-     * @return bool
      */
-    private function rsassa_pkcs1_v1_5_relaxed_verify($m, $s)
+    private function rsassa_pkcs1_v1_5_relaxed_verify(string $m, string $s): bool
     {
         // Length checking
 
@@ -217,12 +208,9 @@ class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.1.2 RFC3447#section-9.1.2}.
      *
-     * @param string $m
-     * @param string $em
-     * @param int $emBits
      * @return string
      */
-    private function emsa_pss_verify($m, $em, $emBits)
+    private function emsa_pss_verify(string $m, string $em, int $emBits)
     {
         // if $m is larger than two million terrabytes and you're using sha1, PKCS#1 suggests a "Label too long" error
         // be output.
@@ -263,11 +251,9 @@ class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.1.2 RFC3447#section-8.1.2}.
      *
-     * @param string $m
-     * @param string $s
      * @return bool|string
      */
-    private function rsassa_pss_verify($m, $s)
+    private function rsassa_pss_verify(string $m, string $s)
     {
         // Length checking
 
@@ -317,12 +303,11 @@ class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.2.1 RFC3447#section-7.2.1}.
      *
-     * @param string $m
      * @param bool $pkcs15_compat optional
-     * @throws \LengthException if strlen($m) > $this->k - 11
      * @return bool|string
+     * @throws \LengthException if strlen($m) > $this->k - 11
      */
-    private function rsaes_pkcs1_v1_5_encrypt($m, $pkcs15_compat = false)
+    private function rsaes_pkcs1_v1_5_encrypt(string $m, bool $pkcs15_compat = false)
     {
         $mLen = strlen($m);
 
@@ -360,11 +345,9 @@ class PublicKey extends RSA implements Common\PublicKey
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.1.1 RFC3447#section-7.1.1} and
      * {http://en.wikipedia.org/wiki/Optimal_Asymmetric_Encryption_Padding OAES}.
      *
-     * @param string $m
      * @throws \LengthException if strlen($m) > $this->k - 2 * $this->hLen - 2
-     * @return string
      */
-    private function rsaes_oaep_encrypt($m)
+    private function rsaes_oaep_encrypt(string $m): string
     {
         $mLen = strlen($m);
 
@@ -405,10 +388,9 @@ class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.1.1 RFC3447#section-5.1.1}.
      *
-     * @param \phpseclib3\Math\BigInteger $m
      * @return bool|\phpseclib3\Math\BigInteger
      */
-    private function rsaep($m)
+    private function rsaep(BigInteger $m)
     {
         if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
             throw new \OutOfRangeException('Message representative out of range');
@@ -421,11 +403,10 @@ class PublicKey extends RSA implements Common\PublicKey
      *
      * Doesn't use padding and is not recommended.
      *
-     * @param string $m
      * @return bool|string
      * @throws \LengthException if strlen($m) > $this->k
      */
-    private function raw_encrypt($m)
+    private function raw_encrypt(string $m)
     {
         if (strlen($m) > $this->k) {
             throw new \LengthException('Message too long');
@@ -443,12 +424,11 @@ class PublicKey extends RSA implements Common\PublicKey
      * If $plaintext exceeds those limits it will be broken up so that it does and the resultant ciphertext's will
      * be concatenated together.
      *
-     * @see self::decrypt()
-     * @param string $plaintext
      * @return bool|string
      * @throws \LengthException if the RSA modulus is too short
+     * @see self::decrypt()
      */
-    public function encrypt($plaintext)
+    public function encrypt(string $plaintext)
     {
         switch ($this->encryptionPadding) {
             case self::ENCRYPTION_NONE:
@@ -468,11 +448,9 @@ class PublicKey extends RSA implements Common\PublicKey
      * or if the public key was set via setPublicKey().  If the currently loaded key is supposed to be the public key this
      * function won't return it since this library, for the most part, doesn't distinguish between public and private keys.
      *
-     * @param string $type
      * @param array $options optional
-     * @return mixed
      */
-    public function toString($type, array $options = [])
+    public function toString(string $type, array $options = []): string
     {
         $type = self::validatePlugin('Keys', $type, 'savePublicKey');
 
@@ -493,10 +471,8 @@ class PublicKey extends RSA implements Common\PublicKey
 
     /**
      * Converts a public key to a private key
-     *
-     * @return RSA
      */
-    public function asPrivateKey()
+    public function asPrivateKey(): RSA
     {
         $new = new PrivateKey();
         $new->exponent = $this->exponent;

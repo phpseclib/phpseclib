@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\AES;
@@ -19,10 +21,10 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class DHTest extends PhpseclibTestCase
 {
-    public function testParametersWithString()
+    public function testParametersWithString(): void
     {
         $a = DH::createParameters('diffie-hellman-group1-sha1');
-        $a = str_replace("\r\n", "\n", trim($a));
+        $a = str_replace("\r\n", "\n", trim($a->__toString()));
         $b = str_replace("\r\n", "\n", '-----BEGIN DH PARAMETERS-----
 MIGHAoGBAP//////////yQ/aoiFowjTExmKLgNwc0SkCTgiKZ8x0Agu+pjsTmyJR
 Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
@@ -31,13 +33,13 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
         $this->assertSame($b, "$a");
     }
 
-    public function testParametersWithInteger()
+    public function testParametersWithInteger(): void
     {
         $a = DH::createParameters(512);
         $this->assertIsString("$a");
     }
 
-    public function testParametersWithBigIntegers()
+    public function testParametersWithBigIntegers(): void
     {
         $prime = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
                  '020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F1437' .
@@ -46,7 +48,7 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
         $prime = new BigInteger($prime, 16);
         $base = new BigInteger(2);
         $a = DH::createParameters($prime, $base);
-        $a = str_replace("\r\n", "\n", trim($a));
+        $a = str_replace("\r\n", "\n", trim($a->__toString()));
         $b = str_replace("\r\n", "\n", '-----BEGIN DH PARAMETERS-----
 MIGHAoGBAP//////////yQ/aoiFowjTExmKLgNwc0SkCTgiKZ8x0Agu+pjsTmyJR
 Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
@@ -55,7 +57,7 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
         $this->assertSame($b, "$a");
     }
 
-    public function testCreateKey()
+    public function testCreateKey(): void
     {
         $param = DH::createParameters('diffie-hellman-group1-sha1');
         $key = DH::createKey($param);
@@ -63,7 +65,7 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
         $this->assertIsString((string) $key->getPublicKey());
     }
 
-    public function testLoadPrivate()
+    public function testLoadPrivate(): void
     {
         $a = DH::load('-----BEGIN PRIVATE KEY-----
 MIIBIgIBADCBlQYJKoZIhvcNAQMBMIGHAoGBAP//////////yQ/aoiFowjTExmKL
@@ -79,7 +81,7 @@ eKDXQq5i
         $this->assertInstanceOf(Parameters::class, $a->getParameters());
     }
 
-    public function testLoadPublic()
+    public function testLoadPublic(): void
     {
         $a = DH::load('-----BEGIN PUBLIC KEY-----
 MIIBHzCBlQYJKoZIhvcNAQMBMIGHAoGBAP//////////yQ/aoiFowjTExmKLgNwc
@@ -93,7 +95,7 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         $this->assertInstanceOf(PublicKey::class, $a);
     }
 
-    public function testLoadParameters()
+    public function testLoadParameters(): void
     {
         $a = DH::load('-----BEGIN DH PARAMETERS-----
 MIGHAoGBAP//////////yQ/aoiFowjTExmKLgNwc0SkCTgiKZ8x0Agu+pjsTmyJR
@@ -103,7 +105,7 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
         $this->assertInstanceOf(Parameters::class, $a);
     }
 
-    public function testComputeSecretWithPublicKey()
+    public function testComputeSecretWithPublicKey(): void
     {
         $ourPriv = DH::load('-----BEGIN PRIVATE KEY-----
 MIIBIgIBADCBlQYJKoZIhvcNAQMBMIGHAoGBAP//////////yQ/aoiFowjTExmKL
@@ -126,7 +128,7 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         $this->assertIsString(DH::computeSecret($ourPriv, $theirPub));
     }
 
-    public function testComputeSecret()
+    public function testComputeSecret(): void
     {
         // Ed25519 isn't normally used for DH (that honor goes to Curve25519) but that's not to say it can't
         // be used
@@ -138,7 +140,7 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         }
     }
 
-    public function testEphemeralECDH()
+    public function testEphemeralECDH(): void
     {
         // an RSA like hybrid cryptosystem can be done with ephemeral key ECDH
 
@@ -174,7 +176,7 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         $this->assertSame($plaintext, $aes->decrypt(substr($encrypted, 32)));
     }
 
-    public function testMultiPartyDH()
+    public function testMultiPartyDH(): void
     {
         // in multi party (EC)DH everyone, for each public key, everyone (save for the public key owner) "applies"
         // their private key to it. they do so in series (as opposed to in parallel) and then everyone winds up
@@ -205,7 +207,7 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         }
     }
 
-    public function testCurve25519()
+    public function testCurve25519(): void
     {
         // utilizing test vector from https://tools.ietf.org/html/rfc7748#section-6.1
 
@@ -231,7 +233,7 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         $this->assertSame($expected, DH::computeSecret($bobPrivate, $alicePublic));
     }
 
-    public function testCurve448()
+    public function testCurve448(): void
     {
         // utilizing test vector from https://tools.ietf.org/html/rfc7748#section-6.2
 

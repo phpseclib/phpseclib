@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\File;
 
 use phpseclib3\File\ANSI;
@@ -13,7 +15,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class ANSITest extends PhpseclibTestCase
 {
-    public function testCase1()
+    public function testCase1(): void
     {
         $str = "\x1B[07m"; // turn reverse video on
         $str .= "aaaaaaaaaaaaaaaaaa";
@@ -33,7 +35,7 @@ class ANSITest extends PhpseclibTestCase
         $this->assertSame($ansi->getScreen(), $expected);
     }
 
-    public function testCaseJ()
+    public function testCaseJ(): void
     {
         $str = "\x1B[H"; // Move cursor to upper left corner
         $str .= "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -49,7 +51,7 @@ class ANSITest extends PhpseclibTestCase
         $this->assertSame($ansi->getScreen(), $expected);
     }
 
-    public function testLineOverflow()
+    public function testLineOverflow(): void
     {
         $str = '';
         foreach (range('a', 'y') as $char) {

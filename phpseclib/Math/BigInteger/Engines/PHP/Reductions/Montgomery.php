@@ -11,6 +11,8 @@
  * @link      http://pear.php.net/package/Math_BigInteger
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Math\BigInteger\Engines\PHP\Reductions;
 
 use phpseclib3\Math\BigInteger\Engines\PHP\Montgomery as Progenitor;
@@ -24,20 +26,15 @@ abstract class Montgomery extends Progenitor
 {
     /**
      * Prepare a number for use in Montgomery Modular Reductions
-     *
-     * @param array $x
-     * @param array $n
-     * @param string $class
-     * @return array
      */
-    protected static function prepareReduce(array $x, array $n, $class)
+    protected static function prepareReduce(array $x, array $n, string $class): array
     {
         $lhs = new $class();
         $lhs->value = array_merge(self::array_repeat(0, count($n)), $x);
         $rhs = new $class();
         $rhs->value = $n;
 
-        list(, $temp) = $lhs->divide($rhs);
+        [, $temp] = $lhs->divide($rhs);
         return $temp->value;
     }
 
@@ -46,13 +43,8 @@ abstract class Montgomery extends Progenitor
      *
      * Interleaves the montgomery reduction and long multiplication algorithms together as described in
      * {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=13 HAC 14.36}
-     *
-     * @param array $x
-     * @param array $n
-     * @param string $class
-     * @return array
      */
-    protected static function reduce(array $x, array $n, $class)
+    protected static function reduce(array $x, array $n, string $class): array
     {
         static $cache = [
             self::VARIABLE => [],
@@ -106,12 +98,8 @@ abstract class Montgomery extends Progenitor
      * 40 bits, which only 64-bit floating points will support.
      *
      * Thanks to Pedro Gimeno Fortea for input!
-     *
-     * @param array $x
-     * @param string $class
-     * @return int
      */
-    protected static function modInverse67108864(array $x, $class) // 2**26 == 67,108,864
+    protected static function modInverse67108864(array $x, string $class): int // 2**26 == 67,108,864
     {
         $x = -$x[0];
         $result = $x & 0x3; // x**-1 mod 2**2

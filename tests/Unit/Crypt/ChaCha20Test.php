@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\ChaCha20;
@@ -14,7 +16,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 class ChaCha20Test extends PhpseclibTestCase
 {
     // see https://tools.ietf.org/html/rfc8439#section-2.3.2
-    public function test232()
+    public function test232(): void
     {
         $key = implode('', range("\00", "\x1f"));
 
@@ -45,7 +47,7 @@ class ChaCha20Test extends PhpseclibTestCase
     }
 
     // see https://tools.ietf.org/html/rfc8439#section-2.4.2
-    public function test242()
+    public function test242(): void
     {
         $key = implode('', range("\00", "\x1f"));
 
@@ -83,7 +85,7 @@ class ChaCha20Test extends PhpseclibTestCase
     }
 
     // see https://tools.ietf.org/html/rfc8439#section-2.5.2
-    public function test252()
+    public function test252(): void
     {
         $key = '85:d6:be:78:57:55:6d:33:7f:44:52:fe:42:d5:06:a8:01:0' .
                '3:80:8a:fb:0d:b2:fd:4a:bf:f6:af:41:49:f5:1b';
@@ -109,7 +111,7 @@ class ChaCha20Test extends PhpseclibTestCase
     }
 
     // see https://tools.ietf.org/html/rfc8439#section-2.6.2
-    public function test262()
+    public function test262(): void
     {
         $key = implode('', range("\x80", "\x9f"));
 
@@ -139,7 +141,7 @@ class ChaCha20Test extends PhpseclibTestCase
     }
 
     // https://tools.ietf.org/html/rfc8439#section-2.8.2
-    public function test282()
+    public function test282(): void
     {
         $key = implode('', range("\x80", "\x9f"));
 
@@ -184,7 +186,7 @@ class ChaCha20Test extends PhpseclibTestCase
         }
     }
 
-    public function testContinuousBuffer()
+    public function testContinuousBuffer(): void
     {
         $key = str_repeat("\0", 16);
         $nonce = str_repeat("\0", 8);

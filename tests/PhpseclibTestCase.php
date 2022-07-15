@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -14,7 +16,7 @@ abstract class PhpseclibTestCase extends TestCase
 {
     protected $tempFilesToUnlinkOnTearDown = [];
 
-    public function tearDown()
+    public function tearDown(): void
     {
         foreach ($this->tempFilesToUnlinkOnTearDown as $filename) {
             if (!file_exists($filename) || unlink($filename)) {
@@ -30,13 +32,8 @@ abstract class PhpseclibTestCase extends TestCase
      * write $number_of_writes * $bytes_per_write times the character 'a' to the
      * temporary file. All files created using this method will be deleted from
      * the filesystem on tearDown(), i.e. after each test method was run.
-     *
-     * @param int $number_of_writes
-     * @param int $bytes_per_write
-     *
-     * @return string
      */
-    protected function createTempFile($number_of_writes = 0, $bytes_per_write = 0)
+    protected function createTempFile(int $number_of_writes = 0, int $bytes_per_write = 0): string
     {
         $filename = tempnam(sys_get_temp_dir(), 'phpseclib-test-');
         $this->assertTrue(file_exists($filename));
@@ -53,12 +50,9 @@ abstract class PhpseclibTestCase extends TestCase
     }
 
     /**
-     * @param string $constant
-     * @param mixed $expected
-     *
      * @return null
      */
-    protected static function ensureConstant($constant, $expected)
+    protected static function ensureConstant(string $constant, $expected)
     {
         if (defined($constant)) {
             $value = constant($constant);
@@ -103,7 +97,7 @@ abstract class PhpseclibTestCase extends TestCase
     }
 
     // assertIsArray was not introduced until PHPUnit 8
-    public static function assertIsArray($actual, $message = '')
+    public static function assertIsArray($actual, string $message = ''): void
     {
         if (method_exists(parent::class, 'assertIsArray')) {
             parent::assertIsArray($actual, $message);
@@ -114,7 +108,7 @@ abstract class PhpseclibTestCase extends TestCase
     }
 
     // assertIsString was not introduced until PHPUnit 8
-    public static function assertIsString($actual, $message = '')
+    public static function assertIsString($actual, string $message = ''): void
     {
         if (method_exists(parent::class, 'assertIsString')) {
             parent::assertIsString($actual, $message);
@@ -125,7 +119,7 @@ abstract class PhpseclibTestCase extends TestCase
     }
 
     // assertIsResource was not introduced until PHPUnit 8
-    public static function assertIsResource($actual, $message = '')
+    public static function assertIsResource($actual, string $message = ''): void
     {
         if (method_exists(parent::class, 'assertIsResource')) {
             parent::assertIsResource($actual, $message);
@@ -136,7 +130,7 @@ abstract class PhpseclibTestCase extends TestCase
     }
 
     // assertIsObject was not introduced until PHPUnit 8
-    public static function assertIsObject($actual, $message = '')
+    public static function assertIsObject($actual, string $message = ''): void
     {
         if (method_exists(parent::class, 'assertIsObject')) {
             parent::assertIsObject($actual, $message);
@@ -147,7 +141,7 @@ abstract class PhpseclibTestCase extends TestCase
     }
 
     // assertContains is deprecated for strings in PHPUnit 8
-    public static function assertStringContainsString($needle, $haystack, $message = '')
+    public static function assertStringContainsString(string $needle, string $haystack, string $message = ''): void
     {
         if (method_exists(parent::class, 'assertStringContainsString')) {
             parent::assertStringContainsString($needle, $haystack, $message);
@@ -158,7 +152,7 @@ abstract class PhpseclibTestCase extends TestCase
     }
 
     // assertNotContains is deprecated for strings in PHPUnit 8
-    public static function assertStringNotContainsString($needle, $haystack, $message = '')
+    public static function assertStringNotContainsString(string $needle, string $haystack, string $message = ''): void
     {
         if (method_exists(parent::class, 'assertStringContainsString')) {
             parent::assertStringNotContainsString($needle, $haystack, $message);
@@ -170,13 +164,8 @@ abstract class PhpseclibTestCase extends TestCase
 
     /**
      * assertRegExp() was deprecated in favor of assertMatchesRegularExpression().
-     *
-     * @param string $pattern
-     * @param string $string
-     * @param string $message
-     * @return void
      */
-    public static function assertMatchesRegularExpression($pattern, $string, $message = '')
+    public static function assertMatchesRegularExpression(string $pattern, string $string, string $message = ''): void
     {
         if (method_exists(parent::class, 'assertMatchesRegularExpression')) {
             parent::assertMatchesRegularExpression($pattern, $string, $message);

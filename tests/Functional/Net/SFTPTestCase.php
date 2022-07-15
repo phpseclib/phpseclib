@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Functional\Net;
 
 use phpseclib3\Net\SFTP;
@@ -22,7 +24,7 @@ abstract class SFTPTestCase extends PhpseclibFunctionalTestCase
     protected $sftp;
     protected $scratchDir;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->scratchDir = uniqid('phpseclib-sftp-scratch-');
@@ -36,7 +38,7 @@ abstract class SFTPTestCase extends PhpseclibFunctionalTestCase
         $this->assertTrue($this->sftp->chdir($this->scratchDir));
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if ($this->sftp) {
             $this->sftp->chdir($this->getEnv('SSH_HOME'));

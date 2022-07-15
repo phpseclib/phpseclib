@@ -21,8 +21,11 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
+use phpseclib3\Exception\UnsupportedFormatException;
 use phpseclib3\Math\BigInteger;
 
 /**
@@ -35,11 +38,10 @@ abstract class Raw
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
-     * @param string $password optional
-     * @return array
+     * @param string|array $key
+     * @param string|false $password
      */
-    public static function load($key, $password = '')
+    public static function load($key, $password = ''): array
     {
         if (!is_array($key)) {
             throw new \UnexpectedValueException('Key should be a array - not a ' . gettype($key));
@@ -75,7 +77,7 @@ abstract class Raw
                 ['prime1', 'prime2']
             ];
             foreach ($indices as $index) {
-                list($i0, $i1) = $index;
+                [$i0, $i1] = $index;
                 if (isset($key[$i0]) && isset($key[$i1])) {
                     $components['primes'] = [1 => $key[$i0], $key[$i1]];
                 }
@@ -90,7 +92,7 @@ abstract class Raw
                 ['exponent1', 'exponent2']
             ];
             foreach ($indices as $index) {
-                list($i0, $i1) = $index;
+                [$i0, $i1] = $index;
                 if (isset($key[$i0]) && isset($key[$i1])) {
                     $components['exponents'] = [1 => $key[$i0], $key[$i1]];
                 }
@@ -138,23 +140,16 @@ abstract class Raw
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Math\BigInteger $n
-     * @param \phpseclib3\Math\BigInteger $e
-     * @param \phpseclib3\Math\BigInteger $d
-     * @param array $primes
-     * @param array $exponents
-     * @param array $coefficients
-     * @param string $password optional
+     * @param string|false $password optional
      * @param array $options optional
-     * @return array
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = '', array $options = [])
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = '', array $options = []): string
     {
         if (!empty($password) && is_string($password)) {
             throw new UnsupportedFormatException('Raw private keys do not support encryption');
         }
 
-        return [
+        return serialize([
             'e' => clone $e,
             'n' => clone $n,
             'd' => clone $d,
@@ -167,17 +162,13 @@ abstract class Raw
             'coefficients' => array_map(function ($var) {
                 return clone $var;
             }, $coefficients)
-        ];
+        ]);
     }
 
     /**
      * Convert a public key to the appropriate format
-     *
-     * @param \phpseclib3\Math\BigInteger $n
-     * @param \phpseclib3\Math\BigInteger $e
-     * @return array
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e)
+    public static function savePublicKey(BigInteger $n, BigInteger $e): array
     {
         return ['e' => clone $e, 'n' => clone $n];
     }

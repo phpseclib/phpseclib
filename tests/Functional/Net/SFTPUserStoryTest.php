@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Functional\Net;
 
 use phpseclib3\Net\SFTP;
@@ -19,7 +21,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     protected static $exampleDataLength;
     protected static $buffer;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
 
@@ -29,7 +31,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         self::$exampleDataLength = 10000;
     }
 
-    public function testConstructor()
+    public function testConstructor(): SFTP
     {
         $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
 
@@ -781,7 +783,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     /**
      * @depends testRawlistDisabledStatCache
      */
-    public function testChownChgrp($sftp)
+    public function testChownChgrp($sftp): void
     {
         $stat = $sftp->stat(self::$scratchDir);
         $this->assertTrue($sftp->chown(self::$scratchDir, $stat['uid']));
