@@ -600,11 +600,14 @@ abstract class PKCS8 extends PKCS
 
         $key = [
             'publicKeyAlgorithm' => [
-                'algorithm' => is_string(static::OID_NAME) ? static::OID_NAME : $oid,
-                'parameters' => $params
+                'algorithm' => is_string(static::OID_NAME) ? static::OID_NAME : $oid
             ],
             'publicKey' => "\0" . $key
         ];
+
+        if ($oid != 'id-Ed25519' && $oid != 'id-Ed448') {
+            $key['publicKeyAlgorithm']['parameters'] = $params;
+        }
 
         $key = ASN1::encodeDER($key, Maps\PublicKeyInfo::MAP);
 
