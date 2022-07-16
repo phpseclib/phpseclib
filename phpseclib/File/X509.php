@@ -161,14 +161,6 @@ class X509
     private $privateKey;
 
     /**
-     * Object identifiers for X.509 certificates
-     *
-     * @var array
-     * @link http://en.wikipedia.org/wiki/Object_identifier
-     */
-    private $oids;
-
-    /**
      * The certificate authorities
      *
      * @var array

@@ -130,7 +130,7 @@ abstract class OpenSSH
 
         if (!isset($parts[1])) {
             $key = base64_decode($parts[0]);
-            $comment = isset($parts[1]) ? $parts[1] : false;
+            $comment = false;
         } else {
             $asciiType = $parts[0];
             self::checkType($parts[0]);
