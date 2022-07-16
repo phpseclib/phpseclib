@@ -72,14 +72,6 @@ class RC2 extends BlockCipher
     private $orig_key;
 
     /**
-     * Don't truncate / null pad key
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::clearBuffers()
-     * @var bool
-     */
-    private $skip_key_adjustment = true;
-
-    /**
      * Key Length (in bytes)
      *
      * @see \phpseclib3\Crypt\RC2::setKeyLength()

@@ -81,22 +81,6 @@ abstract class AsymmetricKey
     private static $invisiblePlugins = [];
 
     /**
-     * Supported signature formats (lower case)
-     *
-     * @see self::initialize_static_variables()
-     * @var array
-     */
-    private static $signatureFormats = [];
-
-    /**
-     * Supported signature formats (original case)
-     *
-     * @see self::initialize_static_variables()
-     * @var array
-     */
-    private static $signatureFileFormats = [];
-
-    /**
      * Available Engines
      *
      * @var boolean[]

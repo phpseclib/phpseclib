@@ -110,13 +110,6 @@ class Agent
     private $expected_bytes = 0;
 
     /**
-     * The current request channel
-     *
-     * @var int
-     */
-    private $request_channel;
-
-    /**
      * Default Constructor
      *
      * @return \phpseclib3\System\SSH\Agent
