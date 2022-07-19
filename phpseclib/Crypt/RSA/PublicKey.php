@@ -35,6 +35,16 @@ class PublicKey extends RSA implements Common\PublicKey
     use Common\Traits\Fingerprint;
 
     /**
+     * Public Exponent
+     */
+    protected $publicExponent = false;
+
+    /**
+     * Private Exponent
+     */
+    protected $privateExponent;
+
+    /**
      * Exponentiate
      */
     private function exponentiate(BigInteger $x): BigInteger

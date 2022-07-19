@@ -42,6 +42,11 @@ class PrimeField extends FiniteField
     protected $instanceID;
 
     /**
+     * @var BigInteger
+     */
+    protected $modulo;
+
+    /**
      * Default constructor
      */
     public function __construct(BigInteger $modulo)

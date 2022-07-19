@@ -24,6 +24,10 @@ use phpseclib3\Math\BigInteger;
 //class secp256k1 extends Prime
 class secp256k1 extends KoblitzPrime
 {
+    public $basis;
+
+    public $beta;
+
     public function __construct()
     {
         $this->setModulo(new BigInteger('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F', 16));

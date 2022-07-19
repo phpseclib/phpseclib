@@ -63,6 +63,11 @@ class Integer extends Base
     protected static $reduce;
 
     /**
+     * @var bool|string
+     */
+    public $key;
+
+    /**
      * Default constructor
      */
     public function __construct($instanceID, $num = '')

@@ -264,6 +264,11 @@ abstract class SymmetricKey
     protected $debuffer;
 
     /**
+     * @var array
+     */
+    protected $buffer;
+
+    /**
      * Does internal cipher state need to be (re)initialized?
      *
      * @see self::setKey()

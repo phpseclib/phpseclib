@@ -20,6 +20,10 @@ use phpseclib3\Math\BigInteger;
 
 class secp224k1 extends KoblitzPrime
 {
+    public $basis;
+
+    public $beta;
+
     public function __construct()
     {
         $this->setModulo(new BigInteger('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFE56D', 16));
