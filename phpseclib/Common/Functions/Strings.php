@@ -220,7 +220,7 @@ abstract class Strings
         $parts = preg_split('#(\d+)#', $format, -1, PREG_SPLIT_DELIM_CAPTURE);
         $format = '';
         for ($i = 1; $i < count($parts); $i += 2) {
-            $format .= substr($parts[$i - 1], 0, -1) . str_repeat(substr($parts[$i - 1], -1), (int) $parts[$i]);
+            $format .= substr($parts[$i - 1], 0, -1) . str_repeat($parts[$i - 1][-1], (int) $parts[$i]);
         }
         $format .= $parts[$i - 1];
 

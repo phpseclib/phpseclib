@@ -102,7 +102,7 @@ abstract class TestCase extends PhpseclibTestCase
         $x = $this->getInstance('1180591620717411303425');    // 2**70 + 1
         $y = $this->getInstance('12345678910');
 
-        list($q, $r) = $x->divide($y);
+        [$q, $r] = $x->divide($y);
 
         $this->assertSame('95627922070', (string) $q);
         $this->assertSame('10688759725', (string) $r);
@@ -110,7 +110,7 @@ abstract class TestCase extends PhpseclibTestCase
         $x = $this->getInstance('3369993333393829974333376885877453834204643052817571560137951281152');
         $y = $this->getInstance('4294967296');
 
-        list($q, $r) = $x->divide($y);
+        [$q, $r] = $x->divide($y);
 
         $this->assertSame('784637716923335095479473677900958302012794430558004314112', (string) $q);
         $this->assertSame('0', (string) $r);
@@ -118,7 +118,7 @@ abstract class TestCase extends PhpseclibTestCase
         $x = $this->getInstance('3369993333393829974333376885877453834204643052817571560137951281153');
         $y = $this->getInstance('4294967296');
 
-        list($q, $r) = $x->divide($y);
+        [$q, $r] = $x->divide($y);
 
         $this->assertSame('784637716923335095479473677900958302012794430558004314112', (string) $q);
         $this->assertSame('1', (string) $r);
@@ -143,7 +143,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame('4', (string) $c);
 
         $d = $a->multiply($c);
-        list($q, $r) = $d->divide($b);
+        [$q, $r] = $d->divide($b);
         $this->assertSame('1', (string) $r);
     }
 

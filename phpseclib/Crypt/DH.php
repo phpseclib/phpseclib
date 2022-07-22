@@ -46,7 +46,7 @@ abstract class DH extends AsymmetricKey
      *
      * @var string
      */
-    const ALGORITHM = 'DH';
+    public const ALGORITHM = 'DH';
 
     /**
      * DH prime
@@ -307,9 +307,8 @@ abstract class DH extends AsymmetricKey
      * Load the key
      *
      * @param string|array $key
-     * @param string $password optional
      */
-    public static function load($key, $password = false): AsymmetricKey
+    public static function load($key, ?string $password = null): AsymmetricKey
     {
         try {
             return EC::load($key, $password);
@@ -322,7 +321,7 @@ abstract class DH extends AsymmetricKey
     /**
      * OnLoad Handler
      *
-     * @return bool
+     * @return Parameters|PrivateKey|PublicKey
      */
     protected static function onLoad(array $components)
     {

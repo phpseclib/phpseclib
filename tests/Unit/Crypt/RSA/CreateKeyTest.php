@@ -38,7 +38,7 @@ class CreateKeyTest extends PhpseclibTestCase
      */
     public function testEncryptDecrypt($args): void
     {
-        list($publickey, $privatekey) = $args;
+        [$publickey, $privatekey] = $args;
         $ciphertext = $publickey->encrypt('zzz');
         $this->assertIsString($ciphertext);
         $plaintext = $privatekey->decrypt($ciphertext);

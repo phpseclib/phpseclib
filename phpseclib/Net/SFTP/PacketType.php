@@ -13,32 +13,32 @@ abstract class PacketType
 {
     use ConstantUtilityTrait;
 
-    const INIT = 1;
-    const VERSION = 2;
-    const OPEN = 3;
-    const CLOSE = 4;
-    const READ = 5;
-    const WRITE = 6;
-    const LSTAT = 7;
-    const SETSTAT = 9;
-    const FSETSTAT = 10;
-    const OPENDIR = 11;
-    const READDIR = 12;
-    const REMOVE = 13;
-    const MKDIR = 14;
-    const RMDIR = 15;
-    const REALPATH = 16;
-    const STAT = 17;
-    const RENAME = 18;
-    const READLINK = 19;
-    const SYMLINK = 20;
-    const LINK = 21;
+    public const INIT = 1;
+    public const VERSION = 2;
+    public const OPEN = 3;
+    public const CLOSE = 4;
+    public const READ = 5;
+    public const WRITE = 6;
+    public const LSTAT = 7;
+    public const SETSTAT = 9;
+    public const FSETSTAT = 10;
+    public const OPENDIR = 11;
+    public const READDIR = 12;
+    public const REMOVE = 13;
+    public const MKDIR = 14;
+    public const RMDIR = 15;
+    public const REALPATH = 16;
+    public const STAT = 17;
+    public const RENAME = 18;
+    public const READLINK = 19;
+    public const SYMLINK = 20;
+    public const LINK = 21;
 
-    const STATUS = 101;
-    const HANDLE = 102;
-    const DATA = 103;
-    const NAME = 104;
-    const ATTRS = 105;
+    public const STATUS = 101;
+    public const HANDLE = 102;
+    public const DATA = 103;
+    public const NAME = 104;
+    public const ATTRS = 105;
 
-    const EXTENDED = 200;
+    public const EXTENDED = 200;
 }

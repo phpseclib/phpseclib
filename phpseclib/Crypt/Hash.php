@@ -48,17 +48,17 @@ class Hash
     /**
      * Padding Types
      */
-    const PADDING_KECCAK = 1;
+    public const PADDING_KECCAK = 1;
 
     /**
      * Padding Types
      */
-    const PADDING_SHA3 = 2;
+    public const PADDING_SHA3 = 2;
 
     /**
      * Padding Types
      */
-    const PADDING_SHAKE = 3;
+    public const PADDING_SHAKE = 3;
 
     /**
      * Padding Type

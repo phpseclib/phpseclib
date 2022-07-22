@@ -295,16 +295,15 @@ abstract class PKCS8 extends PKCS
      * Break a public or private key down into its constituent components
      *
      * @param string|array $key
-     * @param string|false $password
      */
-    protected static function load($key, $password = ''): array
+    protected static function load($key, ?string $password = null): array
     {
         $decoded = self::preParse($key);
 
         $meta = [];
 
         $decrypted = ASN1::asn1map($decoded[0], Maps\EncryptedPrivateKeyInfo::MAP);
-        if ($password !== false && strlen($password) && is_array($decrypted)) {
+        if ($password !== null && strlen($password) && is_array($decrypted)) {
             $algorithm = $decrypted['encryptionAlgorithm']['algorithm'];
             switch ($algorithm) {
                 // PBES1

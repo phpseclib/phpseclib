@@ -39,14 +39,12 @@ abstract class MontgomeryPrivate
     /**
      * Is invisible flag
      */
-    const IS_INVISIBLE = true;
+    public const IS_INVISIBLE = true;
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|false $password
      */
-    public static function load(string $key, $password = ''): array
+    public static function load(string $key, ?string $password = null): array
     {
         switch (strlen($key)) {
             case 32:
@@ -82,9 +80,8 @@ abstract class MontgomeryPrivate
      * Convert a private key to the appropriate format.
      *
      * @param Integer[] $publicKey
-     * @param string|false $password
      */
-    public static function savePrivateKey(BigInteger $privateKey, MontgomeryCurve $curve, array $publicKey, $password = ''): string
+    public static function savePrivateKey(BigInteger $privateKey, MontgomeryCurve $curve, array $publicKey, ?string $password = null): string
     {
         if (!empty($password) && is_string($password)) {
             throw new UnsupportedFormatException('MontgomeryPrivate private keys do not support encryption');

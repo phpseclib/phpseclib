@@ -26,7 +26,7 @@ use phpseclib3\File\ASN1;
  */
 abstract class PBEParameter
 {
-    const MAP = [
+    public const MAP = [
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'salt' => ['type' => ASN1::TYPE_OCTET_STRING],

@@ -431,7 +431,7 @@ qMnD/pkHR/NFcYSYShUJS0cHyryVl7/eCclsQlZTRdnVTtKF9xPGTQC8fK0G7BDN
 Z2sKniRCcDT1ZP4=
 -----END PRIVATE KEY-----';
 
-        $rsa = RSA::load($key, false, 'PKCS8');
+        $rsa = RSA::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
     }

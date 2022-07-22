@@ -34,39 +34,38 @@ abstract class MSBLOB
     /**
      * Public/Private Key Pair
      */
-    const PRIVATEKEYBLOB = 0x7;
+    public const PRIVATEKEYBLOB = 0x7;
     /**
      * Public Key
      */
-    const PUBLICKEYBLOB = 0x6;
+    public const PUBLICKEYBLOB = 0x6;
     /**
      * Public Key
      */
-    const PUBLICKEYBLOBEX = 0xA;
+    public const PUBLICKEYBLOBEX = 0xA;
     /**
      * RSA public key exchange algorithm
      */
-    const CALG_RSA_KEYX = 0x0000A400;
+    public const CALG_RSA_KEYX = 0x0000A400;
     /**
      * RSA public key exchange algorithm
      */
-    const CALG_RSA_SIGN = 0x00002400;
+    public const CALG_RSA_SIGN = 0x00002400;
     /**
      * Public Key
      */
-    const RSA1 = 0x31415352;
+    public const RSA1 = 0x31415352;
     /**
      * Private Key
      */
-    const RSA2 = 0x32415352;
+    public const RSA2 = 0x32415352;
 
     /**
      * Break a public or private key down into its constituent components
      *
      * @param string|array $key
-     * @param string|false $password
      */
-    public static function load($key, $password = ''): array
+    public static function load($key, ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -168,10 +167,8 @@ abstract class MSBLOB
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @param string|false $password
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = ''): string
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, ?string $password = null): string
     {
         if (count($primes) != 2) {
             throw new \InvalidArgumentException('MSBLOB does not support multi-prime RSA keys');

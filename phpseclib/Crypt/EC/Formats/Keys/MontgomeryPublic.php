@@ -30,14 +30,12 @@ abstract class MontgomeryPublic
     /**
      * Is invisible flag
      */
-    const IS_INVISIBLE = true;
+    public const IS_INVISIBLE = true;
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|false $password
      */
-    public static function load(string $key, $password = ''): array
+    public static function load(string $key, ?string $password = null): array
     {
         switch (strlen($key)) {
             case 32:

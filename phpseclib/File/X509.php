@@ -54,44 +54,44 @@ class X509
      *
      * Not really used anymore but retained all the same to suppress E_NOTICEs from old installs
      */
-    const VALIDATE_SIGNATURE_BY_CA = 1;
+    public const VALIDATE_SIGNATURE_BY_CA = 1;
 
     /**
      * Return internal array representation
      *
      * @see \phpseclib3\File\X509::getDN()
      */
-    const DN_ARRAY = 0;
+    public const DN_ARRAY = 0;
     /**
      * Return string
      *
      * @see \phpseclib3\File\X509::getDN()
      */
-    const DN_STRING = 1;
+    public const DN_STRING = 1;
     /**
      * Return ASN.1 name string
      *
      * @see \phpseclib3\File\X509::getDN()
      */
-    const DN_ASN1 = 2;
+    public const DN_ASN1 = 2;
     /**
      * Return OpenSSL compatible array
      *
      * @see \phpseclib3\File\X509::getDN()
      */
-    const DN_OPENSSL = 3;
+    public const DN_OPENSSL = 3;
     /**
      * Return canonical ASN.1 RDNs string
      *
      * @see \phpseclib3\File\X509::getDN()
      */
-    const DN_CANON = 4;
+    public const DN_CANON = 4;
     /**
      * Return name hash for file indexing
      *
      * @see \phpseclib3\File\X509::getDN()
      */
-    const DN_HASH = 5;
+    public const DN_HASH = 5;
 
     /**
      * Save as PEM
@@ -102,7 +102,7 @@ class X509
      * @see \phpseclib3\File\X509::saveCSR()
      * @see \phpseclib3\File\X509::saveCRL()
      */
-    const FORMAT_PEM = 0;
+    public const FORMAT_PEM = 0;
     /**
      * Save as DER
      *
@@ -110,7 +110,7 @@ class X509
      * @see \phpseclib3\File\X509::saveCSR()
      * @see \phpseclib3\File\X509::saveCRL()
      */
-    const FORMAT_DER = 1;
+    public const FORMAT_DER = 1;
     /**
      * Save as a SPKAC
      *
@@ -120,7 +120,7 @@ class X509
      *
      * Only works on CSRs. Not currently supported.
      */
-    const FORMAT_SPKAC = 2;
+    public const FORMAT_SPKAC = 2;
     /**
      * Auto-detect the format
      *
@@ -130,15 +130,15 @@ class X509
      * @see \phpseclib3\File\X509::saveCSR()
      * @see \phpseclib3\File\X509::saveCRL()
      */
-    const FORMAT_AUTO_DETECT = 3;
+    public const FORMAT_AUTO_DETECT = 3;
 
     /**
      * Attribute value disposition.
      * If disposition is >= 0, this is the index of the target value.
      */
-    const ATTR_ALL = -1; // All attribute values (array).
-    const ATTR_APPEND = -2; // Add a value.
-    const ATTR_REPLACE = -3; // Clear first, then add a value.
+    public const ATTR_ALL = -1; // All attribute values (array).
+    public const ATTR_APPEND = -2; // Add a value.
+    public const ATTR_REPLACE = -3; // Clear first, then add a value.
 
     /**
      * Distinguished Name

@@ -16,8 +16,8 @@ class SFTPLargeFileTest extends SFTPTestCase
 {
     public static function setUpBeforeClass(): void
     {
-        if (!extension_loaded('mcrypt') && !extension_loaded('openssl')) {
-            self::markTestSkipped('This test depends on mcrypt or openssl for performance.');
+        if (!extension_loaded('openssl')) {
+            self::markTestSkipped('This test depends on openssl for performance.');
         }
         self::ensureConstant('CRYPT_HASH_MODE', 3);
         parent::setUpBeforeClass();

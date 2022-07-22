@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of Twofish.
  *
- * Uses mcrypt, if available, and an internal implementation, otherwise.
+ * Uses an internal implementation.
  *
  * PHP version 5
  *
@@ -48,22 +48,6 @@ use phpseclib3\Exception\BadModeException;
  */
 class Twofish extends BlockCipher
 {
-    /**
-     * The mcrypt specific name of the cipher
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
-     * @var string
-     */
-    protected $cipher_name_mcrypt = 'twofish';
-
-    /**
-     * Optimizing value while CFB-encrypting
-     *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cfb_init_len
-     * @var int
-     */
-    protected $cfb_init_len = 800;
-
     /**
      * Q-Table
      *

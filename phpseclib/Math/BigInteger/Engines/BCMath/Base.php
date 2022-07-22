@@ -29,11 +29,11 @@ abstract class Base extends BCMath
      *
      * $cache[self::VARIABLE] tells us whether or not the cached data is still valid.
      */
-    const VARIABLE = 0;
+    public const VARIABLE = 0;
     /**
      * $cache[self::DATA] contains the cached data.
      */
-    const DATA = 1;
+    public const DATA = 1;
 
     /**
      * Test for engine validity

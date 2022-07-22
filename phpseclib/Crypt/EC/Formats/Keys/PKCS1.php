@@ -52,9 +52,8 @@ abstract class PKCS1 extends Progenitor
      * Break a public or private key down into its constituent components
      *
      * @param string|array $key
-     * @param string|false $password
      */
-    public static function load($key, $password = ''): array
+    public static function load($key, ?string $password = null): array
     {
         self::initialize_static_variables();
 
@@ -164,10 +163,8 @@ abstract class PKCS1 extends Progenitor
      * Convert a private key to the appropriate format.
      *
      * @param Integer[] $publicKey
-     * @param string|false $password
-     * @param array $options optional
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, $password = '', array $options = []): string
+    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, ?string $password = null, array $options = []): string
     {
         self::initialize_static_variables();
 

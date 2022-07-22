@@ -18,7 +18,6 @@ class RC2Test extends PhpseclibTestCase
     public $engines = [
         'PHP',
         'Eval',
-        'mcrypt',
         'OpenSSL',
     ];
 
@@ -93,14 +92,6 @@ class RC2Test extends PhpseclibTestCase
 
         $result = pack('H*', 'e3b36057f4821346');
         $this->assertEquals($result, $internal, 'Failed asserting that the internal engine produced the correct result');
-
-        $rc2->setPreferredEngine('mcrypt');
-        if ($rc2->getEngine() == 'mcrypt') {
-            $mcrypt = $rc2->encrypt('d');
-            $this->assertEquals($result, $mcrypt, 'Failed asserting that the mcrypt engine produced the correct result');
-        } else {
-            self::markTestSkipped('Unable to initialize mcrypt engine');
-        }
 
         $rc2->setPreferredEngine('OpenSSL');
         if ($rc2->getEngine() == 'OpenSSL') {

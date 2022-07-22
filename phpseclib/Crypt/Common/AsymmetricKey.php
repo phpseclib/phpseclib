@@ -94,8 +94,6 @@ abstract class AsymmetricKey
      */
     private $comment;
 
-    /**
-     */
     abstract public function toString(string $type, array $options = []): string;
 
     /**
@@ -129,9 +127,8 @@ abstract class AsymmetricKey
      * Load the key
      *
      * @param string|array $key
-     * @param string $password optional
      */
-    public static function load($key, $password = false): AsymmetricKey
+    public static function load($key, ?string $password = null): AsymmetricKey
     {
         self::initialize_static_variables();
 
@@ -210,10 +207,9 @@ abstract class AsymmetricKey
     /**
      * Load the key, assuming a specific format
      *
-     * @param string $password optional
      * @return static
      */
-    public static function loadFormat(string $type, string $key, $password = false): AsymmetricKey
+    public static function loadFormat(string $type, string $key, ?string $password = null): AsymmetricKey
     {
         self::initialize_static_variables();
 
@@ -239,10 +235,8 @@ abstract class AsymmetricKey
 
     /**
      * Loads a private key
-     *
-     * @param string $password optional
      */
-    public static function loadPrivateKeyFormat(string $type, string $key, $password = false): PrivateKey
+    public static function loadPrivateKeyFormat(string $type, string $key, ?string $password = null): PrivateKey
     {
         $key = self::loadFormat($type, $key, $password);
         if (!$key instanceof PrivateKey) {

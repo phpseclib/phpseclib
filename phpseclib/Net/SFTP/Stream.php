@@ -148,7 +148,7 @@ class Stream
         }
         if (isset($fragment)) {
             $path .= '#' . $fragment;
-        } elseif ($orig[strlen($orig) - 1] == '#') {
+        } elseif ($orig[-1] == '#') {
             $path .= '#';
         }
 

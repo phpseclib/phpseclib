@@ -57,9 +57,8 @@ abstract class OpenSSH
      * $type can be either ssh-dss or ssh-rsa
      *
      * @param string|array $key
-     * @param string|false $password
      */
-    public static function load($key, $password = ''): array
+    public static function load($key, ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -90,7 +89,7 @@ abstract class OpenSSH
 
                   bcrypt is basically Blowfish with an altered key expansion. whereas Blowfish just runs the
                   key through the key expansion bcrypt interleaves the key expansion with the salt and
-                  password. this renders openssl / mcrypt unusuable. this forces us to use a pure-PHP implementation
+                  password. this renders openssl unusable. this forces us to use a pure-PHP implementation
                   of bcrypt. the problem with that is that pure-PHP is too slow to be practically useful.
 
                   in addition to encrypting a different string 64 times the OpenSSH implementation also performs bcrypt

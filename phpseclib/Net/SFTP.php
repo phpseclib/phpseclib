@@ -61,40 +61,40 @@ class SFTP extends SSH2
      * @see \phpseclib3\Net\SSH2::send_channel_packet()
      * @see \phpseclib3\Net\SSH2::get_channel_packet()
      */
-    const CHANNEL = 0x100;
+    public const CHANNEL = 0x100;
 
     /**
      * Reads data from a local file.
      *
      * @see \phpseclib3\Net\SFTP::put()
      */
-    const SOURCE_LOCAL_FILE = 1;
+    public const SOURCE_LOCAL_FILE = 1;
     /**
      * Reads data from a string.
      *
      * @see \phpseclib3\Net\SFTP::put()
      */
     // this value isn't really used anymore but i'm keeping it reserved for historical reasons
-    const SOURCE_STRING = 2;
+    public const SOURCE_STRING = 2;
     /**
      * Reads data from callback:
      * function callback($length) returns string to proceed, null for EOF
      *
      * @see \phpseclib3\Net\SFTP::put()
      */
-    const SOURCE_CALLBACK = 16;
+    public const SOURCE_CALLBACK = 16;
     /**
      * Resumes an upload
      *
      * @see \phpseclib3\Net\SFTP::put()
      */
-    const RESUME = 4;
+    public const RESUME = 4;
     /**
      * Append a local file to an already existing remote file
      *
      * @see \phpseclib3\Net\SFTP::put()
      */
-    const RESUME_START = 8;
+    public const RESUME_START = 8;
 
     /**
      * The Request ID
@@ -718,7 +718,7 @@ class SFTP extends SSH2
         if ($dir === '') {
             $dir = './';
         // suffix a slash if needed
-        } elseif ($dir[strlen($dir) - 1] != '/') {
+        } elseif ($dir[-1] != '/') {
             $dir .= '/';
         }
 

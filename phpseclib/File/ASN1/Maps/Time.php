@@ -24,7 +24,7 @@ use phpseclib3\File\ASN1;
  */
 abstract class Time
 {
-    const MAP = [
+    public const MAP = [
         'type' => ASN1::TYPE_CHOICE,
         'children' => [
             'utcTime' => ['type' => ASN1::TYPE_UTC_TIME],

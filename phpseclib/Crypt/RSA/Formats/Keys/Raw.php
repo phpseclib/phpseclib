@@ -39,9 +39,8 @@ abstract class Raw
      * Break a public or private key down into its constituent components
      *
      * @param string|array $key
-     * @param string|false $password
      */
-    public static function load($key, $password = ''): array
+    public static function load($key, ?string $password = null): array
     {
         if (!is_array($key)) {
             throw new \UnexpectedValueException('Key should be a array - not a ' . gettype($key));
@@ -139,11 +138,8 @@ abstract class Raw
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @param string|false $password optional
-     * @param array $options optional
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, $password = '', array $options = []): string
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, ?string $password = null, array $options = []): string
     {
         if (!empty($password) && is_string($password)) {
             throw new UnsupportedFormatException('Raw private keys do not support encryption');
