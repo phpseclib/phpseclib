@@ -3142,9 +3142,25 @@ abstract class SymmetricKey
     {
         switch (true) {
             case is_int($x):
-            // PHP 5.3, per http://php.net/releases/5_3_0.php, introduced "more consistent float rounding"
             case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
                 return $x;
+            case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
+                switch (true) {
+                    /* PHP 7.0.0 introduced a bug that affected 32-bit ARM processors:
+
+                       https://github.com/php/php-src/commit/716da71446ebbd40fa6cf2cea8a4b70f504cc3cd
+
+                       altho the changelogs make no mention of it, this bug was fixed with this commit:
+
+                       https://github.com/php/php-src/commit/c1729272b17a1fe893d1a54e423d3b71470f3ee8
+
+                       affected versions of PHP are: 7.0.x, 7.1.0 - 7.1.23 and 7.2.0 - 7.2.11 */
+                    case PHP_VERSION_ID >= 70000 && PHP_VERSION_ID <= 70123:
+                    case PHP_VERSION_ID >= 70200 && PHP_VERSION_ID <= 70211:
+                        break;
+                    default:
+                        return $x;
+                }
         }
         return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
             ((fmod(floor($x / 0x80000000), 2) & 1) << 31);
@@ -3162,6 +3178,14 @@ abstract class SymmetricKey
             case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
                 return '%s';
                 break;
+            case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
+                switch (true) {
+                    case PHP_VERSION_ID >= 70000 && PHP_VERSION_ID <= 70123:
+                    case PHP_VERSION_ID >= 70200 && PHP_VERSION_ID <= 70211:
+                        break;
+                    default:
+                        return '%s';
+                }
             default:
                 $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
                 return $safeint . '((fmod(floor($temp / 0x80000000), 2) & 1) << 31))';
