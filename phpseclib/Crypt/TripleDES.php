@@ -3,7 +3,9 @@
 /**
  * Pure-PHP implementation of Triple DES.
  *
- * Uses an internal implementation.  Operates in the EDE3 mode (encrypt-decrypt-encrypt).
+ * Uses OpenSSL, if available/possible, and an internal implementation, otherwise.
+ *
+ * Operates in the EDE3 mode (encrypt-decrypt-encrypt).
  *
  * PHP version 5
  *
@@ -369,7 +371,7 @@ class TripleDES extends DES
     {
         switch (true) {
             // if $key <= 64bits we configure our internal pure-php cipher engine
-            // to act as regular [1]DES, not as 3DES.
+            // to act as regular [1]DES, not as 3DES. mcrypt.so::tripledes does the same.
             case strlen($this->key) <= 8:
                 $this->des_rounds = 1;
                 break;

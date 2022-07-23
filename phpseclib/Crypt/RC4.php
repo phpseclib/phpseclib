@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of RC4.
  *
- * Uses an internal implementation.
+ * Uses OpenSSL, if available/possible, and an internal implementation, otherwise
  *
  * PHP version 5
  *

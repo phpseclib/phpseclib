@@ -3,7 +3,7 @@
 /**
  * Pure-PHP implementation of RC2.
  *
- * Uses an internal implementation.
+ * Uses OpenSSL, if available/possible, and an internal implementation, otherwise
  *
  * PHP version 5
  *
@@ -318,6 +318,12 @@ class RC2 extends BlockCipher
         }
 
         $t = strlen($key);
+
+        // The mcrypt RC2 implementation only supports effective key length
+        // of 1024 bits. It is however possible to handle effective key
+        // lengths in range 1..1024 by expanding the key and applying
+        // inverse pitable mapping to the first byte before submitting it
+        // to mcrypt.
 
         // Key expansion.
         $l = array_values(unpack('C*', $key));
