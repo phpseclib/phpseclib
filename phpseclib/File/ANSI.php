@@ -77,6 +77,13 @@ class ANSI
     private $y;
 
     /**
+     * Old Column
+     *
+     * @var int
+     */
+    private $old_x;
+
+    /**
      * Old Row
      *
      * @var int
@@ -214,6 +221,7 @@ class ANSI
                 // http://ascii-table.com/ansi-escape-sequences-vt-100.php
                 switch ($this->ansi) {
                     case "\x1B[H": // Move cursor to upper left corner
+                        $this->old_x = $this->x;
                         $this->old_y = $this->y;
                         $this->x = $this->y = 0;
                         break;
@@ -253,14 +261,17 @@ class ANSI
                                 $this->y += (int) $match[1];
                                 break;
                             case preg_match('#\x1B\[(\d+);(\d+)H#', $this->ansi, $match): // Move cursor to screen location v,h
+                                $this->old_x = $this->x;
                                 $this->old_y = $this->y;
                                 $this->x = $match[2] - 1;
                                 $this->y = (int) $match[1] - 1;
                                 break;
                             case preg_match('#\x1B\[(\d+)C#', $this->ansi, $match): // Move cursor right n lines
+                                $this->old_x = $this->x;
                                 $this->x += $match[1];
                                 break;
                             case preg_match('#\x1B\[(\d+)D#', $this->ansi, $match): // Move cursor left n lines
+                                $this->old_x = $this->x;
                                 $this->x -= $match[1];
                                 if ($this->x < 0) {
                                     $this->x = 0;

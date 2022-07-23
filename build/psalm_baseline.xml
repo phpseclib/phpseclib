@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.23.0@f1fe6ff483bf325c803df9f510d09a03fd796f88">
+<files psalm-version="4.24.0@06dd975cb55d36af80f242561738f16c5f58264f">
   <file src="../phpseclib/Common/Functions/Strings.php">
     <MissingParamType occurrences="1">
       <code>$var</code>
@@ -2048,7 +2048,7 @@
     <MixedArrayOffset occurrences="1">
       <code>[static::OID_NAME =&gt; static::OID_VALUE]</code>
     </MixedArrayOffset>
-    <MixedAssignment occurrences="15">
+    <MixedAssignment occurrences="16">
       <code>$algorithm</code>
       <code>$encryptionAlgorithm</code>
       <code>$encryptionScheme</code>
@@ -2057,6 +2057,7 @@
       <code>$key</code>
       <code>$key</code>
       <code>$key['privateKeyAlgorithm']['parameters']</code>
+      <code>$key['publicKeyAlgorithm']['parameters']</code>
       <code>$meta['meta']['algorithm']</code>
       <code>$meta['meta']['cipher']</code>
       <code>$meta['meta']['keyDerivationFunc']</code>
@@ -7808,7 +7809,7 @@
       <code>$t</code>
     </MixedOperand>
     <MoreSpecificReturnType occurrences="1">
-      <code>RSA</code>
+      <code>PrivateKey</code>
     </MoreSpecificReturnType>
     <PossiblyFalseArgument occurrences="4">
       <code>$primes[$i]</code>
@@ -9965,8 +9966,12 @@
       <code>$this-&gt;x</code>
       <code>$this-&gt;x + 1</code>
     </PossiblyInvalidArgument>
-    <PossiblyInvalidPropertyAssignmentValue occurrences="5">
+    <PossiblyInvalidPropertyAssignmentValue occurrences="9">
       <code>$match[2] - 1</code>
+      <code>$this-&gt;x</code>
+      <code>$this-&gt;x</code>
+      <code>$this-&gt;x</code>
+      <code>$this-&gt;x</code>
       <code>$this-&gt;x</code>
       <code>$this-&gt;x</code>
       <code>$this-&gt;x += $match[1]</code>
@@ -9987,7 +9992,7 @@
     <PossiblyUnusedReturnValue occurrences="1">
       <code>\phpseclib3\File\ANSI</code>
     </PossiblyUnusedReturnValue>
-    <PropertyNotSetInConstructor occurrences="13">
+    <PropertyNotSetInConstructor occurrences="14">
       <code>$ansi</code>
       <code>$attr_row</code>
       <code>$attrs</code>
@@ -9996,6 +10001,7 @@
       <code>$max_history</code>
       <code>$max_x</code>
       <code>$max_y</code>
+      <code>$old_x</code>
       <code>$old_y</code>
       <code>$screen</code>
       <code>$tokenization</code>
@@ -10009,6 +10015,9 @@
       <code>$this-&gt;screen</code>
       <code>$this-&gt;screen</code>
     </PropertyTypeCoercion>
+    <UnusedProperty occurrences="1">
+      <code>$old_x</code>
+    </UnusedProperty>
   </file>
   <file src="../phpseclib/File/ASN1.php">
     <DocblockTypeContradiction occurrences="4">
@@ -14441,7 +14450,7 @@
       <code>readlink</code>
       <code>realpath</code>
     </MissingReturnType>
-    <MixedArgument occurrences="75">
+    <MixedArgument occurrences="72">
       <code>$a['filename']</code>
       <code>$attr['mode']</code>
       <code>$b['filename']</code>
@@ -14475,7 +14484,6 @@
       <code>$fp</code>
       <code>$fp</code>
       <code>$length</code>
-      <code>$length + $res_offset</code>
       <code>$link</code>
       <code>$link</code>
       <code>$link</code>
@@ -14492,8 +14500,6 @@
       <code>$remote_file</code>
       <code>$remote_file</code>
       <code>$stat['atime']</code>
-      <code>$stat['atime']</code>
-      <code>$stat['mtime']</code>
       <code>$stat['mtime']</code>
       <code>$status</code>
       <code>$status</code>
@@ -14539,7 +14545,7 @@
       <code>$this-&gt;requestBuffer[$packet_id]</code>
       <code>$this-&gt;requestBuffer[$request_id]</code>
     </MixedArrayOffset>
-    <MixedAssignment occurrences="68">
+    <MixedAssignment occurrences="64">
       <code>$a[$sort]</code>
       <code>$attr</code>
       <code>$attr</code>
@@ -14576,7 +14582,6 @@
       <code>$props</code>
       <code>$remote_file</code>
       <code>$remote_file</code>
-      <code>$res_offset</code>
       <code>$response</code>
       <code>$response</code>
       <code>$response</code>
@@ -14587,9 +14592,6 @@
       <code>$result</code>
       <code>$result</code>
       <code>$result</code>
-      <code>$size</code>
-      <code>$size</code>
-      <code>$size</code>
       <code>$size</code>
       <code>$subtemp</code>
       <code>$temp</code>
@@ -14619,7 +14621,7 @@
       <code>string</code>
       <code>string|bool</code>
     </MixedInferredReturnType>
-    <MixedOperand occurrences="31">
+    <MixedOperand occurrences="28">
       <code>$a[$sort]</code>
       <code>$a[$sort]</code>
       <code>$attr</code>
@@ -14636,11 +14638,8 @@
       <code>$key</code>
       <code>$length</code>
       <code>$offset</code>
-      <code>$res_offset</code>
       <code>$shortname</code>
       <code>$shortname</code>
-      <code>$size</code>
-      <code>$size</code>
       <code>$start</code>
       <code>$subtemp</code>
       <code>$temp</code>
@@ -14737,7 +14736,7 @@
       <code>$this-&gt;channel_status[self::CHANNEL]</code>
       <code>$this-&gt;server_channels[self::CHANNEL]</code>
     </PossiblyUndefinedIntArrayOffset>
-    <PossiblyUndefinedStringArrayOffset occurrences="20">
+    <PossiblyUndefinedStringArrayOffset occurrences="14">
       <code>$a['filename']</code>
       <code>$a['filename']</code>
       <code>$a['filename']</code>
@@ -14749,13 +14748,7 @@
       <code>$b['filename']</code>
       <code>$b['filename']</code>
       <code>$stat['atime']</code>
-      <code>$stat['atime']</code>
-      <code>$stat['atime']</code>
       <code>$stat['mtime']</code>
-      <code>$stat['mtime']</code>
-      <code>$stat['mtime']</code>
-      <code>$stat['size']</code>
-      <code>$stat['size']</code>
       <code>$stat['type']</code>
       <code>$this-&gt;stat($remote_file)['size']</code>
     </PossiblyUndefinedStringArrayOffset>
@@ -17114,8 +17107,7 @@
     <MissingParamType occurrences="1">
       <code>$args</code>
     </MissingParamType>
-    <MixedArgument occurrences="4">
-      <code>$key</code>
+    <MixedArgument occurrences="3">
       <code>$r['primes']</code>
       <code>$r['primes']</code>
       <code>$rsa-&gt;getPublicKey()-&gt;toString('PKCS1')</code>
@@ -17124,20 +17116,18 @@
       <code>$privatekey</code>
       <code>$publickey</code>
     </MixedArrayAccess>
-    <MixedAssignment occurrences="7">
+    <MixedAssignment occurrences="6">
       <code>$actual</code>
       <code>$ciphertext</code>
-      <code>$key</code>
       <code>$plaintext</code>
       <code>$prime</code>
       <code>$signature</code>
       <code>[$publickey, $privatekey]</code>
     </MixedAssignment>
-    <MixedMethodCall occurrences="5">
+    <MixedMethodCall occurrences="4">
       <code>decrypt</code>
       <code>encrypt</code>
       <code>getLength</code>
-      <code>toString</code>
       <code>toString</code>
     </MixedMethodCall>
     <PossiblyUndefinedStringArrayOffset occurrences="3">
@@ -17149,13 +17139,10 @@
       <code>CreateKeyTest</code>
       <code>CreateKeyTest</code>
     </PropertyNotSetInConstructor>
-    <UndefinedMethod occurrences="6">
-      <code>getPublicKey</code>
-      <code>getPublicKey</code>
+    <UndefinedMethod occurrences="3">
       <code>getPublicKey</code>
       <code>sign</code>
       <code>verify</code>
-      <code>withPassword</code>
     </UndefinedMethod>
     <UnusedClass occurrences="1">
       <code>CreateKeyTest</code>
@@ -17609,11 +17596,10 @@
       <code>'phpseclib3\Math\BigInteger'</code>
     </ArgumentTypeCoercion>
     <InvalidArgument occurrences="1">
-      <code>$privateKey</code>
-    </InvalidArgument>
-    <MixedArgument occurrences="4">
-      <code>$authority-&gt;sign($issuer, $subject)</code>
       <code>$publicKey</code>
+    </InvalidArgument>
+    <MixedArgument occurrences="3">
+      <code>$authority-&gt;sign($issuer, $subject)</code>
       <code>$result</code>
       <code>$subjectKey</code>
     </MixedArgument>
@@ -17628,11 +17614,10 @@
       <code>$extension['extnValue']</code>
       <code>$loader-&gt;loadX509($cert)['tbsCertificate']</code>
     </MixedArrayAccess>
-    <MixedAssignment occurrences="6">
+    <MixedAssignment occurrences="5">
       <code>$customExtensionDecodedData</code>
       <code>$decodedData</code>
       <code>$extension</code>
-      <code>$publicKey</code>
       <code>$result</code>
       <code>$subjectKey</code>
     </MixedAssignment>
@@ -17651,9 +17636,6 @@
       <code>X509ExtensionTest</code>
       <code>X509ExtensionTest</code>
     </PropertyNotSetInConstructor>
-    <UndefinedMethod occurrences="1">
-      <code>getPublicKey</code>
-    </UndefinedMethod>
     <UnusedClass occurrences="1">
       <code>X509ExtensionTest</code>
     </UnusedClass>
