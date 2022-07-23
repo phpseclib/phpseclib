@@ -79,5 +79,22 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "scripts": {
+        "lint": "parallel-lint --show-deprecated build phpseclib tests",
+        "php_codesniffer": "phpcs --standard=build/php_codesniffer.xml",
+        "php_codesniffer-fix": "phpcbf --standard=build/php_codesniffer.xml",
+        "php-cs-fixer": "php-cs-fixer fix --config=build/php-cs-fixer.php --diff --using-cache=no --dry-run",
+        "php-cs-fixer-fix": "php-cs-fixer fix --config=build/php-cs-fixer.php --diff --using-cache=no",
+        "psalm": "psalm --config=build/psalm.xml --no-cache --long-progress",
+        "psalm-set-baseline": "psalm --config=build/psalm.xml --no-cache --long-progress --set-baseline=psalm_baseline.xml",
+        "test": "vendor/bin/phpunit --configuration tests/phpunit.xml",
+        "all-quality-tools": [
+            "@lint",
+            "@phpcs",
+            "@php-cs-fixer",
+            "@psalm",
+            "@test"
+        ]
     }
 }
