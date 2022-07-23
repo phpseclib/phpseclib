@@ -31,14 +31,14 @@ abstract class ExtensionAttribute
                 'type' => ASN1::TYPE_PRINTABLE_STRING,
                 'constant' => 0,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ],
             'extension-attribute-value' => [
                 'type' => ASN1::TYPE_ANY,
                 'constant' => 1,
                 'optional' => true,
-                'explicit' => true
-            ]
-        ]
+                'explicit' => true,
+            ],
+        ],
     ];
 }

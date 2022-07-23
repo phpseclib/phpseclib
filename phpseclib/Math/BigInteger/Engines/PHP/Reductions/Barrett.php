@@ -49,7 +49,7 @@ abstract class Barrett extends Base
     {
         static $cache = [
             self::VARIABLE => [],
-            self::DATA => []
+            self::DATA => [],
         ];
 
         $m_length = count($m);
@@ -87,7 +87,7 @@ abstract class Barrett extends Base
 
             $cache[self::DATA][] = [
                 'u' => $u, // m.length >> 1 (technically (m.length >> 1) + 1)
-                'm1' => $m1 // m.length
+                'm1' => $m1, // m.length
             ];
         } else {
             extract($cache[self::DATA][$key]);
@@ -139,7 +139,7 @@ abstract class Barrett extends Base
     {
         static $cache = [
             self::VARIABLE => [],
-            self::DATA => []
+            self::DATA => [],
         ];
 
         $n_length = count($n);
@@ -210,7 +210,7 @@ abstract class Barrett extends Base
         if (!$x_length || !$y_length) { // a 0 is being multiplied
             return [
                 self::VALUE => [],
-                self::SIGN => false
+                self::SIGN => false,
             ];
         }
 
@@ -262,7 +262,7 @@ abstract class Barrett extends Base
 
         return [
             self::VALUE => self::trim($product_value),
-            self::SIGN => $x_negative != $y_negative
+            self::SIGN => $x_negative != $y_negative,
         ];
     }
 }

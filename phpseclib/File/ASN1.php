@@ -166,7 +166,7 @@ abstract class ASN1
         self::TYPE_GENERAL_STRING       => 'generalString',
         self::TYPE_UNIVERSAL_STRING     => 'universalString',
         //self::TYPE_CHARACTER_STRING     => 'characterString',
-        self::TYPE_BMP_STRING           => 'bmpString'
+        self::TYPE_BMP_STRING           => 'bmpString',
     ];
 
     /**
@@ -307,7 +307,7 @@ abstract class ASN1
                         'type'     => $class,
                         'constant' => $tag,
                         'content'  => $content,
-                        'length'   => $length + $start - $current['start']
+                        'length'   => $length + $start - $current['start'],
                     ] + $current;
                 }
 
@@ -340,7 +340,7 @@ abstract class ASN1
                     // the only time when $content['headerlength'] isn't defined is when the length is indefinite.
                     // the absence of $content['headerlength'] is how we know if something is indefinite or not.
                     // technically, it could be defined to be 2 and then another indicator could be used but whatever.
-                    'length'   => $start - $current['start']
+                    'length'   => $start - $current['start'],
                 ] + $current;
         }
 

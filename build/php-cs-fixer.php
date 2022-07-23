@@ -26,9 +26,7 @@ return (new PhpCsFixer\Config())
             'phpdoc_trim_consecutive_blank_line_separation' => true,
             'phpdoc_trim' => true,
 
-            '@PHP70Migration' => true,
-            '@PHP70Migration:risky' => true,
-            '@PHP71Migration' => true,
             '@PHP71Migration:risky' => true,
+            '@PHP73Migration' => true,
         ]
     );

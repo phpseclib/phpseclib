@@ -28,6 +28,6 @@ abstract class ExtensionAttributes
         'type' => ASN1::TYPE_SET,
         'min' => 1,
         'max' => 256, // ub-extension-attributes
-        'children' => ExtensionAttribute::MAP
+        'children' => ExtensionAttribute::MAP,
     ];
 }

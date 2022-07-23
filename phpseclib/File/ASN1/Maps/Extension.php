@@ -37,9 +37,9 @@ abstract class Extension
             'critical' => [
                 'type' => ASN1::TYPE_BOOLEAN,
                 'optional' => true,
-                'default' => false
+                'default' => false,
             ],
-            'extnValue' => ['type' => ASN1::TYPE_OCTET_STRING]
-        ]
+            'extnValue' => ['type' => ASN1::TYPE_OCTET_STRING],
+        ],
     ];
 }

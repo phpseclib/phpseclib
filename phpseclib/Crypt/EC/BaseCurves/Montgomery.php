@@ -139,7 +139,7 @@ class Montgomery extends Base
         }
         $this->p = [
             $x instanceof BigInteger ? $this->factory->newInteger($x) : $x,
-            $y instanceof BigInteger ? $this->factory->newInteger($y) : $y
+            $y instanceof BigInteger ? $this->factory->newInteger($y) : $y,
         ];
     }
 
@@ -204,7 +204,7 @@ class Montgomery extends Base
 
         return [
             [$x4, $z4],
-            [$x5, $z5]
+            [$x5, $z5],
         ];
     }
 

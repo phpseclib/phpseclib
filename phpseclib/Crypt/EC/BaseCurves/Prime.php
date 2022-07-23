@@ -159,7 +159,7 @@ class Prime extends Base
         }
         $this->p = [
             $x instanceof BigInteger ? $this->factory->newInteger($x) : $x,
-            $y instanceof BigInteger ? $this->factory->newInteger($y) : $y
+            $y instanceof BigInteger ? $this->factory->newInteger($y) : $y,
         ];
     }
 
@@ -549,7 +549,7 @@ class Prime extends Base
                 $points[$a], // 1
                 null,        // 3
                 null,        // 5
-                $points[$b]  // 7
+                $points[$b],  // 7
             ];
 
             $comb[1] = $this->addPoint($points[$a], $points[$b]);
@@ -564,7 +564,7 @@ class Prime extends Base
                  7, /*  0  1 */
                  5, /*  1 -1 */
                  1, /*  1  0 */
-                 3  /*  1  1 */
+                 3,  /*  1  1 */
             ];
 
             $jsf = self::getJSFPoints($scalars[$a], $scalars[$b]);
@@ -760,7 +760,7 @@ class Prime extends Base
         $z2 = $z->multiply($z);
         return [
             $x->multiply($z2),
-            $y->multiply($z2)->multiply($z)
+            $y->multiply($z2)->multiply($z),
         ];
     }
 

@@ -33,8 +33,8 @@ abstract class PolicyInformation
                 'min' => 0,
                 'max' => -1,
                 'optional' => true,
-                'children' => PolicyQualifierInfo::MAP
-            ]
-        ]
+                'children' => PolicyQualifierInfo::MAP,
+            ],
+        ],
     ];
 }

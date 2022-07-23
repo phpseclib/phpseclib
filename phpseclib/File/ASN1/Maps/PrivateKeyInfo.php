@@ -29,15 +29,15 @@ abstract class PrivateKeyInfo
         'children' => [
             'version' => [
                 'type' => ASN1::TYPE_INTEGER,
-                'mapping' => ['v1']
+                'mapping' => ['v1'],
             ],
             'privateKeyAlgorithm' => AlgorithmIdentifier::MAP,
             'privateKey' => PrivateKey::MAP,
             'attributes' => [
                 'constant' => 0,
                 'optional' => true,
-                'implicit' => true
-            ] + Attributes::MAP
-        ]
+                'implicit' => true,
+            ] + Attributes::MAP,
+        ],
     ];
 }

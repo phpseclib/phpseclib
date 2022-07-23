@@ -31,20 +31,20 @@ abstract class OneAsymmetricKey
         'children' => [
             'version' => [
                 'type' => ASN1::TYPE_INTEGER,
-                'mapping' => ['v1', 'v2']
+                'mapping' => ['v1', 'v2'],
             ],
             'privateKeyAlgorithm' => AlgorithmIdentifier::MAP,
             'privateKey' => PrivateKey::MAP,
             'attributes' => [
                 'constant' => 0,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + Attributes::MAP,
             'publicKey' => [
                 'constant' => 1,
                 'optional' => true,
-                'implicit' => true
-            ] + PublicKey::MAP
-        ]
+                'implicit' => true,
+            ] + PublicKey::MAP,
+        ],
     ];
 }

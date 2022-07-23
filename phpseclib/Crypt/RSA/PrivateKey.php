@@ -105,7 +105,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
         if (!static::$enableBlinding) {
             $m_i = [
                 1 => $x->modPow($this->exponents[1], $this->primes[1]),
-                2 => $x->modPow($this->exponents[2], $this->primes[2])
+                2 => $x->modPow($this->exponents[2], $this->primes[2]),
             ];
             $h = $m_i[1]->subtract($m_i[2]);
             $h = $h->multiply($this->coefficients[2]);
@@ -136,7 +136,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
 
             $m_i = [
                 1 => $this->blind($x, $r, 1),
-                2 => $this->blind($x, $r, 2)
+                2 => $this->blind($x, $r, 2),
             ];
             $h = $m_i[1]->subtract($m_i[2]);
             $h = $h->multiply($this->coefficients[2]);
@@ -465,7 +465,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
                 $options += [
                     'hash' => $this->hash->getHash(),
                     'MGFHash' => $this->mgfHash->getHash(),
-                    'saltLength' => $this->getSaltLength()
+                    'saltLength' => $this->getSaltLength(),
                 ];
             } else {
                 throw new UnsupportedFormatException('The PSS format can only be used when the signature method has been explicitly set to PSS');

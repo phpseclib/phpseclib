@@ -30,7 +30,7 @@ abstract class RSAPrivateKey
         'children' => [
             'version' => [
                 'type' => ASN1::TYPE_INTEGER,
-                'mapping' => ['two-prime', 'multi']
+                'mapping' => ['two-prime', 'multi'],
             ],
             'modulus' => ['type' => ASN1::TYPE_INTEGER],         // n
             'publicExponent' => ['type' => ASN1::TYPE_INTEGER],  // e
@@ -40,7 +40,7 @@ abstract class RSAPrivateKey
             'exponent1' => ['type' => ASN1::TYPE_INTEGER],       // d mod (p-1)
             'exponent2' => ['type' => ASN1::TYPE_INTEGER],       // d mod (q-1)
             'coefficient' => ['type' => ASN1::TYPE_INTEGER],     // (inverse of q) mod p
-            'otherPrimeInfos' => OtherPrimeInfos::MAP + ['optional' => true]
-        ]
+            'otherPrimeInfos' => OtherPrimeInfos::MAP + ['optional' => true],
+        ],
     ];
 }

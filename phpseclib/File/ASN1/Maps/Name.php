@@ -27,7 +27,7 @@ abstract class Name
     public const MAP = [
         'type' => ASN1::TYPE_CHOICE,
         'children' => [
-            'rdnSequence' => RDNSequence::MAP
-        ]
+            'rdnSequence' => RDNSequence::MAP,
+        ],
     ];
 }

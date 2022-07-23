@@ -29,6 +29,6 @@ abstract class OtherPrimeInfos
         'type' => ASN1::TYPE_SEQUENCE,
         'min' => 1,
         'max' => -1,
-        'children' => OtherPrimeInfo::MAP
+        'children' => OtherPrimeInfo::MAP,
     ];
 }

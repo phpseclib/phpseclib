@@ -276,7 +276,7 @@ class GMP extends Engine
         return [
             'gcd' => $this->normalize(new self($g)),
             'x' => $this->normalize(new self($s)),
-            'y' => $this->normalize(new self($t))
+            'y' => $this->normalize(new self($t)),
         ];
     }
 

@@ -35,6 +35,6 @@ abstract class RDNSequence
         // RDNSequence does not define a min or a max, which means it doesn't have one
         'min' => 0,
         'max' => -1,
-        'children' => RelativeDistinguishedName::MAP
+        'children' => RelativeDistinguishedName::MAP,
     ];
 }

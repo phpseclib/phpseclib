@@ -31,8 +31,8 @@ abstract class Curve
             'b' => FieldElement::MAP,
             'seed' => [
                 'type' => ASN1::TYPE_BIT_STRING,
-                'optional' => true
-            ]
-        ]
+                'optional' => true,
+            ],
+        ],
     ];
 }

@@ -31,7 +31,7 @@ abstract class SpecifiedECDomain
         'children' => [
             'version' => [
                 'type' => ASN1::TYPE_INTEGER,
-                'mapping' => [1 => 'ecdpVer1', 'ecdpVer2', 'ecdpVer3']
+                'mapping' => [1 => 'ecdpVer1', 'ecdpVer2', 'ecdpVer3'],
             ],
             'fieldID' => FieldID::MAP,
             'curve' => Curve::MAP,
@@ -39,9 +39,9 @@ abstract class SpecifiedECDomain
             'order' => ['type' => ASN1::TYPE_INTEGER],
             'cofactor' => [
                 'type' => ASN1::TYPE_INTEGER,
-                'optional' => true
+                'optional' => true,
             ],
-            'hash' => ['optional' => true] + HashAlgorithm::MAP
-        ]
+            'hash' => ['optional' => true] + HashAlgorithm::MAP,
+        ],
     ];
 }

@@ -28,7 +28,7 @@ abstract class AccessDescription
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'accessMethod' => ['type' => ASN1::TYPE_OBJECT_IDENTIFIER],
-            'accessLocation' => GeneralName::MAP
-        ]
+            'accessLocation' => GeneralName::MAP,
+        ],
     ];
 }

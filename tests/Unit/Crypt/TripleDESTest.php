@@ -90,7 +90,7 @@ class TripleDESTest extends PhpseclibTestCase
             [str_repeat("\x01", 24), pack('H*', '0000000000000008'), pack('H*', 'CC083F1E6D9E85F6')],
             [str_repeat("\x01", 24), pack('H*', '0000000000000004'), pack('H*', 'D2FD8867D50D2DFE')],
             [str_repeat("\x01", 24), pack('H*', '0000000000000002'), pack('H*', '06E7EA22CE92708F')],
-            [str_repeat("\x01", 24), pack('H*', '0000000000000001'), pack('H*', '166B40B44ABA4BD6')]
+            [str_repeat("\x01", 24), pack('H*', '0000000000000001'), pack('H*', '166B40B44ABA4BD6')],
         ];
 
         $result = [];
@@ -137,12 +137,12 @@ class TripleDESTest extends PhpseclibTestCase
                 pack('H*', '627f460e08104a10' . '43cd265d5840eaf1' . '313edf97df2a8a8c'),
                 pack('H*', '8e29f75ea77e5475'),
                 pack('H*', '326a494cd33fe756'),
-                pack('H*', 'b22b8d66de970692')],
+                pack('H*', 'b22b8d66de970692'), ],
             [
                 pack('H*', '37ae5ebf46dff2dc' . '0754b94f31cbb385' . '5e7fd36dc870bfae'),
                 pack('H*', '3d1de3cc132e3b65'),
                 pack('H*', '84401f78fe6c10876d8ea23094ea5309'),
-                pack('H*', '7b1f7c7e3b1c948ebd04a75ffba7d2f5')]
+                pack('H*', '7b1f7c7e3b1c948ebd04a75ffba7d2f5'), ],
         ];
 
         $result = [];

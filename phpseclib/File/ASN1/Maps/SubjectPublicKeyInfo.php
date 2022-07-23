@@ -28,7 +28,7 @@ abstract class SubjectPublicKeyInfo
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'algorithm' => AlgorithmIdentifier::MAP,
-            'subjectPublicKey' => ['type' => ASN1::TYPE_BIT_STRING]
-        ]
+            'subjectPublicKey' => ['type' => ASN1::TYPE_BIT_STRING],
+        ],
     ];
 }

@@ -30,8 +30,8 @@ abstract class RevokedCertificate
             'userCertificate' => CertificateSerialNumber::MAP,
             'revocationDate' => Time::MAP,
             'crlEntryExtensions' => [
-                'optional' => true
-            ] + Extensions::MAP
-        ]
+                'optional' => true,
+            ] + Extensions::MAP,
+        ],
     ];
 }

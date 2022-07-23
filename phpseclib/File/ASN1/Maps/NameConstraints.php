@@ -30,13 +30,13 @@ abstract class NameConstraints
             'permittedSubtrees' => [
                 'constant' => 0,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + GeneralSubtrees::MAP,
             'excludedSubtrees' => [
                 'constant' => 1,
                 'optional' => true,
-                'implicit' => true
-            ] + GeneralSubtrees::MAP
-        ]
+                'implicit' => true,
+            ] + GeneralSubtrees::MAP,
+        ],
     ];
 }

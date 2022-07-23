@@ -32,8 +32,8 @@ abstract class AnotherName
                 'type' => ASN1::TYPE_ANY,
                 'constant' => 0,
                 'optional' => true,
-                'explicit' => true
-            ]
-        ]
+                'explicit' => true,
+            ],
+        ],
     ];
 }

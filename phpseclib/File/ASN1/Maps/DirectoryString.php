@@ -31,7 +31,7 @@ abstract class DirectoryString
             'printableString' => ['type' => ASN1::TYPE_PRINTABLE_STRING],
             'universalString' => ['type' => ASN1::TYPE_UNIVERSAL_STRING],
             'utf8String' => ['type' => ASN1::TYPE_UTF8_STRING],
-            'bmpString' => ['type' => ASN1::TYPE_BMP_STRING]
-        ]
+            'bmpString' => ['type' => ASN1::TYPE_BMP_STRING],
+        ],
     ];
 }

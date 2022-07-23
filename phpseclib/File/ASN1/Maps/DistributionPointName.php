@@ -30,13 +30,13 @@ abstract class DistributionPointName
             'fullName' => [
                 'constant' => 0,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + GeneralNames::MAP,
             'nameRelativeToCRLIssuer' => [
                 'constant' => 1,
                 'optional' => true,
-                'implicit' => true
-            ] + RelativeDistinguishedName::MAP
-        ]
+                'implicit' => true,
+            ] + RelativeDistinguishedName::MAP,
+        ],
     ];
 }

@@ -227,7 +227,7 @@ abstract class PKCS8 extends Progenitor
             'version' => 'ecPrivkeyVer1',
             'privateKey' => $privateKey->toBytes(),
             //'parameters' => $params,
-            'publicKey' => "\0" . $publicKey
+            'publicKey' => "\0" . $publicKey,
         ];
 
         $key = ASN1::encodeDER($key, Maps\ECPrivateKey::MAP);

@@ -36,7 +36,7 @@ abstract class TBSCertificate
                 'optional' => true,
                 'explicit' => true,
                 'mapping' => ['v1', 'v2', 'v3'],
-                'default' => 'v1'
+                'default' => 'v1',
             ],
             'serialNumber' => CertificateSerialNumber::MAP,
             'signature' => AlgorithmIdentifier::MAP,
@@ -48,20 +48,20 @@ abstract class TBSCertificate
             'issuerUniqueID' => [
                 'constant' => 1,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + UniqueIdentifier::MAP,
             'subjectUniqueID' => [
                 'constant' => 2,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + UniqueIdentifier::MAP,
             // <http://tools.ietf.org/html/rfc2459#page-74> doesn't use the EXPLICIT keyword but if
             // it's not IMPLICIT, it's EXPLICIT
             'extensions' => [
                 'constant' => 3,
                 'optional' => true,
-                'explicit' => true
-            ] + Extensions::MAP
-        ]
+                'explicit' => true,
+            ] + Extensions::MAP,
+        ],
     ];
 }

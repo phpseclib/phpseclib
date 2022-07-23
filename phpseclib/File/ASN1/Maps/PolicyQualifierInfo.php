@@ -28,7 +28,7 @@ abstract class PolicyQualifierInfo
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'policyQualifierId' => PolicyQualifierId::MAP,
-            'qualifier' => ['type' => ASN1::TYPE_ANY]
-        ]
+            'qualifier' => ['type' => ASN1::TYPE_ANY],
+        ],
     ];
 }

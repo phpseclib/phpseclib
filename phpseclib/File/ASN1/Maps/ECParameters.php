@@ -41,7 +41,7 @@ abstract class ECParameters
         'children' => [
             'namedCurve' => ['type' => ASN1::TYPE_OBJECT_IDENTIFIER],
             'implicitCurve' => ['type' => ASN1::TYPE_NULL],
-            'specifiedCurve' => SpecifiedECDomain::MAP
-        ]
+            'specifiedCurve' => SpecifiedECDomain::MAP,
+        ],
     ];
 }

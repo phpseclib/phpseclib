@@ -394,7 +394,7 @@ abstract class Engine implements \JsonSerializable
     {
         $result = [
             'value' => '0x' . $this->toHex(true),
-            'engine' => basename(static::class)
+            'engine' => basename(static::class),
         ];
         return $this->precision > 0 ? $result + ['precision' => $this->precision] : $result;
     }
@@ -573,7 +573,7 @@ abstract class Engine implements \JsonSerializable
         }
         return [
             'min' => new static($min, 256),
-            'max' => new static($max, 256)
+            'max' => new static($max, 256),
         ];
     }
 
@@ -1117,7 +1117,7 @@ abstract class Engine implements \JsonSerializable
         return [
             'gcd' => $u,
             'x' => $a,
-            'y' => $b
+            'y' => $b,
         ];
     }
 

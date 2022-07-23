@@ -1456,7 +1456,7 @@ class SSH2
         $compression_map = [
             'none' => self::NET_SSH2_COMPRESSION_NONE,
             'zlib' => self::NET_SSH2_COMPRESSION_ZLIB,
-            'zlib@openssh.com' => self::NET_SSH2_COMPRESSION_ZLIB_AT_OPENSSH
+            'zlib@openssh.com' => self::NET_SSH2_COMPRESSION_ZLIB_AT_OPENSSH,
         ];
 
         $compression_algorithm_in = self::array_intersect_first($s2c_compression_algorithms, $this->compression_algorithms_server_to_client);
@@ -4258,14 +4258,14 @@ class SSH2
                 'crypt' => $this->encryption_algorithms_client_to_server,
                 'mac' => $this->mac_algorithms_client_to_server,
                 'comp' => $this->compression_algorithms_client_to_server,
-                'lang' => $this->languages_client_to_server
+                'lang' => $this->languages_client_to_server,
             ],
             'server_to_client' => [
                 'crypt' => $this->encryption_algorithms_server_to_client,
                 'mac' => $this->mac_algorithms_server_to_client,
                 'comp' => $this->compression_algorithms_server_to_client,
-                'lang' => $this->languages_server_to_client
-            ]
+                'lang' => $this->languages_server_to_client,
+            ],
         ];
     }
 
@@ -4316,7 +4316,7 @@ class SSH2
             'rsa-sha2-256', // RFC 8332
             'rsa-sha2-512', // RFC 8332
             'ssh-rsa', // RECOMMENDED  sign   Raw RSA Key
-            'ssh-dss'  // REQUIRED     sign   Raw DSS Key
+            'ssh-dss',  // REQUIRED     sign   Raw DSS Key
         ];
     }
 
@@ -4384,7 +4384,7 @@ class SSH2
                 'OpenSSL (GCM)',
                 'OpenSSL',
                 'Eval',
-                'PHP'
+                'PHP',
             ];
         }
 
@@ -4474,7 +4474,7 @@ class SSH2
         $compression_map = [
             self::NET_SSH2_COMPRESSION_NONE => 'none',
             self::NET_SSH2_COMPRESSION_ZLIB => 'zlib',
-            self::NET_SSH2_COMPRESSION_ZLIB_AT_OPENSSH => 'zlib@openssh.com'
+            self::NET_SSH2_COMPRESSION_ZLIB_AT_OPENSSH => 'zlib@openssh.com',
         ];
 
         return [
@@ -4489,7 +4489,7 @@ class SSH2
                 'crypt' => $this->decryptName,
                 'mac' => $this->hmac_check_name,
                 'comp' => $compression_map[$this->decompress],
-            ]
+            ],
         ];
     }
 

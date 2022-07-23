@@ -30,7 +30,7 @@ abstract class OtherPrimeInfo
         'children' => [
             'prime' => ['type' => ASN1::TYPE_INTEGER],      // ri
             'exponent' => ['type' => ASN1::TYPE_INTEGER],   // di
-            'coefficient' => ['type' => ASN1::TYPE_INTEGER] // ti
-        ]
+            'coefficient' => ['type' => ASN1::TYPE_INTEGER], // ti
+        ],
     ];
 }

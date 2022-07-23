@@ -28,7 +28,7 @@ abstract class Time
         'type' => ASN1::TYPE_CHOICE,
         'children' => [
             'utcTime' => ['type' => ASN1::TYPE_UTC_TIME],
-            'generalTime' => ['type' => ASN1::TYPE_GENERALIZED_TIME]
-        ]
+            'generalTime' => ['type' => ASN1::TYPE_GENERALIZED_TIME],
+        ],
     ];
 }

@@ -30,7 +30,7 @@ abstract class DigestInfo
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'digestAlgorithm' => AlgorithmIdentifier::MAP,
-            'digest' => ['type' => ASN1::TYPE_OCTET_STRING]
-        ]
+            'digest' => ['type' => ASN1::TYPE_OCTET_STRING],
+        ],
     ];
 }
