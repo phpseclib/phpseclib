@@ -3186,6 +3186,7 @@ abstract class SymmetricKey
                     default:
                         return '%s';
                 }
+                // fall-through
             default:
                 $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
                 return $safeint . '((fmod(floor($temp / 0x80000000), 2) & 1) << 31))';
