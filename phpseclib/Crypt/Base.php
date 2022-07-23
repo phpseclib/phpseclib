@@ -2800,13 +2800,10 @@ abstract class Base
     {
         switch (true) {
             case is_int($x):
-            // PHP 5.3, per http://php.net/releases/5_3_0.php, introduced "more consistent float rounding"
             case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
                 return $x;
             case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
                 switch (true) {
-                    // PHP_VERSION_ID wasn't a constant until PHP 5.2.7
-                    case version_compare(PHP_VERSION, '5.3.0') < 1:
                     /* PHP 7.0.0 introduced a bug that affected 32-bit ARM processors:
 
                        https://github.com/php/php-src/commit/716da71446ebbd40fa6cf2cea8a4b70f504cc3cd
@@ -2842,7 +2839,6 @@ abstract class Base
                 break;
             case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
                 switch (true) {
-                    case version_compare(PHP_VERSION, '5.3.0') < 1:
                     case PHP_VERSION_ID >= 70000 && PHP_VERSION_ID <= 70123:
                     case PHP_VERSION_ID >= 70200 && PHP_VERSION_ID <= 70211:
                         break;
