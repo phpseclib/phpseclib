@@ -537,7 +537,7 @@ class Crypt_Base
                 // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
                 case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
                 case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
-                    define('CRYPT_BASE_USE_SAFE_INTVAL', false);
+                    define('CRYPT_BASE_USE_SAFE_INTVAL', true);
                     break;
                 case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
                     switch (true) {
@@ -666,6 +666,10 @@ class Crypt_Base
      *         $hash, $salt, $count, $dkLen
      *
      *         Where $hash (default = sha1) currently supports the following hashes: see: Crypt/Hash.php
+     *     {@link https://en.wikipedia.org/wiki/Bcrypt bcypt}:
+     *         $salt, $rounds, $keylen
+     *
+     *         This is a modified version of bcrypt used by OpenSSH.
      *
      * @see Crypt/Hash.php
      * @param string $password
@@ -679,6 +683,32 @@ class Crypt_Base
         $key = '';
 
         switch ($method) {
+            case 'bcrypt':
+                if (!class_exists('Crypt_Blowfish')) {
+                    include_once 'Crypt/Blowfish.php';
+                }
+
+                $func_args = func_get_args();
+
+                if (!isset($func_args[2])) {
+                    return false;
+                }
+
+                $salt = $func_args[2];
+
+                $rounds = isset($func_args[3]) ? $func_args[3] : 16;
+                $keylen = isset($func_args[4]) ? $func_args[4] : $this->key_length;
+
+                $bf = new Crypt_Blowfish();
+                $key = $bf->bcrypt_pbkdf($password, $salt, $keylen + $this->getBlockLength(), $rounds);
+                if (!$key) {
+                    return false;
+                }
+
+                $this->setKey(substr($key, 0, $keylen));
+                $this->setIV(substr($key, $keylen));
+
+                return true;
             default: // 'pbkdf2' or 'pbkdf1'
                 $func_args = func_get_args();
 
