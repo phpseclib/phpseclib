@@ -218,7 +218,7 @@ class PrivateKey extends EC implements Common\PrivateKey
     {
         $type = self::validatePlugin('Keys', $type, 'savePrivateKey');
 
-        return $type::savePrivateKey($this->dA, $this->curve, $this->QA, $this->password, $this->secret, $options);
+        return $type::savePrivateKey($this->dA, $this->curve, $this->QA, $this->secret, $this->password, $options);
     }
 
     /**
