@@ -619,10 +619,6 @@ Private-MAC: d26baf87446604974287b682ed9e0c00ce54e460e1cb719953a81291147b3c59
 
     public function testOpenSSHEncrypted()
     {
-        if (!function_exists('sodium_crypto_pwhash')) {
-            self::markTestSkipped('sodium_crypto_pwhash() function is not available.');
-        }
-
         $key = '-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jdHIAAAAGYmNyeXB0AAAAGAAAABBN2Ff3Kw
 SIOWyzRiboPRIhAAAAEAAAAAEAAAGXAAAAB3NzaC1yc2EAAAADAQABAAABgQCpxMxDEG0S

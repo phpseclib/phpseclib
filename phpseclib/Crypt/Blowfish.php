@@ -675,6 +675,7 @@ class Crypt_Blowfish extends Crypt_Base
             $p[17] ^ $key[1]
         );
 
+        // @codingStandardsIgnoreStart
         list( $p[0],  $p[1]) = $this->_encryptBlockHelperFast(     0,      0, $sbox0, $sbox1, $sbox2, $sbox3, $p);
         list( $p[2],  $p[3]) = $this->_encryptBlockHelperFast($p[ 0], $p[ 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         list( $p[4],  $p[5]) = $this->_encryptBlockHelperFast($p[ 2], $p[ 3], $sbox0, $sbox1, $sbox2, $sbox3, $p);
@@ -684,6 +685,7 @@ class Crypt_Blowfish extends Crypt_Base
         list($p[12], $p[13]) = $this->_encryptBlockHelperFast($p[10], $p[11], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         list($p[14], $p[15]) = $this->_encryptBlockHelperFast($p[12], $p[13], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         list($p[16], $p[17]) = $this->_encryptBlockHelperFast($p[14], $p[15], $sbox0, $sbox1, $sbox2, $sbox3, $p);
+        // @codingStandardsIgnoreEnd
 
         list($sbox0[0], $sbox0[1]) = $this->_encryptBlockHelperFast($p[16], $p[17], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         for ($i = 2; $i < 256; $i+= 2) {
@@ -742,6 +744,7 @@ class Crypt_Blowfish extends Crypt_Base
             $p[17] ^ $key[1]
         );
 
+        // @codingStandardsIgnoreStart
         list( $p[0],  $p[1]) = $this->_encryptBlockHelperFast($data[ 0]         , $data[ 1]         , $sbox0, $sbox1, $sbox2, $sbox3, $p);
         list( $p[2],  $p[3]) = $this->_encryptBlockHelperFast($data[ 2] ^ $p[ 0], $data[ 3] ^ $p[ 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         list( $p[4],  $p[5]) = $this->_encryptBlockHelperFast($data[ 4] ^ $p[ 2], $data[ 5] ^ $p[ 3], $sbox0, $sbox1, $sbox2, $sbox3, $p);
@@ -751,6 +754,7 @@ class Crypt_Blowfish extends Crypt_Base
         list($p[12], $p[13]) = $this->_encryptBlockHelperFast($data[12] ^ $p[10], $data[13] ^ $p[11], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         list($p[14], $p[15]) = $this->_encryptBlockHelperFast($data[14] ^ $p[12], $data[15] ^ $p[13], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         list($p[16], $p[17]) = $this->_encryptBlockHelperFast($data[ 0] ^ $p[14], $data[ 1] ^ $p[15], $sbox0, $sbox1, $sbox2, $sbox3, $p);
+        // @codingStandardsIgnoreEnd
 
         list($sbox0[0], $sbox0[1]) = $this->_encryptBlockHelperFast($data[2] ^ $p[16], $data[3] ^ $p[17], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         for ($i = 2, $j = 4; $i < 256; $i+= 2, $j = ($j + 2) % 16) { // instead of 16 maybe count($data) would be better?

@@ -700,7 +700,7 @@ class Crypt_Base
                 $keylen = isset($func_args[4]) ? $func_args[4] : $this->key_length;
 
                 $bf = new Crypt_Blowfish();
-                $key = $bf->bcrypt_pbkdf($password, $salt, $keylen + $this->getBlockLength(), $rounds);
+                $key = $bf->bcrypt_pbkdf($password, $salt, $keylen + $this->block_size, $rounds);
                 if (!$key) {
                     return false;
                 }
