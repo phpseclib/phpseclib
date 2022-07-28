@@ -1555,10 +1555,7 @@ class RSA
                         }
                         $salt = $this->_string_shift($kdfoptions, $length);
                         extract(unpack('Nrounds', $this->_string_shift($kdfoptions, 4)));
-                        if (!class_exists('Crypt_AES')) {
-                            include_once 'Crypt/AES.php';
-                        }
-                        $crypto = new Crypt_AES(CRYPT_MODE_CTR);
+                        $crypto = new AES(AES::MODE_CTR);
                         $crypto->disablePadding();
                         if (!$crypto->setPassword($this->password, 'bcrypt', $salt, $rounds, 32)) {
                             return false;

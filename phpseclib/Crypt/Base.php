@@ -537,19 +537,6 @@ abstract class Base
     }
 
     /**
-     * PHP4 compatible Default Constructor.
-     *
-     * @see self::__construct()
-     * @param int $mode
-     * @access public
-     */
-    function Crypt_Base($mode = CRYPT_MODE_CBC)
-    {
-        $this->__construct($mode);
->>>>>>> bcrypt
-    }
-
-    /**
      * Sets the initialization vector. (optional)
      *
      * SetIV is not required when self::MODE_ECB (or ie for AES: \phpseclib\Crypt\AES::MODE_ECB) is being used.  If not explicitly set, it'll be assumed
@@ -658,10 +645,6 @@ abstract class Base
 
         switch ($method) {
             case 'bcrypt':
-                if (!class_exists('Crypt_Blowfish')) {
-                    include_once 'Crypt/Blowfish.php';
-                }
-
                 $func_args = func_get_args();
 
                 if (!isset($func_args[2])) {
@@ -673,7 +656,7 @@ abstract class Base
                 $rounds = isset($func_args[3]) ? $func_args[3] : 16;
                 $keylen = isset($func_args[4]) ? $func_args[4] : $this->key_length;
 
-                $bf = new Crypt_Blowfish();
+                $bf = new Blowfish();
                 $key = $bf->bcrypt_pbkdf($password, $salt, $keylen + $this->block_size, $rounds);
                 if (!$key) {
                     return false;

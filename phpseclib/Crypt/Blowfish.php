@@ -532,12 +532,8 @@ class Blowfish extends Base
             return false;
         }
 
-        if (!class_exists('Crypt_Hash')) {
-            include_once 'Crypt/Hash.php';
-        }
-
         if (!isset($this->sha512)) {
-            $this->sha512 = new Crypt_Hash('sha512');
+            $this->sha512 = new Hash('sha512');
         }
 
         $sha2pass = $this->sha512->hash($pass);
