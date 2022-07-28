@@ -582,7 +582,11 @@ class Crypt_Blowfish extends Crypt_Base
             }
         }
 
-        return pack('L*', ...$cdata);
+        $output = '';
+        for ($i = 0; $i < count($cdata); $i++) {
+            $output.= pack('L*', $cdata[$i]);
+        }
+        return $output;
     }
 
     /**
@@ -610,7 +614,7 @@ class Crypt_Blowfish extends Crypt_Base
         }
 
         $sha2pass = $this->sha512->hash($pass);
-        $results = [];
+        $results = array();
         $count = 1;
         while (32 * count($results) < $keylen) {
             $countsalt = $salt . pack('N', $count++);
@@ -650,7 +654,7 @@ class Crypt_Blowfish extends Crypt_Base
         //return $this->_expandstate(array_fill(0, 16, 0), $key);
         // but this separate function eliminates a bunch of XORs and array lookups
 
-        $p = [
+        $p = array(
             $p[0] ^ $key[0],
             $p[1] ^ $key[1],
             $p[2] ^ $key[2],
@@ -669,7 +673,7 @@ class Crypt_Blowfish extends Crypt_Base
             $p[15] ^ $key[15],
             $p[16] ^ $key[0],
             $p[17] ^ $key[1]
-        ];
+        );
 
         list( $p[0],  $p[1]) = $this->_encryptBlockHelperFast(     0,      0, $sbox0, $sbox1, $sbox2, $sbox3, $p);
         list( $p[2],  $p[3]) = $this->_encryptBlockHelperFast($p[ 0], $p[ 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
@@ -717,7 +721,7 @@ class Crypt_Blowfish extends Crypt_Base
      */
     function _expandstate($data, $key, &$sbox0, &$sbox1, &$sbox2, &$sbox3, &$p)
     {
-        $p = [
+        $p = array(
             $p[0] ^ $key[0],
             $p[1] ^ $key[1],
             $p[2] ^ $key[2],
@@ -736,7 +740,7 @@ class Crypt_Blowfish extends Crypt_Base
             $p[15] ^ $key[15],
             $p[16] ^ $key[0],
             $p[17] ^ $key[1]
-        ];
+        );
 
         list( $p[0],  $p[1]) = $this->_encryptBlockHelperFast($data[ 0]         , $data[ 1]         , $sbox0, $sbox1, $sbox2, $sbox3, $p);
         list( $p[2],  $p[3]) = $this->_encryptBlockHelperFast($data[ 2] ^ $p[ 0], $data[ 3] ^ $p[ 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
@@ -829,7 +833,7 @@ class Crypt_Blowfish extends Crypt_Base
         $x1 ^= ((($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[15];
         $x0 ^= ((($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
 
-        return [$x1 & 0xFFFFFFFF ^ $p[17], $x0 & 0xFFFFFFFF];
+        return array($x1 & 0xFFFFFFFF ^ $p[17], $x0 & 0xFFFFFFFF);
     }
 
     /**
@@ -865,7 +869,7 @@ class Crypt_Blowfish extends Crypt_Base
         $x1^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[15];
         $x0^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
 
-        return [$x1 & 0xFFFFFFFF ^ $p[17], $x0 & 0xFFFFFFFF];
+        return array($x1 & 0xFFFFFFFF ^ $p[17], $x0 & 0xFFFFFFFF);
     }
 
     /**
