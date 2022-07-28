@@ -630,4 +630,54 @@ Private-MAC: d26baf87446604974287b682ed9e0c00ce54e460e1cb719953a81291147b3c59
         $this->assertIsString($rsa->getPublicKey());
         $this->assertIsString($rsa->getPrivateKey());
     }
+
+    public function testOpenSSHEncrypted()
+    {
+        $key = '-----BEGIN OPENSSH PRIVATE KEY-----
+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
+LrIZULwMa4nI4Y+RkFftEponSYw=
+-----END OPENSSH PRIVATE KEY-----
+';
+
+        $rsa = new RSA();
+        $rsa->setPassword('test');
+        $this->assertTrue($rsa->loadKey($key));
+        $this->assertIsString($rsa->getPublicKey());
+        $this->assertIsString($rsa->getPrivateKey());
+    }
 }

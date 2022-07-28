@@ -500,6 +500,53 @@ abstract class Base
         }
 
         $this->_setEngine();
+
+        // Determining whether inline crypting can be used by the cipher
+        if ($this->use_inline_crypt !== false) {
+            $this->use_inline_crypt = version_compare(PHP_VERSION, '5.3.0') >= 0 || function_exists('create_function');
+        }
+
+        if (!defined('CRYPT_BASE_USE_SAFE_INTVAL')) {
+            switch (true) {
+                // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
+                case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
+                case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
+                case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
+                    define('CRYPT_BASE_USE_SAFE_INTVAL', true);
+                    break;
+                case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
+                    switch (true) {
+                        /* PHP 7.0.0 introduced a bug that affected 32-bit ARM processors:
+
+                           https://github.com/php/php-src/commit/716da71446ebbd40fa6cf2cea8a4b70f504cc3cd
+
+                           altho the changelogs make no mention of it, this bug was fixed with this commit:
+
+                           https://github.com/php/php-src/commit/c1729272b17a1fe893d1a54e423d3b71470f3ee8
+
+                           affected versions of PHP are: 7.0.x, 7.1.0 - 7.1.23 and 7.2.0 - 7.2.11 */
+                        case PHP_VERSION_ID >= 70000 && PHP_VERSION_ID <= 70123:
+                        case PHP_VERSION_ID >= 70200 && PHP_VERSION_ID <= 70211:
+                            define('CRYPT_BASE_USE_SAFE_INTVAL', true);
+                            break;
+                        default:
+                            define('CRYPT_BASE_USE_SAFE_INTVAL', false);
+                    }
+            }
+        }
+    }
+
+    /**
+     * PHP4 compatible Default Constructor.
+     *
+     * @see self::__construct()
+     * @param int $mode
+     * @access public
+     */
+    function Crypt_Base($mode = CRYPT_MODE_CBC)
+    {
+        $this->__construct($mode);
+>>>>>>> bcrypt
     }
 
     /**
@@ -593,6 +640,10 @@ abstract class Base
      *         $hash, $salt, $count, $dkLen
      *
      *         Where $hash (default = sha1) currently supports the following hashes: see: Crypt/Hash.php
+     *     {@link https://en.wikipedia.org/wiki/Bcrypt bcypt}:
+     *         $salt, $rounds, $keylen
+     *
+     *         This is a modified version of bcrypt used by OpenSSH.
      *
      * @see Crypt/Hash.php
      * @param string $password
@@ -606,6 +657,32 @@ abstract class Base
         $key = '';
 
         switch ($method) {
+            case 'bcrypt':
+                if (!class_exists('Crypt_Blowfish')) {
+                    include_once 'Crypt/Blowfish.php';
+                }
+
+                $func_args = func_get_args();
+
+                if (!isset($func_args[2])) {
+                    return false;
+                }
+
+                $salt = $func_args[2];
+
+                $rounds = isset($func_args[3]) ? $func_args[3] : 16;
+                $keylen = isset($func_args[4]) ? $func_args[4] : $this->key_length;
+
+                $bf = new Crypt_Blowfish();
+                $key = $bf->bcrypt_pbkdf($password, $salt, $keylen + $this->block_size, $rounds);
+                if (!$key) {
+                    return false;
+                }
+
+                $this->setKey(substr($key, 0, $keylen));
+                $this->setIV(substr($key, $keylen));
+
+                return true;
             default: // 'pbkdf2' or 'pbkdf1'
                 $func_args = func_get_args();
 
@@ -2798,27 +2875,8 @@ abstract class Base
      */
     function safe_intval($x)
     {
-        switch (true) {
-            case is_int($x):
-            case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
-                return $x;
-            case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
-                switch (true) {
-                    /* PHP 7.0.0 introduced a bug that affected 32-bit ARM processors:
-
-                       https://github.com/php/php-src/commit/716da71446ebbd40fa6cf2cea8a4b70f504cc3cd
-
-                       altho the changelogs make no mention of it, this bug was fixed with this commit:
-
-                       https://github.com/php/php-src/commit/c1729272b17a1fe893d1a54e423d3b71470f3ee8
-
-                       affected versions of PHP are: 7.0.x, 7.1.0 - 7.1.23 and 7.2.0 - 7.2.11 */
-                    case PHP_VERSION_ID >= 70000 && PHP_VERSION_ID <= 70123:
-                    case PHP_VERSION_ID >= 70200 && PHP_VERSION_ID <= 70211:
-                        break;
-                    default:
-                        return $x;
-                }
+        if (CRYPT_BASE_USE_SAFE_INTVAL || is_int($x)) {
+            return $x;
         }
         return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
             ((fmod(floor($x / 0x80000000), 2) & 1) << 31);
@@ -2832,23 +2890,12 @@ abstract class Base
      */
     function safe_intval_inline()
     {
-        switch (true) {
-            case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
-            case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
-                return '%s';
-                break;
-            case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
-                switch (true) {
-                    case PHP_VERSION_ID >= 70000 && PHP_VERSION_ID <= 70123:
-                    case PHP_VERSION_ID >= 70200 && PHP_VERSION_ID <= 70211:
-                        break;
-                    default:
-                        return '%s';
-                }
-            default:
-                $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
-                return $safeint . '((fmod(floor($temp / 0x80000000), 2) & 1) << 31))';
+        if (CRYPT_BASE_USE_SAFE_INTVAL) {
+            return '%s';
         }
+
+        $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
+        return $safeint . '((fmod(floor($temp / 0x80000000), 2) & 1) << 31))';
     }
 
     /**
