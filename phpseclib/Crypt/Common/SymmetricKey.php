@@ -212,6 +212,11 @@ abstract class SymmetricKey
     protected $key = false;
 
     /**
+     * @var null|string
+     */
+    private $hKey = null;
+
+    /**
      * The Initialization Vector
      *
      * @see self::setIV()
@@ -264,9 +269,83 @@ abstract class SymmetricKey
     protected $debuffer;
 
     /**
-     * @var array
+     * mcrypt resource for encryption
+     *
+     * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
+     * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
+     *
+     * @see self::encrypt()
+     * @var resource
      */
-    protected $buffer;
+    private $enmcrypt;
+
+    /**
+     * mcrypt resource for decryption
+     *
+     * The mcrypt resource can be recreated every time something needs to be created or it can be created just once.
+     * Since mcrypt operates in continuous mode, by default, it'll need to be recreated when in non-continuous mode.
+     *
+     * @see self::decrypt()
+     * @var resource
+     */
+    private $demcrypt;
+
+    /**
+     * Does the enmcrypt resource need to be (re)initialized?
+     *
+     * @see \phpseclib3\Crypt\Twofish::setKey()
+     * @see \phpseclib3\Crypt\Twofish::setIV()
+     * @var bool
+     */
+    private $enchanged = true;
+
+    /**
+     * Does the demcrypt resource need to be (re)initialized?
+     *
+     * @see \phpseclib3\Crypt\Twofish::setKey()
+     * @see \phpseclib3\Crypt\Twofish::setIV()
+     * @var bool
+     */
+    private $dechanged = true;
+
+    /**
+     * mcrypt resource for CFB mode
+     *
+     * mcrypt's CFB mode, in (and only in) buffered context,
+     * is broken, so phpseclib implements the CFB mode by it self,
+     * even when the mcrypt php extension is available.
+     *
+     * In order to do the CFB-mode work (fast) phpseclib
+     * use a separate ECB-mode mcrypt resource.
+     *
+     * @link http://phpseclib.sourceforge.net/cfb-demo.phps
+     * @see self::encrypt()
+     * @see self::decrypt()
+     * @see self::setupMcrypt()
+     * @var resource
+     */
+    private $ecb;
+
+    /**
+     * Optimizing value while CFB-encrypting
+     *
+     * Only relevant if $continuousBuffer enabled
+     * and $engine == self::ENGINE_MCRYPT
+     *
+     * It's faster to re-init $enmcrypt if
+     * $buffer bytes > $cfb_init_len than
+     * using the $ecb resource furthermore.
+     *
+     * This value depends of the chosen cipher
+     * and the time it would be needed for it's
+     * initialization [by mcrypt_generic_init()]
+     * which, typically, depends on the complexity
+     * on its internaly Key-expanding algorithm.
+     *
+     * @see self::encrypt()
+     * @var int
+     */
+    protected $cfb_init_len = 600;
 
     /**
      * Does internal cipher state need to be (re)initialized?
@@ -1308,7 +1387,7 @@ abstract class SymmetricKey
                     $plaintext = '';
                     if ($this->continuousBuffer) {
                         $iv = &$this->decryptIV;
-                        $pos = &$this->buffer['pos'];
+                        $pos = &$this->debuffer['pos'];
                     } else {
                         $iv = $this->decryptIV;
                         $pos = 0;
@@ -2844,7 +2923,7 @@ PHP
     private function setupGCM(): void
     {
         // don't keep on re-calculating $this->h
-        if (!$this->h || $this->h->key != $this->key) {
+        if (!$this->h || $this->hKey != $this->key) {
             $cipher = new static('ecb');
             $cipher->setKey($this->key);
             $cipher->disablePadding();
@@ -2852,7 +2931,7 @@ PHP
             $this->h = self::$gcmField->newInteger(
                 Strings::switchEndianness($cipher->encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"))
             );
-            $this->h->key = $this->key;
+            $this->hKey = $this->key;
         }
 
         if (strlen($this->nonce) == 12) {

@@ -20,10 +20,6 @@ use phpseclib3\Math\BigInteger;
 
 class secp160k1 extends KoblitzPrime
 {
-    public $basis;
-
-    public $beta;
-
     public function __construct()
     {
         // same as secp160r2

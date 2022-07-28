@@ -80,11 +80,6 @@ class BigInteger implements \JsonSerializable
     private $precision;
 
     /**
-     * @var string
-     */
-    public $secret;
-
-    /**
      * Sets engine type.
      *
      * Throws an exception if the type is invalid

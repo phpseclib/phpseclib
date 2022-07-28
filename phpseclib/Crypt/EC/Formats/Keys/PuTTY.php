@@ -73,7 +73,9 @@ abstract class PuTTY extends Progenitor
             if (Strings::shift($private, 4) != "\0\0\0\x20") {
                 throw new \RuntimeException('Length of ssh-ed25519 key should be 32');
             }
-            $components['dA'] = $components['curve']->extractSecret($private);
+            $arr = $components['curve']->extractSecret($private);
+            $components['dA'] = $arr['dA'];
+            $components['secret'] = $arr['secret'];
         } else {
             [$components['dA']] = Strings::unpackSSH2('i', $private);
             $components['curve']->rangeCheck($components['dA']);
@@ -87,7 +89,7 @@ abstract class PuTTY extends Progenitor
      *
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, ?string $password = null, array $options = []): string
+    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, string $secret, ?string $password = null, array $options = []): string
     {
         self::initialize_static_variables();
 
@@ -107,7 +109,7 @@ abstract class PuTTY extends Progenitor
         }
 
         $private = $curve instanceof TwistedEdwardsCurve ?
-            Strings::packSSH2('s', $privateKey->secret) :
+            Strings::packSSH2('s', $secret) :
             Strings::packSSH2('s', $private);
 
         return self::wrapPrivateKey($public, $private, $name, $password, $options);

@@ -42,11 +42,6 @@ class PrimeField extends FiniteField
     protected $instanceID;
 
     /**
-     * @var BigInteger
-     */
-    protected $modulo;
-
-    /**
      * Default constructor
      */
     public function __construct(BigInteger $modulo)
@@ -54,8 +49,6 @@ class PrimeField extends FiniteField
         //if (!$modulo->isPrime()) {
         //    throw new \UnexpectedValueException('PrimeField requires a prime number be passed to the constructor');
         //}
-
-        $this->modulo = $modulo;
 
         $this->instanceID = self::$instanceCounter++;
         Integer::setModulo($this->instanceID, $modulo);

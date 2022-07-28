@@ -128,7 +128,7 @@ abstract class EC extends AsymmetricKey
     /**
      * @var string
      */
-    protected $sigFormat;
+    protected $sigFormat = '';
 
     /**
      * Create public / private key pair.
@@ -174,7 +174,13 @@ abstract class EC extends AsymmetricKey
             $reflect->getShortName();
 
         $curve = new $curve();
-        $privatekey->dA = $dA = $curve->createRandomMultiplier();
+        if ($curve instanceof TwistedEdwardsCurve) {
+            $arr = $curve->extractSecret(Random::string($curve instanceof Ed448 ? 57 : 32));
+            $privatekey->dA = $dA = $arr['dA'];
+            $privatekey->secret = $arr['secret'];
+        } else {
+            $privatekey->dA = $dA = $curve->createRandomMultiplier();
+        }
         if ($curve instanceof Curve25519 && self::$engines['libsodium']) {
             //$r = pack('H*', '0900000000000000000000000000000000000000000000000000000000000000');
             //$QA = sodium_crypto_scalarmult($dA->toBytes(), $r);
@@ -224,6 +230,7 @@ abstract class EC extends AsymmetricKey
 
         if (isset($components['dA'])) {
             $new->dA = $components['dA'];
+            $new->secret = $components['secret'];
         }
 
         if ($new->curve instanceof TwistedEdwardsCurve) {

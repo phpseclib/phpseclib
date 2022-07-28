@@ -176,21 +176,22 @@ abstract class OpenSSH extends Progenitor
         BigInteger $privateKey,
         BaseCurve $curve,
         array $publicKey,
-        $password = '',
+        $password,
+        string $secret,
         array $options = []
     ): string {
         if ($curve instanceof Ed25519) {
-            if (!isset($privateKey->secret)) {
+            if (!isset($secret)) {
                 throw new \RuntimeException('Private Key does not have a secret set');
             }
-            if (strlen($privateKey->secret) != 32) {
+            if (strlen($secret) != 32) {
                 throw new \RuntimeException('Private Key secret is not of the correct length');
             }
 
             $pubKey = $curve->encodePoint($publicKey);
 
             $publicKey = Strings::packSSH2('ss', 'ssh-ed25519', $pubKey);
-            $privateKey = Strings::packSSH2('sss', 'ssh-ed25519', $pubKey, $privateKey->secret . $pubKey);
+            $privateKey = Strings::packSSH2('sss', 'ssh-ed25519', $pubKey, $secret . $pubKey);
 
             return self::wrapPrivateKey($publicKey, $privateKey, $password, $options);
         }

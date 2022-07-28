@@ -127,7 +127,7 @@ class DES extends BlockCipher
     /**
      * @var array
      */
-    private $kl;
+    private $kl = [];
 
     /**
      * Shuffle table.
