@@ -35,6 +35,7 @@
 namespace phpseclib3\Crypt\Common;
 
 use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\Blowfish;
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Exception\BadDecryptionException;
 use phpseclib3\Exception\BadModeException;
@@ -536,6 +537,14 @@ abstract class SymmetricKey
     private static $poly1305Field;
 
     /**
+     * Flag for using regular vs "safe" intval
+     *
+     * @see self::initialize_static_variables()
+     * @var boolean
+     */
+    protected static $use_reg_intval;
+
+    /**
      * Poly1305 Key
      *
      * @see self::setPoly1305Key()
@@ -638,6 +647,43 @@ abstract class SymmetricKey
         }
 
         $this->mode = $mode;
+
+        self::initialize_static_variables();
+    }
+
+    /**
+     * Initialize static variables
+     */
+    protected static function initialize_static_variables()
+    {
+        if (!isset(self::$use_reg_intval)) {
+            switch (true) {
+                // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
+                case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
+                case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
+                case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
+                    self::$use_reg_intval = true;
+                    break;
+                case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
+                    switch (true) {
+                        /* PHP 7.0.0 introduced a bug that affected 32-bit ARM processors:
+
+                           https://github.com/php/php-src/commit/716da71446ebbd40fa6cf2cea8a4b70f504cc3cd
+
+                           altho the changelogs make no mention of it, this bug was fixed with this commit:
+
+                           https://github.com/php/php-src/commit/c1729272b17a1fe893d1a54e423d3b71470f3ee8
+
+                           affected versions of PHP are: 7.0.x, 7.1.0 - 7.1.23 and 7.2.0 - 7.2.11 */
+                        case PHP_VERSION_ID >= 70000 && PHP_VERSION_ID <= 70123:
+                        case PHP_VERSION_ID >= 70200 && PHP_VERSION_ID <= 70211:
+                            self::$use_reg_intval = false;
+                            break;
+                        default:
+                            self::$use_reg_intval = true;
+                    }
+            }
+        }
     }
 
     /**
@@ -853,6 +899,10 @@ abstract class SymmetricKey
      *         $hash, $salt, $count, $dkLen
      *
      *         Where $hash (default = sha1) currently supports the following hashes: see: Crypt/Hash.php
+     *     {@link https://en.wikipedia.org/wiki/Bcrypt bcypt}:
+     *         $salt, $rounds, $keylen
+     *
+     *         This is a modified version of bcrypt used by OpenSSH.
      *
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
@@ -861,6 +911,7 @@ abstract class SymmetricKey
      * @param string $method
      * @param string[] ...$func_args
      * @throws \LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
+     * @throws \RuntimeException if bcrypt is being used and a salt isn't provided
      * @return bool
      */
     public function setPassword($password, $method = 'pbkdf2', ...$func_args)
@@ -869,6 +920,22 @@ abstract class SymmetricKey
 
         $method = strtolower($method);
         switch ($method) {
+            case 'bcrypt':
+                if (!isset($func_args[2])) {
+                    throw new \RuntimeException('A salt must be provided for bcrypt to work');
+                }
+
+                $salt = $func_args[0];
+
+                $rounds = isset($func_args[1]) ? $func_args[1] : 16;
+                $keylen = isset($func_args[2]) ? $func_args[2] : $this->key_length;
+
+                $key = Blowfish::bcrypt_pbkdf($password, $salt, $keylen + $this->block_size, $rounds);
+
+                $this->setKey(substr($key, 0, $keylen));
+                $this->setIV(substr($key, $keylen));
+
+                return true;
             case 'pkcs12': // from https://tools.ietf.org/html/rfc7292#appendix-B.2
             case 'pbkdf1':
             case 'pbkdf2':
@@ -3140,27 +3207,8 @@ abstract class SymmetricKey
      */
     protected static function safe_intval($x)
     {
-        switch (true) {
-            case is_int($x):
-            case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
-                return $x;
-            case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
-                switch (true) {
-                    /* PHP 7.0.0 introduced a bug that affected 32-bit ARM processors:
-
-                       https://github.com/php/php-src/commit/716da71446ebbd40fa6cf2cea8a4b70f504cc3cd
-
-                       altho the changelogs make no mention of it, this bug was fixed with this commit:
-
-                       https://github.com/php/php-src/commit/c1729272b17a1fe893d1a54e423d3b71470f3ee8
-
-                       affected versions of PHP are: 7.0.x, 7.1.0 - 7.1.23 and 7.2.0 - 7.2.11 */
-                    case PHP_VERSION_ID >= 70000 && PHP_VERSION_ID <= 70123:
-                    case PHP_VERSION_ID >= 70200 && PHP_VERSION_ID <= 70211:
-                        break;
-                    default:
-                        return $x;
-                }
+        if ($use_reg_intval || is_int($x)) {
+            return $x;
         }
         return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
             ((fmod(floor($x / 0x80000000), 2) & 1) << 31);
@@ -3173,24 +3221,12 @@ abstract class SymmetricKey
      */
     protected static function safe_intval_inline()
     {
-        switch (true) {
-            case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
-            case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
-                return '%s';
-                break;
-            case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
-                switch (true) {
-                    case PHP_VERSION_ID >= 70000 && PHP_VERSION_ID <= 70123:
-                    case PHP_VERSION_ID >= 70200 && PHP_VERSION_ID <= 70211:
-                        break;
-                    default:
-                        return '%s';
-                }
-                // fall-through
-            default:
-                $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
-                return $safeint . '((fmod(floor($temp / 0x80000000), 2) & 1) << 31))';
+        if (self::$use_reg_intval) {
+            return '%s';
         }
+
+        $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
+        return $safeint . '((fmod(floor($temp / 0x80000000), 2) & 1) << 31))';
     }
 
     /**
