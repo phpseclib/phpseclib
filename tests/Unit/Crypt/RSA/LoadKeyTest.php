@@ -1274,7 +1274,7 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
 -----END OPENSSH PRIVATE KEY-----
 ';
 
-        $key = PublicKeyLoader($key, 'test');
+        $key = PublicKeyLoader::load($key, 'test');
         $this->assertInstanceOf(PrivateKey::class, $key);
     }
 }

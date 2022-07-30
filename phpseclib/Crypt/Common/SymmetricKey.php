@@ -3207,7 +3207,7 @@ abstract class SymmetricKey
      */
     protected static function safe_intval($x)
     {
-        if ($use_reg_intval || is_int($x)) {
+        if (self::$use_reg_intval || is_int($x)) {
             return $x;
         }
         return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
