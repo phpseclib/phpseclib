@@ -432,14 +432,6 @@ abstract class SymmetricKey
     private static $poly1305Field;
 
     /**
-     * Flag for using regular vs "safe" intval
-     *
-     * @see self::initialize_static_variables()
-     * @var boolean
-     */
-    protected static $use_reg_intval;
-
-    /**
      * Poly1305 Key
      *
      * @see self::setPoly1305Key()
@@ -541,43 +533,6 @@ abstract class SymmetricKey
         }
 
         $this->mode = $mode;
-
-        self::initialize_static_variables();
-    }
-
-    /**
-     * Initialize static variables
-     */
-    protected static function initialize_static_variables(): void
-    {
-        if (!isset(self::$use_reg_intval)) {
-            switch (true) {
-                // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
-                case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
-                case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
-                case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
-                    self::$use_reg_intval = true;
-                    break;
-                case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
-                    switch (true) {
-                        /* PHP 7.0.0 introduced a bug that affected 32-bit ARM processors:
-
-                           https://github.com/php/php-src/commit/716da71446ebbd40fa6cf2cea8a4b70f504cc3cd
-
-                           altho the changelogs make no mention of it, this bug was fixed with this commit:
-
-                           https://github.com/php/php-src/commit/c1729272b17a1fe893d1a54e423d3b71470f3ee8
-
-                           affected versions of PHP are: 7.0.x, 7.1.0 - 7.1.23 and 7.2.0 - 7.2.11 */
-                        case PHP_VERSION_ID >= 70000 && PHP_VERSION_ID <= 70123:
-                        case PHP_VERSION_ID >= 70200 && PHP_VERSION_ID <= 70211:
-                            self::$use_reg_intval = false;
-                            break;
-                        default:
-                            self::$use_reg_intval = true;
-                    }
-            }
-        }
     }
 
     /**
@@ -2835,35 +2790,6 @@ PHP
             return $bindedClosure;
         }
         throw new \LogicException('\Closure::bind() failed.');
-    }
-
-    /**
-     * Convert float to int
-     *
-     * On ARM CPUs converting floats to ints doesn't always work
-     *
-     * @param float|int $x
-     */
-    protected static function safe_intval($x): int
-    {
-        if (self::$use_reg_intval || is_int($x)) {
-            return $x;
-        }
-        return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
-            ((fmod(floor($x / 0x80000000), 2) & 1) << 31);
-    }
-
-    /**
-     * eval()'able string for in-line float to int
-     */
-    protected static function safe_intval_inline(): string
-    {
-        if (self::$use_reg_intval) {
-            return '%s';
-        }
-
-        $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
-        return $safeint . '((fmod(floor($temp / 0x80000000), 2) & 1) << 31))';
     }
 
     /**
