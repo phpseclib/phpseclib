@@ -19,6 +19,7 @@ namespace phpseclib3\Crypt\Common\Formats\Keys;
 
 use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Exception\UnsupportedFormatException;
 
@@ -81,39 +82,25 @@ abstract class OpenSSH
                 // that to the appropriate key loading parser $numKey times or something
                 throw new \RuntimeException('Although the OpenSSH private key format supports multiple keys phpseclib does not');
             }
-            if (strlen($kdfoptions) || $kdfname != 'none' || $ciphername != 'none') {
-                /*
-                  OpenSSH private keys use a customized version of bcrypt. specifically, instead of encrypting
-                  OrpheanBeholderScryDoubt 64 times OpenSSH's bcrypt variant encrypts
-                  OxychromaticBlowfishSwatDynamite 64 times. so we can't use crypt().
 
-                  bcrypt is basically Blowfish with an altered key expansion. whereas Blowfish just runs the
-                  key through the key expansion bcrypt interleaves the key expansion with the salt and
-                  password. this renders openssl unusable. this forces us to use a pure-PHP implementation
-                  of bcrypt. the problem with that is that pure-PHP is too slow to be practically useful.
-
-                  in addition to encrypting a different string 64 times the OpenSSH implementation also performs bcrypt
-                  from scratch $rounds times. calling crypt() 64x with bcrypt takes 0.7s. PHP is going to be naturally
-                  slower. pure-PHP is 215x slower than OpenSSL for AES and pure-PHP is 43x slower for bcrypt.
-                  43 * 0.7 = 30s. no one wants to wait 30s to load a private key.
-
-                  another way to think about this..  according to wikipedia's article on Blowfish,
-                  "Each new key requires pre-processing equivalent to encrypting about 4 kilobytes of text".
-                  key expansion is done (9+64*2)*160 times. multiply that by 4 and it turns out that Blowfish,
-                  OpenSSH style, is the equivalent of encrypting ~80mb of text.
-
-                  more supporting evidence: sodium_compat does not implement Argon2 (another password hashing
-                  algorithm) because "It's not feasible to polyfill scrypt or Argon2 into PHP and get reasonable
-                  performance. Users would feel motivated to select parameters that downgrade security to avoid
-                  denial of service (DoS) attacks. The only winning move is not to play"
-                    -- https://github.com/paragonie/sodium_compat/blob/master/README.md
-                */
-                throw new \RuntimeException('Encrypted OpenSSH private keys are not supported');
-                //list($salt, $rounds) = Strings::unpackSSH2('sN', $kdfoptions);
+            switch ($ciphername) {
+                case 'none':
+                    break;
+                case 'aes256-ctr':
+                    [$salt, $rounds] = Strings::unpackSSH2('sN', $kdfoptions);
+                    $crypto = new AES('ctr');
+                    //$crypto->setKeyLength(256);
+                    //$crypto->disablePadding();
+                    $crypto->setPassword($password, 'bcrypt', $salt, $rounds, 32);
+                break;
+                    throw new \RuntimeException('The only supported cipherse are: none, aes256-ctr (' . $ciphername . ' is being used');
             }
 
             [$publicKey, $paddedKey] = Strings::unpackSSH2('ss', $key);
             [$type] = Strings::unpackSSH2('s', $publicKey);
+            if (isset($crypto)) {
+                $paddedKey = $crypto->decrypt($paddedKey);
+            }
             [$checkint1, $checkint2] = Strings::unpackSSH2('NN', $paddedKey);
             // any leftover bytes in $paddedKey are for padding? but they should be sequential bytes. eg. 1, 2, 3, etc.
             if ($checkint1 != $checkint2) {
