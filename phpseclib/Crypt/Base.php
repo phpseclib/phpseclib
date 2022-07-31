@@ -530,14 +530,14 @@ class Crypt_Base
             $this->use_inline_crypt = version_compare(PHP_VERSION, '5.3.0') >= 0 || function_exists('create_function');
         }
 
-        if (!defined('CRYPT_BASE_USE_SAFE_INTVAL')) {
+        if (!defined('CRYPT_BASE_USE_REG_INTVAL')) {
             switch (true) {
                 // PHP 5.3, per http://php.net/releases/5_3_0.php, introduced "more consistent float rounding"
                 case version_compare(PHP_VERSION, '5.3.0') >= 0 && (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
                 // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
                 case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
                 case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
-                    define('CRYPT_BASE_USE_SAFE_INTVAL', true);
+                    define('CRYPT_BASE_USE_REG_INTVAL', true);
                     break;
                 case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
                     switch (true) {
@@ -554,10 +554,10 @@ class Crypt_Base
                            affected versions of PHP are: 7.0.x, 7.1.0 - 7.1.23 and 7.2.0 - 7.2.11 */
                         case PHP_VERSION_ID >= 70000 && PHP_VERSION_ID <= 70123:
                         case PHP_VERSION_ID >= 70200 && PHP_VERSION_ID <= 70211:
-                            define('CRYPT_BASE_USE_SAFE_INTVAL', true);
+                            define('CRYPT_BASE_USE_REG_INTVAL', false);
                             break;
                         default:
-                            define('CRYPT_BASE_USE_SAFE_INTVAL', false);
+                            define('CRYPT_BASE_USE_REG_INTVAL', true);
                     }
             }
         }
@@ -2709,7 +2709,7 @@ class Crypt_Base
      */
     function safe_intval($x)
     {
-        if (CRYPT_BASE_USE_SAFE_INTVAL || is_int($x)) {
+        if (!CRYPT_BASE_USE_REG_INTVAL || is_int($x)) {
             return $x;
         }
         return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
@@ -2724,7 +2724,7 @@ class Crypt_Base
      */
     function safe_intval_inline()
     {
-        if (CRYPT_BASE_USE_SAFE_INTVAL) {
+        if (CRYPT_BASE_USE_REG_INTVAL) {
             return '%s';
         }
 
