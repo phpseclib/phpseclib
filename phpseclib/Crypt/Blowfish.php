@@ -59,7 +59,7 @@
  *
  * This explains 3 of the 4 _encryptBlock() implementations. the last _encryptBlock()
  * implementation can best be understood by doing Ctrl + F and searching for where
- * CRYPT_BASE_USE_SAFE_INTVAL is defined.
+ * CRYPT_BASE_USE_REG_INTVAL is defined.
  *
  * # phpseclib's three different _setupKey() implementations
  *
@@ -528,7 +528,7 @@ class Blowfish extends Base
      */
     function bcrypt_pbkdf($pass, $salt, $keylen, $rounds)
     {
-        if (!CRYPT_BASE_USE_SAFE_INTVAL) {
+        if (!CRYPT_BASE_USE_REG_INTVAL) {
             return false;
         }
 
@@ -720,7 +720,7 @@ class Blowfish extends Base
         $l = $in[1];
         $r = $in[2];
 
-        list($r, $l) = CRYPT_BASE_USE_SAFE_INTVAL ?
+        list($r, $l) = CRYPT_BASE_USE_REG_INTVAL ?
             $this->_encryptBlockHelperFast($l, $r, $sb_0, $sb_1, $sb_2, $sb_3, $p) :
             $this->_encryptBlockHelperSlow($l, $r, $sb_0, $sb_1, $sb_2, $sb_3, $p);
 
