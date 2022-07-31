@@ -87,6 +87,9 @@ abstract class OpenSSH
                 case 'none':
                     break;
                 case 'aes256-ctr':
+                    if ($kdfname != 'bcrypt') {
+                        throw new \RuntimeException('Only the bcrypt kdf is supported (' . $kdfname . ' encountered)');
+                    }
                     [$salt, $rounds] = Strings::unpackSSH2('sN', $kdfoptions);
                     $crypto = new AES('ctr');
                     //$crypto->setKeyLength(256);
@@ -94,7 +97,7 @@ abstract class OpenSSH
                     $crypto->setPassword($password, 'bcrypt', $salt, $rounds, 32);
                     break;
                 default:
-                    throw new \RuntimeException('The only supported cipherse are: none, aes256-ctr (' . $ciphername . ' is being used');
+                    throw new \RuntimeException('The only supported cipherse are: none, aes256-ctr (' . $ciphername . ' is being used)');
             }
 
             [$publicKey, $paddedKey] = Strings::unpackSSH2('ss', $key);
@@ -169,16 +172,14 @@ abstract class OpenSSH
      */
     protected static function wrapPrivateKey(string $publicKey, string $privateKey, $password, array $options): string
     {
-        if (!empty($password) && is_string($password)) {
-            throw new UnsupportedFormatException('Encrypted OpenSSH private keys are not supported');
-        }
-
         [, $checkint] = unpack('N', Random::string(4));
 
         $comment = $options['comment'] ?? self::$comment;
         $paddedKey = Strings::packSSH2('NN', $checkint, $checkint) .
                      $privateKey .
                      Strings::packSSH2('s', $comment);
+
+        $usesEncryption = !empty($password) && is_string($password);
 
         /*
            from http://tools.ietf.org/html/rfc4253#section-6 :
@@ -187,11 +188,22 @@ abstract class OpenSSH
            'padding_length', 'payload', and 'random padding' MUST be a multiple
            of the cipher block size or 8, whichever is larger.
          */
-        $paddingLength = (7 * strlen($paddedKey)) % 8;
+        $blockSize = $usesEncryption ? 16 : 8;
+        $paddingLength = (($blockSize - 1) * strlen($paddedKey)) % $blockSize;
         for ($i = 1; $i <= $paddingLength; $i++) {
             $paddedKey .= chr($i);
         }
-        $key = Strings::packSSH2('sssNss', 'none', 'none', '', 1, $publicKey, $paddedKey);
+        if (!$usesEncryption) {
+            $key = Strings::packSSH2('sssNss', 'none', 'none', '', 1, $publicKey, $paddedKey);
+        } else {
+            $rounds = $options['rounds'] ?? 16;
+            $salt = Random::string(16);
+            $kdfoptions = Strings::packSSH2('sN', $salt, $rounds);
+            $crypto = new AES('ctr');
+            $crypto->setPassword($password, 'bcrypt', $salt, $rounds, 32);
+            $paddedKey = $crypto->encrypt($paddedKey);
+            $key = Strings::packSSH2('sssNss', 'aes256-ctr', 'bcrypt', $kdfoptions, 1, $publicKey, $paddedKey);
+        }
         $key = "openssh-key-v1\0$key";
 
         return "-----BEGIN OPENSSH PRIVATE KEY-----\n" .

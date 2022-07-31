@@ -567,4 +567,13 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
 
         $this->assertSameNL($raw, $key->toString('MontgomeryPrivate'));
     }
+
+    public function testOpenSSHEncryptedCreation()
+    {
+        $key = EC::createKey('Ed25519');
+        $key = $key->withPassword('test')->toString('OpenSSH');
+
+        $key = PublicKeyLoader::load($key, 'test');
+        $this->assertInstanceOf(PrivateKey::class, $key);
+    }
 }
