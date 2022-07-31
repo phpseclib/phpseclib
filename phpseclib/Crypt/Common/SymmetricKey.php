@@ -548,7 +548,7 @@ abstract class SymmetricKey
     /**
      * Initialize static variables
      */
-    protected static function initialize_static_variables()
+    protected static function initialize_static_variables(): void
     {
         if (!isset(self::$use_reg_intval)) {
             switch (true) {
@@ -801,8 +801,8 @@ abstract class SymmetricKey
 
                 $salt = $func_args[0];
 
-                $rounds = isset($func_args[1]) ? $func_args[1] : 16;
-                $keylen = isset($func_args[2]) ? $func_args[2] : $this->key_length;
+                $rounds = $func_args[1] ?? 16;
+                $keylen = $func_args[2] ?? $this->key_length;
 
                 $key = Blowfish::bcrypt_pbkdf($password, $salt, $keylen + $this->block_size, $rounds);
 

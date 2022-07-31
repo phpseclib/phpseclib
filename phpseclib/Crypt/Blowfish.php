@@ -497,14 +497,14 @@ class Blowfish extends BlockCipher
             for ($i = 1; $i < $rounds; $i++) {
                 $sha2salt = hash('sha512', $tmpout, true);
                 $tmpout = self::bcrypt_hash($sha2pass, $sha2salt);
-                $out^= $tmpout;
+                $out ^= $tmpout;
             }
             $results[] = $out;
         }
         $output = '';
         for ($i = 0; $i < 32; $i++) {
             foreach ($results as $result) {
-                $output.= $result[$i];
+                $output .= $result[$i];
             }
         }
         return substr($output, 0, $keylen);
@@ -640,12 +640,12 @@ class Blowfish extends BlockCipher
             [$sbox1[$i], $sbox1[$i + 1]] = self::encryptBlockHelperFast($data[$j] ^ $sbox1[$i - 2], $data[$j + 1] ^ $sbox1[$i - 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         }
 
-        list($sbox2[0], $sbox2[1]) = self::encryptBlockHelperFast($data[2] ^ $sbox1[254], $data[3] ^ $sbox1[255], $sbox0, $sbox1, $sbox2, $sbox3, $p);
+        [$sbox2[0], $sbox2[1]] = self::encryptBlockHelperFast($data[2] ^ $sbox1[254], $data[3] ^ $sbox1[255], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         for ($i = 2, $j = 4; $i < 256; $i += 2, $j = ($j + 2) % 16) {
             [$sbox2[$i], $sbox2[$i + 1]] = self::encryptBlockHelperFast($data[$j] ^ $sbox2[$i - 2], $data[$j + 1] ^ $sbox2[$i - 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         }
 
-        list($sbox3[0], $sbox3[1]) = self::encryptBlockHelperFast($data[2] ^ $sbox2[254], $data[3] ^ $sbox2[255], $sbox0, $sbox1, $sbox2, $sbox3, $p);
+        [$sbox3[0], $sbox3[1]] = self::encryptBlockHelperFast($data[2] ^ $sbox2[254], $data[3] ^ $sbox2[255], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         for ($i = 2, $j = 4; $i < 256; $i += 2, $j = ($j + 2) % 16) {
             [$sbox3[$i], $sbox3[$i + 1]] = self::encryptBlockHelperFast($data[$j] ^ $sbox3[$i - 2], $data[$j + 1] ^ $sbox3[$i - 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         }
@@ -678,8 +678,6 @@ class Blowfish extends BlockCipher
      * Fast helper function for block encryption
      *
      * @access private
-     * @param int $x0
-     * @param int $x1
      * @param int[] $sbox0
      * @param int[] $sbox1
      * @param int[] $sbox2
@@ -687,7 +685,7 @@ class Blowfish extends BlockCipher
      * @param int[] $p
      * @return int[]
      */
-    private static function encryptBlockHelperFast($x0, $x1, array $sbox0, array $sbox1, array $sbox2, array $sbox3, array $p): array
+    private static function encryptBlockHelperFast(int $x0, int $x1, array $sbox0, array $sbox1, array $sbox2, array $sbox3, array $p): array
     {
         $x0 ^= $p[0];
         $x1 ^= ((($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[1];
@@ -714,8 +712,6 @@ class Blowfish extends BlockCipher
      * Slow helper function for block encryption
      *
      * @access private
-     * @param int $x0
-     * @param int $x1
      * @param int[] $sbox0
      * @param int[] $sbox1
      * @param int[] $sbox2
@@ -723,7 +719,7 @@ class Blowfish extends BlockCipher
      * @param int[] $p
      * @return int[]
      */
-    private static function encryptBlockHelperSlow($x0, $x1, array $sbox0, array $sbox1, array $sbox2, array $sbox3, array $p)
+    private static function encryptBlockHelperSlow(int $x0, int $x1, array $sbox0, array $sbox1, array $sbox2, array $sbox3, array $p): array
     {
         $x0 ^= $p[0];
         $x1 ^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[1];

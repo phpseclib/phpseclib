@@ -92,7 +92,8 @@ abstract class OpenSSH
                     //$crypto->setKeyLength(256);
                     //$crypto->disablePadding();
                     $crypto->setPassword($password, 'bcrypt', $salt, $rounds, 32);
-                break;
+                    break;
+                default:
                     throw new \RuntimeException('The only supported cipherse are: none, aes256-ctr (' . $ciphername . ' is being used');
             }
 
