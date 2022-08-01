@@ -32,38 +32,38 @@ abstract class BuiltInStandardAttributes
             'network-address' => [
                 'constant' => 0,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + NetworkAddress::MAP,
             'terminal-identifier' => [
                 'constant' => 1,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + TerminalIdentifier::MAP,
             'private-domain-name' => [
                 'constant' => 2,
                 'optional' => true,
-                'explicit' => true
+                'explicit' => true,
             ] + PrivateDomainName::MAP,
             'organization-name' => [
                 'constant' => 3,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + OrganizationName::MAP,
             'numeric-user-identifier' => [
                 'constant' => 4,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + NumericUserIdentifier::MAP,
             'personal-name' => [
                 'constant' => 5,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + PersonalName::MAP,
             'organizational-unit-names' => [
                 'constant' => 6,
                 'optional' => true,
-                'implicit' => true
-            ] + OrganizationalUnitNames::MAP
-        ]
+                'implicit' => true,
+            ] + OrganizationalUnitNames::MAP,
+        ],
     ];
 }

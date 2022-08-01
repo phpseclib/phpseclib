@@ -28,7 +28,7 @@ abstract class PublicKeyAndChallenge
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'spki' => SubjectPublicKeyInfo::MAP,
-            'challenge' => ['type' => ASN1::TYPE_IA5_STRING]
-        ]
+            'challenge' => ['type' => ASN1::TYPE_IA5_STRING],
+        ],
     ];
 }

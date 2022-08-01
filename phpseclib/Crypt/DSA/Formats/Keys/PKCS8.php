@@ -118,7 +118,7 @@ abstract class PKCS8 extends Progenitor
         $params = [
             'p' => $p,
             'q' => $q,
-            'g' => $g
+            'g' => $g,
         ];
         $params = ASN1::encodeDER($params, Maps\DSAParams::MAP);
         $params = new ASN1\Element($params);
@@ -136,7 +136,7 @@ abstract class PKCS8 extends Progenitor
         $params = [
             'p' => $p,
             'q' => $q,
-            'g' => $g
+            'g' => $g,
         ];
         $params = ASN1::encodeDER($params, Maps\DSAParams::MAP);
         $params = new ASN1\Element($params);

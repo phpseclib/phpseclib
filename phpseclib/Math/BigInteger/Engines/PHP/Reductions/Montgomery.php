@@ -48,7 +48,7 @@ abstract class Montgomery extends Progenitor
     {
         static $cache = [
             self::VARIABLE => [],
-            self::DATA => []
+            self::DATA => [],
         ];
 
         if (($key = array_search($n, $cache[self::VARIABLE])) === false) {

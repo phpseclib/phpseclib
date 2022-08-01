@@ -28,6 +28,6 @@ abstract class SubjectDirectoryAttributes
         'type' => ASN1::TYPE_SEQUENCE,
         'min' => 1,
         'max' => -1,
-        'children' => Attribute::MAP
+        'children' => Attribute::MAP,
     ];
 }

@@ -30,18 +30,18 @@ abstract class DistributionPoint
             'distributionPoint' => [
                 'constant' => 0,
                 'optional' => true,
-                'explicit' => true
+                'explicit' => true,
             ] + DistributionPointName::MAP,
             'reasons' => [
                 'constant' => 1,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + ReasonFlags::MAP,
             'cRLIssuer' => [
                 'constant' => 2,
                 'optional' => true,
-                'implicit' => true
-            ] + GeneralNames::MAP
-        ]
+                'implicit' => true,
+            ] + GeneralNames::MAP,
+        ],
     ];
 }

@@ -32,7 +32,7 @@ abstract class CountryName
         'cast' => 1,
         'children' => [
             'x121-dcc-code' => ['type' => ASN1::TYPE_NUMERIC_STRING],
-            'iso-3166-alpha2-code' => ['type' => ASN1::TYPE_PRINTABLE_STRING]
-        ]
+            'iso-3166-alpha2-code' => ['type' => ASN1::TYPE_PRINTABLE_STRING],
+        ],
     ];
 }

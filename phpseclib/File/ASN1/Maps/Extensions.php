@@ -30,6 +30,6 @@ abstract class Extensions
         // technically, it's MAX, but we'll assume anything < 0 is MAX
         'max' => -1,
         // if 'children' isn't an array then 'min' and 'max' must be defined
-        'children' => Extension::MAP
+        'children' => Extension::MAP,
     ];
 }

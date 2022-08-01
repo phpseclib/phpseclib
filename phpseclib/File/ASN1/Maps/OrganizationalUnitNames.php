@@ -28,6 +28,6 @@ abstract class OrganizationalUnitNames
         'type' => ASN1::TYPE_SEQUENCE,
         'min' => 1,
         'max' => 4, // ub-organizational-units
-        'children' => ['type' => ASN1::TYPE_PRINTABLE_STRING]
+        'children' => ['type' => ASN1::TYPE_PRINTABLE_STRING],
     ];
 }

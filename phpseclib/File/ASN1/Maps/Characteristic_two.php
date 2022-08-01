@@ -31,8 +31,8 @@ abstract class Characteristic_two
             'basis' => ['type' => ASN1::TYPE_OBJECT_IDENTIFIER],
             'parameters' => [
                 'type' => ASN1::TYPE_ANY,
-                'optional' => true
-            ]
-        ]
+                'optional' => true,
+            ],
+        ],
     ];
 }

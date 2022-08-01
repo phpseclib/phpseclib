@@ -60,7 +60,7 @@ class BlowfishTest extends PhpseclibTestCase
             [pack('H*', '0000000000000000'), pack('H*', 'FFFFFFFFFFFFFFFF'), pack('H*', '014933E0CDAFF6E4')],
             [pack('H*', 'FFFFFFFFFFFFFFFF'), pack('H*', '0000000000000000'), pack('H*', 'F21E9A77B71C49BC')],
             [pack('H*', '0123456789ABCDEF'), pack('H*', '0000000000000000'), pack('H*', '245946885754369A')],
-            [pack('H*', 'FEDCBA9876543210'), pack('H*', 'FFFFFFFFFFFFFFFF'), pack('H*', '6B5C5A9C5D9E0A5A')]
+            [pack('H*', 'FEDCBA9876543210'), pack('H*', 'FFFFFFFFFFFFFFFF'), pack('H*', '6B5C5A9C5D9E0A5A')],
         ];
 
         $result = [];

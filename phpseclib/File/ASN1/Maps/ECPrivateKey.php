@@ -31,20 +31,20 @@ abstract class ECPrivateKey
         'children' => [
             'version' => [
                 'type' => ASN1::TYPE_INTEGER,
-                'mapping' => [1 => 'ecPrivkeyVer1']
+                'mapping' => [1 => 'ecPrivkeyVer1'],
             ],
             'privateKey' => ['type' => ASN1::TYPE_OCTET_STRING],
             'parameters' => [
                 'constant' => 0,
                 'optional' => true,
-                'explicit' => true
+                'explicit' => true,
             ] + ECParameters::MAP,
             'publicKey' => [
                 'type' => ASN1::TYPE_BIT_STRING,
                 'constant' => 1,
                 'optional' => true,
-                'explicit' => true
-            ]
-        ]
+                'explicit' => true,
+            ],
+        ],
     ];
 }

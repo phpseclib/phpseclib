@@ -55,7 +55,7 @@ class HashTest extends PhpseclibTestCase
             [
                 'sha256',
                 '',
-                'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+                'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
             ],
             [
                 'sha256',
@@ -70,7 +70,7 @@ class HashTest extends PhpseclibTestCase
             [
                 'sha384',
                 '',
-                '38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b'
+                '38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b',
             ],
             [
                 'sha384',
@@ -80,7 +80,7 @@ class HashTest extends PhpseclibTestCase
             [
                 'sha512',
                 '',
-                'cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e'
+                'cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e',
             ],
             [
                 'sha512',
@@ -96,76 +96,76 @@ class HashTest extends PhpseclibTestCase
             [
                 'sha512/224',
                 'abc',
-                '4634270f707b6a54daae7530460842e20e37ed265ceee9a43e8924aa'
+                '4634270f707b6a54daae7530460842e20e37ed265ceee9a43e8924aa',
             ],
             [
                 'sha512/224',
                 'abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu',
-                '23fec5bb94d60b23308192640b0c453335d664734fe40e7268674af9'
+                '23fec5bb94d60b23308192640b0c453335d664734fe40e7268674af9',
             ],
             // from http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA512_256.pdf
             [
                 'sha512/256',
                 'abc',
-                '53048e2681941ef99b2e29b76b4c7dabe4c2d0c634fc6d46e0e2f13107e7af23'
+                '53048e2681941ef99b2e29b76b4c7dabe4c2d0c634fc6d46e0e2f13107e7af23',
             ],
             [
                 'sha512/256',
                 'abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu',
-                '3928e184fb8690f840da3988121d31be65cb9d3ef83ee6146feac861e19b563a'
+                '3928e184fb8690f840da3988121d31be65cb9d3ef83ee6146feac861e19b563a',
             ],
             // from http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA224.pdf
             [
                 'sha224',
                 'abc',
-                '23097D223405D8228642A477BDA255B32AADBCE4BDA0B3F7E36C9DA7'
+                '23097D223405D8228642A477BDA255B32AADBCE4BDA0B3F7E36C9DA7',
             ],
             [
                 'sha224',
                 'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq',
-                '75388B16512776CC5DBA5DA1FD890150B0C6455CB4F58B1952522525'
+                '75388B16512776CC5DBA5DA1FD890150B0C6455CB4F58B1952522525',
             ],
             // from https://www.di-mgt.com.au/sha_testvectors.html#KECCAK-KAT
             [
                 'sha3-224',
                 'abc',
-                'e642824c3f8cf24ad09234ee7d3c766fc9a3a5168d0c94ad73b46fdf'
+                'e642824c3f8cf24ad09234ee7d3c766fc9a3a5168d0c94ad73b46fdf',
             ],
             [
                 'sha3-256',
                 'abc',
-                '3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532'
+                '3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532',
             ],
             [
                 'sha3-384',
                 'abc',
-                'ec01498288516fc926459f58e2c6ad8df9b473cb0fc08c2596da7cf0e49be4b298d88cea927ac7f539f1edf228376d25'
+                'ec01498288516fc926459f58e2c6ad8df9b473cb0fc08c2596da7cf0e49be4b298d88cea927ac7f539f1edf228376d25',
             ],
             [
                 'sha3-512',
                 'abc',
-                'b751850b1a57168a5693cd924b6b096e08f621827444f70d884f5d0240d2712e10e116e9192af3c91a7ec57647e3934057340b4cf408d5a56592f8274eec53f0'
+                'b751850b1a57168a5693cd924b6b096e08f621827444f70d884f5d0240d2712e10e116e9192af3c91a7ec57647e3934057340b4cf408d5a56592f8274eec53f0',
             ],
             [
                 'shake256-912', // this is what Ed448 uses
                 str_repeat('a', 135), // one character shy of the block size (136)
-                '55b991ece1e567b6e7c2c714444dd201cd51f4f3832d08e1d26bebc63e07a3d7ddeed4a5aa6df7a15f89f2050566f75d9cf1a4dea4ed1f578df0985d5706d49e877d9a913dcdbc26a4c4e807ec72dc10438df95873e24660e39cd49aa4e5df286cb5ba60eaad91ff134754c21cd736681a8f'
+                '55b991ece1e567b6e7c2c714444dd201cd51f4f3832d08e1d26bebc63e07a3d7ddeed4a5aa6df7a15f89f2050566f75d9cf1a4dea4ed1f578df0985d5706d49e877d9a913dcdbc26a4c4e807ec72dc10438df95873e24660e39cd49aa4e5df286cb5ba60eaad91ff134754c21cd736681a8f',
             ],
             // from https://docs.ethers.io/v5/api/utils/hashing/
             [
                 'keccak256', // used by Ethereum
                 "\x12\x34",
-                '56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432'
+                '56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432',
             ],
             [
                 'keccak256',
                 '',
-                'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
+                'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
             ],
             [
                 'keccak256',
                 'hello world',
-                '47173285a8d7341e5e972fc677286384f802f8ef42a5ec5f03bbfa254cb01fad'
+                '47173285a8d7341e5e972fc677286384f802f8ef42a5ec5f03bbfa254cb01fad',
             ],
         ];
     }
@@ -234,7 +234,7 @@ class HashTest extends PhpseclibTestCase
                 'sha224',
                 pack('H*', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
                 'This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm.',
-                '3a854166ac5d9f023f54d517d0b39dbd946770db9c2b95c9f6f565d1'
+                '3a854166ac5d9f023f54d517d0b39dbd946770db9c2b95c9f6f565d1',
             ],
 
             // test case 1
@@ -278,7 +278,7 @@ class HashTest extends PhpseclibTestCase
                 'sha256',
                 pack('H*', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
                 'This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm.',
-                '9b09ffa71b942fcb27635fbcd5b0e944bfdc63644f0713938a7f51535c3a35e2'
+                '9b09ffa71b942fcb27635fbcd5b0e944bfdc63644f0713938a7f51535c3a35e2',
             ],
 
             // test case 1
@@ -322,7 +322,7 @@ class HashTest extends PhpseclibTestCase
                 'sha384',
                 pack('H*', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
                 'This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm.',
-                '6617178e941f020d351e2f254e8fd32c602420feb0b8fb9adccebb82461e99c5a678cc31e799176d3860e6110c46523e'
+                '6617178e941f020d351e2f254e8fd32c602420feb0b8fb9adccebb82461e99c5a678cc31e799176d3860e6110c46523e',
             ],
 
             // test case 1
@@ -366,7 +366,7 @@ class HashTest extends PhpseclibTestCase
                 'sha512',
                 pack('H*', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
                 'This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm.',
-                'e37b6a775dc87dbaa4dfa9f96e5e3ffddebd71f8867289865df5a32d20cdc944b6022cac3c4982b10d5eeb55c3e4de15134676fb6de0446065c97440fa8c6a58'
+                'e37b6a775dc87dbaa4dfa9f96e5e3ffddebd71f8867289865df5a32d20cdc944b6022cac3c4982b10d5eeb55c3e4de15134676fb6de0446065c97440fa8c6a58',
             ],
         ];
     }

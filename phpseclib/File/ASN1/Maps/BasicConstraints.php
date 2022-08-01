@@ -30,12 +30,12 @@ abstract class BasicConstraints
             'cA' => [
                 'type' => ASN1::TYPE_BOOLEAN,
                 'optional' => true,
-                'default' => false
+                'default' => false,
             ],
             'pathLenConstraint' => [
                 'type' => ASN1::TYPE_INTEGER,
-                'optional' => true
-            ]
-        ]
+                'optional' => true,
+            ],
+        ],
     ];
 }

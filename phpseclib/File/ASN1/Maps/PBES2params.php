@@ -30,7 +30,7 @@ abstract class PBES2params
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'keyDerivationFunc' => AlgorithmIdentifier::MAP,
-            'encryptionScheme' => AlgorithmIdentifier::MAP
-        ]
+            'encryptionScheme' => AlgorithmIdentifier::MAP,
+        ],
     ];
 }

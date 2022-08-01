@@ -408,7 +408,7 @@ class X509
                 // see http://tools.ietf.org/html/rfc2985
                 'pkcs-9-at-unstructuredName' => '1.2.840.113549.1.9.2', // PKCS #9 unstructured name
                 'pkcs-9-at-challengePassword' => '1.2.840.113549.1.9.7', // Challenge password for certificate revocations
-                'pkcs-9-at-extensionRequest' => '1.2.840.113549.1.9.14' // Certificate extension request
+                'pkcs-9-at-extensionRequest' => '1.2.840.113549.1.9.14', // Certificate extension request
             ]);
         }
     }
@@ -618,7 +618,7 @@ class X509
             $newext = [
                 'extnId' => $id,
                 'extnValue' => $value,
-                'critical' => $critical
+                'critical' => $critical,
             ];
             if ($replace) {
                 foreach ($extensions as $key => $value) {
@@ -1577,8 +1577,8 @@ class X509
             $this->dn['rdnSequence'][] = [
                 [
                     'type' => $propName,
-                    'value' => $v
-                ]
+                    'value' => $v,
+                ],
             ];
         }
 
@@ -2032,7 +2032,7 @@ class X509
             $paths = [
                 'tbsCertificate/subjectPublicKeyInfo',
                 'certificationRequestInfo/subjectPKInfo',
-                'publicKeyAndChallenge/spki'
+                'publicKeyAndChallenge/spki',
             ];
             foreach ($paths as $path) {
                 $keyinfo = $this->subArray($this->currentCert, $path);
@@ -2438,7 +2438,7 @@ class X509
             $r = PSS::load($issuer->privateKey->withPassword()->toString('PSS'));
             $signatureAlgorithm = [
                 'algorithm' => 'id-RSASSA-PSS',
-                'parameters' => PSS::savePSSParams($r)
+                'parameters' => PSS::savePSSParams($r),
             ];
         }
 
@@ -2500,13 +2500,13 @@ class X509
                         'issuer' => false, // this is going to be overwritten later
                         'validity' => [
                             'notBefore' => $this->timeField($startDate), // $this->setStartDate()
-                            'notAfter' => $this->timeField($endDate)   // $this->setEndDate()
+                            'notAfter' => $this->timeField($endDate),   // $this->setEndDate()
                         ],
                         'subject' => $subject->dn,
-                        'subjectPublicKeyInfo' => $subjectPublicKey
+                        'subjectPublicKeyInfo' => $subjectPublicKey,
                     ],
                     'signatureAlgorithm' => $signatureAlgorithm,
-                    'signature'          => false // this is going to be overwritten later
+                    'signature'          => false, // this is going to be overwritten later
             ];
 
             // Copy extensions from CSR.
@@ -2526,7 +2526,7 @@ class X509
                     //        'directoryName' => $issuer->dn
                     //    )
                     //),
-                    'keyIdentifier' => $issuer->currentKeyIdentifier
+                    'keyIdentifier' => $issuer->currentKeyIdentifier,
                 ]);
             //$extensions = &$this->currentCert['tbsCertificate']['extensions'];
             //if (isset($issuer->serialNumber)) {
@@ -2636,10 +2636,10 @@ class X509
                     [
                         'version' => 'v1',
                         'subject' => $this->dn,
-                        'subjectPKInfo' => $publicKey
+                        'subjectPKInfo' => $publicKey,
                     ],
                     'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
-                    'signature'          => false // this is going to be overwritten later
+                    'signature'          => false, // this is going to be overwritten later
             ];
         }
 
@@ -2694,10 +2694,10 @@ class X509
                         // both Firefox and OpenSSL ("openssl spkac -key private.key") behave this way
                         // we could alternatively do this instead if we ignored the specs:
                         // Random::string(8) & str_repeat("\x7F", 8)
-                        'challenge' => !empty($this->challenge) ? $this->challenge : ''
+                        'challenge' => !empty($this->challenge) ? $this->challenge : '',
                     ],
                     'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
-                    'signature'          => false // this is going to be overwritten later
+                    'signature'          => false, // this is going to be overwritten later
             ];
         }
 
@@ -2745,10 +2745,10 @@ class X509
                         'version' => 'v2',
                         'signature' => ['algorithm' => $signatureAlgorithm],
                         'issuer' => false, // this is going to be overwritten later
-                        'thisUpdate' => $this->timeField($thisUpdate) // $this->setStartDate()
+                        'thisUpdate' => $this->timeField($thisUpdate), // $this->setStartDate()
                     ],
                     'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
-                    'signature'          => false // this is going to be overwritten later
+                    'signature'          => false, // this is going to be overwritten later
             ];
         }
 
@@ -2808,7 +2808,7 @@ class X509
                         //        'directoryName' => $issuer->dn
                         //    ]
                         //),
-                        'keyIdentifier' => $issuer->currentKeyIdentifier
+                        'keyIdentifier' => $issuer->currentKeyIdentifier,
                     ]);
                 //$extensions = &$tbsCertList['crlExtensions'];
                 //if (isset($issuer->serialNumber)) {
@@ -3604,7 +3604,7 @@ class X509
         $i = count($rclist);
         $revocationDate = new \DateTimeImmutable('now', new \DateTimeZone(@date_default_timezone_get()));
         $rclist[] = ['userCertificate' => $serial,
-                          'revocationDate'  => $this->timeField($revocationDate->format('D, d M Y H:i:s O'))];
+                          'revocationDate'  => $this->timeField($revocationDate->format('D, d M Y H:i:s O')), ];
         return $i;
     }
 

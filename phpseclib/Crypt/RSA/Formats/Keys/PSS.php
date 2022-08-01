@@ -84,7 +84,7 @@ abstract class PSS extends Progenitor
                 'id-sha512/224' => '2.16.840.1.101.3.4.2.5',
                 'id-sha512/256' => '2.16.840.1.101.3.4.2.6',
 
-                'id-mgf1' => '1.2.840.113549.1.1.8'
+                'id-mgf1' => '1.2.840.113549.1.1.8',
             ]);
             self::$oidsLoaded = true;
         }
@@ -130,7 +130,7 @@ abstract class PSS extends Progenitor
         } else {
             $params['maskGenAlgorithm'] = [
                 'algorithm' => 'id-mgf1',
-                'parameters' => ['algorithm' => 'id-sha1']
+                'parameters' => ['algorithm' => 'id-sha1'],
             ];
         }
 
@@ -202,7 +202,7 @@ abstract class PSS extends Progenitor
          source: https://tools.ietf.org/html/rfc4055#page-9
         */
         $params = [
-            'trailerField' => new BigInteger(1)
+            'trailerField' => new BigInteger(1),
         ];
         if (isset($options['hash'])) {
             $params['hashAlgorithm']['algorithm'] = 'id-' . $options['hash'];
@@ -212,7 +212,7 @@ abstract class PSS extends Progenitor
             $temp = ASN1::encodeDER($temp, Maps\HashAlgorithm::MAP);
             $params['maskGenAlgorithm'] = [
                 'algorithm' => 'id-mgf1',
-                'parameters' => new ASN1\Element($temp)
+                'parameters' => new ASN1\Element($temp),
             ];
         }
         if (isset($options['saltLength'])) {

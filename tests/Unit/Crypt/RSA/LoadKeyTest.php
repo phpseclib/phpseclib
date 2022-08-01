@@ -44,7 +44,7 @@ class LoadKeyTest extends PhpseclibTestCase
     {
         $rsa = PublicKeyLoader::load([
             'e' => new BigInteger('123', 16),
-            'n' => new BigInteger('123', 16)
+            'n' => new BigInteger('123', 16),
         ]);
 
         $this->assertInstanceOf(PublicKey::class, $rsa);
@@ -1149,7 +1149,7 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
             'n' => $key['n'],
             'd' => $key['d'],
             'p' => $key['primes'][1],
-            'q' => $key['primes'][2]
+            'q' => $key['primes'][2],
         ];
         $key = PublicKeyLoader::loadPrivateKey($key);
         $str2 = "$key";

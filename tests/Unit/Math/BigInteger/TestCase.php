@@ -494,7 +494,7 @@ abstract class TestCase extends PhpseclibTestCase
     {
         $vals = [
             '-9223372036854775808', // eg. 8000 0000 0000 0000
-            '-1'
+            '-1',
         ];
         foreach ($vals as $val) {
             $x = $this->getInstance($val);

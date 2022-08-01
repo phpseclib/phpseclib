@@ -46,15 +46,15 @@ abstract class RSASSA_PSS_params
                 'constant' => 2,
                 'optional' => true,
                 'explicit' => true,
-                'default' => 20
+                'default' => 20,
             ],
             'trailerField' => [
                 'type' => ASN1::TYPE_INTEGER,
                 'constant' => 3,
                 'optional' => true,
                 'explicit' => true,
-                'default' => 1
-            ]
-        ]
+                'default' => 1,
+            ],
+        ],
     ];
 }

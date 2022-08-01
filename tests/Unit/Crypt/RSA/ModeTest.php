@@ -144,11 +144,11 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
     public function testPSSSigsWithNonPowerOf2Key(): void
     {
         $pub = <<<HERE
------BEGIN PUBLIC KEY-----
-MF0wDQYJKoZIhvcNAQEBBQADTAAwSQJCAmdYuOvii3I6ya3q/zSeZFoJprgF9fIq
-k12yS6pCS3c+1wZ9cYFVtgfpSL4XpylLe9EnRT2GRVYCqUkR4AUeTuvnAgMBAAE=
------END PUBLIC KEY-----
-HERE;
+            -----BEGIN PUBLIC KEY-----
+            MF0wDQYJKoZIhvcNAQEBBQADTAAwSQJCAmdYuOvii3I6ya3q/zSeZFoJprgF9fIq
+            k12yS6pCS3c+1wZ9cYFVtgfpSL4XpylLe9EnRT2GRVYCqUkR4AUeTuvnAgMBAAE=
+            -----END PUBLIC KEY-----
+            HERE;
 
         $rsa = PublicKeyLoader::load($pub)
             ->withHash('sha256')
@@ -164,11 +164,11 @@ HERE;
     public function testHash(): void
     {
         $pub = <<<HERE
------BEGIN PUBLIC KEY-----
-MF0wDQYJKoZIhvcNAQEBBQADTAAwSQJCAmdYuOvii3I6ya3q/zSeZFoJprgF9fIq
-k12yS6pCS3c+1wZ9cYFVtgfpSL4XpylLe9EnRT2GRVYCqUkR4AUeTuvnAgMBAAE=
------END PUBLIC KEY-----
-HERE;
+            -----BEGIN PUBLIC KEY-----
+            MF0wDQYJKoZIhvcNAQEBBQADTAAwSQJCAmdYuOvii3I6ya3q/zSeZFoJprgF9fIq
+            k12yS6pCS3c+1wZ9cYFVtgfpSL4XpylLe9EnRT2GRVYCqUkR4AUeTuvnAgMBAAE=
+            -----END PUBLIC KEY-----
+            HERE;
 
         $rsa = PublicKeyLoader::load($pub)
             ->withHash('sha1')
@@ -202,7 +202,7 @@ HERE;
                 'E252896950917476ECE5E8FC27D5F053D6018D91B502C4787558A002B9283DA7',
                 16
             ),
-            'e' => new BigInteger('3')
+            'e' => new BigInteger('3'),
         ]);
 
         $message = 'hello world!';

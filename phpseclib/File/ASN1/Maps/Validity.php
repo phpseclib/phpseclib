@@ -28,7 +28,7 @@ abstract class Validity
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'notBefore' => Time::MAP,
-            'notAfter' => Time::MAP
-        ]
+            'notAfter' => Time::MAP,
+        ],
     ];
 }

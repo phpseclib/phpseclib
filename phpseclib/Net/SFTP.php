@@ -3024,7 +3024,7 @@ class SFTP extends SSH2
         if (isset($request_id) && $this->use_request_id && $packet_id != $request_id) {
             $this->requestBuffer[$packet_id] = [
                 'packet_type' => $this->packet_type,
-                'packet' => $packet
+                'packet' => $packet,
             ];
             return $this->get_sftp_packet($request_id);
         }

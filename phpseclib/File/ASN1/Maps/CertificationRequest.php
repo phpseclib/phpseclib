@@ -29,7 +29,7 @@ abstract class CertificationRequest
         'children' => [
             'certificationRequestInfo' => CertificationRequestInfo::MAP,
             'signatureAlgorithm' => AlgorithmIdentifier::MAP,
-            'signature' => ['type' => ASN1::TYPE_BIT_STRING]
-        ]
+            'signature' => ['type' => ASN1::TYPE_BIT_STRING],
+        ],
     ];
 }

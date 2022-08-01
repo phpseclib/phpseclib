@@ -29,7 +29,7 @@ abstract class SignedPublicKeyAndChallenge
         'children' => [
             'publicKeyAndChallenge' => PublicKeyAndChallenge::MAP,
             'signatureAlgorithm' => AlgorithmIdentifier::MAP,
-            'signature' => ['type' => ASN1::TYPE_BIT_STRING]
-        ]
+            'signature' => ['type' => ASN1::TYPE_BIT_STRING],
+        ],
     ];
 }

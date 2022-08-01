@@ -28,45 +28,45 @@ class ASN1Test extends PhpseclibTestCase
                     'constant' => 0,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_ANY],
+                    'type' => ASN1::TYPE_ANY, ],
                 'msg-type' => [
                     'constant' => 1,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_ANY],
+                    'type' => ASN1::TYPE_ANY, ],
                 'padata' => [
                     'constant' => 2,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_ANY],
+                    'type' => ASN1::TYPE_ANY, ],
                 'crealm' => [
                     'constant' => 3,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_ANY],
+                    'type' => ASN1::TYPE_ANY, ],
                 'cname' => [
                     'constant' => 4,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_ANY],
+                    'type' => ASN1::TYPE_ANY, ],
                 'ticket' => [
                     'constant' => 5,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_ANY],
+                    'type' => ASN1::TYPE_ANY, ],
                 'enc-part' => [
                     'constant' => 6,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_ANY]
-            ]
+                    'type' => ASN1::TYPE_ANY, ],
+            ],
         ];
 
         $AS_REP = [
             'class'    => ASN1::CLASS_APPLICATION,
             'cast'     => 11,
             'optional' => true,
-            'explicit' => true
+            'explicit' => true,
         ] + $KDC_REP;
 
         $str = 'a4IC3jCCAtqgAwIBBaEDAgELoi8wLTAroQMCAROiJAQiMCAwHqADAgEXoRcbFUNSRUFUVUlUWS5ORVR0ZXN0dXNlcqMPGw' .
@@ -100,15 +100,15 @@ class ASN1Test extends PhpseclibTestCase
                     'constant' => 1,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_INTEGER
+                    'type' => ASN1::TYPE_INTEGER,
                 ],
                 'padata-value' => [
                     'constant' => 2,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_OCTET_STRING
-                ]
-            ]
+                    'type' => ASN1::TYPE_OCTET_STRING,
+                ],
+            ],
         ];
 
         $PrincipalName = [
@@ -118,7 +118,7 @@ class ASN1Test extends PhpseclibTestCase
                     'constant' => 0,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_INTEGER
+                    'type' => ASN1::TYPE_INTEGER,
                 ],
                 'name-string' => [
                     'constant' => 1,
@@ -127,9 +127,9 @@ class ASN1Test extends PhpseclibTestCase
                     'min' => 0,
                     'max' => -1,
                     'type' => ASN1::TYPE_SEQUENCE,
-                    'children' => ['type' => ASN1::TYPE_IA5_STRING] // should be \phpseclib3\File\ASN1::TYPE_GENERAL_STRING
-                ]
-            ]
+                    'children' => ['type' => ASN1::TYPE_IA5_STRING], // should be \phpseclib3\File\ASN1::TYPE_GENERAL_STRING
+                ],
+            ],
         ];
 
         $Ticket = [
@@ -143,27 +143,27 @@ class ASN1Test extends PhpseclibTestCase
                     'constant' => 0,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_INTEGER
+                    'type' => ASN1::TYPE_INTEGER,
                 ],
                 'realm' => [
                     'constant' => 1,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_ANY
+                    'type' => ASN1::TYPE_ANY,
                 ],
                 'sname' => [
                     'constant' => 2,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_ANY
+                    'type' => ASN1::TYPE_ANY,
                 ],
                 'enc-part' => [
                     'constant' => 3,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_ANY
-                ]
-            ]
+                    'type' => ASN1::TYPE_ANY,
+                ],
+            ],
         ];
 
         $KDC_REP = [
@@ -173,12 +173,12 @@ class ASN1Test extends PhpseclibTestCase
                     'constant' => 0,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_INTEGER],
+                    'type' => ASN1::TYPE_INTEGER, ],
                 'msg-type' => [
                      'constant' => 1,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_INTEGER],
+                    'type' => ASN1::TYPE_INTEGER, ],
                 'padata' => [
                     'constant' => 2,
                     'optional' => true,
@@ -186,16 +186,16 @@ class ASN1Test extends PhpseclibTestCase
                     'min' => 0,
                     'max' => -1,
                     'type' => ASN1::TYPE_SEQUENCE,
-                    'children' => $PA_DATA],
+                    'children' => $PA_DATA, ],
                 'crealm' => [
                     'constant' => 3,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_OCTET_STRING],
+                    'type' => ASN1::TYPE_OCTET_STRING, ],
                 'cname' => [
                     'constant' => 4,
                     'optional' => true,
-                    'explicit' => true] + $PrincipalName,
+                    'explicit' => true, ] + $PrincipalName,
                     //'type' => ASN1::TYPE_ANY),
                 'ticket' => [
                     'constant' => 5,
@@ -204,20 +204,20 @@ class ASN1Test extends PhpseclibTestCase
                     'min' => 0,
                     'max' => 1,
                     'type' => ASN1::TYPE_SEQUENCE,
-                    'children' => $Ticket],
+                    'children' => $Ticket, ],
                 'enc-part' => [
                     'constant' => 6,
                     'optional' => true,
                     'explicit' => true,
-                    'type' => ASN1::TYPE_ANY]
-            ]
+                    'type' => ASN1::TYPE_ANY, ],
+            ],
         ];
 
         $AS_REP = [
             'class'    => ASN1::CLASS_APPLICATION,
             'cast'     => 11,
             'optional' => true,
-            'explicit' => true
+            'explicit' => true,
         ] + $KDC_REP;
 
         $str = 'a4IC3jCCAtqgAwIBBaEDAgELoi8wLTAroQMCAROiJAQiMCAwHqADAgEXoRcbFUNSRUFUVUlUWS5ORVR0ZXN0dXNlcqMPGw' .
@@ -330,9 +330,9 @@ class ASN1Test extends PhpseclibTestCase
                     'explicit' => true,
                     'default'  => 'v1',
                     'type'     => ASN1::TYPE_INTEGER,
-                    'mapping' => ['v1', 'v2', 'v3']
-                ]
-            ]
+                    'mapping' => ['v1', 'v2', 'v3'],
+                ],
+            ],
         ];
 
         $data = ['version' => 'v3'];
@@ -389,13 +389,13 @@ class ASN1Test extends PhpseclibTestCase
                                              'constant' => 0,
                                              'optional' => true,
                                              'implicit' => true,
-                                             'type' => ASN1::TYPE_GENERALIZED_TIME],
+                                             'type' => ASN1::TYPE_GENERALIZED_TIME, ],
                 'notAfter'  => [
                                              'constant' => 1,
                                              'optional' => true,
                                              'implicit' => true,
-                                             'type' => ASN1::TYPE_GENERALIZED_TIME]
-            ]
+                                             'type' => ASN1::TYPE_GENERALIZED_TIME, ],
+            ],
         ];
 
         $a = pack('H*', '3026a011180f32303137303432313039303535305aa111180f32303138303432313230353935395a');

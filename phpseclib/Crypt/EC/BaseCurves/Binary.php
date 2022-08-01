@@ -125,7 +125,7 @@ class Binary extends Base
         }
         $this->p = [
             is_string($x) ? $this->factory->newInteger(pack('H*', $x)) : $x,
-            is_string($y) ? $this->factory->newInteger(pack('H*', $y)) : $y
+            is_string($y) ? $this->factory->newInteger(pack('H*', $y)) : $y,
         ];
     }
 
@@ -346,7 +346,7 @@ class Binary extends Base
         $z2 = $z->multiply($z);
         return [
             $x->multiply($z2),
-            $y->multiply($z2)->multiply($z)
+            $y->multiply($z2)->multiply($z),
         ];
     }
 

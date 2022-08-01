@@ -83,7 +83,7 @@ abstract class OpenSSH extends Progenitor
             'isPublicKey' => true,
             'modulus' => $modulus,
             'publicExponent' => $publicExponent,
-            'comment' => $parsed['comment']
+            'comment' => $parsed['comment'],
         ];
     }
 

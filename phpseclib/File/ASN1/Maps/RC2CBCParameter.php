@@ -31,9 +31,9 @@ abstract class RC2CBCParameter
         'children' => [
             'rc2ParametersVersion' => [
                 'type' => ASN1::TYPE_INTEGER,
-                'optional' => true
+                'optional' => true,
             ],
-            'iv' => ['type' => ASN1::TYPE_OCTET_STRING]
-        ]
+            'iv' => ['type' => ASN1::TYPE_OCTET_STRING],
+        ],
     ];
 }

@@ -28,6 +28,6 @@ abstract class Attributes
         'type' => ASN1::TYPE_SET,
         'min' => 1,
         'max' => -1,
-        'children' => Attribute::MAP
+        'children' => Attribute::MAP,
     ];
 }

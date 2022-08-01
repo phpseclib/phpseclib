@@ -389,7 +389,7 @@ abstract class AsymmetricKey
             // this test can be satisfied by either of the following:
             // http://php.net/manual/en/book.sodium.php
             // https://github.com/paragonie/sodium_compat
-            'libsodium' => function_exists('sodium_crypto_sign_keypair')
+            'libsodium' => function_exists('sodium_crypto_sign_keypair'),
         ];
 
         return static::$engines;
@@ -403,7 +403,7 @@ abstract class AsymmetricKey
         static::$engines = [
             'PHP' => true,
             'OpenSSL' => false,
-            'libsodium' => false
+            'libsodium' => false,
         ];
     }
 

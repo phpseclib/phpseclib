@@ -178,7 +178,7 @@ abstract class PKCS1 extends Progenitor
             'version' => 'ecPrivkeyVer1',
             'privateKey' => $privateKey->toBytes(),
             'parameters' => new ASN1\Element(self::encodeParameters($curve)),
-            'publicKey' => "\0" . $publicKey
+            'publicKey' => "\0" . $publicKey,
         ];
 
         $key = ASN1::encodeDER($key, Maps\ECPrivateKey::MAP);

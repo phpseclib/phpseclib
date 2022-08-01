@@ -35,7 +35,7 @@ abstract class ReasonFlags
             'cessationOfOperation',
             'certificateHold',
             'privilegeWithdrawn',
-            'aACompromise'
-        ]
+            'aACompromise',
+        ],
     ];
 }

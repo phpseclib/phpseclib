@@ -32,8 +32,8 @@ abstract class NoticeReference
                 'type' => ASN1::TYPE_SEQUENCE,
                 'min' => 1,
                 'max' => 200,
-                'children' => ['type' => ASN1::TYPE_INTEGER]
-            ]
-        ]
+                'children' => ['type' => ASN1::TYPE_INTEGER],
+            ],
+        ],
     ];
 }

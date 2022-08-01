@@ -73,7 +73,7 @@ abstract class Raw
         } elseif (isset($key['p']) && isset($key['q'])) {
             $indices = [
                 ['p', 'q'],
-                ['prime1', 'prime2']
+                ['prime1', 'prime2'],
             ];
             foreach ($indices as $index) {
                 [$i0, $i1] = $index;
@@ -88,7 +88,7 @@ abstract class Raw
         } else {
             $indices = [
                 ['dp', 'dq'],
-                ['exponent1', 'exponent2']
+                ['exponent1', 'exponent2'],
             ];
             foreach ($indices as $index) {
                 [$i0, $i1] = $index;
@@ -157,7 +157,7 @@ abstract class Raw
             }, $exponents),
             'coefficients' => array_map(function ($var) {
                 return clone $var;
-            }, $coefficients)
+            }, $coefficients),
         ]);
     }
 

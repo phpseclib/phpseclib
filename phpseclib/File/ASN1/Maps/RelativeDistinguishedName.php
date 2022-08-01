@@ -34,6 +34,6 @@ abstract class RelativeDistinguishedName
         'type' => ASN1::TYPE_SET,
         'min' => 1,
         'max' => -1,
-        'children' => AttributeTypeAndValue::MAP
+        'children' => AttributeTypeAndValue::MAP,
     ];
 }

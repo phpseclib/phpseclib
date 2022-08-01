@@ -30,8 +30,8 @@ abstract class AlgorithmIdentifier
             'algorithm' => ['type' => ASN1::TYPE_OBJECT_IDENTIFIER],
             'parameters' => [
                 'type' => ASN1::TYPE_ANY,
-                'optional' => true
-            ]
-        ]
+                'optional' => true,
+            ],
+        ],
     ];
 }

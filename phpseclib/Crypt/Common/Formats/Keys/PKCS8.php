@@ -285,7 +285,7 @@ abstract class PKCS8 extends PKCS
 
                'aes128-CBC-PAD' => '2.16.840.1.101.3.4.1.2',
                'aes192-CBC-PAD' => '2.16.840.1.101.3.4.1.22',
-               'aes256-CBC-PAD' => '2.16.840.1.101.3.4.1.42'
+               'aes256-CBC-PAD' => '2.16.840.1.101.3.4.1.42',
             ]);
             self::$oidsLoaded = true;
         }
@@ -401,7 +401,7 @@ abstract class PKCS8 extends PKCS
                                 'pbkdf2',
                                 $hash,
                                 $salt,
-                                (int) $iterationCount->toString()
+                                (int) $iterationCount->toString(),
                             ];
                             if (isset($keyLength)) {
                                 $params[] = (int) $keyLength->toString();
@@ -496,9 +496,9 @@ abstract class PKCS8 extends PKCS
         $key = [
             'version' => 'v1',
             'privateKeyAlgorithm' => [
-                'algorithm' => is_string(static::OID_NAME) ? static::OID_NAME : $oid
+                'algorithm' => is_string(static::OID_NAME) ? static::OID_NAME : $oid,
              ],
-            'privateKey' => $key
+            'privateKey' => $key,
         ];
         if ($oid != 'id-Ed25519' && $oid != 'id-Ed448') {
             $key['privateKeyAlgorithm']['parameters'] = $params;
@@ -528,7 +528,7 @@ abstract class PKCS8 extends PKCS
                 $PBKDF2params = [
                     'salt' => $salt,
                     'iterationCount' => $iterationCount,
-                    'prf' => ['algorithm' => $prf, 'parameters' => null]
+                    'prf' => ['algorithm' => $prf, 'parameters' => null],
                 ];
                 $PBKDF2params = ASN1::encodeDER($PBKDF2params, Maps\PBKDF2params::MAP);
 
@@ -537,7 +537,7 @@ abstract class PKCS8 extends PKCS
                 } else {
                     $params = [
                         'rc2ParametersVersion' => 58,
-                        'iv' => $iv
+                        'iv' => $iv,
                     ];
                     $params = ASN1::encodeDER($params, Maps\RC2CBCParameter::MAP);
                     $params = new ASN1\Element($params);
@@ -546,12 +546,12 @@ abstract class PKCS8 extends PKCS
                 $params = [
                     'keyDerivationFunc' => [
                         'algorithm' => 'id-PBKDF2',
-                        'parameters' => new ASN1\Element($PBKDF2params)
+                        'parameters' => new ASN1\Element($PBKDF2params),
                     ],
                     'encryptionScheme' => [
                         'algorithm' => $encryptionScheme,
-                        'parameters' => $params
-                    ]
+                        'parameters' => $params,
+                    ],
                 ];
                 $params = ASN1::encodeDER($params, Maps\PBES2params::MAP);
 
@@ -563,7 +563,7 @@ abstract class PKCS8 extends PKCS
 
                 $params = [
                     'salt' => $salt,
-                    'iterationCount' => $iterationCount
+                    'iterationCount' => $iterationCount,
                 ];
                 $params = ASN1::encodeDER($params, Maps\PBEParameter::MAP);
             }
@@ -573,9 +573,9 @@ abstract class PKCS8 extends PKCS
             $key = [
                 'encryptionAlgorithm' => [
                     'algorithm' => $encryptionAlgorithm,
-                    'parameters' => new ASN1\Element($params)
+                    'parameters' => new ASN1\Element($params),
                 ],
-                'encryptedData' => $key
+                'encryptedData' => $key,
             ];
 
             $key = ASN1::encodeDER($key, Maps\EncryptedPrivateKeyInfo::MAP);
@@ -599,9 +599,9 @@ abstract class PKCS8 extends PKCS
 
         $key = [
             'publicKeyAlgorithm' => [
-                'algorithm' => is_string(static::OID_NAME) ? static::OID_NAME : $oid
+                'algorithm' => is_string(static::OID_NAME) ? static::OID_NAME : $oid,
             ],
-            'publicKey' => "\0" . $key
+            'publicKey' => "\0" . $key,
         ];
 
         if ($oid != 'id-Ed25519' && $oid != 'id-Ed448') {

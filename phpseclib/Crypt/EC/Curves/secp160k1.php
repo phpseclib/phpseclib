@@ -37,11 +37,11 @@ class secp160k1 extends KoblitzPrime
         $this->basis = [];
         $this->basis[] = [
             'a' => new BigInteger('0096341F1138933BC2F505', -16),
-            'b' => new BigInteger('FF6E9D0418C67BB8D5F562', -16)
+            'b' => new BigInteger('FF6E9D0418C67BB8D5F562', -16),
         ];
         $this->basis[] = [
             'a' => new BigInteger('01BDCB3A09AAAABEAFF4A8', -16),
-            'b' => new BigInteger('04D12329FF0EF498EA67', -16)
+            'b' => new BigInteger('04D12329FF0EF498EA67', -16),
         ];
         $this->beta = $this->factory->newInteger(new BigInteger('645B7345A143464942CC46D7CF4D5D1E1E6CBB68', -16));
     }

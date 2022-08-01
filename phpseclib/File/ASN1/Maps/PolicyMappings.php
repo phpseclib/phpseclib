@@ -32,8 +32,8 @@ abstract class PolicyMappings
             'type' => ASN1::TYPE_SEQUENCE,
             'children' => [
                 'issuerDomainPolicy' => CertPolicyId::MAP,
-                'subjectDomainPolicy' => CertPolicyId::MAP
-            ]
-        ]
+                'subjectDomainPolicy' => CertPolicyId::MAP,
+            ],
+        ],
     ];
 }

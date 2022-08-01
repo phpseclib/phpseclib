@@ -35,9 +35,9 @@ abstract class PBKDF2params
             'iterationCount' => ['type' => ASN1::TYPE_INTEGER],
             'keyLength' => [
                 'type' => ASN1::TYPE_INTEGER,
-                'optional' => true
+                'optional' => true,
             ],
-            'prf' => AlgorithmIdentifier::MAP + ['optional' => true]
-        ]
+            'prf' => AlgorithmIdentifier::MAP + ['optional' => true],
+        ],
     ];
 }

@@ -18,16 +18,16 @@ class BigIntegerTest extends PhpseclibTestCase
     private static function mockEngine(string $className, bool $isValid): void
     {
         eval(<<<ENGINE
-declare(strict_types=1);
+            declare(strict_types=1);
 
-namespace phpseclib3\Math\BigInteger\Engines;
-class $className extends \phpseclib3\Math\BigInteger\Engines\Engine {
-	public function __construct(){} 
-	public static function isValidEngine() { return $isValid; }
-	public static function setModExpEngine(\$engine): void {} 
-	public function toString() { return __CLASS__; }
-}
-ENGINE
+            namespace phpseclib3\Math\BigInteger\Engines;
+            class $className extends \phpseclib3\Math\BigInteger\Engines\Engine {
+            	public function __construct(){} 
+            	public static function isValidEngine() { return $isValid; }
+            	public static function setModExpEngine(\$engine): void {} 
+            	public function toString() { return __CLASS__; }
+            }
+            ENGINE
         );
     }
 

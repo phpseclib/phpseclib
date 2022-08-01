@@ -28,7 +28,7 @@ abstract class EncryptedPrivateKeyInfo
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'encryptionAlgorithm' => AlgorithmIdentifier::MAP,
-            'encryptedData' => EncryptedData::MAP
-        ]
+            'encryptedData' => EncryptedData::MAP,
+        ],
     ];
 }

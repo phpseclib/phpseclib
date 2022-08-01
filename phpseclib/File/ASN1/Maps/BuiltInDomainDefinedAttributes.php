@@ -28,6 +28,6 @@ abstract class BuiltInDomainDefinedAttributes
         'type' => ASN1::TYPE_SEQUENCE,
         'min' => 1,
         'max' => 4, // ub-domain-defined-attributes
-        'children' => BuiltInDomainDefinedAttribute::MAP
+        'children' => BuiltInDomainDefinedAttribute::MAP,
     ];
 }

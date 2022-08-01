@@ -72,7 +72,7 @@ abstract class PKCS1 extends Progenitor
                 'privateExponent' => $key['privateExponent'],
                 'primes' => [1 => $key['prime1'], $key['prime2']],
                 'exponents' => [1 => $key['exponent1'], $key['exponent2']],
-                'coefficients' => [2 => $key['coefficient']]
+                'coefficients' => [2 => $key['coefficient']],
             ];
             if ($key['version'] == 'multi') {
                 foreach ($key['otherPrimeInfos'] as $primeInfo) {
@@ -118,13 +118,13 @@ abstract class PKCS1 extends Progenitor
             'prime2' => $primes[2],
             'exponent1' => $exponents[1],
             'exponent2' => $exponents[2],
-            'coefficient' => $coefficients[2]
+            'coefficient' => $coefficients[2],
         ];
         for ($i = 3; $i <= $num_primes; $i++) {
             $key['otherPrimeInfos'][] = [
                 'prime' => $primes[$i],
                 'exponent' => $exponents[$i],
-                'coefficient' => $coefficients[$i]
+                'coefficient' => $coefficients[$i],
             ];
         }
 
@@ -140,7 +140,7 @@ abstract class PKCS1 extends Progenitor
     {
         $key = [
             'modulus' => $n,
-            'publicExponent' => $e
+            'publicExponent' => $e,
         ];
 
         $key = ASN1::encodeDER($key, Maps\RSAPublicKey::MAP);

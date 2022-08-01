@@ -54,7 +54,7 @@ abstract class XML
             'isPublicKey' => false,
             'primes' => [],
             'exponents' => [],
-            'coefficients' => []
+            'coefficients' => [],
         ];
 
         $use_errors = libxml_use_internal_errors(true);

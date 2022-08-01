@@ -58,7 +58,7 @@ abstract class SSH2
 
         return [
             'r' => $result[0],
-            's' => $result[1]
+            's' => $result[1],
         ];
     }
 
