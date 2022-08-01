@@ -1152,7 +1152,7 @@ class Crypt_Base
                     $plaintext = '';
                     if ($this->continuousBuffer) {
                         $iv = &$this->decryptIV;
-                        $pos = &$this->buffer['pos'];
+                        $pos = &$this->debuffer['pos'];
                     } else {
                         $iv = $this->decryptIV;
                         $pos = 0;
