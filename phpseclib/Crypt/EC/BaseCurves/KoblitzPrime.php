@@ -43,7 +43,7 @@ class KoblitzPrime extends Prime
     /**
      * @var list<array{a: BigInteger, b: BigInteger}>
      */
-    public $basis = [];
+    public $basis;
 
     /**
      * @var object

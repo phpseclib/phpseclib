@@ -128,7 +128,7 @@ abstract class EC extends AsymmetricKey
     /**
      * @var string
      */
-    protected $sigFormat = '';
+    protected $sigFormat;
 
     /**
      * Create public / private key pair.

@@ -173,7 +173,7 @@ class Hash
     /**
      * @var int
      */
-    private $blockSize = 0;
+    private $blockSize;
 
     /**#@+
      * UMAC variables
