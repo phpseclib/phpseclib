@@ -27,13 +27,6 @@ class PublicKey extends DH
     use Common\Traits\Fingerprint;
 
     /**
-     * Public Key
-     *
-     * @var BigInteger
-     */
-    protected $publicKey;
-
-    /**
      * Returns the public key
      *
      * @param array $options optional

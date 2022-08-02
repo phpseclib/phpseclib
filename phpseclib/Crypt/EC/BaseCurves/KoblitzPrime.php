@@ -41,7 +41,7 @@ use phpseclib3\Math\PrimeField;
 class KoblitzPrime extends Prime
 {
     /**
-     * @var array<array<string,BigInteger>>
+     * @var list<array{a: BigInteger, b: BigInteger}>
      */
     public $basis = [];
 
