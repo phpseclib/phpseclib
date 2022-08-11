@@ -48,6 +48,12 @@
             "name": "Graham Campbell",
             "email": "graham@alt-three.com",
             "role": "Developer"
+        },
+        {
+            "name": "Jack Worman",
+            "email": "jack.worman@gmail.com",
+            "role": "Developer",
+            "homepage": "https://jackworman.com"
         }
     ],
     "require": {
