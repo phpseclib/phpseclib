@@ -665,9 +665,7 @@ class BigInteger implements \JsonSerializable
     public static function min(BigInteger ...$nums): BigInteger
     {
         $class = self::$mainEngine;
-        $nums = array_map(function ($num) {
-            return $num->value;
-        }, $nums);
+        $nums = array_map(fn ($num) => $num->value, $nums);
         return new static($class::min(...$nums));
     }
 
@@ -677,9 +675,7 @@ class BigInteger implements \JsonSerializable
     public static function max(BigInteger ...$nums): BigInteger
     {
         $class = self::$mainEngine;
-        $nums = array_map(function ($num) {
-            return $num->value;
-        }, $nums);
+        $nums = array_map(fn ($num) => $num->value, $nums);
         return new static($class::max(...$nums));
     }
 
@@ -755,9 +751,7 @@ class BigInteger implements \JsonSerializable
     public function createRecurringModuloFunction()
     {
         $func = $this->value->createRecurringModuloFunction();
-        return function (BigInteger $x) use ($func) {
-            return new static($func($x->value));
-        };
+        return fn (BigInteger $x) => new static($func($x->value));
     }
 
     /**
@@ -769,8 +763,6 @@ class BigInteger implements \JsonSerializable
      */
     public function bitwise_split(int $split): array
     {
-        return array_map(function ($val) {
-            return new static($val);
-        }, $this->value->bitwise_split($split));
+        return array_map(fn ($val) => new static($val), $this->value->bitwise_split($split));
     }
 }

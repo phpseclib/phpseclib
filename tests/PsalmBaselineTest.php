@@ -34,7 +34,7 @@ class PsalmBaselineTest extends TestCase
         /** @var array{level: int, type: string, tag: string, attributes: array{OCCURRENCES?: int}} $element */
         foreach ($values as $element) {
             if ($element['level'] === 3 && ($element['type'] === 'open' || $element['type'] === 'complete')) {
-                $errorCounts[$element['tag']] = $errorCounts[$element['tag']] ?? 0;
+                $errorCounts[$element['tag']] ??= 0;
                 $occurrences = $element['attributes']['OCCURRENCES'] ?? 1;
                 $errorCounts[$element['tag']] += $occurrences;
             }

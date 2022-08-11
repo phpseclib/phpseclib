@@ -536,11 +536,11 @@ class Blowfish extends BlockCipher
             $p[14] ^ $key[14],
             $p[15] ^ $key[15],
             $p[16] ^ $key[0],
-            $p[17] ^ $key[1]
+            $p[17] ^ $key[1],
         ];
 
         // @codingStandardsIgnoreStart
-        [ $p[0],  $p[1]] = self::encryptBlockHelper(     0,      0, $sbox0, $sbox1, $sbox2, $sbox3, $p);
+        [ $p[0],  $p[1]] = self::encryptBlockHelper(     0, 0, $sbox0, $sbox1, $sbox2, $sbox3, $p);
         [ $p[2],  $p[3]] = self::encryptBlockHelper($p[ 0], $p[ 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         [ $p[4],  $p[5]] = self::encryptBlockHelper($p[ 2], $p[ 3], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         [ $p[6],  $p[7]] = self::encryptBlockHelper($p[ 4], $p[ 5], $sbox0, $sbox1, $sbox2, $sbox3, $p);
@@ -605,11 +605,11 @@ class Blowfish extends BlockCipher
             $p[14] ^ $key[14],
             $p[15] ^ $key[15],
             $p[16] ^ $key[0],
-            $p[17] ^ $key[1]
+            $p[17] ^ $key[1],
         ];
 
         // @codingStandardsIgnoreStart
-        [ $p[0],  $p[1]] = self::encryptBlockHelper($data[ 0]         , $data[ 1]         , $sbox0, $sbox1, $sbox2, $sbox3, $p);
+        [ $p[0],  $p[1]] = self::encryptBlockHelper($data[ 0], $data[ 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         [ $p[2],  $p[3]] = self::encryptBlockHelper($data[ 2] ^ $p[ 0], $data[ 3] ^ $p[ 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         [ $p[4],  $p[5]] = self::encryptBlockHelper($data[ 4] ^ $p[ 2], $data[ 5] ^ $p[ 3], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         [ $p[6],  $p[7]] = self::encryptBlockHelper($data[ 6] ^ $p[ 4], $data[ 7] ^ $p[ 5], $sbox0, $sbox1, $sbox2, $sbox3, $p);

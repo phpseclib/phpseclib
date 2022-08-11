@@ -131,9 +131,7 @@ abstract class PuTTY
                     throw new \UnexpectedValueException('Key doesn\'t end with ---- END SSH2 PUBLIC KEY ----');
             }
             $lines = array_splice($lines, 1, -1);
-            $lines = array_map(function ($line) {
-                return rtrim($line, "\r\n");
-            }, $lines);
+            $lines = array_map(fn ($line) => rtrim($line, "\r\n"), $lines);
             $data = $current = '';
             $values = [];
             $in_value = false;

@@ -21,7 +21,6 @@ use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Random;
-use phpseclib3\Exception\UnsupportedFormatException;
 
 /**
  * OpenSSH Formatted RSA Key Handler

@@ -2150,7 +2150,7 @@ class SFTP extends SSH2
                         } elseif (is_callable($local_file)) {
                             $local_file($temp);
                         } else {
-                            fputs($fp, $temp);
+                            fwrite($fp, $temp);
                         }
                         if (is_callable($progressCallback)) {
                             call_user_func($progressCallback, $offset);

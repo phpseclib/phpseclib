@@ -40,7 +40,7 @@ class SFTPStreamTest extends SFTPTestCase
             'sftp' => ['session' => $this->sftp],
         ]);
         $fp = fopen($this->buildUrl('te#st.txt'), 'wb', false, $context);
-        fputs($fp, 'zzzz');
+        fwrite($fp, 'zzzz');
         fclose($fp);
 
         $this->assertContains('te#st.txt', $this->sftp->nlist());
