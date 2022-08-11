@@ -82,7 +82,7 @@ abstract class PhpseclibTestCase extends TestCase
 
     protected static function getVar($obj, $var)
     {
-        $reflection = new \ReflectionClass(get_class($obj));
+        $reflection = new \ReflectionClass($obj::class);
         $prop = $reflection->getProperty($var);
         $prop->setAccessible(true);
         return $prop->getValue($obj);
@@ -90,7 +90,7 @@ abstract class PhpseclibTestCase extends TestCase
 
     public static function callFunc($obj, $func, $params = [])
     {
-        $reflection = new \ReflectionClass(get_class($obj));
+        $reflection = new \ReflectionClass($obj::class);
         $method = $reflection->getMethod($func);
         $method->setAccessible(true);
         return $method->invokeArgs($obj, $params);

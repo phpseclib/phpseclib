@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace phpseclib3\File;
 
-use DateTime;
 use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\File\ASN1\Element;
@@ -1253,7 +1252,7 @@ abstract class ASN1
             }
             $prefix = substr($content, 0, 2) >= 50 ? '19' : '20';
             $content = $prefix . $content;
-        } elseif (strpos($content, '.') !== false) {
+        } elseif (str_contains($content, '.')) {
             $format .= '.u';
         }
 
@@ -1261,7 +1260,7 @@ abstract class ASN1
             $content = substr($content, 0, -1) . '+0000';
         }
 
-        if (strpos($content, '-') !== false || strpos($content, '+') !== false) {
+        if (str_contains($content, '-') || str_contains($content, '+')) {
             $format .= 'O';
         }
 

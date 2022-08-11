@@ -1500,8 +1500,8 @@ class SSH2
 
         $exchange_hash_rfc4419 = '';
 
-        if (strpos($this->kex_algorithm, 'curve25519-sha256') === 0 || strpos($this->kex_algorithm, 'ecdh-sha2-nistp') === 0) {
-            $curve = strpos($this->kex_algorithm, 'curve25519-sha256') === 0 ?
+        if (str_starts_with($this->kex_algorithm, 'curve25519-sha256') || str_starts_with($this->kex_algorithm, 'ecdh-sha2-nistp')) {
+            $curve = str_starts_with($this->kex_algorithm, 'curve25519-sha256') ?
                 'Curve25519' :
                 substr($this->kex_algorithm, 10);
             $ourPrivate = EC::createKey($curve);
@@ -1509,7 +1509,7 @@ class SSH2
             $clientKexInitMessage = MessageTypeExtra::KEX_ECDH_INIT;
             $serverKexReplyMessage = MessageTypeExtra::KEX_ECDH_REPLY;
         } else {
-            if (strpos($this->kex_algorithm, 'diffie-hellman-group-exchange') === 0) {
+            if (str_starts_with($this->kex_algorithm, 'diffie-hellman-group-exchange')) {
                 $dh_group_sizes_packed = pack(
                     'NNN',
                     $this->kex_dh_group_size_min,

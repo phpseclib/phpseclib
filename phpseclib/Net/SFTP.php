@@ -1027,8 +1027,8 @@ class SFTP extends SSH2
                     }
                     break;
                 case 'mode':
-                    $a[$sort] &= 07777;
-                    $b[$sort] &= 07777;
+                    $a[$sort] &= 0o7777;
+                    $b[$sort] &= 0o7777;
                     // fall-through
                 default:
                     if ($a[$sort] === $b[$sort]) {
@@ -1450,7 +1450,7 @@ class SFTP extends SSH2
             $filename = $temp;
         }
 
-        $attr = pack('N2', Attribute::PERMISSIONS, $mode & 07777);
+        $attr = pack('N2', Attribute::PERMISSIONS, $mode & 0o7777);
         if (!$this->setstat($filename, $attr, $recursive)) {
             return false;
         }
@@ -2825,26 +2825,26 @@ class SFTP extends SSH2
     {
         // values come from http://lxr.free-electrons.com/source/include/uapi/linux/stat.h#L12
         // see, also, http://linux.die.net/man/2/stat
-        switch ($mode & 0170000) {// ie. 1111 0000 0000 0000
-            case 0000000: // no file type specified - figure out the file type using alternative means
+        switch ($mode & 0o170000) {// ie. 1111 0000 0000 0000
+            case 0: // no file type specified - figure out the file type using alternative means
                 return false;
-            case 0040000:
+            case 0o040000:
                 return FileType::DIRECTORY;
-            case 0100000:
+            case 0o100000:
                 return FileType::REGULAR;
-            case 0120000:
+            case 0o120000:
                 return FileType::SYMLINK;
             // new types introduced in SFTPv5+
             // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-05#section-5.2
-            case 0010000: // named pipe (fifo)
+            case 0o010000: // named pipe (fifo)
                 return FileType::FIFO;
-            case 0020000: // character special
+            case 0o020000: // character special
                 return FileType::CHAR_DEVICE;
-            case 0060000: // block special
+            case 0o060000: // block special
                 return FileType::BLOCK_DEVICE;
-            case 0140000: // socket
+            case 0o140000: // socket
                 return FileType::SOCKET;
-            case 0160000: // whiteout
+            case 0o160000: // whiteout
                 // "SPECIAL should be used for files that are of
                 //  a known type which cannot be expressed in the protocol"
                 return FileType::SPECIAL;

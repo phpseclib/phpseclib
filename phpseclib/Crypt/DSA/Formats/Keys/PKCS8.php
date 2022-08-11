@@ -70,7 +70,7 @@ abstract class PKCS8 extends Progenitor
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
-        $isPublic = strpos($key, 'PUBLIC') !== false;
+        $isPublic = str_contains($key, 'PUBLIC');
 
         $key = parent::load($key, $password);
 

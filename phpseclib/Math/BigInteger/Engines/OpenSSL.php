@@ -57,7 +57,7 @@ abstract class OpenSSL
             throw new \UnexpectedValueException(openssl_error_string());
         }
 
-        $class = get_class($x);
+        $class = $x::class;
         return new $class($result, 256);
     }
 }

@@ -122,7 +122,7 @@ abstract class PuTTY
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
-        if (strpos($key, 'BEGIN SSH2 PUBLIC KEY') !== false) {
+        if (str_contains($key, 'BEGIN SSH2 PUBLIC KEY')) {
             $lines = preg_split('#[\r\n]+#', $key);
             switch (true) {
                 case $lines[0] != '---- BEGIN SSH2 PUBLIC KEY ----':
