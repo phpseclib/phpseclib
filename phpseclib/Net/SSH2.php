@@ -1172,7 +1172,7 @@ class SSH2
         $this->identifier = $this->generate_identifier();
 
         if ($this->send_id_string_first) {
-            fputs($this->fsock, $this->identifier . "\r\n");
+            fwrite($this->fsock, $this->identifier . "\r\n");
         }
 
         /* According to the SSH2 specs,
@@ -1251,7 +1251,7 @@ class SSH2
         }
 
         if (!$this->send_id_string_first) {
-            fputs($this->fsock, $this->identifier . "\r\n");
+            fwrite($this->fsock, $this->identifier . "\r\n");
         }
 
         if (!$this->send_kex_first) {
@@ -3264,18 +3264,18 @@ class SSH2
                     $cmf = ord($payload[0]);
                     $cm = $cmf & 0x0F;
                     if ($cm != 8) { // deflate
-                        user_error("Only CM = 8 ('deflate') is supported ($cm)");
+                        trigger_error("Only CM = 8 ('deflate') is supported ($cm)");
                     }
                     $cinfo = ($cmf & 0xF0) >> 4;
                     if ($cinfo > 7) {
-                        user_error("CINFO above 7 is not allowed ($cinfo)");
+                        trigger_error("CINFO above 7 is not allowed ($cinfo)");
                     }
                     $windowSize = 1 << ($cinfo + 8);
 
                     $flg = ord($payload[1]);
                     //$fcheck = $flg && 0x0F;
                     if ((($cmf << 8) | $flg) % 31) {
-                        user_error('fcheck failed');
+                        trigger_error('fcheck failed');
                     }
                     $fdict = boolval($flg & 0x20);
                     $flevel = ($flg & 0xC0) >> 6;
@@ -3930,7 +3930,7 @@ class SSH2
         $packet .= $this->encrypt && $this->encrypt->usesNonce() ? $this->encrypt->getTag() : $hmac;
 
         $start = microtime(true);
-        $sent = @fputs($this->fsock, $packet);
+        $sent = @fwrite($this->fsock, $packet);
         $stop = microtime(true);
 
         if (defined('NET_SSH2_LOGGING')) {
@@ -4056,7 +4056,7 @@ class SSH2
                     $realtime_log_size = strlen($entry);
                     $realtime_log_wrap = true;
                 }
-                fputs($realtime_log_file, $entry);
+                fwrite($realtime_log_file, $entry);
         }
     }
 
@@ -4195,9 +4195,7 @@ class SSH2
                     $output .= str_pad(dechex($j), 7, '0', STR_PAD_LEFT) . '0  ';
                 }
                 $fragment = Strings::shift($current_log, $this->log_short_width);
-                $hex = substr(preg_replace_callback('#.#s', function ($matches) {
-                    return $this->log_boundary . str_pad(dechex(ord($matches[0])), 2, '0', STR_PAD_LEFT);
-                }, $fragment), strlen($this->log_boundary));
+                $hex = substr(preg_replace_callback('#.#s', fn ($matches) => $this->log_boundary . str_pad(dechex(ord($matches[0])), 2, '0', STR_PAD_LEFT), $fragment), strlen($this->log_boundary));
                 // replace non ASCII printable characters with dots
                 // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
                 // also replace < with a . since < messes up the output on web browsers

@@ -264,7 +264,7 @@ class Identity implements PrivateKey
             $this->flags
         );
         $packet = Strings::packSSH2('s', $packet);
-        if (strlen($packet) != fputs($this->fsock, $packet)) {
+        if (strlen($packet) != fwrite($this->fsock, $packet)) {
             throw new \RuntimeException('Connection closed during signing');
         }
 
