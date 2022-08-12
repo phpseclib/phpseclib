@@ -90,7 +90,7 @@ abstract class libsodium
      *
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      */
-    public static function savePrivateKey(BigInteger $privateKey, Ed25519 $curve, array $publicKey, string $secret, ?string $password = null): string
+    public static function savePrivateKey(BigInteger $privateKey, Ed25519 $curve, array $publicKey, ?string $secret = null, ?string $password = null): string
     {
         if (!isset($secret)) {
             throw new \RuntimeException('Private Key does not have a secret set');
