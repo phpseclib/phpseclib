@@ -15,6 +15,7 @@ namespace phpseclib3\Crypt\DH;
 
 use phpseclib3\Crypt\Common;
 use phpseclib3\Crypt\DH;
+use phpseclib3\Math\BigInteger;
 
 /**
  * DH Public Key
@@ -40,7 +41,7 @@ class PublicKey extends DH
     /**
      * Returns the public key as a BigInteger
      */
-    public function toBigInteger(): \phpseclib3\Math\BigInteger
+    public function toBigInteger(): BigInteger
     {
         return $this->publicKey;
     }

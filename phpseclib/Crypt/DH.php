@@ -65,6 +65,11 @@ abstract class DH extends AsymmetricKey
     protected $base;
 
     /**
+     * @var BigInteger
+     */
+    protected $publicKey;
+
+    /**
      * Create DH parameters
      *
      * This method is a bit polymorphic. It can take any of the following:

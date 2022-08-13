@@ -51,7 +51,7 @@ jobs:
                 with:
                     php-version: ${{ matrix.php-version }}
             -   name: Composer Install
-                run: composer install --classmap-authoritative --no-interaction --no-cache
+                run: composer install --classmap-authoritative --no-interaction --no-cache --ignore-platform-req=php
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
                 run: |
@@ -80,4 +80,4 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
-                php-version: ['8.1']
+                php-version: ['8.1', '8.2']

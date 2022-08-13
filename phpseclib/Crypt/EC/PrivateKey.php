@@ -47,6 +47,11 @@ class PrivateKey extends EC implements Common\PrivateKey
     protected $dA;
 
     /**
+     * @var string
+     */
+    protected $secret = '';
+
+    /**
      * Multiplies an encoded point by the private key
      *
      * Used by ECDH
@@ -110,7 +115,7 @@ class PrivateKey extends EC implements Common\PrivateKey
             $curve = $this->curve;
             $hash = new Hash($curve::HASH);
 
-            $secret = substr($hash->hash($this->dA->secret), $curve::SIZE);
+            $secret = substr($hash->hash($this->secret), $curve::SIZE);
 
             if ($curve instanceof Ed25519) {
                 $dom = !isset($this->context) ? '' :
@@ -213,7 +218,7 @@ class PrivateKey extends EC implements Common\PrivateKey
     {
         $type = self::validatePlugin('Keys', $type, 'savePrivateKey');
 
-        return $type::savePrivateKey($this->dA, $this->curve, $this->QA, $this->password, $options);
+        return $type::savePrivateKey($this->dA, $this->curve, $this->QA, $this->secret, $this->password, $options);
     }
 
     /**

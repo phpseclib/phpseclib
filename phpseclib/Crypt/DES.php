@@ -125,6 +125,11 @@ class DES extends BlockCipher
     private $keys;
 
     /**
+     * @var array
+     */
+    private $kl;
+
+    /**
      * Shuffle table.
      *
      * For each byte value index, the entry holds an 8-byte string

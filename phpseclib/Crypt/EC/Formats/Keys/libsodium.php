@@ -64,7 +64,9 @@ abstract class libsodium
         $curve = new Ed25519();
         $components = ['curve' => $curve];
         if (isset($private)) {
-            $components['dA'] = $curve->extractSecret($private);
+            $arr = $curve->extractSecret($private);
+            $components['dA'] = $arr['dA'];
+            $components['secret'] = $arr['secret'];
         }
         $components['QA'] = isset($public) ?
             self::extractPoint($public, $curve) :
@@ -88,17 +90,17 @@ abstract class libsodium
      *
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
      */
-    public static function savePrivateKey(BigInteger $privateKey, Ed25519 $curve, array $publicKey, ?string $password = null): string
+    public static function savePrivateKey(BigInteger $privateKey, Ed25519 $curve, array $publicKey, ?string $secret = null, ?string $password = null): string
     {
-        if (!isset($privateKey->secret)) {
+        if (!isset($secret)) {
             throw new \RuntimeException('Private Key does not have a secret set');
         }
-        if (strlen($privateKey->secret) != 32) {
+        if (strlen($secret) != 32) {
             throw new \RuntimeException('Private Key secret is not of the correct length');
         }
         if (!empty($password) && is_string($password)) {
             throw new UnsupportedFormatException('libsodium private keys do not support encryption');
         }
-        return $privateKey->secret . $curve->encodePoint($publicKey);
+        return $secret . $curve->encodePoint($publicKey);
     }
 }

@@ -149,7 +149,9 @@ abstract class PKCS8 extends Progenitor
             if (substr($key['privateKey'], 0, 2) != "\x04\x20") {
                 throw new \RuntimeException('The first two bytes of the private key field should be 0x0420');
             }
-            $components['dA'] = $components['curve']->extractSecret(substr($key['privateKey'], 2));
+            $arr = $components['curve']->extractSecret(substr($key['privateKey'], 2));
+            $components['dA'] = $arr['dA'];
+            $components['secret'] = $arr['secret'];
         }
 
         if (isset($key['publicKey'])) {
@@ -201,7 +203,7 @@ abstract class PKCS8 extends Progenitor
      *
      * @param Integer[] $publicKey
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, ?string $password = null, array $options = []): string
+    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, ?string $secret = null, ?string $password = null, array $options = []): string
     {
         self::initialize_static_variables();
 
@@ -211,7 +213,7 @@ abstract class PKCS8 extends Progenitor
 
         if ($curve instanceof TwistedEdwardsCurve) {
             return self::wrapPrivateKey(
-                "\x04\x20" . $privateKey->secret,
+                "\x04\x20" . $secret,
                 [],
                 null,
                 $password,

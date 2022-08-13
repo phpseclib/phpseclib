@@ -152,6 +152,7 @@ abstract class AsymmetricKey
         }
 
         $components['format'] = $format;
+        $components['secret'] = $components['secret'] ?? '';
         $comment = $components['comment'] ?? null;
         $new = static::onLoad($components);
         $new->format = $format;
@@ -225,6 +226,7 @@ abstract class AsymmetricKey
         }
 
         $components['format'] = $format;
+        $components['secret'] = $components['secret'] ?? '';
 
         $new = static::onLoad($components);
         $new->format = $format;

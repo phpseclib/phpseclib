@@ -213,6 +213,11 @@ abstract class SymmetricKey
     protected $key = false;
 
     /**
+     * @var null|string
+     */
+    private $hKey = null;
+
+    /**
      * The Initialization Vector
      *
      * @see self::setIV()
@@ -2801,7 +2806,7 @@ PHP
     private function setupGCM(): void
     {
         // don't keep on re-calculating $this->h
-        if (!$this->h || $this->h->key != $this->key) {
+        if (!$this->h || $this->hKey != $this->key) {
             $cipher = new static('ecb');
             $cipher->setKey($this->key);
             $cipher->disablePadding();
@@ -2809,7 +2814,7 @@ PHP
             $this->h = self::$gcmField->newInteger(
                 Strings::switchEndianness($cipher->encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"))
             );
-            $this->h->key = $this->key;
+            $this->hKey = $this->key;
         }
 
         if (strlen($this->nonce) == 12) {

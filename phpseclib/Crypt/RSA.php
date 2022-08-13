@@ -252,6 +252,16 @@ abstract class RSA extends AsymmetricKey
     private static $smallestPrime = 4096;
 
     /**
+     * Public Exponent
+     */
+    protected $publicExponent = false;
+
+    /**
+     * Private Exponent
+     */
+    protected $privateExponent = null;
+
+    /**
      * Sets the public exponent for key generation
      *
      * This will be 65537 unless changed.

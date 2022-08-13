@@ -97,7 +97,7 @@ class Ed448 extends TwistedEdwards
      *
      * Used by the various key handlers
      *
-     * @return \phpseclib3\Math\PrimeField\Integer
+     * @return array
      */
     public function extractSecret(string $str)
     {
@@ -121,8 +121,10 @@ class Ed448 extends TwistedEdwards
         //     secret scalar s.
         $dA = new BigInteger($h, 256);
 
-        $dA->secret = $str;
-        return $dA;
+        return [
+            'dA' => $dA,
+            'secret' => $str
+        ];
     }
 
     /**
@@ -145,7 +147,7 @@ class Ed448 extends TwistedEdwards
      */
     public function createRandomMultiplier(): BigInteger
     {
-        return $this->extractSecret(Random::string(57));
+        return $this->extractSecret(Random::string(57))['dA'];
     }
 
     /**

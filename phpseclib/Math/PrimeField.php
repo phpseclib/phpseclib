@@ -50,8 +50,6 @@ class PrimeField extends FiniteField
         //    throw new \UnexpectedValueException('PrimeField requires a prime number be passed to the constructor');
         //}
 
-        $this->modulo = $modulo;
-
         $this->instanceID = self::$instanceCounter++;
         Integer::setModulo($this->instanceID, $modulo);
         Integer::setRecurringModuloFunction($this->instanceID, $modulo->createRecurringModuloFunction());
