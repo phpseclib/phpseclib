@@ -30,7 +30,7 @@ abstract class PBMAC1params
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'keyDerivationFunc' => AlgorithmIdentifier::MAP,
-            'messageAuthScheme' => AlgorithmIdentifier::MAP
-        ]
+            'messageAuthScheme' => AlgorithmIdentifier::MAP,
+        ],
     ];
 }

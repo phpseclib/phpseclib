@@ -30,15 +30,15 @@ abstract class EDIPartyName
             'nameAssigner' => [
                 'constant' => 0,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + DirectoryString::MAP,
             // partyName is technically required but \phpseclib3\File\ASN1 doesn't currently support non-optional constants and
             // setting it to optional gets the job done in any event.
             'partyName' => [
                 'constant' => 1,
                 'optional' => true,
-                'implicit' => true
-            ] + DirectoryString::MAP
-        ]
+                'implicit' => true,
+            ] + DirectoryString::MAP,
+        ],
     ];
 }

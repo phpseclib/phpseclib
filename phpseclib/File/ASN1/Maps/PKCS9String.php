@@ -28,7 +28,7 @@ abstract class PKCS9String
         'type' => ASN1::TYPE_CHOICE,
         'children' => [
             'ia5String' => ['type' => ASN1::TYPE_IA5_STRING],
-            'directoryString' => DirectoryString::MAP
-        ]
+            'directoryString' => DirectoryString::MAP,
+        ],
     ];
 }

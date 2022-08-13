@@ -228,7 +228,7 @@ class RC4 extends StreamCipher
         $this->stream[self::DECRYPT] = $this->stream[self::ENCRYPT] = [
             0, // index $i
             0, // index $j
-            $keyStream
+            $keyStream,
         ];
     }
 

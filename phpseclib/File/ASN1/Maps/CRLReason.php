@@ -37,7 +37,7 @@ abstract class CRLReason
             // Value 7 is not used.
             8 => 'removeFromCRL',
             'privilegeWithdrawn',
-            'aACompromise'
-        ]
+            'aACompromise',
+        ],
     ];
 }

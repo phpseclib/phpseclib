@@ -212,12 +212,12 @@ abstract class PHP extends Engine
         if ($x_size == 0) {
             return [
                 self::VALUE => $y_value,
-                self::SIGN => $y_negative
+                self::SIGN => $y_negative,
             ];
         } elseif ($y_size == 0) {
             return [
                 self::VALUE => $x_value,
-                self::SIGN => $x_negative
+                self::SIGN => $x_negative,
             ];
         }
 
@@ -226,7 +226,7 @@ abstract class PHP extends Engine
             if ($x_value == $y_value) {
                 return [
                     self::VALUE => [],
-                    self::SIGN => false
+                    self::SIGN => false,
                 ];
             }
 
@@ -276,7 +276,7 @@ abstract class PHP extends Engine
 
         return [
             self::VALUE => self::trim($value),
-            self::SIGN => $x_negative
+            self::SIGN => $x_negative,
         ];
     }
 
@@ -291,12 +291,12 @@ abstract class PHP extends Engine
         if ($x_size == 0) {
             return [
                 self::VALUE => $y_value,
-                self::SIGN => !$y_negative
+                self::SIGN => !$y_negative,
             ];
         } elseif ($y_size == 0) {
             return [
                 self::VALUE => $x_value,
-                self::SIGN => $x_negative
+                self::SIGN => $x_negative,
             ];
         }
 
@@ -313,7 +313,7 @@ abstract class PHP extends Engine
         if (!$diff) {
             return [
                 self::VALUE => [],
-                self::SIGN => false
+                self::SIGN => false,
             ];
         }
 
@@ -360,7 +360,7 @@ abstract class PHP extends Engine
 
         return [
             self::VALUE => self::trim($x_value),
-            self::SIGN => $x_negative
+            self::SIGN => $x_negative,
         ];
     }
 
@@ -382,7 +382,7 @@ abstract class PHP extends Engine
         if (!$x_length || !$y_length) { // a 0 is being multiplied
             return [
                 self::VALUE => [],
-                self::SIGN => false
+                self::SIGN => false,
             ];
         }
 
@@ -390,7 +390,7 @@ abstract class PHP extends Engine
             self::VALUE => min($x_length, $y_length) < 2 * self::KARATSUBA_CUTOFF ?
                 self::trim(self::regularMultiply($x_value, $y_value)) :
                 self::trim(self::karatsuba($x_value, $y_value)),
-            self::SIGN => $x_negative != $y_negative
+            self::SIGN => $x_negative != $y_negative,
         ];
     }
 
@@ -573,11 +573,11 @@ abstract class PHP extends Engine
             $x_window = [
                 $x_value[$i] ?? 0,
                 $x_value[$i - 1] ?? 0,
-                $x_value[$i - 2] ?? 0
+                $x_value[$i - 2] ?? 0,
             ];
             $y_window = [
                 $y_value[$y_max],
-                ($y_max > 0) ? $y_value[$y_max - 1] : 0
+                ($y_max > 0) ? $y_value[$y_max - 1] : 0,
             ];
 
             $q_index = $i - $y_max - 1;

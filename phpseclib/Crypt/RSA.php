@@ -339,7 +339,7 @@ abstract class RSA extends AsymmetricKey
         $exponents = $coefficients = $primes = [];
         $lcm = [
             'top' => clone self::$one,
-            'bottom' => false
+            'bottom' => false,
         ];
 
         do {
@@ -794,7 +794,7 @@ abstract class RSA extends AsymmetricKey
         $masks = [
             self::ENCRYPTION_OAEP,
             self::ENCRYPTION_PKCS1,
-            self::ENCRYPTION_NONE
+            self::ENCRYPTION_NONE,
         ];
         $numSelected = 0;
         $selected = 0;
@@ -812,7 +812,7 @@ abstract class RSA extends AsymmetricKey
         $masks = [
             self::SIGNATURE_PSS,
             self::SIGNATURE_RELAXED_PKCS1,
-            self::SIGNATURE_PKCS1
+            self::SIGNATURE_PKCS1,
         ];
         $numSelected = 0;
         $selected = 0;

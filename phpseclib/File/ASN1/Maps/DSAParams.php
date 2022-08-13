@@ -29,7 +29,7 @@ abstract class DSAParams
         'children' => [
             'p' => ['type' => ASN1::TYPE_INTEGER],
             'q' => ['type' => ASN1::TYPE_INTEGER],
-            'g' => ['type' => ASN1::TYPE_INTEGER]
-        ]
+            'g' => ['type' => ASN1::TYPE_INTEGER],
+        ],
     ];
 }

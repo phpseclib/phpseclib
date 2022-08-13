@@ -166,7 +166,7 @@ trait Common
                 'brainpoolP384r1' => '1.3.36.3.3.2.8.1.1.11',
                 'brainpoolP384t1' => '1.3.36.3.3.2.8.1.1.12',
                 'brainpoolP512r1' => '1.3.36.3.3.2.8.1.1.13',
-                'brainpoolP512t1' => '1.3.36.3.3.2.8.1.1.14'
+                'brainpoolP512t1' => '1.3.36.3.3.2.8.1.1.14',
             ];
             ASN1::loadOIDs([
                 'prime-field' => '1.2.840.10045.1.1',
@@ -175,7 +175,7 @@ trait Common
                 // per http://www.secg.org/SEC1-Ver-1.0.pdf#page=84, gnBasis "not used here"
                 'gnBasis' => '1.2.840.10045.1.2.3.1', // NULL
                 'tpBasis' => '1.2.840.10045.1.2.3.2', // Trinomial
-                'ppBasis' => '1.2.840.10045.1.2.3.3'  // Pentanomial
+                'ppBasis' => '1.2.840.10045.1.2.3.3',  // Pentanomial
             ] + self::$curveOIDs);
         }
     }
@@ -316,7 +316,7 @@ trait Common
             }
             $point = [
                 $curve->convertInteger(new BigInteger($x, 256)),
-                $curve->convertInteger(new BigInteger($y, 256))
+                $curve->convertInteger(new BigInteger($y, 256)),
             ];
 
             if (!$curve->verifyPoint($point)) {
@@ -449,14 +449,14 @@ trait Common
                 'version' => 'ecdpVer1',
                 'fieldID' => [
                     'fieldType' => 'prime-field',
-                    'parameters' => $curve->getModulo()
+                    'parameters' => $curve->getModulo(),
                 ],
                 'curve' => [
                     'a' => $curve->getA()->toBytes(),
-                    'b' => $curve->getB()->toBytes()
+                    'b' => $curve->getB()->toBytes(),
                 ],
                 'base' => "\4" . $x . $y,
-                'order' => $order
+                'order' => $order,
             ];
 
             return $returnArray ?
@@ -480,7 +480,7 @@ trait Common
                     $modulo = [
                         'k1' => new BigInteger($modulo[2]),
                         'k2' => new BigInteger($modulo[1]),
-                        'k3' => new BigInteger($modulo[0])
+                        'k3' => new BigInteger($modulo[0]),
                     ];
                     $modulo = ASN1::encodeDER($modulo, Maps\Pentanomial::MAP);
                     $modulo = new ASN1\Element($modulo);
@@ -488,7 +488,7 @@ trait Common
             $params = ASN1::encodeDER([
                 'm' => new BigInteger($m),
                 'basis' => $basis,
-                'parameters' => $modulo
+                'parameters' => $modulo,
             ], Maps\Characteristic_two::MAP);
             $params = new ASN1\Element($params);
             $a = ltrim($curve->getA()->toBytes(), "\0");
@@ -503,14 +503,14 @@ trait Common
                 'version' => 'ecdpVer1',
                 'fieldID' => [
                     'fieldType' => 'characteristic-two-field',
-                    'parameters' => $params
+                    'parameters' => $params,
                 ],
                 'curve' => [
                     'a' => $a,
-                    'b' => $b
+                    'b' => $b,
                 ],
                 'base' => "\4" . $x . $y,
-                'order' => $order
+                'order' => $order,
             ];
 
             return $returnArray ?

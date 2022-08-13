@@ -31,12 +31,12 @@ abstract class PrivateKeyUsagePeriod
                 'constant' => 0,
                 'optional' => true,
                 'implicit' => true,
-                'type' => ASN1::TYPE_GENERALIZED_TIME],
+                'type' => ASN1::TYPE_GENERALIZED_TIME, ],
             'notAfter' => [
                 'constant' => 1,
                 'optional' => true,
                 'implicit' => true,
-                'type' => ASN1::TYPE_GENERALIZED_TIME]
-        ]
+                'type' => ASN1::TYPE_GENERALIZED_TIME, ],
+        ],
     ];
 }

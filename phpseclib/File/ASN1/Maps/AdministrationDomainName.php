@@ -32,7 +32,7 @@ abstract class AdministrationDomainName
         'cast' => 2,
         'children' => [
             'numeric' => ['type' => ASN1::TYPE_NUMERIC_STRING],
-            'printable' => ['type' => ASN1::TYPE_PRINTABLE_STRING]
-        ]
+            'printable' => ['type' => ASN1::TYPE_PRINTABLE_STRING],
+        ],
     ];
 }

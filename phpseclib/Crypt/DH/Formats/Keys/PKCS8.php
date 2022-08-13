@@ -107,7 +107,7 @@ abstract class PKCS8 extends Progenitor
     {
         $params = [
             'prime' => $prime,
-            'base' => $base
+            'base' => $base,
         ];
         $params = ASN1::encodeDER($params, Maps\DHParameter::MAP);
         $params = new ASN1\Element($params);
@@ -124,7 +124,7 @@ abstract class PKCS8 extends Progenitor
     {
         $params = [
             'prime' => $prime,
-            'base' => $base
+            'base' => $base,
         ];
         $params = ASN1::encodeDER($params, Maps\DHParameter::MAP);
         $params = new ASN1\Element($params);

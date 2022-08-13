@@ -30,18 +30,18 @@ abstract class AuthorityKeyIdentifier
             'keyIdentifier' => [
                 'constant' => 0,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + KeyIdentifier::MAP,
             'authorityCertIssuer' => [
                 'constant' => 1,
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + GeneralNames::MAP,
             'authorityCertSerialNumber' => [
                 'constant' => 2,
                 'optional' => true,
-                'implicit' => true
-            ] + CertificateSerialNumber::MAP
-        ]
+                'implicit' => true,
+            ] + CertificateSerialNumber::MAP,
+        ],
     ];
 }

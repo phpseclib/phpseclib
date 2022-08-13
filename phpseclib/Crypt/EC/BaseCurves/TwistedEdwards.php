@@ -128,7 +128,7 @@ class TwistedEdwards extends Base
         }
         $this->p = [
             $x instanceof BigInteger ? $this->factory->newInteger($x) : $x,
-            $y instanceof BigInteger ? $this->factory->newInteger($y) : $y
+            $y instanceof BigInteger ? $this->factory->newInteger($y) : $y,
         ];
     }
 
@@ -182,7 +182,7 @@ class TwistedEdwards extends Base
         $z = $this->one->divide($z);
         return [
             $x->multiply($z),
-            $y->multiply($z)
+            $y->multiply($z),
         ];
     }
 

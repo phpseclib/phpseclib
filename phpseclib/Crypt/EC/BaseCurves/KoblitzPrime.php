@@ -77,7 +77,7 @@ class KoblitzPrime extends Prime
             $s = $this->three->negate()->squareRoot()->multiply($inv);
             $betas = [
                 $inv->add($s),
-                $inv->subtract($s)
+                $inv->subtract($s),
             ];
             $this->beta = $betas[0]->compare($betas[1]) < 0 ? $betas[0] : $betas[1];
             //echo strtoupper($this->beta->toHex(true)) . "\n"; exit;
@@ -94,7 +94,7 @@ class KoblitzPrime extends Prime
 
             $lambdas = [
                 $inv->add($s),
-                $inv->subtract($s)
+                $inv->subtract($s),
             ];
 
             $lhs = $this->multiplyPoint($this->p, $lambdas[0])[0];
@@ -143,7 +143,7 @@ class KoblitzPrime extends Prime
             $beta = [
                 $p[0]->multiply($this->beta),
                 $p[1],
-                clone $this->one
+                clone $this->one,
             ];
 
             if (isset($p['naf'])) {
@@ -151,7 +151,7 @@ class KoblitzPrime extends Prime
                     return [
                         $p[0]->multiply($this->beta),
                         $p[1],
-                        clone $this->one
+                        clone $this->one,
                     ];
                 }, $p['naf']);
                 $beta['nafwidth'] = $p['nafwidth'];
@@ -324,7 +324,7 @@ class KoblitzPrime extends Prime
 
         return [
             ['a' => $a1, 'b' => $b1],
-            ['a' => $a2, 'b' => $b2]
+            ['a' => $a2, 'b' => $b2],
         ];
     }
 }

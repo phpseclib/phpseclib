@@ -142,7 +142,7 @@ abstract class SymmetricKey
         'ofb'    => self::MODE_OFB,
         'ofb8'   => self::MODE_OFB8,
         'gcm'    => self::MODE_GCM,
-        'stream' => self::MODE_STREAM
+        'stream' => self::MODE_STREAM,
     ];
 
     /**
@@ -186,7 +186,7 @@ abstract class SymmetricKey
         self::ENGINE_EVAL        => 'Eval',
         self::ENGINE_OPENSSL     => 'OpenSSL',
         self::ENGINE_LIBSODIUM   => 'libsodium',
-        self::ENGINE_OPENSSL_GCM => 'OpenSSL (GCM)'
+        self::ENGINE_OPENSSL_GCM => 'OpenSSL (GCM)',
     ];
 
     /**
@@ -1996,7 +1996,7 @@ abstract class SymmetricKey
             self::ENGINE_LIBSODIUM,
             self::ENGINE_OPENSSL_GCM,
             self::ENGINE_OPENSSL,
-            self::ENGINE_EVAL
+            self::ENGINE_EVAL,
         ];
         if (isset($this->preferredEngine)) {
             $temp = [$this->preferredEngine];
@@ -2778,16 +2778,16 @@ abstract class SymmetricKey
         // @see https://github.com/phpseclib/phpseclib/pull/1143
         /** @var \Closure $func */
         $func = eval(<<<PHP
-return function (string \$_action, string \$_text): string
-{
-    {$init_crypt}
-    if (\$_action === 'encrypt') {
-        {$encrypt}
-    } else {
-        {$decrypt}
-    }
-};
-PHP
+            return function (string \$_action, string \$_text): string
+            {
+                {$init_crypt}
+                if (\$_action === 'encrypt') {
+                    {$encrypt}
+                } else {
+                    {$decrypt}
+                }
+            };
+            PHP
         );
 
         $bindedClosure = \Closure::bind($func, $this, static::class);

@@ -286,8 +286,8 @@ Mj93S
                 ['utf8String' => "Al. Marsza\xC5\x82ka Pi\xC5\x82sudskiego 52/54"],
                 ['utf8String' => '81-382 Gdynia'],
                 ['utf8String' => 'Polska'],
-                ['utf8String' => 'pomorskie']
-            ]
+                ['utf8String' => 'pomorskie'],
+            ],
         ];
         $this->assertEquals($x509->getDNProp('id-at-postalAddress'), $expected);
 

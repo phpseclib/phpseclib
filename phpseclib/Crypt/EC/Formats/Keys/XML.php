@@ -178,7 +178,7 @@ abstract class XML
         }
         $point = [
             $curve->convertInteger(new BigInteger($x->item(0)->getAttribute('Value'))),
-            $curve->convertInteger(new BigInteger($y->item(0)->getAttribute('Value')))
+            $curve->convertInteger(new BigInteger($y->item(0)->getAttribute('Value'))),
         ];
         if (!$curve->verifyPoint($point)) {
             throw new \RuntimeException('Unable to verify that point exists on curve');
@@ -225,7 +225,7 @@ abstract class XML
             'gnb' => ['fieldid/gnb/m'],
             'tnb' => ['fieldid/tnb/k'],
             'pnb' => ['fieldid/pnb/k1', 'fieldid/pnb/k2', 'fieldid/pnb/k3'],
-            'unknown' => []
+            'unknown' => [],
         ];
 
         foreach ($fieldTypes as $type => $queries) {
@@ -275,7 +275,7 @@ abstract class XML
     {
         $fieldTypes = [
             'prime-field' => ['primefieldparamstype/p'],
-            'unknown' => []
+            'unknown' => [],
         ];
 
         foreach ($fieldTypes as $type => $queries) {

@@ -35,7 +35,7 @@ abstract class KeyUsage
             'keyCertSign',
             'cRLSign',
             'encipherOnly',
-            'decipherOnly'
-        ]
+            'decipherOnly',
+        ],
     ];
 }

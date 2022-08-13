@@ -43,7 +43,7 @@ abstract class Raw
 
         return [
             'r' => $sig['r'],
-            's' => $sig['s']
+            's' => $sig['s'],
         ];
     }
 

@@ -47,7 +47,7 @@ abstract class SSH2
 
         return [
             'r' => new BigInteger(substr($blob, 0, 20), 256),
-            's' => new BigInteger(substr($blob, 20), 256)
+            's' => new BigInteger(substr($blob, 20), 256),
         ];
     }
 

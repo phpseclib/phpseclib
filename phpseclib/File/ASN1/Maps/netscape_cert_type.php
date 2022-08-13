@@ -36,7 +36,7 @@ abstract class netscape_cert_type
             'Reserved',
             'SSLCA',
             'EmailCA',
-            'ObjectSigningCA'
-        ]
+            'ObjectSigningCA',
+        ],
     ];
 }

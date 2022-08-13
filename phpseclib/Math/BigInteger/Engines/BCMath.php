@@ -263,7 +263,7 @@ class BCMath extends Engine
         return [
             'gcd' => $this->normalize(new static($u)),
             'x' => $this->normalize(new static($a)),
-            'y' => $this->normalize(new static($b))
+            'y' => $this->normalize(new static($b)),
         ];
     }
 

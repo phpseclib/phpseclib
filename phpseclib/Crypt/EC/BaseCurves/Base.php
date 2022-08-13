@@ -189,7 +189,7 @@ abstract class Base
     {
         $temp = [
             $p[0],
-            $p[1]->negate()
+            $p[1]->negate(),
         ];
         if (isset($p[2])) {
             $temp[] = $p[2];

@@ -29,12 +29,12 @@ abstract class UserNotice
         'children' => [
             'noticeRef' => [
                 'optional' => true,
-                'implicit' => true
+                'implicit' => true,
             ] + NoticeReference::MAP,
             'explicitText' => [
                 'optional' => true,
-                'implicit' => true
-            ] + DisplayText::MAP
-        ]
+                'implicit' => true,
+            ] + DisplayText::MAP,
+        ],
     ];
 }

@@ -64,7 +64,7 @@ abstract class PKCS1 extends Progenitor
     {
         $params = [
             'prime' => $prime,
-            'base' => $base
+            'base' => $base,
         ];
         $params = ASN1::encodeDER($params, Maps\DHParameter::MAP);
 

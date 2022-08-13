@@ -157,7 +157,7 @@ abstract class TestCase extends PhpseclibTestCase
             [32,32],
             [31,31],
             [17,17],
-            [99, 99]
+            [99, 99],
         ];
 
         $result = [];

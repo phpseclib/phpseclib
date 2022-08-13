@@ -43,7 +43,7 @@ abstract class MontgomeryMult extends Montgomery
 
         static $cache = [
             self::VARIABLE => [],
-            self::DATA => []
+            self::DATA => [],
         ];
 
         if (($key = array_search($m, $cache[self::VARIABLE])) === false) {

@@ -32,7 +32,7 @@ abstract class DSAPrivateKey
             'q' => ['type' => ASN1::TYPE_INTEGER],
             'g' => ['type' => ASN1::TYPE_INTEGER],
             'y' => ['type' => ASN1::TYPE_INTEGER],
-            'x' => ['type' => ASN1::TYPE_INTEGER]
-        ]
+            'x' => ['type' => ASN1::TYPE_INTEGER],
+        ],
     ];
 }

@@ -82,7 +82,7 @@ abstract class PKCS1 extends Progenitor
         $key = [
             'p' => $p,
             'q' => $q,
-            'g' => $g
+            'g' => $g,
         ];
 
         $key = ASN1::encodeDER($key, Maps\DSAParams::MAP);
@@ -106,7 +106,7 @@ abstract class PKCS1 extends Progenitor
             'q' => $q,
             'g' => $g,
             'y' => $y,
-            'x' => $x
+            'x' => $x,
         ];
 
         $key = ASN1::encodeDER($key, Maps\DSAPrivateKey::MAP);

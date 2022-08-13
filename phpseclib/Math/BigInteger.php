@@ -143,7 +143,7 @@ class BigInteger implements \JsonSerializable
                 ['GMP'],
                 ['PHP64', ['OpenSSL']],
                 ['BCMath', ['OpenSSL']],
-                ['PHP32', ['OpenSSL']]
+                ['PHP32', ['OpenSSL']],
             ];
             foreach ($engines as $engine) {
                 try {
@@ -283,7 +283,7 @@ class BigInteger implements \JsonSerializable
         [$q, $r] = $this->value->divide($y->value);
         return [
             new static($q),
-            new static($r)
+            new static($r),
         ];
     }
 
@@ -315,7 +315,7 @@ class BigInteger implements \JsonSerializable
         return [
             'gcd' => new static($gcd),
             'x' => new static($x),
-            'y' => new static($y)
+            'y' => new static($y),
         ];
     }
 
@@ -551,7 +551,7 @@ class BigInteger implements \JsonSerializable
          */
         return [
             'min' => new static($min),
-            'max' => new static($max)
+            'max' => new static($max),
         ];
     }
 

@@ -90,7 +90,7 @@ class Identity implements PrivateKey
         'secp256r1' => 'nistp256',
         'secp384r1' => 'nistp384',
         'secp521r1' => 'nistp521',
-        'Ed25519' => 'Ed25519'
+        'Ed25519' => 'Ed25519',
     ];
 
     /**

@@ -42,7 +42,7 @@ abstract class OpenSSH extends Progenitor
         'ecdsa-sha2-nistp256',
         'ecdsa-sha2-nistp384',
         'ecdsa-sha2-nistp521',
-        'ssh-ed25519'
+        'ssh-ed25519',
     ];
 
     /**
@@ -73,7 +73,7 @@ abstract class OpenSSH extends Progenitor
                 'curve' => $curve,
                 'dA' => $privateKey,
                 'QA' => self::extractPoint("\0$publicKey", $curve),
-                'comment' => $comment
+                'comment' => $comment,
             ];
         }
 
@@ -95,7 +95,7 @@ abstract class OpenSSH extends Progenitor
         return [
             'curve' => $curve,
             'QA' => $qa,
-            'comment' => $parsed['comment']
+            'comment' => $parsed['comment'],
         ];
     }
 

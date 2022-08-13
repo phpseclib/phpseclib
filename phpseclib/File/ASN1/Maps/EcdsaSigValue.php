@@ -28,7 +28,7 @@ abstract class EcdsaSigValue
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'r' => ['type' => ASN1::TYPE_INTEGER],
-            's' => ['type' => ASN1::TYPE_INTEGER]
-        ]
+            's' => ['type' => ASN1::TYPE_INTEGER],
+        ],
     ];
 }
