@@ -539,17 +539,10 @@ class Blowfish extends BlockCipher
             $p[17] ^ $key[1],
         ];
 
-        // @codingStandardsIgnoreStart
-        [ $p[0],  $p[1]] = self::encryptBlockHelper(     0, 0, $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [ $p[2],  $p[3]] = self::encryptBlockHelper($p[ 0], $p[ 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [ $p[4],  $p[5]] = self::encryptBlockHelper($p[ 2], $p[ 3], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [ $p[6],  $p[7]] = self::encryptBlockHelper($p[ 4], $p[ 5], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [ $p[8],  $p[9]] = self::encryptBlockHelper($p[ 6], $p[ 7], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [$p[10], $p[11]] = self::encryptBlockHelper($p[ 8], $p[ 9], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [$p[12], $p[13]] = self::encryptBlockHelper($p[10], $p[11], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [$p[14], $p[15]] = self::encryptBlockHelper($p[12], $p[13], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [$p[16], $p[17]] = self::encryptBlockHelper($p[14], $p[15], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        // @codingStandardsIgnoreEnd
+        [$p[0], $p[1]] = self::encryptBlockHelper(0, 0, $sbox0, $sbox1, $sbox2, $sbox3, $p);
+        for ($i = 2; $i < 18; $i += 2) {
+            [$p[$i], $p[$i + 1]] = self::encryptBlockHelper($p[$i - 2], $p[$i - 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
+        }
 
         [$sbox0[0], $sbox0[1]] = self::encryptBlockHelper($p[16], $p[17], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         for ($i = 2; $i < 256; $i += 2) {
@@ -608,17 +601,10 @@ class Blowfish extends BlockCipher
             $p[17] ^ $key[1],
         ];
 
-        // @codingStandardsIgnoreStart
-        [ $p[0],  $p[1]] = self::encryptBlockHelper($data[ 0], $data[ 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [ $p[2],  $p[3]] = self::encryptBlockHelper($data[ 2] ^ $p[ 0], $data[ 3] ^ $p[ 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [ $p[4],  $p[5]] = self::encryptBlockHelper($data[ 4] ^ $p[ 2], $data[ 5] ^ $p[ 3], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [ $p[6],  $p[7]] = self::encryptBlockHelper($data[ 6] ^ $p[ 4], $data[ 7] ^ $p[ 5], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [ $p[8],  $p[9]] = self::encryptBlockHelper($data[ 8] ^ $p[ 6], $data[ 9] ^ $p[ 7], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [$p[10], $p[11]] = self::encryptBlockHelper($data[10] ^ $p[ 8], $data[11] ^ $p[ 9], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [$p[12], $p[13]] = self::encryptBlockHelper($data[12] ^ $p[10], $data[13] ^ $p[11], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [$p[14], $p[15]] = self::encryptBlockHelper($data[14] ^ $p[12], $data[15] ^ $p[13], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        [$p[16], $p[17]] = self::encryptBlockHelper($data[ 0] ^ $p[14], $data[ 1] ^ $p[15], $sbox0, $sbox1, $sbox2, $sbox3, $p);
-        // @codingStandardsIgnoreEnd
+        [$p[0], $p[1]] = self::encryptBlockHelper($data[0], $data[1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
+        for ($i = 2, $j = 2; $i < 18; $i += 2, $j = ($j + 2) % 16) {
+            [$p[$i], $p[$i + 1]] = self::encryptBlockHelper($data[$j] ^ $p[$i - 2], $data[$j + 1] ^ $p[$i - 1], $sbox0, $sbox1, $sbox2, $sbox3, $p);
+        }
 
         [$sbox0[0], $sbox0[1]] = self::encryptBlockHelper($data[2] ^ $p[16], $data[3] ^ $p[17], $sbox0, $sbox1, $sbox2, $sbox3, $p);
         for ($i = 2, $j = 4; $i < 256; $i += 2, $j = ($j + 2) % 16) { // instead of 16 maybe count($data) would be better?
