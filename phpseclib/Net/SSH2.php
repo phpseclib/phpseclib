@@ -67,6 +67,7 @@ use phpseclib3\Crypt\Twofish;
 use phpseclib3\Exception\ConnectionClosedException;
 use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Exception\NoSupportedAlgorithmsException;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnableToConnectException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Exception\UnsupportedCurveException;
@@ -3264,18 +3265,18 @@ class SSH2
                     $cmf = ord($payload[0]);
                     $cm = $cmf & 0x0F;
                     if ($cm != 8) { // deflate
-                        trigger_error("Only CM = 8 ('deflate') is supported ($cm)");
+                        throw new UnsupportedAlgorithmException("Only CM = 8 ('deflate') is supported ($cm)");
                     }
                     $cinfo = ($cmf & 0xF0) >> 4;
                     if ($cinfo > 7) {
-                        trigger_error("CINFO above 7 is not allowed ($cinfo)");
+                        throw new RuntimeException("CINFO above 7 is not allowed ($cinfo)");
                     }
                     $windowSize = 1 << ($cinfo + 8);
 
                     $flg = ord($payload[1]);
                     //$fcheck = $flg && 0x0F;
                     if ((($cmf << 8) | $flg) % 31) {
-                        trigger_error('fcheck failed');
+                        throw new RuntimeException('fcheck failed');
                     }
                     $fdict = boolval($flg & 0x20);
                     $flevel = ($flg & 0xC0) >> 6;

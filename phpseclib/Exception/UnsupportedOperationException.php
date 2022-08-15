@@ -20,6 +20,6 @@ namespace phpseclib3\Exception;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class UnsupportedOperationException extends \RuntimeException
+class UnsupportedOperationException extends \RuntimeException implements ExceptionInterface
 {
 }

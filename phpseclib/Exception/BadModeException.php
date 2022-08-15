@@ -20,6 +20,6 @@ namespace phpseclib3\Exception;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class BadModeException extends \RuntimeException
+class BadModeException extends \RuntimeException implements ExceptionInterface
 {
 }
