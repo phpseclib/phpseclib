@@ -146,16 +146,16 @@ class SSH2
     public const LOG_COMPLEX = 2;
     /**
      * Outputs the content real-time
-     *
-     * @see \phpseclib3\Net\SSH2::getLog()
      */
     public const LOG_REALTIME = 3;
     /**
      * Dumps the content real-time to a file
-     *
-     * @see \phpseclib3\Net\SSH2::getLog()
      */
     public const LOG_REALTIME_FILE = 4;
+    /**
+     * Outputs the message numbers real-time
+     */
+    const LOG_SIMPLE_REALTIME = 5;
     /**
      * Make sure that the log never gets larger than this
      *
@@ -754,6 +754,7 @@ class SSH2
      * Real-time log file wrap boolean
      *
      * @see self::_append_log()
+     * @var bool
      */
     private $realtime_log_wrap;
 
@@ -3959,28 +3960,59 @@ class SSH2
      */
     private function append_log(string $message_number, string $message): void
     {
-        if (!defined('NET_SSH2_LOGGING')) {
-            return;
-        }
+        $this->append_log_helper(
+            NET_SSH2_LOGGING,
+            $message_number,
+            $message,
+            $this->message_number_log,
+            $this->message_log,
+            $this->log_size,
+            $this->realtime_log_file,
+            $this->realtime_log_wrap,
+            $this->realtime_log_size
+        );
+    }
 
+    /**
+     * Logs data packet helper
+     *
+     * @param int $constant
+     * @param string $message_number
+     * @param string $message
+     * @param array &$message_number_log
+     * @param array &$message_log
+     * @param int &$log_size
+     * @param resource &$realtime_log_file
+     * @param bool &$realtime_log_wrap
+     * @param int &$realtime_log_size
+     */
+    protected function append_log_helper(int $constant, string $message_number, string $message, array &$message_number_log, array &$message_log, int &$log_size, &$realtime_log_file, bool &$realtime_log_wrap, int &$realtime_log_size)
+    {
+>>>>>>> 3.0
         // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
         if (strlen($message_number) > 2) {
             Strings::shift($message);
         }
 
-        switch (NET_SSH2_LOGGING) {
+        switch ($constant) {
             // useful for benchmarks
             case self::LOG_SIMPLE:
-                $this->message_number_log[] = $message_number;
+                $message_number_log[] = $message_number;
+                break;
+            case self::LOG_SIMPLE_REALTIME:
+                echo $message_number;
+                echo PHP_SAPI == 'cli' ? "\r\n" : '<br>';
+                @flush();
+                @ob_flush();
                 break;
             // the most useful log for SSH2
             case self::LOG_COMPLEX:
-                $this->message_number_log[] = $message_number;
-                $this->log_size += strlen($message);
-                $this->message_log[] = $message;
-                while ($this->log_size > self::LOG_MAX_SIZE) {
-                    $this->log_size -= strlen(array_shift($this->message_log));
-                    array_shift($this->message_number_log);
+                $message_number_log[] = $message_number;
+                $log_size += strlen($message);
+                $message_log[] = $message;
+                while ($log_size > self::LOG_MAX_SIZE) {
+                    $log_size -= strlen(array_shift($message_log));
+                    array_shift($message_number_log);
                 }
                 break;
             // dump the output out realtime; packets may be interspersed with non packets,
@@ -4004,28 +4036,28 @@ class SSH2
             // the earliest part of the log file is denoted by the first <<< START >>> and is not going to necessarily
             // at the beginning of the file
             case self::LOG_REALTIME_FILE:
-                if (!isset($this->realtime_log_file)) {
+                if (!isset($realtime_log_file)) {
                     // PHP doesn't seem to like using constants in fopen()
                     $filename = NET_SSH2_LOG_REALTIME_FILENAME;
                     $fp = fopen($filename, 'w');
-                    $this->realtime_log_file = $fp;
+                    $realtime_log_file = $fp;
                 }
-                if (!is_resource($this->realtime_log_file)) {
+                if (!is_resource($realtime_log_file)) {
                     break;
                 }
                 $entry = $this->format_log([$message], [$message_number]);
-                if ($this->realtime_log_wrap) {
+                if ($realtime_log_wrap) {
                     $temp = "<<< START >>>\r\n";
                     $entry .= $temp;
-                    fseek($this->realtime_log_file, ftell($this->realtime_log_file) - strlen($temp));
+                    fseek($realtime_log_file, ftell($realtime_log_file) - strlen($temp));
                 }
-                $this->realtime_log_size += strlen($entry);
-                if ($this->realtime_log_size > self::LOG_MAX_SIZE) {
-                    fseek($this->realtime_log_file, 0);
-                    $this->realtime_log_size = strlen($entry);
-                    $this->realtime_log_wrap = true;
+                $realtime_log_size += strlen($entry);
+                if ($realtime_log_size > self::LOG_MAX_SIZE) {
+                    fseek($realtime_log_file, 0);
+                    $realtime_log_size = strlen($entry);
+                    $realtime_log_wrap = true;
                 }
-                fputs($this->realtime_log_file, $entry);
+                fputs($realtime_log_file, $entry);
         }
     }
 

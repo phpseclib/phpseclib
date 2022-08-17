@@ -184,6 +184,39 @@ class SFTP extends SSH2
     private $packet_log = [];
 
     /**
+     * Real-time log file pointer
+     *
+     * @see self::_append_log()
+     * @var resource|closed-resource
+     */
+    private $realtime_log_file;
+
+    /**
+     * Real-time log file size
+     *
+     * @see self::_append_log()
+     * @var int
+     */
+    private $realtime_log_size;
+
+    /**
+     * Real-time log file wrap boolean
+     *
+     * @see self::_append_log()
+     * @var bool
+     */
+    private $realtime_log_wrap;
+
+    /**
+     * Current log size
+     *
+     * Should never exceed self::LOG_MAX_SIZE
+     *
+     * @var int
+     */
+    private $log_size;
+
+    /**
      * Error information
      *
      * @see self::getSFTPErrors()
@@ -2874,29 +2907,9 @@ class SFTP extends SSH2
         $stop = microtime(true);
 
         if (defined('NET_SFTP_LOGGING')) {
-            $packet_type = sprintf(
-                '-> %s (%ss)',
-                SFTPPacketType::getConstantNameByValue($type),
-                round($stop - $start, 4)
-            );
-            if (NET_SFTP_LOGGING == self::LOG_REALTIME) {
-                switch (PHP_SAPI) {
-                    case 'cli':
-                        $start = $stop = "\r\n";
-                        break;
-                    default:
-                        $start = '<pre>';
-                        $stop = '</pre>';
-                }
-                echo $start . $this->format_log([$data], [$packet_type]) . $stop;
-                @flush();
-                @ob_flush();
-            } else {
-                $this->packet_type_log[] = $packet_type;
-                if (NET_SFTP_LOGGING == self::LOG_COMPLEX) {
-                    $this->packet_log[] = $data;
-                }
-            }
+            $packet_type = '-> ' . $this->packet_types[$type] .
+                           ' (' . round($stop - $start, 4) . 's)';
+            $this->append_log($packet_type, $data);
         }
     }
 
@@ -2996,29 +3009,9 @@ class SFTP extends SSH2
         $packet = Strings::shift($this->packet_buffer, $length);
 
         if (defined('NET_SFTP_LOGGING')) {
-            $packet_type = sprintf(
-                '<- %s (%ss)',
-                SFTPPacketType::getConstantNameByValue($this->packet_type),
-                round($stop - $start, 4)
-            );
-            if (NET_SFTP_LOGGING == self::LOG_REALTIME) {
-                switch (PHP_SAPI) {
-                    case 'cli':
-                        $start = $stop = "\r\n";
-                        break;
-                    default:
-                        $start = '<pre>';
-                        $stop = '</pre>';
-                }
-                echo $start . $this->format_log([$packet], [$packet_type]) . $stop;
-                @flush();
-                @ob_flush();
-            } else {
-                $this->packet_type_log[] = $packet_type;
-                if (NET_SFTP_LOGGING == self::LOG_COMPLEX) {
-                    $this->packet_log[] = $packet;
-                }
-            }
+            $packet_type = '<- ' . $this->packet_types[$this->packet_type] .
+                           ' (' . round($stop - $start, 4) . 's)';
+            $this->append_log($packet_type, $packet);
         }
 
         if (isset($request_id) && $this->use_request_id && $packet_id != $request_id) {
@@ -3030,6 +3023,26 @@ class SFTP extends SSH2
         }
 
         return $packet;
+    }
+
+    /**
+     * Logs data packets
+     *
+     * Makes sure that only the last 1MB worth of packets will be logged
+     */
+    private function append_log(string $message_number, string $message)
+    {
+        $this->append_log_helper(
+            NET_SFTP_LOGGING,
+            $message_number,
+            $message,
+            $this->packet_type_log,
+            $this->packet_log,
+            $this->log_size,
+            $this->realtime_log_file,
+            $this->realtime_log_wrap,
+            $this->realtime_log_size
+        );
     }
 
     /**
