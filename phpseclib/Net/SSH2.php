@@ -156,7 +156,7 @@ class SSH2
     /**
      * Outputs the message numbers real-time
      */
-    const LOG_SIMPLE_REALTIME = 5;
+    public const LOG_SIMPLE_REALTIME = 5;
     /**
      * Make sure that the log never gets larger than this
      *
@@ -3977,17 +3977,9 @@ class SSH2
     /**
      * Logs data packet helper
      *
-     * @param int $constant
-     * @param string $message_number
-     * @param string $message
-     * @param array &$message_number_log
-     * @param array &$message_log
-     * @param int &$log_size
      * @param resource &$realtime_log_file
-     * @param bool &$realtime_log_wrap
-     * @param int &$realtime_log_size
      */
-    protected function append_log_helper(int $constant, string $message_number, string $message, array &$message_number_log, array &$message_log, int &$log_size, &$realtime_log_file, bool &$realtime_log_wrap, int &$realtime_log_size)
+    protected function append_log_helper(int $constant, string $message_number, string $message, array &$message_number_log, array &$message_log, int &$log_size, &$realtime_log_file, bool &$realtime_log_wrap, int &$realtime_log_size): void
     {
         // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
         if (strlen($message_number) > 2) {

@@ -1101,7 +1101,7 @@ class X509
                 }
                 $path = $parts['path'];
                 if (isset($parts['query'])) {
-                    $path.= '?' . $parts['query'];
+                    $path .= '?' . $parts['query'];
                 }
                 fwrite($fsock, "GET $path HTTP/1.0\r\n");
                 fwrite($fsock, "Host: $parts[host]\r\n\r\n");

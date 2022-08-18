@@ -11223,8 +11223,8 @@
     </PossiblyInvalidArgument>
     <PossiblyInvalidArrayAccess occurrences="5">
       <code>$parts['host']</code>
+      <code>$parts['path']</code>
       <code>$parts['scheme']</code>
-      <code>$parts[path]</code>
       <code>$results[$i + 1]</code>
       <code>$results[$i]</code>
     </PossiblyInvalidArrayAccess>
@@ -11313,8 +11313,8 @@
     </PossiblyNullPropertyAssignmentValue>
     <PossiblyUndefinedArrayOffset occurrences="3">
       <code>$parts['host']</code>
+      <code>$parts['path']</code>
       <code>$parts['scheme']</code>
-      <code>$parts[path]</code>
     </PossiblyUndefinedArrayOffset>
     <PossiblyUndefinedIntArrayOffset occurrences="17">
       <code>$decoded[0]</code>
@@ -14498,7 +14498,7 @@
       <code>readlink</code>
       <code>realpath</code>
     </MissingReturnType>
-    <MixedArgument occurrences="72">
+    <MixedArgument occurrences="73">
       <code>$a['filename']</code>
       <code>$attr['mode']</code>
       <code>$b['filename']</code>
@@ -14571,13 +14571,16 @@
       <code>$this-&gt;realpath($path)</code>
       <code>$this-&gt;server_channels[self::CHANNEL]</code>
       <code>$this-&gt;server_channels[self::CHANNEL]</code>
+      <code>NET_SFTP_LOGGING</code>
     </MixedArgument>
-    <MixedArrayAccess occurrences="7">
+    <MixedArrayAccess occurrences="9">
       <code>$props['type']</code>
       <code>$props['type']</code>
       <code>$result-&gt;{$type}[$prop]</code>
       <code>$temp[$dir]</code>
       <code>$temp[$dir]</code>
+      <code>$this-&gt;packet_types[$this-&gt;packet_type]</code>
+      <code>$this-&gt;packet_types[$type]</code>
       <code>$this-&gt;requestBuffer[$request_id]['packet']</code>
       <code>$this-&gt;requestBuffer[$request_id]['packet_type']</code>
     </MixedArrayAccess>
@@ -14669,7 +14672,7 @@
       <code>string</code>
       <code>string|bool</code>
     </MixedInferredReturnType>
-    <MixedOperand occurrences="28">
+    <MixedOperand occurrences="30">
       <code>$a[$sort]</code>
       <code>$a[$sort]</code>
       <code>$attr</code>
@@ -14692,6 +14695,8 @@
       <code>$subtemp</code>
       <code>$temp</code>
       <code>$temp</code>
+      <code>$this-&gt;packet_types[$this-&gt;packet_type]</code>
+      <code>$this-&gt;packet_types[$type]</code>
       <code>$this-&gt;realpath($dir . '/..')</code>
       <code>$value</code>
       <code>$value</code>
@@ -14744,7 +14749,7 @@
       <code>false</code>
       <code>false</code>
     </PossiblyFalsePropertyAssignmentValue>
-    <PossiblyInvalidArgument occurrences="7">
+    <PossiblyInvalidArgument occurrences="8">
       <code>$data</code>
       <code>$data</code>
       <code>$data</code>
@@ -14752,6 +14757,7 @@
       <code>$data</code>
       <code>$local_file</code>
       <code>$local_file</code>
+      <code>$this-&gt;realtime_log_file</code>
     </PossiblyInvalidArgument>
     <PossiblyInvalidArrayAccess occurrences="8">
       <code>$stat['atime']</code>
@@ -14858,8 +14864,12 @@
     <PossiblyUnusedReturnValue occurrences="1">
       <code>bool</code>
     </PossiblyUnusedReturnValue>
-    <PropertyNotSetInConstructor occurrences="4">
+    <PropertyNotSetInConstructor occurrences="8">
       <code>$defaultVersion</code>
+      <code>$log_size</code>
+      <code>$realtime_log_file</code>
+      <code>$realtime_log_size</code>
+      <code>$realtime_log_wrap</code>
       <code>$version</code>
       <code>SFTP</code>
       <code>SFTP</code>
@@ -14878,6 +14888,13 @@
       <code>is_string($mode)</code>
       <code>is_string($mode) &amp;&amp; is_int($filename)</code>
     </TypeDoesNotContainType>
+    <UndefinedConstant occurrences="1">
+      <code>NET_SFTP_LOGGING</code>
+    </UndefinedConstant>
+    <UndefinedThisPropertyFetch occurrences="2">
+      <code>$this-&gt;packet_types</code>
+      <code>$this-&gt;packet_types</code>
+    </UndefinedThisPropertyFetch>
     <UnevaluatedCode occurrences="1">
       <code>break;</code>
     </UnevaluatedCode>
@@ -15107,7 +15124,7 @@
     </UnusedParam>
   </file>
   <file src="../phpseclib/Net/SSH2.php">
-    <DocblockTypeContradiction occurrences="8">
+    <DocblockTypeContradiction occurrences="9">
       <code>$arg instanceof Agent</code>
       <code>$arg instanceof PrivateKey || $arg instanceof Agent</code>
       <code>$request_channel === false</code>
@@ -15116,6 +15133,7 @@
       <code>is_array($arg)</code>
       <code>is_array($arg)</code>
       <code>is_null($this-&gt;exit_status)</code>
+      <code>isset($realtime_log_file)</code>
     </DocblockTypeContradiction>
     <FalsableReturnStatement occurrences="2">
       <code>false</code>
@@ -15152,16 +15170,15 @@
       <code>$host</code>
       <code>$password</code>
     </MissingParamType>
-    <MissingPropertyType occurrences="3">
+    <MissingPropertyType occurrences="2">
       <code>$keepAlive</code>
       <code>$quiet_mode</code>
-      <code>$realtime_log_wrap</code>
     </MissingPropertyType>
     <MissingReturnType occurrences="2">
       <code>connect</code>
       <code>get_channel_packet</code>
     </MissingReturnType>
-    <MixedArgument occurrences="113">
+    <MixedArgument occurrences="114">
       <code>$a['comp']</code>
       <code>$a['crypt']</code>
       <code>$a['mac']</code>
@@ -15273,8 +15290,9 @@
       <code>$type</code>
       <code>$type</code>
       <code>$type</code>
+      <code>NET_SSH2_LOGGING</code>
+      <code>array_shift($message_log)</code>
       <code>array_shift($this-&gt;channel_buffers[$client_channel])</code>
-      <code>array_shift($this-&gt;message_log)</code>
     </MixedArgument>
     <MixedArgumentTypeCoercion occurrences="2">
       <code>$diff</code>
@@ -15520,13 +15538,12 @@
       <code>$packet</code>
       <code>$packet</code>
       <code>deflate_add($this-&gt;compress_context, $data, ZLIB_PARTIAL_FLUSH)</code>
-      <code>ftell($this-&gt;realtime_log_file)</code>
+      <code>ftell($realtime_log_file)</code>
       <code>pack('N', $this-&gt;get_seq_no)</code>
       <code>pack('N', $this-&gt;send_seq_no)</code>
       <code>pack('N', $this-&gt;send_seq_no)</code>
     </PossiblyFalseOperand>
-    <PossiblyFalsePropertyAssignmentValue occurrences="15">
-      <code>$fp</code>
+    <PossiblyFalsePropertyAssignmentValue occurrences="14">
       <code>$this-&gt;hmac_create = false</code>
       <code>@fsockopen($this-&gt;host, $this-&gt;port, $errno, $errstr, $this-&gt;curTimeout == 0 ? 100000 : $this-&gt;curTimeout)</code>
       <code>false</code>
@@ -15542,7 +15559,7 @@
       <code>false</code>
       <code>inflate_init(ZLIB_ENCODING_RAW, ['window' =&gt; $cinfo + 8])</code>
     </PossiblyFalsePropertyAssignmentValue>
-    <PossiblyInvalidArgument occurrences="18">
+    <PossiblyInvalidArgument occurrences="19">
       <code>$args</code>
       <code>$engine</code>
       <code>$password</code>
@@ -15561,6 +15578,7 @@
       <code>$this-&gt;decompress_context</code>
       <code>$this-&gt;fsock</code>
       <code>$this-&gt;fsock</code>
+      <code>$this-&gt;realtime_log_file</code>
     </PossiblyInvalidArgument>
     <PossiblyInvalidArrayAccess occurrences="1">
       <code>$temp['length']</code>
@@ -15571,7 +15589,7 @@
     <PossiblyNullArgument occurrences="4">
       <code>$this-&gt;decryptInvocationCounter</code>
       <code>$this-&gt;encryptInvocationCounter</code>
-      <code>array_shift($this-&gt;message_log)</code>
+      <code>array_shift($message_log)</code>
       <code>preg_replace_callback('#.#s', fn ($matches) =&gt; $this-&gt;log_boundary . str_pad(dechex(ord($matches[0])), 2, '0', STR_PAD_LEFT), $fragment)</code>
     </PossiblyNullArgument>
     <PossiblyNullOperand occurrences="5">
@@ -15655,7 +15673,7 @@
     <PossiblyUnusedReturnValue occurrences="1">
       <code>($callback is callable ? bool : string|bool)</code>
     </PossiblyUnusedReturnValue>
-    <PropertyNotSetInConstructor occurrences="19">
+    <PropertyNotSetInConstructor occurrences="20">
       <code>$agent</code>
       <code>$curTimeout</code>
       <code>$decompress_context</code>
@@ -15672,6 +15690,7 @@
       <code>$port</code>
       <code>$realtime_log_file</code>
       <code>$realtime_log_size</code>
+      <code>$realtime_log_wrap</code>
       <code>$server_public_host_key</code>
       <code>$stdErrorLog</code>
       <code>$timeout</code>
@@ -15686,13 +15705,12 @@
       <code>isset($this-&gt;keyboard_requests_responses)</code>
       <code>isset($this-&gt;realtime_log_file) &amp;&amp; is_resource($this-&gt;realtime_log_file)</code>
     </RedundantConditionGivenDocblockType>
-    <RedundantPropertyInitializationCheck occurrences="4">
+    <RedundantPropertyInitializationCheck occurrences="3">
       <code>isset($this-&gt;agent)</code>
       <code>isset($this-&gt;agent)</code>
-      <code>isset($this-&gt;realtime_log_file)</code>
       <code>isset($this-&gt;realtime_log_file)</code>
     </RedundantPropertyInitializationCheck>
-    <ReferenceConstraintViolation occurrences="13">
+    <ReferenceConstraintViolation occurrences="14">
       <code>$payload</code>
       <code>$payload</code>
       <code>$payload</code>
@@ -15700,6 +15718,7 @@
       <code>$payload</code>
       <code>$payload</code>
       <code>$payload</code>
+      <code>$realtime_log_file</code>
       <code>$response</code>
       <code>$response</code>
       <code>$response</code>
@@ -15715,6 +15734,10 @@
       <code>$hasArray</code>
       <code>$hasString</code>
     </TypeDoesNotContainType>
+    <UndefinedConstant occurrences="2">
+      <code>NET_SSH2_LOGGING</code>
+      <code>NET_SSH2_LOG_REALTIME_FILENAME</code>
+    </UndefinedConstant>
     <UndefinedInterfaceMethod occurrences="3">
       <code>withPadding</code>
       <code>withSignatureFormat</code>

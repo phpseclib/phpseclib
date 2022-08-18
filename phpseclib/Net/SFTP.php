@@ -3030,7 +3030,7 @@ class SFTP extends SSH2
      *
      * Makes sure that only the last 1MB worth of packets will be logged
      */
-    private function append_log(string $message_number, string $message)
+    private function append_log(string $message_number, string $message): void
     {
         $this->append_log_helper(
             NET_SFTP_LOGGING,
