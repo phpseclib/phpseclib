@@ -100,7 +100,7 @@ class Integer extends Base
     private static function checkInstance(self $x, self $y): void
     {
         if ($x->instanceID != $y->instanceID) {
-            throw new \UnexpectedValueException('The instances of the two BinaryField\Integer objects do not match');
+            throw new \phpseclib3\Exception\UnexpectedValueException('The instances of the two BinaryField\Integer objects do not match');
         }
     }
 

@@ -58,7 +58,7 @@ abstract class OpenSSH extends Progenitor
             $paddedKey = $parsed['paddedKey'];
             [$type] = Strings::unpackSSH2('s', $paddedKey);
             if ($type != $parsed['type']) {
-                throw new \RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
+                throw new \phpseclib3\Exception\RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
             }
             if ($type == 'ssh-ed25519') {
                 [, $key, $comment] = Strings::unpackSSH2('sss', $paddedKey);
@@ -79,7 +79,7 @@ abstract class OpenSSH extends Progenitor
 
         if ($parsed['type'] == 'ssh-ed25519') {
             if (Strings::shift($parsed['publicKey'], 4) != "\0\0\0\x20") {
-                throw new \RuntimeException('Length of ssh-ed25519 key should be 32');
+                throw new \phpseclib3\Exception\RuntimeException('Length of ssh-ed25519 key should be 32');
             }
 
             $curve = new Ed25519();
@@ -180,10 +180,10 @@ abstract class OpenSSH extends Progenitor
     ): string {
         if ($curve instanceof Ed25519) {
             if (!isset($secret)) {
-                throw new \RuntimeException('Private Key does not have a secret set');
+                throw new \phpseclib3\Exception\RuntimeException('Private Key does not have a secret set');
             }
             if (strlen($secret) != 32) {
-                throw new \RuntimeException('Private Key secret is not of the correct length');
+                throw new \phpseclib3\Exception\RuntimeException('Private Key secret is not of the correct length');
             }
 
             $pubKey = $curve->encodePoint($publicKey);

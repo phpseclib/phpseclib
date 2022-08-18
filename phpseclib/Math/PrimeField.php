@@ -47,7 +47,7 @@ class PrimeField extends FiniteField
     public function __construct(BigInteger $modulo)
     {
         //if (!$modulo->isPrime()) {
-        //    throw new \UnexpectedValueException('PrimeField requires a prime number be passed to the constructor');
+        //    throw new \phpseclib3\Exception\UnexpectedValueException('PrimeField requires a prime number be passed to the constructor');
         //}
 
         $this->instanceID = self::$instanceCounter++;

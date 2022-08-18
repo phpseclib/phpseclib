@@ -106,7 +106,7 @@ class Salsa20 extends StreamCipher
             case 32:
                 break;
             default:
-                throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16 or 32 are supported');
+                throw new \phpseclib3\Exception\LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16 or 32 are supported');
         }
 
         parent::setKey($key);
@@ -118,7 +118,7 @@ class Salsa20 extends StreamCipher
     public function setNonce(string $nonce): void
     {
         if (strlen($nonce) != 8) {
-            throw new \LengthException('Nonce of size ' . strlen($key) . ' not supported by this algorithm. Only an 64-bit nonce is supported');
+            throw new \phpseclib3\Exception\LengthException('Nonce of size ' . strlen($key) . ' not supported by this algorithm. Only an 64-bit nonce is supported');
         }
 
         $this->nonce = $nonce;

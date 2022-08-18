@@ -1132,7 +1132,7 @@ abstract class PHP extends Engine
     public function bitwise_split(int $split): array
     {
         if ($split < 1) {
-            throw new \RuntimeException('Offset must be greater than 1');
+            throw new \phpseclib3\Exception\RuntimeException('Offset must be greater than 1');
         }
 
         $width = (int)($split / static::BASE);

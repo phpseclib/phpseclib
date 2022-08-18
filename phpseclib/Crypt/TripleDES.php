@@ -202,7 +202,7 @@ class TripleDES extends DES
             case 192:
                 break;
             default:
-                throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes 128 or 192 bits are supported');
+                throw new \phpseclib3\Exception\LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes 128 or 192 bits are supported');
         }
 
         parent::setKeyLength($length);
@@ -222,7 +222,7 @@ class TripleDES extends DES
     public function setKey(string $key): void
     {
         if ($this->explicit_key_length !== false && strlen($key) != $this->explicit_key_length) {
-            throw new \LengthException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');
+            throw new \phpseclib3\Exception\LengthException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');
         }
 
         switch (strlen($key)) {
@@ -232,7 +232,7 @@ class TripleDES extends DES
             case 24:
                 break;
             default:
-                throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16 or 24 are supported');
+                throw new \phpseclib3\Exception\LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16 or 24 are supported');
         }
 
         // copied from self::setKey()

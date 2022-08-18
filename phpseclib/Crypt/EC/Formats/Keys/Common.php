@@ -200,7 +200,7 @@ trait Common
     protected static function loadCurveByParam(array $params)
     {
         if (count($params) > 1) {
-            throw new \RuntimeException('No parameters are present');
+            throw new \phpseclib3\Exception\RuntimeException('No parameters are present');
         }
         if (isset($params['namedCurve'])) {
             $curve = '\phpseclib3\Crypt\EC\Curves\\' . $params['namedCurve'];
@@ -211,7 +211,7 @@ trait Common
         }
         if (isset($params['implicitCurve'])) {
             if (!isset(self::$implicitCurve)) {
-                throw new \RuntimeException('Implicit curves can be provided by calling setImplicitCurve');
+                throw new \phpseclib3\Exception\RuntimeException('Implicit curves can be provided by calling setImplicitCurve');
             }
             return self::$implicitCurve;
         }
@@ -260,7 +260,7 @@ trait Common
                     throw new UnsupportedCurveException('Field Type of ' . $data['fieldID']['fieldType'] . ' is not supported');
             }
         }
-        throw new \RuntimeException('No valid parameters are present');
+        throw new \phpseclib3\Exception\RuntimeException('No valid parameters are present');
     }
 
     /**
@@ -282,11 +282,11 @@ trait Common
             $y[0] = $y[0] & chr(0x7F);
             $y = new BigInteger($y, 256);
             if ($y->compare($curve->getModulo()) >= 0) {
-                throw new \RuntimeException('The Y coordinate should not be >= the modulo');
+                throw new \phpseclib3\Exception\RuntimeException('The Y coordinate should not be >= the modulo');
             }
             $point = $curve->recoverX($y, $sign);
             if (!$curve->verifyPoint($point)) {
-                throw new \RuntimeException('Unable to verify that point exists on curve');
+                throw new \phpseclib3\Exception\RuntimeException('Unable to verify that point exists on curve');
             }
             return $point;
         }
@@ -294,7 +294,7 @@ trait Common
         // the first byte of a bit string represents the number of bits in the last byte that are to be ignored but,
         // currently, bit strings wanting a non-zero amount of bits trimmed are not supported
         if (($val = Strings::shift($str)) != "\0") {
-            throw new \UnexpectedValueException('extractPoint expects the first byte to be null - not ' . Hex::encode($val));
+            throw new \phpseclib3\Exception\UnexpectedValueException('extractPoint expects the first byte to be null - not ' . Hex::encode($val));
         }
         if ($str == "\0") {
             return [];
@@ -312,7 +312,7 @@ trait Common
             preg_match("#(.)(.{{$order}})(.{{$order}})#s", $str, $matches);
             [, $w, $x, $y] = $matches;
             if ($w != "\4") {
-                throw new \UnexpectedValueException('The first byte of an uncompressed point should be 04 - not ' . Hex::encode($val));
+                throw new \phpseclib3\Exception\UnexpectedValueException('The first byte of an uncompressed point should be 04 - not ' . Hex::encode($val));
             }
             $point = [
                 $curve->convertInteger(new BigInteger($x, 256)),
@@ -320,13 +320,13 @@ trait Common
             ];
 
             if (!$curve->verifyPoint($point)) {
-                throw new \RuntimeException('Unable to verify that point exists on curve');
+                throw new \phpseclib3\Exception\RuntimeException('Unable to verify that point exists on curve');
             }
 
             return $point;
         }
 
-        throw new \UnexpectedValueException('The string representation of the points is not of an appropriate length');
+        throw new \phpseclib3\Exception\UnexpectedValueException('The string representation of the points is not of an appropriate length');
     }
 
     /**
@@ -426,7 +426,7 @@ trait Common
         // https://crypto.stackexchange.com/a/27914/4520
         // https://en.wikipedia.org/wiki/Schoof%E2%80%93Elkies%E2%80%93Atkin_algorithm
         if (!$order) {
-            throw new \RuntimeException('Specified Curves need the order to be specified');
+            throw new \phpseclib3\Exception\RuntimeException('Specified Curves need the order to be specified');
         }
         $point = $curve->getBasePoint();
         $x = $point[0]->toBytes();

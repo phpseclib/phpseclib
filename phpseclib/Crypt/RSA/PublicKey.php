@@ -107,7 +107,7 @@ class PublicKey extends RSA implements Common\PublicKey
         }
 
         if ($exception) {
-            throw new \LengthException('RSA modulus too short');
+            throw new \phpseclib3\Exception\LengthException('RSA modulus too short');
         }
 
         // Compare
@@ -314,7 +314,7 @@ class PublicKey extends RSA implements Common\PublicKey
         // Length checking
 
         if ($mLen > $this->k - 11) {
-            throw new \LengthException('Message too long');
+            throw new \phpseclib3\Exception\LengthException('Message too long');
         }
 
         // EME-PKCS1-v1_5 encoding
@@ -357,7 +357,7 @@ class PublicKey extends RSA implements Common\PublicKey
         // be output.
 
         if ($mLen > $this->k - 2 * $this->hLen - 2) {
-            throw new \LengthException('Message too long');
+            throw new \phpseclib3\Exception\LengthException('Message too long');
         }
 
         // EME-OAEP encoding
@@ -393,7 +393,7 @@ class PublicKey extends RSA implements Common\PublicKey
     private function rsaep(BigInteger $m)
     {
         if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
-            throw new \OutOfRangeException('Message representative out of range');
+            throw new \phpseclib3\Exception\OutOfRangeException('Message representative out of range');
         }
         return $this->exponentiate($m);
     }
@@ -409,7 +409,7 @@ class PublicKey extends RSA implements Common\PublicKey
     private function raw_encrypt(string $m)
     {
         if (strlen($m) > $this->k) {
-            throw new \LengthException('Message too long');
+            throw new \phpseclib3\Exception\LengthException('Message too long');
         }
 
         $temp = $this->os2ip($m);

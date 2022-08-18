@@ -594,7 +594,7 @@ class DES extends BlockCipher
     public function setKey(string $key): void
     {
         if (!($this instanceof TripleDES) && strlen($key) != 8) {
-            throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of size 8 are supported');
+            throw new \phpseclib3\Exception\LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of size 8 are supported');
         }
 
         // Sets the key

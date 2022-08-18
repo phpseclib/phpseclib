@@ -127,10 +127,10 @@ abstract class Base
         }
 
         if (!isset($this->order)) {
-            throw new \RuntimeException('setOrder needs to be called before this method');
+            throw new \phpseclib3\Exception\RuntimeException('setOrder needs to be called before this method');
         }
         if ($x->compare($this->order) > 0 || $x->compare($zero) <= 0) {
-            throw new \RangeException('x must be between 1 and the order of the curve');
+            throw new \phpseclib3\Exception\RangeException('x must be between 1 and the order of the curve');
         }
     }
 

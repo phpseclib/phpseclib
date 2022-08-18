@@ -43,7 +43,7 @@ abstract class Raw
     public static function load($key, ?string $password = null): array
     {
         if (!is_array($key)) {
-            throw new \UnexpectedValueException('Key should be a array - not a ' . gettype($key));
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key should be a array - not a ' . gettype($key));
         }
 
         $key = array_change_key_case($key, CASE_LOWER);
@@ -65,7 +65,7 @@ abstract class Raw
         }
 
         if (!isset($components['publicExponent']) || !isset($components['modulus'])) {
-            throw new \UnexpectedValueException('Modulus / exponent not present');
+            throw new \phpseclib3\Exception\UnexpectedValueException('Modulus / exponent not present');
         }
 
         if (isset($key['primes'])) {

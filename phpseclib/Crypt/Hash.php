@@ -230,7 +230,7 @@ class Hash
                 return;
         }
 
-        throw new \LengthException('The nonce length must be between 1 and 16 bytes, inclusive');
+        throw new \phpseclib3\Exception\LengthException('The nonce length must be between 1 and 16 bytes, inclusive');
     }
 
     /**
@@ -778,7 +778,7 @@ class Hash
                     throw new InsufficientSetupException('No key has been set');
                 }
                 if (strlen($this->key) != 16) {
-                    throw new \LengthException('Key must be 16 bytes long');
+                    throw new \phpseclib3\Exception\LengthException('Key must be 16 bytes long');
                 }
 
                 if (!isset(self::$maxwordrange64)) {

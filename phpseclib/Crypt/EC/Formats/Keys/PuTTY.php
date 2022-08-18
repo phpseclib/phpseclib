@@ -71,7 +71,7 @@ abstract class PuTTY extends Progenitor
 
         if ($components['curve'] instanceof TwistedEdwardsCurve) {
             if (Strings::shift($private, 4) != "\0\0\0\x20") {
-                throw new \RuntimeException('Length of ssh-ed25519 key should be 32');
+                throw new \phpseclib3\Exception\RuntimeException('Length of ssh-ed25519 key should be 32');
             }
             $arr = $components['curve']->extractSecret($private);
             $components['dA'] = $arr['dA'];

@@ -60,7 +60,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
     private function rsadp(BigInteger $c)
     {
         if ($c->compare(self::$zero) < 0 || $c->compare($this->modulus) > 0) {
-            throw new \OutOfRangeException('Ciphertext representative out of range');
+            throw new \phpseclib3\Exception\OutOfRangeException('Ciphertext representative out of range');
         }
         return $this->exponentiate($c);
     }
@@ -75,7 +75,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
     private function rsasp1(BigInteger $m)
     {
         if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
-            throw new \OutOfRangeException('Signature representative out of range');
+            throw new \phpseclib3\Exception\OutOfRangeException('Signature representative out of range');
         }
         return $this->exponentiate($m);
     }
@@ -190,7 +190,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
 
         $mHash = $this->hash->hash($m);
         if ($emLen < $this->hLen + $sLen + 2) {
-            throw new \LengthException('RSA modulus too short');
+            throw new \phpseclib3\Exception\LengthException('RSA modulus too short');
         }
 
         $salt = Random::string($sLen);
@@ -247,7 +247,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
         try {
             $em = $this->emsa_pkcs1_v1_5_encode($m, $this->k);
         } catch (\LengthException $e) {
-            throw new \LengthException('RSA modulus too short');
+            throw new \phpseclib3\Exception\LengthException('RSA modulus too short');
         }
 
         // RSA signature
@@ -292,7 +292,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
         // Length checking
 
         if (strlen($c) != $this->k) { // or if k < 11
-            throw new \LengthException('Ciphertext representative too long');
+            throw new \phpseclib3\Exception\LengthException('Ciphertext representative too long');
         }
 
         // RSA decryption
@@ -304,14 +304,14 @@ class PrivateKey extends RSA implements Common\PrivateKey
         // EME-PKCS1-v1_5 decoding
 
         if (ord($em[0]) != 0 || ord($em[1]) > 2) {
-            throw new \RuntimeException('Decryption error');
+            throw new \phpseclib3\Exception\RuntimeException('Decryption error');
         }
 
         $ps = substr($em, 2, strpos($em, chr(0), 2) - 2);
         $m = substr($em, strlen($ps) + 3);
 
         if (strlen($ps) < 8) {
-            throw new \RuntimeException('Decryption error');
+            throw new \phpseclib3\Exception\RuntimeException('Decryption error');
         }
 
         // Output M
@@ -343,7 +343,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
         // be output.
 
         if (strlen($c) != $this->k || $this->k < 2 * $this->hLen + 2) {
-            throw new \LengthException('Ciphertext representative too long');
+            throw new \phpseclib3\Exception\LengthException('Ciphertext representative too long');
         }
 
         // RSA decryption
@@ -377,7 +377,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
         // we do | instead of || to avoid https://en.wikipedia.org/wiki/Short-circuit_evaluation
         // to protect against timing attacks
         if (!$hashesMatch | !$patternMatch) {
-            throw new \RuntimeException('Decryption error');
+            throw new \phpseclib3\Exception\RuntimeException('Decryption error');
         }
 
         // Output the message M
@@ -396,7 +396,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
     private function raw_encrypt(string $m)
     {
         if (strlen($m) > $this->k) {
-            throw new \LengthException('Ciphertext representative too long');
+            throw new \phpseclib3\Exception\LengthException('Ciphertext representative too long');
         }
 
         $temp = $this->os2ip($m);
@@ -430,7 +430,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
     {
         $type = self::validatePlugin('Keys', 'PKCS8', 'savePublicKey');
         if (empty($this->modulus) || empty($this->publicExponent)) {
-            throw new \RuntimeException('Public key components not found');
+            throw new \phpseclib3\Exception\RuntimeException('Public key components not found');
         }
 
         $key = $type::savePublicKey($this->modulus, $this->publicExponent);

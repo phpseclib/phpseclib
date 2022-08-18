@@ -52,7 +52,7 @@ abstract class OpenSSH extends Progenitor
         if (isset($parsed['paddedKey'])) {
             [$type] = Strings::unpackSSH2('s', $parsed['paddedKey']);
             if ($type != $parsed['type']) {
-                throw new \RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
+                throw new \phpseclib3\Exception\RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
             }
 
             $primes = $coefficients = [];

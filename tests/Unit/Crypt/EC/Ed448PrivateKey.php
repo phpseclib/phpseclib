@@ -12,7 +12,7 @@ class Ed448PrivateKey
     public static function load($key, ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $components = ['curve' => new Ed448()];

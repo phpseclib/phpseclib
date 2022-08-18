@@ -63,7 +63,7 @@ abstract class PKCS8 extends Progenitor
     public static function load($key, ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $isPublic = str_contains($key, 'PUBLIC');
@@ -74,18 +74,18 @@ abstract class PKCS8 extends Progenitor
 
         switch (true) {
             case !$isPublic && $type == 'publicKey':
-                throw new \UnexpectedValueException('Human readable string claims non-public key but DER encoded string claims public key');
+                throw new \phpseclib3\Exception\UnexpectedValueException('Human readable string claims non-public key but DER encoded string claims public key');
             case $isPublic && $type == 'privateKey':
-                throw new \UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
+                throw new \phpseclib3\Exception\UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
         }
 
         $decoded = ASN1::decodeBER($key[$type . 'Algorithm']['parameters']->element);
         if (empty($decoded)) {
-            throw new \RuntimeException('Unable to decode BER of parameters');
+            throw new \phpseclib3\Exception\RuntimeException('Unable to decode BER of parameters');
         }
         $components = ASN1::asn1map($decoded[0], Maps\DHParameter::MAP);
         if (!is_array($components)) {
-            throw new \RuntimeException('Unable to perform ASN1 mapping on parameters');
+            throw new \phpseclib3\Exception\RuntimeException('Unable to perform ASN1 mapping on parameters');
         }
 
         $decoded = ASN1::decodeBER($key[$type]);
@@ -93,7 +93,7 @@ abstract class PKCS8 extends Progenitor
             case !isset($decoded):
             case !isset($decoded[0]['content']):
             case !$decoded[0]['content'] instanceof BigInteger:
-                throw new \RuntimeException('Unable to decode BER of parameters');
+                throw new \phpseclib3\Exception\RuntimeException('Unable to decode BER of parameters');
         }
         $components[$type] = $decoded[0]['content'];
 

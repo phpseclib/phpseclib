@@ -35,7 +35,7 @@ trait ConstantUtilityTrait
     {
         $constantName = static::findConstantNameByValue($value);
         if ($constantName === null) {
-            throw new \InvalidArgumentException(sprintf('"%s" does not have constant with value "%s".', static::class, $value));
+            throw new \phpseclib3\Exception\InvalidArgumentException(sprintf('"%s" does not have constant with value "%s".', static::class, $value));
         }
         return $constantName;
     }

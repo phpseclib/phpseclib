@@ -409,10 +409,10 @@ abstract class EC extends AsymmetricKey
             return $new;
         }
         if (!is_string($context)) {
-            throw new \InvalidArgumentException('setContext expects a string');
+            throw new \phpseclib3\Exception\InvalidArgumentException('setContext expects a string');
         }
         if (strlen($context) > 255) {
-            throw new \LengthException('The context is supposed to be, at most, 255 bytes long');
+            throw new \phpseclib3\Exception\LengthException('The context is supposed to be, at most, 255 bytes long');
         }
         $new->context = $context;
         return $new;

@@ -274,7 +274,7 @@ class RC2 extends BlockCipher
     public function setKeyLength(int $length): void
     {
         if ($length < 8 || $length > 1024) {
-            throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys between 1 and 1024 bits, inclusive, are supported');
+            throw new \phpseclib3\Exception\LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys between 1 and 1024 bits, inclusive, are supported');
         }
 
         $this->default_key_length = $this->current_key_length = $length;
@@ -309,12 +309,12 @@ class RC2 extends BlockCipher
         }
 
         if ($t1 < 1 || $t1 > 1024) {
-            throw new \LengthException('Key size of ' . $t1 . ' bits is not supported by this algorithm. Only keys between 1 and 1024 bits, inclusive, are supported');
+            throw new \phpseclib3\Exception\LengthException('Key size of ' . $t1 . ' bits is not supported by this algorithm. Only keys between 1 and 1024 bits, inclusive, are supported');
         }
 
         $this->current_key_length = $t1;
         if (strlen($key) < 1 || strlen($key) > 128) {
-            throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes between 8 and 1024 bits, inclusive, are supported');
+            throw new \phpseclib3\Exception\LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes between 8 and 1024 bits, inclusive, are supported');
         }
 
         $t = strlen($key);

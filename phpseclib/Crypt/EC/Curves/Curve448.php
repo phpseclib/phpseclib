@@ -84,7 +84,7 @@ class Curve448 extends Montgomery
     public function rangeCheck(BigInteger $x): void
     {
         if ($x->getLength() > 448 || $x->isNegative()) {
-            throw new \RangeException('x must be a positive integer less than 446 bytes in length');
+            throw new \phpseclib3\Exception\RangeException('x must be a positive integer less than 446 bytes in length');
         }
     }
 }

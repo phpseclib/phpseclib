@@ -61,7 +61,7 @@ abstract class OpenSSH
     public static function load($key, ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         // key format is described here:
@@ -72,14 +72,14 @@ abstract class OpenSSH
             $key = Base64::decode($key);
             $magic = Strings::shift($key, 15);
             if ($magic != "openssh-key-v1\0") {
-                throw new \RuntimeException('Expected openssh-key-v1');
+                throw new \phpseclib3\Exception\RuntimeException('Expected openssh-key-v1');
             }
             [$ciphername, $kdfname, $kdfoptions, $numKeys] = Strings::unpackSSH2('sssN', $key);
             if ($numKeys != 1) {
                 // if we wanted to support multiple keys we could update PublicKeyLoader to preview what the # of keys
                 // would be; it'd then call Common\Keys\OpenSSH.php::load() and get the paddedKey. it'd then pass
                 // that to the appropriate key loading parser $numKey times or something
-                throw new \RuntimeException('Although the OpenSSH private key format supports multiple keys phpseclib does not');
+                throw new \phpseclib3\Exception\RuntimeException('Although the OpenSSH private key format supports multiple keys phpseclib does not');
             }
 
             switch ($ciphername) {
@@ -87,7 +87,7 @@ abstract class OpenSSH
                     break;
                 case 'aes256-ctr':
                     if ($kdfname != 'bcrypt') {
-                        throw new \RuntimeException('Only the bcrypt kdf is supported (' . $kdfname . ' encountered)');
+                        throw new \phpseclib3\Exception\RuntimeException('Only the bcrypt kdf is supported (' . $kdfname . ' encountered)');
                     }
                     [$salt, $rounds] = Strings::unpackSSH2('sN', $kdfoptions);
                     $crypto = new AES('ctr');
@@ -96,7 +96,7 @@ abstract class OpenSSH
                     $crypto->setPassword($password, 'bcrypt', $salt, $rounds, 32);
                     break;
                 default:
-                    throw new \RuntimeException('The only supported cipherse are: none, aes256-ctr (' . $ciphername . ' is being used)');
+                    throw new \phpseclib3\Exception\RuntimeException('The only supported cipherse are: none, aes256-ctr (' . $ciphername . ' is being used)');
             }
 
             [$publicKey, $paddedKey] = Strings::unpackSSH2('ss', $key);
@@ -107,7 +107,7 @@ abstract class OpenSSH
             [$checkint1, $checkint2] = Strings::unpackSSH2('NN', $paddedKey);
             // any leftover bytes in $paddedKey are for padding? but they should be sequential bytes. eg. 1, 2, 3, etc.
             if ($checkint1 != $checkint2) {
-                throw new \RuntimeException('The two checkints do not match');
+                throw new \phpseclib3\Exception\RuntimeException('The two checkints do not match');
             }
             self::checkType($type);
 
@@ -126,16 +126,16 @@ abstract class OpenSSH
             $comment = $parts[2] ?? false;
         }
         if ($key === false) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         [$type] = Strings::unpackSSH2('s', $key);
         self::checkType($type);
         if (isset($asciiType) && $asciiType != $type) {
-            throw new \RuntimeException('Two different types of keys are claimed: ' . $asciiType . ' and ' . $type);
+            throw new \phpseclib3\Exception\RuntimeException('Two different types of keys are claimed: ' . $asciiType . ' and ' . $type);
         }
         if (strlen($key) <= 4) {
-            throw new \UnexpectedValueException('Key appears to be malformed');
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key appears to be malformed');
         }
 
         $publicKey = $key;
@@ -160,7 +160,7 @@ abstract class OpenSSH
     private static function checkType(string $candidate): void
     {
         if (!in_array($candidate, static::$types)) {
-            throw new \RuntimeException("The key type ($candidate) is not equal to: " . implode(',', static::$types));
+            throw new \phpseclib3\Exception\RuntimeException("The key type ($candidate) is not equal to: " . implode(',', static::$types));
         }
     }
 

@@ -3773,7 +3773,7 @@ class X509
     public static function registerExtension(string $id, array $mapping): void
     {
         if (isset(self::$extensions[$id]) && self::$extensions[$id] !== $mapping) {
-            throw new \RuntimeException(
+            throw new \phpseclib3\Exception\RuntimeException(
                 'Extension ' . $id . ' has already been defined with a different mapping.'
             );
         }

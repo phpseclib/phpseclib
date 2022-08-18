@@ -100,7 +100,7 @@ abstract class PSS extends Progenitor
         self::initialize_static_variables();
 
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $components = ['isPublicKey' => str_contains($key, 'PUBLIC')];
@@ -114,7 +114,7 @@ abstract class PSS extends Progenitor
         if (isset($key[$type . 'KeyAlgorithm']['parameters'])) {
             $decoded = ASN1::decodeBER($key[$type . 'KeyAlgorithm']['parameters']);
             if ($decoded === false) {
-                throw new \UnexpectedValueException('Unable to decode parameters');
+                throw new \phpseclib3\Exception\UnexpectedValueException('Unable to decode parameters');
             }
             $params = ASN1::asn1map($decoded[0], Maps\RSASSA_PSS_params::MAP);
         } else {
@@ -124,7 +124,7 @@ abstract class PSS extends Progenitor
         if (isset($params['maskGenAlgorithm']['parameters'])) {
             $decoded = ASN1::decodeBER($params['maskGenAlgorithm']['parameters']);
             if ($decoded === false) {
-                throw new \UnexpectedValueException('Unable to decode parameters');
+                throw new \phpseclib3\Exception\UnexpectedValueException('Unable to decode parameters');
             }
             $params['maskGenAlgorithm']['parameters'] = ASN1::asn1map($decoded[0], Maps\HashAlgorithm::MAP);
         } else {

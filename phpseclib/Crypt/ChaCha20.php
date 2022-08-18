@@ -177,7 +177,7 @@ class ChaCha20 extends Salsa20
     public function setNonce(string $nonce): void
     {
         if (!is_string($nonce)) {
-            throw new \UnexpectedValueException('The nonce should be a string');
+            throw new \phpseclib3\Exception\UnexpectedValueException('The nonce should be a string');
         }
 
         /*
@@ -192,7 +192,7 @@ class ChaCha20 extends Salsa20
             case 12: // 96 bits
                 break;
             default:
-                throw new \LengthException('Nonce of size ' . strlen($nonce) . ' not supported by this algorithm. Only 64-bit nonces or 96-bit nonces are supported');
+                throw new \phpseclib3\Exception\LengthException('Nonce of size ' . strlen($nonce) . ' not supported by this algorithm. Only 64-bit nonces or 96-bit nonces are supported');
         }
 
         $this->nonce = $nonce;

@@ -127,7 +127,7 @@ abstract class DSA extends AsymmetricKey
             case $L == 3072 && $N == 256:
                 break;
             default:
-                throw new \InvalidArgumentException('Invalid values for N and L');
+                throw new \phpseclib3\Exception\InvalidArgumentException('Invalid values for N and L');
         }
 
         $two = new BigInteger(2);

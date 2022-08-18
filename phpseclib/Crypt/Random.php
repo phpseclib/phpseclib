@@ -157,7 +157,7 @@ abstract class Random
                     $crypto = new RC4();
                     break;
                 default:
-                    throw new \RuntimeException(__CLASS__ . ' requires at least one symmetric cipher be loaded');
+                    throw new \phpseclib3\Exception\RuntimeException(__CLASS__ . ' requires at least one symmetric cipher be loaded');
             }
 
             $crypto->setKey(substr($key, 0, $crypto->getKeyLength() >> 3));

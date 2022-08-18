@@ -504,7 +504,7 @@ abstract class RSA extends AsymmetricKey
     {
         $x = $x->toBytes();
         if (strlen($x) > $xLen) {
-            throw new \OutOfRangeException('Resultant string length out of range');
+            throw new \phpseclib3\Exception\OutOfRangeException('Resultant string length out of range');
         }
         return str_pad($x, $xLen, chr(0), STR_PAD_LEFT);
     }
@@ -564,7 +564,7 @@ abstract class RSA extends AsymmetricKey
         $tLen = strlen($t);
 
         if ($emLen < $tLen + 11) {
-            throw new \LengthException('Intended encoded message length too short');
+            throw new \phpseclib3\Exception\LengthException('Intended encoded message length too short');
         }
 
         $ps = str_repeat(chr(0xFF), $emLen - $tLen - 3);
@@ -619,7 +619,7 @@ abstract class RSA extends AsymmetricKey
         $tLen = strlen($t);
 
         if ($emLen < $tLen + 11) {
-            throw new \LengthException('Intended encoded message length too short');
+            throw new \phpseclib3\Exception\LengthException('Intended encoded message length too short');
         }
 
         $ps = str_repeat(chr(0xFF), $emLen - $tLen - 3);

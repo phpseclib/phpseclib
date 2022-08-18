@@ -343,7 +343,7 @@ class Blowfish extends BlockCipher
         parent::__construct($mode);
 
         if ($this->mode == self::MODE_STREAM) {
-            throw new \InvalidArgumentException('Block ciphers cannot be ran in stream mode');
+            throw new \phpseclib3\Exception\InvalidArgumentException('Block ciphers cannot be ran in stream mode');
         }
     }
 
@@ -355,7 +355,7 @@ class Blowfish extends BlockCipher
     public function setKeyLength(int $length): void
     {
         if ($length < 32 || $length > 448) {
-                throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes between 32 and 448 bits are supported');
+                throw new \phpseclib3\Exception\LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes between 32 and 448 bits are supported');
         }
 
         $this->key_length = $length >> 3;

@@ -63,7 +63,7 @@ abstract class PKCS1 extends PKCS
             case 'CTR':
                 return $mode;
         }
-        throw new \UnexpectedValueException('Unsupported block cipher mode of operation');
+        throw new \phpseclib3\Exception\UnexpectedValueException('Unsupported block cipher mode of operation');
     }
 
     /**
@@ -111,7 +111,7 @@ abstract class PKCS1 extends PKCS
     protected static function load($key, ?string $password = null)
     {
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is
@@ -147,7 +147,7 @@ abstract class PKCS1 extends PKCS
                 if ($decoded !== false) {
                     $key = $decoded;
                 } elseif (self::$format == self::MODE_PEM) {
-                    throw new \UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
+                    throw new \phpseclib3\Exception\UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
                 }
             }
         }

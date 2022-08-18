@@ -45,7 +45,7 @@ abstract class MontgomeryPublic
                 $curve = new Curve448();
                 break;
             default:
-                throw new \LengthException('The only supported lengths are 32 and 56');
+                throw new \phpseclib3\Exception\LengthException('The only supported lengths are 32 and 56');
         }
 
         $components = ['curve' => $curve];

@@ -31,10 +31,10 @@ trait ReadBytes
     {
         $temp = fread($this->fsock, $length);
         if ($temp === false) {
-            throw new \RuntimeException('\fread() failed.');
+            throw new \phpseclib3\Exception\RuntimeException('\fread() failed.');
         }
         if (strlen($temp) !== $length) {
-            throw new \RuntimeException("Expected $length bytes; got " . strlen($temp));
+            throw new \phpseclib3\Exception\RuntimeException("Expected $length bytes; got " . strlen($temp));
         }
         return $temp;
     }

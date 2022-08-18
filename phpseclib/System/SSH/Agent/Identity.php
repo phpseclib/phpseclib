@@ -265,7 +265,7 @@ class Identity implements PrivateKey
         );
         $packet = Strings::packSSH2('s', $packet);
         if (strlen($packet) != fwrite($this->fsock, $packet)) {
-            throw new \RuntimeException('Connection closed during signing');
+            throw new \phpseclib3\Exception\RuntimeException('Connection closed during signing');
         }
 
         $length = current(unpack('N', $this->readBytes(4)));
@@ -273,7 +273,7 @@ class Identity implements PrivateKey
 
         [$type, $signature_blob] = Strings::unpackSSH2('Cs', $packet);
         if ($type != Agent::SSH_AGENT_SIGN_RESPONSE) {
-            throw new \RuntimeException('Unable to retrieve signature');
+            throw new \phpseclib3\Exception\RuntimeException('Unable to retrieve signature');
         }
 
         if (!$this->key instanceof RSA) {
@@ -292,7 +292,7 @@ class Identity implements PrivateKey
      */
     public function toString(string $type, array $options = []): string
     {
-        throw new \RuntimeException('ssh-agent does not provide a mechanism to get the private key');
+        throw new \phpseclib3\Exception\RuntimeException('ssh-agent does not provide a mechanism to get the private key');
     }
 
     /**
@@ -302,6 +302,6 @@ class Identity implements PrivateKey
      */
     public function withPassword(?string $password = null): PrivateKey
     {
-        throw new \RuntimeException('ssh-agent does not provide a mechanism to get the private key');
+        throw new \phpseclib3\Exception\RuntimeException('ssh-agent does not provide a mechanism to get the private key');
     }
 }

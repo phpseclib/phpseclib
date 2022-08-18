@@ -53,7 +53,7 @@ abstract class PKCS1 extends Progenitor
 
         $decoded = ASN1::decodeBER($key);
         if (!$decoded) {
-            throw new \RuntimeException('Unable to decode BER');
+            throw new \phpseclib3\Exception\RuntimeException('Unable to decode BER');
         }
 
         $key = ASN1::asn1map($decoded[0], Maps\DSAParams::MAP);
@@ -71,7 +71,7 @@ abstract class PKCS1 extends Progenitor
             return $key;
         }
 
-        throw new \RuntimeException('Unable to perform ASN1 mapping');
+        throw new \phpseclib3\Exception\RuntimeException('Unable to perform ASN1 mapping');
     }
 
     /**

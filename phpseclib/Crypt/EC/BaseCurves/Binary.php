@@ -100,7 +100,7 @@ class Binary extends Base
     public function setCoefficients(string $a, string $b): void
     {
         if (!isset($this->factory)) {
-            throw new \RuntimeException('setModulo needs to be called before this method');
+            throw new \phpseclib3\Exception\RuntimeException('setModulo needs to be called before this method');
         }
         $this->a = $this->factory->newInteger(pack('H*', $a));
         $this->b = $this->factory->newInteger(pack('H*', $b));
@@ -116,12 +116,12 @@ class Binary extends Base
     {
         switch (true) {
             case !is_string($x) && !$x instanceof BinaryInteger:
-                throw new \UnexpectedValueException('Argument 1 passed to Binary::setBasePoint() must be a string or an instance of BinaryField\Integer');
+                throw new \phpseclib3\Exception\UnexpectedValueException('Argument 1 passed to Binary::setBasePoint() must be a string or an instance of BinaryField\Integer');
             case !is_string($y) && !$y instanceof BinaryInteger:
-                throw new \UnexpectedValueException('Argument 2 passed to Binary::setBasePoint() must be a string or an instance of BinaryField\Integer');
+                throw new \phpseclib3\Exception\UnexpectedValueException('Argument 2 passed to Binary::setBasePoint() must be a string or an instance of BinaryField\Integer');
         }
         if (!isset($this->factory)) {
-            throw new \RuntimeException('setModulo needs to be called before this method');
+            throw new \phpseclib3\Exception\RuntimeException('setModulo needs to be called before this method');
         }
         $this->p = [
             is_string($x) ? $this->factory->newInteger(pack('H*', $x)) : $x,
@@ -137,11 +137,11 @@ class Binary extends Base
     public function getBasePoint()
     {
         if (!isset($this->factory)) {
-            throw new \RuntimeException('setModulo needs to be called before this method');
+            throw new \phpseclib3\Exception\RuntimeException('setModulo needs to be called before this method');
         }
         /*
         if (!isset($this->p)) {
-            throw new \RuntimeException('setBasePoint needs to be called before this method');
+            throw new \phpseclib3\Exception\RuntimeException('setBasePoint needs to be called before this method');
         }
         */
         return $this->p;
@@ -155,7 +155,7 @@ class Binary extends Base
     public function addPoint(array $p, array $q): array
     {
         if (!isset($this->factory)) {
-            throw new \RuntimeException('setModulo needs to be called before this method');
+            throw new \phpseclib3\Exception\RuntimeException('setModulo needs to be called before this method');
         }
 
         if (!count($p) || !count($q)) {
@@ -169,7 +169,7 @@ class Binary extends Base
         }
 
         if (!isset($p[2]) || !isset($q[2])) {
-            throw new \RuntimeException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
+            throw new \phpseclib3\Exception\RuntimeException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
         }
 
         if ($p[0]->equals($q[0])) {
@@ -228,7 +228,7 @@ class Binary extends Base
     public function doublePoint(array $p): array
     {
         if (!isset($this->factory)) {
-            throw new \RuntimeException('setModulo needs to be called before this method');
+            throw new \phpseclib3\Exception\RuntimeException('setModulo needs to be called before this method');
         }
 
         if (!count($p)) {
@@ -236,7 +236,7 @@ class Binary extends Base
         }
 
         if (!isset($p[2])) {
-            throw new \RuntimeException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
+            throw new \phpseclib3\Exception\RuntimeException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
         }
 
         // formulas from http://hyperelliptic.org/EFD/g12o/auto-shortw-jacobian.html
@@ -279,7 +279,7 @@ class Binary extends Base
      */
     public function derivePoint($m): array
     {
-        throw new \RuntimeException('Point compression on binary finite field elliptic curves is not supported');
+        throw new \phpseclib3\Exception\RuntimeException('Point compression on binary finite field elliptic curves is not supported');
     }
 
     /**

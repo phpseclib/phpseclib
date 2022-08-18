@@ -92,7 +92,7 @@ class BigInteger implements \JsonSerializable
 
         $fqmain = 'phpseclib3\\Math\\BigInteger\\Engines\\' . $main;
         if (!class_exists($fqmain) || !method_exists($fqmain, 'isValidEngine')) {
-            throw new \InvalidArgumentException("$main is not a valid engine");
+            throw new \phpseclib3\Exception\InvalidArgumentException("$main is not a valid engine");
         }
         if (!$fqmain::isValidEngine()) {
             throw new BadConfigurationException("$main is not setup correctly on this system");

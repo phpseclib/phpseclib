@@ -65,13 +65,13 @@ abstract class PuTTY extends Progenitor
 
         $result = Strings::unpackSSH2('ii', $public);
         if ($result === false) {
-            throw new \UnexpectedValueException('Key appears to be malformed');
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key appears to be malformed');
         }
         [$publicExponent, $modulus] = $result;
 
         $result = Strings::unpackSSH2('iiii', $private);
         if ($result === false) {
-            throw new \UnexpectedValueException('Key appears to be malformed');
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key appears to be malformed');
         }
         $primes = $coefficients = [];
         [$privateExponent, $primes[1], $primes[2], $coefficients[2]] = $result;
@@ -90,7 +90,7 @@ abstract class PuTTY extends Progenitor
     public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, ?string $password = null, array $options = []): string
     {
         if (count($primes) != 2) {
-            throw new \InvalidArgumentException('PuTTY does not support multi-prime RSA keys');
+            throw new \phpseclib3\Exception\InvalidArgumentException('PuTTY does not support multi-prime RSA keys');
         }
 
         $public =  Strings::packSSH2('ii', $e, $n);

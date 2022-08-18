@@ -63,7 +63,7 @@ abstract class XML
         self::initialize_static_variables();
 
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         if (!class_exists('DOMDocument')) {
@@ -89,7 +89,7 @@ abstract class XML
 
         if (!$dom->loadXML($key)) {
             libxml_use_internal_errors($use_errors);
-            throw new \UnexpectedValueException('Key does not appear to contain XML');
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key does not appear to contain XML');
         }
         $xpath = new \DOMXPath($dom);
         libxml_use_internal_errors($use_errors);
@@ -126,7 +126,7 @@ abstract class XML
         }
 
         if (!$result->length) {
-            throw new \RuntimeException($error);
+            throw new \phpseclib3\Exception\RuntimeException($error);
         }
         return $decode ? self::decodeValue($result->item(0)->textContent) : $result->item(0)->textContent;
     }
@@ -171,17 +171,17 @@ abstract class XML
         $x = self::query($xpath, 'publickey/x');
         $y = self::query($xpath, 'publickey/y');
         if (!$x->length || !$x->item(0)->hasAttribute('Value')) {
-            throw new \RuntimeException('Public Key / X coordinate not found');
+            throw new \phpseclib3\Exception\RuntimeException('Public Key / X coordinate not found');
         }
         if (!$y->length || !$y->item(0)->hasAttribute('Value')) {
-            throw new \RuntimeException('Public Key / Y coordinate not found');
+            throw new \phpseclib3\Exception\RuntimeException('Public Key / Y coordinate not found');
         }
         $point = [
             $curve->convertInteger(new BigInteger($x->item(0)->getAttribute('Value'))),
             $curve->convertInteger(new BigInteger($y->item(0)->getAttribute('Value'))),
         ];
         if (!$curve->verifyPoint($point)) {
-            throw new \RuntimeException('Unable to verify that point exists on curve');
+            throw new \phpseclib3\Exception\RuntimeException('Unable to verify that point exists on curve');
         }
         return $point;
     }
@@ -217,7 +217,7 @@ abstract class XML
 
         $params = self::query($xpath, 'ecparameters');
         if (!$params->length) {
-            throw new \RuntimeException('No parameters are present');
+            throw new \phpseclib3\Exception\RuntimeException('No parameters are present');
         }
 
         $fieldTypes = [

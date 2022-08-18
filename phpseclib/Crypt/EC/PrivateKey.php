@@ -76,7 +76,7 @@ class PrivateKey extends EC implements Common\PrivateKey
             return $this->curve->encodePoint($point);
         }
         if (empty($point)) {
-            throw new \RuntimeException('The infinity point is invalid');
+            throw new \phpseclib3\Exception\RuntimeException('The infinity point is invalid');
         }
         return "\4" . $point[0]->toBytes(true) . $point[1]->toBytes(true);
     }

@@ -82,7 +82,7 @@ abstract class DH extends AsymmetricKey
         $params = new Parameters();
         if (count($args) == 2 && $args[0] instanceof BigInteger && $args[1] instanceof BigInteger) {
             //if (!$args[0]->isPrime()) {
-            //    throw new \InvalidArgumentException('The first parameter should be a prime number');
+            //    throw new \phpseclib3\Exception\InvalidArgumentException('The first parameter should be a prime number');
             //}
             $params->prime = $args[0];
             $params->base = $args[1];
@@ -92,7 +92,7 @@ abstract class DH extends AsymmetricKey
             $params->base = new BigInteger(2);
             return $params;
         } elseif (count($args) != 1 || !is_string($args[0])) {
-            throw new \InvalidArgumentException('Valid parameters are either: two BigInteger\'s (prime and base), a single integer (the length of the prime; base is assumed to be 2) or a string');
+            throw new \phpseclib3\Exception\InvalidArgumentException('Valid parameters are either: two BigInteger\'s (prime and base), a single integer (the length of the prime; base is assumed to be 2) or a string');
         }
         switch ($args[0]) {
             // see http://tools.ietf.org/html/rfc2409#section-6.2 and
@@ -212,7 +212,7 @@ abstract class DH extends AsymmetricKey
                          '9E3050E2765694DFC81F56E880B96E7160C980DD98EDD3DFFFFFFFFFFFFFFFFF';
                 break;
             default:
-                throw new \InvalidArgumentException('Invalid named prime provided');
+                throw new \phpseclib3\Exception\InvalidArgumentException('Invalid named prime provided');
         }
 
         $params->prime = new BigInteger($prime, 16);
@@ -267,7 +267,7 @@ abstract class DH extends AsymmetricKey
             switch (true) {
                 case $public instanceof PublicKey:
                     if (!$private->prime->equals($public->prime) || !$private->base->equals($public->base)) {
-                        throw new \InvalidArgumentException('The public and private key do not share the same prime and / or base numbers');
+                        throw new \phpseclib3\Exception\InvalidArgumentException('The public and private key do not share the same prime and / or base numbers');
                     }
                     return $public->publicKey->powMod($private->privateKey, $private->prime)->toBytes(true);
                 case is_string($public):
@@ -276,7 +276,7 @@ abstract class DH extends AsymmetricKey
                 case $public instanceof BigInteger:
                     return $public->powMod($private->privateKey, $private->prime)->toBytes(true);
                 default:
-                    throw new \InvalidArgumentException('$public needs to be an instance of DH\PublicKey, a BigInteger or a string');
+                    throw new \phpseclib3\Exception\InvalidArgumentException('$public needs to be an instance of DH\PublicKey, a BigInteger or a string');
             }
         }
 
@@ -303,7 +303,7 @@ abstract class DH extends AsymmetricKey
                     */
                     return $secret;
                 default:
-                    throw new \InvalidArgumentException('$public needs to be an instance of EC\PublicKey or a string (an encoded coordinate)');
+                    throw new \phpseclib3\Exception\InvalidArgumentException('$public needs to be an instance of EC\PublicKey or a string (an encoded coordinate)');
             }
         }
     }

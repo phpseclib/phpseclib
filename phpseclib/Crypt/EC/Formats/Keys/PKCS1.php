@@ -58,7 +58,7 @@ abstract class PKCS1 extends Progenitor
         self::initialize_static_variables();
 
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new \phpseclib3\Exception\UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         if (strpos($key, 'BEGIN EC PARAMETERS') && strpos($key, 'BEGIN EC PRIVATE KEY')) {
@@ -68,12 +68,12 @@ abstract class PKCS1 extends Progenitor
             $decoded = parent::load($matches[0], $password);
             $decoded = ASN1::decodeBER($decoded);
             if (!$decoded) {
-                throw new \RuntimeException('Unable to decode BER');
+                throw new \phpseclib3\Exception\RuntimeException('Unable to decode BER');
             }
 
             $ecPrivate = ASN1::asn1map($decoded[0], Maps\ECPrivateKey::MAP);
             if (!is_array($ecPrivate)) {
-                throw new \RuntimeException('Unable to perform ASN1 mapping');
+                throw new \phpseclib3\Exception\RuntimeException('Unable to perform ASN1 mapping');
             }
 
             if (isset($ecPrivate['parameters'])) {
@@ -84,18 +84,18 @@ abstract class PKCS1 extends Progenitor
             $decoded = parent::load($matches[0], '');
             $decoded = ASN1::decodeBER($decoded);
             if (!$decoded) {
-                throw new \RuntimeException('Unable to decode BER');
+                throw new \phpseclib3\Exception\RuntimeException('Unable to decode BER');
             }
             $ecParams = ASN1::asn1map($decoded[0], Maps\ECParameters::MAP);
             if (!is_array($ecParams)) {
-                throw new \RuntimeException('Unable to perform ASN1 mapping');
+                throw new \phpseclib3\Exception\RuntimeException('Unable to perform ASN1 mapping');
             }
             $ecParams = self::loadCurveByParam($ecParams);
 
             // comparing $ecParams and $components['curve'] directly won't work because they'll have different Math\Common\FiniteField classes
             // even if the modulo is the same
             if (isset($components['curve']) && self::encodeParameters($ecParams, false, []) != self::encodeParameters($components['curve'], false, [])) {
-                throw new \RuntimeException('EC PARAMETERS does not correspond to EC PRIVATE KEY');
+                throw new \phpseclib3\Exception\RuntimeException('EC PARAMETERS does not correspond to EC PRIVATE KEY');
             }
 
             if (!isset($components['curve'])) {
@@ -115,7 +115,7 @@ abstract class PKCS1 extends Progenitor
 
         $decoded = ASN1::decodeBER($key);
         if (!$decoded) {
-            throw new \RuntimeException('Unable to decode BER');
+            throw new \phpseclib3\Exception\RuntimeException('Unable to decode BER');
         }
 
         $key = ASN1::asn1map($decoded[0], Maps\ECParameters::MAP);
@@ -125,10 +125,10 @@ abstract class PKCS1 extends Progenitor
 
         $key = ASN1::asn1map($decoded[0], Maps\ECPrivateKey::MAP);
         if (!is_array($key)) {
-            throw new \RuntimeException('Unable to perform ASN1 mapping');
+            throw new \phpseclib3\Exception\RuntimeException('Unable to perform ASN1 mapping');
         }
         if (!isset($key['parameters'])) {
-            throw new \RuntimeException('Key cannot be loaded without parameters');
+            throw new \phpseclib3\Exception\RuntimeException('Key cannot be loaded without parameters');
         }
 
         $components = [];
