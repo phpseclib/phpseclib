@@ -35,6 +35,7 @@ namespace phpseclib3\Crypt;
 
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\LengthException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\PrimeField;
@@ -158,7 +159,7 @@ class Hash
      * umac cipher object
      *
      * @see self::hash()
-     * @var \phpseclib3\Crypt\AES
+     * @var AES
      */
     private $c;
 
@@ -232,7 +233,7 @@ class Hash
                 return;
         }
 
-        throw new \LengthException('The nonce length must be between 1 and 16 bytes, inclusive');
+        throw new LengthException('The nonce length must be between 1 and 16 bytes, inclusive');
     }
 
     /**
@@ -780,7 +781,7 @@ class Hash
                     throw new InsufficientSetupException('No key has been set');
                 }
                 if (strlen($this->key) != 16) {
-                    throw new \LengthException('Key must be 16 bytes long');
+                    throw new LengthException('Key must be 16 bytes long');
                 }
 
                 if (!isset(self::$maxwordrange64)) {

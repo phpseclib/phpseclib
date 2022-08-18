@@ -24,6 +24,8 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt;
 
+use phpseclib3\Exception\RuntimeException;
+
 /**
  * Pure-PHP Random Number Generator
  *
@@ -38,7 +40,7 @@ abstract class Random
      * microoptimizations because this function has the potential of being called a huge number of times.
      * eg. for RSA key generation.
      *
-     * @throws \RuntimeException if a symmetric cipher is needed but not loaded
+     * @throws RuntimeException if a symmetric cipher is needed but not loaded
      */
     public static function string(int $length): string
     {
@@ -160,7 +162,7 @@ abstract class Random
                     $crypto = new RC4();
                     break;
                 default:
-                    throw new \RuntimeException(__CLASS__ . ' requires at least one symmetric cipher be loaded');
+                    throw new RuntimeException(__CLASS__ . ' requires at least one symmetric cipher be loaded');
             }
 
             $crypto->setKey(substr($key, 0, $crypto->getKeyLength() >> 3));

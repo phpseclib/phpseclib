@@ -18,6 +18,9 @@ namespace phpseclib3\Common\Functions;
 use ParagonIE\ConstantTime\Base64;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\ConstantTime\Hex;
+use phpseclib3\Exception\InvalidArgumentException;
+use phpseclib3\Exception\LengthException;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\Common\FiniteField;
 
@@ -78,7 +81,7 @@ abstract class Strings
                 case 'C':
                 case 'b':
                     if (!strlen($data)) {
-                        throw new \LengthException('At least one byte needs to be present for successful C / b decodes');
+                        throw new LengthException('At least one byte needs to be present for successful C / b decodes');
                     }
                     break;
                 case 'N':
@@ -86,17 +89,17 @@ abstract class Strings
                 case 's':
                 case 'L':
                     if (strlen($data) < 4) {
-                        throw new \LengthException('At least four byte needs to be present for successful N / i / s / L decodes');
+                        throw new LengthException('At least four byte needs to be present for successful N / i / s / L decodes');
                     }
                     break;
                 case 'Q':
                     if (strlen($data) < 8) {
-                        throw new \LengthException('At least eight byte needs to be present for successful N / i / s / L decodes');
+                        throw new LengthException('At least eight byte needs to be present for successful N / i / s / L decodes');
                     }
                     break;
 
                 default:
-                    throw new \InvalidArgumentException('$format contains an invalid character');
+                    throw new InvalidArgumentException('$format contains an invalid character');
             }
             switch ($format[$i]) {
                 case 'C':
@@ -125,7 +128,7 @@ abstract class Strings
             }
             [, $length] = unpack('N', self::shift($data, 4));
             if (strlen($data) < $length) {
-                throw new \LengthException("$length bytes needed; " . strlen($data) . ' bytes available');
+                throw new LengthException("$length bytes needed; " . strlen($data) . ' bytes available');
             }
             $temp = self::shift($data, $length);
             switch ($format[$i]) {
@@ -152,7 +155,7 @@ abstract class Strings
     {
         $format = self::formatPack($format);
         if (strlen($format) != count($elements)) {
-            throw new \InvalidArgumentException('There must be as many arguments as there are characters in the $format string');
+            throw new InvalidArgumentException('There must be as many arguments as there are characters in the $format string');
         }
         $result = '';
         for ($i = 0; $i < strlen($format); $i++) {
@@ -160,19 +163,19 @@ abstract class Strings
             switch ($format[$i]) {
                 case 'C':
                     if (!is_int($element)) {
-                        throw new \InvalidArgumentException('Bytes must be represented as an integer between 0 and 255, inclusive.');
+                        throw new InvalidArgumentException('Bytes must be represented as an integer between 0 and 255, inclusive.');
                     }
                     $result .= pack('C', $element);
                     break;
                 case 'b':
                     if (!is_bool($element)) {
-                        throw new \InvalidArgumentException('A boolean parameter was expected.');
+                        throw new InvalidArgumentException('A boolean parameter was expected.');
                     }
                     $result .= $element ? "\1" : "\0";
                     break;
                 case 'Q':
                     if (!is_int($element) && !is_float($element)) {
-                        throw new \InvalidArgumentException('An integer was expected.');
+                        throw new InvalidArgumentException('An integer was expected.');
                     }
                     // 4294967296 == 1 << 32
                     $result .= pack('NN', $element / 4294967296, $element);
@@ -182,32 +185,32 @@ abstract class Strings
                         $element = (int) $element;
                     }
                     if (!is_int($element)) {
-                        throw new \InvalidArgumentException('An integer was expected.');
+                        throw new InvalidArgumentException('An integer was expected.');
                     }
                     $result .= pack('N', $element);
                     break;
                 case 's':
                     if (!self::is_stringable($element)) {
-                        throw new \InvalidArgumentException('A string was expected.');
+                        throw new InvalidArgumentException('A string was expected.');
                     }
                     $result .= pack('Na*', strlen($element), $element);
                     break;
                 case 'i':
                     if (!$element instanceof BigInteger && !$element instanceof FiniteField\Integer) {
-                        throw new \InvalidArgumentException('A phpseclib3\Math\BigInteger or phpseclib3\Math\Common\FiniteField\Integer object was expected.');
+                        throw new InvalidArgumentException('A phpseclib3\Math\BigInteger or phpseclib3\Math\Common\FiniteField\Integer object was expected.');
                     }
                     $element = $element->toBytes(true);
                     $result .= pack('Na*', strlen($element), $element);
                     break;
                 case 'L':
                     if (!is_array($element)) {
-                        throw new \InvalidArgumentException('An array was expected.');
+                        throw new InvalidArgumentException('An array was expected.');
                     }
                     $element = implode(',', $element);
                     $result .= pack('Na*', strlen($element), $element);
                     break;
                 default:
-                    throw new \InvalidArgumentException('$format contains an invalid character');
+                    throw new InvalidArgumentException('$format contains an invalid character');
             }
         }
         return $result;
@@ -248,7 +251,7 @@ abstract class Strings
         */
 
         if (preg_match('#[^01]#', $x)) {
-            throw new \RuntimeException('The only valid characters are 0 and 1');
+            throw new RuntimeException('The only valid characters are 0 and 1');
         }
 
         if (!defined('PHP_INT_MIN')) {

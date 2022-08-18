@@ -60,6 +60,8 @@ use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
 use phpseclib3\Crypt\RSA\PrivateKey;
 use phpseclib3\Crypt\RSA\PublicKey;
 use phpseclib3\Exception\InconsistentSetupException;
+use phpseclib3\Exception\LengthException;
+use phpseclib3\Exception\OutOfRangeException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Math\BigInteger;
 
@@ -182,7 +184,7 @@ abstract class RSA extends AsymmetricKey
     /**
      * Hash function for the Mask Generation Function
      *
-     * @var \phpseclib3\Crypt\Hash
+     * @var Hash
      */
     protected $mgfHash;
 
@@ -501,7 +503,7 @@ abstract class RSA extends AsymmetricKey
     {
         $x = $x->toBytes();
         if (strlen($x) > $xLen) {
-            throw new \OutOfRangeException('Resultant string length out of range');
+            throw new OutOfRangeException('Resultant string length out of range');
         }
         return str_pad($x, $xLen, chr(0), STR_PAD_LEFT);
     }
@@ -521,7 +523,7 @@ abstract class RSA extends AsymmetricKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.2 RFC3447#section-9.2}.
      *
-     * @throws \LengthException if the intended encoded message length is too short
+     * @throws LengthException if the intended encoded message length is too short
      */
     protected function emsa_pkcs1_v1_5_encode(string $m, int $emLen): string
     {
@@ -561,7 +563,7 @@ abstract class RSA extends AsymmetricKey
         $tLen = strlen($t);
 
         if ($emLen < $tLen + 11) {
-            throw new \LengthException('Intended encoded message length too short');
+            throw new LengthException('Intended encoded message length too short');
         }
 
         $ps = str_repeat(chr(0xFF), $emLen - $tLen - 3);
@@ -616,7 +618,7 @@ abstract class RSA extends AsymmetricKey
         $tLen = strlen($t);
 
         if ($emLen < $tLen + 11) {
-            throw new \LengthException('Intended encoded message length too short');
+            throw new LengthException('Intended encoded message length too short');
         }
 
         $ps = str_repeat(chr(0xFF), $emLen - $tLen - 3);

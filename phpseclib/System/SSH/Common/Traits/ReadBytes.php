@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace phpseclib3\System\SSH\Common\Traits;
 
+use phpseclib3\Exception\RuntimeException;
+
 /**
  * ReadBytes trait
  *
@@ -25,16 +27,16 @@ trait ReadBytes
     /**
      * Read data
      *
-     * @throws \RuntimeException on connection errors
+     * @throws RuntimeException on connection errors
      */
     public function readBytes(int $length): string
     {
         $temp = fread($this->fsock, $length);
         if ($temp === false) {
-            throw new \RuntimeException('\fread() failed.');
+            throw new RuntimeException('\fread() failed.');
         }
         if (strlen($temp) !== $length) {
-            throw new \RuntimeException("Expected $length bytes; got " . strlen($temp));
+            throw new RuntimeException("Expected $length bytes; got " . strlen($temp));
         }
         return $temp;
     }

@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace phpseclib3\Math;
 
 use phpseclib3\Exception\BadConfigurationException;
+use phpseclib3\Exception\InvalidArgumentException;
 use phpseclib3\Math\BigInteger\Engines\Engine;
 
 /**
@@ -92,7 +93,7 @@ class BigInteger implements \JsonSerializable
 
         $fqmain = 'phpseclib3\\Math\\BigInteger\\Engines\\' . $main;
         if (!class_exists($fqmain) || !method_exists($fqmain, 'isValidEngine')) {
-            throw new \InvalidArgumentException("$main is not a valid engine");
+            throw new InvalidArgumentException("$main is not a valid engine");
         }
         if (!$fqmain::isValidEngine()) {
             throw new BadConfigurationException("$main is not setup correctly on this system");

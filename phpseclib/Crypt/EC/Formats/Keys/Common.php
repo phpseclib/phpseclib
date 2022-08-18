@@ -20,6 +20,8 @@ use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib3\Crypt\EC\BaseCurves\Binary as BinaryCurve;
 use phpseclib3\Crypt\EC\BaseCurves\Prime as PrimeCurve;
 use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib3\Exception\RuntimeException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Exception\UnsupportedCurveException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
@@ -194,12 +196,12 @@ trait Common
      * Returns an instance of \phpseclib3\Crypt\EC\BaseCurves\Base based
      * on the curve parameters
      *
-     * @return \phpseclib3\Crypt\EC\BaseCurves\Base|false
+     * @return BaseCurve|false
      */
     protected static function loadCurveByParam(array $params)
     {
         if (count($params) > 1) {
-            throw new \RuntimeException('No parameters are present');
+            throw new RuntimeException('No parameters are present');
         }
         if (isset($params['namedCurve'])) {
             $curve = '\phpseclib3\Crypt\EC\Curves\\' . $params['namedCurve'];
@@ -210,7 +212,7 @@ trait Common
         }
         if (isset($params['implicitCurve'])) {
             if (!isset(self::$implicitCurve)) {
-                throw new \RuntimeException('Implicit curves can be provided by calling setImplicitCurve');
+                throw new RuntimeException('Implicit curves can be provided by calling setImplicitCurve');
             }
             return self::$implicitCurve;
         }
@@ -259,7 +261,7 @@ trait Common
                     throw new UnsupportedCurveException('Field Type of ' . $data['fieldID']['fieldType'] . ' is not supported');
             }
         }
-        throw new \RuntimeException('No valid parameters are present');
+        throw new RuntimeException('No valid parameters are present');
     }
 
     /**
@@ -281,11 +283,11 @@ trait Common
             $y[0] = $y[0] & chr(0x7F);
             $y = new BigInteger($y, 256);
             if ($y->compare($curve->getModulo()) >= 0) {
-                throw new \RuntimeException('The Y coordinate should not be >= the modulo');
+                throw new RuntimeException('The Y coordinate should not be >= the modulo');
             }
             $point = $curve->recoverX($y, $sign);
             if (!$curve->verifyPoint($point)) {
-                throw new \RuntimeException('Unable to verify that point exists on curve');
+                throw new RuntimeException('Unable to verify that point exists on curve');
             }
             return $point;
         }
@@ -293,7 +295,7 @@ trait Common
         // the first byte of a bit string represents the number of bits in the last byte that are to be ignored but,
         // currently, bit strings wanting a non-zero amount of bits trimmed are not supported
         if (($val = Strings::shift($str)) != "\0") {
-            throw new \UnexpectedValueException('extractPoint expects the first byte to be null - not ' . Strings::bin2hex($val));
+            throw new UnexpectedValueException('extractPoint expects the first byte to be null - not ' . Strings::bin2hex($val));
         }
         if ($str == "\0") {
             return [];
@@ -311,7 +313,7 @@ trait Common
             preg_match("#(.)(.{{$order}})(.{{$order}})#s", $str, $matches);
             [, $w, $x, $y] = $matches;
             if ($w != "\4") {
-                throw new \UnexpectedValueException('The first byte of an uncompressed point should be 04 - not ' . Strings::bin2hex($val));
+                throw new UnexpectedValueException('The first byte of an uncompressed point should be 04 - not ' . Strings::bin2hex($val));
             }
             $point = [
                 $curve->convertInteger(new BigInteger($x, 256)),
@@ -319,13 +321,13 @@ trait Common
             ];
 
             if (!$curve->verifyPoint($point)) {
-                throw new \RuntimeException('Unable to verify that point exists on curve');
+                throw new RuntimeException('Unable to verify that point exists on curve');
             }
 
             return $point;
         }
 
-        throw new \UnexpectedValueException('The string representation of the points is not of an appropriate length');
+        throw new UnexpectedValueException('The string representation of the points is not of an appropriate length');
     }
 
     /**
@@ -425,7 +427,7 @@ trait Common
         // https://crypto.stackexchange.com/a/27914/4520
         // https://en.wikipedia.org/wiki/Schoof%E2%80%93Elkies%E2%80%93Atkin_algorithm
         if (!$order) {
-            throw new \RuntimeException('Specified Curves need the order to be specified');
+            throw new RuntimeException('Specified Curves need the order to be specified');
         }
         $point = $curve->getBasePoint();
         $x = $point[0]->toBytes();

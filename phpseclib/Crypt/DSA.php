@@ -36,6 +36,7 @@ use phpseclib3\Crypt\DSA\Parameters;
 use phpseclib3\Crypt\DSA\PrivateKey;
 use phpseclib3\Crypt\DSA\PublicKey;
 use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\InvalidArgumentException;
 use phpseclib3\Math\BigInteger;
 
 /**
@@ -55,7 +56,7 @@ abstract class DSA extends AsymmetricKey
     /**
      * DSA Prime P
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected $p;
 
@@ -64,21 +65,21 @@ abstract class DSA extends AsymmetricKey
      *
      * Prime divisor of p-1
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected $q;
 
     /**
      * DSA Group Generator G
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected $g;
 
     /**
      * DSA public key value y
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected $y;
 
@@ -99,7 +100,7 @@ abstract class DSA extends AsymmetricKey
     /**
      * Create DSA parameters
      *
-     * @return \phpseclib3\Crypt\DSA|bool
+     * @return DSA|bool
      */
     public static function createParameters(int $L = 2048, int $N = 224)
     {
@@ -127,7 +128,7 @@ abstract class DSA extends AsymmetricKey
             case $L == 3072 && $N == 256:
                 break;
             default:
-                throw new \InvalidArgumentException('Invalid values for N and L');
+                throw new InvalidArgumentException('Invalid values for N and L');
         }
 
         $two = new BigInteger(2);

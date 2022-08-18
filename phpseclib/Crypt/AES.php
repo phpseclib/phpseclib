@@ -49,6 +49,9 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt;
 
+use phpseclib3\Exception\BadMethodCallException;
+use phpseclib3\Exception\LengthException;
+
 /**
  * Pure-PHP implementation of AES.
  *
@@ -61,12 +64,12 @@ class AES extends Rijndael
      *
      * Since \phpseclib3\Crypt\AES extends \phpseclib3\Crypt\Rijndael, this function is, technically, available, but it doesn't do anything.
      *
-     * @throws \BadMethodCallException anytime it's called
+     * @throws BadMethodCallException anytime it's called
      * @see \phpseclib3\Crypt\Rijndael::setBlockLength()
      */
     public function setBlockLength(int $length): void
     {
-        throw new \BadMethodCallException('The block length cannot be set for AES.');
+        throw new BadMethodCallException('The block length cannot be set for AES.');
     }
 
     /**
@@ -74,7 +77,7 @@ class AES extends Rijndael
      *
      * Valid key lengths are 128, 192, and 256.  Set the link to bool(false) to disable a fixed key length
      *
-     * @throws \LengthException if the key length isn't supported
+     * @throws LengthException if the key length isn't supported
      * @see \phpseclib3\Crypt\Rijndael:setKeyLength()
      */
     public function setKeyLength(int $length): void
@@ -85,7 +88,7 @@ class AES extends Rijndael
             case 256:
                 break;
             default:
-                throw new \LengthException('Key of size ' . $length . ' not supported by this algorithm. Only keys of sizes 128, 192 or 256 supported');
+                throw new LengthException('Key of size ' . $length . ' not supported by this algorithm. Only keys of sizes 128, 192 or 256 supported');
         }
         parent::setKeyLength($length);
     }
@@ -95,7 +98,7 @@ class AES extends Rijndael
      *
      * Rijndael supports five different key lengths, AES only supports three.
      *
-     * @throws \LengthException if the key length isn't supported
+     * @throws LengthException if the key length isn't supported
      * @see \phpseclib3\Crypt\Rijndael:setKey()
      * @see setKeyLength()
      */
@@ -107,7 +110,7 @@ class AES extends Rijndael
             case 32:
                 break;
             default:
-                throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16, 24 or 32 supported');
+                throw new LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16, 24 or 32 supported');
         }
 
         parent::setKey($key);

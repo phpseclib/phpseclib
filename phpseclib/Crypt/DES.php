@@ -44,6 +44,7 @@ namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\BlockCipher;
 use phpseclib3\Exception\BadModeException;
+use phpseclib3\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of DES.
@@ -597,7 +598,7 @@ class DES extends BlockCipher
     public function setKey(string $key): void
     {
         if (!($this instanceof TripleDES) && strlen($key) != 8) {
-            throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of size 8 are supported');
+            throw new LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of size 8 are supported');
         }
 
         // Sets the key

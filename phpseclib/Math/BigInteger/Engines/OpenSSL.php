@@ -16,6 +16,8 @@ declare(strict_types=1);
 namespace phpseclib3\Math\BigInteger\Engines;
 
 use phpseclib3\Crypt\RSA\Formats\Keys\PKCS8;
+use phpseclib3\Exception\OutOfRangeException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Math\BigInteger;
 
 /**
@@ -39,7 +41,7 @@ abstract class OpenSSL
     public static function powModHelper(Engine $x, Engine $e, Engine $n): Engine
     {
         if ($n->getLengthInBytes() < 31 || $n->getLengthInBytes() > 16384) {
-            throw new \OutOfRangeException('Only modulo between 31 and 16384 bits are accepted');
+            throw new OutOfRangeException('Only modulo between 31 and 16384 bits are accepted');
         }
 
         $key = PKCS8::savePublicKey(
@@ -54,7 +56,7 @@ abstract class OpenSSL
         // error. i suppose, for even numbers, we could do what PHP\Montgomery.php does, but then what
         // about odd numbers divisible by 3, by 5, etc?
         if (!openssl_public_encrypt($plaintext, $result, $key, OPENSSL_NO_PADDING)) {
-            throw new \UnexpectedValueException(openssl_error_string());
+            throw new UnexpectedValueException(openssl_error_string());
         }
 
         $class = $x::class;

@@ -19,7 +19,10 @@ use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
 use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\Common\FiniteField;
+use phpseclib3\Math\Common\FiniteField\Integer;
 
 /**
  * PuTTY Formatted EC Key Handler
@@ -70,7 +73,7 @@ abstract class PuTTY extends Progenitor
 
         if ($components['curve'] instanceof TwistedEdwardsCurve) {
             if (Strings::shift($private, 4) != "\0\0\0\x20") {
-                throw new \RuntimeException('Length of ssh-ed25519 key should be 32');
+                throw new RuntimeException('Length of ssh-ed25519 key should be 32');
             }
             $arr = $components['curve']->extractSecret($private);
             $components['dA'] = $arr['dA'];
@@ -86,7 +89,7 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
+     * @param Integer[] $publicKey
      */
     public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, ?string $secret = null, ?string $password = null, array $options = []): string
     {
@@ -117,7 +120,7 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert an EC public key to the appropriate format
      *
-     * @param \phpseclib3\Math\Common\FiniteField[] $publicKey
+     * @param FiniteField[] $publicKey
      */
     public static function savePublicKey(BaseCurve $curve, array $publicKey): string
     {

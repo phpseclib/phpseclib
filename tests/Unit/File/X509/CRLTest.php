@@ -12,7 +12,6 @@ namespace phpseclib3\Tests\Unit\File\X509;
 
 use phpseclib3\Crypt\RSA;
 use phpseclib3\File\X509;
-use phpseclib3\Math\BigInteger;
 use phpseclib3\Tests\PhpseclibTestCase;
 
 class CRLTest extends PhpseclibTestCase

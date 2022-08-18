@@ -39,6 +39,7 @@ namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\BlockCipher;
 use phpseclib3\Exception\BadModeException;
+use phpseclib3\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of Twofish.
@@ -382,7 +383,7 @@ class Twofish extends BlockCipher
             case 256:
                 break;
             default:
-                throw new \LengthException('Key of size ' . $length . ' not supported by this algorithm. Only keys of sizes 16, 24 or 32 supported');
+                throw new LengthException('Key of size ' . $length . ' not supported by this algorithm. Only keys of sizes 16, 24 or 32 supported');
         }
 
         parent::setKeyLength($length);
@@ -393,7 +394,7 @@ class Twofish extends BlockCipher
      *
      * Rijndael supports five different key lengths
      *
-     * @throws \LengthException if the key length isn't supported
+     * @throws LengthException if the key length isn't supported
      * @see setKeyLength()
      */
     public function setKey(string $key): void
@@ -404,7 +405,7 @@ class Twofish extends BlockCipher
             case 32:
                 break;
             default:
-                throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16, 24 or 32 supported');
+                throw new LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16, 24 or 32 supported');
         }
 
         parent::setKey($key);

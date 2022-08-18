@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.26.0@6998fabb2bf528b65777bf9941920888d23c03ac">
+<files psalm-version="4.27.0@faf106e717c37b8c81721845dba9de3d8deed8ff">
   <file src="../phpseclib/Common/Functions/Strings.php">
     <MissingParamType occurrences="1">
       <code>$var</code>
@@ -128,18 +128,59 @@
       <code>string</code>
     </InvalidFalsableReturnType>
     <InvalidPropertyAssignmentValue occurrences="1"/>
+    <InvalidScalarArgument occurrences="32">
+      <code>$sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>$sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]</code>
+      <code>(self::safe_intval($sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x0 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x0 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x0 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x0 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x0 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x0 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x0 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x0 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x0 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x0 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x0 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x0 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x0 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x0 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x0 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x0 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x0 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x0 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x1 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x1 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x1 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x1 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x1 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x1 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x1 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x1 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x1 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x1 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x1 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x1 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x1 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x1 &amp; 0xFF]</code>
+      <code>(self::safe_intval($sbox0[(($x1 &amp; -16777216) &gt;&gt; 24) &amp; 0xFF] + $sbox1[($x1 &amp; 0xFF0000) &gt;&gt; 16]) ^ $sbox2[($x1 &amp; 0xFF00) &gt;&gt; 8]) + $sbox3[$x1 &amp; 0xFF]</code>
+    </InvalidScalarArgument>
     <LoopInvalidation occurrences="1">
       <code>$j</code>
     </LoopInvalidation>
-    <MixedArgument occurrences="9">
+    <MixedArgument occurrences="16">
       <code>$cdata[$j + 1]</code>
       <code>$cdata[$j]</code>
       <code>$l</code>
+      <code>$l</code>
+      <code>$p</code>
       <code>$p</code>
       <code>$r</code>
+      <code>$r</code>
+      <code>$sb_0</code>
       <code>$sb_0</code>
       <code>$sb_1</code>
+      <code>$sb_1</code>
       <code>$sb_2</code>
+      <code>$sb_2</code>
+      <code>$sb_3</code>
       <code>$sb_3</code>
     </MixedArgument>
     <MixedArgumentTypeCoercion occurrences="9">
@@ -267,7 +308,7 @@
     <PossiblyNullOperand occurrences="1">
       <code>$this-&gt;openssl_translate_mode()</code>
     </PossiblyNullOperand>
-    <PossiblyUndefinedIntArrayOffset occurrences="106">
+    <PossiblyUndefinedIntArrayOffset occurrences="125">
       <code>$data[0]</code>
       <code>$data[1]</code>
       <code>$data[2]</code>
@@ -311,54 +352,72 @@
       <code>$p[0]</code>
       <code>$p[0]</code>
       <code>$p[0]</code>
+      <code>$p[0]</code>
+      <code>$p[10]</code>
       <code>$p[10]</code>
       <code>$p[10]</code>
       <code>$p[10]</code>
       <code>$p[11]</code>
       <code>$p[11]</code>
       <code>$p[11]</code>
+      <code>$p[11]</code>
+      <code>$p[12]</code>
       <code>$p[12]</code>
       <code>$p[12]</code>
       <code>$p[12]</code>
       <code>$p[13]</code>
       <code>$p[13]</code>
       <code>$p[13]</code>
+      <code>$p[13]</code>
+      <code>$p[14]</code>
       <code>$p[14]</code>
       <code>$p[14]</code>
       <code>$p[14]</code>
       <code>$p[15]</code>
       <code>$p[15]</code>
       <code>$p[15]</code>
+      <code>$p[15]</code>
+      <code>$p[16]</code>
       <code>$p[16]</code>
       <code>$p[16]</code>
       <code>$p[16]</code>
       <code>$p[17]</code>
       <code>$p[17]</code>
       <code>$p[17]</code>
+      <code>$p[17]</code>
+      <code>$p[1]</code>
       <code>$p[1]</code>
       <code>$p[1]</code>
       <code>$p[1]</code>
       <code>$p[2]</code>
       <code>$p[2]</code>
       <code>$p[2]</code>
+      <code>$p[2]</code>
+      <code>$p[3]</code>
       <code>$p[3]</code>
       <code>$p[3]</code>
       <code>$p[3]</code>
       <code>$p[4]</code>
       <code>$p[4]</code>
       <code>$p[4]</code>
+      <code>$p[4]</code>
+      <code>$p[5]</code>
       <code>$p[5]</code>
       <code>$p[5]</code>
       <code>$p[5]</code>
       <code>$p[6]</code>
       <code>$p[6]</code>
       <code>$p[6]</code>
+      <code>$p[6]</code>
+      <code>$p[7]</code>
       <code>$p[7]</code>
       <code>$p[7]</code>
       <code>$p[7]</code>
       <code>$p[8]</code>
       <code>$p[8]</code>
       <code>$p[8]</code>
+      <code>$p[8]</code>
+      <code>$p[9]</code>
       <code>$p[9]</code>
       <code>$p[9]</code>
       <code>$p[9]</code>
@@ -374,6 +433,7 @@
       <code>$sbox2[254]</code>
       <code>$sbox2[255]</code>
       <code>$sbox2[255]</code>
+      <code>self::$sbox2[0]</code>
     </PossiblyUndefinedIntArrayOffset>
     <PossiblyUndefinedStringArrayOffset occurrences="5">
       <code>$this-&gt;bctx['p']</code>
@@ -408,328 +468,6 @@
     <MissingReturnType occurrences="1">
       <code>salsa20</code>
     </MissingReturnType>
-    <MixedArgument occurrences="320">
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x0</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x12 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x1</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x13 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x2</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x14 ^ $x3</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x0</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x15 ^ $x3</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x8</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x4 ^ $x9</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x10</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x5 ^ $x9</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x10</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x6 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x11</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-      <code>$x7 ^ $x8</code>
-    </MixedArgument>
     <MixedAssignment occurrences="352">
       <code>$x0</code>
       <code>$x0</code>
@@ -1084,7 +822,7 @@
       <code>$z8</code>
       <code>$z9</code>
     </MixedAssignment>
-    <MixedOperand occurrences="656">
+    <MixedOperand occurrences="336">
       <code>$x0</code>
       <code>$x0</code>
       <code>$x0</code>
@@ -1126,74 +864,6 @@
       <code>$x0</code>
       <code>$x0</code>
       <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x0</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
       <code>$x1</code>
       <code>$x1</code>
       <code>$x1</code>
@@ -1235,40 +905,6 @@
       <code>$x1</code>
       <code>$x1</code>
       <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x1</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
       <code>$x10</code>
       <code>$x10</code>
       <code>$x10</code>
@@ -1310,40 +946,6 @@
       <code>$x10</code>
       <code>$x10</code>
       <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x10</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
       <code>$x11</code>
       <code>$x11</code>
       <code>$x11</code>
@@ -1385,44 +987,6 @@
       <code>$x11</code>
       <code>$x11</code>
       <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x11</code>
-      <code>$x12</code>
-      <code>$x13</code>
-      <code>$x14</code>
-      <code>$x15</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
       <code>$x2</code>
       <code>$x2</code>
       <code>$x2</code>
@@ -1464,40 +1028,6 @@
       <code>$x2</code>
       <code>$x2</code>
       <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x2</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
       <code>$x3</code>
       <code>$x3</code>
       <code>$x3</code>
@@ -1539,79 +1069,6 @@
       <code>$x3</code>
       <code>$x3</code>
       <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x3</code>
-      <code>$x4</code>
-      <code>$x5</code>
-      <code>$x6</code>
-      <code>$x7</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
-      <code>$x8</code>
       <code>$x8</code>
       <code>$x8</code>
       <code>$x8</code>
@@ -1653,45 +1110,6 @@
       <code>$x8</code>
       <code>$x8</code>
       <code>$x8</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
-      <code>$x9</code>
       <code>$x9</code>
       <code>$x9</code>
       <code>$x9</code>
@@ -1948,6 +1366,37 @@
     <UndefinedVariable occurrences="1">
       <code>$name</code>
     </UndefinedVariable>
+  </file>
+  <file src="../phpseclib/Crypt/Common/Formats/Keys/JWK.php">
+    <FalsableReturnStatement occurrences="1">
+      <code>json_encode(['keys' =&gt; [$key + $options]])</code>
+    </FalsableReturnStatement>
+    <InvalidFalsableReturnType occurrences="1">
+      <code>string</code>
+    </InvalidFalsableReturnType>
+    <MixedArgument occurrences="1">
+      <code>$key-&gt;keys</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="1">
+      <code>$key-&gt;keys[0]</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="1">
+      <code>$key</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>\stdClass</code>
+    </MixedInferredReturnType>
+    <MixedPropertyFetch occurrences="2">
+      <code>$key-&gt;keys</code>
+      <code>$key-&gt;kty</code>
+    </MixedPropertyFetch>
+    <MixedReturnStatement occurrences="2">
+      <code>$key</code>
+      <code>$key-&gt;keys[0]</code>
+    </MixedReturnStatement>
+    <PossiblyNullArgument occurrences="1">
+      <code>$key</code>
+    </PossiblyNullArgument>
   </file>
   <file src="../phpseclib/Crypt/Common/Formats/Keys/OpenSSH.php">
     <InvalidArgument occurrences="3">
@@ -2537,7 +1986,7 @@
   </file>
   <file src="../phpseclib/Crypt/Common/StreamCipher.php">
     <PossiblyUnusedReturnValue occurrences="1">
-      <code>\phpseclib3\Crypt\Common\StreamCipher</code>
+      <code>StreamCipher</code>
     </PossiblyUnusedReturnValue>
     <PropertyNotSetInConstructor occurrences="9">
       <code>StreamCipher</code>
@@ -2552,7 +2001,7 @@
     </PropertyNotSetInConstructor>
   </file>
   <file src="../phpseclib/Crypt/Common/SymmetricKey.php">
-    <DocblockTypeContradiction occurrences="7">
+    <DocblockTypeContradiction occurrences="8">
       <code>!$this-&gt;h</code>
       <code>!$this-&gt;h</code>
       <code>$this-&gt;iv === false</code>
@@ -2560,6 +2009,7 @@
       <code>$this-&gt;newtag === false</code>
       <code>$this-&gt;nonce === false</code>
       <code>$this-&gt;oldtag === false</code>
+      <code>is_int($x)</code>
     </DocblockTypeContradiction>
     <FalsableReturnStatement occurrences="6">
       <code>$ciphertext</code>
@@ -2590,6 +2040,12 @@
     <InvalidPropertyAssignmentValue occurrences="1">
       <code>$length &gt;&gt; 3</code>
     </InvalidPropertyAssignmentValue>
+    <InvalidReturnStatement occurrences="1">
+      <code>PHP_INT_SIZE == 4 &amp;&amp; PHP_VERSION_ID &gt;= 80100 ? intval($x) : $x</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="1">
+      <code>int</code>
+    </InvalidReturnType>
     <MissingReturnType occurrences="1">
       <code>setupKey</code>
     </MissingReturnType>
@@ -2787,12 +2243,13 @@
       <code>$xor[0]</code>
       <code>-$overflow</code>
     </MixedOperand>
-    <MixedReturnStatement occurrences="5">
+    <MixedReturnStatement occurrences="6">
       <code>$inline('decrypt', $ciphertext)</code>
       <code>$inline('encrypt', $plaintext)</code>
       <code>$plaintext</code>
       <code>$this-&gt;key_length &lt;&lt; 3</code>
       <code>$this-&gt;paddable ? $this-&gt;unpad($plaintext) : $plaintext</code>
+      <code>$x</code>
     </MixedReturnStatement>
     <PossiblyFalseArgument occurrences="9">
       <code>$ciphertext</code>
@@ -2903,9 +2360,10 @@
       <code>$plaintext</code>
       <code>$plaintext</code>
     </PossiblyUndefinedVariable>
-    <PossiblyUnusedMethod occurrences="2">
+    <PossiblyUnusedMethod occurrences="3">
       <code>enablePadding</code>
       <code>getMode</code>
+      <code>safe_intval_inline</code>
     </PossiblyUnusedMethod>
     <PossiblyUnusedParam occurrences="1">
       <code>$cipher_code</code>
@@ -2926,6 +2384,9 @@
       <code>$poly1305Key</code>
       <code>$preferredEngine</code>
     </PropertyNotSetInConstructor>
+    <RedundantCondition occurrences="1">
+      <code>is_string($engine)</code>
+    </RedundantCondition>
     <RedundantConditionGivenDocblockType occurrences="2">
       <code>is_string($this-&gt;key)</code>
       <code>strlen($password)</code>
@@ -2942,6 +2403,9 @@
     <ReferenceConstraintViolation occurrences="1">
       <code>return $ciphertext;</code>
     </ReferenceConstraintViolation>
+    <TypeDoesNotContainType occurrences="1">
+      <code>''</code>
+    </TypeDoesNotContainType>
     <UndefinedDocblockClass occurrences="1">
       <code>Callback</code>
     </UndefinedDocblockClass>
@@ -3216,12 +2680,12 @@
       <code>$shuffleip[($r &gt;&gt;  8) &amp; 0xFF]</code>
       <code>$shuffleip[($r &gt;&gt; 16) &amp; 0xFF]</code>
       <code>$shuffleip[($r &gt;&gt; 24) &amp; 0xFF]</code>
-      <code>( $cp        &amp; 0xFF000000) | (($cp &lt;&lt;  8) &amp; 0x00FF0000)</code>
-      <code>($cp &lt;&lt;  8) &amp; 0xFF000000</code>
+      <code>( $cp        &amp; intval(0xFF000000)) | (($cp &lt;&lt;  8) &amp; 0x00FF0000)</code>
+      <code>($cp &lt;&lt;  8) &amp; intval(0xFF000000)</code>
       <code>($key['d'] &gt;&gt; 4) &amp; 0x0FFFFFF0</code>
       <code>($r &gt;&gt;  3) &amp; 0x1FFFFFFF</code>
       <code>($r &gt;&gt; 31) &amp; 0x00000001</code>
-      <code>(($cp &lt;&lt;  8) &amp; 0xFF000000) | (($cp &lt;&lt; 16) &amp; 0x00FF0000)</code>
+      <code>(($cp &lt;&lt;  8) &amp; intval(0xFF000000)) | (($cp &lt;&lt; 16) &amp; 0x00FF0000)</code>
       <code>(($r &gt;&gt;  3) &amp; 0x1FFFFFFF) ^ ($r &lt;&lt; 29)</code>
       <code>(($r &gt;&gt; 31) &amp; 0x00000001) ^ ($r &lt;&lt;  1)</code>
       <code>self::$shuffle[$pc1map[ $l        &amp; 0xFF]]</code>
@@ -4100,7 +3564,7 @@
       <code>$this-&gt;factory</code>
       <code>$this-&gt;factory</code>
       <code>$this-&gt;factory</code>
-      <code>\phpseclib3\Math\FiniteField\Integer</code>
+      <code>Integer</code>
     </UndefinedDocblockClass>
     <UndefinedMethod occurrences="3">
       <code>addPoint</code>
@@ -4176,12 +3640,12 @@
       <code>$p</code>
       <code>$p</code>
       <code>$p</code>
-      <code>\phpseclib3\Math\PrimeField\Integer[]</code>
-      <code>\phpseclib3\Math\PrimeField\Integer[]</code>
+      <code>Integer[]</code>
+      <code>Integer[]</code>
     </MixedReturnTypeCoercion>
     <MoreSpecificReturnType occurrences="2">
-      <code>\phpseclib3\Math\PrimeField\Integer</code>
-      <code>\phpseclib3\Math\PrimeField\Integer</code>
+      <code>Integer</code>
+      <code>Integer</code>
     </MoreSpecificReturnType>
     <NonInvariantDocblockPropertyType occurrences="1">
       <code>$factory</code>
@@ -4373,9 +3837,9 @@
       <code>$p</code>
       <code>$p</code>
       <code>$p</code>
+      <code>PrimeInteger[]</code>
+      <code>PrimeInteger[]</code>
       <code>[$x-&gt;divide($z)]</code>
-      <code>\phpseclib3\Math\PrimeField\Integer[]</code>
-      <code>\phpseclib3\Math\PrimeField\Integer[]</code>
     </MixedReturnTypeCoercion>
     <NonInvariantDocblockPropertyType occurrences="1">
       <code>$factory</code>
@@ -4609,12 +4073,12 @@
       <code>$p</code>
       <code>$p</code>
       <code>$p</code>
-      <code>\phpseclib3\Math\PrimeField\Integer[]</code>
-      <code>\phpseclib3\Math\PrimeField\Integer[]</code>
+      <code>PrimeInteger[]</code>
+      <code>PrimeInteger[]</code>
     </MixedReturnTypeCoercion>
     <MoreSpecificReturnType occurrences="2">
-      <code>\phpseclib3\Math\PrimeField\Integer</code>
-      <code>\phpseclib3\Math\PrimeField\Integer</code>
+      <code>PrimeInteger</code>
+      <code>PrimeInteger</code>
     </MoreSpecificReturnType>
     <NonInvariantDocblockPropertyType occurrences="1">
       <code>$factory</code>
@@ -4663,7 +4127,7 @@
       <code>FiniteField[]</code>
       <code>FiniteField[]</code>
       <code>FiniteField[]</code>
-      <code>\phpseclib3\Math\PrimeFields</code>
+      <code>PrimeFields</code>
     </UndefinedDocblockClass>
     <UndefinedMethod occurrences="2">
       <code>toBigInteger</code>
@@ -4726,11 +4190,11 @@
     </MixedReturnStatement>
     <MixedReturnTypeCoercion occurrences="3">
       <code>$p</code>
-      <code>\phpseclib3\Math\PrimeField\Integer[]</code>
+      <code>PrimeInteger[]</code>
     </MixedReturnTypeCoercion>
     <MoreSpecificReturnType occurrences="2">
-      <code>\phpseclib3\Math\PrimeField\Integer</code>
-      <code>\phpseclib3\Math\PrimeField\Integer</code>
+      <code>PrimeInteger</code>
+      <code>PrimeInteger</code>
     </MoreSpecificReturnType>
     <PossiblyUnusedMethod occurrences="2">
       <code>getA</code>
@@ -4794,9 +4258,6 @@
     <InvalidReturnStatement occurrences="1">
       <code>clone $this-&gt;zero</code>
     </InvalidReturnStatement>
-    <LessSpecificReturnStatement occurrences="1">
-      <code>[clone $this-&gt;zero, clone $this-&gt;one, clone $this-&gt;one, clone $this-&gt;zero]</code>
-    </LessSpecificReturnStatement>
     <MixedArgument occurrences="1">
       <code>$y</code>
     </MixedArgument>
@@ -4807,8 +4268,7 @@
       <code>$y[0]</code>
       <code>$y[0]</code>
     </MixedArrayAssignment>
-    <MixedAssignment occurrences="13">
-      <code>$p[3]</code>
+    <MixedAssignment occurrences="12">
       <code>$temp</code>
       <code>$u</code>
       <code>$v</code>
@@ -4822,12 +4282,13 @@
       <code>$y[0]</code>
       <code>$y[0]</code>
     </MixedAssignment>
-    <MixedInferredReturnType occurrences="3">
+    <MixedInferredReturnType occurrences="4">
       <code>BigInteger</code>
       <code>FiniteField[]</code>
       <code>FiniteField[]</code>
+      <code>Integer[]</code>
     </MixedInferredReturnType>
-    <MixedMethodCall occurrences="20">
+    <MixedMethodCall occurrences="19">
       <code>add</code>
       <code>divide</code>
       <code>equals</code>
@@ -4835,7 +4296,6 @@
       <code>equals</code>
       <code>isOdd</code>
       <code>isOdd</code>
-      <code>multiply</code>
       <code>multiply</code>
       <code>multiply</code>
       <code>multiply</code>
@@ -4856,17 +4316,10 @@
     <MixedReturnStatement occurrences="1">
       <code>$this-&gt;extractSecret(Random::string(32))['dA']</code>
     </MixedReturnStatement>
-    <MixedReturnTypeCoercion occurrences="5">
-      <code>$p</code>
-      <code>$p</code>
+    <MixedReturnTypeCoercion occurrences="2">
       <code>[$x, $y]</code>
-      <code>\phpseclib3\Math\PrimeField\Integer[]</code>
       <code>object[]</code>
     </MixedReturnTypeCoercion>
-    <PossiblyUndefinedIntArrayOffset occurrences="2">
-      <code>$p[0]</code>
-      <code>$p[1]</code>
-    </PossiblyUndefinedIntArrayOffset>
     <PossiblyUndefinedStringArrayOffset occurrences="1">
       <code>$this-&gt;extractSecret(Random::string(32))['dA']</code>
     </PossiblyUndefinedStringArrayOffset>
@@ -4886,10 +4339,11 @@
       <code>Ed25519</code>
       <code>Ed25519</code>
     </PropertyNotSetInConstructor>
-    <UndefinedDocblockClass occurrences="3">
+    <UndefinedDocblockClass occurrences="4">
       <code>$this-&gt;factory</code>
       <code>FiniteField[]</code>
       <code>FiniteField[]</code>
+      <code>Integer[]</code>
     </UndefinedDocblockClass>
   </file>
   <file src="../phpseclib/Crypt/EC/Curves/Ed448.php">
@@ -4938,8 +4392,8 @@
     <MixedReturnTypeCoercion occurrences="5">
       <code>$p</code>
       <code>$p</code>
+      <code>Integer[]</code>
       <code>[$x, $y]</code>
-      <code>\phpseclib3\Math\PrimeField\Integer[]</code>
       <code>object[]</code>
     </MixedReturnTypeCoercion>
     <PossiblyUndefinedStringArrayOffset occurrences="1">
@@ -5615,6 +5069,9 @@
     <PossiblyNullReference occurrences="1">
       <code>newInteger</code>
     </PossiblyNullReference>
+    <PossiblyUnusedMethod occurrences="1">
+      <code>__construct</code>
+    </PossiblyUnusedMethod>
     <PropertyNotSetInConstructor occurrences="11">
       <code>secp256k1</code>
       <code>secp256k1</code>
@@ -5634,9 +5091,6 @@
     <UninitializedProperty occurrences="1">
       <code>$this-&gt;factory</code>
     </UninitializedProperty>
-    <UnusedClass occurrences="1">
-      <code>secp256k1</code>
-    </UnusedClass>
   </file>
   <file src="../phpseclib/Crypt/EC/Curves/secp256r1.php">
     <PropertyNotSetInConstructor occurrences="11">
@@ -5978,7 +5432,7 @@
       <code>[$curveX, $curveY]</code>
     </MixedAssignment>
     <MixedInferredReturnType occurrences="2">
-      <code>\phpseclib3\Crypt\EC\BaseCurves\Base|false</code>
+      <code>BaseCurve|false</code>
       <code>object[]</code>
     </MixedInferredReturnType>
     <MixedMethodCall occurrences="20">
@@ -6117,6 +5571,60 @@
     <UnusedVariable occurrences="1">
       <code>$len</code>
     </UnusedVariable>
+  </file>
+  <file src="../phpseclib/Crypt/EC/Formats/Keys/JWK.php">
+    <InvalidStringClass occurrences="1">
+      <code>new $curve()</code>
+    </InvalidStringClass>
+    <MixedArgument occurrences="9">
+      <code>$curve-&gt;encodePoint($publicKey)</code>
+      <code>$key-&gt;crv</code>
+      <code>$key-&gt;d</code>
+      <code>$key-&gt;d</code>
+      <code>$key-&gt;x</code>
+      <code>$key-&gt;x</code>
+      <code>$key-&gt;y</code>
+      <code>$publicKey[0]-&gt;toBytes()</code>
+      <code>$publicKey[1]-&gt;toBytes()</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="1">
+      <code>$arr</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>array</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="4">
+      <code>convertInteger</code>
+      <code>convertInteger</code>
+      <code>rangeCheck</code>
+      <code>verifyPoint</code>
+    </MixedMethodCall>
+    <MixedOperand occurrences="3">
+      <code>$arr</code>
+      <code>$key-&gt;crv</code>
+      <code>$key-&gt;crv</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="1">
+      <code>compact('curve', 'QA') + $arr</code>
+    </MixedReturnStatement>
+    <PossiblyNullArgument occurrences="1">
+      <code>$key['d']</code>
+    </PossiblyNullArgument>
+    <PossiblyUndefinedIntArrayOffset occurrences="2">
+      <code>$publicKey[0]</code>
+      <code>$publicKey[1]</code>
+    </PossiblyUndefinedIntArrayOffset>
+    <PossiblyUndefinedMethod occurrences="1">
+      <code>encodePoint</code>
+    </PossiblyUndefinedMethod>
+    <UndefinedMethod occurrences="3">
+      <code>extractSecret</code>
+      <code>toBytes</code>
+      <code>toBytes</code>
+    </UndefinedMethod>
+    <UnusedClass occurrences="1">
+      <code>JWK</code>
+    </UnusedClass>
   </file>
   <file src="../phpseclib/Crypt/EC/Formats/Keys/MontgomeryPrivate.php">
     <MixedArgument occurrences="1">
@@ -6476,7 +5984,7 @@
       <code>new $curve()</code>
     </LessSpecificReturnStatement>
     <LessSpecificReturnType occurrences="2">
-      <code>\phpseclib3\Crypt\EC\BaseCurves\Base|false</code>
+      <code>BaseCurve|false</code>
       <code>string|false</code>
     </LessSpecificReturnType>
     <MissingReturnType occurrences="1">
@@ -6540,7 +6048,7 @@
       <code>self::$curveOIDs[$result['namedCurve']]</code>
     </MixedOperand>
     <MoreSpecificReturnType occurrences="1">
-      <code>\phpseclib3\Crypt\EC\BaseCurves\Base|false</code>
+      <code>BaseCurve|false</code>
     </MoreSpecificReturnType>
     <NullableReturnStatement occurrences="1">
       <code>$decode ? self::decodeValue($result-&gt;item(0)-&gt;textContent) : $result-&gt;item(0)-&gt;textContent</code>
@@ -6845,8 +6353,9 @@
       <code>$s</code>
       <code>$s</code>
     </PossiblyUndefinedVariable>
-    <PropertyNotSetInConstructor occurrences="7">
+    <PropertyNotSetInConstructor occurrences="8">
       <code>$dA</code>
+      <code>$secret</code>
       <code>PrivateKey</code>
       <code>PrivateKey</code>
       <code>PrivateKey</code>
@@ -7367,7 +6876,7 @@
       <code>$m[$i]</code>
       <code>$m[$i]</code>
       <code>$m[$i]</code>
-      <code>$m[$i]</code>
+      <code>$m[$i] ?? ''</code>
       <code>$output</code>
       <code>$output</code>
       <code>pack('N4', 0, $index, 0, 1)</code>
@@ -7782,10 +7291,6 @@
     <LessSpecificReturnStatement occurrences="1">
       <code>RSA::load($privatekeystr)</code>
     </LessSpecificReturnStatement>
-    <MissingPropertyType occurrences="2">
-      <code>$privateExponent</code>
-      <code>$publicExponent</code>
-    </MissingPropertyType>
     <MixedArgument occurrences="15">
       <code>$bits</code>
       <code>$components['MGFHash']</code>
@@ -7832,7 +7337,7 @@
     <MixedArrayTypeCoercion occurrences="1">
       <code>$primes[$i]</code>
     </MixedArrayTypeCoercion>
-    <MixedAssignment occurrences="20">
+    <MixedAssignment occurrences="22">
       <code>$coefficients[2]</code>
       <code>$i</code>
       <code>$i</code>
@@ -7843,6 +7348,8 @@
       <code>$key-&gt;k</code>
       <code>$key-&gt;modulus</code>
       <code>$key-&gt;primes</code>
+      <code>$key-&gt;privateExponent</code>
+      <code>$key-&gt;publicExponent</code>
       <code>$lcm['bottom']</code>
       <code>$lcm['top']</code>
       <code>$prime</code>
@@ -7913,24 +7420,91 @@
       <code>setExponent</code>
       <code>setOpenSSLConfigPath</code>
     </PossiblyUnusedMethod>
-    <PropertyNotSetInConstructor occurrences="4">
+    <PropertyNotSetInConstructor occurrences="5">
       <code>$exponent</code>
       <code>$k</code>
       <code>$modulus</code>
+      <code>$publicExponent</code>
       <code>RSA</code>
     </PropertyNotSetInConstructor>
     <RedundantPropertyInitializationCheck occurrences="2">
       <code>!isset($this-&gt;modulus)</code>
       <code>$this-&gt;modulus-&gt;getLength()</code>
     </RedundantPropertyInitializationCheck>
-    <UndefinedPropertyAssignment occurrences="3">
+    <UndefinedPropertyAssignment occurrences="4">
       <code>$key-&gt;coefficients</code>
       <code>$key-&gt;exponents</code>
       <code>$key-&gt;primes</code>
+      <code>$key-&gt;privateExponent</code>
     </UndefinedPropertyAssignment>
     <UnusedVariable occurrences="1">
       <code>$i0</code>
     </UnusedVariable>
+  </file>
+  <file src="../phpseclib/Crypt/RSA/Formats/Keys/JWK.php">
+    <MixedArgument occurrences="6">
+      <code>$coefficients[2]-&gt;toBytes()</code>
+      <code>$exponents[1]-&gt;toBytes()</code>
+      <code>$exponents[2]-&gt;toBytes()</code>
+      <code>$key-&gt;$var</code>
+      <code>$primes[1]-&gt;toBytes()</code>
+      <code>$primes[2]-&gt;toBytes()</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="5">
+      <code>$components['coefficients']</code>
+      <code>$components['exponents']</code>
+      <code>$components['exponents']</code>
+      <code>$components['primes']</code>
+      <code>$components['primes']</code>
+    </MixedArrayAccess>
+    <MixedArrayAssignment occurrences="8">
+      <code>$components['coefficients']</code>
+      <code>$components['exponents']</code>
+      <code>$components['exponents']</code>
+      <code>$components['modulus']</code>
+      <code>$components['primes']</code>
+      <code>$components['primes']</code>
+      <code>$components['privateExponent']</code>
+      <code>$components['publicExponent']</code>
+    </MixedArrayAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>array</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="5">
+      <code>toBytes</code>
+      <code>toBytes</code>
+      <code>toBytes</code>
+      <code>toBytes</code>
+      <code>toBytes</code>
+    </MixedMethodCall>
+    <MixedOperand occurrences="2">
+      <code>$components</code>
+      <code>$components</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="2">
+      <code>$components + ['isPublicKey' =&gt; false]</code>
+      <code>$components + ['isPublicKey' =&gt; true]</code>
+    </MixedReturnStatement>
+    <PossiblyUndefinedIntArrayOffset occurrences="5">
+      <code>$coefficients[2]</code>
+      <code>$exponents[1]</code>
+      <code>$exponents[2]</code>
+      <code>$primes[1]</code>
+      <code>$primes[2]</code>
+    </PossiblyUndefinedIntArrayOffset>
+    <PossiblyUndefinedVariable occurrences="8">
+      <code>$components</code>
+      <code>$components</code>
+      <code>$components</code>
+      <code>$components</code>
+      <code>$components</code>
+      <code>$components</code>
+      <code>$components</code>
+      <code>$components</code>
+    </PossiblyUndefinedVariable>
+    <UnusedClass occurrences="1">
+      <code>JWK</code>
+    </UnusedClass>
   </file>
   <file src="../phpseclib/Crypt/RSA/Formats/Keys/MSBLOB.php">
     <MixedArgument occurrences="7">
@@ -8384,6 +7958,9 @@
     </UnusedClass>
   </file>
   <file src="../phpseclib/Crypt/RSA/PrivateKey.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>empty($this-&gt;publicExponent)</code>
+    </DocblockTypeContradiction>
     <InvalidOperand occurrences="3">
       <code>!$hashesMatch</code>
       <code>$m[$i] === "\0"</code>
@@ -8396,7 +7973,7 @@
     <InvalidReturnType occurrences="1">
       <code>string</code>
     </InvalidReturnType>
-    <MixedArgument occurrences="27">
+    <MixedArgument occurrences="26">
       <code>$key</code>
       <code>$r</code>
       <code>$r-&gt;multiply($h)</code>
@@ -8423,7 +8000,6 @@
       <code>$this-&gt;primes[2]</code>
       <code>$this-&gt;primes[2]</code>
       <code>$this-&gt;primes[2]</code>
-      <code>$this-&gt;publicExponent</code>
     </MixedArgument>
     <MixedAssignment occurrences="8">
       <code>$key</code>
@@ -8477,10 +8053,12 @@
       <code>$this-&gt;primes[2]</code>
       <code>$this-&gt;primes[2]</code>
     </PossiblyUndefinedIntArrayOffset>
-    <PropertyNotSetInConstructor occurrences="7">
+    <PropertyNotSetInConstructor occurrences="9">
       <code>$coefficients</code>
       <code>$exponents</code>
       <code>$primes</code>
+      <code>$privateExponent</code>
+      <code>PrivateKey</code>
       <code>PrivateKey</code>
       <code>PrivateKey</code>
       <code>PrivateKey</code>
@@ -8555,7 +8133,8 @@
       <code>$r1</code>
       <code>$r2</code>
     </PossiblyUndefinedVariable>
-    <PropertyNotSetInConstructor occurrences="4">
+    <PropertyNotSetInConstructor occurrences="5">
+      <code>PublicKey</code>
       <code>PublicKey</code>
       <code>PublicKey</code>
       <code>PublicKey</code>
@@ -8900,7 +8479,7 @@
       <code>($i + $c[2]) % $Nb</code>
       <code>($i + $c[3]) % $Nb</code>
       <code>($i + $c[3]) % $Nb</code>
-      <code>($temp &lt;&lt; 8) &amp; 0xFFFFFF00</code>
+      <code>($temp &lt;&lt; 8) &amp; intval(0xFFFFFF00)</code>
     </MixedOperand>
     <MixedReturnStatement occurrences="3">
       <code>$tables</code>
@@ -9152,6 +8731,9 @@
       <code>Salsa20</code>
       <code>Salsa20</code>
     </PropertyNotSetInConstructor>
+    <RedundantCast occurrences="1">
+      <code>(int) $x</code>
+    </RedundantCast>
     <RedundantPropertyInitializationCheck occurrences="3">
       <code>$this-&gt;usePoly1305 &amp;&amp; !isset($this-&gt;poly1305Key)</code>
       <code>isset($this-&gt;poly1305Key)</code>
@@ -9821,7 +9403,7 @@
       <code>$le_longs[7]</code>
       <code>$le_longs[8]</code>
     </PossiblyInvalidArrayAccess>
-    <PossiblyUndefinedIntArrayOffset occurrences="122">
+    <PossiblyUndefinedIntArrayOffset occurrences="123">
       <code>$K[0]</code>
       <code>$K[0]</code>
       <code>$K[0]</code>
@@ -9944,6 +9526,7 @@
       <code>$le_longs[6]</code>
       <code>$le_longs[7]</code>
       <code>$le_longs[8]</code>
+      <code>self::$m3[0]</code>
     </PossiblyUndefinedIntArrayOffset>
     <PossiblyUnusedMethod occurrences="1">
       <code>setupInlineCrypt</code>
@@ -10044,7 +9627,7 @@
       <code>loadString</code>
     </PossiblyUnusedMethod>
     <PossiblyUnusedReturnValue occurrences="1">
-      <code>\phpseclib3\File\ANSI</code>
+      <code>ANSI</code>
     </PossiblyUnusedReturnValue>
     <PropertyNotSetInConstructor occurrences="14">
       <code>$ansi</code>
@@ -10584,7 +10167,7 @@
   </file>
   <file src="../phpseclib/File/ASN1/Element.php">
     <PossiblyUnusedReturnValue occurrences="1">
-      <code>\phpseclib3\File\ASN1\Element</code>
+      <code>Element</code>
     </PossiblyUnusedReturnValue>
   </file>
   <file src="../phpseclib/File/ASN1/Maps/CPSuri.php">
@@ -10956,7 +10539,7 @@
       <code>$x509['tbsCertificate']['subjectPublicKeyInfo']</code>
       <code>$x[0]</code>
     </MixedArrayAccess>
-    <MixedArrayAssignment occurrences="39">
+    <MixedArrayAssignment occurrences="36">
       <code>$attr['value']</code>
       <code>$attributes[$key]['value']</code>
       <code>$attributes[$key]['value']</code>
@@ -10979,9 +10562,6 @@
       <code>$this-&gt;currentCert['certificationRequestInfo']['subjectPKInfo']</code>
       <code>$this-&gt;currentCert['publicKeyAndChallenge']['challenge']</code>
       <code>$this-&gt;currentCert['publicKeyAndChallenge']['spki']</code>
-      <code>$this-&gt;currentCert['signatureAlgorithm']['algorithm']</code>
-      <code>$this-&gt;currentCert['signatureAlgorithm']['algorithm']</code>
-      <code>$this-&gt;currentCert['signatureAlgorithm']['algorithm']</code>
       <code>$this-&gt;currentCert['tbsCertList']['signature']</code>
       <code>$this-&gt;currentCert['tbsCertificate']['issuer']</code>
       <code>$this-&gt;currentCert['tbsCertificate']['serialNumber']</code>
@@ -11367,7 +10947,7 @@
       <code>$signingCert</code>
       <code>$subjectPublicKey</code>
     </PossiblyUndefinedVariable>
-    <PossiblyUnusedMethod occurrences="23">
+    <PossiblyUnusedMethod occurrences="21">
       <code>decodeIP</code>
       <code>decodeNameConstraintIP</code>
       <code>disableURLFetch</code>
@@ -11383,16 +10963,15 @@
       <code>getSubjectDNProp</code>
       <code>listRevoked</code>
       <code>removeRevokedCertificateExtension</code>
-      <code>revoke</code>
       <code>setAttribute</code>
       <code>setIPAddress</code>
       <code>setKeyIdentifier</code>
       <code>setRevokedCertificateExtension</code>
       <code>setSerialNumber</code>
-      <code>signCRL</code>
       <code>unrevoke</code>
     </PossiblyUnusedMethod>
-    <PossiblyUnusedReturnValue occurrences="5">
+    <PossiblyUnusedReturnValue occurrences="6">
+      <code>bool</code>
       <code>bool</code>
       <code>bool</code>
       <code>bool</code>
@@ -13427,7 +13006,7 @@
       <code>new static()</code>
       <code>new static()</code>
       <code>new static(1)</code>
-      <code>new static(Hex::decode($x), 256)</code>
+      <code>new static(Strings::hex2bin($x), 256)</code>
     </UnsafeInstantiation>
     <UnusedVariable occurrences="3">
       <code>$digit</code>
@@ -15165,18 +14744,20 @@
       <code>array{Hash, int}|null</code>
       <code>string</code>
     </InvalidReturnType>
-    <MissingParamType occurrences="3">
+    <MissingParamType occurrences="4">
       <code>$algorithm</code>
       <code>$host</code>
       <code>$password</code>
+      <code>$responses</code>
     </MissingParamType>
     <MissingPropertyType occurrences="2">
       <code>$keepAlive</code>
       <code>$quiet_mode</code>
     </MissingPropertyType>
-    <MissingReturnType occurrences="2">
+    <MissingReturnType occurrences="3">
       <code>connect</code>
       <code>get_channel_packet</code>
+      <code>keyboard_interactive_process</code>
     </MissingReturnType>
     <MixedArgument occurrences="114">
       <code>$a['comp']</code>
@@ -15408,7 +14989,9 @@
       <code>$window_size</code>
       <code>$window_size</code>
     </MixedAssignment>
-    <MixedInferredReturnType occurrences="3">
+    <MixedInferredReturnType occurrences="5">
+      <code>bool</code>
+      <code>bool</code>
       <code>bool</code>
       <code>boolean</code>
       <code>string|bool|null</code>
@@ -15454,10 +15037,12 @@
       <code>$window_size</code>
       <code>$window_size</code>
     </MixedOperand>
-    <MixedReturnStatement occurrences="4">
+    <MixedReturnStatement occurrences="6">
+      <code>!Strings::is_stringable($password) &amp;&amp; !is_array($password) ? false : $this-&gt;keyboard_interactive_process($password)</code>
       <code>$result</code>
       <code>$this-&gt;errors[$count - 1]</code>
       <code>$this-&gt;get_channel_packet($channel)</code>
+      <code>$this-&gt;keyboard_interactive_process($password)</code>
       <code>$this-&gt;quiet_mode</code>
     </MixedReturnStatement>
     <MixedReturnTypeCoercion occurrences="4">
@@ -15559,11 +15144,9 @@
       <code>false</code>
       <code>inflate_init(ZLIB_ENCODING_RAW, ['window' =&gt; $cinfo + 8])</code>
     </PossiblyFalsePropertyAssignmentValue>
-    <PossiblyInvalidArgument occurrences="19">
+    <PossiblyInvalidArgument occurrences="17">
       <code>$args</code>
       <code>$engine</code>
-      <code>$password</code>
-      <code>$password</code>
       <code>$response</code>
       <code>$response</code>
       <code>$response</code>
@@ -15695,9 +15278,6 @@
       <code>$stdErrorLog</code>
       <code>$timeout</code>
     </PropertyNotSetInConstructor>
-    <RedundantCondition occurrences="1">
-      <code>is_array($responses[$i])</code>
-    </RedundantCondition>
     <RedundantConditionGivenDocblockType occurrences="5">
       <code>$this-&gt;session_id !== false</code>
       <code>Strings::is_stringable($arg)</code>
@@ -15729,8 +15309,7 @@
     <TooManyArguments occurrences="1">
       <code>MessageType::findConstantNameByValue($value = ord($logged[0]), false)</code>
     </TooManyArguments>
-    <TypeDoesNotContainType occurrences="3">
-      <code>$callback === false</code>
+    <TypeDoesNotContainType occurrences="2">
       <code>$hasArray</code>
       <code>$hasString</code>
     </TypeDoesNotContainType>
@@ -15820,7 +15399,7 @@
       <code>startSSHForwarding</code>
     </PossiblyUnusedMethod>
     <PossiblyUnusedReturnValue occurrences="1">
-      <code>\phpseclib3\System\SSH\Agent</code>
+      <code>Agent</code>
     </PossiblyUnusedReturnValue>
     <UnusedVariable occurrences="1">
       <code>$comment</code>
@@ -16959,7 +16538,9 @@
       <code>$expected</code>
       <code>$message</code>
     </MixedArgument>
-    <MixedAssignment occurrences="3">
+    <MixedAssignment occurrences="5">
+      <code>$sig</code>
+      <code>$sig</code>
       <code>$sig</code>
       <code>$sig</code>
       <code>$sig2</code>
@@ -16974,11 +16555,15 @@
     <PossiblyFalseArgument occurrences="1">
       <code>$raw</code>
     </PossiblyFalseArgument>
+    <PossiblyNullOperand occurrences="2">
+      <code>$keyWithoutWS</code>
+      <code>$keyWithoutWS</code>
+    </PossiblyNullOperand>
     <PropertyNotSetInConstructor occurrences="2">
       <code>KeyTest</code>
       <code>KeyTest</code>
     </PropertyNotSetInConstructor>
-    <UndefinedMethod occurrences="34">
+    <UndefinedMethod occurrences="38">
       <code>getCurve</code>
       <code>getCurve</code>
       <code>getCurve</code>
@@ -17009,6 +16594,10 @@
       <code>getPublicKey</code>
       <code>sign</code>
       <code>sign</code>
+      <code>sign</code>
+      <code>sign</code>
+      <code>verify</code>
+      <code>verify</code>
       <code>verify</code>
       <code>verify</code>
       <code>withSignatureFormat</code>
@@ -17260,11 +16849,12 @@
       <code>$r['meta']['cipher']</code>
       <code>$r['meta']['prf']</code>
     </MixedArrayAccess>
-    <MixedAssignment occurrences="5">
+    <MixedAssignment occurrences="6">
       <code>$key</code>
       <code>$rsa</code>
       <code>$rsa</code>
       <code>$rsa2</code>
+      <code>$sig</code>
       <code>$sig</code>
     </MixedAssignment>
     <MixedMethodCall occurrences="3">
@@ -17290,6 +16880,9 @@
       <code>preg_replace('#\s#', '', $key)</code>
       <code>preg_replace('#\s#', '', $newkey)</code>
     </PossiblyNullArgument>
+    <PossiblyNullOperand occurrences="1">
+      <code>$keyWithoutWS</code>
+    </PossiblyNullOperand>
     <PossiblyUndefinedStringArrayOffset occurrences="13">
       <code>$r2['MGFHash']</code>
       <code>$r2['hash']</code>
@@ -17309,9 +16902,11 @@
       <code>LoadKeyTest</code>
       <code>LoadKeyTest</code>
     </PropertyNotSetInConstructor>
-    <UndefinedMethod occurrences="7">
+    <UndefinedMethod occurrences="9">
       <code>asPrivateKey</code>
       <code>sign</code>
+      <code>sign</code>
+      <code>verify</code>
       <code>verify</code>
       <code>withMGFHash</code>
       <code>withPassword</code>
@@ -17583,7 +17178,25 @@
     </UnusedClass>
   </file>
   <file src="../tests/Unit/File/X509/CRLTest.php">
-    <PossiblyFalseArgument occurrences="1">
+    <InvalidArgument occurrences="1">
+      <code>$CAPubKey</code>
+    </InvalidArgument>
+    <MixedArgument occurrences="4">
+      <code>$r['signatureAlgorithm']</code>
+      <code>$result</code>
+      <code>$x509-&gt;signCRL($CAIssuer, $x509)</code>
+      <code>$x509-&gt;signCRL($CAIssuer, new X509())</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="1">
+      <code>$r['signatureAlgorithm']</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="3">
+      <code>$crl</code>
+      <code>$r</code>
+      <code>$result</code>
+    </MixedAssignment>
+    <PossiblyFalseArgument occurrences="2">
+      <code>$CA</code>
       <code>$test</code>
     </PossiblyFalseArgument>
     <PropertyNotSetInConstructor occurrences="2">
@@ -17593,6 +17206,9 @@
     <UnusedClass occurrences="1">
       <code>CRLTest</code>
     </UnusedClass>
+    <UnusedVariable occurrences="1">
+      <code>$crl</code>
+    </UnusedVariable>
   </file>
   <file src="../tests/Unit/File/X509/CSRTest.php">
     <MixedArgument occurrences="3">
@@ -18446,7 +18062,7 @@
     </DeprecatedMethod>
     <InvalidReturnStatement occurrences="1"/>
     <InvalidReturnType occurrences="1">
-      <code>\phpseclib3\Net\SSH2</code>
+      <code>SSH2</code>
     </InvalidReturnType>
     <MissingParamType occurrences="1">
       <code>$expected</code>

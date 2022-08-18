@@ -15,6 +15,7 @@ namespace phpseclib3\Crypt\DH;
 
 use phpseclib3\Crypt\Common;
 use phpseclib3\Crypt\DH;
+use phpseclib3\Math\BigInteger;
 
 /**
  * DH Private Key
@@ -28,14 +29,14 @@ class PrivateKey extends DH
     /**
      * Private Key
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected $privateKey;
 
     /**
      * Public Key
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected $publicKey;
 

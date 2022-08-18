@@ -32,6 +32,8 @@ use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib3\Crypt\EC\Curves\Ed25519;
 use phpseclib3\Crypt\EC\Curves\Ed448;
+use phpseclib3\Exception\RuntimeException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Exception\UnsupportedCurveException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
@@ -76,7 +78,7 @@ abstract class PKCS8 extends Progenitor
         self::initialize_static_variables();
 
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $isPublic = str_contains($key, 'PUBLIC');
@@ -87,9 +89,9 @@ abstract class PKCS8 extends Progenitor
 
         switch (true) {
             case !$isPublic && $type == 'publicKey':
-                throw new \UnexpectedValueException('Human readable string claims non-public key but DER encoded string claims public key');
+                throw new UnexpectedValueException('Human readable string claims non-public key but DER encoded string claims public key');
             case $isPublic && $type == 'privateKey':
-                throw new \UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
+                throw new UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
         }
 
         switch ($key[$type . 'Algorithm']['algorithm']) {
@@ -100,11 +102,11 @@ abstract class PKCS8 extends Progenitor
 
         $decoded = ASN1::decodeBER($key[$type . 'Algorithm']['parameters']->element);
         if (!$decoded) {
-            throw new \RuntimeException('Unable to decode BER');
+            throw new RuntimeException('Unable to decode BER');
         }
         $params = ASN1::asn1map($decoded[0], Maps\ECParameters::MAP);
         if (!$params) {
-            throw new \RuntimeException('Unable to decode the parameters using Maps\ECParameters');
+            throw new RuntimeException('Unable to decode the parameters using Maps\ECParameters');
         }
 
         $components = [];
@@ -118,11 +120,11 @@ abstract class PKCS8 extends Progenitor
 
         $decoded = ASN1::decodeBER($key['privateKey']);
         if (!$decoded) {
-            throw new \RuntimeException('Unable to decode BER');
+            throw new RuntimeException('Unable to decode BER');
         }
         $key = ASN1::asn1map($decoded[0], Maps\ECPrivateKey::MAP);
         if (isset($key['parameters']) && $params != $key['parameters']) {
-            throw new \RuntimeException('The PKCS8 parameter field does not match the private key parameter field');
+            throw new RuntimeException('The PKCS8 parameter field does not match the private key parameter field');
         }
 
         $components['dA'] = new BigInteger($key['privateKey'], 256);
@@ -147,7 +149,7 @@ abstract class PKCS8 extends Progenitor
             // 0x04 == octet string
             // 0x20 == length (32 bytes)
             if (substr($key['privateKey'], 0, 2) != "\x04\x20") {
-                throw new \RuntimeException('The first two bytes of the private key field should be 0x0420');
+                throw new RuntimeException('The first two bytes of the private key field should be 0x0420');
             }
             $arr = $components['curve']->extractSecret(substr($key['privateKey'], 2));
             $components['dA'] = $arr['dA'];

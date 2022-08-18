@@ -32,6 +32,7 @@ declare(strict_types=1);
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\AsymmetricKey;
+use phpseclib3\Crypt\EC\BaseCurves\Base;
 use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib3\Crypt\EC\Curves\Curve25519;
@@ -41,6 +42,8 @@ use phpseclib3\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib3\Crypt\EC\Parameters;
 use phpseclib3\Crypt\EC\PrivateKey;
 use phpseclib3\Crypt\EC\PublicKey;
+use phpseclib3\Exception\InvalidArgumentException;
+use phpseclib3\Exception\LengthException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Exception\UnsupportedCurveException;
 use phpseclib3\Exception\UnsupportedOperationException;
@@ -72,7 +75,7 @@ abstract class EC extends AsymmetricKey
     /**
      * Curve
      *
-     * @var \phpseclib3\Crypt\EC\BaseCurves\Base
+     * @var Base
      */
     protected $curve;
 
@@ -102,7 +105,7 @@ abstract class EC extends AsymmetricKey
      *
      * Used for deterministic ECDSA
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected $q;
 
@@ -114,7 +117,7 @@ abstract class EC extends AsymmetricKey
      * public key. But the x is different depending on which side of the equal sign
      * you're on. It's less ambiguous if you do dA * base point = (x, y)-coordinate.
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected $x;
 
@@ -411,10 +414,10 @@ abstract class EC extends AsymmetricKey
             return $new;
         }
         if (!is_string($context)) {
-            throw new \InvalidArgumentException('setContext expects a string');
+            throw new InvalidArgumentException('setContext expects a string');
         }
         if (strlen($context) > 255) {
-            throw new \LengthException('The context is supposed to be, at most, 255 bytes long');
+            throw new LengthException('The context is supposed to be, at most, 255 bytes long');
         }
         $new->context = $context;
         return $new;

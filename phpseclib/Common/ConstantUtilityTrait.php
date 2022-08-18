@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace phpseclib3\Common;
 
+use phpseclib3\Exception\InvalidArgumentException;
+
 /**
  * @internal
  */
@@ -35,7 +37,7 @@ trait ConstantUtilityTrait
     {
         $constantName = static::findConstantNameByValue($value);
         if ($constantName === null) {
-            throw new \InvalidArgumentException(sprintf('"%s" does not have constant with value "%s".', static::class, $value));
+            throw new InvalidArgumentException(sprintf('"%s" does not have constant with value "%s".', static::class, $value));
         }
         return $constantName;
     }

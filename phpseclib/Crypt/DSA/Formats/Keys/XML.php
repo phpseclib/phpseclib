@@ -23,6 +23,7 @@ namespace phpseclib3\Crypt\DSA\Formats\Keys;
 
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\BadConfigurationException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Math\BigInteger;
 
 /**
@@ -38,7 +39,7 @@ abstract class XML
     public static function load(string $key, ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         if (!class_exists('DOMDocument')) {
@@ -53,7 +54,7 @@ abstract class XML
         }
         if (!$dom->loadXML($key)) {
             libxml_use_internal_errors($use_errors);
-            throw new \UnexpectedValueException('Key does not appear to contain XML');
+            throw new UnexpectedValueException('Key does not appear to contain XML');
         }
         $xpath = new \DOMXPath($dom);
         $keys = ['p', 'q', 'g', 'y', 'j', 'seed', 'pgencounter'];
@@ -94,7 +95,7 @@ abstract class XML
         libxml_use_internal_errors($use_errors);
 
         if (!isset($components['y'])) {
-            throw new \UnexpectedValueException('Key is missing y component');
+            throw new UnexpectedValueException('Key is missing y component');
         }
 
         switch (true) {
