@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace phpseclib3\Common\Functions;
 
+use ParagonIE\ConstantTime\Base64;
+use ParagonIE\ConstantTime\Base64UrlSafe;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\Common\FiniteField;
 
@@ -384,5 +386,64 @@ abstract class Strings
     public static function is_stringable($var): bool
     {
         return is_string($var) || (is_object($var) && method_exists($var, '__toString'));
+    }
+
+    /**
+     * Constant Time Base64-decoding
+     *
+     * ParagoneIE\ConstantTime doesn't use libsodium if it's available so we'll do so
+     * ourselves. see https://github.com/paragonie/constant_time_encoding/issues/39
+     *
+     * @param string $data
+     * @return string
+     */
+    public static function base64_decode($data)
+    {
+        return function_exists('sodium_base642bin') ?
+            sodium_base642bin($data, SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING, '=') :
+            Base64::decode($data);
+    }
+
+    /**
+     * Constant Time Base64-decoding (URL safe)
+     *
+     * @param string $data
+     * @return string
+     */
+    public static function base64url_decode($data)
+    {
+        // return self::base64_decode(str_replace(['-', '_'], ['+', '/'], $data));
+
+        return function_exists('sodium_base642bin') ?
+            sodium_base642bin($data, SODIUM_BASE64_VARIANT_URLSAFE_NO_PADDING, '=') :
+            Base64UrlSafe::decode($data);
+    }
+
+    /**
+     * Constant Time Base64-encoding
+     *
+     * @param string $data
+     * @return string
+     */
+    public static function base64_encode($data)
+    {
+        return function_exists('sodium_bin2base64') ?
+            sodium_bin2base64($data, SODIUM_BASE64_VARIANT_ORIGINAL) :
+            Base64::encode($data);
+    }
+
+    /**
+     * Constant Time Base64-encoding (URL safe)
+     *
+     * @param string $data
+     * @return string
+     */
+    public static function base64url_encode($data)
+    {
+        // return self::base64_encode(str_replace(['+', '/'], ['-', '_'], $data));
+
+        return function_exists('sodium_bin2base64') ?
+            sodium_bin2base64($data, SODIUM_BASE64_VARIANT_URLSAFE) :
+            Base64::encode($data);
     }
 }

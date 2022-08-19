@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
-use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\UnsupportedFormatException;
 use phpseclib3\Math\BigInteger;
@@ -71,7 +70,7 @@ abstract class MSBLOB
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
-        $key = Base64::decode($key);
+        $key = Strings::base64_decode($key);
 
         if (!is_string($key)) {
             throw new \UnexpectedValueException('Base64 decoding produced an error');
@@ -190,7 +189,7 @@ abstract class MSBLOB
         $key .= strrev($coefficients[2]->toBytes());
         $key .= strrev($d->toBytes());
 
-        return Base64::encode($key);
+        return Strings::base64_encode($key);
     }
 
     /**
@@ -204,6 +203,6 @@ abstract class MSBLOB
         $key .= pack('VVa*', self::RSA1, 8 * strlen($n), $e);
         $key .= $n;
 
-        return Base64::encode($key);
+        return Strings::base64_encode($key);
     }
 }

@@ -27,7 +27,6 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\EC\Formats\Keys;
 
-use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\Formats\Keys\PKCS1 as Progenitor;
 use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
@@ -155,7 +154,7 @@ abstract class PKCS1 extends Progenitor
         $key = self::encodeParameters($curve, false, $options);
 
         return "-----BEGIN EC PARAMETERS-----\r\n" .
-               chunk_split(Base64::encode($key), 64) .
+               chunk_split(Strings::base64_encode($key), 64) .
                "-----END EC PARAMETERS-----\r\n";
     }
 

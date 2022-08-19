@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\EC\Formats\Keys;
 
-use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
 use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
@@ -66,7 +65,7 @@ abstract class PuTTY extends Progenitor
 
         $private = $components['private'];
 
-        $temp = Base64::encode(Strings::packSSH2('s', $components['type']) . $components['public']);
+        $temp = Strings::base64_encode(Strings::packSSH2('s', $components['type']) . $components['public']);
         $components = OpenSSH::load($components['type'] . ' ' . $temp . ' ' . $components['comment']);
 
         if ($components['curve'] instanceof TwistedEdwardsCurve) {
@@ -95,7 +94,7 @@ abstract class PuTTY extends Progenitor
 
         $public = explode(' ', OpenSSH::savePublicKey($curve, $publicKey));
         $name = $public[0];
-        $public = Base64::decode($public[1]);
+        $public = Strings::base64_decode($public[1]);
         [, $length] = unpack('N', Strings::shift($public, 4));
         Strings::shift($public, $length);
 
@@ -124,7 +123,7 @@ abstract class PuTTY extends Progenitor
     {
         $public = explode(' ', OpenSSH::savePublicKey($curve, $publicKey));
         $type = $public[0];
-        $public = Base64::decode($public[1]);
+        $public = Strings::base64_decode($public[1]);
         [, $length] = unpack('N', Strings::shift($public, 4));
         Strings::shift($public, $length);
 

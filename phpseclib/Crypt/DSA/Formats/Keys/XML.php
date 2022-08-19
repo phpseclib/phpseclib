@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\DSA\Formats\Keys;
 
-use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\BadConfigurationException;
 use phpseclib3\Math\BigInteger;
@@ -64,7 +63,7 @@ abstract class XML
             if (!$temp->length) {
                 continue;
             }
-            $value = new BigInteger(Base64::decode($temp->item(0)->nodeValue), 256);
+            $value = new BigInteger(Strings::base64_decode($temp->item(0)->nodeValue), 256);
             switch ($key) {
                 case 'p': // a prime modulus meeting the [DSS] requirements
                     // Parameters P, Q, and G can be public and common to a group of users. They might be known
@@ -116,10 +115,10 @@ abstract class XML
     public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y): string
     {
         return "<DSAKeyValue>\r\n" .
-               '  <P>' . Base64::encode($p->toBytes()) . "</P>\r\n" .
-               '  <Q>' . Base64::encode($q->toBytes()) . "</Q>\r\n" .
-               '  <G>' . Base64::encode($g->toBytes()) . "</G>\r\n" .
-               '  <Y>' . Base64::encode($y->toBytes()) . "</Y>\r\n" .
+               '  <P>' . Strings::base64_encode($p->toBytes()) . "</P>\r\n" .
+               '  <Q>' . Strings::base64_encode($q->toBytes()) . "</Q>\r\n" .
+               '  <G>' . Strings::base64_encode($g->toBytes()) . "</G>\r\n" .
+               '  <Y>' . Strings::base64_encode($y->toBytes()) . "</Y>\r\n" .
                '</DSAKeyValue>';
     }
 }
