@@ -15,6 +15,7 @@ namespace phpseclib3\Common\Functions;
 
 use ParagonIE\ConstantTime\Base64;
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use ParagonIE\ConstantTime\Hex;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\Common\FiniteField;
 
@@ -474,5 +475,31 @@ abstract class Strings
         return function_exists('sodium_bin2base64') ?
             sodium_bin2base64($data, SODIUM_BASE64_VARIANT_URLSAFE) :
             Base64::encode($data);
+    }
+
+    /**
+     * Constant Time Hex Decoder
+     *
+     * @param string $data
+     * @return string
+     */
+    public static function hex2bin($data)
+    {
+        return function_exists('sodium_hex2bin') ?
+            sodium_hex2bin($data) :
+            Hex::decode($data);
+    }
+
+    /**
+     * Constant Time Hex Encoder
+     *
+     * @param string $data
+     * @return string
+     */
+    public static function bin2hex($data)
+    {
+        return function_exists('sodium_bin2hex') ?
+            sodium_bin2hex($data) :
+            Hex::encode($data);
     }
 }

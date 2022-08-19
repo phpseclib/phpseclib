@@ -13,7 +13,6 @@
 
 namespace phpseclib3\Math\BigInteger\Engines;
 
-use ParagonIE\ConstantTime\Hex;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Exception\BadConfigurationException;
@@ -172,7 +171,7 @@ abstract class Engine implements \JsonSerializable
                 $is_negative = false;
                 if ($base < 0 && hexdec($x[0]) >= 8) {
                     $this->is_negative = $is_negative = true;
-                    $x = Hex::encode(~Hex::decode($x));
+                    $x = Strings::bin2hex(~Strings::hex2bin($x));
                 }
 
                 $this->value = $x;
@@ -270,7 +269,7 @@ abstract class Engine implements \JsonSerializable
      */
     public function toHex($twos_compliment = false)
     {
-        return Hex::encode($this->toBytes($twos_compliment));
+        return Strings::bin2hex($this->toBytes($twos_compliment));
     }
 
     /**
