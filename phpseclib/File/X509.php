@@ -24,8 +24,8 @@
 
 namespace phpseclib3\File;
 
-use ParagonIE\ConstantTime\Base64;
 use ParagonIE\ConstantTime\Hex;
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\Common\PublicKey;
 use phpseclib3\Crypt\DSA;
@@ -558,7 +558,7 @@ class X509
                 return $cert;
             // case self::FORMAT_PEM:
             default:
-                return "-----BEGIN CERTIFICATE-----\r\n" . chunk_split(Base64::encode($cert), 64) . '-----END CERTIFICATE-----';
+                return "-----BEGIN CERTIFICATE-----\r\n" . chunk_split(Strings::base64_encode($cert), 64) . '-----END CERTIFICATE-----';
         }
     }
 
@@ -1132,7 +1132,7 @@ class X509
                 }
                 $path = $parts['path'];
                 if (isset($parts['query'])) {
-                    $path.= '?' . $parts['query'];
+                    $path .= '?' . $parts['query'];
                 }
                 fputs($fsock, "GET $path HTTP/1.0\r\n");
                 fputs($fsock, "Host: $parts[host]\r\n\r\n");
@@ -2268,7 +2268,7 @@ class X509
                 return $csr;
             // case self::FORMAT_PEM:
             default:
-                return "-----BEGIN CERTIFICATE REQUEST-----\r\n" . chunk_split(Base64::encode($csr), 64) . '-----END CERTIFICATE REQUEST-----';
+                return "-----BEGIN CERTIFICATE REQUEST-----\r\n" . chunk_split(Strings::base64_encode($csr), 64) . '-----END CERTIFICATE REQUEST-----';
         }
     }
 
@@ -2296,7 +2296,7 @@ class X509
 
         // OpenSSL produces SPKAC's that are preceded by the string SPKAC=
         $temp = preg_replace('#(?:SPKAC=)|[ \r\n\\\]#', '', $spkac);
-        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? Base64::decode($temp) : false;
+        $temp = preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $temp) ? Strings::base64_decode($temp) : false;
         if ($temp != false) {
             $spkac = $temp;
         }
@@ -2372,7 +2372,7 @@ class X509
             default:
                 // OpenSSL's implementation of SPKAC requires the SPKAC be preceded by SPKAC= and since there are pretty much
                 // no other SPKAC decoders phpseclib will use that same format
-                return 'SPKAC=' . Base64::encode($spkac);
+                return 'SPKAC=' . Strings::base64_encode($spkac);
         }
     }
 
@@ -2491,7 +2491,7 @@ class X509
                 return $crl;
             // case self::FORMAT_PEM:
             default:
-                return "-----BEGIN X509 CRL-----\r\n" . chunk_split(Base64::encode($crl), 64) . '-----END X509 CRL-----';
+                return "-----BEGIN X509 CRL-----\r\n" . chunk_split(Strings::base64_encode($crl), 64) . '-----END X509 CRL-----';
         }
     }
 

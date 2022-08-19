@@ -25,7 +25,6 @@
 
 namespace phpseclib3\Crypt\Common\Formats\Keys;
 
-use ParagonIE\ConstantTime\Base64;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\DES;
@@ -602,12 +601,12 @@ abstract class PKCS8 extends PKCS
             $key = ASN1::encodeDER($key, Maps\EncryptedPrivateKeyInfo::MAP);
 
             return "-----BEGIN ENCRYPTED PRIVATE KEY-----\r\n" .
-                   chunk_split(Base64::encode($key), 64) .
+                   chunk_split(Strings::base64_encode($key), 64) .
                    "-----END ENCRYPTED PRIVATE KEY-----";
         }
 
         return "-----BEGIN PRIVATE KEY-----\r\n" .
-               chunk_split(Base64::encode($key), 64) .
+               chunk_split(Strings::base64_encode($key), 64) .
                "-----END PRIVATE KEY-----";
     }
 
@@ -637,7 +636,7 @@ abstract class PKCS8 extends PKCS
         $key = ASN1::encodeDER($key, Maps\PublicKeyInfo::MAP);
 
         return "-----BEGIN PUBLIC KEY-----\r\n" .
-               chunk_split(Base64::encode($key), 64) .
+               chunk_split(Strings::base64_encode($key), 64) .
                "-----END PUBLIC KEY-----";
     }
 

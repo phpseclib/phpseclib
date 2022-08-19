@@ -13,7 +13,6 @@
 
 namespace phpseclib3\Crypt\Common\Formats\Keys;
 
-use ParagonIE\ConstantTime\Base64;
 use ParagonIE\ConstantTime\Hex;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\AES;
@@ -176,7 +175,7 @@ abstract class PKCS1 extends PKCS
     {
         if (empty($password) || !is_string($password)) {
             return "-----BEGIN $type PRIVATE KEY-----\r\n" .
-                   chunk_split(Base64::encode($key), 64) .
+                   chunk_split(Strings::base64_encode($key), 64) .
                    "-----END $type PRIVATE KEY-----";
         }
 
@@ -191,7 +190,7 @@ abstract class PKCS1 extends PKCS
                "Proc-Type: 4,ENCRYPTED\r\n" .
                "DEK-Info: " . $encryptionAlgorithm . ",$iv\r\n" .
                "\r\n" .
-               chunk_split(Base64::encode($cipher->encrypt($key)), 64) .
+               chunk_split(Strings::base64_encode($cipher->encrypt($key)), 64) .
                "-----END $type PRIVATE KEY-----";
     }
 
@@ -205,7 +204,7 @@ abstract class PKCS1 extends PKCS
     protected static function wrapPublicKey($key, $type)
     {
         return "-----BEGIN $type PUBLIC KEY-----\r\n" .
-               chunk_split(Base64::encode($key), 64) .
+               chunk_split(Strings::base64_encode($key), 64) .
                "-----END $type PUBLIC KEY-----";
     }
 }
