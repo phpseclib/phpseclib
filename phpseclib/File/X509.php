@@ -26,7 +26,6 @@ declare(strict_types=1);
 
 namespace phpseclib3\File;
 
-use ParagonIE\ConstantTime\Hex;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\Common\PublicKey;
@@ -1772,7 +1771,7 @@ class X509
                 $hash = new Hash('sha1');
                 $hash = $hash->hash($dn);
                 extract(unpack('Vhash', $hash));
-                return strtolower(Hex::encode(pack('N', $hash)));
+                return strtolower(Strings::bin2hex(pack('N', $hash)));
         }
 
         // Default is to return a string.

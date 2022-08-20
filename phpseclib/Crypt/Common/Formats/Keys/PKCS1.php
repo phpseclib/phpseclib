@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\Common\Formats\Keys;
 
-use ParagonIE\ConstantTime\Hex;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\DES;
@@ -129,7 +128,7 @@ abstract class PKCS1 extends PKCS
 
            * OpenSSL is the de facto standard.  It's utilized by OpenSSH and other projects */
         if (preg_match('#DEK-Info: (.+),(.+)#', $key, $matches)) {
-            $iv = Hex::decode(trim($matches[2]));
+            $iv = Strings::hex2bin(trim($matches[2]));
             // remove the Proc-Type / DEK-Info sections as they're no longer needed
             $key = preg_replace('#^(?:Proc-Type|DEK-Info): .*#m', '', $key);
             $ciphertext = ASN1::extractBER($key);
@@ -174,7 +173,7 @@ abstract class PKCS1 extends PKCS
         $iv = Random::string($cipher->getBlockLength() >> 3);
         $cipher->setKey(self::generateSymmetricKey($password, $iv, $cipher->getKeyLength() >> 3));
         $cipher->setIV($iv);
-        $iv = strtoupper(Hex::encode($iv));
+        $iv = strtoupper(Strings::bin2hex($iv));
         return "-----BEGIN $type PRIVATE KEY-----\r\n" .
                "Proc-Type: 4,ENCRYPTED\r\n" .
                "DEK-Info: " . $encryptionAlgorithm . ",$iv\r\n" .

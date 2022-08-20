@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace phpseclib3\Math\BinaryField;
 
-use ParagonIE\ConstantTime\Hex;
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\BinaryField;
 use phpseclib3\Math\Common\FiniteField\Integer as Base;
@@ -448,7 +448,7 @@ class Integer extends Base
      */
     public function toHex(): string
     {
-        return Hex::encode($this->toBytes());
+        return Strings::bin2hex($this->toBytes());
     }
 
     /**

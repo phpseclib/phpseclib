@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace phpseclib3\Math\BigInteger\Engines;
 
-use ParagonIE\ConstantTime\Hex;
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\BadConfigurationException;
 
 /**
@@ -94,7 +94,7 @@ abstract class PHP extends Engine
         switch (abs($base)) {
             case 16:
                 $x = (strlen($this->value) & 1) ? '0' . $this->value : $this->value;
-                $temp = new static(Hex::decode($x), 256);
+                $temp = new static(Strings::hex2bin($x), 256);
                 $this->value = $temp->value;
                 break;
             case 10:

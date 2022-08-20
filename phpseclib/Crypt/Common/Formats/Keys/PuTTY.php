@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\Common\Formats\Keys;
 
-use ParagonIE\ConstantTime\Hex;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Hash;
@@ -73,7 +72,7 @@ abstract class PuTTY
         $sequence = 0;
         while (strlen($symkey) < $length) {
             $temp = pack('Na*', $sequence++, $password);
-            $symkey .= Hex::decode(sha1($temp));
+            $symkey .= Strings::hex2bin(sha1($temp));
         }
         return substr($symkey, 0, $length);
     }
@@ -213,7 +212,7 @@ abstract class PuTTY
                         $memory = trim(preg_replace('#Argon2-Memory: (\d+)#', '$1', $key[$offset++]));
                         $passes = trim(preg_replace('#Argon2-Passes: (\d+)#', '$1', $key[$offset++]));
                         $parallelism = trim(preg_replace('#Argon2-Parallelism: (\d+)#', '$1', $key[$offset++]));
-                        $salt = Hex::decode(trim(preg_replace('#Argon2-Salt: ([0-9a-f]+)#', '$1', $key[$offset++])));
+                        $salt = Strings::hex2bin(trim(preg_replace('#Argon2-Salt: ([0-9a-f]+)#', '$1', $key[$offset++])));
 
                         extract(self::generateV3Key($password, $flavour, (int)$memory, (int)$passes, $salt));
 
@@ -248,7 +247,7 @@ abstract class PuTTY
         $source .= Strings::packSSH2('s', $private);
 
         $hmac = trim(preg_replace('#Private-MAC: (.+)#', '$1', $key[$offset + $privateLength]));
-        $hmac = Hex::decode($hmac);
+        $hmac = Strings::hex2bin($hmac);
 
         if (!hash_equals($hash->hash($source), $hmac)) {
             throw new \UnexpectedValueException('MAC validation error');
@@ -306,7 +305,7 @@ abstract class PuTTY
                     $key .= "Argon2-Memory: 8192\r\n";
                     $key .= "Argon2-Passes: 13\r\n";
                     $key .= "Argon2-Parallelism: 1\r\n";
-                    $key .= "Argon2-Salt: " . Hex::encode($salt) . "\r\n";
+                    $key .= "Argon2-Salt: " . Strings::bin2hex($salt) . "\r\n";
                     extract(self::generateV3Key($password, 'Argon2id', 8192, 13, $salt));
 
                     $hash = new Hash('sha256');
@@ -332,7 +331,7 @@ abstract class PuTTY
         $private = Strings::base64_encode($private);
         $key .= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
         $key .= chunk_split($private, 64);
-        $key .= 'Private-MAC: ' . Hex::encode($hash->hash($source)) . "\r\n";
+        $key .= 'Private-MAC: ' . Strings::bin2hex($hash->hash($source)) . "\r\n";
 
         return $key;
     }

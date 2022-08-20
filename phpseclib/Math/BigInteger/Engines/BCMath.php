@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace phpseclib3\Math\BigInteger\Engines;
 
-use ParagonIE\ConstantTime\Hex;
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\BadConfigurationException;
 
 /**
@@ -100,7 +100,7 @@ class BCMath extends Engine
                 break;
             case 16:
                 $x = (strlen($this->value) & 1) ? '0' . $this->value : $this->value;
-                $temp = new self(Hex::decode($x), 256);
+                $temp = new self(Strings::hex2bin($x), 256);
                 $this->value = $this->is_negative ? '-' . $temp->value : $temp->value;
                 $this->is_negative = false;
                 break;
