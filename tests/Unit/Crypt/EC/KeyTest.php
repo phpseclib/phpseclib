@@ -576,4 +576,96 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
         $key = PublicKeyLoader::load($key, 'test');
         $this->assertInstanceOf(PrivateKey::class, $key);
     }
+
+    public function testECasJWK()
+    {
+        // keys are from https://datatracker.ietf.org/doc/html/rfc7517#appendix-A
+
+        $plaintext = 'zzz';
+
+        $key = '     {"keys":
+       [
+         {"kty":"EC",
+          "crv":"P-256",
+          "x":"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
+          "y":"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
+          "d":"870MB6gfuTJ4HtUnUvYMyJpr5eUZNP4Bk43bVdj3eAE",
+          "use":"enc",
+          "kid":"1"}
+       ]
+     }';
+
+        $keyWithoutWS = preg_replace('#\s#', '', $key);
+
+        $key = PublicKeyLoader::load($key);
+
+        $phpseclibKey = str_replace('=', '', $key->toString('JWK', [
+            'use' => 'enc',
+            'kid' => '1'
+        ]));
+
+        $this->assertSame($keyWithoutWS, $phpseclibKey);
+
+        $sig = $key->sign($plaintext);
+
+        $key = '{"keys":
+       [
+         {"kty":"EC",
+          "crv":"P-256",
+          "x":"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
+          "y":"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
+          "use":"enc",
+          "kid":"1"}
+       ]
+     }';
+
+        $keyWithoutWS = preg_replace('#\s#', '', $key);
+
+        $key = PublicKeyLoader::load($key);
+
+        $phpseclibKey = str_replace('=', '', $key->toString('JWK', [
+            'use' => 'enc',
+            'kid' => '1'
+        ]));
+
+        $this->assertSame($keyWithoutWS, $phpseclibKey);
+
+        $this->assertTrue($key->verify($plaintext, $sig));
+    }
+
+    public function testEd25519asJWK()
+    {
+        // keys are from https://www.rfc-editor.org/rfc/rfc8037.html#appendix-A
+
+        $plaintext = 'zzz';
+
+        $key = '   {"kty":"OKP","crv":"Ed25519",
+   "x":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+   "d":"nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A"}';
+
+        $keyWithoutWS = preg_replace('#\s#', '', $key);
+        $keyWithoutWS = '{"keys":[' . $keyWithoutWS . ']}';
+
+        $key = PublicKeyLoader::load($key);
+
+        $phpseclibKey = str_replace('=', '', $key->toString('JWK'));
+
+        $this->assertSame($keyWithoutWS, $phpseclibKey);
+
+        $sig = $key->sign($plaintext);
+
+        $key = '   {"kty":"OKP","crv":"Ed25519",
+   "x":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"}';
+
+        $keyWithoutWS = preg_replace('#\s#', '', $key);
+        $keyWithoutWS = '{"keys":[' . $keyWithoutWS . ']}';
+
+        $key = PublicKeyLoader::load($key);
+
+        $phpseclibKey = str_replace('=', '', $key->toString('JWK'));
+
+        $this->assertSame($keyWithoutWS, $phpseclibKey);
+
+        $this->assertTrue($key->verify($plaintext, $sig));
+    }
 }

@@ -441,11 +441,11 @@ abstract class Strings
      */
     public static function base64url_encode($data)
     {
-        // return self::base64_encode(str_replace(['+', '/'], ['-', '_'], $data));
+        // return str_replace(['+', '/'], ['-', '_'], self::base64_encode($data));
 
         return function_exists('sodium_bin2base64') ?
             sodium_bin2base64($data, SODIUM_BASE64_VARIANT_URLSAFE) :
-            Base64::encode($data);
+            Base64UrlSafe::encode($data);
     }
 
     /**
