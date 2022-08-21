@@ -149,15 +149,9 @@ abstract class Raw
             'e' => clone $e,
             'n' => clone $n,
             'd' => clone $d,
-            'primes' => array_map(function ($var) {
-                return clone $var;
-            }, $primes),
-            'exponents' => array_map(function ($var) {
-                return clone $var;
-            }, $exponents),
-            'coefficients' => array_map(function ($var) {
-                return clone $var;
-            }, $coefficients),
+            'primes' => array_map(fn ($var) => clone $var, $primes),
+            'exponents' => array_map(fn ($var) => clone $var, $exponents),
+            'coefficients' => array_map(fn ($var) => clone $var, $coefficients),
         ]);
     }
 

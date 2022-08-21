@@ -15,9 +15,7 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\Common;
 
-use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\Hash;
-use phpseclib3\Crypt\RSA;
 use phpseclib3\Exception\NoKeyLoadedException;
 use phpseclib3\Exception\UnsupportedFormatException;
 use phpseclib3\Math\BigInteger;
@@ -152,7 +150,7 @@ abstract class AsymmetricKey
         }
 
         $components['format'] = $format;
-        $components['secret'] = $components['secret'] ?? '';
+        $components['secret'] ??= '';
         $comment = $components['comment'] ?? null;
         $new = static::onLoad($components);
         $new->format = $format;
@@ -226,7 +224,7 @@ abstract class AsymmetricKey
         }
 
         $components['format'] = $format;
-        $components['secret'] = $components['secret'] ?? '';
+        $components['secret'] ??= '';
 
         $new = static::onLoad($components);
         $new->format = $format;

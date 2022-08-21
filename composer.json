@@ -21,7 +21,7 @@
         "asn.1",
         "BigInteger"
     ],
-    "homepage": "http://phpseclib.sourceforge.net",
+    "homepage": "https://phpseclib.com/",
     "license": "MIT",
     "authors": [
         {
@@ -48,10 +48,16 @@
             "name": "Graham Campbell",
             "email": "graham@alt-three.com",
             "role": "Developer"
+        },
+        {
+            "name": "Jack Worman",
+            "email": "jack.worman@gmail.com",
+            "role": "Developer",
+            "homepage": "https://jackworman.com"
         }
     ],
     "require": {
-        "php": ">=7.3",
+        "php": ">=8.1",
         "paragonie/constant_time_encoding": "^2"
     },
     "require-dev": {

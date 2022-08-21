@@ -120,7 +120,7 @@ abstract class PuTTY
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
-        if (strpos($key, 'BEGIN SSH2 PUBLIC KEY') !== false) {
+        if (str_contains($key, 'BEGIN SSH2 PUBLIC KEY')) {
             $lines = preg_split('#[\r\n]+#', $key);
             switch (true) {
                 case $lines[0] != '---- BEGIN SSH2 PUBLIC KEY ----':
@@ -129,9 +129,7 @@ abstract class PuTTY
                     throw new \UnexpectedValueException('Key doesn\'t end with ---- END SSH2 PUBLIC KEY ----');
             }
             $lines = array_splice($lines, 1, -1);
-            $lines = array_map(function ($line) {
-                return rtrim($line, "\r\n");
-            }, $lines);
+            $lines = array_map(fn ($line) => rtrim($line, "\r\n"), $lines);
             $data = $current = '';
             $values = [];
             $in_value = false;

@@ -20,6 +20,6 @@ namespace phpseclib3\Exception;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class InconsistentSetupException extends \RuntimeException
+class InconsistentSetupException extends \RuntimeException implements ExceptionInterface
 {
 }

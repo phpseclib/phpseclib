@@ -568,7 +568,7 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
         $this->assertSameNL($raw, $key->toString('MontgomeryPrivate'));
     }
 
-    public function testOpenSSHEncryptedCreation()
+    public function testOpenSSHEncryptedCreation(): void
     {
         $key = EC::createKey('Ed25519');
         $key = $key->withPassword('test')->toString('OpenSSH');

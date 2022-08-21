@@ -71,9 +71,9 @@ abstract class PKCS8 extends Progenitor
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
-        if (strpos($key, 'PUBLIC') !== false) {
+        if (str_contains($key, 'PUBLIC')) {
             $components = ['isPublicKey' => true];
-        } elseif (strpos($key, 'PRIVATE') !== false) {
+        } elseif (str_contains($key, 'PRIVATE')) {
             $components = ['isPublicKey' => false];
         } else {
             $components = [];

@@ -110,9 +110,7 @@ abstract class OpenSSH extends Progenitor
         $name = $reflect->getShortName();
 
         $oid = self::$curveOIDs[$name];
-        $aliases = array_filter(self::$curveOIDs, function ($v) use ($oid) {
-            return $v == $oid;
-        });
+        $aliases = array_filter(self::$curveOIDs, fn ($v) => $v == $oid);
         $aliases = array_keys($aliases);
 
         for ($i = 0; $i < count($aliases); $i++) {

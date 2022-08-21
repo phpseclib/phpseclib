@@ -36,7 +36,6 @@ namespace phpseclib3\System\SSH;
 
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Crypt\RSA;
 use phpseclib3\Exception\BadConfigurationException;
 use phpseclib3\Net\SSH2;
 use phpseclib3\System\SSH\Agent\Identity;
@@ -152,7 +151,7 @@ class Agent
         }
 
         $packet = pack('NC', 1, self::SSH_AGENTC_REQUEST_IDENTITIES);
-        if (strlen($packet) != fputs($this->fsock, $packet)) {
+        if (strlen($packet) != fwrite($this->fsock, $packet)) {
             throw new \RuntimeException('Connection closed while requesting identities');
         }
 

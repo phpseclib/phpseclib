@@ -268,7 +268,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testChModOnFile($sftp)
     {
         $this->assertNotFalse(
-            $sftp->chmod(0755, 'file1.txt'),
+            $sftp->chmod(0o755, 'file1.txt'),
             'Failed asserting that chmod() was successful.'
         );
 
@@ -717,12 +717,12 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
      */
     public function testReadableWritable($sftp)
     {
-        $sftp->chmod(0000, 'offset.txt');
+        $sftp->chmod(0, 'offset.txt');
         $this->assertFalse($sftp->is_writable('offset.txt'));
         $this->assertFalse($sftp->is_writeable('offset.txt'));
         $this->assertFalse($sftp->is_readable('offset.txt'));
 
-        $sftp->chmod(0777, 'offset.txt');
+        $sftp->chmod(0o777, 'offset.txt');
         $this->assertTrue($sftp->is_writable('offset.txt'));
         $this->assertTrue($sftp->is_writeable('offset.txt'));
         $this->assertTrue($sftp->is_readable('offset.txt'));

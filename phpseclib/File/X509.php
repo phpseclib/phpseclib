@@ -1102,8 +1102,8 @@ class X509
                 if (isset($parts['query'])) {
                     $path .= '?' . $parts['query'];
                 }
-                fputs($fsock, "GET $path HTTP/1.0\r\n");
-                fputs($fsock, "Host: $parts[host]\r\n\r\n");
+                fwrite($fsock, "GET $path HTTP/1.0\r\n");
+                fwrite($fsock, "Host: $parts[host]\r\n\r\n");
                 $line = fgets($fsock, 1024);
                 if (strlen($line) < 3) {
                     return false;
@@ -1842,9 +1842,7 @@ class X509
                     $value = array_pop($value); // Always strip data type.
                 }
             } elseif (is_object($value) && $value instanceof Element) {
-                $callback = function ($x) {
-                    return '\x' . bin2hex($x[0]);
-                };
+                $callback = fn ($x) => '\x' . bin2hex($x[0]);
                 $value = strtoupper(preg_replace_callback('#[^\x20-\x7E]#', $callback, $value->element));
             }
             $output .= $desc . '=' . $value;

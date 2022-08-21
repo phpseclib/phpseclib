@@ -537,9 +537,7 @@ class GMP extends Engine
     public function createRecurringModuloFunction(): \Closure
     {
         $temp = $this->value;
-        return function (GMP $x) use ($temp) {
-            return new GMP($x->value % $temp);
-        };
+        return fn (GMP $x) => new GMP($x->value % $temp);
     }
 
     /**

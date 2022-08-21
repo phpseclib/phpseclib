@@ -100,7 +100,7 @@ class ChaCha20Test extends PhpseclibTestCase
 
         $c = new ChaCha20();
         $c->setPoly1305Key($key);
-        $r = new \ReflectionClass(get_class($c));
+        $r = new \ReflectionClass($c::class);
         // this unit test is testing Poly1305 independent of ChaCha20, which phpseclib doesn't
         // really support, hence this hackish approach
         $m = $r->getMethod('poly1305');
@@ -128,7 +128,7 @@ class ChaCha20Test extends PhpseclibTestCase
         $c->setKey($key);
         $c->setNonce($nonce);
 
-        $r = new \ReflectionClass(get_class($c));
+        $r = new \ReflectionClass($c::class);
         $m = $r->getMethod('createPoly1305Key');
         $m->setAccessible(true);
         $result = $m->invoke($c);

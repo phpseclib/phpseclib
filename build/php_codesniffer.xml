@@ -6,7 +6,7 @@
 
     <arg name="extensions" value="php"/>
     <arg name="basepath" value=".."/>
-    <arg name="report" value="emacs"/>
+    <arg name="report" value="diff"/>
     <arg value="s"/>
     <arg value="n"/>
     <arg value="p"/>

@@ -123,7 +123,7 @@ class Ed448 extends TwistedEdwards
 
         return [
             'dA' => $dA,
-            'secret' => $str
+            'secret' => $str,
         ];
     }
 

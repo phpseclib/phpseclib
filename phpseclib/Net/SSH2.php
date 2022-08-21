@@ -67,6 +67,7 @@ use phpseclib3\Crypt\Twofish;
 use phpseclib3\Exception\ConnectionClosedException;
 use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Exception\NoSupportedAlgorithmsException;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnableToConnectException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Exception\UnsupportedCurveException;
@@ -155,7 +156,7 @@ class SSH2
     /**
      * Outputs the message numbers real-time
      */
-    const LOG_SIMPLE_REALTIME = 5;
+    public const LOG_SIMPLE_REALTIME = 5;
     /**
      * Make sure that the log never gets larger than this
      *
@@ -1172,7 +1173,7 @@ class SSH2
         $this->identifier = $this->generate_identifier();
 
         if ($this->send_id_string_first) {
-            fputs($this->fsock, $this->identifier . "\r\n");
+            fwrite($this->fsock, $this->identifier . "\r\n");
         }
 
         /* According to the SSH2 specs,
@@ -1251,7 +1252,7 @@ class SSH2
         }
 
         if (!$this->send_id_string_first) {
-            fputs($this->fsock, $this->identifier . "\r\n");
+            fwrite($this->fsock, $this->identifier . "\r\n");
         }
 
         if (!$this->send_kex_first) {
@@ -1500,8 +1501,8 @@ class SSH2
 
         $exchange_hash_rfc4419 = '';
 
-        if (strpos($this->kex_algorithm, 'curve25519-sha256') === 0 || strpos($this->kex_algorithm, 'ecdh-sha2-nistp') === 0) {
-            $curve = strpos($this->kex_algorithm, 'curve25519-sha256') === 0 ?
+        if (str_starts_with($this->kex_algorithm, 'curve25519-sha256') || str_starts_with($this->kex_algorithm, 'ecdh-sha2-nistp')) {
+            $curve = str_starts_with($this->kex_algorithm, 'curve25519-sha256') ?
                 'Curve25519' :
                 substr($this->kex_algorithm, 10);
             $ourPrivate = EC::createKey($curve);
@@ -1509,7 +1510,7 @@ class SSH2
             $clientKexInitMessage = MessageTypeExtra::KEX_ECDH_INIT;
             $serverKexReplyMessage = MessageTypeExtra::KEX_ECDH_REPLY;
         } else {
-            if (strpos($this->kex_algorithm, 'diffie-hellman-group-exchange') === 0) {
+            if (str_starts_with($this->kex_algorithm, 'diffie-hellman-group-exchange')) {
                 $dh_group_sizes_packed = pack(
                     'NNN',
                     $this->kex_dh_group_size_min,
@@ -3264,18 +3265,18 @@ class SSH2
                     $cmf = ord($payload[0]);
                     $cm = $cmf & 0x0F;
                     if ($cm != 8) { // deflate
-                        user_error("Only CM = 8 ('deflate') is supported ($cm)");
+                        throw new UnsupportedAlgorithmException("Only CM = 8 ('deflate') is supported ($cm)");
                     }
                     $cinfo = ($cmf & 0xF0) >> 4;
                     if ($cinfo > 7) {
-                        user_error("CINFO above 7 is not allowed ($cinfo)");
+                        throw new RuntimeException("CINFO above 7 is not allowed ($cinfo)");
                     }
                     $windowSize = 1 << ($cinfo + 8);
 
                     $flg = ord($payload[1]);
                     //$fcheck = $flg && 0x0F;
                     if ((($cmf << 8) | $flg) % 31) {
-                        user_error('fcheck failed');
+                        throw new RuntimeException('fcheck failed');
                     }
                     $fdict = boolval($flg & 0x20);
                     $flevel = ($flg & 0xC0) >> 6;
@@ -3930,7 +3931,7 @@ class SSH2
         $packet .= $this->encrypt && $this->encrypt->usesNonce() ? $this->encrypt->getTag() : $hmac;
 
         $start = microtime(true);
-        $sent = @fputs($this->fsock, $packet);
+        $sent = @fwrite($this->fsock, $packet);
         $stop = microtime(true);
 
         if (defined('NET_SSH2_LOGGING')) {
@@ -3976,17 +3977,9 @@ class SSH2
     /**
      * Logs data packet helper
      *
-     * @param int $constant
-     * @param string $message_number
-     * @param string $message
-     * @param array &$message_number_log
-     * @param array &$message_log
-     * @param int &$log_size
      * @param resource &$realtime_log_file
-     * @param bool &$realtime_log_wrap
-     * @param int &$realtime_log_size
      */
-    protected function append_log_helper(int $constant, string $message_number, string $message, array &$message_number_log, array &$message_log, int &$log_size, &$realtime_log_file, bool &$realtime_log_wrap, int &$realtime_log_size)
+    protected function append_log_helper(int $constant, string $message_number, string $message, array &$message_number_log, array &$message_log, int &$log_size, &$realtime_log_file, bool &$realtime_log_wrap, int &$realtime_log_size): void
     {
         // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
         if (strlen($message_number) > 2) {
@@ -4056,7 +4049,7 @@ class SSH2
                     $realtime_log_size = strlen($entry);
                     $realtime_log_wrap = true;
                 }
-                fputs($realtime_log_file, $entry);
+                fwrite($realtime_log_file, $entry);
         }
     }
 
@@ -4195,9 +4188,7 @@ class SSH2
                     $output .= str_pad(dechex($j), 7, '0', STR_PAD_LEFT) . '0  ';
                 }
                 $fragment = Strings::shift($current_log, $this->log_short_width);
-                $hex = substr(preg_replace_callback('#.#s', function ($matches) {
-                    return $this->log_boundary . str_pad(dechex(ord($matches[0])), 2, '0', STR_PAD_LEFT);
-                }, $fragment), strlen($this->log_boundary));
+                $hex = substr(preg_replace_callback('#.#s', fn ($matches) => $this->log_boundary . str_pad(dechex(ord($matches[0])), 2, '0', STR_PAD_LEFT), $fragment), strlen($this->log_boundary));
                 // replace non ASCII printable characters with dots
                 // http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters
                 // also replace < with a . since < messes up the output on web browsers
