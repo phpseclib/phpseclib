@@ -394,11 +394,8 @@ abstract class Strings
      *
      * ParagoneIE\ConstantTime doesn't use libsodium if it's available so we'll do so
      * ourselves. see https://github.com/paragonie/constant_time_encoding/issues/39
-     *
-     * @param string $data
-     * @return string
      */
-    public static function base64_decode($data)
+    public static function base64_decode(string $data): string
     {
         return function_exists('sodium_base642bin') ?
             sodium_base642bin($data, SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING, '=') :
@@ -407,11 +404,8 @@ abstract class Strings
 
     /**
      * Constant Time Base64-decoding (URL safe)
-     *
-     * @param string $data
-     * @return string
      */
-    public static function base64url_decode($data)
+    public static function base64url_decode(string $data): string
     {
         // return self::base64_decode(str_replace(['-', '_'], ['+', '/'], $data));
 
@@ -422,11 +416,8 @@ abstract class Strings
 
     /**
      * Constant Time Base64-encoding
-     *
-     * @param string $data
-     * @return string
      */
-    public static function base64_encode($data)
+    public static function base64_encode(string $data): string
     {
         return function_exists('sodium_bin2base64') ?
             sodium_bin2base64($data, SODIUM_BASE64_VARIANT_ORIGINAL) :
@@ -435,11 +426,8 @@ abstract class Strings
 
     /**
      * Constant Time Base64-encoding (URL safe)
-     *
-     * @param string $data
-     * @return string
      */
-    public static function base64url_encode($data)
+    public static function base64url_encode(string $data): string
     {
         // return str_replace(['+', '/'], ['-', '_'], self::base64_encode($data));
 
@@ -450,11 +438,8 @@ abstract class Strings
 
     /**
      * Constant Time Hex Decoder
-     *
-     * @param string $data
-     * @return string
      */
-    public static function hex2bin($data)
+    public static function hex2bin(string $data): string
     {
         return function_exists('sodium_hex2bin') ?
             sodium_hex2bin($data) :
@@ -463,11 +448,8 @@ abstract class Strings
 
     /**
      * Constant Time Hex Encoder
-     *
-     * @param string $data
-     * @return string
      */
-    public static function bin2hex($data)
+    public static function bin2hex(string $data): string
     {
         return function_exists('sodium_bin2hex') ?
             sodium_bin2hex($data) :

@@ -11,6 +11,8 @@
  * @link      http://phpseclib.sourceforge.net
  */
 
+declare(strict_types=1);
+
 namespace phpseclib3\Crypt\Common\Formats\Keys;
 
 use phpseclib3\Common\Functions\Strings;
@@ -25,11 +27,9 @@ abstract class JWK
     /**
      * Break a public or private key down into its constituent components
      *
-     * @param string $key
-     * @param string $password
-     * @return array
+     * @param string|array $key
      */
-    public static function load($key, $password = '')
+    protected static function loadHelper($key): \stdClass
     {
         if (!Strings::is_stringable($key)) {
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -37,20 +37,13 @@ abstract class JWK
 
         $key = preg_replace('#\s#', '', $key); // remove whitespace
 
-        if (PHP_VERSION_ID >= 73000) {
-            $key = json_decode($key, null, 512, JSON_THROW_ON_ERROR);
-        } else {
-            $key = json_decode($key);
-            if (!$key) {
-                throw new \RuntimeException('Unable to decode JSON');
-            }
-        }
+        $key = json_decode($key, null, 512, JSON_THROW_ON_ERROR);
 
         if (isset($key->kty)) {
             return $key;
         }
 
-        if (count($key->keys) != 1)  {
+        if (count($key->keys) != 1) {
             throw new \RuntimeException('Although the JWK key format supports multiple keys phpseclib does not');
         }
 
@@ -59,10 +52,8 @@ abstract class JWK
 
     /**
      * Wrap a key appropriately
-     *
-     * @return string
      */
-    protected static function wrapKey(array $key, array $options)
+    protected static function wrapKey(array $key, array $options): string
     {
         return json_encode(['keys' => [$key + $options]]);
     }

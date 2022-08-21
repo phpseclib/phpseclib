@@ -1280,7 +1280,7 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
         $this->assertInstanceOf(PrivateKey::class, $key);
     }
 
-    public function testJWK()
+    public function testJWK(): void
     {
         // keys are from https://datatracker.ietf.org/doc/html/rfc7517#appendix-A
 
@@ -1328,7 +1328,7 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
 
         $phpseclibKey = str_replace('=', '', $key->toString('JWK', [
             'alg' => 'RS256',
-            'kid' => '2011-04-29'
+            'kid' => '2011-04-29',
         ]));
 
         $this->assertSame($keyWithoutWS, $phpseclibKey);
@@ -1344,7 +1344,6 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
      w0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw",
           "e":"AQAB",
           "alg":"RS256",
-
           "kid":"2011-04-29"}';
 
         $keyWithoutWS = preg_replace('#\s#', '', $key);
@@ -1354,7 +1353,7 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
 
         $phpseclibKey = str_replace('=', '', $key->toString('JWK', [
             'alg' => 'RS256',
-            'kid' => '2011-04-29'
+            'kid' => '2011-04-29',
         ]));
 
         $this->assertSame($keyWithoutWS, $phpseclibKey);

@@ -577,7 +577,7 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
         $this->assertInstanceOf(PrivateKey::class, $key);
     }
 
-    public function testECasJWK()
+    public function testECasJWK(): void
     {
         // keys are from https://datatracker.ietf.org/doc/html/rfc7517#appendix-A
 
@@ -601,7 +601,7 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
 
         $phpseclibKey = str_replace('=', '', $key->toString('JWK', [
             'use' => 'enc',
-            'kid' => '1'
+            'kid' => '1',
         ]));
 
         $this->assertSame($keyWithoutWS, $phpseclibKey);
@@ -625,7 +625,7 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
 
         $phpseclibKey = str_replace('=', '', $key->toString('JWK', [
             'use' => 'enc',
-            'kid' => '1'
+            'kid' => '1',
         ]));
 
         $this->assertSame($keyWithoutWS, $phpseclibKey);
@@ -633,7 +633,7 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
         $this->assertTrue($key->verify($plaintext, $sig));
     }
 
-    public function testEd25519asJWK()
+    public function testEd25519asJWK(): void
     {
         // keys are from https://www.rfc-editor.org/rfc/rfc8037.html#appendix-A
 
