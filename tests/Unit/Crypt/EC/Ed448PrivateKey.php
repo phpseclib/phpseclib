@@ -14,7 +14,9 @@ class Ed448PrivateKey
         }
 
         $components = ['curve' => new Ed448()];
-        $components['dA'] = $components['curve']->extractSecret($key);
+        $arr = $components['curve']->extractSecret($key);
+        $components['dA'] = $arr['dA'];
+        $components['secret'] = $arr['secret'];
         $components['QA'] = $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
 
         return $components;

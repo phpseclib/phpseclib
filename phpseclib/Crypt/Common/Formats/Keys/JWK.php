@@ -50,7 +50,7 @@ abstract class JWK
             return $key;
         }
 
-        if (count($key->keys) != 1)  {
+        if (count($key->keys) != 1) {
             throw new \RuntimeException('Although the JWK key format supports multiple keys phpseclib does not');
         }
 

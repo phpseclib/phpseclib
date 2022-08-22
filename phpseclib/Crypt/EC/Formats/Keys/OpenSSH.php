@@ -174,24 +174,25 @@ abstract class OpenSSH extends Progenitor
      * @param \phpseclib3\Math\BigInteger $privateKey
      * @param \phpseclib3\Crypt\EC\Curves\Ed25519 $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
+     * @param string $secret optional
      * @param string $password optional
      * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, $password = '', array $options = [])
+    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, $secret = null, $password = '', array $options = [])
     {
         if ($curve instanceof Ed25519) {
-            if (!isset($privateKey->secret)) {
+            if (!isset($secret)) {
                 throw new \RuntimeException('Private Key does not have a secret set');
             }
-            if (strlen($privateKey->secret) != 32) {
+            if (strlen($secret) != 32) {
                 throw new \RuntimeException('Private Key secret is not of the correct length');
             }
 
             $pubKey = $curve->encodePoint($publicKey);
 
             $publicKey = Strings::packSSH2('ss', 'ssh-ed25519', $pubKey);
-            $privateKey = Strings::packSSH2('sss', 'ssh-ed25519', $pubKey, $privateKey->secret . $pubKey);
+            $privateKey = Strings::packSSH2('sss', 'ssh-ed25519', $pubKey, $secret . $pubKey);
 
             return self::wrapPrivateKey($publicKey, $privateKey, $password, $options);
         }

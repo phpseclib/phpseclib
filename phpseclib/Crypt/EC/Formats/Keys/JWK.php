@@ -13,15 +13,15 @@
 
 namespace phpseclib3\Crypt\EC\Formats\Keys;
 
-use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\Formats\Keys\JWK as Progenitor;
+use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib3\Crypt\EC\Curves\Ed25519;
+use phpseclib3\Crypt\EC\Curves\secp256k1;
 use phpseclib3\Crypt\EC\Curves\secp256r1;
 use phpseclib3\Crypt\EC\Curves\secp384r1;
 use phpseclib3\Crypt\EC\Curves\secp521r1;
-use phpseclib3\Crypt\EC\Curves\secp256k1;
 use phpseclib3\Exception\UnsupportedCurveException;
 use phpseclib3\Math\BigInteger;
 
@@ -71,15 +71,15 @@ abstract class JWK extends Progenitor
         }
 
         $curve = '\phpseclib3\Crypt\EC\Curves\\' . str_replace('P-', 'nistp', $key->crv);
-        $curve = new $curve;
+        $curve = new $curve();
 
         if ($curve instanceof TwistedEdwardsCurve) {
             $QA = self::extractPoint(Strings::base64url_decode($key->x), $curve);
             if (!isset($key->d)) {
                 return compact('curve', 'QA');
             }
-            $dA = $curve->extractSecret(Strings::base64url_decode($key->d));
-            return compact('curve', 'dA', 'QA');
+            $arr = $curve->extractSecret(Strings::base64url_decode($key->d));
+            return compact('curve', 'QA') + $arr;
         }
 
         $QA = [
@@ -173,16 +173,15 @@ abstract class JWK extends Progenitor
      * @param \phpseclib3\Math\BigInteger $privateKey
      * @param \phpseclib3\Crypt\EC\Curves\Ed25519 $curve
      * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
+     * @param string $secret optional
      * @param string $password optional
      * @param array $options optional
      * @return string
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, $password = '', array $options = [])
+    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, $secret = null, $password = '', array $options = [])
     {
         $key = self::savePublicKeyHelper($curve, $publicKey);
-        $key['d'] = $curve instanceof TwistedEdwardsCurve ?
-            $privateKey->secret :
-            $privateKey->toBytes();
+        $key['d'] = $curve instanceof TwistedEdwardsCurve ? $secret : $privateKey->toBytes();
         $key['d'] = Strings::base64url_encode($key['d']);
 
         return self::wrapKey($key, $options);
