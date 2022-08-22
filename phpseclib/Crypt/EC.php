@@ -124,6 +124,13 @@ abstract class EC extends AsymmetricKey
     protected $context;
 
     /**
+     * Signature Format
+     *
+     * @var string
+     */
+    protected $sigFormat;
+
+    /**
      * Create public / private key pair.
      *
      * @param string $curve

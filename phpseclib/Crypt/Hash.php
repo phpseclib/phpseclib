@@ -171,6 +171,13 @@ class Hash
      */
     private $pad;
 
+    /**
+     * Block Size
+     *
+     * @var int
+     */
+    private $blockSize;
+
     /**#@+
      * UMAC variables
      *

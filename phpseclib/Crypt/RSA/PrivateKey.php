@@ -51,9 +51,9 @@ class PrivateKey extends RSA implements Common\PrivateKey
     /**
      * Public Exponent
      *
-     * @var mixed
+     * @var \phpseclib3\Math\BigInteger
      */
-    protected $publicExponent = false;
+    protected $privateExponent;
 
     /**
      * RSADP

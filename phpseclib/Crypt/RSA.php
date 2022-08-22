@@ -250,6 +250,13 @@ abstract class RSA extends AsymmetricKey
     private static $smallestPrime = 4096;
 
     /**
+     * Public Exponent
+     *
+     * @var \phpseclib3\Math\BigInteger
+     */
+    protected $publicExponent;
+
+    /**
      * Sets the public exponent for key generation
      *
      * This will be 65537 unless changed.
