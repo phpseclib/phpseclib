@@ -41,14 +41,19 @@ use phpseclib3\Math\PrimeField;
 class KoblitzPrime extends Prime
 {
     /**
+     * Basis
+     *
      * @var list<array{a: BigInteger, b: BigInteger}>
      */
     public $basis;
 
     /**
-     * @var object
+     * Beta
+     *
+     * @var PrimeField\Integer
      */
     public $beta;
+
     // don't overwrite setCoefficients() with one that only accepts one parameter so that
     // one might be able to switch between KoblitzPrime and Prime more easily (for benchmarking
     // purposes).

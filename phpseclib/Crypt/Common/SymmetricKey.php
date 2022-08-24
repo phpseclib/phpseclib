@@ -213,6 +213,9 @@ abstract class SymmetricKey
     protected $key = false;
 
     /**
+     * HMAC Key
+     *
+     * @see self::setupGCM()
      * @var null|string
      */
     private $hKey = null;

@@ -126,6 +126,8 @@ abstract class EC extends AsymmetricKey
     protected $context;
 
     /**
+     * Signature Format
+     *
      * @var string
      */
     protected $sigFormat;

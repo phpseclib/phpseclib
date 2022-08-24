@@ -49,7 +49,7 @@ class PrivateKey extends EC implements Common\PrivateKey
     /**
      * @var string
      */
-    protected $secret = '';
+    protected $secret;
 
     /**
      * Multiplies an encoded point by the private key

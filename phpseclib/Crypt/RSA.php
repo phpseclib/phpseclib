@@ -253,13 +253,10 @@ abstract class RSA extends AsymmetricKey
 
     /**
      * Public Exponent
+     *
+     * @var BigInteger
      */
-    protected $publicExponent = false;
-
-    /**
-     * Private Exponent
-     */
-    protected $privateExponent = null;
+    protected $publicExponent;
 
     /**
      * Sets the public exponent for key generation

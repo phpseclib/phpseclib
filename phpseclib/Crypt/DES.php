@@ -125,6 +125,9 @@ class DES extends BlockCipher
     private $keys;
 
     /**
+     * Key Cache "key"
+     *
+     * @see self::setupKey()
      * @var array
      */
     private $kl;

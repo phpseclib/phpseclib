@@ -51,6 +51,13 @@ class PrivateKey extends RSA implements Common\PrivateKey
     protected $coefficients;
 
     /**
+     * Private Exponent
+     *
+     * @var BigInteger
+     */
+    protected $privateExponent;
+
+    /**
      * RSADP
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.1.2 RFC3447#section-5.1.2}.
