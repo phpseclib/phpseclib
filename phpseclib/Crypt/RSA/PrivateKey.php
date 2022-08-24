@@ -49,7 +49,7 @@ class PrivateKey extends RSA implements Common\PrivateKey
     protected $coefficients;
 
     /**
-     * Public Exponent
+     * Private Exponent
      *
      * @var \phpseclib3\Math\BigInteger
      */
