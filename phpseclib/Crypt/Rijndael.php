@@ -345,7 +345,7 @@ class Rijndael extends BlockCipher
         $k = $c[2];
         $l = $c[3];
         while ($i < $Nb) {
-            $temp[$i] = ($state[$i] & 0xFF000000) ^
+            $temp[$i] = ($state[$i] & intval(0xFF000000)) ^
                         ($state[$j] & 0x00FF0000) ^
                         ($state[$k] & 0x0000FF00) ^
                         ($state[$l] & 0x000000FF) ^
@@ -416,7 +416,7 @@ class Rijndael extends BlockCipher
         $l = $Nb - $c[3];
 
         while ($i < $Nb) {
-            $word = ($state[$i] & 0xFF000000) |
+            $word = ($state[$i] & intval(0xFF000000)) |
                     ($state[$j] & 0x00FF0000) |
                     ($state[$k] & 0x0000FF00) |
                     ($state[$l] & 0x000000FF);
@@ -481,14 +481,19 @@ class Rijndael extends BlockCipher
     {
         // Each number in $rcon is equal to the previous number multiplied by two in Rijndael's finite field.
         // See http://en.wikipedia.org/wiki/Finite_field_arithmetic#Multiplicative_inverse
-        static $rcon = [0,
-            0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000,
-            0x20000000, 0x40000000, 0x80000000, 0x1B000000, 0x36000000,
-            0x6C000000, 0xD8000000, 0xAB000000, 0x4D000000, 0x9A000000,
-            0x2F000000, 0x5E000000, 0xBC000000, 0x63000000, 0xC6000000,
-            0x97000000, 0x35000000, 0x6A000000, 0xD4000000, 0xB3000000,
-            0x7D000000, 0xFA000000, 0xEF000000, 0xC5000000, 0x91000000,
-        ];
+        static $rcon;
+
+        if (!isset($rcon)) {
+            $rcon = [0,
+                0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000,
+                0x20000000, 0x40000000, 0x80000000, 0x1B000000, 0x36000000,
+                0x6C000000, 0xD8000000, 0xAB000000, 0x4D000000, 0x9A000000,
+                0x2F000000, 0x5E000000, 0xBC000000, 0x63000000, 0xC6000000,
+                0x97000000, 0x35000000, 0x6A000000, 0xD4000000, 0xB3000000,
+                0x7D000000, 0xFA000000, 0xEF000000, 0xC5000000, 0x91000000,
+            ];
+            $rcon = array_map('intval', $rcon);
+        }
 
         if (isset($this->kl['key']) && $this->key === $this->kl['key'] && $this->key_length === $this->kl['key_length'] && $this->block_size === $this->kl['block_size']) {
             // already expanded
@@ -527,7 +532,7 @@ class Rijndael extends BlockCipher
                 // on a 32-bit machine, it's 32-bits, and on a 64-bit machine, it's 64-bits. on a 32-bit machine,
                 // 0xFFFFFFFF << 8 == 0xFFFFFF00, but on a 64-bit machine, it equals 0xFFFFFFFF00. as such, doing 'and'
                 // with 0xFFFFFFFF (or 0xFFFFFF00) on a 32-bit machine is unnecessary, but on a 64-bit machine, it is.
-                $temp = (($temp << 8) & 0xFFFFFF00) | (($temp >> 24) & 0x000000FF); // rotWord
+                $temp = (($temp << 8) & intval(0xFFFFFF00)) | (($temp >> 24) & 0x000000FF); // rotWord
                 $temp = $this->subWord($temp) ^ $rcon[$i / $this->Nk];
             } elseif ($this->Nk > 6 && $i % $this->Nk == 4) {
                 $temp = $this->subWord($temp);
@@ -655,9 +660,9 @@ class Rijndael extends BlockCipher
             ]);
 
             foreach ($t3 as $t3i) {
-                $t0[] = (($t3i << 24) & 0xFF000000) | (($t3i >>  8) & 0x00FFFFFF);
-                $t1[] = (($t3i << 16) & 0xFFFF0000) | (($t3i >> 16) & 0x0000FFFF);
-                $t2[] = (($t3i <<  8) & 0xFFFFFF00) | (($t3i >> 24) & 0x000000FF);
+                $t0[] = (($t3i << 24) & intval(0xFF000000)) | (($t3i >>  8) & 0x00FFFFFF);
+                $t1[] = (($t3i << 16) & intval(0xFFFF0000)) | (($t3i >> 16) & 0x0000FFFF);
+                $t2[] = (($t3i <<  8) & intval(0xFFFFFF00)) | (($t3i >> 24) & 0x000000FF);
             }
 
             $tables = [
@@ -738,9 +743,9 @@ class Rijndael extends BlockCipher
             ]);
 
             foreach ($dt3 as $dt3i) {
-                $dt0[] = (($dt3i << 24) & 0xFF000000) | (($dt3i >>  8) & 0x00FFFFFF);
-                $dt1[] = (($dt3i << 16) & 0xFFFF0000) | (($dt3i >> 16) & 0x0000FFFF);
-                $dt2[] = (($dt3i <<  8) & 0xFFFFFF00) | (($dt3i >> 24) & 0x000000FF);
+                $dt0[] = (($dt3i << 24) & intval(0xFF000000)) | (($dt3i >>  8) & 0x00FFFFFF);
+                $dt1[] = (($dt3i << 16) & intval(0xFFFF0000)) | (($dt3i >> 16) & 0x0000FFFF);
+                $dt2[] = (($dt3i <<  8) & intval(0xFFFFFF00)) | (($dt3i >> 24) & 0x000000FF);
             };
 
             $tables = [

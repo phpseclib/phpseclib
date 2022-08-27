@@ -541,6 +541,15 @@ abstract class SymmetricKey
         }
 
         $this->mode = $mode;
+
+        static::initialize_static_variables();
+    }
+
+    /**
+     * Initialize static variables
+     */
+    protected static function initialize_static_variables()
+    {
     }
 
     /**
@@ -1970,7 +1979,7 @@ abstract class SymmetricKey
             $reverseMap = array_map('strtolower', self::ENGINE_MAP);
             $reverseMap = array_flip($reverseMap);
         }
-        $engine = strtolower($engine);
+        $engine = is_string($engine) ? strtolower($engine) : '';
         $this->preferredEngine = $reverseMap[$engine] ?? self::ENGINE_LIBSODIUM;
 
         $this->setEngine();
@@ -2779,6 +2788,7 @@ abstract class SymmetricKey
         // Before discrediting this, please read the following:
         // @see https://github.com/phpseclib/phpseclib/issues/1293
         // @see https://github.com/phpseclib/phpseclib/pull/1143
+
         /** @var \Closure $func */
         $func = eval(<<<PHP
             return function (string \$_action, string \$_text): string
@@ -2798,6 +2808,33 @@ abstract class SymmetricKey
             return $bindedClosure;
         }
         throw new \LogicException('\Closure::bind() failed.');
+    }
+
+    /**
+     * Convert float to int
+     *
+     * On ARM CPUs converting floats to ints doesn't always work
+     *
+     * @param string $x
+     * @return int
+     */
+    protected static function safe_intval($x)
+    {
+        if (is_int($x)) {
+            return $x;
+        }
+
+        return PHP_INT_SIZE == 4 && PHP_VERSION_ID >= 80100 ? intval($x) : $x;
+    }
+
+    /**
+     * eval()'able string for in-line float to int
+     *
+     * @return string
+     */
+    protected static function safe_intval_inline()
+    {
+        return PHP_INT_SIZE == 4 && PHP_VERSION_ID >= 80100 ? 'intval(%s)' : '%s';
     }
 
     /**

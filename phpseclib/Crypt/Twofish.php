@@ -353,6 +353,23 @@ class Twofish extends BlockCipher
     }
 
     /**
+     * Initialize Static Variables
+     */
+    protected static function initialize_static_variables()
+    {
+        if (is_float(self::$m3[0])) {
+            self::$m0 = array_map('intval', self::$m0);
+            self::$m1 = array_map('intval', self::$m1);
+            self::$m2 = array_map('intval', self::$m2);
+            self::$m3 = array_map('intval', self::$m3);
+            self::$q0 = array_map('intval', self::$q0);
+            self::$q1 = array_map('intval', self::$q1);
+        }
+
+        parent::initialize_static_variables();
+    }
+
+    /**
      * Sets the key length.
      *
      * Valid key lengths are 128, 192 or 256 bits
