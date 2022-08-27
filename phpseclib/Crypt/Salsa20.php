@@ -404,11 +404,13 @@ class Salsa20 extends StreamCipher
      */
     protected static function leftRotate($x, $n)
     {
-        $r1 = $x << $n;
         if (PHP_INT_SIZE == 8) {
+            $r1 = $x << $n;
             $r1 &= 0xFFFFFFFF;
             $r2 = ($x & 0xFFFFFFFF) >> (32 - $n);
         } else {
+            $x = (int) $x;
+            $r1 = $x << $n;
             $r2 = $x >> (32 - $n);
             $r2 &= (1 << $n) - 1;
         }

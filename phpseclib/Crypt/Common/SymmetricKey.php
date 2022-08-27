@@ -656,7 +656,7 @@ abstract class SymmetricKey
 
         $this->mode = $mode;
 
-        self::initialize_static_variables();
+        static::initialize_static_variables();
     }
 
     /**
@@ -2325,7 +2325,7 @@ abstract class SymmetricKey
             $reverseMap = array_map('strtolower', self::ENGINE_MAP);
             $reverseMap = array_flip($reverseMap);
         }
-        $engine = strtolower($engine);
+        $engine = is_string($engine) ? strtolower($engine) : '';
         $this->preferredEngine = isset($reverseMap[$engine]) ? $reverseMap[$engine] : self::ENGINE_LIBSODIUM;
 
         $this->setEngine();
@@ -3215,9 +3215,14 @@ abstract class SymmetricKey
      */
     protected static function safe_intval($x)
     {
-        if (self::$use_reg_intval || is_int($x)) {
+        if (is_int($x)) {
             return $x;
         }
+
+        if (self::$use_reg_intval) {
+            return PHP_INT_SIZE == 4 && PHP_VERSION_ID >= 80100 ? intval($x) : $x;
+        }
+
         return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
             ((fmod(floor($x / 0x80000000), 2) & 1) << 31);
     }
@@ -3230,7 +3235,7 @@ abstract class SymmetricKey
     protected static function safe_intval_inline()
     {
         if (self::$use_reg_intval) {
-            return '%s';
+            return PHP_INT_SIZE == 4 && PHP_VERSION_ID >= 80100 ? 'intval(%s)' : '%s';
         }
 
         $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';

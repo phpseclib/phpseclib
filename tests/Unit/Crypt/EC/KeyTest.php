@@ -568,6 +568,10 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
 
     public function testOpenSSHEncryptedCreation()
     {
+        if (PHP_INT_SIZE == 4) {
+            self::markTestSkipped('32-bit integers slow OpenSSH encrypted keys down too much');
+        }
+
         $key = EC::createKey('Ed25519');
         $key = $key->withPassword('test')->toString('OpenSSH');
 

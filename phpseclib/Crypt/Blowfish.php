@@ -445,7 +445,7 @@ class Blowfish extends BlockCipher
                     $j = 0;
                 }
             }
-            $this->bctx['p'][] = self::$parray[$i] ^ $data;
+            $this->bctx['p'][] = self::$parray[$i] ^ intval($data);
         }
 
         // encrypt the zero-string, replace P1 and P2 with the encrypted data,
@@ -463,6 +463,22 @@ class Blowfish extends BlockCipher
                 $this->bctx['sb'][$i][$j + 1] = $r;
             }
         }
+    }
+
+    /**
+     * Initialize Static Variables
+     */
+    protected static function initialize_static_variables()
+    {
+        if (is_float(self::$sbox2[0])) {
+            self::$sbox0 = array_map('intval', self::$sbox0);
+            self::$sbox1 = array_map('intval', self::$sbox1);
+            self::$sbox2 = array_map('intval', self::$sbox2);
+            self::$sbox3 = array_map('intval', self::$sbox3);
+            self::$parray = array_map('intval', self::$parray);
+        }
+
+        parent::initialize_static_variables();
     }
 
     /**
@@ -514,8 +530,8 @@ class Blowfish extends BlockCipher
     {
         self::initialize_static_variables();
 
-        if (!self::$use_reg_intval) {
-            throw new \RuntimeException('ARM-32 systems require a workaround that slows bcrypt down too much');
+        if (PHP_INT_SIZE == 4) {
+            throw new \RuntimeException('bcrypt is far too slow to be practical on 32-bit versions of PHP');
         }
 
         $sha2pass = hash('sha512', $pass, true);
@@ -701,9 +717,9 @@ class Blowfish extends BlockCipher
         $l = $in[1];
         $r = $in[2];
 
-        list($r, $l) = self::$use_reg_intval ?
-            self::encryptBlockHelperFast($l, $r, $sb_0, $sb_1, $sb_2, $sb_3, $p) :
-            self::encryptBlockHelperSlow($l, $r, $sb_0, $sb_1, $sb_2, $sb_3, $p);
+        list($r, $l) = PHP_INT_SIZE == 4 ?
+            self::encryptBlockHelperSlow($l, $r, $sb_0, $sb_1, $sb_2, $sb_3, $p) :
+            self::encryptBlockHelperFast($l, $r, $sb_0, $sb_1, $sb_2, $sb_3, $p);
 
         return pack("N*", $r, $l);
     }
@@ -759,25 +775,26 @@ class Blowfish extends BlockCipher
      */
     private static function encryptBlockHelperSlow($x0, $x1, array $sbox0, array $sbox1, array $sbox2, array $sbox3, array $p)
     {
+        // -16777216 == intval(0xFF000000) on 32-bit PHP installs
         $x0 ^= $p[0];
-        $x1 ^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[1];
-        $x0 ^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[2];
-        $x1 ^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[3];
-        $x0 ^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[4];
-        $x1 ^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[5];
-        $x0 ^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[6];
-        $x1 ^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[7];
-        $x0 ^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[8];
-        $x1 ^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[9];
-        $x0 ^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[10];
-        $x1 ^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[11];
-        $x0 ^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[12];
-        $x1 ^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[13];
-        $x0 ^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[14];
-        $x1 ^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[15];
-        $x0 ^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
+        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[1];
+        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[2];
+        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[3];
+        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[4];
+        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[5];
+        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[6];
+        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[7];
+        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[8];
+        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[9];
+        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[10];
+        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[11];
+        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[12];
+        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[13];
+        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[14];
+        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[15];
+        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
 
-        return [$x1 & 0xFFFFFFFF ^ $p[17], $x0 & 0xFFFFFFFF];
+        return [$x1 ^ $p[17], $x0];
     }
 
     /**
