@@ -548,7 +548,7 @@ abstract class SymmetricKey
     /**
      * Initialize static variables
      */
-    protected static function initialize_static_variables()
+    protected static function initialize_static_variables(): void
     {
     }
 

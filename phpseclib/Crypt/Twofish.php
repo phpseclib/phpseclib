@@ -355,7 +355,7 @@ class Twofish extends BlockCipher
     /**
      * Initialize Static Variables
      */
-    protected static function initialize_static_variables()
+    protected static function initialize_static_variables(): void
     {
         if (is_float(self::$m3[0])) {
             self::$m0 = array_map('intval', self::$m0);
