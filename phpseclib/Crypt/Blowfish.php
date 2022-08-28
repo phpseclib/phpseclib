@@ -397,7 +397,7 @@ class Blowfish extends Base
      * @param int $mode
      * @access public
      */
-    function __construct($mode = CRYPT_MODE_CBC)
+    function __construct($mode = self::MODE_CBC)
     {
         parent::__construct($mode);
 
