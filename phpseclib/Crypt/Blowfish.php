@@ -374,6 +374,41 @@ class Blowfish extends Base
     var $key_length = 16;
 
     /**
+     * Default Constructor.
+     *
+     * Determines whether or not the mcrypt extension should be used.
+     *
+     * $mode could be:
+     *
+     * - CRYPT_MODE_ECB
+     *
+     * - CRYPT_MODE_CBC
+     *
+     * - CRYPT_MODE_CTR
+     *
+     * - CRYPT_MODE_CFB
+     *
+     * - CRYPT_MODE_OFB
+     *
+     * (or the alias constants of the chosen cipher, for example for AES: CRYPT_AES_MODE_ECB or CRYPT_AES_MODE_CBC ...)
+     *
+     * If not explicitly set, CRYPT_MODE_CBC will be used.
+     *
+     * @param int $mode
+     * @access public
+     */
+    function __construct($mode = CRYPT_MODE_CBC)
+    {
+        parent::__construct($mode);
+
+        $this->sbox0 = array_map('intval', $this->sbox0);
+        $this->sbox1 = array_map('intval', $this->sbox1);
+        $this->sbox2 = array_map('intval', $this->sbox2);
+        $this->sbox3 = array_map('intval', $this->sbox3);
+        $this->parray = array_map('intval', $this->parray);
+    }
+
+    /**
      * Sets the key length.
      *
      * Key lengths can be between 32 and 448 bits.
@@ -457,7 +492,7 @@ class Blowfish extends Base
                     $j = 0;
                 }
             }
-            $this->bctx['p'][] = $this->parray[$i] ^ $data;
+            $this->bctx['p'][] = $this->parray[$i] ^ intval($data);
         }
 
         // encrypt the zero-string, replace P1 and P2 with the encrypted data,
@@ -528,7 +563,8 @@ class Blowfish extends Base
      */
     function bcrypt_pbkdf($pass, $salt, $keylen, $rounds)
     {
-        if (!CRYPT_BASE_USE_REG_INTVAL) {
+        if (PHP_INT_SIZE == 4) {
+            user_error('bcrypt is far too slow to be practical on 32-bit versions of PHP');
             return false;
         }
 

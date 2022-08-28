@@ -506,12 +506,16 @@ abstract class Base
             $this->use_inline_crypt = version_compare(PHP_VERSION, '5.3.0') >= 0 || function_exists('create_function');
         }
 
+        if (!defined('PHP_INT_SIZE')) {
+            define('PHP_INT_SIZE', 4);
+        }
+
         if (!defined('CRYPT_BASE_USE_REG_INTVAL')) {
             switch (true) {
                 // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
                 case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
                 case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
-                case defined('PHP_INT_SIZE') && PHP_INT_SIZE == 8:
+                case PHP_INT_SIZE == 8:
                     define('CRYPT_BASE_USE_REG_INTVAL', true);
                     break;
                 case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
@@ -2858,7 +2862,7 @@ abstract class Base
      */
     function safe_intval($x)
     {
-        if (!CRYPT_BASE_USE_REG_INTVAL || is_int($x)) {
+        if (is_int($x)) {
             return $x;
         }
         return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
@@ -2874,7 +2878,7 @@ abstract class Base
     function safe_intval_inline()
     {
         if (CRYPT_BASE_USE_REG_INTVAL) {
-            return '%s';
+            return PHP_INT_SIZE == 4 ? 'intval(%s)' : '%s';
         }
 
         $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
