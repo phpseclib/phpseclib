@@ -2,7 +2,7 @@
 
 ## 2.0.38 - 2022-09-02
 
-- PublicKeyLoader: add support for OpenSSH encrypted keys (#1737, #1733, #1531, #1490)
+- RSA: add support for OpenSSH encrypted keys (#1737, #1733, #1531, #1490)
 - SSH2: fix possibly undefined variable error (#1802)
 - SFTP: try to delete dir even if it can't be opened (#1791)
 - SFTP: try without path canonicalization if initial realpath() fails (#1796)
