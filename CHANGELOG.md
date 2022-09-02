@@ -1,5 +1,21 @@
 # Changelog
 
+## 3.0.15 - 2022-09-02
+
+- PublicKeyLoader: add support for OpenSSH encrypted keys (#1737, #1733, #1531, #1490)
+- PublicKeyLoader: add support for JSON Web Keys (#1817)
+- SSH2: make login method return false under rare situation (#1790)
+- SSH2: fix possibly undefined variable error (#1802)
+- SFTP: fix enableDatePreservation bug w.r.t. mtime (#1670)
+- SFTP: try to delete dir even if it can't be opened (#1791)
+- SFTP: try without path canonicalization if initial realpath() fails (#1796)
+- SFTP: detect if stream metadata has wrapper_type set for put() method (#1792)
+- BigInteger: tweak to the phpinfo checks (#1726)
+- BigInteger: fix behavior on 32-bit PHP installs (#1820)
+- EC/PKCS8: OpenSSL didn't like phpseclib formed Ed25519 public keys (#1819)
+- don't use dynamic properties, which are deprecated in PHP 8.2 (#1808, #1822)
+- fix deprecated implicit float to int on 32-bit PHP 8.1
+
 ## 3.0.14 - 2022-04-04
 
 - RSA: add support for loading PuTTY v3 keys
@@ -134,6 +150,17 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.38 - 2022-09-02
+
+- RSA: add support for OpenSSH encrypted keys (#1737, #1733, #1531, #1490)
+- SSH2: fix possibly undefined variable error (#1802)
+- SFTP: try to delete dir even if it can't be opened (#1791)
+- SFTP: try without path canonicalization if initial realpath() fails (#1796)
+- SFTP: detect if stream metadata has wrapper_type set for put() method (#1792)
+- BigInteger: fix behavior on 32-bit PHP installs (#1820)
+- don't use dynamic properties, which are deprecated in PHP 8.2 (#1808, #1822)
+- fix deprecated implicit float to int on 32-bit PHP 8.1
 
 ## 2.0.37 - 2022-04-04
 
