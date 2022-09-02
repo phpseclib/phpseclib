@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.38 - 2022-09-02
+
+- PublicKeyLoader: add support for OpenSSH encrypted keys (#1737, #1733, #1531, #1490)
+- SSH2: fix possibly undefined variable error (#1802)
+- SFTP: try to delete dir even if it can't be opened (#1791)
+- SFTP: try without path canonicalization if initial realpath() fails (#1796)
+- SFTP: detect if stream metadata has wrapper_type set for put() method (#1792)
+- BigInteger: fix behavior on 32-bit PHP installs (#1820)
+- don't use dynamic properties, which are deprecated in PHP 8.2 (#1808, #1822)
+- fix deprecated implicit float to int on 32-bit PHP 8.1
+
 ## 2.0.37 - 2022-04-04
 
 - RSA: add support for loading PuTTY v3 keys
