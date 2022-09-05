@@ -2403,7 +2403,7 @@ class SSH2
      * @return bool
      * @throws \RuntimeException on connection error
      */
-    private function keyboard_interactive_process(array ...$responses)
+    private function keyboard_interactive_process(...$responses)
     {
         if (strlen($this->last_interactive_response)) {
             $response = $this->last_interactive_response;
