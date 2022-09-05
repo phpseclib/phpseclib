@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.16 - 2022-09-05
+
+- SSH2: fix type hinting for keyboard_interactive_process (#1836)
+
 ## 3.0.15 - 2022-09-02
 
 - PublicKeyLoader: add support for OpenSSH encrypted keys (#1737, #1733, #1531, #1490)
