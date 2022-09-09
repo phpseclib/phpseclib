@@ -459,11 +459,8 @@ class Net_SFTP extends Net_SSH2
             0x00002000 => 'NET_SFTP_ATTR_LINK_COUNT',
             0x00004000 => 'NET_SFTP_ATTR_UNTRANSLATED_NAME',
             0x00008000 => 'NET_SFTP_ATTR_CTIME',
-            // 0x80000000 will yield a floating point on 32-bit systems and converting floating points to integers
-            // yields inconsistent behavior depending on how php is compiled.  so we left shift -1 (which, in
-            // two's compliment, consists of all 1 bits) by 31.  on 64-bit systems this'll yield 0xFFFFFFFF80000000.
-            // that's not a problem, however, and 'anded' and a 32-bit number, as all the leading 1 bits are ignored.
-            (-1 << 31) & 0xFFFFFFFF => 'NET_SFTP_ATTR_EXTENDED'
+            // intval is used because 0x80000000 will yield a floating point on 32-bit systems 
+            intval(0x80000000) => 'NET_SFTP_ATTR_EXTENDED'
         );
         $this->open_flags = array(
             0x00000001 => 'NET_SFTP_OPEN_READ',
