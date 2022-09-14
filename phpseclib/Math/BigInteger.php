@@ -372,7 +372,7 @@ class BigInteger
                         break;
                     case self::MODE_BCMATH:
                         // round $len to the nearest 4 (thanks, DavidMJ!)
-                        $len = (strlen($x) + 3) & 0xFFFFFFFC;
+                        $len = (strlen($x) + 3) & ~3;
 
                         $x = str_pad($x, $len, chr(0), STR_PAD_LEFT);
 
