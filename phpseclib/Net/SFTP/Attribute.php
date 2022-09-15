@@ -32,7 +32,7 @@ abstract class Attribute
     // yields inconsistent behavior depending on how php is compiled.  so we left shift -1 (which, in
     // two's compliment, consists of all 1 bits) by 31.  on 64-bit systems this'll yield 0xFFFFFFFF80000000.
     // that's not a problem, however, and 'anded' and a 32-bit number, as all the leading 1 bits are ignored.
-    public const EXTENDED = (-1 << 31) & 0xFFFFFFFF;
+    public const EXTENDED = PHP_INT_SIZE == 4 ? -1 : 0xFFFFFFFF;
 
     /**
      */

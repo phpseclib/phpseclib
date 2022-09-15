@@ -97,7 +97,10 @@ abstract class Random
                  (isset($_POST) ? self::safe_serialize($_POST) : '') .
                  (isset($_GET) ? self::safe_serialize($_GET) : '') .
                  (isset($_COOKIE) ? self::safe_serialize($_COOKIE) : '') .
-                 self::safe_serialize($GLOBALS) .
+                 // as of PHP 8.1 $GLOBALS cann't be accessed by reference, which eliminates
+                 // the need for phpseclib_safe_serialize. see https://wiki.php.net/rfc/restrict_globals_usage
+                 // for more info
+                 (version_compare(PHP_VERSION, '8.1.0', '>=') ? self::safe_serialize($GLOBALS) : self::safe_serialize($GLOBALS)) .
                  self::safe_serialize($_SESSION) .
                  self::safe_serialize($_OLD_SESSION);
             $v = $seed = $_SESSION['seed'] = sha1($v, true);
