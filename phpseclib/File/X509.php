@@ -2433,21 +2433,11 @@ class X509
         $currentCert = $this->currentCert ?? null;
         $signatureSubject = $this->signatureSubject ?? null;
         $signatureAlgorithm = self::identifySignatureAlgorithm($issuer->privateKey);
-        if ($signatureAlgorithm != 'id-RSASSA-PSS') {
-            $signatureAlgorithm = ['algorithm' => $signatureAlgorithm];
-        } else {
-            $r = PSS::load($issuer->privateKey->withPassword()->toString('PSS'));
-            $signatureAlgorithm = [
-                'algorithm' => 'id-RSASSA-PSS',
-                'parameters' => PSS::savePSSParams($r),
-            ];
-        }
 
         if (isset($subject->currentCert) && is_array($subject->currentCert) && isset($subject->currentCert['tbsCertificate'])) {
             $this->currentCert = $subject->currentCert;
             $this->currentCert['tbsCertificate']['signature'] = $signatureAlgorithm;
             $this->currentCert['signatureAlgorithm'] = $signatureAlgorithm;
-
 
             if (!empty($this->startDate)) {
                 $this->currentCert['tbsCertificate']['validity']['notBefore'] = $this->timeField($this->startDate);
@@ -2626,7 +2616,7 @@ class X509
         $signatureAlgorithm = self::identifySignatureAlgorithm($this->privateKey);
 
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['certificationRequestInfo'])) {
-            $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
+            $this->currentCert['signatureAlgorithm'] = $signatureAlgorithm;
             if (!empty($this->dn)) {
                 $this->currentCert['certificationRequestInfo']['subject'] = $this->dn;
             }
@@ -2639,7 +2629,7 @@ class X509
                         'subject' => $this->dn,
                         'subjectPKInfo' => $publicKey,
                     ],
-                    'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
+                    'signatureAlgorithm' => $signatureAlgorithm,
                     'signature'          => false, // this is going to be overwritten later
             ];
         }
@@ -2679,7 +2669,7 @@ class X509
 
         // re-signing a SPKAC seems silly but since everything else supports re-signing why not?
         if (isset($this->currentCert) && is_array($this->currentCert) && isset($this->currentCert['publicKeyAndChallenge'])) {
-            $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
+            $this->currentCert['signatureAlgorithm'] = $signatureAlgorithm;
             $this->currentCert['publicKeyAndChallenge']['spki'] = $publicKey;
             if (!empty($this->challenge)) {
                 // the bitwise AND ensures that the output is a valid IA5String
@@ -2697,7 +2687,7 @@ class X509
                         // Random::string(8) & str_repeat("\x7F", 8)
                         'challenge' => !empty($this->challenge) ? $this->challenge : '',
                     ],
-                    'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
+                    'signatureAlgorithm' => $signatureAlgorithm,
                     'signature'          => false, // this is going to be overwritten later
             ];
         }
@@ -2737,18 +2727,18 @@ class X509
 
         if (isset($crl->currentCert) && is_array($crl->currentCert) && isset($crl->currentCert['tbsCertList'])) {
             $this->currentCert = $crl->currentCert;
-            $this->currentCert['tbsCertList']['signature']['algorithm'] = $signatureAlgorithm;
-            $this->currentCert['signatureAlgorithm']['algorithm'] = $signatureAlgorithm;
+            $this->currentCert['tbsCertList']['signature'] = $signatureAlgorithm;
+            $this->currentCert['signatureAlgorithm'] = $signatureAlgorithm;
         } else {
             $this->currentCert = [
                 'tbsCertList' =>
                     [
                         'version' => 'v2',
-                        'signature' => ['algorithm' => $signatureAlgorithm],
+                        'signature' => $signatureAlgorithm,
                         'issuer' => false, // this is going to be overwritten later
                         'thisUpdate' => $this->timeField($thisUpdate), // $this->setStartDate()
                     ],
-                    'signatureAlgorithm' => ['algorithm' => $signatureAlgorithm],
+                    'signatureAlgorithm' => $signatureAlgorithm,
                     'signature'          => false, // this is going to be overwritten later
             ];
         }
@@ -2851,11 +2841,15 @@ class X509
      *
      * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      */
-    private static function identifySignatureAlgorithm(PrivateKey $key): string
+    private static function identifySignatureAlgorithm(PrivateKey $key): array
     {
         if ($key instanceof RSA) {
             if ($key->getPadding() & RSA::SIGNATURE_PSS) {
-                return 'id-RSASSA-PSS';
+                $r = PSS::load($key->withPassword()->toString('PSS'));
+                return [
+                    'algorithm' => 'id-RSASSA-PSS',
+                    'parameters' => PSS::savePSSParams($r),
+                ];
             }
             switch ($key->getHash()) {
                 case 'md2':
@@ -2865,7 +2859,7 @@ class X509
                 case 'sha256':
                 case 'sha384':
                 case 'sha512':
-                    return $key->getHash() . 'WithRSAEncryption';
+                    return ['algorithm' => $key->getHash()->__toString() . 'WithRSAEncryption'];
             }
             throw new UnsupportedAlgorithmException('The only supported hash algorithms for RSA are: md2, md5, sha1, sha224, sha256, sha384, sha512');
         }
@@ -2875,7 +2869,7 @@ class X509
                 case 'sha1':
                 case 'sha224':
                 case 'sha256':
-                    return 'id-dsa-with-' . $key->getHash();
+                    return ['algorithm' => 'id-dsa-with-' . $key->getHash()->__toString()];
             }
             throw new UnsupportedAlgorithmException('The only supported hash algorithms for DSA are: sha1, sha224, sha256');
         }
@@ -2884,7 +2878,7 @@ class X509
             switch ($key->getCurve()) {
                 case 'Ed25519':
                 case 'Ed448':
-                    return 'id-' . $key->getCurve();
+                    return ['algorithm' => 'id-' . $key->getCurve()];
             }
             switch ($key->getHash()) {
                 case 'sha1':
@@ -2892,7 +2886,7 @@ class X509
                 case 'sha256':
                 case 'sha384':
                 case 'sha512':
-                    return 'ecdsa-with-' . strtoupper($key->getHash()->__toString());
+                    return ['algorithm' => 'ecdsa-with-' . strtoupper($key->getHash()->__toString())];
             }
             throw new UnsupportedAlgorithmException('The only supported hash algorithms for EC are: sha1, sha224, sha256, sha384, sha512');
         }
