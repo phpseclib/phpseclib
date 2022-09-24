@@ -1351,6 +1351,8 @@ class X509
             case 'rsaEncryption':
                 $key = RSA::loadFormat('PKCS8', $publicKey);
                 switch ($signatureAlgorithm) {
+                    case 'id-RSASSA-PSS':
+                        break;
                     case 'md2WithRSAEncryption':
                     case 'md5WithRSAEncryption':
                     case 'sha1WithRSAEncryption':
