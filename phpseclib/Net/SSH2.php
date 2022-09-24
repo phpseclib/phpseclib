@@ -2623,7 +2623,7 @@ class SSH2
 
         $this->channel_status[self::CHANNEL_EXEC] = MessageType::CHANNEL_DATA;
 
-        if ($callback === false || $this->in_request_pty_exec) {
+        if ($this->in_request_pty_exec) {
             return true;
         }
 
