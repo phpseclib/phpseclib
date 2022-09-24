@@ -63,7 +63,7 @@ class CRLTest extends PhpseclibTestCase
         $this->assertTrue($x509->validateSignature());
     }
 
-    public function testPSSSigWithPKCS1Cert()
+    public function testPSSSigWithPKCS1Cert(): void
     {
         $x509 = new X509();
         $x509->loadCA('-----BEGIN CERTIFICATE-----
