@@ -24,6 +24,8 @@ namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\BadConfigurationException;
+use phpseclib3\Exception\InvalidArgumentException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Exception\UnsupportedFormatException;
 use phpseclib3\Math\BigInteger;
 
@@ -42,7 +44,7 @@ abstract class XML
     public static function load($key): array
     {
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         if (!class_exists('DOMDocument')) {
@@ -64,7 +66,7 @@ abstract class XML
         }
         if (!$dom->loadXML($key)) {
             libxml_use_internal_errors($use_errors);
-            throw new \UnexpectedValueException('Key does not appear to contain XML');
+            throw new UnexpectedValueException('Key does not appear to contain XML');
         }
         $xpath = new \DOMXPath($dom);
         $keys = ['modulus', 'exponent', 'p', 'q', 'dp', 'dq', 'inverseq', 'd'];
@@ -117,7 +119,7 @@ abstract class XML
             return $components;
         }
 
-        throw new \UnexpectedValueException('Modulus / exponent not present');
+        throw new UnexpectedValueException('Modulus / exponent not present');
     }
 
     /**
@@ -128,7 +130,7 @@ abstract class XML
     public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, string $password = ''): string
     {
         if (count($primes) != 2) {
-            throw new \InvalidArgumentException('XML does not support multi-prime RSA keys');
+            throw new InvalidArgumentException('XML does not support multi-prime RSA keys');
         }
 
         if (!empty($password) && is_string($password)) {

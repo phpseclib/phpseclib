@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace phpseclib3\Tests\Functional\Net;
 
 use phpseclib3\Net\SFTP\Stream;
+use phpseclib3\Net\SSH2;
 
 class SFTPStreamTest extends SFTPTestCase
 {
@@ -52,10 +53,10 @@ class SFTPStreamTest extends SFTPTestCase
      */
     public function testConnectionReuse(): void
     {
-        $originalConnectionsCount = count(\phpseclib3\Net\SSH2::getConnections());
+        $originalConnectionsCount = count(SSH2::getConnections());
         $session = $this->sftp;
         $dirs = scandir("sftp://$session/");
-        $this->assertCount($originalConnectionsCount, \phpseclib3\Net\SSH2::getConnections());
+        $this->assertCount($originalConnectionsCount, SSH2::getConnections());
         $this->assertEquals(['.', '..'], array_slice($dirs, 0, 2));
     }
 

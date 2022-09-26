@@ -60,6 +60,8 @@ use phpseclib3\Exception\BadDecryptionException;
 use phpseclib3\Exception\BadModeException;
 use phpseclib3\Exception\InconsistentSetupException;
 use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\InvalidArgumentException;
+use phpseclib3\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of Rijndael.
@@ -145,7 +147,7 @@ class Rijndael extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
+     * @throws InvalidArgumentException if an invalid / unsupported mode is provided
      */
     public function __construct(string $mode)
     {
@@ -168,7 +170,7 @@ class Rijndael extends BlockCipher
      *       That said, if you want be compatible with other Rijndael and AES implementations,
      *       you should not setKeyLength(160) or setKeyLength(224).
      *
-     * @throws \LengthException if the key length is invalid
+     * @throws LengthException if the key length is invalid
      */
     public function setKeyLength(int $length): void
     {
@@ -181,7 +183,7 @@ class Rijndael extends BlockCipher
                 $this->key_length = $length >> 3;
                 break;
             default:
-                throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes 128, 160, 192, 224 or 256 bits are supported');
+                throw new LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes 128, 160, 192, 224 or 256 bits are supported');
         }
 
         parent::setKeyLength($length);
@@ -192,7 +194,7 @@ class Rijndael extends BlockCipher
      *
      * Rijndael supports five different key lengths
      *
-     * @throws \LengthException if the key length isn't supported
+     * @throws LengthException if the key length isn't supported
      * @see setKeyLength()
      */
     public function setKey(string $key): void
@@ -205,7 +207,7 @@ class Rijndael extends BlockCipher
             case 32:
                 break;
             default:
-                throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16, 20, 24, 28 or 32 are supported');
+                throw new LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16, 20, 24, 28 or 32 are supported');
         }
 
         parent::setKey($key);
@@ -226,7 +228,7 @@ class Rijndael extends BlockCipher
             case 256:
                 break;
             default:
-                throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes 128, 160, 192, 224 or 256 bits are supported');
+                throw new LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes 128, 160, 192, 224 or 256 bits are supported');
         }
 
         $this->Nb = $length >> 5;

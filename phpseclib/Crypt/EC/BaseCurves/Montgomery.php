@@ -27,6 +27,8 @@ declare(strict_types=1);
 namespace phpseclib3\Crypt\EC\BaseCurves;
 
 use phpseclib3\Crypt\EC\Curves\Curve25519;
+use phpseclib3\Exception\RuntimeException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\PrimeField;
 use phpseclib3\Math\PrimeField\Integer as PrimeInteger;
@@ -41,7 +43,7 @@ class Montgomery extends Base
     /**
      * Prime Field Integer factory
      *
-     * @var \phpseclib3\Math\PrimeField
+     * @var PrimeField
      */
     protected $factory;
 
@@ -111,7 +113,7 @@ class Montgomery extends Base
     public function setCoefficients(BigInteger $a): void
     {
         if (!isset($this->factory)) {
-            throw new \RuntimeException('setModulo needs to be called before this method');
+            throw new RuntimeException('setModulo needs to be called before this method');
         }
         $this->a = $this->factory->newInteger($a);
         $two = $this->factory->newInteger(new BigInteger(2));
@@ -130,12 +132,12 @@ class Montgomery extends Base
     {
         switch (true) {
             case !$x instanceof BigInteger && !$x instanceof PrimeInteger:
-                throw new \UnexpectedValueException('Argument 1 passed to Prime::setBasePoint() must be an instance of either BigInteger or PrimeField\Integer');
+                throw new UnexpectedValueException('Argument 1 passed to Prime::setBasePoint() must be an instance of either BigInteger or PrimeField\Integer');
             case !$y instanceof BigInteger && !$y instanceof PrimeInteger:
-                throw new \UnexpectedValueException('Argument 2 passed to Prime::setBasePoint() must be an instance of either BigInteger or PrimeField\Integer');
+                throw new UnexpectedValueException('Argument 2 passed to Prime::setBasePoint() must be an instance of either BigInteger or PrimeField\Integer');
         }
         if (!isset($this->factory)) {
-            throw new \RuntimeException('setModulo needs to be called before this method');
+            throw new RuntimeException('setModulo needs to be called before this method');
         }
         $this->p = [
             $x instanceof BigInteger ? $this->factory->newInteger($x) : $x,
@@ -151,11 +153,11 @@ class Montgomery extends Base
     public function getBasePoint()
     {
         if (!isset($this->factory)) {
-            throw new \RuntimeException('setModulo needs to be called before this method');
+            throw new RuntimeException('setModulo needs to be called before this method');
         }
         /*
         if (!isset($this->p)) {
-            throw new \RuntimeException('setBasePoint needs to be called before this method');
+            throw new \phpseclib3\Exception\RuntimeException('setBasePoint needs to be called before this method');
         }
         */
         return $this->p;
@@ -171,7 +173,7 @@ class Montgomery extends Base
     private function doubleAndAddPoint(array $p, array $q, PrimeInteger $x1): array
     {
         if (!isset($this->factory)) {
-            throw new \RuntimeException('setModulo needs to be called before this method');
+            throw new RuntimeException('setModulo needs to be called before this method');
         }
 
         if (!count($p) || !count($q)) {
@@ -179,7 +181,7 @@ class Montgomery extends Base
         }
 
         if (!isset($p[1])) {
-            throw new \RuntimeException('Affine coordinates need to be manually converted to XZ coordinates');
+            throw new RuntimeException('Affine coordinates need to be manually converted to XZ coordinates');
         }
 
         [$x2, $z2] = $p;
@@ -246,7 +248,7 @@ class Montgomery extends Base
      *
      *   x=X/Z
      *
-     * @return \phpseclib3\Math\PrimeField\Integer[]
+     * @return PrimeInteger[]
      */
     public function convertToInternal(array $p): array
     {
@@ -266,7 +268,7 @@ class Montgomery extends Base
     /**
      * Returns the affine point
      *
-     * @return \phpseclib3\Math\PrimeField\Integer[]
+     * @return PrimeInteger[]
      */
     public function convertToAffine(array $p): array
     {

@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace phpseclib3\Math\PrimeField;
 
 use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\Common\FiniteField\Integer as Base;
 
@@ -118,7 +119,7 @@ class Integer extends Base
     public static function checkInstance(self $x, self $y): void
     {
         if ($x->instanceID != $y->instanceID) {
-            throw new \UnexpectedValueException('The instances of the two PrimeField\Integer objects do not match');
+            throw new UnexpectedValueException('The instances of the two PrimeField\Integer objects do not match');
         }
     }
 

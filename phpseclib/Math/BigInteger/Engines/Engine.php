@@ -18,6 +18,8 @@ namespace phpseclib3\Math\BigInteger\Engines;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Exception\BadConfigurationException;
+use phpseclib3\Exception\InvalidArgumentException;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Math\BigInteger;
 
 /**
@@ -226,7 +228,7 @@ abstract class Engine implements \JsonSerializable
     {
         $fqengine = '\\phpseclib3\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\' . $engine;
         if (!class_exists($fqengine) || !method_exists($fqengine, 'isValidEngine')) {
-            throw new \InvalidArgumentException("$engine is not a valid engine");
+            throw new InvalidArgumentException("$engine is not a valid engine");
         }
         if (!$fqengine::isValidEngine()) {
             throw new BadConfigurationException("$engine is not setup correctly on this system");
@@ -1130,7 +1132,7 @@ abstract class Engine implements \JsonSerializable
     public function bitwise_split(int $split): array
     {
         if ($split < 1) {
-            throw new \RuntimeException('Offset must be greater than 1');
+            throw new RuntimeException('Offset must be greater than 1');
         }
 
         $mask = static::$one[static::class]->bitwise_leftShift($split)->subtract(static::$one[static::class]);

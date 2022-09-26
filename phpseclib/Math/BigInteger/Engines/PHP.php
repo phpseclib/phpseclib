@@ -17,6 +17,7 @@ namespace phpseclib3\Math\BigInteger\Engines;
 
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\BadConfigurationException;
+use phpseclib3\Exception\RuntimeException;
 
 /**
  * Pure-PHP Engine.
@@ -1132,7 +1133,7 @@ abstract class PHP extends Engine
     public function bitwise_split(int $split): array
     {
         if ($split < 1) {
-            throw new \RuntimeException('Offset must be greater than 1');
+            throw new RuntimeException('Offset must be greater than 1');
         }
 
         $width = (int)($split / static::BASE);

@@ -20,6 +20,7 @@ use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\DES;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\TripleDES;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\File\ASN1;
 
@@ -49,7 +50,7 @@ abstract class PKCS1 extends PKCS
      * Returns the mode constant corresponding to the mode string
      *
      * @return int
-     * @throws \UnexpectedValueException if the block cipher mode is unsupported
+     * @throws UnexpectedValueException if the block cipher mode is unsupported
      */
     private static function getEncryptionMode(string $mode)
     {
@@ -61,14 +62,14 @@ abstract class PKCS1 extends PKCS
             case 'CTR':
                 return $mode;
         }
-        throw new \UnexpectedValueException('Unsupported block cipher mode of operation');
+        throw new UnexpectedValueException('Unsupported block cipher mode of operation');
     }
 
     /**
      * Returns a cipher object corresponding to a string
      *
      * @return AES|DES|TripleDES
-     * @throws \UnexpectedValueException if the encryption algorithm is unsupported
+     * @throws UnexpectedValueException if the encryption algorithm is unsupported
      */
     private static function getEncryptionObject(string $algo)
     {
@@ -109,7 +110,7 @@ abstract class PKCS1 extends PKCS
     protected static function load($key, ?string $password = null)
     {
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is
@@ -145,7 +146,7 @@ abstract class PKCS1 extends PKCS
                 if ($decoded !== false) {
                     $key = $decoded;
                 } elseif (self::$format == self::MODE_PEM) {
-                    throw new \UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
+                    throw new UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
                 }
             }
         }

@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Exception\UnsupportedFormatException;
 use phpseclib3\Math\BigInteger;
 
@@ -43,7 +44,7 @@ abstract class Raw
     public static function load($key, ?string $password = null): array
     {
         if (!is_array($key)) {
-            throw new \UnexpectedValueException('Key should be a array - not a ' . gettype($key));
+            throw new UnexpectedValueException('Key should be a array - not a ' . gettype($key));
         }
 
         $key = array_change_key_case($key, CASE_LOWER);
@@ -65,7 +66,7 @@ abstract class Raw
         }
 
         if (!isset($components['publicExponent']) || !isset($components['modulus'])) {
-            throw new \UnexpectedValueException('Modulus / exponent not present');
+            throw new UnexpectedValueException('Modulus / exponent not present');
         }
 
         if (isset($key['primes'])) {

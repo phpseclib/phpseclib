@@ -36,6 +36,8 @@ use phpseclib3\Crypt\RC2;
 use phpseclib3\Crypt\RC4;
 use phpseclib3\Crypt\TripleDES;
 use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\RuntimeException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
@@ -121,7 +123,7 @@ abstract class PKCS8 extends PKCS
     /**
      * Returns a SymmetricKey object based on a PBES1 $algo
      *
-     * @return \phpseclib3\Crypt\Common\SymmetricKey
+     * @return SymmetricKey
      */
     private static function getPBES1EncryptionObject(string $algo)
     {
@@ -326,7 +328,7 @@ abstract class PKCS8 extends PKCS
 
                     $temp = ASN1::decodeBER($decrypted['encryptionAlgorithm']['parameters']);
                     if (!$temp) {
-                        throw new \RuntimeException('Unable to decode BER');
+                        throw new RuntimeException('Unable to decode BER');
                     }
                     extract(ASN1::asn1map($temp[0], Maps\PBEParameter::MAP));
                     $iterationCount = (int) $iterationCount->toString();
@@ -334,7 +336,7 @@ abstract class PKCS8 extends PKCS
                     $key = $cipher->decrypt($decrypted['encryptedData']);
                     $decoded = ASN1::decodeBER($key);
                     if (!$decoded) {
-                        throw new \RuntimeException('Unable to decode BER 2');
+                        throw new RuntimeException('Unable to decode BER 2');
                     }
 
                     break;
@@ -343,7 +345,7 @@ abstract class PKCS8 extends PKCS
 
                     $temp = ASN1::decodeBER($decrypted['encryptionAlgorithm']['parameters']);
                     if (!$temp) {
-                        throw new \RuntimeException('Unable to decode BER');
+                        throw new RuntimeException('Unable to decode BER');
                     }
                     $temp = ASN1::asn1map($temp[0], Maps\PBES2params::MAP);
                     extract($temp);
@@ -353,7 +355,7 @@ abstract class PKCS8 extends PKCS
 
                     $temp = ASN1::decodeBER($decrypted['encryptionAlgorithm']['parameters']);
                     if (!$temp) {
-                        throw new \RuntimeException('Unable to decode BER');
+                        throw new RuntimeException('Unable to decode BER');
                     }
                     $temp = ASN1::asn1map($temp[0], Maps\PBES2params::MAP);
                     extract($temp);
@@ -363,7 +365,7 @@ abstract class PKCS8 extends PKCS
                     } else {
                         $temp = ASN1::decodeBER($encryptionScheme['parameters']);
                         if (!$temp) {
-                            throw new \RuntimeException('Unable to decode BER');
+                            throw new RuntimeException('Unable to decode BER');
                         }
                         extract(ASN1::asn1map($temp[0], Maps\RC2CBCParameter::MAP));
                         $effectiveKeyLength = (int) $rc2ParametersVersion->toString();
@@ -388,7 +390,7 @@ abstract class PKCS8 extends PKCS
                         case 'id-PBKDF2':
                             $temp = ASN1::decodeBER($keyDerivationFunc['parameters']);
                             if (!$temp) {
-                                throw new \RuntimeException('Unable to decode BER');
+                                throw new RuntimeException('Unable to decode BER');
                             }
                             $prf = ['algorithm' => 'id-hmacWithSHA1'];
                             $params = ASN1::asn1map($temp[0], Maps\PBKDF2params::MAP);
@@ -409,7 +411,7 @@ abstract class PKCS8 extends PKCS
                             $key = $cipher->decrypt($decrypted['encryptedData']);
                             $decoded = ASN1::decodeBER($key);
                             if (!$decoded) {
-                                throw new \RuntimeException('Unable to decode BER 3');
+                                throw new RuntimeException('Unable to decode BER 3');
                             }
                             break;
                         default:
@@ -442,7 +444,7 @@ abstract class PKCS8 extends PKCS
             }
             if (isset($private['publicKey'])) {
                 if ($private['publicKey'][0] != "\0") {
-                    throw new \UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($private['publicKey'][0]));
+                    throw new UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($private['publicKey'][0]));
                 }
                 $private['publicKey'] = substr($private['publicKey'], 1);
             }
@@ -457,7 +459,7 @@ abstract class PKCS8 extends PKCS
 
         if (is_array($public)) {
             if ($public['publicKey'][0] != "\0") {
-                throw new \UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($public['publicKey'][0]));
+                throw new UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($public['publicKey'][0]));
             }
             if (is_array(static::OID_NAME)) {
                 if (!in_array($public['publicKeyAlgorithm']['algorithm'], static::OID_NAME)) {
@@ -476,7 +478,7 @@ abstract class PKCS8 extends PKCS
             return $public;
         }
 
-        throw new \RuntimeException('Unable to parse using either OneAsymmetricKey or PublicKeyInfo ASN1 maps');
+        throw new RuntimeException('Unable to parse using either OneAsymmetricKey or PublicKeyInfo ASN1 maps');
     }
 
     /**
@@ -622,7 +624,7 @@ abstract class PKCS8 extends PKCS
         self::initialize_static_variables();
 
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         if (self::$format != self::MODE_DER) {
@@ -630,13 +632,13 @@ abstract class PKCS8 extends PKCS
             if ($decoded !== false) {
                 $key = $decoded;
             } elseif (self::$format == self::MODE_PEM) {
-                throw new \UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
+                throw new UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
             }
         }
 
         $decoded = ASN1::decodeBER($key);
         if (!$decoded) {
-            throw new \RuntimeException('Unable to decode BER');
+            throw new RuntimeException('Unable to decode BER');
         }
 
         return $decoded;
@@ -651,13 +653,13 @@ abstract class PKCS8 extends PKCS
 
         $r = ASN1::asn1map($decoded[0], ASN1\Maps\EncryptedPrivateKeyInfo::MAP);
         if (!is_array($r)) {
-            throw new \RuntimeException('Unable to parse using EncryptedPrivateKeyInfo map');
+            throw new RuntimeException('Unable to parse using EncryptedPrivateKeyInfo map');
         }
 
         if ($r['encryptionAlgorithm']['algorithm'] == 'id-PBES2') {
             $decoded = ASN1::decodeBER($r['encryptionAlgorithm']['parameters']->element);
             if (!$decoded) {
-                throw new \RuntimeException('Unable to decode BER');
+                throw new RuntimeException('Unable to decode BER');
             }
             $r['encryptionAlgorithm']['parameters'] = ASN1::asn1map($decoded[0], ASN1\Maps\PBES2params::MAP);
 
@@ -666,7 +668,7 @@ abstract class PKCS8 extends PKCS
                 case 'id-PBKDF2':
                     $decoded = ASN1::decodeBER($kdf['parameters']->element);
                     if (!$decoded) {
-                        throw new \RuntimeException('Unable to decode BER');
+                        throw new RuntimeException('Unable to decode BER');
                     }
                     $kdf['parameters'] = ASN1::asn1map($decoded[0], Maps\PBKDF2params::MAP);
             }

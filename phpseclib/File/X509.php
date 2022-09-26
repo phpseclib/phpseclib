@@ -36,6 +36,7 @@ use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\File\ASN1\Element;
 use phpseclib3\File\ASN1\Maps;
@@ -1340,7 +1341,7 @@ class X509
      * Returns true if the signature is verified and false if it is not correct.
      * If the algorithms are unsupposed an exception is thrown.
      *
-     * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
+     * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
     private function validateSignatureHelper(string $publicKeyAlgorithm, string $publicKey, string $signatureAlgorithm, string $signature, string $signatureSubject): bool
     {
@@ -2841,7 +2842,7 @@ class X509
     /**
      * Identify signature algorithm from key settings
      *
-     * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
+     * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
     private static function identifySignatureAlgorithm(PrivateKey $key): array
     {
@@ -3768,7 +3769,7 @@ class X509
     public static function registerExtension(string $id, array $mapping): void
     {
         if (isset(self::$extensions[$id]) && self::$extensions[$id] !== $mapping) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Extension ' . $id . ' has already been defined with a different mapping.'
             );
         }

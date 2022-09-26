@@ -15,7 +15,10 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\EC\BaseCurves;
 
+use phpseclib3\Exception\RangeException;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\FiniteField\Integer;
 
 /**
  * Base
@@ -34,7 +37,7 @@ abstract class Base
     /**
      * Finite Field Integer factory
      *
-     * @var \phpseclib3\Math\FiniteField\Integer
+     * @var Integer
      */
     protected $factory;
 
@@ -127,10 +130,10 @@ abstract class Base
         }
 
         if (!isset($this->order)) {
-            throw new \RuntimeException('setOrder needs to be called before this method');
+            throw new RuntimeException('setOrder needs to be called before this method');
         }
         if ($x->compare($this->order) > 0 || $x->compare($zero) <= 0) {
-            throw new \RangeException('x must be between 1 and the order of the curve');
+            throw new RangeException('x must be between 1 and the order of the curve');
         }
     }
 

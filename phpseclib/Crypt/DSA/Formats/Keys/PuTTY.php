@@ -22,6 +22,7 @@ namespace phpseclib3\Crypt\DSA\Formats\Keys;
 
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
+use phpseclib3\Exception\InvalidArgumentException;
 use phpseclib3\Math\BigInteger;
 
 /**
@@ -73,7 +74,7 @@ abstract class PuTTY extends Progenitor
     public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, ?string $password = null, array $options = []): string
     {
         if ($q->getLength() != 160) {
-            throw new \InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');
+            throw new InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');
         }
 
         $public = Strings::packSSH2('iiii', $p, $q, $g, $y);
@@ -88,7 +89,7 @@ abstract class PuTTY extends Progenitor
     public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y): string
     {
         if ($q->getLength() != 160) {
-            throw new \InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');
+            throw new InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');
         }
 
         return self::wrapPublicKey(Strings::packSSH2('iiii', $p, $q, $g, $y), 'ssh-dsa');

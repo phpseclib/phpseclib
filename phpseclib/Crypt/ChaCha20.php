@@ -17,6 +17,8 @@ namespace phpseclib3\Crypt;
 
 use phpseclib3\Exception\BadDecryptionException;
 use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\LengthException;
+use phpseclib3\Exception\UnexpectedValueException;
 
 /**
  * Pure-PHP implementation of ChaCha20.
@@ -177,7 +179,7 @@ class ChaCha20 extends Salsa20
     public function setNonce(string $nonce): void
     {
         if (!is_string($nonce)) {
-            throw new \UnexpectedValueException('The nonce should be a string');
+            throw new UnexpectedValueException('The nonce should be a string');
         }
 
         /*
@@ -192,7 +194,7 @@ class ChaCha20 extends Salsa20
             case 12: // 96 bits
                 break;
             default:
-                throw new \LengthException('Nonce of size ' . strlen($nonce) . ' not supported by this algorithm. Only 64-bit nonces or 96-bit nonces are supported');
+                throw new LengthException('Nonce of size ' . strlen($nonce) . ' not supported by this algorithm. Only 64-bit nonces or 96-bit nonces are supported');
         }
 
         $this->nonce = $nonce;

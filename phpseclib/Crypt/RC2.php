@@ -37,6 +37,8 @@ namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\BlockCipher;
 use phpseclib3\Exception\BadModeException;
+use phpseclib3\Exception\InvalidArgumentException;
+use phpseclib3\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of RC2.
@@ -229,7 +231,7 @@ class RC2 extends BlockCipher
     /**
      * Default Constructor.
      *
-     * @throws \InvalidArgumentException if an invalid / unsupported mode is provided
+     * @throws InvalidArgumentException if an invalid / unsupported mode is provided
      */
     public function __construct(string $mode)
     {
@@ -269,12 +271,12 @@ class RC2 extends BlockCipher
      *  \phpseclib3\Crypt\RC2::setKey() call.
      *
      * @param int $length in bits
-     * @throws \LengthException if the key length isn't supported
+     * @throws LengthException if the key length isn't supported
      */
     public function setKeyLength(int $length): void
     {
         if ($length < 8 || $length > 1024) {
-            throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys between 1 and 1024 bits, inclusive, are supported');
+            throw new LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys between 1 and 1024 bits, inclusive, are supported');
         }
 
         $this->default_key_length = $this->current_key_length = $length;
@@ -297,7 +299,7 @@ class RC2 extends BlockCipher
      * has more then 128 bytes in it, and set $key to a single null byte if
      * it is empty.
      *
-     * @throws \LengthException if the key length isn't supported
+     * @throws LengthException if the key length isn't supported
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
      */
     public function setKey(string $key, ?int $t1 = null): void
@@ -309,12 +311,12 @@ class RC2 extends BlockCipher
         }
 
         if ($t1 < 1 || $t1 > 1024) {
-            throw new \LengthException('Key size of ' . $t1 . ' bits is not supported by this algorithm. Only keys between 1 and 1024 bits, inclusive, are supported');
+            throw new LengthException('Key size of ' . $t1 . ' bits is not supported by this algorithm. Only keys between 1 and 1024 bits, inclusive, are supported');
         }
 
         $this->current_key_length = $t1;
         if (strlen($key) < 1 || strlen($key) > 128) {
-            throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes between 8 and 1024 bits, inclusive, are supported');
+            throw new LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes between 8 and 1024 bits, inclusive, are supported');
         }
 
         $t = strlen($key);

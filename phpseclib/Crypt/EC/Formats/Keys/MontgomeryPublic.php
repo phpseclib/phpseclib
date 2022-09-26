@@ -18,7 +18,9 @@ namespace phpseclib3\Crypt\EC\Formats\Keys;
 use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib3\Crypt\EC\Curves\Curve25519;
 use phpseclib3\Crypt\EC\Curves\Curve448;
+use phpseclib3\Exception\LengthException;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\Common\FiniteField\Integer;
 
 /**
  * Montgomery Public Key Handler
@@ -45,7 +47,7 @@ abstract class MontgomeryPublic
                 $curve = new Curve448();
                 break;
             default:
-                throw new \LengthException('The only supported lengths are 32 and 56');
+                throw new LengthException('The only supported lengths are 32 and 56');
         }
 
         $components = ['curve' => $curve];
@@ -57,7 +59,7 @@ abstract class MontgomeryPublic
     /**
      * Convert an EC public key to the appropriate format
      *
-     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
+     * @param Integer[] $publicKey
      */
     public static function savePublicKey(MontgomeryCurve $curve, array $publicKey): string
     {

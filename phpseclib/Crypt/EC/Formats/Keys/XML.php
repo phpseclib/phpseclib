@@ -26,8 +26,11 @@ use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib3\Crypt\EC\BaseCurves\Prime as PrimeCurve;
 use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib3\Exception\BadConfigurationException;
+use phpseclib3\Exception\RuntimeException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Exception\UnsupportedCurveException;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\Common\FiniteField\Integer;
 
 /**
  * XML Formatted EC Key Handler
@@ -62,7 +65,7 @@ abstract class XML
         self::initialize_static_variables();
 
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         if (!class_exists('DOMDocument')) {
@@ -88,7 +91,7 @@ abstract class XML
 
         if (!$dom->loadXML($key)) {
             libxml_use_internal_errors($use_errors);
-            throw new \UnexpectedValueException('Key does not appear to contain XML');
+            throw new UnexpectedValueException('Key does not appear to contain XML');
         }
         $xpath = new \DOMXPath($dom);
         libxml_use_internal_errors($use_errors);
@@ -125,7 +128,7 @@ abstract class XML
         }
 
         if (!$result->length) {
-            throw new \RuntimeException($error);
+            throw new RuntimeException($error);
         }
         return $decode ? self::decodeValue($result->item(0)->textContent) : $result->item(0)->textContent;
     }
@@ -170,17 +173,17 @@ abstract class XML
         $x = self::query($xpath, 'publickey/x');
         $y = self::query($xpath, 'publickey/y');
         if (!$x->length || !$x->item(0)->hasAttribute('Value')) {
-            throw new \RuntimeException('Public Key / X coordinate not found');
+            throw new RuntimeException('Public Key / X coordinate not found');
         }
         if (!$y->length || !$y->item(0)->hasAttribute('Value')) {
-            throw new \RuntimeException('Public Key / Y coordinate not found');
+            throw new RuntimeException('Public Key / Y coordinate not found');
         }
         $point = [
             $curve->convertInteger(new BigInteger($x->item(0)->getAttribute('Value'))),
             $curve->convertInteger(new BigInteger($y->item(0)->getAttribute('Value'))),
         ];
         if (!$curve->verifyPoint($point)) {
-            throw new \RuntimeException('Unable to verify that point exists on curve');
+            throw new RuntimeException('Unable to verify that point exists on curve');
         }
         return $point;
     }
@@ -189,7 +192,7 @@ abstract class XML
      * Returns an instance of \phpseclib3\Crypt\EC\BaseCurves\Base based
      * on the curve parameters
      *
-     * @return \phpseclib3\Crypt\EC\BaseCurves\Base|false
+     * @return BaseCurve|false
      */
     private static function loadCurveByParam(\DOMXPath $xpath)
     {
@@ -216,7 +219,7 @@ abstract class XML
 
         $params = self::query($xpath, 'ecparameters');
         if (!$params->length) {
-            throw new \RuntimeException('No parameters are present');
+            throw new RuntimeException('No parameters are present');
         }
 
         $fieldTypes = [
@@ -268,7 +271,7 @@ abstract class XML
      * Returns an instance of \phpseclib3\Crypt\EC\BaseCurves\Base based
      * on the curve parameters
      *
-     * @return \phpseclib3\Crypt\EC\BaseCurves\Base|false
+     * @return BaseCurve|false
      */
     private static function loadCurveByParamRFC4050(\DOMXPath $xpath)
     {
@@ -353,7 +356,7 @@ abstract class XML
     /**
      * Convert a public key to the appropriate format
      *
-     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
+     * @param Integer[] $publicKey
      * @param array $options optional
      */
     public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = []): string

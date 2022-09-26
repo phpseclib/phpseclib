@@ -26,6 +26,8 @@ namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\Formats\Keys\PKCS1 as Progenitor;
+use phpseclib3\Exception\RuntimeException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
 use phpseclib3\Math\BigInteger;
@@ -46,7 +48,7 @@ abstract class PKCS1 extends Progenitor
     public static function load($key, ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         if (str_contains($key, 'PUBLIC')) {
@@ -61,7 +63,7 @@ abstract class PKCS1 extends Progenitor
 
         $decoded = ASN1::decodeBER($key);
         if (!$decoded) {
-            throw new \RuntimeException('Unable to decode BER');
+            throw new RuntimeException('Unable to decode BER');
         }
 
         $key = ASN1::asn1map($decoded[0], Maps\RSAPrivateKey::MAP);
@@ -90,7 +92,7 @@ abstract class PKCS1 extends Progenitor
         $key = ASN1::asn1map($decoded[0], Maps\RSAPublicKey::MAP);
 
         if (!is_array($key)) {
-            throw new \RuntimeException('Unable to perform ASN1 mapping');
+            throw new RuntimeException('Unable to perform ASN1 mapping');
         }
 
         if (!isset($components['isPublicKey'])) {

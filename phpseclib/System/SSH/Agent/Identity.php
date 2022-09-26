@@ -23,6 +23,7 @@ use phpseclib3\Crypt\Common\PublicKey;
 use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\EC;
 use phpseclib3\Crypt\RSA;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\System\SSH\Agent;
 use phpseclib3\System\SSH\Common\Traits\ReadBytes;
@@ -250,8 +251,8 @@ class Identity implements PrivateKey
      * See "2.6.2 Protocol 2 private key signature request"
      *
      * @param string $message
-     * @throws \RuntimeException on connection errors
-     * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
+     * @throws RuntimeException on connection errors
+     * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
     public function sign($message): string
     {
@@ -265,7 +266,7 @@ class Identity implements PrivateKey
         );
         $packet = Strings::packSSH2('s', $packet);
         if (strlen($packet) != fwrite($this->fsock, $packet)) {
-            throw new \RuntimeException('Connection closed during signing');
+            throw new RuntimeException('Connection closed during signing');
         }
 
         $length = current(unpack('N', $this->readBytes(4)));
@@ -273,7 +274,7 @@ class Identity implements PrivateKey
 
         [$type, $signature_blob] = Strings::unpackSSH2('Cs', $packet);
         if ($type != Agent::SSH_AGENT_SIGN_RESPONSE) {
-            throw new \RuntimeException('Unable to retrieve signature');
+            throw new RuntimeException('Unable to retrieve signature');
         }
 
         if (!$this->key instanceof RSA) {
@@ -292,7 +293,7 @@ class Identity implements PrivateKey
      */
     public function toString(string $type, array $options = []): string
     {
-        throw new \RuntimeException('ssh-agent does not provide a mechanism to get the private key');
+        throw new RuntimeException('ssh-agent does not provide a mechanism to get the private key');
     }
 
     /**
@@ -302,6 +303,6 @@ class Identity implements PrivateKey
      */
     public function withPassword(?string $password = null): PrivateKey
     {
-        throw new \RuntimeException('ssh-agent does not provide a mechanism to get the private key');
+        throw new RuntimeException('ssh-agent does not provide a mechanism to get the private key');
     }
 }

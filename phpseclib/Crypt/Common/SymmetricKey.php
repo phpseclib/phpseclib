@@ -40,9 +40,13 @@ use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Blowfish;
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Exception\BadDecryptionException;
+use phpseclib3\Exception\BadMethodCallException;
 use phpseclib3\Exception\BadModeException;
 use phpseclib3\Exception\InconsistentSetupException;
 use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\LengthException;
+use phpseclib3\Exception\LogicException;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\BinaryField;
@@ -559,25 +563,25 @@ abstract class SymmetricKey
      *
      * {@internal Can be overwritten by a sub class, but does not have to be}
      *
-     * @throws \LengthException if the IV length isn't equal to the block size
-     * @throws \BadMethodCallException if an IV is provided when one shouldn't be
+     * @throws LengthException if the IV length isn't equal to the block size
+     * @throws BadMethodCallException if an IV is provided when one shouldn't be
      */
     public function setIV(string $iv): void
     {
         if ($this->mode == self::MODE_ECB) {
-            throw new \BadMethodCallException('This mode does not require an IV.');
+            throw new BadMethodCallException('This mode does not require an IV.');
         }
 
         if ($this->mode == self::MODE_GCM) {
-            throw new \BadMethodCallException('Use setNonce instead');
+            throw new BadMethodCallException('Use setNonce instead');
         }
 
         if (!$this->usesIV()) {
-            throw new \BadMethodCallException('This algorithm does not use an IV.');
+            throw new BadMethodCallException('This algorithm does not use an IV.');
         }
 
         if (strlen($iv) != $this->block_size) {
-            throw new \LengthException('Received initialization vector of size ' . strlen($iv) . ', but size ' . $this->block_size . ' is required');
+            throw new LengthException('Received initialization vector of size ' . strlen($iv) . ', but size ' . $this->block_size . ' is required');
         }
 
         $this->iv = $this->origIV = $iv;
@@ -589,12 +593,12 @@ abstract class SymmetricKey
      *
      * Once enabled Poly1305 cannot be disabled.
      *
-     * @throws \BadMethodCallException if Poly1305 is enabled whilst in GCM mode
+     * @throws BadMethodCallException if Poly1305 is enabled whilst in GCM mode
      */
     public function enablePoly1305(): void
     {
         if ($this->mode == self::MODE_GCM) {
-            throw new \BadMethodCallException('Poly1305 cannot be used in GCM mode');
+            throw new BadMethodCallException('Poly1305 cannot be used in GCM mode');
         }
 
         $this->usePoly1305 = true;
@@ -607,17 +611,17 @@ abstract class SymmetricKey
      * will be made.
      *
      * @param string|null $key optional
-     * @throws \LengthException if the key isn't long enough
-     * @throws \BadMethodCallException if Poly1305 is enabled whilst in GCM mode
+     * @throws LengthException if the key isn't long enough
+     * @throws BadMethodCallException if Poly1305 is enabled whilst in GCM mode
      */
     public function setPoly1305Key(string $key = null): void
     {
         if ($this->mode == self::MODE_GCM) {
-            throw new \BadMethodCallException('Poly1305 cannot be used in GCM mode');
+            throw new BadMethodCallException('Poly1305 cannot be used in GCM mode');
         }
 
         if (!is_string($key) || strlen($key) != 32) {
-            throw new \LengthException('The Poly1305 key must be 32 bytes long (256 bits)');
+            throw new LengthException('The Poly1305 key must be 32 bytes long (256 bits)');
         }
 
         if (!isset(self::$poly1305Field)) {
@@ -634,12 +638,12 @@ abstract class SymmetricKey
      *
      * setNonce() is only required when gcm is used
      *
-     * @throws \BadMethodCallException if an nonce is provided when one shouldn't be
+     * @throws BadMethodCallException if an nonce is provided when one shouldn't be
      */
     public function setNonce(string $nonce): void
     {
         if ($this->mode != self::MODE_GCM) {
-            throw new \BadMethodCallException('Nonces are only used in GCM mode.');
+            throw new BadMethodCallException('Nonces are only used in GCM mode.');
         }
 
         $this->nonce = $nonce;
@@ -651,12 +655,12 @@ abstract class SymmetricKey
      *
      * setAAD() is only used by gcm or in poly1305 mode
      *
-     * @throws \BadMethodCallException if mode isn't GCM or if poly1305 isn't being utilized
+     * @throws BadMethodCallException if mode isn't GCM or if poly1305 isn't being utilized
      */
     public function setAAD(string $aad): void
     {
         if ($this->mode != self::MODE_GCM && !$this->usePoly1305) {
-            throw new \BadMethodCallException('Additional authenticated data is only utilized in GCM mode or with Poly1305');
+            throw new BadMethodCallException('Additional authenticated data is only utilized in GCM mode or with Poly1305');
         }
 
         $this->aad = $aad;
@@ -756,8 +760,8 @@ abstract class SymmetricKey
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
      * @param string[] ...$func_args
-     * @throws \LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
-     * @throws \RuntimeException if bcrypt is being used and a salt isn't provided
+     * @throws LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
+     * @throws RuntimeException if bcrypt is being used and a salt isn't provided
      * @see Crypt/Hash.php
      */
     public function setPassword(string $password, string $method = 'pbkdf2', ...$func_args): bool
@@ -768,7 +772,7 @@ abstract class SymmetricKey
         switch ($method) {
             case 'bcrypt':
                 if (!isset($func_args[2])) {
-                    throw new \RuntimeException('A salt must be provided for bcrypt to work');
+                    throw new RuntimeException('A salt must be provided for bcrypt to work');
                 }
 
                 $salt = $func_args[0];
@@ -800,7 +804,7 @@ abstract class SymmetricKey
                 // Keylength
                 if (isset($func_args[3])) {
                     if ($func_args[3] <= 0) {
-                        throw new \LengthException('Derived key length cannot be longer 0 or less');
+                        throw new LengthException('Derived key length cannot be longer 0 or less');
                     }
                     $dkLen = $func_args[3];
                 } else {
@@ -866,7 +870,7 @@ abstract class SymmetricKey
                         return true;
                     case $method == 'pbkdf1':
                         if ($dkLen > $hashObj->getLengthInBytes()) {
-                            throw new \LengthException('Derived key length cannot be longer than the hash length');
+                            throw new LengthException('Derived key length cannot be longer than the hash length');
                         }
                         $t = $password . $salt;
                         for ($i = 0; $i < $count; ++$i) {
@@ -1272,13 +1276,13 @@ abstract class SymmetricKey
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
      * @return string $plaintext
-     * @throws \LengthException if we're inside a block cipher and the ciphertext length is not a multiple of the block size
+     * @throws LengthException if we're inside a block cipher and the ciphertext length is not a multiple of the block size
      * @see self::encrypt()
      */
     public function decrypt(string $ciphertext): string
     {
         if ($this->paddable && strlen($ciphertext) % $this->block_size) {
-            throw new \LengthException('The ciphertext length (' . strlen($ciphertext) . ') needs to be a multiple of the block size (' . $this->block_size . ')');
+            throw new LengthException('The ciphertext length (' . strlen($ciphertext) . ') needs to be a multiple of the block size (' . $this->block_size . ')');
         }
         $this->setup();
 
@@ -1580,18 +1584,18 @@ abstract class SymmetricKey
      *
      * @param int $length optional
      * @return string
-     * @throws \LengthException if $length isn't of a sufficient length
-     * @throws \RuntimeException if GCM mode isn't being used
+     * @throws LengthException if $length isn't of a sufficient length
+     * @throws RuntimeException if GCM mode isn't being used
      * @see self::encrypt()
      */
     public function getTag(int $length = 16)
     {
         if ($this->mode != self::MODE_GCM && !$this->usePoly1305) {
-            throw new \BadMethodCallException('Authentication tags are only utilized in GCM mode or with Poly1305');
+            throw new BadMethodCallException('Authentication tags are only utilized in GCM mode or with Poly1305');
         }
 
         if ($this->newtag === false) {
-            throw new \BadMethodCallException('A tag can only be returned after a round of encryption has been performed');
+            throw new BadMethodCallException('A tag can only be returned after a round of encryption has been performed');
         }
 
         // the tag is 128-bits. it can't be greater than 16 bytes because that's bigger than the tag is. if it
@@ -1600,7 +1604,7 @@ abstract class SymmetricKey
         // see https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf#page=36
         // for more info
         if ($length < 4 || $length > 16) {
-            throw new \LengthException('The authentication tag must be between 4 and 16 bytes long');
+            throw new LengthException('The authentication tag must be between 4 and 16 bytes long');
         }
 
         return $length == 16 ?
@@ -1613,8 +1617,8 @@ abstract class SymmetricKey
      *
      * Only used in GCM mode
      *
-     * @throws \LengthException if $length isn't of a sufficient length
-     * @throws \RuntimeException if GCM mode isn't being used
+     * @throws LengthException if $length isn't of a sufficient length
+     * @throws RuntimeException if GCM mode isn't being used
      * @see self::decrypt()
      */
     public function setTag(string $tag): void
@@ -1624,12 +1628,12 @@ abstract class SymmetricKey
         }
 
         if ($this->mode != self::MODE_GCM && !$this->usePoly1305) {
-            throw new \BadMethodCallException('Authentication tags are only utilized in GCM mode or with Poly1305');
+            throw new BadMethodCallException('Authentication tags are only utilized in GCM mode or with Poly1305');
         }
 
         $length = strlen($tag);
         if ($length < 4 || $length > 16) {
-            throw new \LengthException('The authentication tag must be between 4 and 16 bytes long');
+            throw new LengthException('The authentication tag must be between 4 and 16 bytes long');
         }
         $this->oldtag = $tag;
     }
@@ -1865,7 +1869,7 @@ abstract class SymmetricKey
         }
 
         if ($this->mode == self::MODE_GCM) {
-            throw new \BadMethodCallException('This mode does not run in continuous mode');
+            throw new BadMethodCallException('This mode does not run in continuous mode');
         }
 
         $this->continuousBuffer = true;
@@ -2142,7 +2146,7 @@ abstract class SymmetricKey
      * If padding is disabled and $text is not a multiple of the blocksize, the string will be padded regardless
      * and padding will, hence forth, be enabled.
      *
-     * @throws \LengthException if padding is disabled and the plaintext's length is not a multiple of the block size
+     * @throws LengthException if padding is disabled and the plaintext's length is not a multiple of the block size
      * @see self::unpad()
      */
     protected function pad(string $text): string
@@ -2153,7 +2157,7 @@ abstract class SymmetricKey
             if ($length % $this->block_size == 0) {
                 return $text;
             } else {
-                throw new \LengthException("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size}). Try enabling padding.");
+                throw new LengthException("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size}). Try enabling padding.");
             }
         }
 
@@ -2168,7 +2172,7 @@ abstract class SymmetricKey
      * If padding is enabled and the reported padding length is invalid the encryption key will be assumed to be wrong
      * and false will be returned.
      *
-     * @throws \LengthException if the ciphertext's length is not a multiple of the block size
+     * @throws LengthException if the ciphertext's length is not a multiple of the block size
      * @see self::pad()
      */
     protected function unpad(string $text): string
@@ -2807,7 +2811,7 @@ abstract class SymmetricKey
         if ($bindedClosure instanceof \Closure) {
             return $bindedClosure;
         }
-        throw new \LogicException('\Closure::bind() failed.');
+        throw new LogicException('\Closure::bind() failed.');
     }
 
     /**

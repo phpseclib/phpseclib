@@ -23,6 +23,7 @@ use phpseclib3\Crypt\EC\Curves\Ed25519;
 use phpseclib3\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib3\Crypt\EC\Formats\Signature\ASN1 as ASN1Signature;
 use phpseclib3\Crypt\Hash;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnsupportedOperationException;
 use phpseclib3\Math\BigInteger;
 
@@ -76,7 +77,7 @@ class PrivateKey extends EC implements Common\PrivateKey
             return $this->curve->encodePoint($point);
         }
         if (empty($point)) {
-            throw new \RuntimeException('The infinity point is invalid');
+            throw new RuntimeException('The infinity point is invalid');
         }
         return "\4" . $point[0]->toBytes(true) . $point[1]->toBytes(true);
     }

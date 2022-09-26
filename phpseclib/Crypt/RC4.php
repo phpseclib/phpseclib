@@ -45,6 +45,7 @@ declare(strict_types=1);
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Crypt\Common\StreamCipher;
+use phpseclib3\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of RC4.
@@ -127,12 +128,12 @@ class RC4 extends StreamCipher
      *
      * Keys can be between 1 and 256 bytes long.
      *
-     * @throws \LengthException if the key length is invalid
+     * @throws LengthException if the key length is invalid
      */
     public function setKeyLength(int $length): void
     {
         if ($length < 8 || $length > 2048) {
-            throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys between 1 and 256 bytes are supported');
+            throw new LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys between 1 and 256 bytes are supported');
         }
 
         $this->key_length = $length >> 3;
@@ -149,7 +150,7 @@ class RC4 extends StreamCipher
     {
         $length = strlen($key);
         if ($length < 1 || $length > 256) {
-            throw new \LengthException('Key size of ' . $length . ' bytes is not supported by RC4. Keys must be between 1 and 256 bytes long');
+            throw new LengthException('Key size of ' . $length . ' bytes is not supported by RC4. Keys must be between 1 and 256 bytes long');
         }
 
         parent::setKey($key);

@@ -39,6 +39,7 @@ declare(strict_types=1);
 namespace phpseclib3\Crypt;
 
 use phpseclib3\Exception\BadModeException;
+use phpseclib3\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of Triple DES.
@@ -192,7 +193,7 @@ class TripleDES extends DES
      *
      * If you want to use a 64-bit key use DES.php
      *
-     * @throws \LengthException if the key length is invalid
+     * @throws LengthException if the key length is invalid
      * @see \phpseclib3\Crypt\Common\SymmetricKey:setKeyLength()
      */
     public function setKeyLength(int $length): void
@@ -202,7 +203,7 @@ class TripleDES extends DES
             case 192:
                 break;
             default:
-                throw new \LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes 128 or 192 bits are supported');
+                throw new LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes 128 or 192 bits are supported');
         }
 
         parent::setKeyLength($length);
@@ -215,14 +216,14 @@ class TripleDES extends DES
      *
      * DES also requires that every eighth bit be a parity bit, however, we'll ignore that.
      *
-     * @throws \LengthException if the key length is invalid
+     * @throws LengthException if the key length is invalid
      * @see \phpseclib3\Crypt\DES::setKey()
      * @see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
      */
     public function setKey(string $key): void
     {
         if ($this->explicit_key_length !== false && strlen($key) != $this->explicit_key_length) {
-            throw new \LengthException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');
+            throw new LengthException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');
         }
 
         switch (strlen($key)) {
@@ -232,7 +233,7 @@ class TripleDES extends DES
             case 24:
                 break;
             default:
-                throw new \LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16 or 24 are supported');
+                throw new LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of sizes 16 or 24 are supported');
         }
 
         // copied from self::setKey()

@@ -30,14 +30,14 @@ abstract class AsymmetricKey
     /**
      * Precomputed Zero
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected static $zero;
 
     /**
      * Precomputed One
      *
-     * @var \phpseclib3\Math\BigInteger
+     * @var BigInteger
      */
     protected static $one;
 
@@ -51,14 +51,14 @@ abstract class AsymmetricKey
     /**
      * Hash function
      *
-     * @var \phpseclib3\Crypt\Hash
+     * @var Hash
      */
     protected $hash;
 
     /**
      * HMAC function
      *
-     * @var \phpseclib3\Crypt\Hash
+     * @var Hash
      */
     private $hmac;
 

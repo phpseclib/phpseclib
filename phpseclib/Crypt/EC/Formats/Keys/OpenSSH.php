@@ -21,8 +21,10 @@ use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\Formats\Keys\OpenSSH as Progenitor;
 use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib3\Crypt\EC\Curves\Ed25519;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnsupportedCurveException;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\Common\FiniteField\Integer;
 
 /**
  * OpenSSH Formatted EC Key Handler
@@ -58,7 +60,7 @@ abstract class OpenSSH extends Progenitor
             $paddedKey = $parsed['paddedKey'];
             [$type] = Strings::unpackSSH2('s', $paddedKey);
             if ($type != $parsed['type']) {
-                throw new \RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
+                throw new RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
             }
             if ($type == 'ssh-ed25519') {
                 [, $key, $comment] = Strings::unpackSSH2('sss', $paddedKey);
@@ -79,7 +81,7 @@ abstract class OpenSSH extends Progenitor
 
         if ($parsed['type'] == 'ssh-ed25519') {
             if (Strings::shift($parsed['publicKey'], 4) != "\0\0\0\x20") {
-                throw new \RuntimeException('Length of ssh-ed25519 key should be 32');
+                throw new RuntimeException('Length of ssh-ed25519 key should be 32');
             }
 
             $curve = new Ed25519();
@@ -130,7 +132,7 @@ abstract class OpenSSH extends Progenitor
     /**
      * Convert an EC public key to the appropriate format
      *
-     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
+     * @param Integer[] $publicKey
      * @param array $options optional
      */
     public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = []): string
@@ -165,8 +167,8 @@ abstract class OpenSSH extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Crypt\EC\Curves\Ed25519 $curve
-     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
+     * @param Ed25519 $curve
+     * @param Integer[] $publicKey
      * @param string|false $password
      * @param array $options optional
      */
@@ -180,10 +182,10 @@ abstract class OpenSSH extends Progenitor
     ): string {
         if ($curve instanceof Ed25519) {
             if (!isset($secret)) {
-                throw new \RuntimeException('Private Key does not have a secret set');
+                throw new RuntimeException('Private Key does not have a secret set');
             }
             if (strlen($secret) != 32) {
-                throw new \RuntimeException('Private Key secret is not of the correct length');
+                throw new RuntimeException('Private Key secret is not of the correct length');
             }
 
             $pubKey = $curve->encodePoint($publicKey);

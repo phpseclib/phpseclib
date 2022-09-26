@@ -20,6 +20,8 @@ declare(strict_types=1);
 namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
 use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Exception\InvalidArgumentException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Exception\UnsupportedFormatException;
 use phpseclib3\Math\BigInteger;
 
@@ -67,16 +69,16 @@ abstract class MSBLOB
     public static function load($key, ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $key = Strings::base64_decode($key);
 
         if (!is_string($key)) {
-            throw new \UnexpectedValueException('Base64 decoding produced an error');
+            throw new UnexpectedValueException('Base64 decoding produced an error');
         }
         if (strlen($key) < 20) {
-            throw new \UnexpectedValueException('Key appears to be malformed');
+            throw new UnexpectedValueException('Key appears to be malformed');
         }
 
         // PUBLICKEYSTRUC  publickeystruc
@@ -97,7 +99,7 @@ abstract class MSBLOB
                 $publickey = false;
                 break;
             default:
-                throw new \UnexpectedValueException('Key appears to be malformed');
+                throw new UnexpectedValueException('Key appears to be malformed');
         }
 
         $components = ['isPublicKey' => $publickey];
@@ -108,7 +110,7 @@ abstract class MSBLOB
             case self::CALG_RSA_SIGN:
                 break;
             default:
-                throw new \UnexpectedValueException('Key appears to be malformed');
+                throw new UnexpectedValueException('Key appears to be malformed');
         }
 
         // RSAPUBKEY rsapubkey
@@ -127,12 +129,12 @@ abstract class MSBLOB
             case self::RSA1:
                 break;
             default:
-                throw new \UnexpectedValueException('Key appears to be malformed');
+                throw new UnexpectedValueException('Key appears to be malformed');
         }
 
         $baseLength = $bitlen / 16;
         if (strlen($key) != 2 * $baseLength && strlen($key) != 9 * $baseLength) {
-            throw new \UnexpectedValueException('Key appears to be malformed');
+            throw new UnexpectedValueException('Key appears to be malformed');
         }
 
         $components[$components['isPublicKey'] ? 'publicExponent' : 'privateExponent'] = new BigInteger(strrev($pubexp), 256);
@@ -170,7 +172,7 @@ abstract class MSBLOB
     public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, ?string $password = null): string
     {
         if (count($primes) != 2) {
-            throw new \InvalidArgumentException('MSBLOB does not support multi-prime RSA keys');
+            throw new InvalidArgumentException('MSBLOB does not support multi-prime RSA keys');
         }
 
         if (!empty($password) && is_string($password)) {

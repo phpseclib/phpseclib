@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace phpseclib3\File;
 
-use DateTime;
 use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\File\ASN1\Element;
 use phpseclib3\Math\BigInteger;
 
@@ -1077,7 +1077,7 @@ abstract class ASN1
                     $filters = $filters[$part];
                 }
                 if ($filters === false) {
-                    throw new \RuntimeException('No filters defined for ' . implode('/', $loc));
+                    throw new RuntimeException('No filters defined for ' . implode('/', $loc));
                 }
                 return self::encode_der($source, $filters + $mapping, null, $special);
             case self::TYPE_NULL:
@@ -1100,7 +1100,7 @@ abstract class ASN1
                 $value = $source ? "\xFF" : "\x00";
                 break;
             default:
-                throw new \RuntimeException('Mapping provides no type definition for ' . implode('/', self::$location));
+                throw new RuntimeException('Mapping provides no type definition for ' . implode('/', self::$location));
         }
 
         if (isset($idx)) {
@@ -1190,7 +1190,7 @@ abstract class ASN1
             $oid = $source;
         }
         if ($oid === false) {
-            throw new \RuntimeException('Invalid OID');
+            throw new RuntimeException('Invalid OID');
         }
 
         $parts = explode('.', $oid);

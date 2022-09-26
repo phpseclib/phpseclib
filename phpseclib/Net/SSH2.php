@@ -66,9 +66,13 @@ use phpseclib3\Crypt\TripleDES;
 use phpseclib3\Crypt\Twofish;
 use phpseclib3\Exception\ConnectionClosedException;
 use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\InvalidArgumentException;
+use phpseclib3\Exception\LengthException;
+use phpseclib3\Exception\LogicException;
 use phpseclib3\Exception\NoSupportedAlgorithmsException;
 use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnableToConnectException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Exception\UnsupportedCurveException;
 use phpseclib3\Math\BigInteger;
@@ -1135,8 +1139,8 @@ class SSH2
     /**
      * Connect to an SSHv2 server
      *
-     * @throws \UnexpectedValueException on receipt of unexpected packets
-     * @throws \RuntimeException on other errors
+     * @throws UnexpectedValueException on receipt of unexpected packets
+     * @throws RuntimeException on other errors
      */
     private function connect()
     {
@@ -1165,7 +1169,7 @@ class SSH2
             if ($this->curTimeout) {
                 $this->curTimeout -= $elapsed;
                 if ($this->curTimeout < 0) {
-                    throw new \RuntimeException('Connection timed out whilst attempting to open socket connection');
+                    throw new RuntimeException('Connection timed out whilst attempting to open socket connection');
                 }
             }
         }
@@ -1189,7 +1193,7 @@ class SSH2
             while (true) {
                 if ($this->curTimeout) {
                     if ($this->curTimeout < 0) {
-                        throw new \RuntimeException('Connection timed out whilst receiving server identification string');
+                        throw new RuntimeException('Connection timed out whilst receiving server identification string');
                     }
                     $read = [$this->fsock];
                     $write = $except = null;
@@ -1197,7 +1201,7 @@ class SSH2
                     $sec = (int) floor($this->curTimeout);
                     $usec = (int) (1000000 * ($this->curTimeout - $sec));
                     if (@stream_select($read, $write, $except, $sec, $usec) === false) {
-                        throw new \RuntimeException('Connection timed out whilst receiving server identification string');
+                        throw new RuntimeException('Connection timed out whilst receiving server identification string');
                     }
                     $elapsed = microtime(true) - $start;
                     $this->curTimeout -= $elapsed;
@@ -1205,7 +1209,7 @@ class SSH2
 
                 $temp = stream_get_line($this->fsock, 255, "\n");
                 if ($temp === false) {
-                    throw new \RuntimeException('Error reading from socket');
+                    throw new RuntimeException('Error reading from socket');
                 }
                 if (strlen($temp) == 255) {
                     continue;
@@ -1260,7 +1264,7 @@ class SSH2
 
             if (is_bool($response) || !strlen($response) || ord($response[0]) != MessageType::KEXINIT) {
                 $this->bitmap = 0;
-                throw new \UnexpectedValueException('Expected SSH_MSG_KEXINIT');
+                throw new UnexpectedValueException('Expected SSH_MSG_KEXINIT');
             }
 
             $this->key_exchange($response);
@@ -1310,9 +1314,9 @@ class SSH2
      * Key Exchange
      *
      * @param string|bool $kexinit_payload_server optional
-     * @throws \UnexpectedValueException on receipt of unexpected packets
-     * @throws \RuntimeException on other errors
-     * @throws \phpseclib3\Exception\NoSupportedAlgorithmsException when none of the algorithms phpseclib has loaded are compatible
+     * @throws UnexpectedValueException on receipt of unexpected packets
+     * @throws RuntimeException on other errors
+     * @throws NoSupportedAlgorithmsException when none of the algorithms phpseclib has loaded are compatible
      */
     private function key_exchange($kexinit_payload_server = false): bool
     {
@@ -1384,7 +1388,7 @@ class SSH2
                 || ord($kexinit_payload_server[0]) != MessageType::KEXINIT
             ) {
                 $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
-                throw new \UnexpectedValueException('Expected SSH_MSG_KEXINIT');
+                throw new UnexpectedValueException('Expected SSH_MSG_KEXINIT');
             }
 
             $send_kex = false;
@@ -1530,7 +1534,7 @@ class SSH2
                 [$type, $primeBytes, $gBytes] = Strings::unpackSSH2('Css', $response);
                 if ($type != MessageTypeExtra::KEXDH_GEX_GROUP) {
                     $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
-                    throw new \UnexpectedValueException('Expected SSH_MSG_KEX_DH_GEX_GROUP');
+                    throw new UnexpectedValueException('Expected SSH_MSG_KEX_DH_GEX_GROUP');
                 }
                 $this->updateLogHistory('UNKNOWN (31)', 'SSH_MSG_KEXDH_GEX_GROUP');
                 $prime = new BigInteger($primeBytes, -256);
@@ -1581,7 +1585,7 @@ class SSH2
 
         if ($type != $serverKexReplyMessage) {
             $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
-            throw new \UnexpectedValueException("Expected $serverKexReplyMessage");
+            throw new UnexpectedValueException("Expected $serverKexReplyMessage");
         }
         switch ($serverKexReplyMessage) {
             case MessageTypeExtra::KEX_ECDH_REPLY:
@@ -1594,7 +1598,7 @@ class SSH2
         $this->server_public_host_key = $server_public_host_key;
         [$public_key_format] = Strings::unpackSSH2('s', $server_public_host_key);
         if (strlen($this->signature) < 4) {
-            throw new \LengthException('The signature needs at least four bytes');
+            throw new LengthException('The signature needs at least four bytes');
         }
         $temp = unpack('Nlength', substr($this->signature, 0, 4));
         $this->signature_format = substr($this->signature, 4, $temp['length']);
@@ -1643,7 +1647,7 @@ class SSH2
                 case $server_host_key_algorithm != 'rsa-sha2-256' && $server_host_key_algorithm != 'rsa-sha2-512':
                 case $this->signature_format != 'ssh-rsa':
                     $this->disconnect_helper(DisconnectReason::HOST_KEY_NOT_VERIFIABLE);
-                    throw new \RuntimeException('Server Host Key Algorithm Mismatch (' . $this->signature_format . ' vs ' . $server_host_key_algorithm . ')');
+                    throw new RuntimeException('Server Host Key Algorithm Mismatch (' . $this->signature_format . ' vs ' . $server_host_key_algorithm . ')');
             }
         }
 
@@ -1660,7 +1664,7 @@ class SSH2
         [$type] = Strings::unpackSSH2('C', $response);
         if ($type != MessageType::NEWKEYS) {
             $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
-            throw new \UnexpectedValueException('Expected SSH_MSG_NEWKEYS');
+            throw new UnexpectedValueException('Expected SSH_MSG_NEWKEYS');
         }
 
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
@@ -2010,14 +2014,14 @@ class SSH2
         foreach ($args as $arg) {
             switch (true) {
                 case $arg instanceof PublicKey:
-                    throw new \UnexpectedValueException('A PublicKey object was passed to the login method instead of a PrivateKey object');
+                    throw new UnexpectedValueException('A PublicKey object was passed to the login method instead of a PrivateKey object');
                 case $arg instanceof PrivateKey:
                 case $arg instanceof Agent:
                 case is_array($arg):
                 case Strings::is_stringable($arg):
                     break;
                 default:
-                    throw new \UnexpectedValueException('$password needs to either be an instance of \phpseclib3\Crypt\Common\PrivateKey, \System\SSH\Agent, an array or a string');
+                    throw new UnexpectedValueException('$password needs to either be an instance of \phpseclib3\Crypt\Common\PrivateKey, \System\SSH\Agent, an array or a string');
             }
         }
 
@@ -2088,8 +2092,8 @@ class SSH2
      * {@internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.}
      *
-     * @throws \UnexpectedValueException on receipt of unexpected packets
-     * @throws \RuntimeException on other errors
+     * @throws UnexpectedValueException on receipt of unexpected packets
+     * @throws RuntimeException on other errors
      */
     private function login_helper(string $username, $password = null): bool
     {
@@ -2116,7 +2120,7 @@ class SSH2
             [$type, $service] = Strings::unpackSSH2('Cs', $response);
             if ($type != MessageType::SERVICE_ACCEPT || $service != 'ssh-userauth') {
                 $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
-                throw new \UnexpectedValueException('Expected SSH_MSG_SERVICE_ACCEPT');
+                throw new UnexpectedValueException('Expected SSH_MSG_SERVICE_ACCEPT');
             }
             $this->bitmap |= self::MASK_LOGIN_REQ;
         }
@@ -2255,7 +2259,7 @@ class SSH2
     /**
      * Handle the keyboard-interactive requests / responses.
      *
-     * @throws \RuntimeException on connection error
+     * @throws RuntimeException on connection error
      */
     private function keyboard_interactive_process(...$responses)
     {
@@ -2368,7 +2372,7 @@ class SSH2
      * {@internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.}
      *
-     * @throws \RuntimeException on connection error
+     * @throws RuntimeException on connection error
      */
     private function privatekey_login(string $username, PrivateKey $privatekey): bool
     {
@@ -2530,7 +2534,7 @@ class SSH2
      *
      * @return string|bool
      * @psalm-return ($callback is callable ? bool : string|bool)
-     * @throws \RuntimeException on connection error
+     * @throws RuntimeException on connection error
      */
     public function exec(string $command, callable $callback = null)
     {
@@ -2543,7 +2547,7 @@ class SSH2
         }
 
         if ($this->in_request_pty_exec) {
-            throw new \RuntimeException('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
+            throw new RuntimeException('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
         }
 
         // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
@@ -2590,7 +2594,7 @@ class SSH2
             $this->channel_status[self::CHANNEL_EXEC] = MessageType::CHANNEL_REQUEST;
             if (!$this->get_channel_packet(self::CHANNEL_EXEC)) {
                 $this->disconnect_helper(DisconnectReason::BY_APPLICATION);
-                throw new \RuntimeException('Unable to request pseudo-terminal');
+                throw new RuntimeException('Unable to request pseudo-terminal');
             }
 
             $this->in_request_pty_exec = true;
@@ -2651,10 +2655,10 @@ class SSH2
     /**
      * Creates an interactive shell
      *
-     * @see self::read()
+     * @throws UnexpectedValueException on receipt of unexpected packets
+     * @throws RuntimeException on other errors
+     *@see self::read()
      * @see self::write()
-     * @throws \UnexpectedValueException on receipt of unexpected packets
-     * @throws \RuntimeException on other errors
      */
     private function initShell(): bool
     {
@@ -2700,7 +2704,7 @@ class SSH2
         $this->channel_status[self::CHANNEL_SHELL] = MessageType::CHANNEL_REQUEST;
 
         if (!$this->get_channel_packet(self::CHANNEL_SHELL)) {
-            throw new \RuntimeException('Unable to request pty');
+            throw new RuntimeException('Unable to request pty');
         }
 
         $packet = Strings::packSSH2(
@@ -2714,7 +2718,7 @@ class SSH2
 
         $response = $this->get_channel_packet(self::CHANNEL_SHELL);
         if ($response === false) {
-            throw new \RuntimeException('Unable to request shell');
+            throw new RuntimeException('Unable to request shell');
         }
 
         $this->channel_status[self::CHANNEL_SHELL] = MessageType::CHANNEL_DATA;
@@ -2797,7 +2801,7 @@ class SSH2
      * if $mode == self::READ_REGEX, a regular expression.
      *
      * @return string|bool|null
-     * @throws \RuntimeException on connection error
+     * @throws RuntimeException on connection error
      * @see self::write()
      */
     public function read(string $expect = '', int $mode = self::READ_SIMPLE)
@@ -2810,7 +2814,7 @@ class SSH2
         }
 
         if (!($this->bitmap & self::MASK_SHELL) && !$this->initShell()) {
-            throw new \RuntimeException('Unable to initiate an interactive shell session');
+            throw new RuntimeException('Unable to initiate an interactive shell session');
         }
 
         $channel = $this->get_interactive_channel();
@@ -2842,7 +2846,7 @@ class SSH2
     /**
      * Inputs a command into an interactive shell.
      *
-     * @throws \RuntimeException on connection error
+     * @throws RuntimeException on connection error
      * @see SSH2::read()
      */
     public function write(string $cmd): void
@@ -2852,7 +2856,7 @@ class SSH2
         }
 
         if (!($this->bitmap & self::MASK_SHELL) && !$this->initShell()) {
-            throw new \RuntimeException('Unable to initiate an interactive shell session');
+            throw new RuntimeException('Unable to initiate an interactive shell session');
         }
 
         $this->send_channel_packet($this->get_interactive_channel(), $cmd);
@@ -3065,7 +3069,7 @@ class SSH2
     {
         if ($skip_channel_filter) {
             if (!is_resource($this->fsock)) {
-                throw new \InvalidArgumentException('fsock is not a resource.');
+                throw new InvalidArgumentException('fsock is not a resource.');
             }
             $read = [$this->fsock];
             $write = $except = null;
@@ -3154,7 +3158,7 @@ class SSH2
                 case 'chacha20-poly1305@openssh.com':
                     // This should be impossible, but we are checking anyway to narrow the type for Psalm.
                     if (!($this->decrypt instanceof ChaCha20)) {
-                        throw new \LogicException('$this->decrypt is not a ' . ChaCha20::class);
+                        throw new LogicException('$this->decrypt is not a ' . ChaCha20::class);
                     }
 
                     $nonce = pack('N2', 0, $this->get_seq_no);
@@ -3204,7 +3208,7 @@ class SSH2
 
         if (strlen($raw) < 5) {
             $this->bitmap = 0;
-            throw new \RuntimeException('Plaintext is too short');
+            throw new RuntimeException('Plaintext is too short');
         }
         extract(unpack('Npacket_length/Cpadding_length', Strings::shift($raw, 5)));
         /**
@@ -3232,7 +3236,7 @@ class SSH2
             $hmac = stream_get_contents($this->fsock, $this->hmac_size);
             if ($hmac === false || strlen($hmac) != $this->hmac_size) {
                 $this->disconnect_helper(DisconnectReason::MAC_ERROR);
-                throw new \RuntimeException('Error reading socket');
+                throw new RuntimeException('Error reading socket');
             }
 
             $reconstructed = !$this->hmac_check_etm ?
@@ -3242,12 +3246,12 @@ class SSH2
                 $this->hmac_check->setNonce("\0\0\0\0" . pack('N', $this->get_seq_no));
                 if ($hmac != $this->hmac_check->hash($reconstructed)) {
                     $this->disconnect_helper(DisconnectReason::MAC_ERROR);
-                    throw new \RuntimeException('Invalid UMAC');
+                    throw new RuntimeException('Invalid UMAC');
                 }
             } else {
                 if ($hmac != $this->hmac_check->hash(pack('Na*', $this->get_seq_no, $reconstructed))) {
                     $this->disconnect_helper(DisconnectReason::MAC_ERROR);
-                    throw new \RuntimeException('Invalid HMAC');
+                    throw new RuntimeException('Invalid HMAC');
                 }
             }
         }
@@ -3342,7 +3346,7 @@ class SSH2
                 $this->reset_connection(DisconnectReason::KEY_EXCHANGE_FAILED);
                 return false;
             }
-            throw new \RuntimeException('Invalid size');
+            throw new RuntimeException('Invalid size');
         }
 
         if ($adjustLength) {
@@ -3354,7 +3358,7 @@ class SSH2
             $temp = stream_get_contents($this->fsock, $remaining_length);
             if ($temp === false || feof($this->fsock)) {
                 $this->disconnect_helper(DisconnectReason::CONNECTION_LOST);
-                throw new \RuntimeException('Error reading from socket');
+                throw new RuntimeException('Error reading from socket');
             }
             $buffer .= $temp;
             $remaining_length -= strlen($temp);
@@ -3591,7 +3595,7 @@ class SSH2
      *
      * - if the channel status is CHANNEL_REQUEST and the response was CHANNEL_FAILURE
      *
-     * @throws \RuntimeException on connection error
+     * @throws RuntimeException on connection error
      */
     protected function get_channel_packet(int $client_channel, bool $skip_extended = false)
     {
@@ -3726,11 +3730,11 @@ class SSH2
                                 return $result;
                             case MessageType::CHANNEL_OPEN_FAILURE:
                                 $this->disconnect_helper(DisconnectReason::BY_APPLICATION);
-                                throw new \RuntimeException('Unable to open channel');
+                                throw new RuntimeException('Unable to open channel');
                             default:
                                 if ($client_channel == $channel) {
                                     $this->disconnect_helper(DisconnectReason::BY_APPLICATION);
-                                    throw new \RuntimeException('Unexpected response to open request');
+                                    throw new RuntimeException('Unexpected response to open request');
                                 }
                                 return $this->get_channel_packet($client_channel, $skip_extended);
                         }
@@ -3747,7 +3751,7 @@ class SSH2
                                 return $this->get_channel_packet($client_channel, $skip_extended);
                             default:
                                 $this->disconnect_helper(DisconnectReason::BY_APPLICATION);
-                                throw new \RuntimeException('Unable to fulfill channel request');
+                                throw new RuntimeException('Unable to fulfill channel request');
                         }
                     case MessageType::CHANNEL_CLOSE:
                         return $type == MessageType::CHANNEL_CLOSE ? true : $this->get_channel_packet($client_channel, $skip_extended);
@@ -3801,7 +3805,7 @@ class SSH2
                     break;
                 default:
                     $this->disconnect_helper(DisconnectReason::BY_APPLICATION);
-                    throw new \RuntimeException("Error reading channel data ($type)");
+                    throw new RuntimeException("Error reading channel data ($type)");
             }
         }
     }
@@ -3889,7 +3893,7 @@ class SSH2
                 case 'chacha20-poly1305@openssh.com':
                     // This should be impossible, but we are checking anyway to narrow the type for Psalm.
                     if (!($this->encrypt instanceof ChaCha20)) {
-                        throw new \LogicException('$this->encrypt is not a ' . ChaCha20::class);
+                        throw new LogicException('$this->encrypt is not a ' . ChaCha20::class);
                     }
 
                     $nonce = pack('N2', 0, $this->send_seq_no);
@@ -3950,7 +3954,7 @@ class SSH2
 
         if (strlen($packet) != $sent) {
             $this->bitmap = 0;
-            throw new \RuntimeException("Only $sent of " . strlen($packet) . " bytes were sent");
+            throw new RuntimeException("Only $sent of " . strlen($packet) . " bytes were sent");
         }
     }
 
@@ -4623,8 +4627,8 @@ class SSH2
      * is recommended.  Returns false if the server signature is not signed correctly with the public host key.
      *
      * @return string|false
-     * @throws \RuntimeException on badly formatted keys
-     * @throws \phpseclib3\Exception\NoSupportedAlgorithmsException when the key isn't in a supported format
+     * @throws RuntimeException on badly formatted keys
+     * @throws NoSupportedAlgorithmsException when the key isn't in a supported format
      */
     public function getServerPublicHostKey()
     {
