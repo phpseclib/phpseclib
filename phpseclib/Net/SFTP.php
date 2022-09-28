@@ -1105,6 +1105,12 @@ class Net_SFTP extends Net_SSH2
     {
         $files = $this->_list($dir, false);
 
+        // If we get an int back, then that is an "unexpected" status.
+        // We do not have a file list, so return false.
+        if (is_int($files)) {
+            return false;
+        }
+
         if (!$recursive || $files === false) {
             return $files;
         }
@@ -1140,6 +1146,13 @@ class Net_SFTP extends Net_SSH2
     function rawlist($dir = '.', $recursive = false)
     {
         $files = $this->_list($dir, true);
+
+        // If we get an int back, then that is an "unexpected" status.
+        // We do not have a file list, so return false.
+        if (is_int($files)) {
+            return false;
+        }
+
         if (!$recursive || $files === false) {
             return $files;
         }
@@ -1207,8 +1220,12 @@ class Net_SFTP extends Net_SSH2
                 break;
             case NET_SFTP_STATUS:
                 // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
-                $this->_logError($response);
-                return false;
+                if (strlen($response) < 4) {
+                    return false;
+                }
+                extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+                $this->_logError($response, $status);
+                return $status;
             default:
                 user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
                 return false;
@@ -1277,7 +1294,7 @@ class Net_SFTP extends Net_SSH2
                     extract(unpack('Nstatus', $this->_string_shift($response, 4)));
                     if ($status != NET_SFTP_STATUS_EOF) {
                         $this->_logError($response, $status);
-                        return false;
+                        return $status;
                     }
                     break 2;
                 default:
@@ -1953,7 +1970,7 @@ class Net_SFTP extends Net_SSH2
         $i = 0;
         $entries = $this->_list($path, true);
 
-        if ($entries === false) {
+        if ($entries === false || is_int($entries)) {
             return $this->_setstat($path, $attr, false);
         }
 
@@ -2798,9 +2815,14 @@ class Net_SFTP extends Net_SSH2
         $i = 0;
         $entries = $this->_list($path, true);
 
-        // normally $entries would have at least . and .. but it might not if the directories
-        // permissions didn't allow reading
-        if (empty($entries)) {
+        // The folder does not exist at all, so we cannot delete it.
+        if ($entries === NET_SFTP_STATUS_NO_SUCH_FILE) {
+            return false;
+        }
+
+        // Normally $entries would have at least . and .. but it might not if the directories
+        // permissions didn't allow reading. If this happens then default to an empty list of files.
+        if ($entries === false || is_int($entries)) {
             $entries = array();
         }
 
