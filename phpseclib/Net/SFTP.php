@@ -2663,6 +2663,9 @@ class SFTP extends SSH2
         }
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
+        /**
+         * @var int $status
+         */
         [$status] = Strings::unpackSSH2('N', $response);
         if ($status != StatusCode::OK) {
             $this->logError($response, $status);
