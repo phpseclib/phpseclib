@@ -618,9 +618,8 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
      * @depends testRmDirScratchNonexistent
      * @group github706
      */
-    public function testDeleteEmptyDir($sftp)
+    public function testDeleteEmptyDir(SFTP $sftp)
     {
-        assert($sftp instanceof SFTP);
         $this->assertTrue(
             $sftp->mkdir(self::$scratchDir),
             'Failed asserting that scratch directory could ' .
