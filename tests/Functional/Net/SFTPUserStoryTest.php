@@ -16,6 +16,9 @@ use phpseclib3\Tests\PhpseclibFunctionalTestCase;
 
 class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
 {
+    /**
+     * @var string
+     */
     protected static $scratchDir;
     protected static $exampleData;
     protected static $exampleDataLength;
@@ -620,6 +623,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
      */
     public function testDeleteEmptyDir($sftp)
     {
+        assert($sftp instanceof SFTP);
         $this->assertTrue(
             $sftp->mkdir(self::$scratchDir),
             'Failed asserting that scratch directory could ' .
