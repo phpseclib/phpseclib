@@ -816,6 +816,12 @@ class SFTP extends SSH2
     {
         $files = $this->readlist($dir, false);
 
+        // If we get an int back, then that is an "unexpected" status.
+        // We do not have a file list, so return false.
+        if (is_int($files)) {
+            return false;
+        }
+
         if (!$recursive || $files === false) {
             return $files;
         }
@@ -846,6 +852,13 @@ class SFTP extends SSH2
     public function rawlist(string $dir = '.', bool $recursive = false)
     {
         $files = $this->readlist($dir, true);
+
+        // If we get an int back, then that is an "unexpected" status.
+        // We do not have a file list, so return false.
+        if (is_int($files)) {
+            return false;
+        }
+
         if (!$recursive || $files === false) {
             return $files;
         }
@@ -882,7 +895,7 @@ class SFTP extends SSH2
     /**
      * Reads a list, be it detailed or not, of files in the given directory
      *
-     * @return array|false
+     * @return array|int|false array of files, integer status (if known) or false if something else is wrong
      * @throws UnexpectedValueException on receipt of unexpected packets
      */
     private function readlist(string $dir, bool $raw = true)
@@ -909,8 +922,9 @@ class SFTP extends SSH2
                 break;
             case SFTPPacketType::STATUS:
                 // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
-                $this->logError($response);
-                return false;
+                [$status] = Strings::unpackSSH2('N', $response);
+                $this->logError($response, $status);
+                return $status;
             default:
                 throw new UnexpectedValueException('Expected PacketType::HANDLE or PacketType::STATUS. '
                                                   . 'Got packet type: ' . $this->packet_type);
@@ -963,7 +977,7 @@ class SFTP extends SSH2
                     [$status] = Strings::unpackSSH2('N', $response);
                     if ($status != StatusCode::EOF) {
                         $this->logError($response, $status);
-                        return false;
+                        return $status;
                     }
                     break 2;
                 default:
@@ -1548,7 +1562,7 @@ class SFTP extends SSH2
         $i = 0;
         $entries = $this->readlist($path, true);
 
-        if ($entries === false) {
+        if ($entries === false || is_int($entries)) {
             return $this->setstat($path, $attr, false);
         }
 
@@ -2310,9 +2324,14 @@ class SFTP extends SSH2
         $i = 0;
         $entries = $this->readlist($path, true);
 
-        // normally $entries would have at least . and .. but it might not if the directories
-        // permissions didn't allow reading
-        if (empty($entries)) {
+        // The folder does not exist at all, so we cannot delete it.
+        if ($entries === StatusCode::NO_SUCH_FILE) {
+            return false;
+        }
+
+        // Normally $entries would have at least . and .. but it might not if the directories
+        // permissions didn't allow reading. If this happens then default to an empty list of files.
+        if (($entries === false) || is_int($entries)) {
             $entries = [];
         }
 
