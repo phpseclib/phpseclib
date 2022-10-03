@@ -898,7 +898,7 @@ class SFTP extends SSH2
      * @return array|int|false array of files, integer status (if known) or false if something else is wrong
      * @throws UnexpectedValueException on receipt of unexpected packets
      */
-    private function readlist(string $dir, bool $raw = true)
+    private function readlist(string $dir, bool $raw = true): array|int|false
     {
         if (!$this->precheck()) {
             return false;
