@@ -2331,7 +2331,7 @@ class SFTP extends SSH2
 
         // Normally $entries would have at least . and .. but it might not if the directories
         // permissions didn't allow reading. If this happens then default to an empty list of files.
-        if (($entries === false) || is_int($entries)) {
+        if ($entries === false || is_int($entries)) {
             $entries = [];
         }
 
