@@ -623,6 +623,12 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
             'Failed asserting that stat on a deleted directory returns false'
         );
 
+        $this->assertFalse(
+            $sftp->delete(self::$scratchDir),
+            'Failed asserting that non-existent directory could not ' .
+            'be deleted using recursive delete().'
+        );
+
         return $sftp;
     }
 
