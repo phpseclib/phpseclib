@@ -895,10 +895,10 @@ class SFTP extends SSH2
     /**
      * Reads a list, be it detailed or not, of files in the given directory
      *
-     * @return array|false
+     * @return array|int|false array of files, integer status (if known) or false if something else is wrong
      * @throws UnexpectedValueException on receipt of unexpected packets
      */
-    private function readlist(string $dir, bool $raw = true)
+    private function readlist(string $dir, bool $raw = true): array|int|false
     {
         if (!$this->precheck()) {
             return false;
@@ -922,7 +922,7 @@ class SFTP extends SSH2
                 break;
             case SFTPPacketType::STATUS:
                 // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
-                list($status) = Strings::unpackSSH2('N', $response);
+                [$status] = Strings::unpackSSH2('N', $response);
                 $this->logError($response, $status);
                 return $status;
             default:
@@ -2325,7 +2325,7 @@ class SFTP extends SSH2
         $entries = $this->readlist($path, true);
 
         // The folder does not exist at all, so we cannot delete it.
-        if ($entries === NET_SFTP_STATUS_NO_SUCH_FILE) {
+        if ($entries === StatusCode::NO_SUCH_FILE) {
             return false;
         }
 
@@ -2663,6 +2663,9 @@ class SFTP extends SSH2
         }
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
+        /**
+         * @var int $status
+         */
         [$status] = Strings::unpackSSH2('N', $response);
         if ($status != StatusCode::OK) {
             $this->logError($response, $status);
