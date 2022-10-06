@@ -14401,57 +14401,32 @@
       <code>$longname</code>
       <code>$result</code>
     </PossiblyUndefinedVariable>
-    <PossiblyUnusedMethod occurrences="37">
-      <code>chgrp</code>
-      <code>chown</code>
-      <code>clearStatCache</code>
+    <PossiblyUnusedMethod occurrences="17">
       <code>disableArbitraryLengthPackets</code>
       <code>disableDatePreservation</code>
       <code>disablePathCanonicalization</code>
       <code>enableArbitraryLengthPackets</code>
       <code>enableDatePreservation</code>
       <code>enablePathCanonicalization</code>
-      <code>enableStatCache</code>
-      <code>file_exists</code>
       <code>fileatime</code>
       <code>filegroup</code>
       <code>filemtime</code>
       <code>fileowner</code>
       <code>fileperms</code>
       <code>filetype</code>
-      <code>get</code>
-      <code>getLastSFTPError</code>
       <code>getNegotiatedVersion</code>
       <code>getSFTPErrors</code>
       <code>getSFTPLog</code>
       <code>getSupportedVersions</code>
-      <code>is_dir</code>
-      <code>is_file</code>
-      <code>is_link</code>
-      <code>is_readable</code>
-      <code>is_writeable</code>
-      <code>rawlist</code>
-      <code>readlink</code>
-      <code>rename</code>
-      <code>rmdir</code>
-      <code>setListOrder</code>
       <code>setPreferredVersion</code>
-      <code>symlink</code>
-      <code>touch</code>
-      <code>truncate</code>
     </PossiblyUnusedMethod>
-    <PossiblyUnusedReturnValue occurrences="1">
-      <code>bool</code>
-    </PossiblyUnusedReturnValue>
-    <PropertyNotSetInConstructor occurrences="8">
+    <PropertyNotSetInConstructor occurrences="6">
       <code>$defaultVersion</code>
       <code>$log_size</code>
       <code>$realtime_log_file</code>
       <code>$realtime_log_size</code>
       <code>$realtime_log_wrap</code>
       <code>$version</code>
-      <code>SFTP</code>
-      <code>SFTP</code>
     </PropertyNotSetInConstructor>
     <RedundantCastGivenDocblockType occurrences="1">
       <code>(int) $ver</code>
@@ -14520,8 +14495,20 @@
       <code>false</code>
       <code>false</code>
     </FalsableReturnStatement>
-    <InvalidReturnType occurrences="1">
+    <InvalidArgument occurrences="2">
+      <code>$options &amp; STREAM_MKDIR_RECURSIVE</code>
+      <code>$path</code>
+    </InvalidArgument>
+    <InvalidReturnStatement occurrences="3">
+      <code>$results</code>
+      <code>$results</code>
+      <code>$this-&gt;sftp-&gt;fsock</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="4">
       <code>bool</code>
+      <code>bool</code>
+      <code>bool</code>
+      <code>resource</code>
     </InvalidReturnType>
     <MissingParamType occurrences="1">
       <code>$var</code>
@@ -14530,7 +14517,8 @@
       <code>_dir_readdir</code>
       <code>_stream_read</code>
     </MissingReturnType>
-    <MixedArgument occurrences="11">
+    <MixedArgument occurrences="14">
+      <code>$atime</code>
       <code>$host</code>
       <code>$host</code>
       <code>$host</code>
@@ -14538,10 +14526,12 @@
       <code>$pass</code>
       <code>$pass</code>
       <code>$port</code>
-      <code>$result</code>
-      <code>$result</code>
+      <code>$time</code>
       <code>$user</code>
       <code>$user</code>
+      <code>$var</code>
+      <code>$var</code>
+      <code>$var</code>
     </MixedArgument>
     <MixedArrayAccess occurrences="9">
       <code>$context[$scheme]</code>
@@ -14567,18 +14557,13 @@
       <code>self::$instances[$host][$port]</code>
       <code>self::$instances[$host][$port]</code>
     </MixedArrayOffset>
-    <MixedAssignment occurrences="17">
+    <MixedAssignment occurrences="12">
       <code>$argument</code>
       <code>$atime</code>
       <code>$pass</code>
       <code>$pass</code>
-      <code>$result</code>
-      <code>$result</code>
-      <code>$results</code>
-      <code>$results</code>
       <code>$sftp</code>
       <code>$sftp</code>
-      <code>$this-&gt;entries</code>
       <code>$this-&gt;notification</code>
       <code>$this-&gt;pos</code>
       <code>$this-&gt;sftp</code>
@@ -14586,38 +14571,9 @@
       <code>$time</code>
       <code>$user</code>
     </MixedAssignment>
-    <MixedInferredReturnType occurrences="7">
-      <code>bool</code>
-      <code>bool</code>
-      <code>bool</code>
-      <code>bool</code>
-      <code>bool</code>
-      <code>resource</code>
+    <MixedInferredReturnType occurrences="1">
       <code>string</code>
     </MixedInferredReturnType>
-    <MixedMethodCall occurrences="21">
-      <code>chgrp</code>
-      <code>chmod</code>
-      <code>chown</code>
-      <code>delete</code>
-      <code>delete</code>
-      <code>filesize</code>
-      <code>get</code>
-      <code>lstat</code>
-      <code>mkdir</code>
-      <code>nlist</code>
-      <code>put</code>
-      <code>rename</code>
-      <code>rename</code>
-      <code>rmdir</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>touch</code>
-      <code>touch</code>
-      <code>truncate</code>
-      <code>truncate</code>
-    </MixedMethodCall>
     <MixedOperand occurrences="6">
       <code>$fragment</code>
       <code>$path</code>
@@ -14626,30 +14582,29 @@
       <code>$path</code>
       <code>$query</code>
     </MixedOperand>
-    <MixedReturnStatement occurrences="11">
+    <MixedReturnStatement occurrences="2">
       <code>$path</code>
       <code>$path</code>
-      <code>$results</code>
-      <code>$results</code>
-      <code>$this-&gt;sftp-&gt;chgrp($path, $var)</code>
-      <code>$this-&gt;sftp-&gt;chown($path, $var)</code>
-      <code>$this-&gt;sftp-&gt;delete($path, false)</code>
-      <code>$this-&gt;sftp-&gt;fsock</code>
-      <code>$this-&gt;sftp-&gt;mkdir($path, $mode, $options &amp; STREAM_MKDIR_RECURSIVE)</code>
-      <code>$this-&gt;sftp-&gt;rmdir($path)</code>
-      <code>$this-&gt;sftp-&gt;touch($path, $time, $atime)</code>
     </MixedReturnStatement>
-    <PossiblyFalseOperand occurrences="1">
+    <NullableReturnStatement occurrences="1">
+      <code>$this-&gt;sftp-&gt;fsock</code>
+    </NullableReturnStatement>
+    <PossiblyFalseOperand occurrences="2">
+      <code>$this-&gt;size</code>
       <code>parse_url($path)</code>
     </PossiblyFalseOperand>
+    <PossiblyFalsePropertyAssignmentValue occurrences="1">
+      <code>$this-&gt;sftp-&gt;nlist($path)</code>
+    </PossiblyFalsePropertyAssignmentValue>
+    <PossiblyInvalidArgument occurrences="2">
+      <code>$result</code>
+      <code>$result</code>
+    </PossiblyInvalidArgument>
     <PossiblyInvalidArrayAccess occurrences="3">
       <code>$path1['path']</code>
       <code>$path2['path']</code>
       <code>$path_to['path']</code>
     </PossiblyInvalidArrayAccess>
-    <PossiblyInvalidPropertyAssignmentValue occurrences="1">
-      <code>$host</code>
-    </PossiblyInvalidPropertyAssignmentValue>
     <PossiblyNullArrayAccess occurrences="3">
       <code>$this-&gt;mode[0]</code>
       <code>$this-&gt;mode[0]</code>
@@ -14682,6 +14637,9 @@
       <code>$sftp</code>
       <code>$size</code>
     </PropertyNotSetInConstructor>
+    <PropertyTypeCoercion occurrences="1">
+      <code>$host</code>
+    </PropertyTypeCoercion>
     <RedundantConditionGivenDocblockType occurrences="4">
       <code>isset($this-&gt;notification) &amp;&amp; is_callable($this-&gt;notification)</code>
       <code>isset($this-&gt;notification) &amp;&amp; is_callable($this-&gt;notification)</code>
@@ -14703,15 +14661,13 @@
     </UnusedParam>
   </file>
   <file src="../phpseclib/Net/SSH2.php">
-    <DocblockTypeContradiction occurrences="9">
+    <DocblockTypeContradiction occurrences="7">
       <code>$arg instanceof Agent</code>
       <code>$arg instanceof PrivateKey || $arg instanceof Agent</code>
       <code>$request_channel === false</code>
-      <code>$this-&gt;session_id === false</code>
       <code>is_array($arg)</code>
       <code>is_array($arg)</code>
       <code>is_array($arg)</code>
-      <code>is_null($this-&gt;exit_status)</code>
       <code>isset($realtime_log_file)</code>
     </DocblockTypeContradiction>
     <FalsableReturnStatement occurrences="2">
@@ -14730,17 +14686,11 @@
       <code>int</code>
       <code>string</code>
     </InvalidFalsableReturnType>
-    <InvalidNullableReturnType occurrences="1">
-      <code>bool|SSH2</code>
-    </InvalidNullableReturnType>
-    <InvalidPropertyAssignmentValue occurrences="5">
-      <code>$this-&gt;curTimeout -= $elapsed</code>
-      <code>$this-&gt;curTimeout -= $elapsed</code>
-      <code>$this-&gt;curTimeout -= $elapsed</code>
-      <code>$this-&gt;curTimeout -= $elapsed</code>
-      <code>$this-&gt;curTimeout -= $elapsed</code>
-    </InvalidPropertyAssignmentValue>
-    <InvalidReturnType occurrences="2">
+    <InvalidReturnStatement occurrences="1">
+      <code>$temp</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="3">
+      <code>array&lt;string, SSH2&gt;</code>
       <code>array{Hash, int}|null</code>
       <code>string</code>
     </InvalidReturnType>
@@ -14750,16 +14700,12 @@
       <code>$password</code>
       <code>$responses</code>
     </MissingParamType>
-    <MissingPropertyType occurrences="2">
-      <code>$keepAlive</code>
-      <code>$quiet_mode</code>
-    </MissingPropertyType>
     <MissingReturnType occurrences="3">
       <code>connect</code>
       <code>get_channel_packet</code>
       <code>keyboard_interactive_process</code>
     </MissingReturnType>
-    <MixedArgument occurrences="114">
+    <MixedArgument occurrences="110">
       <code>$a['comp']</code>
       <code>$a['crypt']</code>
       <code>$a['mac']</code>
@@ -14789,7 +14735,6 @@
       <code>$keyBytes</code>
       <code>$keyBytes</code>
       <code>$keyBytes</code>
-      <code>$length</code>
       <code>$length</code>
       <code>$m</code>
       <code>$m</code>
@@ -14837,7 +14782,6 @@
       <code>$skip_channel_filter</code>
       <code>$stop - $start</code>
       <code>$temp</code>
-      <code>$temp</code>
       <code>$temp['length']</code>
       <code>$theirPublicBytes</code>
       <code>$theirPublicBytes</code>
@@ -14846,8 +14790,6 @@
       <code>$this-&gt;compression_algorithms_server_to_client</code>
       <code>$this-&gt;encryption_algorithms_client_to_server</code>
       <code>$this-&gt;encryption_algorithms_server_to_client</code>
-      <code>$this-&gt;keepAlive</code>
-      <code>$this-&gt;keepAlive</code>
       <code>$this-&gt;kex_algorithm</code>
       <code>$this-&gt;kex_algorithm</code>
       <code>$this-&gt;kex_algorithm</code>
@@ -14921,7 +14863,7 @@
       <code>$this-&gt;window_size_server_to_client[$channel]</code>
       <code>$this-&gt;window_size_server_to_client[$channel]</code>
     </MixedArrayOffset>
-    <MixedAssignment occurrences="66">
+    <MixedAssignment occurrences="63">
       <code>$a</code>
       <code>$algo</code>
       <code>$auth</code>
@@ -14941,7 +14883,6 @@
       <code>$kex_algorithms</code>
       <code>$key</code>
       <code>$keyBytes</code>
-      <code>$length</code>
       <code>$m</code>
       <code>$mac_algorithm_in</code>
       <code>$mac_algorithm_out</code>
@@ -14969,8 +14910,6 @@
       <code>$server_host_key_algorithms</code>
       <code>$signature</code>
       <code>$temp</code>
-      <code>$temp</code>
-      <code>$temp[$key]</code>
       <code>$this-&gt;auth_methods_to_continue</code>
       <code>$this-&gt;auth_methods_to_continue</code>
       <code>$this-&gt;auth_methods_to_continue</code>
@@ -14989,20 +14928,15 @@
       <code>$window_size</code>
       <code>$window_size</code>
     </MixedAssignment>
-    <MixedInferredReturnType occurrences="5">
-      <code>bool</code>
+    <MixedInferredReturnType occurrences="4">
       <code>bool</code>
       <code>bool</code>
       <code>boolean</code>
       <code>string|bool|null</code>
     </MixedInferredReturnType>
-    <MixedMethodCall occurrences="8">
-      <code>decrypt</code>
-      <code>encrypt</code>
+    <MixedMethodCall occurrences="4">
       <code>getCurve</code>
       <code>getEncodedCoordinates</code>
-      <code>setNonce</code>
-      <code>setNonce</code>
       <code>sign</code>
       <code>withHash</code>
     </MixedMethodCall>
@@ -15037,26 +14971,22 @@
       <code>$window_size</code>
       <code>$window_size</code>
     </MixedOperand>
-    <MixedReturnStatement occurrences="6">
+    <MixedReturnStatement occurrences="5">
       <code>!Strings::is_stringable($password) &amp;&amp; !is_array($password) ? false : $this-&gt;keyboard_interactive_process($password)</code>
       <code>$result</code>
       <code>$this-&gt;errors[$count - 1]</code>
       <code>$this-&gt;get_channel_packet($channel)</code>
       <code>$this-&gt;keyboard_interactive_process($password)</code>
-      <code>$this-&gt;quiet_mode</code>
     </MixedReturnStatement>
-    <MixedReturnTypeCoercion occurrences="4">
-      <code>$temp</code>
+    <MixedReturnTypeCoercion occurrences="2">
       <code>$this-&gt;errors</code>
-      <code>array&lt;string, SSH2&gt;</code>
       <code>string[]</code>
     </MixedReturnTypeCoercion>
-    <NullableReturnStatement occurrences="1">
-      <code>self::$connections[$id] instanceof \WeakReference ? self::$connections[$id]-&gt;get() : self::$connections[$id]</code>
-    </NullableReturnStatement>
-    <PossiblyFalseArgument occurrences="46">
+    <PossiblyFalseArgument occurrences="49">
       <code>$data</code>
       <code>$logged</code>
+      <code>$nonce</code>
+      <code>$nonce</code>
       <code>$nonce</code>
       <code>$packet</code>
       <code>$packet</code>
@@ -15081,6 +15011,7 @@
       <code>$reconstructed</code>
       <code>$tag</code>
       <code>$tag</code>
+      <code>$this-&gt;hmac_size</code>
       <code>$this-&gt;server_host_key_algorithms</code>
       <code>$this-&gt;server_identifier</code>
       <code>pack('C', MessageType::REQUEST_FAILURE)</code>
@@ -15128,22 +15059,16 @@
       <code>pack('N', $this-&gt;send_seq_no)</code>
       <code>pack('N', $this-&gt;send_seq_no)</code>
     </PossiblyFalseOperand>
-    <PossiblyFalsePropertyAssignmentValue occurrences="14">
-      <code>$this-&gt;hmac_create = false</code>
+    <PossiblyFalsePropertyAssignmentValue occurrences="2">
       <code>@fsockopen($this-&gt;host, $this-&gt;port, $errno, $errstr, $this-&gt;curTimeout == 0 ? 100000 : $this-&gt;curTimeout)</code>
-      <code>false</code>
-      <code>false</code>
-      <code>false</code>
-      <code>false</code>
-      <code>false</code>
-      <code>false</code>
-      <code>false</code>
-      <code>false</code>
-      <code>false</code>
-      <code>false</code>
-      <code>false</code>
       <code>inflate_init(ZLIB_ENCODING_RAW, ['window' =&gt; $cinfo + 8])</code>
     </PossiblyFalsePropertyAssignmentValue>
+    <PossiblyFalseReference occurrences="4">
+      <code>decrypt</code>
+      <code>encrypt</code>
+      <code>setNonce</code>
+      <code>setNonce</code>
+    </PossiblyFalseReference>
     <PossiblyInvalidArgument occurrences="17">
       <code>$args</code>
       <code>$engine</code>
@@ -15169,7 +15094,8 @@
     <PossiblyInvalidCast occurrences="1">
       <code>$args</code>
     </PossiblyInvalidCast>
-    <PossiblyNullArgument occurrences="4">
+    <PossiblyNullArgument occurrences="5">
+      <code>$this-&gt;curTimeout == 0 ? 100000 : $this-&gt;curTimeout</code>
       <code>$this-&gt;decryptInvocationCounter</code>
       <code>$this-&gt;encryptInvocationCounter</code>
       <code>array_shift($message_log)</code>
@@ -15206,9 +15132,6 @@
       <code>$this-&gt;server_channels[self::CHANNEL_SHELL]</code>
       <code>$this-&gt;server_channels[self::CHANNEL_SUBSYSTEM]</code>
     </PossiblyUndefinedIntArrayOffset>
-    <PossiblyUndefinedMethod occurrences="1">
-      <code>get</code>
-    </PossiblyUndefinedMethod>
     <PossiblyUndefinedStringArrayOffset occurrences="1">
       <code>$temp['length']</code>
     </PossiblyUndefinedStringArrayOffset>
@@ -15250,24 +15173,24 @@
       <code>startSubsystem</code>
       <code>stopSubsystem</code>
     </PossiblyUnusedMethod>
-    <PossiblyUnusedProperty occurrences="1">
-      <code>$preferred_signature_format</code>
-    </PossiblyUnusedProperty>
     <PossiblyUnusedReturnValue occurrences="1">
       <code>($callback is callable ? bool : string|bool)</code>
     </PossiblyUnusedReturnValue>
-    <PropertyNotSetInConstructor occurrences="20">
+    <PropertyNotSetInConstructor occurrences="22">
       <code>$agent</code>
-      <code>$curTimeout</code>
       <code>$decompress_context</code>
-      <code>$exit_status</code>
+      <code>$decryptFixedPart</code>
+      <code>$decryptInvocationCounter</code>
+      <code>$decryptName</code>
+      <code>$encryptFixedPart</code>
+      <code>$encryptInvocationCounter</code>
+      <code>$encryptName</code>
       <code>$hmac_check_etm</code>
       <code>$hmac_check_name</code>
       <code>$hmac_create_etm</code>
       <code>$hmac_create_name</code>
       <code>$host</code>
       <code>$identifier</code>
-      <code>$in_subsystem</code>
       <code>$last_packet</code>
       <code>$log_size</code>
       <code>$port</code>
@@ -15276,13 +15199,13 @@
       <code>$realtime_log_wrap</code>
       <code>$server_public_host_key</code>
       <code>$stdErrorLog</code>
-      <code>$timeout</code>
     </PropertyNotSetInConstructor>
-    <RedundantConditionGivenDocblockType occurrences="5">
-      <code>$this-&gt;session_id !== false</code>
+    <RedundantCondition occurrences="1">
+      <code>isset($this-&gt;keyboard_requests_responses)</code>
+    </RedundantCondition>
+    <RedundantConditionGivenDocblockType occurrences="3">
       <code>Strings::is_stringable($arg)</code>
       <code>is_bool($agent_response)</code>
-      <code>isset($this-&gt;keyboard_requests_responses)</code>
       <code>isset($this-&gt;realtime_log_file) &amp;&amp; is_resource($this-&gt;realtime_log_file)</code>
     </RedundantConditionGivenDocblockType>
     <RedundantPropertyInitializationCheck occurrences="3">
@@ -15503,48 +15426,18 @@
     </RedundantConditionGivenDocblockType>
   </file>
   <file src="../tests/Functional/Net/SFTPUserStoryTest.php">
-    <MissingParamType occurrences="35">
+    <InvalidScalarArgument occurrences="3">
+      <code>SORT_ASC</code>
+      <code>SORT_DESC</code>
+      <code>SORT_DESC</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
       <code>$length</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
-      <code>$sftp</code>
     </MissingParamType>
-    <MissingPropertyType occurrences="4">
+    <MissingPropertyType occurrences="3">
       <code>$buffer</code>
       <code>$exampleData</code>
       <code>$exampleDataLength</code>
-      <code>$scratchDir</code>
     </MissingPropertyType>
     <MissingReturnType occurrences="34">
       <code>demoCallback</code>
@@ -15583,17 +15476,42 @@
       <code>testUploadOffsets</code>
     </MissingReturnType>
     <MixedArgument occurrences="9">
+      <code>$file</code>
       <code>$length</code>
+      <code>$sftp::SOURCE_CALLBACK</code>
+      <code>$stat['gid']</code>
+      <code>$stat['uid']</code>
+      <code>self::$buffer</code>
+      <code>self::$exampleData</code>
+      <code>self::$exampleData</code>
+      <code>self::$exampleDataLength - 100</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="4">
+      <code>$cur_size</code>
+      <code>$file</code>
+      <code>$last_size</code>
+      <code>self::$buffer</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="3">
+      <code>self::$exampleData</code>
+      <code>self::$exampleDataLength</code>
+      <code>self::$exampleDataLength</code>
+    </MixedOperand>
+    <PossiblyFalseArgument occurrences="3">
+      <code>$fp</code>
+      <code>$fp</code>
+      <code>$fp</code>
+    </PossiblyFalseArgument>
+    <PossiblyFalseIterator occurrences="1">
+      <code>$files</code>
+    </PossiblyFalseIterator>
+    <PossiblyInvalidArgument occurrences="4">
+      <code>$pwd</code>
       <code>$pwd</code>
       <code>$sftp-&gt;pwd()</code>
       <code>$sftp-&gt;pwd()</code>
-      <code>self::$buffer</code>
-      <code>self::$exampleData</code>
-      <code>self::$scratchDir</code>
-      <code>self::$scratchDir</code>
-      <code>self::$scratchDir</code>
-    </MixedArgument>
-    <MixedArrayAccess occurrences="14">
+    </PossiblyInvalidArgument>
+    <PossiblyInvalidArrayAccess occurrences="14">
       <code>$stat2['gid']</code>
       <code>$stat2['uid']</code>
       <code>$stat['gid']</code>
@@ -15608,176 +15526,23 @@
       <code>$stat['type']</code>
       <code>$stat['uid']</code>
       <code>$stat['uid']</code>
-    </MixedArrayAccess>
-    <MixedAssignment occurrences="25">
-      <code>$cur_size</code>
-      <code>$dirname</code>
-      <code>$file</code>
-      <code>$files</code>
-      <code>$last_size</code>
-      <code>$list</code>
-      <code>$list</code>
-      <code>$list_cache_disabled</code>
-      <code>$list_cache_enabled</code>
-      <code>$lstat</code>
-      <code>$lstat</code>
-      <code>$pwd</code>
-      <code>$stat</code>
-      <code>$stat</code>
-      <code>$stat</code>
-      <code>$stat</code>
-      <code>$stat</code>
-      <code>$stat</code>
-      <code>$stat</code>
-      <code>$stat</code>
-      <code>$stat</code>
-      <code>$stat</code>
-      <code>$stat</code>
-      <code>$stat2</code>
-      <code>self::$buffer</code>
-    </MixedAssignment>
-    <MixedMethodCall occurrences="130">
-      <code>chdir</code>
-      <code>chdir</code>
-      <code>chdir</code>
-      <code>chdir</code>
-      <code>chdir</code>
-      <code>chdir</code>
-      <code>chdir</code>
-      <code>chdir</code>
-      <code>chdir</code>
-      <code>chgrp</code>
-      <code>chmod</code>
-      <code>chmod</code>
-      <code>chmod</code>
-      <code>chown</code>
-      <code>clearStatCache</code>
-      <code>clearStatCache</code>
-      <code>clearStatCache</code>
-      <code>delete</code>
-      <code>delete</code>
-      <code>delete</code>
-      <code>disableStatCache</code>
-      <code>disableStatCache</code>
-      <code>enablePTY</code>
-      <code>enableStatCache</code>
-      <code>exec</code>
-      <code>file_exists</code>
-      <code>file_exists</code>
-      <code>file_exists</code>
-      <code>file_exists</code>
-      <code>file_exists</code>
-      <code>filesize</code>
-      <code>filesize</code>
-      <code>filesize</code>
-      <code>filesize</code>
-      <code>filesize</code>
-      <code>filesize</code>
-      <code>get</code>
-      <code>get</code>
-      <code>get</code>
-      <code>get</code>
-      <code>get</code>
-      <code>get</code>
-      <code>get</code>
-      <code>is_dir</code>
-      <code>is_dir</code>
-      <code>is_dir</code>
-      <code>is_dir</code>
-      <code>is_dir</code>
-      <code>is_dir</code>
-      <code>is_file</code>
-      <code>is_file</code>
-      <code>is_file</code>
-      <code>is_file</code>
-      <code>is_file</code>
-      <code>is_file</code>
-      <code>is_file</code>
-      <code>is_link</code>
-      <code>is_readable</code>
-      <code>is_readable</code>
-      <code>is_readable</code>
-      <code>is_writable</code>
-      <code>is_writable</code>
-      <code>is_writable</code>
-      <code>is_writeable</code>
-      <code>is_writeable</code>
-      <code>is_writeable</code>
-      <code>login</code>
-      <code>lstat</code>
-      <code>lstat</code>
-      <code>lstat</code>
-      <code>lstat</code>
-      <code>lstat</code>
-      <code>lstat</code>
-      <code>mkdir</code>
-      <code>mkdir</code>
-      <code>mkdir</code>
-      <code>mkdir</code>
-      <code>mkdir</code>
-      <code>mkdir</code>
-      <code>mkdir</code>
-      <code>mkdir</code>
-      <code>mkdir</code>
-      <code>nlist</code>
-      <code>nlist</code>
-      <code>nlist</code>
-      <code>nlist</code>
-      <code>nlist</code>
-      <code>nlist</code>
-      <code>put</code>
-      <code>put</code>
-      <code>put</code>
-      <code>put</code>
-      <code>put</code>
-      <code>put</code>
-      <code>put</code>
-      <code>put</code>
-      <code>put</code>
-      <code>pwd</code>
-      <code>pwd</code>
-      <code>pwd</code>
-      <code>pwd</code>
-      <code>pwd</code>
-      <code>rawlist</code>
-      <code>rawlist</code>
-      <code>readlink</code>
-      <code>rmdir</code>
-      <code>rmdir</code>
-      <code>setListOrder</code>
-      <code>setListOrder</code>
-      <code>setListOrder</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>stat</code>
-      <code>symlink</code>
-      <code>symlink</code>
-      <code>symlink</code>
-      <code>touch</code>
-      <code>touch</code>
-      <code>touch</code>
-      <code>touch</code>
-      <code>truncate</code>
-      <code>truncate</code>
-    </MixedMethodCall>
-    <MixedOperand occurrences="4">
-      <code>self::$exampleData</code>
-      <code>self::$exampleDataLength</code>
-      <code>self::$exampleDataLength</code>
-      <code>self::$scratchDir</code>
-    </MixedOperand>
-    <PossiblyFalseArgument occurrences="2">
-      <code>$fp</code>
-      <code>$fp</code>
-    </PossiblyFalseArgument>
+    </PossiblyInvalidArrayAccess>
+    <PossiblyUndefinedStringArrayOffset occurrences="14">
+      <code>$stat2['gid']</code>
+      <code>$stat2['uid']</code>
+      <code>$stat['gid']</code>
+      <code>$stat['gid']</code>
+      <code>$stat['type']</code>
+      <code>$stat['type']</code>
+      <code>$stat['type']</code>
+      <code>$stat['type']</code>
+      <code>$stat['type']</code>
+      <code>$stat['type']</code>
+      <code>$stat['type']</code>
+      <code>$stat['type']</code>
+      <code>$stat['uid']</code>
+      <code>$stat['uid']</code>
+    </PossiblyUndefinedStringArrayOffset>
     <PropertyNotSetInConstructor occurrences="2">
       <code>SFTPUserStoryTest</code>
       <code>SFTPUserStoryTest</code>

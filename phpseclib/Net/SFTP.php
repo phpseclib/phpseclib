@@ -105,10 +105,9 @@ class SFTP extends SSH2
      * The request ID exists in the off chance that a packet is sent out-of-order.  Of course, this library doesn't support
      * concurrent actions, so it's somewhat academic, here.
      *
-     * @var boolean
      * @see self::_send_sftp_packet()
      */
-    private $use_request_id = false;
+    private bool $use_request_id = false;
 
     /**
      * The Packet Type
@@ -116,75 +115,66 @@ class SFTP extends SSH2
      * The request ID exists in the off chance that a packet is sent out-of-order.  Of course, this library doesn't support
      * concurrent actions, so it's somewhat academic, here.
      *
-     * @var int
      * @see self::_get_sftp_packet()
      */
-    private $packet_type = -1;
+    private int $packet_type = -1;
 
     /**
      * Packet Buffer
      *
-     * @var string
      * @see self::_get_sftp_packet()
      */
-    private $packet_buffer = '';
+    private string $packet_buffer = '';
 
     /**
      * Extensions supported by the server
      *
-     * @var array
      * @see self::_initChannel()
      */
-    private $extensions = [];
+    private array $extensions = [];
 
     /**
      * Server SFTP version
      *
-     * @var int
      * @see self::_initChannel()
      */
-    private $version;
+    private int $version;
 
     /**
      * Default Server SFTP version
      *
-     * @var int
      * @see self::_initChannel()
      */
-    private $defaultVersion;
+    private int $defaultVersion;
 
     /**
      * Preferred SFTP version
      *
-     * @var int
      * @see self::_initChannel()
      */
-    private $preferredVersion = 3;
+    private int $preferredVersion = 3;
 
     /**
      * Current working directory
      *
-     * @var string|bool
      * @see self::realpath()
      * @see self::chdir()
      */
-    private $pwd = false;
+    private string|bool $pwd = false;
 
     /**
      * Packet Type Log
      *
      * @see self::getLog()
-     * @var array
      */
-    private $packet_type_log = [];
+    private array $packet_type_log = [];
 
     /**
      * Packet Log
      *
      * @see self::getLog()
-     * @var array
      */
-    private $packet_log = [];
+    private array $packet_log = [];
 
     /**
      * Real-time log file pointer
@@ -198,35 +188,30 @@ class SFTP extends SSH2
      * Real-time log file size
      *
      * @see self::_append_log()
-     * @var int
      */
-    private $realtime_log_size;
+    private int $realtime_log_size;
 
     /**
      * Real-time log file wrap boolean
      *
      * @see self::_append_log()
-     * @var bool
      */
-    private $realtime_log_wrap;
+    private bool $realtime_log_wrap;
 
     /**
      * Current log size
      *
      * Should never exceed self::LOG_MAX_SIZE
-     *
-     * @var int
      */
-    private $log_size;
+    private int $log_size;
 
     /**
      * Error information
      *
      * @see self::getSFTPErrors()
      * @see self::getLastSFTPError()
-     * @var array
      */
-    private $sftp_errors = [];
+    private array $sftp_errors = [];
 
     /**
      * Stat Cache
@@ -237,36 +222,32 @@ class SFTP extends SSH2
      * @see self::_update_stat_cache()
      * @see self::_remove_from_stat_cache()
      * @see self::_query_stat_cache()
-     * @var array
      */
-    private $stat_cache = [];
+    private array $stat_cache = [];
 
     /**
      * Max SFTP Packet Size
      *
      * @see self::__construct()
      * @see self::get()
-     * @var int
      */
-    private $max_sftp_packet;
+    private int $max_sftp_packet;
 
     /**
      * Stat Cache Flag
      *
      * @see self::disableStatCache()
      * @see self::enableStatCache()
-     * @var bool
      */
-    private $use_stat_cache = true;
+    private bool $use_stat_cache = true;
 
     /**
      * Sort Options
      *
      * @see self::_comparator()
      * @see self::setListOrder()
-     * @var array
      */
-    protected $sortOptions = [];
+    private array $sortOptions = [];
 
     /**
      * Canonicalization Flag
@@ -277,26 +258,23 @@ class SFTP extends SSH2
      * @see self::enablePathCanonicalization()
      * @see self::disablePathCanonicalization()
      * @see self::realpath()
-     * @var bool
      */
-    private $canonicalize_paths = true;
+    private bool $canonicalize_paths = true;
 
     /**
      * Request Buffers
      *
      * @see self::_get_sftp_packet()
-     * @var array
      */
-    private $requestBuffer = [];
+    private array $requestBuffer = [];
 
     /**
      * Preserve timestamps on file downloads / uploads
      *
      * @see self::get()
      * @see self::put()
-     * @var bool
      */
-    private $preserveTime = false;
+    private bool $preserveTime = false;
 
     /**
      * Arbitrary Length Packets Flag
@@ -308,30 +286,24 @@ class SFTP extends SSH2
      *
      * @see self::enableArbitraryLengthPackets()
      * @see self::_get_sftp_packet()
-     * @var bool
      */
-    private $allow_arbitrary_length_packets = false;
+    private bool $allow_arbitrary_length_packets = false;
 
     /**
      * Was the last packet due to the channels being closed or not?
      *
      * @see self::get()
      * @see self::get_sftp_packet()
-     * @var bool
      */
-    private $channel_close = false;
+    private bool $channel_close = false;
 
     /**
      * Has the SFTP channel been partially negotiated?
-     *
-     * @var bool
      */
-    private $partial_init = false;
+    private bool $partial_init = false;
 
-    /** @var int */
-    private $queueSize = 32;
-    /** @var int */
-    private $uploadQueueSize = 1024;
+    private int $queueSize = 32;
+    private int $uploadQueueSize = 1024;
 
     /**
      * Default Constructor.

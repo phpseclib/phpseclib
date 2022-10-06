@@ -33,59 +33,43 @@ class Stream
      * SFTP instances
      *
      * Rather than re-create the connection we re-use instances if possible
-     *
-     * @var array
      */
-    public static $instances;
+    public static array $instances;
 
     /**
      * SFTP instance
-     *
-     * @var object
      */
-    private $sftp;
+    private SFTP $sftp;
 
     /**
      * Path
-     *
-     * @var string
      */
-    private $path;
+    private string $path;
 
     /**
      * Mode
-     *
-     * @var string
      */
-    private $mode;
+    private string $mode;
 
     /**
      * Position
-     *
-     * @var int
      */
-    private $pos;
+    private int $pos;
 
     /**
      * Size
-     *
-     * @var int
      */
-    private $size;
+    private int|false $size;
 
     /**
      * Directory entries
-     *
-     * @var array
      */
-    private $entries;
+    private array $entries;
 
     /**
      * EOF flag
-     *
-     * @var bool
      */
-    private $eof;
+    private bool $eof;
 
     /**
      * Context resource
@@ -165,7 +149,7 @@ class Stream
 
         if (preg_match('/^{[a-z0-9]+}$/i', $host)) {
             $host = SSH2::getConnectionByResourceId($host);
-            if ($host === false) {
+            if ($host === null) {
                 return false;
             }
             $this->sftp = $host;
