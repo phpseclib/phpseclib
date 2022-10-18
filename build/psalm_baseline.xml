@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.27.0@faf106e717c37b8c81721845dba9de3d8deed8ff">
+<files psalm-version="4.29.0@7ec5ffbd5f68ae03782d7fd33fff0c45a69f95b3">
   <file src="../phpseclib/Common/Functions/Strings.php">
     <MissingParamType occurrences="1">
       <code>$var</code>
@@ -284,11 +284,7 @@
       <code>$sb_0[$r &gt;&gt; 24 &amp; 0xff]</code>
       <code>self::$parray[$i]</code>
     </MixedOperand>
-    <PossiblyFalseArgument occurrences="10">
-      <code>$sha2pass</code>
-      <code>$sha2pass</code>
-      <code>$sha2salt</code>
-      <code>$sha2salt</code>
+    <PossiblyFalseArgument occurrences="6">
       <code>unpack('C*', $this-&gt;key)</code>
       <code>unpack('N*', $data = $this-&gt;encryptBlock($data))</code>
       <code>unpack('N*', $data = $this-&gt;encryptBlock($data))</code>
@@ -6507,14 +6503,10 @@
       <code>is_string($this-&gt;key)</code>
       <code>is_string($this-&gt;nonce)</code>
     </DocblockTypeContradiction>
-    <FalsableReturnStatement occurrences="1"/>
     <ImplicitToStringCast occurrences="2">
       <code>$initial[$i]</code>
       <code>$k[$i]</code>
     </ImplicitToStringCast>
-    <InvalidFalsableReturnType occurrences="1">
-      <code>string</code>
-    </InvalidFalsableReturnType>
     <InvalidOperand occurrences="1">
       <code>$matches[2]</code>
     </InvalidOperand>
@@ -6871,14 +6863,12 @@
     <MixedReturnStatement occurrences="1">
       <code>$y-&gt;toBytes()</code>
     </MixedReturnStatement>
-    <PossiblyFalseArgument occurrences="8">
+    <PossiblyFalseArgument occurrences="6">
       <code>$m[$i]</code>
       <code>$m[$i]</code>
       <code>$m[$i]</code>
       <code>$m[$i]</code>
       <code>$m[$i] ?? ''</code>
-      <code>$output</code>
-      <code>$output</code>
       <code>pack('N4', 0, $index, 0, 1)</code>
     </PossiblyFalseArgument>
     <PossiblyFalseIterator occurrences="4">
@@ -15291,9 +15281,7 @@
       <code>$length</code>
       <code>$temp</code>
     </MixedArgument>
-    <MixedAssignment occurrences="8">
-      <code>$address</code>
-      <code>$address</code>
+    <MixedAssignment occurrences="6">
       <code>$agent_data_bytes</code>
       <code>$agent_reply_bytes</code>
       <code>$agent_reply_data</code>
