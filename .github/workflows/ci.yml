@@ -12,6 +12,8 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php-version }}
+                env:
+                    update: true
             -   name: Composer Install
                 run: composer install --classmap-authoritative --no-interaction --no-cache
             -   name: Lint
@@ -31,6 +33,8 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: '8.1'
+                env:
+                    update: true
             -   name: Composer Install
                 run: composer install --classmap-authoritative --no-interaction --no-cache
             -   name: PHP_CodeSniffer
@@ -52,6 +56,8 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php-version }}
+                env:
+                    update: true
             -   name: Composer Install
                 run: composer install --classmap-authoritative --no-interaction --no-cache --ignore-platform-req=php
             -   name: Setup Secure Shell Functional Tests
