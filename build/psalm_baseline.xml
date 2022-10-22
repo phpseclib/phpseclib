@@ -15354,14 +15354,6 @@
       <code>$type</code>
     </UnusedVariable>
   </file>
-  <file src="../phpseclib/bootstrap.php">
-    <InvalidOperand occurrences="1">
-      <code>ini_get('mbstring.func_overload')</code>
-    </InvalidOperand>
-    <PossiblyFalseOperand occurrences="1">
-      <code>ini_get('mbstring.func_overload')</code>
-    </PossiblyFalseOperand>
-  </file>
   <file src="../tests/Functional/Net/SFTPLargeFileTest.php">
     <PropertyNotSetInConstructor occurrences="3">
       <code>SFTPLargeFileTest</code>
