@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.17 - 2022-10-24
+
+- X509: make it so CRLs, CSRs and SPKACs can support PSS keys (#1837)
+- X509: make it so PKCS1 X509 certs can create PSS sigs (#1837)
+- SFTP: fix deprecated implicit float to int on 32-bit PHP 8.1 (#1841)
+- SFTP: restore orig behavior when deleting non-existant folder (#1847)
+- Random: fix fallback on PHP 8.1+
+
 ## 3.0.16 - 2022-09-05
 
 - SSH2: fix type hinting for keyboard_interactive_process (#1836)
@@ -154,6 +162,12 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.39 - 2022-10-24
+
+- SFTP: fix deprecated implicit float to int on 32-bit PHP 8.1 (#1841)
+- SFTP: restore orig behavior when deleting non-existant folder (#1847)
+- Random: fix fallback on PHP 8.1+
 
 ## 2.0.38 - 2022-09-02
 
