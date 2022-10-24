@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.39 - 2022-10-24
+
+- SFTP: fix deprecated implicit float to int on 32-bit PHP 8.1 (#1841)
+- SFTP: restore orig behavior when deleting non-existant folder (#1847)
+- Random: fix fallback on PHP 8.1+
+
 ## 2.0.38 - 2022-09-02
 
 - RSA: add support for OpenSSH encrypted keys (#1737, #1733, #1531, #1490)
