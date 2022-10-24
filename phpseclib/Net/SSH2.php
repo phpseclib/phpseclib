@@ -192,10 +192,8 @@ class SSH2
 
     /**
      * The SSH identifier
-     *
-     * @var string
      */
-    private $identifier;
+    private string $identifier;
 
     /**
      * The Socket Object
@@ -209,147 +207,124 @@ class SSH2
      *
      * The bits that are set represent functions that have been called already.  This is used to determine
      * if a requisite function has been successfully executed.  If not, an error should be thrown.
-     *
-     * @var int
      */
-    protected $bitmap = 0;
+    protected int $bitmap = 0;
 
     /**
      * Error information
      *
      * @see self::getErrors()
      * @see self::getLastError()
-     * @var array
      */
-    private $errors = [];
+    private array $errors = [];
 
     /**
      * Server Identifier
      *
      * @see self::getServerIdentification()
-     * @var string|false
      */
-    protected $server_identifier = false;
+    protected string|false $server_identifier = false;
 
     /**
      * Key Exchange Algorithms
      *
      * @see self::getKexAlgorithims()
-     * @var array|false
      */
-    private $kex_algorithms = false;
+    private array|false $kex_algorithms = false;
 
     /**
      * Key Exchange Algorithm
      *
      * @see self::getMethodsNegotiated()
-     * @var string|false
      */
-    private $kex_algorithm = false;
+    private string|false $kex_algorithm = false;
 
     /**
      * Minimum Diffie-Hellman Group Bit Size in RFC 4419 Key Exchange Methods
      *
      * @see self::_key_exchange()
-     * @var int
      */
-    private $kex_dh_group_size_min = 1536;
+    private int $kex_dh_group_size_min = 1536;
 
     /**
      * Preferred Diffie-Hellman Group Bit Size in RFC 4419 Key Exchange Methods
      *
      * @see self::_key_exchange()
-     * @var int
      */
-    private $kex_dh_group_size_preferred = 2048;
+    private int $kex_dh_group_size_preferred = 2048;
 
     /**
      * Maximum Diffie-Hellman Group Bit Size in RFC 4419 Key Exchange Methods
      *
      * @see self::_key_exchange()
-     * @var int
      */
-    private $kex_dh_group_size_max = 4096;
+    private int $kex_dh_group_size_max = 4096;
 
     /**
      * Server Host Key Algorithms
      *
      * @see self::getServerHostKeyAlgorithms()
-     * @var array|false
      */
-    private $server_host_key_algorithms = false;
+    private array|false $server_host_key_algorithms = false;
 
     /**
      * Encryption Algorithms: Client to Server
      *
      * @see self::getEncryptionAlgorithmsClient2Server()
-     * @var array|false
      */
-    private $encryption_algorithms_client_to_server = false;
+    private array|false $encryption_algorithms_client_to_server = false;
 
     /**
      * Encryption Algorithms: Server to Client
      *
      * @see self::getEncryptionAlgorithmsServer2Client()
-     * @var array|false
      */
-    private $encryption_algorithms_server_to_client = false;
+    private array|false $encryption_algorithms_server_to_client = false;
 
     /**
      * MAC Algorithms: Client to Server
      *
      * @see self::getMACAlgorithmsClient2Server()
-     * @var array|false
      */
-    private $mac_algorithms_client_to_server = false;
+    private array|false $mac_algorithms_client_to_server = false;
 
     /**
      * MAC Algorithms: Server to Client
      *
      * @see self::getMACAlgorithmsServer2Client()
-     * @var array|false
      */
-    private $mac_algorithms_server_to_client = false;
+    private array|false $mac_algorithms_server_to_client = false;
 
     /**
      * Compression Algorithms: Client to Server
      *
      * @see self::getCompressionAlgorithmsClient2Server()
-     * @var array|false
      */
-    private $compression_algorithms_client_to_server = false;
+    private array|false $compression_algorithms_client_to_server = false;
 
     /**
      * Compression Algorithms: Server to Client
      *
      * @see self::getCompressionAlgorithmsServer2Client()
-     * @var array|false
      */
-    private $compression_algorithms_server_to_client = false;
+    private array|false $compression_algorithms_server_to_client = false;
 
     /**
      * Languages: Server to Client
-     *
-     * @see self::getLanguagesServer2Client()
-     * @var array|false
      */
-    private $languages_server_to_client = false;
+    private array|false $languages_server_to_client = false;
 
     /**
      * Languages: Client to Server
-     *
-     * @see self::getLanguagesClient2Server()
-     * @var array|false
      */
-    private $languages_client_to_server = false;
+    private array|false $languages_client_to_server = false;
 
     /**
      * Preferred Algorithms
      *
      * @see self::setPreferredAlgorithms()
-     * @var array
      */
-    private $preferred = [];
+    private array $preferred = [];
 
     /**
      * Block Size for Server to Client Encryption
@@ -362,145 +337,117 @@ class SSH2
      *  -- http://tools.ietf.org/html/rfc4253#section-6
      *
      * @see self::__construct()
-     * @see self::_send_binary_packet()
-     * @var int
+     * @see self::send_binary_packet()
      */
-    private $encrypt_block_size = 8;
+    private int $encrypt_block_size = 8;
 
     /**
      * Block Size for Client to Server Encryption
      *
      * @see self::__construct()
-     * @see self::_get_binary_packet()
-     * @var int
+     * @see self::get_binary_packet()
      */
-    private $decrypt_block_size = 8;
+    private int $decrypt_block_size = 8;
 
     /**
      * Server to Client Encryption Object
      *
-     * @see self::_get_binary_packet()
-     * @var SymmetricKey|false
+     * @see self::get_binary_packet()
      */
-    private $decrypt = false;
+    private SymmetricKey|false $decrypt = false;
 
     /**
      * Decryption Algorithm Name
-     *
-     * @var string|null
      */
-    private $decryptName;
+    private string|null $decryptName;
 
     /**
      * Decryption Invocation Counter
      *
      * Used by GCM
-     *
-     * @var string|null
      */
-    private $decryptInvocationCounter;
+    private string|null $decryptInvocationCounter;
 
     /**
      * Fixed Part of Nonce
      *
      * Used by GCM
-     *
-     * @var string|null
      */
-    private $decryptFixedPart;
+    private string|null $decryptFixedPart;
 
     /**
      * Server to Client Length Encryption Object
      *
-     * @see self::_get_binary_packet()
-     * @var object
+     * @see self::get_binary_packet()
      */
-    private $lengthDecrypt = false;
+    private SymmetricKey|false $lengthDecrypt = false;
 
     /**
      * Client to Server Encryption Object
      *
-     * @see self::_send_binary_packet()
-     * @var SymmetricKey|false
+     * @see self::send_binary_packet()
      */
-    private $encrypt = false;
+    private SymmetricKey|false $encrypt = false;
 
     /**
      * Encryption Algorithm Name
-     *
-     * @var string|null
      */
-    private $encryptName;
+    private string|null $encryptName;
 
     /**
      * Encryption Invocation Counter
      *
      * Used by GCM
-     *
-     * @var string|null
      */
-    private $encryptInvocationCounter;
+    private string|null $encryptInvocationCounter;
 
     /**
      * Fixed Part of Nonce
      *
      * Used by GCM
-     *
-     * @var string|null
      */
-    private $encryptFixedPart;
+    private string|null $encryptFixedPart;
 
     /**
      * Client to Server Length Encryption Object
      *
-     * @see self::_send_binary_packet()
-     * @var object
+     * @see self::send_binary_packet()
      */
-    private $lengthEncrypt = false;
+    private SymmetricKey|false $lengthEncrypt = false;
 
     /**
      * Client to Server HMAC Object
      *
-     * @see self::_send_binary_packet()
-     * @var object
+     * @see self::send_binary_packet()
      */
-    private $hmac_create = false;
+    private Hash|\stdClass|false $hmac_create = false;
 
     /**
      * Client to Server HMAC Name
-     *
-     * @var string|false
      */
-    private $hmac_create_name;
+    private string|false $hmac_create_name;
 
     /**
      * Client to Server ETM
-     *
-     * @var int|false
      */
-    private $hmac_create_etm;
+    private int|false $hmac_create_etm;
 
     /**
      * Server to Client HMAC Object
      *
-     * @see self::_get_binary_packet()
-     * @var object
+     * @see self::get_binary_packet()
      */
-    private $hmac_check = false;
+    private Hash|\stdClass|false $hmac_check = false;
 
     /**
      * Server to Client HMAC Name
-     *
-     * @var string|false
      */
-    private $hmac_check_name;
+    private string|false $hmac_check_name;
 
     /**
      * Server to Client ETM
-     *
-     * @var int|false
      */
-    private $hmac_check_etm;
+    private int|false $hmac_check_etm;
 
     /**
      * Size of server to client HMAC
@@ -509,18 +456,16 @@ class SSH2
      * For the client to server side, the HMAC object will make the HMAC as long as it needs to be.  All we need to do is
      * append it.
      *
-     * @see self::_get_binary_packet()
-     * @var int
+     * @see self::get_binary_packet()
      */
-    private $hmac_size = false;
+    private int|false $hmac_size = false;
 
     /**
      * Server Public Host Key
      *
      * @see self::getServerPublicHostKey()
-     * @var string
      */
-    private $server_public_host_key;
+    private string $server_public_host_key;
 
     /**
      * Session identifier
@@ -531,40 +476,36 @@ class SSH2
      *
      *  -- http://tools.ietf.org/html/rfc4253#section-7.2
      *
-     * @see self::_key_exchange()
-     * @var string
+     * @see self::key_exchange()
      */
-    private $session_id = false;
+    private string|false $session_id = false;
 
     /**
      * Exchange hash
      *
      * The current exchange hash
      *
-     * @see self::_key_exchange()
-     * @var string
+     * @see self::key_exchange()
      */
-    private $exchange_hash = false;
+    private string|false $exchange_hash = false;
 
     /**
      * Send Sequence Number
      *
      * See 'Section 6.4.  Data Integrity' of rfc4253 for more info.
      *
-     * @see self::_send_binary_packet()
-     * @var int
+     * @see self::send_binary_packet()
      */
-    private $send_seq_no = 0;
+    private int $send_seq_no = 0;
 
     /**
      * Get Sequence Number
      *
      * See 'Section 6.4.  Data Integrity' of rfc4253 for more info.
      *
-     * @see self::_get_binary_packet()
-     * @var int
+     * @see self::get_binary_packet()
      */
-    private $get_seq_no = 0;
+    private int $get_seq_no = 0;
 
     /**
      * Server Channels
@@ -573,9 +514,8 @@ class SSH2
      *
      * @see self::get_channel_packet()
      * @see self::exec()
-     * @var array
      */
-    protected $server_channels = [];
+    protected array $server_channels = [];
 
     /**
      * Channel Buffers
@@ -585,9 +525,8 @@ class SSH2
      *
      * @see self::get_channel_packet()
      * @see self::exec()
-     * @var array
      */
-    private $channel_buffers = [];
+    private array $channel_buffers = [];
 
     /**
      * Channel Status
@@ -595,9 +534,8 @@ class SSH2
      * Contains the type of the last sent message
      *
      * @see self::get_channel_packet()
-     * @var array
      */
-    protected $channel_status = [];
+    protected array $channel_status = [];
 
     /**
      * Packet Size
@@ -605,36 +543,32 @@ class SSH2
      * Maximum packet size indexed by channel
      *
      * @see self::send_channel_packet()
-     * @var array
      */
-    private $packet_size_client_to_server = [];
+    private array $packet_size_client_to_server = [];
 
     /**
      * Message Number Log
      *
      * @see self::getLog()
-     * @var array
      */
-    private $message_number_log = [];
+    private array $message_number_log = [];
 
     /**
      * Message Log
      *
      * @see self::getLog()
-     * @var array
      */
-    private $message_log = [];
+    private array $message_log = [];
 
     /**
      * The Window Size
      *
      * Bytes the other party can send before it must wait for the window to be adjusted (0x7FFFFFFF = 2GB)
      *
-     * @var int
      * @see self::send_channel_packet()
      * @see self::exec()
      */
-    protected $window_size = 0x7FFFFFFF;
+    protected int $window_size = 0x7FFFFFFF;
 
     /**
      * What we resize the window to
@@ -643,11 +577,10 @@ class SSH2
      * Some SFTP clients (GoAnywhere) don't support adding 0x7FFFFFFF to the window size after the fact so
      * we'll just do what PuTTY does
      *
-     * @var int
      * @see self::_send_channel_packet()
      * @see self::exec()
      */
-    private $window_resize = 0x40000000;
+    private int $window_resize = 0x40000000;
 
     /**
      * Window size, server to client
@@ -655,9 +588,8 @@ class SSH2
      * Window size indexed by channel
      *
      * @see self::send_channel_packet()
-     * @var array
      */
-    protected $window_size_server_to_client = [];
+    protected array $window_size_server_to_client = [];
 
     /**
      * Window size, client to server
@@ -665,9 +597,8 @@ class SSH2
      * Window size indexed by channel
      *
      * @see self::get_channel_packet()
-     * @var array
      */
-    private $window_size_client_to_server = [];
+    private array $window_size_client_to_server = [];
 
     /**
      * Server signature
@@ -675,9 +606,8 @@ class SSH2
      * Verified against $this->session_id
      *
      * @see self::getServerPublicHostKey()
-     * @var string
      */
-    private $signature = '';
+    private string $signature = '';
 
     /**
      * Server signature format
@@ -685,17 +615,15 @@ class SSH2
      * ssh-rsa or ssh-dss.
      *
      * @see self::getServerPublicHostKey()
-     * @var string
      */
-    private $signature_format = '';
+    private string $signature_format = '';
 
     /**
      * Interactive Buffer
      *
      * @see self::read()
-     * @var string
      */
-    private $interactiveBuffer = '';
+    private string $interactiveBuffer = '';
 
     /**
      * Current log size
@@ -704,32 +632,29 @@ class SSH2
      *
      * @see self::_send_binary_packet()
      * @see self::_get_binary_packet()
-     * @var int
      */
-    private $log_size;
+    private int $log_size;
 
     /**
      * Timeout
      *
      * @see SSH2::setTimeout()
-     * @var int
      */
-    protected $timeout;
+    protected int|null $timeout = null;
 
     /**
      * Current Timeout
      *
      * @see SSH2::get_channel_packet()
-     * @var int
      */
-    protected $curTimeout;
+    protected int|float|null $curTimeout = null;
 
     /**
      * Keep Alive Interval
      *
      * @see self::setKeepAlive()
      */
-    private $keepAlive;
+    private int|null $keepAlive = null;
 
     /**
      * Real-time log file pointer
@@ -743,91 +668,75 @@ class SSH2
      * Real-time log file size
      *
      * @see self::_append_log()
-     * @var int
      */
-    private $realtime_log_size;
+    private int $realtime_log_size;
 
     /**
      * Has the signature been validated?
      *
      * @see self::getServerPublicHostKey()
-     * @var bool
      */
-    private $signature_validated = false;
+    private bool $signature_validated = false;
 
     /**
      * Real-time log file wrap boolean
      *
      * @see self::_append_log()
-     * @var bool
      */
-    private $realtime_log_wrap;
+    private bool $realtime_log_wrap;
 
     /**
      * Flag to suppress stderr from output
      *
      * @see self::enableQuietMode()
      */
-    private $quiet_mode = false;
+    private bool $quiet_mode = false;
 
     /**
      * Time of first network activity
-     *
-     * @var float
      */
-    private $last_packet;
+    private float $last_packet;
 
     /**
      * Exit status returned from ssh if any
-     *
-     * @var int
      */
-    private $exit_status;
+    private int|null $exit_status = null;
 
     /**
      * Flag to request a PTY when using exec()
      *
-     * @var bool
      * @see self::enablePTY()
      */
-    private $request_pty = false;
+    private bool $request_pty = false;
 
     /**
      * Flag set while exec() is running when using enablePTY()
-     *
-     * @var bool
      */
-    private $in_request_pty_exec = false;
+    private bool $in_request_pty_exec = false;
 
     /**
      * Flag set after startSubsystem() is called
-     *
-     * @var bool
      */
-    private $in_subsystem;
+    private bool $in_subsystem = false;
 
     /**
      * Contents of stdError
-     *
-     * @var string
      */
-    private $stdErrorLog;
+    private string $stdErrorLog;
 
     /**
      * The Last Interactive Response
      *
      * @see self::_keyboard_interactive_process()
-     * @var string
      */
-    private $last_interactive_response = '';
+    private string $last_interactive_response = '';
 
     /**
      * Keyboard Interactive Request / Responses
      *
      * @see self::_keyboard_interactive_process()
-     * @var array
      */
-    private $keyboard_requests_responses = [];
+    private array $keyboard_requests_responses = [];
 
     /**
      * Banner Message
@@ -837,59 +746,52 @@ class SSH2
      *
      * @see self::_filter()
      * @see self::getBannerMessage()
-     * @var string
      */
-    private $banner_message = '';
+    private string $banner_message = '';
 
     /**
      * Did read() timeout or return normally?
      *
      * @see self::isTimeout()
-     * @var bool
      */
-    private $is_timeout = false;
+    private bool $is_timeout = false;
 
     /**
      * Log Boundary
      *
      * @see self::_format_log()
-     * @var string
      */
-    private $log_boundary = ':';
+    private string $log_boundary = ':';
 
     /**
      * Log Long Width
      *
      * @see self::_format_log()
-     * @var int
      */
-    private $log_long_width = 65;
+    private int $log_long_width = 65;
 
     /**
      * Log Short Width
      *
      * @see self::_format_log()
-     * @var int
      */
-    private $log_short_width = 16;
+    private int $log_short_width = 16;
 
     /**
      * Hostname
      *
      * @see self::__construct()
      * @see self::_connect()
-     * @var string
      */
-    private $host;
+    private string $host;
 
     /**
      * Port Number
      *
      * @see self::__construct()
-     * @see self::_connect()
-     * @var int
+     * @see self::connect()
      */
-    private $port;
+    private int $port;
 
     /**
      * Number of columns for terminal window size
@@ -897,9 +799,8 @@ class SSH2
      * @see self::getWindowColumns()
      * @see self::setWindowColumns()
      * @see self::setWindowSize()
-     * @var int
      */
-    private $windowColumns = 80;
+    private int $windowColumns = 80;
 
     /**
      * Number of columns for terminal window size
@@ -907,111 +808,81 @@ class SSH2
      * @see self::getWindowRows()
      * @see self::setWindowRows()
      * @see self::setWindowSize()
-     * @var int
      */
-    private $windowRows = 24;
+    private int $windowRows = 24;
 
     /**
      * Crypto Engine
      *
      * @see self::setCryptoEngine()
      * @see self::_key_exchange()
-     * @var int
      */
-    private static $crypto_engine = false;
+    private static int|false $crypto_engine = false;
 
     /**
      * A System_SSH_Agent for use in the SSH2 Agent Forwarding scenario
-     *
-     * @var Agent
      */
-    private $agent;
+    private Agent $agent;
 
     /**
      * Connection storage to replicates ssh2 extension functionality:
      * {@link http://php.net/manual/en/wrappers.ssh2.php#refsect1-wrappers.ssh2-examples}
      *
-     * @var array<string, SSH2|\WeakReference<SSH2>>
+     * @var array<string, \WeakReference<SSH2>>
      */
-    private static $connections;
+    private static array $connections;
 
     /**
      * Send the identification string first?
-     *
-     * @var bool
      */
-    private $send_id_string_first = true;
+    private bool $send_id_string_first = true;
 
     /**
      * Send the key exchange initiation packet first?
-     *
-     * @var bool
      */
-    private $send_kex_first = true;
+    private bool $send_kex_first = true;
 
     /**
      * Some versions of OpenSSH incorrectly calculate the key size
-     *
-     * @var bool
      */
-    private $bad_key_size_fix = false;
+    private bool $bad_key_size_fix = false;
 
     /**
      * Should we try to re-connect to re-establish keys?
-     *
-     * @var bool
      */
-    private $retry_connect = false;
+    private bool $retry_connect = false;
 
     /**
      * Binary Packet Buffer
-     *
-     * @var string|false
      */
-    private $binary_packet_buffer = false;
-
-    /**
-     * Preferred Signature Format
-     *
-     * @var string|false
-     */
-    protected $preferred_signature_format = false;
+    private string|false $binary_packet_buffer = false;
 
     /**
      * Authentication Credentials
-     *
-     * @var array
      */
-    protected $auth = [];
+    protected array $auth = [];
 
     /**
      * Terminal
-     *
-     * @var string
      */
-    private $term = 'vt100';
+    private string $term = 'vt100';
 
     /**
      * The authentication methods that may productively continue authentication.
      *
      * @see https://tools.ietf.org/html/rfc4252#section-5.1
-     * @var array|null
      */
-    private $auth_methods_to_continue = null;
+    private array|null $auth_methods_to_continue = null;
 
     /**
      * Compression method
-     *
-     * @var int
      */
-    private $compress = self::NET_SSH2_COMPRESSION_NONE;
+    private int $compress = self::NET_SSH2_COMPRESSION_NONE;
 
     /**
      * Decompression method
-     *
-     * @var int
      */
-    private $decompress = self::NET_SSH2_COMPRESSION_NONE;
+    private int $decompress = self::NET_SSH2_COMPRESSION_NONE;
 
     /**
      * Compression context
@@ -1029,24 +900,18 @@ class SSH2
 
     /**
      * Regenerate Compression Context
-     *
-     * @var bool
      */
-    private $regenerate_compression_context = false;
+    private bool $regenerate_compression_context = false;
 
     /**
      * Regenerate Decompression Context
-     *
-     * @var bool
      */
-    private $regenerate_decompression_context = false;
+    private bool $regenerate_decompression_context = false;
 
     /**
      * Smart multi-factor authentication flag
-     *
-     * @var bool
      */
-    private $smartMFA = true;
+    private bool $smartMFA = true;
 
     /**
      * Default Constructor.
@@ -1057,13 +922,7 @@ class SSH2
      */
     public function __construct($host, int $port = 22, int $timeout = 10)
     {
-        /**
-         * Typehint is required due to a bug in Psalm: https://github.com/vimeo/psalm/issues/7508
-         * @var \WeakReference<SSH2>|SSH2
-         */
-        self::$connections[$this->getResourceId()] = class_exists('WeakReference')
-            ? \WeakReference::create($this)
-            : $this;
+        self::$connections[$this->getResourceId()] = \WeakReference::create($this);
 
         if (is_resource($host)) {
             $this->fsock = $host;
@@ -4787,17 +4646,17 @@ class SSH2
         return '{' . spl_object_hash($this) . '}';
     }
 
-    /**
-     * Return existing connection
-     *
-     * @return bool|SSH2 will return false if no such connection
-     */
-    public static function getConnectionByResourceId(string $id)
+    public static function getConnectionByResourceId(string $id): SSH2|null
     {
-        if (isset(self::$connections[$id])) {
-            return self::$connections[$id] instanceof \WeakReference ? self::$connections[$id]->get() : self::$connections[$id];
+        if (array_key_exists($id, self::$connections)) {
+            /**
+             * @psalm-ignore-var
+             * @var SSH2|null $ssh2
+             */
+            $ssh2 =  self::$connections[$id]->get();
+            return $ssh2;
         }
-        return false;
+        return null;
     }
 
     /**

@@ -12,13 +12,16 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php-version }}
-                    tools: php-parallel-lint/php-parallel-lint:1
+                env:
+                    update: true
+            -   name: Composer Install
+                run: composer install --classmap-authoritative --no-interaction --no-cache
             -   name: Lint
-                run: parallel-lint --show-deprecated build phpseclib tests
+                run: vendor/bin/parallel-lint --show-deprecated build phpseclib tests
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['8.1']
+                php-version: ['8.1', '8.2']
     quality_tools:
         name: Quality Tools
         timeout-minutes: 5
@@ -30,15 +33,18 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: '8.1'
-                    tools: squizlabs/php_codesniffer:3, friendsofphp/php-cs-fixer:3, vimeo/psalm:4
+                env:
+                    update: true
             -   name: Composer Install
                 run: composer install --classmap-authoritative --no-interaction --no-cache
             -   name: PHP_CodeSniffer
-                run: phpcs --standard=build/php_codesniffer.xml
+                run: vendor/bin/phpcs --standard=build/php_codesniffer.xml
             -   name: PHP CS Fixer
-                run: php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run --using-cache=no
+                run: vendor/bin/php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run --using-cache=no
             -   name: Psalm
-                run: psalm --config=build/psalm.xml --no-cache --long-progress --report-show-info=false
+                run: vendor/bin/psalm --config=build/psalm.xml --no-cache --long-progress --report-show-info=false
+        strategy:
+            fail-fast: false
     tests:
         name: Tests
         timeout-minutes: 10
@@ -50,6 +56,8 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php-version }}
+                env:
+                    update: true
             -   name: Composer Install
                 run: composer install --classmap-authoritative --no-interaction --no-cache --ignore-platform-req=php
             -   name: Setup Secure Shell Functional Tests
@@ -75,7 +83,7 @@ jobs:
                     echo "PHPSECLIB_SSH_HOME=/home/phpseclib" >> $GITHUB_ENV
                     echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
             -   name: PHPUnit
-                run: vendor/bin/phpunit --verbose --configuration tests/phpunit.xml
+                run: vendor/bin/paratest --verbose --configuration=tests/phpunit.xml --runner=WrapperRunner
         strategy:
             fail-fast: false
             matrix:
