@@ -159,7 +159,7 @@ if (!function_exists('crypt_random_string')) {
                 (isset($_POST) ? phpseclib_safe_serialize($_POST) : '') .
                 (isset($_GET) ? phpseclib_safe_serialize($_GET) : '') .
                 (isset($_COOKIE) ? phpseclib_safe_serialize($_COOKIE) : '') .
-                // as of PHP 8.1 $GLOBALS cann't be accessed by reference, which eliminates
+                // as of PHP 8.1 $GLOBALS can't be accessed by reference, which eliminates
                 // the need for phpseclib_safe_serialize. see https://wiki.php.net/rfc/restrict_globals_usage
                 // for more info
                 (version_compare(PHP_VERSION, '8.1.0', '>=') ? serialize($GLOBALS) : phpseclib_safe_serialize($GLOBALS)) .
