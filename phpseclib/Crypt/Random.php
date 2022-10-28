@@ -99,7 +99,7 @@ abstract class Random
                  (isset($_POST) ? self::safe_serialize($_POST) : '') .
                  (isset($_GET) ? self::safe_serialize($_GET) : '') .
                  (isset($_COOKIE) ? self::safe_serialize($_COOKIE) : '') .
-                 // as of PHP 8.1 $GLOBALS cann't be accessed by reference, which eliminates
+                 // as of PHP 8.1 $GLOBALS can't be accessed by reference, which eliminates
                  // the need for phpseclib_safe_serialize. see https://wiki.php.net/rfc/restrict_globals_usage
                  // for more info
                  serialize($GLOBALS) .
