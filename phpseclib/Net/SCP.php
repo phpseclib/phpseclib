@@ -246,7 +246,10 @@ class SCP
 
         $content = '';
         while ($size < $info['size']) {
-            $data = $this->_receive();
+            if (!$data = $this->_receive()) {
+                throw new \Exception('No data received from server');
+            }
+
             // SCP usually seems to split stuff out into 16k chunks
             $size+= strlen($data);
 
