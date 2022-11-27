@@ -86,7 +86,7 @@ abstract class PuTTY extends Progenitor
         $public = Strings::packSSH2('iiii', $p, $q, $g, $y);
         $private = Strings::packSSH2('i', $x);
 
-        return self::wrapPrivateKey($public, $private, 'ssh-dsa', $password, $options);
+        return self::wrapPrivateKey($public, $private, 'ssh-dss', $password, $options);
     }
 
     /**
@@ -104,6 +104,6 @@ abstract class PuTTY extends Progenitor
             throw new \InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');
         }
 
-        return self::wrapPublicKey(Strings::packSSH2('iiii', $p, $q, $g, $y), 'ssh-dsa');
+        return self::wrapPublicKey(Strings::packSSH2('iiii', $p, $q, $g, $y), 'ssh-dss');
     }
 }
