@@ -277,6 +277,18 @@ class Net_SSH2
     var $server_host_key_algorithms = false;
 
     /**
+     * Supported Private Key Algorithms
+     *
+     * In theory this should be the same as the Server Host Key Algorithms but, in practice,
+     * some servers (eg. Azure) will support rsa-sha2-512 as a server host key algorithm but
+     * not a private key algorithm
+     *
+     * @see self::privatekey_login()
+     * @var array|false
+     */
+    var $supported_private_key_algorithms = false;
+
+    /**
      * Encryption Algorithms: Client to Server
      *
      * @see self::getEncryptionAlgorithmsClient2Server()
@@ -1562,6 +1574,8 @@ class Net_SSH2
         $temp = unpack('Nlength', $this->_string_shift($response, 4));
         $this->server_host_key_algorithms = explode(',', $this->_string_shift($response, $temp['length']));
 
+        $this->supported_private_key_algorithms = $this->server_host_key_algorithms;
+
         if (strlen($response) < 4) {
             return false;
         }
@@ -2743,7 +2757,13 @@ class Net_SSH2
             $publickey['n']
         );
 
-        switch ($this->signature_format) {
+        $algos = ['rsa-sha2-256', 'rsa-sha2-512', 'ssh-rsa'];
+        if (isset($this->preferred['hostkey'])) {
+            $algos = array_intersect($this->preferred['hostkey'], $algos);
+        }
+        $algo = $this->_array_intersect_first($algos, $this->supported_private_key_algorithms);
+
+        switch ($algo) {
             case 'rsa-sha2-512':
                 $hash = 'sha512';
                 $signatureType = 'rsa-sha2-512';
@@ -2793,7 +2813,12 @@ class Net_SSH2
                     return false;
                 }
                 extract(unpack('Nmethodlistlen', $this->_string_shift($response, 4)));
-                $this->auth_methods_to_continue = explode(',', $this->_string_shift($response, $methodlistlen));
+                $auth_methods = explode(',', $this->_string_shift($response, $methodlistlen));
+                if (in_array('publickey', $auth_methods) && substr($signatureType, 0, 9) == 'rsa-sha2-') {
+                    $this->supported_private_key_algorithms = array_diff($this->supported_private_key_algorithms, array('rsa-sha2-256', 'rsa-sha2-512'));
+                    return $this->_privatekey_login($username, $privatekey);
+                }
+                $this->auth_methods_to_continue = $auth_methods;
                 $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE';
                 return false;
             case NET_SSH2_MSG_USERAUTH_PK_OK:
