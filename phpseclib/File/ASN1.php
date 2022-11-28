@@ -133,6 +133,16 @@ abstract class ASN1
     private static $encoded;
 
     /**
+     * Current Location of most recent ASN.1 encode process
+     *
+     * Useful for debug purposes
+     *
+     * @var array
+     * @see self::encode_der()
+     */
+    var $location;
+
+    /**
      * Type mapping table for the ANY type.
      *
      * Structured or unknown types are mapped to a \phpseclib3\File\ASN1\Element.
