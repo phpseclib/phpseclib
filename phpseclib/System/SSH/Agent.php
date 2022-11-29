@@ -137,7 +137,7 @@ class Agent
                 throw new RuntimeException("Unable to connect to ssh-agent (Error $errno: $errstr)");
             }
         } else {
-            if (substr($address, 0, 9) != '\\\\.\\pipe\\' || strpos(substr($address, 9), '\\') !== false) {
+            if (substr($address, 0, 9) != '\\\\.\\pipe\\' || str_contains(substr($address, 9), '\\')) {
                 throw new RuntimeException('Address is not formatted as a named pipe should be');
             }
 
