@@ -129,9 +129,20 @@ class Agent
             }
         }
 
-        $this->fsock = fsockopen('unix://' . $address, 0, $errno, $errstr);
-        if (!$this->fsock) {
-            throw new \RuntimeException("Unable to connect to ssh-agent (Error $errno: $errstr)");
+        if (in_array('unix', stream_get_transports())) {
+            $this->fsock = fsockopen('unix://' . $address, 0, $errno, $errstr);
+            if (!$this->fsock) {
+                throw new \RuntimeException("Unable to connect to ssh-agent (Error $errno: $errstr)");
+            }
+        } else {
+            if (substr($address, 0, 9) != '\\\\.\\pipe\\' || strpos(substr($address, 9), '\\') !== false) {
+                throw new \RuntimeException('Address is not formatted as a named pipe should be');
+            }
+
+            $this->fsock = fopen($address, 'r+b');
+            if (!$this->fsock) {
+                throw new \RuntimeException('Unable to open address');
+            }
         }
     }
 
