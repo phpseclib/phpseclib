@@ -2957,7 +2957,7 @@ class X509
      *
      * @param PrivateKey $key
      * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
-     * @return string
+     * @return array
      */
     private static function identifySignatureAlgorithm(PrivateKey $key)
     {
