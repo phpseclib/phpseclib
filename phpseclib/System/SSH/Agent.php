@@ -116,7 +116,7 @@ class Agent
      * @throws BadConfigurationException if SSH_AUTH_SOCK cannot be found
      * @throws RuntimeException on connection errors
      */
-    public function __construct($address = null)
+    public function __construct(?string $address = null)
     {
         if (!$address) {
             switch (true) {
