@@ -23,4 +23,5 @@ namespace phpseclib3\Crypt\Common;
  */
 abstract class BlockCipher extends SymmetricKey
 {
+    public $mcrypt_polyfill_init;
 }
