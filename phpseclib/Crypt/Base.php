@@ -2744,4 +2744,15 @@ class Crypt_Base
     function do_nothing()
     {
     }
+
+    /**
+     * Is the continuous buffer enabled?
+     *
+     * @access public
+     * @return boolean
+     */
+    function continuousBufferEnabled()
+    {
+        return $this->continuousBuffer;
+    }
 }
