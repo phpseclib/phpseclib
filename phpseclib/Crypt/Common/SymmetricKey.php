@@ -3387,10 +3387,9 @@ abstract class SymmetricKey
     /**
      * Is the continuous buffer enabled?
      *
-     * @access public
      * @return boolean
      */
-    function continuousBufferEnabled()
+    public function continuousBufferEnabled()
     {
         return $this->continuousBuffer;
     }
