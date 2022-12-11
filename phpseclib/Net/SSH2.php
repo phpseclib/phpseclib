@@ -268,6 +268,18 @@ class SSH2
     private array|false $server_host_key_algorithms = false;
 
     /**
+     * Supported Private Key Algorithms
+     *
+     * In theory this should be the same as the Server Host Key Algorithms but, in practice,
+     * some servers (eg. Azure) will support rsa-sha2-512 as a server host key algorithm but
+     * not a private key algorithm
+     *
+     * @see self::privatekey_login()
+     * @var array|false
+     */
+    private $supported_private_key_algorithms = false;
+
+    /**
      * Encryption Algorithms: Client to Server
      *
      * @see self::getEncryptionAlgorithmsClient2Server()
@@ -1271,6 +1283,8 @@ class SSH2
             $first_kex_packet_follows
         ] = Strings::unpackSSH2('L10C', $response);
 
+        $this->supported_private_key_algorithms = $this->server_host_key_algorithms;
+
         if ($send_kex) {
             $this->send_binary_packet($kexinit_payload_client);
         }
@@ -2243,7 +2257,7 @@ class SSH2
             if (isset($this->preferred['hostkey'])) {
                 $algos = array_intersect($this->preferred['hostkey'], $algos);
             }
-            $algo = self::array_intersect_first($algos, $this->server_host_key_algorithms);
+            $algo = self::array_intersect_first($algos, $this->supported_private_key_algorithms);
             switch ($algo) {
                 case 'rsa-sha2-512':
                     $hash = 'sha512';
@@ -2312,6 +2326,10 @@ class SSH2
         switch ($type) {
             case MessageType::USERAUTH_FAILURE:
                 [$auth_methods] = Strings::unpackSSH2('L', $response);
+                if (in_array('publickey', $auth_methods) && substr($signatureType, 0, 9) == 'rsa-sha2-') {
+                    $this->supported_private_key_algorithms = array_diff($this->supported_private_key_algorithms, ['rsa-sha2-256', 'rsa-sha2-512']);
+                    return $this->privatekey_login($username, $privatekey);
+                }
                 $this->auth_methods_to_continue = $auth_methods;
                 $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE';
                 return false;
