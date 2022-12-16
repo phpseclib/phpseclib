@@ -105,7 +105,7 @@ abstract class EvalBarrett extends Base
                 $rhs = new ' . $class . '();
                 $lhs->value = $n;
                 $rhs->value = [' .
-                implode(',', array_map('self::float2string', $m)) . '];
+                implode(',', array_map(self::class . '::float2string', $m)) . '];
                 list(, $temp) = $lhs->divide($rhs);
                 return $temp->value;
             }
