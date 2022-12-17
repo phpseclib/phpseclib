@@ -108,23 +108,13 @@ class RC4 extends StreamCipher
             if ($this->continuousBuffer) {
                 return false;
             }
-            if (version_compare(PHP_VERSION, '5.3.7') >= 0) {
-                $this->cipher_name_openssl = 'rc4-40';
-            } else {
-                switch (strlen($this->key)) {
-                    case 5:
-                        $this->cipher_name_openssl = 'rc4-40';
-                        break;
-                    case 8:
-                        $this->cipher_name_openssl = 'rc4-64';
-                        break;
-                    case 16:
-                        $this->cipher_name_openssl = 'rc4';
-                        break;
-                    default:
-                        return false;
-                }
+            // quoting https://www.openssl.org/news/openssl-3.0-notes.html, OpenSSL 3.0.1
+            // "Moved all variations of the EVP ciphers CAST5, BF, IDEA, SEED, RC2, RC4, RC5, and DES to the legacy provider"
+            // in theory openssl_get_cipher_methods() should catch this but, on GitHub Actions, at least, it does not
+            if (version_compare(preg_replace('#OpenSSL (\d+\.\d+\.\d+) .*#', '$1', OPENSSL_VERSION_TEXT), '3.0.1', '>=')) {
+                return false;
             }
+            $this->cipher_name_openssl = 'rc4-40';
         }
 
         return parent::isValidEngineHelper($engine);
