@@ -57,7 +57,7 @@ class TripleDES extends DES
      *
      * Outer chaining is used by SSH-2 and when the mode is set to \phpseclib\Crypt\Base::MODE_CBC.
      */
-    const MODE_CBC3 = Base::MODE_CBC;
+    const MODE_CBC3 = self::MODE_CBC;
 
     /**
      * Key Length (in bytes)
@@ -151,20 +151,20 @@ class TripleDES extends DES
      * @param int $mode
      * @access public
      */
-    function __construct($mode = Base::MODE_CBC)
+    function __construct($mode = self::MODE_CBC)
     {
         switch ($mode) {
             // In case of self::MODE_3CBC, we init as CRYPT_DES_MODE_CBC
             // and additional flag us internally as 3CBC
             case self::MODE_3CBC:
-                parent::__construct(Base::MODE_CBC);
+                parent::__construct(self::MODE_CBC);
                 $this->mode_3cbc = true;
 
                 // This three $des'es will do the 3CBC work (if $key > 64bits)
                 $this->des = array(
-                    new DES(Base::MODE_CBC),
-                    new DES(Base::MODE_CBC),
-                    new DES(Base::MODE_CBC),
+                    new DES(self::MODE_CBC),
+                    new DES(self::MODE_CBC),
+                    new DES(self::MODE_CBC),
                 );
 
                 // we're going to be doing the padding, ourselves, so disable it in the \phpseclib\Crypt\DES objects
