@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.18 - 2022-12-17
+
+- fix for PHP 8.2 deprecations (#1869, #1873)
+- SSH2: if logging in with rsa-sha2-256/512 fails, try ssh-rsa (#1865)
+- SSH/Agent: add support for named pipes on windows (for pageant) (#1866)
+- Crypt/Base: add a function to check continuous buffer status (#1870)
+- OpenSSL 3.0.1+ deprecated some algorithms (RC2, RC4, DES, Blowfish)
+
 ## 3.0.17 - 2022-10-24
 
 - X509: make it so CRLs, CSRs and SPKACs can support PSS keys (#1837)
@@ -162,6 +170,15 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.40 - 2022-12-17
+
+- fix for PHP 8.2 deprecations (#1869)
+- SSH2: if logging in with rsa-sha2-256/512 fails, try ssh-rsa (#1865)
+- SSH/Agent: add support for named pipes on windows (for pageant) (#1866)
+- Crypt/Base: add a function to check continuous buffer status (#1870)
+- OpenSSL 3.0.1+ deprecated some algorithms (RC2, RC4, DES, Blowfish)
+>>>>>>> 2.0
 
 ## 2.0.39 - 2022-10-24
 
