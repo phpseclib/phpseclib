@@ -178,7 +178,6 @@
 - SSH/Agent: add support for named pipes on windows (for pageant) (#1866)
 - Crypt/Base: add a function to check continuous buffer status (#1870)
 - OpenSSL 3.0.1+ deprecated some algorithms (RC2, RC4, DES, Blowfish)
->>>>>>> 2.0
 
 ## 2.0.39 - 2022-10-24
 
