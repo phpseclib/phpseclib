@@ -371,7 +371,7 @@ class Net_SSH1
      * @var array
      * @access private
      */
-    var $protocol_flag_log = array();
+    var $protocol_flags_log = array();
 
     /**
      * Message Log
@@ -417,6 +417,18 @@ class Net_SSH1
      * @access private
      */
     var $interactiveBuffer = '';
+
+    /**
+     * Current log size
+     *
+     * Should never exceed self::LOG_MAX_SIZE
+     *
+     * @see self::_send_binary_packet()
+     * @see self::_get_binary_packet()
+     * @var int
+     * @access private
+     */
+    var $log_size;
 
     /**
      * Timeout
@@ -1467,7 +1479,7 @@ class Net_SSH1
 
         switch (NET_SSH1_LOGGING) {
             case NET_SSH1_LOG_SIMPLE:
-                return $this->message_number_log;
+                return $this->protocol_flags_log;
                 break;
             case NET_SSH1_LOG_COMPLEX:
                 return $this->_format_log($this->message_log, $this->protocol_flags_log);
