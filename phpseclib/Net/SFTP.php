@@ -319,6 +319,38 @@ class SFTP extends SSH2
     var $partial_init = false;
 
     /**
+     * http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-7.1
+     * the order, in this case, matters quite a lot - see \phpseclib3\Net\SFTP::_parseAttributes() to understand why
+     *
+     * @var array
+     * @access private
+     */
+    var $attributes = array();
+
+    /**
+     * @var array
+     * @access private
+     */
+    var $open_flags = array();
+
+    /**
+     * SFTPv5+ changed the flags up:
+     * https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13#section-8.1.1.3
+     *
+     * @var array
+     * @access private
+     */
+    var $open_flags5 = array();
+
+    /**
+     * http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-5.2
+     * see \phpseclib\Net\SFTP::_parseLongname() for an explanation
+     *
+     * @var array
+     */
+    var $file_types = array();
+
+    /**
      * Default Constructor.
      *
      * Connects to an SFTP server
