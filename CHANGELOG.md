@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.41 - 2022-12-23
+
+- fix for more PHP 8.2 deprecations (#1875)
+
 ## 2.0.40 - 2022-12-17
 
 - fix for PHP 8.2 deprecations (#1869)
