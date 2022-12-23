@@ -171,6 +171,10 @@
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
 
+## 2.0.41 - 2022-12-23
+
+- fix for more PHP 8.2 deprecations (#1875)
+
 ## 2.0.40 - 2022-12-17
 
 - fix for PHP 8.2 deprecations (#1869)
