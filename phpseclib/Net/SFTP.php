@@ -715,7 +715,7 @@ class SFTP extends SSH2
             if (!$this->canonicalize_paths) {
                 throw $e;
             }
-            $this->$this->canonicalize_paths = false;
+            $this->canonicalize_paths = false;
             $this->reset_connection(NET_SSH2_DISCONNECT_CONNECTION_LOST);
         }
 
