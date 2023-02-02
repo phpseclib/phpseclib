@@ -672,4 +672,39 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
 
         $this->assertTrue($key->verify($plaintext, $sig));
     }
+
+    public function testInheritance(): void
+    {
+        // Dummy object just to create a subclass without loading other files
+        $dummyObject = new class () extends \phpseclib3\Crypt\EC\PrivateKey {
+            public function __construct()
+            {
+                self::initialize_static_variables();
+                parent::__construct();
+            }
+        };
+        $subClass = get_class($dummyObject);
+        $privateKeyPem = <<<'KEY'
+            -----BEGIN PRIVATE KEY-----
+            MC4CAQAwBQYDK2VwBCIEIB5D0i4BdwJwAqawW8w733K+P4Si6ubup0bq508lGwEj
+            -----END PRIVATE KEY-----
+            KEY;
+        $privateKey = $subClass::load($privateKeyPem);
+        $publicKeyPem = $privateKey->getPublicKey()->toString('PKCS8');
+
+        $this->assertInstanceOf($subClass, $subClass::createKey('ed25519'));
+        $this->assertInstanceOf($subClass, $subClass::load($privateKeyPem));
+
+        // Dummy object just to create a subclass without loading other files
+        $dummyObject = new class () extends \phpseclib3\Crypt\EC\PublicKey {
+            public function __construct()
+            {
+                self::initialize_static_variables();
+                parent::__construct();
+            }
+        };
+        $subClass = get_class($dummyObject);
+
+        $this->assertInstanceOf($subClass, $subClass::load($publicKeyPem));
+    }
 }
