@@ -18,7 +18,7 @@ use phpseclib3\Crypt\DH;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class Parameters extends DH
+final class Parameters extends DH
 {
     /**
      * Returns the parameters

@@ -18,7 +18,7 @@ use phpseclib3\Crypt\EC;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class Parameters extends EC
+final class Parameters extends EC
 {
     /**
      * Returns the parameters

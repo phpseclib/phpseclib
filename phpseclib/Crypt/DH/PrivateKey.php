@@ -19,7 +19,7 @@ use phpseclib3\Crypt\DH;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class PrivateKey extends DH
+final class PrivateKey extends DH
 {
     use Common\Traits\PasswordProtected;
 
