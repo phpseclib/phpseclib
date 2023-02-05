@@ -108,6 +108,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     /**
      * @depends testPasswordLogin
      * @group github280
+     * @requires PHPUnit < 10
      */
     public function testExecWithMethodCallback(SSH2 $ssh)
     {
