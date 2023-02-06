@@ -2951,11 +2951,16 @@ class X509
     /**
      * Get the Serial Number
      *
-     * @return BigInteger
+     * @return BigInteger|null
      */
-    public function getSerialNumber():BigInteger
+    public function getSerialNumber():?BigInteger
     {
-        return $this->serialNumber;
+        if(isset($this->currentCert['tbsCertificate']) && $this->currentCert['tbsCertificate']['serialNumber']){
+            return $this->currentCert['tbsCertificate']['serialNumber'];
+        }
+        else{
+            return null;
+        }
     }
 
     /**
