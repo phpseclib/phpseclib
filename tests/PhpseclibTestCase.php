@@ -95,48 +95,4 @@ abstract class PhpseclibTestCase extends TestCase
         $method->setAccessible(true);
         return $method->invokeArgs($obj, $params);
     }
-
-    // assertIsArray was not introduced until PHPUnit 8
-    public static function assertIsArray($actual, string $message = ''): void
-    {
-        parent::assertInternalType('array', $actual, $message);
-    }
-
-    // assertIsString was not introduced until PHPUnit 8
-    public static function assertIsString($actual, string $message = ''): void
-    {
-        parent::assertInternalType('string', $actual, $message);
-    }
-
-    // assertIsResource was not introduced until PHPUnit 8
-    public static function assertIsResource($actual, string $message = ''): void
-    {
-        parent::assertInternalType('resource', $actual, $message);
-    }
-
-    // assertIsObject was not introduced until PHPUnit 8
-    public static function assertIsObject($actual, string $message = ''): void
-    {
-        parent::assertInternalType('object', $actual, $message);
-    }
-
-    // assertContains is deprecated for strings in PHPUnit 8
-    public static function assertStringContainsString(string $needle, string $haystack, string $message = ''): void
-    {
-        parent::assertContains($needle, $haystack, $message);
-    }
-
-    // assertNotContains is deprecated for strings in PHPUnit 8
-    public static function assertStringNotContainsString(string $needle, string $haystack, string $message = ''): void
-    {
-        parent::assertNotContains($needle, $haystack, $message);
-    }
-
-    /**
-     * assertRegExp() was deprecated in favor of assertMatchesRegularExpression().
-     */
-    public static function assertMatchesRegularExpression(string $pattern, string $string, string $message = ''): void
-    {
-        parent::assertRegExp($pattern, $string, $message);
-    }
 }
