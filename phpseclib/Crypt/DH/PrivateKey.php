@@ -22,7 +22,7 @@ use phpseclib3\Math\BigInteger;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class PrivateKey extends DH
+final class PrivateKey extends DH
 {
     use Common\Traits\PasswordProtected;
 

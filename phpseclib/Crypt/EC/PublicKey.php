@@ -30,7 +30,7 @@ use phpseclib3\Math\BigInteger;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class PublicKey extends EC implements Common\PublicKey
+final class PublicKey extends EC implements Common\PublicKey
 {
     use Common\Traits\Fingerprint;
 

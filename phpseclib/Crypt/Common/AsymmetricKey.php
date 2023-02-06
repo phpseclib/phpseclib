@@ -130,6 +130,11 @@ abstract class AsymmetricKey
     {
         self::initialize_static_variables();
 
+        $class = new \ReflectionClass(static::class);
+        if ($class->isFinal()) {
+            throw new \RuntimeException('load() should not be called from final classes (' . static::class . ')');
+        }
+
         $components = false;
         foreach (self::$plugins[static::ALGORITHM]['Keys'] as $format) {
             if (isset(self::$invisiblePlugins[static::ALGORITHM]) && in_array($format, self::$invisiblePlugins[static::ALGORITHM])) {

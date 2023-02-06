@@ -22,7 +22,7 @@ use phpseclib3\Math\BigInteger;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class PublicKey extends DH
+final class PublicKey extends DH
 {
     use Common\Traits\Fingerprint;
 

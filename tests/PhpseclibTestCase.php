@@ -99,66 +99,36 @@ abstract class PhpseclibTestCase extends TestCase
     // assertIsArray was not introduced until PHPUnit 8
     public static function assertIsArray($actual, string $message = ''): void
     {
-        if (method_exists(parent::class, 'assertIsArray')) {
-            parent::assertIsArray($actual, $message);
-            return;
-        }
-
         parent::assertInternalType('array', $actual, $message);
     }
 
     // assertIsString was not introduced until PHPUnit 8
     public static function assertIsString($actual, string $message = ''): void
     {
-        if (method_exists(parent::class, 'assertIsString')) {
-            parent::assertIsString($actual, $message);
-            return;
-        }
-
         parent::assertInternalType('string', $actual, $message);
     }
 
     // assertIsResource was not introduced until PHPUnit 8
     public static function assertIsResource($actual, string $message = ''): void
     {
-        if (method_exists(parent::class, 'assertIsResource')) {
-            parent::assertIsResource($actual, $message);
-            return;
-        }
-
         parent::assertInternalType('resource', $actual, $message);
     }
 
     // assertIsObject was not introduced until PHPUnit 8
     public static function assertIsObject($actual, string $message = ''): void
     {
-        if (method_exists(parent::class, 'assertIsObject')) {
-            parent::assertIsObject($actual, $message);
-            return;
-        }
-
         parent::assertInternalType('object', $actual, $message);
     }
 
     // assertContains is deprecated for strings in PHPUnit 8
     public static function assertStringContainsString(string $needle, string $haystack, string $message = ''): void
     {
-        if (method_exists(parent::class, 'assertStringContainsString')) {
-            parent::assertStringContainsString($needle, $haystack, $message);
-            return;
-        }
-
         parent::assertContains($needle, $haystack, $message);
     }
 
     // assertNotContains is deprecated for strings in PHPUnit 8
     public static function assertStringNotContainsString(string $needle, string $haystack, string $message = ''): void
     {
-        if (method_exists(parent::class, 'assertStringContainsString')) {
-            parent::assertStringNotContainsString($needle, $haystack, $message);
-            return;
-        }
-
         parent::assertNotContains($needle, $haystack, $message);
     }
 
@@ -167,10 +137,6 @@ abstract class PhpseclibTestCase extends TestCase
      */
     public static function assertMatchesRegularExpression(string $pattern, string $string, string $message = ''): void
     {
-        if (method_exists(parent::class, 'assertMatchesRegularExpression')) {
-            parent::assertMatchesRegularExpression($pattern, $string, $message);
-        } else {
-            parent::assertRegExp($pattern, $string, $message);
-        }
+        parent::assertRegExp($pattern, $string, $message);
     }
 }

@@ -171,7 +171,7 @@ class HashTest extends PhpseclibTestCase
     }
 
     /**
-     * @dataProvider hmacData()
+     * @dataProvider hmacData
      */
     public function testHMAC($hash, $key, $message, $result): void
     {
@@ -179,7 +179,7 @@ class HashTest extends PhpseclibTestCase
     }
 
     /**
-     * @dataProvider hmacData()
+     * @dataProvider hmacData
      */
     public function testHMAC96($hash, $key, $message, $result): void
     {
@@ -372,7 +372,7 @@ class HashTest extends PhpseclibTestCase
     }
 
     /**
-     * @dataProvider hashData()
+     * @dataProvider hashData
      */
     public function testHash($hash, $message, $result): void
     {
@@ -380,7 +380,7 @@ class HashTest extends PhpseclibTestCase
     }
 
     /**
-     * @dataProvider hashData()
+     * @dataProvider hashData
      */
     public function testHash96($hash, $message, $result): void
     {

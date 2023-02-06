@@ -34,6 +34,7 @@ class SSH2UnitTest extends PhpseclibTestCase
 
     /**
      * @dataProvider formatLogDataProvider
+     * @requires PHPUnit < 10
      */
     public function testFormatLog(array $message_log, array $message_number_log, $expected): void
     {
@@ -43,6 +44,9 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals($expected, $result);
     }
 
+    /**
+     * @requires PHPUnit < 10
+     */
     public function testGenerateIdentifier(): void
     {
         $identifier = self::callFunc($this->createSSHMock(), 'generate_identifier');
@@ -70,6 +74,9 @@ class SSH2UnitTest extends PhpseclibTestCase
         }
     }
 
+    /**
+     * @requires PHPUnit < 10
+     */
     public function testGetExitStatusIfNotConnected(): void
     {
         $ssh = $this->createSSHMock();
@@ -77,12 +84,18 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertFalse($ssh->getExitStatus());
     }
 
+    /**
+     * @requires PHPUnit < 10
+     */
     public function testPTYIDefaultValue(): void
     {
         $ssh = $this->createSSHMock();
         $this->assertFalse($ssh->isPTYEnabled());
     }
 
+    /**
+     * @requires PHPUnit < 10
+     */
     public function testEnablePTY(): void
     {
         $ssh = $this->createSSHMock();
@@ -94,6 +107,9 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertFalse($ssh->isPTYEnabled());
     }
 
+    /**
+     * @requires PHPUnit < 10
+     */
     public function testQuietModeDefaultValue(): void
     {
         $ssh = $this->createSSHMock();
@@ -101,6 +117,9 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertFalse($ssh->isQuietModeEnabled());
     }
 
+    /**
+     * @requires PHPUnit < 10
+     */
     public function testEnableQuietMode(): void
     {
         $ssh = $this->createSSHMock();

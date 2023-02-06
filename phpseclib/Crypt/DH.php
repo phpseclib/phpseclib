@@ -82,6 +82,11 @@ abstract class DH extends AsymmetricKey
      */
     public static function createParameters(...$args): Parameters
     {
+        $class = new \ReflectionClass(static::class);
+        if ($class->isFinal()) {
+            throw new \RuntimeException('createParameters() should not be called from final classes (' . static::class . ')');
+        }
+
         $params = new Parameters();
         if (count($args) == 2 && $args[0] instanceof BigInteger && $args[1] instanceof BigInteger) {
             //if (!$args[0]->isPrime()) {
@@ -242,6 +247,11 @@ abstract class DH extends AsymmetricKey
      */
     public static function createKey(Parameters $params, int $length = 0): PrivateKey
     {
+        $class = new \ReflectionClass(static::class);
+        if ($class->isFinal()) {
+            throw new \RuntimeException('createKey() should not be called from final classes (' . static::class . ')');
+        }
+
         $one = new BigInteger(1);
         if ($length) {
             $max = $one->bitwise_leftShift($length);
@@ -380,9 +390,9 @@ abstract class DH extends AsymmetricKey
      */
     public function getParameters(): AsymmetricKey
     {
-        $type = self::validatePlugin('Keys', 'PKCS1', 'saveParameters');
+        $type = DH::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 
         $key = $type::saveParameters($this->prime, $this->base);
-        return self::load($key, 'PKCS1');
+        return DH::load($key, 'PKCS1');
     }
 }

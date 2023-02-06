@@ -22,7 +22,7 @@ use phpseclib3\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class PublicKey extends DSA implements Common\PublicKey
+final class PublicKey extends DSA implements Common\PublicKey
 {
     use Common\Traits\Fingerprint;
 
