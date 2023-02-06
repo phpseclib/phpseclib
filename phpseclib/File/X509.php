@@ -2949,6 +2949,16 @@ class X509
     }
 
     /**
+     * Get the Serial Number
+     *
+     * @return BigInteger
+     */
+    public function getSerialNumber():BigInteger
+    {
+        return $this->serialNumber;
+    }
+
+    /**
      * Turns the certificate into a certificate authority
      */
     public function makeCA(): void
