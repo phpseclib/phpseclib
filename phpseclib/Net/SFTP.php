@@ -923,7 +923,7 @@ class SFTP extends SSH2
             }
 
             $parts = explode('/', $path);
-            $afterPWD = $beforePWD = [];
+            $afterPWD = $beforePWD = array();
             foreach ($parts as $part) {
                 switch ($part) {
                     //case '': // some SFTP servers /require/ double /'s. see https://github.com/phpseclib/phpseclib/pull/1137
