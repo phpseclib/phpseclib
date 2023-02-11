@@ -633,6 +633,10 @@ Private-MAC: d26baf87446604974287b682ed9e0c00ce54e460e1cb719953a81291147b3c59
 
     public function testOpenSSHEncrypted()
     {
+        if (PHP_INT_SIZE === 4) {
+            self::markTestSkipped('bcrypt is far too slow to be practical on 32-bit versions of PHP');
+        }
+
         $key = '-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jdHIAAAAGYmNyeXB0AAAAGAAAABBN2Ff3Kw
 SIOWyzRiboPRIhAAAAEAAAAAEAAAGXAAAAB3NzaC1yc2EAAAADAQABAAABgQCpxMxDEG0S
