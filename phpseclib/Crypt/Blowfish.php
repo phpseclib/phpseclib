@@ -762,9 +762,13 @@ class Blowfish extends Base
         $l = $in[1];
         $r = $in[2];
 
-        list($r, $l) = CRYPT_BASE_USE_REG_INTVAL ?
-            $this->_encryptBlockHelperFast($l, $r, $sb_0, $sb_1, $sb_2, $sb_3, $p) :
-            $this->_encryptBlockHelperSlow($l, $r, $sb_0, $sb_1, $sb_2, $sb_3, $p);
+        if (CRYPT_BASE_USE_REG_INTVAL) {
+            list($r, $l) = PHP_INT_SIZE === 8 ?
+                $this->_encryptBlockHelperFast($l, $r, $sb_0, $sb_1, $sb_2, $sb_3, $p) :
+                $this->_encryptBlockHelperFast32($l, $r, $sb_0, $sb_1, $sb_2, $sb_3, $p);
+        } else {
+            list($r, $l) = $this->_encryptBlockHelperSlow($l, $r, $sb_0, $sb_1, $sb_2, $sb_3, $p);
+        }
 
         return pack("N*", $r, $l);
     }
@@ -806,6 +810,42 @@ class Blowfish extends Base
     }
 
     /**
+     * Fast helper function for block encryption (32-bit)
+     *
+     * @access private
+     * @param int $x0
+     * @param int $x1
+     * @param int[] $sbox0
+     * @param int[] $sbox1
+     * @param int[] $sbox2
+     * @param int[] $sbox3
+     * @param int[] $p
+     * @return int[]
+     */
+    function _encryptBlockHelperFast32($x0, $x1, $sbox0, $sbox1, $sbox2, $sbox3, $p)
+    {
+        $x0 ^= $p[0];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[1];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[2];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[3];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[4];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[5];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[6];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[7];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[8];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[9];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[10];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[11];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[12];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[13];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[14];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[15];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
+
+        return array($x1 & 0xFFFFFFFF ^ $p[17], $x0 & 0xFFFFFFFF);
+    }
+
+    /**
      * Slow helper function for block encryption
      *
      * @access private
@@ -821,22 +861,22 @@ class Blowfish extends Base
     function _encryptBlockHelperSlow($x0, $x1, $sbox0, $sbox1, $sbox2, $sbox3, $p)
     {
         $x0^= $p[0];
-        $x1^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[1];
-        $x0^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[2];
-        $x1^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[3];
-        $x0^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[4];
-        $x1^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[5];
-        $x0^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[6];
-        $x1^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[7];
-        $x0^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[8];
-        $x1^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[9];
-        $x0^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[10];
-        $x1^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[11];
-        $x0^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[12];
-        $x1^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[13];
-        $x0^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[14];
-        $x1^= $this->safe_intval(($this->safe_intval($sbox0[($x0 & 0xFF000000) >> 24] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[15];
-        $x0^= $this->safe_intval(($this->safe_intval($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
+        $x1^= $this->safe_intval(($this->safe_intval($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[1];
+        $x0^= $this->safe_intval(($this->safe_intval($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[2];
+        $x1^= $this->safe_intval(($this->safe_intval($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[3];
+        $x0^= $this->safe_intval(($this->safe_intval($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[4];
+        $x1^= $this->safe_intval(($this->safe_intval($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[5];
+        $x0^= $this->safe_intval(($this->safe_intval($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[6];
+        $x1^= $this->safe_intval(($this->safe_intval($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[7];
+        $x0^= $this->safe_intval(($this->safe_intval($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[8];
+        $x1^= $this->safe_intval(($this->safe_intval($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[9];
+        $x0^= $this->safe_intval(($this->safe_intval($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[10];
+        $x1^= $this->safe_intval(($this->safe_intval($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[11];
+        $x0^= $this->safe_intval(($this->safe_intval($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[12];
+        $x1^= $this->safe_intval(($this->safe_intval($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[13];
+        $x0^= $this->safe_intval(($this->safe_intval($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[14];
+        $x1^= $this->safe_intval(($this->safe_intval($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[15];
+        $x0^= $this->safe_intval(($this->safe_intval($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
 
         return array($x1 & 0xFFFFFFFF ^ $p[17], $x0 & 0xFFFFFFFF);
     }
