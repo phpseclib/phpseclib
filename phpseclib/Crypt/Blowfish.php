@@ -381,7 +381,7 @@ class Blowfish extends BlockCipher
             // quoting https://www.openssl.org/news/openssl-3.0-notes.html, OpenSSL 3.0.1
             // "Moved all variations of the EVP ciphers CAST5, BF, IDEA, SEED, RC2, RC4, RC5, and DES to the legacy provider"
             // in theory openssl_get_cipher_methods() should catch this but, on GitHub Actions, at least, it does not
-            if (version_compare(preg_replace('#OpenSSL (\d+\.\d+\.\d+) .*#', '$1', OPENSSL_VERSION_TEXT), '3.0.1', '>=')) {
+            if (defined('OPENSSL_VERSION_TEXT') && version_compare(preg_replace('#OpenSSL (\d+\.\d+\.\d+) .*#', '$1', OPENSSL_VERSION_TEXT), '3.0.1', '>=')) {
                 return false;
             }
             $this->cipher_name_openssl_ecb = 'bf-ecb';
@@ -709,6 +709,42 @@ class Blowfish extends BlockCipher
         $x0 ^= ((($sbox0[($x1 & 0xFF000000) >> 24] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
 
         return [$x1 & 0xFFFFFFFF ^ $p[17], $x0 & 0xFFFFFFFF];
+    }
+
+    /**
+     * Fast helper function for block encryption (32-bit)
+     *
+     * @access private
+     * @param int $x0
+     * @param int $x1
+     * @param int[] $sbox0
+     * @param int[] $sbox1
+     * @param int[] $sbox2
+     * @param int[] $sbox3
+     * @param int[] $p
+     * @return int[]
+     */
+    function _encryptBlockHelperFast32($x0, $x1, $sbox0, $sbox1, $sbox2, $sbox3, $p)
+    {
+        $x0 ^= $p[0];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[1];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[2];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[3];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[4];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[5];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[6];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[7];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[8];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[9];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[10];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[11];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[12];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[13];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[14];
+        $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[15];
+        $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
+
+        return array($x1 & 0xFFFFFFFF ^ $p[17], $x0 & 0xFFFFFFFF);
     }
 
     /**
