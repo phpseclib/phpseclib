@@ -1,0 +1,76 @@
+name: CI
+on: [push, pull_request]
+
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
+jobs:
+    lint:
+        name: Lint
+        timeout-minutes: 5
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v3
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-version }}
+                    tools: php-parallel-lint/php-parallel-lint:1
+            -   name: Lint
+                run: parallel-lint --show-deprecated build phpseclib tests
+        strategy:
+            fail-fast: false
+            matrix:
+                php-version: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
+    tests:
+        name: Tests
+        timeout-minutes: 10
+        runs-on: ${{ matrix.os }}
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v3
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-version }}
+            -   name: Composer Install
+                run: composer install --no-interaction --no-cache
+            -   name: Make Tests Compatiable With PHPUnit 9+
+                if: contains(fromJSON('["7.3", "7.4", "8.0", "8.1", "8.2"]'), matrix.php-version)
+                run: php tests/make_compatible_with_phpunit9.php
+            -   name: Setup Secure Shell Functional Tests
+                if: matrix.os == 'ubuntu-latest'
+                run: |
+                    PHPSECLIB_SSH_USERNAME='phpseclib'
+                    PHPSECLIB_SSH_PASSWORD='EePoov8po1aethu2kied1ne0'
+                    
+                    sudo useradd --create-home --base-dir /home "$PHPSECLIB_SSH_USERNAME"
+                    echo "$PHPSECLIB_SSH_USERNAME:$PHPSECLIB_SSH_PASSWORD" | sudo chpasswd
+                    ssh-keygen -t rsa -b 1024 -f "$HOME/.ssh/id_rsa" -q -N ""
+                    eval `ssh-agent -s`
+                    ssh-add "$HOME/.ssh/id_rsa"
+                    sudo mkdir -p "/home/$PHPSECLIB_SSH_USERNAME/.ssh/"
+                    sudo cp "$HOME/.ssh/id_rsa.pub" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/authorized_keys"
+                    sudo ssh-keyscan -t rsa localhost > "/tmp/known_hosts"
+                    sudo cp "/tmp/known_hosts" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/known_hosts"
+                    sudo chown "$PHPSECLIB_SSH_USERNAME:$PHPSECLIB_SSH_USERNAME" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/" -R
+                    
+                    echo "PHPSECLIB_SSH_HOSTNAME=localhost" >> $GITHUB_ENV
+                    echo "PHPSECLIB_SSH_USERNAME=$PHPSECLIB_SSH_USERNAME" >> $GITHUB_ENV
+                    echo "PHPSECLIB_SSH_PASSWORD=$PHPSECLIB_SSH_PASSWORD" >> $GITHUB_ENV
+                    echo "PHPSECLIB_SSH_HOME=/home/phpseclib" >> $GITHUB_ENV
+                    echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
+            -   name: PHPUnit
+                run: vendor/bin/phpunit
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ubuntu-latest, windows-latest, macos-latest]
+                php-version: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
+                exclude:
+                    # PHP 5.3 / 5.4 on windows don't have openssl or curl installed, which prevents composer from running
+                    - os: windows-latest
+                      php-version: '5.3'
+                    - os: windows-latest
+                      php-version: '5.4'

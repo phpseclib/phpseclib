@@ -2757,7 +2757,7 @@ class Net_SSH2
             $publickey['n']
         );
 
-        $algos = ['rsa-sha2-256', 'rsa-sha2-512', 'ssh-rsa'];
+        $algos = array('rsa-sha2-256', 'rsa-sha2-512', 'ssh-rsa');
         if (isset($this->preferred['hostkey'])) {
             $algos = array_intersect($this->preferred['hostkey'], $algos);
         }
