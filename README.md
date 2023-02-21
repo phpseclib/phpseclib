@@ -1,6 +1,10 @@
 # phpseclib - PHP Secure Communications Library
 
-[![Build Status](https://travis-ci.com/phpseclib/phpseclib.svg?branch=2.0)](https://travis-ci.com/github/phpseclib/phpseclib)
+## Vetster fork
+
+This codebase is functionally the same as "phpseclib/phpseclib:^2.0". Forking it
+as a custom Vetster package allows v2 and "phpseclib/phpseclib:^3.0" to be installed
+in same project. The former uses PHP namespace `phpseclib\*`, the latter `phpseclib3\*`.
 
 ## Supporting phpseclib
 
