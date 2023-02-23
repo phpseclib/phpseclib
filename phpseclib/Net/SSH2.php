@@ -722,16 +722,6 @@ class SSH2
     private bool $request_pty = false;
 
     /**
-     * Flag set while exec() is running when using enablePTY()
-     */
-    private bool $in_request_pty_exec = false;
-
-    /**
-     * Flag set after startSubsystem() is called
-     */
-    private bool $in_subsystem = false;
-
-    /**
      * Contents of stdError
      */
     private string $stdErrorLog;
@@ -2423,7 +2413,7 @@ class SSH2
             return false;
         }
 
-        if ($this->in_request_pty_exec) {
+        if ($this->isPTYOpen()) {
             throw new RuntimeException('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
         }
 
@@ -2473,8 +2463,6 @@ class SSH2
                 $this->disconnect_helper(DisconnectReason::BY_APPLICATION);
                 throw new RuntimeException('Unable to request pseudo-terminal');
             }
-
-            $this->in_request_pty_exec = true;
         }
 
         // sending a pty-req SSH_MSG_CHANNEL_REQUEST message is unnecessary and, in fact, in most cases, slows things
@@ -2504,7 +2492,7 @@ class SSH2
 
         $this->channel_status[self::CHANNEL_EXEC] = MessageType::CHANNEL_DATA;
 
-        if ($this->in_request_pty_exec) {
+        if ($this->request_pty === true) {
             return true;
         }
 
@@ -2532,15 +2520,25 @@ class SSH2
     /**
      * Creates an interactive shell
      *
+     * Returns bool(true) if the shell was opened.
+     * Returns bool(false) if the shell was already open.
+     *
+     * @return bool
+     * @throws InsufficientSetupException if not authenticated
      * @throws UnexpectedValueException on receipt of unexpected packets
      * @throws RuntimeException on other errors
-     *@see self::read()
+     * @see self::IsShellOpen()
+     * @see self::read()
      * @see self::write()
      */
-    private function initShell(): bool
+    public function openShell(): bool
     {
-        if ($this->in_request_pty_exec === true) {
-            return true;
+        if ($this->isShellOpen()) {
+            return false;
+        }
+
+        if (!$this->isAuthenticated()) {
+            throw new InsufficientSetupException('Operation disallowed prior to login()');
         }
 
         $this->window_size_server_to_client[self::CHANNEL_SHELL] = $this->window_size;
@@ -2606,21 +2604,34 @@ class SSH2
     }
 
     /**
-     * Return the channel to be used with read() / write()
-     *
+     * Return the channel to be used with read(), write(), and reset(), if none were specified
+     * @deprecated for lack of transparency in intended channel target, to be potentially replaced
+     *             with method which guarantees open-ness of all yielded channels and throws
+     *             error for multiple open channels
      * @see self::read()
      * @see self::write()
      */
     private function get_interactive_channel(): int
     {
         switch (true) {
-            case $this->in_subsystem:
+            case $this->is_channel_status_data(self::CHANNEL_SUBSYSTEM):
                 return self::CHANNEL_SUBSYSTEM;
-            case $this->in_request_pty_exec:
+            case $this->is_channel_status_data(self::CHANNEL_EXEC):
                 return self::CHANNEL_EXEC;
             default:
                 return self::CHANNEL_SHELL;
         }
+    }
+
+    /**
+     * Indicates the DATA status on the given channel
+     *
+     * @param int $channel The channel number to evaluate
+     * @return bool
+     */
+    private function is_channel_status_data(int $channel): bool
+    {
+        return isset($this->channel_status[$channel]) && $this->channel_status[$channel] == MessageType::CHANNEL_DATA;
     }
 
     /**
@@ -2677,24 +2688,37 @@ class SSH2
      * Returns when there's a match for $expect, which can take the form of a string literal or,
      * if $mode == self::READ_REGEX, a regular expression.
      *
+     * If not specifying a channel, an open interactive channel will be selected, or, if there are
+     * no open channels, an interactive shell will be created. If there are multiple open
+     * interactive channels, a legacy behavior will apply in which channel selection prioritizes
+     * an active subsystem, the exec pty, and, lastly, the shell. If using multiple interactive
+     * channels, callers are discouraged from relying on this legacy behavior and should specify
+     * the intended channel.
+     *
+     * @param string $expect
+     * @param int $mode One of the self::READ_* constants
+     * @param int|null $channel One of the self::CHANNEL_* constants
      * @return string|bool|null
      * @throws RuntimeException on connection error
+     * @throws InsufficientSetupException on unexpected channel status, possibly due to closure
      * @see self::write()
      */
-    public function read(string $expect = '', int $mode = self::READ_SIMPLE)
+    public function read(string $expect = '', int $mode = self::READ_SIMPLE, int $channel = null)
     {
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;
 
-        if (!$this->isAuthenticated()) {
-            throw new InsufficientSetupException('Operation disallowed prior to login()');
+        if ($channel === null) {
+            $channel = $this->get_interactive_channel();
         }
 
-        if (!($this->bitmap & self::MASK_SHELL) && !$this->initShell()) {
-            throw new RuntimeException('Unable to initiate an interactive shell session');
+        if (!$this->isInteractiveChannelOpen($channel)) {
+            if ($channel != self::CHANNEL_SHELL) {
+                throw new InsufficientSetupException('Data is not available on channel');
+            } elseif (!$this->openShell()) {
+                throw new RuntimeException('Unable to initiate an interactive shell session');
+            }
         }
-
-        $channel = $this->get_interactive_channel();
 
         if ($mode == self::READ_NEXT) {
             return $this->get_channel_packet($channel);
@@ -2712,7 +2736,6 @@ class SSH2
             }
             $response = $this->get_channel_packet($channel);
             if ($response === true) {
-                $this->in_request_pty_exec = false;
                 return Strings::shift($this->interactiveBuffer, strlen($this->interactiveBuffer));
             }
 
@@ -2723,20 +2746,34 @@ class SSH2
     /**
      * Inputs a command into an interactive shell.
      *
+     * If not specifying a channel, an open interactive channel will be selected, or, if there are
+     * no open channels, an interactive shell will be created. If there are multiple open
+     * interactive channels, a legacy behavior will apply in which channel selection prioritizes
+     * an active subsystem, the exec pty, and, lastly, the shell. If using multiple interactive
+     * channels, callers are discouraged from relying on this legacy behavior and should specify
+     * the intended channel.
+     *
+     * @param string $cmd
+     * @param int|null $channel One of the self::CHANNEL_* constants
      * @throws RuntimeException on connection error
+     * @throws InsufficientSetupException on unexpected channel status, possibly due to closure
      * @see SSH2::read()
      */
-    public function write(string $cmd): void
+    public function write(string $cmd, int $channel = null): void
     {
-        if (!$this->isAuthenticated()) {
-            throw new InsufficientSetupException('Operation disallowed prior to login()');
+        if ($channel === null) {
+            $channel = $this->get_interactive_channel();
         }
 
-        if (!($this->bitmap & self::MASK_SHELL) && !$this->initShell()) {
-            throw new RuntimeException('Unable to initiate an interactive shell session');
+        if (!$this->isInteractiveChannelOpen($channel)) {
+            if ($channel != self::CHANNEL_SHELL) {
+                throw new InsufficientSetupException('Data is not available on channel');
+            } elseif (!$this->openShell()) {
+                throw new RuntimeException('Unable to initiate an interactive shell session');
+            }
         }
 
-        $this->send_channel_packet($this->get_interactive_channel(), $cmd);
+        $this->send_channel_packet($channel, $cmd);
     }
 
     /**
@@ -2787,9 +2824,6 @@ class SSH2
 
         $this->channel_status[self::CHANNEL_SUBSYSTEM] = MessageType::CHANNEL_DATA;
 
-        $this->bitmap |= self::MASK_SHELL;
-        $this->in_subsystem = true;
-
         return true;
     }
 
@@ -2800,8 +2834,9 @@ class SSH2
      */
     public function stopSubsystem(): bool
     {
-        $this->in_subsystem = false;
-        $this->close_channel(self::CHANNEL_SUBSYSTEM);
+        if ($this->isInteractiveChannelOpen(self::CHANNEL_SUBSYSTEM)) {
+            $this->close_channel(self::CHANNEL_SUBSYSTEM);
+        }
         return true;
     }
 
@@ -2809,10 +2844,23 @@ class SSH2
      * Closes a channel
      *
      * If read() timed out you might want to just close the channel and have it auto-restart on the next read() call
+     *
+     * If not specifying a channel, an open interactive channel will be selected. If there are
+     * multiple open interactive channels, a legacy behavior will apply in which channel selection
+     * prioritizes an active subsystem, the exec pty, and, lastly, the shell. If using multiple
+     * interactive channels, callers are discouraged from relying on this legacy behavior and
+     * should specify the intended channel.
+     *
+     * @param int|null $channel One of the self::CHANNEL_* constants
      */
-    public function reset(): void
+    public function reset(int $channel = null): void
     {
-        $this->close_channel($this->get_interactive_channel());
+        if ($channel === null) {
+            $channel = $this->get_interactive_channel();
+        }
+        if ($this->isInteractiveChannelOpen($channel)) {
+            $this->close_channel($channel);
+        }
     }
 
     /**
@@ -2862,6 +2910,37 @@ class SSH2
     public function isAuthenticated(): bool
     {
         return (bool) ($this->bitmap & self::MASK_LOGIN);
+    }
+
+    /**
+     * Is the interactive shell active?
+     *
+     * @return bool
+     */
+    public function isShellOpen(): bool
+    {
+        return $this->isInteractiveChannelOpen(self::CHANNEL_SHELL);
+    }
+
+    /**
+     * Is the exec pty active?
+     *
+     * @return bool
+     */
+    public function isPTYOpen(): bool
+    {
+        return $this->isInteractiveChannelOpen(self::CHANNEL_EXEC);
+    }
+
+    /**
+     * Is the given interactive channel active?
+     *
+     * @param int $channel One of the self::CHANNEL_* constants
+     * @return bool
+     */
+    public function isInteractiveChannelOpen(int $channel): bool
+    {
+        return $this->isConnected() && $this->is_channel_status_data($channel);
     }
 
     /**
@@ -3440,9 +3519,8 @@ class SSH2
      */
     public function disablePTY(): void
     {
-        if ($this->in_request_pty_exec) {
+        if ($this->isPTYOpen()) {
             $this->close_channel(self::CHANNEL_EXEC);
-            $this->in_request_pty_exec = false;
         }
         $this->request_pty = false;
     }
@@ -3467,6 +3545,7 @@ class SSH2
      * - if the connection times out
      * - if the channel status is CHANNEL_OPEN and the response was CHANNEL_OPEN_CONFIRMATION
      * - if the channel status is CHANNEL_REQUEST and the response was CHANNEL_SUCCESS
+     * - if the channel status is CHANNEL_CLOSE and the response was CHANNEL_CLOSE
      *
      * bool(false) is returned if:
      *
@@ -3631,7 +3710,10 @@ class SSH2
                                 throw new RuntimeException('Unable to fulfill channel request');
                         }
                     case MessageType::CHANNEL_CLOSE:
-                        return $type == MessageType::CHANNEL_CLOSE ? true : $this->get_channel_packet($client_channel, $skip_extended);
+                        if ($client_channel == $channel && $type == MessageType::CHANNEL_CLOSE) {
+                            return true;
+                        }
+                        return $this->get_channel_packet($client_channel, $skip_extended);
                 }
             }
 
@@ -3666,9 +3748,8 @@ class SSH2
                 case MessageType::CHANNEL_CLOSE:
                     $this->curTimeout = 5;
 
-                    if ($this->bitmap & self::MASK_SHELL) {
-                        $this->bitmap &= ~self::MASK_SHELL;
-                    }
+                    $this->close_channel_bitmap($channel);
+
                     if ($this->channel_status[$channel] != MessageType::CHANNEL_EOF) {
                         $this->send_binary_packet(pack('CN', MessageType::CHANNEL_CLOSE, $this->server_channels[$channel]));
                     }
@@ -3994,16 +4075,28 @@ class SSH2
         while (!is_bool($this->get_channel_packet($client_channel))) {
         }
 
-        if ($this->is_timeout) {
-            $this->disconnect();
-        }
-
         if ($want_reply) {
             $this->send_binary_packet(pack('CN', MessageType::CHANNEL_CLOSE, $this->server_channels[$client_channel]));
         }
 
-        if ($this->bitmap & self::MASK_SHELL) {
-            $this->bitmap &= ~self::MASK_SHELL;
+        $this->close_channel_bitmap($client_channel);
+    }
+
+    /**
+     * Maintains execution state bitmap in response to channel closure
+     *
+     * @param int $client_channel The channel number to maintain closure status of
+     */
+    private function close_channel_bitmap(int $client_channel): void
+    {
+        switch ($client_channel) {
+            case self::CHANNEL_SHELL:
+                // Shell status has been maintained in the bitmap for backwards
+                //  compatibility sake, but can be removed going forward
+                if ($this->bitmap & self::MASK_SHELL) {
+                    $this->bitmap &= ~self::MASK_SHELL;
+                }
+                break;
         }
     }
 

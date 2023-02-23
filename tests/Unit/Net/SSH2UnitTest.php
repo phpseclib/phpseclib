@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace phpseclib3\Tests\Unit\Net;
 
+use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Net\SSH2;
 use phpseclib3\Tests\PhpseclibTestCase;
 
@@ -141,6 +142,56 @@ class SSH2UnitTest extends PhpseclibTestCase
     {
         $ssh = new SSH2('localhost');
         $this->assertSame('{' . spl_object_hash($ssh) . '}', $ssh->getResourceId());
+    }
+
+    public function testReadUnauthenticated(): void
+    {
+        $this->expectException(InsufficientSetupException::class);
+        $this->expectExceptionMessage('Operation disallowed prior to login()');
+
+        $ssh = $this->createSSHMock();
+
+        $ssh->read();
+    }
+
+    public function testWriteUnauthenticated(): void
+    {
+        $this->expectException(InsufficientSetupException::class);
+        $this->expectExceptionMessage('Operation disallowed prior to login()');
+
+        $ssh = $this->createSSHMock();
+
+        $ssh->write('');
+    }
+
+    public function testWriteOpensShell(): void
+    {
+        $ssh = $this->getMockBuilder(SSH2::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['__destruct', 'openShell', 'send_channel_packet'])
+            ->getMock();
+        $ssh->expects($this->once())
+            ->method('openShell')
+            ->willReturn(true);
+        $ssh->expects($this->once())
+            ->method('send_channel_packet')
+            ->with(SSH2::CHANNEL_SHELL, 'hello');
+
+        $ssh->write('hello');
+    }
+
+    public function testOpenShellWhenOpen(): void
+    {
+        $ssh = $this->getMockBuilder(SSH2::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['__destruct', 'isShellOpen'])
+            ->getMock();
+
+        $ssh->expects($this->once())
+            ->method('isShellOpen')
+            ->willReturn(true);
+
+        $this->assertFalse($ssh->openShell());
     }
 
     /**
