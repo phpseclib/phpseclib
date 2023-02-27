@@ -26,6 +26,8 @@ abstract class Integer implements \JsonSerializable
      *
      * PHP Serialize isn't supported because unserializing would require the factory be
      * serialized as well and that just sounds like too much
+     *
+     * @return array{hex: string}
      */
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
