@@ -776,7 +776,7 @@ class Blowfish extends BlockCipher
      * @param int[] $p
      * @return int[]
      */
-    function _encryptBlockHelperFast32($x0, $x1, $sbox0, $sbox1, $sbox2, $sbox3, $p)
+    public function _encryptBlockHelperFast32($x0, $x1, $sbox0, $sbox1, $sbox2, $sbox3, $p)
     {
         $x0 ^= $p[0];
         $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[1];
@@ -796,7 +796,7 @@ class Blowfish extends BlockCipher
         $x1 ^= ((($sbox0[(($x0 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[15];
         $x0 ^= ((($sbox0[(($x1 & 0xFF000000) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
 
-        return array($x1 & 0xFFFFFFFF ^ $p[17], $x0 & 0xFFFFFFFF);
+        return [$x1 & 0xFFFFFFFF ^ $p[17], $x0 & 0xFFFFFFFF];
     }
 
     /**
