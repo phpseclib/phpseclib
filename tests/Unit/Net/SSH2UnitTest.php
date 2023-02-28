@@ -143,6 +143,16 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertSame('{' . spl_object_hash($ssh) . '}', $ssh->getResourceId());
     }
 
+    public function testGetTimeout(): void
+    {
+        $ssh = new SSH2('localhost');
+        $this->assertEquals(10, $ssh->getTimeout());
+        $ssh->setTimeout(0);
+        $this->assertEquals(0, $ssh->getTimeout());
+        $ssh->setTimeout(20);
+        $this->assertEquals(20, $ssh->getTimeout());
+    }
+
     /**
      */
     protected function createSSHMock(): SSH2
