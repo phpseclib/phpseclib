@@ -507,7 +507,7 @@ abstract class TestCase extends PhpseclibTestCase
         }
     }
 
-    public function testHexWithNewLines()
+    public function testHexWithNewLines(): void
     {
         $x = $this->getInstance('0xE932AC92252F585B3A80A4DD76A897C8B7652952FE788F6EC8DD640587A1EE5647670A8AD
 4C2BE0F9FA6E49C605ADF77B5174230AF7BD50E5D6D6D6D28CCF0A886A514CC72E51D209CC7
