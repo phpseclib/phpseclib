@@ -724,26 +724,26 @@ class Blowfish extends BlockCipher
      * @param int[] $p
      * @return int[]
      */
-    private static function encryptBlockHelperSlow($x0, $x1, array $sbox0, array $sbox1, array $sbox2, array $sbox3, array $p)
+    private static function encryptBlockHelperSlow(int $x0, int $x1, array $sbox0, array $sbox1, array $sbox2, array $sbox3, array $p): array
     {
         // -16777216 == intval(0xFF000000) on 32-bit PHP installs
         $x0 ^= $p[0];
-        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[1];
-        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[2];
-        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[3];
-        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[4];
-        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[5];
-        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[6];
-        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[7];
-        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[8];
-        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[9];
-        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[10];
-        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[11];
-        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[12];
-        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[13];
-        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[14];
-        $x1 ^= self::safe_intval((self::safe_intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[15];
-        $x0 ^= self::safe_intval((self::safe_intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
+        $x1 ^= intval((intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[1];
+        $x0 ^= intval((intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[2];
+        $x1 ^= intval((intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[3];
+        $x0 ^= intval((intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[4];
+        $x1 ^= intval((intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[5];
+        $x0 ^= intval((intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[6];
+        $x1 ^= intval((intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[7];
+        $x0 ^= intval((intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[8];
+        $x1 ^= intval((intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[9];
+        $x0 ^= intval((intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[10];
+        $x1 ^= intval((intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[11];
+        $x0 ^= intval((intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[12];
+        $x1 ^= intval((intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[13];
+        $x0 ^= intval((intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[14];
+        $x1 ^= intval((intval($sbox0[(($x0 & -16777216) >> 24) & 0xFF] + $sbox1[($x0 & 0xFF0000) >> 16]) ^ $sbox2[($x0 & 0xFF00) >> 8]) + $sbox3[$x0 & 0xFF]) ^ $p[15];
+        $x0 ^= intval((intval($sbox0[(($x1 & -16777216) >> 24) & 0xFF] + $sbox1[($x1 & 0xFF0000) >> 16]) ^ $sbox2[($x1 & 0xFF00) >> 8]) + $sbox3[$x1 & 0xFF]) ^ $p[16];
 
         return [$x1 ^ $p[17], $x0];
     }
@@ -765,14 +765,14 @@ class Blowfish extends BlockCipher
 
         for ($i = 17; $i > 2; $i -= 2) {
             $l ^= $p[$i];
-            $r ^= ($sb_0[$l >> 24 & 0xff] + $sb_1[$l >> 16 & 0xff] ^
+            $r ^= intval((intval($sb_0[$l >> 24 & 0xff] + $sb_1[$l >> 16 & 0xff]) ^
                   $sb_2[$l >>  8 & 0xff]) +
-                  $sb_3[$l       & 0xff];
+                  $sb_3[$l       & 0xff]);
 
             $r ^= $p[$i - 1];
-            $l ^= ($sb_0[$r >> 24 & 0xff] + $sb_1[$r >> 16 & 0xff] ^
+            $l ^= intval((intval($sb_0[$r >> 24 & 0xff] + $sb_1[$r >> 16 & 0xff]) ^
                   $sb_2[$r >>  8 & 0xff]) +
-                  $sb_3[$r       & 0xff];
+                  $sb_3[$r       & 0xff]);
         }
         return pack('N*', $r ^ $p[0], $l ^ $p[1]);
     }
@@ -804,14 +804,14 @@ class Blowfish extends BlockCipher
         for ($i = 0; $i < 16; $i += 2) {
             $encrypt_block .= '
                 $l^= ' . $p[$i] . ';
-                $r^= ($sb_0[$l >> 24 & 0xff] + $sb_1[$l >> 16 & 0xff] ^
+                $r^= intval((intval($sb_0[$l >> 24 & 0xff] + $sb_1[$l >> 16 & 0xff]) ^
                       $sb_2[$l >>  8 & 0xff]) +
-                      $sb_3[$l       & 0xff];
+                      $sb_3[$l       & 0xff]);
 
                 $r^= ' . $p[$i + 1] . ';
-                $l^= ($sb_0[$r >> 24 & 0xff] + $sb_1[$r >> 16 & 0xff]  ^
+                $l^= intval((intval($sb_0[$r >> 24 & 0xff] + $sb_1[$r >> 16 & 0xff])  ^
                       $sb_2[$r >>  8 & 0xff]) +
-                      $sb_3[$r       & 0xff];
+                      $sb_3[$r       & 0xff]);
             ';
         }
         $encrypt_block .= '
@@ -820,6 +820,7 @@ class Blowfish extends BlockCipher
                 $l ^ ' . $p[16] . '
             );
         ';
+
          // Generating decrypt code:
         $decrypt_block = '
             $in = unpack("N*", $in);
@@ -830,14 +831,14 @@ class Blowfish extends BlockCipher
         for ($i = 17; $i > 2; $i -= 2) {
             $decrypt_block .= '
                 $l^= ' . $p[$i] . ';
-                $r^= ($sb_0[$l >> 24 & 0xff] + $sb_1[$l >> 16 & 0xff] ^
+                $r^= intval((intval($sb_0[$l >> 24 & 0xff] + $sb_1[$l >> 16 & 0xff]) ^
                       $sb_2[$l >>  8 & 0xff]) +
-                      $sb_3[$l       & 0xff];
+                      $sb_3[$l       & 0xff]);
 
                 $r^= ' . $p[$i - 1] . ';
-                $l^= ($sb_0[$r >> 24 & 0xff] + $sb_1[$r >> 16 & 0xff] ^
+                $l^= intval((intval($sb_0[$r >> 24 & 0xff] + $sb_1[$r >> 16 & 0xff]) ^
                       $sb_2[$r >>  8 & 0xff]) +
-                      $sb_3[$r       & 0xff];
+                      $sb_3[$r       & 0xff]);
             ';
         }
 
