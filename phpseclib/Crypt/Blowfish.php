@@ -715,8 +715,6 @@ class Blowfish extends BlockCipher
      * Slow helper function for block encryption
      *
      * @access private
-     * @param int $x0
-     * @param int $x1
      * @param int[] $sbox0
      * @param int[] $sbox1
      * @param int[] $sbox2
