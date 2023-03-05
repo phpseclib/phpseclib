@@ -110,6 +110,16 @@ class Unit_Net_SSH2UnitTest extends PhpseclibTestCase
         $this->assertFalse($ssh->isQuietModeEnabled());
     }
 
+    public function testGetTimeout()
+    {
+        $ssh = new Net_SSH2('localhost');
+        $this->assertEquals(10, $ssh->getTimeout());
+        $ssh->setTimeout(0);
+        $this->assertEquals(0, $ssh->getTimeout());
+        $ssh->setTimeout(20);
+        $this->assertEquals(20, $ssh->getTimeout());
+    }
+
     /**
      * @return \phpseclib\Net\SSH2
      */
