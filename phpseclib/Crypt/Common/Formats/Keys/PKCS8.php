@@ -301,6 +301,9 @@ abstract class PKCS8 extends PKCS
     {
         $decoded = self::preParse($key);
 
+        $isPublic = str_contains($key, 'PUBLIC');
+        $isPrivate = str_contains($key, 'PRIVATE');
+
         $meta = [];
 
         $decrypted = ASN1::asn1map($decoded[0], Maps\EncryptedPrivateKeyInfo::MAP);
@@ -429,6 +432,10 @@ abstract class PKCS8 extends PKCS
 
         $private = ASN1::asn1map($decoded[0], Maps\OneAsymmetricKey::MAP);
         if (is_array($private)) {
+            if ($isPublic) {
+                throw new \UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
+            }
+
             if (isset($private['privateKeyAlgorithm']['parameters']) && !$private['privateKeyAlgorithm']['parameters'] instanceof ASN1\Element && isset($decoded[0]['content'][1]['content'][1])) {
                 $temp = $decoded[0]['content'][1]['content'][1];
                 $private['privateKeyAlgorithm']['parameters'] = new ASN1\Element(substr($key, $temp['start'], $temp['length']));
@@ -458,6 +465,10 @@ abstract class PKCS8 extends PKCS
         $public = ASN1::asn1map($decoded[0], Maps\PublicKeyInfo::MAP);
 
         if (is_array($public)) {
+            if ($isPrivate) {
+                throw new \UnexpectedValueException('Human readable string claims private key but DER encoded string claims public key');
+            }
+
             if ($public['publicKey'][0] != "\0") {
                 throw new UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($public['publicKey'][0]));
             }
