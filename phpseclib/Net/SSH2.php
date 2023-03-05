@@ -2873,6 +2873,16 @@ class Net_SSH2
     }
 
     /**
+     * Return the currently configured timeout
+     *
+     * @return int
+     */
+    function getTimeout()
+    {
+        return $this->timeout;
+    }
+
+    /**
      * Set Timeout
      *
      * $ssh->exec('ping 127.0.0.1'); on a Linux host will never return and will run indefinitely.  setTimeout() makes it so it'll timeout.
