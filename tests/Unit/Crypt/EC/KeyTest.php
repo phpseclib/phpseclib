@@ -683,7 +683,7 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
 
     public function testMislabledPKCS8PubKey(): void
     {
-        $this->expectException('NoKeyLoadedException');
+        $this->expectException('\phpseclib3\Exception\NoKeyLoadedException');
 
         $key = '-----BEGIN PRIVATE KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErPJyxEu2/oKCrJaaTVTrq39DKJ2X
