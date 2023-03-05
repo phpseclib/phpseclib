@@ -23,7 +23,6 @@
 
 namespace phpseclib3\Crypt\EC\Formats\Keys;
 
-use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
 use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
@@ -74,22 +73,9 @@ abstract class PKCS8 extends Progenitor
         // one that's called
         self::initialize_static_variables();
 
-        if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
-        }
-
-        $isPublic = strpos($key, 'PUBLIC') !== false;
-
         $key = parent::load($key, $password);
 
         $type = isset($key['privateKey']) ? 'privateKey' : 'publicKey';
-
-        switch (true) {
-            case !$isPublic && $type == 'publicKey':
-                throw new \UnexpectedValueException('Human readable string claims non-public key but DER encoded string claims public key');
-            case $isPublic && $type == 'privateKey':
-                throw new \UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
-        }
 
         switch ($key[$type . 'Algorithm']['algorithm']) {
             case 'id-Ed25519':
@@ -109,7 +95,7 @@ abstract class PKCS8 extends Progenitor
         $components = [];
         $components['curve'] = self::loadCurveByParam($params);
 
-        if ($isPublic) {
+        if ($type == 'publicKey') {
             $components['QA'] = self::extractPoint("\0" . $key['publicKey'], $components['curve']);
 
             return $components;
