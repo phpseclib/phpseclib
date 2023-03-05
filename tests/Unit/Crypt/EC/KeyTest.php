@@ -678,4 +678,16 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
         $key = PublicKeyLoader::load($key);
         $this->assertInstanceOf(PublicKey::class, $key);
     }
+
+    public function testMislabledPKCS8PubKey()
+    {
+        $this->expectException('\phpseclib3\Exception\NoKeyLoadedException');
+
+        $key = '-----BEGIN PRIVATE KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErPJyxEu2/oKCrJaaTVTrq39DKJ2X
+cN6W+k8UvGf+Y/lDWNbFitQocabsDUvSN0edHH3UKP5QPTz4cOlyIPMrXQ==
+-----END PUBLIC KEY-----';
+        $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
+    }
 }
