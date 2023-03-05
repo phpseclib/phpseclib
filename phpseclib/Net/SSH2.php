@@ -2376,8 +2376,6 @@ class SSH2
 
     /**
      * Return the currently configured timeout
-     *
-     * @return int
      */
     public function getTimeout(): int
     {

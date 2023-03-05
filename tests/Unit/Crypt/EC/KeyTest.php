@@ -674,7 +674,7 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
         $this->assertTrue($key->verify($plaintext, $sig));
     }
 
-    public function testNakedPKCS8PubKey()
+    public function testNakedPKCS8PubKey(): void
     {
         $key = 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErPJyxEu2/oKCrJaaTVTrq39DKJ2XcN6W+k8UvGf+Y/lDWNbFitQocabsDUvSN0edHH3UKP5QPTz4cOlyIPMrXQ==';
         $key = PublicKeyLoader::load($key);

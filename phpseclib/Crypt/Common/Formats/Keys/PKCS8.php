@@ -629,8 +629,10 @@ abstract class PKCS8 extends PKCS
 
     /**
      * Perform some preliminary parsing of the key
+     *
+     * @param string|array $key
      */
-    private static function preParse(string &$key): array
+    private static function preParse(&$key): array
     {
         self::initialize_static_variables();
 
