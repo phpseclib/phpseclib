@@ -6,6 +6,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib\Net\SSH2;
+
 class Unit_Net_SSH2UnitTest extends PhpseclibTestCase
 {
     public function formatLogDataProvider()
@@ -112,7 +114,7 @@ class Unit_Net_SSH2UnitTest extends PhpseclibTestCase
 
     public function testGetTimeout()
     {
-        $ssh = new Net_SSH2('localhost');
+        $ssh = new SSH2('localhost');
         $this->assertEquals(10, $ssh->getTimeout());
         $ssh->setTimeout(0);
         $this->assertEquals(0, $ssh->getTimeout());
