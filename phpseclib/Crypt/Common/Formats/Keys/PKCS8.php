@@ -299,10 +299,14 @@ abstract class PKCS8 extends PKCS
      */
     protected static function load($key, ?string $password = null): array
     {
-        $decoded = self::preParse($key);
+        if (!Strings::is_stringable($key)) {
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        }
 
         $isPublic = str_contains($key, 'PUBLIC');
         $isPrivate = str_contains($key, 'PRIVATE');
+
+        $decoded = self::preParse($key);
 
         $meta = [];
 
@@ -433,7 +437,7 @@ abstract class PKCS8 extends PKCS
         $private = ASN1::asn1map($decoded[0], Maps\OneAsymmetricKey::MAP);
         if (is_array($private)) {
             if ($isPublic) {
-                throw new \UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
+                throw new UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
             }
 
             if (isset($private['privateKeyAlgorithm']['parameters']) && !$private['privateKeyAlgorithm']['parameters'] instanceof ASN1\Element && isset($decoded[0]['content'][1]['content'][1])) {
@@ -466,7 +470,7 @@ abstract class PKCS8 extends PKCS
 
         if (is_array($public)) {
             if ($isPrivate) {
-                throw new \UnexpectedValueException('Human readable string claims private key but DER encoded string claims public key');
+                throw new UnexpectedValueException('Human readable string claims private key but DER encoded string claims public key');
             }
 
             if ($public['publicKey'][0] != "\0") {
@@ -636,10 +640,6 @@ abstract class PKCS8 extends PKCS
     {
         self::initialize_static_variables();
 
-        if (!Strings::is_stringable($key)) {
-            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
-        }
-
         if (self::$format != self::MODE_DER) {
             $decoded = ASN1::extractBER($key);
             if ($decoded !== false) {
@@ -662,6 +662,10 @@ abstract class PKCS8 extends PKCS
      */
     public static function extractEncryptionAlgorithm(string $key): array
     {
+        if (!Strings::is_stringable($key)) {
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        }
+
         $decoded = self::preParse($key);
 
         $r = ASN1::asn1map($decoded[0], ASN1\Maps\EncryptedPrivateKeyInfo::MAP);
