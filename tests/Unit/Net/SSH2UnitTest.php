@@ -8,6 +8,7 @@
 
 namespace phpseclib3\Tests\Unit\Net;
 
+use phpseclib3\Net\SSH2;
 use phpseclib3\Tests\PhpseclibTestCase;
 
 class SSH2UnitTest extends PhpseclibTestCase
@@ -135,14 +136,24 @@ class SSH2UnitTest extends PhpseclibTestCase
 
     public function testGetConnectionByResourceId()
     {
-        $ssh = new \phpseclib3\Net\SSH2('localhost');
+        $ssh = new SSH2('localhost');
         $this->assertSame($ssh, \phpseclib3\Net\SSH2::getConnectionByResourceId($ssh->getResourceId()));
     }
 
     public function testGetResourceId()
     {
-        $ssh = new \phpseclib3\Net\SSH2('localhost');
+        $ssh = new SSH2('localhost');
         $this->assertSame('{' . spl_object_hash($ssh) . '}', $ssh->getResourceId());
+    }
+
+    public function testGetTimeout()
+    {
+        $ssh = new SSH2('localhost');
+        $this->assertEquals(10, $ssh->getTimeout());
+        $ssh->setTimeout(0);
+        $this->assertEquals(0, $ssh->getTimeout());
+        $ssh->setTimeout(20);
+        $this->assertEquals(20, $ssh->getTimeout());
     }
 
     /**
