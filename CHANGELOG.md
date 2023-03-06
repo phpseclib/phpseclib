@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.42 - 2023-03-06
+
+- Blowfish: fix issues on 32-bit PHP installs
+- BigInteger: fix for hex numbers with new lines in them
+- SSH2: add getTimeout() method (#1889)
+
 ## 2.0.41 - 2022-12-23
 
 - fix for more PHP 8.2 deprecations (#1875)
