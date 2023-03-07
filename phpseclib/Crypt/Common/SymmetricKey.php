@@ -2815,33 +2815,6 @@ abstract class SymmetricKey
     }
 
     /**
-     * Convert float to int
-     *
-     * On ARM CPUs converting floats to ints doesn't always work
-     *
-     * @param string $x
-     * @return int
-     */
-    protected static function safe_intval($x)
-    {
-        if (is_int($x)) {
-            return $x;
-        }
-
-        return PHP_INT_SIZE == 4 && PHP_VERSION_ID >= 80100 ? intval($x) : $x;
-    }
-
-    /**
-     * eval()'able string for in-line float to int
-     *
-     * @return string
-     */
-    protected static function safe_intval_inline()
-    {
-        return PHP_INT_SIZE == 4 && PHP_VERSION_ID >= 80100 ? 'intval(%s)' : '%s';
-    }
-
-    /**
      * Sets up GCM parameters
      *
      * See steps 1-2 of https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf#page=23

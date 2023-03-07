@@ -17,6 +17,7 @@ use phpseclib3\Crypt\EC\Formats\Keys\PKCS8;
 use phpseclib3\Crypt\EC\Formats\Keys\PuTTY;
 use phpseclib3\Crypt\EC\Formats\Keys\XML;
 use phpseclib3\Crypt\EC\PrivateKey;
+use phpseclib3\Crypt\EC\PublicKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Tests\PhpseclibTestCase;
 
@@ -671,5 +672,24 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
         $this->assertSame($keyWithoutWS, $phpseclibKey);
 
         $this->assertTrue($key->verify($plaintext, $sig));
+    }
+
+    public function testNakedPKCS8PubKey(): void
+    {
+        $key = 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErPJyxEu2/oKCrJaaTVTrq39DKJ2XcN6W+k8UvGf+Y/lDWNbFitQocabsDUvSN0edHH3UKP5QPTz4cOlyIPMrXQ==';
+        $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
+    }
+
+    public function testMislabledPKCS8PubKey(): void
+    {
+        $this->expectException('\phpseclib3\Exception\NoKeyLoadedException');
+
+        $key = '-----BEGIN PRIVATE KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErPJyxEu2/oKCrJaaTVTrq39DKJ2X
+cN6W+k8UvGf+Y/lDWNbFitQocabsDUvSN0edHH3UKP5QPTz4cOlyIPMrXQ==
+-----END PUBLIC KEY-----';
+        $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
     }
 }

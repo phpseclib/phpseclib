@@ -27,9 +27,7 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
-use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
-use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\File\ASN1;
 use phpseclib3\Math\BigInteger;
 
@@ -68,29 +66,13 @@ abstract class PKCS8 extends Progenitor
      */
     public static function load($key, ?string $password = null): array
     {
-        if (!Strings::is_stringable($key)) {
-            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
-        }
-
-        if (str_contains($key, 'PUBLIC')) {
-            $components = ['isPublicKey' => true];
-        } elseif (str_contains($key, 'PRIVATE')) {
-            $components = ['isPublicKey' => false];
-        } else {
-            $components = [];
-        }
-
         $key = parent::load($key, $password);
 
         if (isset($key['privateKey'])) {
-            if (!isset($components['isPublicKey'])) {
-                $components['isPublicKey'] = false;
-            }
+            $components['isPublicKey'] = false;
             $type = 'private';
         } else {
-            if (!isset($components['isPublicKey'])) {
-                $components['isPublicKey'] = true;
-            }
+            $components['isPublicKey'] = true;
             $type = 'public';
         }
 
