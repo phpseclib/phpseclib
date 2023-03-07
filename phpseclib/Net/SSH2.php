@@ -2539,7 +2539,6 @@ class SSH2
      * Returns bool(true) if the shell was opened.
      * Returns bool(false) if the shell was already open.
      *
-     * @return bool
      * @throws InsufficientSetupException if not authenticated
      * @throws UnexpectedValueException on receipt of unexpected packets
      * @throws RuntimeException on other errors
@@ -2645,7 +2644,6 @@ class SSH2
      * Indicates the DATA status on the given channel
      *
      * @param int $channel The channel number to evaluate
-     * @return bool
      */
     private function is_channel_status_data(int $channel): bool
     {
@@ -2713,7 +2711,6 @@ class SSH2
      * channels, callers are discouraged from relying on this legacy behavior and should specify
      * the intended channel.
      *
-     * @param string $expect
      * @param int $mode One of the self::READ_* constants
      * @param int|null $channel Channel id returned by self::getInteractiveChannelId()
      * @return string|bool|null
@@ -2771,7 +2768,6 @@ class SSH2
      * channels, callers are discouraged from relying on this legacy behavior and should specify
      * the intended channel.
      *
-     * @param string $cmd
      * @param int|null $channel Channel id returned by self::getInteractiveChannelId()
      * @throws RuntimeException on connection error
      * @throws InsufficientSetupException on unexpected channel status, possibly due to closure
@@ -2934,8 +2930,6 @@ class SSH2
 
     /**
      * Is the interactive shell active?
-     *
-     * @return bool
      */
     public function isShellOpen(): bool
     {
@@ -2944,8 +2938,6 @@ class SSH2
 
     /**
      * Is the exec pty active?
-     *
-     * @return bool
      */
     public function isPTYOpen(): bool
     {
@@ -2956,7 +2948,6 @@ class SSH2
      * Is the given interactive channel active?
      *
      * @param int $channel Channel id returned by self::getInteractiveChannelId()
-     * @return bool
      */
     public function isInteractiveChannelOpen(int $channel): bool
     {
@@ -2967,7 +2958,6 @@ class SSH2
      * Returns a channel identifier, presently of the last interactive channel opened, regardless of current status.
      * Returns 0 if no interactive channel has been opened.
      *
-     * @return int
      * @see self::isInteractiveChannelOpen()
      */
     public function getInteractiveChannelId(): int

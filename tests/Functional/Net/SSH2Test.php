@@ -15,17 +15,11 @@ use phpseclib3\Tests\PhpseclibFunctionalTestCase;
 
 class SSH2Test extends PhpseclibFunctionalTestCase
 {
-    /**
-     * @return SSH2
-     */
     public function getSSH2(): SSH2
     {
         return new SSH2($this->getEnv('SSH_HOSTNAME'), 22);
     }
 
-    /**
-     * @return SSH2
-     */
     public function getSSH2Login(): SSH2
     {
         $ssh = $this->getSSH2();
@@ -429,7 +423,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         $ssh->exec('bash');
     }
 
-    public function testMultipleInteractiveChannels()
+    public function testMultipleInteractiveChannels(): void
     {
         $ssh = $this->getSSH2Login();
 
