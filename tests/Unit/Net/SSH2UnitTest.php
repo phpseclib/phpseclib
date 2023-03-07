@@ -168,8 +168,11 @@ class SSH2UnitTest extends PhpseclibTestCase
     {
         $ssh = $this->getMockBuilder(SSH2::class)
             ->disableOriginalConstructor()
-            ->setMethods(['__destruct', 'openShell', 'send_channel_packet'])
+            ->setMethods(['__destruct', 'isAuthenticated', 'openShell', 'send_channel_packet'])
             ->getMock();
+        $ssh->expects($this->once())
+            ->method('isAuthenticated')
+            ->willReturn(true);
         $ssh->expects($this->once())
             ->method('openShell')
             ->willReturn(true);

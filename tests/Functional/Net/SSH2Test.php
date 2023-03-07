@@ -74,6 +74,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
             'Failed asserting that SSH2 does not have open shell after construction.'
         );
 
+        $this->assertEquals(
+            0,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that channel identifier 0 is returned.'
+        );
+
         $this->assertNotEmpty(
             $ssh->getServerPublicHostKey(),
             'Failed asserting that a non-empty public host key was fetched.'
@@ -173,6 +179,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
             'Failed asserting that SSH2 does not have open shell channel after exec.'
         );
 
+        $this->assertEquals(
+            0,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that channel identifier 0 is returned after exec.'
+        );
+
         return $ssh;
     }
 
@@ -214,6 +226,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
             'Failed asserting that pty was not open after enable.'
         );
 
+        $this->assertEquals(
+            0,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that 0 channel identifier is returned prior to opening.'
+        );
+
         $ssh->exec('ls -latr');
 
         $this->assertTrue(
@@ -226,6 +244,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
             'Failed asserting that shell was not open after pty exec.'
         );
 
+        $this->assertEquals(
+            SSH2::CHANNEL_EXEC,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that exec channel identifier is returned after exec.'
+        );
+
         $ssh->disablePTY();
 
         $this->assertFalse(
@@ -236,6 +260,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         $this->assertFalse(
             $ssh->isPTYOpen(),
             'Failed asserting that pty was not open after disable.'
+        );
+
+        $this->assertEquals(
+            SSH2::CHANNEL_EXEC,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that exec channel identifier is returned after pty exec close.'
         );
 
         $ssh->exec('pwd');
@@ -280,6 +310,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
             'Failed asserting that pty was not open after shell read/write.'
         );
 
+        $this->assertEquals(
+            SSH2::CHANNEL_SHELL,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that shell channel identifier is returned after shell read/write.'
+        );
+
         $ssh->enablePTY();
 
         $this->assertTrue(
@@ -295,6 +331,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         $this->assertTrue(
             $ssh->isPTYOpen(),
             'Failed asserting that pty was not open after exec.'
+        );
+
+        $this->assertEquals(
+            SSH2::CHANNEL_EXEC,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that exec channel identifier is returned after pty exec.'
         );
 
         $ssh->write("ls -latr\n");
@@ -345,6 +387,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
             'Failed asserting that SSH2 has open shell after read/write.'
         );
 
+        $this->assertEquals(
+            SSH2::CHANNEL_SHELL,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that shell channel identifier is returned after read/write.'
+        );
+
         return $ssh;
     }
 
@@ -358,6 +406,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         $this->assertFalse(
             $ssh->isShellOpen(),
             'Failed asserting that SSH2 has open shell after reset.'
+        );
+
+        $this->assertEquals(
+            SSH2::CHANNEL_SHELL,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that shell channel identifier is returned after reset.'
         );
     }
 
@@ -382,6 +436,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         $this->assertTrue(
             $ssh->openShell(),
             'SSH2 shell initialization failed.'
+        );
+
+        $this->assertEquals(
+            SSH2::CHANNEL_SHELL,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that shell channel identifier is returned after open shell.'
         );
 
         $ssh->setTimeout(1);
@@ -421,6 +481,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         $this->assertTrue(
             $ssh->isShellOpen(),
             'Failed asserting that SSH2 has open shell after pty exec.'
+        );
+
+        $this->assertEquals(
+            SSH2::CHANNEL_EXEC,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that exec channel identifier is returned after pty exec.'
         );
 
         $ssh->write("pwd\n", SSH2::CHANNEL_SHELL);
@@ -470,6 +536,12 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         $this->assertFalse(
             $ssh->isShellOpen(),
             'Failed asserting that SSH2 has closed shell after reset.'
+        );
+
+        $this->assertEquals(
+            SSH2::CHANNEL_EXEC,
+            $ssh->getInteractiveChannelId(),
+            'Failed asserting that exec channel identifier is maintained as last opened channel.'
         );
     }
 }

@@ -550,6 +550,13 @@ class SSH2
     protected array $channel_status = [];
 
     /**
+     * The identifier of the interactive channel which was opened most recently
+     *
+     * @see self::getInteractiveChannelId()
+     */
+    private int $channel_id_last_interactive = 0;
+
+    /**
      * Packet Size
      *
      * Maximum packet size indexed by channel
@@ -2493,6 +2500,7 @@ class SSH2
         $this->channel_status[self::CHANNEL_EXEC] = MessageType::CHANNEL_DATA;
 
         if ($this->request_pty === true) {
+            $this->channel_id_last_interactive = self::CHANNEL_EXEC;
             return true;
         }
 
@@ -2598,6 +2606,8 @@ class SSH2
 
         $this->channel_status[self::CHANNEL_SHELL] = MessageType::CHANNEL_DATA;
 
+        $this->channel_id_last_interactive = self::CHANNEL_SHELL;
+
         $this->bitmap |= self::MASK_SHELL;
 
         return true;
@@ -2697,7 +2707,7 @@ class SSH2
      *
      * @param string $expect
      * @param int $mode One of the self::READ_* constants
-     * @param int|null $channel One of the self::CHANNEL_* constants
+     * @param int|null $channel Channel id returned by self::getInteractiveChannelId()
      * @return string|bool|null
      * @throws RuntimeException on connection error
      * @throws InsufficientSetupException on unexpected channel status, possibly due to closure
@@ -2754,7 +2764,7 @@ class SSH2
      * the intended channel.
      *
      * @param string $cmd
-     * @param int|null $channel One of the self::CHANNEL_* constants
+     * @param int|null $channel Channel id returned by self::getInteractiveChannelId()
      * @throws RuntimeException on connection error
      * @throws InsufficientSetupException on unexpected channel status, possibly due to closure
      * @see SSH2::read()
@@ -2824,6 +2834,8 @@ class SSH2
 
         $this->channel_status[self::CHANNEL_SUBSYSTEM] = MessageType::CHANNEL_DATA;
 
+        $this->channel_id_last_interactive = self::CHANNEL_SUBSYSTEM;
+
         return true;
     }
 
@@ -2851,7 +2863,7 @@ class SSH2
      * interactive channels, callers are discouraged from relying on this legacy behavior and
      * should specify the intended channel.
      *
-     * @param int|null $channel One of the self::CHANNEL_* constants
+     * @param int|null $channel Channel id returned by self::getInteractiveChannelId()
      */
     public function reset(int $channel = null): void
     {
@@ -2935,12 +2947,24 @@ class SSH2
     /**
      * Is the given interactive channel active?
      *
-     * @param int $channel One of the self::CHANNEL_* constants
+     * @param int $channel Channel id returned by self::getInteractiveChannelId()
      * @return bool
      */
     public function isInteractiveChannelOpen(int $channel): bool
     {
-        return $this->isConnected() && $this->is_channel_status_data($channel);
+        return $this->isAuthenticated() && $this->is_channel_status_data($channel);
+    }
+
+    /**
+     * Returns a channel identifier, presently of the last interactive channel opened, regardless of current status.
+     * Returns 0 if no interactive channel has been opened.
+     *
+     * @return int
+     * @see self::isInteractiveChannelOpen()
+     */
+    public function getInteractiveChannelId(): int
+    {
+        return $this->channel_id_last_interactive;
     }
 
     /**
