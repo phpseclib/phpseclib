@@ -205,7 +205,7 @@ abstract class ASN1
             return null;
         }
 
-        return [self::decode_ber($encoded)];
+        return [$decoded];
     }
 
     /**
