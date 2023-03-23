@@ -1157,7 +1157,7 @@ class SSH2
             1 => 'NET_SSH2_EXTENDED_DATA_STDERR'
         ];
 
-        $this->define_array(
+        self::define_array(
             $this->message_numbers,
             $this->disconnect_reasons,
             $this->channel_open_failure_reasons,
@@ -4506,7 +4506,7 @@ class SSH2
      * @param mixed[] ...$args
      * @access protected
      */
-    protected function define_array(...$args)
+    protected static function define_array(...$args)
     {
         foreach ($args as $arg) {
             foreach ($arg as $key => $value) {

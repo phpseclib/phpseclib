@@ -500,7 +500,7 @@ class SFTP extends SSH2
             8 => 'NET_SFTP_TYPE_BLOCK_DEVICE',
             9 => 'NET_SFTP_TYPE_FIFO'
         ];
-        $this->define_array(
+        self::define_array(
             $this->packet_types,
             $this->status_codes,
             $this->attributes,
