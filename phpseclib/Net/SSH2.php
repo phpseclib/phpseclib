@@ -2729,28 +2729,7 @@ class SSH2
             throw new \RuntimeException('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
         }
 
-        // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
-        // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but,
-        // honestly, if you're transferring more than 2GB, you probably shouldn't be using phpseclib, anyway.
-        // see http://tools.ietf.org/html/rfc4254#section-5.2 for more info
-        $this->window_size_server_to_client[self::CHANNEL_EXEC] = $this->window_size;
-        // 0x8000 is the maximum max packet size, per http://tools.ietf.org/html/rfc4253#section-6.1, although since PuTTy
-        // uses 0x4000, that's what will be used here, as well.
-        $packet_size = 0x4000;
-
-        $packet = Strings::packSSH2(
-            'CsN3',
-            NET_SSH2_MSG_CHANNEL_OPEN,
-            'session',
-            self::CHANNEL_EXEC,
-            $this->window_size_server_to_client[self::CHANNEL_EXEC],
-            $packet_size
-        );
-        $this->send_binary_packet($packet);
-
-        $this->channel_status[self::CHANNEL_EXEC] = NET_SSH2_MSG_CHANNEL_OPEN;
-
-        $this->get_channel_packet(self::CHANNEL_EXEC);
+        $this->openChannel(self::CHANNEL_EXEC);
 
         if ($this->request_pty === true) {
             $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
@@ -2831,6 +2810,38 @@ class SSH2
     }
 
     /**
+     * Opens a channel
+     *
+     * @param string $channel
+     */
+    protected function openChannel($channel, $skip_extended = false)
+    {
+        // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
+        // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but,
+        // honestly, if you're transferring more than 2GB, you probably shouldn't be using phpseclib, anyway.
+        // see http://tools.ietf.org/html/rfc4254#section-5.2 for more info
+        $this->window_size_server_to_client[$channel] = $this->window_size;
+        // 0x8000 is the maximum max packet size, per http://tools.ietf.org/html/rfc4253#section-6.1, although since PuTTy
+        // uses 0x4000, that's what will be used here, as well.
+        $packet_size = 0x4000;
+
+        $packet = Strings::packSSH2(
+            'CsN3',
+            NET_SSH2_MSG_CHANNEL_OPEN,
+            'session',
+            $channel,
+            $this->window_size_server_to_client[$channel],
+            $packet_size
+        );
+
+        $this->send_binary_packet($packet);
+
+        $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_OPEN;
+
+        return $this->get_channel_packet($channel, $skip_extended);
+    }
+
+    /**
      * Creates an interactive shell
      *
      * Returns bool(true) if the shell was opened.
@@ -2854,23 +2865,7 @@ class SSH2
             throw new InsufficientSetupException('Operation disallowed prior to login()');
         }
 
-        $this->window_size_server_to_client[self::CHANNEL_SHELL] = $this->window_size;
-        $packet_size = 0x4000;
-
-        $packet = Strings::packSSH2(
-            'CsN3',
-            NET_SSH2_MSG_CHANNEL_OPEN,
-            'session',
-            self::CHANNEL_SHELL,
-            $this->window_size_server_to_client[self::CHANNEL_SHELL],
-            $packet_size
-        );
-
-        $this->send_binary_packet($packet);
-
-        $this->channel_status[self::CHANNEL_SHELL] = NET_SSH2_MSG_CHANNEL_OPEN;
-
-        $this->get_channel_packet(self::CHANNEL_SHELL);
+        $this->openChannel(self::CHANNEL_SHELL);
 
         $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
         $packet = Strings::packSSH2(
@@ -3110,22 +3105,7 @@ class SSH2
      */
     public function startSubsystem($subsystem)
     {
-        $this->window_size_server_to_client[self::CHANNEL_SUBSYSTEM] = $this->window_size;
-
-        $packet = Strings::packSSH2(
-            'CsN3',
-            NET_SSH2_MSG_CHANNEL_OPEN,
-            'session',
-            self::CHANNEL_SUBSYSTEM,
-            $this->window_size,
-            0x4000
-        );
-
-        $this->send_binary_packet($packet);
-
-        $this->channel_status[self::CHANNEL_SUBSYSTEM] = NET_SSH2_MSG_CHANNEL_OPEN;
-
-        $this->get_channel_packet(self::CHANNEL_SUBSYSTEM);
+        $this->openChannel(self::CHANNEL_SUBSYSTEM);
 
         $packet = Strings::packSSH2(
             'CNsCs',
@@ -3303,23 +3283,8 @@ class SSH2
             return false;
         }
 
-        $this->window_size_server_to_client[self::CHANNEL_KEEP_ALIVE] = $this->window_size;
-        $packet_size = 0x4000;
-        $packet = Strings::packSSH2(
-            'CsN3',
-            NET_SSH2_MSG_CHANNEL_OPEN,
-            'session',
-            self::CHANNEL_KEEP_ALIVE,
-            $this->window_size_server_to_client[self::CHANNEL_KEEP_ALIVE],
-            $packet_size
-        );
-
         try {
-            $this->send_binary_packet($packet);
-
-            $this->channel_status[self::CHANNEL_KEEP_ALIVE] = NET_SSH2_MSG_CHANNEL_OPEN;
-
-            $response = $this->get_channel_packet(self::CHANNEL_KEEP_ALIVE);
+            $this->openChannel(self::CHANNEL_KEEP_ALIVE);
         } catch (\RuntimeException $e) {
             return $this->reconnect();
         }
