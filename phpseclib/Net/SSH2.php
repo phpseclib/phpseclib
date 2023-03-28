@@ -2117,7 +2117,7 @@ class SSH2
      * The $password parameter can be a plaintext password, a \phpseclib3\Crypt\RSA|EC|DSA object, a \phpseclib3\System\SSH\Agent object or an array
      *
      * @param string $username
-     * @param string|AsymmetricKey|array[]|Agent|null ...$args
+     * @param string|PrivateKey|array[]|Agent|null ...$args
      * @return bool
      * @see self::_login()
      */
@@ -2142,7 +2142,7 @@ class SSH2
      * Login Helper
      *
      * @param string $username
-     * @param string ...$args
+     * @param string|PrivateKey|array[]|Agent|null ...$args
      * @return bool
      * @see self::_login_helper()
      */
