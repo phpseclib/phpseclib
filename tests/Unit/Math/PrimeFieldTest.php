@@ -8,7 +8,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class PrimeFieldTest extends PhpseclibTestCase
 {
-    public function testPrimeFieldWithCompositeNumbers()
+    public function testPrimeFieldWithCompositeNumbers(): void
     {
         $this->expectException('UnexpectedValueException');
 
