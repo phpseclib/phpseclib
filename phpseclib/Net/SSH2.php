@@ -1088,6 +1088,21 @@ class SSH2
     private $smartMFA = true;
 
     /**
+     * How many channels are currently opened
+     *
+     * @var int
+     */
+    private $channelCount = 0;
+
+    /**
+     * Does the server support multiple channels? If not then error out
+     * when multiple channels are attempted to be opened
+     *
+     * @var bool
+     */
+    private $errorOnMultipleChannels;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1383,6 +1398,18 @@ class SSH2
             $this->bitmap = 0;
             throw new UnableToConnectException("Cannot connect to SSH $matches[3] servers");
         }
+
+        // Ubuntu's OpenSSH from 5.8 to 6.9 didn't work with multiple channels. see
+        // https://bugs.launchpad.net/ubuntu/+source/openssh/+bug/1334916 for more info.
+        // https://lists.ubuntu.com/archives/oneiric-changes/2011-July/005772.html discusses
+        // when consolekit was incorporated.
+        // https://marc.info/?l=openssh-unix-dev&m=163409903417589&w=2 discusses some of the
+        // issues with how Ubuntu incorporated consolekit
+        $pattern = '#^SSH-2\.0-OpenSSH_([\d.]+)[^ ]* Ubuntu-.*$#';
+        $match = preg_match($pattern, $this->server_identifier, $matches);
+        $match = $match && version_compare('5.8', $matches[1], '<=');
+        $match = $match && version_compare('6.9', $matches[1], '>=');
+        $this->errorOnMultipleChannels = $match;
 
         if (!$this->send_id_string_first) {
             fputs($this->fsock, $this->identifier . "\r\n");
@@ -2813,9 +2840,17 @@ class SSH2
      * Opens a channel
      *
      * @param string $channel
+     * @param bool $skip_extended
+     * @return bool
      */
     protected function openChannel($channel, $skip_extended = false)
     {
+        $this->channelCount++;
+
+        if ($this->channelCount > 1 && $this->errorOnMultipleChannels) {
+            throw new \RuntimeException("Ubuntu's OpenSSH from 5.8 to 6.9 doesn't work with multiple channels");
+        }
+
         // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
         // be adjusted".  0x7FFFFFFF is, at 2GB, the max size.  technically, it should probably be decremented, but,
         // honestly, if you're transferring more than 2GB, you probably shouldn't be using phpseclib, anyway.
