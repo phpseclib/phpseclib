@@ -296,7 +296,7 @@ KQmi+cIHJHLONdX/3Im+M17V0iNAh7Z1lOSfTRT+iiwe/F8phcEaD5q2RmvYusR7
 zXZq/cLL0If0hXoPZ/EHQxjN8pxzxiUx6bJAgturnIMEfRNesxwghdr1dkUjOhGL
 f3kHVzgM6j3VAM7oFmMUb5y5s96Bzl10DodWitjOEH0vvnIcsppSxH1C1dCAi0o9
 f/1y2XuLNhBNHMAyTqpYPX8Yvav1c+Z50OMaSXHAnTa20zv8UtiHbaAhwlifCelU
-Mj93S
+Mj93
 -----END CERTIFICATE-----');
         $x509->loadX509($x509->saveX509($decoded));
         $expected = array(
@@ -375,7 +375,7 @@ KQmi+cIHJHLONdX/3Im+M17V0iNAh7Z1lOSfTRT+iiwe/F8phcEaD5q2RmvYusR7
 zXZq/cLL0If0hXoPZ/EHQxjN8pxzxiUx6bJAgturnIMEfRNesxwghdr1dkUjOhGL
 f3kHVzgM6j3VAM7oFmMUb5y5s96Bzl10DodWitjOEH0vvnIcsppSxH1C1dCAi0o9
 f/1y2XuLNhBNHMAyTqpYPX8Yvav1c+Z50OMaSXHAnTa20zv8UtiHbaAhwlifCelU
-Mj93S
+Mj93
 -----END CERTIFICATE-----');
         $this->assertFalse($x509->validateSignature());
     }
