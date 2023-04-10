@@ -1842,7 +1842,7 @@ class SSH2
      *
      * The $password parameter can be a plaintext password, a \phpseclib3\Crypt\RSA|EC|DSA object, a \phpseclib3\System\SSH\Agent object or an array
      *
-     * @param string|AsymmetricKey|array[]|Agent|null ...$args
+     * @param string|PrivateKey|array[]|Agent|null ...$args
      * @see self::_login()
      */
     public function login(string $username, ...$args): bool
@@ -1868,7 +1868,7 @@ class SSH2
     /**
      * Login Helper
      *
-     * @param string ...$args
+     * @param string|PrivateKey|array[]|Agent|null ...$args
      * @see self::_login_helper()
      */
     protected function sublogin(string $username, ...$args): bool
