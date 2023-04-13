@@ -448,7 +448,7 @@ class SFTP extends SSH2
                 // yields inconsistent behavior depending on how php is compiled.  so we left shift -1 (which, in
                 // two's compliment, consists of all 1 bits) by 31.  on 64-bit systems this'll yield 0xFFFFFFFF80000000.
                 // that's not a problem, however, and 'anded' and a 32-bit number, as all the leading 1 bits are ignored.
-                (PHP_INT_SIZE == 4 ? -1 : 0xFFFFFFFF) => 'NET_SFTP_ATTR_EXTENDED'
+                (PHP_INT_SIZE == 4 ? (-1 << 31) : 0x80000000) => 'NET_SFTP_ATTR_EXTENDED'
             ];
             // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.3
             // the flag definitions change somewhat in SFTPv5+.  if SFTPv5+ support is added to this library, maybe name
