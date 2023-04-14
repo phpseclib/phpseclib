@@ -416,7 +416,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     public function testMultipleExecPty()
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
+        $this->expectExceptionMessage('Please close the channel (1) before trying to open it again');
 
         $ssh = $this->getSSH2Login();
 

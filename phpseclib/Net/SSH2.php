@@ -2752,9 +2752,9 @@ class SSH2
             return false;
         }
 
-        if ($this->isPTYOpen()) {
-            throw new \RuntimeException('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
-        }
+        //if ($this->isPTYOpen()) {
+        //    throw new \RuntimeException('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
+        //}
 
         $this->openChannel(self::CHANNEL_EXEC);
 
@@ -2837,6 +2837,16 @@ class SSH2
     }
 
     /**
+     * How many channels are currently open?
+     *
+     * @return int
+     */
+    public function getOpenChannelCount()
+    {
+        return $this->channelCount;
+    }
+
+    /**
      * Opens a channel
      *
      * @param string $channel
@@ -2845,6 +2855,10 @@ class SSH2
      */
     protected function openChannel($channel, $skip_extended = false)
     {
+        if (isset($this->channel_status[$channel]) && $this->channel_status[$channel] != NET_SSH2_MSG_CHANNEL_CLOSE) {
+            throw new \RuntimeException('Please close the channel (' . $channel . ') before trying to open it again');
+        }
+
         $this->channelCount++;
 
         if ($this->channelCount > 1 && $this->errorOnMultipleChannels) {
@@ -2892,10 +2906,6 @@ class SSH2
      */
     public function openShell()
     {
-        if ($this->isShellOpen()) {
-            return false;
-        }
-
         if (!$this->isAuthenticated()) {
             throw new InsufficientSetupException('Operation disallowed prior to login()');
         }
@@ -3060,7 +3070,7 @@ class SSH2
             $channel = $this->get_interactive_channel();
         }
 
-        if (!$this->isInteractiveChannelOpen($channel)) {
+        if (!$this->isInteractiveChannelOpen($channel) && empty($this->channel_buffers[$channel])) {
             if ($channel != self::CHANNEL_SHELL) {
                 throw new InsufficientSetupException('Data is not available on channel');
             } elseif (!$this->openShell()) {
@@ -4111,6 +4121,8 @@ class SSH2
                     }
 
                     $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_CLOSE;
+                    $this->channelCount--;
+
                     if ($client_channel == $channel) {
                         return true;
                     }
@@ -4442,6 +4454,7 @@ class SSH2
         }
 
         $this->channel_status[$client_channel] = NET_SSH2_MSG_CHANNEL_CLOSE;
+        $this->channelCount--;
 
         $this->curTimeout = 5;
 
@@ -4911,6 +4924,14 @@ class SSH2
                 'comp' => $compression_map[$this->decompress],
             ]
         ];
+    }
+
+    /**
+     * Force multiple channels (even if phpseclib has decided to disable them)
+     */
+    public function forceMultipleChannels()
+    {
+        $this->errorOnMultipleChannels = false;
     }
 
     /**
