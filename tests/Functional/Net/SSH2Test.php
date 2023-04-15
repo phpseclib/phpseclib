@@ -412,7 +412,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     public function testMultipleExecPty(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
+        $this->expectExceptionMessage('Please close the channel (1) before trying to open it again');
 
         $ssh = $this->getSSH2Login();
 
@@ -537,5 +537,22 @@ class SSH2Test extends PhpseclibFunctionalTestCase
             $ssh->getInteractiveChannelId(),
             'Failed asserting that exec channel identifier is maintained as last opened channel.'
         );
+    }
+
+    public function testReadingOfClosedChannel()
+    {
+        $ssh = $this->getSSH2Login();
+        $this->assertSame(0, $ssh->getOpenChannelCount());
+        $ssh->enablePTY();
+        $ssh->exec('ping -c 3 127.0.0.1; exit');
+        $ssh->write("ping 127.0.0.2\n", SSH2::CHANNEL_SHELL);
+        $ssh->setTimeout(3);
+        $output = $ssh->read('', SSH2::READ_SIMPLE, SSH2::CHANNEL_SHELL);
+        $this->assertStringContainsString('PING 127.0.0.2', $output);
+        $output = $ssh->read('', SSH2::READ_SIMPLE, SSH2::CHANNEL_EXEC);
+        $this->assertStringContainsString('PING 127.0.0.1', $output);
+        $this->assertSame(1, $ssh->getOpenChannelCount());
+        $ssh->reset(SSH2::CHANNEL_SHELL);
+        $this->assertSame(0, $ssh->getOpenChannelCount());
     }
 }

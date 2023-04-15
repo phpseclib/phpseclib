@@ -2455,9 +2455,9 @@ class SSH2
             return false;
         }
 
-        if ($this->isPTYOpen()) {
-            throw new RuntimeException('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
-        }
+        //if ($this->isPTYOpen()) {
+        //    throw new RuntimeException('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
+        //}
 
         $this->openChannel(self::CHANNEL_EXEC);
 
@@ -2540,14 +2540,28 @@ class SSH2
     }
 
     /**
+     * How many channels are currently open?
+     *
+     * @return int
+     */
+    public function getOpenChannelCount()
+    {
+        return $this->channelCount;
+    }
+
+    /**
      * Opens a channel
      */
-    protected function openChannel(string $channel, bool $skip_extended = false): bool
+    protected function openChannel(int $channel, bool $skip_extended = false): bool
     {
+        if (isset($this->channel_status[$channel]) && $this->channel_status[$channel] != MessageType::CHANNEL_CLOSE) {
+            throw new RuntimeException('Please close the channel (' . $channel . ') before trying to open it again');
+        }
+
         $this->channelCount++;
 
         if ($this->channelCount > 1 && $this->errorOnMultipleChannels) {
-            throw new \RuntimeException("Ubuntu's OpenSSH from 5.8 to 6.9 doesn't work with multiple channels");
+            throw new RuntimeException("Ubuntu's OpenSSH from 5.8 to 6.9 doesn't work with multiple channels");
         }
 
         // RFC4254 defines the (client) window size as "bytes the other party can send before it must wait for the window to
@@ -2561,7 +2575,7 @@ class SSH2
 
         $packet = Strings::packSSH2(
             'CsN3',
-            SSH2MessageType::CHANNEL_OPEN,
+            MessageType::CHANNEL_OPEN,
             'session',
             $channel,
             $this->window_size_server_to_client[$channel],
@@ -2570,7 +2584,7 @@ class SSH2
 
         $this->send_binary_packet($packet);
 
-        $this->channel_status[$channel] = SSH2MessageType::CHANNEL_OPEN;
+        $this->channel_status[$channel] = MessageType::CHANNEL_OPEN;
 
         return $this->get_channel_packet($channel, $skip_extended);
     }
@@ -2590,10 +2604,6 @@ class SSH2
      */
     public function openShell(): bool
     {
-        if ($this->isShellOpen()) {
-            return false;
-        }
-
         if (!$this->isAuthenticated()) {
             throw new InsufficientSetupException('Operation disallowed prior to login()');
         }
@@ -2751,7 +2761,7 @@ class SSH2
             $channel = $this->get_interactive_channel();
         }
 
-        if (!$this->isInteractiveChannelOpen($channel)) {
+        if (!$this->isInteractiveChannelOpen($channel) && empty($this->channel_buffers[$channel])) {
             if ($channel != self::CHANNEL_SHELL) {
                 throw new InsufficientSetupException('Data is not available on channel');
             } elseif (!$this->openShell()) {
@@ -3733,7 +3743,7 @@ class SSH2
                 }
             }
 
-            // ie. $this->channel_status[$channel] == SSHMsg::CHANNEL_DATA
+            // ie. $this->channel_status[$channel] == MessageType::CHANNEL_DATA
 
             switch ($type) {
                 case MessageType::CHANNEL_DATA:
@@ -3771,6 +3781,8 @@ class SSH2
                     }
 
                     $this->channel_status[$channel] = MessageType::CHANNEL_CLOSE;
+                    $this->channelCount--;
+
                     if ($client_channel == $channel) {
                         return true;
                     }
@@ -4085,6 +4097,7 @@ class SSH2
         }
 
         $this->channel_status[$client_channel] = MessageType::CHANNEL_CLOSE;
+        $this->channelCount--;
 
         $this->curTimeout = 5;
 
@@ -4501,6 +4514,14 @@ class SSH2
                 'comp' => $compression_map[$this->decompress],
             ],
         ];
+    }
+
+    /**
+     * Force multiple channels (even if phpseclib has decided to disable them)
+     */
+    public function forceMultipleChannels()
+    {
+        $this->errorOnMultipleChannels = false;
     }
 
     /**
