@@ -4266,7 +4266,8 @@ class SSH2
 
         if (strlen($packet) != $sent) {
             $this->bitmap = 0;
-            throw new \RuntimeException("Only $sent of " . strlen($packet) . " bytes were sent");
+            $message = $sent === false ? ('Unable to write ' . strlen($packet) . ' bytes') : ("Only $sent of " . strlen($packet) . " bytes were sent");
+            throw new \RuntimeException($message);
         }
     }
 
