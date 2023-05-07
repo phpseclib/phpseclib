@@ -2754,6 +2754,10 @@ class SSH2
      */
     public function read(string $expect = '', int $mode = self::READ_SIMPLE, int $channel = null)
     {
+        if (!$this->isAuthenticated()) {
+            throw new InsufficientSetupException('Operation disallowed prior to login()');
+        }
+
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;
 
@@ -2761,7 +2765,7 @@ class SSH2
             $channel = $this->get_interactive_channel();
         }
 
-        if (!$this->isInteractiveChannelOpen($channel) && empty($this->channel_buffers[$channel])) {
+        if (!$this->is_channel_status_data($channel) && empty($this->channel_buffers[$channel])) {
             if ($channel != self::CHANNEL_SHELL) {
                 throw new InsufficientSetupException('Data is not available on channel');
             } elseif (!$this->openShell()) {
@@ -2809,11 +2813,15 @@ class SSH2
      */
     public function write(string $cmd, int $channel = null): void
     {
+        if (!$this->isAuthenticated()) {
+            throw new InsufficientSetupException('Operation disallowed prior to login()');
+        }
+
         if ($channel === null) {
             $channel = $this->get_interactive_channel();
         }
 
-        if (!$this->isInteractiveChannelOpen($channel)) {
+        if (!$this->is_channel_status_data($channel)) {
             if ($channel != self::CHANNEL_SHELL) {
                 throw new InsufficientSetupException('Data is not available on channel');
             } elseif (!$this->openShell()) {
