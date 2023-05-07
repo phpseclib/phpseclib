@@ -3063,6 +3063,10 @@ class SSH2
      */
     public function read($expect = '', $mode = self::READ_SIMPLE, $channel = null)
     {
+        if (!$this->isAuthenticated()) {
+            throw new InsufficientSetupException('Operation disallowed prior to login()');
+        }
+
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;
 
@@ -3120,6 +3124,10 @@ class SSH2
      */
     public function write($cmd, $channel = null)
     {
+        if (!$this->isAuthenticated()) {
+            throw new InsufficientSetupException('Operation disallowed prior to login()');
+        }
+
         if ($channel === null) {
             $channel = $this->get_interactive_channel();
         }
