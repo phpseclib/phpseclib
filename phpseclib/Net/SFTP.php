@@ -349,22 +349,7 @@ class SFTP extends SSH2
      */
     private function partial_init_sftp_connection(): bool
     {
-        $this->window_size_server_to_client[self::CHANNEL] = $this->window_size;
-
-        $packet = Strings::packSSH2(
-            'CsN3',
-            SSH2MessageType::CHANNEL_OPEN,
-            'session',
-            self::CHANNEL,
-            $this->window_size,
-            0x4000
-        );
-
-        $this->send_binary_packet($packet);
-
-        $this->channel_status[self::CHANNEL] = SSH2MessageType::CHANNEL_OPEN;
-
-        $response = $this->get_channel_packet(self::CHANNEL, true);
+        $response = $this->openChannel(self::CHANNEL, true);
         if ($response === true && $this->isTimeout()) {
             return false;
         }

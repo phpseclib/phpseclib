@@ -199,12 +199,11 @@ class SSH2UnitTest extends PhpseclibTestCase
     {
         $ssh = $this->getMockBuilder(SSH2::class)
             ->disableOriginalConstructor()
-            ->setMethods(['__destruct', 'isShellOpen'])
+            ->setMethods(['__destruct'])
             ->getMock();
 
-        $ssh->expects($this->once())
-            ->method('isShellOpen')
-            ->willReturn(true);
+        $this->expectException(InsufficientSetupException::class);
+        $this->expectExceptionMessage('Operation disallowed prior to login()');
 
         $this->assertFalse($ssh->openShell());
     }
