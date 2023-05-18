@@ -310,7 +310,7 @@ class SFTP extends SSH2
      *
      * Connects to an SFTP server
      *
-     * @param string $host
+     * @param mixed $host
      */
     public function __construct($host, int $port = 22, int $timeout = 10)
     {
@@ -3032,7 +3032,7 @@ class SFTP extends SSH2
      *
      * Returns a string if PacketType::LOGGING == self::LOG_COMPLEX, an array if PacketType::LOGGING == self::LOG_SIMPLE and false if !defined('NET_SFTP_LOGGING')
      *
-     * @return array|string
+     * @return array|string|false
      */
     public function getSFTPLog()
     {
