@@ -1944,14 +1944,15 @@ class X509
      */
     public function getChain()
     {
-        $chain = [$this->currentCert];
-
         if (!is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
             return false;
         }
         if (empty($this->CAs)) {
-            return $chain;
+            return [(new X509())->loadX509($this->currentCert)];
         }
+        
+        $chain = [$this->currentCert];
+        
         while (true) {
             $currentCert = $chain[count($chain) - 1];
             for ($i = 0; $i < count($this->CAs); $i++) {
