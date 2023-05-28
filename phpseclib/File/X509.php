@@ -166,7 +166,7 @@ class X509
      *
      * @var array
      */
-    private $CAs;
+    private $CAs = [];
 
     /**
      * The currently loaded certificate
@@ -1948,9 +1948,6 @@ class X509
 
         if (!is_array($this->currentCert) || !isset($this->currentCert['tbsCertificate'])) {
             return false;
-        }
-        if (empty($this->CAs)) {
-            return $chain;
         }
         while (true) {
             $currentCert = $chain[count($chain) - 1];
