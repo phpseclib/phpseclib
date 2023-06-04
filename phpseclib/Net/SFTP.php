@@ -2841,7 +2841,7 @@ class SFTP extends SSH2
             if ($name == '.' || $name == '..') {
                 continue;
             }
-            $size+= is_array($file) ?
+            $size += is_array($file) ?
                 self::recursiveFilesize($file) :
                 $file->size;
         }
