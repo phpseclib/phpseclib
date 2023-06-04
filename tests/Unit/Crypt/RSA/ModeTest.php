@@ -257,7 +257,7 @@ zUlir0ACPypC1Q==
         $this->assertSame($data, $decrypted);
     }
 
-    public function testSettingOnePadding()
+    public function testSettingOnePadding(): void
     {
         $pub = <<<HERE
 -----BEGIN PUBLIC KEY-----

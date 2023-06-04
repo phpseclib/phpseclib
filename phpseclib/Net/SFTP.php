@@ -2491,11 +2491,30 @@ class SFTP extends SSH2
     }
 
     /**
+     * Recursively go through rawlist() output to get the total filesize
+     */
+    private static function recursiveFilesize(array $files): int
+    {
+        $size = 0;
+        foreach ($files as $name => $file) {
+            if ($name == '.' || $name == '..') {
+                continue;
+            }
+            $size += is_array($file) ?
+                self::recursiveFilesize($file) :
+                $file->size;
+        }
+        return $size;
+    }
+
+    /**
      * Gets file size
      */
-    public function filesize(string $path)
+    public function filesize(string $path, bool $recursive = false)
     {
-        return $this->get_stat_cache_prop($path, 'size');
+        return !$recursive || $this->filetype($path) != 'dir' ?
+            $this->get_stat_cache_prop($path, 'size') :
+            $this->recursiveFilesize($this->rawlist($path, true));
     }
 
     /**
