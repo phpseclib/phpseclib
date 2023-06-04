@@ -259,12 +259,10 @@ zUlir0ACPypC1Q==
 
     public function testSettingOnePadding(): void
     {
-        $pub = <<<HERE
------BEGIN PUBLIC KEY-----
+        $pub = '-----BEGIN PUBLIC KEY-----
 MF0wDQYJKoZIhvcNAQEBBQADTAAwSQJCAmdYuOvii3I6ya3q/zSeZFoJprgF9fIq
 k12yS6pCS3c+1wZ9cYFVtgfpSL4XpylLe9EnRT2GRVYCqUkR4AUeTuvnAgMBAAE=
------END PUBLIC KEY-----
-HERE;
+-----END PUBLIC KEY-----';
 
         $rsa = PublicKeyLoader::load($pub);
         $this->assertTrue((bool) ($rsa->getPadding() & RSA::SIGNATURE_PSS));

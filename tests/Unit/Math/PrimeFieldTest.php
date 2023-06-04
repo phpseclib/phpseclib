@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace phpseclib3\Tests\Unit\Math;
 
 use phpseclib3\Math\BigInteger;

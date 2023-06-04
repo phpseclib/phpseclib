@@ -50,7 +50,6 @@ namespace phpseclib3\Net;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Blowfish;
 use phpseclib3\Crypt\ChaCha20;
-use phpseclib3\Crypt\Common\AsymmetricKey;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\Common\PublicKey;
 use phpseclib3\Crypt\Common\SymmetricKey;
@@ -4530,7 +4529,7 @@ class SSH2
     /**
      * Force multiple channels (even if phpseclib has decided to disable them)
      */
-    public function forceMultipleChannels()
+    public function forceMultipleChannels(): void
     {
         $this->errorOnMultipleChannels = false;
     }

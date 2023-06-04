@@ -539,7 +539,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         );
     }
 
-    public function testReadingOfClosedChannel()
+    public function testReadingOfClosedChannel(): void
     {
         $ssh = $this->getSSH2Login();
         $this->assertSame(0, $ssh->getOpenChannelCount());

@@ -309,8 +309,6 @@ class SFTP extends SSH2
      * Default Constructor.
      *
      * Connects to an SFTP server
-     *
-     * @param mixed $host
      */
     public function __construct($host, int $port = 22, int $timeout = 10)
     {
