@@ -2859,7 +2859,7 @@ class SFTP extends SSH2
     {
         return !$recursive || $this->filetype($path) != 'dir' ?
             $this->get_stat_cache_prop($path, 'size') :
-            $this->recursiveFilesize($this->rawlist($path, true));
+            self::recursiveFilesize($this->rawlist($path, true));
     }
 
     /**
