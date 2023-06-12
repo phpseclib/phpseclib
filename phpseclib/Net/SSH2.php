@@ -406,6 +406,14 @@ class Net_SSH2
     var $decrypt = false;
 
     /**
+     * Decryption Algorithm Name
+     *
+     * @var string|null
+     * @access private
+     */
+    var $decryptName;
+
+    /**
      * Client to Server Encryption Object
      *
      * @see self::_send_binary_packet()
@@ -413,6 +421,14 @@ class Net_SSH2
      * @access private
      */
     var $encrypt = false;
+
+    /**
+     * Encryption Algorithm Name
+     *
+     * @var string|null
+     * @access private
+     */
+    var $encryptName;
 
     /**
      * Client to Server HMAC Object
@@ -1981,7 +1997,7 @@ class Net_SSH2
             }
             $this->encrypt->setKey(substr($key, 0, $encryptKeyLength));
 
-            $this->encrypt->name = $decrypt;
+            $this->encryptName = $encrypt;
         }
 
         if ($this->decrypt) {
@@ -2007,7 +2023,7 @@ class Net_SSH2
             }
             $this->decrypt->setKey(substr($key, 0, $decryptKeyLength));
 
-            $this->decrypt->name = $decrypt;
+            $this->decryptName = $decrypt;
         }
 
         /* The "arcfour128" algorithm is the RC4 cipher, as described in
