@@ -149,6 +149,14 @@ class Hash
     var $engine;
 
     /**
+     * Name of the algorithm
+     *
+     * @var string
+     * @access public
+     */
+    var $name = "";
+
+    /**
      * Default Constructor.
      *
      * @param string $hash

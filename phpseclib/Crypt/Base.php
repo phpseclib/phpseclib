@@ -456,6 +456,14 @@ abstract class Base
     var $skip_key_adjustment = false;
 
     /**
+     * Name of the algorithm
+     *
+     * @var string
+     * @access public
+     */
+    var $name = "";
+
+    /**
      * Default Constructor.
      *
      * Determines whether or not the mcrypt extension should be used.
