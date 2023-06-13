@@ -190,6 +190,10 @@
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
 
+## 2.0.44 - 2023-06-13
+
+- SSH2: fix PHP 8.2 E_DEPRECATED errors (#1917)
+
 ## 2.0.43 - 2023-06-13
 
 - SFTP: fix NET_SFTP_ATTR_EXTENDED (#1907)
