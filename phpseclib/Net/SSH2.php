@@ -437,6 +437,13 @@ class SSH2
     var $hmac_create = false;
 
     /**
+     * Client to Server HMAC Name
+     *
+     * @var string|false
+     */
+    private $hmac_create_name;
+
+    /**
      * Server to Client HMAC Object
      *
      * @see self::_get_binary_packet()
@@ -444,6 +451,13 @@ class SSH2
      * @access private
      */
     var $hmac_check = false;
+
+    /**
+     * Server to Client HMAC Name
+     *
+     * @var string|false
+     */
+    var $hmac_check_name;
 
     /**
      * Size of server to client HMAC
@@ -2083,7 +2097,7 @@ class SSH2
                 $this->hmac_create = new Hash('md5-96');
                 $createKeyLength = 16;
         }
-        $this->hmac_create->name = $mac_algorithm_out;
+        $this->hmac_create_name = $mac_algorithm_out;
 
         $checkKeyLength = 0;
         $this->hmac_size = 0;
@@ -2113,7 +2127,7 @@ class SSH2
                 $checkKeyLength = 16;
                 $this->hmac_size = 12;
         }
-        $this->hmac_check->name = $mac_algorithm_in;
+        $this->hmac_check_name = $mac_algorithm_in;
 
         $key = $kexHash->hash($keyBytes . $this->exchange_hash . 'E' . $this->session_id);
         while ($createKeyLength > strlen($key)) {
@@ -3605,7 +3619,7 @@ class SSH2
         // "implementations SHOULD check that the packet length is reasonable"
         // PuTTY uses 0x9000 as the actual max packet size and so to shall we
         if ($remaining_length < -$this->decrypt_block_size || $remaining_length > 0x9000 || $remaining_length % $this->decrypt_block_size != 0) {
-            if (!$this->bad_key_size_fix && $this->_bad_algorithm_candidate($this->decrypt->name) && !($this->bitmap & SSH2::MASK_LOGIN)) {
+            if (!$this->bad_key_size_fix && $this->_bad_algorithm_candidate($this->decryptName) && !($this->bitmap & SSH2::MASK_LOGIN)) {
                 $this->bad_key_size_fix = true;
                 $this->_reset_connection(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
                 return false;
@@ -5010,13 +5024,13 @@ class SSH2
             'kex' => $this->kex_algorithm,
             'hostkey' => $this->signature_format,
             'client_to_server' => array(
-                'crypt' => $this->encrypt->name,
-                'mac' => $this->hmac_create->name,
+                'crypt' => $this->encryptName,
+                'mac' => $this->hmac_create_name,
                 'comp' => $compression_map[$this->compress],
             ),
             'server_to_client' => array(
-                'crypt' => $this->decrypt->name,
-                'mac' => $this->hmac_check->name,
+                'crypt' => $this->decryptName,
+                'mac' => $this->hmac_check_name,
                 'comp' => $compression_map[$this->decompress],
             )
         );
