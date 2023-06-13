@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.43 - 2023-06-13
+
+- SFTP: fix NET_SFTP_ATTR_EXTENDED (#1907)
+- SSH2: fix PHP 8.2 E_DEPRECATED errors (#1917)
+- X509: add support for EV DN's (#1916)
+
 ## 2.0.42 - 2023-03-06
 
 - Blowfish: fix issues on 32-bit PHP installs
