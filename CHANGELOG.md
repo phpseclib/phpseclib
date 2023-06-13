@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.20 - 2023-06-13
+
+- SSH2: better support for multiple interactive channels & expose shell functions (#1888)
+- SFTP: add optional $recursive parameter to filesize() (#1782)
+- SFTP: fix NET_SFTP_ATTR_EXTENDED (#1907)
+- ASN1: speed up decodeBER (#1894)
+- X509: add support for EV DN's (#1916)
+- X509: getChain() should always return array of X509 objects (#1914)
+- RSA: setting sig padding broke enc padding and vice versa
+
 ## 3.0.19 - 2023-03-05
 
 - AsymmetricKey: error out on unsupported operations (#1879)
@@ -179,6 +189,12 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.43 - 2023-06-13
+
+- SFTP: fix NET_SFTP_ATTR_EXTENDED (#1907)
+- SSH2: fix PHP 8.2 E_DEPRECATED errors (#1917)
+- X509: add support for EV DN's (#1916)
 
 ## 2.0.42 - 2023-03-06
 
