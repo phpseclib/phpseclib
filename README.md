@@ -1,3 +1,6 @@
+# Post-Quantum support
+- adds the functionality to handle Dilithium5 operations
+
 # phpseclib - PHP Secure Communications Library
 
 [![CI Status](https://github.com/phpseclib/phpseclib/actions/workflows/ci.yml/badge.svg?branch=master&event=push "CI Status")](https://github.com/phpseclib/phpseclib/actions/workflows/ci.yml?query=branch%3Amaster)
