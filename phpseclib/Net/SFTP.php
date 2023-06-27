@@ -800,6 +800,17 @@ class SFTP extends SSH2
     }
 
     /**
+     * Yields information about files in the given directory.
+     *
+     * @param string $dir
+     * @return \Generator
+     */
+    public function nlistGenerator($dir = '.')
+    {
+        yield from $this->readlistGenerator($dir);
+    }
+
+    /**
      * Returns a detailed list of files in the given directory
      *
      * @return array|false
@@ -950,6 +961,108 @@ class SFTP extends SSH2
         }
 
         return $raw ? $contents : array_map('strval', array_keys($contents));
+    }
+
+    /**
+     * Reads a list, be it detailed or not, of files in the given directory as a generator.
+     *
+     * @param string $dir
+     * @return mixed
+     * @throws \UnexpectedValueException on receipt of unexpected packets
+     * @access private
+     */
+    private function readlistGenerator($dir)
+    {
+        if (!($this->bitmap & SSH2::MASK_LOGIN)) {
+            return false;
+        }
+
+        $dir = $this->realpath($dir . '/');
+        if ($dir === false) {
+            return false;
+        }
+
+        // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.1.2
+        if (!$this->send_sftp_packet(NET_SFTP_OPENDIR, Strings::packSSH2('s', $dir))) {
+            return false;
+        }
+
+        $response = $this->get_sftp_packet();
+        switch ($this->packet_type) {
+            case NET_SFTP_HANDLE:
+                // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-9.2
+                // since 'handle' is the last field in the SSH_FXP_HANDLE packet, we'll just remove the first four bytes that
+                // represent the length of the string and leave it at that
+                $handle = substr($response, 4);
+                break;
+            case NET_SFTP_STATUS:
+                // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
+                $this->logError($response);
+                return false;
+            default:
+                throw new \UnexpectedValueException('Expected NET_SFTP_HANDLE or NET_SFTP_STATUS. '
+                    . 'Got packet type: ' . $this->packet_type);
+        }
+
+        $this->update_stat_cache($dir, []);
+
+        try {
+            while (true) {
+                // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.2
+                // why multiple SSH_FXP_READDIR packets would be sent when the response to a single one can span arbitrarily many
+                // SSH_MSG_CHANNEL_DATA messages is not known to me.
+                if (!$this->send_sftp_packet(NET_SFTP_READDIR, Strings::packSSH2('s', $handle))) {
+                    return false;
+                }
+
+                $response = $this->get_sftp_packet();
+                switch ($this->packet_type) {
+                    case NET_SFTP_NAME:
+                        list($count) = Strings::unpackSSH2('N', $response);
+                        for ($i = 0; $i < $count; $i++) {
+                            list($shortname, $longname) = Strings::unpackSSH2('ss', $response);
+                            $attributes = $this->parseAttributes($response);
+                            if (!isset($attributes['type'])) {
+                                $fileType = $this->parseLongname($longname);
+                                if ($fileType) {
+                                    $attributes['type'] = $fileType;
+                                }
+                            }
+                            $content = $attributes + ['filename' => $shortname];
+
+                            if (isset($attributes['type']) && $attributes['type'] == NET_SFTP_TYPE_DIRECTORY && ($shortname != '.' && $shortname != '..')) {
+                                $this->update_stat_cache($dir . '/' . $shortname, []);
+                            } else {
+                                if ($shortname == '..') {
+                                    $temp = $this->realpath($dir . '/..') . '/.';
+                                } else {
+                                    $temp = $dir . '/' . $shortname;
+                                }
+                                $this->update_stat_cache($temp, (object) ['lstat' => $attributes]);
+                            }
+                            yield $content;
+                            // SFTPv6 has an optional boolean end-of-list field, but we'll ignore that, since the
+                            // final SSH_FXP_STATUS packet should tell us that, already.
+                        }
+                        break;
+                    case NET_SFTP_STATUS:
+                        list($status) = Strings::unpackSSH2('N', $response);
+                        if ($status != NET_SFTP_STATUS_EOF) {
+                            $this->logError($response, $status);
+                            return false;
+                        }
+                        break 2;
+                    default:
+                        throw new \UnexpectedValueException('Expected NET_SFTP_NAME or NET_SFTP_STATUS. '
+                            . 'Got packet type: ' . $this->packet_type);
+                }
+            }
+        }
+        finally {
+            if (!$this->close_handle($handle)) {
+                return false;
+            }
+        }
     }
 
     /**
