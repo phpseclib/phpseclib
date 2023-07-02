@@ -2312,7 +2312,7 @@ class SFTP extends SSH2
 
         if ($start >= 0) {
             $offset = $start;
-        } elseif ($mode & self::RESUME) {
+        } elseif ($mode & (self::RESUME | self::RESUME_START)) {
             // if NET_SFTP_OPEN_APPEND worked as it should _size() wouldn't need to be called
             $size = $this->size($remote_file);
             $offset = $size !== false ? $size : 0;
