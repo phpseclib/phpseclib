@@ -617,7 +617,7 @@ abstract class Engine implements \JsonSerializable
         }
 
         if ($this->compare($n) > 0) {
-            list(, $temp) = $this->divide($n);
+            [, $temp] = $this->divide($n);
             return $temp->powModInner($e, $n);
         }
 
