@@ -1837,7 +1837,7 @@ class SFTP extends SSH2
 
         if ($start >= 0) {
             $offset = $start;
-        } elseif ($mode & self::RESUME) {
+        } elseif ($mode & (self::RESUME | self::RESUME_START)) {
             // if OpenFlag::APPEND worked as it should _size() wouldn't need to be called
             $size = $this->stat($remote_file)['size'];
             $offset = $size !== false ? $size : 0;
