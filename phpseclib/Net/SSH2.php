@@ -1019,6 +1019,32 @@ class SSH2
     }
 
     /**
+     * stream_select wrapper
+     *
+     * Quoting https://stackoverflow.com/a/14262151/569976,
+     * "The general approach to `EINTR` is to simply handle the error and retry the operation again"
+     *
+     * This wrapper does that loop
+     */
+    private static function stream_select(&$read, &$write, &$except, $seconds, $microseconds = null)
+    {
+        $remaining = $seconds + $microseconds / 1000000;
+        $start = microtime(true);
+        while (true) {
+            $result = @stream_select($read, $write, $except, $seconds, $microseconds);
+            if ($result !== false) {
+                return $result;
+            }
+            $elapsed = microtime(true) - $start;
+            $seconds = (int) ($remaining - floor($elapsed));
+            $microseconds = (int) (1000000 * ($remaining - $seconds));
+            if ($elapsed >= $remaining) {
+                return false;
+            }
+        }
+    }
+
+    /**
      * Connect to an SSHv2 server
      *
      * @throws UnexpectedValueException on receipt of unexpected packets
@@ -1082,7 +1108,7 @@ class SSH2
                     $start = microtime(true);
                     $sec = (int) floor($this->curTimeout);
                     $usec = (int) (1000000 * ($this->curTimeout - $sec));
-                    if (@stream_select($read, $write, $except, $sec, $usec) === false) {
+                    if (static::stream_select($read, $write, $except, $sec, $usec) === false) {
                         throw new RuntimeException('Connection timed out whilst receiving server identification string');
                     }
                     $elapsed = microtime(true) - $start;
@@ -3065,9 +3091,9 @@ class SSH2
 
             if (!$this->curTimeout) {
                 if ($this->keepAlive <= 0) {
-                    @stream_select($read, $write, $except, null);
+                    static::stream_select($read, $write, $except, null);
                 } else {
-                    if (!@stream_select($read, $write, $except, $this->keepAlive)) {
+                    if (!static::stream_select($read, $write, $except, $this->keepAlive)) {
                         $this->send_binary_packet(pack('CN', MessageType::IGNORE, 0));
                         return $this->get_binary_packet(true);
                     }
@@ -3081,7 +3107,7 @@ class SSH2
                 $start = microtime(true);
 
                 if ($this->keepAlive > 0 && $this->keepAlive < $this->curTimeout) {
-                    if (!@stream_select($read, $write, $except, $this->keepAlive)) {
+                    if (!static::stream_select($read, $write, $except, $this->keepAlive)) {
                         $this->send_binary_packet(pack('CN', MessageType::IGNORE, 0));
                         $elapsed = microtime(true) - $start;
                         $this->curTimeout -= $elapsed;
@@ -3095,7 +3121,7 @@ class SSH2
                 $usec = (int) (1000000 * ($this->curTimeout - $sec));
 
                 // this can return a "stream_select(): unable to select [4]: Interrupted system call" error
-                if (!@stream_select($read, $write, $except, $sec, $usec)) {
+                if (!static::stream_select($read, $write, $except, $sec, $usec)) {
                     $this->is_timeout = true;
                     return true;
                 }
