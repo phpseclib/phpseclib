@@ -2367,7 +2367,7 @@ class Net_SFTP extends Net_SSH2
 
         if ($start >= 0) {
             $offset = $start;
-        } elseif ($mode & NET_SFTP_RESUME) {
+        } elseif ($mode & (NET_SFTP_RESUME | NET_SFTP_RESUME_START)) {
             // if NET_SFTP_OPEN_APPEND worked as it should _size() wouldn't need to be called
             $size = $this->size($remote_file);
             $offset = $size !== false ? $size : 0;
