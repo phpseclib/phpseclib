@@ -3442,7 +3442,7 @@ class Net_SSH2
      */
     function isConnected()
     {
-        return (bool) ($this->bitmap & NET_SSH2_MASK_CONNECTED);
+        return ($this->bitmap & NET_SSH2_MASK_CONNECTED) && is_resource($this->fsock) && !feof($this->fsock);
     }
 
     /**
