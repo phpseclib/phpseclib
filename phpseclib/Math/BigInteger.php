@@ -101,10 +101,6 @@ class BigInteger implements \JsonSerializable
         /** @var class-string<Engine> $fqmain */
         self::$mainEngine = $fqmain;
 
-        if (!in_array('Default', $modexps)) {
-            $modexps[] = 'DefaultEngine';
-        }
-
         $found = false;
         foreach ($modexps as $modexp) {
             try {
@@ -142,9 +138,12 @@ class BigInteger implements \JsonSerializable
         if (!isset(self::$mainEngine)) {
             $engines = [
                 ['GMP'],
-                ['PHP64', ['OpenSSL']],
                 ['BCMath', ['OpenSSL']],
+                ['PHP64', ['OpenSSL']],
                 ['PHP32', ['OpenSSL']],
+                ['PHP64', ['DefaultEngine']],
+                ['PHP32', ['DefaultEngine']],
+                ['BCMath', ['DefaultEngine']],
             ];
             foreach ($engines as $engine) {
                 try {
