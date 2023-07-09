@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.21 - 2023-07-09
+
+- BigInteger: speed up powMod() method (#1919)
+- SSH2: fix stream_select(): Unable to select [4]: Interrupted system call (max_fd=29) error (#1851)
+- SSH2: add EOF test isConnected() (#1926)
+- SFTP: make it so SFTP::RESUME also sets offset of local file (#1921)
+- SFTP: SFTP::RESUME_START didn't work as described (#1921)
+
 ## 3.0.20 - 2023-06-13
 
 - SSH2: better support for multiple interactive channels & expose shell functions (#1888)
