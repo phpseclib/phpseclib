@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.21 - 2023-07-09
+
+- BigInteger: speed up powMod() method (#1919)
+- SSH2: fix stream_select(): Unable to select [4]: Interrupted system call (max_fd=29) error (#1851)
+- SSH2: add EOF test isConnected() (#1926)
+- SFTP: make it so SFTP::RESUME also sets offset of local file (#1921)
+- SFTP: SFTP::RESUME_START didn't work as described (#1921)
+
 ## 3.0.20 - 2023-06-13
 
 - SSH2: better support for multiple interactive channels & expose shell functions (#1888)
@@ -537,6 +545,21 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.21 - 2023-07-09
+
+- fix deprecation errors in newer PHP versions
+- OpenSSL 3.0.1+ deprecated some algorithms
+- RSA: add support for loading OpenSSH encrypted keys
+- RSA: add support for loading PuTTY v3 keys (#1737, #1733, #1531, #1490)
+- SSH2: if logging in with rsa-sha2-256/512 fails, try ssh-rsa (#1865)
+- SSH2: add EOF test isConnected() (#1926)
+- SFTP: try without path canonicalization if initial realpath() fails (#1796)
+- SFTP: fix chgrp() for version < 4 (#1730)
+- SFTP: try to delete dir even if it can't be opened (#1791)
+- SFTP: make it so SFTP::RESUME also sets offset of local file (#1921)
+- SFTP: SFTP::RESUME_START didn't work as described (#1921)
+- Crypt/Base: fix CTR mode with continuous buffer with non-eval PHP
 
 ## 1.0.20 - 2021-12-28
 
