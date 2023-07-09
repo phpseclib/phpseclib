@@ -141,8 +141,7 @@ class BigInteger implements \JsonSerializable
                 ['PHP64', ['OpenSSL']],
                 ['PHP32', ['OpenSSL']],
                 ['PHP64', ['DefaultEngine']],
-                ['PHP32', ['DefaultEngine']],
-                ['BCMath', ['DefaultEngine']]
+                ['PHP32', ['DefaultEngine']]
             ];
             foreach ($engines as $engine) {
                 try {
