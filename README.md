@@ -1,5 +1,6 @@
 # Post-Quantum support
-- adds the functionality to handle Dilithium5 operations
+- adds the functionality to handle FALCON, SPHINCS+ and Dilithium5 operations
+- currently, only Dilithium5 was tested in https://github.com/Muzosh/Post-Quantum-Authentication-On-The-Web
 
 **Before usage, call the following function atleast once if you are using OIDs from [here](https://github.com/open-quantum-safe/oqs-provider/blob/main/ALGORITHMS.md#oids)**
 ```php
