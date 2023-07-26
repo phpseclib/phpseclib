@@ -137,7 +137,7 @@ class BigInteger implements \JsonSerializable
     {
         if (!isset(self::$mainEngine)) {
             $engines = [
-                ['GMP'],
+                ['GMP', ['DefaultEngine']],
                 ['PHP64', ['OpenSSL']],
                 ['BCMath', ['OpenSSL']],
                 ['PHP32', ['OpenSSL']],
@@ -146,7 +146,7 @@ class BigInteger implements \JsonSerializable
             ];
             foreach ($engines as $engine) {
                 try {
-                    self::setEngine($engine[0], $engine[1] ?? []);
+                    self::setEngine($engine[0], $engine[1]);
                     break;
                 } catch (\Exception $e) {
                 }
