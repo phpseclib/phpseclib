@@ -35,6 +35,6 @@ class PrimeFieldTest extends PhpseclibTestCase
             new \phpseclib3\Crypt\EC\Curves\secp192r1()
         );
 
-        $point[0]->toBytes();
+        $this->assertIsString($point[0]->toBytes());
     }
 }
