@@ -312,8 +312,11 @@ class Integer extends Base
      */
     public function toBytes()
     {
-        $length = static::$modulo[$this->instanceID]->getLengthInBytes();
-        return str_pad($this->value->toBytes(), $length, "\0", STR_PAD_LEFT);
+        if (isset(static::$modulo[$this->instanceID])) {
+            $length = static::$modulo[$this->instanceID]->getLengthInBytes();
+            return str_pad($this->value->toBytes(), $length, "\0", STR_PAD_LEFT);
+        }
+        return $this->value->toBytes();
     }
 
     /**
