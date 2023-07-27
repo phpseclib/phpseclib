@@ -20,4 +20,21 @@ class PrimeFieldTest extends PhpseclibTestCase
 
         echo $num2->squareRoot();
     }
+
+    /**
+     * @group github1929
+     */
+    public function testGarbageCollectedToBytes()
+    {
+        $blob = base64_decode('BFgsTFQeqKr0toyURbtT43INMDS7FTHjz3yn3MR1/Yv/pb2b9ZCYNQ/Tafe5hQpEJ4TpZOKfikP/hWZvFL8QCPgqbIGqw/KTfA==');
+        $public = "\0" . substr($blob, 0, 49);
+        $private = substr($blob, -24);
+
+        $point = \phpseclib3\Crypt\EC\Formats\Keys\PKCS1::extractPoint(
+            $public,
+            new \phpseclib3\Crypt\EC\Curves\secp192r1()
+        );
+
+        $point[0]->toBytes();
+    }
 }
