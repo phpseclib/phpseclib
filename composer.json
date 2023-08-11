@@ -75,6 +75,9 @@
         "ext-dom": "Install the DOM extension to load XML formatted public keys."
     },
     "autoload": {
+        "files": [
+            "phpseclib/bootstrap.php"
+        ],
         "psr-4": {
             "phpseclib3\\": "phpseclib/"
         }
