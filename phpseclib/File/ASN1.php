@@ -1592,7 +1592,7 @@ class File_ASN1
                         return false;
                     }
                     break;
-                case ($c & 0x80000000) != 0:
+                case ($c & (PHP_INT_SIZE == 8 ? 0x80000000 : (1 << 31))) != 0:
                     return false;
                 case $c >= 0x04000000:
                     $v .= chr(0x80 | ($c & 0x3F));
