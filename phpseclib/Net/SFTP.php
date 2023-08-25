@@ -871,7 +871,7 @@ class SFTP extends SSH2
 
         $error = $this->status_codes[$status];
 
-        if ($this->version > 2 || strlen($response) < 4) {
+        if ($this->version > 2) {
             extract(unpack('Nlength', $this->_string_shift($response, 4)));
             $this->sftp_errors[] = $error . ': ' . $this->_string_shift($response, $length);
         } else {
