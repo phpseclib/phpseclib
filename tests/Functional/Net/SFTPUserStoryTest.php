@@ -779,5 +779,18 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $stat2 = $sftp->stat(self::$scratchDir);
         $this->assertSame($stat['uid'], $stat2['uid']);
         $this->assertSame($stat['gid'], $stat2['gid']);
+
+        return $sftp;
+    }
+
+    /**
+     * @depends testChownChgrp
+     * @group github1934
+     */
+    public function testCallableGetWithLength($sftp)
+    {
+        $sftp->put('test.txt', 'zzzzz');
+        $sftp->get('test.txt', function($data) {}, 0, 1);
+        $this->assertTrue(true);
     }
 }
