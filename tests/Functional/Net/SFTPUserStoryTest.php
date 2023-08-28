@@ -792,7 +792,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     /**
      * @depends testRawlistDisabledStatCache
      */
-    public function testChownChgrp(SFTP $sftp): void
+    public function testChownChgrp(SFTP $sftp)
     {
         $stat = $sftp->stat(self::$scratchDir);
         $this->assertTrue($sftp->chown(self::$scratchDir, $stat['uid']));
