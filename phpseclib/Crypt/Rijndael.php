@@ -242,47 +242,6 @@ class Crypt_Rijndael extends Crypt_Base
     var $kl;
 
     /**
-     * Sets the key.
-     *
-     * Keys can be of any length.  Rijndael, itself, requires the use of a key that's between 128-bits and 256-bits long and
-     * whose length is a multiple of 32.  If the key is less than 256-bits and the key length isn't set, we round the length
-     * up to the closest valid key length, padding $key with null bytes.  If the key is more than 256-bits, we trim the
-     * excess bits.
-     *
-     * If the key is not explicitly set, it'll be assumed to be all null bytes.
-     *
-     * Note: 160/224-bit keys must explicitly set by setKeyLength(), otherwise they will be round/pad up to 192/256 bits.
-     *
-     * @see Crypt_Base:setKey()
-     * @see self::setKeyLength()
-     * @access public
-     * @param string $key
-     */
-    function setKey($key)
-    {
-        if (!$this->explicit_key_length) {
-            $length = strlen($key);
-            switch (true) {
-                case $length <= 16:
-                    $this->key_size = 16;
-                    break;
-                case $length <= 20:
-                    $this->key_size = 20;
-                    break;
-                case $length <= 24:
-                    $this->key_size = 24;
-                    break;
-                case $length <= 28:
-                    $this->key_size = 28;
-                    break;
-                default:
-                    $this->key_size = 32;
-            }
-        }
-        parent::setKey($key);
-    }
-
-    /**
      * Sets the key length
      *
      * Valid key lengths are 128, 160, 192, 224, and 256.  If the length is less than 128, it will be rounded up to
