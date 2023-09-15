@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.45 - 2023-09-15
+
+- SFTP: make it so SFTP::RESUME also sets offset of local file (#1921)
+- SFTP: RESUME_START didn't work as described (#1921)
+- SFTP: fix SFTPv2 errors when logging errors (#1933)
+- SFTP: fix issue with get() downloading to files / streams (#1934)
+- Rijndael: fix E_DEPRECATED (#1935)
+- improve PHP32 compatibility (#1931)
+
 ## 2.0.44 - 2023-06-13
 
 - SSH2: fix PHP 8.2 E_DEPRECATED errors (#1917)
