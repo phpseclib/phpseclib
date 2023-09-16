@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.22 - 2023-09-15
+
+- SFTP: make it so SFTP::RESUME also sets offset of local file (#1921)
+- SFTP: RESUME_START didn't work as described (#1921)
+- SFTP: fix SFTPv2 errors when logging errors (#1933)
+- SFTP: fix issue with get() downloading to files / streams (#1934)
+- BigInteger: use GMP if available (#1928)
+- Rijndael: fix E_DEPRECATED (#1935)
+- improve PHP32 compatibility (#1931)
+
 ## 3.0.21 - 2023-07-09
 
 - BigInteger: speed up powMod() method (#1919)
@@ -197,6 +207,15 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.45 - 2023-09-15
+
+- SFTP: make it so SFTP::RESUME also sets offset of local file (#1921)
+- SFTP: RESUME_START didn't work as described (#1921)
+- SFTP: fix SFTPv2 errors when logging errors (#1933)
+- SFTP: fix issue with get() downloading to files / streams (#1934)
+- Rijndael: fix E_DEPRECATED (#1935)
+- improve PHP32 compatibility (#1931)
 
 ## 2.0.44 - 2023-06-13
 
