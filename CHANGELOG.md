@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.23 - 2023-09-18
+
+- fix "Undefined index: jit" error on Windows (#1940)
+
 ## 3.0.22 - 2023-09-15
 
 - SFTP: make it so SFTP::RESUME also sets offset of local file (#1921)
