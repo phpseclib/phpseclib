@@ -2402,7 +2402,9 @@ abstract class SymmetricKey
                     ';
                 break;
             case self::MODE_CTR:
-                $encrypt = $init_encrypt . '
+                $init_crypt .= $init_encrypt;
+
+                $encrypt = '
                     $_ciphertext = "";
                     $_plaintext_len = strlen($_text);
                     $_xor = $this->encryptIV;
@@ -2439,7 +2441,7 @@ abstract class SymmetricKey
                     return $_ciphertext;
                 ';
 
-                $decrypt = $init_encrypt . '
+                $decrypt = '
                     $_plaintext = "";
                     $_ciphertext_len = strlen($_text);
                     $_xor = $this->decryptIV;
@@ -2478,7 +2480,9 @@ abstract class SymmetricKey
                     ';
                 break;
             case self::MODE_CFB:
-                $encrypt = $init_encrypt . '
+                $init_crypt .= $init_encrypt;
+
+                $encrypt = '
                     $_ciphertext = "";
                     $_buffer = &$this->enbuffer;
 
@@ -2526,7 +2530,7 @@ abstract class SymmetricKey
                     return $_ciphertext;
                 ';
 
-                $decrypt = $init_encrypt . '
+                $decrypt = '
                     $_plaintext = "";
                     $_buffer = &$this->debuffer;
 
@@ -2577,7 +2581,9 @@ abstract class SymmetricKey
                     ';
                 break;
             case self::MODE_CFB8:
-                $encrypt = $init_encrypt . '
+                $init_crypt .= $init_encrypt;
+
+                $encrypt = '
                     $_ciphertext = "";
                     $_len = strlen($_text);
                     $_iv = $this->encryptIV;
@@ -2599,7 +2605,7 @@ abstract class SymmetricKey
 
                     return $_ciphertext;
                     ';
-                $decrypt = $init_encrypt . '
+                $decrypt = '
                     $_plaintext = "";
                     $_len = strlen($_text);
                     $_iv = $this->decryptIV;
@@ -2623,7 +2629,9 @@ abstract class SymmetricKey
                     ';
                 break;
             case self::MODE_OFB8:
-                $encrypt = $init_encrypt . '
+                $init_crypt .= $init_encrypt;
+
+                $encrypt = '
                     $_ciphertext = "";
                     $_len = strlen($_text);
                     $_iv = $this->encryptIV;
@@ -2641,7 +2649,7 @@ abstract class SymmetricKey
 
                     return $_ciphertext;
                     ';
-                $decrypt = $init_encrypt . '
+                $decrypt = '
                     $_plaintext = "";
                     $_len = strlen($_text);
                     $_iv = $this->decryptIV;
@@ -2661,7 +2669,9 @@ abstract class SymmetricKey
                     ';
                 break;
             case self::MODE_OFB:
-                $encrypt = $init_encrypt . '
+                $init_crypt .= $init_encrypt;
+
+                $encrypt = '
                     $_ciphertext = "";
                     $_plaintext_len = strlen($_text);
                     $_xor = $this->encryptIV;
@@ -2697,7 +2707,7 @@ abstract class SymmetricKey
                     return $_ciphertext;
                     ';
 
-                $decrypt = $init_encrypt . '
+                $decrypt = '
                     $_plaintext = "";
                     $_ciphertext_len = strlen($_text);
                     $_xor = $this->decryptIV;
