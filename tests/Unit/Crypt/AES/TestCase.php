@@ -380,11 +380,11 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
     {
         $plaintext = str_repeat('x', 16);
 
-        $aes = new Crypt_Rijndael();
+        $aes = new Rijndael();
         $aes->setKey(str_repeat('a', 19));
         $this->assertSame($aes->getKeyLength(), 160);
 
-        $ref = new Crypt_Rijndael();
+        $ref = new Rijndael();
         $ref->setKey(str_repeat('a', 19) . "\0");
         $this->assertSame(
             bin2hex($aes->encrypt($plaintext)),
@@ -392,11 +392,11 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
             'actual and expected value do not match for 168 bit Rijndael'
         );
 
-        $aes = new Crypt_AES();
+        $aes = new AES();
         $aes->setKey(str_repeat('a', 19));
         $this->assertSame($aes->getKeyLength(), 192);
 
-        $ref = new Crypt_AES();
+        $ref = new AES();
         $ref->setKey(str_repeat('a', 19) . "\0\0\0\0\0");
         $this->assertSame(
             bin2hex($aes->encrypt($plaintext)),
