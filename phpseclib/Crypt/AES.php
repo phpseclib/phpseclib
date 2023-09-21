@@ -155,43 +155,13 @@ class Crypt_AES extends Crypt_Rijndael
      */
     function setKeyLength($length)
     {
-        switch ($length) {
-            case 160:
-                $length = 192;
-                break;
-            case 224:
-                $length = 256;
-        }
         parent::setKeyLength($length);
-    }
-
-    /**
-     * Sets the key.
-     *
-     * Rijndael supports five different key lengths, AES only supports three.
-     *
-     * @see Crypt_Rijndael:setKey()
-     * @see setKeyLength()
-     * @access public
-     * @param string $key
-     */
-    function setKey($key)
-    {
-        parent::setKey($key);
-
-        if (!$this->explicit_key_length) {
-            $length = strlen($key);
-            switch (true) {
-                case $length <= 16:
-                    $this->key_length = 16;
-                    break;
-                case $length <= 24:
-                    $this->key_length = 24;
-                    break;
-                default:
-                    $this->key_length = 32;
-            }
-            $this->_setEngine();
+        switch ($this->key_length) {
+            case 20:
+                $this->key_length = 24;
+                break;
+            case 28:
+                $this->key_length = 32;
         }
     }
 }
