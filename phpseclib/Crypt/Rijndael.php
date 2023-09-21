@@ -887,7 +887,6 @@ class Crypt_Rijndael extends Crypt_Base
 
             // Generating encrypt code:
             $init_encrypt.= '
-                static $tables;
                 if (empty($tables)) {
                     $tables = &$self->_getTables();
                 }
@@ -944,7 +943,6 @@ class Crypt_Rijndael extends Crypt_Base
 
             // Generating decrypt code:
             $init_decrypt.= '
-                static $invtables;
                 if (empty($invtables)) {
                     $invtables = &$self->_getInvTables();
                 }
@@ -1001,7 +999,7 @@ class Crypt_Rijndael extends Crypt_Base
 
             $lambda_functions[$code_hash] = $this->_createInlineCryptFunction(
                 array(
-                   'init_crypt'    => '',
+                   'init_crypt'    => 'static $tables; static $invtables;',
                    'init_encrypt'  => $init_encrypt,
                    'init_decrypt'  => $init_decrypt,
                    'encrypt_block' => $encrypt_block,
