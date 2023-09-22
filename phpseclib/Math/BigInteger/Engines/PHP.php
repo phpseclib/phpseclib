@@ -1326,4 +1326,18 @@ abstract class PHP extends Engine
 
         return array_reverse($vals);
     }
+
+    /**
+     * @return bool
+     */
+    protected static function testJITOnWindows()
+    {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' && function_exists('opcache_get_status') && !defined('PHPSECLIB_ALLOW_JIT')) {
+            $status = opcache_get_status();
+            if ($status && isset($status['jit']) && $status['jit']['enabled'] && $status['jit']['on']) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

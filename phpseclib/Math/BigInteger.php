@@ -136,16 +136,6 @@ class BigInteger implements \JsonSerializable
     private static function initialize_static_variables()
     {
         if (!isset(self::$mainEngine)) {
-            // see https://github.com/php/php-src/issues/11917
-            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' && function_exists('opcache_get_status') && !defined('PHPSECLIB_ALLOW_JIT')) {
-                $status = opcache_get_status();
-                if ($status && isset($status['jit']) && $status['jit']['enabled'] && $status['jit']['on']) {
-                    throw new UnexpectedValueException(
-                        'JIT on Windows is not currently supported'
-                    );
-                }
-            }
-
             $engines = [
                 ['GMP', ['DefaultEngine']],
                 ['PHP64', ['OpenSSL']],
@@ -154,13 +144,16 @@ class BigInteger implements \JsonSerializable
                 ['PHP64', ['DefaultEngine']],
                 ['PHP32', ['DefaultEngine']]
             ];
+
             foreach ($engines as $engine) {
                 try {
                     self::setEngine($engine[0], $engine[1]);
-                    break;
+                    return;
                 } catch (\Exception $e) {
                 }
             }
+
+            throw new UnexpectedValueException('No valid BigInteger found. This is only possible when JIT is enabled on Windows and neither the GMP or BCMath extensions are available so either disable JIT or install GMP / BCMath');
         }
     }
 
