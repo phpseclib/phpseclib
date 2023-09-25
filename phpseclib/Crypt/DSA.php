@@ -180,7 +180,6 @@ abstract class DSA extends AsymmetricKey
      * Returns the private key, from which the publickey can be extracted
      *
      * @param int[] ...$args
-     * @return DSA\PrivateKey
      */
     public static function createKey(...$args): PrivateKey
     {

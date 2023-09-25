@@ -26,7 +26,7 @@ class PrimeFieldTest extends PhpseclibTestCase
     /**
      * @group github1929
      */
-    public function testGarbageCollectedToBytes()
+    public function testGarbageCollectedToBytes(): void
     {
         $blob = base64_decode('BFgsTFQeqKr0toyURbtT43INMDS7FTHjz3yn3MR1/Yv/pb2b9ZCYNQ/Tafe5hQpEJ4TpZOKfikP/hWZvFL8QCPgqbIGqw/KTfA==');
         $public = "\0" . substr($blob, 0, 49);

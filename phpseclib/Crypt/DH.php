@@ -243,7 +243,6 @@ abstract class DH extends AsymmetricKey
      * $length is in bits
      *
      * @param int $length optional
-     * @return DH\PrivateKey
      */
     public static function createKey(Parameters $params, int $length = 0): PrivateKey
     {

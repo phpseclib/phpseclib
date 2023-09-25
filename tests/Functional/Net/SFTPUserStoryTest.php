@@ -813,8 +813,10 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testCallableGetWithLength($sftp)
     {
         $sftp->put('test.txt', 'zzzzz');
-        $sftp->get('test.txt', function ($data) {
+        $sftp->get('test.txt', function ($data): void {
         }, 0, 1);
         $this->assertTrue(true);
+
+        return $sftp;
     }
 }

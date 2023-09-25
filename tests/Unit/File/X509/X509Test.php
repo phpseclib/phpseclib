@@ -1293,7 +1293,7 @@ BbNA6tFZAwLoX18R6yEmzHAQ+R2Eliiaz7mgQ+M2d0ec6qQJFoO7aJsX
         $this->assertIsArray($r);
     }
 
-    public function testWildcardCert()
+    public function testWildcardCert(): void
     {
         $cert = '-----BEGIN CERTIFICATE-----
 MIIKqDCCCZCgAwIBAgIQAZ3dCTUFVNcaZ4TM/m6DFTANBgkqhkiG9w0BAQsFADBY
@@ -1365,7 +1365,7 @@ dzXhMVAQYlpu27381/Ts2SuDx6v/cZ8lV8D5o/xTtCpWAnLxM2bxSyVnYbk=
     /**
      * @group github1943
      */
-    public function testWeirdCharsCert()
+    public function testWeirdCharsCert(): void
     {
         $cert = '-----BEGIN CERTIFICATE-----
 MIIDtTCCAp2gAwIBAgICECEwDQYJKoZIhvcNAQELBQAwYzELMAkGA1UEBhMCVVMx
