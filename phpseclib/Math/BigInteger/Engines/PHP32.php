@@ -103,7 +103,7 @@ class PHP32 extends PHP
      */
     public static function isValidEngine(): bool
     {
-        return PHP_INT_SIZE >= 4;
+        return PHP_INT_SIZE >= 4 && !self::testJITOnWindows();
     }
 
     /**
