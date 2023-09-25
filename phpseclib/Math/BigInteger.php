@@ -29,6 +29,7 @@ namespace phpseclib3\Math;
 
 use phpseclib3\Exception\BadConfigurationException;
 use phpseclib3\Math\BigInteger\Engines\Engine;
+use UnexpectedValueException;
 
 /**
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
@@ -143,13 +144,16 @@ class BigInteger implements \JsonSerializable
                 ['PHP64', ['DefaultEngine']],
                 ['PHP32', ['DefaultEngine']]
             ];
+
             foreach ($engines as $engine) {
                 try {
                     self::setEngine($engine[0], $engine[1]);
-                    break;
+                    return;
                 } catch (\Exception $e) {
                 }
             }
+
+            throw new UnexpectedValueException('No valid BigInteger found. This is only possible when JIT is enabled on Windows and neither the GMP or BCMath extensions are available so either disable JIT or install GMP / BCMath');
         }
     }
 
