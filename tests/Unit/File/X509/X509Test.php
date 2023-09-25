@@ -1023,7 +1023,7 @@ XSRklj10ZrVHcd0XLuAME/9+54Bm7TvRfI46hfCfu6FbQPIX3gg+5j+MZJSdIuQJ
 dzXhMVAQYlpu27381/Ts2SuDx6v/cZ8lV8D5o/xTtCpWAnLxM2bxSyVnYbk=
 -----END CERTIFICATE-----';
 
-        $x509 = new File_X509();
+        $x509 = new X509();
         $cert = $x509->loadX509($cert);
 
         $this->assertTrue($x509->validateURL('https://asdf.cnn.com/'));
@@ -1058,7 +1058,7 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
 1ntA2AzsC0OGg/ekAnAlxia3mzcJv0PgxRpSG7xjWSL+FVFTTs2I/wk=
 -----END CERTIFICATE-----';
 
-        $x509 = new File_X509();
+        $x509 = new X509();
         $cert = $x509->loadX509($cert);
 
         $this->assertFalse($x509->validateURL('https://aa'));
