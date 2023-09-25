@@ -1042,7 +1042,8 @@ class X509
         if ($names = $this->getExtension('id-ce-subjectAltName')) {
             foreach ($names as $name) {
                 foreach ($name as $key => $value) {
-                    $value = str_replace(['.', '*'], ['\.', '[^.]*'], $value);
+                    $value = preg_quote($value);
+                    $value = str_replace('\*', '[^.]*', $value);
                     switch ($key) {
                         case 'dNSName':
                             /* From RFC2818 "HTTP over TLS":
