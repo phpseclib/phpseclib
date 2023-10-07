@@ -514,11 +514,11 @@ abstract class Base
             switch (true) {
                 // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
                 case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
-                case (php_uname('m') & "\xDF\xDF\xDF") != 'ARM':
+                case !(is_string(php_uname('m')) && (php_uname('m') & "\xDF\xDF\xDF") == 'ARM'):
                 case PHP_INT_SIZE == 8:
                     define('CRYPT_BASE_USE_REG_INTVAL', true);
                     break;
-                case (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
+                case is_string(php_uname('m')) && (php_uname('m') & "\xDF\xDF\xDF") == 'ARM':
                     switch (true) {
                         /* PHP 7.0.0 introduced a bug that affected 32-bit ARM processors:
 
