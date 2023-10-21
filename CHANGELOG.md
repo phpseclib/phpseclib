@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.33 - 2023-10-21
+
+- SSH2: fix for PHP 7.3 (#1953)
+- Crypt: improve ARM detection code (#1949)
+- Rijndael: fix for PHP 8.3+ compatability (#1944)
+- X509: fix for weird characters in subjaltname (#1943)
+- move JIT check to BigInteger (#1942)
+
 ## 3.0.23 - 2023-09-18
 
 - fix "Undefined index: jit" error on Windows (#1940)
