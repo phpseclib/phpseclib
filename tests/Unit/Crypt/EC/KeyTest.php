@@ -690,4 +690,18 @@ cN6W+k8UvGf+Y/lDWNbFitQocabsDUvSN0edHH3UKP5QPTz4cOlyIPMrXQ==
         $key = PublicKeyLoader::load($key);
         $this->assertInstanceOf(PublicKey::class, $key);
     }
+
+    /**
+     * @group github1956
+     */
+    public function testIEEESignature()
+    {
+        $key = '{"alg":"ES256","crv":"P-256","ext":true,"key_ops":["verify"],"kty":"EC","x":"FKwqyGd4i2NAl8RUXCCBRCAIbcpeGyfyXwgA_AWHb8Y","y":"njxhw5O6zGVkBlcPDKYj0E-6VO1giHTUkJWBhgKNqd8"}';
+        $key = PublicKeyLoader::load($key)->withSignatureFormat('IEEE')->withHash('sha384');
+
+        $signature = 'a4f61518323bac50b4f87a0f766ebb10d1db25358a0a20a98dab20be4e9c3be2d77ff5a8415cfce2967999c73d2a49b2d8c01990f72c04d99ebe3c4ebf75b4e9';
+        $signature = pack('H*', $signature);
+
+        $this->assertTrue($key->verify('hello world!', $signature));
+    }
 }
