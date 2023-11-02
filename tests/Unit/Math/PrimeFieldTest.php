@@ -18,7 +18,7 @@ class PrimeFieldTest extends PhpseclibTestCase
         $num = new PrimeField($p);
         $num2 = $num->newInteger($a);
 
-        echo $num2->squareRoot();
+        $num2->squareRoot();
     }
 
     public function testPrimeFieldWithPrimeNumbers()
@@ -29,7 +29,7 @@ class PrimeFieldTest extends PhpseclibTestCase
         $num = new PrimeField($p);
         $num2 = $num->newInteger($a);
 
-        echo $num2->squareRoot();
+        $this->assertFalse($num2->squareRoot());
     }
 
     /**
