@@ -696,7 +696,7 @@ cN6W+k8UvGf+Y/lDWNbFitQocabsDUvSN0edHH3UKP5QPTz4cOlyIPMrXQ==
     /**
      * @group github1956
      */
-    public function testIEEESignature()
+    public function testIEEESignature(): void
     {
         $key = '{"alg":"ES256","crv":"P-256","ext":true,"key_ops":["verify"],"kty":"EC","x":"FKwqyGd4i2NAl8RUXCCBRCAIbcpeGyfyXwgA_AWHb8Y","y":"njxhw5O6zGVkBlcPDKYj0E-6VO1giHTUkJWBhgKNqd8"}';
         $key = PublicKeyLoader::load($key)->withSignatureFormat('IEEE')->withHash('sha384');

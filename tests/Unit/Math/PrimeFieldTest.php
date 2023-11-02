@@ -23,7 +23,7 @@ class PrimeFieldTest extends PhpseclibTestCase
         $num2->squareRoot();
     }
 
-    public function testPrimeFieldWithPrimeNumbers()
+    public function testPrimeFieldWithPrimeNumbers(): void
     {
         $a = new BigInteger('65', 10);
         $p = new BigInteger('127', 10);
