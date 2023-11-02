@@ -23,6 +23,17 @@ class PrimeFieldTest extends PhpseclibTestCase
         echo $num2->squareRoot();
     }
 
+    public function testPrimeFieldWithPrimeNumbers()
+    {
+        $a = new BigInteger('65', 10);
+        $p = new BigInteger('127', 10);
+
+        $num = new PrimeField($p);
+        $num2 = $num->newInteger($a);
+
+        echo $num2->squareRoot();
+    }
+
     /**
      * @group github1929
      */
