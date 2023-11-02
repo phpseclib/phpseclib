@@ -154,7 +154,7 @@ class BigInteger implements \JsonSerializable
                 }
             }
 
-            throw new UnexpectedValueException('No valid BigInteger found. This is only possible when JIT is enabled on Windows and neither the GMP or BCMath extensions are available so either disable JIT or install GMP / BCMath');
+            throw new \UnexpectedValueException('No valid BigInteger found. This is only possible when JIT is enabled on Windows and neither the GMP or BCMath extensions are available so either disable JIT or install GMP / BCMath');
         }
     }
 
