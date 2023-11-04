@@ -1276,6 +1276,20 @@ class SSH2
                         ['hmac-sha1-96', 'hmac-md5-96']
                     ));
                 }
+                break;
+            case substr($this->server_identifier, 0, 24) == 'SSH-2.0-TurboFTP_SERVER_':
+                if (!isset($preferred['server_to_client']['crypt'])) {
+                    $s2c_encryption_algorithms = array_values(array_diff(
+                        $s2c_encryption_algorithms,
+                        ['aes128-gcm@openssh.com', 'aes256-gcm@openssh.com']
+                    ));
+                }
+                if (!isset($preferred['client_to_server']['crypt'])) {
+                    $c2s_encryption_algorithms = array_values(array_diff(
+                        $c2s_encryption_algorithms,
+                        ['aes128-gcm@openssh.com', 'aes256-gcm@openssh.com']
+                    ));
+                }
         }
 
         $client_cookie = Random::string(16);
@@ -2036,7 +2050,7 @@ class SSH2
                     return $this->login_helper($username, $password);
                 }
                 $this->disconnect_helper(DisconnectReason::CONNECTION_LOST);
-                throw new ConnectionClosedException('Connection closed by server');
+                throw $e;
             }
 
             [$type, $service] = Strings::unpackSSH2('Cs', $response);
