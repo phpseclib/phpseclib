@@ -1368,7 +1368,7 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
     /**
      * @group github1958
      */
-    public function testPKCS8RC2MD5CBC()
+    public function testPKCS8RC2MD5CBC(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v1 PBE-MD5-RC2-64 -out enckey.pem
 
