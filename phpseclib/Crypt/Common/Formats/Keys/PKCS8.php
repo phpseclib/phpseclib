@@ -137,6 +137,7 @@ abstract class PKCS8 extends PKCS
                 break;
             case 'RC2':
                 $cipher = new RC2('cbc');
+                $cipher->setKeyLength(64);
                 break;
             case '3-KeyTripleDES':
                 $cipher = new TripleDES('cbc');
